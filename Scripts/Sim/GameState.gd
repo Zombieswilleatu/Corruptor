@@ -16,6 +16,9 @@ var breach: String = ""
 var breach_owner: int = -1
 var reflex_winner: int = -1
 
+var persist_scorch_pid: int = -1
+var persist_scorch_type: String = ""
+
 var neutral_tears: int = 0
 var veil_total: int = 0
 
@@ -96,6 +99,9 @@ func duplicate_state() -> GameState:
 	copy.breach = breach
 	copy.breach_owner = breach_owner
 	copy.reflex_winner = reflex_winner
+
+	copy.persist_scorch_pid = persist_scorch_pid
+	copy.persist_scorch_type = persist_scorch_type
 
 	copy.neutral_tears = neutral_tears
 	copy.veil_total = veil_total

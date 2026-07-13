@@ -12,6 +12,9 @@ var threat: int = 0
 var kroni_hunger: int = 0
 var repair_token: int = 0
 
+var repaired_this_round: bool = false
+var repair_token_used_this_repair: bool = false
+
 var first_summon_done: bool = false
 var cataclysmic_used: bool = false
 var vessel_used: bool = false
@@ -100,6 +103,9 @@ func reset_round_state() -> void:
 	was_sieged = false
 	last_sieged_castle = ""
 
+	repaired_this_round = false
+	repair_token_used_this_repair = false
+
 	pending_profane = ""
 	orias_snare_active = false
 	profane_ruins_used_this_round = false
@@ -140,6 +146,9 @@ func duplicate_state() -> PlayerState:
 	copy.threat = threat
 	copy.kroni_hunger = kroni_hunger
 	copy.repair_token = repair_token
+
+	copy.repaired_this_round = repaired_this_round
+	copy.repair_token_used_this_repair = repair_token_used_this_repair
 
 	copy.first_summon_done = first_summon_done
 	copy.cataclysmic_used = cataclysmic_used
