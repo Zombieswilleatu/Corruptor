@@ -16,6 +16,10 @@ const RoundTransitionTestsData = preload(
 	"res://Scripts/Sim/RoundTransitionTests.gd"
 )
 
+const DominionRiteTestsData = preload(
+	"res://Scripts/Sim/DominionRiteTests.gd"
+)
+
 
 static func run_startup_checks(
 	rules: RuleConfig
@@ -40,6 +44,12 @@ static func run_startup_checks(
 
 	messages.append_array(
 		RoundTransitionTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		DominionRiteTestsData.run(
 			rules
 		)
 	)
