@@ -12,8 +12,14 @@ const GameDealFixtureData = preload(
 	"res://Scripts/Sim/GameDealFixture.gd"
 )
 
+const RoundTransitionTestsData = preload(
+	"res://Scripts/Sim/RoundTransitionTests.gd"
+)
 
-static func run_startup_checks(rules: RuleConfig) -> Array:
+
+static func run_startup_checks(
+	rules: RuleConfig
+) -> Array:
 	var messages: Array = []
 
 	messages.append(
@@ -21,18 +27,29 @@ static func run_startup_checks(rules: RuleConfig) -> Array:
 	)
 
 	messages.append_array(
-		run_unit_tests(rules)
+		run_unit_tests(
+			rules
+		)
 	)
 
 	messages.append_array(
-		run_game_deal_tests(rules)
+		run_game_deal_tests(
+			rules
+		)
 	)
 
+	messages.append_array(
+		RoundTransitionTestsData.run(
+			rules
+		)
+	)
 
 	return messages
 
 
-static func run_unit_tests(rules: RuleConfig) -> Array:
+static func run_unit_tests(
+	rules: RuleConfig
+) -> Array:
 	var messages: Array = []
 
 	var combat_trace_names: Array[String] = [
@@ -77,8 +94,9 @@ static func run_game_deal_tests(
 		)
 	)
 
-	messages.append(result)
-
+	messages.append(
+		result
+	)
 
 	return messages
 
@@ -238,11 +256,11 @@ static func _test_combat_trace(
 
 	var engine_snapshots: Array = []
 
-	for i in range(
+	for index in range(
 		golden_snapshots.size() - 1
 	):
 		engine_snapshots.append(
-			golden_snapshots[i]
+			golden_snapshots[index]
 		)
 
 	engine_snapshots.append(
@@ -453,7 +471,6 @@ static func _test_game_deal_trace(
 	trace_name: String,
 	rules: RuleConfig
 ) -> Dictionary:
-
 	var full_trace: Dictionary = (
 		GoldenMaster.load_trace(
 			trace_name
@@ -491,7 +508,9 @@ static func _test_game_deal_trace(
 
 	var game_state = (
 		GameDealFixtureData
-		.build_game_deimos_valak_s1(rules)
+		.build_game_deimos_valak_s1(
+			rules
+		)
 	)
 
 	var engine_deal_snapshot: Dictionary = (
@@ -502,7 +521,9 @@ static func _test_game_deal_trace(
 	)
 
 	var deal_trace: Dictionary = (
-		full_trace.duplicate(true)
+		full_trace.duplicate(
+			true
+		)
 	)
 
 	deal_trace["name"] = (
@@ -525,7 +546,6 @@ static func _test_game_deal_trace(
 			rules
 		)
 	)
-
 
 	return validation_result
 
@@ -573,14 +593,18 @@ static func _validate_trace(
 	)
 
 
-static func _pass(text: String) -> Dictionary:
+static func _pass(
+	text: String
+) -> Dictionary:
 	return {
 		"passed": true,
 		"text": text
 	}
 
 
-static func _fail(text: String) -> Dictionary:
+static func _fail(
+	text: String
+) -> Dictionary:
 	return {
 		"passed": false,
 		"text": text
