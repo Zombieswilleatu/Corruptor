@@ -1,5 +1,6 @@
 extends Control
 
+
 @onready var root_margin: MarginContainer = $RootMargin_MarginContainer
 @onready var main_layout: VBoxContainer = $RootMargin_MarginContainer/MainLayout_VBoxContainer
 
@@ -25,9 +26,14 @@ extends Control
 @onready var market_title_label: Label = %MarketTitle_Label
 @onready var market_draw_label: Label = %MarketDraw_Label
 
+
 var run_state: CampaignRunState = null
 var rule_config: RuleConfig = null
+
 var layout_debug_enabled: bool = false
+
+var event_log_entries: Array[String] = []
+var event_log_render_pending: bool = false
 
 
 func _ready() -> void:
@@ -38,26 +44,57 @@ func _ready() -> void:
 	_force_layout_to_viewport()
 	_force_container_size_flags()
 
-	get_viewport().size_changed.connect(_on_viewport_size_changed)
+	get_viewport().size_changed.connect(
+		_on_viewport_size_changed
+	)
 
-	# Debug log readability.
-	event_log.add_theme_font_size_override("normal_font_size", 18)
-	event_log.add_theme_font_size_override("bold_font_size", 18)
-	event_log.add_theme_font_size_override("italics_font_size", 18)
-	event_log.add_theme_font_size_override("bold_italics_font_size", 18)
+	event_log.add_theme_font_size_override(
+		"normal_font_size",
+		18
+	)
+
+	event_log.add_theme_font_size_override(
+		"bold_font_size",
+		18
+	)
+
+	event_log.add_theme_font_size_override(
+		"italics_font_size",
+		18
+	)
+
+	event_log.add_theme_font_size_override(
+		"bold_italics_font_size",
+		18
+	)
 
 	new_game_button.text = "New Claim"
 	deal_test_button.text = "Advance Contest"
 	next_phase_button.text = "Claim Tribute"
 
-	event_log.scroll_following = true
+	# Automatic line following was producing stale wrapped-line indexes.
+	# The log is rendered and scrolled manually instead.
+	event_log.scroll_following = false
 	event_log.clear()
 
-	new_game_button.pressed.connect(_on_new_run_pressed)
-	deal_test_button.pressed.connect(_on_advance_match_pressed)
-	next_phase_button.pressed.connect(_on_next_boss_pressed)
+	event_log_entries.clear()
 
-	_set_status("No claim recorded.")
+	new_game_button.pressed.connect(
+		_on_new_run_pressed
+	)
+
+	deal_test_button.pressed.connect(
+		_on_advance_match_pressed
+	)
+
+	next_phase_button.pressed.connect(
+		_on_next_boss_pressed
+	)
+
+	_set_status(
+		"No claim recorded."
+	)
+
 	_render_event({
 		"type": "INFO",
 		"text": "The record is empty.",
@@ -65,7 +102,10 @@ func _ready() -> void:
 	})
 
 	_update_center_hud()
-	_log("[color=gray]Golden tests ready. Press F2 to run.[/color]")
+
+	_log(
+		"[color=gray]Golden tests ready. Press F2 to run.[/color]"
+	)
 
 
 func _on_viewport_size_changed() -> void:
@@ -77,23 +117,39 @@ func _on_viewport_size_changed() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventKey:
-		if event.pressed and not event.echo and event.keycode == KEY_F1:
-			layout_debug_enabled = not layout_debug_enabled
+	if not event is InputEventKey:
+		return
 
-			if layout_debug_enabled:
-				_show_layout_debug()
-			else:
-				_update_status()
+	var key_event: InputEventKey = event
 
-		if event.pressed and not event.echo and event.keycode == KEY_F2:
-			_log("")
-			_log("[b]RUNNING GOLDEN TESTS[/b]")
-			_run_golden_startup_checks()
+	if (
+		key_event.pressed
+		and not key_event.echo
+		and key_event.keycode == KEY_F1
+	):
+		layout_debug_enabled = not layout_debug_enabled
+
+		if layout_debug_enabled:
+			_show_layout_debug()
+		else:
+			_update_status()
+
+	if (
+		key_event.pressed
+		and not key_event.echo
+		and key_event.keycode == KEY_F2
+	):
+		_log("")
+		_log("[b]RUNNING GOLDEN TESTS[/b]")
+
+		print("")
+		print("RUNNING GOLDEN TESTS")
+
+		_run_golden_startup_checks()
 
 
 func _force_layout_to_viewport() -> void:
-	var viewport_size := get_viewport_rect().size
+	var viewport_size: Vector2 = get_viewport_rect().size
 
 	set_position(Vector2.ZERO)
 	set_size(viewport_size)
@@ -106,11 +162,6 @@ func _force_layout_to_viewport() -> void:
 
 
 func _force_container_size_flags() -> void:
-	# Main board structure:
-	# Opponent and Player are the two large domains.
-	# Center is the contested border: Veil, breach slot, market, played cards, current action.
-	# Action bar is a temporary debug/control footer.
-
 	opponent_area.custom_minimum_size = Vector2(0, 360)
 	center_area.custom_minimum_size = Vector2(0, 180)
 	player_area.custom_minimum_size = Vector2(0, 380)
@@ -128,11 +179,11 @@ func _force_container_size_flags() -> void:
 
 
 func _show_layout_debug() -> void:
-	var viewport_size := get_viewport_rect().size
-	var window_size := DisplayServer.window_get_size()
+	var viewport_size: Vector2 = get_viewport_rect().size
+	var window_size: Vector2i = DisplayServer.window_get_size()
 
-	var root_pos := position
-	var root_size := size
+	var root_pos: Vector2 = position
+	var root_size: Vector2 = size
 
 	var root_margin_pos := Vector2.ZERO
 	var root_margin_size := Vector2.ZERO
@@ -165,7 +216,11 @@ func _show_layout_debug() -> void:
 	if action_bar != null:
 		action_size = action_bar.size
 
-	var debug_text := "Viewport %s | Window %s | Root %s pos %s | Margin %s pos %s | VBox %s pos %s | Opp %s | Center %s | Player %s | Bar %s" % [
+	var debug_text: String = (
+		"Viewport %s | Window %s | Root %s pos %s | "
+		+ "Margin %s pos %s | VBox %s pos %s | "
+		+ "Opp %s | Center %s | Player %s | Bar %s"
+	) % [
 		_vec2_text(viewport_size),
 		str(window_size),
 		_vec2_text(root_size),
@@ -181,25 +236,86 @@ func _show_layout_debug() -> void:
 	]
 
 	print(debug_text)
-	_log("[color=gray]%s[/color]" % debug_text)
-	_set_status("Layout debug written to log/output.")
+
+	_log(
+		"[color=gray]%s[/color]"
+		% debug_text
+	)
+
+	_set_status(
+		"Layout debug written to log/output."
+	)
 
 
-func _vec2_text(v: Vector2) -> String:
-	return "%dx%d" % [int(v.x), int(v.y)]
+func _vec2_text(value: Vector2) -> String:
+	return "%dx%d" % [
+		int(value.x),
+		int(value.y)
+	]
 
 
 func _run_golden_startup_checks() -> void:
-	var messages: Array = GoldenTests.run_startup_checks(rule_config)
+	var messages: Array = GoldenTests.run_startup_checks(
+		rule_config
+	)
+
+	var passed_count: int = 0
+	var failed_count: int = 0
 
 	for message in messages:
-		var text := String(message.get("text", ""))
-		var passed := bool(message.get("passed", false))
+		var text: String = String(
+			message.get(
+				"text",
+				""
+			)
+		)
+
+		var passed: bool = bool(
+			message.get(
+				"passed",
+				false
+			)
+		)
 
 		if passed:
-			_log("[color=green]%s[/color]" % text)
+			passed_count += 1
+
+			_log(
+				"[color=green]%s[/color]"
+				% text
+			)
+
+			print(text)
 		else:
-			_log("[color=red]%s[/color]" % text)
+			failed_count += 1
+
+			_log(
+				"[color=red]%s[/color]"
+				% text
+			)
+
+			push_error(text)
+
+	var summary: String = (
+		"Golden checks complete: %d passed, %d failed."
+		% [
+			passed_count,
+			failed_count
+		]
+	)
+
+	if failed_count == 0:
+		_log(
+			"[color=green][b]%s[/b][/color]"
+			% summary
+		)
+	else:
+		_log(
+			"[color=red][b]%s[/b][/color]"
+			% summary
+		)
+
+	print(summary)
 
 
 func _update_center_hud() -> void:
@@ -209,16 +325,22 @@ func _update_center_hud() -> void:
 
 		breach_slot_label.text = "No Lord in breach."
 
-		active_breach_count_label.text = "Active Breach Count: 0"
-		active_breach_count_label.tooltip_text = "No breach effects are active."
+		active_breach_count_label.text = (
+			"Active Breach Count: 0"
+		)
+
+		active_breach_count_label.tooltip_text = (
+			"No breach effects are active."
+		)
 
 		phase_panel_label.text = "No contest"
 
 		market_title_label.text = "Market"
 		market_draw_label.text = "No market drawn."
+
 		return
 
-	var current_match := run_state.current_match
+	var current_match = run_state.current_match
 
 	if current_match == null:
 		veil_title_label.text = "DOMINION"
@@ -226,15 +348,19 @@ func _update_center_hud() -> void:
 		phase_panel_label.text = "No contest"
 	else:
 		veil_title_label.text = "DOMINION"
-		veil_value_label.text = "Veil %d/%d" % [
-			current_match.get_veil(),
-			current_match.rules.final_collapse_threshold
-		]
-		phase_panel_label.text = current_match.get_phase_name()
 
-	# Breach Lord slot is for the current duel only.
-	# It stays empty until the real match engine simulates a Lord being banished
-	# but not yet defeated.
+		veil_value_label.text = (
+			"Veil %d/%d"
+			% [
+				current_match.get_veil(),
+				current_match.rules.final_collapse_threshold
+			]
+		)
+
+		phase_panel_label.text = (
+			current_match.get_phase_name()
+		)
+
 	breach_slot_label.text = "No Lord in breach."
 
 	_update_active_breach_count_hud()
@@ -245,14 +371,28 @@ func _update_center_hud() -> void:
 
 func _update_active_breach_count_hud() -> void:
 	if run_state == null:
-		active_breach_count_label.text = "Active Breach Count: 0"
-		active_breach_count_label.tooltip_text = "No breach effects are active."
+		active_breach_count_label.text = (
+			"Active Breach Count: 0"
+		)
+
+		active_breach_count_label.tooltip_text = (
+			"No breach effects are active."
+		)
+
 		return
 
-	var breach_count := run_state.active_campaign_modifiers.size()
+	var breach_count: int = (
+		run_state.active_campaign_modifiers.size()
+	)
 
-	active_breach_count_label.text = "Active Breach Count: %d" % breach_count
-	active_breach_count_label.tooltip_text = _get_active_breach_tooltip()
+	active_breach_count_label.text = (
+		"Active Breach Count: %d"
+		% breach_count
+	)
+
+	active_breach_count_label.tooltip_text = (
+		_get_active_breach_tooltip()
+	)
 
 
 func _get_active_breach_tooltip() -> String:
@@ -262,10 +402,17 @@ func _get_active_breach_tooltip() -> String:
 	if run_state.active_campaign_modifiers.is_empty():
 		return "No breach effects are active."
 
-	var lines: Array[String] = ["Active breach effects:"]
+	var lines: Array[String] = [
+		"Active breach effects:"
+	]
 
 	for breach_id in run_state.active_campaign_modifiers:
-		lines.append("- %s" % _get_breach_name_raw(breach_id))
+		lines.append(
+			"- %s"
+			% _get_breach_name_raw(
+				String(breach_id)
+			)
+		)
 
 	return "\n".join(lines)
 
@@ -277,7 +424,11 @@ func _get_active_breach_names() -> String:
 	var names: Array[String] = []
 
 	for breach_id in run_state.active_campaign_modifiers:
-		names.append(_get_breach_name_raw(breach_id))
+		names.append(
+			_get_breach_name_raw(
+				String(breach_id)
+			)
+		)
 
 	if names.is_empty():
 		return "No breach effects."
@@ -285,7 +436,9 @@ func _get_active_breach_names() -> String:
 	return "\n".join(names)
 
 
-func _get_breach_name_raw(breach_id: String) -> String:
+func _get_breach_name_raw(
+	breach_id: String
+) -> String:
 	if run_state == null:
 		return breach_id
 
@@ -296,7 +449,9 @@ func _get_breach_name_raw(breach_id: String) -> String:
 	return breach_id
 
 
-func _get_breach_text(breach_id: String) -> String:
+func _get_breach_text(
+	breach_id: String
+) -> String:
 	if run_state == null:
 		return "No breach effects."
 
@@ -312,13 +467,17 @@ func _get_breach_text(breach_id: String) -> String:
 
 func _on_new_run_pressed() -> void:
 	run_state = CampaignRunState.new()
-	run_state.setup(rule_config)
 
-	var boss := run_state.get_current_boss()
-	var current_match := run_state.current_match
+	run_state.setup(
+		rule_config
+	)
+
+	var boss = run_state.get_current_boss()
+	var current_match = run_state.current_match
 
 	_log("")
 	_log("[b]NEW CLAIM[/b]")
+
 	_render_event({
 		"type": "RUN_STARTED",
 		"text": "A Lord extends its reach.",
@@ -331,6 +490,7 @@ func _on_new_run_pressed() -> void:
 			"text": "Patron: %s." % boss.display_name,
 			"data": {}
 		})
+
 		_render_event({
 			"type": "BOSS_INTENT",
 			"text": boss.intent_text,
@@ -354,7 +514,11 @@ func _on_advance_match_pressed() -> void:
 			"text": "No claim has been made.",
 			"data": {}
 		})
-		_set_status("No claim recorded.")
+
+		_set_status(
+			"No claim recorded."
+		)
+
 		return
 
 	if run_state.run_over:
@@ -363,10 +527,11 @@ func _on_advance_match_pressed() -> void:
 			"text": "This claim has ended.",
 			"data": {}
 		})
+
 		_update_status()
 		return
 
-	var current_match := run_state.current_match
+	var current_match = run_state.current_match
 
 	if current_match == null:
 		_render_event({
@@ -374,28 +539,49 @@ func _on_advance_match_pressed() -> void:
 			"text": "No contest is recorded.",
 			"data": {}
 		})
+
 		_update_status()
 		return
 
 	if current_match.match_over:
 		_render_event({
 			"type": "INFO",
-			"text": "The contest is settled. Claim what remains.",
+			"text": (
+				"The contest is settled. "
+				+ "Claim what remains."
+			),
 			"data": {}
 		})
+
 		_update_status()
 		return
 
-	var events := current_match.advance_fake_phase()
+	var events: Array = (
+		current_match.advance_fake_phase()
+	)
+
 	_render_events(events)
 
-	if current_match.match_over and not current_match.player_won:
-		_render_events(run_state.collapse_run("The patron's claim failed."))
+	if (
+		current_match.match_over
+		and not current_match.player_won
+	):
+		_render_events(
+			run_state.collapse_run(
+				"The patron's claim failed."
+			)
+		)
 
-	if current_match.match_over and current_match.player_won:
+	if (
+		current_match.match_over
+		and current_match.player_won
+	):
 		_render_event({
 			"type": "INFO",
-			"text": "The rival is diminished. Claim the tribute.",
+			"text": (
+				"The rival is diminished. "
+				+ "Claim the tribute."
+			),
 			"data": {}
 		})
 
@@ -409,7 +595,11 @@ func _on_next_boss_pressed() -> void:
 			"text": "No claim has been made.",
 			"data": {}
 		})
-		_set_status("No claim recorded.")
+
+		_set_status(
+			"No claim recorded."
+		)
+
 		return
 
 	if run_state.run_over:
@@ -418,28 +608,58 @@ func _on_next_boss_pressed() -> void:
 			"text": "This claim has ended.",
 			"data": {}
 		})
+
 		_update_status()
 		return
 
-	var events := run_state.advance_to_next_boss()
+	var events: Array = (
+		run_state.advance_to_next_boss()
+	)
+
 	_render_events(events)
 
 	if run_state.run_over:
 		if run_state.victory:
-			_log("[color=green][b]DOMINION RECORDED[/b][/color]")
-			_log("Tribute gathered: [b]%d[/b] Souls." % run_state.souls_banked_this_run)
-			_log("Lords diminished: %s" % ", ".join(run_state.defeated_bosses))
-		else:
-			_log("[color=red][b]CLAIM FAILED[/b][/color]")
-			_log("Cause: %s" % run_state.collapse_reason)
-	else:
-		var current_match := run_state.current_match
+			_log(
+				"[color=green][b]DOMINION RECORDED[/b][/color]"
+			)
 
-		_log("[b]THE CLAIM PASSES ON[/b]")
-		_log("Breaches carried forward: %s" % run_state.get_modifier_summary())
+			_log(
+				"Tribute gathered: [b]%d[/b] Souls."
+				% run_state.souls_banked_this_run
+			)
+
+			_log(
+				"Lords diminished: %s"
+				% ", ".join(
+					run_state.defeated_bosses
+				)
+			)
+		else:
+			_log(
+				"[color=red][b]CLAIM FAILED[/b][/color]"
+			)
+
+			_log(
+				"Cause: %s"
+				% run_state.collapse_reason
+			)
+	else:
+		var current_match = run_state.current_match
+
+		_log(
+			"[b]THE CLAIM PASSES ON[/b]"
+		)
+
+		_log(
+			"Breaches carried forward: %s"
+			% run_state.get_modifier_summary()
+		)
 
 		if current_match != null:
-			_log(current_match.get_match_summary())
+			_log(
+				current_match.get_match_summary()
+			)
 
 	_update_status()
 
@@ -452,50 +672,155 @@ func _update_status() -> void:
 	_update_center_hud()
 
 	if run_state == null:
-		_set_status("No claim recorded.")
+		_set_status(
+			"No claim recorded."
+		)
+
 		return
 
-	_set_status(run_state.get_run_summary())
+	_set_status(
+		run_state.get_run_summary()
+	)
 
 
-func _set_status(text: String) -> void:
+func _set_status(
+	text: String
+) -> void:
 	status_label.text = text
 
 
-func _render_events(events: Array) -> void:
+func _render_events(
+	events: Array
+) -> void:
 	for event in events:
-		_render_event(event)
+		_render_event(
+			event
+		)
 
 
-func _render_event(event: Dictionary) -> void:
-	var event_type: String = event.get("type", "INFO")
-	var text: String = event.get("text", "")
+func _render_event(
+	event: Dictionary
+) -> void:
+	var event_type: String = String(
+		event.get(
+			"type",
+			"INFO"
+		)
+	)
+
+	var text: String = String(
+		event.get(
+			"text",
+			""
+		)
+	)
 
 	match event_type:
 		"ERROR":
-			_log("[color=red]%s[/color]" % text)
+			_log(
+				"[color=red]%s[/color]"
+				% text
+			)
+
 		"INFO":
-			_log("[color=gray]%s[/color]" % text)
+			_log(
+				"[color=gray]%s[/color]"
+				% text
+			)
+
 		"PHASE":
 			_log("")
-			_log("[b]%s[/b]" % text)
+			_log(
+				"[b]%s[/b]"
+				% text
+			)
+
 		"MATCH_WON":
-			_log("[color=green]%s[/color]" % text)
+			_log(
+				"[color=green]%s[/color]"
+				% text
+			)
+
 		"MATCH_LOST":
-			_log("[color=red]%s[/color]" % text)
+			_log(
+				"[color=red]%s[/color]"
+				% text
+			)
+
 		"RUN_COMPLETE":
-			_log("[color=green][b]%s[/b][/color]" % text)
+			_log(
+				"[color=green][b]%s[/b][/color]"
+				% text
+			)
+
 		"RUN_COLLAPSED":
-			_log("[color=red][b]%s[/b][/color]" % text)
+			_log(
+				"[color=red][b]%s[/b][/color]"
+				% text
+			)
+
 		"CAMPAIGN_MODIFIER_GAINED":
-			_log("[color=purple]%s[/color]" % text)
+			_log(
+				"[color=purple]%s[/color]"
+				% text
+			)
+
 		"CATACLYSM":
-			_log("[color=orange]%s[/color]" % text)
+			_log(
+				"[color=orange]%s[/color]"
+				% text
+			)
+
 		"FINAL_COLLAPSE":
-			_log("[color=red]%s[/color]" % text)
+			_log(
+				"[color=red]%s[/color]"
+				% text
+			)
+
 		_:
 			_log(text)
 
 
-func _log(text: String) -> void:
-	event_log.append_text(text + "\n")
+func _log(
+	text: String
+) -> void:
+	event_log_entries.append(text)
+	_queue_event_log_render()
+
+
+func _queue_event_log_render() -> void:
+	if event_log_render_pending:
+		return
+
+	event_log_render_pending = true
+
+	call_deferred(
+		"_flush_event_log"
+	)
+
+
+func _flush_event_log() -> void:
+	event_log_render_pending = false
+
+	if event_log == null:
+		return
+
+	# Replace the label's content once per frame instead of repeatedly
+	# appending and triggering wrapped-line auto-scroll recalculations.
+	event_log.text = "\n".join(
+		event_log_entries
+	)
+
+	await get_tree().process_frame
+
+	if event_log == null:
+		return
+
+	var scroll_bar: VScrollBar = (
+		event_log.get_v_scroll_bar()
+	)
+
+	if scroll_bar == null:
+		return
+
+	scroll_bar.value = scroll_bar.max_value

@@ -1,9 +1,11 @@
 class_name CampaignRunState
 extends RefCounted
 
+
 # CampaignRunState is currently transient.
 # When meta-progression/save/load arrives, either convert this to Resource
 # or add explicit to_dict()/from_dict() serialization.
+
 
 var boss_index: int = 0
 var souls_banked_this_run: int = 0
@@ -23,11 +25,16 @@ var run_seed: int = 0
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 
-func setup(_rules: RuleConfig, _seed: int = 0) -> void:
+func setup(
+	_rules: RuleConfig,
+	_seed: int = 0
+) -> void:
 	rules = _rules
 
 	if _seed == 0:
-		run_seed = Time.get_unix_time_from_system()
+		run_seed = int(
+			Time.get_unix_time_from_system()
+		)
 	else:
 		run_seed = _seed
 
@@ -109,27 +116,43 @@ func _make_boss_profile(
 	fake_player_threat: int
 ) -> BossProfile:
 	var profile := BossProfile.new()
+
 	profile.lord_id = lord_id
 	profile.display_name = display_name
+
 	profile.breach_id = breach_id
 	profile.breach_name = breach_name
 	profile.breach_text = breach_text
+
 	profile.intent_text = intent_text
-	profile.campaign_soul_reward = campaign_soul_reward
-	profile.fake_neutral_tears = fake_neutral_tears
-	profile.fake_player_threat = fake_player_threat
+
+	profile.campaign_soul_reward = (
+		campaign_soul_reward
+	)
+
+	profile.fake_neutral_tears = (
+		fake_neutral_tears
+	)
+
+	profile.fake_player_threat = (
+		fake_player_threat
+	)
+
 	return profile
 
 
 func get_current_boss() -> BossProfile:
-	if boss_index >= 0 and boss_index < bosses.size():
+	if (
+		boss_index >= 0
+		and boss_index < bosses.size()
+	):
 		return bosses[boss_index]
 
 	return null
 
 
 func get_current_boss_name() -> String:
-	var boss := get_current_boss()
+	var boss: BossProfile = get_current_boss()
 
 	if boss == null:
 		return "None"
@@ -138,7 +161,7 @@ func get_current_boss_name() -> String:
 
 
 func _start_current_match() -> void:
-	var boss := get_current_boss()
+	var boss: BossProfile = get_current_boss()
 
 	if boss == null:
 		run_over = true
@@ -147,7 +170,12 @@ func _start_current_match() -> void:
 		return
 
 	current_match = MatchState.new()
-	current_match.setup(boss, rules, rng.randi())
+
+	current_match.setup(
+		boss,
+		rules,
+		rng.randi()
+	)
 
 
 func can_advance_to_next_boss() -> bool:
@@ -157,38 +185,78 @@ func can_advance_to_next_boss() -> bool:
 	if current_match == null:
 		return false
 
-	return current_match.match_over and current_match.player_won
+	return (
+		current_match.match_over
+		and current_match.player_won
+	)
 
 
 func advance_to_next_boss() -> Array[Dictionary]:
 	var events: Array[Dictionary] = []
 
 	if not can_advance_to_next_boss():
-		events.append(Events.make("INFO", "The contest is not yet settled. No tribute may be claimed."))
+		events.append(
+			Events.make(
+				"INFO",
+				"The contest is not yet settled. No tribute may be claimed."
+			)
+		)
+
 		return events
 
-	var defeated_boss: BossProfile = current_match.boss
-	var reward: int = current_match.souls_awarded_to_campaign
+	var defeated_boss: BossProfile = (
+		current_match.boss
+	)
 
-	defeated_bosses.append(defeated_boss.display_name)
+	var reward: int = (
+		current_match.souls_awarded_to_campaign
+	)
 
-	if not active_campaign_modifiers.has(defeated_boss.breach_id):
-		active_campaign_modifiers.append(defeated_boss.breach_id)
+	defeated_bosses.append(
+		defeated_boss.display_name
+	)
+
+	if not active_campaign_modifiers.has(
+		defeated_boss.breach_id
+	):
+		active_campaign_modifiers.append(
+			defeated_boss.breach_id
+		)
 
 	souls_banked_this_run += reward
 
-	events.append(Events.make("MATCH_REWARD_CLAIMED", "%s is diminished." % defeated_boss.display_name))
+	events.append(
+		Events.make(
+			"MATCH_REWARD_CLAIMED",
+			"%s is diminished."
+			% defeated_boss.display_name
+		)
+	)
 
-	events.append(Events.make("SOULS_BANKED", "Tribute gathered: %d Souls." % reward, {
-		"amount": reward
-	}))
+	events.append(
+		Events.make(
+			"SOULS_BANKED",
+			"Tribute gathered: %d Souls."
+			% reward,
+			{
+				"amount": reward
+			}
+		)
+	)
 
-	events.append(Events.make("CAMPAIGN_MODIFIER_GAINED", "Breach carried forward: %s — %s" % [
-		defeated_boss.breach_name,
-		defeated_boss.breach_text
-	], {
-		"breach_id": defeated_boss.breach_id
-	}))
+	events.append(
+		Events.make(
+			"CAMPAIGN_MODIFIER_GAINED",
+			"Breach carried forward: %s — %s"
+			% [
+				defeated_boss.breach_name,
+				defeated_boss.breach_text
+			],
+			{
+				"breach_id": defeated_boss.breach_id
+			}
+		)
+	)
 
 	boss_index += 1
 
@@ -196,50 +264,86 @@ func advance_to_next_boss() -> Array[Dictionary]:
 		run_over = true
 		victory = true
 		current_match = null
-		events.append(Events.make("RUN_COMPLETE", "Supremacy is recorded. No rival holds enough."))
+
+		events.append(
+			Events.make(
+				"RUN_COMPLETE",
+				"Supremacy is recorded. No rival holds enough."
+			)
+		)
+
 		return events
 
 	_start_current_match()
 
-	var next_boss := get_current_boss()
+	var next_boss: BossProfile = (
+		get_current_boss()
+	)
 
-	events.append(Events.make("NEXT_BOSS", "Another Lord answers the weakening border: %s." % next_boss.display_name))
-	events.append(Events.make("BOSS_INTENT", next_boss.intent_text))
+	events.append(
+		Events.make(
+			"NEXT_BOSS",
+			"Another Lord answers the weakening border: %s."
+			% next_boss.display_name
+		)
+	)
+
+	events.append(
+		Events.make(
+			"BOSS_INTENT",
+			next_boss.intent_text
+		)
+	)
 
 	return events
 
 
-func collapse_run(reason: String = "") -> Array[Dictionary]:
+func collapse_run(
+	reason: String = ""
+) -> Array[Dictionary]:
 	run_over = true
 	victory = false
 	collapse_reason = reason
 
 	return [
-		Events.make("RUN_COLLAPSED", "The claim fails: %s" % collapse_reason)
+		Events.make(
+			"RUN_COLLAPSED",
+			"The claim fails: %s"
+			% collapse_reason
+		)
 	]
 
 
 func get_run_summary() -> String:
 	if run_over:
 		if victory:
-			return "Dominion recorded | Tribute: %d Souls | Lords diminished: %d/%d" % [
-				souls_banked_this_run,
-				defeated_bosses.size(),
-				bosses.size()
-			]
-		else:
-			return "Claim failed | Tribute: %d Souls | Lords diminished: %d/%d" % [
-				souls_banked_this_run,
-				defeated_bosses.size(),
-				bosses.size()
-			]
+			return (
+				"Dominion recorded | Tribute: %d Souls | Lords diminished: %d/%d"
+				% [
+					souls_banked_this_run,
+					defeated_bosses.size(),
+					bosses.size()
+				]
+			)
 
-	return "Claim %d/%d: %s | Tribute: %d Souls" % [
-		boss_index + 1,
-		bosses.size(),
-		get_current_boss_name(),
-		souls_banked_this_run
-	]
+		return (
+			"Claim failed | Tribute: %d Souls | Lords diminished: %d/%d"
+			% [
+				souls_banked_this_run,
+				defeated_bosses.size(),
+				bosses.size()
+			]
+		)
+
+	return (
+		"Claim %d/%d: %s | Tribute: %d Souls"
+		% [
+			boss_index + 1,
+			bosses.size(),
+			get_current_boss_name(),
+			souls_banked_this_run
+		]
+	)
 
 
 func get_modifier_summary() -> String:
@@ -248,14 +352,20 @@ func get_modifier_summary() -> String:
 
 	var names: Array[String] = []
 
-	for breach_id in active_campaign_modifiers:
-		names.append(_get_modifier_display_name(breach_id))
+	for breach_id: String in active_campaign_modifiers:
+		names.append(
+			_get_modifier_display_name(
+				breach_id
+			)
+		)
 
 	return ", ".join(names)
 
 
-func _get_modifier_display_name(breach_id: String) -> String:
-	for boss in bosses:
+func _get_modifier_display_name(
+	breach_id: String
+) -> String:
+	for boss: BossProfile in bosses:
 		if boss.breach_id == breach_id:
 			return boss.breach_name
 

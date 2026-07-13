@@ -2,9 +2,6 @@ class_name PlayerState
 extends RefCounted
 
 
-const CardData = preload("res://Scripts/Sim/Card.gd")
-
-
 var pid: int = 0
 var lord: String = ""
 var alive: bool = true
@@ -80,15 +77,22 @@ var sigils: Dictionary = {
 var derived_lord_def: int = 0
 
 
-func _init(p_pid: int = 0, p_lord_pool: Array[String] = []) -> void:
+func _init(
+	p_pid: int = 0,
+	p_lord_pool: Array[String] = []
+) -> void:
 	pid = p_pid
 	lord_pool = p_lord_pool.duplicate()
 
 
 func reset_round_state() -> void:
+	was_lord_attacked_prev = was_hunted
+	was_castle_attacked_prev = was_sieged
+
 	action = ""
 	tgt_pid = -1
 	tgt_type = ""
+
 	prev_ward_target = ward_target
 	ward_target = ""
 
@@ -122,8 +126,11 @@ func reset_round_state() -> void:
 	penitent_temp_guards.clear()
 
 
-func duplicate_state():
-	var copy = PlayerState.new(pid, lord_pool)
+func duplicate_state() -> PlayerState:
+	var copy := PlayerState.new(
+		pid,
+		lord_pool
+	)
 
 	copy.lord = lord
 	copy.alive = alive
@@ -184,7 +191,9 @@ func duplicate_state():
 	copy.castle_guards = _duplicate_cards(castle_guards)
 	copy.lord_guards = _duplicate_cards(lord_guards)
 	copy.committed = _duplicate_cards(committed)
-	copy.penitent_temp_guards = _duplicate_cards(penitent_temp_guards)
+	copy.penitent_temp_guards = _duplicate_cards(
+		penitent_temp_guards
+	)
 
 	copy.castles = castles.duplicate()
 	copy.ruined_castles = ruined_castles.duplicate()
@@ -197,12 +206,21 @@ func duplicate_state():
 	return copy
 
 
-static func _duplicate_cards(cards: Array) -> Array:
+func _duplicate_cards(
+	cards: Array
+) -> Array:
 	var result: Array = []
 
 	for card in cards:
-		if card != null and card.has_method("duplicate_card"):
-			result.append(card.duplicate_card())
+		if (
+			card != null
+			and card.has_method(
+				"duplicate_card"
+			)
+		):
+			result.append(
+				card.duplicate_card()
+			)
 		else:
 			result.append(card)
 

@@ -2,11 +2,14 @@ class_name GameState
 extends RefCounted
 
 
-const CardData = preload("res://Scripts/Sim/Card.gd")
-const PlayerStateData = preload("res://Scripts/Sim/PlayerState.gd")
+const PlayerStateData = preload(
+	"res://Scripts/Sim/PlayerState.gd"
+)
 
 
+@warning_ignore("shadowed_global_identifier")
 var round: int = 0
+
 var first_player: int = -1
 
 var breach: String = ""
@@ -31,19 +34,32 @@ func _init(
 	player_one_lord_pool: Array[String] = []
 ) -> void:
 	players = [
-		PlayerStateData.new(0, player_zero_lord_pool),
-		PlayerStateData.new(1, player_one_lord_pool),
+		PlayerStateData.new(
+			0,
+			player_zero_lord_pool
+		),
+		PlayerStateData.new(
+			1,
+			player_one_lord_pool
+		),
 	]
 
 
-func get_player(player_id: int):
-	if player_id < 0 or player_id >= players.size():
+func get_player(
+	player_id: int
+):
+	if (
+		player_id < 0
+		or player_id >= players.size()
+	):
 		return null
 
 	return players[player_id]
 
 
-func get_opponent(player_id: int):
+func get_opponent(
+	player_id: int
+):
 	if players.size() != 2:
 		return null
 
@@ -60,7 +76,9 @@ func calculate_veil_total() -> int:
 	var total: int = neutral_tears
 
 	for player in players:
-		total += int(player.tears)
+		total += int(
+			player.tears
+		)
 
 	return total
 
@@ -69,8 +87,8 @@ func refresh_derived_values() -> void:
 	veil_total = calculate_veil_total()
 
 
-func duplicate_state():
-	var copy = GameState.new()
+func duplicate_state() -> GameState:
+	var copy := GameState.new()
 
 	copy.round = round
 	copy.first_player = first_player
@@ -92,17 +110,28 @@ func duplicate_state():
 	copy.players.clear()
 
 	for player in players:
-		copy.players.append(player.duplicate_state())
+		copy.players.append(
+			player.duplicate_state()
+		)
 
 	return copy
 
 
-static func _duplicate_cards(cards: Array) -> Array:
+func _duplicate_cards(
+	cards: Array
+) -> Array:
 	var result: Array = []
 
 	for card in cards:
-		if card != null and card.has_method("duplicate_card"):
-			result.append(card.duplicate_card())
+		if (
+			card != null
+			and card.has_method(
+				"duplicate_card"
+			)
+		):
+			result.append(
+				card.duplicate_card()
+			)
 		else:
 			result.append(card)
 

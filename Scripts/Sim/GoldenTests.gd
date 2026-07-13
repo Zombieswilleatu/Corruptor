@@ -28,10 +28,6 @@ static func run_startup_checks(rules: RuleConfig) -> Array:
 		run_game_deal_tests(rules)
 	)
 
-	print(
-		"Golden startup checks produced %d messages."
-		% messages.size()
-	)
 
 	return messages
 
@@ -83,10 +79,6 @@ static func run_game_deal_tests(
 
 	messages.append(result)
 
-	print(
-		"Game deal tests produced %d message."
-		% messages.size()
-	)
 
 	return messages
 
@@ -461,10 +453,6 @@ static func _test_game_deal_trace(
 	trace_name: String,
 	rules: RuleConfig
 ) -> Dictionary:
-	print(
-		"Starting game deal test: %s"
-		% trace_name
-	)
 
 	var full_trace: Dictionary = (
 		GoldenMaster.load_trace(
@@ -503,7 +491,7 @@ static func _test_game_deal_trace(
 
 	var game_state = (
 		GameDealFixtureData
-		.build_game_deimos_valak_s1()
+		.build_game_deimos_valak_s1(rules)
 	)
 
 	var engine_deal_snapshot: Dictionary = (
@@ -538,13 +526,6 @@ static func _test_game_deal_trace(
 		)
 	)
 
-	print(
-		"Finished game deal test: %s"
-		% validation_result.get(
-			"text",
-			"<no result text>"
-		)
-	)
 
 	return validation_result
 
