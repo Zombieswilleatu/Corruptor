@@ -15,12 +15,16 @@ const RoundEngineData = preload(
 )
 
 
-const TEST_NAME: String = (
+const RESET_DRAW_TEST_NAME: String = (
 	"unit_round1_reset_and_draw"
 )
 
+const MARKET_TEST_NAME: String = (
+	"unit_round1_market"
+)
 
-const EXPECTED_PLAYER_ZERO_HAND: Array[String] = [
+
+const EXPECTED_PLAYER_ZERO_DRAW_HAND: Array[String] = [
 	"Butcher:4",
 	"Penitent:3",
 	"Wright:4",
@@ -33,7 +37,7 @@ const EXPECTED_PLAYER_ZERO_HAND: Array[String] = [
 ]
 
 
-const EXPECTED_PLAYER_ONE_HAND: Array[String] = [
+const EXPECTED_PLAYER_ONE_DRAW_HAND: Array[String] = [
 	"Butcher:4",
 	"Vulture:2",
 	"Wright:3",
@@ -46,13 +50,36 @@ const EXPECTED_PLAYER_ONE_HAND: Array[String] = [
 ]
 
 
+const EXPECTED_PLAYER_ZERO_MARKET_HAND: Array[String] = [
+	"Butcher:4",
+	"Penitent:3",
+	"Wright:4",
+	"Penitent:3",
+	"Butcher:1",
+	"Penitent:2",
+	"Penitent:5",
+	"Penitent:1",
+	"Wright:5",
+]
+
+
+const EXPECTED_MARKET_AFTER_SWAPS: Array[String] = [
+	"Penitent:1",
+	"Wright:1",
+	"Vulture:1",
+]
+
+
 static func run(
 	rules: RuleConfig
 ) -> Array:
 	return [
 		_test_round1_reset_and_draw(
 			rules
-		)
+		),
+		_test_round1_market(
+			rules
+		),
 	]
 
 
@@ -68,6 +95,7 @@ static func _test_round1_reset_and_draw(
 
 	if game == null:
 		return _fail(
+			RESET_DRAW_TEST_NAME,
 			"Fixture returned no GameState."
 		)
 
@@ -76,11 +104,13 @@ static func _test_round1_reset_and_draw(
 
 	if player_zero == null:
 		return _fail(
+			RESET_DRAW_TEST_NAME,
 			"Player zero is missing."
 		)
 
 	if player_one == null:
 		return _fail(
+			RESET_DRAW_TEST_NAME,
 			"Player one is missing."
 		)
 
@@ -97,7 +127,7 @@ static func _test_round1_reset_and_draw(
 	)
 
 	var validation_error: String = (
-		_validate_round_state(
+		_validate_draw_state(
 			game,
 			player_zero,
 			player_one
@@ -106,10 +136,85 @@ static func _test_round1_reset_and_draw(
 
 	if not validation_error.is_empty():
 		return _fail(
+			RESET_DRAW_TEST_NAME,
 			validation_error
 		)
 
-	return _pass()
+	return _pass(
+		RESET_DRAW_TEST_NAME
+	)
+
+
+static func _test_round1_market(
+	rules: RuleConfig
+) -> Dictionary:
+	var game = (
+		GameDealFixtureData
+		.build_game_deimos_valak_s1(
+			rules
+		)
+	)
+
+	if game == null:
+		return _fail(
+			MARKET_TEST_NAME,
+			"Fixture returned no GameState."
+		)
+
+	var player_zero = game.get_player(0)
+	var player_one = game.get_player(1)
+
+	if player_zero == null:
+		return _fail(
+			MARKET_TEST_NAME,
+			"Player zero is missing."
+		)
+
+	if player_one == null:
+		return _fail(
+			MARKET_TEST_NAME,
+			"Player one is missing."
+		)
+
+	var market_results: Array[Dictionary] = (
+		RoundEngineData.advance_to_round_market(
+			game,
+			1,
+			rules,
+			_round_one_market_choices()
+		)
+	)
+
+	var validation_error: String = (
+		_validate_market_state(
+			game,
+			player_zero,
+			player_one,
+			market_results
+		)
+	)
+
+	if not validation_error.is_empty():
+		return _fail(
+			MARKET_TEST_NAME,
+			validation_error
+		)
+
+	return _pass(
+		MARKET_TEST_NAME
+	)
+
+
+static func _round_one_market_choices() -> Dictionary:
+	return {
+		1: {
+			"pass": true,
+		},
+		0: {
+			"take": "Wright:5",
+			"give": "Vulture:1",
+		},
+	}
 
 
 static func _dirty_round_state(
@@ -167,7 +272,7 @@ static func _dirty_round_state(
 	}
 
 
-static func _validate_round_state(
+static func _validate_draw_state(
 	game,
 	player_zero,
 	player_one
@@ -259,12 +364,15 @@ static func _validate_round_state(
 		)
 	)
 
-	if player_zero_hand != EXPECTED_PLAYER_ZERO_HAND:
+	if (
+		player_zero_hand
+		!= EXPECTED_PLAYER_ZERO_DRAW_HAND
+	):
 		return (
 			"Player zero Round 1 hand mismatch. Expected %s, received %s."
 			% [
 				str(
-					EXPECTED_PLAYER_ZERO_HAND
+					EXPECTED_PLAYER_ZERO_DRAW_HAND
 				),
 				str(
 					player_zero_hand
@@ -278,12 +386,15 @@ static func _validate_round_state(
 		)
 	)
 
-	if player_one_hand != EXPECTED_PLAYER_ONE_HAND:
+	if (
+		player_one_hand
+		!= EXPECTED_PLAYER_ONE_DRAW_HAND
+	):
 		return (
 			"Player one Round 1 hand mismatch. Expected %s, received %s."
 			% [
 				str(
-					EXPECTED_PLAYER_ONE_HAND
+					EXPECTED_PLAYER_ONE_DRAW_HAND
 				),
 				str(
 					player_one_hand
@@ -291,6 +402,165 @@ static func _validate_round_state(
 			]
 		)
 
+	return _validate_shared_draw_state(
+		game
+	)
+
+
+static func _validate_market_state(
+	game,
+	player_zero,
+	player_one,
+	market_results: Array[Dictionary]
+) -> String:
+	if market_results.size() != 2:
+		return (
+			"Expected two Market decisions, received %d."
+			% market_results.size()
+		)
+
+	var first_result: Dictionary = (
+		market_results[0]
+	)
+
+	var second_result: Dictionary = (
+		market_results[1]
+	)
+
+	if int(
+		first_result.get(
+			"player_id",
+			-1
+		)
+	) != 1:
+		return (
+			"Market did not begin with first player 1."
+		)
+
+	if String(
+		first_result.get(
+			"action",
+			""
+		)
+	) != "pass":
+		return (
+			"Player one should pass during the seed-one Market."
+		)
+
+	if int(
+		second_result.get(
+			"player_id",
+			-1
+		)
+	) != 0:
+		return (
+			"Player zero did not resolve second."
+		)
+
+	if String(
+		second_result.get(
+			"action",
+			""
+		)
+	) != "swap":
+		return (
+			"Player zero should perform a Market swap."
+		)
+
+	if String(
+		second_result.get(
+			"take",
+			""
+		)
+	) != "Wright:5":
+		return (
+			"Player zero took the wrong Market card."
+		)
+
+	if String(
+		second_result.get(
+			"give",
+			""
+		)
+	) != "Vulture:1":
+		return (
+			"Player zero returned the wrong hand card."
+		)
+
+	var player_zero_hand: Array[String] = (
+		_card_ids(
+			player_zero.hand
+		)
+	)
+
+	if (
+		player_zero_hand
+		!= EXPECTED_PLAYER_ZERO_MARKET_HAND
+	):
+		return (
+			"Player zero post-Market hand mismatch. Expected %s, received %s."
+			% [
+				str(
+					EXPECTED_PLAYER_ZERO_MARKET_HAND
+				),
+				str(
+					player_zero_hand
+				),
+			]
+		)
+
+	var player_one_hand: Array[String] = (
+		_card_ids(
+			player_one.hand
+		)
+	)
+
+	if (
+		player_one_hand
+		!= EXPECTED_PLAYER_ONE_DRAW_HAND
+	):
+		return (
+			"Player one hand changed despite passing. Expected %s, received %s."
+			% [
+				str(
+					EXPECTED_PLAYER_ONE_DRAW_HAND
+				),
+				str(
+					player_one_hand
+				),
+			]
+		)
+
+	var market_cards: Array[String] = (
+		_card_ids(
+			game.market
+		)
+	)
+
+	if (
+		market_cards
+		!= EXPECTED_MARKET_AFTER_SWAPS
+	):
+		return (
+			"Post-Market cards mismatch. Expected %s, received %s."
+			% [
+				str(
+					EXPECTED_MARKET_AFTER_SWAPS
+				),
+				str(
+					market_cards
+				),
+			]
+		)
+
+	return _validate_shared_draw_state(
+		game
+	)
+
+
+static func _validate_shared_draw_state(
+	game
+) -> String:
 	if game.deck.size() != 35:
 		return (
 			"Expected 35 cards after the Round 1 Draw Step, received %d."
@@ -319,7 +589,7 @@ static func _validate_round_state(
 
 	if game.discard.size() != 4:
 		return (
-			"Opening summon discard changed during the Draw Step."
+			"Opening summon discard changed during Development."
 		)
 
 	if game.neutral_tears != 0:
@@ -419,20 +689,25 @@ static func _card_ids(
 	return result
 
 
-static func _pass() -> Dictionary:
+static func _pass(
+	test_name: String
+) -> Dictionary:
 	return {
 		"passed": true,
-		"text": "PASS  %s" % TEST_NAME,
+		"text": "PASS  %s"
+		% test_name,
 	}
 
 
 static func _fail(
+	test_name: String,
 	reason: String
 ) -> Dictionary:
 	return {
 		"passed": false,
-		"text": "FAIL  %s: %s" % [
-			TEST_NAME,
+		"text": "FAIL  %s: %s"
+		% [
+			test_name,
 			reason,
 		],
 	}
