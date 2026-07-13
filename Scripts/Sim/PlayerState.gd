@@ -35,7 +35,7 @@ var was_lord_attacked_prev: bool = false
 var was_castle_attacked_prev: bool = false
 var last_sieged_castle: String = ""
 
-var pending_profane: bool = false
+var pending_profane: String = ""
 var orias_snare_active: bool = false
 var profane_ruins_used_this_round: bool = false
 var profane_this_round: bool = false
@@ -72,7 +72,10 @@ var ruined_castles: Array[String] = []
 var profaned_castles: Array[String] = []
 var lord_pool: Array[String] = []
 
-var sigils: Dictionary = {}
+var sigils: Dictionary = {
+	"Castle": "",
+	"Lord": "",
+}
 
 var derived_lord_def: int = 0
 
@@ -93,7 +96,7 @@ func reset_round_state() -> void:
 	was_sieged = false
 	last_sieged_castle = ""
 
-	pending_profane = false
+	pending_profane = ""
 	orias_snare_active = false
 	profane_ruins_used_this_round = false
 	profane_this_round = false

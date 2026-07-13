@@ -11,21 +11,17 @@ static func snapshot_game(game_state, checkpoint: String) -> Dictionary:
 	return {
 		"checkpoint": checkpoint,
 		"round": int(game_state.round),
-		"first_player": _nullable_player_id(game_state.first_player),
+		"first_player": int(game_state.first_player),
 		"breach": _nullable_string(game_state.breach),
-		"breach_owner": _nullable_player_id(game_state.breach_owner),
+		"breach_owner": int(game_state.breach_owner),
 		"reflex_winner": _nullable_player_id(game_state.reflex_winner),
 		"neutral_tears": int(game_state.neutral_tears),
 		"veil_total": int(game_state.calculate_veil_total()),
 		"winner": _nullable_player_id(game_state.winner),
-		"win_by": _nullable_string(game_state.win_by),
-
-		# These three zones are ordered.
-		# Deck order is especially important to stateful golden tests.
+		"win_by": str(game_state.win_by),
 		"deck": card_list(game_state.deck),
 		"discard": card_list(game_state.discard),
 		"market": card_list(game_state.market),
-
 		"players": player_snapshots,
 	}
 
@@ -33,7 +29,7 @@ static func snapshot_game(game_state, checkpoint: String) -> Dictionary:
 static func snapshot_player(player) -> Dictionary:
 	return {
 		"pid": int(player.pid),
-		"lord": _nullable_string(player.lord),
+		"lord": str(player.lord),
 		"alive": bool(player.alive),
 
 		"souls": int(player.souls),
@@ -45,24 +41,26 @@ static func snapshot_player(player) -> Dictionary:
 		"first_summon_done": bool(player.first_summon_done),
 		"cataclysmic_used": bool(player.cataclysmic_used),
 		"vessel_used": bool(player.vessel_used),
-		"vessel_offered_lord": _nullable_string(player.vessel_offered_lord),
+		"vessel_offered_lord": str(player.vessel_offered_lord),
 		"kalligan_repair_used": bool(player.kalligan_repair_used),
 		"kroni_ravenous_used": bool(player.kroni_ravenous_used),
 		"deimos_breach_claimed": bool(player.deimos_breach_claimed),
 
-		"action": _nullable_string(player.action),
-		"tgt_pid": _nullable_player_id(player.tgt_pid),
-		"tgt_type": _nullable_string(player.tgt_type),
-		"ward_target": _nullable_string(player.ward_target),
-		"prev_ward_target": _nullable_string(player.prev_ward_target),
+		"action": str(player.action),
+		"tgt_pid": int(player.tgt_pid),
+		"tgt_type": str(player.tgt_type),
+		"ward_target": str(player.ward_target),
+		"prev_ward_target": str(player.prev_ward_target),
 
 		"was_hunted": bool(player.was_hunted),
 		"was_sieged": bool(player.was_sieged),
 		"was_lord_attacked_prev": bool(player.was_lord_attacked_prev),
-		"was_castle_attacked_prev": bool(player.was_castle_attacked_prev),
-		"last_sieged_castle": _nullable_string(player.last_sieged_castle),
+		"was_castle_attacked_prev": bool(
+			player.was_castle_attacked_prev
+		),
+		"last_sieged_castle": str(player.last_sieged_castle),
 
-		"pending_profane": bool(player.pending_profane),
+		"pending_profane": str(player.pending_profane),
 		"orias_snare_active": bool(player.orias_snare_active),
 		"profane_ruins_used_this_round": bool(
 			player.profane_ruins_used_this_round
@@ -72,22 +70,30 @@ static func snapshot_player(player) -> Dictionary:
 		"humbaba_patient": bool(player.humbaba_patient),
 
 		"odradek_recoil_done": bool(player.odradek_recoil_done),
-		"odradek_guards_defeated": int(player.odradek_guards_defeated),
+		"odradek_guards_defeated": int(
+			player.odradek_guards_defeated
+		),
 
 		"gremory_ruin_done": bool(player.gremory_ruin_done),
 		"gremory_inevitable_ruin_done": bool(
 			player.gremory_inevitable_ruin_done
 		),
-		"gremory_veil_draw_done": bool(player.gremory_veil_draw_done),
+		"gremory_veil_draw_done": bool(
+			player.gremory_veil_draw_done
+		),
 		"gremory_lord_guard_draw_done": bool(
 			player.gremory_lord_guard_draw_done
 		),
 
-		"kanifous_outside_draws": int(player.kanifous_outside_draws),
-		"kanifous_invoked_suit": _nullable_string(
+		"kanifous_outside_draws": int(
+			player.kanifous_outside_draws
+		),
+		"kanifous_invoked_suit": str(
 			player.kanifous_invoked_suit
 		),
-		"kanifous_invoked_high": bool(player.kanifous_invoked_high),
+		"kanifous_invoked_high": bool(
+			player.kanifous_invoked_high
+		),
 		"kanifous_invokes_this_round": int(
 			player.kanifous_invokes_this_round
 		),
@@ -96,13 +102,13 @@ static func snapshot_player(player) -> Dictionary:
 		"kroni_personally_defeated_guard": bool(
 			player.kroni_personally_defeated_guard
 		),
-		"kroni_enemy_destroyed": bool(player.kroni_enemy_destroyed),
+		"kroni_enemy_destroyed": bool(
+			player.kroni_enemy_destroyed
+		),
 		"kroni_tear_milestone_fired": bool(
 			player.kroni_tear_milestone_fired
 		),
 
-		# Player card zones are canonicalized because their array insertion
-		# order is not intended to be gameplay state.
 		"hand": card_multiset(player.hand),
 		"garrison": card_multiset(player.garrison),
 		"castle_guards": card_multiset(player.castle_guards),
@@ -112,18 +118,16 @@ static func snapshot_player(player) -> Dictionary:
 			player.penitent_temp_guards
 		),
 
-		# Python stores these as sets, so snapshots sort them.
 		"castles": sorted_strings(player.castles),
-		"ruined_castles": sorted_strings(player.ruined_castles),
-		"profaned_castles": sorted_strings(player.profaned_castles),
+		"ruined_castles": sorted_strings(
+			player.ruined_castles
+		),
+		"profaned_castles": sorted_strings(
+			player.profaned_castles
+		),
 
-		# Pool order can affect future selection and must remain ordered.
 		"lord_pool": string_list(player.lord_pool),
-
 		"sigils": snapshot_sigils(player.sigils),
-
-		# The oracle serializes this as a derived diagnostic value rather
-		# than as authoritative mutable state.
 		"_derived_lord_def": int(player.derived_lord_def),
 	}
 
@@ -135,12 +139,9 @@ static func card_id(card) -> String:
 	if card.has_method("card_id"):
 		return str(card.card_id())
 
-	var suit_value = card.get("suit")
-	var card_value = card.get("value")
-
 	return "%s:%d" % [
-		str(suit_value),
-		int(card_value),
+		str(card.get("suit")),
+		int(card.get("value")),
 	]
 
 
@@ -180,7 +181,9 @@ static func snapshot_sigils(sigils: Dictionary) -> Dictionary:
 	keys.sort()
 
 	for key in keys:
-		result[str(key)] = _canonicalize_json_value(sigils[key])
+		result[str(key)] = _canonicalize_json_value(
+			sigils[key]
+		)
 
 	return result
 
@@ -206,7 +209,9 @@ static func _canonicalize_json_value(value):
 			var array_result: Array = []
 
 			for entry in value:
-				array_result.append(_canonicalize_json_value(entry))
+				array_result.append(
+					_canonicalize_json_value(entry)
+				)
 
 			return array_result
 
@@ -216,8 +221,8 @@ static func _canonicalize_json_value(value):
 			keys.sort()
 
 			for key in keys:
-				dictionary_result[str(key)] = _canonicalize_json_value(
-					value[key]
+				dictionary_result[str(key)] = (
+					_canonicalize_json_value(value[key])
 				)
 
 			return dictionary_result
