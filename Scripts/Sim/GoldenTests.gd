@@ -20,6 +20,10 @@ const DominionRiteTestsData = preload(
 	"res://Scripts/Sim/DominionRiteTests.gd"
 )
 
+const DeployTestsData = preload(
+	"res://Scripts/Sim/DeployTests.gd"
+)
+
 
 static func run_startup_checks(
 	rules: RuleConfig
@@ -50,6 +54,12 @@ static func run_startup_checks(
 
 	messages.append_array(
 		DominionRiteTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		DeployTestsData.run(
 			rules
 		)
 	)
