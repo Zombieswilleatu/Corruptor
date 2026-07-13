@@ -2,253 +2,172 @@ class_name GameDealFixture
 extends RefCounted
 
 
-const CardData = preload("res://Scripts/Sim/Card.gd")
-const GameStateData = preload("res://Scripts/Sim/GameState.gd")
+const CardData = preload(
+	"res://Scripts/Sim/Card.gd"
+)
+
+const GameSetupData = preload(
+	"res://Scripts/Sim/GameSetup.gd"
+)
 
 
-const ALL_CASTLES: Array[String] = [
-	"Keep",
-	"Bastion",
-	"SummoningCircle",
-	"Stockpile",
-	"SiegeEngine",
+# The golden trace begins after setup, so this fixture supplies a
+# deterministic pre-setup deck whose pop order reproduces that snapshot.
+#
+# GameSetup draws from the end of the Array with pop_back().
+#
+# The untouched portion below becomes the exact remaining deck after:
+# - three Market cards
+# - five opening cards for player zero
+# - five opening cards for player one
+# - opening summon payments
+const REMAINING_DECK_IDS: Array[String] = [
+	"Wright:2",
+	"Vulture:3",
+	"Vulture:4",
+	"Vulture:1",
+	"Wright:3",
+	"Penitent:4",
+	"Wright:5",
+	"Butcher:2",
+	"Penitent:1",
+	"Penitent:1",
+	"Vulture:3",
+	"Vulture:1",
+	"Wright:1",
+	"Penitent:3",
+	"Penitent:4",
+	"Butcher:5",
+	"Wright:1",
+	"Butcher:2",
+	"Butcher:1",
+	"Butcher:3",
+	"Butcher:1",
+	"Butcher:3",
+	"Vulture:3",
+	"Penitent:2",
+	"Vulture:4",
+	"Wright:1",
+	"Vulture:2",
+	"Wright:2",
+	"Butcher:3",
+	"Vulture:5",
+	"Penitent:5",
+	"Wright:2",
+	"Penitent:4",
+	"Butcher:5",
+	"Butcher:4",
+	"Wright:3",
+	"Vulture:5",
+	"Vulture:4",
+	"Wright:3",
+	"Butcher:3",
+	"Butcher:2",
+	"Penitent:1",
+	"Penitent:5",
+	"Penitent:2",
+	"Butcher:1",
+	"Vulture:1",
+	"Penitent:3",
 ]
 
 
-static func build_game_deimos_valak_s1():
-	var game = GameStateData.new(
-		["Deimos"],
-		["Valak"]
+# Chronological pop order during setup.
+#
+# Market:
+#   Penitent:1
+#   Wright:1
+#   Wright:5
+#
+# Player zero opening hand before summoning Deimos:
+#   Vulture:2
+#   Penitent:3
+#   Butcher:4
+#   Penitent:3
+#   Wright:4
+#
+# Deimos costs 5 after the Summoning Circle discount.
+# Payment: Vulture:2 + Penitent:3.
+#
+# Player one opening hand before summoning Valak:
+#   Wright:2
+#   Vulture:2
+#   Butcher:4
+#   Vulture:2
+#   Wright:3
+#
+# Valak costs 4 after the Summoning Circle discount.
+# Payment: Wright:2 + Vulture:2.
+const SETUP_POP_SEQUENCE_IDS: Array[String] = [
+	"Penitent:1",
+	"Wright:1",
+	"Wright:5",
+
+	"Vulture:2",
+	"Penitent:3",
+	"Butcher:4",
+	"Penitent:3",
+	"Wright:4",
+
+	"Wright:2",
+	"Vulture:2",
+	"Butcher:4",
+	"Vulture:2",
+	"Wright:3",
+]
+
+
+static func build_game_deimos_valak_s1(
+	rules: RuleConfig = null
+):
+	var effective_rules: RuleConfig = rules
+
+	if effective_rules == null:
+		effective_rules = RuleConfig.de_v2()
+
+	var ordered_deck: Array = _cards_from_ids(
+		_build_ordered_deck_ids()
 	)
 
-	game.round = 0
-	game.first_player = 1
-
-	game.breach = ""
-	game.breach_owner = -1
-	game.reflex_winner = -1
-
-	game.neutral_tears = 0
-	game.veil_total = 0
-
-	game.winner = -1
-	game.win_by = ""
-
-	game.deck = _cards_from_ids([
-		"Wright:2",
-		"Vulture:3",
-		"Vulture:4",
-		"Vulture:1",
-		"Wright:3",
-		"Penitent:4",
-		"Wright:5",
-		"Butcher:2",
-		"Penitent:1",
-		"Penitent:1",
-		"Vulture:3",
-		"Vulture:1",
-		"Wright:1",
-		"Penitent:3",
-		"Penitent:4",
-		"Butcher:5",
-		"Wright:1",
-		"Butcher:2",
-		"Butcher:1",
-		"Butcher:3",
-		"Butcher:1",
-		"Butcher:3",
-		"Vulture:3",
-		"Penitent:2",
-		"Vulture:4",
-		"Wright:1",
-		"Vulture:2",
-		"Wright:2",
-		"Butcher:3",
-		"Vulture:5",
-		"Penitent:5",
-		"Wright:2",
-		"Penitent:4",
-		"Butcher:5",
-		"Butcher:4",
-		"Wright:3",
-		"Vulture:5",
-		"Vulture:4",
-		"Wright:3",
-		"Butcher:3",
-		"Butcher:2",
-		"Penitent:1",
-		"Penitent:5",
-		"Penitent:2",
-		"Butcher:1",
-		"Vulture:1",
-		"Penitent:3",
-	])
-
-	game.discard = _cards_from_ids([
-		"Vulture:2",
-		"Penitent:3",
-		"Wright:2",
-		"Vulture:2",
-	])
-
-	game.market = _cards_from_ids([
-		"Penitent:1",
-		"Wright:1",
-		"Wright:5",
-	])
-
-	_setup_deimos(game.players[0])
-	_setup_valak(game.players[1])
-
-	game.refresh_derived_values()
-
-	return game
+	return GameSetupData.setup_game(
+		["Deimos"],
+		["Valak"],
+		ordered_deck,
+		1,
+		effective_rules
+	)
 
 
-static func _setup_deimos(player) -> void:
-	player.pid = 0
-	player.lord = "Deimos"
-	player.alive = true
+static func _build_ordered_deck_ids() -> Array:
+	var ordered_ids: Array = []
 
-	player.souls = 0
-	player.tears = 0
-	player.threat = 0
-	player.kroni_hunger = 0
-	player.repair_token = 0
+	for card_identifier: String in REMAINING_DECK_IDS:
+		ordered_ids.append(
+			card_identifier
+		)
 
-	player.first_summon_done = true
-	player.cataclysmic_used = false
-	player.vessel_used = false
-	player.vessel_offered_lord = ""
-	player.kalligan_repair_used = false
-	player.kroni_ravenous_used = false
-	player.deimos_breach_claimed = false
+	# GameSetup uses pop_back(), so the chronological setup sequence
+	# must be appended in reverse.
+	for index in range(
+		SETUP_POP_SEQUENCE_IDS.size() - 1,
+		-1,
+		-1
+	):
+		ordered_ids.append(
+			SETUP_POP_SEQUENCE_IDS[index]
+		)
 
-	_reset_action_state(player)
-	_reset_round_flags(player)
+	assert(
+		ordered_ids.size() == 60,
+		"Deimos/Valak deterministic setup deck must contain 60 cards."
+	)
 
-	player.hand = _cards_from_ids([
-		"Butcher:4",
-		"Penitent:3",
-		"Wright:4",
-	])
-
-	player.garrison = []
-	player.castle_guards = []
-	player.lord_guards = []
-	player.committed = []
-	player.penitent_temp_guards = []
-
-	_set_string_array(player.castles, ALL_CASTLES)
-	player.ruined_castles.clear()
-	player.profaned_castles.clear()
-
-	player.sigils = {
-		"Castle": "",
-		"Lord": "",
-	}
-
-	player.derived_lord_def = 6
+	return ordered_ids
 
 
-static func _setup_valak(player) -> void:
-	player.pid = 1
-	player.lord = "Valak"
-	player.alive = true
-
-	player.souls = 0
-	player.tears = 0
-	player.threat = 1
-	player.kroni_hunger = 0
-	player.repair_token = 0
-
-	player.first_summon_done = true
-	player.cataclysmic_used = false
-	player.vessel_used = false
-	player.vessel_offered_lord = ""
-	player.kalligan_repair_used = false
-	player.kroni_ravenous_used = false
-	player.deimos_breach_claimed = false
-
-	_reset_action_state(player)
-	_reset_round_flags(player)
-
-	player.hand = _cards_from_ids([
-		"Butcher:4",
-		"Vulture:2",
-		"Wright:3",
-	])
-
-	player.garrison = []
-	player.castle_guards = []
-	player.lord_guards = []
-	player.committed = []
-	player.penitent_temp_guards = []
-
-	_set_string_array(player.castles, ALL_CASTLES)
-	player.ruined_castles.clear()
-	player.profaned_castles.clear()
-
-	player.sigils = {
-		"Castle": "",
-		"Lord": "",
-	}
-
-	player.derived_lord_def = 7
-
-
-static func _set_string_array(
-	target: Array[String],
-	values: Array[String]
-) -> void:
-	target.clear()
-
-	for value: String in values:
-		target.append(value)
-
-
-static func _reset_action_state(player) -> void:
-	player.action = ""
-	player.tgt_pid = -1
-	player.tgt_type = ""
-	player.ward_target = ""
-	player.prev_ward_target = ""
-
-	player.was_hunted = false
-	player.was_sieged = false
-	player.was_lord_attacked_prev = false
-	player.was_castle_attacked_prev = false
-	player.last_sieged_castle = ""
-
-	player.pending_profane = ""
-	player.orias_snare_active = false
-	player.profane_ruins_used_this_round = false
-	player.profane_this_round = false
-
-
-static func _reset_round_flags(player) -> void:
-	player.humbaba_patient = false
-
-	player.odradek_recoil_done = false
-	player.odradek_guards_defeated = 0
-
-	player.gremory_ruin_done = false
-	player.gremory_inevitable_ruin_done = false
-	player.gremory_veil_draw_done = false
-	player.gremory_lord_guard_draw_done = false
-
-	player.kanifous_outside_draws = 0
-	player.kanifous_invoked_suit = ""
-	player.kanifous_invoked_high = false
-	player.kanifous_invokes_this_round = 0
-
-	player.kroni_consume_done = false
-	player.kroni_personally_defeated_guard = false
-	player.kroni_enemy_destroyed = false
-	player.kroni_tear_milestone_fired = false
-
-
-static func _cards_from_ids(card_ids: Array) -> Array:
+static func _cards_from_ids(
+	card_ids: Array
+) -> Array:
 	var cards: Array = []
 
 	for card_identifier in card_ids:
@@ -261,8 +180,12 @@ static func _cards_from_ids(card_ids: Array) -> Array:
 	return cards
 
 
-static func _card_from_id(card_identifier: String):
-	var separator_index := card_identifier.rfind(":")
+static func _card_from_id(
+	card_identifier: String
+):
+	var separator_index: int = card_identifier.rfind(
+		":"
+	)
 
 	assert(
 		separator_index > 0,
@@ -270,12 +193,12 @@ static func _card_from_id(card_identifier: String):
 		% card_identifier
 	)
 
-	var suit := card_identifier.substr(
+	var suit: String = card_identifier.substr(
 		0,
 		separator_index
 	)
 
-	var value_text := card_identifier.substr(
+	var value_text: String = card_identifier.substr(
 		separator_index + 1
 	)
 
