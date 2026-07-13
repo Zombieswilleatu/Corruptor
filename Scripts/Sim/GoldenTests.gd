@@ -24,6 +24,10 @@ const DeployTestsData = preload(
 	"res://Scripts/Sim/DeployTests.gd"
 )
 
+const SummonTestsData = preload(
+	"res://Scripts/Sim/SummonTests.gd"
+)
+
 
 static func run_startup_checks(
 	rules: RuleConfig
@@ -60,6 +64,12 @@ static func run_startup_checks(
 
 	messages.append_array(
 		DeployTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		SummonTestsData.run(
 			rules
 		)
 	)
