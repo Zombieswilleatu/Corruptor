@@ -1,0 +1,16 @@
+{
+  "ai_version": "heuristic-2025.06-doctrine",
+  "schema_version": 3,
+  "traces": {
+    "game_deimos_valak_s1": "49f507464581dd7ca26194d9779e8278e97480e4de2cd7a97257a950e7e8f3cb",
+    "game_kroni_orias_s42": "95f659efc5a6970882257bd575a6bce3b764faccf28766656b5b3dd21373c13a",
+    "game_odradek_humbaba_s7": "36f30911ec37314115245a8f58020c6f109b46c5cef9893ef662f9ea7a0a9fc4",
+    "game_pool_mixed_s99": "0bd4f938058667b46420444b712eb3bb441790be622cc125090ad455d093fdf2",
+    "unit_combat_breakthrough": "fa2c2f30d32104fc03d49deb0e46372f6d9c934d360a38a2ff8f4231052f2938",
+    "unit_combat_golden_rule": "849c484ecc35f17bf74e4c3cc61d29b4e32dc77fb09717f990454b7a2dc58ba0",
+    "unit_humbaba_defense_curve": "d63effc6989ee17151fe961af2bba76a5c3ee543effa8c943bb57bb0b3b195ab",
+    "unit_humbaba_seal": "e6b9ab4c59d2448b43e86a0e66fea66774c1d27d1bb82a7dde01b7f021fd9d5d",
+    "unit_siege_engine_bypass": "2249d59f0421df424162b8e8c8363e008b6044638f8a129ccffc3d383af01360",
+    "unit_sigil_break_survive": "d8922aa6fe6d057687df00a02510ca20c99f90e780916c9e6533a81e242843da"
+  }
+}

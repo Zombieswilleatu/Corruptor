@@ -1,0 +1,88 @@
+{
+  "ai_version": "heuristic-2025.06-doctrine",
+  "identity": {
+    "constants": {
+      "DOMINION_REQUIREMENT": 2,
+      "DOMINION_TRACK": 11,
+      "FINAL_COLLAPSE_TRACK": 15,
+      "GARRISON_MAX": 5,
+      "HAND_LIMIT": 10,
+      "MARKET_SIZE": 3,
+      "MAX_ROUNDS": 60,
+      "MAX_THREAT": 4,
+      "WIN_SOULS": 7
+    },
+    "schema_version": 3,
+    "variant": {
+      "ai_dominion_drive": true,
+      "castle_tear_uncapped": false,
+      "consume_the_siege": false,
+      "deimos_claims_breach": 1,
+      "deimos_summon_cost": 7,
+      "deimos_war_machine_free": true,
+      "gremory_summon_cost": 6,
+      "humbaba_gate4": true,
+      "humbaba_patient": true,
+      "humbaba_seal": true,
+      "humbaba_toll": true,
+      "invocation_gate": 5,
+      "invocation_repeatable": false,
+      "kroni_def_soft": false,
+      "kroni_hunger_decay": true,
+      "neutral_tear_on_banish": true,
+      "no_backwash": false,
+      "profane_ruins_req": 1,
+      "recoil_hunts_only": true,
+      "recoil_lowest": true,
+      "reconfig_neutral": false,
+      "reconfig_strict": true,
+      "reconfig_tokens_needed": 5,
+      "sigil_soul_fresh_only": false,
+      "veil_drift": 0,
+      "war_machine_ignores_profaned": false
+    }
+  },
+  "name": "unit_humbaba_defense_curve",
+  "seed": 0,
+  "snapshots": [
+    {
+      "checkpoint": "unit:after",
+      "op": "lord_base_def",
+      "rows": [
+        {
+          "castles": [],
+          "def": 2,
+          "threat": 0
+        },
+        {
+          "castles": [
+            "Keep"
+          ],
+          "def": 3,
+          "threat": 0
+        },
+        {
+          "castles": [
+            "Bastion",
+            "Keep",
+            "SiegeEngine",
+            "Stockpile",
+            "SummoningCircle"
+          ],
+          "def": 9,
+          "threat": 0
+        },
+        {
+          "castles": [
+            "Bastion",
+            "Keep",
+            "Stockpile"
+          ],
+          "def": 6,
+          "threat": 2
+        }
+      ]
+    }
+  ],
+  "trace_hash": "d63effc6989ee17151fe961af2bba76a5c3ee543effa8c943bb57bb0b3b195ab"
+}

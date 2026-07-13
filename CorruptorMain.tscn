@@ -1,0 +1,265 @@
+[gd_scene load_steps=5 format=3 uid="uid://dc1ne0h4grs8k"]
+
+[ext_resource type="Script" path="res://Scripts/Main.gd" id="1_87xwh"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rgrmc"]
+bg_color = Color(0.768627, 0.545098, 0.376471, 1)
+
+[sub_resource type="FontFile" id="FontFile_l6v48"]
+cache/0/16/0/ascent = 0.0
+cache/0/16/0/descent = 0.0
+cache/0/16/0/underline_position = 0.0
+cache/0/16/0/underline_thickness = 0.0
+cache/0/16/0/scale = 1.0
+cache/0/16/0/kerning_overrides/16/0 = Vector2(0, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sudil"]
+bg_color = Color(0.156863, 0.705882, 0.45098, 1)
+
+[node name="Main_Control" type="Control"]
+layout_mode = 3
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_87xwh")
+
+[node name="Background_ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.188235, 0.188235, 0.188235, 1)
+
+[node name="RootMargin_MarginContainer" type="MarginContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainLayout_VBoxContainer" type="VBoxContainer" parent="RootMargin_MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="OpponentArea_Control" type="Control" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+
+[node name="OpponentPanel_PanelContainer" type="PanelContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/OpponentArea_Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_rgrmc")
+
+[node name="OpponentLayout_VBoxContainer" type="VBoxContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/OpponentArea_Control/OpponentPanel_PanelContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/OpponentArea_Control/OpponentPanel_PanelContainer/OpponentLayout_VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 16
+text = "Opponent Area"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CenterArea_Control" type="Control" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer"]
+custom_minimum_size = Vector2(0, 250)
+layout_mode = 2
+size_flags_stretch_ratio = 2.0
+
+[node name="PanelContainer" type="PanelContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CenterLayout_HBoxContainer" type="HBoxContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer"]
+layout_mode = 2
+
+[node name="VeilPanel_PanelContainer" type="PanelContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+
+[node name="VeilMargin_MarginContainer" type="MarginContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer/VeilPanel_PanelContainer"]
+layout_mode = 2
+
+[node name="VeilVBox_VBoxContainer" type="VBoxContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer/VeilPanel_PanelContainer/VeilMargin_MarginContainer"]
+layout_mode = 2
+
+[node name="VeilTitle_Label" type="Label" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer/VeilPanel_PanelContainer/VeilMargin_MarginContainer/VeilVBox_VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "DOMINION
+"
+
+[node name="VeilValue_Label" type="Label" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer/VeilPanel_PanelContainer/VeilMargin_MarginContainer/VeilVBox_VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Veil 0/15
+"
+
+[node name="BreachSlot_PanelContainer" type="PanelContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer/BreachSlot_PanelContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer/BreachSlot_PanelContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="BreachSlot_Label" type="Label" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer/BreachSlot_PanelContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+text = "No Lord in breach.
+"
+
+[node name="ActiveBreachCount_Label" type="Label" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer/BreachSlot_PanelContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 80)
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 0
+text = "Active Breaches: 0
+"
+autowrap_mode = 3
+justification_flags = 131
+clip_text = true
+text_overrun_behavior = 3
+
+[node name="PhasePanel_PanelContainer" type="PanelContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer/PhasePanel_PanelContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer/PhasePanel_PanelContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="PhasePanel_Label" type="Label" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer/PhasePanel_PanelContainer/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "Development
+"
+
+[node name="MarketPanel_PanelContainer" type="PanelContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer/MarketPanel_PanelContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer/MarketPanel_PanelContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="MarketTitle_Label" type="Label" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer/MarketPanel_PanelContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Market"
+horizontal_alignment = 1
+
+[node name="MarketDraw_Label" type="Label" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer/MarketPanel_PanelContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+text = "No market drawn."
+horizontal_alignment = 1
+
+[node name="EventPanel_PanelContainer" type="PanelContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+
+[node name="EventLog_RichTextLabel" type="RichTextLabel" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/CenterArea_Control/PanelContainer/CenterLayout_HBoxContainer/EventPanel_PanelContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/normal_font = SubResource("FontFile_l6v48")
+theme_override_font_sizes/normal_font_size = 16
+bbcode_enabled = true
+text = "Event log ready."
+
+[node name="PlayerArea_Control" type="Control" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer"]
+custom_minimum_size = Vector2(0, 180)
+layout_mode = 2
+size_flags_stretch_ratio = 1.5
+
+[node name="PlayerPanel_PanelContainer" type="PanelContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/PlayerArea_Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_sudil")
+
+[node name="PlayerLayout_HBoxContainer" type="HBoxContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/PlayerArea_Control/PlayerPanel_PanelContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/PlayerArea_Control/PlayerPanel_PanelContainer/PlayerLayout_HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_font_sizes/font_size = 16
+text = "Player Area"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ActionBar_HBoxContainer" type="HBoxContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer"]
+custom_minimum_size = Vector2(0, 85)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="NewGame_Button" type="Button" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/ActionBar_HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 44)
+layout_mode = 2
+size_flags_vertical = 4
+text = "New Claim
+"
+
+[node name="DealTest_Button" type="Button" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/ActionBar_HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 44)
+layout_mode = 2
+size_flags_vertical = 4
+text = "AdvanceContest
+"
+
+[node name="NextPhase_Button" type="Button" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/ActionBar_HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 44)
+layout_mode = 2
+size_flags_vertical = 4
+text = "ClaimTribute"
+
+[node name="Status_PanelContainer" type="PanelContainer" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/ActionBar_HBoxContainer"]
+custom_minimum_size = Vector2(350, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+
+[node name="Status_Label" type="Label" parent="RootMargin_MarginContainer/MainLayout_VBoxContainer/ActionBar_HBoxContainer/Status_PanelContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "No active run.
+"
+vertical_alignment = 1
+justification_flags = 162
