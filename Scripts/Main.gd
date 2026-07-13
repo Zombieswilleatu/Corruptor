@@ -65,8 +65,7 @@ func _ready() -> void:
 	})
 
 	_update_center_hud()
-	_test_golden_manifest_load()
-	_test_all_unit_traces()
+	_log("[color=gray]Golden tests ready. Press F2 to run.[/color]")
 
 
 func _on_viewport_size_changed() -> void:
@@ -86,6 +85,11 @@ func _input(event: InputEvent) -> void:
 				_show_layout_debug()
 			else:
 				_update_status()
+
+		if event.pressed and not event.echo and event.keycode == KEY_F2:
+			_log("")
+			_log("[b]RUNNING GOLDEN TESTS[/b]")
+			_run_golden_startup_checks()
 
 
 func _force_layout_to_viewport() -> void:
@@ -185,222 +189,17 @@ func _vec2_text(v: Vector2) -> String:
 	return "%dx%d" % [int(v.x), int(v.y)]
 
 
-func _test_golden_manifest_load() -> void:
-	var manifest := GoldenMaster.load_trace("_manifest")
+func _run_golden_startup_checks() -> void:
+	var messages: Array = GoldenTests.run_startup_checks(rule_config)
 
-	if manifest.has("_error"):
-		_log("[color=red]Golden manifest failed: %s[/color]" % manifest["_error"])
-		return
+	for message in messages:
+		var text := String(message.get("text", ""))
+		var passed := bool(message.get("passed", false))
 
-	var traces: Dictionary = manifest.get("traces", {})
-	_log("[color=green]Golden manifest loaded: %d traces.[/color]" % traces.size())
-
-
-func _test_all_unit_traces() -> void:
-	_test_combat_unit_traces()
-	_test_humbaba_defense_curve()
-	_test_humbaba_seal()
-
-
-func _test_combat_unit_traces() -> void:
-	var trace_names: Array[String] = [
-		"unit_combat_breakthrough",
-		"unit_combat_golden_rule",
-		"unit_sigil_break_survive",
-		"unit_siege_engine_bypass"
-	]
-
-	for trace_name: String in trace_names:
-		_test_combat_trace(trace_name)
-
-
-func _test_combat_trace(trace_name: String) -> void:
-	var trace := GoldenMaster.load_trace(trace_name)
-
-	if trace.has("_error"):
-		_log("[color=red]%s failed to load: %s[/color]" % [trace_name, trace["_error"]])
-		return
-
-	var golden_snapshots: Array = trace.get("snapshots", [])
-
-	if golden_snapshots.is_empty():
-		_log("[color=red]%s has no snapshots.[/color]" % trace_name)
-		return
-
-	# Temporary scaffold:
-	# If the trace has a before snapshot, we reuse it from the oracle for now.
-	# The actual tested part is the reproduced combat_layers result.
-	var final_golden_snapshot: Dictionary = golden_snapshots[golden_snapshots.size() - 1]
-	var inputs: Dictionary = final_golden_snapshot.get("inputs", {})
-
-	var strength := int(inputs.get("strength", 0))
-	var struct_def := int(inputs.get("struct_def", 0))
-	var sigil_value := int(inputs.get("sigil_value", 0))
-	var guards_in: Array = inputs.get("guards_in", [])
-
-	var ignore_lowest := bool(inputs.get("ignore_lowest", false))
-	var has_sigil := bool(inputs.get("has_sigil", false))
-	var bypass := bool(inputs.get("bypass", false))
-
-	var combat_result := CombatResolver.combat_layers(
-		null,
-		strength,
-		guards_in,
-		ignore_lowest,
-		sigil_value,
-		has_sigil,
-		struct_def,
-		bypass
-	)
-
-	var after_snapshot := {
-		"checkpoint": final_golden_snapshot.get("checkpoint", "unit:after"),
-		"op": final_golden_snapshot.get("op", "combat_layers"),
-		"inputs": inputs,
-		"result": {
-			"destroyed": combat_result["destroyed"],
-			"sigil_broken": combat_result["sigil_broken"],
-			"excess": combat_result["excess"],
-			"guards_out": combat_result["guards_out"]
-		}
-	}
-
-	var engine_snapshots: Array = []
-
-	for i in range(golden_snapshots.size() - 1):
-		engine_snapshots.append(golden_snapshots[i])
-
-	engine_snapshots.append(after_snapshot)
-
-	var result := GoldenMaster.validate(
-		trace,
-		engine_snapshots,
-		rule_config,
-		"heuristic-2025.06-doctrine"
-	)
-
-	if result.passed:
-		_log("[color=green]%s[/color]" % str(result))
-	else:
-		_log("[color=red]%s[/color]" % str(result))
-
-
-func _test_humbaba_defense_curve() -> void:
-	var trace_name := "unit_humbaba_defense_curve"
-	var trace := GoldenMaster.load_trace(trace_name)
-
-	if trace.has("_error"):
-		_log("[color=red]%s failed to load: %s[/color]" % [trace_name, trace["_error"]])
-		return
-
-	var golden_snapshots: Array = trace.get("snapshots", [])
-
-	if golden_snapshots.is_empty():
-		_log("[color=red]%s has no snapshots.[/color]" % trace_name)
-		return
-
-	var final_golden_snapshot: Dictionary = golden_snapshots[golden_snapshots.size() - 1]
-	var golden_rows: Array = final_golden_snapshot.get("rows", [])
-
-	var engine_rows: Array = []
-
-	for row in golden_rows:
-		var row_dict: Dictionary = row
-		var castles: Array = row_dict.get("castles", [])
-		var threat := int(row_dict.get("threat", 0))
-
-		engine_rows.append({
-			"castles": castles,
-			"threat": threat,
-			"def": LordMath.lord_base_def("Humbaba", castles, threat, rule_config)
-		})
-
-	var after_snapshot := {
-		"checkpoint": final_golden_snapshot.get("checkpoint", "unit:after"),
-		"op": final_golden_snapshot.get("op", "lord_base_def"),
-		"rows": engine_rows
-	}
-
-	var engine_snapshots := [
-		after_snapshot
-	]
-
-	var result := GoldenMaster.validate(
-		trace,
-		engine_snapshots,
-		rule_config,
-		"heuristic-2025.06-doctrine"
-	)
-
-	if result.passed:
-		_log("[color=green]%s[/color]" % str(result))
-	else:
-		_log("[color=red]%s[/color]" % str(result))
-
-
-func _test_humbaba_seal() -> void:
-	var trace_name := "unit_humbaba_seal"
-	var trace := GoldenMaster.load_trace(trace_name)
-
-	if trace.has("_error"):
-		_log("[color=red]%s failed to load: %s[/color]" % [trace_name, trace["_error"]])
-		return
-
-	var golden_snapshots: Array = trace.get("snapshots", [])
-
-	if golden_snapshots.is_empty():
-		_log("[color=red]%s has no snapshots.[/color]" % trace_name)
-		return
-
-	var final_golden_snapshot: Dictionary = golden_snapshots[golden_snapshots.size() - 1]
-
-	var standing := LordMath.dominion_requirement([
-		{
-			"lord": "Humbaba",
-			"alive": true
-		},
-		{
-			"lord": "Valak",
-			"alive": true
-		}
-	], rule_config)
-
-	var banished := LordMath.dominion_requirement([
-		{
-			"lord": "Humbaba",
-			"alive": false
-		},
-		{
-			"lord": "Valak",
-			"alive": true
-		}
-	], rule_config)
-
-	var after_snapshot := {
-		"checkpoint": final_golden_snapshot.get("checkpoint", "unit:after"),
-		"op": final_golden_snapshot.get("op", "dominion_req"),
-		"result": {
-			"standing": standing,
-			"banished": banished,
-			"base": rule_config.dominion_requirement
-		}
-	}
-
-	var engine_snapshots := [
-		after_snapshot
-	]
-
-	var result := GoldenMaster.validate(
-		trace,
-		engine_snapshots,
-		rule_config,
-		"heuristic-2025.06-doctrine"
-	)
-
-	if result.passed:
-		_log("[color=green]%s[/color]" % str(result))
-	else:
-		_log("[color=red]%s[/color]" % str(result))
+		if passed:
+			_log("[color=green]%s[/color]" % text)
+		else:
+			_log("[color=red]%s[/color]" % text)
 
 
 func _update_center_hud() -> void:
