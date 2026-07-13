@@ -28,6 +28,14 @@ const SummonTestsData = preload(
 	"res://Scripts/Sim/SummonTests.gd"
 )
 
+const ReflexBidTestsData = preload(
+	"res://Scripts/Sim/ReflexBidTests.gd"
+)
+
+const CommitmentTestsData = preload(
+	"res://Scripts/Sim/CommitmentTests.gd"
+)
+
 
 static func run_startup_checks(
 	rules: RuleConfig
@@ -70,6 +78,18 @@ static func run_startup_checks(
 
 	messages.append_array(
 		SummonTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		ReflexBidTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		CommitmentTestsData.run(
 			rules
 		)
 	)
