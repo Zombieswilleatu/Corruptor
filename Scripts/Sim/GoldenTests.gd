@@ -48,6 +48,10 @@ const HuntResolutionTestsData = preload(
 	"res://Scripts/Sim/HuntResolutionTests.gd"
 )
 
+const SiegeResolutionTestsData = preload(
+	"res://Scripts/Sim/SiegeResolutionTests.gd"
+)
+
 
 static func run_startup_checks(
 	rules: RuleConfig
@@ -120,6 +124,12 @@ static func run_startup_checks(
 
 	messages.append_array(
 		HuntResolutionTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		SiegeResolutionTestsData.run(
 			rules
 		)
 	)
