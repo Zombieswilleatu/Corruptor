@@ -68,6 +68,10 @@ const ResolutionActionAftermathTestsData = preload(
 	"res://Scripts/Sim/ResolutionActionAftermathTests.gd"
 )
 
+const ResolutionFinaleTestsData = preload(
+	"res://Scripts/Sim/ResolutionFinaleTests.gd"
+)
+
 
 static func run_startup_checks(
 	rules: RuleConfig
@@ -174,6 +178,12 @@ static func run_startup_checks(
 		)
 	)
 
+	messages.append_array(
+		ResolutionFinaleTestsData.run(
+			rules
+		)
+	)
+
 	return messages
 
 
@@ -217,15 +227,11 @@ static func run_game_deal_tests(
 ) -> Array:
 	var messages: Array = []
 
-	var result: Dictionary = (
+	messages.append(
 		_test_game_deal_trace(
 			"game_deimos_valak_s1",
 			rules
 		)
-	)
-
-	messages.append(
-		result
 	)
 
 	return messages
@@ -496,13 +502,11 @@ static func _test_humbaba_defense_curve(
 		"rows": engine_rows,
 	}
 
-	var engine_snapshots: Array = [
-		after_snapshot,
-	]
-
 	return _validate_trace(
 		trace,
-		engine_snapshots,
+		[
+			after_snapshot,
+		],
 		rules
 	)
 
@@ -594,13 +598,11 @@ static func _test_humbaba_seal(
 		},
 	}
 
-	var engine_snapshots: Array = [
-		after_snapshot,
-	]
-
 	return _validate_trace(
 		trace,
-		engine_snapshots,
+		[
+			after_snapshot,
+		],
 		rules
 	)
 
