@@ -62,7 +62,9 @@ static func _resolve_player_rites(
 
 	var actions: Array[Dictionary] = []
 
-	if _decision_is_pass(decision):
+	if _decision_is_pass(
+		decision
+	):
 		return {
 			"player_id": player_id,
 			"actions": actions,
@@ -173,7 +175,9 @@ static func _resolve_invocation(
 		[]
 	)
 
-	if typeof(raw_payment) != TYPE_ARRAY:
+	if typeof(
+		raw_payment
+	) != TYPE_ARRAY:
 		return _invalid_rite_result(
 			"invocation",
 			"payment_must_be_array"
@@ -217,7 +221,9 @@ static func _resolve_invocation(
 
 	for card in selected_cards:
 		assert(
-			player.hand.has(card),
+			player.hand.has(
+				card
+			),
 			"Invocation payment card left the player's hand."
 		)
 
@@ -394,7 +400,9 @@ static func _gain_personal_tear(
 				index
 			]
 
-			if int(card.value) < 4:
+			if int(
+				card.value
+			) < 4:
 				continue
 
 			game.discard.remove_at(
@@ -432,7 +440,9 @@ static func _check_win(
 	game,
 	rules: RuleConfig
 ) -> bool:
-	if int(game.winner) >= 0:
+	if int(
+		game.winner
+	) >= 0:
 		return true
 
 	for player in game.players:
@@ -453,7 +463,7 @@ static func _check_win(
 	)
 
 	if veil_total >= rules.final_collapse_threshold:
-		var best_player = game.players[0]
+		var collapse_winner = game.players[0]
 
 		for index: int in range(
 			1,
@@ -463,11 +473,11 @@ static func _check_win(
 				index
 			]
 
-			if candidate.souls > best_player.souls:
-				best_player = candidate
+			if candidate.souls > collapse_winner.souls:
+				collapse_winner = candidate
 
 		game.winner = int(
-			best_player.pid
+			collapse_winner.pid
 		)
 
 		game.win_by = "FinalCollapse"
@@ -597,8 +607,12 @@ static func _find_unselected_card(
 ):
 	for card in cards:
 		if (
-			not selected_cards.has(card)
-			and _card_id(card) == card_identifier
+			not selected_cards.has(
+				card
+			)
+			and _card_id(
+				card
+			) == card_identifier
 		):
 			return card
 
@@ -616,11 +630,15 @@ static func _decision_for_player(
 
 	if raw_decision == null:
 		raw_decision = decisions.get(
-			str(player_id),
+			str(
+				player_id
+			),
 			{}
 		)
 
-	if typeof(raw_decision) != TYPE_DICTIONARY:
+	if typeof(
+		raw_decision
+	) != TYPE_DICTIONARY:
 		return {}
 
 	return raw_decision
@@ -635,7 +653,9 @@ static func _nested_decision(
 		{}
 	)
 
-	if typeof(raw_decision) != TYPE_DICTIONARY:
+	if typeof(
+		raw_decision
+	) != TYPE_DICTIONARY:
 		return {}
 
 	return raw_decision
