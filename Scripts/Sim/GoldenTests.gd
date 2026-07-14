@@ -72,6 +72,10 @@ const ResolutionFinaleTestsData = preload(
 	"res://Scripts/Sim/ResolutionFinaleTests.gd"
 )
 
+const ResolutionEngineTestsData = preload(
+	"res://Scripts/Sim/ResolutionEngineTests.gd"
+)
+
 
 static func run_startup_checks(
 	rules: RuleConfig
@@ -180,6 +184,12 @@ static func run_startup_checks(
 
 	messages.append_array(
 		ResolutionFinaleTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		ResolutionEngineTestsData.run(
 			rules
 		)
 	)
