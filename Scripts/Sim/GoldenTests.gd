@@ -40,6 +40,10 @@ const RevealTestsData = preload(
 	"res://Scripts/Sim/RevealTests.gd"
 )
 
+const ResolutionPreludeTestsData = preload(
+	"res://Scripts/Sim/ResolutionPreludeTests.gd"
+)
+
 
 static func run_startup_checks(
 	rules: RuleConfig
@@ -100,6 +104,12 @@ static func run_startup_checks(
 
 	messages.append_array(
 		RevealTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		ResolutionPreludeTestsData.run(
 			rules
 		)
 	)
