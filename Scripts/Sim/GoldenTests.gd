@@ -60,6 +60,10 @@ const ResolutionCleanupTestsData = preload(
 	"res://Scripts/Sim/ResolutionCleanupTests.gd"
 )
 
+const ReflexActionTestsData = preload(
+	"res://Scripts/Sim/ReflexActionTests.gd"
+)
+
 
 static func run_startup_checks(
 	rules: RuleConfig
@@ -150,6 +154,12 @@ static func run_startup_checks(
 
 	messages.append_array(
 		ResolutionCleanupTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		ReflexActionTestsData.run(
 			rules
 		)
 	)
@@ -402,7 +412,8 @@ static func _test_humbaba_defense_curve(
 			"%s failed to load: %s"
 			% [
 				trace_name,
-				trace["_error"]
+				trace["_error"
+				]
 			]
 		)
 
