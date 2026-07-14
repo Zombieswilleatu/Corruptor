@@ -64,6 +64,10 @@ const ReflexActionTestsData = preload(
 	"res://Scripts/Sim/ReflexActionTests.gd"
 )
 
+const ResolutionActionAftermathTestsData = preload(
+	"res://Scripts/Sim/ResolutionActionAftermathTests.gd"
+)
+
 
 static func run_startup_checks(
 	rules: RuleConfig
@@ -164,6 +168,12 @@ static func run_startup_checks(
 		)
 	)
 
+	messages.append_array(
+		ResolutionActionAftermathTestsData.run(
+			rules
+		)
+	)
+
 	return messages
 
 
@@ -176,7 +186,7 @@ static func run_unit_tests(
 		"unit_combat_breakthrough",
 		"unit_combat_golden_rule",
 		"unit_sigil_break_survive",
-		"unit_siege_engine_bypass"
+		"unit_siege_engine_bypass",
 	]
 
 	for trace_name: String in combat_trace_names:
@@ -228,7 +238,9 @@ static func _check_manifest() -> Dictionary:
 		)
 	)
 
-	if manifest.has("_error"):
+	if manifest.has(
+		"_error"
+	):
 		return _fail(
 			"Golden manifest failed: %s"
 			% manifest["_error"]
@@ -255,12 +267,14 @@ static func _test_combat_trace(
 		)
 	)
 
-	if trace.has("_error"):
+	if trace.has(
+		"_error"
+	):
 		return _fail(
 			"%s failed to load: %s"
 			% [
 				trace_name,
-				trace["_error"]
+				trace["_error"],
 			]
 		)
 
@@ -370,8 +384,8 @@ static func _test_combat_trace(
 			],
 			"guards_out": combat_result[
 				"guards_out"
-			]
-		}
+			],
+		},
 	}
 
 	var engine_snapshots: Array = []
@@ -407,13 +421,14 @@ static func _test_humbaba_defense_curve(
 		)
 	)
 
-	if trace.has("_error"):
+	if trace.has(
+		"_error"
+	):
 		return _fail(
 			"%s failed to load: %s"
 			% [
 				trace_name,
-				trace["_error"
-				]
+				trace["_error"],
 			]
 		)
 
@@ -466,7 +481,7 @@ static func _test_humbaba_defense_curve(
 				castles,
 				threat,
 				rules
-			)
+			),
 		})
 
 	var after_snapshot: Dictionary = {
@@ -478,11 +493,11 @@ static func _test_humbaba_defense_curve(
 			"op",
 			"lord_base_def"
 		),
-		"rows": engine_rows
+		"rows": engine_rows,
 	}
 
 	var engine_snapshots: Array = [
-		after_snapshot
+		after_snapshot,
 	]
 
 	return _validate_trace(
@@ -503,12 +518,14 @@ static func _test_humbaba_seal(
 		)
 	)
 
-	if trace.has("_error"):
+	if trace.has(
+		"_error"
+	):
 		return _fail(
 			"%s failed to load: %s"
 			% [
 				trace_name,
-				trace["_error"]
+				trace["_error"],
 			]
 		)
 
@@ -534,12 +551,12 @@ static func _test_humbaba_seal(
 			[
 				{
 					"lord": "Humbaba",
-					"alive": true
+					"alive": true,
 				},
 				{
 					"lord": "Valak",
-					"alive": true
-				}
+					"alive": true,
+				},
 			],
 			rules
 		)
@@ -550,12 +567,12 @@ static func _test_humbaba_seal(
 			[
 				{
 					"lord": "Humbaba",
-					"alive": false
+					"alive": false,
 				},
 				{
 					"lord": "Valak",
-					"alive": true
-				}
+					"alive": true,
+				},
 			],
 			rules
 		)
@@ -573,12 +590,12 @@ static func _test_humbaba_seal(
 		"result": {
 			"standing": standing,
 			"banished": banished,
-			"base": rules.dominion_requirement
-		}
+			"base": rules.dominion_requirement,
+		},
 	}
 
 	var engine_snapshots: Array = [
-		after_snapshot
+		after_snapshot,
 	]
 
 	return _validate_trace(
@@ -598,12 +615,14 @@ static func _test_game_deal_trace(
 		)
 	)
 
-	if full_trace.has("_error"):
+	if full_trace.has(
+		"_error"
+	):
 		return _fail(
 			"%s failed to load: %s"
 			% [
 				trace_name,
-				full_trace["_error"]
+				full_trace["_error"],
 			]
 		)
 
@@ -653,22 +672,18 @@ static func _test_game_deal_trace(
 	)
 
 	deal_trace["snapshots"] = [
-		golden_deal_snapshot
+		golden_deal_snapshot,
 	]
 
 	deal_trace["trace_hash"] = ""
 
-	var validation_result: Dictionary = (
-		_validate_trace(
-			deal_trace,
-			[
-				engine_deal_snapshot
-			],
-			rules
-		)
+	return _validate_trace(
+		deal_trace,
+		[
+			engine_deal_snapshot,
+		],
+		rules
 	)
-
-	return validation_result
 
 
 static func _find_snapshot_by_checkpoint(
@@ -676,7 +691,9 @@ static func _find_snapshot_by_checkpoint(
 	checkpoint: String
 ):
 	for snapshot in snapshots:
-		if typeof(snapshot) != TYPE_DICTIONARY:
+		if typeof(
+			snapshot
+		) != TYPE_DICTIONARY:
 			continue
 
 		var snapshot_dict: Dictionary = snapshot
@@ -706,11 +723,15 @@ static func _validate_trace(
 
 	if result.passed:
 		return _pass(
-			str(result)
+			str(
+				result
+			)
 		)
 
 	return _fail(
-		str(result)
+		str(
+			result
+		)
 	)
 
 
@@ -719,7 +740,7 @@ static func _pass(
 ) -> Dictionary:
 	return {
 		"passed": true,
-		"text": text
+		"text": text,
 	}
 
 
@@ -728,5 +749,5 @@ static func _fail(
 ) -> Dictionary:
 	return {
 		"passed": false,
-		"text": text
+		"text": text,
 	}

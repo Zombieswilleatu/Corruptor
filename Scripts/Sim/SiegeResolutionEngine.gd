@@ -724,21 +724,23 @@ static func _resolve_combat(
 	var guards_defeated: Array = []
 
 	if bypass:
-		var sigil_result: Dictionary = _resolve_sigil_layer(
-			remaining,
-			sigil_state,
-			sigil_value
+		var bypass_sigil_result: Dictionary = (
+			_resolve_sigil_layer(
+				remaining,
+				sigil_state,
+				sigil_value
+			)
 		)
 
-		var sigil_broken: bool = bool(
-			sigil_result.get(
+		var bypass_sigil_broken: bool = bool(
+			bypass_sigil_result.get(
 				"broken",
 				false
 			)
 		)
 
 		if bool(
-			sigil_result.get(
+			bypass_sigil_result.get(
 				"stopped",
 				false
 			)
@@ -752,7 +754,7 @@ static func _resolve_combat(
 			}
 
 		remaining = int(
-			sigil_result.get(
+			bypass_sigil_result.get(
 				"remaining",
 				remaining
 			)
@@ -761,7 +763,7 @@ static func _resolve_combat(
 		if remaining <= structural_defense:
 			return {
 				"destroyed": false,
-				"sigil_broken": sigil_broken,
+				"sigil_broken": bypass_sigil_broken,
 				"excess": 0,
 				"stopped_at": "Castle",
 				"guards_defeated": guards_defeated,
@@ -769,27 +771,29 @@ static func _resolve_combat(
 
 		remaining -= structural_defense
 
-		var guard_result: Dictionary = _strip_guards(
-			game,
-			remaining,
-			guard_zone,
-			ignore_lowest
+		var bypass_guard_result: Dictionary = (
+			_strip_guards(
+				game,
+				remaining,
+				guard_zone,
+				ignore_lowest
+			)
 		)
 
-		guards_defeated = guard_result.get(
+		guards_defeated = bypass_guard_result.get(
 			"guards_defeated",
 			[]
 		)
 
 		if bool(
-			guard_result.get(
+			bypass_guard_result.get(
 				"stopped",
 				false
 			)
 		):
 			return {
 				"destroyed": true,
-				"sigil_broken": sigil_broken,
+				"sigil_broken": bypass_sigil_broken,
 				"excess": 0,
 				"stopped_at": "Guard",
 				"guards_defeated": guards_defeated,
@@ -797,9 +801,9 @@ static func _resolve_combat(
 
 		return {
 			"destroyed": true,
-			"sigil_broken": sigil_broken,
+			"sigil_broken": bypass_sigil_broken,
 			"excess": int(
-				guard_result.get(
+				bypass_guard_result.get(
 					"remaining",
 					0
 				)
