@@ -52,6 +52,14 @@ const SiegeResolutionTestsData = preload(
 	"res://Scripts/Sim/SiegeResolutionTests.gd"
 )
 
+const ProfaneResolutionTestsData = preload(
+	"res://Scripts/Sim/ProfaneResolutionTests.gd"
+)
+
+const ResolutionCleanupTestsData = preload(
+	"res://Scripts/Sim/ResolutionCleanupTests.gd"
+)
+
 
 static func run_startup_checks(
 	rules: RuleConfig
@@ -130,6 +138,18 @@ static func run_startup_checks(
 
 	messages.append_array(
 		SiegeResolutionTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		ProfaneResolutionTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		ResolutionCleanupTestsData.run(
 			rules
 		)
 	)
