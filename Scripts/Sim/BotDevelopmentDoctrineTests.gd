@@ -22,12 +22,20 @@ const SummonEngineData = preload(
 	"res://Scripts/Sim/SummonEngine.gd"
 )
 
+const DominionRiteEngineData = preload(
+	"res://Scripts/Sim/DominionRiteEngine.gd"
+)
+
 const BotPolicyData = preload(
 	"res://Scripts/Sim/BotPolicy.gd"
 )
 
 const BotDevelopmentDoctrineData = preload(
 	"res://Scripts/Sim/BotDevelopmentDoctrine.gd"
+)
+
+const BotDominionRiteDoctrineData = preload(
+	"res://Scripts/Sim/BotDominionRiteDoctrine.gd"
 )
 
 
@@ -43,6 +51,18 @@ const SUMMON_PASS_TEST_NAME: String = (
 	"unit_bot_development_summon_unaffordable"
 )
 
+const RITE_PASS_TEST_NAME: String = (
+	"unit_bot_dominion_rite_pass"
+)
+
+const INVOCATION_TEST_NAME: String = (
+	"unit_bot_dominion_rite_invocation"
+)
+
+const PROFANE_TEST_NAME: String = (
+	"unit_bot_dominion_rite_profane"
+)
+
 
 static func run(
 	rules: RuleConfig
@@ -55,6 +75,15 @@ static func run(
 			rules
 		),
 		_test_unaffordable_summon(
+			rules
+		),
+		_test_rite_pass(
+			rules
+		),
+		_test_invocation_choice(
+			rules
+		),
+		_test_profane_choice(
 			rules
 		),
 	]
@@ -496,6 +525,368 @@ static func _test_unaffordable_summon(
 	)
 
 
+static func _test_rite_pass(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has(
+		"error"
+	):
+		return _fail(
+			RITE_PASS_TEST_NAME,
+			String(
+				fixture["error"]
+			)
+		)
+
+	var game = fixture["game"]
+
+	for player in game.players:
+		player.tears = 0
+		player.cataclysmic_used = false
+		player.profane_ruins_used_this_round = false
+		player.ruined_castles.clear()
+
+	game.neutral_tears = 0
+	game.refresh_derived_values()
+
+	var choices: Dictionary = (
+		BotDominionRiteDoctrineData
+		.rite_choices(
+			game,
+			rules,
+			null,
+			BotPolicyData.golden_core()
+		)
+	)
+
+	for player_id: int in range(2):
+		var decision: Dictionary = (
+			_decision_for_player(
+				choices,
+				player_id
+			)
+		)
+
+		if not bool(
+			decision.get(
+				"pass",
+				false
+			)
+		):
+			return _fail(
+				RITE_PASS_TEST_NAME,
+				"Inactive Dominion Rite did not pass."
+			)
+
+	return _pass(
+		RITE_PASS_TEST_NAME
+	)
+
+
+static func _test_invocation_choice(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has(
+		"error"
+	):
+		return _fail(
+			INVOCATION_TEST_NAME,
+			String(
+				fixture["error"]
+			)
+		)
+
+	var game = fixture["game"]
+	var player_zero = fixture["p0"]
+	var player_one = fixture["p1"]
+
+	player_zero.tears = 2
+	player_zero.souls = 0
+	player_zero.cataclysmic_used = false
+	player_zero.profane_ruins_used_this_round = false
+	player_zero.ruined_castles.clear()
+
+	player_zero.hand = _cards_from_ids([
+		"Butcher:5",
+		"Penitent:4",
+		"Wright:2",
+		"Vulture:1",
+		"Penitent:1",
+	])
+
+	player_one.tears = 0
+	player_one.souls = 0
+	player_one.ruined_castles.clear()
+
+	game.neutral_tears = max(
+		0,
+		rules.invocation_gate
+		- player_zero.tears
+	)
+
+	game.winner = -1
+	game.win_by = ""
+	game.refresh_derived_values()
+
+	var random_source = PythonRandomData.new(
+		1
+	)
+
+	var choices: Dictionary = (
+		BotDominionRiteDoctrineData
+		.rite_choices(
+			game,
+			rules,
+			random_source,
+			BotPolicyData.golden_core()
+		)
+	)
+
+	var decision: Dictionary = (
+		_decision_for_player(
+			choices,
+			0
+		)
+	)
+
+	var invocation: Dictionary = (
+		_nested_dictionary(
+			decision,
+			"invocation"
+		)
+	)
+
+	if _string_array(
+		invocation.get(
+			"payment",
+			[]
+		)
+	) != [
+		"Butcher:5",
+		"Penitent:4",
+		"Wright:2",
+	]:
+		return _fail(
+			INVOCATION_TEST_NAME,
+			"Invocation chose the wrong payment cards."
+		)
+
+	var next_random: float = (
+		random_source.random_float()
+	)
+
+	if next_random != 0.13436424411240122:
+		return _fail(
+			INVOCATION_TEST_NAME,
+			"Golden Invocation selection consumed RNG."
+		)
+
+	var tears_before: int = int(
+		player_zero.tears
+	)
+
+	var results: Array[Dictionary] = (
+		DominionRiteEngineData.resolve(
+			game,
+			rules,
+			choices
+		)
+	)
+
+	var actions: Array = results[0].get(
+		"actions",
+		[]
+	)
+
+	if actions.is_empty():
+		return _fail(
+			INVOCATION_TEST_NAME,
+			"Invocation produced no resolved action."
+		)
+
+	if String(
+		actions[0].get(
+			"action",
+			""
+		)
+	) != "cataclysmic_invocation":
+		return _fail(
+			INVOCATION_TEST_NAME,
+			"Invocation did not resolve."
+		)
+
+	if player_zero.tears != tears_before + 1:
+		return _fail(
+			INVOCATION_TEST_NAME,
+			"Invocation did not place a personal Tear."
+		)
+
+	if not player_zero.cataclysmic_used:
+		return _fail(
+			INVOCATION_TEST_NAME,
+			"Invocation use flag was not set."
+		)
+
+	return _pass(
+		INVOCATION_TEST_NAME
+	)
+
+
+static func _test_profane_choice(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has(
+		"error"
+	):
+		return _fail(
+			PROFANE_TEST_NAME,
+			String(
+				fixture["error"]
+			)
+		)
+
+	var game = fixture["game"]
+	var player_zero = fixture["p0"]
+	var player_one = fixture["p1"]
+
+	player_zero.lord = "Deimos"
+	player_zero.tears = 1
+	player_zero.cataclysmic_used = true
+	player_zero.profane_ruins_used_this_round = false
+
+	player_zero.ruined_castles.clear()
+	player_zero.ruined_castles.append(
+		"Stockpile"
+	)
+	player_zero.ruined_castles.append(
+		"SiegeEngine"
+	)
+
+	player_zero.profaned_castles.clear()
+
+	player_zero.castles.erase(
+		"Stockpile"
+	)
+	player_zero.castles.erase(
+		"SiegeEngine"
+	)
+
+	player_one.tears = 0
+	player_one.ruined_castles.clear()
+
+	game.neutral_tears = 0
+	game.winner = -1
+	game.win_by = ""
+	game.refresh_derived_values()
+
+	var choices: Dictionary = (
+		BotDominionRiteDoctrineData
+		.rite_choices(
+			game,
+			rules,
+			null,
+			BotPolicyData.golden_core()
+		)
+	)
+
+	var decision: Dictionary = (
+		_decision_for_player(
+			choices,
+			0
+		)
+	)
+
+	var profane: Dictionary = (
+		_nested_dictionary(
+			decision,
+			"profane_ruins"
+		)
+	)
+
+	if String(
+		profane.get(
+			"castle",
+			""
+		)
+	) != "Stockpile":
+		return _fail(
+			PROFANE_TEST_NAME,
+			"Profane the Ruins selected the wrong Castle."
+		)
+
+	var tears_before: int = int(
+		player_zero.tears
+	)
+
+	var results: Array[Dictionary] = (
+		DominionRiteEngineData.resolve(
+			game,
+			rules,
+			choices
+		)
+	)
+
+	var actions: Array = results[0].get(
+		"actions",
+		[]
+	)
+
+	if actions.is_empty():
+		return _fail(
+			PROFANE_TEST_NAME,
+			"Profane the Ruins produced no action."
+		)
+
+	if String(
+		actions[0].get(
+			"action",
+			""
+		)
+	) != "profane_ruins":
+		return _fail(
+			PROFANE_TEST_NAME,
+			"Profane the Ruins did not resolve."
+		)
+
+	if not player_zero.profaned_castles.has(
+		"Stockpile"
+	):
+		return _fail(
+			PROFANE_TEST_NAME,
+			"Stockpile was not moved to Profaned Castles."
+		)
+
+	if player_zero.ruined_castles.has(
+		"Stockpile"
+	):
+		return _fail(
+			PROFANE_TEST_NAME,
+			"Stockpile remained Ruined."
+		)
+
+	if player_zero.tears != tears_before + 1:
+		return _fail(
+			PROFANE_TEST_NAME,
+			"Profane the Ruins did not place a Tear."
+		)
+
+	return _pass(
+		PROFANE_TEST_NAME
+	)
+
+
 static func _build_fixture(
 	rules: RuleConfig
 ) -> Dictionary:
@@ -596,6 +987,23 @@ static func _decision_for_player(
 		return {}
 
 	return raw_decision
+
+
+static func _nested_dictionary(
+	source: Dictionary,
+	key: String
+) -> Dictionary:
+	var raw_value = source.get(
+		key,
+		{}
+	)
+
+	if typeof(
+		raw_value
+	) != TYPE_DICTIONARY:
+		return {}
+
+	return raw_value
 
 
 static func _string_array(
