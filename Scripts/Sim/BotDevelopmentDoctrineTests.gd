@@ -38,6 +38,10 @@ const BotDominionRiteDoctrineData = preload(
 	"res://Scripts/Sim/BotDominionRiteDoctrine.gd"
 )
 
+const BotDeployDoctrineTestsData = preload(
+	"res://Scripts/Sim/BotDeployDoctrineTests.gd"
+)
+
 
 const REPAIR_TEST_NAME: String = (
 	"unit_bot_development_repair"
@@ -67,7 +71,7 @@ const PROFANE_TEST_NAME: String = (
 static func run(
 	rules: RuleConfig
 ) -> Array:
-	return [
+	var results: Array = [
 		_test_repair_choice(
 			rules
 		),
@@ -87,6 +91,14 @@ static func run(
 			rules
 		),
 	]
+
+	results.append_array(
+		BotDeployDoctrineTestsData.run(
+			rules
+		)
+	)
+
+	return results
 
 
 static func _test_repair_choice(
