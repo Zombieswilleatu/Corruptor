@@ -84,6 +84,14 @@ const SeededGameSetupTestsData = preload(
 	"res://Scripts/Sim/SeededGameSetupTests.gd"
 )
 
+const BotDoctrineTestsData = preload(
+	"res://Scripts/Sim/BotDoctrineTests.gd"
+)
+
+const BotDevelopmentDoctrineTestsData = preload(
+	"res://Scripts/Sim/BotDevelopmentDoctrineTests.gd"
+)
+
 
 static func run_startup_checks(
 	rules: RuleConfig
@@ -210,6 +218,18 @@ static func run_startup_checks(
 
 	messages.append_array(
 		SeededGameSetupTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		BotDoctrineTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		BotDevelopmentDoctrineTestsData.run(
 			rules
 		)
 	)
