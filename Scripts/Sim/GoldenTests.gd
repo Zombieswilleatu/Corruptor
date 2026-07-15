@@ -76,6 +76,14 @@ const ResolutionEngineTestsData = preload(
 	"res://Scripts/Sim/ResolutionEngineTests.gd"
 )
 
+const RawStreamTestsData = preload(
+	"res://Scripts/Sim/RawStreamTests.gd"
+)
+
+const SeededGameSetupTestsData = preload(
+	"res://Scripts/Sim/SeededGameSetupTests.gd"
+)
+
 
 static func run_startup_checks(
 	rules: RuleConfig
@@ -190,6 +198,18 @@ static func run_startup_checks(
 
 	messages.append_array(
 		ResolutionEngineTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		RawStreamTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		SeededGameSetupTestsData.run(
 			rules
 		)
 	)
