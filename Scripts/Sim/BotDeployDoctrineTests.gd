@@ -18,6 +18,10 @@ const BotDeployDoctrineData = preload(
 	"res://Scripts/Sim/BotDeployDoctrine.gd"
 )
 
+const BotReflexDoctrineTestsData = preload(
+	"res://Scripts/Sim/BotReflexDoctrineTests.gd"
+)
+
 
 const NORMAL_TEST_NAME: String = (
 	"unit_bot_deploy_reserved_cards"
@@ -39,7 +43,7 @@ const FRENZY_TEST_NAME: String = (
 static func run(
 	rules: RuleConfig
 ) -> Array:
-	return [
+	var results: Array = [
 		_test_reserved_deploy(
 			rules
 		),
@@ -53,6 +57,14 @@ static func run(
 			rules
 		),
 	]
+
+	results.append_array(
+		BotReflexDoctrineTestsData.run(
+			rules
+		)
+	)
+
+	return results
 
 
 static func _test_reserved_deploy(
