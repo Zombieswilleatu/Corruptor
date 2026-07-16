@@ -214,8 +214,6 @@ static func evaluate_candidates(
 		},
 	]
 
-	if not actor.committed.is_empty():
-		return candidates
 
 	if (
 		opponent.alive

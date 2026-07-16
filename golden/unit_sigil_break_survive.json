@@ -1,5 +1,5 @@
 {
-  "ai_version": "heuristic-2025.06-doctrine",
+  "ai_version": "softmax-2026.07-v1-golden",
   "identity": {
     "constants": {
       "DOMINION_REQUIREMENT": 2,

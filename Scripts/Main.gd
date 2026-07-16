@@ -294,6 +294,7 @@ func _run_golden_startup_checks() -> void:
 				% text
 			)
 
+			print(text)
 			push_error(text)
 
 	var summary: String = (

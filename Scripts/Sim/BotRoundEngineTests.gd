@@ -6,12 +6,33 @@ const SeededGameSetupData = preload(
 	"res://Scripts/Sim/SeededGameSetup.gd"
 )
 
+const GoldenMasterData = preload(
+	"res://Scripts/Sim/GoldenMaster.gd"
+)
+
+const GoldenSnapshotSerializerData = preload(
+	"res://Scripts/Sim/GoldenSnapshotSerializer.gd"
+)
+
 const BotPolicyData = preload(
 	"res://Scripts/Sim/BotPolicy.gd"
 )
 
 const BotRoundEngineData = preload(
 	"res://Scripts/Sim/BotRoundEngine.gd"
+)
+
+const BotGameEngineData = preload(
+	"res://Scripts/Sim/BotGameEngine.gd"
+)
+
+
+const AI_POLICY: String = (
+	"softmax-2026.07-v1-golden"
+)
+
+const GAME_TRACE_NAME: String = (
+	"game_deimos_valak_s1"
 )
 
 
@@ -27,6 +48,18 @@ const DETERMINISM_TEST_NAME: String = (
 	"unit_bot_round_seed_one_deterministic"
 )
 
+const GAME_TERMINAL_TEST_NAME: String = (
+	"unit_bot_game_seed_one_terminal"
+)
+
+const TIMEOUT_TEST_NAME: String = (
+	"unit_bot_game_timeout_tiebreak"
+)
+
+const GOLDEN_GAME_TEST_NAME: String = (
+	"golden_bot_game_deimos_valak_s1"
+)
+
 
 static func run(
 	rules: RuleConfig
@@ -39,6 +72,15 @@ static func run(
 			rules
 		),
 		_test_seed_one_determinism(
+			rules
+		),
+		_test_full_game_terminal(
+			rules
+		),
+		_test_timeout_tiebreak(
+			rules
+		),
+		_test_seed_one_golden(
 			rules
 		),
 	]
@@ -508,6 +550,433 @@ static func _test_seed_one_determinism(
 	)
 
 
+static func _test_full_game_terminal(
+	rules: RuleConfig
+) -> Dictionary:
+	var setup: Dictionary = (
+		SeededGameSetupData
+		.setup_deimos_valak_seed_one(
+			rules
+		)
+	)
+
+	var game = setup.get(
+		"game"
+	)
+
+	var random_source = setup.get(
+		"rng"
+	)
+
+	if (
+		game == null
+		or random_source == null
+	):
+		return _fail(
+			GAME_TERMINAL_TEST_NAME,
+			"Seeded setup returned no game or RNG."
+		)
+
+	var result: Dictionary = (
+		BotGameEngineData.resolve_game(
+			game,
+			rules,
+			random_source,
+			BotPolicyData.golden_core()
+		)
+	)
+
+	if String(
+		result.get(
+			"action",
+			""
+		)
+	) == "invalid":
+		return _fail(
+			GAME_TERMINAL_TEST_NAME,
+			"Full game became invalid in round %d, phase %s: %s"
+			% [
+				int(
+					result.get(
+						"stopped_round",
+						-1
+					)
+				),
+				String(
+					result.get(
+						"stopped_phase",
+						""
+					)
+				),
+				String(
+					result.get(
+						"reason",
+						""
+					)
+				),
+			]
+		)
+
+	if String(
+		result.get(
+			"action",
+			""
+		)
+	) != "game":
+		return _fail(
+			GAME_TERMINAL_TEST_NAME,
+			"Full game returned an unknown result."
+		)
+
+	if not bool(
+		result.get(
+			"terminal",
+			false
+		)
+	):
+		return _fail(
+			GAME_TERMINAL_TEST_NAME,
+			"Full game did not reach a terminal state."
+		)
+
+	if int(
+		game.winner
+	) < 0:
+		return _fail(
+			GAME_TERMINAL_TEST_NAME,
+			"Terminal game has no winner."
+		)
+
+	if String(
+		game.win_by
+	).is_empty():
+		return _fail(
+			GAME_TERMINAL_TEST_NAME,
+			"Terminal game has no victory condition."
+		)
+
+	if game.round > rules.max_rounds:
+		return _fail(
+			GAME_TERMINAL_TEST_NAME,
+			"Full game exceeded the configured round limit."
+		)
+
+	if int(
+		result.get(
+			"final_round",
+			-1
+		)
+	) != int(
+		game.round
+	):
+		return _fail(
+			GAME_TERMINAL_TEST_NAME,
+			"Game result and GameState disagree on the final round."
+		)
+
+	return _pass(
+		GAME_TERMINAL_TEST_NAME
+	)
+
+
+static func _test_timeout_tiebreak(
+	rules: RuleConfig
+) -> Dictionary:
+	var setup: Dictionary = (
+		SeededGameSetupData
+		.setup_deimos_valak_seed_one(
+			rules
+		)
+	)
+
+	var game = setup.get(
+		"game"
+	)
+
+	var random_source = setup.get(
+		"rng"
+	)
+
+	if (
+		game == null
+		or random_source == null
+	):
+		return _fail(
+			TIMEOUT_TEST_NAME,
+			"Seeded setup returned no game or RNG."
+		)
+
+	var result: Dictionary = (
+		BotGameEngineData.resolve_game(
+			game,
+			rules,
+			random_source,
+			BotPolicyData.golden_core(),
+			0
+		)
+	)
+
+	if String(
+		result.get(
+			"action",
+			""
+		)
+	) != "game":
+		return _fail(
+			TIMEOUT_TEST_NAME,
+			"Immediate timeout returned an invalid result."
+		)
+
+	if game.win_by != "Timeout":
+		return _fail(
+			TIMEOUT_TEST_NAME,
+			"Round limit did not produce a Timeout result."
+		)
+
+	if game.winner != 0:
+		return _fail(
+			TIMEOUT_TEST_NAME,
+			"Lower-Threat Deimos did not win the timeout."
+		)
+
+	if game.round != 0:
+		return _fail(
+			TIMEOUT_TEST_NAME,
+			"Immediate timeout unexpectedly resolved a round."
+		)
+
+	var timeout_result: Dictionary = _dictionary(
+		result.get(
+			"timeout",
+			{}
+		)
+	)
+
+	if String(
+		timeout_result.get(
+			"tie_break",
+			""
+		)
+	) != "threat":
+		return _fail(
+			TIMEOUT_TEST_NAME,
+			"Timeout used the wrong tiebreak layer."
+		)
+
+	if int(
+		result.get(
+			"round_count",
+			-1
+		)
+	) != 0:
+		return _fail(
+			TIMEOUT_TEST_NAME,
+			"Immediate timeout recorded resolved rounds."
+		)
+
+	var next_random: float = (
+		random_source.random_float()
+	)
+
+	if next_random != 0.9497192655214912:
+		return _fail(
+			TIMEOUT_TEST_NAME,
+			"Non-random timeout consumed RNG."
+		)
+
+	return _pass(
+		TIMEOUT_TEST_NAME
+	)
+
+
+static func _test_seed_one_golden(
+	rules: RuleConfig
+) -> Dictionary:
+	var trace: Dictionary = (
+		GoldenMasterData.load_trace(
+			GAME_TRACE_NAME
+		)
+	)
+
+	if trace.has(
+		"_error"
+	):
+		return _fail(
+			GOLDEN_GAME_TEST_NAME,
+			String(
+				trace.get(
+					"_error",
+					"unable_to_load_trace"
+				)
+			)
+		)
+
+	var setup: Dictionary = (
+		SeededGameSetupData
+		.setup_deimos_valak_seed_one(
+			rules
+		)
+	)
+
+	var game = setup.get(
+		"game"
+	)
+
+	var random_source = setup.get(
+		"rng"
+	)
+
+	if (
+		game == null
+		or random_source == null
+	):
+		return _fail(
+			GOLDEN_GAME_TEST_NAME,
+			"Seeded setup returned no game or RNG."
+		)
+
+	var engine_snapshots: Array = [
+		GoldenSnapshotSerializerData
+		.snapshot_game(
+			game,
+			"game:deal",
+			rules
+		),
+	]
+
+	while (
+		int(
+			game.winner
+		) < 0
+		and int(
+			game.round
+		) < int(
+			rules.max_rounds
+		)
+	):
+		var next_round: int = (
+			int(
+				game.round
+			) + 1
+		)
+
+		var round_result: Dictionary = (
+			BotRoundEngineData.resolve_round(
+				game,
+				rules,
+				random_source,
+				next_round,
+				BotPolicyData.golden_core()
+			)
+		)
+
+		if String(
+			round_result.get(
+				"action",
+				""
+			)
+		) == "invalid":
+			return _fail(
+				GOLDEN_GAME_TEST_NAME,
+				"Golden game became invalid in round %d, phase %s: %s"
+				% [
+					next_round,
+					String(
+						round_result.get(
+							"stopped_phase",
+							""
+						)
+					),
+					String(
+						round_result.get(
+							"reason",
+							""
+						)
+					),
+				]
+			)
+
+		engine_snapshots.append(
+			GoldenSnapshotSerializerData
+			.snapshot_game(
+				game,
+				"round:%02d:end"
+				% next_round,
+				rules
+			)
+		)
+
+	if int(
+		game.winner
+	) < 0:
+		var timeout_result: Dictionary = (
+			BotGameEngineData.resolve_game(
+				game,
+				rules,
+				random_source,
+				BotPolicyData.golden_core(),
+				int(
+					game.round
+				)
+			)
+		)
+
+		if String(
+			timeout_result.get(
+				"action",
+				""
+			)
+		) == "invalid":
+			return _fail(
+				GOLDEN_GAME_TEST_NAME,
+				"Golden timeout became invalid: %s"
+				% String(
+					timeout_result.get(
+						"reason",
+						""
+					)
+				)
+			)
+
+	if int(
+		game.winner
+	) < 0:
+		return _fail(
+			GOLDEN_GAME_TEST_NAME,
+			"Golden game did not reach game:end."
+		)
+
+	engine_snapshots.append(
+		GoldenSnapshotSerializerData
+		.snapshot_game(
+			game,
+			"game:end",
+			rules
+		)
+	)
+
+	var validation = GoldenMasterData.validate(
+		trace,
+		engine_snapshots,
+		rules,
+		AI_POLICY
+	)
+
+	if validation.passed:
+		return _pass(
+			str(
+				validation
+			)
+		)
+
+	return _fail(
+		GOLDEN_GAME_TEST_NAME,
+		str(
+			validation
+		)
+	)
+
+
 static func _game_signature(
 	game
 ) -> Dictionary:
@@ -545,7 +1014,9 @@ static func _game_signature(
 			"lord_guards": _card_ids(
 				player.lord_guards
 			),
-			"castles": player.castles.duplicate(),
+			"castles": (
+				player.castles.duplicate()
+			),
 			"ruined_castles": (
 				player.ruined_castles.duplicate()
 			),
@@ -642,6 +1113,7 @@ static func _card_ids(
 			result.append(
 				"<null>"
 			)
+
 		elif card.has_method(
 			"card_id"
 		):
@@ -650,6 +1122,7 @@ static func _card_ids(
 					card.card_id()
 				)
 			)
+
 		else:
 			result.append(
 				str(

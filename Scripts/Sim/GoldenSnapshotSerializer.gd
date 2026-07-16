@@ -2,16 +2,27 @@ class_name GoldenSnapshotSerializer
 extends RefCounted
 
 
+const GameSetupData = preload(
+	"res://Scripts/Sim/GameSetup.gd"
+)
+
+const LordMathData = preload(
+	"res://Scripts/Sim/LordMath.gd"
+)
+
+
 static func snapshot_game(
 	game_state,
-	checkpoint: String
+	checkpoint: String,
+	rules: RuleConfig = null
 ) -> Dictionary:
 	var player_snapshots: Array = []
 
 	for player in game_state.players:
 		player_snapshots.append(
 			snapshot_player(
-				player
+				player,
+				rules
 			)
 		)
 
@@ -58,7 +69,8 @@ static func snapshot_game(
 
 
 static func snapshot_player(
-	player
+	player,
+	rules: RuleConfig = null
 ) -> Dictionary:
 	return {
 		"pid": int(
@@ -239,10 +251,95 @@ static func snapshot_player(
 		"sigils": snapshot_sigils(
 			player.sigils
 		),
-		"_derived_lord_def": int(
-			player.derived_lord_def
+
+		# Python's serializer calculates this value live through
+		# Player.lord_base_def(). It is not a snapshot of a mutable cache.
+		"_derived_lord_def": _calculate_lord_defense(
+			player,
+			rules
 		),
 	}
+
+
+static func _calculate_lord_defense(
+	player,
+	rules: RuleConfig
+) -> int:
+	var effective_rules: RuleConfig = rules
+
+	if effective_rules == null:
+		effective_rules = RuleConfig.new()
+
+	var lord_id: String = String(
+		player.lord
+	)
+
+	if lord_id == "Humbaba":
+		return LordMathData.lord_base_def(
+			lord_id,
+			player.castles,
+			int(
+				player.threat
+			),
+			effective_rules
+		)
+
+	var defense: int = 0
+
+	if lord_id == "Kroni":
+		if int(
+			player.kroni_hunger
+		) >= 3:
+			defense = (
+				7
+				if effective_rules.kroni_def_soft
+				else 8
+			)
+		elif int(
+			player.kroni_hunger
+		) >= 1:
+			defense = (
+				5
+				if effective_rules.kroni_def_soft
+				else 6
+			)
+		else:
+			defense = 4
+	else:
+		var lord_data: Dictionary = (
+			GameSetupData.LORD_CONTENT.get(
+				lord_id,
+				{}
+			)
+		)
+
+		defense = int(
+			lord_data.get(
+				"base_defense",
+				0
+			)
+		)
+
+	var threat: int = int(
+		player.threat
+	)
+
+	if threat >= 4:
+		defense -= 3
+	elif threat >= 3:
+		defense -= 2
+	elif threat >= 2:
+		defense -= 1
+
+	if player.castles.has(
+		"Bastion"
+	):
+		defense += 2
+
+	return max(
+		0,
+		defense
+	)
 
 
 static func card_id(

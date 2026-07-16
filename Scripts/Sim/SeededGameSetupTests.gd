@@ -16,7 +16,7 @@ const GoldenMasterData = preload(
 
 
 const AI_POLICY: String = (
-	"heuristic-2025.06-doctrine"
+	"softmax-2026.07-v1-golden"
 )
 
 const RNG_STREAM_PATH: String = (

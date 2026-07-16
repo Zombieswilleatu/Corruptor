@@ -2,7 +2,7 @@ class_name GoldenTests
 extends RefCounted
 
 
-const AI_POLICY := "heuristic-2025.06-doctrine"
+const AI_POLICY := "softmax-2026.07-v1-golden"
 
 const SnapshotSerializer = preload(
 	"res://Scripts/Sim/GoldenSnapshotSerializer.gd"

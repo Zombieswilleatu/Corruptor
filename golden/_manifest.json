@@ -1,11 +1,11 @@
 {
-  "ai_version": "heuristic-2025.06-doctrine",
+  "ai_version": "softmax-2026.07-v1-golden",
   "schema_version": 3,
   "traces": {
-    "game_deimos_valak_s1": "49f507464581dd7ca26194d9779e8278e97480e4de2cd7a97257a950e7e8f3cb",
-    "game_kroni_orias_s42": "95f659efc5a6970882257bd575a6bce3b764faccf28766656b5b3dd21373c13a",
-    "game_odradek_humbaba_s7": "36f30911ec37314115245a8f58020c6f109b46c5cef9893ef662f9ea7a0a9fc4",
-    "game_pool_mixed_s99": "0bd4f938058667b46420444b712eb3bb441790be622cc125090ad455d093fdf2",
+    "game_deimos_valak_s1": "b417d0adcbba55d60a5d61355e4b211779047504069f1a341494a20269009814",
+    "game_kroni_orias_s42": "43d63571bb1cc671d18c638edc132b22114cbaacae30b08b177da229768129a8",
+    "game_odradek_humbaba_s7": "8f66dc050a722c797037878681e1e627415bd07ae80e88d8b8d4c50aec79de37",
+    "game_pool_mixed_s99": "9f2082bdb678a99048d1c7988363a3654f94914293d97dcd47b73a0aee718a1d",
     "unit_combat_breakthrough": "fa2c2f30d32104fc03d49deb0e46372f6d9c934d360a38a2ff8f4231052f2938",
     "unit_combat_golden_rule": "849c484ecc35f17bf74e4c3cc61d29b4e32dc77fb09717f990454b7a2dc58ba0",
     "unit_humbaba_defense_curve": "d63effc6989ee17151fe961af2bba76a5c3ee543effa8c943bb57bb0b3b195ab",
