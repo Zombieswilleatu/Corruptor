@@ -26,6 +26,10 @@ const BotResolutionDoctrineData = preload(
 	"res://Scripts/Sim/BotResolutionDoctrine.gd"
 )
 
+const DevelopmentStartTestsData = preload(
+	"res://Scripts/Sim/DevelopmentStartTests.gd"
+)
+
 
 const ACTION_TEST_NAME: String = (
 	"unit_bot_resolution_action_bundle"
@@ -47,7 +51,7 @@ const GREMORY_TEST_NAME: String = (
 static func run(
 	rules: RuleConfig
 ) -> Array:
-	return [
+	var results: Array = [
 		_test_action_bundle(
 			rules
 		),
@@ -61,6 +65,14 @@ static func run(
 			rules
 		),
 	]
+
+	results.append_array(
+		DevelopmentStartTestsData.run(
+			rules
+		)
+	)
+
+	return results
 
 
 static func _test_action_bundle(
