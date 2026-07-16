@@ -22,6 +22,10 @@ const DevelopmentStartEngineData = preload(
 	"res://Scripts/Sim/DevelopmentStartEngine.gd"
 )
 
+const BotRoundEngineTestsData = preload(
+	"res://Scripts/Sim/BotRoundEngineTests.gd"
+)
+
 
 const RECYCLE_TEST_NAME: String = (
 	"unit_draw_engine_seeded_recycle"
@@ -47,7 +51,7 @@ const BREACH_TEST_NAME: String = (
 static func run(
 	rules: RuleConfig
 ) -> Array:
-	return [
+	var results: Array = [
 		_test_seeded_recycle(
 			rules
 		),
@@ -64,6 +68,14 @@ static func run(
 			rules
 		),
 	]
+
+	results.append_array(
+		BotRoundEngineTestsData.run(
+			rules
+		)
+	)
+
+	return results
 
 
 static func _test_seeded_recycle(
