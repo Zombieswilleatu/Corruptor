@@ -26,6 +26,10 @@ const BotReflexDoctrineData = preload(
 	"res://Scripts/Sim/BotReflexDoctrine.gd"
 )
 
+const BotResolutionDoctrineTestsData = preload(
+	"res://Scripts/Sim/BotResolutionDoctrineTests.gd"
+)
+
 
 const HUNT_TEST_NAME: String = (
 	"unit_bot_reflex_hunt_argmax"
@@ -47,7 +51,7 @@ const ODRADEK_TEST_NAME: String = (
 static func run(
 	rules: RuleConfig
 ) -> Array:
-	return [
+	var results: Array = [
 		_test_hunt_argmax(
 			rules
 		),
@@ -61,6 +65,14 @@ static func run(
 			rules
 		),
 	]
+
+	results.append_array(
+		BotResolutionDoctrineTestsData.run(
+			rules
+		)
+	)
+
+	return results
 
 
 static func _test_hunt_argmax(
