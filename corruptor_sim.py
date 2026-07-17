@@ -26,7 +26,10 @@ SIM_VERSION history
              (track 11, req 2, banish-tears, invocation gate 5).
   6.0        Ninth lord: Humbaba, Ancient Guardian (Seal · Toll · Gate
              Guard · Patient Hunger · The Stones Forget). Doctrine pass
-             (chip/alternating AI). CURRENT.
+             (chip/alternating AI).
+  6.0.1      Python oracle identity correction: every physical card is a
+             distinct object; Ruinous Harvest removes the exact most-recent
+             eligible discard entry. CURRENT.
 
 CHANGELOG (rulebook alignment — retained for reference)
 ───────────────────────────────────────────────────────
@@ -81,7 +84,7 @@ This version aligns the simulation with Rulebook v5.29. Major changes:
   defense penalty (persistent Scorch guard-strip retained).
 """
 
-SIM_VERSION = "6.0"                          # rules/dial axis — pins golden traces
+SIM_VERSION = "6.0.1"                        # trace-affecting oracle implementation version
 SIM_CODENAME = "DE v2 + Humbaba"
 AI_POLICY = "heuristic-2025.06-doctrine"     # policy axis — pins balance grids (Law 5)
 
@@ -215,10 +218,17 @@ def summon_base_cost(lord: str) -> int:
 
 
 def make_deck_2p() -> List[Card]:
-    cards = []
-    for s in SUITS:
-        for v, cnt in CARD_DIST.items():
-            cards += [Card(s, v)] * cnt
+    # Every physical card must have its own object identity.
+    #
+    # Do not use `[Card(suit, value)] * count` here. That repeats references
+    # to one Card instance and makes distinct physical cards alias each other.
+    cards = [
+        Card(suit, value)
+        for suit in SUITS
+        for value, count in CARD_DIST.items()
+        for _ in range(count)
+    ]
+
     random.shuffle(cards)
     removed = defaultdict(int)
     deck = []
@@ -500,18 +510,36 @@ class Game:
         return {p.pid: p.tears for p in self.players}
 
     def _gremory_ruinous_harvest(self):
-        """Ruinous Harvest: when any Tear is placed, Gremory may search the discard
-        pile for the first card with value 4 or 5 and take it into hand.
-        Once per round. Does not fire if discard pile has no 4/5 cards."""
+        """Move the most-recent eligible discard card into Gremory's hand.
+
+        Ruinous Harvest searches from the top of the discard pile toward the
+        bottom and takes the first value-4-or-5 card it encounters. Removal is
+        performed by index so the selected physical card and removed physical
+        card are guaranteed to be the same object.
+        """
         for pl in self.players:
-            if pl.lord == 'Gremory' and pl.alive and not pl.gremory_veil_draw_done:
-                # Search discard for first 4 or 5 (most recent first)
-                target = next((c for c in reversed(self.discard) if c.value >= 4), None)
-                if target:
-                    self.discard.remove(target)
-                    pl.hand.append(target)
-                    pl.gremory_veil_draw_done = True
+            if (
+                pl.lord != 'Gremory'
+                or not pl.alive
+                or pl.gremory_veil_draw_done
+            ):
+                continue
+
+            for index in range(
+                len(self.discard) - 1,
+                -1,
+                -1,
+            ):
+                if self.discard[index].value < 4:
+                    continue
+
+                harvested = self.discard.pop(index)
+                pl.hand.append(harvested)
+                pl.gremory_veil_draw_done = True
                 break
+
+            # Only one Gremory can be active in a two-player game.
+            break
 
     def _gain_tear(self, pl: Player):
         """Place a personal Tear. Advances track and Attunement."""
