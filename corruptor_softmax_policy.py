@@ -36,18 +36,28 @@ SIEGE_TARGET_ORDER = [
 ]
 
 _SIM = None
+_ORIGINAL_PLAYER_RESET_ROUND = None
 _ORIGINAL_RESOLVE_HUNT = None
 _ORIGINAL_RESOLVE_SIEGE = None
 
 
 def install(sim_module) -> None:
     """Install the deterministic golden-core doctrine into corruptor_sim."""
-    global _SIM, _ORIGINAL_RESOLVE_HUNT, _ORIGINAL_RESOLVE_SIEGE
+    global _SIM
+    global _ORIGINAL_PLAYER_RESET_ROUND
+    global _ORIGINAL_RESOLVE_HUNT
+    global _ORIGINAL_RESOLVE_SIEGE
     _SIM = sim_module
 
     sim_module.AI_POLICY = POLICY_ID
 
+    player_type = sim_module.Player
     game_type = sim_module.Game
+
+    if _ORIGINAL_PLAYER_RESET_ROUND is None:
+        _ORIGINAL_PLAYER_RESET_ROUND = player_type.reset_round
+
+    player_type.reset_round = _reset_round_with_previous_ward
 
     game_type._ai_market = _ai_market
     game_type._ai_bid = _ai_bid
@@ -69,6 +79,24 @@ def install(sim_module) -> None:
 
     game_type._resolve_hunt = _resolve_hunt_without_random_consume
     game_type._resolve_siege = _resolve_siege_without_random_consume
+
+
+def _reset_round_with_previous_ward(self) -> None:
+    """
+    Mirror PlayerState.reset_round_state().
+
+    The Python Player already carries prev_ward_target, but the legacy reset
+    never copied the completed round's Ward target into it. That silently
+    disabled the alternating-Ward doctrine in Python while Godot enforced it.
+    """
+    if _ORIGINAL_PLAYER_RESET_ROUND is None:
+        raise RuntimeError(
+            "Golden policy reset wrapper was installed without an original reset."
+        )
+
+    previous_ward_target = str(self.ward_target)
+    _ORIGINAL_PLAYER_RESET_ROUND(self)
+    self.prev_ward_target = previous_ward_target
 
 
 def _require_sim():

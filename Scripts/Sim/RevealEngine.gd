@@ -2,6 +2,11 @@ class_name RevealEngine
 extends RefCounted
 
 
+const DrawEngineData = preload(
+	"res://Scripts/Sim/DrawEngine.gd"
+)
+
+
 const GameSetupData = preload(
 	"res://Scripts/Sim/GameSetup.gd"
 )
@@ -22,7 +27,8 @@ const ZONE_CASTLE: String = "Castle"
 
 static func resolve(
 	game,
-	rules: RuleConfig
+	rules: RuleConfig,
+	random_source = null
 ) -> Dictionary:
 	assert(
 		game != null,
@@ -195,7 +201,8 @@ static func resolve(
 		kanifous_events[player_id] = _resolve_kanifous(
 			game,
 			player,
-			rules
+			rules,
+			random_source
 		)
 
 	for player in game.players:
@@ -309,7 +316,8 @@ static func _validate_reveal_state(
 static func _resolve_kanifous(
 	game,
 	player,
-	rules: RuleConfig
+	rules: RuleConfig,
+	random_source = null
 ) -> Dictionary:
 	var threat_before: int = int(
 		player.threat
@@ -321,7 +329,8 @@ static func _resolve_kanifous(
 		2
 	):
 		var revealed_card = _draw_top_card(
-			game
+			game,
+			random_source
 		)
 
 		if revealed_card == null:
@@ -435,7 +444,8 @@ static func _resolve_kanifous(
 				var drawn_card = _draw_outside_development(
 					game,
 					player,
-					rules
+					rules,
+					random_source
 				)
 
 				if drawn_card != null:
@@ -490,7 +500,8 @@ static func _resolve_kanifous(
 				2
 			):
 				var temporary_guard = _draw_top_card(
-					game
+					game,
+					random_source
 				)
 
 				if temporary_guard == null:
@@ -689,42 +700,41 @@ static func _kanifous_card_score(
 static func _draw_outside_development(
 	game,
 	player,
-	rules: RuleConfig
+	rules: RuleConfig,
+	random_source = null
 ):
-	if player.hand.size() >= rules.hand_limit:
-		return null
-
-	var card = _draw_top_card(
-		game
-	)
-
-	if card == null:
-		return null
-
-	player.hand.append(
-		card
-	)
-
-	player.kanifous_outside_draws += 1
-
-	if game.breach == "Kanifous":
-		player.threat = min(
-			rules.max_threat,
-			int(
-				player.threat
-			) + 1
+	var draw_result: Dictionary = (
+		DrawEngineData.draw_to_hand(
+			game,
+			player,
+			rules,
+			random_source,
+			true
 		)
+	)
 
-	return card
+	if not bool(
+		draw_result.get(
+			"drawn",
+			false
+		)
+	):
+		return null
+
+	if player.hand.is_empty():
+		return null
+
+	return player.hand.back()
 
 
 static func _draw_top_card(
-	game
+	game,
+	random_source = null
 ):
-	if game.deck.is_empty():
-		return null
-
-	return game.deck.pop_back()
+	return DrawEngineData.take_top_card(
+		game,
+		random_source
+	)
 
 
 static func _gain_neutral_tear(

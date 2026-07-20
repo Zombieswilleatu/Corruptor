@@ -27,6 +27,7 @@ const ROUND_ONE_DEPLOY_TEST_NAME := "unit_round1_deploy"
 const REPAIR_RESTRICTION_TEST_NAME := "unit_deploy_repair_restriction"
 const FRENZY_SNARE_TEST_NAME := "unit_deploy_frenzy_and_snare"
 const HUMBABA_GATE_TEST_NAME := "unit_humbaba_gate_guard"
+const DUPLICATE_IDENTITY_TEST_NAME := "unit_deploy_duplicate_identity"
 
 
 static func run(
@@ -43,6 +44,9 @@ static func run(
 			rules
 		),
 		_test_humbaba_gate_guard(
+			rules
+		),
+		_test_duplicate_identity(
 			rules
 		),
 	]
@@ -436,6 +440,117 @@ static func _test_humbaba_gate_guard(
 	return _result_from_error(
 		HUMBABA_GATE_TEST_NAME,
 		error
+	)
+
+
+static func _test_duplicate_identity(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has("error"):
+		return _fail(
+			DUPLICATE_IDENTITY_TEST_NAME,
+			String(
+				fixture["error"]
+			)
+		)
+
+	var game = fixture["game"]
+	var player_zero = fixture["p0"]
+	var player_one = fixture["p1"]
+
+	_clear_deploy_zones(
+		player_zero
+	)
+
+	_clear_deploy_zones(
+		player_one
+	)
+
+	var earlier_duplicate = CardData.new(
+		"Wright",
+		5
+	)
+
+	var filler = CardData.new(
+		"Penitent",
+		2
+	)
+
+	var later_duplicate = CardData.new(
+		"Wright",
+		5
+	)
+
+	player_zero.hand = [
+		earlier_duplicate,
+		filler,
+		later_duplicate,
+	]
+
+	var choices: Dictionary = {
+		0: {
+			"moves": [
+				{
+					"source": "Hand",
+					"target": "Lord",
+					"card": "Wright:5",
+					"source_index": 2,
+				},
+			],
+		},
+		1: {
+			"pass": true,
+		},
+	}
+
+	var results: Array[Dictionary] = DeployEngineData.resolve(
+		game,
+		rules,
+		choices
+	)
+
+	if results.size() != 2:
+		return _fail(
+			DUPLICATE_IDENTITY_TEST_NAME,
+			"Expected two duplicate-identity Deploy results."
+		)
+
+	if int(
+		results[0].get(
+			"moved_count",
+			-1
+		)
+	) != 1:
+		return _fail(
+			DUPLICATE_IDENTITY_TEST_NAME,
+			"Indexed duplicate Deploy did not move exactly one card."
+		)
+
+	if (
+		player_zero.lord_guards.size() != 1
+		or player_zero.lord_guards[0] != later_duplicate
+	):
+		return _fail(
+			DUPLICATE_IDENTITY_TEST_NAME,
+			"Deploy moved the wrong physical Wright:5 copy."
+		)
+
+	if (
+		player_zero.hand.size() != 2
+		or player_zero.hand[0] != earlier_duplicate
+		or player_zero.hand[1] != filler
+	):
+		return _fail(
+			DUPLICATE_IDENTITY_TEST_NAME,
+			"Deploy removed or reordered the wrong source cards."
+		)
+
+	return _pass(
+		DUPLICATE_IDENTITY_TEST_NAME
 	)
 
 

@@ -199,6 +199,21 @@ static func _resolve_player_summon(
 		player.vessel_offered_lord = ""
 		vessel_applied = true
 
+	var marked_lord: String = String(
+		game.get_meta(
+			"orias_marked_lord",
+			""
+		)
+	)
+
+	if marked_lord == chosen_lord:
+		player.threat = min(
+			rules.max_threat,
+			int(
+				player.threat
+			) + 1
+		)
+
 	if chosen_lord == "Kroni":
 		player.kroni_tear_milestone_fired = false
 

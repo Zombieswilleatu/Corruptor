@@ -331,7 +331,10 @@ static func _validate_commitment(
 					"banished_lord_zone_unavailable"
 				)
 
-			if player.prev_ward_target == target_type:
+			if (
+				player.alive
+				and player.prev_ward_target == target_type
+			):
 				return _invalid_plan(
 					player_id,
 					"ward_target_repeated"

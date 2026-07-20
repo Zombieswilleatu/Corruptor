@@ -11,6 +11,11 @@ const LordMathData = preload(
 )
 
 
+const DrawEngineData = preload(
+	"res://Scripts/Sim/DrawEngine.gd"
+)
+
+
 const ACTION_HUNT: String = "Hunt"
 const ZONE_LORD: String = "Lord"
 
@@ -585,7 +590,13 @@ static func _resolve_combat(
 
 	var ordered_guards: Array = []
 
-	for guard in guard_zone:
+	for index in range(
+		guard_zone.size()
+	):
+		var guard = guard_zone[
+			index
+		]
+
 		var effective_value: int = int(
 			guard.value
 		)
@@ -596,6 +607,7 @@ static func _resolve_combat(
 		ordered_guards.append({
 			"card": guard,
 			"effective_value": effective_value,
+			"original_index": index,
 		})
 
 	ordered_guards.sort_custom(
@@ -620,13 +632,15 @@ static func _resolve_combat(
 			if value_a != value_b:
 				return value_a > value_b
 
-			return _card_id(
+			return int(
 				entry_a.get(
-					"card"
+					"original_index",
+					0
 				)
-			) < _card_id(
+			) < int(
 				entry_b.get(
-					"card"
+					"original_index",
+					0
 				)
 			)
 	)
@@ -826,6 +840,10 @@ static func _banish_lord(
 				defender.kroni_hunger
 			) - 1
 		)
+
+
+	if defender.lord == "Odradek":
+		defender.odradek_reconfig_tokens = 0
 
 	var neutral_tear_gain: int = 0
 	var harvested_card: String = ""
@@ -1199,33 +1217,33 @@ static func _draw_outside_development(
 	player,
 	rules: RuleConfig
 ):
-	if player.hand.size() >= rules.hand_limit:
-		return null
-
-	if game.deck.is_empty():
-		return null
-
-	var card = game.deck.pop_back()
-
-	player.hand.append(
-		card
+	var random_source = game.get_meta(
+		"_resolution_random_source",
+		null
 	)
 
-	if (
-		player.lord == "Kanifous"
-		and player.alive
-	):
-		player.kanifous_outside_draws += 1
-
-	if game.breach == "Kanifous":
-		player.threat = min(
-			rules.max_threat,
-			int(
-				player.threat
-			) + 1
+	var draw_result: Dictionary = (
+		DrawEngineData.draw_to_hand(
+			game,
+			player,
+			rules,
+			random_source,
+			true
 		)
+	)
 
-	return card
+	if not bool(
+		draw_result.get(
+			"drawn",
+			false
+		)
+	):
+		return null
+
+	if player.hand.is_empty():
+		return null
+
+	return player.hand.back()
 
 
 static func _calculate_lord_defense(

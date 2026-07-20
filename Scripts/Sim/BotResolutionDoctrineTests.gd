@@ -444,6 +444,7 @@ static func _test_gremory_preview(
 	gremory.hand = _cards_from_ids([
 		"Penitent:1",
 		"Vulture:2",
+		"Butcher:5",
 	])
 
 	gremory.garrison = _cards_from_ids([

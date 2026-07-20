@@ -93,6 +93,11 @@ const BotDevelopmentDoctrineTestsData = preload(
 )
 
 
+const LordMatrixTestsData = preload(
+	"res://Scripts/Sim/LordMatrixTests.gd"
+)
+
+
 static func run_startup_checks(
 	rules: RuleConfig
 ) -> Array:
@@ -230,6 +235,12 @@ static func run_startup_checks(
 
 	messages.append_array(
 		BotDevelopmentDoctrineTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		LordMatrixTestsData.run(
 			rules
 		)
 	)

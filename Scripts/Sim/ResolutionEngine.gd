@@ -47,7 +47,8 @@ const ZONE_CASTLE: String = "Castle"
 static func resolve(
 	game,
 	rules: RuleConfig,
-	decisions: Dictionary = {}
+	decisions: Dictionary = {},
+	random_source = null
 ) -> Dictionary:
 	assert(
 		game != null,
@@ -103,6 +104,11 @@ static func resolve(
 			decisions,
 			"odradek_breach"
 		)
+	)
+
+	var raw_reflex_provider = decisions.get(
+		"reflex_provider",
+		null
 	)
 
 	var gremory_choices: Dictionary = (
@@ -210,6 +216,11 @@ static func resolve(
 			player.action
 		)
 
+		game.set_meta(
+			"_resolution_random_source",
+			random_source
+		)
+
 		var action_options: Dictionary = (
 			_decision_for_player(
 				action_choices,
@@ -261,7 +272,8 @@ static func resolve(
 				rules,
 				player_id,
 				action_result,
-				vessel_decision
+				vessel_decision,
+				random_source
 			)
 		)
 
@@ -314,6 +326,60 @@ static func resolve(
 				{},
 				"actions"
 			)
+
+	if typeof(
+		raw_reflex_provider
+	) == TYPE_CALLABLE:
+		var reflex_provider: Callable = (
+			raw_reflex_provider
+		)
+
+		if not reflex_provider.is_valid():
+			return _invalid_result(
+				game,
+				"reflex",
+				"reflex_provider_invalid",
+				prelude_result,
+				action_events,
+				{},
+				{},
+				{}
+			)
+
+		var raw_reflex_bundle = reflex_provider.call(
+			game,
+			rules
+		)
+
+		if typeof(
+			raw_reflex_bundle
+		) != TYPE_DICTIONARY:
+			return _invalid_result(
+				game,
+				"reflex",
+				"reflex_provider_result_not_dictionary",
+				prelude_result,
+				action_events,
+				{},
+				{},
+				{}
+			)
+
+		var reflex_bundle: Dictionary = (
+			raw_reflex_bundle
+		)
+
+		reflex_decision = _nested_dictionary(
+			reflex_bundle,
+			"winner_decision"
+		)
+
+		odradek_breach_decision = (
+			_nested_dictionary(
+				reflex_bundle,
+				"breach_decision"
+			)
+		)
 
 	var reflex_result: Dictionary = (
 		ReflexActionEngineData.resolve(

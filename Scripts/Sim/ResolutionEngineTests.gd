@@ -27,6 +27,10 @@ const REFLEX_TEST_NAME := (
 	"unit_resolution_orchestrator_reflex"
 )
 
+const LATE_REFLEX_TEST_NAME := (
+	"unit_resolution_orchestrator_late_reflex"
+)
+
 const WIN_TEST_NAME := (
 	"unit_resolution_orchestrator_early_win"
 )
@@ -43,6 +47,9 @@ static func run(
 			rules
 		),
 		_test_reflex_action(
+			rules
+		),
+		_test_late_reflex_provider(
 			rules
 		),
 		_test_early_win(
@@ -498,6 +505,155 @@ static func _test_reflex_action(
 	return _pass(
 		REFLEX_TEST_NAME
 	)
+
+
+
+static func _test_late_reflex_provider(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has(
+		"error"
+	):
+		return _fail(
+			LATE_REFLEX_TEST_NAME,
+			String(
+				fixture["error"]
+			)
+		)
+
+	var game = fixture["game"]
+	var player_zero = fixture["p0"]
+	var player_one = fixture["p1"]
+
+	_prepare_game(
+		game
+	)
+
+	game.reflex_winner = 0
+
+	player_zero.lord = "Orias"
+	player_zero.action = "Ward"
+	player_zero.tgt_pid = 0
+	player_zero.tgt_type = "Lord"
+	player_zero.ward_target = "Lord"
+	player_zero.sigils = {
+		"Lord": "fresh",
+		"Castle": "",
+	}
+
+	_set_castles(
+		player_zero,
+		[
+			"Keep",
+		]
+	)
+
+	player_zero.committed = _cards_from_ids([
+		"Wright:2",
+	])
+
+	player_one.lord = "Valak"
+	player_one.action = "Ward"
+	player_one.tgt_pid = 1
+	player_one.tgt_type = "Lord"
+	player_one.ward_target = "Lord"
+	player_one.sigils = {
+		"Lord": "fresh",
+		"Castle": "",
+	}
+
+	player_one.committed = _cards_from_ids([
+		"Vulture:1",
+	])
+
+	var result: Dictionary = (
+		ResolutionEngineData.resolve(
+			game,
+			rules,
+			{
+				"reflex_provider": Callable(
+					ResolutionEngineTests,
+					"_late_reflex_provider"
+				),
+			}
+		)
+	)
+
+	if String(
+		result.get(
+			"action",
+			""
+		)
+	) != "resolution":
+		return _fail(
+			LATE_REFLEX_TEST_NAME,
+			"Resolution rejected the late Reflex provider."
+		)
+
+	var reflex_result: Dictionary = result.get(
+		"reflex_result",
+		{}
+	)
+
+	if String(
+		reflex_result.get(
+			"executed_action",
+			""
+		)
+	) != "Ward":
+		return _fail(
+			LATE_REFLEX_TEST_NAME,
+			"Late provider did not execute its post-action Ward."
+		)
+
+	if String(
+		player_zero.sigils.get(
+			"Castle",
+			""
+		)
+	) != "fresh":
+		return _fail(
+			LATE_REFLEX_TEST_NAME,
+			"Late provider did not see cleared commitments."
+		)
+
+	return _pass(
+		LATE_REFLEX_TEST_NAME
+	)
+
+
+static func _late_reflex_provider(
+	game,
+	_rules: RuleConfig
+) -> Dictionary:
+	var actor = game.get_player(
+		int(
+			game.reflex_winner
+		)
+	)
+
+	if (
+		actor == null
+		or not actor.committed.is_empty()
+	):
+		return {
+			"winner_decision": {
+				"pass": true,
+			},
+			"breach_decision": {},
+		}
+
+	return {
+		"winner_decision": {
+			"action": "Ward",
+			"ward_target": "Castle",
+		},
+		"breach_decision": {},
+	}
 
 
 static func _test_early_win(

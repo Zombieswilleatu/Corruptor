@@ -6,6 +6,10 @@ const CardData = preload(
 	"res://Scripts/Sim/Card.gd"
 )
 
+const PythonRandomData = preload(
+	"res://Scripts/Sim/PythonRandom.gd"
+)
+
 const GameDealFixtureData = preload(
 	"res://Scripts/Sim/GameDealFixture.gd"
 )
@@ -17,7 +21,10 @@ const ResolutionActionAftermathEngineData = preload(
 
 const KRONI_TEST_NAME := "unit_aftermath_kroni_consume"
 const SUIT_TEST_NAME := "unit_aftermath_suit_bonuses"
+const RECYCLE_TEST_NAME := "unit_aftermath_vulture_recycle"
 const VESSEL_TEST_NAME := "unit_aftermath_offer_vessel"
+const STALE_VESSEL_TEST_NAME := "unit_aftermath_vessel_stale_after_win"
+const REFRESH_VESSEL_TEST_NAME := "unit_aftermath_vessel_refresh_after_action"
 const ATOMIC_TEST_NAME := "unit_aftermath_vessel_atomic_validation"
 
 
@@ -31,7 +38,16 @@ static func run(
 		_test_suit_bonuses(
 			rules
 		),
+		_test_vulture_recycle(
+			rules
+		),
 		_test_offer_vessel(
+			rules
+		),
+		_test_vessel_stale_after_win(
+			rules
+		),
+		_test_vessel_refresh_after_action(
 			rules
 		),
 		_test_vessel_atomic_validation(
@@ -291,6 +307,105 @@ static func _test_suit_bonuses(
 	)
 
 
+static func _test_vulture_recycle(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has(
+		"error"
+	):
+		return _fail(
+			RECYCLE_TEST_NAME,
+			String(
+				fixture["error"]
+			)
+		)
+
+	var game = fixture["game"]
+	var player = fixture["p0"]
+
+	_prepare_game(
+		game
+	)
+
+	player.committed = _cards_from_ids([
+		"Vulture:4",
+		"Vulture:2",
+	])
+
+	game.deck.clear()
+
+	game.discard = _cards_from_ids([
+		"Butcher:5",
+	])
+
+	var random_source = PythonRandomData.new(
+		1
+	)
+
+	var result: Dictionary = (
+		ResolutionActionAftermathEngineData.resolve(
+			game,
+			rules,
+			0,
+			{},
+			{},
+			random_source
+		)
+	)
+
+	if _card_ids(
+		player.hand
+	) != [
+		"Butcher:5",
+	]:
+		return _fail(
+			RECYCLE_TEST_NAME,
+			"Vulture bonus did not draw from the recycled discard."
+		)
+
+	if player.kanifous_outside_draws != 1:
+		return _fail(
+			RECYCLE_TEST_NAME,
+			"Recycled draw did not increment the outside-draw counter."
+		)
+
+	if not game.deck.is_empty():
+		return _fail(
+			RECYCLE_TEST_NAME,
+			"Single-card recycled deck was not consumed."
+		)
+
+	if _card_ids(
+		game.discard
+	) != [
+		"Vulture:4",
+		"Vulture:2",
+	]:
+		return _fail(
+			RECYCLE_TEST_NAME,
+			"Committed cards reached the wrong discard state."
+		)
+
+	if String(
+		result.get(
+			"vulture_draw",
+			""
+		)
+	) != "Butcher:5":
+		return _fail(
+			RECYCLE_TEST_NAME,
+			"Aftermath recorded the wrong recycled draw."
+		)
+
+	return _pass(
+		RECYCLE_TEST_NAME
+	)
+
+
 static func _test_offer_vessel(
 	rules: RuleConfig
 ) -> Dictionary:
@@ -438,6 +553,315 @@ static func _test_offer_vessel(
 
 	return _pass(
 		VESSEL_TEST_NAME
+	)
+
+
+static func _test_vessel_stale_after_win(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has(
+		"error"
+	):
+		return _fail(
+			STALE_VESSEL_TEST_NAME,
+			String(
+				fixture["error"]
+			)
+		)
+
+	var game = fixture["game"]
+	var player = fixture["p0"]
+	var opponent = fixture["p1"]
+
+	_prepare_game(
+		game
+	)
+
+	player.lord = "Orias"
+	player.alive = true
+	player.vessel_used = false
+	player.vessel_offered_lord = ""
+
+	player.lord_guards = _cards_from_ids([
+		"Butcher:1",
+		"Wright:2",
+	])
+
+	player.committed = _cards_from_ids([
+		"Penitent:3",
+	])
+
+	opponent.souls = 1
+
+	var tears_before: int = int(
+		player.tears
+	)
+
+	var opponent_souls_before: int = int(
+		opponent.souls
+	)
+
+	var guards_before: Array[String] = _card_ids(
+		player.lord_guards
+	)
+
+	var committed_before: Array[String] = _card_ids(
+		player.committed
+	)
+
+	var discard_before: Array[String] = _card_ids(
+		game.discard
+	)
+
+	game.winner = 0
+	game.win_by = "Dominion"
+
+	var result: Dictionary = (
+		ResolutionActionAftermathEngineData.resolve(
+			game,
+			rules,
+			0,
+			{
+				"action": "hunt",
+				"destroyed": true,
+				"won": true,
+			},
+			{
+				"offer": true,
+			}
+		)
+	)
+
+	if not player.alive:
+		return _fail(
+			STALE_VESSEL_TEST_NAME,
+			"Stale Vessel removed the winning Lord."
+		)
+
+	if player.vessel_used:
+		return _fail(
+			STALE_VESSEL_TEST_NAME,
+			"Stale Vessel consumed the once-per-game rite."
+		)
+
+	if player.vessel_offered_lord != "":
+		return _fail(
+			STALE_VESSEL_TEST_NAME,
+			"Stale Vessel recorded an offered Lord."
+		)
+
+	if player.tears != tears_before:
+		return _fail(
+			STALE_VESSEL_TEST_NAME,
+			"Stale Vessel granted a personal Tear."
+		)
+
+	if opponent.souls != opponent_souls_before:
+		return _fail(
+			STALE_VESSEL_TEST_NAME,
+			"Stale Vessel granted the opponent a Soul."
+		)
+
+	if _card_ids(
+		player.lord_guards
+	) != guards_before:
+		return _fail(
+			STALE_VESSEL_TEST_NAME,
+			"Stale Vessel discarded Lord Guards."
+		)
+
+	if _card_ids(
+		player.committed
+	) != committed_before:
+		return _fail(
+			STALE_VESSEL_TEST_NAME,
+			"Winning aftermath cleared the commitment."
+		)
+
+	if _card_ids(
+		game.discard
+	) != discard_before:
+		return _fail(
+			STALE_VESSEL_TEST_NAME,
+			"Stale Vessel changed the discard."
+		)
+
+	var vessel_event: Dictionary = result.get(
+		"vessel_event",
+		{}
+	)
+
+	if String(
+		vessel_event.get(
+			"action",
+			""
+		)
+	) != "pass":
+		return _fail(
+			STALE_VESSEL_TEST_NAME,
+			"Stale Vessel did not resolve as a pass."
+		)
+
+	if not bool(
+		result.get(
+			"stopped_on_win",
+			false
+		)
+	):
+		return _fail(
+			STALE_VESSEL_TEST_NAME,
+			"Winning aftermath did not stop Resolution."
+		)
+
+	if (
+		game.winner != 0
+		or game.win_by != "Dominion"
+	):
+		return _fail(
+			STALE_VESSEL_TEST_NAME,
+			"Stale Vessel changed the existing victory."
+		)
+
+	return _pass(
+		STALE_VESSEL_TEST_NAME
+	)
+
+
+static func _test_vessel_refresh_after_action(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has(
+		"error"
+	):
+		return _fail(
+			REFRESH_VESSEL_TEST_NAME,
+			String(
+				fixture["error"]
+			)
+		)
+
+	var game = fixture["game"]
+	var player = fixture["p0"]
+	var opponent = fixture["p1"]
+
+	_prepare_game(
+		game
+	)
+
+	player.lord = "Orias"
+	player.alive = true
+	player.vessel_used = false
+	player.vessel_offered_lord = ""
+	player.tears = max(
+		0,
+		rules.dominion_requirement - 1
+	)
+	player.souls = rules.win_souls
+
+	player.lord_guards = _cards_from_ids([
+		"Butcher:1",
+		"Wright:2",
+	])
+
+	opponent.lord = "Valak"
+	opponent.alive = true
+	opponent.tears = 0
+	opponent.souls = max(
+		0,
+		rules.win_souls - 2
+	)
+
+	game.neutral_tears = max(
+		0,
+		rules.dominion_track
+		- 1
+		- player.tears
+		- opponent.tears
+	)
+
+	game.winner = 0
+	game.win_by = "Ritual"
+	game.refresh_derived_values()
+
+	var result: Dictionary = (
+		ResolutionActionAftermathEngineData.resolve(
+			game,
+			rules,
+			0,
+			{
+				"action": "hunt",
+				"destroyed": true,
+				"won": true,
+			},
+			{
+				"pass": true,
+				"reevaluate_after_action": true,
+			}
+		)
+	)
+
+	if not player.vessel_used:
+		return _fail(
+			REFRESH_VESSEL_TEST_NAME,
+			"Post-action Vessel doctrine did not refresh."
+		)
+
+	if player.alive:
+		return _fail(
+			REFRESH_VESSEL_TEST_NAME,
+			"Refreshed Vessel left the Lord active."
+		)
+
+	if player.vessel_offered_lord != "Orias":
+		return _fail(
+			REFRESH_VESSEL_TEST_NAME,
+			"Refreshed Vessel recorded the wrong Lord."
+		)
+
+	if opponent.souls != rules.win_souls - 1:
+		return _fail(
+			REFRESH_VESSEL_TEST_NAME,
+			"Refreshed Vessel granted the wrong opponent Soul total."
+		)
+
+	if game.winner != 0:
+		return _fail(
+			REFRESH_VESSEL_TEST_NAME,
+			"Refreshed Vessel awarded the wrong winner."
+		)
+
+	if game.win_by != "Dominion":
+		return _fail(
+			REFRESH_VESSEL_TEST_NAME,
+			"Refreshed Vessel did not supersede Ritual with Dominion."
+		)
+
+	var vessel_event: Dictionary = result.get(
+		"vessel_event",
+		{}
+	)
+
+	if String(
+		vessel_event.get(
+			"action",
+			""
+		)
+	) != "offer_vessel":
+		return _fail(
+			REFRESH_VESSEL_TEST_NAME,
+			"Refreshed Vessel event was not an offer."
+		)
+
+	return _pass(
+		REFRESH_VESSEL_TEST_NAME
 	)
 
 

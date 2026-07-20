@@ -6,6 +6,10 @@ const LordMathData = preload(
 	"res://Scripts/Sim/LordMath.gd"
 )
 
+const DrawEngineData = preload(
+	"res://Scripts/Sim/DrawEngine.gd"
+)
+
 
 const ACTION_HUNT: String = "hunt"
 const ACTION_SIEGE: String = "siege"
@@ -19,7 +23,8 @@ static func resolve(
 	rules: RuleConfig,
 	acting_player_id: int,
 	action_result: Dictionary = {},
-	vessel_decision: Dictionary = {}
+	vessel_decision: Dictionary = {},
+	random_source = null
 ) -> Dictionary:
 	assert(
 		game != null,
@@ -41,11 +46,48 @@ static func resolve(
 			"acting_player_missing"
 		)
 
+	var effective_vessel_decision: Dictionary = (
+		vessel_decision
+	)
+
+	if bool(
+		vessel_decision.get(
+			"reevaluate_after_action",
+			false
+		)
+	):
+		effective_vessel_decision = (
+			_post_action_vessel_decision(
+				game,
+				acting_player,
+				rules
+			)
+		)
+
+		# Hunt/Siege engines may already have recorded Ritual. Python's
+		# golden order evaluates Vessel before that victory checkpoint.
+		if (
+			bool(
+				effective_vessel_decision.get(
+					"offer",
+					false
+				)
+			)
+			and int(
+				game.winner
+			) >= 0
+			and String(
+				game.win_by
+			) == "Ritual"
+		):
+			game.winner = -1
+			game.win_by = ""
+
 	var vessel_validation: Dictionary = (
 		_validate_vessel_decision(
 			game,
 			acting_player,
-			vessel_decision
+			effective_vessel_decision
 		)
 	)
 
@@ -155,7 +197,8 @@ static func resolve(
 		vulture_draw = _draw_outside_development(
 			game,
 			acting_player,
-			rules
+			rules,
+			random_source
 		)
 
 	var wright_token_gained: bool = false
@@ -215,6 +258,110 @@ static func resolve(
 	}
 
 
+static func _post_action_vessel_decision(
+	game,
+	player,
+	rules: RuleConfig
+) -> Dictionary:
+	if (
+		player.vessel_used
+		or not player.alive
+	):
+		return {
+			"pass": true,
+		}
+
+	# A non-Ritual victory is already authoritative. Ritual is provisional
+	# here because the golden sequence evaluates Vessel first.
+	if (
+		int(
+			game.winner
+		) >= 0
+		and String(
+			game.win_by
+		) != "Ritual"
+	):
+		return {
+			"pass": true,
+		}
+
+	var opponent = game.get_opponent(
+		int(
+			player.pid
+		)
+	)
+
+	if opponent == null:
+		return {
+			"pass": true,
+		}
+
+	# Vessel gives the opponent one Soul before victory is checked.
+	if opponent.souls + 1 >= rules.win_souls:
+		return {
+			"pass": true,
+		}
+
+	var veil_after: int = (
+		game.calculate_veil_total()
+		+ 1
+	)
+
+	if (
+		veil_after < rules.dominion_track
+		or veil_after
+		>= rules.final_collapse_threshold
+	):
+		return {
+			"pass": true,
+		}
+
+	var personal_after: int = (
+		player.tears + 1
+	)
+
+	if personal_after <= opponent.tears:
+		return {
+			"pass": true,
+		}
+
+	var player_summaries: Array = []
+
+	for candidate in game.players:
+		player_summaries.append({
+			"lord": String(
+				candidate.lord
+			),
+			"alive": (
+				false
+				if int(
+					candidate.pid
+				) == int(
+					player.pid
+				)
+				else bool(
+					candidate.alive
+				)
+			),
+		})
+
+	var requirement: int = (
+		LordMathData.dominion_requirement(
+			player_summaries,
+			rules
+		)
+	)
+
+	if personal_after < requirement:
+		return {
+			"pass": true,
+		}
+
+	return {
+		"offer": true,
+	}
+
+
 static func _validate_vessel_decision(
 	game,
 	player,
@@ -235,6 +382,18 @@ static func _validate_vessel_decision(
 			false
 		)
 	):
+		return {
+			"valid": true,
+			"reason": "",
+			"offer": false,
+		}
+
+	# Vessel choices are generated before committed actions resolve.
+	# If that action has already won, the cached offer is stale and must
+	# become a harmless pass, matching the golden runtime policy.
+	if int(
+		game.winner
+	) >= 0:
 		return {
 			"valid": true,
 			"reason": "",
@@ -494,31 +653,28 @@ static func _gain_kroni_hunger(
 static func _draw_outside_development(
 	game,
 	player,
-	rules: RuleConfig
+	rules: RuleConfig,
+	random_source = null
 ):
-	if player.hand.size() >= rules.hand_limit:
-		return null
-
-	if game.deck.is_empty():
-		return null
-
-	var drawn_card = game.deck.pop_back()
-
-	player.hand.append(
-		drawn_card
+	var draw_result: Dictionary = (
+		DrawEngineData.draw_to_hand(
+			game,
+			player,
+			rules,
+			random_source,
+			true
+		)
 	)
 
-	player.kanifous_outside_draws += 1
-
-	if game.breach == "Kanifous":
-		player.threat = min(
-			rules.max_threat,
-			int(
-				player.threat
-			) + 1
+	if not bool(
+		draw_result.get(
+			"drawn",
+			false
 		)
+	):
+		return null
 
-	return drawn_card
+	return player.hand.back()
 
 
 static func _action_caused_destruction(

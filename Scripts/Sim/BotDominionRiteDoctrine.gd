@@ -57,16 +57,8 @@ static func rite_choices(
 			player.pid
 		)
 
-		if int(
-			shadow.winner
-		) >= 0:
-			decisions[player_id] = {
-				"pass": true,
-			}
-
-			continue
-
 		var player_decision: Dictionary = {}
+		var invocation_won: bool = false
 
 		var invocation_selection: Dictionary = (
 			BotSelectorData.choose(
@@ -98,23 +90,30 @@ static func rite_choices(
 				)
 			)
 
-			_apply_shadow_decision(
-				shadow,
-				rules,
-				player_id,
-				{
-					"invocation": (
-						invocation_payload
-						.duplicate(
-							true
-						)
-					),
-				}
+			var invocation_result: Dictionary = (
+				_apply_shadow_decision(
+					shadow,
+					rules,
+					player_id,
+					{
+						"invocation": (
+							invocation_payload
+							.duplicate(
+								true
+							)
+						),
+					}
+				)
 			)
 
-		if int(
-			shadow.winner
-		) < 0:
+			invocation_won = _rite_result_won(
+				invocation_result
+			)
+
+		# Python returns from only this player's rite routine
+		# when Invocation wins. Later players still receive
+		# their own Dominion Rite turn.
+		if not invocation_won:
 			var profane_selection: Dictionary = (
 				BotSelectorData.choose(
 					evaluate_profane_candidates(
@@ -361,7 +360,7 @@ static func _apply_shadow_decision(
 	rules: RuleConfig,
 	player_id: int,
 	decision: Dictionary
-) -> void:
+) -> Dictionary:
 	var choices: Dictionary = {}
 
 	for player in shadow.players:
@@ -373,11 +372,51 @@ static func _apply_shadow_decision(
 
 	choices[player_id] = decision
 
-	DominionRiteEngineData.resolve(
-		shadow,
-		rules,
-		choices
+	var results: Array[Dictionary] = (
+		DominionRiteEngineData.resolve(
+			shadow,
+			rules,
+			choices
+		)
 	)
+
+	for result: Dictionary in results:
+		if int(
+			result.get(
+				"player_id",
+				-1
+			)
+		) == player_id:
+			return result
+
+	return {}
+
+
+static func _rite_result_won(
+	result: Dictionary
+) -> bool:
+	var actions: Array = result.get(
+		"actions",
+		[]
+	)
+
+	for raw_action in actions:
+		if typeof(
+			raw_action
+		) != TYPE_DICTIONARY:
+			continue
+
+		var action: Dictionary = raw_action
+
+		if bool(
+			action.get(
+				"won",
+				false
+			)
+		):
+			return true
+
+	return false
 
 
 static func _lowest_priority_ruin(

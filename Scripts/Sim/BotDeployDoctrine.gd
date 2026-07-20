@@ -237,15 +237,20 @@ static func _deploy_moves_for_player(
 		):
 			var card = ordered_garrison.pop_front()
 
-			garrison.erase(
+			var source_index: int = garrison.find(
 				card
+			)
+
+			garrison.remove_at(
+				source_index
 			)
 
 			moves.append(
 				_move(
 					"Garrison",
 					"Castle",
-					card
+					card,
+					source_index
 				)
 			)
 
@@ -269,16 +274,21 @@ static func _deploy_moves_for_player(
 			):
 				break
 
+			var source_index: int = hand.find(
+				card
+			)
+
 			moves.append(
 				_move(
 					"Hand",
 					"Castle",
-					card
+					card,
+					source_index
 				)
 			)
 
-			hand.erase(
-				card
+			hand.remove_at(
+				source_index
 			)
 
 			castle_guard_count += 1
@@ -307,15 +317,20 @@ static func _deploy_moves_for_player(
 		):
 			var card = ordered_garrison.pop_front()
 
-			garrison.erase(
+			var source_index: int = garrison.find(
 				card
+			)
+
+			garrison.remove_at(
+				source_index
 			)
 
 			moves.append(
 				_move(
 					"Garrison",
 					"Lord",
-					card
+					card,
+					source_index
 				)
 			)
 
@@ -338,16 +353,21 @@ static func _deploy_moves_for_player(
 			):
 				break
 
+			var source_index: int = hand.find(
+				card
+			)
+
 			moves.append(
 				_move(
 					"Hand",
 					"Lord",
-					card
+					card,
+					source_index
 				)
 			)
 
-			hand.erase(
-				card
+			hand.remove_at(
+				source_index
 			)
 
 			lord_guard_count += 1
@@ -402,6 +422,21 @@ static func _snared_deploy_moves(
 	if selected_card == null:
 		return []
 
+	var selected_source: Array = (
+		hand
+		if source_name == "Hand"
+		else garrison
+	)
+
+	var selected_source_index: int = selected_source.find(
+		selected_card
+	)
+
+	assert(
+		selected_source_index >= 0,
+		"Snared Deploy selected a card outside its source zone."
+	)
+
 	var prefer_lord: bool = (
 		player.alive
 		and opponent.alive
@@ -415,7 +450,8 @@ static func _snared_deploy_moves(
 			_move(
 				source_name,
 				"Lord",
-				selected_card
+				selected_card,
+				selected_source_index
 			),
 		]
 
@@ -427,7 +463,8 @@ static func _snared_deploy_moves(
 			_move(
 				source_name,
 				"Castle",
-				selected_card
+				selected_card,
+				selected_source_index
 			),
 		]
 
@@ -439,7 +476,8 @@ static func _snared_deploy_moves(
 			_move(
 				source_name,
 				"Lord",
-				selected_card
+				selected_card,
+				selected_source_index
 			),
 		]
 
@@ -501,14 +539,21 @@ static func _frenzy_blocks_garrison(
 static func _move(
 	source_name: String,
 	target_name: String,
-	card
+	card,
+	source_index: int
 ) -> Dictionary:
+	assert(
+		source_index >= 0,
+		"Deploy doctrine selected a card outside its source zone."
+	)
+
 	return {
 		"source": source_name,
 		"target": target_name,
 		"card": _card_id(
 			card
 		),
+		"source_index": source_index,
 	}
 
 

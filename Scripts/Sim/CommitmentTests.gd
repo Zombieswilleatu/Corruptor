@@ -390,6 +390,8 @@ static func _test_banished_lord(
 			error
 		)
 
+	player_zero.prev_ward_target = "Castle"
+
 	var valid_ward_result: Dictionary = (
 		CommitmentEngineData.resolve(
 			game,

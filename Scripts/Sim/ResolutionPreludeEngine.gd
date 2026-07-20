@@ -2,11 +2,24 @@ class_name ResolutionPreludeEngine
 extends RefCounted
 
 
+const LordMathData = preload(
+	"res://Scripts/Sim/LordMath.gd"
+)
+
+
 const ZONE_LORD: String = "Lord"
 const ZONE_CASTLE: String = "Castle"
 
 const COLLAPSE_THRESHOLD: int = 7
 const WANING_THRESHOLD: int = 9
+
+const HUMBABA_CASTLE_PRIORITY: Array[String] = [
+	"Keep",
+	"Bastion",
+	"Stockpile",
+	"SummoningCircle",
+	"SiegeEngine",
+]
 
 
 static func resolve(
@@ -85,11 +98,23 @@ static func resolve(
 				)
 			)
 
-	var kroni_events: Array[Dictionary] = (
-		_apply_kroni_hungering_aura(
-			game
+	var humbaba_toll_events: Array[Dictionary] = (
+		_apply_humbaba_toll(
+			game,
+			rules
 		)
 	)
+
+	var kroni_events: Array[Dictionary] = []
+
+	if int(
+		game.winner
+	) < 0:
+		kroni_events = (
+			_apply_kroni_hungering_aura(
+				game
+			)
+		)
 
 	game.refresh_derived_values()
 
@@ -122,6 +147,7 @@ static func resolve(
 		"persistent_scorch": scorch_event,
 		"collapse_events": collapse_events,
 		"waning_events": waning_events,
+		"humbaba_toll_events": humbaba_toll_events,
 		"kroni_events": kroni_events,
 	}
 
@@ -347,6 +373,453 @@ static func _strip_attacked_zone_guard(
 	}
 
 
+static func _apply_humbaba_toll(
+	game,
+	rules: RuleConfig
+) -> Array[Dictionary]:
+	var events: Array[Dictionary] = []
+
+	if not rules.humbaba_toll:
+		return events
+
+	for player in game.players:
+		if (
+			String(
+				player.lord
+			) != "Humbaba"
+			or not bool(
+				player.alive
+			)
+			or player.castles.size() < 2
+		):
+			continue
+
+		var opponent = game.get_opponent(
+			int(
+				player.pid
+			)
+		)
+
+		if (
+			opponent == null
+			or int(
+				opponent.souls
+			) <= 0
+		):
+			continue
+
+		var total_after: int = (
+			int(
+				game.calculate_veil_total()
+			)
+			+ 1
+		)
+
+		var feeds_racer: bool = (
+			int(
+				opponent.tears
+			) > int(
+				player.tears
+			)
+			and total_after
+			>= rules.dominion_track - 3
+		)
+
+		var emergency: bool = (
+			int(
+				opponent.souls
+			) >= rules.win_souls - 2
+		)
+
+		var pressure: bool = (
+			int(
+				opponent.souls
+			) - int(
+				player.souls
+			) >= 3
+			and int(
+				opponent.souls
+			) >= 4
+		)
+
+		if (
+			not (
+				emergency
+				or pressure
+			)
+			or feeds_racer
+		):
+			continue
+
+		var target_castle: String = ""
+
+		for priority_index: int in range(
+			HUMBABA_CASTLE_PRIORITY.size() - 1,
+			-1,
+			-1
+		):
+			var candidate_castle: String = (
+				HUMBABA_CASTLE_PRIORITY[
+					priority_index
+				]
+			)
+
+			if player.castles.has(
+				candidate_castle
+			):
+				target_castle = candidate_castle
+				break
+
+		if (
+			target_castle.is_empty()
+			and not player.castles.is_empty()
+		):
+			target_castle = String(
+				player.castles[0]
+			)
+
+		if target_castle.is_empty():
+			continue
+
+		var castle_index: int = player.castles.find(
+			target_castle
+		)
+
+		if castle_index < 0:
+			continue
+
+		player.castles.remove_at(
+			castle_index
+		)
+
+		if not player.ruined_castles.has(
+			target_castle
+		):
+			player.ruined_castles.append(
+				target_castle
+			)
+
+		var opponent_souls_before: int = int(
+			opponent.souls
+		)
+
+		opponent.souls = max(
+			0,
+			opponent_souls_before - 1
+		)
+
+		var tear_event: Dictionary = (
+			_gain_humbaba_neutral_tear(
+				game
+			)
+		)
+
+		var moved_guards: Array[String] = []
+		var discarded_guards: Array[String] = []
+
+		# Ruining the first stone immediately ends the fourth Guard slot.
+		while player.castle_guards.size() > 3:
+			var victim_index: int = 0
+
+			for guard_index: int in range(
+				1,
+				player.castle_guards.size()
+			):
+				if int(
+					player.castle_guards[
+						guard_index
+					].value
+				) < int(
+					player.castle_guards[
+						victim_index
+					].value
+				):
+					victim_index = guard_index
+
+			var victim = player.castle_guards[
+				victim_index
+			]
+
+			player.castle_guards.remove_at(
+				victim_index
+			)
+
+			var victim_id: String = (
+				_humbaba_card_id(
+					victim
+				)
+			)
+
+			if player.garrison.size() < rules.garrison_max:
+				player.garrison.append(
+					victim
+				)
+
+				moved_guards.append(
+					victim_id
+				)
+			else:
+				game.discard.append(
+					victim
+				)
+
+				discarded_guards.append(
+					victim_id
+				)
+
+		game.refresh_derived_values()
+
+		var won: bool = _check_humbaba_toll_win(
+			game,
+			rules
+		)
+
+		events.append({
+			"triggered": true,
+			"player_id": int(
+				player.pid
+			),
+			"opponent_id": int(
+				opponent.pid
+			),
+			"ruined_castle": target_castle,
+			"opponent_souls_before": (
+				opponent_souls_before
+			),
+			"opponent_souls_after": int(
+				opponent.souls
+			),
+			"neutral_tear_gain": 1,
+			"moved_guards": moved_guards,
+			"discarded_guards": discarded_guards,
+			"harvested_card": String(
+				tear_event.get(
+					"harvested_card",
+					""
+				)
+			),
+			"harvested_by": int(
+				tear_event.get(
+					"harvested_by",
+					-1
+				)
+			),
+			"won": won,
+		})
+
+		if won:
+			break
+
+	return events
+
+
+static func _gain_humbaba_neutral_tear(
+	game
+) -> Dictionary:
+	game.neutral_tears += 1
+
+	var harvested_card: String = ""
+	var harvested_by: int = -1
+
+	for player in game.players:
+		if (
+			String(
+				player.lord
+			) != "Gremory"
+			or not bool(
+				player.alive
+			)
+			or bool(
+				player.gremory_veil_draw_done
+			)
+		):
+			continue
+
+		var target_index: int = -1
+
+		for discard_index: int in range(
+			game.discard.size() - 1,
+			-1,
+			-1
+		):
+			if int(
+				game.discard[
+					discard_index
+				].value
+			) >= 4:
+				target_index = discard_index
+				break
+
+		if target_index >= 0:
+			var card = game.discard[
+				target_index
+			]
+
+			game.discard.remove_at(
+				target_index
+			)
+
+			player.hand.append(
+				card
+			)
+
+			player.gremory_veil_draw_done = true
+
+			harvested_card = _humbaba_card_id(
+				card
+			)
+
+			harvested_by = int(
+				player.pid
+			)
+
+		break
+
+	game.refresh_derived_values()
+
+	return {
+		"harvested_card": harvested_card,
+		"harvested_by": harvested_by,
+	}
+
+
+static func _check_humbaba_toll_win(
+	game,
+	rules: RuleConfig
+) -> bool:
+	if int(
+		game.winner
+	) >= 0:
+		return true
+
+	for player in game.players:
+		if (
+			bool(
+				player.alive
+			)
+			and int(
+				player.souls
+			) >= rules.win_souls
+		):
+			game.winner = int(
+				player.pid
+			)
+			game.win_by = "Ritual"
+			game.refresh_derived_values()
+			return true
+
+	var veil_total: int = int(
+		game.calculate_veil_total()
+	)
+
+	if veil_total >= rules.final_collapse_threshold:
+		var collapse_winner = game.players[0]
+
+		for index: int in range(
+			1,
+			game.players.size()
+		):
+			var candidate = game.players[
+				index
+			]
+
+			if int(
+				candidate.souls
+			) > int(
+				collapse_winner.souls
+			):
+				collapse_winner = candidate
+
+		game.winner = int(
+			collapse_winner.pid
+		)
+		game.win_by = "FinalCollapse"
+		game.refresh_derived_values()
+		return true
+
+	if veil_total < rules.dominion_track:
+		return false
+
+	assert(
+		game.players.size() == 2,
+		"Dominion victory currently requires two players."
+	)
+
+	var dominion_leader = game.players[0]
+
+	if int(
+		game.players[1].tears
+	) > int(
+		dominion_leader.tears
+	):
+		dominion_leader = game.players[1]
+
+	var other_player = game.get_opponent(
+		int(
+			dominion_leader.pid
+		)
+	)
+
+	if other_player == null:
+		return false
+
+	var player_summaries: Array = []
+
+	for player in game.players:
+		player_summaries.append({
+			"lord": String(
+				player.lord
+			),
+			"alive": bool(
+				player.alive
+			),
+		})
+
+	var requirement: int = (
+		LordMathData.dominion_requirement(
+			player_summaries,
+			rules
+		)
+	)
+
+	if (
+		int(
+			dominion_leader.tears
+		) > int(
+			other_player.tears
+		)
+		and int(
+			dominion_leader.tears
+		) >= requirement
+	):
+		game.winner = int(
+			dominion_leader.pid
+		)
+		game.win_by = "Dominion"
+		game.refresh_derived_values()
+		return true
+
+	return false
+
+
+static func _humbaba_card_id(
+	card
+) -> String:
+	if card == null:
+		return ""
+
+	if card.has_method(
+		"card_id"
+	):
+		return String(
+			card.card_id()
+		)
+
+	return str(
+		card
+	)
+
+
 static func _apply_kroni_hungering_aura(
 	game
 ) -> Array[Dictionary]:
@@ -440,6 +913,8 @@ static func _trigger_gremory_lord_guard(
 			player.hand.append(
 				drawn_card
 			)
+
+			player.kanifous_outside_draws += 1
 
 			if game.breach == "Kanifous":
 				player.threat = min(

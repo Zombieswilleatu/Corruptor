@@ -31,6 +31,7 @@ const ROUND_ONE_SUMMON_TEST_NAME := "unit_round1_summon_noop"
 const HAND_ONLY_TEST_NAME := "unit_summon_hand_only_payment"
 const COST_AND_TEAR_TEST_NAME := "unit_summon_cost_threat_and_tear"
 const VESSEL_TEST_NAME := "unit_summon_vessel_override"
+const ORIAS_PURSUIT_TEST_NAME := "unit_summon_orias_relentless_pursuit"
 
 
 static func run(
@@ -47,6 +48,9 @@ static func run(
 			rules
 		),
 		_test_summon_vessel_override(
+			rules
+		),
+		_test_summon_orias_relentless_pursuit(
 			rules
 		),
 	]
@@ -366,6 +370,114 @@ static func _test_summon_vessel_override(
 
 	return _result_from_error(
 		VESSEL_TEST_NAME,
+		error
+	)
+
+
+static func _test_summon_orias_relentless_pursuit(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has(
+		"error"
+	):
+		return _fail(
+			ORIAS_PURSUIT_TEST_NAME,
+			String(
+				fixture["error"]
+			)
+		)
+
+	var game = fixture["game"]
+	var player_zero = fixture["p0"]
+
+	var locked_pool: Array[String] = [
+		"Orias",
+	]
+
+	player_zero.lord_pool = locked_pool
+	player_zero.lord = "Orias"
+	player_zero.alive = false
+	player_zero.threat = 4
+	player_zero.first_summon_done = true
+	player_zero.vessel_offered_lord = ""
+
+	player_zero.hand = [
+		CardData.new(
+			"Butcher",
+			5
+		),
+	]
+
+	player_zero.garrison.clear()
+	player_zero.lord_guards.clear()
+
+	game.breach = ""
+	game.breach_owner = -1
+	game.discard.clear()
+	game.neutral_tears = 0
+	game.winner = -1
+	game.win_by = ""
+
+	game.set_meta(
+		"orias_marked_lord",
+		"Orias"
+	)
+
+	game.refresh_derived_values()
+
+	var results: Array[Dictionary] = (
+		SummonEngineData.resolve(
+			game,
+			rules,
+			{
+				0: {
+					"lord": "Orias",
+					"payment": [
+						"Butcher:5",
+					],
+				},
+				1: {
+					"pass": true,
+				},
+			}
+		)
+	)
+
+	var error: String = ""
+
+	if results.size() != 2:
+		error = "Expected two Relentless Pursuit Summon results."
+	elif String(
+		results[0].get(
+			"action",
+			""
+		)
+	) != "summon":
+		error = "Marked Orias did not resummon."
+	elif player_zero.threat != 1:
+		error = (
+			"Marked Orias should return at Threat 1; got %d."
+			% player_zero.threat
+		)
+	elif int(
+		results[0].get(
+			"threat",
+			-1
+		)
+	) != 1:
+		error = "Summon result did not report Threat 1."
+	elif player_zero.derived_lord_def != 8:
+		error = (
+			"Marked Orias should return with derived Defense 8; got %d."
+			% player_zero.derived_lord_def
+		)
+
+	return _result_from_error(
+		ORIAS_PURSUIT_TEST_NAME,
 		error
 	)
 

@@ -35,6 +35,24 @@ func seed(
 	)
 
 
+func duplicate_state():
+	var copied_random = PythonRandom.new(
+		0
+	)
+
+	var copied_state: Array[int] = []
+
+	for value: int in _state:
+		copied_state.append(
+			value
+		)
+
+	copied_random._state = copied_state
+	copied_random._index = _index
+
+	return copied_random
+
+
 func next_uint32() -> int:
 	if _index >= STATE_SIZE:
 		_twist()

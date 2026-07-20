@@ -398,8 +398,7 @@ static func _test_odradek_reconfiguration(
 	odradek.alive = true
 	odradek.odradek_guards_defeated = 0
 
-	game.set_meta(
-		"odradek_reconfig_tokens",
+	odradek.odradek_reconfig_tokens = (
 		rules.reconfig_tokens_needed - 1
 	)
 
@@ -423,10 +422,7 @@ static func _test_odradek_reconfiguration(
 		)
 
 	if int(
-		game.get_meta(
-			"odradek_reconfig_tokens",
-			-1
-		)
+		odradek.odradek_reconfig_tokens
 	) != 0:
 		return _fail(
 			ODRADEK_TEAR_TEST_NAME,
@@ -501,8 +497,7 @@ static func _test_odradek_strict_denial(
 	odradek.alive = true
 	odradek.odradek_guards_defeated = 1
 
-	game.set_meta(
-		"odradek_reconfig_tokens",
+	odradek.odradek_reconfig_tokens = (
 		rules.reconfig_tokens_needed - 1
 	)
 
@@ -520,10 +515,7 @@ static func _test_odradek_strict_denial(
 		)
 
 	if int(
-		game.get_meta(
-			"odradek_reconfig_tokens",
-			-1
-		)
+		odradek.odradek_reconfig_tokens
 	) != rules.reconfig_tokens_needed - 1:
 		return _fail(
 			ODRADEK_DENIAL_TEST_NAME,
@@ -747,6 +739,7 @@ static func _prepare_game(
 		player.souls = 0
 		player.tears = 0
 		player.threat = 0
+		player.odradek_reconfig_tokens = 0
 
 		player.action = ""
 		player.ward_target = ""

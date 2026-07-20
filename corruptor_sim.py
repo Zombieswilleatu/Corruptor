@@ -29,7 +29,9 @@ SIM_VERSION history
              (chip/alternating AI).
   6.0.1      Python oracle identity correction: every physical card is a
              distinct object; Ruinous Harvest removes the exact most-recent
-             eligible discard entry. CURRENT.
+             eligible discard entry.
+  6.0.2      Blocked Profane correction: a Fresh Sigil clears the
+             pending Profane and prevents its cleanup Tear. CURRENT.
 
 CHANGELOG (rulebook alignment — retained for reference)
 ───────────────────────────────────────────────────────
@@ -84,7 +86,7 @@ This version aligns the simulation with Rulebook v5.29. Major changes:
   defense penalty (persistent Scorch guard-strip retained).
 """
 
-SIM_VERSION = "6.0.1"                        # trace-affecting oracle implementation version
+SIM_VERSION = "6.0.2"                        # trace-affecting oracle implementation version
 SIM_CODENAME = "DE v2 + Humbaba"
 AI_POLICY = "heuristic-2025.06-doctrine"     # policy axis — pins balance grids (Law 5)
 
@@ -1332,7 +1334,10 @@ class Game:
         in ANY zone (Flipped do not block). Castle flips to Profaned now;
         the Tear lands at the end of Resolution."""
         if 'fresh' in op.sigils.values():
-            return  # denied — committed cards are wasted
+            # A Fresh Sigil cancels Profane completely. Clear the queued
+            # target so Resolution cleanup cannot award an invalid Tear.
+            pl.pending_profane = ''
+            return
         target = pl.pending_profane
         if not target or target not in pl.castles:
             pl.pending_profane = ''

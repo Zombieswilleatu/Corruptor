@@ -202,6 +202,13 @@ static func _resolve_move(
 		)
 	)
 
+	var source_index: int = int(
+		move.get(
+			"source_index",
+			-1
+		)
+	)
+
 	var source_key: String = (
 		source_text
 		.strip_edges()
@@ -335,26 +342,64 @@ static func _resolve_move(
 	else:
 		source_zone = player.garrison
 
-	var selected_card = _find_card(
-		source_zone,
-		card_identifier
-	)
+	var selected_card = null
 
-	if selected_card == null:
-		return _invalid_move(
-			_display_source(
-				source_key
-			),
-			_display_target(
-				target_key
-			),
-			card_identifier,
-			"source_card_missing"
+	if source_index >= 0:
+		if source_index >= source_zone.size():
+			return _invalid_move(
+				_display_source(
+					source_key
+				),
+				_display_target(
+					target_key
+				),
+				card_identifier,
+				"source_index_out_of_range"
+			)
+
+		selected_card = source_zone[
+			source_index
+		]
+
+		if _card_id(
+			selected_card
+		) != card_identifier:
+			return _invalid_move(
+				_display_source(
+					source_key
+				),
+				_display_target(
+					target_key
+				),
+				card_identifier,
+				"source_index_card_mismatch"
+			)
+	else:
+		selected_card = _find_card(
+			source_zone,
+			card_identifier
 		)
 
-	source_zone.erase(
-		selected_card
-	)
+		if selected_card == null:
+			return _invalid_move(
+				_display_source(
+					source_key
+				),
+				_display_target(
+					target_key
+				),
+				card_identifier,
+				"source_card_missing"
+			)
+
+	if source_index >= 0:
+		source_zone.remove_at(
+			source_index
+		)
+	else:
+		source_zone.erase(
+			selected_card
+		)
 
 	target_zone.append(
 		selected_card

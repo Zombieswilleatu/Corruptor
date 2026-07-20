@@ -14,11 +14,6 @@ const ACTION_WARD: String = "Ward"
 const ZONE_LORD: String = "Lord"
 const ZONE_CASTLE: String = "Castle"
 
-const RECONFIG_META_KEY: String = (
-	"odradek_reconfig_tokens"
-)
-
-
 static func resolve(
 	game,
 	rules: RuleConfig
@@ -432,10 +427,7 @@ static func _resolve_odradek_reconfiguration(
 	)
 
 	var tokens_before: int = int(
-		game.get_meta(
-			RECONFIG_META_KEY,
-			0
-		)
+		player.odradek_reconfig_tokens
 	)
 
 	if defeated_count >= denial_threshold:
@@ -501,10 +493,7 @@ static func _resolve_odradek_reconfiguration(
 			)
 		)
 
-	game.set_meta(
-		RECONFIG_META_KEY,
-		tokens_after
-	)
+	player.odradek_reconfig_tokens = tokens_after
 
 	var won: bool = _check_win(
 		game,

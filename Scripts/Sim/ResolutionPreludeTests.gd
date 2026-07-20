@@ -17,7 +17,9 @@ const ResolutionPreludeEngineData = preload(
 
 const ORDER_TEST_NAME := "unit_resolution_order"
 const SCORCH_TEST_NAME := "unit_resolution_persistent_scorch"
+const GREMORY_DRAW_TEST_NAME := "unit_resolution_prelude_gremory_outside_draw"
 const COLLAPSE_TEST_NAME := "unit_resolution_collapse_stack"
+const HUMBABA_TOLL_TEST_NAME := "unit_resolution_humbaba_toll"
 const KRONI_TEST_NAME := "unit_resolution_kroni_aura"
 
 
@@ -31,7 +33,13 @@ static func run(
 		_test_persistent_scorch(
 			rules
 		),
+		_test_gremory_outside_draw(
+			rules
+		),
 		_test_collapse_stack(
+			rules
+		),
+		_test_humbaba_toll(
 			rules
 		),
 		_test_kroni_aura(
@@ -245,6 +253,128 @@ static func _test_persistent_scorch(
 	)
 
 
+static func _test_gremory_outside_draw(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has(
+		"error"
+	):
+		return _fail(
+			GREMORY_DRAW_TEST_NAME,
+			String(
+				fixture["error"]
+			)
+		)
+
+	var game = fixture["game"]
+	var player_one = fixture["p1"]
+
+	_prepare_game(
+		game
+	)
+
+	player_one.lord = "Gremory"
+	player_one.alive = true
+	player_one.threat = 0
+	player_one.kanifous_outside_draws = 0
+	player_one.gremory_lord_guard_draw_done = false
+
+	game.breach = "Kanifous"
+	game.breach_owner = 0
+	game.persist_scorch_pid = 1
+	game.persist_scorch_type = "Lord"
+
+	player_one.lord_guards = _cards_from_ids([
+		"Wright:2",
+	])
+
+	game.deck = _cards_from_ids([
+		"Vulture:3",
+	])
+
+	var result: Dictionary = (
+		ResolutionPreludeEngineData.resolve(
+			game,
+			rules,
+			0
+		)
+	)
+
+	if player_one.kanifous_outside_draws != 1:
+		return _fail(
+			GREMORY_DRAW_TEST_NAME,
+			"Prelude Gremory draw did not increment the outside-draw counter."
+		)
+
+	if player_one.threat != 1:
+		return _fail(
+			GREMORY_DRAW_TEST_NAME,
+			"Prelude Gremory draw did not trigger Kanifous Breach Threat."
+		)
+
+	if _card_ids(
+		game.discard
+	) != [
+		"Wright:2",
+		"Vulture:3",
+	]:
+		return _fail(
+			GREMORY_DRAW_TEST_NAME,
+			"Prelude Gremory trigger produced the wrong discard state."
+		)
+
+	var scorch_event: Dictionary = result.get(
+		"persistent_scorch",
+		{}
+	)
+
+	var gremory_event: Dictionary = scorch_event.get(
+		"gremory_trigger",
+		{}
+	)
+
+	if not bool(
+		gremory_event.get(
+			"triggered",
+			false
+		)
+	):
+		return _fail(
+			GREMORY_DRAW_TEST_NAME,
+			"Prelude Gremory trigger was not recorded."
+		)
+
+	if String(
+		gremory_event.get(
+			"drawn_card",
+			""
+		)
+	) != "Vulture:3":
+		return _fail(
+			GREMORY_DRAW_TEST_NAME,
+			"Prelude Gremory trigger recorded the wrong drawn card."
+		)
+
+	if String(
+		gremory_event.get(
+			"discarded_card",
+			""
+		)
+	) != "Vulture:3":
+		return _fail(
+			GREMORY_DRAW_TEST_NAME,
+			"Prelude Gremory trigger recorded the wrong discarded card."
+		)
+
+	return _pass(
+		GREMORY_DRAW_TEST_NAME
+	)
+
+
 static func _test_collapse_stack(
 	rules: RuleConfig
 ) -> Dictionary:
@@ -347,6 +477,160 @@ static func _test_collapse_stack(
 
 	return _pass(
 		COLLAPSE_TEST_NAME
+	)
+
+
+static func _test_humbaba_toll(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has(
+		"error"
+	):
+		return _fail(
+			HUMBABA_TOLL_TEST_NAME,
+			String(
+				fixture["error"]
+			)
+		)
+
+	var game = fixture["game"]
+	var opponent = fixture["p0"]
+	var humbaba = fixture["p1"]
+
+	_prepare_game(
+		game
+	)
+
+	opponent.lord = "Orias"
+	opponent.alive = true
+	opponent.souls = rules.win_souls - 2
+	opponent.tears = 0
+	opponent.threat = 0
+
+	humbaba.lord = "Humbaba"
+	humbaba.alive = true
+	humbaba.souls = 0
+	humbaba.tears = 0
+	humbaba.threat = 0
+
+	humbaba.castles.clear()
+
+	for castle_name: String in [
+		"Keep",
+		"Bastion",
+		"Stockpile",
+		"SummoningCircle",
+		"SiegeEngine",
+	]:
+		humbaba.castles.append(
+			castle_name
+		)
+
+	humbaba.ruined_castles.clear()
+	humbaba.profaned_castles.clear()
+	humbaba.garrison.clear()
+
+	humbaba.castle_guards = _cards_from_ids([
+		"Butcher:1",
+		"Wright:2",
+		"Vulture:3",
+		"Penitent:4",
+	])
+
+	game.neutral_tears = 0
+	game.winner = -1
+	game.win_by = ""
+	game.refresh_derived_values()
+
+	var result: Dictionary = (
+		ResolutionPreludeEngineData.resolve(
+			game,
+			rules
+		)
+	)
+
+	var toll_events: Array = result.get(
+		"humbaba_toll_events",
+		[]
+	)
+
+	if toll_events.size() != 1:
+		return _fail(
+			HUMBABA_TOLL_TEST_NAME,
+			"Expected exactly one Humbaba Toll event."
+		)
+
+	var toll_event: Dictionary = toll_events[0]
+
+	if String(
+		toll_event.get(
+			"ruined_castle",
+			""
+		)
+	) != "SiegeEngine":
+		return _fail(
+			HUMBABA_TOLL_TEST_NAME,
+			"Humbaba Toll ruined the wrong Castle."
+		)
+
+	if humbaba.castles.has(
+		"SiegeEngine"
+	):
+		return _fail(
+			HUMBABA_TOLL_TEST_NAME,
+			"Ruined Castle remained intact."
+		)
+
+	if not humbaba.ruined_castles.has(
+		"SiegeEngine"
+	):
+		return _fail(
+			HUMBABA_TOLL_TEST_NAME,
+			"Ruined Castle was not recorded."
+		)
+
+	if opponent.souls != rules.win_souls - 3:
+		return _fail(
+			HUMBABA_TOLL_TEST_NAME,
+			"Humbaba Toll removed the wrong Soul amount."
+		)
+
+	if game.neutral_tears != 1:
+		return _fail(
+			HUMBABA_TOLL_TEST_NAME,
+			"Humbaba Toll did not place one Neutral Tear."
+		)
+
+	if humbaba.castle_guards.size() != 3:
+		return _fail(
+			HUMBABA_TOLL_TEST_NAME,
+			"Gate Guard did not collapse to three slots."
+		)
+
+	if _card_ids(
+		humbaba.garrison
+	) != [
+		"Butcher:1",
+	]:
+		return _fail(
+			HUMBABA_TOLL_TEST_NAME,
+			"Lowest fourth Guard did not move to Garrison."
+		)
+
+	if int(
+		game.winner
+	) >= 0:
+		return _fail(
+			HUMBABA_TOLL_TEST_NAME,
+			"Non-lethal Toll incorrectly ended the game."
+		)
+
+	return _pass(
+		HUMBABA_TOLL_TEST_NAME
 	)
 
 

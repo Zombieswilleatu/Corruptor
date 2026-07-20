@@ -559,7 +559,8 @@ static func resolve_round(
 	var reveal_result: Dictionary = (
 		RevealEngineData.resolve(
 			game,
-			rules
+			rules,
+			random_source
 		)
 	)
 
@@ -623,7 +624,8 @@ static func resolve_round(
 		ResolutionEngineData.resolve(
 			game,
 			rules,
-			resolution_choices
+			resolution_choices,
+			random_source
 		)
 	)
 
@@ -1114,7 +1116,6 @@ static func _append_event(
 		"phase": phase_name,
 		"data": data,
 	})
-
 
 static func _contains_invalid(
 	value

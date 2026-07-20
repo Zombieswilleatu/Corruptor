@@ -50,13 +50,12 @@ static func build_decisions(
 		policy
 	)
 
-	var reflex_bundle: Dictionary = (
-		BotReflexDoctrineData.build_decisions(
-			game,
-			rules,
-			random_source,
-			effective_policy
-		)
+	var reflex_provider: Callable = Callable(
+		BotReflexDoctrineData,
+		"build_decisions"
+	).bind(
+		random_source,
+		effective_policy
 	)
 
 	var decisions: Dictionary = {
@@ -69,14 +68,11 @@ static func build_decisions(
 			game,
 			rules
 		),
-		"reflex": _nested_dictionary(
-			reflex_bundle,
-			"winner_decision"
-		),
-		"odradek_breach": _nested_dictionary(
-			reflex_bundle,
-			"breach_decision"
-		),
+		"reflex": {
+			"pass": true,
+		},
+		"odradek_breach": {},
+		"reflex_provider": reflex_provider,
 		"gremory": {},
 		"tie_first_player": int(
 			game.first_player
@@ -87,7 +83,8 @@ static func build_decisions(
 		_preview_gremory_choices(
 			game,
 			rules,
-			decisions
+			decisions,
+			random_source
 		)
 	)
 
@@ -215,10 +212,12 @@ static func vessel_choices(
 		):
 			decisions[player_id] = {
 				"offer": true,
+				"reevaluate_after_action": true,
 			}
 		else:
 			decisions[player_id] = {
 				"pass": true,
+				"reevaluate_after_action": true,
 			}
 
 	return decisions
@@ -227,7 +226,8 @@ static func vessel_choices(
 static func _preview_gremory_choices(
 	game,
 	rules: RuleConfig,
-	base_decisions: Dictionary
+	base_decisions: Dictionary,
+	random_source = null
 ) -> Dictionary:
 	var shadow = game.duplicate_state()
 
@@ -239,11 +239,26 @@ static func _preview_gremory_choices(
 
 	preview_decisions["gremory"] = {}
 
+	var preview_random_source = null
+
+	if random_source != null:
+		assert(
+			random_source.has_method(
+				"duplicate_state"
+			),
+			"Gremory preview requires a cloneable deterministic random source."
+		)
+
+		preview_random_source = (
+			random_source.duplicate_state()
+		)
+
 	var preview_result: Dictionary = (
 		ResolutionEngineData.resolve(
 			shadow,
 			rules,
-			preview_decisions
+			preview_decisions,
+			preview_random_source
 		)
 	)
 
@@ -304,6 +319,14 @@ static func _preview_gremory_choices(
 			or not preview_opponent.castles.has(
 				target_castle
 			)
+		):
+			continue
+
+		# Inevitable Ruin must retain two cards after payment.
+		if (
+			preview_player.hand.size()
+			+ preview_player.garrison.size()
+			< 4
 		):
 			continue
 
