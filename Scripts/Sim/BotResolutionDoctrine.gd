@@ -88,6 +88,16 @@ static func build_decisions(
 		)
 	)
 
+	# The preview remains useful for inspection, but its payment can be
+	# stale after Resolution mutates Gremory's hand. Bot games therefore
+	# reevaluate at the exact pre-Cleanup boundary.
+	# Static functions have no self in Godot 4.2. Bind the Callable to
+	# this cached script resource instead of an unqualified method member.
+	decisions["gremory_provider"] = Callable(
+		load("res://Scripts/Sim/BotResolutionDoctrine.gd"),
+		"current_gremory_choices"
+	)
+
 	return decisions
 
 
@@ -221,6 +231,86 @@ static func vessel_choices(
 			}
 
 	return decisions
+
+
+static func current_gremory_choices(
+	game,
+	rules: RuleConfig
+) -> Dictionary:
+	assert(
+		game != null,
+		"Current Gremory doctrine requires a GameState."
+	)
+
+	assert(
+		rules != null,
+		"Current Gremory doctrine requires RuleConfig."
+	)
+
+	var choices: Dictionary = {}
+
+	if int(
+		game.winner
+	) >= 0:
+		return choices
+
+	for player in game.players:
+		var player_id: int = int(
+			player.pid
+		)
+
+		if (
+			player.lord != "Gremory"
+			or not player.alive
+			or player.gremory_inevitable_ruin_done
+		):
+			continue
+
+		var opponent = game.get_opponent(
+			player_id
+		)
+
+		if opponent == null:
+			continue
+
+		var target_castle: String = String(
+			opponent.last_sieged_castle
+		)
+
+		if (
+			not opponent.was_sieged
+			or target_castle.is_empty()
+			or not opponent.castles.has(
+				target_castle
+			)
+		):
+			continue
+
+		# Inevitable Ruin must retain two cards after payment.
+		if (
+			player.hand.size()
+			+ player.garrison.size()
+			< 4
+		):
+			continue
+
+		# Committed and Reflex cards have already left these zones at
+		# this boundary, so no prediction-time exclusions are needed.
+		var payment: Array = (
+			_select_gremory_payment(
+				player,
+				[]
+			)
+		)
+
+		if payment.size() != 2:
+			continue
+
+		choices[player_id] = {
+			"payment": payment,
+		}
+
+	return choices
 
 
 static func _preview_gremory_choices(
@@ -447,11 +537,9 @@ static func _should_consume(
 		+ 1
 	)
 
-	if (
-		veil_after < rules.dominion_track
-		or veil_after
-		>= rules.final_collapse_threshold
-	):
+	# Python still takes Consume when it triggers Final Collapse; the normal
+	# win-priority check then selects the actual winner.
+	if veil_after < rules.dominion_track:
 		return false
 
 	var personal_after: int = (

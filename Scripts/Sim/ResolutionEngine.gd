@@ -107,7 +107,12 @@ static func resolve(
 	)
 
 	var raw_reflex_provider = decisions.get(
-		"reflex_provider",
+			"reflex_provider",
+			null
+	)
+
+	var raw_gremory_provider = decisions.get(
+		"gremory_provider",
 		null
 	)
 
@@ -129,7 +134,8 @@ static func resolve(
 		ResolutionPreludeEngineData.resolve(
 			game,
 			rules,
-			tie_first_player
+			tie_first_player,
+			random_source
 		)
 	)
 
@@ -153,6 +159,20 @@ static func resolve(
 			{},
 			{},
 			{}
+		)
+
+	# Python exits Resolution when a Prelude effect wins.
+	if int(
+		game.winner
+	) >= 0:
+		return _finish_result(
+			game,
+			prelude_result,
+			[],
+			{},
+			{},
+			{},
+			"prelude"
 		)
 
 	var raw_order = prelude_result.get(
@@ -447,6 +467,46 @@ static func resolve(
 			{},
 			"finale"
 		)
+
+	if typeof(
+		raw_gremory_provider
+	) == TYPE_CALLABLE:
+		var gremory_provider: Callable = (
+			raw_gremory_provider
+		)
+
+		if not gremory_provider.is_valid():
+			return _invalid_result(
+				game,
+				"cleanup",
+				"gremory_provider_invalid",
+				prelude_result,
+				action_events,
+				reflex_result,
+				finale_result,
+				{}
+			)
+
+		var raw_gremory_choices = gremory_provider.call(
+			game,
+			rules
+		)
+
+		if typeof(
+			raw_gremory_choices
+		) != TYPE_DICTIONARY:
+			return _invalid_result(
+				game,
+				"cleanup",
+				"gremory_provider_result_not_dictionary",
+				prelude_result,
+				action_events,
+				reflex_result,
+				finale_result,
+				{}
+			)
+
+		gremory_choices = raw_gremory_choices
 
 	var cleanup_result: Dictionary = (
 		ResolutionCleanupEngineData.resolve(

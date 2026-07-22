@@ -592,22 +592,8 @@ static func resolve_round(
 			)
 		)
 
-	# Kanifous can place a Tear or gain a Soul during Reveal.
-	_check_win(
-		game,
-		rules
-	)
-
-	if int(
-		game.winner
-	) >= 0:
-		return _finish_round(
-			game,
-			phase_results,
-			events,
-			false,
-			"reveal"
-		)
+	# Python oracle timing: Reveal mutations are not a victory checkpoint.
+	# Resolution begins before Kanifous Reveal gains are checked for victory.
 
 	var resolution_choices: Dictionary = (
 		BotResolutionDoctrineData

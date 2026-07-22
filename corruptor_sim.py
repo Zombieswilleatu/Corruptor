@@ -86,7 +86,7 @@ This version aligns the simulation with Rulebook v5.29. Major changes:
   defense penalty (persistent Scorch guard-strip retained).
 """
 
-SIM_VERSION = "6.0.2"                        # trace-affecting oracle implementation version
+SIM_VERSION = "6.0.3"                        # trace-affecting oracle implementation version
 SIM_CODENAME = "DE v2 + Humbaba"
 AI_POLICY = "heuristic-2025.06-doctrine"     # policy axis — pins balance grids (Law 5)
 
@@ -1314,9 +1314,12 @@ class Game:
         for pl in self.players:
             temp = getattr(pl, 'penitent_temp_guards', [])
             for g in temp:
-                if g in pl.lord_guards:      pl.lord_guards.remove(g)
-                elif g in pl.castle_guards:  pl.castle_guards.remove(g)
-                self._discard([g])
+                if g in pl.lord_guards:
+                    pl.lord_guards.remove(g)
+                    self._discard([g])
+                elif g in pl.castle_guards:
+                    pl.castle_guards.remove(g)
+                    self._discard([g])
             pl.penitent_temp_guards = []
 
         # Profane — Tear lands at the END of Resolution (v5.29)

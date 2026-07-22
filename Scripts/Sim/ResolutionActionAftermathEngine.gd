@@ -46,66 +46,80 @@ static func resolve(
 			"acting_player_missing"
 		)
 
-	var effective_vessel_decision: Dictionary = (
-		vessel_decision
-	)
+	# Validate the cached Vessel decision before aftermath mutation.
+	var vessel_validation: Dictionary = {
+		"valid": true,
+		"reason": "",
+		"offer": false,
+	}
 
-	if bool(
+	# Doctrine-marked Vessel decisions are validated after reevaluation.
+	if not bool(
 		vessel_decision.get(
 			"reevaluate_after_action",
 			false
 		)
 	):
-		effective_vessel_decision = (
-			_post_action_vessel_decision(
+		vessel_validation = (
+			_validate_vessel_decision(
 				game,
 				acting_player,
-				rules
+				vessel_decision
 			)
 		)
 
-		# Hunt/Siege engines may already have recorded Ritual. Python's
-		# golden order evaluates Vessel before that victory checkpoint.
-		if (
-			bool(
-				effective_vessel_decision.get(
-					"offer",
-					false
+		if not bool(
+			vessel_validation.get(
+				"valid",
+				false
+			)
+		):
+			return _invalid_result(
+				acting_player_id,
+				String(
+					vessel_validation.get(
+						"reason",
+						"invalid_vessel_decision"
+					)
 				)
 			)
-			and int(
-				game.winner
-			) >= 0
-			and String(
-				game.win_by
-			) == "Ritual"
-		):
-			game.winner = -1
-			game.win_by = ""
 
-	var vessel_validation: Dictionary = (
-		_validate_vessel_decision(
-			game,
-			acting_player,
-			effective_vessel_decision
-		)
-	)
-
-	if not bool(
-		vessel_validation.get(
-			"valid",
-			false
+	# Explicit cached Vessel decisions cannot reopen an existing victory.
+	if (
+		int(game.winner) >= 0
+		and not bool(
+			vessel_decision.get(
+				"reevaluate_after_action",
+				false
+			)
 		)
 	):
-		return _invalid_result(
-			acting_player_id,
-			String(
-				vessel_validation.get(
-					"reason",
-					"invalid_vessel_decision"
-				)
+		var stale_vessel_event: Dictionary = (
+			_resolve_vessel(
+				game,
+				acting_player,
+				vessel_validation
 			)
 		)
+
+		return {
+			"action": "resolution_action_aftermath",
+			"reason": "",
+			"player_id": acting_player_id,
+			"destruction_recorded": false,
+			"kroni_events": [],
+			"vessel_event": stale_vessel_event,
+			"vulture_draw": "",
+			"wright_token_gained": false,
+			"discarded_committed": [],
+			"stopped_on_win": true,
+			"winner": int(
+				game.winner
+			),
+			"win_by": String(
+				game.win_by
+			),
+		}
 
 	var destruction_recorded: bool = (
 		_action_caused_destruction(
@@ -151,6 +165,68 @@ static func resolve(
 		):
 			kroni_events.append(
 				kroni_event
+			)
+
+	var effective_vessel_decision: Dictionary = (
+		vessel_decision
+	)
+
+	if bool(
+		vessel_decision.get(
+			"reevaluate_after_action",
+			false
+		)
+	):
+		effective_vessel_decision = (
+			_post_action_vessel_decision(
+				game,
+				acting_player,
+				rules
+			)
+		)
+
+		# Python reevaluates Vessel after action aftermath and Kroni Consume,
+		# before the next victory checkpoint.
+		if (
+			bool(
+				effective_vessel_decision.get(
+					"offer",
+					false
+				)
+			)
+			and int(
+				game.winner
+			) >= 0
+			and String(
+				game.win_by
+			) == "Ritual"
+		):
+			game.winner = -1
+			game.win_by = ""
+
+		# Revalidate the refreshed doctrine result before resolving it.
+		vessel_validation = (
+			_validate_vessel_decision(
+				game,
+				acting_player,
+				effective_vessel_decision
+			)
+		)
+
+		if not bool(
+			vessel_validation.get(
+				"valid",
+				false
+			)
+		):
+			return _invalid_result(
+				acting_player_id,
+				String(
+					vessel_validation.get(
+						"reason",
+						"invalid_vessel_decision"
+					)
+				)
 			)
 
 	var vessel_event: Dictionary = (
@@ -808,11 +884,8 @@ static func _check_win(
 	game,
 	rules: RuleConfig
 ) -> bool:
-	if int(
-		game.winner
-	) >= 0:
-		return true
-
+	# Kroni's action can provisionally win before aftermath Soul gains.
+	# Re-evaluate so Ritual-first priority can replace that label.
 	for player in game.players:
 		if (
 			player.alive

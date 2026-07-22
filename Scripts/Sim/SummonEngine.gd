@@ -531,11 +531,7 @@ static func _check_win(
 	game,
 	rules: RuleConfig
 ) -> bool:
-	if int(
-		game.winner
-	) >= 0:
-		return true
-
+	# Python re-evaluates victory after each player's summon.
 	for player in game.players:
 		if (
 			player.alive

@@ -6,6 +6,10 @@ const LordMathData = preload(
 	"res://Scripts/Sim/LordMath.gd"
 )
 
+const DrawEngineData = preload(
+	"res://Scripts/Sim/DrawEngine.gd"
+)
+
 
 const ZONE_LORD: String = "Lord"
 const ZONE_CASTLE: String = "Castle"
@@ -25,7 +29,8 @@ const HUMBABA_CASTLE_PRIORITY: Array[String] = [
 static func resolve(
 	game,
 	rules: RuleConfig,
-	tie_first_player: int = -1
+	tie_first_player: int = -1,
+	random_source = null
 ) -> Dictionary:
 	assert(
 		game != null,
@@ -60,7 +65,8 @@ static func resolve(
 
 	var scorch_event: Dictionary = _apply_persistent_scorch(
 		game,
-		rules
+		rules,
+		random_source
 	)
 
 	var collapse_events: Array[Dictionary] = []
@@ -218,7 +224,8 @@ static func _resolve_order(
 
 static func _apply_persistent_scorch(
 	game,
-	rules: RuleConfig
+	rules: RuleConfig,
+	random_source = null
 ) -> Dictionary:
 	var target_player_id: int = int(
 		game.persist_scorch_pid
@@ -290,7 +297,8 @@ static func _apply_persistent_scorch(
 	):
 		gremory_trigger = _trigger_gremory_lord_guard(
 			game,
-			rules
+			rules,
+			random_source
 		)
 
 	return {
@@ -890,7 +898,8 @@ static func _apply_kroni_hungering_aura(
 
 static func _trigger_gremory_lord_guard(
 	game,
-	rules: RuleConfig
+	rules: RuleConfig,
+	random_source = null
 ) -> Dictionary:
 	for player in game.players:
 		if (
@@ -904,25 +913,23 @@ static func _trigger_gremory_lord_guard(
 
 		var drawn_card = null
 
-		if (
-			player.hand.size() < rules.hand_limit
-			and not game.deck.is_empty()
-		):
-			drawn_card = game.deck.pop_back()
-
-			player.hand.append(
-				drawn_card
+		var draw_result: Dictionary = (
+			DrawEngineData.draw_to_hand(
+				game,
+				player,
+				rules,
+				random_source,
+				true
 			)
+		)
 
-			player.kanifous_outside_draws += 1
-
-			if game.breach == "Kanifous":
-				player.threat = min(
-					rules.max_threat,
-					int(
-						player.threat
-					) + 1
-				)
+		if bool(
+			draw_result.get(
+				"drawn",
+				false
+			)
+		):
+			drawn_card = player.hand.back()
 
 		var discarded_card = null
 

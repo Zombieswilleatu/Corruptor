@@ -18,6 +18,7 @@ const ResolutionCleanupEngineData = preload(
 const GREMORY_TEST_NAME := "unit_cleanup_gremory_inevitable_ruin"
 const GREMORY_ATOMIC_TEST_NAME := "unit_cleanup_gremory_atomic_validation"
 const PENITENT_TEST_NAME := "unit_cleanup_penitent_guards"
+const PENITENT_DEFEATED_TEST_NAME := "unit_cleanup_penitent_defeated_guard_conservation"
 const PROFANE_TEST_NAME := "unit_cleanup_profane_tears"
 
 
@@ -32,6 +33,9 @@ static func run(
 			rules
 		),
 		_test_penitent_cleanup(
+			rules
+		),
+		_test_penitent_defeated_guard_conservation(
 			rules
 		),
 		_test_profane_tears(
@@ -508,6 +512,68 @@ static func _test_penitent_cleanup(
 		PENITENT_TEST_NAME
 	)
 
+
+static func _test_penitent_defeated_guard_conservation(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has("error"):
+		return _fail(
+			PENITENT_DEFEATED_TEST_NAME,
+			String(fixture["error"])
+		)
+
+	var game = fixture["game"]
+	var player = fixture["p0"]
+
+	_prepare_game(game)
+
+	var defeated_guard = _card_from_id("Vulture:4")
+
+	# Combat already removed this temporary Guard from its Guard zone.
+	game.discard = [defeated_guard]
+	player.penitent_temp_guards = [defeated_guard]
+
+	var result: Dictionary = (
+		ResolutionCleanupEngineData.resolve(
+			game,
+			rules
+		)
+	)
+
+	if game.discard.size() != 1:
+		return _fail(
+			PENITENT_DEFEATED_TEST_NAME,
+			"Cleanup duplicated an already-defeated temporary Guard."
+		)
+
+	if game.discard[0] != defeated_guard:
+		return _fail(
+			PENITENT_DEFEATED_TEST_NAME,
+			"Cleanup replaced the defeated Guard object."
+		)
+
+	if not player.penitent_temp_guards.is_empty():
+		return _fail(
+			PENITENT_DEFEATED_TEST_NAME,
+			"Cleanup retained defeated-Guard tracking."
+		)
+
+	var event: Dictionary = _first_event(
+		result,
+		"penitent_events"
+	)
+
+	if not _string_array(event.get("cards", [])).is_empty():
+		return _fail(
+			PENITENT_DEFEATED_TEST_NAME,
+			"Cleanup event re-recorded a previously defeated Guard."
+		)
+
+	return _pass(PENITENT_DEFEATED_TEST_NAME)
 
 static func _test_profane_tears(
 	rules: RuleConfig

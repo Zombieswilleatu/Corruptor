@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cd4ocht4pri6f"]
+
+[ext_resource type="Script" path="res://Scripts/Sim/LordMatrixSoakRunner.gd" id="1_soak"]
+
+[node name="LordMatrixSoakRunner" type="Node"]
+script = ExtResource("1_soak")

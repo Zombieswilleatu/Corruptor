@@ -25,6 +25,7 @@ const RECYCLE_TEST_NAME := "unit_aftermath_vulture_recycle"
 const VESSEL_TEST_NAME := "unit_aftermath_offer_vessel"
 const STALE_VESSEL_TEST_NAME := "unit_aftermath_vessel_stale_after_win"
 const REFRESH_VESSEL_TEST_NAME := "unit_aftermath_vessel_refresh_after_action"
+const DEAD_REFRESH_TEST_NAME := "unit_aftermath_vessel_dead_doctrine_refresh"
 const ATOMIC_TEST_NAME := "unit_aftermath_vessel_atomic_validation"
 
 
@@ -48,6 +49,9 @@ static func run(
 			rules
 		),
 		_test_vessel_refresh_after_action(
+			rules
+		),
+		_test_vessel_dead_doctrine_refresh(
 			rules
 		),
 		_test_vessel_atomic_validation(
@@ -863,6 +867,138 @@ static func _test_vessel_refresh_after_action(
 	return _pass(
 		REFRESH_VESSEL_TEST_NAME
 	)
+
+
+static func _test_vessel_dead_doctrine_refresh(
+		rules: RuleConfig
+) -> Dictionary:
+		var fixture: Dictionary = _build_fixture(
+				rules
+		)
+
+		if fixture.has(
+				"error"
+		):
+				return _fail(
+						DEAD_REFRESH_TEST_NAME,
+						String(
+								fixture["error"]
+						)
+				)
+
+		var game = fixture["game"]
+		var player = fixture["p0"]
+		var opponent = fixture["p1"]
+
+		_prepare_game(
+				game
+		)
+
+		player.lord = "Kanifous"
+		player.alive = false
+		player.vessel_used = false
+		player.vessel_offered_lord = ""
+
+		player.lord_guards = _cards_from_ids([
+				"Butcher:2",
+		])
+
+		opponent.souls = 1
+		game.refresh_derived_values()
+
+		var tears_before: int = int(
+				player.tears
+		)
+
+		var opponent_souls_before: int = int(
+				opponent.souls
+		)
+
+		var guards_before: Array[String] = _card_ids(
+				player.lord_guards
+		)
+
+		var result: Dictionary = (
+				ResolutionActionAftermathEngineData.resolve(
+						game,
+						rules,
+						0,
+						{
+								"action": "pass",
+								"destroyed": false,
+						},
+						{
+								"offer": true,
+								"reevaluate_after_action": true,
+						}
+				)
+		)
+
+		if String(
+				result.get(
+						"action",
+						""
+				)
+		) != "resolution_action_aftermath":
+				return _fail(
+						DEAD_REFRESH_TEST_NAME,
+						"Dead-Lord doctrine reevaluation was rejected."
+				)
+
+		var vessel_event: Dictionary = result.get(
+				"vessel_event",
+				{}
+		)
+
+		if String(
+				vessel_event.get(
+						"action",
+						""
+				)
+		) != "pass":
+				return _fail(
+						DEAD_REFRESH_TEST_NAME,
+						"Dead-Lord Vessel choice did not refresh to pass."
+				)
+
+		if player.alive:
+				return _fail(
+						DEAD_REFRESH_TEST_NAME,
+						"Vessel reevaluation revived the dead Lord."
+				)
+
+		if (
+				player.vessel_used
+				or not player.vessel_offered_lord.is_empty()
+		):
+				return _fail(
+						DEAD_REFRESH_TEST_NAME,
+						"Dead-Lord reevaluation recorded a Vessel offer."
+				)
+
+		if player.tears != tears_before:
+				return _fail(
+						DEAD_REFRESH_TEST_NAME,
+						"Dead-Lord reevaluation granted a Tear."
+				)
+
+		if opponent.souls != opponent_souls_before:
+				return _fail(
+						DEAD_REFRESH_TEST_NAME,
+						"Dead-Lord reevaluation granted an opponent Soul."
+				)
+
+		if _card_ids(
+				player.lord_guards
+		) != guards_before:
+				return _fail(
+						DEAD_REFRESH_TEST_NAME,
+						"Dead-Lord reevaluation discarded Lord Guards."
+				)
+
+		return _pass(
+				DEAD_REFRESH_TEST_NAME
+		)
 
 
 static func _test_vessel_atomic_validation(

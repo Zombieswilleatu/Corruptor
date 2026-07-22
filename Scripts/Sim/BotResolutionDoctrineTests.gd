@@ -540,6 +540,13 @@ static func _test_gremory_preview(
 			"Preview consumed the real Commitment."
 		)
 
+	# The provider must supersede a stale pre-resolution choice.
+	decisions["gremory"] = {
+		0: {
+			"pass": true,
+		},
+	}
+
 	var result: Dictionary = (
 		ResolutionEngineData.resolve(
 			game,
@@ -620,6 +627,149 @@ static func _test_gremory_preview(
 		return _fail(
 			GREMORY_TEST_NAME,
 			"Inevitable Ruin use flag was not set."
+		)
+
+	var late_fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if late_fixture.has(
+		"error"
+	):
+		return _fail(
+			GREMORY_TEST_NAME,
+			String(
+				late_fixture["error"]
+			)
+		)
+
+	var late_game = late_fixture["game"]
+	var late_gremory = late_fixture["p0"]
+	var late_defender = late_fixture["p1"]
+
+	_prepare_game(
+		late_game
+	)
+
+	late_game.first_player = 0
+
+	late_gremory.lord = "Gremory"
+	late_gremory.alive = true
+	late_gremory.action = ""
+	late_gremory.gremory_inevitable_ruin_done = false
+	late_gremory.hand = _cards_from_ids([
+		"Butcher:5",
+	])
+	late_gremory.garrison.clear()
+
+	late_defender.lord = "Valak"
+	late_defender.alive = true
+	late_defender.action = ""
+
+	_set_castles(
+		late_defender,
+		[
+			"Keep",
+		]
+	)
+
+	late_defender.was_sieged = false
+	late_defender.last_sieged_castle = ""
+
+	var late_decisions: Dictionary = (
+		BotResolutionDoctrineData
+		.build_decisions(
+			late_game,
+			rules,
+			{},
+			null,
+			BotPolicyData.golden_core()
+		)
+	)
+
+	var stale_gremory_choices: Dictionary = (
+		_nested_dictionary(
+			late_decisions,
+			"gremory"
+		)
+	)
+
+	if not _decision_for_player(
+		stale_gremory_choices,
+		0
+	).is_empty():
+		return _fail(
+			GREMORY_TEST_NAME,
+			"Pre-resolution Gremory choice was unexpectedly available."
+		)
+
+	# Simulate the exact state transition exposed by soak seed
+	# 1493006176: resolution supplies enough cards and creates a valid
+	# surviving Siege target after the original bundle was built.
+	late_gremory.hand = _cards_from_ids([
+		"Butcher:1",
+		"Wright:2",
+		"Vulture:3",
+		"Butcher:5",
+	])
+
+	late_defender.was_sieged = true
+	late_defender.last_sieged_castle = "Keep"
+
+	var raw_gremory_provider = late_decisions.get(
+		"gremory_provider",
+		null
+	)
+
+	if typeof(
+		raw_gremory_provider
+	) != TYPE_CALLABLE:
+		return _fail(
+			GREMORY_TEST_NAME,
+			"Gremory cleanup provider was not installed."
+		)
+
+	var gremory_provider: Callable = raw_gremory_provider
+
+	if not gremory_provider.is_valid():
+		return _fail(
+			GREMORY_TEST_NAME,
+			"Gremory cleanup provider was invalid."
+		)
+
+	var raw_current_choices = gremory_provider.call(
+		late_game,
+		rules
+	)
+
+	if typeof(
+		raw_current_choices
+	) != TYPE_DICTIONARY:
+		return _fail(
+			GREMORY_TEST_NAME,
+			"Gremory cleanup provider returned the wrong type."
+		)
+
+	var current_choices: Dictionary = raw_current_choices
+	var current_decision: Dictionary = (
+		_decision_for_player(
+			current_choices,
+			0
+		)
+	)
+
+	if _payment_signatures(
+		current_decision.get(
+			"payment",
+			[]
+		)
+	) != [
+		"Hand>Butcher:1",
+		"Hand>Wright:2",
+	]:
+		return _fail(
+			GREMORY_TEST_NAME,
+			"Late Gremory provider ignored the current Cleanup state."
 		)
 
 	return _pass(

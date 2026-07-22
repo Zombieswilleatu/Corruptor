@@ -125,9 +125,15 @@ static func resolve(
 			)
 		)
 
-		# Specific Siege and Profane Castles are chosen after Reveal.
+		# Siege target state is recorded only if that action resolves.
 		player.last_sieged_castle = ""
-		player.pending_profane = ""
+		# Profane targets are sealed during Commitment, matching Python.
+		player.pending_profane = String(
+			plan.get(
+				"pending_profane",
+				""
+			)
+		)
 
 		player.committed.clear()
 
@@ -249,6 +255,7 @@ static func _validate_commitment(
 
 	var target_type: String = ""
 	var ward_target: String = ""
+	var pending_profane: String = ""
 
 	match action_name:
 		ACTION_HUNT:
@@ -342,6 +349,19 @@ static func _validate_commitment(
 
 			ward_target = target_type
 
+	if action_name == ACTION_PROFANE:
+		var requested_profane: String = String(
+			decision.get(
+				"target_castle",
+				""
+			)
+		)
+
+		if player.castles.has(
+			requested_profane
+		):
+			pending_profane = requested_profane
+
 	var raw_cards = decision.get(
 		"cards",
 		[]
@@ -384,6 +404,7 @@ static func _validate_commitment(
 		"target_pid": target_pid,
 		"target_type": target_type,
 		"ward_target": ward_target,
+		"pending_profane": pending_profane,
 		"cards": selection.get(
 			"cards",
 			[]

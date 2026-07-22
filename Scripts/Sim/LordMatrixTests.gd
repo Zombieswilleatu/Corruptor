@@ -13,6 +13,8 @@ const AI_POLICY: String = (
 const EXPECTED_LORD_COUNT: int = 9
 const EXPECTED_SCENARIO_COUNT: int = 81
 
+const EXPECTED_CARD_POPULATION: int = 60
+
 
 const SeededGameSetupData = preload(
 	"res://Scripts/Sim/SeededGameSetup.gd"
@@ -228,6 +230,14 @@ static func _run_scenario(
 			"Seeded setup returned no game or RNG."
 		)
 
+	var deal_population_failure: String = _card_population_failure(game)
+
+	if not deal_population_failure.is_empty():
+		return _fail(
+			scenario_name,
+			"Card conservation failure at game:deal: %s"
+			% deal_population_failure
+		)
 	var snapshots: Array = [
 		GoldenSnapshotSerializerData.snapshot_game(
 			game,
@@ -288,6 +298,14 @@ static func _run_scenario(
 				]
 			)
 
+		var round_population_failure: String = _card_population_failure(game)
+
+		if not round_population_failure.is_empty():
+			return _fail(
+				scenario_name,
+				"Card conservation failure at round:end: %s"
+				% round_population_failure
+			)
 		snapshots.append(
 			GoldenSnapshotSerializerData.snapshot_game(
 				game,
@@ -345,19 +363,16 @@ static func _run_scenario(
 		)
 	)
 
-	var terminal_failure: String = (
-		_terminal_failure(
-			scenario,
-			game
-		)
-	)
+	var terminal_population_failure: String = _card_population_failure(game)
 
-	if not terminal_failure.is_empty():
+	if not terminal_population_failure.is_empty():
 		return _fail(
 			scenario_name,
-			terminal_failure
+			"Card conservation failure at game:end: %s"
+			% terminal_population_failure
 		)
-
+	# Terminal summary comparison is deferred to checkpoint hashes.
+	# This preserves the earliest round/state divergence as the failure.
 	var expected_checkpoints_raw = (
 		scenario.get(
 			"checkpoints",
@@ -378,7 +393,81 @@ static func _run_scenario(
 	)
 
 	if expected_checkpoints.size() != snapshots.size():
-		return _fail(
+		# Compare the shared checkpoint prefix before reporting its length.
+		var shared_count: int = min(
+			expected_checkpoints.size(),
+			snapshots.size()
+		)
+
+		for shared_index: int in range(
+			shared_count
+		):
+			var shared_expected_raw = expected_checkpoints[
+				shared_index
+			]
+
+			if typeof(shared_expected_raw) != TYPE_DICTIONARY:
+				continue
+
+			var shared_expected: Dictionary = shared_expected_raw
+			var shared_actual: Dictionary = snapshots[
+				shared_index
+			]
+			var shared_checkpoint: String = String(
+				shared_actual.get(
+					"checkpoint",
+					""
+				)
+			)
+			var shared_expected_checkpoint: String = String(
+				shared_expected.get(
+					"checkpoint",
+					""
+				)
+			)
+
+			if shared_expected_checkpoint != shared_checkpoint:
+				var name_result: Dictionary = _fail(
+					scenario_name,
+					"Checkpoint name mismatch at index %d: want=%s got=%s"
+					% [
+						shared_index,
+						shared_expected_checkpoint,
+						shared_checkpoint,
+					]
+				)
+				name_result["checkpoint"] = shared_checkpoint
+				name_result["actual_snapshot"] = shared_actual
+				return name_result
+
+			var shared_expected_hash: String = String(
+				shared_expected.get(
+					"hash",
+					""
+				)
+			)
+			var shared_actual_hash: String = (
+				GoldenMasterData.trace_hash([
+					shared_actual,
+				])
+			)
+
+			if shared_expected_hash != shared_actual_hash:
+				var hash_result: Dictionary = _fail(
+					scenario_name,
+					"State hash divergence at %s: want=%s got=%s"
+					% [
+						shared_checkpoint,
+						shared_expected_hash.left(16),
+						shared_actual_hash.left(16),
+					]
+				)
+				hash_result["checkpoint"] = shared_checkpoint
+				hash_result["actual_snapshot"] = shared_actual
+				return hash_result
+
+		# Preserve the last actual snapshot when checkpoint counts differ.
+		var count_result: Dictionary = _fail(
 			scenario_name,
 			"Checkpoint count mismatch: want=%d got=%d"
 			% [
@@ -386,6 +475,22 @@ static func _run_scenario(
 				snapshots.size(),
 			]
 		)
+
+		if not snapshots.is_empty():
+			var actual_terminal: Dictionary = snapshots[
+				snapshots.size() - 1
+			]
+
+			count_result["checkpoint"] = String(
+				actual_terminal.get(
+					"checkpoint",
+					""
+				)
+			)
+
+			count_result["actual_snapshot"] = actual_terminal
+
+		return count_result
 
 	for index: int in range(
 		snapshots.size()
@@ -452,7 +557,7 @@ static func _run_scenario(
 		)
 
 		if expected_hash != actual_hash:
-			return _fail(
+			var hash_failure: Dictionary = _fail(
 				scenario_name,
 				"State hash divergence at %s: want=%s got=%s"
 				% [
@@ -465,6 +570,11 @@ static func _run_scenario(
 					),
 				]
 			)
+
+			hash_failure["checkpoint"] = actual_checkpoint
+			hash_failure["actual_snapshot"] = actual_snapshot
+
+			return hash_failure
 
 	var expected_trace_hash: String = String(
 		scenario.get(
@@ -497,6 +607,72 @@ static func _run_scenario(
 		scenario_name
 	)
 
+
+static func _card_population_failure(game) -> String:
+	var zones: Array = [
+		{"name": "deck", "cards": game.deck},
+		{"name": "discard", "cards": game.discard},
+		{"name": "market", "cards": game.market},
+	]
+
+	for player in game.players:
+		var player_id: int = int(player.pid)
+		zones.append({
+			"name": "p%d.hand" % player_id,
+			"cards": player.hand,
+		})
+		zones.append({
+			"name": "p%d.garrison" % player_id,
+			"cards": player.garrison,
+		})
+		zones.append({
+			"name": "p%d.castle_guards" % player_id,
+			"cards": player.castle_guards,
+		})
+		zones.append({
+			"name": "p%d.lord_guards" % player_id,
+			"cards": player.lord_guards,
+		})
+		zones.append({
+			"name": "p%d.committed" % player_id,
+			"cards": player.committed,
+		})
+
+	var seen: Dictionary = {}
+	var total: int = 0
+
+	for zone_data in zones:
+		var zone_name: String = String(zone_data.get("name", ""))
+		var cards: Array = zone_data.get("cards", [])
+
+		for card_index in range(cards.size()):
+			var card = cards[card_index]
+			total += 1
+
+			if card == null:
+				return "null card at %s[%d]" % [zone_name, card_index]
+
+			var instance_id: int = int(card.get_instance_id())
+			var location: String = "%s[%d]" % [zone_name, card_index]
+
+			if seen.has(instance_id):
+				return "duplicate physical card %s:%d#%d first=%s second=%s" % [
+					String(card.suit),
+					int(card.value),
+					instance_id,
+					String(seen[instance_id]),
+					location,
+				]
+
+			seen[instance_id] = location
+
+	if total != EXPECTED_CARD_POPULATION:
+		return "card population mismatch: want=%d got=%d" % [
+			EXPECTED_CARD_POPULATION,
+			total,
+		]
+
+	return ""
 
 static func _terminal_failure(
 	scenario: Dictionary,

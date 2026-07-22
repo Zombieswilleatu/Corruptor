@@ -457,6 +457,10 @@ static func _cleanup_penitent_guards(
 
 			source_zone = "Castle"
 
+		# A defeated temporary Guard is already in discard.
+		if source_zone == "Missing":
+			continue
+
 		game.discard.append(
 			temporary_guard
 		)
