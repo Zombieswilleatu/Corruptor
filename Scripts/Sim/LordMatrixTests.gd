@@ -36,6 +36,10 @@ const BotRoundEngineData = preload(
 	"res://Scripts/Sim/BotRoundEngine.gd"
 )
 
+const ResolutionFinaleEngineData = preload(
+	"res://Scripts/Sim/ResolutionFinaleEngine.gd"
+)
+
 const BotGameEngineData = preload(
 	"res://Scripts/Sim/BotGameEngine.gd"
 )
@@ -314,6 +318,14 @@ static func _run_scenario(
 				rules
 			)
 		)
+
+		# Python's round-snapshot harness evaluates any victory deferred by
+		# end-of-round effects only after recording round:NN:end.
+		if int(game.winner) < 0:
+			ResolutionFinaleEngineData.check_win(
+				game,
+				rules
+			)
 
 	if int(
 		game.winner

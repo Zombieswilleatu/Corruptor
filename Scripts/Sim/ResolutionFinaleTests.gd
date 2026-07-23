@@ -23,6 +23,10 @@ const KRONI_BREACH_TEST_NAME := (
 	"unit_finale_kroni_breach"
 )
 
+const KRONI_FALLBACK_VICTORY_TIMING_TEST_NAME := (
+	"unit_finale_kroni_fallback_victory_timing"
+)
+
 const ODRADEK_TEAR_TEST_NAME := (
 	"unit_finale_odradek_reconfiguration"
 )
@@ -44,6 +48,9 @@ static func run(
 			rules
 		),
 		_test_kroni_breach(
+			rules
+		),
+		_test_kroni_fallback_victory_timing(
 			rules
 		),
 		_test_odradek_reconfiguration(
@@ -367,6 +374,130 @@ static func _test_kroni_breach(
 
 	return _pass(
 		KRONI_BREACH_TEST_NAME
+	)
+
+
+static func _test_kroni_fallback_victory_timing(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has(
+		"error"
+	):
+		return _fail(
+			KRONI_FALLBACK_VICTORY_TIMING_TEST_NAME,
+			String(
+				fixture["error"]
+			)
+		)
+
+	var game = fixture["game"]
+	var gremory = fixture["p0"]
+	var kroni = fixture["p1"]
+
+	_prepare_game(
+		game
+	)
+
+	game.breach = "Kroni"
+	game.breach_owner = 1
+	game.neutral_tears = 8
+
+	gremory.lord = "Gremory"
+	gremory.action = "Siege"
+	gremory.prev_ward_target = "Castle"
+	gremory.castle_guards = _cards_from_ids([
+		"Vulture:2",
+	])
+
+	kroni.lord = "Kroni"
+	kroni.action = "Hunt"
+	kroni.tears = 2
+	kroni.kroni_hunger = 2
+	kroni.kroni_consume_done = false
+	kroni.kroni_tear_milestone_fired = false
+	kroni.castle_guards = _cards_from_ids([
+		"Penitent:1",
+		"Butcher:4",
+	])
+
+	var result: Dictionary = (
+		ResolutionFinaleEngineData.resolve(
+			game,
+			rules
+		)
+	)
+
+	if int(game.winner) >= 0:
+		return _fail(
+			KRONI_FALLBACK_VICTORY_TIMING_TEST_NAME,
+			"Fallback victory was not deferred past Finale."
+		)
+
+	if bool(
+		result.get(
+			"stopped_on_win",
+			true
+		)
+	):
+		return _fail(
+			KRONI_FALLBACK_VICTORY_TIMING_TEST_NAME,
+			"Finale stopped before post-fallback passives."
+		)
+
+	if not gremory.castle_guards.is_empty():
+		return _fail(
+			KRONI_FALLBACK_VICTORY_TIMING_TEST_NAME,
+			"Kroni Breach did not resolve for Gremory."
+		)
+
+	if not kroni.castle_guards.is_empty():
+		return _fail(
+			KRONI_FALLBACK_VICTORY_TIMING_TEST_NAME,
+			"Kroni Breach did not resolve after fallback Consume."
+		)
+
+	if gremory.prev_ward_target != "":
+		return _fail(
+			KRONI_FALLBACK_VICTORY_TIMING_TEST_NAME,
+			"Finale skipped the Ward-history update."
+		)
+
+	if _card_ids(
+		game.discard
+	) != [
+		"Penitent:1",
+		"Vulture:2",
+		"Butcher:4",
+	]:
+		return _fail(
+			KRONI_FALLBACK_VICTORY_TIMING_TEST_NAME,
+			"Fallback and Breach effects resolved in the wrong order."
+		)
+
+	if not ResolutionFinaleEngineData.check_win(
+		game,
+		rules
+	):
+		return _fail(
+			KRONI_FALLBACK_VICTORY_TIMING_TEST_NAME,
+			"Deferred victory checkpoint found no winner."
+		)
+
+	if (
+		int(game.winner) != 1
+		or String(game.win_by) != "Dominion"
+	):
+		return _fail(
+			KRONI_FALLBACK_VICTORY_TIMING_TEST_NAME,
+			"Deferred checkpoint selected the wrong victory."
+		)
+
+	return _pass(
+		KRONI_FALLBACK_VICTORY_TIMING_TEST_NAME
 	)
 
 

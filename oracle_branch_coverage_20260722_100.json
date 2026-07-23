@@ -1,0 +1,449 @@
+{
+  "ai_version": "softmax-2026.07-v1-golden",
+  "events": {
+    "cataclysmic_invocation": {
+      "fire_count": 5626,
+      "first_case": {
+        "player_one_lord": "Deimos",
+        "player_zero_lord": "Deimos",
+        "seed": 1176152170,
+        "seed_index": 0
+      },
+      "game_count": 4467,
+      "seed_count": 100
+    },
+    "consume_the_hunt": {
+      "fire_count": 143,
+      "first_case": {
+        "player_one_lord": "Orias",
+        "player_zero_lord": "Gremory",
+        "seed": 1671693048,
+        "seed_index": 1
+      },
+      "game_count": 143,
+      "seed_count": 69
+    },
+    "deimos_claim_the_breach": {
+      "fire_count": 1785,
+      "first_case": {
+        "player_one_lord": "Deimos",
+        "player_zero_lord": "Deimos",
+        "seed": 1176152170,
+        "seed_index": 0
+      },
+      "game_count": 1685,
+      "seed_count": 100
+    },
+    "draw_discard_recycle": {
+      "fire_count": 16071,
+      "first_case": {
+        "player_one_lord": "Deimos",
+        "player_zero_lord": "Deimos",
+        "seed": 1176152170,
+        "seed_index": 0
+      },
+      "game_count": 7803,
+      "seed_count": 100
+    },
+    "gremory_inevitable_ruin": {
+      "fire_count": 166,
+      "first_case": {
+        "player_one_lord": "Gremory",
+        "player_zero_lord": "Deimos",
+        "seed": 1671693048,
+        "seed_index": 1
+      },
+      "game_count": 158,
+      "seed_count": 74
+    },
+    "gremory_ruinous_harvest": {
+      "fire_count": 9341,
+      "first_case": {
+        "player_one_lord": "Gremory",
+        "player_zero_lord": "Deimos",
+        "seed": 1176152170,
+        "seed_index": 0
+      },
+      "game_count": 1698,
+      "seed_count": 100
+    },
+    "humbaba_toll": {
+      "fire_count": 1845,
+      "first_case": {
+        "player_one_lord": "Humbaba",
+        "player_zero_lord": "Deimos",
+        "seed": 1176152170,
+        "seed_index": 0
+      },
+      "game_count": 911,
+      "seed_count": 100
+    },
+    "kanifous_high_invoke": {
+      "fire_count": 4423,
+      "first_case": {
+        "player_one_lord": "Kanifous",
+        "player_zero_lord": "Deimos",
+        "seed": 1176152170,
+        "seed_index": 0
+      },
+      "game_count": 1479,
+      "seed_count": 100
+    },
+    "kanifous_invoke": {
+      "fire_count": 15459,
+      "first_case": {
+        "player_one_lord": "Kanifous",
+        "player_zero_lord": "Deimos",
+        "seed": 1176152170,
+        "seed_index": 0
+      },
+      "game_count": 1700,
+      "seed_count": 100
+    },
+    "kanifous_reveal_recycle": {
+      "fire_count": 551,
+      "first_case": {
+        "player_one_lord": "Humbaba",
+        "player_zero_lord": "Kanifous",
+        "seed": 1176152170,
+        "seed_index": 0
+      },
+      "game_count": 442,
+      "seed_count": 100
+    },
+    "kroni_combat_consume": {
+      "fire_count": 4485,
+      "first_case": {
+        "player_one_lord": "Kroni",
+        "player_zero_lord": "Deimos",
+        "seed": 1176152170,
+        "seed_index": 0
+      },
+      "game_count": 1473,
+      "seed_count": 100
+    },
+    "kroni_ravenous": {
+      "fire_count": 205,
+      "first_case": {
+        "player_one_lord": "Kroni",
+        "player_zero_lord": "Kanifous",
+        "seed": 1176152170,
+        "seed_index": 0
+      },
+      "game_count": 205,
+      "seed_count": 92
+    },
+    "odradek_paradox_steal": {
+      "fire_count": 297,
+      "first_case": {
+        "player_one_lord": "Odradek",
+        "player_zero_lord": "Humbaba",
+        "seed": 1176152170,
+        "seed_index": 0
+      },
+      "game_count": 225,
+      "seed_count": 95
+    },
+    "odradek_reconfiguration_tear": {
+      "fire_count": 2529,
+      "first_case": {
+        "player_one_lord": "Odradek",
+        "player_zero_lord": "Deimos",
+        "seed": 1176152170,
+        "seed_index": 0
+      },
+      "game_count": 1252,
+      "seed_count": 100
+    },
+    "profane_blocked_by_fresh_sigil": {
+      "fire_count": 7526,
+      "first_case": {
+        "player_one_lord": "Kroni",
+        "player_zero_lord": "Deimos",
+        "seed": 1176152170,
+        "seed_index": 0
+      },
+      "game_count": 884,
+      "seed_count": 100
+    },
+    "profane_commitment_success": {
+      "fire_count": 180,
+      "first_case": {
+        "player_one_lord": "Kroni",
+        "player_zero_lord": "Deimos",
+        "seed": 1176152170,
+        "seed_index": 0
+      },
+      "game_count": 173,
+      "seed_count": 100
+    },
+    "profane_the_ruins": {
+      "fire_count": 95,
+      "first_case": {
+        "player_one_lord": "Gremory",
+        "player_zero_lord": "Kroni",
+        "seed": 1176152170,
+        "seed_index": 0
+      },
+      "game_count": 95,
+      "seed_count": 60
+    },
+    "vessel_offer": {
+      "fire_count": 1701,
+      "first_case": {
+        "player_one_lord": "Humbaba",
+        "player_zero_lord": "Deimos",
+        "seed": 1176152170,
+        "seed_index": 0
+      },
+      "game_count": 1701,
+      "seed_count": 100
+    }
+  },
+  "exhaustive_control_flow_coverage": false,
+  "format_version": 1,
+  "greedy_cover": [
+    {
+      "events": {
+        "cataclysmic_invocation": {
+          "player_one_lord": "Gremory",
+          "player_zero_lord": "Deimos",
+          "seed": 860794004,
+          "seed_index": 2
+        },
+        "consume_the_hunt": {
+          "player_one_lord": "Orias",
+          "player_zero_lord": "Kalligan",
+          "seed": 860794004,
+          "seed_index": 2
+        },
+        "deimos_claim_the_breach": {
+          "player_one_lord": "Deimos",
+          "player_zero_lord": "Deimos",
+          "seed": 860794004,
+          "seed_index": 2
+        },
+        "draw_discard_recycle": {
+          "player_one_lord": "Deimos",
+          "player_zero_lord": "Deimos",
+          "seed": 860794004,
+          "seed_index": 2
+        },
+        "gremory_inevitable_ruin": {
+          "player_one_lord": "Humbaba",
+          "player_zero_lord": "Gremory",
+          "seed": 860794004,
+          "seed_index": 2
+        },
+        "gremory_ruinous_harvest": {
+          "player_one_lord": "Gremory",
+          "player_zero_lord": "Deimos",
+          "seed": 860794004,
+          "seed_index": 2
+        },
+        "humbaba_toll": {
+          "player_one_lord": "Humbaba",
+          "player_zero_lord": "Deimos",
+          "seed": 860794004,
+          "seed_index": 2
+        },
+        "kanifous_high_invoke": {
+          "player_one_lord": "Kanifous",
+          "player_zero_lord": "Deimos",
+          "seed": 860794004,
+          "seed_index": 2
+        },
+        "kanifous_invoke": {
+          "player_one_lord": "Kanifous",
+          "player_zero_lord": "Deimos",
+          "seed": 860794004,
+          "seed_index": 2
+        },
+        "kanifous_reveal_recycle": {
+          "player_one_lord": "Kanifous",
+          "player_zero_lord": "Humbaba",
+          "seed": 860794004,
+          "seed_index": 2
+        },
+        "kroni_combat_consume": {
+          "player_one_lord": "Kroni",
+          "player_zero_lord": "Deimos",
+          "seed": 860794004,
+          "seed_index": 2
+        },
+        "kroni_ravenous": {
+          "player_one_lord": "Kroni",
+          "player_zero_lord": "Humbaba",
+          "seed": 860794004,
+          "seed_index": 2
+        },
+        "odradek_paradox_steal": {
+          "player_one_lord": "Kalligan",
+          "player_zero_lord": "Odradek",
+          "seed": 860794004,
+          "seed_index": 2
+        },
+        "odradek_reconfiguration_tear": {
+          "player_one_lord": "Odradek",
+          "player_zero_lord": "Deimos",
+          "seed": 860794004,
+          "seed_index": 2
+        },
+        "profane_blocked_by_fresh_sigil": {
+          "player_one_lord": "Deimos",
+          "player_zero_lord": "Humbaba",
+          "seed": 860794004,
+          "seed_index": 2
+        },
+        "profane_commitment_success": {
+          "player_one_lord": "Kroni",
+          "player_zero_lord": "Deimos",
+          "seed": 860794004,
+          "seed_index": 2
+        },
+        "profane_the_ruins": {
+          "player_one_lord": "Gremory",
+          "player_zero_lord": "Kroni",
+          "seed": 860794004,
+          "seed_index": 2
+        },
+        "vessel_offer": {
+          "player_one_lord": "Kanifous",
+          "player_zero_lord": "Deimos",
+          "seed": 860794004,
+          "seed_index": 2
+        }
+      },
+      "seed": 860794004,
+      "seed_index": 2
+    }
+  ],
+  "master_seed": 20260722,
+  "ordered_matchups_per_seed": 81,
+  "scope": "tracked parity-sensitive semantic events",
+  "seed_count": 100,
+  "seed_start": 0,
+  "seeds": [
+    1176152170,
+    1671693048,
+    860794004,
+    145145932,
+    859462030,
+    1220663250,
+    113487225,
+    524706366,
+    2127406567,
+    247388044,
+    170889239,
+    1417327063,
+    1788921391,
+    898471551,
+    1242202147,
+    525492704,
+    881942902,
+    1503540144,
+    1865667020,
+    594632624,
+    289919399,
+    608719611,
+    1087566778,
+    1327345768,
+    800145332,
+    798468003,
+    2085251165,
+    1354969049,
+    2013949761,
+    1951069151,
+    383747956,
+    2030502612,
+    2100600116,
+    95107447,
+    594165406,
+    1672030977,
+    312527309,
+    775809203,
+    816047395,
+    2091433760,
+    1830312929,
+    2098222590,
+    1592301163,
+    2050823789,
+    969958976,
+    2118168825,
+    1440957115,
+    1695637644,
+    871031024,
+    1162525092,
+    985625023,
+    995320201,
+    873024906,
+    1840885542,
+    1850714252,
+    424315503,
+    1611812203,
+    1879898570,
+    247121811,
+    1672340197,
+    1165728170,
+    726936104,
+    2081627685,
+    500052383,
+    2085380929,
+    1698557810,
+    726798168,
+    1409628771,
+    1807764169,
+    1426963570,
+    2091153531,
+    1120366632,
+    521407822,
+    1405728451,
+    1944522478,
+    1408614190,
+    1642283255,
+    787144637,
+    600984978,
+    71918298,
+    1470401156,
+    2110658778,
+    2074323863,
+    1331781809,
+    564313492,
+    552843039,
+    1872168445,
+    1871181021,
+    680478972,
+    868792724,
+    829598800,
+    591631104,
+    506806833,
+    1017567730,
+    1835347931,
+    123993093,
+    49978378,
+    1915959319,
+    1479866519,
+    993193826
+  ],
+  "sim_version": "6.0.3",
+  "tracked_events": [
+    "draw_discard_recycle",
+    "kanifous_reveal_recycle",
+    "kanifous_invoke",
+    "kanifous_high_invoke",
+    "kroni_combat_consume",
+    "kroni_ravenous",
+    "consume_the_hunt",
+    "vessel_offer",
+    "odradek_paradox_steal",
+    "odradek_reconfiguration_tear",
+    "gremory_inevitable_ruin",
+    "gremory_ruinous_harvest",
+    "humbaba_toll",
+    "cataclysmic_invocation",
+    "profane_the_ruins",
+    "profane_commitment_success",
+    "profane_blocked_by_fresh_sigil",
+    "deimos_claim_the_breach"
+  ]
+}

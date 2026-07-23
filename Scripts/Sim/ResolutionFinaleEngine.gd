@@ -70,21 +70,9 @@ static func resolve(
 				fallback_event
 			)
 
-			if _check_win(
-				game,
-				rules
-			):
-				game.refresh_derived_values()
-
-				return _result(
-					game,
-					decay_events,
-					fallback_events,
-					breach_events,
-					reconfiguration_events,
-					state_events,
-					true
-				)
+			# Python defers the victory checkpoint created by fallback
+			# Consume until after the completed-round snapshot. Finale must
+			# still resolve Breach passives and persistent state updates.
 
 	if game.breach == "Kroni":
 		for player in game.players:
@@ -800,6 +788,16 @@ static func _trigger_gremory_harvest(
 		"harvested_card": "",
 		"harvested_by": -1,
 	}
+
+
+static func check_win(
+	game,
+	rules: RuleConfig
+) -> bool:
+	return _check_win(
+		game,
+		rules
+	)
 
 
 static func _check_win(

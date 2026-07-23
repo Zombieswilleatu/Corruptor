@@ -1,0 +1,66 @@
+{
+  "corrected_divergence": {
+    "cause": "Godot checked a Kroni fallback Consume victory before Kroni Breach and Finale state updates",
+    "checkpoint": "round:07:end",
+    "master_seed": 20260722,
+    "matchup": "Gremory vs Kroni",
+    "regression_test": "unit_finale_kroni_fallback_victory_timing",
+    "seed": 1405728451,
+    "seed_index": 73
+  },
+  "format_version": 1,
+  "godot_soaks": [
+    {
+      "code_state": "commit ba39c06 before Kroni timing correction",
+      "games": 8100,
+      "master_seed": 20260719,
+      "ordered_matchups_per_seed": 81,
+      "result": "pass",
+      "seed_count": 100,
+      "seed_start": 0
+    },
+    {
+      "code_state": "after Kroni timing correction",
+      "games": 8100,
+      "master_seed": 20260722,
+      "ordered_matchups_per_seed": 81,
+      "result": "pass",
+      "seed_count": 100,
+      "seed_start": 0
+    }
+  ],
+  "limitations": [
+    "Tracked semantic events are not exhaustive control-flow coverage.",
+    "Acceptance applies only to the recorded simulator and AI versions.",
+    "The first Godot soak preceded the final timing correction; the second full soak and permanent suite validate the corrected code."
+  ],
+  "permanent_golden_suite": {
+    "result": "pass",
+    "timing": "after Kroni fallback victory-timing correction"
+  },
+  "recorded_date": "2026-07-22",
+  "scope": "Python oracle and Godot 4.2 parity under SIM_VERSION 6.0.3 and softmax-2026.07-v1-golden",
+  "semantic_coverage": [
+    {
+      "greedy_cover_seeds": [
+        361542937
+      ],
+      "manifest": "oracle_branch_coverage_100.json",
+      "manifest_sha256": "fac74b37b9552e4b1f983381daf56687a59ecaaf75147f141928612329737b97",
+      "master_seed": 20260719,
+      "minimum_event_seed_count": 60,
+      "tracked_event_count": 18
+    },
+    {
+      "greedy_cover_seeds": [
+        860794004
+      ],
+      "manifest": "oracle_branch_coverage_20260722_100.json",
+      "manifest_sha256": "d83fc89869a02eb6b08823c1ea0ff649cd2b4fd92fe185f68bbba43eb400bff3",
+      "master_seed": 20260722,
+      "minimum_event_seed_count": 60,
+      "tracked_event_count": 18
+    }
+  ],
+  "status": "accepted_for_recorded_scope"
+}
