@@ -872,6 +872,8 @@ static func _gain_neutral_tear(
 		):
 			continue
 
+		player.gremory_veil_draw_done = true
+
 		var target_index: int = -1
 
 		for discard_index: int in range(
@@ -899,8 +901,6 @@ static func _gain_neutral_tear(
 			player.hand.append(
 				card
 			)
-
-			player.gremory_veil_draw_done = true
 
 			harvested_card = _card_id(
 				card

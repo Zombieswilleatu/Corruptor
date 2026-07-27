@@ -16,7 +16,8 @@ const ZONE_CASTLE: String = "Castle"
 
 static func resolve(
 	game,
-	rules: RuleConfig
+	rules: RuleConfig,
+	player_order: Array = []
 ) -> Dictionary:
 	assert(
 		game != null,
@@ -29,10 +30,44 @@ static func resolve(
 	)
 
 	var decay_events: Array[Dictionary] = []
+	var consume_events: Array[Dictionary] = []
 	var fallback_events: Array[Dictionary] = []
 	var breach_events: Array[Dictionary] = []
 	var reconfiguration_events: Array[Dictionary] = []
 	var state_events: Array[Dictionary] = []
+
+	var consume_order: Array[int] = _normalized_player_order(
+		game,
+		player_order
+	)
+
+	for player_id: int in consume_order:
+		var player = game.get_player(
+			player_id
+		)
+
+		if player == null:
+			continue
+
+		var consume_event: Dictionary = (
+			_resolve_kroni_consume(
+				game,
+				player
+			)
+		)
+
+		if bool(
+			consume_event.get(
+				"triggered",
+				false
+			)
+		):
+			consume_events.append(
+				consume_event
+			)
+
+			# Like fallback Consume, normal Consume's victory checkpoint is
+			# deferred until after the completed-round snapshot.
 
 	if rules.kroni_hunger_decay:
 		for player in game.players:
@@ -122,6 +157,7 @@ static func resolve(
 
 			return _result(
 				game,
+				consume_events,
 				decay_events,
 				fallback_events,
 				breach_events,
@@ -180,6 +216,7 @@ static func resolve(
 
 	return _result(
 		game,
+		consume_events,
 		decay_events,
 		fallback_events,
 		breach_events,
@@ -238,6 +275,113 @@ static func _apply_kroni_decay(
 	}
 
 
+static func _normalized_player_order(
+	game,
+	requested_order: Array
+) -> Array[int]:
+	var result: Array[int] = []
+
+	for raw_player_id in requested_order:
+		var player_id: int = int(
+			raw_player_id
+		)
+
+		if (
+			game.get_player(
+				player_id
+			) != null
+			and not result.has(
+				player_id
+			)
+		):
+			result.append(
+				player_id
+			)
+
+	for player in game.players:
+		var player_id: int = int(
+			player.pid
+		)
+
+		if not result.has(
+			player_id
+		):
+			result.append(
+				player_id
+			)
+
+	return result
+
+
+static func _resolve_kroni_consume(
+	game,
+	player
+) -> Dictionary:
+	if (
+		player.lord != "Kroni"
+		or not player.alive
+		or player.kroni_consume_done
+		or not _destruction_active_this_round(
+			game
+		)
+	):
+		return _empty_consume_event(
+			player
+		)
+
+	player.kroni_consume_done = true
+
+	var hunger_before: int = int(
+		player.kroni_hunger
+	)
+
+	var hunger_event: Dictionary = (
+		_gain_kroni_hunger(
+			game,
+			player
+		)
+	)
+
+	var gorge_soul_gain: int = 0
+
+	if (
+		player.kroni_hunger >= 1
+		and player.kroni_personally_defeated_guard
+	):
+		player.souls += 1
+		gorge_soul_gain = 1
+
+	return {
+		"triggered": true,
+		"player_id": int(
+			player.pid
+		),
+		"hunger_before": hunger_before,
+		"hunger_after": int(
+			player.kroni_hunger
+		),
+		"personal_tear_gain": int(
+			hunger_event.get(
+				"personal_tear_gain",
+				0
+			)
+		),
+		"harvested_card": String(
+			hunger_event.get(
+				"harvested_card",
+				""
+			)
+		),
+		"harvested_by": int(
+			hunger_event.get(
+				"harvested_by",
+				-1
+			)
+		),
+		"gorge_soul_gain": gorge_soul_gain,
+	}
+
+
 static func _resolve_kroni_fallback(
 	game,
 	player
@@ -286,12 +430,8 @@ static func _resolve_kroni_fallback(
 		selected_zone
 	)
 
-	game.discard.append(
+	game.removed_from_play.append(
 		selected_card
-	)
-
-	_mark_destruction(
-		game
 	)
 
 	player.kroni_consume_done = true
@@ -314,7 +454,7 @@ static func _resolve_kroni_fallback(
 			player.pid
 		),
 		"zone": selected_zone,
-		"discarded_card": _card_id(
+		"removed_card": _card_id(
 			selected_card
 		),
 		"hunger_before": hunger_before,
@@ -749,6 +889,8 @@ static func _trigger_gremory_harvest(
 		):
 			continue
 
+		player.gremory_veil_draw_done = true
+
 		for index in range(
 			game.discard.size() - 1,
 			-1,
@@ -770,8 +912,6 @@ static func _trigger_gremory_harvest(
 			player.hand.append(
 				card
 			)
-
-			player.gremory_veil_draw_done = true
 
 			return {
 				"harvested_card": _card_id(
@@ -907,6 +1047,52 @@ static func _check_win(
 	return false
 
 
+static func _destruction_active_this_round(
+	game
+) -> bool:
+	return int(
+		game.get_meta(
+			"any_destruction_round",
+			-1
+		)
+	) == int(
+		game.round
+	)
+
+
+static func _empty_consume_event(
+	player
+) -> Dictionary:
+	return {
+		"triggered": false,
+		"player_id": (
+			-1
+			if player == null
+			else int(
+				player.pid
+			)
+		),
+		"hunger_before": (
+			0
+			if player == null
+			else int(
+				player.kroni_hunger
+			)
+		),
+		"hunger_after": (
+			0
+			if player == null
+			else int(
+				player.kroni_hunger
+			)
+		),
+		"personal_tear_gain": 0,
+		"harvested_card": "",
+		"harvested_by": -1,
+		"gorge_soul_gain": 0,
+	}
+
+
 static func _empty_fallback_event(
 	player,
 	reason: String
@@ -922,7 +1108,7 @@ static func _empty_fallback_event(
 			)
 		),
 		"zone": "",
-		"discarded_card": "",
+		"removed_card": "",
 		"hunger_before": (
 			0
 			if player == null
@@ -945,6 +1131,7 @@ static func _empty_fallback_event(
 
 static func _result(
 	game,
+	consume_events: Array[Dictionary],
 	decay_events: Array[Dictionary],
 	fallback_events: Array[Dictionary],
 	breach_events: Array[Dictionary],
@@ -954,6 +1141,7 @@ static func _result(
 ) -> Dictionary:
 	return {
 		"action": "resolution_finale",
+		"consume_events": consume_events,
 		"decay_events": decay_events,
 		"fallback_events": fallback_events,
 		"breach_events": breach_events,

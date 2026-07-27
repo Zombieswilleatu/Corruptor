@@ -2,7 +2,7 @@
 """
 ╔══════════════════════════════════════════════════════════════════════╗
 ║          CORRUPTOR — Balance Simulation                             ║
-║          SIM_VERSION 6.0  ·  "DE v2 + Humbaba"                      ║
+║          SIM_VERSION 6.1.2  ·  "DE v2 + Humbaba"                    ║
 ║          AI_POLICY heuristic-2025.06-doctrine                       ║
 ║                                                                      ║
 ║  Tests all 9 lords across every head-to-head matchup.               ║
@@ -31,7 +31,15 @@ SIM_VERSION history
              distinct object; Ruinous Harvest removes the exact most-recent
              eligible discard entry.
   6.0.2      Blocked Profane correction: a Fresh Sigil clears the
-             pending Profane and prevents its cleanup Tear. CURRENT.
+             pending Profane and prevents its cleanup Tear.
+  6.0.3      Finale/Vessel parity corrections from the 6.0 golden pass.
+  6.1.0      Lord-power correctness pass: trigger classes, once-per-round
+             attempts, Scorch coverage/order, Consume timing/removal, and
+             committed-value ordering for after-Reveal Lord powers.
+  6.1.1      Release-integrity pass: standalone defaults now use canonical
+             DE v2, and golden identity is validated against live state.
+  6.1.2      Reflex Hunt destruction reporting, Vessel Predator parity, and
+             normal Consume victory timing. CURRENT.
 
 CHANGELOG (rulebook alignment — retained for reference)
 ───────────────────────────────────────────────────────
@@ -52,9 +60,11 @@ This version aligns the simulation with Rulebook v5.29. Major changes:
   Fresh +2 / Flipped +1 (+1 with active Keep). Omen −1 (min 0); a
   0-value Sigil breaks on any attack reaching it. Fresh Sigils block
   opponent Profane (Flipped do not).
-• VICTORY: WIN_SOULS 7 · Cataclysm at 12 · Final Collapse at 15.
-• VEIL: 3 Omen · 6 Frenzy · 7 Collapse · 9 The Waning (stacks with
-  Collapse) · 12 Cataclysm · 15 Final Collapse. Removed 13/14 extras.
+• VICTORY (historical v5.29): WIN_SOULS 7 · Cataclysm at 12 ·
+  Final Collapse at 15. Canonical DE v2 uses Cataclysm at 11.
+• VEIL (historical v5.29): 3 Omen · 6 Frenzy · 7 Collapse · 9 The
+  Waning · 12 Cataclysm · 15 Final Collapse. DE v2 moves Cataclysm
+  to 11.
   Attunement immunity ONLY for Omen (3+) and Frenzy (6+).
 • DOMINION RITES completed: Profane is now a Commitment action (Siege
   + own color, cancelled by opponent Fresh Sigil, Tear at end of
@@ -86,7 +96,7 @@ This version aligns the simulation with Rulebook v5.29. Major changes:
   defense penalty (persistent Scorch guard-strip retained).
 """
 
-SIM_VERSION = "6.0.3"                        # trace-affecting oracle implementation version
+SIM_VERSION = "6.1.2"                        # trace-affecting oracle implementation version
 SIM_CODENAME = "DE v2 + Humbaba"
 AI_POLICY = "heuristic-2025.06-doctrine"     # policy axis — pins balance grids (Law 5)
 
@@ -110,41 +120,79 @@ MAX_THREAT   = 4
 MARKET_SIZE  = 3
 MAX_ROUNDS   = 60
 
-# Dominion / Veil track (Standard mode, rulebook v5.29)
-DOMINION_TRACK      = 12
-DOMINION_REQUIREMENT = 3
+# Dominion / Veil track (canonical DE v2).
+DOMINION_TRACK      = 11
+DOMINION_REQUIREMENT = 2
 FINAL_COLLAPSE_TRACK = 15
 
-# ── Design-lever variants (candidate erratas — all False/default = pure v5.29)
-VARIANT = dict(
-    recoil_hunts_only=False,      # O1: Psychic Recoil (strip + Soul) fires on Hunts only
+# Canonical DE v2 defaults. The superseded v5.29 configuration remains
+# available under explicit BASE_V5_29_* names for historical comparisons.
+DE_V2_CONSTANTS = dict(
+    WIN_SOULS=7,
+    DOMINION_TRACK=11,
+    DOMINION_REQUIREMENT=2,
+    FINAL_COLLAPSE_TRACK=15,
+    HAND_LIMIT=10,
+    GARRISON_MAX=5,
+    MAX_THREAT=4,
+    MARKET_SIZE=3,
+    MAX_ROUNDS=60,
+)
+
+BASE_V5_29_CONSTANTS = dict(
+    DE_V2_CONSTANTS,
+    DOMINION_TRACK=12,
+    DOMINION_REQUIREMENT=3,
+)
+
+DE_V2_VARIANT = dict(
+    recoil_hunts_only=True,       # O1: Psychic Recoil (strip + Soul) fires on Hunts only
     sigil_soul_fresh_only=False,  # S1: sigil-break Soul only if the Sigil was Fresh
-    invocation_gate=7,            # D1: Veil threshold to unlock Cataclysmic Invocation
-    profane_ruins_req=2,          # D2: Ruined Castles needed for Profane the Ruins
-    ai_dominion_drive=False,      # A1: AI actively pursues the Dominion race
+    invocation_gate=5,            # D1: Veil threshold to unlock Cataclysmic Invocation
+    profane_ruins_req=1,          # D2: Ruined Castles needed for Profane the Ruins
+    ai_dominion_drive=True,       # A1: AI actively pursues the Dominion race
     no_backwash=False,            # O3: remove Psychic Backwash (Threat on hunters)
-    reconfig_strict=False,        # O4: ANY Guard defeat in Odradek zones denies the token
+    reconfig_strict=True,         # O4: ANY Guard defeat in Odradek zones denies the token
     kroni_def_soft=False,         # K3: Hunger defense curve 4/5/7 instead of 4/6/8
-    kroni_hunger_decay=False,     # K1: Hunger -1 any round Kroni initiates no attack
-    deimos_war_machine_free=False,# E1: War Machine no longer requires Siege Engine
-    deimos_summon_cost=0,         # E2/E3: override Deimos Summon cost (0 = printed 9)
-    recoil_lowest=False,          # O5: Recoil strips the LOWEST committed card
-    neutral_tear_on_banish=False, # D3: Banishing a Lord tears the Veil (1 Neutral Tear)
+    kroni_hunger_decay=True,      # K1: Hunger -1 any round Kroni initiates no attack
+    deimos_war_machine_free=True, # E1: War Machine no longer requires Siege Engine
+    deimos_summon_cost=7,         # E2/E3: override Deimos Summon cost (0 = printed 9)
+    recoil_lowest=True,           # O5: Recoil strips the LOWEST committed card
+    neutral_tear_on_banish=True,  # D3: Banishing a Lord tears the Veil (1 Neutral Tear)
     castle_tear_uncapped=False,   # D4: EVERY Castle destroyed places a Neutral Tear
     veil_drift=0,                 # D5: every N rounds the Veil frays (+1 Neutral), 0=off
     invocation_repeatable=False,  # D6: Cataclysmic Invocation once per ROUND, not per game
-    reconfig_tokens_needed=3,     # O6: Reconfiguration tokens per Tear (rulebook 3)
+    reconfig_tokens_needed=5,     # O6: Reconfiguration tokens per Tear
     reconfig_neutral=False,       # O7: Reconfiguration places NEUTRAL Tears (not personal)
-    deimos_claims_breach=0,       # E4: 0=off, 1=first castle kill per GAME is personal, 2=every
+    deimos_claims_breach=1,       # E4: 0=off, 1=first castle kill per GAME is personal, 2=every
     consume_the_siege=False,      # D7: any lord may forgo Siege Souls -> personal Tear
     war_machine_ignores_profaned=False,  # E5: self-Profaned castles don't reduce War Machine
-    gremory_summon_cost=0,        # G1: override Gremory Summon cost (0 = printed 5)
+    gremory_summon_cost=6,        # G1: override Gremory Summon cost (0 = printed 5)
     # ── Humbaba, Ancient Guardian (ninth lord) ──
     humbaba_seal=True,            # H1: Dominion needs +1 personal Tear while he stands
     humbaba_toll=True,            # H2: once/round ruin own castle -> opp -1 Soul, +1 Neutral Tear
     humbaba_gate4=True,           # H3: 4th castle guard slot while no Ruined castles
     humbaba_patient=True,         # H4: passive round preserves one Sigil from decay
 )
+
+BASE_V5_29_VARIANT = dict(
+    DE_V2_VARIANT,
+    recoil_hunts_only=False,
+    invocation_gate=7,
+    profane_ruins_req=2,
+    ai_dominion_drive=False,
+    reconfig_strict=False,
+    kroni_hunger_decay=False,
+    deimos_war_machine_free=False,
+    deimos_summon_cost=0,
+    recoil_lowest=False,
+    neutral_tear_on_banish=False,
+    reconfig_tokens_needed=3,
+    deimos_claims_breach=0,
+    gremory_summon_cost=0,
+)
+
+VARIANT = dict(DE_V2_VARIANT)
 
 # ── Simulation mode ──────────────────────────────────────────────────
 # LOCK_LORDS = True:  each player is locked to exactly one lord for the
@@ -310,6 +358,7 @@ class Player:
 
         self.odradek_recoil_done         = False
         self.odradek_guards_defeated     = 0   # guards defeated from Odradek zones this round
+        self.odradek_reconfig_tokens     = 0   # persists across rounds, resets on summon
         self.gremory_ruin_done           = False
         self.gremory_breach_soul_given   = False
         self.gremory_inevitable_ruin_done = False
@@ -455,9 +504,6 @@ class Game:
         self.persist_scorch_pid:  int = -1   # which player's zone
         self.persist_scorch_type: str = ''   # 'Lord' or 'Castle'
 
-        # Odradek Reconfiguration token (3 = personal Tear)
-        self.odradek_reconfig_tokens: int = 0  # persists across rounds, resets on summon
-
         # Kroni — destruction tracking
         self.any_destruction_this_round = False
 
@@ -527,6 +573,10 @@ class Game:
             ):
                 continue
 
+            # The once-per-round power is spent by the attempt, even when
+            # there is no eligible value-4-or-5 card to recover.
+            pl.gremory_veil_draw_done = True
+
             for index in range(
                 len(self.discard) - 1,
                 -1,
@@ -537,7 +587,6 @@ class Game:
 
                 harvested = self.discard.pop(index)
                 pl.hand.append(harvested)
-                pl.gremory_veil_draw_done = True
                 break
 
             # Only one Gremory can be active in a two-player game.
@@ -872,8 +921,8 @@ class Game:
             self._phase_reflex_bid()
 
         self._phase_commitment()
-        self._phase_reveal()
         order = self._resolve_order()
+        self._phase_reveal(order)
         self._phase_resolution(order)
 
     # ─────────────────────────────────────────────────────────────────
@@ -1054,7 +1103,7 @@ class Game:
         for pl in self.players:
             self._ai_choose_action(pl)
 
-    def _phase_reveal(self):
+    def _phase_reveal(self, trigger_order: Optional[List[int]] = None):
         for pl in self.players:
             if pl.action == 'Hunt':
                 pl.threat = min(MAX_THREAT, pl.threat + 1)
@@ -1077,9 +1126,62 @@ class Game:
                 if zone == 'Lord':
                     pl.threat = max(0, pl.threat - 1)
 
-        for pl in self.players:
+        # After-Reveal Lord powers resolve in the committed-value order
+        # locked before any of them can strip committed cards.
+        if trigger_order is None:
+            trigger_order = self._resolve_order()
+
+        for pid in trigger_order:
+            pl = self.players[pid]
+            op = self.opp(pid)
+
             if pl.lord == 'Kanifous' and pl.alive:
                 self._kanifous_invoke(pl)
+
+            if pl.lord == 'Kroni' and pl.alive and pl.kroni_hunger >= 3:
+                if op.committed:
+                    victim = min(op.committed, key=lambda c: c.value)
+                    op.committed.remove(victim)
+                    self._discard([victim])
+
+            # Psychic Recoil belongs to the defending Odradek, so its place
+            # in the trigger queue is determined by Odradek's committed value.
+            attacked_by_hunt = (
+                op.action == 'Hunt'
+                and op.tgt_pid == pl.pid
+            )
+            attacked_by_siege = (
+                op.action == 'Siege'
+                and op.tgt_pid == pl.pid
+                and not VARIANT['recoil_hunts_only']
+            )
+            orias_clean_hunt = (
+                attacked_by_hunt
+                and op.lord == 'Orias'
+                and self.orias_marked_lord == pl.lord
+            )
+
+            if (
+                pl.lord == 'Odradek'
+                and pl.alive
+                and not pl.odradek_recoil_done
+                and (attacked_by_hunt or attacked_by_siege)
+                and not orias_clean_hunt
+            ):
+                pl.odradek_recoil_done = True
+                if op.committed:
+                    if VARIANT['recoil_lowest']:
+                        victim = min(op.committed, key=lambda c: c.value)
+                    else:
+                        ordered = sorted(
+                            op.committed,
+                            key=lambda c: c.value,
+                            reverse=True,
+                        )
+                        victim = ordered[1] if len(ordered) > 1 else ordered[0]
+                    op.committed.remove(victim)
+                    self._discard([victim])
+                    self._gain_soul(pl, 1)
 
     def _resolve_order(self) -> List[int]:
         """v5.29: higher committed Subject value resolves first.
@@ -1106,12 +1208,16 @@ class Game:
                     target_pl.lord_guards.remove(v)
                 self._discard(victims)
                 if victims:
+                    if target_pl.lord == 'Odradek':
+                        target_pl.odradek_guards_defeated += len(victims)
                     self._gremory_lord_guard_trigger()  # Predator of Ruin
             elif self.persist_scorch_type == 'Castle':
                 victims = [g for g in target_pl.castle_guards if g.value <= 2]
                 for v in victims:
                     target_pl.castle_guards.remove(v)
                 self._discard(victims)
+                if victims and target_pl.lord == 'Odradek':
+                    target_pl.odradek_guards_defeated += len(victims)
         # ── Veil Tear 7 — Collapse: discard 1 Guard from attacked zone last round
         # No Attunement immunity — affects all players
         if self._threshold_active(7):
@@ -1166,15 +1272,6 @@ class Game:
                         else: self._discard([victim])
                     if self._check_win(): return
 
-        # ── Kroni — Hungering Aura (Hunger 3+)
-        for pl in self.players:
-            if pl.lord == 'Kroni' and pl.alive and pl.kroni_hunger >= 3:
-                op = self.opp(pl.pid)
-                if op.committed:
-                    victim = min(op.committed, key=lambda c: c.value)
-                    op.committed.remove(victim)
-                    self._discard([victim])
-
         for pid in order:
             if self.winner is not None: return
             pl = self.players[pid]
@@ -1184,9 +1281,6 @@ class Game:
             elif pl.action == 'Hunt':    self._resolve_hunt(pl, op)
             elif pl.action == 'Siege':   self._resolve_siege(pl, op)
             elif pl.action == 'Profane': self._resolve_profane(pl, op)
-
-            self._try_kroni_consume(pl)
-            self._try_kroni_consume(op)
 
             # Offer the Vessel — once per game, during Resolution
             self._ai_offer_vessel(pl)
@@ -1211,6 +1305,11 @@ class Game:
             self._resolve_reflex_action(self.reflex_winner)
             if self.winner is not None: return
 
+        # Consume evaluates once, after every primary and Reflex action, so
+        # Gorge sees the complete round and no later destruction is missed.
+        for pid in order:
+            self._try_kroni_consume(self.players[pid])
+
         # K1: Hunger decays when Kroni initiates no attack this round
         if VARIANT['kroni_hunger_decay']:
             for pl in self.players:
@@ -1226,13 +1325,11 @@ class Game:
                     victim = min(all_guards, key=lambda g: g.value)
                     if victim in pl.lord_guards:     pl.lord_guards.remove(victim)
                     elif victim in pl.castle_guards: pl.castle_guards.remove(victim)
-                    self._discard([victim])
                     pl.kroni_consume_done = True
                     self._kroni_gain_hunger(pl)
                 elif pl.garrison:
                     victim = min(pl.garrison, key=lambda g: g.value)
                     pl.garrison.remove(victim)
-                    self._discard([victim])
                     pl.kroni_consume_done = True
                     self._kroni_gain_hunger(pl)
 
@@ -1371,8 +1468,11 @@ class Game:
         pl.vessel_used = True
         pl.vessel_offered_lord = pl.lord
         self._gain_soul(op, 1)
-        self._discard(pl.lord_guards[:])
+        defeated_guards = pl.lord_guards[:]
+        self._discard(defeated_guards)
         pl.lord_guards.clear()
+        if defeated_guards:
+            self._gremory_lord_guard_trigger()
         pl.alive = False           # Lord removed — NOT Banished: no Breach change
         self._gain_tear(pl)
 
@@ -1582,11 +1682,17 @@ class Game:
 
         # Crushing Presence / Invoked Butcher: lowest defending Guard gives no Defense
         ignore_lowest = False
+        butcher_suppressed_guard = None
         if atk.lord == 'Valak' and atk.alive and len(dfn.lord_guards) >= 2:
             ignore_lowest = True
         if (atk.lord == 'Kanifous' and atk.alive
                 and atk.kanifous_invoked_suit == 'Butcher' and dfn.lord_guards):
-            ignore_lowest = True
+            butcher_suppressed_guard = min(
+                dfn.lord_guards,
+                key=lambda c: c.value,
+            )
+            dfn.lord_guards.remove(butcher_suppressed_guard)
+            self._discard([butcher_suppressed_guard])
 
         lord_def    = dfn.lord_base_def(breach=self.breach)
         sigil_state = dfn.sigils['Lord']
@@ -1731,11 +1837,17 @@ class Game:
 
         # Crushing Presence / Invoked Butcher: lowest defending Guard gives no Defense
         ignore_lowest = False
+        butcher_suppressed_guard = None
         if atk.lord == 'Valak' and atk.alive and len(dfn.castle_guards) >= 2:
             ignore_lowest = True
         if (atk.lord == 'Kanifous' and atk.alive
                 and atk.kanifous_invoked_suit == 'Butcher' and dfn.castle_guards):
-            ignore_lowest = True
+            butcher_suppressed_guard = min(
+                dfn.castle_guards,
+                key=lambda c: c.value,
+            )
+            dfn.castle_guards.remove(butcher_suppressed_guard)
+            self._discard([butcher_suppressed_guard])
 
         # Structural defense (+ Penitent suit bonus for the defender)
         struct_def  = dfn.castle_def(target_castle, breach=self.breach, game=self)
@@ -1831,6 +1943,12 @@ class Game:
                     p.gremory_ruin_done = True
                     break
 
+            # Kalligan — Wildfire resolves before Inferno so an Inferno
+            # Scorch on the Lord zone remains the final persistent token.
+            if atk.lord == 'Kalligan' and atk.alive:
+                self.persist_scorch_pid  = dfn.pid
+                self.persist_scorch_type = 'Castle' if dfn.castles else 'Lord'
+
             # Kalligan — Inferno: may gain 1 Threat → Defeat highest Lord Guard
             # (Scorch on the Lord zone if no Guards). Ability-triggered defeat:
             # does NOT fire Defeat-response abilities.
@@ -1844,11 +1962,6 @@ class Game:
                 else:
                     self.persist_scorch_pid  = dfn.pid
                     self.persist_scorch_type = 'Lord'
-
-            # Kalligan — Wildfire: persistent Scorch token after castle destroy
-            if atk.lord == 'Kalligan' and atk.alive:
-                self.persist_scorch_pid  = dfn.pid
-                self.persist_scorch_type = 'Castle' if dfn.castles else 'Lord'
 
             # Kroni — Ravenous
             if (atk.lord == 'Kroni' and atk.alive
@@ -2089,13 +2202,6 @@ class Game:
             if dfn.souls < atk.souls:
                 self._draw(dfn, outside_draw=True)
                 self._draw(dfn, outside_draw=True)
-
-        for p in self.players:
-            if p.lord == 'Gremory' and p.alive and not p.gremory_ruin_done:
-                if self.discard:
-                    p.hand.append(self.discard[-1]); self.discard.pop()
-                p.gremory_ruin_done = True
-                break
 
         if atk.lord == 'Orias' and atk.alive:
             self.orias_marked_lord = dfn.lord
@@ -3657,77 +3763,123 @@ def run_mechanic_tests() -> List[str]:
 #  ENTRY POINT
 # ═══════════════════════════════════════════════════════════════════════
 def main():
-    parser = argparse.ArgumentParser(description='CORRUPTOR Balance Simulation v5.29-sync')
+    parser = argparse.ArgumentParser(
+        description='CORRUPTOR Balance Simulation — canonical DE v2',
+    )
     parser.add_argument('--games', type=int, default=500)
     parser.add_argument('--quiet', action='store_true')
     parser.add_argument('--seed',  type=int, default=None)
     parser.add_argument('--lock',  action='store_true',
                         help='Lock each player to one lord — pure head-to-head, no switching')
-    parser.add_argument('--recoil-hunts-only',     action='store_true')
-    parser.add_argument('--sigil-soul-fresh-only', action='store_true')
-    parser.add_argument('--invocation-gate',  type=int, default=7)
-    parser.add_argument('--profane-ruins-req', type=int, default=2)
-    parser.add_argument('--ai-dominion', action='store_true')
-    parser.add_argument('--no-backwash', action='store_true')
-    parser.add_argument('--reconfig-strict', action='store_true')
-    parser.add_argument('--kroni-def-soft', action='store_true')
-    parser.add_argument('--kroni-hunger-decay', action='store_true')
-    parser.add_argument('--deimos-war-machine-free', action='store_true')
-    parser.add_argument('--deimos-summon-cost', type=int, default=0)
-    parser.add_argument('--recoil-lowest', action='store_true')
-    parser.add_argument('--neutral-tear-on-banish', action='store_true')
-    parser.add_argument('--castle-tear-uncapped', action='store_true')
-    parser.add_argument('--veil-drift', type=int, default=0)
-    parser.add_argument('--invocation-repeatable', action='store_true')
-    parser.add_argument('--reconfig-tokens', type=int, default=3)
-    parser.add_argument('--reconfig-neutral', action='store_true')
-    parser.add_argument('--deimos-claims-breach', type=int, default=0)
-    parser.add_argument('--consume-the-siege', action='store_true')
-    parser.add_argument('--war-machine-ignores-profaned', action='store_true')
-    parser.add_argument('--gremory-summon-cost', type=int, default=0)
+    parser.add_argument(
+        '--ruleset',
+        choices=('de-v2', 'v5.29'),
+        default='de-v2',
+        help='Rules preset. Defaults to canonical DE v2.',
+    )
+    parser.add_argument('--recoil-hunts-only',     action='store_true', default=None)
+    parser.add_argument('--sigil-soul-fresh-only', action='store_true', default=None)
+    parser.add_argument('--invocation-gate',  type=int, default=None)
+    parser.add_argument('--profane-ruins-req', type=int, default=None)
+    parser.add_argument('--ai-dominion', action='store_true', default=None)
+    parser.add_argument('--no-backwash', action='store_true', default=None)
+    parser.add_argument('--reconfig-strict', action='store_true', default=None)
+    parser.add_argument('--kroni-def-soft', action='store_true', default=None)
+    parser.add_argument('--kroni-hunger-decay', action='store_true', default=None)
+    parser.add_argument('--deimos-war-machine-free', action='store_true', default=None)
+    parser.add_argument('--deimos-summon-cost', type=int, default=None)
+    parser.add_argument('--recoil-lowest', action='store_true', default=None)
+    parser.add_argument('--neutral-tear-on-banish', action='store_true', default=None)
+    parser.add_argument('--castle-tear-uncapped', action='store_true', default=None)
+    parser.add_argument('--veil-drift', type=int, default=None)
+    parser.add_argument('--invocation-repeatable', action='store_true', default=None)
+    parser.add_argument('--reconfig-tokens', type=int, default=None)
+    parser.add_argument('--reconfig-neutral', action='store_true', default=None)
+    parser.add_argument('--deimos-claims-breach', type=int, default=None)
+    parser.add_argument('--consume-the-siege', action='store_true', default=None)
+    parser.add_argument('--war-machine-ignores-profaned', action='store_true', default=None)
+    parser.add_argument('--gremory-summon-cost', type=int, default=None)
     parser.add_argument('--no-humbaba-seal',    action='store_true')
     parser.add_argument('--no-humbaba-toll',    action='store_true')
     parser.add_argument('--no-humbaba-gate4',   action='store_true')
     parser.add_argument('--no-humbaba-patient', action='store_true')
-    parser.add_argument('--dominion-req', type=int, default=3)
-    parser.add_argument('--win-souls', type=int, default=7)
-    parser.add_argument('--dominion-track', type=int, default=12)
+    parser.add_argument('--dominion-req', type=int, default=None)
+    parser.add_argument('--win-souls', type=int, default=None)
+    parser.add_argument('--dominion-track', type=int, default=None)
     args = parser.parse_args()
 
     if args.seed is not None:
         random.seed(args.seed)
 
-    VARIANT['recoil_hunts_only']     = args.recoil_hunts_only
-    VARIANT['sigil_soul_fresh_only'] = args.sigil_soul_fresh_only
-    VARIANT['invocation_gate']       = args.invocation_gate
-    VARIANT['profane_ruins_req']     = args.profane_ruins_req
-    VARIANT['ai_dominion_drive']     = args.ai_dominion
-    VARIANT['no_backwash']           = args.no_backwash
-    VARIANT['reconfig_strict']       = args.reconfig_strict
-    VARIANT['kroni_def_soft']        = args.kroni_def_soft
-    VARIANT['kroni_hunger_decay']    = args.kroni_hunger_decay
-    VARIANT['deimos_war_machine_free'] = args.deimos_war_machine_free
-    VARIANT['deimos_summon_cost']    = args.deimos_summon_cost
-    VARIANT['recoil_lowest']         = args.recoil_lowest
-    VARIANT['neutral_tear_on_banish'] = args.neutral_tear_on_banish
-    VARIANT['castle_tear_uncapped']  = args.castle_tear_uncapped
-    VARIANT['veil_drift']            = args.veil_drift
-    VARIANT['invocation_repeatable'] = args.invocation_repeatable
-    VARIANT['reconfig_tokens_needed'] = args.reconfig_tokens
-    VARIANT['reconfig_neutral']       = args.reconfig_neutral
-    VARIANT['deimos_claims_breach']   = args.deimos_claims_breach
-    VARIANT['consume_the_siege']      = args.consume_the_siege
-    VARIANT['war_machine_ignores_profaned'] = args.war_machine_ignores_profaned
-    VARIANT['gremory_summon_cost']    = args.gremory_summon_cost
-    VARIANT['humbaba_seal']    = not args.no_humbaba_seal
-    VARIANT['humbaba_toll']    = not args.no_humbaba_toll
-    VARIANT['humbaba_gate4']   = not args.no_humbaba_gate4
-    VARIANT['humbaba_patient'] = not args.no_humbaba_patient
+    preset_variant = (
+        DE_V2_VARIANT
+        if args.ruleset == 'de-v2'
+        else BASE_V5_29_VARIANT
+    )
+    preset_constants = (
+        DE_V2_CONSTANTS
+        if args.ruleset == 'de-v2'
+        else BASE_V5_29_CONSTANTS
+    )
+
+    VARIANT.clear()
+    VARIANT.update(preset_variant)
+
+    variant_overrides = {
+        'recoil_hunts_only': args.recoil_hunts_only,
+        'sigil_soul_fresh_only': args.sigil_soul_fresh_only,
+        'invocation_gate': args.invocation_gate,
+        'profane_ruins_req': args.profane_ruins_req,
+        'ai_dominion_drive': args.ai_dominion,
+        'no_backwash': args.no_backwash,
+        'reconfig_strict': args.reconfig_strict,
+        'kroni_def_soft': args.kroni_def_soft,
+        'kroni_hunger_decay': args.kroni_hunger_decay,
+        'deimos_war_machine_free': args.deimos_war_machine_free,
+        'deimos_summon_cost': args.deimos_summon_cost,
+        'recoil_lowest': args.recoil_lowest,
+        'neutral_tear_on_banish': args.neutral_tear_on_banish,
+        'castle_tear_uncapped': args.castle_tear_uncapped,
+        'veil_drift': args.veil_drift,
+        'invocation_repeatable': args.invocation_repeatable,
+        'reconfig_tokens_needed': args.reconfig_tokens,
+        'reconfig_neutral': args.reconfig_neutral,
+        'deimos_claims_breach': args.deimos_claims_breach,
+        'consume_the_siege': args.consume_the_siege,
+        'war_machine_ignores_profaned': args.war_machine_ignores_profaned,
+        'gremory_summon_cost': args.gremory_summon_cost,
+    }
+
+    for key, value in variant_overrides.items():
+        if value is not None:
+            VARIANT[key] = value
+
+    if args.no_humbaba_seal:
+        VARIANT['humbaba_seal'] = False
+    if args.no_humbaba_toll:
+        VARIANT['humbaba_toll'] = False
+    if args.no_humbaba_gate4:
+        VARIANT['humbaba_gate4'] = False
+    if args.no_humbaba_patient:
+        VARIANT['humbaba_patient'] = False
+
     global DOMINION_REQUIREMENT, WIN_SOULS
-    DOMINION_REQUIREMENT = args.dominion_req
-    WIN_SOULS = args.win_souls
+    DOMINION_REQUIREMENT = (
+        args.dominion_req
+        if args.dominion_req is not None
+        else preset_constants['DOMINION_REQUIREMENT']
+    )
+    WIN_SOULS = (
+        args.win_souls
+        if args.win_souls is not None
+        else preset_constants['WIN_SOULS']
+    )
     global DOMINION_TRACK
-    DOMINION_TRACK = args.dominion_track
+    DOMINION_TRACK = (
+        args.dominion_track
+        if args.dominion_track is not None
+        else preset_constants['DOMINION_TRACK']
+    )
 
     # Apply CLI override
     global LOCK_LORDS

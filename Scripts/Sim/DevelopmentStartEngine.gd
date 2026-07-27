@@ -10,7 +10,8 @@ const DrawEngineData = preload(
 static func resolve(
 	game,
 	rules: RuleConfig,
-	random_source = null
+	random_source = null,
+	snare_choices: Dictionary = {}
 ) -> Dictionary:
 	assert(
 		game != null,
@@ -38,7 +39,11 @@ static func resolve(
 			_resolve_orias_snare(
 				game,
 				player,
-				rules
+				rules,
+				_decision_for_player(
+					snare_choices,
+					int(player.pid)
+				)
 			)
 		)
 
@@ -144,7 +149,8 @@ static func resolve(
 static func _resolve_orias_snare(
 	game,
 	orias,
-	rules: RuleConfig
+	rules: RuleConfig,
+	decision: Dictionary = {}
 ) -> Dictionary:
 	var opponent = game.get_opponent(
 		int(
@@ -160,6 +166,16 @@ static func _resolve_orias_snare(
 	var threat_before: int = int(
 		orias.threat
 	)
+
+	if bool(decision.get("pass", false)):
+		return {
+			"player_id": int(orias.pid),
+			"target_player_id": int(opponent.pid),
+			"applied": false,
+			"reason": "pass",
+			"threat_before": threat_before,
+			"threat_after": int(orias.threat),
+		}
 
 	if orias.threat >= 3:
 		return {
@@ -220,6 +236,14 @@ static func _resolve_orias_snare(
 			orias.threat
 		),
 	}
+
+
+static func _decision_for_player(
+	choices: Dictionary,
+	player_id: int
+) -> Dictionary:
+	var raw_decision = choices.get(player_id, choices.get(str(player_id), {}))
+	return raw_decision if typeof(raw_decision) == TYPE_DICTIONARY else {}
 
 
 static func _drawn_card_ids(

@@ -19,6 +19,8 @@ const GOLDEN_RULE_TEST_NAME := "unit_hunt_golden_rule"
 const BANISH_TEST_NAME := "unit_hunt_banish_overkill"
 const ODRADEK_TEST_NAME := "unit_hunt_odradek_recoil"
 const VALAK_TEST_NAME := "unit_hunt_valak_siphon"
+const KANIFOUS_BUTCHER_TEST_NAME := "unit_hunt_kanifous_butcher_no_defeat"
+const GREMORY_BANISH_TEST_NAME := "unit_hunt_banish_not_gremory_predator"
 
 
 static func run(
@@ -35,6 +37,12 @@ static func run(
 			rules
 		),
 		_test_valak_siphon(
+			rules
+		),
+		_test_kanifous_butcher(
+			rules
+		),
+		_test_gremory_banish_trigger(
 			rules
 		),
 	]
@@ -532,6 +540,169 @@ static func _test_valak_siphon(
 
 	return _pass(
 		VALAK_TEST_NAME
+	)
+
+
+static func _test_kanifous_butcher(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has(
+		"error"
+	):
+		return _fail(
+			KANIFOUS_BUTCHER_TEST_NAME,
+			String(
+				fixture["error"]
+			)
+		)
+
+	var game = fixture["game"]
+	var attacker = fixture["p0"]
+	var defender = fixture["p1"]
+
+	_prepare_game(
+		game
+	)
+
+	attacker.lord = "Kanifous"
+	attacker.alive = true
+	attacker.action = "Hunt"
+	attacker.tgt_pid = 1
+	attacker.tgt_type = "Lord"
+	attacker.kanifous_invoked_suit = "Butcher"
+	attacker.committed = _cards_from_ids([
+		"Wright:2",
+	])
+
+	defender.lord = "Odradek"
+	defender.alive = true
+	defender.odradek_guards_defeated = 0
+	defender.lord_guards = _cards_from_ids([
+		"Butcher:1",
+		"Vulture:5",
+	])
+
+	var result: Dictionary = (
+		HuntResolutionEngineData.resolve(
+			game,
+			rules,
+			0
+		)
+	)
+
+	if String(
+		result.get(
+			"butcher_suppressed_card",
+			""
+		)
+	) != "Butcher:1":
+		return _fail(
+			KANIFOUS_BUTCHER_TEST_NAME,
+			"Butcher did not remove the lowest Guard before combat."
+		)
+
+	if not _string_array(
+		result.get(
+			"guards_defeated",
+			[]
+		)
+	).is_empty():
+		return _fail(
+			KANIFOUS_BUTCHER_TEST_NAME,
+			"Butcher recorded its removed Guard as Defeated."
+		)
+
+	if defender.odradek_guards_defeated != 0:
+		return _fail(
+			KANIFOUS_BUTCHER_TEST_NAME,
+			"Butcher contaminated Odradek's defeat count."
+		)
+
+	return _pass(
+		KANIFOUS_BUTCHER_TEST_NAME
+	)
+
+
+static func _test_gremory_banish_trigger(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has(
+		"error"
+	):
+		return _fail(
+			GREMORY_BANISH_TEST_NAME,
+			String(
+				fixture["error"]
+			)
+		)
+
+	var game = fixture["game"]
+	var attacker = fixture["p0"]
+	var gremory = fixture["p1"]
+
+	_prepare_game(
+		game
+	)
+
+	attacker.lord = "Deimos"
+	attacker.alive = true
+	attacker.action = "Hunt"
+	attacker.tgt_pid = 1
+	attacker.tgt_type = "Lord"
+	attacker.committed = _cards_from_ids([
+		"Butcher:5",
+		"Wright:5",
+	])
+
+	gremory.lord = "Gremory"
+	gremory.alive = true
+	gremory.gremory_ruin_done = false
+	gremory.lord_guards.clear()
+
+	game.discard = _cards_from_ids([
+		"Penitent:1",
+	])
+
+	var result: Dictionary = (
+		HuntResolutionEngineData.resolve(
+			game,
+			rules,
+			0
+		)
+	)
+
+	var banishment: Dictionary = result.get(
+		"banishment",
+		{}
+	)
+
+	if (
+		gremory.gremory_ruin_done
+		or bool(
+			banishment.get(
+				"gremory_trigger",
+				{}
+			).get(
+				"triggered",
+				false
+			)
+		)
+	):
+		return _fail(
+			GREMORY_BANISH_TEST_NAME,
+			"Lord Banishment triggered Gremory's Castle-destruction power."
+		)
+
+	return _pass(
+		GREMORY_BANISH_TEST_NAME
 	)
 
 

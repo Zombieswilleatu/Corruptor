@@ -36,23 +36,20 @@ static func deploy_choices(
 		var player_id: int = int(
 			player.pid
 		)
-
-		var moves: Array = _deploy_moves_for_player(
-			game,
-			player_id,
-			rules
-		)
-
-		if moves.is_empty():
-			decisions[player_id] = {
-				"pass": true,
-			}
-		else:
-			decisions[player_id] = {
-				"moves": moves,
-			}
+		decisions[player_id] = deploy_choice(game, player_id, rules)
 
 	return decisions
+
+
+static func deploy_choice(
+	game,
+	player_id: int,
+	rules: RuleConfig
+) -> Dictionary:
+	var moves: Array = _deploy_moves_for_player(game, player_id, rules)
+	if moves.is_empty():
+		return {"pass": true}
+	return {"moves": moves}
 
 
 static func reserved_cards(

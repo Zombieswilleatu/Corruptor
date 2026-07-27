@@ -177,6 +177,7 @@ static func _reset_game_state(game) -> void:
 	game.deck.clear()
 	game.discard.clear()
 	game.market.clear()
+	game.removed_from_play.clear()
 
 
 static func _prepare_player_for_setup(player) -> void:

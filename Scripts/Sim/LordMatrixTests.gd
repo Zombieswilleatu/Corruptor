@@ -625,6 +625,10 @@ static func _card_population_failure(game) -> String:
 		{"name": "deck", "cards": game.deck},
 		{"name": "discard", "cards": game.discard},
 		{"name": "market", "cards": game.market},
+		{
+			"name": "removed_from_play",
+			"cards": game.removed_from_play,
+		},
 	]
 
 	for player in game.players:

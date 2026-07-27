@@ -171,6 +171,7 @@ static func resolve(
 			strength += 1
 
 	var ignore_lowest: bool = false
+	var butcher_suppressed_card = null
 
 	if (
 		attacker.lord == "Valak"
@@ -185,7 +186,21 @@ static func resolve(
 		and attacker.kanifous_invoked_suit == "Butcher"
 		and not defender.lord_guards.is_empty()
 	):
-		ignore_lowest = true
+		var suppressed_index: int = _lowest_card_index(
+			defender.lord_guards
+		)
+
+		butcher_suppressed_card = defender.lord_guards[
+			suppressed_index
+		]
+
+		defender.lord_guards.remove_at(
+			suppressed_index
+		)
+
+		game.discard.append(
+			butcher_suppressed_card
+		)
 
 	var lord_defense: int = _calculate_lord_defense(
 		defender,
@@ -248,6 +263,12 @@ static func resolve(
 	)
 
 	if guards_lost > 0:
+		# Reflex Hunts bypass ResolutionActionAftermathEngine, so the
+		# combat engine owns this shared round-level destruction signal.
+		_mark_destruction(
+			game
+		)
+
 		if attacker.lord == "Kroni":
 			attacker.kroni_personally_defeated_guard = true
 			attacker.kroni_enemy_destroyed = true
@@ -515,6 +536,13 @@ static func resolve(
 		"strength": strength,
 		"lord_defense": lord_defense,
 		"ignore_lowest_guard": ignore_lowest,
+		"butcher_suppressed_card": (
+			""
+			if butcher_suppressed_card == null
+			else _card_id(
+				butcher_suppressed_card
+			)
+		),
 		"sigil_state": sigil_state,
 		"sigil_value": sigil_value,
 		"guards_defeated": _card_ids(
@@ -816,11 +844,8 @@ static func _banish_lord(
 						drawn_card
 					)
 
-	var gremory_event: Dictionary = (
-		_trigger_gremory_ruin(
-			game
-		)
-	)
+	# Predator is keyed to the first Castle destroyed, not Lord Banishment.
+	var gremory_event: Dictionary = _empty_gremory_ruin_trigger()
 
 	if (
 		attacker.lord == "Orias"
@@ -1171,6 +1196,8 @@ static func _trigger_gremory_harvest(
 		):
 			continue
 
+		player.gremory_veil_draw_done = true
+
 		for index in range(
 			game.discard.size() - 1,
 			-1,
@@ -1192,8 +1219,6 @@ static func _trigger_gremory_harvest(
 			player.hand.append(
 				card
 			)
-
-			player.gremory_veil_draw_done = true
 
 			return {
 				"harvested_card": _card_id(
@@ -1455,6 +1480,17 @@ static func _check_win(
 	return false
 
 
+static func _mark_destruction(
+	game
+) -> void:
+	game.set_meta(
+		"any_destruction_round",
+		int(
+			game.round
+		)
+	)
+
+
 static func _gain_soul(
 	player,
 	amount: int
@@ -1623,6 +1659,14 @@ static func _empty_gremory_trigger() -> Dictionary:
 		"player_id": -1,
 		"drawn_card": "",
 		"discarded_card": "",
+	}
+
+
+static func _empty_gremory_ruin_trigger() -> Dictionary:
+	return {
+		"triggered": false,
+		"player_id": -1,
+		"recovered_card": "",
 	}
 
 

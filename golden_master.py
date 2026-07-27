@@ -69,88 +69,109 @@ SIM_VERSION = sim.SIM_VERSION
 #  CONFIG SNAPSHOTS  (must mirror the GDScript RuleConfig factories)
 # ─────────────────────────────────────────────────────────────────────────────
 def de_v2_variant() -> dict:
-    return dict(
-        recoil_hunts_only=True,
-        sigil_soul_fresh_only=False,
-        invocation_gate=5,
-        profane_ruins_req=1,
-        ai_dominion_drive=True,
-        no_backwash=False,
-        reconfig_strict=True,
-        kroni_def_soft=False,
-        kroni_hunger_decay=True,
-        deimos_war_machine_free=True,
-        deimos_summon_cost=7,
-        recoil_lowest=True,
-        neutral_tear_on_banish=True,
-        castle_tear_uncapped=False,
-        veil_drift=0,
-        invocation_repeatable=False,
-        reconfig_tokens_needed=5,
-        reconfig_neutral=False,
-        deimos_claims_breach=1,
-        consume_the_siege=False,
-        war_machine_ignores_profaned=False,
-        gremory_summon_cost=6,
-        humbaba_seal=True,
-        humbaba_toll=True,
-        humbaba_gate4=True,
-        humbaba_patient=True,
-    )
+    return dict(sim.DE_V2_VARIANT)
 
 
 def de_v2_constants() -> dict:
-    return dict(
-        WIN_SOULS=7,
-        DOMINION_TRACK=11,
-        DOMINION_REQUIREMENT=2,
-        FINAL_COLLAPSE_TRACK=15,
-        HAND_LIMIT=10,
-        GARRISON_MAX=5,
-        MAX_THREAT=4,
-        MARKET_SIZE=3,
-        MAX_ROUNDS=60,
-    )
+    return dict(sim.DE_V2_CONSTANTS)
 
 
 def apply_config(variant: dict, constants: dict):
     """Push a config into the sim's globals — the same surface the CLI flags hit."""
-    defaults = dict(
-        recoil_hunts_only=False,
-        sigil_soul_fresh_only=False,
-        invocation_gate=7,
-        profane_ruins_req=2,
-        ai_dominion_drive=False,
-        no_backwash=False,
-        reconfig_strict=False,
-        kroni_def_soft=False,
-        kroni_hunger_decay=False,
-        deimos_war_machine_free=False,
-        deimos_summon_cost=0,
-        recoil_lowest=False,
-        neutral_tear_on_banish=False,
-        castle_tear_uncapped=False,
-        veil_drift=0,
-        invocation_repeatable=False,
-        reconfig_tokens_needed=3,
-        reconfig_neutral=False,
-        deimos_claims_breach=0,
-        consume_the_siege=False,
-        war_machine_ignores_profaned=False,
-        gremory_summon_cost=0,
-        humbaba_seal=True,
-        humbaba_toll=True,
-        humbaba_gate4=True,
-        humbaba_patient=True,
-    )
-
-    sim.VARIANT.update(defaults)
+    sim.VARIANT.clear()
     sim.VARIANT.update(variant)
 
-    sim.WIN_SOULS = constants["WIN_SOULS"]
-    sim.DOMINION_TRACK = constants["DOMINION_TRACK"]
-    sim.DOMINION_REQUIREMENT = constants["DOMINION_REQUIREMENT"]
-    sim.FINAL_COLLAPSE_TRACK = constants["FINAL_COLLAPSE_TRACK"]
+    for key, value in constants.items():
+        setattr(sim, key, value)
+
+
+def live_constants(keys=None) -> dict:
+    """Read the oracle globals that actually govern the current run."""
+    selected_keys = (
+        de_v2_constants().keys()
+        if keys is None
+        else keys
+    )
+
+    return {
+        key: getattr(sim, key)
+        for key in selected_keys
+    }
+
+
+def assert_live_identity(
+    variant: dict,
+    constants: dict,
+    ai_version: str = AI_VERSION,
+) -> None:
+    """Refuse to generate evidence under a mislabeled live configuration."""
+    errors = []
+    actual_constants = live_constants(
+        constants.keys()
+    )
+
+    if actual_constants != constants:
+        errors.append(
+            "live constants=%r expected=%r"
+            % (
+                actual_constants,
+                constants,
+            )
+        )
+
+    if sim.VARIANT != variant:
+        errors.append(
+            "live variant=%r expected=%r"
+            % (
+                sim.VARIANT,
+                variant,
+            )
+        )
+
+    if sim.AI_POLICY != ai_version:
+        errors.append(
+            "live ai_version=%r expected=%r"
+            % (
+                sim.AI_POLICY,
+                ai_version,
+            )
+        )
+
+    if errors:
+        raise RuntimeError(
+            "Golden identity refused: "
+            + "; ".join(errors)
+        )
+
+
+def trace_identity_errors(
+    trace: dict,
+    variant: dict,
+    constants: dict,
+    ai_version: str = AI_VERSION,
+) -> list:
+    """Return every identity mismatch between an on-disk trace and live rules."""
+    errors = []
+    expected_identity = gs.config_identity(
+        variant,
+        constants,
+    )
+
+    if trace.get("ai_version") != ai_version:
+        errors.append(
+            "ai_version trace=%r live=%r"
+            % (
+                trace.get("ai_version"),
+                ai_version,
+            )
+        )
+
+    if trace.get("identity") != expected_identity:
+        errors.append(
+            "identity block does not match canonical live configuration"
+        )
+
+    return errors
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -659,6 +680,10 @@ def generate_all() -> dict:
         variant,
         constants,
     )
+    assert_live_identity(
+        variant,
+        constants,
+    )
 
     for scenario in UNIT_SCENARIOS:
         name, snapshots = scenario()
@@ -674,6 +699,10 @@ def generate_all() -> dict:
 
     for build in GAME_SCENARIOS:
         apply_config(
+            variant,
+            constants,
+        )
+        assert_live_identity(
             variant,
             constants,
         )
@@ -745,7 +774,7 @@ def write_all(traces: dict):
 
 
 def check_all(traces: dict) -> int:
-    """Regenerate in memory and compare hashes to disk."""
+    """Validate identity, file integrity, manifest integrity, and live drift."""
     manifest_path = os.path.join(
         GOLDEN_DIR,
         "_manifest.json",
@@ -765,32 +794,123 @@ def check_all(traces: dict) -> int:
         "r",
         encoding="utf-8",
     ) as file_handle:
-        disk = json.load(
+        manifest = json.load(
             file_handle
-        )["traces"]
-
-    failures = 0
-
-    for name, trace in traces.items():
-        wanted = disk.get(
-            name
         )
 
-        received = trace[
+    failures = 0
+    disk = manifest.get(
+        "traces",
+        {},
+    )
+    variant = de_v2_variant()
+    constants = de_v2_constants()
+
+    if manifest.get("schema_version") != gs.SCHEMA_VERSION:
+        failures += 1
+        print(
+            "  IDENTITY  manifest schema trace=%r live=%r"
+            % (
+                manifest.get("schema_version"),
+                gs.SCHEMA_VERSION,
+            )
+        )
+
+    if manifest.get("ai_version") != AI_VERSION:
+        failures += 1
+        print(
+            "  IDENTITY  manifest ai_version trace=%r live=%r"
+            % (
+                manifest.get("ai_version"),
+                AI_VERSION,
+            )
+        )
+
+    for name, trace in traces.items():
+        trace_path = os.path.join(
+            GOLDEN_DIR,
+            name + ".json",
+        )
+
+        if not os.path.exists(trace_path):
+            failures += 1
+            print(
+                "  MISSING trace file for %s"
+                % name
+            )
+            continue
+
+        with open(
+            trace_path,
+            "r",
+            encoding="utf-8",
+        ) as file_handle:
+            disk_trace = json.load(
+                file_handle
+            )
+
+        for error in trace_identity_errors(
+            disk_trace,
+            variant,
+            constants,
+        ):
+            failures += 1
+            print(
+                "  IDENTITY  %s: %s"
+                % (
+                    name,
+                    error,
+                )
+            )
+
+        recorded_hash = disk_trace.get(
+            "trace_hash"
+        )
+        actual_hash = gs.trace_hash(
+            disk_trace.get(
+                "snapshots",
+                [],
+            )
+        )
+        manifest_hash = disk.get(
+            name
+        )
+        regenerated_hash = trace[
             "trace_hash"
         ]
 
-        if wanted != received:
+        if recorded_hash != actual_hash:
             failures += 1
+            print(
+                "  CORRUPT  %s trace_hash=%s snapshots=%s"
+                % (
+                    name,
+                    recorded_hash,
+                    actual_hash,
+                )
+            )
 
+        if manifest_hash != recorded_hash:
+            failures += 1
+            print(
+                "  MANIFEST  %s manifest=%s trace=%s"
+                % (
+                    name,
+                    manifest_hash,
+                    recorded_hash,
+                )
+            )
+
+        if regenerated_hash != recorded_hash:
+            failures += 1
             print(
                 "  DRIFT  %s\n"
                 "         disk=%s\n"
                 "         now =%s"
                 % (
                     name,
-                    wanted,
-                    received,
+                    recorded_hash,
+                    regenerated_hash,
                 )
             )
 

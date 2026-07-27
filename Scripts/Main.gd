@@ -296,6 +296,14 @@ func _run_golden_startup_checks() -> void:
 
 			print(text)
 			push_error(text)
+			if message.has("actual_snapshot"):
+				print(
+					"ACTUAL MATRIX SNAPSHOT %s\n%s" % [
+						String(message.get("checkpoint", "")),
+						JSON.stringify(message["actual_snapshot"], "\t"),
+					]
+				)
+
 
 	var summary: String = (
 		"Golden checks complete: %d passed, %d failed."

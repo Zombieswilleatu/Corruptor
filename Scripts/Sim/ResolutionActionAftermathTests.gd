@@ -19,7 +19,7 @@ const ResolutionActionAftermathEngineData = preload(
 )
 
 
-const KRONI_TEST_NAME := "unit_aftermath_kroni_consume"
+const KRONI_TEST_NAME := "unit_aftermath_kroni_consume_deferred"
 const SUIT_TEST_NAME := "unit_aftermath_suit_bonuses"
 const RECYCLE_TEST_NAME := "unit_aftermath_vulture_recycle"
 const VESSEL_TEST_NAME := "unit_aftermath_offer_vessel"
@@ -111,34 +111,34 @@ static func _test_kroni_consume(
 		)
 	)
 
-	if not kroni.kroni_consume_done:
+	if kroni.kroni_consume_done:
 		return _fail(
 			KRONI_TEST_NAME,
-			"Kroni Consume did not trigger."
+			"Kroni Consume fired before Resolution Finale."
 		)
 
-	if kroni.kroni_hunger != 3:
+	if kroni.kroni_hunger != 2:
 		return _fail(
 			KRONI_TEST_NAME,
-			"Kroni did not advance from Hunger 2 to 3."
+			"Action aftermath changed Hunger before the finale."
 		)
 
-	if kroni.tears != 1:
+	if kroni.tears != 0:
 		return _fail(
 			KRONI_TEST_NAME,
-			"Hunger-3 milestone did not grant a Tear."
+			"Action aftermath granted the deferred milestone Tear."
 		)
 
-	if kroni.souls != 1:
+	if kroni.souls != 0:
 		return _fail(
 			KRONI_TEST_NAME,
-			"Gorge did not grant its Soul."
+			"Action aftermath granted the deferred Gorge Soul."
 		)
 
-	if not kroni.kroni_tear_milestone_fired:
+	if kroni.kroni_tear_milestone_fired:
 		return _fail(
 			KRONI_TEST_NAME,
-			"Kroni milestone flag was not set."
+			"Action aftermath spent the deferred milestone."
 		)
 
 	if not kroni.committed.is_empty():
@@ -163,34 +163,10 @@ static func _test_kroni_consume(
 		[]
 	)
 
-	if events.size() != 1:
+	if not events.is_empty():
 		return _fail(
 			KRONI_TEST_NAME,
-			"Expected exactly one Kroni event."
-		)
-
-	var event: Dictionary = events[0]
-
-	if int(
-		event.get(
-			"personal_tear_gain",
-			0
-		)
-	) != 1:
-		return _fail(
-			KRONI_TEST_NAME,
-			"Kroni event did not record its milestone Tear."
-		)
-
-	if int(
-		event.get(
-			"gorge_soul_gain",
-			0
-		)
-	) != 1:
-		return _fail(
-			KRONI_TEST_NAME,
-			"Kroni event did not record Gorge."
+			"Action aftermath emitted a premature Kroni event."
 		)
 
 	return _pass(
@@ -451,7 +427,15 @@ static func _test_offer_vessel(
 		"Penitent:3",
 	])
 
+	opponent.lord = "Gremory"
+	opponent.alive = true
+	opponent.gremory_lord_guard_draw_done = false
+	opponent.gremory_veil_draw_done = false
 	opponent.souls = 1
+
+	game.deck = _cards_from_ids([
+		"Vulture:4",
+	])
 
 	var result: Dictionary = (
 		ResolutionActionAftermathEngineData.resolve(
@@ -553,6 +537,25 @@ static func _test_offer_vessel(
 		return _fail(
 			VESSEL_TEST_NAME,
 			"Vessel event recorded the wrong Guards."
+		)
+
+	var guard_trigger: Dictionary = vessel_event.get(
+		"gremory_guard_trigger",
+		{}
+	)
+
+	if (
+		not bool(
+			guard_trigger.get(
+				"triggered",
+				false
+			)
+		)
+		or not opponent.gremory_lord_guard_draw_done
+	):
+		return _fail(
+			VESSEL_TEST_NAME,
+			"Offer the Vessel did not trigger Gremory for its Lord Guards."
 		)
 
 	return _pass(

@@ -28,7 +28,8 @@ const ZONE_CASTLE: String = "Castle"
 static func resolve(
 	game,
 	rules: RuleConfig,
-	random_source = null
+	random_source = null,
+	kanifous_choices: Dictionary = {}
 ) -> Dictionary:
 	assert(
 		game != null,
@@ -76,6 +77,8 @@ static func resolve(
 	var committed_values: Dictionary = {}
 	var ward_events: Dictionary = {}
 	var kanifous_events: Dictionary = {}
+	var kroni_events: Dictionary = {}
+	var recoil_events: Dictionary = {}
 
 	for player in game.players:
 		var player_id: int = int(
@@ -96,6 +99,16 @@ static func resolve(
 			int(
 				player.threat
 			)
+		)
+
+		kroni_events[player_id] = _empty_kroni_event(
+			player_id,
+			1 - player_id
+		)
+
+		recoil_events[player_id] = _empty_recoil_event(
+			player_id,
+			1 - player_id
 		)
 
 	# Hunt Threat is applied before Ward Threat reduction and Kanifous Invoke.
@@ -186,24 +199,84 @@ static func resolve(
 			"sigil_state": sigil_state,
 		}
 
-	# Kanifous invokes after Hunt and Ward Threat changes.
-	for player in game.players:
-		if (
-			player.lord != "Kanifous"
-			or not player.alive
-		):
+	# Invoke, Hungering Aura, and primary-action Recoil share one
+	# committed-value queue. The order is locked before any card is stripped.
+	var trigger_order: Array[int] = _after_reveal_order(
+		game,
+		committed_values
+	)
+
+	# Resolution uses these values too. After-Reveal powers can strip a
+	# committed card, but they must not rewrite the already-locked action order.
+	game.set_meta(
+		"_resolution_committed_values_round",
+		int(
+			game.round
+		)
+	)
+
+	game.set_meta(
+		"_resolution_committed_values",
+		[
+			int(
+				committed_values.get(
+					0,
+					0
+				)
+			),
+			int(
+				committed_values.get(
+					1,
+					0
+				)
+			),
+		]
+	)
+
+	for player_id: int in trigger_order:
+		var player = game.get_player(
+			player_id
+		)
+
+		if player == null:
 			continue
 
-		var player_id: int = int(
-			player.pid
-		)
+		if (
+			player.lord == "Kanifous"
+			and player.alive
+		):
+			kanifous_events[player_id] = _resolve_kanifous(
+				game,
+				player,
+				rules,
+				random_source,
+				_decision_for_player(
+					kanifous_choices,
+					player_id
+				)
+			)
 
-		kanifous_events[player_id] = _resolve_kanifous(
-			game,
-			player,
-			rules,
-			random_source
-		)
+		if (
+			player.lord == "Kroni"
+			and player.alive
+			and int(
+				player.kroni_hunger
+			) >= 3
+		):
+			kroni_events[player_id] = _resolve_kroni_aura(
+				game,
+				player
+			)
+
+		if (
+			player.lord == "Odradek"
+			and player.alive
+		):
+			recoil_events[player_id] = _resolve_primary_recoil(
+				game,
+				player,
+				rules
+			)
 
 	for player in game.players:
 		player.derived_lord_def = _calculate_lord_defense(
@@ -255,13 +328,252 @@ static func resolve(
 					)
 				)
 			),
+			"kroni": kroni_events.get(
+				player_id,
+				_empty_kroni_event(
+					player_id,
+					1 - player_id
+				)
+			),
+			"odradek_recoil": recoil_events.get(
+				player_id,
+				_empty_recoil_event(
+					player_id,
+					1 - player_id
+				)
+			),
 		})
 
 	return {
 		"action": "reveal",
 		"reason": "",
 		"invalid_player_id": -1,
+		"trigger_order": trigger_order,
 		"players": player_results,
+	}
+
+
+static func _after_reveal_order(
+	game,
+	committed_values: Dictionary
+) -> Array[int]:
+	var value_zero: int = int(
+		committed_values.get(
+			0,
+			0
+		)
+	)
+
+	var value_one: int = int(
+		committed_values.get(
+			1,
+			0
+		)
+	)
+
+	if value_zero > value_one:
+		return [
+			0,
+			1,
+		]
+
+	if value_one > value_zero:
+		return [
+			1,
+			0,
+		]
+
+	var first_player: int = int(
+		game.first_player
+	)
+
+	if not [
+		0,
+		1,
+	].has(
+		first_player
+	):
+		first_player = 0
+
+	return [
+		first_player,
+		1 - first_player,
+	]
+
+
+static func _resolve_kroni_aura(
+	game,
+	player
+) -> Dictionary:
+	var opponent = game.get_opponent(
+		int(
+			player.pid
+		)
+	)
+
+	if opponent == null:
+		return _empty_kroni_event(
+			int(
+				player.pid
+			),
+			-1
+		)
+
+	var discarded_card = null
+
+	if not opponent.committed.is_empty():
+		var lowest_index: int = _lowest_card_index(
+			opponent.committed
+		)
+
+		discarded_card = opponent.committed[
+			lowest_index
+		]
+
+		opponent.committed.remove_at(
+			lowest_index
+		)
+
+		game.discard.append(
+			discarded_card
+		)
+
+	return {
+		"triggered": true,
+		"kroni_player_id": int(
+			player.pid
+		),
+		"target_player_id": int(
+			opponent.pid
+		),
+		"discarded_card": (
+			""
+			if discarded_card == null
+			else _card_id(
+				discarded_card
+			)
+		),
+	}
+
+
+static func _resolve_primary_recoil(
+	game,
+	player,
+	rules: RuleConfig
+) -> Dictionary:
+	var attacker = game.get_opponent(
+		int(
+			player.pid
+		)
+	)
+
+	if attacker == null:
+		return _empty_recoil_event(
+			int(
+				player.pid
+			),
+			-1
+		)
+
+	var attacked_by_hunt: bool = (
+		attacker.action == ACTION_HUNT
+		and int(
+			attacker.tgt_pid
+		) == int(
+			player.pid
+		)
+	)
+
+	var attacked_by_siege: bool = (
+		attacker.action == ACTION_SIEGE
+		and int(
+			attacker.tgt_pid
+		) == int(
+			player.pid
+		)
+		and not rules.recoil_hunts_only
+	)
+
+	var marked_lord: String = String(
+		game.get_meta(
+			"orias_marked_lord",
+			""
+		)
+	)
+
+	var orias_clean_hunt: bool = (
+		attacked_by_hunt
+		and attacker.lord == "Orias"
+		and marked_lord == player.lord
+	)
+
+	if (
+		player.odradek_recoil_done
+		or not (
+			attacked_by_hunt
+			or attacked_by_siege
+		)
+		or orias_clean_hunt
+	):
+		return _empty_recoil_event(
+			int(
+				player.pid
+			),
+			int(
+				attacker.pid
+			)
+		)
+
+	player.odradek_recoil_done = true
+
+	var discarded_card = null
+
+	if not attacker.committed.is_empty():
+		var victim_index: int = 0
+
+		if rules.recoil_lowest:
+			victim_index = _lowest_card_index(
+				attacker.committed
+			)
+		else:
+			victim_index = _second_highest_index(
+				attacker.committed
+			)
+
+		discarded_card = attacker.committed[
+			victim_index
+		]
+
+		attacker.committed.remove_at(
+			victim_index
+		)
+
+		game.discard.append(
+			discarded_card
+		)
+
+		player.souls += 1
+
+	return {
+		"triggered": true,
+		"odradek_player_id": int(
+			player.pid
+		),
+		"attacker_id": int(
+			attacker.pid
+		),
+		"discarded_card": (
+			""
+			if discarded_card == null
+			else _card_id(
+				discarded_card
+			)
+		),
+		"soul_gain": (
+			0
+			if discarded_card == null
+			else 1
+		),
 	}
 
 
@@ -313,11 +625,37 @@ static func _validate_reveal_state(
 	}
 
 
+static func _empty_kroni_event(
+	player_id: int,
+	target_player_id: int
+) -> Dictionary:
+	return {
+		"triggered": false,
+		"kroni_player_id": player_id,
+		"target_player_id": target_player_id,
+		"discarded_card": "",
+	}
+
+
+static func _empty_recoil_event(
+	player_id: int,
+	attacker_id: int
+) -> Dictionary:
+	return {
+		"triggered": false,
+		"odradek_player_id": player_id,
+		"attacker_id": attacker_id,
+		"discarded_card": "",
+		"soul_gain": 0,
+	}
+
+
 static func _resolve_kanifous(
 	game,
 	player,
 	rules: RuleConfig,
-	random_source = null
+	random_source = null,
+	decision: Dictionary = {}
 ) -> Dictionary:
 	var threat_before: int = int(
 		player.threat
@@ -401,10 +739,12 @@ static func _resolve_kanifous(
 			)
 		)
 
-	var chosen_card = _choose_kanifous_card(
+	var chosen_card = _find_card(
 		revealed_cards,
-		player
+		String(decision.get("chosen_card", ""))
 	)
+	if chosen_card == null:
+		chosen_card = _choose_kanifous_card(revealed_cards, player)
 
 	assert(
 		chosen_card != null,
@@ -472,28 +812,51 @@ static func _resolve_kanifous(
 					)
 
 		"Wright":
-			var moved_count: int = 0
-
-			while (
-				moved_count < 2
-				and not player.lord_guards.is_empty()
-				and player.castle_guards.size()
-				< _max_castle_guards(
-					player,
-					rules
+			# A supplied choice is the player-facing Wright decision.  Leave the
+			# original front-of-zone behavior intact for bot/simulation callers
+			# that do not supply one.
+			var requested_indices: Array[int] = _wright_guard_indices(
+				decision.get("wright_guard_indices", [])
+			)
+			if decision.has("wright_guard_indices"):
+				var selected_guards: Array = []
+				var max_count: int = min(
+					2,
+					_max_castle_guards(player, rules) - player.castle_guards.size()
 				)
-			):
-				var guard = player.lord_guards.pop_front()
+				for guard_index: int in requested_indices:
+					if selected_guards.size() >= max_count:
+						break
+					if guard_index < 0 or guard_index >= player.lord_guards.size():
+						continue
+					var guard = player.lord_guards[guard_index]
+					if selected_guards.has(guard):
+						continue
+					selected_guards.append(guard)
 
-				player.castle_guards.append(
-					guard
-				)
+				for guard in selected_guards:
+					player.lord_guards.erase(guard)
+					player.castle_guards.append(guard)
+					moved_guards.append(guard)
+			else:
+				var moved_count: int = 0
 
-				moved_guards.append(
-					guard
-				)
+				while (
+					moved_count < 2
+					and not player.lord_guards.is_empty()
+					and player.castle_guards.size()
+					< _max_castle_guards(
+						player,
+						rules
+					)
+				):
+					var guard = player.lord_guards.pop_front()
 
-				moved_count += 1
+					player.castle_guards.append(guard)
+
+					moved_guards.append(guard)
+
+					moved_count += 1
 
 		"Penitent":
 			for guard_index in range(
@@ -644,6 +1007,46 @@ static func _choose_kanifous_card(
 	return chosen_card
 
 
+static func _decision_for_player(
+	choices: Dictionary,
+	player_id: int
+) -> Dictionary:
+	var raw_decision = choices.get(player_id, choices.get(str(player_id), {}))
+	return raw_decision if typeof(raw_decision) == TYPE_DICTIONARY else {}
+
+
+static func _find_card(
+	cards: Array,
+	card_identifier: String
+):
+	if card_identifier.is_empty():
+		return null
+	for card in cards:
+		if _card_id(card) == card_identifier:
+			return card
+	return null
+
+
+static func _wright_guard_indices(
+	raw_indices
+) -> Array[int]:
+	var result: Array[int] = []
+	if typeof(raw_indices) != TYPE_ARRAY:
+		return result
+
+	for raw_index in raw_indices:
+		if typeof(raw_index) != TYPE_INT:
+			continue
+		var guard_index: int = int(raw_index)
+		if result.has(guard_index):
+			continue
+		result.append(guard_index)
+		if result.size() >= 2:
+			break
+
+	return result
+
+
 static func _kanifous_card_score(
 	card,
 	player
@@ -753,6 +1156,8 @@ static func _gain_neutral_tear(
 		):
 			continue
 
+		candidate.gremory_veil_draw_done = true
+
 		for index in range(
 			game.discard.size() - 1,
 			-1,
@@ -774,8 +1179,6 @@ static func _gain_neutral_tear(
 			candidate.hand.append(
 				card
 			)
-
-			candidate.gremory_veil_draw_done = true
 
 			harvested_card = _card_id(
 				card
@@ -884,6 +1287,43 @@ static func _lowest_card_index(
 			lowest_value = current_value
 
 	return lowest_index
+
+
+static func _second_highest_index(
+	cards: Array
+) -> int:
+	if cards.size() <= 1:
+		return 0
+
+	var indices: Array[int] = []
+
+	for index in range(
+		cards.size()
+	):
+		indices.append(
+			index
+		)
+
+	indices.sort_custom(
+		func(
+			index_a: int,
+			index_b: int
+		) -> bool:
+			var value_a: int = int(
+				cards[index_a].value
+			)
+
+			var value_b: int = int(
+				cards[index_b].value
+			)
+
+			if value_a != value_b:
+				return value_a > value_b
+
+			return index_a < index_b
+	)
+
+	return indices[1]
 
 
 static func _committed_value(

@@ -202,16 +202,23 @@ static func identity_matches(
 		"FINAL_COLLAPSE_TRACK": (
 			rules.final_collapse_threshold
 		),
+		"HAND_LIMIT": rules.hand_limit,
+		"GARRISON_MAX": rules.garrison_max,
+		"MAX_THREAT": rules.max_threat,
+		"MARKET_SIZE": rules.market_size,
+		"MAX_ROUNDS": rules.max_rounds,
 	}
 
 	for key in expected:
-		if int(
-			constants.get(
-				key,
-				-999
+		if (
+			not constants.has(
+				key
 			)
-		) != int(
-			expected[key]
+			or int(
+				constants[key]
+			) != int(
+				expected[key]
+			)
 		):
 			return {
 				"ok": false,
@@ -219,19 +226,138 @@ static func identity_matches(
 					"constant %s: trace=%s config=%s"
 					% [
 						key,
-						constants.get(
-							key,
-							"?"
-						),
+						constants.get(key, "?"),
 						expected[key],
 					]
 				),
 			}
 
+	if constants.size() != expected.size():
+		return {
+			"ok": false,
+			"why": (
+				"constant key set mismatch "
+				+ "(trace %d, config %d)"
+				% [
+					constants.size(),
+					expected.size(),
+				]
+			),
+		}
+
+	var variant: Dictionary = identity.get(
+		"variant",
+		{}
+	)
+
+	var expected_variant := {
+		"recoil_hunts_only": rules.recoil_hunts_only,
+		"sigil_soul_fresh_only": (
+			rules.sigil_soul_fresh_only
+		),
+		"invocation_gate": rules.invocation_gate,
+		"profane_ruins_req": rules.profane_ruins_req,
+		"ai_dominion_drive": rules.ai_dominion_drive,
+		"no_backwash": rules.no_backwash,
+		"reconfig_strict": rules.reconfig_strict,
+		"kroni_def_soft": rules.kroni_def_soft,
+		"kroni_hunger_decay": rules.kroni_hunger_decay,
+		"deimos_war_machine_free": (
+			rules.deimos_war_machine_free
+		),
+		"deimos_summon_cost": rules.deimos_summon_cost,
+		"recoil_lowest": rules.recoil_lowest,
+		"neutral_tear_on_banish": (
+			rules.neutral_tear_on_banish
+		),
+		"castle_tear_uncapped": (
+			rules.castle_tear_uncapped
+		),
+		"veil_drift": rules.veil_drift,
+		"invocation_repeatable": (
+			rules.invocation_repeatable
+		),
+		"reconfig_tokens_needed": (
+			rules.reconfig_tokens_needed
+		),
+		"reconfig_neutral": rules.reconfig_neutral,
+		"deimos_claims_breach": (
+			rules.deimos_claims_breach
+		),
+		"consume_the_siege": rules.consume_the_siege,
+		"war_machine_ignores_profaned": (
+			rules.war_machine_ignores_profaned
+		),
+		"gremory_summon_cost": (
+			rules.gremory_summon_cost
+		),
+		"humbaba_seal": rules.humbaba_seal,
+		"humbaba_toll": rules.humbaba_toll,
+		"humbaba_gate4": rules.humbaba_gate4,
+		"humbaba_patient": rules.humbaba_patient,
+	}
+
+	for key in expected_variant:
+		if (
+			not variant.has(
+				key
+			)
+			or not _identity_value_matches(
+				variant[key],
+				expected_variant[key]
+			)
+		):
+			return {
+				"ok": false,
+				"why": (
+					"variant %s: trace=%s config=%s"
+					% [
+						key,
+						variant.get(key, "?"),
+						expected_variant[key],
+					]
+				),
+			}
+
+	if variant.size() != expected_variant.size():
+		return {
+			"ok": false,
+			"why": (
+				"variant key set mismatch "
+				+ "(trace %d, config %d)"
+				% [
+					variant.size(),
+					expected_variant.size(),
+				]
+			),
+		}
+
 	return {
 		"ok": true,
 		"why": "",
 	}
+
+
+static func _identity_value_matches(
+	actual,
+	expected
+) -> bool:
+	if typeof(expected) == TYPE_BOOL:
+		return (
+			typeof(actual) == TYPE_BOOL
+			and bool(actual) == bool(expected)
+		)
+
+	if typeof(expected) == TYPE_INT:
+		return (
+			typeof(actual) in [
+				TYPE_INT,
+				TYPE_FLOAT,
+			]
+			and int(actual) == int(expected)
+		)
+
+	return actual == expected
 
 
 # ── Validate a trace against engine-produced snapshots ──

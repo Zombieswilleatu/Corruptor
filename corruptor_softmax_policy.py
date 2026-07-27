@@ -1375,12 +1375,19 @@ def _ai_offer_vessel(self, player) -> None:
         1,
     )
 
+    defeated_lord_guards = player.lord_guards[:]
+
     self._discard(
-        player.lord_guards[:]
+        defeated_lord_guards
     )
 
     player.lord_guards.clear()
     player.alive = False
+
+    # Offering the Vessel defeats these guards "by any effect." Mark the
+    # offering Lord dead first so only a surviving Gremory can react.
+    if defeated_lord_guards:
+        self._gremory_lord_guard_trigger()
 
     self._gain_tear(
         player

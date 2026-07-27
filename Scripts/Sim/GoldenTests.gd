@@ -108,6 +108,12 @@ static func run_startup_checks(
 	)
 
 	messages.append_array(
+		_test_identity_gate(
+			rules
+		)
+	)
+
+	messages.append_array(
 		run_unit_tests(
 			rules
 		)
@@ -318,10 +324,181 @@ static func _check_manifest() -> Dictionary:
 		{}
 	)
 
+	if int(
+		manifest.get(
+			"schema_version",
+			-1
+		)
+	) != GoldenMaster.SCHEMA_VERSION:
+		return _fail(
+			"Golden manifest schema mismatch."
+		)
+
+	if String(
+		manifest.get(
+			"ai_version",
+			""
+		)
+	) != AI_POLICY:
+		return _fail(
+			"Golden manifest AI policy mismatch."
+		)
+
 	return _pass(
 		"Golden manifest loaded: %d traces."
 		% traces.size()
 	)
+
+
+static func _test_identity_gate(
+	rules: RuleConfig
+) -> Array:
+	var messages: Array = []
+	var trace: Dictionary = GoldenMaster.load_trace(
+		"unit_combat_breakthrough"
+	)
+
+	if trace.has(
+		"_error"
+	):
+		return [
+			_fail(
+				"Identity gate fixture failed to load."
+			),
+		]
+
+	var valid: Dictionary = GoldenMaster.identity_matches(
+		trace,
+		rules,
+		AI_POLICY
+	)
+
+	if bool(
+		valid.get(
+			"ok",
+			false
+		)
+	):
+		messages.append(
+			_pass(
+				"Golden identity accepts canonical DE v2."
+			)
+		)
+	else:
+		messages.append(
+			_fail(
+				"Golden identity rejected canonical DE v2: %s"
+				% valid.get(
+					"why",
+					"unknown"
+				)
+			)
+		)
+
+	var bad_constant: Dictionary = trace.duplicate(
+		true
+	)
+	bad_constant["identity"]["constants"][
+		"DOMINION_REQUIREMENT"
+	] = int(
+		rules.dominion_requirement
+	) + 1
+
+	var constant_result: Dictionary = (
+		GoldenMaster.identity_matches(
+			bad_constant,
+			rules,
+			AI_POLICY
+		)
+	)
+
+	if bool(
+		constant_result.get(
+			"ok",
+			false
+		)
+	):
+		messages.append(
+			_fail(
+				"Golden identity accepted a bad Dominion requirement."
+			)
+		)
+	else:
+		messages.append(
+			_pass(
+				"Golden identity rejects constant drift."
+			)
+		)
+
+	var bad_variant: Dictionary = trace.duplicate(
+		true
+	)
+	bad_variant["identity"]["variant"][
+		"kroni_hunger_decay"
+	] = not bool(
+		rules.kroni_hunger_decay
+	)
+
+	var variant_result: Dictionary = (
+		GoldenMaster.identity_matches(
+			bad_variant,
+			rules,
+			AI_POLICY
+		)
+	)
+
+	if bool(
+		variant_result.get(
+			"ok",
+			false
+		)
+	):
+		messages.append(
+			_fail(
+				"Golden identity accepted bad Kroni decay."
+			)
+		)
+	else:
+		messages.append(
+			_pass(
+				"Golden identity rejects variant drift."
+			)
+		)
+
+	var bad_policy: Dictionary = trace.duplicate(
+		true
+	)
+	bad_policy["ai_version"] = (
+		"heuristic-2025.06-doctrine"
+	)
+
+	var policy_result: Dictionary = (
+		GoldenMaster.identity_matches(
+			bad_policy,
+			rules,
+			AI_POLICY
+		)
+	)
+
+	if bool(
+		policy_result.get(
+			"ok",
+			false
+		)
+	):
+		messages.append(
+			_fail(
+				"Golden identity accepted the wrong AI policy."
+			)
+		)
+	else:
+		messages.append(
+			_pass(
+				"Golden identity rejects AI policy drift."
+			)
+		)
+
+	return messages
 
 
 static func _test_combat_trace(

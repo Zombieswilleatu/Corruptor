@@ -351,7 +351,7 @@
           "gremory_inevitable_ruin_done": false,
           "gremory_lord_guard_draw_done": false,
           "gremory_ruin_done": true,
-          "gremory_veil_draw_done": false,
+          "gremory_veil_draw_done": true,
           "hand": [
             "Penitent:2",
             "Wright:2",
@@ -1640,5 +1640,5 @@
       "winner": 1
     }
   ],
-  "trace_hash": "eebd5ae3b3a37e40f5062e5422131410171c881db709a29389fbc767900d79bd"
+  "trace_hash": "51cbaf38c25691f030ea2455f12524b2a3a3e8ab0cdb69af117140209e06ec73"
 }

@@ -94,6 +94,10 @@ def _build_scenario(
     constants: dict,
 ) -> dict[str, Any]:
     gm.apply_config(variant, constants)
+    gm.assert_live_identity(
+        variant,
+        constants,
+    )
 
     seed = scenario_seed(
         player_zero_index,
@@ -238,8 +242,11 @@ def check_matrix(matrix: dict[str, Any]) -> int:
         | set(current_scenarios)
     )
 
+    changed_scenario = False
+
     for name in all_names:
         if disk_scenarios.get(name) != current_scenarios.get(name):
+            changed_scenario = True
             print(
                 "DRIFT — first changed matchup: %s"
                 % name
@@ -265,6 +272,25 @@ def check_matrix(matrix: dict[str, Any]) -> int:
                 )
             )
             break
+
+    if not changed_scenario:
+        for key in sorted(
+            set(disk)
+            | set(matrix)
+        ):
+            if key == "scenarios":
+                continue
+
+            if disk.get(key) != matrix.get(key):
+                print(
+                    "DRIFT — matrix metadata %s: disk=%r now=%r"
+                    % (
+                        key,
+                        disk.get(key),
+                        matrix.get(key),
+                    )
+                )
+                break
 
     return 1
 

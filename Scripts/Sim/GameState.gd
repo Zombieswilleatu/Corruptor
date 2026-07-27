@@ -28,6 +28,7 @@ var win_by: String = ""
 var deck: Array = []
 var discard: Array = []
 var market: Array = []
+var removed_from_play: Array = []
 
 var players: Array = []
 
@@ -112,6 +113,9 @@ func duplicate_state() -> GameState:
 	copy.deck = _duplicate_cards(deck)
 	copy.discard = _duplicate_cards(discard)
 	copy.market = _duplicate_cards(market)
+	copy.removed_from_play = _duplicate_cards(
+		removed_from_play
+	)
 
 	copy.players.clear()
 

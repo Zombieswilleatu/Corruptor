@@ -252,6 +252,7 @@ static func resolve(
 		)
 
 	var ignore_lowest: bool = false
+	var butcher_suppressed_card = null
 
 	if (
 		attacker.lord == "Valak"
@@ -266,7 +267,21 @@ static func resolve(
 		and attacker.kanifous_invoked_suit == "Butcher"
 		and not defender.castle_guards.is_empty()
 	):
-		ignore_lowest = true
+		var suppressed_index: int = _lowest_card_index(
+			defender.castle_guards
+		)
+
+		butcher_suppressed_card = defender.castle_guards[
+			suppressed_index
+		]
+
+		defender.castle_guards.remove_at(
+			suppressed_index
+		)
+
+		game.discard.append(
+			butcher_suppressed_card
+		)
 
 	var structural_defense: int = _castle_defense(
 		game,
@@ -492,6 +507,21 @@ static func resolve(
 				attacker.lord == "Kalligan"
 				and attacker.alive
 			):
+				# Wildfire resolves first. If Inferno later places Scorch
+				# on the Lord zone, that is the persistent token that stays.
+				game.persist_scorch_pid = int(
+					defender.pid
+				)
+
+				if defender.castles.is_empty():
+					game.persist_scorch_type = "Lord"
+				else:
+					game.persist_scorch_type = "Castle"
+
+				wildfire_zone = String(
+					game.persist_scorch_type
+				)
+
 				if (
 					use_inferno
 					and attacker.threat < rules.max_threat
@@ -527,15 +557,6 @@ static func resolve(
 						)
 
 						game.persist_scorch_type = "Lord"
-
-				game.persist_scorch_pid = int(
-					defender.pid
-				)
-
-				if defender.castles.is_empty():
-					game.persist_scorch_type = "Lord"
-				else:
-					game.persist_scorch_type = "Castle"
 
 				wildfire_zone = String(
 					game.persist_scorch_type
@@ -653,6 +674,13 @@ static func resolve(
 			)
 		),
 		"ignore_lowest_guard": ignore_lowest,
+		"butcher_suppressed_card": (
+			""
+			if butcher_suppressed_card == null
+			else _card_id(
+				butcher_suppressed_card
+			)
+		),
 		"sigil_state": sigil_state,
 		"sigil_value": sigil_value,
 		"guards_defeated": _card_ids(
@@ -1330,6 +1358,8 @@ static func _trigger_gremory_harvest(
 		):
 			continue
 
+		player.gremory_veil_draw_done = true
+
 		for index in range(
 			game.discard.size() - 1,
 			-1,
@@ -1351,8 +1381,6 @@ static func _trigger_gremory_harvest(
 			player.hand.append(
 				card
 			)
-
-			player.gremory_veil_draw_done = true
 
 			return {
 				"harvested_card": _card_id(

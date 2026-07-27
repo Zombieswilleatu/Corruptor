@@ -19,6 +19,10 @@ const KRONI_FALLBACK_TEST_NAME := (
 	"unit_finale_kroni_decay_fallback"
 )
 
+const KRONI_CONSUME_TEST_NAME := (
+	"unit_finale_kroni_consume_and_gorge"
+)
+
 const KRONI_BREACH_TEST_NAME := (
 	"unit_finale_kroni_breach"
 )
@@ -44,6 +48,9 @@ static func run(
 	rules: RuleConfig
 ) -> Array:
 	return [
+		_test_kroni_consume(
+			rules
+		),
 		_test_kroni_decay_fallback(
 			rules
 		),
@@ -63,6 +70,87 @@ static func run(
 			rules
 		),
 	]
+
+
+static func _test_kroni_consume(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has(
+		"error"
+	):
+		return _fail(
+			KRONI_CONSUME_TEST_NAME,
+			String(
+				fixture["error"]
+			)
+		)
+
+	var game = fixture["game"]
+	var kroni = fixture["p0"]
+
+	_prepare_game(
+		game
+	)
+
+	kroni.lord = "Kroni"
+	kroni.alive = true
+	kroni.action = "Hunt"
+	kroni.kroni_hunger = 2
+	kroni.kroni_consume_done = false
+	kroni.kroni_personally_defeated_guard = true
+	kroni.kroni_tear_milestone_fired = false
+
+	game.set_meta(
+		"any_destruction_round",
+		int(
+			game.round
+		)
+	)
+
+	var result: Dictionary = (
+		ResolutionFinaleEngineData.resolve(
+			game,
+			rules
+		)
+	)
+
+	if (
+		not kroni.kroni_consume_done
+		or kroni.kroni_hunger != 3
+		or kroni.tears != 1
+		or kroni.souls != 1
+	):
+		return _fail(
+			KRONI_CONSUME_TEST_NAME,
+			"Finale did not resolve Consume, milestone, and Gorge together."
+		)
+
+	var events: Array = result.get(
+		"consume_events",
+		[]
+	)
+
+	if (
+		events.size() != 1
+		or int(
+			events[0].get(
+				"gorge_soul_gain",
+				0
+			)
+		) != 1
+	):
+		return _fail(
+			KRONI_CONSUME_TEST_NAME,
+			"Finale Consume event did not record Gorge."
+		)
+
+	return _pass(
+		KRONI_CONSUME_TEST_NAME
+	)
 
 
 static func _test_kroni_decay_fallback(
@@ -155,14 +243,20 @@ static func _test_kroni_decay_fallback(
 			"Fallback Consume used Garrison despite Guards existing."
 		)
 
+	if not game.discard.is_empty():
+		return _fail(
+			KRONI_FALLBACK_TEST_NAME,
+			"Fallback Consume recycled its removed card into discard."
+		)
+
 	if _card_ids(
-		game.discard
+		game.removed_from_play
 	) != [
 		"Penitent:1",
 	]:
 		return _fail(
 			KRONI_FALLBACK_TEST_NAME,
-			"Fallback Consume discarded the wrong card."
+			"Fallback Consume did not retain its removed card."
 		)
 
 	var decay_events: Array = result.get(
@@ -214,7 +308,7 @@ static func _test_kroni_decay_fallback(
 
 	if String(
 		fallback_event.get(
-			"discarded_card",
+			"removed_card",
 			""
 		)
 	) != "Penitent:1":
@@ -469,7 +563,6 @@ static func _test_kroni_fallback_victory_timing(
 	if _card_ids(
 		game.discard
 	) != [
-		"Penitent:1",
 		"Vulture:2",
 		"Butcher:4",
 	]:

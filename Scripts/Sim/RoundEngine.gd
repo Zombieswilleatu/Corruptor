@@ -130,113 +130,121 @@ static func resolve_market(
 			game.first_player + offset
 		) % game.players.size()
 
-		var player = game.get_player(
-			player_id
-		)
-
-		assert(
-			player != null,
-			"Market player %d does not exist."
-			% player_id
-		)
-
-		var decision: Dictionary = (
-			_decision_for_player(
-				market_choices,
-				player_id
-			)
-		)
-
-		if _market_decision_is_pass(
-			decision
-		):
-			results.append({
-				"player_id": player_id,
-				"action": "pass",
-				"take": "",
-				"give": "",
-			})
-
-			continue
-
-		var take_card_id := String(
-			decision.get(
-				"take",
-				""
-			)
-		)
-
-		var give_card_id := String(
-			decision.get(
-				"give",
-				""
-			)
-		)
-
-		var market_index := _find_card_index(
-			game.market,
-			take_card_id
-		)
-
-		var hand_index := _find_card_index(
-			player.hand,
-			give_card_id
-		)
-
-		assert(
-			market_index >= 0,
-			"Player %d attempted to take missing Market card %s."
-			% [
+		results.append(
+			resolve_market_player(
+				game,
 				player_id,
-				take_card_id,
-			]
+				_decision_for_player(
+					market_choices,
+					player_id
+				)
+			)
 		)
-
-		assert(
-			hand_index >= 0,
-			"Player %d attempted to give missing hand card %s."
-			% [
-				player_id,
-				give_card_id,
-			]
-		)
-
-		var market_card = game.market[
-			market_index
-		]
-
-		var hand_card = player.hand[
-			hand_index
-		]
-
-		game.market.remove_at(
-			market_index
-		)
-
-		player.hand.remove_at(
-			hand_index
-		)
-
-		player.hand.append(
-			market_card
-		)
-
-		game.market.append(
-			hand_card
-		)
-
-		results.append({
-			"player_id": player_id,
-			"action": "swap",
-			"take": _card_id(
-				market_card
-			),
-			"give": _card_id(
-				hand_card
-			),
-		})
 
 	return results
+
+
+static func resolve_market_player(
+	game,
+	player_id: int,
+	decision: Dictionary
+) -> Dictionary:
+	var player = game.get_player(
+		player_id
+	)
+
+	assert(
+		player != null,
+		"Market player %d does not exist."
+		% player_id
+	)
+
+	if _market_decision_is_pass(
+		decision
+	):
+		return {
+			"player_id": player_id,
+			"action": "pass",
+			"take": "",
+			"give": "",
+		}
+
+	var take_card_id := String(
+		decision.get(
+			"take",
+			""
+		)
+	)
+
+	var give_card_id := String(
+		decision.get(
+			"give",
+			""
+		)
+	)
+
+	var market_index := _find_card_index(
+		game.market,
+		take_card_id
+	)
+
+	var hand_index := _find_card_index(
+		player.hand,
+		give_card_id
+	)
+
+	assert(
+		market_index >= 0,
+		"Player %d attempted to take missing Market card %s."
+		% [
+			player_id,
+			take_card_id,
+		]
+	)
+
+	assert(
+		hand_index >= 0,
+		"Player %d attempted to give missing hand card %s."
+		% [
+			player_id,
+			give_card_id,
+		]
+	)
+
+	var market_card = game.market[
+		market_index
+	]
+
+	var hand_card = player.hand[
+		hand_index
+	]
+
+	game.market.remove_at(
+		market_index
+	)
+
+	player.hand.remove_at(
+		hand_index
+	)
+
+	player.hand.append(
+		market_card
+	)
+
+	game.market.append(
+		hand_card
+	)
+
+	return {
+		"player_id": player_id,
+		"action": "swap",
+		"take": _card_id(
+			market_card
+		),
+		"give": _card_id(
+			hand_card
+		),
+	}
 
 
 static func resolve_repairs(
@@ -257,21 +265,43 @@ static func resolve_repairs(
 	var results: Array[Dictionary] = []
 
 	for player in game.players:
-		var decision := _decision_for_player(
-			repair_choices,
-			int(player.pid)
-		)
-
 		results.append(
-			_resolve_player_repair(
+			resolve_repair_player(
 				game,
-				player,
+				int(player.pid),
 				rules,
-				decision
+				_decision_for_player(
+					repair_choices,
+					int(player.pid)
+				)
 			)
 		)
 
 	return results
+
+
+static func resolve_repair_player(
+	game,
+	player_id: int,
+	rules: RuleConfig,
+	decision: Dictionary
+) -> Dictionary:
+	var player = game.get_player(
+		player_id
+	)
+
+	assert(
+		player != null,
+		"Repair player %d does not exist."
+		% player_id
+	)
+
+	return _resolve_player_repair(
+		game,
+		player,
+		rules,
+		decision
+	)
 
 
 static func _resolve_player_repair(
@@ -345,38 +375,11 @@ static func _resolve_player_repair(
 			"repair_token_unavailable"
 		)
 
-	var repair_cost := int(
-		CASTLE_REPAIR_COSTS[
-			castle_name
-		]
-	)
-
-	if use_token:
-		repair_cost -= (
-			REPAIR_TOKEN_DISCOUNT
-		)
-
-	if (
-		player.lord == "Kalligan"
-		and player.alive
-	):
-		if player.kalligan_repair_used:
-			repair_cost -= (
-				KALLIGAN_LATER_REPAIR_DISCOUNT
-			)
-		else:
-			repair_cost -= (
-				KALLIGAN_FIRST_REPAIR_DISCOUNT
-			)
-
-	if game.breach == "Kalligan":
-		repair_cost -= (
-			KALLIGAN_BREACH_REPAIR_DISCOUNT
-		)
-
-	repair_cost = max(
-		1,
-		repair_cost
+	var repair_cost: int = repair_cost_for(
+		game,
+		player,
+		castle_name,
+		use_token
 	)
 
 	var raw_payment = decision.get(
@@ -503,6 +506,33 @@ static func _resolve_player_repair(
 		),
 		"used_token": use_token,
 	}
+
+
+static func repair_cost_for(
+	game,
+	player,
+	castle_name: String,
+	use_token: bool = false
+) -> int:
+	if not CASTLE_REPAIR_COSTS.has(castle_name):
+		return 0
+
+	var repair_cost: int = int(CASTLE_REPAIR_COSTS[castle_name])
+
+	if use_token:
+		repair_cost -= REPAIR_TOKEN_DISCOUNT
+
+	if player != null and player.lord == "Kalligan" and player.alive:
+		repair_cost -= (
+			KALLIGAN_LATER_REPAIR_DISCOUNT
+			if player.kalligan_repair_used
+			else KALLIGAN_FIRST_REPAIR_DISCOUNT
+		)
+
+	if game != null and game.breach == "Kalligan":
+		repair_cost -= KALLIGAN_BREACH_REPAIR_DISCOUNT
+
+	return max(1, repair_cost)
 
 
 static func _select_payment_cards(

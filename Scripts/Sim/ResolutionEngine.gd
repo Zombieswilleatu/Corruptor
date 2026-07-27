@@ -448,7 +448,11 @@ static func resolve(
 	var finale_result: Dictionary = (
 		ResolutionFinaleEngineData.resolve(
 			game,
-			rules
+			rules,
+			prelude_result.get(
+				"order",
+				[]
+			)
 		)
 	)
 

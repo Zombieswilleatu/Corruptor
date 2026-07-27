@@ -672,6 +672,8 @@ static func _trigger_gremory_harvest(
 		):
 			continue
 
+		player.gremory_veil_draw_done = true
+
 		for index in range(
 			game.discard.size() - 1,
 			-1,
@@ -693,8 +695,6 @@ static func _trigger_gremory_harvest(
 			player.hand.append(
 				card
 			)
-
-			player.gremory_veil_draw_done = true
 
 			return {
 				"harvested_card": _card_id(

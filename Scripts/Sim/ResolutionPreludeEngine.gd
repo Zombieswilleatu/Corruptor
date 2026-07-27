@@ -30,7 +30,8 @@ static func resolve(
 	game,
 	rules: RuleConfig,
 	tie_first_player: int = -1,
-	random_source = null
+	random_source = null,
+	toll_choices: Dictionary = {}
 ) -> Dictionary:
 	assert(
 		game != null,
@@ -47,14 +48,11 @@ static func resolve(
 		"Resolution Prelude currently requires two players."
 	)
 
-	var committed_values: Array[int] = [
-		_committed_value(
-			game.players[0].committed
-		),
-		_committed_value(
-			game.players[1].committed
-		),
-	]
+	var committed_values: Array[int] = (
+		_locked_committed_values(
+			game
+		)
+	)
 
 	# Order is locked before any pre-resolution effects strip cards.
 	var order_result: Dictionary = _resolve_order(
@@ -107,20 +105,14 @@ static func resolve(
 	var humbaba_toll_events: Array[Dictionary] = (
 		_apply_humbaba_toll(
 			game,
-			rules
+			rules,
+			toll_choices
 		)
 	)
 
+	# After-Reveal Lord powers resolve in RevealEngine so they can share one
+	# committed-value order before any committed card is stripped.
 	var kroni_events: Array[Dictionary] = []
-
-	if int(
-		game.winner
-	) < 0:
-		kroni_events = (
-			_apply_kroni_hungering_aura(
-				game
-			)
-		)
 
 	game.refresh_derived_values()
 
@@ -156,6 +148,49 @@ static func resolve(
 		"humbaba_toll_events": humbaba_toll_events,
 		"kroni_events": kroni_events,
 	}
+
+
+static func _locked_committed_values(
+	game
+) -> Array[int]:
+	var locked_round: int = int(
+		game.get_meta(
+			"_resolution_committed_values_round",
+			-1
+		)
+	)
+
+	var raw_locked_values = game.get_meta(
+		"_resolution_committed_values",
+		[]
+	)
+
+	if (
+		locked_round == int(
+			game.round
+		)
+		and typeof(
+			raw_locked_values
+		) == TYPE_ARRAY
+		and raw_locked_values.size() == game.players.size()
+	):
+		return [
+			int(
+				raw_locked_values[0]
+			),
+			int(
+				raw_locked_values[1]
+			),
+		]
+
+	return [
+		_committed_value(
+			game.players[0].committed
+		),
+		_committed_value(
+			game.players[1].committed
+		),
+	]
 
 
 static func _resolve_order(
@@ -287,6 +322,12 @@ static func _apply_persistent_scorch(
 			guard
 		)
 
+	if (
+		not victims.is_empty()
+		and player.lord == "Odradek"
+	):
+		player.odradek_guards_defeated += victims.size()
+
 	var gremory_trigger: Dictionary = (
 		_empty_gremory_trigger()
 	)
@@ -383,7 +424,8 @@ static func _strip_attacked_zone_guard(
 
 static func _apply_humbaba_toll(
 	game,
-	rules: RuleConfig
+	rules: RuleConfig,
+	toll_choices: Dictionary = {}
 ) -> Array[Dictionary]:
 	var events: Array[Dictionary] = []
 
@@ -459,32 +501,40 @@ static func _apply_humbaba_toll(
 		):
 			continue
 
-		var target_castle: String = ""
+		var decision: Dictionary = _decision_for_player(
+			toll_choices,
+			int(player.pid)
+		)
+		if bool(decision.get("pass", false)):
+			continue
 
-		for priority_index: int in range(
-			HUMBABA_CASTLE_PRIORITY.size() - 1,
-			-1,
-			-1
-		):
-			var candidate_castle: String = (
-				HUMBABA_CASTLE_PRIORITY[
-					priority_index
-				]
-			)
+		var target_castle: String = String(decision.get("castle", ""))
+		if not target_castle.is_empty() and not player.castles.has(target_castle):
+			events.append({
+				"triggered": false,
+				"player_id": int(player.pid),
+				"opponent_id": int(opponent.pid),
+				"ruined_castle": target_castle,
+				"reason": "toll_castle_not_active",
+			})
+			continue
 
-			if player.castles.has(
-				candidate_castle
+		if target_castle.is_empty():
+			for priority_index: int in range(
+				HUMBABA_CASTLE_PRIORITY.size() - 1,
+				-1,
+				-1
 			):
-				target_castle = candidate_castle
-				break
+				var candidate_castle: String = (
+					HUMBABA_CASTLE_PRIORITY[priority_index]
+				)
 
-		if (
-			target_castle.is_empty()
-			and not player.castles.is_empty()
-		):
-			target_castle = String(
-				player.castles[0]
-			)
+				if player.castles.has(candidate_castle):
+					target_castle = candidate_castle
+					break
+
+			if target_castle.is_empty() and not player.castles.is_empty():
+				target_castle = String(player.castles[0])
 
 		if target_castle.is_empty():
 			continue
@@ -621,6 +671,14 @@ static func _apply_humbaba_toll(
 	return events
 
 
+static func _decision_for_player(
+	choices: Dictionary,
+	player_id: int
+) -> Dictionary:
+	var raw_decision = choices.get(player_id, choices.get(str(player_id), {}))
+	return raw_decision if typeof(raw_decision) == TYPE_DICTIONARY else {}
+
+
 static func _gain_humbaba_neutral_tear(
 	game
 ) -> Dictionary:
@@ -642,6 +700,8 @@ static func _gain_humbaba_neutral_tear(
 			)
 		):
 			continue
+
+		player.gremory_veil_draw_done = true
 
 		var target_index: int = -1
 
@@ -670,8 +730,6 @@ static func _gain_humbaba_neutral_tear(
 			player.hand.append(
 				card
 			)
-
-			player.gremory_veil_draw_done = true
 
 			harvested_card = _humbaba_card_id(
 				card
@@ -826,74 +884,6 @@ static func _humbaba_card_id(
 	return str(
 		card
 	)
-
-
-static func _apply_kroni_hungering_aura(
-	game
-) -> Array[Dictionary]:
-	var events: Array[Dictionary] = []
-
-	for player in game.players:
-		if (
-			player.lord != "Kroni"
-			or not player.alive
-			or int(
-				player.kroni_hunger
-			) < 3
-		):
-			continue
-
-		var opponent = game.get_opponent(
-			int(
-				player.pid
-			)
-		)
-
-		if opponent == null:
-			continue
-
-		if opponent.committed.is_empty():
-			events.append({
-				"kroni_player_id": int(
-					player.pid
-				),
-				"target_player_id": int(
-					opponent.pid
-				),
-				"discarded_card": "",
-			})
-
-			continue
-
-		var lowest_index: int = _lowest_card_index(
-			opponent.committed
-		)
-
-		var victim = opponent.committed[
-			lowest_index
-		]
-
-		opponent.committed.remove_at(
-			lowest_index
-		)
-
-		game.discard.append(
-			victim
-		)
-
-		events.append({
-			"kroni_player_id": int(
-				player.pid
-			),
-			"target_player_id": int(
-				opponent.pid
-			),
-			"discarded_card": _card_id(
-				victim
-			),
-		})
-
-	return events
 
 
 static func _trigger_gremory_lord_guard(

@@ -20,7 +20,7 @@ const SCORCH_TEST_NAME := "unit_resolution_persistent_scorch"
 const GREMORY_DRAW_TEST_NAME := "unit_resolution_prelude_gremory_outside_draw"
 const COLLAPSE_TEST_NAME := "unit_resolution_collapse_stack"
 const HUMBABA_TOLL_TEST_NAME := "unit_resolution_humbaba_toll"
-const KRONI_TEST_NAME := "unit_resolution_kroni_aura"
+const KRONI_TEST_NAME := "unit_resolution_kroni_aura_moved_to_reveal"
 
 
 static func run(
@@ -183,6 +183,10 @@ static func _test_persistent_scorch(
 	game.persist_scorch_pid = 1
 	game.persist_scorch_type = "Lord"
 
+	player_one.lord = "Odradek"
+	player_one.alive = true
+	player_one.odradek_guards_defeated = 0
+
 	player_one.lord_guards = _cards_from_ids([
 		"Butcher:1",
 		"Wright:2",
@@ -246,6 +250,12 @@ static func _test_persistent_scorch(
 		return _fail(
 			SCORCH_TEST_NAME,
 			"Persistent Scorch result listed the wrong cards."
+		)
+
+	if player_one.odradek_guards_defeated != 2:
+		return _fail(
+			SCORCH_TEST_NAME,
+			"Scorch-defeated Guards did not count for Reconfiguration."
 		)
 
 	return _pass(
@@ -699,21 +709,18 @@ static func _test_kroni_aura(
 		player_one.committed
 	) != [
 		"Vulture:5",
+		"Butcher:1",
 		"Wright:3",
 	]:
 		return _fail(
 			KRONI_TEST_NAME,
-			"Kroni removed the wrong committed card."
+			"Prelude still resolved Hungering Aura."
 		)
 
-	if _card_ids(
-		game.discard
-	) != [
-		"Butcher:1",
-	]:
+	if not game.discard.is_empty():
 		return _fail(
 			KRONI_TEST_NAME,
-			"Kroni's Hungering Aura reached the wrong discard state."
+			"Prelude discarded a committed card after Aura moved to Reveal."
 		)
 
 	var kroni_events: Array = result.get(
@@ -721,23 +728,10 @@ static func _test_kroni_aura(
 		[]
 	)
 
-	if kroni_events.size() != 1:
+	if not kroni_events.is_empty():
 		return _fail(
 			KRONI_TEST_NAME,
-			"Expected exactly one Kroni Aura event."
-		)
-
-	var aura_event: Dictionary = kroni_events[0]
-
-	if String(
-		aura_event.get(
-			"discarded_card",
-			""
-		)
-	) != "Butcher:1":
-		return _fail(
-			KRONI_TEST_NAME,
-			"Kroni Aura event recorded the wrong card."
+			"Prelude emitted an Aura event after it moved to Reveal."
 		)
 
 	return _pass(

@@ -27,27 +27,48 @@ static func resolve(
 	var results: Array[Dictionary] = []
 
 	for player in game.players:
-		var player_id: int = int(
-			player.pid
-		)
-
-		var decision: Dictionary = _decision_for_player(
-			rite_choices,
-			player_id
-		)
-
 		results.append(
-			_resolve_player_rites(
+			resolve_player(
 				game,
-				player,
+				int(player.pid),
 				rules,
-				decision
+				_decision_for_player(
+					rite_choices,
+					int(player.pid)
+				)
 			)
 		)
 
 	game.refresh_derived_values()
 
 	return results
+
+
+static func resolve_player(
+	game,
+	player_id: int,
+	rules: RuleConfig,
+	decision: Dictionary
+) -> Dictionary:
+	var player = game.get_player(
+		player_id
+	)
+
+	assert(
+		player != null,
+		"Dominion Rite player %d does not exist."
+		% player_id
+	)
+
+	var result: Dictionary = _resolve_player_rites(
+		game,
+		player,
+		rules,
+		decision
+	)
+
+	game.refresh_derived_values()
+	return result
 
 
 static func _resolve_player_rites(
@@ -391,6 +412,8 @@ static func _gain_personal_tear(
 		):
 			continue
 
+		candidate.gremory_veil_draw_done = true
+
 		for index: int in range(
 			game.discard.size() - 1,
 			-1,
@@ -412,8 +435,6 @@ static func _gain_personal_tear(
 			candidate.hand.append(
 				card
 			)
-
-			candidate.gremory_veil_draw_done = true
 
 			harvested_card = _card_id(
 				card

@@ -43,6 +43,7 @@ const ROUND_ONE_TEST_NAME := "unit_round1_reveal"
 const FLIPPED_SIGIL_TEST_NAME := "unit_reveal_flipped_sigil"
 const KANIFOUS_VULTURE_TEST_NAME := "unit_reveal_kanifous_vulture"
 const KANIFOUS_PENITENT_TEST_NAME := "unit_reveal_kanifous_penitent"
+const LORD_TRIGGER_ORDER_TEST_NAME := "unit_reveal_lord_trigger_order"
 
 
 static func run(
@@ -59,6 +60,9 @@ static func run(
 			rules
 		),
 		_test_kanifous_penitent(
+			rules
+		),
+		_test_lord_trigger_order(
 			rules
 		),
 	]
@@ -416,6 +420,122 @@ static func _test_kanifous_penitent(
 	return _result_from_error(
 		KANIFOUS_PENITENT_TEST_NAME,
 		error
+	)
+
+
+static func _test_lord_trigger_order(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has(
+		"error"
+	):
+		return _fail(
+			LORD_TRIGGER_ORDER_TEST_NAME,
+			String(
+				fixture["error"]
+			)
+		)
+
+	var game = fixture["game"]
+	var kroni = fixture["p0"]
+	var odradek = fixture["p1"]
+
+	game.first_player = 1
+	game.discard.clear()
+
+	kroni.lord = "Kroni"
+	kroni.alive = true
+	kroni.kroni_hunger = 3
+	kroni.action = "Hunt"
+	kroni.tgt_pid = 1
+	kroni.tgt_type = "Lord"
+	kroni.committed = _cards_from_ids([
+		"Vulture:5",
+		"Wright:2",
+	])
+
+	odradek.lord = "Odradek"
+	odradek.alive = true
+	odradek.odradek_recoil_done = false
+	odradek.action = "Ward"
+	odradek.ward_target = "Lord"
+	odradek.tgt_pid = 1
+	odradek.tgt_type = "Lord"
+	odradek.committed = _cards_from_ids([
+		"Butcher:3",
+	])
+
+	var result: Dictionary = RevealEngineData.resolve(
+		game,
+		rules
+	)
+
+	if _int_array(
+		result.get(
+			"trigger_order",
+			[]
+		)
+	) != [
+		0,
+		1,
+	]:
+		return _fail(
+			LORD_TRIGGER_ORDER_TEST_NAME,
+			"After-Reveal Lord powers ignored committed-value order."
+		)
+
+	if _card_ids(
+		game.discard
+	) != [
+		"Butcher:3",
+		"Wright:2",
+	]:
+		return _fail(
+			LORD_TRIGGER_ORDER_TEST_NAME,
+			"Aura and Recoil resolved in the wrong order."
+		)
+
+	var kroni_result: Dictionary = _player_result(
+		result,
+		0
+	)
+
+	var odradek_result: Dictionary = _player_result(
+		result,
+		1
+	)
+
+	if (
+		not bool(
+			kroni_result.get(
+				"kroni",
+				{}
+			).get(
+				"triggered",
+				false
+			)
+		)
+		or not bool(
+			odradek_result.get(
+				"odradek_recoil",
+				{}
+			).get(
+				"triggered",
+				false
+			)
+		)
+	):
+		return _fail(
+			LORD_TRIGGER_ORDER_TEST_NAME,
+			"Reveal did not record both ordered Lord triggers."
+		)
+
+	return _pass(
+		LORD_TRIGGER_ORDER_TEST_NAME
 	)
 
 
@@ -1091,6 +1211,21 @@ static func _card_ids(
 					card
 				)
 			)
+
+	return result
+
+
+static func _int_array(
+	values: Array
+) -> Array[int]:
+	var result: Array[int] = []
+
+	for value in values:
+		result.append(
+			int(
+				value
+			)
+		)
 
 	return result
 

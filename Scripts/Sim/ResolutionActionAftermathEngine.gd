@@ -53,13 +53,21 @@ static func resolve(
 		"offer": false,
 	}
 
-	# Doctrine-marked Vessel decisions are validated after reevaluation.
+	# Doctrine-marked Vessel decisions are validated after reevaluation. The
+	# playable prototype may also ask a human at this exact boundary.
+	var post_action_choice: bool = bool(
+		vessel_decision.get(
+			"post_action",
+			false
+		)
+	)
+
 	if not bool(
 		vessel_decision.get(
 			"reevaluate_after_action",
 			false
 		)
-	):
+	) and not post_action_choice:
 		vessel_validation = (
 			_validate_vessel_decision(
 				game,
@@ -93,12 +101,15 @@ static func resolve(
 				false
 			)
 		)
+		and not post_action_choice
 	):
 		var stale_vessel_event: Dictionary = (
 			_resolve_vessel(
 				game,
 				acting_player,
-				vessel_validation
+				vessel_validation,
+				rules,
+				random_source
 			)
 		)
 
@@ -135,37 +146,9 @@ static func resolve(
 			)
 		)
 
+	# Consume and Gorge evaluate in Resolution Finale, after every primary
+	# and Reflex action has had a chance to establish the round state.
 	var kroni_events: Array[Dictionary] = []
-
-	var opponent = game.get_opponent(
-		acting_player_id
-	)
-
-	var consume_order: Array = [
-		acting_player,
-		opponent,
-	]
-
-	for candidate in consume_order:
-		if candidate == null:
-			continue
-
-		var kroni_event: Dictionary = (
-			_try_kroni_consume(
-				game,
-				candidate
-			)
-		)
-
-		if bool(
-			kroni_event.get(
-				"triggered",
-				false
-			)
-		):
-			kroni_events.append(
-				kroni_event
-			)
 
 	var effective_vessel_decision: Dictionary = (
 		vessel_decision
@@ -185,8 +168,8 @@ static func resolve(
 			)
 		)
 
-		# Python reevaluates Vessel after action aftermath and Kroni Consume,
-		# before the next victory checkpoint.
+		# Python reevaluates Vessel after action aftermath, before the next
+		# victory checkpoint.
 		if (
 			bool(
 				effective_vessel_decision.get(
@@ -228,12 +211,35 @@ static func resolve(
 					)
 				)
 			)
+	elif post_action_choice:
+		# A real post-action Vessel choice can replace a provisional Ritual
+		# victory, while Final Collapse and Dominion remain authoritative.
+		if (
+			bool(vessel_decision.get("offer", false))
+			and int(game.winner) >= 0
+			and String(game.win_by) == "Ritual"
+		):
+			game.winner = -1
+			game.win_by = ""
+
+		vessel_validation = _validate_vessel_decision(
+			game,
+			acting_player,
+			vessel_decision
+		)
+		if not bool(vessel_validation.get("valid", false)):
+			return _invalid_result(
+				acting_player_id,
+				String(vessel_validation.get("reason", "invalid_vessel_decision"))
+			)
 
 	var vessel_event: Dictionary = (
 		_resolve_vessel(
 			game,
 			acting_player,
-			vessel_validation
+			vessel_validation,
+			rules,
+			random_source
 		)
 	)
 
@@ -513,7 +519,9 @@ static func _validate_vessel_decision(
 static func _resolve_vessel(
 	game,
 	player,
-	validation: Dictionary
+	validation: Dictionary,
+	rules: RuleConfig,
+	random_source = null
 ) -> Dictionary:
 	if not bool(
 		validation.get(
@@ -531,6 +539,9 @@ static func _resolve_vessel(
 			"offered_lord": "",
 			"opponent_soul_gain": 0,
 			"discarded_lord_guards": [],
+			"gremory_guard_trigger": (
+				_empty_gremory_guard_trigger()
+			),
 			"personal_tear_gain": 0,
 			"harvested_card": "",
 			"harvested_by": -1,
@@ -566,9 +577,21 @@ static func _resolve_vessel(
 		)
 
 	player.lord_guards.clear()
-
 	player.alive = false
 	player.derived_lord_def = 0
+
+	var gremory_guard_trigger: Dictionary = (
+		_empty_gremory_guard_trigger()
+	)
+
+	if not discarded_lord_guards.is_empty():
+		gremory_guard_trigger = (
+			_trigger_gremory_lord_guard(
+				game,
+				rules,
+				random_source
+			)
+		)
 
 	var tear_event: Dictionary = (
 		_gain_personal_tear(
@@ -591,6 +614,9 @@ static func _resolve_vessel(
 		"discarded_lord_guards": _card_ids(
 			discarded_lord_guards
 		),
+		"gremory_guard_trigger": (
+			gremory_guard_trigger
+		),
 		"personal_tear_gain": 1,
 		"harvested_card": String(
 			tear_event.get(
@@ -607,123 +633,69 @@ static func _resolve_vessel(
 	}
 
 
-static func _try_kroni_consume(
+static func _trigger_gremory_lord_guard(
 	game,
-	player
+	rules: RuleConfig,
+	random_source = null
 ) -> Dictionary:
-	if (
-		player.lord != "Kroni"
-		or not player.alive
-		or player.kroni_consume_done
-	):
-		return _empty_kroni_event(
-			player
-		)
+	for player in game.players:
+		if (
+			player.lord != "Gremory"
+			or not player.alive
+			or player.gremory_lord_guard_draw_done
+		):
+			continue
 
-	if not _destruction_active_this_round(
-		game
-	):
-		return _empty_kroni_event(
-			player
-		)
+		player.gremory_lord_guard_draw_done = true
 
-	player.kroni_consume_done = true
-
-	var hunger_before: int = int(
-		player.kroni_hunger
-	)
-
-	var hunger_event: Dictionary = (
-		_gain_kroni_hunger(
+		var drawn_card = _draw_outside_development(
 			game,
-			player
+			player,
+			rules,
+			random_source
 		)
-	)
 
-	var gorge_soul_gain: int = 0
+		var discarded_card = null
 
-	if (
-		player.kroni_hunger >= 1
-		and player.kroni_personally_defeated_guard
-	):
-		player.souls += 1
-		gorge_soul_gain = 1
-
-	return {
-		"triggered": true,
-		"player_id": int(
-			player.pid
-		),
-		"hunger_before": hunger_before,
-		"hunger_after": int(
-			player.kroni_hunger
-		),
-		"personal_tear_gain": int(
-			hunger_event.get(
-				"personal_tear_gain",
-				0
+		if not player.hand.is_empty():
+			var lowest_index: int = _lowest_card_index(
+				player.hand
 			)
-		),
-		"harvested_card": String(
-			hunger_event.get(
-				"harvested_card",
-				""
+
+			discarded_card = player.hand[
+				lowest_index
+			]
+
+			player.hand.remove_at(
+				lowest_index
 			)
-		),
-		"harvested_by": int(
-			hunger_event.get(
-				"harvested_by",
-				-1
+
+			game.discard.append(
+				discarded_card
 			)
-		),
-		"gorge_soul_gain": gorge_soul_gain,
-	}
-
-
-static func _gain_kroni_hunger(
-	game,
-	player
-) -> Dictionary:
-	var was_two: bool = (
-		player.kroni_hunger == 2
-	)
-
-	player.kroni_hunger += 1
-
-	if (
-		was_two
-		and not player.kroni_tear_milestone_fired
-	):
-		player.kroni_tear_milestone_fired = true
-
-		var tear_event: Dictionary = (
-			_gain_personal_tear(
-				game,
-				player
-			)
-		)
 
 		return {
-			"personal_tear_gain": 1,
-			"harvested_card": String(
-				tear_event.get(
-					"harvested_card",
-					""
+			"triggered": true,
+			"player_id": int(
+				player.pid
+			),
+			"drawn_card": (
+				""
+				if drawn_card == null
+				else _card_id(
+					drawn_card
 				)
 			),
-			"harvested_by": int(
-				tear_event.get(
-					"harvested_by",
-					-1
+			"discarded_card": (
+				""
+				if discarded_card == null
+				else _card_id(
+					discarded_card
 				)
 			),
 		}
 
-	return {
-		"personal_tear_gain": 0,
-		"harvested_card": "",
-		"harvested_by": -1,
-	}
+	return _empty_gremory_guard_trigger()
 
 
 static func _draw_outside_development(
@@ -769,6 +741,14 @@ static func _action_caused_destruction(
 	):
 		return true
 
+	if bool(
+		action_result.get(
+			"banished",
+			false
+		)
+	):
+		return true
+
 	if not String(
 		action_result.get(
 			"siphoned_card",
@@ -796,19 +776,6 @@ static func _action_caused_destruction(
 		return true
 
 	return false
-
-
-static func _destruction_active_this_round(
-	game
-) -> bool:
-	return int(
-		game.get_meta(
-			"any_destruction_round",
-			-1
-		)
-	) == int(
-		game.round
-	)
 
 
 static func _gain_personal_tear(
@@ -839,6 +806,8 @@ static func _trigger_gremory_harvest(
 		):
 			continue
 
+		player.gremory_veil_draw_done = true
+
 		for index in range(
 			game.discard.size() - 1,
 			-1,
@@ -860,8 +829,6 @@ static func _trigger_gremory_harvest(
 			player.hand.append(
 				card
 			)
-
-			player.gremory_veil_draw_done = true
 
 			return {
 				"harvested_card": _card_id(
@@ -999,6 +966,32 @@ static func _suit_count(
 	return count
 
 
+static func _lowest_card_index(
+	cards: Array
+) -> int:
+	if cards.is_empty():
+		return -1
+
+	var lowest_index: int = 0
+	var lowest_value: int = int(
+		cards[0].value
+	)
+
+	for index in range(
+		1,
+		cards.size()
+	):
+		var current_value: int = int(
+			cards[index].value
+		)
+
+		if current_value < lowest_value:
+			lowest_index = index
+			lowest_value = current_value
+
+	return lowest_index
+
+
 static func _decision_is_pass(
 	decision: Dictionary
 ) -> bool:
@@ -1013,36 +1006,12 @@ static func _decision_is_pass(
 	)
 
 
-static func _empty_kroni_event(
-	player
-) -> Dictionary:
+static func _empty_gremory_guard_trigger() -> Dictionary:
 	return {
 		"triggered": false,
-		"player_id": (
-			-1
-			if player == null
-			else int(
-				player.pid
-			)
-		),
-		"hunger_before": (
-			0
-			if player == null
-			else int(
-				player.kroni_hunger
-			)
-		),
-		"hunger_after": (
-			0
-			if player == null
-			else int(
-				player.kroni_hunger
-			)
-		),
-		"personal_tear_gain": 0,
-		"harvested_card": "",
-		"harvested_by": -1,
-		"gorge_soul_gain": 0,
+		"player_id": -1,
+		"drawn_card": "",
+		"discarded_card": "",
 	}
 
 

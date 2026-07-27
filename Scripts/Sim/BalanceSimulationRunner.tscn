@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c1dawu7qx0okw"]
+
+[ext_resource type="Script" path="res://Scripts/Sim/BalanceSimulationRunner.gd" id="1_balance"]
+
+[node name="BalanceSimulationRunner" type="Node"]
+script = ExtResource("1_balance")
