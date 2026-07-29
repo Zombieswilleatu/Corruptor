@@ -213,6 +213,16 @@ static func _resolve_player_summon(
 		chosen_lord
 	)
 
+	if (
+		rules.lord_threat_retention
+		and player.return_threat_override >= 0
+	):
+		player.threat = player.return_threat_override
+
+	# The retained value is a property of the immediately preceding Banishment,
+	# not a reusable buff for later summons.
+	player.return_threat_override = -1
+
 	var vessel_applied: bool = false
 
 	if player.vessel_offered_lord == chosen_lord:

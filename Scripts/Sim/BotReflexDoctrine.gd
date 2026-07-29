@@ -595,7 +595,8 @@ static func _minimal_hunt_commit(
 		)
 		+ _effective_guard_total(
 			actor,
-			opponent.lord_guards
+			opponent.lord_guards,
+			rules
 		)
 		+ _sigil_value(
 			game,
@@ -605,7 +606,8 @@ static func _minimal_hunt_commit(
 					ZONE_LORD,
 					""
 				)
-			)
+			),
+			rules
 		)
 	)
 
@@ -646,11 +648,14 @@ static func _minimal_siege_commit(
 	var required_defense: int = (
 		_castle_defense(
 			game,
-			target_castle
+			target_castle,
+			opponent,
+			rules
 		)
 		+ _effective_guard_total(
 			actor,
-			opponent.castle_guards
+			opponent.castle_guards,
+			rules
 		)
 		+ _sigil_value(
 			game,
@@ -660,7 +665,8 @@ static func _minimal_siege_commit(
 					ZONE_CASTLE,
 					""
 				)
-			)
+			),
+			rules
 		)
 	)
 
@@ -855,11 +861,14 @@ static func _best_reflex_siege_target(
 		var required_strength: int = (
 			_castle_defense(
 				game,
-				castle_name
+				castle_name,
+				opponent,
+				rules
 			)
 			+ _effective_guard_total(
 				actor,
-				opponent.castle_guards
+				opponent.castle_guards,
+				rules
 			)
 			+ _sigil_value(
 				game,
@@ -869,7 +878,8 @@ static func _best_reflex_siege_target(
 						ZONE_CASTLE,
 						""
 					)
-				)
+				),
+				rules
 			)
 		)
 
@@ -899,10 +909,19 @@ static func _best_reflex_siege_target(
 
 static func _effective_guard_total(
 	attacker,
-	guards: Array
+	guards: Array,
+	rules: RuleConfig
 ) -> int:
 	if guards.is_empty():
 		return 0
+
+	# The after-Resolution action still targets face-down Guards. Momentum
+	# does not grant the bot information a player cannot see.
+	if rules.fog_of_war:
+		return max(
+			guards.size(),
+			int(round(float(guards.size()) * 2.83))
+		)
 
 	var total: int = _card_total(
 		guards
@@ -1006,7 +1025,9 @@ static func _lord_base_defense(
 
 static func _castle_defense(
 	game,
-	castle_name: String
+	castle_name: String,
+	defender = null,
+	rules: RuleConfig = null
 ) -> int:
 	var defense: int = int(
 		CASTLE_DEFENSES.get(
@@ -1027,13 +1048,27 @@ static func _castle_defense(
 			defense - 1
 		)
 
+	if (
+		rules != null
+		and rules.castle_scarring
+		and defender != null
+	):
+		defense = max(
+			1,
+			defense - (
+				int(defender.castle_scars.get(castle_name, 0))
+				* rules.castle_scar_def
+			)
+		)
+
 	return defense
 
 
 static func _sigil_value(
 	game,
 	player,
-	sigil_state: String
+	sigil_state: String,
+	rules: RuleConfig = null
 ) -> int:
 	if not sigil_state in [
 		SIGIL_FRESH,
@@ -1046,6 +1081,9 @@ static func _sigil_value(
 		if sigil_state == SIGIL_FRESH
 		else 1
 	)
+
+	if rules != null and rules.sigil_flat:
+		return value
 
 	if player.castles.has(
 		"Keep"

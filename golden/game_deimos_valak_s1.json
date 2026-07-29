@@ -12,40 +12,77 @@
       "MAX_THREAT": 4,
       "WIN_SOULS": 7
     },
-    "schema_version": 3,
+    "schema_version": 4,
     "variant": {
+      "adaptive_doctrine": false,
       "ai_dominion_drive": true,
+      "castle_loadout": false,
+      "castle_permanent_loss": false,
+      "castle_scar_def": 2,
+      "castle_scarring": false,
       "castle_tear_uncapped": false,
+      "castleless_siege": false,
+      "castleless_tear_neutral": true,
       "consume_the_siege": false,
       "deimos_claims_breach": 1,
       "deimos_summon_cost": 7,
       "deimos_war_machine_free": true,
+      "fix_a": false,
+      "fix_b": false,
+      "fog_of_war": false,
       "gremory_summon_cost": 6,
       "humbaba_gate4": true,
       "humbaba_patient": true,
       "humbaba_seal": true,
+      "humbaba_sigil_commit": false,
       "humbaba_toll": true,
       "invocation_gate": 5,
       "invocation_repeatable": false,
       "kroni_def_soft": false,
       "kroni_hunger_decay": true,
+      "lane_kill_soul": false,
+      "lord_threat_retention": false,
+      "march_damage": 2,
+      "march_exception_pair": true,
+      "march_max_in_flight": 1,
+      "march_steps": 3,
+      "march_suit_bonus": 1,
+      "march_threshold": 3,
+      "marching": false,
+      "max_castles": 3,
+      "momentum": false,
+      "momentum_band": 3,
       "neutral_tear_on_banish": true,
       "no_backwash": false,
+      "profane_no_castle_gate": false,
       "profane_ruins_req": 1,
       "recoil_hunts_only": true,
       "recoil_lowest": true,
       "reconfig_neutral": false,
       "reconfig_strict": true,
       "reconfig_tokens_needed": 5,
+      "reflex_bid": true,
+      "repair_escalation": 0,
+      "sigil_flat": false,
       "sigil_soul_fresh_only": false,
       "veil_drift": 0,
-      "war_machine_ignores_profaned": false
+      "veil_on_permanent_loss": false,
+      "war_machine_ignores_profaned": false,
+      "ward_anti_repeat": true,
+      "ward_commit_any": false,
+      "ward_garrison_refund": false,
+      "ward_read": false,
+      "ward_threshold": false
     }
   },
   "name": "game_deimos_valak_s1",
   "seed": 1,
   "snapshots": [
     {
+      "action_memory": [
+        {},
+        {}
+      ],
       "breach": null,
       "breach_owner": -1,
       "checkpoint": "game:deal",
@@ -117,6 +154,8 @@
           "action": "",
           "alive": true,
           "castle_guards": [],
+          "castle_repairs": {},
+          "castle_scars": {},
           "castles": [
             "Bastion",
             "Keep",
@@ -156,6 +195,8 @@
           "lord_pool": [
             "Deimos"
           ],
+          "lost_castles": [],
+          "marchers": [],
           "odradek_guards_defeated": 0,
           "odradek_recoil_done": false,
           "orias_snare_active": false,
@@ -167,6 +208,7 @@
           "profane_this_round": false,
           "profaned_castles": [],
           "repair_token": 0,
+          "return_threat_override": null,
           "ruined_castles": [],
           "sigils": {
             "Castle": "",
@@ -180,6 +222,7 @@
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "",
+          "ward_turned": [],
           "was_castle_attacked_prev": false,
           "was_hunted": false,
           "was_lord_attacked_prev": false,
@@ -190,6 +233,8 @@
           "action": "",
           "alive": true,
           "castle_guards": [],
+          "castle_repairs": {},
+          "castle_scars": {},
           "castles": [
             "Bastion",
             "Keep",
@@ -229,6 +274,8 @@
           "lord_pool": [
             "Valak"
           ],
+          "lost_castles": [],
+          "marchers": [],
           "odradek_guards_defeated": 0,
           "odradek_recoil_done": false,
           "orias_snare_active": false,
@@ -240,6 +287,7 @@
           "profane_this_round": false,
           "profaned_castles": [],
           "repair_token": 0,
+          "return_threat_override": null,
           "ruined_castles": [],
           "sigils": {
             "Castle": "",
@@ -253,6 +301,7 @@
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "",
+          "ward_turned": [],
           "was_castle_attacked_prev": false,
           "was_hunted": false,
           "was_lord_attacked_prev": false,
@@ -266,6 +315,10 @@
       "winner": null
     },
     {
+      "action_memory": [
+        {},
+        {}
+      ],
       "breach": "Deimos",
       "breach_owner": 0,
       "checkpoint": "round:01:end",
@@ -337,6 +390,8 @@
             "Penitent:3",
             "Vulture:2"
           ],
+          "castle_repairs": {},
+          "castle_scars": {},
           "castles": [
             "Bastion",
             "Keep",
@@ -374,6 +429,8 @@
           "lord_pool": [
             "Deimos"
           ],
+          "lost_castles": [],
+          "marchers": [],
           "odradek_guards_defeated": 0,
           "odradek_recoil_done": false,
           "orias_snare_active": false,
@@ -385,6 +442,7 @@
           "profane_this_round": false,
           "profaned_castles": [],
           "repair_token": 0,
+          "return_threat_override": null,
           "ruined_castles": [],
           "sigils": {
             "Castle": "",
@@ -398,6 +456,7 @@
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "",
+          "ward_turned": [],
           "was_castle_attacked_prev": false,
           "was_hunted": true,
           "was_lord_attacked_prev": false,
@@ -412,6 +471,8 @@
             "Wright:3",
             "Wright:3"
           ],
+          "castle_repairs": {},
+          "castle_scars": {},
           "castles": [
             "Bastion",
             "Keep",
@@ -451,6 +512,8 @@
           "lord_pool": [
             "Valak"
           ],
+          "lost_castles": [],
+          "marchers": [],
           "odradek_guards_defeated": 0,
           "odradek_recoil_done": false,
           "orias_snare_active": false,
@@ -462,6 +525,7 @@
           "profane_this_round": false,
           "profaned_castles": [],
           "repair_token": 0,
+          "return_threat_override": null,
           "ruined_castles": [
             "Stockpile"
           ],
@@ -477,6 +541,7 @@
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "",
+          "ward_turned": [],
           "was_castle_attacked_prev": false,
           "was_hunted": false,
           "was_lord_attacked_prev": false,
@@ -490,6 +555,10 @@
       "winner": null
     },
     {
+      "action_memory": [
+        {},
+        {}
+      ],
       "breach": "Deimos",
       "breach_owner": 0,
       "checkpoint": "round:02:end",
@@ -558,6 +627,8 @@
             "Penitent:3",
             "Vulture:2"
           ],
+          "castle_repairs": {},
+          "castle_scars": {},
           "castles": [
             "Bastion",
             "Keep",
@@ -597,6 +668,8 @@
           "lord_pool": [
             "Deimos"
           ],
+          "lost_castles": [],
+          "marchers": [],
           "odradek_guards_defeated": 0,
           "odradek_recoil_done": false,
           "orias_snare_active": false,
@@ -608,6 +681,7 @@
           "profane_this_round": false,
           "profaned_castles": [],
           "repair_token": 0,
+          "return_threat_override": null,
           "ruined_castles": [],
           "sigils": {
             "Castle": "",
@@ -621,6 +695,7 @@
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "",
+          "ward_turned": [],
           "was_castle_attacked_prev": false,
           "was_hunted": false,
           "was_lord_attacked_prev": true,
@@ -635,6 +710,8 @@
             "Wright:3",
             "Wright:3"
           ],
+          "castle_repairs": {},
+          "castle_scars": {},
           "castles": [
             "Bastion",
             "Keep",
@@ -676,6 +753,8 @@
           "lord_pool": [
             "Valak"
           ],
+          "lost_castles": [],
+          "marchers": [],
           "odradek_guards_defeated": 0,
           "odradek_recoil_done": false,
           "orias_snare_active": false,
@@ -687,6 +766,7 @@
           "profane_this_round": false,
           "profaned_castles": [],
           "repair_token": 0,
+          "return_threat_override": null,
           "ruined_castles": [],
           "sigils": {
             "Castle": "",
@@ -700,6 +780,7 @@
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "Lord",
+          "ward_turned": [],
           "was_castle_attacked_prev": true,
           "was_hunted": true,
           "was_lord_attacked_prev": false,
@@ -713,6 +794,10 @@
       "winner": null
     },
     {
+      "action_memory": [
+        {},
+        {}
+      ],
       "breach": "Deimos",
       "breach_owner": 0,
       "checkpoint": "round:03:end",
@@ -777,6 +862,8 @@
             "Penitent:3",
             "Vulture:2"
           ],
+          "castle_repairs": {},
+          "castle_scars": {},
           "castles": [
             "Bastion",
             "Keep",
@@ -818,6 +905,8 @@
           "lord_pool": [
             "Deimos"
           ],
+          "lost_castles": [],
+          "marchers": [],
           "odradek_guards_defeated": 0,
           "odradek_recoil_done": false,
           "orias_snare_active": false,
@@ -829,6 +918,7 @@
           "profane_this_round": false,
           "profaned_castles": [],
           "repair_token": 0,
+          "return_threat_override": null,
           "ruined_castles": [],
           "sigils": {
             "Castle": "",
@@ -842,6 +932,7 @@
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "",
+          "ward_turned": [],
           "was_castle_attacked_prev": false,
           "was_hunted": false,
           "was_lord_attacked_prev": false,
@@ -854,6 +945,8 @@
           "castle_guards": [
             "Wright:3"
           ],
+          "castle_repairs": {},
+          "castle_scars": {},
           "castles": [
             "Bastion",
             "Keep",
@@ -899,6 +992,8 @@
           "lord_pool": [
             "Valak"
           ],
+          "lost_castles": [],
+          "marchers": [],
           "odradek_guards_defeated": 0,
           "odradek_recoil_done": false,
           "orias_snare_active": false,
@@ -910,6 +1005,7 @@
           "profane_this_round": false,
           "profaned_castles": [],
           "repair_token": 0,
+          "return_threat_override": null,
           "ruined_castles": [
             "Stockpile"
           ],
@@ -925,6 +1021,7 @@
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "Castle",
+          "ward_turned": [],
           "was_castle_attacked_prev": false,
           "was_hunted": false,
           "was_lord_attacked_prev": true,
@@ -938,6 +1035,10 @@
       "winner": null
     },
     {
+      "action_memory": [
+        {},
+        {}
+      ],
       "breach": "Deimos",
       "breach_owner": 0,
       "checkpoint": "round:04:end",
@@ -1005,6 +1106,8 @@
             "Penitent:3",
             "Vulture:2"
           ],
+          "castle_repairs": {},
+          "castle_scars": {},
           "castles": [
             "Bastion",
             "Keep",
@@ -1046,6 +1149,8 @@
           "lord_pool": [
             "Deimos"
           ],
+          "lost_castles": [],
+          "marchers": [],
           "odradek_guards_defeated": 0,
           "odradek_recoil_done": false,
           "orias_snare_active": false,
@@ -1057,6 +1162,7 @@
           "profane_this_round": false,
           "profaned_castles": [],
           "repair_token": 0,
+          "return_threat_override": null,
           "ruined_castles": [],
           "sigils": {
             "Castle": "",
@@ -1070,6 +1176,7 @@
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "Lord",
+          "ward_turned": [],
           "was_castle_attacked_prev": false,
           "was_hunted": true,
           "was_lord_attacked_prev": false,
@@ -1082,6 +1189,8 @@
           "castle_guards": [
             "Wright:3"
           ],
+          "castle_repairs": {},
+          "castle_scars": {},
           "castles": [
             "Bastion",
             "Keep",
@@ -1124,6 +1233,8 @@
           "lord_pool": [
             "Valak"
           ],
+          "lost_castles": [],
+          "marchers": [],
           "odradek_guards_defeated": 0,
           "odradek_recoil_done": false,
           "orias_snare_active": false,
@@ -1135,6 +1246,7 @@
           "profane_this_round": false,
           "profaned_castles": [],
           "repair_token": 0,
+          "return_threat_override": null,
           "ruined_castles": [],
           "sigils": {
             "Castle": "",
@@ -1148,6 +1260,7 @@
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "",
+          "ward_turned": [],
           "was_castle_attacked_prev": true,
           "was_hunted": false,
           "was_lord_attacked_prev": false,
@@ -1161,6 +1274,10 @@
       "winner": null
     },
     {
+      "action_memory": [
+        {},
+        {}
+      ],
       "breach": "Deimos",
       "breach_owner": 0,
       "checkpoint": "round:05:end",
@@ -1226,6 +1343,8 @@
             "Penitent:3",
             "Vulture:2"
           ],
+          "castle_repairs": {},
+          "castle_scars": {},
           "castles": [
             "Bastion",
             "Keep",
@@ -1265,6 +1384,8 @@
           "lord_pool": [
             "Deimos"
           ],
+          "lost_castles": [],
+          "marchers": [],
           "odradek_guards_defeated": 0,
           "odradek_recoil_done": false,
           "orias_snare_active": false,
@@ -1276,6 +1397,7 @@
           "profane_this_round": false,
           "profaned_castles": [],
           "repair_token": 0,
+          "return_threat_override": null,
           "ruined_castles": [],
           "sigils": {
             "Castle": "",
@@ -1289,6 +1411,7 @@
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "",
+          "ward_turned": [],
           "was_castle_attacked_prev": false,
           "was_hunted": false,
           "was_lord_attacked_prev": true,
@@ -1301,6 +1424,8 @@
           "castle_guards": [
             "Wright:3"
           ],
+          "castle_repairs": {},
+          "castle_scars": {},
           "castles": [
             "Bastion",
             "Keep",
@@ -1346,6 +1471,8 @@
           "lord_pool": [
             "Valak"
           ],
+          "lost_castles": [],
+          "marchers": [],
           "odradek_guards_defeated": 0,
           "odradek_recoil_done": false,
           "orias_snare_active": false,
@@ -1357,6 +1484,7 @@
           "profane_this_round": false,
           "profaned_castles": [],
           "repair_token": 0,
+          "return_threat_override": null,
           "ruined_castles": [
             "Stockpile"
           ],
@@ -1372,6 +1500,7 @@
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "Lord",
+          "ward_turned": [],
           "was_castle_attacked_prev": false,
           "was_hunted": false,
           "was_lord_attacked_prev": false,
@@ -1385,6 +1514,10 @@
       "winner": null
     },
     {
+      "action_memory": [
+        {},
+        {}
+      ],
       "breach": "Deimos",
       "breach_owner": 0,
       "checkpoint": "round:06:end",
@@ -1458,6 +1591,8 @@
             "Penitent:3",
             "Vulture:2"
           ],
+          "castle_repairs": {},
+          "castle_scars": {},
           "castles": [
             "Bastion",
             "Keep",
@@ -1493,6 +1628,8 @@
           "lord_pool": [
             "Deimos"
           ],
+          "lost_castles": [],
+          "marchers": [],
           "odradek_guards_defeated": 0,
           "odradek_recoil_done": false,
           "orias_snare_active": false,
@@ -1504,6 +1641,7 @@
           "profane_this_round": false,
           "profaned_castles": [],
           "repair_token": 0,
+          "return_threat_override": null,
           "ruined_castles": [],
           "sigils": {
             "Castle": "",
@@ -1517,6 +1655,7 @@
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "",
+          "ward_turned": [],
           "was_castle_attacked_prev": false,
           "was_hunted": true,
           "was_lord_attacked_prev": false,
@@ -1527,6 +1666,8 @@
           "action": "Ward",
           "alive": true,
           "castle_guards": [],
+          "castle_repairs": {},
+          "castle_scars": {},
           "castles": [
             "Bastion",
             "Keep",
@@ -1568,6 +1709,8 @@
           "lord_pool": [
             "Valak"
           ],
+          "lost_castles": [],
+          "marchers": [],
           "odradek_guards_defeated": 0,
           "odradek_recoil_done": false,
           "orias_snare_active": false,
@@ -1579,6 +1722,7 @@
           "profane_this_round": false,
           "profaned_castles": [],
           "repair_token": 0,
+          "return_threat_override": null,
           "ruined_castles": [
             "Stockpile"
           ],
@@ -1594,6 +1738,7 @@
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "Castle",
+          "ward_turned": [],
           "was_castle_attacked_prev": true,
           "was_hunted": false,
           "was_lord_attacked_prev": false,
@@ -1607,6 +1752,10 @@
       "winner": null
     },
     {
+      "action_memory": [
+        {},
+        {}
+      ],
       "breach": "Deimos",
       "breach_owner": 0,
       "checkpoint": "round:07:end",
@@ -1675,6 +1824,8 @@
             "Penitent:3",
             "Vulture:2"
           ],
+          "castle_repairs": {},
+          "castle_scars": {},
           "castles": [
             "Bastion",
             "Keep",
@@ -1714,6 +1865,8 @@
           "lord_pool": [
             "Deimos"
           ],
+          "lost_castles": [],
+          "marchers": [],
           "odradek_guards_defeated": 0,
           "odradek_recoil_done": false,
           "orias_snare_active": false,
@@ -1725,6 +1878,7 @@
           "profane_this_round": false,
           "profaned_castles": [],
           "repair_token": 0,
+          "return_threat_override": null,
           "ruined_castles": [],
           "sigils": {
             "Castle": "",
@@ -1738,6 +1892,7 @@
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "",
+          "ward_turned": [],
           "was_castle_attacked_prev": false,
           "was_hunted": false,
           "was_lord_attacked_prev": true,
@@ -1748,6 +1903,8 @@
           "action": "",
           "alive": true,
           "castle_guards": [],
+          "castle_repairs": {},
+          "castle_scars": {},
           "castles": [
             "Bastion",
             "Keep",
@@ -1792,6 +1949,8 @@
           "lord_pool": [
             "Valak"
           ],
+          "lost_castles": [],
+          "marchers": [],
           "odradek_guards_defeated": 0,
           "odradek_recoil_done": false,
           "orias_snare_active": false,
@@ -1803,6 +1962,7 @@
           "profane_this_round": false,
           "profaned_castles": [],
           "repair_token": 0,
+          "return_threat_override": null,
           "ruined_castles": [],
           "sigils": {
             "Castle": "",
@@ -1816,6 +1976,7 @@
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "",
+          "ward_turned": [],
           "was_castle_attacked_prev": true,
           "was_hunted": false,
           "was_lord_attacked_prev": false,
@@ -1829,6 +1990,10 @@
       "winner": 0
     },
     {
+      "action_memory": [
+        {},
+        {}
+      ],
       "breach": "Deimos",
       "breach_owner": 0,
       "checkpoint": "game:end",
@@ -1897,6 +2062,8 @@
             "Penitent:3",
             "Vulture:2"
           ],
+          "castle_repairs": {},
+          "castle_scars": {},
           "castles": [
             "Bastion",
             "Keep",
@@ -1936,6 +2103,8 @@
           "lord_pool": [
             "Deimos"
           ],
+          "lost_castles": [],
+          "marchers": [],
           "odradek_guards_defeated": 0,
           "odradek_recoil_done": false,
           "orias_snare_active": false,
@@ -1947,6 +2116,7 @@
           "profane_this_round": false,
           "profaned_castles": [],
           "repair_token": 0,
+          "return_threat_override": null,
           "ruined_castles": [],
           "sigils": {
             "Castle": "",
@@ -1960,6 +2130,7 @@
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "",
+          "ward_turned": [],
           "was_castle_attacked_prev": false,
           "was_hunted": false,
           "was_lord_attacked_prev": true,
@@ -1970,6 +2141,8 @@
           "action": "",
           "alive": true,
           "castle_guards": [],
+          "castle_repairs": {},
+          "castle_scars": {},
           "castles": [
             "Bastion",
             "Keep",
@@ -2014,6 +2187,8 @@
           "lord_pool": [
             "Valak"
           ],
+          "lost_castles": [],
+          "marchers": [],
           "odradek_guards_defeated": 0,
           "odradek_recoil_done": false,
           "orias_snare_active": false,
@@ -2025,6 +2200,7 @@
           "profane_this_round": false,
           "profaned_castles": [],
           "repair_token": 0,
+          "return_threat_override": null,
           "ruined_castles": [],
           "sigils": {
             "Castle": "",
@@ -2038,6 +2214,7 @@
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "",
+          "ward_turned": [],
           "was_castle_attacked_prev": true,
           "was_hunted": false,
           "was_lord_attacked_prev": false,
@@ -2051,5 +2228,5 @@
       "winner": 0
     }
   ],
-  "trace_hash": "b417d0adcbba55d60a5d61355e4b211779047504069f1a341494a20269009814"
+  "trace_hash": "1cde2819dee661535da6ea6a9d8031da58b174ecadecce91fe95496a2a677e2f"
 }

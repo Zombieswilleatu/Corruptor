@@ -15,6 +15,11 @@ var repair_token: int = 0
 var repaired_this_round: bool = false
 var repair_token_used_this_repair: bool = false
 
+# A banished Lord normally returns at its printed Threat. The v6.5 decay
+# profile records the scarred return value here and consumes it when that Lord
+# is next summoned.
+var return_threat_override: int = -1
+
 var first_summon_done: bool = false
 var cataclysmic_used: bool = false
 var vessel_used: bool = false
@@ -67,6 +72,17 @@ var castle_guards: Array = []
 var lord_guards: Array = []
 var committed: Array = []
 var penitent_temp_guards: Array = []
+
+# v6.5 structural state.  These fields are persistent board facts, not UI
+# hints: they must survive simulation copies and appear in trace snapshots.
+var castle_repairs: Dictionary = {}
+var castle_scars: Dictionary = {}
+var lost_castles: Array[String] = []
+var ward_turned: Dictionary = {}
+
+# Each marcher stores its physical Card plus its mutable lane value and
+# position: {"card", "value", "lane", "pos"}.
+var marchers: Array[Dictionary] = []
 
 var castles: Array[String] = []
 var ruined_castles: Array[String] = []
@@ -131,6 +147,7 @@ func reset_round_state() -> void:
 
 	committed.clear()
 	penitent_temp_guards.clear()
+	ward_turned.clear()
 
 
 func duplicate_state() -> PlayerState:
@@ -150,6 +167,7 @@ func duplicate_state() -> PlayerState:
 
 	copy.repaired_this_round = repaired_this_round
 	copy.repair_token_used_this_repair = repair_token_used_this_repair
+	copy.return_threat_override = return_threat_override
 
 	copy.first_summon_done = first_summon_done
 	copy.cataclysmic_used = cataclysmic_used
@@ -206,6 +224,18 @@ func duplicate_state() -> PlayerState:
 		penitent_temp_guards
 	)
 
+	copy.castle_repairs = castle_repairs.duplicate(true)
+	copy.castle_scars = castle_scars.duplicate(true)
+	# Preserve typed-array metadata while copying the v6.5 board state. Assigning
+	# a generic duplicate at runtime is rejected by Godot for Array[String].
+	copy.lost_castles.clear()
+	for castle_name: String in lost_castles:
+		copy.lost_castles.append(castle_name)
+	copy.ward_turned = ward_turned.duplicate(true)
+	copy.marchers.clear()
+	for marcher: Dictionary in _duplicate_marchers(marchers):
+		copy.marchers.append(marcher)
+
 	copy.castles = castles.duplicate()
 	copy.ruined_castles = ruined_castles.duplicate()
 	copy.profaned_castles = profaned_castles.duplicate()
@@ -215,6 +245,26 @@ func duplicate_state() -> PlayerState:
 	copy.derived_lord_def = derived_lord_def
 
 	return copy
+
+
+func _duplicate_marchers(
+	entries: Array[Dictionary]
+) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+
+	for entry in entries:
+		var copied: Dictionary = entry.duplicate(true)
+		var card = entry.get("card", null)
+
+		if (
+			card != null
+			and card.has_method("duplicate_card")
+		):
+			copied["card"] = card.duplicate_card()
+
+		result.append(copied)
+
+	return result
 
 
 func _duplicate_cards(

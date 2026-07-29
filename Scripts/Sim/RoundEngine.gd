@@ -12,6 +12,10 @@ const KALLIGAN_BREACH_REPAIR_DISCOUNT: int = 1
 
 const SIGIL_ZONES: Array[String] = ["Lord", "Castle"]
 
+const DrawEngineData = preload(
+	"res://Scripts/Sim/DrawEngine.gd"
+)
+
 const CASTLE_REPAIR_COSTS: Dictionary = {
 	"Keep": 13,
 	"Bastion": 11,
@@ -24,12 +28,18 @@ const CASTLE_REPAIR_COSTS: Dictionary = {
 static func advance_to_round_draw(
 	game,
 	round_number: int,
-	rules: RuleConfig
+	rules: RuleConfig,
+	random_source = null
 ) -> void:
 	begin_round(game, round_number)
 	_update_sigils(game, rules)
 	_apply_veil_drift(game, rules)
 	_run_draw_step(game, rules)
+	refresh_market_offers(
+		game,
+		rules,
+		random_source
+	)
 	game.refresh_derived_values()
 
 
@@ -37,12 +47,14 @@ static func advance_to_round_market(
 	game,
 	round_number: int,
 	rules: RuleConfig,
-	market_choices: Dictionary
+	market_choices: Dictionary,
+	random_source = null
 ) -> Array[Dictionary]:
 	advance_to_round_draw(
 		game,
 		round_number,
-		rules
+		rules,
+		random_source
 	)
 
 	var results: Array[Dictionary] = resolve_market(
@@ -59,13 +71,15 @@ static func advance_to_round_repair(
 	round_number: int,
 	rules: RuleConfig,
 	market_choices: Dictionary,
-	repair_choices: Dictionary
+	repair_choices: Dictionary,
+	random_source = null
 ) -> Array[Dictionary]:
 	advance_to_round_market(
 		game,
 		round_number,
 		rules,
-		market_choices
+		market_choices,
+		random_source
 	)
 
 	var results: Array[Dictionary] = resolve_repairs(
@@ -142,6 +156,90 @@ static func resolve_market(
 		)
 
 	return results
+
+
+static func refresh_market_offers(
+	game,
+	rules: RuleConfig,
+	random_source = null
+) -> Dictionary:
+	assert(
+		game != null,
+		"Market refresh requires a GameState."
+	)
+
+	assert(
+		rules != null,
+		"Market refresh requires RuleConfig."
+	)
+
+	# Market refresh is a measured lab feature distinct from Marching Orders.
+	# Canonical DE v2 deliberately keeps its static Market behavior so its
+	# recorded golden ruleset remains unchanged.
+	if not rules.market_refresh:
+		return {
+			"action": "market_rollover",
+			"enabled": false,
+			"reason": "market_refresh_disabled",
+			"rolled_cards": [],
+			"market_cards": _card_ids(game.market),
+			"recycled_count": 0,
+			"reused_rolled_offers": false,
+		}
+
+	# Setup deals the opening offers.  Let players see that initial Market
+	# during round one; begin the rolling refresh with round two.
+	if game.round <= 1:
+		return {
+			"action": "market_rollover",
+			"enabled": false,
+			"reason": "opening_market",
+			"rolled_cards": [],
+			"market_cards": _card_ids(game.market),
+			"recycled_count": 0,
+			"reused_rolled_offers": false,
+		}
+
+	var rolled_cards: Array = game.market.duplicate()
+	game.market.clear()
+
+	# Draw a replacement row before returning old offers below the draw pile.
+	# DrawEngine owns discard recycling, so an exhausted deck refreshes through
+	# the exact same deterministic path as a normal draw.  Only a fully
+	# exhausted game has to reuse the row it just rolled.
+	var recycled_count: int = 0
+	var reused_rolled_offers: bool = false
+	while game.market.size() < rules.market_size:
+		if game.deck.is_empty() and not game.discard.is_empty():
+			recycled_count += game.discard.size()
+
+		var card = DrawEngineData.take_top_card(
+			game,
+			random_source
+		)
+		if card == null:
+			if reused_rolled_offers:
+				break
+			for rolled_card in rolled_cards:
+				game.deck.push_front(rolled_card)
+			reused_rolled_offers = true
+			continue
+
+		game.market.append(card)
+
+	if not reused_rolled_offers:
+		for rolled_card in rolled_cards:
+			game.deck.push_front(rolled_card)
+
+	return {
+		"action": "market_rollover",
+		"enabled": true,
+		"reason": "",
+		"rolled_cards": _card_ids(rolled_cards),
+		"market_cards": _card_ids(game.market),
+		"recycled_count": recycled_count,
+		"reused_rolled_offers": reused_rolled_offers,
+	}
 
 
 static func resolve_market_player(
@@ -307,7 +405,7 @@ static func resolve_repair_player(
 static func _resolve_player_repair(
 	game,
 	player,
-	_rules: RuleConfig,
+	rules: RuleConfig,
 	decision: Dictionary
 ) -> Dictionary:
 	var player_id := int(
@@ -379,7 +477,8 @@ static func _resolve_player_repair(
 		game,
 		player,
 		castle_name,
-		use_token
+		use_token,
+		rules
 	)
 
 	var raw_payment = decision.get(
@@ -474,6 +573,31 @@ static func _resolve_player_repair(
 			castle_name
 		)
 
+	# Repair history only exists when a profile consumes it.  Recording it in
+	# DE v2 is not harmless: it expands canonical snapshots despite the mechanic
+	# being disabled, so it must remain entirely inert outside the lab profile.
+	if rules.castle_scarring or rules.repair_escalation > 0:
+		player.castle_repairs[castle_name] = (
+			int(
+				player.castle_repairs.get(
+					castle_name,
+					0
+				)
+			)
+			+ 1
+		)
+
+	if rules.castle_scarring:
+		player.castle_scars[castle_name] = (
+			int(
+				player.castle_scars.get(
+					castle_name,
+					0
+				)
+			)
+			+ 1
+		)
+
 	player.repaired_this_round = true
 	player.repair_token_used_this_repair = use_token
 
@@ -512,12 +636,27 @@ static func repair_cost_for(
 	game,
 	player,
 	castle_name: String,
-	use_token: bool = false
+	use_token: bool = false,
+	rules: RuleConfig = null
 ) -> int:
 	if not CASTLE_REPAIR_COSTS.has(castle_name):
 		return 0
 
 	var repair_cost: int = int(CASTLE_REPAIR_COSTS[castle_name])
+
+	if rules != null and rules.castle_scarring and player != null:
+		repair_cost = max(
+			1,
+			repair_cost - (
+				int(
+					player.castle_scars.get(
+						castle_name,
+						0
+					)
+				)
+				* rules.castle_scar_def
+			)
+		)
 
 	if use_token:
 		repair_cost -= REPAIR_TOKEN_DISCOUNT
@@ -532,7 +671,20 @@ static func repair_cost_for(
 	if game != null and game.breach == "Kalligan":
 		repair_cost -= KALLIGAN_BREACH_REPAIR_DISCOUNT
 
-	return max(1, repair_cost)
+	repair_cost = max(1, repair_cost)
+
+	if rules != null and player != null:
+		repair_cost += (
+			rules.repair_escalation
+			* int(
+				player.castle_repairs.get(
+					castle_name,
+					0
+				)
+			)
+		)
+
+	return repair_cost
 
 
 static func _select_payment_cards(

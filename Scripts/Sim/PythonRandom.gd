@@ -53,6 +53,21 @@ func duplicate_state():
 	return copied_random
 
 
+func snapshot_state() -> Dictionary:
+	var copied_state: Array[int] = []
+
+	for value: int in _state:
+		copied_state.append(
+			value
+		)
+
+	return {
+		"algorithm": "MT19937-python-compatible",
+		"index": _index,
+		"state": copied_state,
+	}
+
+
 func next_uint32() -> int:
 	if _index >= STATE_SIZE:
 		_twist()

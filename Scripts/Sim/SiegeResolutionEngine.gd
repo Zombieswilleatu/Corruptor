@@ -105,6 +105,7 @@ static func resolve(
 	var target_castle: String = _choose_target_castle(
 		game,
 		defender,
+		rules,
 		String(
 			options.get(
 				"target_castle",
@@ -122,6 +123,30 @@ static func resolve(
 
 	defender.was_sieged = true
 	defender.last_sieged_castle = target_castle
+
+	# A threshold Ward turns the entire attack. The committed cards remain in
+	# the attacker zone for normal aftermath handling.
+	if (
+		rules.ward_threshold
+		and bool(defender.ward_turned.get(ZONE_CASTLE, false))
+	):
+		var display_strength: int = _committed_value(
+			attacker.committed
+		)
+		var display_structural_defense: int = _castle_defense(
+			game,
+			target_castle,
+			defender,
+			rules
+		)
+		game.refresh_derived_values()
+		return _ward_turned_result(
+			attacker_id,
+			defender_id,
+			target_castle,
+			display_strength,
+			display_structural_defense
+		)
 
 	var reflex: bool = bool(
 		options.get(
@@ -285,8 +310,23 @@ static func resolve(
 
 	var structural_defense: int = _castle_defense(
 		game,
-		target_castle
+		target_castle,
+		defender,
+		rules
 	)
+
+	var ward_commit_defense: int = 0
+
+	if (
+		rules.ward_commit_defense
+		and defender.action == "Ward"
+		and defender.ward_target == ZONE_CASTLE
+	):
+		ward_commit_defense = _effective_ward_commitment(
+			defender,
+			rules
+		)
+		structural_defense += ward_commit_defense
 
 	var penitent_bonus: int = _suit_bonus(
 		defender.committed,
@@ -305,7 +345,8 @@ static func resolve(
 	var sigil_value: int = _sigil_value(
 		game,
 		defender,
-		sigil_state
+		sigil_state,
+		rules
 	)
 
 	var combat_result: Dictionary = _resolve_combat(
@@ -347,6 +388,15 @@ static func resolve(
 		)
 	)
 
+	if (
+		rules.momentum
+		and destroyed
+		and int(game.reflex_winner) < 0
+		and excess >= 0
+		and excess <= rules.momentum_band
+	):
+		game.reflex_winner = attacker_id
+
 	if guards_lost > 0:
 		_mark_destruction(
 			game
@@ -384,6 +434,8 @@ static func resolve(
 
 	var neutral_tear_gain: int = 0
 	var personal_tear_gain: int = 0
+	var permanent_loss: bool = false
+	var permanent_loss_tear_gain: int = 0
 
 	var tear_source: String = ""
 
@@ -409,12 +461,21 @@ static func resolve(
 			target_castle
 		)
 
-		if not defender.ruined_castles.has(
-			target_castle
+		if (
+			rules.castle_permanent_loss
+			and int(defender.castle_scars.get(target_castle, 0)) >= 1
 		):
-			defender.ruined_castles.append(
-				target_castle
-			)
+			permanent_loss = true
+
+			if not defender.lost_castles.has(target_castle):
+				defender.lost_castles.append(target_castle)
+
+			if rules.veil_on_permanent_loss:
+				_gain_neutral_tear(game)
+				neutral_tear_gain += 1
+				permanent_loss_tear_gain = 1
+		elif not defender.ruined_castles.has(target_castle):
+			defender.ruined_castles.append(target_castle)
 
 		_mark_destruction(
 			game
@@ -664,6 +725,7 @@ static func resolve(
 		"war_machine_bonus": war_machine_bonus,
 		"pyroclasm_bonus": pyroclasm_bonus,
 		"structural_defense": structural_defense,
+		"ward_commit_defense": ward_commit_defense,
 		"penitent_bonus": penitent_bonus,
 		"siege_engine_bypass": siege_engine_bypass,
 		"fear_returned_card": (
@@ -717,6 +779,8 @@ static func resolve(
 		),
 		"neutral_tear_gain": neutral_tear_gain,
 		"personal_tear_gain": personal_tear_gain,
+		"permanent_loss": permanent_loss,
+		"permanent_loss_tear_gain": permanent_loss_tear_gain,
 		"tear_source": tear_source,
 		"harvested_card": harvested_card,
 		"harvested_by": harvested_by,
@@ -735,6 +799,55 @@ static func resolve(
 			ravenous_soul_gain
 		),
 		"won": won,
+	}
+
+
+static func _ward_turned_result(
+	attacker_id: int,
+	defender_id: int,
+	target_castle: String,
+	strength: int,
+	structural_defense: int
+) -> Dictionary:
+	return {
+		"action": "siege",
+		"reason": "ward_turned",
+		"attacker_id": attacker_id,
+		"defender_id": defender_id,
+		"target_castle": target_castle,
+		"reflex": false,
+		"strength": strength,
+		"war_machine_bonus": 0,
+		"pyroclasm_bonus": 0,
+		"structural_defense": structural_defense,
+		"penitent_bonus": 0,
+		"siege_engine_bypass": false,
+		"fear_returned_card": "",
+		"ignore_lowest_guard": false,
+		"butcher_suppressed_card": "",
+		"sigil_state": "",
+		"sigil_value": 0,
+		"guards_defeated": [],
+		"sigil_broken": false,
+		"destroyed": false,
+		"excess": 0,
+		"stopped_at": "ward_turned",
+		"recoil_card": "",
+		"siphoned_card": "",
+		"consumed": false,
+		"soul_gain": 0,
+		"neutral_tear_gain": 0,
+		"personal_tear_gain": 0,
+		"permanent_loss": false,
+		"permanent_loss_tear_gain": 0,
+		"tear_source": "",
+		"harvested_card": "",
+		"harvested_by": -1,
+		"gremory_ruin_trigger": _empty_gremory_ruin_trigger(),
+		"inferno_card": "",
+		"wildfire_zone": "",
+		"ravenous_soul_gain": 0,
+		"won": false,
 	}
 
 
@@ -1086,6 +1199,7 @@ static func _resolve_sigil_layer(
 static func _choose_target_castle(
 	game,
 	defender,
+	rules: RuleConfig,
 	requested_castle: String
 ) -> String:
 	if defender.castles.has(
@@ -1103,7 +1217,9 @@ static func _choose_target_castle(
 
 		var defense: int = _castle_defense(
 			game,
-			castle_name
+			castle_name,
+			defender,
+			rules
 		)
 
 		if (
@@ -1124,7 +1240,9 @@ static func _choose_target_castle(
 
 static func _castle_defense(
 	game,
-	castle_name: String
+	castle_name: String,
+	defender = null,
+	rules: RuleConfig = null
 ) -> int:
 	if not CASTLE_DEFENSES.has(
 		castle_name
@@ -1147,6 +1265,19 @@ static func _castle_defense(
 		defense = max(
 			1,
 			defense - 1
+		)
+
+	if (
+		rules != null
+		and rules.castle_scarring
+		and defender != null
+	):
+		defense = max(
+			1,
+			defense - (
+				int(defender.castle_scars.get(castle_name, 0))
+				* rules.castle_scar_def
+			)
 		)
 
 	return defense
@@ -1469,7 +1600,8 @@ static func _calculate_lord_defense(
 static func _sigil_value(
 	game,
 	player,
-	sigil_state: String
+	sigil_state: String,
+	rules: RuleConfig = null
 ) -> int:
 	if not [
 		SIGIL_FRESH,
@@ -1484,6 +1616,9 @@ static func _sigil_value(
 		if sigil_state == SIGIL_FRESH
 		else 1
 	)
+
+	if rules != null and rules.sigil_flat:
+		return value
 
 	if player.castles.has(
 		"Keep"
@@ -1616,6 +1751,26 @@ static func _gain_soul(
 		0,
 		amount
 	)
+
+
+static func _effective_ward_commitment(
+	player,
+	rules: RuleConfig
+) -> int:
+	var total: int = _committed_value(
+		player.committed
+	)
+
+	if (
+		rules.humbaba_sigil_commit
+		and player.lord == "Humbaba"
+	):
+		total += 2
+
+		if player.castles.has("Keep"):
+			total += 1
+
+	return total
 
 
 static func _committed_value(

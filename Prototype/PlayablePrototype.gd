@@ -21,6 +21,10 @@ const RoundEngineData = preload(
 	"res://Scripts/Sim/RoundEngine.gd"
 )
 
+const PlayableMatchSnapshotData = preload(
+	"res://Scripts/Sim/PlayableMatchSnapshot.gd"
+)
+
 
 const LORDS: Array[String] = [
 	"Orias",
@@ -82,21 +86,83 @@ const LORD_CARD_ABILITIES: Dictionary = {
 	"Odradek": [
 		"[b]Recoil / Backwash[/b] — The first Hunt against living Odradek each round discards the attacker's lowest committed card and gives Odradek 1 Soul. A surviving Hunt also raises the attacker's Threat.",
 		"[b]Reconfiguration[/b] — Gain 1 token after a round in which no Odradek Guard was Defeated. At 5 tokens, spend them for a personal Tear. Any Defeated Guard blocks progress that round; Banishment clears tokens.",
-		"[b]Breach: Paradox Geometry[/b] — Predict the Reflex winner's action; a correct guess discards their selected cards and lets Odradek execute the second action instead.",
+		"[b]Breach: Paradox Geometry[/b] — Predict the second-action winner's action; a correct guess discards their selected cards and lets Odradek execute it instead.",
 	],
 	"Kanifous": [
-		"[b]Invoke[/b] — After Reveal, resolve in committed-value order: gain 1 Threat, reveal 2 cards, choose one to bank in Garrison, and discard the other. If the first revealed card is value 4+, also create a Neutral Tear.",
+		"[b]Invoke[/b] — After Reveal, discard one Hand card as the toll, reveal 2 cards, choose one to bank in Garrison, and discard the other. With no Hand card, Invoke does not fire and the reveals return to the deck.",
 		"[b]Suit Invocation[/b] — Vulture: draw 3 then discard the lowest Hand card. Wright: move up to 2 Lord Guards to Castle. Penitent: draw 2 temporary Guards. Butcher: treat the lowest target Guard as already Defeated this round, without triggering Defeat effects.",
-		"[b]Resonance / Defiance[/b] — If the chosen card's value equals current Threat, gain 1 Soul. When Kanifous is banished, gain 1 Soul and draw 2 if still behind the attacker.",
+		"[b]Resonance / Defiance[/b] — If the chosen card's value equals current Threat, gain 1 Soul. A value-4+ first reveal creates a Neutral Tear. When Kanifous is banished, gain 1 Soul and draw 2 if still behind the attacker.",
 		"[b]Breach[/b] — Every draw outside the Draw step gives its recipient +1 Threat.",
 	],
 	"Humbaba": [
-		"[b]Living Fortress[/b] — Base Lord DEF is 2 + active Castles, with Bastion adding 2; Threat 2/3/4 reduces it by 1/2/3.",
-		"[b]Gate Guard / Patient[/b] — Hold 4 Castle Guards while no Castle is Ruined. If Humbaba did not Hunt or Siege, preserve one Sigil through its next upkeep.",
-		"[b]Toll[/b] — Under severe Soul pressure, Humbaba may ruin one of its own Castles to remove 1 enemy Soul and create a Neutral Tear.",
-		"[b]Seal / Breach[/b] — While living, Dominion requires one extra qualifying player. Humbaba Breach lowers active Castle structural DEF by 1 (minimum 1).",
+		"[b]Woven Into the Stones[/b] — Lord DEF equals 2 + active Castles; Bastion adds its usual +2, and Threat reductions still apply.",
+		"[b]Toll[/b] — Once per round under severe Soul pressure, ruin one of Humbaba's own Castles to remove 1 enemy Soul and create 1 Neutral Tear.",
+		"[b]Reactive Lane[/b] — Humbaba may hold a second marcher only as a response. An enemy marcher must already occupy the lane, and the new marcher is forced into it; Humbaba cannot open two attacks.",
+		"[b]Breach: The Stones Forget[/b] — While Humbaba is Banished, every active Castle has 1 less structural DEF (minimum 1).",
 	],
 }
+
+
+const UI_EXPLANATION_PATCH_VERSION: String = "ui-explanations-v1"
+
+const VEIL_COLLAPSE_THRESHOLD: int = 7
+const VEIL_WANING_THRESHOLD: int = 9
+
+const SOULS_LABEL: String = (
+	"[hint=SOULS — Ritual score. Reach the displayed target to win. "
+	+ "Common gains include ruining enemy Castles, Banishing enemy Lords, "
+	+ "destroying enemy marchers, surviving attacks behind a Ward, and Lord abilities.]"
+	+ "Souls[/hint]"
+)
+
+const TEARS_LABEL: String = (
+	"[hint=TEARS — Personal Dominion score. Common gains include Profane Ruins, "
+	+ "Cataclysmic Invocation, Offer the Vessel, Consume the Hunt, marching a Guard "
+	+ "through the enemy gate, and Lord abilities. Neutral Tears advance the Veil "
+	+ "but belong to neither player.]Tears[/hint]"
+)
+
+const THREAT_LABEL: String = (
+	"[hint=THREAT — Lord instability from 0 to 4. At Threat 2, 3, and 4, "
+	+ "Lord DEF is reduced by 1, 2, and 3. Several Lord powers also check Threat, "
+	+ "and game effects may raise or lower it.]Threat[/hint]"
+)
+
+const CASTLES_LABEL: String = (
+	"[hint=CASTLES — Active Castles grant their printed abilities. Ruined Castles "
+	+ "can be repaired. Profaned or permanently lost Castles cannot return. "
+	+ "Repairing adds a scar that reduces future structural DEF by 2; destroying "
+	+ "a scarred Castle can permanently lose it.]Castles[/hint]"
+)
+
+const CASTLE_HELP: Dictionary = {
+	"Keep": (
+		"KEEP — Base structural DEF 13. While active, your Ward and Sigil value "
+		+ "is increased by 1."
+	),
+	"Bastion": (
+		"BASTION — Base structural DEF 11. While active, your Lord gains 2 DEF."
+	),
+	"SummoningCircle": (
+		"SUMMONING CIRCLE — Base structural DEF 9. While active, your Lord costs "
+		+ "2 less total card value to Summon."
+	),
+	"Stockpile": (
+		"STOCKPILE — Base structural DEF 8. While active, draw 1 additional card "
+		+ "during the normal Draw step."
+	),
+	"SiegeEngine": (
+		"SIEGE ENGINE — Base structural DEF 7. While active, your Sieges bypass "
+		+ "the target Castle's structural DEF. It also enables Deimos's War Machine."
+	),
+}
+
+
+const MARCH_TRACK_STEPS: int = 3
+const MARCH_LANES: Array[String] = [
+	"Lord",
+	"Castle",
+]
 
 
 var controller = null
@@ -117,6 +183,12 @@ var bot_lord_card_label: RichTextLabel = null
 var human_lord_card_label: RichTextLabel = null
 var reveal_label: RichTextLabel = null
 var event_log: RichTextLabel = null
+var dominion_track_label: RichTextLabel = null
+var dominion_progress: ProgressBar = null
+var market_staging_labels: Array[RichTextLabel] = []
+var market_staging_panels: Array[PanelContainer] = []
+var human_staging_label: RichTextLabel = null
+var bot_staging_label: RichTextLabel = null
 
 var action_buttons: Dictionary = {}
 var target_label: Label = null
@@ -137,13 +209,22 @@ var resolve_button: Button = null
 var next_round_button: Button = null
 var development_option_button: Button = null
 var development_finish_button: Button = null
+var debug_export_button: Button = null
 
 var setup_row: Control = null
 var board_row: Control = null
+var marching_board_panel: Control = null
 var interaction_panel: Control = null
 var footer_row: Control = null
 
+var march_status_label: Label = null
+var march_lane_title_labels: Dictionary = {}
+var march_gate_labels: Dictionary = {}
+var march_slot_labels: Dictionary = {}
+var march_slot_panels: Dictionary = {}
+
 var selected_action: String = ""
+var active_match_seed: int = -1
 var log_entries: Array[String] = []
 var reported_development_phases: Dictionary = {}
 var queued_deploy_moves: Array[Dictionary] = []
@@ -281,6 +362,11 @@ func _build_interface() -> void:
 	)
 	page.add_child(
 		board_row
+	)
+
+	marching_board_panel = _build_marching_board()
+	page.add_child(
+		marching_board_panel
 	)
 
 	interaction_panel = _build_interaction_panel()
@@ -472,7 +558,7 @@ func _build_board_row() -> Control:
 	)
 	center_panel.custom_minimum_size = Vector2(
 		480,
-		290
+		330
 	)
 	center_panel.size_flags_horizontal = (
 		Control.SIZE_EXPAND_FILL
@@ -490,17 +576,174 @@ func _build_board_row() -> Control:
 		center_box
 	)
 
+	var staging_header := _new_label(
+		"STAGING AREA",
+		19
+	)
+	center_box.add_child(
+		staging_header
+	)
+
+	dominion_track_label = _new_rich_text()
+	dominion_track_label.custom_minimum_size = Vector2(
+		0,
+		58
+	)
+	dominion_track_label.add_theme_font_size_override(
+		"normal_font_size",
+		13
+	)
+	dominion_track_label.add_theme_font_size_override(
+		"bold_font_size",
+		13
+	)
+	center_box.add_child(
+		dominion_track_label
+	)
+
+	dominion_progress = ProgressBar.new()
+	dominion_progress.custom_minimum_size = Vector2(
+		0,
+		18
+	)
+	dominion_progress.show_percentage = false
+	center_box.add_child(
+		dominion_progress
+	)
+
 	center_box.add_child(
 		_new_label(
-			"REVEAL",
-			19
+			"MARKET — PUBLIC OFFERS",
+			14
 		)
+	)
+
+	var market_row := HBoxContainer.new()
+	market_row.add_theme_constant_override(
+		"separation",
+		6
+	)
+	center_box.add_child(
+		market_row
+	)
+
+	for market_index: int in range(3):
+		var market_panel := _new_panel(
+			Color(
+				0.08,
+				0.09,
+				0.13,
+				1.0
+			)
+		)
+		market_panel.custom_minimum_size = Vector2(
+			0,
+			46
+		)
+		market_panel.size_flags_horizontal = (
+			Control.SIZE_EXPAND_FILL
+		)
+		var market_label := _new_rich_text()
+		market_label.custom_minimum_size = Vector2(
+			0,
+			34
+		)
+		market_label.add_theme_font_size_override(
+			"normal_font_size",
+			12
+		)
+		market_label.add_theme_font_size_override(
+			"bold_font_size",
+			12
+		)
+		market_label.scroll_active = false
+		market_panel.add_child(
+			market_label
+		)
+		market_staging_labels.append(
+			market_label
+		)
+		market_staging_panels.append(
+			market_panel
+		)
+		market_row.add_child(
+			market_panel
+		)
+
+	center_box.add_child(
+		_new_label(
+			"ORDERS IN STAGING",
+			14
+		)
+	)
+
+	var orders_row := HBoxContainer.new()
+	orders_row.add_theme_constant_override(
+		"separation",
+		6
+	)
+	center_box.add_child(
+		orders_row
+	)
+
+	var human_order_panel := _new_panel(
+		Color(
+			0.055,
+			0.12,
+			0.095,
+			1.0
+		)
+	)
+	human_order_panel.custom_minimum_size = Vector2(
+		0,
+		50
+	)
+	human_order_panel.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+	human_staging_label = _new_staging_order_label()
+	human_order_panel.add_child(
+		human_staging_label
+	)
+	orders_row.add_child(
+		human_order_panel
+	)
+
+	var bot_order_panel := _new_panel(
+		Color(
+			0.14,
+			0.06,
+			0.08,
+			1.0
+		)
+	)
+	bot_order_panel.custom_minimum_size = Vector2(
+		0,
+		50
+	)
+	bot_order_panel.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+	bot_staging_label = _new_staging_order_label()
+	bot_order_panel.add_child(
+		bot_staging_label
+	)
+	orders_row.add_child(
+		bot_order_panel
 	)
 
 	reveal_label = _new_rich_text()
 	reveal_label.custom_minimum_size = Vector2(
 		0,
-		88
+		54
+	)
+	reveal_label.add_theme_font_size_override(
+		"normal_font_size",
+		13
+	)
+	reveal_label.add_theme_font_size_override(
+		"bold_font_size",
+		13
 	)
 	center_box.add_child(
 		reveal_label
@@ -516,6 +759,10 @@ func _build_board_row() -> Control:
 	event_log = _new_rich_text()
 	event_log.size_flags_vertical = (
 		Control.SIZE_EXPAND_FILL
+	)
+	event_log.custom_minimum_size = Vector2(
+		0,
+		46
 	)
 	event_log.scroll_following = true
 	center_box.add_child(
@@ -569,6 +816,196 @@ func _build_board_row() -> Control:
 	)
 
 	return row
+
+
+func _build_marching_board() -> Control:
+	var panel := _new_panel(
+		Color(
+			0.075,
+			0.08,
+			0.12,
+			1.0
+		)
+	)
+	panel.custom_minimum_size = Vector2(
+		0,
+		168
+	)
+
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override(
+		"separation",
+		5
+	)
+	panel.add_child(
+		box
+	)
+
+	var header := HBoxContainer.new()
+	header.add_theme_constant_override(
+		"separation",
+		12
+	)
+	box.add_child(
+		header
+	)
+
+	var title := _new_label(
+		"MARCHING ORDERS — LIVE LANES",
+		17
+	)
+	title.custom_minimum_size = Vector2(
+		245,
+		0
+	)
+	header.add_child(
+		title
+	)
+
+	march_status_label = _new_label(
+		"No marchers in flight.",
+		13
+	)
+	march_status_label.modulate = Color(
+		0.78,
+		0.75,
+		0.84,
+		1.0
+	)
+	march_status_label.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+	march_status_label.horizontal_alignment = (
+		HORIZONTAL_ALIGNMENT_RIGHT
+	)
+	header.add_child(
+		march_status_label
+	)
+
+	var legend := _new_label(
+		"YOUR GUARDS → step 1 · step 2 · enemy gate (step 3)    •    OPPONENT GUARDS mirror ←\nRPS: Wright > Penitent > Vulture > Butcher > Wright    •    advantage +1 clash damage",
+		12
+	)
+	legend.modulate = Color(
+		0.68,
+		0.67,
+		0.76,
+		1.0
+	)
+	box.add_child(
+		legend
+	)
+
+	for lane: String in MARCH_LANES:
+		var lane_row := HBoxContainer.new()
+		lane_row.add_theme_constant_override(
+			"separation",
+			6
+		)
+		box.add_child(
+			lane_row
+		)
+
+		var lane_title := _new_label(
+			"%s LANE" % lane.to_upper(),
+			14
+		)
+		lane_title.custom_minimum_size = Vector2(
+			112,
+			48
+		)
+		march_lane_title_labels[lane] = lane_title
+		lane_row.add_child(
+			lane_title
+		)
+
+		var human_gate := _new_march_board_label()
+		human_gate.custom_minimum_size = Vector2(
+			150,
+			48
+		)
+		march_gate_labels[_march_gate_key(lane, true)] = human_gate
+		lane_row.add_child(
+			human_gate
+		)
+
+		for step: int in range(1, MARCH_TRACK_STEPS + 1):
+			var slot_panel := _new_panel(
+				Color(
+					0.055,
+					0.065,
+					0.095,
+					1.0
+				)
+			)
+			slot_panel.custom_minimum_size = Vector2(
+				100,
+				48
+			)
+			slot_panel.size_flags_horizontal = (
+				Control.SIZE_EXPAND_FILL
+			)
+			var slot_label := _new_march_board_label()
+			slot_panel.add_child(
+				slot_label
+			)
+			var slot_key: String = _march_slot_key(lane, step)
+			march_slot_labels[slot_key] = slot_label
+			march_slot_panels[slot_key] = slot_panel
+			lane_row.add_child(
+				slot_panel
+			)
+
+		var bot_gate := _new_march_board_label()
+		bot_gate.custom_minimum_size = Vector2(
+			150,
+			48
+		)
+		march_gate_labels[_march_gate_key(lane, false)] = bot_gate
+		lane_row.add_child(
+			bot_gate
+		)
+
+	return panel
+
+
+func _new_march_board_label() -> RichTextLabel:
+	var label := _new_rich_text()
+	label.custom_minimum_size = Vector2(
+		0,
+		42
+	)
+	label.add_theme_font_size_override(
+		"normal_font_size",
+		12
+	)
+	label.add_theme_font_size_override(
+		"bold_font_size",
+		12
+	)
+	label.scroll_active = false
+	return label
+
+
+func _new_staging_order_label() -> RichTextLabel:
+	var label := _new_rich_text()
+	label.custom_minimum_size = Vector2(
+		0,
+		38
+	)
+	label.size_flags_horizontal = (
+		Control.SIZE_EXPAND_FILL
+	)
+	label.add_theme_font_size_override(
+		"normal_font_size",
+		12
+	)
+	label.add_theme_font_size_override(
+		"bold_font_size",
+		12
+	)
+	label.scroll_active = false
+	return label
 
 
 func _build_interaction_panel() -> Control:
@@ -814,6 +1251,20 @@ func _build_footer_row() -> Control:
 		development_finish_button
 	)
 
+	debug_export_button = _new_button(
+		"Export Match Snapshot",
+		185
+	)
+	debug_export_button.tooltip_text = (
+		"Write the live game, staged decisions, resolution data, and RNG state to JSON."
+	)
+	debug_export_button.pressed.connect(
+		_on_export_match_snapshot_pressed
+	)
+	row.add_child(
+		debug_export_button
+	)
+
 	var note := _new_label(
 		"Development decisions are yours; the opponent responds under bot doctrine.",
 		15
@@ -839,6 +1290,7 @@ func _build_footer_row() -> Control:
 
 func _start_new_match() -> void:
 	var seed_value: int = _validated_seed()
+	active_match_seed = seed_value
 	var human_lord: String = (
 		human_lord_select.get_item_text(
 			human_lord_select.selected
@@ -875,6 +1327,40 @@ func _start_new_match() -> void:
 
 	_after_development(
 		result
+	)
+
+
+func _on_export_match_snapshot_pressed() -> void:
+	var stage_name: String = _snapshot_stage_name()
+	var result: Dictionary = PlayableMatchSnapshotData.export_current_match(
+		controller,
+		active_match_seed,
+		stage_name,
+		log_entries
+	)
+
+	if not bool(result.get("ok", false)):
+		var reason: String = String(result.get("reason", "snapshot_export_failed"))
+		_set_phase_message("Snapshot export failed: %s" % reason)
+		_log("[color=#ff748f][b]Snapshot export failed:[/b] %s[/color]" % reason)
+		return
+
+	var path: String = String(result.get("path", ""))
+	_set_phase_message("Snapshot exported — see Match Log for the file path.")
+	_log("[color=#82c9ff][b]Snapshot exported:[/b] %s[/color]" % path)
+
+
+func _snapshot_stage_name() -> String:
+	if controller == null:
+		return "NO_GAME"
+
+	var stage_key = PlayableRoundControllerData.Stage.find_key(
+		controller.stage
+	)
+	return (
+		String(stage_key)
+		if stage_key != null
+		else "UNKNOWN_%d" % int(controller.stage)
 	)
 
 
@@ -931,6 +1417,10 @@ func _after_development(
 		_begin_deploy_guard_picker()
 		return
 
+	if controller.stage == PlayableRoundControllerData.Stage.MARCH:
+		_begin_march_picker()
+		return
+
 	if controller.stage == PlayableRoundControllerData.Stage.SUMMON:
 		_log(
 			"Round %d: your Lord is banished. Select cards worth at least %d to resummon, or remain banished."
@@ -952,6 +1442,7 @@ func _after_development(
 		return
 
 	_show_commitment_prompt()
+	_refresh_all()
 
 
 func _enter_development_choice(
@@ -974,6 +1465,14 @@ func _begin_deploy_guard_picker() -> void:
 	_build_hand_buttons(true)
 	_refresh_target_options()
 	_set_phase_message(_deploy_picker_prompt())
+	_refresh_all()
+
+
+func _begin_march_picker() -> void:
+	_clear_card_selection()
+	_refresh_target_options()
+	_build_march_guard_buttons()
+	_set_phase_message(_march_picker_prompt())
 	_refresh_all()
 
 
@@ -1010,6 +1509,7 @@ func _on_action_selected(
 
 	_refresh_target_options()
 	_refresh_selection_text()
+	_refresh_staging_area()
 
 
 func _on_card_toggled(
@@ -1053,8 +1553,24 @@ func _on_card_toggled(
 						"" if _deploy_garrison_moves_remaining() == 1 else "s",
 					]
 				)
+		elif (
+			controller.stage == PlayableRoundControllerData.Stage.KANIFOUS_INVOKE
+			and pressed
+		):
+			for other_button: Button in card_buttons:
+				if other_button != _card_button:
+					other_button.set_pressed_no_signal(false)
+		elif (
+			controller.stage == PlayableRoundControllerData.Stage.MARCH
+			and pressed
+		):
+			var selected_march_cards: Array[String] = _selected_card_ids()
+			if selected_march_cards.size() > 1:
+				_card_button.set_pressed_no_signal(false)
+				_set_phase_message("Choose one Guard to launch, or pass Marching Orders.")
 
 	_refresh_selection_text()
+	_refresh_staging_area()
 
 
 func _on_target_selected(
@@ -1066,8 +1582,16 @@ func _on_target_selected(
 		and hand_caption_label != null
 	):
 		hand_caption_label.text = _hand_caption_text()
+	if (
+		controller != null
+		and controller.stage == PlayableRoundControllerData.Stage.MARCH
+	):
+		_build_march_guard_buttons()
+		_set_phase_message(_march_picker_prompt())
 	_refresh_selection_text()
+	_refresh_staging_area()
 	_refresh_target_info()
+	_refresh_marching_board()
 
 
 func _on_secondary_target_selected(
@@ -1075,6 +1599,7 @@ func _on_secondary_target_selected(
 ) -> void:
 	_refresh_selection_text()
 	_refresh_target_info()
+	_refresh_marching_board()
 
 
 func _on_summon_pressed() -> void:
@@ -1156,6 +1681,8 @@ func _on_development_finish_pressed() -> void:
 		PlayableRoundControllerData.Stage.DEPLOY:
 			_finish_deploy_guard_picker()
 			return
+		PlayableRoundControllerData.Stage.MARCH:
+			result = controller.resolve_human_march({"action": "pass"})
 		PlayableRoundControllerData.Stage.REFLEX_BID:
 			result = controller.resolve_human_reflex_bid({"pass": true})
 		PlayableRoundControllerData.Stage.RESOLUTION_REFLEX:
@@ -1211,11 +1738,35 @@ func _after_summon_choice(
 
 func _on_confirm_pressed() -> void:
 	if controller.stage == PlayableRoundControllerData.Stage.KANIFOUS_INVOKE:
-		var invoke_result: Dictionary = controller.resolve_human_kanifous_invoke(_selected_target_id())
+		var selected_toll_cards: Array[String] = _selected_card_ids()
+		if selected_toll_cards.size() != 1:
+			_set_phase_message("Choose exactly one Hand card as the Invoke toll.")
+			return
+		var invoke_result: Dictionary = controller.resolve_human_kanifous_invoke(
+			_selected_target_id(),
+			selected_toll_cards[0]
+		)
 		if _show_failure_if_needed(invoke_result, false):
 			_set_phase_message("Invoke choice rejected: %s" % String(invoke_result.get("reason", "invalid_invoke")))
 			return
 		_show_reveal_progress(invoke_result)
+		return
+
+	if controller.stage == PlayableRoundControllerData.Stage.MARCH:
+		var selected_march_cards: Array[String] = _selected_card_ids()
+		if selected_march_cards.is_empty():
+			_set_phase_message("Select one Guard to launch, or use Pass Marching Orders.")
+			return
+		var march_result: Dictionary = controller.resolve_human_march({
+			"action": "march",
+			"source_zone": _selected_target_id(),
+			"lane": _selected_secondary_target_id(),
+			"card": selected_march_cards[0],
+		})
+		if _show_failure_if_needed(march_result, false):
+			_set_phase_message("March rejected: %s" % String(march_result.get("reason", "invalid_march")))
+			return
+		_after_development(march_result)
 		return
 
 	if controller.stage == PlayableRoundControllerData.Stage.KANIFOUS_WRIGHT:
@@ -1253,7 +1804,14 @@ func _on_confirm_pressed() -> void:
 
 	if controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_REFLEX:
 		if selected_action.is_empty():
-			_set_phase_message("Choose Hunt, Siege, Ward, or use Pass Reflex.")
+			_set_phase_message(
+				"Choose Hunt, Siege, Ward, or use Pass %s."
+				% (
+					"Momentum"
+					if controller.rules != null and controller.rules.momentum
+					else "Reflex"
+				)
+			)
 			return
 		var reflex_result: Dictionary = controller.resolve_human_reflex(_build_reflex_decision())
 		if _show_failure_if_needed(reflex_result, false):
@@ -1419,7 +1977,7 @@ func _show_reveal_progress(
 	if controller.stage == PlayableRoundControllerData.Stage.KANIFOUS_INVOKE:
 		_build_hand_buttons(false)
 		_refresh_target_options()
-		_set_phase_message("Kanifous Invoke — choose one revealed card to bank in Garrison and invoke.")
+		_set_phase_message("Kanifous Invoke — choose one Hand card to discard as the toll, then choose one revealed card to invoke and bank.")
 		_refresh_all()
 		return
 	if controller.stage == PlayableRoundControllerData.Stage.KANIFOUS_WRIGHT:
@@ -1452,24 +2010,61 @@ func _show_reveal_progress(
 		_reflex_holder_text(),
 	]
 
+	var reveal_values: Dictionary = {}
+
+	for raw_reveal_player in _array_from(
+		result.get(
+			"players",
+			[]
+		)
+	):
+		if typeof(raw_reveal_player) != TYPE_DICTIONARY:
+			continue
+
+		var reveal_player: Dictionary = raw_reveal_player
+		reveal_values[int(
+			reveal_player.get(
+				"player_id",
+				-1
+			)
+		)] = int(
+			reveal_player.get(
+				"committed_value",
+				0
+			)
+		)
+
+	var human_reveal_value: int = int(
+		reveal_values.get(
+			int(human.pid),
+			_card_value_total(
+				human.committed
+			)
+		)
+	)
+	var bot_reveal_value: int = int(
+		reveal_values.get(
+			int(bot.pid),
+			_card_value_total(
+				bot.committed
+			)
+		)
+	)
+
 	_log(
 		"Reveal: you chose %s (%d); %s chose %s (%d)."
 		% [
 			String(
 				human.action
 			),
-			_card_value_total(
-				human.committed
-			),
+			human_reveal_value,
 			String(
 				bot.lord
 			),
 			String(
 				bot.action
 			),
-			_card_value_total(
-				bot.committed
-			),
+			bot_reveal_value,
 		]
 	)
 	_log_reveal_sigils(
@@ -1498,8 +2093,11 @@ func _after_resolution_progress(
 	_log_guard_reveals()
 
 	if bool(result.get("completed", false)):
+		_log_new_development_activity()
 		_log_resolution_transcript(result)
-		_log_resolution_changes(resolution_start_digest, _state_digest())
+		var resolution_end_digest: Dictionary = _state_digest()
+		_log_resource_income_audit(resolution_start_digest, resolution_end_digest)
+		_log_resolution_changes(resolution_start_digest, resolution_end_digest)
 		_refresh_all()
 		if bool(result.get("terminal", false)):
 			_show_terminal()
@@ -1529,12 +2127,22 @@ func _after_resolution_progress(
 		_build_hand_buttons(false)
 		_refresh_reflex_action_legality()
 		_refresh_target_options()
-		_set_phase_message("Choose a Reflex action and any Hand cards, or pass.")
+		_set_phase_message(
+			"Choose a %s action and any Hand cards, or pass."
+			% (
+				"Momentum"
+				if controller.rules != null and controller.rules.momentum
+				else "Reflex"
+			)
+		)
 	elif controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH:
 		_build_hand_buttons(false)
 		_refresh_reflex_action_legality()
 		_refresh_target_options()
-		_set_phase_message("Predict the bot's Reflex action; on a correct read, execute your selected stolen action.")
+		_set_phase_message(
+			"Predict the bot's %s action; on a correct read, execute your selected stolen action."
+			% _second_action_name()
+		)
 	elif controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_GREMORY:
 		_build_hand_buttons(true)
 		_refresh_target_options()
@@ -1543,6 +2151,9 @@ func _after_resolution_progress(
 
 
 func _refresh_all() -> void:
+	if debug_export_button != null:
+		debug_export_button.disabled = controller == null or controller.game == null
+
 	if controller == null or controller.game == null:
 		return
 
@@ -1562,6 +2173,9 @@ func _refresh_all() -> void:
 			controller.rules.final_collapse_threshold
 		),
 	]
+	veil_label.tooltip_text = _dominion_help_text(
+		int(game.calculate_veil_total())
+	)
 
 	breach_label.text = (
 		"Breach: none"
@@ -1587,6 +2201,8 @@ func _refresh_all() -> void:
 	bot_lord_card_label.text = _lord_card_text(
 		bot
 	)
+	_refresh_staging_area()
+	_refresh_marching_board()
 
 	var commitment_controls_visible: bool = (
 		controller.stage in [
@@ -1606,6 +2222,7 @@ func _refresh_all() -> void:
 			PlayableRoundControllerData.Stage.DEVELOPMENT_SNARE,
 			PlayableRoundControllerData.Stage.REPAIR,
 			PlayableRoundControllerData.Stage.DOMINION_RITES,
+			PlayableRoundControllerData.Stage.MARCH,
 			PlayableRoundControllerData.Stage.KANIFOUS_INVOKE,
 			PlayableRoundControllerData.Stage.COMMITMENT,
 			PlayableRoundControllerData.Stage.RESOLUTION_HUMBABA_TOLL,
@@ -1619,6 +2236,7 @@ func _refresh_all() -> void:
 	target_info_label.visible = target_label.visible
 	secondary_target_label.visible = (
 		controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH
+		or controller.stage == PlayableRoundControllerData.Stage.MARCH
 	)
 	secondary_target_select.visible = secondary_target_label.visible
 	development_option_button.visible = false
@@ -1716,6 +2334,18 @@ func _refresh_all() -> void:
 			resolve_button.visible = false
 			next_round_button.visible = false
 
+		PlayableRoundControllerData.Stage.MARCH:
+			phase_label.text = "Development — Marching Orders"
+			confirm_button.text = "4. Launch Face-Up Guard"
+			confirm_button.visible = true
+			development_finish_button.text = "Pass Marching Orders"
+			development_finish_button.visible = true
+			summon_button.visible = false
+			skip_summon_button.visible = false
+			reveal_button.visible = false
+			resolve_button.visible = false
+			next_round_button.visible = false
+
 		PlayableRoundControllerData.Stage.SUMMON:
 			phase_label.text = (
 				"Summon — pay %d to return"
@@ -1773,10 +2403,11 @@ func _refresh_all() -> void:
 			next_round_button.visible = false
 
 		PlayableRoundControllerData.Stage.RESOLUTION_REFLEX:
-			phase_label.text = "Reflex — take a second action or pass"
-			confirm_button.text = "Execute Reflex"
+			var second_action_name: String = _second_action_name()
+			phase_label.text = "%s — take a second action or pass" % second_action_name
+			confirm_button.text = "Execute %s" % second_action_name
 			confirm_button.visible = true
-			development_finish_button.text = "Pass Reflex"
+			development_finish_button.text = "Pass %s" % second_action_name
 			development_finish_button.visible = true
 			summon_button.visible = false
 			skip_summon_button.visible = false
@@ -1785,7 +2416,7 @@ func _refresh_all() -> void:
 			next_round_button.visible = false
 
 		PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH:
-			phase_label.text = "Odradek Breach — predict the Reflex"
+			phase_label.text = "Odradek Breach — predict the %s" % _second_action_name()
 			confirm_button.text = "Predict & Steal"
 			confirm_button.visible = true
 			development_finish_button.text = "Do Not Interfere"
@@ -1812,6 +2443,7 @@ func _refresh_all() -> void:
 			phase_label.text = "Commitment — choose secretly"
 			summon_button.visible = false
 			skip_summon_button.visible = false
+			confirm_button.text = "Seal Order"
 			confirm_button.visible = true
 			reveal_button.visible = false
 			resolve_button.visible = false
@@ -1856,6 +2488,321 @@ func _refresh_all() -> void:
 	call_deferred(
 		"_validate_layout_invariants"
 	)
+
+
+func _refresh_staging_area() -> void:
+	if controller == null or controller.game == null or controller.rules == null:
+		return
+
+	var game = controller.game
+	var human = controller.get_human_player()
+	var bot = controller.get_bot_player()
+	if human == null or bot == null:
+		return
+
+	var veil_total: int = int(game.calculate_veil_total())
+	var dominion_help: String = _dominion_help_text(veil_total)
+	if dominion_track_label != null:
+		dominion_track_label.text = (
+			"[center][b]DOMINION / VEIL[/b]  [b]%d/%d[/b]\n"
+			+ "Collapse [b]%d[/b]  ·  Waning [b]%d[/b]  ·  "
+			+ "Cataclysm [b]%d[/b]  ·  Final [b]%d[/b]\n"
+			+ "Your Tears [b]%d/%d[/b]  ·  Opponent [b]%d/%d[/b][/center]"
+		) % [
+			veil_total,
+			int(controller.rules.final_collapse_threshold),
+			VEIL_COLLAPSE_THRESHOLD,
+			VEIL_WANING_THRESHOLD,
+			int(controller.rules.dominion_track),
+			int(controller.rules.final_collapse_threshold),
+			int(human.tears),
+			int(controller.rules.dominion_requirement),
+			int(bot.tears),
+			int(controller.rules.dominion_requirement),
+		]
+		dominion_track_label.tooltip_text = dominion_help
+
+	if dominion_progress != null:
+		dominion_progress.min_value = 0.0
+		dominion_progress.max_value = float(
+			max(1, int(controller.rules.final_collapse_threshold))
+		)
+		dominion_progress.value = float(
+			min(veil_total, int(dominion_progress.max_value))
+		)
+		dominion_progress.tooltip_text = dominion_help
+
+	var selected_market_id: String = ""
+	var suggested_market_id: String = ""
+	if controller.stage == PlayableRoundControllerData.Stage.MARKET:
+		selected_market_id = _selected_target_id()
+		suggested_market_id = _best_market_take_card_id()
+
+	for market_index: int in range(market_staging_labels.size()):
+		var market_label: RichTextLabel = market_staging_labels[market_index]
+		var market_panel: PanelContainer = market_staging_panels[market_index]
+		if market_index >= game.market.size():
+			market_label.text = "[center][color=#78758a]EMPTY OFFER[/color]\n—[/center]"
+			market_panel.self_modulate = Color.WHITE
+			continue
+
+		var market_card = game.market[market_index]
+		var market_card_id: String = _card_id(market_card)
+		var marker: String = ""
+		if market_card_id == selected_market_id:
+			marker = "\n[color=#f2d477][b]SELECTED[/b][/color]"
+			market_panel.self_modulate = Color(1.0, 0.92, 0.64, 1.0)
+		elif market_card_id == suggested_market_id:
+			marker = "\n[color=#8ee5a1]BEST VALUE[/color]"
+			market_panel.self_modulate = Color(0.82, 1.0, 0.86, 1.0)
+		else:
+			market_panel.self_modulate = Color.WHITE
+
+		market_label.text = "[center][b]%s[/b]\nValue %d%s[/center]" % [
+			market_card_id,
+			int(market_card.value),
+			marker,
+		]
+
+	if human_staging_label != null:
+		human_staging_label.text = _staging_order_text(human, true)
+	if bot_staging_label != null:
+		bot_staging_label.text = _staging_order_text(bot, false)
+
+
+func _staging_order_text(
+	player,
+	is_human: bool
+) -> String:
+	var owner_name: String = "YOU" if is_human else "OPPONENT"
+	var owner_color: String = "#78d9a1" if is_human else "#dc8d9d"
+	var action_name: String = String(player.action)
+
+	if (
+		is_human
+		and controller.stage == PlayableRoundControllerData.Stage.COMMITMENT
+		and not selected_action.is_empty()
+	):
+		return "[center][color=%s][b]%s — DRAFT[/b][/color]\n%s · %s[/center]" % [
+			owner_color,
+			owner_name,
+			selected_action,
+			_cards_inline(_selected_cards_for_staging()),
+		]
+
+	# The bot decides its order while the human is choosing, but that decision
+	# must remain sealed until Reveal.  Before Commitment resolves, its cards
+	# live in the controller's decision; afterwards they live in committed.
+	if not is_human and not _staged_orders_are_public():
+		var sealed_card_count: int = player.committed.size()
+		if sealed_card_count == 0:
+			var bot_plan: Dictionary = controller.get_bot_commitment()
+			var planned_cards: Array = bot_plan.get("cards", [])
+			sealed_card_count = planned_cards.size()
+
+		return "[center][color=%s][b]%s — SEALED[/b][/color]\n%d card%s face-down[/center]" % [
+			owner_color,
+			owner_name,
+			sealed_card_count,
+			"" if sealed_card_count == 1 else "s",
+		]
+
+	if action_name.is_empty():
+		return "[center][color=%s][b]%s[/b][/color]\n[color=#78758a]No order staged[/color][/center]" % [
+			owner_color,
+			owner_name,
+		]
+
+	var cards_text: String = _cards_inline(player.committed)
+
+	return "[center][color=%s][b]%s — %s[/b][/color]\n%s[/center]" % [
+		owner_color,
+		owner_name,
+		action_name,
+		cards_text,
+	]
+
+
+func _selected_cards_for_staging() -> Array:
+	var selected_cards: Array = []
+	if controller == null or controller.game == null:
+		return selected_cards
+
+	var human = controller.get_human_player()
+	if human == null:
+		return selected_cards
+
+	var selected_ids: Array[String] = _selected_card_ids()
+	for card_id: String in selected_ids:
+		for card in human.hand:
+			if _card_id(card) == card_id:
+				selected_cards.append(card)
+				break
+
+	return selected_cards
+
+
+func _staged_orders_are_public() -> bool:
+	if controller == null:
+		return false
+
+	return controller.stage >= PlayableRoundControllerData.Stage.REVEALED
+
+
+func _refresh_marching_board() -> void:
+	if marching_board_panel == null:
+		return
+
+	var marching_enabled: bool = (
+		controller != null
+		and controller.game != null
+		and controller.rules != null
+		and controller.rules.marching
+	)
+	marching_board_panel.visible = marching_enabled
+	if not marching_enabled:
+		return
+
+	var human = controller.get_human_player()
+	var bot = controller.get_bot_player()
+	if human == null or bot == null:
+		return
+
+	var slot_texts: Dictionary = {}
+	var gate_texts: Dictionary = {}
+	var selected_lane: String = ""
+	if controller.stage == PlayableRoundControllerData.Stage.MARCH:
+		selected_lane = _selected_secondary_target_id()
+
+	for lane: String in MARCH_LANES:
+		gate_texts[_march_gate_key(lane, true)] = (
+			"[color=#78d9a1][b]YOUR %s GUARDS[/b][/color]\nReady to launch"
+			% lane.to_upper()
+		)
+		gate_texts[_march_gate_key(lane, false)] = (
+			"[color=#dc8d9d][b]OPPONENT GUARDS[/b][/color]\nReady to launch"
+			% lane.to_upper()
+		)
+
+		var lane_title = march_lane_title_labels.get(lane, null)
+		if lane_title != null:
+			lane_title.text = "%s LANE" % lane.to_upper()
+			lane_title.modulate = (
+				Color(1.0, 0.84, 0.43, 1.0)
+				if lane == selected_lane
+				else Color(0.9, 0.88, 0.94, 1.0)
+			)
+
+		for step: int in range(1, MARCH_TRACK_STEPS + 1):
+			var slot_key: String = _march_slot_key(lane, step)
+			slot_texts[slot_key] = _march_slot_placeholder(step)
+			var slot_panel = march_slot_panels.get(slot_key, null)
+			if slot_panel != null:
+				slot_panel.self_modulate = (
+					Color(1.0, 0.94, 0.74, 1.0)
+					if lane == selected_lane
+					else Color.WHITE
+				)
+
+	_add_marchers_to_board(human, true, slot_texts, gate_texts)
+	_add_marchers_to_board(bot, false, slot_texts, gate_texts)
+
+	for lane: String in MARCH_LANES:
+		var human_gate_label = march_gate_labels.get(_march_gate_key(lane, true), null)
+		if human_gate_label != null:
+			human_gate_label.text = String(gate_texts.get(_march_gate_key(lane, true), ""))
+		var bot_gate_label = march_gate_labels.get(_march_gate_key(lane, false), null)
+		if bot_gate_label != null:
+			bot_gate_label.text = String(gate_texts.get(_march_gate_key(lane, false), ""))
+
+		for step: int in range(1, MARCH_TRACK_STEPS + 1):
+			var slot_key: String = _march_slot_key(lane, step)
+			var slot_label = march_slot_labels.get(slot_key, null)
+			if slot_label != null:
+				slot_label.text = String(slot_texts.get(slot_key, ""))
+
+	if march_status_label != null:
+		if controller.stage == PlayableRoundControllerData.Stage.MARCH:
+			march_status_label.text = "1. Choose Guard zone   2. Select one Guard   3. Choose lane   4. Launch or pass   •   RPS: Wright > Penitent > Vulture > Butcher > Wright"
+		elif human.marchers.is_empty() and bot.marchers.is_empty():
+			march_status_label.text = "No marchers in flight. Marching Orders opens during Development."
+		else:
+			march_status_label.text = "Face-up marchers advance after Resolution. A value %d+ Guard at the enemy gate gains a Tear." % controller.rules.march_threshold
+
+
+func _add_marchers_to_board(
+	player,
+	is_human: bool,
+	slot_texts: Dictionary,
+	gate_texts: Dictionary
+) -> void:
+	if player == null:
+		return
+
+	for marcher_value in player.marchers:
+		var marcher: Dictionary = marcher_value
+		var lane: String = String(marcher.get("lane", ""))
+		if not MARCH_LANES.has(lane):
+			continue
+
+		var position: int = int(marcher.get("pos", 0))
+		var display_text: String = _marcher_board_text(marcher, is_human)
+		if position <= 0:
+			var gate_key: String = _march_gate_key(lane, is_human)
+			gate_texts[gate_key] = display_text
+			continue
+
+		var step: int = min(position, MARCH_TRACK_STEPS)
+		if not is_human:
+			step = MARCH_TRACK_STEPS - step + 1
+		var slot_key: String = _march_slot_key(lane, step)
+		var existing_text: String = String(slot_texts.get(slot_key, ""))
+		if existing_text.contains("[color=#78758a]"):
+			existing_text = ""
+		slot_texts[slot_key] = (
+			existing_text + ("\n" if not existing_text.is_empty() else "") + display_text
+		)
+
+
+func _marcher_board_text(
+	marcher: Dictionary,
+	is_human: bool
+) -> String:
+	var card = marcher.get("card", null)
+	var color_code: String = "#78d9a1" if is_human else "#dc8d9d"
+	var direction: String = "→" if is_human else "←"
+	var owner: String = "YOU" if is_human else "BOT"
+	return "[center][color=%s][b]%s %s[/b][/color]\n%s  ·  v%d[/center]" % [
+		color_code,
+		owner,
+		direction,
+		_card_id(card),
+		int(marcher.get("value", 0)),
+	]
+
+
+func _march_slot_placeholder(
+	step: int
+) -> String:
+	if step == 1:
+		return "[center][color=#78d9a1]YOU 1[/color]  ·  [color=#dc8d9d]BOT 3[/color]\n[color=#78758a]—[/color][/center]"
+	if step == MARCH_TRACK_STEPS:
+		return "[center][color=#78d9a1]YOU 3[/color]  ·  [color=#dc8d9d]BOT 1[/color]\n[color=#78758a]—[/color][/center]"
+	return "[center][color=#78758a]MIDFIELD · STEP %d[/color]\n—[/center]" % step
+
+
+func _march_gate_key(
+	lane: String,
+	is_human: bool
+) -> String:
+	return "%s:%s" % [lane, "human" if is_human else "bot"]
+
+
+func _march_slot_key(
+	lane: String,
+	step: int
+) -> String:
+	return "%s:%d" % [lane, step]
 
 
 func _refresh_action_legality() -> void:
@@ -1918,7 +2865,7 @@ func _refresh_target_options() -> void:
 		var development_human = controller.get_human_player()
 
 		if controller.stage == PlayableRoundControllerData.Stage.KANIFOUS_INVOKE:
-			target_label.text = "Bank & invoke:"
+			target_label.text = "Revealed card:"
 			for card_id: String in controller.kanifous_preview_cards:
 				_add_target_option(card_id, card_id)
 			target_select.disabled = target_select.item_count <= 1
@@ -1972,6 +2919,31 @@ func _refresh_target_options() -> void:
 			# The two-stage Guard picker names its destination in the phase and
 			# needs no competing target dropdown.
 			target_select.disabled = true
+			return
+
+		if controller.stage == PlayableRoundControllerData.Stage.MARCH:
+			target_label.text = "1. Guard zone:"
+			_add_target_option(
+				"Lord Guards (%d)" % development_human.lord_guards.size(),
+				"Lord"
+			)
+			_add_target_option(
+				"Castle Guards (%d)" % development_human.castle_guards.size(),
+				"Castle"
+			)
+			target_select.disabled = false
+			secondary_target_label.text = "3. March lane:"
+			var reactive_lane: String = controller.human_reactive_march_lane()
+			if not reactive_lane.is_empty():
+				_add_secondary_target_option(
+					"%s lane — Reactive response" % reactive_lane,
+					reactive_lane
+				)
+			else:
+				_add_secondary_target_option("Lord lane", "Lord")
+				_add_secondary_target_option("Castle lane", "Castle")
+			secondary_target_select.disabled = false
+			_refresh_target_info()
 			return
 
 		if controller.stage == PlayableRoundControllerData.Stage.REFLEX_BID:
@@ -2102,14 +3074,20 @@ func _refresh_target_options() -> void:
 
 			if (
 				human.alive
-				and human.prev_ward_target != "Lord"
+				and (
+					not controller.rules.ward_anti_repeat
+					or human.prev_ward_target != "Lord"
+				)
 			):
 				_add_target_option(
 					"Lord",
 					"Lord"
 				)
 
-			if human.prev_ward_target != "Castle":
+			if (
+				not controller.rules.ward_anti_repeat
+				or human.prev_ward_target != "Castle"
+			):
 				_add_target_option(
 					"Castle",
 					"Castle"
@@ -2178,7 +3156,7 @@ func _refresh_reflex_target_options(
 		if use_secondary_target:
 			_add_secondary_target_option("Choose stolen action", "")
 		else:
-			_add_target_option("Choose a Reflex action", "")
+			_add_target_option("Choose a %s action" % _second_action_name(), "")
 		target_control.disabled = true
 		return
 
@@ -2261,6 +3239,17 @@ func _refresh_target_info() -> void:
 		if controller.stage == PlayableRoundControllerData.Stage.REPAIR:
 			target_info_label.text = _repair_cost_info()
 			return
+		if controller.stage == PlayableRoundControllerData.Stage.MARCH:
+			target_info_label.text = (
+				"[color=#c8b36a]Choose a source zone, then one Guard, then a lane. "
+				+ "RPS: Wright > Penitent > Vulture > Butcher > Wright. "
+				+ "A clash deals %d to each marcher; suit advantage adds +%d damage. "
+				+ "Vulture:5 evades; Butcher:1 destroys it with itself.[/color]"
+			) % [
+				controller.rules.march_damage,
+				controller.rules.march_suit_bonus,
+			]
+			return
 
 	if (
 		controller == null
@@ -2314,6 +3303,19 @@ func _refresh_target_info() -> void:
 
 		"Ward":
 			var zone: String = _selected_target_id()
+			if controller.rules.sigil_flat:
+				target_info_label.text = (
+					"[color=#91c7ff][b]Ward %s:[/b] commit any suits. If your total is at least the opposing %s, the attack is turned. The Ward then starts at +2 DEF and ages to +1 next round.[/color]"
+				) % [
+					zone,
+					(
+						"Hunt"
+						if zone == "Lord"
+						else "Siege"
+					),
+				]
+				return
+
 			var fresh_value: int = _prospective_sigil_value(
 				human,
 				"fresh"
@@ -2339,8 +3341,15 @@ func _refresh_target_info() -> void:
 
 		"Profane":
 			target_info_label.text = (
-				"[color=#d8a0c8]Profane sacrifices %s; its structural DEF does not resist the action.[/color]"
-				% _selected_target_id()
+				"[color=#d8a0c8]Profane sacrifices %s; its structural DEF does not resist the action%s.[/color]"
+				% [
+					_selected_target_id(),
+					(
+						" and enemy Sigils do not deny it"
+						if controller.rules.fix_b
+						else ""
+					),
+				]
 			)
 
 
@@ -2436,12 +3445,18 @@ func _combat_target_text(
 
 
 func _castle_defense(
-	castle_name: String
+	castle_name: String,
+	defender = null
 ) -> int:
+	if defender == null and controller != null:
+		defender = controller.get_bot_player()
+
 	return int(
 		SiegeResolutionEngineData._castle_defense(
 			controller.game,
-			castle_name
+			castle_name,
+			defender,
+			controller.rules
 		)
 	)
 
@@ -2459,7 +3474,8 @@ func _current_sigil_value(
 					zone,
 					""
 				)
-			)
+			),
+			controller.rules
 		)
 	)
 
@@ -2472,7 +3488,8 @@ func _prospective_sigil_value(
 		SiegeResolutionEngineData._sigil_value(
 			controller.game,
 			player,
-			state
+			state,
+			controller.rules
 		)
 	)
 
@@ -2569,6 +3586,16 @@ func _build_hand_buttons(
 			or _deploy_garrison_allowed()
 		)
 	):
+		var garrison_divider := _new_label(
+			"GARRISON — voluntary; cards stay here until clicked in a legal phase",
+			13
+		)
+		garrison_divider.tooltip_text = (
+			"Garrison cards do not return to Hand automatically. "
+			+ "Select them only during phases that permit Garrison deployment or payment."
+		)
+		hand_flow.add_child(garrison_divider)
+
 		for garrison_index: int in range(human.garrison.size()):
 			var garrison_card = human.garrison[garrison_index]
 			var garrison_identifier: String = _card_id(garrison_card)
@@ -2582,6 +3609,10 @@ func _build_hand_buttons(
 			garrison_button.set_meta("card_id", garrison_identifier)
 			garrison_button.set_meta("card_value", int(garrison_card.value))
 			garrison_button.set_meta("card_source", "Garrison")
+			garrison_button.tooltip_text = (
+				"Garrison card — remains here until voluntarily selected "
+				+ "for a legal deployment or payment."
+			)
 			garrison_button.set_meta("source_index", garrison_index)
 			garrison_button.toggled.connect(_on_card_toggled.bind(garrison_button))
 			card_buttons.append(garrison_button)
@@ -2608,6 +3639,59 @@ func _build_wright_guard_buttons() -> void:
 		guard_button.set_meta("card_id", "LordGuard:%d" % guard_index)
 		guard_button.set_meta("card_value", 0)
 		guard_button.set_meta("card_source", "LordGuard")
+		guard_button.set_meta("source_index", guard_index)
+		guard_button.toggled.connect(_on_card_toggled.bind(guard_button))
+		card_buttons.append(guard_button)
+		hand_flow.add_child(guard_button)
+
+	_refresh_selection_text()
+
+
+func _build_march_guard_buttons() -> void:
+	for child in hand_flow.get_children():
+		child.queue_free()
+
+	card_buttons.clear()
+
+	if controller == null or controller.game == null:
+		return
+
+	var human = controller.get_human_player()
+	if human == null:
+		return
+
+	var source_zone: String = _selected_target_id()
+	var guards: Array = (
+		human.lord_guards
+		if source_zone == "Lord"
+		else human.castle_guards
+	)
+
+	if human.marchers.size() >= controller.rules.march_max_in_flight:
+		if hand_caption_label != null:
+			hand_caption_label.text = "A marcher is already in flight; pass this step."
+		_refresh_selection_text()
+		return
+
+	if guards.is_empty():
+		if hand_caption_label != null:
+			hand_caption_label.text = "No %s Guards are available to march." % source_zone
+		_refresh_selection_text()
+		return
+
+	if hand_caption_label != null:
+		hand_caption_label.text = "Select one %s Guard to launch face-up:" % source_zone
+
+	for guard_index: int in range(guards.size()):
+		var guard = guards[guard_index]
+		var guard_button := _new_button(
+			"%s Guard · %s" % [source_zone, _card_id(guard)],
+			142
+		)
+		guard_button.toggle_mode = true
+		guard_button.set_meta("card_id", _card_id(guard))
+		guard_button.set_meta("card_value", int(guard.value))
+		guard_button.set_meta("card_source", source_zone)
 		guard_button.set_meta("source_index", guard_index)
 		guard_button.toggled.connect(_on_card_toggled.bind(guard_button))
 		card_buttons.append(guard_button)
@@ -2989,9 +4073,51 @@ func _deploy_picker_prompt() -> String:
 	return prompt
 
 
+func _march_picker_prompt() -> String:
+	if controller == null or controller.game == null:
+		return "Marching Orders"
+
+	var human = controller.get_human_player()
+	if human == null:
+		return "Marching Orders"
+
+	var reactive_lane: String = controller.human_reactive_march_lane()
+	if not controller.human_can_launch_marcher():
+		return "You already have a marcher in flight and no Reactive Lane is available. Pass this step."
+
+	var source_zone: String = _selected_target_id()
+	var guards: Array = (
+		human.lord_guards
+		if source_zone == "Lord"
+		else human.castle_guards
+	)
+	if guards.is_empty():
+		return "No %s Guards are available to march. Choose the other zone or pass." % source_zone
+
+	var lane_instruction: String = (
+		"Reactive Lane is active: your marcher is forced into the occupied %s lane. "
+		% reactive_lane
+		if not reactive_lane.is_empty()
+		else "Choose either lane. "
+	)
+	return (
+		"1. Choose a Guard zone.  2. Select one %s Guard.  "
+		+ "3. %s4. Launch it face-up. "
+		+ "Value %d+ at the enemy gate gains a personal Tear. "
+		+ "RPS: Wright > Penitent > Vulture > Butcher > Wright; advantage adds +%d clash damage."
+	) % [
+		source_zone,
+		lane_instruction,
+		controller.rules.march_threshold,
+		controller.rules.march_suit_bonus,
+	]
+
 func _hand_caption_text() -> String:
 	if controller == null or controller.game == null:
 		return "Commit cards (click to select):"
+
+	if controller.stage == PlayableRoundControllerData.Stage.KANIFOUS_INVOKE:
+		return "Invoke toll — choose exactly one Hand card to discard:"
 
 	if controller.stage == PlayableRoundControllerData.Stage.MARKET:
 		return "Give one Hand card (★ marks the strongest raw-value trade):"
@@ -3009,6 +4135,9 @@ func _hand_caption_text() -> String:
 		if _deploy_selection_limit() <= 0:
 			return "%s Guard zone is full or unavailable — continue when ready." % deploy_target_zone
 		return "Select cards for %s Guards:" % deploy_target_zone
+
+	if controller.stage == PlayableRoundControllerData.Stage.MARCH:
+		return "2. Choose one face-up Guard from %s:" % _selected_target_id()
 
 	return "Commit cards (click to select):"
 
@@ -3028,7 +4157,8 @@ func _repair_cost(
 		controller.game,
 		human,
 		castle_name,
-		use_token
+		use_token,
+		controller.rules
 	)
 
 
@@ -3246,6 +4376,14 @@ func _refresh_selection_text() -> void:
 		)
 	elif (
 		controller != null
+		and controller.stage == PlayableRoundControllerData.Stage.MARCH
+	):
+		selection_label.text = "Step 2: %d/1 Guard · Step 3: %s lane" % [
+			count,
+			_selected_secondary_target_id(),
+		]
+	elif (
+		controller != null
 		and controller.stage == PlayableRoundControllerData.Stage.KANIFOUS_WRIGHT
 	):
 		selection_label.text = "%d Lord Guards selected · move up to 2" % count
@@ -3267,6 +4405,7 @@ func _refresh_selection_text() -> void:
 			or controller.stage == PlayableRoundControllerData.Stage.REPAIR
 			or controller.stage == PlayableRoundControllerData.Stage.DOMINION_RITES
 			or controller.stage == PlayableRoundControllerData.Stage.DEPLOY
+			or controller.stage == PlayableRoundControllerData.Stage.MARCH
 			or controller.stage == PlayableRoundControllerData.Stage.REFLEX_BID
 			or controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_REFLEX
 			or controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH
@@ -3324,6 +4463,7 @@ func _clear_card_selection() -> void:
 		)
 
 	_refresh_selection_text()
+	_refresh_staging_area()
 
 
 func _clear_reveal() -> void:
@@ -3641,7 +4781,7 @@ func _log_resolution_transcript(
 				)
 				_log_action_outcome(
 					reflex_action,
-					"Reflex",
+					_second_action_name(),
 					String(
 						reflex.get(
 							"executed_action",
@@ -3663,7 +4803,7 @@ func _log_resolution_transcript(
 				)
 			):
 				_log_victory_cause(
-					"%s's Reflex %s"
+					"%s's %s %s"
 					% [
 						_player_name(
 							int(
@@ -3673,6 +4813,7 @@ func _log_resolution_transcript(
 								)
 							)
 						),
+						_second_action_name(),
 						String(
 							reflex.get(
 								"executed_action",
@@ -4228,12 +5369,6 @@ func _log_action_outcome(
 					),
 					String(
 						action_result.get(
-							"blocking_zone",
-							"?"
-						)
-					),
-					String(
-						action_result.get(
 							"target_castle",
 							"Castle"
 						)
@@ -4680,6 +5815,12 @@ func _log_action_lord_powers(
 	if (
 		action_name == "hunt"
 		and attacker_lord == "Orias"
+		and String(
+			action_result.get(
+				"stopped_at",
+				""
+			)
+		) != "ward_turned"
 	):
 		_log(
 			"[color=#d8b4fe][b]Orias — Relentless Pursuit:[/b] Hunt strength bonuses applied; final strength %d.[/color]"
@@ -5768,6 +6909,66 @@ func _log_harvest_event(
 	)
 
 
+func _log_resource_income_audit(
+	before: Dictionary,
+	after: Dictionary
+) -> void:
+	var old_players: Array = _array_from(before.get("players", []))
+	var new_players: Array = _array_from(after.get("players", []))
+	for player_index: int in range(min(old_players.size(), new_players.size())):
+		if (
+			typeof(old_players[player_index]) != TYPE_DICTIONARY
+			or typeof(new_players[player_index]) != TYPE_DICTIONARY
+		):
+			continue
+		var old_player: Dictionary = old_players[player_index]
+		var new_player: Dictionary = new_players[player_index]
+		var owner: String = String(new_player.get("lord", "Player"))
+		var soul_delta: int = int(new_player.get("souls", 0)) - int(old_player.get("souls", 0))
+		var tear_delta: int = int(new_player.get("tears", 0)) - int(old_player.get("tears", 0))
+		if soul_delta != 0:
+			_log(
+				"[color=#f2d477][b]Soul audit:[/b] %s %s %d Soul%s this Resolution.[/color]"
+				% [
+					owner,
+					("gained" if soul_delta > 0 else "lost"),
+					abs(soul_delta),
+					("" if abs(soul_delta) == 1 else "s"),
+				]
+			)
+		if tear_delta != 0:
+			_log(
+				"[color=#d8b4fe][b]Tear audit:[/b] %s %s %d personal Tear%s this Resolution.[/color]"
+				% [
+					owner,
+					("gained" if tear_delta > 0 else "lost"),
+					abs(tear_delta),
+					("" if abs(tear_delta) == 1 else "s"),
+				]
+			)
+
+	var veil_delta: int = int(after.get("veil", 0)) - int(before.get("veil", 0))
+	var personal_delta: int = 0
+	for player_index: int in range(min(old_players.size(), new_players.size())):
+		if (
+			typeof(old_players[player_index]) == TYPE_DICTIONARY
+			and typeof(new_players[player_index]) == TYPE_DICTIONARY
+		):
+			personal_delta += (
+				int(new_players[player_index].get("tears", 0))
+				- int(old_players[player_index].get("tears", 0))
+			)
+	var neutral_delta: int = veil_delta - personal_delta
+	if neutral_delta != 0:
+		_log(
+			"[color=#c8b36a][b]Neutral Tear audit:[/b] The Veil %s by %d Neutral Tear%s this Resolution.[/color]"
+			% [
+				("increased" if neutral_delta > 0 else "decreased"),
+				abs(neutral_delta),
+				("" if abs(neutral_delta) == 1 else "s"),
+			]
+		)
+
 func _log_resolution_changes(
 	before: Dictionary,
 	after: Dictionary
@@ -6192,17 +7393,19 @@ func _log_reveal_lord_powers(
 			{}
 		)
 
-		if (
-			typeof(
-				invoke
-			) != TYPE_DICTIONARY
-			or not bool(
-				invoke.get(
-					"invoked",
-					false
+		if typeof(invoke) != TYPE_DICTIONARY:
+			continue
+
+		if not bool(invoke.get("invoked", false)):
+			var invoke_reason: String = String(invoke.get("reason", ""))
+			if invoke_reason in ["hand_toll_unpaid", "hand_toll_invalid"]:
+				_log(
+					"[color=#a99eac][b]Kanifous — Invoke unpaid:[/b] %s had no valid Hand card for the toll; revealed %s and returned those cards to the deck.[/color]"
+					% [
+						_player_name(int(player_result.get("player_id", -1))),
+						_string_values_inline(invoke.get("revealed_cards", [])),
+					]
 				)
-			)
-		):
 			continue
 
 		var player_id: int = int(
@@ -6234,12 +7437,22 @@ func _log_reveal_lord_powers(
 			)
 		)
 
+		var invoke_cost_text: String = (
+			"paid %s from Hand" % String(invoke.get("toll_card", "?"))
+			if bool(invoke.get("toll_paid", false))
+			else (
+				"gained 1 Threat"
+				if int(invoke.get("threat_after", 0)) > int(invoke.get("threat_before", 0))
+				else "paid no additional cost"
+			)
+		)
 		_log(
-			"[color=#d8b4fe][b]Kanifous — Invoke:[/b] %s gained 1 Threat, revealed %s, chose %s, and %s%s[/color]"
+			"[color=#d8b4fe][b]Kanifous — Invoke:[/b] %s %s, revealed %s, chose %s, and %s%s[/color]"
 			% [
 				_player_name(
 					player_id
 				),
+				invoke_cost_text,
 				_string_values_inline(
 					invoke.get(
 						"revealed_cards",
@@ -6646,10 +7859,13 @@ func _log_new_development_activity() -> void:
 		"veil_drift",
 		"development_start",
 		"draw",
+		"market_rollover",
 		"market",
 		"repair",
 		"dominion_rites",
 		"deploy",
+		"march",
+		"march_advance",
 		"summon",
 	]:
 		if not controller.phase_results.has(
@@ -6703,6 +7919,10 @@ func _log_new_development_activity() -> void:
 				_log_draw_events(
 					phase_data
 				)
+			"market_rollover":
+				_log_market_rollover(
+					phase_data
+				)
 			"market":
 				_log_market_events(
 					phase_data
@@ -6719,6 +7939,10 @@ func _log_new_development_activity() -> void:
 				_log_deploy_events(
 					phase_data
 				)
+			"march":
+				_log_march_launch_events(phase_data)
+			"march_advance":
+				_log_march_advance_events(phase_data)
 			"summon":
 				_log_summon_events(
 					phase_data
@@ -7130,6 +8354,20 @@ func _log_draw_side_effects(
 		)
 
 
+func _log_market_rollover(
+	phase_data: Dictionary
+) -> void:
+	if not bool(phase_data.get("enabled", false)):
+		return
+
+	_log(
+		"[color=#82c9ff][b]Market rollover:[/b] %s rotated beneath the deck; fresh offers are on display.[/color]"
+		% _string_values_inline(
+			phase_data.get("rolled_cards", [])
+		)
+	)
+
+
 func _log_market_events(
 	phase_data: Dictionary
 ) -> void:
@@ -7499,6 +8737,106 @@ func _log_deploy_events(
 			)
 
 
+func _log_march_launch_events(
+	phase_data: Dictionary
+) -> void:
+	for raw_result in _array_from(phase_data.get("results", [])):
+		if typeof(raw_result) != TYPE_DICTIONARY:
+			continue
+		var result: Dictionary = raw_result
+		if String(result.get("action", "")) != "march":
+			continue
+		var reactive_text: String = (
+			" through Reactive Lane"
+			if bool(result.get("reactive", false))
+			else ""
+		)
+		_log(
+			"[color=#c8b36a][b]Marching Orders:[/b] %s launched %s from %s into the %s lane%s.[/color]"
+			% [
+				_player_name(int(result.get("player_id", -1))),
+				String(result.get("card", "a Guard")),
+				String(result.get("source_zone", "a Guard zone")),
+				String(result.get("lane", "?")),
+				reactive_text,
+			]
+		)
+
+
+func _log_march_advance_events(
+	phase_data: Dictionary
+) -> void:
+	for raw_event in _array_from(phase_data.get("events", [])):
+		if typeof(raw_event) != TYPE_DICTIONARY:
+			continue
+		var event: Dictionary = raw_event
+		match String(event.get("type", "")):
+			"march_clash":
+				var first_damage: int = int(event.get("first_damage", 0))
+				var second_damage: int = int(event.get("second_damage", 0))
+				var advantage_text: String = (
+					" Suit advantage applied."
+					if first_damage != second_damage
+					else ""
+				)
+				_log(
+					("[color=#c8b36a][b]Lane clash — %s:[/b] simultaneous damage %d–%d.%s "
+					+ "RPS: Wright > Penitent > Vulture > Butcher > Wright.[/color]")
+					% [
+						String(event.get("lane", "?")),
+						first_damage,
+						second_damage,
+						advantage_text,
+					]
+				)
+
+			"march_spy":
+				_log(
+					"[color=#ff9a7a][b]Lane clash — %s:[/b] Butcher:1 intercepted Vulture:5; both marchers were destroyed.[/color]"
+					% String(event.get("lane", "?"))
+				)
+
+			"march_evade":
+				_log(
+					"[color=#82c9ff][b]Lane evasion:[/b] Vulture:5 passed through the clash; only Butcher:1 can destroy it.[/color]"
+				)
+
+			"march_destroyed":
+				var destroyed_id: int = int(event.get("player_id", -1))
+				var killer_id: int = 1 - destroyed_id
+				var income_text: String = (
+					" %s gained 1 Soul." % _player_name(killer_id)
+					if controller.rules.lane_kill_soul
+					else ""
+				)
+				_log(
+					"[color=#ff9a7a][b]Marcher destroyed:[/b] %s lost %s.%s[/color]"
+					% [
+						_player_name(destroyed_id),
+						String(event.get("card", "a marcher")),
+						income_text,
+					]
+				)
+
+			"march_arrival":
+				if bool(event.get("scored", false)):
+					_log(
+						"[color=#f2d477][b]Marcher arrived:[/b] %s's %s reached the enemy gate and gained 1 personal Tear.[/color]"
+						% [
+							_player_name(int(event.get("player_id", -1))),
+							String(event.get("card", "marcher")),
+						]
+					)
+				else:
+					_log(
+						"[color=#a99eac][b]Marcher arrived short:[/b] %s's %s reached the gate below value %d and gained no Tear.[/color]"
+						% [
+							_player_name(int(event.get("player_id", -1))),
+							String(event.get("card", "marcher")),
+							controller.rules.march_threshold,
+						]
+					)
+
 func _log_summon_events(
 	phase_data: Dictionary
 ) -> void:
@@ -7635,11 +8973,18 @@ func _array_from(
 	return value
 
 
+func _second_action_name() -> String:
+	if controller != null and controller.rules != null and controller.rules.momentum:
+		return "Momentum"
+
+	return "Reflex"
+
+
 func _reflex_holder_text() -> String:
 	if int(
 		controller.game.reflex_winner
 	) < 0:
-		return "No Reflex action"
+		return "No %s action" % _second_action_name()
 
 	var holder = controller.game.get_player(
 		int(
@@ -7648,13 +8993,14 @@ func _reflex_holder_text() -> String:
 	)
 
 	if holder == null:
-		return "No Reflex action"
+		return "No %s action" % _second_action_name()
 
 	return (
-		"Reflex held by %s"
-		% String(
-			holder.lord
-		)
+		"%s held by %s"
+		% [
+			_second_action_name(),
+			String(holder.lord),
+		]
 	)
 
 
@@ -7756,8 +9102,9 @@ func _log_reflex_resolution(
 	)
 
 	_log(
-		"[color=#c8b36a][b]Reflex second action:[/b] %s executed %s with %s%s.[/color]"
+		"[color=#c8b36a][b]%s second action:[/b] %s executed %s with %s%s.[/color]"
 		% [
+			_second_action_name(),
 			actor_name,
 			executed_action,
 			cards_text,
@@ -7772,7 +9119,7 @@ func _log_reflex_resolution(
 		)
 	):
 		_log(
-			"[color=#d8b4fe][b]Odradek Breach — Paradox Geometry:[/b] Correctly guessed %s, discarded the original winner's %s, and stole the Reflex action.[/color]"
+			"[color=#d8b4fe][b]Odradek Breach — Paradox Geometry:[/b] Correctly guessed %s, discarded the original winner's %s, and stole the %s action.[/color]"
 			% [
 				String(
 					reflex.get(
@@ -7786,14 +9133,16 @@ func _log_reflex_resolution(
 						[]
 					)
 				),
+				_second_action_name(),
 			]
 		)
 
 	reveal_label.text += (
 		"\n[center][color=#c8b36a]"
-		+ "Reflex: %s → %s (%s)%s"
+		+ "%s: %s → %s (%s)%s"
 		+ "[/color][/center]"
 	) % [
+		_second_action_name(),
 		actor_name,
 		executed_action,
 		cards_text,
@@ -7824,11 +9173,18 @@ func _player_state_text(
 
 	return (
 		"[b]%s[/b] · %s\n"
-		+ "Souls [b]%d/%d[/b]   Tears [b]%d[/b]   Threat [b]%d[/b]\n"
+		+ SOULS_LABEL
+		+ " [b]%d/%d[/b]   "
+		+ TEARS_LABEL
+		+ " [b]%d[/b]   "
+		+ THREAT_LABEL
+		+ " [b]%d[/b]\n"
 		+ "Lord defense %d   Sigil %s\n"
 		+ "Lord guards: %s\n"
-		+ "Castles (%d): %s\n"
+		+ CASTLES_LABEL
+		+ " (%d): %s\n"
 		+ "Castle guards: %s\n"
+		+ "Marchers: %s\n"
 		+ "Garrison: %s\n"
 		+ "Hand: %s"
 	) % [
@@ -7864,9 +9220,7 @@ func _player_state_text(
 			)
 		),
 		player.castles.size(),
-		_strings_inline(
-			player.castles
-		),
+		_castle_status_inline_with_help(player),
 		(
 			_public_guard_summary(
 				player.castle_guards
@@ -7876,11 +9230,50 @@ func _player_state_text(
 				player.castle_guards
 			)
 		),
+		_marchers_inline(player.marchers),
 		_cards_inline(
 			player.garrison
 		),
 		hand_text,
 	]
+
+
+func _castle_status_inline(player) -> String:
+	var labels: Array[String] = []
+
+	for castle_name_value in player.castles:
+		var castle_name: String = String(castle_name_value)
+		var scars: int = int(player.castle_scars.get(castle_name, 0))
+		labels.append(
+			"%s%s" % [
+				castle_name,
+				(" (scar %d)" % scars) if scars > 0 else "",
+			]
+		)
+
+	for castle_name_value in player.ruined_castles:
+		labels.append("%s (ruined)" % String(castle_name_value))
+
+	for castle_name_value in player.lost_castles:
+		labels.append("%s (lost)" % String(castle_name_value))
+
+	return "—" if labels.is_empty() else ", ".join(labels)
+
+
+func _marchers_inline(marchers: Array) -> String:
+	if marchers.is_empty():
+		return "—"
+
+	var labels: Array[String] = []
+	for marcher in marchers:
+		var card = marcher.get("card", null)
+		labels.append("%s %d/%d → %s" % [
+			_card_id(card),
+			int(marcher.get("value", 0)),
+			int(marcher.get("pos", 0)),
+			String(marcher.get("lane", "")),
+		])
+	return ", ".join(labels)
 
 
 func _lord_card_text(
@@ -8118,7 +9511,7 @@ func _lord_live_state(
 			)
 		"Kanifous":
 			return (
-				"Invoked this round %d time(s); suit %s; high Invoke %s; outside draws %d."
+				"Invoked this round %d time(s); suit %s; high Invoke %s; outside draws %d; Invoke cost %s."
 				% [
 					int(
 						player.kanifous_invokes_this_round
@@ -8142,32 +9535,75 @@ func _lord_live_state(
 					int(
 						player.kanifous_outside_draws
 					),
+					(
+						"one Hand card"
+						if controller.rules.kani_hand_cost
+						else "one Threat"
+					),
 				]
 			)
+
 		"Humbaba":
 			return (
-				"Living Fortress DEF %d with %d Castles; Gate Guard cap %d; Patient %s; Seal adds +1 Dominion requirement."
+				"Woven Into the Stones DEF %d with %d active Castles; Toll once per round when legal; Reactive Lane %s."
 				% [
-					int(
-						player.derived_lord_def
-					),
+					int(player.derived_lord_def),
 					player.castles.size(),
 					(
-						4
-						if player.ruined_castles.is_empty()
-						else 3
-					),
-					(
-						"armed"
-						if bool(
-							player.humbaba_patient
-						)
-						else "not armed"
+						"available into %s" % controller.human_reactive_march_lane()
+						if int(player.pid) == 0 and not controller.human_reactive_march_lane().is_empty()
+						else "response-only"
 					),
 				]
 			)
 
 	return "No live ability state."
+
+
+func _dominion_help_text(
+	veil_total: int
+) -> String:
+	if controller == null or controller.rules == null:
+		return "The Veil combines all personal and Neutral Tears."
+
+	return (
+		"DOMINION / VEIL — The Veil combines every personal and Neutral Tear. "
+		+ "Collapse at %d and Waning at %d each strip the lowest Guard from a zone "
+		+ "attacked last round during Resolution Prelude; both effects stack at %d+. "
+		+ "At Cataclysm %d, and after each later Tear, Dominion is checked. A player "
+		+ "must lead in personal Tears and hold at least %d; Lord effects can raise "
+		+ "that requirement. Final Collapse at %d ends the game and Souls decide "
+		+ "the winner. Current Veil: %d."
+	) % [
+		VEIL_COLLAPSE_THRESHOLD,
+		VEIL_WANING_THRESHOLD,
+		VEIL_WANING_THRESHOLD,
+		int(controller.rules.dominion_track),
+		int(controller.rules.dominion_requirement),
+		int(controller.rules.final_collapse_threshold),
+		veil_total,
+	]
+
+
+func _castle_status_inline_with_help(
+	player
+) -> String:
+	var castle_text: String = _castle_status_inline(player)
+
+	for castle_name_value in CASTLE_HELP.keys():
+		var castle_name: String = String(castle_name_value)
+		var help_text: String = String(
+			CASTLE_HELP.get(castle_name, "")
+		)
+		castle_text = castle_text.replace(
+			castle_name,
+			"[hint=%s]%s[/hint]" % [
+				help_text,
+				castle_name,
+			]
+		)
+
+	return castle_text
 
 
 func _persistent_scorch_text() -> String:
@@ -8586,6 +10022,7 @@ func _validate_layout_invariants() -> void:
 	for named_control: Control in [
 		setup_row,
 		board_row,
+		marching_board_panel,
 		interaction_panel,
 		footer_row,
 	]:

@@ -14,7 +14,17 @@ var first_player: int = -1
 
 var breach: String = ""
 var breach_owner: int = -1
+# `reflex_winner` now means "earned second action".  In DE v2 it is awarded
+# by the Reflex Bid; in v6.5 it is awarded by Momentum.
 var reflex_winner: int = -1
+
+# Per-player read of the opponent's repeated actions.  The v6.5 profile leaves
+# it inert, but keeping it in state makes the optional adaptive policy explicit
+# and serializable when that experiment is enabled later.
+var action_memory: Array[Dictionary] = [
+	{},
+	{},
+]
 
 var persist_scorch_pid: int = -1
 var persist_scorch_type: String = ""
@@ -100,6 +110,16 @@ func duplicate_state() -> GameState:
 	copy.breach = breach
 	copy.breach_owner = breach_owner
 	copy.reflex_winner = reflex_winner
+	# Assign through the typed collection rather than a generic array literal.
+	# This keeps duplicate_state safe under Godot's runtime typed-array checks.
+	copy.action_memory.clear()
+	for player_id in range(2):
+		var memory_copy: Dictionary = (
+			action_memory[player_id].duplicate(true)
+			if player_id < action_memory.size()
+			else {}
+		)
+		copy.action_memory.append(memory_copy)
 
 	copy.persist_scorch_pid = persist_scorch_pid
 	copy.persist_scorch_type = persist_scorch_type

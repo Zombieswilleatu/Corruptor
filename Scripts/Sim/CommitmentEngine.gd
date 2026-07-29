@@ -20,7 +20,8 @@ const VALID_SUITS: Array[String] = [
 
 static func resolve(
 	game,
-	commitment_choices: Dictionary
+	commitment_choices: Dictionary,
+	rules: RuleConfig = null
 ) -> Dictionary:
 	assert(
 		game != null,
@@ -48,7 +49,8 @@ static func resolve(
 		var validation: Dictionary = _validate_commitment(
 			game,
 			player,
-			decision
+			decision,
+			rules
 		)
 
 		if not bool(
@@ -189,7 +191,8 @@ static func resolve(
 static func _validate_commitment(
 	game,
 	player,
-	decision: Dictionary
+	decision: Dictionary,
+	rules: RuleConfig = null
 ) -> Dictionary:
 	var player_id: int = int(
 		player.pid
@@ -340,6 +343,7 @@ static func _validate_commitment(
 
 			if (
 				player.alive
+				and (rules == null or rules.ward_anti_repeat)
 				and player.prev_ward_target == target_type
 			):
 				return _invalid_plan(

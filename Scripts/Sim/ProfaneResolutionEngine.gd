@@ -77,7 +77,9 @@ static func resolve(
 		opponent
 	)
 
-	if not blocking_zone.is_empty():
+	# FIX B removes Fresh-Sigil Profane denial.  The sigil still exists as a
+	# defensive combat layer; it simply no longer vetoes a different action.
+	if not rules.fix_b and not blocking_zone.is_empty():
 		player.pending_profane = ""
 
 		return {

@@ -163,6 +163,19 @@ static func resolve(
 			)
 		)
 
+		# Humbaba's own sigil is a fixed defensive contribution in the v6.5
+		# profile. It is part of the Ward bet, not a card silently placed in
+		# Commitment, so the locked committed-value trigger order stays intact.
+		if (
+			rules.humbaba_sigil_commit
+			and player.lord == "Humbaba"
+			and player.alive
+		):
+			own_value += 2
+
+			if player.castles.has("Keep"):
+				own_value += 1
+
 		var opponent_value: int = int(
 			committed_values.get(
 				int(
@@ -175,12 +188,36 @@ static func resolve(
 		var sigil_state: String = "fresh"
 
 		if (
-			contested
+			not rules.sigil_flat
+			and contested
 			and opponent_value > own_value
 		):
 			sigil_state = "flipped"
 
 		player.sigils[zone] = sigil_state
+
+		var turned: bool = (
+			rules.ward_threshold
+			and contested
+			and own_value >= opponent_value
+		)
+
+		if turned:
+			player.ward_turned[zone] = true
+
+		var refunded_card: String = ""
+
+		if (
+			rules.ward_garrison_refund
+			and not contested
+			and not player.committed.is_empty()
+			and player.garrison.size() < rules.garrison_max
+		):
+			var lowest_index: int = _lowest_card_index(player.committed)
+			var lowest_card = player.committed[lowest_index]
+			player.committed.remove_at(lowest_index)
+			player.garrison.append(lowest_card)
+			refunded_card = _card_id(lowest_card)
 
 		if zone == ZONE_LORD:
 			player.threat = max(
@@ -197,6 +234,8 @@ static func resolve(
 			"own_committed_value": own_value,
 			"opposing_committed_value": opponent_value,
 			"sigil_state": sigil_state,
+			"turned": turned,
+			"refunded_card": refunded_card,
 		}
 
 	# Invoke, Hungering Aura, and primary-action Recoil share one
@@ -657,87 +696,69 @@ static func _resolve_kanifous(
 	random_source = null,
 	decision: Dictionary = {}
 ) -> Dictionary:
-	var threat_before: int = int(
-		player.threat
-	)
+	var threat_before: int = int(player.threat)
+
+	if not rules.kani_invoke:
+		var disabled_event: Dictionary = _empty_kanifous_event(threat_before)
+		disabled_event["reason"] = "invoke_disabled"
+		return disabled_event
 
 	var revealed_cards: Array = []
-
-	for reveal_index in range(
-		2
-	):
-		var revealed_card = _draw_top_card(
-			game,
-			random_source
-		)
-
+	for _reveal_index in range(2):
+		var revealed_card = _draw_top_card(game, random_source)
 		if revealed_card == null:
 			break
-
-		revealed_cards.append(
-			revealed_card
-		)
+		revealed_cards.append(revealed_card)
 
 	if revealed_cards.is_empty():
-		return {
-			"invoked": false,
-			"reason": "deck_empty",
-			"threat_before": threat_before,
-			"threat_after": int(
-				player.threat
-			),
-			"revealed_cards": [],
-			"chosen_card": "",
-			"discarded_cards": [],
-			"neutral_tear_gain": 0,
-			"harvested_card": "",
-			"harvested_by": -1,
-			"drawn_cards": [],
-			"hand_discarded": "",
-			"moved_guards": [],
-			"temporary_guards": [],
-			"banked_card": "",
-			"garrison_overflow": false,
-			"soul_gain": 0,
-		}
+		var empty_event: Dictionary = _empty_kanifous_event(threat_before)
+		empty_event["reason"] = "deck_empty"
+		return empty_event
+
+	var toll_card = null
+	var toll_paid: bool = false
+	if rules.kani_hand_cost:
+		var toll_index: int = -1
+		var requested_toll: String = String(decision.get("toll_card", ""))
+		if requested_toll.is_empty():
+			toll_index = _lowest_card_index(player.hand)
+		else:
+			for hand_index in range(player.hand.size()):
+				if _card_id(player.hand[hand_index]) == requested_toll:
+					toll_index = hand_index
+					break
+
+		if toll_index < 0:
+			var unpaid_event: Dictionary = _empty_kanifous_event(threat_before)
+			unpaid_event["reason"] = (
+				"hand_toll_unpaid"
+				if player.hand.is_empty()
+				else "hand_toll_invalid"
+			)
+			unpaid_event["revealed_cards"] = _card_ids(revealed_cards)
+			_restore_revealed_cards(game, revealed_cards)
+			return unpaid_event
+
+		toll_card = player.hand[toll_index]
+		player.hand.remove_at(toll_index)
+		game.discard.append(toll_card)
+		toll_paid = true
 
 	player.kanifous_invokes_this_round += 1
 
-	player.threat = min(
-		rules.max_threat,
-		int(
-			player.threat
-		) + 1
-	)
+	if rules.kani_threat_cost and not rules.kani_hand_cost:
+		player.threat = min(rules.max_threat, int(player.threat) + 1)
 
 	var neutral_tear_gain: int = 0
 	var harvested_card: String = ""
 	var harvested_by: int = -1
-
 	var kanifous_card = revealed_cards[0]
 
-	if int(
-		kanifous_card.value
-	) >= 4:
-		var tear_event: Dictionary = _gain_neutral_tear(
-			game
-		)
-
+	if rules.kani_neutral_tear and int(kanifous_card.value) >= 4:
+		var tear_event: Dictionary = _gain_neutral_tear(game)
 		neutral_tear_gain = 1
-
-		harvested_card = String(
-			tear_event.get(
-				"harvested_card",
-				""
-			)
-		)
-
-		harvested_by = int(
-			tear_event.get(
-				"harvested_by",
-				-1
-			)
-		)
+		harvested_card = String(tear_event.get("harvested_card", ""))
+		harvested_by = int(tear_event.get("harvested_by", -1))
 
 	var chosen_card = _find_card(
 		revealed_cards,
@@ -746,27 +767,19 @@ static func _resolve_kanifous(
 	if chosen_card == null:
 		chosen_card = _choose_kanifous_card(revealed_cards, player)
 
-	assert(
-		chosen_card != null,
-		"Kanifous revealed cards but selected no Invoke card."
-	)
+	assert(chosen_card != null, "Kanifous revealed cards but selected no Invoke card.")
 
 	var discarded_cards: Array = []
-
 	for card in revealed_cards:
 		if card == chosen_card:
 			continue
+		game.discard.append(card)
+		discarded_cards.append(card)
 
-		game.discard.append(
-			card
-		)
-
-		discarded_cards.append(
-			card
-		)
-
-	player.kanifous_invoked_suit = String(
-		chosen_card.suit
+	player.kanifous_invoked_suit = (
+		String(chosen_card.suit)
+		if rules.kani_suit_effects
+		else ""
 	)
 
 	var drawn_cards: Array = []
@@ -774,205 +787,139 @@ static func _resolve_kanifous(
 	var moved_guards: Array = []
 	var temporary_guards: Array = []
 
-	match String(
-		chosen_card.suit
-	):
-		"Vulture":
-			for draw_index in range(
-				3
-			):
-				var drawn_card = _draw_outside_development(
-					game,
-					player,
-					rules,
-					random_source
-				)
-
-				if drawn_card != null:
-					drawn_cards.append(
-						drawn_card
-					)
-
-			if player.hand.size() > 1:
-				var lowest_index: int = _lowest_card_index(
-					player.hand
-				)
-
-				if lowest_index >= 0:
-					hand_discarded = player.hand[
-						lowest_index
-					]
-
-					player.hand.remove_at(
-						lowest_index
-					)
-
-					game.discard.append(
-						hand_discarded
-					)
-
-		"Wright":
-			# A supplied choice is the player-facing Wright decision.  Leave the
-			# original front-of-zone behavior intact for bot/simulation callers
-			# that do not supply one.
-			var requested_indices: Array[int] = _wright_guard_indices(
-				decision.get("wright_guard_indices", [])
-			)
-			if decision.has("wright_guard_indices"):
-				var selected_guards: Array = []
-				var max_count: int = min(
-					2,
-					_max_castle_guards(player, rules) - player.castle_guards.size()
-				)
-				for guard_index: int in requested_indices:
-					if selected_guards.size() >= max_count:
-						break
-					if guard_index < 0 or guard_index >= player.lord_guards.size():
-						continue
-					var guard = player.lord_guards[guard_index]
-					if selected_guards.has(guard):
-						continue
-					selected_guards.append(guard)
-
-				for guard in selected_guards:
-					player.lord_guards.erase(guard)
-					player.castle_guards.append(guard)
-					moved_guards.append(guard)
-			else:
-				var moved_count: int = 0
-
-				while (
-					moved_count < 2
-					and not player.lord_guards.is_empty()
-					and player.castle_guards.size()
-					< _max_castle_guards(
+	if rules.kani_suit_effects:
+		match String(chosen_card.suit):
+			"Vulture":
+				for _draw_index in range(3):
+					var drawn_card = _draw_outside_development(
+						game,
 						player,
-						rules
+						rules,
+						random_source
 					)
-				):
-					var guard = player.lord_guards.pop_front()
+					if drawn_card != null:
+						drawn_cards.append(drawn_card)
 
-					player.castle_guards.append(guard)
+				if player.hand.size() > 1:
+					var lowest_index: int = _lowest_card_index(player.hand)
+					if lowest_index >= 0:
+						hand_discarded = player.hand[lowest_index]
+						player.hand.remove_at(lowest_index)
+						game.discard.append(hand_discarded)
 
-					moved_guards.append(guard)
-
-					moved_count += 1
-
-		"Penitent":
-			for guard_index in range(
-				2
-			):
-				var temporary_guard = _draw_top_card(
-					game,
-					random_source
+			"Wright":
+				# A supplied choice is the player-facing Wright decision. Leave the
+				# front-of-zone behavior intact for bot/simulation callers.
+				var requested_indices: Array[int] = _wright_guard_indices(
+					decision.get("wright_guard_indices", [])
 				)
-
-				if temporary_guard == null:
-					break
-
-				if (
-					player.lord_guards.size()
-					<= player.castle_guards.size()
-				):
-					player.lord_guards.append(
-						temporary_guard
+				if decision.has("wright_guard_indices"):
+					var selected_guards: Array = []
+					var max_count: int = min(
+						2,
+						_max_castle_guards(player, rules) - player.castle_guards.size()
 					)
+					for guard_index: int in requested_indices:
+						if selected_guards.size() >= max_count:
+							break
+						if guard_index < 0 or guard_index >= player.lord_guards.size():
+							continue
+						var guard = player.lord_guards[guard_index]
+						if selected_guards.has(guard):
+							continue
+						selected_guards.append(guard)
+
+					for guard in selected_guards:
+						player.lord_guards.erase(guard)
+						player.castle_guards.append(guard)
+						moved_guards.append(guard)
 				else:
-					player.castle_guards.append(
-						temporary_guard
-					)
+					var moved_count: int = 0
+					while (
+						moved_count < 2
+						and not player.lord_guards.is_empty()
+						and player.castle_guards.size() < _max_castle_guards(player, rules)
+					):
+						var guard = player.lord_guards.pop_front()
+						player.castle_guards.append(guard)
+						moved_guards.append(guard)
+						moved_count += 1
 
-				player.penitent_temp_guards.append(
-					temporary_guard
-				)
+			"Penitent":
+				for _guard_index in range(2):
+					var temporary_guard = _draw_top_card(game, random_source)
+					if temporary_guard == null:
+						break
+					if player.lord_guards.size() <= player.castle_guards.size():
+						player.lord_guards.append(temporary_guard)
+					else:
+						player.castle_guards.append(temporary_guard)
+					player.penitent_temp_guards.append(temporary_guard)
+					temporary_guards.append(temporary_guard)
+				player.kanifous_invoked_high = true
 
-				temporary_guards.append(
-					temporary_guard
-				)
-
-			player.kanifous_invoked_high = true
-
-		"Butcher":
-			pass
+			"Butcher":
+				pass
 
 	var soul_gain: int = 0
-
-	if int(
-		chosen_card.value
-	) == int(
-		player.threat
+	if (
+		rules.kani_soul_trigger
+		and int(chosen_card.value) == int(player.threat)
 	):
 		player.souls += 1
 		soul_gain = 1
 
 	var banked_card: String = ""
 	var garrison_overflow: bool = false
-
 	if (
-		player.garrison.size() < rules.garrison_max
-		and not player.garrison.has(
-			chosen_card
-		)
+		rules.kani_garrison_bank
+		and player.garrison.size() < rules.garrison_max
+		and not player.garrison.has(chosen_card)
 	):
-		player.garrison.append(
-			chosen_card
-		)
-
-		banked_card = _card_id(
-			chosen_card
-		)
+		player.garrison.append(chosen_card)
+		banked_card = _card_id(chosen_card)
 	else:
-		game.discard.append(
-			chosen_card
+		game.discard.append(chosen_card)
+		discarded_cards.append(chosen_card)
+		garrison_overflow = (
+			rules.kani_garrison_bank
+			and player.garrison.size() >= rules.garrison_max
 		)
 
-		discarded_cards.append(
-			chosen_card
-		)
-
-		garrison_overflow = true
-
-	var hand_discarded_id: String = ""
-
-	if hand_discarded != null:
-		hand_discarded_id = _card_id(
-			hand_discarded
-		)
+	var hand_discarded_id: String = (
+		_card_id(hand_discarded)
+		if hand_discarded != null
+		else ""
+	)
 
 	return {
 		"invoked": true,
 		"reason": "",
 		"threat_before": threat_before,
-		"threat_after": int(
-			player.threat
-		),
-		"revealed_cards": _card_ids(
-			revealed_cards
-		),
-		"chosen_card": _card_id(
-			chosen_card
-		),
-		"discarded_cards": _card_ids(
-			discarded_cards
-		),
+		"threat_after": int(player.threat),
+		"toll_card": _card_id(toll_card),
+		"toll_paid": toll_paid,
+		"revealed_cards": _card_ids(revealed_cards),
+		"chosen_card": _card_id(chosen_card),
+		"discarded_cards": _card_ids(discarded_cards),
 		"neutral_tear_gain": neutral_tear_gain,
 		"harvested_card": harvested_card,
 		"harvested_by": harvested_by,
-		"drawn_cards": _card_ids(
-			drawn_cards
-		),
+		"drawn_cards": _card_ids(drawn_cards),
 		"hand_discarded": hand_discarded_id,
-		"moved_guards": _card_ids(
-			moved_guards
-		),
-		"temporary_guards": _card_ids(
-			temporary_guards
-		),
+		"moved_guards": _card_ids(moved_guards),
+		"temporary_guards": _card_ids(temporary_guards),
 		"banked_card": banked_card,
 		"garrison_overflow": garrison_overflow,
 		"soul_gain": soul_gain,
 	}
 
+static func _restore_revealed_cards(
+	game,
+	revealed_cards: Array
+) -> void:
+	for card_index in range(revealed_cards.size() - 1, -1, -1):
+		game.deck.append(revealed_cards[card_index])
 
 static func _choose_kanifous_card(
 	revealed_cards: Array,
@@ -1347,6 +1294,8 @@ static func _empty_ward_event() -> Dictionary:
 		"own_committed_value": 0,
 		"opposing_committed_value": 0,
 		"sigil_state": "",
+		"turned": false,
+		"refunded_card": "",
 	}
 
 
@@ -1358,6 +1307,8 @@ static func _empty_kanifous_event(
 		"reason": "not_kanifous",
 		"threat_before": threat,
 		"threat_after": threat,
+		"toll_card": "",
+		"toll_paid": false,
 		"revealed_cards": [],
 		"chosen_card": "",
 		"discarded_cards": [],
@@ -1372,7 +1323,6 @@ static func _empty_kanifous_event(
 		"garrison_overflow": false,
 		"soul_gain": 0,
 	}
-
 
 static func _card_ids(
 	cards: Array

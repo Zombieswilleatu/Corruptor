@@ -41,6 +41,19 @@ class GoldenIdentityTests(unittest.TestCase):
             self.constants,
         )
 
+    def test_golden_generator_installs_its_pinned_softmax_policy(self):
+        # Direct balance-lab runs deliberately start on the heuristic policy.
+        # The golden generator must replace it before it creates or validates
+        # a canonical trace; otherwise an AI-policy label could lie.
+        self.assertEqual(
+            golden.sim.AI_POLICY,
+            golden.AI_VERSION,
+        )
+        self.assertEqual(
+            golden.AI_VERSION,
+            golden.policy.POLICY_ID,
+        )
+
     def test_live_identity_refuses_mislabeled_constants(self):
         golden.sim.DOMINION_REQUIREMENT = 3
 

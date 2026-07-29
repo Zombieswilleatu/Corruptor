@@ -66,6 +66,14 @@ const BotDeployDoctrineData = preload(
 	"res://Scripts/Sim/BotDeployDoctrine.gd"
 )
 
+const BotMarchingDoctrineData = preload(
+	"res://Scripts/Sim/BotMarchingDoctrine.gd"
+)
+
+const MarchingEngineData = preload(
+	"res://Scripts/Sim/MarchingEngine.gd"
+)
+
 const BotResolutionDoctrineData = preload(
 	"res://Scripts/Sim/BotResolutionDoctrine.gd"
 )
@@ -238,6 +246,32 @@ static func resolve_round(
 		draw_result
 	)
 
+	var market_rollover_result: Dictionary = (
+		RoundEngineData.refresh_market_offers(
+			game,
+			rules,
+			random_source
+		)
+	)
+
+	# Market rollover is a lab-only phase beginning in round two. Canonical
+	# DE v2 and the opening Market return an inert result, but that result must
+	# not alter the serialized round-event contract.
+	if bool(
+		market_rollover_result.get(
+			"enabled",
+			false
+		)
+	):
+		phase_results["market_rollover"] = market_rollover_result
+
+		_append_event(
+			events,
+			game,
+			"market_rollover",
+			market_rollover_result
+		)
+
 	var market_choices: Dictionary = (
 		BotDoctrineData.market_choices(
 			game,
@@ -406,6 +440,50 @@ static func resolve_round(
 			"Deploy generated an invalid decision."
 		)
 
+	# Launching Marchers is likewise a real Development phase only in the lab.
+	# A disabled system must not add a synthetic canonical event.
+	if rules.marching:
+		var march_results: Array[Dictionary] = []
+
+		for player in game.players:
+			var player_id: int = int(player.pid)
+			var march_choice: Dictionary = (
+				BotMarchingDoctrineData.march_choice(
+					game,
+					player_id,
+					rules
+				)
+			)
+
+			march_results.append(
+				MarchingEngineData.launch(
+					game,
+					rules,
+					player_id,
+					march_choice
+				)
+			)
+
+		phase_results["march"] = {
+			"results": march_results,
+		}
+
+		_append_event(
+			events,
+			game,
+			"march",
+			phase_results["march"]
+		)
+
+		if _contains_invalid(march_results):
+			return _invalid_round(
+				game,
+				phase_results,
+				events,
+				"march",
+				"March generated an invalid decision."
+			)
+
 	var summon_choices: Dictionary = (
 		BotDevelopmentDoctrineData
 		.summon_choices(
@@ -460,7 +538,7 @@ static func resolve_round(
 
 	var bid_choices: Dictionary = {}
 
-	if game.round > 1:
+	if rules.reflex_bid and game.round > 1:
 		bid_choices = (
 			BotDoctrineData.bid_choices(
 				game,
@@ -470,13 +548,24 @@ static func resolve_round(
 			)
 		)
 
-	var bid_result: Dictionary = (
-		ReflexBidEngineData.resolve(
+	var bid_result: Dictionary = {}
+
+	if rules.reflex_bid:
+		bid_result = ReflexBidEngineData.resolve(
 			game,
 			rules,
 			bid_choices
 		)
-	)
+	else:
+		bid_result = {
+			"action": "pass",
+			"reason": "reflex_bid_disabled",
+			"winner": -1,
+			"tie": false,
+			"invalid_player_id": -1,
+			"bid_totals": [],
+			"players": [],
+		}
 
 	phase_results["reflex_bid"] = {
 		"choices": bid_choices,
@@ -521,7 +610,8 @@ static func resolve_round(
 	var commitment_result: Dictionary = (
 		CommitmentEngineData.resolve(
 			game,
-			commitment_choices
+			commitment_choices,
+			rules
 		)
 	)
 
@@ -643,7 +733,26 @@ static func resolve_round(
 					"reason",
 					"invalid_resolution"
 				)
+		)
+	)
+
+	# Marching Orders is a lab-only phase.  Do not emit an inert event in DE v2:
+	# the event sequence is part of the canonical round contract.
+	if rules.marching:
+		var march_advance_result: Dictionary = (
+			MarchingEngineData.advance(
+				game,
+				rules
 			)
+		)
+
+		phase_results["march_advance"] = march_advance_result
+
+		_append_event(
+			events,
+			game,
+			"march_advance",
+			march_advance_result
 		)
 
 	return _finish_round(
@@ -652,10 +761,8 @@ static func resolve_round(
 		events,
 		true,
 		(
-			"resolution"
-			if int(
-				game.winner
-			) >= 0
+			"march_advance"
+			if rules.marching and int(game.winner) >= 0
 			else ""
 		)
 	)

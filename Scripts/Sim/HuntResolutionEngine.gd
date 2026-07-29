@@ -118,6 +118,28 @@ static func resolve(
 
 	defender.was_hunted = true
 
+	# A threshold Ward turns the entire attack. The committed cards are left in
+	# place so the standard aftermath still spends them and card conservation is
+	# unchanged.
+	if (
+		rules.ward_threshold
+		and bool(defender.ward_turned.get(ZONE_LORD, false))
+	):
+		var display_strength: int = _committed_value(
+			attacker.committed
+		)
+		var display_lord_defense: int = _calculate_lord_defense(
+			defender,
+			rules
+		)
+		game.refresh_derived_values()
+		return _ward_turned_result(
+			attacker_id,
+			defender_id,
+			display_strength,
+			display_lord_defense
+		)
+
 	var marked_lord: String = String(
 		game.get_meta(
 			"orias_marked_lord",
@@ -207,6 +229,19 @@ static func resolve(
 		rules
 	)
 
+	var ward_commit_defense: int = 0
+
+	if (
+		rules.ward_commit_defense
+		and defender.action == "Ward"
+		and defender.ward_target == ZONE_LORD
+	):
+		ward_commit_defense = _effective_ward_commitment(
+			defender,
+			rules
+		)
+		lord_defense += ward_commit_defense
+
 	var sigil_state: String = String(
 		defender.sigils.get(
 			ZONE_LORD,
@@ -217,7 +252,8 @@ static func resolve(
 	var sigil_value: int = _sigil_value(
 		game,
 		defender,
-		sigil_state
+		sigil_state,
+		rules
 	)
 
 	var combat_result: Dictionary = _resolve_combat(
@@ -257,6 +293,15 @@ static func resolve(
 			0
 		)
 	)
+
+	if (
+		rules.momentum
+		and destroyed
+		and int(game.reflex_winner) < 0
+		and excess >= 0
+		and excess <= rules.momentum_band
+	):
+		game.reflex_winner = attacker_id
 
 	var gremory_guard_trigger: Dictionary = (
 		_empty_gremory_trigger()
@@ -535,6 +580,7 @@ static func resolve(
 		"defender_id": defender_id,
 		"strength": strength,
 		"lord_defense": lord_defense,
+		"ward_commit_defense": ward_commit_defense,
 		"ignore_lowest_guard": ignore_lowest,
 		"butcher_suppressed_card": (
 			""
@@ -587,6 +633,45 @@ static func resolve(
 		),
 		"banishment": banishment_event,
 		"won": won,
+	}
+
+
+static func _ward_turned_result(
+	attacker_id: int,
+	defender_id: int,
+	strength: int,
+	lord_defense: int
+) -> Dictionary:
+	return {
+		"action": "hunt",
+		"reason": "ward_turned",
+		"attacker_id": attacker_id,
+		"defender_id": defender_id,
+		"strength": strength,
+		"lord_defense": lord_defense,
+		"ignore_lowest_guard": false,
+		"butcher_suppressed_card": "",
+		"sigil_state": "",
+		"sigil_value": 0,
+		"guards_defeated": [],
+		"sigil_broken": false,
+		"destroyed": false,
+		"banished": false,
+		"consumed": false,
+		"excess": 0,
+		"stopped_at": "ward_turned",
+		"recoil_card": "",
+		"siphoned_card": "",
+		"overkill_return": "",
+		"neutral_tear_gain": 0,
+		"personal_tear_gain": 0,
+		"harvested_card": "",
+		"harvested_by": -1,
+		"ravenous_soul_gain": 0,
+		"gremory_guard_trigger": _empty_gremory_trigger(),
+		"siphon_gremory_trigger": _empty_gremory_trigger(),
+		"banishment": _empty_banishment_event(),
+		"won": false,
 	}
 
 
@@ -904,12 +989,26 @@ static func _banish_lord(
 		)
 	)
 
-	defender.threat = int(
+
+	var return_threat: int = int(
 		lord_data.get(
 			"return_threat",
 			0
 		)
 	)
+
+	if rules.lord_threat_retention:
+		defender.return_threat_override = min(
+			rules.max_threat,
+			return_threat + int(int(defender.threat) / 2.0)
+		)
+		defender.threat = defender.return_threat_override
+	else:
+		defender.return_threat_override = -1
+		# DE v2 resets Threat on Banishment. Keeping the pre-Banishment value
+		# here would let the experimental return-state mechanic alter canonical
+		# snapshots and any doctrine that reads a Banished Lord's state.
+		defender.threat = return_threat
 
 	game.breach = String(
 		defender.lord
@@ -1341,7 +1440,8 @@ static func _calculate_lord_defense(
 static func _sigil_value(
 	game,
 	player,
-	sigil_state: String
+	sigil_state: String,
+	rules: RuleConfig = null
 ) -> int:
 	if not [
 		SIGIL_FRESH,
@@ -1356,6 +1456,12 @@ static func _sigil_value(
 		if sigil_state == SIGIL_FRESH
 		else 1
 	)
+
+	# In the measured profile a Ward is deliberately flat: Fresh is always 2
+	# and Flipped is always 1. Keep and Omen must not reintroduce hidden
+	# modifiers after the profile explicitly removed them.
+	if rules != null and rules.sigil_flat:
+		return value
 
 	if player.castles.has(
 		"Keep"
@@ -1514,6 +1620,26 @@ static func _lose_soul(
 			amount
 		)
 	)
+
+
+static func _effective_ward_commitment(
+	player,
+	rules: RuleConfig
+) -> int:
+	var total: int = _committed_value(
+		player.committed
+	)
+
+	if (
+		rules.humbaba_sigil_commit
+		and player.lord == "Humbaba"
+	):
+		total += 2
+
+		if player.castles.has("Keep"):
+			total += 1
+
+	return total
 
 
 static func _committed_value(

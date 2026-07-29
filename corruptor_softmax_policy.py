@@ -1241,6 +1241,13 @@ def _repair_cost(self, player, castle_name: str, use_token: bool) -> int:
 
     cost = int(sim.CASTLE_COST[castle_name])
 
+    if sim.VARIANT.get('castle_scarring', False):
+        cost = max(
+            1,
+            cost - player.castle_scars.get(castle_name, 0)
+            * sim.VARIANT.get('castle_scar_def', 2),
+        )
+
     if use_token:
         cost -= 3
 
@@ -1250,7 +1257,13 @@ def _repair_cost(self, player, castle_name: str, use_token: bool) -> int:
     if self.breach == "Kalligan":
         cost -= 1
 
-    return max(1, cost)
+    cost = max(1, cost)
+    cost += (
+        sim.VARIANT.get('repair_escalation', 0)
+        * player.castle_repairs.get(castle_name, 0)
+    )
+
+    return cost
 
 
 def _ai_repair_only(self, player) -> None:
@@ -1301,6 +1314,18 @@ def _ai_repair_only(self, player) -> None:
 
     player.ruined_castles.discard(target)
     player.castles.add(target)
+
+    if (sim.VARIANT.get('castle_scarring', False)
+            or sim.VARIANT.get('repair_escalation', 0)):
+        player.castle_repairs[target] = (
+            player.castle_repairs.get(target, 0) + 1
+        )
+
+    if sim.VARIANT.get('castle_scarring', False):
+        player.castle_scars[target] = (
+            player.castle_scars.get(target, 0) + 1
+        )
+
     player.repaired_this_round = True
     player.repair_token_used_this_repair = use_token
 

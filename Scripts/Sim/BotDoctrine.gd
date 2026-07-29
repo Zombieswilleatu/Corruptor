@@ -803,7 +803,8 @@ static func evaluate_action_candidates(
 		_score_siege(
 			player,
 			opponent,
-			current_plan
+			current_plan,
+			rules
 		)
 		* float(
 			profile.get(
@@ -815,8 +816,11 @@ static func evaluate_action_candidates(
 
 	var ward_score: float = (
 		_score_ward(
+			game,
 			player,
-			current_plan
+			opponent,
+			current_plan,
+			rules
 		)
 		* float(
 			profile.get(
@@ -1069,6 +1073,54 @@ static func commitment_choices(
 	return decisions
 
 
+static func commitment_choice(
+	game,
+	player_id: int,
+	random_source,
+	rules: RuleConfig,
+	policy = null
+) -> Dictionary:
+	assert(
+		game != null,
+		"Bot Commitment doctrine requires a GameState."
+	)
+
+	assert(
+		rules != null,
+		"Bot Commitment doctrine requires RuleConfig."
+	)
+
+	var candidates: Array = (
+		evaluate_action_candidates(
+			game,
+			player_id,
+			rules
+		)
+	)
+
+	var selection: Dictionary = (
+		BotSelectorData.choose(
+			candidates,
+			random_source,
+			_policy_or_default(policy)
+		)
+	)
+
+	var selected_candidate: Dictionary = (
+		selection.get(
+			"candidate",
+			{}
+		)
+	)
+
+	return _commitment_decision_from_candidate(
+		game,
+		player_id,
+		selected_candidate,
+		rules
+	)
+
+
 static func _commitment_decision_from_candidate(
 	game,
 	player_id: int,
@@ -1175,6 +1227,13 @@ static func _commitment_decision_from_candidate(
 
 	if not player.alive:
 		ward_target = TARGET_CASTLE
+	elif rules.ward_read:
+		ward_target = _ward_read_zone(
+			game,
+			player,
+			opponent,
+			rules
+		)
 	elif (
 		current_plan == "deny_ritual"
 		and player.prev_ward_target != TARGET_LORD
@@ -1192,7 +1251,10 @@ static func _commitment_decision_from_candidate(
 			else TARGET_CASTLE
 		)
 
-		if ward_target == player.prev_ward_target:
+		if (
+			rules.ward_anti_repeat
+			and ward_target == player.prev_ward_target
+		):
 			ward_target = (
 				TARGET_CASTLE
 				if ward_target == TARGET_LORD
@@ -1205,7 +1267,11 @@ static func _commitment_decision_from_candidate(
 		"target_type": ward_target,
 		"cards": _card_ids(
 			_commit_for_ward(
-				player
+				game,
+				player,
+				opponent,
+				current_plan,
+				rules
 			)
 		),
 	}
@@ -1221,7 +1287,7 @@ static func _score_hunt(
 	if not opponent.alive:
 		return -5.0
 
-	var score: float = 1.8
+	var score: float = 0.90 if rules.fix_a else 1.8
 
 	score += opponent.threat * 0.55
 	score -= player.threat * 0.20
@@ -1304,18 +1370,25 @@ static func _score_hunt(
 	if player.lord == "Odradek":
 		score -= 0.1
 
+	if (
+		rules.ward_threshold
+		and opponent.prev_ward_target != TARGET_LORD
+	):
+		score -= 0.40
+
 	return score
 
 
 static func _score_siege(
 	player,
 	opponent,
-	current_plan: String
+	current_plan: String,
+	rules: RuleConfig
 ) -> float:
 	if opponent.castles.is_empty():
 		return -5.0
 
-	var score: float = 1.0
+	var score: float = 0.333 if rules.fix_a else 1.0
 
 	score += opponent.castles.size() * 0.25
 
@@ -1357,18 +1430,33 @@ static func _score_siege(
 	if player.tears > opponent.tears:
 		score += 0.3
 
+	if (
+		rules.ward_threshold
+		and opponent.prev_ward_target != TARGET_CASTLE
+	):
+		score -= 0.40
+
 	return score
 
 
 static func _score_ward(
+	game,
 	player,
-	current_plan: String
+	opponent,
+	current_plan: String,
+	rules: RuleConfig
 ) -> float:
 	var score: float = 0.6
 
-	score += player.souls * 0.55
-	score += player.castles.size() * 0.30
-	score += player.threat * 0.35
+	if rules.fix_a:
+		score = 0.333
+		score += player.souls * 0.12
+		score += (float(player.castles.size()) / 5.0) * 0.40
+		score += player.threat * 0.20
+	else:
+		score += player.souls * 0.55
+		score += player.castles.size() * 0.30
+		score += player.threat * 0.35
 
 	if player.threat >= 2:
 		score += 0.6
@@ -1393,6 +1481,20 @@ static func _score_ward(
 
 	if player.lord == "Odradek":
 		score += 0.8
+
+	if rules.ward_threshold:
+		var incoming: float = 0.0
+		if opponent.alive:
+			incoming += 0.5
+		if not player.castles.is_empty():
+			incoming += 0.4
+		if player.souls >= rules.win_souls - 2:
+			incoming += 0.6
+		if player.threat >= 2:
+			incoming += 0.5
+		if _card_total(player.hand) < 4:
+			incoming *= 0.3
+		score += incoming * 0.30
 
 	return score
 
@@ -1433,6 +1535,69 @@ static func _degraded_ward_score(
 	)
 
 
+static func _ward_read_zone(
+	game,
+	player,
+	opponent,
+	rules: RuleConfig
+) -> String:
+	var lord_score: float = 0.0
+	var castle_score: float = 0.0
+	var opponent_profile: Dictionary = _profile_for(String(opponent.lord))
+	var preference: String = String(opponent_profile.get("prefer", ""))
+
+	if preference == ACTION_HUNT:
+		lord_score += 0.90
+	elif preference == ACTION_SIEGE:
+		castle_score += 0.90
+
+	# Board-state read: a soft Lord invites a Hunt, while remaining structures
+	# invite Siege. This mirrors the lab's deliberately readable prediction
+	# rather than merely alternating Ward zones.
+	if not player.alive:
+		castle_score += 2.0
+	else:
+		lord_score += float(player.threat) * 0.5
+		if player.threat >= 2:
+			lord_score += 0.4
+		if player.souls >= rules.win_souls - 2:
+			lord_score += 0.3
+
+	if not player.castles.is_empty():
+		castle_score += (
+			float(player.castles.size()) / 5.0
+		) * 0.75
+	else:
+		lord_score += 2.0
+
+	lord_score += float(opponent_profile.get("aggro", 1.0)) * 0.30
+
+	if player.was_lord_attacked_prev:
+		lord_score += 0.5
+	if player.was_castle_attacked_prev:
+		castle_score += 0.5
+
+	return TARGET_LORD if lord_score >= castle_score else TARGET_CASTLE
+
+
+static func _estimated_guard_total(
+	guards: Array,
+	rules: RuleConfig
+) -> int:
+	if guards.is_empty():
+		return 0
+
+	if not rules.fog_of_war:
+		return _card_total(guards)
+
+	# The playable bot must not inspect face-down Guard values. Use the deck
+	# mean deterministically here; the Python lab oracle adds optional noise.
+	return max(
+		guards.size(),
+		int(round(float(guards.size()) * 2.83))
+	)
+
+
 static func _commit_for_attack(
 	game,
 	player,
@@ -1450,12 +1615,15 @@ static func _commit_for_attack(
 		)
 
 		if not chip_guards.is_empty():
-			var highest_guard = _highest_card(
-				chip_guards
-			)
-
-			var needed_strength: int = int(
-				highest_guard.value
+			# Chip attacks still need to respect Fog of War.  The old doctrine
+			# inspected the highest face-down guard here even after the normal
+			# attack estimator had been made fog-safe.  A player can see the
+			# number of Guards, not their individual values, so use the same
+			# deterministic estimate as every other attack calculation.
+			var needed_strength: int = (
+				_estimated_guard_total(chip_guards, rules)
+				if rules.fog_of_war
+				else int(_highest_card(chip_guards).value)
 			)
 
 			var picked_cards: Array = []
@@ -1487,8 +1655,9 @@ static func _commit_for_attack(
 			rules
 		)
 
-		estimated_defense += _card_total(
-			opponent.lord_guards
+		estimated_defense += _estimated_guard_total(
+			opponent.lord_guards,
+			rules
 		)
 
 		estimated_defense += max(
@@ -1501,7 +1670,8 @@ static func _commit_for_attack(
 						TARGET_LORD,
 						""
 					)
-				)
+				),
+				rules
 			)
 		)
 	else:
@@ -1517,14 +1687,17 @@ static func _commit_for_attack(
 
 		estimated_defense = _castle_defense(
 			game,
-			target_castle
+			target_castle,
+			opponent,
+			rules
 		)
 
 		if not player.castles.has(
 			"SiegeEngine"
 		):
-			estimated_defense += _card_total(
-				opponent.castle_guards
+			estimated_defense += _estimated_guard_total(
+				opponent.castle_guards,
+				rules
 			)
 
 		estimated_defense += max(
@@ -1537,7 +1710,8 @@ static func _commit_for_attack(
 						TARGET_CASTLE,
 						""
 					)
-				)
+				),
+				rules
 			)
 		)
 
@@ -1550,6 +1724,9 @@ static func _commit_for_attack(
 		padding = 2
 	elif current_plan == "protect_souls":
 		padding = 0
+
+	if rules.momentum:
+		padding = min(padding, 1)
 
 	var target_strength: int = (
 		estimated_defense
@@ -1573,12 +1750,12 @@ static func _commit_for_attack(
 
 	butchers = _stable_sorted_cards(
 		butchers,
-		true
+		not rules.momentum
 	)
 
 	other_cards = _stable_sorted_cards(
 		other_cards,
-		true
+		not rules.momentum
 	)
 
 	var committed: Array = []
@@ -1721,8 +1898,42 @@ static func _commit_for_attack(
 
 
 static func _commit_for_ward(
-	player
+	_game,
+	player,
+	opponent,
+	current_plan: String,
+	rules: RuleConfig
 ) -> Array:
+	if rules.ward_commit_any:
+		var expected: float = float(
+			_card_total(opponent.hand)
+			+ _card_total(opponent.garrison)
+		) * 0.60
+
+		if current_plan in ["protect_souls", "deny_ritual"]:
+			expected *= 1.15
+		elif current_plan in ["race_dominion", "pressure_souls"]:
+			expected *= 0.75
+
+		expected *= float(
+			_profile_for(String(player.lord)).get("control", 1.0)
+		)
+
+		var budget: float = min(
+			expected,
+			float(_card_total(player.hand)) * 0.70
+		)
+		var any_suit_commitment: Array = []
+		var any_suit_total: int = 0
+
+		for card in _stable_sorted_cards(player.hand, true):
+			if float(any_suit_total) >= budget:
+				break
+			any_suit_commitment.append(card)
+			any_suit_total += int(card.value)
+
+		return any_suit_commitment
+
 	var penitents: Array = []
 
 	for card in player.hand:
@@ -1860,7 +2071,9 @@ static func _lord_base_defense(
 
 static func _castle_defense(
 	game,
-	castle_name: String
+	castle_name: String,
+	defender = null,
+	rules: RuleConfig = null
 ) -> int:
 	var defense: int = int(
 		CASTLE_DEFENSES.get(
@@ -1881,13 +2094,27 @@ static func _castle_defense(
 			defense - 1
 		)
 
+	if (
+		rules != null
+		and rules.castle_scarring
+		and defender != null
+	):
+		defense = max(
+			1,
+			defense - (
+				int(defender.castle_scars.get(castle_name, 0))
+				* rules.castle_scar_def
+			)
+		)
+
 	return defense
 
 
 static func _sigil_value(
 	game,
 	player,
-	sigil_state: String
+	sigil_state: String,
+	rules: RuleConfig = null
 ) -> int:
 	if not sigil_state in [
 		SIGIL_FRESH,
@@ -1900,6 +2127,9 @@ static func _sigil_value(
 		if sigil_state == SIGIL_FRESH
 		else 1
 	)
+
+	if rules != null and rules.sigil_flat:
+		return value
 
 	if player.castles.has(
 		"Keep"

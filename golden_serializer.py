@@ -24,7 +24,7 @@ import json
 import hashlib
 from typing import List
 
-SCHEMA_VERSION = 3   # bump when the snapshot shape changes; loaders check this
+SCHEMA_VERSION = 4   # bump when the snapshot shape changes; loaders check this
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -59,7 +59,7 @@ def string_set(s) -> List[str]:
 
 PLAYER_PERSISTENT = [
     "pid", "lord", "alive", "souls", "tears", "threat", "kroni_hunger",
-    "repair_token", "first_summon_done",
+    "repair_token", "first_summon_done", "return_threat_override",
 ]
 PLAYER_ONCE_PER_GAME = [
     "cataclysmic_used", "vessel_used", "vessel_offered_lord",
@@ -93,6 +93,17 @@ def snapshot_player(pl) -> dict:
     out["castles"]          = string_set(pl.castles)
     out["ruined_castles"]   = string_set(pl.ruined_castles)
     out["profaned_castles"] = string_set(pl.profaned_castles)
+    out["lost_castles"]     = string_set(getattr(pl, "lost_castles", set()))
+    out["castle_repairs"]   = {
+        key: int(value)
+        for key, value in sorted(getattr(pl, "castle_repairs", {}).items())
+    }
+    out["castle_scars"]     = {
+        key: int(value)
+        for key, value in sorted(getattr(pl, "castle_scars", {}).items())
+    }
+    out["ward_turned"]      = string_set(getattr(pl, "ward_turned", set()))
+    out["marchers"]         = snapshot_marchers(getattr(pl, "marchers", []))
     out["lord_pool"]        = list(pl.lord_pool)   # order matters (draft), keep as-is
     # Sigils: fixed-key dict, already deterministic
     out["sigils"]           = {"Lord": pl.sigils["Lord"], "Castle": pl.sigils["Castle"]}
@@ -100,6 +111,25 @@ def snapshot_player(pl) -> dict:
     # catches a defense-formula divergence even when raw fields match)
     out["_derived_lord_def"] = pl.lord_base_def(breach=None)
     return out
+
+
+def snapshot_marchers(marchers) -> List[dict]:
+    """Marchers are face-up physical cards whose lane value changes in flight."""
+    result = []
+    for marcher in marchers:
+        card = marcher.get("card")
+        result.append({
+            "card": card_token(card),
+            "value": int(marcher.get("value", 0)),
+            "lane": str(marcher.get("lane", "")),
+            "pos": int(marcher.get("pos", 0)),
+        })
+    return sorted(
+        result,
+        key=lambda entry: (
+            entry["lane"], entry["pos"], entry["card"], entry["value"],
+        ),
+    )
 
 
 def snapshot_game(game, checkpoint: str) -> dict:
@@ -111,6 +141,13 @@ def snapshot_game(game, checkpoint: str) -> dict:
         "breach":         game.breach,
         "breach_owner":   getattr(game, "breach_owner", -1),
         "reflex_winner":  getattr(game, "reflex_winner", None),
+        "action_memory": [
+            {
+                key: float(value)
+                for key, value in sorted(memory.items())
+            }
+            for memory in getattr(game, "action_memory", [])
+        ],
         "neutral_tears":  game.neutral_tears,
         "veil_total":     game._total_tears(),
         "winner":         game.winner,

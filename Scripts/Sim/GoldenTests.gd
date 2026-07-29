@@ -92,6 +92,10 @@ const BotDevelopmentDoctrineTestsData = preload(
 	"res://Scripts/Sim/BotDevelopmentDoctrineTests.gd"
 )
 
+const LabV65TestsData = preload(
+	"res://Scripts/Sim/LabV65Tests.gd"
+)
+
 
 const LordMatrixTestsData = preload(
 	"res://Scripts/Sim/LordMatrixTests.gd"
@@ -241,6 +245,12 @@ static func run_startup_checks(
 
 	messages.append_array(
 		BotDevelopmentDoctrineTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		LabV65TestsData.run(
 			rules
 		)
 	)

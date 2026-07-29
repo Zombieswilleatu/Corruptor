@@ -995,6 +995,11 @@ static func _validate_standard_repair(
 			"Siege Engine remained in Ruined Castles."
 		)
 
+	if not player_zero.castle_repairs.is_empty():
+		return (
+			"DE v2 recorded disabled Repair history."
+		)
+
 	if player_zero.repair_token != 0:
 		return (
 			"Repair token was not consumed."

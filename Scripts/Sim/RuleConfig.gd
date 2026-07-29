@@ -58,11 +58,73 @@ extends Resource
 @export var war_machine_ignores_profaned: bool = false
 @export var gremory_summon_cost: int = 6
 
+# Kanifous Invoke switches. DE v2 preserves the printed Threat-cost version;
+# the measured lab swaps only that cost for a one-card Hand toll.
+@export var kani_invoke: bool = true
+@export var kani_threat_cost: bool = true
+@export var kani_hand_cost: bool = false
+@export var kani_neutral_tear: bool = true
+@export var kani_soul_trigger: bool = true
+@export var kani_garrison_bank: bool = true
+@export var kani_suit_effects: bool = true
+
 # Humbaba / ninth-lord variants.
 @export var humbaba_seal: bool = true
 @export var humbaba_toll: bool = true
 @export var humbaba_gate4: bool = true
 @export var humbaba_patient: bool = true
+
+# Experimental 6.5 structural pass.  These are deliberately inert in DE v2;
+# `lab_v6_5()` is the only profile that enables the measured system bundle.
+# The canonical switches remain in trace identity.  Lab-only presentation and
+# economy features are intentionally versioned by the lab profile instead, so
+# an inert feature does not relabel the canonical DE v2 goldens.
+@export var fix_a: bool = false
+@export var fix_b: bool = false
+
+@export var ward_threshold: bool = false
+@export var ward_anti_repeat: bool = true
+@export var ward_commit_any: bool = false
+@export var ward_commit_defense: bool = false
+@export var ward_read: bool = false
+@export var ward_garrison_refund: bool = false
+@export var sigil_flat: bool = false
+@export var humbaba_sigil_commit: bool = false
+@export var humbaba_reactive_lane: bool = false
+
+@export var repair_escalation: int = 0
+@export var castle_scarring: bool = false
+@export var castle_scar_def: int = 2
+@export var castle_permanent_loss: bool = false
+@export var veil_on_permanent_loss: bool = false
+@export var lord_threat_retention: bool = false
+
+@export var reflex_bid: bool = true
+@export var momentum: bool = false
+@export var momentum_band: int = 3
+@export var fog_of_war: bool = false
+
+# Independent from Marching Orders: the lab Market refreshes before swaps from
+# round two onward.  It must stay enabled when Marching is isolated for tests.
+@export var market_refresh: bool = false
+
+@export var marching: bool = false
+@export var march_max_in_flight: int = 1
+@export var march_threshold: int = 3
+@export var march_damage: int = 2
+@export var march_suit_bonus: int = 1
+@export var march_steps: int = 3
+@export var march_exception_pair: bool = true
+@export var lane_kill_soul: bool = false
+
+# These remain experimental but are deliberately OFF in the v6.5 measured
+# profile.  They are configuration, not an accidental promise to ship them.
+@export var adaptive_doctrine: bool = false
+@export var castle_loadout: bool = false
+@export var max_castles: int = 3
+@export var profane_no_castle_gate: bool = false
+@export var castleless_siege: bool = false
+@export var castleless_tear_neutral: bool = true
 
 
 static func de_v2() -> RuleConfig:
@@ -90,6 +152,66 @@ static func base_v5_29() -> RuleConfig:
 	config.reconfig_tokens_needed = 3
 	config.deimos_claims_breach = 0
 	config.gremory_summon_cost = 0
+
+	return config
+
+
+static func lab_v6_5() -> RuleConfig:
+	# The measured 6.5 lab profile.  It starts from canonical DE v2 so the
+	# established lord-power corrections remain authoritative, then applies only
+	# the systems included in LAB_MEASURED_CONFIG.  Loadouts and adaptive
+	# doctrine intentionally stay off: neither was in the measured bundle.
+	var config := RuleConfig.de_v2()
+
+	# The lab was measured on the 12-step Cataclysm checkpoint.  Only its
+	# Ritual, Dominion-requirement, and Collapse clocks were repriced by
+	# apply_lab_clocks(); retaining DE v2's 11 here would be an unmeasured hybrid.
+	config.dominion_track = 12
+	config.win_souls = 11
+	config.dominion_requirement = 7
+	config.final_collapse_threshold = 22
+
+	config.fix_a = true
+	config.fix_b = true
+
+	config.ward_threshold = true
+	config.ward_anti_repeat = false
+	config.ward_commit_any = true
+	config.ward_commit_defense = true
+	config.ward_read = true
+	config.ward_garrison_refund = true
+	config.sigil_flat = true
+	# Humbaba v0.2 keeps Woven Into the Stones, Toll, and Breach. The
+	# measured lab removes the older turtle stack and replaces it with H5.
+	config.humbaba_seal = false
+	config.humbaba_gate4 = false
+	config.humbaba_patient = false
+	config.humbaba_sigil_commit = false
+	config.humbaba_reactive_lane = true
+
+	# Kanifous pays one Hand card instead of gaining one Threat on Invoke.
+	config.kani_threat_cost = false
+	config.kani_hand_cost = true
+
+	config.castle_scarring = true
+	config.castle_permanent_loss = true
+	config.veil_on_permanent_loss = true
+	config.lord_threat_retention = true
+
+	config.reflex_bid = false
+	config.momentum = true
+	config.momentum_band = 3
+	config.fog_of_war = true
+	config.market_refresh = true
+
+	config.marching = true
+	config.march_max_in_flight = 1
+	config.march_threshold = 3
+	config.march_damage = 2
+	config.march_suit_bonus = 1
+	config.march_steps = 3
+	config.march_exception_pair = true
+	config.lane_kill_soul = true
 
 	return config
 

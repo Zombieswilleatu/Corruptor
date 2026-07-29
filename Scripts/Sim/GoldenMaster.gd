@@ -24,7 +24,7 @@ extends RefCounted
 #  until then, the unit traces can be validated against direct combat calls.
 # ─────────────────────────────────────────────────────────────────────────────
 
-const SCHEMA_VERSION := 3
+const SCHEMA_VERSION := 4
 const GOLDEN_DIR := "res://golden/"
 
 
@@ -295,6 +295,39 @@ static func identity_matches(
 		"humbaba_toll": rules.humbaba_toll,
 		"humbaba_gate4": rules.humbaba_gate4,
 		"humbaba_patient": rules.humbaba_patient,
+		"fix_a": rules.fix_a,
+		"fix_b": rules.fix_b,
+		"ward_threshold": rules.ward_threshold,
+		"ward_anti_repeat": rules.ward_anti_repeat,
+		"ward_commit_any": rules.ward_commit_any,
+		"ward_read": rules.ward_read,
+		"ward_garrison_refund": rules.ward_garrison_refund,
+		"sigil_flat": rules.sigil_flat,
+		"humbaba_sigil_commit": rules.humbaba_sigil_commit,
+		"repair_escalation": rules.repair_escalation,
+		"castle_scarring": rules.castle_scarring,
+		"castle_scar_def": rules.castle_scar_def,
+		"castle_permanent_loss": rules.castle_permanent_loss,
+		"veil_on_permanent_loss": rules.veil_on_permanent_loss,
+		"lord_threat_retention": rules.lord_threat_retention,
+		"reflex_bid": rules.reflex_bid,
+		"momentum": rules.momentum,
+		"momentum_band": rules.momentum_band,
+		"fog_of_war": rules.fog_of_war,
+		"marching": rules.marching,
+		"march_max_in_flight": rules.march_max_in_flight,
+		"march_threshold": rules.march_threshold,
+		"march_damage": rules.march_damage,
+		"march_suit_bonus": rules.march_suit_bonus,
+		"march_steps": rules.march_steps,
+		"march_exception_pair": rules.march_exception_pair,
+		"lane_kill_soul": rules.lane_kill_soul,
+		"adaptive_doctrine": rules.adaptive_doctrine,
+		"castle_loadout": rules.castle_loadout,
+		"max_castles": rules.max_castles,
+		"profane_no_castle_gate": rules.profane_no_castle_gate,
+		"castleless_siege": rules.castleless_siege,
+		"castleless_tear_neutral": rules.castleless_tear_neutral,
 	}
 
 	for key in expected_variant:

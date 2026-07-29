@@ -94,6 +94,14 @@ const BotDeployDoctrineData = preload(
 	"res://Scripts/Sim/BotDeployDoctrine.gd"
 )
 
+const BotMarchingDoctrineData = preload(
+	"res://Scripts/Sim/BotMarchingDoctrine.gd"
+)
+
+const MarchingEngineData = preload(
+	"res://Scripts/Sim/MarchingEngine.gd"
+)
+
 const BotResolutionDoctrineData = preload(
 	"res://Scripts/Sim/BotResolutionDoctrine.gd"
 )
@@ -114,6 +122,7 @@ enum Stage {
 	REPAIR,
 	DOMINION_RITES,
 	DEPLOY,
+	MARCH,
 	SUMMON,
 	REFLEX_BID,
 	COMMITMENT,
@@ -164,7 +173,9 @@ func start_match(
 	bot_lord: String,
 	seed_value: int
 ) -> Dictionary:
-	rules = RuleConfig.de_v2()
+	# The playable prototype is the human-facing surface for the current lab
+	# branch. DE v2 remains selectable in the simulation runners and goldens.
+	rules = RuleConfig.lab_v6_5()
 	policy = BotPolicyData.standard()
 
 	var setup: Dictionary = (
@@ -326,6 +337,13 @@ func _resolve_development_start(
 	)
 	_record_phase("draw", draw_result)
 
+	var market_rollover_result: Dictionary = RoundEngineData.refresh_market_offers(
+		game,
+		rules,
+		random_source
+	)
+	_record_phase("market_rollover", market_rollover_result)
+
 	return _open_human_market()
 
 
@@ -375,6 +393,19 @@ func resolve_human_market(
 		return _awaiting("dominion_rites")
 
 	stage = Stage.REPAIR
+
+	var human_player = game.get_player(
+		HUMAN_PLAYER_ID
+	)
+
+	if (
+		human_player != null
+		and human_player.ruined_castles.is_empty()
+	):
+		return resolve_human_repair({
+			"pass": true,
+		})
+
 	return _awaiting("repair")
 
 
@@ -529,6 +560,73 @@ func resolve_human_deploy(
 		"results": [human_result, bot_result],
 	})
 
+	if rules.marching:
+		stage = Stage.MARCH
+		return _awaiting("march")
+
+	return _prepare_after_march()
+
+
+func human_reactive_march_lane() -> String:
+	if game == null or rules == null:
+		return ""
+	var human = get_human_player()
+	if human == null:
+		return ""
+	return MarchingEngineData.reactive_lane_for(game, human, rules)
+
+
+func human_can_launch_marcher() -> bool:
+	if game == null or rules == null:
+		return false
+	var human = get_human_player()
+	if human == null:
+		return false
+	return MarchingEngineData.can_launch_marcher(game, human, rules)
+
+func resolve_human_march(
+	decision: Dictionary
+) -> Dictionary:
+	if stage != Stage.MARCH:
+		return _rejected("march", "not_awaiting_march")
+
+	var human_result: Dictionary = MarchingEngineData.launch(
+		game,
+		rules,
+		HUMAN_PLAYER_ID,
+		decision
+	)
+
+	if String(human_result.get("action", "")) == "invalid":
+		return _rejected("march", String(human_result.get("reason", "invalid_march")))
+
+	var bot_decision: Dictionary = BotMarchingDoctrineData.march_choice(
+		game,
+		BOT_PLAYER_ID,
+		rules
+	)
+	var bot_result: Dictionary = MarchingEngineData.launch(
+		game,
+		rules,
+		BOT_PLAYER_ID,
+		bot_decision
+	)
+
+	if String(bot_result.get("action", "")) == "invalid":
+		return _invalid("march", String(bot_result.get("reason", "invalid_bot_march")))
+
+	_record_phase("march", {
+		"choices": {
+			HUMAN_PLAYER_ID: decision.duplicate(true),
+			BOT_PLAYER_ID: bot_decision.duplicate(true),
+		},
+		"results": [human_result, bot_result],
+	})
+
+	return _prepare_after_march()
+
+
+func _prepare_after_march() -> Dictionary:
 	_sync_guard_visibility()
 	summon_choices = {BOT_PLAYER_ID: _bot_summon_decision()}
 
@@ -702,11 +800,23 @@ func _resolve_summon_and_prepare_commitment(
 		)
 		return last_result
 
-	if int(game.round) > 1:
+	if rules.reflex_bid and int(game.round) > 1:
 		stage = Stage.REFLEX_BID
 		return _awaiting("reflex_bid")
 
-	var skipped_bid: Dictionary = ReflexBidEngineData.resolve(game, rules, {})
+	var skipped_bid: Dictionary = {
+		"action": "pass",
+		"reason": "reflex_bid_disabled",
+		"winner": -1,
+		"tie": false,
+		"invalid_player_id": -1,
+		"bid_totals": [],
+		"players": [],
+	}
+
+	if rules.reflex_bid:
+		skipped_bid = ReflexBidEngineData.resolve(game, rules, {})
+
 	_record_phase("reflex_bid", {"choices": {}, "result": skipped_bid})
 	return _prepare_commitment()
 
@@ -766,7 +876,8 @@ func seal_human_commitment(
 	var commitment_result: Dictionary = (
 		CommitmentEngineData.resolve(
 			game,
-			commitment_choices
+			commitment_choices,
+			rules
 		)
 	)
 
@@ -847,18 +958,37 @@ func reveal_orders() -> Dictionary:
 
 
 func resolve_human_kanifous_invoke(
-	chosen_card: String
+	chosen_card: String,
+	toll_card: String
 ) -> Dictionary:
 	if stage != Stage.KANIFOUS_INVOKE:
 		return _rejected("reveal", "not_awaiting_kanifous_invoke")
 	if not kanifous_preview_cards.has(chosen_card):
 		return _rejected("reveal", "kanifous_card_not_revealed")
+
+	var choice: Dictionary = {"chosen_card": chosen_card}
+	if rules.kani_hand_cost:
+		var human = get_human_player()
+		if human == null:
+			return _invalid("reveal", "human_player_missing")
+		if human.hand.is_empty():
+			return _rejected("reveal", "kanifous_hand_toll_unpaid")
+
+		var toll_found: bool = false
+		for card in human.hand:
+			if String(card.card_id()) == toll_card:
+				toll_found = true
+				break
+		if not toll_found:
+			return _rejected("reveal", "kanifous_toll_card_not_in_hand")
+		choice["toll_card"] = toll_card
+
 	if _kanifous_suit(chosen_card) == "Wright":
-		kanifous_choice = {"chosen_card": chosen_card}
+		kanifous_choice = choice
 		stage = Stage.KANIFOUS_WRIGHT
 		return _awaiting("kanifous_wright")
-	return _resolve_revealed_orders({HUMAN_PLAYER_ID: {"chosen_card": chosen_card}})
 
+	return _resolve_revealed_orders({HUMAN_PLAYER_ID: choice})
 
 func resolve_human_kanifous_wright(
 	guard_indices: Array[int]
@@ -962,7 +1092,10 @@ func _kanifous_revealed_cards(
 		if typeof(raw_player) != TYPE_DICTIONARY or int(raw_player.get("player_id", -1)) != player_id:
 			continue
 		var kanifous_event = raw_player.get("kanifous", {})
-		if typeof(kanifous_event) != TYPE_DICTIONARY:
+		if (
+			typeof(kanifous_event) != TYPE_DICTIONARY
+			or not bool(kanifous_event.get("invoked", false))
+		):
 			return result
 		var raw_cards = kanifous_event.get("revealed_cards", [])
 		if typeof(raw_cards) != TYPE_ARRAY:
@@ -971,7 +1104,6 @@ func _kanifous_revealed_cards(
 			result.append(String(raw_card))
 		return result
 	return result
-
 
 func _kanifous_suit(
 	card_identifier: String
@@ -1039,6 +1171,9 @@ func resolve_revealed_round() -> Dictionary:
 			"result": resolution_result,
 		}
 	)
+
+	var march_advance_result: Dictionary = MarchingEngineData.advance(game, rules)
+	_record_phase("march_advance", march_advance_result)
 
 	# Remove revelation from defeated/removed Guards while preserving it for
 	# survivors that remained in the same zone.
@@ -1172,6 +1307,21 @@ func resolve_human_resolution_action(
 	resolution_state["pending_action_result"] = action_result
 	resolution_state["pending_action_options"] = options.duplicate(true)
 	stage = Stage.RESOLUTION_VESSEL
+
+	if (
+		bool(player.vessel_used)
+		or int(game.winner) >= 0
+		or bool(
+			action_result.get(
+				"won",
+				false
+			)
+		)
+	):
+		return resolve_human_vessel({
+			"pass": true,
+		})
+
 	return _awaiting("resolution_vessel")
 
 
@@ -1456,6 +1606,8 @@ func _human_gremory_choice_available(
 
 
 func _finish_human_resolution() -> Dictionary:
+	var march_advance_result: Dictionary = MarchingEngineData.advance(game, rules)
+
 	var resolution_result: Dictionary = {
 		"action": "resolution",
 		"reason": "",
@@ -1471,9 +1623,14 @@ func _finish_human_resolution() -> Dictionary:
 	}
 
 	_record_phase("resolution", {"choices": resolution_state.get("action_choices", {}), "result": resolution_result})
+	_record_phase("march_advance", march_advance_result)
 	_sync_guard_visibility()
 	stage = Stage.TERMINAL if int(game.winner) >= 0 else Stage.NO_GAME
-	return _round_result(true, "resolution" if stage == Stage.TERMINAL else "")
+	last_result = _round_result(
+		true,
+		"march_advance" if stage == Stage.TERMINAL else ""
+	)
+	return last_result
 
 
 func _nested_dictionary(

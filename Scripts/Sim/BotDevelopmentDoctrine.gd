@@ -96,7 +96,7 @@ static func repair_choices(
 static func evaluate_repair_candidates(
 	game,
 	player_id: int,
-	_rules: RuleConfig
+	rules: RuleConfig
 ) -> Array:
 	var player = game.get_player(
 		player_id
@@ -155,7 +155,8 @@ static func evaluate_repair_candidates(
 			game,
 			player,
 			castle_name,
-			use_token
+			use_token,
+			rules
 		)
 
 		if available_total < cost:
@@ -223,45 +224,15 @@ static func repair_cost(
 	game,
 	player,
 	castle_name: String,
-	use_token: bool
+	use_token: bool,
+	rules: RuleConfig = null
 ) -> int:
-	var cost: int = int(
-		RoundEngineData.CASTLE_REPAIR_COSTS.get(
-			castle_name,
-			0
-		)
-	)
-
-	if use_token:
-		cost -= (
-			RoundEngineData
-			.REPAIR_TOKEN_DISCOUNT
-		)
-
-	if (
-		player.lord == "Kalligan"
-		and player.alive
-	):
-		if player.kalligan_repair_used:
-			cost -= (
-				RoundEngineData
-				.KALLIGAN_LATER_REPAIR_DISCOUNT
-			)
-		else:
-			cost -= (
-				RoundEngineData
-				.KALLIGAN_FIRST_REPAIR_DISCOUNT
-			)
-
-	if game.breach == "Kalligan":
-		cost -= (
-			RoundEngineData
-			.KALLIGAN_BREACH_REPAIR_DISCOUNT
-		)
-
-	return max(
-		1,
-		cost
+	return RoundEngineData.repair_cost_for(
+		game,
+		player,
+		castle_name,
+		use_token,
+		rules
 	)
 
 

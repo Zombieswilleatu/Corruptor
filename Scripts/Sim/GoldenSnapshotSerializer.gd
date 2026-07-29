@@ -43,6 +43,9 @@ static func snapshot_game(
 		"reflex_winner": _nullable_player_id(
 			game_state.reflex_winner
 		),
+		"action_memory": _snapshot_action_memory(
+			game_state.action_memory
+		),
 		"neutral_tears": int(
 			game_state.neutral_tears
 		),
@@ -97,6 +100,9 @@ static func snapshot_player(
 		),
 		"repair_token": int(
 			player.repair_token
+		),
+		"return_threat_override": _nullable_threat(
+			int(player.return_threat_override)
 		),
 
 		"first_summon_done": bool(
@@ -244,6 +250,21 @@ static func snapshot_player(
 		"profaned_castles": sorted_strings(
 			player.profaned_castles
 		),
+		"lost_castles": sorted_strings(
+			player.lost_castles
+		),
+		"castle_repairs": _canonicalize_json_value(
+			player.castle_repairs
+		),
+		"castle_scars": _canonicalize_json_value(
+			player.castle_scars
+		),
+		"ward_turned": sorted_strings(
+			player.ward_turned.keys()
+		),
+		"marchers": snapshot_marchers(
+			player.marchers
+		),
 
 		"lord_pool": string_list(
 			player.lord_pool
@@ -367,6 +388,47 @@ static func card_id(
 			)
 		),
 	]
+
+
+static func snapshot_marchers(
+	marchers: Array[Dictionary]
+) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+
+	for marcher in marchers:
+		result.append({
+			"card": card_id(marcher.get("card", null)),
+			"value": int(marcher.get("value", 0)),
+			"lane": String(marcher.get("lane", "")),
+			"pos": int(marcher.get("pos", 0)),
+		})
+
+	result.sort_custom(
+		func(left: Dictionary, right: Dictionary) -> bool:
+			for key: String in ["lane", "pos", "card", "value"]:
+				var left_value: String = String(left.get(key, ""))
+				var right_value: String = String(right.get(key, ""))
+				if left_value != right_value:
+					return left_value < right_value
+			return false
+	)
+
+	return result
+
+
+static func _snapshot_action_memory(
+	action_memory: Array[Dictionary]
+) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+
+	for memory in action_memory:
+		result.append(_canonicalize_json_value(memory))
+
+	return result
+
+
+static func _nullable_threat(value: int):
+	return null if value < 0 else value
 
 
 static func card_list(
