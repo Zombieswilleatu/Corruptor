@@ -1,0 +1,3830 @@
+
+====================== corruptor_sim.py ======================
+   91:   (chosen card no longer doubles as a guard). Removed non-rulebook
+   92:   mirror-draw on opponent outside-draws.
+   93: • DEVELOPMENT reordered per rulebook: Sigil Update → Veil → Draw →
+   94:   Market → Repair → Dominion Rites → Deploy → Summon. Repairing without
+   95:   a Repair token now actually restricts hand→Guards deployment.
+   96:   Round 1 is a full round without the Reflex Bid.
+   97: • SUMMON costs paid from HAND ONLY (Garrison cannot pay). Repair may
+   98:   still pay from hand + Garrison. Repair floor is 1, applied once after
+   99:   all discounts (token −3, Master Builder −5/−7, Rapid Construction −1).
+  100: • MARKET swap now places the swapped card INTO the Market.
+  101: • REMOVED non-rulebook mechanics: damaged-zone guard caps, Threat −1 on
+  102:   castle destroyed, corrupting (opponent-zone) wards, legacy −2 Scorch
+  103:   defense penalty (persistent Scorch guard-strip retained).
+  104: """
+  105: 
+  106: SIM_VERSION = "6.5.0-lab"                    # canonical trace/matrix identity
+  107: SIM_CODENAME = "DE v2 + measured systems"
+  108: AI_POLICY = "heuristic-2026.07-lab-momentum" # policy axis — pins balance grids (Law 5)
+  109: LAB_PROFILE_VERSION = "6.5.2-ward-commit-defense" # measured lab profile identity
+  110: 
+  111: import random
+  112: import argparse
+  113: import time
+  114: from collections import defaultdict
+  115: from typing import List, Set, Optional, Tuple
+  116: import itertools
+  117: 
+  118: # ═══════════════════════════════════════════════════════════════════════
+  119: #  CONSTANTS
+  120: # ═══════════════════════════════════════════════════════════════════════
+  121: SUITS = ['Butcher', 'Penitent', 'Vulture', 'Wright']
+  122: 
+  123: # Marching Orders uses a single denial cycle.  It does not alter the ordinary
+  124: # suit bonuses used by Orders.
+  125: SUIT_BEATS = {
+  126:     'Butcher': 'Wright',
+  127:     'Wright': 'Penitent',
+  128:     'Penitent': 'Vulture',
+  129:     'Vulture': 'Butcher',
+  130: }
+  131: CARD_DIST = {1: 4, 2: 4, 3: 4, 4: 3, 5: 3}
+  132: 
+  133: DECK_MEAN_VALUE = 2.83
+  134: FOG_NOISE = 0.9
+  135: ADAPT_DECAY = 0.65
+  136: ADAPT_CAP = 2.0
+  137: ADAPT_RATE = {
+  138:     'Orias': 1.0, 'Deimos': 0.7, 'Valak': 1.0, 'Kroni': 0.8,
+  139:     'Kalligan': 1.1, 'Gremory': 0.9, 'Odradek': 1.4,
+  140:     'Kanifous': 1.2, 'Humbaba': 1.5,
+  141: }
+  142: HUNT_BASE = 0.90
+  143: HUNT_W1_PENALTY = 0.40
+  144: WARD_READ_FRACTION = 0.60
+  145: WARD_MAX_HAND_FRACTION = 0.70
+  146: WARD_READ_CONFIDENCE = 0.70
+  147: WARD_READ_PREF = 0.90
+  148: WARD_INCOMING_WEIGHT = 0.30
+  149: 
+  150: HAND_LIMIT   = 10
+  151: GARRISON_MAX = 5
+  152: WIN_SOULS    = 7
+  153: MAX_THREAT   = 4
+     ...
+  164: DE_V2_CONSTANTS = dict(
+  165:     WIN_SOULS=7,
+  166:     DOMINION_TRACK=11,
+  167:     DOMINION_REQUIREMENT=2,
+  168:     FINAL_COLLAPSE_TRACK=15,
+  169:     HAND_LIMIT=10,
+  170:     GARRISON_MAX=5,
+  171:     MAX_THREAT=4,
+  172:     MARKET_SIZE=3,
+  173:     MAX_ROUNDS=60,
+  174: )
+  175: 
+  176: BASE_V5_29_CONSTANTS = dict(
+  177:     DE_V2_CONSTANTS,
+  178:     DOMINION_TRACK=12,
+  179:     DOMINION_REQUIREMENT=3,
+  180: )
+  181: 
+  182: DE_V2_VARIANT = dict(
+  183:     recoil_hunts_only=True,       # O1: Psychic Recoil (strip + Soul) fires on Hunts only
+  184:     sigil_soul_fresh_only=False,  # S1: sigil-break Soul only if the Sigil was Fresh
+  185:     invocation_gate=5,            # D1: Veil threshold to unlock Cataclysmic Invocation
+  186:     profane_ruins_req=1,          # D2: Ruined Castles needed for Profane the Ruins
+  187:     ai_dominion_drive=True,       # A1: AI actively pursues the Dominion race
+  188:     no_backwash=False,            # O3: remove Psychic Backwash (Threat on hunters)
+  189:     reconfig_strict=True,         # O4: ANY Guard defeat in Odradek zones denies the token
+  190:     kroni_def_soft=False,         # K3: Hunger defense curve 4/5/7 instead of 4/6/8
+  191:     kroni_hunger_decay=True,      # K1: Hunger -1 any round Kroni initiates no attack
+  192:     deimos_war_machine_free=True, # E1: War Machine no longer requires Siege Engine
+  193:     deimos_summon_cost=7,         # E2/E3: override Deimos Summon cost (0 = printed 9)
+  194:     recoil_lowest=True,           # O5: Recoil strips the LOWEST committed card
+  195:     neutral_tear_on_banish=True,  # D3: Banishing a Lord tears the Veil (1 Neutral Tear)
+  196:     castle_tear_uncapped=False,   # D4: EVERY Castle destroyed places a Neutral Tear
+  197:     veil_drift=0,                 # D5: every N rounds the Veil frays (+1 Neutral), 0=off
+  198:     invocation_repeatable=False,  # D6: Cataclysmic Invocation once per ROUND, not per game
+  199:     reconfig_tokens_needed=5,     # O6: Reconfiguration tokens per Tear
+  200:     reconfig_neutral=False,       # O7: Reconfiguration places NEUTRAL Tears (not personal)
+  201:     deimos_claims_breach=1,       # E4: 0=off, 1=first castle kill per GAME is personal, 2=every
+  202:     consume_the_siege=False,      # D7: any lord may forgo Siege Souls -> personal Tear
+  203:     war_machine_ignores_profaned=False,  # E5: self-Profaned castles don't reduce War Machine
+  204:     gremory_summon_cost=6,        # G1: override Gremory Summon cost (0 = printed 5)
+  205:     # ── Humbaba, Ancient Guardian (ninth lord) ──
+  206:     humbaba_seal=True,            # H1: Dominion needs +1 personal Tear while he stands
+  207:     humbaba_toll=True,            # H2: once/round ruin own castle -> opp -1 Soul, +1 Neutral Tear
+  208:     humbaba_gate4=True,           # H3: 4th castle guard slot while no Ruined castles
+  209:     humbaba_patient=True,         # H4: passive round preserves one Sigil from decay
+  210:     # Experimental 6.5 structural switches. DE v2 keeps all new mechanics
+  211:     # inert, but their explicit defaults belong in trace identity.
+  212:     fix_a=False,
+  213:     fix_b=False,
+  214:     ward_threshold=False,
+  215:     ward_anti_repeat=True,
+  216:     ward_commit_any=False,
+  217:     ward_read=False,
+  218:     ward_garrison_refund=False,
+  219:     sigil_flat=False,
+  220:     humbaba_sigil_commit=False,
+  221:     repair_escalation=0,
+  222:     castle_scarring=False,
+  223:     castle_scar_def=2,
+  224:     castle_permanent_loss=False,
+  225:     veil_on_permanent_loss=False,
+  226:     lord_threat_retention=False,
+     ...
+  240:     castle_loadout=False,
+  241:     max_castles=3,
+  242:     profane_no_castle_gate=False,
+  243:     castleless_siege=False,
+  244:     castleless_tear_neutral=True,
+  245: )
+  246: 
+  247: LAB_V6_5_CONSTANTS = dict(
+  248:     DE_V2_CONSTANTS,
+  249:     WIN_SOULS=11,
+  250:     DOMINION_TRACK=12,
+  251:     DOMINION_REQUIREMENT=7,
+  252:     FINAL_COLLAPSE_TRACK=22,
+  253: )
+  254: 
+  255: # Experimental v6.5 structural profile.  This is an overlay on canonical DE
+  256: # v2, not a revival of the lab source's obsolete 6.1 defaults.  The current
+  257: # lord-power corrections therefore remain in force while the new system bundle
+  258: LAB_V6_5_VARIANT = dict(
+  259:     DE_V2_VARIANT,
+  260:     fix_a=True,
+  261:     fix_b=True,
+  262:     ward_threshold=True,
+  263:     ward_anti_repeat=False,
+  264:     ward_commit_any=True,
+  265:     ward_read=True,
+  266:     ward_garrison_refund=True,
+  267:     sigil_flat=True,
+  268:     humbaba_sigil_commit=True,
+  269:     repair_escalation=0,
+  270:     castle_scarring=True,
+  271:     castle_scar_def=2,
+  272:     castle_permanent_loss=True,
+  273:     veil_on_permanent_loss=True,
+  274:     lord_threat_retention=True,
+  275:     reflex_bid=False,
+  276:     momentum=True,
+  277:     momentum_band=3,
+  278:     marching=True,
+  279:     march_max_in_flight=1,
+  280:     march_threshold=3,
+  281:     march_damage=2,
+  282:     march_suit_bonus=1,
+  283:     march_steps=3,
+  284:     march_exception_pair=True,
+  285:     lane_kill_soul=True,
+  286:     fog_of_war=True,
+  287:     adaptive_doctrine=False,
+  288:     castle_loadout=False,
+  289:     max_castles=3,
+  290:     profane_no_castle_gate=False,
+  291:     castleless_siege=False,
+  292:     castleless_tear_neutral=True,
+  293: )
+  294: 
+  295: # Keep measured-lab features separate from DE v2's serialized variant identity.
+  296: # A canonical trace must not gain a new identity key for a feature that is off
+  297: # and never runs under the canonical ruleset.  Direct indexing below makes a
+  298: # missing feature declaration fail loudly instead of silently disabling it.
+  299: DE_V2_FEATURES = dict(
+  300:     market_refresh=False,
+  301:     ward_commit_defense=False,
+  302: )
+     ...
+ 2387:     def _kanifous_invoke(self, pl: Player):
+ 2388:         """After Reveal: gain 1 Threat, reveal top 2 cards.
+ 2389:         First card = Kanifous's: if value 4+, place 1 Neutral Tear (regardless of choice).
+ 2390:         Second card = player's. Choose 1 to Invoke, discard the other."""
+ 2391:         if not self.deck:
+ 2392:             if self.discard:
+ 2393:                 self.deck = self.discard[:]; self.discard = []; random.shuffle(self.deck)
+ 2394:             else:
+ 2395:                 return
+ 2396: 
+ 2397:         # Reveal up to 2 cards
+ 2398:         revealed = []
+ 2399:         for _ in range(2):
+ 2400:             if not self.deck:
+ 2401:                 if self.discard:
+ 2402:                     self.deck = self.discard[:]; self.discard = []; random.shuffle(self.deck)
+ 2403:                 else:
+ 2404:                     break
+ 2405:             if self.deck:
+ 2406:                 revealed.append(self.deck.pop())
+ 2407: 
+ 2408:         if not revealed:
+ 2409:             return
+ 2410: 
+ 2411:         pl.kanifous_invokes_this_round += 1
+ 2412:         pl.threat = min(MAX_THREAT, pl.threat + 1)
+ 2413: 
+ 2414:         # First card is Kanifous's — Neutral Tear if value 4+
+ 2415:         kanifous_card = revealed[0]
+ 2416:         if kanifous_card.value >= 4:
+ 2417:             self._gain_neutral_tear()
+ 2418: 
+ 2419:         op = self.opp(pl.pid)
+ 2420: 
+ 2421:         def _suit_score(card: Card) -> float:
+ 2422:             s = card.suit
+ 2423:             if s == 'Butcher':
+ 2424:                 return 1.5 if pl.action in ('Hunt', 'Siege') else 0.5
+ 2425:             elif s == 'Penitent':
+ 2426:                 total_guards = len(pl.lord_guards) + len(pl.castle_guards)
+ 2427:                 return 1.2 if total_guards <= 2 else 0.6
+ 2428:             elif s == 'Vulture':
+ 2429:                 return 1.3 if len(pl.hand) <= 3 else 0.7
+ 2430:             elif s == 'Wright':
+ 2431:                 imbalance = abs(len(pl.lord_guards) - len(pl.castle_guards))
+ 2432:                 return 0.8 + imbalance * 0.2
+ 2433:             return 0.5
+ 2434: 
+ 2435:         # Choose the better card to invoke; discard the other
+ 2436:         if len(revealed) == 1:
+ 2437:             chosen = revealed[0]
+ 2438:             discarded = []
+ 2439:         else:
+ 2440:             scores = [_suit_score(c) for c in revealed]
+ 2441:             if scores[0] >= scores[1]:
+ 2442:                 chosen, discarded = revealed[0], [revealed[1]]
+ 2443:             else:
+ 2444:                 chosen, discarded = revealed[1], [revealed[0]]
+ 2445: 
+ 2446:         if discarded:
+ 2447:             self._discard(discarded)
+ 2448: 
+ 2449:         pl.kanifous_invoked_suit = chosen.suit
+ 2450: 
+ 2451:         # Apply chosen suit effect
+ 2452:         if chosen.suit == 'Vulture':
+ 2453:             self._draw(pl, outside_draw=True)
+ 2454:             self._draw(pl, outside_draw=True)
+ 2455:             self._draw(pl, outside_draw=True)
+ 2456:             if len(pl.hand) > 1:
+ 2457:                 worst = min(pl.hand, key=lambda c: c.value)
+ 2458:                 pl.hand.remove(worst); self._discard([worst])
+ 2459: 
+ 2460:         elif chosen.suit == 'Wright':
+ 2461:             moved = 0
+ 2462:             while (moved < 2 and pl.lord_guards
+ 2463:                    and len(pl.castle_guards) < pl.max_castle_guards()):
+ 2464:                 g = pl.lord_guards.pop(0)
+ 2465:                 pl.castle_guards.append(g); moved += 1
+ 2466: 
+ 2467:         elif chosen.suit == 'Penitent':
+ 2468:             # Place 2 additional cards from the top of the deck as Guards in
+ 2469:             # any zones (may exceed Guard limits); discarded at end of Resolution.
+ 2470:             def _place(g):
+ 2471:                 if len(pl.lord_guards) <= len(pl.castle_guards): pl.lord_guards.append(g)
+ 2472:                 else: pl.castle_guards.append(g)
+ 2473:             for _ in range(2):
+ 2474:                 if not self.deck:
+ 2475:                     if self.discard:
+ 2476:                         self.deck = self.discard[:]; self.discard = []; random.shuffle(self.deck)
+ 2477:                     else:
+ 2478:                         break
+ 2479:                 extra = self.deck.pop(); _place(extra)
+ 2480:                 pl.penitent_temp_guards.append(extra)
+ 2481:             pl.kanifous_invoked_high = True
+ 2482: 
+ 2483:         # Soul trigger: chosen card face value == current Threat level
+ 2484:         if chosen.value == pl.threat:
+ 2485:             self._gain_soul(pl, 1)
+ 2486: 
+ 2487:         # Bank chosen card to Garrison
+ 2488:         if len(pl.garrison) < GARRISON_MAX and chosen not in pl.garrison:
+ 2489:             pl.garrison.append(chosen)
+ 2490:         else:
+ 2491:             self._discard([chosen])
+ 2492: 
+ 2493:     # ─────────────────────────────────────────────────────────────────
+ 2494:     #  LORD KILLED
+ 2495:     # ─────────────────────────────────────────────────────────────────
+     ...
+ 2942:     def _march_launch(self, pl: Player):
+ 2943:         """Launch one bot-selected Guard after normal deployment settles."""
+ 2944:         if not VARIANT.get('marching', False):
+ 2945:             return
+ 2946:         if len(pl.marchers) >= VARIANT.get('march_max_in_flight', 1):
+ 2947:             return
+ 2948: 
+ 2949:         op = self.opp(pl.pid)
+ 2950:         threshold = VARIANT.get('march_threshold', 3)
+ 2951:         threat = next(
+ 2952:             (m for m in op.marchers if m['value'] >= threshold),
+ 2953:             None,
+ 2954:         )
+ 2955:         candidates = []
+ 2956: 
+ 2957:         for zone, guards in (
+ 2958:                 ('Lord', pl.lord_guards),
+ 2959:                 ('Castle', pl.castle_guards)):
+ 2960:             for card in guards:
+ 2961:                 # A march must be a visible choice with a real defensive cost,
+ 2962:                 # but it never strips a zone completely bare.
+ 2963:                 if len(guards) <= 1:
+ 2964:                     continue
+ 2965: 
+ 2966:                 score = 0.0
+ 2967:                 if card.value < threshold:
+ 2968:                     if threat is None:
+ 2969:                         continue
+ 2970:                     damage = VARIANT.get('march_damage', 2)
+ 2971:                     if self._suit_adv(card.suit, threat['card'].suit):
+ 2972:                         damage += VARIANT.get('march_suit_bonus', 1)
+ 2973:                     if self._is_marshal(threat):
+ 2974:                         score += 4.0 if self._is_spy({'card': card}) else -5.0
+ 2975:                     elif threat['value'] - damage < threshold:
+ 2976:                         score += 1.6
+ 2977:                     else:
+ 2978:                         score += 0.2
+ 2979:                     score -= card.value * 0.05
+ 2980:                 else:
+ 2981:                     if card.value - VARIANT.get('march_damage', 2) >= threshold:
+ 2982:                         score += 2.0
+ 2983:                     else:
+ 2984:                         score += 0.7
+ 2985:                     if self._is_marshal({'card': card}):
+ 2986:                         score += 3.0
+ 2987: 
+ 2988:                 if zone == 'Lord' and pl.threat >= 2:
+ 2989:                     score -= 0.8
+ 2990:                 if zone == 'Castle' and len(pl.castles) <= 2:
+ 2991:                     score -= 0.5
+ 2992:                 candidates.append((score, zone, card))
+ 2993: 
+ 2994:         if not candidates:
+ 2995:             return
+ 2996:         score, zone, card = max(candidates, key=lambda entry: entry[0])
+ 2997:         if score <= 0:
+ 2998:             return
+ 2999: 
+ 3000:         wants_contact = (
+ 3001:             card.value < threshold
+ 3002:             or card.value - VARIANT.get('march_damage', 2) >= threshold
+ 3003:         )
+ 3004:         enemy_lanes = {marcher['lane'] for marcher in op.marchers}
+ 3005:         if enemy_lanes:
+ 3006:             occupied = sorted(enemy_lanes)[0]
+ 3007:             other = 'Castle' if occupied == 'Lord' else 'Lord'
+ 3008:             lane = occupied if wants_contact else other
+ 3009:         else:
+ 3010:             lane = zone
+ 3011: 
+ 3012:         guards = pl.lord_guards if zone == 'Lord' else pl.castle_guards
+ 3013:         guards.remove(card)
+ 3014:         pl.marchers.append({
+ 3015:             'card': card,
+ 3016:             'value': card.value,
+ 3017:             'lane': lane,
+ 3018:             'pos': 0,
+ 3019:         })
+ 3020: 
+     ...
+
+====================== Scripts/Sim/RuleConfig.gd ======================
+   44: @export var reconfig_strict: bool = true
+   45: @export var kroni_def_soft: bool = false
+   46: @export var kroni_hunger_decay: bool = true
+   47: @export var deimos_war_machine_free: bool = true
+   48: @export var deimos_summon_cost: int = 7
+   49: @export var recoil_lowest: bool = true
+   50: @export var neutral_tear_on_banish: bool = true
+   51: @export var castle_tear_uncapped: bool = false
+   52: @export var veil_drift: int = 0
+   53: @export var invocation_repeatable: bool = false
+   54: @export var reconfig_tokens_needed: int = 5
+   55: @export var reconfig_neutral: bool = false
+   56: @export var deimos_claims_breach: int = 1
+   57: @export var consume_the_siege: bool = false
+   58: @export var war_machine_ignores_profaned: bool = false
+   59: @export var gremory_summon_cost: int = 6
+   60: 
+   61: # Humbaba / ninth-lord variants.
+   62: @export var humbaba_seal: bool = true
+   63: @export var humbaba_toll: bool = true
+   64: @export var humbaba_gate4: bool = true
+   65: @export var humbaba_patient: bool = true
+   66: 
+   67: # Experimental 6.5 structural pass.  These are deliberately inert in DE v2;
+   68: # `lab_v6_5()` is the only profile that enables the measured system bundle.
+   69: # The canonical switches remain in trace identity.  Lab-only presentation and
+   70: # economy features are intentionally versioned by the lab profile instead, so
+   71: # an inert feature does not relabel the canonical DE v2 goldens.
+   72: @export var fix_a: bool = false
+   73: @export var fix_b: bool = false
+   74: 
+   75: @export var ward_threshold: bool = false
+   76: @export var ward_anti_repeat: bool = true
+   77: @export var ward_commit_any: bool = false
+   78: @export var ward_commit_defense: bool = false
+   79: @export var ward_read: bool = false
+   80: @export var ward_garrison_refund: bool = false
+   81: @export var sigil_flat: bool = false
+   82: @export var humbaba_sigil_commit: bool = false
+   83: 
+   84: @export var repair_escalation: int = 0
+   85: @export var castle_scarring: bool = false
+   86: @export var castle_scar_def: int = 2
+   87: @export var castle_permanent_loss: bool = false
+   88: @export var veil_on_permanent_loss: bool = false
+   89: @export var lord_threat_retention: bool = false
+   90: 
+   91: @export var reflex_bid: bool = true
+   92: @export var momentum: bool = false
+   93: @export var momentum_band: int = 3
+   94: @export var fog_of_war: bool = false
+   95: 
+   96: # Independent from Marching Orders: the lab Market refreshes before swaps from
+   97: # round two onward.  It must stay enabled when Marching is isolated for tests.
+   98: @export var market_refresh: bool = false
+   99: 
+  100: @export var marching: bool = false
+  101: @export var march_max_in_flight: int = 1
+  102: @export var march_threshold: int = 3
+  103: @export var march_damage: int = 2
+  104: @export var march_suit_bonus: int = 1
+  105: @export var march_steps: int = 3
+  106: @export var march_exception_pair: bool = true
+  107: @export var lane_kill_soul: bool = false
+  108: 
+  109: # These remain experimental but are deliberately OFF in the v6.5 measured
+  110: # profile.  They are configuration, not an accidental promise to ship them.
+  111: @export var adaptive_doctrine: bool = false
+  112: @export var castle_loadout: bool = false
+  113: @export var max_castles: int = 3
+  114: @export var profane_no_castle_gate: bool = false
+  115: @export var castleless_siege: bool = false
+  116: @export var castleless_tear_neutral: bool = true
+  117: 
+  118: 
+  119: static func de_v2() -> RuleConfig:
+  120: 	# DE v2 is the default state of this resource.
+  121: 	return RuleConfig.new()
+  122: 
+  123: 
+  124: static func base_v5_29() -> RuleConfig:
+  125: 	var config := RuleConfig.new()
+  126: 
+     ...
+  148: static func lab_v6_5() -> RuleConfig:
+  149: 	# The measured 6.5 lab profile.  It starts from canonical DE v2 so the
+  150: 	# established lord-power corrections remain authoritative, then applies only
+  151: 	# the systems included in LAB_MEASURED_CONFIG.  Loadouts and adaptive
+  152: 	# doctrine intentionally stay off: neither was in the measured bundle.
+  153: 	var config := RuleConfig.de_v2()
+  154: 
+  155: 	# The lab was measured on the 12-step Cataclysm checkpoint.  Only its
+  156: 	# Ritual, Dominion-requirement, and Collapse clocks were repriced by
+  157: 	# apply_lab_clocks(); retaining DE v2's 11 here would be an unmeasured hybrid.
+  158: 	config.dominion_track = 12
+  159: 	config.win_souls = 11
+  160: 	config.dominion_requirement = 7
+  161: 	config.final_collapse_threshold = 22
+  162: 
+  163: 	config.fix_a = true
+  164: 	config.fix_b = true
+  165: 
+  166: 	config.ward_threshold = true
+  167: 	config.ward_anti_repeat = false
+  168: 	config.ward_commit_any = true
+  169: 	config.ward_commit_defense = true
+  170: 	config.ward_read = true
+  171: 	config.ward_garrison_refund = true
+  172: 	config.sigil_flat = true
+  173: 	config.humbaba_sigil_commit = true
+  174: 
+  175: 	config.castle_scarring = true
+  176: 	config.castle_permanent_loss = true
+  177: 	config.veil_on_permanent_loss = true
+  178: 	config.lord_threat_retention = true
+  179: 
+  180: 	config.reflex_bid = false
+  181: 	config.momentum = true
+  182: 	config.momentum_band = 3
+  183: 	config.fog_of_war = true
+  184: 	config.market_refresh = true
+  185: 
+  186: 	config.marching = true
+  187: 	config.march_max_in_flight = 1
+  188: 	config.march_threshold = 3
+  189: 	config.march_damage = 2
+  190: 	config.march_suit_bonus = 1
+  191: 	config.march_steps = 3
+  192: 	config.march_exception_pair = true
+  193: 	config.lane_kill_soul = true
+  194: 
+  195: 	return config
+  196: 
+  197: 
+  198: func get_cataclysm_threshold() -> int:
+  199: 	return dominion_track
+     ...
+
+====================== Scripts/Sim/MarchingEngine.gd ======================
+   25: static func launch(
+   26: 	game,
+   27: 	rules: RuleConfig,
+   28: 	player_id: int,
+   29: 	decision: Dictionary
+   30: ) -> Dictionary:
+   31: 	if not rules.marching:
+   32: 		return _result(player_id, "pass", "marching_disabled")
+   33: 
+   34: 	var player = game.get_player(player_id)
+   35: 	if player == null:
+   36: 		return _invalid(player_id, "player_missing")
+   37: 
+   38: 	if _is_pass(decision):
+   39: 		return _result(player_id, "pass", "pass")
+   40: 
+   41: 	if player.marchers.size() >= rules.march_max_in_flight:
+   42: 		return _invalid(player_id, "marcher_limit")
+   43: 
+   44: 	var source_zone: String = String(decision.get("source_zone", ""))
+   45: 	var lane: String = String(decision.get("lane", ""))
+   46: 	var card_id: String = String(decision.get("card", ""))
+   47: 
+   48: 	if not LANES.has(source_zone):
+   49: 		return _invalid(player_id, "march_source_zone_invalid")
+   50: 	if not LANES.has(lane):
+   51: 		return _invalid(player_id, "march_lane_invalid")
+   52: 
+   53: 	var guards: Array = (
+   54: 		player.lord_guards
+   55: 		if source_zone == ZONE_LORD
+   56: 		else player.castle_guards
+   57: 	)
+   58: 	var card_index: int = _find_card_index(guards, card_id)
+   59: 	if card_index < 0:
+   60: 		return _invalid(player_id, "march_card_missing")
+   61: 
+   62: 	var card = guards[card_index]
+   63: 	guards.remove_at(card_index)
+   64: 	player.marchers.append({
+   65: 		"card": card,
+   66: 		"value": int(card.value),
+   67: 		"lane": lane,
+   68: 		"pos": 0,
+   69: 	})
+   70: 
+   71: 	return {
+   72: 		"action": "march",
+   73: 		"player_id": player_id,
+   74: 		"reason": "",
+   75: 		"source_zone": source_zone,
+   76: 		"lane": lane,
+   77: 		"card": _card_id(card),
+   78: 	}
+   79: 
+   80: 
+   81: static func advance(
+   82: 	game,
+   83: 	rules: RuleConfig
+   84: ) -> Dictionary:
+   85: 	var events: Array[Dictionary] = []
+   86: 
+   87: 	if not rules.marching:
+   88: 		return {
+   89: 			"action": "march_advance",
+   90: 			"enabled": false,
+   91: 			"events": events,
+   92: 			"terminal": false,
+   93: 		}
+   94: 
+   95: 	for player in game.players:
+   96: 		for marcher in player.marchers:
+   97: 			marcher["pos"] = int(marcher.get("pos", 0)) + 1
+   98: 
+   99: 	for lane in LANES:
+  100: 		var first = _marcher_in_lane(game.get_player(0), lane)
+  101: 		var second = _marcher_in_lane(game.get_player(1), lane)
+  102: 		if first == null or second == null:
+  103: 			continue
+  104: 
+  105: 		var first_marshal: bool = _is_marshal(first, rules)
+  106: 		var second_marshal: bool = _is_marshal(second, rules)
+  107: 		if ((first_marshal and _is_spy(second, rules))
+  108: 				or (second_marshal and _is_spy(first, rules))):
+  109: 			first["value"] = 0
+  110: 			second["value"] = 0
+  111: 			events.append({
+  112: 				"type": "march_spy",
+  113: 				"lane": lane,
+  114: 			})
+  115: 		elif first_marshal or second_marshal:
+  116: 			events.append({
+  117: 				"type": "march_evade",
+  118: 				"lane": lane,
+  119: 			})
+  120: 		else:
+  121: 			var first_damage: int = rules.march_damage
+  122: 			var second_damage: int = rules.march_damage
+  123: 			if _suit_advantage(_card_suit(second), _card_suit(first)):
+  124: 				first_damage += rules.march_suit_bonus
+  125: 			if _suit_advantage(_card_suit(first), _card_suit(second)):
+  126: 				second_damage += rules.march_suit_bonus
+  127: 			first["value"] = int(first.get("value", 0)) - first_damage
+  128: 			second["value"] = int(second.get("value", 0)) - second_damage
+  129: 			events.append({
+  130: 				"type": "march_clash",
+  131: 				"lane": lane,
+  132: 				"first_damage": first_damage,
+  133: 				"second_damage": second_damage,
+  134: 			})
+  135: 
+  136: 	for player in game.players:
+  137: 		var survivors: Array[Dictionary] = []
+  138: 		for marcher in player.marchers:
+  139: 			var card = marcher.get("card", null)
+  140: 			var value: int = int(marcher.get("value", 0))
+  141: 			if value <= 0:
+  142: 				if rules.lane_kill_soul:
+  143: 					var opponent = game.get_opponent(int(player.pid))
+  144: 					if opponent != null:
+  145: 						opponent.souls += 1
+  146: 				game.discard.append(card)
+  147: 				events.append({
+  148: 					"type": "march_destroyed",
+  149: 					"player_id": int(player.pid),
+  150: 					"card": _card_id(card),
+  151: 				})
+  152: 				continue
+  153: 
+  154: 			if int(marcher.get("pos", 0)) >= rules.march_steps:
+  155: 				var scored: bool = value >= rules.march_threshold
+  156: 				if scored:
+  157: 					player.tears += 1
+  158: 				game.discard.append(card)
+  159: 				events.append({
+  160: 					"type": "march_arrival",
+  161: 					"player_id": int(player.pid),
+  162: 					"card": _card_id(card),
+  163: 					"scored": scored,
+  164: 				})
+  165: 				continue
+  166: 
+  167: 			survivors.append(marcher)
+  168: 		player.marchers = survivors
+  169: 
+  170: 	game.refresh_derived_values()
+  171: 	var terminal: bool = ResolutionFinaleEngineData.check_win(game, rules)
+  172: 	return {
+  173: 		"action": "march_advance",
+  174: 		"enabled": true,
+  175: 		"events": events,
+  176: 		"terminal": terminal,
+  177: 	}
+  178: 
+  179: 
+  180: static func _marcher_in_lane(player, lane: String):
+  181: 	if player == null:
+  182: 		return null
+  183: 	for marcher in player.marchers:
+  184: 		if String(marcher.get("lane", "")) == lane:
+  185: 			return marcher
+  186: 	return null
+  187: 
+  188: 
+  189: static func _is_marshal(marcher: Dictionary, rules: RuleConfig) -> bool:
+  190: 	var card = marcher.get("card", null)
+  191: 	return (
+  192: 		rules.march_exception_pair
+  193: 		and card != null
+  194: 		and String(card.suit) == "Vulture"
+  195: 		and int(card.value) == 5
+  196: 	)
+  197: 
+  198: 
+  199: static func _is_spy(marcher: Dictionary, rules: RuleConfig) -> bool:
+  200: 	var card = marcher.get("card", null)
+  201: 	return (
+  202: 		rules.march_exception_pair
+  203: 		and card != null
+  204: 		and String(card.suit) == "Butcher"
+  205: 		and int(card.value) == 1
+  206: 	)
+  207: 
+  208: 
+  209: static func _suit_advantage(attacker_suit: String, defender_suit: String) -> bool:
+  210: 	return String(SUIT_BEATS.get(attacker_suit, "")) == defender_suit
+  211: 
+  212: 
+  213: static func _card_suit(marcher: Dictionary) -> String:
+  214: 	var card = marcher.get("card", null)
+  215: 	return "" if card == null else String(card.suit)
+  216: 
+  217: 
+  218: static func _find_card_index(cards: Array, card_identifier: String) -> int:
+  219: 	for index in range(cards.size()):
+  220: 		if _card_id(cards[index]) == card_identifier:
+  221: 			return index
+  222: 	return -1
+  223: 
+  224: 
+  225: static func _is_pass(decision: Dictionary) -> bool:
+  226: 	return String(decision.get("action", "pass")).to_lower() == "pass"
+  227: 
+  228: 
+  229: static func _card_id(card) -> String:
+  230: 	return "" if card == null else "%s:%d" % [String(card.suit), int(card.value)]
+  231: 
+  232: 
+  233: static func _result(player_id: int, action: String, reason: String) -> Dictionary:
+  234: 	return {
+  235: 		"action": action,
+  236: 		"player_id": player_id,
+  237: 		"reason": reason,
+  238: 		"source_zone": "",
+  239: 		"lane": "",
+  240: 		"card": "",
+  241: 	}
+  242: 
+  243: 
+  244: static func _invalid(player_id: int, reason: String) -> Dictionary:
+  245: 	var result := _result(player_id, "invalid", reason)
+  246: 	return result
+     ...
+
+====================== Scripts/Sim/BotMarchingDoctrine.gd ======================
+   16: static func march_choice(
+   17: 	game,
+   18: 	player_id: int,
+   19: 	rules: RuleConfig
+   20: ) -> Dictionary:
+   21: 	if not rules.marching:
+   22: 		return {"action": "pass"}
+   23: 
+   24: 	var player = game.get_player(player_id)
+   25: 	var opponent = game.get_opponent(player_id)
+   26: 
+   27: 	if player == null or opponent == null:
+   28: 		return {"action": "pass"}
+   29: 
+   30: 	if player.marchers.size() >= rules.march_max_in_flight:
+   31: 		return {"action": "pass"}
+   32: 
+   33: 	var enemy_marcher = _threatening_marcher(opponent, rules)
+   34: 	var candidates: Array[Dictionary] = []
+   35: 
+   36: 	for source_zone: String in [ZONE_LORD, ZONE_CASTLE]:
+   37: 		var guards: Array = (
+   38: 			player.lord_guards
+   39: 			if source_zone == ZONE_LORD
+   40: 			else player.castle_guards
+   41: 		)
+   42: 
+   43: 		# Marching must create a real board trade rather than empty a door.
+   44: 		if guards.size() <= 1:
+   45: 			continue
+   46: 
+   47: 		for card in guards:
+   48: 			var score: float = _score_card(
+   49: 				player,
+   50: 				card,
+   51: 				source_zone,
+   52: 				enemy_marcher,
+   53: 				rules
+   54: 			)
+   55: 
+   56: 			if score <= 0.0:
+   57: 				continue
+   58: 
+   59: 			candidates.append({
+   60: 				"score": score,
+   61: 				"source_zone": source_zone,
+   62: 				"card": card,
+   63: 			})
+   64: 
+   65: 	if candidates.is_empty():
+   66: 		return {"action": "pass"}
+   67: 
+   68: 	candidates.sort_custom(
+   69: 		func(left: Dictionary, right: Dictionary) -> bool:
+   70: 			var left_score: float = float(left.get("score", 0.0))
+   71: 			var right_score: float = float(right.get("score", 0.0))
+   72: 			if left_score != right_score:
+   73: 				return left_score > right_score
+   74: 			return _card_id(left.get("card", null)) < _card_id(right.get("card", null))
+   75: 	)
+   76: 
+   77: 	var selected: Dictionary = candidates[0]
+   78: 	var card = selected.get("card", null)
+   79: 	var source_zone: String = String(selected.get("source_zone", ""))
+   80: 
+   81: 	return {
+   82: 		"action": "march",
+   83: 		"source_zone": source_zone,
+   84: 		"lane": _choose_lane(card, source_zone, opponent, rules),
+   85: 		"card": _card_id(card),
+   86: 	}
+   87: 
+   88: 
+   89: static func _score_card(
+   90: 	player,
+   91: 	card,
+   92: 	source_zone: String,
+   93: 	enemy_marcher,
+   94: 	rules: RuleConfig
+   95: ) -> float:
+   96: 	if card == null:
+   97: 		return -1000.0
+   98: 
+   99: 	var value: int = int(card.value)
+  100: 	var score: float = 0.0
+  101: 
+  102: 	if value < rules.march_threshold:
+  103: 		if enemy_marcher == null:
+  104: 			return -1000.0
+  105: 
+  106: 		var enemy_card = enemy_marcher.get("card", null)
+  107: 		var damage: int = rules.march_damage
+  108: 		if (
+  109: 			enemy_card != null
+  110: 			and _suit_advantage(String(card.suit), String(enemy_card.suit))
+  111: 		):
+  112: 			damage += rules.march_suit_bonus
+  113: 
+  114: 		if _is_marshal(enemy_marcher, rules):
+  115: 			score += 4.0 if _is_spy_card(card, rules) else -5.0
+  116: 		elif int(enemy_marcher.get("value", 0)) - damage < rules.march_threshold:
+  117: 			score += 1.6
+  118: 		else:
+  119: 			score += 0.2
+  120: 
+  121: 		score -= float(value) * 0.05
+  122: 	else:
+  123: 		if value - rules.march_damage >= rules.march_threshold:
+  124: 			score += 2.0
+  125: 		else:
+  126: 			score += 0.7
+  127: 
+  128: 		if _is_marshal_card(card, rules):
+  129: 			score += 3.0
+  130: 
+  131: 	if source_zone == ZONE_LORD and int(player.threat) >= 2:
+  132: 		score -= 0.8
+  133: 
+  134: 	if source_zone == ZONE_CASTLE and player.castles.size() <= 2:
+  135: 		score -= 0.5
+  136: 
+  137: 	return score
+  138: 
+  139: 
+  140: static func _choose_lane(
+  141: 	card,
+  142: 	source_zone: String,
+  143: 	opponent,
+  144: 	rules: RuleConfig
+  145: ) -> String:
+  146: 	var enemy_lanes: Array[String] = []
+  147: 
+  148: 	for marcher in opponent.marchers:
+  149: 		var lane: String = String(marcher.get("lane", ""))
+  150: 		if not lane.is_empty() and not enemy_lanes.has(lane):
+  151: 			enemy_lanes.append(lane)
+  152: 
+  153: 	if enemy_lanes.is_empty():
+  154: 		return source_zone
+  155: 
+  156: 	var wants_contact: bool = (
+  157: 		int(card.value) < rules.march_threshold
+  158: 		or int(card.value) - rules.march_damage >= rules.march_threshold
+  159: 	)
+  160: 	var busy_lane: String = enemy_lanes[0]
+  161: 	var open_lane: String = (
+  162: 		ZONE_CASTLE
+  163: 		if busy_lane == ZONE_LORD
+  164: 		else ZONE_LORD
+  165: 	)
+  166: 
+  167: 	return busy_lane if wants_contact else open_lane
+  168: 
+  169: 
+  170: static func _threatening_marcher(opponent, rules: RuleConfig):
+  171: 	for marcher in opponent.marchers:
+  172: 		if int(marcher.get("value", 0)) >= rules.march_threshold:
+  173: 			return marcher
+  174: 	return null
+  175: 
+  176: 
+  177: static func _suit_advantage(
+  178: 	attacker_suit: String,
+  179: 	defender_suit: String
+  180: ) -> bool:
+  181: 	return String(SUIT_BEATS.get(attacker_suit, "")) == defender_suit
+  182: 
+  183: 
+  184: static func _is_marshal(marcher: Dictionary, rules: RuleConfig) -> bool:
+  185: 	return _is_marshal_card(marcher.get("card", null), rules)
+  186: 
+  187: 
+  188: static func _is_marshal_card(card, rules: RuleConfig) -> bool:
+  189: 	return (
+  190: 		rules.march_exception_pair
+  191: 		and card != null
+  192: 		and String(card.suit) == "Vulture"
+  193: 		and int(card.value) == 5
+  194: 	)
+  195: 
+  196: 
+  197: static func _is_spy_card(card, rules: RuleConfig) -> bool:
+  198: 	return (
+  199: 		rules.march_exception_pair
+  200: 		and card != null
+  201: 		and String(card.suit) == "Butcher"
+  202: 		and int(card.value) == 1
+  203: 	)
+  204: 
+  205: 
+  206: static func _card_id(card) -> String:
+  207: 	if card == null:
+  208: 		return ""
+  209: 	return "%s:%d" % [String(card.suit), int(card.value)]
+     ...
+
+====================== Scripts/Sim/RevealEngine.gd ======================
+   28: static func resolve(
+   29: 	game,
+   30: 	rules: RuleConfig,
+   31: 	random_source = null,
+   32: 	kanifous_choices: Dictionary = {}
+   33: ) -> Dictionary:
+   34: 	assert(
+   35: 		game != null,
+   36: 		"Reveal resolution requires a GameState."
+   37: 	)
+   38: 
+   39: 	assert(
+   40: 		rules != null,
+   41: 		"Reveal resolution requires RuleConfig."
+   42: 	)
+   43: 
+   44: 	assert(
+   45: 		game.players.size() == 2,
+   46: 		"Reveal currently requires two players."
+   47: 	)
+   48: 
+   49: 	var validation: Dictionary = _validate_reveal_state(
+   50: 		game
+   51: 	)
+   52: 
+   53: 	if not bool(
+   54: 		validation.get(
+   55: 			"valid",
+   56: 			false
+   57: 		)
+   58: 	):
+   59: 		return {
+   60: 			"action": "invalid",
+   61: 			"reason": String(
+   62: 				validation.get(
+   63: 					"reason",
+   64: 					"invalid_reveal_state"
+   65: 				)
+   66: 			),
+   67: 			"invalid_player_id": int(
+   68: 				validation.get(
+   69: 					"player_id",
+   70: 					-1
+   71: 				)
+   72: 			),
+   73: 			"players": [],
+   74: 		}
+   75: 
+   76: 	var threat_before: Dictionary = {}
+   77: 	var committed_values: Dictionary = {}
+   78: 	var ward_events: Dictionary = {}
+   79: 	var kanifous_events: Dictionary = {}
+   80: 	var kroni_events: Dictionary = {}
+   81: 	var recoil_events: Dictionary = {}
+   82: 
+   83: 	for player in game.players:
+   84: 		var player_id: int = int(
+   85: 			player.pid
+   86: 		)
+   87: 
+   88: 		threat_before[player_id] = int(
+   89: 			player.threat
+   90: 		)
+   91: 
+   92: 		committed_values[player_id] = _committed_value(
+   93: 			player.committed
+   94: 		)
+   95: 
+   96: 		ward_events[player_id] = _empty_ward_event()
+   97: 
+   98: 		kanifous_events[player_id] = _empty_kanifous_event(
+   99: 			int(
+  100: 				player.threat
+  101: 			)
+  102: 		)
+  103: 
+  104: 		kroni_events[player_id] = _empty_kroni_event(
+  105: 			player_id,
+  106: 			1 - player_id
+  107: 		)
+  108: 
+  109: 		recoil_events[player_id] = _empty_recoil_event(
+  110: 			player_id,
+  111: 			1 - player_id
+  112: 		)
+  113: 
+  114: 	# Hunt Threat is applied before Ward Threat reduction and Kanifous Invoke.
+  115: 	for player in game.players:
+  116: 		if player.action != ACTION_HUNT:
+  117: 			continue
+  118: 
+  119: 		player.threat = min(
+  120: 			rules.max_threat,
+  121: 			int(
+  122: 				player.threat
+  123: 			) + 1
+  124: 		)
+  125: 
+  126: 	# Register this round's Sigils.
+  127: 	for player in game.players:
+  128: 		if player.action != ACTION_WARD:
+  129: 			continue
+  130: 
+  131: 		var player_id: int = int(
+  132: 			player.pid
+  133: 		)
+  134: 
+  135: 		var zone: String = String(
+  136: 			player.ward_target
+  137: 		)
+  138: 
+  139: 		var opponent = game.get_opponent(
+  140: 			player_id
+  141: 		)
+  142: 
+  143: 		assert(
+  144: 			opponent != null,
+  145: 			"Reveal Ward requires an opponent."
+  146: 		)
+  147: 
+  148: 		var contested: bool = (
+  149: 			(
+  150: 				opponent.action == ACTION_HUNT
+  151: 				and zone == ZONE_LORD
+  152: 			)
+  153: 			or (
+  154: 				opponent.action == ACTION_SIEGE
+  155: 				and zone == ZONE_CASTLE
+  156: 			)
+  157: 		)
+  158: 
+  159: 		var own_value: int = int(
+  160: 			committed_values.get(
+  161: 				player_id,
+  162: 				0
+  163: 			)
+  164: 		)
+  165: 
+  166: 		# Humbaba's own sigil is a fixed defensive contribution in the v6.5
+  167: 		# profile. It is part of the Ward bet, not a card silently placed in
+  168: 		# Commitment, so the locked committed-value trigger order stays intact.
+  169: 		if (
+  170: 			rules.humbaba_sigil_commit
+  171: 			and player.lord == "Humbaba"
+  172: 			and player.alive
+  173: 		):
+  174: 			own_value += 2
+  175: 
+  176: 			if player.castles.has("Keep"):
+  177: 				own_value += 1
+  178: 
+  179: 		var opponent_value: int = int(
+  180: 			committed_values.get(
+  181: 				int(
+  182: 					opponent.pid
+  183: 				),
+  184: 				0
+  185: 			)
+  186: 		)
+  187: 
+  188: 		var sigil_state: String = "fresh"
+  189: 
+  190: 		if (
+  191: 			not rules.sigil_flat
+  192: 			and contested
+  193: 			and opponent_value > own_value
+  194: 		):
+  195: 			sigil_state = "flipped"
+  196: 
+  197: 		player.sigils[zone] = sigil_state
+  198: 
+  199: 		var turned: bool = (
+  200: 			rules.ward_threshold
+  201: 			and contested
+  202: 			and own_value >= opponent_value
+  203: 		)
+  204: 
+  205: 		if turned:
+  206: 			player.ward_turned[zone] = true
+  207: 
+  208: 		var refunded_card: String = ""
+  209: 
+  210: 		if (
+  211: 			rules.ward_garrison_refund
+  212: 			and not contested
+  213: 			and not player.committed.is_empty()
+  214: 			and player.garrison.size() < rules.garrison_max
+  215: 		):
+  216: 			var lowest_index: int = _lowest_card_index(player.committed)
+  217: 			var lowest_card = player.committed[lowest_index]
+  218: 			player.committed.remove_at(lowest_index)
+  219: 			player.garrison.append(lowest_card)
+  220: 			refunded_card = _card_id(lowest_card)
+  221: 
+  222: 		if zone == ZONE_LORD:
+  223: 			player.threat = max(
+  224: 				0,
+  225: 				int(
+  226: 					player.threat
+  227: 				) - 1
+  228: 			)
+  229: 
+  230: 		ward_events[player_id] = {
+  231: 			"warded": true,
+  232: 			"zone": zone,
+  233: 			"contested": contested,
+  234: 			"own_committed_value": own_value,
+  235: 			"opposing_committed_value": opponent_value,
+  236: 			"sigil_state": sigil_state,
+  237: 			"turned": turned,
+  238: 			"refunded_card": refunded_card,
+  239: 		}
+  240: 
+  241: 	# Invoke, Hungering Aura, and primary-action Recoil share one
+  242: 	# committed-value queue. The order is locked before any card is stripped.
+  243: 	var trigger_order: Array[int] = _after_reveal_order(
+  244: 		game,
+  245: 		committed_values
+  246: 	)
+  247: 
+  248: 	# Resolution uses these values too. After-Reveal powers can strip a
+  249: 	# committed card, but they must not rewrite the already-locked action order.
+  250: 	game.set_meta(
+  251: 		"_resolution_committed_values_round",
+  252: 		int(
+  253: 			game.round
+  254: 		)
+  255: 	)
+  256: 
+  257: 	game.set_meta(
+  258: 		"_resolution_committed_values",
+  259: 		[
+  260: 			int(
+  261: 				committed_values.get(
+  262: 					0,
+  263: 					0
+  264: 				)
+  265: 			),
+  266: 			int(
+  267: 				committed_values.get(
+  268: 					1,
+  269: 					0
+  270: 				)
+  271: 			),
+  272: 		]
+  273: 	)
+  274: 
+  275: 	for player_id: int in trigger_order:
+  276: 		var player = game.get_player(
+  277: 			player_id
+  278: 		)
+  279: 
+  280: 		if player == null:
+  281: 			continue
+  282: 
+  283: 		if (
+  284: 			player.lord == "Kanifous"
+  285: 			and player.alive
+  286: 		):
+  287: 			kanifous_events[player_id] = _resolve_kanifous(
+  288: 				game,
+  289: 				player,
+  290: 				rules,
+  291: 				random_source,
+  292: 				_decision_for_player(
+  293: 					kanifous_choices,
+  294: 					player_id
+  295: 				)
+  296: 			)
+  297: 
+  298: 		if (
+  299: 			player.lord == "Kroni"
+  300: 			and player.alive
+  301: 			and int(
+  302: 				player.kroni_hunger
+  303: 			) >= 3
+  304: 		):
+  305: 			kroni_events[player_id] = _resolve_kroni_aura(
+  306: 				game,
+  307: 				player
+  308: 			)
+  309: 
+  310: 		if (
+  311: 			player.lord == "Odradek"
+  312: 			and player.alive
+  313: 		):
+  314: 			recoil_events[player_id] = _resolve_primary_recoil(
+  315: 				game,
+  316: 				player,
+  317: 				rules
+  318: 			)
+  319: 
+  320: 	for player in game.players:
+  321: 		player.derived_lord_def = _calculate_lord_defense(
+  322: 			player,
+  323: 			rules
+  324: 		)
+  325: 
+  326: 	game.refresh_derived_values()
+  327: 
+  328: 	var player_results: Array[Dictionary] = []
+  329: 
+  330: 	for player in game.players:
+  331: 		var player_id: int = int(
+  332: 			player.pid
+  333: 		)
+  334: 
+  335: 		player_results.append({
+  336: 			"player_id": player_id,
+  337: 			"action": String(
+  338: 				player.action
+  339: 			),
+  340: 			"committed_value": int(
+  341: 				committed_values.get(
+  342: 					player_id,
+  343: 					0
+  344: 				)
+  345: 			),
+  346: 			"threat_before": int(
+  347: 				threat_before.get(
+  348: 					player_id,
+  349: 					0
+  350: 				)
+  351: 			),
+  352: 			"threat_after": int(
+  353: 				player.threat
+  354: 			),
+  355: 			"derived_lord_def": int(
+  356: 				player.derived_lord_def
+  357: 			),
+  358: 			"ward": ward_events.get(
+  359: 				player_id,
+  360: 				_empty_ward_event()
+  361: 			),
+  362: 			"kanifous": kanifous_events.get(
+  363: 				player_id,
+  364: 				_empty_kanifous_event(
+  365: 					int(
+  366: 						player.threat
+  367: 					)
+  368: 				)
+  369: 			),
+  370: 			"kroni": kroni_events.get(
+  371: 				player_id,
+  372: 				_empty_kroni_event(
+  373: 					player_id,
+  374: 					1 - player_id
+  375: 				)
+  376: 			),
+  377: 			"odradek_recoil": recoil_events.get(
+  378: 				player_id,
+  379: 				_empty_recoil_event(
+  380: 					player_id,
+  381: 					1 - player_id
+  382: 				)
+  383: 			),
+  384: 		})
+  385: 
+  386: 	return {
+  387: 		"action": "reveal",
+  388: 		"reason": "",
+  389: 		"invalid_player_id": -1,
+  390: 		"trigger_order": trigger_order,
+  391: 		"players": player_results,
+  392: 	}
+  393: 
+  394: 
+     ...
+  692: static func _resolve_kanifous(
+  693: 	game,
+  694: 	player,
+  695: 	rules: RuleConfig,
+  696: 	random_source = null,
+  697: 	decision: Dictionary = {}
+  698: ) -> Dictionary:
+  699: 	var threat_before: int = int(
+  700: 		player.threat
+  701: 	)
+  702: 
+  703: 	var revealed_cards: Array = []
+  704: 
+  705: 	for reveal_index in range(
+  706: 		2
+  707: 	):
+  708: 		var revealed_card = _draw_top_card(
+  709: 			game,
+  710: 			random_source
+  711: 		)
+  712: 
+  713: 		if revealed_card == null:
+  714: 			break
+  715: 
+  716: 		revealed_cards.append(
+  717: 			revealed_card
+  718: 		)
+  719: 
+  720: 	if revealed_cards.is_empty():
+  721: 		return {
+  722: 			"invoked": false,
+  723: 			"reason": "deck_empty",
+  724: 			"threat_before": threat_before,
+  725: 			"threat_after": int(
+  726: 				player.threat
+  727: 			),
+  728: 			"revealed_cards": [],
+  729: 			"chosen_card": "",
+  730: 			"discarded_cards": [],
+  731: 			"neutral_tear_gain": 0,
+  732: 			"harvested_card": "",
+  733: 			"harvested_by": -1,
+  734: 			"drawn_cards": [],
+  735: 			"hand_discarded": "",
+  736: 			"moved_guards": [],
+  737: 			"temporary_guards": [],
+  738: 			"banked_card": "",
+  739: 			"garrison_overflow": false,
+  740: 			"soul_gain": 0,
+  741: 		}
+  742: 
+  743: 	player.kanifous_invokes_this_round += 1
+  744: 
+  745: 	player.threat = min(
+  746: 		rules.max_threat,
+  747: 		int(
+  748: 			player.threat
+  749: 		) + 1
+  750: 	)
+  751: 
+  752: 	var neutral_tear_gain: int = 0
+  753: 	var harvested_card: String = ""
+  754: 	var harvested_by: int = -1
+  755: 
+  756: 	var kanifous_card = revealed_cards[0]
+  757: 
+  758: 	if int(
+  759: 		kanifous_card.value
+  760: 	) >= 4:
+  761: 		var tear_event: Dictionary = _gain_neutral_tear(
+  762: 			game
+  763: 		)
+  764: 
+  765: 		neutral_tear_gain = 1
+  766: 
+  767: 		harvested_card = String(
+  768: 			tear_event.get(
+  769: 				"harvested_card",
+  770: 				""
+  771: 			)
+  772: 		)
+  773: 
+  774: 		harvested_by = int(
+  775: 			tear_event.get(
+  776: 				"harvested_by",
+  777: 				-1
+  778: 			)
+  779: 		)
+  780: 
+  781: 	var chosen_card = _find_card(
+  782: 		revealed_cards,
+  783: 		String(decision.get("chosen_card", ""))
+  784: 	)
+  785: 	if chosen_card == null:
+  786: 		chosen_card = _choose_kanifous_card(revealed_cards, player)
+  787: 
+  788: 	assert(
+  789: 		chosen_card != null,
+  790: 		"Kanifous revealed cards but selected no Invoke card."
+  791: 	)
+  792: 
+  793: 	var discarded_cards: Array = []
+  794: 
+  795: 	for card in revealed_cards:
+  796: 		if card == chosen_card:
+  797: 			continue
+  798: 
+  799: 		game.discard.append(
+  800: 			card
+  801: 		)
+  802: 
+  803: 		discarded_cards.append(
+  804: 			card
+  805: 		)
+  806: 
+  807: 	player.kanifous_invoked_suit = String(
+  808: 		chosen_card.suit
+  809: 	)
+  810: 
+  811: 	var drawn_cards: Array = []
+  812: 	var hand_discarded = null
+  813: 	var moved_guards: Array = []
+  814: 	var temporary_guards: Array = []
+  815: 
+  816: 	match String(
+  817: 		chosen_card.suit
+  818: 	):
+  819: 		"Vulture":
+  820: 			for draw_index in range(
+  821: 				3
+  822: 			):
+  823: 				var drawn_card = _draw_outside_development(
+  824: 					game,
+  825: 					player,
+  826: 					rules,
+  827: 					random_source
+  828: 				)
+  829: 
+  830: 				if drawn_card != null:
+  831: 					drawn_cards.append(
+  832: 						drawn_card
+  833: 					)
+  834: 
+  835: 			if player.hand.size() > 1:
+  836: 				var lowest_index: int = _lowest_card_index(
+  837: 					player.hand
+  838: 				)
+  839: 
+  840: 				if lowest_index >= 0:
+  841: 					hand_discarded = player.hand[
+  842: 						lowest_index
+  843: 					]
+  844: 
+  845: 					player.hand.remove_at(
+  846: 						lowest_index
+  847: 					)
+  848: 
+  849: 					game.discard.append(
+  850: 						hand_discarded
+  851: 					)
+  852: 
+  853: 		"Wright":
+  854: 			# A supplied choice is the player-facing Wright decision.  Leave the
+  855: 			# original front-of-zone behavior intact for bot/simulation callers
+  856: 			# that do not supply one.
+  857: 			var requested_indices: Array[int] = _wright_guard_indices(
+  858: 				decision.get("wright_guard_indices", [])
+  859: 			)
+  860: 			if decision.has("wright_guard_indices"):
+  861: 				var selected_guards: Array = []
+  862: 				var max_count: int = min(
+  863: 					2,
+  864: 					_max_castle_guards(player, rules) - player.castle_guards.size()
+  865: 				)
+  866: 				for guard_index: int in requested_indices:
+  867: 					if selected_guards.size() >= max_count:
+  868: 						break
+  869: 					if guard_index < 0 or guard_index >= player.lord_guards.size():
+  870: 						continue
+  871: 					var guard = player.lord_guards[guard_index]
+  872: 					if selected_guards.has(guard):
+  873: 						continue
+  874: 					selected_guards.append(guard)
+  875: 
+  876: 				for guard in selected_guards:
+  877: 					player.lord_guards.erase(guard)
+  878: 					player.castle_guards.append(guard)
+  879: 					moved_guards.append(guard)
+  880: 			else:
+  881: 				var moved_count: int = 0
+  882: 
+  883: 				while (
+  884: 					moved_count < 2
+  885: 					and not player.lord_guards.is_empty()
+  886: 					and player.castle_guards.size()
+  887: 					< _max_castle_guards(
+  888: 						player,
+  889: 						rules
+  890: 					)
+  891: 				):
+  892: 					var guard = player.lord_guards.pop_front()
+  893: 
+  894: 					player.castle_guards.append(guard)
+  895: 
+  896: 					moved_guards.append(guard)
+  897: 
+  898: 					moved_count += 1
+  899: 
+  900: 		"Penitent":
+  901: 			for guard_index in range(
+  902: 				2
+  903: 			):
+  904: 				var temporary_guard = _draw_top_card(
+  905: 					game,
+  906: 					random_source
+  907: 				)
+  908: 
+  909: 				if temporary_guard == null:
+  910: 					break
+  911: 
+  912: 				if (
+  913: 					player.lord_guards.size()
+  914: 					<= player.castle_guards.size()
+  915: 				):
+  916: 					player.lord_guards.append(
+  917: 						temporary_guard
+  918: 					)
+  919: 				else:
+  920: 					player.castle_guards.append(
+  921: 						temporary_guard
+  922: 					)
+  923: 
+  924: 				player.penitent_temp_guards.append(
+  925: 					temporary_guard
+  926: 				)
+  927: 
+  928: 				temporary_guards.append(
+  929: 					temporary_guard
+  930: 				)
+  931: 
+  932: 			player.kanifous_invoked_high = true
+  933: 
+  934: 		"Butcher":
+  935: 			pass
+  936: 
+  937: 	var soul_gain: int = 0
+  938: 
+  939: 	if int(
+  940: 		chosen_card.value
+  941: 	) == int(
+  942: 		player.threat
+  943: 	):
+  944: 		player.souls += 1
+  945: 		soul_gain = 1
+  946: 
+  947: 	var banked_card: String = ""
+  948: 	var garrison_overflow: bool = false
+  949: 
+  950: 	if (
+  951: 		player.garrison.size() < rules.garrison_max
+  952: 		and not player.garrison.has(
+  953: 			chosen_card
+  954: 		)
+  955: 	):
+  956: 		player.garrison.append(
+  957: 			chosen_card
+  958: 		)
+  959: 
+  960: 		banked_card = _card_id(
+  961: 			chosen_card
+  962: 		)
+  963: 	else:
+  964: 		game.discard.append(
+  965: 			chosen_card
+  966: 		)
+  967: 
+  968: 		discarded_cards.append(
+  969: 			chosen_card
+  970: 		)
+  971: 
+  972: 		garrison_overflow = true
+  973: 
+  974: 	var hand_discarded_id: String = ""
+  975: 
+  976: 	if hand_discarded != null:
+  977: 		hand_discarded_id = _card_id(
+  978: 			hand_discarded
+  979: 		)
+  980: 
+  981: 	return {
+  982: 		"invoked": true,
+  983: 		"reason": "",
+  984: 		"threat_before": threat_before,
+  985: 		"threat_after": int(
+  986: 			player.threat
+  987: 		),
+  988: 		"revealed_cards": _card_ids(
+  989: 			revealed_cards
+  990: 		),
+  991: 		"chosen_card": _card_id(
+  992: 			chosen_card
+  993: 		),
+  994: 		"discarded_cards": _card_ids(
+  995: 			discarded_cards
+  996: 		),
+  997: 		"neutral_tear_gain": neutral_tear_gain,
+  998: 		"harvested_card": harvested_card,
+  999: 		"harvested_by": harvested_by,
+ 1000: 		"drawn_cards": _card_ids(
+ 1001: 			drawn_cards
+ 1002: 		),
+ 1003: 		"hand_discarded": hand_discarded_id,
+ 1004: 		"moved_guards": _card_ids(
+ 1005: 			moved_guards
+ 1006: 		),
+ 1007: 		"temporary_guards": _card_ids(
+ 1008: 			temporary_guards
+ 1009: 		),
+ 1010: 		"banked_card": banked_card,
+ 1011: 		"garrison_overflow": garrison_overflow,
+ 1012: 		"soul_gain": soul_gain,
+ 1013: 	}
+ 1014: 
+ 1015: 
+     ...
+
+====================== Prototype/PlayableRoundController.gd ======================
+   19: )
+   20: 
+   21: const DeployEngineData = preload(
+   22: 	"res://Scripts/Sim/DeployEngine.gd"
+   23: )
+   24: 
+   25: const SummonEngineData = preload(
+   26: 	"res://Scripts/Sim/SummonEngine.gd"
+   27: )
+   28: 
+   29: const ReflexBidEngineData = preload(
+   30: 	"res://Scripts/Sim/ReflexBidEngine.gd"
+   31: )
+   32: 
+   33: const CommitmentEngineData = preload(
+   34: 	"res://Scripts/Sim/CommitmentEngine.gd"
+   35: )
+   36: 
+   37: const RevealEngineData = preload(
+   38: 	"res://Scripts/Sim/RevealEngine.gd"
+   39: )
+   40: 
+   41: const ResolutionEngineData = preload(
+   42: 	"res://Scripts/Sim/ResolutionEngine.gd"
+   43: )
+   44: 
+   45: const ResolutionPreludeEngineData = preload(
+   46: 	"res://Scripts/Sim/ResolutionPreludeEngine.gd"
+   47: )
+   48: 
+   49: const ResolutionActionAftermathEngineData = preload(
+   50: 	"res://Scripts/Sim/ResolutionActionAftermathEngine.gd"
+   51: )
+   52: 
+   53: const ReflexActionEngineData = preload(
+   54: 	"res://Scripts/Sim/ReflexActionEngine.gd"
+   55: )
+   56: 
+   57: const ResolutionFinaleEngineData = preload(
+   58: 	"res://Scripts/Sim/ResolutionFinaleEngine.gd"
+   59: )
+   60: 
+   61: const ResolutionCleanupEngineData = preload(
+   62: 	"res://Scripts/Sim/ResolutionCleanupEngine.gd"
+   63: )
+   64: 
+   65: const BotRoundEngineData = preload(
+   66: 	"res://Scripts/Sim/BotRoundEngine.gd"
+   67: )
+   68: 
+   69: const BotDoctrineData = preload(
+   70: 	"res://Scripts/Sim/BotDoctrine.gd"
+   71: )
+   72: 
+   73: const PlayableBotDoctrineData = preload(
+   74: 	"res://Prototype/PlayableBotDoctrine.gd"
+   75: )
+   76: 
+   77: const BotPolicyData = preload(
+   78: 	"res://Scripts/Sim/BotPolicy.gd"
+   79: )
+   80: 
+   81: const BotSelectorData = preload(
+   82: 	"res://Scripts/Sim/BotSelector.gd"
+     ...
+  145: const BOT_PLAYER_ID: int = 1
+  146: const UNKNOWN_GUARD_EXPECTED_VALUE: int = 3
+  147: 
+  148: 
+  149: var game = null
+  150: var rules: RuleConfig = null
+  151: var random_source = null
+  152: var policy = null
+  153: 
+  154: var stage: Stage = Stage.NO_GAME
+  155: var phase_results: Dictionary = {}
+  156: var events: Array[Dictionary] = []
+  157: var summon_choices: Dictionary = {}
+  158: var commitment_choices: Dictionary = {}
+  159: var revealed_guard_ids: Dictionary = {}
+  160: var guard_locations: Dictionary = {}
+  161: var guard_reveal_events: Array[Dictionary] = []
+  162: var resolution_state: Dictionary = {}
+  163: var kanifous_preview_cards: Array[String] = []
+  164: var kanifous_choice: Dictionary = {}
+  165: var pending_market_choices: Dictionary = {}
+  166: var pending_market_results: Array[Dictionary] = []
+  167: 
+  168: var last_result: Dictionary = {}
+  169: 
+  170: 
+  171: func start_match(
+  172: 	human_lord: String,
+  173: 	bot_lord: String,
+  174: 	seed_value: int
+  175: ) -> Dictionary:
+  176: 	# The playable prototype is the human-facing surface for the current lab
+  177: 	# branch. DE v2 remains selectable in the simulation runners and goldens.
+  178: 	rules = RuleConfig.lab_v6_5()
+  179: 	policy = BotPolicyData.standard()
+  180: 
+  181: 	var setup: Dictionary = (
+  182: 		SeededGameSetupData.setup_locked_game(
+  183: 			human_lord,
+  184: 			bot_lord,
+  185: 			seed_value,
+  186: 			rules
+  187: 		)
+  188: 	)
+  189: 
+  190: 	game = setup.get(
+  191: 		"game",
+  192: 		null
+  193: 	)
+  194: 
+  195: 	random_source = setup.get(
+  196: 		"rng",
+  197: 		null
+  198: 	)
+  199: 
+  200: 	assert(
+  201: 		game != null,
+  202: 		"Playable prototype setup did not return a GameState."
+  203: 	)
+  204: 
+  205: 	assert(
+  206: 		random_source != null,
+  207: 		"Playable prototype setup did not return an RNG."
+  208: 	)
+  209: 
+  210: 	stage = Stage.NO_GAME
+  211: 	phase_results.clear()
+  212: 	events.clear()
+  213: 	summon_choices.clear()
+  214: 	commitment_choices.clear()
+  215: 	revealed_guard_ids.clear()
+  216: 	guard_locations.clear()
+  217: 	guard_reveal_events.clear()
+  218: 	resolution_state.clear()
+  219: 	kanifous_preview_cards.clear()
+  220: 	kanifous_choice.clear()
+  221: 	pending_market_choices.clear()
+  222: 	pending_market_results.clear()
+  223: 	last_result.clear()
+  224: 
+  225: 	_sync_guard_visibility()
+  226: 
+  227: 	return advance_to_commitment()
+  228: 
+  229: 
+  230: func advance_to_commitment() -> Dictionary:
+  231: 	if game == null:
+  232: 		return _invalid(
+  233: 			"pre_round",
+  234: 			"game_not_started"
+  235: 		)
+  236: 
+  237: 	if int(
+  238: 		game.winner
+  239: 	) >= 0:
+  240: 		stage = Stage.TERMINAL
+  241: 		last_result = _round_result(
+  242: 			true,
+  243: 			"pre_round"
+  244: 		)
+  245: 		return last_result
+  246: 
+  247: 	var round_number: int = int(
+  248: 		game.round
+  249: 	) + 1
+  250: 
+  251: 	phase_results = {}
+  252: 	events = []
+  253: 	summon_choices = {}
+  254: 	commitment_choices = {}
+  255: 	pending_market_choices.clear()
+  256: 	pending_market_results.clear()
+  257: 
+  258: 	RoundEngineData.begin_round(
+  259: 		game,
+  260: 		round_number
+  261: 	)
+  262: 
+  263: 	_record_phase(
+  264: 		"begin_round",
+     ...
+  545: 
+  546: 	var bot_decision: Dictionary = BotDeployDoctrineData.deploy_choice(
+  547: 		_information_view(game, BOT_PLAYER_ID),
+  548: 		BOT_PLAYER_ID,
+  549: 		rules
+  550: 	)
+  551: 	var bot_result: Dictionary = DeployEngineData.resolve_player(
+  552: 		game,
+  553: 		BOT_PLAYER_ID,
+  554: 		rules,
+  555: 		bot_decision
+  556: 	)
+  557: 
+  558: 	_record_phase("deploy", {
+  559: 		"choices": {HUMAN_PLAYER_ID: decision.duplicate(true), BOT_PLAYER_ID: bot_decision.duplicate(true)},
+  560: 		"results": [human_result, bot_result],
+  561: 	})
+  562: 
+  563: 	if rules.marching:
+  564: 		stage = Stage.MARCH
+  565: 		return _awaiting("march")
+  566: 
+  567: 	return _prepare_after_march()
+  568: 
+  569: 
+  570: func resolve_human_march(
+  571: 	decision: Dictionary
+  572: ) -> Dictionary:
+  573: 	if stage != Stage.MARCH:
+  574: 		return _rejected("march", "not_awaiting_march")
+  575: 
+  576: 	var human_result: Dictionary = MarchingEngineData.launch(
+  577: 		game,
+  578: 		rules,
+  579: 		HUMAN_PLAYER_ID,
+  580: 		decision
+  581: 	)
+  582: 
+  583: 	if String(human_result.get("action", "")) == "invalid":
+  584: 		return _rejected("march", String(human_result.get("reason", "invalid_march")))
+  585: 
+  586: 	var bot_decision: Dictionary = BotMarchingDoctrineData.march_choice(
+  587: 		game,
+  588: 		BOT_PLAYER_ID,
+  589: 		rules
+  590: 	)
+  591: 	var bot_result: Dictionary = MarchingEngineData.launch(
+  592: 		game,
+  593: 		rules,
+  594: 		BOT_PLAYER_ID,
+  595: 		bot_decision
+  596: 	)
+  597: 
+  598: 	if String(bot_result.get("action", "")) == "invalid":
+  599: 		return _invalid("march", String(bot_result.get("reason", "invalid_bot_march")))
+  600: 
+  601: 	_record_phase("march", {
+  602: 		"choices": {
+  603: 			HUMAN_PLAYER_ID: decision.duplicate(true),
+  604: 			BOT_PLAYER_ID: bot_decision.duplicate(true),
+  605: 		},
+  606: 		"results": [human_result, bot_result],
+  607: 	})
+  608: 
+  609: 	return _prepare_after_march()
+  610: 
+  611: 
+  612: func _prepare_after_march() -> Dictionary:
+  613: 	_sync_guard_visibility()
+  614: 	summon_choices = {BOT_PLAYER_ID: _bot_summon_decision()}
+  615: 
+  616: 	var human = get_human_player()
+  617: 	if human != null and not human.alive:
+  618: 		stage = Stage.SUMMON
+  619: 		return _awaiting("summon")
+  620: 
+  621: 	return _resolve_summon_and_prepare_commitment(summon_choices)
+  622: 
+  623: 
+  624: func resolve_human_summon(
+  625: 	payment_ids: Array[String],
+  626: 	pass_summon: bool = false
+  627: ) -> Dictionary:
+  628: 	if stage != Stage.SUMMON:
+  629: 		return _invalid(
+  630: 			"summon",
+  631: 			"not_awaiting_summon"
+  632: 		)
+  633: 
+  634: 	var human = get_human_player()
+  635: 
+  636: 	if human == null:
+  637: 		return _invalid(
+  638: 			"summon",
+  639: 			"human_player_missing"
+  640: 		)
+  641: 
+  642: 	var human_decision: Dictionary = {
+  643: 		"pass": true,
+  644: 	}
+  645: 
+  646: 	if not pass_summon:
+  647: 		var validation: Dictionary = (
+  648: 			SummonEngineData._select_hand_payment(
+  649: 				human,
+  650: 				payment_ids,
+  651: 				human_summon_cost()
+  652: 			)
+  653: 		)
+     ...
+  912: 		"winner": -1,
+  913: 		"win_by": "",
+  914: 		"phases": phase_results,
+  915: 		"events": events,
+  916: 	}
+  917: 
+  918: 	return last_result
+  919: 
+  920: 
+  921: func reveal_orders() -> Dictionary:
+  922: 	if stage != Stage.SEALED:
+  923: 		return _invalid(
+  924: 			"reveal",
+  925: 			"orders_not_sealed"
+  926: 		)
+  927: 
+  928: 	var human = get_human_player()
+  929: 	if human != null and human.lord == "Kanifous" and human.alive:
+  930: 		var preview_result: Dictionary = RevealEngineData.resolve(
+  931: 			_duplicate_game_with_metadata(),
+  932: 			rules,
+  933: 			_duplicate_random_source()
+  934: 		)
+  935: 		kanifous_preview_cards = _kanifous_revealed_cards(preview_result, HUMAN_PLAYER_ID)
+  936: 		if not kanifous_preview_cards.is_empty():
+  937: 			stage = Stage.KANIFOUS_INVOKE
+  938: 			return _awaiting("kanifous_invoke")
+  939: 
+  940: 	return _resolve_revealed_orders({})
+  941: 
+  942: 
+  943: func resolve_human_kanifous_invoke(
+  944: 	chosen_card: String
+  945: ) -> Dictionary:
+  946: 	if stage != Stage.KANIFOUS_INVOKE:
+  947: 		return _rejected("reveal", "not_awaiting_kanifous_invoke")
+  948: 	if not kanifous_preview_cards.has(chosen_card):
+  949: 		return _rejected("reveal", "kanifous_card_not_revealed")
+  950: 	if _kanifous_suit(chosen_card) == "Wright":
+  951: 		kanifous_choice = {"chosen_card": chosen_card}
+  952: 		stage = Stage.KANIFOUS_WRIGHT
+  953: 		return _awaiting("kanifous_wright")
+  954: 	return _resolve_revealed_orders({HUMAN_PLAYER_ID: {"chosen_card": chosen_card}})
+  955: 
+  956: 
+  957: func resolve_human_kanifous_wright(
+  958: 	guard_indices: Array[int]
+  959: ) -> Dictionary:
+  960: 	if stage != Stage.KANIFOUS_WRIGHT:
+  961: 		return _rejected("reveal", "not_awaiting_kanifous_wright")
+  962: 
+  963: 	var human = get_human_player()
+  964: 	if human == null:
+  965: 		return _invalid("reveal", "human_player_missing")
+  966: 	if guard_indices.size() > 2:
+  967: 		return _rejected("reveal", "wright_may_move_at_most_two_guards")
+  968: 
+  969: 	var unique_indices: Array[int] = []
+  970: 	for guard_index: int in guard_indices:
+  971: 		if guard_index < 0 or guard_index >= human.lord_guards.size():
+  972: 			return _rejected("reveal", "wright_guard_not_in_lord_zone")
+  973: 		if unique_indices.has(guard_index):
+  974: 			return _rejected("reveal", "wright_guard_selected_twice")
+  975: 		unique_indices.append(guard_index)
+  976: 
+  977: 	var remaining_capacity: int = max(
+  978: 		0,
+  979: 		RevealEngineData._max_castle_guards(human, rules) - human.castle_guards.size()
+  980: 	)
+  981: 	if unique_indices.size() > remaining_capacity:
+  982: 		return _rejected("reveal", "wright_castle_guard_limit")
+  983: 
+  984: 	var choice: Dictionary = kanifous_choice.duplicate(true)
+  985: 	choice["wright_guard_indices"] = unique_indices
+  986: 	var result: Dictionary = _resolve_revealed_orders({HUMAN_PLAYER_ID: choice})
+  987: 	if String(result.get("action", "")) != "invalid":
+  988: 		kanifous_choice.clear()
+  989: 	return result
+  990: 
+  991: 
+  992: func _resolve_revealed_orders(
+  993: 	kanifous_choices: Dictionary
+  994: ) -> Dictionary:
+  995: 	var reveal_result: Dictionary = RevealEngineData.resolve(
+  996: 		game,
+  997: 		rules,
+  998: 		random_source,
+  999: 		kanifous_choices
+ 1000: 	)
+ 1001: 
+ 1002: 	# Reveal effects can move Guards between zones. A Guard entering a new
+ 1003: 	# zone starts hidden there, even if that physical card was seen before.
+ 1004: 	_sync_guard_visibility()
+ 1005: 
+ 1006: 	if String(
+ 1007: 		reveal_result.get(
+ 1008: 			"action",
+ 1009: 			""
+ 1010: 		)
+ 1011: 	) == "invalid":
+ 1012: 		return _invalid(
+ 1013: 			"reveal",
+ 1014: 			String(
+ 1015: 				reveal_result.get(
+ 1016: 					"reason",
+ 1017: 					"invalid_reveal"
+ 1018: 				)
+ 1019: 			)
+ 1020: 		)
+ 1021: 
+ 1022: 	_record_phase(
+ 1023: 		"reveal",
+ 1024: 		reveal_result
+ 1025: 	)
+ 1026: 	kanifous_preview_cards.clear()
+ 1027: 
+ 1028: 	stage = Stage.REVEALED
+ 1029: 	last_result = {
+ 1030: 		"action": "revealed",
+ 1031: 		"reason": "",
+ 1032: 		"round": int(
+ 1033: 			game.round
+ 1034: 		),
+ 1035: 		"completed": false,
+ 1036: 		"terminal": false,
+ 1037: 		"stopped_phase": "resolution",
+ 1038: 		"winner": -1,
+ 1039: 		"win_by": "",
+ 1040: 		"phases": phase_results,
+ 1041: 		"events": events,
+ 1042: 	}
+ 1043: 
+ 1044: 	return last_result
+ 1045: 
+ 1046: 
+ 1047: func _kanifous_revealed_cards(
+ 1048: 	reveal_result: Dictionary,
+ 1049: 	player_id: int
+ 1050: ) -> Array[String]:
+ 1051: 	var result: Array[String] = []
+ 1052: 	var raw_players = reveal_result.get("players", [])
+ 1053: 	if typeof(raw_players) != TYPE_ARRAY:
+ 1054: 		return result
+ 1055: 	for raw_player in raw_players:
+ 1056: 		if typeof(raw_player) != TYPE_DICTIONARY or int(raw_player.get("player_id", -1)) != player_id:
+ 1057: 			continue
+ 1058: 		var kanifous_event = raw_player.get("kanifous", {})
+ 1059: 		if typeof(kanifous_event) != TYPE_DICTIONARY:
+ 1060: 			return result
+ 1061: 		var raw_cards = kanifous_event.get("revealed_cards", [])
+ 1062: 		if typeof(raw_cards) != TYPE_ARRAY:
+ 1063: 			return result
+ 1064: 		for raw_card in raw_cards:
+ 1065: 			result.append(String(raw_card))
+ 1066: 		return result
+ 1067: 	return result
+ 1068: 
+ 1069: 
+ 1070: func _kanifous_suit(
+ 1071: 	card_identifier: String
+ 1072: ) -> String:
+ 1073: 	var split_identifier: PackedStringArray = card_identifier.split(":", false, 1)
+ 1074: 	return String(split_identifier[0]) if not split_identifier.is_empty() else ""
+ 1075: 
+ 1076: 
+ 1077: func resolve_revealed_round() -> Dictionary:
+ 1078: 	if stage != Stage.REVEALED:
+ 1079: 		return _invalid(
+ 1080: 			"resolution",
+ 1081: 			"orders_not_revealed"
+ 1082: 		)
+ 1083: 
+ 1084: 	_reveal_primary_attack_guards()
+ 1085: 
+ 1086: 	var resolution_choices: Dictionary = (
+ 1087: 		BotResolutionDoctrineData.build_decisions(
+ 1088: 			_information_view(
+ 1089: 				game,
+ 1090: 				BOT_PLAYER_ID
+ 1091: 			),
+ 1092: 			rules,
+ 1093: 			commitment_choices,
+ 1094: 			random_source,
+ 1095: 			policy
+ 1096: 		)
+ 1097: 	)
+ 1098: 
+ 1099: 	resolution_choices["reflex_provider"] = Callable(
+ 1100: 		self,
+ 1101: 		"_private_reflex_provider"
+ 1102: 	)
+ 1103: 
+ 1104: 	var resolution_result: Dictionary = (
+ 1105: 		ResolutionEngineData.resolve(
+     ...
+ 1119: 		return _invalid(
+ 1120: 			"resolution",
+ 1121: 			String(
+ 1122: 				resolution_result.get(
+ 1123: 					"reason",
+ 1124: 					"invalid_resolution"
+ 1125: 				)
+ 1126: 			)
+ 1127: 		)
+ 1128: 
+ 1129: 	_record_phase(
+ 1130: 		"resolution",
+ 1131: 		{
+ 1132: 			"choices": resolution_choices,
+ 1133: 			"result": resolution_result,
+ 1134: 		}
+ 1135: 	)
+ 1136: 
+ 1137: 	var march_advance_result: Dictionary = MarchingEngineData.advance(game, rules)
+ 1138: 	_record_phase("march_advance", march_advance_result)
+ 1139: 
+ 1140: 	# Remove revelation from defeated/removed Guards while preserving it for
+ 1141: 	# survivors that remained in the same zone.
+ 1142: 	_sync_guard_visibility()
+ 1143: 
+ 1144: 	if int(
+ 1145: 		game.winner
+ 1146: 	) >= 0:
+ 1147: 		stage = Stage.TERMINAL
+ 1148: 	else:
+ 1149: 		stage = Stage.NO_GAME
+ 1150: 
+ 1151: 	last_result = _round_result(
+ 1152: 		true,
+ 1153: 		(
+ 1154: 			"resolution"
+ 1155: 			if stage == Stage.TERMINAL
+ 1156: 			else ""
+ 1157: 		)
+ 1158: 	)
+ 1159: 
+ 1160: 	return last_result
+ 1161: 
+ 1162: 
+ 1163: func begin_human_resolution() -> Dictionary:
+ 1164: 	if stage != Stage.REVEALED:
+ 1165: 		return _rejected("resolution", "orders_not_revealed")
+ 1166: 
+ 1167: 	if _human_humbaba_toll_available():
+ 1168: 		stage = Stage.RESOLUTION_HUMBABA_TOLL
+ 1169: 		return _awaiting("humbaba_toll")
+ 1170: 
+ 1171: 	return _begin_human_resolution_with_toll({})
+ 1172: 
+ 1173: 
+ 1174: func resolve_human_humbaba_toll(
+ 1175: 	castle_name: String
+ 1176: ) -> Dictionary:
+ 1177: 	if stage != Stage.RESOLUTION_HUMBABA_TOLL:
+ 1178: 		return _rejected("humbaba_toll", "not_awaiting_humbaba_toll")
+ 1179: 
+ 1180: 	var choices: Dictionary = {HUMAN_PLAYER_ID: {"pass": true}}
+ 1181: 	if not castle_name.is_empty():
+ 1182: 		choices[HUMAN_PLAYER_ID] = {"castle": castle_name}
+     ...
+ 1553: 
+ 1554: 
+ 1555: func _human_gremory_choice_available(
+ 1556: 	human
+ 1557: ) -> bool:
+ 1558: 	if human == null or human.lord != "Gremory" or not human.alive or human.gremory_inevitable_ruin_done:
+ 1559: 		return false
+ 1560: 	var opponent = game.get_opponent(HUMAN_PLAYER_ID)
+ 1561: 	return (
+ 1562: 		opponent != null
+ 1563: 		and opponent.was_sieged
+ 1564: 		and not String(opponent.last_sieged_castle).is_empty()
+ 1565: 		and opponent.castles.has(String(opponent.last_sieged_castle))
+ 1566: 		and human.hand.size() + human.garrison.size() >= 4
+ 1567: 	)
+ 1568: 
+ 1569: 
+ 1570: func _finish_human_resolution() -> Dictionary:
+ 1571: 	var march_advance_result: Dictionary = MarchingEngineData.advance(game, rules)
+ 1572: 
+ 1573: 	var resolution_result: Dictionary = {
+ 1574: 		"action": "resolution",
+ 1575: 		"reason": "",
+ 1576: 		"prelude_result": resolution_state.get("prelude_result", {}),
+ 1577: 		"action_events": resolution_state.get("action_events", []),
+ 1578: 		"reflex_result": resolution_state.get("reflex_result", {}),
+ 1579: 		"finale_result": resolution_state.get("finale_result", {}),
+ 1580: 		"cleanup_result": resolution_state.get("cleanup_result", {}),
+ 1581: 		"stopped_stage": String(resolution_state.get("stopped_stage", "")),
+ 1582: 		"winner": int(game.winner),
+ 1583: 		"win_by": String(game.win_by),
+ 1584: 		"veil_total": int(game.calculate_veil_total()),
+ 1585: 	}
+ 1586: 
+ 1587: 	_record_phase("resolution", {"choices": resolution_state.get("action_choices", {}), "result": resolution_result})
+ 1588: 	_record_phase("march_advance", march_advance_result)
+ 1589: 	_sync_guard_visibility()
+ 1590: 	stage = Stage.TERMINAL if int(game.winner) >= 0 else Stage.NO_GAME
+ 1591: 	last_result = _round_result(
+ 1592: 		true,
+ 1593: 		"march_advance" if stage == Stage.TERMINAL else ""
+ 1594: 	)
+ 1595: 	return last_result
+ 1596: 
+ 1597: 
+ 1598: func _nested_dictionary(
+ 1599: 	source: Dictionary,
+ 1600: 	key: String
+ 1601: ) -> Dictionary:
+ 1602: 	var raw_value = source.get(key, {})
+ 1603: 	return raw_value if typeof(raw_value) == TYPE_DICTIONARY else {}
+ 1604: 
+ 1605: 
+ 1606: func _duplicate_game_with_metadata():
+ 1607: 	var copy = game.duplicate_state()
+ 1608: 	for metadata_name in game.get_meta_list():
+ 1609: 		copy.set_meta(metadata_name, game.get_meta(metadata_name))
+ 1610: 	return copy
+ 1611: 
+ 1612: 
+ 1613: func _duplicate_random_source():
+ 1614: 	if random_source != null and random_source.has_method("duplicate_state"):
+ 1615: 		return random_source.duplicate_state()
+ 1616: 	return random_source
+ 1617: 
+ 1618: 
+ 1619: func get_human_player():
+ 1620: 	if game == null:
+ 1621: 		return null
+ 1622: 
+ 1623: 	return game.get_player(
+ 1624: 		HUMAN_PLAYER_ID
+ 1625: 	)
+ 1626: 
+ 1627: 
+ 1628: func get_bot_player():
+ 1629: 	if game == null:
+ 1630: 		return null
+ 1631: 
+ 1632: 	return game.get_player(
+ 1633: 		BOT_PLAYER_ID
+ 1634: 	)
+ 1635: 
+ 1636: 
+ 1637: func get_bot_commitment() -> Dictionary:
+     ...
+
+====================== Prototype/PlayablePrototype.gd ======================
+   32: 	"Valak",
+   33: 	"Kroni",
+   34: 	"Kalligan",
+   35: 	"Gremory",
+   36: 	"Odradek",
+   37: 	"Kanifous",
+   38: 	"Humbaba",
+   39: ]
+   40: 
+   41: const ACTIONS: Array[String] = [
+   42: 	"Hunt",
+   43: 	"Siege",
+   44: 	"Ward",
+   45: 	"Profane",
+   46: ]
+   47: 
+   48: const DEFAULT_SEED: int = 20260724
+   49: 
+   50: const LORD_CARD_ABILITIES: Dictionary = {
+   51: 	"Orias": [
+   52: 		"[b]Snare[/b] — During Development, if Orias is living and below Threat 3, gain 1 Threat and restrict an opponent with 2+ Hand/Garrison cards to one Deploy move.",
+   53: 		"[b]Relentless Pursuit[/b] — Hunts gain +1 strength, plus another +1 against a Lord at Threat 2+.",
+   54: 		"[b]The Mark[/b] — Defeating a Lord Guard raises that Lord's Threat (2 at Threat 2+). Banishing a Lord at Threat 3+ grants +2 bonus Souls and marks it; it returns with +1 Threat. Orias bypasses that marked target's Recoil/Backwash.",
+   55: 		"[b]Breach: Frenzy[/b] — Players at Threat 3+ cannot Deploy cards from Garrison to Guard zones.",
+   56: 	],
+   57: 	"Deimos": [
+   58: 		"[b]War Machine[/b] — Sieges gain +2 strength, reduced by 1 for each of Deimos's Ruined or Profaned Castles (minimum +0).",
+   59: 		"[b]Fear[/b] — Before a Siege against 2+ Castle Guards, return the lowest Guard to its owner's Hand.",
+   60: 		"[b]Claim the Breach[/b] — The first Castle Deimos ruins each game gives Deimos the Tear instead of adding a Neutral Tear.",
+   61: 		"[b]Breach[/b] — Every active Castle has 1 less structural DEF (minimum 0).",
+   62: 	],
+   63: 	"Valak": [
+   64: 		"[b]Crushing Presence[/b] — On Hunt or Siege against 2+ Guards, the lowest Guard contributes no defense.",
+   65: 		"[b]Siphon[/b] — After Valak defeats a Guard, discard the lowest Guard still protecting that same zone.",
+   66: 		"[b]Breach: Gravitational Collapse[/b] — At Resolution Prelude, each previously attacked zone loses its lowest Guard.",
+   67: 	],
+   68: 	"Kroni": [
+   69: 		"[b]Consume / Gorge[/b] — At End of Round, if any destruction occurred, gain 1 Hunger. If Kroni personally defeated a Guard that round, also gain 1 Soul.",
+   70: 		"[b]Hunger[/b] — Lord DEF is 4 at 0 Hunger, 6 at 1–2, and 8 at 3+. Reaching 3 for the first time after a Summon grants a personal Tear.",
+   71: 		"[b]Hungering Aura / Ravenous[/b] — At Hunger 3+, discard the opponent's lowest committed card. Kroni's next destroyed Lord/Castle grants +2 Souls and +1 Hunger.",
+   72: 		"[b]Fallback / Decay / Breach[/b] — If Consume did not fire, remove the lowest Guard or Garrison card from play. Ward/Pass loses 1 Hunger. Kroni Breach destroys each player's lowest Guard.",
+   73: 	],
+   74: 	"Kalligan": [
+   75: 		"[b]Forge-Repair[/b] — Kalligan's first Repair costs 7 less; later Repairs cost 5 less. Every living Kalligan Repair Scorches the enemy Lord zone.",
+   76: 		"[b]Pyroclasm[/b] — Sieges gain +1 strength, or +2 if the defender already has a Ruined Castle.",
+   77: 		"[b]Inferno / Wildfire[/b] — After ruining a Castle, Wildfire Scorches the enemy Castle zone (or Lord if none remain). Kalligan may gain 1 Threat to Defeat the highest enemy Lord Guard without response triggers; if none exists, Inferno replaces that token with Lord Scorch.",
+   78: 		"[b]Breach[/b] — All Repairs cost 1 less.",
+   79: 	],
+   80: 	"Gremory": [
+   81: 		"[b]Picking the Bones[/b] — During Development draw 1 extra card, +1 if either player has a Ruin, and +1 more if Gremory has a Ruin.",
+   82: 		"[b]Ruinous Harvest[/b] — On the first Tear placed each round, search from the top of the discard for a value-4/5 card and take it. The attempt is spent even if no eligible card exists.",
+   83: 		"[b]Predator of Ruin[/b] — The first Castle destroyed each round recovers the top discard. Independently, the first Lord Guard Defeated by any effect lets Gremory draw 1 outside the Draw step, then discard the lowest Hand card.",
+   84: 		"[b]Inevitable Ruin / Breach[/b] — Once per round, after a Siege leaves its target standing, pay exactly 2 Hand/Garrison cards to ruin it. During Gremory Breach, players with a Ruin draw 1 extra.",
+   85: 	],
+   86: 	"Odradek": [
+   87: 		"[b]Recoil / Backwash[/b] — The first Hunt against living Odradek each round discards the attacker's lowest committed card and gives Odradek 1 Soul. A surviving Hunt also raises the attacker's Threat.",
+   88: 		"[b]Reconfiguration[/b] — Gain 1 token after a round in which no Odradek Guard was Defeated. At 5 tokens, spend them for a personal Tear. Any Defeated Guard blocks progress that round; Banishment clears tokens.",
+   89: 		"[b]Breach: Paradox Geometry[/b] — Predict the second-action winner's action; a correct guess discards their selected cards and lets Odradek execute it instead.",
+   90: 	],
+   91: 	"Kanifous": [
+   92: 		"[b]Invoke[/b] — After Reveal, resolve in committed-value order: gain 1 Threat, reveal 2 cards, choose one to bank in Garrison, and discard the other. If the first revealed card is value 4+, also create a Neutral Tear.",
+   93: 		"[b]Suit Invocation[/b] — Vulture: draw 3 then discard the lowest Hand card. Wright: move up to 2 Lord Guards to Castle. Penitent: draw 2 temporary Guards. Butcher: treat the lowest target Guard as already Defeated this round, without triggering Defeat effects.",
+   94: 		"[b]Resonance / Defiance[/b] — If the chosen card's value equals current Threat, gain 1 Soul. When Kanifous is banished, gain 1 Soul and draw 2 if still behind the attacker.",
+   95: 		"[b]Breach[/b] — Every draw outside the Draw step gives its recipient +1 Threat.",
+   96: 	],
+   97: 	"Humbaba": [
+   98: 		"[b]Living Fortress[/b] — Base Lord DEF is 2 + active Castles, with Bastion adding 2; Threat 2/3/4 reduces it by 1/2/3.",
+   99: 		"[b]Gate Guard / Patient[/b] — Hold 4 Castle Guards while no Castle is Ruined. If Humbaba did not Hunt or Siege, preserve one Sigil through its next upkeep.",
+  100: 		"[b]Toll[/b] — Under severe Soul pressure, Humbaba may ruin one of its own Castles to remove 1 enemy Soul and create a Neutral Tear.",
+  101: 		"[b]Seal / Breach[/b] — While living, Dominion requires one extra qualifying player. Humbaba Breach lowers active Castle structural DEF by 1 (minimum 1).",
+  102: 	],
+  103: }
+  104: 
+  105: 
+  106: const UI_EXPLANATION_PATCH_VERSION: String = "ui-explanations-v1"
+  107: 
+  108: const VEIL_COLLAPSE_THRESHOLD: int = 7
+  109: const VEIL_WANING_THRESHOLD: int = 9
+  110: 
+  111: const SOULS_LABEL: String = (
+  112: 	"[hint=SOULS — Ritual score. Reach the displayed target to win. "
+  113: 	+ "Common gains include ruining enemy Castles, Banishing enemy Lords, "
+  114: 	+ "destroying enemy marchers, surviving attacks behind a Ward, and Lord abilities.]"
+  115: 	+ "Souls[/hint]"
+  116: )
+  117: 
+  118: const TEARS_LABEL: String = (
+  119: 	"[hint=TEARS — Personal Dominion score. Common gains include Profane Ruins, "
+  120: 	+ "Cataclysmic Invocation, Offer the Vessel, Consume the Hunt, marching a Guard "
+  121: 	+ "through the enemy gate, and Lord abilities. Neutral Tears advance the Veil "
+  122: 	+ "but belong to neither player.]Tears[/hint]"
+  123: )
+  124: 
+  125: const THREAT_LABEL: String = (
+  126: 	"[hint=THREAT — Lord instability from 0 to 4. At Threat 2, 3, and 4, "
+  127: 	+ "Lord DEF is reduced by 1, 2, and 3. Several Lord powers also check Threat, "
+  128: 	+ "and game effects may raise or lower it.]Threat[/hint]"
+  129: )
+  130: 
+  131: const CASTLES_LABEL: String = (
+  132: 	"[hint=CASTLES — Active Castles grant their printed abilities. Ruined Castles "
+  133: 	+ "can be repaired. Profaned or permanently lost Castles cannot return. "
+  134: 	+ "Repairing adds a scar that reduces future structural DEF by 2; destroying "
+  135: 	+ "a scarred Castle can permanently lose it.]Castles[/hint]"
+  136: )
+  137: 
+  138: const CASTLE_HELP: Dictionary = {
+  139: 	"Keep": (
+  140: 		"KEEP — Base structural DEF 13. While active, your Ward and Sigil value "
+  141: 		+ "is increased by 1."
+     ...
+ 1403: 
+ 1404: 	if controller.stage == PlayableRoundControllerData.Stage.MARKET:
+ 1405: 		_enter_development_choice("Market — trade one Hand card for one Market card, or pass.")
+ 1406: 		return
+ 1407: 
+ 1408: 	if controller.stage == PlayableRoundControllerData.Stage.REPAIR:
+ 1409: 		_enter_development_choice("Repair — restore one Ruined Castle, or pass.")
+ 1410: 		return
+ 1411: 
+ 1412: 	if controller.stage == PlayableRoundControllerData.Stage.DOMINION_RITES:
+ 1413: 		_enter_development_choice("Dominion Rites — Invocation and Profane Ruins may both be used when legal.")
+ 1414: 		return
+ 1415: 
+ 1416: 	if controller.stage == PlayableRoundControllerData.Stage.DEPLOY:
+ 1417: 		_begin_deploy_guard_picker()
+ 1418: 		return
+ 1419: 
+ 1420: 	if controller.stage == PlayableRoundControllerData.Stage.MARCH:
+ 1421: 		_begin_march_picker()
+ 1422: 		return
+ 1423: 
+ 1424: 	if controller.stage == PlayableRoundControllerData.Stage.SUMMON:
+ 1425: 		_log(
+ 1426: 			"Round %d: your Lord is banished. Select cards worth at least %d to resummon, or remain banished."
+ 1427: 			% [
+ 1428: 				int(
+ 1429: 					controller.game.round
+ 1430: 				),
+ 1431: 				controller.human_summon_cost(),
+ 1432: 			]
+ 1433: 		)
+ 1434: 
+ 1435: 		_build_hand_buttons(false)
+ 1436: 		_refresh_target_options()
+ 1437: 		_refresh_all()
+ 1438: 		return
+ 1439: 
+ 1440: 	if controller.stage == PlayableRoundControllerData.Stage.REFLEX_BID:
+ 1441: 		_enter_development_choice("Reflex Bid — secretly select any Hand cards to bid, or bid zero.")
+ 1442: 		return
+ 1443: 
+ 1444: 	_show_commitment_prompt()
+ 1445: 	_refresh_all()
+ 1446: 
+ 1447: 
+ 1448: func _enter_development_choice(
+ 1449: 	prompt: String
+ 1450: ) -> void:
+ 1451: 	selected_action = ""
+ 1452: 	_clear_action_toggles()
+ 1453: 	_build_hand_buttons(
+ 1454: 		controller.stage == PlayableRoundControllerData.Stage.REPAIR
+ 1455: 		or controller.stage == PlayableRoundControllerData.Stage.DEPLOY
+ 1456: 	)
+ 1457: 	_refresh_target_options()
+ 1458: 	_set_phase_message(prompt)
+ 1459: 	_refresh_all()
+ 1460: 
+ 1461: 
+ 1462: func _begin_deploy_guard_picker() -> void:
+ 1463: 	deploy_target_zone = "Lord"
+ 1464: 	queued_deploy_moves.clear()
+ 1465: 	_build_hand_buttons(true)
+ 1466: 	_refresh_target_options()
+ 1467: 	_set_phase_message(_deploy_picker_prompt())
+ 1468: 	_refresh_all()
+ 1469: 
+ 1470: 
+ 1471: func _begin_march_picker() -> void:
+ 1472: 	_clear_card_selection()
+ 1473: 	_refresh_target_options()
+ 1474: 	_build_march_guard_buttons()
+ 1475: 	_set_phase_message(_march_picker_prompt())
+ 1476: 	_refresh_all()
+ 1477: 
+ 1478: 
+ 1479: func _show_commitment_prompt() -> void:
+ 1480: 	_log(
+ 1481: 		"Round %d: Development completed. Choose a sealed order."
+ 1482: 		% int(controller.game.round)
+ 1483: 	)
+ 1484: 	_log_reflex_bid_status()
+ 1485: 	_build_hand_buttons(false)
+ 1486: 	_refresh_action_legality()
+ 1487: 	_refresh_target_options()
+ 1488: 	_refresh_all()
+ 1489: 
+ 1490: 
+ 1491: func _on_action_selected(
+ 1492: 	action_name: String
+ 1493: ) -> void:
+ 1494: 	selected_action = action_name
+ 1495: 
+ 1496: 	for candidate_name: String in ACTIONS:
+ 1497: 		var button: Button = action_buttons.get(
+ 1498: 			candidate_name,
+ 1499: 			null
+ 1500: 		)
+ 1501: 
+ 1502: 		if button != null:
+ 1503: 			button.set_pressed_no_signal(
+ 1504: 				candidate_name == action_name
+ 1505: 			)
+ 1506: 
+ 1507: 	if action_name in ["Profane", "Ward"]:
+ 1508: 		_clear_card_selection()
+ 1509: 
+ 1510: 	_refresh_target_options()
+ 1511: 	_refresh_selection_text()
+ 1512: 	_refresh_staging_area()
+ 1513: 
+ 1514: 
+ 1515: func _on_card_toggled(
+ 1516: 	pressed: bool,
+ 1517: 	_card_button: Button
+ 1518: ) -> void:
+ 1519: 	if controller != null:
+ 1520: 		if controller.stage == PlayableRoundControllerData.Stage.MARKET:
+ 1521: 			# Market is a one-for-one swap. Treat the Hand row as a radio
+ 1522: 			# selection instead of letting an accidental second click create an
+ 1523: 			# invalid trade.
+ 1524: 			if pressed:
+ 1525: 				for other_button: Button in card_buttons:
+ 1526: 					if other_button != _card_button:
+ 1527: 						other_button.set_pressed_no_signal(false)
+ 1528: 			# Re-label the available offers against the card currently being given.
+ 1529: 			_refresh_target_options()
+     ...
+ 1565: 	_refresh_selection_text()
+ 1566: 	_refresh_staging_area()
+ 1567: 
+ 1568: 
+ 1569: func _on_target_selected(
+ 1570: 	_index: int
+ 1571: ) -> void:
+ 1572: 	if (
+ 1573: 		controller != null
+ 1574: 		and controller.stage == PlayableRoundControllerData.Stage.REPAIR
+ 1575: 		and hand_caption_label != null
+ 1576: 	):
+ 1577: 		hand_caption_label.text = _hand_caption_text()
+ 1578: 	if (
+ 1579: 		controller != null
+ 1580: 		and controller.stage == PlayableRoundControllerData.Stage.MARCH
+ 1581: 	):
+ 1582: 		_build_march_guard_buttons()
+ 1583: 		_set_phase_message(_march_picker_prompt())
+ 1584: 	_refresh_selection_text()
+ 1585: 	_refresh_staging_area()
+ 1586: 	_refresh_target_info()
+ 1587: 	_refresh_marching_board()
+ 1588: 
+ 1589: 
+ 1590: func _on_secondary_target_selected(
+ 1591: 	_index: int
+ 1592: ) -> void:
+ 1593: 	_refresh_selection_text()
+ 1594: 	_refresh_target_info()
+ 1595: 	_refresh_marching_board()
+ 1596: 
+ 1597: 
+ 1598: func _on_summon_pressed() -> void:
+ 1599: 	var result: Dictionary = (
+ 1600: 		controller.resolve_human_summon(
+ 1601: 			_selected_card_ids(),
+ 1602: 			false
+ 1603: 		)
+ 1604: 	)
+ 1605: 
+ 1606: 	if _show_failure_if_needed(
+ 1607: 		result,
+ 1608: 		false
+ 1609: 	):
+ 1610: 		_set_phase_message(
+ 1611: 			"Resummon rejected: select payment worth at least %d."
+ 1612: 			% controller.human_summon_cost()
+ 1613: 		)
+ 1614: 		return
+ 1615: 
+ 1616: 	_log(
+ 1617: 		"You resummoned %s with %d payment."
+ 1618: 		% [
+ 1619: 			controller.human_summon_lord(),
+ 1620: 			_selected_card_value(),
+ 1621: 		]
+ 1622: 	)
+ 1623: 
+ 1624: 	_after_summon_choice(
+ 1625: 		result
+ 1626: 	)
+ 1627: 
+     ...
+ 1946: 
+ 1947: 
+ 1948: func _on_reveal_pressed() -> void:
+ 1949: 	var result: Dictionary = (
+ 1950: 		controller.reveal_orders()
+ 1951: 	)
+ 1952: 
+ 1953: 	if _show_failure_if_needed(
+ 1954: 		result
+ 1955: 	):
+ 1956: 		return
+ 1957: 	_show_reveal_progress(result)
+ 1958: 
+ 1959: 
+ 1960: func _show_reveal_progress(
+ 1961: 	result: Dictionary
+ 1962: ) -> void:
+ 1963: 	if controller.stage == PlayableRoundControllerData.Stage.KANIFOUS_INVOKE:
+ 1964: 		_build_hand_buttons(false)
+ 1965: 		_refresh_target_options()
+ 1966: 		_set_phase_message("Kanifous Invoke — choose one revealed card to bank in Garrison and invoke.")
+ 1967: 		_refresh_all()
+ 1968: 		return
+ 1969: 	if controller.stage == PlayableRoundControllerData.Stage.KANIFOUS_WRIGHT:
+ 1970: 		_build_wright_guard_buttons()
+ 1971: 		_set_phase_message("Wright — move up to two face-down Lord Guards to the Castle zone, or move none.")
+ 1972: 		_refresh_all()
+ 1973: 		return
+ 1974: 
+ 1975: 	var human = controller.get_human_player()
+ 1976: 	var bot = controller.get_bot_player()
+ 1977: 
+ 1978: 	reveal_label.text = (
+ 1979: 		"[center][b]%s[/b]  %s\n"
+ 1980: 		+ "[color=#b88f9d]VS[/color]\n"
+ 1981: 		+ "[b]%s[/b]  %s\n"
+ 1982: 		+ "[color=#c8b36a]%s[/color][/center]"
+ 1983: 	) % [
+ 1984: 		String(
+ 1985: 			human.action
+ 1986: 		),
+ 1987: 		_cards_inline(
+ 1988: 			human.committed
+ 1989: 		),
+ 1990: 		String(
+ 1991: 			bot.action
+ 1992: 		),
+ 1993: 		_cards_inline(
+ 1994: 			bot.committed
+ 1995: 		),
+ 1996: 		_reflex_holder_text(),
+ 1997: 	]
+ 1998: 
+ 1999: 	var reveal_values: Dictionary = {}
+ 2000: 
+ 2001: 	for raw_reveal_player in _array_from(
+ 2002: 		result.get(
+ 2003: 			"players",
+ 2004: 			[]
+ 2005: 		)
+ 2006: 	):
+ 2007: 		if typeof(raw_reveal_player) != TYPE_DICTIONARY:
+ 2008: 			continue
+     ...
+ 2080: 
+ 2081: 	if bool(result.get("completed", false)):
+ 2082: 		_log_resolution_transcript(result)
+ 2083: 		_log_resolution_changes(resolution_start_digest, _state_digest())
+ 2084: 		_refresh_all()
+ 2085: 		if bool(result.get("terminal", false)):
+ 2086: 			_show_terminal()
+ 2087: 			return
+ 2088: 		phase_label.text = "Round resolved"
+ 2089: 		next_round_button.visible = true
+ 2090: 		confirm_button.visible = false
+ 2091: 		reveal_button.visible = false
+ 2092: 		resolve_button.visible = false
+ 2093: 		return
+ 2094: 
+ 2095: 	selected_action = ""
+ 2096: 	_clear_action_toggles()
+ 2097: 	if controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_HUMBABA_TOLL:
+ 2098: 		_build_hand_buttons(false)
+ 2099: 		_refresh_target_options()
+ 2100: 		_set_phase_message("Humbaba may ruin one Castle to take 1 enemy Soul and add a Neutral Tear.")
+ 2101: 	elif controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_ACTION:
+ 2102: 		_build_hand_buttons(false)
+ 2103: 		_refresh_target_options()
+ 2104: 		_set_phase_message("Choose the optional Consume / Inferno setting for your sealed action.")
+ 2105: 	elif controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_VESSEL:
+ 2106: 		_build_hand_buttons(false)
+ 2107: 		_refresh_target_options()
+ 2108: 		_set_phase_message("The action has resolved. Offer your Lord as the Vessel, or pass.")
+ 2109: 	elif controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_REFLEX:
+ 2110: 		_build_hand_buttons(false)
+ 2111: 		_refresh_reflex_action_legality()
+ 2112: 		_refresh_target_options()
+ 2113: 		_set_phase_message(
+ 2114: 			"Choose a %s action and any Hand cards, or pass."
+ 2115: 			% (
+ 2116: 				"Momentum"
+ 2117: 				if controller.rules != null and controller.rules.momentum
+ 2118: 				else "Reflex"
+ 2119: 			)
+ 2120: 		)
+ 2121: 	elif controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH:
+ 2122: 		_build_hand_buttons(false)
+ 2123: 		_refresh_reflex_action_legality()
+ 2124: 		_refresh_target_options()
+ 2125: 		_set_phase_message(
+ 2126: 			"Predict the bot's %s action; on a correct read, execute your selected stolen action."
+ 2127: 			% _second_action_name()
+ 2128: 		)
+ 2129: 	elif controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_GREMORY:
+ 2130: 		_build_hand_buttons(true)
+ 2131: 		_refresh_target_options()
+ 2132: 		_set_phase_message("Pay exactly two Hand/Garrison cards to ruin the surviving sieged Castle, or pass.")
+ 2133: 	_refresh_all()
+ 2134: 
+ 2135: 
+ 2136: func _refresh_all() -> void:
+ 2137: 	if debug_export_button != null:
+ 2138: 		debug_export_button.disabled = controller == null or controller.game == null
+ 2139: 
+ 2140: 	if controller == null or controller.game == null:
+ 2141: 		return
+ 2142: 
+ 2143: 	var game = controller.game
+ 2144: 	var human = controller.get_human_player()
+ 2145: 	var bot = controller.get_bot_player()
+ 2146: 
+ 2147: 	round_label.text = "Round %d" % int(
+ 2148: 		game.round
+ 2149: 	)
+ 2150: 
+ 2151: 	veil_label.text = "Veil %d/%d" % [
+ 2152: 		int(
+ 2153: 			game.calculate_veil_total()
+ 2154: 		),
+ 2155: 		int(
+ 2156: 			controller.rules.final_collapse_threshold
+ 2157: 		),
+ 2158: 	]
+ 2159: 	veil_label.tooltip_text = _dominion_help_text(
+ 2160: 		int(game.calculate_veil_total())
+ 2161: 	)
+ 2162: 
+ 2163: 	breach_label.text = (
+ 2164: 		"Breach: none"
+ 2165: 		if String(
+ 2166: 			game.breach
+ 2167: 		).is_empty()
+ 2168: 		else "Breach: %s" % String(
+ 2169: 			game.breach
+ 2170: 		)
+ 2171: 	)
+ 2172: 
+ 2173: 	human_state_label.text = _player_state_text(
+ 2174: 		human,
+     ...
+ 3472: func _build_hand_buttons(
+ 3473: 	include_garrison: bool = false
+ 3474: ) -> void:
+ 3475: 	for child in hand_flow.get_children():
+ 3476: 		child.queue_free()
+ 3477: 
+ 3478: 	card_buttons.clear()
+ 3479: 
+ 3480: 	var human = controller.get_human_player()
+ 3481: 	var is_deploy_picker: bool = (
+ 3482: 		controller.stage == PlayableRoundControllerData.Stage.DEPLOY
+ 3483: 	)
+ 3484: 	var show_deploy_cards: bool = (
+ 3485: 		not is_deploy_picker
+ 3486: 		or _deploy_selection_limit() > 0
+ 3487: 	)
+ 3488: 	var best_market_give_id: String = _best_market_give_card_id()
+ 3489: 
+ 3490: 	if hand_caption_label != null:
+ 3491: 		hand_caption_label.text = _hand_caption_text()
+ 3492: 
+ 3493: 	if (
+ 3494: 		show_deploy_cards
+ 3495: 		and (
+ 3496: 			not is_deploy_picker
+ 3497: 			or _deploy_hand_allowed()
+ 3498: 		)
+ 3499: 	):
+ 3500: 		for hand_index: int in range(human.hand.size()):
+ 3501: 			var card = human.hand[hand_index]
+ 3502: 			var card_identifier: String = _card_id(
+ 3503: 				card
+ 3504: 			)
+ 3505: 
+ 3506: 			if (
+ 3507: 				is_deploy_picker
+ 3508: 				and _is_deploy_card_reserved("Hand", card_identifier)
+ 3509: 			):
+ 3510: 				continue
+ 3511: 
+ 3512: 			var card_label: String = card_identifier
+ 3513: 			if is_deploy_picker:
+ 3514: 				card_label = "Hand · %s" % card_identifier
+ 3515: 			elif (
+ 3516: 				controller.stage == PlayableRoundControllerData.Stage.MARKET
+ 3517: 				and card_identifier == best_market_give_id
+ 3518: 			):
+ 3519: 				card_label = "%s  ★ BEST GIVE" % card_identifier
+ 3520: 
+ 3521: 			var card_button := _new_button(
+ 3522: 				card_label,
+ 3523: 				142 if is_deploy_picker else 112
+ 3524: 			)
+ 3525: 			card_button.toggle_mode = true
+ 3526: 			card_button.set_meta(
+ 3527: 				"card_id",
+ 3528: 				card_identifier
+ 3529: 			)
+ 3530: 			card_button.set_meta(
+ 3531: 				"card_value",
+ 3532: 				int(
+ 3533: 					card.value
+ 3534: 				)
+ 3535: 			)
+ 3536: 			card_button.set_meta("card_source", "Hand")
+ 3537: 			card_button.set_meta("source_index", hand_index)
+ 3538: 			if (
+ 3539: 				controller.stage == PlayableRoundControllerData.Stage.MARKET
+ 3540: 				and card_identifier == best_market_give_id
+ 3541: 			):
+ 3542: 				card_button.modulate = Color(1.0, 0.86, 0.46, 1.0)
+ 3543: 				card_button.tooltip_text = "Best raw-value card to trade away."
+ 3544: 			card_button.toggled.connect(
+ 3545: 				_on_card_toggled.bind(
+ 3546: 					card_button
+ 3547: 				)
+ 3548: 			)
+ 3549: 			card_buttons.append(
+ 3550: 				card_button
+ 3551: 			)
+ 3552: 			hand_flow.add_child(
+ 3553: 				card_button
+ 3554: 			)
+ 3555: 
+ 3556: 	if (
+ 3557: 		include_garrison
+ 3558: 		and show_deploy_cards
+ 3559: 		and (
+ 3560: 			not is_deploy_picker
+ 3561: 			or _deploy_garrison_allowed()
+ 3562: 		)
+ 3563: 	):
+ 3564: 		for garrison_index: int in range(human.garrison.size()):
+ 3565: 			var garrison_card = human.garrison[garrison_index]
+ 3566: 			var garrison_identifier: String = _card_id(garrison_card)
+ 3567: 			if (
+ 3568: 				is_deploy_picker
+ 3569: 				and _is_deploy_card_reserved("Garrison", garrison_identifier)
+ 3570: 			):
+ 3571: 				continue
+ 3572: 			var garrison_button := _new_button("Garrison · %s" % garrison_identifier, 142)
+ 3573: 			garrison_button.toggle_mode = true
+ 3574: 			garrison_button.set_meta("card_id", garrison_identifier)
+ 3575: 			garrison_button.set_meta("card_value", int(garrison_card.value))
+ 3576: 			garrison_button.set_meta("card_source", "Garrison")
+ 3577: 			garrison_button.set_meta("source_index", garrison_index)
+ 3578: 			garrison_button.toggled.connect(_on_card_toggled.bind(garrison_button))
+ 3579: 			card_buttons.append(garrison_button)
+ 3580: 			hand_flow.add_child(garrison_button)
+ 3581: 
+ 3582: 	_refresh_selection_text()
+ 3583: 
+ 3584: 
+     ...
+ 3787: 			"source_index": int(button.get_meta("source_index", -1)),
+ 3788: 		})
+ 3789: 
+ 3790: 	return result
+ 3791: 
+ 3792: 
+ 3793: func _finish_deploy_guard_picker() -> void:
+ 3794: 	if (
+ 3795: 		controller == null
+ 3796: 		or controller.stage != PlayableRoundControllerData.Stage.DEPLOY
+ 3797: 	):
+ 3798: 		return
+ 3799: 
+ 3800: 	if not _queue_current_deploy_selection():
+ 3801: 		return
+ 3802: 
+ 3803: 	if deploy_target_zone == "Lord":
+ 3804: 		deploy_target_zone = "Castle"
+ 3805: 		_build_hand_buttons(true)
+ 3806: 		_refresh_target_options()
+ 3807: 		_set_phase_message(_deploy_picker_prompt())
+ 3808: 		_refresh_all()
+ 3809: 		return
+ 3810: 
+ 3811: 	var deploy_decision: Dictionary = (
+ 3812: 		{"pass": true}
+ 3813: 		if queued_deploy_moves.is_empty()
+ 3814: 		else {"moves": queued_deploy_moves.duplicate(true)}
+ 3815: 	)
+ 3816: 	var deploy_result: Dictionary = controller.resolve_human_deploy(
+ 3817: 		deploy_decision
+ 3818: 	)
+ 3819: 
+ 3820: 	if _show_failure_if_needed(deploy_result, false):
+ 3821: 		_set_phase_message(
+ 3822: 			"Deploy rejected: %s"
+ 3823: 			% String(deploy_result.get("reason", "invalid_deploy"))
+ 3824: 		)
+ 3825: 		return
+ 3826: 
+ 3827: 	_after_development(deploy_result)
+ 3828: 
+ 3829: 
+ 3830: func _queue_current_deploy_selection() -> bool:
+ 3831: 	var entries: Array[Dictionary] = _selected_card_entries()
+ 3832: 	var limit: int = _deploy_selection_limit()
+ 3833: 
+ 3834: 	if entries.size() > limit:
+ 3835: 		_set_phase_message(
+ 3836: 			"%s Guard zone has room for only %d more card%s."
+ 3837: 			% [
+ 3838: 				deploy_target_zone,
+ 3839: 				limit,
+ 3840: 				"" if limit == 1 else "s",
+ 3841: 			]
+ 3842: 		)
+ 3843: 		return false
+ 3844: 
+ 3845: 	if _selected_deploy_garrison_count() > _deploy_garrison_moves_remaining():
+ 3846: 		_set_phase_message(
+ 3847: 			"Only %d Garrison deployment%s remain this round."
+ 3848: 			% [
+ 3849: 				_deploy_garrison_moves_remaining(),
+     ...
+ 4037: func _march_picker_prompt() -> String:
+ 4038: 	if controller == null or controller.game == null:
+ 4039: 		return "Marching Orders"
+ 4040: 
+ 4041: 	var human = controller.get_human_player()
+ 4042: 	if human == null:
+ 4043: 		return "Marching Orders"
+ 4044: 
+ 4045: 	if human.marchers.size() >= controller.rules.march_max_in_flight:
+ 4046: 		return "You already have a marcher in flight. Pass this step."
+ 4047: 
+ 4048: 	var source_zone: String = _selected_target_id()
+ 4049: 	var guards: Array = (
+ 4050: 		human.lord_guards
+ 4051: 		if source_zone == "Lord"
+ 4052: 		else human.castle_guards
+ 4053: 	)
+ 4054: 
+ 4055: 	if guards.is_empty():
+ 4056: 		return "No %s Guards are available to march. Choose the other zone or pass." % source_zone
+ 4057: 
+ 4058: 	return (
+ 4059: 		"1. Choose a Guard zone.  2. Select one %s Guard.  "
+ 4060: 		+ "3. Choose a lane.  4. Launch it face-up. "
+ 4061: 		+ "It advances after Resolution; value %d+ at the enemy gate gains a Tear."
+ 4062: 	) % [source_zone, controller.rules.march_threshold]
+ 4063: 
+ 4064: 
+     ...
+ 4595: 		var action_result_raw = event.get(
+ 4596: 			"action_result",
+ 4597: 			{}
+ 4598: 		)
+ 4599: 		var aftermath_result_raw = event.get(
+ 4600: 			"aftermath_result",
+ 4601: 			{}
+ 4602: 		)
+ 4603: 		var action_result_for_cause: Dictionary = {}
+ 4604: 		var aftermath_for_cause: Dictionary = {}
+ 4605: 
+ 4606: 		if typeof(
+ 4607: 			action_result_raw
+ 4608: 		) == TYPE_DICTIONARY:
+ 4609: 			var action_result: Dictionary = (
+ 4610: 				action_result_raw
+ 4611: 			)
+ 4612: 			action_result_for_cause = action_result
+ 4613: 			_log_action_outcome(
+ 4614: 				action_result,
+ 4615: 				"Primary",
+ 4616: 				String(
+ 4617: 					event.get(
+ 4618: 						"committed_action",
+ 4619: 						""
+ 4620: 					)
+ 4621: 				)
+ 4622: 			)
+ 4623: 			_log_combat_sigil_result(
+ 4624: 				action_result
+ 4625: 			)
+ 4626: 			_log_action_lord_powers(
+ 4627: 				action_result
+ 4628: 			)
+ 4629: 
+ 4630: 		if typeof(
+ 4631: 			aftermath_result_raw
+ 4632: 		) == TYPE_DICTIONARY:
+ 4633: 			var aftermath_result: Dictionary = (
+ 4634: 				aftermath_result_raw
+ 4635: 			)
+ 4636: 			aftermath_for_cause = aftermath_result
+ 4637: 			_log_aftermath_lord_powers(
+ 4638: 				aftermath_result
+ 4639: 			)
+ 4640: 
+ 4641: 		if (
+ 4642: 			bool(
+ 4643: 				action_result_for_cause.get(
+ 4644: 					"won",
+ 4645: 					false
+ 4646: 				)
+ 4647: 			)
+ 4648: 			and bool(
+ 4649: 				aftermath_for_cause.get(
+ 4650: 					"stopped_on_win",
+ 4651: 					false
+ 4652: 				)
+ 4653: 			)
+ 4654: 			and not _aftermath_offered_vessel(
+ 4655: 				aftermath_for_cause
+ 4656: 			)
+ 4657: 		):
+     ...
+ 4711: 				""
+ 4712: 			)
+ 4713: 		) == "reflex_action":
+ 4714: 			_log_reflex_resolution(
+ 4715: 				round_result
+ 4716: 			)
+ 4717: 
+ 4718: 			var reflex_action_raw = reflex.get(
+ 4719: 				"action_result",
+ 4720: 				{}
+ 4721: 			)
+ 4722: 
+ 4723: 			if typeof(
+ 4724: 				reflex_action_raw
+ 4725: 			) == TYPE_DICTIONARY:
+ 4726: 				var reflex_action: Dictionary = (
+ 4727: 					reflex_action_raw
+ 4728: 				)
+ 4729: 				_log_action_outcome(
+ 4730: 					reflex_action,
+ 4731: 					_second_action_name(),
+ 4732: 					String(
+ 4733: 						reflex.get(
+ 4734: 							"executed_action",
+ 4735: 							""
+ 4736: 						)
+ 4737: 					)
+ 4738: 				)
+ 4739: 				_log_combat_sigil_result(
+ 4740: 					reflex_action
+ 4741: 				)
+ 4742: 				_log_action_lord_powers(
+ 4743: 					reflex_action
+ 4744: 				)
+ 4745: 
+ 4746: 			if bool(
+ 4747: 				reflex.get(
+ 4748: 					"won",
+ 4749: 					false
+ 4750: 				)
+ 4751: 			):
+ 4752: 				_log_victory_cause(
+ 4753: 					"%s's %s %s"
+ 4754: 					% [
+ 4755: 						_player_name(
+ 4756: 							int(
+ 4757: 								reflex.get(
+ 4758: 									"executed_by",
+ 4759: 									-1
+ 4760: 								)
+ 4761: 							)
+ 4762: 						),
+ 4763: 						_second_action_name(),
+ 4764: 						String(
+ 4765: 							reflex.get(
+ 4766: 								"executed_action",
+ 4767: 								"action"
+ 4768: 							)
+ 4769: 						),
+ 4770: 					]
+ 4771: 				)
+ 4772: 
+ 4773: 	_log_finale_lord_powers(
+     ...
+ 5042: func _log_action_outcome(
+ 5043: 	action_result: Dictionary,
+ 5044: 	source_name: String,
+ 5045: 	requested_action: String
+ 5046: ) -> void:
+ 5047: 	var action_name: String = String(
+ 5048: 		action_result.get(
+ 5049: 			"action",
+ 5050: 			""
+ 5051: 		)
+ 5052: 	)
+ 5053: 
+ 5054: 	if action_name == "pass":
+ 5055: 		if requested_action == "Pass":
+ 5056: 			return
+ 5057: 
+ 5058: 		_log(
+ 5059: 			"[color=#a9a1b0][b]%s %s skipped:[/b] %s.[/color]"
+ 5060: 			% [
+ 5061: 				source_name,
+ 5062: 				requested_action,
+ 5063: 				String(
+ 5064: 					action_result.get(
+ 5065: 						"reason",
+ 5066: 						"no legal target"
+ 5067: 					)
+ 5068: 				).replace(
+ 5069: 					"_",
+ 5070: 					" "
+ 5071: 				),
+ 5072: 			]
+ 5073: 		)
+ 5074: 		return
+ 5075: 
+ 5076: 	if action_name == "hunt":
+ 5077: 		var defeated: Array = _array_from(
+ 5078: 			action_result.get(
+ 5079: 				"guards_defeated",
+ 5080: 				[]
+ 5081: 			)
+ 5082: 		)
+ 5083: 		var outcome: String = ""
+ 5084: 
+ 5085: 		if bool(
+ 5086: 			action_result.get(
+ 5087: 				"banished",
+ 5088: 				false
+ 5089: 			)
+ 5090: 		):
+ 5091: 			outcome = "the Lord was banished"
+ 5092: 		else:
+ 5093: 			outcome = "the attack stopped at %s"
+ 5094: 			outcome = outcome % String(
+ 5095: 				action_result.get(
+ 5096: 					"stopped_at",
+ 5097: 					"the defenses"
+ 5098: 				)
+ 5099: 			)
+ 5100: 
+ 5101: 		_log(
+ 5102: 			"[color=#e8e2eb][b]%s Hunt:[/b] %s attacked %s's Lord with %d strength against Lord DEF %d; defeated %s; %s%s.[/color]"
+ 5103: 			% [
+ 5104: 				source_name,
+ 5105: 				_player_name(
+ 5106: 					int(
+ 5107: 						action_result.get(
+ 5108: 							"attacker_id",
+ 5109: 							-1
+ 5110: 						)
+ 5111: 					)
+ 5112: 				),
+ 5113: 				_player_name(
+ 5114: 					int(
+ 5115: 						action_result.get(
+ 5116: 							"defender_id",
+ 5117: 							-1
+ 5118: 						)
+ 5119: 					)
+ 5120: 				),
+ 5121: 				int(
+ 5122: 					action_result.get(
+ 5123: 						"strength",
+ 5124: 						0
+ 5125: 					)
+ 5126: 				),
+ 5127: 				int(
+ 5128: 					action_result.get(
+ 5129: 						"lord_defense",
+ 5130: 						0
+ 5131: 					)
+ 5132: 				),
+ 5133: 				(
+ 5134: 					_string_values_inline(
+ 5135: 						defeated
+ 5136: 					)
+ 5137: 					if not defeated.is_empty()
+ 5138: 					else "no Guards"
+ 5139: 				),
+ 5140: 				outcome,
+ 5141: 				(
+ 5142: 					"; excess %d"
+ 5143: 					% int(
+ 5144: 						action_result.get(
+ 5145: 							"excess",
+ 5146: 							0
+ 5147: 						)
+ 5148: 					)
+ 5149: 					if bool(
+ 5150: 						action_result.get(
+ 5151: 							"banished",
+ 5152: 							false
+ 5153: 						)
+ 5154: 					)
+ 5155: 					else ""
+ 5156: 				),
+ 5157: 			]
+ 5158: 		)
+ 5159: 
+ 5160: 		return
+ 5161: 
+ 5162: 	if action_name == "siege":
+ 5163: 		var defeated: Array = _array_from(
+ 5164: 			action_result.get(
+ 5165: 				"guards_defeated",
+ 5166: 				[]
+ 5167: 			)
+ 5168: 		)
+ 5169: 		var outcome: String = ""
+ 5170: 
+ 5171: 		if bool(
+ 5172: 			action_result.get(
+ 5173: 				"destroyed",
+ 5174: 				false
+ 5175: 			)
+ 5176: 		):
+ 5177: 			outcome = "the Castle was ruined"
+ 5178: 		else:
+ 5179: 			outcome = "the attack stopped at %s"
+ 5180: 			outcome = outcome % String(
+ 5181: 				action_result.get(
+ 5182: 					"stopped_at",
+ 5183: 					"the defenses"
+ 5184: 				)
+ 5185: 			)
+ 5186: 
+ 5187: 		_log(
+ 5188: 			"[color=#e8e2eb][b]%s Siege:[/b] %s attacked %s's %s with %d strength against structural DEF %d; defeated %s; %s%s.[/color]"
+ 5189: 			% [
+ 5190: 				source_name,
+ 5191: 				_player_name(
+ 5192: 					int(
+ 5193: 						action_result.get(
+ 5194: 							"attacker_id",
+ 5195: 							-1
+ 5196: 						)
+ 5197: 					)
+ 5198: 				),
+ 5199: 				_player_name(
+ 5200: 					int(
+ 5201: 						action_result.get(
+ 5202: 							"defender_id",
+ 5203: 							-1
+ 5204: 						)
+ 5205: 					)
+ 5206: 				),
+ 5207: 				String(
+ 5208: 					action_result.get(
+ 5209: 						"target_castle",
+ 5210: 						"Castle"
+ 5211: 					)
+ 5212: 				),
+ 5213: 				int(
+ 5214: 					action_result.get(
+ 5215: 						"strength",
+ 5216: 						0
+ 5217: 					)
+ 5218: 				),
+ 5219: 				int(
+ 5220: 					action_result.get(
+ 5221: 						"structural_defense",
+ 5222: 						0
+ 5223: 					)
+ 5224: 				),
+ 5225: 				(
+ 5226: 					_string_values_inline(
+ 5227: 						defeated
+ 5228: 					)
+ 5229: 					if not defeated.is_empty()
+ 5230: 					else "no Guards"
+ 5231: 				),
+ 5232: 				outcome,
+ 5233: 				(
+ 5234: 					"; excess %d"
+ 5235: 					% int(
+ 5236: 						action_result.get(
+ 5237: 							"excess",
+ 5238: 							0
+ 5239: 						)
+ 5240: 					)
+ 5241: 					if bool(
+ 5242: 						action_result.get(
+ 5243: 							"destroyed",
+ 5244: 							false
+ 5245: 						)
+ 5246: 					)
+ 5247: 					else ""
+ 5248: 				),
+ 5249: 			]
+ 5250: 		)
+ 5251: 
+ 5252: 		return
+ 5253: 
+ 5254: 	if action_name == "ward":
+ 5255: 		_log(
+ 5256: 			"[color=#91c7ff][b]%s Ward:[/b] %s protected the %s zone; its sigil is %s.[/color]"
+ 5257: 			% [
+ 5258: 				source_name,
+ 5259: 				_player_name(
+ 5260: 					int(
+ 5261: 						action_result.get(
+ 5262: 							"player_id",
+ 5263: 							-1
+ 5264: 						)
+ 5265: 					)
+ 5266: 				),
+ 5267: 				String(
+ 5268: 					action_result.get(
+ 5269: 						"ward_target",
+ 5270: 						"?"
+ 5271: 					)
+ 5272: 				),
+ 5273: 				String(
+ 5274: 					action_result.get(
+ 5275: 						"sigil_state",
+ 5276: 						"none"
+ 5277: 					)
+ 5278: 				),
+ 5279: 			]
+ 5280: 		)
+ 5281: 		return
+ 5282: 
+ 5283: 	if action_name == "profane":
+ 5284: 		var player_name: String = _player_name(
+ 5285: 			int(
+ 5286: 				action_result.get(
+ 5287: 					"player_id",
+ 5288: 					-1
+ 5289: 				)
+ 5290: 			)
+ 5291: 		)
+ 5292: 
+ 5293: 		if bool(
+ 5294: 			action_result.get(
+ 5295: 				"blocked",
+ 5296: 				false
+ 5297: 			)
+ 5298: 		):
+ 5299: 			_log(
+ 5300: 				"[color=#91c7ff][b]%s Profane blocked:[/b] %s's fresh %s sigil denied the corruption of %s.[/color]"
+ 5301: 				% [
+ 5302: 					source_name,
+ 5303: 					_player_name(
+ 5304: 						int(
+ 5305: 							action_result.get(
+ 5306: 								"opponent_id",
+ 5307: 								-1
+ 5308: 							)
+ 5309: 						)
+ 5310: 					),
+ 5311: 					String(
+ 5312: 						action_result.get(
+ 5313: 							"blocking_zone",
+ 5314: 							"?"
+ 5315: 						)
+ 5316: 					),
+ 5317: 					String(
+ 5318: 						action_result.get(
+ 5319: 							"target_castle",
+ 5320: 							"Castle"
+ 5321: 						)
+ 5322: 					),
+ 5323: 				]
+ 5324: 			)
+ 5325: 		else:
+ 5326: 			_log(
+ 5327: 				"[color=#c8b36a][b]%s Profane:[/b] %s profaned %s; its personal Tear will be awarded during Cleanup.[/color]"
+ 5328: 				% [
+ 5329: 					source_name,
+ 5330: 					player_name,
+ 5331: 					String(
+ 5332: 						action_result.get(
+ 5333: 							"target_castle",
+ 5334: 							"Castle"
+ 5335: 						)
+ 5336: 					),
+ 5337: 				]
+ 5338: 			)
+ 5339: 
+ 5340: 
+     ...
+ 7770: 			{}
+ 7771: 		)
+ 7772: 
+ 7773: 		if typeof(
+ 7774: 			phase_data
+ 7775: 		) != TYPE_DICTIONARY:
+ 7776: 			continue
+ 7777: 
+ 7778: 		match phase_name:
+ 7779: 			"sigil_update":
+ 7780: 				_log_sigil_update_events(
+ 7781: 					phase_data
+ 7782: 				)
+ 7783: 			"veil_drift":
+ 7784: 				_log_veil_drift_events(
+ 7785: 					phase_data
+ 7786: 				)
+ 7787: 			"development_start":
+ 7788: 				_log_development_start_events(
+ 7789: 					phase_data
+ 7790: 				)
+ 7791: 			"draw":
+ 7792: 				_log_draw_events(
+ 7793: 					phase_data
+ 7794: 				)
+ 7795: 			"market_rollover":
+ 7796: 				_log_market_rollover(
+ 7797: 					phase_data
+ 7798: 				)
+ 7799: 			"market":
+ 7800: 				_log_market_events(
+ 7801: 					phase_data
+ 7802: 				)
+ 7803: 			"repair":
+ 7804: 				_log_repair_events(
+ 7805: 					phase_data
+ 7806: 				)
+ 7807: 			"dominion_rites":
+ 7808: 				_log_rite_events(
+ 7809: 					phase_data
+ 7810: 				)
+ 7811: 			"deploy":
+ 7812: 				_log_deploy_events(
+ 7813: 					phase_data
+ 7814: 				)
+ 7815: 			"summon":
+ 7816: 				_log_summon_events(
+ 7817: 					phase_data
+ 7818: 				)
+ 7819: 
+ 7820: 
+ 7821: func _log_veil_drift_events(
+ 7822: 	phase_data: Dictionary
+ 7823: ) -> void:
+ 7824: 	if not bool(
+ 7825: 		phase_data.get(
+ 7826: 			"applied",
+ 7827: 			false
+ 7828: 		)
+ 7829: 	):
+ 7830: 		return
+ 7831: 
+ 7832: 	_log(
+     ...
+ 7926: func _log_development_start_events(
+ 7927: 	phase_data: Dictionary
+ 7928: ) -> void:
+ 7929: 	for raw_event in _array_from(
+ 7930: 		phase_data.get(
+ 7931: 			"snare_events",
+ 7932: 			[]
+ 7933: 		)
+ 7934: 	):
+ 7935: 		if (
+ 7936: 			typeof(
+ 7937: 				raw_event
+ 7938: 			) != TYPE_DICTIONARY
+ 7939: 			or not bool(
+ 7940: 				raw_event.get(
+ 7941: 					"applied",
+ 7942: 					false
+ 7943: 				)
+ 7944: 			)
+ 7945: 		):
+ 7946: 			continue
+ 7947: 
+ 7948: 		var event: Dictionary = raw_event
+ 7949: 		_log(
+ 7950: 			"[color=#d8b4fe][b]Orias — Snare:[/b] %s gained 1 Threat and restricted %s to one Deploy move this round.[/color]"
+ 7951: 			% [
+ 7952: 				_player_name(
+ 7953: 					int(
+ 7954: 						event.get(
+ 7955: 							"player_id",
+ 7956: 							-1
+ 7957: 						)
+ 7958: 					)
+ 7959: 				),
+ 7960: 				_player_name(
+ 7961: 					int(
+ 7962: 						event.get(
+ 7963: 							"target_player_id",
+ 7964: 							-1
+ 7965: 						)
+ 7966: 					)
+ 7967: 				),
+ 7968: 			]
+ 7969: 		)
+ 7970: 
+ 7971: 	for raw_event in _array_from(
+ 7972: 		phase_data.get(
+ 7973: 			"gremory_draw_events",
+ 7974: 			[]
+ 7975: 		)
+ 7976: 	):
+ 7977: 		if typeof(
+ 7978: 			raw_event
+ 7979: 		) != TYPE_DICTIONARY:
+ 7980: 			continue
+ 7981: 
+ 7982: 		var event: Dictionary = raw_event
+ 7983: 		var player_id: int = int(
+ 7984: 			event.get(
+ 7985: 				"player_id",
+ 7986: 				-1
+ 7987: 			)
+ 7988: 		)
+ 7989: 		var drawn_cards: Array = _array_from(
+ 7990: 			event.get(
+ 7991: 				"drawn_cards",
+ 7992: 				[]
+ 7993: 			)
+ 7994: 		)
+ 7995: 		var card_text: String = (
+ 7996: 			"%d hidden card(s)"
+ 7997: 			% drawn_cards.size()
+ 7998: 			if player_id != 0
+ 7999: 			else _string_values_inline(
+ 8000: 				drawn_cards
+ 8001: 			)
+ 8002: 		)
+ 8003: 
+ 8004: 		_log(
+ 8005: 			"[color=#d8b4fe][b]Gremory — Picking the Bones:[/b] %s drew %s (%d requested from current Ruins).[/color]"
+ 8006: 			% [
+ 8007: 				_player_name(
+ 8008: 					player_id
+ 8009: 				),
+ 8010: 				card_text,
+ 8011: 				int(
+ 8012: 					event.get(
+ 8013: 						"requested_draws",
+ 8014: 						0
+ 8015: 					)
+ 8016: 				),
+ 8017: 			]
+ 8018: 		)
+ 8019: 		_log_draw_side_effects(
+ 8020: 			event.get(
+ 8021: 				"draw_results",
+ 8022: 				[]
+ 8023: 			),
+ 8024: 			"Picking the Bones"
+ 8025: 		)
+ 8026: 
+ 8027: 	for raw_event in _array_from(
+ 8028: 		phase_data.get(
+ 8029: 			"breach_draw_events",
+ 8030: 			[]
+ 8031: 		)
+ 8032: 	):
+ 8033: 		if typeof(
+ 8034: 			raw_event
+ 8035: 		) != TYPE_DICTIONARY:
+ 8036: 			continue
+ 8037: 
+ 8038: 		var event: Dictionary = raw_event
+ 8039: 		var player_id: int = int(
+ 8040: 			event.get(
+ 8041: 				"player_id",
+ 8042: 				-1
+ 8043: 			)
+ 8044: 		)
+ 8045: 		var draw_result = event.get(
+ 8046: 			"draw_result",
+ 8047: 			{}
+ 8048: 		)
+ 8049: 
+ 8050: 		if (
+ 8051: 			typeof(
+ 8052: 				draw_result
+ 8053: 			) != TYPE_DICTIONARY
+ 8054: 			or not bool(
+ 8055: 				draw_result.get(
+ 8056: 					"drawn",
+ 8057: 					false
+ 8058: 				)
+ 8059: 			)
+ 8060: 		):
+ 8061: 			continue
+ 8062: 
+ 8063: 		_log(
+ 8064: 			"[color=#d8b4fe][b]Gremory Breach:[/b] %s had a Ruin and drew %s.[/color]"
+ 8065: 			% [
+ 8066: 				_player_name(
+ 8067: 					player_id
+ 8068: 				),
+ 8069: 				(
+ 8070: 					"a hidden card"
+ 8071: 					if player_id != 0
+ 8072: 					else String(
+ 8073: 						draw_result.get(
+ 8074: 							"card",
+ 8075: 							"a card"
+ 8076: 						)
+ 8077: 					)
+ 8078: 				),
+ 8079: 			]
+ 8080: 		)
+ 8081: 		_log_draw_side_effects(
+ 8082: 			[
+ 8083: 				draw_result,
+ 8084: 			],
+ 8085: 			"Gremory Breach"
+ 8086: 		)
+ 8087: 
+ 8088: 
+     ...
+ 9036: 	var labels: Array[String] = []
+ 9037: 	for marcher in marchers:
+ 9038: 		var card = marcher.get("card", null)
+ 9039: 		labels.append("%s %d/%d → %s" % [
+ 9040: 			_card_id(card),
+ 9041: 			int(marcher.get("value", 0)),
+ 9042: 			int(marcher.get("pos", 0)),
+ 9043: 			String(marcher.get("lane", "")),
+ 9044: 		])
+ 9045: 	return ", ".join(labels)
+ 9046: 
+ 9047: 
+ 9048: func _lord_card_text(
+ 9049: 	player
+ 9050: ) -> String:
+ 9051: 	var lord_name: String = String(
+ 9052: 		player.lord
+ 9053: 	)
+ 9054: 	var ability_lines: Array = LORD_CARD_ABILITIES.get(
+ 9055: 		lord_name,
+ 9056: 		[]
+ 9057: 	)
+ 9058: 	var current_cost: int = (
+ 9059: 		SummonEngineData._summon_cost(
+ 9060: 			controller.game,
+ 9061: 			player,
+ 9062: 			controller.rules,
+ 9063: 			lord_name
+ 9064: 		)
+ 9065: 	)
+ 9066: 	var card_lines: Array[String] = [
+ 9067: 		"[center][font_size=17][b]%s — LORD CARD[/b][/font_size][/center]"
+ 9068: 		% lord_name,
+ 9069: 		"[center]Current DEF [b]%d[/b]  •  Summon [b]%d[/b]  •  Return Threat [b]%d[/b][/center]"
+ 9070: 		% [
+ 9071: 			int(
+ 9072: 				player.derived_lord_def
+ 9073: 			),
+ 9074: 			current_cost,
+ 9075: 			_lord_return_threat(
+ 9076: 				lord_name
+ 9077: 			),
+ 9078: 		],
+ 9079: 		"",
+ 9080: 	]
+ 9081: 
+ 9082: 	for raw_line in ability_lines:
+ 9083: 		card_lines.append(
+ 9084: 			"• %s" % String(
+ 9085: 				raw_line
+ 9086: 			)
+ 9087: 		)
+ 9088: 
+ 9089: 	card_lines.append(
+ 9090: 		""
+ 9091: 	)
+ 9092: 	card_lines.append(
+ 9093: 		"[color=#c8b36a][b]LIVE:[/b] %s[/color]"
+ 9094: 		% _lord_live_state(
+ 9095: 			player
+ 9096: 		)
+ 9097: 	)
+ 9098: 
+ 9099: 	return "\n".join(
+ 9100: 		card_lines
+ 9101: 	)
+ 9102: 
+ 9103: 
+ 9104: func _lord_return_threat(
+ 9105: 	lord_name: String
+ 9106: ) -> int:
+ 9107: 	var return_threats: Dictionary = {
+ 9108: 		"Orias": 0,
+ 9109: 		"Deimos": 0,
+ 9110: 		"Valak": 1,
+ 9111: 		"Kroni": 1,
+ 9112: 		"Kalligan": 1,
+ 9113: 		"Gremory": 2,
+ 9114: 		"Odradek": 2,
+ 9115: 		"Kanifous": 1,
+ 9116: 		"Humbaba": 2,
+ 9117: 	}
+ 9118: 
+ 9119: 	return int(
+ 9120: 		return_threats.get(
+ 9121: 			lord_name,
+ 9122: 			0
+ 9123: 		)
+ 9124: 	)
+ 9125: 
+ 9126: 
+ 9127: func _lord_live_state(
+ 9128: 	player
+ 9129: ) -> String:
+ 9130: 	if not bool(
+ 9131: 		player.alive
+ 9132: 	):
+ 9133: 		return (
+ 9134: 			"Banished. Passive text requiring a living Lord is inactive."
+ 9135: 		)
+ 9136: 
+ 9137: 	match String(
+ 9138: 		player.lord
+ 9139: 	):
+ 9140: 		"Orias":
+ 9141: 			return (
+ 9142: 				"Threat %d; Snare %s. Marked Lord: %s."
+ 9143: 				% [
+ 9144: 					int(
+ 9145: 						player.threat
+ 9146: 					),
+ 9147: 					(
+ 9148: 						"eligible"
+ 9149: 						if int(
+ 9150: 							player.threat
+ 9151: 						) < 3
+ 9152: 						else "locked at Threat 3+"
+ 9153: 					),
+ 9154: 					String(
+ 9155: 						controller.game.get_meta(
+ 9156: 							"orias_marked_lord",
+ 9157: 							"none"
+ 9158: 						)
+ 9159: 					),
+ 9160: 				]
+     ...
+ 9263: 				"Recoil this round %s; Reconfiguration %d/%d tokens; Guards defeated this round %d."
+ 9264: 				% [
+ 9265: 					_used_ready(
+ 9266: 						bool(
+ 9267: 							player.odradek_recoil_done
+ 9268: 						)
+ 9269: 					),
+ 9270: 					int(
+ 9271: 						player.odradek_reconfig_tokens
+ 9272: 					),
+ 9273: 					int(
+ 9274: 						controller.rules.reconfig_tokens_needed
+ 9275: 					),
+ 9276: 					int(
+ 9277: 						player.odradek_guards_defeated
+ 9278: 					),
+ 9279: 				]
+ 9280: 			)
+ 9281: 		"Kanifous":
+ 9282: 			return (
+ 9283: 				"Invoked this round %d time(s); suit %s; high Invoke %s; outside draws %d."
+ 9284: 				% [
+ 9285: 					int(
+ 9286: 						player.kanifous_invokes_this_round
+ 9287: 					),
+ 9288: 					(
+ 9289: 						"none"
+ 9290: 						if String(
+ 9291: 							player.kanifous_invoked_suit
+ 9292: 						).is_empty()
+ 9293: 						else String(
+ 9294: 							player.kanifous_invoked_suit
+ 9295: 						)
+ 9296: 					),
+ 9297: 					(
+ 9298: 						"yes"
+ 9299: 						if bool(
+ 9300: 							player.kanifous_invoked_high
+ 9301: 						)
+ 9302: 						else "no"
+ 9303: 					),
+ 9304: 					int(
+ 9305: 						player.kanifous_outside_draws
+ 9306: 					),
+ 9307: 				]
+ 9308: 			)
+ 9309: 		"Humbaba":
+ 9310: 			return (
+ 9311: 				"Living Fortress DEF %d with %d Castles; Gate Guard cap %d; Patient %s; Seal adds +1 Dominion requirement."
+ 9312: 				% [
+ 9313: 					int(
+ 9314: 						player.derived_lord_def
+ 9315: 					),
+ 9316: 					player.castles.size(),
+ 9317: 					(
+ 9318: 						4
+ 9319: 						if player.ruined_castles.is_empty()
+ 9320: 						else 3
+ 9321: 					),
+ 9322: 					(
+ 9323: 						"armed"
+ 9324: 						if bool(
+ 9325: 							player.humbaba_patient
+ 9326: 						)
+ 9327: 						else "not armed"
+ 9328: 					),
+ 9329: 				]
+ 9330: 			)
+ 9331: 
+ 9332: 	return "No live ability state."
+ 9333: 
+ 9334: 
+ 9335: func _dominion_help_text(
+ 9336: 	veil_total: int
+ 9337: ) -> String:
+ 9338: 	if controller == null or controller.rules == null:
+ 9339: 		return "The Veil combines all personal and Neutral Tears."
+ 9340: 
+ 9341: 	return (
+ 9342: 		"DOMINION / VEIL — The Veil combines every personal and Neutral Tear. "
+ 9343: 		+ "Collapse at %d and Waning at %d each strip the lowest Guard from a zone "
+ 9344: 		+ "attacked last round during Resolution Prelude; both effects stack at %d+. "
+ 9345: 		+ "At Cataclysm %d, and after each later Tear, Dominion is checked. A player "
+ 9346: 		+ "must lead in personal Tears and hold at least %d; Lord effects can raise "
+ 9347: 		+ "that requirement. Final Collapse at %d ends the game and Souls decide "
+ 9348: 		+ "the winner. Current Veil: %d."
+ 9349: 	) % [
+ 9350: 		VEIL_COLLAPSE_THRESHOLD,
+ 9351: 		VEIL_WANING_THRESHOLD,
+ 9352: 		VEIL_WANING_THRESHOLD,
+ 9353: 		int(controller.rules.dominion_track),
+     ...

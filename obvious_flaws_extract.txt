@@ -1,0 +1,1510 @@
+===== REVEAL LOG =====
+1925-		+ "[color=#b88f9d]VS[/color]\n"
+1926-		+ "[b]%s[/b]  %s\n"
+1927-		+ "[color=#c8b36a]%s[/color][/center]"
+1928-	) % [
+1929-		String(
+1930-			human.action
+1931-		),
+1932-		_cards_inline(
+1933-			human.committed
+1934-		),
+1935-		String(
+1936-			bot.action
+1937-		),
+1938-		_cards_inline(
+1939-			bot.committed
+1940-		),
+1941-		_reflex_holder_text(),
+1942-	]
+1943-
+1944-	_log(
+1945:		"Reveal: you chose %s (%d); %s chose %s (%d)."
+1946-		% [
+1947-			String(
+1948-				human.action
+1949-			),
+1950-			_card_value_total(
+1951-				human.committed
+1952-			),
+1953-			String(
+1954-				bot.lord
+1955-			),
+1956-			String(
+1957-				bot.action
+1958-			),
+1959-			_card_value_total(
+1960-				bot.committed
+1961-			),
+1962-		]
+1963-	)
+1964-	_log_reveal_sigils(
+1965-		result
+1966-	)
+1967-	_log_reveal_lord_powers(
+1968-		result
+1969-	)
+1970-
+1971-	_refresh_all()
+1972-
+1973-
+1974-func _on_resolve_pressed() -> void:
+1975-	resolution_start_digest = _state_digest()
+1976-	var result: Dictionary = controller.begin_human_resolution()
+1977-	_after_resolution_progress(result)
+1978-
+1979-
+1980-func _after_resolution_progress(
+--
+4780-			""
+4781-		)
+4782-	) == "offer_vessel"
+4783-
+4784-
+4785-func _log_resolution_order(
+4786-	prelude: Dictionary
+4787-) -> void:
+4788-	var order: Array = _array_from(
+4789-		prelude.get(
+4790-			"order",
+4791-			[]
+4792-		)
+4793-	)
+4794-
+4795-	if order.size() < 2:
+4796-		return
+4797-
+4798-	var committed: Array = _array_from(
+4799-		prelude.get(
+4800:			"committed_values",
+4801-			[]
+4802-		)
+4803-	)
+4804-	var totals: String = ""
+4805-
+4806-	if committed.size() >= 2:
+4807-		totals = " (%d–%d)" % [
+4808-			int(
+4809-				committed[0]
+4810-			),
+4811-			int(
+4812-				committed[1]
+4813-			),
+4814-		]
+4815-
+4816-	var tie_text: String = ""
+4817-
+4818-	if bool(
+4819-		prelude.get(
+4820-			"tied",
+4821-			false
+4822-		)
+4823-	):
+4824-		tie_text = (
+4825-			"; tied commitments use the round's first player"
+4826-		)
+4827-
+4828-	_log(
+4829-		"[color=#c8b36a][b]Resolution order:[/b] %s acts before %s%s%s.[/color]"
+4830-		% [
+4831-			_player_name(
+4832-				int(
+4833-					order[0]
+4834-				)
+4835-			),
+
+===== HUNT/SIEGE NARRATIVE =====
+33-	"Kroni",
+34-	"Kalligan",
+35-	"Gremory",
+36-	"Odradek",
+37-	"Kanifous",
+38-	"Humbaba",
+39-]
+40-
+41-const ACTIONS: Array[String] = [
+42-	"Hunt",
+43-	"Siege",
+44-	"Ward",
+45-	"Profane",
+46-]
+47-
+48-const DEFAULT_SEED: int = 20260724
+49-
+50-const LORD_CARD_ABILITIES: Dictionary = {
+51-	"Orias": [
+52-		"[b]Snare[/b] — During Development, if Orias is living and below Threat 3, gain 1 Threat and restrict an opponent with 2+ Hand/Garrison cards to one Deploy move.",
+53:		"[b]Relentless Pursuit[/b] — Hunts gain +1 strength, plus another +1 against a Lord at Threat 2+.",
+54-		"[b]The Mark[/b] — Defeating a Lord Guard raises that Lord's Threat (2 at Threat 2+). Banishing a Lord at Threat 3+ grants +2 bonus Souls and marks it; it returns with +1 Threat. Orias bypasses that marked target's Recoil/Backwash.",
+55-		"[b]Breach: Frenzy[/b] — Players at Threat 3+ cannot Deploy cards from Garrison to Guard zones.",
+56-	],
+57-	"Deimos": [
+58-		"[b]War Machine[/b] — Sieges gain +2 strength, reduced by 1 for each of Deimos's Ruined or Profaned Castles (minimum +0).",
+59-		"[b]Fear[/b] — Before a Siege against 2+ Castle Guards, return the lowest Guard to its owner's Hand.",
+60-		"[b]Claim the Breach[/b] — The first Castle Deimos ruins each game gives Deimos the Tear instead of adding a Neutral Tear.",
+61-		"[b]Breach[/b] — Every active Castle has 1 less structural DEF (minimum 0).",
+62-	],
+63-	"Valak": [
+64-		"[b]Crushing Presence[/b] — On Hunt or Siege against 2+ Guards, the lowest Guard contributes no defense.",
+65-		"[b]Siphon[/b] — After Valak defeats a Guard, discard the lowest Guard still protecting that same zone.",
+66-		"[b]Breach: Gravitational Collapse[/b] — At Resolution Prelude, each previously attacked zone loses its lowest Guard.",
+67-	],
+68-	"Kroni": [
+69-		"[b]Consume / Gorge[/b] — At End of Round, if any destruction occurred, gain 1 Hunger. If Kroni personally defeated a Guard that round, also gain 1 Soul.",
+70-		"[b]Hunger[/b] — Lord DEF is 4 at 0 Hunger, 6 at 1–2, and 8 at 3+. Reaching 3 for the first time after a Summon grants a personal Tear.",
+71-		"[b]Hungering Aura / Ravenous[/b] — At Hunger 3+, discard the opponent's lowest committed card. Kroni's next destroyed Lord/Castle grants +2 Souls and +1 Hunger.",
+72-		"[b]Fallback / Decay / Breach[/b] — If Consume did not fire, remove the lowest Guard or Garrison card from play. Ward/Pass loses 1 Hunger. Kroni Breach destroys each player's lowest Guard.",
+73-	],
+74-	"Kalligan": [
+75-		"[b]Forge-Repair[/b] — Kalligan's first Repair costs 7 less; later Repairs cost 5 less. Every living Kalligan Repair Scorches the enemy Lord zone.",
+76-		"[b]Pyroclasm[/b] — Sieges gain +1 strength, or +2 if the defender already has a Ruined Castle.",
+77-		"[b]Inferno / Wildfire[/b] — After ruining a Castle, Wildfire Scorches the enemy Castle zone (or Lord if none remain). Kalligan may gain 1 Threat to Defeat the highest enemy Lord Guard without response triggers; if none exists, Inferno replaces that token with Lord Scorch.",
+78-		"[b]Breach[/b] — All Repairs cost 1 less.",
+79-	],
+80-	"Gremory": [
+81-		"[b]Picking the Bones[/b] — During Development draw 1 extra card, +1 if either player has a Ruin, and +1 more if Gremory has a Ruin.",
+82-		"[b]Ruinous Harvest[/b] — On the first Tear placed each round, search from the top of the discard for a value-4/5 card and take it. The attempt is spent even if no eligible card exists.",
+83-		"[b]Predator of Ruin[/b] — The first Castle destroyed each round recovers the top discard. Independently, the first Lord Guard Defeated by any effect lets Gremory draw 1 outside the Draw step, then discard the lowest Hand card.",
+84-		"[b]Inevitable Ruin / Breach[/b] — Once per round, after a Siege leaves its target standing, pay exactly 2 Hand/Garrison cards to ruin it. During Gremory Breach, players with a Ruin draw 1 extra.",
+85-	],
+86-	"Odradek": [
+87-		"[b]Recoil / Backwash[/b] — The first Hunt against living Odradek each round discards the attacker's lowest committed card and gives Odradek 1 Soul. A surviving Hunt also raises the attacker's Threat.",
+88-		"[b]Reconfiguration[/b] — Gain 1 token after a round in which no Odradek Guard was Defeated. At 5 tokens, spend them for a personal Tear. Any Defeated Guard blocks progress that round; Banishment clears tokens.",
+89-		"[b]Breach: Paradox Geometry[/b] — Predict the second-action winner's action; a correct guess discards their selected cards and lets Odradek execute it instead.",
+90-	],
+91-	"Kanifous": [
+92-		"[b]Invoke[/b] — After Reveal, resolve in committed-value order: gain 1 Threat, reveal 2 cards, choose one to bank in Garrison, and discard the other. If the first revealed card is value 4+, also create a Neutral Tear.",
+93-		"[b]Suit Invocation[/b] — Vulture: draw 3 then discard the lowest Hand card. Wright: move up to 2 Lord Guards to Castle. Penitent: draw 2 temporary Guards. Butcher: treat the lowest target Guard as already Defeated this round, without triggering Defeat effects.",
+94-		"[b]Resonance / Defiance[/b] — If the chosen card's value equals current Threat, gain 1 Soul. When Kanifous is banished, gain 1 Soul and draw 2 if still behind the attacker.",
+95-		"[b]Breach[/b] — Every draw outside the Draw step gives its recipient +1 Threat.",
+96-	],
+97-	"Humbaba": [
+98-		"[b]Living Fortress[/b] — Base Lord DEF is 2 + active Castles, with Bastion adding 2; Threat 2/3/4 reduces it by 1/2/3.",
+--
+5651-			"defender_id",
+5652-			-1
+5653-		)
+5654-	)
+5655-	var attacker = controller.game.get_player(
+5656-		attacker_id
+5657-	)
+5658-	var attacker_lord: String = (
+5659-		""
+5660-		if attacker == null
+5661-		else String(
+5662-			attacker.lord
+5663-		)
+5664-	)
+5665-
+5666-	if (
+5667-		action_name == "hunt"
+5668-		and attacker_lord == "Orias"
+5669-	):
+5670-		_log(
+5671:			"[color=#d8b4fe][b]Orias — Relentless Pursuit:[/b] Hunt strength bonuses applied; final strength %d.[/color]"
+5672-			% int(
+5673-				action_result.get(
+5674-					"strength",
+5675-					0
+5676-				)
+5677-			)
+5678-		)
+5679-
+5680-		if not _array_from(
+5681-			action_result.get(
+5682-				"guards_defeated",
+5683-				[]
+5684-			)
+5685-		).is_empty():
+5686-			var defender = controller.game.get_player(
+5687-				defender_id
+5688-			)
+5689-			_log(
+5690-				"[color=#d8b4fe][b]Orias — The Mark:[/b] A Lord Guard fell; %s's Threat is now %d.[/color]"
+5691-				% [
+5692-					_player_name(
+5693-						defender_id
+5694-					),
+5695-					(
+5696-						0
+5697-						if defender == null
+5698-						else int(
+5699-							defender.threat
+5700-						)
+5701-					),
+5702-				]
+5703-			)
+5704-
+5705-		var banishment = action_result.get(
+5706-			"banishment",
+5707-			{}
+5708-		)
+5709-
+5710-		if (
+5711-			typeof(
+5712-				banishment
+5713-			) == TYPE_DICTIONARY
+5714-			and bool(
+5715-				action_result.get(
+5716-					"banished",
+
+===== VESSEL CONTROLLER =====
+1247-func resolve_human_resolution_action(
+1248-	options: Dictionary
+1249-) -> Dictionary:
+1250-	if stage != Stage.RESOLUTION_ACTION:
+1251-		return _rejected("resolution_action", "not_awaiting_resolution_action")
+1252-
+1253-	var player = get_human_player()
+1254-	if player == null:
+1255-		return _invalid("resolution_action", "human_player_missing")
+1256-
+1257-	var action_result: Dictionary = ResolutionEngineData._resolve_committed_action(
+1258-		game,
+1259-		rules,
+1260-		player,
+1261-		options
+1262-	)
+1263-
+1264-	if String(action_result.get("action", "")) == "invalid":
+1265-		return _rejected("resolution_action", String(action_result.get("reason", "invalid_committed_action")))
+1266-
+1267-	resolution_state["pending_player_id"] = HUMAN_PLAYER_ID
+1268-	resolution_state["pending_committed_action"] = String(player.action)
+1269-	resolution_state["pending_action_result"] = action_result
+1270-	resolution_state["pending_action_options"] = options.duplicate(true)
+1271-	stage = Stage.RESOLUTION_VESSEL
+1272:	return _awaiting("resolution_vessel")
+1273-
+1274-
+1275-func resolve_human_vessel(
+1276-	decision: Dictionary
+1277-) -> Dictionary:
+1278-	if stage != Stage.RESOLUTION_VESSEL:
+1279:		return _rejected("resolution_vessel", "not_awaiting_resolution_vessel")
+1280-
+1281-	var player_id: int = int(resolution_state.get("pending_player_id", -1))
+1282-	var action_result: Dictionary = resolution_state.get("pending_action_result", {})
+1283-	if player_id != HUMAN_PLAYER_ID or action_result.is_empty():
+1284:		return _invalid("resolution_vessel", "resolution_action_missing")
+1285-
+1286-	var post_action_decision: Dictionary = decision.duplicate(true)
+1287-	post_action_decision["post_action"] = true
+1288-	var aftermath_preview: Dictionary = ResolutionActionAftermathEngineData.resolve(
+1289-		_duplicate_game_with_metadata(),
+1290-		rules,
+1291-		player_id,
+1292-		action_result,
+1293-		post_action_decision,
+1294-		_duplicate_random_source()
+1295-	)
+1296-
+1297-	if String(aftermath_preview.get("action", "")) == "invalid":
+1298:		return _rejected("resolution_vessel", String(aftermath_preview.get("reason", "invalid_action_aftermath")))
+1299-
+1300-	var aftermath_result: Dictionary = ResolutionActionAftermathEngineData.resolve(
+1301-		game,
+1302-		rules,
+1303-		player_id,
+1304-		action_result,
+1305-		post_action_decision,
+1306-		random_source
+1307-	)
+1308-
+1309-	_append_resolution_action_event(
+1310-		player_id,
+1311-		String(resolution_state.get("pending_committed_action", "")),
+1312-		action_result,
+1313-		aftermath_result
+1314-	)
+1315-	resolution_state.erase("pending_player_id")
+1316-	resolution_state.erase("pending_committed_action")
+1317-	resolution_state.erase("pending_action_result")
+1318-	resolution_state.erase("pending_action_options")
+1319-	resolution_state["next_action_index"] = int(resolution_state.get("next_action_index", 0)) + 1
+1320-
+1321-	if int(game.winner) >= 0 or bool(aftermath_result.get("stopped_on_win", false)):
+1322-		resolution_state["stopped_stage"] = "actions"
+1323-		return _finish_human_resolution()
+1324-
+1325-	return _advance_human_resolution()
+1326-
+1327-
+1328-func resolve_human_reflex(
+1329-	decision: Dictionary
+1330-) -> Dictionary:
+1331-	if stage != Stage.RESOLUTION_REFLEX:
+1332-		return _rejected("reflex", "not_awaiting_human_reflex")
+1333-
+1334-	var bot_breach_decision: Dictionary = {}
+1335-	if game.breach == "Odradek" and int(game.breach_owner) == BOT_PLAYER_ID:
+1336-		bot_breach_decision = _bot_odradek_breach_decision(HUMAN_PLAYER_ID)
+1337-
+1338-	var reflex_result: Dictionary = ReflexActionEngineData.resolve(
+1339-		game,
+1340-		rules,
+1341-		decision,
+1342-		bot_breach_decision
+1343-	)
+1344-	if String(reflex_result.get("action", "")) == "invalid":
+1345-		return _rejected("reflex", String(reflex_result.get("reason", "invalid_reflex_action")))
+1346-
+1347-	_record_reflex_guard_reveal(reflex_result)
+1348-	resolution_state["reflex_result"] = reflex_result
+1349-	return _after_human_reflex()
+1350-
+1351-
+1352-func resolve_human_odradek_breach(
+1353-	breach_decision: Dictionary
+
+===== TERMINAL/LAST RESULT =====
+148-
+149-var game = null
+150-var rules: RuleConfig = null
+151-var random_source = null
+152-var policy = null
+153-
+154-var stage: Stage = Stage.NO_GAME
+155-var phase_results: Dictionary = {}
+156-var events: Array[Dictionary] = []
+157-var summon_choices: Dictionary = {}
+158-var commitment_choices: Dictionary = {}
+159-var revealed_guard_ids: Dictionary = {}
+160-var guard_locations: Dictionary = {}
+161-var guard_reveal_events: Array[Dictionary] = []
+162-var resolution_state: Dictionary = {}
+163-var kanifous_preview_cards: Array[String] = []
+164-var kanifous_choice: Dictionary = {}
+165-var pending_market_choices: Dictionary = {}
+166-var pending_market_results: Array[Dictionary] = []
+167-
+168:var last_result: Dictionary = {}
+169-
+170-
+171-func start_match(
+172-	human_lord: String,
+173-	bot_lord: String,
+174-	seed_value: int
+175-) -> Dictionary:
+176-	# The playable prototype is the human-facing surface for the current lab
+177-	# branch. DE v2 remains selectable in the simulation runners and goldens.
+178-	rules = RuleConfig.lab_v6_5()
+179-	policy = BotPolicyData.standard()
+180-
+181-	var setup: Dictionary = (
+182-		SeededGameSetupData.setup_locked_game(
+183-			human_lord,
+184-			bot_lord,
+185-			seed_value,
+186-			rules
+187-		)
+188-	)
+189-
+190-	game = setup.get(
+191-		"game",
+192-		null
+193-	)
+194-
+195-	random_source = setup.get(
+196-		"rng",
+197-		null
+198-	)
+199-
+200-	assert(
+201-		game != null,
+202-		"Playable prototype setup did not return a GameState."
+203-	)
+204-
+205-	assert(
+206-		random_source != null,
+207-		"Playable prototype setup did not return an RNG."
+208-	)
+209-
+210-	stage = Stage.NO_GAME
+211-	phase_results.clear()
+212-	events.clear()
+213-	summon_choices.clear()
+214-	commitment_choices.clear()
+215-	revealed_guard_ids.clear()
+216-	guard_locations.clear()
+217-	guard_reveal_events.clear()
+218-	resolution_state.clear()
+219-	kanifous_preview_cards.clear()
+220-	kanifous_choice.clear()
+221-	pending_market_choices.clear()
+222-	pending_market_results.clear()
+223:	last_result.clear()
+224-
+225-	_sync_guard_visibility()
+226-
+227-	return advance_to_commitment()
+228-
+229-
+230-func advance_to_commitment() -> Dictionary:
+231-	if game == null:
+232-		return _invalid(
+233-			"pre_round",
+234-			"game_not_started"
+235-		)
+236-
+237-	if int(
+238:		game.winner
+239-	) >= 0:
+240:		stage = Stage.TERMINAL
+241:		last_result = _round_result(
+242-			true,
+243-			"pre_round"
+244-		)
+245:		return last_result
+246-
+247-	var round_number: int = int(
+248-		game.round
+249-	) + 1
+250-
+251-	phase_results = {}
+252-	events = []
+253-	summon_choices = {}
+254-	commitment_choices = {}
+255-	pending_market_choices.clear()
+256-	pending_market_results.clear()
+257-
+258-	RoundEngineData.begin_round(
+259-		game,
+260-		round_number
+261-	)
+262-
+263-	_record_phase(
+264-		"begin_round",
+265-		{
+266-			"round": round_number,
+267-		}
+268-	)
+269-
+270-	var sigil_result: Dictionary = (
+271-		BotRoundEngineData._update_sigils(
+272-			game,
+273-			rules
+274-		)
+275-	)
+276-
+277-	_record_phase(
+278-		"sigil_update",
+279-		sigil_result
+280-	)
+281-
+282-	var veil_result: Dictionary = (
+283-		BotRoundEngineData._apply_veil_drift(
+284-			game,
+285-			rules
+286-		)
+287-	)
+288-
+289-	_record_phase(
+290-		"veil_drift",
+291-		veil_result
+292-	)
+293-
+294-	if int(
+295:		game.winner
+296-	) >= 0:
+297:		stage = Stage.TERMINAL
+298:		last_result = _round_result(
+299-			false,
+300-			"veil_drift"
+301-		)
+302:		return last_result
+303-
+304-	if _human_snare_available():
+305-		stage = Stage.DEVELOPMENT_SNARE
+306-		return _awaiting("orias_snare")
+307-
+308-	return _resolve_development_start({})
+309-
+310-
+311-func resolve_human_snare(
+312-	activate: bool
+313-) -> Dictionary:
+314-	if stage != Stage.DEVELOPMENT_SNARE:
+315-		return _rejected("orias_snare", "not_awaiting_orias_snare")
+316-
+317-	return _resolve_development_start(
+318-		({} if activate else {HUMAN_PLAYER_ID: {"pass": true}})
+319-	)
+320-
+321-
+322-func _resolve_development_start(
+323-	snare_choices: Dictionary
+324-) -> Dictionary:
+325-	var development_start_result: Dictionary = DevelopmentStartEngineData.resolve(
+326-		game,
+327-		rules,
+328-		random_source,
+329-		snare_choices
+330-	)
+331-	_record_phase("development_start", development_start_result)
+332-
+333-	var draw_result: Dictionary = BotRoundEngineData._resolve_normal_draws(
+334-		game,
+335-		rules,
+336-		random_source
+337-	)
+338-	_record_phase("draw", draw_result)
+339-
+340-	var market_rollover_result: Dictionary = RoundEngineData.refresh_market_offers(
+341-		game,
+342-		rules,
+--
+481-
+482-	return false
+483-
+484-
+485-func resolve_human_dominion_rites(
+486-	decision: Dictionary
+487-) -> Dictionary:
+488-	if stage != Stage.DOMINION_RITES:
+489-		return _rejected("dominion_rites", "not_awaiting_dominion_rites")
+490-
+491-	var human_result: Dictionary = DominionRiteEngineData.resolve_player(
+492-		game,
+493-		HUMAN_PLAYER_ID,
+494-		rules,
+495-		decision
+496-	)
+497-
+498-	if _rite_result_invalid(human_result):
+499-		return _rejected("dominion_rites", _rite_invalid_reason(human_result))
+500-
+501:	if int(game.winner) >= 0:
+502-		_record_phase("dominion_rites", {
+503-			"choices": {HUMAN_PLAYER_ID: decision.duplicate(true)},
+504-			"results": [human_result],
+505-		})
+506:		stage = Stage.TERMINAL
+507-		return _round_result(false, "dominion_rites")
+508-
+509-	var bot_decision: Dictionary = _bot_rite_decision()
+510-	var bot_result: Dictionary = DominionRiteEngineData.resolve_player(
+511-		game,
+512-		BOT_PLAYER_ID,
+513-		rules,
+514-		bot_decision
+515-	)
+516-
+517-	_record_phase("dominion_rites", {
+518-		"choices": {HUMAN_PLAYER_ID: decision.duplicate(true), BOT_PLAYER_ID: bot_decision.duplicate(true)},
+519-		"results": [human_result, bot_result],
+520-	})
+521-
+522:	if int(game.winner) >= 0:
+523:		stage = Stage.TERMINAL
+524-		return _round_result(false, "dominion_rites")
+525-
+526-	stage = Stage.DEPLOY
+527-	return _awaiting("deploy")
+528-
+529-
+530-func resolve_human_deploy(
+531-	decision: Dictionary
+532-) -> Dictionary:
+533-	if stage != Stage.DEPLOY:
+534-		return _rejected("deploy", "not_awaiting_deploy")
+535-
+536-	var human_result: Dictionary = DeployEngineData.resolve_player(
+537-		game,
+538-		HUMAN_PLAYER_ID,
+539-		rules,
+540-		decision
+541-	)
+542-
+543-	if String(human_result.get("action", "")) == "invalid":
+544-		return _rejected("deploy", String(human_result.get("reason", "invalid_deploy")))
+545-
+546-	var bot_decision: Dictionary = BotDeployDoctrineData.deploy_choice(
+547-		_information_view(game, BOT_PLAYER_ID),
+548-		BOT_PLAYER_ID,
+549-		rules
+550-	)
+551-	var bot_result: Dictionary = DeployEngineData.resolve_player(
+552-		game,
+553-		BOT_PLAYER_ID,
+554-		rules,
+555-		bot_decision
+556-	)
+557-
+558-	_record_phase("deploy", {
+559-		"choices": {HUMAN_PLAYER_ID: decision.duplicate(true), BOT_PLAYER_ID: bot_decision.duplicate(true)},
+560-		"results": [human_result, bot_result],
+561-	})
+562-
+563-	if rules.marching:
+--
+653-		)
+654-
+655-		if not bool(
+656-			validation.get(
+657-				"valid",
+658-				false
+659-			)
+660-		):
+661-			return {
+662-				"action": "invalid",
+663-				"reason": String(
+664-					validation.get(
+665-						"reason",
+666-						"invalid_summon_payment"
+667-					)
+668-				),
+669-				"round": int(
+670-					game.round
+671-				),
+672-				"completed": false,
+673:				"terminal": false,
+674-				"stopped_phase": "summon",
+675-				"winner": -1,
+676-				"win_by": "",
+677-				"phases": phase_results,
+678-				"events": events,
+679-			}
+680-
+681-		human_decision = {
+682-			"lord": human_summon_lord(),
+683-			"payment": payment_ids.duplicate(),
+684-		}
+685-
+686-	summon_choices[HUMAN_PLAYER_ID] = human_decision
+687-
+688-	return _resolve_summon_and_prepare_commitment(
+689-		summon_choices
+690-	)
+691-
+692-
+693-func human_summon_lord() -> String:
+694-	var human = get_human_player()
+695-
+696-	if human == null:
+697-		return ""
+698-
+699-	if not String(
+700-		human.lord
+701-	).is_empty():
+702-		return String(
+703-			human.lord
+704-		)
+705-
+706-	if not human.lord_pool.is_empty():
+707-		return String(
+708-			human.lord_pool[0]
+709-		)
+710-
+711-	return ""
+712-
+713-
+--
+757-		"results": summon_results,
+758-	}
+759-
+760-	if not breach_closed.is_empty():
+761-		summon_phase["breach_closed"] = breach_closed
+762-
+763-	_record_phase(
+764-		"summon",
+765-		summon_phase
+766-	)
+767-
+768-	if _contains_invalid(
+769-		summon_results
+770-	):
+771-		return _invalid(
+772-			"summon",
+773-			"invalid_summon"
+774-		)
+775-
+776-	if int(
+777:		game.winner
+778-	) >= 0:
+779:		stage = Stage.TERMINAL
+780:		last_result = _round_result(
+781-			false,
+782-			"summon"
+783-		)
+784:		return last_result
+785-
+786-	if rules.reflex_bid and int(game.round) > 1:
+787-		stage = Stage.REFLEX_BID
+788-		return _awaiting("reflex_bid")
+789-
+790-	var skipped_bid: Dictionary = {
+791-		"action": "pass",
+792-		"reason": "reflex_bid_disabled",
+793-		"winner": -1,
+794-		"tie": false,
+795-		"invalid_player_id": -1,
+796-		"bid_totals": [],
+797-		"players": [],
+798-	}
+799-
+800-	if rules.reflex_bid:
+801-		skipped_bid = ReflexBidEngineData.resolve(game, rules, {})
+802-
+803-	_record_phase("reflex_bid", {"choices": {}, "result": skipped_bid})
+804-	return _prepare_commitment()
+805-
+806-
+807-func resolve_human_reflex_bid(
+808-	decision: Dictionary
+809-) -> Dictionary:
+810-	if stage != Stage.REFLEX_BID:
+811-		return _rejected("reflex_bid", "not_awaiting_reflex_bid")
+812-
+813-	var bid_choices: Dictionary = {
+814-		HUMAN_PLAYER_ID: decision.duplicate(true),
+815-		BOT_PLAYER_ID: _bot_bid_decision(),
+816-	}
+817-	var bid_result: Dictionary = ReflexBidEngineData.resolve(game, rules, bid_choices)
+818-
+819-	if String(bid_result.get("action", "")) == "invalid":
+820-		return _rejected("reflex_bid", String(bid_result.get("reason", "invalid_reflex_bid")))
+821-
+822-	_record_phase("reflex_bid", {"choices": bid_choices, "result": bid_result})
+823-	return _prepare_commitment()
+824-
+--
+866-
+867-	if String(
+868-		commitment_result.get(
+869-			"action",
+870-			""
+871-		)
+872-	) == "invalid":
+873-		# Commitment validates both sealed orders before changing the game.
+874-		return {
+875-			"action": "invalid",
+876-			"reason": String(
+877-				commitment_result.get(
+878-					"reason",
+879-					"invalid_commitment"
+880-				)
+881-			),
+882-			"round": int(
+883-				game.round
+884-			),
+885-			"completed": false,
+886:			"terminal": false,
+887-			"stopped_phase": "commitment",
+888-			"winner": -1,
+889-			"win_by": "",
+890-			"phases": phase_results,
+891-			"events": events,
+892-		}
+893-
+894-	_record_phase(
+895-		"commitment",
+896-		{
+897-			"choices": commitment_choices,
+898-			"result": commitment_result,
+899-		}
+900-	)
+901-
+902-	stage = Stage.SEALED
+903:	last_result = {
+904-		"action": "sealed",
+905-		"reason": "",
+906-		"round": int(
+907-			game.round
+908-		),
+909-		"completed": false,
+910:		"terminal": false,
+911-		"stopped_phase": "reveal",
+912-		"winner": -1,
+913-		"win_by": "",
+914-		"phases": phase_results,
+915-		"events": events,
+916-	}
+917-
+918:	return last_result
+919-
+920-
+921-func reveal_orders() -> Dictionary:
+922-	if stage != Stage.SEALED:
+923-		return _invalid(
+924-			"reveal",
+925-			"orders_not_sealed"
+926-		)
+927-
+928-	var human = get_human_player()
+929-	if human != null and human.lord == "Kanifous" and human.alive:
+930-		var preview_result: Dictionary = RevealEngineData.resolve(
+931-			_duplicate_game_with_metadata(),
+932-			rules,
+933-			_duplicate_random_source()
+934-		)
+935-		kanifous_preview_cards = _kanifous_revealed_cards(preview_result, HUMAN_PLAYER_ID)
+936-		if not kanifous_preview_cards.is_empty():
+937-			stage = Stage.KANIFOUS_INVOKE
+938-			return _awaiting("kanifous_invoke")
+939-
+940-	return _resolve_revealed_orders({})
+941-
+942-
+943-func resolve_human_kanifous_invoke(
+944-	chosen_card: String
+945-) -> Dictionary:
+946-	if stage != Stage.KANIFOUS_INVOKE:
+947-		return _rejected("reveal", "not_awaiting_kanifous_invoke")
+948-	if not kanifous_preview_cards.has(chosen_card):
+949-		return _rejected("reveal", "kanifous_card_not_revealed")
+950-	if _kanifous_suit(chosen_card) == "Wright":
+951-		kanifous_choice = {"chosen_card": chosen_card}
+952-		stage = Stage.KANIFOUS_WRIGHT
+953-		return _awaiting("kanifous_wright")
+954-	return _resolve_revealed_orders({HUMAN_PLAYER_ID: {"chosen_card": chosen_card}})
+955-
+956-
+957-func resolve_human_kanifous_wright(
+958-	guard_indices: Array[int]
+--
+1009-			""
+1010-		)
+1011-	) == "invalid":
+1012-		return _invalid(
+1013-			"reveal",
+1014-			String(
+1015-				reveal_result.get(
+1016-					"reason",
+1017-					"invalid_reveal"
+1018-				)
+1019-			)
+1020-		)
+1021-
+1022-	_record_phase(
+1023-		"reveal",
+1024-		reveal_result
+1025-	)
+1026-	kanifous_preview_cards.clear()
+1027-
+1028-	stage = Stage.REVEALED
+1029:	last_result = {
+1030-		"action": "revealed",
+1031-		"reason": "",
+1032-		"round": int(
+1033-			game.round
+1034-		),
+1035-		"completed": false,
+1036:		"terminal": false,
+1037-		"stopped_phase": "resolution",
+1038-		"winner": -1,
+1039-		"win_by": "",
+1040-		"phases": phase_results,
+1041-		"events": events,
+1042-	}
+1043-
+1044:	return last_result
+1045-
+1046-
+1047-func _kanifous_revealed_cards(
+1048-	reveal_result: Dictionary,
+1049-	player_id: int
+1050-) -> Array[String]:
+1051-	var result: Array[String] = []
+1052-	var raw_players = reveal_result.get("players", [])
+1053-	if typeof(raw_players) != TYPE_ARRAY:
+1054-		return result
+1055-	for raw_player in raw_players:
+1056-		if typeof(raw_player) != TYPE_DICTIONARY or int(raw_player.get("player_id", -1)) != player_id:
+1057-			continue
+1058-		var kanifous_event = raw_player.get("kanifous", {})
+1059-		if typeof(kanifous_event) != TYPE_DICTIONARY:
+1060-			return result
+1061-		var raw_cards = kanifous_event.get("revealed_cards", [])
+1062-		if typeof(raw_cards) != TYPE_ARRAY:
+1063-			return result
+1064-		for raw_card in raw_cards:
+1065-			result.append(String(raw_card))
+1066-		return result
+1067-	return result
+1068-
+1069-
+1070-func _kanifous_suit(
+1071-	card_identifier: String
+1072-) -> String:
+1073-	var split_identifier: PackedStringArray = card_identifier.split(":", false, 1)
+1074-	return String(split_identifier[0]) if not split_identifier.is_empty() else ""
+1075-
+1076-
+1077-func resolve_revealed_round() -> Dictionary:
+1078-	if stage != Stage.REVEALED:
+1079-		return _invalid(
+1080-			"resolution",
+1081-			"orders_not_revealed"
+1082-		)
+1083-
+1084-	_reveal_primary_attack_guards()
+--
+1125-				)
+1126-			)
+1127-		)
+1128-
+1129-	_record_phase(
+1130-		"resolution",
+1131-		{
+1132-			"choices": resolution_choices,
+1133-			"result": resolution_result,
+1134-		}
+1135-	)
+1136-
+1137-	var march_advance_result: Dictionary = MarchingEngineData.advance(game, rules)
+1138-	_record_phase("march_advance", march_advance_result)
+1139-
+1140-	# Remove revelation from defeated/removed Guards while preserving it for
+1141-	# survivors that remained in the same zone.
+1142-	_sync_guard_visibility()
+1143-
+1144-	if int(
+1145:		game.winner
+1146-	) >= 0:
+1147:		stage = Stage.TERMINAL
+1148-	else:
+1149-		stage = Stage.NO_GAME
+1150-
+1151:	last_result = _round_result(
+1152-		true,
+1153-		(
+1154-			"resolution"
+1155:			if stage == Stage.TERMINAL
+1156-			else ""
+1157-		)
+1158-	)
+1159-
+1160:	return last_result
+1161-
+1162-
+1163-func begin_human_resolution() -> Dictionary:
+1164-	if stage != Stage.REVEALED:
+1165-		return _rejected("resolution", "orders_not_revealed")
+1166-
+1167-	if _human_humbaba_toll_available():
+1168-		stage = Stage.RESOLUTION_HUMBABA_TOLL
+1169-		return _awaiting("humbaba_toll")
+1170-
+1171-	return _begin_human_resolution_with_toll({})
+1172-
+1173-
+1174-func resolve_human_humbaba_toll(
+1175-	castle_name: String
+1176-) -> Dictionary:
+1177-	if stage != Stage.RESOLUTION_HUMBABA_TOLL:
+1178-		return _rejected("humbaba_toll", "not_awaiting_humbaba_toll")
+1179-
+1180-	var choices: Dictionary = {HUMAN_PLAYER_ID: {"pass": true}}
+1181-	if not castle_name.is_empty():
+1182-		choices[HUMAN_PLAYER_ID] = {"castle": castle_name}
+1183-	return _begin_human_resolution_with_toll(choices)
+1184-
+1185-
+1186-func _begin_human_resolution_with_toll(
+1187-	toll_choices: Dictionary
+1188-) -> Dictionary:
+1189-
+1190-	_reveal_primary_attack_guards()
+1191-
+1192-	var action_choices: Dictionary = BotResolutionDoctrineData.action_choices(
+1193-		_information_view(game, BOT_PLAYER_ID),
+1194-		rules,
+1195-		commitment_choices
+1196-	)
+1197-	var prelude_result: Dictionary = ResolutionPreludeEngineData.resolve(
+1198-		game,
+1199-		rules,
+1200-		int(game.first_player),
+1201-		random_source,
+1202-		toll_choices
+1203-	)
+1204-
+1205-	if String(prelude_result.get("action", "")) == "invalid":
+1206-		return _invalid("resolution", String(prelude_result.get("reason", "invalid_resolution_prelude")))
+1207-
+1208-	resolution_state = {
+1209-		"action_choices": action_choices,
+1210-		"prelude_result": prelude_result,
+1211-		"order": prelude_result.get("order", []),
+1212-		"next_action_index": 0,
+1213-		"action_events": [],
+1214-		"reflex_result": {},
+1215-		"finale_result": {},
+1216-		"cleanup_result": {},
+1217-		"stopped_stage": "",
+1218-	}
+1219-
+1220:	if int(game.winner) >= 0:
+1221-		resolution_state["stopped_stage"] = "prelude"
+1222-		return _finish_human_resolution()
+1223-
+1224-	return _advance_human_resolution()
+1225-
+1226-
+1227-func _human_humbaba_toll_available() -> bool:
+1228-	var human = get_human_player()
+1229-	var bot = get_bot_player()
+1230-	if (
+1231-		human == null
+1232-		or bot == null
+1233-		or human.lord != "Humbaba"
+1234-		or not human.alive
+1235-		or human.castles.size() < 2
+1236-		or bot.souls <= 0
+1237-	):
+1238-		return false
+1239-
+1240-	var total_after: int = int(game.calculate_veil_total()) + 1
+1241-	var feeds_racer: bool = bot.tears > human.tears and total_after >= rules.dominion_track - 3
+1242-	var emergency: bool = bot.souls >= rules.win_souls - 2
+1243-	var pressure: bool = bot.souls - human.souls >= 3 and bot.souls >= 4
+1244-	return (emergency or pressure) and not feeds_racer
+1245-
+1246-
+1247-func resolve_human_resolution_action(
+1248-	options: Dictionary
+1249-) -> Dictionary:
+1250-	if stage != Stage.RESOLUTION_ACTION:
+1251-		return _rejected("resolution_action", "not_awaiting_resolution_action")
+1252-
+1253-	var player = get_human_player()
+1254-	if player == null:
+1255-		return _invalid("resolution_action", "human_player_missing")
+1256-
+1257-	var action_result: Dictionary = ResolutionEngineData._resolve_committed_action(
+1258-		game,
+1259-		rules,
+1260-		player,
+--
+1301-		game,
+1302-		rules,
+1303-		player_id,
+1304-		action_result,
+1305-		post_action_decision,
+1306-		random_source
+1307-	)
+1308-
+1309-	_append_resolution_action_event(
+1310-		player_id,
+1311-		String(resolution_state.get("pending_committed_action", "")),
+1312-		action_result,
+1313-		aftermath_result
+1314-	)
+1315-	resolution_state.erase("pending_player_id")
+1316-	resolution_state.erase("pending_committed_action")
+1317-	resolution_state.erase("pending_action_result")
+1318-	resolution_state.erase("pending_action_options")
+1319-	resolution_state["next_action_index"] = int(resolution_state.get("next_action_index", 0)) + 1
+1320-
+1321:	if int(game.winner) >= 0 or bool(aftermath_result.get("stopped_on_win", false)):
+1322-		resolution_state["stopped_stage"] = "actions"
+1323-		return _finish_human_resolution()
+1324-
+1325-	return _advance_human_resolution()
+1326-
+1327-
+1328-func resolve_human_reflex(
+1329-	decision: Dictionary
+1330-) -> Dictionary:
+1331-	if stage != Stage.RESOLUTION_REFLEX:
+1332-		return _rejected("reflex", "not_awaiting_human_reflex")
+1333-
+1334-	var bot_breach_decision: Dictionary = {}
+1335-	if game.breach == "Odradek" and int(game.breach_owner) == BOT_PLAYER_ID:
+1336-		bot_breach_decision = _bot_odradek_breach_decision(HUMAN_PLAYER_ID)
+1337-
+1338-	var reflex_result: Dictionary = ReflexActionEngineData.resolve(
+1339-		game,
+1340-		rules,
+1341-		decision,
+1342-		bot_breach_decision
+1343-	)
+1344-	if String(reflex_result.get("action", "")) == "invalid":
+1345-		return _rejected("reflex", String(reflex_result.get("reason", "invalid_reflex_action")))
+1346-
+1347-	_record_reflex_guard_reveal(reflex_result)
+1348-	resolution_state["reflex_result"] = reflex_result
+1349-	return _after_human_reflex()
+1350-
+1351-
+1352-func resolve_human_odradek_breach(
+1353-	breach_decision: Dictionary
+1354-) -> Dictionary:
+1355-	if stage != Stage.RESOLUTION_ODRADEK_BREACH:
+1356-		return _rejected("reflex", "not_awaiting_odradek_breach")
+1357-
+1358-	var winner_decision: Dictionary = _bot_reflex_decision(BOT_PLAYER_ID)
+1359-	var reflex_result: Dictionary = ReflexActionEngineData.resolve(
+1360-		game,
+1361-		rules,
+--
+1405-		var action_choices: Dictionary = resolution_state.get("action_choices", {})
+1406-		var options: Dictionary = _decision_for_player(action_choices, player_id)
+1407-		var action_result: Dictionary = ResolutionEngineData._resolve_committed_action(game, rules, player, options)
+1408-		if String(action_result.get("action", "")) == "invalid":
+1409-			return _invalid("resolution", String(action_result.get("reason", "invalid_committed_action")))
+1410-
+1411-		var aftermath_result: Dictionary = ResolutionActionAftermathEngineData.resolve(
+1412-			game,
+1413-			rules,
+1414-			player_id,
+1415-			action_result,
+1416-			{"reevaluate_after_action": true},
+1417-			random_source
+1418-		)
+1419-		if String(aftermath_result.get("action", "")) == "invalid":
+1420-			return _invalid("resolution", String(aftermath_result.get("reason", "invalid_action_aftermath")))
+1421-
+1422-		_append_resolution_action_event(player_id, String(player.action), action_result, aftermath_result)
+1423-		resolution_state["next_action_index"] = next_index + 1
+1424-
+1425:		if int(game.winner) >= 0 or bool(aftermath_result.get("stopped_on_win", false)):
+1426-			resolution_state["stopped_stage"] = "actions"
+1427-			return _finish_human_resolution()
+1428-
+1429-	return _begin_human_reflex()
+1430-
+1431-
+1432-func _begin_human_reflex() -> Dictionary:
+1433-	var winner_id: int = int(game.reflex_winner)
+1434-	if winner_id == HUMAN_PLAYER_ID:
+1435-		stage = Stage.RESOLUTION_REFLEX
+1436-		return _awaiting("reflex")
+1437-
+1438-	if game.breach == "Odradek" and int(game.breach_owner) == HUMAN_PLAYER_ID and winner_id == BOT_PLAYER_ID:
+1439-		stage = Stage.RESOLUTION_ODRADEK_BREACH
+1440-		return _awaiting("odradek_breach")
+1441-
+1442-	var reflex_result: Dictionary = ReflexActionEngineData.resolve(
+1443-		game,
+1444-		rules,
+1445-		_bot_reflex_decision(BOT_PLAYER_ID),
+1446-		{}
+1447-	)
+1448-	if String(reflex_result.get("action", "")) == "invalid":
+1449-		return _invalid("reflex", String(reflex_result.get("reason", "invalid_reflex_action")))
+1450-
+1451-	_record_reflex_guard_reveal(reflex_result)
+1452-	resolution_state["reflex_result"] = reflex_result
+1453-	return _after_human_reflex()
+1454-
+1455-
+1456-func _after_human_reflex() -> Dictionary:
+1457:	if int(game.winner) >= 0:
+1458-		resolution_state["stopped_stage"] = "reflex"
+1459-		return _finish_human_resolution()
+1460-
+1461-	var finale_result: Dictionary = ResolutionFinaleEngineData.resolve(
+1462-		game,
+1463-		rules,
+1464-		resolution_state.get("order", [])
+1465-	)
+1466-	resolution_state["finale_result"] = finale_result
+1467-	if bool(finale_result.get("stopped_on_win", false)):
+1468-		resolution_state["stopped_stage"] = "finale"
+1469-		return _finish_human_resolution()
+1470-
+1471-	var human = get_human_player()
+1472-	if _human_gremory_choice_available(human):
+1473-		stage = Stage.RESOLUTION_GREMORY
+1474-		return _awaiting("gremory")
+1475-
+1476-	return _resolve_human_cleanup({"pass": true})
+1477-
+1478-
+1479-func _resolve_human_cleanup(
+1480-	human_choice: Dictionary
+1481-) -> Dictionary:
+1482-	var bot_choices: Dictionary = BotResolutionDoctrineData.current_gremory_choices(game, rules)
+1483-	var cleanup_choices: Dictionary = {
+1484-		HUMAN_PLAYER_ID: human_choice.duplicate(true),
+1485-		BOT_PLAYER_ID: _decision_for_player(bot_choices, BOT_PLAYER_ID),
+1486-	}
+1487-	# Cleanup can be destructive after Inevitable Ruin validates. Check the
+1488-	# complete choice bundle on a clone first so a rejected human payment never
+1489-	# advances the live game.
+1490-	var cleanup_preview: Dictionary = ResolutionCleanupEngineData.resolve(
+1491-		game.duplicate_state(),
+1492-		rules,
+1493-		cleanup_choices
+1494-	)
+1495-
+1496-	if _contains_invalid(cleanup_preview):
+1497-		return _rejected("cleanup", "invalid_gremory_choice")
+--
+1547-		opponent != null
+1548-		and opponent.was_sieged
+1549-		and not String(opponent.last_sieged_castle).is_empty()
+1550-		and opponent.castles.has(String(opponent.last_sieged_castle))
+1551-		and human.hand.size() + human.garrison.size() >= 4
+1552-	)
+1553-
+1554-
+1555-func _finish_human_resolution() -> Dictionary:
+1556-	var march_advance_result: Dictionary = MarchingEngineData.advance(game, rules)
+1557-
+1558-	var resolution_result: Dictionary = {
+1559-		"action": "resolution",
+1560-		"reason": "",
+1561-		"prelude_result": resolution_state.get("prelude_result", {}),
+1562-		"action_events": resolution_state.get("action_events", []),
+1563-		"reflex_result": resolution_state.get("reflex_result", {}),
+1564-		"finale_result": resolution_state.get("finale_result", {}),
+1565-		"cleanup_result": resolution_state.get("cleanup_result", {}),
+1566-		"stopped_stage": String(resolution_state.get("stopped_stage", "")),
+1567:		"winner": int(game.winner),
+1568-		"win_by": String(game.win_by),
+1569-		"veil_total": int(game.calculate_veil_total()),
+1570-	}
+1571-
+1572-	_record_phase("resolution", {"choices": resolution_state.get("action_choices", {}), "result": resolution_result})
+1573-	_record_phase("march_advance", march_advance_result)
+1574-	_sync_guard_visibility()
+1575:	stage = Stage.TERMINAL if int(game.winner) >= 0 else Stage.NO_GAME
+1576:	return _round_result(true, "march_advance" if stage == Stage.TERMINAL else "")
+1577-
+1578-
+1579-func _nested_dictionary(
+1580-	source: Dictionary,
+1581-	key: String
+1582-) -> Dictionary:
+1583-	var raw_value = source.get(key, {})
+1584-	return raw_value if typeof(raw_value) == TYPE_DICTIONARY else {}
+1585-
+1586-
+1587-func _duplicate_game_with_metadata():
+1588-	var copy = game.duplicate_state()
+1589-	for metadata_name in game.get_meta_list():
+1590-		copy.set_meta(metadata_name, game.get_meta(metadata_name))
+1591-	return copy
+1592-
+1593-
+1594-func _duplicate_random_source():
+1595-	if random_source != null and random_source.has_method("duplicate_state"):
+1596-		return random_source.duplicate_state()
+1597-	return random_source
+1598-
+1599-
+1600-func get_human_player():
+1601-	if game == null:
+1602-		return null
+1603-
+1604-	return game.get_player(
+1605-		HUMAN_PLAYER_ID
+1606-	)
+1607-
+1608-
+1609-func get_bot_player():
+1610-	if game == null:
+1611-		return null
+1612-
+1613-	return game.get_player(
+1614-		BOT_PLAYER_ID
+1615-	)
+1616-
+--
+2069-
+2070-
+2071-func _record_phase(
+2072-	phase_name: String,
+2073-	data
+2074-) -> void:
+2075-	phase_results[phase_name] = data
+2076-
+2077-	events.append({
+2078-		"round": int(
+2079-			game.round
+2080-		),
+2081-		"phase": phase_name,
+2082-		"data": data,
+2083-	})
+2084-
+2085-
+2086-func _awaiting(
+2087-	phase_name: String
+2088-) -> Dictionary:
+2089:	last_result = {
+2090-		"action": "await_%s" % phase_name,
+2091-		"reason": "",
+2092-		"round": int(game.round),
+2093-		"completed": false,
+2094:		"terminal": false,
+2095-		"stopped_phase": phase_name,
+2096-		"winner": -1,
+2097-		"win_by": "",
+2098-		"phases": phase_results,
+2099-		"events": events,
+2100-	}
+2101:	return last_result
+2102-
+2103-
+2104-func _rejected(
+2105-	phase_name: String,
+2106-	reason: String
+2107-) -> Dictionary:
+2108-	return {
+2109-		"action": "invalid",
+2110-		"reason": reason,
+2111-		"round": int(game.round),
+2112-		"completed": false,
+2113:		"terminal": false,
+2114-		"stopped_phase": phase_name,
+2115-		"winner": -1,
+2116-		"win_by": "",
+2117-		"phases": phase_results,
+2118-		"events": events,
+2119-	}
+2120-
+2121-
+2122-func _decision_for_player(
+2123-	choices: Dictionary,
+2124-	player_id: int
+2125-) -> Dictionary:
+2126-	var raw_decision = choices.get(player_id, choices.get(str(player_id), {}))
+2127-	if typeof(raw_decision) != TYPE_DICTIONARY:
+2128-		return {}
+2129-	return raw_decision
+2130-
+2131-
+2132-func _bot_repair_decision() -> Dictionary:
+2133-	var bot_view = _information_view(game, BOT_PLAYER_ID)
+2134-	var selection: Dictionary = BotSelectorData.choose(
+2135-		BotDevelopmentDoctrineData.evaluate_repair_candidates(
+2136-			bot_view,
+2137-			BOT_PLAYER_ID,
+2138-			rules
+2139-		),
+2140-		random_source,
+2141-		policy
+2142-	)
+2143-	var payload = selection.get("payload", {"pass": true})
+2144-	return payload if typeof(payload) == TYPE_DICTIONARY else {"pass": true}
+2145-
+2146-
+2147-func _bot_summon_decision() -> Dictionary:
+2148-	var bot_view = _information_view(game, BOT_PLAYER_ID)
+2149-	var selection: Dictionary = BotSelectorData.choose(
+2150-		BotDevelopmentDoctrineData.evaluate_summon_candidates(
+2151-			bot_view,
+2152-			BOT_PLAYER_ID,
+2153-			rules
+--
+2281-) -> String:
+2282-	var raw_actions = result.get("actions", [])
+2283-	if typeof(raw_actions) == TYPE_ARRAY:
+2284-		for raw_action in raw_actions:
+2285-			if typeof(raw_action) == TYPE_DICTIONARY and String(raw_action.get("action", "")) == "invalid":
+2286-				return String(raw_action.get("reason", "invalid_dominion_rite"))
+2287-	return "invalid_dominion_rite"
+2288-
+2289-
+2290-func _round_result(
+2291-	completed: bool,
+2292-	stopped_phase: String
+2293-) -> Dictionary:
+2294-	return {
+2295-		"action": "round",
+2296-		"reason": "",
+2297-		"round": int(
+2298-			game.round
+2299-		),
+2300-		"completed": completed,
+2301:		"terminal": (
+2302-			int(
+2303:				game.winner
+2304-			) >= 0
+2305-		),
+2306-		"stopped_phase": stopped_phase,
+2307-		"winner": int(
+2308:			game.winner
+2309-		),
+2310-		"win_by": String(
+2311-			game.win_by
+2312-		),
+2313-		"phases": phase_results,
+2314-		"events": events,
+2315-	}
+2316-
+2317-
+2318-func _invalid(
+2319-	phase_name: String,
+2320-	reason: String
+2321-) -> Dictionary:
+2322-	stage = Stage.INVALID
+2323-
+2324:	last_result = {
+2325-		"action": "invalid",
+2326-		"reason": reason,
+2327-		"round": (
+2328-			int(
+2329-				game.round
+2330-			)
+2331-			if game != null
+2332-			else 0
+2333-		),
+2334-		"completed": false,
+2335:		"terminal": (
+2336-			game != null
+2337-			and int(
+2338:				game.winner
+2339-			) >= 0
+2340-		),
+2341-		"stopped_phase": phase_name,
+2342-		"winner": (
+2343-			int(
+2344:				game.winner
+2345-			)
+2346-			if game != null
+2347-			else -1
+2348-		),
+2349-		"win_by": (
+2350-			String(
+2351-				game.win_by
+2352-			)
+2353-			if game != null
+2354-			else ""
+2355-		),
+2356-		"phases": phase_results,
+2357-		"events": events,
+2358-	}
+2359-
+2360:	return last_result
+2361-
+2362-
+2363-func _contains_invalid(
+2364-	value
+2365-) -> bool:
+2366-	if typeof(
+2367-		value
+2368-	) == TYPE_DICTIONARY:
+2369-		var dictionary: Dictionary = value
+2370-
+2371-		if String(
+2372-			dictionary.get(
+2373-				"action",
+2374-				""
+2375-			)
+2376-		) == "invalid":
+2377-			return true
+2378-
+2379-		for nested_value in dictionary.values():
+2380-			if _contains_invalid(
+2381-				nested_value
+2382-			):
+2383-				return true
+2384-
+2385-		return false
+2386-
+2387-	if typeof(
+2388-		value
+2389-	) == TYPE_ARRAY:
+2390-		var array: Array = value
+2391-
+2392-		for nested_value in array:
+2393-			if _contains_invalid(
+2394-				nested_value
+2395-			):
+2396-				return true
+2397-
+2398-	return false

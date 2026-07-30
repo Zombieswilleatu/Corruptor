@@ -1,0 +1,5121 @@
+===== EXISTING TOOLTIPS / HELP =====
+1188-	development_finish_button = _new_button(
+1189-		"",
+1190-		170
+1191-	)
+1192-	development_finish_button.pressed.connect(
+1193-		_on_development_finish_pressed
+1194-	)
+1195-	row.add_child(
+1196-		development_finish_button
+1197-	)
+1198-
+1199-	debug_export_button = _new_button(
+1200-		"Export Match Snapshot",
+1201-		185
+1202-	)
+1203:	debug_export_button.tooltip_text = (
+1204-		"Write the live game, staged decisions, resolution data, and RNG state to JSON."
+1205-	)
+1206-	debug_export_button.pressed.connect(
+1207-		_on_export_match_snapshot_pressed
+1208-	)
+1209-	row.add_child(
+1210-		debug_export_button
+1211-	)
+1212-
+1213-	var note := _new_label(
+1214-		"Development decisions are yours; the opponent responds under bot doctrine.",
+1215-		15
+1216-	)
+1217-	note.modulate = Color(
+1218-		0.75,
+1219-		0.72,
+1220-		0.8,
+1221-		1.0
+1222-	)
+1223-	note.horizontal_alignment = (
+1224-		HORIZONTAL_ALIGNMENT_RIGHT
+1225-	)
+1226-	note.size_flags_horizontal = (
+1227-		Control.SIZE_EXPAND_FILL
+1228-	)
+--
+2435-			int(controller.rules.dominion_track),
+2436-			int(human.tears),
+2437-			int(controller.rules.dominion_requirement),
+2438-			int(bot.tears),
+2439-			int(controller.rules.dominion_requirement),
+2440-		]
+2441-
+2442-	if dominion_progress != null:
+2443-		dominion_progress.min_value = 0.0
+2444-		dominion_progress.max_value = float(
+2445-			max(1, int(controller.rules.final_collapse_threshold))
+2446-		)
+2447-		dominion_progress.value = float(
+2448-			min(veil_total, int(dominion_progress.max_value))
+2449-		)
+2450:		dominion_progress.tooltip_text = (
+2451-			"Veil %d. Cataclysm at %d; Final Collapse at %d."
+2452-			% [
+2453-				veil_total,
+2454-				int(controller.rules.dominion_track),
+2455-				int(controller.rules.final_collapse_threshold),
+2456-			]
+2457-		)
+2458-
+2459-	var selected_market_id: String = ""
+2460-	var suggested_market_id: String = ""
+2461-	if controller.stage == PlayableRoundControllerData.Stage.MARKET:
+2462-		selected_market_id = _selected_target_id()
+2463-		suggested_market_id = _best_market_take_card_id()
+2464-
+2465-	for market_index: int in range(market_staging_labels.size()):
+2466-		var market_label: RichTextLabel = market_staging_labels[market_index]
+2467-		var market_panel: PanelContainer = market_staging_panels[market_index]
+2468-		if market_index >= game.market.size():
+2469-			market_label.text = "[center][color=#78758a]EMPTY OFFER[/color]\n—[/center]"
+2470-			market_panel.self_modulate = Color.WHITE
+2471-			continue
+2472-
+2473-		var market_card = game.market[market_index]
+2474-		var market_card_id: String = _card_id(market_card)
+2475-		var marker: String = ""
+--
+3469-				card_identifier
+3470-			)
+3471-			card_button.set_meta(
+3472-				"card_value",
+3473-				int(
+3474-					card.value
+3475-				)
+3476-			)
+3477-			card_button.set_meta("card_source", "Hand")
+3478-			card_button.set_meta("source_index", hand_index)
+3479-			if (
+3480-				controller.stage == PlayableRoundControllerData.Stage.MARKET
+3481-				and card_identifier == best_market_give_id
+3482-			):
+3483-				card_button.modulate = Color(1.0, 0.86, 0.46, 1.0)
+3484:				card_button.tooltip_text = "Best raw-value card to trade away."
+3485-			card_button.toggled.connect(
+3486-				_on_card_toggled.bind(
+3487-					card_button
+3488-				)
+3489-			)
+3490-			card_buttons.append(
+3491-				card_button
+3492-			)
+3493-			hand_flow.add_child(
+3494-				card_button
+3495-			)
+3496-
+3497-	if (
+3498-		include_garrison
+3499-		and show_deploy_cards
+3500-		and (
+3501-			not is_deploy_picker
+3502-			or _deploy_garrison_allowed()
+3503-		)
+3504-	):
+3505-		for garrison_index: int in range(human.garrison.size()):
+3506-			var garrison_card = human.garrison[garrison_index]
+3507-			var garrison_identifier: String = _card_id(garrison_card)
+3508-			if (
+3509-				is_deploy_picker
+
+===== CASTLE UI AND DESCRIPTIONS =====
+38-	"Humbaba",
+39-]
+40-
+41-const ACTIONS: Array[String] = [
+42-	"Hunt",
+43-	"Siege",
+44-	"Ward",
+45-	"Profane",
+46-]
+47-
+48-const DEFAULT_SEED: int = 20260724
+49-
+50-const LORD_CARD_ABILITIES: Dictionary = {
+51-	"Orias": [
+52-		"[b]Snare[/b] — During Development, if Orias is living and below Threat 3, gain 1 Threat and restrict an opponent with 2+ Hand/Garrison cards to one Deploy move.",
+53-		"[b]Relentless Pursuit[/b] — Hunts gain +1 strength, plus another +1 against a Lord at Threat 2+.",
+54-		"[b]The Mark[/b] — Defeating a Lord Guard raises that Lord's Threat (2 at Threat 2+). Banishing a Lord at Threat 3+ grants +2 bonus Souls and marks it; it returns with +1 Threat. Orias bypasses that marked target's Recoil/Backwash.",
+55-		"[b]Breach: Frenzy[/b] — Players at Threat 3+ cannot Deploy cards from Garrison to Guard zones.",
+56-	],
+57-	"Deimos": [
+58:		"[b]War Machine[/b] — Sieges gain +2 strength, reduced by 1 for each of Deimos's Ruined or Profaned Castles (minimum +0).",
+59:		"[b]Fear[/b] — Before a Siege against 2+ Castle Guards, return the lowest Guard to its owner's Hand.",
+60:		"[b]Claim the Breach[/b] — The first Castle Deimos ruins each game gives Deimos the Tear instead of adding a Neutral Tear.",
+61:		"[b]Breach[/b] — Every active Castle has 1 less structural DEF (minimum 0).",
+62-	],
+63-	"Valak": [
+64-		"[b]Crushing Presence[/b] — On Hunt or Siege against 2+ Guards, the lowest Guard contributes no defense.",
+65-		"[b]Siphon[/b] — After Valak defeats a Guard, discard the lowest Guard still protecting that same zone.",
+66-		"[b]Breach: Gravitational Collapse[/b] — At Resolution Prelude, each previously attacked zone loses its lowest Guard.",
+67-	],
+68-	"Kroni": [
+69-		"[b]Consume / Gorge[/b] — At End of Round, if any destruction occurred, gain 1 Hunger. If Kroni personally defeated a Guard that round, also gain 1 Soul.",
+70-		"[b]Hunger[/b] — Lord DEF is 4 at 0 Hunger, 6 at 1–2, and 8 at 3+. Reaching 3 for the first time after a Summon grants a personal Tear.",
+71:		"[b]Hungering Aura / Ravenous[/b] — At Hunger 3+, discard the opponent's lowest committed card. Kroni's next destroyed Lord/Castle grants +2 Souls and +1 Hunger.",
+72-		"[b]Fallback / Decay / Breach[/b] — If Consume did not fire, remove the lowest Guard or Garrison card from play. Ward/Pass loses 1 Hunger. Kroni Breach destroys each player's lowest Guard.",
+73-	],
+74-	"Kalligan": [
+75-		"[b]Forge-Repair[/b] — Kalligan's first Repair costs 7 less; later Repairs cost 5 less. Every living Kalligan Repair Scorches the enemy Lord zone.",
+76:		"[b]Pyroclasm[/b] — Sieges gain +1 strength, or +2 if the defender already has a Ruined Castle.",
+77:		"[b]Inferno / Wildfire[/b] — After ruining a Castle, Wildfire Scorches the enemy Castle zone (or Lord if none remain). Kalligan may gain 1 Threat to Defeat the highest enemy Lord Guard without response triggers; if none exists, Inferno replaces that token with Lord Scorch.",
+78-		"[b]Breach[/b] — All Repairs cost 1 less.",
+79-	],
+80-	"Gremory": [
+81-		"[b]Picking the Bones[/b] — During Development draw 1 extra card, +1 if either player has a Ruin, and +1 more if Gremory has a Ruin.",
+82-		"[b]Ruinous Harvest[/b] — On the first Tear placed each round, search from the top of the discard for a value-4/5 card and take it. The attempt is spent even if no eligible card exists.",
+83:		"[b]Predator of Ruin[/b] — The first Castle destroyed each round recovers the top discard. Independently, the first Lord Guard Defeated by any effect lets Gremory draw 1 outside the Draw step, then discard the lowest Hand card.",
+84-		"[b]Inevitable Ruin / Breach[/b] — Once per round, after a Siege leaves its target standing, pay exactly 2 Hand/Garrison cards to ruin it. During Gremory Breach, players with a Ruin draw 1 extra.",
+85-	],
+86-	"Odradek": [
+87-		"[b]Recoil / Backwash[/b] — The first Hunt against living Odradek each round discards the attacker's lowest committed card and gives Odradek 1 Soul. A surviving Hunt also raises the attacker's Threat.",
+88-		"[b]Reconfiguration[/b] — Gain 1 token after a round in which no Odradek Guard was Defeated. At 5 tokens, spend them for a personal Tear. Any Defeated Guard blocks progress that round; Banishment clears tokens.",
+89-		"[b]Breach: Paradox Geometry[/b] — Predict the second-action winner's action; a correct guess discards their selected cards and lets Odradek execute it instead.",
+90-	],
+91-	"Kanifous": [
+92-		"[b]Invoke[/b] — After Reveal, resolve in committed-value order: gain 1 Threat, reveal 2 cards, choose one to bank in Garrison, and discard the other. If the first revealed card is value 4+, also create a Neutral Tear.",
+93:		"[b]Suit Invocation[/b] — Vulture: draw 3 then discard the lowest Hand card. Wright: move up to 2 Lord Guards to Castle. Penitent: draw 2 temporary Guards. Butcher: treat the lowest target Guard as already Defeated this round, without triggering Defeat effects.",
+94-		"[b]Resonance / Defiance[/b] — If the chosen card's value equals current Threat, gain 1 Soul. When Kanifous is banished, gain 1 Soul and draw 2 if still behind the attacker.",
+95-		"[b]Breach[/b] — Every draw outside the Draw step gives its recipient +1 Threat.",
+96-	],
+97-	"Humbaba": [
+98:		"[b]Living Fortress[/b] — Base Lord DEF is 2 + active Castles, with Bastion adding 2; Threat 2/3/4 reduces it by 1/2/3.",
+99:		"[b]Gate Guard / Patient[/b] — Hold 4 Castle Guards while no Castle is Ruined. If Humbaba did not Hunt or Siege, preserve one Sigil through its next upkeep.",
+100:		"[b]Toll[/b] — Under severe Soul pressure, Humbaba may ruin one of its own Castles to remove 1 enemy Soul and create a Neutral Tear.",
+101:		"[b]Seal / Breach[/b] — While living, Dominion requires one extra qualifying player. Humbaba Breach lowers active Castle structural DEF by 1 (minimum 1).",
+102-	],
+103-}
+104-
+105-
+106-const MARCH_TRACK_STEPS: int = 3
+107-const MARCH_LANES: Array[String] = [
+108-	"Lord",
+109:	"Castle",
+110-]
+111-
+112-
+113-var controller = null
+114-
+115-var human_lord_select: OptionButton = null
+116-var bot_lord_select: OptionButton = null
+117-var seed_edit: LineEdit = null
+118-var new_match_button: Button = null
+119-
+120-var round_label: Label = null
+121-var phase_label: Label = null
+122-var veil_label: Label = null
+123-var breach_label: Label = null
+124-
+125-var bot_state_label: RichTextLabel = null
+126-var human_state_label: RichTextLabel = null
+127-var bot_lord_card_label: RichTextLabel = null
+128-var human_lord_card_label: RichTextLabel = null
+129-var reveal_label: RichTextLabel = null
+130-var event_log: RichTextLabel = null
+131-var dominion_track_label: RichTextLabel = null
+132-var dominion_progress: ProgressBar = null
+133-var market_staging_labels: Array[RichTextLabel] = []
+134-var market_staging_panels: Array[PanelContainer] = []
+135-var human_staging_label: RichTextLabel = null
+136-var bot_staging_label: RichTextLabel = null
+137-
+138-var action_buttons: Dictionary = {}
+139-var target_label: Label = null
+140-var target_select: OptionButton = null
+141-var secondary_target_label: Label = null
+142-var secondary_target_select: OptionButton = null
+143-var target_info_label: RichTextLabel = null
+144-var hand_flow: HFlowContainer = null
+145-var hand_caption_label: Label = null
+146-var card_buttons: Array[Button] = []
+147-var selection_label: Label = null
+148-
+149-var confirm_button: Button = null
+150-var summon_button: Button = null
+151-var skip_summon_button: Button = null
+152-var reveal_button: Button = null
+153-var resolve_button: Button = null
+154-var next_round_button: Button = null
+--
+1244-	var bot_lord: String = (
+1245-		bot_lord_select.get_item_text(
+1246-			bot_lord_select.selected
+1247-		)
+1248-	)
+1249-
+1250-	log_entries.clear()
+1251-	reported_development_phases.clear()
+1252-	queued_deploy_moves.clear()
+1253-	event_log.clear()
+1254-
+1255-	_log(
+1256-		"[b]New match[/b] — %s vs %s, seed %d."
+1257-		% [
+1258-			human_lord,
+1259-			bot_lord,
+1260-			seed_value,
+1261-		]
+1262-	)
+1263-	_log(
+1264:		"[color=#c8b36a][b]Experimental bot doctrine:[/b] FIX A is active — Hunt/Siege/Ward bases are equalized and Ward's unconditional Soul/Castle/Threat valuation is reduced.[/color]"
+1265-	)
+1266-
+1267-	var result: Dictionary = controller.start_match(
+1268-		human_lord,
+1269-		bot_lord,
+1270-		seed_value
+1271-	)
+1272-
+1273-	_after_development(
+1274-		result
+1275-	)
+1276-
+1277-
+1278-func _on_export_match_snapshot_pressed() -> void:
+1279-	var stage_name: String = _snapshot_stage_name()
+1280-	var result: Dictionary = PlayableMatchSnapshotData.export_current_match(
+1281-		controller,
+1282-		active_match_seed,
+1283-		stage_name,
+1284-		log_entries
+1285-	)
+1286-
+1287-	if not bool(result.get("ok", false)):
+1288-		var reason: String = String(result.get("reason", "snapshot_export_failed"))
+1289-		_set_phase_message("Snapshot export failed: %s" % reason)
+1290-		_log("[color=#ff748f][b]Snapshot export failed:[/b] %s[/color]" % reason)
+1291-		return
+1292-
+1293-	var path: String = String(result.get("path", ""))
+1294-	_set_phase_message("Snapshot exported — see Match Log for the file path.")
+1295-	_log("[color=#82c9ff][b]Snapshot exported:[/b] %s[/color]" % path)
+1296-
+1297-
+1298-func _snapshot_stage_name() -> String:
+1299-	if controller == null:
+1300-		return "NO_GAME"
+1301-
+1302-	var stage_key = PlayableRoundControllerData.Stage.find_key(
+1303-		controller.stage
+1304-	)
+1305-	return (
+1306-		String(stage_key)
+1307-		if stage_key != null
+1308-		else "UNKNOWN_%d" % int(controller.stage)
+1309-	)
+--
+1334-		return
+1335-
+1336-	if bool(
+1337-		result.get(
+1338-			"terminal",
+1339-			false
+1340-		)
+1341-	):
+1342-		_show_terminal()
+1343-		return
+1344-
+1345-	if controller.stage == PlayableRoundControllerData.Stage.DEVELOPMENT_SNARE:
+1346-		_enter_development_choice("Orias Snare — gain 1 Threat to limit the opponent to one Deploy move, or pass.")
+1347-		return
+1348-
+1349-	if controller.stage == PlayableRoundControllerData.Stage.MARKET:
+1350-		_enter_development_choice("Market — trade one Hand card for one Market card, or pass.")
+1351-		return
+1352-
+1353-	if controller.stage == PlayableRoundControllerData.Stage.REPAIR:
+1354:		_enter_development_choice("Repair — restore one Ruined Castle, or pass.")
+1355-		return
+1356-
+1357-	if controller.stage == PlayableRoundControllerData.Stage.DOMINION_RITES:
+1358-		_enter_development_choice("Dominion Rites — Invocation and Profane Ruins may both be used when legal.")
+1359-		return
+1360-
+1361-	if controller.stage == PlayableRoundControllerData.Stage.DEPLOY:
+1362-		_begin_deploy_guard_picker()
+1363-		return
+1364-
+1365-	if controller.stage == PlayableRoundControllerData.Stage.MARCH:
+1366-		_begin_march_picker()
+1367-		return
+1368-
+1369-	if controller.stage == PlayableRoundControllerData.Stage.SUMMON:
+1370-		_log(
+1371-			"Round %d: your Lord is banished. Select cards worth at least %d to resummon, or remain banished."
+1372-			% [
+1373-				int(
+1374-					controller.game.round
+1375-				),
+1376-				controller.human_summon_cost(),
+1377-			]
+1378-		)
+1379-
+1380-		_build_hand_buttons(false)
+1381-		_refresh_target_options()
+1382-		_refresh_all()
+1383-		return
+1384-
+1385-	if controller.stage == PlayableRoundControllerData.Stage.REFLEX_BID:
+1386-		_enter_development_choice("Reflex Bid — secretly select any Hand cards to bid, or bid zero.")
+1387-		return
+1388-
+1389-	_show_commitment_prompt()
+1390-	_refresh_all()
+1391-
+1392-
+1393-func _enter_development_choice(
+1394-	prompt: String
+1395-) -> void:
+1396-	selected_action = ""
+1397-	_clear_action_toggles()
+1398-	_build_hand_buttons(
+1399-		controller.stage == PlayableRoundControllerData.Stage.REPAIR
+--
+1777-			_set_phase_message("Choose exactly one Hand card to give and one Market card to take.")
+1778-			return
+1779-		var market_result: Dictionary = controller.resolve_human_market({"take": market_take, "give": market_give[0]})
+1780-		if _show_failure_if_needed(market_result, false):
+1781-			_set_phase_message("Market trade rejected: %s" % String(market_result.get("reason", "invalid_market")))
+1782-			return
+1783-		_after_development(market_result)
+1784-		return
+1785-
+1786-	if controller.stage == PlayableRoundControllerData.Stage.DEVELOPMENT_SNARE:
+1787-		var snare_result: Dictionary = controller.resolve_human_snare(true)
+1788-		if _show_failure_if_needed(snare_result, false):
+1789-			_set_phase_message("Snare rejected: %s" % String(snare_result.get("reason", "invalid_snare")))
+1790-			return
+1791-		_after_development(snare_result)
+1792-		return
+1793-
+1794-	if controller.stage == PlayableRoundControllerData.Stage.REPAIR:
+1795-		var repair_castle: String = _selected_target_id()
+1796-		if repair_castle.is_empty():
+1797:			_set_phase_message("Choose a Ruined Castle, or use Pass Repair.")
+1798-			return
+1799-		var repair_result: Dictionary = controller.resolve_human_repair({
+1800-			"castle": repair_castle,
+1801-			"payment": _selected_card_ids(),
+1802-			"use_token": development_option_button.button_pressed,
+1803-		})
+1804-		if _show_failure_if_needed(repair_result, false):
+1805-			_set_phase_message("Repair rejected: %s" % String(repair_result.get("reason", "invalid_repair")))
+1806-			return
+1807-		_after_development(repair_result)
+1808-		return
+1809-
+1810-	if controller.stage == PlayableRoundControllerData.Stage.DOMINION_RITES:
+1811-		var rite_decision: Dictionary = {
+1812-			"invocation": (
+1813-				{"payment": _selected_card_ids()}
+1814-				if development_option_button.button_pressed
+1815-				else {"pass": true}
+1816-			),
+1817-			"profane_ruins": (
+1818-				{"castle": _selected_target_id()}
+1819-				if not _selected_target_id().is_empty()
+1820-				else {"pass": true}
+1821-			),
+1822-		}
+1823-		var rite_result: Dictionary = controller.resolve_human_dominion_rites(rite_decision)
+1824-		if _show_failure_if_needed(rite_result, false):
+1825-			_set_phase_message("Rite rejected: %s" % String(rite_result.get("reason", "invalid_rite")))
+1826-			return
+1827-		_after_development(rite_result)
+1828-		return
+1829-
+1830-	if controller.stage == PlayableRoundControllerData.Stage.DEPLOY:
+1831-		_finish_deploy_guard_picker()
+1832-		return
+1833-
+1834-	if controller.stage == PlayableRoundControllerData.Stage.REFLEX_BID:
+1835-		var bid_result: Dictionary = controller.resolve_human_reflex_bid({"bid": _selected_card_ids()})
+1836-		if _show_failure_if_needed(bid_result, false):
+1837-			_set_phase_message("Bid rejected: %s" % String(bid_result.get("reason", "invalid_reflex_bid")))
+1838-			return
+1839-		_after_development(bid_result)
+1840-		return
+1841-
+1842-	if selected_action.is_empty():
+--
+1896-	)
+1897-
+1898-	if _show_failure_if_needed(
+1899-		result
+1900-	):
+1901-		return
+1902-	_show_reveal_progress(result)
+1903-
+1904-
+1905-func _show_reveal_progress(
+1906-	result: Dictionary
+1907-) -> void:
+1908-	if controller.stage == PlayableRoundControllerData.Stage.KANIFOUS_INVOKE:
+1909-		_build_hand_buttons(false)
+1910-		_refresh_target_options()
+1911-		_set_phase_message("Kanifous Invoke — choose one revealed card to bank in Garrison and invoke.")
+1912-		_refresh_all()
+1913-		return
+1914-	if controller.stage == PlayableRoundControllerData.Stage.KANIFOUS_WRIGHT:
+1915-		_build_wright_guard_buttons()
+1916:		_set_phase_message("Wright — move up to two face-down Lord Guards to the Castle zone, or move none.")
+1917-		_refresh_all()
+1918-		return
+1919-
+1920-	var human = controller.get_human_player()
+1921-	var bot = controller.get_bot_player()
+1922-
+1923-	reveal_label.text = (
+1924-		"[center][b]%s[/b]  %s\n"
+1925-		+ "[color=#b88f9d]VS[/color]\n"
+1926-		+ "[b]%s[/b]  %s\n"
+1927-		+ "[color=#c8b36a]%s[/color][/center]"
+1928-	) % [
+1929-		String(
+1930-			human.action
+1931-		),
+1932-		_cards_inline(
+1933-			human.committed
+1934-		),
+1935-		String(
+1936-			bot.action
+1937-		),
+1938-		_cards_inline(
+1939-			bot.committed
+1940-		),
+1941-		_reflex_holder_text(),
+1942-	]
+1943-
+1944-	var reveal_values: Dictionary = {}
+1945-
+1946-	for raw_reveal_player in _array_from(
+1947-		result.get(
+1948-			"players",
+1949-			[]
+1950-		)
+1951-	):
+1952-		if typeof(raw_reveal_player) != TYPE_DICTIONARY:
+1953-			continue
+1954-
+1955-		var reveal_player: Dictionary = raw_reveal_player
+1956-		reveal_values[int(
+1957-			reveal_player.get(
+1958-				"player_id",
+1959-				-1
+1960-			)
+1961-		)] = int(
+--
+2025-
+2026-	if bool(result.get("completed", false)):
+2027-		_log_resolution_transcript(result)
+2028-		_log_resolution_changes(resolution_start_digest, _state_digest())
+2029-		_refresh_all()
+2030-		if bool(result.get("terminal", false)):
+2031-			_show_terminal()
+2032-			return
+2033-		phase_label.text = "Round resolved"
+2034-		next_round_button.visible = true
+2035-		confirm_button.visible = false
+2036-		reveal_button.visible = false
+2037-		resolve_button.visible = false
+2038-		return
+2039-
+2040-	selected_action = ""
+2041-	_clear_action_toggles()
+2042-	if controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_HUMBABA_TOLL:
+2043-		_build_hand_buttons(false)
+2044-		_refresh_target_options()
+2045:		_set_phase_message("Humbaba may ruin one Castle to take 1 enemy Soul and add a Neutral Tear.")
+2046-	elif controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_ACTION:
+2047-		_build_hand_buttons(false)
+2048-		_refresh_target_options()
+2049-		_set_phase_message("Choose the optional Consume / Inferno setting for your sealed action.")
+2050-	elif controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_VESSEL:
+2051-		_build_hand_buttons(false)
+2052-		_refresh_target_options()
+2053-		_set_phase_message("The action has resolved. Offer your Lord as the Vessel, or pass.")
+2054-	elif controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_REFLEX:
+2055-		_build_hand_buttons(false)
+2056-		_refresh_reflex_action_legality()
+2057-		_refresh_target_options()
+2058-		_set_phase_message(
+2059-			"Choose a %s action and any Hand cards, or pass."
+2060-			% (
+2061-				"Momentum"
+2062-				if controller.rules != null and controller.rules.momentum
+2063-				else "Reflex"
+2064-			)
+2065-		)
+2066-	elif controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH:
+2067-		_build_hand_buttons(false)
+2068-		_refresh_reflex_action_legality()
+2069-		_refresh_target_options()
+2070-		_set_phase_message(
+2071-			"Predict the bot's %s action; on a correct read, execute your selected stolen action."
+2072-			% _second_action_name()
+2073-		)
+2074-	elif controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_GREMORY:
+2075-		_build_hand_buttons(true)
+2076-		_refresh_target_options()
+2077:		_set_phase_message("Pay exactly two Hand/Garrison cards to ruin the surviving sieged Castle, or pass.")
+2078-	_refresh_all()
+2079-
+2080-
+2081-func _refresh_all() -> void:
+2082-	if debug_export_button != null:
+2083-		debug_export_button.disabled = controller == null or controller.game == null
+2084-
+2085-	if controller == null or controller.game == null:
+2086-		return
+2087-
+2088-	var game = controller.game
+2089-	var human = controller.get_human_player()
+2090-	var bot = controller.get_bot_player()
+2091-
+2092-	round_label.text = "Round %d" % int(
+2093-		game.round
+2094-	)
+2095-
+2096-	veil_label.text = "Veil %d/%d" % [
+2097-		int(
+2098-			game.calculate_veil_total()
+2099-		),
+2100-		int(
+2101-			controller.rules.final_collapse_threshold
+2102-		),
+2103-	]
+2104-
+2105-	breach_label.text = (
+2106-		"Breach: none"
+2107-		if String(
+2108-			game.breach
+2109-		).is_empty()
+2110-		else "Breach: %s" % String(
+2111-			game.breach
+2112-		)
+2113-	)
+2114-
+2115-	human_state_label.text = _player_state_text(
+2116-		human,
+2117-		false
+2118-	)
+2119-	bot_state_label.text = _player_state_text(
+2120-		bot,
+2121-		true
+2122-	)
+--
+2230-
+2231-		PlayableRoundControllerData.Stage.DOMINION_RITES:
+2232-			phase_label.text = "Development — Dominion Rites"
+2233-			confirm_button.text = "Resolve Rites"
+2234-			confirm_button.visible = true
+2235-			development_option_button.text = "Use Invocation"
+2236-			development_option_button.set_pressed_no_signal(false)
+2237-			development_option_button.disabled = false
+2238-			development_option_button.visible = true
+2239-			development_finish_button.text = "Pass Rites"
+2240-			development_finish_button.visible = true
+2241-			summon_button.visible = false
+2242-			skip_summon_button.visible = false
+2243-			reveal_button.visible = false
+2244-			resolve_button.visible = false
+2245-			next_round_button.visible = false
+2246-
+2247-		PlayableRoundControllerData.Stage.DEPLOY:
+2248-			phase_label.text = "Development — Deploy %s Guards" % deploy_target_zone
+2249-			confirm_button.text = (
+2250:				"Next: Castle Guards"
+2251-				if deploy_target_zone == "Lord"
+2252-				else "Finish Deploy"
+2253-			)
+2254-			confirm_button.visible = true
+2255-			development_finish_button.visible = false
+2256-			summon_button.visible = false
+2257-			skip_summon_button.visible = false
+2258-			reveal_button.visible = false
+2259-			resolve_button.visible = false
+2260-			next_round_button.visible = false
+2261-
+2262-		PlayableRoundControllerData.Stage.MARCH:
+2263-			phase_label.text = "Development — Marching Orders"
+2264-			confirm_button.text = "4. Launch Face-Up Guard"
+2265-			confirm_button.visible = true
+2266-			development_finish_button.text = "Pass Marching Orders"
+2267-			development_finish_button.visible = true
+2268-			summon_button.visible = false
+2269-			skip_summon_button.visible = false
+2270-			reveal_button.visible = false
+2271-			resolve_button.visible = false
+2272-			next_round_button.visible = false
+2273-
+2274-		PlayableRoundControllerData.Stage.SUMMON:
+2275-			phase_label.text = (
+2276-				"Summon — pay %d to return"
+2277-				% controller.human_summon_cost()
+2278-			)
+2279-			summon_button.visible = true
+2280-			skip_summon_button.visible = true
+2281-			confirm_button.visible = false
+2282-			reveal_button.visible = false
+2283-			resolve_button.visible = false
+2284-			next_round_button.visible = false
+2285-
+2286-		PlayableRoundControllerData.Stage.REFLEX_BID:
+2287-			phase_label.text = "Reflex Bid — simultaneous"
+2288-			confirm_button.text = "Submit Bid"
+2289-			confirm_button.visible = true
+2290-			development_finish_button.text = "Bid 0"
+2291-			development_finish_button.visible = true
+2292-			summon_button.visible = false
+2293-			skip_summon_button.visible = false
+2294-			reveal_button.visible = false
+2295-			resolve_button.visible = false
+--
+2337-			summon_button.visible = false
+2338-			skip_summon_button.visible = false
+2339-			reveal_button.visible = false
+2340-			resolve_button.visible = false
+2341-			next_round_button.visible = false
+2342-
+2343-		PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH:
+2344-			phase_label.text = "Odradek Breach — predict the %s" % _second_action_name()
+2345-			confirm_button.text = "Predict & Steal"
+2346-			confirm_button.visible = true
+2347-			development_finish_button.text = "Do Not Interfere"
+2348-			development_finish_button.visible = true
+2349-			summon_button.visible = false
+2350-			skip_summon_button.visible = false
+2351-			reveal_button.visible = false
+2352-			resolve_button.visible = false
+2353-			next_round_button.visible = false
+2354-
+2355-		PlayableRoundControllerData.Stage.RESOLUTION_GREMORY:
+2356-			phase_label.text = "Cleanup — Inevitable Ruin"
+2357:			confirm_button.text = "Ruin Sieged Castle"
+2358-			confirm_button.visible = true
+2359-			development_finish_button.text = "Pass Inevitable Ruin"
+2360-			development_finish_button.visible = true
+2361-			summon_button.visible = false
+2362-			skip_summon_button.visible = false
+2363-			reveal_button.visible = false
+2364-			resolve_button.visible = false
+2365-			next_round_button.visible = false
+2366-
+2367-		PlayableRoundControllerData.Stage.COMMITMENT:
+2368-			phase_label.text = "Commitment — choose secretly"
+2369-			summon_button.visible = false
+2370-			skip_summon_button.visible = false
+2371-			confirm_button.text = "Seal Order"
+2372-			confirm_button.visible = true
+2373-			reveal_button.visible = false
+2374-			resolve_button.visible = false
+2375-			next_round_button.visible = false
+2376-
+2377-		PlayableRoundControllerData.Stage.SEALED:
+2378-			phase_label.text = "Orders sealed"
+2379-			summon_button.visible = false
+2380-			skip_summon_button.visible = false
+2381-			confirm_button.visible = false
+2382-			reveal_button.visible = true
+2383-			resolve_button.visible = false
+2384-			next_round_button.visible = false
+2385-
+2386-		PlayableRoundControllerData.Stage.REVEALED:
+2387-			phase_label.text = "Reveal — read the clash"
+2388-			summon_button.visible = false
+2389-			skip_summon_button.visible = false
+2390-			confirm_button.visible = false
+2391-			reveal_button.visible = false
+2392-			resolve_button.visible = true
+2393-			next_round_button.visible = false
+2394-
+2395-		PlayableRoundControllerData.Stage.TERMINAL:
+2396-			phase_label.text = "Match complete"
+2397-			summon_button.visible = false
+2398-			skip_summon_button.visible = false
+2399-			confirm_button.visible = false
+2400-			reveal_button.visible = false
+2401-			resolve_button.visible = false
+2402-			next_round_button.visible = false
+--
+2835-			_add_target_option("No Profane Ruins", "")
+2836-			for ruined_castle: String in development_human.ruined_castles:
+2837-				_add_target_option(ruined_castle, ruined_castle)
+2838-			target_select.disabled = false
+2839-			_refresh_target_info()
+2840-			return
+2841-
+2842-		if controller.stage == PlayableRoundControllerData.Stage.DEPLOY:
+2843-			# The two-stage Guard picker names its destination in the phase and
+2844-			# needs no competing target dropdown.
+2845-			target_select.disabled = true
+2846-			return
+2847-
+2848-		if controller.stage == PlayableRoundControllerData.Stage.MARCH:
+2849-			target_label.text = "1. Guard zone:"
+2850-			_add_target_option(
+2851-				"Lord Guards (%d)" % development_human.lord_guards.size(),
+2852-				"Lord"
+2853-			)
+2854-			_add_target_option(
+2855:				"Castle Guards (%d)" % development_human.castle_guards.size(),
+2856:				"Castle"
+2857-			)
+2858-			target_select.disabled = false
+2859-			secondary_target_label.text = "3. March lane:"
+2860-			_add_secondary_target_option("Lord lane", "Lord")
+2861:			_add_secondary_target_option("Castle lane", "Castle")
+2862-			secondary_target_select.disabled = false
+2863-			_refresh_target_info()
+2864-			return
+2865-
+2866-		if controller.stage == PlayableRoundControllerData.Stage.REFLEX_BID:
+2867-			target_label.text = "Bid:"
+2868-			_add_target_option("Select Hand cards or bid zero", "")
+2869-			target_select.disabled = true
+2870-			_refresh_target_info()
+2871-			return
+2872-
+2873-		if controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_HUMBABA_TOLL:
+2874-			target_label.text = "Ruin:"
+2875-			for castle_name: String in development_human.castles:
+2876-				_add_target_option(castle_name, castle_name)
+2877-			target_select.disabled = development_human.castles.is_empty()
+2878-			_refresh_target_info()
+2879-			return
+2880-
+2881-		if controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_ACTION:
+2882-			var action_name: String = String(development_human.action)
+2883-			target_label.text = "Option:"
+2884-			if action_name == "Hunt":
+2885-				_add_target_option("Do not Consume", "hunt:pass")
+2886-				_add_target_option("Consume the Hunt", "hunt:consume")
+2887-			elif action_name == "Siege":
+2888-				_add_target_option("No Consume · use Inferno", "siege:0:1")
+2889-				_add_target_option("Consume · use Inferno", "siege:1:1")
+2890-				_add_target_option("No Consume · no Inferno", "siege:0:0")
+2891-				_add_target_option("Consume · no Inferno", "siege:1:0")
+2892-			else:
+2893-				_add_target_option("Resolve sealed action", "default")
+2894-			target_select.disabled = target_select.item_count <= 1
+2895-			_refresh_target_info()
+2896-			return
+2897-
+2898-		if controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_VESSEL:
+2899-			target_label.text = "Vessel:"
+2900-			_add_target_option("Pass", "pass")
+2901-			_add_target_option("Offer your Lord", "offer")
+2902-			target_select.disabled = false
+2903-			_refresh_target_info()
+2904-			return
+2905-
+2906-		if controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_REFLEX:
+--
+2955-	target_select.disabled = false
+2956-
+2957-	match selected_action:
+2958-		"Hunt":
+2959-			target_label.text = "Target:"
+2960-			_add_target_option(
+2961-				"%s's Lord — DEF %d"
+2962-				% [
+2963-					String(
+2964-						bot.lord
+2965-					),
+2966-					int(
+2967-						bot.derived_lord_def
+2968-					),
+2969-				],
+2970-				"Lord"
+2971-			)
+2972-			target_select.disabled = true
+2973-
+2974-		"Siege":
+2975:			target_label.text = "Castle:"
+2976-
+2977-			for castle_name: String in bot.castles:
+2978-				_add_target_option(
+2979-					"%s — DEF %d"
+2980-					% [
+2981-						castle_name,
+2982-						_castle_defense(
+2983-							castle_name
+2984-						),
+2985-					],
+2986-					castle_name
+2987-				)
+2988-
+2989-		"Ward":
+2990-			target_label.text = "Zone:"
+2991-
+2992-			if (
+2993-				human.alive
+2994-				and (
+2995-					not controller.rules.ward_anti_repeat
+2996-					or human.prev_ward_target != "Lord"
+2997-				)
+2998-			):
+2999-				_add_target_option(
+3000-					"Lord",
+3001-					"Lord"
+3002-				)
+3003-
+3004-			if (
+3005-				not controller.rules.ward_anti_repeat
+3006:				or human.prev_ward_target != "Castle"
+3007-			):
+3008-				_add_target_option(
+3009:					"Castle",
+3010:					"Castle"
+3011-				)
+3012-
+3013-			if not human.alive:
+3014-				target_select.clear()
+3015-				_add_target_option(
+3016:					"Castle",
+3017:					"Castle"
+3018-				)
+3019-
+3020-		"Profane":
+3021-			target_label.text = "Sacrifice:"
+3022-
+3023-			for castle_name: String in human.castles:
+3024-				_add_target_option(
+3025-					"%s — DEF %d"
+3026-					% [
+3027-						castle_name,
+3028-						_castle_defense(
+3029-							castle_name
+3030-						),
+3031-					],
+3032-					castle_name
+3033-				)
+3034-
+3035-	if target_select.item_count <= 1:
+3036-		target_select.disabled = true
+3037-
+3038-	_refresh_target_info()
+3039-
+3040-
+3041-func _add_target_option(
+3042-	display_text: String,
+3043-	target_id: String
+3044-) -> void:
+3045-	var item_index: int = target_select.item_count
+3046-	target_select.add_item(
+3047-		display_text
+3048-	)
+3049-	target_select.set_item_metadata(
+3050-		item_index,
+3051-		target_id
+3052-	)
+3053-
+3054-
+3055-func _add_secondary_target_option(
+3056-	display_text: String,
+3057-	target_id: String
+3058-) -> void:
+3059-	var item_index: int = secondary_target_select.item_count
+3060-	secondary_target_select.add_item(display_text)
+3061-	secondary_target_select.set_item_metadata(item_index, target_id)
+3062-
+--
+3077-		target_control.disabled = true
+3078-		return
+3079-
+3080-	var opponent = controller.get_bot_player()
+3081-	if selected_action == "Hunt":
+3082-		if use_secondary_target:
+3083-			_add_secondary_target_option("Opponent Lord · no Consume", "Lord|0")
+3084-			_add_secondary_target_option("Opponent Lord · Consume", "Lord|1")
+3085-		else:
+3086-			_add_target_option("Opponent Lord · no Consume", "Lord|0")
+3087-			_add_target_option("Opponent Lord · Consume", "Lord|1")
+3088-	elif selected_action == "Siege":
+3089-		for castle_name: String in opponent.castles:
+3090-			var siege_options: Array[Dictionary] = [
+3091-				{"label": " · no Consume · Inferno", "id": "|0|1"},
+3092-				{"label": " · Consume · Inferno", "id": "|1|1"},
+3093-				{"label": " · no Consume · no Inferno", "id": "|0|0"},
+3094-				{"label": " · Consume · no Inferno", "id": "|1|0"},
+3095-			]
+3096-			for siege_option in siege_options:
+3097:				var display_text: String = castle_name + String(siege_option["label"])
+3098-				var option_id: String = castle_name + String(siege_option["id"])
+3099-				if use_secondary_target:
+3100-					_add_secondary_target_option(display_text, option_id)
+3101-				else:
+3102-					_add_target_option(display_text, option_id)
+3103-	elif selected_action == "Ward":
+3104-		if human.alive:
+3105-			if use_secondary_target:
+3106-				_add_secondary_target_option("Lord", "Lord")
+3107-			else:
+3108-				_add_target_option("Lord", "Lord")
+3109-		if use_secondary_target:
+3110:			_add_secondary_target_option("Castle", "Castle")
+3111-		else:
+3112:			_add_target_option("Castle", "Castle")
+3113-
+3114-	target_control.disabled = target_control.item_count <= 1
+3115-
+3116-
+3117-func _selected_target_id() -> String:
+3118-	if (
+3119-		target_select == null
+3120-		or target_select.item_count <= 0
+3121-		or target_select.selected < 0
+3122-	):
+3123-		return ""
+3124-
+3125-	var raw_target = target_select.get_item_metadata(
+3126-		target_select.selected
+3127-	)
+3128-
+3129-	if raw_target == null:
+3130-		return target_select.get_item_text(
+3131-			target_select.selected
+3132-		)
+3133-
+3134-	return String(
+3135-		raw_target
+3136-	)
+3137-
+3138-
+3139-func _selected_secondary_target_id() -> String:
+3140-	if secondary_target_select == null or secondary_target_select.item_count <= 0 or secondary_target_select.selected < 0:
+3141-		return ""
+3142-	var raw_target = secondary_target_select.get_item_metadata(secondary_target_select.selected)
+3143-	if raw_target == null:
+3144-		return secondary_target_select.get_item_text(secondary_target_select.selected)
+3145-	return String(raw_target)
+3146-
+3147-
+3148-func _refresh_target_info() -> void:
+3149-	if target_info_label == null:
+3150-		return
+3151-
+3152-	if controller != null and controller.game != null:
+3153-		if controller.stage == PlayableRoundControllerData.Stage.MARKET:
+3154-			target_info_label.text = _market_trade_info()
+3155-			return
+3156-		if controller.stage == PlayableRoundControllerData.Stage.REPAIR:
+3157-			target_info_label.text = _repair_cost_info()
+--
+3188-				String(
+3189-					bot.lord
+3190-				),
+3191-				int(
+3192-					bot.derived_lord_def
+3193-				),
+3194-				false
+3195-			)
+3196-
+3197-		"Siege":
+3198-			var castle_name: String = _selected_target_id()
+3199-
+3200-			if castle_name.is_empty():
+3201-				target_info_label.text = (
+3202-					"[color=#a99eac]Choose a castle.[/color]"
+3203-				)
+3204-				return
+3205-
+3206-			target_info_label.text = _combat_target_text(
+3207-				bot,
+3208:				"Castle",
+3209-				castle_name,
+3210-				_castle_defense(
+3211-					castle_name
+3212-				),
+3213-				bool(
+3214-					human.castles.has(
+3215:						"SiegeEngine"
+3216-					)
+3217-				)
+3218-			)
+3219-
+3220-		"Ward":
+3221-			var zone: String = _selected_target_id()
+3222-			if controller.rules.sigil_flat:
+3223-				target_info_label.text = (
+3224-					"[color=#91c7ff][b]Ward %s:[/b] commit any suits. If your total is at least the opposing %s, the attack is turned. The Ward then starts at +2 DEF and ages to +1 next round.[/color]"
+3225-				) % [
+3226-					zone,
+3227-					(
+3228-						"Hunt"
+3229-						if zone == "Lord"
+3230-						else "Siege"
+3231-					),
+3232-				]
+3233-				return
+3234-
+3235-			var fresh_value: int = _prospective_sigil_value(
+3236-				human,
+3237-				"fresh"
+3238-			)
+3239-			var flipped_value: int = _prospective_sigil_value(
+3240-				human,
+3241-				"flipped"
+3242-			)
+3243-
+3244-			target_info_label.text = (
+3245-				"[color=#91c7ff][b]Ward %s:[/b] fresh sigil +%d DEF; "
+3246-				+ "if the opposing %s beats your commitment, it enters flipped at +%d DEF.[/color]"
+3247-			) % [
+3248-				zone,
+3249-				fresh_value,
+3250-				(
+3251-					"Hunt"
+3252-					if zone == "Lord"
+3253-					else "Siege"
+3254-				),
+3255-				flipped_value,
+3256-			]
+3257-
+3258-		"Profane":
+3259-			target_info_label.text = (
+3260-				"[color=#d8a0c8]Profane sacrifices %s; its structural DEF does not resist the action%s.[/color]"
+--
+3725-		result.append({
+3726-			"card_id": String(button.get_meta("card_id", "")),
+3727-			"source": String(button.get_meta("card_source", "Hand")),
+3728-			"source_index": int(button.get_meta("source_index", -1)),
+3729-		})
+3730-
+3731-	return result
+3732-
+3733-
+3734-func _finish_deploy_guard_picker() -> void:
+3735-	if (
+3736-		controller == null
+3737-		or controller.stage != PlayableRoundControllerData.Stage.DEPLOY
+3738-	):
+3739-		return
+3740-
+3741-	if not _queue_current_deploy_selection():
+3742-		return
+3743-
+3744-	if deploy_target_zone == "Lord":
+3745:		deploy_target_zone = "Castle"
+3746-		_build_hand_buttons(true)
+3747-		_refresh_target_options()
+3748-		_set_phase_message(_deploy_picker_prompt())
+3749-		_refresh_all()
+3750-		return
+3751-
+3752-	var deploy_decision: Dictionary = (
+3753-		{"pass": true}
+3754-		if queued_deploy_moves.is_empty()
+3755-		else {"moves": queued_deploy_moves.duplicate(true)}
+3756-	)
+3757-	var deploy_result: Dictionary = controller.resolve_human_deploy(
+3758-		deploy_decision
+3759-	)
+3760-
+3761-	if _show_failure_if_needed(deploy_result, false):
+3762-		_set_phase_message(
+3763-			"Deploy rejected: %s"
+3764-			% String(deploy_result.get("reason", "invalid_deploy"))
+3765-		)
+3766-		return
+3767-
+3768-	_after_development(deploy_result)
+3769-
+3770-
+3771-func _queue_current_deploy_selection() -> bool:
+3772-	var entries: Array[Dictionary] = _selected_card_entries()
+3773-	var limit: int = _deploy_selection_limit()
+3774-
+3775-	if entries.size() > limit:
+3776-		_set_phase_message(
+3777-			"%s Guard zone has room for only %d more card%s."
+3778-			% [
+3779-				deploy_target_zone,
+3780-				limit,
+3781-				"" if limit == 1 else "s",
+3782-			]
+3783-		)
+3784-		return false
+3785-
+3786-	if _selected_deploy_garrison_count() > _deploy_garrison_moves_remaining():
+3787-		_set_phase_message(
+3788-			"Only %d Garrison deployment%s remain this round."
+3789-			% [
+3790-				_deploy_garrison_moves_remaining(),
+--
+3926-
+3927-func _is_deploy_card_reserved(
+3928-	source: String,
+3929-	card_identifier: String
+3930-) -> bool:
+3931-	for move: Dictionary in queued_deploy_moves:
+3932-		if (
+3933-			String(move.get("source", "")) == source
+3934-			and String(move.get("card", "")) == card_identifier
+3935-		):
+3936-			return true
+3937-
+3938-	return false
+3939-
+3940-
+3941-func _deploy_picker_prompt() -> String:
+3942-	var open_slots: int = _deploy_selection_limit()
+3943-	var current_guards: int = _deploy_current_guard_count()
+3944-	var zone_limit: int = _deploy_zone_limit()
+3945-	var next_text: String = (
+3946:		"Next: Castle Guards"
+3947-		if deploy_target_zone == "Lord"
+3948-		else "Finish Deploy"
+3949-	)
+3950-
+3951-	var prompt: String = (
+3952-		"%s Guards — select up to %d card%s (currently %d/%d deployed), then %s."
+3953-		% [
+3954-			deploy_target_zone,
+3955-			open_slots,
+3956-			"" if open_slots == 1 else "s",
+3957-			current_guards,
+3958-			zone_limit,
+3959-			next_text,
+3960-		]
+3961-	)
+3962-
+3963-	var human = controller.get_human_player()
+3964-	if human != null and bool(human.orias_snare_active):
+3965-		prompt += " Orias Snare allows only one total deployment."
+3966-	elif not _deploy_hand_allowed():
+3967-		prompt += " Hand deployment is blocked by this round's Repair."
+3968-	elif (
+3969-		human != null
+3970-		and not _deploy_garrison_allowed()
+3971-		and not human.garrison.is_empty()
+3972-	):
+3973-		prompt += " Garrison deployment is unavailable this step."
+3974-
+3975-	return prompt
+3976-
+3977-
+3978-func _march_picker_prompt() -> String:
+3979-	if controller == null or controller.game == null:
+3980-		return "Marching Orders"
+3981-
+3982-	var human = controller.get_human_player()
+3983-	if human == null:
+3984-		return "Marching Orders"
+3985-
+3986-	if human.marchers.size() >= controller.rules.march_max_in_flight:
+3987-		return "You already have a marcher in flight. Pass this step."
+3988-
+3989-	var source_zone: String = _selected_target_id()
+3990-	var guards: Array = (
+3991-		human.lord_guards
+--
+3996-	if guards.is_empty():
+3997-		return "No %s Guards are available to march. Choose the other zone or pass." % source_zone
+3998-
+3999-	return (
+4000-		"1. Choose a Guard zone.  2. Select one %s Guard.  "
+4001-		+ "3. Choose a lane.  4. Launch it face-up. "
+4002-		+ "It advances after Resolution; value %d+ at the enemy gate gains a Tear."
+4003-	) % [source_zone, controller.rules.march_threshold]
+4004-
+4005-
+4006-func _hand_caption_text() -> String:
+4007-	if controller == null or controller.game == null:
+4008-		return "Commit cards (click to select):"
+4009-
+4010-	if controller.stage == PlayableRoundControllerData.Stage.MARKET:
+4011-		return "Give one Hand card (★ marks the strongest raw-value trade):"
+4012-
+4013-	if controller.stage == PlayableRoundControllerData.Stage.REPAIR:
+4014-		var castle_name: String = _selected_target_id()
+4015-		if castle_name.is_empty():
+4016:			return "Choose a Ruined Castle to see its payment requirement:"
+4017-		return "Pay %d to repair %s (Hand or Garrison):" % [
+4018-			_selected_repair_cost(),
+4019-			castle_name,
+4020-		]
+4021-
+4022-	if controller.stage == PlayableRoundControllerData.Stage.DEPLOY:
+4023-		if _deploy_selection_limit() <= 0:
+4024-			return "%s Guard zone is full or unavailable — continue when ready." % deploy_target_zone
+4025-		return "Select cards for %s Guards:" % deploy_target_zone
+4026-
+4027-	if controller.stage == PlayableRoundControllerData.Stage.MARCH:
+4028-		return "2. Choose one face-up Guard from %s:" % _selected_target_id()
+4029-
+4030-	return "Commit cards (click to select):"
+4031-
+4032-
+4033-func _repair_cost(
+4034-	castle_name: String,
+4035-	use_token: bool
+4036-) -> int:
+4037-	if controller == null or controller.game == null or castle_name.is_empty():
+4038-		return 0
+4039-
+4040-	var human = controller.get_human_player()
+4041-	if human == null:
+4042-		return 0
+4043-
+4044-	return RoundEngineData.repair_cost_for(
+4045-		controller.game,
+4046-		human,
+4047-		castle_name,
+4048-		use_token,
+4049-		controller.rules
+4050-	)
+4051-
+4052-
+4053-func _selected_repair_cost() -> int:
+4054-	return _repair_cost(
+4055-		_selected_target_id(),
+4056-		development_option_button != null and development_option_button.button_pressed
+4057-	)
+4058-
+4059-
+4060-func _repair_cost_info() -> String:
+4061-	var castle_name: String = _selected_target_id()
+4062-	if castle_name.is_empty():
+4063:		return "[color=#a99eac]Choose a Ruined Castle to see its exact Repair cost.[/color]"
+4064-
+4065-	var normal_cost: int = _repair_cost(castle_name, false)
+4066-	var active_cost: int = _selected_repair_cost()
+4067-	var selected_payment: int = _selected_card_value()
+4068-	var human = controller.get_human_player()
+4069-	var token_text: String = ""
+4070-
+4071-	if human != null and int(human.repair_token) > 0:
+4072-		token_text = "  ·  %d with Repair Token" % _repair_cost(castle_name, true)
+4073-
+4074-	return (
+4075-		"[color=#82c9ff][b]%s Repair:[/b] cost %d%s  |  "
+4076-		+ "selected payment %d/%d[/color]"
+4077-	) % [
+4078-		castle_name,
+4079-		normal_cost,
+4080-		token_text,
+4081-		selected_payment,
+4082-		active_cost,
+4083-	]
+4084-
+4085-
+4086-func _best_market_give_card_id() -> String:
+4087-	if controller == null or controller.game == null:
+4088-		return ""
+4089-
+4090-	var human = controller.get_human_player()
+4091-	if human == null or human.hand.is_empty() or controller.game.market.is_empty():
+4092-		return ""
+4093-
+4094-	var lowest_hand_card = human.hand[0]
+4095-	var highest_market_card = controller.game.market[0]
+4096-
+4097-	for hand_card in human.hand:
+4098-		if int(hand_card.value) < int(lowest_hand_card.value):
+4099-			lowest_hand_card = hand_card
+4100-
+4101-	for market_card in controller.game.market:
+4102-		if int(market_card.value) > int(highest_market_card.value):
+4103-			highest_market_card = market_card
+4104-
+4105-	if int(highest_market_card.value) <= int(lowest_hand_card.value):
+4106-		return ""
+4107-
+4108-	return _card_id(lowest_hand_card)
+--
+5098-			]
+5099-		)
+5100-
+5101-		return
+5102-
+5103-	if action_name == "siege":
+5104-		var defeated: Array = _array_from(
+5105-			action_result.get(
+5106-				"guards_defeated",
+5107-				[]
+5108-			)
+5109-		)
+5110-		var outcome: String = ""
+5111-
+5112-		if bool(
+5113-			action_result.get(
+5114-				"destroyed",
+5115-				false
+5116-			)
+5117-		):
+5118:			outcome = "the Castle was ruined"
+5119-		else:
+5120-			outcome = "the attack stopped at %s"
+5121-			outcome = outcome % String(
+5122-				action_result.get(
+5123-					"stopped_at",
+5124-					"the defenses"
+5125-				)
+5126-			)
+5127-
+5128-		_log(
+5129-			"[color=#e8e2eb][b]%s Siege:[/b] %s attacked %s's %s with %d strength against structural DEF %d; defeated %s; %s%s.[/color]"
+5130-			% [
+5131-				source_name,
+5132-				_player_name(
+5133-					int(
+5134-						action_result.get(
+5135-							"attacker_id",
+5136-							-1
+5137-						)
+5138-					)
+5139-				),
+5140-				_player_name(
+5141-					int(
+5142-						action_result.get(
+5143-							"defender_id",
+5144-							-1
+5145-						)
+5146-					)
+5147-				),
+5148-				String(
+5149-					action_result.get(
+5150-						"target_castle",
+5151:						"Castle"
+5152-					)
+5153-				),
+5154-				int(
+5155-					action_result.get(
+5156-						"strength",
+5157-						0
+5158-					)
+5159-				),
+5160-				int(
+5161-					action_result.get(
+5162-						"structural_defense",
+5163-						0
+5164-					)
+5165-				),
+5166-				(
+5167-					_string_values_inline(
+5168-						defeated
+5169-					)
+5170-					if not defeated.is_empty()
+5171-					else "no Guards"
+5172-				),
+5173-				outcome,
+5174-				(
+5175-					"; excess %d"
+5176-					% int(
+5177-						action_result.get(
+5178-							"excess",
+5179-							0
+5180-						)
+5181-					)
+5182-					if bool(
+5183-						action_result.get(
+5184-							"destroyed",
+5185-							false
+5186-						)
+5187-					)
+5188-					else ""
+5189-				),
+5190-			]
+5191-		)
+5192-
+5193-		return
+5194-
+5195-	if action_name == "ward":
+5196-		_log(
+--
+5241-				"[color=#91c7ff][b]%s Profane blocked:[/b] %s's fresh %s sigil denied the corruption of %s.[/color]"
+5242-				% [
+5243-					source_name,
+5244-					_player_name(
+5245-						int(
+5246-							action_result.get(
+5247-								"opponent_id",
+5248-								-1
+5249-							)
+5250-						)
+5251-					),
+5252-					String(
+5253-						action_result.get(
+5254-							"blocking_zone",
+5255-							"?"
+5256-						)
+5257-					),
+5258-					String(
+5259-						action_result.get(
+5260-							"target_castle",
+5261:							"Castle"
+5262-						)
+5263-					),
+5264-				]
+5265-			)
+5266-		else:
+5267-			_log(
+5268-				"[color=#c8b36a][b]%s Profane:[/b] %s profaned %s; its personal Tear will be awarded during Cleanup.[/color]"
+5269-				% [
+5270-					source_name,
+5271-					player_name,
+5272-					String(
+5273-						action_result.get(
+5274-							"target_castle",
+5275:							"Castle"
+5276-						)
+5277-					),
+5278-				]
+5279-			)
+5280-
+5281-
+5282-func _log_victory_cause(
+5283-	cause: String
+5284-) -> void:
+5285-	if (
+5286-		controller == null
+5287-		or controller.game == null
+5288-		or int(
+5289-			controller.game.winner
+5290-		) < 0
+5291-	):
+5292-		return
+5293-
+5294-	_log(
+5295-		"[color=#f2d477][b]VICTORY TRIGGER — %s:[/b] %s is now the winner by %s.[/color]"
+5296-		% [
+5297-			cause,
+5298-			_player_name(
+5299-				int(
+5300-					controller.game.winner
+5301-				)
+5302-			),
+5303-			String(
+5304-				controller.game.win_by
+5305-			),
+5306-		]
+5307-	)
+5308-
+5309-
+5310-func _log_resolution_lord_powers(
+5311-	round_result: Dictionary
+5312-) -> void:
+5313-	var phases = round_result.get(
+5314-		"phases",
+5315-		{}
+5316-	)
+5317-
+5318-	if typeof(
+5319-		phases
+5320-	) != TYPE_DICTIONARY:
+--
+5546-		if typeof(
+5547-			raw_event
+5548-		) != TYPE_DICTIONARY:
+5549-			continue
+5550-
+5551-		var event: Dictionary = raw_event
+5552-		_log(
+5553-			"[color=#d8b4fe][b]Humbaba — Toll:[/b] %s ruined its own %s, removed 1 Soul from %s, and created 1 Neutral Tear.[/color]"
+5554-			% [
+5555-				_player_name(
+5556-					int(
+5557-						event.get(
+5558-							"player_id",
+5559-							-1
+5560-						)
+5561-					)
+5562-				),
+5563-				String(
+5564-					event.get(
+5565-						"ruined_castle",
+5566:						"Castle"
+5567-					)
+5568-				),
+5569-				_player_name(
+5570-					int(
+5571-						event.get(
+5572-							"opponent_id",
+5573-							-1
+5574-						)
+5575-					)
+5576-				),
+5577-			]
+5578-		)
+5579-		_log_harvest_event(
+5580-			event,
+5581-			"Toll"
+5582-		)
+5583-
+5584-		var moved_guards: Array = _array_from(
+5585-			event.get(
+5586-				"moved_guards",
+5587-				[]
+5588-			)
+5589-		)
+5590-		var discarded_guards: Array = _array_from(
+5591-			event.get(
+5592-				"discarded_guards",
+5593-				[]
+5594-			)
+5595-		)
+5596-
+5597-		if not moved_guards.is_empty():
+5598-			_log(
+5599:				"[color=#d8b4fe][b]Humbaba — Living Fortress:[/b] The lost fourth Castle-Guard slot moved %s to Garrison.[/color]"
+5600-				% _string_values_inline(
+5601-					moved_guards
+5602-				)
+5603-			)
+5604-
+5605-		if not discarded_guards.is_empty():
+5606-			_log(
+5607-				"[color=#d8b4fe][b]Humbaba — Living Fortress:[/b] With Garrison full, the lost fourth slot discarded %s.[/color]"
+5608-				% _string_values_inline(
+5609-					discarded_guards
+5610-				)
+5611-			)
+5612-
+5613-		if bool(
+5614-			event.get(
+5615-				"won",
+5616-				false
+5617-			)
+5618-		):
+5619-			_log_victory_cause(
+5620-				"Humbaba's Toll"
+5621-			)
+5622-
+5623-	for raw_event in _array_from(
+5624-		prelude.get(
+5625-			"kroni_events",
+5626-			[]
+5627-		)
+5628-	):
+5629-		if typeof(
+5630-			raw_event
+5631-		) != TYPE_DICTIONARY:
+5632-			continue
+5633-
+5634-		var event: Dictionary = raw_event
+5635-		var discarded_card: String = String(
+5636-			event.get(
+5637-				"discarded_card",
+5638-				""
+5639-			)
+5640-		)
+5641-		_log(
+5642-			"[color=#d8b4fe][b]Kroni — Hungering Aura:[/b] %s %s.[/color]"
+5643-			% [
+5644-				_player_name(
+--
+5786-				"war_machine_bonus",
+5787-				0
+5788-			)
+5789-		)
+5790-
+5791-		if attacker_lord == "Deimos":
+5792-			_log(
+5793-				"[color=#d8b4fe][b]Deimos — War Machine:[/b] Siege gained +%d strength.[/color]"
+5794-				% war_machine_bonus
+5795-			)
+5796-
+5797-		var fear_card: String = String(
+5798-			action_result.get(
+5799-				"fear_returned_card",
+5800-				""
+5801-			)
+5802-		)
+5803-
+5804-		if not fear_card.is_empty():
+5805-			_log(
+5806:				"[color=#d8b4fe][b]Deimos — Fear:[/b] Returned %s from %s's Castle Guards to Hand before combat.[/color]"
+5807-				% [
+5808-					fear_card,
+5809-					_player_name(
+5810-						defender_id
+5811-					),
+5812-				]
+5813-			)
+5814-
+5815-		if String(
+5816-			action_result.get(
+5817-				"tear_source",
+5818-				""
+5819-			)
+5820-		) == "deimos_claim":
+5821-			_log(
+5822:				"[color=#d8b4fe][b]Deimos — Claim the Breach:[/b] The ruined Castle gave Deimos a personal Tear instead of a Neutral Tear.[/color]"
+5823-			)
+5824-
+5825-		var pyroclasm_bonus: int = int(
+5826-			action_result.get(
+5827-				"pyroclasm_bonus",
+5828-				0
+5829-			)
+5830-		)
+5831-
+5832-		if pyroclasm_bonus > 0:
+5833-			_log(
+5834-				"[color=#d8b4fe][b]Kalligan — Pyroclasm:[/b] Siege gained +%d strength.[/color]"
+5835-				% pyroclasm_bonus
+5836-			)
+5837-
+5838-		var inferno_card: String = String(
+5839-			action_result.get(
+5840-				"inferno_card",
+5841-				""
+5842-			)
+5843-		)
+5844-
+5845-		if not inferno_card.is_empty():
+5846-			_log(
+5847-				"[color=#d8b4fe][b]Kalligan — Inferno:[/b] Gained 1 Threat and burned the highest Lord Guard, %s.[/color]"
+5848-				% inferno_card
+5849-			)
+5850-
+5851-		var wildfire_zone: String = String(
+5852-			action_result.get(
+5853-				"wildfire_zone",
+5854-				""
+5855-			)
+5856-		)
+5857-
+5858-		if not wildfire_zone.is_empty():
+5859-			_log(
+5860-				"[color=#d8b4fe][b]Kalligan — Wildfire:[/b] Persistent Scorch now targets %s's %s zone.[/color]"
+5861-				% [
+5862-					_player_name(
+5863-						defender_id
+5864-					),
+5865-					wildfire_zone,
+5866-				]
+5867-			)
+5868-
+5869-		_log_gremory_ruin_trigger(
+5870-			action_result.get(
+5871-				"gremory_ruin_trigger",
+5872-				{}
+5873-			),
+5874:			"the Castle ruin"
+5875-		)
+5876-
+5877-		if bool(
+5878-			action_result.get(
+5879-				"ignore_lowest_guard",
+5880-				false
+5881-			)
+5882-		):
+5883-			var power_name: String = (
+5884-				"Valak — Crushing Presence"
+5885-				if attacker_lord == "Valak"
+5886-				else "Kanifous — Butcher Invocation"
+5887-			)
+5888-			_log(
+5889-				"[color=#d8b4fe][b]%s:[/b] The lowest target Guard contributed no defense.[/color]"
+5890-				% power_name
+5891-			)
+5892-
+5893-	var siphoned_card: String = String(
+5894-		action_result.get(
+5895-			"siphoned_card",
+5896-			""
+5897-		)
+5898-	)
+5899-
+5900-	if not siphoned_card.is_empty():
+5901-		_log(
+5902-			"[color=#d8b4fe][b]Valak — Siphon:[/b] After combat, discarded the lowest surviving Guard, %s.[/color]"
+5903-			% siphoned_card
+5904-		)
+5905-
+5906-	var recoil_card: String = String(
+5907-		action_result.get(
+5908-			"recoil_card",
+5909-			""
+5910-		)
+5911-	)
+5912-
+5913-	if not recoil_card.is_empty():
+5914-		_log(
+5915-			"[color=#d8b4fe][b]Odradek — Recoil:[/b] %s lost committed %s before combat; Odradek gained 1 Soul.[/color]"
+5916-			% [
+5917-				_player_name(
+5918-					attacker_id
+5919-				),
+--
+6542-		_log(
+6543-			"[color=#d8b4fe][b]Gremory — Inevitable Ruin:[/b] %s paid %s to ruin %s after it survived a Siege%s.[/color]"
+6544-			% [
+6545-				_player_name(
+6546-					int(
+6547-						event.get(
+6548-							"player_id",
+6549-							-1
+6550-						)
+6551-					)
+6552-				),
+6553-				_string_values_inline(
+6554-					event.get(
+6555-						"paid_cards",
+6556-						[]
+6557-					)
+6558-				),
+6559-				String(
+6560-					event.get(
+6561-						"target_castle",
+6562:						"Castle"
+6563-					)
+6564-				),
+6565-				(
+6566-					" and created a Neutral Tear"
+6567-					if int(
+6568-						event.get(
+6569-							"neutral_tear_gain",
+6570-							0
+6571-						)
+6572-					) > 0
+6573-					else ""
+6574-				),
+6575-			]
+6576-		)
+6577-		_log_harvest_event(
+6578-			event,
+6579-			"Inevitable Ruin"
+6580-		)
+6581-
+6582-		if bool(
+6583-			event.get(
+6584-				"won",
+6585-				false
+6586-			)
+6587-		):
+6588-			_log_victory_cause(
+6589-				"Gremory's Inevitable Ruin"
+6590-			)
+6591-
+6592-	for raw_event in _array_from(
+6593-		cleanup.get(
+6594-			"penitent_events",
+6595-			[]
+6596-		)
+6597-	):
+6598-		if typeof(
+6599-			raw_event
+6600-		) != TYPE_DICTIONARY:
+6601-			continue
+6602-
+6603-		var event: Dictionary = raw_event
+6604-		var cards: Array = _array_from(
+6605-			event.get(
+6606-				"cards",
+6607-				[]
+--
+6637-		if typeof(
+6638-			raw_event
+6639-		) != TYPE_DICTIONARY:
+6640-			continue
+6641-
+6642-		var event: Dictionary = raw_event
+6643-		_log(
+6644-			"[color=#c8b36a][b]Profane resolved:[/b] %s gained 1 personal Tear from %s.[/color]"
+6645-			% [
+6646-				_player_name(
+6647-					int(
+6648-						event.get(
+6649-							"player_id",
+6650-							-1
+6651-						)
+6652-					)
+6653-				),
+6654-				String(
+6655-					event.get(
+6656-						"castle",
+6657:						"the Profaned Castle"
+6658-					)
+6659-				),
+6660-			]
+6661-		)
+6662-		_log_harvest_event(
+6663-			event,
+6664-			"Profane"
+6665-		)
+6666-
+6667-		if bool(
+6668-			event.get(
+6669-				"won",
+6670-				false
+6671-			)
+6672-		):
+6673-			_log_victory_cause(
+6674-				"Profane"
+6675-			)
+6676-
+6677-
+6678-func _log_gremory_guard_trigger(
+6679-	raw_trigger,
+6680-	source_name: String
+6681-) -> void:
+6682-	if (
+6683-		typeof(
+6684-			raw_trigger
+6685-		) != TYPE_DICTIONARY
+6686-		or not bool(
+6687-			raw_trigger.get(
+6688-				"triggered",
+6689-				false
+6690-			)
+6691-		)
+6692-	):
+6693-		return
+6694-
+6695-	var trigger: Dictionary = raw_trigger
+6696-	var player_id: int = int(
+6697-		trigger.get(
+6698-			"player_id",
+6699-			-1
+6700-		)
+6701-	)
+6702-	_log(
+--
+7324-						).size()
+7325-						if player_id != 0
+7326-						else _string_values_inline(
+7327-							invoke.get(
+7328-								"drawn_cards",
+7329-								[]
+7330-							)
+7331-						)
+7332-					),
+7333-					String(
+7334-						invoke.get(
+7335-							"hand_discarded",
+7336-							"no card"
+7337-						)
+7338-					),
+7339-					bank_text,
+7340-				]
+7341-			)
+7342-		"Wright":
+7343-			return (
+7344:				"moved %s from Lord Guard to Castle Guard, then %s"
+7345-				% [
+7346-					(
+7347-						"%d face-down Guard(s)"
+7348-						% _array_from(
+7349-							invoke.get(
+7350-								"moved_guards",
+7351-								[]
+7352-							)
+7353-						).size()
+7354-						if player_id != 0
+7355-						else _string_values_inline(
+7356-							invoke.get(
+7357-								"moved_guards",
+7358-								[]
+7359-							)
+7360-						)
+7361-					),
+7362-					bank_text,
+7363-				]
+7364-			)
+7365-		"Penitent":
+7366-			return (
+7367-				"created temporary Guards %s, then %s"
+7368-				% [
+7369-					(
+7370-						"(%d face-down)"
+7371-						% _array_from(
+7372-							invoke.get(
+7373-								"temporary_guards",
+7374-								[]
+7375-							)
+7376-						).size()
+7377-						if player_id != 0
+7378-						else _string_values_inline(
+7379-							invoke.get(
+7380-								"temporary_guards",
+7381-								[]
+7382-							)
+7383-						)
+7384-					),
+7385-					bank_text,
+7386-				]
+7387-			)
+7388-		"Butcher":
+7389-			return (
+--
+7498-	)
+7499-
+7500-	if state.is_empty():
+7501-		return
+7502-
+7503-	var attacker_id: int = int(
+7504-		action_result.get(
+7505-			"attacker_id",
+7506-			-1
+7507-		)
+7508-	)
+7509-	var defender_id: int = int(
+7510-		action_result.get(
+7511-			"defender_id",
+7512-			-1
+7513-		)
+7514-	)
+7515-	var zone: String = (
+7516-		"Lord"
+7517-		if action_name == "hunt"
+7518:		else "Castle"
+7519-	)
+7520-	var value: int = int(
+7521-		action_result.get(
+7522-			"sigil_value",
+7523-			0
+7524-		)
+7525-	)
+7526-
+7527-	if bool(
+7528-		action_result.get(
+7529-			"sigil_broken",
+7530-			false
+7531-		)
+7532-	):
+7533-		_log(
+7534-			"[color=#91c7ff][b]Sigil broken:[/b] %s's %s broke %s's %s %s sigil (+%d DEF).[/color]"
+7535-			% [
+7536-				_player_name(
+7537-					attacker_id
+7538-				),
+7539-				action_name.capitalize(),
+7540-				_player_name(
+7541-					defender_id
+7542-				),
+7543-				state,
+7544-				zone,
+7545-				value,
+7546-			]
+7547-		)
+7548-	elif String(
+7549-		action_result.get(
+7550-			"stopped_at",
+7551-			""
+7552-		)
+7553-	) == "Sigil":
+7554-		_log(
+7555-			"[color=#91c7ff][b]Sigil held:[/b] %s's %s %s sigil (+%d DEF) stopped %s's %s.[/color]"
+7556-			% [
+7557-				_player_name(
+7558-					defender_id
+7559-				),
+7560-				state,
+7561-				zone,
+7562-				value,
+7563-				_player_name(
+--
+8393-							)
+8394-						),
+8395-					]
+8396-				)
+8397-				_log_harvest_event(
+8398-					rite,
+8399-					"Cataclysmic Invocation"
+8400-				)
+8401-
+8402-				if bool(
+8403-					rite.get(
+8404-						"won",
+8405-						false
+8406-					)
+8407-				):
+8408-					_log_victory_cause(
+8409-						"Cataclysmic Invocation"
+8410-					)
+8411-			elif action_name == "profane_ruins":
+8412-				_log(
+8413:					"[color=#c8b36a][b]Profane the Ruins:[/b] %s converted ruined %s into a Profaned Castle and gained 1 personal Tear (Veil now %d).[/color]"
+8414-					% [
+8415-						_player_name(
+8416-							player_id
+8417-						),
+8418-						String(
+8419-							rite.get(
+8420-								"castle",
+8421-								"castle"
+8422-							)
+8423-						),
+8424-						int(
+8425-							rite.get(
+8426-								"veil_after",
+8427-								0
+8428-							)
+8429-						),
+8430-					]
+8431-				)
+8432-				_log_harvest_event(
+8433-					rite,
+8434-					"Profane the Ruins"
+8435-				)
+8436-
+8437-				if bool(
+8438-					rite.get(
+8439-						"won",
+8440-						false
+8441-					)
+8442-				):
+8443-					_log_victory_cause(
+8444-						"Profane the Ruins"
+8445-					)
+8446-
+8447-
+8448-func _log_deploy_events(
+8449-	phase_data: Dictionary
+8450-) -> void:
+8451-	for raw_player_result in _array_from(
+8452-		phase_data.get(
+8453-			"results",
+8454-			[]
+8455-		)
+8456-	):
+8457-		if typeof(
+8458-			raw_player_result
+--
+8489-					raw_move.get(
+8490-						"action",
+8491-						""
+8492-					)
+8493-				) != "move"
+8494-			):
+8495-				continue
+8496-
+8497-			var move: Dictionary = raw_move
+8498-			var target_name: String = String(
+8499-				move.get(
+8500-					"target",
+8501-					"?"
+8502-				)
+8503-			)
+8504-
+8505-			if (
+8506-				player_id != 0
+8507-				and target_name in [
+8508-					"Lord",
+8509:					"Castle",
+8510-				]
+8511-			):
+8512-				move_texts.append(
+8513-					"a face-down Guard → %s"
+8514-					% target_name
+8515-				)
+8516-			else:
+8517-				move_texts.append(
+8518-					"%s %s→%s"
+8519-					% [
+8520-						String(
+8521-							move.get(
+8522-								"card",
+8523-								"?"
+8524-							)
+8525-						),
+8526-						String(
+8527-							move.get(
+8528-								"source",
+8529-								"?"
+8530-							)
+8531-						),
+8532-						target_name,
+8533-					]
+8534-				)
+8535-
+8536-		if not move_texts.is_empty():
+8537-			_log(
+8538-				"Deploy: %s moved %s."
+8539-				% [
+8540-					_player_name(
+8541-						player_id
+8542-					),
+8543-					"; ".join(
+8544-						move_texts
+8545-					),
+8546-				]
+8547-			)
+8548-
+8549-
+8550-func _log_summon_events(
+8551-	phase_data: Dictionary
+8552-) -> void:
+8553-	for raw_result in _array_from(
+8554-		phase_data.get(
+--
+8869-		if bool(
+8870-			player.alive
+8871-		)
+8872-		else "BANISHED"
+8873-	)
+8874-
+8875-	var hand_text: String = (
+8876-		"%d hidden cards"
+8877-		% player.hand.size()
+8878-		if hide_hand
+8879-		else _cards_inline(
+8880-			player.hand
+8881-		)
+8882-	)
+8883-
+8884-	return (
+8885-		"[b]%s[/b] · %s\n"
+8886-		+ "Souls [b]%d/%d[/b]   Tears [b]%d[/b]   Threat [b]%d[/b]\n"
+8887-		+ "Lord defense %d   Sigil %s\n"
+8888-		+ "Lord guards: %s\n"
+8889:		+ "Castles (%d): %s\n"
+8890:		+ "Castle guards: %s\n"
+8891-		+ "Marchers: %s\n"
+8892-		+ "Garrison: %s\n"
+8893-		+ "Hand: %s"
+8894-	) % [
+8895-		String(
+8896-			player.lord
+8897-		),
+8898-		lord_state,
+8899-		int(
+8900-			player.souls
+8901-		),
+8902-		int(
+8903-			controller.rules.win_souls
+8904-		),
+8905-		int(
+8906-			player.tears
+8907-		),
+8908-		int(
+8909-			player.threat
+8910-		),
+8911-		int(
+8912-			player.derived_lord_def
+8913-		),
+8914-		_sigil_text(
+8915-			player
+8916-		),
+8917-		(
+8918-			_public_guard_summary(
+8919-				player.lord_guards
+8920-			)
+8921-			if hide_hand
+8922-			else _cards_inline(
+8923-				player.lord_guards
+8924-			)
+8925-		),
+8926-		player.castles.size(),
+8927-		_castle_status_inline(player),
+8928-		(
+8929-			_public_guard_summary(
+8930-				player.castle_guards
+8931-			)
+8932-			if hide_hand
+8933-			else _cards_inline(
+8934-				player.castle_guards
+8935-			)
+--
+9226-							player.kanifous_invoked_suit
+9227-						).is_empty()
+9228-						else String(
+9229-							player.kanifous_invoked_suit
+9230-						)
+9231-					),
+9232-					(
+9233-						"yes"
+9234-						if bool(
+9235-							player.kanifous_invoked_high
+9236-						)
+9237-						else "no"
+9238-					),
+9239-					int(
+9240-						player.kanifous_outside_draws
+9241-					),
+9242-				]
+9243-			)
+9244-		"Humbaba":
+9245-			return (
+9246:				"Living Fortress DEF %d with %d Castles; Gate Guard cap %d; Patient %s; Seal adds +1 Dominion requirement."
+9247-				% [
+9248-					int(
+9249-						player.derived_lord_def
+9250-					),
+9251-					player.castles.size(),
+9252-					(
+9253-						4
+9254-						if player.ruined_castles.is_empty()
+9255-						else 3
+9256-					),
+9257-					(
+9258-						"armed"
+9259-						if bool(
+9260-							player.humbaba_patient
+9261-						)
+9262-						else "not armed"
+9263-					),
+9264-				]
+9265-			)
+9266-
+9267-	return "No live ability state."
+9268-
+9269-
+9270-func _persistent_scorch_text() -> String:
+9271-	var player_id: int = int(
+9272-		controller.game.persist_scorch_pid
+9273-	)
+9274-	var zone: String = String(
+9275-		controller.game.persist_scorch_type
+9276-	)
+9277-
+9278-	if (
+9279-		player_id < 0
+9280-		or zone.is_empty()
+9281-	):
+9282-		return "none"
+9283-
+9284-	return "%s %s" % [
+9285-		_player_name(
+9286-			player_id
+9287-		),
+9288-		zone,
+9289-	]
+9290-
+9291-
+9292-func _used_ready(
+9293-	used: bool
+9294-) -> String:
+9295-	return (
+9296-		"used"
+9297-		if used
+9298-		else "ready"
+9299-	)
+9300-
+9301-
+9302-func _sigil_text(
+9303-	player
+9304-) -> String:
+9305-	var parts: Array[String] = []
+9306-
+9307-	for zone: String in [
+9308-		"Lord",
+9309:		"Castle",
+9310-	]:
+9311-		var state: String = String(
+9312-			player.sigils.get(
+9313-				zone,
+9314-				""
+9315-			)
+9316-		)
+9317-
+9318-		if not state.is_empty():
+9319-			parts.append(
+9320-				"%s:%s (+%d)"
+9321-				% [
+9322-					zone,
+9323-					state,
+9324-					_current_sigil_value(
+9325-						player,
+9326-						zone
+9327-					),
+9328-				]
+9329-			)
+9330-
+9331-	return (
+9332-		"none"
+9333-		if parts.is_empty()
+9334-		else ", ".join(
+9335-			parts
+9336-		)
+9337-	)
+9338-
+9339-
+9340-func _cards_inline(
+9341-	cards: Array
+9342-) -> String:
+9343-	if cards.is_empty():
+9344-		return "—"
+9345-
+9346-	var identifiers: Array[String] = []
+9347-
+9348-	for card in cards:
+9349-		identifiers.append(
+9350-			_card_id(
+9351-				card
+9352-			)
+9353-		)
+9354-
+
+===== SOULS TEARS THREAT =====
+32-	"Valak",
+33-	"Kroni",
+34-	"Kalligan",
+35-	"Gremory",
+36-	"Odradek",
+37-	"Kanifous",
+38-	"Humbaba",
+39-]
+40-
+41-const ACTIONS: Array[String] = [
+42-	"Hunt",
+43-	"Siege",
+44-	"Ward",
+45-	"Profane",
+46-]
+47-
+48-const DEFAULT_SEED: int = 20260724
+49-
+50-const LORD_CARD_ABILITIES: Dictionary = {
+51-	"Orias": [
+52:		"[b]Snare[/b] — During Development, if Orias is living and below Threat 3, gain 1 Threat and restrict an opponent with 2+ Hand/Garrison cards to one Deploy move.",
+53:		"[b]Relentless Pursuit[/b] — Hunts gain +1 strength, plus another +1 against a Lord at Threat 2+.",
+54:		"[b]The Mark[/b] — Defeating a Lord Guard raises that Lord's Threat (2 at Threat 2+). Banishing a Lord at Threat 3+ grants +2 bonus Souls and marks it; it returns with +1 Threat. Orias bypasses that marked target's Recoil/Backwash.",
+55:		"[b]Breach: Frenzy[/b] — Players at Threat 3+ cannot Deploy cards from Garrison to Guard zones.",
+56-	],
+57-	"Deimos": [
+58-		"[b]War Machine[/b] — Sieges gain +2 strength, reduced by 1 for each of Deimos's Ruined or Profaned Castles (minimum +0).",
+59-		"[b]Fear[/b] — Before a Siege against 2+ Castle Guards, return the lowest Guard to its owner's Hand.",
+60-		"[b]Claim the Breach[/b] — The first Castle Deimos ruins each game gives Deimos the Tear instead of adding a Neutral Tear.",
+61-		"[b]Breach[/b] — Every active Castle has 1 less structural DEF (minimum 0).",
+62-	],
+63-	"Valak": [
+64-		"[b]Crushing Presence[/b] — On Hunt or Siege against 2+ Guards, the lowest Guard contributes no defense.",
+65-		"[b]Siphon[/b] — After Valak defeats a Guard, discard the lowest Guard still protecting that same zone.",
+66-		"[b]Breach: Gravitational Collapse[/b] — At Resolution Prelude, each previously attacked zone loses its lowest Guard.",
+67-	],
+68-	"Kroni": [
+69-		"[b]Consume / Gorge[/b] — At End of Round, if any destruction occurred, gain 1 Hunger. If Kroni personally defeated a Guard that round, also gain 1 Soul.",
+70-		"[b]Hunger[/b] — Lord DEF is 4 at 0 Hunger, 6 at 1–2, and 8 at 3+. Reaching 3 for the first time after a Summon grants a personal Tear.",
+71:		"[b]Hungering Aura / Ravenous[/b] — At Hunger 3+, discard the opponent's lowest committed card. Kroni's next destroyed Lord/Castle grants +2 Souls and +1 Hunger.",
+72-		"[b]Fallback / Decay / Breach[/b] — If Consume did not fire, remove the lowest Guard or Garrison card from play. Ward/Pass loses 1 Hunger. Kroni Breach destroys each player's lowest Guard.",
+73-	],
+74-	"Kalligan": [
+75-		"[b]Forge-Repair[/b] — Kalligan's first Repair costs 7 less; later Repairs cost 5 less. Every living Kalligan Repair Scorches the enemy Lord zone.",
+76-		"[b]Pyroclasm[/b] — Sieges gain +1 strength, or +2 if the defender already has a Ruined Castle.",
+77:		"[b]Inferno / Wildfire[/b] — After ruining a Castle, Wildfire Scorches the enemy Castle zone (or Lord if none remain). Kalligan may gain 1 Threat to Defeat the highest enemy Lord Guard without response triggers; if none exists, Inferno replaces that token with Lord Scorch.",
+78-		"[b]Breach[/b] — All Repairs cost 1 less.",
+79-	],
+80-	"Gremory": [
+81-		"[b]Picking the Bones[/b] — During Development draw 1 extra card, +1 if either player has a Ruin, and +1 more if Gremory has a Ruin.",
+82-		"[b]Ruinous Harvest[/b] — On the first Tear placed each round, search from the top of the discard for a value-4/5 card and take it. The attempt is spent even if no eligible card exists.",
+83-		"[b]Predator of Ruin[/b] — The first Castle destroyed each round recovers the top discard. Independently, the first Lord Guard Defeated by any effect lets Gremory draw 1 outside the Draw step, then discard the lowest Hand card.",
+84-		"[b]Inevitable Ruin / Breach[/b] — Once per round, after a Siege leaves its target standing, pay exactly 2 Hand/Garrison cards to ruin it. During Gremory Breach, players with a Ruin draw 1 extra.",
+85-	],
+86-	"Odradek": [
+87:		"[b]Recoil / Backwash[/b] — The first Hunt against living Odradek each round discards the attacker's lowest committed card and gives Odradek 1 Soul. A surviving Hunt also raises the attacker's Threat.",
+88-		"[b]Reconfiguration[/b] — Gain 1 token after a round in which no Odradek Guard was Defeated. At 5 tokens, spend them for a personal Tear. Any Defeated Guard blocks progress that round; Banishment clears tokens.",
+89-		"[b]Breach: Paradox Geometry[/b] — Predict the second-action winner's action; a correct guess discards their selected cards and lets Odradek execute it instead.",
+90-	],
+91-	"Kanifous": [
+92:		"[b]Invoke[/b] — After Reveal, resolve in committed-value order: gain 1 Threat, reveal 2 cards, choose one to bank in Garrison, and discard the other. If the first revealed card is value 4+, also create a Neutral Tear.",
+93-		"[b]Suit Invocation[/b] — Vulture: draw 3 then discard the lowest Hand card. Wright: move up to 2 Lord Guards to Castle. Penitent: draw 2 temporary Guards. Butcher: treat the lowest target Guard as already Defeated this round, without triggering Defeat effects.",
+94:		"[b]Resonance / Defiance[/b] — If the chosen card's value equals current Threat, gain 1 Soul. When Kanifous is banished, gain 1 Soul and draw 2 if still behind the attacker.",
+95:		"[b]Breach[/b] — Every draw outside the Draw step gives its recipient +1 Threat.",
+96-	],
+97-	"Humbaba": [
+98:		"[b]Living Fortress[/b] — Base Lord DEF is 2 + active Castles, with Bastion adding 2; Threat 2/3/4 reduces it by 1/2/3.",
+99-		"[b]Gate Guard / Patient[/b] — Hold 4 Castle Guards while no Castle is Ruined. If Humbaba did not Hunt or Siege, preserve one Sigil through its next upkeep.",
+100-		"[b]Toll[/b] — Under severe Soul pressure, Humbaba may ruin one of its own Castles to remove 1 enemy Soul and create a Neutral Tear.",
+101-		"[b]Seal / Breach[/b] — While living, Dominion requires one extra qualifying player. Humbaba Breach lowers active Castle structural DEF by 1 (minimum 1).",
+102-	],
+103-}
+104-
+105-
+106-const MARCH_TRACK_STEPS: int = 3
+107-const MARCH_LANES: Array[String] = [
+108-	"Lord",
+109-	"Castle",
+110-]
+111-
+112-
+113-var controller = null
+114-
+115-var human_lord_select: OptionButton = null
+116-var bot_lord_select: OptionButton = null
+117-var seed_edit: LineEdit = null
+118-var new_match_button: Button = null
+119-
+120-var round_label: Label = null
+121-var phase_label: Label = null
+122-var veil_label: Label = null
+123-var breach_label: Label = null
+124-
+125-var bot_state_label: RichTextLabel = null
+126-var human_state_label: RichTextLabel = null
+127-var bot_lord_card_label: RichTextLabel = null
+128-var human_lord_card_label: RichTextLabel = null
+129-var reveal_label: RichTextLabel = null
+130-var event_log: RichTextLabel = null
+131-var dominion_track_label: RichTextLabel = null
+132-var dominion_progress: ProgressBar = null
+133-var market_staging_labels: Array[RichTextLabel] = []
+134-var market_staging_panels: Array[PanelContainer] = []
+135-var human_staging_label: RichTextLabel = null
+136-var bot_staging_label: RichTextLabel = null
+137-
+138-var action_buttons: Dictionary = {}
+--
+1244-	var bot_lord: String = (
+1245-		bot_lord_select.get_item_text(
+1246-			bot_lord_select.selected
+1247-		)
+1248-	)
+1249-
+1250-	log_entries.clear()
+1251-	reported_development_phases.clear()
+1252-	queued_deploy_moves.clear()
+1253-	event_log.clear()
+1254-
+1255-	_log(
+1256-		"[b]New match[/b] — %s vs %s, seed %d."
+1257-		% [
+1258-			human_lord,
+1259-			bot_lord,
+1260-			seed_value,
+1261-		]
+1262-	)
+1263-	_log(
+1264:		"[color=#c8b36a][b]Experimental bot doctrine:[/b] FIX A is active — Hunt/Siege/Ward bases are equalized and Ward's unconditional Soul/Castle/Threat valuation is reduced.[/color]"
+1265-	)
+1266-
+1267-	var result: Dictionary = controller.start_match(
+1268-		human_lord,
+1269-		bot_lord,
+1270-		seed_value
+1271-	)
+1272-
+1273-	_after_development(
+1274-		result
+1275-	)
+1276-
+1277-
+1278-func _on_export_match_snapshot_pressed() -> void:
+1279-	var stage_name: String = _snapshot_stage_name()
+1280-	var result: Dictionary = PlayableMatchSnapshotData.export_current_match(
+1281-		controller,
+1282-		active_match_seed,
+1283-		stage_name,
+1284-		log_entries
+1285-	)
+1286-
+1287-	if not bool(result.get("ok", false)):
+1288-		var reason: String = String(result.get("reason", "snapshot_export_failed"))
+1289-		_set_phase_message("Snapshot export failed: %s" % reason)
+1290-		_log("[color=#ff748f][b]Snapshot export failed:[/b] %s[/color]" % reason)
+1291-		return
+1292-
+1293-	var path: String = String(result.get("path", ""))
+1294-	_set_phase_message("Snapshot exported — see Match Log for the file path.")
+1295-	_log("[color=#82c9ff][b]Snapshot exported:[/b] %s[/color]" % path)
+1296-
+1297-
+1298-func _snapshot_stage_name() -> String:
+1299-	if controller == null:
+1300-		return "NO_GAME"
+1301-
+1302-	var stage_key = PlayableRoundControllerData.Stage.find_key(
+1303-		controller.stage
+1304-	)
+--
+1326-	_clear_action_toggles()
+1327-	_clear_reveal()
+1328-	queued_deploy_moves.clear()
+1329-	_log_new_development_activity()
+1330-
+1331-	if _show_failure_if_needed(
+1332-		result
+1333-	):
+1334-		return
+1335-
+1336-	if bool(
+1337-		result.get(
+1338-			"terminal",
+1339-			false
+1340-		)
+1341-	):
+1342-		_show_terminal()
+1343-		return
+1344-
+1345-	if controller.stage == PlayableRoundControllerData.Stage.DEVELOPMENT_SNARE:
+1346:		_enter_development_choice("Orias Snare — gain 1 Threat to limit the opponent to one Deploy move, or pass.")
+1347-		return
+1348-
+1349-	if controller.stage == PlayableRoundControllerData.Stage.MARKET:
+1350-		_enter_development_choice("Market — trade one Hand card for one Market card, or pass.")
+1351-		return
+1352-
+1353-	if controller.stage == PlayableRoundControllerData.Stage.REPAIR:
+1354-		_enter_development_choice("Repair — restore one Ruined Castle, or pass.")
+1355-		return
+1356-
+1357-	if controller.stage == PlayableRoundControllerData.Stage.DOMINION_RITES:
+1358-		_enter_development_choice("Dominion Rites — Invocation and Profane Ruins may both be used when legal.")
+1359-		return
+1360-
+1361-	if controller.stage == PlayableRoundControllerData.Stage.DEPLOY:
+1362-		_begin_deploy_guard_picker()
+1363-		return
+1364-
+1365-	if controller.stage == PlayableRoundControllerData.Stage.MARCH:
+1366-		_begin_march_picker()
+1367-		return
+1368-
+1369-	if controller.stage == PlayableRoundControllerData.Stage.SUMMON:
+1370-		_log(
+1371-			"Round %d: your Lord is banished. Select cards worth at least %d to resummon, or remain banished."
+1372-			% [
+1373-				int(
+1374-					controller.game.round
+1375-				),
+1376-				controller.human_summon_cost(),
+1377-			]
+1378-		)
+1379-
+1380-		_build_hand_buttons(false)
+1381-		_refresh_target_options()
+1382-		_refresh_all()
+1383-		return
+1384-
+1385-	if controller.stage == PlayableRoundControllerData.Stage.REFLEX_BID:
+1386-		_enter_development_choice("Reflex Bid — secretly select any Hand cards to bid, or bid zero.")
+--
+2412-
+2413-	call_deferred(
+2414-		"_validate_layout_invariants"
+2415-	)
+2416-
+2417-
+2418-func _refresh_staging_area() -> void:
+2419-	if controller == null or controller.game == null or controller.rules == null:
+2420-		return
+2421-
+2422-	var game = controller.game
+2423-	var human = controller.get_human_player()
+2424-	var bot = controller.get_bot_player()
+2425-	if human == null or bot == null:
+2426-		return
+2427-
+2428-	var veil_total: int = int(game.calculate_veil_total())
+2429-	if dominion_track_label != null:
+2430-		dominion_track_label.text = (
+2431-			"[center][b]DOMINION TRACK[/b]  Veil [b]%d[/b]  ·  Cataclysm %d  ·  "
+2432:			+ "Your Tears %d/%d  ·  Opponent %d/%d[/center]"
+2433-		) % [
+2434-			veil_total,
+2435-			int(controller.rules.dominion_track),
+2436-			int(human.tears),
+2437-			int(controller.rules.dominion_requirement),
+2438-			int(bot.tears),
+2439-			int(controller.rules.dominion_requirement),
+2440-		]
+2441-
+2442-	if dominion_progress != null:
+2443-		dominion_progress.min_value = 0.0
+2444-		dominion_progress.max_value = float(
+2445-			max(1, int(controller.rules.final_collapse_threshold))
+2446-		)
+2447-		dominion_progress.value = float(
+2448-			min(veil_total, int(dominion_progress.max_value))
+2449-		)
+2450-		dominion_progress.tooltip_text = (
+2451-			"Veil %d. Cataclysm at %d; Final Collapse at %d."
+2452-			% [
+2453-				veil_total,
+2454-				int(controller.rules.dominion_track),
+2455-				int(controller.rules.final_collapse_threshold),
+2456-			]
+2457-		)
+2458-
+2459-	var selected_market_id: String = ""
+2460-	var suggested_market_id: String = ""
+2461-	if controller.stage == PlayableRoundControllerData.Stage.MARKET:
+2462-		selected_market_id = _selected_target_id()
+2463-		suggested_market_id = _best_market_take_card_id()
+2464-
+2465-	for market_index: int in range(market_staging_labels.size()):
+2466-		var market_label: RichTextLabel = market_staging_labels[market_index]
+2467-		var market_panel: PanelContainer = market_staging_panels[market_index]
+2468-		if market_index >= game.market.size():
+2469-			market_label.text = "[center][color=#78758a]EMPTY OFFER[/color]\n—[/center]"
+2470-			market_panel.self_modulate = Color.WHITE
+2471-			continue
+2472-
+--
+5713-		_log(
+5714-			"[color=#d8b4fe][b]Orias — Relentless Pursuit:[/b] Hunt strength bonuses applied; final strength %d.[/color]"
+5715-			% int(
+5716-				action_result.get(
+5717-					"strength",
+5718-					0
+5719-				)
+5720-			)
+5721-		)
+5722-
+5723-		if not _array_from(
+5724-			action_result.get(
+5725-				"guards_defeated",
+5726-				[]
+5727-			)
+5728-		).is_empty():
+5729-			var defender = controller.game.get_player(
+5730-				defender_id
+5731-			)
+5732-			_log(
+5733:				"[color=#d8b4fe][b]Orias — The Mark:[/b] A Lord Guard fell; %s's Threat is now %d.[/color]"
+5734-				% [
+5735-					_player_name(
+5736-						defender_id
+5737-					),
+5738-					(
+5739-						0
+5740-						if defender == null
+5741-						else int(
+5742-							defender.threat
+5743-						)
+5744-					),
+5745-				]
+5746-			)
+5747-
+5748-		var banishment = action_result.get(
+5749-			"banishment",
+5750-			{}
+5751-		)
+5752-
+5753-		if (
+5754-			typeof(
+5755-				banishment
+5756-			) == TYPE_DICTIONARY
+5757-			and bool(
+5758-				action_result.get(
+5759-					"banished",
+5760-					false
+5761-				)
+5762-			)
+5763-		):
+5764-			_log(
+5765:				"[color=#d8b4fe][b]Orias — The Mark:[/b] %s was marked on banishment%s and will return with +1 Threat.[/color]"
+5766-				% [
+5767-					_player_name(
+5768-						defender_id
+5769-					),
+5770-					(
+5771:						"; Orias gained 2 bonus Souls"
+5772-						if int(
+5773-							banishment.get(
+5774-								"orias_bonus",
+5775-								0
+5776-							)
+5777-						) > 0
+5778-						else ""
+5779-					),
+5780-				]
+5781-			)
+5782-
+5783-	if action_name == "siege":
+5784-		var war_machine_bonus: int = int(
+5785-			action_result.get(
+5786-				"war_machine_bonus",
+5787-				0
+5788-			)
+5789-		)
+5790-
+5791-		if attacker_lord == "Deimos":
+5792-			_log(
+5793-				"[color=#d8b4fe][b]Deimos — War Machine:[/b] Siege gained +%d strength.[/color]"
+5794-				% war_machine_bonus
+5795-			)
+5796-
+5797-		var fear_card: String = String(
+5798-			action_result.get(
+5799-				"fear_returned_card",
+5800-				""
+5801-			)
+5802-		)
+5803-
+5804-		if not fear_card.is_empty():
+5805-			_log(
+5806-				"[color=#d8b4fe][b]Deimos — Fear:[/b] Returned %s from %s's Castle Guards to Hand before combat.[/color]"
+5807-				% [
+5808-					fear_card,
+5809-					_player_name(
+5810-						defender_id
+5811-					),
+--
+5827-				"pyroclasm_bonus",
+5828-				0
+5829-			)
+5830-		)
+5831-
+5832-		if pyroclasm_bonus > 0:
+5833-			_log(
+5834-				"[color=#d8b4fe][b]Kalligan — Pyroclasm:[/b] Siege gained +%d strength.[/color]"
+5835-				% pyroclasm_bonus
+5836-			)
+5837-
+5838-		var inferno_card: String = String(
+5839-			action_result.get(
+5840-				"inferno_card",
+5841-				""
+5842-			)
+5843-		)
+5844-
+5845-		if not inferno_card.is_empty():
+5846-			_log(
+5847:				"[color=#d8b4fe][b]Kalligan — Inferno:[/b] Gained 1 Threat and burned the highest Lord Guard, %s.[/color]"
+5848-				% inferno_card
+5849-			)
+5850-
+5851-		var wildfire_zone: String = String(
+5852-			action_result.get(
+5853-				"wildfire_zone",
+5854-				""
+5855-			)
+5856-		)
+5857-
+5858-		if not wildfire_zone.is_empty():
+5859-			_log(
+5860-				"[color=#d8b4fe][b]Kalligan — Wildfire:[/b] Persistent Scorch now targets %s's %s zone.[/color]"
+5861-				% [
+5862-					_player_name(
+5863-						defender_id
+5864-					),
+5865-					wildfire_zone,
+5866-				]
+5867-			)
+5868-
+5869-		_log_gremory_ruin_trigger(
+5870-			action_result.get(
+5871-				"gremory_ruin_trigger",
+5872-				{}
+5873-			),
+5874-			"the Castle ruin"
+5875-		)
+5876-
+5877-		if bool(
+5878-			action_result.get(
+5879-				"ignore_lowest_guard",
+5880-				false
+5881-			)
+5882-		):
+5883-			var power_name: String = (
+5884-				"Valak — Crushing Presence"
+5885-				if attacker_lord == "Valak"
+5886-				else "Kanifous — Butcher Invocation"
+5887-			)
+--
+5911-	)
+5912-
+5913-	if not recoil_card.is_empty():
+5914-		_log(
+5915-			"[color=#d8b4fe][b]Odradek — Recoil:[/b] %s lost committed %s before combat; Odradek gained 1 Soul.[/color]"
+5916-			% [
+5917-				_player_name(
+5918-					attacker_id
+5919-				),
+5920-				recoil_card,
+5921-			]
+5922-		)
+5923-
+5924-	if int(
+5925-		action_result.get(
+5926-			"ravenous_soul_gain",
+5927-			0
+5928-		)
+5929-	) > 0:
+5930-		_log(
+5931:			"[color=#d8b4fe][b]Kroni — Ravenous:[/b] The destruction granted +2 Souls and +1 Hunger; Ravenous is now spent.[/color]"
+5932-		)
+5933-
+5934-	_log_gremory_guard_trigger(
+5935-		action_result.get(
+5936-			"gremory_guard_trigger",
+5937-			{}
+5938-		),
+5939-		"the defeated Lord Guard"
+5940-	)
+5941-	_log_gremory_guard_trigger(
+5942-		action_result.get(
+5943-			"siphon_gremory_trigger",
+5944-			{}
+5945-		),
+5946-		"Valak's Siphon"
+5947-	)
+5948-
+5949-	var banishment = action_result.get(
+5950-		"banishment",
+5951-		{}
+5952-	)
+5953-
+5954-	if typeof(
+5955-		banishment
+5956-	) == TYPE_DICTIONARY:
+5957-		var kanifous_gain: int = int(
+5958-			banishment.get(
+5959-				"kanifous_soul_gain",
+5960-				0
+5961-			)
+5962-		)
+5963-
+5964-		if kanifous_gain > 0:
+5965-			_log(
+5966-				"[color=#d8b4fe][b]Kanifous — Defiance:[/b] Banishment granted 1 Soul%s.[/color]"
+5967-				% (
+5968-					" and 2 cards"
+5969-					if not _array_from(
+5970-						banishment.get(
+5971-							"kanifous_draws",
+--
+7247-			)
+7248-		)
+7249-		var suit: String = (
+7250-			chosen_card.split(
+7251-				":"
+7252-			)[0]
+7253-			if chosen_card.contains(
+7254-				":"
+7255-			)
+7256-			else chosen_card
+7257-		)
+7258-		var effect_text: String = (
+7259-			_kanifous_invoke_effect_text(
+7260-				invoke,
+7261-				suit,
+7262-				player_id
+7263-			)
+7264-		)
+7265-
+7266-		_log(
+7267:			"[color=#d8b4fe][b]Kanifous — Invoke:[/b] %s gained 1 Threat, revealed %s, chose %s, and %s%s[/color]"
+7268-			% [
+7269-				_player_name(
+7270-					player_id
+7271-				),
+7272-				_string_values_inline(
+7273-					invoke.get(
+7274-						"revealed_cards",
+7275-						[]
+7276-					)
+7277-				),
+7278-				chosen_card,
+7279-				effect_text,
+7280-				(
+7281-					" A value-4+ reveal created a Neutral Tear."
+7282-					if int(
+7283-						invoke.get(
+7284-							"neutral_tear_gain",
+7285-							0
+7286-						)
+7287-					) > 0
+7288-					else ""
+7289-				),
+7290-			]
+7291-		)
+7292-
+7293-
+7294-func _kanifous_invoke_effect_text(
+7295-	invoke: Dictionary,
+7296-	suit: String,
+7297-	player_id: int
+7298-) -> String:
+7299-	var banked_card: String = String(
+7300-		invoke.get(
+7301-			"banked_card",
+7302-			""
+7303-		)
+7304-	)
+7305-	var bank_text: String = (
+7306-		"banked %s in Garrison."
+7307-		% banked_card
+--
+7871-		phase_data.get(
+7872-			"snare_events",
+7873-			[]
+7874-		)
+7875-	):
+7876-		if (
+7877-			typeof(
+7878-				raw_event
+7879-			) != TYPE_DICTIONARY
+7880-			or not bool(
+7881-				raw_event.get(
+7882-					"applied",
+7883-					false
+7884-				)
+7885-			)
+7886-		):
+7887-			continue
+7888-
+7889-		var event: Dictionary = raw_event
+7890-		_log(
+7891:			"[color=#d8b4fe][b]Orias — Snare:[/b] %s gained 1 Threat and restricted %s to one Deploy move this round.[/color]"
+7892-			% [
+7893-				_player_name(
+7894-					int(
+7895-						event.get(
+7896-							"player_id",
+7897-							-1
+7898-						)
+7899-					)
+7900-				),
+7901-				_player_name(
+7902-					int(
+7903-						event.get(
+7904-							"target_player_id",
+7905-							-1
+7906-						)
+7907-					)
+7908-				),
+7909-			]
+7910-		)
+7911-
+7912-	for raw_event in _array_from(
+7913-		phase_data.get(
+7914-			"gremory_draw_events",
+7915-			[]
+7916-		)
+7917-	):
+7918-		if typeof(
+7919-			raw_event
+7920-		) != TYPE_DICTIONARY:
+7921-			continue
+7922-
+7923-		var event: Dictionary = raw_event
+7924-		var player_id: int = int(
+7925-			event.get(
+7926-				"player_id",
+7927-				-1
+7928-			)
+7929-		)
+7930-		var drawn_cards: Array = _array_from(
+7931-			event.get(
+--
+8114-		) != TYPE_DICTIONARY:
+8115-			continue
+8116-
+8117-		var result: Dictionary = raw_result
+8118-
+8119-		if bool(
+8120-			result.get(
+8121-				"recycled",
+8122-				false
+8123-			)
+8124-		):
+8125-			recycled = true
+8126-
+8127-		if bool(
+8128-			result.get(
+8129-				"kanifous_breach_triggered",
+8130-				false
+8131-			)
+8132-		):
+8133-			_log(
+8134:				"[color=#d8b4fe][b]Kanifous Breach:[/b] %s's draw outside the Draw step raised Threat %d→%d during %s.[/color]"
+8135-				% [
+8136-					_player_name(
+8137-						int(
+8138-							result.get(
+8139-								"player_id",
+8140-								-1
+8141-							)
+8142-						)
+8143-					),
+8144-					int(
+8145-						result.get(
+8146-							"threat_before",
+8147-							0
+8148-						)
+8149-					),
+8150-					int(
+8151-						result.get(
+8152-							"threat_after",
+8153-							0
+8154-						)
+8155-					),
+8156-					source_name,
+8157-				]
+8158-			)
+8159-
+8160-	if recycled:
+8161-		_log(
+8162-			"[color=#a9a1b0]Deck recycle: the discard pile was shuffled into a new deck during %s.[/color]"
+8163-			% source_name
+8164-		)
+8165-
+8166-
+8167-func _log_market_rollover(
+8168-	phase_data: Dictionary
+8169-) -> void:
+8170-	if not bool(phase_data.get("enabled", false)):
+8171-		return
+8172-
+8173-	_log(
+8174-		"[color=#82c9ff][b]Market rollover:[/b] %s rotated beneath the deck; fresh offers are on display.[/color]"
+--
+8600-						[]
+8601-					)
+8602-				),
+8603-			]
+8604-		)
+8605-
+8606-		if (
+8607-			String(
+8608-				result.get(
+8609-					"lord",
+8610-					""
+8611-				)
+8612-			) == String(
+8613-				controller.game.get_meta(
+8614-					"orias_marked_lord",
+8615-					""
+8616-				)
+8617-			)
+8618-		):
+8619-			_log(
+8620:				"[color=#d8b4fe][b]Orias — The Mark:[/b] The marked Lord returned at +1 Threat (now %d).[/color]"
+8621-				% int(
+8622-					result.get(
+8623-						"threat",
+8624-						0
+8625-					)
+8626-				)
+8627-			)
+8628-
+8629-	var raw_breach_closed = phase_data.get(
+8630-		"breach_closed",
+8631-		{}
+8632-	)
+8633-
+8634-	if typeof(
+8635-		raw_breach_closed
+8636-	) != TYPE_DICTIONARY:
+8637-		return
+8638-
+8639-	var breach_closed: Dictionary = raw_breach_closed
+8640-
+8641-	if breach_closed.is_empty():
+8642-		return
+8643-
+8644-	_log(
+8645-		"[color=#8fdda9][b]Breach closed:[/b] %s returned; that Lord's Breach ability is no longer active.[/color]"
+8646-		% String(
+8647-			breach_closed.get(
+8648-				"lord",
+8649-				"Lord"
+8650-			)
+8651-		)
+8652-	)
+8653-
+8654-
+8655-func _player_name(
+8656-	player_id: int
+8657-) -> String:
+8658-	var player = controller.game.get_player(
+8659-		player_id
+8660-	)
+--
+8866-) -> String:
+8867-	var lord_state: String = (
+8868-		"standing"
+8869-		if bool(
+8870-			player.alive
+8871-		)
+8872-		else "BANISHED"
+8873-	)
+8874-
+8875-	var hand_text: String = (
+8876-		"%d hidden cards"
+8877-		% player.hand.size()
+8878-		if hide_hand
+8879-		else _cards_inline(
+8880-			player.hand
+8881-		)
+8882-	)
+8883-
+8884-	return (
+8885-		"[b]%s[/b] · %s\n"
+8886:		+ "Souls [b]%d/%d[/b]   Tears [b]%d[/b]   Threat [b]%d[/b]\n"
+8887-		+ "Lord defense %d   Sigil %s\n"
+8888-		+ "Lord guards: %s\n"
+8889-		+ "Castles (%d): %s\n"
+8890-		+ "Castle guards: %s\n"
+8891-		+ "Marchers: %s\n"
+8892-		+ "Garrison: %s\n"
+8893-		+ "Hand: %s"
+8894-	) % [
+8895-		String(
+8896-			player.lord
+8897-		),
+8898-		lord_state,
+8899-		int(
+8900-			player.souls
+8901-		),
+8902-		int(
+8903-			controller.rules.win_souls
+8904-		),
+8905-		int(
+8906-			player.tears
+8907-		),
+8908-		int(
+8909-			player.threat
+8910-		),
+8911-		int(
+8912-			player.derived_lord_def
+8913-		),
+8914-		_sigil_text(
+8915-			player
+8916-		),
+8917-		(
+8918-			_public_guard_summary(
+8919-				player.lord_guards
+8920-			)
+8921-			if hide_hand
+8922-			else _cards_inline(
+8923-				player.lord_guards
+8924-			)
+8925-		),
+8926-		player.castles.size(),
+--
+8984-	player
+8985-) -> String:
+8986-	var lord_name: String = String(
+8987-		player.lord
+8988-	)
+8989-	var ability_lines: Array = LORD_CARD_ABILITIES.get(
+8990-		lord_name,
+8991-		[]
+8992-	)
+8993-	var current_cost: int = (
+8994-		SummonEngineData._summon_cost(
+8995-			controller.game,
+8996-			player,
+8997-			controller.rules,
+8998-			lord_name
+8999-		)
+9000-	)
+9001-	var card_lines: Array[String] = [
+9002-		"[center][font_size=17][b]%s — LORD CARD[/b][/font_size][/center]"
+9003-		% lord_name,
+9004:		"[center]Current DEF [b]%d[/b]  •  Summon [b]%d[/b]  •  Return Threat [b]%d[/b][/center]"
+9005-		% [
+9006-			int(
+9007-				player.derived_lord_def
+9008-			),
+9009-			current_cost,
+9010-			_lord_return_threat(
+9011-				lord_name
+9012-			),
+9013-		],
+9014-		"",
+9015-	]
+9016-
+9017-	for raw_line in ability_lines:
+9018-		card_lines.append(
+9019-			"• %s" % String(
+9020-				raw_line
+9021-			)
+9022-		)
+9023-
+9024-	card_lines.append(
+9025-		""
+9026-	)
+9027-	card_lines.append(
+9028-		"[color=#c8b36a][b]LIVE:[/b] %s[/color]"
+9029-		% _lord_live_state(
+9030-			player
+9031-		)
+9032-	)
+9033-
+9034-	return "\n".join(
+9035-		card_lines
+9036-	)
+9037-
+9038-
+9039-func _lord_return_threat(
+9040-	lord_name: String
+9041-) -> int:
+9042-	var return_threats: Dictionary = {
+9043-		"Orias": 0,
+9044-		"Deimos": 0,
+--
+9057-			0
+9058-		)
+9059-	)
+9060-
+9061-
+9062-func _lord_live_state(
+9063-	player
+9064-) -> String:
+9065-	if not bool(
+9066-		player.alive
+9067-	):
+9068-		return (
+9069-			"Banished. Passive text requiring a living Lord is inactive."
+9070-		)
+9071-
+9072-	match String(
+9073-		player.lord
+9074-	):
+9075-		"Orias":
+9076-			return (
+9077:				"Threat %d; Snare %s. Marked Lord: %s."
+9078-				% [
+9079-					int(
+9080-						player.threat
+9081-					),
+9082-					(
+9083-						"eligible"
+9084-						if int(
+9085-							player.threat
+9086-						) < 3
+9087:						else "locked at Threat 3+"
+9088-					),
+9089-					String(
+9090-						controller.game.get_meta(
+9091-							"orias_marked_lord",
+9092-							"none"
+9093-						)
+9094-					),
+9095-				]
+9096-			)
+9097-		"Deimos":
+9098-			return (
+9099-				"Claim the Breach: %s. War Machine bonus now +%d."
+9100-				% [
+9101-					(
+9102-						"used"
+9103-						if bool(
+9104-							player.deimos_breach_claimed
+9105-						)
+9106-						else "ready"
+9107-					),
+9108-					max(
+9109-						0,
+9110-						2
+9111-						- player.ruined_castles.size()
+9112-						- player.profaned_castles.size()
+9113-					),
+9114-				]
+9115-			)
+9116-		"Valak":
+9117-			return (
+9118-				"Crushing Presence is ready on zones with 2+ Guards; Siphon requires Valak to defeat a Guard."
+9119-			)
+9120-		"Kroni":
+9121-			return (
+9122-				"Hunger %d; Consume this round %s; Ravenous %s; milestone Tear %s."
+9123-				% [
+9124-					int(
+9125-						player.kroni_hunger
+9126-					),
+9127-					(
+
+===== DOMINION / VEIL UI =====
+76-		"[b]Pyroclasm[/b] — Sieges gain +1 strength, or +2 if the defender already has a Ruined Castle.",
+77-		"[b]Inferno / Wildfire[/b] — After ruining a Castle, Wildfire Scorches the enemy Castle zone (or Lord if none remain). Kalligan may gain 1 Threat to Defeat the highest enemy Lord Guard without response triggers; if none exists, Inferno replaces that token with Lord Scorch.",
+78-		"[b]Breach[/b] — All Repairs cost 1 less.",
+79-	],
+80-	"Gremory": [
+81-		"[b]Picking the Bones[/b] — During Development draw 1 extra card, +1 if either player has a Ruin, and +1 more if Gremory has a Ruin.",
+82-		"[b]Ruinous Harvest[/b] — On the first Tear placed each round, search from the top of the discard for a value-4/5 card and take it. The attempt is spent even if no eligible card exists.",
+83-		"[b]Predator of Ruin[/b] — The first Castle destroyed each round recovers the top discard. Independently, the first Lord Guard Defeated by any effect lets Gremory draw 1 outside the Draw step, then discard the lowest Hand card.",
+84-		"[b]Inevitable Ruin / Breach[/b] — Once per round, after a Siege leaves its target standing, pay exactly 2 Hand/Garrison cards to ruin it. During Gremory Breach, players with a Ruin draw 1 extra.",
+85-	],
+86-	"Odradek": [
+87-		"[b]Recoil / Backwash[/b] — The first Hunt against living Odradek each round discards the attacker's lowest committed card and gives Odradek 1 Soul. A surviving Hunt also raises the attacker's Threat.",
+88-		"[b]Reconfiguration[/b] — Gain 1 token after a round in which no Odradek Guard was Defeated. At 5 tokens, spend them for a personal Tear. Any Defeated Guard blocks progress that round; Banishment clears tokens.",
+89-		"[b]Breach: Paradox Geometry[/b] — Predict the second-action winner's action; a correct guess discards their selected cards and lets Odradek execute it instead.",
+90-	],
+91-	"Kanifous": [
+92-		"[b]Invoke[/b] — After Reveal, resolve in committed-value order: gain 1 Threat, reveal 2 cards, choose one to bank in Garrison, and discard the other. If the first revealed card is value 4+, also create a Neutral Tear.",
+93-		"[b]Suit Invocation[/b] — Vulture: draw 3 then discard the lowest Hand card. Wright: move up to 2 Lord Guards to Castle. Penitent: draw 2 temporary Guards. Butcher: treat the lowest target Guard as already Defeated this round, without triggering Defeat effects.",
+94-		"[b]Resonance / Defiance[/b] — If the chosen card's value equals current Threat, gain 1 Soul. When Kanifous is banished, gain 1 Soul and draw 2 if still behind the attacker.",
+95-		"[b]Breach[/b] — Every draw outside the Draw step gives its recipient +1 Threat.",
+96-	],
+97-	"Humbaba": [
+98-		"[b]Living Fortress[/b] — Base Lord DEF is 2 + active Castles, with Bastion adding 2; Threat 2/3/4 reduces it by 1/2/3.",
+99-		"[b]Gate Guard / Patient[/b] — Hold 4 Castle Guards while no Castle is Ruined. If Humbaba did not Hunt or Siege, preserve one Sigil through its next upkeep.",
+100-		"[b]Toll[/b] — Under severe Soul pressure, Humbaba may ruin one of its own Castles to remove 1 enemy Soul and create a Neutral Tear.",
+101:		"[b]Seal / Breach[/b] — While living, Dominion requires one extra qualifying player. Humbaba Breach lowers active Castle structural DEF by 1 (minimum 1).",
+102-	],
+103-}
+104-
+105-
+106-const MARCH_TRACK_STEPS: int = 3
+107-const MARCH_LANES: Array[String] = [
+108-	"Lord",
+109-	"Castle",
+110-]
+111-
+112-
+113-var controller = null
+114-
+115-var human_lord_select: OptionButton = null
+116-var bot_lord_select: OptionButton = null
+117-var seed_edit: LineEdit = null
+118-var new_match_button: Button = null
+119-
+120-var round_label: Label = null
+121-var phase_label: Label = null
+122:var veil_label: Label = null
+123-var breach_label: Label = null
+124-
+125-var bot_state_label: RichTextLabel = null
+126-var human_state_label: RichTextLabel = null
+127-var bot_lord_card_label: RichTextLabel = null
+128-var human_lord_card_label: RichTextLabel = null
+129-var reveal_label: RichTextLabel = null
+130-var event_log: RichTextLabel = null
+131:var dominion_track_label: RichTextLabel = null
+132:var dominion_progress: ProgressBar = null
+133-var market_staging_labels: Array[RichTextLabel] = []
+134-var market_staging_panels: Array[PanelContainer] = []
+135-var human_staging_label: RichTextLabel = null
+136-var bot_staging_label: RichTextLabel = null
+137-
+138-var action_buttons: Dictionary = {}
+139-var target_label: Label = null
+140-var target_select: OptionButton = null
+141-var secondary_target_label: Label = null
+142-var secondary_target_select: OptionButton = null
+143-var target_info_label: RichTextLabel = null
+144-var hand_flow: HFlowContainer = null
+145-var hand_caption_label: Label = null
+146-var card_buttons: Array[Button] = []
+147-var selection_label: Label = null
+148-
+149-var confirm_button: Button = null
+150-var summon_button: Button = null
+151-var skip_summon_button: Button = null
+152-var reveal_button: Button = null
+153-var resolve_button: Button = null
+154-var next_round_button: Button = null
+155-var development_option_button: Button = null
+156-var development_finish_button: Button = null
+157-var debug_export_button: Button = null
+158-
+159-var setup_row: Control = null
+160-var board_row: Control = null
+161-var marching_board_panel: Control = null
+162-var interaction_panel: Control = null
+163-var footer_row: Control = null
+164-
+165-var march_status_label: Label = null
+166-var march_lane_title_labels: Dictionary = {}
+167-var march_gate_labels: Dictionary = {}
+168-var march_slot_labels: Dictionary = {}
+169-var march_slot_panels: Dictionary = {}
+170-
+171-var selected_action: String = ""
+172-var active_match_seed: int = -1
+173-var log_entries: Array[String] = []
+174-var reported_development_phases: Dictionary = {}
+175-var queued_deploy_moves: Array[Dictionary] = []
+176-var deploy_target_zone: String = "Lord"
+177-var resolution_start_digest: Dictionary = {}
+178-
+179-
+180-func _ready() -> void:
+181-	controller = PlayableRoundControllerData.new()
+182-
+--
+257-	)
+258-	page.add_child(
+259-		clock_panel
+260-	)
+261-
+262-	var clock_row := HBoxContainer.new()
+263-	clock_row.add_theme_constant_override(
+264-		"separation",
+265-		24
+266-	)
+267-	clock_panel.add_child(
+268-		clock_row
+269-	)
+270-
+271-	round_label = _new_label(
+272-		"Round —",
+273-		18
+274-	)
+275-	phase_label = _new_label(
+276-		"Awaiting match",
+277-		18
+278-	)
+279-	phase_label.size_flags_horizontal = (
+280-		Control.SIZE_EXPAND_FILL
+281-	)
+282:	veil_label = _new_label(
+283:		"Veil —",
+284-		18
+285-	)
+286-	breach_label = _new_label(
+287-		"Breach —",
+288-		18
+289-	)
+290-
+291-	clock_row.add_child(
+292-		round_label
+293-	)
+294-	clock_row.add_child(
+295-		phase_label
+296-	)
+297-	clock_row.add_child(
+298:		veil_label
+299-	)
+300-	clock_row.add_child(
+301-		breach_label
+302-	)
+303-
+304-	board_row = _build_board_row()
+305-	board_row.size_flags_vertical = (
+306-		Control.SIZE_EXPAND_FILL
+307-	)
+308-	page.add_child(
+309-		board_row
+310-	)
+311-
+312-	marching_board_panel = _build_marching_board()
+313-	page.add_child(
+314-		marching_board_panel
+315-	)
+316-
+317-	interaction_panel = _build_interaction_panel()
+318-	page.add_child(
+319-		interaction_panel
+320-	)
+321-
+322-	footer_row = _build_footer_row()
+323-	page.add_child(
+324-		footer_row
+325-	)
+326-
+327-
+328-func _build_setup_row() -> Control:
+329-	var panel := _new_panel(
+330-		Color(
+331-			0.12,
+332-			0.08,
+333-			0.15,
+334-			1.0
+335-		)
+336-	)
+337-
+338-	var row := HBoxContainer.new()
+339-	row.add_theme_constant_override(
+340-		"separation",
+341-		10
+342-	)
+343-	panel.add_child(
+344-		row
+345-	)
+346-
+347-	var title := _new_label(
+348-		"CORRUPTOR — PLAYABLE PROTOTYPE",
+--
+507-	)
+508-	center_panel.size_flags_horizontal = (
+509-		Control.SIZE_EXPAND_FILL
+510-	)
+511-	row.add_child(
+512-		center_panel
+513-	)
+514-
+515-	var center_box := VBoxContainer.new()
+516-	center_box.add_theme_constant_override(
+517-		"separation",
+518-		6
+519-	)
+520-	center_panel.add_child(
+521-		center_box
+522-	)
+523-
+524-	var staging_header := _new_label(
+525-		"STAGING AREA",
+526-		19
+527-	)
+528-	center_box.add_child(
+529-		staging_header
+530-	)
+531-
+532:	dominion_track_label = _new_rich_text()
+533:	dominion_track_label.custom_minimum_size = Vector2(
+534-		0,
+535-		30
+536-	)
+537:	dominion_track_label.add_theme_font_size_override(
+538-		"normal_font_size",
+539-		13
+540-	)
+541:	dominion_track_label.add_theme_font_size_override(
+542-		"bold_font_size",
+543-		13
+544-	)
+545-	center_box.add_child(
+546:		dominion_track_label
+547-	)
+548-
+549:	dominion_progress = ProgressBar.new()
+550:	dominion_progress.custom_minimum_size = Vector2(
+551-		0,
+552-		18
+553-	)
+554:	dominion_progress.show_percentage = false
+555-	center_box.add_child(
+556:		dominion_progress
+557-	)
+558-
+559-	center_box.add_child(
+560-		_new_label(
+561-			"MARKET — PUBLIC OFFERS",
+562-			14
+563-		)
+564-	)
+565-
+566-	var market_row := HBoxContainer.new()
+567-	market_row.add_theme_constant_override(
+568-		"separation",
+569-		6
+570-	)
+571-	center_box.add_child(
+572-		market_row
+573-	)
+574-
+575-	for market_index: int in range(3):
+576-		var market_panel := _new_panel(
+577-			Color(
+578-				0.08,
+579-				0.09,
+580-				0.13,
+581-				1.0
+582-			)
+583-		)
+584-		market_panel.custom_minimum_size = Vector2(
+585-			0,
+586-			46
+587-		)
+588-		market_panel.size_flags_horizontal = (
+589-			Control.SIZE_EXPAND_FILL
+590-		)
+591-		var market_label := _new_rich_text()
+592-		market_label.custom_minimum_size = Vector2(
+593-			0,
+594-			34
+595-		)
+596-		market_label.add_theme_font_size_override(
+597-			"normal_font_size",
+598-			12
+599-		)
+600-		market_label.add_theme_font_size_override(
+601-			"bold_font_size",
+602-			12
+603-		)
+604-		market_label.scroll_active = false
+605-		market_panel.add_child(
+606-			market_label
+--
+806-	header.add_child(
+807-		title
+808-	)
+809-
+810-	march_status_label = _new_label(
+811-		"No marchers in flight.",
+812-		13
+813-	)
+814-	march_status_label.modulate = Color(
+815-		0.78,
+816-		0.75,
+817-		0.84,
+818-		1.0
+819-	)
+820-	march_status_label.size_flags_horizontal = (
+821-		Control.SIZE_EXPAND_FILL
+822-	)
+823-	march_status_label.horizontal_alignment = (
+824-		HORIZONTAL_ALIGNMENT_RIGHT
+825-	)
+826-	header.add_child(
+827-		march_status_label
+828-	)
+829-
+830-	var legend := _new_label(
+831:		"YOUR GUARDS →  step 1  ·  step 2  ·  enemy gate (step 3)    •    OPPONENT GUARDS mirror this track ←",
+832-		12
+833-	)
+834-	legend.modulate = Color(
+835-		0.68,
+836-		0.67,
+837-		0.76,
+838-		1.0
+839-	)
+840-	box.add_child(
+841-		legend
+842-	)
+843-
+844-	for lane: String in MARCH_LANES:
+845-		var lane_row := HBoxContainer.new()
+846-		lane_row.add_theme_constant_override(
+847-			"separation",
+848-			6
+849-		)
+850-		box.add_child(
+851-			lane_row
+852-		)
+853-
+854-		var lane_title := _new_label(
+855-			"%s LANE" % lane.to_upper(),
+856-			14
+857-		)
+858-		lane_title.custom_minimum_size = Vector2(
+859-			112,
+860-			48
+861-		)
+862-		march_lane_title_labels[lane] = lane_title
+863-		lane_row.add_child(
+864-			lane_title
+865-		)
+866-
+867-		var human_gate := _new_march_board_label()
+868-		human_gate.custom_minimum_size = Vector2(
+869-			150,
+870-			48
+871-		)
+872-		march_gate_labels[_march_gate_key(lane, true)] = human_gate
+873-		lane_row.add_child(
+874-			human_gate
+875-		)
+876-
+877-		for step: int in range(1, MARCH_TRACK_STEPS + 1):
+878-			var slot_panel := _new_panel(
+879-				Color(
+880-					0.055,
+881-					0.065,
+--
+1333-	):
+1334-		return
+1335-
+1336-	if bool(
+1337-		result.get(
+1338-			"terminal",
+1339-			false
+1340-		)
+1341-	):
+1342-		_show_terminal()
+1343-		return
+1344-
+1345-	if controller.stage == PlayableRoundControllerData.Stage.DEVELOPMENT_SNARE:
+1346-		_enter_development_choice("Orias Snare — gain 1 Threat to limit the opponent to one Deploy move, or pass.")
+1347-		return
+1348-
+1349-	if controller.stage == PlayableRoundControllerData.Stage.MARKET:
+1350-		_enter_development_choice("Market — trade one Hand card for one Market card, or pass.")
+1351-		return
+1352-
+1353-	if controller.stage == PlayableRoundControllerData.Stage.REPAIR:
+1354-		_enter_development_choice("Repair — restore one Ruined Castle, or pass.")
+1355-		return
+1356-
+1357-	if controller.stage == PlayableRoundControllerData.Stage.DOMINION_RITES:
+1358:		_enter_development_choice("Dominion Rites — Invocation and Profane Ruins may both be used when legal.")
+1359-		return
+1360-
+1361-	if controller.stage == PlayableRoundControllerData.Stage.DEPLOY:
+1362-		_begin_deploy_guard_picker()
+1363-		return
+1364-
+1365-	if controller.stage == PlayableRoundControllerData.Stage.MARCH:
+1366-		_begin_march_picker()
+1367-		return
+1368-
+1369-	if controller.stage == PlayableRoundControllerData.Stage.SUMMON:
+1370-		_log(
+1371-			"Round %d: your Lord is banished. Select cards worth at least %d to resummon, or remain banished."
+1372-			% [
+1373-				int(
+1374-					controller.game.round
+1375-				),
+1376-				controller.human_summon_cost(),
+1377-			]
+1378-		)
+1379-
+1380-		_build_hand_buttons(false)
+1381-		_refresh_target_options()
+1382-		_refresh_all()
+1383-		return
+1384-
+1385-	if controller.stage == PlayableRoundControllerData.Stage.REFLEX_BID:
+1386-		_enter_development_choice("Reflex Bid — secretly select any Hand cards to bid, or bid zero.")
+1387-		return
+1388-
+1389-	_show_commitment_prompt()
+1390-	_refresh_all()
+1391-
+1392-
+1393-func _enter_development_choice(
+1394-	prompt: String
+1395-) -> void:
+1396-	selected_action = ""
+1397-	_clear_action_toggles()
+1398-	_build_hand_buttons(
+1399-		controller.stage == PlayableRoundControllerData.Stage.REPAIR
+1400-		or controller.stage == PlayableRoundControllerData.Stage.DEPLOY
+1401-	)
+1402-	_refresh_target_options()
+1403-	_set_phase_message(prompt)
+1404-	_refresh_all()
+1405-
+1406-
+1407-func _begin_deploy_guard_picker() -> void:
+1408-	deploy_target_zone = "Lord"
+--
+1593-		result
+1594-	)
+1595-
+1596-
+1597-func _on_development_option_pressed() -> void:
+1598-	if controller != null and controller.stage == PlayableRoundControllerData.Stage.REPAIR:
+1599-		_refresh_target_options()
+1600-		if hand_caption_label != null:
+1601-			hand_caption_label.text = _hand_caption_text()
+1602-	_refresh_selection_text()
+1603-	_refresh_target_info()
+1604-
+1605-
+1606-func _on_development_finish_pressed() -> void:
+1607-	var result: Dictionary = {}
+1608-	var choice_stage = controller.stage
+1609-
+1610-	match controller.stage:
+1611-		PlayableRoundControllerData.Stage.MARKET:
+1612-			result = controller.resolve_human_market({"pass": true})
+1613-		PlayableRoundControllerData.Stage.DEVELOPMENT_SNARE:
+1614-			result = controller.resolve_human_snare(false)
+1615-		PlayableRoundControllerData.Stage.REPAIR:
+1616-			result = controller.resolve_human_repair({"pass": true})
+1617-		PlayableRoundControllerData.Stage.DOMINION_RITES:
+1618:			result = controller.resolve_human_dominion_rites({"pass": true})
+1619-		PlayableRoundControllerData.Stage.DEPLOY:
+1620-			_finish_deploy_guard_picker()
+1621-			return
+1622-		PlayableRoundControllerData.Stage.MARCH:
+1623-			result = controller.resolve_human_march({"action": "pass"})
+1624-		PlayableRoundControllerData.Stage.REFLEX_BID:
+1625-			result = controller.resolve_human_reflex_bid({"pass": true})
+1626-		PlayableRoundControllerData.Stage.RESOLUTION_REFLEX:
+1627-			result = controller.resolve_human_reflex({"pass": true})
+1628-		PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH:
+1629-			result = controller.resolve_human_odradek_breach({"guess": ""})
+1630-		PlayableRoundControllerData.Stage.RESOLUTION_GREMORY:
+1631-			result = controller.resolve_human_gremory([])
+1632-		PlayableRoundControllerData.Stage.RESOLUTION_HUMBABA_TOLL:
+1633-			result = controller.resolve_human_humbaba_toll("")
+1634-		_:
+1635-			return
+1636-
+1637-	if _show_failure_if_needed(result, false):
+1638-		_set_phase_message("Choice rejected: %s" % String(result.get("reason", "invalid_choice")))
+1639-		return
+1640-
+1641-	if choice_stage in [
+1642-		PlayableRoundControllerData.Stage.RESOLUTION_REFLEX,
+1643-		PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH,
+1644-		PlayableRoundControllerData.Stage.RESOLUTION_GREMORY,
+1645-		PlayableRoundControllerData.Stage.RESOLUTION_ACTION,
+1646-		PlayableRoundControllerData.Stage.RESOLUTION_VESSEL,
+1647-		PlayableRoundControllerData.Stage.RESOLUTION_HUMBABA_TOLL,
+1648-	]:
+1649-		_after_resolution_progress(result)
+1650-	else:
+1651-		_after_development(result)
+1652-
+1653-
+1654-func _after_summon_choice(
+1655-	result: Dictionary
+1656-) -> void:
+1657-	_log_new_development_activity()
+1658-
+1659-	if bool(
+1660-		result.get(
+1661-			"terminal",
+1662-			false
+1663-		)
+1664-	):
+1665-		_show_terminal()
+1666-		return
+1667-
+1668-	if controller.stage == PlayableRoundControllerData.Stage.REFLEX_BID:
+--
+1798-			return
+1799-		var repair_result: Dictionary = controller.resolve_human_repair({
+1800-			"castle": repair_castle,
+1801-			"payment": _selected_card_ids(),
+1802-			"use_token": development_option_button.button_pressed,
+1803-		})
+1804-		if _show_failure_if_needed(repair_result, false):
+1805-			_set_phase_message("Repair rejected: %s" % String(repair_result.get("reason", "invalid_repair")))
+1806-			return
+1807-		_after_development(repair_result)
+1808-		return
+1809-
+1810-	if controller.stage == PlayableRoundControllerData.Stage.DOMINION_RITES:
+1811-		var rite_decision: Dictionary = {
+1812-			"invocation": (
+1813-				{"payment": _selected_card_ids()}
+1814-				if development_option_button.button_pressed
+1815-				else {"pass": true}
+1816-			),
+1817-			"profane_ruins": (
+1818-				{"castle": _selected_target_id()}
+1819-				if not _selected_target_id().is_empty()
+1820-				else {"pass": true}
+1821-			),
+1822-		}
+1823:		var rite_result: Dictionary = controller.resolve_human_dominion_rites(rite_decision)
+1824-		if _show_failure_if_needed(rite_result, false):
+1825-			_set_phase_message("Rite rejected: %s" % String(rite_result.get("reason", "invalid_rite")))
+1826-			return
+1827-		_after_development(rite_result)
+1828-		return
+1829-
+1830-	if controller.stage == PlayableRoundControllerData.Stage.DEPLOY:
+1831-		_finish_deploy_guard_picker()
+1832-		return
+1833-
+1834-	if controller.stage == PlayableRoundControllerData.Stage.REFLEX_BID:
+1835-		var bid_result: Dictionary = controller.resolve_human_reflex_bid({"bid": _selected_card_ids()})
+1836-		if _show_failure_if_needed(bid_result, false):
+1837-			_set_phase_message("Bid rejected: %s" % String(bid_result.get("reason", "invalid_reflex_bid")))
+1838-			return
+1839-		_after_development(bid_result)
+1840-		return
+1841-
+1842-	if selected_action.is_empty():
+1843-		_set_phase_message(
+1844-			"Choose Hunt, Siege, Ward, or Profane."
+1845-		)
+1846-		return
+1847-
+1848-	var human_decision: Dictionary = (
+1849-		_build_human_decision()
+1850-	)
+1851-
+1852-	var result: Dictionary = (
+1853-		controller.seal_human_commitment(
+1854-			human_decision
+1855-		)
+1856-	)
+1857-
+1858-	if _show_failure_if_needed(
+1859-		result,
+1860-		false
+1861-	):
+1862-		_set_phase_message(
+1863-			"Order rejected: %s"
+1864-			% String(
+1865-				result.get(
+1866-					"reason",
+1867-					"invalid_commitment"
+1868-				)
+1869-			)
+1870-		)
+1871-		return
+1872-
+1873-	_set_commitment_controls_enabled(
+--
+2071-			"Predict the bot's %s action; on a correct read, execute your selected stolen action."
+2072-			% _second_action_name()
+2073-		)
+2074-	elif controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_GREMORY:
+2075-		_build_hand_buttons(true)
+2076-		_refresh_target_options()
+2077-		_set_phase_message("Pay exactly two Hand/Garrison cards to ruin the surviving sieged Castle, or pass.")
+2078-	_refresh_all()
+2079-
+2080-
+2081-func _refresh_all() -> void:
+2082-	if debug_export_button != null:
+2083-		debug_export_button.disabled = controller == null or controller.game == null
+2084-
+2085-	if controller == null or controller.game == null:
+2086-		return
+2087-
+2088-	var game = controller.game
+2089-	var human = controller.get_human_player()
+2090-	var bot = controller.get_bot_player()
+2091-
+2092-	round_label.text = "Round %d" % int(
+2093-		game.round
+2094-	)
+2095-
+2096:	veil_label.text = "Veil %d/%d" % [
+2097-		int(
+2098:			game.calculate_veil_total()
+2099-		),
+2100-		int(
+2101-			controller.rules.final_collapse_threshold
+2102-		),
+2103-	]
+2104-
+2105-	breach_label.text = (
+2106-		"Breach: none"
+2107-		if String(
+2108-			game.breach
+2109-		).is_empty()
+2110-		else "Breach: %s" % String(
+2111-			game.breach
+2112-		)
+2113-	)
+2114-
+2115-	human_state_label.text = _player_state_text(
+2116-		human,
+2117-		false
+2118-	)
+2119-	bot_state_label.text = _player_state_text(
+2120-		bot,
+2121-		true
+2122-	)
+2123-	human_lord_card_label.text = _lord_card_text(
+2124-		human
+2125-	)
+2126-	bot_lord_card_label.text = _lord_card_text(
+2127-		bot
+2128-	)
+2129-	_refresh_staging_area()
+2130-	_refresh_marching_board()
+2131-
+2132-	var commitment_controls_visible: bool = (
+2133-		controller.stage in [
+2134-			PlayableRoundControllerData.Stage.COMMITMENT,
+2135-			PlayableRoundControllerData.Stage.RESOLUTION_REFLEX,
+2136-			PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH,
+2137-		]
+2138-	)
+2139-	for action_name: String in ACTIONS:
+2140-		var action_button: Button = action_buttons.get(action_name, null)
+2141-		if action_button != null:
+2142-			action_button.visible = commitment_controls_visible
+2143-
+2144-	target_label.visible = (
+2145-		controller.stage in [
+2146-			PlayableRoundControllerData.Stage.MARKET,
+2147-			PlayableRoundControllerData.Stage.DEVELOPMENT_SNARE,
+2148-			PlayableRoundControllerData.Stage.REPAIR,
+--
+2207-			development_finish_button.text = "Pass Market"
+2208-			development_finish_button.visible = true
+2209-			summon_button.visible = false
+2210-			skip_summon_button.visible = false
+2211-			reveal_button.visible = false
+2212-			resolve_button.visible = false
+2213-			next_round_button.visible = false
+2214-
+2215-		PlayableRoundControllerData.Stage.REPAIR:
+2216-			phase_label.text = "Development — Repair"
+2217-			confirm_button.text = "Repair"
+2218-			confirm_button.visible = true
+2219-			development_option_button.text = "Use Repair Token"
+2220-			development_option_button.set_pressed_no_signal(false)
+2221-			development_option_button.disabled = int(human.repair_token) <= 0
+2222-			development_option_button.visible = true
+2223-			development_finish_button.text = "Pass Repair"
+2224-			development_finish_button.visible = true
+2225-			summon_button.visible = false
+2226-			skip_summon_button.visible = false
+2227-			reveal_button.visible = false
+2228-			resolve_button.visible = false
+2229-			next_round_button.visible = false
+2230-
+2231-		PlayableRoundControllerData.Stage.DOMINION_RITES:
+2232:			phase_label.text = "Development — Dominion Rites"
+2233-			confirm_button.text = "Resolve Rites"
+2234-			confirm_button.visible = true
+2235-			development_option_button.text = "Use Invocation"
+2236-			development_option_button.set_pressed_no_signal(false)
+2237-			development_option_button.disabled = false
+2238-			development_option_button.visible = true
+2239-			development_finish_button.text = "Pass Rites"
+2240-			development_finish_button.visible = true
+2241-			summon_button.visible = false
+2242-			skip_summon_button.visible = false
+2243-			reveal_button.visible = false
+2244-			resolve_button.visible = false
+2245-			next_round_button.visible = false
+2246-
+2247-		PlayableRoundControllerData.Stage.DEPLOY:
+2248-			phase_label.text = "Development — Deploy %s Guards" % deploy_target_zone
+2249-			confirm_button.text = (
+2250-				"Next: Castle Guards"
+2251-				if deploy_target_zone == "Lord"
+2252-				else "Finish Deploy"
+2253-			)
+2254-			confirm_button.visible = true
+2255-			development_finish_button.visible = false
+2256-			summon_button.visible = false
+2257-			skip_summon_button.visible = false
+2258-			reveal_button.visible = false
+2259-			resolve_button.visible = false
+2260-			next_round_button.visible = false
+2261-
+2262-		PlayableRoundControllerData.Stage.MARCH:
+2263-			phase_label.text = "Development — Marching Orders"
+2264-			confirm_button.text = "4. Launch Face-Up Guard"
+2265-			confirm_button.visible = true
+2266-			development_finish_button.text = "Pass Marching Orders"
+2267-			development_finish_button.visible = true
+2268-			summon_button.visible = false
+2269-			skip_summon_button.visible = false
+2270-			reveal_button.visible = false
+2271-			resolve_button.visible = false
+2272-			next_round_button.visible = false
+2273-
+2274-		PlayableRoundControllerData.Stage.SUMMON:
+2275-			phase_label.text = (
+2276-				"Summon — pay %d to return"
+2277-				% controller.human_summon_cost()
+2278-			)
+2279-			summon_button.visible = true
+2280-			skip_summon_button.visible = true
+2281-			confirm_button.visible = false
+2282-			reveal_button.visible = false
+--
+2403-
+2404-		PlayableRoundControllerData.Stage.INVALID:
+2405-			phase_label.text = "Prototype halted"
+2406-			summon_button.visible = false
+2407-			skip_summon_button.visible = false
+2408-			confirm_button.visible = false
+2409-			reveal_button.visible = false
+2410-			resolve_button.visible = false
+2411-			next_round_button.visible = false
+2412-
+2413-	call_deferred(
+2414-		"_validate_layout_invariants"
+2415-	)
+2416-
+2417-
+2418-func _refresh_staging_area() -> void:
+2419-	if controller == null or controller.game == null or controller.rules == null:
+2420-		return
+2421-
+2422-	var game = controller.game
+2423-	var human = controller.get_human_player()
+2424-	var bot = controller.get_bot_player()
+2425-	if human == null or bot == null:
+2426-		return
+2427-
+2428:	var veil_total: int = int(game.calculate_veil_total())
+2429:	if dominion_track_label != null:
+2430:		dominion_track_label.text = (
+2431:			"[center][b]DOMINION TRACK[/b]  Veil [b]%d[/b]  ·  Cataclysm %d  ·  "
+2432-			+ "Your Tears %d/%d  ·  Opponent %d/%d[/center]"
+2433-		) % [
+2434:			veil_total,
+2435:			int(controller.rules.dominion_track),
+2436-			int(human.tears),
+2437:			int(controller.rules.dominion_requirement),
+2438-			int(bot.tears),
+2439:			int(controller.rules.dominion_requirement),
+2440-		]
+2441-
+2442:	if dominion_progress != null:
+2443:		dominion_progress.min_value = 0.0
+2444:		dominion_progress.max_value = float(
+2445-			max(1, int(controller.rules.final_collapse_threshold))
+2446-		)
+2447:		dominion_progress.value = float(
+2448:			min(veil_total, int(dominion_progress.max_value))
+2449-		)
+2450:		dominion_progress.tooltip_text = (
+2451:			"Veil %d. Cataclysm at %d; Final Collapse at %d."
+2452-			% [
+2453:				veil_total,
+2454:				int(controller.rules.dominion_track),
+2455-				int(controller.rules.final_collapse_threshold),
+2456-			]
+2457-		)
+2458-
+2459-	var selected_market_id: String = ""
+2460-	var suggested_market_id: String = ""
+2461-	if controller.stage == PlayableRoundControllerData.Stage.MARKET:
+2462-		selected_market_id = _selected_target_id()
+2463-		suggested_market_id = _best_market_take_card_id()
+2464-
+2465-	for market_index: int in range(market_staging_labels.size()):
+2466-		var market_label: RichTextLabel = market_staging_labels[market_index]
+2467-		var market_panel: PanelContainer = market_staging_panels[market_index]
+2468-		if market_index >= game.market.size():
+2469-			market_label.text = "[center][color=#78758a]EMPTY OFFER[/color]\n—[/center]"
+2470-			market_panel.self_modulate = Color.WHITE
+2471-			continue
+2472-
+2473-		var market_card = game.market[market_index]
+2474-		var market_card_id: String = _card_id(market_card)
+2475-		var marker: String = ""
+2476-		if market_card_id == selected_market_id:
+2477-			marker = "\n[color=#f2d477][b]SELECTED[/b][/color]"
+2478-			market_panel.self_modulate = Color(1.0, 0.92, 0.64, 1.0)
+2479-		elif market_card_id == suggested_market_id:
+2480-			marker = "\n[color=#8ee5a1]BEST VALUE[/color]"
+2481-			market_panel.self_modulate = Color(0.82, 1.0, 0.86, 1.0)
+2482-		else:
+2483-			market_panel.self_modulate = Color.WHITE
+2484-
+2485-		market_label.text = "[center][b]%s[/b]\nValue %d%s[/center]" % [
+2486-			market_card_id,
+2487-			int(market_card.value),
+2488-			marker,
+2489-		]
+2490-
+2491-	if human_staging_label != null:
+2492-		human_staging_label.text = _staging_order_text(human, true)
+2493-	if bot_staging_label != null:
+2494-		bot_staging_label.text = _staging_order_text(bot, false)
+2495-
+2496-
+2497-func _staging_order_text(
+2498-	player,
+2499-	is_human: bool
+2500-) -> String:
+2501-	var owner_name: String = "YOU" if is_human else "OPPONENT"
+2502-	var owner_color: String = "#78d9a1" if is_human else "#dc8d9d"
+2503-	var action_name: String = String(player.action)
+2504-
+--
+4458-	var players: Array = []
+4459-
+4460-	for player in game.players:
+4461-		players.append({
+4462-			"lord": String(
+4463-				player.lord
+4464-			),
+4465-			"souls": int(
+4466-				player.souls
+4467-			),
+4468-			"tears": int(
+4469-				player.tears
+4470-			),
+4471-			"threat": int(
+4472-				player.threat
+4473-			),
+4474-			"alive": bool(
+4475-				player.alive
+4476-			),
+4477-			"castles": player.castles.size(),
+4478-			"lord_guards": player.lord_guards.size(),
+4479-			"castle_guards": player.castle_guards.size(),
+4480-		})
+4481-
+4482-	return {
+4483:		"veil": int(
+4484:			game.calculate_veil_total()
+4485-		),
+4486-		"breach": String(
+4487-			game.breach
+4488-		),
+4489-		"players": players,
+4490-	}
+4491-
+4492-
+4493-func _log_resolution_transcript(
+4494-	round_result: Dictionary
+4495-) -> void:
+4496-	var resolution_result: Dictionary = (
+4497-		_resolution_result_from(
+4498-			round_result
+4499-		)
+4500-	)
+4501-
+4502-	if resolution_result.is_empty():
+4503-		return
+4504-
+4505-	var prelude_raw = resolution_result.get(
+4506-		"prelude_result",
+4507-		{}
+4508-	)
+4509-
+4510-	if typeof(
+4511-		prelude_raw
+4512-	) == TYPE_DICTIONARY:
+4513-		var prelude: Dictionary = prelude_raw
+4514-		_log_resolution_order(
+4515-			prelude
+4516-		)
+4517-		_log_prelude_lord_powers(
+4518-			prelude
+4519-		)
+4520-		_log_prelude_global_events(
+4521-			prelude
+4522-		)
+4523-
+4524-	for raw_event in _array_from(
+4525-		resolution_result.get(
+4526-			"action_events",
+4527-			[]
+4528-		)
+4529-	):
+4530-		if typeof(
+4531-			raw_event
+4532-		) != TYPE_DICTIONARY:
+4533-			continue
+4534-
+--
+4885-	prelude: Dictionary
+4886-) -> void:
+4887-	for raw_event in _array_from(
+4888-		prelude.get(
+4889-			"collapse_events",
+4890-			[]
+4891-		)
+4892-	):
+4893-		if typeof(
+4894-			raw_event
+4895-		) != TYPE_DICTIONARY:
+4896-			continue
+4897-
+4898-		var event: Dictionary = raw_event
+4899-		var discarded_card: String = String(
+4900-			event.get(
+4901-				"discarded_card",
+4902-				""
+4903-			)
+4904-		)
+4905-
+4906-		if discarded_card.is_empty():
+4907-			continue
+4908-
+4909-		_log(
+4910:			"[color=#f2d477][b]Veil Collapse:[/b] %s's previously attacked %s zone lost its lowest Guard, %s.[/color]"
+4911-			% [
+4912-				_player_name(
+4913-					int(
+4914-						event.get(
+4915-							"player_id",
+4916-							-1
+4917-						)
+4918-					)
+4919-				),
+4920-				String(
+4921-					event.get(
+4922-						"zone",
+4923-						"?"
+4924-					)
+4925-				),
+4926-				discarded_card,
+4927-			]
+4928-		)
+4929-
+4930-	for raw_event in _array_from(
+4931-		prelude.get(
+4932-			"waning_events",
+4933-			[]
+4934-		)
+4935-	):
+4936-		if typeof(
+4937-			raw_event
+4938-		) != TYPE_DICTIONARY:
+4939-			continue
+4940-
+4941-		var event: Dictionary = raw_event
+4942-
+4943-		if String(
+4944-			event.get(
+4945-				"source",
+4946-				""
+4947-			)
+4948:		) != "veil_waning":
+4949-			continue
+4950-
+4951-		var discarded_card: String = String(
+4952-			event.get(
+4953-				"discarded_card",
+4954-				""
+4955-			)
+4956-		)
+4957-
+4958-		if discarded_card.is_empty():
+4959-			continue
+4960-
+4961-		_log(
+4962:			"[color=#f2d477][b]Veil Waning:[/b] %s's previously attacked %s zone lost %s.[/color]"
+4963-			% [
+4964-				_player_name(
+4965-					int(
+4966-						event.get(
+4967-							"player_id",
+4968-							-1
+4969-						)
+4970-					)
+4971-				),
+4972-				String(
+4973-					event.get(
+4974-						"zone",
+4975-						"?"
+4976-					)
+4977-				),
+4978-				discarded_card,
+4979-			]
+4980-		)
+4981-
+4982-
+4983-func _log_action_outcome(
+4984-	action_result: Dictionary,
+4985-	source_name: String,
+4986-	requested_action: String
+4987-) -> void:
+4988-	var action_name: String = String(
+4989-		action_result.get(
+4990-			"action",
+4991-			""
+4992-		)
+4993-	)
+4994-
+4995-	if action_name == "pass":
+4996-		if requested_action == "Pass":
+4997-			return
+4998-
+4999-		_log(
+5000-			"[color=#a9a1b0][b]%s %s skipped:[/b] %s.[/color]"
+5001-			% [
+5002-				source_name,
+5003-				requested_action,
+5004-				String(
+5005-					action_result.get(
+5006-						"reason",
+5007-						"no legal target"
+5008-					)
+5009-				).replace(
+5010-					"_",
+5011-					" "
+5012-				),
+--
+6878-							true
+6879-						)
+6880-					)
+6881-					else "banished"
+6882-				)
+6883-			)
+6884-
+6885-		if not changes.is_empty():
+6886-			fragments.append(
+6887-				"%s: %s"
+6888-				% [
+6889-					String(
+6890-						new_player.get(
+6891-							"lord",
+6892-							"Player"
+6893-						)
+6894-					),
+6895-					", ".join(
+6896-						changes
+6897-					),
+6898-				]
+6899-			)
+6900-
+6901-	if int(
+6902-		before.get(
+6903:			"veil",
+6904-			0
+6905-		)
+6906-	) != int(
+6907-		after.get(
+6908:			"veil",
+6909-			0
+6910-		)
+6911-	):
+6912-		fragments.append(
+6913:			"Veil %d→%d"
+6914-			% [
+6915-				int(
+6916-					before.get(
+6917:						"veil",
+6918-						0
+6919-					)
+6920-				),
+6921-				int(
+6922-					after.get(
+6923:						"veil",
+6924-						0
+6925-					)
+6926-				),
+6927-			]
+6928-		)
+6929-
+6930-	if fragments.is_empty():
+6931-		_log(
+6932:			"Resolution: no tracked board clocks changed."
+6933-		)
+6934-	else:
+6935-		_log(
+6936-			"Resolution: %s."
+6937-			% " | ".join(
+6938-				fragments
+6939-			)
+6940-		)
+6941-
+6942-
+6943-func _log_guard_reveals() -> void:
+6944-	for event: Dictionary in (
+6945-		controller.consume_guard_reveal_events()
+6946-	):
+6947-		var cards: Array = _array_from(
+6948-			event.get(
+6949-				"cards",
+6950-				[]
+6951-			)
+6952-		)
+6953-
+6954-		if cards.is_empty():
+6955-			continue
+6956-
+6957-		_log(
+6958-			"[color=#f2d477][b]Guard reveal:[/b] %s's %s zone turns face-up — %s.[/color]"
+6959-			% [
+6960-				_player_name(
+6961-					int(
+6962-						event.get(
+6963-							"defender_id",
+6964-							-1
+6965-						)
+6966-					)
+6967-				),
+6968-				String(
+6969-					event.get(
+6970-						"zone",
+6971-						"Guard"
+6972-					)
+6973-				),
+6974-				_string_values_inline(
+6975-					cards
+6976-				),
+6977-			]
+6978-		)
+6979-
+6980-
+6981-func _log_reveal_sigils(
+6982-	round_result: Dictionary
+--
+7650-	)
+7651-
+7652-	if winner == null:
+7653-		return
+7654-
+7655-	_log(
+7656-		"[color=#c8b36a]Reflex bid: %s wins%s and holds a second action.[/color]"
+7657-		% [
+7658-			String(
+7659-				winner.lord
+7660-			),
+7661-			totals_text,
+7662-		]
+7663-	)
+7664-
+7665-
+7666-func _log_new_development_activity() -> void:
+7667-	if (
+7668-		controller == null
+7669-		or controller.game == null
+7670-	):
+7671-		return
+7672-
+7673-	for phase_name: String in [
+7674-		"sigil_update",
+7675:		"veil_drift",
+7676-		"development_start",
+7677-		"draw",
+7678-		"market_rollover",
+7679-		"market",
+7680-		"repair",
+7681:		"dominion_rites",
+7682-		"deploy",
+7683-		"summon",
+7684-	]:
+7685-		if not controller.phase_results.has(
+7686-			phase_name
+7687-		):
+7688-			continue
+7689-
+7690-		var report_key: String = "%d:%s" % [
+7691-			int(
+7692-				controller.game.round
+7693-			),
+7694-			phase_name,
+7695-		]
+7696-
+7697-		if bool(
+7698-			reported_development_phases.get(
+7699-				report_key,
+7700-				false
+7701-			)
+7702-		):
+7703-			continue
+7704-
+7705-		reported_development_phases[
+7706-			report_key
+7707-		] = true
+7708-
+7709-		var phase_data = controller.phase_results.get(
+7710-			phase_name,
+7711-			{}
+7712-		)
+7713-
+7714-		if typeof(
+7715-			phase_data
+7716-		) != TYPE_DICTIONARY:
+7717-			continue
+7718-
+7719-		match phase_name:
+7720-			"sigil_update":
+7721-				_log_sigil_update_events(
+7722-					phase_data
+7723-				)
+7724:			"veil_drift":
+7725:				_log_veil_drift_events(
+7726-					phase_data
+7727-				)
+7728-			"development_start":
+7729-				_log_development_start_events(
+7730-					phase_data
+7731-				)
+7732-			"draw":
+7733-				_log_draw_events(
+7734-					phase_data
+7735-				)
+7736-			"market_rollover":
+7737-				_log_market_rollover(
+7738-					phase_data
+7739-				)
+7740-			"market":
+7741-				_log_market_events(
+7742-					phase_data
+7743-				)
+7744-			"repair":
+7745-				_log_repair_events(
+7746-					phase_data
+7747-				)
+7748:			"dominion_rites":
+7749-				_log_rite_events(
+7750-					phase_data
+7751-				)
+7752-			"deploy":
+7753-				_log_deploy_events(
+7754-					phase_data
+7755-				)
+7756-			"summon":
+7757-				_log_summon_events(
+7758-					phase_data
+7759-				)
+7760-
+7761-
+7762:func _log_veil_drift_events(
+7763-	phase_data: Dictionary
+7764-) -> void:
+7765-	if not bool(
+7766-		phase_data.get(
+7767-			"applied",
+7768-			false
+7769-		)
+7770-	):
+7771-		return
+7772-
+7773-	_log(
+7774:		"[color=#f2d477][b]Veil Drift:[/b] The advancing Veil created 1 Neutral Tear (Veil %d→%d).[/color]"
+7775-		% [
+7776-			int(
+7777-				phase_data.get(
+7778:					"veil_before",
+7779-					0
+7780-				)
+7781-			),
+7782-			int(
+7783-				phase_data.get(
+7784:					"veil_after",
+7785-					0
+7786-				)
+7787-			),
+7788-		]
+7789-	)
+7790-	_log_harvest_event(
+7791-		phase_data,
+7792:		"Veil Drift"
+7793-	)
+7794-
+7795-	if bool(
+7796-		phase_data.get(
+7797-			"won",
+7798-			false
+7799-		)
+7800-	):
+7801-		_log_victory_cause(
+7802:			"Veil Drift"
+7803-		)
+7804-
+7805-
+7806-func _log_sigil_update_events(
+7807-	phase_data: Dictionary
+7808-) -> void:
+7809-	for raw_event in _array_from(
+7810-		phase_data.get(
+7811-			"events",
+7812-			[]
+7813-		)
+7814-	):
+7815-		if typeof(
+7816-			raw_event
+7817-		) != TYPE_DICTIONARY:
+7818-			continue
+7819-
+7820-		var event: Dictionary = raw_event
+7821-		var state_before: String = String(
+7822-			event.get(
+7823-				"state_before",
+7824-				""
+7825-			)
+7826-		)
+7827-		var state_after: String = String(
+7828-			event.get(
+7829-				"state_after",
+7830-				""
+7831-			)
+7832-		)
+7833-
+7834-		if (
+7835-			state_before.is_empty()
+7836-			or state_before == state_after
+7837-		):
+7838-			continue
+7839-
+7840-		_log(
+7841-			"[color=#91c7ff]Sigil upkeep: %s's %s sigil %s → %s.[/color]"
+7842-			% [
+7843-				_player_name(
+7844-					int(
+7845-						event.get(
+7846-							"player_id",
+7847-							-1
+7848-						)
+7849-					)
+7850-				),
+7851-				String(
+7852-					event.get(
+--
+8341-				-1
+8342-			)
+8343-		)
+8344-
+8345-		for raw_action in _array_from(
+8346-			player_result.get(
+8347-				"actions",
+8348-				[]
+8349-			)
+8350-		):
+8351-			if typeof(
+8352-				raw_action
+8353-			) != TYPE_DICTIONARY:
+8354-				continue
+8355-
+8356-			var rite: Dictionary = raw_action
+8357-			var action_name: String = String(
+8358-				rite.get(
+8359-					"action",
+8360-					"rite"
+8361-				)
+8362-			)
+8363-
+8364-			if action_name == "cataclysmic_invocation":
+8365-				_log(
+8366:					"[color=#f2d477][b]CATACLYSMIC INVOCATION:[/b] %s paid %d with %s, gained 1 personal Tear, and moved the Veil %d→%d.[/color]"
+8367-					% [
+8368-						_player_name(
+8369-							player_id
+8370-						),
+8371-						int(
+8372-							rite.get(
+8373-								"paid_total",
+8374-								0
+8375-							)
+8376-						),
+8377-						_string_values_inline(
+8378-							rite.get(
+8379-								"paid_cards",
+8380-								[]
+8381-							)
+8382-						),
+8383-						int(
+8384-							rite.get(
+8385:								"veil_before",
+8386-								0
+8387-							)
+8388-						),
+8389-						int(
+8390-							rite.get(
+8391:								"veil_after",
+8392-								0
+8393-							)
+8394-						),
+8395-					]
+8396-				)
+8397-				_log_harvest_event(
+8398-					rite,
+8399-					"Cataclysmic Invocation"
+8400-				)
+8401-
+8402-				if bool(
+8403-					rite.get(
+8404-						"won",
+8405-						false
+8406-					)
+8407-				):
+8408-					_log_victory_cause(
+8409-						"Cataclysmic Invocation"
+8410-					)
+8411-			elif action_name == "profane_ruins":
+8412-				_log(
+8413:					"[color=#c8b36a][b]Profane the Ruins:[/b] %s converted ruined %s into a Profaned Castle and gained 1 personal Tear (Veil now %d).[/color]"
+8414-					% [
+8415-						_player_name(
+8416-							player_id
+8417-						),
+8418-						String(
+8419-							rite.get(
+8420-								"castle",
+8421-								"castle"
+8422-							)
+8423-						),
+8424-						int(
+8425-							rite.get(
+8426:								"veil_after",
+8427-								0
+8428-							)
+8429-						),
+8430-					]
+8431-				)
+8432-				_log_harvest_event(
+8433-					rite,
+8434-					"Profane the Ruins"
+8435-				)
+8436-
+8437-				if bool(
+8438-					rite.get(
+8439-						"won",
+8440-						false
+8441-					)
+8442-				):
+8443-					_log_victory_cause(
+8444-						"Profane the Ruins"
+8445-					)
+8446-
+8447-
+8448-func _log_deploy_events(
+8449-	phase_data: Dictionary
+8450-) -> void:
+8451-	for raw_player_result in _array_from(
+8452-		phase_data.get(
+8453-			"results",
+8454-			[]
+8455-		)
+8456-	):
+8457-		if typeof(
+8458-			raw_player_result
+8459-		) != TYPE_DICTIONARY:
+8460-			continue
+8461-
+8462-		var player_result: Dictionary = (
+8463-			raw_player_result
+8464-		)
+8465-		var moves: Array = _array_from(
+8466-			player_result.get(
+8467-				"moves",
+8468-				[]
+8469-			)
+8470-		)
+8471-		var player_id: int = int(
+8472-			player_result.get(
+8473-				"player_id",
+8474-				-1
+8475-			)
+8476-		)
+--
+9161-						"later repair (−5)"
+9162-						if bool(
+9163-							player.kalligan_repair_used
+9164-						)
+9165-						else "first repair (−7)"
+9166-					),
+9167-					_persistent_scorch_text(),
+9168-				]
+9169-			)
+9170-		"Gremory":
+9171-			return (
+9172-				"This round — Ruin recovery %s; Guard insight %s; Harvest %s; Inevitable Ruin %s."
+9173-				% [
+9174-					_used_ready(
+9175-						bool(
+9176-							player.gremory_ruin_done
+9177-						)
+9178-					),
+9179-					_used_ready(
+9180-						bool(
+9181-							player.gremory_lord_guard_draw_done
+9182-						)
+9183-					),
+9184-					_used_ready(
+9185-						bool(
+9186:							player.gremory_veil_draw_done
+9187-						)
+9188-					),
+9189-					_used_ready(
+9190-						bool(
+9191-							player.gremory_inevitable_ruin_done
+9192-						)
+9193-					),
+9194-				]
+9195-			)
+9196-		"Odradek":
+9197-			return (
+9198-				"Recoil this round %s; Reconfiguration %d/%d tokens; Guards defeated this round %d."
+9199-				% [
+9200-					_used_ready(
+9201-						bool(
+9202-							player.odradek_recoil_done
+9203-						)
+9204-					),
+9205-					int(
+9206-						player.odradek_reconfig_tokens
+9207-					),
+9208-					int(
+9209-						controller.rules.reconfig_tokens_needed
+9210-					),
+9211-					int(
+9212-						player.odradek_guards_defeated
+9213-					),
+9214-				]
+9215-			)
+9216-		"Kanifous":
+9217-			return (
+9218-				"Invoked this round %d time(s); suit %s; high Invoke %s; outside draws %d."
+9219-				% [
+9220-					int(
+9221-						player.kanifous_invokes_this_round
+9222-					),
+9223-					(
+9224-						"none"
+9225-						if String(
+9226-							player.kanifous_invoked_suit
+9227-						).is_empty()
+9228-						else String(
+9229-							player.kanifous_invoked_suit
+9230-						)
+9231-					),
+9232-					(
+9233-						"yes"
+9234-						if bool(
+9235-							player.kanifous_invoked_high
+9236-						)
+9237-						else "no"
+9238-					),
+9239-					int(
+9240-						player.kanifous_outside_draws
+9241-					),
+9242-				]
+9243-			)
+9244-		"Humbaba":
+9245-			return (
+9246:				"Living Fortress DEF %d with %d Castles; Gate Guard cap %d; Patient %s; Seal adds +1 Dominion requirement."
+9247-				% [
+9248-					int(
+9249-						player.derived_lord_def
+9250-					),
+9251-					player.castles.size(),
+9252-					(
+9253-						4
+9254-						if player.ruined_castles.is_empty()
+9255-						else 3
+9256-					),
+9257-					(
+9258-						"armed"
+9259-						if bool(
+9260-							player.humbaba_patient
+9261-						)
+9262-						else "not armed"
+9263-					),
+9264-				]
+9265-			)
+9266-
+9267-	return "No live ability state."
+9268-
+9269-
+9270-func _persistent_scorch_text() -> String:
+9271-	var player_id: int = int(
+9272-		controller.game.persist_scorch_pid
+9273-	)
+9274-	var zone: String = String(
+9275-		controller.game.persist_scorch_type
+9276-	)
+9277-
+9278-	if (
+9279-		player_id < 0
+9280-		or zone.is_empty()
+9281-	):
+9282-		return "none"
+9283-
+9284-	return "%s %s" % [
+9285-		_player_name(
+9286-			player_id
+9287-		),
+9288-		zone,
+9289-	]
+9290-
+9291-
+9292-func _used_ready(
+9293-	used: bool
+9294-) -> String:
+9295-	return (
+9296-		"used"
+
+===== RELEVANT RULE VALUES =====
+9-# → golden-master diff Python vs Godot.
+10-#
+11-# Default instance = DE v2 / current canonical tuned config.
+12-# Use RuleConfig.base_v5_29() only for raw rulebook/baseline tests.
+13-#
+14-# RuleConfig is the tuning bridge.
+15-# Card distributions, castle stats, lord stats, and other content tables
+16-# should live in separate content resources transcribed from the Python sim.
+17-
+18-# Core clocks.
+19:@export var win_souls: int = 7
+20-
+21-# IMPORTANT:
+22-# This is the Cataclysm checkpoint and Python's DOMINION_TRACK.
+23-# Do not create a separate cataclysm_threshold field unless it is a true
+24-# different mechanic. Dominion timing and Cataclysm timing are the same seam.
+25:@export var dominion_track: int = 11
+26-
+27-@export var dominion_requirement: int = 2
+28-@export var final_collapse_threshold: int = 15
+29-
+30-# Hand / board limits.
+31-@export var hand_limit: int = 10
+32-@export var garrison_max: int = 5
+33:@export var max_threat: int = 4
+34-@export var market_size: int = 3
+35-@export var max_rounds: int = 60
+36-
+37-# DE v2 variant dials.
+38-@export var recoil_hunts_only: bool = true
+39-@export var sigil_soul_fresh_only: bool = false
+40-@export var invocation_gate: int = 5
+41-@export var profane_ruins_req: int = 1
+42-@export var ai_dominion_drive: bool = true
+43-@export var no_backwash: bool = false
+44-@export var reconfig_strict: bool = true
+45-@export var kroni_def_soft: bool = false
+46-@export var kroni_hunger_decay: bool = true
+47-@export var deimos_war_machine_free: bool = true
+48-@export var deimos_summon_cost: int = 7
+--
+79-@export var ward_read: bool = false
+80-@export var ward_garrison_refund: bool = false
+81-@export var sigil_flat: bool = false
+82-@export var humbaba_sigil_commit: bool = false
+83-
+84-@export var repair_escalation: int = 0
+85-@export var castle_scarring: bool = false
+86-@export var castle_scar_def: int = 2
+87-@export var castle_permanent_loss: bool = false
+88-@export var veil_on_permanent_loss: bool = false
+89:@export var lord_threat_retention: bool = false
+90-
+91-@export var reflex_bid: bool = true
+92-@export var momentum: bool = false
+93-@export var momentum_band: int = 3
+94-@export var fog_of_war: bool = false
+95-
+96-# Independent from Marching Orders: the lab Market refreshes before swaps from
+97-# round two onward.  It must stay enabled when Marching is isolated for tests.
+98-@export var market_refresh: bool = false
+99-
+100-@export var marching: bool = false
+101-@export var march_max_in_flight: int = 1
+102-@export var march_threshold: int = 3
+103-@export var march_damage: int = 2
+104-@export var march_suit_bonus: int = 1
+--
+118-
+119-static func de_v2() -> RuleConfig:
+120-	# DE v2 is the default state of this resource.
+121-	return RuleConfig.new()
+122-
+123-
+124-static func base_v5_29() -> RuleConfig:
+125-	var config := RuleConfig.new()
+126-
+127-	# Historical/raw v5.29 baseline overrides.
+128:	config.dominion_track = 12
+129-	config.dominion_requirement = 3
+130-
+131-	config.recoil_hunts_only = false
+132-	config.invocation_gate = 7
+133-	config.profane_ruins_req = 2
+134-	config.ai_dominion_drive = false
+135-	config.reconfig_strict = false
+136-	config.kroni_hunger_decay = false
+137-	config.deimos_war_machine_free = false
+138-	config.deimos_summon_cost = 0
+139-	config.recoil_lowest = false
+140-	config.neutral_tear_on_banish = false
+141-	config.reconfig_tokens_needed = 3
+142-	config.deimos_claims_breach = 0
+143-	config.gremory_summon_cost = 0
+--
+148-static func lab_v6_5() -> RuleConfig:
+149-	# The measured 6.5 lab profile.  It starts from canonical DE v2 so the
+150-	# established lord-power corrections remain authoritative, then applies only
+151-	# the systems included in LAB_MEASURED_CONFIG.  Loadouts and adaptive
+152-	# doctrine intentionally stay off: neither was in the measured bundle.
+153-	var config := RuleConfig.de_v2()
+154-
+155-	# The lab was measured on the 12-step Cataclysm checkpoint.  Only its
+156-	# Ritual, Dominion-requirement, and Collapse clocks were repriced by
+157-	# apply_lab_clocks(); retaining DE v2's 11 here would be an unmeasured hybrid.
+158:	config.dominion_track = 12
+159:	config.win_souls = 11
+160-	config.dominion_requirement = 7
+161-	config.final_collapse_threshold = 22
+162-
+163-	config.fix_a = true
+164-	config.fix_b = true
+165-
+166-	config.ward_threshold = true
+167-	config.ward_anti_repeat = false
+168-	config.ward_commit_any = true
+169-	config.ward_commit_defense = true
+170-	config.ward_read = true
+171-	config.ward_garrison_refund = true
+172-	config.sigil_flat = true
+173-	config.humbaba_sigil_commit = true
+174-
+175-	config.castle_scarring = true
+176-	config.castle_permanent_loss = true
+177-	config.veil_on_permanent_loss = true
+178:	config.lord_threat_retention = true
+179-
+180-	config.reflex_bid = false
+181-	config.momentum = true
+182-	config.momentum_band = 3
+183-	config.fog_of_war = true
+184-	config.market_refresh = true
+185-
+186-	config.marching = true
+187-	config.march_max_in_flight = 1
+188-	config.march_threshold = 3
+189-	config.march_damage = 2
+190-	config.march_suit_bonus = 1
+191-	config.march_steps = 3
+192-	config.march_exception_pair = true
+193-	config.lane_kill_soul = true
+194-
+195-	return config
+196-
+197-
+198-func get_cataclysm_threshold() -> int:
+199:	return dominion_track

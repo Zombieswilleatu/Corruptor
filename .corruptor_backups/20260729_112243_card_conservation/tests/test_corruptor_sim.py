@@ -397,11 +397,6 @@ class LordPowerRegressionTests(unittest.TestCase):
             removed,
             kroni.lord_guards + kroni.castle_guards + kroni.garrison + kroni.hand,
         )
-        self.assertEqual(
-            game.removed_from_play,
-            [removed],
-            "Fallback Consume must retain the physical card in the removed zone.",
-        )
 
     def test_after_reveal_lord_powers_use_locked_committed_order(self):
         game = sim.Game(

@@ -695,9 +695,6 @@ class Game:
         self.deck:    List[Card] = []
         self.discard: List[Card] = []
         self.market:  List[Card] = []
-        # Physical cards consumed by effects such as Kroni's fallback remain tracked here.
-        # Godot already exposes the same zone on GameState.
-        self.removed_from_play: List[Card] = []
         self.breach:  Optional[str] = None
         self.breach_owner: int = -1          # pid whose banished lord fuels the Breach
         # In DE v2 this is the Reflex Bid winner; in v6.5 it is the player who
@@ -1593,13 +1590,11 @@ class Game:
                     victim = min(all_guards, key=lambda g: g.value)
                     if victim in pl.lord_guards:     pl.lord_guards.remove(victim)
                     elif victim in pl.castle_guards: pl.castle_guards.remove(victim)
-                    self.removed_from_play.append(victim)
                     pl.kroni_consume_done = True
                     self._kroni_gain_hunger(pl)
                 elif pl.garrison:
                     victim = min(pl.garrison, key=lambda g: g.value)
                     pl.garrison.remove(victim)
-                    self.removed_from_play.append(victim)
                     pl.kroni_consume_done = True
                     self._kroni_gain_hunger(pl)
 
@@ -1767,13 +1762,7 @@ class Game:
                         random.choice(['Hunt', 'Siege', 'Ward'])
                 if guess == choice[0]:
                     self.stat_breach_triggers += 1
-                    # Winner's chosen Subjects are discarded, action stolen.
-                    # _ai_reflex_choice returns a selection that still lives in
-                    # Hand; remove the physical cards before placing them in
-                    # discard or the same objects occupy two zones.
-                    for card in choice[1]:
-                        if card in pl.hand:
-                            pl.hand.remove(card)
+                    # Winner's chosen Subjects are discarded, action stolen
                     self._discard(choice[1])
                     steal = self._ai_reflex_choice(thief, self.players[pid])
                     if steal is not None:

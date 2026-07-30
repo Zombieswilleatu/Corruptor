@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://ygnxy5w56225"]
+
+[ext_resource type="Script" path="res://Experiments/BalanceLab/ExperimentalBalanceRunner.gd" id="1_experiment"]
+
+[node name="ExperimentalBalanceRunner" type="Node"]
+script = ExtResource("1_experiment")
+experiment_name = "Vanilla structural baseline"
+include_mirror_matchups = true
+policy_profile = "Standard"

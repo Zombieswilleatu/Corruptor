@@ -106,7 +106,7 @@ This version aligns the simulation with Rulebook v5.29. Major changes:
 SIM_VERSION = "6.5.0-lab"                    # canonical trace/matrix identity
 SIM_CODENAME = "DE v2 + measured systems"
 AI_POLICY = "heuristic-2026.07-lab-momentum" # policy axis — pins balance grids (Law 5)
-LAB_PROFILE_VERSION = "6.5.4-humbaba-kanifous-revisions" # measured lab profile identity
+LAB_PROFILE_VERSION = "6.5.2-ward-commit-defense" # measured lab profile identity
 
 import random
 import argparse
@@ -265,10 +265,7 @@ LAB_V6_5_VARIANT = dict(
     ward_read=True,
     ward_garrison_refund=True,
     sigil_flat=True,
-    humbaba_seal=False,
-    humbaba_gate4=False,
-    humbaba_patient=False,
-    humbaba_sigil_commit=False,
+    humbaba_sigil_commit=True,
     repair_escalation=0,
     castle_scarring=True,
     castle_scar_def=2,
@@ -302,14 +299,6 @@ LAB_V6_5_VARIANT = dict(
 DE_V2_FEATURES = dict(
     market_refresh=False,
     ward_commit_defense=False,
-    humbaba_reactive_lane=False,
-    kani_invoke=True,
-    kani_threat_cost=True,
-    kani_hand_cost=False,
-    kani_neutral_tear=True,
-    kani_soul_trigger=True,
-    kani_garrison_bank=True,
-    kani_suit_effects=True,
 )
 
 BASE_V5_29_FEATURES = dict(
@@ -320,9 +309,6 @@ LAB_V6_5_FEATURES = dict(
     DE_V2_FEATURES,
     market_refresh=True,
     ward_commit_defense=True,
-    humbaba_reactive_lane=True,
-    kani_threat_cost=False,
-    kani_hand_cost=True,
 )
 
 BASE_V5_29_VARIANT = dict(
@@ -695,9 +681,6 @@ class Game:
         self.deck:    List[Card] = []
         self.discard: List[Card] = []
         self.market:  List[Card] = []
-        # Physical cards consumed by effects such as Kroni's fallback remain tracked here.
-        # Godot already exposes the same zone on GameState.
-        self.removed_from_play: List[Card] = []
         self.breach:  Optional[str] = None
         self.breach_owner: int = -1          # pid whose banished lord fuels the Breach
         # In DE v2 this is the Reflex Bid winner; in v6.5 it is the player who
@@ -1593,13 +1576,11 @@ class Game:
                     victim = min(all_guards, key=lambda g: g.value)
                     if victim in pl.lord_guards:     pl.lord_guards.remove(victim)
                     elif victim in pl.castle_guards: pl.castle_guards.remove(victim)
-                    self.removed_from_play.append(victim)
                     pl.kroni_consume_done = True
                     self._kroni_gain_hunger(pl)
                 elif pl.garrison:
                     victim = min(pl.garrison, key=lambda g: g.value)
                     pl.garrison.remove(victim)
-                    self.removed_from_play.append(victim)
                     pl.kroni_consume_done = True
                     self._kroni_gain_hunger(pl)
 
@@ -1767,13 +1748,7 @@ class Game:
                         random.choice(['Hunt', 'Siege', 'Ward'])
                 if guess == choice[0]:
                     self.stat_breach_triggers += 1
-                    # Winner's chosen Subjects are discarded, action stolen.
-                    # _ai_reflex_choice returns a selection that still lives in
-                    # Hand; remove the physical cards before placing them in
-                    # discard or the same objects occupy two zones.
-                    for card in choice[1]:
-                        if card in pl.hand:
-                            pl.hand.remove(card)
+                    # Winner's chosen Subjects are discarded, action stolen
                     self._discard(choice[1])
                     steal = self._ai_reflex_choice(thief, self.players[pid])
                     if steal is not None:
@@ -2410,25 +2385,21 @@ class Game:
     #  KANIFOUS INVOKE
     # ─────────────────────────────────────────────────────────────────
     def _kanifous_invoke(self, pl: Player):
-        """After Reveal: pay the active Invoke cost, reveal two, invoke one."""
-        if not ACTIVE_FEATURES['kani_invoke']:
-            return
-
+        """After Reveal: gain 1 Threat, reveal top 2 cards.
+        First card = Kanifous's: if value 4+, place 1 Neutral Tear (regardless of choice).
+        Second card = player's. Choose 1 to Invoke, discard the other."""
         if not self.deck:
             if self.discard:
-                self.deck = self.discard[:]
-                self.discard = []
-                random.shuffle(self.deck)
+                self.deck = self.discard[:]; self.discard = []; random.shuffle(self.deck)
             else:
                 return
 
+        # Reveal up to 2 cards
         revealed = []
         for _ in range(2):
             if not self.deck:
                 if self.discard:
-                    self.deck = self.discard[:]
-                    self.discard = []
-                    random.shuffle(self.deck)
+                    self.deck = self.discard[:]; self.discard = []; random.shuffle(self.deck)
                 else:
                     break
             if self.deck:
@@ -2437,43 +2408,36 @@ class Game:
         if not revealed:
             return
 
-        if ACTIVE_FEATURES['kani_hand_cost']:
-            if not pl.hand:
-                for card in reversed(revealed):
-                    self.deck.append(card)
-                return
-            toll = min(pl.hand, key=lambda card: card.value)
-            pl.hand.remove(toll)
-            self._discard([toll])
-
         pl.kanifous_invokes_this_round += 1
-        if (ACTIVE_FEATURES['kani_threat_cost']
-                and not ACTIVE_FEATURES['kani_hand_cost']):
-            pl.threat = min(MAX_THREAT, pl.threat + 1)
+        pl.threat = min(MAX_THREAT, pl.threat + 1)
 
-        if (ACTIVE_FEATURES['kani_neutral_tear']
-                and revealed[0].value >= 4):
+        # First card is Kanifous's — Neutral Tear if value 4+
+        kanifous_card = revealed[0]
+        if kanifous_card.value >= 4:
             self._gain_neutral_tear()
 
+        op = self.opp(pl.pid)
+
         def _suit_score(card: Card) -> float:
-            suit = card.suit
-            if suit == 'Butcher':
+            s = card.suit
+            if s == 'Butcher':
                 return 1.5 if pl.action in ('Hunt', 'Siege') else 0.5
-            if suit == 'Penitent':
+            elif s == 'Penitent':
                 total_guards = len(pl.lord_guards) + len(pl.castle_guards)
                 return 1.2 if total_guards <= 2 else 0.6
-            if suit == 'Vulture':
+            elif s == 'Vulture':
                 return 1.3 if len(pl.hand) <= 3 else 0.7
-            if suit == 'Wright':
+            elif s == 'Wright':
                 imbalance = abs(len(pl.lord_guards) - len(pl.castle_guards))
                 return 0.8 + imbalance * 0.2
             return 0.5
 
+        # Choose the better card to invoke; discard the other
         if len(revealed) == 1:
             chosen = revealed[0]
             discarded = []
         else:
-            scores = [_suit_score(card) for card in revealed]
+            scores = [_suit_score(c) for c in revealed]
             if scores[0] >= scores[1]:
                 chosen, discarded = revealed[0], [revealed[1]]
             else:
@@ -2482,59 +2446,53 @@ class Game:
         if discarded:
             self._discard(discarded)
 
-        pl.kanifous_invoked_suit = (
-            chosen.suit if ACTIVE_FEATURES['kani_suit_effects'] else ''
-        )
+        pl.kanifous_invoked_suit = chosen.suit
 
-        if ACTIVE_FEATURES['kani_suit_effects']:
-            if chosen.suit == 'Vulture':
-                self._draw(pl, outside_draw=True)
-                self._draw(pl, outside_draw=True)
-                self._draw(pl, outside_draw=True)
-                if len(pl.hand) > 1:
-                    worst = min(pl.hand, key=lambda card: card.value)
-                    pl.hand.remove(worst)
-                    self._discard([worst])
+        # Apply chosen suit effect
+        if chosen.suit == 'Vulture':
+            self._draw(pl, outside_draw=True)
+            self._draw(pl, outside_draw=True)
+            self._draw(pl, outside_draw=True)
+            if len(pl.hand) > 1:
+                worst = min(pl.hand, key=lambda c: c.value)
+                pl.hand.remove(worst); self._discard([worst])
 
-            elif chosen.suit == 'Wright':
-                moved = 0
-                while (moved < 2 and pl.lord_guards
-                       and len(pl.castle_guards) < pl.max_castle_guards()):
-                    guard = pl.lord_guards.pop(0)
-                    pl.castle_guards.append(guard)
-                    moved += 1
+        elif chosen.suit == 'Wright':
+            moved = 0
+            while (moved < 2 and pl.lord_guards
+                   and len(pl.castle_guards) < pl.max_castle_guards()):
+                g = pl.lord_guards.pop(0)
+                pl.castle_guards.append(g); moved += 1
 
-            elif chosen.suit == 'Penitent':
-                def _place(guard):
-                    if len(pl.lord_guards) <= len(pl.castle_guards):
-                        pl.lord_guards.append(guard)
+        elif chosen.suit == 'Penitent':
+            # Place 2 additional cards from the top of the deck as Guards in
+            # any zones (may exceed Guard limits); discarded at end of Resolution.
+            def _place(g):
+                if len(pl.lord_guards) <= len(pl.castle_guards): pl.lord_guards.append(g)
+                else: pl.castle_guards.append(g)
+            for _ in range(2):
+                if not self.deck:
+                    if self.discard:
+                        self.deck = self.discard[:]; self.discard = []; random.shuffle(self.deck)
                     else:
-                        pl.castle_guards.append(guard)
+                        break
+                extra = self.deck.pop(); _place(extra)
+                pl.penitent_temp_guards.append(extra)
+            pl.kanifous_invoked_high = True
 
-                for _ in range(2):
-                    if not self.deck:
-                        if self.discard:
-                            self.deck = self.discard[:]
-                            self.discard = []
-                            random.shuffle(self.deck)
-                        else:
-                            break
-                    extra = self.deck.pop()
-                    _place(extra)
-                    pl.penitent_temp_guards.append(extra)
-                pl.kanifous_invoked_high = True
-
-        if (ACTIVE_FEATURES['kani_soul_trigger']
-                and chosen.value == pl.threat):
+        # Soul trigger: chosen card face value == current Threat level
+        if chosen.value == pl.threat:
             self._gain_soul(pl, 1)
 
-        if (ACTIVE_FEATURES['kani_garrison_bank']
-                and len(pl.garrison) < GARRISON_MAX
-                and chosen not in pl.garrison):
+        # Bank chosen card to Garrison
+        if len(pl.garrison) < GARRISON_MAX and chosen not in pl.garrison:
             pl.garrison.append(chosen)
         else:
             self._discard([chosen])
 
+    # ─────────────────────────────────────────────────────────────────
+    #  LORD KILLED
+    # ─────────────────────────────────────────────────────────────────
     def _lord_killed(self, atk: Player, dfn: Player):
         self.stat_lords_killed += 1
 
@@ -2985,39 +2943,14 @@ class Game:
         """Launch one bot-selected Guard after normal deployment settles."""
         if not VARIANT.get('marching', False):
             return
-
-        op = self.opp(pl.pid)
-        base_cap = VARIANT.get('march_max_in_flight', 1)
-        reactive_lane = ''
-        if (ACTIVE_FEATURES['humbaba_reactive_lane']
-                and pl.lord == 'Humbaba'
-                and len(pl.marchers) == base_cap
-                and op.marchers):
-            enemy_lanes = {marcher['lane'] for marcher in op.marchers}
-            own_lanes = {marcher['lane'] for marcher in pl.marchers}
-            reactive_lane = next(
-                (lane for lane in ('Lord', 'Castle')
-                 if lane in enemy_lanes and lane not in own_lanes),
-                '',
-            )
-
-        cap = base_cap + (1 if reactive_lane else 0)
-        if len(pl.marchers) >= cap:
+        if len(pl.marchers) >= VARIANT.get('march_max_in_flight', 1):
             return
 
+        op = self.opp(pl.pid)
         threshold = VARIANT.get('march_threshold', 3)
-        threat = (
-            next(
-                (marcher for marcher in op.marchers
-                 if marcher['lane'] == reactive_lane),
-                None,
-            )
-            if reactive_lane
-            else next(
-                (marcher for marcher in op.marchers
-                 if marcher['value'] >= threshold),
-                None,
-            )
+        threat = next(
+            (m for m in op.marchers if m['value'] >= threshold),
+            None,
         )
         candidates = []
 
@@ -3025,6 +2958,8 @@ class Game:
                 ('Lord', pl.lord_guards),
                 ('Castle', pl.castle_guards)):
             for card in guards:
+                # A march must be a visible choice with a real defensive cost,
+                # but it never strips a zone completely bare.
                 if len(guards) <= 1:
                     continue
 
@@ -3062,23 +2997,17 @@ class Game:
         if score <= 0:
             return
 
-        if reactive_lane:
-            lane = reactive_lane
+        wants_contact = (
+            card.value < threshold
+            or card.value - VARIANT.get('march_damage', 2) >= threshold
+        )
+        enemy_lanes = {marcher['lane'] for marcher in op.marchers}
+        if enemy_lanes:
+            occupied = sorted(enemy_lanes)[0]
+            other = 'Castle' if occupied == 'Lord' else 'Lord'
+            lane = occupied if wants_contact else other
         else:
-            wants_contact = (
-                card.value < threshold
-                or card.value - VARIANT.get('march_damage', 2) >= threshold
-            )
-            enemy_lanes = {marcher['lane'] for marcher in op.marchers}
-            if enemy_lanes:
-                occupied = sorted(enemy_lanes)[0]
-                other = 'Castle' if occupied == 'Lord' else 'Lord'
-                lane = occupied if wants_contact else other
-            else:
-                lane = zone
-
-        if any(marcher['lane'] == lane for marcher in pl.marchers):
-            return
+            lane = zone
 
         guards = pl.lord_guards if zone == 'Lord' else pl.castle_guards
         guards.remove(card)
@@ -3710,14 +3639,11 @@ def generate_report(results: dict, n_games: int) -> str:
     lines.append(bar("CORRUPTOR BALANCE SIMULATION REPORT  v%s (%s)  ai=%s" % (SIM_VERSION, SIM_CODENAME, AI_POLICY)))
     if ACTIVE_RULESET == "lab-v6.5":
         lines.append(
-            "  Lab profile        : %s (market_refresh=%s, ward_commit_defense=%s, "
-            "kani_hand_cost=%s, humbaba_reactive_lane=%s)"
+            "  Lab profile        : %s (market_refresh=%s, ward_commit_defense=%s)"
             % (
                 LAB_PROFILE_VERSION,
                 ACTIVE_FEATURES["market_refresh"],
                 ACTIVE_FEATURES["ward_commit_defense"],
-                ACTIVE_FEATURES["kani_hand_cost"],
-                ACTIVE_FEATURES["humbaba_reactive_lane"],
             )
         )
     lines.append(f"  Games per matchup  : {n_games:,}")
