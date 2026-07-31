@@ -15,6 +15,10 @@ const LordMathData = preload(
 	"res://Scripts/Sim/LordMath.gd"
 )
 
+const OdradekInterlockEngineData = preload(
+	"res://Scripts/Sim/OdradekInterlockEngine.gd"
+)
+
 
 const ACTION_HUNT: String = "Hunt"
 const ACTION_SIEGE: String = "Siege"
@@ -500,120 +504,38 @@ static func _resolve_primary_recoil(
 	player,
 	rules: RuleConfig
 ) -> Dictionary:
-	var attacker = game.get_opponent(
-		int(
-			player.pid
-		)
-	)
-
+	var attacker = game.get_opponent(int(player.pid))
 	if attacker == null:
-		return _empty_recoil_event(
-			int(
-				player.pid
-			),
-			-1
-		)
+		return OdradekInterlockEngineData.empty_result(int(player.pid), -1)
 
 	var attacked_by_hunt: bool = (
 		attacker.action == ACTION_HUNT
-		and int(
-			attacker.tgt_pid
-		) == int(
-			player.pid
-		)
+		and int(attacker.tgt_pid) == int(player.pid)
 	)
-
 	var attacked_by_siege: bool = (
 		attacker.action == ACTION_SIEGE
-		and int(
-			attacker.tgt_pid
-		) == int(
-			player.pid
-		)
+		and int(attacker.tgt_pid) == int(player.pid)
 		and not rules.recoil_hunts_only
 	)
-
-	var marked_lord: String = String(
-		game.get_meta(
-			"orias_marked_lord",
-			""
-		)
-	)
-
+	var marked_lord: String = String(game.get_meta("orias_marked_lord", ""))
 	var orias_clean_hunt: bool = (
 		attacked_by_hunt
 		and attacker.lord == "Orias"
 		and marked_lord == player.lord
 	)
 
-	if (
-		player.odradek_recoil_done
-		or not (
-			attacked_by_hunt
-			or attacked_by_siege
-		)
-		or orias_clean_hunt
-	):
-		return _empty_recoil_event(
-			int(
-				player.pid
-			),
-			int(
-				attacker.pid
-			)
+	if not (attacked_by_hunt or attacked_by_siege) or orias_clean_hunt:
+		return OdradekInterlockEngineData.empty_result(
+			int(player.pid),
+			int(attacker.pid)
 		)
 
-	player.odradek_recoil_done = true
-
-	var discarded_card = null
-
-	if not attacker.committed.is_empty():
-		var victim_index: int = 0
-
-		if rules.recoil_lowest:
-			victim_index = _lowest_card_index(
-				attacker.committed
-			)
-		else:
-			victim_index = _second_highest_index(
-				attacker.committed
-			)
-
-		discarded_card = attacker.committed[
-			victim_index
-		]
-
-		attacker.committed.remove_at(
-			victim_index
-		)
-
-		game.discard.append(
-			discarded_card
-		)
-
-		player.souls += 1
-
-	return {
-		"triggered": true,
-		"odradek_player_id": int(
-			player.pid
-		),
-		"attacker_id": int(
-			attacker.pid
-		),
-		"discarded_card": (
-			""
-			if discarded_card == null
-			else _card_id(
-				discarded_card
-			)
-		),
-		"soul_gain": (
-			0
-			if discarded_card == null
-			else 1
-		),
-	}
+	return OdradekInterlockEngineData.resolve_recoil(
+		game,
+		player,
+		attacker,
+		rules
+	)
 
 
 static func _validate_reveal_state(
@@ -680,13 +602,10 @@ static func _empty_recoil_event(
 	player_id: int,
 	attacker_id: int
 ) -> Dictionary:
-	return {
-		"triggered": false,
-		"odradek_player_id": player_id,
-		"attacker_id": attacker_id,
-		"discarded_card": "",
-		"soul_gain": 0,
-	}
+	return OdradekInterlockEngineData.empty_result(
+		player_id,
+		attacker_id
+	)
 
 
 static func _resolve_kanifous(

@@ -61,6 +61,13 @@ class CardConservationTests(unittest.TestCase):
             ]
             zones.append((f"{prefix}.marchers", marcher_cards))
 
+            # Interlock bank: a face-up physical card in no other zone.
+            bank = getattr(player, "odradek_bank", None)
+            zones.append((
+                f"{prefix}.bank",
+                [bank] if bank is not None else [],
+            ))
+
         return zones
 
     def _assert_card_conservation(self, game, context):

@@ -2,6 +2,11 @@ class_name BotDoctrine
 extends RefCounted
 
 
+const OdradekInterlockEngineData = preload(
+	"res://Scripts/Sim/OdradekInterlockEngine.gd"
+)
+
+
 const GameSetupData = preload(
 	"res://Scripts/Sim/GameSetup.gd"
 )
@@ -852,6 +857,14 @@ static func evaluate_action_candidates(
 		* 0.5
 	)
 
+	var doctrine_delta: Vector3 = OdradekInterlockEngineData.doctrine_delta(
+		player,
+		rules
+	)
+	hunt_score += doctrine_delta.x
+	siege_score += doctrine_delta.y
+	ward_score += doctrine_delta.z
+
 	var preferred_action: String = String(
 		profile.get(
 			"prefer",
@@ -1440,7 +1453,7 @@ static func _score_siege(
 
 
 static func _score_ward(
-	game,
+	_game,
 	player,
 	opponent,
 	current_plan: String,
@@ -1536,7 +1549,7 @@ static func _degraded_ward_score(
 
 
 static func _ward_read_zone(
-	game,
+	_game,
 	player,
 	opponent,
 	rules: RuleConfig

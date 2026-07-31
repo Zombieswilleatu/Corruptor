@@ -66,10 +66,10 @@ static func run(_baseline_rules: RuleConfig) -> Array:
 static func _test_profile() -> Dictionary:
 	var rules := RuleConfig.lab_v6_5()
 	if (
-		rules.win_souls != 11
+		rules.win_souls != 12
 		or rules.dominion_track != 12
-		or rules.dominion_requirement != 7
-		or rules.final_collapse_threshold != 22
+		or rules.dominion_requirement != 5
+		or rules.final_collapse_threshold != 26
 		or rules.reflex_bid
 		or not rules.fix_b
 		or not rules.sigil_flat

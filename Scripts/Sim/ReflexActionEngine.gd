@@ -10,6 +10,10 @@ const SiegeResolutionEngineData = preload(
 	"res://Scripts/Sim/SiegeResolutionEngine.gd"
 )
 
+const OdradekInterlockEngineData = preload(
+	"res://Scripts/Sim/OdradekInterlockEngine.gd"
+)
+
 
 const ACTION_PASS: String = "Pass"
 const ACTION_HUNT: String = "Hunt"
@@ -276,6 +280,7 @@ static func resolve(
 			"discarded_cards",
 			[]
 		),
+		"bank_spent_card": String(execution.get("bank_spent_card", "")),
 		"action_result": execution.get(
 			"action_result",
 			{}
@@ -530,6 +535,12 @@ static func _execute_validated(
 
 	actor.committed = selected_cards.duplicate()
 
+	var bank_spent_card = OdradekInterlockEngineData.spend_bank(
+		actor,
+		action,
+		rules
+	)
+
 	var original_action: String = String(
 		actor.action
 	)
@@ -545,6 +556,9 @@ static func _execute_validated(
 	var original_ward_target: String = String(
 		actor.ward_target
 	)
+
+	actor.action = action
+	OdradekInterlockEngineData.update_ward_streak(actor)
 
 	var opponent = game.get_opponent(
 		int(
@@ -706,6 +720,9 @@ static func _execute_validated(
 			remaining_cards
 		),
 		"action_result": action_result,
+		"bank_spent_card": (
+			"" if bank_spent_card == null else _card_id(bank_spent_card)
+		),
 	}
 
 

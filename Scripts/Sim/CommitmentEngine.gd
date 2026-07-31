@@ -2,6 +2,11 @@ class_name CommitmentEngine
 extends RefCounted
 
 
+const OdradekInterlockEngineData = preload(
+	"res://Scripts/Sim/OdradekInterlockEngine.gd"
+)
+
+
 const ACTION_HUNT: String = "Hunt"
 const ACTION_SIEGE: String = "Siege"
 const ACTION_WARD: String = "Ward"
@@ -155,6 +160,15 @@ static func resolve(
 				card
 			)
 
+		var bank_spent_card = null
+		if rules != null:
+			bank_spent_card = OdradekInterlockEngineData.spend_bank(
+				player,
+				String(player.action),
+				rules
+			)
+		OdradekInterlockEngineData.update_ward_streak(player)
+
 		player_results.append({
 			"player_id": player_id,
 			"action": String(
@@ -177,6 +191,9 @@ static func resolve(
 			),
 			"suit_counts": _suit_counts(
 				player.committed
+			),
+			"bank_spent_card": (
+				"" if bank_spent_card == null else _card_id(bank_spent_card)
 			),
 		})
 

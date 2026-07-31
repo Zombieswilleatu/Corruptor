@@ -50,6 +50,8 @@ var humbaba_patient: bool = false
 var odradek_recoil_done: bool = false
 var odradek_guards_defeated: int = 0
 var odradek_reconfig_tokens: int = 0
+var odradek_bank = null
+var consecutive_wards: int = 0
 
 var gremory_ruin_done: bool = false
 var gremory_inevitable_ruin_done: bool = false
@@ -199,6 +201,11 @@ func duplicate_state() -> PlayerState:
 	copy.odradek_recoil_done = odradek_recoil_done
 	copy.odradek_guards_defeated = odradek_guards_defeated
 	copy.odradek_reconfig_tokens = odradek_reconfig_tokens
+	copy.consecutive_wards = consecutive_wards
+	if odradek_bank != null and odradek_bank.has_method("duplicate_card"):
+		copy.odradek_bank = odradek_bank.duplicate_card()
+	else:
+		copy.odradek_bank = odradek_bank
 
 	copy.gremory_ruin_done = gremory_ruin_done
 	copy.gremory_inevitable_ruin_done = gremory_inevitable_ruin_done

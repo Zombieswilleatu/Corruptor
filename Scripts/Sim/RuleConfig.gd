@@ -36,6 +36,10 @@ extends Resource
 
 # DE v2 variant dials.
 @export var recoil_hunts_only: bool = true
+@export var odr_recoil: bool = true
+@export var odr_recoil_strip: bool = true
+@export var odr_recoil_soul: bool = true
+@export var odr_recoil_bank: bool = false
 @export var sigil_soul_fresh_only: bool = false
 @export var invocation_gate: int = 5
 @export var profane_ruins_req: int = 1
@@ -81,6 +85,12 @@ extends Resource
 # an inert feature does not relabel the canonical DE v2 goldens.
 @export var fix_a: bool = false
 @export var fix_b: bool = false
+
+# Lab-only identity and doctrine. Canonical DE v2 leaves these inert.
+@export var lab_profile_version: String = ""
+@export var doctrine_ward_threat: float = 0.0
+@export var doctrine_ward_stagnation: float = 0.0
+@export var doctrine_bank_urgency: float = 0.0
 
 @export var ward_threshold: bool = false
 @export var ward_anti_repeat: bool = true
@@ -167,9 +177,9 @@ static func lab_v6_5() -> RuleConfig:
 	# Ritual, Dominion-requirement, and Collapse clocks were repriced by
 	# apply_lab_clocks(); retaining DE v2's 11 here would be an unmeasured hybrid.
 	config.dominion_track = 12
-	config.win_souls = 11
-	config.dominion_requirement = 7
-	config.final_collapse_threshold = 22
+	config.win_souls = 12
+	config.dominion_requirement = 5
+	config.final_collapse_threshold = 26
 
 	config.fix_a = true
 	config.fix_b = true
@@ -192,6 +202,18 @@ static func lab_v6_5() -> RuleConfig:
 	# Kanifous pays one Hand card instead of gaining one Threat on Invoke.
 	config.kani_threat_cost = false
 	config.kani_hand_cost = true
+
+	# Odradek Interlock and roster-wide Ward doctrine corrections.
+	config.lab_profile_version = "6.8.1-odradek-interlock-port"
+	config.odr_recoil_bank = true
+	config.reconfig_neutral = true
+	config.reconfig_tokens_needed = 3
+	config.reconfig_strict = false
+	config.recoil_hunts_only = false
+	config.recoil_lowest = false
+	config.doctrine_ward_threat = 0.20
+	config.doctrine_ward_stagnation = 0.30
+	config.doctrine_bank_urgency = 0.35
 
 	config.castle_scarring = true
 	config.castle_permanent_loss = true

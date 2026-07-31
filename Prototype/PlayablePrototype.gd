@@ -84,8 +84,8 @@ const LORD_CARD_ABILITIES: Dictionary = {
 		"[b]Inevitable Ruin / Breach[/b] — Once per round, after a Siege leaves its target standing, pay exactly 2 Hand/Garrison cards to ruin it. During Gremory Breach, players with a Ruin draw 1 extra.",
 	],
 	"Odradek": [
-		"[b]Recoil / Backwash[/b] — The first Hunt against living Odradek each round discards the attacker's lowest committed card and gives Odradek 1 Soul. A surviving Hunt also raises the attacker's Threat.",
-		"[b]Reconfiguration[/b] — Gain 1 token after a round in which no Odradek Guard was Defeated. At 5 tokens, spend them for a personal Tear. Any Defeated Guard blocks progress that round; Banishment clears tokens.",
+		"[b]Psychic Recoil / Interlock[/b] — Once each round when living Odradek is Hunted or Sieged, take the attacker's second-highest committed card and bank it face-up, gaining 1 Soul. A new card replaces the bank only if strictly larger; otherwise Recoil locks. Odradek automatically spends the bank on his next Hunt or Siege.",
+		"[b]Reconfiguration[/b] — If fewer than 2 Odradek Guards were Defeated this round, gain 1 token. At 3 tokens, spend them to place 1 Neutral Tear. Banishment clears tokens.",
 		"[b]Breach: Paradox Geometry[/b] — Predict the second-action winner's action; a correct guess discards their selected cards and lets Odradek execute it instead.",
 	],
 	"Kanifous": [
@@ -1948,13 +1948,20 @@ func _on_confirm_pressed() -> void:
 		+ "The opponent's choice remains hidden.[/center]"
 	)
 
+	var human_commit = controller.get_human_player()
 	_log(
 		"You sealed %s with %d committed strength."
-		% [
-			selected_action,
-			_selected_card_value(),
-		]
+		% [selected_action, _card_value_total(human_commit.committed)]
 	)
+	for player_result_raw in result.get("players", []):
+		if typeof(player_result_raw) != TYPE_DICTIONARY:
+			continue
+		var player_result: Dictionary = player_result_raw
+		if int(player_result.get("player_id", -1)) != int(human_commit.pid):
+			continue
+		var spent_bank: String = String(player_result.get("bank_spent_card", ""))
+		if not spent_bank.is_empty():
+			_log("[color=#d8b4fe][b]Odradek — Interlock spent:[/b] %s joined the %s; Recoil rearmed.[/color]" % [spent_bank, selected_action])
 
 	_refresh_all()
 
@@ -2681,7 +2688,6 @@ func _refresh_marching_board() -> void:
 		)
 		gate_texts[_march_gate_key(lane, false)] = (
 			"[color=#dc8d9d][b]OPPONENT GUARDS[/b][/color]\nReady to launch"
-			% lane.to_upper()
 		)
 
 		var lane_title = march_lane_title_labels.get(lane, null)
@@ -2745,14 +2751,14 @@ func _add_marchers_to_board(
 		if not MARCH_LANES.has(lane):
 			continue
 
-		var position: int = int(marcher.get("pos", 0))
+		var march_position: int = int(marcher.get("pos", 0))
 		var display_text: String = _marcher_board_text(marcher, is_human)
-		if position <= 0:
+		if march_position <= 0:
 			var gate_key: String = _march_gate_key(lane, is_human)
 			gate_texts[gate_key] = display_text
 			continue
 
-		var step: int = min(position, MARCH_TRACK_STEPS)
+		var step: int = min(march_position, MARCH_TRACK_STEPS)
 		if not is_human:
 			step = MARCH_TRACK_STEPS - step + 1
 		var slot_key: String = _march_slot_key(lane, step)
@@ -2771,10 +2777,10 @@ func _marcher_board_text(
 	var card = marcher.get("card", null)
 	var color_code: String = "#78d9a1" if is_human else "#dc8d9d"
 	var direction: String = "→" if is_human else "←"
-	var owner: String = "YOU" if is_human else "BOT"
+	var owner_label: String = "YOU" if is_human else "BOT"
 	return "[center][color=%s][b]%s %s[/b][/color]\n%s  ·  v%d[/center]" % [
 		color_code,
-		owner,
+		owner_label,
 		direction,
 		_card_id(card),
 		int(marcher.get("value", 0)),
@@ -4321,6 +4327,23 @@ func _selected_card_value() -> int:
 	return total
 
 
+func _projected_attack_strength() -> int:
+	var total: int = _selected_card_value()
+	if (
+		controller != null
+		and controller.game != null
+		and selected_action in ["Hunt", "Siege"]
+	):
+		var human = controller.get_human_player()
+		if (
+			controller.rules.odr_recoil_bank
+			and human.lord == "Odradek"
+			and human.odradek_bank != null
+		):
+			total += int(human.odradek_bank.value)
+	return total
+
+
 func _refresh_selection_text() -> void:
 	var count: int = _selected_card_ids().size()
 
@@ -4388,13 +4411,17 @@ func _refresh_selection_text() -> void:
 	):
 		selection_label.text = "%d Lord Guards selected · move up to 2" % count
 	else:
-		selection_label.text = (
-			"%d cards · strength %d"
-			% [
-				count,
-				_selected_card_value(),
-			]
+		var projected_strength: int = _projected_attack_strength()
+		var bank_suffix: String = (
+			" + Interlock bank"
+			if projected_strength > _selected_card_value()
+			else ""
 		)
+		selection_label.text = "%d selected%s · strength %d" % [
+			count,
+			bank_suffix,
+			projected_strength,
+		]
 
 	var cards_enabled: bool = (
 		controller != null
@@ -5857,14 +5884,14 @@ func _log_action_lord_powers(
 				]
 			)
 
-		var banishment = action_result.get(
+		var orias_banishment = action_result.get(
 			"banishment",
 			{}
 		)
 
 		if (
 			typeof(
-				banishment
+				orias_banishment
 			) == TYPE_DICTIONARY
 			and bool(
 				action_result.get(
@@ -5882,7 +5909,7 @@ func _log_action_lord_powers(
 					(
 						"; Orias gained 2 bonus Souls"
 						if int(
-							banishment.get(
+							orias_banishment.get(
 								"orias_bonus",
 								0
 							)
@@ -6015,22 +6042,11 @@ func _log_action_lord_powers(
 			% siphoned_card
 		)
 
-	var recoil_card: String = String(
-		action_result.get(
-			"recoil_card",
-			""
-		)
-	)
-
-	if not recoil_card.is_empty():
-		_log(
-			"[color=#d8b4fe][b]Odradek — Recoil:[/b] %s lost committed %s before combat; Odradek gained 1 Soul.[/color]"
-			% [
-				_player_name(
-					attacker_id
-				),
-				recoil_card,
-			]
+	var recoil_result_raw = action_result.get("recoil_result", {})
+	if typeof(recoil_result_raw) == TYPE_DICTIONARY:
+		_log_odradek_recoil_event(
+			recoil_result_raw,
+			attacker_id
 		)
 
 	if int(
@@ -6062,6 +6078,10 @@ func _log_action_lord_powers(
 		"banishment",
 		{}
 	)
+	if typeof(banishment) == TYPE_DICTIONARY:
+		var discarded_bank: String = String(banishment.get("discarded_bank", ""))
+		if not discarded_bank.is_empty():
+			_log("[color=#d8b4fe][b]Odradek was Banished:[/b] The banked %s was discarded.[/color]" % discarded_bank)
 
 	if typeof(
 		banishment
@@ -6923,14 +6943,14 @@ func _log_resource_income_audit(
 			continue
 		var old_player: Dictionary = old_players[player_index]
 		var new_player: Dictionary = new_players[player_index]
-		var owner: String = String(new_player.get("lord", "Player"))
+		var owner_label: String = String(new_player.get("lord", "Player"))
 		var soul_delta: int = int(new_player.get("souls", 0)) - int(old_player.get("souls", 0))
 		var tear_delta: int = int(new_player.get("tears", 0)) - int(old_player.get("tears", 0))
 		if soul_delta != 0:
 			_log(
 				"[color=#f2d477][b]Soul audit:[/b] %s %s %d Soul%s this Resolution.[/color]"
 				% [
-					owner,
+					owner_label,
 					("gained" if soul_delta > 0 else "lost"),
 					abs(soul_delta),
 					("" if abs(soul_delta) == 1 else "s"),
@@ -6940,7 +6960,7 @@ func _log_resource_income_audit(
 			_log(
 				"[color=#d8b4fe][b]Tear audit:[/b] %s %s %d personal Tear%s this Resolution.[/color]"
 				% [
-					owner,
+					owner_label,
 					("gained" if tear_delta > 0 else "lost"),
 					abs(tear_delta),
 					("" if abs(tear_delta) == 1 else "s"),
@@ -7340,52 +7360,10 @@ func _log_reveal_lord_powers(
 			{}
 		)
 
-		if (
-			typeof(
-				recoil
-			) == TYPE_DICTIONARY
-			and bool(
-				recoil.get(
-					"triggered",
-					false
-				)
-			)
-		):
-			var recoil_card: String = String(
-				recoil.get(
-					"discarded_card",
-					""
-				)
-			)
-
-			_log(
-				"[color=#d8b4fe][b]Odradek — Recoil:[/b] %s %s during the committed-value trigger queue%s.[/color]"
-				% [
-					_player_name(
-						int(
-							recoil.get(
-								"attacker_id",
-								-1
-							)
-						)
-					),
-					(
-						"lost committed %s"
-						% recoil_card
-						if not recoil_card.is_empty()
-						else "had no committed card to discard"
-					),
-					(
-						"; Odradek gained 1 Soul"
-						if int(
-							recoil.get(
-								"soul_gain",
-								0
-							)
-						) > 0
-						else ""
-					),
-				]
+		if typeof(recoil) == TYPE_DICTIONARY:
+			_log_odradek_recoil_event(
+				recoil,
+				int(recoil.get("attacker_id", -1))
 			)
 
 		var invoke = player_result.get(
@@ -9004,6 +8982,52 @@ func _reflex_holder_text() -> String:
 	)
 
 
+func _log_odradek_recoil_event(
+	recoil: Dictionary,
+	attacker_id: int
+) -> void:
+	if not bool(recoil.get("triggered", false)):
+		return
+
+	var attempted: String = String(recoil.get("attempted_card", ""))
+	var taken: String = String(recoil.get("taken_card", ""))
+	var discarded: String = String(recoil.get("discarded_card", ""))
+	var bank_before: String = String(recoil.get("bank_before", ""))
+	var bank_after: String = String(recoil.get("bank_after", ""))
+	var replaced: String = String(recoil.get("replaced_card", ""))
+	var soul_text: String = (
+		"; gained 1 Soul"
+		if int(recoil.get("soul_gain", 0)) > 0
+		else ""
+	)
+
+	if bool(recoil.get("locked", false)):
+		_log(
+			"[color=#d8b4fe][b]Odradek — Interlock:[/b] %s could not exceed banked %s; Recoil locked.[/color]"
+			% [attempted, bank_before]
+		)
+		return
+
+	if not taken.is_empty() and not bank_after.is_empty():
+		if not replaced.is_empty():
+			_log(
+				"[color=#d8b4fe][b]Odradek — Interlock:[/b] Discarded banked %s and replaced it with %s from %s%s.[/color]"
+				% [replaced, taken, _player_name(attacker_id), soul_text]
+			)
+		else:
+			_log(
+				"[color=#d8b4fe][b]Odradek — Psychic Recoil:[/b] Banked %s from %s's attack%s.[/color]"
+				% [taken, _player_name(attacker_id), soul_text]
+			)
+		return
+
+	if not discarded.is_empty():
+		_log(
+			"[color=#d8b4fe][b]Odradek — Recoil:[/b] %s lost committed %s before combat%s.[/color]"
+			% [_player_name(attacker_id), discarded, soul_text]
+		)
+
+
 func _log_reflex_resolution(
 	round_result: Dictionary
 ) -> void:
@@ -9100,6 +9124,10 @@ func _log_reflex_resolution(
 		)
 		else ""
 	)
+
+	var spent_bank: String = String(reflex.get("bank_spent_card", ""))
+	if not spent_bank.is_empty():
+		_log("[color=#d8b4fe][b]Odradek — Interlock spent:[/b] %s joined the %s; Recoil rearmed.[/color]" % [spent_bank, executed_action])
 
 	_log(
 		"[color=#c8b36a][b]%s second action:[/b] %s executed %s with %s%s.[/color]"
@@ -9491,13 +9519,14 @@ func _lord_live_state(
 			)
 		"Odradek":
 			return (
-				"Recoil this round %s; Reconfiguration %d/%d tokens; Guards defeated this round %d."
+				"Recoil this round %s; Interlock bank %s; Reconfiguration %d/%d tokens; Guards defeated this round %d."
 				% [
 					_used_ready(
 						bool(
 							player.odradek_recoil_done
 						)
 					),
+					("empty" if player.odradek_bank == null else _card_id(player.odradek_bank)),
 					int(
 						player.odradek_reconfig_tokens
 					),

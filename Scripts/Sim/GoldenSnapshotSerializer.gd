@@ -75,7 +75,7 @@ static func snapshot_player(
 	player,
 	rules: RuleConfig = null
 ) -> Dictionary:
-	return {
+	var snapshot: Dictionary = {
 		"pid": int(
 			player.pid
 		),
@@ -281,6 +281,12 @@ static func snapshot_player(
 		),
 	}
 
+	if rules != null and not rules.lab_profile_version.is_empty():
+		snapshot["odradek_bank"] = card_id(player.odradek_bank)
+		snapshot["consecutive_wards"] = int(player.consecutive_wards)
+
+	return snapshot
+
 
 static func _calculate_lord_defense(
 	player,
@@ -428,7 +434,10 @@ static func _snapshot_action_memory(
 
 
 static func _nullable_threat(value: int):
-	return null if value < 0 else value
+	if value < 0:
+		return null
+
+	return value
 
 
 static func card_list(

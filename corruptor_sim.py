@@ -180,6 +180,30 @@ BASE_V5_29_CONSTANTS = dict(
 )
 
 DE_V2_VARIANT = dict(
+    # ══ LAB_ODRADEK_INTERLOCK_PORT ══════════════════════════════════════════════
+    # Odradek Interlock. All default OFF so canonical DE v2 is untouched and a
+    # flags-off run remains byte-identical to the pre-patch engine.
+    odr_recoil_bank=False,           # Recoil BANKS the stolen card face-up rather
+                                     # than discarding it. A banked card locks
+                                     # Recoil until spent on an attack, or until a
+                                     # strictly larger card is stolen.
+    fix_breach_discard_alias=False,  # BUG FIX. Paradox Geometry discarded the
+                                     # reflex winner's selected cards without
+                                     # removing them from hand, so the same Card
+                                     # object occupied two zones. Root cause of the
+                                     # card-duplication / 57-vs-60 census anomaly.
+                                     # Defaults OFF only to preserve byte-identity;
+                                     # the lab profile MUST enable it.
+    # Doctrine corrections (AI_POLICY axis — bump the policy id with these).
+    doctrine_ward_threat=0.0,        # Ward penalty per Threat point. Attacks already
+                                     # take -0.9 / -0.5 per Threat and Ward took
+                                     # none, so rising Threat ratcheted the bot into
+                                     # turtling exactly when turtling loses.
+    doctrine_ward_stagnation=0.0,    # penalty per CONSECUTIVE Ward.
+    doctrine_bank_urgency=0.0,       # the bot reads its own banked card: attacking
+                                     # is the only way to unlock Recoil. Without
+                                     # this the bot banks once and never unlocks,
+                                     # switching Recoil off for the rest of the game.
     recoil_hunts_only=True,       # O1: Psychic Recoil (strip + Soul) fires on Hunts only
     sigil_soul_fresh_only=False,  # S1: sigil-break Soul only if the Sigil was Fresh
     invocation_gate=5,            # D1: Veil threshold to unlock Cataclysmic Invocation
@@ -547,6 +571,13 @@ class Player:
         self.profane_ruins_used_this_round: bool = False
 
         self.profane_this_round: bool = False
+
+        # ── INTERLOCK: persistent, survives round reset, cleared only by
+        # explicit bank transitions. MUST be copied by state duplication,
+        # exposed to the bot view, serialised in snapshots, and counted as
+        # a physical-card zone in conservation censuses.
+        self.odradek_bank                = None   # Optional[Card], face up
+        self.consecutive_wards           = 0      # doctrine stagnation
 
         self.odradek_recoil_done         = False
         self.odradek_guards_defeated     = 0   # guards defeated from Odradek zones this round
@@ -1436,20 +1467,94 @@ class Game:
                 and (attacked_by_hunt or attacked_by_siege)
                 and not orias_clean_hunt
             ):
-                pl.odradek_recoil_done = True
-                if op.committed:
-                    if VARIANT['recoil_lowest']:
-                        victim = min(op.committed, key=lambda c: c.value)
-                    else:
-                        ordered = sorted(
-                            op.committed,
-                            key=lambda c: c.value,
-                            reverse=True,
-                        )
-                        victim = ordered[1] if len(ordered) > 1 else ordered[0]
-                    op.committed.remove(victim)
-                    self._discard([victim])
-                    self._gain_soul(pl, 1)
+                self._odradek_recoil(op, pl)
+
+    # ═══════════════════════════════════════════════════════════════════
+    #  ODRADEK INTERLOCK — the ONLY Psychic Recoil implementation.
+    #
+    #  Pre-patch there were three copies: the after-Reveal path plus separate
+    #  remove-and-discard copies inside the Hunt and Siege resolvers. Because
+    #  `odradek_recoil_done` is shared and per-round, the resolver copies fired
+    #  only when the primary action did not attack Odradek but a Momentum second
+    #  action did. Low frequency, two different mechanics, one build.
+    #
+    #  Callers are responsible for confirming: Odradek is the defender, is alive,
+    #  was targeted by this Hunt/Siege, and that Orias's clean Marked Prey Hunt
+    #  does not suppress it. The helper owns everything else.
+    # ═══════════════════════════════════════════════════════════════════
+    def _odradek_recoil(self, atk, dfn) -> dict:
+        """Resolve one Psychic Recoil. Returns a result dict for narration."""
+        res = dict(fired=False, taken_card=None, bank_before=None, bank_after=None,
+                   replaced_card=None, locked=False, soul_gain=0)
+        if not VARIANT.get('odr_recoil', True):        return res
+        if dfn.odradek_recoil_done:                    return res
+
+        # Recoil is SPENT for the round even if the Interlock blocks the steal.
+        dfn.odradek_recoil_done = True
+        res['fired'] = True
+        bank = getattr(dfn, 'odradek_bank', None)
+        res['bank_before'] = bank
+        res['bank_after'] = bank
+        if not atk.committed:                          return res
+
+        # Selection: second-highest committed card. One card -> that card.
+        # sorted() is stable, so equal values resolve by committed order.
+        if VARIANT['recoil_lowest']:
+            victim = min(atk.committed, key=lambda c: c.value)
+        else:
+            ordered = sorted(atk.committed, key=lambda c: c.value, reverse=True)
+            victim = ordered[1] if len(ordered) > 1 else ordered[0]
+
+        if not VARIANT.get('odr_recoil_strip', True):
+            if VARIANT.get('odr_recoil_soul', True):
+                self._gain_soul(dfn, 1); res['soul_gain'] = 1
+            return res
+
+        if VARIANT['odr_recoil_bank']:
+            if bank is not None:
+                if victim.value <= bank.value:
+                    res['locked'] = True               # no card moves, no Soul
+                    return res
+                self._discard([bank])
+                res['replaced_card'] = bank
+                dfn.odradek_bank = None
+            atk.committed.remove(victim)
+            dfn.odradek_bank = victim
+            res['bank_after'] = victim
+        else:
+            atk.committed.remove(victim)
+            self._discard([victim])
+
+        res['taken_card'] = victim
+        if VARIANT.get('odr_recoil_soul', True):
+            self._gain_soul(dfn, 1); res['soul_gain'] = 1
+        return res
+
+    def _odradek_spend_bank(self, pl, committed: list):
+        """Attacking spends the bank: the physical card joins the commitment.
+
+        The banked card becomes an ordinary committed card — its value counts
+        toward strength and resolution order, its suit toward suit bonuses, it
+        can be stripped or returned, and it goes through normal cleanup.
+        Ward and Profane do NOT spend it. Primary and Momentum attacks both do.
+        """
+        if not VARIANT['odr_recoil_bank']: return None
+        if pl.lord != 'Odradek':           return None
+        bank = getattr(pl, 'odradek_bank', None)
+        if bank is None:                   return None
+        committed.append(bank)
+        pl.odradek_bank = None
+        self.stat_bank_spent = getattr(self, 'stat_bank_spent', 0) + 1
+        return bank
+
+    def _odradek_discard_bank(self, pl, reason: str = ''):
+        """Leaving play discards the bank. Reconfiguration tokens are unaffected."""
+        if not VARIANT['odr_recoil_bank']: return None
+        bank = getattr(pl, 'odradek_bank', None)
+        if bank is None:                   return None
+        self._discard([bank])
+        pl.odradek_bank = None
+        return bank
 
     def _resolve_order(self) -> List[int]:
         """v5.29: higher committed Subject value resolves first.
@@ -1633,6 +1738,8 @@ class Game:
 
         for pl in self.players:
             pl.prev_ward_target = pl.ward_target if pl.action == 'Ward' else ''
+            pl.consecutive_wards = (pl.consecutive_wards + 1
+                                    if pl.action == 'Ward' else 0)
             if pl.lord == 'Humbaba' and pl.alive and VARIANT['humbaba_patient']:
                 pl.humbaba_patient = pl.action not in ('Hunt', 'Siege')
 
@@ -1774,6 +1881,12 @@ class Game:
                     for card in choice[1]:
                         if card in pl.hand:
                             pl.hand.remove(card)
+                    # BUG FIX: these cards are a SELECTION and are still in
+                    # the winner's hand. Discarding without removing them put
+                    # the same Card object in two zones.
+                    if VARIANT['fix_breach_discard_alias']:
+                        for _c in choice[1]:
+                            if _c in pl.hand: pl.hand.remove(_c)
                     self._discard(choice[1])
                     steal = self._ai_reflex_choice(thief, self.players[pid])
                     if steal is not None:
@@ -1943,16 +2056,7 @@ class Game:
         # Discard the attacker's second-highest committed card and gain 1 Soul.
         if (dfn.lord == 'Odradek' and dfn.alive and not dfn.odradek_recoil_done
                 and not orias_clean_hunt):
-            dfn.odradek_recoil_done = True
-            if atk.committed:
-                if VARIANT['recoil_lowest']:
-                    victim = min(atk.committed, key=lambda c: c.value)
-                else:
-                    sc = sorted(atk.committed, key=lambda c: c.value, reverse=True)
-                    victim = sc[1] if len(sc) > 1 else sc[0]
-                atk.committed.remove(victim)
-                self._discard([victim])
-                self._gain_soul(dfn, 1)
+            self._odradek_recoil(atk, dfn)
 
         strength  = atk.committed_value()
         strength += atk.suit_bonus('Butcher')
@@ -2104,16 +2208,7 @@ class Game:
         # Variant O1: Recoil fires on Hunts only — Sieges bypass it entirely
         if (dfn.lord == 'Odradek' and dfn.alive and not dfn.odradek_recoil_done
                 and not VARIANT['recoil_hunts_only']):
-            dfn.odradek_recoil_done = True
-            if atk.committed:
-                if VARIANT['recoil_lowest']:
-                    victim = min(atk.committed, key=lambda c: c.value)
-                else:
-                    sc = sorted(atk.committed, key=lambda c: c.value, reverse=True)
-                    victim = sc[1] if len(sc) > 1 else sc[0]
-                atk.committed.remove(victim)
-                self._discard([victim])
-                self._gain_soul(dfn, 1)
+            self._odradek_recoil(atk, dfn)
 
         strength  = atk.committed_value()
         strength += atk.suit_bonus('Butcher')
@@ -2586,6 +2681,7 @@ class Game:
         self.breach = dfn.lord
         self.breach_owner = dfn.pid
         dfn.lord_guards.clear()
+        self._odradek_discard_bank(dfn, reason='banished')
         dfn.alive = False
 
     # ═══════════════════════════════════════════════════════════════════
@@ -2777,6 +2873,16 @@ class Game:
         h = self._score_hunt( pl, op, plan) * prof.get('aggro', 1.0)
         s = self._score_siege(pl, op, plan) * prof.get('aggro', 1.0)
         w = self._score_ward( pl, op, plan) * prof.get('control', 1.0)
+
+        # ── Doctrine corrections. Ward was the only action with no Threat term
+        # and no cost for repetition, so it won by default under pressure. The
+        # bank term exists because attacking is the only way to unlock Recoil.
+        w -= pl.threat * VARIANT['doctrine_ward_threat']
+        w -= getattr(pl, 'consecutive_wards', 0) * VARIANT['doctrine_ward_stagnation']
+        _bank = getattr(pl, 'odradek_bank', None)
+        if VARIANT['odr_recoil_bank'] and pl.lord == 'Odradek' and _bank is not None:
+            _urg = VARIANT['doctrine_bank_urgency'] * _bank.value
+            h += _urg; s += _urg; w -= _urg * 0.5
 
         pref = prof.get('prefer', '')
         if pref == 'Hunt':  h += 0.25
@@ -3228,6 +3334,16 @@ class Game:
         h -= pl.threat * caution * 0.9
         s -= pl.threat * caution * 0.5
 
+        # ── Doctrine corrections. Ward was the only action with no Threat term
+        # and no cost for repetition, so it won by default under pressure. The
+        # bank term exists because attacking is the only way to unlock Recoil.
+        w -= pl.threat * VARIANT['doctrine_ward_threat']
+        w -= getattr(pl, 'consecutive_wards', 0) * VARIANT['doctrine_ward_stagnation']
+        _bank = getattr(pl, 'odradek_bank', None)
+        if VARIANT['odr_recoil_bank'] and pl.lord == 'Odradek' and _bank is not None:
+            _urg = VARIANT['doctrine_bank_urgency'] * _bank.value
+            h += _urg; s += _urg; w -= _urg * 0.5
+
         pref = prof.get('prefer', '')
         if pref == 'Hunt':  h += 0.25
         if pref == 'Siege': s += 0.25
@@ -3529,6 +3645,9 @@ class Game:
                 pass  # can't clear recoil — commit what we have (bluff value)
 
         for c in committed: pl.hand.remove(c)
+        # INTERLOCK: an attack spends the bank and rearms Recoil. Legal even
+        # when the player selected no Hand cards.
+        self._odradek_spend_bank(pl, committed)
         pl.committed = committed
 
     def _commit_for_ward(self, pl: Player, plan: str):

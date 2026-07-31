@@ -653,6 +653,11 @@ static func _card_population_failure(game) -> String:
 			"name": "p%d.committed" % player_id,
 			"cards": player.committed,
 		})
+		if player.odradek_bank != null:
+			zones.append({
+				"name": "p%d.odradek_bank" % player_id,
+				"cards": [player.odradek_bank],
+			})
 
 	var seen: Dictionary = {}
 	var total: int = 0

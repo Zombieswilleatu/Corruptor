@@ -10,6 +10,10 @@ const LordMathData = preload(
 	"res://Scripts/Sim/LordMath.gd"
 )
 
+const OdradekInterlockEngineData = preload(
+	"res://Scripts/Sim/OdradekInterlockEngine.gd"
+)
+
 
 const DrawEngineData = preload(
 	"res://Scripts/Sim/DrawEngine.gd"
@@ -152,27 +156,29 @@ static func resolve(
 		and marked_lord == defender.lord
 	)
 
-	var recoil_card = null
+	var recoil_result: Dictionary = OdradekInterlockEngineData.empty_result(
+		int(defender.pid),
+		int(attacker.pid)
+	)
 
 	if (
 		defender.lord == "Odradek"
 		and defender.alive
-		and not defender.odradek_recoil_done
 		and not orias_clean_hunt
 	):
-		defender.odradek_recoil_done = true
-
-		recoil_card = _apply_odradek_recoil(
+		recoil_result = OdradekInterlockEngineData.resolve_recoil(
 			game,
+			defender,
 			attacker,
 			rules
 		)
 
-		if recoil_card != null:
-			_gain_soul(
-				defender,
-				1
-			)
+	var recoil_card: String = String(
+		recoil_result.get(
+			"taken_card",
+			recoil_result.get("discarded_card", "")
+		)
+	)
 
 	var strength: int = _committed_value(
 		attacker.committed
@@ -605,13 +611,8 @@ static func resolve(
 				""
 			)
 		),
-		"recoil_card": (
-			""
-			if recoil_card == null
-			else _card_id(
-				recoil_card
-			)
-		),
+		"recoil_card": recoil_card,
+		"recoil_result": recoil_result,
 		"siphoned_card": (
 			""
 			if siphoned_card == null
@@ -831,40 +832,6 @@ static func _resolve_combat(
 	}
 
 
-static func _apply_odradek_recoil(
-	game,
-	attacker,
-	rules: RuleConfig
-):
-	if attacker.committed.is_empty():
-		return null
-
-	var victim_index: int = 0
-
-	if rules.recoil_lowest:
-		victim_index = _lowest_card_index(
-			attacker.committed
-		)
-	else:
-		victim_index = _second_highest_index(
-			attacker.committed
-		)
-
-	var victim = attacker.committed[
-		victim_index
-	]
-
-	attacker.committed.remove_at(
-		victim_index
-	)
-
-	game.discard.append(
-		victim
-	)
-
-	return victim
-
-
 static func _banish_lord(
 	game,
 	rules: RuleConfig,
@@ -952,8 +919,14 @@ static func _banish_lord(
 		)
 
 
+	var discarded_bank = null
 	if defender.lord == "Odradek":
 		defender.odradek_reconfig_tokens = 0
+		discarded_bank = OdradekInterlockEngineData.discard_bank(
+			game,
+			defender,
+			rules
+		)
 
 	var neutral_tear_gain: int = 0
 	var harvested_card: String = ""
@@ -1053,6 +1026,9 @@ static func _banish_lord(
 		),
 		"breach_owner": int(
 			game.breach_owner
+		),
+		"discarded_bank": (
+			"" if discarded_bank == null else _card_id(discarded_bank)
 		),
 	}
 

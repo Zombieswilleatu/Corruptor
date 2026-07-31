@@ -228,6 +228,9 @@ static func _prepare_player_for_setup(player) -> void:
 
 	player.odradek_recoil_done = false
 	player.odradek_guards_defeated = 0
+	player.odradek_reconfig_tokens = 0
+	player.odradek_bank = null
+	player.consecutive_wards = 0
 
 	player.gremory_ruin_done = false
 	player.gremory_inevitable_ruin_done = false

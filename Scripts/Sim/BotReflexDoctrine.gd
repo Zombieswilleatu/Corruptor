@@ -2,6 +2,11 @@ class_name BotReflexDoctrine
 extends RefCounted
 
 
+const OdradekInterlockEngineData = preload(
+	"res://Scripts/Sim/OdradekInterlockEngine.gd"
+)
+
+
 const GameSetupData = preload(
 	"res://Scripts/Sim/GameSetup.gd"
 )
@@ -483,6 +488,11 @@ static func evaluate_public_guess_candidates(
 		)
 	)
 
+	var doctrine_delta: Vector3 = OdradekInterlockEngineData.doctrine_delta(
+		winner,
+		rules
+	)
+
 	var candidates: Array = []
 
 	if (
@@ -491,6 +501,7 @@ static func evaluate_public_guess_candidates(
 	):
 		var hunt_score: float = (
 			3.0 * aggression
+			+ doctrine_delta.x
 			+ float(
 				target.threat
 			) * 0.10
@@ -512,6 +523,7 @@ static func evaluate_public_guess_candidates(
 	if not target.castles.is_empty():
 		var siege_score: float = (
 			2.0 * aggression
+			+ doctrine_delta.y
 			+ float(
 				target.castles.size()
 			) * 0.05
@@ -554,6 +566,7 @@ static func evaluate_public_guess_candidates(
 	if can_publicly_ward:
 		var ward_score: float = (
 			1.0 * control
+			+ doctrine_delta.z
 			+ float(
 				winner.threat
 			) * 0.10
