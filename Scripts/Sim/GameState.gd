@@ -28,6 +28,8 @@ var action_memory: Array[Dictionary] = [
 
 var persist_scorch_pid: int = -1
 var persist_scorch_type: String = ""
+var persist_scorch_level: int = 1
+var veil_drift_accumulator: float = 0.0
 
 var neutral_tears: int = 0
 var veil_total: int = 0
@@ -123,6 +125,8 @@ func duplicate_state() -> GameState:
 
 	copy.persist_scorch_pid = persist_scorch_pid
 	copy.persist_scorch_type = persist_scorch_type
+	copy.persist_scorch_level = persist_scorch_level
+	copy.veil_drift_accumulator = veil_drift_accumulator
 
 	copy.neutral_tears = neutral_tears
 	copy.veil_total = veil_total

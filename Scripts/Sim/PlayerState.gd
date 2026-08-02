@@ -10,6 +10,7 @@ var souls: int = 0
 var tears: int = 0
 var threat: int = 0
 var kroni_hunger: int = 0
+var momentum_refund_due: int = 0
 var repair_token: int = 0
 
 var repaired_this_round: bool = false
@@ -25,6 +26,7 @@ var cataclysmic_used: bool = false
 var vessel_used: bool = false
 var vessel_offered_lord: String = ""
 var kalligan_repair_used: bool = false
+var kalligan_flame_tokens: int = 0
 var kroni_ravenous_used: bool = false
 var deimos_breach_claimed: bool = false
 
@@ -146,6 +148,7 @@ func reset_round_state() -> void:
 	kroni_consume_done = false
 	kroni_personally_defeated_guard = false
 	kroni_enemy_destroyed = false
+	momentum_refund_due = 0
 
 	committed.clear()
 	penitent_temp_guards.clear()
@@ -165,6 +168,7 @@ func duplicate_state() -> PlayerState:
 	copy.tears = tears
 	copy.threat = threat
 	copy.kroni_hunger = kroni_hunger
+	copy.momentum_refund_due = momentum_refund_due
 	copy.repair_token = repair_token
 
 	copy.repaired_this_round = repaired_this_round
@@ -176,6 +180,7 @@ func duplicate_state() -> PlayerState:
 	copy.vessel_used = vessel_used
 	copy.vessel_offered_lord = vessel_offered_lord
 	copy.kalligan_repair_used = kalligan_repair_used
+	copy.kalligan_flame_tokens = kalligan_flame_tokens
 	copy.kroni_ravenous_used = kroni_ravenous_used
 	copy.deimos_breach_claimed = deimos_breach_claimed
 

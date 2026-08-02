@@ -1146,6 +1146,15 @@ func _rule_snapshot(
 		"kroni_hunger_decay": bool(
 			rules.kroni_hunger_decay
 		),
+		"kro_fallback_feeds": bool(
+			rules.kro_fallback_feeds
+		),
+		"kro_milestone_once": bool(
+			rules.kro_milestone_once
+		),
+		"lab_profile_version": String(
+			rules.lab_profile_version
+		),
 		"deimos_war_machine_free": bool(
 			rules.deimos_war_machine_free
 		),
@@ -1160,6 +1169,39 @@ func _rule_snapshot(
 		),
 		"veil_drift": int(
 			rules.veil_drift
+		),
+		"veil_drift_rate": float(
+			rules.veil_drift_rate
+		),
+		"veil_drift_after": int(
+			rules.veil_drift_after
+		),
+		"veil_drift_growth": float(
+			rules.veil_drift_growth
+		),
+		"momentum_refund": int(
+			rules.momentum_refund
+		),
+		"kal_inferno_threat": bool(
+			rules.kal_inferno_threat
+		),
+		"kal_flame_tokens": bool(
+			rules.kal_flame_tokens
+		),
+		"kal_flame_per_soul": int(
+			rules.kal_flame_per_soul
+		),
+		"kal_scorch_escalate": bool(
+			rules.kal_scorch_escalate
+		),
+		"kal_scorch_cap": int(
+			rules.kal_scorch_cap
+		),
+		"kal_lane_scorch": bool(
+			rules.kal_lane_scorch
+		),
+		"kal_lane_scorch_thresh": int(
+			rules.kal_lane_scorch_thresh
 		),
 		"invocation_repeatable": bool(
 			rules.invocation_repeatable

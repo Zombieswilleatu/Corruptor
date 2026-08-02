@@ -122,6 +122,7 @@ static func resolve(
 			"vessel_event": stale_vessel_event,
 			"vulture_draw": "",
 			"wright_token_gained": false,
+			"momentum_refunded": [],
 			"discarded_committed": [],
 			"stopped_on_win": true,
 			"winner": int(
@@ -260,6 +261,7 @@ static func resolve(
 			"vessel_event": vessel_event,
 			"vulture_draw": "",
 			"wright_token_gained": false,
+			"momentum_refunded": [],
 			"discarded_committed": [],
 			"stopped_on_win": true,
 			"winner": int(
@@ -291,6 +293,27 @@ static func resolve(
 	) >= 2:
 		acting_player.repair_token = 1
 		wright_token_gained = true
+
+	var momentum_refunded: Array = []
+	var refund_count: int = min(
+		int(acting_player.momentum_refund_due),
+		acting_player.committed.size()
+	)
+
+	for _refund_index: int in range(refund_count):
+		var highest_index: int = _highest_card_index(acting_player.committed)
+		if highest_index < 0:
+			break
+
+		var refunded_card = acting_player.committed[highest_index]
+		acting_player.committed.remove_at(highest_index)
+		if acting_player.hand.size() < rules.hand_limit:
+			acting_player.hand.append(refunded_card)
+		else:
+			game.discard.append(refunded_card)
+		momentum_refunded.append(refunded_card)
+
+	acting_player.momentum_refund_due = 0
 
 	var discarded_committed: Array = (
 		acting_player.committed.duplicate()
@@ -327,6 +350,7 @@ static func resolve(
 		"wright_token_gained": (
 			wright_token_gained
 		),
+		"momentum_refunded": _card_ids(momentum_refunded),
 		"discarded_committed": _card_ids(
 			discarded_committed
 		),
@@ -966,6 +990,20 @@ static func _suit_count(
 	return count
 
 
+static func _highest_card_index(
+	cards: Array
+) -> int:
+	if cards.is_empty():
+		return -1
+
+	var selected_index: int = 0
+	for index: int in range(1, cards.size()):
+		if int(cards[index].value) > int(cards[selected_index].value):
+			selected_index = index
+
+	return selected_index
+
+
 static func _lowest_card_index(
 	cards: Array
 ) -> int:
@@ -1028,6 +1066,7 @@ static func _invalid_result(
 		"vessel_event": {},
 		"vulture_draw": "",
 		"wright_token_gained": false,
+		"momentum_refunded": [],
 		"discarded_committed": [],
 		"stopped_on_win": false,
 		"winner": -1,

@@ -48,12 +48,17 @@ extends Resource
 @export var reconfig_strict: bool = true
 @export var kroni_def_soft: bool = false
 @export var kroni_hunger_decay: bool = true
+@export var kro_fallback_feeds: bool = true
+@export var kro_milestone_once: bool = false
 @export var deimos_war_machine_free: bool = true
 @export var deimos_summon_cost: int = 7
 @export var recoil_lowest: bool = true
 @export var neutral_tear_on_banish: bool = true
 @export var castle_tear_uncapped: bool = false
 @export var veil_drift: int = 0
+@export var veil_drift_rate: float = 0.0
+@export var veil_drift_after: int = 0
+@export var veil_drift_growth: float = 0.0
 @export var invocation_repeatable: bool = false
 @export var reconfig_tokens_needed: int = 5
 @export var reconfig_neutral: bool = false
@@ -61,6 +66,16 @@ extends Resource
 @export var consume_the_siege: bool = false
 @export var war_machine_ignores_profaned: bool = false
 @export var gremory_summon_cost: int = 6
+
+# Kalligan SCORCH keyword. Canonical DE v2 keeps the printed legacy behavior;
+# the measured lab enables escalation, lane burn, and Flame income.
+@export var kal_inferno_threat: bool = true
+@export var kal_flame_tokens: bool = false
+@export var kal_flame_per_soul: int = 5
+@export var kal_scorch_escalate: bool = false
+@export var kal_scorch_cap: int = 3
+@export var kal_lane_scorch: bool = false
+@export var kal_lane_scorch_thresh: int = 2
 
 # Kanifous Invoke switches. DE v2 preserves the printed Threat-cost version;
 # the measured lab swaps only that cost for a one-card Hand toll.
@@ -112,6 +127,7 @@ extends Resource
 @export var reflex_bid: bool = true
 @export var momentum: bool = false
 @export var momentum_band: int = 3
+@export var momentum_refund: int = 0
 @export var fog_of_war: bool = false
 
 # Independent from Marching Orders: the lab Market refreshes before swaps from
@@ -203,8 +219,8 @@ static func lab_v6_5() -> RuleConfig:
 	config.kani_threat_cost = false
 	config.kani_hand_cost = true
 
-	# Odradek Interlock and roster-wide Ward doctrine corrections.
-	config.lab_profile_version = "6.8.1-odradek-interlock-port"
+	# Odradek Interlock, Kroni revision, and roster-wide Ward doctrine corrections.
+	config.lab_profile_version = "6.8.6-lab"
 	config.odr_recoil_bank = true
 	config.reconfig_neutral = true
 	config.reconfig_tokens_needed = 3
@@ -214,6 +230,24 @@ static func lab_v6_5() -> RuleConfig:
 	config.doctrine_ward_threat = 0.20
 	config.doctrine_ward_stagnation = 0.30
 	config.doctrine_bank_urgency = 0.35
+
+	# Kroni still pays the fallback card, but only real destruction feeds
+	# Hunger. The Hunger-3 milestone is awarded once per game.
+	config.kro_fallback_feeds = false
+	config.kro_milestone_once = true
+
+	# 6.8.6 measured bundle: Momentum funds its second action, the Veil
+	# closes on late slogs, and Kalligan's SCORCH becomes a denial/income ramp.
+	config.momentum_refund = 1
+	config.veil_drift_after = 15
+	config.veil_drift_growth = 0.25
+	config.kal_inferno_threat = false
+	config.kal_flame_tokens = true
+	config.kal_flame_per_soul = 5
+	config.kal_scorch_escalate = true
+	config.kal_scorch_cap = 3
+	config.kal_lane_scorch = true
+	config.kal_lane_scorch_thresh = 2
 
 	config.castle_scarring = true
 	config.castle_permanent_loss = true

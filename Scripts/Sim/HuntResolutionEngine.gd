@@ -308,6 +308,7 @@ static func resolve(
 		and excess <= rules.momentum_band
 	):
 		game.reflex_winner = attacker_id
+		attacker.momentum_refund_due += rules.momentum_refund
 
 	var gremory_guard_trigger: Dictionary = (
 		_empty_gremory_trigger()

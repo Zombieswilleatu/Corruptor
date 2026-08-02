@@ -68,8 +68,24 @@ SIM_VERSION = sim.SIM_VERSION
 # ─────────────────────────────────────────────────────────────────────────────
 #  CONFIG SNAPSHOTS  (must mirror the GDScript RuleConfig factories)
 # ─────────────────────────────────────────────────────────────────────────────
+# These switches exist at runtime because the measured lab consumes them, but
+# they are inert under canonical DE v2 and are deliberately absent from the
+# published canonical golden identity. This mirrors GoldenMaster.gd.
+LAB_ONLY_RUNTIME_VARIANT_KEYS = frozenset({
+    "odr_recoil_bank",
+    "fix_breach_discard_alias",
+    "doctrine_ward_threat",
+    "doctrine_ward_stagnation",
+    "doctrine_bank_urgency",
+})
+
+
 def de_v2_variant() -> dict:
-    return dict(sim.DE_V2_VARIANT)
+    return {
+        key: value
+        for key, value in sim.DE_V2_VARIANT.items()
+        if key not in LAB_ONLY_RUNTIME_VARIANT_KEYS
+    }
 
 
 def de_v2_constants() -> dict:
@@ -78,7 +94,10 @@ def de_v2_constants() -> dict:
 
 def apply_config(variant: dict, constants: dict):
     """Push a config into the sim's globals — the same surface the CLI flags hit."""
+    # Runtime execution still receives every canonical default, including
+    # lab-only switches that are excluded from serialized trace identity.
     sim.VARIANT.clear()
+    sim.VARIANT.update(sim.DE_V2_VARIANT)
     sim.VARIANT.update(variant)
 
     for key, value in constants.items():
@@ -119,12 +138,26 @@ def assert_live_identity(
             )
         )
 
-    if sim.VARIANT != variant:
+    live_identity_variant = {
+        key: sim.VARIANT.get(key)
+        for key in variant
+    }
+
+    if live_identity_variant != variant:
         errors.append(
-            "live variant=%r expected=%r"
+            "live identity variant=%r expected=%r"
+            % (
+                live_identity_variant,
+                variant,
+            )
+        )
+
+    if sim.VARIANT != sim.DE_V2_VARIANT:
+        errors.append(
+            "live runtime variant=%r expected canonical runtime=%r"
             % (
                 sim.VARIANT,
-                variant,
+                sim.DE_V2_VARIANT,
             )
         )
 

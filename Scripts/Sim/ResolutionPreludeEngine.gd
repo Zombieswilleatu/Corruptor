@@ -287,6 +287,10 @@ static func _apply_persistent_scorch(
 			"player_id": -1,
 			"zone": "",
 			"discarded_cards": [],
+			"lane_burned_cards": [],
+			"threshold": 0,
+			"level_before": int(game.persist_scorch_level),
+			"level_after": int(game.persist_scorch_level),
 			"gremory_trigger": (
 				_empty_gremory_trigger()
 			),
@@ -303,11 +307,17 @@ static func _apply_persistent_scorch(
 	)
 
 	var victims: Array = []
+	var level_before: int = int(game.persist_scorch_level)
+	var burn_threshold: int = (
+		level_before
+		if rules.kal_scorch_escalate
+		else 2
+	)
 
 	for guard in guard_zone.duplicate():
 		if int(
 			guard.value
-		) > 2:
+		) > burn_threshold:
 			continue
 
 		guard_zone.erase(
@@ -342,6 +352,27 @@ static func _apply_persistent_scorch(
 			random_source
 		)
 
+	if rules.kal_scorch_escalate:
+		game.persist_scorch_level = min(
+			max(1, rules.kal_scorch_cap),
+			level_before + 1
+		)
+
+	var lane_victims: Array = []
+	if rules.kal_lane_scorch:
+		for marcher in player.marchers.duplicate():
+			if (
+				String(marcher.get("lane", "")) != target_zone
+				or int(marcher.get("value", 0)) > rules.kal_lane_scorch_thresh
+			):
+				continue
+
+			player.marchers.erase(marcher)
+			var marcher_card = marcher.get("card", null)
+			if marcher_card != null:
+				game.discard.append(marcher_card)
+				lane_victims.append(marcher_card)
+
 	return {
 		"applied": true,
 		"player_id": target_player_id,
@@ -349,6 +380,10 @@ static func _apply_persistent_scorch(
 		"discarded_cards": _card_ids(
 			victims
 		),
+		"lane_burned_cards": _card_ids(lane_victims),
+		"threshold": burn_threshold,
+		"level_before": level_before,
+		"level_after": int(game.persist_scorch_level),
 		"gremory_trigger": gremory_trigger,
 	}
 

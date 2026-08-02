@@ -402,6 +402,7 @@ static func resolve(
 		and excess <= rules.momentum_band
 	):
 		game.reflex_winner = attacker_id
+		attacker.momentum_refund_due += rules.momentum_refund
 
 	if guards_lost > 0:
 		_mark_destruction(
@@ -453,6 +454,7 @@ static func resolve(
 	)
 
 	var inferno_card = null
+	var inferno_threat_gain: int = 0
 
 	var wildfire_zone: String = ""
 
@@ -574,31 +576,39 @@ static func resolve(
 				attacker.lord == "Kalligan"
 				and attacker.alive
 			):
-				# Wildfire resolves first. If Inferno later places Scorch
-				# on the Lord zone, that is the persistent token that stays.
-				game.persist_scorch_pid = int(
-					defender.pid
-				)
-
-				if defender.castles.is_empty():
-					game.persist_scorch_type = "Lord"
-				else:
-					game.persist_scorch_type = "Castle"
-
-				wildfire_zone = String(
-					game.persist_scorch_type
+				# Wildfire resolves first. Moving the fire to a new target or
+				# zone restarts SCORCH at level 1; stoking the same fire does not.
+				var wildfire_target: int = int(defender.pid)
+				var wildfire_type: String = (
+					"Lord"
+					if defender.castles.is_empty()
+					else "Castle"
 				)
 
 				if (
-					use_inferno
-					and attacker.threat < rules.max_threat
+					int(game.persist_scorch_pid) != wildfire_target
+					or String(game.persist_scorch_type) != wildfire_type
 				):
-					attacker.threat = min(
-						rules.max_threat,
-						int(
-							attacker.threat
-						) + 1
+					game.persist_scorch_level = 1
+
+				game.persist_scorch_pid = wildfire_target
+				game.persist_scorch_type = wildfire_type
+
+				wildfire_zone = String(game.persist_scorch_type)
+
+				if (
+					use_inferno
+					and (
+						attacker.threat < rules.max_threat
+						or not rules.kal_inferno_threat
 					)
+				):
+					if rules.kal_inferno_threat:
+						attacker.threat = min(
+							rules.max_threat,
+							int(attacker.threat) + 1
+						)
+						inferno_threat_gain = 1
 
 					if not defender.lord_guards.is_empty():
 						var highest_index: int = (
@@ -795,6 +805,7 @@ static func resolve(
 				inferno_card
 			)
 		),
+		"inferno_threat_gain": inferno_threat_gain,
 		"wildfire_zone": wildfire_zone,
 		"ravenous_soul_gain": (
 			ravenous_soul_gain
@@ -846,6 +857,7 @@ static func _ward_turned_result(
 		"harvested_by": -1,
 		"gremory_ruin_trigger": _empty_gremory_ruin_trigger(),
 		"inferno_card": "",
+		"inferno_threat_gain": 0,
 		"wildfire_zone": "",
 		"ravenous_soul_gain": 0,
 		"won": false,

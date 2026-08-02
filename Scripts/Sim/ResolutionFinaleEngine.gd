@@ -33,6 +33,8 @@ static func resolve(
 	var consume_events: Array[Dictionary] = []
 	var fallback_events: Array[Dictionary] = []
 	var breach_events: Array[Dictionary] = []
+	var veil_drift_events: Array[Dictionary] = []
+	var kalligan_events: Array[Dictionary] = []
 	var reconfiguration_events: Array[Dictionary] = []
 	var state_events: Array[Dictionary] = []
 
@@ -91,7 +93,8 @@ static func resolve(
 		var fallback_event: Dictionary = (
 			_resolve_kroni_fallback(
 				game,
-				player
+				player,
+				rules
 			)
 		)
 
@@ -108,6 +111,19 @@ static func resolve(
 			# Python defers the victory checkpoint created by fallback
 			# Consume until after the completed-round snapshot. Finale must
 			# still resolve Breach passives and persistent state updates.
+
+	var drift_event: Dictionary = _resolve_graduated_veil_drift(game, rules)
+	if bool(drift_event.get("applied", false)):
+		veil_drift_events.append(drift_event)
+
+	for player in game.players:
+		var flame_event: Dictionary = _resolve_kalligan_flame_income(
+			game,
+			player,
+			rules
+		)
+		if bool(flame_event.get("applied", false)):
+			kalligan_events.append(flame_event)
 
 	if game.breach == "Kroni":
 		for player in game.players:
@@ -161,6 +177,8 @@ static func resolve(
 				decay_events,
 				fallback_events,
 				breach_events,
+				veil_drift_events,
+				kalligan_events,
 				reconfiguration_events,
 				state_events,
 				true
@@ -220,6 +238,8 @@ static func resolve(
 		decay_events,
 		fallback_events,
 		breach_events,
+		veil_drift_events,
+		kalligan_events,
 		reconfiguration_events,
 		state_events,
 		false
@@ -384,7 +404,8 @@ static func _resolve_kroni_consume(
 
 static func _resolve_kroni_fallback(
 	game,
-	player
+	player,
+	rules: RuleConfig
 ) -> Dictionary:
 	if (
 		player.lord != "Kroni"
@@ -440,12 +461,17 @@ static func _resolve_kroni_fallback(
 		player.kroni_hunger
 	)
 
-	var hunger_event: Dictionary = (
-		_gain_kroni_hunger(
+	var fed_hunger: bool = bool(
+		rules.kro_fallback_feeds
+	)
+
+	var hunger_event: Dictionary = {}
+
+	if fed_hunger:
+		hunger_event = _gain_kroni_hunger(
 			game,
 			player
 		)
-	)
 
 	return {
 		"triggered": true,
@@ -457,6 +483,7 @@ static func _resolve_kroni_fallback(
 		"removed_card": _card_id(
 			selected_card
 		),
+		"fed_hunger": fed_hunger,
 		"hunger_before": hunger_before,
 		"hunger_after": int(
 			player.kroni_hunger
@@ -479,6 +506,85 @@ static func _resolve_kroni_fallback(
 				-1
 			)
 		),
+	}
+
+
+static func _resolve_graduated_veil_drift(
+	game,
+	rules: RuleConfig
+) -> Dictionary:
+	if (
+		rules.veil_drift_rate == 0.0
+		and rules.veil_drift_growth == 0.0
+	):
+		return {"applied": false}
+
+	if int(game.round) <= rules.veil_drift_after:
+		return {"applied": false}
+
+	var accumulator_before: float = float(game.veil_drift_accumulator)
+	var rate: float = rules.veil_drift_rate
+	rate += rules.veil_drift_growth * float(
+		int(game.round) - rules.veil_drift_after - 1
+	)
+	game.veil_drift_accumulator += rate
+
+	var tear_gain: int = 0
+	var harvest_events: Array[Dictionary] = []
+	while game.veil_drift_accumulator >= 1.0:
+		game.veil_drift_accumulator -= 1.0
+		harvest_events.append(_gain_neutral_tear(game))
+		tear_gain += 1
+
+	return {
+		"applied": true,
+		"round": int(game.round),
+		"rate": rate,
+		"accumulator_before": accumulator_before,
+		"accumulator_after": float(game.veil_drift_accumulator),
+		"neutral_tear_gain": tear_gain,
+		"harvest_events": harvest_events,
+	}
+
+
+static func _resolve_kalligan_flame_income(
+	game,
+	player,
+	rules: RuleConfig
+) -> Dictionary:
+	if (
+		not rules.kal_flame_tokens
+		or int(game.persist_scorch_pid) < 0
+		or String(game.persist_scorch_type).is_empty()
+		or player.lord != "Kalligan"
+		or not player.alive
+		or int(player.pid) == int(game.persist_scorch_pid)
+	):
+		return {"applied": false}
+
+	var token_gain: int = (
+		int(game.persist_scorch_level)
+		if rules.kal_scorch_escalate
+		else 1
+	)
+	var tokens_before: int = int(player.kalligan_flame_tokens)
+	player.kalligan_flame_tokens += token_gain
+
+	var soul_gain: int = 0
+	var per_soul: int = max(1, rules.kal_flame_per_soul)
+	while player.kalligan_flame_tokens >= per_soul:
+		player.kalligan_flame_tokens -= per_soul
+		player.souls += 1
+		soul_gain += 1
+
+	return {
+		"applied": true,
+		"player_id": int(player.pid),
+		"token_gain": token_gain,
+		"tokens_before": tokens_before,
+		"tokens_after": int(player.kalligan_flame_tokens),
+		"soul_gain": soul_gain,
+		"scorch_level": int(game.persist_scorch_level),
 	}
 
 
@@ -1109,6 +1215,7 @@ static func _empty_fallback_event(
 		),
 		"zone": "",
 		"removed_card": "",
+		"fed_hunger": false,
 		"hunger_before": (
 			0
 			if player == null
@@ -1135,6 +1242,8 @@ static func _result(
 	decay_events: Array[Dictionary],
 	fallback_events: Array[Dictionary],
 	breach_events: Array[Dictionary],
+	veil_drift_events: Array[Dictionary],
+	kalligan_events: Array[Dictionary],
 	reconfiguration_events: Array[Dictionary],
 	state_events: Array[Dictionary],
 	stopped_on_win: bool
@@ -1145,6 +1254,8 @@ static func _result(
 		"decay_events": decay_events,
 		"fallback_events": fallback_events,
 		"breach_events": breach_events,
+		"veil_drift_events": veil_drift_events,
+		"kalligan_events": kalligan_events,
 		"reconfiguration_events": (
 			reconfiguration_events
 		),

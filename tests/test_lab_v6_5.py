@@ -35,15 +35,15 @@ class LabV65RulesTests(unittest.TestCase):
             setattr(sim, name, value)
 
     def test_profile_uses_the_measured_clock_bundle(self):
-        self.assertEqual(sim.WIN_SOULS, 11)
+        self.assertEqual(sim.WIN_SOULS, 12)
         self.assertEqual(sim.DOMINION_TRACK, 12)
-        self.assertEqual(sim.DOMINION_REQUIREMENT, 7)
-        self.assertEqual(sim.FINAL_COLLAPSE_TRACK, 22)
+        self.assertEqual(sim.DOMINION_REQUIREMENT, 5)
+        self.assertEqual(sim.FINAL_COLLAPSE_TRACK, 26)
         self.assertFalse(sim.VARIANT["reflex_bid"])
         self.assertTrue(sim.VARIANT["momentum"])
         self.assertTrue(sim.VARIANT["marching"])
         self.assertTrue(sim.ACTIVE_FEATURES["market_refresh"])
-        self.assertEqual(sim.LAB_PROFILE_VERSION, "6.5.4-humbaba-kanifous-revisions")
+        self.assertEqual(sim.LAB_PROFILE_VERSION, "6.8.6-lab")
         self.assertTrue(sim.VARIANT["fix_b"])
         self.assertTrue(sim.VARIANT["sigil_flat"])
         self.assertFalse(sim.VARIANT["humbaba_seal"])
@@ -53,6 +53,13 @@ class LabV65RulesTests(unittest.TestCase):
         self.assertTrue(sim.ACTIVE_FEATURES["humbaba_reactive_lane"])
         self.assertTrue(sim.ACTIVE_FEATURES["kani_hand_cost"])
         self.assertFalse(sim.ACTIVE_FEATURES["kani_threat_cost"])
+        self.assertEqual(sim.ACTIVE_FEATURES["momentum_refund"], 1)
+        self.assertEqual(sim.ACTIVE_FEATURES["veil_drift_after"], 15)
+        self.assertEqual(sim.ACTIVE_FEATURES["veil_drift_growth"], 0.25)
+        self.assertFalse(sim.ACTIVE_FEATURES["kal_inferno_threat"])
+        self.assertTrue(sim.ACTIVE_FEATURES["kal_flame_tokens"])
+        self.assertTrue(sim.ACTIVE_FEATURES["kal_scorch_escalate"])
+        self.assertTrue(sim.ACTIVE_FEATURES["kal_lane_scorch"])
 
     def test_threshold_ward_turns_the_matching_hunt(self):
         game = sim.Game(["Orias"], ["Valak"])

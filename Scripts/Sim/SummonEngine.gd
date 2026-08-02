@@ -245,7 +245,10 @@ static func _resolve_player_summon(
 			) + 1
 		)
 
-	if chosen_lord == "Kroni":
+	if (
+		chosen_lord == "Kroni"
+		and not rules.kro_milestone_once
+	):
 		player.kroni_tear_milestone_fired = false
 
 	player.derived_lord_def = _calculate_lord_defense(

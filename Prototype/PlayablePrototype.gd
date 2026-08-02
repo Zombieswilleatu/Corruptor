@@ -66,15 +66,17 @@ const LORD_CARD_ABILITIES: Dictionary = {
 		"[b]Breach: Gravitational Collapse[/b] — At Resolution Prelude, each previously attacked zone loses its lowest Guard.",
 	],
 	"Kroni": [
-		"[b]Consume / Gorge[/b] — At End of Round, if any destruction occurred, gain 1 Hunger. If Kroni personally defeated a Guard that round, also gain 1 Soul.",
-		"[b]Hunger[/b] — Lord DEF is 4 at 0 Hunger, 6 at 1–2, and 8 at 3+. Reaching 3 for the first time after a Summon grants a personal Tear.",
-		"[b]Hungering Aura / Ravenous[/b] — At Hunger 3+, discard the opponent's lowest committed card. Kroni's next destroyed Lord/Castle grants +2 Souls and +1 Hunger.",
-		"[b]Fallback / Decay / Breach[/b] — If Consume did not fire, remove the lowest Guard or Garrison card from play. Ward/Pass loses 1 Hunger. Kroni Breach destroys each player's lowest Guard.",
+		"[b]HUNGER[/b] — a counter that persists across rounds and resets when Kroni is resummoned. Lord DEF is 4 at 0, 6 at 1–2, and 8 at 3+. The first time he reaches 3 each game, gain 1 personal Tear. Warding or Passing loses 1 Hunger.",
+		"[b]Consume[/b] — At End of Round, if any destruction occurred, gain 1 Hunger. If nothing was destroyed, remove your lowest Guard or Garrison card from play, gaining nothing.",
+		"[b]Gorge[/b] — If Kroni personally defeated a Guard this round, gain 1 Soul.",
+		"[b]Ravenous[/b] — At Hunger 3+, discard the opponent's lowest committed card. His next destroyed Lord or Castle grants +2 Souls and +1 Hunger.",
+		"[b]Breach — Insatiable Hunger[/b] — While Kroni is Banished, both players lose their lowest Guard each round.",
 	],
 	"Kalligan": [
+		"[b]SCORCH[/b] — A persistent fire starts at level 1, rises by 1 each round to 3, and defeats Guards at or below its level. It also burns matching-lane marchers at current value 2 or less. Each round it stands, gain Flame tokens equal to its level; 5 Flame becomes 1 Soul.",
 		"[b]Forge-Repair[/b] — Kalligan's first Repair costs 7 less; later Repairs cost 5 less. Every living Kalligan Repair Scorches the enemy Lord zone.",
 		"[b]Pyroclasm[/b] — Sieges gain +1 strength, or +2 if the defender already has a Ruined Castle.",
-		"[b]Inferno / Wildfire[/b] — After ruining a Castle, Wildfire Scorches the enemy Castle zone (or Lord if none remain). Kalligan may gain 1 Threat to Defeat the highest enemy Lord Guard without response triggers; if none exists, Inferno replaces that token with Lord Scorch.",
+		"[b]Wildfire / Inferno[/b] — After ruining a Castle, Scorch its Castle zone (or Lord if none remain). Inferno defeats the highest enemy Lord Guard without gaining Threat; if none exists, Scorch the Lord zone.",
 		"[b]Breach[/b] — All Repairs cost 1 less.",
 	],
 	"Gremory": [
@@ -5581,36 +5583,32 @@ func _log_prelude_lord_powers(
 		)
 	):
 		var discarded_cards: Array = _array_from(
-			scorch.get(
-				"discarded_cards",
-				[]
-			)
+			scorch.get("discarded_cards", [])
 		)
+		var lane_cards: Array = _array_from(
+			scorch.get("lane_burned_cards", [])
+		)
+		var burn_text: String = (
+			"discarded %s" % _string_values_inline(discarded_cards)
+			if not discarded_cards.is_empty()
+			else "found no Guard at or below its threshold"
+		)
+
+		if not lane_cards.is_empty():
+			burn_text += (
+				"; lane burned %s"
+				% _string_values_inline(lane_cards)
+			)
+
 		_log(
-			"[color=#d8b4fe][b]Kalligan — Scorch:[/b] %s's %s zone %s.[/color]"
+			"[color=#d8b4fe][b]Kalligan — SCORCH:[/b] %s's %s zone at level %d (threshold %d) %s; level is now %d.[/color]"
 			% [
-				_player_name(
-					int(
-						scorch.get(
-							"player_id",
-							-1
-						)
-					)
-				),
-				String(
-					scorch.get(
-						"zone",
-						"?"
-					)
-				),
-				(
-					"discarded low Guards %s"
-					% _string_values_inline(
-						discarded_cards
-					)
-					if not discarded_cards.is_empty()
-					else "had no value-1 or value-2 Guards to burn"
-				),
+				_player_name(int(scorch.get("player_id", -1))),
+				String(scorch.get("zone", "?")),
+				int(scorch.get("level_before", 1)),
+				int(scorch.get("threshold", 0)),
+				burn_text,
+				int(scorch.get("level_after", 1)),
 			]
 		)
 		_log_gremory_guard_trigger(
@@ -5982,9 +5980,14 @@ func _log_action_lord_powers(
 		)
 
 		if not inferno_card.is_empty():
+			var inferno_threat_text: String = (
+				"Gained 1 Threat and "
+				if int(action_result.get("inferno_threat_gain", 0)) > 0
+				else ""
+			)
 			_log(
-				"[color=#d8b4fe][b]Kalligan — Inferno:[/b] Gained 1 Threat and burned the highest Lord Guard, %s.[/color]"
-				% inferno_card
+				"[color=#d8b4fe][b]Kalligan — Inferno:[/b] %sburned the highest Lord Guard, %s.[/color]"
+				% [inferno_threat_text, inferno_card]
 			)
 
 		var wildfire_zone: String = String(
@@ -6332,6 +6335,22 @@ func _log_aftermath_lord_powers(
 			)
 		)
 
+	var momentum_refunded: Array = _array_from(
+		aftermath.get(
+			"momentum_refunded",
+			[]
+		)
+	)
+
+	if not momentum_refunded.is_empty():
+		_log(
+			"[color=#f2d477][b]Momentum refund:[/b] %s returned %s to Hand.[/color]"
+			% [
+				_player_name(player_id),
+				_string_values_inline(momentum_refunded),
+			]
+		)
+
 	var discarded_committed: Array = _array_from(
 		aftermath.get(
 			"discarded_committed",
@@ -6449,38 +6468,70 @@ func _log_finale_lord_powers(
 			continue
 
 		var event: Dictionary = raw_event
+		var fallback_hunger_text: String = "gained no Hunger"
+
+		if bool(
+			event.get(
+				"fed_hunger",
+				false
+			)
+		):
+			fallback_hunger_text = "Hunger %d→%d" % [
+				int(event.get("hunger_before", 0)),
+				int(event.get("hunger_after", 0)),
+			]
+
 		_log(
-			"[color=#d8b4fe][b]Kroni — Fallback Consume:[/b] Removed %s from %s and from play; Hunger %d→%d.[/color]"
+			"[color=#d8b4fe][b]Kroni — Fallback Consume:[/b] Removed %s from %s and from play; %s.[/color]"
 			% [
-				String(
-					event.get(
-						"removed_card",
-						"?"
-					)
-				),
-				String(
-					event.get(
-						"zone",
-						"?"
-					)
-				),
-				int(
-					event.get(
-						"hunger_before",
-						0
-					)
-				),
-				int(
-					event.get(
-						"hunger_after",
-						0
-					)
-				),
+				String(event.get("removed_card", "?")),
+				String(event.get("zone", "?")),
+				fallback_hunger_text,
 			]
 		)
 		_log_harvest_event(
 			event,
 			"Fallback Consume"
+		)
+
+	for raw_event in _array_from(
+		finale.get("veil_drift_events", [])
+	):
+		if typeof(raw_event) != TYPE_DICTIONARY:
+			continue
+
+		var drift_event: Dictionary = raw_event
+		if int(drift_event.get("neutral_tear_gain", 0)) > 0:
+			_log(
+				"[color=#f2d477][b]Graduated Veil Drift:[/b] Round %d created %d Neutral Tear(s); carry %.2f.[/color]"
+				% [
+					int(drift_event.get("round", 0)),
+					int(drift_event.get("neutral_tear_gain", 0)),
+					float(drift_event.get("accumulator_after", 0.0)),
+				]
+			)
+
+	for raw_event in _array_from(
+		finale.get("kalligan_events", [])
+	):
+		if typeof(raw_event) != TYPE_DICTIONARY:
+			continue
+
+		var flame_event: Dictionary = raw_event
+		var soul_text: String = ""
+		if int(flame_event.get("soul_gain", 0)) > 0:
+			soul_text = (
+				"; converted to %d Soul(s)"
+				% int(flame_event.get("soul_gain", 0))
+			)
+
+		_log(
+			"[color=#d8b4fe][b]Kalligan — Flame:[/b] +%d token(s), now %d%s.[/color]"
+			% [
+				int(flame_event.get("token_gain", 0)),
+				int(flame_event.get("tokens_after", 0)),
+				soul_text,
+			]
 		)
 
 	for raw_event in _array_from(
@@ -9649,11 +9700,10 @@ func _persistent_scorch_text() -> String:
 	):
 		return "none"
 
-	return "%s %s" % [
-		_player_name(
-			player_id
-		),
+	return "%s %s · level %d" % [
+		_player_name(player_id),
 		zone,
+		int(controller.game.persist_scorch_level),
 	]
 
 

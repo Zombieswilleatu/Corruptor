@@ -523,11 +523,13 @@ static func _summon_score(
 			)
 
 		"Kalligan":
-			score += (
-				0.7
-				if not player.ruined_castles.is_empty()
-				else 0.3
-			)
+			# Kalligan was valued by the picker's ruins, selecting him when
+			# already losing. Most of his kit keys on the defender's ruins.
+			score += 0.70
+			if not opponent.ruined_castles.is_empty():
+				score += 0.50
+			if not player.ruined_castles.is_empty():
+				score += 0.20
 
 		"Odradek":
 			score += (
@@ -543,9 +545,11 @@ static func _summon_score(
 			score += 0.7
 
 		"Humbaba":
+			# Pool mode previously under-selected Humbaba. His defense scales
+			# directly with the number of intact Castles.
 			score += (
-				0.7
-				+ player.castles.size() * 0.08
+				0.55
+				+ player.castles.size() * 0.13
 			)
 
 	if player.vessel_offered_lord == lord_name:

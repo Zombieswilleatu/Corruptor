@@ -42,6 +42,18 @@ const RoundEngineData = preload(
 	"res://Scripts/Sim/RoundEngine.gd"
 )
 
+const ResolutionPreludeEngineData = preload(
+	"res://Scripts/Sim/ResolutionPreludeEngine.gd"
+)
+
+const ResolutionActionAftermathEngineData = preload(
+	"res://Scripts/Sim/ResolutionActionAftermathEngine.gd"
+)
+
+const ResolutionFinaleEngineData = preload(
+	"res://Scripts/Sim/ResolutionFinaleEngine.gd"
+)
+
 const PythonRandomData = preload(
 	"res://Scripts/Sim/PythonRandom.gd"
 )
@@ -53,6 +65,11 @@ static func run(_baseline_rules: RuleConfig) -> Array:
 		_test_threshold_ward(),
 		_test_humbaba_reactive_lane(),
 		_test_kanifous_hand_toll(),
+		_test_kroni_fallback_cost_only(),
+		_test_kroni_milestone_once(),
+		_test_momentum_refund(),
+		_test_kalligan_scorch_keyword(),
+		_test_graduated_veil_drift(),
 		_test_ward_refund(),
 		_test_flat_ward_and_fix_b(),
 		_test_market_rollover(),
@@ -82,6 +99,19 @@ static func _test_profile() -> Dictionary:
 		or not rules.humbaba_reactive_lane
 		or not rules.kani_hand_cost
 		or rules.kani_threat_cost
+		or rules.kro_fallback_feeds
+		or not rules.kro_milestone_once
+		or rules.lab_profile_version != "6.8.6-lab"
+		or rules.momentum_refund != 1
+		or rules.veil_drift_after != 15
+		or not is_equal_approx(rules.veil_drift_growth, 0.25)
+		or rules.kal_inferno_threat
+		or not rules.kal_flame_tokens
+		or rules.kal_flame_per_soul != 5
+		or not rules.kal_scorch_escalate
+		or rules.kal_scorch_cap != 3
+		or not rules.kal_lane_scorch
+		or rules.kal_lane_scorch_thresh != 2
 	):
 		return _fail(
 			"unit_lab_v6_5_profile",
@@ -236,6 +266,219 @@ static func _test_kanifous_hand_toll() -> Dictionary:
 		)
 
 	return _pass("unit_lab_kanifous_hand_toll")
+
+static func _test_kroni_fallback_cost_only() -> Dictionary:
+	var rules := RuleConfig.lab_v6_5()
+	var fixture: Dictionary = _fixture(rules)
+	var game = fixture["game"]
+	var kroni = fixture["p0"]
+
+	kroni.lord = "Kroni"
+	kroni.alive = true
+	kroni.action = "Hunt"
+	kroni.kroni_hunger = 2
+	kroni.kroni_consume_done = false
+	kroni.kroni_tear_milestone_fired = false
+	kroni.castle_guards.clear()
+	kroni.castle_guards.append(CardData.new("Penitent", 1))
+
+	var result: Dictionary = ResolutionFinaleEngineData.resolve(
+		game,
+		rules
+	)
+	var fallback_events: Array = result.get("fallback_events", [])
+
+	if (
+		kroni.kroni_hunger != 2
+		or kroni.tears != 0
+		or not kroni.kroni_consume_done
+		or not kroni.castle_guards.is_empty()
+		or game.removed_from_play.size() != 1
+		or fallback_events.size() != 1
+		or bool(fallback_events[0].get("fed_hunger", true))
+	):
+		return _fail(
+			"unit_lab_kroni_fallback_cost_only",
+			"Fallback must remove the card without granting Hunger or a milestone Tear."
+		)
+
+	return _pass("unit_lab_kroni_fallback_cost_only")
+
+
+static func _test_kroni_milestone_once() -> Dictionary:
+	var rules := RuleConfig.lab_v6_5()
+	var fixture: Dictionary = _fixture(rules)
+	var game = fixture["game"]
+	var kroni = fixture["p0"]
+
+	kroni.lord_pool.clear()
+	kroni.lord_pool.append("Kroni")
+	kroni.lord = "Kroni"
+	kroni.alive = false
+	kroni.first_summon_done = true
+	kroni.kroni_tear_milestone_fired = true
+	kroni.hand.clear()
+	kroni.hand.append(CardData.new("Butcher", 5))
+	kroni.hand.append(CardData.new("Wright", 5))
+
+	var summon: Dictionary = SummonEngineData.resolve_player(
+		game,
+		int(kroni.pid),
+		rules,
+		{
+			"lord": "Kroni",
+			"payment": ["Butcher:5", "Wright:5"],
+		}
+	)
+
+	if (
+		String(summon.get("action", "")) != "summon"
+		or not kroni.kroni_tear_milestone_fired
+	):
+		return _fail(
+			"unit_lab_kroni_milestone_once",
+			"Resummoning Kroni rearmed the once-per-game milestone."
+		)
+
+	kroni.action = "Hunt"
+	kroni.kroni_hunger = 2
+	kroni.kroni_consume_done = false
+	game.set_meta("any_destruction_round", int(game.round))
+	var tears_before: int = int(kroni.tears)
+
+	ResolutionFinaleEngineData.resolve(game, rules)
+
+	if (
+		kroni.kroni_hunger != 3
+		or kroni.tears != tears_before
+	):
+		return _fail(
+			"unit_lab_kroni_milestone_once",
+			"A previously claimed milestone awarded another Tear after resummon."
+		)
+
+	return _pass("unit_lab_kroni_milestone_once")
+
+
+static func _test_momentum_refund() -> Dictionary:
+	var rules := RuleConfig.lab_v6_5()
+	var fixture: Dictionary = _fixture(rules)
+	var game = fixture["game"]
+	var player = fixture["p0"]
+
+	# Preserve typed arrays and leave room in Hand for the returned card.
+	while player.hand.size() >= rules.hand_limit:
+		game.discard.append(player.hand.pop_back())
+
+	player.committed.clear()
+	var low_card = CardData.new("Penitent", 1)
+	var high_card = CardData.new("Butcher", 5)
+	player.committed.append(low_card)
+	player.committed.append(high_card)
+	player.momentum_refund_due = 1
+
+	var result: Dictionary = ResolutionActionAftermathEngineData.resolve(
+		game,
+		rules,
+		int(player.pid),
+		{}
+	)
+	var refunded: Array = result.get("momentum_refunded", [])
+	var discarded: Array = result.get("discarded_committed", [])
+
+	if (
+		refunded.size() != 1
+		or String(refunded[0]) != "Butcher:5"
+		or discarded.size() != 1
+		or String(discarded[0]) != "Penitent:1"
+		or not player.hand.has(high_card)
+		or not game.discard.has(low_card)
+		or player.momentum_refund_due != 0
+	):
+		return _fail(
+			"unit_lab_momentum_refund",
+			"Momentum did not return the highest committed card before cleanup."
+		)
+
+	return _pass("unit_lab_momentum_refund")
+
+
+static func _test_kalligan_scorch_keyword() -> Dictionary:
+	var rules := RuleConfig.lab_v6_5()
+	var fixture: Dictionary = _fixture(rules)
+	var game = fixture["game"]
+	var kalligan = fixture["p0"]
+	var defender = fixture["p1"]
+
+	kalligan.lord = "Kalligan"
+	kalligan.alive = true
+	kalligan.kalligan_flame_tokens = 4
+	defender.lord_guards.clear()
+	defender.lord_guards.append(CardData.new("Penitent", 1))
+	defender.lord_guards.append(CardData.new("Wright", 2))
+	defender.marchers.clear()
+	defender.marchers.append({
+		"card": CardData.new("Vulture", 4),
+		"value": 2,
+		"lane": "Lord",
+		"pos": 1,
+	})
+	game.persist_scorch_pid = int(defender.pid)
+	game.persist_scorch_type = "Lord"
+	game.persist_scorch_level = 1
+
+	var prelude: Dictionary = ResolutionPreludeEngineData.resolve(
+		game,
+		rules
+	)
+	var scorch: Dictionary = prelude.get("persistent_scorch", {})
+	var finale: Dictionary = ResolutionFinaleEngineData.resolve(
+		game,
+		rules
+	)
+	var flame_events: Array = finale.get("kalligan_events", [])
+
+	if (
+		defender.lord_guards.size() != 1
+		or int(defender.lord_guards[0].value) != 2
+		or not defender.marchers.is_empty()
+		or game.persist_scorch_level != 2
+		or int(scorch.get("threshold", 0)) != 1
+		or flame_events.size() != 1
+		or kalligan.souls != 1
+		or kalligan.kalligan_flame_tokens != 1
+	):
+		return _fail(
+			"unit_lab_kalligan_scorch_keyword",
+			"SCORCH did not escalate, burn its lane, and convert Flame tokens."
+		)
+
+	return _pass("unit_lab_kalligan_scorch_keyword")
+
+
+static func _test_graduated_veil_drift() -> Dictionary:
+	var rules := RuleConfig.lab_v6_5()
+	var fixture: Dictionary = _fixture(rules)
+	var game = fixture["game"]
+
+	for round_number_value in [15, 16, 17, 18, 19]:
+		game.round = int(round_number_value)
+		ResolutionFinaleEngineData.resolve(game, rules)
+
+	if (
+		game.neutral_tears != 1
+		or not is_equal_approx(
+			game.veil_drift_accumulator,
+			0.5
+		)
+	):
+		return _fail(
+			"unit_lab_graduated_veil_drift",
+			"Graduated drift did not remain inert at the gate and then accumulate correctly."
+		)
+
+	return _pass("unit_lab_graduated_veil_drift")
+
 
 static func _test_ward_refund() -> Dictionary:
 	var rules := RuleConfig.lab_v6_5()

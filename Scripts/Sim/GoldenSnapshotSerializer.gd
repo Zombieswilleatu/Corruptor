@@ -26,7 +26,7 @@ static func snapshot_game(
 			)
 		)
 
-	return {
+	var snapshot: Dictionary = {
 		"checkpoint": checkpoint,
 		"round": int(
 			game_state.round
@@ -69,6 +69,16 @@ static func snapshot_game(
 		),
 		"players": player_snapshots,
 	}
+
+	if rules != null and not rules.lab_profile_version.is_empty():
+		snapshot["persist_scorch_level"] = int(
+			game_state.persist_scorch_level
+		)
+		snapshot["veil_drift_accumulator"] = float(
+			game_state.veil_drift_accumulator
+		)
+
+	return snapshot
 
 
 static func snapshot_player(
@@ -284,6 +294,12 @@ static func snapshot_player(
 	if rules != null and not rules.lab_profile_version.is_empty():
 		snapshot["odradek_bank"] = card_id(player.odradek_bank)
 		snapshot["consecutive_wards"] = int(player.consecutive_wards)
+		snapshot["kalligan_flame_tokens"] = int(
+			player.kalligan_flame_tokens
+		)
+		snapshot["momentum_refund_due"] = int(
+			player.momentum_refund_due
+		)
 
 	return snapshot
 

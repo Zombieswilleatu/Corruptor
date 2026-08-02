@@ -105,8 +105,8 @@ This version aligns the simulation with Rulebook v5.29. Major changes:
 
 SIM_VERSION = "6.5.0-lab"                    # canonical trace/matrix identity
 SIM_CODENAME = "DE v2 + measured systems"
-AI_POLICY = "heuristic-2026.07-lab-momentum" # policy axis — pins balance grids (Law 5)
-LAB_PROFILE_VERSION = "6.5.4-humbaba-kanifous-revisions" # measured lab profile identity
+AI_POLICY = "heuristic-2026.07-lab-kits"     # policy axis — pins balance grids (Law 5)
+LAB_PROFILE_VERSION = "6.8.6-lab"                  # measured lab profile identity
 
 import random
 import argparse
@@ -146,6 +146,7 @@ WARD_MAX_HAND_FRACTION = 0.70
 WARD_READ_CONFIDENCE = 0.70
 WARD_READ_PREF = 0.90
 WARD_INCOMING_WEIGHT = 0.30
+KALLIGAN_PICK_BASE = 0.70
 
 HAND_LIMIT   = 10
 GARRISON_MAX = 5
@@ -270,10 +271,10 @@ DE_V2_VARIANT = dict(
 
 LAB_V6_5_CONSTANTS = dict(
     DE_V2_CONSTANTS,
-    WIN_SOULS=11,
+    WIN_SOULS=12,
     DOMINION_TRACK=12,
-    DOMINION_REQUIREMENT=7,
-    FINAL_COLLAPSE_TRACK=22,
+    DOMINION_REQUIREMENT=5,
+    FINAL_COLLAPSE_TRACK=26,
 )
 
 # Experimental v6.5 structural profile.  This is an overlay on canonical DE
@@ -283,6 +284,18 @@ LAB_V6_5_VARIANT = dict(
     DE_V2_VARIANT,
     fix_a=True,
     fix_b=True,
+    # Finish the Odradek port in the actual Python lab preset. The engine and
+    # tests landed previously, but the measured profile never enabled them.
+    odr_recoil_bank=True,
+    fix_breach_discard_alias=True,
+    reconfig_neutral=True,
+    reconfig_tokens_needed=3,
+    reconfig_strict=False,
+    recoil_hunts_only=False,
+    recoil_lowest=False,
+    doctrine_ward_threat=0.20,
+    doctrine_ward_stagnation=0.30,
+    doctrine_bank_urgency=0.35,
     ward_threshold=True,
     ward_anti_repeat=False,
     ward_commit_any=True,
@@ -327,6 +340,20 @@ DE_V2_FEATURES = dict(
     market_refresh=False,
     ward_commit_defense=False,
     humbaba_reactive_lane=False,
+    # Kroni v0.1 remains legacy in canonical DE v2. The lab flips both dials.
+    kro_fallback_feeds=True,
+    kro_milestone_once=False,
+    momentum_refund=0,
+    veil_drift_rate=0.0,
+    veil_drift_after=0,
+    veil_drift_growth=0.0,
+    kal_inferno_threat=True,
+    kal_flame_tokens=False,
+    kal_flame_per_soul=5,
+    kal_scorch_escalate=False,
+    kal_scorch_cap=3,
+    kal_lane_scorch=False,
+    kal_lane_scorch_thresh=2,
     kani_invoke=True,
     kani_threat_cost=True,
     kani_hand_cost=False,
@@ -345,6 +372,18 @@ LAB_V6_5_FEATURES = dict(
     market_refresh=True,
     ward_commit_defense=True,
     humbaba_reactive_lane=True,
+    kro_fallback_feeds=False,
+    kro_milestone_once=True,
+    momentum_refund=1,
+    veil_drift_after=15,
+    veil_drift_growth=0.25,
+    kal_inferno_threat=False,
+    kal_flame_tokens=True,
+    kal_flame_per_soul=5,
+    kal_scorch_escalate=True,
+    kal_scorch_cap=3,
+    kal_lane_scorch=True,
+    kal_lane_scorch_thresh=2,
     kani_threat_cost=False,
     kani_hand_cost=True,
 )
@@ -532,6 +571,7 @@ class Player:
         self.vessel_offered_lord  = ''    # that lord resummons at Threat 2
         self.repair_token         = 0     # max 1; earned via Wright suit bonus; persists across rounds
         self.kalligan_repair_used = False
+        self.kalligan_flame_tokens = 0
         self.repair_token_used_this_repair = False
         self.repaired_this_round = False
         # v6.5 Lord decay records a scarred return value at Banishment and
@@ -544,6 +584,7 @@ class Player:
 
         # Kroni Hunger
         self.kroni_hunger = 0
+        self.momentum_refund_due = 0
 
         # Round-scoped state
         self.committed:        List[Card] = []
@@ -642,6 +683,7 @@ class Player:
         self.kroni_consume_done              = False
         self.kroni_personally_defeated_guard = False
         self.kroni_enemy_destroyed           = False
+        self.momentum_refund_due             = 0
         self.ward_turned = set()
 
     def committed_value(self) -> int:
@@ -751,6 +793,8 @@ class Game:
         # the affected zone at the start of each Resolution.
         self.persist_scorch_pid:  int = -1   # which player's zone
         self.persist_scorch_type: str = ''   # 'Lord' or 'Castle'
+        self.persist_scorch_level: int = 1
+        self._veil_drift_acc: float = 0.0
 
         # Kroni — destruction tracking
         self.any_destruction_this_round = False
@@ -791,6 +835,10 @@ class Game:
         self.stat_neutral_tears     = 0
         self.stat_breach_triggers   = 0
         self.stat_humbaba_tolls     = 0
+        self.stat_momentum_refunded = 0
+        self.stat_veil_drift = 0
+        self.stat_flame_souls = 0
+        self.stat_lane_scorched = 0
 
     def p(self,   pid: int) -> Player: return self.players[pid]
     def opp(self, pid: int) -> Player: return self.players[1 - pid]
@@ -1556,6 +1604,58 @@ class Game:
         pl.odradek_bank = None
         return bank
 
+    def _apply_momentum_refund(self, pl: Player) -> List[Card]:
+        due = min(pl.momentum_refund_due, len(pl.committed))
+        refunded = sorted(pl.committed, key=lambda c: c.value, reverse=True)[:due]
+        for card in refunded:
+            pl.committed.remove(card)
+            if len(pl.hand) < HAND_LIMIT:
+                pl.hand.append(card)
+            else:
+                self._discard([card])
+        pl.momentum_refund_due = 0
+        self.stat_momentum_refunded += len(refunded)
+        return refunded
+
+    def _apply_graduated_veil_drift(self) -> int:
+        if not (ACTIVE_FEATURES['veil_drift_rate']
+                or ACTIVE_FEATURES['veil_drift_growth']):
+            return 0
+        after = ACTIVE_FEATURES['veil_drift_after']
+        if self.round <= after:
+            return 0
+        rate = ACTIVE_FEATURES['veil_drift_rate']
+        rate += ACTIVE_FEATURES['veil_drift_growth'] * (self.round - after - 1)
+        self._veil_drift_acc += rate
+        tears = 0
+        while self._veil_drift_acc >= 1.0:
+            self._veil_drift_acc -= 1.0
+            self._gain_neutral_tear()
+            tears += 1
+        self.stat_veil_drift += tears
+        return tears
+
+    def _apply_kalligan_flame_income(self) -> int:
+        if (not ACTIVE_FEATURES['kal_flame_tokens']
+                or self.persist_scorch_pid < 0
+                or not self.persist_scorch_type):
+            return 0
+        rate = (self.persist_scorch_level
+                if ACTIVE_FEATURES['kal_scorch_escalate'] else 1)
+        souls = 0
+        for pl in self.players:
+            if (pl.lord != 'Kalligan' or not pl.alive
+                    or pl.pid == self.persist_scorch_pid):
+                continue
+            pl.kalligan_flame_tokens += rate
+            per_soul = max(1, ACTIVE_FEATURES['kal_flame_per_soul'])
+            while pl.kalligan_flame_tokens >= per_soul:
+                pl.kalligan_flame_tokens -= per_soul
+                self._gain_soul(pl, 1)
+                souls += 1
+        self.stat_flame_souls += souls
+        return souls
+
     def _resolve_order(self) -> List[int]:
         """v5.29: higher committed Subject value resolves first.
         Equal values resolve simultaneously (approximated sequentially;
@@ -1575,8 +1675,10 @@ class Game:
         # Defeats all Guards ≤2 in the affected zone at start of each Resolution.
         if self.persist_scorch_pid >= 0 and self.persist_scorch_type:
             target_pl = self.players[self.persist_scorch_pid]
+            threshold = (self.persist_scorch_level
+                         if ACTIVE_FEATURES['kal_scorch_escalate'] else 2)
             if self.persist_scorch_type == 'Lord':
-                victims = [g for g in target_pl.lord_guards if g.value <= 2]
+                victims = [g for g in target_pl.lord_guards if g.value <= threshold]
                 for v in victims:
                     target_pl.lord_guards.remove(v)
                 self._discard(victims)
@@ -1585,12 +1687,29 @@ class Game:
                         target_pl.odradek_guards_defeated += len(victims)
                     self._gremory_lord_guard_trigger()  # Predator of Ruin
             elif self.persist_scorch_type == 'Castle':
-                victims = [g for g in target_pl.castle_guards if g.value <= 2]
+                victims = [g for g in target_pl.castle_guards if g.value <= threshold]
                 for v in victims:
                     target_pl.castle_guards.remove(v)
                 self._discard(victims)
                 if victims and target_pl.lord == 'Odradek':
                     target_pl.odradek_guards_defeated += len(victims)
+
+            if ACTIVE_FEATURES['kal_scorch_escalate']:
+                self.persist_scorch_level = min(
+                    ACTIVE_FEATURES['kal_scorch_cap'],
+                    self.persist_scorch_level + 1,
+                )
+
+            if ACTIVE_FEATURES['kal_lane_scorch']:
+                burned = [
+                    marcher for marcher in target_pl.marchers
+                    if marcher['lane'] == self.persist_scorch_type
+                    and marcher['value'] <= ACTIVE_FEATURES['kal_lane_scorch_thresh']
+                ]
+                for marcher in burned:
+                    target_pl.marchers.remove(marcher)
+                    self._discard([marcher['card']])
+                    self.stat_lane_scorched += 1
         # ── Veil Tear 7 — Collapse: discard 1 Guard from attacked zone last round
         # No Attunement immunity — affects all players
         if self._threshold_active(7):
@@ -1667,6 +1786,7 @@ class Game:
             if pl.suit_count('Wright') >= 2:
                 pl.repair_token = 1  # capped at 1 — no stockpiling
 
+            self._apply_momentum_refund(pl)
             self._discard(pl.committed)
             pl.committed = []
 
@@ -1690,23 +1810,13 @@ class Game:
                         and pl.action not in ('Hunt', 'Siege')):
                     pl.kroni_hunger = max(0, pl.kroni_hunger - 1)
 
-        # Kroni end-of-round fallback Consume
+        # Kroni end-of-round fallback Consume. The lab keeps the compulsory
+        # self-consumption but removes its free Hunger payout.
         for pl in self.players:
-            if pl.lord == 'Kroni' and pl.alive and not pl.kroni_consume_done:
-                all_guards = pl.lord_guards + pl.castle_guards
-                if all_guards:
-                    victim = min(all_guards, key=lambda g: g.value)
-                    if victim in pl.lord_guards:     pl.lord_guards.remove(victim)
-                    elif victim in pl.castle_guards: pl.castle_guards.remove(victim)
-                    self.removed_from_play.append(victim)
-                    pl.kroni_consume_done = True
-                    self._kroni_gain_hunger(pl)
-                elif pl.garrison:
-                    victim = min(pl.garrison, key=lambda g: g.value)
-                    pl.garrison.remove(victim)
-                    self.removed_from_play.append(victim)
-                    pl.kroni_consume_done = True
-                    self._kroni_gain_hunger(pl)
+            self._try_kroni_fallback(pl)
+
+        self._apply_graduated_veil_drift()
+        self._apply_kalligan_flame_income()
 
         # Kroni Breach — Insatiable Hunger
         if self.breach == 'Kroni':
@@ -2024,11 +2134,45 @@ class Game:
 
         # Old enemy-destruction Tear removed — replaced by Hunger 3 milestone
 
+    def _try_kroni_fallback(self, pl: Player):
+        """Resolve compulsory self-consumption when real destruction did not feed Kroni.
+
+        Canonical DE v2 preserves the legacy Hunger payout. The measured lab
+        removes the chosen physical card but grants no Hunger, so the fallback
+        is a cost rather than an unconditional income engine.
+        """
+        if pl.lord != 'Kroni' or not pl.alive or pl.kroni_consume_done:
+            return None
+
+        all_guards = pl.lord_guards + pl.castle_guards
+        victim = min(all_guards, key=lambda g: g.value) if all_guards else None
+
+        if victim is not None:
+            if victim in pl.lord_guards:
+                pl.lord_guards.remove(victim)
+            else:
+                pl.castle_guards.remove(victim)
+        elif pl.garrison:
+            victim = min(pl.garrison, key=lambda g: g.value)
+            pl.garrison.remove(victim)
+        else:
+            return None
+
+        self.removed_from_play.append(victim)
+        pl.kroni_consume_done = True
+
+        if ACTIVE_FEATURES['kro_fallback_feeds']:
+            self._kroni_gain_hunger(pl)
+
+        return victim
+
     def _kroni_gain_hunger(self, pl: Player, n: int = 1):
-        """Increment Kroni's Hunger and check the Hunger 3 milestone Tear.
-        Milestone: first time Kroni reaches exactly Hunger 3 this summon → 1 Tear.
-        Resets when Kroni is re-summoned (kroni_tear_milestone_fired = False on summon).
-        Farmable: kill Kroni at 3+ → returns at 2 → reach 3 again → another Tear."""
+        """Increment Hunger and check the Hunger-3 milestone Tear.
+
+        Canonical DE v2 resets the milestone on each summon. The measured lab
+        keeps the flag for the full game, so reaching Hunger 3 awards at most
+        one milestone Tear no matter how often Kroni is Banished and returned.
+        """
         for _ in range(n):
             was_two = (pl.kroni_hunger == 2)
             pl.kroni_hunger += 1
@@ -2110,6 +2254,7 @@ class Game:
                 and self.reflex_winner is None
                 and 0 <= excess <= VARIANT.get('momentum_band', 3)):
             self.reflex_winner = atk.pid
+            atk.momentum_refund_due += ACTIVE_FEATURES['momentum_refund']
 
         if guards_lost > 0:
             self.any_destruction_this_round = True
@@ -2284,6 +2429,7 @@ class Game:
                 and self.reflex_winner is None
                 and 0 <= excess <= VARIANT.get('momentum_band', 3)):
             self.reflex_winner = atk.pid
+            atk.momentum_refund_due += ACTIVE_FEATURES['momentum_refund']
 
         if guards_lost > 0:
             self.any_destruction_this_round = True
@@ -2373,21 +2519,26 @@ class Game:
             # Kalligan — Wildfire resolves before Inferno so an Inferno
             # Scorch on the Lord zone remains the final persistent token.
             if atk.lord == 'Kalligan' and atk.alive:
-                self.persist_scorch_pid  = dfn.pid
-                self.persist_scorch_type = 'Castle' if dfn.castles else 'Lord'
+                new_zone = 'Castle' if dfn.castles else 'Lord'
+                if (self.persist_scorch_pid != dfn.pid
+                        or self.persist_scorch_type != new_zone):
+                    self.persist_scorch_level = 1
+                self.persist_scorch_pid = dfn.pid
+                self.persist_scorch_type = new_zone
 
-            # Kalligan — Inferno: may gain 1 Threat → Defeat highest Lord Guard
-            # (Scorch on the Lord zone if no Guards). Ability-triggered defeat:
-            # does NOT fire Defeat-response abilities.
+            # Kalligan — Inferno defeats the highest Lord Guard. The measured
+            # profile removes its automatic Threat cost.
             if (atk.lord == 'Kalligan' and atk.alive
-                    and atk.threat < MAX_THREAT):
-                atk.threat = min(MAX_THREAT, atk.threat + 1)
+                    and (atk.threat < MAX_THREAT
+                         or not ACTIVE_FEATURES['kal_inferno_threat'])):
+                if ACTIVE_FEATURES['kal_inferno_threat']:
+                    atk.threat = min(MAX_THREAT, atk.threat + 1)
                 if dfn.lord_guards:
                     victim = max(dfn.lord_guards, key=lambda g: g.value)
                     dfn.lord_guards.remove(victim)
                     self._discard([victim])
                 else:
-                    self.persist_scorch_pid  = dfn.pid
+                    self.persist_scorch_pid = dfn.pid
                     self.persist_scorch_type = 'Lord'
 
             # Kroni — Ravenous
@@ -2705,9 +2856,13 @@ class Game:
             if lord == 'Gremory':  score += 0.8 + (0.4 if pl.ruined_castles or op.ruined_castles else 0.0)
             if lord == 'Kroni':    score += 0.6 + pl.kroni_hunger * 0.3
             if lord == 'Valak':    score += 0.9 if op.alive and len(op.lord_guards) >= 2 else 0.5
-            if lord == 'Kalligan': score += 0.7 if pl.ruined_castles else 0.3
+            if lord == 'Kalligan':
+                score += (KALLIGAN_PICK_BASE
+                          + (0.50 if op.ruined_castles else 0.0)
+                          + (0.20 if pl.ruined_castles else 0.0))
             if lord == 'Odradek':  score += 0.8 if op.alive and op.threat >= 2 else 0.5
             if lord == 'Kanifous': score += 0.7
+            if lord == 'Humbaba': score += 0.55 + len(pl.castles) * 0.13
             if self.breach == lord: score -= 0.5
             score -= breach_penalty * 0.5
             score -= cost * 0.05
@@ -2759,8 +2914,9 @@ class Game:
             pl.threat = 2
             pl.vessel_offered_lord = ''
 
-        # Reset per-summon flags
-        if chosen == 'Kroni':
+        # Canonical resets the milestone each summon. The measured lab keeps
+        # it for the full game so killing Kroni cannot refill Dominion income.
+        if chosen == 'Kroni' and not ACTIVE_FEATURES['kro_milestone_once']:
             pl.kroni_tear_milestone_fired = False
         if chosen == 'Odradek':
             pl.odradek_reconfig_tokens = 0  # tokens reset on summon
@@ -3830,13 +3986,21 @@ def generate_report(results: dict, n_games: int) -> str:
     if ACTIVE_RULESET == "lab-v6.5":
         lines.append(
             "  Lab profile        : %s (market_refresh=%s, ward_commit_defense=%s, "
-            "kani_hand_cost=%s, humbaba_reactive_lane=%s)"
+            "kani_hand_cost=%s, humbaba_reactive_lane=%s, kro_fallback_feeds=%s, "
+            "kro_milestone_once=%s, momentum_refund=%s, veil_drift=%s/%s, "
+            "kal_flame_tokens=%s)"
             % (
                 LAB_PROFILE_VERSION,
                 ACTIVE_FEATURES["market_refresh"],
                 ACTIVE_FEATURES["ward_commit_defense"],
                 ACTIVE_FEATURES["kani_hand_cost"],
                 ACTIVE_FEATURES["humbaba_reactive_lane"],
+                ACTIVE_FEATURES["kro_fallback_feeds"],
+                ACTIVE_FEATURES["kro_milestone_once"],
+                ACTIVE_FEATURES["momentum_refund"],
+                ACTIVE_FEATURES["veil_drift_after"],
+                ACTIVE_FEATURES["veil_drift_growth"],
+                ACTIVE_FEATURES["kal_flame_tokens"],
             )
         )
     lines.append(f"  Games per matchup  : {n_games:,}")
