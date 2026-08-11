@@ -64,7 +64,7 @@ class KroniRevisionTests(unittest.TestCase):
         self.assertTrue(sim.VARIANT["fix_breach_discard_alias"])
         self.assertTrue(sim.VARIANT["reconfig_neutral"])
         self.assertEqual(sim.VARIANT["reconfig_tokens_needed"], 3)
-        self.assertEqual(sim.LAB_PROFILE_VERSION, "6.8.6-lab")
+        self.assertEqual(sim.LAB_PROFILE_VERSION, "6.9.0-castle-integrity")
 
     def test_canonical_fallback_still_feeds(self):
         sim.activate_ruleset("de-v2")

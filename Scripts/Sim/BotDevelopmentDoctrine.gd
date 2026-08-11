@@ -22,6 +22,10 @@ const BotSelectorData = preload(
 	"res://Scripts/Sim/BotSelector.gd"
 )
 
+const CastleIntegrityRulesData = preload(
+	"res://Scripts/Sim/CastleIntegrityRules.gd"
+)
+
 
 const PASS_SCORE: float = 0.0
 const UNAVAILABLE_SCORE: float = -1000.0
@@ -106,6 +110,13 @@ static func evaluate_repair_candidates(
 		player != null,
 		"Repair evaluator player does not exist."
 	)
+
+	if rules.castle_integrity:
+		return _evaluate_integrity_candidates(
+			game,
+			player,
+			rules
+		)
 
 	var candidates: Array = [
 		{
@@ -218,6 +229,138 @@ static func evaluate_repair_candidates(
 		})
 
 	return candidates
+
+
+static func _evaluate_integrity_candidates(
+	game,
+	player,
+	rules: RuleConfig
+) -> Array:
+	var candidates: Array = [
+		{
+			"id": "castle_action_pass",
+			"score": PASS_SCORE,
+			"degraded_score": PASS_SCORE,
+			"tie_rank": 0,
+			"payload": {"pass": true},
+		},
+	]
+
+	if player.castle_action_used_this_round:
+		return candidates
+
+	var payment_zone: Array = _combined_payment_zone(player)
+	if payment_zone.is_empty():
+		return candidates
+
+	var priority: Array[String] = CastleIntegrityRulesData.priority_for(
+		String(player.lord)
+	)
+	var damaged: Array[String] = []
+	var severe: Array[String] = []
+
+	for castle_name: String in priority:
+		if not player.castles.has(castle_name):
+			continue
+		var maximum: int = CastleIntegrityRulesData.max_integrity(castle_name)
+		var integrity: int = int(
+			player.castle_integrity.get(castle_name, maximum)
+		)
+		if integrity > 0 and integrity < maximum:
+			damaged.append(castle_name)
+			if integrity <= maximum / 2:
+				severe.append(castle_name)
+
+	var buildable: Array[String] = []
+	if rules.castle_construction:
+		for castle_name: String in priority:
+			if (
+				player.castles.has(castle_name)
+				or player.ruined_castles.has(castle_name)
+				or player.profaned_castles.has(castle_name)
+				or player.lost_castles.has(castle_name)
+			):
+				continue
+			buildable.append(castle_name)
+
+	var repair_zone: Array = _repair_payment_zone(payment_zone, rules)
+	var can_repair: bool = not repair_zone.is_empty()
+	var action: String = ""
+	var target: String = ""
+	if not severe.is_empty() and can_repair:
+		action = "repair"
+		target = severe[0]
+	elif not buildable.is_empty():
+		action = "construct"
+		target = _active_project_or_first(player, buildable)
+	elif not damaged.is_empty() and can_repair:
+		action = "repair"
+		target = damaged[0]
+	else:
+		return candidates
+
+	var payment_target: int = 1
+	var use_token: bool = false
+	if action == "repair":
+		var maximum: int = CastleIntegrityRulesData.max_integrity(target)
+		var before: int = int(player.castle_integrity.get(target, maximum))
+		var missing: int = maximum - before
+		use_token = player.repair_token > 0
+		var bonus: int = 0
+		if use_token:
+			bonus += rules.repair_token_integrity
+		if player.lord == "Kalligan" and player.alive:
+			bonus += rules.master_builder_integrity
+		if game.breach == "Kalligan":
+			bonus += rules.rapid_construction_integrity
+		payment_target = maxi(1, missing - bonus)
+	else:
+		var progress: int = int(
+			player.castle_construction_progress.get(target, 0)
+		)
+		payment_target = maxi(
+			1,
+			CastleIntegrityRulesData.max_integrity(target) - progress
+		)
+		if int(rules.construction_action_cap) > 0:
+			payment_target = mini(payment_target, int(rules.construction_action_cap))
+
+	var legal_payment_zone: Array = repair_zone if action == "repair" else payment_zone
+	var payment_cards: Array = CastleIntegrityRulesData.choose_payment_cards(
+		legal_payment_zone,
+		payment_target
+	)
+	if payment_cards.is_empty():
+		return candidates
+
+	var score: float = 30.0 if action == "repair" and severe.has(target) else 20.0
+	if action == "repair" and not severe.has(target):
+		score = 10.0
+
+	candidates.append({
+		"id": "%s_%s" % [action, target],
+		"score": score,
+		"degraded_score": score,
+		"tie_rank": -priority.find(target),
+		"payload": {
+			"action": action,
+			"castle": target,
+			"use_token": use_token,
+			"payment": _card_ids(payment_cards),
+		},
+	})
+
+	return candidates
+
+
+static func _active_project_or_first(
+	player,
+	buildable: Array[String]
+) -> String:
+	for castle_name: String in buildable:
+		if int(player.castle_construction_progress.get(castle_name, 0)) > 0:
+			return castle_name
+	return buildable[0] if not buildable.is_empty() else ""
 
 
 static func repair_cost(
@@ -456,9 +599,16 @@ static func summon_cost(
 	):
 		cost = rules.gremory_summon_cost
 
-	if player.castles.has(
-		"SummoningCircle"
-	):
+	var blood_offering: bool = (
+		rules.circle_blood_summon
+		and CastleIntegrityRulesData.power_active(player, "SummoningCircle", rules)
+		and CastleIntegrityRulesData.can_exert(
+			player, "SummoningCircle", int(rules.circle_blood_summon_cost), rules
+		)
+	)
+	if blood_offering:
+		cost -= maxi(0, int(rules.circle_blood_summon_discount))
+	elif not rules.circle_blood_summon and player.castles.has("SummoningCircle"):
 		cost -= 2
 
 	if game.breach == lord_name:
@@ -633,6 +783,21 @@ static func _select_low_payment(
 		)
 
 	return selected_cards
+
+
+static func _repair_payment_zone(cards: Array, rules: RuleConfig) -> Array:
+	var mode: String = String(rules.repair_wright_mode)
+	if mode == "off":
+		return cards.duplicate()
+	var wrights: Array = []
+	for card in cards:
+		if String(card.suit) == "Wright":
+			wrights.append(card)
+	if wrights.is_empty():
+		return []
+	if mode == "strict":
+		return wrights
+	return cards.duplicate()
 
 
 static func _stable_sorted_cards(

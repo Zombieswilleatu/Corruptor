@@ -11,6 +11,10 @@ const GameSetupData = preload(
 	"res://Scripts/Sim/GameSetup.gd"
 )
 
+const CastleIntegrityRulesData = preload(
+	"res://Scripts/Sim/CastleIntegrityRules.gd"
+)
+
 const LordMathData = preload(
 	"res://Scripts/Sim/LordMath.gd"
 )
@@ -736,9 +740,7 @@ static func _hunt_strength_after_recoil(
 			rules
 		)
 
-	var strength: int = _card_total(
-		effective_cards
-	)
+	var strength: int = actor.attack_value(rules, false, effective_cards)
 
 	strength += _butcher_bonus(
 		effective_cards
@@ -777,9 +779,7 @@ static func _siege_strength_after_recoil(
 			rules
 		)
 
-	var strength: int = _card_total(
-		effective_cards
-	)
+	var strength: int = actor.attack_value(rules, true, effective_cards)
 
 	strength += _butcher_bonus(
 		effective_cards
@@ -866,8 +866,13 @@ static func _best_reflex_siege_target(
 	var selected_tie_rank: int = 1000000
 
 	for castle_name: String in SIEGE_TARGET_ORDER:
-		if not opponent.castles.has(
-			castle_name
+		if not opponent.castles.has(castle_name):
+			continue
+		if (
+			castle_name == "Bastion"
+			and rules.bastion_wall
+			and CastleIntegrityRulesData.standing(opponent, "Bastion")
+			and opponent.castles.size() > 1
 		):
 			continue
 
@@ -1025,10 +1030,8 @@ static func _lord_base_defense(
 	elif defender.threat >= 2:
 		defense -= 1
 
-	if defender.castles.has(
-		"Bastion"
-	):
-		defense += 2
+	if defender.castles.has("Bastion"):
+		defense += maxi(0, int(rules.bastion_lord_def_bonus))
 
 	return max(
 		0,
@@ -1042,6 +1045,27 @@ static func _castle_defense(
 	defender = null,
 	rules: RuleConfig = null
 ) -> int:
+	if rules != null and rules.castle_integrity and defender != null:
+		var integrity_defense: int = int(
+			defender.castle_integrity.get(
+				castle_name,
+				CastleIntegrityRulesData.max_integrity(castle_name)
+			)
+		)
+		if (
+			rules.bastion_wall
+			and castle_name != "Bastion"
+			and CastleIntegrityRulesData.standing(defender, "Bastion")
+		):
+			integrity_defense += int(defender.castle_integrity.get(
+				"Bastion", CastleIntegrityRulesData.max_integrity("Bastion")
+			))
+		if game.breach == "Deimos":
+			integrity_defense = maxi(0, integrity_defense - 1)
+		elif game.breach == "Humbaba":
+			integrity_defense = maxi(1, integrity_defense - 1)
+		return integrity_defense
+
 	var defense: int = int(
 		CASTLE_DEFENSES.get(
 			castle_name,

@@ -74,8 +74,6 @@ static func run(_baseline_rules: RuleConfig) -> Array:
 		_test_flat_ward_and_fix_b(),
 		_test_market_rollover(),
 		_test_marching_clash(),
-		_test_scarred_castle_and_momentum(),
-		_test_scarred_repair_cost(),
 		_test_retained_threat(),
 	]
 
@@ -89,11 +87,17 @@ static func _test_profile() -> Dictionary:
 		or rules.final_collapse_threshold != 26
 		or rules.reflex_bid
 		or not rules.fix_b
+		or rules.invocation_gate != 7
+		or rules.profane_ruins_req != 2
+		or rules.ai_dominion_drive
+		or rules.kroni_hunger_decay
+		or rules.neutral_tear_on_banish
+		or rules.gremory_summon_cost != 0
 		or not rules.sigil_flat
 		or not rules.momentum
 		or not rules.marching
 		or rules.humbaba_seal
-		or rules.humbaba_gate4
+		or not rules.humbaba_gate4
 		or rules.humbaba_patient
 		or rules.humbaba_sigil_commit
 		or not rules.humbaba_reactive_lane
@@ -101,7 +105,7 @@ static func _test_profile() -> Dictionary:
 		or rules.kani_threat_cost
 		or rules.kro_fallback_feeds
 		or not rules.kro_milestone_once
-		or rules.lab_profile_version != "6.8.6-lab"
+		or rules.lab_profile_version != "7.4.0-castle-rules-lock"
 		or rules.momentum_refund != 1
 		or rules.veil_drift_after != 15
 		or not is_equal_approx(rules.veil_drift_growth, 0.25)
@@ -112,6 +116,27 @@ static func _test_profile() -> Dictionary:
 		or rules.kal_scorch_cap != 3
 		or not rules.kal_lane_scorch
 		or rules.kal_lane_scorch_thresh != 2
+		or not rules.castle_loadout
+		or rules.starting_castles != 3
+		or not rules.castle_integrity
+		or not rules.castle_granular_repair
+		or not rules.castle_construction
+		or not rules.castle_irreparable
+		or rules.castle_damage_mode != "arriving_strength"
+		or rules.castle_construction_mode != "granular"
+		or rules.siege_engine_bypass
+		or rules.siege_engine_scope != "siege"
+		or rules.attack_offsuit_penalty != 1
+		or rules.attack_penalty_exempt_suit != "Butcher"
+		or rules.attack_offsuit_floor != 1
+		or rules.construction_action_cap != 5
+		or rules.repair_wright_mode != "strict"
+		or not rules.profane_requires_full_integrity
+		or rules.ruination_soul_bonus != 1
+		or rules.ruination_soul_source != "enemy_siege"
+		or rules.castle_scarring
+		or rules.castle_permanent_loss
+		or not rules.profane_no_castle_gate
 	):
 		return _fail(
 			"unit_lab_v6_5_profile",
@@ -159,12 +184,14 @@ static func _test_threshold_ward() -> Dictionary:
 
 	if (
 		String(reveal.get("action", "")) != "reveal"
-		or not bool(defender.ward_turned.get("Lord", false))
-		or String(hunt.get("reason", "")) != "ward_turned"
+		or bool(defender.ward_turned.get("Lord", false))
+		or String(hunt.get("reason", "")) == "ward_turned"
+		or String(hunt.get("stopped_at", "")) != "Ward"
+		or bool(hunt.get("destroyed", false))
 	):
 		return _fail(
 			"unit_lab_threshold_ward",
-			"Equal Ward commitment did not turn the matching Hunt."
+			"Front-line Ward did not absorb the matching Hunt before permanent defenses."
 		)
 
 	return _pass("unit_lab_threshold_ward")
@@ -892,6 +919,9 @@ static func _fixture(rules: RuleConfig) -> Dictionary:
 		player.castles.clear()
 		player.ruined_castles.clear()
 		player.lost_castles.clear()
+		player.castle_integrity.clear()
+		player.castle_construction_progress.clear()
+		player.castle_action_used_this_round = false
 		player.castle_scars.clear()
 		player.ward_turned.clear()
 		player.sigils = {"Lord": "", "Castle": ""}

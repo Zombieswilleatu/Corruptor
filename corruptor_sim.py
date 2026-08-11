@@ -94,19 +94,21 @@ This version aligns the simulation with Rulebook v5.29. Major changes:
   Market → Repair → Dominion Rites → Deploy → Summon. Repairing without
   a Repair token now actually restricts hand→Guards deployment.
   Round 1 is a full round without the Reflex Bid.
-• SUMMON costs paid from HAND ONLY (Garrison cannot pay). Repair may
-  still pay from hand + Garrison. Repair floor is 1, applied once after
-  all discounts (token −3, Master Builder −5/−7, Rapid Construction −1).
+• SUMMON costs paid from HAND ONLY (Garrison cannot pay). Repair and
+  granular Construction may pay from Hand + Garrison. Under Castle
+  Integrity, one Repair/Construction action is allowed per round; Repair
+  restores paid value plus bounded action bonuses (token +3, Master
+  Builder +2, Rapid Construction +1).
 • MARKET swap now places the swapped card INTO the Market.
 • REMOVED non-rulebook mechanics: damaged-zone guard caps, Threat −1 on
   castle destroyed, corrupting (opponent-zone) wards, legacy −2 Scorch
   defense penalty (persistent Scorch guard-strip retained).
 """
 
-SIM_VERSION = "6.5.0-lab"                    # canonical trace/matrix identity
-SIM_CODENAME = "DE v2 + measured systems"
-AI_POLICY = "heuristic-2026.07-lab-kits"     # policy axis — pins balance grids (Law 5)
-LAB_PROFILE_VERSION = "6.8.6-lab"                  # measured lab profile identity
+SIM_VERSION = "6.9.0-castle-integrity"          # canonical rules migration
+SIM_CODENAME = "Castle Integrity + measured systems"
+AI_POLICY = "heuristic-2026.08-castle-integrity"  # rules-aware doctrine axis (Law 5)
+LAB_PROFILE_VERSION = "6.9.0-castle-integrity"  # current canonical gameplay profile
 
 import random
 import argparse
@@ -277,11 +279,21 @@ LAB_V6_5_CONSTANTS = dict(
     FINAL_COLLAPSE_TRACK=26,
 )
 
-# Experimental v6.5 structural profile.  This is an overlay on canonical DE
-# v2, not a revival of the lab source's obsolete 6.1 defaults.  The current
-# lord-power corrections therefore remain in force while the new system bundle
+# Experimental v6.5 structural profile. It begins with canonical DE v2, then
+# explicitly restores every inherited baseline value used by the measured 6.8.6
+# lab. The explicit overrides prevent future canonical changes from silently
+# altering the measured profile.
 LAB_V6_5_VARIANT = dict(
     DE_V2_VARIANT,
+    # The measured 6.8.6 lab inherited these values from the original 6.1
+    # baseline. Spell them out here so canonical DE v2 defaults cannot leak
+    # into the lab profile again.
+    invocation_gate=7,
+    profane_ruins_req=2,
+    ai_dominion_drive=False,
+    kroni_hunger_decay=False,
+    neutral_tear_on_banish=False,
+    gremory_summon_cost=0,
     fix_a=True,
     fix_b=True,
     # Finish the Odradek port in the actual Python lab preset. The engine and
@@ -303,14 +315,15 @@ LAB_V6_5_VARIANT = dict(
     ward_garrison_refund=True,
     sigil_flat=True,
     humbaba_seal=False,
-    humbaba_gate4=False,
+    humbaba_gate4=True,
     humbaba_patient=False,
     humbaba_sigil_commit=False,
     repair_escalation=0,
-    castle_scarring=True,
+    # Castle Integrity supersedes scarring and repeatable rebuilding.
+    castle_scarring=False,
     castle_scar_def=2,
-    castle_permanent_loss=True,
-    veil_on_permanent_loss=True,
+    castle_permanent_loss=False,
+    veil_on_permanent_loss=False,
     lord_threat_retention=True,
     reflex_bid=False,
     momentum=True,
@@ -325,9 +338,21 @@ LAB_V6_5_VARIANT = dict(
     lane_kill_soul=True,
     fog_of_war=True,
     adaptive_doctrine=False,
-    castle_loadout=False,
-    max_castles=3,
-    profane_no_castle_gate=False,
+    castle_loadout=True,
+    starting_castles=3,
+    castle_type_count=5,
+    castle_unique_types=True,
+    castle_doctrine_denominator=5,
+    castle_damage_mode='arriving_strength',
+    castle_construction_mode='granular',
+    castle_action_limit=1,
+    ruination_soul_bonus=1,
+    ruination_soul_source='enemy_siege',
+    castle_ruination_irreparable=True,
+    repair_token_integrity=3,
+    master_builder_integrity=2,
+    rapid_construction_integrity=1,
+    profane_no_castle_gate=True,
     castleless_siege=False,
     castleless_tear_neutral=True,
 )
@@ -354,6 +379,11 @@ DE_V2_FEATURES = dict(
     kal_scorch_cap=3,
     kal_lane_scorch=False,
     kal_lane_scorch_thresh=2,
+    # Historical DE v2 compatibility. The current gameplay profile enables all four.
+    castle_integrity=False,
+    castle_granular_repair=False,
+    castle_construction=False,
+    castle_irreparable=False,
     kani_invoke=True,
     kani_threat_cost=True,
     kani_hand_cost=False,
@@ -384,6 +414,12 @@ LAB_V6_5_FEATURES = dict(
     kal_scorch_cap=3,
     kal_lane_scorch=True,
     kal_lane_scorch_thresh=2,
+    # Current canonical Castle Integrity rules; historical DE v2 remains
+    # available only for trace comparison and golden-oracle continuity.
+    castle_integrity=True,
+    castle_granular_repair=True,
+    castle_construction=True,
+    castle_irreparable=True,
     kani_threat_cost=False,
     kani_hand_cost=True,
 )
@@ -459,8 +495,48 @@ CASTLE_DEF = {
     'Stockpile':        8,
     'SiegeEngine':      7,
 }
-CASTLE_COST = CASTLE_DEF   # repair cost == defense value for all castles
+CASTLE_COST = CASTLE_DEF   # legacy binary rebuild cost
 CASTLES = list(CASTLE_DEF.keys())
+CASTLE_MAX_INTEGRITY = 14
+
+
+def castle_max_integrity(castle: str) -> int:
+    """Current canonical wall size; legacy profiles retain printed DEF."""
+    if ACTIVE_FEATURES.get('castle_integrity', False):
+        return CASTLE_MAX_INTEGRITY
+    return CASTLE_DEF[castle]
+
+
+def castle_board_fraction(count: int) -> float:
+    """Normalize against all five buildable Castle types, never the opening three."""
+    denominator = max(1, int(VARIANT.get('castle_doctrine_denominator', len(CASTLES))))
+    return max(0.0, min(1.0, count / float(denominator)))
+
+
+def choose_payment_cards(cards: List['Card'], target: int) -> List['Card']:
+    """Meet a value target with least overshoot, then fewest physical cards.
+
+    If the pool cannot reach the target, return the highest-value reachable subset.
+    This supports granular construction without duplicating or inventing cards.
+    """
+    if not cards or target <= 0:
+        return []
+    dp = {0: ()}
+    for idx, card in enumerate(cards):
+        for total, indices in list(dp.items())[::-1]:
+            new_total = total + card.value
+            candidate = indices + (idx,)
+            if new_total not in dp or len(candidate) < len(dp[new_total]):
+                dp[new_total] = candidate
+    positive = [total for total in dp if total > 0]
+    if not positive:
+        return []
+    meeting = [total for total in positive if total >= target]
+    if meeting:
+        chosen_total = min(meeting, key=lambda total: (total - target, len(dp[total]), total))
+    else:
+        chosen_total = max(positive, key=lambda total: (total, -len(dp[total])))
+    return [cards[idx] for idx in dp[chosen_total]]
 
 LORD_STATS = {
     'Orias':    {'s': 6, 'd': 6, 'r': 0},
@@ -486,6 +562,9 @@ CASTLE_PRIORITIES = {
     'Kanifous': ['Keep',        'Bastion',   'SummoningCircle', 'Stockpile',       'SiegeEngine'],
     'Humbaba':  ['Keep',        'Bastion',   'Stockpile',       'SummoningCircle', 'SiegeEngine'],
 }
+
+# Opening loadouts use each Lord's existing five-Castle priority and take
+# the first three. No Castle is mandatory and construction can later reach all five.
 
 LORD_AI = {
     'Orias':    dict(aggro=1.30, control=0.65, risk=1.20, prefer='Hunt'),
@@ -643,6 +722,9 @@ class Player:
         # v6.5 structural state.  Scars and permanent loss are board facts;
         # marchers retain their physical card while their lane value changes.
         self.castle_repairs: dict[str, int] = {}
+        self.castle_integrity: dict[str, int] = {}
+        self.castle_construction_progress: dict[str, int] = {}
+        self.castle_action_used_this_round: bool = False
         self.castle_scars: dict[str, int] = {}
         self.lost_castles: Set[str] = set()
         self.ward_turned: Set[str] = set()
@@ -667,6 +749,7 @@ class Player:
         self.profane_ruins_used_this_round = False
         self.repaired_this_round = False
         self.repair_token_used_this_repair = False
+        self.castle_action_used_this_round = False
         self.orias_snare_active  = False
 
         self.odradek_recoil_done         = False
@@ -726,7 +809,11 @@ class Player:
         return max(0, d)
 
     def castle_def(self, target: str, breach: Optional[str] = None, game=None) -> int:
-        d = CASTLE_DEF.get(target, 0)
+        d = (
+            self.castle_integrity.get(target, castle_max_integrity(target))
+            if ACTIVE_FEATURES['castle_integrity']
+            else CASTLE_DEF.get(target, 0)
+        )
         if breach == 'Deimos':
             d = max(0, d - 1)
         # Humbaba Breach — The Stones Forget: all structures soften
@@ -828,6 +915,22 @@ class Game:
         self.stat_combats           = 0
         self.stat_lords_killed      = 0
         self.stat_castles_destroyed = 0
+        self.stat_castle_damage     = 0
+        self.stat_castle_repaired   = 0
+        self.stat_castle_repair_actions = 0
+        self.stat_repair_cards      = 0
+        self.stat_repair_value      = 0
+        self.stat_castles_built     = 0
+        self.stat_construction_actions = 0
+        self.stat_construction_value = 0
+        self.stat_first_construction_round = 0
+        self.stat_sieges            = 0
+        self.stat_structure_first_bypasses = 0
+        self.stat_momentum_triggers = 0
+        self.stat_ruination_soul_bonus = 0
+        self._structure_hit         = 0
+        self._structure_damage      = 0
+        self._structure_spill       = 0
         self.stat_ward_souls        = 0
         self.stat_ritual_souls      = 0
         self.stat_hunt_souls        = 0
@@ -1193,8 +1296,15 @@ class Game:
         self.market = [self.deck.pop() for _ in range(MARKET_SIZE)]
         self.fp     = random.randint(0, 1)
         for pl in self.players:
-            for c in CASTLES:
+            if ACTIVE_FEATURES['castle_integrity'] and VARIANT.get('castle_loadout', False):
+                opening_count = int(VARIANT.get('starting_castles', 3))
+                selected = CASTLE_PRIORITIES.get(pl.lord, CASTLES)[:opening_count]
+            else:
+                selected = list(CASTLES)
+            for c in selected:
                 pl.castles.add(c)
+                if ACTIVE_FEATURES['castle_integrity']:
+                    pl.castle_integrity[c] = castle_max_integrity(c)
             for _ in range(5):
                 self._draw(pl)
         # Pre-game: both players summon their opening Lord
@@ -1332,7 +1442,6 @@ class Game:
     def _ai_orias_snare(self, pl: Player):
         if pl.threat >= 3: return
         op = self.opp(pl.pid)
-        if len(op.garrison) + len(op.hand) < 2: return
         pl.threat = min(MAX_THREAT, pl.threat + 1)
         op.orias_snare_active = True
 
@@ -1752,6 +1861,8 @@ class Game:
                                   next(iter(pl.castles)))
                     pl.castles.discard(target)
                     pl.ruined_castles.add(target)
+                    if ACTIVE_FEATURES['castle_integrity']:
+                        pl.castle_integrity[target] = 0
                     self._lose_soul(op, 1)
                     self._gain_neutral_tear()
                     self.stat_humbaba_tolls += 1
@@ -1881,6 +1992,8 @@ class Game:
                 pl.gremory_inevitable_ruin_done = True
                 op.castles.discard(target)
                 op.ruined_castles.add(target)
+                if ACTIVE_FEATURES['castle_integrity']:
+                    op.castle_integrity[target] = 0
                 self.stat_castles_destroyed += 1
                 self.any_destruction_this_round = True
                 # Neutral Tear: first castle destroyed this round (D4: every)
@@ -1932,6 +2045,8 @@ class Game:
             return
         pl.castles.discard(target)
         pl.profaned_castles.add(target)
+        if ACTIVE_FEATURES['castle_integrity']:
+            pl.castle_integrity[target] = 0
         pl.profane_this_round = True
         # pending_profane stays set — Tear applied at end of Resolution
 
@@ -2255,6 +2370,7 @@ class Game:
                 and 0 <= excess <= VARIANT.get('momentum_band', 3)):
             self.reflex_winner = atk.pid
             atk.momentum_refund_due += ACTIVE_FEATURES['momentum_refund']
+            self.stat_momentum_triggers += 1
 
         if guards_lost > 0:
             self.any_destruction_this_round = True
@@ -2395,33 +2511,55 @@ class Game:
             dfn.castle_guards.remove(butcher_suppressed_guard)
             self._discard([butcher_suppressed_guard])
 
-        # Structural defense (+ Penitent suit bonus for the defender)
-        struct_def  = dfn.castle_def(target_castle, breach=self.breach, game=self)
-
+        # Integrity is structural HP, not a threshold. Temporary Ward and
+        # Penitent contributions screen the stone before arriving Strength is
+        # dealt directly as damage. Breach softening becomes +1 incoming damage.
+        integrity_before = dfn.castle_integrity.get(
+            target_castle, castle_max_integrity(target_castle)
+        )
+        structure_screen = 0
         if (
             ACTIVE_FEATURES['ward_commit_defense']
             and dfn.action == 'Ward'
             and dfn.ward_target == 'Castle'
         ):
-            struct_def += dfn.committed_value()
-
+            structure_screen += dfn.committed_value()
             if (
                 VARIANT.get('humbaba_sigil_commit', False)
                 and dfn.lord == 'Humbaba'
             ):
-                struct_def += 2 + (1 if 'Keep' in dfn.castles else 0)
-
-        struct_def += dfn.suit_bonus('Penitent')
+                structure_screen += 2 + (1 if 'Keep' in dfn.castles else 0)
+        structure_screen += dfn.suit_bonus('Penitent')
+        structure_vulnerability = 1 if self.breach in ('Deimos', 'Humbaba') else 0
 
         sigil_state = dfn.sigils['Castle']
         sigil_value = self._sigil_value(dfn, sigil_state)
 
         guards_before = len(dfn.castle_guards)
         self.stat_combats += 1
-        destroyed, sigil_broken, excess = self._combat_layers(
-            atk, strength, dfn.castle_guards, ignore_lowest,
-            sigil_value, has_sigil=(sigil_state != ''), struct_def=struct_def,
-            bypass=siege_engine_bypass)
+        self.stat_sieges += 1
+        if siege_engine_bypass:
+            self.stat_structure_first_bypasses += 1
+        if ACTIVE_FEATURES['castle_integrity']:
+            destroyed, sigil_broken, excess = self._combat_layers(
+                atk, strength, dfn.castle_guards, ignore_lowest,
+                sigil_value, has_sigil=(sigil_state != ''), struct_def=0,
+                bypass=siege_engine_bypass, structure_integrity=integrity_before,
+                structure_screen=structure_screen,
+                structure_vulnerability=structure_vulnerability)
+            integrity_after = max(0, integrity_before - self._structure_damage)
+            dfn.castle_integrity[target_castle] = integrity_after
+            self.stat_castle_damage += self._structure_damage
+            assert integrity_after == max(0, integrity_before - self._structure_damage)
+            assert destroyed == (integrity_after == 0)
+        else:
+            struct_def = dfn.castle_def(target_castle, breach=self.breach, game=self)
+            struct_def += structure_screen
+            destroyed, sigil_broken, excess = self._combat_layers(
+                atk, strength, dfn.castle_guards, ignore_lowest,
+                sigil_value, has_sigil=(sigil_state != ''), struct_def=struct_def,
+                bypass=siege_engine_bypass)
+
         guards_lost = guards_before - len(dfn.castle_guards)
 
         if (VARIANT.get('momentum', False)
@@ -2430,6 +2568,7 @@ class Game:
                 and 0 <= excess <= VARIANT.get('momentum_band', 3)):
             self.reflex_winner = atk.pid
             atk.momentum_refund_due += ACTIVE_FEATURES['momentum_refund']
+            self.stat_momentum_triggers += 1
 
         if guards_lost > 0:
             self.any_destruction_this_round = True
@@ -2449,6 +2588,8 @@ class Game:
 
         if destroyed:
             dfn.castles.discard(target_castle)
+            if ACTIVE_FEATURES['castle_integrity']:
+                dfn.castle_integrity[target_castle] = 0
             if (VARIANT.get('castle_permanent_loss', False)
                     and dfn.castle_scars.get(target_castle, 0) >= 1):
                 dfn.lost_castles.add(target_castle)
@@ -2500,12 +2641,13 @@ class Game:
             # (forfeited under Consume the Siege)
             if consumed_siege:
                 pass
-            elif guards_lost > 0:
-                self._gain_soul(atk, 2)
-                self.stat_ritual_souls += 2
             else:
-                self._gain_soul(atk, 1)
-                self.stat_ritual_souls += 1
+                base_reward = 2 if guards_lost > 0 else 1
+                ruination_bonus = int(VARIANT.get('ruination_soul_bonus', 0))
+                reward = base_reward + ruination_bonus
+                self._gain_soul(atk, reward)
+                self.stat_ritual_souls += reward
+                self.stat_ruination_soul_bonus += ruination_bonus
 
             # Gremory — Predator of Ruin
             for p in self.players:
@@ -2559,7 +2701,8 @@ class Game:
             self.any_destruction_this_round = True
 
     # ─────────────────────────────────────────────────────────────────
-    #  CORE COMBAT — layered per the Golden Rule (equality never destroys)
+    #  CORE COMBAT — legacy layers keep the Golden Rule; Integrity is HP,
+    #  so arriving Strength equal to remaining Integrity does Ruin it.
     #  Normal order:  Guards → Sigil → Structure
     #  Siege Engine:  Sigil → Structure → Guards
     # ─────────────────────────────────────────────────────────────────
@@ -2567,36 +2710,42 @@ class Game:
                        guards: List[Card], ignore_lowest: bool,
                        sigil_value: int, has_sigil: bool,
                        struct_def: int,
-                       bypass: bool = False) -> Tuple[bool, bool, int]:
-        """Mutates `guards` (defeated Guards removed and discarded).
-        Returns (destroyed, sigil_broken, excess_after_structure)."""
+                       bypass: bool = False,
+                       structure_integrity: Optional[int] = None,
+                       structure_screen: int = 0,
+                       structure_vulnerability: int = 0) -> Tuple[bool, bool, int]:
+        """Resolve the ordered defense layers and preserve the legacy tuple.
 
-        # Effective guard values: the ignored (crushed) Guard defends at 0
+        With ``structure_integrity`` supplied, arriving Strength damages the
+        Castle directly. ``_structure_hit`` records Strength that reached stone,
+        ``_structure_damage`` records HP removed, and ``_structure_spill`` records
+        Strength passed to Guards by a structure-first Siege Engine attack.
+        """
+        self._structure_hit = 0
+        self._structure_damage = 0
+        self._structure_spill = 0
+
         def _effective(gs: List[Card]):
-            if not gs: return []
-            eff = [(g, g.value) for g in gs]
+            if not gs:
+                return []
+            eff = [(guard, guard.value) for guard in gs]
             if ignore_lowest:
                 low_i = min(range(len(eff)), key=lambda i: eff[i][1])
                 eff[low_i] = (eff[low_i][0], 0)
-            # Strip highest effective value first
-            eff.sort(key=lambda t: t[1], reverse=True)
+            eff.sort(key=lambda item: item[1], reverse=True)
             return eff
 
         def _strip_guards(remaining: int) -> int:
-            """Strips Guards while remaining Strength strictly exceeds each.
-            Returns leftover Strength (or -1 sentinel meaning attack stopped)."""
-            for g, val in _effective(guards):
-                if remaining > val:
-                    guards.remove(g)
-                    self._discard([g])
-                    remaining -= val
+            for guard, value in _effective(guards):
+                if remaining > value:
+                    guards.remove(guard)
+                    self._discard([guard])
+                    remaining -= value
                 else:
                     return -1
             return remaining
 
         def _sigil_layer(remaining: int) -> Tuple[bool, int]:
-            """Returns (broken, leftover). A 0-value Sigil (Omen) breaks on
-            any attack that reaches it. Leftover −1 means attack stopped."""
             if not has_sigil:
                 return False, remaining
             if sigil_value == 0:
@@ -2605,8 +2754,48 @@ class Game:
                 return True, remaining - sigil_value
             return False, -1
 
+        def _integrity_layer(remaining: int) -> Tuple[bool, int]:
+            # Temporary structure defense is consumed before the actual wall.
+            remaining -= max(0, structure_screen)
+            if remaining <= 0:
+                return False, remaining
+            hit = max(1, remaining + max(0, structure_vulnerability))
+            integrity = max(0, int(structure_integrity or 0))
+            damage = min(integrity, hit)
+            spill = max(0, hit - integrity)
+            self._structure_hit = hit
+            self._structure_damage = damage
+            self._structure_spill = spill
+            self._aha(abs(integrity - hit))
+            return damage >= integrity and integrity > 0, hit - integrity
+
+        if structure_integrity is not None:
+            if bypass:
+                # Sigil → temporary screen → Integrity → Guards.
+                broken, remaining = _sigil_layer(strength)
+                if remaining < 0:
+                    self._aha(sigil_value - strength)
+                    return False, broken, remaining
+                ruined, structural_excess = _integrity_layer(remaining)
+                if not ruined:
+                    return False, broken, structural_excess
+                leftover = _strip_guards(self._structure_spill)
+                excess = leftover if leftover >= 0 else 0
+                return True, broken, excess
+
+            # Guards → Sigil → temporary screen → Integrity.
+            remaining = _strip_guards(strength)
+            if remaining < 0:
+                return False, False, -1
+            broken, remaining = _sigil_layer(remaining)
+            if remaining < 0:
+                self._aha(sigil_value)
+                return False, broken, -1
+            ruined, structural_excess = _integrity_layer(remaining)
+            return ruined, broken, structural_excess
+
+        # Legacy binary structure resolution.
         if bypass:
-            # Sigil → Structure → Guards
             broken, remaining = _sigil_layer(strength)
             if remaining < 0:
                 self._aha(sigil_value - strength)
@@ -2620,7 +2809,6 @@ class Game:
             self._aha(struct_def - remaining)
             return False, broken, remaining - struct_def
 
-        # Guards → Sigil → Structure
         remaining = _strip_guards(strength)
         if remaining < 0:
             return False, False, -1
@@ -2946,6 +3134,119 @@ class Game:
         self._discard(paid)
 
     def _ai_repair_only(self, pl: Player):
+        if ACTIVE_FEATURES['castle_integrity']:
+            if pl.castle_action_used_this_round:
+                return
+            priority = CASTLE_PRIORITIES.get(pl.lord, CASTLES)
+            payment_zone = list(pl.hand + pl.garrison)
+            if not payment_zone:
+                return
+
+            damaged = [
+                castle for castle in priority
+                if castle in pl.castles
+                and 0 < pl.castle_integrity.get(castle, castle_max_integrity(castle))
+                < castle_max_integrity(castle)
+            ]
+            severe = [
+                castle for castle in damaged
+                if pl.castle_integrity.get(castle, castle_max_integrity(castle))
+                <= castle_max_integrity(castle) // 2
+            ]
+            unavailable = (
+                set(pl.castles)
+                | set(pl.ruined_castles)
+                | set(pl.profaned_castles)
+                | set(pl.lost_castles)
+            )
+            buildable = [castle for castle in priority if castle not in unavailable]
+            active_project = next(
+                (castle for castle in priority
+                 if castle in buildable
+                 and pl.castle_construction_progress.get(castle, 0) > 0),
+                None,
+            )
+
+            # Emergency maintenance beats expansion. Otherwise finish/start a
+            # construction project before topping off harmless chip damage.
+            if severe:
+                action = 'repair'
+                target = severe[0]
+            elif ACTIVE_FEATURES['castle_construction'] and buildable:
+                action = 'construct'
+                target = active_project or buildable[0]
+            elif damaged:
+                action = 'repair'
+                target = damaged[0]
+            else:
+                return
+
+            if action == 'repair':
+                before = pl.castle_integrity[target]
+                missing = castle_max_integrity(target) - before
+                using_token = pl.repair_token >= 1
+                bonus = 0
+                if using_token:
+                    bonus += int(VARIANT.get('repair_token_integrity', 3))
+                if pl.lord == 'Kalligan' and pl.alive:
+                    bonus += int(VARIANT.get('master_builder_integrity', 2))
+                if self.breach == 'Kalligan':
+                    bonus += int(VARIANT.get('rapid_construction_integrity', 1))
+                paid = choose_payment_cards(payment_zone, max(1, missing - bonus))
+                if not paid:
+                    return
+                paid_value = sum(card.value for card in paid)
+                for card in paid:
+                    if card in pl.hand:
+                        pl.hand.remove(card)
+                    else:
+                        pl.garrison.remove(card)
+                self._discard(paid)
+                healed = min(missing, paid_value + bonus)
+                pl.castle_integrity[target] = before + healed
+                if using_token:
+                    pl.repair_token = 0
+                pl.castle_repairs[target] = pl.castle_repairs.get(target, 0) + 1
+                pl.castle_action_used_this_round = True
+                pl.repaired_this_round = True
+                pl.repair_token_used_this_repair = using_token
+                self.stat_castle_repaired += healed
+                self.stat_castle_repair_actions += 1
+                self.stat_repair_cards += len(paid)
+                self.stat_repair_value += paid_value
+                if pl.lord == 'Kalligan' and pl.alive:
+                    pl.kalligan_repair_used = True
+                    opponent = self.opp(pl.pid)
+                    self.persist_scorch_pid = opponent.pid
+                    self.persist_scorch_type = 'Lord'
+                return
+
+            progress_before = pl.castle_construction_progress.get(target, 0)
+            remaining = castle_max_integrity(target) - progress_before
+            paid = choose_payment_cards(payment_zone, remaining)
+            if not paid:
+                return
+            paid_value = sum(card.value for card in paid)
+            for card in paid:
+                if card in pl.hand:
+                    pl.hand.remove(card)
+                else:
+                    pl.garrison.remove(card)
+            self._discard(paid)
+            progress_after = min(castle_max_integrity(target), progress_before + paid_value)
+            pl.castle_construction_progress[target] = progress_after
+            pl.castle_action_used_this_round = True
+            self.stat_construction_actions += 1
+            self.stat_construction_value += paid_value
+            if progress_after >= castle_max_integrity(target):
+                pl.castles.add(target)
+                pl.castle_integrity[target] = castle_max_integrity(target)
+                pl.castle_construction_progress.pop(target, None)
+                self.stat_castles_built += 1
+                if self.stat_first_construction_round == 0:
+                    self.stat_first_construction_round = self.round
+            return
+
         if not pl.ruined_castles: return
         priority = CASTLE_PRIORITIES.get(pl.lord, CASTLES)
         target   = next((c for c in priority if c in pl.ruined_castles), None)
@@ -3512,7 +3813,11 @@ class Game:
         # ── Profane (Siege + own color) — sacrifice a Castle for a Tear.
         # Risk: cancelled by an opponent Fresh Sigil placed this round.
         p_score = -5.0
-        if len(pl.castles) >= 3:
+        can_profane = bool(pl.castles) and (
+            VARIANT.get('profane_no_castle_gate', False)
+            or len(pl.castles) >= 3
+        )
+        if can_profane:
             soul_deficit = op.souls - pl.souls
             tear_lead    = pl.tears - op.tears
             p_score = 0.0
@@ -3564,7 +3869,7 @@ class Game:
         elif best == 'Siege' and op.castles:
             pl.action = 'Siege'; pl.tgt_pid = op.pid; pl.tgt_type = 'Castle'
             self._commit_for_attack(pl, op, 'Castle', plan, chip=chip_siege)
-        elif best == 'Profane' and len(pl.castles) >= 3:
+        elif best == 'Profane' and can_profane:
             pl.action = 'Profane'
             priority = CASTLE_PRIORITIES.get(pl.lord, CASTLES)
             pl.pending_profane = next(
@@ -3683,7 +3988,7 @@ class Game:
         if VARIANT.get('fix_a', False):
             score = 0.333
             score += pl.souls * 0.12
-            score += len(pl.castles) / max(1, len(CASTLES)) * 0.40
+            score += castle_board_fraction(len(pl.castles)) * 0.40
             score += pl.threat * 0.20
         else:
             score = 0.6
@@ -3853,6 +4158,12 @@ def run_matchup(lord0: str, lord1: str, n_games: int) -> dict:
     castles0_list = []; castles1_list = []
     total_combats = total_lords_killed = 0
     total_castles_destroyed = total_ward_souls = total_ritual_souls = 0
+    total_castle_damage = total_castle_repaired = total_repair_cards = 0
+    total_repair_value = total_castles_built = total_construction_value = 0
+    total_repair_actions = total_construction_actions = 0
+    total_first_construction_round = construction_games = 0
+    total_castles_standing_end = total_sieges = total_bypasses = 0
+    total_momentum_triggers = total_ruination_bonus = 0
     total_hunt_souls = total_breach_triggers = 0
     total_humbaba_tolls = 0
     total_personal_tears = total_neutral_tears = 0
@@ -3903,6 +4214,22 @@ def run_matchup(lord0: str, lord1: str, n_games: int) -> dict:
         total_combats           += g.stat_combats
         total_lords_killed      += g.stat_lords_killed
         total_castles_destroyed += g.stat_castles_destroyed
+        total_castle_damage     += g.stat_castle_damage
+        total_castle_repaired   += g.stat_castle_repaired
+        total_repair_cards      += g.stat_repair_cards
+        total_repair_value      += g.stat_repair_value
+        total_repair_actions    += g.stat_castle_repair_actions
+        total_castles_built     += g.stat_castles_built
+        total_construction_actions += g.stat_construction_actions
+        total_construction_value += g.stat_construction_value
+        total_castles_standing_end += len(p0p.castles) + len(p1p.castles)
+        total_sieges += g.stat_sieges
+        total_bypasses += g.stat_structure_first_bypasses
+        total_momentum_triggers += g.stat_momentum_triggers
+        total_ruination_bonus += g.stat_ruination_soul_bonus
+        if g.stat_first_construction_round > 0:
+            total_first_construction_round += g.stat_first_construction_round
+            construction_games += 1
         total_ward_souls        += g.stat_ward_souls
         total_ritual_souls      += g.stat_ritual_souls
         total_hunt_souls        += g.stat_hunt_souls
@@ -3953,6 +4280,23 @@ def run_matchup(lord0: str, lord1: str, n_games: int) -> dict:
         'avg_combats':           total_combats / n_games,
         'avg_lords_killed':      total_lords_killed / n_games,
         'avg_castles_destroyed': total_castles_destroyed / n_games,
+        'avg_castle_damage':     total_castle_damage / n_games,
+        'avg_castle_repaired':   total_castle_repaired / n_games,
+        'avg_repair_cards':      total_repair_cards / n_games,
+        'avg_repair_value':      total_repair_value / n_games,
+        'avg_repair_actions':    total_repair_actions / n_games,
+        'avg_castles_built':     total_castles_built / n_games,
+        'avg_construction_actions': total_construction_actions / n_games,
+        'avg_construction_value': total_construction_value / n_games,
+        'zero_construction_pct': 1.0 - (construction_games / n_games),
+        'avg_castles_standing_end': total_castles_standing_end / n_games,
+        'structure_first_bypass_rate': total_bypasses / total_sieges if total_sieges else 0.0,
+        'avg_momentum_triggers': total_momentum_triggers / n_games,
+        'avg_ruination_soul_bonus': total_ruination_bonus / n_games,
+        'avg_first_construction_round': (
+            total_first_construction_round / construction_games
+            if construction_games else 0.0
+        ),
         'avg_ward_souls':        total_ward_souls / n_games,
         'avg_ritual_souls':      total_ritual_souls / n_games,
         'avg_hunt_souls':        total_hunt_souls / n_games,
@@ -4422,6 +4766,23 @@ def generate_report(results: dict, n_games: int) -> str:
     lines.append(f"  Avg combats per game          : {avg_all('avg_combats'):.2f}")
     lines.append(f"  Avg lords killed per game     : {avg_all('avg_lords_killed'):.2f}")
     lines.append(f"  Avg castles destroyed per game: {avg_all('avg_castles_destroyed'):.2f}")
+    if ACTIVE_FEATURES['castle_integrity']:
+        lines.append(f"  Avg Integrity damage per game : {avg_all('avg_castle_damage'):.2f}")
+        lines.append(f"  Avg Integrity repaired/game   : {avg_all('avg_castle_repaired'):.2f}")
+        lines.append(f"  Avg repair actions/game       : {avg_all('avg_repair_actions'):.2f}")
+        lines.append(f"  Avg repair cards spent/game   : {avg_all('avg_repair_cards'):.2f}")
+        lines.append(f"  Avg repair card value/game    : {avg_all('avg_repair_value'):.2f}")
+        lines.append(f"  Avg castles constructed/game  : {avg_all('avg_castles_built'):.2f}")
+        lines.append(f"  Avg construction actions/game : {avg_all('avg_construction_actions'):.2f}")
+        lines.append(f"  Avg construction value/game   : {avg_all('avg_construction_value'):.2f}")
+        lines.append(f"  Zero-construction games       : {avg_all('zero_construction_pct')*100:.1f}%")
+        lines.append(f"  Avg castles standing at end   : {avg_all('avg_castles_standing_end'):.2f}")
+        lines.append(f"  Avg round first construction  : {avg_all('avg_first_construction_round'):.2f}")
+        lines.append(f"  Structure-first bypass rate   : {avg_all('structure_first_bypass_rate')*100:.1f}%")
+        lines.append(f"  Avg Momentum triggers/game    : {avg_all('avg_momentum_triggers'):.2f}")
+        ruins = avg_all('avg_castles_destroyed')
+        repairs = avg_all('avg_repair_actions')
+        lines.append(f"  Repair : Ruination ratio      : {(repairs / ruins if ruins else 0.0):.2f}")
     lines.append(f"  Avg ritual souls per game     : {avg_all('avg_ritual_souls'):.2f}")
     lines.append(f"  Avg hunt souls per game       : {avg_all('avg_hunt_souls'):.2f}")
     lines.append(f"  Avg ward souls per game       : {avg_all('avg_ward_souls'):.2f}")
@@ -4695,20 +5056,20 @@ def run_mechanic_tests() -> List[str]:
     if g.neutral_tears != before + 1:
         failures.append("FAIL T17b: later summons place 1 Neutral Tear")
 
-    # ── T18: Repair floor — all discounts stack, floor 1 applied once
+    # ── T18: Canonical granular repair and bounded modifiers
     g = fresh_game('Kalligan', 'Valak'); pl = g.players[0]
     pl.alive = True
     pl.castles = {'Keep'}
-    pl.ruined_castles = {'SiegeEngine'}
+    pl.castle_integrity = {'Keep': 7}
     pl.repair_token = 1
-    pl.hand = [Card('Wright', 1), Card('Wright', 1)]
+    pl.hand = [Card('Wright', 1)]
     g.breach = 'Kalligan'
-    # SiegeEngine 7 − token 3 − first-repair 7 − breach 1 = −4 → floor 1
     g._ai_repair_only(pl)
-    if 'SiegeEngine' not in pl.castles:
-        failures.append("FAIL T18: repair should succeed at floored cost 1")
-    if len(pl.hand) != 1:
-        failures.append(f"FAIL T18: floored cost 1 pays exactly one 1-card, hand left {len(pl.hand)}")
+    # 1 paid + token 3 + Master Builder 2 + Rapid Construction 1 = 7.
+    if pl.castle_integrity.get('Keep') != 14:
+        failures.append("FAIL T18: bounded repair modifiers must restore Keep to 14")
+    if pl.repair_token != 0 or len(pl.hand) != 0:
+        failures.append("FAIL T18: repair consumes its token and exact physical card")
 
     # ── T19: Summon pays from HAND only
     g = fresh_game('Deimos', 'Valak'); pl = g.players[0]
@@ -4749,8 +5110,11 @@ def run_mechanic_tests() -> List[str]:
 
     # ── T22: Gate Guard — 4th slot only while stones unbroken
     g = fresh_game('Humbaba', 'Valak'); pl = g.players[0]
-    if pl.max_castle_guards() != 4:
-        failures.append("FAIL T22a: unbroken Humbaba has 4 castle guard slots")
+    expected_slots = 4 if VARIANT['humbaba_gate4'] else 3
+    if pl.max_castle_guards() != expected_slots:
+        failures.append(
+            f"FAIL T22a: active Gate Guard setting expected {expected_slots} slots"
+        )
     pl.ruined_castles.add('Keep')
     if pl.max_castle_guards() != 3:
         failures.append("FAIL T22b: a Ruined castle breaks the Gate Guard")
@@ -4759,8 +5123,11 @@ def run_mechanic_tests() -> List[str]:
     g = fresh_game('Humbaba', 'Valak')
     g.players[0].alive = True
     base_req = DOMINION_REQUIREMENT
-    if g._dominion_req() != base_req + 1:
-        failures.append("FAIL T23a: Seal must raise Dominion requirement by 1")
+    expected_req = base_req + (1 if VARIANT['humbaba_seal'] else 0)
+    if g._dominion_req() != expected_req:
+        failures.append(
+            f"FAIL T23a: active Seal setting expected requirement {expected_req}"
+        )
     g.players[0].alive = False
     if g._dominion_req() != base_req:
         failures.append("FAIL T23b: Seal suspends while Humbaba is banished")
@@ -4773,7 +5140,7 @@ def run_mechanic_tests() -> List[str]:
 # ═══════════════════════════════════════════════════════════════════════
 def main():
     parser = argparse.ArgumentParser(
-        description='CORRUPTOR Balance Simulation — canonical DE v2',
+        description='CORRUPTOR Balance Simulation — current Castle Integrity profile',
     )
     parser.add_argument('--games', type=int, default=500)
     parser.add_argument('--quiet', action='store_true')
@@ -4788,8 +5155,8 @@ def main():
     parser.add_argument(
         '--ruleset',
         choices=('de-v2', 'v5.29', 'lab-v6.5'),
-        default='de-v2',
-        help='Rules preset. Defaults to canonical DE v2; lab-v6.5 enables the measured systems bundle.',
+        default='lab-v6.5',
+        help='Rules preset. Defaults to the current Castle Integrity profile; de-v2 remains for historical golden traces.',
     )
     parser.add_argument('--recoil-hunts-only',     action='store_true', default=None)
     parser.add_argument('--sigil-soul-fresh-only', action='store_true', default=None)

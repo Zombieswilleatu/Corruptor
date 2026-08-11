@@ -10,6 +10,10 @@ const RoundEngineData = preload(
 	"res://Scripts/Sim/RoundEngine.gd"
 )
 
+const CastleIntegrityRulesData = preload(
+	"res://Scripts/Sim/CastleIntegrityRules.gd"
+)
+
 const DevelopmentStartEngineData = preload(
 	"res://Scripts/Sim/DevelopmentStartEngine.gd"
 )
@@ -356,7 +360,6 @@ func _human_snare_available() -> bool:
 		and human.lord == "Orias"
 		and human.alive
 		and human.threat < 3
-		and bot.hand.size() + bot.garrison.size() >= 2
 	)
 
 
@@ -398,10 +401,7 @@ func resolve_human_market(
 		HUMAN_PLAYER_ID
 	)
 
-	if (
-		human_player != null
-		and human_player.ruined_castles.is_empty()
-	):
+	if human_player != null and not _player_has_castle_action_choices(human_player):
 		return resolve_human_repair({
 			"pass": true,
 		})
@@ -476,7 +476,46 @@ func resolve_human_repair(
 
 func _repair_phase_has_choices() -> bool:
 	for player in game.players:
-		if not player.ruined_castles.is_empty():
+		if _player_has_castle_action_choices(player):
+			return true
+	return false
+
+
+func _player_has_castle_action_choices(player) -> bool:
+	if player == null:
+		return false
+	if rules == null or not rules.castle_integrity:
+		return not player.ruined_castles.is_empty()
+
+	var repair_allowed: bool = String(rules.repair_wright_mode) == "off"
+	if not repair_allowed:
+		for card in player.hand:
+			if String(card.suit) == "Wright":
+				repair_allowed = true
+				break
+	if not repair_allowed:
+		for card in player.garrison:
+			if String(card.suit) == "Wright":
+				repair_allowed = true
+				break
+
+	if repair_allowed:
+		for castle_value in player.castles:
+			var castle_name: String = String(castle_value)
+			var maximum: int = CastleIntegrityRulesData.max_integrity(castle_name)
+			var integrity: int = int(player.castle_integrity.get(castle_name, maximum))
+			if integrity > 0 and integrity < maximum:
+				return true
+
+	if rules.castle_construction:
+		for castle_name: String in CastleIntegrityRulesData.CASTLES:
+			if (
+				player.castles.has(castle_name)
+				or player.ruined_castles.has(castle_name)
+				or player.profaned_castles.has(castle_name)
+				or player.lost_castles.has(castle_name)
+			):
+				continue
 			return true
 
 	return false

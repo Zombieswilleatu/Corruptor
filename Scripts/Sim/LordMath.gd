@@ -17,7 +17,8 @@ static func lord_base_def(
 	if lord_id == "Humbaba":
 		return _humbaba_lord_base_def(
 			castles,
-			threat
+			threat,
+			_rules
 		)
 
 	push_error(
@@ -30,7 +31,8 @@ static func lord_base_def(
 
 static func _humbaba_lord_base_def(
 	castles: Array[String],
-	threat: int
+	threat: int,
+	rules: RuleConfig
 ) -> int:
 	var defense: int = (
 		2
@@ -45,7 +47,7 @@ static func _humbaba_lord_base_def(
 		defense -= 1
 
 	if castles.has("Bastion"):
-		defense += 2
+		defense += maxi(0, int(rules.bastion_lord_def_bonus))
 
 	return max(
 		0,

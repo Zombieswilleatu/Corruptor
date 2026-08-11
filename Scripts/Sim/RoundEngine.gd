@@ -16,6 +16,10 @@ const DrawEngineData = preload(
 	"res://Scripts/Sim/DrawEngine.gd"
 )
 
+const CastleIntegrityRulesData = preload(
+	"res://Scripts/Sim/CastleIntegrityRules.gd"
+)
+
 const CASTLE_REPAIR_COSTS: Dictionary = {
 	"Keep": 13,
 	"Bastion": 11,
@@ -412,6 +416,14 @@ static func _resolve_player_repair(
 		player.pid
 	)
 
+	if rules.castle_integrity:
+		return _resolve_castle_integrity_action(
+			game,
+			player,
+			rules,
+			decision
+		)
+
 	if _repair_decision_is_pass(
 		decision
 	):
@@ -629,6 +641,350 @@ static func _resolve_player_repair(
 			selected_cards
 		),
 		"used_token": use_token,
+	}
+
+
+static func _resolve_castle_integrity_action(
+	game,
+	player,
+	rules: RuleConfig,
+	decision: Dictionary
+) -> Dictionary:
+	var player_id: int = int(player.pid)
+
+	if player.castle_action_used_this_round:
+		return _invalid_castle_action_result(
+			player_id,
+			String(decision.get("castle", "")),
+			"castle_action_already_used"
+		)
+
+	if _repair_decision_is_pass(decision):
+		return {
+			"player_id": player_id,
+			"action": "pass",
+			"reason": "pass",
+			"castle": "",
+			"paid_total": 0,
+			"paid_cards": [],
+			"used_token": false,
+		}
+
+	var action: String = String(decision.get("action", "repair"))
+	var castle_name: String = String(decision.get("castle", ""))
+
+	if not CastleIntegrityRulesData.CASTLES.has(castle_name):
+		return _invalid_castle_action_result(
+			player_id,
+			castle_name,
+			"unknown_castle"
+		)
+
+	var raw_payment = decision.get("payment", [])
+	if typeof(raw_payment) != TYPE_ARRAY:
+		return _invalid_castle_action_result(
+			player_id,
+			castle_name,
+			"payment_must_be_array"
+		)
+
+	var selection: Dictionary = _select_exact_payment_cards(
+		player,
+		raw_payment
+	)
+	if not bool(selection.get("valid", false)):
+		return _invalid_castle_action_result(
+			player_id,
+			castle_name,
+			String(selection.get("reason", "invalid_payment"))
+		)
+
+	var selected_cards: Array = selection.get("cards", [])
+	var paid_total: int = int(selection.get("paid_total", 0))
+	if selected_cards.is_empty() or paid_total <= 0:
+		return _invalid_castle_action_result(
+			player_id,
+			castle_name,
+			"payment_required"
+		)
+
+	if action == "construct":
+		return _resolve_integrity_construction(
+			game,
+			player,
+			rules,
+			castle_name,
+			selected_cards,
+			paid_total
+		)
+
+	if action != "repair":
+		return _invalid_castle_action_result(
+			player_id,
+			castle_name,
+			"unknown_castle_action"
+		)
+
+	return _resolve_integrity_repair(
+		game,
+		player,
+		rules,
+		castle_name,
+		selected_cards,
+		paid_total,
+		bool(decision.get("use_token", false))
+	)
+
+
+static func _resolve_integrity_repair(
+	game,
+	player,
+	rules: RuleConfig,
+	castle_name: String,
+	selected_cards: Array,
+	paid_total: int,
+	use_token: bool
+) -> Dictionary:
+	var player_id: int = int(player.pid)
+
+	if not player.castles.has(castle_name):
+		return _invalid_castle_action_result(
+			player_id,
+			castle_name,
+			"castle_not_active"
+		)
+
+	if player.ruined_castles.has(castle_name):
+		return _invalid_castle_action_result(
+			player_id,
+			castle_name,
+			"castle_irreparable"
+		)
+
+	var maximum: int = CastleIntegrityRulesData.max_integrity(castle_name)
+	var before: int = int(player.castle_integrity.get(castle_name, maximum))
+	if before <= 0:
+		return _invalid_castle_action_result(
+			player_id,
+			castle_name,
+			"castle_irreparable"
+		)
+	if before >= maximum:
+		return _invalid_castle_action_result(
+			player_id,
+			castle_name,
+			"castle_not_damaged"
+		)
+	if use_token and player.repair_token <= 0:
+		return _invalid_castle_action_result(
+			player_id,
+			castle_name,
+			"repair_token_unavailable"
+		)
+
+	var repair_mode: String = String(rules.repair_wright_mode)
+	if repair_mode == "strict":
+		for card in selected_cards:
+			if String(card.suit) != "Wright":
+				return _invalid_castle_action_result(
+					player_id, castle_name, "repair_requires_wright_cards"
+				)
+	elif repair_mode == "gate":
+		var has_wright: bool = false
+		for card in selected_cards:
+			if String(card.suit) == "Wright":
+				has_wright = true
+				break
+		if not has_wright:
+			return _invalid_castle_action_result(
+				player_id, castle_name, "repair_requires_wright"
+			)
+
+	var bonus: int = 0
+	if use_token:
+		bonus += rules.repair_token_integrity
+	if player.lord == "Kalligan" and player.alive:
+		bonus += rules.master_builder_integrity
+	if game.breach == "Kalligan":
+		bonus += rules.rapid_construction_integrity
+
+	_consume_castle_payment(game, player, selected_cards)
+
+	var restored: int = mini(maximum - before, paid_total + bonus)
+	var after: int = before + restored
+	player.castle_integrity[castle_name] = after
+	player.castle_action_used_this_round = true
+	player.repaired_this_round = true
+	player.repair_token_used_this_repair = use_token
+	player.castle_repairs[castle_name] = int(
+		player.castle_repairs.get(castle_name, 0)
+	) + 1
+
+	if use_token:
+		player.repair_token = 0
+
+	if player.lord == "Kalligan" and player.alive:
+		player.kalligan_repair_used = true
+		var opponent = game.get_opponent(player_id)
+		if opponent != null:
+			game.persist_scorch_pid = int(opponent.pid)
+			game.persist_scorch_type = "Lord"
+
+	game.refresh_derived_values()
+
+	return {
+		"player_id": player_id,
+		"action": "repair",
+		"reason": "",
+		"castle": castle_name,
+		"integrity_before": before,
+		"integrity_after": after,
+		"restored": restored,
+		"bonus": bonus,
+		"paid_total": paid_total,
+		"paid_cards": _card_ids(selected_cards),
+		"used_token": use_token,
+	}
+
+
+static func _resolve_integrity_construction(
+	game,
+	player,
+	rules: RuleConfig,
+	castle_name: String,
+	selected_cards: Array,
+	paid_total: int
+) -> Dictionary:
+	var player_id: int = int(player.pid)
+
+	if not rules.castle_construction:
+		return _invalid_castle_action_result(
+			player_id,
+			castle_name,
+			"construction_disabled"
+		)
+	if player.castles.has(castle_name):
+		return _invalid_castle_action_result(
+			player_id,
+			castle_name,
+			"castle_already_active"
+		)
+	if (
+		player.ruined_castles.has(castle_name)
+		or player.profaned_castles.has(castle_name)
+		or player.lost_castles.has(castle_name)
+	):
+		return _invalid_castle_action_result(
+			player_id,
+			castle_name,
+			"castle_type_burned"
+		)
+
+	var maximum: int = CastleIntegrityRulesData.max_integrity(castle_name)
+	var before: int = int(
+		player.castle_construction_progress.get(castle_name, 0)
+	)
+
+	_consume_castle_payment(game, player, selected_cards)
+
+	var progress_gain: int = paid_total
+	if int(rules.construction_action_cap) > 0:
+		progress_gain = mini(progress_gain, int(rules.construction_action_cap))
+	var after: int = mini(maximum, before + progress_gain)
+	var completed: bool = after >= maximum
+	player.castle_action_used_this_round = true
+
+	if completed:
+		player.castle_construction_progress.erase(castle_name)
+		if not player.castles.has(castle_name):
+			player.castles.append(castle_name)
+		player.castle_integrity[castle_name] = maximum
+	else:
+		player.castle_construction_progress[castle_name] = after
+
+	game.refresh_derived_values()
+
+	return {
+		"player_id": player_id,
+		"action": "construct",
+		"reason": "",
+		"castle": castle_name,
+		"progress_before": before,
+		"progress_after": after,
+		"completed": completed,
+		"paid_total": paid_total,
+		"progress_gain": progress_gain,
+		"paid_cards": _card_ids(selected_cards),
+		"used_token": false,
+	}
+
+
+static func _consume_castle_payment(
+	game,
+	player,
+	selected_cards: Array
+) -> void:
+	for card in selected_cards:
+		if player.hand.has(card):
+			player.hand.erase(card)
+		elif player.garrison.has(card):
+			player.garrison.erase(card)
+		else:
+			assert(false, "Castle payment card left all payment zones.")
+		game.discard.append(card)
+
+
+static func _select_exact_payment_cards(
+	player,
+	payment_ids: Array
+) -> Dictionary:
+	var selected_cards: Array = []
+	var paid_total: int = 0
+
+	for raw_card_id in payment_ids:
+		var card_identifier: String = String(raw_card_id)
+		var selected_card = _find_unselected_card(
+			player.hand,
+			card_identifier,
+			selected_cards
+		)
+		if selected_card == null:
+			selected_card = _find_unselected_card(
+				player.garrison,
+				card_identifier,
+				selected_cards
+			)
+		if selected_card == null:
+			return {
+				"valid": false,
+				"reason": "payment_card_missing_%s" % card_identifier,
+				"cards": [],
+				"paid_total": 0,
+			}
+		selected_cards.append(selected_card)
+		paid_total += int(selected_card.value)
+
+	return {
+		"valid": true,
+		"reason": "",
+		"cards": selected_cards,
+		"paid_total": paid_total,
+	}
+
+
+static func _invalid_castle_action_result(
+	player_id: int,
+	castle_name: String,
+	reason: String
+) -> Dictionary:
+	return {
+		"player_id": player_id,
+		"action": "invalid",
+		"reason": reason,
+		"castle": castle_name,
+		"paid_total": 0,
+		"paid_cards": [],
+		"used_token": false,
 	}
 
 
@@ -864,25 +1220,54 @@ static func _run_draw_step(
 	rules: RuleConfig
 ) -> void:
 	for player in game.players:
-		var draw_count: int = (
-			BASE_DRAW_COUNT
+		var stockpile_active: bool = CastleIntegrityRulesData.power_active(
+			player, "Stockpile", rules
 		)
+		var draw_count: int = BASE_DRAW_COUNT
 
-		if player.castles.has(
-			"Stockpile"
-		):
-			draw_count += (
-				STOCKPILE_DRAW_BONUS
-			)
+		# Historical Stockpile was a flat +1 draw. v7.4 replaces that with
+		# Selective Stores: after the normal five, draw two and keep one.
+		if stockpile_active and not rules.stockpile_filter:
+			draw_count += STOCKPILE_DRAW_BONUS
 
-		for _draw_index: int in range(
-			draw_count
-		):
-			_draw_to_hand(
-				game,
-				player,
-				rules.hand_limit
-			)
+		for _draw_index: int in range(draw_count):
+			_draw_to_hand(game, player, rules.hand_limit)
+
+		if stockpile_active and rules.stockpile_filter:
+			var before_count: int = player.hand.size()
+			_draw_to_hand(game, player, rules.hand_limit)
+			_draw_to_hand(game, player, rules.hand_limit)
+			var new_count: int = player.hand.size() - before_count
+			if new_count == 2:
+				var first = player.hand[before_count]
+				var second = player.hand[before_count + 1]
+				var keep = _stockpile_pick(player, first, second, rules)
+				var discard_card = second if keep == first else first
+				player.hand.erase(discard_card)
+				game.discard.append(discard_card)
+
+
+static func _stockpile_pick(player, first, second, rules: RuleConfig):
+	var have_wright: bool = false
+	for card in player.hand:
+		if card == first or card == second:
+			continue
+		if String(card.suit) == "Wright":
+			have_wright = true
+			break
+
+	var first_score: int = int(first.value)
+	var second_score: int = int(second.value)
+	if String(first.suit) == "Wright" and not have_wright:
+		first_score += 4
+	elif String(first.suit) == "Butcher":
+		first_score += maxi(0, int(rules.attack_offsuit_penalty))
+	if String(second.suit) == "Wright" and not have_wright:
+		second_score += 4
+	elif String(second.suit) == "Butcher":
+		second_score += maxi(0, int(rules.attack_offsuit_penalty))
+
+	return first if first_score >= second_score else second
 
 
 static func _draw_to_hand(

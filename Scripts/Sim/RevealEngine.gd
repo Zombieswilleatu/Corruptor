@@ -2,6 +2,10 @@ class_name RevealEngine
 extends RefCounted
 
 
+const CastleIntegrityRulesData = preload(
+	"res://Scripts/Sim/CastleIntegrityRules.gd"
+)
+
 const DrawEngineData = preload(
 	"res://Scripts/Sim/DrawEngine.gd"
 )
@@ -120,12 +124,7 @@ static func resolve(
 		if player.action != ACTION_HUNT:
 			continue
 
-		player.threat = min(
-			rules.max_threat,
-			int(
-				player.threat
-			) + 1
-		)
+		CastleIntegrityRulesData.gain_threat(player, rules, 1)
 
 	# Register this round's Sigils.
 	for player in game.players:
@@ -202,6 +201,7 @@ static func resolve(
 
 		var turned: bool = (
 			rules.ward_threshold
+			and not rules.ward_frontline
 			and contested
 			and own_value >= opponent_value
 		)
@@ -666,7 +666,7 @@ static func _resolve_kanifous(
 	player.kanifous_invokes_this_round += 1
 
 	if rules.kani_threat_cost and not rules.kani_hand_cost:
-		player.threat = min(rules.max_threat, int(player.threat) + 1)
+		CastleIntegrityRulesData.gain_threat(player, rules, 1)
 
 	var neutral_tear_gain: int = 0
 	var harvested_card: String = ""
@@ -1104,10 +1104,8 @@ static func _calculate_lord_defense(
 	elif player.threat >= 2:
 		defense -= 1
 
-	if player.castles.has(
-		"Bastion"
-	):
-		defense += 2
+	if player.castles.has("Bastion"):
+		defense += maxi(0, int(rules.bastion_lord_def_bonus))
 
 	return max(
 		0,

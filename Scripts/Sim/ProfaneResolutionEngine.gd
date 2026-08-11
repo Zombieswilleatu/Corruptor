@@ -7,6 +7,10 @@ const ZONE_CASTLE: String = "Castle"
 
 const SIGIL_FRESH: String = "fresh"
 
+const CastleIntegrityRulesData = preload(
+	"res://Scripts/Sim/CastleIntegrityRules.gd"
+)
+
 
 static func resolve(
 	game,
@@ -115,9 +119,23 @@ static func resolve(
 			target_castle
 		)
 
+	if rules.profane_requires_full_integrity and rules.castle_integrity:
+		var maximum: int = CastleIntegrityRulesData.max_integrity(target_castle)
+		var integrity: int = int(player.castle_integrity.get(target_castle, maximum))
+		if integrity < maximum:
+			return _invalid_result(
+				player_id,
+				"profane_requires_full_integrity",
+				target_castle
+			)
+
 	player.castles.erase(
 		target_castle
 	)
+
+	if rules.castle_integrity:
+		player.castle_integrity[target_castle] = 0
+		player.castle_construction_progress.erase(target_castle)
 
 	if not player.profaned_castles.has(
 		target_castle

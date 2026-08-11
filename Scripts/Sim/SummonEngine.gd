@@ -13,6 +13,10 @@ const LordMathData = preload(
 	"res://Scripts/Sim/LordMath.gd"
 )
 
+const CastleIntegrityRulesData = preload(
+	"res://Scripts/Sim/CastleIntegrityRules.gd"
+)
+
 
 static func resolve(
 	game,
@@ -132,11 +136,19 @@ static func _resolve_player_summon(
 			"lord_not_in_pool"
 		)
 
+	var blood_offering: bool = (
+		rules.circle_blood_summon
+		and CastleIntegrityRulesData.power_active(player, "SummoningCircle", rules)
+		and CastleIntegrityRulesData.can_exert(
+			player, "SummoningCircle", int(rules.circle_blood_summon_cost), rules
+		)
+	)
 	var summon_cost: int = _summon_cost(
 		game,
 		player,
 		rules,
-		chosen_lord
+		chosen_lord,
+		blood_offering
 	)
 
 	var raw_payment = decision.get(
@@ -190,6 +202,15 @@ static func _resolve_player_summon(
 		)
 	)
 
+	if blood_offering:
+		var circle_spent: int = CastleIntegrityRulesData.exert(
+			player, "SummoningCircle", int(rules.circle_blood_summon_cost), rules
+		)
+		if circle_spent <= 0:
+			return _invalid_result(
+				player_id, chosen_lord, "blood_offering_unavailable", summon_cost
+			)
+
 	for card in selected_cards:
 		assert(
 			player.hand.has(
@@ -238,12 +259,7 @@ static func _resolve_player_summon(
 	)
 
 	if marked_lord == chosen_lord:
-		player.threat = min(
-			rules.max_threat,
-			int(
-				player.threat
-			) + 1
-		)
+		CastleIntegrityRulesData.gain_threat(player, rules, 1)
 
 	if (
 		chosen_lord == "Kroni"
@@ -262,30 +278,23 @@ static func _resolve_player_summon(
 	var won: bool = false
 
 	if player.first_summon_done:
-		var tear_event: Dictionary = _gain_neutral_tear(
-			game
-		)
+		var tear_event: Dictionary = {}
+		match String(rules.resummon_tear_mode):
+			"neutral":
+				tear_event = _gain_neutral_tear(game)
+				tear_gain = 1
+			"summoner":
+				tear_event = _gain_personal_tear(game, player)
+				tear_gain = 1
+			"none":
+				pass
+			_:
+				push_error("Unknown resummon Tear mode: %s" % String(rules.resummon_tear_mode))
 
-		tear_gain = 1
-
-		harvested_card = String(
-			tear_event.get(
-				"harvested_card",
-				""
-			)
-		)
-
-		harvested_by = int(
-			tear_event.get(
-				"harvested_by",
-				-1
-			)
-		)
-
-		won = _check_win(
-			game,
-			rules
-		)
+		if not tear_event.is_empty():
+			harvested_card = String(tear_event.get("harvested_card", ""))
+			harvested_by = int(tear_event.get("harvested_by", -1))
+			won = _check_win(game, rules)
 	else:
 		player.first_summon_done = true
 
@@ -319,7 +328,8 @@ static func _summon_cost(
 	game,
 	player,
 	rules: RuleConfig,
-	lord_id: String
+	lord_id: String,
+	blood_offering: bool = false
 ) -> int:
 	var lord_data: Dictionary = (
 		GameSetupData.LORD_CONTENT.get(
@@ -347,8 +357,21 @@ static func _summon_cost(
 	):
 		cost = rules.gremory_summon_cost
 
-	if player.castles.has(
-		"SummoningCircle"
+	var blood_available: bool = (
+		blood_offering
+		or (
+			rules.circle_blood_summon
+			and CastleIntegrityRulesData.power_active(player, "SummoningCircle", rules)
+			and CastleIntegrityRulesData.can_exert(
+				player, "SummoningCircle", int(rules.circle_blood_summon_cost), rules
+			)
+		)
+	)
+	if blood_available:
+		cost -= maxi(0, int(rules.circle_blood_summon_discount))
+	elif (
+		not rules.circle_blood_summon
+		and player.castles.has("SummoningCircle")
 	):
 		cost -= SUMMONING_CIRCLE_DISCOUNT
 
@@ -414,10 +437,8 @@ static func _calculate_lord_defense(
 	elif player.threat >= 2:
 		defense -= 1
 
-	if player.castles.has(
-		"Bastion"
-	):
-		defense += 2
+	if player.castles.has("Bastion"):
+		defense += maxi(0, int(rules.bastion_lord_def_bonus))
 
 	return max(
 		0,
@@ -499,6 +520,40 @@ static func _find_unselected_card(
 			return card
 
 	return null
+
+
+static func _gain_personal_tear(
+	game,
+	player
+) -> Dictionary:
+	player.tears += 1
+	# Reuse the same Gremory Harvest trigger as a neutral Tear. Temporarily
+	# avoid changing the Veil twice by inlining its harvest scan here.
+	var harvested_card: String = ""
+	var harvested_by: int = -1
+	for candidate in game.players:
+		if (
+			candidate.lord != "Gremory"
+			or not candidate.alive
+			or candidate.gremory_veil_draw_done
+		):
+			continue
+		candidate.gremory_veil_draw_done = true
+		for index: int in range(game.discard.size() - 1, -1, -1):
+			var card = game.discard[index]
+			if int(card.value) < 4:
+				continue
+			game.discard.remove_at(index)
+			candidate.hand.append(card)
+			harvested_card = _card_id(card)
+			harvested_by = int(candidate.pid)
+			break
+		break
+	game.refresh_derived_values()
+	return {
+		"harvested_card": harvested_card,
+		"harvested_by": harvested_by,
+	}
 
 
 static func _gain_neutral_tear(

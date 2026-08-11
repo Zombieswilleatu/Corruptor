@@ -315,16 +315,16 @@ static func resolve(
 
 	acting_player.momentum_refund_due = 0
 
-	var discarded_committed: Array = (
-		acting_player.committed.duplicate()
+	var preserve_frontline_ward: bool = (
+		rules.ward_frontline
+		and String(acting_player.action) == "Ward"
 	)
-
-	for card in discarded_committed:
-		game.discard.append(
-			card
-		)
-
-	acting_player.committed.clear()
+	var discarded_committed: Array = []
+	if not preserve_frontline_ward:
+		discarded_committed = acting_player.committed.duplicate()
+		for card in discarded_committed:
+			game.discard.append(card)
+		acting_player.committed.clear()
 
 	game.refresh_derived_values()
 

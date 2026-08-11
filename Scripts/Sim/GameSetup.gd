@@ -6,6 +6,10 @@ const GameStateData = preload(
 	"res://Scripts/Sim/GameState.gd"
 )
 
+const CastleIntegrityRulesData = preload(
+	"res://Scripts/Sim/CastleIntegrityRules.gd"
+)
+
 
 const OPENING_HAND_SIZE: int = 5
 const SUMMONING_CIRCLE_DISCOUNT: int = 2
@@ -127,7 +131,8 @@ static func setup_game(
 
 	for player in game.players:
 		_prepare_player_for_setup(
-			player
+			player,
+			rules
 		)
 
 		for draw_index in range(
@@ -180,7 +185,10 @@ static func _reset_game_state(game) -> void:
 	game.removed_from_play.clear()
 
 
-static func _prepare_player_for_setup(player) -> void:
+static func _prepare_player_for_setup(
+	player,
+	rules: RuleConfig
+) -> void:
 	assert(
 		not player.lord_pool.is_empty(),
 		"Player %d has no Lords in their pool."
@@ -255,11 +263,31 @@ static func _prepare_player_for_setup(player) -> void:
 	player.penitent_temp_guards.clear()
 
 	player.castles.clear()
+	player.castle_integrity.clear()
+	player.castle_construction_progress.clear()
+	player.castle_action_used_this_round = false
+	player.castle_repairs.clear()
+	player.castle_scars.clear()
+	player.lost_castles.clear()
 
-	for castle_name: String in ALL_CASTLES:
-		player.castles.append(
-			castle_name
+	var opening_castles: Array[String] = []
+
+	if rules.castle_integrity and rules.castle_loadout:
+		opening_castles = CastleIntegrityRulesData.opening_castles(
+			String(player.lord),
+			rules.starting_castles
 		)
+	else:
+		for castle_name: String in ALL_CASTLES:
+			opening_castles.append(castle_name)
+
+	for castle_name: String in opening_castles:
+		player.castles.append(castle_name)
+
+		if rules.castle_integrity:
+			player.castle_integrity[castle_name] = (
+				CastleIntegrityRulesData.max_integrity(castle_name)
+			)
 
 	player.ruined_castles.clear()
 	player.profaned_castles.clear()
@@ -347,12 +375,25 @@ static func _force_opening_summon(
 
 	player.lord = chosen_lord
 
+	var blood_offering: bool = (
+		rules.circle_blood_summon
+		and CastleIntegrityRulesData.power_active(player, "SummoningCircle", rules)
+		and CastleIntegrityRulesData.can_exert(
+			player, "SummoningCircle", int(rules.circle_blood_summon_cost), rules
+		)
+	)
 	var summon_cost: int = _summon_cost(
 		chosen_lord,
 		player,
 		game,
-		rules
+		rules,
+		blood_offering
 	)
+
+	if blood_offering:
+		CastleIntegrityRulesData.exert(
+			player, "SummoningCircle", int(rules.circle_blood_summon_cost), rules
+		)
 
 	_pay_from_hand(
 		game,
@@ -380,7 +421,8 @@ static func _summon_cost(
 	lord_id: String,
 	player,
 	game,
-	rules: RuleConfig
+	rules: RuleConfig,
+	blood_offering: bool = false
 ) -> int:
 	var lord_data: Dictionary = LORD_CONTENT.get(
 		lord_id,
@@ -400,8 +442,11 @@ static func _summon_cost(
 	if lord_id == "Gremory" and rules.gremory_summon_cost > 0:
 		cost = rules.gremory_summon_cost
 
-	if player.castles.has(
-		"SummoningCircle"
+	if blood_offering:
+		cost -= maxi(0, int(rules.circle_blood_summon_discount))
+	elif (
+		not rules.circle_blood_summon
+		and player.castles.has("SummoningCircle")
 	):
 		cost -= SUMMONING_CIRCLE_DISCOUNT
 
@@ -529,10 +574,8 @@ static func _calculate_lord_defense(
 	elif player.threat >= 2:
 		defense -= 1
 
-	if player.castles.has(
-		"Bastion"
-	):
-		defense += 2
+	if player.castles.has("Bastion"):
+		defense += maxi(0, int(rules.bastion_lord_def_bonus))
 
 	return max(
 		0,

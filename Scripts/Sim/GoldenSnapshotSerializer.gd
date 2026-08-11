@@ -291,6 +291,17 @@ static func snapshot_player(
 		),
 	}
 
+	if rules != null and rules.castle_integrity:
+		snapshot["castle_integrity"] = _canonicalize_json_value(
+			player.castle_integrity
+		)
+		snapshot["castle_construction_progress"] = _canonicalize_json_value(
+			player.castle_construction_progress
+		)
+		snapshot["castle_action_used_this_round"] = bool(
+			player.castle_action_used_this_round
+		)
+
 	if rules != null and not rules.lab_profile_version.is_empty():
 		snapshot["odradek_bank"] = card_id(player.odradek_bank)
 		snapshot["consecutive_wards"] = int(player.consecutive_wards)
@@ -374,10 +385,8 @@ static func _calculate_lord_defense(
 	elif threat >= 2:
 		defense -= 1
 
-	if player.castles.has(
-		"Bastion"
-	):
-		defense += 2
+	if player.castles.has("Bastion"):
+		defense += maxi(0, int(effective_rules.bastion_lord_def_bonus))
 
 	return max(
 		0,

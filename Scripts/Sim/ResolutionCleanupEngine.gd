@@ -330,6 +330,10 @@ static func _resolve_inevitable_ruin(
 		target_castle
 	)
 
+	if rules.castle_integrity:
+		opponent.castle_integrity[target_castle] = 0
+		opponent.castle_construction_progress.erase(target_castle)
+
 	if not opponent.ruined_castles.has(
 		target_castle
 	):

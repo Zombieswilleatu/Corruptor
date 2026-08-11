@@ -337,6 +337,8 @@ static func resolve(
 				)
 			)
 		):
+			if rules.ward_frontline:
+				_flush_frontline_ward_commitments(game)
 			return _finish_result(
 				game,
 				prelude_result,
@@ -346,6 +348,11 @@ static func resolve(
 				{},
 				"actions"
 			)
+
+	# Ward reinforcements remain for both primary actions regardless of
+	# initiative. They leave only after that battle window closes.
+	if rules.ward_frontline:
+		_flush_frontline_ward_commitments(game)
 
 	if typeof(
 		raw_reflex_provider
@@ -541,6 +548,15 @@ static func resolve(
 		cleanup_result,
 		stopped_stage
 	)
+
+
+static func _flush_frontline_ward_commitments(game) -> void:
+	for player in game.players:
+		if String(player.action) != ACTION_WARD:
+			continue
+		for card in player.committed:
+			game.discard.append(card)
+		player.committed.clear()
 
 
 static func _resolve_committed_action(

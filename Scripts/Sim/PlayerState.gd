@@ -2,6 +2,11 @@ class_name PlayerState
 extends RefCounted
 
 
+const CastleIntegrityRulesData = preload(
+	"res://Scripts/Sim/CastleIntegrityRules.gd"
+)
+
+
 var pid: int = 0
 var lord: String = ""
 var alive: bool = true
@@ -15,6 +20,7 @@ var repair_token: int = 0
 
 var repaired_this_round: bool = false
 var repair_token_used_this_repair: bool = false
+var castle_action_used_this_round: bool = false
 
 # A banished Lord normally returns at its printed Threat. The v6.5 decay
 # profile records the scarred return value here and consumes it when that Lord
@@ -80,6 +86,8 @@ var penitent_temp_guards: Array = []
 # v6.5 structural state.  These fields are persistent board facts, not UI
 # hints: they must survive simulation copies and appear in trace snapshots.
 var castle_repairs: Dictionary = {}
+var castle_integrity: Dictionary = {}
+var castle_construction_progress: Dictionary = {}
 var castle_scars: Dictionary = {}
 var lost_castles: Array[String] = []
 var ward_turned: Dictionary = {}
@@ -109,6 +117,30 @@ func _init(
 	lord_pool = p_lord_pool.duplicate()
 
 
+func attack_card_value(card, rules: RuleConfig, siege: bool = false) -> int:
+	if card == null:
+		return 0
+	var printed: int = int(card.value)
+	if rules == null:
+		return printed
+	if CastleIntegrityRulesData.power_active(self, "SiegeEngine", rules):
+		var scope: String = String(rules.siege_engine_scope)
+		if scope == "all" or (scope == "siege" and siege):
+			return printed
+	var penalty: int = maxi(0, int(rules.attack_offsuit_penalty))
+	if penalty <= 0 or String(card.suit) == String(rules.attack_penalty_exempt_suit):
+		return printed
+	return maxi(int(rules.attack_offsuit_floor), printed - penalty)
+
+
+func attack_value(rules: RuleConfig, siege: bool = false, cards_override = null) -> int:
+	var source: Array = committed if cards_override == null else cards_override
+	var total: int = 0
+	for card in source:
+		total += attack_card_value(card, rules, siege)
+	return total
+
+
 func reset_round_state() -> void:
 	was_lord_attacked_prev = was_hunted
 	was_castle_attacked_prev = was_sieged
@@ -126,6 +158,7 @@ func reset_round_state() -> void:
 
 	repaired_this_round = false
 	repair_token_used_this_repair = false
+	castle_action_used_this_round = false
 
 	pending_profane = ""
 	orias_snare_active = false
@@ -173,6 +206,7 @@ func duplicate_state() -> PlayerState:
 
 	copy.repaired_this_round = repaired_this_round
 	copy.repair_token_used_this_repair = repair_token_used_this_repair
+	copy.castle_action_used_this_round = castle_action_used_this_round
 	copy.return_threat_override = return_threat_override
 
 	copy.first_summon_done = first_summon_done
@@ -237,6 +271,8 @@ func duplicate_state() -> PlayerState:
 	)
 
 	copy.castle_repairs = castle_repairs.duplicate(true)
+	copy.castle_integrity = castle_integrity.duplicate(true)
+	copy.castle_construction_progress = castle_construction_progress.duplicate(true)
 	copy.castle_scars = castle_scars.duplicate(true)
 	# Preserve typed-array metadata while copying the v6.5 board state. Assigning
 	# a generic duplicate at runtime is rejected by Godot for Array[String].
@@ -248,10 +284,23 @@ func duplicate_state() -> PlayerState:
 	for marcher: Dictionary in _duplicate_marchers(marchers):
 		copy.marchers.append(marcher)
 
-	copy.castles = castles.duplicate()
-	copy.ruined_castles = ruined_castles.duplicate()
-	copy.profaned_castles = profaned_castles.duplicate()
-	copy.lord_pool = lord_pool.duplicate()
+	# Preserve typed Array[String] metadata. Array.duplicate() is generic at
+	# runtime and cannot be assigned directly back into these typed fields.
+	copy.castles.clear()
+	for castle_name: String in castles:
+		copy.castles.append(castle_name)
+
+	copy.ruined_castles.clear()
+	for castle_name: String in ruined_castles:
+		copy.ruined_castles.append(castle_name)
+
+	copy.profaned_castles.clear()
+	for castle_name: String in profaned_castles:
+		copy.profaned_castles.append(castle_name)
+
+	copy.lord_pool.clear()
+	for lord_name: String in lord_pool:
+		copy.lord_pool.append(lord_name)
 
 	copy.sigils = sigils.duplicate(true)
 	copy.derived_lord_def = derived_lord_def

@@ -113,6 +113,9 @@ extends Resource
 @export var ward_commit_defense: bool = false
 @export var ward_read: bool = false
 @export var ward_garrison_refund: bool = false
+# v7.4: Ward commitments are temporary front-line reinforcements. Historical
+# profiles leave this off so the old threshold-turn semantics remain inspectable.
+@export var ward_frontline: bool = false
 @export var sigil_flat: bool = false
 @export var humbaba_sigil_commit: bool = false
 @export var humbaba_reactive_lane: bool = false
@@ -147,7 +150,48 @@ extends Resource
 # profile.  They are configuration, not an accidental promise to ship them.
 @export var adaptive_doctrine: bool = false
 @export var castle_loadout: bool = false
+# Historical identity field. New code uses starting_castles; this stays only so
+# old DE v2 traces can still be inspected before the canonical golden reset.
 @export var max_castles: int = 3
+@export var starting_castles: int = 5
+@export var castle_type_count: int = 5
+@export var castle_unique_types: bool = true
+@export var castle_doctrine_denominator: int = 5
+@export var castle_integrity: bool = false
+@export var castle_granular_repair: bool = false
+@export var castle_construction: bool = false
+@export var castle_irreparable: bool = false
+@export var castle_damage_mode: String = ""
+@export var castle_construction_mode: String = ""
+@export var castle_action_limit: int = 0
+# v7.4 Castle identity lock. Defaults preserve historical profiles; lab_v6_5
+# opts into the current measured rules.
+@export var castle_power_gate_mode: String = "owned"
+@export var castle_operational_floor: int = 7
+@export var keep_sanctuary: bool = false
+@export var bastion_wall: bool = false
+@export var bastion_lord_def_bonus: int = 2
+@export var stockpile_filter: bool = false
+@export var circle_blood_conduit: bool = false
+@export var circle_conduit_cost: int = 3
+@export var circle_blood_summon: bool = false
+@export var circle_blood_summon_cost: int = 3
+@export var circle_blood_summon_discount: int = 3
+@export var resummon_tear_mode: String = "neutral"
+# 6.10 suit economy. Defaults preserve DE v2; the measured lab enables them.
+@export var siege_engine_bypass: bool = true
+@export var siege_engine_scope: String = "none"
+@export var attack_offsuit_penalty: int = 0
+@export var attack_penalty_exempt_suit: String = "Butcher"
+@export var attack_offsuit_floor: int = 1
+@export var construction_action_cap: int = 0
+@export var repair_wright_mode: String = "off"
+@export var profane_requires_full_integrity: bool = false
+@export var ruination_soul_bonus: int = 0
+@export var ruination_soul_source: String = ""
+@export var repair_token_integrity: int = 0
+@export var master_builder_integrity: int = 0
+@export var rapid_construction_integrity: int = 0
 @export var profane_no_castle_gate: bool = false
 @export var castleless_siege: bool = false
 @export var castleless_tear_neutral: bool = true
@@ -183,10 +227,10 @@ static func base_v5_29() -> RuleConfig:
 
 
 static func lab_v6_5() -> RuleConfig:
-	# The measured 6.5 lab profile.  It starts from canonical DE v2 so the
-	# established lord-power corrections remain authoritative, then applies only
-	# the systems included in LAB_MEASURED_CONFIG.  Loadouts and adaptive
-	# doctrine intentionally stay off: neither was in the measured bundle.
+	# The measured lab starts from canonical DE v2, then explicitly restores
+	# every inherited baseline value used by the 6.8.6 measurements. This prevents
+	# later canonical changes from silently altering the lab profile. Loadouts and
+	# adaptive doctrine remain off because neither was in the measured bundle.
 	var config := RuleConfig.de_v2()
 
 	# The lab was measured on the 12-step Cataclysm checkpoint.  Only its
@@ -197,6 +241,15 @@ static func lab_v6_5() -> RuleConfig:
 	config.dominion_requirement = 5
 	config.final_collapse_threshold = 26
 
+	# Measured baseline inheritance. These are deliberate lab values, not
+	# canonical DE v2 defaults.
+	config.invocation_gate = 7
+	config.profane_ruins_req = 2
+	config.ai_dominion_drive = false
+	config.kroni_hunger_decay = false
+	config.neutral_tear_on_banish = false
+	config.gremory_summon_cost = 0
+
 	config.fix_a = true
 	config.fix_b = true
 
@@ -206,11 +259,12 @@ static func lab_v6_5() -> RuleConfig:
 	config.ward_commit_defense = true
 	config.ward_read = true
 	config.ward_garrison_refund = true
+	config.ward_frontline = true
 	config.sigil_flat = true
 	# Humbaba v0.2 keeps Woven Into the Stones, Toll, and Breach. The
 	# measured lab removes the older turtle stack and replaces it with H5.
 	config.humbaba_seal = false
-	config.humbaba_gate4 = false
+	config.humbaba_gate4 = true
 	config.humbaba_patient = false
 	config.humbaba_sigil_commit = false
 	config.humbaba_reactive_lane = true
@@ -220,7 +274,7 @@ static func lab_v6_5() -> RuleConfig:
 	config.kani_hand_cost = true
 
 	# Odradek Interlock, Kroni revision, and roster-wide Ward doctrine corrections.
-	config.lab_profile_version = "6.8.6-lab"
+	config.lab_profile_version = "7.4.0-castle-rules-lock"
 	config.odr_recoil_bank = true
 	config.reconfig_neutral = true
 	config.reconfig_tokens_needed = 3
@@ -249,9 +303,9 @@ static func lab_v6_5() -> RuleConfig:
 	config.kal_lane_scorch = true
 	config.kal_lane_scorch_thresh = 2
 
-	config.castle_scarring = true
-	config.castle_permanent_loss = true
-	config.veil_on_permanent_loss = true
+	config.castle_scarring = false
+	config.castle_permanent_loss = false
+	config.veil_on_permanent_loss = false
 	config.lord_threat_retention = true
 
 	config.reflex_bid = false
@@ -259,6 +313,52 @@ static func lab_v6_5() -> RuleConfig:
 	config.momentum_band = 3
 	config.fog_of_war = true
 	config.market_refresh = true
+
+	# Castle Integrity 6.9.0 canonical migration. Any three Castle types open;
+	# granular construction may later expand the board to all five unique types.
+	config.castle_loadout = true
+	config.starting_castles = 3
+	config.castle_type_count = 5
+	config.castle_unique_types = true
+	config.castle_doctrine_denominator = 5
+	config.castle_integrity = true
+	config.castle_granular_repair = true
+	config.castle_construction = true
+	config.castle_irreparable = true
+	config.castle_damage_mode = "arriving_strength"
+	config.castle_construction_mode = "granular"
+	config.castle_action_limit = 1
+	# v7.4 locked Castle powers. Defunct (<7 Integrity) shuts printed powers off;
+	# Bastion's physical wall is the one exception and persists while it stands.
+	config.castle_power_gate_mode = "operational"
+	config.castle_operational_floor = 7
+	config.keep_sanctuary = true
+	config.bastion_wall = true
+	config.bastion_lord_def_bonus = 0
+	config.stockpile_filter = true
+	config.circle_blood_conduit = true
+	config.circle_conduit_cost = 3
+	config.circle_blood_summon = true
+	config.circle_blood_summon_cost = 3
+	config.circle_blood_summon_discount = 3
+	config.resummon_tear_mode = "none"
+	# 6.10 suit economy: Butchers attack at print; off-suits lose 1 (floor 1).
+	# Wrights alone pay Repair. Siege Engine grants Forge Discipline on Sieges
+	# instead of reordering the combat layers. Construction gains at most 5/action.
+	config.siege_engine_bypass = false
+	config.siege_engine_scope = "siege"
+	config.attack_offsuit_penalty = 1
+	config.attack_penalty_exempt_suit = "Butcher"
+	config.attack_offsuit_floor = 1
+	config.construction_action_cap = 5
+	config.repair_wright_mode = "strict"
+	config.profane_requires_full_integrity = true
+	config.ruination_soul_bonus = 1
+	config.ruination_soul_source = "enemy_siege"
+	config.repair_token_integrity = 3
+	config.master_builder_integrity = 2
+	config.rapid_construction_integrity = 1
+	config.profane_no_castle_gate = true
 
 	config.marching = true
 	config.march_max_in_flight = 1

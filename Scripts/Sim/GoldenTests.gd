@@ -96,6 +96,14 @@ const LabV65TestsData = preload(
 	"res://Scripts/Sim/LabV65Tests.gd"
 )
 
+const CastleIntegrityTestsData = preload(
+	"res://Scripts/Sim/CastleIntegrityTests.gd"
+)
+
+const CastleRulesV74TestsData = preload(
+	"res://Scripts/Sim/CastleRulesV74Tests.gd"
+)
+
 
 const LordMatrixTestsData = preload(
 	"res://Scripts/Sim/LordMatrixTests.gd"
@@ -253,6 +261,16 @@ static func run_startup_checks(
 		LabV65TestsData.run(
 			rules
 		)
+	)
+
+	messages.append_array(
+		CastleIntegrityTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		CastleRulesV74TestsData.run()
 	)
 
 	messages.append_array(

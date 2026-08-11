@@ -2,6 +2,10 @@ class_name DrawEngine
 extends RefCounted
 
 
+const CastleIntegrityRulesData = preload(
+	"res://Scripts/Sim/CastleIntegrityRules.gd"
+)
+
 static func draw_to_hand(
 	game,
 	player,
@@ -95,12 +99,7 @@ static func draw_to_hand(
 		player.kanifous_outside_draws += 1
 
 		if game.breach == "Kanifous":
-			player.threat = min(
-				rules.max_threat,
-				int(
-					player.threat
-				) + 1
-			)
+			CastleIntegrityRulesData.gain_threat(player, rules, 1)
 
 			kanifous_breach_triggered = true
 

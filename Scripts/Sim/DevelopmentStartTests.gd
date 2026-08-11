@@ -299,13 +299,8 @@ static func _test_orias_snare(
 	orias.alive = true
 	orias.threat = 2
 
-	opponent.hand = _cards_from_ids([
-		"Butcher:1",
-	])
-
-	opponent.garrison = _cards_from_ids([
-		"Vulture:2",
-	])
+	opponent.hand.clear()
+	opponent.garrison.clear()
 
 	var result: Dictionary = (
 		DevelopmentStartEngineData.resolve(

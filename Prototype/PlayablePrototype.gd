@@ -9,6 +9,10 @@ const SiegeResolutionEngineData = preload(
 	"res://Scripts/Sim/SiegeResolutionEngine.gd"
 )
 
+const CastleIntegrityRulesData = preload(
+	"res://Scripts/Sim/CastleIntegrityRules.gd"
+)
+
 const SummonEngineData = preload(
 	"res://Scripts/Sim/SummonEngine.gd"
 )
@@ -45,11 +49,19 @@ const ACTIONS: Array[String] = [
 	"Profane",
 ]
 
+const CASTLE_ORDER: Array[String] = [
+	"Keep",
+	"Bastion",
+	"SummoningCircle",
+	"Stockpile",
+	"SiegeEngine",
+]
+
 const DEFAULT_SEED: int = 20260724
 
 const LORD_CARD_ABILITIES: Dictionary = {
 	"Orias": [
-		"[b]Snare[/b] — During Development, if Orias is living and below Threat 3, gain 1 Threat and restrict an opponent with 2+ Hand/Garrison cards to one Deploy move.",
+		"[b]Snare[/b] — At the start of Development, if Orias is living and below Threat 3, gain 1 Threat to restrict the enemy Lord to one total Guard move this Development.",
 		"[b]Relentless Pursuit[/b] — Hunts gain +1 strength, plus another +1 against a Lord at Threat 2+.",
 		"[b]The Mark[/b] — Defeating a Lord Guard raises that Lord's Threat (2 at Threat 2+). Banishing a Lord at Threat 3+ grants +2 bonus Souls and marks it; it returns with +1 Threat. Orias bypasses that marked target's Recoil/Backwash.",
 		"[b]Breach: Frenzy[/b] — Players at Threat 3+ cannot Deploy cards from Garrison to Guard zones.",
@@ -74,10 +86,10 @@ const LORD_CARD_ABILITIES: Dictionary = {
 	],
 	"Kalligan": [
 		"[b]SCORCH[/b] — A persistent fire starts at level 1, rises by 1 each round to 3, and defeats Guards at or below its level. It also burns matching-lane marchers at current value 2 or less. Each round it stands, gain Flame tokens equal to its level; 5 Flame becomes 1 Soul.",
-		"[b]Forge-Repair[/b] — Kalligan's first Repair costs 7 less; later Repairs cost 5 less. Every living Kalligan Repair Scorches the enemy Lord zone.",
+		"[b]Forge-Repair[/b] — A living Kalligan restores +2 Integrity once per Repair action. Every such Repair Scorches the enemy Lord zone.",
 		"[b]Pyroclasm[/b] — Sieges gain +1 strength, or +2 if the defender already has a Ruined Castle.",
 		"[b]Wildfire / Inferno[/b] — After ruining a Castle, Scorch its Castle zone (or Lord if none remain). Inferno defeats the highest enemy Lord Guard without gaining Threat; if none exists, Scorch the Lord zone.",
-		"[b]Breach[/b] — All Repairs cost 1 less.",
+		"[b]Breach[/b] — Every Repair restores +1 additional Integrity.",
 	],
 	"Gremory": [
 		"[b]Picking the Bones[/b] — During Development draw 1 extra card, +1 if either player has a Ruin, and +1 more if Gremory has a Ruin.",
@@ -97,7 +109,7 @@ const LORD_CARD_ABILITIES: Dictionary = {
 		"[b]Breach[/b] — Every draw outside the Draw step gives its recipient +1 Threat.",
 	],
 	"Humbaba": [
-		"[b]Woven Into the Stones[/b] — Lord DEF equals 2 + active Castles; Bastion adds its usual +2, and Threat reductions still apply.",
+		"[b]Woven Into the Stones[/b] — Lord DEF equals 2 + standing Castles; Threat reductions still apply. Bastion no longer adds Lord DEF.",
 		"[b]Toll[/b] — Once per round under severe Soul pressure, ruin one of Humbaba's own Castles to remove 1 enemy Soul and create 1 Neutral Tear.",
 		"[b]Reactive Lane[/b] — Humbaba may hold a second marcher only as a response. An enemy marcher must already occupy the lane, and the new marcher is forced into it; Humbaba cannot open two attacks.",
 		"[b]Breach: The Stones Forget[/b] — While Humbaba is Banished, every active Castle has 1 less structural DEF (minimum 1).",
@@ -105,7 +117,7 @@ const LORD_CARD_ABILITIES: Dictionary = {
 }
 
 
-const UI_EXPLANATION_PATCH_VERSION: String = "ui-explanations-v1"
+const UI_EXPLANATION_PATCH_VERSION: String = "ui-explanations-v2-castles-v74"
 
 const VEIL_COLLAPSE_THRESHOLD: int = 7
 const VEIL_WANING_THRESHOLD: int = 9
@@ -131,33 +143,39 @@ const THREAT_LABEL: String = (
 )
 
 const CASTLES_LABEL: String = (
-	"[hint=CASTLES — Active Castles grant their printed abilities. Ruined Castles "
-	+ "can be repaired. Profaned or permanently lost Castles cannot return. "
-	+ "Repairing adds a scar that reduces future structural DEF by 2; destroying "
-	+ "a scarred Castle can permanently lose it.]Castles[/hint]"
+	"[hint=CASTLES — Each Castle has 14 maximum Integrity. At 7+ Integrity it is Operational; at 1–6 it is Defunct and its printed power is off; at 0 it is permanently Ruined. "
+	+ "Bastion's physical wall is the exception and keeps screening while it stands. Repair restores Integrity but only Wright cards may pay for it. "
+	+ "Construction can add at most 5 Integrity of progress per Castle action. Only a full-Integrity Operational Castle may be Profaned.]Castles[/hint]"
 )
 
 const CASTLE_HELP: Dictionary = {
 	"Keep": (
-		"KEEP — Base structural DEF 13. While active, your Ward and Sigil value "
-		+ "is increased by 1."
+		"KEEP — 14 maximum Integrity. Sanctuary (Operational at 7+): when your Lord "
+		+ "would be Banished by a Hunt, transfer the exact lethal excess to Keep. If Keep "
+		+ "can absorb it without being Ruined, your Lord survives."
 	),
 	"Bastion": (
-		"BASTION — Base structural DEF 11. While active, your Lord gains 2 DEF."
+		"BASTION — 14 maximum Integrity. Bulwark: while Bastion stands at any Integrity, "
+		+ "Siege damage aimed at another Castle hits Bastion first; excess carries through. "
+		+ "Bastion may also be targeted directly."
 	),
 	"SummoningCircle": (
-		"SUMMONING CIRCLE — Base structural DEF 9. While active, your Lord costs "
-		+ "2 less total card value to Summon."
+		"SUMMONING CIRCLE — 14 maximum Integrity. Operational at 7+. Blood Conduit: "
+		+ "when Threat would rise through a Lord-DEF breakpoint (2/3/4), burn 3 Integrity "
+		+ "to prevent 1 Threat. Blood Offering: when Summoning, burn 3 Integrity to reduce "
+		+ "the Summon cost by 3."
 	),
 	"Stockpile": (
-		"STOCKPILE — Base structural DEF 8. While active, draw 1 additional card "
-		+ "during the normal Draw step."
+		"STOCKPILE — 14 maximum Integrity. Selective Stores (Operational at 7+): after "
+		+ "the normal Draw step, draw 2 cards, keep 1, and discard the other."
 	),
 	"SiegeEngine": (
-		"SIEGE ENGINE — Base structural DEF 7. While active, your Sieges bypass "
-		+ "the target Castle's structural DEF. It also enables Deimos's War Machine."
+		"SIEGE ENGINE — 14 maximum Integrity. Forge Discipline (Operational at 7+): "
+		+ "your Sieges ignore the non-Butcher attack penalty. Guards and Sigils otherwise "
+		+ "resolve in the normal order."
 	),
 }
+
 
 
 const MARCH_TRACK_STEPS: int = 3
@@ -183,6 +201,8 @@ var bot_state_label: RichTextLabel = null
 var human_state_label: RichTextLabel = null
 var bot_lord_card_label: RichTextLabel = null
 var human_lord_card_label: RichTextLabel = null
+var bot_castle_card_buttons: Dictionary = {}
+var human_castle_card_buttons: Dictionary = {}
 var reveal_label: RichTextLabel = null
 var event_log: RichTextLabel = null
 var dominion_track_label: RichTextLabel = null
@@ -358,28 +378,32 @@ func _build_interface() -> void:
 		breach_label
 	)
 
+	# The Castle-card board is intentionally taller than the original prototype.
+	# Keep all phase controls pinned on-screen and let only the playfield scroll.
+	var playfield_scroll := ScrollContainer.new()
+	playfield_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	playfield_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	playfield_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	playfield_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	page.add_child(playfield_scroll)
+
+	var playfield := VBoxContainer.new()
+	playfield.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	playfield.add_theme_constant_override("separation", 10)
+	playfield_scroll.add_child(playfield)
+
 	board_row = _build_board_row()
-	board_row.size_flags_vertical = (
-		Control.SIZE_EXPAND_FILL
-	)
-	page.add_child(
-		board_row
-	)
+	board_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	playfield.add_child(board_row)
 
 	marching_board_panel = _build_marching_board()
-	page.add_child(
-		marching_board_panel
-	)
+	playfield.add_child(marching_board_panel)
 
 	interaction_panel = _build_interaction_panel()
-	page.add_child(
-		interaction_panel
-	)
+	page.add_child(interaction_panel)
 
 	footer_row = _build_footer_row()
-	page.add_child(
-		footer_row
-	)
+	page.add_child(footer_row)
 
 
 func _build_setup_row() -> Control:
@@ -513,8 +537,8 @@ func _build_board_row() -> Control:
 		)
 	)
 	bot_panel.custom_minimum_size = Vector2(
-		290,
-		290
+		350,
+		480
 	)
 	bot_panel.size_flags_horizontal = (
 		Control.SIZE_EXPAND_FILL
@@ -534,11 +558,15 @@ func _build_board_row() -> Control:
 		)
 	)
 	bot_state_label = _new_rich_text()
+	bot_state_label.custom_minimum_size = Vector2(0, 128)
 	bot_state_label.size_flags_vertical = (
 		Control.SIZE_EXPAND_FILL
 	)
 	bot_box.add_child(
 		bot_state_label
+	)
+	bot_box.add_child(
+		_build_castle_card_board(false)
 	)
 	var bot_card_panel := _new_lord_card_panel()
 	bot_lord_card_label = (
@@ -560,7 +588,7 @@ func _build_board_row() -> Control:
 	)
 	center_panel.custom_minimum_size = Vector2(
 		480,
-		330
+		480
 	)
 	center_panel.size_flags_horizontal = (
 		Control.SIZE_EXPAND_FILL
@@ -780,8 +808,8 @@ func _build_board_row() -> Control:
 		)
 	)
 	human_panel.custom_minimum_size = Vector2(
-		290,
-		290
+		350,
+		480
 	)
 	human_panel.size_flags_horizontal = (
 		Control.SIZE_EXPAND_FILL
@@ -801,11 +829,15 @@ func _build_board_row() -> Control:
 		)
 	)
 	human_state_label = _new_rich_text()
+	human_state_label.custom_minimum_size = Vector2(0, 128)
 	human_state_label.size_flags_vertical = (
 		Control.SIZE_EXPAND_FILL
 	)
 	human_box.add_child(
 		human_state_label
+	)
+	human_box.add_child(
+		_build_castle_card_board(true)
 	)
 	var human_card_panel := _new_lord_card_panel()
 	human_lord_card_label = (
@@ -1408,7 +1440,9 @@ func _after_development(
 		return
 
 	if controller.stage == PlayableRoundControllerData.Stage.REPAIR:
-		_enter_development_choice("Repair — restore one Ruined Castle, or pass.")
+		if development_option_button != null:
+			development_option_button.set_pressed_no_signal(false)
+		_enter_development_choice("Castle action — repair one damaged Castle or add progress to one unbuilt Castle.")
 		return
 
 	if controller.stage == PlayableRoundControllerData.Stage.DOMINION_RITES:
@@ -1510,6 +1544,8 @@ func _on_action_selected(
 		_clear_card_selection()
 
 	_refresh_target_options()
+	_refresh_castle_cards(controller.get_human_player(), true)
+	_refresh_castle_cards(controller.get_bot_player(), false)
 	_refresh_selection_text()
 	_refresh_staging_area()
 
@@ -1573,6 +1609,8 @@ func _on_card_toggled(
 
 	_refresh_selection_text()
 	_refresh_staging_area()
+	if controller != null and controller.stage == PlayableRoundControllerData.Stage.REPAIR:
+		_refresh_target_info()
 
 
 func _on_target_selected(
@@ -1594,6 +1632,10 @@ func _on_target_selected(
 	_refresh_staging_area()
 	_refresh_target_info()
 	_refresh_marching_board()
+	_refresh_castle_cards(controller.get_human_player(), true)
+	_refresh_castle_cards(controller.get_bot_player(), false)
+	if controller.stage == PlayableRoundControllerData.Stage.REPAIR:
+		_refresh_all()
 
 
 func _on_secondary_target_selected(
@@ -1602,6 +1644,8 @@ func _on_secondary_target_selected(
 	_refresh_selection_text()
 	_refresh_target_info()
 	_refresh_marching_board()
+	_refresh_castle_cards(controller.get_human_player(), true)
+	_refresh_castle_cards(controller.get_bot_player(), false)
 
 
 func _on_summon_pressed() -> void:
@@ -1863,17 +1907,25 @@ func _on_confirm_pressed() -> void:
 		return
 
 	if controller.stage == PlayableRoundControllerData.Stage.REPAIR:
-		var repair_castle: String = _selected_target_id()
-		if repair_castle.is_empty():
-			_set_phase_message("Choose a Ruined Castle, or use Pass Repair.")
+		var castle_action: String = _selected_castle_action()
+		var castle_name: String = _selected_castle_name()
+		if castle_action.is_empty() or castle_name.is_empty():
+			_set_phase_message("Choose a damaged Castle to repair or an available type to construct.")
+			return
+		if _selected_card_ids().is_empty():
+			_set_phase_message("Select at least one Hand or Garrison card as payment.")
 			return
 		var repair_result: Dictionary = controller.resolve_human_repair({
-			"castle": repair_castle,
+			"action": castle_action,
+			"castle": castle_name,
 			"payment": _selected_card_ids(),
-			"use_token": development_option_button.button_pressed,
+			"use_token": (
+				castle_action == "repair"
+				and development_option_button.button_pressed
+			),
 		})
 		if _show_failure_if_needed(repair_result, false):
-			_set_phase_message("Repair rejected: %s" % String(repair_result.get("reason", "invalid_repair")))
+			_set_phase_message("Castle action rejected: %s" % String(repair_result.get("reason", "invalid_castle_action")))
 			return
 		_after_development(repair_result)
 		return
@@ -1952,8 +2004,14 @@ func _on_confirm_pressed() -> void:
 
 	var human_commit = controller.get_human_player()
 	_log(
-		"You sealed %s with %d committed strength."
-		% [selected_action, _card_value_total(human_commit.committed)]
+		"You sealed %s with %d committed attack value."
+		% [
+			selected_action,
+			human_commit.attack_value(
+				controller.rules,
+				selected_action == "Siege"
+			),
+		]
 	)
 	for player_result_raw in result.get("players", []):
 		if typeof(player_result_raw) != TYPE_DICTIONARY:
@@ -2210,6 +2268,8 @@ func _refresh_all() -> void:
 	bot_lord_card_label.text = _lord_card_text(
 		bot
 	)
+	_refresh_castle_cards(human, true)
+	_refresh_castle_cards(bot, false)
 	_refresh_staging_area()
 	_refresh_marching_board()
 
@@ -2297,14 +2357,20 @@ func _refresh_all() -> void:
 			next_round_button.visible = false
 
 		PlayableRoundControllerData.Stage.REPAIR:
-			phase_label.text = "Development — Repair"
-			confirm_button.text = "Repair"
+			phase_label.text = "Development — Castle Action"
+			var selected_castle_action: String = _selected_castle_action()
+			confirm_button.text = (
+				"Construct"
+				if selected_castle_action == "construct"
+				else "Repair"
+			)
 			confirm_button.visible = true
 			development_option_button.text = "Use Repair Token"
-			development_option_button.set_pressed_no_signal(false)
 			development_option_button.disabled = int(human.repair_token) <= 0
-			development_option_button.visible = true
-			development_finish_button.text = "Pass Repair"
+			development_option_button.visible = selected_castle_action == "repair"
+			if selected_castle_action != "repair":
+				development_option_button.set_pressed_no_signal(false)
+			development_finish_button.text = "Pass Castle Action"
 			development_finish_button.visible = true
 			summon_button.visible = false
 			skip_summon_button.visible = false
@@ -2842,10 +2908,7 @@ func _refresh_action_legality() -> void:
 
 	_set_action_enabled(
 		"Profane",
-		bool(
-			human.alive
-		)
-		and not human.castles.is_empty()
+		bool(human.alive) and _has_profanable_castle(human)
 	)
 
 	if not human.alive:
@@ -2901,24 +2964,41 @@ func _refresh_target_options() -> void:
 			return
 
 		if controller.stage == PlayableRoundControllerData.Stage.REPAIR:
-			target_label.text = "Repair:"
-			for ruined_castle: String in development_human.ruined_castles:
-				var normal_cost: int = _repair_cost(ruined_castle, false)
-				var display_text: String = "%s — cost %d" % [ruined_castle, normal_cost]
-				if int(development_human.repair_token) > 0:
-					display_text += "  ·  %d with token" % _repair_cost(ruined_castle, true)
-				_add_target_option(display_text, ruined_castle)
-				if ruined_castle == previous_target_id:
-					target_select.select(target_select.item_count - 1)
-			target_select.disabled = development_human.ruined_castles.is_empty()
+			target_label.text = "Castle action:"
+			for castle_name: String in CASTLE_ORDER:
+				var maximum: int = _castle_max_integrity(castle_name)
+				if development_human.castles.has(castle_name):
+					var current: int = int(
+						development_human.castle_integrity.get(castle_name, maximum)
+					)
+					if current > 0 and current < maximum:
+						var repair_id: String = "repair|%s" % castle_name
+						_add_target_option(
+							"Repair %s — %d/%d" % [castle_name, current, maximum],
+							repair_id
+						)
+						if repair_id == previous_target_id:
+							target_select.select(target_select.item_count - 1)
+				elif _castle_type_is_buildable(development_human, castle_name):
+					var progress: int = int(
+						development_human.castle_construction_progress.get(castle_name, 0)
+					)
+					var construct_id: String = "construct|%s" % castle_name
+					_add_target_option(
+						"Construct %s — %d/%d" % [castle_name, progress, maximum],
+						construct_id
+					)
+					if construct_id == previous_target_id:
+						target_select.select(target_select.item_count - 1)
+			target_select.disabled = target_select.item_count <= 0
 			_refresh_target_info()
 			return
 
 		if controller.stage == PlayableRoundControllerData.Stage.DOMINION_RITES:
 			target_label.text = "Profane:"
 			_add_target_option("No Profane Ruins", "")
-			for ruined_castle: String in development_human.ruined_castles:
-				_add_target_option(ruined_castle, ruined_castle)
+			for castle_name: String in development_human.castles:
+				_add_target_option(castle_name, castle_name)
 			target_select.disabled = false
 			_refresh_target_info()
 			return
@@ -2976,10 +3056,25 @@ func _refresh_target_options() -> void:
 				_add_target_option("Do not Consume", "hunt:pass")
 				_add_target_option("Consume the Hunt", "hunt:consume")
 			elif action_name == "Siege":
-				_add_target_option("No Consume · use Inferno", "siege:0:1")
-				_add_target_option("Consume · use Inferno", "siege:1:1")
-				_add_target_option("No Consume · no Inferno", "siege:0:0")
-				_add_target_option("Consume · no Inferno", "siege:1:0")
+				var allow_consume: bool = controller.rules.consume_the_siege
+				var allow_inferno: bool = (
+					development_human.alive
+					and String(development_human.lord) == "Kalligan"
+				)
+
+				if not allow_consume and not allow_inferno:
+					_add_target_option("Resolve Siege", "siege:0:0")
+				elif allow_consume and not allow_inferno:
+					_add_target_option("Do not Consume", "siege:0:0")
+					_add_target_option("Consume the Siege", "siege:1:0")
+				elif not allow_consume and allow_inferno:
+					_add_target_option("Do not use Inferno", "siege:0:0")
+					_add_target_option("Use Inferno", "siege:0:1")
+				else:
+					_add_target_option("No Consume · no Inferno", "siege:0:0")
+					_add_target_option("No Consume · Inferno", "siege:0:1")
+					_add_target_option("Consume · no Inferno", "siege:1:0")
+					_add_target_option("Consume · Inferno", "siege:1:1")
 			else:
 				_add_target_option("Resolve sealed action", "default")
 			target_select.disabled = target_select.item_count <= 1
@@ -3067,7 +3162,7 @@ func _refresh_target_options() -> void:
 
 			for castle_name: String in bot.castles:
 				_add_target_option(
-					"%s — DEF %d"
+					"%s — current DEF %d"
 					% [
 						castle_name,
 						_castle_defense(
@@ -3109,17 +3204,13 @@ func _refresh_target_options() -> void:
 				)
 
 		"Profane":
-			target_label.text = "Sacrifice:"
+			target_label.text = "Sacrifice (full Integrity only):"
 
 			for castle_name: String in human.castles:
+				if not _castle_profane_eligible(human, castle_name):
+					continue
 				_add_target_option(
-					"%s — DEF %d"
-					% [
-						castle_name,
-						_castle_defense(
-							castle_name
-						),
-					],
+					"%s — 14/14 Integrity" % castle_name,
 					castle_name
 				)
 
@@ -3159,6 +3250,7 @@ func _refresh_reflex_target_options(
 	var target_control: OptionButton = secondary_target_select if use_secondary_target else target_select
 	if not use_secondary_target:
 		target_select.clear()
+		target_label.text = "%s target:" % _second_action_name()
 
 	if selected_action.is_empty():
 		if use_secondary_target:
@@ -3177,13 +3269,28 @@ func _refresh_reflex_target_options(
 			_add_target_option("Opponent Lord · no Consume", "Lord|0")
 			_add_target_option("Opponent Lord · Consume", "Lord|1")
 	elif selected_action == "Siege":
+		var allow_consume: bool = controller.rules.consume_the_siege
+		var allow_inferno: bool = (
+			human.alive
+			and String(human.lord) == "Kalligan"
+		)
+		var siege_options: Array[Dictionary] = []
+
+		if not allow_consume and not allow_inferno:
+			siege_options.append({"label": "", "id": "|0|0"})
+		elif allow_consume and not allow_inferno:
+			siege_options.append({"label": " · no Consume", "id": "|0|0"})
+			siege_options.append({"label": " · Consume", "id": "|1|0"})
+		elif not allow_consume and allow_inferno:
+			siege_options.append({"label": " · no Inferno", "id": "|0|0"})
+			siege_options.append({"label": " · Inferno", "id": "|0|1"})
+		else:
+			siege_options.append({"label": " · no Consume · no Inferno", "id": "|0|0"})
+			siege_options.append({"label": " · no Consume · Inferno", "id": "|0|1"})
+			siege_options.append({"label": " · Consume · no Inferno", "id": "|1|0"})
+			siege_options.append({"label": " · Consume · Inferno", "id": "|1|1"})
+
 		for castle_name: String in opponent.castles:
-			var siege_options: Array[Dictionary] = [
-				{"label": " · no Consume · Inferno", "id": "|0|1"},
-				{"label": " · Consume · Inferno", "id": "|1|1"},
-				{"label": " · no Consume · no Inferno", "id": "|0|0"},
-				{"label": " · Consume · no Inferno", "id": "|1|0"},
-			]
 			for siege_option in siege_options:
 				var display_text: String = castle_name + String(siege_option["label"])
 				var option_id: String = castle_name + String(siege_option["id"])
@@ -3236,6 +3343,54 @@ func _selected_secondary_target_id() -> String:
 	return String(raw_target)
 
 
+func _selected_castle_action() -> String:
+	var raw_target: String = _selected_target_id()
+	var parts: PackedStringArray = raw_target.split("|")
+	return parts[0] if parts.size() >= 2 else ""
+
+
+func _selected_castle_name() -> String:
+	var raw_target: String = _selected_target_id()
+	var parts: PackedStringArray = raw_target.split("|")
+	return parts[1] if parts.size() >= 2 else ""
+
+
+func _castle_target_name(raw_target: String) -> String:
+	var parts: PackedStringArray = raw_target.split("|")
+	if parts.size() >= 2 and parts[0] in ["repair", "construct"]:
+		return parts[1]
+	return parts[0] if not parts.is_empty() else ""
+
+
+func _castle_max_integrity(castle_name: String) -> int:
+	return int(CastleIntegrityRulesData.max_integrity(castle_name))
+
+
+func _castle_profane_eligible(player, castle_name: String) -> bool:
+	if player == null or not player.castles.has(castle_name):
+		return false
+	if not controller.rules.profane_requires_full_integrity:
+		return true
+	var maximum: int = _castle_max_integrity(castle_name)
+	return int(player.castle_integrity.get(castle_name, maximum)) >= maximum
+
+
+func _has_profanable_castle(player) -> bool:
+	for castle_name_value in player.castles:
+		if _castle_profane_eligible(player, String(castle_name_value)):
+			return true
+	return false
+
+
+func _castle_type_is_buildable(player, castle_name: String) -> bool:
+	return (
+		not player.castles.has(castle_name)
+		and not player.ruined_castles.has(castle_name)
+		and not player.profaned_castles.has(castle_name)
+		and not player.lost_castles.has(castle_name)
+	)
+
+
 func _refresh_target_info() -> void:
 	if target_info_label == null:
 		return
@@ -3245,7 +3400,7 @@ func _refresh_target_info() -> void:
 			target_info_label.text = _market_trade_info()
 			return
 		if controller.stage == PlayableRoundControllerData.Stage.REPAIR:
-			target_info_label.text = _repair_cost_info()
+			target_info_label.text = _castle_action_info()
 			return
 		if controller.stage == PlayableRoundControllerData.Stage.MARCH:
 			target_info_label.text = (
@@ -3287,7 +3442,17 @@ func _refresh_target_info() -> void:
 			)
 
 		"Siege":
-			var castle_name: String = _selected_target_id()
+			var raw_target_id: String = (
+				_selected_secondary_target_id()
+				if controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH
+				else _selected_target_id()
+			)
+			var target_parts: PackedStringArray = raw_target_id.split("|")
+			var castle_name: String = (
+				target_parts[0]
+				if not target_parts.is_empty()
+				else ""
+			)
 
 			if castle_name.is_empty():
 				target_info_label.text = (
@@ -3303,9 +3468,8 @@ func _refresh_target_info() -> void:
 					castle_name
 				),
 				bool(
-					human.castles.has(
-						"SiegeEngine"
-					)
+					controller.rules.siege_engine_bypass
+					and human.castles.has("SiegeEngine")
 				)
 			)
 
@@ -3349,7 +3513,7 @@ func _refresh_target_info() -> void:
 
 		"Profane":
 			target_info_label.text = (
-				"[color=#d8a0c8]Profane sacrifices %s; its structural DEF does not resist the action%s.[/color]"
+				"[color=#d8a0c8]Profane sacrifices %s. Only a full-Integrity Castle is eligible%s.[/color]"
 				% [
 					_selected_target_id(),
 					(
@@ -3377,77 +3541,69 @@ func _combat_target_text(
 	var hidden_guard_count: int = 0
 
 	for guard in guards:
-		if controller.is_guard_revealed(
-			guard
-		):
-			revealed_guards.append(
-				guard
-			)
+		if controller.is_guard_revealed(guard):
+			revealed_guards.append(guard)
 		else:
 			hidden_guard_count += 1
 
-	var revealed_guard_total: int = _card_value_total(
-		revealed_guards
+	var revealed_guard_total: int = _card_value_total(revealed_guards)
+	var sigil_state: String = String(defender.sigils.get(zone, ""))
+	var sigil_value: int = _current_sigil_value(defender, zone)
+	var sigil_name: String = "none" if sigil_state.is_empty() else sigil_state
+	var guard_text: String = _public_guard_summary(guards)
+
+	if zone == "Lord":
+		var known_minimum: int = structural_defense + sigil_value + revealed_guard_total + 1
+		var caveat: String = "before Ward/reveal effects"
+		if hidden_guard_count > 0:
+			caveat = "plus %d face-down Guard%s of unknown value" % [
+				hidden_guard_count,
+				"" if hidden_guard_count == 1 else "s",
+			]
+		return (
+			"[b]%s layers:[/b] Lord DEF %d  |  %s  |  %s sigil +%d  |  "
+			+ "[color=#f2d477]visible minimum %d strength[/color] (%s)"
+		) % [
+			target_name,
+			structural_defense,
+			guard_text,
+			sigil_name,
+			sigil_value,
+			known_minimum,
+			caveat,
+		]
+
+	var current_integrity: int = int(
+		defender.castle_integrity.get(target_name, _castle_max_integrity(target_name))
 	)
-	var sigil_state: String = String(
-		defender.sigils.get(
-			zone,
-			""
-		)
-	)
-	var sigil_value: int = _current_sigil_value(
-		defender,
-		zone
-	)
-	var sigil_name: String = (
-		"none"
-		if sigil_state.is_empty()
-		else sigil_state
-	)
-	var known_minimum: int = (
-		structural_defense
-		+ sigil_value
-		+ 1
-	)
-	var guard_text: String = _public_guard_summary(
-		guards
-	)
+	var damage_floor: int = sigil_value + 1
+	var ruin_floor: int = sigil_value + max(1, structural_defense)
 	var caveat: String = "before Ward/reveal effects"
 
-	if not siege_engine_bypass:
-		known_minimum += revealed_guard_total
-
-		if hidden_guard_count > 0:
-			caveat = (
-				"plus %d face-down Guard%s of unknown value"
-				% [
-					hidden_guard_count,
-					(
-						""
-						if hidden_guard_count == 1
-						else "s"
-					),
-				]
-			)
+	if siege_engine_bypass:
+		guard_text += " — structure resolves first; spill reaches these Guards"
 	else:
-		guard_text += " — bypassed until after the castle falls"
+		damage_floor += revealed_guard_total
+		ruin_floor += revealed_guard_total
+		if hidden_guard_count > 0:
+			caveat = "plus %d face-down Guard%s of unknown value" % [
+				hidden_guard_count,
+				"" if hidden_guard_count == 1 else "s",
+			]
 
 	return (
-		"[b]%s layers:[/b] base DEF %d  |  %s  |  %s sigil +%d  |  "
-		+ "[color=#f2d477]%s %d strength[/color] (%s)"
+		"[b]%s layers:[/b] current DEF [b]%d[/b] · Integrity %d/%d  |  %s  |  "
+		+ "%s sigil +%d  |  [color=#f2d477]damage begins at %d; visible ruin at %d[/color] (%s)"
 	) % [
 		target_name,
 		structural_defense,
+		current_integrity,
+		_castle_max_integrity(target_name),
 		guard_text,
 		sigil_name,
 		sigil_value,
-		(
-			"known floor"
-			if hidden_guard_count > 0
-			and not siege_engine_bypass
-			else "visible minimum"
-		),
-		known_minimum,
+		damage_floor,
+		ruin_floor,
 		caveat,
 	]
 
@@ -3566,6 +3722,7 @@ func _build_hand_buttons(
 					card.value
 				)
 			)
+			card_button.set_meta("card_suit", String(card.suit))
 			card_button.set_meta("card_source", "Hand")
 			card_button.set_meta("source_index", hand_index)
 			if (
@@ -3616,6 +3773,7 @@ func _build_hand_buttons(
 			garrison_button.toggle_mode = true
 			garrison_button.set_meta("card_id", garrison_identifier)
 			garrison_button.set_meta("card_value", int(garrison_card.value))
+			garrison_button.set_meta("card_suit", String(garrison_card.suit))
 			garrison_button.set_meta("card_source", "Garrison")
 			garrison_button.tooltip_text = (
 				"Garrison card — remains here until voluntarily selected "
@@ -3754,8 +3912,17 @@ func _build_resolution_action_options() -> Dictionary:
 
 	if human.action == "Siege":
 		var parts: PackedStringArray = option_id.split(":")
-		var consume_siege: bool = parts.size() >= 3 and parts[1] == "1"
-		var use_inferno: bool = not (parts.size() >= 3 and parts[2] == "0")
+		var consume_siege: bool = (
+			controller.rules.consume_the_siege
+			and parts.size() >= 3
+			and parts[1] == "1"
+		)
+		var use_inferno: bool = (
+			human.alive
+			and String(human.lord) == "Kalligan"
+			and parts.size() >= 3
+			and parts[2] == "1"
+		)
 		var committed_choice: Dictionary = controller.commitment_choices.get(0, {})
 		return {
 			"target_castle": String(committed_choice.get("target_castle", "")),
@@ -3773,6 +3940,7 @@ func _build_resolution_action_options() -> Dictionary:
 func _build_reflex_decision(
 	use_secondary_target: bool = false
 ) -> Dictionary:
+	var human = controller.get_human_player()
 	var target_id: String = (
 		_selected_secondary_target_id()
 		if use_secondary_target
@@ -3790,8 +3958,17 @@ func _build_reflex_decision(
 		"Siege":
 			var siege_parts: PackedStringArray = target_id.split("|")
 			decision["target_castle"] = siege_parts[0] if not siege_parts.is_empty() else ""
-			decision["consume_siege"] = siege_parts.size() >= 2 and siege_parts[1] == "1"
-			decision["use_inferno"] = not (siege_parts.size() >= 3 and siege_parts[2] == "0")
+			decision["consume_siege"] = (
+				controller.rules.consume_the_siege
+				and siege_parts.size() >= 2
+				and siege_parts[1] == "1"
+			)
+			decision["use_inferno"] = (
+				human.alive
+				and String(human.lord) == "Kalligan"
+				and siege_parts.size() >= 3
+				and siege_parts[2] == "1"
+			)
 		"Ward":
 			decision["ward_target"] = target_id
 
@@ -4131,13 +4308,13 @@ func _hand_caption_text() -> String:
 		return "Give one Hand card (★ marks the strongest raw-value trade):"
 
 	if controller.stage == PlayableRoundControllerData.Stage.REPAIR:
-		var castle_name: String = _selected_target_id()
+		var castle_action: String = _selected_castle_action()
+		var castle_name: String = _selected_castle_name()
 		if castle_name.is_empty():
-			return "Choose a Ruined Castle to see its payment requirement:"
-		return "Pay %d to repair %s (Hand or Garrison):" % [
-			_selected_repair_cost(),
-			castle_name,
-		]
+			return "Choose a damaged Castle or an available type:"
+		if castle_action == "construct":
+			return "Add Construction progress to %s (Hand or Garrison):" % castle_name
+		return "Restore Integrity to %s — Wright cards only (Hand or Garrison):" % castle_name
 
 	if controller.stage == PlayableRoundControllerData.Stage.DEPLOY:
 		if _deploy_selection_limit() <= 0:
@@ -4150,57 +4327,57 @@ func _hand_caption_text() -> String:
 	return "Commit cards (click to select):"
 
 
-func _repair_cost(
-	castle_name: String,
-	use_token: bool
-) -> int:
-	if controller == null or controller.game == null or castle_name.is_empty():
+func _repair_integrity_bonus(use_token: bool) -> int:
+	if controller == null or controller.game == null:
 		return 0
-
 	var human = controller.get_human_player()
 	if human == null:
 		return 0
-
-	return RoundEngineData.repair_cost_for(
-		controller.game,
-		human,
-		castle_name,
-		use_token,
-		controller.rules
-	)
-
-
-func _selected_repair_cost() -> int:
-	return _repair_cost(
-		_selected_target_id(),
-		development_option_button != null and development_option_button.button_pressed
-	)
+	var bonus: int = 0
+	if use_token and int(human.repair_token) > 0:
+		bonus += int(controller.rules.repair_token_integrity)
+	if String(human.lord) == "Kalligan" and bool(human.alive):
+		bonus += int(controller.rules.master_builder_integrity)
+	if String(controller.game.breach) == "Kalligan":
+		bonus += int(controller.rules.rapid_construction_integrity)
+	return bonus
 
 
-func _repair_cost_info() -> String:
-	var castle_name: String = _selected_target_id()
-	if castle_name.is_empty():
-		return "[color=#a99eac]Choose a Ruined Castle to see its exact Repair cost.[/color]"
+func _castle_action_info() -> String:
+	var action: String = _selected_castle_action()
+	var castle_name: String = _selected_castle_name()
+	if action.is_empty() or castle_name.is_empty():
+		return "[color=#a99eac]Choose a damaged Castle to repair or an available Castle to construct.[/color]"
 
-	var normal_cost: int = _repair_cost(castle_name, false)
-	var active_cost: int = _selected_repair_cost()
-	var selected_payment: int = _selected_card_value()
 	var human = controller.get_human_player()
-	var token_text: String = ""
+	var maximum: int = _castle_max_integrity(castle_name)
+	var selected_payment: int = _selected_card_value()
+	if action == "construct":
+		var before: int = int(human.castle_construction_progress.get(castle_name, 0))
+		var gain: int = selected_payment
+		if int(controller.rules.construction_action_cap) > 0:
+			gain = mini(gain, int(controller.rules.construction_action_cap))
+		var after: int = mini(maximum, before + gain)
+		return (
+			"[color=#82c9ff][b]Construct %s:[/b] progress %d/%d  |  "
+			+ "selected payment %d, progress +%d → %d/%d (max %d/action)[/color]"
+		) % [castle_name, before, maximum, selected_payment, gain, after, maximum, int(controller.rules.construction_action_cap)]
 
-	if human != null and int(human.repair_token) > 0:
-		token_text = "  ·  %d with Repair Token" % _repair_cost(castle_name, true)
-
+	var before: int = int(human.castle_integrity.get(castle_name, maximum))
+	var use_token: bool = (
+		development_option_button != null
+		and development_option_button.button_pressed
+	)
+	var bonus: int = _repair_integrity_bonus(use_token)
+	var restored: int = mini(maximum - before, selected_payment + bonus)
+	var after: int = before + maxi(0, restored)
+	var bonus_text: String = ""
+	if bonus > 0:
+		bonus_text = " + %d bonus" % bonus
 	return (
-		"[color=#82c9ff][b]%s Repair:[/b] cost %d%s  |  "
-		+ "selected payment %d/%d[/color]"
-	) % [
-		castle_name,
-		normal_cost,
-		token_text,
-		selected_payment,
-		active_cost,
-	]
+		"[color=#82c9ff][b]Repair %s:[/b] Wright payment only · Integrity %d/%d  |  "
+		+ "selected %d%s → %d/%d[/color]"
+	) % [castle_name, before, maximum, selected_payment, bonus_text, after, maximum]
 
 
 func _best_market_give_card_id() -> String:
@@ -4330,19 +4507,36 @@ func _selected_card_value() -> int:
 
 
 func _projected_attack_strength() -> int:
-	var total: int = _selected_card_value()
+	var total: int = 0
+	if controller == null or controller.game == null:
+		return _selected_card_value()
+	var human = controller.get_human_player()
+	var siege: bool = selected_action == "Siege"
+	for button: Button in card_buttons:
+		if not button.button_pressed:
+			continue
+		var printed: int = int(button.get_meta("card_value", 0))
+		var suit: String = String(button.get_meta("card_suit", ""))
+		var exempt: bool = suit == String(controller.rules.attack_penalty_exempt_suit)
+		var forge_scope: String = String(controller.rules.siege_engine_scope)
+		var forge: bool = (
+			human.castles.has("SiegeEngine")
+			and (forge_scope == "all" or (forge_scope == "siege" and siege))
+		)
+		if selected_action in ["Hunt", "Siege"] and not exempt and not forge:
+			total += maxi(
+				int(controller.rules.attack_offsuit_floor),
+				printed - int(controller.rules.attack_offsuit_penalty)
+			)
+		else:
+			total += printed
 	if (
-		controller != null
-		and controller.game != null
+		controller.rules.odr_recoil_bank
+		and human.lord == "Odradek"
+		and human.odradek_bank != null
 		and selected_action in ["Hunt", "Siege"]
 	):
-		var human = controller.get_human_player()
-		if (
-			controller.rules.odr_recoil_bank
-			and human.lord == "Odradek"
-			and human.odradek_bank != null
-		):
-			total += int(human.odradek_bank.value)
+		total += human.attack_card_value(human.odradek_bank, controller.rules, siege)
 	return total
 
 
@@ -4366,15 +4560,37 @@ func _refresh_selection_text() -> void:
 		controller != null
 		and controller.stage == PlayableRoundControllerData.Stage.REPAIR
 	):
-		var repair_cost: int = _selected_repair_cost()
-		selection_label.text = (
-			"%d cards · payment %d/%d"
-			% [
-				count,
-				_selected_card_value(),
-				repair_cost,
+		var action: String = _selected_castle_action()
+		var castle_name: String = _selected_castle_name()
+		var payment: int = _selected_card_value()
+		if action == "construct" and not castle_name.is_empty():
+			var progress: int = int(
+				controller.get_human_player().castle_construction_progress.get(castle_name, 0)
+			)
+			var gain: int = payment
+			if int(controller.rules.construction_action_cap) > 0:
+				gain = mini(gain, int(controller.rules.construction_action_cap))
+			selection_label.text = "%d cards · build %d/%d +%d → %d/%d (cap %d)" % [
+				count, progress, _castle_max_integrity(castle_name), gain,
+				mini(_castle_max_integrity(castle_name), progress + gain),
+				_castle_max_integrity(castle_name), int(controller.rules.construction_action_cap),
 			]
-		)
+		elif action == "repair" and not castle_name.is_empty():
+			var human = controller.get_human_player()
+			var maximum: int = _castle_max_integrity(castle_name)
+			var before: int = int(human.castle_integrity.get(castle_name, maximum))
+			var bonus: int = _repair_integrity_bonus(
+				development_option_button != null and development_option_button.button_pressed
+			)
+			selection_label.text = "%d cards · repair %d/%d → %d/%d" % [
+				count,
+				before,
+				maximum,
+				mini(maximum, before + payment + bonus),
+				maximum,
+			]
+		else:
+			selection_label.text = "%d cards · choose a Castle action" % count
 	elif (
 		controller != null
 		and controller.stage == PlayableRoundControllerData.Stage.DOMINION_RITES
@@ -4450,6 +4666,14 @@ func _refresh_selection_text() -> void:
 
 	for button: Button in card_buttons:
 		button.disabled = not cards_enabled
+		if (
+			cards_enabled
+			and controller.stage == PlayableRoundControllerData.Stage.REPAIR
+			and _selected_castle_action() == "repair"
+			and String(controller.rules.repair_wright_mode) == "strict"
+			and String(button.get_meta("card_suit", "")) != "Wright"
+		):
+			button.disabled = true
 
 	_refresh_target_info()
 
@@ -5258,76 +5482,49 @@ func _log_action_outcome(
 		):
 			outcome = "the Castle was ruined"
 		else:
-			outcome = "the attack stopped at %s"
-			outcome = outcome % String(
-				action_result.get(
-					"stopped_at",
-					"the defenses"
+			var damage_done: int = int(action_result.get("structure_damage", 0))
+			if damage_done > 0:
+				outcome = "the Castle remains standing"
+			else:
+				outcome = "the attack stopped at %s"
+				outcome = outcome % String(
+					action_result.get(
+						"stopped_at",
+						"the defenses"
+					)
 				)
-			)
+
+		var integrity_before: int = int(action_result.get("integrity_before", 0))
+		var integrity_after: int = int(action_result.get("integrity_after", integrity_before))
+		var structure_damage: int = int(action_result.get("structure_damage", 0))
+		var spill: int = int(action_result.get("structure_spill", 0))
+		var damage_text: String = (
+			"dealt %d Integrity damage (%d→%d)" % [
+				structure_damage,
+				integrity_before,
+				integrity_after,
+			]
+			if structure_damage > 0
+			else "dealt no Integrity damage"
+		)
+		if spill > 0:
+			damage_text += "; %d strength spilled past the structure" % spill
 
 		_log(
-			"[color=#e8e2eb][b]%s Siege:[/b] %s attacked %s's %s with %d strength against structural DEF %d; defeated %s; %s%s.[/color]"
+			"[color=#e8e2eb][b]%s Siege:[/b] %s attacked %s's %s with %d strength; %s; defeated %s; %s.[/color]"
 			% [
 				source_name,
-				_player_name(
-					int(
-						action_result.get(
-							"attacker_id",
-							-1
-						)
-					)
-				),
-				_player_name(
-					int(
-						action_result.get(
-							"defender_id",
-							-1
-						)
-					)
-				),
-				String(
-					action_result.get(
-						"target_castle",
-						"Castle"
-					)
-				),
-				int(
-					action_result.get(
-						"strength",
-						0
-					)
-				),
-				int(
-					action_result.get(
-						"structural_defense",
-						0
-					)
-				),
+				_player_name(int(action_result.get("attacker_id", -1))),
+				_player_name(int(action_result.get("defender_id", -1))),
+				String(action_result.get("target_castle", "Castle")),
+				int(action_result.get("strength", 0)),
+				damage_text,
 				(
-					_string_values_inline(
-						defeated
-					)
+					_string_values_inline(defeated)
 					if not defeated.is_empty()
 					else "no Guards"
 				),
 				outcome,
-				(
-					"; excess %d"
-					% int(
-						action_result.get(
-							"excess",
-							0
-						)
-					)
-					if bool(
-						action_result.get(
-							"destroyed",
-							false
-						)
-					)
-					else ""
-				),
 			]
 		)
 
@@ -8451,89 +8648,56 @@ func _log_market_events(
 func _log_repair_events(
 	phase_data: Dictionary
 ) -> void:
-	for raw_result in _array_from(
-		phase_data.get(
-			"results",
-			[]
-		)
-	):
-		if typeof(
-			raw_result
-		) != TYPE_DICTIONARY:
+	for raw_result in _array_from(phase_data.get("results", [])):
+		if typeof(raw_result) != TYPE_DICTIONARY:
 			continue
 
 		var result: Dictionary = raw_result
-
-		if String(
-			result.get(
-				"action",
-				""
+		var action: String = String(result.get("action", ""))
+		if action == "repair":
+			var bonus: int = int(result.get("bonus", 0))
+			var token_text: String = (
+				", Repair Token"
+				if bool(result.get("used_token", false))
+				else ""
 			)
-		) != "repair":
-			continue
-
-		_log(
-			"[color=#82c9ff][b]Repair:[/b] %s restored %s for %d (%s%s).[/color]"
-			% [
-				_player_name(
-					int(
-						result.get(
-							"player_id",
-							-1
-						)
-					)
-				),
-				String(
-					result.get(
-						"castle",
-						"unknown castle"
-					)
-				),
-				int(
-					result.get(
-						"paid_total",
-						0
-					)
-				),
-				_string_values_inline(
-					result.get(
-						"paid_cards",
-						[]
-					)
-				),
-				(
-					", repair token"
-					if bool(
-						result.get(
-							"used_token",
-							false
-						)
-					)
-					else ""
-				),
-			]
-		)
-
-		var repair_player = controller.game.get_player(
-			int(
-				result.get(
-					"player_id",
-					-1
-				)
-			)
-		)
-
-		if (
-			repair_player != null
-			and String(
-				repair_player.lord
-			) == "Kalligan"
-			and bool(
-				repair_player.alive
-			)
-		):
 			_log(
-				"[color=#d8b4fe][b]Kalligan — Forge-Repair:[/b] The discount reduced this Repair and armed Scorch against the enemy Lord zone.[/color]"
+				"[color=#82c9ff][b]Repair:[/b] %s restored %d Integrity to %s (%d→%d) with %d payment%s%s.[/color]"
+				% [
+					_player_name(int(result.get("player_id", -1))),
+					int(result.get("restored", 0)),
+					String(result.get("castle", "unknown castle")),
+					int(result.get("integrity_before", 0)),
+					int(result.get("integrity_after", 0)),
+					int(result.get("paid_total", 0)),
+					" + %d bonus" % bonus if bonus > 0 else "",
+					token_text,
+				]
+			)
+
+			var repair_player = controller.game.get_player(
+				int(result.get("player_id", -1))
+			)
+			if (
+				repair_player != null
+				and String(repair_player.lord) == "Kalligan"
+				and bool(repair_player.alive)
+			):
+				_log(
+					"[color=#d8b4fe][b]Kalligan — Forge-Repair:[/b] The Repair gained bonus Integrity and armed Scorch against the enemy Lord zone.[/color]"
+				)
+		elif action == "construct":
+			var completed: bool = bool(result.get("completed", false))
+			_log(
+				"[color=#82c9ff][b]Construction:[/b] %s added %d to %s (%d→%d/14)%s.[/color]"
+				% [
+					_player_name(int(result.get("player_id", -1))),
+					int(result.get("paid_total", 0)),
+					String(result.get("castle", "unknown castle")),
+					int(result.get("progress_before", 0)),
+					int(result.get("progress_after", 0)),
+					" — completed and now active" if completed else "",
+				]
 			)
 
 
@@ -9260,8 +9424,6 @@ func _player_state_text(
 		+ " [b]%d[/b]\n"
 		+ "Lord defense %d   Sigil %s\n"
 		+ "Lord guards: %s\n"
-		+ CASTLES_LABEL
-		+ " (%d): %s\n"
 		+ "Castle guards: %s\n"
 		+ "Marchers: %s\n"
 		+ "Garrison: %s\n"
@@ -9298,8 +9460,6 @@ func _player_state_text(
 				player.lord_guards
 			)
 		),
-		player.castles.size(),
-		_castle_status_inline_with_help(player),
 		(
 			_public_guard_summary(
 				player.castle_guards
@@ -9319,23 +9479,21 @@ func _player_state_text(
 
 func _castle_status_inline(player) -> String:
 	var labels: Array[String] = []
-
-	for castle_name_value in player.castles:
-		var castle_name: String = String(castle_name_value)
-		var scars: int = int(player.castle_scars.get(castle_name, 0))
-		labels.append(
-			"%s%s" % [
-				castle_name,
-				(" (scar %d)" % scars) if scars > 0 else "",
-			]
-		)
-
-	for castle_name_value in player.ruined_castles:
-		labels.append("%s (ruined)" % String(castle_name_value))
-
-	for castle_name_value in player.lost_castles:
-		labels.append("%s (lost)" % String(castle_name_value))
-
+	for castle_name: String in CASTLE_ORDER:
+		var maximum: int = _castle_max_integrity(castle_name)
+		if player.castles.has(castle_name):
+			var integrity: int = int(player.castle_integrity.get(castle_name, maximum))
+			labels.append("%s (%d/%d)" % [castle_name, integrity, maximum])
+		elif player.ruined_castles.has(castle_name):
+			labels.append("%s (ruined)" % castle_name)
+		elif player.profaned_castles.has(castle_name):
+			labels.append("%s (profaned)" % castle_name)
+		elif player.lost_castles.has(castle_name):
+			labels.append("%s (lost)" % castle_name)
+		else:
+			var progress: int = int(player.castle_construction_progress.get(castle_name, 0))
+			if progress > 0:
+				labels.append("%s (build %d/%d)" % [castle_name, progress, maximum])
 	return "—" if labels.is_empty() else ", ".join(labels)
 
 
@@ -9530,14 +9688,13 @@ func _lord_live_state(
 			)
 		"Kalligan":
 			return (
-				"Repair discount: %s. Persistent Scorch: %s."
+				"Forge-Repair adds +%d Integrity per Repair%s. Persistent Scorch: %s."
 				% [
+					int(controller.rules.master_builder_integrity),
 					(
-						"later repair (−5)"
-						if bool(
-							player.kalligan_repair_used
-						)
-						else "first repair (−7)"
+						"; Breach adds +%d" % int(controller.rules.rapid_construction_integrity)
+						if String(controller.game.breach) == "Kalligan"
+						else ""
 					),
 					_persistent_scorch_text(),
 				]
@@ -9975,6 +10132,234 @@ func _new_panel(
 	return panel
 
 
+func _build_castle_card_board(is_human: bool) -> Control:
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 4)
+
+	var header := _new_label("CASTLE CARDS", 14)
+	header.tooltip_text = "Castles have 14 maximum Integrity. Operational at 7+, Defunct at 1–6, Ruined at 0. Defunct printed powers are off; Bastion still screens while standing."
+	box.add_child(header)
+
+	var grid := GridContainer.new()
+	grid.columns = 3
+	grid.add_theme_constant_override("h_separation", 5)
+	grid.add_theme_constant_override("v_separation", 5)
+	box.add_child(grid)
+
+	var card_map: Dictionary = (
+		human_castle_card_buttons
+		if is_human
+		else bot_castle_card_buttons
+	)
+
+	for castle_name: String in CASTLE_ORDER:
+		var card := Button.new()
+		card.custom_minimum_size = Vector2(98, 72)
+		card.add_theme_font_size_override("font_size", 12)
+		card.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		card.focus_mode = Control.FOCUS_NONE
+		card.set_meta("castle_name", castle_name)
+		card.set_meta("is_human", is_human)
+		card.pressed.connect(_on_castle_card_pressed.bind(is_human, castle_name))
+		card_map[castle_name] = card
+		grid.add_child(card)
+
+	return box
+
+
+func _on_castle_card_pressed(is_human: bool, castle_name: String) -> void:
+	if controller == null or controller.game == null:
+		return
+	if not _castle_card_is_target_side(is_human):
+		return
+
+	var option_control: OptionButton = target_select
+	var secondary: bool = false
+	if (
+		controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH
+		and selected_action == "Siege"
+	):
+		option_control = secondary_target_select
+		secondary = true
+
+	for item_index: int in range(option_control.item_count):
+		var raw_metadata = option_control.get_item_metadata(item_index)
+		var raw_target: String = (
+			String(raw_metadata)
+			if raw_metadata != null
+			else option_control.get_item_text(item_index)
+		)
+		if _castle_target_name(raw_target) != castle_name:
+			continue
+		option_control.select(item_index)
+		if secondary:
+			_on_secondary_target_selected(item_index)
+		else:
+			_on_target_selected(item_index)
+		_refresh_castle_cards(controller.get_human_player(), true)
+		_refresh_castle_cards(controller.get_bot_player(), false)
+		return
+
+
+func _castle_card_is_target_side(is_human: bool) -> bool:
+	if controller == null or controller.game == null:
+		return false
+	if controller.stage in [
+		PlayableRoundControllerData.Stage.REPAIR,
+		PlayableRoundControllerData.Stage.DOMINION_RITES,
+		PlayableRoundControllerData.Stage.RESOLUTION_HUMBABA_TOLL,
+	]:
+		return is_human
+	if selected_action == "Profane":
+		return is_human
+	if selected_action == "Siege":
+		return not is_human
+	return false
+
+
+func _refresh_castle_cards(player, is_human: bool) -> void:
+	if player == null:
+		return
+	var card_map: Dictionary = (
+		human_castle_card_buttons
+		if is_human
+		else bot_castle_card_buttons
+	)
+	var selected_raw: String = (
+		_selected_secondary_target_id()
+		if controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH
+		and selected_action == "Siege"
+		else _selected_target_id()
+	)
+	var selected_castle: String = _castle_target_name(selected_raw)
+	var target_side: bool = _castle_card_is_target_side(is_human)
+
+	for castle_name: String in CASTLE_ORDER:
+		var card: Button = card_map.get(castle_name, null)
+		if card == null:
+			continue
+		var maximum: int = _castle_max_integrity(castle_name)
+		var state: String = "available"
+		var detail: String = "AVAILABLE"
+		var status: String = "Not built"
+
+		if player.castles.has(castle_name):
+			var integrity: int = int(player.castle_integrity.get(castle_name, maximum))
+			var effective_defense: int = _castle_defense(castle_name, player)
+			state = "full" if integrity >= maximum else "damaged"
+			var castle_state: String = CastleIntegrityRulesData.state_for(
+				player, castle_name, controller.rules
+			)
+			if state == "full":
+				status = "Full"
+			elif castle_state == CastleIntegrityRulesData.STATE_DEFUNCT:
+				status = "Defunct"
+			else:
+				status = "Operational"
+			detail = "INT %d / %d" % [integrity, maximum]
+			if effective_defense != integrity:
+				detail = "DEF %d · INT %d/%d" % [effective_defense, integrity, maximum]
+		elif player.ruined_castles.has(castle_name):
+			state = "ruined"
+			detail = "RUINED"
+			status = "Permanently unavailable"
+		elif player.profaned_castles.has(castle_name):
+			state = "ruined"
+			detail = "PROFANED"
+			status = "Permanently unavailable"
+		elif player.lost_castles.has(castle_name):
+			state = "ruined"
+			detail = "LOST"
+			status = "Permanently unavailable"
+		else:
+			var progress: int = int(player.castle_construction_progress.get(castle_name, 0))
+			if progress > 0:
+				state = "building"
+				detail = "BUILD %d / %d" % [progress, maximum]
+				status = "Under construction"
+
+		card.text = "%s\n%s\n%s" % [
+			_castle_card_title(castle_name),
+			detail,
+			status.to_upper(),
+		]
+		card.tooltip_text = "%s\n\n%s" % [
+			String(CASTLE_HELP.get(castle_name, castle_name)),
+			status,
+		]
+		var selectable: bool = target_side and _castle_option_exists(castle_name)
+		card.disabled = not selectable
+		_apply_castle_card_style(
+			card,
+			state,
+			selectable and selected_castle == castle_name
+		)
+
+
+func _castle_option_exists(castle_name: String) -> bool:
+	var option_control: OptionButton = target_select
+	if (
+		controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH
+		and selected_action == "Siege"
+	):
+		option_control = secondary_target_select
+	for item_index: int in range(option_control.item_count):
+		var raw_metadata = option_control.get_item_metadata(item_index)
+		var raw_target: String = (
+			String(raw_metadata)
+			if raw_metadata != null
+			else option_control.get_item_text(item_index)
+		)
+		if _castle_target_name(raw_target) == castle_name:
+			return true
+	return false
+
+
+func _castle_card_title(castle_name: String) -> String:
+	match castle_name:
+		"SummoningCircle":
+			return "SUMMONING"
+		"SiegeEngine":
+			return "SIEGE ENGINE"
+	return castle_name.to_upper()
+
+
+func _apply_castle_card_style(card: Button, state: String, selected: bool) -> void:
+	var background: Color = Color(0.09, 0.085, 0.12, 1.0)
+	var border: Color = Color(0.29, 0.25, 0.34, 1.0)
+	match state:
+		"full":
+			background = Color(0.07, 0.15, 0.12, 1.0)
+			border = Color(0.28, 0.58, 0.45, 1.0)
+		"damaged":
+			background = Color(0.19, 0.12, 0.055, 1.0)
+			border = Color(0.72, 0.47, 0.18, 1.0)
+		"building":
+			background = Color(0.06, 0.12, 0.18, 1.0)
+			border = Color(0.25, 0.52, 0.72, 1.0)
+		"ruined":
+			background = Color(0.12, 0.045, 0.055, 1.0)
+			border = Color(0.48, 0.16, 0.2, 1.0)
+	if selected:
+		border = Color(0.95, 0.78, 0.3, 1.0)
+
+	for style_name: String in ["normal", "hover", "pressed", "disabled"]:
+		var style := StyleBoxFlat.new()
+		style.bg_color = background
+		style.border_color = border
+		style.set_border_width_all(3 if selected else 1)
+		style.set_corner_radius_all(5)
+		style.content_margin_left = 5.0
+		style.content_margin_top = 5.0
+		style.content_margin_right = 5.0
+		style.content_margin_bottom = 5.0
+		card.add_theme_stylebox_override(style_name, style)
+	card.add_theme_color_override(
+		"font_disabled_color",
+		Color(0.86, 0.84, 0.9, 1.0)
+	)
+
+
 func _new_lord_card_panel() -> PanelContainer:
 	var panel := _new_panel(
 		Color(
@@ -9986,7 +10371,7 @@ func _new_lord_card_panel() -> PanelContainer:
 	)
 	panel.custom_minimum_size = Vector2(
 		0,
-		225
+		175
 	)
 	panel.size_flags_vertical = (
 		Control.SIZE_EXPAND_FILL
@@ -9995,7 +10380,7 @@ func _new_lord_card_panel() -> PanelContainer:
 	var card_label := _new_rich_text()
 	card_label.custom_minimum_size = Vector2(
 		0,
-		205
+		155
 	)
 	card_label.size_flags_vertical = (
 		Control.SIZE_EXPAND_FILL
@@ -10112,6 +10497,20 @@ func _validate_layout_invariants() -> void:
 		):
 			failures.append(
 				"major layout region has no area"
+			)
+
+	# Startup tests previously allowed a valid-size footer to sit below the
+	# viewport. These two regions contain the controls required to advance play.
+	for pinned_control: Control in [interaction_panel, footer_row]:
+		if pinned_control == null:
+			continue
+		var pinned_rect: Rect2 = pinned_control.get_global_rect()
+		if (
+			pinned_rect.position.y < -1.0
+			or pinned_rect.end.y > viewport_rect.size.y + 1.0
+		):
+			failures.append(
+				"play controls outside viewport"
 			)
 
 	var visible_cards: Array[Button] = []

@@ -19,6 +19,10 @@ const DrawEngineData = preload(
 	"res://Scripts/Sim/DrawEngine.gd"
 )
 
+const CastleIntegrityRulesData = preload(
+	"res://Scripts/Sim/CastleIntegrityRules.gd"
+)
+
 
 const ACTION_HUNT: String = "Hunt"
 const ZONE_LORD: String = "Lord"
@@ -127,11 +131,10 @@ static func resolve(
 	# unchanged.
 	if (
 		rules.ward_threshold
+		and not rules.ward_frontline
 		and bool(defender.ward_turned.get(ZONE_LORD, false))
 	):
-		var display_strength: int = _committed_value(
-			attacker.committed
-		)
+		var display_strength: int = attacker.attack_value(rules, false)
 		var display_lord_defense: int = _calculate_lord_defense(
 			defender,
 			rules
@@ -180,9 +183,7 @@ static func resolve(
 		)
 	)
 
-	var strength: int = _committed_value(
-		attacker.committed
-	)
+	var strength: int = attacker.attack_value(rules, false)
 
 	strength += _suit_bonus(
 		attacker.committed,
@@ -246,7 +247,12 @@ static func resolve(
 			defender,
 			rules
 		)
-		lord_defense += ward_commit_defense
+		if rules.ward_frontline:
+			# Ward is a temporary reinforcement line. Two Penitents retain
+			# their ordinary +1 committed-suit bonus.
+			ward_commit_defense += _suit_bonus(defender.committed, "Penitent")
+		else:
+			lord_defense += ward_commit_defense
 
 	var sigil_state: String = String(
 		defender.sigils.get(
@@ -269,7 +275,8 @@ static func resolve(
 		ignore_lowest,
 		sigil_state,
 		sigil_value,
-		lord_defense
+		lord_defense,
+		ward_commit_defense if rules.ward_frontline else 0
 	)
 
 	var guards_defeated: Array = combat_result.get(
@@ -299,6 +306,24 @@ static func resolve(
 			0
 		)
 	)
+
+	# Keep — Sanctuary. Transfer exactly the Hunt excess into the Keep.
+	# Equality already holds, so removing that excess leaves the Lord alive.
+	# Sanctuary is an Exertion: it may make Keep Defunct but cannot self-Ruin it.
+	if (
+		destroyed
+		and rules.keep_sanctuary
+		and CastleIntegrityRulesData.power_active(defender, "Keep", rules)
+	):
+		var sanctuary_cost: int = maxi(1, excess)
+		if CastleIntegrityRulesData.can_exert(
+			defender, "Keep", sanctuary_cost, rules
+		):
+			CastleIntegrityRulesData.exert(
+				defender, "Keep", sanctuary_cost, rules
+			)
+			destroyed = false
+			excess = 0
 
 	if (
 		rules.momentum
@@ -485,12 +510,7 @@ static func resolve(
 		and not orias_clean_hunt
 		and not rules.no_backwash
 	):
-		attacker.threat = min(
-			rules.max_threat,
-			int(
-				attacker.threat
-			) + 1
-		)
+		CastleIntegrityRulesData.gain_threat(attacker, rules, 1)
 
 	if (
 		not consumed
@@ -504,12 +524,7 @@ static func resolve(
 		if defender.threat >= 2:
 			threat_gain = 2
 
-		defender.threat = min(
-			rules.max_threat,
-			int(
-				defender.threat
-			) + threat_gain
-		)
+		CastleIntegrityRulesData.gain_threat(defender, rules, threat_gain)
 
 	var ravenous_soul_gain: int = 0
 
@@ -684,10 +699,24 @@ static func _resolve_combat(
 	ignore_lowest: bool,
 	sigil_state: String,
 	sigil_value: int,
-	lord_defense: int
+	lord_defense: int,
+	ward_screen: int = 0
 ) -> Dictionary:
 	var remaining: int = strength
 	var guards_defeated: Array = []
+
+	# Canonical v7.4 order: Ward reinforcements are first contact. They
+	# protect Guards, Sigil and Lord, then leave after both primary actions.
+	if ward_screen > 0:
+		if remaining <= ward_screen:
+			return {
+				"destroyed": false,
+				"sigil_broken": false,
+				"excess": 0,
+				"stopped_at": "Ward",
+				"guards_defeated": guards_defeated,
+			}
+		remaining -= ward_screen
 
 	var ignored_card = null
 
@@ -1403,10 +1432,8 @@ static func _calculate_lord_defense(
 	elif player.threat >= 2:
 		defense -= 1
 
-	if player.castles.has(
-		"Bastion"
-	):
-		defense += 2
+	if player.castles.has("Bastion"):
+		defense += maxi(0, int(rules.bastion_lord_def_bonus))
 
 	return max(
 		0,

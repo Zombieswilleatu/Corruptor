@@ -14,6 +14,10 @@ const OdradekInterlockEngineData = preload(
 	"res://Scripts/Sim/OdradekInterlockEngine.gd"
 )
 
+const CastleIntegrityRulesData = preload(
+	"res://Scripts/Sim/CastleIntegrityRules.gd"
+)
+
 
 const ACTION_SIEGE: String = "Siege"
 const ZONE_CASTLE: String = "Castle"
@@ -132,11 +136,10 @@ static func resolve(
 	# the attacker zone for normal aftermath handling.
 	if (
 		rules.ward_threshold
+		and not rules.ward_frontline
 		and bool(defender.ward_turned.get(ZONE_CASTLE, false))
 	):
-		var display_strength: int = _committed_value(
-			attacker.committed
-		)
+		var display_strength: int = attacker.attack_value(rules, true)
 		var display_structural_defense: int = _castle_defense(
 			game,
 			target_castle,
@@ -201,9 +204,7 @@ static func resolve(
 		)
 	)
 
-	var strength: int = _committed_value(
-		attacker.committed
-	)
+	var strength: int = attacker.attack_value(rules, true)
 
 	strength += _suit_bonus(
 		attacker.committed,
@@ -211,9 +212,8 @@ static func resolve(
 	)
 
 	var siege_engine_bypass: bool = (
-		attacker.castles.has(
-			"SiegeEngine"
-		)
+		rules.siege_engine_bypass
+		and CastleIntegrityRulesData.power_active(attacker, "SiegeEngine", rules)
 		and not reflex
 	)
 
@@ -223,9 +223,7 @@ static func resolve(
 		attacker.lord == "Deimos"
 		and attacker.alive
 		and (
-			attacker.castles.has(
-				"SiegeEngine"
-			)
+			CastleIntegrityRulesData.power_active(attacker, "SiegeEngine", rules)
 			or rules.deimos_war_machine_free
 		)
 	):
@@ -332,14 +330,32 @@ static func resolve(
 			defender,
 			rules
 		)
-		structural_defense += ward_commit_defense
 
 	var penitent_bonus: int = _suit_bonus(
 		defender.committed,
 		"Penitent"
 	)
 
-	structural_defense += penitent_bonus
+	if rules.ward_frontline and ward_commit_defense > 0:
+		ward_commit_defense += penitent_bonus
+
+	var ward_screen: int = ward_commit_defense if rules.ward_frontline else 0
+	var structure_screen: int = (
+		0 if rules.ward_frontline else ward_commit_defense + penitent_bonus
+	)
+	var integrity_before: int = structural_defense
+	if rules.castle_integrity:
+		integrity_before = int(
+			defender.castle_integrity.get(
+				target_castle,
+				CastleIntegrityRulesData.max_integrity(target_castle)
+			)
+		)
+	var structure_vulnerability: int = (
+		1
+		if game.breach == "Deimos" or game.breach == "Humbaba"
+		else 0
+	)
 
 	var sigil_state: String = String(
 		defender.sigils.get(
@@ -355,16 +371,78 @@ static func resolve(
 		rules
 	)
 
-	var combat_result: Dictionary = _resolve_combat(
-		game,
-		strength,
-		defender.castle_guards,
-		ignore_lowest,
-		sigil_state,
-		sigil_value,
-		structural_defense,
-		siege_engine_bypass
-	)
+	var combat_result: Dictionary = {}
+
+	var bastion_ruined_this_siege: bool = false
+	if rules.castle_integrity:
+		var bastion_screening: bool = (
+			rules.bastion_wall
+			and target_castle != "Bastion"
+			and CastleIntegrityRulesData.standing(defender, "Bastion")
+		)
+		var bastion_before: int = (
+			int(defender.castle_integrity.get(
+				"Bastion", CastleIntegrityRulesData.max_integrity("Bastion")
+			)) if bastion_screening else 0
+		)
+		var effective_integrity: int = integrity_before + bastion_before
+
+		combat_result = _resolve_integrity_combat(
+			game,
+			strength,
+			defender.castle_guards,
+			ignore_lowest,
+			sigil_state,
+			sigil_value,
+			effective_integrity,
+			structure_screen,
+			siege_engine_bypass,
+			structure_vulnerability,
+			ward_screen
+		)
+
+		var structure_hit: int = int(combat_result.get("structure_hit", 0))
+		var remaining_hit: int = structure_hit
+		if bastion_screening and remaining_hit > 0:
+			var bastion_damage: int = mini(bastion_before, remaining_hit)
+			defender.castle_integrity["Bastion"] = bastion_before - bastion_damage
+			remaining_hit -= bastion_damage
+			bastion_ruined_this_siege = (
+				bastion_before > 0
+				and int(defender.castle_integrity.get("Bastion", 0)) <= 0
+			)
+
+		var target_damage: int = mini(integrity_before, maxi(0, remaining_hit))
+		var integrity_after: int = maxi(0, integrity_before - target_damage)
+		defender.castle_integrity[target_castle] = integrity_after
+		combat_result["integrity_before"] = integrity_before
+		combat_result["integrity_after"] = integrity_after
+		combat_result["structure_damage"] = target_damage
+		combat_result["bastion_screened"] = bastion_screening
+		combat_result["bastion_integrity_before"] = bastion_before
+		combat_result["bastion_integrity_after"] = int(
+			defender.castle_integrity.get("Bastion", 0)
+		) if bastion_screening else 0
+		combat_result["destroyed"] = integrity_before > 0 and integrity_after == 0
+		combat_result["excess"] = maxi(0, remaining_hit - integrity_before)
+
+		assert(
+			integrity_after == maxi(0, integrity_before - target_damage),
+			"Castle Integrity damage equation diverged."
+		)
+	else:
+		structural_defense += structure_screen
+		combat_result = _resolve_combat(
+			game,
+			strength,
+			defender.castle_guards,
+			ignore_lowest,
+			sigil_state,
+			sigil_value,
+			structural_defense,
+			siege_engine_bypass,
+			ward_screen
+		)
 
 	var guards_defeated: Array = combat_result.get(
 		"guards_defeated",
@@ -433,11 +511,7 @@ static func resolve(
 				1
 			)
 
-	var consumed: bool = (
-		destroyed
-		and consume_requested
-		and rules.consume_the_siege
-	)
+	var consumed: bool = false
 
 	var neutral_tear_gain: int = 0
 	var personal_tear_gain: int = 0
@@ -463,225 +537,55 @@ static func resolve(
 	var siphoned_card = null
 
 	var won_after_tear: bool = false
+	var ruined_this_siege: Array[String] = []
+	if bastion_ruined_this_siege:
+		ruined_this_siege.append("Bastion")
+	if destroyed and not ruined_this_siege.has(target_castle):
+		ruined_this_siege.append(target_castle)
 
-	if destroyed:
-		defender.castles.erase(
-			target_castle
-		)
-
-		if (
-			rules.castle_permanent_loss
-			and int(defender.castle_scars.get(target_castle, 0)) >= 1
-		):
-			permanent_loss = true
-
-			if not defender.lost_castles.has(target_castle):
-				defender.lost_castles.append(target_castle)
-
-			if rules.veil_on_permanent_loss:
-				_gain_neutral_tear(game)
-				neutral_tear_gain += 1
-				permanent_loss_tear_gain = 1
-		elif not defender.ruined_castles.has(target_castle):
-			defender.ruined_castles.append(target_castle)
-
-		_mark_destruction(
-			game
-		)
-
-		if attacker.lord == "Kroni":
-			attacker.kroni_enemy_destroyed = true
-
-		if _castle_tear_available(
+	# A through-Bastion Siege can Ruin the wall and the rear Castle in one hit.
+	# Every Ruination uses the same consequence chain, in physical order.
+	for ruin_index: int in range(ruined_this_siege.size()):
+		var ruined_castle: String = ruined_this_siege[ruin_index]
+		var ruin_event: Dictionary = _apply_castle_ruination(
 			game,
-			rules
-		):
-			var tear_event: Dictionary = {}
+			rules,
+			attacker,
+			defender,
+			ruined_castle,
+			guards_lost,
+			consume_requested and ruin_index == 0,
+			use_inferno
+		)
 
-			if consumed:
-				tear_event = _gain_personal_tear(
-					game,
-					attacker
-				)
-
-				personal_tear_gain += 1
-				tear_source = "consume_siege"
-			elif (
-				rules.deimos_claims_breach > 0
-				and attacker.lord == "Deimos"
-				and attacker.alive
-				and (
-					rules.deimos_claims_breach >= 2
-					or not attacker.deimos_breach_claimed
-				)
-			):
-				attacker.deimos_breach_claimed = true
-
-				tear_event = _gain_personal_tear(
-					game,
-					attacker
-				)
-
-				personal_tear_gain += 1
-				tear_source = "deimos_claim"
-			else:
-				tear_event = _gain_neutral_tear(
-					game
-				)
-
-				neutral_tear_gain += 1
-				tear_source = "neutral"
-
-			_mark_castle_tear_used(
-				game
-			)
-
-			harvested_card = String(
-				tear_event.get(
-					"harvested_card",
-					""
-				)
-			)
-
-			harvested_by = int(
-				tear_event.get(
-					"harvested_by",
-					-1
-				)
-			)
-
-			won_after_tear = _check_win(
-				game,
-				rules
-			)
-
-		if not won_after_tear:
-			if not consumed:
-				if guards_lost > 0:
-					_gain_soul(
-						attacker,
-						2
-					)
-				else:
-					_gain_soul(
-						attacker,
-						1
-					)
-
-			gremory_ruin_trigger = _trigger_gremory_ruin(
-				game
-			)
-
-			if (
-				attacker.lord == "Kalligan"
-				and attacker.alive
-			):
-				# Wildfire resolves first. Moving the fire to a new target or
-				# zone restarts SCORCH at level 1; stoking the same fire does not.
-				var wildfire_target: int = int(defender.pid)
-				var wildfire_type: String = (
-					"Lord"
-					if defender.castles.is_empty()
-					else "Castle"
-				)
-
-				if (
-					int(game.persist_scorch_pid) != wildfire_target
-					or String(game.persist_scorch_type) != wildfire_type
-				):
-					game.persist_scorch_level = 1
-
-				game.persist_scorch_pid = wildfire_target
-				game.persist_scorch_type = wildfire_type
-
-				wildfire_zone = String(game.persist_scorch_type)
-
-				if (
-					use_inferno
-					and (
-						attacker.threat < rules.max_threat
-						or not rules.kal_inferno_threat
-					)
-				):
-					if rules.kal_inferno_threat:
-						attacker.threat = min(
-							rules.max_threat,
-							int(attacker.threat) + 1
-						)
-						inferno_threat_gain = 1
-
-					if not defender.lord_guards.is_empty():
-						var highest_index: int = (
-							_highest_card_index(
-								defender.lord_guards
-							)
-						)
-
-						inferno_card = defender.lord_guards[
-							highest_index
-						]
-
-						defender.lord_guards.remove_at(
-							highest_index
-						)
-
-						game.discard.append(
-							inferno_card
-						)
-					else:
-						game.persist_scorch_pid = int(
-							defender.pid
-						)
-
-						game.persist_scorch_type = "Lord"
-
-				wildfire_zone = String(
-					game.persist_scorch_type
-				)
-
-			if (
-				attacker.lord == "Kroni"
-				and attacker.alive
-				and attacker.kroni_hunger >= 3
-				and not attacker.kroni_ravenous_used
-			):
-				_gain_soul(
-					attacker,
-					2
-				)
-
-				ravenous_soul_gain = 2
-
-				var hunger_event: Dictionary = (
-					_gain_kroni_hunger(
-						game,
-						attacker
-					)
-				)
-
-				personal_tear_gain += int(
-					hunger_event.get(
-						"personal_tear_gain",
-						0
-					)
-				)
-
-				if harvested_card.is_empty():
-					harvested_card = String(
-						hunger_event.get(
-							"harvested_card",
-							""
-						)
-					)
-
-					harvested_by = int(
-						hunger_event.get(
-							"harvested_by",
-							-1
-						)
-					)
-
-				attacker.kroni_ravenous_used = true
+		consumed = consumed or bool(ruin_event.get("consumed", false))
+		neutral_tear_gain += int(ruin_event.get("neutral_tear_gain", 0))
+		personal_tear_gain += int(ruin_event.get("personal_tear_gain", 0))
+		permanent_loss = permanent_loss or bool(ruin_event.get("permanent_loss", false))
+		permanent_loss_tear_gain += int(
+			ruin_event.get("permanent_loss_tear_gain", 0)
+		)
+		if tear_source.is_empty():
+			tear_source = String(ruin_event.get("tear_source", ""))
+		if harvested_card.is_empty():
+			harvested_card = String(ruin_event.get("harvested_card", ""))
+			harvested_by = int(ruin_event.get("harvested_by", -1))
+		var gremory_event: Dictionary = ruin_event.get(
+			"gremory_ruin_trigger", _empty_gremory_ruin_trigger()
+		)
+		if bool(gremory_event.get("triggered", false)):
+			gremory_ruin_trigger = gremory_event
+		var ruin_inferno_card = ruin_event.get("inferno_card", null)
+		if ruin_inferno_card != null:
+			inferno_card = ruin_inferno_card
+		inferno_threat_gain += int(ruin_event.get("inferno_threat_gain", 0))
+		var ruin_wildfire_zone: String = String(ruin_event.get("wildfire_zone", ""))
+		if not ruin_wildfire_zone.is_empty():
+			wildfire_zone = ruin_wildfire_zone
+		ravenous_soul_gain += int(ruin_event.get("ravenous_soul_gain", 0))
+		if bool(ruin_event.get("won", false)):
+			won_after_tear = true
+			break
 
 	if (
 		not won_after_tear
@@ -741,6 +645,12 @@ static func resolve(
 		"war_machine_bonus": war_machine_bonus,
 		"pyroclasm_bonus": pyroclasm_bonus,
 		"structural_defense": structural_defense,
+		"structure_screen": structure_screen,
+		"integrity_before": int(combat_result.get("integrity_before", 0)),
+		"integrity_after": int(combat_result.get("integrity_after", 0)),
+		"structure_hit": int(combat_result.get("structure_hit", 0)),
+		"structure_damage": int(combat_result.get("structure_damage", 0)),
+		"structure_spill": int(combat_result.get("structure_spill", 0)),
 		"ward_commit_defense": ward_commit_defense,
 		"penitent_bonus": penitent_bonus,
 		"siege_engine_bypass": siege_engine_bypass,
@@ -765,7 +675,9 @@ static func resolve(
 			guards_defeated
 		),
 		"sigil_broken": sigil_broken,
-		"destroyed": destroyed,
+		"destroyed": not ruined_this_siege.is_empty(),
+		"target_destroyed": destroyed,
+		"bastion_ruined": bastion_ruined_this_siege,
 		"excess": excess,
 		"stopped_at": String(
 			combat_result.get(
@@ -812,6 +724,155 @@ static func resolve(
 		),
 		"won": won,
 	}
+
+
+static func _apply_castle_ruination(
+	game,
+	rules: RuleConfig,
+	attacker,
+	defender,
+	castle_name: String,
+	guards_lost: int,
+	consume_requested: bool,
+	use_inferno: bool
+) -> Dictionary:
+	var result: Dictionary = {
+		"consumed": false,
+		"neutral_tear_gain": 0,
+		"personal_tear_gain": 0,
+		"permanent_loss": false,
+		"permanent_loss_tear_gain": 0,
+		"tear_source": "",
+		"harvested_card": "",
+		"harvested_by": -1,
+		"gremory_ruin_trigger": _empty_gremory_ruin_trigger(),
+		"inferno_card": null,
+		"inferno_threat_gain": 0,
+		"wildfire_zone": "",
+		"ravenous_soul_gain": 0,
+		"won": false,
+	}
+
+	if not defender.castles.has(castle_name):
+		return result
+
+	defender.castles.erase(castle_name)
+	if rules.castle_integrity:
+		defender.castle_integrity[castle_name] = 0
+		defender.castle_construction_progress.erase(castle_name)
+
+	if (
+		rules.castle_permanent_loss
+		and int(defender.castle_scars.get(castle_name, 0)) >= 1
+	):
+		result["permanent_loss"] = true
+		if not defender.lost_castles.has(castle_name):
+			defender.lost_castles.append(castle_name)
+		if rules.veil_on_permanent_loss:
+			_gain_neutral_tear(game)
+			result["neutral_tear_gain"] = int(result["neutral_tear_gain"]) + 1
+			result["permanent_loss_tear_gain"] = 1
+	elif not defender.ruined_castles.has(castle_name):
+		defender.ruined_castles.append(castle_name)
+
+	_mark_destruction(game)
+	if attacker.lord == "Kroni":
+		attacker.kroni_enemy_destroyed = true
+
+	var consumed: bool = consume_requested and rules.consume_the_siege
+	result["consumed"] = consumed
+
+	if _castle_tear_available(game, rules):
+		var tear_event: Dictionary = {}
+		if consumed:
+			tear_event = _gain_personal_tear(game, attacker)
+			result["personal_tear_gain"] = int(result["personal_tear_gain"]) + 1
+			result["tear_source"] = "consume_siege"
+		elif (
+			rules.deimos_claims_breach > 0
+			and attacker.lord == "Deimos"
+			and attacker.alive
+			and (
+				rules.deimos_claims_breach >= 2
+				or not attacker.deimos_breach_claimed
+			)
+		):
+			attacker.deimos_breach_claimed = true
+			tear_event = _gain_personal_tear(game, attacker)
+			result["personal_tear_gain"] = int(result["personal_tear_gain"]) + 1
+			result["tear_source"] = "deimos_claim"
+		else:
+			tear_event = _gain_neutral_tear(game)
+			result["neutral_tear_gain"] = int(result["neutral_tear_gain"]) + 1
+			result["tear_source"] = "neutral"
+
+		_mark_castle_tear_used(game)
+		result["harvested_card"] = String(tear_event.get("harvested_card", ""))
+		result["harvested_by"] = int(tear_event.get("harvested_by", -1))
+		if _check_win(game, rules):
+			result["won"] = true
+			return result
+
+	if not consumed:
+		var base_soul_reward: int = 2 if guards_lost > 0 else 1
+		var ruination_bonus: int = (
+			rules.ruination_soul_bonus
+			if rules.ruination_soul_source == "enemy_siege"
+			else 0
+		)
+		_gain_soul(attacker, base_soul_reward + ruination_bonus)
+
+	result["gremory_ruin_trigger"] = _trigger_gremory_ruin(game)
+
+	if attacker.lord == "Kalligan" and attacker.alive:
+		var wildfire_target: int = int(defender.pid)
+		var wildfire_type: String = "Lord" if defender.castles.is_empty() else "Castle"
+		if (
+			int(game.persist_scorch_pid) != wildfire_target
+			or String(game.persist_scorch_type) != wildfire_type
+		):
+			game.persist_scorch_level = 1
+		game.persist_scorch_pid = wildfire_target
+		game.persist_scorch_type = wildfire_type
+		result["wildfire_zone"] = String(game.persist_scorch_type)
+
+		if (
+			use_inferno
+			and (attacker.threat < rules.max_threat or not rules.kal_inferno_threat)
+		):
+			if rules.kal_inferno_threat:
+				var threat_before: int = int(attacker.threat)
+				CastleIntegrityRulesData.gain_threat(attacker, rules, 1)
+				result["inferno_threat_gain"] = int(attacker.threat) - threat_before
+			if not defender.lord_guards.is_empty():
+				var highest_index: int = _highest_card_index(defender.lord_guards)
+				var inferno_card = defender.lord_guards[highest_index]
+				defender.lord_guards.remove_at(highest_index)
+				game.discard.append(inferno_card)
+				result["inferno_card"] = inferno_card
+			else:
+				game.persist_scorch_pid = int(defender.pid)
+				game.persist_scorch_type = "Lord"
+			result["wildfire_zone"] = String(game.persist_scorch_type)
+
+	if (
+		attacker.lord == "Kroni"
+		and attacker.alive
+		and attacker.kroni_hunger >= 3
+		and not attacker.kroni_ravenous_used
+	):
+		_gain_soul(attacker, 2)
+		result["ravenous_soul_gain"] = 2
+		var hunger_event: Dictionary = _gain_kroni_hunger(game, attacker)
+		result["personal_tear_gain"] = int(result["personal_tear_gain"]) + int(
+			hunger_event.get("personal_tear_gain", 0)
+		)
+		if String(result["harvested_card"]).is_empty():
+			result["harvested_card"] = String(hunger_event.get("harvested_card", ""))
+			result["harvested_by"] = int(hunger_event.get("harvested_by", -1))
+		attacker.kroni_ravenous_used = true
+
+	return result
 
 
 static func _ward_turned_result(
@@ -864,6 +925,166 @@ static func _ward_turned_result(
 	}
 
 
+static func _resolve_integrity_combat(
+	game,
+	strength: int,
+	guard_zone: Array,
+	ignore_lowest: bool,
+	sigil_state: String,
+	sigil_value: int,
+	integrity_before: int,
+	structure_screen: int,
+	bypass: bool,
+	structure_vulnerability: int,
+	ward_screen: int = 0
+) -> Dictionary:
+	var remaining: int = strength
+	var guards_defeated: Array = []
+	var sigil_broken: bool = false
+
+	# v7.4: Ward is first contact, before bypass/Guards/Sigil/structures.
+	if ward_screen > 0:
+		if remaining <= ward_screen:
+			return _integrity_combat_result(
+				false, false, 0, "Ward", guards_defeated,
+				0, 0, 0
+			)
+		remaining -= ward_screen
+
+	if bypass:
+		var sigil_result: Dictionary = _resolve_sigil_layer(
+			remaining,
+			sigil_state,
+			sigil_value
+		)
+		if bool(sigil_result.get("stopped", false)):
+			return _integrity_combat_result(
+				false, false, 0, "Sigil", guards_defeated,
+				0, 0, 0
+			)
+		sigil_broken = bool(sigil_result.get("broken", false))
+		remaining = int(sigil_result.get("remaining", remaining))
+		remaining -= maxi(0, structure_screen)
+		if remaining <= 0:
+			return _integrity_combat_result(
+				false, sigil_broken, 0, "Castle", guards_defeated,
+				0, 0, 0
+			)
+
+		var structure_hit: int = maxi(
+			1,
+			remaining + maxi(0, structure_vulnerability)
+		)
+		var structure_damage: int = mini(
+			maxi(0, integrity_before),
+			structure_hit
+		)
+		var structure_spill: int = maxi(
+			0,
+			structure_hit - maxi(0, integrity_before)
+		)
+		var destroyed: bool = integrity_before > 0 and structure_damage >= integrity_before
+		if not destroyed:
+			return _integrity_combat_result(
+				false, sigil_broken, structure_hit - integrity_before,
+				"Castle", guards_defeated,
+				structure_hit, structure_damage, structure_spill
+			)
+
+		var guard_result: Dictionary = _strip_guards(
+			game,
+			structure_spill,
+			guard_zone,
+			ignore_lowest
+		)
+		guards_defeated = guard_result.get("guards_defeated", [])
+		if bool(guard_result.get("stopped", false)):
+			return _integrity_combat_result(
+				true, sigil_broken, 0, "Guard", guards_defeated,
+				structure_hit, structure_damage, structure_spill
+			)
+		return _integrity_combat_result(
+			true, sigil_broken,
+			int(guard_result.get("remaining", 0)), "", guards_defeated,
+			structure_hit, structure_damage, structure_spill
+		)
+
+	var guard_result: Dictionary = _strip_guards(
+		game,
+		remaining,
+		guard_zone,
+		ignore_lowest
+	)
+	guards_defeated = guard_result.get("guards_defeated", [])
+	if bool(guard_result.get("stopped", false)):
+		return _integrity_combat_result(
+			false, false, 0, "Guard", guards_defeated,
+			0, 0, 0
+		)
+	remaining = int(guard_result.get("remaining", remaining))
+
+	var sigil_result: Dictionary = _resolve_sigil_layer(
+		remaining,
+		sigil_state,
+		sigil_value
+	)
+	if bool(sigil_result.get("stopped", false)):
+		return _integrity_combat_result(
+			false, false, 0, "Sigil", guards_defeated,
+			0, 0, 0
+		)
+	sigil_broken = bool(sigil_result.get("broken", false))
+	remaining = int(sigil_result.get("remaining", remaining))
+	remaining -= maxi(0, structure_screen)
+	if remaining <= 0:
+		return _integrity_combat_result(
+			false, sigil_broken, 0, "Castle", guards_defeated,
+			0, 0, 0
+		)
+
+	var structure_hit: int = maxi(
+		1,
+		remaining + maxi(0, structure_vulnerability)
+	)
+	var structure_damage: int = mini(
+		maxi(0, integrity_before),
+		structure_hit
+	)
+	var destroyed: bool = integrity_before > 0 and structure_damage >= integrity_before
+	return _integrity_combat_result(
+		destroyed,
+		sigil_broken,
+		structure_hit - integrity_before,
+		"" if destroyed else "Castle",
+		guards_defeated,
+		structure_hit,
+		structure_damage,
+		0
+	)
+
+
+static func _integrity_combat_result(
+	destroyed: bool,
+	sigil_broken: bool,
+	excess: int,
+	stopped_at: String,
+	guards_defeated: Array,
+	structure_hit: int,
+	structure_damage: int,
+	structure_spill: int
+) -> Dictionary:
+	return {
+		"destroyed": destroyed,
+		"sigil_broken": sigil_broken,
+		"excess": excess,
+		"stopped_at": stopped_at,
+		"guards_defeated": guards_defeated,
+		"structure_hit": structure_hit,
+		"structure_damage": structure_damage,
+		"structure_spill": structure_spill,
+	}
+
+
 static func _resolve_combat(
 	game,
 	strength: int,
@@ -872,10 +1093,22 @@ static func _resolve_combat(
 	sigil_state: String,
 	sigil_value: int,
 	structural_defense: int,
-	bypass: bool
+	bypass: bool,
+	ward_screen: int = 0
 ) -> Dictionary:
 	var remaining: int = strength
 	var guards_defeated: Array = []
+
+	if ward_screen > 0:
+		if remaining <= ward_screen:
+			return {
+				"destroyed": false,
+				"sigil_broken": false,
+				"excess": 0,
+				"stopped_at": "Ward",
+				"guards_defeated": guards_defeated,
+			}
+		remaining -= ward_screen
 
 	if bypass:
 		var bypass_sigil_result: Dictionary = (
@@ -1224,9 +1457,14 @@ static func _choose_target_castle(
 	var selected_defense: int = 1000000
 
 	for raw_castle_name in defender.castles:
-		var castle_name: String = String(
-			raw_castle_name
-		)
+		var castle_name: String = String(raw_castle_name)
+		if (
+			rules.bastion_wall
+			and castle_name == "Bastion"
+			and CastleIntegrityRulesData.standing(defender, "Bastion")
+			and defender.castles.size() > 1
+		):
+			continue
 
 		var defense: int = _castle_defense(
 			game,
@@ -1261,6 +1499,19 @@ static func _castle_defense(
 		castle_name
 	):
 		return 0
+
+	if rules != null and rules.castle_integrity and defender != null:
+		var integrity_defense: int = int(
+			defender.castle_integrity.get(
+				castle_name,
+				CastleIntegrityRulesData.max_integrity(castle_name)
+			)
+		)
+		if game.breach == "Deimos":
+			integrity_defense = maxi(0, integrity_defense - 1)
+		elif game.breach == "Humbaba":
+			integrity_defense = maxi(1, integrity_defense - 1)
+		return integrity_defense
 
 	var defense: int = int(
 		CASTLE_DEFENSES[
@@ -1565,10 +1816,8 @@ static func _calculate_lord_defense(
 	elif player.threat >= 2:
 		defense -= 1
 
-	if player.castles.has(
-		"Bastion"
-	):
-		defense += 2
+	if player.castles.has("Bastion"):
+		defense += maxi(0, int(rules.bastion_lord_def_bonus))
 
 	return max(
 		0,

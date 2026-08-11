@@ -585,6 +585,10 @@ static func _apply_humbaba_toll(
 			castle_index
 		)
 
+		if rules.castle_integrity:
+			player.castle_integrity[target_castle] = 0
+			player.castle_construction_progress.erase(target_castle)
+
 		if not player.ruined_castles.has(
 			target_castle
 		):

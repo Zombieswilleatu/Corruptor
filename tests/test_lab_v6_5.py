@@ -43,11 +43,25 @@ class LabV65RulesTests(unittest.TestCase):
         self.assertTrue(sim.VARIANT["momentum"])
         self.assertTrue(sim.VARIANT["marching"])
         self.assertTrue(sim.ACTIVE_FEATURES["market_refresh"])
-        self.assertEqual(sim.LAB_PROFILE_VERSION, "6.8.6-lab")
+        self.assertTrue(sim.VARIANT["castle_loadout"])
+        self.assertEqual(sim.VARIANT["starting_castles"], 3)
+        self.assertFalse(sim.VARIANT["castle_scarring"])
+        self.assertFalse(sim.VARIANT["castle_permanent_loss"])
+        self.assertTrue(sim.ACTIVE_FEATURES["castle_integrity"])
+        self.assertTrue(sim.ACTIVE_FEATURES["castle_granular_repair"])
+        self.assertTrue(sim.ACTIVE_FEATURES["castle_construction"])
+        self.assertTrue(sim.ACTIVE_FEATURES["castle_irreparable"])
+        self.assertEqual(sim.LAB_PROFILE_VERSION, "6.9.0-castle-integrity")
         self.assertTrue(sim.VARIANT["fix_b"])
+        self.assertEqual(sim.VARIANT["invocation_gate"], 7)
+        self.assertEqual(sim.VARIANT["profane_ruins_req"], 2)
+        self.assertFalse(sim.VARIANT["ai_dominion_drive"])
+        self.assertFalse(sim.VARIANT["kroni_hunger_decay"])
+        self.assertFalse(sim.VARIANT["neutral_tear_on_banish"])
+        self.assertEqual(sim.VARIANT["gremory_summon_cost"], 0)
         self.assertTrue(sim.VARIANT["sigil_flat"])
         self.assertFalse(sim.VARIANT["humbaba_seal"])
-        self.assertFalse(sim.VARIANT["humbaba_gate4"])
+        self.assertTrue(sim.VARIANT["humbaba_gate4"])
         self.assertFalse(sim.VARIANT["humbaba_patient"])
         self.assertFalse(sim.VARIANT["humbaba_sigil_commit"])
         self.assertTrue(sim.ACTIVE_FEATURES["humbaba_reactive_lane"])
@@ -183,21 +197,22 @@ class LabV65RulesTests(unittest.TestCase):
         self.assertIn(marcher, game.discard)
         self.assertEqual(player.marchers, [])
 
-    def test_second_destruction_of_a_scarred_castle_is_permanent_and_frays_veil(self):
+    def test_complete_ruination_is_permanent_without_scar_state(self):
         game = sim.Game(["Deimos"], ["Valak"])
         attacker, defender = game.players
         attacker.alive = True
         defender.alive = True
         defender.castles = {"Keep"}
-        defender.castle_scars = {"Keep": 1}
-        attacker.committed = [sim.Card("Butcher", 5) for _ in range(4)]
+        defender.castle_integrity = {"Keep": 1}
+        attacker.committed = [sim.Card("Butcher", 5)]
 
         game._resolve_siege(attacker, defender, forced_target="Keep")
 
         self.assertNotIn("Keep", defender.castles)
-        self.assertNotIn("Keep", defender.ruined_castles)
-        self.assertIn("Keep", defender.lost_castles)
-        self.assertGreaterEqual(game.neutral_tears, 1)
+        self.assertIn("Keep", defender.ruined_castles)
+        self.assertNotIn("Keep", defender.lost_castles)
+        self.assertEqual(defender.castle_integrity["Keep"], 0)
+        self.assertEqual(defender.castle_scars, {})
 
     def test_banished_lord_uses_the_retained_threat_on_resummon(self):
         game = sim.Game(["Deimos"], ["Valak"])
@@ -228,18 +243,19 @@ class LabV65RulesTests(unittest.TestCase):
 
         self.assertEqual(game.reflex_winner, attacker.pid)
 
-    def test_repair_history_records_when_the_lab_profile_uses_it(self):
+    def test_granular_repair_does_not_create_scar_history(self):
         game = sim.Game(["Orias"], ["Valak"])
         player = game.players[0]
         player.castles = set(sim.CASTLES)
-        player.castles.discard("SiegeEngine")
-        player.ruined_castles = {"SiegeEngine"}
-        player.hand = [sim.Card("Butcher", 5) for _ in range(3)]
+        player.castle_integrity = {castle: 14 for castle in sim.CASTLES}
+        player.castle_integrity["Keep"] = 6
+        player.hand = [sim.Card("Butcher", 5), sim.Card("Wright", 3)]
 
         game._ai_repair_only(player)
 
-        self.assertEqual(player.castle_repairs, {"SiegeEngine": 1})
-        self.assertEqual(player.castle_scars, {"SiegeEngine": 1})
+        self.assertEqual(player.castle_integrity["Keep"], 14)
+        self.assertEqual(player.castle_repairs, {"Keep": 1})
+        self.assertEqual(player.castle_scars, {})
 
     def test_market_rolls_unclaimed_offers_from_round_two(self):
         game = sim.Game(["Orias"], ["Valak"])

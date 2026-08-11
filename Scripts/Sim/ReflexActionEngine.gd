@@ -14,6 +14,10 @@ const OdradekInterlockEngineData = preload(
 	"res://Scripts/Sim/OdradekInterlockEngine.gd"
 )
 
+const CastleIntegrityRulesData = preload(
+	"res://Scripts/Sim/CastleIntegrityRules.gd"
+)
+
 
 const ACTION_PASS: String = "Pass"
 const ACTION_HUNT: String = "Hunt"
@@ -576,12 +580,7 @@ static func _execute_validated(
 		actor.tgt_type = ZONE_LORD
 		actor.ward_target = ""
 
-		actor.threat = min(
-			rules.max_threat,
-			int(
-				actor.threat
-			) + 1
-		)
+		CastleIntegrityRulesData.gain_threat(actor, rules, 1)
 
 		action_result = HuntResolutionEngineData.resolve(
 			game,

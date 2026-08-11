@@ -155,9 +155,8 @@ static func action_choices(
 					.pick_siege_target(
 						game,
 						player_id,
-						int(
-							opponent.pid
-						)
+						int(opponent.pid),
+						rules
 					)
 				)
 

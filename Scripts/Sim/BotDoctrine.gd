@@ -11,6 +11,10 @@ const GameSetupData = preload(
 	"res://Scripts/Sim/GameSetup.gd"
 )
 
+const CastleIntegrityRulesData = preload(
+	"res://Scripts/Sim/CastleIntegrityRules.gd"
+)
+
 const LordMathData = preload(
 	"res://Scripts/Sim/LordMath.gd"
 )
@@ -301,7 +305,8 @@ static func plan(
 static func pick_siege_target(
 	game,
 	attacker_id: int,
-	defender_id: int
+	defender_id: int,
+	rules: RuleConfig = null
 ) -> String:
 	assert(
 		game != null,
@@ -339,10 +344,19 @@ static func pick_siege_target(
 		return "SiegeEngine"
 
 	for castle_name: String in SIEGE_TARGET_ORDER:
-		if defender.castles.has(
-			castle_name
+		if not defender.castles.has(castle_name):
+			continue
+		# Bastion remains a legal direct target, but while another Castle
+		# stands behind the wall a rear target preserves possible overflow.
+		if (
+			castle_name == "Bastion"
+			and rules != null
+			and rules.bastion_wall
+			and CastleIntegrityRulesData.standing(defender, "Bastion")
+			and defender.castles.size() > 1
 		):
-			return castle_name
+			continue
+		return castle_name
 
 	return String(
 		defender.castles[0]
@@ -882,8 +896,16 @@ static func evaluate_action_candidates(
 		ward_score += 0.25
 
 	var profane_score: float = -5.0
+	var profanable: Array[String] = _profanable_castles(player, rules)
+	var can_profane: bool = (
+		not profanable.is_empty()
+		and (
+			rules.profane_no_castle_gate
+			or player.castles.size() >= 3
+		)
+	)
 
-	if player.castles.size() >= 3:
+	if can_profane:
 		var soul_deficit: int = (
 			opponent.souls
 			- player.souls
@@ -1011,7 +1033,7 @@ static func evaluate_action_candidates(
 		"chip_siege": false,
 	})
 
-	if player.castles.size() >= 3:
+	if can_profane:
 		candidates.append({
 			"id": ACTION_PROFANE,
 			"action": ACTION_PROFANE,
@@ -1209,9 +1231,8 @@ static func _commitment_decision_from_candidate(
 			"target_castle": pick_siege_target(
 				game,
 				player_id,
-				int(
-					opponent.pid
-				)
+				int(opponent.pid),
+				rules
 			),
 			"cards": _card_ids(
 				_commit_for_attack(
@@ -1231,7 +1252,7 @@ static func _commitment_decision_from_candidate(
 			"action": ACTION_PROFANE,
 			"target_pid": player_id,
 			"target_castle": _profane_target(
-				player
+				player, rules
 			),
 			"cards": [],
 		}
@@ -1653,8 +1674,8 @@ static func _commit_for_attack(
 					card
 				)
 
-				picked_total += int(
-					card.value
+				picked_total += player.attack_card_value(
+					card, rules, target_type == TARGET_CASTLE
 				)
 
 			if picked_total > needed_strength:
@@ -1690,12 +1711,9 @@ static func _commit_for_attack(
 	else:
 		var target_castle: String = pick_siege_target(
 			game,
-			int(
-				player.pid
-			),
-			int(
-				opponent.pid
-			)
+			int(player.pid),
+			int(opponent.pid),
+			rules
 		)
 
 		estimated_defense = _castle_defense(
@@ -1705,9 +1723,7 @@ static func _commit_for_attack(
 			rules
 		)
 
-		if not player.castles.has(
-			"SiegeEngine"
-		):
+		if not (rules.siege_engine_bypass and player.castles.has("SiegeEngine")):
 			estimated_defense += _estimated_guard_total(
 				opponent.castle_guards,
 				rules
@@ -1829,8 +1845,8 @@ static func _commit_for_attack(
 			card
 		)
 
-		committed_total += int(
-			card.value
+		committed_total += player.attack_card_value(
+			card, rules, target_type == TARGET_CASTLE
 		)
 
 	var trim_allowance: int = (
@@ -1844,18 +1860,18 @@ static func _commit_for_attack(
 	while (
 		committed.size() > 1
 		and committed_total
-		- int(
-			committed[
-				committed.size() - 1
-			].value
+		- player.attack_card_value(
+			committed[committed.size() - 1],
+			rules,
+			target_type == TARGET_CASTLE
 		)
 		> target_strength
 		+ trim_allowance
 	):
 		var removed_card = committed.pop_back()
 
-		committed_total -= int(
-			removed_card.value
+		committed_total -= player.attack_card_value(
+			removed_card, rules, target_type == TARGET_CASTLE
 		)
 
 	var marked_lord: String = String(
@@ -1898,8 +1914,7 @@ static func _commit_for_attack(
 
 		for card in remaining_hand:
 			if _effective_recoil_total(
-				committed,
-				rules
+				player, committed, rules, target_type == TARGET_CASTLE
 			) >= target_strength:
 				break
 
@@ -1978,39 +1993,20 @@ static func _commit_for_ward(
 
 
 static func _effective_recoil_total(
+	player,
 	cards: Array,
-	rules: RuleConfig
+	rules: RuleConfig,
+	siege: bool
 ) -> int:
 	if cards.size() <= 1:
 		return 0
-
-	var values: Array[int] = []
-
-	for card in cards:
-		values.append(
-			int(
-				card.value
-			)
-		)
-
-	values.sort()
-	values.reverse()
-
-	var loss: int = 0
-
-	if rules.recoil_lowest:
-		loss = values[
-			values.size() - 1
-		]
-	else:
-		loss = values[1]
-
+	var ordered: Array = cards.duplicate()
+	ordered.sort_custom(func(a, b): return int(a.value) > int(b.value))
+	var removed = ordered[ordered.size() - 1] if rules.recoil_lowest else ordered[1]
 	var total: int = 0
-
-	for value: int in values:
-		total += value
-
-	return total - loss
+	for card in cards:
+		total += player.attack_card_value(card, rules, siege)
+	return total - player.attack_card_value(removed, rules, siege)
 
 
 static func _lord_base_defense(
@@ -2071,10 +2067,8 @@ static func _lord_base_defense(
 	elif defender.threat >= 2:
 		defense -= 1
 
-	if defender.castles.has(
-		"Bastion"
-	):
-		defense += 2
+	if defender.castles.has("Bastion"):
+		defense += maxi(0, int(rules.bastion_lord_def_bonus))
 
 	return max(
 		0,
@@ -2088,6 +2082,27 @@ static func _castle_defense(
 	defender = null,
 	rules: RuleConfig = null
 ) -> int:
+	if rules != null and rules.castle_integrity and defender != null:
+		var integrity_defense: int = int(
+			defender.castle_integrity.get(
+				castle_name,
+				CastleIntegrityRulesData.max_integrity(castle_name)
+			)
+		)
+		if (
+			rules.bastion_wall
+			and castle_name != "Bastion"
+			and CastleIntegrityRulesData.standing(defender, "Bastion")
+		):
+			integrity_defense += int(defender.castle_integrity.get(
+				"Bastion", CastleIntegrityRulesData.max_integrity("Bastion")
+			))
+		if game.breach == "Deimos":
+			integrity_defense = maxi(0, integrity_defense - 1)
+		elif game.breach == "Humbaba":
+			integrity_defense = maxi(1, integrity_defense - 1)
+		return integrity_defense
+
 	var defense: int = int(
 		CASTLE_DEFENSES.get(
 			castle_name,
@@ -2184,38 +2199,33 @@ static func _dominion_requirement(
 	)
 
 
-static func _profane_target(
-	player
-) -> String:
+static func _profanable_castles(player, rules: RuleConfig) -> Array[String]:
+	var result: Array[String] = []
+	for castle_value in player.castles:
+		var castle_name: String = String(castle_value)
+		if not rules.profane_requires_full_integrity:
+			result.append(castle_name)
+			continue
+		var maximum: int = CastleIntegrityRulesData.max_integrity(castle_name)
+		if int(player.castle_integrity.get(castle_name, maximum)) >= maximum:
+			result.append(castle_name)
+	return result
+
+
+static func _profane_target(player, rules: RuleConfig) -> String:
+	var eligible: Array[String] = _profanable_castles(player, rules)
+	if eligible.is_empty():
+		return ""
 	var raw_priority = CASTLE_PRIORITIES.get(
-		String(
-			player.lord
-		),
+		String(player.lord),
 		DEFAULT_CASTLE_PRIORITY
 	)
-
 	var priority: Array = raw_priority
-
-	for index: int in range(
-		priority.size() - 1,
-		-1,
-		-1
-	):
-		var castle_name: String = String(
-			priority[index]
-		)
-
-		if player.castles.has(
-			castle_name
-		):
+	for index: int in range(priority.size() - 1, -1, -1):
+		var castle_name: String = String(priority[index])
+		if eligible.has(castle_name):
 			return castle_name
-
-	if player.castles.is_empty():
-		return ""
-
-	return String(
-		player.castles[0]
-	)
+	return eligible[0]
 
 
 static func _profile_for(

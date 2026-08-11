@@ -6,6 +6,10 @@ const DrawEngineData = preload(
 	"res://Scripts/Sim/DrawEngine.gd"
 )
 
+const CastleIntegrityRulesData = preload(
+	"res://Scripts/Sim/CastleIntegrityRules.gd"
+)
+
 
 static func resolve(
 	game,
@@ -193,32 +197,7 @@ static func _resolve_orias_snare(
 			),
 		}
 
-	if (
-		opponent.hand.size()
-		+ opponent.garrison.size()
-		< 2
-	):
-		return {
-			"player_id": int(
-				orias.pid
-			),
-			"target_player_id": int(
-				opponent.pid
-			),
-			"applied": false,
-			"reason": "target_has_too_few_cards",
-			"threat_before": threat_before,
-			"threat_after": int(
-				orias.threat
-			),
-		}
-
-	orias.threat = min(
-		rules.max_threat,
-		int(
-			orias.threat
-		) + 1
-	)
+	CastleIntegrityRulesData.gain_threat(orias, rules, 1)
 
 	opponent.orias_snare_active = true
 
