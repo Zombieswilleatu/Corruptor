@@ -4,3 +4,7 @@
 # Python cache
 __pycache__/
 *.pyc
+
+# Local Corruptor patch backups / audit artifacts
+.corruptor_backups/
+CASTLE_RULES_LOCK_AUDIT_*.txt
