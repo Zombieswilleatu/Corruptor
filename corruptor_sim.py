@@ -105,10 +105,10 @@ This version aligns the simulation with Rulebook v5.29. Major changes:
   defense penalty (persistent Scorch guard-strip retained).
 """
 
-SIM_VERSION = "6.9.0-castle-integrity"          # canonical rules migration
-SIM_CODENAME = "Castle Integrity + measured systems"
-AI_POLICY = "heuristic-2026.08-castle-integrity"  # rules-aware doctrine axis (Law 5)
-LAB_PROFILE_VERSION = "6.9.0-castle-integrity"  # current canonical gameplay profile
+SIM_VERSION = "7.4.0-castle-rules-lock"          # locked Castle identities + suit economy parity
+SIM_CODENAME = "Castle rules lock + suit economy"
+AI_POLICY = "heuristic-2026.08-castle-rules-lock" # rules-aware doctrine axis (Law 5)
+LAB_PROFILE_VERSION = "7.4.0-castle-rules-lock" # current canonical gameplay profile
 
 import random
 import argparse
@@ -309,6 +309,7 @@ LAB_V6_5_VARIANT = dict(
     doctrine_ward_stagnation=0.30,
     doctrine_bank_urgency=0.35,
     ward_threshold=True,
+    ward_frontline=True,
     ward_anti_repeat=False,
     ward_commit_any=True,
     ward_read=True,
@@ -346,6 +347,50 @@ LAB_V6_5_VARIANT = dict(
     castle_damage_mode='arriving_strength',
     castle_construction_mode='granular',
     castle_action_limit=1,
+    # ── Castle rules v7.4 + suit economy (mirrors live Godot) ────────
+    castle_power_gate_mode='operational',
+    castle_operational_floor=7,
+    keep_sanctuary=True,
+    bastion_wall=True,
+    bastion_lord_def_bonus=0,
+    stockpile_filter=True,
+    circle_blood_conduit=True,
+    circle_conduit_cost=3,
+    circle_blood_summon=True,
+    circle_blood_summon_cost=3,
+    circle_blood_summon_discount=3,
+    resummon_tear_mode='none',
+
+    # Retired/experimental kit dials kept inert for old probe compatibility.
+    resummon_delay_rounds=0,
+    circle_ignores_delay=False,
+    stockpile_tokens=0,
+    reinforce_cap=0,
+    stockpile_token_cap=0,
+    circle_discount=0,
+    circle_opening_summon=False,
+    stockpile_depot=False,
+    stockpile_depot_cost=2,
+    siege_engine_bypass=False,
+    siege_engine_scope='siege',
+    se_breach_the_gate=False,
+    stockpile_muster=False,
+    circle_swift_return=False,
+    guard_offsuit_penalty=0,
+    guard_penalty_exempt_suit='Vulture',
+    guard_offsuit_floor=1,
+    circle_ignores_guard_tax=False,
+    stockpile_ignores_wright=False,
+    ward_offsuit_penalty=0,
+    ward_penalty_exempt_suit='Penitent',
+    ward_offsuit_floor=1,
+    keep_ignores_ward_tax=False,
+
+    attack_offsuit_penalty=1,
+    attack_penalty_exempt_suit='Butcher',
+    attack_offsuit_floor=1,
+    construction_action_cap=5,
+    repair_wright_mode='strict',
     ruination_soul_bonus=1,
     ruination_soul_source='enemy_siege',
     castle_ruination_irreparable=True,
@@ -353,6 +398,7 @@ LAB_V6_5_VARIANT = dict(
     master_builder_integrity=2,
     rapid_construction_integrity=1,
     profane_no_castle_gate=True,
+    profane_requires_full_integrity=True,
     castleless_siege=False,
     castleless_tear_neutral=True,
 )
@@ -381,6 +427,7 @@ DE_V2_FEATURES = dict(
     kal_lane_scorch_thresh=2,
     # Historical DE v2 compatibility. The current gameplay profile enables all four.
     castle_integrity=False,
+    castle_identity=False,
     castle_granular_repair=False,
     castle_construction=False,
     castle_irreparable=False,
@@ -417,6 +464,7 @@ LAB_V6_5_FEATURES = dict(
     # Current canonical Castle Integrity rules; historical DE v2 remains
     # available only for trace comparison and golden-oracle continuity.
     castle_integrity=True,
+    castle_identity=True,    # v7.4: powers shut off below 7 Integrity
     castle_granular_repair=True,
     castle_construction=True,
     castle_irreparable=True,
@@ -495,9 +543,22 @@ CASTLE_DEF = {
     'Stockpile':        8,
     'SiegeEngine':      7,
 }
-CASTLE_COST = CASTLE_DEF   # legacy binary rebuild cost
+CASTLE_COST = dict(CASTLE_DEF)   # legacy binary rebuild cost (own dict: see Law 5 notes)
 CASTLES = list(CASTLE_DEF.keys())
 CASTLE_MAX_INTEGRITY = 14
+
+# ── Castle Identity tiers ────────────────────────────────────────────────
+#   Operational  OPERATIONAL_FLOOR .. MAX   printed/identity power is live
+#   Defunct      1 .. OPERATIONAL_FLOOR-1   power inactive, stones still stand
+#   Ruined       0                          removed from play, irreparable
+CASTLE_OPERATIONAL_FLOOR = 7
+
+# Lab probe: the OPPORTUNITY denominator. Counts every power-gate query and
+# how many were denied by Defunct. Without this we cannot tell "bot chose
+# badly" from "the window never opened" (§3 blindness vs §2 magnitude).
+CASTLE_STATE_OPERATIONAL = 'operational'
+CASTLE_STATE_DEFUNCT     = 'defunct'
+CASTLE_STATE_RUINED      = 'ruined'
 
 
 def castle_max_integrity(castle: str) -> int:
@@ -505,6 +566,96 @@ def castle_max_integrity(castle: str) -> int:
     if ACTIVE_FEATURES.get('castle_integrity', False):
         return CASTLE_MAX_INTEGRITY
     return CASTLE_DEF[castle]
+
+
+def castle_state_for(integrity: int) -> str:
+    """Pure tier lookup. Integrity in, tier out — no Player, no VARIANT."""
+    if integrity <= 0:
+        return CASTLE_STATE_RUINED
+    if integrity >= CASTLE_OPERATIONAL_FLOOR:
+        return CASTLE_STATE_OPERATIONAL
+    return CASTLE_STATE_DEFUNCT
+
+
+KIT_PROBE: dict = {}
+
+
+def _kit(tag: str, n: int = 1) -> None:
+    """Opportunity/activation counters. Per §3 the DENOMINATOR is the point:
+    it separates 'the bot chose badly' from 'the window never opened'."""
+    KIT_PROBE[tag] = KIT_PROBE.get(tag, 0) + n
+
+
+def effective_ward_value(pl, card: 'Card') -> int:
+    """What one card is WORTH on a Ward. Doctrine must size in the same
+    currency the resolver spends, or it undercommits by exactly the tax and the
+    rule measures larger than it is (§3)."""
+    pen = int(VARIANT.get('ward_offsuit_penalty', 0) or 0)
+    if pen <= 0:
+        return card.value
+    if (VARIANT.get('keep_ignores_ward_tax', False)
+            and pl.castle_operational('Keep')):
+        return card.value
+    if card.suit == VARIANT.get('ward_penalty_exempt_suit', 'Penitent'):
+        return card.value
+    return max(int(VARIANT.get('ward_offsuit_floor', 1)), card.value - pen)
+
+
+def effective_guard_value(card: 'Card', exempt: bool = False) -> int:
+    """Defensive worth of one Guard under the Vulture tax. Estimators and
+    Deploy doctrine must use this, or attackers overestimate walls and
+    defenders garrison the wrong suits (§3)."""
+    pen = int(VARIANT.get('guard_offsuit_penalty', 0) or 0)
+    if pen <= 0 or exempt:
+        return card.value
+    if card.suit == VARIANT.get('guard_penalty_exempt_suit', 'Vulture'):
+        return card.value
+    return max(int(VARIANT.get('guard_offsuit_floor', 1)), card.value - pen)
+
+
+def effective_attack_value(card: 'Card', pl=None, siege: bool = False) -> int:
+    """Card strength under the attack tax, including Forge Discipline."""
+    pen = int(VARIANT.get('attack_offsuit_penalty', 0) or 0)
+    if pen <= 0:
+        return card.value
+    if pl is not None and pl.castle_power_active('SiegeEngine'):
+        scope = VARIANT.get('siege_engine_scope', 'siege')
+        if scope == 'all' or (scope == 'siege' and siege):
+            return card.value
+    if card.suit == VARIANT.get('attack_penalty_exempt_suit', 'Butcher'):
+        return card.value
+    return max(int(VARIANT.get('attack_offsuit_floor', 1)), card.value - pen)
+
+
+def repair_payment_pool(cards: List['Card'], pl=None) -> List['Card']:
+    """Cards legally usable to pay a Repair, under the Wright requirement.
+
+    Returns [] when the Wright requirement cannot be met at all — callers MUST
+    treat that as "Repair is not a legal action this round", not as "pay zero".
+    """
+    mode = VARIANT.get('repair_wright_mode', 'off')
+    if mode == 'off':
+        return list(cards)
+    if pl is not None and VARIANT.get('stockpile_ignores_wright', False) \
+            and pl.castle_power_active('Stockpile'):
+        return list(cards)          # Stockpile — the Yard: any suit pays
+    wrights = [c for c in cards if c.suit == 'Wright']
+    if not wrights:
+        return []
+    if mode == 'strict':
+        return wrights
+    return list(cards)          # 'gate': one Wright exists, all cards spendable
+
+
+def profane_eligible(pl, castle: str) -> bool:
+    """Only a Castle at FULL Integrity may be Profaned. One point of chip
+    damage denies eligibility — this is what gives a scratch tactical value."""
+    if castle not in pl.castles:
+        return False
+    if not VARIANT.get('profane_requires_full_integrity', False):
+        return True
+    return (pl.castle_integrity.get(castle, castle_max_integrity(castle))
+            >= castle_max_integrity(castle))
 
 
 def castle_board_fraction(count: int) -> float:
@@ -548,8 +699,13 @@ LORD_STATS = {
     'Odradek':  {'s': 8, 'd': 5, 'r': 2},
     'Kanifous': {'s': 4, 'd': 5, 'r': 1},
     'Humbaba':  {'s': 6, 'd': 2, 'r': 2},   # base d; true defense = 2 + intact castles
+    # Vanilla — no kit. Every ability in this sim is gated on a lord-name
+    # check, so a Lord matching none of them is automatically kitless. Used
+    # for STRUCTURAL questions (§6): what does a Castle do, absent nine kits.
+    'Vanilla':  {'s': 6, 'd': 5, 'r': 1},
 }
-ALL_LORDS = list(LORD_STATS.keys())
+ALL_LORDS = [l for l in LORD_STATS if l != 'Vanilla']
+ROSTER_LORDS = ALL_LORDS
 
 CASTLE_PRIORITIES = {
     'Orias':    ['SiegeEngine', 'Bastion',   'Stockpile',       'SummoningCircle', 'Keep'],
@@ -561,6 +717,7 @@ CASTLE_PRIORITIES = {
     'Odradek':  ['Keep',        'Bastion',   'SummoningCircle', 'Stockpile',       'SiegeEngine'],
     'Kanifous': ['Keep',        'Bastion',   'SummoningCircle', 'Stockpile',       'SiegeEngine'],
     'Humbaba':  ['Keep',        'Bastion',   'Stockpile',       'SummoningCircle', 'SiegeEngine'],
+    'Vanilla':  ['Keep',        'Bastion',   'Stockpile',       'SummoningCircle', 'SiegeEngine'],
 }
 
 # Opening loadouts use each Lord's existing five-Castle priority and take
@@ -576,6 +733,7 @@ LORD_AI = {
     'Odradek':  dict(aggro=0.75, control=1.25, risk=0.65, prefer='Ward'),  # Dominion racer; Ward to avoid stripping 2+ guards
     'Kanifous': dict(aggro=1.00, control=1.10, risk=1.25, prefer='Ward'),
     'Humbaba':  dict(aggro=0.65, control=1.35, risk=0.60, prefer='Ward'),
+    'Vanilla':  dict(aggro=1.00, control=1.00, risk=1.00, prefer='Siege'),
 }
 
 
@@ -724,6 +882,8 @@ class Player:
         self.castle_repairs: dict[str, int] = {}
         self.castle_integrity: dict[str, int] = {}
         self.castle_construction_progress: dict[str, int] = {}
+        self.banished_on_round: int = -99   # for the resummon delay
+        self.construction_tokens: int = 0   # Stockpile bank
         self.castle_action_used_this_round: bool = False
         self.castle_scars: dict[str, int] = {}
         self.lost_castles: Set[str] = set()
@@ -772,6 +932,43 @@ class Player:
     def committed_value(self) -> int:
         return sum(c.value for c in self.committed)
 
+    def ward_value(self) -> int:
+        """Raw committed Ward value used by Reveal."""
+        pen = int(VARIANT.get('ward_offsuit_penalty', 0) or 0)
+        if pen <= 0:
+            return self.committed_value()
+        if (VARIANT.get('keep_ignores_ward_tax', False)
+                and self.castle_power_active('Keep')):
+            return self.committed_value()
+        suit = VARIANT.get('ward_penalty_exempt_suit', 'Penitent')
+        floor = int(VARIANT.get('ward_offsuit_floor', 1))
+        return sum(c.value if c.suit == suit else max(floor, c.value - pen)
+                   for c in self.committed)
+
+    def ward_reinforcement_value(self) -> int:
+        """Temporary first-line Ward defense; Penitent pair keeps its +1 bonus."""
+        if self.action != 'Ward':
+            return 0
+        value = self.ward_value() + self.suit_bonus('Penitent')
+        if (VARIANT.get('humbaba_sigil_commit', False)
+                and self.lord == 'Humbaba'):
+            value += 2 + (1 if self.castle_power_active('Keep') else 0)
+        return value
+
+    def attack_value(self, siege: bool = False) -> int:
+        """Attack strength under the locked suit economy."""
+        pen = int(VARIANT.get('attack_offsuit_penalty', 0) or 0)
+        if pen <= 0:
+            return self.committed_value()
+        if self.castle_power_active('SiegeEngine'):
+            scope = VARIANT.get('siege_engine_scope', 'siege')
+            if scope == 'all' or (scope == 'siege' and siege):
+                return self.committed_value()
+        suit = VARIANT.get('attack_penalty_exempt_suit', 'Butcher')
+        floor = int(VARIANT.get('attack_offsuit_floor', 1))
+        return sum(c.value if c.suit == suit else max(floor, c.value - pen)
+                   for c in self.committed)
+
     def suit_count(self, suit: str) -> int:
         return sum(1 for c in self.committed if c.suit == suit)
 
@@ -780,15 +977,12 @@ class Player:
 
     def lord_base_def(self, breach: Optional[str] = None) -> int:
         if self.lord == 'Humbaba':
-            # Woven into the stones: Defense = 2 + intact castles (Bastion adds
-            # its usual +2 below like any lord's, so a full board peaks at 9;
-            # a stripped board bottoms at 2 before Threat).
             d = 2 + len(self.castles)
             if   self.threat >= 4: d -= 3
             elif self.threat >= 3: d -= 2
             elif self.threat >= 2: d -= 1
-            if 'Bastion' in self.castles:
-                d += 2
+            if self.castle_power_active('Bastion'):
+                d += int(VARIANT.get('bastion_lord_def_bonus', 2) or 0)
             return max(0, d)
         if self.lord == 'Kroni':
             hi = 7 if VARIANT['kroni_def_soft'] else 8
@@ -803,10 +997,64 @@ class Player:
         elif self.threat >= 3: d -= 2
         elif self.threat >= 2: d -= 1
 
-        if 'Bastion' in self.castles:
-            d += 2
-
+        if self.castle_power_active('Bastion'):
+            d += int(VARIANT.get('bastion_lord_def_bonus', 2) or 0)
         return max(0, d)
+
+    # ── Castle Identity ──────────────────────────────────────────────
+    def castle_state(self, castle: str) -> str:
+        """Physical state of one owned Castle; not-owned reads as Ruined."""
+        if castle not in self.castles:
+            return CASTLE_STATE_RUINED
+        mode = VARIANT.get('castle_power_gate_mode')
+        if mode is None:
+            mode = 'operational' if ACTIVE_FEATURES.get('castle_identity', False) else 'owned'
+        if mode == 'owned':
+            return CASTLE_STATE_OPERATIONAL
+        if mode != 'operational':
+            raise ValueError('unknown castle_power_gate_mode: %s' % mode)
+        floor = max(1, int(VARIANT.get('castle_operational_floor', CASTLE_OPERATIONAL_FLOOR)))
+        integrity = self.castle_integrity.get(castle, castle_max_integrity(castle))
+        if integrity <= 0:
+            return CASTLE_STATE_RUINED
+        return CASTLE_STATE_OPERATIONAL if integrity >= floor else CASTLE_STATE_DEFUNCT
+
+    def castle_operational(self, castle: str) -> bool:
+        """THE power gate. Every printed/identity power hook routes here."""
+        return self.castle_state(castle) == CASTLE_STATE_OPERATIONAL
+
+    def castle_power_active(self, castle: str) -> bool:
+        return self.castle_operational(castle)
+
+    def operational_castles(self) -> List[str]:
+        return [c for c in self.castles if self.castle_operational(c)]
+
+    def can_exert(self, castle: str, amount: int) -> bool:
+        """Exertion may drive a Castle Defunct but may never self-Ruin it."""
+        if amount <= 0 or not self.castle_operational(castle):
+            return False
+        cur = self.castle_integrity.get(castle, castle_max_integrity(castle))
+        return (cur - amount) >= 1
+
+    def exert(self, castle: str, amount: int, game=None, reason: str = '') -> int:
+        """Single chokepoint for every Integrity self-spend. Returns amount paid
+        (0 = refused). Callers MUST treat 0 as "the power did not happen"."""
+        if not self.can_exert(castle, amount):
+            if game is not None:
+                game.stat_exert_refused += 1
+            return 0
+        self.castle_integrity[castle] = (
+            self.castle_integrity.get(castle, castle_max_integrity(castle)) - amount)
+        if game is not None:
+            game.stat_exert_paid += amount
+            game.stat_exert_activations += 1
+            game.stat_exert_by_castle[castle] = (
+                game.stat_exert_by_castle.get(castle, 0) + amount)
+            if not self.castle_operational(castle):
+                game.stat_exert_self_defunct += 1
+                game.stat_exert_defunct_by_castle[castle] = (
+                    game.stat_exert_defunct_by_castle.get(castle, 0) + 1)
+        return amount
 
     def castle_def(self, target: str, breach: Optional[str] = None, game=None) -> int:
         d = (
@@ -914,6 +1162,21 @@ class Game:
         # Stats
         self.stat_combats           = 0
         self.stat_lords_killed      = 0
+        # ── Castle Identity telemetry ────────────────────────────────
+        # OPPORTUNITY counters are the denominator §2/§3 was missing: they
+        # separate "bot chose badly" from "the window never opened".
+        self.stat_exert_paid            = 0
+        self.stat_exert_activations     = 0
+        self.stat_exert_refused         = 0
+        self.stat_exert_self_defunct    = 0
+        self.stat_exert_by_castle: dict[str, int] = {}
+        self.stat_exert_defunct_by_castle: dict[str, int] = {}
+        self.stat_power_opportunities: dict[str, int] = {}
+        self.stat_power_activations:   dict[str, int] = {}
+        self.stat_power_changed_outcome: dict[str, int] = {}
+        self.stat_defunct_rounds        = 0
+        self.stat_power_suppressed_defunct = 0
+
         self.stat_castles_destroyed = 0
         self.stat_castle_damage     = 0
         self.stat_castle_repaired   = 0
@@ -1054,13 +1317,18 @@ class Game:
     #  SIEGE TARGET
     # ─────────────────────────────────────────────────────────────────
     def _pick_siege_target(self, atk: Player, dfn: Player) -> str:
-        # Deimos exception: destroy Siege Engine first to disable War Machine + bypass
         if dfn.lord == 'Deimos' and dfn.alive and 'SiegeEngine' in dfn.castles:
             return 'SiegeEngine'
         order = ['Stockpile', 'SummoningCircle', 'SiegeEngine', 'Bastion', 'Keep']
-        for c in order:
-            if c in dfn.castles:
-                return c
+        for castle in order:
+            if castle not in dfn.castles:
+                continue
+            if (castle == 'Bastion'
+                    and VARIANT.get('bastion_wall', False)
+                    and dfn.castle_integrity.get('Bastion', 0) > 0
+                    and len(dfn.castles) > 1):
+                continue
+            return castle
         return next(iter(dfn.castles))
 
     # ─────────────────────────────────────────────────────────────────
@@ -1080,7 +1348,7 @@ class Game:
         if outside_draw:
             pl.kanifous_outside_draws += 1
             if self.breach == 'Kanifous':
-                pl.threat = min(MAX_THREAT, pl.threat + 1)
+                self._gain_threat(pl, 1)
                 self.stat_breach_triggers += 1
         return True
 
@@ -1412,9 +1680,7 @@ class Game:
 
         # Draw Step
         for pl in self.players:
-            n = 5 + (1 if 'Stockpile' in pl.castles else 0)
-            for _ in range(n):
-                self._draw(pl)
+            self._run_draw_step(pl)
 
         # Market
         self._refresh_market_offers()
@@ -1423,7 +1689,56 @@ class Game:
 
         # Repair (before Deploy — the no-token repair restriction now bites)
         for pl in self.players:
+            # Stockpile — the Yard: generates Construction tokens each round.
+            # Bankable, spent IN ADDITION to a normal Castle action — they add
+            # value, they do not grant an extra action. They are not cards, so
+            # they never satisfy the Wright requirement on their own.
+            if pl.castle_power_active('Stockpile'):
+                _t = int(VARIANT.get('stockpile_tokens', 0) or 0)
+                if _t > 0:
+                    _cap = int(VARIANT.get('stockpile_token_cap', 0) or 0)
+                    pl.construction_tokens += _t
+                    if _cap > 0:
+                        pl.construction_tokens = min(pl.construction_tokens, _cap)
+                    _kit('tokens_generated', _t)
             self._ai_repair_only(pl)
+
+            # Stockpile — Reinforce: a material with nothing to build becomes
+            # temporary wall. Integrity above the printed max is NOT restored by
+            # Repair (which heals only to max), so reinforcement is spent once
+            # and gone. It keeps the token from ever being wasted.
+            if (pl.construction_tokens > 0 and pl.castle_power_active('Stockpile')):
+                _rc = int(VARIANT.get('reinforce_cap', 0) or 0)
+                if _rc > 0:
+                    for _c in sorted(
+                            pl.castles,
+                            key=lambda c: -pl.castle_integrity.get(
+                                c, castle_max_integrity(c))):
+                        if pl.construction_tokens <= 0:
+                            break
+                        _mx = castle_max_integrity(_c) + _rc
+                        _cur = pl.castle_integrity.get(_c, castle_max_integrity(_c))
+                        _room = _mx - _cur
+                        if _room <= 0:
+                            continue
+                        _add = min(pl.construction_tokens, _room)
+                        pl.castle_integrity[_c] = _cur + _add
+                        pl.construction_tokens -= _add
+                        _kit('tokens_spent_reinforce', _add)
+
+            # Stockpile — Depot: Exert for a SECOND Repair/Construct action.
+            if (VARIANT.get('stockpile_depot', False)
+                    and pl.castle_action_used_this_round
+                    and pl.castle_power_active('Stockpile')):
+                _kit('depot_opportunity')
+                _c = int(VARIANT.get('stockpile_depot_cost', 2))
+                if pl.can_exert('Stockpile', _c):
+                    pl.exert('Stockpile', _c, game=self, reason='depot')
+                    _kit('depot_activation'); _kit('depot_integrity_spent', _c)
+                    pl.castle_action_used_this_round = False
+                    self._ai_repair_only(pl)
+                else:
+                    _kit('depot_short')
 
         # Dominion Rites (Development-phase rites)
         for pl in self.players:
@@ -1442,7 +1757,8 @@ class Game:
     def _ai_orias_snare(self, pl: Player):
         if pl.threat >= 3: return
         op = self.opp(pl.pid)
-        pl.threat = min(MAX_THREAT, pl.threat + 1)
+        if len(op.garrison) + len(op.hand) < 2: return
+        self._gain_threat(pl, 1)
         op.orias_snare_active = True
 
     # ─────────────────────────────────────────────────────────────────
@@ -1538,7 +1854,7 @@ class Game:
     def _phase_reveal(self, trigger_order: Optional[List[int]] = None):
         for pl in self.players:
             if pl.action == 'Hunt':
-                pl.threat = min(MAX_THREAT, pl.threat + 1)
+                self._gain_threat(pl, 1)
 
         # Register Wards.  DE v2 uses the Sigil Contest; v6.5 keeps the same
         # short-lived visual marker but makes a correctly-funded Ward turn the
@@ -1550,10 +1866,10 @@ class Game:
                 contested = ((op.action == 'Hunt'  and zone == 'Lord') or
                              (op.action == 'Siege' and zone == 'Castle'))
 
-                ward_strength = pl.committed_value()
+                ward_strength = pl.ward_value()
                 if (VARIANT.get('humbaba_sigil_commit', False)
                         and pl.lord == 'Humbaba'):
-                    ward_strength += 2 + (1 if 'Keep' in pl.castles else 0)
+                    ward_strength += 2 + (1 if pl.castle_operational('Keep') else 0)
 
                 if VARIANT.get('sigil_flat', False):
                     pl.sigils[zone] = 'fresh'
@@ -1563,6 +1879,7 @@ class Game:
                     pl.sigils[zone] = 'fresh'
 
                 if (VARIANT.get('ward_threshold', False)
+                        and not VARIANT.get('ward_frontline', False)
                         and contested
                         and ward_strength >= op.committed_value()):
                     pl.ward_turned.add(zone)
@@ -1898,10 +2215,13 @@ class Game:
                 pl.repair_token = 1  # capped at 1 — no stockpiling
 
             self._apply_momentum_refund(pl)
+
+            # Ward reinforcements survive until BOTH primary actions resolve.
+            if self._check_win(): return
+
+        for pl in self.players:
             self._discard(pl.committed)
             pl.committed = []
-
-            if self._check_win(): return
 
         # ── REFLEX ACTION — bid winner's optional second action (v5.29).
         # Resolves after all committed actions, before End-of-Round effects.
@@ -1936,7 +2256,8 @@ class Game:
                 if all_guards:
                     victim = min(all_guards, key=lambda g: g.value)
                     if victim in pl.lord_guards:     pl.lord_guards.remove(victim)
-                    elif victim in pl.castle_guards: pl.castle_guards.remove(victim)
+                    elif victim in pl.castle_guards:
+                        pl.castle_guards.remove(victim)
                     self._discard([victim])
                     self.stat_breach_triggers += 1
 
@@ -2040,7 +2361,7 @@ class Game:
             pl.pending_profane = ''
             return
         target = pl.pending_profane
-        if not target or target not in pl.castles:
+        if not target or not profane_eligible(pl, target):
             pl.pending_profane = ''
             return
         pl.castles.discard(target)
@@ -2181,7 +2502,7 @@ class Game:
         pl.committed = cards
 
         if action == 'Hunt':
-            pl.threat = min(MAX_THREAT, pl.threat + 1)   # Hunt always costs 1 Threat
+            self._gain_threat(pl, 1)   # Hunt always costs 1 Threat
             self._resolve_hunt(pl, op)
         elif action == 'Siege':
             self._resolve_siege(pl, op, forced_target=target, reflex=True)
@@ -2299,73 +2620,67 @@ class Game:
     #  COMBAT: HUNT
     # ─────────────────────────────────────────────────────────────────
     def _resolve_hunt(self, atk: Player, dfn: Player):
-        if not dfn.alive: return
+        if not dfn.alive:
+            return
         if (VARIANT.get('ward_threshold', False)
-                and 'Lord' in dfn.ward_turned):
-            # A turned attack still spends its committed cards in aftermath.
+                and not VARIANT.get('ward_frontline', False)
+                and 'Lord' in dfn.ward_turned
+                and not (VARIANT.get('se_breach_the_gate', False)
+                         and atk.castle_power_active('SiegeEngine'))):
             dfn.was_hunted = True
             return
         dfn.was_hunted = True
 
-        # Relentless Pursuit: Orias hunting his marked lord gets a clean hunt
-        # — Recoil and Backwash are suppressed for this attack
         orias_clean_hunt = (atk.lord == 'Orias' and self.orias_marked_lord == dfn.lord)
-
-        # ── Odradek — Psychic Recoil (PRE-COMBAT, first attack this round)
-        # Discard the attacker's second-highest committed card and gain 1 Soul.
         if (dfn.lord == 'Odradek' and dfn.alive and not dfn.odradek_recoil_done
                 and not orias_clean_hunt):
             self._odradek_recoil(atk, dfn)
 
-        strength  = atk.committed_value()
-        strength += atk.suit_bonus('Butcher')
-
-        # Orias — Marked Prey: +1 Hunt Strength; +1 additional if defender 2+ Threat
+        strength = atk.attack_value() + atk.suit_bonus('Butcher')
         if atk.lord == 'Orias' and atk.alive:
-            strength += 1
-            if dfn.threat >= 2: strength += 1
+            strength += 1 + (1 if dfn.threat >= 2 else 0)
 
-        # Crushing Presence / Invoked Butcher: lowest defending Guard gives no Defense
-        ignore_lowest = False
-        butcher_suppressed_guard = None
-        if atk.lord == 'Valak' and atk.alive and len(dfn.lord_guards) >= 2:
-            ignore_lowest = True
+        ignore_lowest = atk.lord == 'Valak' and atk.alive and len(dfn.lord_guards) >= 2
         if (atk.lord == 'Kanifous' and atk.alive
                 and atk.kanifous_invoked_suit == 'Butcher' and dfn.lord_guards):
-            butcher_suppressed_guard = min(
-                dfn.lord_guards,
-                key=lambda c: c.value,
-            )
-            dfn.lord_guards.remove(butcher_suppressed_guard)
-            self._discard([butcher_suppressed_guard])
+            victim = min(dfn.lord_guards, key=lambda c: c.value)
+            dfn.lord_guards.remove(victim)
+            self._discard([victim])
 
-        lord_def    = dfn.lord_base_def(breach=self.breach)
-
-        if (
-            ACTIVE_FEATURES['ward_commit_defense']
-            and dfn.action == 'Ward'
-            and dfn.ward_target == 'Lord'
-        ):
-            lord_def += dfn.committed_value()
-
-            if (
-                VARIANT.get('humbaba_sigil_commit', False)
-                and dfn.lord == 'Humbaba'
-            ):
-                lord_def += 2 + (1 if 'Keep' in dfn.castles else 0)
+        lord_def = dfn.lord_base_def(breach=self.breach)
+        ward_screen = 0
+        if (ACTIVE_FEATURES['ward_commit_defense']
+                and dfn.action == 'Ward' and dfn.ward_target == 'Lord'):
+            if VARIANT.get('ward_frontline', False):
+                ward_screen = dfn.ward_reinforcement_value()
+            else:
+                lord_def += dfn.ward_value()
 
         sigil_state = dfn.sigils['Lord']
         sigil_value = self._sigil_value(dfn, sigil_state)
-
         guards_before = len(dfn.lord_guards)
         self.stat_combats += 1
         destroyed, sigil_broken, excess = self._combat_layers(
             atk, strength, dfn.lord_guards, ignore_lowest,
-            sigil_value, has_sigil=(sigil_state != ''), struct_def=lord_def)
+            sigil_value, has_sigil=(sigil_state != ''), struct_def=lord_def,
+            ward_screen=ward_screen,
+            guard_tax_exempt=(VARIANT.get('circle_ignores_guard_tax', False)
+                              and dfn.castle_power_active('SummoningCircle')))
         guards_lost = guards_before - len(dfn.lord_guards)
 
-        if (VARIANT.get('momentum', False)
-                and destroyed
+        if (destroyed and VARIANT.get('keep_sanctuary', False)
+                and dfn.castle_power_active('Keep')):
+            _kit('keep_opportunity')
+            need = max(1, excess)
+            if dfn.can_exert('Keep', need):
+                dfn.exert('Keep', need, game=self, reason='sanctuary')
+                _kit('keep_activation'); _kit('keep_integrity_spent', need)
+                destroyed = False
+                excess = 0
+            else:
+                _kit('keep_short')
+
+        if (VARIANT.get('momentum', False) and destroyed
                 and self.reflex_winner is None
                 and 0 <= excess <= VARIANT.get('momentum_band', 3)):
             self.reflex_winner = atk.pid
@@ -2381,7 +2696,6 @@ class Game:
                 dfn.odradek_guards_defeated += guards_lost
             self._gremory_lord_guard_trigger()
 
-        # Sigil Broken: remove it; controller gains 1 Soul if the target survives
         if sigil_broken:
             dfn.sigils['Lord'] = ''
             if not destroyed and (sigil_state == 'fresh'
@@ -2391,7 +2705,6 @@ class Game:
 
         if destroyed:
             op = self.opp(atk.pid)
-            # Consume the Hunt — forgo Banishment for a personal Tear (AI rite)
             consume = False
             total_after = self._total_tears() + 1
             if (total_after >= DOMINION_TRACK and atk.tears + 1 > op.tears
@@ -2405,166 +2718,220 @@ class Game:
                   and random.random() < 0.5):
                 consume = True
             if consume:
-                self._gain_tear(atk)
-                self._check_win()
-                return
+                self._gain_tear(atk); self._check_win(); return
 
             self._lord_killed(atk, dfn)
-
-            # Overkill: Banish with excess ≥3 → return one committed card ≤3 to hand
             if excess >= 3:
                 low = [c for c in atk.committed if c.value <= 3]
                 if low:
                     keep = max(low, key=lambda c: c.value)
-                    atk.committed.remove(keep)
-                    atk.hand.append(keep)
+                    atk.committed.remove(keep); atk.hand.append(keep)
 
-        # Valak — Siphon: after a Hunt that Defeated 1+ Guards, remove one more
-        # Guard from that zone (if any remain)
-        if (atk.lord == 'Valak' and atk.alive
-                and guards_lost > 0 and dfn.lord_guards):
+        if (atk.lord == 'Valak' and atk.alive and guards_lost > 0 and dfn.lord_guards):
             victim = min(dfn.lord_guards, key=lambda c: c.value)
-            dfn.lord_guards.remove(victim)
-            self._discard([victim])
+            dfn.lord_guards.remove(victim); self._discard([victim])
             self.any_destruction_this_round = True
             self._gremory_lord_guard_trigger()
 
-        # Odradek — Psychic Backwash: attacker gains Threat if Odradek survives
-        # Suppressed on Orias clean hunt (Relentless Pursuit)
         if (dfn.lord == 'Odradek' and dfn.alive and not orias_clean_hunt
                 and not VARIANT['no_backwash']):
-            atk.threat = min(MAX_THREAT, atk.threat + 1)
+            self._gain_threat(atk, 1)
 
-        # Orias — Barbed Web: after Hunt defeats 1+ guard, defender gains Threat
-        # +1 normally; +2 if defender was already at 2+ Threat (escalation spiral)
         if atk.lord == 'Orias' and atk.alive and guards_lost > 0 and dfn.alive:
-            threat_gain = 2 if dfn.threat >= 2 else 1
-            dfn.threat = min(MAX_THREAT, dfn.threat + threat_gain)
+            self._gain_threat(dfn, 2 if dfn.threat >= 2 else 1)
 
-        # Kroni — Ravenous (Hunger 3+, once per game): +2 Souls on kill
         if (destroyed and atk.lord == 'Kroni' and atk.alive
                 and atk.kroni_hunger >= 3 and not atk.kroni_ravenous_used):
-            self._gain_soul(atk, 2)
-            self._kroni_gain_hunger(atk)
+            self._gain_soul(atk, 2); self._kroni_gain_hunger(atk)
             atk.kroni_ravenous_used = True
 
     # ─────────────────────────────────────────────────────────────────
     #  COMBAT: SIEGE
     # ─────────────────────────────────────────────────────────────────
+    def _resolve_castle_ruination(self, atk: Player, dfn: Player,
+                                  castle: str, guards_lost: int) -> bool:
+        """Run the normal Siege consequence chain for any Castle Ruination."""
+        dfn.castles.discard(castle)
+        if ACTIVE_FEATURES['castle_integrity']:
+            dfn.castle_integrity[castle] = 0
+        if (VARIANT.get('castle_permanent_loss', False)
+                and dfn.castle_scars.get(castle, 0) >= 1):
+            dfn.lost_castles.add(castle)
+            if VARIANT.get('veil_on_permanent_loss', False):
+                self._gain_neutral_tear()
+        else:
+            dfn.ruined_castles.add(castle)
+        self.stat_castles_destroyed += 1
+        self.any_destruction_this_round = True
+        if atk.lord == 'Kroni':
+            atk.kroni_enemy_destroyed = True
+
+        consumed_siege = False
+        if VARIANT['consume_the_siege']:
+            op_c = self.opp(atk.pid); plan_c = self._plan(atk, op_c)
+            total_after = self._total_tears() + 1
+            if (total_after >= DOMINION_TRACK and atk.tears + 1 > op_c.tears
+                    and atk.tears + 1 >= self._dominion_req()):
+                consumed_siege = True
+            elif (plan_c == 'race_dominion' and atk.souls < WIN_SOULS - 2
+                  and random.random() < 0.5):
+                consumed_siege = True
+            elif (atk.tears < 2 and atk.tears <= op_c.tears
+                  and atk.souls <= WIN_SOULS - 3 and random.random() < 0.35):
+                consumed_siege = True
+
+        if VARIANT['castle_tear_uncapped'] or not self.first_castle_neutral_done:
+            claims = (VARIANT['deimos_claims_breach'] and atk.lord == 'Deimos'
+                      and atk.alive and (VARIANT['deimos_claims_breach'] >= 2
+                                        or not atk.deimos_breach_claimed))
+            if consumed_siege:
+                self._gain_tear(atk)
+            elif claims:
+                atk.deimos_breach_claimed = True; self._gain_tear(atk)
+            else:
+                self._gain_neutral_tear()
+            self.first_castle_neutral_done = True
+        if self._check_win():
+            return True
+
+        if not consumed_siege:
+            base_reward = 2 if guards_lost > 0 else 1
+            bonus = int(VARIANT.get('ruination_soul_bonus', 0))
+            reward = base_reward + bonus
+            self._gain_soul(atk, reward)
+            self.stat_ritual_souls += reward
+            self.stat_ruination_soul_bonus += bonus
+
+        for p in self.players:
+            if p.lord == 'Gremory' and p.alive and not p.gremory_ruin_done:
+                if self.discard:
+                    p.hand.append(self.discard[-1]); self.discard.pop()
+                p.gremory_ruin_done = True; break
+
+        if atk.lord == 'Kalligan' and atk.alive:
+            new_zone = 'Castle' if dfn.castles else 'Lord'
+            if self.persist_scorch_pid != dfn.pid or self.persist_scorch_type != new_zone:
+                self.persist_scorch_level = 1
+            self.persist_scorch_pid = dfn.pid; self.persist_scorch_type = new_zone
+
+        if (atk.lord == 'Kalligan' and atk.alive
+                and (atk.threat < MAX_THREAT or not ACTIVE_FEATURES['kal_inferno_threat'])):
+            if ACTIVE_FEATURES['kal_inferno_threat']:
+                self._gain_threat(atk, 1)
+            if dfn.lord_guards:
+                victim = max(dfn.lord_guards, key=lambda g: g.value)
+                dfn.lord_guards.remove(victim); self._discard([victim])
+            else:
+                self.persist_scorch_pid = dfn.pid; self.persist_scorch_type = 'Lord'
+
+        if (atk.lord == 'Kroni' and atk.alive and atk.kroni_hunger >= 3
+                and not atk.kroni_ravenous_used):
+            self._gain_soul(atk, 2); self._kroni_gain_hunger(atk)
+            atk.kroni_ravenous_used = True
+        return False
+
     def _resolve_siege(self, atk: Player, dfn: Player,
                        forced_target: Optional[str] = None,
                        reflex: bool = False):
-        if not dfn.castles: return
-        if (VARIANT.get('ward_threshold', False)
-                and 'Castle' in dfn.ward_turned):
-            dfn.was_sieged = True
+        if not dfn.castles:
             return
+        if (VARIANT.get('ward_threshold', False)
+                and not VARIANT.get('ward_frontline', False)
+                and 'Castle' in dfn.ward_turned):
+            dfn.was_sieged = True; return
         dfn.was_sieged = True
 
-        target_castle = forced_target if forced_target in dfn.castles else \
-                        self._pick_siege_target(atk, dfn)
+        target_castle = forced_target if forced_target in dfn.castles else self._pick_siege_target(atk, dfn)
         dfn.last_sieged_castle = target_castle
 
-        # ── Odradek — Psychic Recoil (PRE-COMBAT, first attack this round)
-        # Variant O1: Recoil fires on Hunts only — Sieges bypass it entirely
         if (dfn.lord == 'Odradek' and dfn.alive and not dfn.odradek_recoil_done
                 and not VARIANT['recoil_hunts_only']):
             self._odradek_recoil(atk, dfn)
 
-        strength  = atk.committed_value()
-        strength += atk.suit_bonus('Butcher')
+        strength = atk.attack_value(siege=True) + atk.suit_bonus('Butcher')
+        siege_engine_bypass = (VARIANT.get('siege_engine_bypass', False)
+                               and atk.castle_power_active('SiegeEngine') and not reflex)
 
-        # Siege Engine bypass does NOT apply to the Reflex second action
-        siege_engine_bypass = ('SiegeEngine' in atk.castles) and not reflex
-
-        # Deimos — War Machine: +2 Siege Strength, −1 per castle lost.
-        # REQUIRES Siege Engine to be active.
         if atk.lord == 'Deimos' and atk.alive and (
-                'SiegeEngine' in atk.castles or VARIANT['deimos_war_machine_free']):
+                atk.castle_power_active('SiegeEngine') or VARIANT['deimos_war_machine_free']):
             lost = len(atk.ruined_castles)
             if not VARIANT['war_machine_ignores_profaned']:
                 lost += len(atk.profaned_castles)
             strength += max(0, 2 - lost)
-
-        # Kalligan — Pyroclasm: +1 always; +1 additional if defender has Ruined Castles
         if atk.lord == 'Kalligan' and atk.alive:
             strength += 2 if dfn.ruined_castles else 1
 
-        # Deimos — Fear Aura: defender with 2+ Castle Guards returns one to hand
-        # (before Defense is calculated; the last Guard cannot be returned)
         if atk.lord == 'Deimos' and atk.alive and len(dfn.castle_guards) >= 2:
             weakest = min(dfn.castle_guards, key=lambda c: c.value)
-            dfn.castle_guards.remove(weakest)
-            dfn.hand.append(weakest)
+            dfn.castle_guards.remove(weakest); dfn.hand.append(weakest)
 
-        # Crushing Presence / Invoked Butcher: lowest defending Guard gives no Defense
-        ignore_lowest = False
-        butcher_suppressed_guard = None
-        if atk.lord == 'Valak' and atk.alive and len(dfn.castle_guards) >= 2:
-            ignore_lowest = True
+        ignore_lowest = atk.lord == 'Valak' and atk.alive and len(dfn.castle_guards) >= 2
         if (atk.lord == 'Kanifous' and atk.alive
                 and atk.kanifous_invoked_suit == 'Butcher' and dfn.castle_guards):
-            butcher_suppressed_guard = min(
-                dfn.castle_guards,
-                key=lambda c: c.value,
-            )
-            dfn.castle_guards.remove(butcher_suppressed_guard)
-            self._discard([butcher_suppressed_guard])
+            victim = min(dfn.castle_guards, key=lambda c: c.value)
+            dfn.castle_guards.remove(victim); self._discard([victim])
 
-        # Integrity is structural HP, not a threshold. Temporary Ward and
-        # Penitent contributions screen the stone before arriving Strength is
-        # dealt directly as damage. Breach softening becomes +1 incoming damage.
-        integrity_before = dfn.castle_integrity.get(
-            target_castle, castle_max_integrity(target_castle)
-        )
-        structure_screen = 0
-        if (
-            ACTIVE_FEATURES['ward_commit_defense']
-            and dfn.action == 'Ward'
-            and dfn.ward_target == 'Castle'
-        ):
-            structure_screen += dfn.committed_value()
-            if (
-                VARIANT.get('humbaba_sigil_commit', False)
-                and dfn.lord == 'Humbaba'
-            ):
-                structure_screen += 2 + (1 if 'Keep' in dfn.castles else 0)
-        structure_screen += dfn.suit_bonus('Penitent')
+        integrity_before = dfn.castle_integrity.get(target_castle, castle_max_integrity(target_castle))
+        ward_screen = 0; structure_screen = 0
+        if (ACTIVE_FEATURES['ward_commit_defense'] and dfn.action == 'Ward'
+                and dfn.ward_target == 'Castle'):
+            if VARIANT.get('ward_frontline', False):
+                ward_screen = dfn.ward_reinforcement_value()
+            else:
+                structure_screen = dfn.ward_value() + dfn.suit_bonus('Penitent')
         structure_vulnerability = 1 if self.breach in ('Deimos', 'Humbaba') else 0
-
-        sigil_state = dfn.sigils['Castle']
-        sigil_value = self._sigil_value(dfn, sigil_state)
+        sigil_state = dfn.sigils['Castle']; sigil_value = self._sigil_value(dfn, sigil_state)
 
         guards_before = len(dfn.castle_guards)
-        self.stat_combats += 1
-        self.stat_sieges += 1
+        self.stat_combats += 1; self.stat_sieges += 1
         if siege_engine_bypass:
             self.stat_structure_first_bypasses += 1
+
+        bastion_ruined = False
         if ACTIVE_FEATURES['castle_integrity']:
+            bastion_screening = (VARIANT.get('bastion_wall', False)
+                                 and target_castle != 'Bastion'
+                                 and 'Bastion' in dfn.castles
+                                 and dfn.castle_integrity.get('Bastion', 0) > 0)
+            bastion_before = (dfn.castle_integrity.get('Bastion', castle_max_integrity('Bastion'))
+                              if bastion_screening else 0)
+            effective_depth = integrity_before + bastion_before
             destroyed, sigil_broken, excess = self._combat_layers(
                 atk, strength, dfn.castle_guards, ignore_lowest,
                 sigil_value, has_sigil=(sigil_state != ''), struct_def=0,
-                bypass=siege_engine_bypass, structure_integrity=integrity_before,
-                structure_screen=structure_screen,
-                structure_vulnerability=structure_vulnerability)
-            integrity_after = max(0, integrity_before - self._structure_damage)
+                bypass=siege_engine_bypass, structure_integrity=effective_depth,
+                ward_screen=ward_screen, structure_screen=structure_screen,
+                structure_vulnerability=structure_vulnerability,
+                guard_tax_exempt=(VARIANT.get('circle_ignores_guard_tax', False)
+                                  and dfn.castle_power_active('SummoningCircle')))
+
+            structure_hit = self._structure_hit
+            remaining_hit = structure_hit
+            if bastion_screening and remaining_hit > 0:
+                bastion_damage = min(bastion_before, remaining_hit)
+                dfn.castle_integrity['Bastion'] = bastion_before - bastion_damage
+                remaining_hit -= bastion_damage; self.stat_castle_damage += bastion_damage
+                bastion_ruined = bastion_before > 0 and dfn.castle_integrity.get('Bastion', 0) <= 0
+
+            target_damage = min(integrity_before, max(0, remaining_hit))
+            integrity_after = max(0, integrity_before - target_damage)
             dfn.castle_integrity[target_castle] = integrity_after
-            self.stat_castle_damage += self._structure_damage
-            assert integrity_after == max(0, integrity_before - self._structure_damage)
-            assert destroyed == (integrity_after == 0)
+            self.stat_castle_damage += target_damage
+            self._structure_damage = target_damage
+            self._structure_spill = max(0, remaining_hit - integrity_before)
+            destroyed = integrity_before > 0 and integrity_after == 0
+            excess = max(0, remaining_hit - integrity_before)
         else:
-            struct_def = dfn.castle_def(target_castle, breach=self.breach, game=self)
-            struct_def += structure_screen
+            struct_def = dfn.castle_def(target_castle, breach=self.breach, game=self) + structure_screen
             destroyed, sigil_broken, excess = self._combat_layers(
                 atk, strength, dfn.castle_guards, ignore_lowest,
                 sigil_value, has_sigil=(sigil_state != ''), struct_def=struct_def,
-                bypass=siege_engine_bypass)
+                bypass=siege_engine_bypass, ward_screen=ward_screen,
+                guard_tax_exempt=(VARIANT.get('circle_ignores_guard_tax', False)
+                                  and dfn.castle_power_active('SummoningCircle')))
 
         guards_lost = guards_before - len(dfn.castle_guards)
-
-        if (VARIANT.get('momentum', False)
-                and destroyed
-                and self.reflex_winner is None
+        if (VARIANT.get('momentum', False) and destroyed and self.reflex_winner is None
                 and 0 <= excess <= VARIANT.get('momentum_band', 3)):
             self.reflex_winner = atk.pid
             atk.momentum_refund_due += ACTIVE_FEATURES['momentum_refund']
@@ -2573,138 +2940,31 @@ class Game:
         if guards_lost > 0:
             self.any_destruction_this_round = True
             if atk.lord == 'Kroni':
-                atk.kroni_personally_defeated_guard = True
-                atk.kroni_enemy_destroyed = True
+                atk.kroni_personally_defeated_guard = True; atk.kroni_enemy_destroyed = True
             if dfn.lord == 'Odradek':
                 dfn.odradek_guards_defeated += guards_lost
 
-        # Sigil Broken: remove it; controller gains 1 Soul if the castle survives
         if sigil_broken:
             dfn.sigils['Castle'] = ''
-            if not destroyed and (sigil_state == 'fresh'
-                                  or not VARIANT['sigil_soul_fresh_only']):
-                self._gain_soul(dfn, 1)
-                self.stat_ward_souls += 1
+            if not destroyed and (sigil_state == 'fresh' or not VARIANT['sigil_soul_fresh_only']):
+                self._gain_soul(dfn, 1); self.stat_ward_souls += 1
 
-        if destroyed:
-            dfn.castles.discard(target_castle)
-            if ACTIVE_FEATURES['castle_integrity']:
-                dfn.castle_integrity[target_castle] = 0
-            if (VARIANT.get('castle_permanent_loss', False)
-                    and dfn.castle_scars.get(target_castle, 0) >= 1):
-                dfn.lost_castles.add(target_castle)
-                if VARIANT.get('veil_on_permanent_loss', False):
-                    self._gain_neutral_tear()
-            else:
-                dfn.ruined_castles.add(target_castle)
-            self.stat_castles_destroyed += 1
-            self.any_destruction_this_round = True
-            if atk.lord == 'Kroni':
-                atk.kroni_enemy_destroyed = True
+        if bastion_ruined and self._resolve_castle_ruination(atk, dfn, 'Bastion', guards_lost):
+            return
+        if destroyed and self._resolve_castle_ruination(atk, dfn, target_castle, guards_lost):
+            return
 
-            # ── D7: Consume the Siege — forgo the Souls to claim the Tear.
-            # AI gates mirror Consume the Hunt.
-            consumed_siege = False
-            if VARIANT['consume_the_siege']:
-                op_c  = self.opp(atk.pid)
-                plan_c = self._plan(atk, op_c)
-                total_after = self._total_tears() + 1
-                if (total_after >= DOMINION_TRACK and atk.tears + 1 > op_c.tears
-                        and atk.tears + 1 >= self._dominion_req()):
-                    consumed_siege = True
-                elif (plan_c == 'race_dominion' and atk.souls < WIN_SOULS - 2
-                      and random.random() < 0.5):
-                    consumed_siege = True
-                elif (atk.tears < 2 and atk.tears <= op_c.tears
-                      and atk.souls <= WIN_SOULS - 3
-                      and random.random() < 0.35):
-                    consumed_siege = True   # bootstrap: bank a speculative Tear
-
-            # ── Neutral Tear: first castle destroyed this round
-            # (D4: every castle destroyed; E4: Deimos claims it personally)
-            if VARIANT['castle_tear_uncapped'] or not self.first_castle_neutral_done:
-                claims = (VARIANT['deimos_claims_breach'] and atk.lord == 'Deimos'
-                          and atk.alive
-                          and (VARIANT['deimos_claims_breach'] >= 2
-                               or not atk.deimos_breach_claimed))
-                if consumed_siege:
-                    self._gain_tear(atk)
-                elif claims:
-                    atk.deimos_breach_claimed = True
-                    self._gain_tear(atk)
-                else:
-                    self._gain_neutral_tear()
-                self.first_castle_neutral_done = True
-            if self._check_win(): return
-
-            # 2 Souls if at least one Castle Guard was Defeated this Siege
-            # (forfeited under Consume the Siege)
-            if consumed_siege:
-                pass
-            else:
-                base_reward = 2 if guards_lost > 0 else 1
-                ruination_bonus = int(VARIANT.get('ruination_soul_bonus', 0))
-                reward = base_reward + ruination_bonus
-                self._gain_soul(atk, reward)
-                self.stat_ritual_souls += reward
-                self.stat_ruination_soul_bonus += ruination_bonus
-
-            # Gremory — Predator of Ruin
-            for p in self.players:
-                if p.lord == 'Gremory' and p.alive and not p.gremory_ruin_done:
-                    if self.discard:
-                        p.hand.append(self.discard[-1])
-                        self.discard.pop()
-                    p.gremory_ruin_done = True
-                    break
-
-            # Kalligan — Wildfire resolves before Inferno so an Inferno
-            # Scorch on the Lord zone remains the final persistent token.
-            if atk.lord == 'Kalligan' and atk.alive:
-                new_zone = 'Castle' if dfn.castles else 'Lord'
-                if (self.persist_scorch_pid != dfn.pid
-                        or self.persist_scorch_type != new_zone):
-                    self.persist_scorch_level = 1
-                self.persist_scorch_pid = dfn.pid
-                self.persist_scorch_type = new_zone
-
-            # Kalligan — Inferno defeats the highest Lord Guard. The measured
-            # profile removes its automatic Threat cost.
-            if (atk.lord == 'Kalligan' and atk.alive
-                    and (atk.threat < MAX_THREAT
-                         or not ACTIVE_FEATURES['kal_inferno_threat'])):
-                if ACTIVE_FEATURES['kal_inferno_threat']:
-                    atk.threat = min(MAX_THREAT, atk.threat + 1)
-                if dfn.lord_guards:
-                    victim = max(dfn.lord_guards, key=lambda g: g.value)
-                    dfn.lord_guards.remove(victim)
-                    self._discard([victim])
-                else:
-                    self.persist_scorch_pid = dfn.pid
-                    self.persist_scorch_type = 'Lord'
-
-            # Kroni — Ravenous
-            if (atk.lord == 'Kroni' and atk.alive
-                    and atk.kroni_hunger >= 3 and not atk.kroni_ravenous_used):
-                self._gain_soul(atk, 2)
-                self._kroni_gain_hunger(atk)
-                atk.kroni_ravenous_used = True
-
-        # Valak — Siphon: after a Siege that Defeated 1+ Guards, remove one more
-        # Guard from that zone (if any remain) — applies whether or not the
-        # castle was destroyed
-        if (atk.lord == 'Valak' and atk.alive
-                and guards_lost > 0 and dfn.castle_guards):
+        if atk.lord == 'Valak' and atk.alive and guards_lost > 0 and dfn.castle_guards:
             victim = min(dfn.castle_guards, key=lambda c: c.value)
-            dfn.castle_guards.remove(victim)
-            self._discard([victim])
+            dfn.castle_guards.remove(victim); self._discard([victim])
             self.any_destruction_this_round = True
 
     # ─────────────────────────────────────────────────────────────────
     #  CORE COMBAT — legacy layers keep the Golden Rule; Integrity is HP,
     #  so arriving Strength equal to remaining Integrity does Ruin it.
-    #  Normal order:  Guards → Sigil → Structure
-    #  Siege Engine:  Sigil → Structure → Guards
+    #  Locked order is Ward → Guards → Sigil → Structure. The `bypass` path
+    #  remains only for historical profiles; v7.4 Forge Discipline does not
+    #  reorder layers.
     # ─────────────────────────────────────────────────────────────────
     def _combat_layers(self, atk: Player, strength: int,
                        guards: List[Card], ignore_lowest: bool,
@@ -2712,31 +2972,42 @@ class Game:
                        struct_def: int,
                        bypass: bool = False,
                        structure_integrity: Optional[int] = None,
+                       ward_screen: int = 0,
                        structure_screen: int = 0,
-                       structure_vulnerability: int = 0) -> Tuple[bool, bool, int]:
-        """Resolve the ordered defense layers and preserve the legacy tuple.
-
-        With ``structure_integrity`` supplied, arriving Strength damages the
-        Castle directly. ``_structure_hit`` records Strength that reached stone,
-        ``_structure_damage`` records HP removed, and ``_structure_spill`` records
-        Strength passed to Guards by a structure-first Siege Engine attack.
-        """
+                       structure_vulnerability: int = 0,
+                       guard_tax_exempt: bool = False) -> Tuple[bool, bool, int]:
+        """Resolve Ward first, then the permanent combat layers."""
         self._structure_hit = 0
         self._structure_damage = 0
         self._structure_spill = 0
 
-        def _effective(gs: List[Card]):
+        gpen = int(VARIANT.get('guard_offsuit_penalty', 0) or 0)
+        gsuit = VARIANT.get('guard_penalty_exempt_suit', 'Vulture')
+        gfloor = int(VARIANT.get('guard_offsuit_floor', 1))
+
+        def guard_value(card):
+            if gpen <= 0 or guard_tax_exempt or card.suit == gsuit:
+                return card.value
+            return max(gfloor, card.value - gpen)
+
+        def effective(gs: List[Card]):
             if not gs:
                 return []
-            eff = [(guard, guard.value) for guard in gs]
+            values = [(guard, guard_value(guard)) for guard in gs]
             if ignore_lowest:
-                low_i = min(range(len(eff)), key=lambda i: eff[i][1])
-                eff[low_i] = (eff[low_i][0], 0)
-            eff.sort(key=lambda item: item[1], reverse=True)
-            return eff
+                low_i = min(range(len(values)), key=lambda i: values[i][1])
+                values[low_i] = (values[low_i][0], 0)
+            values.sort(key=lambda item: item[1], reverse=True)
+            return values
 
-        def _strip_guards(remaining: int) -> int:
-            for guard, value in _effective(guards):
+        def ward_layer(remaining: int) -> int:
+            screen = max(0, int(ward_screen or 0))
+            if screen <= 0:
+                return remaining
+            return -1 if remaining <= screen else remaining - screen
+
+        def strip_guards(remaining: int) -> int:
+            for guard, value in effective(guards):
                 if remaining > value:
                     guards.remove(guard)
                     self._discard([guard])
@@ -2745,7 +3016,7 @@ class Game:
                     return -1
             return remaining
 
-        def _sigil_layer(remaining: int) -> Tuple[bool, int]:
+        def sigil_layer(remaining: int) -> Tuple[bool, int]:
             if not has_sigil:
                 return False, remaining
             if sigil_value == 0:
@@ -2754,65 +3025,62 @@ class Game:
                 return True, remaining - sigil_value
             return False, -1
 
-        def _integrity_layer(remaining: int) -> Tuple[bool, int]:
-            # Temporary structure defense is consumed before the actual wall.
+        def integrity_layer(remaining: int) -> Tuple[bool, int]:
             remaining -= max(0, structure_screen)
             if remaining <= 0:
                 return False, remaining
             hit = max(1, remaining + max(0, structure_vulnerability))
             integrity = max(0, int(structure_integrity or 0))
             damage = min(integrity, hit)
-            spill = max(0, hit - integrity)
             self._structure_hit = hit
             self._structure_damage = damage
-            self._structure_spill = spill
+            self._structure_spill = max(0, hit - integrity)
             self._aha(abs(integrity - hit))
             return damage >= integrity and integrity > 0, hit - integrity
 
+        remaining = ward_layer(strength)
+        if remaining < 0:
+            return False, False, remaining
+
         if structure_integrity is not None:
             if bypass:
-                # Sigil → temporary screen → Integrity → Guards.
-                broken, remaining = _sigil_layer(strength)
+                broken, remaining = sigil_layer(remaining)
                 if remaining < 0:
                     self._aha(sigil_value - strength)
                     return False, broken, remaining
-                ruined, structural_excess = _integrity_layer(remaining)
+                ruined, structural_excess = integrity_layer(remaining)
                 if not ruined:
                     return False, broken, structural_excess
-                leftover = _strip_guards(self._structure_spill)
-                excess = leftover if leftover >= 0 else 0
-                return True, broken, excess
+                leftover = strip_guards(self._structure_spill)
+                return True, broken, leftover if leftover >= 0 else 0
 
-            # Guards → Sigil → temporary screen → Integrity.
-            remaining = _strip_guards(strength)
+            remaining = strip_guards(remaining)
             if remaining < 0:
                 return False, False, -1
-            broken, remaining = _sigil_layer(remaining)
+            broken, remaining = sigil_layer(remaining)
             if remaining < 0:
                 self._aha(sigil_value)
                 return False, broken, -1
-            ruined, structural_excess = _integrity_layer(remaining)
+            ruined, structural_excess = integrity_layer(remaining)
             return ruined, broken, structural_excess
 
-        # Legacy binary structure resolution.
         if bypass:
-            broken, remaining = _sigil_layer(strength)
+            broken, remaining = sigil_layer(remaining)
             if remaining < 0:
                 self._aha(sigil_value - strength)
                 return False, broken, remaining
             if remaining > struct_def:
                 remaining -= struct_def
                 self._aha(remaining)
-                leftover = _strip_guards(remaining)
-                excess = leftover if leftover >= 0 else 0
-                return True, broken, excess
+                leftover = strip_guards(remaining)
+                return True, broken, leftover if leftover >= 0 else 0
             self._aha(struct_def - remaining)
             return False, broken, remaining - struct_def
 
-        remaining = _strip_guards(strength)
+        remaining = strip_guards(remaining)
         if remaining < 0:
             return False, False, -1
-        broken, remaining = _sigil_layer(remaining)
+        broken, remaining = sigil_layer(remaining)
         if remaining < 0:
             self._aha(sigil_value)
             return False, broken, -1
@@ -2835,7 +3103,7 @@ class Game:
         # decay is 1, without Keep/Omen modifiers reappearing behind it.
         if VARIANT.get('sigil_flat', False):
             return base
-        base += 1 if 'Keep' in pl.castles else 0
+        base += 1 if pl.castle_operational('Keep') else 0
         if self._threshold_active(3) and not self._immune_to_threshold(pl, 3):
             base = max(0, base - 1)
         return base
@@ -2883,7 +3151,7 @@ class Game:
         pl.kanifous_invokes_this_round += 1
         if (ACTIVE_FEATURES['kani_threat_cost']
                 and not ACTIVE_FEATURES['kani_hand_cost']):
-            pl.threat = min(MAX_THREAT, pl.threat + 1)
+            self._gain_threat(pl, 1)
 
         if (ACTIVE_FEATURES['kani_neutral_tear']
                 and revealed[0].value >= 4):
@@ -3019,25 +3287,37 @@ class Game:
             dfn.threat = LORD_STATS[dfn.lord]['r']
         self.breach = dfn.lord
         self.breach_owner = dfn.pid
-        dfn.lord_guards.clear()
+        # Stockpile — Muster: the garrison holds even when the Lord falls.
+        # Keyed to banishment COST rather than banishment prevention.
+        if not (VARIANT.get('stockpile_muster', False)
+                and dfn.castle_operational('Stockpile')):
+            dfn.lord_guards.clear()
+        else:
+            _kit('muster_saved', len(dfn.lord_guards))
         self._odradek_discard_bank(dfn, reason='banished')
         dfn.alive = False
+        dfn.banished_on_round = self.round
 
     # ═══════════════════════════════════════════════════════════════════
     #  AI — SUMMON
     # ═══════════════════════════════════════════════════════════════════
     def _ai_pick_lord(self, pl: Player) -> Optional[str]:
-        op = self.opp(pl.pid)
-        available = list(pl.lord_pool)
+        op = self.opp(pl.pid); available = list(pl.lord_pool)
+
+        def summon_cost_for(lord: str) -> int:
+            base = summon_base_cost(lord)
+            blood_cost = int(VARIANT.get('circle_blood_summon_cost', 3))
+            if (VARIANT.get('circle_blood_summon', False)
+                    and pl.castle_power_active('SummoningCircle')
+                    and pl.can_exert('SummoningCircle', blood_cost)):
+                base -= int(VARIANT.get('circle_blood_summon_discount', 3))
+            elif pl.castle_power_active('SummoningCircle'):
+                base -= int(VARIANT.get('circle_discount', 0) or 0)
+            return max(0, base + (3 if self.breach == lord else 0))
 
         def lord_score(lord: str) -> float:
-            base_cost = summon_base_cost(lord)
-            if 'SummoningCircle' in pl.castles: base_cost -= 2
-            breach_penalty = 3 if self.breach == lord else 0
-            cost = max(0, base_cost + breach_penalty)
-            # v5.29: Summon costs are paid from HAND only
+            cost = summon_cost_for(lord)
             if sum(c.value for c in pl.hand) < cost: return -999.0
-
             score = 0.0
             if lord == 'Orias':    score += 1.5 if op.alive and op.threat >= 1 else 0.8
             if lord == 'Deimos':   score += 1.2 if len(op.castles) >= 2 else 0.6
@@ -3045,77 +3325,92 @@ class Game:
             if lord == 'Kroni':    score += 0.6 + pl.kroni_hunger * 0.3
             if lord == 'Valak':    score += 0.9 if op.alive and len(op.lord_guards) >= 2 else 0.5
             if lord == 'Kalligan':
-                score += (KALLIGAN_PICK_BASE
-                          + (0.50 if op.ruined_castles else 0.0)
-                          + (0.20 if pl.ruined_castles else 0.0))
+                score += KALLIGAN_PICK_BASE + (0.50 if op.ruined_castles else 0.0) + (0.20 if pl.ruined_castles else 0.0)
             if lord == 'Odradek':  score += 0.8 if op.alive and op.threat >= 2 else 0.5
             if lord == 'Kanifous': score += 0.7
-            if lord == 'Humbaba': score += 0.55 + len(pl.castles) * 0.13
+            if lord == 'Humbaba':  score += 0.55 + len(pl.castles) * 0.13
+            breach_penalty = 3 if self.breach == lord else 0
             if self.breach == lord: score -= 0.5
             score -= breach_penalty * 0.5
             score -= cost * 0.05
             return score
 
-        scored = sorted(available, key=lord_score, reverse=True)
-        for lord in scored:
-            base_cost = summon_base_cost(lord)
-            if 'SummoningCircle' in pl.castles: base_cost -= 2
-            breach_pen = 3 if self.breach == lord else 0
-            cost = max(0, base_cost + breach_pen)
-            if sum(c.value for c in pl.hand) >= cost:
+        for lord in sorted(available, key=lord_score, reverse=True):
+            if sum(c.value for c in pl.hand) >= summon_cost_for(lord):
                 return lord
         return None
 
+    def _resummon_blocked(self, pl: 'Player') -> bool:
+        """A banished Lord must wait. SummoningCircle exempts you — the rite
+        is already prepared. Same shape as Forge Discipline: a rule that fires
+        constantly, and a Castle that grants permission to ignore it."""
+        d = int(VARIANT.get('resummon_delay_rounds', 0) or 0)
+        if d <= 0:
+            return False
+        if (VARIANT.get('circle_ignores_delay', False)
+                and pl.castle_power_active('SummoningCircle')):
+            _kit('circle_delay_skipped')
+            return False
+        return (self.round - pl.banished_on_round) <= d
+
     def _ai_summon(self, pl: Player, forced: bool = False):
         if pl.alive and not forced: return
+        if not forced and self._resummon_blocked(pl):
+            _kit('resummon_blocked'); return
 
-        # In locked mode, always use the one lord in the pool
-        if LOCK_LORDS:
-            chosen = pl.lord_pool[0]
-        else:
-            chosen = self._ai_pick_lord(pl)
-            if chosen is None and not forced: return
-            if chosen is None: chosen = pl.lord_pool[0]
-
+        chosen = pl.lord_pool[0] if LOCK_LORDS else self._ai_pick_lord(pl)
+        if chosen is None and not forced: return
+        if chosen is None: chosen = pl.lord_pool[0]
         pl.lord = chosen
-        base_cost = summon_base_cost(chosen)
-        if 'SummoningCircle' in pl.castles: base_cost -= 2
+
+        printed_base = summon_base_cost(chosen); base_cost = printed_base
+        blood_cost = int(VARIANT.get('circle_blood_summon_cost', 3))
+        blood_discount = int(VARIANT.get('circle_blood_summon_discount', 3))
+        blood_applies = (VARIANT.get('circle_blood_summon', False)
+                         and pl.castle_power_active('SummoningCircle')
+                         and pl.can_exert('SummoningCircle', blood_cost))
+        if blood_applies:
+            base_cost -= blood_discount
+        elif (pl.castle_power_active('SummoningCircle')
+              and (not forced or VARIANT.get('circle_opening_summon', False))):
+            base_cost -= int(VARIANT.get('circle_discount', 0) or 0)
+
         breach_penalty = 3 if self.breach == chosen else 0
         cost = max(0, base_cost + breach_penalty)
+        if not forced and sum(c.value for c in pl.hand) < cost: return
 
-        if not forced:
-            if sum(c.value for c in pl.hand) < cost: return
+        if blood_applies:
+            paid = pl.exert('SummoningCircle', blood_cost, game=self, reason='blood_summon')
+            if paid:
+                _kit('circle_summon_activation'); _kit('circle_summon_integrity_spent', paid)
+            else:
+                cost = max(0, printed_base + breach_penalty)
+                if not forced and sum(c.value for c in pl.hand) < cost: return
 
         self._pay(pl, cost, hand_only=True)
         pl.alive = True
-        pl.threat = (
-            pl.return_threat_override
-            if (
-                VARIANT.get('lord_threat_retention', False)
-                and pl.return_threat_override is not None
-            )
-            else LORD_STATS[chosen]['r']
-        )
+        pl.threat = (pl.return_threat_override
+                     if VARIANT.get('lord_threat_retention', False)
+                     and pl.return_threat_override is not None
+                     else LORD_STATS[chosen]['r'])
+        if VARIANT.get('circle_swift_return', False) and pl.castle_power_active('SummoningCircle'):
+            pl.threat = 0; _kit('swift_return')
         pl.return_threat_override = None
-        # Offer the Vessel: the offered Lord resummons at Threat 2
-        if pl.vessel_offered_lord == chosen:
-            pl.threat = 2
-            pl.vessel_offered_lord = ''
 
-        # Canonical resets the milestone each summon. The measured lab keeps
-        # it for the full game so killing Kroni cannot refill Dominion income.
+        if pl.vessel_offered_lord == chosen:
+            pl.threat = 2; pl.vessel_offered_lord = ''
         if chosen == 'Kroni' and not ACTIVE_FEATURES['kro_milestone_once']:
             pl.kroni_tear_milestone_fired = False
         if chosen == 'Odradek':
-            pl.odradek_reconfig_tokens = 0  # tokens reset on summon
-
-        # Relentless Pursuit: marked lord gets +1 Threat on resummon
+            pl.odradek_reconfig_tokens = 0
         if self.orias_marked_lord == chosen:
-            pl.threat = min(MAX_THREAT, pl.threat + 1)
+            self._gain_threat(pl, 1)
 
-        # ── Neutral Tear: all summons after the first
         if pl.first_summon_done:
-            self._gain_neutral_tear()
+            mode = VARIANT.get('resummon_tear_mode', 'neutral')
+            if mode == 'neutral': self._gain_neutral_tear()
+            elif mode == 'summoner': self._gain_tear(pl)
+            elif mode != 'none': raise ValueError('unknown resummon_tear_mode: %s' % mode)
             if self._check_win(): return
         else:
             pl.first_summon_done = True
@@ -3151,7 +3446,7 @@ class Game:
             severe = [
                 castle for castle in damaged
                 if pl.castle_integrity.get(castle, castle_max_integrity(castle))
-                <= castle_max_integrity(castle) // 2
+                <= CASTLE_OPERATIONAL_FLOOR
             ]
             unavailable = (
                 set(pl.castles)
@@ -3169,13 +3464,16 @@ class Game:
 
             # Emergency maintenance beats expansion. Otherwise finish/start a
             # construction project before topping off harmless chip damage.
-            if severe:
+            repair_pool = repair_payment_pool(payment_zone, pl)
+            can_repair = bool(repair_pool)
+
+            if severe and can_repair:
                 action = 'repair'
                 target = severe[0]
             elif ACTIVE_FEATURES['castle_construction'] and buildable:
                 action = 'construct'
                 target = active_project or buildable[0]
-            elif damaged:
+            elif damaged and can_repair:
                 action = 'repair'
                 target = damaged[0]
             else:
@@ -3192,9 +3490,23 @@ class Game:
                     bonus += int(VARIANT.get('master_builder_integrity', 2))
                 if self.breach == 'Kalligan':
                     bonus += int(VARIANT.get('rapid_construction_integrity', 1))
-                paid = choose_payment_cards(payment_zone, max(1, missing - bonus))
+                # Stockpile — the Yard: banked materials are spent FIRST.
+                # Cards cover only what the bank cannot.
+                tok = 0
+                if pl.construction_tokens > 0:
+                    tok = min(pl.construction_tokens, max(0, missing - bonus))
+                need_cards = max(0, missing - bonus - tok)
+                if need_cards <= 0 and tok > 0:
+                    # Bank alone covers it, but Repair still needs a legal
+                    # payment: the Wright requirement is a card rule and
+                    # tokens are not cards.
+                    need_cards = 1
+                paid = choose_payment_cards(repair_pool, max(1, need_cards))
                 if not paid:
                     return
+                if tok > 0:
+                    pl.construction_tokens -= tok
+                    _kit('tokens_spent_repair', tok)
                 paid_value = sum(card.value for card in paid)
                 for card in paid:
                     if card in pl.hand:
@@ -3202,7 +3514,7 @@ class Game:
                     else:
                         pl.garrison.remove(card)
                 self._discard(paid)
-                healed = min(missing, paid_value + bonus)
+                healed = min(missing, paid_value + bonus + tok)
                 pl.castle_integrity[target] = before + healed
                 if using_token:
                     pl.repair_token = 0
@@ -3223,7 +3535,9 @@ class Game:
 
             progress_before = pl.castle_construction_progress.get(target, 0)
             remaining = castle_max_integrity(target) - progress_before
-            paid = choose_payment_cards(payment_zone, remaining)
+            cap = int(VARIANT.get('construction_action_cap', 0) or 0)
+            request = min(remaining, cap) if cap > 0 else remaining
+            paid = choose_payment_cards(payment_zone, request)
             if not paid:
                 return
             paid_value = sum(card.value for card in paid)
@@ -3233,7 +3547,15 @@ class Game:
                 else:
                     pl.garrison.remove(card)
             self._discard(paid)
-            progress_after = min(castle_max_integrity(target), progress_before + paid_value)
+            # Materials go in FIRST and count toward the SAME per-action cap
+            # as cards, so the Yard cannot silently void construction_action_cap.
+            allow = min(cap, remaining) if cap > 0 else remaining
+            _t2 = min(pl.construction_tokens, allow)
+            if _t2 > 0:
+                pl.construction_tokens -= _t2
+                _kit('tokens_spent_construct', _t2)
+            gain = min(paid_value + _t2, allow)
+            progress_after = min(castle_max_integrity(target), progress_before + gain)
             pl.castle_construction_progress[target] = progress_after
             pl.castle_action_used_this_round = True
             self.stat_construction_actions += 1
@@ -3357,9 +3679,12 @@ class Game:
             return penitents + low_for_bid
 
         # ── Attack reservation: estimate target defense ───────────────
+        _op_guard_exempt = (VARIANT.get('circle_ignores_guard_tax', False)
+                            and op.castle_operational('SummoningCircle'))
         if best == 'Hunt' and op.alive:
             est_def  = op.lord_base_def(breach=self.breach)
-            est_def += sum(g.value for g in op.lord_guards)
+            est_def += sum(effective_guard_value(g, _op_guard_exempt)
+                           for g in op.lord_guards)
             est_def += 2   # assume opponent wards
             if op.lord == 'Odradek': est_def += 4   # Recoil compensation card
             # Orias Marked Prey: +1 always, +1 if defender 2+ Threat
@@ -3369,16 +3694,23 @@ class Game:
         else:   # Siege
             target_c  = self._pick_siege_target(pl, op)
             est_def   = op.castle_def(target_c, breach=self.breach)
-            if 'SiegeEngine' in pl.castles:
-                # Siege Engine: resolve Sigil+Structure first, guards last
-                # To crack the castle, only need to beat structure (guards don't protect it)
-                # Don't add guards to est_def — just need to beat structure
-                pass
+            # Bastion is a physical first wall even while Defunct. Doctrine
+            # must budget for the same combined structural depth the resolver
+            # routes through, or bots systematically undercommit rear Sieges.
+            if (VARIANT.get('bastion_wall', False)
+                    and target_c != 'Bastion'
+                    and 'Bastion' in op.castles
+                    and op.castle_integrity.get('Bastion', 0) > 0):
+                est_def += op.castle_integrity.get(
+                    'Bastion', castle_max_integrity('Bastion'))
+            if VARIANT.get('siege_engine_bypass', False) and pl.castle_operational('SiegeEngine'):
+                pass   # legacy bypass: structure resolves first, guards do not screen
             else:
-                est_def += sum(g.value for g in op.castle_guards)
+                est_def += sum(effective_guard_value(g, _op_guard_exempt)
+                               for g in op.castle_guards)
             est_def  += 1
             # Deimos War Machine: only fires if Siege Engine active
-            if pl.lord == 'Deimos' and 'SiegeEngine' in pl.castles:
+            if pl.lord == 'Deimos' and pl.castle_operational('SiegeEngine'):
                 est_def -= max(0, 2 - len(pl.ruined_castles) - len(pl.profaned_castles))
             # Kalligan — Pyroclasm
             if pl.lord == 'Kalligan':
@@ -3406,7 +3738,7 @@ class Game:
         # Fill to target Strength with remaining cards (highest first)
         for c in butchers + others:
             if total >= target_str: break
-            reserved.append(c); total += c.value
+            reserved.append(c); total += effective_attack_value(c, pl, best == 'Siege')
 
         # Reserve 1 low card for bid from whatever is left
         non_reserved_low = sorted([c for c in pl.hand if c not in reserved],
@@ -3415,6 +3747,68 @@ class Game:
             reserved.append(non_reserved_low[0])
 
         return reserved
+
+    def _run_draw_step(self, pl: 'Player') -> None:
+        """Normal Draw Step plus Stockpile Selective Stores.
+
+        Operational Stockpile replaces the historical raw +1 draw with
+        draw 2 / keep 1 / discard 1, so the player still nets one extra card.
+        Kept as a helper to mirror the Godot RoundEngine seam and make the
+        locked behavior directly regression-testable.
+        """
+        has_stock = pl.castle_power_active('Stockpile')
+        filt = has_stock and VARIANT.get('stockpile_filter', False)
+        n = 5 + (0 if filt else (1 if has_stock else 0))
+        for _ in range(n):
+            self._draw(pl)
+        if not filt:
+            return
+
+        _kit('stockpile_opportunity')
+        before = len(pl.hand)
+        self._draw(pl); self._draw(pl)
+        drawn = pl.hand[before:]
+        if len(drawn) != 2:
+            return
+        keep = self._stockpile_pick(pl, drawn)
+        drop = drawn[0] if keep is drawn[1] else drawn[1]
+        pl.hand.remove(drop)
+        self._discard([drop])
+        _kit('stockpile_activation')
+        if keep.suit != drop.suit:
+            _kit('stockpile_suit_swing')
+
+    def _gain_threat(self, pl: 'Player', n: int = 1) -> int:
+        """Threat gain chokepoint with Blood Conduit."""
+        if (n > 0 and VARIANT.get('circle_blood_conduit', False)
+                and pl.castle_power_active('SummoningCircle')):
+            before = pl.threat; after = min(MAX_THREAT, before + n)
+            if after >= 2 and after > before:
+                _kit('circle_opportunity')
+                cost = max(1, int(VARIANT.get('circle_conduit_cost', 3)))
+                if pl.can_exert('SummoningCircle', cost):
+                    paid = pl.exert('SummoningCircle', cost, game=self, reason='conduit')
+                    if paid:
+                        _kit('circle_activation'); _kit('circle_integrity_spent', paid)
+                        n = max(0, n - 1)
+                else:
+                    _kit('circle_short')
+        pl.threat = min(MAX_THREAT, pl.threat + max(0, n))
+        return pl.threat
+
+    def _stockpile_pick(self, pl: 'Player', drawn: list):
+        """Which of two drawn cards to keep. Wright and Butcher are gated
+        resources now; a card that unblocks Repair or restores attack value is
+        worth more than a higher printed number."""
+        have_wright = any(c.suit == 'Wright' for c in pl.hand if c not in drawn)
+        def score(c):
+            s = c.value
+            if c.suit == 'Wright' and not have_wright:
+                s += 4          # unblocks Repair entirely
+            elif c.suit == 'Butcher':
+                s += int(VARIANT.get('attack_offsuit_penalty', 0) or 0)
+            return s
+        return max(drawn, key=score)
 
     def _deploy_guards(self, pl: Player):
         self._deploy_guards_inner(pl)
@@ -3494,10 +3888,15 @@ class Game:
         # Sort ASCENDING — chaff to guards, power stays for offense
         # Skip hand→guards if repair restricts it
         # Snare caps total guard moves from all sources to 1
+        # Chaff to guards — but under the Vulture tax "chaff" means lowest
+        # DEFENSIVE worth, not lowest printed value. A Butcher 3 walls for 2;
+        # a Vulture 2 also walls for 2. Send the one that defends worse.
+        _dep_ex = (VARIANT.get('circle_ignores_guard_tax', False)
+                   and pl.castle_power_active('SummoningCircle'))
         if not repair_restricts_hand_deploy:
             deployable = sorted(
                 [c for c in pl.hand if id(c) not in reserved_ids],
-                key=lambda c: c.value   # lowest first
+                key=lambda c: (effective_guard_value(c, _dep_ex), c.value)
             )
             for c in deployable:
                 if len(pl.castle_guards) >= max_cg: break
@@ -3522,7 +3921,7 @@ class Game:
         if not repair_restricts_hand_deploy:
             deployable2 = sorted(
                 [c for c in pl.hand if id(c) not in reserved_ids],
-                key=lambda c: c.value
+                key=lambda c: (effective_guard_value(c, _dep_ex), c.value)
             )
             for c in deployable2:
                 if len(pl.lord_guards) >= max_lg: break
@@ -3813,7 +4212,8 @@ class Game:
         # ── Profane (Siege + own color) — sacrifice a Castle for a Tear.
         # Risk: cancelled by an opponent Fresh Sigil placed this round.
         p_score = -5.0
-        can_profane = bool(pl.castles) and (
+        profanable = [c for c in pl.castles if profane_eligible(pl, c)]
+        can_profane = bool(profanable) and (
             VARIANT.get('profane_no_castle_gate', False)
             or len(pl.castles) >= 3
         )
@@ -3923,6 +4323,13 @@ class Game:
 
         return 'Lord' if lord_score >= castle_score else 'Castle'
 
+    def _attack_tax_factor(self, pl: 'Player', siege: bool = False) -> float:
+        """Fraction of hand value that survives the attack tax."""
+        raw = sum(c.value for c in pl.hand)
+        if raw <= 0:
+            return 1.0
+        return sum(effective_attack_value(c, pl, siege) for c in pl.hand) / raw
+
     def _score_hunt(self, pl: Player, op: Player, plan: str) -> float:
         if not op.alive: return -5.0
         score = HUNT_BASE if VARIANT.get('fix_a', False) else 1.8
@@ -3960,7 +4367,7 @@ class Game:
         if (VARIANT.get('ward_threshold', False)
                 and op.prev_ward_target != 'Lord'):
             score -= HUNT_W1_PENALTY
-        return score
+        return score * self._attack_tax_factor(pl, siege=False)
 
     def _score_siege(self, pl: Player, op: Player, plan: str) -> float:
         if not op.castles: return -5.0
@@ -3982,7 +4389,7 @@ class Game:
         if (VARIANT.get('ward_threshold', False)
                 and op.prev_ward_target != 'Castle'):
             score -= HUNT_W1_PENALTY
-        return score
+        return score * self._attack_tax_factor(pl, siege=True)
 
     def _score_ward(self, pl: Player, op: Player, plan: str) -> float:
         if VARIANT.get('fix_a', False):
@@ -4002,6 +4409,19 @@ class Game:
         if plan in ('deny_dominion', 'race_dominion'): score += 0.4
         if pl.lord == 'Kroni':   score += 0.5   # survive to scale
         if pl.lord == 'Odradek': score += 0.8   # Ward: make opponents commit to stripping 2+ guards
+        # Penitent tax — the Ward is only as good as the suits you hold.
+        # Without this, action selection Wards just as often while the resolver
+        # quietly pays the tax: the rule fires but the bot never declines it (§3).
+        pen = int(VARIANT.get('ward_offsuit_penalty', 0) or 0)
+        if pen > 0 and not (VARIANT.get('keep_ignores_ward_tax', False)
+                            and pl.castle_operational('Keep')):
+            raw = sum(c.value for c in pl.hand)
+            if raw > 0:
+                eff = sum(effective_ward_value(pl, c) for c in pl.hand)
+                # Scale Ward's appeal by how much of your hand survives the tax.
+                score *= (eff / raw)
+                _kit('ward_tax_priced')
+
         if VARIANT.get('ward_threshold', False):
             incoming = 0.0
             if op.alive:
@@ -4017,28 +4437,32 @@ class Game:
             score += incoming * WARD_INCOMING_WEIGHT
         return score
 
-    def _est_guards(self, guards: List[Card], viewer_knows: bool = False) -> int:
+    def _est_guards(self, guards: List[Card], viewer_knows: bool = False,
+                    exempt: bool = False) -> int:
         if not guards:
             return 0
         if viewer_knows or not VARIANT.get('fog_of_war', False):
-            return sum(card.value for card in guards)
+            return sum(effective_guard_value(c, exempt) for c in guards)
         estimate = len(guards) * DECK_MEAN_VALUE
         estimate += random.gauss(0.0, FOG_NOISE * len(guards) ** 0.5)
         return max(len(guards), int(round(estimate)))
 
     def _commit_for_attack(self, pl: Player, op: Player, target_type: str, plan: str,
                            chip: bool = False):
+        _cg_exempt = (VARIANT.get('circle_ignores_guard_tax', False)
+                      and op.castle_operational('SummoningCircle'))
         # Chip mode: commit just enough to strictly exceed the HIGHEST guard in
         # the zone (guards strip highest-first) and no more — deny Reconfiguration
         # tokens / feed Kroni's Hunger without reaching the Sigil layer.
         if chip:
             guards = op.castle_guards if target_type == 'Castle' else op.lord_guards
             if guards:
-                need = max(g.value for g in guards)
+                need = max(effective_guard_value(g, _cg_exempt) for g in guards)
                 picked, total = [], 0
                 for c in sorted(pl.hand, key=lambda c: c.value):
                     if total > need: break
-                    picked.append(c); total += c.value
+                    picked.append(c); total += effective_attack_value(
+                        c, pl, target_type == 'Castle')
                 if total > need:
                     for c in picked: pl.hand.remove(c)
                     pl.committed = picked
@@ -4046,14 +4470,21 @@ class Game:
             # no guards to chip — fall through to a normal commit
         if target_type == 'Lord':
             est_def  = op.lord_base_def(breach=self.breach)
-            est_def += self._est_guards(op.lord_guards)
+            est_def += self._est_guards(op.lord_guards, exempt=_cg_exempt)
             # Standing sigils are public information; hedge 2 for a fresh placement
             est_def += max(2, self._sigil_value(op, op.sigils['Lord']))
         else:
             target_c  = self._pick_siege_target(pl, op)
             est_def   = op.castle_def(target_c, breach=self.breach)
-            if not ('SiegeEngine' in pl.castles):
-                est_def += self._est_guards(op.castle_guards)
+            if (VARIANT.get('bastion_wall', False)
+                    and target_c != 'Bastion'
+                    and 'Bastion' in op.castles
+                    and op.castle_integrity.get('Bastion', 0) > 0):
+                est_def += op.castle_integrity.get(
+                    'Bastion', castle_max_integrity('Bastion'))
+            if not (VARIANT.get('siege_engine_bypass', False)
+                    and pl.castle_operational('SiegeEngine')):
+                est_def += self._est_guards(op.castle_guards, exempt=_cg_exempt)
             est_def  += max(1, self._sigil_value(op, op.sigils['Castle']))
 
         pad = 2 if plan in ('deny_ritual', 'deny_dominion') else (0 if plan == 'protect_souls' else 1)
@@ -4071,16 +4502,17 @@ class Game:
         committed = []; total = 0
         want_bonus = (pl.lord in ('Deimos', 'Orias', 'Gremory') or plan.startswith('deny'))
         if want_bonus:
-            for c in butchers[:2]: committed.append(c); total += c.value
+            for c in butchers[:2]:
+                committed.append(c); total += effective_attack_value(c, pl, target_type == 'Castle')
             butchers = butchers[2:]
 
         for c in butchers + others:
             if total >= target_str: break
-            committed.append(c); total += c.value
+            committed.append(c); total += effective_attack_value(c, pl, target_type == 'Castle')
 
         trim = 3 if plan.startswith('deny') else 2
-        while len(committed) > 1 and total - committed[-1].value > target_str + trim:
-            total -= committed[-1].value; committed.pop()
+        while len(committed) > 1 and total - effective_attack_value(committed[-1], pl, target_type == 'Castle') > target_str + trim:
+            total -= effective_attack_value(committed[-1], pl, target_type == 'Castle'); committed.pop()
 
         # ── Play around Psychic Recoil: Odradek will delete our 2nd-highest
         # committed card pre-combat, so pad until the EFFECTIVE total clears.
@@ -4092,9 +4524,11 @@ class Game:
         if recoil_applies and committed:
             def eff_total():
                 if len(committed) <= 1: return 0
-                vals = sorted((c.value for c in committed), reverse=True)
-                loss = vals[-1] if VARIANT['recoil_lowest'] else vals[1]
-                return sum(vals) - loss
+                ordered = sorted(committed, key=lambda c: c.value, reverse=True)
+                removed = ordered[-1] if VARIANT['recoil_lowest'] else ordered[1]
+                siege = target_type == 'Castle'
+                return (sum(effective_attack_value(c, pl, siege) for c in committed)
+                        - effective_attack_value(removed, pl, siege))
             remaining = list(pl.hand)
             for c in committed:
                 remaining.remove(c)
@@ -4128,11 +4562,13 @@ class Game:
             )
             committed: List[Card] = []
             total = 0
-            for card in sorted(pl.hand, key=lambda card: card.value, reverse=True):
+            for card in sorted(
+                    pl.hand,
+                    key=lambda c: effective_ward_value(pl, c), reverse=True):
                 if total >= budget:
                     break
                 committed.append(card)
-                total += card.value
+                total += effective_ward_value(pl, card)
             for card in committed:
                 pl.hand.remove(card)
             pl.committed = committed

@@ -1,96 +1,131 @@
-# Castle Integrity — Canonical Python Oracle Contract
+# Castle Integrity and Castle Rules — Canonical Python Oracle Contract
 
-**Rules version:** `6.9.0-castle-integrity`
-**AI policy:** `heuristic-2026.08-castle-integrity`
-**Scope of this slice:** Python oracle, tests, telemetry, and historical-trace compatibility. Godot and playable UI follow after the oracle is accepted.
+**Rules version:** `7.4.0-castle-rules-lock`
+**AI policy:** `heuristic-2026.08-castle-rules-lock`
+**Canonical runtime:** Godot `RuleConfig.lab_v6_5()` and Python `activate_ruleset("lab-v6.5")` describe the same locked profile.
 
-## Canonical rules
+## Starting loadout and Integrity
 
-### Starting loadout and expansion
+- Each player starts with any three of the five unique Castle types.
+- Construction may later expand the board to all five types.
+- Every Castle has **14 maximum Integrity**.
+- Integrity is structural HP: once an attack reaches the structure, arriving Strength removes Integrity directly.
+- `Operational`: Integrity **7–14**. Printed/identity power is active.
+- `Defunct`: Integrity **1–6**. The structure still exists, but its printed/identity power is off.
+- `Ruined`: Integrity **0**. The Castle leaves play and is irreparable in this profile.
+- **Bastion is the exception to the power gate only in its physical role:** a standing Bastion screens rear Castles even while Defunct.
 
-- Each player starts with **any three of the five unique Castle types**.
-- No Castle is mandatory.
-- Three is an opening-loadout size, **not an active Castle cap**.
-- The two unchosen types may be constructed later, allowing a player to control all five types.
-- Bots take the first three entries in their Lord-specific `CASTLE_PRIORITIES` until the pregame picker exists.
+## Combat layer order
 
-### Integrity
+### Hunt
 
-- Every Castle has **14 maximum Integrity**, regardless of its former printed DEF.
-- Integrity is remaining structural strength, not a defense threshold.
-- Once combat reaches the structure layer, all arriving Strength is dealt directly as Integrity damage, minimum 1.
-- A standing Castle and its power remain active while Integrity is above 0.
-- At 0, its type is permanently **Ruined** and cannot be repaired or reconstructed.
-- Integrity replaces Castle scarring and the legacy second-destruction permanent-loss system.
+`Ward reinforcements -> Lord Guards -> Sigil -> Lord Defense -> Keep Sanctuary`
 
-### Layer order
+### Normal Siege
 
-- Ordinary Siege: `Guards -> Sigil -> temporary structural screen -> Integrity`.
-- Siege Engine bypass: `Sigil -> temporary structural screen -> Integrity -> Guards`.
-- In a structure-first attack, Integrity absorbs arriving Strength first. Strength beyond remaining Integrity spills into Guards.
-- The resolver records incoming structural Strength, actual Integrity removed, and spill separately.
+`Ward reinforcements -> Castle Guards -> Sigil -> Bastion wall (when screening) -> chosen Castle`
+
+The historical Siege Engine structure-first bypass is disabled in the locked profile. Siege Engine now grants Forge Discipline instead.
+
+Ward is no longer a binary pre-combat cancel. Committed Ward cards are temporary reinforcements and remain in place through **both primary actions**, then are discarded before Reflex resolution.
+
+## Castle identities
+
+### Keep — Sanctuary
+
+When a Hunt would Banish the Lord, an **Operational** Keep may Exert the exact lethal excess. If Keep can pay that Integrity without self-Ruining, the Lord survives.
+
+- Equality already survives and costs nothing.
+- A one-point lethal excess costs 1 Keep Integrity.
+- Exertion may make Keep Defunct but may never self-Ruin it.
+
+### Bastion — physical wall
+
+- Bastion is always a legal direct Siege target.
+- While Bastion Integrity is above 0, a Siege aimed at another Castle hits Bastion first.
+- Excess Strength carries through Bastion into the chosen rear Castle.
+- A direct Siege on Bastion wastes overflow rather than redirecting it to a rear Castle.
+- Bastion screening persists while Defunct.
+- If Bastion Ruins while screening, it receives the complete normal Castle-Ruination consequence chain before any rear-Castle Ruination is resolved.
+- Bastion grants **no Lord DEF bonus** in v7.4.
+
+### Stockpile — Selective Stores
+
+During the normal Draw Step, an **Operational** Stockpile replaces the old raw +1 draw with:
+
+`draw 2 -> keep 1 -> discard 1`
+
+The player still nets one extra card, but gains selection rather than raw volume. The bot values a missing Wright highly and otherwise recognizes Butcher's attack-tax value.
+
+### Summoning Circle — Blood Conduit / Blood Offering
+
+**Blood Conduit:** when positive Threat gain would cross into Threat 2 or higher, an **Operational** Circle may Exert 3 Integrity to prevent 1 Threat. A 0 -> 1 gain does not trigger it.
+
+**Blood Offering:** when Summoning, an **Operational** Circle may Exert 3 Integrity to reduce Summon cost by 3. This applies to the opening Summon and later resummons.
+
+- The old free Circle Summon discount is retired.
+- The old resummon-delay exemption is retired.
+- **Resummoning places no Tear.**
+
+### Siege Engine — Forge Discipline
+
+While **Operational**, Siege Engine waives the off-suit attack penalty on **Sieges only**. It does not alter combat layer order and does not waive the penalty on Hunts.
+
+## Suit economy
+
+### Attack
+
+- Butcher attacks at printed value.
+- Every non-Butcher attack card loses 1 Strength, minimum 1.
+- Operational Forge Discipline waives this penalty on Sieges.
 
 ### Repair
 
-- A player receives one Repair **or** Construction action per round.
-- Repair chooses one damaged, standing Castle.
-- Any number of cards may be paid from Hand and/or Garrison.
-- Restore Integrity equal to paid value, capped at 14; excess restoration is lost.
-- Repair modifiers trigger once per action and affect Repair only:
+- One Repair or Construction action per player per round.
+- Repair payment is **strict Wright-only**.
+- Restore Integrity equal to legal paid card value plus applicable bounded modifiers, capped at 14.
+- Repair modifiers trigger once per action:
   - Repair Token: `+3`, then consume it.
-  - Master Builder: `+2` while living Kalligan repairs.
-  - Rapid Construction: `+1` while Kalligan is the Breach.
+  - living Kalligan Master Builder: `+2`.
+  - Kalligan Breach Rapid Construction: `+1`.
 
 ### Construction
 
-- Construction may target an unowned Castle type that has never been Ruined, Profaned, or otherwise permanently lost.
-- Payment may come from Hand and/or Garrison.
-- Progress is granular and persists between rounds.
-- The requirement is **14 total value**.
-- At 14, the Castle enters play at full Integrity and its power becomes active.
-- There is no active three-Castle cap; unique type ownership is the natural ceiling.
+- Construction targets an unowned type that has never been permanently Ruined/Profaned/lost.
+- Progress persists between rounds and requires 14 total progress.
+- **At most 5 progress may be gained per Construction action.**
+- At 14, the Castle enters play at full 14 Integrity.
 
-### Ruination economy
+### Profane
 
-- Partial Integrity damage grants no Souls or Tears.
-- An enemy Siege that reduces a Castle to 0 grants **+1 Soul above the existing Siege reward**.
-- Profane, Humbaba's Toll, Gremory's Inevitable Ruin, Final Collapse, and other non-Siege or self-Ruination effects do not receive this bonus.
-- Complete Ruination retains existing Neutral Tear and Lord-trigger behavior unless separately specified.
-- Profane has no standing-Castle-count gate in this profile.
+- A Castle must be at **full Integrity** to be Profaned.
+- The old standing-Castle-count gate remains removed in this profile.
 
-## Doctrine correction
+## Ruination economy
 
-Castle-count doctrine normalizes against all five buildable types:
+- Partial Integrity damage grants no Castle-Ruination reward.
+- An enemy Siege that Ruins a Castle grants the normal Siege reward plus the locked `+1` Ruination Soul bonus.
+- Normal Tear, Gremory, Kalligan, Kroni, scar/loss, and victory hooks all run through the shared Ruination consequence path.
+- Bastion screening uses that same path; it is not a special HP-only deletion.
 
-- 0 Castles = 0.0
-- 3 Castles = 0.6
-- 4 Castles = 0.8
-- 5 Castles = 1.0
+## Doctrine requirements
 
-The opening loadout count must never be used as the denominator after expansion.
+The Python bot must price the rules it actually resolves:
 
-## Required telemetry
+- Hunt/Siege commitment values use the off-suit attack tax.
+- Siege Engine's waiver is priced only for Sieges and only while Operational.
+- Rear-Castle Siege estimates include a standing Bastion's Integrity, even when Bastion is Defunct.
+- Siege target doctrine normally chooses a rear Castle while Bastion stands so potential overflow is preserved; direct Bastion targeting remains rules-legal.
+- Repair doctrine recognizes strict Wright-only legality.
+- Construction doctrine honors the 5-progress action cap.
+- Summon doctrine sees Blood Offering only when Circle can actually Exert 3.
 
-The oracle reports:
+## Migration and golden discipline
 
-- Integrity damage and restoration
-- Repair actions, cards, and paid value
-- Construction actions, completed Castles, and paid value
-- Fraction of games with zero construction
-- Average round of first construction
-- Castles standing at game end
-- Complete Ruinations and repair-to-Ruination ratio
-- Structure-first bypass frequency
-- Momentum triggers
-- Ritual, Dominion, Collapse, Lord, and matchup results
+1. Godot `7.4.0-castle-rules-lock` is the locked gameplay target.
+2. Python must match the same profile before new balance measurements are trusted.
+3. Targeted cross-engine regressions are preferred to blindly blessing whole-game hashes.
+4. `golden/lord_matrix.json` may retain older generator-version provenance; that file is a historical DE-v2 deterministic matrix, **not** evidence that the lab-v7.4 Python balance oracle is still 6.9.
+5. Regenerate or replace balance goldens only when the specific harness being measured intentionally uses the v7.4 lab profile.
 
-## Migration discipline
-
-1. Accept and validate the Python oracle.
-2. Port identical state and resolver behavior to Godot.
-3. Compare old traces against the new engines and account for every divergence.
-4. Regenerate canonical goldens only after Python and Godot agree.
-5. Add pregame selection, per-Castle Integrity, Repair, Construction, and narration to the playable UI.
-6. Re-baseline lock and pool balance before revisiting Lord kits.
-
-Valak's proposed rework is intentionally excluded from this migration.
+The next balance layer is the full Castle × Lord interaction matrix. Castle powers should not be retuned again before Lord-power interactions are measured on this synchronized foundation.

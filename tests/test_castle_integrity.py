@@ -30,9 +30,9 @@ class CastleIntegrityCanonicalTests(unittest.TestCase):
             setattr(sim, name, value)
 
     def test_current_profile_contract(self):
-        self.assertEqual(sim.SIM_VERSION, "6.9.0-castle-integrity")
-        self.assertEqual(sim.LAB_PROFILE_VERSION, "6.9.0-castle-integrity")
-        self.assertEqual(sim.AI_POLICY, "heuristic-2026.08-castle-integrity")
+        self.assertEqual(sim.SIM_VERSION, "7.4.0-castle-rules-lock")
+        self.assertEqual(sim.LAB_PROFILE_VERSION, "7.4.0-castle-rules-lock")
+        self.assertEqual(sim.AI_POLICY, "heuristic-2026.08-castle-rules-lock")
         self.assertTrue(sim.VARIANT["castle_loadout"])
         self.assertEqual(sim.VARIANT["starting_castles"], 3)
         self.assertEqual(sim.VARIANT["castle_type_count"], 5)
@@ -75,10 +75,11 @@ class CastleIntegrityCanonicalTests(unittest.TestCase):
 
         game._resolve_siege(attacker, defender, forced_target="Keep")
 
-        self.assertEqual(game._structure_hit, 5)
-        self.assertEqual(game._structure_damage, 5)
+        # Vulture is off-suit under the locked attack economy: 5 -> 4.
+        self.assertEqual(game._structure_hit, 4)
+        self.assertEqual(game._structure_damage, 4)
         self.assertEqual(game._structure_spill, 0)
-        self.assertEqual(defender.castle_integrity["Keep"], 9)
+        self.assertEqual(defender.castle_integrity["Keep"], 10)
         self.assertIn("Keep", defender.castles)
 
     def test_equal_arriving_strength_ruins_and_awards_only_siege_bonus(self):
@@ -103,11 +104,12 @@ class CastleIntegrityCanonicalTests(unittest.TestCase):
         self.assertEqual(attacker.souls, 2)  # base 1 + Ruination bonus 1
         self.assertEqual(game.stat_ruination_soul_bonus, 1)
 
-    def test_structure_first_bypass_absorbs_then_spills_to_guards(self):
+    def test_forge_discipline_waives_tax_but_keeps_normal_layer_order(self):
         game = sim.Game(["Orias"], ["Valak"])
         attacker, defender = game.players
         attacker.alive = defender.alive = True
         attacker.castles = {"SiegeEngine"}
+        attacker.castle_integrity = {"SiegeEngine": 14}
         defender.castles = {"Keep"}
         defender.castle_integrity = {"Keep": 4}
         guard = sim.Card("Penitent", 3)
@@ -116,9 +118,13 @@ class CastleIntegrityCanonicalTests(unittest.TestCase):
 
         game._resolve_siege(attacker, defender, forced_target="Keep")
 
-        self.assertEqual(game._structure_hit, 8)
+        # Operational Forge Discipline makes the off-suit cards worth 8, but
+        # it no longer reorders combat. Guard 3 is stripped first, leaving 5
+        # to hit the 4-Integrity Keep and spill 1.
+        self.assertEqual(game.stat_structure_first_bypasses, 0)
+        self.assertEqual(game._structure_hit, 5)
         self.assertEqual(game._structure_damage, 4)
-        self.assertEqual(game._structure_spill, 4)
+        self.assertEqual(game._structure_spill, 1)
         self.assertEqual(defender.castle_integrity["Keep"], 0)
         self.assertEqual(defender.castle_guards, [])
         self.assertIn(guard, game.discard)
@@ -138,11 +144,16 @@ class CastleIntegrityCanonicalTests(unittest.TestCase):
 
         game._ai_repair_only(player)
 
-        self.assertEqual(player.castle_integrity["Keep"], 14)
-        self.assertEqual(player.hand, [])
-        self.assertTrue(all(card in game.discard for card in paid))
+        # Strict Repair accepts Wright payment only. The Wright:4 heals 4;
+        # the Butcher/Vulture cards remain available.
+        self.assertEqual(player.castle_integrity["Keep"], 8)
+        self.assertEqual(player.hand, paid[1:])
+        self.assertIn(paid[0], game.discard)
+        self.assertNotIn(paid[1], game.discard)
+        self.assertNotIn(paid[2], game.discard)
         self.assertEqual(game.stat_castle_repair_actions, 1)
-        self.assertEqual(game.stat_repair_cards, 3)
+        self.assertEqual(game.stat_repair_cards, 1)
+        self.assertEqual(game.stat_repair_value, 4)
         self.assertTrue(player.castle_action_used_this_round)
 
         player.hand = [sim.Card("Penitent", 5)]
@@ -169,32 +180,36 @@ class CastleIntegrityCanonicalTests(unittest.TestCase):
         self.assertTrue(player.kalligan_repair_used)
         self.assertEqual(game.stat_repair_value, 1)
 
-    def test_granular_construction_expands_beyond_three_to_all_five(self):
+    def test_granular_construction_caps_each_action_and_reaches_all_five(self):
         game = sim.Game(["Orias"], ["Valak"])
         player = game.players[0]
         player.castles = set(sim.CASTLE_PRIORITIES["Orias"][:3])
         player.castle_integrity = {castle: 14 for castle in player.castles}
 
-        player.hand = [sim.Card("Butcher", 5), sim.Card("Wright", 3)]
-        game._ai_repair_only(player)
-        self.assertEqual(player.castle_construction_progress["SummoningCircle"], 8)
-        self.assertEqual(len(player.castles), 3)
+        def construct_with(card):
+            player.castle_action_used_this_round = False
+            player.hand = [card]
+            game._ai_repair_only(player)
 
-        player.castle_action_used_this_round = False
-        player.hand = [sim.Card("Vulture", 5), sim.Card("Penitent", 1)]
-        game._ai_repair_only(player)
+        # Summoning Circle: 5 + 5 + 4. No action may contribute >5.
+        construct_with(sim.Card("Butcher", 5))
+        self.assertEqual(player.castle_construction_progress["SummoningCircle"], 5)
+        construct_with(sim.Card("Wright", 5))
+        self.assertEqual(player.castle_construction_progress["SummoningCircle"], 10)
+        construct_with(sim.Card("Vulture", 4))
         self.assertIn("SummoningCircle", player.castles)
         self.assertEqual(player.castle_integrity["SummoningCircle"], 14)
         self.assertEqual(len(player.castles), 4)
 
-        player.castle_action_used_this_round = False
-        player.hand = [
-            sim.Card("Butcher", 5), sim.Card("Wright", 5),
-            sim.Card("Vulture", 4),
-        ]
-        game._ai_repair_only(player)
+        # Keep uses the same capped three-action construction path.
+        construct_with(sim.Card("Butcher", 5))
+        self.assertEqual(player.castle_construction_progress["Keep"], 5)
+        construct_with(sim.Card("Wright", 5))
+        self.assertEqual(player.castle_construction_progress["Keep"], 10)
+        construct_with(sim.Card("Penitent", 4))
         self.assertEqual(player.castles, set(sim.CASTLES))
         self.assertEqual(game.stat_castles_built, 2)
+        self.assertEqual(game.stat_construction_actions, 6)
 
     def test_ruined_type_cannot_be_repaired_or_reconstructed(self):
         game = sim.Game(["Orias"], ["Valak"])

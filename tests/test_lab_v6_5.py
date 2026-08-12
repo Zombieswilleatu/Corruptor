@@ -51,7 +51,7 @@ class LabV65RulesTests(unittest.TestCase):
         self.assertTrue(sim.ACTIVE_FEATURES["castle_granular_repair"])
         self.assertTrue(sim.ACTIVE_FEATURES["castle_construction"])
         self.assertTrue(sim.ACTIVE_FEATURES["castle_irreparable"])
-        self.assertEqual(sim.LAB_PROFILE_VERSION, "6.9.0-castle-integrity")
+        self.assertEqual(sim.LAB_PROFILE_VERSION, "7.4.0-castle-rules-lock")
         self.assertTrue(sim.VARIANT["fix_b"])
         self.assertEqual(sim.VARIANT["invocation_gate"], 7)
         self.assertEqual(sim.VARIANT["profane_ruins_req"], 2)
@@ -75,7 +75,7 @@ class LabV65RulesTests(unittest.TestCase):
         self.assertTrue(sim.ACTIVE_FEATURES["kal_scorch_escalate"])
         self.assertTrue(sim.ACTIVE_FEATURES["kal_lane_scorch"])
 
-    def test_threshold_ward_turns_the_matching_hunt(self):
+    def test_threshold_ward_is_frontline_instead_of_binary_turn(self):
         game = sim.Game(["Orias"], ["Valak"])
         defender, attacker = game.players
         defender.alive = True
@@ -83,6 +83,8 @@ class LabV65RulesTests(unittest.TestCase):
         defender.action = "Ward"
         defender.ward_target = "Lord"
         defender.committed = [sim.Card("Penitent", 4)]
+        guard = sim.Card("Vulture", 1)
+        defender.lord_guards = [guard]
         attacker.action = "Hunt"
         attacker.tgt_pid = defender.pid
         attacker.tgt_type = "Lord"
@@ -91,10 +93,12 @@ class LabV65RulesTests(unittest.TestCase):
         game._phase_reveal([0, 1])
         game._resolve_hunt(attacker, defender)
 
-        self.assertIn("Lord", defender.ward_turned)
+        # Front-line Ward no longer writes the historical ward_turned cancel.
+        # Equal incoming Strength is stopped at Ward before touching the Guard.
+        self.assertNotIn("Lord", defender.ward_turned)
         self.assertTrue(defender.was_hunted)
         self.assertTrue(defender.alive)
-        self.assertEqual(len(defender.lord_guards), 0)
+        self.assertEqual(defender.lord_guards, [guard])
 
     def test_humbaba_no_longer_gets_a_free_sigil_commitment(self):
         game = sim.Game(["Humbaba"], ["Valak"])
@@ -253,7 +257,10 @@ class LabV65RulesTests(unittest.TestCase):
 
         game._ai_repair_only(player)
 
-        self.assertEqual(player.castle_integrity["Keep"], 14)
+        # Strict Repair spends only the Wright:3; Butcher:5 remains in hand.
+        self.assertEqual(player.castle_integrity["Keep"], 9)
+        self.assertEqual(len(player.hand), 1)
+        self.assertEqual(player.hand[0].suit, "Butcher")
         self.assertEqual(player.castle_repairs, {"Keep": 1})
         self.assertEqual(player.castle_scars, {})
 
