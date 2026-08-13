@@ -1,8 +1,12 @@
 # Castle Integrity and Castle Rules — Canonical Python Oracle Contract
 
-**Rules version:** `7.4.0-castle-rules-lock`
-**AI policy:** `heuristic-2026.08-castle-rules-lock`
+**Rules version:** `7.5.0-suit-identities`
+**AI policy:** `heuristic-2026.08-castle-contextual-v3`
 **Canonical runtime:** Godot `RuleConfig.lab_v6_5()` and Python `activate_ruleset("lab-v6.5")` describe the same locked profile.
+
+The Python balance oracle additionally uses the contextual-v3 doctrine/measurement layer: deterministic named RNG streams, simultaneous commitment snapshots, strategy-aware Castle targeting/maintenance, shared contextual attack-defense estimation, and paired crossed-seat ADD/REMOVE Castle experiments. These are AI/measurement policy, not extra gameplay rules.
+
+The v7.5 suit-identity lock makes the measured Ward tax canonical: non-Penitent cards committed to Ward lose 1 Strength (minimum 1), while Penitent cards Ward at printed value. The global resummon delay remains retired (`resummon_delay_rounds = 0`).
 
 ## Starting loadout and Integrity
 
@@ -73,13 +77,30 @@ While **Operational**, Siege Engine waives the off-suit attack penalty on **Sieg
 
 ## Suit economy
 
-### Attack
+### Ward — Penitent identity
+
+- Penitent cards committed to Ward defend at printed value.
+- Every non-Penitent Ward card loses 1 Strength, minimum 1.
+- The tax applies to the front-line Ward reinforcement and the Reveal contest; raw printed committed value still determines initiative.
+- Keep does not waive the Ward tax.
+
+### Vulture — Reconnaissance
+
+- If one or more Vultures are committed to any primary action, reveal one entire enemy Guard area after Reveal.
+- A Hunt scouts Castle Guards first because the attacked Lord Guard area will reveal during combat.
+- A Siege scouts Lord Guards first for the same reason.
+- Ward and Profane scout the enemy area with more unknown Guards.
+- If the preferred area has no unknown Guards, Reconnaissance may fall back to the other area.
+- Reconnaissance reveals all Guards currently in the chosen area; Guards added later begin hidden.
+- The existing two-Vulture committed-suit bonus remains: two or more committed Vultures draw one card outside the Draw step.
+
+### Attack — Butcher identity
 
 - Butcher attacks at printed value.
 - Every non-Butcher attack card loses 1 Strength, minimum 1.
 - Operational Forge Discipline waives this penalty on Sieges.
 
-### Repair
+### Repair — Wright identity
 
 - One Repair or Construction action per player per round.
 - Repair payment is **strict Wright-only**.

@@ -51,7 +51,7 @@ class LabV65RulesTests(unittest.TestCase):
         self.assertTrue(sim.ACTIVE_FEATURES["castle_granular_repair"])
         self.assertTrue(sim.ACTIVE_FEATURES["castle_construction"])
         self.assertTrue(sim.ACTIVE_FEATURES["castle_irreparable"])
-        self.assertEqual(sim.LAB_PROFILE_VERSION, "7.4.0-castle-rules-lock")
+        self.assertEqual(sim.LAB_PROFILE_VERSION, "7.5.0-suit-identities")
         self.assertTrue(sim.VARIANT["fix_b"])
         self.assertEqual(sim.VARIANT["invocation_gate"], 7)
         self.assertEqual(sim.VARIANT["profane_ruins_req"], 2)

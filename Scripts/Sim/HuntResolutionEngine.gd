@@ -231,6 +231,10 @@ static func resolve(
 			butcher_suppressed_card
 		)
 
+	# A Hunt turns the Lord Guard area face-up for later Fog-of-War reads.
+	for guard in defender.lord_guards:
+		guard.guard_revealed = true
+
 	var lord_defense: int = _calculate_lord_defense(
 		defender,
 		rules
@@ -247,11 +251,7 @@ static func resolve(
 			defender,
 			rules
 		)
-		if rules.ward_frontline:
-			# Ward is a temporary reinforcement line. Two Penitents retain
-			# their ordinary +1 committed-suit bonus.
-			ward_commit_defense += _suit_bonus(defender.committed, "Penitent")
-		else:
+		if not rules.ward_frontline:
 			lord_defense += ward_commit_defense
 
 	var sigil_state: String = String(
@@ -1630,20 +1630,7 @@ static func _effective_ward_commitment(
 	player,
 	rules: RuleConfig
 ) -> int:
-	var total: int = _committed_value(
-		player.committed
-	)
-
-	if (
-		rules.humbaba_sigil_commit
-		and player.lord == "Humbaba"
-	):
-		total += 2
-
-		if player.castles.has("Keep"):
-			total += 1
-
-	return total
+	return int(player.ward_reinforcement_value(rules))
 
 
 static func _committed_value(

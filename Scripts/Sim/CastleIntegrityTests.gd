@@ -53,7 +53,7 @@ static func run(_baseline_rules: RuleConfig) -> Array:
 static func _test_profile_contract() -> Dictionary:
 	var rules := RuleConfig.lab_v6_5()
 	if (
-		rules.lab_profile_version != "7.4.0-castle-rules-lock"
+		rules.lab_profile_version != "7.5.0-suit-identities"
 		or not rules.castle_loadout
 		or rules.starting_castles != 3
 		or rules.castle_type_count != 5

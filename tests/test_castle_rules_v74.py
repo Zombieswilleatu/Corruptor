@@ -85,12 +85,12 @@ class CastleRulesV74Tests(unittest.TestCase):
             player.ward_turned = set()
 
     def test_v74_profile(self):
-        self.assertEqual(sim.SIM_VERSION, "7.4.0-castle-rules-lock")
-        self.assertEqual(sim.LAB_PROFILE_VERSION, "7.4.0-castle-rules-lock")
-        self.assertEqual(sim.AI_POLICY, "heuristic-2026.08-castle-rules-lock")
+        self.assertEqual(sim.SIM_VERSION, "7.5.0-suit-identities")
+        self.assertEqual(sim.LAB_PROFILE_VERSION, "7.5.0-suit-identities")
+        self.assertEqual(sim.AI_POLICY, "heuristic-2026.08-castle-contextual-v3")
 
         self.assertTrue(sim.VARIANT["ward_frontline"])
-        self.assertEqual(sim.VARIANT["ward_offsuit_penalty"], 0)
+        self.assertEqual(sim.VARIANT["ward_offsuit_penalty"], 1)
         self.assertEqual(sim.VARIANT["castle_power_gate_mode"], "operational")
         self.assertEqual(sim.VARIANT["castle_operational_floor"], 7)
         self.assertTrue(sim.VARIANT["keep_sanctuary"])
@@ -144,7 +144,7 @@ class CastleRulesV74Tests(unittest.TestCase):
         defender.sigils["Lord"] = ""
 
         self.assertEqual(attacker.attack_value() + attacker.suit_bonus("Butcher"), 7)
-        self.assertEqual(defender.ward_reinforcement_value(), 8)
+        self.assertEqual(defender.ward_reinforcement_value(), 7)
         # Ward resolves first by committed initiative. Its cards must still be
         # present when the later Hunt reaches combat.
         game._phase_resolution([1, 0])

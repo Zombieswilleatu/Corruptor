@@ -37,7 +37,8 @@ static func resolve(
 	game,
 	rules: RuleConfig,
 	random_source = null,
-	kanifous_choices: Dictionary = {}
+	kanifous_choices: Dictionary = {},
+	recon_choices: Dictionary = {}
 ) -> Dictionary:
 	assert(
 		game != null,
@@ -87,6 +88,7 @@ static func resolve(
 	var kanifous_events: Dictionary = {}
 	var kroni_events: Dictionary = {}
 	var recoil_events: Dictionary = {}
+	var recon_events: Dictionary = {}
 
 	for player in game.players:
 		var player_id: int = int(
@@ -113,6 +115,8 @@ static func resolve(
 			player_id,
 			1 - player_id
 		)
+
+		recon_events[player_id] = _empty_recon_event(player_id, 1 - player_id)
 
 		recoil_events[player_id] = _empty_recoil_event(
 			player_id,
@@ -159,25 +163,9 @@ static func resolve(
 			)
 		)
 
-		var own_value: int = int(
-			committed_values.get(
-				player_id,
-				0
-			)
-		)
-
-		# Humbaba's own sigil is a fixed defensive contribution in the v6.5
-		# profile. It is part of the Ward bet, not a card silently placed in
-		# Commitment, so the locked committed-value trigger order stays intact.
-		if (
-			rules.humbaba_sigil_commit
-			and player.lord == "Humbaba"
-			and player.alive
-		):
-			own_value += 2
-
-			if player.castles.has("Keep"):
-				own_value += 1
+		# Initiative remains raw committed value, but Ward contest/combat uses
+		# the canonical Penitent tax and the committed Penitent pair bonus.
+		var own_value: int = int(player.ward_reinforcement_value(rules))
 
 		var opponent_value: int = int(
 			committed_values.get(
@@ -241,6 +229,15 @@ static func resolve(
 			"turned": turned,
 			"refunded_card": refunded_card,
 		}
+
+	# Vulture — Reconnaissance. One or more committed Vultures reveal one
+	# entire enemy Guard area. Hunts prefer Castle Guards and Sieges prefer Lord
+	# Guards so the scout is not wasted on the area combat will reveal anyway.
+	if rules.vulture_recon:
+		for player in game.players:
+			var player_id: int = int(player.pid)
+			var requested_zone: String = String(recon_choices.get(player_id, recon_choices.get(str(player_id), "")))
+			recon_events[player_id] = _resolve_vulture_recon(game, player, requested_zone)
 
 	# Invoke, Hungering Aura, and primary-action Recoil share one
 	# committed-value queue. The order is locked before any card is stripped.
@@ -377,6 +374,10 @@ static func resolve(
 					player_id,
 					1 - player_id
 				)
+			),
+			"vulture_recon": recon_events.get(
+				player_id,
+				_empty_recon_event(player_id, 1 - player_id)
 			),
 			"odradek_recoil": recoil_events.get(
 				player_id,
@@ -536,6 +537,81 @@ static func _resolve_primary_recoil(
 		attacker,
 		rules
 	)
+
+
+static func _empty_recon_event(player_id: int, defender_id: int) -> Dictionary:
+	return {
+		"triggered": false,
+		"player_id": player_id,
+		"defender_id": defender_id,
+		"zone": "",
+		"cards": [],
+		"pending": false,
+	}
+
+
+static func _unknown_guard_count(guards: Array) -> int:
+	var total: int = 0
+	for card in guards:
+		if not bool(card.guard_revealed):
+			total += 1
+	return total
+
+
+static func _recon_zone(player, opponent) -> String:
+	var lord_unknown: int = _unknown_guard_count(opponent.lord_guards)
+	var castle_unknown: int = _unknown_guard_count(opponent.castle_guards)
+	if lord_unknown <= 0 and castle_unknown <= 0:
+		return ""
+	var preferred: String = "Lord"
+	var fallback: String = "Castle"
+	if String(player.action) == ACTION_HUNT:
+		preferred = "Castle"
+		fallback = "Lord"
+	elif String(player.action) == ACTION_SIEGE:
+		preferred = "Lord"
+		fallback = "Castle"
+	elif castle_unknown > lord_unknown:
+		preferred = "Castle"
+		fallback = "Lord"
+	var preferred_count: int = castle_unknown if preferred == "Castle" else lord_unknown
+	var fallback_count: int = castle_unknown if fallback == "Castle" else lord_unknown
+	if preferred_count > 0:
+		return preferred
+	return fallback if fallback_count > 0 else ""
+
+
+static func _resolve_vulture_recon(game, player, requested_zone: String = "") -> Dictionary:
+	var event: Dictionary = _empty_recon_event(int(player.pid), 1 - int(player.pid))
+	var has_vulture: bool = false
+	for card in player.committed:
+		if String(card.suit) == "Vulture":
+			has_vulture = true
+			break
+	if not has_vulture:
+		return event
+	if requested_zone == "__defer__":
+		event["pending"] = true
+		return event
+	var opponent = game.get_opponent(int(player.pid))
+	if opponent == null:
+		return event
+	var zone: String = requested_zone if requested_zone in ["Lord", "Castle"] else _recon_zone(player, opponent)
+	if zone.is_empty():
+		return event
+	var guards: Array = opponent.lord_guards if zone == "Lord" else opponent.castle_guards
+	var cards: Array[String] = []
+	for card in guards:
+		if bool(card.guard_revealed):
+			continue
+		card.guard_revealed = true
+		cards.append(String(card.card_id()))
+	if cards.is_empty():
+		return event
+	event["triggered"] = true
+	event["zone"] = zone
+	event["cards"] = cards
+	return event
 
 
 static func _validate_reveal_state(

@@ -184,6 +184,11 @@ extends Resource
 @export var attack_offsuit_penalty: int = 0
 @export var attack_penalty_exempt_suit: String = "Butcher"
 @export var attack_offsuit_floor: int = 1
+@export var ward_offsuit_penalty: int = 0
+@export var ward_penalty_exempt_suit: String = "Penitent"
+@export var ward_offsuit_floor: int = 1
+@export var keep_ignores_ward_tax: bool = false
+@export var vulture_recon: bool = false
 @export var construction_action_cap: int = 0
 @export var repair_wright_mode: String = "off"
 @export var profane_requires_full_integrity: bool = false
@@ -274,7 +279,7 @@ static func lab_v6_5() -> RuleConfig:
 	config.kani_hand_cost = true
 
 	# Odradek Interlock, Kroni revision, and roster-wide Ward doctrine corrections.
-	config.lab_profile_version = "7.4.0-castle-rules-lock"
+	config.lab_profile_version = "7.5.0-suit-identities"
 	config.odr_recoil_bank = true
 	config.reconfig_neutral = true
 	config.reconfig_tokens_needed = 3
@@ -350,6 +355,13 @@ static func lab_v6_5() -> RuleConfig:
 	config.attack_offsuit_penalty = 1
 	config.attack_penalty_exempt_suit = "Butcher"
 	config.attack_offsuit_floor = 1
+	# v7.5 suit identities: Penitent wards at print; other suits lose 1 (floor 1).
+	# One or more committed Vultures reveal one entire enemy Guard area.
+	config.ward_offsuit_penalty = 1
+	config.ward_penalty_exempt_suit = "Penitent"
+	config.ward_offsuit_floor = 1
+	config.keep_ignores_ward_tax = false
+	config.vulture_recon = true
 	config.construction_action_cap = 5
 	config.repair_wright_mode = "strict"
 	config.profane_requires_full_integrity = true

@@ -9,6 +9,7 @@ const SiegeResolutionEngineData = preload("res://Scripts/Sim/SiegeResolutionEngi
 const SummonEngineData = preload("res://Scripts/Sim/SummonEngine.gd")
 const ResolutionEngineData = preload("res://Scripts/Sim/ResolutionEngine.gd")
 const RoundEngineData = preload("res://Scripts/Sim/RoundEngine.gd")
+const RevealEngineData = preload("res://Scripts/Sim/RevealEngine.gd")
 const CastleIntegrityRulesData = preload("res://Scripts/Sim/CastleIntegrityRules.gd")
 
 
@@ -17,6 +18,8 @@ static func run() -> Array[Dictionary]:
 	return [
 		_test_locked_profile(rules),
 		_test_ward_frontline_lifetime(rules),
+		_test_penitent_ward_tax(rules),
+		_test_vulture_recon(rules),
 		_test_keep_exact_excess(rules),
 		_test_bastion_wall_overflow(rules),
 		_test_bastion_direct_target(rules),
@@ -29,7 +32,7 @@ static func run() -> Array[Dictionary]:
 
 static func _test_locked_profile(rules: RuleConfig) -> Dictionary:
 	if (
-		String(rules.lab_profile_version) != "7.4.0-castle-rules-lock"
+		String(rules.lab_profile_version) != "7.5.0-suit-identities"
 		or not rules.ward_frontline
 		or String(rules.castle_power_gate_mode) != "operational"
 		or int(rules.castle_operational_floor) != 7
@@ -40,9 +43,14 @@ static func _test_locked_profile(rules: RuleConfig) -> Dictionary:
 		or not rules.circle_blood_conduit
 		or not rules.circle_blood_summon
 		or String(rules.resummon_tear_mode) != "none"
+		or int(rules.ward_offsuit_penalty) != 1
+		or String(rules.ward_penalty_exempt_suit) != "Penitent"
+		or int(rules.ward_offsuit_floor) != 1
+		or bool(rules.keep_ignores_ward_tax)
+		or not bool(rules.vulture_recon)
 	):
-		return _fail("v74_profile", "Locked v7.4 profile flags are not canonical.")
-	return _pass("v74_profile")
+		return _fail("v75_profile", "Locked v7.5 suit-identity profile flags are not canonical.")
+	return _pass("v75_profile")
 
 
 static func _test_ward_frontline_lifetime(rules: RuleConfig) -> Dictionary:
@@ -84,6 +92,51 @@ static func _test_ward_frontline_lifetime(rules: RuleConfig) -> Dictionary:
 	if stopped_at != "Ward":
 		return _fail("ward_frontline_lifetime", "Incoming Hunt was not stopped at the Ward reinforcement layer.")
 	return _pass("ward_frontline_lifetime")
+
+
+static func _test_penitent_ward_tax(rules: RuleConfig) -> Dictionary:
+	var game = GameDealFixtureData.build_game_deimos_valak_s1(rules)
+	_prepare_game(game)
+	var player = game.get_player(0)
+	player.action = "Ward"
+	player.committed = _cards(["Penitent:5", "Wright:3", "Vulture:1"])
+	if int(player.ward_card_value(player.committed[0], rules)) != 5:
+		return _fail("penitent_ward_tax", "Penitent did not Ward at printed value.")
+	if int(player.ward_card_value(player.committed[1], rules)) != 2:
+		return _fail("penitent_ward_tax", "Off-suit Ward did not lose exactly 1 Strength.")
+	if int(player.ward_card_value(player.committed[2], rules)) != 1:
+		return _fail("penitent_ward_tax", "Ward tax floor dropped a value-1 card below 1.")
+	if int(player.ward_reinforcement_value(rules)) != 8:
+		return _fail("penitent_ward_tax", "Ward reinforcement total did not use taxed card values.")
+	return _pass("penitent_ward_tax")
+
+
+static func _test_vulture_recon(rules: RuleConfig) -> Dictionary:
+	var game = GameDealFixtureData.build_game_deimos_valak_s1(rules)
+	_prepare_game(game)
+	var scout = game.get_player(0)
+	var defender = game.get_player(1)
+	scout.action = "Hunt"
+	scout.tgt_pid = 1
+	scout.tgt_type = "Lord"
+	scout.committed = _cards(["Vulture:2", "Butcher:3"])
+	defender.lord_guards = _cards(["Butcher:5"])
+	defender.castle_guards = _cards(["Wright:2", "Penitent:4"])
+	var event: Dictionary = RevealEngineData._resolve_vulture_recon(game, scout)
+	if not bool(event.get("triggered", false)):
+		return _fail("vulture_recon", "Committed Vulture did not trigger Reconnaissance.")
+	if String(event.get("zone", "")) != "Castle":
+		return _fail("vulture_recon", "Hunt did not scout the opposite Castle Guard area.")
+	for card in defender.castle_guards:
+		if not bool(card.guard_revealed):
+			return _fail("vulture_recon", "Reconnaissance failed to reveal the entire chosen Guard area.")
+	if bool(defender.lord_guards[0].guard_revealed):
+		return _fail("vulture_recon", "Reconnaissance also revealed the attacked Lord Guard area.")
+	var new_guard = CardData.new("Vulture", 5)
+	defender.castle_guards.append(new_guard)
+	if bool(new_guard.guard_revealed):
+		return _fail("vulture_recon", "A newly added Guard incorrectly inherited old Reconnaissance knowledge.")
+	return _pass("vulture_recon")
 
 
 static func _test_keep_exact_excess(rules: RuleConfig) -> Dictionary:

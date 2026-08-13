@@ -312,6 +312,12 @@ static func resolve(
 			butcher_suppressed_card
 		)
 
+	# Guard knowledge only exists in Fog-of-War profiles. A Siege turns the
+	# Castle Guard area face-up for later reads in those profiles.
+	if rules.fog_of_war:
+		for guard in defender.castle_guards:
+			guard.guard_revealed = true
+
 	var structural_defense: int = _castle_defense(
 		game,
 		target_castle,
@@ -331,13 +337,13 @@ static func resolve(
 			rules
 		)
 
+	# Historical non-frontline profiles applied the two-Penitent bonus as
+	# structure defense. v7.5 frontline Ward folds that same bonus into
+	# ward_reinforcement_value(), so it must not be added twice there.
 	var penitent_bonus: int = _suit_bonus(
 		defender.committed,
 		"Penitent"
 	)
-
-	if rules.ward_frontline and ward_commit_defense > 0:
-		ward_commit_defense += penitent_bonus
 
 	var ward_screen: int = ward_commit_defense if rules.ward_frontline else 0
 	var structure_screen: int = (
@@ -952,18 +958,18 @@ static func _resolve_integrity_combat(
 		remaining -= ward_screen
 
 	if bypass:
-		var sigil_result: Dictionary = _resolve_sigil_layer(
+		var bypass_sigil_result: Dictionary = _resolve_sigil_layer(
 			remaining,
 			sigil_state,
 			sigil_value
 		)
-		if bool(sigil_result.get("stopped", false)):
+		if bool(bypass_sigil_result.get("stopped", false)):
 			return _integrity_combat_result(
 				false, false, 0, "Sigil", guards_defeated,
 				0, 0, 0
 			)
-		sigil_broken = bool(sigil_result.get("broken", false))
-		remaining = int(sigil_result.get("remaining", remaining))
+		sigil_broken = bool(bypass_sigil_result.get("broken", false))
+		remaining = int(bypass_sigil_result.get("remaining", remaining))
 		remaining -= maxi(0, structure_screen)
 		if remaining <= 0:
 			return _integrity_combat_result(
@@ -971,42 +977,45 @@ static func _resolve_integrity_combat(
 				0, 0, 0
 			)
 
-		var structure_hit: int = maxi(
+		var bypass_structure_hit: int = maxi(
 			1,
 			remaining + maxi(0, structure_vulnerability)
 		)
-		var structure_damage: int = mini(
+		var bypass_structure_damage: int = mini(
 			maxi(0, integrity_before),
-			structure_hit
+			bypass_structure_hit
 		)
 		var structure_spill: int = maxi(
 			0,
-			structure_hit - maxi(0, integrity_before)
+			bypass_structure_hit - maxi(0, integrity_before)
 		)
-		var destroyed: bool = integrity_before > 0 and structure_damage >= integrity_before
-		if not destroyed:
+		var bypass_destroyed: bool = (
+			integrity_before > 0
+			and bypass_structure_damage >= integrity_before
+		)
+		if not bypass_destroyed:
 			return _integrity_combat_result(
-				false, sigil_broken, structure_hit - integrity_before,
+				false, sigil_broken, bypass_structure_hit - integrity_before,
 				"Castle", guards_defeated,
-				structure_hit, structure_damage, structure_spill
+				bypass_structure_hit, bypass_structure_damage, structure_spill
 			)
 
-		var guard_result: Dictionary = _strip_guards(
+		var bypass_guard_result: Dictionary = _strip_guards(
 			game,
 			structure_spill,
 			guard_zone,
 			ignore_lowest
 		)
-		guards_defeated = guard_result.get("guards_defeated", [])
-		if bool(guard_result.get("stopped", false)):
+		guards_defeated = bypass_guard_result.get("guards_defeated", [])
+		if bool(bypass_guard_result.get("stopped", false)):
 			return _integrity_combat_result(
 				true, sigil_broken, 0, "Guard", guards_defeated,
-				structure_hit, structure_damage, structure_spill
+				bypass_structure_hit, bypass_structure_damage, structure_spill
 			)
 		return _integrity_combat_result(
 			true, sigil_broken,
-			int(guard_result.get("remaining", 0)), "", guards_defeated,
-			structure_hit, structure_damage, structure_spill
+			int(bypass_guard_result.get("remaining", 0)), "", guards_defeated,
+			bypass_structure_hit, bypass_structure_damage, structure_spill
 		)
 
 	var guard_result: Dictionary = _strip_guards(
@@ -1985,6 +1994,11 @@ static func _effective_ward_commitment(
 	player,
 	rules: RuleConfig
 ) -> int:
+	if rules.ward_frontline:
+		return int(player.ward_reinforcement_value(rules))
+
+	# Frozen DE-v2 / historical path. Keep byte-for-behavior compatibility
+	# with the pre-v7.5 Siege resolver when Ward was not a frontline layer.
 	var total: int = _committed_value(
 		player.committed
 	)

@@ -30,9 +30,9 @@ class CastleIntegrityCanonicalTests(unittest.TestCase):
             setattr(sim, name, value)
 
     def test_current_profile_contract(self):
-        self.assertEqual(sim.SIM_VERSION, "7.4.0-castle-rules-lock")
-        self.assertEqual(sim.LAB_PROFILE_VERSION, "7.4.0-castle-rules-lock")
-        self.assertEqual(sim.AI_POLICY, "heuristic-2026.08-castle-rules-lock")
+        self.assertEqual(sim.SIM_VERSION, "7.5.0-suit-identities")
+        self.assertEqual(sim.LAB_PROFILE_VERSION, "7.5.0-suit-identities")
+        self.assertEqual(sim.AI_POLICY, "heuristic-2026.08-castle-contextual-v3")
         self.assertTrue(sim.VARIANT["castle_loadout"])
         self.assertEqual(sim.VARIANT["starting_castles"], 3)
         self.assertEqual(sim.VARIANT["castle_type_count"], 5)

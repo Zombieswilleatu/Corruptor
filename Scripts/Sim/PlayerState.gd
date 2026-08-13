@@ -117,6 +117,45 @@ func _init(
 	lord_pool = p_lord_pool.duplicate()
 
 
+func ward_card_value(card, rules: RuleConfig) -> int:
+	if card == null:
+		return 0
+	var printed: int = int(card.value)
+	if rules == null:
+		return printed
+	if rules.keep_ignores_ward_tax and CastleIntegrityRulesData.power_active(self, "Keep", rules):
+		return printed
+	var penalty: int = maxi(0, int(rules.ward_offsuit_penalty))
+	if penalty <= 0 or String(card.suit) == String(rules.ward_penalty_exempt_suit):
+		return printed
+	return maxi(int(rules.ward_offsuit_floor), printed - penalty)
+
+
+func ward_value(rules: RuleConfig, cards_override = null) -> int:
+	var source: Array = committed if cards_override == null else cards_override
+	var total: int = 0
+	for card in source:
+		total += ward_card_value(card, rules)
+	return total
+
+
+func ward_reinforcement_value(rules: RuleConfig) -> int:
+	if action != "Ward":
+		return 0
+	var total: int = ward_value(rules)
+	var penitents: int = 0
+	for card in committed:
+		if String(card.suit) == "Penitent":
+			penitents += 1
+	if penitents >= 2:
+		total += 1
+	if rules.humbaba_sigil_commit and lord == "Humbaba" and alive:
+		total += 2
+		if CastleIntegrityRulesData.power_active(self, "Keep", rules):
+			total += 1
+	return total
+
+
 func attack_card_value(card, rules: RuleConfig, siege: bool = false) -> int:
 	if card == null:
 		return 0

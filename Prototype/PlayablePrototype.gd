@@ -145,7 +145,8 @@ const THREAT_LABEL: String = (
 const CASTLES_LABEL: String = (
 	"[hint=CASTLES — Each Castle has 14 maximum Integrity. At 7+ Integrity it is Operational; at 1–6 it is Defunct and its printed power is off; at 0 it is permanently Ruined. "
 	+ "Bastion's physical wall is the exception and keeps screening while it stands. Repair restores Integrity but only Wright cards may pay for it. "
-	+ "Construction can add at most 5 Integrity of progress per Castle action. Only a full-Integrity Operational Castle may be Profaned.]Castles[/hint]"
+	+ "Construction can add at most 5 Integrity of progress per Castle action. Only a full-Integrity Operational Castle may be Profaned. "
+	+ "Suit identities: Butcher attacks efficiently; Penitent Wards at full value while other suits lose 1 Ward Strength (minimum 1); Wright alone pays Repair; committing a Vulture scouts one enemy Guard area.]Castles[/hint]"
 )
 
 const CASTLE_HELP: Dictionary = {
@@ -1783,6 +1784,16 @@ func _after_summon_choice(
 
 
 func _on_confirm_pressed() -> void:
+	if controller.stage == PlayableRoundControllerData.Stage.VULTURE_RECON:
+		var recon_result: Dictionary = controller.resolve_human_vulture_recon(_selected_target_id())
+		if _show_failure_if_needed(recon_result, false):
+			_set_phase_message("Reconnaissance rejected: %s" % String(recon_result.get("reason", "invalid_recon")))
+			return
+		_log_guard_reveals()
+		_set_phase_message("Reconnaissance complete. Resolve the revealed clash.")
+		_refresh_all()
+		return
+
 	if controller.stage == PlayableRoundControllerData.Stage.KANIFOUS_INVOKE:
 		var selected_toll_cards: Array[String] = _selected_card_ids()
 		if selected_toll_cards.size() != 1:
@@ -2141,6 +2152,10 @@ func _show_reveal_progress(
 		result
 	)
 
+	if controller.stage == PlayableRoundControllerData.Stage.VULTURE_RECON:
+		_refresh_target_options()
+		_set_phase_message("Vulture Reconnaissance — choose one enemy Guard area to reveal before Resolution.")
+
 	_refresh_all()
 
 
@@ -2293,6 +2308,7 @@ func _refresh_all() -> void:
 			PlayableRoundControllerData.Stage.DOMINION_RITES,
 			PlayableRoundControllerData.Stage.MARCH,
 			PlayableRoundControllerData.Stage.KANIFOUS_INVOKE,
+			PlayableRoundControllerData.Stage.VULTURE_RECON,
 			PlayableRoundControllerData.Stage.COMMITMENT,
 			PlayableRoundControllerData.Stage.RESOLUTION_HUMBABA_TOLL,
 			PlayableRoundControllerData.Stage.RESOLUTION_ACTION,
@@ -2312,6 +2328,16 @@ func _refresh_all() -> void:
 	development_finish_button.visible = false
 
 	match controller.stage:
+		PlayableRoundControllerData.Stage.VULTURE_RECON:
+			phase_label.text = "Reveal — Vulture Reconnaissance"
+			confirm_button.text = "Reveal Guard Area"
+			confirm_button.visible = true
+			summon_button.visible = false
+			skip_summon_button.visible = false
+			reveal_button.visible = false
+			resolve_button.visible = false
+			next_round_button.visible = false
+
 		PlayableRoundControllerData.Stage.KANIFOUS_INVOKE:
 			phase_label.text = "Reveal — Kanifous Invoke"
 			confirm_button.text = "Choose Invoke Card"
@@ -2934,6 +2960,26 @@ func _refresh_target_options() -> void:
 
 	if controller != null and controller.game != null:
 		var development_human = controller.get_human_player()
+
+		if controller.stage == PlayableRoundControllerData.Stage.VULTURE_RECON:
+			target_label.text = "Scout enemy Guards:"
+			var recon_bot = controller.get_bot_player()
+			if recon_bot != null:
+				var lord_unknown: int = 0
+				var castle_unknown: int = 0
+				for card in recon_bot.lord_guards:
+					if not controller.is_guard_revealed(card):
+						lord_unknown += 1
+				for card in recon_bot.castle_guards:
+					if not controller.is_guard_revealed(card):
+						castle_unknown += 1
+				if lord_unknown > 0:
+					_add_target_option("Lord Guards — %d unknown" % lord_unknown, "Lord")
+				if castle_unknown > 0:
+					_add_target_option("Castle Guards — %d unknown" % castle_unknown, "Castle")
+			target_select.disabled = target_select.item_count <= 1
+			_refresh_target_info()
+			return
 
 		if controller.stage == PlayableRoundControllerData.Stage.KANIFOUS_INVOKE:
 			target_label.text = "Revealed card:"
@@ -7394,26 +7440,19 @@ func _log_guard_reveals() -> void:
 		if cards.is_empty():
 			continue
 
+		var source: String = String(event.get("source", ""))
+		var reveal_name: String = (
+			"Vulture — Reconnaissance"
+			if source == "vulture_recon"
+			else "Guard reveal"
+		)
 		_log(
-			"[color=#f2d477][b]Guard reveal:[/b] %s's %s zone turns face-up — %s.[/color]"
+			"[color=#f2d477][b]%s:[/b] %s's %s zone turns face-up — %s.[/color]"
 			% [
-				_player_name(
-					int(
-						event.get(
-							"defender_id",
-							-1
-						)
-					)
-				),
-				String(
-					event.get(
-						"zone",
-						"Guard"
-					)
-				),
-				_string_values_inline(
-					cards
-				),
+				reveal_name,
+				_player_name(int(event.get("defender_id", -1))),
+				String(event.get("zone", "Guard")),
+				_string_values_inline(cards),
 			]
 		)
 

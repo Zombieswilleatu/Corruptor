@@ -105,7 +105,7 @@ static func _test_profile() -> Dictionary:
 		or rules.kani_threat_cost
 		or rules.kro_fallback_feeds
 		or not rules.kro_milestone_once
-		or rules.lab_profile_version != "7.4.0-castle-rules-lock"
+		or rules.lab_profile_version != "7.5.0-suit-identities"
 		or rules.momentum_refund != 1
 		or rules.veil_drift_after != 15
 		or not is_equal_approx(rules.veil_drift_growth, 0.25)

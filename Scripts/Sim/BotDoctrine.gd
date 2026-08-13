@@ -1516,6 +1516,16 @@ static func _score_ward(
 	if player.lord == "Odradek":
 		score += 0.8
 
+	# Canonical Penitent Ward tax must affect action selection, not only the
+	# resolver, or the bot keeps choosing Ward as if every suit were efficient.
+	if rules.ward_offsuit_penalty > 0 and not player.hand.is_empty():
+		var raw_hand: int = _card_total(player.hand)
+		var effective_hand: int = 0
+		for card in player.hand:
+			effective_hand += int(player.ward_card_value(card, rules))
+		if raw_hand > 0:
+			score *= float(effective_hand) / float(raw_hand)
+
 	if rules.ward_threshold:
 		var incoming: float = 0.0
 		if opponent.alive:
@@ -1624,11 +1634,20 @@ static func _estimated_guard_total(
 	if not rules.fog_of_war:
 		return _card_total(guards)
 
-	# The playable bot must not inspect face-down Guard values. Use the deck
-	# mean deterministically here; the Python lab oracle adds optional noise.
-	return max(
-		guards.size(),
-		int(round(float(guards.size()) * 2.83))
+	# Reconnaissance makes revealed Guards exact while unrevealed cards retain
+	# the deterministic deck-mean Fog estimate.
+	var known_total: int = 0
+	var unknown_count: int = 0
+	for card in guards:
+		if bool(card.guard_revealed):
+			known_total += int(card.value)
+		else:
+			unknown_count += 1
+	if unknown_count <= 0:
+		return known_total
+	return known_total + max(
+		unknown_count,
+		int(round(float(unknown_count) * 2.83))
 	)
 
 
@@ -1953,12 +1972,31 @@ static func _commit_for_ward(
 		)
 		var any_suit_commitment: Array = []
 		var any_suit_total: int = 0
+		var ward_cards: Array = []
+		var remaining_ward_cards: Array = player.hand.duplicate()
+		while not remaining_ward_cards.is_empty():
+			var best_card = remaining_ward_cards[0]
+			for candidate in remaining_ward_cards:
+				var candidate_value: int = int(player.ward_card_value(candidate, rules))
+				var best_value: int = int(player.ward_card_value(best_card, rules))
+				if candidate_value > best_value:
+					best_card = candidate
+				elif candidate_value == best_value and int(candidate.value) > int(best_card.value):
+					best_card = candidate
+				elif (
+					candidate_value == best_value
+					and int(candidate.value) == int(best_card.value)
+					and String(candidate.suit) < String(best_card.suit)
+				):
+					best_card = candidate
+			ward_cards.append(best_card)
+			remaining_ward_cards.erase(best_card)
 
-		for card in _stable_sorted_cards(player.hand, true):
+		for card in ward_cards:
 			if float(any_suit_total) >= budget:
 				break
 			any_suit_commitment.append(card)
-			any_suit_total += int(card.value)
+			any_suit_total += int(player.ward_card_value(card, rules))
 
 		return any_suit_commitment
 

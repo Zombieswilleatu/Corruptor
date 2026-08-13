@@ -134,6 +134,7 @@ enum Stage {
 	REVEALED,
 	KANIFOUS_INVOKE,
 	KANIFOUS_WRIGHT,
+	VULTURE_RECON,
 	RESOLUTION_HUMBABA_TOLL,
 	RESOLUTION_ACTION,
 	RESOLUTION_VESSEL,
@@ -1071,12 +1072,14 @@ func _resolve_revealed_orders(
 		game,
 		rules,
 		random_source,
-		kanifous_choices
+		kanifous_choices,
+		{HUMAN_PLAYER_ID: "__defer__"}
 	)
 
-	# Reveal effects can move Guards between zones. A Guard entering a new
-	# zone starts hidden there, even if that physical card was seen before.
+	# Reveal effects can move Guards between zones. Reconnaissance may also
+	# turn an entire enemy Guard area face-up before combat.
 	_sync_guard_visibility()
+	_record_vulture_recon_events(reveal_result)
 
 	if String(
 		reveal_result.get(
@@ -1100,7 +1103,7 @@ func _resolve_revealed_orders(
 	)
 	kanifous_preview_cards.clear()
 
-	stage = Stage.REVEALED
+	stage = Stage.VULTURE_RECON if _human_vulture_recon_available() else Stage.REVEALED
 	last_result = {
 		"action": "revealed",
 		"reason": "",
@@ -1116,6 +1119,60 @@ func _resolve_revealed_orders(
 		"events": events,
 	}
 
+	return last_result
+
+
+func _human_vulture_recon_available() -> bool:
+	if not rules.vulture_recon:
+		return false
+	var human = get_human_player()
+	var bot = get_bot_player()
+	if human == null or bot == null:
+		return false
+	var has_vulture: bool = false
+	for card in human.committed:
+		if String(card.suit) == "Vulture":
+			has_vulture = true
+			break
+	if not has_vulture:
+		return false
+	for card in bot.lord_guards + bot.castle_guards:
+		if not bool(card.guard_revealed):
+			return true
+	return false
+
+
+func resolve_human_vulture_recon(zone: String) -> Dictionary:
+	if stage != Stage.VULTURE_RECON:
+		return _rejected("reveal", "not_awaiting_vulture_recon")
+	if zone not in ["Lord", "Castle"]:
+		return _rejected("reveal", "invalid_vulture_recon_zone")
+	var bot = get_bot_player()
+	if bot == null:
+		return _invalid("reveal", "bot_player_missing")
+	var guards: Array = bot.lord_guards if zone == "Lord" else bot.castle_guards
+	var has_unknown: bool = false
+	for card in guards:
+		if not bool(card.guard_revealed):
+			has_unknown = true
+			break
+	if not has_unknown:
+		return _rejected("reveal", "vulture_recon_zone_already_known")
+	_reveal_guard_zone(HUMAN_PLAYER_ID, bot, zone, "vulture_recon")
+	_sync_guard_visibility()
+	stage = Stage.REVEALED
+	last_result = {
+		"action": "vulture_recon",
+		"reason": "",
+		"round": int(game.round),
+		"completed": false,
+		"terminal": false,
+		"stopped_phase": "resolution",
+		"winner": -1,
+		"win_by": "",
+		"phases": phase_results,
+		"events": events,
+	}
 	return last_result
 
 
@@ -1800,18 +1857,16 @@ func _sync_guard_visibility() -> void:
 		)
 
 		for card in player.lord_guards:
-			current_locations[
-				int(
-					card.get_instance_id()
-				)
-			] = "%d:Lord" % player_id
+			var lord_guard_id: int = int(card.get_instance_id())
+			current_locations[lord_guard_id] = "%d:Lord" % player_id
+			if bool(card.guard_revealed):
+				revealed_guard_ids[lord_guard_id] = true
 
 		for card in player.castle_guards:
-			current_locations[
-				int(
-					card.get_instance_id()
-				)
-			] = "%d:Castle" % player_id
+			var castle_guard_id: int = int(card.get_instance_id())
+			current_locations[castle_guard_id] = "%d:Castle" % player_id
+			if bool(card.guard_revealed):
+				revealed_guard_ids[castle_guard_id] = true
 
 	for raw_instance_id in revealed_guard_ids.keys():
 		var instance_id: int = int(
@@ -1980,6 +2035,25 @@ func _reveal_primary_attack_guards() -> void:
 		)
 
 
+func _record_vulture_recon_events(reveal_result: Dictionary) -> void:
+	var raw_players = reveal_result.get("players", [])
+	if typeof(raw_players) != TYPE_ARRAY:
+		return
+	for raw_player in raw_players:
+		if typeof(raw_player) != TYPE_DICTIONARY:
+			continue
+		var recon = raw_player.get("vulture_recon", {})
+		if typeof(recon) != TYPE_DICTIONARY or not bool(recon.get("triggered", false)):
+			continue
+		guard_reveal_events.append({
+			"attacker_id": int(recon.get("player_id", -1)),
+			"defender_id": int(recon.get("defender_id", -1)),
+			"zone": String(recon.get("zone", "")),
+			"source": "vulture_recon",
+			"cards": recon.get("cards", []),
+		})
+
+
 func _private_reflex_provider(
 	current_game,
 	current_rules: RuleConfig
@@ -2144,6 +2218,7 @@ func _reveal_guard_zone(
 			continue
 
 		revealed_guard_ids[instance_id] = true
+		card.guard_revealed = true
 		newly_revealed.append(
 			String(
 				card.card_id()
