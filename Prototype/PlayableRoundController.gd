@@ -1468,6 +1468,8 @@ func resolve_human_vessel(
 	resolution_state["next_action_index"] = int(resolution_state.get("next_action_index", 0)) + 1
 
 	if int(game.winner) >= 0 or bool(aftermath_result.get("stopped_on_win", false)):
+		if rules.ward_frontline:
+			ResolutionEngineData._flush_frontline_ward_commitments(game)
 		resolution_state["stopped_stage"] = "actions"
 		return _finish_human_resolution()
 
@@ -1572,12 +1574,15 @@ func _advance_human_resolution() -> Dictionary:
 		resolution_state["next_action_index"] = next_index + 1
 
 		if int(game.winner) >= 0 or bool(aftermath_result.get("stopped_on_win", false)):
+			if rules.ward_frontline:
+				ResolutionEngineData._flush_frontline_ward_commitments(game)
 			resolution_state["stopped_stage"] = "actions"
 			return _finish_human_resolution()
 
+	if rules.ward_frontline:
+		ResolutionEngineData._flush_frontline_ward_commitments(game)
+
 	return _begin_human_reflex()
-
-
 func _begin_human_reflex() -> Dictionary:
 	var winner_id: int = int(game.reflex_winner)
 	if winner_id == HUMAN_PLAYER_ID:

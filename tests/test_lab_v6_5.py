@@ -55,6 +55,7 @@ class LabV65RulesTests(unittest.TestCase):
         self.assertTrue(sim.VARIANT["fix_b"])
         self.assertEqual(sim.VARIANT["invocation_gate"], 7)
         self.assertEqual(sim.VARIANT["profane_ruins_req"], 2)
+        self.assertEqual(sim.VARIANT["profane_ruins_cost"], 5)
         self.assertFalse(sim.VARIANT["ai_dominion_drive"])
         self.assertFalse(sim.VARIANT["kroni_hunger_decay"])
         self.assertFalse(sim.VARIANT["neutral_tear_on_banish"])
@@ -135,6 +136,53 @@ class LabV65RulesTests(unittest.TestCase):
 
         self.assertEqual(warder.garrison, [low])
         self.assertEqual(warder.committed, [high])
+
+    def test_profane_the_ruins_costs_five_hand_value(self):
+        game = sim.Game(["Orias"], ["Valak"])
+        player, opponent = game.players
+        player.alive = True
+        opponent.alive = True
+        player.ruined_castles = {"Keep", "Stockpile"}
+        player.profaned_castles = set()
+        player.profane_ruins_used_this_round = False
+        player.tears = 1
+
+        high = sim.Card("Butcher", 3)
+        low = sim.Card("Wright", 2)
+        spare = sim.Card("Vulture", 1)
+        player.hand = [high, low, spare]
+        game.discard = []
+
+        game._ai_dominion_rites(player)
+
+        self.assertEqual(player.tears, 2)
+        self.assertEqual(len(player.ruined_castles), 1)
+        self.assertEqual(len(player.profaned_castles), 1)
+        self.assertEqual(player.hand, [spare])
+        self.assertEqual(game.discard, [high, low])
+
+    def test_profane_the_ruins_rejects_subfive_hand(self):
+        game = sim.Game(["Orias"], ["Valak"])
+        player, opponent = game.players
+        player.alive = True
+        opponent.alive = True
+        player.ruined_castles = {"Keep", "Stockpile"}
+        player.profaned_castles = set()
+        player.profane_ruins_used_this_round = False
+        player.tears = 1
+
+        first = sim.Card("Butcher", 3)
+        second = sim.Card("Vulture", 1)
+        player.hand = [first, second]
+        game.discard = []
+
+        game._ai_dominion_rites(player)
+
+        self.assertEqual(player.tears, 1)
+        self.assertEqual(player.ruined_castles, {"Keep", "Stockpile"})
+        self.assertEqual(player.profaned_castles, set())
+        self.assertEqual(player.hand, [first, second])
+        self.assertEqual(game.discard, [])
 
     def test_flat_ward_ignores_keep_and_omen_modifiers(self):
         game = sim.Game(["Orias"], ["Valak"])

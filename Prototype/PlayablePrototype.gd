@@ -1447,7 +1447,16 @@ func _after_development(
 		return
 
 	if controller.stage == PlayableRoundControllerData.Stage.DOMINION_RITES:
-		_enter_development_choice("Dominion Rites — Invocation and Profane Ruins may both be used when legal.")
+		_enter_development_choice(
+			(
+				"Dominion Rites — Invocation costs 11 Hand value. "
+				+ "Profane Ruins requires %d Ruined Castles and %d Hand value. "
+				+ "If both are selected, chosen cards pay Invocation first."
+			) % [
+				int(controller.rules.profane_ruins_req),
+				int(controller.rules.profane_ruins_cost),
+			]
+		)
 		return
 
 	if controller.stage == PlayableRoundControllerData.Stage.DEPLOY:
@@ -1942,14 +1951,26 @@ func _on_confirm_pressed() -> void:
 		return
 
 	if controller.stage == PlayableRoundControllerData.Stage.DOMINION_RITES:
+		var rite_payments: Dictionary = _selected_rite_payments()
 		var rite_decision: Dictionary = {
 			"invocation": (
-				{"payment": _selected_card_ids()}
+				{
+					"payment": rite_payments.get(
+						"invocation",
+						[]
+					),
+				}
 				if development_option_button.button_pressed
 				else {"pass": true}
 			),
 			"profane_ruins": (
-				{"castle": _selected_target_id()}
+				{
+					"castle": _selected_target_id(),
+					"payment": rite_payments.get(
+						"profane_ruins",
+						[]
+					),
+				}
 				if not _selected_target_id().is_empty()
 				else {"pass": true}
 			),
@@ -3043,7 +3064,7 @@ func _refresh_target_options() -> void:
 		if controller.stage == PlayableRoundControllerData.Stage.DOMINION_RITES:
 			target_label.text = "Profane:"
 			_add_target_option("No Profane Ruins", "")
-			for castle_name: String in development_human.castles:
+			for castle_name: String in development_human.ruined_castles:
 				_add_target_option(castle_name, castle_name)
 			target_select.disabled = false
 			_refresh_target_info()
@@ -4028,6 +4049,65 @@ func _build_odradek_breach_decision() -> Dictionary:
 	}
 
 
+func _selected_rite_payments() -> Dictionary:
+	var invocation_ids: Array[String] = []
+	var profane_ids: Array[String] = []
+	var invocation_value: int = 0
+	var profane_value: int = 0
+
+	var use_invocation: bool = (
+		development_option_button != null
+		and development_option_button.button_pressed
+	)
+
+	for button: Button in card_buttons:
+		if not button.button_pressed:
+			continue
+
+		if String(
+			button.get_meta(
+				"card_source",
+				"Hand"
+			)
+		) != "Hand":
+			continue
+
+		var card_id: String = String(
+			button.get_meta(
+				"card_id",
+				""
+			)
+		)
+
+		var card_value: int = int(
+			button.get_meta(
+				"card_value",
+				0
+			)
+		)
+
+		if (
+			use_invocation
+			and invocation_value < 11
+		):
+			invocation_ids.append(
+				card_id
+			)
+			invocation_value += card_value
+		else:
+			profane_ids.append(
+				card_id
+			)
+			profane_value += card_value
+
+	return {
+		"invocation": invocation_ids,
+		"invocation_value": invocation_value,
+		"profane_ruins": profane_ids,
+		"profane_value": profane_value,
+	}
+
+
 func _selected_card_ids() -> Array[String]:
 	var result: Array[String] = []
 
@@ -4641,7 +4721,42 @@ func _refresh_selection_text() -> void:
 		controller != null
 		and controller.stage == PlayableRoundControllerData.Stage.DOMINION_RITES
 	):
-		selection_label.text = "%d cards · Invocation payment %d/11" % [count, _selected_card_value()]
+		var rite_payments: Dictionary = _selected_rite_payments()
+		var invocation_selected: bool = (
+			development_option_button != null
+			and development_option_button.button_pressed
+		)
+		var profane_selected: bool = not _selected_target_id().is_empty()
+
+		if invocation_selected and profane_selected:
+			selection_label.text = (
+				"%d cards · Invocation %d/11 · Profane Ruins %d/%d"
+				% [
+					count,
+					int(rite_payments.get("invocation_value", 0)),
+					int(rite_payments.get("profane_value", 0)),
+					int(controller.rules.profane_ruins_cost),
+				]
+			)
+		elif invocation_selected:
+			selection_label.text = (
+				"%d cards · Invocation payment %d/11"
+				% [
+					count,
+					int(rite_payments.get("invocation_value", 0)),
+				]
+			)
+		elif profane_selected:
+			selection_label.text = (
+				"%d cards · Profane Ruins payment %d/%d"
+				% [
+					count,
+					int(rite_payments.get("profane_value", 0)),
+					int(controller.rules.profane_ruins_cost),
+				]
+			)
+		else:
+			selection_label.text = "%d cards · choose a Dominion Rite" % count
 	elif (
 		controller != null
 		and controller.stage == PlayableRoundControllerData.Stage.REFLEX_BID

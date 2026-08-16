@@ -262,6 +262,7 @@ LAB_V6_5_VARIANT = dict(
     # into the lab profile again.
     invocation_gate=7,
     profane_ruins_req=2,
+    profane_ruins_cost=5,
     ai_dominion_drive=False,
     kroni_hunger_decay=False,
     neutral_tear_on_banish=False,
@@ -1986,18 +1987,33 @@ class Game:
                     self._gain_tear(pl, 'cataclysmic_invocation')
                     if self._check_win(): return
 
-        # Profane the Ruins — once per round; requires 2+ Ruined Castles;
-        # Profane one Ruined Castle (permanently) for a Tear.
-        if (not pl.profane_ruins_used_this_round and len(pl.ruined_castles) >= VARIANT['profane_ruins_req']
+        # Profane the Ruins — once per round; requires the configured Ruined
+        # Castle count and, in the current lab, discards >=5 Hand value.
+        profane_cost = int(VARIANT.get('profane_ruins_cost', 0))
+        if (not pl.profane_ruins_used_this_round
+                and len(pl.ruined_castles) >= VARIANT['profane_ruins_req']
+                and sum(c.value for c in pl.hand) >= profane_cost
                 and (plan in ('race_dominion', 'deny_dominion') or pl.tears >= 1)):
             priority = CASTLE_PRIORITIES.get(pl.lord, CASTLES)
             target = next((c for c in reversed(priority) if c in pl.ruined_castles), None)
             if target:
-                pl.ruined_castles.discard(target)
-                pl.profaned_castles.add(target)
-                pl.profane_ruins_used_this_round = True
-                self._gain_tear(pl, 'profane_the_ruins')
-                if self._check_win(): return
+                pay = []
+                total = 0
+                for c in sorted(pl.hand, key=lambda c: c.value, reverse=True):
+                    if total >= profane_cost:
+                        break
+                    pay.append(c)
+                    total += c.value
+
+                if total >= profane_cost:
+                    for c in pay:
+                        pl.hand.remove(c)
+                    self._discard(pay)
+                    pl.ruined_castles.discard(target)
+                    pl.profaned_castles.add(target)
+                    pl.profane_ruins_used_this_round = True
+                    self._gain_tear(pl, 'profane_the_ruins')
+                    if self._check_win(): return
 
     # ─────────────────────────────────────────────────────────────────
     #  REFLEX BID (v5.29)

@@ -311,6 +311,16 @@ static func evaluate_profane_candidates(
 	):
 		return candidates
 
+	var profane_cost: int = maxi(
+		0,
+		rules.profane_ruins_cost
+	)
+
+	if _card_total(
+		player.hand
+	) < profane_cost:
+		return candidates
+
 	var current_plan: String = (
 		BotDoctrineData.plan(
 			game,
@@ -339,6 +349,16 @@ static func evaluate_profane_candidates(
 	if target_castle.is_empty():
 		return candidates
 
+	var payment_cards: Array = _select_high_payment(
+		player.hand,
+		profane_cost
+	)
+
+	if _card_total(
+		payment_cards
+	) < profane_cost:
+		return candidates
+
 	candidates.append({
 		"id": (
 			"profane_ruins_%s"
@@ -349,6 +369,9 @@ static func evaluate_profane_candidates(
 		"tie_rank": 1,
 		"payload": {
 			"castle": target_castle,
+			"payment": _card_ids(
+				payment_cards
+			),
 		},
 	})
 

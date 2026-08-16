@@ -20,6 +20,14 @@ const DominionRiteTestsData = preload(
 	"res://Scripts/Sim/DominionRiteTests.gd"
 )
 
+const ProfaneRuinsCostTestsData = preload(
+	"res://Scripts/Sim/ProfaneRuinsCostTests.gd"
+)
+
+const PlayableRoundControllerTestsData = preload(
+	"res://Scripts/Sim/PlayableRoundControllerTests.gd"
+)
+
 const DeployTestsData = preload(
 	"res://Scripts/Sim/DeployTests.gd"
 )
@@ -145,6 +153,18 @@ static func run_startup_checks(
 
 	messages.append_array(
 		DominionRiteTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		ProfaneRuinsCostTestsData.run(
+			rules
+		)
+	)
+
+	messages.append_array(
+		PlayableRoundControllerTestsData.run(
 			rules
 		)
 	)

@@ -346,6 +346,74 @@ static func _resolve_profane_ruins(
 			"castle_not_ruined"
 		)
 
+	var raw_payment = decision.get(
+		"payment",
+		[]
+	)
+
+	if typeof(
+		raw_payment
+	) != TYPE_ARRAY:
+		return _invalid_rite_result(
+			"profane_ruins",
+			"payment_must_be_array"
+		)
+
+	var payment_cost: int = maxi(
+		0,
+		rules.profane_ruins_cost
+	)
+
+	var selection: Dictionary = _select_hand_payment(
+		player,
+		raw_payment,
+		payment_cost
+	)
+
+	if not bool(
+		selection.get(
+			"valid",
+			false
+		)
+	):
+		return _invalid_rite_result(
+			"profane_ruins",
+			String(
+				selection.get(
+					"reason",
+					"invalid_payment"
+				)
+			)
+		)
+
+	var selected_cards: Array = selection.get(
+		"cards",
+		[]
+	)
+
+	var paid_total: int = int(
+		selection.get(
+			"paid_total",
+			0
+		)
+	)
+
+	for card in selected_cards:
+		assert(
+			player.hand.has(
+				card
+			),
+			"Profane-the-Ruins payment card left the player's hand."
+		)
+
+		player.hand.erase(
+			card
+		)
+
+		game.discard.append(
+			card
+		)
+
 	player.ruined_castles.erase(
 		castle_name
 	)
@@ -375,6 +443,11 @@ static func _resolve_profane_ruins(
 		"rite": "profane_ruins",
 		"reason": "",
 		"castle": castle_name,
+		"cost": payment_cost,
+		"paid_total": paid_total,
+		"paid_cards": _card_ids(
+			selected_cards
+		),
 		"tear_gain": 1,
 		"veil_after": int(
 			game.calculate_veil_total()

@@ -43,6 +43,9 @@ extends Resource
 @export var sigil_soul_fresh_only: bool = false
 @export var invocation_gate: int = 5
 @export var profane_ruins_req: int = 1
+# Hand-value cost for Profane the Ruins. Historical profiles remain free;
+# the current lab/playable rules opt into the priced rite.
+@export var profane_ruins_cost: int = 0
 @export var ai_dominion_drive: bool = true
 @export var no_backwash: bool = false
 @export var reconfig_strict: bool = true
@@ -250,6 +253,7 @@ static func lab_v6_5() -> RuleConfig:
 	# canonical DE v2 defaults.
 	config.invocation_gate = 7
 	config.profane_ruins_req = 2
+	config.profane_ruins_cost = 5
 	config.ai_dominion_drive = false
 	config.kroni_hunger_decay = false
 	config.neutral_tear_on_banish = false
