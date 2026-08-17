@@ -356,7 +356,7 @@ class LordPowerRegressionTests(unittest.TestCase):
             "Inferno's later Lord Scorch must remain after Wildfire.",
         )
 
-    def test_consume_waits_for_finale_and_fallback_removes_from_play(self):
+    def test_consume_waits_for_finale_and_fallback_discards(self):
         game = sim.Game(
             ["Kroni"],
             ["Orias"],
@@ -388,10 +388,10 @@ class LordPowerRegressionTests(unittest.TestCase):
             kroni.kroni_hunger,
             1,
         )
-        self.assertNotIn(
+        self.assertIn(
             removed,
             game.discard,
-            "Fallback Consume must remove its subject from play, not recycle it.",
+            "Fallback Consume is a cost paid to discard, not a permanent card sink.",
         )
         self.assertNotIn(
             removed,
@@ -399,8 +399,8 @@ class LordPowerRegressionTests(unittest.TestCase):
         )
         self.assertEqual(
             game.removed_from_play,
-            [removed],
-            "Fallback Consume must retain the physical card in the removed zone.",
+            [],
+            "Fallback Consume must not shrink the physical deck.",
         )
 
     def test_after_reveal_lord_powers_use_locked_committed_order(self):

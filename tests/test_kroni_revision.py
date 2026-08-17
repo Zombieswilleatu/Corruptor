@@ -75,7 +75,8 @@ class KroniRevisionTests(unittest.TestCase):
         self.assertIs(game._try_kroni_fallback(kroni), victim)
         self.assertEqual(kroni.kroni_hunger, 3)
         self.assertEqual(kroni.tears, 1)
-        self.assertIn(victim, game.removed_from_play)
+        self.assertIn(victim, game.discard)
+        self.assertEqual(game.removed_from_play, [])
 
     def test_lab_fallback_is_cost_only(self):
         sim.activate_ruleset("lab-v6.5")
@@ -87,7 +88,8 @@ class KroniRevisionTests(unittest.TestCase):
         self.assertEqual(kroni.kroni_hunger, 2)
         self.assertEqual(kroni.tears, 0)
         self.assertTrue(kroni.kroni_consume_done)
-        self.assertIn(victim, game.removed_from_play)
+        self.assertIn(victim, game.discard)
+        self.assertEqual(game.removed_from_play, [])
 
     def test_canonical_resummon_rearms_the_milestone(self):
         sim.activate_ruleset("de-v2")

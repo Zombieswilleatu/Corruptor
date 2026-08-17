@@ -451,7 +451,8 @@ static func _resolve_kroni_fallback(
 		selected_zone
 	)
 
-	game.removed_from_play.append(
+	# Conservation fix: fallback Consume pays its subject to discard.
+	game.discard.append(
 		selected_card
 	)
 

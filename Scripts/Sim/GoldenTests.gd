@@ -113,6 +113,11 @@ const CastleRulesV74TestsData = preload(
 )
 
 
+const AgencyPassTestsData = preload(
+	"res://Scripts/Sim/AgencyPassTests.gd"
+)
+
+
 const LordMatrixTestsData = preload(
 	"res://Scripts/Sim/LordMatrixTests.gd"
 )
@@ -291,6 +296,10 @@ static func run_startup_checks(
 
 	messages.append_array(
 		CastleRulesV74TestsData.run()
+	)
+
+	messages.append_array(
+		AgencyPassTestsData.run()
 	)
 
 	messages.append_array(

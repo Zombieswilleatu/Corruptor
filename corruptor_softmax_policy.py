@@ -511,7 +511,15 @@ def _reserve_for_commitment(self, player):
 
 
 
-def _pick_siege_target(self, attacker, defender) -> str:
+
+def _pick_siege_target(
+    self,
+    attacker,
+    defender,
+    *,
+    record: bool = False,
+) -> str:
+
     """Mirror BotDoctrine.pick_siege_target exactly."""
     if not defender.castles:
         return ""

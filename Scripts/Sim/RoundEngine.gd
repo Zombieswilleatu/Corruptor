@@ -736,6 +736,108 @@ static func _resolve_castle_integrity_action(
 	)
 
 
+
+# Agency pass: Wrights pay full Repair value. Other suits lose 1, floor 1.
+# Keep this as the single currency seam for resolver, bot doctrine, and UI.
+static func effective_repair_points(
+	suit: String,
+	value: int,
+	rules: RuleConfig
+) -> int:
+	var printed_value: int = maxi(0, value)
+	if rules == null or String(rules.repair_wright_mode) != "tax":
+		return printed_value
+	if suit == String(rules.repair_exempt_suit):
+		return printed_value
+	return maxi(
+		int(rules.repair_offsuit_floor),
+		printed_value - maxi(0, int(rules.repair_offsuit_penalty))
+	)
+
+
+static func effective_repair_value(
+	card,
+	rules: RuleConfig
+) -> int:
+	if card == null:
+		return 0
+	return effective_repair_points(
+		String(card.suit),
+		int(card.value),
+		rules
+	)
+
+
+static func choose_repair_payment_cards(
+	cards: Array,
+	target: int,
+	rules: RuleConfig
+) -> Array:
+	if cards.is_empty() or target <= 0:
+		return []
+
+	# DP totals are EFFECTIVE Repair value, not printed value.
+	var dp: Dictionary = {0: []}
+
+	for index: int in range(cards.size()):
+		var snapshot: Dictionary = dp.duplicate(true)
+		for raw_total in snapshot.keys():
+			var total: int = int(raw_total)
+			var candidate_indices: Array = snapshot[raw_total].duplicate()
+			candidate_indices.append(index)
+			var new_total: int = (
+				total
+				+ effective_repair_value(cards[index], rules)
+			)
+			if (
+				not dp.has(new_total)
+				or candidate_indices.size()
+				< dp[new_total].size()
+			):
+				dp[new_total] = candidate_indices
+
+	var chosen_total: int = -1
+
+	for raw_total in dp.keys():
+		var total: int = int(raw_total)
+		if total <= 0 or total < target:
+			continue
+		if (
+			chosen_total < 0
+			or total < chosen_total
+			or (
+				total == chosen_total
+				and dp[total].size()
+				< dp[chosen_total].size()
+			)
+		):
+			chosen_total = total
+
+	if chosen_total < 0:
+		for raw_total in dp.keys():
+			var total: int = int(raw_total)
+			if total <= 0:
+				continue
+			if (
+				chosen_total < 0
+				or total > chosen_total
+				or (
+					total == chosen_total
+					and dp[total].size()
+					< dp[chosen_total].size()
+				)
+			):
+				chosen_total = total
+
+	if chosen_total < 0:
+		return []
+
+	var result: Array = []
+	var chosen_indices: Array = dp[chosen_total]
+	for raw_index in chosen_indices:
+		result.append(cards[int(raw_index)])
+	return result
+
 static func _resolve_integrity_repair(
 	game,
 	player,
@@ -810,7 +912,14 @@ static func _resolve_integrity_repair(
 
 	_consume_castle_payment(game, player, selected_cards)
 
-	var restored: int = mini(maximum - before, paid_total + bonus)
+	var effective_paid_total: int = 0
+	for card in selected_cards:
+		effective_paid_total += effective_repair_value(card, rules)
+
+	var restored: int = mini(
+		maximum - before,
+		effective_paid_total + bonus
+	)
 	var after: int = before + restored
 	player.castle_integrity[castle_name] = after
 	player.castle_action_used_this_round = true
@@ -842,6 +951,7 @@ static func _resolve_integrity_repair(
 		"restored": restored,
 		"bonus": bonus,
 		"paid_total": paid_total,
+		"effective_paid_total": effective_paid_total,
 		"paid_cards": _card_ids(selected_cards),
 		"used_token": use_token,
 	}

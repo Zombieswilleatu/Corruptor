@@ -7,7 +7,8 @@ const SnapshotSerializerData = preload(
 )
 
 
-const EXPORT_DIRECTORY: String = "user://debug_snapshots"
+const EXPORT_FOLDER_NAME: String = "Corruptor Debug Snapshots"
+const FALLBACK_EXPORT_DIRECTORY: String = "user://debug_snapshots"
 const FORMAT_VERSION: String = "corruptor-playable-match-snapshot-v1"
 
 
@@ -24,9 +25,7 @@ static func export_current_match(
 			"path": "",
 		}
 
-	var absolute_directory: String = ProjectSettings.globalize_path(
-		EXPORT_DIRECTORY
-	)
+	var absolute_directory: String = _export_directory_absolute()
 	var directory_error: Error = DirAccess.make_dir_recursive_absolute(
 		absolute_directory
 	)
@@ -53,19 +52,16 @@ static func export_current_match(
 		int(controller.game.round),
 		stage_name.to_lower(),
 	]
-	var virtual_path: String = "%s/%s.json" % [
-		EXPORT_DIRECTORY,
-		stem,
-	]
+	var absolute_path: String = absolute_directory.path_join("%s.json" % stem)
 	var file = FileAccess.open(
-		virtual_path,
+		absolute_path,
 		FileAccess.WRITE
 	)
 	if file == null:
 		return {
 			"ok": false,
 			"reason": "open_failed_%s" % error_string(FileAccess.get_open_error()),
-			"path": ProjectSettings.globalize_path(virtual_path),
+			"path": absolute_path,
 		}
 
 	file.store_string(
@@ -85,8 +81,15 @@ static func export_current_match(
 	return {
 		"ok": true,
 		"reason": "",
-		"path": ProjectSettings.globalize_path(virtual_path),
+		"path": absolute_path,
 	}
+
+
+static func _export_directory_absolute() -> String:
+	var documents_directory: String = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
+	if documents_directory.is_empty():
+		return ProjectSettings.globalize_path(FALLBACK_EXPORT_DIRECTORY)
+	return documents_directory.path_join(EXPORT_FOLDER_NAME)
 
 
 static func _snapshot_payload(

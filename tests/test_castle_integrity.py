@@ -144,16 +144,16 @@ class CastleIntegrityCanonicalTests(unittest.TestCase):
 
         game._ai_repair_only(player)
 
-        # Strict Repair accepts Wright payment only. The Wright:4 heals 4;
-        # the Butcher/Vulture cards remain available.
-        self.assertEqual(player.castle_integrity["Keep"], 8)
-        self.assertEqual(player.hand, paid[1:])
+        # Wright:4 delivers 4; Butcher:3 and Vulture:3 deliver 2 each.
+        # The full effective pool restores 8 Integrity: 4 -> 12.
+        self.assertEqual(player.castle_integrity["Keep"], 12)
+        self.assertEqual(player.hand, [])
         self.assertIn(paid[0], game.discard)
-        self.assertNotIn(paid[1], game.discard)
-        self.assertNotIn(paid[2], game.discard)
+        self.assertIn(paid[1], game.discard)
+        self.assertIn(paid[2], game.discard)
         self.assertEqual(game.stat_castle_repair_actions, 1)
-        self.assertEqual(game.stat_repair_cards, 1)
-        self.assertEqual(game.stat_repair_value, 4)
+        self.assertEqual(game.stat_repair_cards, 3)
+        self.assertEqual(game.stat_repair_value, 10)
         self.assertTrue(player.castle_action_used_this_round)
 
         player.hand = [sim.Card("Penitent", 5)]

@@ -187,7 +187,8 @@ static func _deploy_moves_for_player(
 	)
 
 	var repair_blocks_hand: bool = (
-		player.repaired_this_round
+		rules.repair_blocks_hand_deploy
+		and player.repaired_this_round
 		and not player.repair_token_used_this_repair
 	)
 

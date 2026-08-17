@@ -488,7 +488,14 @@ func _player_has_castle_action_choices(player) -> bool:
 	if rules == null or not rules.castle_integrity:
 		return not player.ruined_castles.is_empty()
 
-	var repair_allowed: bool = String(rules.repair_wright_mode) == "off"
+	var repair_mode: String = String(rules.repair_wright_mode)
+	var repair_allowed: bool = (
+		repair_mode in ["off", "tax"]
+		and (
+			not player.hand.is_empty()
+			or not player.garrison.is_empty()
+		)
+	)
 	if not repair_allowed:
 		for card in player.hand:
 			if String(card.suit) == "Wright":
@@ -701,12 +708,8 @@ func resolve_human_summon(
 	}
 
 	if not pass_summon:
-		var validation: Dictionary = (
-			SummonEngineData._select_hand_payment(
-				human,
-				payment_ids,
-				human_summon_cost()
-			)
+		var validation: Dictionary = human_summon_payment_preview(
+			payment_ids
 		)
 
 		if not bool(
@@ -779,6 +782,27 @@ func human_summon_cost() -> int:
 		human,
 		rules,
 		human_summon_lord()
+	)
+
+
+
+
+func human_summon_payment_preview(
+	payment_ids: Array[String]
+) -> Dictionary:
+	var human = get_human_player()
+	if human == null:
+		return {
+			"valid": false,
+			"reason": "human_player_missing",
+		}
+
+	return SummonEngineData.payment_preview(
+		human,
+		rules,
+		human_summon_lord(),
+		human_summon_cost(),
+		payment_ids
 	)
 
 

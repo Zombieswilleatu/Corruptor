@@ -53,6 +53,10 @@ class LabV65RulesTests(unittest.TestCase):
         self.assertTrue(sim.ACTIVE_FEATURES["castle_irreparable"])
         self.assertEqual(sim.LAB_PROFILE_VERSION, "7.5.0-suit-identities")
         self.assertTrue(sim.VARIANT["fix_b"])
+        self.assertEqual(sim.VARIANT["repair_wright_mode"], "tax")
+        self.assertFalse(sim.VARIANT["repair_blocks_hand_deploy"])
+        self.assertEqual(sim.VARIANT["profane_ruins_card_cost"], 5)
+        self.assertTrue(sim.VARIANT["summon_threat_shortfall"])
         self.assertEqual(sim.VARIANT["invocation_gate"], 7)
         self.assertEqual(sim.VARIANT["profane_ruins_req"], 2)
         self.assertEqual(sim.VARIANT["profane_ruins_cost"], 5)
@@ -305,10 +309,9 @@ class LabV65RulesTests(unittest.TestCase):
 
         game._ai_repair_only(player)
 
-        # Strict Repair spends only the Wright:3; Butcher:5 remains in hand.
-        self.assertEqual(player.castle_integrity["Keep"], 9)
-        self.assertEqual(len(player.hand), 1)
-        self.assertEqual(player.hand[0].suit, "Butcher")
+        # Wright:3 delivers 3; off-suit Butcher:5 delivers 4.
+        self.assertEqual(player.castle_integrity["Keep"], 13)
+        self.assertEqual(player.hand, [])
         self.assertEqual(player.castle_repairs, {"Keep": 1})
         self.assertEqual(player.castle_scars, {})
 

@@ -243,20 +243,20 @@ static func _test_kroni_decay_fallback(
 			"Fallback Consume used Garrison despite Guards existing."
 		)
 
-	if not game.discard.is_empty():
-		return _fail(
-			KRONI_FALLBACK_TEST_NAME,
-			"Fallback Consume recycled its removed card into discard."
-		)
-
 	if _card_ids(
-		game.removed_from_play
+		game.discard
 	) != [
 		"Penitent:1",
 	]:
 		return _fail(
 			KRONI_FALLBACK_TEST_NAME,
-			"Fallback Consume did not retain its removed card."
+			"Fallback Consume did not pay its subject to discard."
+		)
+
+	if not game.removed_from_play.is_empty():
+		return _fail(
+			KRONI_FALLBACK_TEST_NAME,
+			"Fallback Consume permanently removed a physical deck card."
 		)
 
 	var decay_events: Array = result.get(
@@ -563,6 +563,7 @@ static func _test_kroni_fallback_victory_timing(
 	if _card_ids(
 		game.discard
 	) != [
+		"Penitent:1",
 		"Vulture:2",
 		"Butcher:4",
 	]:

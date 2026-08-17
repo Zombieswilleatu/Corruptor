@@ -1,0 +1,306 @@
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+  CORRUPTOR BALANCE SIMULATION REPORT  v7.5.0-suit-identities (Castle rules lock + canonical suit identities)  ai=heuristic-2026.08-castle-contextual-v3
+════════════════════════════════════════════════════════════════════════════════════════════════════
+  Lab profile        : 7.5.0-suit-identities (market_refresh=True, ward_commit_defense=True, kani_hand_cost=True, humbaba_reactive_lane=True, kro_fallback_feeds=False, kro_milestone_once=True, momentum_refund=1, veil_drift=15/0.25, kal_flame_tokens=True)
+  Games per matchup  : 1
+  Total matchups     : 36
+  Total games played : 36
+  Lord mode          : LOCKED — pure 1v1, no switching
+  Dominion track     : 12 Tears (Standard mode)
+  Dominion req.      : 5 personal Tears
+  Final Collapse     : 26 Tears
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+  1. OVERALL WIN RATES  (vs all other lords)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+
+  Lord            Win%    Rating  Bar
+  ------------ -------  --------  ---
+  Gremory        62.5%  DOMINANT  █████████████████████████ ◄◄ IMBALANCED
+  Odradek        62.5%  DOMINANT  █████████████████████████ ◄◄ IMBALANCED
+  Humbaba        62.5%  DOMINANT  █████████████████████████ ◄◄ IMBALANCED
+  Orias          50.0%  BALANCED  ████████████████████
+  Deimos         50.0%  BALANCED  ████████████████████
+  Valak          50.0%  BALANCED  ████████████████████
+  Kroni          50.0%  BALANCED  ████████████████████
+  Kalligan       50.0%  BALANCED  ████████████████████
+  Kanifous       12.5%  VERY WEAK  █████ ◄◄ IMBALANCED
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+  2. HEAD-TO-HEAD WIN RATE MATRIX  (row wins vs col)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+
+                Orias   Deimos    Valak    Kroni  Kalliga  Gremory  Odradek  Kanifou  Humbaba
+              ───────────────────────────────────────────────────────────────
+  Orias     |    ---     0.0*  100.0*    0.0*  100.0*  100.0*    0.0*  100.0*    0.0*
+  Deimos    |  100.0*    ---     0.0*    0.0*  100.0*    0.0*    0.0*  100.0*  100.0*
+  Valak     |    0.0*  100.0*    ---     0.0*    0.0*  100.0*    0.0*  100.0*  100.0*
+  Kroni     |  100.0*  100.0*  100.0*    ---     0.0*    0.0*    0.0*  100.0*    0.0*
+  Kalligan  |    0.0*    0.0*  100.0*  100.0*    ---     0.0*    0.0*  100.0*  100.0*
+  Gremory   |    0.0*  100.0*    0.0*  100.0*  100.0*    ---   100.0*  100.0*    0.0*
+  Odradek   |  100.0*  100.0*  100.0*  100.0*  100.0*    0.0*    ---     0.0*    0.0*
+  Kanifous  |    0.0*    0.0*    0.0*    0.0*    0.0*    0.0*  100.0*    ---     0.0*
+  Humbaba   |  100.0*    0.0*    0.0*  100.0*    0.0*  100.0*  100.0*  100.0*    --- 
+  (* = win rate outside 40–60% range)
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+  3b. TENSION & PERCEIVED FAIRNESS
+════════════════════════════════════════════════════════════════════════════════════════════════════
+
+  Close finishes     (loser within 2 Souls) :  36.1%
+  Comeback wins      (winner was trailing)  :  36.1%
+  Dominant wins      (led from round 3+)    :  47.2%
+  Contested games    (not dominant)         :  52.8%
+  Avg winning margin                        :   3.3 Souls
+
+  ✓  High close-finish rate — games feel tight and decisive.
+  ✓  Strong comeback rate — losing position is not hopeless.
+  ~  Moderate dominant-win rate — some games break open early.
+
+  Win Path       Total   Close%  Comeback%  Dominant%
+  ------------ ------- -------- ---------- ----------
+  Ritual            24     8.3%      12.5%      70.8%
+  Dominion          12    91.7%      83.3%       0.0%
+  Timeout            0     0.0%       0.0%       0.0%
+
+  Dominion verdict:
+  ✓  Dominion wins are as tense as Ritual wins — it earns its victories.
+  ✓  Dominion comebacks are common — trailing players can pivot to Tears.
+  ✓  Dominion dominant-win rate is acceptable.
+
+  ── Aha Moments (razor-margin plays) ──
+  Avg aha moments per game               :   1.6
+  Games with at least one aha moment     :  77.8%
+  Avg aha moments before Cataclysm       :   1.6  (of 1.6 total)
+  (Defined as: bid margin ≤2, attack/defense margin ≤2, or 1-Soul final win)
+
+  Win Path      Avg Aha  Pre-Cat Aha   Close-Game Aha  Comeback Aha
+  ------------ -------- ------------ ---------------- -------------
+  Ritual            2.0          2.0              4.5         (n/a)
+  Dominion          0.8          0.8            (n/a)           0.9
+
+    Avg Aha        — all aha moments per game won by this path
+    Pre-Cat Aha    — aha moments that occurred before Cataclysm fires
+    Close-Game Aha — aha/game in Ritual wins where loser was within 2 Souls
+    Comeback Aha   — aha/game in Dominion wins where winner was trailing at midpoint
+
+  ⚠  Dominion wins have low aha content — likely feel like sudden steals.
+  ~  Dominion pre-Cataclysm aha (0.8) lower than Ritual (2.0) — tension may cluster near the track threshold.
+  ~  Dominion comeback wins have fewer aha moments than Ritual — pivots may feel passive.
+  ✓  Most aha moments occur before Cataclysm — tension builds before the endgame.
+  ⚠  Low aha density — games may feel decided rather than fought for.
+
+  Most aha-rich matchup : Gremory vs Kanifous (6.0 aha/game)
+  Least aha-rich matchup: Odradek vs Kanifous (0.0 aha/game)
+
+  Most tense matchup  : Orias vs Valak (100% close finishes)
+  Least tense matchup : Kanifous vs Humbaba (0% close finishes)
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+  3d. FAIRNESS / TELEGRAPHING
+════════════════════════════════════════════════════════════════════════════════════════════════════
+
+  Visible threat definitions:
+    Ritual   — winner had ≥10 Souls (one Lord kill from victory)
+    Dominion — winner had ≥4 personal Tears AND Veil ≥10 (one action from Cataclysm)
+    Collapse — Veil ≥24 (track two steps from hard end)
+
+  Telegraphed win  : winner was visibly threatening at the start of the final round
+  Sudden win       : winner was NOT visibly threatening at the start of the final round
+  Path surprise    : winner was behind on their eventual win-path metric at round start
+  Warning rounds   : rounds between first visible threat and actual win (telegraphed games only)
+
+  Win Path        Telegraphed   Sudden  Path Surpr  Avg Warning
+  -------------- ------------ -------- ----------- ------------
+  Ritual                83.3%    16.7%       12.5%         1.4 rds
+  Dominion              75.0%    25.0%        0.0%         0.3 rds
+  Timeout           (no data)
+
+  Overall telegraphed  : 80.6%   (target ≥70%)
+  Overall sudden wins  : 19.4%   (target <20%)
+  Overall path surprise: 8.3%
+  Overall avg warning  : 1.1 rounds
+
+  ✓  81% telegraphed — most wins are legibly inevitable.
+  ✓  Sudden win rate 19% is healthy.
+  ✓  Ritual warning window 1.4 rounds — loser has time to respond.
+  ~  Dominion warning window only 0.3 rounds — Cataclysm arrives quickly once telegraphed.
+  ~  Dominion sudden wins at 25% — within tolerance for an alternate-axis path.
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+  3. WIN CONDITION BREAKDOWN
+════════════════════════════════════════════════════════════════════════════════════════════════════
+
+  Ritual               24  (66.7%)
+  Dominion             12  (33.3%)
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+  4. VEIL TRACK & TEAR ECONOMY
+════════════════════════════════════════════════════════════════════════════════════════════════════
+
+  Avg personal tears per game  : 5.69
+  Avg neutral tears per game   : 3.14
+  Avg total track position     : 8.83  (Cataclysm at 12)
+  Avg castles destroyed/game   : 2.67  (each generates 1 neutral tear)
+  Avg lords killed/game        : 1.14  (each resummon after 1st generates 1 neutral tear)
+
+  Track fills to 74% of Cataclysm on average.
+  ⚠  Track reaches ~halfway — Dominion possible but not routine.
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+  5. PER-MATCHUP STATISTICS
+════════════════════════════════════════════════════════════════════════════════════════════════════
+
+  Matchup                   WR0    WR1   Rnds  Lrds/g  PTeats  NTeats  TTrack
+  ---------------------- ------ ------ ------ ------- ------- ------- -------
+  Deimos vs Gremory        0.0% 100.0%    6.0    2.00    3.00    3.00    6.00
+  Deimos vs Humbaba      100.0%   0.0%   16.0    0.00   11.00    1.00   12.00
+  Deimos vs Kalligan     100.0%   0.0%    9.0    1.00    8.00    2.00   10.00
+  Deimos vs Kanifous     100.0%   0.0%    8.0    0.00    5.00    4.00    9.00
+  Deimos vs Kroni          0.0% 100.0%   10.0    0.00   10.00    2.00   12.00
+  Deimos vs Odradek        0.0% 100.0%   11.0    0.00    4.00    6.00   10.00
+  Deimos vs Valak          0.0% 100.0%   16.0    1.00    5.00    1.00    6.00
+  Gremory vs Humbaba       0.0% 100.0%   11.0    1.00    9.00    4.00   13.00
+  Gremory vs Kanifous    100.0%   0.0%    9.0    2.00    3.00    4.00    7.00
+  Gremory vs Odradek     100.0%   0.0%    7.0    1.00    3.00    4.00    7.00
+  Kalligan vs Gremory      0.0% 100.0%    6.0    2.00    3.00    2.00    5.00
+  Kalligan vs Humbaba    100.0%   0.0%   14.0    1.00   12.00    0.00   12.00
+  Kalligan vs Kanifous   100.0%   0.0%    7.0    2.00    3.00    5.00    8.00
+  Kalligan vs Odradek      0.0% 100.0%    9.0    1.00    7.00    5.00   12.00
+  Kanifous vs Humbaba      0.0% 100.0%   14.0    0.00    2.00    3.00    5.00
+  Kroni vs Gremory         0.0% 100.0%    9.0    3.00    3.00    3.00    6.00
+  Kroni vs Humbaba         0.0% 100.0%   19.0    0.00    7.00    5.00   12.00
+  Kroni vs Kalligan        0.0% 100.0%    6.0    2.00    4.00    2.00    6.00
+  Kroni vs Kanifous      100.0%   0.0%   13.0    1.00    7.00    3.00   10.00
+  Kroni vs Odradek         0.0% 100.0%   10.0    0.00    2.00    4.00    6.00
+  Odradek vs Humbaba       0.0% 100.0%   20.0    0.00    7.00   10.00   17.00
+  Odradek vs Kanifous      0.0% 100.0%    7.0    0.00   10.00    2.00   12.00
+  Orias vs Deimos          0.0% 100.0%    6.0    1.00    4.00    2.00    6.00
+  Orias vs Gremory       100.0%   0.0%    4.0    2.00    1.00    3.00    4.00
+  Orias vs Humbaba         0.0% 100.0%   13.0    1.00    0.00    4.00    4.00
+  Orias vs Kalligan      100.0%   0.0%    5.0    3.00    2.00    3.00    5.00
+  Orias vs Kanifous      100.0%   0.0%   14.0    1.00    8.00    5.00   13.00
+  Orias vs Kroni           0.0% 100.0%   10.0    4.00   11.00    1.00   12.00
+  Orias vs Odradek         0.0% 100.0%   11.0    1.00    6.00    4.00   10.00
+  Orias vs Valak         100.0%   0.0%   11.0    1.00   10.00    2.00   12.00
+  Valak vs Gremory       100.0%   0.0%    7.0    2.00    1.00    2.00    3.00
+  Valak vs Humbaba       100.0%   0.0%   12.0    1.00    6.00    3.00    9.00
+  Valak vs Kalligan        0.0% 100.0%    9.0    2.00    9.00    1.00   10.00
+  Valak vs Kanifous      100.0%   0.0%   17.0    2.00    5.00    4.00    9.00
+  Valak vs Kroni           0.0% 100.0%   14.0    0.00    5.00    1.00    6.00
+  Valak vs Odradek         0.0% 100.0%    9.0    0.00    9.00    3.00   12.00
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+  6. TIMEOUT / STALL ANALYSIS
+════════════════════════════════════════════════════════════════════════════════════════════════════
+
+  No timeouts recorded.
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+  7. ABILITY & MECHANIC ACTIVITY
+════════════════════════════════════════════════════════════════════════════════════════════════════
+
+  Avg combats per game          : 6.92
+  Avg lords killed per game     : 1.14
+  Avg castles destroyed per game: 2.67
+  Avg Integrity damage per game : 55.50
+  Avg Integrity repaired/game   : 26.89
+  Avg repair actions/game       : 3.53
+  Avg repair cards spent/game   : 8.25
+  Avg repair card value/game    : 27.72
+  Avg castles constructed/game  : 3.67
+  Avg construction actions/game : 11.42
+  Avg construction value/game   : 53.44
+  Zero-construction games       : 0.0%
+  Avg castles standing at end   : 4.75
+  Avg round first construction  : 3.11
+  Structure-first bypass rate   : 0.0%
+  Avg Momentum triggers/game    : 0.97
+  Repair : Ruination ratio      : 1.32
+  Avg ritual souls per game     : 7.19
+  Avg hunt souls per game       : 2.28
+  Avg ward souls per game       : 1.89
+  Avg breach triggers per game  : 2.50
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+  8. CRITICAL FLAW DETECTION
+════════════════════════════════════════════════════════════════════════════════════════════════════
+
+  [BALANCE] Gremory DOMINANT (62.5% — threshold 62%)
+  [BALANCE] Odradek DOMINANT (62.5% — threshold 62%)
+  [BALANCE] Humbaba DOMINANT (62.5% — threshold 62%)
+  [BALANCE] Kanifous UNDERPOWERED (12.5% — threshold 38%)
+  [MATCHUP] Orias hard countered by Deimos: 0.0%
+  [MATCHUP] Orias crushes Valak: 100.0%
+  [MATCHUP] Orias hard countered by Kroni: 0.0%
+  [MATCHUP] Orias crushes Kalligan: 100.0%
+  [MATCHUP] Orias crushes Gremory: 100.0%
+  [MATCHUP] Orias hard countered by Odradek: 0.0%
+  [MATCHUP] Orias crushes Kanifous: 100.0%
+  [MATCHUP] Orias hard countered by Humbaba: 0.0%
+  [MATCHUP] Deimos hard countered by Valak: 0.0%
+  [MATCHUP] Deimos hard countered by Kroni: 0.0%
+  [MATCHUP] Deimos crushes Kalligan: 100.0%
+  [MATCHUP] Deimos hard countered by Gremory: 0.0%
+  [MATCHUP] Deimos hard countered by Odradek: 0.0%
+  [MATCHUP] Deimos crushes Kanifous: 100.0%
+  [MATCHUP] Deimos crushes Humbaba: 100.0%
+  [MATCHUP] Valak hard countered by Kroni: 0.0%
+  [MATCHUP] Valak hard countered by Kalligan: 0.0%
+  [MATCHUP] Valak crushes Gremory: 100.0%
+  [MATCHUP] Valak hard countered by Odradek: 0.0%
+  [MATCHUP] Valak crushes Kanifous: 100.0%
+  [MATCHUP] Valak crushes Humbaba: 100.0%
+  [MATCHUP] Kroni hard countered by Kalligan: 0.0%
+  [MATCHUP] Kroni hard countered by Gremory: 0.0%
+  [MATCHUP] Kroni hard countered by Odradek: 0.0%
+  [MATCHUP] Kroni crushes Kanifous: 100.0%
+  [MATCHUP] Kroni hard countered by Humbaba: 0.0%
+  [MATCHUP] Kalligan hard countered by Gremory: 0.0%
+  [MATCHUP] Kalligan hard countered by Odradek: 0.0%
+  [MATCHUP] Kalligan crushes Kanifous: 100.0%
+  [MATCHUP] Kalligan crushes Humbaba: 100.0%
+  [MATCHUP] Gremory crushes Odradek: 100.0%
+  [MATCHUP] Gremory crushes Kanifous: 100.0%
+  [MATCHUP] Gremory hard countered by Humbaba: 0.0%
+  [MATCHUP] Odradek hard countered by Kanifous: 0.0%
+  [MATCHUP] Odradek hard countered by Humbaba: 0.0%
+  [MATCHUP] Kanifous hard countered by Humbaba: 0.0%
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+  9. VEIL SYSTEM CALIBRATION NOTES
+════════════════════════════════════════════════════════════════════════════════════════════════════
+
+  NEUTRAL TEAR SOURCES (causally attributed):
+  • Castle Ruination gate          : 1.97/game
+  • Inevitable Ruin castle effect : 0.03/game
+  • Lord resummon                 : 0.00/game
+  • Banishment rule               : 0.00/game
+  • Veil drift (fixed + growth)   : 0.03/game
+  • Other named sources           : 1.11/game
+
+  Total Neutral Tears             : 3.14/game
+  Avg castles destroyed           : 2.67/game
+  Avg Lords killed               : 1.14/game
+
+  v7 no longer infers source counts from the total Neutral Tear counter; the
+  previous report could attribute resummon/rite tears to Castle destruction.
+
+  ATTUNEMENT / IMMUNITY NOTE:
+  • With avg 5.69 personal tears/game, most players have Attunement 0–1.
+  • Omen (track 3) affects nearly everyone — Attunement immunity rarely triggers.
+  • Frenzy (track 6) and Collapse (track 9): only reached if Veil track advances enough.
+  • Players racing Dominion accumulate Attunement and resist thresholds others suffer.
+    This creates meaningful asymmetry in late-game board pressure.
+
+  DOMINION FEASIBILITY:
+  • Track reaches Cataclysm (12) in 33.3% of games.
+  • Dominion requirement (5 personal tears): needs deliberate investment.
+  • If Dominion rate is below 5%, consider: reducing requirement OR reducing track length.
+  • If FinalCollapse fires often, players are reaching 26 tears without Dominion winners
+    — reduce requirement or add a personal tear source.
+
+════════════════════════════════════════════════════════════════════════════════════════════════════

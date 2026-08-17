@@ -43,6 +43,7 @@ extends Resource
 @export var sigil_soul_fresh_only: bool = false
 @export var invocation_gate: int = 5
 @export var profane_ruins_req: int = 1
+@export var profane_ruins_card_cost: int = 0
 # Hand-value cost for Profane the Ruins. Historical profiles remain free;
 # the current lab/playable rules opt into the priced rite.
 @export var profane_ruins_cost: int = 0
@@ -194,6 +195,14 @@ extends Resource
 @export var vulture_recon: bool = false
 @export var construction_action_cap: int = 0
 @export var repair_wright_mode: String = "off"
+@export var repair_offsuit_penalty: int = 0
+@export var repair_offsuit_floor: int = 1
+@export var repair_exempt_suit: String = "Wright"
+@export var repair_blocks_hand_deploy: bool = true
+@export var summon_threat_shortfall: bool = false
+@export var summon_hand_reserve_min: int = 5
+@export var summon_hand_reserve_max: int = 7
+@export var summon_threat_weight: float = 1.0
 @export var profane_requires_full_integrity: bool = false
 @export var ruination_soul_bonus: int = 0
 @export var ruination_soul_source: String = ""
@@ -220,6 +229,7 @@ static func base_v5_29() -> RuleConfig:
 	config.recoil_hunts_only = false
 	config.invocation_gate = 7
 	config.profane_ruins_req = 2
+	config.profane_ruins_card_cost = 5
 	config.ai_dominion_drive = false
 	config.reconfig_strict = false
 	config.kroni_hunger_decay = false
@@ -367,7 +377,15 @@ static func lab_v6_5() -> RuleConfig:
 	config.keep_ignores_ward_tax = false
 	config.vulture_recon = true
 	config.construction_action_cap = 5
-	config.repair_wright_mode = "strict"
+	config.repair_wright_mode = "tax"
+	config.repair_offsuit_penalty = 1
+	config.repair_offsuit_floor = 1
+	config.repair_exempt_suit = "Wright"
+	config.repair_blocks_hand_deploy = false
+	config.summon_threat_shortfall = true
+	config.summon_hand_reserve_min = 5
+	config.summon_hand_reserve_max = 7
+	config.summon_threat_weight = 1.0
 	config.profane_requires_full_integrity = true
 	config.ruination_soul_bonus = 1
 	config.ruination_soul_source = "enemy_siege"

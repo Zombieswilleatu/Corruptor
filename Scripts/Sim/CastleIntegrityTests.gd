@@ -41,7 +41,7 @@ static func run(_baseline_rules: RuleConfig) -> Array:
 		_test_structure_first_spill(),
 		_test_attack_tax_and_forge(),
 		_test_granular_repair(),
-		_test_strict_wright_repair_rejects_offsuit(),
+		_test_wright_repair_tax_accepts_offsuit(),
 		_test_granular_construction(),
 		_test_irreparable_ruination(),
 		_test_profane_burns_type_without_soul_bonus(),
@@ -69,7 +69,7 @@ static func _test_profile_contract() -> Dictionary:
 		or rules.siege_engine_scope != "siege"
 		or rules.attack_offsuit_penalty != 1
 		or rules.construction_action_cap != 5
-		or rules.repair_wright_mode != "strict"
+		or rules.repair_wright_mode != "tax"
 		or not rules.profane_requires_full_integrity
 		or rules.ruination_soul_bonus != 1
 		or rules.ruination_soul_source != "enemy_siege"
@@ -281,7 +281,7 @@ static func _test_granular_repair() -> Dictionary:
 	return _pass("unit_castle_integrity_repair")
 
 
-static func _test_strict_wright_repair_rejects_offsuit() -> Dictionary:
+static func _test_wright_repair_tax_accepts_offsuit() -> Dictionary:
 	var rules := RuleConfig.lab_v6_5()
 	var game = _state("Orias", "Valak")
 	var player = game.players[0]
@@ -289,11 +289,29 @@ static func _test_strict_wright_repair_rejects_offsuit() -> Dictionary:
 	player.castles.append("Keep")
 	player.castle_integrity = {"Keep": 10}
 	player.hand = [CardData.new("Butcher", 4)]
+
 	var result: Dictionary = RoundEngineData.resolve_repair_player(
-		game, 0, rules, {"action": "repair", "castle": "Keep", "payment": ["Butcher:4"]}
+		game,
+		0,
+		rules,
+		{
+			"action": "repair",
+			"castle": "Keep",
+			"payment": ["Butcher:4"],
+		}
 	)
-	if String(result.get("reason", "")) != "repair_requires_wright_cards" or int(player.castle_integrity.get("Keep", 0)) != 10:
-		return _fail("unit_suit_economy_wright_repair", "Off-suit card paid a strict Wright Repair.")
+
+	if (
+		String(result.get("action", "")) != "repair"
+		or int(result.get("effective_paid_total", 0)) != 3
+		or int(player.castle_integrity.get("Keep", 0)) != 13
+		or not player.hand.is_empty()
+	):
+		return _fail(
+			"unit_suit_economy_wright_repair",
+			"Off-suit Repair did not pay printed value -1 (floor 1)."
+		)
+
 	return _pass("unit_suit_economy_wright_repair")
 
 

@@ -25,6 +25,10 @@ const RoundEngineData = preload(
 	"res://Scripts/Sim/RoundEngine.gd"
 )
 
+const LordMathData = preload(
+	"res://Scripts/Sim/LordMath.gd"
+)
+
 const PlayableMatchSnapshotData = preload(
 	"res://Scripts/Sim/PlayableMatchSnapshot.gd"
 )
@@ -48,6 +52,29 @@ const ACTIONS: Array[String] = [
 	"Ward",
 	"Profane",
 ]
+
+const ACTION_HELP: Dictionary = {
+	"Hunt": (
+		"HUNT — Attack the enemy Lord. Commit cards for attack strength; "
+		+ "break through Guards, Sigils, and Lord DEF to Banishing the Lord "
+		+ "and earn Souls."
+	),
+	"Siege": (
+		"SIEGE — Attack one standing enemy Castle. Commit cards for attack "
+		+ "strength; break its defenses and reduce Integrity. A Castle at "
+		+ "0 Integrity becomes Ruined."
+	),
+	"Ward": (
+		"WARD — Protect your Lord or Castle with a Sigil. Commit enough Ward "
+		+ "strength to turn aside the opposing attack; a surviving Sigil "
+		+ "continues to defend the zone."
+	),
+	"Profane": (
+		"PROFANE — Sacrifice one of your own eligible full-Integrity Castles "
+		+ "for Dominion progress. This is the sealed order, not the separate "
+		+ "Profane the Ruins Dominion Rite."
+	),
+}
 
 const CASTLE_ORDER: Array[String] = [
 	"Keep",
@@ -79,7 +106,7 @@ const LORD_CARD_ABILITIES: Dictionary = {
 	],
 	"Kroni": [
 		"[b]HUNGER[/b] — a counter that persists across rounds and resets when Kroni is resummoned. Lord DEF is 4 at 0, 6 at 1–2, and 8 at 3+. The first time he reaches 3 each game, gain 1 personal Tear. Warding or Passing loses 1 Hunger.",
-		"[b]Consume[/b] — At End of Round, if any destruction occurred, gain 1 Hunger. If nothing was destroyed, remove your lowest Guard or Garrison card from play, gaining nothing.",
+		"[b]Consume[/b] — At End of Round, if any destruction occurred, gain 1 Hunger. If nothing was destroyed, discard your lowest Guard or Garrison card, gaining nothing.",
 		"[b]Gorge[/b] — If Kroni personally defeated a Guard this round, gain 1 Soul.",
 		"[b]Ravenous[/b] — At Hunger 3+, discard the opponent's lowest committed card. His next destroyed Lord or Castle grants +2 Souls and +1 Hunger.",
 		"[b]Breach — Insatiable Hunger[/b] — While Kroni is Banished, both players lose their lowest Guard each round.",
@@ -144,9 +171,10 @@ const THREAT_LABEL: String = (
 
 const CASTLES_LABEL: String = (
 	"[hint=CASTLES — Each Castle has 14 maximum Integrity. At 7+ Integrity it is Operational; at 1–6 it is Defunct and its printed power is off; at 0 it is permanently Ruined. "
-	+ "Bastion's physical wall is the exception and keeps screening while it stands. Repair restores Integrity but only Wright cards may pay for it. "
+	+ "Ruined Castles remain visible and may fuel Profane the Ruins; Profaned Castles remain as spent, inactive Dominion husks. "
+	+ "Bastion's physical wall is the exception and keeps screening while it stands. Repair restores Integrity; Wrights pay full value and other suits pay 1 less (minimum 1). "
 	+ "Construction can add at most 5 Integrity of progress per Castle action. Only a full-Integrity Operational Castle may be Profaned. "
-	+ "Suit identities: Butcher attacks efficiently; Penitent Wards at full value while other suits lose 1 Ward Strength (minimum 1); Wright alone pays Repair; committing a Vulture scouts one enemy Guard area.]Castles[/hint]"
+	+ "Suit identities: Butcher attacks efficiently; Penitent Wards at full value while other suits lose 1 Ward Strength (minimum 1); Wright Repairs efficiently; committing a Vulture scouts one enemy Guard area.]Castles[/hint]"
 )
 
 const CASTLE_HELP: Dictionary = {
@@ -208,6 +236,7 @@ var reveal_label: RichTextLabel = null
 var event_log: RichTextLabel = null
 var dominion_track_label: RichTextLabel = null
 var dominion_progress: ProgressBar = null
+var dominion_warning_label: RichTextLabel = null
 var market_staging_labels: Array[RichTextLabel] = []
 var market_staging_panels: Array[PanelContainer] = []
 var human_staging_label: RichTextLabel = null
@@ -618,7 +647,7 @@ func _build_board_row() -> Control:
 	dominion_track_label = _new_rich_text()
 	dominion_track_label.custom_minimum_size = Vector2(
 		0,
-		58
+		68
 	)
 	dominion_track_label.add_theme_font_size_override(
 		"normal_font_size",
@@ -640,6 +669,24 @@ func _build_board_row() -> Control:
 	dominion_progress.show_percentage = false
 	center_box.add_child(
 		dominion_progress
+	)
+
+	dominion_warning_label = _new_rich_text()
+	dominion_warning_label.custom_minimum_size = Vector2(
+		0,
+		42
+	)
+	dominion_warning_label.add_theme_font_size_override(
+		"normal_font_size",
+		13
+	)
+	dominion_warning_label.add_theme_font_size_override(
+		"bold_font_size",
+		13
+	)
+	dominion_warning_label.scroll_active = false
+	center_box.add_child(
+		dominion_warning_label
 	)
 
 	center_box.add_child(
@@ -1141,9 +1188,18 @@ func _build_interaction_panel() -> Control:
 	target_info_label = _new_rich_text()
 	target_info_label.custom_minimum_size = Vector2(
 		0,
-		30
+		44
 	)
-	target_info_label.fit_content = true
+	target_info_label.fit_content = false
+	target_info_label.scroll_active = false
+	target_info_label.add_theme_font_size_override(
+		"normal_font_size",
+		12
+	)
+	target_info_label.add_theme_font_size_override(
+		"bold_font_size",
+		12
+	)
 	box.add_child(
 		target_info_label
 	)
@@ -1159,7 +1215,7 @@ func _build_interaction_panel() -> Control:
 	var hand_scroll := ScrollContainer.new()
 	hand_scroll.custom_minimum_size = Vector2(
 		0,
-		78
+		72
 	)
 	hand_scroll.horizontal_scroll_mode = (
 		ScrollContainer.SCROLL_MODE_AUTO
@@ -1469,12 +1525,12 @@ func _after_development(
 
 	if controller.stage == PlayableRoundControllerData.Stage.SUMMON:
 		_log(
-			"Round %d: your Lord is banished. Select cards worth at least %d to resummon, or remain banished."
+			"Round %d: your Lord is banished. Select any Hand cards; unpaid Summon cost becomes Threat if the return stays at or below %d."
 			% [
 				int(
 					controller.game.round
 				),
-				controller.human_summon_cost(),
+				int(controller.rules.max_threat),
 			]
 		)
 
@@ -1558,6 +1614,7 @@ func _on_action_selected(
 	_refresh_castle_cards(controller.get_bot_player(), false)
 	_refresh_selection_text()
 	_refresh_staging_area()
+	_refresh_target_info()
 
 
 func _on_card_toggled(
@@ -1671,8 +1728,7 @@ func _on_summon_pressed() -> void:
 		false
 	):
 		_set_phase_message(
-			"Resummon rejected: select payment worth at least %d."
-			% controller.human_summon_cost()
+			"Resummon rejected: the selected cards leave too much Threat shortfall."
 		)
 		return
 
@@ -2264,6 +2320,8 @@ func _refresh_all() -> void:
 	var human = controller.get_human_player()
 	var bot = controller.get_bot_player()
 
+	_refresh_target_info()
+
 	round_label.text = "Round %d" % int(
 		game.round
 	)
@@ -2339,7 +2397,7 @@ func _refresh_all() -> void:
 		]
 	)
 	target_select.visible = target_label.visible
-	target_info_label.visible = target_label.visible
+	target_info_label.visible = true
 	secondary_target_label.visible = (
 		controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH
 		or controller.stage == PlayableRoundControllerData.Stage.MARCH
@@ -2470,7 +2528,7 @@ func _refresh_all() -> void:
 
 		PlayableRoundControllerData.Stage.SUMMON:
 			phase_label.text = (
-				"Summon — pay %d to return"
+				"Summon — cards + Threat = %d"
 				% controller.human_summon_cost()
 			)
 			summon_button.visible = true
@@ -2623,24 +2681,31 @@ func _refresh_staging_area() -> void:
 		return
 
 	var veil_total: int = int(game.calculate_veil_total())
+	var dominion_requirement: int = _effective_dominion_requirement()
 	var dominion_help: String = _dominion_help_text(veil_total)
 	if dominion_track_label != null:
 		dominion_track_label.text = (
 			"[center][b]DOMINION / VEIL[/b]  [b]%d/%d[/b]\n"
+			+ "[color=#78d9a1][b]YOU[/b][/color]  Souls [b]%d/%d[/b] · Tears [b]%d/%d[/b]"
+			+ "    |    [color=#dc8d9d][b]%s[/b][/color]  Souls [b]%d/%d[/b] · Tears [b]%d/%d[/b]\n"
 			+ "Collapse [b]%d[/b]  ·  Waning [b]%d[/b]  ·  "
-			+ "Cataclysm [b]%d[/b]  ·  Final [b]%d[/b]\n"
-			+ "Your Tears [b]%d/%d[/b]  ·  Opponent [b]%d/%d[/b][/center]"
+			+ "Cataclysm [b]%d[/b]  ·  Final [b]%d[/b][/center]"
 		) % [
 			veil_total,
 			int(controller.rules.final_collapse_threshold),
+			int(human.souls),
+			int(controller.rules.win_souls),
+			int(human.tears),
+			dominion_requirement,
+			String(bot.lord),
+			int(bot.souls),
+			int(controller.rules.win_souls),
+			int(bot.tears),
+			dominion_requirement,
 			VEIL_COLLAPSE_THRESHOLD,
 			VEIL_WANING_THRESHOLD,
 			int(controller.rules.dominion_track),
 			int(controller.rules.final_collapse_threshold),
-			int(human.tears),
-			int(controller.rules.dominion_requirement),
-			int(bot.tears),
-			int(controller.rules.dominion_requirement),
 		]
 		dominion_track_label.tooltip_text = dominion_help
 
@@ -2653,6 +2718,15 @@ func _refresh_staging_area() -> void:
 			min(veil_total, int(dominion_progress.max_value))
 		)
 		dominion_progress.tooltip_text = dominion_help
+
+	if dominion_warning_label != null:
+		dominion_warning_label.text = _dominion_warning_text(
+			human,
+			bot,
+			veil_total,
+			dominion_requirement
+		)
+		dominion_warning_label.tooltip_text = dominion_help
 
 	var selected_market_id: String = ""
 	var suggested_market_id: String = ""
@@ -3458,45 +3532,71 @@ func _castle_type_is_buildable(player, castle_name: String) -> bool:
 	)
 
 
+func _set_context_help(
+	detail: String = ""
+) -> void:
+	if target_info_label == null:
+		return
+
+	var phase_text: String = _phase_help_text()
+
+	if detail.is_empty():
+		target_info_label.text = phase_text
+		return
+
+	target_info_label.text = (
+		phase_text
+		+ "\n"
+		+ detail
+	)
+
+
 func _refresh_target_info() -> void:
 	if target_info_label == null:
 		return
 
-	if controller != null and controller.game != null:
-		if controller.stage == PlayableRoundControllerData.Stage.MARKET:
-			target_info_label.text = _market_trade_info()
-			return
-		if controller.stage == PlayableRoundControllerData.Stage.REPAIR:
-			target_info_label.text = _castle_action_info()
-			return
-		if controller.stage == PlayableRoundControllerData.Stage.MARCH:
-			target_info_label.text = (
-				"[color=#c8b36a]Choose a source zone, then one Guard, then a lane. "
-				+ "RPS: Wright > Penitent > Vulture > Butcher > Wright. "
-				+ "A clash deals %d to each marcher; suit advantage adds +%d damage. "
-				+ "Vulture:5 evades; Butcher:1 destroys it with itself.[/color]"
+	if controller == null or controller.game == null:
+		_set_context_help()
+		return
+
+	if controller.stage == PlayableRoundControllerData.Stage.MARKET:
+		_set_context_help(
+			_market_trade_info()
+		)
+		return
+
+	if controller.stage == PlayableRoundControllerData.Stage.REPAIR:
+		_set_context_help(
+			_castle_action_info()
+		)
+		return
+
+	if controller.stage == PlayableRoundControllerData.Stage.MARCH:
+		_set_context_help(
+			(
+				"[color=#c8b36a]Current choice: source zone → one Guard → lane. "
+				+ "Clash damage %d each; suit advantage adds +%d. "
+				+ "Vulture:5 evades normal clashes; Butcher:1 destroys it with itself.[/color]"
 			) % [
 				controller.rules.march_damage,
 				controller.rules.march_suit_bonus,
 			]
-			return
+		)
+		return
 
-	if (
-		controller == null
-		or controller.game == null
-		or selected_action.is_empty()
-	):
-		target_info_label.text = (
-			"[color=#a99eac]Choose an order to inspect its target layers.[/color]"
+	if selected_action.is_empty():
+		_set_context_help(
+			"[color=#a99eac]Choose an option above to see its target-specific rules and numbers.[/color]"
 		)
 		return
 
 	var human = controller.get_human_player()
 	var bot = controller.get_bot_player()
+	var detail: String = ""
 
 	match selected_action:
 		"Hunt":
-			target_info_label.text = _combat_target_text(
+			detail = _combat_target_text(
 				bot,
 				"Lord",
 				String(
@@ -3514,7 +3614,9 @@ func _refresh_target_info() -> void:
 				if controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH
 				else _selected_target_id()
 			)
-			var target_parts: PackedStringArray = raw_target_id.split("|")
+			var target_parts: PackedStringArray = (
+				raw_target_id.split("|")
+			)
 			var castle_name: String = (
 				target_parts[0]
 				if not target_parts.is_empty()
@@ -3522,29 +3624,35 @@ func _refresh_target_info() -> void:
 			)
 
 			if castle_name.is_empty():
-				target_info_label.text = (
-					"[color=#a99eac]Choose a castle.[/color]"
+				detail = (
+					"[color=#a99eac]Choose a Castle.[/color]"
 				)
-				return
-
-			target_info_label.text = _combat_target_text(
-				bot,
-				"Castle",
-				castle_name,
-				_castle_defense(
-					castle_name
-				),
-				bool(
-					controller.rules.siege_engine_bypass
-					and human.castles.has("SiegeEngine")
+			else:
+				detail = _combat_target_text(
+					bot,
+					"Castle",
+					castle_name,
+					_castle_defense(
+						castle_name
+					),
+					bool(
+						controller.rules.siege_engine_bypass
+						and human.castles.has(
+							"SiegeEngine"
+						)
+					)
 				)
-			)
 
 		"Ward":
-			var zone: String = _selected_target_id()
+			var zone: String = (
+				_selected_target_id()
+			)
+
 			if controller.rules.sigil_flat:
-				target_info_label.text = (
-					"[color=#91c7ff][b]Ward %s:[/b] commit any suits. If your total is at least the opposing %s, the attack is turned. The Ward then starts at +2 DEF and ages to +1 next round.[/color]"
+				detail = (
+					"[color=#91c7ff][b]Ward %s:[/b] commit any suits. "
+					+ "If your total is at least the opposing %s, the attack is turned. "
+					+ "The Ward starts at +2 DEF and ages to +1 next round.[/color]"
 				) % [
 					zone,
 					(
@@ -3553,43 +3661,51 @@ func _refresh_target_info() -> void:
 						else "Siege"
 					),
 				]
-				return
+			else:
+				var fresh_value: int = (
+					_prospective_sigil_value(
+						human,
+						"fresh"
+					)
+				)
+				var flipped_value: int = (
+					_prospective_sigil_value(
+						human,
+						"flipped"
+					)
+				)
 
-			var fresh_value: int = _prospective_sigil_value(
-				human,
-				"fresh"
-			)
-			var flipped_value: int = _prospective_sigil_value(
-				human,
-				"flipped"
-			)
-
-			target_info_label.text = (
-				"[color=#91c7ff][b]Ward %s:[/b] fresh sigil +%d DEF; "
-				+ "if the opposing %s beats your commitment, it enters flipped at +%d DEF.[/color]"
-			) % [
-				zone,
-				fresh_value,
-				(
-					"Hunt"
-					if zone == "Lord"
-					else "Siege"
-				),
-				flipped_value,
-			]
+				detail = (
+					"[color=#91c7ff][b]Ward %s:[/b] fresh sigil +%d DEF; "
+					+ "if the opposing %s beats your commitment, "
+					+ "it enters flipped at +%d DEF.[/color]"
+				) % [
+					zone,
+					fresh_value,
+					(
+						"Hunt"
+						if zone == "Lord"
+						else "Siege"
+					),
+					flipped_value,
+				]
 
 		"Profane":
-			target_info_label.text = (
-				"[color=#d8a0c8]Profane sacrifices %s. Only a full-Integrity Castle is eligible%s.[/color]"
-				% [
-					_selected_target_id(),
-					(
-						" and enemy Sigils do not deny it"
-						if controller.rules.fix_b
-						else ""
-					),
-				]
-			)
+			detail = (
+				"[color=#d8a0c8]Profane sacrifices %s. "
+				+ "Only a full-Integrity Castle is eligible%s.[/color]"
+			) % [
+				_selected_target_id(),
+				(
+					" and enemy Sigils do not deny it"
+					if controller.rules.fix_b
+					else ""
+				),
+			]
+
+	_set_context_help(
+		detail
+	)
 
 
 func _combat_target_text(
@@ -4423,6 +4539,227 @@ func _march_picker_prompt() -> String:
 		controller.rules.march_suit_bonus,
 	]
 
+func _phase_help_text() -> String:
+	if (
+		controller == null
+		or controller.game == null
+		or controller.rules == null
+	):
+		return "[color=#a99eac]Start a match to see step-by-step rules here.[/color]"
+
+	var human = controller.get_human_player()
+	var bot = controller.get_bot_player()
+	var prefix: String = "[color=#82c9ff][b]HOW TO PLAY THIS STEP[/b][/color] — "
+
+	match controller.stage:
+		PlayableRoundControllerData.Stage.DEVELOPMENT_SNARE:
+			return (
+				prefix
+				+ "[b]Orias Snare.[/b] This is optional. Gain 1 Threat now to "
+				+ "restrict the opponent to one total Guard move during this "
+				+ "Development, or pass and keep your Threat unchanged."
+			)
+
+		PlayableRoundControllerData.Stage.MARKET:
+			return (
+				prefix
+				+ "[b]Market.[/b] Trade exactly one card from your Hand for one "
+				+ "of the three public Market cards, or pass. Use this to improve "
+				+ "raw value or get the suit you need; the card you give becomes "
+				+ "a new public offer."
+			)
+
+		PlayableRoundControllerData.Stage.REPAIR:
+			return (
+				prefix
+				+ "[b]Castle Action.[/b] Choose one damaged standing Castle to "
+				+ "Repair, or one unbuilt Castle to Construct. Repair payment must "
+				+ "use Wright cards from Hand/Garrison; card value restores Integrity. "
+				+ "Construction uses card value as progress and is capped at %d per action."
+			) % int(controller.rules.construction_action_cap)
+
+		PlayableRoundControllerData.Stage.DOMINION_RITES:
+			return (
+				prefix
+				+ "[b]Dominion Rites.[/b] This is an optional scoring step. "
+				+ "Cataclysmic Invocation: pay 11 Hand value for +1 personal Tear. "
+				+ "Profane the Ruins: if you have at least %d Ruined Castles, pay "
+				+ "%d Hand value, convert one Ruin into a Profaned husk, and gain "
+				+ "+1 personal Tear. You may perform both; Invocation is paid first."
+			) % [
+				int(controller.rules.profane_ruins_req),
+				int(controller.rules.profane_ruins_cost),
+			]
+
+		PlayableRoundControllerData.Stage.DEPLOY:
+			return (
+				prefix
+				+ "[b]Deploy Guards.[/b] Put cards from Hand (and Garrison when legal) "
+				+ "face-down into Guard zones. [b]Lord Guards[/b] are the first line "
+				+ "against Hunts; [b]Castle Guards[/b] protect your Castles from Sieges. "
+				+ "You fill the Lord zone first, then the Castle zone. You may leave slots empty."
+			)
+
+		PlayableRoundControllerData.Stage.MARCH:
+			return (
+				prefix
+				+ "[b]Marching Orders.[/b] Launch one existing Guard face-up from "
+				+ "your Lord or Castle zone into a lane, or pass. Marchers advance "
+				+ "toward the enemy gate each round. Opposing marchers clash with "
+				+ "simultaneous damage; suit advantage is Wright > Penitent > Vulture "
+				+ "> Butcher > Wright. A marcher worth %d+ that reaches the enemy gate "
+				+ "scores +1 personal Tear."
+			) % int(controller.rules.march_threshold)
+
+		PlayableRoundControllerData.Stage.SUMMON:
+			return (
+				prefix
+				+ "[b]Summon.[/b] Your Lord is Banished. Select Hand cards worth at "
+				+ "least %d to return %s to play, or choose Remain Banished. A living "
+				+ "Lord restores its normal abilities and ends its active Breach."
+			) % [
+				controller.human_summon_cost(),
+				String(human.lord) if human != null else "your Lord",
+			]
+
+		PlayableRoundControllerData.Stage.REFLEX_BID:
+			return (
+				prefix
+				+ "[b]Reflex Bid.[/b] Secretly choose any number of Hand cards as "
+				+ "a bid for the round's extra action. Highest total wins the "
+				+ "Reflex/Momentum action after the two sealed orders resolve; a tie "
+				+ "means no extra action. Bid cards are a real resource commitment."
+			)
+
+		PlayableRoundControllerData.Stage.COMMITMENT:
+			return (
+				prefix
+				+ "[b]Seal an Order.[/b] Choose one action, choose its target, select "
+				+ "the cards you want to commit, then click Seal Order. "
+				+ "[b]Hunt[/b] attacks the enemy Lord · [b]Siege[/b] damages an enemy "
+				+ "Castle · [b]Ward[/b] defends your Lord or Castle with a Sigil · "
+				+ "[b]Profane[/b] sacrifices one of your own eligible full Castles "
+				+ "for Dominion progress. Both players reveal together."
+			)
+
+		PlayableRoundControllerData.Stage.SEALED:
+			return (
+				prefix
+				+ "[b]Orders are sealed.[/b] Your choice is locked and the opponent "
+				+ "is still hidden. Click Reveal Orders to expose both plans."
+			)
+
+		PlayableRoundControllerData.Stage.VULTURE_RECON:
+			return (
+				prefix
+				+ "[b]Vulture Reconnaissance.[/b] Your committed Vulture lets you "
+				+ "peek at one enemy Guard area before Resolution. Choose the area "
+				+ "whose hidden defense matters most to your current attack."
+			)
+
+		PlayableRoundControllerData.Stage.KANIFOUS_INVOKE:
+			return (
+				prefix
+				+ "[b]Kanifous Invoke.[/b] Pay exactly one Hand card as the toll. "
+				+ "Then choose one of the two revealed cards to invoke and bank in "
+				+ "Garrison; its suit triggers Kanifous's matching Invocation effect."
+			)
+
+		PlayableRoundControllerData.Stage.KANIFOUS_WRIGHT:
+			return (
+				prefix
+				+ "[b]Kanifous — Wright.[/b] Move up to two of your face-down Lord "
+				+ "Guards into the Castle Guard zone, or move none. This is the "
+				+ "Wright Invocation effect before Resolution continues."
+			)
+
+		PlayableRoundControllerData.Stage.REVEALED:
+			return (
+				prefix
+				+ "[b]Read the clash.[/b] Both sealed orders and committed cards are "
+				+ "now public. Higher committed value normally acts first; ties use "
+				+ "the round's first player. Inspect the target information, then "
+				+ "click Resolve Round."
+			)
+
+		PlayableRoundControllerData.Stage.RESOLUTION_HUMBABA_TOLL:
+			return (
+				prefix
+				+ "[b]Humbaba's Toll.[/b] You may deliberately Ruin one of your own "
+				+ "Castles to remove 1 enemy Soul and create 1 Neutral Tear, or pass. "
+				+ "A Neutral Tear advances the Veil but belongs to neither player."
+			)
+
+		PlayableRoundControllerData.Stage.RESOLUTION_ACTION:
+			return (
+				prefix
+				+ "[b]Action Options.[/b] Your sealed Hunt/Siege is ready to resolve. "
+				+ "Choose any optional action modifier shown here (such as Consume "
+				+ "or Inferno), then confirm the action."
+			)
+
+		PlayableRoundControllerData.Stage.RESOLUTION_VESSEL:
+			return (
+				prefix
+				+ "[b]Offer the Vessel.[/b] After your action, you may sacrifice your "
+				+ "living Lord. This trades board presence for Dominion: you gain a "
+				+ "personal Tear while the opponent gains Soul. Pass to keep your Lord."
+			)
+
+		PlayableRoundControllerData.Stage.RESOLUTION_REFLEX:
+			return (
+				prefix
+				+ "[b]%s Action.[/b] The bid winner receives one extra action now. "
+				+ "Choose Hunt, Siege, or Ward and commit Hand cards for it, or pass. "
+				+ "This action resolves immediately after the two main orders."
+			) % _second_action_name()
+
+		PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH:
+			return (
+				prefix
+				+ "[b]Odradek — Paradox Geometry.[/b] Predict the opponent's %s "
+				+ "action. A correct prediction discards their selected cards and "
+				+ "lets Odradek steal and execute the action instead; you may also "
+				+ "choose not to interfere."
+			) % _second_action_name()
+
+		PlayableRoundControllerData.Stage.RESOLUTION_GREMORY:
+			return (
+				prefix
+				+ "[b]Gremory — Inevitable Ruin.[/b] After a Siege leaves its target "
+				+ "standing, you may pay exactly two Hand/Garrison cards to Ruin that "
+				+ "Castle anyway. This opportunity is once per round; pass to decline."
+			)
+
+		PlayableRoundControllerData.Stage.TERMINAL:
+			var winner_name: String = (
+				"the winner"
+				if int(controller.game.winner) < 0
+				else _player_name(int(controller.game.winner))
+			)
+			return (
+				prefix
+				+ "[b]Match complete.[/b] %s won by %s. Start a New Match to play again."
+			) % [
+				winner_name,
+				String(controller.game.win_by),
+			]
+
+		PlayableRoundControllerData.Stage.INVALID:
+			return (
+				prefix
+				+ "[b]Prototype halted.[/b] An invalid state or rejected transition "
+				+ "stopped play. Check the Match Log or exported snapshot for the cause."
+			)
+
+	var bot_name: String = String(bot.lord) if bot != null else "the opponent"
+	return (
+		prefix
+			+ "Follow the highlighted controls for this phase. Your opponent (%s) "
+			+ "uses bot doctrine; the Match Log records what each completed step did."
+	) % bot_name
+
+
 func _hand_caption_text() -> String:
 	if controller == null or controller.game == null:
 		return "Commit cards (click to select):"
@@ -4432,6 +4769,13 @@ func _hand_caption_text() -> String:
 
 	if controller.stage == PlayableRoundControllerData.Stage.MARKET:
 		return "Give one Hand card (★ marks the strongest raw-value trade):"
+
+	if controller.stage == PlayableRoundControllerData.Stage.DOMINION_RITES:
+		return (
+			"Dominion Rite payment — Hand only. Invocation costs 11; "
+			+ "Profane Ruins costs %d. If both are selected, chosen cards "
+			+ "pay Invocation first, then Profane Ruins:"
+		) % int(controller.rules.profane_ruins_cost)
 
 	if controller.stage == PlayableRoundControllerData.Stage.REPAIR:
 		var castle_action: String = _selected_castle_action()
@@ -8947,10 +9291,22 @@ func _log_rite_events(
 					)
 			elif action_name == "profane_ruins":
 				_log(
-					"[color=#c8b36a][b]Profane the Ruins:[/b] %s converted ruined %s into a Profaned Castle and gained 1 personal Tear (Veil now %d).[/color]"
+					"[color=#c8b36a][b]Profane the Ruins:[/b] %s paid %d with %s, converted ruined %s into a Profaned Castle, and gained 1 personal Tear (Veil now %d).[/color]"
 					% [
 						_player_name(
 							player_id
+						),
+						int(
+							rite.get(
+								"paid_total",
+								0
+							)
+						),
+						_string_values_inline(
+							rite.get(
+								"paid_cards",
+								[]
+							)
 						),
 						String(
 							rite.get(
@@ -9951,11 +10307,182 @@ func _lord_live_state(
 	return "No live ability state."
 
 
+func _effective_dominion_requirement() -> int:
+	if (
+		controller == null
+		or controller.game == null
+		or controller.rules == null
+	):
+		return 0
+
+	var player_summaries: Array = []
+
+	for player in controller.game.players:
+		player_summaries.append({
+			"lord": String(player.lord),
+			"alive": bool(player.alive),
+		})
+
+	return int(
+		LordMathData.dominion_requirement(
+			player_summaries,
+			controller.rules
+		)
+	)
+
+
+func _veil_gap_phrase(
+	gap: int
+) -> String:
+	if gap <= 0:
+		return "Cataclysm is live"
+	if gap == 1:
+		return "1 more Veil point"
+	return "%d more Veil points" % gap
+
+
+func _dominion_warning_text(
+	human,
+	bot,
+	veil_total: int,
+	requirement: int
+) -> String:
+	if (
+		controller == null
+		or controller.rules == null
+		or human == null
+		or bot == null
+	):
+		return ""
+
+	var cataclysm: int = int(
+		controller.rules.dominion_track
+	)
+	var veil_gap: int = maxi(
+		0,
+		cataclysm - veil_total
+	)
+
+	var human_tears: int = int(human.tears)
+	var bot_tears: int = int(bot.tears)
+	var human_ready: bool = human_tears >= requirement
+	var bot_ready: bool = bot_tears >= requirement
+	var bot_name: String = String(bot.lord)
+
+	if (
+		human_ready
+		and bot_ready
+		and human_tears == bot_tears
+	):
+		if veil_gap <= 0:
+			return (
+				"[center][color=#f2d477][b]DOMINION STANDOFF[/b] — "
+				+ "both players have %d Tears. Dominion is live, but neither "
+				+ "player leads; the next personal-Tear swing can decide the game."
+				+ "[/color][/center]"
+			) % human_tears
+
+		return (
+			"[center][color=#f2d477][b]DOMINION STANDOFF[/b] — "
+			+ "both players have %d/%d Tears; %s until Cataclysm."
+			+ "[/color][/center]"
+		) % [
+			human_tears,
+			requirement,
+			_veil_gap_phrase(veil_gap),
+		]
+
+	if bot_ready and bot_tears > human_tears:
+		if veil_gap <= 0:
+			return (
+				"[center][color=#ff748f][b]⚠ DOMINION LIVE[/b] — "
+				+ "%s has %d/%d Tears and leads %d–%d. "
+				+ "A Dominion check can end the match.[/color][/center]"
+			) % [
+				bot_name,
+				bot_tears,
+				requirement,
+				bot_tears,
+				human_tears,
+			]
+
+		if veil_gap <= 2:
+			return (
+				"[center][color=#ff748f][b]⚠ DOMINION THREAT[/b] — "
+				+ "%s has %d/%d Tears and leads %d–%d. "
+				+ "%s arms Dominion.[/color][/center]"
+			) % [
+				bot_name,
+				bot_tears,
+				requirement,
+				bot_tears,
+				human_tears,
+				_veil_gap_phrase(veil_gap),
+			]
+
+		return (
+			"[center][color=#e9b96e][b]DOMINION READY — %s[/b] has %d/%d Tears "
+			+ "and currently leads. %s until Cataclysm.[/color][/center]"
+		) % [
+			bot_name,
+			bot_tears,
+			requirement,
+			_veil_gap_phrase(veil_gap),
+		]
+
+	if (
+		bot_tears == requirement - 1
+		and veil_gap <= 2
+	):
+		return (
+			"[center][color=#e9b96e][b]⚠ DOMINION PRESSURE[/b] — "
+			+ "%s is one personal Tear from readiness; %s until Cataclysm."
+			+ "[/color][/center]"
+		) % [
+			bot_name,
+			_veil_gap_phrase(veil_gap),
+		]
+
+	if human_ready and human_tears > bot_tears:
+		return (
+			"[center][color=#8ee5a1][b]YOU ARE DOMINION-READY[/b] — "
+			+ "%d/%d Tears and leading %d–%d. %s."
+			+ "[/color][/center]"
+		) % [
+			human_tears,
+			requirement,
+			human_tears,
+			bot_tears,
+			_veil_gap_phrase(veil_gap),
+		]
+
+	if veil_gap <= 2:
+		return (
+			"[center][color=#f2d477][b]CATACLYSM APPROACHING[/b] — "
+			+ "%s. Personal-Tear leadership will matter immediately."
+			+ "[/color][/center]"
+		) % _veil_gap_phrase(veil_gap)
+
+	return (
+		"[center][color=#8d8797]Dominion dormant — %s until Cataclysm. "
+		+ "Personal Tears: you %d/%d · %s %d/%d.[/color][/center]"
+	) % [
+		_veil_gap_phrase(veil_gap),
+		human_tears,
+		requirement,
+		bot_name,
+		bot_tears,
+		requirement,
+	]
+
+
 func _dominion_help_text(
 	veil_total: int
 ) -> String:
 	if controller == null or controller.rules == null:
 		return "The Veil combines all personal and Neutral Tears."
+
+	var requirement: int = _effective_dominion_requirement()
 
 	return (
 		"DOMINION / VEIL — The Veil combines every personal and Neutral Tear. "
@@ -9970,7 +10497,7 @@ func _dominion_help_text(
 		VEIL_WANING_THRESHOLD,
 		VEIL_WANING_THRESHOLD,
 		int(controller.rules.dominion_track),
-		int(controller.rules.dominion_requirement),
+		requirement,
 		int(controller.rules.final_collapse_threshold),
 		veil_total,
 	]
@@ -10415,12 +10942,12 @@ func _refresh_castle_cards(player, is_human: bool) -> void:
 				detail = "DEF %d · INT %d/%d" % [effective_defense, integrity, maximum]
 		elif player.ruined_castles.has(castle_name):
 			state = "ruined"
-			detail = "RUINED"
-			status = "Permanently unavailable"
+			detail = "RUINED · 0 INT"
+			status = "Can fuel Profane Ruins"
 		elif player.profaned_castles.has(castle_name):
-			state = "ruined"
-			detail = "PROFANED"
-			status = "Permanently unavailable"
+			state = "profaned"
+			detail = "PROFANED · +1 TEAR"
+			status = "Spent Dominion husk"
 		elif player.lost_castles.has(castle_name):
 			state = "ruined"
 			detail = "LOST"
@@ -10437,9 +10964,23 @@ func _refresh_castle_cards(player, is_human: bool) -> void:
 			detail,
 			status.to_upper(),
 		]
+		var state_explanation: String = status
+		if state == "ruined":
+			state_explanation = (
+				"RUINED — 0 Integrity and inactive. This Castle remains on the board "
+				+ "as a ruin and can be converted by Profane the Ruins when its "
+				+ "Castle-count and Hand-payment requirements are met."
+			)
+		elif state == "profaned":
+			state_explanation = (
+				"PROFANED — spent and inactive. This Castle has already been "
+				+ "converted into Dominion progress (+1 personal Tear). It remains "
+				+ "visible as a spent husk and cannot be rebuilt."
+			)
+
 		card.tooltip_text = "%s\n\n%s" % [
 			String(CASTLE_HELP.get(castle_name, castle_name)),
-			status,
+			state_explanation,
 		]
 		var selectable: bool = target_side and _castle_option_exists(castle_name)
 		card.disabled = not selectable
@@ -10494,6 +11035,9 @@ func _apply_castle_card_style(card: Button, state: String, selected: bool) -> vo
 		"ruined":
 			background = Color(0.12, 0.045, 0.055, 1.0)
 			border = Color(0.48, 0.16, 0.2, 1.0)
+		"profaned":
+			background = Color(0.13, 0.07, 0.16, 1.0)
+			border = Color(0.78, 0.62, 0.24, 1.0)
 	if selected:
 		border = Color(0.95, 0.78, 0.3, 1.0)
 

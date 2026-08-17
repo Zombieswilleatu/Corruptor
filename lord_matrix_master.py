@@ -30,6 +30,28 @@ OUTPUT_PATH = os.path.join(HERE, "golden", "lord_matrix.json")
 MATRIX_VERSION = 1
 BASE_SEED = 1000
 
+class _GoldenLegacyRNGStreams:
+    """
+    Canonical golden compatibility adapter.
+
+    The historical Python/Godot golden matrix consumed one shared Python
+    Mersenne-Twister stream for deck shuffles, setup, and other legacy random
+    calls. The modern balance simulator uses named RNG streams; golden parity
+    deliberately collapses those names back onto the one historical stream.
+    """
+
+    def __init__(self, seed=None):
+        if seed is None:
+            raise RuntimeError(
+                "Golden Lord matrix requires an explicit deterministic seed."
+            )
+        self.seed = int(seed)
+        random.seed(self.seed)
+
+    def stream(self, _name: str):
+        return random
+
+
 # Explicit canonical order. There are 9 × 9 = 81 ordered matchups.
 LORDS = [
     "Orias",
@@ -109,8 +131,10 @@ def _build_scenario(
     game = gm.sim.Game(
         [player_zero_lord],
         [player_one_lord],
+        seed=seed,
     )
 
+    game.rng = _GoldenLegacyRNGStreams(seed)
     snapshots = gm._play_game_with_round_snapshots(game)
 
     name = (

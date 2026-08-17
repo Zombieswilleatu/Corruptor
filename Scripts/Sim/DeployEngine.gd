@@ -290,6 +290,7 @@ static func _resolve_move(
 
 	if (
 		source_key == "hand"
+		and rules.repair_blocks_hand_deploy
 		and player.repaired_this_round
 		and not player.repair_token_used_this_repair
 	):

@@ -377,7 +377,7 @@ LAB_V6_5_VARIANT = dict(
     #   'off'    legacy — any card pays
     #   'strict' every payment card must be Wright
     #   'gate'   at least one Wright, remainder any suit
-    repair_wright_mode='strict',
+    repair_wright_mode='tax',  # AGENCY_PASS_PYTHON_V1 — Wright is efficient, not mandatory
     ruination_soul_bonus=1,
     ruination_soul_source='enemy_siege',
     castle_ruination_irreparable=True,
@@ -388,6 +388,16 @@ LAB_V6_5_VARIANT = dict(
     profane_requires_full_integrity=True,
     castleless_siege=False,
     castleless_tear_neutral=True,
+    repair_offsuit_penalty=1,
+    repair_offsuit_floor=1,
+    repair_exempt_suit='Wright',
+    repair_blocks_hand_deploy=False,
+    summon_threat_shortfall=True,
+    summon_hand_reserve_min=5,
+    summon_hand_reserve_max=7,
+    summon_threat_weight=1.0,
+    profane_ruins_card_cost=5,
+    kroni_consume_removes_from_play=False,
 )
 
 # Keep measured-lab features separate from DE v2's serialized variant identity.
@@ -624,24 +634,39 @@ def effective_attack_value(pl: 'Player', card: 'Card', target_type: str) -> int:
     return max(int(VARIANT.get('attack_offsuit_floor', 1)), card.value - pen)
 
 
-def repair_payment_pool(cards: List['Card'], pl=None) -> List['Card']:
-    """Cards legally usable to pay a Repair, under the Wright requirement.
-
-    Returns [] when the Wright requirement cannot be met at all — callers MUST
-    treat that as "Repair is not a legal action this round", not as "pay zero".
-    """
+def effective_repair_value(card: 'Card', pl=None) -> int:
+    """Integrity restored by one card under the current Repair economy."""
     mode = VARIANT.get('repair_wright_mode', 'off')
-    if mode == 'off':
+    if mode != 'tax':
+        return card.value
+    if card.suit == VARIANT.get('repair_exempt_suit', 'Wright'):
+        return card.value
+    if (pl is not None
+            and VARIANT.get('stockpile_ignores_wright', False)
+            and pl.castle_power_active('Stockpile')):
+        return card.value
+    pen = int(VARIANT.get('repair_offsuit_penalty', 1) or 0)
+    floor = int(VARIANT.get('repair_offsuit_floor', 1) or 1)
+    return max(floor, card.value - pen)
+
+
+def repair_payment_pool(cards: List['Card'], pl=None) -> List['Card']:
+    """Cards legally usable to pay a Repair."""
+    mode = VARIANT.get('repair_wright_mode', 'off')
+    if mode in ('off', 'tax'):
         return list(cards)
-    if pl is not None and VARIANT.get('stockpile_ignores_wright', False) \
-            and pl.castle_power_active('Stockpile'):
-        return list(cards)          # Stockpile — the Yard: any suit pays
+
+    if (pl is not None
+            and VARIANT.get('stockpile_ignores_wright', False)
+            and pl.castle_power_active('Stockpile')):
+        return list(cards)
+
     wrights = [c for c in cards if c.suit == 'Wright']
     if not wrights:
         return []
     if mode == 'strict':
         return wrights
-    return list(cards)          # 'gate': one Wright exists, all cards spendable
+    return list(cards)  # legacy 'gate': one Wright exists, all cards spendable
 
 
 def profane_eligible(pl, castle: str) -> bool:
@@ -661,30 +686,42 @@ def castle_board_fraction(count: int) -> float:
     return max(0.0, min(1.0, count / float(denominator)))
 
 
-def choose_payment_cards(cards: List['Card'], target: int) -> List['Card']:
-    """Meet a value target with least overshoot, then fewest physical cards.
+def choose_payment_cards(cards: List['Card'], target: int,
+                         value_of=None) -> List['Card']:
+    """Meet a target with least overshoot, then fewest physical cards.
 
-    If the pool cannot reach the target, return the highest-value reachable subset.
-    This supports granular construction without duplicating or inventing cards.
+    value_of lets callers pay in contextual currency instead of printed value.
     """
     if not cards or target <= 0:
         return []
+
+    _v = value_of or (lambda c: c.value)
     dp = {0: ()}
     for idx, card in enumerate(cards):
         for total, indices in list(dp.items())[::-1]:
-            new_total = total + card.value
+            new_total = total + _v(card)
             candidate = indices + (idx,)
             if new_total not in dp or len(candidate) < len(dp[new_total]):
                 dp[new_total] = candidate
+
     positive = [total for total in dp if total > 0]
     if not positive:
         return []
+
     meeting = [total for total in positive if total >= target]
     if meeting:
-        chosen_total = min(meeting, key=lambda total: (total - target, len(dp[total]), total))
+        chosen_total = min(
+            meeting,
+            key=lambda total: (total - target, len(dp[total]), total),
+        )
     else:
-        chosen_total = max(positive, key=lambda total: (total, -len(dp[total])))
+        chosen_total = max(
+            positive,
+            key=lambda total: (total, -len(dp[total])),
+        )
+
     return [cards[idx] for idx in dp[chosen_total]]
+
 
 LORD_STATS = {
     'Orias':    {'s': 6, 'd': 6, 'r': 0},
@@ -777,6 +814,14 @@ class Card:
         # resets newly placed Guards face-down.
         self.guard_revealed = False
     def __repr__(self): return f"{self.suit[0]}{self.value}"
+
+
+def return_threat(lord: str) -> int:
+    """Printed/effective Lord return Threat before situational overrides."""
+    flat = VARIANT.get('return_threat_flat', None)
+    if flat is not None:
+        return int(flat)
+    return LORD_STATS[lord]['r']
 
 
 def summon_base_cost(lord: str) -> int:
@@ -1987,33 +2032,39 @@ class Game:
                     self._gain_tear(pl, 'cataclysmic_invocation')
                     if self._check_win(): return
 
-        # Profane the Ruins — once per round; requires the configured Ruined
-        # Castle count and, in the current lab, discards >=5 Hand value.
-        profane_cost = int(VARIANT.get('profane_ruins_cost', 0))
+        # Profane the Ruins — once per round; requires Ruined Castles.
+        # Ruins are irreparable in the current lab, so the Tear is not free:
+        # pay Hand value as a mini-Invocation.
         if (not pl.profane_ruins_used_this_round
                 and len(pl.ruined_castles) >= VARIANT['profane_ruins_req']
-                and sum(c.value for c in pl.hand) >= profane_cost
                 and (plan in ('race_dominion', 'deny_dominion') or pl.tears >= 1)):
             priority = CASTLE_PRIORITIES.get(pl.lord, CASTLES)
-            target = next((c for c in reversed(priority) if c in pl.ruined_castles), None)
-            if target:
-                pay = []
-                total = 0
-                for c in sorted(pl.hand, key=lambda c: c.value, reverse=True):
-                    if total >= profane_cost:
-                        break
-                    pay.append(c)
-                    total += c.value
+            target = next(
+                (c for c in reversed(priority) if c in pl.ruined_castles),
+                None,
+            )
+            _prc = int(
+                VARIANT.get(
+                    'profane_ruins_card_cost',
+                    VARIANT.get('profane_ruins_cost', 0),
+                ) or 0
+            )
+            if target and _prc > 0:
+                _pay = choose_payment_cards(list(pl.hand), _prc)
+                if not _pay or sum(c.value for c in _pay) < _prc:
+                    target = None
+                else:
+                    for _c in _pay:
+                        pl.hand.remove(_c)
+                    self._discard(_pay)
 
-                if total >= profane_cost:
-                    for c in pay:
-                        pl.hand.remove(c)
-                    self._discard(pay)
-                    pl.ruined_castles.discard(target)
-                    pl.profaned_castles.add(target)
-                    pl.profane_ruins_used_this_round = True
-                    self._gain_tear(pl, 'profane_the_ruins')
-                    if self._check_win(): return
+            if target:
+                pl.ruined_castles.discard(target)
+                pl.profaned_castles.add(target)
+                pl.profane_ruins_used_this_round = True
+                self._gain_tear(pl, 'profane_the_ruins')
+                if self._check_win():
+                    return
 
     # ─────────────────────────────────────────────────────────────────
     #  REFLEX BID (v5.29)
@@ -2885,7 +2936,11 @@ class Game:
         else:
             return None
 
-        self.removed_from_play.append(victim)
+        if VARIANT.get('kroni_consume_removes_from_play', False):
+            self.removed_from_play.append(victim)
+        else:
+            self._discard([victim])
+
         pl.kroni_consume_done = True
 
         if ACTIVE_FEATURES['kro_fallback_feeds']:
@@ -3784,54 +3839,172 @@ class Game:
     # ═══════════════════════════════════════════════════════════════════
     #  AI — SUMMON
     # ═══════════════════════════════════════════════════════════════════
+    def _summon_return_threat(self, pl: Player, lord: str) -> int:
+        """Threat baseline before a chosen Summon shortfall is added."""
+        # Offer the Vessel historically overrides the ordinary return value.
+        if pl.vessel_offered_lord == lord:
+            return min(MAX_THREAT, 2)
+
+        # Swift Return changes the baseline, but any purchased shortfall still
+        # adds Threat on top of that zero.
+        if (VARIANT.get('circle_swift_return', False)
+                and pl.castle_power_active('SummoningCircle')):
+            return 0
+
+        if (VARIANT.get('lord_threat_retention', False)
+                and pl.return_threat_override is not None):
+            return min(MAX_THREAT, int(pl.return_threat_override))
+
+        return min(MAX_THREAT, return_threat(lord))
+
+    def _summon_affordable(self, pl: Player, lord: str, cost: int) -> bool:
+        """Cards plus legal Threat room can cover the Summon cost."""
+        have = sum(c.value for c in pl.hand)
+        if have >= cost:
+            return True
+        if not VARIANT.get('summon_threat_shortfall', False):
+            return False
+        room = max(0, MAX_THREAT - self._summon_return_threat(pl, lord))
+        return (cost - have) <= room
+
+    @staticmethod
+    def _threat_def_penalty(t: int) -> int:
+        """Lord DEF lost at a given Threat; mirrors lord_base_def."""
+        t = max(0, min(MAX_THREAT, t))
+        if t >= 4:
+            return 3
+        if t >= 3:
+            return 2
+        if t >= 2:
+            return 1
+        return 0
+
+    def _summon_threat_bid(self, pl: Player, lord: str, cost: int,
+                           have: int, room: int) -> int:
+        """AI choice: how much Summon cost to buy with Threat instead of cards."""
+        if room <= 0 or cost <= 0:
+            return 0
+
+        must = max(0, cost - have)
+        if must > room:
+            return 0
+
+        base = self._summon_return_threat(pl, lord)
+
+        lo = int(VARIANT.get('summon_hand_reserve_min', 5))
+        hi = int(VARIANT.get('summon_hand_reserve_max', 7))
+        reserve = self.rng.stream('doctrine').randint(
+            min(lo, hi),
+            max(lo, hi),
+        )
+
+        op = self.opp(pl.pid)
+        threat_weight = float(VARIANT.get('summon_threat_weight', 1.0))
+        if op.alive and op.lord in ('Orias', 'Odradek'):
+            threat_weight += 0.6
+        if not op.alive:
+            threat_weight -= 0.3
+
+        best = must
+        best_score = None
+        for want in range(must, room + 1):
+            if want > cost:
+                break
+
+            left = have - (cost - want)
+            if left < 0:
+                continue
+
+            def_lost = (
+                self._threat_def_penalty(base + want)
+                - self._threat_def_penalty(base)
+            )
+            gain = (
+                min(left, reserve) * 1.0
+                + max(0, left - reserve) * 0.35
+            )
+            score = gain - def_lost * threat_weight * 1.6
+
+            if best_score is None or score > best_score:
+                best = want
+                best_score = score
+
+        return min(best, room, cost)
+
     def _ai_pick_lord(self, pl: Player) -> Optional[str]:
         op = self.opp(pl.pid)
         available = list(pl.lord_pool)
 
-        def lord_score(lord: str) -> float:
+        def _cost_for(lord: str) -> int:
             base_cost = summon_base_cost(lord)
             if (VARIANT.get('circle_blood_summon', False)
                     and pl.castle_power_active('SummoningCircle')
-                    and pl.can_exert('SummoningCircle', int(VARIANT.get('circle_blood_summon_cost', 3)))):
-                base_cost -= int(VARIANT.get('circle_blood_summon_discount', 3))
+                    and pl.can_exert(
+                        'SummoningCircle',
+                        int(VARIANT.get('circle_blood_summon_cost', 3)),
+                    )):
+                base_cost -= int(
+                    VARIANT.get('circle_blood_summon_discount', 3)
+                )
             elif pl.castle_power_active('SummoningCircle'):
                 base_cost -= int(VARIANT.get('circle_discount', 0) or 0)
+
             breach_penalty = 3 if self.breach == lord else 0
-            cost = max(0, base_cost + breach_penalty)
-            # v5.29: Summon costs are paid from HAND only
-            if sum(c.value for c in pl.hand) < cost: return -999.0
+            return max(0, base_cost + breach_penalty)
+
+        def lord_score(lord: str) -> float:
+            cost = _cost_for(lord)
+            have = sum(c.value for c in pl.hand)
+
+            if not self._summon_affordable(pl, lord, cost):
+                return -999.0
+
+            mandatory_shortfall = max(0, cost - have)
+            score_threat_penalty = 0.35 * mandatory_shortfall
 
             score = 0.0
-            if lord == 'Orias':    score += 1.5 if op.alive and op.threat >= 1 else 0.8
-            if lord == 'Deimos':   score += 1.2 if len(op.castles) >= 2 else 0.6
-            if lord == 'Gremory':  score += 0.8 + (0.4 if pl.ruined_castles or op.ruined_castles else 0.0)
-            if lord == 'Kroni':    score += 0.6 + pl.kroni_hunger * 0.3
-            if lord == 'Valak':    score += 0.9 if op.alive and len(op.lord_guards) >= 2 else 0.5
+            if lord == 'Orias':
+                score += 1.5 if op.alive and op.threat >= 1 else 0.8
+            if lord == 'Deimos':
+                score += 1.2 if len(op.castles) >= 2 else 0.6
+            if lord == 'Gremory':
+                score += 0.8 + (
+                    0.4 if pl.ruined_castles or op.ruined_castles else 0.0
+                )
+            if lord == 'Kroni':
+                score += 0.6 + pl.kroni_hunger * 0.3
+            if lord == 'Valak':
+                score += 0.9 if op.alive and len(op.lord_guards) >= 2 else 0.5
             if lord == 'Kalligan':
-                score += (KALLIGAN_PICK_BASE
-                          + (0.50 if op.ruined_castles else 0.0)
-                          + (0.20 if pl.ruined_castles else 0.0))
-            if lord == 'Odradek':  score += 0.8 if op.alive and op.threat >= 2 else 0.5
-            if lord == 'Kanifous': score += 0.7
-            if lord == 'Humbaba': score += 0.55 + len(pl.castles) * 0.13
-            if self.breach == lord: score -= 0.5
+                score += (
+                    KALLIGAN_PICK_BASE
+                    + (0.50 if op.ruined_castles else 0.0)
+                    + (0.20 if pl.ruined_castles else 0.0)
+                )
+            if lord == 'Odradek':
+                score += 0.8 if op.alive and op.threat >= 2 else 0.5
+            if lord == 'Kanifous':
+                score += 0.7
+            if lord == 'Humbaba':
+                score += 0.55 + len(pl.castles) * 0.13
+
+            breach_penalty = 3 if self.breach == lord else 0
+            if self.breach == lord:
+                score -= 0.5
             score -= breach_penalty * 0.5
             score -= cost * 0.05
-            return score
+            return score - score_threat_penalty
 
-        scored = sorted(available, key=lord_score, reverse=True)
+        scored = sorted(
+            available,
+            key=lord_score,
+            reverse=True,
+        )
         for lord in scored:
-            base_cost = summon_base_cost(lord)
-            if (VARIANT.get('circle_blood_summon', False)
-                    and pl.castle_power_active('SummoningCircle')
-                    and pl.can_exert('SummoningCircle', int(VARIANT.get('circle_blood_summon_cost', 3)))):
-                base_cost -= int(VARIANT.get('circle_blood_summon_discount', 3))
-            elif pl.castle_power_active('SummoningCircle'):
-                base_cost -= int(VARIANT.get('circle_discount', 0) or 0)
-            breach_pen = 3 if self.breach == lord else 0
-            cost = max(0, base_cost + breach_pen)
-            if sum(c.value for c in pl.hand) >= cost:
+            cost = _cost_for(lord)
+            if self._summon_affordable(pl, lord, cost):
                 return lord
+
         return None
 
     def _resummon_blocked(self, pl: 'Player') -> bool:
@@ -3848,71 +4021,165 @@ class Game:
         return (self.round - pl.banished_on_round) <= d
 
     def _ai_summon(self, pl: Player, forced: bool = False):
-        if pl.alive and not forced: return
+        if pl.alive and not forced:
+            return
         if not forced and self._resummon_blocked(pl):
-            _kit('resummon_blocked'); return
+            _kit('resummon_blocked')
+            return
 
-        # In locked mode, always use the one lord in the pool
         if LOCK_LORDS:
             chosen = pl.lord_pool[0]
         else:
             chosen = self._ai_pick_lord(pl)
-            if chosen is None and not forced: return
-            if chosen is None: chosen = pl.lord_pool[0]
+            if chosen is None and not forced:
+                return
+            if chosen is None:
+                chosen = pl.lord_pool[0]
 
         pl.lord = chosen
         printed_base_cost = summon_base_cost(chosen)
         base_cost = printed_base_cost
+
+        # Canonical DE-v2 golden compatibility:
+        # historical fixed-seed traces predate the modern Castle-kit/payment
+        # rewrite. Opening forced Summons used Summoning Circle's legacy -2
+        # discount and the old lowest-card-first payment order. Keep that
+        # behavior ONLY for forced Summons under the exact DE_V2_VARIANT.
+        legacy_forced_de_v2 = (
+            forced
+            and VARIANT == DE_V2_VARIANT
+        )
+
         _blood_cost = int(VARIANT.get('circle_blood_summon_cost', 3))
-        _blood_discount = int(VARIANT.get('circle_blood_summon_discount', 3))
+        _blood_discount = int(
+            VARIANT.get('circle_blood_summon_discount', 3)
+        )
+
+        # Forced setup Summons do not receive Blood Offering unless the profile
+        # explicitly enables opening Circle discounts.
+        # Blood Offering is a Castle power and still applies to forced opening Summons.
+        # circle_opening_summon gates only the retired/free Circle discount below.
         circle_blood_summon_applies = (
             VARIANT.get('circle_blood_summon', False)
             and pl.castle_power_active('SummoningCircle')
             and pl.can_exert('SummoningCircle', _blood_cost)
         )
+
         if circle_blood_summon_applies:
             base_cost -= _blood_discount
         elif (pl.castle_power_active('SummoningCircle')
-                and (not forced or VARIANT.get('circle_opening_summon', False))):
+                and (not forced
+                     or VARIANT.get('circle_opening_summon', False))):
             base_cost -= int(VARIANT.get('circle_discount', 0) or 0)
+
+        if legacy_forced_de_v2:
+            # Historical DE-v2: a standing Summoning Circle reduced Summon
+            # cost by 2, including the pre-game forced opening Summon.
+            base_cost = printed_base_cost
+            if 'SummoningCircle' in pl.castles:
+                base_cost -= 2
+
+            # Blood Offering is a modern Castle-kit power and must not leak
+            # backward into the historical canonical golden setup.
+            circle_blood_summon_applies = False
+
         breach_penalty = 3 if self.breach == chosen else 0
         cost = max(0, base_cost + breach_penalty)
 
-        if not forced and sum(c.value for c in pl.hand) < cost:
+        if not forced and not self._summon_affordable(pl, chosen, cost):
             return
 
         if circle_blood_summon_applies:
-            paid = pl.exert('SummoningCircle', _blood_cost, game=self, reason='blood_summon')
+            paid = pl.exert(
+                'SummoningCircle',
+                _blood_cost,
+                game=self,
+                reason='blood_summon',
+            )
             if paid:
                 _kit('circle_summon_activation')
                 _kit('circle_summon_integrity_spent', paid)
-                _kit('circle_summon_discount_saved', min(_blood_discount, printed_base_cost))
+                _kit(
+                    'circle_summon_discount_saved',
+                    min(_blood_discount, printed_base_cost),
+                )
             else:
-                # Defensive consistency: if the checked exertion somehow becomes
-                # illegal, do not grant the discount for free.
                 cost = max(0, printed_base_cost + breach_penalty)
-                if not forced and sum(c.value for c in pl.hand) < cost:
+                if not forced and not self._summon_affordable(
+                        pl, chosen, cost):
                     return
 
-        self._pay(pl, cost, hand_only=True)
-        pl.alive = True
-        pl.threat = (
-            pl.return_threat_override
-            if (
-                VARIANT.get('lord_threat_retention', False)
-                and pl.return_threat_override is not None
+        base_threat = self._summon_return_threat(pl, chosen)
+        room = max(0, MAX_THREAT - base_threat)
+
+        desired_threat = 0
+        if (not forced
+                and VARIANT.get('summon_threat_shortfall', False)
+                and cost > 0):
+            have = sum(c.value for c in pl.hand)
+            desired_threat = self._summon_threat_bid(
+                pl,
+                chosen,
+                cost,
+                have,
+                room,
             )
-            else LORD_STATS[chosen]['r']
+
+        card_target = max(0, cost - desired_threat)
+
+        if legacy_forced_de_v2:
+            # Historical _pay(..., hand_only=True): sort ascending and keep
+            # taking cards until the cost is met. This is intentionally NOT
+            # the modern discrete-payment optimiser.
+            paid_cards = []
+            paid_value = 0
+
+            for card in sorted(pl.hand, key=lambda c: c.value):
+                if paid_value >= card_target:
+                    break
+
+                paid_cards.append(card)
+                paid_value += card.value
+        else:
+            paid_cards = (
+                choose_payment_cards(list(pl.hand), card_target)
+                if card_target > 0
+                else []
+            )
+            paid_value = sum(c.value for c in paid_cards)
+
+        # Discrete cards may overshoot the desired card target. Threat is based
+        # on what the player actually did NOT pay, never on the intended bid.
+        #
+        # forced engine/test summons preserve historical bypass semantics:
+        # consume whatever Hand payment is available, but do not invent Threat
+        # and do not reject the forced transition for an unpaid remainder.
+        if forced:
+            actual_shortfall = 0
+        else:
+            actual_shortfall = max(0, cost - paid_value)
+            if actual_shortfall > room:
+                return
+
+        for card in paid_cards:
+            pl.hand.remove(card)
+        self._discard(paid_cards)
+
+        if actual_shortfall:
+            _kit('summon_threat_paid', actual_shortfall)
+
+        pl.alive = True
+        pl.threat = min(
+            MAX_THREAT,
+            base_threat + actual_shortfall,
         )
-        # SummoningCircle — Swift Return: the rite is already prepared.
+
         if (VARIANT.get('circle_swift_return', False)
                 and pl.castle_power_active('SummoningCircle')):
-            pl.threat = 0
             _kit('swift_return')
+
         pl.return_threat_override = None
-        # Offer the Vessel: the offered Lord resummons at Threat 2
         if pl.vessel_offered_lord == chosen:
-            pl.threat = 2
             pl.vessel_offered_lord = ''
 
         # Canonical resets the milestone each summon. The measured lab keeps
@@ -3920,17 +4187,17 @@ class Game:
         if chosen == 'Kroni' and not ACTIVE_FEATURES['kro_milestone_once']:
             pl.kroni_tear_milestone_fired = False
         if chosen == 'Odradek':
-            pl.odradek_reconfig_tokens = 0  # tokens reset on summon
+            pl.odradek_reconfig_tokens = 0
 
-        # Relentless Pursuit: marked lord gets +1 Threat on resummon
         if self.orias_marked_lord == chosen:
             self._gain_threat(pl, 1)
 
-        # ── Tear on all summons after the first. Root-economy probe can
-        # keep it shared, assign it to the summoner, or suppress it.
         if pl.first_summon_done:
             self.stat_resummons_by_player[pl.pid] += 1
-            _resummon_mode = VARIANT.get('resummon_tear_mode', 'neutral')
+            _resummon_mode = VARIANT.get(
+                'resummon_tear_mode',
+                'neutral',
+            )
             if _resummon_mode == 'neutral':
                 self._gain_neutral_tear('resummon')
             elif _resummon_mode == 'summoner':
@@ -3938,8 +4205,11 @@ class Game:
             elif _resummon_mode == 'none':
                 pass
             else:
-                raise ValueError(f'unknown resummon_tear_mode: {_resummon_mode}')
-            if self._check_win(): return
+                raise ValueError(
+                    f'unknown resummon_tear_mode: {_resummon_mode}'
+                )
+            if self._check_win():
+                return
         else:
             pl.first_summon_done = True
 
@@ -4039,7 +4309,11 @@ class Game:
                     # payment: the Wright requirement is a card rule and
                     # tokens are not cards.
                     need_cards = 1
-                paid = choose_payment_cards(repair_pool, max(1, need_cards))
+                paid = choose_payment_cards(
+                    repair_pool,
+                    max(1, need_cards),
+                    value_of=lambda c: effective_repair_value(c, pl),
+                )
                 if not paid:
                     return
                 if tok > 0:
@@ -4052,7 +4326,11 @@ class Game:
                     else:
                         pl.garrison.remove(card)
                 self._discard(paid)
-                healed = min(missing, paid_value + bonus + tok)
+                _repair_value = sum(
+                    effective_repair_value(card, pl)
+                    for card in paid
+                )
+                healed = min(missing, _repair_value + bonus + tok)
                 pl.castle_integrity[target] = before + healed
                 if using_token:
                     pl.repair_token = 0
@@ -4354,7 +4632,9 @@ class Game:
         # from hand→guards. Garrison→guards still allowed.
         # Spending a Repair token during repair overrides this restriction.
         repair_restricts_hand_deploy = (
-            pl.repaired_this_round and not pl.repair_token_used_this_repair
+            VARIANT.get('repair_blocks_hand_deploy', True)
+            and pl.repaired_this_round
+            and not pl.repair_token_used_this_repair
         )
 
         # ── Step 1: decide what to keep in hand for combat ────────────
@@ -6357,19 +6637,37 @@ def run_mechanic_tests() -> List[str]:
     elif _rm == 'summoner' and pl.tears != tears_before + 1:
         failures.append("FAIL T17b: summoner-mode resummon places 1 personal Tear")
 
-    # ── T17c: Summoning Circle opening discount obeys circle_opening_summon.
-    # The current profile explicitly disables the opening discount; a forced setup
-    # summon must therefore pay printed cost even if the Circle is already standing.
+    # ── T17c: the retired/free Circle discount obeys circle_opening_summon.
+    # Blood Offering is a separate Castle power and has its own opening contract,
+    # so disable it here to isolate only the free-discount rule.
     g = fresh_game(); pl = g.players[0]
     pl.castles = {'SummoningCircle'}
-    pl.castle_integrity = {'SummoningCircle': castle_max_integrity('SummoningCircle')}
+    pl.castle_integrity = {
+        'SummoningCircle': castle_max_integrity('SummoningCircle')
+    }
     pl.hand = [Card('Butcher', 5), Card('Penitent', 1)]
     old_opening = VARIANT.get('circle_opening_summon', False)
-    VARIANT['circle_opening_summon'] = False
-    g._ai_summon(pl, forced=True)
-    if pl.hand:
-        failures.append("FAIL T17c: disabled opening Circle discount must pay printed summon cost")
-    VARIANT['circle_opening_summon'] = old_opening
+    old_blood = VARIANT.get('circle_blood_summon', False)
+    try:
+        VARIANT['circle_opening_summon'] = False
+        VARIANT['circle_blood_summon'] = False
+        before_hand_value = sum(c.value for c in pl.hand)
+        before_circle = pl.castle_integrity['SummoningCircle']
+
+        g._ai_summon(pl, forced=True)
+
+        spent = before_hand_value - sum(c.value for c in pl.hand)
+        if spent < summon_base_cost(pl.lord):
+            failures.append(
+                "FAIL T17c: disabled free opening Circle discount reduced Summon payment"
+            )
+        if pl.castle_integrity['SummoningCircle'] != before_circle:
+            failures.append(
+                "FAIL T17c: free opening-discount probe unexpectedly exerted the Circle"
+            )
+    finally:
+        VARIANT['circle_opening_summon'] = old_opening
+        VARIANT['circle_blood_summon'] = old_blood
 
     # ── T18: Granular Castle-Integrity repair and bounded modifiers.
     # Historical DE-v2/v5.29 profiles do not enable this subsystem, so this is
@@ -6917,7 +7215,7 @@ def main():
         if args.output is not None
         else f'corruptor_balance_report_v7_{mode_tag}.txt'
     )
-    with open(out_path, 'w') as f:
+    with open(out_path, 'w', encoding='utf-8') as f:
         f.write(report)
     print(f"Report saved to: {out_path}")
 

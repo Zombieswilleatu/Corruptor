@@ -86,63 +86,38 @@ static func _resolve_player_summon(
 	rules: RuleConfig,
 	decision: Dictionary
 ) -> Dictionary:
-	var player_id: int = int(
-		player.pid
-	)
+	var player_id: int = int(player.pid)
 
 	if player.alive:
-		return _pass_result(
-			player_id,
-			"already_alive"
-		)
+		return _pass_result(player_id, "already_alive")
 
-	if _decision_is_pass(
-		decision
-	):
-		return _pass_result(
-			player_id,
-			"pass"
-		)
+	if _decision_is_pass(decision):
+		return _pass_result(player_id, "pass")
 
-	var chosen_lord: String = String(
-		decision.get(
-			"lord",
-			""
-		)
-	)
+	var chosen_lord: String = String(decision.get("lord", ""))
 
 	if chosen_lord.is_empty():
-		return _invalid_result(
-			player_id,
-			chosen_lord,
-			"lord_required"
-		)
+		return _invalid_result(player_id, chosen_lord, "lord_required")
 
-	if not GameSetupData.LORD_CONTENT.has(
-		chosen_lord
-	):
-		return _invalid_result(
-			player_id,
-			chosen_lord,
-			"unknown_lord"
-		)
+	if not GameSetupData.LORD_CONTENT.has(chosen_lord):
+		return _invalid_result(player_id, chosen_lord, "unknown_lord")
 
-	if not player.lord_pool.has(
-		chosen_lord
-	):
-		return _invalid_result(
-			player_id,
-			chosen_lord,
-			"lord_not_in_pool"
-		)
+	if not player.lord_pool.has(chosen_lord):
+		return _invalid_result(player_id, chosen_lord, "lord_not_in_pool")
 
 	var blood_offering: bool = (
 		rules.circle_blood_summon
-		and CastleIntegrityRulesData.power_active(player, "SummoningCircle", rules)
+		and CastleIntegrityRulesData.power_active(
+			player, "SummoningCircle", rules
+		)
 		and CastleIntegrityRulesData.can_exert(
-			player, "SummoningCircle", int(rules.circle_blood_summon_cost), rules
+			player,
+			"SummoningCircle",
+			int(rules.circle_blood_summon_cost),
+			rules
 		)
 	)
+
 	var summon_cost: int = _summon_cost(
 		game,
 		player,
@@ -151,11 +126,7 @@ static func _resolve_player_summon(
 		blood_offering
 	)
 
-	var raw_payment = decision.get(
-		"payment",
-		[]
-	)
-
+	var raw_payment = decision.get("payment", [])
 	if typeof(raw_payment) != TYPE_ARRAY:
 		return _invalid_result(
 			player_id,
@@ -165,112 +136,81 @@ static func _resolve_player_summon(
 		)
 
 	var payment_ids: Array = raw_payment
-
-	var selection: Dictionary = _select_hand_payment(
+	var preview: Dictionary = payment_preview(
 		player,
-		payment_ids,
-		summon_cost
+		rules,
+		chosen_lord,
+		summon_cost,
+		payment_ids
 	)
 
-	if not bool(
-		selection.get(
-			"valid",
-			false
-		)
-	):
+	if not bool(preview.get("valid", false)):
 		return _invalid_result(
 			player_id,
 			chosen_lord,
-			String(
-				selection.get(
-					"reason",
-					"invalid_payment"
-				)
-			),
+			String(preview.get("reason", "invalid_payment")),
 			summon_cost
 		)
 
-	var selected_cards: Array = selection.get(
-		"cards",
-		[]
+	var selected_cards: Array = preview.get("cards", [])
+	var paid_total: int = int(preview.get("paid_total", 0))
+	var base_return_threat: int = int(
+		preview.get("base_return_threat", 0)
 	)
-
-	var paid_total: int = int(
-		selection.get(
-			"paid_total",
-			0
-		)
+	var threat_shortfall: int = int(
+		preview.get("threat_shortfall", 0)
+	)
+	var resolved_return_threat: int = int(
+		preview.get("return_threat", base_return_threat)
 	)
 
 	if blood_offering:
 		var circle_spent: int = CastleIntegrityRulesData.exert(
-			player, "SummoningCircle", int(rules.circle_blood_summon_cost), rules
+			player,
+			"SummoningCircle",
+			int(rules.circle_blood_summon_cost),
+			rules
 		)
 		if circle_spent <= 0:
 			return _invalid_result(
-				player_id, chosen_lord, "blood_offering_unavailable", summon_cost
+				player_id,
+				chosen_lord,
+				"blood_offering_unavailable",
+				summon_cost
 			)
 
 	for card in selected_cards:
 		assert(
-			player.hand.has(
-				card
-			),
+			player.hand.has(card),
 			"Summon payment card left the player's hand."
 		)
-
-		player.hand.erase(
-			card
-		)
-
-		game.discard.append(
-			card
-		)
+		player.hand.erase(card)
+		game.discard.append(card)
 
 	player.lord = chosen_lord
 	player.alive = true
+	player.threat = resolved_return_threat
 
-	player.threat = _return_threat(
-		chosen_lord
-	)
-
-	if (
-		rules.lord_threat_retention
-		and player.return_threat_override >= 0
-	):
-		player.threat = player.return_threat_override
-
-	# The retained value is a property of the immediately preceding Banishment,
-	# not a reusable buff for later summons.
+	# Retention belongs only to the immediately preceding Banishment.
 	player.return_threat_override = -1
 
 	var vessel_applied: bool = false
-
 	if player.vessel_offered_lord == chosen_lord:
-		player.threat = 2
+		# Vessel establishes the baseline (2); it does not erase a shortfall.
 		player.vessel_offered_lord = ""
 		vessel_applied = true
 
 	var marked_lord: String = String(
-		game.get_meta(
-			"orias_marked_lord",
-			""
-		)
+		game.get_meta("orias_marked_lord", "")
 	)
-
 	if marked_lord == chosen_lord:
+		# Relentless Pursuit is a separate post-return effect.
 		CastleIntegrityRulesData.gain_threat(player, rules, 1)
 
-	if (
-		chosen_lord == "Kroni"
-		and not rules.kro_milestone_once
-	):
+	if chosen_lord == "Kroni" and not rules.kro_milestone_once:
 		player.kroni_tear_milestone_fired = false
 
-	player.derived_lord_def = _calculate_lord_defense(
-		player,
-		rules
-	)
+	player.derived_lord_def = _calculate_lord_defense(player, rules)
 
 	var tear_gain: int = 0
 	var harvested_card: String = ""
@@ -289,11 +229,18 @@ static func _resolve_player_summon(
 			"none":
 				pass
 			_:
-				push_error("Unknown resummon Tear mode: %s" % String(rules.resummon_tear_mode))
+				push_error(
+					"Unknown resummon Tear mode: %s"
+					% String(rules.resummon_tear_mode)
+				)
 
 		if not tear_event.is_empty():
-			harvested_card = String(tear_event.get("harvested_card", ""))
-			harvested_by = int(tear_event.get("harvested_by", -1))
+			harvested_card = String(
+				tear_event.get("harvested_card", "")
+			)
+			harvested_by = int(
+				tear_event.get("harvested_by", -1)
+			)
 			won = _check_win(game, rules)
 	else:
 		player.first_summon_done = true
@@ -307,15 +254,11 @@ static func _resolve_player_summon(
 		"lord": chosen_lord,
 		"cost": summon_cost,
 		"paid_total": paid_total,
-		"paid_cards": _card_ids(
-			selected_cards
-		),
-		"threat": int(
-			player.threat
-		),
-		"derived_lord_def": int(
-			player.derived_lord_def
-		),
+		"paid_cards": _card_ids(selected_cards),
+		"base_return_threat": base_return_threat,
+		"threat_shortfall": threat_shortfall,
+		"threat": int(player.threat),
+		"derived_lord_def": int(player.derived_lord_def),
 		"vessel_applied": vessel_applied,
 		"neutral_tear_gain": tear_gain,
 		"harvested_card": harvested_card,
@@ -402,6 +345,85 @@ static func _return_threat(
 	)
 
 
+
+static func return_threat_for(
+	player,
+	rules: RuleConfig,
+	lord_id: String
+) -> int:
+	# Offer the Vessel defines a Threat-2 return baseline.
+	if player != null and String(player.vessel_offered_lord) == lord_id:
+		return mini(int(rules.max_threat), 2)
+
+	if (
+		player != null
+		and rules.lord_threat_retention
+		and int(player.return_threat_override) >= 0
+	):
+		return mini(
+			int(rules.max_threat),
+			int(player.return_threat_override)
+		)
+
+	return mini(
+		int(rules.max_threat),
+		_return_threat(lord_id)
+	)
+
+
+static func payment_preview(
+	player,
+	rules: RuleConfig,
+	lord_id: String,
+	summon_cost: int,
+	payment_ids: Array
+) -> Dictionary:
+	var selection: Dictionary = _select_hand_payment(
+		player,
+		payment_ids,
+		summon_cost,
+		bool(rules.summon_threat_shortfall)
+	)
+
+	if not bool(selection.get("valid", false)):
+		return selection
+
+	var paid_total: int = int(selection.get("paid_total", 0))
+	var base_return_threat: int = return_threat_for(
+		player,
+		rules,
+		lord_id
+	)
+	var threat_shortfall: int = maxi(0, summon_cost - paid_total)
+
+	if threat_shortfall > 0 and not rules.summon_threat_shortfall:
+		return {
+			"valid": false,
+			"reason": "insufficient_payment",
+			"cards": [],
+			"paid_total": 0,
+		}
+
+	var resolved_return_threat: int = (
+		base_return_threat + threat_shortfall
+	)
+
+	if resolved_return_threat > int(rules.max_threat):
+		return {
+			"valid": false,
+			"reason": "summon_threat_cap",
+			"cards": selection.get("cards", []),
+			"paid_total": paid_total,
+			"base_return_threat": base_return_threat,
+			"threat_shortfall": threat_shortfall,
+			"return_threat": resolved_return_threat,
+		}
+
+	selection["base_return_threat"] = base_return_threat
+	selection["threat_shortfall"] = threat_shortfall
+	selection["return_threat"] = resolved_return_threat
+	return selection
+
 static func _calculate_lord_defense(
 	player,
 	rules: RuleConfig
@@ -449,19 +471,19 @@ static func _calculate_lord_defense(
 static func _select_hand_payment(
 	player,
 	payment_ids: Array,
-	required_total: int
+	required_total: int,
+	allow_shortfall: bool = false
 ) -> Dictionary:
 	var selected_cards: Array = []
 	var paid_total: int = 0
 
 	for raw_card_id in payment_ids:
-		if paid_total >= required_total:
+		# Historical profiles preserve the old "stop once paid" behavior.
+		# Agency mode spends every card the player explicitly selected.
+		if not allow_shortfall and paid_total >= required_total:
 			break
 
-		var card_identifier: String = String(
-			raw_card_id
-		)
-
+		var card_identifier: String = String(raw_card_id)
 		var selected_card = _find_unselected_card(
 			player.hand,
 			card_identifier,
@@ -471,23 +493,15 @@ static func _select_hand_payment(
 		if selected_card == null:
 			return {
 				"valid": false,
-				"reason": (
-					"payment_card_missing_%s"
-					% card_identifier
-				),
+				"reason": "payment_card_missing_%s" % card_identifier,
 				"cards": [],
 				"paid_total": 0,
 			}
 
-		selected_cards.append(
-			selected_card
-		)
+		selected_cards.append(selected_card)
+		paid_total += int(selected_card.value)
 
-		paid_total += int(
-			selected_card.value
-		)
-
-	if paid_total < required_total:
+	if paid_total < required_total and not allow_shortfall:
 		return {
 			"valid": false,
 			"reason": "insufficient_payment",

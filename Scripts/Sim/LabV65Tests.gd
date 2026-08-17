@@ -130,7 +130,7 @@ static func _test_profile() -> Dictionary:
 		or rules.attack_penalty_exempt_suit != "Butcher"
 		or rules.attack_offsuit_floor != 1
 		or rules.construction_action_cap != 5
-		or rules.repair_wright_mode != "strict"
+		or rules.repair_wright_mode != "tax"
 		or not rules.profane_requires_full_integrity
 		or rules.ruination_soul_bonus != 1
 		or rules.ruination_soul_source != "enemy_siege"
@@ -320,13 +320,14 @@ static func _test_kroni_fallback_cost_only() -> Dictionary:
 		or kroni.tears != 0
 		or not kroni.kroni_consume_done
 		or not kroni.castle_guards.is_empty()
-		or game.removed_from_play.size() != 1
+		or game.removed_from_play.size() != 0
+		or game.discard.is_empty()
 		or fallback_events.size() != 1
 		or bool(fallback_events[0].get("fed_hunger", true))
 	):
 		return _fail(
 			"unit_lab_kroni_fallback_cost_only",
-			"Fallback must remove the card without granting Hunger or a milestone Tear."
+			"Fallback must discard the card without granting Hunger or a milestone Tear."
 		)
 
 	return _pass("unit_lab_kroni_fallback_cost_only")

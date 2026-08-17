@@ -106,7 +106,9 @@ class CastleRulesV74Tests(unittest.TestCase):
 
         self.assertEqual(sim.VARIANT["attack_offsuit_penalty"], 1)
         self.assertEqual(sim.VARIANT["attack_penalty_exempt_suit"], "Butcher")
-        self.assertEqual(sim.VARIANT["repair_wright_mode"], "strict")
+
+        self.assertEqual(sim.VARIANT["repair_wright_mode"], "tax")
+
         self.assertEqual(sim.VARIANT["construction_action_cap"], 5)
         self.assertTrue(sim.VARIANT["profane_requires_full_integrity"])
         self.assertFalse(sim.VARIANT["siege_engine_bypass"])

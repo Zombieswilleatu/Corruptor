@@ -10,6 +10,10 @@ const RoundEngineData = preload(
 	"res://Scripts/Sim/RoundEngine.gd"
 )
 
+const SummonEngineData = preload(
+	"res://Scripts/Sim/SummonEngine.gd"
+)
+
 const BotDoctrineData = preload(
 	"res://Scripts/Sim/BotDoctrine.gd"
 )
@@ -326,9 +330,17 @@ static func _evaluate_integrity_candidates(
 			payment_target = mini(payment_target, int(rules.construction_action_cap))
 
 	var legal_payment_zone: Array = repair_zone if action == "repair" else payment_zone
-	var payment_cards: Array = CastleIntegrityRulesData.choose_payment_cards(
-		legal_payment_zone,
-		payment_target
+	var payment_cards: Array = (
+		RoundEngineData.choose_repair_payment_cards(
+			legal_payment_zone,
+			payment_target,
+			rules
+		)
+		if action == "repair"
+		else CastleIntegrityRulesData.choose_payment_cards(
+			legal_payment_zone,
+			payment_target
+		)
 	)
 	if payment_cards.is_empty():
 		return candidates
@@ -518,20 +530,30 @@ static func evaluate_summon_candidates(
 			lord_name
 		)
 
-		if hand_total < cost:
-			continue
+		var payment_cards: Array = []
+		var threat_shortfall: int = 0
 
-		var payment_cards: Array = (
-			_select_low_payment(
-				player.hand,
-				cost
+		if rules.summon_threat_shortfall:
+			var payment_plan: Dictionary = _summon_payment_plan(
+				game,
+				player,
+				opponent,
+				lord_name,
+				cost,
+				rules
 			)
-		)
-
-		if _card_total(
-			payment_cards
-		) < cost:
-			continue
+			if not bool(payment_plan.get("valid", false)):
+				continue
+			payment_cards = payment_plan.get("cards", [])
+			threat_shortfall = int(
+				payment_plan.get("threat_shortfall", 0)
+			)
+		else:
+			if hand_total < cost:
+				continue
+			payment_cards = _select_low_payment(player.hand, cost)
+			if _card_total(payment_cards) < cost:
+				continue
 
 		var score: float = _summon_score(
 			game,
@@ -540,6 +562,7 @@ static func evaluate_summon_candidates(
 			lord_name,
 			cost
 		)
+		score -= float(threat_shortfall) * 0.35
 
 		var degraded_score: float = (
 			1.0
@@ -566,6 +589,115 @@ static func evaluate_summon_candidates(
 
 	return candidates
 
+
+
+static func _summon_payment_plan(
+	game,
+	player,
+	opponent,
+	lord_name: String,
+	cost: int,
+	rules: RuleConfig
+) -> Dictionary:
+	var hand_total: int = _card_total(player.hand)
+	var base_return: int = SummonEngineData.return_threat_for(
+		player,
+		rules,
+		lord_name
+	)
+	var room: int = maxi(0, int(rules.max_threat) - base_return)
+	var mandatory_shortfall: int = maxi(0, cost - hand_total)
+
+	if mandatory_shortfall > room:
+		return {"valid": false}
+
+	var reserve: int = int(round(
+		(
+			float(rules.summon_hand_reserve_min)
+			+ float(rules.summon_hand_reserve_max)
+		) / 2.0
+	))
+
+	var threat_weight: float = float(rules.summon_threat_weight)
+	if opponent != null and opponent.alive and String(opponent.lord) in ["Orias", "Odradek"]:
+		threat_weight += 0.6
+	if opponent != null and not opponent.alive:
+		threat_weight -= 0.3
+
+	var best_cards: Array = []
+	var best_shortfall: int = -1
+	var best_score: float = -INF
+
+	for desired_shortfall: int in range(
+		mandatory_shortfall,
+		mini(room, cost) + 1
+	):
+		var card_target: int = maxi(0, cost - desired_shortfall)
+		var cards: Array = (
+			CastleIntegrityRulesData.choose_payment_cards(
+				player.hand,
+				card_target
+			)
+			if card_target > 0
+			else []
+		)
+		var paid_total: int = _card_total(cards)
+		var actual_shortfall: int = maxi(0, cost - paid_total)
+		if actual_shortfall > room:
+			continue
+
+		var hand_left_value: int = maxi(0, hand_total - paid_total)
+		var defense_loss: int = (
+			_threat_def_penalty(base_return + actual_shortfall)
+			- _threat_def_penalty(base_return)
+		)
+		var conserve_score: float = float(
+			mini(hand_left_value, reserve)
+		)
+		conserve_score += float(
+			maxi(0, hand_left_value - reserve)
+		) * 0.35
+
+		var plan_score: float = (
+			conserve_score
+			- float(defense_loss) * threat_weight * 1.6
+		)
+
+		if (
+			plan_score > best_score
+			or (
+				is_equal_approx(plan_score, best_score)
+				and (
+					best_shortfall < 0
+					or actual_shortfall < best_shortfall
+				)
+			)
+		):
+			best_score = plan_score
+			best_cards = cards
+			best_shortfall = actual_shortfall
+
+	if best_shortfall < 0:
+		return {"valid": false}
+
+	return {
+		"valid": true,
+		"cards": best_cards,
+		"threat_shortfall": best_shortfall,
+		"base_return_threat": base_return,
+		"return_threat": base_return + best_shortfall,
+	}
+
+
+static func _threat_def_penalty(threat: int) -> int:
+	var bounded: int = clampi(threat, 0, 4)
+	if bounded >= 4:
+		return 3
+	if bounded >= 3:
+		return 2
+	if bounded >= 2:
+		return 1
+	return 0
 
 static func summon_cost(
 	game,
@@ -787,7 +919,7 @@ static func _select_low_payment(
 
 static func _repair_payment_zone(cards: Array, rules: RuleConfig) -> Array:
 	var mode: String = String(rules.repair_wright_mode)
-	if mode == "off":
+	if mode in ["off", "tax"]:
 		return cards.duplicate()
 	var wrights: Array = []
 	for card in cards:
