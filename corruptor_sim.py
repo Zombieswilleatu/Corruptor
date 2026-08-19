@@ -565,6 +565,13 @@ def castle_max_integrity(castle: str) -> int:
     return CASTLE_DEF[castle]
 
 
+def bastion_wall_enabled() -> bool:
+    """Canonical Bastion screen switch with historical-variant fallback."""
+    if 'bastion_wall' in VARIANT:
+        return bool(VARIANT['bastion_wall'])
+    return bool(VARIANT.get('bastion_fortified', False))
+
+
 def castle_state_for(integrity: int) -> str:
     """Pure tier lookup. Integrity in, tier out — no Player, no VARIANT."""
     if integrity <= 0:
@@ -1224,6 +1231,11 @@ class Game:
         # enabling it later cannot create invisible trace drift.
         self.action_memory = [defaultdict(float), defaultdict(float)]
 
+        # Canonical Sustained Assault history.  This tracks PRIMARY actions only:
+        # pid -> (target_pid, round, action).  A non-attack Reveal removes the
+        # entry, so pressure must be genuinely consecutive.
+        self._sustained_assault_last = {}
+
         # Simultaneous commitment instrument.  The old sequential mutation meant
         # p1's Ward budget could see cards already removed from p0's hand.
         self._precommit_pool_value: Optional[List[int]] = None
@@ -1470,9 +1482,9 @@ class Game:
             # Passive Lord DEF and the wall are separately testable.
             if owner.alive and int(VARIANT.get('bastion_lord_def_bonus', 2) or 0) > 0:
                 value += 0.75
-            if VARIANT.get('bastion_fortified', False) and len(owner.castles) > 1:
+            if bastion_wall_enabled() and len(owner.castles) > 1:
                 value += 1.00
-            if (VARIANT.get('bastion_fortified', False) and len(owner.castles) > 1
+            if (bastion_wall_enabled() and len(owner.castles) > 1
                     and 'Bastion' in owner.castles and 'Bastion' not in owner.disabled_castle_powers):
                 value += 0.75
         elif castle == 'Stockpile':
@@ -1521,7 +1533,7 @@ class Game:
         # direct targeting is off, attackers choose the rear Castle they intend to
         # breach; Bastion still takes the structural damage first and can Ruin.
         _standing_bastion_screen = (
-            VARIANT.get('bastion_fortified', False)
+            bastion_wall_enabled()
             and 'Bastion' in candidates
             and 'Bastion' not in dfn.disabled_castle_powers
             and dfn.castle_integrity.get('Bastion', 0) > 0
@@ -2180,9 +2192,37 @@ class Game:
         return zone
 
     def _phase_reveal(self, trigger_order: Optional[List[int]] = None):
+        # Primary-action Threat resolves before Ward reduction / Invoke.
+        # Sustained Assault = +1 extra Threat when Hunt/Siege presses the same
+        # opponent in consecutive rounds. Reflex/Momentum actions do not touch
+        # this history because they do not pass through primary Reveal.
         for pl in self.players:
+            is_attack = pl.action in ('Hunt', 'Siege')
+            current_target = pl.tgt_pid if is_attack else None
+            previous = self._sustained_assault_last.get(pl.pid)
+
+            sustained = bool(
+                is_attack
+                and current_target is not None
+                and current_target >= 0
+                and previous is not None
+                and previous[0] == current_target
+                and previous[1] == self.round - 1
+            )
+
             if pl.action == 'Hunt':
+                self._gain_threat(pl, 2 if sustained else 1)
+            elif pl.action == 'Siege' and sustained:
                 self._gain_threat(pl, 1)
+
+            if is_attack and current_target is not None and current_target >= 0:
+                self._sustained_assault_last[pl.pid] = (
+                    current_target,
+                    self.round,
+                    pl.action,
+                )
+            else:
+                self._sustained_assault_last.pop(pl.pid, None)
 
         # Register Wards.  DE v2 uses the Sigil Contest; v6.5 keeps the same
         # short-lived visual marker but makes a correctly-funded Ward turn the
@@ -3356,7 +3396,7 @@ class Game:
             self.stat_structure_first_bypasses += 1
         if ACTIVE_FEATURES['castle_integrity']:
             _wall_active = (
-                VARIANT.get('bastion_fortified', False)
+                bastion_wall_enabled()
                 and 'Bastion' in dfn.castles
                 and 'Bastion' not in dfn.disabled_castle_powers
                 and dfn.castle_integrity.get('Bastion', 0) > 0
@@ -3387,7 +3427,7 @@ class Game:
             # else can kill you, so Bastion is destructible here and drops out
             # of the "may not self-Ruin" rule. Mandatory, so there is no
             # doctrine surface to over-fire (§3).
-            if (VARIANT.get('bastion_fortified', False)
+            if (bastion_wall_enabled()
                     and struct_hit > 0
                     and 'Bastion' in dfn.castles
                     and 'Bastion' not in dfn.disabled_castle_powers
@@ -5307,31 +5347,40 @@ class Game:
 
         target = target_castle or self._pick_siege_target(atk, dfn)
         _forced_wall = (
-            VARIANT.get('bastion_fortified', False)
+            bastion_wall_enabled()
             and 'Bastion' in dfn.castles
             and 'Bastion' not in dfn.disabled_castle_powers
             and dfn.castle_integrity.get('Bastion', 0) > 0
             and target != 'Bastion'
         )
-        # A rear-target Siege must budget for BOTH the chosen rear structure
-        # and the standing Bastion that physically intercepts it. The earlier
-        # contextual-v2 lab accidentally replaced rear DEF with Bastion HP,
-        # which made doctrine underfund exactly the wall it was meant to see.
-        est = dfn.castle_def(target, breach=self.breach)
-        if _forced_wall:
-            _bhp = dfn.castle_integrity.get('Bastion', castle_max_integrity('Bastion'))
-            if str(context).startswith('score:'):
-                est += min(_bhp, max(1, int(VARIANT.get('bastion_wall_chip_target', 4) or 4)))
-            else:
-                est += _bhp
+        # The rear Castle remains the strategic target, but a standing Bastion
+        # is the immediate commitment objective. Commit/reserve only enough to
+        # clear Bastion; any overflow into the rear Castle is bonus damage.
+        #
+        # Action scoring keeps its existing shallow wall estimate so choosing
+        # whether Siege is worthwhile remains strategic rather than pretending
+        # the rear Castle no longer matters.
+        if _forced_wall and not str(context).startswith('score:'):
+            est = dfn.castle_def('Bastion', breach=self.breach)
+        else:
+            est = dfn.castle_def(target, breach=self.breach)
+            if _forced_wall:
+                _bhp = dfn.castle_integrity.get(
+                    'Bastion',
+                    castle_max_integrity('Bastion'),
+                )
+                est += min(
+                    _bhp,
+                    max(1, int(VARIANT.get('bastion_wall_chip_target', 4) or 4)),
+                )
         bypass = (VARIANT.get('siege_engine_bypass', False)
                   and atk.castle_power_active('SiegeEngine'))
         if not bypass:
             est += self._est_guards(
                 dfn.castle_guards, exempt=guard_exempt, context=f'{context}:castle')
         est += max(1, self._sigil_value(dfn, dfn.sigils['Castle']))
-        if _forced_wall and not str(context).startswith('score:'):
-            est += int(VARIANT.get('bastion_overflow_mitigation', 0) or 0)
+        # No overflow-mitigation budget is added while Bastion is the immediate
+        # objective; the rear structure is not required to be hit this Siege.
         if atk.lord == 'Deimos' and atk.castle_power_active('SiegeEngine'):
             est -= max(0, 2 - len(atk.ruined_castles) - len(atk.profaned_castles))
         if atk.lord == 'Kalligan':

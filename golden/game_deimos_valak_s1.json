@@ -1,5 +1,5 @@
 {
-  "ai_version": "softmax-2026.07-v1-golden",
+  "ai_version": "softmax-2026.08-v2-assault-bastion",
   "identity": {
     "constants": {
       "DOMINION_REQUIREMENT": 2,
@@ -685,7 +685,7 @@
           "ruined_castles": [],
           "sigils": {
             "Castle": "",
-            "Lord": ""
+            "Lord": "fresh"
           },
           "souls": 1,
           "tears": 0,
@@ -854,7 +854,7 @@
       "neutral_tears": 3,
       "players": [
         {
-          "_derived_lord_def": 6,
+          "_derived_lord_def": 5,
           "action": "Siege",
           "alive": true,
           "castle_guards": [
@@ -922,13 +922,13 @@
           "ruined_castles": [],
           "sigils": {
             "Castle": "",
-            "Lord": ""
+            "Lord": "flipped"
           },
           "souls": 3,
           "tears": 1,
           "tgt_pid": 1,
           "tgt_type": "Castle",
-          "threat": 1,
+          "threat": 2,
           "vessel_offered_lord": "",
           "vessel_used": false,
           "ward_target": "",
@@ -2228,5 +2228,5 @@
       "winner": 0
     }
   ],
-  "trace_hash": "1cde2819dee661535da6ea6a9d8031da58b174ecadecce91fe95496a2a677e2f"
+  "trace_hash": "e429375148e9f88d6ce022da7188ef3eadd3974257a7fce6dae05c0ef1cda30f"
 }

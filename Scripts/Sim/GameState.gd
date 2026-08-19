@@ -26,6 +26,13 @@ var action_memory: Array[Dictionary] = [
 	{},
 ]
 
+# Canonical Sustained Assault history for PRIMARY actions only.
+# Each entry is {"target_pid": int, "round": int, "action": String}.
+var sustained_assault_last: Array[Dictionary] = [
+	{},
+	{},
+]
+
 var persist_scorch_pid: int = -1
 var persist_scorch_type: String = ""
 var persist_scorch_level: int = 1
@@ -122,6 +129,15 @@ func duplicate_state() -> GameState:
 			else {}
 		)
 		copy.action_memory.append(memory_copy)
+
+	copy.sustained_assault_last.clear()
+	for player_id in range(2):
+		var assault_copy: Dictionary = (
+			sustained_assault_last[player_id].duplicate(true)
+			if player_id < sustained_assault_last.size()
+			else {}
+		)
+		copy.sustained_assault_last.append(assault_copy)
 
 	copy.persist_scorch_pid = persist_scorch_pid
 	copy.persist_scorch_type = persist_scorch_type

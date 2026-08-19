@@ -9,7 +9,7 @@ policy layer used by golden_master.py so Python and Godot compare the same
 bot doctrine without relabelling an old trace.
 
 Policy identity:
-    softmax-2026.07-v1-golden
+    softmax-2026.08-v2-assault-bastion
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 
 
-POLICY_ID = "softmax-2026.07-v1-golden"
+POLICY_ID = "softmax-2026.08-v2-assault-bastion"
 
 ACTION_HUNT = "Hunt"
 ACTION_SIEGE = "Siege"
@@ -617,9 +617,31 @@ def _commit_for_attack(
             opponent,
         )
 
+        # Keep the strategic rear target, but when the current rules make a
+        # standing Bastion physically screen it, Bastion is the immediate
+        # commitment objective. Overflow into the rear Castle is upside, not
+        # required commitment strength. This mirrors BotDoctrine.gd.
+        bastion_screens = (
+            target_castle != "Bastion"
+            and bool(sim.VARIANT.get("bastion_wall", False))
+            and "Bastion" in opponent.castles
+            and int(
+                opponent.castle_integrity.get(
+                    "Bastion",
+                    sim.castle_max_integrity("Bastion"),
+                )
+            ) > 0
+        )
+
+        commitment_castle = (
+            "Bastion"
+            if bastion_screens
+            else target_castle
+        )
+
         estimated_defense = int(
             opponent.castle_def(
-                target_castle,
+                commitment_castle,
                 breach=self.breach,
             )
         )

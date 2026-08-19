@@ -1,7 +1,7 @@
 extends Node
 
 
-const AI_POLICY: String = "softmax-2026.07-v1-golden"
+const AI_POLICY: String = "softmax-2026.08-v2-assault-bastion"
 const MATCHUPS_PER_SEED: int = 81
 const GENERATOR_PATH: String = "res://lord_matrix_soak_master.py"
 const BATCH_PATH: String = "user://lord_matrix_soak_batch.json"

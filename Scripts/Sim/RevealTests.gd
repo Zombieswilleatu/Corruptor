@@ -44,6 +44,7 @@ const FLIPPED_SIGIL_TEST_NAME := "unit_reveal_flipped_sigil"
 const KANIFOUS_VULTURE_TEST_NAME := "unit_reveal_kanifous_vulture"
 const KANIFOUS_PENITENT_TEST_NAME := "unit_reveal_kanifous_penitent"
 const LORD_TRIGGER_ORDER_TEST_NAME := "unit_reveal_lord_trigger_order"
+const SUSTAINED_ASSAULT_TEST_NAME := "unit_reveal_sustained_assault"
 
 
 static func run(
@@ -65,7 +66,142 @@ static func run(
 		_test_lord_trigger_order(
 			rules
 		),
+		_test_sustained_assault(
+			rules
+		),
 	]
+
+
+static func _test_sustained_assault(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(rules)
+	if fixture.has("error"):
+		return _fail(
+			SUSTAINED_ASSAULT_TEST_NAME,
+			String(fixture["error"])
+		)
+
+	var game = fixture["game"]
+	var attacker = fixture["p0"]
+	var defender = fixture["p1"]
+
+	attacker.lord = "Deimos"
+	attacker.alive = true
+	attacker.threat = 0
+	# Remove Summoning Circle so Blood Conduit cannot mask the exact raw
+	# Sustained Assault Threat amounts this focused test is asserting.
+	attacker.castles.clear()
+	attacker.castle_integrity.clear()
+	attacker.committed.clear()
+	defender.lord = "Valak"
+	defender.alive = true
+	defender.committed.clear()
+
+	# Keep the defender on Castle Ward so Reveal remains valid without changing
+	# the attacker's Threat. Only the attacker's primary-action history matters.
+	defender.action = "Ward"
+	defender.ward_target = "Castle"
+	defender.tgt_pid = 1
+
+	game.round = 1
+	attacker.action = "Hunt"
+	attacker.tgt_pid = 1
+	RevealEngineData.resolve(game, rules)
+	if attacker.threat != 1:
+		return _fail(
+			SUSTAINED_ASSAULT_TEST_NAME,
+			"First Hunt should gain exactly 1 Threat."
+		)
+
+	game.round = 2
+	attacker.action = "Hunt"
+	attacker.tgt_pid = 1
+	defender.action = "Ward"
+	defender.ward_target = "Castle"
+	RevealEngineData.resolve(game, rules)
+	if attacker.threat != 3:
+		return _fail(
+			SUSTAINED_ASSAULT_TEST_NAME,
+			"Repeated Hunt should gain +2 Threat total."
+		)
+
+	var copied = game.duplicate_state()
+	if (
+		copied.sustained_assault_last.size() != 2
+		or int(copied.sustained_assault_last[0].get("target_pid", -1)) != 1
+		or int(copied.sustained_assault_last[0].get("round", -1)) != 2
+	):
+		return _fail(
+			SUSTAINED_ASSAULT_TEST_NAME,
+			"Sustained Assault history did not survive GameState duplication."
+		)
+
+	# A non-attack primary action breaks the streak.
+	game.round = 3
+	attacker.action = "Ward"
+	attacker.ward_target = "Castle"
+	attacker.tgt_pid = 0
+	defender.action = "Ward"
+	defender.ward_target = "Castle"
+	RevealEngineData.resolve(game, rules)
+
+	attacker.threat = 0
+	game.round = 4
+	attacker.action = "Siege"
+	attacker.tgt_pid = 1
+	defender.action = "Ward"
+	defender.ward_target = "Castle"
+	RevealEngineData.resolve(game, rules)
+	if attacker.threat != 0:
+		return _fail(
+			SUSTAINED_ASSAULT_TEST_NAME,
+			"First Siege should retain its normal +0 Threat cost."
+		)
+
+	game.round = 5
+	attacker.action = "Siege"
+	attacker.tgt_pid = 1
+	defender.action = "Ward"
+	defender.ward_target = "Castle"
+	RevealEngineData.resolve(game, rules)
+	if attacker.threat != 1:
+		return _fail(
+			SUSTAINED_ASSAULT_TEST_NAME,
+			"Repeated Siege should gain exactly +1 extra Threat."
+		)
+
+	# Hunt -> Siege is also sustained because the opponent, not the lane, is the
+	# streak target.
+	game.round = 6
+	attacker.action = "Ward"
+	attacker.ward_target = "Castle"
+	attacker.tgt_pid = 0
+	defender.action = "Ward"
+	defender.ward_target = "Castle"
+	RevealEngineData.resolve(game, rules)
+
+	attacker.threat = 0
+	game.round = 7
+	attacker.action = "Hunt"
+	attacker.tgt_pid = 1
+	defender.action = "Ward"
+	defender.ward_target = "Castle"
+	RevealEngineData.resolve(game, rules)
+
+	game.round = 8
+	attacker.action = "Siege"
+	attacker.tgt_pid = 1
+	defender.action = "Ward"
+	defender.ward_target = "Castle"
+	RevealEngineData.resolve(game, rules)
+	if attacker.threat != 2:
+		return _fail(
+			SUSTAINED_ASSAULT_TEST_NAME,
+			"Hunt -> Siege should apply the +1 Sustained Assault penalty."
+		)
+
+	return _pass(SUSTAINED_ASSAULT_TEST_NAME)
 
 
 static func _test_round_one_reveal(

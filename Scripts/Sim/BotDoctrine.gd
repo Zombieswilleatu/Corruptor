@@ -1735,9 +1735,23 @@ static func _commit_for_attack(
 			rules
 		)
 
+		# Bastion may screen a strategically chosen rear Castle, but the bot's
+		# immediate commitment objective is only to destroy the wall. Overflow
+		# into the rear Castle is upside; it is not required commitment strength.
+		var commitment_castle: String = target_castle
+		if (
+			rules.bastion_wall
+			and target_castle != "Bastion"
+			and CastleIntegrityRulesData.standing(
+				opponent,
+				"Bastion"
+			)
+		):
+			commitment_castle = "Bastion"
+
 		estimated_defense = _castle_defense(
 			game,
-			target_castle,
+			commitment_castle,
 			opponent,
 			rules
 		)

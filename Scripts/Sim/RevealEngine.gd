@@ -123,12 +123,54 @@ static func resolve(
 			1 - player_id
 		)
 
-	# Hunt Threat is applied before Ward Threat reduction and Kanifous Invoke.
+	# Primary-action Threat is applied before Ward reduction and Kanifous Invoke.
+	# Sustained Assault adds +1 Threat when Hunt/Siege presses the same opponent
+	# in consecutive rounds. Reflex/Momentum second actions never enter Reveal,
+	# so they do not extend this streak.
 	for player in game.players:
-		if player.action != ACTION_HUNT:
-			continue
+		var player_id: int = int(player.pid)
+		var is_attack: bool = String(player.action) in [
+			ACTION_HUNT,
+			ACTION_SIEGE,
+		]
+		var current_target: int = (
+			int(player.tgt_pid)
+			if is_attack
+			else -1
+		)
+		var previous: Dictionary = (
+			game.sustained_assault_last[player_id]
+			if player_id < game.sustained_assault_last.size()
+			else {}
+		)
+		var sustained: bool = (
+			is_attack
+			and current_target >= 0
+			and int(previous.get("target_pid", -1)) == current_target
+			and int(previous.get("round", -999)) == int(game.round) - 1
+		)
 
-		CastleIntegrityRulesData.gain_threat(player, rules, 1)
+		if player.action == ACTION_HUNT:
+			CastleIntegrityRulesData.gain_threat(
+				player,
+				rules,
+				2 if sustained else 1
+			)
+		elif player.action == ACTION_SIEGE and sustained:
+			CastleIntegrityRulesData.gain_threat(
+				player,
+				rules,
+				1
+			)
+
+		if is_attack and current_target >= 0:
+			game.sustained_assault_last[player_id] = {
+				"target_pid": current_target,
+				"round": int(game.round),
+				"action": String(player.action),
+			}
+		else:
+			game.sustained_assault_last[player_id] = {}
 
 	# Register this round's Sigils.
 	for player in game.players:

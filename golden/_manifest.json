@@ -1,8 +1,8 @@
 {
-  "ai_version": "softmax-2026.07-v1-golden",
+  "ai_version": "softmax-2026.08-v2-assault-bastion",
   "schema_version": 4,
   "traces": {
-    "game_deimos_valak_s1": "1cde2819dee661535da6ea6a9d8031da58b174ecadecce91fe95496a2a677e2f",
+    "game_deimos_valak_s1": "e429375148e9f88d6ce022da7188ef3eadd3974257a7fce6dae05c0ef1cda30f",
     "game_kroni_orias_s42": "27dab1edd5ab1a122e0f708b5926572cec09dee7147b464cd09b959eed9559b2",
     "game_odradek_humbaba_s7": "24aa74749d8f565eae7bef61db808d632208031c0646e58d5a816be42dc00ded",
     "game_pool_mixed_s99": "2bf0a4e7a709482f62fc32d66fbc5b615c1948794f73563e0e35dfb6778cbcae",

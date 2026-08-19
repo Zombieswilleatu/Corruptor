@@ -75,6 +75,10 @@ const COMMITMENT_TEST_NAME: String = (
 	"unit_bot_commitment_argmax"
 )
 
+const BASTION_COMMIT_TEST_NAME: String = (
+	"unit_bot_bastion_commitment_objective"
+)
+
 
 static func run(
 	rules: RuleConfig
@@ -98,7 +102,85 @@ static func run(
 		_test_commitment_argmax(
 			rules
 		),
+		_test_bastion_commitment_objective(
+			rules
+		),
 	]
+
+
+static func _test_bastion_commitment_objective(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(rules)
+	if fixture.has("error"):
+		return _fail(
+			BASTION_COMMIT_TEST_NAME,
+			String(fixture["error"])
+		)
+
+	var game = fixture["game"]
+	var attacker = fixture["p0"]
+	var defender = fixture["p1"]
+
+	game.breach = ""
+	attacker.lord = "Valak"
+	attacker.alive = true
+	attacker.castles.clear()
+	attacker.hand = _cards_from_ids([
+		"Butcher:5",
+		"Butcher:4",
+		"Vulture:5",
+		"Wright:5",
+		"Penitent:5",
+	])
+
+	defender.lord = "Orias"
+	defender.alive = true
+	defender.castles.clear()
+	defender.castles.append("Bastion")
+	defender.castles.append("Stockpile")
+	defender.castle_integrity.clear()
+	defender.castle_integrity["Bastion"] = 9
+	defender.castle_integrity["Stockpile"] = 14
+	defender.castle_guards.clear()
+	defender.sigils["Castle"] = ""
+
+	var committed: Array = BotDoctrineData._commit_for_attack(
+		game,
+		attacker,
+		defender,
+		"Castle",
+		"neutral",
+		false,
+		rules
+	)
+
+	# Bastion 9 + the canonical minimum Sigil estimate 1 + normal padding 1
+	# requires 11 effective Strength. Three cards clear that objective; the old
+	# rear+Bastion estimator consumed all five cards trying to fund 25.
+	if committed.size() != 3:
+		return _fail(
+			BASTION_COMMIT_TEST_NAME,
+			"Bastion-screened Siege did not stop at the wall objective."
+		)
+
+	var effective_total: int = 0
+	for card in committed:
+		effective_total += int(
+			attacker.attack_card_value(
+				card,
+				rules,
+				true
+			)
+		)
+
+	if effective_total < 11:
+		return _fail(
+			BASTION_COMMIT_TEST_NAME,
+			"Bastion commitment no longer funds the immediate wall objective."
+		)
+
+	return _pass(BASTION_COMMIT_TEST_NAME)
 
 
 static func _test_policy_profiles() -> Dictionary:

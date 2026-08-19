@@ -1,5 +1,5 @@
 {
-  "ai_version": "softmax-2026.07-v1-golden",
+  "ai_version": "softmax-2026.08-v2-assault-bastion",
   "identity": {
     "constants": {
       "DOMINION_REQUIREMENT": 2,
@@ -103,35 +103,35 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "b35ec88b1188d45d01a807e2313c5028b5707dbb7165a1d596ee965cc97b86fa"
+          "hash": "e41709f7af405b31c40e7329fe115fc4e269cb182f4a9965f040a964e3eb076a"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "11d6cbc050112a99a2a4ad5dc8552b86559b77bd2219fed4b05a830917743496"
+          "hash": "dee5db9f2418477e82f5e43abb253cff0c141bd40a0fcd2330c8acd0ec2c13ce"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "01bd00efda04025300def9735525ac03888f1aacd21c53758a45db2226c1a1f8"
+          "hash": "625ef2ba4c4388eb2ae890d3e2a006a59f62808364274957f6c992db2c0cc7e6"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "3e0a5cfdec61065fe0dd4a5cd8d33ab9ae85b19e84aa37efd9c79b579474b9fc"
+          "hash": "492153f6f4e87b4cb5f30d1fe13e51dbb273004f01ac9a08b68c24b0be9c30ff"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "99b2e46eb0f4c416a502540c603f9ff93d6a0fcaf1660041de254a8d0e7173bb"
+          "hash": "21101b31d1c6df37b04e8e9609d0ae77e2beaba854ec5bf1e11e52f4a182eb08"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "5c50c9ae73ae70e34ecd35bdb2ae0dc67ee656daf9a1072347e94ef38ce3c73f"
+          "hash": "b053f1acb6f4a553859bc3707c9d2da0081f4d41aed816c78d7f4c752a20790b"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "2980a4a48a50760f5b44234eb73191bf0051ef8ea6b35f9cf2f5051393d9bbc8"
+          "hash": "7cc19fb20db9ff100002c3c28fe4e1bc1f70633be6deac0c530687502ac8fdc9"
         },
         {
           "checkpoint": "game:end",
-          "hash": "b9bd6442387da4b9c4614e9bfe8a192ea12f6421f1f4a8281e0052db7d2028af"
+          "hash": "f06aa31adeca76fc4495d3aa15325d7b51af59b4c3cef16cb6e5e5b7d9b83810"
         }
       ],
       "first_player": 0,
@@ -148,7 +148,7 @@
           "ruined_castles": 1,
           "souls": 5,
           "tears": 0,
-          "threat": 3
+          "threat": 4
         },
         {
           "alive": true,
@@ -164,7 +164,7 @@
       ],
       "round": 8,
       "seed": 1000,
-      "trace_hash": "91e50e8c4d9f6f3164a5cb04721371cac8a6ee55247142bdee8738262a28023d",
+      "trace_hash": "98a363ae7c4229b7c21bea4c76368733ffb1174aa8cee0ed9ed93efd1879526c",
       "win_by": "Ritual",
       "winner": 1
     },
@@ -181,23 +181,23 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "7ad75e0ebba22313030c5c0159c798465de62e956de870b472da3625b95b9080"
+          "hash": "e8e6b5dddf098481e8caa0c1484407abad9e00b0c2661fb3140173f4712beb6d"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "525a2ea810f39b9be28e01e8c3b77764c68b6265d3190d12050b7858655f336c"
+          "hash": "4d7498832c3ee52a92e6408931c6efbe92d4fe8dccbc56ecb9dec444bc367a4e"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "e4949c61ce86c88aca5dbb89c9c9403d08384bc7c568ffda65e24d131f49663a"
+          "hash": "94d87bb86f4c3b141797e1fd1b922a51d3ba60bc2727c6ffa268d8e5e5d8e9ef"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "1d94030502cc7e8e23876ab753fad8329796206b32d4d334372973c424d98729"
+          "hash": "528ed65edbd750fa3de1257250e2017f67900d2b0502c2abfec6f664add126fc"
         },
         {
           "checkpoint": "game:end",
-          "hash": "8b4d9849deecf329fb399a0fcfa535f25ab208dad2be376e7736d2bb81e58498"
+          "hash": "2a13d7871f5c37c982866521717e11234e38afb272629f4115d3261dc0b9bcb8"
         }
       ],
       "first_player": 0,
@@ -212,30 +212,30 @@
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 1,
-          "souls": 7,
+          "souls": 4,
           "tears": 0,
           "threat": 3
         },
         {
-          "alive": false,
+          "alive": true,
           "castles": 5,
           "lord": "Deimos",
           "pid": 1,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 5,
-          "tears": 2,
-          "threat": 0
+          "souls": 7,
+          "tears": 1,
+          "threat": 2
         }
       ],
       "round": 5,
       "seed": 1001,
-      "trace_hash": "078692b913757af82b4939ddd45cdd1cb5b227c378673f4e5d44faab8e8ca3ef",
+      "trace_hash": "3b80231f8c31bdc03b34f4884987b911cb5a41aa57666c9d53824d0ea1589f1f",
       "win_by": "Ritual",
-      "winner": 0
+      "winner": 1
     },
     {
-      "checkpoint_count": 7,
+      "checkpoint_count": 5,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -247,23 +247,15 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "249a58c9a4db0e72d089487baf91b8039e54447a1b8b37438b922d3058c9e984"
+          "hash": "a1c95ff7a4ccd2fad4361e28123b5b51bf92907c6087a20f568eb10ec0fdaded"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "0c31d8f004190684de73810a0c3cdf59ce77d61d43bca15e677a3e6ce9650bd7"
-        },
-        {
-          "checkpoint": "round:04:end",
-          "hash": "571a2c42e2e5760a7424454d67934f0b90e19cfe7a17295b9cf2752bb81e7fe0"
-        },
-        {
-          "checkpoint": "round:05:end",
-          "hash": "2a33dd2492c5de170bddacfa71963e746c6d64e91328cacc8f0f7e55afc06ded"
+          "hash": "47316e2d90dc3ddb6c40a9ccb26b9516b1576ce6e71d1171e562e0ca6b2d7c59"
         },
         {
           "checkpoint": "game:end",
-          "hash": "4b26251652e10648eb3170f947457db4b306fbce416d858cf458199d4edb4bcd"
+          "hash": "b55e4dbfbedff81311876afdedad38a3bf69f48aba8fd65358a5b12a7d642879"
         }
       ],
       "first_player": 1,
@@ -278,7 +270,7 @@
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 10,
+          "souls": 8,
           "tears": 0,
           "threat": 3
         },
@@ -289,14 +281,14 @@
           "pid": 1,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 0,
-          "tears": 1,
+          "souls": 1,
+          "tears": 0,
           "threat": 1
         }
       ],
-      "round": 5,
+      "round": 3,
       "seed": 1002,
-      "trace_hash": "4b110663c0c3d7904ee38db050727b3fcd832d01589d9125187666632a6e994b",
+      "trace_hash": "b171c863b6d854ba6024b6d741156a64a48b72b3730b9ef2db1df5854c5cbfb8",
       "win_by": "Ritual",
       "winner": 0
     },
@@ -313,39 +305,39 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "c9c39fab3a7774995f6caf71c47f5c2b4bf756b0017aa17dc8ecb7389b68d98e"
+          "hash": "490873e0441e3c778aee4fc02aa9adf956765f9731ea476d2d5dd1f39435c143"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "3db0630686aaef16473d644bc1b6a40ee48787e50e7bcf6d51281efc93ea19d9"
+          "hash": "e9bc742dd881f17147f4fb4954eaa435090577f82875b5ffc74024734370594a"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "5f68bae7279831286d1901328395d55f91e5038ed16b1892ff3a15c08b0bd57a"
+          "hash": "583532e35a779cca438e9ce99018bb9c0f9ac62fe7f3d468a91c2c218675cbb9"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "dd16fe723402cd350d697ee30125723e7c9405031710f8019b7f3c4970a1043e"
+          "hash": "5f57e36c8c8f47fae3b7376c6af2a728ef090ba362da5245dab6a5e2402fe02a"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "e48e9c60997c722d3dfe8743989adfab034c87b27bf12fe284058a204bc5d026"
+          "hash": "cddfdf1598f91e204d414f27ef73dcd926c6f1be29ff8e524ff012fb386fa27d"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "f8802f0d15eb251cfb770e0af05534bc758425725f7eaec53d95f87a641d807c"
+          "hash": "e79d6201f952d201f463eed17a48b64eb9d0ad42ba6c5b8dee9eb225f17e952e"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "0f6c2fdf5ad644b0255fa7ff93caed058601acb520a9ff51fb9f332c3b25f599"
+          "hash": "1b2378abb961538645a941f4232c23b1b3927473f9fecc429bf73562d3625950"
         },
         {
           "checkpoint": "round:09:end",
-          "hash": "043f8ebb6e6e89f8ee76fe975a05e59bb260bb21695d5db28fe0a8f596dc4124"
+          "hash": "c639261a1afbe5bc7cbde0b41bab65aaf9672f927cfb3681674f98e7e3ca7136"
         },
         {
           "checkpoint": "game:end",
-          "hash": "da943622e00d2df07340cd28f179a141c186c5f6c9b32a7b90f55acbae54f3a4"
+          "hash": "dbafc896cffc5e90e4505f92cfa7795b177d7ef0b5f07d7f5dc57cbd13ad4ece"
         }
       ],
       "first_player": 0,
@@ -378,7 +370,7 @@
       ],
       "round": 9,
       "seed": 1003,
-      "trace_hash": "c8edcca7de8f9f1035d280c19bb186268b911e461ba3bf409d5c2062ecc08c7f",
+      "trace_hash": "f091dd1304cb8e9cec796fb9279b04a507022133c36eaf607c85c5a0647750b0",
       "win_by": "Dominion",
       "winner": 1
     },
@@ -407,23 +399,23 @@
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "c18a9ce98e1a8172fd8be5ff6a9bd9c126e98abbdf6c4c09c826568b802353f4"
+          "hash": "a0c5c2eb26cd9a308f7de679ba7c37e33d1e3141957dbab97613e9f918a33a54"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "b8ab1b35d97103ca0dd978a4e43715b715b09c6ba433df1eabdbfd1437ec1b9a"
+          "hash": "71f724228a2ded10a7a3d14d711b4eb0de03be792a54906a05dd87e0e286d978"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "beabec14cc11aee56b0459563cf59b5fcd3ce835c730882c218c3c22ffeea844"
+          "hash": "0c9e60552e28740ca49964cab9db8da75b0b409b7869d670370e42063d4e9461"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "3aa9b4beb60a6818a625d22c2b9ccf4ba50b4eb659bc85be5afdb3277a00fb5d"
+          "hash": "69cecea1c15c7f2e9480d19d8a37f8d850e40fbf36b15c25e10ab37961325ffe"
         },
         {
           "checkpoint": "game:end",
-          "hash": "af3cebbd99b1b4893a576cdc4a83358452d6d6f63dba8351469204a52c16959a"
+          "hash": "048229141dde481029afb66c98f0b684626413b3d6a8381571a85030d3c3d10b"
         }
       ],
       "first_player": 1,
@@ -438,27 +430,27 @@
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 5,
-          "tears": 1,
-          "threat": 3
+          "souls": 3,
+          "tears": 2,
+          "threat": 1
         },
         {
-          "alive": false,
+          "alive": true,
           "castles": 5,
           "lord": "Kalligan",
           "pid": 1,
           "profaned_castles": 0,
           "ruined_castles": 0,
           "souls": 5,
-          "tears": 2,
+          "tears": 1,
           "threat": 1
         }
       ],
       "round": 8,
       "seed": 1004,
-      "trace_hash": "4abcfc44125b35efa85ebb3aabb805b2eac55c876c0f2d719be496b406a98a4b",
+      "trace_hash": "d504516d53392eec9bb5d3f0450a6b15b0cf61dca9a2ed5ee5490d382cf9ed05",
       "win_by": "Dominion",
-      "winner": 1
+      "winner": 0
     },
     {
       "checkpoint_count": 7,
@@ -473,15 +465,15 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "4464f0905341b16a493afaa7449e83255bf2eb7b1e2e0851c113f6f5533a8081"
+          "hash": "e6fd4914f6d9e5fc474bf9355a19cc232a792696a9b75ed3a9fc65d7fe5ec236"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "32c0666fde68bbb616d6b2f4d37543b41ba69c77881ae21181f27df7ac7a74bf"
+          "hash": "9144d5ac0eb47336e9f25ec579f1bfa39d006355bc8e1bcd1c1a865264aeee8a"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "581da0c2e62467935d7c031ba9ec8a8b82d5f7b0fb46099b9153c72ec9748d95"
+          "hash": "dfff0b452e1a549695091794f116f3701ad41e292f638fbe6cd9b2338dc3714f"
         },
         {
           "checkpoint": "round:05:end",
@@ -522,12 +514,12 @@
       ],
       "round": 5,
       "seed": 1005,
-      "trace_hash": "e17d7b64ebd8ffe43183352762745da43f1e3c1fa6699a24792d564b3562fd67",
+      "trace_hash": "d5686a8c1b3c8a2e1109a6fdafcb0461e029f98372912bfd8eb4276095314180",
       "win_by": "Ritual",
       "winner": 1
     },
     {
-      "checkpoint_count": 12,
+      "checkpoint_count": 14,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -539,43 +531,51 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "293ced5df581562c06009543d8dfaf822310540d9d4a255bbb601ec79dfca135"
+          "hash": "351c552383bb5f0d5224b3156d21702dca88b1d8beedf3233fead3abbaca1615"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "a684ae11c60adc13119c6be9bce8ece4ee32fe8d4c3505ee2c4c3230005ac179"
+          "hash": "c9a4f0a6848a7f1a67ddb22a87bf5c7be4d677ebbf33806c3f8a3bab66f4a7ea"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "2611d664bd6207d2d6642cf04f249bca548a7facdeadef933a2d8445f9a96a9d"
+          "hash": "2389d9cbe369296e257398d2535465777aa98bba0c8fa0c76ae6a7c5bb6e137c"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "598e6da01f94b6531faeb4fb8183bd1ec6e9e5bd1cc04e10d32b18fd9fe5580e"
+          "hash": "f9025df94ade555565f2ef5ab5e7bb9094740f4d5cb0606896473e1f979d671f"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "aed727cc6bdee671eee51df3147be8aae5e122fedc7053bed77ac37341eeaa6f"
+          "hash": "05c3def9b6438513c431765f326aa1186e1f6a67013ac5750282f996794cf538"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "27e6f190835924f34f77f6ba7bddb45bd7a1ccd5fdf36824280043556a1be43a"
+          "hash": "1fb2249424830d8ac86f562159196d6ebeec06fd40b9f22a62a84ff263a4659f"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "95b963722d649692096c291aa5794684a7a0efa6790fd30af2bb817e0de767b8"
+          "hash": "08c8ab821afe3105f9e3948dce78b365202817d12f4f2d5b702f3a6f5ec01540"
         },
         {
           "checkpoint": "round:09:end",
-          "hash": "f01c4fd794f0126beed0e5091c6cad2fec234b1742403468c7ac2b76867afeea"
+          "hash": "ad8ef52d3b8ffeedc17554b99d7cb723ef27e9ca168a82afca9c28ba817029f4"
         },
         {
           "checkpoint": "round:10:end",
-          "hash": "264526ad4f52f7ceb848c0f22fe0e0ad0b3228b05c767e623af708ad690c6409"
+          "hash": "3b3f6c8a7393684ecca224260b5528183df3231bd08405fbdc24559d75be439a"
+        },
+        {
+          "checkpoint": "round:11:end",
+          "hash": "d6c9fc4234fc006248b20c45be82695aca22959b7997394f85f232fe6f9168b9"
+        },
+        {
+          "checkpoint": "round:12:end",
+          "hash": "647613c18f77dc3985dc715ebd359c33b7826b0eb0485483a136de1441afd688"
         },
         {
           "checkpoint": "game:end",
-          "hash": "360c657d6018db34c444404193ca62378e0ac241a1da282e52216b8928629824"
+          "hash": "973a982256d3f86545b61003df30fa68958e46742423a7caafd1d8e5a3ad617e"
         }
       ],
       "first_player": 0,
@@ -590,9 +590,9 @@
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 5,
-          "tears": 2,
-          "threat": 1
+          "souls": 3,
+          "tears": 0,
+          "threat": 0
         },
         {
           "alive": true,
@@ -601,16 +601,16 @@
           "pid": 1,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 5,
-          "tears": 1,
-          "threat": 3
+          "souls": 6,
+          "tears": 3,
+          "threat": 1
         }
       ],
-      "round": 10,
+      "round": 12,
       "seed": 1006,
-      "trace_hash": "2762225ede38c7fa3fbea1b1a85dde68455ec7d8ba091a23bc415067cd6dd4da",
+      "trace_hash": "2a93c853c92b0ab0f705383b29f165f4253bcccaf933a6f7bf475079ed69d4d3",
       "win_by": "Dominion",
-      "winner": 0
+      "winner": 1
     },
     {
       "checkpoint_count": 8,
@@ -625,27 +625,27 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "38602311c6ae9f14a3b2c8d3e0e659c33584064b9d1bc143dbe621f920e71aab"
+          "hash": "5f97d477219e7c4f840ffaf1992ff1ab0543f82932ffbb8bc1eca4fd9d6fa6d8"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "972722b0e4f1775021820e27893f6e214d0b445b2c063e803cb8e3ca98393a2f"
+          "hash": "8e4298db02e56c8c21058b818df384f383c50c1bfd9bd5ea9986b5d1615ba7ac"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "7029e0ee124030f715281cfdba23bf9fef21ede433768d7277fe74bb1aacc44f"
+          "hash": "2809a33d169220c05898f7db4b7675de4f3437645b9ffbf0a8785d34f7ac2b52"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "b8df391d424d57e1ddbd0ebb3bee13a61224996802e79e85cdfdca33b2de148f"
+          "hash": "cfba4e08739969901b1b7b160a026793498ba7f80ff180ad871aa18ec03c71f1"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "c1721ad5985819bce1a532e988688318ada11da1c45cda9853e74f6cf2f8d482"
+          "hash": "03387dbbfb80f34fee0aaaeec1463c728090cb23214f4418a7a0ce1c48958f94"
         },
         {
           "checkpoint": "game:end",
-          "hash": "6f67e1d40534259b7ca5138dc90ef930edca458f10d4b92518568ba68a19a909"
+          "hash": "82282deedd7f27e87896c7611f190e9b42a626b2fcff5b67a2c95d32af566b89"
         }
       ],
       "first_player": 1,
@@ -660,9 +660,9 @@
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 7,
-          "tears": 0,
-          "threat": 3
+          "souls": 4,
+          "tears": 1,
+          "threat": 4
         },
         {
           "alive": false,
@@ -671,19 +671,19 @@
           "pid": 1,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 5,
-          "tears": 0,
-          "threat": 1
+          "souls": 6,
+          "tears": 2,
+          "threat": 4
         }
       ],
       "round": 6,
       "seed": 1007,
-      "trace_hash": "dc0eeb406c2feba51d64653a1a38dbe4d933a38d5dc3a3865cd9bff4e70e6b1f",
-      "win_by": "Ritual",
-      "winner": 0
+      "trace_hash": "1cc3d5d5e009775a02b30e7451ef0968f28e9c6171be89f8640f3c22740c2313",
+      "win_by": "Dominion",
+      "winner": 1
     },
     {
-      "checkpoint_count": 10,
+      "checkpoint_count": 12,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -695,35 +695,43 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "471f892b2e056224ddc00221eb4f5196807aee9228e2b63e0ebbfb4f2a8b522e"
+          "hash": "88fde653bb51849d3255f89228010aa9943649eda619fd1357d3ec1cc7eb97fc"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "c5a77c85748ba5c364b4bbb79632a9d0e1537cd9ab4dda7fa5123daf00d27fb7"
+          "hash": "6874a336df438afa8beaa003810b6b44779fbbbb8170339d9b3fd3edfa829ffe"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "684ad1721a6f8f1c9242a903c73d773f9e36f42a5bfabd4d96de4419fac84640"
+          "hash": "fd28102299d1b39ce54298e4a32ac730793f63c213ced4c653b53168c8a7fff1"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "9e8f4ab6f6dd29da6b2c353268746195c6eca814c3c86c8159601569bd14e7ba"
+          "hash": "c9d3f428398bb9e24c2c4502a679a30a086b89d4369c063291bd0f206543427c"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "c592941b292c0a9d20198f0bd8410d7cb1fc406e2ba644064b1324db1234fe66"
+          "hash": "319259373997e661fa21b91871ee91f88c892766f7ae014b29a4299d7fd8adb0"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "23fccdd6c1aee254973b9bf0a63ec208179d2cefa8303e69dda5c67734f17fe8"
+          "hash": "8f0018ed03567930623dd645758a9f96e99eb20400c471748fd22af45e08a82e"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "3ee080048d7f8e82e8dc3c63cd3605aeecc6575f9963316ed96d885c798ff2fe"
+          "hash": "94d24a72bb1fa57090dd1a32c39e042074baa2c4e697a2f2208b2e3654cd5812"
+        },
+        {
+          "checkpoint": "round:09:end",
+          "hash": "97612594a4c5833d7f7f381226ed88851fe56f1077df47cc514f8ebda99a0928"
+        },
+        {
+          "checkpoint": "round:10:end",
+          "hash": "3a6f4e8df111efa2db99d1fb7074b75234836555bdde1ddb40cc70a9155f4745"
         },
         {
           "checkpoint": "game:end",
-          "hash": "c3e6e04a590c0b5597d0a214f760040dfd5dce6d985613db0b0cc3b30bbccc91"
+          "hash": "01fddd3e1b3d7ee60877701ef691056550dbab125c60c5390d93d540187f1780"
         }
       ],
       "first_player": 0,
@@ -738,30 +746,30 @@
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 5,
-          "tears": 1,
-          "threat": 2
+          "souls": 7,
+          "tears": 0,
+          "threat": 4
         },
         {
           "alive": false,
-          "castles": 4,
+          "castles": 5,
           "lord": "Humbaba",
           "pid": 1,
           "profaned_castles": 0,
-          "ruined_castles": 1,
-          "souls": 0,
-          "tears": 2,
-          "threat": 3
+          "ruined_castles": 0,
+          "souls": 4,
+          "tears": 0,
+          "threat": 2
         }
       ],
-      "round": 8,
+      "round": 10,
       "seed": 1008,
-      "trace_hash": "f43f52b1fc8a044f25c922648b7a98d32b1eddd098536d67f97fd6ad0a671383",
-      "win_by": "Dominion",
-      "winner": 1
+      "trace_hash": "b39b42286e322ce756b1278bab895f2cd11aca1ecd774c0d99e6ba91699f1b87",
+      "win_by": "Ritual",
+      "winner": 0
     },
     {
-      "checkpoint_count": 10,
+      "checkpoint_count": 6,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -773,35 +781,19 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "41abe085622671eb0f27efe15102aa953738f916bba088318747095e3c4723f4"
+          "hash": "8a7154e72dd17346fe87a51db2ebab97901fafb6170ffe29227b9da5d724a5dc"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "5dedae8908d1e9a9f624bbc608ae5eb7671459b2d444f6dda662ca7efe19391d"
+          "hash": "05ded7253388bedb67fe4a0435d6be035bbe31f6ec43a667e3e1f93e5a9e24e9"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "c931141bcdbc46b3880ef925e44f054f234c6961a28d0d766a7bcac03217cfd9"
-        },
-        {
-          "checkpoint": "round:05:end",
-          "hash": "24b2acb75d3990bd001ce45814b563a56668ee826a4e91d3b2dfacfc04be3a63"
-        },
-        {
-          "checkpoint": "round:06:end",
-          "hash": "893e25818e0556252267672f7a165f9070a7cd53cdf930a3eb1c20ad78394d19"
-        },
-        {
-          "checkpoint": "round:07:end",
-          "hash": "17996779fad8a16bf5481733578e093c7217341defedc7332c34fb111b54332c"
-        },
-        {
-          "checkpoint": "round:08:end",
-          "hash": "80ed49399e5cec2a683a7a24413bb059b3624e59271794b1eac54ef2aa384c46"
+          "hash": "f1a1624ea64b27ed9129f1f631cdd6187700a46f7daabf83311f0dce573eca09"
         },
         {
           "checkpoint": "game:end",
-          "hash": "4d1a1e351902ab5138bc3437079638f95351aba9bd3080bed76f3ccab5eeb534"
+          "hash": "edf69eb810ef802cd35c4b67140d08af9b5bced5deb2c00a2592f779f53be4cc"
         }
       ],
       "first_player": 0,
@@ -810,15 +802,15 @@
       "player_zero_lord": "Deimos",
       "players": [
         {
-          "alive": true,
+          "alive": false,
           "castles": 5,
           "lord": "Deimos",
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 5,
+          "souls": 3,
           "tears": 2,
-          "threat": 2
+          "threat": 0
         },
         {
           "alive": true,
@@ -827,19 +819,19 @@
           "pid": 1,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 7,
+          "souls": 8,
           "tears": 0,
-          "threat": 3
+          "threat": 4
         }
       ],
-      "round": 8,
+      "round": 4,
       "seed": 1001,
-      "trace_hash": "8c451149a98603a2b6806b61bbae6113c0a3a214ee30bffae4bd50463931347c",
+      "trace_hash": "5d3a59e5ba691ca8c9854a700eed049722d90779a7e79f04339062da8a4e2854",
       "win_by": "Ritual",
       "winner": 1
     },
     {
-      "checkpoint_count": 10,
+      "checkpoint_count": 11,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -851,35 +843,39 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "38bb2cadda1fda8a35783033510846613433535ea92d2ef53351db3e94a7b314"
+          "hash": "91d2dd8fcfd1fc25bd75ad43e0314eccbba866332e2323d7d87f59e413eb605f"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "b4e59d2a8b87dabf35f34b234b93b9f6773e0ce3fd54a99fe170e58b32bae5b6"
+          "hash": "f57d86321650de77ae2e53896abeba763a8aea26ab6212444f78b768b6224d92"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "995a9ffeda9ec6ce126e2228ce9453516454499195e26b5a735787e65f4adaf0"
+          "hash": "020a75f775d3766473637f2d1acbbc3abc708e8840c66ae0820ebe4dd1cf5d98"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "6fe9afeffd74e7cf1c291ea6e4ecba95b48c86c17493855f82e703834ad6a478"
+          "hash": "eff208938f26a5b00782d387f7001355172cca8f7d36407e37dbbec49ff0c651"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "8b447474a761c8a76f8fe11ad40f66f0f97b4cb103858f7f6ff77ea28138b199"
+          "hash": "41715bb419f2d21ed80949a06500b729e0d203d9d806afc9a4c465e133d08eb1"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "88e54e10fb9e23765b23a515f4f3db134bc772a14f19af04917c9d9fbd104eb3"
+          "hash": "c1a6e0e845fd121cc2ccffefe547901c3af6280d33a7ee88dc35c70b9ad89b37"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "15a73ff0de0740be5f0432c6168d175f7346e0aba6555b18dbcb4979631ab20c"
+          "hash": "a9e39f0f22db5027df1194d2f8ef7438247db044df447dd5db6cf46867f8e1d2"
+        },
+        {
+          "checkpoint": "round:09:end",
+          "hash": "1691659b8bc021b2539a11288765579f2e8829f8d69df1f809de5f7ae59780d1"
         },
         {
           "checkpoint": "game:end",
-          "hash": "858c0519e5e97a76c9f1742ba9b2b4adf0eb38a433352b67ae0db0c4c6a6d2df"
+          "hash": "154808672ae7d74132dbbd335146fa9ef12f876bc5ce664d7551336261f9048b"
         }
       ],
       "first_player": 0,
@@ -889,11 +885,11 @@
       "players": [
         {
           "alive": true,
-          "castles": 4,
+          "castles": 5,
           "lord": "Deimos",
           "pid": 0,
           "profaned_castles": 0,
-          "ruined_castles": 1,
+          "ruined_castles": 0,
           "souls": 7,
           "tears": 1,
           "threat": 1
@@ -910,14 +906,14 @@
           "threat": 0
         }
       ],
-      "round": 8,
+      "round": 9,
       "seed": 1010,
-      "trace_hash": "7a4ecd8123b0c813f8651e9398b5ce8ac7fb8437eb70981db64b3d999560bbf4",
+      "trace_hash": "5d3f95cb6c9124b9c186c2522dd0c1e6f48000814fd0e158c3a93417803c9079",
       "win_by": "Ritual",
       "winner": 0
     },
     {
-      "checkpoint_count": 10,
+      "checkpoint_count": 9,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -929,35 +925,31 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "2ddd8040a8e358326dbdcb1df466007044f219f4c981b6f4a5412706c3e55c79"
+          "hash": "20d409f0c15d6d09f7bf9718756f15a9884e6900097ceb8612ff00526247095a"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "474af3e5d59a728eb0c55b69be4f041dac3d0b364a737d079166bbe2c6531851"
+          "hash": "75f6a4c5751121a183edc473586f1cbabfc36db2a118584c013490cd21d39b38"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "45adadfa0454574f98079602318509666634e0f23b4928567c9d1b3fdd74108a"
+          "hash": "a02508873894fb78a8c3e67cbcfc97b6eccc4829d7b7e1528d2d2bc438af424b"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "0967556b31e3f8aa3f9799fb6bc6fda2f0a398aa3239752457c2237615b3c7f7"
+          "hash": "2bb11959d483e0f960bbefce3945958c1439c35ac8f8708611b459b2865d3f89"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "a83d51e8df607281a59b88f6df22f54753ea63cda5b5168325a383041fa15536"
+          "hash": "75d601dd213c38427827d72228387dbfeaf3a8fdc71329ed4d692a83d183f0e5"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "a5d07bac89fb09859a704c68df1bd83c36141f03d6aafa68d181978af5c2cd64"
-        },
-        {
-          "checkpoint": "round:08:end",
-          "hash": "1801e3fd24f6e778610cc57e98b662b6e6421acc36f0050128a0b757e5879385"
+          "hash": "caa80a2f55ceea3362f99b7eca0413ed6cd9e2efd8d194e1e8ebaae27f995a5d"
         },
         {
           "checkpoint": "game:end",
-          "hash": "a3c56b6ac94f7e457fd46a8326159b6c01f94899776b5e03ca1e83cbe2aeaaaa"
+          "hash": "2d9f713f5dbcf6aaf8db89ad32cf8f77abdc03b35a1cb60c47759e3d477856ae"
         }
       ],
       "first_player": 1,
@@ -972,9 +964,9 @@
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 5,
+          "souls": 7,
           "tears": 2,
-          "threat": 1
+          "threat": 0
         },
         {
           "alive": true,
@@ -983,19 +975,19 @@
           "pid": 1,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 7,
+          "souls": 4,
           "tears": 0,
           "threat": 1
         }
       ],
-      "round": 8,
+      "round": 7,
       "seed": 1011,
-      "trace_hash": "40bbd397b29e4f58d607c171a9057e339c024f3374b107eb68a3e63c2b8354a2",
+      "trace_hash": "36048a687356b41842fba62c6d0f970e2e55abf5fa87727adfdbe504c24dbdf2",
       "win_by": "Ritual",
-      "winner": 1
+      "winner": 0
     },
     {
-      "checkpoint_count": 62,
+      "checkpoint_count": 10,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -1007,243 +999,35 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "ffb80703540333cff6b9cf1ebf004ce2cbcbf98b98074e3ec1cfbfd966b643a0"
+          "hash": "99aff3798a43e36cf00af6156cb7ecfa4d6d862a26d1fe10f01adc86553782c2"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "32b8021f5ba8da6ce4bebef767ea5cc1968d54c04595ff6aba68c5670f24bf0a"
+          "hash": "78225886dda3ff59e7560d415035ec0d7b5cc98631cd0a976a015ec9ac020ff8"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "40e7e56c8d34e8706541076218a0a20a36cfdaee742bdd756a2190279708376f"
+          "hash": "88a2ddb80f04ff1d4b1e893d86886c71819e7426154fc1a2309fe5369771b5a5"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "1f5648152c4118c32a7fcf0b734253aebb99a2e4959175b02dbdaa3175f556f6"
+          "hash": "91ae813056d71f933065d6b22e508634cc7d1c7069d3e48246a7621ad4e75e69"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "51b3d04a4b0b233f5b6bbdefba090985935fe06dfa9c028f834e3929265fcee1"
+          "hash": "1cddcb1ec8fda0b976540de8382f7fafd32bee4374b61b320b627ef149a6968c"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "b6fdaae4944e9e269f54a71129729c2386e8e77773a12bc95457211accf65502"
+          "hash": "e18602d96f72a3606ff28b1ac83e62af5e9374feca8987e95bfa3acfee8fc305"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "77bd7e909daa6d211b1a6e165f6e65415389f84632780d746d293f49605dfda0"
-        },
-        {
-          "checkpoint": "round:09:end",
-          "hash": "e1ac817c565eb1d8bd6fb4882337935283aac7e20c5de27164481bbfcc4b54e9"
-        },
-        {
-          "checkpoint": "round:10:end",
-          "hash": "8f41cb17052a783b57b0e505280d96f4263e6c1b9d86aee8e3b690ecbd998161"
-        },
-        {
-          "checkpoint": "round:11:end",
-          "hash": "6aa7a64072c4f15ce7ff4b1774b9398c1cbc6de0606a874528d7fe78099f07b7"
-        },
-        {
-          "checkpoint": "round:12:end",
-          "hash": "9d25df371a6aedc55202b242e51cec01ae10d1e8fceb8ed601df6d9358cba9b4"
-        },
-        {
-          "checkpoint": "round:13:end",
-          "hash": "a61a94146d3f5912f36e743bf74063aa2134fee8491845325a4b8d0b045783ef"
-        },
-        {
-          "checkpoint": "round:14:end",
-          "hash": "445c653ac4f1ecdf2cecb2d2032feb3f176c7c8fdc2478351648745f2af92786"
-        },
-        {
-          "checkpoint": "round:15:end",
-          "hash": "a36074a9e0a5a523eebdca8306bb59a026cfa2c5d3ef6a22ce65308cead1ae99"
-        },
-        {
-          "checkpoint": "round:16:end",
-          "hash": "0048f65e5bdc609175c6aedf2c570df947661b218b5165f2c7bb92f8e3a48aca"
-        },
-        {
-          "checkpoint": "round:17:end",
-          "hash": "ec59d58aae2816e5f2829d97889cae0bbdbecf0e9c97d3bd4b5e50edee559f50"
-        },
-        {
-          "checkpoint": "round:18:end",
-          "hash": "72305752724b4e344adf3248754bb12c38c88cb5b1972df744f414e0e4c48b86"
-        },
-        {
-          "checkpoint": "round:19:end",
-          "hash": "6a7f603236aee981582dffb5e60ce2ce7a67c0ed2d881116cb6d1941f435e7a3"
-        },
-        {
-          "checkpoint": "round:20:end",
-          "hash": "fe54fc4c6d0645cc61b4d6dbaddcdde2be5ca27a4f6e7aece5c52fe9448c8e26"
-        },
-        {
-          "checkpoint": "round:21:end",
-          "hash": "e79802d8e82af2508cf44f79fc5fd7a7e48fec2238d7527321330ed45552aa3e"
-        },
-        {
-          "checkpoint": "round:22:end",
-          "hash": "96d3e9f367f1f54726ed350508bbb87c5089d3a3cc61ef5eaa58929c4b3fe5d7"
-        },
-        {
-          "checkpoint": "round:23:end",
-          "hash": "568d2ca29231b735f7134240c53be0e3cb43e2a14fd313d7ccc20063fb21f3b9"
-        },
-        {
-          "checkpoint": "round:24:end",
-          "hash": "b438c018715f2d4226059458134e7b79ffdbd573d8fe9c3cf4f0a9464db12ca3"
-        },
-        {
-          "checkpoint": "round:25:end",
-          "hash": "577cc6ab9300b7298872b6fb9873111fd2abb3dc018517143d250f3b0c94fb7f"
-        },
-        {
-          "checkpoint": "round:26:end",
-          "hash": "9cd48eda87142feeb0b16d3379fa0f68e4e30c9cda09d162c7a9fcc2a33464cb"
-        },
-        {
-          "checkpoint": "round:27:end",
-          "hash": "76257b99288b509f859d5a49892e601ffc552ae939b95e25580700d4b2aaecd8"
-        },
-        {
-          "checkpoint": "round:28:end",
-          "hash": "e52be13f4274371f3c41cdd2662c6beb220d98f1368f793b60bbe38e7da67002"
-        },
-        {
-          "checkpoint": "round:29:end",
-          "hash": "f19fc37b72daa8c9332c725033e361e6886aa3bee1005274abdd79d0bebb7bec"
-        },
-        {
-          "checkpoint": "round:30:end",
-          "hash": "0082a6bbaa2711eaf575873da96f0a0da8365d751ae08340530e26ee0c509202"
-        },
-        {
-          "checkpoint": "round:31:end",
-          "hash": "5c9ee4509b4469d3d36b74ab1edee9ee5dc09f633185037dba5a490b4f792306"
-        },
-        {
-          "checkpoint": "round:32:end",
-          "hash": "f98fc6493a9eb0df602d9d46ec8eb0b35e8ec9ab8e00ed183eee5eeff338aba3"
-        },
-        {
-          "checkpoint": "round:33:end",
-          "hash": "28dc61a0d8617a803c186e361ecc01e374e7a355407ad00fc8b3b22933fba569"
-        },
-        {
-          "checkpoint": "round:34:end",
-          "hash": "dc681f47bc387195d6fed4bbd1551b08233793636825cbbb3641fd3626c237e9"
-        },
-        {
-          "checkpoint": "round:35:end",
-          "hash": "c7f335cc66cab83692949cd8bf1ea6497502f66c13f3c361b5f52f369eb67d60"
-        },
-        {
-          "checkpoint": "round:36:end",
-          "hash": "bb5770b12052933c5f6e9269a9248b8497b22df7fa4e8da77ddba97876ab6ea1"
-        },
-        {
-          "checkpoint": "round:37:end",
-          "hash": "e35e8c967c4148412ef98391b3df29ba6858aba96d0955c730bcb33239beb35b"
-        },
-        {
-          "checkpoint": "round:38:end",
-          "hash": "9b439bb3fd9e2e26d69545b9bcaa9c75565dd37f67c8855619be110f00b9d485"
-        },
-        {
-          "checkpoint": "round:39:end",
-          "hash": "2d467bcfd1f2a34097f8992177cec798972be6c140adbb5df52c4d6f30365752"
-        },
-        {
-          "checkpoint": "round:40:end",
-          "hash": "3d6a633cc3baa077c661983fdfe3cc53b35a58b61589e9ac6cad210bc7998326"
-        },
-        {
-          "checkpoint": "round:41:end",
-          "hash": "960768b517d97932cc949448130301fa4a0b2fe06e3c9eac01e5fe2be0ba7cff"
-        },
-        {
-          "checkpoint": "round:42:end",
-          "hash": "aca4cc778903c008c1bd9201df1c810aaa745d30a19c4721bd1dbb8667aa09a8"
-        },
-        {
-          "checkpoint": "round:43:end",
-          "hash": "170cd995d2f17a9aa5ba9eb3cb458c85c2926b2af34db69b7c7ef68e25e9e03a"
-        },
-        {
-          "checkpoint": "round:44:end",
-          "hash": "eee0071cf6eb8d26e61da20d076e3cb828ae3176af12856654874910872e52b6"
-        },
-        {
-          "checkpoint": "round:45:end",
-          "hash": "e8cebec5bf7e0a7139260874bd8530ef2888194dc3d78f265bd4c827c35e4fa1"
-        },
-        {
-          "checkpoint": "round:46:end",
-          "hash": "4f8046fc8ab1b933c8d82765600d6777a66cb92317a1ade24fef35a9c0d809a7"
-        },
-        {
-          "checkpoint": "round:47:end",
-          "hash": "35446fd77bdcd0e5af98d0444a5f33720ca948963e76f299a9cc808b84a3aeaf"
-        },
-        {
-          "checkpoint": "round:48:end",
-          "hash": "4c67e0774a69b2c2194099f96d69e058e7f704a98135375f6d58a3f46a15e51a"
-        },
-        {
-          "checkpoint": "round:49:end",
-          "hash": "b3916234ff6864269c8bb7d183fb812ff452e09387ca15038d66bf3a71170c35"
-        },
-        {
-          "checkpoint": "round:50:end",
-          "hash": "46c2cb1758512b47fd4d09f54f035cae14205e9b122aa1eaedc84656a4c9570f"
-        },
-        {
-          "checkpoint": "round:51:end",
-          "hash": "ca1a4ffe2dfe1c032cede76d286f264d89f677dbf3921a83b6e31796e726fcf6"
-        },
-        {
-          "checkpoint": "round:52:end",
-          "hash": "da30dfb3896bbe49a7bff01c9ca370e8b8848540dd673c5387acf9828beb81bf"
-        },
-        {
-          "checkpoint": "round:53:end",
-          "hash": "2e1d3843042ef128345330190821e26c676b61c3ceba0f250f3ca51622c3c214"
-        },
-        {
-          "checkpoint": "round:54:end",
-          "hash": "470daedf61cac3a6f6d14e3e1bd8e7d50a9d97fc0bc8531413300801b5569271"
-        },
-        {
-          "checkpoint": "round:55:end",
-          "hash": "e7eae7f9ebb186efc6fc0ba85e415e035619d5658107e4bbea864a0c55e745d8"
-        },
-        {
-          "checkpoint": "round:56:end",
-          "hash": "7a1c0521875a6a9083c7128d69e7dff8311f1fe120dca8eed00973cd4867c88e"
-        },
-        {
-          "checkpoint": "round:57:end",
-          "hash": "9d197789e6cd9b6911d194b0ccd2f1aa21b7f9718a6587161146db32c130a3b0"
-        },
-        {
-          "checkpoint": "round:58:end",
-          "hash": "f0c8312d666769d0debbf47ff661edf7d4c7776a0d88a9b5b30ac9c8b6419637"
-        },
-        {
-          "checkpoint": "round:59:end",
-          "hash": "a835bf458868ac80b0a4d22c8a99306b3423fdf1ccc98cee29f08ea008b9ce1b"
-        },
-        {
-          "checkpoint": "round:60:end",
-          "hash": "b507422516e508c0b87ebd680cf8dae45050d84dd90cf3bf7f2d6f28cf6a5032"
+          "hash": "81484136cd4524925dfcc67a3ef2e3681ebcbca97e02f12af87b39fff8e277f3"
         },
         {
           "checkpoint": "game:end",
-          "hash": "8cf1b1198f541937f8f52ab279fc511daafa7b54cd22cdbabfeb02b29d9193f5"
+          "hash": "40871b0ea37cceff3ae166933d09566c72ba9fd4276d6a5072b1e84754cf33b8"
         }
       ],
       "first_player": 1,
@@ -1259,26 +1043,26 @@
           "profaned_castles": 0,
           "ruined_castles": 0,
           "souls": 4,
-          "tears": 2,
-          "threat": 0
+          "tears": 1,
+          "threat": 3
         },
         {
           "alive": true,
-          "castles": 4,
+          "castles": 5,
           "lord": "Kroni",
           "pid": 1,
-          "profaned_castles": 1,
+          "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 3,
-          "tears": 1,
+          "souls": 7,
+          "tears": 0,
           "threat": 0
         }
       ],
-      "round": 60,
+      "round": 8,
       "seed": 1012,
-      "trace_hash": "bb6792e70d4b2b10b959aea4dd05e68d622873bc7020fdd4efc4dc2904da418a",
-      "win_by": "Timeout",
-      "winner": 0
+      "trace_hash": "645cd5fa3cdcab833f333cd60d4b18755e6e5db493a2b8542c55914d589b2d0e",
+      "win_by": "Ritual",
+      "winner": 1
     },
     {
       "checkpoint_count": 7,
@@ -1347,7 +1131,7 @@
       "winner": 1
     },
     {
-      "checkpoint_count": 6,
+      "checkpoint_count": 8,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -1359,19 +1143,27 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "b7a5a4c0213d364591c98c06b24d240b901b27ab2afdb12af58e98920409e7d1"
+          "hash": "a20835c431970b6b39d8149f940a074ae1e485c87a9104a542cff29d8ef9e4ec"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "aa427552c3e57e842d2b8e4a39e5ed44464ee734601d0b9c9fd2d93f774d43d4"
+          "hash": "14d578ec62d9370f726dc9592c202646d8ab59c99eb3a3954561587d249eec47"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "0212c05c06b78c33e9f5056490966bc780c8c6774f7ec33509cd28fb1aefff11"
+          "hash": "3205cda987d3fc3197249ce5153b34cde8dff927036581be3ce2d3a8a803896f"
+        },
+        {
+          "checkpoint": "round:05:end",
+          "hash": "a1e6e7783e6617a91318232d12dd929f155e803a34c7be8673023a6df8000f0f"
+        },
+        {
+          "checkpoint": "round:06:end",
+          "hash": "2d74313297bcd0c9c8319bdd8fd15eb64d5cd315efb4472ba9484e05f39fb489"
         },
         {
           "checkpoint": "game:end",
-          "hash": "6b776e8095147f0b93fb5a1cbf08cf760a3753ca4c9c9159b1036301044c06be"
+          "hash": "ddf555bef79afd864c4643cdc690ae17dc0995e7d86fa589bf0d4601f6a18034"
         }
       ],
       "first_player": 0,
@@ -1381,35 +1173,35 @@
       "players": [
         {
           "alive": false,
-          "castles": 4,
+          "castles": 5,
           "lord": "Deimos",
           "pid": 0,
           "profaned_castles": 0,
-          "ruined_castles": 1,
-          "souls": 4,
+          "ruined_castles": 0,
+          "souls": 3,
           "tears": 1,
           "threat": 0
         },
         {
           "alive": true,
-          "castles": 4,
+          "castles": 5,
           "lord": "Gremory",
           "pid": 1,
           "profaned_castles": 0,
-          "ruined_castles": 1,
-          "souls": 7,
+          "ruined_castles": 0,
+          "souls": 8,
           "tears": 0,
-          "threat": 2
+          "threat": 3
         }
       ],
-      "round": 4,
+      "round": 6,
       "seed": 1014,
-      "trace_hash": "38dc59d9b7b9c990e174cdf2cd0b1f2521f3171bc94ef3c1cda0d2751f19d2ed",
+      "trace_hash": "4cbb45c6bb818ecee09763255426f0ff44d49e41afe27083d15d7e1bba89df4d",
       "win_by": "Ritual",
       "winner": 1
     },
     {
-      "checkpoint_count": 18,
+      "checkpoint_count": 11,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -1421,7 +1213,7 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "596514ab20490f683d992164a874e2310a2d292b433a9da1d542091a5227b1c4"
+          "hash": "9892e76928f89eb2ea9b03b87764d62fdac7dace11a28f7ab5333bbda02e8974"
         },
         {
           "checkpoint": "round:03:end",
@@ -1429,59 +1221,31 @@
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "28980990e3c88e8daa074218e401642d15055c0b6eaaa8869751b026d26e9c3e"
+          "hash": "1d4c4ff16d718c3756744034842c6cb3d8206d50159012f1656a150a55fbad90"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "53a3265c90ddc82c4b081cf87a4f8acca14cc4068f5525c7485bf07a48561df1"
+          "hash": "be61704ceb35f00f449a322517732da6ab2c0956693d424d86c9361f28ef9f3e"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "d57ef9b36f92e686b308fb7fe5a789a8d0e07e3114943e3849e073cfdde2e422"
+          "hash": "a18585d111f2fe88e9c6f71cb30c0f621cb3b5f30c01b7b0fccfb1ad4450facf"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "4f47b48f9a7372f45879afb6fbac6ee3e97bbbb7a9f31b48bd8e7c90af3faa7c"
+          "hash": "c00cfadf854a12836831e38f655f684390d7bf629bf6ff910750d15ec7821487"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "71afd003db5a67d9d707107f2fcbd9f7b149739b15fad6e0c61cc40176a31fa0"
+          "hash": "9392bd6436521ad1fb53c14cf793035f91ce8638c9574720002b99d3d871d43f"
         },
         {
           "checkpoint": "round:09:end",
-          "hash": "29ef5bddd60bb21faa86548f09c0e7d940821efd9fe8afc96773d3983fe13f81"
-        },
-        {
-          "checkpoint": "round:10:end",
-          "hash": "ec61314c588a64f8905390548d571f1b482b753dd253efd83f02663569dc9331"
-        },
-        {
-          "checkpoint": "round:11:end",
-          "hash": "ba3062e79d65b307c0233215a0c737064b5dd7448d6c957bc1456669e7a91ef0"
-        },
-        {
-          "checkpoint": "round:12:end",
-          "hash": "28d99f33aea41368631a7ad5bcfcf40ea26f7e06c512459b25631f03e547e19e"
-        },
-        {
-          "checkpoint": "round:13:end",
-          "hash": "e35c598ab56df918ffdcc03f1568a7958398dec4605d3dceabb9714266819c38"
-        },
-        {
-          "checkpoint": "round:14:end",
-          "hash": "865cd724b7669e9e3ec98ccd809c7a620ad5a4f9c1627518a63855e3f1490f13"
-        },
-        {
-          "checkpoint": "round:15:end",
-          "hash": "1d34b389620d3721a767ac1dd5f81812c59681d0abdd479aa275c9de2d662a71"
-        },
-        {
-          "checkpoint": "round:16:end",
-          "hash": "ac3bc4d7e5f0619fb8de138cfac962027f24a4a1e7c51a98d27a0cbd2d8c2306"
+          "hash": "e529be76c54cf318921bf48ea5e80a5f21e6077a7c73d282bcf48204e8a3a642"
         },
         {
           "checkpoint": "game:end",
-          "hash": "f86b568e5ee30b516a54c26f97e5bd8f1065e1fa010d9adac8d79e286aba05c7"
+          "hash": "e42508f37d99da3d228ff7f61df93fdd92303fcb52d4fed44350473d130bca49"
         }
       ],
       "first_player": 1,
@@ -1490,33 +1254,33 @@
       "player_zero_lord": "Deimos",
       "players": [
         {
-          "alive": true,
+          "alive": false,
           "castles": 5,
           "lord": "Deimos",
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 4,
+          "souls": 3,
           "tears": 2,
           "threat": 0
         },
         {
           "alive": true,
-          "castles": 5,
+          "castles": 4,
           "lord": "Odradek",
           "pid": 1,
           "profaned_castles": 0,
-          "ruined_castles": 0,
-          "souls": 2,
-          "tears": 3,
+          "ruined_castles": 1,
+          "souls": 5,
+          "tears": 1,
           "threat": 0
         }
       ],
-      "round": 16,
+      "round": 9,
       "seed": 1015,
-      "trace_hash": "ad713871c924dab7b4a84c7376b270f1355c3ce1bb801ed721eb105fa6bb2e2e",
+      "trace_hash": "44bcb4bcb221cd54769cc35c4fa83830b551dbccd474dd652d4e7ace387eaf6f",
       "win_by": "Dominion",
-      "winner": 1
+      "winner": 0
     },
     {
       "checkpoint_count": 7,
@@ -1543,11 +1307,11 @@
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "e4930923e098cd90137435b7c60944a400b7ddf92d109a3b9de91ae3d0d9e4aa"
+          "hash": "6334dde48a69aa1a41912722dddfb4b4ed5aed61bf26e3da44e72328493201cd"
         },
         {
           "checkpoint": "game:end",
-          "hash": "c55c3aaa8a456e711a05ebc2cbb228d1d4eb0ba0ebc6eca1885dedba6c5577d6"
+          "hash": "c0f69f5454fc52166373004aa16ee677f77bf87b7b7a2ab4ebfe72f54564e911"
         }
       ],
       "first_player": 0,
@@ -1564,7 +1328,7 @@
           "ruined_castles": 0,
           "souls": 4,
           "tears": 3,
-          "threat": 0
+          "threat": 1
         },
         {
           "alive": true,
@@ -1580,12 +1344,12 @@
       ],
       "round": 5,
       "seed": 1016,
-      "trace_hash": "871adcf31b76f128f6c60ad6a0c2ff5f21e400dfa23d9f7dd1cb8aacedca50b1",
+      "trace_hash": "2083ac8250f0fa3ba7344f0e457817b9587c82aafe29056a00cdc9dcdb5743bf",
       "win_by": "Dominion",
       "winner": 0
     },
     {
-      "checkpoint_count": 10,
+      "checkpoint_count": 16,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -1597,35 +1361,59 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "7f3c0e058452fa64903618ff637d8a22e7ad58f685c30b20c32916c553b8bcd4"
+          "hash": "bf8d4f4cad98c994bf2e8275ddc4f14bd013b4e8c365935e6b5bd402f57cb778"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "de3e03c343a1d1e0a69c427f092509978154eb091733ce8da82dd22be9614df4"
+          "hash": "24acf6c626cb5544da134400f9042e13b153518a729761b9fffbf72381b7c463"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "de9c9a4715db2953ca1b865a10e19a39971646e964267f515c10ac2ab14a3a55"
+          "hash": "e205864e3f4132a973a9c191e1b18c1ddf2b63608fa642ee8002d0ec1fe9fdaf"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "473b3d09c6dd5cdadcef8c9c6640892683352c7aa5014d3d1fccfa11c29c5ae2"
+          "hash": "aa8cd7448ce3f1e4061194df644faccc3597e5adff827da7bb48891f6c2e7fc4"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "ab34348061e4039831315633b9305900d623a5051d66be958aa3bd37a09be65b"
+          "hash": "ab92e13d5d56404b9115bfdb00962db505b1ababea7adeb42e85a9385d1999d9"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "a792de1edcb64ecb8cb79e77c80b2ff368e933c017b6f859135c9d6109622f7c"
+          "hash": "03baebf11cd5343ebe368dae2f7049103df4df8220ede0d57c29e065a3d82c3d"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "cc1322b482fbbd52c5fb75f4ea0c60fb345deaae8a2a38801ccf417759f1b630"
+          "hash": "91c21353d867ee31a71d916701e607c63df61bb846ab603d9aa6aa519a8b75b4"
+        },
+        {
+          "checkpoint": "round:09:end",
+          "hash": "c2f48c42ea752e08a4f8b879ff77945a9bc80cde8da1e5075625416385c66795"
+        },
+        {
+          "checkpoint": "round:10:end",
+          "hash": "26120630a70afbd24fc8072d4411002523499cf10d38139076685e12677c0c6c"
+        },
+        {
+          "checkpoint": "round:11:end",
+          "hash": "aaf05dc799a2eb9aa39a2d408b6a913222bcab3ef1f311eb97248a4d6fe71f92"
+        },
+        {
+          "checkpoint": "round:12:end",
+          "hash": "a150a56ea56a594fb4c8d0b88bcb6d631ca8bbae4fec395033e4f81a33544307"
+        },
+        {
+          "checkpoint": "round:13:end",
+          "hash": "88dd89028a4b999b25d35ba3530bbfb41e7e714aca97b0b32dddf330ca3dd4c4"
+        },
+        {
+          "checkpoint": "round:14:end",
+          "hash": "bfa7348fc4eb71cad925752c79b414a5c8d2f6c3137a2eadfa0574f85840f6af"
         },
         {
           "checkpoint": "game:end",
-          "hash": "3463fd69ab2b3200b0611f18ec1d581fcd990754c82d893aaed4bf2e4670751f"
+          "hash": "f816709a3d3b06c741403749be11432f6881940015de3ecceeb0913c942ab703"
         }
       ],
       "first_player": 0,
@@ -1640,30 +1428,30 @@
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 5,
+          "souls": 4,
           "tears": 1,
           "threat": 0
         },
         {
           "alive": false,
-          "castles": 4,
+          "castles": 5,
           "lord": "Humbaba",
           "pid": 1,
           "profaned_castles": 0,
-          "ruined_castles": 1,
-          "souls": 0,
+          "ruined_castles": 0,
+          "souls": 2,
           "tears": 2,
-          "threat": 1
+          "threat": 0
         }
       ],
-      "round": 8,
+      "round": 14,
       "seed": 1017,
-      "trace_hash": "5b3ae64330cce7ae95cae5919980ba28818cfb04ba490c99078b3921dcc9cdaa",
+      "trace_hash": "7788bc8a0248da6040ccbf26c1d5c8eb2c5f4abf87739a8e15b2958c19ea9f50",
       "win_by": "Dominion",
       "winner": 1
     },
     {
-      "checkpoint_count": 10,
+      "checkpoint_count": 8,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -1675,35 +1463,27 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "f61b23900707268dd249185efcee39e97a7a064f5c871199335a574aff637375"
+          "hash": "a4cc34ef5b5c268939ee6078be48c2e6d31f3283372082538c61e4628a9ef07a"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "c72c56ccdeb89bdacb840ba1ba7aa8aa21ca4ffafaca0f45efc156fc9974d165"
+          "hash": "7d11e1a26e7eff9214a97c07b3f0050dea2c9e52f5a491bd40838f4d39e15909"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "9a03f420fdaa1af77556dd0a7e8121a413696fad2d77c245dd7b2321f7272042"
+          "hash": "42f375a1fe760451a1784600cf77a1670fd1bd692860db8307560320bad95726"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "32aea266c146b9844537b498606619f50c05e5f6a88907044ff578d23eda32c6"
+          "hash": "3bc4ed2c3b265ad07d4b543c0ff664f653045aaed69003b1a5bc6430b4e556d5"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "a4882fbc460d8524e4f411f49fa8ba661193772e5337f5b5804c62e3c40a0c4c"
-        },
-        {
-          "checkpoint": "round:07:end",
-          "hash": "612b46cfd8f015aacf925a29a789d9515ba96cb81e594a7994ff12b8151db799"
-        },
-        {
-          "checkpoint": "round:08:end",
-          "hash": "84ceed079e113da8a033a267487ab06c37821ff5112b75e9135f8c9ff86d861d"
+          "hash": "fa0bbe4f1c09324afab4f064233c463233eb9ad3461fc0702239b0894df7985a"
         },
         {
           "checkpoint": "game:end",
-          "hash": "38c5e211e874c99ef9b3ab38b21dfce8abbe49ea6dba59333c6ba8186153b021"
+          "hash": "8f3b7c6f54e5d1065dcf90de839fecb9ade7a6b82fce9a9585052b80bff7f2d8"
         }
       ],
       "first_player": 1,
@@ -1712,33 +1492,33 @@
       "player_zero_lord": "Valak",
       "players": [
         {
-          "alive": false,
-          "castles": 5,
+          "alive": true,
+          "castles": 4,
           "lord": "Valak",
           "pid": 0,
           "profaned_castles": 0,
-          "ruined_castles": 0,
-          "souls": 3,
+          "ruined_castles": 1,
+          "souls": 7,
           "tears": 0,
-          "threat": 1
+          "threat": 3
         },
         {
-          "alive": true,
+          "alive": false,
           "castles": 5,
           "lord": "Orias",
           "pid": 1,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 7,
-          "tears": 0,
-          "threat": 4
+          "souls": 2,
+          "tears": 1,
+          "threat": 0
         }
       ],
-      "round": 8,
+      "round": 6,
       "seed": 1002,
-      "trace_hash": "c6281ffadbc8b012fd1a57481f0c730ab462628c6213f5e2603d2a17e9d2879e",
+      "trace_hash": "b15f43943000ee15151c758a5c552812eab227a70ebce8a4e4442a55ab98b7fc",
       "win_by": "Ritual",
-      "winner": 1
+      "winner": 0
     },
     {
       "checkpoint_count": 6,
@@ -1757,15 +1537,15 @@
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "834c2a5e9fe5301cf979a069ffb657812c704a2b0f75f3a9dd77f4745aa1c941"
+          "hash": "d93e7d0eb06d4025dcd47f76f214871ea4535197c92abf7cb8104849790e826a"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "569b476e71baea0cea675ff2936bd6303cd367a4bbf6eda21be2ce6e36189301"
+          "hash": "11918f3c060e7795e8f12b60a8f29149ed2a3ea4a93b30e3468f1548e77b5383"
         },
         {
           "checkpoint": "game:end",
-          "hash": "0af36efb3d2b20d02dcb55fa3ca066eb6b1d21dd147b1919bd1c7d6c849bb23c"
+          "hash": "5bdad7265651b59ba54b1af21275c06057acdf6d6cf7a50e0e90cae735ade9b1"
         }
       ],
       "first_player": 1,
@@ -1798,12 +1578,12 @@
       ],
       "round": 4,
       "seed": 1011,
-      "trace_hash": "c0b501f5d1545eab1ae8ef9b733bde1f5038a1e295f74528d3da9837f37b1261",
+      "trace_hash": "647f422f7159b1cc2b7d8ba317faaa20d3daa8840bd7fda4617997dc3049ee66",
       "win_by": "Ritual",
       "winner": 0
     },
     {
-      "checkpoint_count": 10,
+      "checkpoint_count": 15,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -1815,35 +1595,55 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "60334337ed05b56f218d682618e2cf51aa6e211c3d6fb32a54a4fec13a97787a"
+          "hash": "263406075194f88766741bf34544d9324cb3cc9eb87eaecfef637afac43b872a"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "df552fe592f937b81cc75f56d08b8c803b8ceb0100260cc22a82264efca3410c"
+          "hash": "5706d0b3a8b5a7d9982bf250544e772f8cfcf29bf35f294caba0bec0bfb17859"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "389344b8da0992cd8dbc3ed48b266016ac55b5e509e6fc548c63e9102f4900aa"
+          "hash": "8ea5ea2de803a7c69ddb55d76f5771a5d2852eded3b491f758c15072b4a9c13f"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "28c64224e2cd35bd13a8634ca047ba2648460b7ead50407fdd77c65837f01103"
+          "hash": "9c55975f97ce40a8dd1f8710362abc9b6d98e21579de4aa4bf51cdb67eb0946a"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "97b4c0d9fa5c2e07c6b25a9a0a4634230edb4130b059d38ab30a84c6f3306f23"
+          "hash": "3b4d47f27a81a7d5565860beaabb4cba1188ab443b20bca84168a9db190dfaf5"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "37f1fa8ad0c8478f79680684d17e7fd5c4fc0191ae96eff0ee758f68fef3c8af"
+          "hash": "d9cf49c6863c6115aa2e3381e7b77ae630d85c937116349fbd92fc3e9a12c68b"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "b9ef73fb4dee16ff139d3e679982bd376eb97c47d336013a2afc28993835e207"
+          "hash": "86312a47ba04130566069f506336c3bd5bf8df886d79b332bf938fe7612ba909"
+        },
+        {
+          "checkpoint": "round:09:end",
+          "hash": "3c4994096319c559338f0bca0c614cf9eef82441db25b2963dd30c335f56c1dc"
+        },
+        {
+          "checkpoint": "round:10:end",
+          "hash": "a036ab55a8e88d3052dcc1e713bd582f717e6be02c79ba8ffa0049ebd9d05539"
+        },
+        {
+          "checkpoint": "round:11:end",
+          "hash": "d10f4857fc3de7de4a151f5399741339520c0d8957291f907770f9e4bc5a23db"
+        },
+        {
+          "checkpoint": "round:12:end",
+          "hash": "925d80c6a92cdd74414ef83c4e174596c385e3d829c52d4882d932640407093e"
+        },
+        {
+          "checkpoint": "round:13:end",
+          "hash": "2c0a8d5aeb34ccb04a332741c0d01dfd5195aadbf66fbd1d6540e597c686cc51"
         },
         {
           "checkpoint": "game:end",
-          "hash": "f9c3bb368ce1a4136b870ba134bdab2738354c23b259cc61a7a752ce7a155b5e"
+          "hash": "d14b9b3cd0093977803625c1c1fcfd2857712d327cdcccb0f5509e5063f0c45d"
         }
       ],
       "first_player": 1,
@@ -1852,36 +1652,36 @@
       "player_zero_lord": "Valak",
       "players": [
         {
-          "alive": true,
+          "alive": false,
           "castles": 5,
           "lord": "Valak",
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 7,
+          "souls": 4,
           "tears": 0,
-          "threat": 0
+          "threat": 1
         },
         {
           "alive": true,
-          "castles": 4,
+          "castles": 5,
           "lord": "Valak",
           "pid": 1,
           "profaned_castles": 0,
-          "ruined_castles": 1,
-          "souls": 2,
-          "tears": 1,
-          "threat": 0
+          "ruined_castles": 0,
+          "souls": 5,
+          "tears": 0,
+          "threat": 1
         }
       ],
-      "round": 8,
+      "round": 13,
       "seed": 1020,
-      "trace_hash": "1cbfcaef7ffbfe5687423b8029c07bc66b7ae218f08606552b24b2e3f7ed89b0",
-      "win_by": "Ritual",
-      "winner": 0
+      "trace_hash": "5ab336537ac30a8f1b16cdb72c76b6db62d606461c20b5da970bd30f38925953",
+      "win_by": "FinalCollapse",
+      "winner": 1
     },
     {
-      "checkpoint_count": 14,
+      "checkpoint_count": 9,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -1893,51 +1693,31 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "e492dbc197cd5451326ed6b7e5ac0b1bf6c449b37e98b657a46afd022e1b510a"
+          "hash": "cd4e3c666ced61fd0a508b3f15a81c7fb257fe3681b09cb746712829950dfffc"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "fba3d65a4b5321c996c2c161eba0caf0df6f8536455f054726773759afc3f721"
+          "hash": "ba9f5bdf334b343f7cd92b322e703e94b2ecb8ebebe2cecf5d8266fbc13ea2c0"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "c3fa0fbbe9daab6caba5f0f1b5c465c733fa0430fddb4af072e381d3ae978c2a"
+          "hash": "e57a40b8c2d5d77b7160ecbbb28e65daf8d9112591810efc5c869691c032a92c"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "3cdbf8f6b14be87877f7ecf51725d7ed9a0706a3ddef34b52a8e70b8d73aa54f"
+          "hash": "11c9d198ec4a44dbf431ba559a6871ba16311779754c25af9fc05014d2211266"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "ca3395d06d702b6b8e295a1771623867976bc2c2297260896010c6256fa0526b"
+          "hash": "68d0ae05e7158b5e2c7805f886bd9d921e3b8df959f10d9813f0b75f901dd700"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "1a39ade232407cb9e2de0bde18f91d76426e5be77b754437b0c9fbcdd24865e5"
-        },
-        {
-          "checkpoint": "round:08:end",
-          "hash": "b613b1aad00e44ac75f47307ac0264aeddeb42930eceea78f467e191e6e118f4"
-        },
-        {
-          "checkpoint": "round:09:end",
-          "hash": "0a07ff778036bac7053e48749871fab264ec2799e7fafb76b7d04c2e296a8e10"
-        },
-        {
-          "checkpoint": "round:10:end",
-          "hash": "b8acded6a5d723757f28497f05c95ce82ba498721618b9c530e2de569aee9a76"
-        },
-        {
-          "checkpoint": "round:11:end",
-          "hash": "78959a3ebdfec179a715331e0decb3e656df70605597b65c422417d10eade7af"
-        },
-        {
-          "checkpoint": "round:12:end",
-          "hash": "b17f4c1caa418771a9186f7d68914d79b5b4f1c15f41b99b538be808d7a21ea6"
+          "hash": "0c17c38c5af614943573f162bff93ad2e860c6bc788e0709ae336d769cebdef7"
         },
         {
           "checkpoint": "game:end",
-          "hash": "0699352e79285475add64ec348c0ebdcd5770e9d14ac5c967312dbbd6aa4deef"
+          "hash": "541fb8efc40fd65271979f7989b6691c558553a5eb83c69aaaebb3a7e2f78d16"
         }
       ],
       "first_player": 1,
@@ -1946,32 +1726,32 @@
       "player_zero_lord": "Valak",
       "players": [
         {
-          "alive": true,
+          "alive": false,
           "castles": 5,
           "lord": "Valak",
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 4,
-          "tears": 1,
+          "souls": 1,
+          "tears": 0,
           "threat": 1
         },
         {
-          "alive": false,
+          "alive": true,
           "castles": 5,
           "lord": "Kroni",
           "pid": 1,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 6,
-          "tears": 2,
-          "threat": 0
+          "souls": 7,
+          "tears": 0,
+          "threat": 1
         }
       ],
-      "round": 12,
+      "round": 7,
       "seed": 1021,
-      "trace_hash": "6803c7a2180c6f52582e108aa449c622a3d6afd37ff16af01a8040d6862a1412",
-      "win_by": "Dominion",
+      "trace_hash": "358d6495b3f262394fb10e07c804adbaaf3679558aafecb753162228c839203e",
+      "win_by": "Ritual",
       "winner": 1
     },
     {
@@ -2065,31 +1845,31 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "9224e8bbaf0f05d02253bee36a6c4de6d893cedc1483146725ff146895be2be9"
+          "hash": "f28f60910890c0121b641fc26714998d44ac4129b795acf6a470535c9c543fd0"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "b358f659a47aeaef5ef317dce7c618a69059f896571b76290803281f714af2c0"
+          "hash": "0fcf21c6589ae6ba38d7476c80a9502d3f416eb54df282b774c6a6f712f89b41"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "4885acc5870058b016a7b2e94e037323a4e8c0372cb8bea3dee1e7936c89f3da"
+          "hash": "6702d0456045832cf4ac680139b195d9eda834f42deb5d9f45d95535355b179e"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "3361f634e0411a51323b332ba90afbde6b5734d57acd7e23e4d4e643288f7c44"
+          "hash": "89e874eb758cfd80330fe178081cb87cfbd0fdd4963de8bc2bbe0eaff01a738b"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "1351843fd4ae7ac75ffb4298a541888947bee4a7e368a5857bd4c92324371c74"
+          "hash": "c363631b7184032efe213588e67dc9cc5b23de98cdc4a091577ce91dfbe80976"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "961ef230667d66b48805c316b1782ed1a7cd22a3189302ce35a2202b2fa0a807"
+          "hash": "7d14c91177242e640ce95e9493f71ce59a161ca014799a4e558073e953919851"
         },
         {
           "checkpoint": "game:end",
-          "hash": "573fac0fde85a7c5e01b440909be3cbc7ed3f16a42b5371644226dafb27fe47e"
+          "hash": "3a4222fd76f29ecb330bbe7ee31dbffa4d397bd4cf4bcce79d27769f342a8ec7"
         }
       ],
       "first_player": 1,
@@ -2122,7 +1902,7 @@
       ],
       "round": 7,
       "seed": 1023,
-      "trace_hash": "33e172ee8d3b466c4f3af89b3a1e0d87c188adf604cecd5ebc27ec79d1f7ffe5",
+      "trace_hash": "b03edf5aef8912cf96501904f2a495fd573f4e0640174370053df86a5124e000",
       "win_by": "Ritual",
       "winner": 1
     },
@@ -2147,19 +1927,19 @@
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "2320148c82eee2d8af2a81f7fef01d67ee80275b721792c0a4ce435eb9f5e906"
+          "hash": "680fad9ad0dccee4de3879f367731acbf8c6c1392279539050353e404146e0c2"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "42e30f0702d7f8f9a726913bb617ac1dc38be9391d3703c69311b27b1cf19412"
+          "hash": "70aa2664237ab49a7578999271c755782dc25c6ab7b2a7afd976fa7973a2322c"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "0e3a61c0b2c5ba38c123675dbb58691487313d55744d2348917b63c372e18424"
+          "hash": "d36b6ac70e9457eab41cba8348d73f7f79d31b8e67de0347bfc2773b9f5a6ab0"
         },
         {
           "checkpoint": "game:end",
-          "hash": "caf176f83749a92bc730837a4179bc9fa6ccd6a8e8384c9e36240e95e4d1ed02"
+          "hash": "e22a13564760c8354dbf00dba999e0a054c05382f5008020ad7b9e84ea04dd08"
         }
       ],
       "first_player": 1,
@@ -2192,12 +1972,12 @@
       ],
       "round": 6,
       "seed": 1024,
-      "trace_hash": "d86b839e799988d7a810a12fefd6dcb0866c046334fed8ba4ac480833dee32cf",
+      "trace_hash": "a2d5c03d61cd396a09c71e1486c5f92ce7993ff2476341d53f745190255c3349",
       "win_by": "Ritual",
       "winner": 1
     },
     {
-      "checkpoint_count": 12,
+      "checkpoint_count": 11,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -2209,43 +1989,39 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "eb9f3c0b1c8cac92a93355ef518fdd4e73db28ce2f685bf0587b2ff2964e74f3"
+          "hash": "2c556903f124bd7df2cda694a54c387b52fe4d202e04bef7da5cde5168aa71fe"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "d07431cf1ea67ff5d68840d691fd2eb49b8414122c8651c65db358a98f87f1d8"
+          "hash": "2df8e5b5a87c37f945da9ff6e1c445438ea0c8f8da7c70949ca3abf96edf5213"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "4aeb24ab8b89123b46d5ef5b70b73bbcba9be16630afc054cdef1610aa3ee80e"
+          "hash": "f94772fa8172ff270e5aa5e197566b03545ed7a8522cdb347f1d8138fd884055"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "69655b657d9b07d9d3555df53071800b6ddd4c133c8d33be2236e08356417e3b"
+          "hash": "7ee342e5976934c38b522c679886104b1319b0e0180230ca1413833faf3dc37d"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "d6701df5c38a01533c81bd907c1ce563403e1b866549a9ee3974e03187469d64"
+          "hash": "66cb979dbc72e780c173122499fdd369ac3f3c6d9270dd4520fbaf896ffadf90"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "6a5187e172abe6d841417859e525c61d5ecf8258a19c13a64891c02250a5b661"
+          "hash": "a4ad6dad30fd6236b9a301e214ac572a1b449ade85f4f4cb72756aab565dac3e"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "975bfe870c124c0382cd0bd49f1a97eebb4317900648d4984238b8ea9853871f"
+          "hash": "25c3d0ef7337ebe99e80ac752abd1f65a8ad20784fcd2769c9c0af4dcb50d797"
         },
         {
           "checkpoint": "round:09:end",
-          "hash": "c75652894138e9246a967930b2f4121b50af930d9f6749b41423fc2331bc71ed"
-        },
-        {
-          "checkpoint": "round:10:end",
-          "hash": "eddd6a71157b0c619b5854d41e6b7f85ec25994d1550d8d826dad63091362339"
+          "hash": "d30440092ede769ad6a7e7105e09f16bf89b442bc914955de4380bdf040fd627"
         },
         {
           "checkpoint": "game:end",
-          "hash": "3ee9d69263ae887adb44e6ba9cbfda9ba8a9af1646173a7356ae3dafea8816b3"
+          "hash": "fe051c4140c8d9d3625065d63726cbd1e53db562e5d3d8fdae70fc79f90cb527"
         }
       ],
       "first_player": 1,
@@ -2255,17 +2031,17 @@
       "players": [
         {
           "alive": true,
-          "castles": 4,
+          "castles": 5,
           "lord": "Valak",
           "pid": 0,
           "profaned_castles": 0,
-          "ruined_castles": 1,
-          "souls": 4,
+          "ruined_castles": 0,
+          "souls": 6,
           "tears": 0,
-          "threat": 0
+          "threat": 3
         },
         {
-          "alive": true,
+          "alive": false,
           "castles": 5,
           "lord": "Kanifous",
           "pid": 1,
@@ -2273,17 +2049,17 @@
           "ruined_castles": 0,
           "souls": 7,
           "tears": 0,
-          "threat": 4
+          "threat": 1
         }
       ],
-      "round": 10,
+      "round": 9,
       "seed": 1025,
-      "trace_hash": "d5920fd6279b212ce20f8098bddac20ff257ace42ae2e24b42bdf09452677a7c",
-      "win_by": "Ritual",
+      "trace_hash": "173e08eecfb6f5cb12efb59c584f6eb1b0039d725f4f90f9920a2ef549c5eb59",
+      "win_by": "FinalCollapse",
       "winner": 1
     },
     {
-      "checkpoint_count": 19,
+      "checkpoint_count": 9,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -2295,71 +2071,31 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "6f2425d1ed3a0078be1aa4956deaa3bb5ca6a68ab27c7f7c08c61b5c7d6eee6f"
+          "hash": "58879f6869b8d3249a2d6851a3e1c748634bfdf444bfb70b486b72cadc1b358e"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "3be616cadacb5a5924413cc938833ffeb401c58fed7215c1046da08c97a44f7d"
+          "hash": "21c9f05d2c2b7752aa195c24d2fab9273dcc161bb44f71b9ccec78c1e688bbad"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "a13f7123bdd85627fd33150a0aae8dce7670c0da2a065f8e3996c39fdfedecf2"
+          "hash": "fb5f01c864bf445db2048c4269d72074421cc320849a6bb701bd0ff4e2c4fe3b"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "67386d0f01492888b6a027f985a791baca6ca9ccc946ab85efd5fa240c9c293e"
+          "hash": "ce8c4102edf1a5d9b3ea3a9c857eaa80b5184c64f4dffaa9488dc0375563355f"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "21e8b44a8b641231144173d415843b678d1390090711c9b029cdd81d2ac4ac8a"
+          "hash": "6b11c44685ad46d40aea53738e717e563da63ee2f4d952522c70ffae2f49cfed"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "739c051dfae5f3ed4d83805444f9c70ca6fecc3313d82333bde232dfc6a3ca2e"
-        },
-        {
-          "checkpoint": "round:08:end",
-          "hash": "468e5957f11555e34d8b1cbe05e1dd3738c9f1d1939200f8f3595ed8e95605d4"
-        },
-        {
-          "checkpoint": "round:09:end",
-          "hash": "c797699181d878021f12ce1c1c353d25439db48508c4060a9c4fcc4139478934"
-        },
-        {
-          "checkpoint": "round:10:end",
-          "hash": "ed5d3864587e34e8d7006f90215ecf83420b9ffb8bde380325d37bfe8adecd84"
-        },
-        {
-          "checkpoint": "round:11:end",
-          "hash": "c0e685e400373f3dfef81f8a4e7ccaedec3675e7b61b24c991740bfd3862e9f0"
-        },
-        {
-          "checkpoint": "round:12:end",
-          "hash": "2200b51bd1c6b1119d6760d9ddab21e4cedc8b9d7a0f4284ec2ecf85fb2cdf6d"
-        },
-        {
-          "checkpoint": "round:13:end",
-          "hash": "5ea7fa2c08a95586b0ac4326f4305268ede3ea8eff3929c4c5181d0f21f78588"
-        },
-        {
-          "checkpoint": "round:14:end",
-          "hash": "8930f2640b3289003f309a89eae820e4e96b70b2cff03d564b42c622f92764ee"
-        },
-        {
-          "checkpoint": "round:15:end",
-          "hash": "8f9ac027f7b19bfe8f6bf3da0a5facb8513625e98b5d8f879b6a7d0cbb2e6db4"
-        },
-        {
-          "checkpoint": "round:16:end",
-          "hash": "a6c7cb369898ee69497a22d9b9689fa4ca9068a89f5d4709a1be4ae9842528b7"
-        },
-        {
-          "checkpoint": "round:17:end",
-          "hash": "7a8c5011f71c9f59d258ce2d84520d15c4cce96fedd75453f89adf494493a7ce"
+          "hash": "f3c9ec560f2a612bac7d95b4ce0200381d3024a4dc3ca5bb7bc234bd97e230a0"
         },
         {
           "checkpoint": "game:end",
-          "hash": "24d890dcef1e3208b8b6394e2134dc6a7dba1027a83e8a4dc778e87fac31e0a0"
+          "hash": "d79c5f4a88be15cd27fb0f9c5df952696e07ce1c0ef6769d0b507980827b1e60"
         }
       ],
       "first_player": 1,
@@ -2374,8 +2110,8 @@
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 3,
-          "tears": 1,
+          "souls": 1,
+          "tears": 0,
           "threat": 1
         },
         {
@@ -2385,19 +2121,19 @@
           "pid": 1,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 6,
-          "tears": 1,
-          "threat": 1
+          "souls": 7,
+          "tears": 0,
+          "threat": 2
         }
       ],
-      "round": 17,
+      "round": 7,
       "seed": 1026,
-      "trace_hash": "1a6f865c218d24fd1587a13f4e462aa651224892b93a839725eba34fed5135fa",
-      "win_by": "FinalCollapse",
+      "trace_hash": "24db728067848198fd72e29a9a0b8265c8643a503f3bd0bb82ed051bb180dd24",
+      "win_by": "Ritual",
       "winner": 1
     },
     {
-      "checkpoint_count": 7,
+      "checkpoint_count": 62,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -2409,23 +2145,243 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "d36d62be1f4a908c5bc2a2fcfa0cb401e41259bb55df5dff0cc68752c59663c9"
+          "hash": "f263818fd3809539583380dfcf98dec889d1f7cee7993cccafc952d1cdf64002"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "e95f91c00a4245aa934a0c827d4752abad6f301721bb7e85017a73e42e9f48eb"
+          "hash": "faa9f93cf604b01c00713f9c9250f49f783015c603dac2e64cb758ecb054b5a8"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "9f209e0401929e9ee34cc55a265025079f470a0c1db1aab1861deab29e3fd430"
+          "hash": "36e13a13f27d590cd3642e4a293a268749dfde6459821bea00cefa9fdbdf8eaf"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "6f781d43f19145d82458a1e88b09a7444514942e8a3d0495e4d00e4c04cf04a6"
+          "hash": "b1e4963c336be73b2baa2a6593c600a14ef81a57bc5b32b82e05f88ac2a68e14"
+        },
+        {
+          "checkpoint": "round:06:end",
+          "hash": "a86fc7bb0c00674664311d131fd75168fb7089bd62720770b0021dde472f62e7"
+        },
+        {
+          "checkpoint": "round:07:end",
+          "hash": "c8a3b49287a3c7cb2664fbf4d21bacd749b1d34fb92d03bc1045a5bb8dff1397"
+        },
+        {
+          "checkpoint": "round:08:end",
+          "hash": "8c8a2a337eb564bba9f9c57335544f0c57bf3d164151bbad1dfc2f22209c944c"
+        },
+        {
+          "checkpoint": "round:09:end",
+          "hash": "c97062cbbf117e4ba4d19581599078e19b3695d13194b3b5790e6574ca8b04cb"
+        },
+        {
+          "checkpoint": "round:10:end",
+          "hash": "db98793e09761b2a053bb718a9f93ae7e89028be81bd9980b164cd381fde83df"
+        },
+        {
+          "checkpoint": "round:11:end",
+          "hash": "3d5a31b287bf8c97a42fe544699029a63f64b9b99cccef71f488679293acdc1f"
+        },
+        {
+          "checkpoint": "round:12:end",
+          "hash": "e9f8f1b1d2559763c88eaf2aa679ef845876736b96e79388ae36e403952833d8"
+        },
+        {
+          "checkpoint": "round:13:end",
+          "hash": "c00429d5ab1f5c64405256cc3ce88660bf713f6c2a442954ef42e3614a29c1d7"
+        },
+        {
+          "checkpoint": "round:14:end",
+          "hash": "27795761c89990d3af98999ec34bbf7e98369fe01557453826c75c5226db305c"
+        },
+        {
+          "checkpoint": "round:15:end",
+          "hash": "5d10c995ca6175bb5c6782d9cfd419890ffbc520ff63e7ba047de81a6bfb7c3d"
+        },
+        {
+          "checkpoint": "round:16:end",
+          "hash": "23b4338e584b59ba46263fac4a99573b9e95c951c0d4437ecece0adb079035a8"
+        },
+        {
+          "checkpoint": "round:17:end",
+          "hash": "2f47685b1e8d250798f08a5b7b6a229d907fdc12af63be497f42995cf4326020"
+        },
+        {
+          "checkpoint": "round:18:end",
+          "hash": "fe46cd12a4fb5c7a4c29736f5c3e4434a01057401f00796711b3a6197f5890fe"
+        },
+        {
+          "checkpoint": "round:19:end",
+          "hash": "f2b5bb74aee3961a188f8c5702423eb4728e46e02c56a8526ea683682ee80452"
+        },
+        {
+          "checkpoint": "round:20:end",
+          "hash": "cbba4ec1e74f4b27925cbafe46b7480ecda6305e2b295251edd8d78ab5c64947"
+        },
+        {
+          "checkpoint": "round:21:end",
+          "hash": "b298e7f8cfddfb595bd4d106d4ab3f3b70300f6c63270bc9a9f52c8a0611dfb0"
+        },
+        {
+          "checkpoint": "round:22:end",
+          "hash": "5a6a2d00976d7d570fd78d0dfd02cd8f9016a5cf043a90bafd669f92be532dc6"
+        },
+        {
+          "checkpoint": "round:23:end",
+          "hash": "c60c8145de08d89cf642c1ad61c1a8f6895e1db43b48c777e351c1dab053cf64"
+        },
+        {
+          "checkpoint": "round:24:end",
+          "hash": "440c858feb8f7fd277bde0e48ca3a52001639365b71c1ad56252cc3b9b23792c"
+        },
+        {
+          "checkpoint": "round:25:end",
+          "hash": "9365e0f372d2a6823617447e3e16f89fe45358592a72b7d85d84be3298dff8b8"
+        },
+        {
+          "checkpoint": "round:26:end",
+          "hash": "9d7dbf0e462f46cc396cdae87cd5c72c6fd2b4f658681bbf08b416fbdbade4bc"
+        },
+        {
+          "checkpoint": "round:27:end",
+          "hash": "c18a00f04028828558cc9925919e15b55c83b937895ac0d660b44c41a0b31fc0"
+        },
+        {
+          "checkpoint": "round:28:end",
+          "hash": "04daa64a9aa2f2d643d79948fd8357ca010ff6ce8b8fd489c71f76bc7bde5ee2"
+        },
+        {
+          "checkpoint": "round:29:end",
+          "hash": "460846d4f920803f277b957788ce06d8a2274e644b13fc7c89f9471d3f1525b8"
+        },
+        {
+          "checkpoint": "round:30:end",
+          "hash": "780854a45e3e41cd79363ac0b8479b3ac112ca42ec80f7f42a313361c1fdb386"
+        },
+        {
+          "checkpoint": "round:31:end",
+          "hash": "2d047294eecb7aa4cf8012e021ccaf5d46d3dca955d0135bbc417a058b2cc68f"
+        },
+        {
+          "checkpoint": "round:32:end",
+          "hash": "8a6a4d1578206ac64d000e8e7bde72d02a04fc2798820ba95f7133c2ad0abe64"
+        },
+        {
+          "checkpoint": "round:33:end",
+          "hash": "b92b9bf6f08590ea0ddc714d1e54a5af4e5526ad7ee0e0999291d3d6843580cf"
+        },
+        {
+          "checkpoint": "round:34:end",
+          "hash": "ad81a7d88697c957c2310d89eee6053217687436353feb7b1b7437478c03768a"
+        },
+        {
+          "checkpoint": "round:35:end",
+          "hash": "20dd3f98d19b2a87f4c61efb155db02886635ef5430b739be910c565b174e24c"
+        },
+        {
+          "checkpoint": "round:36:end",
+          "hash": "e5f2456b995397682818fe44bbe36acedf8f4c8f6d30b0fe15d87d8e4c12f2cc"
+        },
+        {
+          "checkpoint": "round:37:end",
+          "hash": "5e97bc47a5e2db23c8ead204f6df50a9163b17565b15e61743a3027f79d485c3"
+        },
+        {
+          "checkpoint": "round:38:end",
+          "hash": "b3b55f14f1fa9641abb65df682f4dac4291eedfd706eb2cbfe316a56e12893d8"
+        },
+        {
+          "checkpoint": "round:39:end",
+          "hash": "97463dc3e95c8f28654cabde2132c15b3ccb4ec968cfd16a4f99a598c450c071"
+        },
+        {
+          "checkpoint": "round:40:end",
+          "hash": "ddcc8b14e9e23354172ce42d363671308b8e86d998fe889ae004355bd4997329"
+        },
+        {
+          "checkpoint": "round:41:end",
+          "hash": "8076b35ce7ce23afa5dc229a592e3b63f1c5bb27f3d1a3a7b8064d6849a88d3f"
+        },
+        {
+          "checkpoint": "round:42:end",
+          "hash": "ce0eba415cc875523ec730ed899dfe07df78d44dc375e4cde76b2c99c1855a43"
+        },
+        {
+          "checkpoint": "round:43:end",
+          "hash": "881adb7b6e9538d3586d584d3c98b57b929b31560a808dfd6f142680a3806fcc"
+        },
+        {
+          "checkpoint": "round:44:end",
+          "hash": "782e35f8fc74df6df52e168828f0a677794f5e8a883502aefd97225777be7037"
+        },
+        {
+          "checkpoint": "round:45:end",
+          "hash": "cf6b43efe6035c0423707b0026ecaa1fb813bc0e6a8be2c18daf4d486deb7e51"
+        },
+        {
+          "checkpoint": "round:46:end",
+          "hash": "4110c532da87bd1a08646f50704c2f418a4ae7a352ac9ae1a4f0ced3371f827f"
+        },
+        {
+          "checkpoint": "round:47:end",
+          "hash": "22c5e847ca73304cf25d66d15832b70ab9583fc060df0e410971e5e5de67f6e9"
+        },
+        {
+          "checkpoint": "round:48:end",
+          "hash": "8537b25fa7defaba9bc606fba1985a63b8dae7985ca17ceec4936a464fec491a"
+        },
+        {
+          "checkpoint": "round:49:end",
+          "hash": "1e0c995a030e6f9a073ad76378ab7c6bc461246a233eee8c7702a1f791085ecc"
+        },
+        {
+          "checkpoint": "round:50:end",
+          "hash": "ea2a3e436f2f6f3715e794902d6b6ac48e5dad557e8da1d685305d050830110d"
+        },
+        {
+          "checkpoint": "round:51:end",
+          "hash": "e24dd1f2eaf8f0b0a9a7eac8bdb4609203f555425ea4b8e50fb8b8163f33a9c1"
+        },
+        {
+          "checkpoint": "round:52:end",
+          "hash": "5f7ce318da326ff1f0041f6892a0a0fe4ab51b0d7668efd0d46fea046511ee8f"
+        },
+        {
+          "checkpoint": "round:53:end",
+          "hash": "87f037cb76835abbeb35131af5a07131a0860d3dbb4ee64f4e69eb5428cb455d"
+        },
+        {
+          "checkpoint": "round:54:end",
+          "hash": "95ec865babcdffdef5fec00ca2d53ddf1c89e63f1c68ce86aad697d601e142f0"
+        },
+        {
+          "checkpoint": "round:55:end",
+          "hash": "471cf826d935addb9ab672427d4a1234af95eae866232705e41e58a79b957e17"
+        },
+        {
+          "checkpoint": "round:56:end",
+          "hash": "37b2e9d3660820ed128f5c38f673c8408a70a64b1ef405731e2e1470b8b77ec6"
+        },
+        {
+          "checkpoint": "round:57:end",
+          "hash": "70a9255a054b5dda88583c6370e54d404c2c85361ec4ce417a5c678a093bd6af"
+        },
+        {
+          "checkpoint": "round:58:end",
+          "hash": "57015b545f4bff4be3176ec811bf7a3d18d5a74a3155a178afad4f59512f66de"
+        },
+        {
+          "checkpoint": "round:59:end",
+          "hash": "a943b2792f6a569084d529a219a414c3f06c792803ac4fe60964bba37c03803c"
+        },
+        {
+          "checkpoint": "round:60:end",
+          "hash": "aaf38349de0a56c57c4a31c019088ec359fe16dc818e93fc41a904b34ca36209"
         },
         {
           "checkpoint": "game:end",
-          "hash": "8d26067ce7d718177c40fc2d4c00150ddc8ee5461a97a42e80310b39c4d8973f"
+          "hash": "309486053813c773dc92f43009361775cd0f07a1d2eb0e6d7e80ba63e6c33116"
         }
       ],
       "first_player": 0,
@@ -2440,26 +2396,26 @@
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 7,
+          "souls": 5,
           "tears": 0,
           "threat": 0
         },
         {
           "alive": true,
-          "castles": 4,
+          "castles": 5,
           "lord": "Orias",
           "pid": 1,
           "profaned_castles": 0,
-          "ruined_castles": 1,
+          "ruined_castles": 0,
           "souls": 4,
           "tears": 0,
-          "threat": 2
+          "threat": 3
         }
       ],
-      "round": 5,
+      "round": 60,
       "seed": 1003,
-      "trace_hash": "8fa6e1d2cffbfc4eeb9cc1ed95bf600a7320ddc3521774e86eb498d5173f5c5f",
-      "win_by": "Ritual",
+      "trace_hash": "32bdfe32cda99a1249156ad15b3b18320ca4df9963c7abe2ff671e092141c359",
+      "win_by": "Timeout",
       "winner": 0
     },
     {
@@ -2475,31 +2431,31 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "2b9ad516cfe0967622744c82daae57cff4a1c6eebd7d2d307eaf86ca0189473c"
+          "hash": "0cba1d3527f78f4da6f87ac22a7e135fa8392c070858dfec951edcc266dd67a7"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "68d4fde8d7774bc4c57e02b6e32bfb25ab0a3c3b0198a50a49dcf73015b800e3"
+          "hash": "43003afafb0b3c3e9fb11f735b73545bb5c4f864ebf125b5a536feb02c165a91"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "15f76e714783f986b415b90d9dc82d98c732e8b184bd7548f2d764a0de61006f"
+          "hash": "35d80ee4a0497f84289af328c10b6e6c7349b5b9d1877461660fa4f4aa6e7fff"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "13a767ff66cf49e19984256415a497f9a89fb0102b691eebdc3041091def0971"
+          "hash": "ea21db48cda39c9021dda8a83dec1cd5ca8007d4e5ad55e8f6af505d4e504601"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "318cd4c7ed7432c374f7331dd6068d6bac56a51bd55597f25c275f2d783d8788"
+          "hash": "bb409472784993684ed00eab12367537f01d44a67901d2968981ac503f444efd"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "e0e3f41e9d66b2d68b730585ed021f210fba59a954242697065b1c1b823aaf0a"
+          "hash": "c8d09bf8f5ed11928fd0a5037c2ad17b05ed3a211377e3b9da87cfc39ffa7d3e"
         },
         {
           "checkpoint": "game:end",
-          "hash": "91a2ce75ed3a464efb879b71b2571c5e0c0336d49d5a627f447aeead3d3c0cca"
+          "hash": "450e832ee4da15a56eb67be886742fd9c96ec3e3520907a86c59b3252d4210f2"
         }
       ],
       "first_player": 1,
@@ -2508,31 +2464,31 @@
       "player_zero_lord": "Kroni",
       "players": [
         {
-          "alive": true,
-          "castles": 4,
+          "alive": false,
+          "castles": 5,
           "lord": "Kroni",
           "pid": 0,
-          "profaned_castles": 1,
+          "profaned_castles": 0,
           "ruined_castles": 0,
           "souls": 6,
-          "tears": 2,
-          "threat": 0
+          "tears": 0,
+          "threat": 1
         },
         {
-          "alive": true,
+          "alive": false,
           "castles": 5,
           "lord": "Deimos",
           "pid": 1,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 3,
+          "souls": 5,
           "tears": 3,
-          "threat": 2
+          "threat": 3
         }
       ],
       "round": 7,
       "seed": 1012,
-      "trace_hash": "f3aa87fb1cc810e12ce20237d211266063bd7552b275d6f54e1d646eaf9db48b",
+      "trace_hash": "f507a5f8bb2c51be1f0d13e19d4484e0b5447bd2ad0daedd3e0dcaa840f05db1",
       "win_by": "Dominion",
       "winner": 1
     },
@@ -2549,15 +2505,15 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "227c76e975845324f513882c6ff20bdb3b8c951619d59066913a496c75fa0848"
+          "hash": "c8b972e83fb64ea968c862889db871d7f473ca0adbbaa2412279a5a297a40ee8"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "7f19526e9d2716c3ecf14df366e2b4930fd1dc7230c268bd1882488db5e932e1"
+          "hash": "4ce177013637a21cef5a010888ddf8b94fdb3f43ff4af9da6fb9c133c54210c7"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "f2d512319c84ebd792434b99235dcebef07deacf653ac820a1fc7755f4383fa4"
+          "hash": "3c7df538f513d158b963e610896c943f8e7a9aa9e5f487d698c40c3b0b8e4f6f"
         },
         {
           "checkpoint": "round:05:end",
@@ -2818,7 +2774,7 @@
       ],
       "round": 60,
       "seed": 1021,
-      "trace_hash": "df6dd46d35d133e5af0f834be58dda00210579bc713bee31d41676690f538935",
+      "trace_hash": "544d29fd77697d9a0d657a2d626b84a2c4fcd259afd91b0bbc11e795ca71df39",
       "win_by": "Timeout",
       "winner": 1
     },
@@ -3183,7 +3139,7 @@
       "winner": 1
     },
     {
-      "checkpoint_count": 62,
+      "checkpoint_count": 9,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -3195,243 +3151,31 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "1148e057ee8f2f21118dc5d79f58e505689912f46c97620351d459a1b91969e7"
+          "hash": "f8a87aa492e4edcbd9be168bc6025017027c6d28c05252d01cf9d60f3379f27a"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "29b5164e0a34cef1c227cafe99808ca99ae15d540928bffc8c4d0fab7024c10b"
+          "hash": "a22044bc84a7bc75743b1c1006c84a52c44a283b2a93195b2f22068dbe81b3b4"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "ff568db82a16e0918cd20622b728adcd1aeac2df189f0f92c1c2b327518ef0c0"
+          "hash": "4f938fb3499552ac991769dd21f770ee4f76df413bf9818eadfde97e97c125b5"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "b236cd45867ab177b1ada4ac57ffd256a7f8791d9532a46e89bdc3f75ebedc4b"
+          "hash": "fe89a6b0ed13904ea80209489900fbc3b45e535bd7e3af25466dbd0a7078f14d"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "2cfddcdb346887567b5220f3eb43dd3b1aad84384082585fab1cf524a984224b"
+          "hash": "cf89b6a37b3d96a47c8ba1c96e242ec17073b5f0af993765f7cce5cc38842178"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "8e5c0fb7c79789c64c996e96e3946906c68bce8a832318cd2fe2700430774617"
-        },
-        {
-          "checkpoint": "round:08:end",
-          "hash": "2aec772ab5901707fab1a40be8398cbb5591dc43124bf8c3e5840e17589ec45c"
-        },
-        {
-          "checkpoint": "round:09:end",
-          "hash": "c095f745d0f543e4fbab487086c3e0e94d11975a6f4809655c0d731837d6b72c"
-        },
-        {
-          "checkpoint": "round:10:end",
-          "hash": "d0692e61e248e34008dd037d8baefd9fe42582c0893ed117d822167a03a58c85"
-        },
-        {
-          "checkpoint": "round:11:end",
-          "hash": "921e055998d65f1100430d218c5ff9c44bed3b95485baaa6551a1f680d06aec3"
-        },
-        {
-          "checkpoint": "round:12:end",
-          "hash": "077f39e18514e160ee4f96b5acfefa210bf8a2c6eb606c6d9215677e43adf3e2"
-        },
-        {
-          "checkpoint": "round:13:end",
-          "hash": "d78309951808de62b93c1e5ddae5fc98be8a5e25f26f76069269e2b252a07c7f"
-        },
-        {
-          "checkpoint": "round:14:end",
-          "hash": "573eeee085ef662dda4b690bedaabe3b01736c3a14efe604ad42028f814ad7ab"
-        },
-        {
-          "checkpoint": "round:15:end",
-          "hash": "6adeae111c52f4f81fe7508d58702b322c16301b4f5fa561a6d4fe8c83ecbf4b"
-        },
-        {
-          "checkpoint": "round:16:end",
-          "hash": "f50f2570b8a20b3159e3ccb4819005a00e5e06abed1e0d17d69cd2073aba6b34"
-        },
-        {
-          "checkpoint": "round:17:end",
-          "hash": "27b5c14d608f9b248fc20a8ee43fcbdf67ecdaf6d0d8d34e13beb9c7850b7e25"
-        },
-        {
-          "checkpoint": "round:18:end",
-          "hash": "853c2b833192a113934cd7598d91bc69226708a0f14b099ab85d45210b1690f6"
-        },
-        {
-          "checkpoint": "round:19:end",
-          "hash": "506bf2090971c0cdb7ac97301a150798aff159ba184281287d2c8751612bc191"
-        },
-        {
-          "checkpoint": "round:20:end",
-          "hash": "d902f6fa8ce41aac7233c2e384284345e1de34f01c803b3877fb1f9433c7ab9c"
-        },
-        {
-          "checkpoint": "round:21:end",
-          "hash": "b840f0af2ea678094970ef1de994173a7c1757762f42611ce52df9b6d5d7a7aa"
-        },
-        {
-          "checkpoint": "round:22:end",
-          "hash": "0d89e4e9b3cd2cfffa689f376e29db65c57621b9c2b58f9f10971f2aba3f990a"
-        },
-        {
-          "checkpoint": "round:23:end",
-          "hash": "77aded64d439f39497a10a74706e35ea4fb82cb63a89f88803b92a41bec58d41"
-        },
-        {
-          "checkpoint": "round:24:end",
-          "hash": "db1405c13db7fed6350dff9615a6b72ffc9156c2abcb2c4adf3cd396f005d1f5"
-        },
-        {
-          "checkpoint": "round:25:end",
-          "hash": "eccb19995ed79cfeec96fd8de05556e7d8fd4cecdd4c5805622f5f85956b4db2"
-        },
-        {
-          "checkpoint": "round:26:end",
-          "hash": "4844e1e141536175fdcdf4a193f5fc0f9d6264f134d4ff634d9302e117223114"
-        },
-        {
-          "checkpoint": "round:27:end",
-          "hash": "1fe8b7b09aa2a968217d8cffc6784ed759030147cf6868faa335b6062185d80d"
-        },
-        {
-          "checkpoint": "round:28:end",
-          "hash": "cb97d7214cfc3c4d7205a5a912abf2be29afedeb971cc7a9acbf6bc0d66e7c64"
-        },
-        {
-          "checkpoint": "round:29:end",
-          "hash": "c9bd90c1d8feb4d9140498bfe5b1480db80001789c2c6a42dd2f76156419c6ea"
-        },
-        {
-          "checkpoint": "round:30:end",
-          "hash": "b77f91fd0ec10ff03abbc05740d1ad0437b368a69e654f58581609ee1c447a84"
-        },
-        {
-          "checkpoint": "round:31:end",
-          "hash": "eb54d2b758285408bd5d80252209458181b7123d476ef5f9bc356c3d0791e354"
-        },
-        {
-          "checkpoint": "round:32:end",
-          "hash": "fe0359894c3398735eda4726b6e5ef707065304f63233835c4708f501e1c6e4c"
-        },
-        {
-          "checkpoint": "round:33:end",
-          "hash": "3f3df16531be318b12016975c49f990f777863fc3c2b08d18dc4a9a6d1705f84"
-        },
-        {
-          "checkpoint": "round:34:end",
-          "hash": "a5112965e65391bfb6a8a7e6b67dc49f38285ac38095a46caafaeaaedb88e757"
-        },
-        {
-          "checkpoint": "round:35:end",
-          "hash": "c691689175aed0588047157acd925ed27292591160af23525b9d579fd9cd1324"
-        },
-        {
-          "checkpoint": "round:36:end",
-          "hash": "21a59146820f69e6a8756eb1ec71c3e12e8e321e569a17fd428ad3b71c79529d"
-        },
-        {
-          "checkpoint": "round:37:end",
-          "hash": "b064ec4f3e1665a57d642b88bbf744765240c13e51cee0ed8dc244e8a11523ef"
-        },
-        {
-          "checkpoint": "round:38:end",
-          "hash": "90c7bcf437a47dc75a1aa76ff1fec5d9b4ce53577aaebb1c210b01cbd55a8618"
-        },
-        {
-          "checkpoint": "round:39:end",
-          "hash": "6171e721e2fa0e67c61013d78f0e4185ee8e83e26aab2134237bd4954302b4e1"
-        },
-        {
-          "checkpoint": "round:40:end",
-          "hash": "62dfcdf943e85bb337caa32154bdb3b4c02ef8fd14196ba0e89322b95d3edb54"
-        },
-        {
-          "checkpoint": "round:41:end",
-          "hash": "75010167b3186d541b9e3912732175704818ee3816cd616b6b042f7a2f0ebec7"
-        },
-        {
-          "checkpoint": "round:42:end",
-          "hash": "218a6189680041f8a84fbe754115a88bdf89030441889eab53f7392337976210"
-        },
-        {
-          "checkpoint": "round:43:end",
-          "hash": "1278e5376e2c3b64408b98f319d1bc3292e3df8794bfa3b310f6a691362291aa"
-        },
-        {
-          "checkpoint": "round:44:end",
-          "hash": "70f5dcf036bff4eb2b47985ea026d5358d19c56ac72999cb82b75a7d9586f86e"
-        },
-        {
-          "checkpoint": "round:45:end",
-          "hash": "b1c1bb2d2aa113be02990e3931750972e045e7b40d5a4aabd5f14a6bbffc8af4"
-        },
-        {
-          "checkpoint": "round:46:end",
-          "hash": "fa0192ee90ea35d8f9aa09a0759bb77a0901d114f0c9bc9a22abf41adca7a2a0"
-        },
-        {
-          "checkpoint": "round:47:end",
-          "hash": "2190dbcfa03eb67b7ccf66d39e3ead4bcbd028349794532284547952f780abe2"
-        },
-        {
-          "checkpoint": "round:48:end",
-          "hash": "9d3db7f13dd87a3c2827634f5ed06ece8444c0c410ac11ebe8f8750891e3b58d"
-        },
-        {
-          "checkpoint": "round:49:end",
-          "hash": "bead92b78179c944e46b5d4c33a58a2132392d3f03755e2209f8b70bfaeb94b3"
-        },
-        {
-          "checkpoint": "round:50:end",
-          "hash": "0b455d78281e29b5d30c81dd6fac9896bf453906ddad5b60c13233bcfcc37233"
-        },
-        {
-          "checkpoint": "round:51:end",
-          "hash": "5cf131a70f118d60750a75c1b92cee11ff7f6f5cc12033344be5b0e412a6d080"
-        },
-        {
-          "checkpoint": "round:52:end",
-          "hash": "8c108a79eefd9b8499a11ef9a0b28334fc0309001df55d73bef951525ee35494"
-        },
-        {
-          "checkpoint": "round:53:end",
-          "hash": "5cc9fae2006d33120a26133ea7e8f634981d80b27b35d0eeb62aef29f5273b33"
-        },
-        {
-          "checkpoint": "round:54:end",
-          "hash": "b71c9cc61f1c71b1b3438f41f19b41b21417e72e5f693e26b99f45335ac7753d"
-        },
-        {
-          "checkpoint": "round:55:end",
-          "hash": "990b0b6748850276dfb701056d48d1262c22c6668aeeb5a7695f28776ee5bdde"
-        },
-        {
-          "checkpoint": "round:56:end",
-          "hash": "1d301a5e2bd36663ddf167511f7ca42d7c71e7687d91db264d10c6bc788f0eae"
-        },
-        {
-          "checkpoint": "round:57:end",
-          "hash": "8a8f8b16b9fe6cd30db2b834015099ff54f7f61dcc681f9df1ed4b7be9fdf2f2"
-        },
-        {
-          "checkpoint": "round:58:end",
-          "hash": "2e272ee17d1c1a90d889070acb0f47c1144289ad39f8149d3130ef0e4bdb87ae"
-        },
-        {
-          "checkpoint": "round:59:end",
-          "hash": "015e8b4e93502ff3c4af066b4cbc3a1be0a76bcc9958c1afaf17b84a67520142"
-        },
-        {
-          "checkpoint": "round:60:end",
-          "hash": "3ac0ed9c71ba03a96744f7d12af825a79eef7f156fb36012732c54b094b6f055"
+          "hash": "1f5504a1f90f089e318680b175a8fc68405101cf29cf2e6d6c23de30e5e4213d"
         },
         {
           "checkpoint": "game:end",
-          "hash": "47c46ec501074c512d2f23962967336cad1c2945d0c234f7be07a12fb85df084"
+          "hash": "85c5e874af18c46d60b8f718481883bfeef083f2f24ff41f175aa2a0b4180135"
         }
       ],
       "first_player": 0,
@@ -3446,27 +3190,27 @@
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 3,
+          "souls": 7,
           "tears": 1,
-          "threat": 0
+          "threat": 1
         },
         {
-          "alive": true,
+          "alive": false,
           "castles": 5,
           "lord": "Gremory",
           "pid": 1,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 4,
+          "souls": 3,
           "tears": 0,
-          "threat": 0
+          "threat": 2
         }
       ],
-      "round": 60,
+      "round": 7,
       "seed": 1032,
-      "trace_hash": "c9467bb909f5cea4c325ea0c7479ed2c3b540c6daf86829912810fd4b7038213",
-      "win_by": "Timeout",
-      "winner": 1
+      "trace_hash": "e933fe9247fffd25db88f2aa35d06ea89eb030feaae5d638f2b1d1fc69a373c1",
+      "win_by": "Ritual",
+      "winner": 0
     },
     {
       "checkpoint_count": 13,
@@ -3673,19 +3417,19 @@
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "6de8ef9d2a1f96d9114cfab86cc2e6fc88bd2ffd9176dcf1c688b2cdc3b93f1a"
+          "hash": "086065b31f7d28309111974c18e1b54a9755e3698c97f643242ca927d48bac34"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "b6d8d2e0edbafedae9973c79678574850d93e7e34c185dc03db4924063057b68"
+          "hash": "e018b0ec3d3e3e1d2737d6d22ba753137c2c2596b98d04ffe8dd626de19c7b8f"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "3eee4c8a6ebbb8bfe5d6320aefe2d73d76ae5a047a88acab80b7a4fd21bcfb36"
+          "hash": "b63f0169e05aeac78aef7379d2a5695e4388ef2ccacbbbe0b14485779ffa9dda"
         },
         {
           "checkpoint": "game:end",
-          "hash": "078962c825fde973786c0288537bac3067ec874f9c6f2186b2e68e75537b7c3d"
+          "hash": "49c9f835c848791372431e28503ebfb3811986ab3a28dde90f15623e7fb40c1a"
         }
       ],
       "first_player": 0,
@@ -3718,12 +3462,12 @@
       ],
       "round": 8,
       "seed": 1035,
-      "trace_hash": "a13ffc0b02cf7f40786577762dac99da6d725f79fc1568755c2c5b727a7679f9",
+      "trace_hash": "10d8899ec7098301a37f2883fb35082e1f954568d1fab776cb0e180dcdf2c548",
       "win_by": "Ritual",
       "winner": 1
     },
     {
-      "checkpoint_count": 10,
+      "checkpoint_count": 12,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -3735,35 +3479,43 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "e19b0e3296c56b5c23d61d1e94c0f5614d31ba4389c55a2bf7833f41efc6fdbc"
+          "hash": "e210a8aa045df4a7d5b4a50e6d8690f8aa0195c2f37feb5d0f374372f5f30c9c"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "67a32145eda3736660e54f79be7d0d93a969baeeb3c042c3cc75cc9b10e92c9c"
+          "hash": "64592d64ea8d3d456b477bf4d4a5c3d3d3be62c977eda53d2515f4af2231f5d1"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "3262b656c3e64ca1772c578566630b01708f1da68ae2aa8e30a6bfbfa781fde9"
+          "hash": "ade159b194f8bcb0d77a62ea0460cbc4b84035f6909542090eb56476b7cf4b94"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "968c83b606b466be16e3b2d75e917388590da1f299804037e99fd7f07726647e"
+          "hash": "6c43e6764f132338db4215ac9a9e650ae21ecf64853cefb99bb50646747c7996"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "fadac35059eeb3c1994e6ce0118951028cae8bac4517d9867d289b8af8da5146"
+          "hash": "9421ea1efe4e6432946bc3e0907bbeed7a843bc5c18d1063e6bf959189009d0d"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "8a1083d604651514dc4066fffd9d15758cf5ec3fddfec882e7d529c4501e8a75"
+          "hash": "df6de8623ed4349d79d811ab37dfea7ea0f467fcb0df613820191cd904d91855"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "1260e2dd69d2ba406bb5a7755b01b4e0dc3d3f9bd1924f93c3c073517d33658e"
+          "hash": "3790b60d62d15f7dd0dad5e8bfd295ad6ba9b2f99b87083d3b545d703b10a044"
+        },
+        {
+          "checkpoint": "round:09:end",
+          "hash": "cbe5dcd07fd3cfa17e48e69cdbda27d8990f99cf3ecb320acd15f6dbc7de19d2"
+        },
+        {
+          "checkpoint": "round:10:end",
+          "hash": "ffd150f6e144c8600ce4674c00ab20aa35919d4a4bcfaef87a1193b2e7fd6a86"
         },
         {
           "checkpoint": "game:end",
-          "hash": "f2209a55eb4997da6969c634b73f488932f93e606023cd97c9cccbfc9a342aaf"
+          "hash": "8c394e45a39c05fc36fb27b369998f9af5dd3ddc16af04583708e6681e02c84e"
         }
       ],
       "first_player": 1,
@@ -3783,25 +3535,25 @@
           "threat": 1
         },
         {
-          "alive": true,
-          "castles": 4,
+          "alive": false,
+          "castles": 5,
           "lord": "Orias",
           "pid": 1,
           "profaned_castles": 0,
-          "ruined_castles": 1,
+          "ruined_castles": 0,
           "souls": 4,
           "tears": 0,
-          "threat": 3
+          "threat": 0
         }
       ],
-      "round": 8,
+      "round": 10,
       "seed": 1004,
-      "trace_hash": "b8a20fac04d1ae18f8b78be722b937796c03e467f21b1efa90474b4ed57da607",
+      "trace_hash": "bec7646201423df4ea81fc4277b31368da67ca959e8a5be67226851264faed7d",
       "win_by": "Ritual",
       "winner": 0
     },
     {
-      "checkpoint_count": 9,
+      "checkpoint_count": 11,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -3813,31 +3565,39 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "97386422b3cf0c1d5777f99c53e488063e19f009c643bc8a99ef9494c0238b37"
+          "hash": "f6bcf8e5dd208c9aa26f7d671457fb6a7da8c8aaf136f248cfa607f11a3724d0"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "df7b16ee4bbb7859b03d3e609d1fd66aa785cd3db44567a5ce2436c0ca458145"
+          "hash": "ade1d00cfe73a9a26b584058807d7ffb5ec3570ac56bb02ec57770b131cbe932"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "51749fbbae1b04cd71525aa3479370d2cea4ea2e582c5e4c463ceae596da8353"
+          "hash": "119e96377db3e2cebb0a84acfefba2f188d3459cd64c2ce0f94f274c0162cb5e"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "20c0e11cec2075a35a5cdd095b4bcb2b268c8be9b5a395c1b82aa95fc073cb23"
+          "hash": "3aab54298ebb3d00415459fcbd9e589440cb55f73cd0116b3414e555939d71f5"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "8d9d047bae73a22f2b85b1d8663c31dfd4215a24f0755a073dfea99014448072"
+          "hash": "3a293da469f765fccf736967f22c55710522487bd51feba132e5f9a5174d340e"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "fbc704635bcbd7498de18ea2e6eeeba808b156aa270eeae89aab310ea6834980"
+          "hash": "5176eda19987a42ae70b126c481a5d968a424734c204286ead5488562c9d149b"
+        },
+        {
+          "checkpoint": "round:08:end",
+          "hash": "c59b986663c848373eb0c5b5cb35f661dcb652c00956400aca3d291fcbe4bd32"
+        },
+        {
+          "checkpoint": "round:09:end",
+          "hash": "966a63ba2a9c18b5378f32dfac079d2a8c96107f5b3a1d7daf099be09d3dd9dc"
         },
         {
           "checkpoint": "game:end",
-          "hash": "99c6a7d0cd47a1bdcf988b014f6985af6d16f53765adeeefc18824a692381c1a"
+          "hash": "9845953628288c2645b3b381fc7ced69b695c6be1dccc64ca42bb63e37988cbd"
         }
       ],
       "first_player": 1,
@@ -3846,14 +3606,14 @@
       "player_zero_lord": "Kalligan",
       "players": [
         {
-          "alive": true,
+          "alive": false,
           "castles": 5,
           "lord": "Kalligan",
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 8,
-          "tears": 0,
+          "souls": 7,
+          "tears": 1,
           "threat": 2
         },
         {
@@ -3863,16 +3623,16 @@
           "pid": 1,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 0,
+          "souls": 1,
           "tears": 2,
           "threat": 0
         }
       ],
-      "round": 7,
+      "round": 9,
       "seed": 1013,
-      "trace_hash": "727818aefc8957d5106522a6c621b6b98fb9f930399365e33c5032eba7f6b37e",
-      "win_by": "Ritual",
-      "winner": 0
+      "trace_hash": "6fdbc6ded8269504797eb99e0bdf47aa83b002434f20738877bc5769054a5e8a",
+      "win_by": "Dominion",
+      "winner": 1
     },
     {
       "checkpoint_count": 11,
@@ -4117,7 +3877,7 @@
       "winner": 0
     },
     {
-      "checkpoint_count": 14,
+      "checkpoint_count": 10,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -4129,51 +3889,35 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "e084e0277f798ce150da3aaab4fc5afa6f3b5793b5b72da72d0b69c9bbaa99fd"
+          "hash": "346d07a78dfef25ccfe5ba1a7bb3711eed45b068439d5ef0e142e034a0dc2438"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "39d11dbdb4f4e1b3c9068263d287ffa9b779c0ced9022a256735e017ea234a11"
+          "hash": "63e87ae77a7596648e816c19e4f61a3a4e6d48e77fbcac943004540356ff000b"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "5f19aa287801744d3936b3f6aef3835b40bbd1d3bb27e5aab45ff1fb4282a0b5"
+          "hash": "653962923c9e4e34d1a518ead95004da04796bdde68e62b053b35764d354f9fe"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "0051dbb6014387fdea99e14c27923f52c2ea402c6cd26de4470601150c4fc084"
+          "hash": "53f5b2979ab579c4625be0445af2813720ac5cca318371eb53b9f76771b89670"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "08208ac52bc163731576d71cff309491519fa744a61cee679654af0c1f2f737f"
+          "hash": "efe60d07430610ee163c133ebdfb3171991810cbef7a98214ab4588309a6927b"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "cc9d8bd119f25b160723a487a51509271d2693889b18ebcc8042d0f5fce59c55"
+          "hash": "ecc40ebb91dfc5a4e17ad52694199a58638d6372dd05a426125f16acfeb844a3"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "b14ae8cf7138f73327a5f83cb93b0873be0c9a55faaba2473c5c7b80b0336414"
-        },
-        {
-          "checkpoint": "round:09:end",
-          "hash": "db25045efaf57915e8286a8359c96f9d47406fceb46abb2d3f7626417bcf8d5b"
-        },
-        {
-          "checkpoint": "round:10:end",
-          "hash": "f453caec38c1bb3d732c3881f403dd6e3ef7b3d3cb48ca4281d27c942c59b150"
-        },
-        {
-          "checkpoint": "round:11:end",
-          "hash": "6e1602d497b36f336810e7c7d7d84a9897faf6b32a6ce316454b336630c2eb6b"
-        },
-        {
-          "checkpoint": "round:12:end",
-          "hash": "646a591a79aa1791ab9936d99c08512e21557c33a3eb87b4c21fe89ff3b6a432"
+          "hash": "c1ef91f828b2ae6ad1aa8e64007c25395a55deaa2abb645a1f9412ccebe3fdbc"
         },
         {
           "checkpoint": "game:end",
-          "hash": "a26a425b6115507f4e3ee9b1643de954e3ffbb963589aed5326d4066d5794b20"
+          "hash": "e29e05289147806691fd832c05e3e1ee1a1fca8aefa24b8d68e2123c0f8108f9"
         }
       ],
       "first_player": 1,
@@ -4182,33 +3926,33 @@
       "player_zero_lord": "Kalligan",
       "players": [
         {
-          "alive": false,
+          "alive": true,
           "castles": 5,
           "lord": "Kalligan",
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 5,
+          "souls": 7,
           "tears": 0,
           "threat": 1
         },
         {
           "alive": true,
-          "castles": 5,
+          "castles": 4,
           "lord": "Gremory",
           "pid": 1,
           "profaned_castles": 0,
-          "ruined_castles": 0,
-          "souls": 7,
+          "ruined_castles": 1,
+          "souls": 6,
           "tears": 0,
-          "threat": 3
+          "threat": 1
         }
       ],
-      "round": 12,
+      "round": 8,
       "seed": 1041,
-      "trace_hash": "7ff909437346a2c7aea7b9f65d8498aafe362fad380443c2278d6b215368b133",
+      "trace_hash": "38af513116923918817313cb2fd07c883aa141223986268df2c376bc8f877f48",
       "win_by": "Ritual",
-      "winner": 1
+      "winner": 0
     },
     {
       "checkpoint_count": 14,
@@ -4677,15 +4421,15 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "d53e531edabb2e0a0082cc6779461fb7612414ec307f0a77cda07ba7abbcda0d"
+          "hash": "8586ed6224d6301639cbeafe1d7a99becb9e66dbb5cabe8634c656ce3aab8eac"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "8fef0a23e1a8b3eacd0efc74a7d425873b093d9148a2097fd98a51430ceaf9d8"
+          "hash": "479b58fa66693e19b2dca3c40a509b186a5166013d3a344dd0d0f348b2d8681f"
         },
         {
           "checkpoint": "game:end",
-          "hash": "503fa834539ca85f9e6de385c0ba68f2f94f4de9d0e1e335d2970af29f4a2713"
+          "hash": "9b0dc20e2cd15997718e5813f06b85e3558080838bfa226f141634c645978cbb"
         }
       ],
       "first_player": 1,
@@ -4713,17 +4457,17 @@
           "ruined_castles": 1,
           "souls": 8,
           "tears": 0,
-          "threat": 3
+          "threat": 4
         }
       ],
       "round": 3,
       "seed": 1005,
-      "trace_hash": "e4346a4ae2c47e8c90db2ead3b2e320402e1c35fd7e92e04f23f83b94c40f1d2",
+      "trace_hash": "d9e03afe5b4874b1e0e3249b230101e15fdfff0bad2aff53323fdd1f512a5b7a",
       "win_by": "Ritual",
       "winner": 1
     },
     {
-      "checkpoint_count": 9,
+      "checkpoint_count": 10,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -4735,31 +4479,35 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "7c73824483b6b311aa004a003f8b9e6e882d3738a6e6efba953016e34dabc602"
+          "hash": "24935598d5e6381ee906a212cea95ecb75c596cff1f84e430f873ba2867f603b"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "b44be16e6b36a6d5e0920d577e5fc2edd90eae3477704ef0642954bbb4c2e155"
+          "hash": "b54f6ccaaa80db3a1067418235031695dc286c59f1fabf09a2c5cb6665661296"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "2e91041d82266164c6215601c55d1384be1ec7b21d7eafdc1e618c67bc3fe2a3"
+          "hash": "4709a3dd6c2c711a02efc4c39675216f734c1d2eb9baa56f752a3c976baec222"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "ba6a5b579c966c921d1300cac1f3b7876ff39ead69834c457a23b3a511ce7e00"
+          "hash": "d5ebdd8c8bd0317d1c22be4f5caad40bd6c57944ed3ce1dc6d31079abf090f54"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "a93d421e04cb2f745d06c6308416164476825ebf775f4c10c34f13b5d66fc3ad"
+          "hash": "f1ca4a7c40894e20f57bf51ceb7853a28ec04a321456025d2ac3a4496cddc955"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "948f159d0ba80e86cf781155ee07354a14ae08166aac4fd160630fd7700eb4af"
+          "hash": "c5248f6209fce3f3c302341480fffffb0ac4bc62154e968b04ea8a13609fdf42"
+        },
+        {
+          "checkpoint": "round:08:end",
+          "hash": "b9cf36cad2828bc16596758a33a2354347a58ea3ffa8299c5b1ccb1a108dd043"
         },
         {
           "checkpoint": "game:end",
-          "hash": "831cd50cbf6607a1aea79b481771013768c9f69ce2bf8f6c5efe8f87f87882f0"
+          "hash": "a7d69963ffe7e5b2b940ecafa695013f6d13df7c8749cf4b7f31c26ebf5d5ddc"
         }
       ],
       "first_player": 0,
@@ -4774,12 +4522,12 @@
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 8,
+          "souls": 6,
           "tears": 0,
           "threat": 1
         },
         {
-          "alive": false,
+          "alive": true,
           "castles": 4,
           "lord": "Deimos",
           "pid": 1,
@@ -4787,17 +4535,17 @@
           "ruined_castles": 1,
           "souls": 3,
           "tears": 2,
-          "threat": 0
+          "threat": 1
         }
       ],
-      "round": 7,
+      "round": 8,
       "seed": 1014,
-      "trace_hash": "9a031956b84fe1c8a3b6142c5cd58c21cfeb51081226c80b0b1454406b53bfdf",
-      "win_by": "Ritual",
-      "winner": 0
+      "trace_hash": "7a27d9b7ca45f4bc4957d853261ca5b514e55408d90e3e532746e7a672f60653",
+      "win_by": "Dominion",
+      "winner": 1
     },
     {
-      "checkpoint_count": 12,
+      "checkpoint_count": 11,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -4809,43 +4557,39 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "2c098668f96d08a4a6579b1b4618ddc49796249101b09c16142896a529ad635e"
+          "hash": "a3c6ea9326482bbdf05bfb6460dc85f51b05293f5fb7fc3250c05f2998833ed6"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "12c7ca5cf66bbf322879e4dd707b15c9940aac6679eba7cabfa0f6a03c7e5395"
+          "hash": "a8eaf2ed0be0023ba26d1f74a7c9f174a524b482ca1a23c9246b924059f85d71"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "b62a0155319d1fe098b72d1331062a2df0ee864f747557126c2d8c94e4b60bca"
+          "hash": "f7975fcc72eeab367c6e97fa7c4474105ca952a77e3db77d9df8a98ba931990e"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "eaf8d33afa2642ab64591058c5ccb39c0f968b1d882a5db8518d8dbe0419a64a"
+          "hash": "1aaddff38030199307dfff571b5e56692c4dff14f598d65294bfbaac07f72ce7"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "95157813e0376c10844b62f45db0e4c5e0c83f37ed1927f8dfa20b2387c589e6"
+          "hash": "a3989956ac0acd97a3812ce14787d46f57e2d17bb2281f9d9da5ae5e6bef8fad"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "2024b58f235dbda6cb4bd357821f8f0836df545f0e745b379f51919b61e41cce"
+          "hash": "315054871976a8faf14c89266a18d319a52489387c0f91bca1042b474052d488"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "fd645b584f710345005482bb979d82c6ab879ca373ea9585aa5abdef2e526c71"
+          "hash": "ca6c40960b186d8d4d0a7f687e5e0ae0e0d4e315b0c6cfe6dd4f36ccd8278cc3"
         },
         {
           "checkpoint": "round:09:end",
-          "hash": "14f81ee427725494db82497ddfe2385d8c70c64bb48d1d0116312218df89612c"
-        },
-        {
-          "checkpoint": "round:10:end",
-          "hash": "31dd59901debbe769da492a2a4a0b6cde490b95e1ea435aca68bee3a3fb8528e"
+          "hash": "4b34f03b033534a4642602e25b6ea678ba18e6854a03c92fb93bde4f06eb1e13"
         },
         {
           "checkpoint": "game:end",
-          "hash": "435916d8a41d7d9cb31fe9d2196f9a3cd20f541d907bdb70e77fb40217e9fa57"
+          "hash": "01d4f6f9e9ddeed6835e896a9e3dd0fe704c7cdaffdfc5c83458558500974228"
         }
       ],
       "first_player": 1,
@@ -4862,28 +4606,28 @@
           "ruined_castles": 0,
           "souls": 7,
           "tears": 0,
-          "threat": 2
+          "threat": 0
         },
         {
-          "alive": false,
+          "alive": true,
           "castles": 5,
           "lord": "Valak",
           "pid": 1,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 5,
+          "souls": 4,
           "tears": 0,
-          "threat": 1
+          "threat": 2
         }
       ],
-      "round": 10,
+      "round": 9,
       "seed": 1023,
-      "trace_hash": "4aae0e1cd93dc45dbbfa046f11c1a2e58fc32b1fb581da8c0f71d66cb1a97cd7",
+      "trace_hash": "146ad70fa449543a1277f9b95ec639c6f0dd53e093b5ae1e66c0dbece49580c5",
       "win_by": "Ritual",
       "winner": 0
     },
     {
-      "checkpoint_count": 8,
+      "checkpoint_count": 9,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -4899,23 +4643,27 @@
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "95ec55452f1568e78d5f3a9f89205ac70fdafa25bf5afbd8121d48f77c41c3ae"
+          "hash": "ac0d6edca8d255305e388c52a8a20002dec2d0423751032acea7757ee3132e90"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "114c01cf890b63537893ff38d93515ab61f3404e38c68be66ba33e05d9210002"
+          "hash": "c4e7ffe5679bfc64ad7dfcd5a873ef92a372a2f997bee93c8061e84b750ba238"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "9c47bf6cca2acc60894dab9d43520eb5d6cbed6cd972936ad12ef9dc4dc81e34"
+          "hash": "e088181f6aef340dcd643a90edf718570834cd1e606c247906ee0008861c6bf8"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "6f38208c5f98d1fdb0a5a090737e97e3204eb07c2a208dabc45d0dfaefc9c59f"
+          "hash": "e48f0beff797f91195a86f6034fa5b3de3b6e94aac404bbd17ff26eb79b6cc49"
+        },
+        {
+          "checkpoint": "round:07:end",
+          "hash": "dbea20973cc5cec9091a15817af42f889ae907c2c69c591dba035ae3692dc815"
         },
         {
           "checkpoint": "game:end",
-          "hash": "174005f9583d96599cc37d12c8f125a1a9ed58147a159112810d3f310bedbecc"
+          "hash": "6bbf2338d20ba3d1273d013fa9ffca8140c6c599643307aa1ea175c4bf4222f8"
         }
       ],
       "first_player": 0,
@@ -4936,19 +4684,19 @@
         },
         {
           "alive": true,
-          "castles": 5,
+          "castles": 4,
           "lord": "Kroni",
           "pid": 1,
           "profaned_castles": 0,
-          "ruined_castles": 0,
+          "ruined_castles": 1,
           "souls": 8,
           "tears": 0,
-          "threat": 2
+          "threat": 1
         }
       ],
-      "round": 6,
+      "round": 7,
       "seed": 1032,
-      "trace_hash": "fa1d8d081a008287377a42963095349465c6970b2afb4e543e02e3f73dfffafe",
+      "trace_hash": "cd4b1b0b06be049a06da5509f89e9b5bf73f247bd501fb29f7ce20773ef5ae42",
       "win_by": "Ritual",
       "winner": 1
     },
@@ -4965,15 +4713,15 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "e80bbcf17d2c9eeb4bdee7d68042c3ed0d75f0f66b0cd2ff218351dcbb28b51a"
+          "hash": "80fcb1d55df6ddb7dcd494a8c5da7f2a443884ea854433ef6a8f491162a691e9"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "cc697d141990ad82a53e2d94854d998f7ee08ae95989e817bc3859cd42f40807"
+          "hash": "432eb1ffea868d676516d0e8f8c2a3d292b9decfca1e0d8914b9ab3d5021559b"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "8a321ae4c45e139f9a5274aa8f13e1dce9016ac9f5d4c8b0a6539766b23dc500"
+          "hash": "20171dd3951ce5807c3b6e01313ae8db165a1dae110eaeec581b89d524ff54af"
         },
         {
           "checkpoint": "round:05:end",
@@ -5022,7 +4770,7 @@
       ],
       "round": 7,
       "seed": 1041,
-      "trace_hash": "d41616d0722d52801142be483583d5252930a503dee9d629f9beb24d51f737ae",
+      "trace_hash": "e486622f2f5aafe260bd66e48d143dc4b5e39b4b7ae6df188131e4a968e9923d",
       "win_by": "Ritual",
       "winner": 1
     },
@@ -5039,19 +4787,19 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "857de401734f92acab1453ea63b17b57a4ae8774bef6c27462c756f2158c1fa1"
+          "hash": "116233718691b23d94dd6c4731bba0a9d18609609217733f98747b6c8824c16b"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "02a993d6ea7e4ac0a5004ed4851c170ddc1eb69839952ad216522f5cc94a489d"
+          "hash": "47a312ddabd9b96587d71763b270b8b85fb11eefc1694299555d42d3a18031e7"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "48a7e36020b01a75a777a4758894c85673ea48ffb3950802b2eb68829c3d5ed9"
+          "hash": "adfce7ec5cc567e81b4304e9b96b4b18af0a2ac4219292b03081049a95500cc7"
         },
         {
           "checkpoint": "game:end",
-          "hash": "5c597adb9c4410b83e2bfe805a1a09c5a62153b0a5569fe46ef218342899b321"
+          "hash": "dc58d4c527fd03b00bb5b07967be132b104be900e4514ea654a0f4b729cc06c8"
         }
       ],
       "first_player": 0,
@@ -5084,7 +4832,7 @@
       ],
       "round": 4,
       "seed": 1050,
-      "trace_hash": "d1931636aa19498f07392a723643d4371f6209b9a4623eccf2289467f0c4e201",
+      "trace_hash": "96798f8ff11a3b6552517c9d21c5d8bdf9222ed2a131541990e9455d89706ec7",
       "win_by": "Ritual",
       "winner": 1
     },
@@ -5101,15 +4849,15 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "90ee0aea7b4ed8a54f53d34a0dfc6a5c237d4183127533a703f687f7d0cb4448"
+          "hash": "b3a95b95cbaa8088fbba89963c82b1f3f9e393dc5473b5e49ce0487cfe100e0b"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "f76219d75ee6309c2e733e1228027577b8ac56a1578b8e9ffd51c3ef57eefc7c"
+          "hash": "435a2509c56872011b7238964db25869b8859e6bc9b0c01ed82895f524d399a8"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "915d8244f7231d6e9fa462f9412ca5d4e428652d26a5930986d86b82a88c51cd"
+          "hash": "cd1a782af6fa8c734978182dd7c702b280d5b373972838278912ec15b5c54028"
         },
         {
           "checkpoint": "round:05:end",
@@ -5133,11 +4881,11 @@
         },
         {
           "checkpoint": "round:10:end",
-          "hash": "2191a1fb27d3cc1b90b1bbd237f9a3180689fa6a51fe69a24ab60aaa7829fb41"
+          "hash": "6d61cfa0049443c2f986e5bb6f6cb290ae89902498f402edaf1028b1f274b188"
         },
         {
           "checkpoint": "game:end",
-          "hash": "35b9c2c32af0db158ad6281cbe152820bf3cce4b1185192a1c50c63ee0820f5c"
+          "hash": "990479f6e47ebd1552d5230f49273f5779768636e70c2a95a1e63a96146df60c"
         }
       ],
       "first_player": 1,
@@ -5154,7 +4902,7 @@
           "ruined_castles": 0,
           "souls": 6,
           "tears": 0,
-          "threat": 2
+          "threat": 3
         },
         {
           "alive": true,
@@ -5170,7 +4918,7 @@
       ],
       "round": 10,
       "seed": 1051,
-      "trace_hash": "b5b3c25179c92237cd5867e3f1e18fafa57722d10820e4aac73b8610f0dfa5cd",
+      "trace_hash": "dfc120c3d7188e3637a42f5ad73ce860b4ac03cc2d9ed736f36de2352f787897",
       "win_by": "Dominion",
       "winner": 1
     },
@@ -5187,7 +4935,7 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "46b1833c76cf97995fa5b218c4e772cad150636843d3524143e794bd6c6fbab8"
+          "hash": "38f0049b4c76515162cb2c2dfbc404307baaade1dd5cddadbd8dd9f5d03e9d55"
         },
         {
           "checkpoint": "round:03:end",
@@ -5199,15 +4947,15 @@
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "6237623eec8488410955a7bbf595cb12d442a983334e775f3f37bfdf1889ac45"
+          "hash": "9ca3d87d104eecc6769d41c2f2ab8f2bff2d6bb66bfea981a2f96f8c6505a090"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "3ae96f8c6e90720ee1bd3e3aee3bce916a9a78dad01451e5c16995097d0ad1c3"
+          "hash": "f7727aba930546468ec0a19e4ee63c286ee4125175a9a551d49ca91695408514"
         },
         {
           "checkpoint": "game:end",
-          "hash": "94604c9ec60d320d1296e660bfcf77f7c4ef6234333c6e9fd6d992ed9421e179"
+          "hash": "e79ee0e8aaba23f60389e9a7a248fd51b2a7ba58c4c5674f4191b18c4bbdeaf2"
         }
       ],
       "first_player": 1,
@@ -5224,7 +4972,7 @@
           "ruined_castles": 0,
           "souls": 3,
           "tears": 2,
-          "threat": 2
+          "threat": 4
         },
         {
           "alive": true,
@@ -5240,7 +4988,7 @@
       ],
       "round": 6,
       "seed": 1052,
-      "trace_hash": "c437617b1d1b399e80dd62bdf75bce0aff8b98569c8eeb8f6a796814ce7c66ba",
+      "trace_hash": "b0f3a256f067fcec22c988cee70c44621145ad838bbb52eded7f1ceacc4875e5",
       "win_by": "Dominion",
       "winner": 0
     },
@@ -5355,39 +5103,39 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "454ddd98db37c895caaa3816d681e86b2055ec7b96944f2d723df74f89c4c8a4"
+          "hash": "e3ee4a0f4a359e77bb093d615c8d125f453b28327fc907906e63d36befbbbfc3"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "be93d34bd6643999feb475046b1b91faff60e941f432d4a266ea22fc5c77d382"
+          "hash": "e85924c3573487a9b5af044bdf173ff47ff0e5fec974d193fde0bbde12991e2c"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "3aad81db167241d30e3b08ea3f09e5de17910aa0ce4f1c0e285f3bf3d3a2ac0c"
+          "hash": "1ec7477196dc12024052d302541f7cc17423439896726ff08ac2c28e90a4f287"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "8f70168796c125206569d34cfdbdfc1493b2e915a43a908f990cc23fcdfc9e5e"
+          "hash": "33a3ed28811ea0cb159b8352e6daaba9f45fbec16028aacacd6fd690324da0d8"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "81adb163db49e4f61352c78b83bde3c96e520a7e0fe72246b410aea078d9eb52"
+          "hash": "220666d617c3e5af42644c5012eebf3e2b65e5eff5b021c8944dad653e022c34"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "0ced3d92ddd80731fa5acc84951199a2879f16bb40829f1c4dd94a4fbde44103"
+          "hash": "f5d7410f31beabe8989028390b039589bf20e04df086aebf80c1fb073cb26274"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "b97c9c61f38552eae64ab550be09106efcdfd2ba9c849287213d67d11cd5ce32"
+          "hash": "df572891f454201ce693c90b0435094e209d80469ff7774466865a97ef5f004f"
         },
         {
           "checkpoint": "round:09:end",
-          "hash": "788b87cee8f22de641407903e46ef14ac959e7f73897cc13e1285e7f57eb40a5"
+          "hash": "bcb725ce8e6d659989ad6be21a480ba2fabfa12b49424c48d6c3c65dffb1e2a0"
         },
         {
           "checkpoint": "game:end",
-          "hash": "51bc21d6025dcf6fb45eba0ce3b185705ae065ef37f135bd6a6130c95067554f"
+          "hash": "fcca2f23b82fa9779a918426e9bff1e5bcd8b35f59592db1a625919ed5956d87"
         }
       ],
       "first_player": 0,
@@ -5420,12 +5168,12 @@
       ],
       "round": 9,
       "seed": 1006,
-      "trace_hash": "4d124a5b7f78a88ee3697b18e018eef414077fff023ea84001889625fed604a9",
+      "trace_hash": "e64ffd701e57c2158beca28fe6de85593a366c4f335dd17e6dfe9182ade1fd9b",
       "win_by": "Dominion",
       "winner": 0
     },
     {
-      "checkpoint_count": 13,
+      "checkpoint_count": 14,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -5437,47 +5185,51 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "c8d44e967ca8008000aaa37c416c5543794da297d7b93b099a3fa1953fdf1234"
+          "hash": "129d6d655de7c25d8efb3e4a4a268f7eb5a041b49ece93699a10e5d3f14c7f52"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "f52974c245a7d11b04fc8786c02dedf245cffda0248bf48ecef7f1183cfa040a"
+          "hash": "5bc8ef084d68e4d85ec117a44009eaee7610023a5a8a7947efe755016a2a8e6f"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "0a271024bd098f59edeb648fa9791594c845abc12bb63c5e9a351b3efb829cfc"
+          "hash": "1e6be85da65b85fd964974e9a0fd46be2b4e95ce6701a0270adebf7a78a45934"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "802dc9d4b151d6d72159e665b9ebc3aa6ddfbf84a9cc97323330ff6dc312eab1"
+          "hash": "cd1c39373009778f19cc66e8d2b97a1dcab58d23e77c2bc64416734967afd1bf"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "2e42f72951f73f72192712d73b6bffdba35829749f3a21cc8064af8eeb05b9f8"
+          "hash": "53b76fe63eeeec88bcf97a23aff6a347a08e1d64490da28b5ce1b5904625530a"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "14c790e2032b1e39e5afcbd004a95783dc298daff014e4eaf12ba45637c62fff"
+          "hash": "75ca2e4f86fb8e9a18ddac2ae34fe61ab1aa77b1e09095b9011277ca0ed3415f"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "927a576f8b8ce4ed22f2c23d0578375c543621770ea0fbfe2a9aef12ef3c30e2"
+          "hash": "f22b99c7f30e62fee803fef26335edb509f7bd789543128f27a17726b27a0b40"
         },
         {
           "checkpoint": "round:09:end",
-          "hash": "939bf184e5bed3d495d98cfeaceabed50db26a7ce7e486fabfbfed71395ffee9"
+          "hash": "f6226e9108189958ca3bcd59fd5d29b598bcca5b5fa7ca822e1dd61aeb12dbd9"
         },
         {
           "checkpoint": "round:10:end",
-          "hash": "ea6e2ba8d309a782c05bbe239c477afa0ad7cecfb1dcc604ffc7198ccfe15ba2"
+          "hash": "b9de6395837297e0544daec693f51993e9b061d2edd1c94d69758999c244af40"
         },
         {
           "checkpoint": "round:11:end",
-          "hash": "f37d203040ea832b83531f8fe74d31272a0511b23710f7941410c416406428a0"
+          "hash": "0da3275aff4fe41b8ba605c670445227e85ce7e663e5df662b55ad942859d86f"
+        },
+        {
+          "checkpoint": "round:12:end",
+          "hash": "1e4dd50d65bd1134fad485afcfd1ec11219607686b3b394bd6b3eea69588e409"
         },
         {
           "checkpoint": "game:end",
-          "hash": "2bdebab900f64d4d471b505f9a02a50deaac2572a97e82161c973602eb1c9d3d"
+          "hash": "cfec5bedce7816d3ba344e1313cbf938739eb714064e89af27b5b61b9e1f795a"
         }
       ],
       "first_player": 1,
@@ -5508,9 +5260,9 @@
           "threat": 0
         }
       ],
-      "round": 11,
+      "round": 12,
       "seed": 1015,
-      "trace_hash": "83facbadbd944ffb17a9793c88be7334b873e26390e0771bcef80b4550a5c9ba",
+      "trace_hash": "bef669ffdb89d1bd2bc78fb5c887d1394f65edde031ed71dbbfe6e4815e921f8",
       "win_by": "Dominion",
       "winner": 0
     },
@@ -6039,7 +5791,7 @@
       "winner": 0
     },
     {
-      "checkpoint_count": 13,
+      "checkpoint_count": 14,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -6071,27 +5823,31 @@
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "c79151c7905ad6a8b5a1d167eea03bb3347fc9896fa4eb9a5d8f90587891303e"
+          "hash": "42c0cea12913c2d615a7570eb1b7240dd94feb32b8b13be4d8b6c5574538362d"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "633f31b7a2f5678da682315ebefd2dd4841397c2be231d4c9097d65135a6d6d7"
+          "hash": "6bbd86bf174f629e8e868d4a5f9af723c90b4c952392cc3278d19c70cc2819e3"
         },
         {
           "checkpoint": "round:09:end",
-          "hash": "8f3fecd0f37c2bf64f5570ee5dbd25d11f6d37ed7b72e4f39bccd46ba314d7f7"
+          "hash": "636cbfe8353d4328a954620ca61f2ac646787296d01f39537de10afaf8bb0b28"
         },
         {
           "checkpoint": "round:10:end",
-          "hash": "283129deee44095e292941360b39142af6513695b1d1aa4ade7369e8a77f06a3"
+          "hash": "14c8020e55a2a8ee203742d07d57ac3b3f0e81840fd959ad4652ba948d52f70e"
         },
         {
           "checkpoint": "round:11:end",
-          "hash": "09a892513fbbae02964472489626497b72cf98cb463cd28292fb80cbea540a2a"
+          "hash": "955f4a10ba2ff047423ded2c3b924b81a02e1e33158051d85ad16474f7783cdd"
+        },
+        {
+          "checkpoint": "round:12:end",
+          "hash": "2f4d71454b909452b8b39e000f68fb3c9ce607de396b3364658c78e118304080"
         },
         {
           "checkpoint": "game:end",
-          "hash": "b03e3c067f71af0a9f37dd1731841237455b65718b901007ffb0c4d9d355af84"
+          "hash": "f99891a0657461597235bb5ff0b53c1002a0272e92b8b30d8c88cd497e5e5e35"
         }
       ],
       "first_player": 0,
@@ -6100,32 +5856,32 @@
       "player_zero_lord": "Odradek",
       "players": [
         {
-          "alive": true,
+          "alive": false,
           "castles": 5,
           "lord": "Odradek",
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 7,
-          "tears": 2,
+          "souls": 6,
+          "tears": 3,
           "threat": 1
         },
         {
-          "alive": false,
+          "alive": true,
           "castles": 5,
           "lord": "Humbaba",
           "pid": 1,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 2,
-          "tears": 0,
-          "threat": 2
+          "souls": 3,
+          "tears": 1,
+          "threat": 1
         }
       ],
-      "round": 11,
+      "round": 12,
       "seed": 1062,
-      "trace_hash": "4777da52b75bea2035dffbc7c77a78fc63923f0ef545590d9267db44f9a72e45",
-      "win_by": "Ritual",
+      "trace_hash": "b87d290c509fbf3cd7baa44e8c78503c751f02bb030d7265fe2b23fba12b9db4",
+      "win_by": "Dominion",
       "winner": 0
     },
     {
@@ -6153,15 +5909,15 @@
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "ff6e74efdda34ec2c253d79003a524c765607a5e57106cadce90c43d93741cdb"
+          "hash": "47bf2e2e121d008d6cb47caa9d57555c0b290b7264b5dc17683a7a78ff40db61"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "64ea9a9ac583de9114016c16dadd97496e130d2324086ddbb1bd76d9df119db3"
+          "hash": "8309556a741307dd357decff444a7380f90b1f6633c916cd7fd99d82fb93a44c"
         },
         {
           "checkpoint": "game:end",
-          "hash": "fe01886eec72856624967369a1d44e5c63fc045ca914cf8247e8d8ce5397f651"
+          "hash": "1ecedb6401af06ebe8a1e4113cb7280f92df46dfdb9a7c6edd281d2d5bb7aa99"
         }
       ],
       "first_player": 1,
@@ -6194,7 +5950,7 @@
       ],
       "round": 6,
       "seed": 1007,
-      "trace_hash": "9f4205fa23aa0fa0374a469cbfb66ca1886a8c0409a86c025d5e083469593254",
+      "trace_hash": "8374c6593608321dc240de45365c2b37fcebbbf66710a341016b82ec85a96fc7",
       "win_by": "Ritual",
       "winner": 0
     },
@@ -6215,19 +5971,19 @@
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "811f8b4c6b4c97a3a29cc855eb1b23fe1e6219da05c392f3d2b59872d58fc404"
+          "hash": "24e2900fd4178bed7a8684440e37ad158926931b91f61406daa5fe676b3ad523"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "6c6701a64e06f6cdf4fa151e82b2c532d52bd781ce32caad2679f90168698914"
+          "hash": "4ed87287534bd20a3e35a07e28cc6044d28e8c3d6e3e2e687c0c9f1ec97af877"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "dfd43226309d5a058118eaf4b8777fee894b78995baa2004772dbe9a32383760"
+          "hash": "ac04d9eba51ba3e166df740a98fce5975e3019ebf5619117788b24de07786924"
         },
         {
           "checkpoint": "game:end",
-          "hash": "7bb1d618bd9dae1997122936ccb6497f327cf6f48a684eb7db70874f7455b522"
+          "hash": "3dd518c16301dd64b036d26cfa95359b1b3fdd51bd8426d666c5c4610e9faea9"
         }
       ],
       "first_player": 0,
@@ -6255,12 +6011,12 @@
           "ruined_castles": 0,
           "souls": 5,
           "tears": 3,
-          "threat": 0
+          "threat": 1
         }
       ],
       "round": 5,
       "seed": 1016,
-      "trace_hash": "5ddf072db515ee60b51c026909c26d3baca0b88351dde0ab88b65e24699a2df8",
+      "trace_hash": "a8e15108cf2aafbc4157e79ed57fbbc44c4c772d85c7133652ba809252402830",
       "win_by": "Dominion",
       "winner": 1
     },
@@ -6277,7 +6033,7 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "97da78c16f09bf0c56c64c13477255550e599ab4ad2e0f8c9eb624bd68fc00a3"
+          "hash": "b562cfb874648cb562d484f8a76c4d161ea877fb88069a024c722c15f24f641a"
         },
         {
           "checkpoint": "round:03:end",
@@ -6330,7 +6086,7 @@
       ],
       "round": 6,
       "seed": 1025,
-      "trace_hash": "faeb444872cd2ca7b1d94aab72aa153d8350270b578f1f21a9b9738bc2693d37",
+      "trace_hash": "16c3c976d4158009ce50103c46803fcbfeee595c797f36097bf61cdc19481b35",
       "win_by": "Dominion",
       "winner": 1
     },
@@ -6507,7 +6263,7 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "69c6c444c29bc8101b62f56c3cf7793e8c0f86ebed7785228d0524e22625f8b0"
+          "hash": "454d17a97ce43922f6e0281b9dd13df23865e41e9fe0e81e45bae1edab6a82f9"
         },
         {
           "checkpoint": "round:03:end",
@@ -6564,7 +6320,7 @@
       ],
       "round": 7,
       "seed": 1052,
-      "trace_hash": "6cd105546384afb3a34e1054605f923a3739186c35599bc8ae6ada12858c3393",
+      "trace_hash": "de01f15ebc6cff66159bb5f90198b656e29913797b1a993720217b4cfc2ae9bb",
       "win_by": "Dominion",
       "winner": 0
     },
@@ -6863,7 +6619,7 @@
       "winner": 1
     },
     {
-      "checkpoint_count": 9,
+      "checkpoint_count": 13,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -6879,27 +6635,43 @@
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "732c98855044f83b72c525bc3d27755d276a92ed9aed64257513a2e529cf71a0"
+          "hash": "4501311436e6d490107591c8efbf7f1e5048e977a0627b6ef7d35e0d54871d26"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "64e6df6f40674d076a98b69f2354b81b1e824762f6f7bb0d15dd14ebe04c74e1"
+          "hash": "59182e8f36ef6a41f71edd00a3cf03be9f4fbda15227b70ebfe2ecb8769c16fe"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "285a21c4a3338dc26dacb1ddfbca17172d819a0df5f1d5580df3c0084d020915"
+          "hash": "ff5b26e4f179a618d4dc8435b31d42ec427d637d4756f8b4fd2c40402d9db6fc"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "8107350f6e924cee73986afff028f92194a7ccf04a1c9c3c2580283a9d6e4453"
+          "hash": "65200774913403c1143576f0b6bb55f9c2421608896b25c6088212ce6d1abb66"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "8dc5883c524322c1c8f04201d5335f576e7ca7f01846ca1d6ddd1e8b32d692e2"
+          "hash": "ba8a4ad67ed67aa41a76ebd081f79730d4c90ef22e94ecd35029d3aae940d1d5"
+        },
+        {
+          "checkpoint": "round:08:end",
+          "hash": "5c307baca5149211234e6692c9486aa20b18b2dad35773cf9827f058be5ca74e"
+        },
+        {
+          "checkpoint": "round:09:end",
+          "hash": "d70bd6473cd5b01265ae3e7a90cf78bb2e09c2d737388f7fe14c61d5f1c95439"
+        },
+        {
+          "checkpoint": "round:10:end",
+          "hash": "37fddb14f4a76056fe2ad2f89c996a2b46a396dd692be201a7b051b4d7a9db85"
+        },
+        {
+          "checkpoint": "round:11:end",
+          "hash": "8d1241c194818e925a1c36684e30433eca8d7bae34645cd49d288120267f4066"
         },
         {
           "checkpoint": "game:end",
-          "hash": "a69989e1395b919a86632d82ec0a0d4482d927e35bfbc31fb8dde12f1ff67097"
+          "hash": "2cfc067999701764064a0b99f2eec2dc20d71bbeacf2abbb68df980b98e0996d"
         }
       ],
       "first_player": 0,
@@ -6908,32 +6680,32 @@
       "player_zero_lord": "Humbaba",
       "players": [
         {
-          "alive": false,
-          "castles": 4,
+          "alive": true,
+          "castles": 5,
           "lord": "Humbaba",
           "pid": 0,
           "profaned_castles": 0,
-          "ruined_castles": 1,
-          "souls": 1,
-          "tears": 2,
-          "threat": 2
+          "ruined_castles": 0,
+          "souls": 7,
+          "tears": 0,
+          "threat": 3
         },
         {
-          "alive": true,
+          "alive": false,
           "castles": 5,
           "lord": "Orias",
           "pid": 1,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 5,
+          "souls": 2,
           "tears": 0,
-          "threat": 2
+          "threat": 0
         }
       ],
-      "round": 7,
+      "round": 11,
       "seed": 1008,
-      "trace_hash": "c68ba94110a8f0f9290dd6609e60b3bc60759a721dbe807748f4910f203e5f81",
-      "win_by": "Dominion",
+      "trace_hash": "3cbedeccd0ea405e0ffa58f9669580fba9127ccc73142b7310e2b430a0cc4765",
+      "win_by": "Ritual",
       "winner": 0
     },
     {
@@ -6953,15 +6725,15 @@
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "deda5208cf9815b5c05017e2b76ac2f91dc9b52d5a09af79af70a14c93021cb2"
+          "hash": "764d787ff89e7e14eb474299da3d8e3264f240ec7a69a7a1f409d72f89415eb6"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "376dd19e83bb38b3dabaa0b2d140242098bbe3f28479d88afb0957b6e48db56a"
+          "hash": "709ec7fa9e75e3a5ac2e074a94dbd6d94292da1d090bccac11dcf9a6658b0db0"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "a81f56cb2cca112137048fd2f96536a838a3fe010946564c346b5bec19dc37a4"
+          "hash": "8617d5e69534e5da1451bae63d69e64e4a00870f6eb9c4ddbcf67086664a840c"
         },
         {
           "checkpoint": "round:06:end",
@@ -7010,7 +6782,7 @@
       ],
       "round": 8,
       "seed": 1017,
-      "trace_hash": "0f0302c563fd9865063aaf79a1c49e7e64a355d8dfa7223b026e6ee6b2e66748",
+      "trace_hash": "c4a62e8e13c4337118686deb3c63bd71b3599cfa6417bd875a2f603321a94235",
       "win_by": "Ritual",
       "winner": 0
     },
@@ -7027,39 +6799,39 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "7f0529ea915f74a634d32fc74007d47e31083265806681a3df661b5ad448f99d"
+          "hash": "b2798ff0835257a10300389460221f90fd1d1fc8f911fda681e70be5823cb369"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "a42ca680f0fa1144d90aa98ca2e47a2b5466447975ffca452a4a9699ee4a4dfc"
+          "hash": "9d932c1b5c08ee8521a3fd2e7e2dc424b677604eb63d7f159959b64a232a69ab"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "700458955a1ab8245f788d41beecacb6241aebb391ef180f69ec1febb0a7ba34"
+          "hash": "0be7b45c29e2077ecba3a3f2b33c378bf766436a27848443e4772b05b8706d12"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "0a950748c6efd57bf09fa9029444cf72e89c673731f28230786f69bb7672e375"
+          "hash": "d60b5f998c5badf0aa2859ea70abc84e3f042ffeb3f33b88c6a8b39f8f16c917"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "d87eae6b485e8f77658c0186edc11aa0bc2cd962d81858f69be13290bbc453a3"
+          "hash": "ceb67b06e0e0451485f561a970f5f9e18e1165f567e38a501d82d94729a17593"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "b4df0d018df4ab0f2c6b80e616b6f7da91787e76a436e7f9af7153d1a737e3ff"
+          "hash": "ad483a91e9f9dece2d08151fb0497b51efafccbab0dcb8997c3eae285796a15e"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "ecfac1864dafca9037818f834341ac343ff15e3f12c6489bf21d2f360b80928e"
+          "hash": "41b96f223f8c129c6e6e7c5861058c3c3c9f53cb57727ff7763cc5ec0d6e646a"
         },
         {
           "checkpoint": "round:09:end",
-          "hash": "2dbb44cb39aa272c2ea6e9f7182b1100e13e77958cf0de25461e94eda488aaa1"
+          "hash": "bd364321d390991743c8693e3160c39cefc2f767442c54a87aa7ada3fe5ef84a"
         },
         {
           "checkpoint": "game:end",
-          "hash": "f3e2d687496a914b1921ec68f52de463cf7ce7b8e5fab0e331debe0f888a0980"
+          "hash": "1ab5cd9e644ad6c500742892c5ce4ff362677884416cbb7f1db26fbb8a5b7e83"
         }
       ],
       "first_player": 1,
@@ -7076,28 +6848,28 @@
           "ruined_castles": 0,
           "souls": 7,
           "tears": 0,
-          "threat": 1
+          "threat": 0
         },
         {
-          "alive": false,
+          "alive": true,
           "castles": 5,
           "lord": "Valak",
           "pid": 1,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 1,
-          "tears": 1,
-          "threat": 1
+          "souls": 0,
+          "tears": 0,
+          "threat": 3
         }
       ],
       "round": 9,
       "seed": 1026,
-      "trace_hash": "78f76b998f9d68d9d68c45ef6444a27730298bd54bb8d4fc2fbdb2d5bbbc2865",
+      "trace_hash": "7c4246144316f603e1421b6825f50152dd7657a47b41ce8d700c1de914cd7ad5",
       "win_by": "Ritual",
       "winner": 0
     },
     {
-      "checkpoint_count": 12,
+      "checkpoint_count": 9,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -7109,43 +6881,31 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "4b90d24dc47b4db31d2815b3373bd1c4173058cbefcfd561b154ff57ae53befc"
+          "hash": "d67d9dc2974daa9dea73b236be5d95a127ddfaceedc47b895a851dd933569814"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "caab5c73b3f2828e27b442e4e3afb1567c6ec3d14b488792532d41f984acbebb"
+          "hash": "8c7de3b127d8f49a50a013e61884d678d98c16cb499145649d276e96e265a56d"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "8ec976bf8bc608750e8f2895c8234d92b824d91bb62dce89319a6f05a1b895ef"
+          "hash": "bd86780916f23fba905ec5c4a445555bbe877f2907f4c298d50f77fd7f3f5195"
         },
         {
           "checkpoint": "round:05:end",
-          "hash": "55793cc5c7988d53de4a9fcdd350de13067cfb8d5730867ecf037df864d81708"
+          "hash": "345c00c22dd3cdf458f93c203bacc78af03cca70555bd4e1f96392c33339a33e"
         },
         {
           "checkpoint": "round:06:end",
-          "hash": "e069849723e0250513f204687e9962d4d5d3b2e292bf8d0117d0a786ec71d3f4"
+          "hash": "d55ff1090804ffd45357c505ff06b74a9e1f11df2caab9d09a397c2f0c737c41"
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "af5d3907ab52358903e436f1fbc7d5e072de9f17eaffff37af48b23e1d4272cb"
-        },
-        {
-          "checkpoint": "round:08:end",
-          "hash": "34c8fe7f070f489297a3dd8497ac420e3c07c5b4704bce8fc55647a337d84397"
-        },
-        {
-          "checkpoint": "round:09:end",
-          "hash": "594d08ea0b5fc3f8d5c76d7a69eb5c9fdfd634a456a6047a14fe89e06ca5327d"
-        },
-        {
-          "checkpoint": "round:10:end",
-          "hash": "662a69e223b5dd9a741bf26341ef4ebb86d6e80a2eb4c9659a6ac1e551922e32"
+          "hash": "fd5e63b82b44c0420209543bb652038a75ce0c3594a86fd7eabada6798cb1f57"
         },
         {
           "checkpoint": "game:end",
-          "hash": "b009759bb92efece1e8acc4a43743ce571fca2f0e76cb6899e1444c00bc58a50"
+          "hash": "3f2a9e47bb441918e50490cb5464d3fe9f8b4694ba6939c181321d546ad2cbb8"
         }
       ],
       "first_player": 0,
@@ -7162,23 +6922,23 @@
           "ruined_castles": 0,
           "souls": 7,
           "tears": 0,
-          "threat": 1
+          "threat": 0
         },
         {
-          "alive": false,
-          "castles": 5,
+          "alive": true,
+          "castles": 4,
           "lord": "Kroni",
           "pid": 1,
           "profaned_castles": 0,
-          "ruined_castles": 0,
+          "ruined_castles": 1,
           "souls": 0,
-          "tears": 3,
+          "tears": 1,
           "threat": 1
         }
       ],
-      "round": 10,
+      "round": 7,
       "seed": 1035,
-      "trace_hash": "d697727623aa9029dac0dbccd08d0c71f96a2ac6b245b3487ce1ef9e2820be50",
+      "trace_hash": "069c314a23a1d91020269357b4f6d99ca4c15b7ebeb27d80081bdd407a2cfa40",
       "win_by": "Ritual",
       "winner": 0
     },
@@ -7277,7 +7037,7 @@
       "winner": 0
     },
     {
-      "checkpoint_count": 17,
+      "checkpoint_count": 19,
       "checkpoints": [
         {
           "checkpoint": "game:deal",
@@ -7289,15 +7049,15 @@
         },
         {
           "checkpoint": "round:02:end",
-          "hash": "8ad18a633ea681176964074fd4c8b49c1ef308e7259e4b09373c582361619251"
+          "hash": "33ce1eca16f9a9bf9126288aa769d43616ffaf7a6eee3823e8faaf7010ffbcad"
         },
         {
           "checkpoint": "round:03:end",
-          "hash": "b8b1bfe7e4d5a08bcf88a62ce271a0179ef6f439fe8055c671c0990d646ec1fe"
+          "hash": "5f007974f34cabf4f222bf58adb449a77e121bab6cfa6ba104c5a3579afad52e"
         },
         {
           "checkpoint": "round:04:end",
-          "hash": "fc5a1bd4a70f3cba186bd44f02cef119ea040d84528c562a21533e211ed0afd3"
+          "hash": "ae71ef0c2cfe4184757147bd1d0928f32c6bfe11100592cb65da8482c2d595e1"
         },
         {
           "checkpoint": "round:05:end",
@@ -7313,39 +7073,47 @@
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "e4ac2e929b3b2b081d4ef13546dd26dae5dba4a0df5bdbed25d36bcb77716a77"
+          "hash": "ee08c8ea6d5a880bda8a98a41295287f19d353f2c4a63b2a6cc47a1304e33fd6"
         },
         {
           "checkpoint": "round:09:end",
-          "hash": "90110fbce851f79f465e47c19d33b00d6abcd0fdee7f00e122aa1edc70f5a39c"
+          "hash": "4451c85a3f24eca6f70e5c9b400065ec8ebc709e15d0ea942073f368e7372b00"
         },
         {
           "checkpoint": "round:10:end",
-          "hash": "3672ae6808001da937607db7b74507a188a377e223fab98b882d6577bee8befe"
+          "hash": "c391df32a2b4eb003ddb3829686a45dba0f7396c6bb1f3f30640063dce0a380f"
         },
         {
           "checkpoint": "round:11:end",
-          "hash": "66bff4b13d9f3ae21013d61e181b3e308f0492d944d02f418d764cb0065ce2ad"
+          "hash": "f28b550e9627ea8d119e18e1b40d1be9e53953c872d4db3fae41cc756d8bd5dc"
         },
         {
           "checkpoint": "round:12:end",
-          "hash": "8f9a2348807c0e2adb0fb72c54aa56e21a995591b1f209717931d87cac17896b"
+          "hash": "741d815e9b0758e6a308f1be16bb8f303948e7ea18e8a7f8c739b5f0b3ebc221"
         },
         {
           "checkpoint": "round:13:end",
-          "hash": "f836081fe7626bf297256897c75aac8956401d1a39fb28fe109514ec2d38fc32"
+          "hash": "507c21f91d9a22a1daf82a99e8f65094696cce00ee6f91bf7b8ac003d4008435"
         },
         {
           "checkpoint": "round:14:end",
-          "hash": "5b78ad66410608e06e9c348ddae914f54804ac1a671d5632c135760b3695d7c0"
+          "hash": "5c3dbb8028de459b4f608bdf07a90f4491c8836419acd833f0eaf7f01bcddc06"
         },
         {
           "checkpoint": "round:15:end",
-          "hash": "b7daf97a493275ed8ddaecf18a661fd1bfe5d0cac26834aba948eb77358c4b4f"
+          "hash": "f1d710d511d7790457e8d9870fef728a53317bd92ca445494621fc9641defb8a"
+        },
+        {
+          "checkpoint": "round:16:end",
+          "hash": "bb7e55805ca2feb8bf75ad0fb98a4336de56443bc59d46e137387ed344bb97ba"
+        },
+        {
+          "checkpoint": "round:17:end",
+          "hash": "d2f6dc7450d477e791bf08146c950d44b6b25a624f20e2030d36ffb20b229857"
         },
         {
           "checkpoint": "game:end",
-          "hash": "92458ffee261f9be400b621fc1ba8e7010ddd5f380b3caddfea32a2b28c1b6a4"
+          "hash": "dc580152e709b7b7448dd992d3d7f1c6acb14b5b57162318e0550c4f524645a0"
         }
       ],
       "first_player": 0,
@@ -7376,9 +7144,9 @@
           "threat": 2
         }
       ],
-      "round": 15,
+      "round": 17,
       "seed": 1053,
-      "trace_hash": "91b68bff584eac5745547e6c02cff719a17ea3a23b99e4edc8ae4007762cab58",
+      "trace_hash": "3235448e61a6fec8b6deb551ae21fe55f4301d3b01d94a53e3fa8b036428c53b",
       "win_by": "FinalCollapse",
       "winner": 0
     },

@@ -539,6 +539,21 @@ UNIT_SCENARIOS = [
 # ─────────────────────────────────────────────────────────────────────────────
 #  GAME SCENARIOS — fixed-seed game with a checkpoint after every round
 # ─────────────────────────────────────────────────────────────────────────────
+class _GoldenLegacyRNGStreams:
+    """Canonical golden compatibility adapter for historical seeded traces."""
+
+    def __init__(self, seed):
+        if seed is None:
+            raise RuntimeError(
+                "Golden game scenarios require an explicit deterministic seed."
+            )
+        self.seed = int(seed)
+        random.seed(self.seed)
+
+    def stream(self, _name: str):
+        return random
+
+
 def _play_game_with_round_snapshots(game):
     """
     Run the oracle one round at a time.
@@ -637,7 +652,14 @@ def game_scenario(
         game = sim.Game(
             list(l0_pool),
             list(l1_pool),
+            seed=seed,
         )
+
+        # The historical Python/Godot goldens consume one shared Python
+        # Mersenne-Twister stream. v7's named RNGStreams are correct for balance
+        # experiments, but the golden contract deliberately preserves the
+        # historical seeded stream so Godot's PythonRandom replay remains exact.
+        game.rng = _GoldenLegacyRNGStreams(seed)
 
         snapshots = _play_game_with_round_snapshots(
             game

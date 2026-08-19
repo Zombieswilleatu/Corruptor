@@ -316,15 +316,15 @@ class CastleRulesV74Tests(unittest.TestCase):
 
         self.assertEqual(game._pick_siege_target(attacker, defender), "Stockpile")
 
-        # Momentum doctrine sorts low-to-high. With the rear Stockpile (8),
-        # standing Bastion (3), one-point Sigil hedge and one-point padding,
-        # the target budget is 13. These four Butchers reach 16 only after the
-        # fourth card; forgetting Bastion would stop at 11 after three.
+        # Momentum doctrine sorts low-to-high. Bastion is the immediate
+        # commitment objective while it screens the rear Stockpile. Bastion (3),
+        # one-point Sigil hedge and one-point padding set the target at 5.
+        # Butcher:1 + Butcher:5 reaches 6, so commitment stops after two cards.
         attacker.hand = self._cards(
             "Butcher:1", "Butcher:5", "Butcher:5", "Butcher:5"
         )
         game._commit_for_attack(attacker, defender, "Castle", "pressure_souls")
-        self.assertEqual(len(attacker.committed), 4)
+        self.assertEqual(len(attacker.committed), 2)
 
     def test_siege_engine_operational_gate(self):
         game = sim.Game(["Orias"], ["Valak"])

@@ -16,7 +16,7 @@ const GoldenMasterData = preload(
 
 
 const AI_POLICY: String = (
-	"softmax-2026.07-v1-golden"
+	"softmax-2026.08-v2-assault-bastion"
 )
 
 const RNG_STREAM_PATH: String = (
