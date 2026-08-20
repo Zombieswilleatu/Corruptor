@@ -86,21 +86,31 @@ class TestRecoilSelection(InterlockBase):
         self.assertNotIn(od.odradek_bank, at.committed)
         self.assertEqual(od.souls, souls + 1)
 
-    def test_single_committed_card_is_taken(self):
+    def test_single_committed_card_does_not_fire_or_spend(self):
         g, od, at = self.fresh()
         only = card('Wright', 3)
         at.committed = [only]
-        g._odradek_recoil(at, od)
-        self.assertIs(od.odradek_bank, only)
-        self.assertEqual(at.committed, [])
+        souls = od.souls
 
-    def test_no_commitment_fires_but_takes_nothing(self):
+        r = g._odradek_recoil(at, od)
+
+        self.assertFalse(r['fired'])
+        self.assertFalse(od.odradek_recoil_done)
+        self.assertIsNone(od.odradek_bank)
+        self.assertEqual(at.committed, [only])
+        self.assertEqual(od.souls, souls)
+
+    def test_no_commitment_does_not_fire_or_spend(self):
         g, od, at = self.fresh()
         at.committed = []
         souls = od.souls
+
         r = g._odradek_recoil(at, od)
-        self.assertTrue(r['fired'], "Recoil is still spent for the round")
+
+        self.assertFalse(r['fired'])
+        self.assertFalse(od.odradek_recoil_done)
         self.assertIsNone(od.odradek_bank)
+        self.assertEqual(at.committed, [])
         self.assertEqual(od.souls, souls)
 
     def test_tie_resolves_deterministically_by_commit_order(self):

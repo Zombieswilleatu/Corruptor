@@ -1,0 +1,37 @@
+{
+  "artifacts": {
+    "game_deimos_valak_s1.json": {
+      "authority": "godot",
+      "note": "Selectively rebaselined from round 2 onward after Sustained Assault; deal and round 1 were preserved.",
+      "replacement_policy": "selective-only"
+    },
+    "lord_matrix.json": {
+      "authority": "mixed-curated",
+      "last_selective_authority": "godot",
+      "note": "Contains preserved historical rows plus deliberate Godot-authoritative selective rebaselines.",
+      "replacement_policy": "selective-only"
+    }
+  },
+  "events": [
+    {
+      "authority": "godot",
+      "matrix_changed_scenarios": [
+        "matrix_odradek_vs_kroni_s1033",
+        "matrix_odradek_vs_valak_s1024"
+      ],
+      "mode": "selective",
+      "preserved_checkpoints": [
+        "game:deal",
+        "round:01:end"
+      ],
+      "timestamp_utc": "2026-08-20T03:31:48+00:00",
+      "trace_names": []
+    }
+  ],
+  "notes": [
+    "golden/lord_matrix.json is a curated mixed-provenance oracle. Do not wholesale-regenerate it as a replacement source of truth.",
+    "Use tools/rebaseline_goldens.py for exact-set selective installs; early checkpoints are preserved unless explicitly overridden.",
+    "The standard full traces remain Python-origin unless an artifact entry below says otherwise."
+  ],
+  "schema_version": 1
+}

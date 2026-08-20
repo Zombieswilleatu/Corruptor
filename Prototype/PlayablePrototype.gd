@@ -3877,7 +3877,11 @@ func _build_hand_buttons(
 
 			if (
 				is_deploy_picker
-				and _is_deploy_card_reserved("Hand", card_identifier)
+				and _is_deploy_card_reserved(
+					"Hand",
+					card_identifier,
+					hand_index
+				)
 			):
 				continue
 
@@ -3949,7 +3953,11 @@ func _build_hand_buttons(
 			var garrison_identifier: String = _card_id(garrison_card)
 			if (
 				is_deploy_picker
-				and _is_deploy_card_reserved("Garrison", garrison_identifier)
+				and _is_deploy_card_reserved(
+					"Garrison",
+					garrison_identifier,
+					garrison_index
+				)
 			):
 				continue
 			var garrison_button := _new_button("Garrison · %s" % garrison_identifier, 142)
@@ -4403,11 +4411,15 @@ func _deploy_current_guard_count() -> int:
 
 
 func _deploy_hand_allowed() -> bool:
+	if controller == null or controller.rules == null:
+		return false
+
 	var human = controller.get_human_player()
 	return (
 		human != null
 		and (
-			not bool(human.repaired_this_round)
+			not bool(controller.rules.repair_blocks_hand_deploy)
+			or not bool(human.repaired_this_round)
 			or bool(human.repair_token_used_this_repair)
 		)
 	)
@@ -4451,16 +4463,50 @@ func _selected_deploy_garrison_count() -> int:
 
 func _is_deploy_card_reserved(
 	source: String,
-	card_identifier: String
+	card_identifier: String,
+	source_index: int
 ) -> bool:
+	# queued_deploy_moves stores card identity rather than an instance handle.
+	# Several physical copies can share the same card_id (for example Wright:4).
+	# Reserve only as many OCCURRENCES as were actually queued; the previous
+	# boolean-by-id filter hid every duplicate and could leave an open Guard slot
+	# with an empty picker.
+	var reserved_count: int = 0
 	for move: Dictionary in queued_deploy_moves:
 		if (
 			String(move.get("source", "")) == source
 			and String(move.get("card", "")) == card_identifier
 		):
-			return true
+			reserved_count += 1
 
-	return false
+	if reserved_count <= 0:
+		return false
+
+	var human = controller.get_human_player()
+	if human == null:
+		return false
+
+	var source_cards: Array = (
+		human.hand
+		if source == "Hand"
+		else human.garrison
+	)
+
+	var occurrence: int = 0
+	var upper_bound: int = min(
+		source_index + 1,
+		source_cards.size()
+	)
+
+	for index: int in range(
+		max(0, upper_bound)
+	):
+		if _card_id(
+			source_cards[index]
+		) == card_identifier:
+			occurrence += 1
+
+	return occurrence > 0 and occurrence <= reserved_count
 
 
 func _deploy_picker_prompt() -> String:

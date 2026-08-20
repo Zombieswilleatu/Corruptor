@@ -2337,15 +2337,20 @@ class Game:
         if not VARIANT.get('odr_recoil', True):        return res
         if dfn.odradek_recoil_done:                    return res
 
-        # Recoil is SPENT for the round even if the Interlock blocks the steal.
+        # Psychic Recoil names the attacker's second-highest CURRENT committed
+        # card. Fewer than two cards means there is no legal victim, so Recoil
+        # neither fires nor spends itself for the round.
+        if len(atk.committed) < 2:
+            return res
+
+        # A qualifying attempt is spent even if Interlock later blocks the steal.
         dfn.odradek_recoil_done = True
         res['fired'] = True
         bank = getattr(dfn, 'odradek_bank', None)
         res['bank_before'] = bank
         res['bank_after'] = bank
-        if not atk.committed:                          return res
 
-        # Selection: second-highest committed card. One card -> that card.
+        # Selection: second-highest committed card (or legacy lowest variant).
         # sorted() is stable, so equal values resolve by committed order.
         if VARIANT['recoil_lowest']:
             victim = min(atk.committed, key=lambda c: c.value)
@@ -2845,7 +2850,10 @@ class Game:
                               key=lambda c: c.value, reverse=True)
                 def eff(cs):
                     if len(cs) <= 1:
-                        return 0
+                        return sum(
+                            effective_attack_value(pl, c, 'Lord')
+                            for c in cs
+                        )
                     ordered = sorted(cs, key=lambda c: c.value, reverse=True)
                     victim = ordered[-1] if VARIANT['recoil_lowest'] else ordered[1]
                     return sum(effective_attack_value(pl, c, 'Lord')
@@ -5467,7 +5475,10 @@ class Game:
         if recoil_applies and committed:
             def eff_total():
                 if len(committed) <= 1:
-                    return 0
+                    return sum(
+                        effective_attack_value(pl, c, target_type)
+                        for c in committed
+                    )
                 ordered = sorted(committed, key=lambda c: c.value, reverse=True)
                 victim = ordered[-1] if VARIANT['recoil_lowest'] else ordered[1]
                 return sum(effective_attack_value(pl, c, target_type)

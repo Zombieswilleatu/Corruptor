@@ -38,12 +38,17 @@ const RevealEngineData = preload(
 	"res://Scripts/Sim/RevealEngine.gd"
 )
 
+const OdradekInterlockEngineData = preload(
+	"res://Scripts/Sim/OdradekInterlockEngine.gd"
+)
+
 
 const ROUND_ONE_TEST_NAME := "unit_round1_reveal"
 const FLIPPED_SIGIL_TEST_NAME := "unit_reveal_flipped_sigil"
 const KANIFOUS_VULTURE_TEST_NAME := "unit_reveal_kanifous_vulture"
 const KANIFOUS_PENITENT_TEST_NAME := "unit_reveal_kanifous_penitent"
 const LORD_TRIGGER_ORDER_TEST_NAME := "unit_reveal_lord_trigger_order"
+const ODRADEK_RECOIL_MIN_COMMIT_TEST_NAME := "unit_odradek_recoil_minimum_commitment"
 const SUSTAINED_ASSAULT_TEST_NAME := "unit_reveal_sustained_assault"
 
 
@@ -61,6 +66,9 @@ static func run(
 			rules
 		),
 		_test_kanifous_penitent(
+			rules
+		),
+		_test_odradek_recoil_minimum_commitment(
 			rules
 		),
 		_test_lord_trigger_order(
@@ -556,6 +564,124 @@ static func _test_kanifous_penitent(
 	return _result_from_error(
 		KANIFOUS_PENITENT_TEST_NAME,
 		error
+	)
+
+
+static func _test_odradek_recoil_minimum_commitment(
+	rules: RuleConfig
+) -> Dictionary:
+	if not rules.odr_recoil:
+		return _pass(
+			ODRADEK_RECOIL_MIN_COMMIT_TEST_NAME
+		)
+
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has(
+		"error"
+	):
+		return _fail(
+			ODRADEK_RECOIL_MIN_COMMIT_TEST_NAME,
+			String(
+				fixture["error"]
+			)
+		)
+
+	var game = fixture["game"]
+	var attacker = fixture["p0"]
+	var odradek = fixture["p1"]
+
+	attacker.lord = "Humbaba"
+	attacker.alive = true
+
+	odradek.lord = "Odradek"
+	odradek.alive = true
+	odradek.souls = 0
+	odradek.odradek_recoil_done = false
+	odradek.odradek_bank = null
+
+	# One committed card cannot supply a "second-highest" victim. Recoil must
+	# remain armed so a later qualifying attack in the same round can trigger.
+	attacker.committed = _cards_from_ids([
+		"Wright:4",
+	])
+
+	var one_card_before: Array[String] = _card_ids(
+		attacker.committed
+	)
+
+	var one_card_result: Dictionary = (
+		OdradekInterlockEngineData.resolve_recoil(
+			game,
+			odradek,
+			attacker,
+			rules
+		)
+	)
+
+	if (
+		bool(
+			one_card_result.get(
+				"triggered",
+				false
+			)
+		)
+		or odradek.odradek_recoil_done
+		or odradek.souls != 0
+		or odradek.odradek_bank != null
+		or _card_ids(
+			attacker.committed
+		) != one_card_before
+	):
+		return _fail(
+			ODRADEK_RECOIL_MIN_COMMIT_TEST_NAME,
+			"Psychic Recoil fired or mutated state with only one current committed card."
+		)
+
+	attacker.committed = _cards_from_ids([
+		"Wright:4",
+		"Vulture:3",
+	])
+
+	var two_card_result: Dictionary = (
+		OdradekInterlockEngineData.resolve_recoil(
+			game,
+			odradek,
+			attacker,
+			rules
+		)
+	)
+
+	if (
+		not bool(
+			two_card_result.get(
+				"triggered",
+				false
+			)
+		)
+		or not odradek.odradek_recoil_done
+	):
+		return _fail(
+			ODRADEK_RECOIL_MIN_COMMIT_TEST_NAME,
+			"Psychic Recoil did not fire on a later two-card attack."
+		)
+
+	if rules.odr_recoil_strip and attacker.committed.size() != 1:
+		return _fail(
+			ODRADEK_RECOIL_MIN_COMMIT_TEST_NAME,
+			"Qualifying Psychic Recoil did not remove exactly one committed card."
+		)
+
+	if rules.odr_recoil_soul and odradek.souls != 1:
+		return _fail(
+			ODRADEK_RECOIL_MIN_COMMIT_TEST_NAME,
+			"Qualifying Psychic Recoil did not grant exactly one Soul."
+		)
+
+	return _pass(
+		ODRADEK_RECOIL_MIN_COMMIT_TEST_NAME
 	)
 
 

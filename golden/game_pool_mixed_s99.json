@@ -1,5 +1,5 @@
 {
-  "ai_version": "softmax-2026.08-v2-assault-bastion",
+  "ai_version": "softmax-2026.08-v3-recoil-fix",
   "identity": {
     "constants": {
       "DOMINION_REQUIREMENT": 2,

@@ -9,7 +9,7 @@ policy layer used by golden_master.py so Python and Godot compare the same
 bot doctrine without relabelling an old trace.
 
 Policy identity:
-    softmax-2026.08-v2-assault-bastion
+    softmax-2026.08-v3-recoil-fix
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 
 
-POLICY_ID = "softmax-2026.08-v2-assault-bastion"
+POLICY_ID = "softmax-2026.08-v3-recoil-fix"
 
 ACTION_HUNT = "Hunt"
 ACTION_SIEGE = "Siege"
@@ -790,7 +790,7 @@ def _commit_for_attack(
 
         def effective_recoil_total() -> int:
             if len(committed) <= 1:
-                return 0
+                return sum(int(card.value) for card in committed)
 
             values = sorted(
                 (

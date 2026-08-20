@@ -1,5 +1,5 @@
 {
-  "ai_version": "softmax-2026.08-v2-assault-bastion",
+  "ai_version": "softmax-2026.08-v3-recoil-fix",
   "identity": {
     "constants": {
       "DOMINION_REQUIREMENT": 2,
@@ -5299,19 +5299,19 @@
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "77b2f64f30b5b252ef5ee56d8e444300b5a79d9b915915787a7e3ea59ad6e32b"
+          "hash": "9ee3180e8e16fbaef4214aad2102dec12e30cedafd58fe382ff09a864edcd3c8"
         },
         {
           "checkpoint": "round:08:end",
-          "hash": "464ee3e62a2bb809911d84467481959427ad96fcb3183b21d8f9ce842b8a1d49"
+          "hash": "e9ad2e22bf0f0c0a8772cd6a93b65d751b116796fc4315094fb8cc2fe919f441"
         },
         {
           "checkpoint": "round:09:end",
-          "hash": "b37741fb2d10dbac9879098d9738b04820ca494d6d3798ae0d49f79d290805db"
+          "hash": "c458101d4882d0e19e26c8e9e494ab2dae6d44a8e0e7d2cf9837b5b0ef306f0d"
         },
         {
           "checkpoint": "game:end",
-          "hash": "b40e0860b83bd79be26ea569efc627c91125d7b8b39fc2fe958f0421cd9a86fe"
+          "hash": "81a291c79ea78268126f10b1c2f8584bbff9af180fd589f8f874107295f79ce0"
         }
       ],
       "first_player": 1,
@@ -5326,12 +5326,12 @@
           "pid": 0,
           "profaned_castles": 0,
           "ruined_castles": 0,
-          "souls": 7,
+          "souls": 8,
           "tears": 1,
-          "threat": 1
+          "threat": 0
         },
         {
-          "alive": false,
+          "alive": true,
           "castles": 5,
           "lord": "Valak",
           "pid": 1,
@@ -5339,12 +5339,12 @@
           "ruined_castles": 0,
           "souls": 0,
           "tears": 1,
-          "threat": 1
+          "threat": 3
         }
       ],
       "round": 9,
       "seed": 1024,
-      "trace_hash": "6ca32c01c973557139724e98044248763d8c64dee84263e0fb57f4905d3848c9",
+      "trace_hash": "6591d4efb40fb38fc3f9eb95111893f1b5d9b42c37a5d5b1ab9bb95e6e7f7032",
       "win_by": "Ritual",
       "winner": 0
     },
@@ -5381,11 +5381,11 @@
         },
         {
           "checkpoint": "round:07:end",
-          "hash": "bbc367082fa781a5991188bd0d59d7fd031485886ea0dba305b8edb8499b5dbd"
+          "hash": "5ea43278b642cd5f2ca37f298df435e6646a2113a36f4b437f04e7dc19808a1b"
         },
         {
           "checkpoint": "game:end",
-          "hash": "09b39290cee857cf0644ab1e584d0cda78b9a79d2818881e0988d61c078ac970"
+          "hash": "5c6cea881e53892e740842cc107659633899f01f12103537b66f1b03841862d1"
         }
       ],
       "first_player": 0,
@@ -5418,7 +5418,7 @@
       ],
       "round": 7,
       "seed": 1033,
-      "trace_hash": "cbbc5493cfb648682751cefbe2bbc18d422c3270d97da981aafbbb53405b3c11",
+      "trace_hash": "f578bf4a2604a147392c5548e179675717b27420e3ca5135ca6622a3f1bec47b",
       "win_by": "Ritual",
       "winner": 0
     },

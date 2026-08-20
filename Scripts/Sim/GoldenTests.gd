@@ -2,7 +2,7 @@ class_name GoldenTests
 extends RefCounted
 
 
-const AI_POLICY := "softmax-2026.08-v2-assault-bastion"
+const AI_POLICY := "softmax-2026.08-v3-recoil-fix"
 
 const SnapshotSerializer = preload(
 	"res://Scripts/Sim/GoldenSnapshotSerializer.gd"

@@ -7,7 +7,7 @@ const MATRIX_PATH: String = (
 )
 
 const AI_POLICY: String = (
-	"softmax-2026.08-v2-assault-bastion"
+	"softmax-2026.08-v3-recoil-fix"
 )
 
 const EXPECTED_LORD_COUNT: int = 9

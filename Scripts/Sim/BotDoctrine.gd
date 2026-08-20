@@ -2051,7 +2051,14 @@ static func _effective_recoil_total(
 	siege: bool
 ) -> int:
 	if cards.size() <= 1:
-		return 0
+		var unopposed_total: int = 0
+		for card in cards:
+			unopposed_total += player.attack_card_value(
+				card,
+				rules,
+				siege
+			)
+		return unopposed_total
 	var ordered: Array = cards.duplicate()
 	ordered.sort_custom(func(a, b): return int(a.value) > int(b.value))
 	var removed = ordered[ordered.size() - 1] if rules.recoil_lowest else ordered[1]

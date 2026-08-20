@@ -28,7 +28,7 @@ const BotGameEngineData = preload(
 
 
 const AI_POLICY: String = (
-	"softmax-2026.08-v2-assault-bastion"
+	"softmax-2026.08-v3-recoil-fix"
 )
 
 const GAME_TRACE_NAME: String = (

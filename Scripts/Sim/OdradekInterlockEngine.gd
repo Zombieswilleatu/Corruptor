@@ -39,14 +39,18 @@ static func resolve_recoil(
 	if not rules.odr_recoil or odradek.odradek_recoil_done:
 		return result
 
-	# Recoil is spent for the round even if the Interlock blocks the steal.
+	# Psychic Recoil names the attacker's second-highest committed card.
+	# With fewer than two CURRENT committed cards there is no legal victim:
+	# do not fire, do not gain a Soul, and do not spend Recoil for the round.
+	if attacker.committed.size() < 2:
+		return result
+
+	# A qualifying Recoil attempt is spent even if an existing Interlock bank
+	# later blocks replacement.
 	odradek.odradek_recoil_done = true
 	result["triggered"] = true
 	result["bank_before"] = _card_id(odradek.odradek_bank)
 	result["bank_after"] = result["bank_before"]
-
-	if attacker.committed.is_empty():
-		return result
 
 	var victim = _select_victim(attacker.committed, rules)
 	result["attempted_card"] = _card_id(victim)
@@ -89,8 +93,10 @@ static func _select_victim(
 	committed: Array,
 	rules: RuleConfig
 ):
-	if committed.size() == 1:
-		return committed[0]
+	assert(
+		committed.size() >= 2,
+		"Psychic Recoil requires at least two current committed cards."
+	)
 
 	if rules.recoil_lowest:
 		var lowest = committed[0]
