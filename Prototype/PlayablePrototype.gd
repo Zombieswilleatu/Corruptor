@@ -34,6 +34,10 @@ const PlayableMatchSnapshotData = preload(
 )
 
 
+
+const ActionForecastData = preload(
+	"res://Scripts/Sim/ActionForecast.gd"
+)
 const LORDS: Array[String] = [
 	"Orias",
 	"Deimos",
@@ -125,7 +129,7 @@ const LORD_CARD_ABILITIES: Dictionary = {
 		"[b]Inevitable Ruin / Breach[/b] — Once per round, after a Siege leaves its target standing, pay exactly 2 Hand/Garrison cards to ruin it. During Gremory Breach, players with a Ruin draw 1 extra.",
 	],
 	"Odradek": [
-		"[b]Psychic Recoil / Interlock[/b] — Once each round when living Odradek is Hunted or Sieged, take the attacker's second-highest committed card and bank it face-up, gaining 1 Soul. A new card replaces the bank only if strictly larger; otherwise Recoil locks. Odradek automatically spends the bank on his next Hunt or Siege.",
+		"[b]Psychic Recoil / Interlock[/b] — Once each round when living Odradek is Hunted or Sieged by an attack with at least 2 currently committed cards, take the attacker's second-highest committed card and bank it face-up, gaining 1 Soul. A new card replaces the bank only if strictly larger; otherwise Recoil locks. Odradek automatically spends the bank on his next Hunt or Siege.",
 		"[b]Reconfiguration[/b] — If fewer than 2 Odradek Guards were Defeated this round, gain 1 token. At 3 tokens, spend them to place 1 Neutral Tear. Banishment clears tokens.",
 		"[b]Breach: Paradox Geometry[/b] — Predict the second-action winner's action; a correct guess discards their selected cards and lets Odradek execute it instead.",
 	],
@@ -179,9 +183,10 @@ const CASTLES_LABEL: String = (
 
 const CASTLE_HELP: Dictionary = {
 	"Keep": (
-		"KEEP — 14 maximum Integrity. Sanctuary (Operational at 7+): when your Lord "
-		+ "would be Banished by a Hunt, transfer the exact lethal excess to Keep. If Keep "
-		+ "can absorb it without being Ruined, your Lord survives."
+		"KEEP — 14 maximum Integrity. Interposition: while Keep stands, Hunts pass through "
+		+ "Ward, Lord Guards and Lord Sigil, then strike Keep before the Lord. Operational "
+		+ "Keep has Fortification 3; Defunct Keep still interposes but has Fortification 0. "
+		+ "Strength beyond destroyed Keep Integrity spills through to the Lord."
 	),
 	"Bastion": (
 		"BASTION — 14 maximum Integrity. Bulwark: while Bastion stands at any Integrity, "
@@ -248,6 +253,9 @@ var target_select: OptionButton = null
 var secondary_target_label: Label = null
 var secondary_target_select: OptionButton = null
 var target_info_label: RichTextLabel = null
+var results_panel_label: RichTextLabel = null
+var results_detail_label: RichTextLabel = null
+var action_forecast_label: RichTextLabel = null
 var hand_flow: HFlowContainer = null
 var hand_caption_label: Label = null
 var card_buttons: Array[Button] = []
@@ -282,6 +290,8 @@ var reported_development_phases: Dictionary = {}
 var queued_deploy_moves: Array[Dictionary] = []
 var deploy_target_zone: String = "Lord"
 var resolution_start_digest: Dictionary = {}
+var resolution_start_log_index: int = -1
+var resolution_round_number: int = -1
 
 
 func _ready() -> void:
@@ -1109,6 +1119,75 @@ func _build_interaction_panel() -> Control:
 		box
 	)
 
+	# Persistent "what just happened" readout. Core state never scrolls away:
+	# the title, Dominion warning, two-player balance sheet, Castle count, and
+	# Veil stay fixed. Only the causal detail transcript gets its own scrollbar.
+	var results_panel := _new_panel(
+		Color(
+			0.055,
+			0.045,
+			0.075,
+			1.0
+		)
+	)
+	# Keep the Results panel inside the same vertical budget as v1.  The v3.2
+	# stacked summary + detail panes added ~100 px and pushed the actual play
+	# controls below a 1080p viewport, tripping the layout invariant.  Results
+	# now split horizontally: authoritative state stays fixed on the left,
+	# causal detail scrolls independently on the right.
+	results_panel.custom_minimum_size = Vector2(
+		0,
+		126
+	)
+	box.add_child(results_panel)
+
+	var results_box := HBoxContainer.new()
+	results_box.add_theme_constant_override(
+		"separation",
+		10
+	)
+	results_panel.add_child(results_box)
+
+	results_panel_label = _new_rich_text()
+	results_panel_label.custom_minimum_size = Vector2(
+		0,
+		108
+	)
+	results_panel_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	results_panel_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	results_panel_label.size_flags_stretch_ratio = 1.65
+	results_panel_label.fit_content = false
+	results_panel_label.scroll_active = false
+	results_panel_label.add_theme_font_size_override(
+		"normal_font_size",
+		10
+	)
+	results_panel_label.add_theme_font_size_override(
+		"bold_font_size",
+		10
+	)
+	results_box.add_child(results_panel_label)
+
+	results_detail_label = _new_rich_text()
+	results_detail_label.custom_minimum_size = Vector2(
+		0,
+		108
+	)
+	results_detail_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	results_detail_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	results_detail_label.size_flags_stretch_ratio = 1.0
+	results_detail_label.fit_content = false
+	results_detail_label.scroll_active = true
+	results_detail_label.add_theme_font_size_override(
+		"normal_font_size",
+		10
+	)
+	results_detail_label.add_theme_font_size_override(
+		"bold_font_size",
+		10
+	)
+	results_box.add_child(results_detail_label)
+
 	var action_row := HBoxContainer.new()
 	action_row.add_theme_constant_override(
 		"separation",
@@ -1202,6 +1281,34 @@ func _build_interaction_panel() -> Control:
 	)
 	box.add_child(
 		target_info_label
+	)
+
+
+	action_forecast_label = _new_rich_text()
+	action_forecast_label.custom_minimum_size = Vector2(
+		0,
+		96
+	)
+	action_forecast_label.fit_content = true
+	action_forecast_label.scroll_active = false
+	action_forecast_label.visible = false
+	action_forecast_label.add_theme_font_size_override(
+		"normal_font_size",
+		13
+	)
+	action_forecast_label.add_theme_font_size_override(
+		"bold_font_size",
+		13
+	)
+	action_forecast_label.tooltip_text = (
+		"Action Forecast evaluates every legal subset of your whole Hand. "
+		+ "It does not recommend which cards to commit. OPEN means the "
+		+ "opponent does not Ward. WARD rows are separate opponent-agency "
+		+ "branches, not predictions that the opponent will choose to Ward. "
+		+ "Hidden Guards and hidden Ward card identities are modeled statistically."
+	)
+	box.add_child(
+		action_forecast_label
 	)
 
 	hand_caption_label = _new_label(
@@ -1396,7 +1503,21 @@ func _start_new_match() -> void:
 	log_entries.clear()
 	reported_development_phases.clear()
 	queued_deploy_moves.clear()
+	resolution_start_digest.clear()
+	resolution_start_log_index = -1
+	resolution_round_number = -1
 	event_log.clear()
+
+	_set_results_panel(
+		"MATCH START",
+		[
+			"[color=#78d9a1][b]YOU[/b][/color] %s    [color=#b88f9d]VS[/color]    [color=#dc8d9d][b]%s[/b][/color]"
+			% [human_lord, bot_lord],
+			"Seed %d. The panel will keep the latest major result visible while you choose what to do next."
+			% seed_value,
+		],
+		"#82c9ff"
+	)
 
 	_log(
 		"[b]New match[/b] — %s vs %s, seed %d."
@@ -1499,7 +1620,7 @@ func _after_development(
 	if controller.stage == PlayableRoundControllerData.Stage.REPAIR:
 		if development_option_button != null:
 			development_option_button.set_pressed_no_signal(false)
-		_enter_development_choice("Castle action — repair one damaged Castle or add progress to one unbuilt Castle.")
+		_enter_development_choice("Castle maintenance — repair damaged Castles as resources allow; construct at most one Castle.")
 		return
 
 	if controller.stage == PlayableRoundControllerData.Stage.DOMINION_RITES:
@@ -1615,6 +1736,7 @@ func _on_action_selected(
 	_refresh_selection_text()
 	_refresh_staging_area()
 	_refresh_target_info()
+	_refresh_action_forecast()
 
 
 func _on_card_toggled(
@@ -1698,6 +1820,7 @@ func _on_target_selected(
 	_refresh_selection_text()
 	_refresh_staging_area()
 	_refresh_target_info()
+	_refresh_action_forecast()
 	_refresh_marching_board()
 	_refresh_castle_cards(controller.get_human_player(), true)
 	_refresh_castle_cards(controller.get_bot_player(), false)
@@ -2115,6 +2238,12 @@ func _on_confirm_pressed() -> void:
 
 
 func _on_reveal_pressed() -> void:
+	# The Results panel describes the whole public outcome, including Reveal
+	# effects such as Threat changes. Capture before Reveal mutates live state.
+	resolution_start_digest = _state_digest()
+	resolution_start_log_index = log_entries.size()
+	resolution_round_number = int(controller.game.round)
+
 	var result: Dictionary = (
 		controller.reveal_orders()
 	)
@@ -2228,6 +2357,12 @@ func _show_reveal_progress(
 	_log_reveal_lord_powers(
 		result
 	)
+	_refresh_reveal_results(
+		human,
+		bot,
+		human_reveal_value,
+		bot_reveal_value
+	)
 
 	if controller.stage == PlayableRoundControllerData.Stage.VULTURE_RECON:
 		_refresh_target_options()
@@ -2237,7 +2372,23 @@ func _show_reveal_progress(
 
 
 func _on_resolve_pressed() -> void:
-	resolution_start_digest = _state_digest()
+	# Normal UI flow captured the result baseline before Reveal. Keep a narrow
+	# fallback for injected/debug states that arrive at REVEALED directly.
+	if resolution_start_digest.is_empty():
+		resolution_start_digest = _state_digest()
+	if resolution_start_log_index < 0:
+		resolution_start_log_index = log_entries.size()
+	if resolution_round_number < 0:
+		resolution_round_number = int(controller.game.round)
+
+	_set_results_panel(
+		"ROUND %d — RESOLUTION STARTED" % resolution_round_number,
+		[
+			"[color=#a9a1b0]Resolved actions will appear here immediately as the board changes.[/color]",
+		],
+		"#c8b36a"
+	)
+
 	var result: Dictionary = controller.begin_human_resolution()
 	_after_resolution_progress(result)
 
@@ -2251,12 +2402,21 @@ func _after_resolution_progress(
 
 	_log_guard_reveals()
 
+	if not bool(result.get("completed", false)):
+		_refresh_resolution_progress(result)
+
 	if bool(result.get("completed", false)):
 		_log_new_development_activity()
 		_log_resolution_transcript(result)
 		var resolution_end_digest: Dictionary = _state_digest()
 		_log_resource_income_audit(resolution_start_digest, resolution_end_digest)
 		_log_resolution_changes(resolution_start_digest, resolution_end_digest)
+		_refresh_round_results(
+			resolution_start_digest,
+			resolution_end_digest,
+			result,
+			resolution_start_log_index
+		)
 		_refresh_all()
 		if bool(result.get("terminal", false)):
 			_show_terminal()
@@ -2321,6 +2481,7 @@ func _refresh_all() -> void:
 	var bot = controller.get_bot_player()
 
 	_refresh_target_info()
+	_refresh_action_forecast()
 
 	round_label.text = "Round %d" % int(
 		game.round
@@ -2462,7 +2623,7 @@ func _refresh_all() -> void:
 			next_round_button.visible = false
 
 		PlayableRoundControllerData.Stage.REPAIR:
-			phase_label.text = "Development — Castle Action"
+			phase_label.text = "Development — Castle Maintenance"
 			var selected_castle_action: String = _selected_castle_action()
 			confirm_button.text = (
 				"Construct"
@@ -2475,7 +2636,7 @@ func _refresh_all() -> void:
 			development_option_button.visible = selected_castle_action == "repair"
 			if selected_castle_action != "repair":
 				development_option_button.set_pressed_no_signal(false)
-			development_finish_button.text = "Pass Castle Action"
+			development_finish_button.text = "Finish Castle Maintenance"
 			development_finish_button.visible = true
 			summon_button.visible = false
 			skip_summon_button.visible = false
@@ -3112,7 +3273,15 @@ func _refresh_target_options() -> void:
 					var current: int = int(
 						development_human.castle_integrity.get(castle_name, maximum)
 					)
-					if current > 0 and current < maximum:
+					if (
+						current > 0
+						and current < maximum
+						and not CastleIntegrityRulesData.repair_locked(
+							development_human,
+							castle_name,
+							controller.rules
+						)
+					):
 						var repair_id: String = "repair|%s" % castle_name
 						_add_target_option(
 							"Repair %s — %d/%d" % [castle_name, current, maximum],
@@ -3361,6 +3530,395 @@ func _refresh_target_options() -> void:
 	_refresh_target_info()
 
 
+func _refresh_action_forecast() -> void:
+	if action_forecast_label == null:
+		return
+
+	action_forecast_label.visible = false
+	action_forecast_label.text = ""
+
+	if (
+		controller == null
+		or controller.game == null
+		or controller.rules == null
+	):
+		return
+
+	if controller.stage != PlayableRoundControllerData.Stage.COMMITMENT:
+		return
+
+	if not ["Hunt", "Siege"].has(selected_action):
+		return
+
+	var human = controller.get_human_player()
+	if human == null:
+		return
+
+	var attacker_id: int = int(human.pid)
+	var forecast: Dictionary = {}
+	var title: String = ""
+	var primary_key: String = ""
+	var primary_label: String = ""
+	var secondary_key: String = ""
+	var secondary_label: String = ""
+
+	if selected_action == "Hunt":
+		forecast = ActionForecastData.forecast_hunt(
+			controller.game,
+			controller.rules,
+			attacker_id
+		)
+		title = "HUNT"
+		primary_key = "pressure"
+		primary_label = "Pressure"
+		secondary_key = "banish"
+		secondary_label = "Banish"
+
+	elif selected_action == "Siege":
+		var target_castle: String = _selected_target_id()
+
+		if target_castle.is_empty():
+			return
+
+		var bot = controller.get_bot_player()
+
+		if (
+			bot == null
+			or not bot.castles.has(target_castle)
+		):
+			return
+
+		forecast = ActionForecastData.forecast_siege(
+			controller.game,
+			controller.rules,
+			attacker_id,
+			target_castle
+		)
+		title = "SIEGE — %s" % target_castle.to_upper()
+		primary_key = "damage"
+		primary_label = "Damage"
+		secondary_key = "ruin"
+		secondary_label = "Ruin"
+
+	action_forecast_label.visible = true
+
+	if not bool(forecast.get("available", false)):
+		action_forecast_label.text = (
+			"[b]ACTION FORECAST — %s[/b]\n"
+			+ "[color=#91899a]Unavailable: %s[/color]"
+		) % [
+			title,
+			String(forecast.get("reason", "unavailable")),
+		]
+		return
+
+	action_forecast_label.text = _format_action_forecast(
+		title,
+		forecast,
+		primary_key,
+		primary_label,
+		secondary_key,
+		secondary_label
+	)
+
+
+func _format_action_forecast(
+	title: String,
+	forecast: Dictionary,
+	primary_key: String,
+	primary_label: String,
+	secondary_key: String,
+	secondary_label: String
+) -> String:
+	var primary: Dictionary = forecast.get(
+		primary_key,
+		{}
+	)
+
+	var secondary: Dictionary = forecast.get(
+		secondary_key,
+		{}
+	)
+
+	var lines: Array[String] = []
+
+	lines.append(
+		(
+			"[b]ACTION FORECAST — %s[/b]"
+			+ "  [color=#91899a]"
+			+ "whole Hand · card clicks ignored"
+			+ "[/color]"
+		) % title
+	)
+
+	lines.append(
+		_forecast_objective_summary(
+			primary_label,
+			primary
+		)
+	)
+
+	lines.append(
+		_forecast_objective_summary(
+			secondary_label,
+			secondary
+		)
+	)
+
+	return "\n".join(
+		lines
+	)
+
+func _forecast_objective_summary(
+	objective_label: String,
+	objective: Dictionary
+) -> String:
+	var open_result: Dictionary = objective.get(
+		"open",
+		{}
+	)
+
+	var open_band: String = _forecast_result_band(
+		open_result
+	)
+
+	var warded: Dictionary = objective.get(
+		"warded_by_cards",
+		{}
+	)
+
+	var depths: Array[int] = []
+
+	for depth_value in warded.keys():
+		depths.append(
+			int(
+				String(
+					depth_value
+				)
+			)
+		)
+
+	depths.sort()
+
+	if depths.is_empty():
+		return (
+			"[b]%s:[/b] %s"
+			% [
+				objective_label,
+				_forecast_band_text(
+					open_band
+				),
+			]
+		)
+
+	var transitions: Array[Dictionary] = []
+	var previous_band: String = open_band
+
+	for depth: int in depths:
+		var result: Dictionary = warded.get(
+			str(
+				depth
+			),
+			{}
+		)
+
+		var band_name: String = _forecast_result_band(
+			result
+		)
+
+		if band_name == previous_band:
+			continue
+
+		transitions.append({
+			"depth": depth,
+			"band": band_name,
+		})
+
+		previous_band = band_name
+
+	if transitions.is_empty():
+		return (
+			"[b]%s:[/b] %s regardless."
+			% [
+				objective_label,
+				_forecast_band_text(
+					open_band
+				),
+			]
+		)
+
+	var maximum_depth: int = depths[
+		depths.size() - 1
+	]
+
+	if transitions.size() == 1:
+		var transition: Dictionary = transitions[0]
+		var threshold: int = int(
+			transition.get(
+				"depth",
+				1
+			)
+		)
+
+		var changed_band: String = String(
+			transition.get(
+				"band",
+				open_band
+			)
+		)
+
+		return (
+			"[b]%s:[/b] %s unless they Ward %s — then %s."
+			% [
+				objective_label,
+				_forecast_band_text(
+					open_band
+				),
+				_forecast_single_transition_condition(
+					threshold,
+					maximum_depth
+				),
+				_forecast_band_text(
+					changed_band
+				),
+			]
+		)
+
+	var pieces: Array[String] = []
+
+	pieces.append(
+		"OPEN %s"
+		% _forecast_band_text(
+			open_band
+		)
+	)
+
+	for transition in transitions:
+		var threshold: int = int(
+			transition.get(
+				"depth",
+				1
+			)
+		)
+
+		var band_name: String = String(
+			transition.get(
+				"band",
+				open_band
+			)
+		)
+
+		pieces.append(
+			"%s %s"
+			% [
+				_forecast_transition_label(
+					threshold,
+					maximum_depth
+				),
+				_forecast_band_text(
+					band_name
+				),
+			]
+		)
+
+	return (
+		"[b]%s:[/b] %s"
+		% [
+			objective_label,
+			"  ·  ".join(
+				pieces
+			),
+		]
+	)
+
+func _forecast_result_band(
+	result: Dictionary
+) -> String:
+	var band_name: String = String(
+		result.get(
+			"band",
+			""
+		)
+	)
+
+	if not band_name.is_empty():
+		return band_name
+
+	var probability: float = clampf(
+		float(
+			result.get(
+				"probability",
+				0.0
+			)
+		),
+		0.0,
+		1.0
+	)
+
+	return ActionForecastData.band(
+		probability
+	)
+
+func _forecast_single_transition_condition(
+	threshold: int,
+	maximum_depth: int
+) -> String:
+	if (
+		threshold == maximum_depth
+		and maximum_depth > 1
+	):
+		return "all %d cards" % maximum_depth
+
+	if (
+		threshold == 1
+		and maximum_depth == 1
+	):
+		return "their only card"
+
+	if threshold == 1:
+		return "at least 1 card"
+
+	return "%d+ cards" % threshold
+
+func _forecast_transition_label(
+	threshold: int,
+	maximum_depth: int
+) -> String:
+	if (
+		threshold == maximum_depth
+		and maximum_depth > 1
+	):
+		return "ALL %d" % maximum_depth
+
+	if (
+		threshold == 1
+		and maximum_depth == 1
+	):
+		return "WARD 1"
+
+	return "WARD %d+" % threshold
+
+func _forecast_band_text(
+	band_name: String
+) -> String:
+	var color_text: String = "#c8b36a"
+
+	match band_name:
+		"STRONG":
+			color_text = "#70d6a2"
+		"FAVORABLE":
+			color_text = "#d7c86b"
+		"RISKY":
+			color_text = "#e5a55e"
+		"IMPOSSIBLE":
+			color_text = "#e56b78"
+
+	return "[color=%s][b]%s[/b][/color]" % [
+		color_text,
+		band_name,
+	]
+
+
 func _add_target_option(
 	display_text: String,
 	target_id: String
@@ -3525,7 +4083,8 @@ func _has_profanable_castle(player) -> bool:
 
 func _castle_type_is_buildable(player, castle_name: String) -> bool:
 	return (
-		not player.castles.has(castle_name)
+		not player.castle_action_used_this_round
+		and not player.castles.has(castle_name)
 		and not player.ruined_castles.has(castle_name)
 		and not player.profaned_castles.has(castle_name)
 		and not player.lost_castles.has(castle_name)
@@ -4777,6 +5336,13 @@ func _phase_help_text() -> String:
 				+ "Castle anyway. This opportunity is once per round; pass to decline."
 			)
 
+		PlayableRoundControllerData.Stage.NO_GAME:
+			return (
+				prefix
+				+ "[b]Round resolved.[/b] Review the Results panel, then click Next Round. "
+				+ "These results stay visible while you make the next Development decisions."
+			)
+
 		PlayableRoundControllerData.Stage.TERMINAL:
 			var winner_name: String = (
 				"the winner"
@@ -4830,7 +5396,7 @@ func _hand_caption_text() -> String:
 			return "Choose a damaged Castle or an available type:"
 		if castle_action == "construct":
 			return "Add Construction progress to %s (Hand or Garrison):" % castle_name
-		return "Restore Integrity to %s — Wright cards only (Hand or Garrison):" % castle_name
+		return "Restore Integrity to %s — Wrights pay full value; other suits lose 1 (Hand or Garrison):" % castle_name
 
 	if controller.stage == PlayableRoundControllerData.Stage.DEPLOY:
 		if _deploy_selection_limit() <= 0:
@@ -5369,12 +5935,1275 @@ func _set_phase_message(
 	phase_label.text = message
 
 
+func _set_results_panel(
+	title: String,
+	summary_lines: Array,
+	accent: String = "#82c9ff",
+	detail_lines: Array = []
+) -> void:
+	if results_panel_label == null:
+		return
+
+	var rendered_summary: Array[String] = [
+		"[color=%s][b]RESULTS — %s[/b][/color]" % [accent, title],
+	]
+
+	for raw_line in summary_lines:
+		var line: String = String(raw_line)
+		if not line.is_empty():
+			rendered_summary.append(line)
+
+	results_panel_label.text = "\n".join(rendered_summary)
+
+	if results_detail_label == null:
+		return
+
+	var rendered_detail: Array[String] = []
+	for raw_line in detail_lines:
+		var line: String = String(raw_line)
+		if not line.is_empty():
+			rendered_detail.append(line)
+
+	results_detail_label.text = "\n".join(rendered_detail)
+	results_detail_label.visible = not rendered_detail.is_empty()
+	if results_detail_label.visible:
+		# RichTextLabel calculates layout on the next frame. Deferred scrolling
+		# reliably keeps WHY IT MOVED at the top after every update.
+		results_detail_label.call_deferred("scroll_to_line", 0)
+
+
+func _refresh_reveal_results(
+	human,
+	bot,
+	human_value: int,
+	bot_value: int
+) -> void:
+	if human == null or bot == null:
+		return
+
+	_set_results_panel(
+		"ORDERS REVEALED",
+		[
+			(
+				"[color=#78d9a1][b]YOU — %s %d[/b][/color]"
+				+ "    [color=#b88f9d]VS[/color]    "
+				+ "[color=#dc8d9d][b]%s — %s %d[/b][/color]"
+			) % [
+				String(human.action),
+				human_value,
+				String(bot.lord),
+				String(bot.action),
+				bot_value,
+			],
+			"[color=#c8b36a]%s[/color]" % _reflex_holder_text(),
+			"[color=#a9a1b0]Orders are public. These are committed values, not the final outcome; Resolution has not happened yet.[/color]",
+		],
+		"#c8b36a"
+	)
+
+
+func _digest_player(
+	digest: Dictionary,
+	player_id: int
+) -> Dictionary:
+	for raw_player in _array_from(digest.get("players", [])):
+		if typeof(raw_player) != TYPE_DICTIONARY:
+			continue
+		var player_digest: Dictionary = raw_player
+		if int(player_digest.get("pid", -1)) == player_id:
+			return player_digest
+
+	# Backward-safe fallback for an older digest shape: player order is still
+	# canonical in the playable prototype.
+	var players: Array = _array_from(digest.get("players", []))
+	if player_id >= 0 and player_id < players.size():
+		if typeof(players[player_id]) == TYPE_DICTIONARY:
+			return players[player_id]
+
+	return {}
+
+
+func _signed_result_delta(
+	delta: int
+) -> String:
+	if delta == 0:
+		return "—"
+	if delta > 0:
+		return "+%d" % delta
+	return str(delta)
+
+
+func _result_value_with_delta(
+	before_value: int,
+	after_value: int
+) -> String:
+	return "%d  (%s)" % [
+		after_value,
+		_signed_result_delta(after_value - before_value),
+	]
+
+
+func _result_lord_state(
+	before_alive: bool,
+	after_alive: bool
+) -> String:
+	var state_text: String = "Living" if after_alive else "Banished"
+	if before_alive == after_alive:
+		return "%s  (—)" % state_text
+	return "%s  (%s)" % [
+		state_text,
+		"returned" if after_alive else "BANISHED",
+	]
+
+
+func _result_contains_any(
+	text: String,
+	needles: Array
+) -> bool:
+	for raw_needle in needles:
+		if text.find(String(raw_needle)) >= 0:
+			return true
+	return false
+
+
+func _result_highlight_score(
+	message: String
+) -> int:
+	var lower: String = message.to_lower()
+
+	# The old one-line state digest is intentionally not promoted into the
+	# panel.  The balance sheet below replaces it.
+	if lower.begins_with("resolution:"):
+		return 0
+
+	if _result_contains_any(
+		lower,
+		[
+			"dominion",
+			"banish",
+			"profan",
+			"vessel",
+			"marcher arrived",
+			"cataclysm",
+			"reconfiguration",
+			"claim the breach",
+			"inevitable ruin",
+			"castle ruined",
+			"ruined castle",
+			"victory",
+		]
+	):
+		return 3
+
+	if (
+		lower.find("guard") >= 0
+		and _result_contains_any(
+			lower,
+			[
+				"defeat",
+				"destroy",
+				"collapse",
+				"waning",
+				"scorch",
+				"siphon",
+			]
+		)
+	):
+		return 2
+
+	if _result_contains_any(
+		lower,
+		[
+			"tear",
+			"soul",
+			"threat",
+			"hunger",
+			"veil drift",
+		]
+	):
+		return 1
+
+	return 0
+
+
+func _collect_result_highlights(
+	log_start: int,
+	limit: int = 7
+) -> Array[String]:
+	var highlights: Array[String] = []
+	var seen: Dictionary = {}
+	var first_index: int = maxi(0, log_start)
+
+	for index: int in range(first_index, log_entries.size()):
+		var message: String = String(log_entries[index])
+		if _result_highlight_score(message) <= 0:
+			continue
+		if seen.has(message):
+			continue
+
+		seen[message] = true
+		highlights.append(message)
+
+		if highlights.size() >= limit:
+			break
+
+	return highlights
+
+
+func _result_castle_snapshot(
+	player
+) -> Dictionary:
+	var snapshot: Dictionary = {}
+	if player == null:
+		return snapshot
+
+	for castle_name: String in CASTLE_ORDER:
+		var maximum: int = _castle_max_integrity(castle_name)
+
+		if player.castles.has(castle_name):
+			var integrity: int = int(
+				player.castle_integrity.get(
+					castle_name,
+					maximum
+				)
+			)
+			var condition: String = "operational"
+			if integrity >= maximum:
+				condition = "full"
+			elif (
+				CastleIntegrityRulesData.state_for(
+					player,
+					castle_name,
+					controller.rules
+				)
+				== CastleIntegrityRulesData.STATE_DEFUNCT
+			):
+				condition = "defunct"
+
+			snapshot[castle_name] = {
+				"state": "standing",
+				"integrity": integrity,
+				"maximum": maximum,
+				"condition": condition,
+				"progress": 0,
+			}
+			continue
+
+		if player.ruined_castles.has(castle_name):
+			snapshot[castle_name] = {
+				"state": "ruined",
+				"integrity": 0,
+				"maximum": maximum,
+				"condition": "ruined",
+				"progress": 0,
+			}
+			continue
+
+		if player.profaned_castles.has(castle_name):
+			snapshot[castle_name] = {
+				"state": "profaned",
+				"integrity": 0,
+				"maximum": maximum,
+				"condition": "profaned",
+				"progress": 0,
+			}
+			continue
+
+		if player.lost_castles.has(castle_name):
+			snapshot[castle_name] = {
+				"state": "lost",
+				"integrity": 0,
+				"maximum": maximum,
+				"condition": "lost",
+				"progress": 0,
+			}
+			continue
+
+		var progress: int = int(
+			player.castle_construction_progress.get(
+				castle_name,
+				0
+			)
+		)
+		snapshot[castle_name] = {
+			"state": "building" if progress > 0 else "unbuilt",
+			"integrity": 0,
+			"maximum": maximum,
+			"condition": "building" if progress > 0 else "unbuilt",
+			"progress": progress,
+		}
+
+	return snapshot
+
+
+func _castle_snapshot_changed(
+	before_state: Dictionary,
+	after_state: Dictionary
+) -> bool:
+	return (
+		String(before_state.get("state", ""))
+		!= String(after_state.get("state", ""))
+		or int(before_state.get("integrity", 0))
+		!= int(after_state.get("integrity", 0))
+		or int(before_state.get("progress", 0))
+		!= int(after_state.get("progress", 0))
+		or String(before_state.get("condition", ""))
+		!= String(after_state.get("condition", ""))
+	)
+
+
+func _collect_castle_result_lines(
+	before: Dictionary,
+	after: Dictionary,
+	player_id: int,
+	owner_label: String
+) -> Array[String]:
+	var lines: Array[String] = []
+	var before_player: Dictionary = _digest_player(
+		before,
+		player_id
+	)
+	var after_player: Dictionary = _digest_player(
+		after,
+		player_id
+	)
+	if before_player.is_empty() or after_player.is_empty():
+		return lines
+
+	var before_castles = before_player.get(
+		"castle_states",
+		{}
+	)
+	var after_castles = after_player.get(
+		"castle_states",
+		{}
+	)
+	if (
+		typeof(before_castles) != TYPE_DICTIONARY
+		or typeof(after_castles) != TYPE_DICTIONARY
+	):
+		return lines
+
+	for castle_name: String in CASTLE_ORDER:
+		var old_raw = before_castles.get(
+			castle_name,
+			{}
+		)
+		var new_raw = after_castles.get(
+			castle_name,
+			{}
+		)
+		if (
+			typeof(old_raw) != TYPE_DICTIONARY
+			or typeof(new_raw) != TYPE_DICTIONARY
+		):
+			continue
+
+		var old_state: Dictionary = old_raw
+		var new_state: Dictionary = new_raw
+		if not _castle_snapshot_changed(
+			old_state,
+			new_state
+		):
+			continue
+
+		var old_kind: String = String(
+			old_state.get("state", "unbuilt")
+		)
+		var new_kind: String = String(
+			new_state.get("state", "unbuilt")
+		)
+		var old_integrity: int = int(
+			old_state.get("integrity", 0)
+		)
+		var new_integrity: int = int(
+			new_state.get("integrity", 0)
+		)
+		var maximum: int = int(
+			new_state.get(
+				"maximum",
+				old_state.get("maximum", 14)
+			)
+		)
+		var new_condition: String = String(
+			new_state.get("condition", "")
+		)
+
+		if old_kind == "standing" and new_kind == "ruined":
+			lines.append(
+				"[color=#ff9a7a][b]%s %s: %d/%d → RUINED.[/b][/color]"
+				% [
+					owner_label,
+					_castle_card_title(castle_name),
+					old_integrity,
+					maximum,
+				]
+			)
+			continue
+
+		if old_kind == "standing" and new_kind == "profaned":
+			lines.append(
+				"[color=#f2d477][b]%s %s: %d/%d → PROFANED.[/b][/color] Spent Dominion husk."
+				% [
+					owner_label,
+					_castle_card_title(castle_name),
+					old_integrity,
+					maximum,
+				]
+			)
+			continue
+
+		if old_kind == "standing" and new_kind == "standing":
+			if old_integrity != new_integrity:
+				var condition_suffix: String = ""
+				if String(old_state.get("condition", "")) != new_condition:
+					condition_suffix = " — now %s" % new_condition.to_upper()
+				lines.append(
+					"%s %s Integrity: [b]%d→%d[/b]%s."
+					% [
+						owner_label,
+						_castle_card_title(castle_name),
+						old_integrity,
+						new_integrity,
+						condition_suffix,
+					]
+				)
+			continue
+
+		if new_kind == "building":
+			lines.append(
+				"%s %s construction: [b]%d→%d/%d[/b]."
+				% [
+					owner_label,
+					_castle_card_title(castle_name),
+					int(old_state.get("progress", 0)),
+					int(new_state.get("progress", 0)),
+					maximum,
+				]
+			)
+			continue
+
+		if old_kind == "building" and new_kind == "standing":
+			lines.append(
+				"[color=#8ee5a1][b]%s %s construction completed — now standing at %d/%d.[/b][/color]"
+				% [
+					owner_label,
+					_castle_card_title(castle_name),
+					new_integrity,
+					maximum,
+				]
+			)
+			continue
+
+		if old_kind != new_kind:
+			lines.append(
+				"%s %s: [b]%s → %s[/b]."
+				% [
+					owner_label,
+					_castle_card_title(castle_name),
+					old_kind.to_upper(),
+					new_kind.to_upper(),
+				]
+			)
+
+	return lines
+
+
+func _result_action_results(
+	round_result: Dictionary = {}
+) -> Array[Dictionary]:
+	var results: Array[Dictionary] = []
+
+	if not round_result.is_empty():
+		var resolution: Dictionary = _resolution_result_from(
+			round_result
+		)
+		for raw_event in _array_from(
+			resolution.get("action_events", [])
+		):
+			if typeof(raw_event) != TYPE_DICTIONARY:
+				continue
+			var event: Dictionary = raw_event
+			var raw_action = event.get(
+				"action_result",
+				{}
+			)
+			if typeof(raw_action) == TYPE_DICTIONARY:
+				results.append(raw_action)
+
+		var reflex_raw = resolution.get(
+			"reflex_result",
+			{}
+		)
+		if typeof(reflex_raw) == TYPE_DICTIONARY:
+			var reflex: Dictionary = reflex_raw
+			var reflex_action_raw = reflex.get(
+				"action_result",
+				{}
+			)
+			if typeof(reflex_action_raw) == TYPE_DICTIONARY:
+				var reflex_action: Dictionary = reflex_action_raw
+				if not reflex_action.is_empty():
+					results.append(reflex_action)
+
+		return results
+
+	if controller == null:
+		return results
+
+	var state = controller.resolution_state
+	if typeof(state) != TYPE_DICTIONARY:
+		return results
+
+	for raw_event in _array_from(
+		state.get("action_events", [])
+	):
+		if typeof(raw_event) != TYPE_DICTIONARY:
+			continue
+		var event: Dictionary = raw_event
+		var raw_action = event.get(
+			"action_result",
+			{}
+		)
+		if typeof(raw_action) == TYPE_DICTIONARY:
+			results.append(raw_action)
+
+	# The human action mutates the live game before the Vessel decision. Show it
+	# immediately instead of waiting for the action event to be finalized.
+	var pending_raw = state.get(
+		"pending_action_result",
+		{}
+	)
+	if typeof(pending_raw) == TYPE_DICTIONARY:
+		var pending: Dictionary = pending_raw
+		if not pending.is_empty():
+			results.append(pending)
+
+	var reflex_raw = state.get(
+		"reflex_result",
+		{}
+	)
+	if typeof(reflex_raw) == TYPE_DICTIONARY:
+		var reflex: Dictionary = reflex_raw
+		var reflex_action_raw = reflex.get(
+			"action_result",
+			{}
+		)
+		if typeof(reflex_action_raw) == TYPE_DICTIONARY:
+			var reflex_action: Dictionary = reflex_action_raw
+			if not reflex_action.is_empty():
+				results.append(reflex_action)
+
+	return results
+
+
+func _result_guard_loss_line(
+	action_result: Dictionary
+) -> String:
+	var defeated: Array = _array_from(
+		action_result.get(
+			"guards_defeated",
+			[]
+		)
+	)
+	if defeated.is_empty():
+		return ""
+
+	return "%s lost %d Guard%s: %s." % [
+		_player_name(
+			int(
+				action_result.get(
+					"defender_id",
+					-1
+				)
+			)
+		),
+		defeated.size(),
+		"" if defeated.size() == 1 else "s",
+		_string_values_inline(defeated),
+	]
+
+
+func _resolution_action_highlights(
+	round_result: Dictionary = {}
+) -> Array[String]:
+	var lines: Array[String] = []
+	var seen: Dictionary = {}
+
+	for action_result: Dictionary in _result_action_results(
+		round_result
+	):
+		var action: String = String(
+			action_result.get("action", "")
+		).to_lower()
+		var attacker_id: int = int(
+			action_result.get(
+				"attacker_id",
+				-1
+			)
+		)
+		var defender_id: int = int(
+			action_result.get(
+				"defender_id",
+				-1
+			)
+		)
+		var attacker_name: String = _player_name(
+			attacker_id
+		)
+		var defender_name: String = _player_name(
+			defender_id
+		)
+		var primary: String = ""
+
+		if action == "siege":
+			var target: String = String(
+				action_result.get(
+					"target_castle",
+					"Castle"
+				)
+			)
+			var integrity_before: int = int(
+				action_result.get(
+					"integrity_before",
+					0
+				)
+			)
+			var integrity_after: int = int(
+				action_result.get(
+					"integrity_after",
+					integrity_before
+				)
+			)
+			var structure_damage: int = int(
+				action_result.get(
+					"structure_damage",
+					0
+				)
+			)
+			var bastion_screened: bool = bool(
+				action_result.get(
+					"bastion_screened",
+					false
+				)
+			)
+			var bastion_before: int = int(
+				action_result.get(
+					"bastion_integrity_before",
+					0
+				)
+			)
+			var bastion_after: int = int(
+				action_result.get(
+					"bastion_integrity_after",
+					bastion_before
+				)
+			)
+
+			if (
+				bastion_screened
+				and target != "Bastion"
+				and bastion_after < bastion_before
+			):
+				primary = (
+					"[color=#ff9a7a][b]Bastion intercepted %s's Siege on %s: %d→%d Integrity%s.[/b][/color]"
+					% [
+						attacker_name,
+						target,
+						bastion_before,
+						bastion_after,
+						" — RUINED" if bastion_after <= 0 else "",
+					]
+				)
+				if structure_damage > 0:
+					primary += (
+						" %d damage continued into %s (%d→%d)."
+						% [
+							structure_damage,
+							target,
+							integrity_before,
+							integrity_after,
+						]
+					)
+			elif bool(
+				action_result.get(
+					"destroyed",
+					false
+				)
+			):
+				primary = (
+					"[color=#ff9a7a][b]%s RUINED %s's %s (%d→0 Integrity).[/b][/color]"
+					% [
+						attacker_name,
+						defender_name,
+						target,
+						integrity_before,
+					]
+				)
+			elif structure_damage > 0:
+				primary = (
+					"%s damaged %s's %s: [b]%d→%d Integrity[/b]."
+					% [
+						attacker_name,
+						defender_name,
+						target,
+						integrity_before,
+						integrity_after,
+					]
+				)
+			else:
+				var stopped_at: String = String(
+					action_result.get(
+						"stopped_at",
+						""
+					)
+				).strip_edges()
+				primary = (
+					"%s's Siege on %s's %s was stopped by %s."
+					% [
+						attacker_name,
+						defender_name,
+						target,
+						stopped_at,
+					]
+					if not stopped_at.is_empty()
+					else "%s's Siege on %s's %s dealt no Integrity damage."
+					% [
+						attacker_name,
+						defender_name,
+						target,
+					]
+				)
+
+		elif action == "hunt":
+			if bool(
+				action_result.get(
+					"banished",
+					false
+				)
+			):
+				primary = (
+					"[color=#ff9a7a][b]%s BANISHED %s's Lord.[/b][/color]"
+					% [
+						attacker_name,
+						defender_name,
+					]
+				)
+			elif bool(
+				action_result.get(
+					"consumed",
+					false
+				)
+			):
+				primary = (
+					"[color=#f2d477][b]%s Consumed the Hunt instead of Banishing %s's Lord.[/b][/color]"
+					% [
+						attacker_name,
+						defender_name,
+					]
+				)
+			else:
+				var stopped_at: String = String(
+					action_result.get(
+						"stopped_at",
+						""
+					)
+				).strip_edges()
+				if not stopped_at.is_empty():
+					primary = (
+						"%s's Hunt was stopped by %s."
+						% [
+							attacker_name,
+							stopped_at.replace(
+								"_",
+								" "
+							),
+						]
+					)
+				elif (
+					int(
+						action_result.get(
+							"strength",
+							0
+						)
+					)
+					> int(
+						action_result.get(
+							"lord_defense",
+							0
+						)
+					)
+				):
+					primary = (
+						"[color=#82c9ff][b]%s's Hunt would have broken %s's Lord DEF, but a defensive effect kept the Lord standing.[/b][/color]"
+						% [
+							attacker_name,
+							defender_name,
+						]
+					)
+				else:
+					primary = (
+						"%s's Hunt ended without a Banishment."
+						% attacker_name
+					)
+
+		if not primary.is_empty() and not seen.has(
+			primary
+		):
+			seen[primary] = true
+			lines.append(primary)
+
+		var guard_line: String = _result_guard_loss_line(
+			action_result
+		)
+		if (
+			not guard_line.is_empty()
+			and not seen.has(guard_line)
+		):
+			seen[guard_line] = true
+			lines.append(guard_line)
+
+	return lines
+
+
+func _resolution_waiting_text() -> String:
+	if controller == null:
+		return ""
+
+	match controller.stage:
+		PlayableRoundControllerData.Stage.RESOLUTION_ACTION:
+			var human = controller.get_human_player()
+			return (
+				"Next: resolve your sealed %s."
+				% (
+					String(human.action)
+					if human != null
+					else "action"
+				)
+			)
+
+		PlayableRoundControllerData.Stage.RESOLUTION_VESSEL:
+			return "Your action resolved. Next: offer the Vessel or pass."
+
+		PlayableRoundControllerData.Stage.RESOLUTION_HUMBABA_TOLL:
+			return "Next: resolve Humbaba's Toll or pass."
+
+		PlayableRoundControllerData.Stage.RESOLUTION_REFLEX:
+			return "Next: take the second action or pass."
+
+		PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH:
+			return "Next: resolve Odradek's Breach prediction."
+
+		PlayableRoundControllerData.Stage.RESOLUTION_GREMORY:
+			return "Next: use Inevitable Ruin or pass."
+
+	return "Resolution is still in progress."
+
+
+func _resolution_delta_line(
+	before: Dictionary,
+	after: Dictionary
+) -> String:
+	var human = controller.get_human_player()
+	var bot = controller.get_bot_player()
+	if human == null or bot == null:
+		return ""
+
+	var human_before: Dictionary = _digest_player(
+		before,
+		int(human.pid)
+	)
+	var human_after: Dictionary = _digest_player(
+		after,
+		int(human.pid)
+	)
+	var bot_before: Dictionary = _digest_player(
+		before,
+		int(bot.pid)
+	)
+	var bot_after: Dictionary = _digest_player(
+		after,
+		int(bot.pid)
+	)
+	if (
+		human_before.is_empty()
+		or human_after.is_empty()
+		or bot_before.is_empty()
+		or bot_after.is_empty()
+	):
+		return ""
+
+	var parts: Array[String] = []
+	var fields: Array[Dictionary] = [
+		{
+			"label": "YOU Souls",
+			"before": int(human_before.get("souls", 0)),
+			"after": int(human_after.get("souls", 0)),
+		},
+		{
+			"label": "%s Souls" % String(bot.lord),
+			"before": int(bot_before.get("souls", 0)),
+			"after": int(bot_after.get("souls", 0)),
+		},
+		{
+			"label": "YOU Tears",
+			"before": int(human_before.get("tears", 0)),
+			"after": int(human_after.get("tears", 0)),
+		},
+		{
+			"label": "%s Tears" % String(bot.lord),
+			"before": int(bot_before.get("tears", 0)),
+			"after": int(bot_after.get("tears", 0)),
+		},
+		{
+			"label": "YOU Castles",
+			"before": int(human_before.get("castles", 0)),
+			"after": int(human_after.get("castles", 0)),
+		},
+		{
+			"label": "%s Castles" % String(bot.lord),
+			"before": int(bot_before.get("castles", 0)),
+			"after": int(bot_after.get("castles", 0)),
+		},
+		{
+			"label": "YOU Threat",
+			"before": int(human_before.get("threat", 0)),
+			"after": int(human_after.get("threat", 0)),
+		},
+		{
+			"label": "%s Threat" % String(bot.lord),
+			"before": int(bot_before.get("threat", 0)),
+			"after": int(bot_after.get("threat", 0)),
+		},
+	]
+
+	for field: Dictionary in fields:
+		var delta: int = (
+			int(field.get("after", 0))
+			- int(field.get("before", 0))
+		)
+		if delta != 0:
+			parts.append(
+				"%s %s"
+				% [
+					String(field.get("label", "")),
+					_signed_result_delta(delta),
+				]
+			)
+
+	var veil_delta: int = (
+		int(after.get("veil", 0))
+		- int(before.get("veil", 0))
+	)
+	if veil_delta != 0:
+		parts.append(
+			"Veil %s"
+			% _signed_result_delta(veil_delta)
+		)
+
+	return "  ·  ".join(parts)
+
+
+func _refresh_resolution_progress(
+	_result: Dictionary
+) -> void:
+	if (
+		controller == null
+		or controller.game == null
+		or resolution_start_digest.is_empty()
+	):
+		return
+
+	var current_digest: Dictionary = _state_digest()
+	var summary: Array[String] = []
+	var details: Array[String] = []
+
+	var swing: String = _resolution_delta_line(
+		resolution_start_digest,
+		current_digest
+	)
+	if not swing.is_empty():
+		summary.append(
+			"[color=#82c9ff][b]CURRENT SWING[/b][/color] — %s"
+			% swing
+		)
+
+	var human = controller.get_human_player()
+	var bot = controller.get_bot_player()
+	if human != null and bot != null:
+		var warning: String = _dominion_warning_text(
+			human,
+			bot,
+			int(current_digest.get("veil", 0)),
+			_effective_dominion_requirement()
+		)
+		if not warning.is_empty():
+			summary.append(warning)
+
+	var action_lines: Array[String] = _resolution_action_highlights()
+	if not action_lines.is_empty():
+		details.append(
+			"[color=#c8b36a][b]WHAT JUST HAPPENED[/b][/color]"
+		)
+		for line: String in action_lines:
+			details.append("• %s" % line)
+	else:
+		details.append(
+			"[color=#a9a1b0]No committed action has changed the board yet.[/color]"
+		)
+
+	details.append(
+		"[color=#c8b36a]%s[/color]"
+		% _resolution_waiting_text()
+	)
+
+	_set_results_panel(
+		"ROUND %d — RESOLVING"
+		% (
+			resolution_round_number
+			if resolution_round_number >= 0
+			else int(controller.game.round)
+		),
+		summary,
+		"#c8b36a",
+		details
+	)
+
+
+func _refresh_round_results(
+	before: Dictionary,
+	after: Dictionary,
+	round_result: Dictionary,
+	log_start: int
+) -> void:
+	if (
+		controller == null
+		or controller.game == null
+		or controller.rules == null
+	):
+		return
+
+	var human = controller.get_human_player()
+	var bot = controller.get_bot_player()
+	if human == null or bot == null:
+		return
+
+	var human_before: Dictionary = _digest_player(
+		before,
+		int(human.pid)
+	)
+	var human_after: Dictionary = _digest_player(
+		after,
+		int(human.pid)
+	)
+	var bot_before: Dictionary = _digest_player(
+		before,
+		int(bot.pid)
+	)
+	var bot_after: Dictionary = _digest_player(
+		after,
+		int(bot.pid)
+	)
+	if (
+		human_before.is_empty()
+		or human_after.is_empty()
+		or bot_before.is_empty()
+		or bot_after.is_empty()
+	):
+		return
+
+	var requirement: int = _effective_dominion_requirement()
+	var veil_before: int = int(
+		before.get("veil", 0)
+	)
+	var veil_after: int = int(
+		after.get("veil", 0)
+	)
+	var veil_delta: int = veil_after - veil_before
+
+	var table_text: String = (
+		"[table=3]"
+		+ "[cell][b]STATE[/b]  [/cell]"
+		+ "[cell][color=#78d9a1][b]YOU — %s[/b][/color]  [/cell]"
+		+ "[cell][color=#dc8d9d][b]OPPONENT — %s[/b][/color][/cell]"
+		+ "[cell]Personal Tears  [/cell][cell]  %s  [/cell][cell]  %s[/cell]"
+		+ "[cell][b]Castles standing[/b]  [/cell][cell]  [b]%s[/b]  [/cell][cell]  [b]%s[/b][/cell]"
+		+ "[cell]Souls  [/cell][cell]  %s  [/cell][cell]  %s[/cell]"
+		+ "[cell]Threat  [/cell][cell]  %s  [/cell][cell]  %s[/cell]"
+		+ "[cell]Castle Guards  [/cell][cell]  %s  [/cell][cell]  %s[/cell]"
+		+ "[/table]"
+	) % [
+		String(human.lord),
+		String(bot.lord),
+		_result_value_with_delta(
+			int(human_before.get("tears", 0)),
+			int(human_after.get("tears", 0))
+		),
+		_result_value_with_delta(
+			int(bot_before.get("tears", 0)),
+			int(bot_after.get("tears", 0))
+		),
+		_result_value_with_delta(
+			int(human_before.get("castles", 0)),
+			int(human_after.get("castles", 0))
+		),
+		_result_value_with_delta(
+			int(bot_before.get("castles", 0)),
+			int(bot_after.get("castles", 0))
+		),
+		_result_value_with_delta(
+			int(human_before.get("souls", 0)),
+			int(human_after.get("souls", 0))
+		),
+		_result_value_with_delta(
+			int(bot_before.get("souls", 0)),
+			int(bot_after.get("souls", 0))
+		),
+		_result_value_with_delta(
+			int(human_before.get("threat", 0)),
+			int(human_after.get("threat", 0))
+		),
+		_result_value_with_delta(
+			int(bot_before.get("threat", 0)),
+			int(bot_after.get("threat", 0))
+		),
+		_result_value_with_delta(
+			int(human_before.get("castle_guards", 0)),
+			int(human_after.get("castle_guards", 0))
+		),
+		_result_value_with_delta(
+			int(bot_before.get("castle_guards", 0)),
+			int(bot_after.get("castle_guards", 0))
+		),
+	]
+
+	var summary: Array[String] = []
+	var dominion_warning: String = _dominion_warning_text(
+		human,
+		bot,
+		veil_after,
+		requirement
+	)
+	if not dominion_warning.is_empty():
+		summary.append(dominion_warning)
+
+	summary.append(table_text)
+	summary.append(
+		"[b]VEIL[/b] %d/%d  (%s across this result)"
+		% [
+			veil_after,
+			int(
+				controller.rules.final_collapse_threshold
+			),
+			_signed_result_delta(veil_delta),
+		]
+	)
+
+	var highlights: Array[String] = []
+
+	var human_alive_before: bool = bool(
+		human_before.get("alive", true)
+	)
+	var human_alive_after: bool = bool(
+		human_after.get("alive", true)
+	)
+	if human_alive_before != human_alive_after:
+		highlights.append(
+			"[color=#ff9a7a][b]YOU — %s: Lord %s.[/b][/color]"
+			% [
+				String(human.lord),
+				"returned" if human_alive_after else "BANISHED",
+			]
+		)
+
+	var bot_alive_before: bool = bool(
+		bot_before.get("alive", true)
+	)
+	var bot_alive_after: bool = bool(
+		bot_after.get("alive", true)
+	)
+	if bot_alive_before != bot_alive_after:
+		highlights.append(
+			"[color=#ff9a7a][b]%s: Lord %s.[/b][/color]"
+			% [
+				String(bot.lord),
+				"returned" if bot_alive_after else "BANISHED",
+			]
+		)
+
+	# Castle state is independently diffed from the before/after snapshots.
+	# A Ruin or Integrity drop therefore cannot disappear merely because an
+	# event field or transcript attribution was missing.
+	for line: String in _collect_castle_result_lines(
+		before,
+		after,
+		int(human.pid),
+		"YOU"
+	):
+		highlights.append(line)
+
+	for line: String in _collect_castle_result_lines(
+		before,
+		after,
+		int(bot.pid),
+		String(bot.lord)
+	):
+		if not highlights.has(line):
+			highlights.append(line)
+
+	for line: String in _resolution_action_highlights(
+		round_result
+	):
+		if not highlights.has(line):
+			highlights.append(line)
+
+	for line: String in _collect_result_highlights(
+		log_start,
+		10
+	):
+		if not highlights.has(line):
+			highlights.append(line)
+
+	var details: Array[String] = []
+	if not highlights.is_empty():
+		details.append(
+			"[color=#c8b36a][b]WHY IT MOVED[/b][/color]"
+		)
+		for highlight_index: int in range(
+			mini(
+				highlights.size(),
+				14
+			)
+		):
+			details.append(
+				"• %s"
+				% highlights[highlight_index]
+			)
+	else:
+		details.append(
+			"[color=#a9a1b0]No major board-state change was detected. Full detail remains in Match Log.[/color]"
+		)
+
+	_set_results_panel(
+		"ROUND %d — RESOLVED"
+		% (
+			resolution_round_number
+			if resolution_round_number >= 0
+			else int(controller.game.round)
+		),
+		summary,
+		"#f2d477",
+		details
+	)
+
+
 func _state_digest() -> Dictionary:
 	var game = controller.game
 	var players: Array = []
 
 	for player in game.players:
 		players.append({
+			"pid": int(player.pid),
 			"lord": String(
 				player.lord
 			),
@@ -5393,6 +7222,7 @@ func _state_digest() -> Dictionary:
 			"castles": player.castles.size(),
 			"lord_guards": player.lord_guards.size(),
 			"castle_guards": player.castle_guards.size(),
+			"castle_states": _result_castle_snapshot(player),
 		})
 
 	return {
@@ -5946,14 +7776,29 @@ func _log_action_outcome(
 			)
 		):
 			outcome = "the Lord was banished"
+		elif bool(
+			action_result.get(
+				"consumed",
+				false
+			)
+		):
+			outcome = "the Hunt was Consumed instead of Banishing the Lord"
 		else:
-			outcome = "the attack stopped at %s"
-			outcome = outcome % String(
+			var stopped_at: String = String(
 				action_result.get(
 					"stopped_at",
-					"the defenses"
+					""
 				)
-			)
+			).strip_edges()
+			if not stopped_at.is_empty():
+				outcome = "the attack stopped at %s" % stopped_at
+			elif (
+				int(action_result.get("strength", 0))
+				> int(action_result.get("lord_defense", 0))
+			):
+				outcome = "the Lord survived through a defensive effect"
+			else:
+				outcome = "the defenses held"
 
 		_log(
 			"[color=#e8e2eb][b]%s Hunt:[/b] %s attacked %s's Lord with %d strength against Lord DEF %d; defeated %s; %s%s.[/color]"
@@ -6037,12 +7882,16 @@ func _log_action_outcome(
 			if damage_done > 0:
 				outcome = "the Castle remains standing"
 			else:
-				outcome = "the attack stopped at %s"
-				outcome = outcome % String(
+				var stopped_at: String = String(
 					action_result.get(
 						"stopped_at",
-						"the defenses"
+						""
 					)
+				).strip_edges()
+				outcome = (
+					"the attack stopped at %s" % stopped_at
+					if not stopped_at.is_empty()
+					else "the defenses held"
 				)
 
 		var integrity_before: int = int(action_result.get("integrity_before", 0))
@@ -10989,21 +12838,21 @@ func _refresh_castle_cards(player, is_human: bool) -> void:
 		elif player.ruined_castles.has(castle_name):
 			state = "ruined"
 			detail = "RUINED · 0 INT"
-			status = "Can fuel Profane Ruins"
+			status = "Ruin fuel"
 		elif player.profaned_castles.has(castle_name):
 			state = "profaned"
 			detail = "PROFANED · +1 TEAR"
-			status = "Spent Dominion husk"
+			status = "Dominion spent"
 		elif player.lost_castles.has(castle_name):
 			state = "ruined"
 			detail = "LOST"
-			status = "Permanently unavailable"
+			status = "Unavailable"
 		else:
 			var progress: int = int(player.castle_construction_progress.get(castle_name, 0))
 			if progress > 0:
 				state = "building"
 				detail = "BUILD %d / %d" % [progress, maximum]
-				status = "Under construction"
+				status = "Building"
 
 		card.text = "%s\n%s\n%s" % [
 			_castle_card_title(castle_name),
