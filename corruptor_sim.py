@@ -63,6 +63,9 @@ SIM_VERSION history
   7.5.0      Canonical suit identities: Penitent Wards at full value while
              non-Penitent Ward cards lose 1 Strength (floor 1); committing one
              or more Vultures reveals one entire enemy Guard area after Reveal.
+  7.6.0      Keep Sanctuary replaced in the live lab by persistent Hunt
+             interposition. Keep stands between Lord defenses and incoming Hunt
+             Strength; Fortification is variable and currently defaults to 3.
 
 Rulebook-alignment changelog from the historical sim is intentionally retained
 in the implementation below where it documents inherited mechanics.  v7's new
@@ -70,10 +73,11 @@ code is concentrated around measurement, doctrine synchronization, Castle
 power gating/targeting, Ruination resolution, reproducibility, and reporting.
 """
 
-SIM_VERSION = "7.5.0-suit-identities"
-SIM_CODENAME = "Castle rules lock + canonical suit identities"
-AI_POLICY = "heuristic-2026.08-castle-contextual-v3"
-LAB_PROFILE_VERSION = "7.5.0-suit-identities"
+SIM_VERSION = "7.6.2-defunct-repair-lock"
+SIM_CODENAME = "Defunct vulnerability + unrestricted Repair actions"
+AI_POLICY = "heuristic-2026.08-castle-contextual-v4"
+LAB_PROFILE_VERSION = "6.8.3-kroni-cannibal-no-gorge"
+# KRONI_CANNIBAL_NO_GORGE_V1
 
 # v7 does not silently decide unresolved castle-design questions.  The active
 # power gate (owned vs operational) and targeting doctrine are explicit dials,
@@ -218,6 +222,7 @@ DE_V2_VARIANT = dict(
     sigil_flat=False,
     humbaba_sigil_commit=False,
     repair_escalation=0,
+    defunct_repair_lock=False,
     castle_scarring=False,
     castle_scar_def=2,
     castle_permanent_loss=False,
@@ -241,6 +246,12 @@ DE_V2_VARIANT = dict(
     profane_no_castle_gate=False,
     castleless_siege=False,
     castleless_tear_neutral=True,
+
+    # Keep physical interposition.
+    # Historical profiles default OFF.
+    keep_interposition=False,
+    keep_fortification=0,
+    keep_hunt_armor=0,             # deprecated compatibility key
 )
 
 LAB_V6_5_CONSTANTS = dict(
@@ -293,6 +304,7 @@ LAB_V6_5_VARIANT = dict(
     humbaba_patient=False,
     humbaba_sigil_commit=False,
     repair_escalation=0,
+    defunct_repair_lock=True,
     # Castle Integrity supersedes scarring and repeatable rebuilding.
     castle_scarring=False,
     castle_scar_def=2,
@@ -325,7 +337,10 @@ LAB_V6_5_VARIANT = dict(
     castle_targeting_mode='strategic',   # replaces identity-coded fixed target ladder
     castle_owner_doctrine='strategic',   # repair/build/profane evaluate current castle utility
     # ── Castle kit 6.11 — each independently ablatable ──────────────
-    keep_sanctuary=True,          # Keep absorbs Hunt excess to prevent banishment
+    keep_sanctuary=False,         # historical save mechanic; superseded in live lab
+    keep_interposition=True,        # Ward -> Guards -> Sigil -> Keep -> Lord
+    keep_fortification=3,           # Operational Keep only; current lab lock
+    keep_hunt_armor=0,              # deprecated compatibility key
     bastion_fortified=True,       # Bastion physically screens rear Castles while it stands
     bastion_wall=True,            # canonical alias used by live Godot/Python parity tests
     bastion_forced_wall=False,    # historical compatibility
@@ -410,6 +425,8 @@ DE_V2_FEATURES = dict(
     humbaba_reactive_lane=False,
     # Kroni v0.1 remains legacy in canonical DE v2. The lab flips both dials.
     kro_fallback_feeds=True,
+    kro_cannibal_h1=False,      # historical de-v2 upkeep
+    kro_gorge=True,             # historical de-v2 Gorge
     kro_milestone_once=False,
     momentum_refund=0,
     veil_drift_rate=0.0,
@@ -447,6 +464,8 @@ LAB_V6_5_FEATURES = dict(
     ward_commit_defense=True,
     humbaba_reactive_lane=True,
     kro_fallback_feeds=False,
+    kro_cannibal_h1=True,       # H1+: compulsory deployed-Guard meal
+    kro_gorge=False,            # current rules: Gorge removed
     kro_milestone_once=True,
     momentum_refund=1,
     veil_drift_after=15,
@@ -831,6 +850,11 @@ def return_threat(lord: str) -> int:
     return LORD_STATS[lord]['r']
 
 
+
+def fracture_value(lord: str) -> int:
+    """Printed Fracture value; backed by the former return-Threat stat."""
+    return max(0, int(LORD_STATS[lord]['r']))
+
 def summon_base_cost(lord: str) -> int:
     if lord == 'Deimos' and VARIANT['deimos_summon_cost']:
         return VARIANT['deimos_summon_cost']
@@ -971,6 +995,11 @@ class Player:
         # marchers retain their physical card while their lane value changes.
         self.castle_repairs: dict[str, int] = {}
         self.castle_integrity: dict[str, int] = {}
+
+        # Castle -> round in which it crossed Operational -> Defunct.
+        # It cannot be Repaired during the immediately following round.
+        self.castle_defunct_on_round: dict[str, int] = {}
+
         self.castle_construction_progress: dict[str, int] = {}
         self.banished_on_round: int = -99   # for the resummon delay
         self.construction_tokens: int = 0   # Stockpile bank
@@ -1148,9 +1177,23 @@ class Player:
             if game is not None:
                 game.stat_exert_refused += 1
             return 0
+        before_integrity = self.castle_integrity.get(
+            castle,
+            castle_max_integrity(castle),
+        )
+
         self.castle_integrity[castle] = (
-            self.castle_integrity.get(castle, castle_max_integrity(castle)) - amount)
+            before_integrity - amount
+        )
+
         if game is not None:
+            game._record_castle_defunct_transition(
+                self,
+                castle,
+                before_integrity,
+                self.castle_integrity[castle],
+            )
+
             game.stat_exert_paid += amount
             game.stat_exert_activations += 1
             game.stat_exert_by_castle[castle] = (
@@ -1468,13 +1511,34 @@ class Game:
         """
         if castle in owner.disabled_castle_powers:
             return 0.0
-        active = assume_standing or owner.castle_power_active(castle)
+        keep_wall_active = (
+            castle == 'Keep'
+            and VARIANT.get('keep_interposition', False)
+            and castle in owner.castles
+            and castle not in getattr(owner, 'disabled_castle_powers', set())
+            and owner.castle_integrity.get(
+                castle, castle_max_integrity(castle)
+            ) > 0
+        )
+
+        active = (
+            assume_standing
+            or owner.castle_power_active(castle)
+            or keep_wall_active
+        )
+
         if not active:
             return 0.0
 
         value = 0.25  # any live engine has some denial / future-option value
         if castle == 'Keep':
-            if VARIANT.get('keep_sanctuary', False) and owner.alive:
+            if (
+                (
+                    VARIANT.get('keep_sanctuary', False)
+                    or VARIANT.get('keep_interposition', False)
+                )
+                and owner.alive
+            ):
                 value += 1.00 + owner.souls / max(1.0, WIN_SOULS) * 0.35
             if VARIANT.get('keep_ignores_ward_tax', False):
                 value += 0.85
@@ -1953,7 +2017,24 @@ class Game:
                     if _cap > 0:
                         pl.construction_tokens = min(pl.construction_tokens, _cap)
                     _kit('tokens_generated', _t)
-            self._ai_repair_only(pl)
+            # Repair is resource-limited, not action-limited.
+            # Keep resolving maintenance until no Repair or Construction
+            # action can advance.
+            for _maintenance_pass in range(len(CASTLES) * 4 + 4):
+                _before_maintenance = (
+                    self.stat_castle_repair_actions,
+                    self.stat_construction_actions,
+                )
+
+                self._ai_repair_only(pl)
+
+                _after_maintenance = (
+                    self.stat_castle_repair_actions,
+                    self.stat_construction_actions,
+                )
+
+                if _after_maintenance == _before_maintenance:
+                    break
 
             # Stockpile — Reinforce: a material with nothing to build becomes
             # temporary wall. Integrity above the printed max is NOT restored by
@@ -2955,12 +3036,56 @@ class Game:
         self._kroni_gain_hunger(pl)
 
         # Gorge (Hunger 1+): personally defeated a guard this round
-        if pl.kroni_hunger >= 1 and pl.kroni_personally_defeated_guard:
+        if (ACTIVE_FEATURES.get('kro_gorge', True)
+                and pl.kroni_hunger >= 1
+                and pl.kroni_personally_defeated_guard):
             self._gain_soul(pl, 1)
 
         # Old enemy-destruction Tear removed — replaced by Hunger 3 milestone
 
     def _try_kroni_fallback(self, pl: Player):
+        """Current Kroni upkeep; de-v2 delegates to the preserved legacy helper."""
+        if not ACTIVE_FEATURES.get('kro_cannibal_h1', False):
+            return self._try_kroni_fallback_legacy(pl)
+
+        if pl.lord != 'Kroni' or not pl.alive:
+            return None
+
+        hunger = int(pl.kroni_hunger)
+        compulsory = hunger >= 1
+
+        # H0 keeps the quiet-round gate. H1+ is compulsory even when combat
+        # Consume already fired earlier in the same round.
+        if not compulsory and pl.kroni_consume_done:
+            return None
+
+        all_guards = pl.lord_guards + pl.castle_guards
+        victim = min(all_guards, key=lambda g: g.value) if all_guards else None
+
+        # Garrison is never edible.
+        if victim is None:
+            if compulsory:
+                pl.kroni_hunger = max(0, hunger - 1)
+                pl.kroni_consume_done = True
+            return None
+
+        if victim in pl.lord_guards:
+            pl.lord_guards.remove(victim)
+        else:
+            pl.castle_guards.remove(victim)
+
+        # Tested candidate semantics: eaten Guards leave play entirely.
+        self.removed_from_play.append(victim)
+        pl.kroni_consume_done = True
+
+        # H1+ compulsory meals never feed Hunger. H0 preserves the profile's
+        # historical fallback-feed switch (false in the current lab profile).
+        if not compulsory and ACTIVE_FEATURES['kro_fallback_feeds']:
+            self._kroni_gain_hunger(pl)
+
+        return victim
+
+    def _try_kroni_fallback_legacy(self, pl: Player):
         """Resolve compulsory self-consumption when real destruction did not feed Kroni.
 
         Canonical DE v2 preserves the legacy Hunger payout. The measured lab
@@ -3009,6 +3134,151 @@ class Game:
             if was_two and not pl.kroni_tear_milestone_fired:
                 pl.kroni_tear_milestone_fired = True
                 self._gain_tear(pl)
+
+    def _keep_fortification(self, pl: Player) -> int:
+        """Fortification used while an Operational Keep interposes.
+
+        A Defunct Keep (1-6 Integrity) remains a physical wall but loses
+        Fortification. At 0 Integrity the Keep is Ruined and no longer
+        interposes.
+
+        Future player/loadout/meta override:
+            player.keep_fortification_level = 0..N
+        """
+        if not self._keep_interposes(pl):
+            return 0
+
+        integrity = int(
+            pl.castle_integrity.get(
+                'Keep',
+                castle_max_integrity('Keep'),
+            )
+        )
+
+        floor = int(
+            VARIANT.get(
+                'castle_operational_floor',
+                CASTLE_OPERATIONAL_FLOOR,
+            )
+        )
+
+        if integrity < floor:
+            return 0
+
+        override = getattr(
+            pl,
+            'keep_fortification_level',
+            None,
+        )
+
+        if override is not None:
+            return max(0, int(override))
+
+        return max(
+            0,
+            int(
+                VARIANT.get(
+                    'keep_fortification',
+                    0,
+                )
+                or 0
+            ),
+        )
+
+    def _keep_hunt_armor(self, pl: Player) -> int:
+        """Deprecated compatibility alias."""
+        return self._keep_fortification(pl)
+
+    def _keep_interposes(self, pl: Player) -> bool:
+        """Physical Keep wall check.
+
+        Defunct does NOT remove interposition. Only Ruination, absence, or an
+        explicit experimental power ablation removes the physical wall.
+        """
+        return bool(
+            VARIANT.get(
+                'keep_interposition',
+                False,
+            )
+            and 'Keep' in pl.castles
+            and 'Keep' not in getattr(
+                pl,
+                'disabled_castle_powers',
+                set(),
+            )
+            and pl.castle_integrity.get(
+                'Keep',
+                castle_max_integrity('Keep'),
+            ) > 0
+        )
+
+    def _resolve_keep_hunt_ruin(
+        self,
+        dfn: Player,
+    ) -> None:
+        """Ruin Keep through Hunt interposition.
+
+        Current lock: this changes the physical Castle state but deliberately
+        does NOT invoke the ordinary Siege/Ruination reward chain. No Siege
+        Souls, Ruination payout, Tear payout, Predator trigger, etc.
+
+        That economy can be decided separately from the wall geometry.
+        """
+        if 'Keep' not in dfn.castles:
+            return
+
+        dfn.castles.discard(
+            'Keep'
+        )
+
+        dfn.ruined_castles.add(
+            'Keep'
+        )
+
+        if ACTIVE_FEATURES['castle_integrity']:
+            dfn.castle_integrity[
+                'Keep'
+            ] = 0
+
+        self.stat_keep_hunt_ruins = (
+            getattr(
+                self,
+                'stat_keep_hunt_ruins',
+                0,
+            )
+            + 1
+        )
+
+        # Humbaba's fourth Castle-Guard slot disappears as soon as a Castle
+        # becomes Ruined. Keep the board legal immediately.
+        if hasattr(
+            dfn,
+            'max_castle_guards',
+        ):
+            while (
+                len(dfn.castle_guards)
+                > dfn.max_castle_guards()
+            ):
+                victim = min(
+                    dfn.castle_guards,
+                    key=lambda g: g.value,
+                )
+
+                dfn.castle_guards.remove(
+                    victim
+                )
+
+                if (
+                    len(dfn.garrison)
+                    < GARRISON_MAX
+                ):
+                    dfn.garrison.append(
+                        victim
+                    )
+                else:
+                    self._discard(
+                        [victim]
+                    )
 
     # ─────────────────────────────────────────────────────────────────
     #  COMBAT: HUNT
@@ -3078,30 +3348,187 @@ class Game:
 
         guards_before = len(dfn.lord_guards)
         self.stat_combats += 1
-        destroyed, sigil_broken, excess = self._combat_layers(
-            atk, strength, dfn.lord_guards, ignore_lowest,
-            sigil_value, has_sigil=(sigil_state != ''), struct_def=lord_def,
-            ward_screen=ward_screen,
-            guard_tax_exempt=(VARIANT.get('circle_ignores_guard_tax', False)
-                and dfn.castle_power_active('SummoningCircle')))
-        guards_lost = guards_before - len(dfn.lord_guards)
 
-        # ── Keep — Sanctuary ─────────────────────────────────────────
-        # The Lord retreats into the Keep; its stones take the blow.
-        # Transfer EXACTLY the Hunt strength that exceeded Lord DEF. Because
-        # equality already holds, removing the excess leaves the Lord alive.
-        # A partial transfer is not allowed: if Keep cannot absorb the entire
-        # excess without self-Ruining, the Lord is Banished normally.
-        if destroyed and VARIANT.get('keep_sanctuary', False) and dfn.castle_power_active('Keep'):
-            _kit('keep_opportunity')
-            need = max(1, excess)
-            if dfn.can_exert('Keep', need):
-                dfn.exert('Keep', need, game=self, reason='sanctuary')
-                _kit('keep_activation'); _kit('keep_integrity_spent', need)
-                destroyed = False
-                excess = -1
+        if self._keep_interposes(dfn):
+            keep_hp = int(
+                dfn.castle_integrity.get(
+                    'Keep',
+                    castle_max_integrity('Keep'),
+                )
+            )
+
+            armor = self._keep_hunt_armor(
+                dfn
+            )
+
+            # Reuse the canonical Integrity resolver:
+            #
+            # Ward -> Guards -> Sigil -> temporary structure screen -> HP
+            #
+            # Hunt Armor is the temporary screen. Unlike Siege, Hunt supplies
+            # no structure vulnerability bonus.
+            keep_ruined, sigil_broken, wall_excess = self._combat_layers(
+                atk,
+                strength,
+                dfn.lord_guards,
+                ignore_lowest,
+                sigil_value,
+                has_sigil=(sigil_state != ''),
+                struct_def=0,
+                structure_integrity=keep_hp,
+                ward_screen=ward_screen,
+                structure_screen=armor,
+                structure_vulnerability=0,
+                guard_tax_exempt=(
+                    VARIANT.get(
+                        'circle_ignores_guard_tax',
+                        False,
+                    )
+                    and dfn.castle_power_active(
+                        'SummoningCircle'
+                    )
+                ),
+            )
+
+            keep_damage = int(
+                self._structure_damage
+            )
+
+            if keep_damage > 0:
+                dfn.castle_integrity[
+                    'Keep'
+                ] = max(
+                    0,
+                    keep_hp - keep_damage,
+                )
+
+                self._record_castle_defunct_transition(
+                    dfn,
+                    'Keep',
+                    keep_hp,
+                    dfn.castle_integrity['Keep'],
+                )
+
+                _kit(
+                    'keep_interpose_damage',
+                    keep_damage,
+                )
+
+            if keep_ruined:
+                _kit(
+                    'keep_interpose_ruin'
+                )
+
+                self._resolve_keep_hunt_ruin(
+                    dfn
+                )
+
+                spill = max(
+                    0,
+                    int(wall_excess),
+                )
+
+                if spill > 0:
+                    _kit(
+                        'keep_interpose_spill',
+                        spill,
+                    )
+
+                # Recompute after Keep Ruination: Humbaba and any other
+                # Castle-sensitive Lord defense must see the new board.
+                lord_def = dfn.lord_base_def(
+                    breach=self.breach
+                )
+
+                destroyed = (
+                    spill > lord_def
+                )
+
+                excess = (
+                    spill - lord_def
+                )
+
             else:
-                _kit('keep_short')
+                # The wall survived, so no Strength reaches the Lord.
+                destroyed = False
+                excess = int(
+                    wall_excess
+                )
+
+        else:
+            # Historical / no-Keep path.
+            destroyed, sigil_broken, excess = self._combat_layers(
+                atk,
+                strength,
+                dfn.lord_guards,
+                ignore_lowest,
+                sigil_value,
+                has_sigil=(sigil_state != ''),
+                struct_def=lord_def,
+                ward_screen=ward_screen,
+                guard_tax_exempt=(
+                    VARIANT.get(
+                        'circle_ignores_guard_tax',
+                        False,
+                    )
+                    and dfn.castle_power_active(
+                        'SummoningCircle'
+                    )
+                ),
+            )
+
+            # Historical Sanctuary remains available to old profiles.
+            if (
+                destroyed
+                and VARIANT.get(
+                    'keep_sanctuary',
+                    False,
+                )
+                and dfn.castle_power_active(
+                    'Keep'
+                )
+            ):
+                _kit(
+                    'keep_opportunity'
+                )
+
+                need = max(
+                    1,
+                    excess,
+                )
+
+                if dfn.can_exert(
+                    'Keep',
+                    need,
+                ):
+                    dfn.exert(
+                        'Keep',
+                        need,
+                        game=self,
+                        reason='sanctuary',
+                    )
+
+                    _kit(
+                        'keep_activation'
+                    )
+
+                    _kit(
+                        'keep_integrity_spent',
+                        need,
+                    )
+
+                    destroyed = False
+                    excess = -1
+
+                else:
+                    _kit(
+                        'keep_short'
+                    )
+
+        guards_lost = (
+            guards_before
+            - len(dfn.lord_guards)
+        )
 
         if (VARIANT.get('momentum', False)
                 and destroyed
@@ -3186,6 +3613,50 @@ class Game:
             self._gain_soul(atk, 2)
             self._kroni_gain_hunger(atk)
             atk.kroni_ravenous_used = True
+
+    def _record_castle_defunct_transition(
+        self,
+        pl: Player,
+        castle: str,
+        before: int,
+        after: int,
+    ) -> None:
+        """Record an Operational -> surviving Defunct transition."""
+        if not VARIANT.get('defunct_repair_lock', False):
+            return
+
+        floor = int(
+            VARIANT.get(
+                'castle_operational_floor',
+                CASTLE_OPERATIONAL_FLOOR,
+            )
+        )
+
+        before = int(before)
+        after = int(after)
+
+        if (
+            before >= floor
+            and 0 < after < floor
+        ):
+            pl.castle_defunct_on_round[castle] = self.round
+
+    def _castle_repair_locked(
+        self,
+        pl: Player,
+        castle: str,
+    ) -> bool:
+        """Locked only during the round AFTER the Castle became Defunct."""
+        if not VARIANT.get('defunct_repair_lock', False):
+            return False
+
+        return (
+            pl.castle_defunct_on_round.get(
+                castle,
+                -999,
+            )
+            == self.round - 1
+        )
 
     # ─────────────────────────────────────────────────────────────────
     #  COMBAT: SIEGE
@@ -3446,6 +3917,14 @@ class Game:
                 soak = min(shield, struct_hit)
                 if soak > 0:
                     dfn.castle_integrity['Bastion'] = shield - soak
+
+                    self._record_castle_defunct_transition(
+                        dfn,
+                        'Bastion',
+                        shield,
+                        dfn.castle_integrity['Bastion'],
+                    )
+
                     struct_hit -= soak
                     self.stat_castle_damage += soak
                     _kit('bastion_activation'); _kit('bastion_integrity_spent', soak)
@@ -3469,6 +3948,14 @@ class Game:
 
             integrity_after = max(0, integrity_before - struct_hit)
             dfn.castle_integrity[target_castle] = integrity_after
+
+            self._record_castle_defunct_transition(
+                dfn,
+                target_castle,
+                integrity_before,
+                integrity_after,
+            )
+
             self.stat_castle_damage += struct_hit
             assert integrity_after == max(0, integrity_before - struct_hit)
             assert destroyed == (integrity_after == 0)
@@ -3823,7 +4310,200 @@ class Game:
         else:
             self._discard([chosen])
 
-    def _lord_killed(self, atk: Player, dfn: Player):
+    def _fracture_subject_entries(self, pl: Player):
+        entries = []
+        zones = [
+            ('Lord', pl.lord_guards),
+            ('Castle', pl.castle_guards),
+            ('Garrison', pl.garrison),
+        ]
+        for zone_rank, (zone_name, cards) in enumerate(zones):
+            for index, card in enumerate(cards):
+                value = int(getattr(card, 'value', 0) or 0)
+                if value <= 1:
+                    continue
+                entries.append({
+                    'zone': zone_name,
+                    'zone_rank': zone_rank,
+                    'index': index,
+                    'card': card,
+                    'marcher': None,
+                    'lane': '',
+                    'value': value,
+                    'key': (zone_name, index),
+                })
+
+        # Marchers are Subjects still physically on the board. Their Card value
+        # is the persistent Subject value; marcher['value'] is current lane force.
+        for index, marcher in enumerate(getattr(pl, 'marchers', [])):
+            if not isinstance(marcher, dict):
+                continue
+            card = marcher.get('card')
+            if card is None:
+                continue
+            value = int(getattr(card, 'value', 0) or 0)
+            if value <= 1:
+                continue
+            entries.append({
+                'zone': 'Marcher',
+                'zone_rank': 3,
+                'index': index,
+                'card': card,
+                'marcher': marcher,
+                'lane': str(marcher.get('lane', '')),
+                'value': value,
+                'key': ('Marcher', index),
+            })
+
+        entries.sort(key=lambda e: (-e['value'], e['zone_rank'], e['index']))
+        return entries
+
+    def _fracture_subject_score(self, pl: 'Player', events: int) -> int:
+        available = sum(
+            max(0, int(entry['value']) - 1)
+            for entry in self._fracture_subject_entries(pl)
+        )
+        return min(max(0, int(events)) * 2, available)
+
+    def _fracture_infrastructure_score(self, pl: 'Player', events: int) -> int:
+        integrity_map = getattr(pl, 'castle_integrity', {})
+        total = 0
+        for castle in list(pl.castles):
+            maximum = (
+                castle_max_integrity(castle)
+                if 'castle_max_integrity' in globals()
+                else int(globals().get('CASTLE_DEF', {}).get(castle, 14))
+            )
+            total += max(0, int(integrity_map.get(castle, maximum)))
+        return min(max(0, int(events)) * 2, total)
+
+    def _choose_fracture_category(self, pl: 'Player', events: int) -> str:
+        subject_score = self._fracture_subject_score(pl, events)
+        infrastructure_score = self._fracture_infrastructure_score(pl, events)
+        return 'infrastructure' if infrastructure_score > subject_score else 'subjects'
+
+    def _resolve_fracture(self, atk: Player, dfn: Player, category=None):
+        events_total = fracture_value(dfn.lord)
+        chosen = str(category or '').strip().lower()
+        if chosen not in ('subjects', 'infrastructure'):
+            chosen = self._choose_fracture_category(dfn, events_total)
+
+        result = {
+            'triggered': events_total > 0,
+            'lord': dfn.lord,
+            'fracture': events_total,
+            'category': chosen,
+            'events': [],
+        }
+        if events_total <= 0:
+            return result
+
+        if chosen == 'subjects':
+            used = set()
+            for _ in range(events_total):
+                candidates = [
+                    entry for entry in self._fracture_subject_entries(dfn)
+                    if entry['key'] not in used
+                ]
+                if not candidates:
+                    used.clear()
+                    candidates = self._fracture_subject_entries(dfn)
+                if not candidates:
+                    break
+
+                entry = candidates[0]
+                card = entry['card']
+                before = int(card.value)
+                after = max(1, before - 2)
+                before_id = f"{card.suit}:{before}"
+
+                marcher = entry.get('marcher')
+                march_before = None
+                march_after = None
+                if isinstance(marcher, dict):
+                    march_before = int(marcher.get('value', before) or 0)
+                    march_after = max(1, march_before - 2)
+                    marcher['value'] = march_after
+
+                card.value = after
+                used.add(entry['key'])
+                event = {
+                    'kind': 'subject',
+                    'zone': entry['zone'],
+                    'card_before': before_id,
+                    'card_after': f"{card.suit}:{after}",
+                    'before': before,
+                    'after': after,
+                }
+                if isinstance(marcher, dict):
+                    event['lane'] = entry.get('lane', '')
+                    event['march_before'] = march_before
+                    event['march_after'] = march_after
+                result['events'].append(event)
+            return result
+
+        castle_order = ('Keep', 'Bastion', 'SummoningCircle', 'Stockpile', 'SiegeEngine')
+        used = set()
+        integrity_map = getattr(dfn, 'castle_integrity', None)
+        if integrity_map is None:
+            integrity_map = {}
+            dfn.castle_integrity = integrity_map
+
+        for _ in range(events_total):
+            candidates = []
+            standing = list(dfn.castles)
+            for castle in standing:
+                maximum = (
+                    castle_max_integrity(castle)
+                    if 'castle_max_integrity' in globals()
+                    else int(globals().get('CASTLE_DEF', {}).get(castle, 14))
+                )
+                value = max(0, int(integrity_map.get(castle, maximum)))
+                if value <= 0 or castle in used:
+                    continue
+                rank = castle_order.index(castle) if castle in castle_order else len(castle_order)
+                candidates.append((-value, rank, castle))
+            if not candidates:
+                used.clear()
+                for castle in standing:
+                    maximum = (
+                        castle_max_integrity(castle)
+                        if 'castle_max_integrity' in globals()
+                        else int(globals().get('CASTLE_DEF', {}).get(castle, 14))
+                    )
+                    value = max(0, int(integrity_map.get(castle, maximum)))
+                    if value <= 0:
+                        continue
+                    rank = castle_order.index(castle) if castle in castle_order else len(castle_order)
+                    candidates.append((-value, rank, castle))
+            if not candidates:
+                break
+            candidates.sort()
+            castle = candidates[0][2]
+            before = -candidates[0][0]
+            after = max(0, before - 2)
+            integrity_map[castle] = after
+            used.add(castle)
+            ruined = after <= 0
+            if ruined:
+                if hasattr(dfn.castles, 'discard'):
+                    dfn.castles.discard(castle)
+                elif castle in dfn.castles:
+                    dfn.castles.remove(castle)
+                if hasattr(dfn.ruined_castles, 'add'):
+                    dfn.ruined_castles.add(castle)
+                elif castle not in dfn.ruined_castles:
+                    dfn.ruined_castles.append(castle)
+            result['events'].append({
+                'kind': 'infrastructure',
+                'castle': castle,
+                'before': before,
+                'after': after,
+                'ruined': ruined,
+            })
+        return result
+
+    def _lord_killed(self, atk: Player, dfn: Player, fracture_category=None):
         self.stat_lords_killed += 1
 
         # Banishment soul exchange resolves fully before any win check
@@ -3858,19 +4538,15 @@ class Game:
         if VARIANT['neutral_tear_on_banish']:
             self._gain_neutral_tear('banishment')
 
-        if VARIANT.get('lord_threat_retention', False):
-            base_threat = LORD_STATS[dfn.lord]['r']
-            dfn.return_threat_override = min(
-                MAX_THREAT,
-                base_threat + dfn.threat // 2,
-            )
-            dfn.threat = dfn.return_threat_override
-        else:
-            dfn.return_threat_override = None
-            # DE v2 resets Threat as soon as the Lord is Banished. Retaining
-            # the old value here would leak the lab's return-state mechanic
-            # into canonical snapshots and downstream doctrine reads.
-            dfn.threat = LORD_STATS[dfn.lord]['r']
+
+        # FRACTURE_SYSTEM_V1: ordinary Banishment always clears Threat.
+# FRACTURE_MARCHERS_AFTERMATH_V1
+        dfn.return_threat_override = None
+        dfn.threat = 0
+        self.last_fracture_event = self._resolve_fracture(
+            atk, dfn, fracture_category
+        )
+
         self.breach = dfn.lord
         self.breach_owner = dfn.pid
         # Stockpile — Muster: the garrison holds even when the Lord falls.
@@ -3887,23 +4563,13 @@ class Game:
     # ═══════════════════════════════════════════════════════════════════
     #  AI — SUMMON
     # ═══════════════════════════════════════════════════════════════════
-    def _summon_return_threat(self, pl: Player, lord: str) -> int:
-        """Threat baseline before a chosen Summon shortfall is added."""
-        # Offer the Vessel historically overrides the ordinary return value.
+    def _summon_return_threat(self, pl: 'Player', lord: str) -> int:
+        """Explicit return effects only; ordinary Lords return at Threat 0."""
         if pl.vessel_offered_lord == lord:
             return min(MAX_THREAT, 2)
-
-        # Swift Return changes the baseline, but any purchased shortfall still
-        # adds Threat on top of that zero.
-        if (VARIANT.get('circle_swift_return', False)
-                and pl.castle_power_active('SummoningCircle')):
-            return 0
-
-        if (VARIANT.get('lord_threat_retention', False)
-                and pl.return_threat_override is not None):
-            return min(MAX_THREAT, int(pl.return_threat_override))
-
-        return min(MAX_THREAT, return_threat(lord))
+        if pl.return_threat_override is not None:
+            return max(0, min(MAX_THREAT, int(pl.return_threat_override)))
+        return 0
 
     def _summon_affordable(self, pl: Player, lord: str, cost: int) -> bool:
         """Cards plus legal Threat room can cover the Summon cost."""
@@ -4276,8 +4942,6 @@ class Game:
 
     def _ai_repair_only(self, pl: Player):
         if ACTIVE_FEATURES['castle_integrity']:
-            if pl.castle_action_used_this_round:
-                return
             legacy_priority = CASTLE_PRIORITIES.get(pl.lord, CASTLES)
             if VARIANT.get('castle_owner_doctrine', 'strategic') == 'legacy':
                 priority = list(legacy_priority)
@@ -4299,6 +4963,15 @@ class Game:
                 and 0 < pl.castle_integrity.get(castle, castle_max_integrity(castle))
                 < castle_max_integrity(castle)
             ]
+            damaged = [
+                castle
+                for castle in damaged
+                if not self._castle_repair_locked(
+                    pl,
+                    castle,
+                )
+            ]
+
             severe = [
                 castle for castle in damaged
                 if pl.castle_integrity.get(castle, castle_max_integrity(castle))
@@ -4310,7 +4983,15 @@ class Game:
                 | set(pl.profaned_castles)
                 | set(pl.lost_castles)
             )
-            buildable = [castle for castle in priority if castle not in unavailable]
+            buildable = (
+                []
+                if pl.castle_action_used_this_round
+                else [
+                    castle
+                    for castle in priority
+                    if castle not in unavailable
+                ]
+            )
             active_project = next(
                 (castle for castle in priority
                  if castle in buildable
@@ -4383,7 +5064,6 @@ class Game:
                 if using_token:
                     pl.repair_token = 0
                 pl.castle_repairs[target] = pl.castle_repairs.get(target, 0) + 1
-                pl.castle_action_used_this_round = True
                 pl.repaired_this_round = True
                 pl.repair_token_used_this_repair = using_token
                 self.stat_castle_repaired += healed
@@ -5341,11 +6021,42 @@ class Game:
             est += self._est_guards(
                 dfn.lord_guards, exempt=guard_exempt, context=f'{context}:lord')
             est += max(2, self._sigil_value(dfn, dfn.sigils['Lord']))
-            if VARIANT.get('keep_sanctuary', False) and dfn.castle_power_active('Keep'):
-                keep_hp = dfn.castle_integrity.get('Keep', castle_max_integrity('Keep'))
-                # Sanctuary transfers exact excess and may self-spend only while at
-                # least 1 Integrity remains. Thus keep_hp-1 additional excess is
-                # the maximum amount it can currently absorb.
+            keep_wall = (
+                VARIANT.get('keep_interposition', False)
+                and 'Keep' in dfn.castles
+                and 'Keep' not in getattr(
+                    dfn, 'disabled_castle_powers', set()
+                )
+                and dfn.castle_integrity.get(
+                    'Keep', castle_max_integrity('Keep')
+                ) > 0
+            )
+
+            if keep_wall:
+                keep_hp = dfn.castle_integrity.get(
+                    'Keep', castle_max_integrity('Keep')
+                )
+
+                # If Humbaba's Keep falls during the Hunt, losing one intact
+                # Castle can reduce the Lord layer before spill reaches him.
+                humbaba_drop = 1 if dfn.lord == 'Humbaba' else 0
+
+                est += max(
+                    0,
+                    keep_hp - humbaba_drop,
+                )
+
+                est += self._keep_fortification(dfn)
+
+            elif (
+                VARIANT.get('keep_sanctuary', False)
+                and dfn.castle_power_active('Keep')
+            ):
+                keep_hp = dfn.castle_integrity.get(
+                    'Keep', castle_max_integrity('Keep')
+                )
+
+                # Historical Sanctuary behavior.
                 est += max(0, keep_hp - 1)
             if atk.lord == 'Orias':
                 est -= 1
@@ -6895,23 +7606,97 @@ def run_mechanic_tests() -> List[str]:
     if not g.players[1].castle_power_active('Keep'):
         failures.append("FAIL T29b: opponent Keep power should remain live")
 
-    # ── T30: Sanctuary is present in doctrine sizing, not resolver-only
-    old_gate = VARIANT.get('castle_power_gate_mode', 'owned')
+    # ── T30: Keep protection is present in doctrine sizing, not resolver-only
+    old_gate = VARIANT.get(
+        'castle_power_gate_mode',
+        'owned',
+    )
+
     try:
-        VARIANT['castle_power_gate_mode'] = 'owned'
-        g = Game(['Vanilla'], ['Vanilla'], seed=99)
+        VARIANT[
+            'castle_power_gate_mode'
+        ] = 'owned'
+
+        g = Game(
+            ['Vanilla'],
+            ['Vanilla'],
+            seed=99,
+        )
+
         atk, dfn = g.players
+
         dfn.alive = True
-        dfn.castles = {'Keep'}
-        dfn.castle_integrity = {'Keep': 14}
-        with_keep, _ = g._estimate_attack_defense(atk, dfn, 'Lord', context='test30a')
-        dfn.disabled_castle_powers.add('Keep')
-        without_keep, _ = g._estimate_attack_defense(atk, dfn, 'Lord', context='test30b')
-        if VARIANT.get('keep_sanctuary', False) and with_keep - without_keep != 13:
+        dfn.castles = {
+            'Keep'
+        }
+
+        dfn.castle_integrity = {
+            'Keep': 14
+        }
+
+        with_keep, _ = (
+            g._estimate_attack_defense(
+                atk,
+                dfn,
+                'Lord',
+                context='test30a',
+            )
+        )
+
+        if VARIANT.get(
+            'keep_interposition',
+            False,
+        ):
+            expected = (
+                14
+                + g._keep_hunt_armor(
+                    dfn
+                )
+            )
+
+            dfn.castles.clear()
+            dfn.castle_integrity[
+                'Keep'
+            ] = 0
+
+        else:
+            expected = (
+                13
+                if VARIANT.get(
+                    'keep_sanctuary',
+                    False,
+                )
+                else 0
+            )
+
+            dfn.disabled_castle_powers.add(
+                'Keep'
+            )
+
+        without_keep, _ = (
+            g._estimate_attack_defense(
+                atk,
+                dfn,
+                'Lord',
+                context='test30b',
+            )
+        )
+
+        if (
+            with_keep
+            - without_keep
+            != expected
+        ):
             failures.append(
-                f"FAIL T30: full Keep Sanctuary should add 13 to kill estimate, got {with_keep-without_keep}")
+                "FAIL T30: Keep doctrine depth "
+                f"expected {expected}, got "
+                f"{with_keep-without_keep}"
+            )
+
     finally:
-        VARIANT['castle_power_gate_mode'] = old_gate
+        VARIANT[
+            'castle_power_gate_mode'
+        ] = old_gate
 
     # ── T31: Bastion is directly targetable, but a standing Defunct Bastion
     # still physically screens damage aimed at a rear Castle.
@@ -6991,27 +7776,260 @@ def run_mechanic_tests() -> List[str]:
     if atk.committed or dfn.committed:
         failures.append("FAIL T34b: primary commitments must leave after both actions resolve")
 
-    # ── T35: Sanctuary transfers EXACT Hunt excess (no +1 off-by-one).
-    old_gate = VARIANT.get('castle_power_gate_mode', 'owned')
+    # ── T35: Keep live rule parity.
+    old_gate = VARIANT.get(
+        'castle_power_gate_mode',
+        'owned',
+    )
+
+    old_armor = VARIANT.get(
+        'keep_hunt_armor',
+        0,
+    )
+
     try:
-        VARIANT['castle_power_gate_mode'] = 'operational'
-        g = fresh_game('Vanilla', 'Vanilla'); atk, dfn = g.players
-        dfn.alive = True
-        atk.action = 'Hunt'; atk.committed = [Card('Butcher', 6)]
-        dfn.action = ''; dfn.committed = []; dfn.lord_guards = []; dfn.sigils['Lord'] = ''
-        dfn.castles = {'Keep'}; dfn.castle_integrity = {'Keep': 14}
-        before = dfn.castle_integrity['Keep']
-        base_def = dfn.lord_base_def(breach=g.breach)
-        # Vanilla DEF is 5 in this fixture, so Strength 6 should transfer exactly 1.
-        if base_def != 5:
-            failures.append(f"FAIL T35 fixture: expected Vanilla DEF 5, got {base_def}")
-        g._resolve_hunt(atk, dfn)
-        if not dfn.alive or dfn.castle_integrity['Keep'] != before - 1:
-            failures.append(
-                f"FAIL T35: Sanctuary should absorb exactly 1 excess; alive={dfn.alive}, "
-                f"Keep={dfn.castle_integrity.get('Keep')}")
+        VARIANT[
+            'castle_power_gate_mode'
+        ] = 'operational'
+
+        if VARIANT.get(
+            'keep_interposition',
+            False,
+        ):
+            VARIANT[
+                'keep_hunt_armor'
+            ] = 3
+
+            # Armor 3: Strength 6 reaches Keep; 3 is prevented; Keep takes 3.
+            g = fresh_game(
+                'Vanilla',
+                'Vanilla',
+            )
+
+            atk, dfn = g.players
+
+            dfn.alive = True
+            atk.action = 'Hunt'
+            atk.committed = [
+                Card(
+                    'Butcher',
+                    6,
+                )
+            ]
+
+            dfn.action = ''
+            dfn.committed = []
+            dfn.lord_guards = []
+            dfn.sigils[
+                'Lord'
+            ] = ''
+
+            dfn.castles = {
+                'Keep'
+            }
+
+            dfn.castle_integrity = {
+                'Keep': 14
+            }
+
+            g._resolve_hunt(
+                atk,
+                dfn,
+            )
+
+            if (
+                not dfn.alive
+                or dfn.castle_integrity.get(
+                    'Keep'
+                )
+                != 11
+            ):
+                failures.append(
+                    "FAIL T35a: Armor 3 should "
+                    "turn Hunt 6 into 3 Keep damage; "
+                    f"alive={dfn.alive}, "
+                    f"Keep={dfn.castle_integrity.get('Keep')}"
+                )
+
+            # Defunct Keep STILL interposes.
+            #
+            # Strength 11
+            # - Armor 3 = 8
+            # - Keep 2 = spill 6
+            # - Vanilla Lord DEF 5
+            # => Banish.
+            g = fresh_game(
+                'Vanilla',
+                'Vanilla',
+            )
+
+            atk, dfn = g.players
+
+            dfn.alive = True
+            atk.action = 'Hunt'
+            atk.committed = [
+                Card(
+                    'Butcher',
+                    11,
+                )
+            ]
+
+            dfn.action = ''
+            dfn.committed = []
+            dfn.lord_guards = []
+            dfn.sigils[
+                'Lord'
+            ] = ''
+
+            dfn.castles = {
+                'Keep'
+            }
+
+            dfn.castle_integrity = {
+                'Keep': 2
+            }
+
+            g._resolve_hunt(
+                atk,
+                dfn,
+            )
+
+            if (
+                dfn.alive
+                or 'Keep' in dfn.castles
+                or dfn.castle_integrity.get(
+                    'Keep'
+                )
+                != 0
+            ):
+                failures.append(
+                    "FAIL T35b: Defunct Keep should "
+                    "interpose, Ruin, spill 6, and "
+                    "allow Banish through DEF 5; "
+                    f"alive={dfn.alive}, "
+                    f"castles={dfn.castles}, "
+                    f"Keep={dfn.castle_integrity.get('Keep')}"
+                )
+
+        elif VARIANT.get(
+            'keep_sanctuary',
+            False,
+        ):
+            # Historical Sanctuary parity.
+            g = fresh_game(
+                'Vanilla',
+                'Vanilla',
+            )
+
+            atk, dfn = g.players
+
+            dfn.alive = True
+            atk.action = 'Hunt'
+            atk.committed = [
+                Card(
+                    'Butcher',
+                    6,
+                )
+            ]
+
+            dfn.action = ''
+            dfn.committed = []
+            dfn.lord_guards = []
+            dfn.sigils[
+                'Lord'
+            ] = ''
+
+            dfn.castles = {
+                'Keep'
+            }
+
+            dfn.castle_integrity = {
+                'Keep': 14
+            }
+
+            before = (
+                dfn.castle_integrity[
+                    'Keep'
+                ]
+            )
+
+            g._resolve_hunt(
+                atk,
+                dfn,
+            )
+
+            if (
+                not dfn.alive
+                or dfn.castle_integrity[
+                    'Keep'
+                ]
+                != before - 1
+            ):
+                failures.append(
+                    "FAIL T35 historical Sanctuary "
+                    "should absorb exact excess"
+                )
+
     finally:
-        VARIANT['castle_power_gate_mode'] = old_gate
+        VARIANT[
+            'castle_power_gate_mode'
+        ] = old_gate
+
+        VARIANT[
+            'keep_hunt_armor'
+        ] = old_armor
+
+    # ── T35a2: Defunct Keep still interposes but loses Fortification.
+    if VARIANT.get('keep_interposition', False):
+        old_fort = VARIANT.get('keep_fortification', 0)
+
+        try:
+            VARIANT['keep_fortification'] = 3
+
+            g = fresh_game('Vanilla', 'Vanilla')
+            atk, dfn = g.players
+
+            dfn.alive = True
+
+            atk.action = 'Hunt'
+            atk.committed = [
+                Card('Butcher', 8)
+            ]
+
+            dfn.action = ''
+            dfn.committed = []
+            dfn.lord_guards = []
+            dfn.sigils['Lord'] = ''
+
+            # Defunct, but physically standing.
+            dfn.castles = {'Keep'}
+            dfn.castle_integrity = {'Keep': 2}
+
+            if not g._keep_interposes(dfn):
+                failures.append(
+                    "FAIL T35a2 fixture: Defunct Keep should still interpose"
+                )
+
+            if g._keep_fortification(dfn) != 0:
+                failures.append(
+                    "FAIL T35a2: Defunct Keep retained Fortification"
+                )
+
+            g._resolve_hunt(atk, dfn)
+
+            if dfn.alive:
+                failures.append(
+                    "FAIL T35a2: Strength 8 should break Defunct Keep 2, "
+                    "spill 6 through Fortification 0, and Banish Vanilla DEF 5"
+                )
+
+            if 'Keep' in dfn.castles:
+                failures.append(
+                    "FAIL T35a2: destroyed interposing Keep remained standing"
+                )
+
+        finally:
+            VARIANT['keep_fortification'] = old_fort
 
     # ── T35b: Summoning Circle Blood Offering burns 3 Integrity for 3 cost.
     old_gate = VARIANT.get('castle_power_gate_mode', 'owned')

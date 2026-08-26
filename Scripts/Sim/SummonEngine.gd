@@ -351,25 +351,17 @@ static func return_threat_for(
 	rules: RuleConfig,
 	lord_id: String
 ) -> int:
-	# Offer the Vessel defines a Threat-2 return baseline.
+	# Ordinary Lords return at Threat 0. Only explicit return effects override it.
 	if player != null and String(player.vessel_offered_lord) == lord_id:
 		return mini(int(rules.max_threat), 2)
 
-	if (
-		player != null
-		and rules.lord_threat_retention
-		and int(player.return_threat_override) >= 0
-	):
+	if player != null and int(player.return_threat_override) >= 0:
 		return mini(
 			int(rules.max_threat),
 			int(player.return_threat_override)
 		)
 
-	return mini(
-		int(rules.max_threat),
-		_return_threat(lord_id)
-	)
-
+	return 0
 
 static func payment_preview(
 	player,

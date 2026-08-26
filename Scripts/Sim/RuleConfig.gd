@@ -54,6 +54,8 @@ extends Resource
 @export var kroni_hunger_decay: bool = true
 @export var kro_fallback_feeds: bool = true
 @export var kro_milestone_once: bool = false
+@export var kro_cannibal_h1: bool = false
+@export var kro_gorge: bool = true
 @export var deimos_war_machine_free: bool = true
 @export var deimos_summon_cost: int = 7
 @export var recoil_lowest: bool = true
@@ -172,7 +174,16 @@ extends Resource
 # opts into the current measured rules.
 @export var castle_power_gate_mode: String = "owned"
 @export var castle_operational_floor: int = 7
+
+# Keep v7.6: physical Hunt interposition. Fortification applies only while
+# Operational; a Defunct Keep still physically interposes at 1+ Integrity.
 @export var keep_sanctuary: bool = false
+@export var keep_interposition: bool = false
+@export var keep_fortification: int = 0
+
+# A Castle made Defunct in the previous round cannot be Repaired this round.
+@export var defunct_repair_lock: bool = false
+
 @export var bastion_wall: bool = false
 @export var bastion_lord_def_bonus: int = 2
 @export var stockpile_filter: bool = false
@@ -293,7 +304,7 @@ static func lab_v6_5() -> RuleConfig:
 	config.kani_hand_cost = true
 
 	# Odradek Interlock, Kroni revision, and roster-wide Ward doctrine corrections.
-	config.lab_profile_version = "7.5.0-suit-identities"
+	config.lab_profile_version = "6.8.3-kroni-cannibal-no-gorge"
 	config.odr_recoil_bank = true
 	config.reconfig_neutral = true
 	config.reconfig_tokens_needed = 3
@@ -308,6 +319,8 @@ static func lab_v6_5() -> RuleConfig:
 	# Hunger. The Hunger-3 milestone is awarded once per game.
 	config.kro_fallback_feeds = false
 	config.kro_milestone_once = true
+	config.kro_cannibal_h1 = true
+	config.kro_gorge = false
 
 	# 6.8.6 measured bundle: Momentum funds its second action, the Veil
 	# closes on late slogs, and Kalligan's SCORCH becomes a denial/income ramp.
@@ -351,7 +364,16 @@ static func lab_v6_5() -> RuleConfig:
 	# Bastion's physical wall is the one exception and persists while it stands.
 	config.castle_power_gate_mode = "operational"
 	config.castle_operational_floor = 7
-	config.keep_sanctuary = true
+
+	# v7.6 Keep: Ward -> Guards -> Sigil -> Keep -> Lord.
+	config.keep_sanctuary = false
+	config.keep_interposition = true
+	config.keep_fortification = 3
+
+	# v7.6 Castle tempo: freely repeat Repair, but a freshly broken Defunct
+	# Castle must survive one full vulnerability round before Repair returns.
+	config.defunct_repair_lock = true
+
 	config.bastion_wall = true
 	config.bastion_lord_def_bonus = 0
 	config.stockpile_filter = true

@@ -79,6 +79,10 @@ const BASTION_COMMIT_TEST_NAME: String = (
 	"unit_bot_bastion_commitment_objective"
 )
 
+const VALAK_GUARD_COMMIT_TEST_NAME: String = (
+	"unit_bot_valak_guarded_bastion_commitment"
+)
+
 
 static func run(
 	rules: RuleConfig
@@ -103,6 +107,9 @@ static func run(
 			rules
 		),
 		_test_bastion_commitment_objective(
+			rules
+		),
+		_test_valak_guarded_bastion_commitment(
 			rules
 		),
 	]
@@ -181,6 +188,161 @@ static func _test_bastion_commitment_objective(
 		)
 
 	return _pass(BASTION_COMMIT_TEST_NAME)
+
+
+static func _test_valak_guarded_bastion_commitment(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(
+		rules
+	)
+
+	if fixture.has("error"):
+		return _fail(
+			VALAK_GUARD_COMMIT_TEST_NAME,
+			String(fixture["error"])
+		)
+
+	if not rules.fog_of_war:
+		return _fail(
+			VALAK_GUARD_COMMIT_TEST_NAME,
+			"Regression requires the canonical Fog-of-War profile."
+		)
+
+	var game = fixture["game"]
+	var attacker = fixture["p0"]
+	var defender = fixture["p1"]
+
+	game.breach = ""
+
+	attacker.lord = "Valak"
+	attacker.alive = true
+	attacker.castles.clear()
+	attacker.ruined_castles.clear()
+	attacker.profaned_castles.clear()
+	attacker.castle_integrity.clear()
+
+	# Same shape as the live failure: five cards total 22, but four cards
+	# can reach the correct 19-point Bastion breakpoint.
+	#
+	# Use Butchers here so the regression isolates commitment selection
+	# from Siege Engine / off-suit tax behavior.
+	attacker.hand = _cards_from_ids([
+		"Butcher:5",
+		"Butcher:3",
+		"Butcher:4",
+		"Butcher:5",
+		"Butcher:5",
+	])
+
+	defender.lord = "Orias"
+	defender.alive = true
+	defender.castles.clear()
+	defender.ruined_castles.clear()
+	defender.profaned_castles.clear()
+	defender.castle_integrity.clear()
+
+	defender.castles.append(
+		"Bastion"
+	)
+	defender.castles.append(
+		"Stockpile"
+	)
+
+	defender.castle_integrity[
+		"Bastion"
+	] = 14
+
+	defender.castle_integrity[
+		"Stockpile"
+	] = 14
+
+	defender.castle_guards = _cards_from_ids([
+		"Vulture:5",
+		"Wright:1",
+	])
+
+	for guard in defender.castle_guards:
+		guard.guard_revealed = false
+
+	defender.sigils["Castle"] = ""
+
+	# Two hidden Guards estimate to 6 total. Crushing Presence ignores
+	# one estimated hidden Guard (3), leaving 3 effective Guard defense.
+	var normal_guard_estimate: int = (
+		BotDoctrineData._estimated_guard_total(
+			defender.castle_guards,
+			rules
+		)
+	)
+
+	var valak_guard_estimate: int = (
+		BotDoctrineData._estimated_guard_total_ignoring_lowest(
+			defender.castle_guards,
+			rules
+		)
+	)
+
+	if (
+		normal_guard_estimate != 6
+		or valak_guard_estimate != 3
+	):
+		return _fail(
+			VALAK_GUARD_COMMIT_TEST_NAME,
+			"Valak's hidden-Guard estimate did not remove exactly one statistical Guard."
+		)
+
+	var committed: Array = (
+		BotDoctrineData._commit_for_attack(
+			game,
+			attacker,
+			defender,
+			"Castle",
+			"neutral",
+			false,
+			rules
+		)
+	)
+
+	# Bastion 14 + remaining Guard estimate 3 + minimum Sigil allowance 1
+	# + normal padding 1 = 19. The five-card greedy sequence totals 22,
+	# but 4+5+5+5 reaches exactly 19.
+	if committed.size() != 4:
+		return _fail(
+			VALAK_GUARD_COMMIT_TEST_NAME,
+			"Valak still dumped five cards into a guarded Bastion when four reached the breakpoint."
+		)
+
+	var effective_total: int = 0
+	var committed_three: bool = false
+
+	for card in committed:
+		effective_total += int(
+			attacker.attack_card_value(
+				card,
+				rules,
+				true
+			)
+		)
+
+		if int(card.value) == 3:
+			committed_three = true
+
+	if effective_total != 19:
+		return _fail(
+			VALAK_GUARD_COMMIT_TEST_NAME,
+			"Valak's compact Bastion commitment did not land on the 19-point objective."
+		)
+
+	if committed_three:
+		return _fail(
+			VALAK_GUARD_COMMIT_TEST_NAME,
+			"Valak conserved the wrong card; the 3 should remain in Hand."
+		)
+
+	return _pass(
+		VALAK_GUARD_COMMIT_TEST_NAME
+	)
 
 
 static func _test_policy_profiles() -> Dictionary:

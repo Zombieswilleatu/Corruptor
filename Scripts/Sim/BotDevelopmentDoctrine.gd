@@ -250,9 +250,6 @@ static func _evaluate_integrity_candidates(
 		},
 	]
 
-	if player.castle_action_used_this_round:
-		return candidates
-
 	var payment_zone: Array = _combined_payment_zone(player)
 	if payment_zone.is_empty():
 		return candidates
@@ -270,13 +267,24 @@ static func _evaluate_integrity_candidates(
 		var integrity: int = int(
 			player.castle_integrity.get(castle_name, maximum)
 		)
-		if integrity > 0 and integrity < maximum:
+		if (
+			integrity > 0
+			and integrity < maximum
+			and not CastleIntegrityRulesData.repair_locked(
+				player,
+				castle_name,
+				rules
+			)
+		):
 			damaged.append(castle_name)
 			if integrity <= maximum / 2:
 				severe.append(castle_name)
 
 	var buildable: Array[String] = []
-	if rules.castle_construction:
+	if (
+		rules.castle_construction
+		and not player.castle_action_used_this_round
+	):
 		for castle_name: String in priority:
 			if (
 				player.castles.has(castle_name)

@@ -20,7 +20,8 @@ static func run() -> Array[Dictionary]:
 		_test_ward_frontline_lifetime(rules),
 		_test_penitent_ward_tax(rules),
 		_test_vulture_recon(rules),
-		_test_keep_exact_excess(rules),
+		_test_keep_interposition(rules),
+		_test_repair_lock_and_repeat(rules),
 		_test_bastion_wall_overflow(rules),
 		_test_bastion_direct_target(rules),
 		_test_circle_blood_conduit(rules),
@@ -32,11 +33,14 @@ static func run() -> Array[Dictionary]:
 
 static func _test_locked_profile(rules: RuleConfig) -> Dictionary:
 	if (
-		String(rules.lab_profile_version) != "7.5.0-suit-identities"
+		String(rules.lab_profile_version) != "7.6.2-defunct-repair-lock"
 		or not rules.ward_frontline
 		or String(rules.castle_power_gate_mode) != "operational"
 		or int(rules.castle_operational_floor) != 7
-		or not rules.keep_sanctuary
+		or rules.keep_sanctuary
+		or not rules.keep_interposition
+		or int(rules.keep_fortification) != 3
+		or not rules.defunct_repair_lock
 		or not rules.bastion_wall
 		or int(rules.bastion_lord_def_bonus) != 0
 		or not rules.stockpile_filter
@@ -49,8 +53,8 @@ static func _test_locked_profile(rules: RuleConfig) -> Dictionary:
 		or bool(rules.keep_ignores_ward_tax)
 		or not bool(rules.vulture_recon)
 	):
-		return _fail("v75_profile", "Locked v7.5 suit-identity profile flags are not canonical.")
-	return _pass("v75_profile")
+		return _fail("v762_profile", "Locked v7.6 Keep / Repair profile flags are not canonical.")
+	return _pass("v762_profile")
 
 
 static func _test_ward_frontline_lifetime(rules: RuleConfig) -> Dictionary:
@@ -139,9 +143,15 @@ static func _test_vulture_recon(rules: RuleConfig) -> Dictionary:
 	return _pass("vulture_recon")
 
 
-static func _test_keep_exact_excess(rules: RuleConfig) -> Dictionary:
-	var game = GameDealFixtureData.build_game_deimos_valak_s1(rules)
+static func _test_keep_interposition(
+	rules: RuleConfig
+) -> Dictionary:
+	# Operational Keep: 6 Hunt Strength -> Fortification 3 -> 3 Keep damage.
+	var game = GameDealFixtureData.build_game_deimos_valak_s1(
+		rules
+	)
 	_prepare_game(game)
+
 	var attacker = game.get_player(0)
 	var defender = game.get_player(1)
 
@@ -150,7 +160,10 @@ static func _test_keep_exact_excess(rules: RuleConfig) -> Dictionary:
 	attacker.action = "Hunt"
 	attacker.tgt_pid = 1
 	attacker.tgt_type = "Lord"
-	attacker.committed = _cards(["Butcher:5", "Wright:2"])
+	attacker.committed = _cards([
+		"Butcher:5",
+		"Wright:2",
+	])
 
 	defender.lord = "Valak"
 	defender.alive = true
@@ -158,15 +171,388 @@ static func _test_keep_exact_excess(rules: RuleConfig) -> Dictionary:
 	defender.action = "Pass"
 	defender.lord_guards.clear()
 	defender.sigils["Lord"] = ""
-	_set_castles(defender, ["Keep"])
+	_set_castles(
+		defender,
+		["Keep"]
+	)
 	defender.castle_integrity["Keep"] = 14
 
-	var result: Dictionary = HuntResolutionEngineData.resolve(game, rules, 0)
-	if not defender.alive or bool(result.get("banished", false)):
-		return _fail("keep_exact_excess", "Sanctuary failed to save a Lord from a 1-point lethal excess.")
-	if int(defender.castle_integrity.get("Keep", 0)) != 13:
-		return _fail("keep_exact_excess", "Sanctuary did not transfer exactly 1 Integrity of excess to Keep.")
-	return _pass("keep_exact_excess")
+	var result: Dictionary = (
+		HuntResolutionEngineData.resolve(
+			game,
+			rules,
+			0
+		)
+	)
+
+	if not defender.alive:
+		return _fail(
+			"keep_interposition",
+			"Operational Keep failed to interpose before Lord DEF."
+		)
+
+	if int(
+		result.get(
+			"keep_fortification",
+			-1
+		)
+	) != 3:
+		return _fail(
+			"keep_interposition",
+			"Operational Keep did not apply Fortification 3."
+		)
+
+	if int(
+		defender.castle_integrity.get(
+			"Keep",
+			0
+		)
+	) != 11:
+		return _fail(
+			"keep_interposition",
+			"Strength 6 should lose 3 to Fortification and deal exactly 3 Keep damage."
+		)
+
+	# Per-player framework overrides the profile value.
+	defender.keep_fortification_level = 1
+
+	if int(
+		CastleIntegrityRulesData.keep_fortification(
+			defender,
+			rules
+		)
+	) != 1:
+		return _fail(
+			"keep_interposition",
+			"Per-player Keep Fortification override did not replace the profile value."
+		)
+
+	# Defunct Keep: still a physical wall, but Fortification is zero.
+	# Also verify Humbaba immediately loses his fourth Castle Guard slot.
+	game = GameDealFixtureData.build_game_deimos_valak_s1(
+		rules
+	)
+	_prepare_game(game)
+
+	attacker = game.get_player(0)
+	defender = game.get_player(1)
+
+	attacker.lord = "Deimos"
+	attacker.alive = true
+	attacker.action = "Hunt"
+	attacker.tgt_pid = 1
+	attacker.tgt_type = "Lord"
+	attacker.committed = _cards([
+		"Butcher:5",
+		"Butcher:5",
+		"Butcher:5",
+	])
+
+	defender.lord = "Humbaba"
+	defender.alive = true
+	defender.threat = 0
+	defender.action = "Pass"
+	defender.lord_guards.clear()
+	defender.sigils["Lord"] = ""
+	defender.garrison.clear()
+
+	_set_castles(
+		defender,
+		["Keep"]
+	)
+
+	defender.castle_integrity["Keep"] = 2
+	defender.castle_guards = _cards([
+		"Butcher:5",
+		"Penitent:4",
+		"Vulture:3",
+		"Wright:1",
+	])
+
+	result = HuntResolutionEngineData.resolve(
+		game,
+		rules,
+		0
+	)
+
+	if int(
+		result.get(
+			"keep_fortification",
+			-1
+		)
+	) != 0:
+		return _fail(
+			"keep_interposition",
+			"Defunct Keep incorrectly retained Fortification."
+		)
+
+	if not bool(
+		result.get(
+			"keep_destroyed",
+			false
+		)
+	):
+		return _fail(
+			"keep_interposition",
+			"Defunct Keep did not absorb the Hunt and Ruin at zero Integrity."
+		)
+
+	if (
+		defender.castles.has("Keep")
+		or not defender.ruined_castles.has("Keep")
+	):
+		return _fail(
+			"keep_interposition",
+			"Hunt-caused Keep Ruin did not update physical Castle state."
+		)
+
+	if defender.castle_guards.size() != 3:
+		return _fail(
+			"keep_interposition",
+			"Humbaba retained an illegal fourth Castle Guard after first Ruin."
+		)
+
+	if (
+		defender.garrison.size() != 1
+		or int(defender.garrison[0].value) != 1
+	):
+		return _fail(
+			"keep_interposition",
+			"Humbaba Gate Guard did not return the lowest-value displaced Guard to Garrison."
+		)
+
+	return _pass(
+		"keep_interposition"
+	)
+
+
+static func _test_repair_lock_and_repeat(
+	rules: RuleConfig
+) -> Dictionary:
+	var game = GameDealFixtureData.build_game_deimos_valak_s1(
+		rules
+	)
+	_prepare_game(game)
+
+	var player = game.get_player(0)
+
+	_set_castles(
+		player,
+		["Keep"]
+	)
+
+	player.hand = _cards([
+		"Wright:5",
+		"Wright:3",
+		"Butcher:5",
+		"Butcher:4",
+	])
+
+	# Round 1 begins with an Operational Keep, then it is broken to Defunct.
+	RoundEngineData.begin_round(
+		game,
+		1,
+		rules
+	)
+
+	player.castle_integrity["Keep"] = 6
+
+	# Round 2 must lock Repair on that newly Defunct Keep.
+	RoundEngineData.begin_round(
+		game,
+		2,
+		rules
+	)
+
+	if not CastleIntegrityRulesData.repair_locked(
+		player,
+		"Keep",
+		rules
+	):
+		return _fail(
+			"repair_lock_and_repeat",
+			"Newly Defunct Keep was not Repair-locked for the following round."
+		)
+
+	var locked_result: Dictionary = (
+		RoundEngineData.resolve_repair_player(
+			game,
+			0,
+			rules,
+			{
+				"action": "repair",
+				"castle": "Keep",
+				"payment": ["Wright:5"],
+			}
+		)
+	)
+
+	if (
+		String(
+			locked_result.get(
+				"action",
+				""
+			)
+		) != "invalid"
+		or String(
+			locked_result.get(
+				"reason",
+				""
+			)
+		) != "castle_repair_locked_defunct"
+	):
+		return _fail(
+			"repair_lock_and_repeat",
+			"Repair was allowed during the one-round Defunct vulnerability window."
+		)
+
+	# It remained Defunct for all of round 2, so round 3 unlocks Repair.
+	RoundEngineData.begin_round(
+		game,
+		3,
+		rules
+	)
+
+	if CastleIntegrityRulesData.repair_locked(
+		player,
+		"Keep",
+		rules
+	):
+		return _fail(
+			"repair_lock_and_repeat",
+			"Defunct Repair lock lasted longer than one round."
+		)
+
+	var first_repair: Dictionary = (
+		RoundEngineData.resolve_repair_player(
+			game,
+			0,
+			rules,
+			{
+				"action": "repair",
+				"castle": "Keep",
+				"payment": ["Wright:5"],
+			}
+		)
+	)
+
+	if (
+		String(
+			first_repair.get(
+				"action",
+				""
+			)
+		) != "repair"
+		or int(
+			player.castle_integrity.get(
+				"Keep",
+				0
+			)
+		) != 11
+	):
+		return _fail(
+			"repair_lock_and_repeat",
+			"First unlocked Repair did not restore 5 Integrity."
+		)
+
+	var second_repair: Dictionary = (
+		RoundEngineData.resolve_repair_player(
+			game,
+			0,
+			rules,
+			{
+				"action": "repair",
+				"castle": "Keep",
+				"payment": ["Wright:3"],
+			}
+		)
+	)
+
+	if (
+		String(
+			second_repair.get(
+				"action",
+				""
+			)
+		) != "repair"
+		or int(
+			player.castle_integrity.get(
+				"Keep",
+				0
+			)
+		) != 14
+	):
+		return _fail(
+			"repair_lock_and_repeat",
+			"Second Repair in the same Development phase was incorrectly blocked."
+		)
+
+	if player.castle_action_used_this_round:
+		return _fail(
+			"repair_lock_and_repeat",
+			"Repair incorrectly consumed the Construction action slot."
+		)
+
+	# Construction still consumes its one-per-round Castle action.
+	var construct_one: Dictionary = (
+		RoundEngineData.resolve_repair_player(
+			game,
+			0,
+			rules,
+			{
+				"action": "construct",
+				"castle": "Bastion",
+				"payment": ["Butcher:5"],
+			}
+		)
+	)
+
+	if String(
+		construct_one.get(
+			"action",
+			""
+		)
+	) != "construct":
+		return _fail(
+			"repair_lock_and_repeat",
+			"Construction failed after repeated Repairs."
+		)
+
+	var construct_two: Dictionary = (
+		RoundEngineData.resolve_repair_player(
+			game,
+			0,
+			rules,
+			{
+				"action": "construct",
+				"castle": "Stockpile",
+				"payment": ["Butcher:4"],
+			}
+		)
+	)
+
+	if (
+		String(
+			construct_two.get(
+				"action",
+				""
+			)
+		) != "invalid"
+		or String(
+			construct_two.get(
+				"reason",
+				""
+			)
+		) != "castle_action_already_used"
+	):
+		return _fail(
+			"repair_lock_and_repeat",
+			"Second Construction in one round was not blocked."
+		)
+
+	return _pass(
+		"repair_lock_and_repeat"
+	)
 
 
 static func _test_bastion_wall_overflow(rules: RuleConfig) -> Dictionary:

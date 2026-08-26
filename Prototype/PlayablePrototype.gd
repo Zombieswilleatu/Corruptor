@@ -110,8 +110,8 @@ const LORD_CARD_ABILITIES: Dictionary = {
 	],
 	"Kroni": [
 		"[b]HUNGER[/b] — a counter that persists across rounds and resets when Kroni is resummoned. Lord DEF is 4 at 0, 6 at 1–2, and 8 at 3+. The first time he reaches 3 each game, gain 1 personal Tear. Warding or Passing loses 1 Hunger.",
-		"[b]Consume[/b] — At End of Round, if any destruction occurred, gain 1 Hunger. If nothing was destroyed, discard your lowest Guard or Garrison card, gaining nothing.",
-		"[b]Gorge[/b] — If Kroni personally defeated a Guard this round, gain 1 Soul.",
+		"[b]Consume[/b] — Once per round, after the first combat in which at least 1 Guard or Castle is destroyed, gain 1 Hunger.",
+		"[b]Cannibal Hunger[/b] — At Hunger 1+, end each round by removing your lowest deployed Lord or Castle Guard from play; if none is deployed, lose 1 Hunger. The meal grants no Hunger. At Hunger 0, if Consume did not fire, remove your lowest deployed Guard from play without gaining Hunger. Garrison cannot be consumed.",
 		"[b]Ravenous[/b] — At Hunger 3+, discard the opponent's lowest committed card. His next destroyed Lord or Castle grants +2 Souls and +1 Hunger.",
 		"[b]Breach — Insatiable Hunger[/b] — While Kroni is Banished, both players lose their lowest Guard each round.",
 	],
@@ -3363,8 +3363,10 @@ func _refresh_target_options() -> void:
 			var action_name: String = String(development_human.action)
 			target_label.text = "Option:"
 			if action_name == "Hunt":
-				_add_target_option("Do not Consume", "hunt:pass")
-				_add_target_option("Consume the Hunt", "hunt:consume")
+				_add_target_option("No Consume · Fracture Subjects", "hunt:0:subjects")
+				_add_target_option("No Consume · Fracture Infrastructure", "hunt:0:infrastructure")
+				_add_target_option("Consume · Fracture Subjects", "hunt:1:subjects")
+				_add_target_option("Consume · Fracture Infrastructure", "hunt:1:infrastructure")
 			elif action_name == "Siege":
 				var allow_consume: bool = controller.rules.consume_the_siege
 				var allow_inferno: bool = (
@@ -3962,11 +3964,15 @@ func _refresh_reflex_target_options(
 	var opponent = controller.get_bot_player()
 	if selected_action == "Hunt":
 		if use_secondary_target:
-			_add_secondary_target_option("Opponent Lord · no Consume", "Lord|0")
-			_add_secondary_target_option("Opponent Lord · Consume", "Lord|1")
+			_add_secondary_target_option("Opponent Lord · Fracture Subjects", "Lord|0|subjects")
+			_add_secondary_target_option("Opponent Lord · Fracture Infrastructure", "Lord|0|infrastructure")
+			_add_secondary_target_option("Opponent Lord · Consume · Fracture Subjects", "Lord|1|subjects")
+			_add_secondary_target_option("Opponent Lord · Consume · Fracture Infrastructure", "Lord|1|infrastructure")
 		else:
-			_add_target_option("Opponent Lord · no Consume", "Lord|0")
-			_add_target_option("Opponent Lord · Consume", "Lord|1")
+			_add_target_option("Opponent Lord · Fracture Subjects", "Lord|0|subjects")
+			_add_target_option("Opponent Lord · Fracture Infrastructure", "Lord|0|infrastructure")
+			_add_target_option("Opponent Lord · Consume · Fracture Subjects", "Lord|1|subjects")
+			_add_target_option("Opponent Lord · Consume · Fracture Infrastructure", "Lord|1|infrastructure")
 	elif selected_action == "Siege":
 		var allow_consume: bool = controller.rules.consume_the_siege
 		var allow_inferno: bool = (
@@ -4658,7 +4664,18 @@ func _build_resolution_action_options() -> Dictionary:
 	var option_id: String = _selected_target_id()
 
 	if human.action == "Hunt":
-		return {"consume_hunt": option_id == "hunt:consume"}
+		var hunt_parts: PackedStringArray = option_id.split(":")
+		return {
+			"consume_hunt": (
+				hunt_parts.size() >= 2
+				and hunt_parts[1] == "1"
+			),
+			"fracture_target": (
+				String(hunt_parts[2])
+				if hunt_parts.size() >= 3
+				else "subjects"
+			),
+		}
 
 	if human.action == "Siege":
 		var parts: PackedStringArray = option_id.split(":")
@@ -4705,6 +4722,11 @@ func _build_reflex_decision(
 		"Hunt":
 			var hunt_parts: PackedStringArray = target_id.split("|")
 			decision["consume_hunt"] = hunt_parts.size() >= 2 and hunt_parts[1] == "1"
+			decision["fracture_target"] = (
+				String(hunt_parts[2])
+				if hunt_parts.size() >= 3
+				else "subjects"
+			)
 		"Siege":
 			var siege_parts: PackedStringArray = target_id.split("|")
 			decision["target_castle"] = siege_parts[0] if not siege_parts.is_empty() else ""
@@ -9065,22 +9087,32 @@ func _log_finale_lord_powers(
 			continue
 
 		var event: Dictionary = raw_event
-		var fallback_hunger_text: String = "gained no Hunger"
-
-		if bool(
-			event.get(
-				"fed_hunger",
-				false
+		var fallback_reason: String = String(event.get("reason", ""))
+		if fallback_reason == "starved":
+			_log(
+				"[color=#d8b4fe][b]Kroni — Cannibal Hunger:[/b] No deployed Guard to consume; Hunger %d→%d.[/color]"
+				% [
+					int(event.get("hunger_before", 0)),
+					int(event.get("hunger_after", 0)),
+				]
 			)
-		):
+			continue
+
+		var fallback_hunger_text: String = "gained no Hunger"
+		if bool(event.get("fed_hunger", false)):
 			fallback_hunger_text = "Hunger %d→%d" % [
 				int(event.get("hunger_before", 0)),
 				int(event.get("hunger_after", 0)),
 			]
-
+		var fallback_title: String = (
+			"Cannibal Hunger"
+			if fallback_reason == "cannibal_meal"
+			else "Fallback Consume"
+		)
 		_log(
-			"[color=#d8b4fe][b]Kroni — Fallback Consume:[/b] Removed %s from %s and from play; %s.[/color]"
+			"[color=#d8b4fe][b]Kroni — %s:[/b] Removed %s from %s and from play; %s.[/color]"
 			% [
+				fallback_title,
 				String(event.get("removed_card", "?")),
 				String(event.get("zone", "?")),
 				fallback_hunger_text,
@@ -11939,13 +11971,13 @@ func _lord_card_text(
 	var card_lines: Array[String] = [
 		"[center][font_size=17][b]%s — LORD CARD[/b][/font_size][/center]"
 		% lord_name,
-		"[center]Current DEF [b]%d[/b]  •  Summon [b]%d[/b]  •  Return Threat [b]%d[/b][/center]"
+		"[center]Current DEF [b]%d[/b]  •  Summon [b]%d[/b]  •  Fracture [b]%d[/b][/center]"
 		% [
 			int(
 				player.derived_lord_def
 			),
 			current_cost,
-			_lord_return_threat(
+			_lord_fracture(
 				lord_name
 			),
 		],
@@ -11974,7 +12006,7 @@ func _lord_card_text(
 	)
 
 
-func _lord_return_threat(
+func _lord_fracture(
 	lord_name: String
 ) -> int:
 	var return_threats: Dictionary = {

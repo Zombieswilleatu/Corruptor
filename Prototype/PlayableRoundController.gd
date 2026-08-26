@@ -170,6 +170,10 @@ var kanifous_choice: Dictionary = {}
 var pending_market_choices: Dictionary = {}
 var pending_market_results: Array[Dictionary] = []
 
+# Repair is now a maintenance phase rather than a single Castle action.
+var pending_repair_choices: Array[Dictionary] = []
+var pending_repair_results: Array[Dictionary] = []
+
 var last_result: Dictionary = {}
 
 
@@ -225,6 +229,8 @@ func start_match(
 	kanifous_choice.clear()
 	pending_market_choices.clear()
 	pending_market_results.clear()
+	pending_repair_choices.clear()
+	pending_repair_results.clear()
 	last_result.clear()
 
 	_sync_guard_visibility()
@@ -259,10 +265,13 @@ func advance_to_commitment() -> Dictionary:
 	commitment_choices = {}
 	pending_market_choices.clear()
 	pending_market_results.clear()
+	pending_repair_choices.clear()
+	pending_repair_results.clear()
 
 	RoundEngineData.begin_round(
 		game,
-		round_number
+		round_number,
+		rules
 	)
 
 	_record_phase(
@@ -396,6 +405,8 @@ func resolve_human_market(
 		stage = Stage.DOMINION_RITES
 		return _awaiting("dominion_rites")
 
+	pending_repair_choices.clear()
+	pending_repair_results.clear()
 	stage = Stage.REPAIR
 
 	var human_player = game.get_player(
@@ -447,83 +458,257 @@ func resolve_human_repair(
 	decision: Dictionary
 ) -> Dictionary:
 	if stage != Stage.REPAIR:
-		return _rejected("repair", "not_awaiting_repair")
+		return _rejected(
+			"repair",
+			"not_awaiting_repair"
+		)
 
-	var human_result: Dictionary = RoundEngineData.resolve_repair_player(
-		game,
-		HUMAN_PLAYER_ID,
-		rules,
-		decision
+	var human_result: Dictionary = (
+		RoundEngineData.resolve_repair_player(
+			game,
+			HUMAN_PLAYER_ID,
+			rules,
+			decision
+		)
 	)
 
-	if String(human_result.get("action", "")) == "invalid":
-		return _rejected("repair", String(human_result.get("reason", "invalid_repair")))
+	if String(
+		human_result.get(
+			"action",
+			""
+		)
+	) == "invalid":
+		return _rejected(
+			"repair",
+			String(
+				human_result.get(
+					"reason",
+					"invalid_repair"
+				)
+			)
+		)
 
-	var bot_decision: Dictionary = _bot_repair_decision()
-	var bot_result: Dictionary = RoundEngineData.resolve_repair_player(
-		game,
-		BOT_PLAYER_ID,
-		rules,
-		bot_decision
-	)
-
-	_record_phase("repair", {
-		"choices": {HUMAN_PLAYER_ID: decision.duplicate(true), BOT_PLAYER_ID: bot_decision.duplicate(true)},
-		"results": [human_result, bot_result],
+	pending_repair_choices.append({
+		"player_id": HUMAN_PLAYER_ID,
+		"decision": decision.duplicate(true),
 	})
+
+	pending_repair_results.append(
+		human_result
+	)
+
+	var human = get_human_player()
+
+	# A successful Repair/Construction does NOT automatically end Development.
+	# The human may spend more resources on Repairs, and may still Construct
+	# once if that action remains unused.
+	if (
+		String(
+			human_result.get(
+				"action",
+				""
+			)
+		) != "pass"
+		and _player_has_castle_action_choices(
+			human
+		)
+	):
+		return _awaiting(
+			"repair"
+		)
+
+	return _finish_repair_phase()
+
+
+func _finish_repair_phase() -> Dictionary:
+	# Once the human is done, let the bot exhaust the same maintenance rules.
+	# A hard cap guards against doctrine bugs without being a gameplay limit.
+	var maintenance_cap: int = (
+		CastleIntegrityRulesData.CASTLES.size()
+		* 4
+		+ 4
+	)
+
+	for _maintenance_pass: int in range(
+		maintenance_cap
+	):
+		var bot_decision: Dictionary = (
+			_bot_repair_decision()
+		)
+
+		var bot_result: Dictionary = (
+			RoundEngineData.resolve_repair_player(
+				game,
+				BOT_PLAYER_ID,
+				rules,
+				bot_decision
+			)
+		)
+
+		pending_repair_choices.append({
+			"player_id": BOT_PLAYER_ID,
+			"decision": bot_decision.duplicate(true),
+		})
+
+		pending_repair_results.append(
+			bot_result
+		)
+
+		var bot_action: String = String(
+			bot_result.get(
+				"action",
+				""
+			)
+		)
+
+		if (
+			bot_action == "pass"
+			or bot_action == "invalid"
+		):
+			break
+
+		var bot = get_bot_player()
+
+		if not _player_has_castle_action_choices(
+			bot
+		):
+			break
+
+	_record_phase(
+		"repair",
+		{
+			"choices": pending_repair_choices.duplicate(
+				true
+			),
+			"results": pending_repair_results.duplicate(
+				true
+			),
+		}
+	)
+
+	pending_repair_choices.clear()
+	pending_repair_results.clear()
+
 	stage = Stage.DOMINION_RITES
-	return _awaiting("dominion_rites")
+
+	return _awaiting(
+		"dominion_rites"
+	)
 
 
 func _repair_phase_has_choices() -> bool:
 	for player in game.players:
-		if _player_has_castle_action_choices(player):
+		if _player_has_castle_action_choices(
+			player
+		):
 			return true
+
 	return false
 
 
-func _player_has_castle_action_choices(player) -> bool:
+func _player_has_castle_action_choices(
+	player
+) -> bool:
 	if player == null:
 		return false
-	if rules == null or not rules.castle_integrity:
+
+	if (
+		rules == null
+		or not rules.castle_integrity
+	):
 		return not player.ruined_castles.is_empty()
 
-	var repair_mode: String = String(rules.repair_wright_mode)
-	var repair_allowed: bool = (
-		repair_mode in ["off", "tax"]
-		and (
-			not player.hand.is_empty()
-			or not player.garrison.is_empty()
-		)
+	var has_payment_card: bool = (
+		not player.hand.is_empty()
+		or not player.garrison.is_empty()
 	)
+
+	if not has_payment_card:
+		return false
+
+	var repair_mode: String = String(
+		rules.repair_wright_mode
+	)
+
+	var repair_allowed: bool = (
+		repair_mode in [
+			"off",
+			"tax",
+		]
+	)
+
 	if not repair_allowed:
 		for card in player.hand:
-			if String(card.suit) == "Wright":
+			if String(
+				card.suit
+			) == "Wright":
 				repair_allowed = true
 				break
+
 	if not repair_allowed:
 		for card in player.garrison:
-			if String(card.suit) == "Wright":
+			if String(
+				card.suit
+			) == "Wright":
 				repair_allowed = true
 				break
 
 	if repair_allowed:
 		for castle_value in player.castles:
-			var castle_name: String = String(castle_value)
-			var maximum: int = CastleIntegrityRulesData.max_integrity(castle_name)
-			var integrity: int = int(player.castle_integrity.get(castle_name, maximum))
-			if integrity > 0 and integrity < maximum:
-				return true
+			var castle_name: String = String(
+				castle_value
+			)
 
-	if rules.castle_construction:
-		for castle_name: String in CastleIntegrityRulesData.CASTLES:
-			if (
-				player.castles.has(castle_name)
-				or player.ruined_castles.has(castle_name)
-				or player.profaned_castles.has(castle_name)
-				or player.lost_castles.has(castle_name)
+			if CastleIntegrityRulesData.repair_locked(
+				player,
+				castle_name,
+				rules
 			):
 				continue
+
+			var maximum: int = (
+				CastleIntegrityRulesData.max_integrity(
+					castle_name
+				)
+			)
+
+			var integrity: int = int(
+				player.castle_integrity.get(
+					castle_name,
+					maximum
+				)
+			)
+
+			if (
+				integrity > 0
+				and integrity < maximum
+			):
+				return true
+
+	# Construction retains its one normal Castle action.
+	if (
+		rules.castle_construction
+		and not player.castle_action_used_this_round
+	):
+		for castle_name: String in (
+			CastleIntegrityRulesData.CASTLES
+		):
+			if (
+				player.castles.has(
+					castle_name
+				)
+				or player.ruined_castles.has(
+					castle_name
+				)
+				or player.profaned_castles.has(
+					castle_name
+				)
+				or player.lost_castles.has(
+					castle_name
+				)
+			):
+				continue
+
 			return true
 
 	return false

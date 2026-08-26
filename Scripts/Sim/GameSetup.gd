@@ -402,10 +402,7 @@ static func _force_opening_summon(
 	)
 
 	player.alive = true
-	player.threat = _return_threat(
-		chosen_lord
-	)
-
+	player.threat = 0
 	player.first_summon_done = true
 
 	if chosen_lord == "Kroni":

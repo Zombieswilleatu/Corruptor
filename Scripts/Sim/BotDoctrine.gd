@@ -1651,6 +1651,88 @@ static func _estimated_guard_total(
 	)
 
 
+static func _estimated_guard_total_ignoring_lowest(
+	guards: Array,
+	rules: RuleConfig
+) -> int:
+	var estimated_total: int = _estimated_guard_total(
+		guards,
+		rules
+	)
+
+	# Valak's Crushing Presence only turns on when the attacked zone
+	# contains at least two Guards.
+	if guards.size() < 2:
+		return estimated_total
+
+	# In open-information profiles, exact values are legal knowledge.
+	if not rules.fog_of_war:
+		var lowest_value: int = int(
+			guards[0].value
+		)
+
+		for index: int in range(
+			1,
+			guards.size()
+		):
+			lowest_value = mini(
+				lowest_value,
+				int(
+					guards[index].value
+				)
+			)
+
+		return maxi(
+			0,
+			estimated_total - lowest_value
+		)
+
+	# Under Fog, revealed Guards remain exact. Face-down Guards must stay
+	# statistical: one unknown Guard is represented by the same rounded
+	# 2.83 deck-mean estimate used by _estimated_guard_total().
+	var lowest_estimate: int = 0
+	var have_estimate: bool = false
+	var unknown_count: int = 0
+
+	for card in guards:
+		if bool(
+			card.guard_revealed
+		):
+			var known_value: int = int(
+				card.value
+			)
+
+			if (
+				not have_estimate
+				or known_value < lowest_estimate
+			):
+				lowest_estimate = known_value
+				have_estimate = true
+		else:
+			unknown_count += 1
+
+	if unknown_count > 0:
+		var hidden_guard_estimate: int = maxi(
+			1,
+			int(round(2.83))
+		)
+
+		if (
+			not have_estimate
+			or hidden_guard_estimate < lowest_estimate
+		):
+			lowest_estimate = hidden_guard_estimate
+			have_estimate = true
+
+	if not have_estimate:
+		return estimated_total
+
+	return maxi(
+		0,
+		estimated_total - lowest_estimate
+	)
+
+
 static func _commit_for_attack(
 	game,
 	player,
@@ -1757,10 +1839,26 @@ static func _commit_for_attack(
 		)
 
 		if not (rules.siege_engine_bypass and player.castles.has("SiegeEngine")):
-			estimated_defense += _estimated_guard_total(
-				opponent.castle_guards,
-				rules
+			var castle_guard_estimate: int = (
+				_estimated_guard_total(
+					opponent.castle_guards,
+					rules
+				)
 			)
+
+			if (
+				player.lord == "Valak"
+				and player.alive
+				and opponent.castle_guards.size() >= 2
+			):
+				castle_guard_estimate = (
+					_estimated_guard_total_ignoring_lowest(
+						opponent.castle_guards,
+						rules
+					)
+				)
+
+			estimated_defense += castle_guard_estimate
 
 		estimated_defense += max(
 			1,
@@ -1907,6 +2005,43 @@ static func _commit_for_attack(
 			removed_card, rules, target_type == TARGET_CASTLE
 		)
 
+	# Crushing Presence lowers Valak's required defensive breakpoint.
+	# His normal momentum-oriented greedy ordering can still overcommit
+	# when a smaller subset reaches that breakpoint, so compact only
+	# Valak's proposed commitment here. Odradek recoil handling below
+	# remains authoritative and may add cards back if necessary.
+	if (
+		player.lord == "Valak"
+		and player.alive
+		and target_type == TARGET_CASTLE
+	):
+		var compact_commitment: Array = (
+			_minimum_threshold_attack_subset(
+				player,
+				player.hand,
+				rules,
+				target_type == TARGET_CASTLE,
+				target_strength
+			)
+		)
+
+		if (
+			not compact_commitment.is_empty()
+			and compact_commitment.size()
+			< committed.size()
+		):
+			committed = compact_commitment
+
+			committed_total = 0
+			for compact_card in committed:
+				committed_total += (
+					player.attack_card_value(
+						compact_card,
+						rules,
+						target_type == TARGET_CASTLE
+					)
+				)
+
 	var marked_lord: String = String(
 		game.get_meta(
 			"orias_marked_lord",
@@ -1956,6 +2091,108 @@ static func _commit_for_attack(
 			)
 
 	return committed
+
+
+static func _minimum_threshold_attack_subset(
+	player,
+	cards: Array,
+	rules: RuleConfig,
+	siege: bool,
+	target_strength: int
+) -> Array:
+	if cards.is_empty():
+		return []
+
+	# Normal hands are tiny. This is only a defensive ceiling against some
+	# future mode accidentally feeding a huge collection into the doctrine.
+	if cards.size() > 12:
+		return []
+
+	var best_subset: Array = []
+	var best_count: int = 999999
+	var best_total: int = 999999
+	var best_printed_total: int = 999999
+	var best_mask: int = 999999
+
+	var combination_count: int = (
+		1 << cards.size()
+	)
+
+	for mask: int in range(
+		1,
+		combination_count
+	):
+		var subset: Array = []
+		var effective_total: int = 0
+		var printed_total: int = 0
+
+		for index: int in range(
+			cards.size()
+		):
+			if (
+				mask
+				& (1 << index)
+			) == 0:
+				continue
+
+			var card = cards[index]
+
+			subset.append(
+				card
+			)
+
+			effective_total += (
+				player.attack_card_value(
+					card,
+					rules,
+					siege
+				)
+			)
+
+			printed_total += int(
+				card.value
+			)
+
+		if effective_total < target_strength:
+			continue
+
+		var subset_count: int = (
+			subset.size()
+		)
+
+		var better: bool = false
+
+		if subset_count < best_count:
+			better = true
+		elif (
+			subset_count == best_count
+			and effective_total < best_total
+		):
+			better = true
+		elif (
+			subset_count == best_count
+			and effective_total == best_total
+			and printed_total < best_printed_total
+		):
+			better = true
+		elif (
+			subset_count == best_count
+			and effective_total == best_total
+			and printed_total == best_printed_total
+			and mask < best_mask
+		):
+			better = true
+
+		if not better:
+			continue
+
+		best_subset = subset
+		best_count = subset_count
+		best_total = effective_total
+		best_printed_total = printed_total
+		best_mask = mask
+
+	return best_subset
 
 
 static func _commit_for_ward(

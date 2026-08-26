@@ -396,6 +396,12 @@ static func _validate_decision(
 					false
 				)
 			),
+		"fracture_target": String(
+			decision.get(
+				"fracture_target",
+				""
+			)
+		),
 		}
 
 	if action == ACTION_SIEGE:
@@ -595,6 +601,12 @@ static func _execute_validated(
 						false
 					)
 				),
+			"fracture_target": String(
+				validation.get(
+					"fracture_target",
+					""
+				)
+			),
 			}
 		)
 	elif action == ACTION_SIEGE:

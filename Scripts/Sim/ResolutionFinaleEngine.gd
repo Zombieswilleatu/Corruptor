@@ -54,8 +54,9 @@ static func resolve(
 		var consume_event: Dictionary = (
 			_resolve_kroni_consume(
 				game,
-				player
-			)
+				player,
+				rules
+)
 		)
 
 		if bool(
@@ -335,7 +336,8 @@ static func _normalized_player_order(
 
 static func _resolve_kroni_consume(
 	game,
-	player
+	player,
+	rules: RuleConfig
 ) -> Dictionary:
 	if (
 		player.lord != "Kroni"
@@ -366,7 +368,7 @@ static func _resolve_kroni_consume(
 
 	if (
 		player.kroni_hunger >= 1
-		and player.kroni_personally_defeated_guard
+		and (rules.kro_gorge and player.kroni_personally_defeated_guard)
 	):
 		player.souls += 1
 		gorge_soul_gain = 1
@@ -403,6 +405,110 @@ static func _resolve_kroni_consume(
 
 
 static func _resolve_kroni_fallback(
+	game,
+	player,
+	rules: RuleConfig
+) -> Dictionary:
+	if not rules.kro_cannibal_h1:
+		return _resolve_kroni_fallback_legacy(game, player, rules)
+
+	var hunger_before: int = int(player.kroni_hunger)
+	if player.lord != "Kroni" or not player.alive:
+		return _empty_kroni_cannibal_event(player, hunger_before, "not_living_kroni")
+
+	var compulsory: bool = hunger_before >= 1
+	if not compulsory and player.kroni_consume_done:
+		return _empty_kroni_cannibal_event(player, hunger_before, "consume_already_fired")
+
+	var selected_card = null
+	var selected_zone: String = ""
+	var selected_index: int = -1
+	var selected_value: int = 999999
+
+	# Garrison is deliberately absent: only deployed Lord/Castle Guards are food.
+	for index in range(player.lord_guards.size()):
+		var card = player.lord_guards[index]
+		var value: int = int(card.value)
+		if value < selected_value:
+			selected_card = card
+			selected_zone = ZONE_LORD
+			selected_index = index
+			selected_value = value
+
+	for index in range(player.castle_guards.size()):
+		var card = player.castle_guards[index]
+		var value: int = int(card.value)
+		if value < selected_value:
+			selected_card = card
+			selected_zone = ZONE_CASTLE
+			selected_index = index
+			selected_value = value
+
+	if selected_card == null:
+		if compulsory:
+			player.kroni_hunger = max(0, hunger_before - 1)
+			player.kroni_consume_done = true
+			return {
+				"triggered": true,
+				"reason": "starved",
+				"player_id": int(player.pid),
+				"zone": "",
+				"removed_card": "",
+				"fed_hunger": false,
+				"hunger_before": hunger_before,
+				"hunger_after": int(player.kroni_hunger),
+				"milestone_tear": false,
+			}
+		return _empty_kroni_cannibal_event(player, hunger_before, "no_deployed_guard")
+
+	if selected_zone == ZONE_LORD:
+		player.lord_guards.remove_at(selected_index)
+	else:
+		player.castle_guards.remove_at(selected_index)
+
+	# Tested candidate semantics: eaten Guards leave play entirely.
+	game.removed_from_play.append(selected_card)
+	player.kroni_consume_done = true
+
+	var fed_hunger: bool = false
+	var hunger_event: Dictionary = {}
+	# H1+ meals never feed Hunger. H0 preserves the profile's old fallback switch.
+	if not compulsory and rules.kro_fallback_feeds:
+		fed_hunger = true
+		hunger_event = _gain_kroni_hunger(game, player)
+
+	return {
+		"triggered": true,
+		"reason": "cannibal_meal" if compulsory else "fallback_meal",
+		"player_id": int(player.pid),
+		"zone": selected_zone,
+		"removed_card": _card_id(selected_card),
+		"fed_hunger": fed_hunger,
+		"hunger_before": hunger_before,
+		"hunger_after": int(player.kroni_hunger),
+		"milestone_tear": bool(hunger_event.get("milestone_tear", false)),
+	}
+
+
+static func _empty_kroni_cannibal_event(
+	player,
+	hunger: int,
+	reason: String
+) -> Dictionary:
+	return {
+		"triggered": false,
+		"reason": reason,
+		"player_id": int(player.pid),
+		"zone": "",
+		"removed_card": "",
+		"fed_hunger": false,
+		"hunger_before": hunger,
+		"hunger_after": hunger,
+		"milestone_tear": false,
+	}
+
+
+static func _resolve_kroni_fallback_legacy(
 	game,
 	player,
 	rules: RuleConfig

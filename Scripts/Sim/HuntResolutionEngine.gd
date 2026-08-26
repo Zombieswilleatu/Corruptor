@@ -23,6 +23,10 @@ const CastleIntegrityRulesData = preload(
 	"res://Scripts/Sim/CastleIntegrityRules.gd"
 )
 
+const FractureEngineData = preload(
+	"res://Scripts/Sim/FractureEngine.gd"
+)
+
 
 const ACTION_HUNT: String = "Hunt"
 const ZONE_LORD: String = "Lord"
@@ -276,7 +280,9 @@ static func resolve(
 		sigil_state,
 		sigil_value,
 		lord_defense,
-		ward_commit_defense if rules.ward_frontline else 0
+		ward_commit_defense if rules.ward_frontline else 0,
+		defender,
+		rules
 	)
 
 	var guards_defeated: Array = combat_result.get(
@@ -383,6 +389,12 @@ static func resolve(
 			false
 		)
 	)
+	var fracture_target: String = String(
+		options.get(
+			"fracture_target",
+			""
+		)
+	)
 
 	var consumed: bool = false
 	var banished: bool = false
@@ -434,7 +446,8 @@ static func resolve(
 			game,
 			rules,
 			attacker,
-			defender
+			defender,
+			fracture_target
 		)
 
 		neutral_tear_gain += int(
@@ -617,6 +630,54 @@ static func resolve(
 			guards_defeated
 		),
 		"sigil_broken": sigil_broken,
+		"keep_interposed": bool(
+			combat_result.get(
+				"keep_interposed",
+				false
+			)
+		),
+		"keep_fortification": int(
+			combat_result.get(
+				"keep_fortification",
+				0
+			)
+		),
+		"keep_integrity_before": int(
+			combat_result.get(
+				"keep_integrity_before",
+				0
+			)
+		),
+		"keep_integrity_after": int(
+			combat_result.get(
+				"keep_integrity_after",
+				0
+			)
+		),
+		"keep_damage": int(
+			combat_result.get(
+				"keep_damage",
+				0
+			)
+		),
+		"keep_destroyed": bool(
+			combat_result.get(
+				"keep_destroyed",
+				false
+			)
+		),
+		"keep_spill": int(
+			combat_result.get(
+				"keep_spill",
+				0
+			)
+		),
+		"lord_defense_after_keep": int(
+			combat_result.get(
+				"lord_defense_after_keep",
+				lord_defense
+			)
+		),
 		"destroyed": destroyed,
 		"banished": banished,
 		"consumed": consumed,
@@ -700,13 +761,14 @@ static func _resolve_combat(
 	sigil_state: String,
 	sigil_value: int,
 	lord_defense: int,
-	ward_screen: int = 0
+	ward_screen: int = 0,
+	defender = null,
+	rules: RuleConfig = null
 ) -> Dictionary:
 	var remaining: int = strength
 	var guards_defeated: Array = []
 
-	# Canonical v7.4 order: Ward reinforcements are first contact. They
-	# protect Guards, Sigil and Lord, then leave after both primary actions.
+	# Canonical order: Ward is first contact.
 	if ward_screen > 0:
 		if remaining <= ward_screen:
 			return {
@@ -844,21 +906,193 @@ static func _resolve_combat(
 				"guards_defeated": guards_defeated,
 			}
 
-	if remaining > lord_defense:
+	# -----------------------------------------------------------------
+	# KEEP INTERPOSITION
+	#
+	# Ward -> Guards -> Sigil -> Fortification -> Keep -> Lord
+	#
+	# Equality destroys the Keep, exactly like structural Integrity in
+	# Siege. Only strength beyond the remaining Keep Integrity spills.
+	# -----------------------------------------------------------------
+	var keep_interposed: bool = (
+		defender != null
+		and rules != null
+		and CastleIntegrityRulesData.keep_interposes(
+			defender,
+			rules
+		)
+	)
+
+	var keep_fortification: int = 0
+	var keep_integrity_before: int = 0
+	var keep_integrity_after: int = 0
+	var keep_damage: int = 0
+	var keep_destroyed: bool = false
+	var keep_spill: int = 0
+	var final_lord_defense: int = lord_defense
+
+	if keep_interposed:
+		keep_integrity_before = int(
+			defender.castle_integrity.get(
+				"Keep",
+				CastleIntegrityRulesData.max_integrity(
+					"Keep"
+				)
+			)
+		)
+
+		keep_integrity_after = keep_integrity_before
+
+		keep_fortification = (
+			CastleIntegrityRulesData.keep_fortification(
+				defender,
+				rules
+			)
+		)
+
+		if keep_fortification > 0:
+			remaining -= keep_fortification
+
+			if remaining <= 0:
+				return {
+					"destroyed": false,
+					"sigil_broken": sigil_broken,
+					"excess": 0,
+					"stopped_at": "KeepFortification",
+					"guards_defeated": guards_defeated,
+					"keep_interposed": true,
+					"keep_fortification": keep_fortification,
+					"keep_integrity_before": keep_integrity_before,
+					"keep_integrity_after": keep_integrity_after,
+					"keep_damage": 0,
+					"keep_destroyed": false,
+					"keep_spill": 0,
+					"lord_defense_after_keep": final_lord_defense,
+				}
+
+		# A surviving Keep consumes all remaining attack strength.
+		if remaining < keep_integrity_before:
+			keep_damage = remaining
+			keep_integrity_after = (
+				keep_integrity_before
+				- keep_damage
+			)
+
+			defender.castle_integrity[
+				"Keep"
+			] = keep_integrity_after
+
+			return {
+				"destroyed": false,
+				"sigil_broken": sigil_broken,
+				"excess": 0,
+				"stopped_at": "Keep",
+				"guards_defeated": guards_defeated,
+				"keep_interposed": true,
+				"keep_fortification": keep_fortification,
+				"keep_integrity_before": keep_integrity_before,
+				"keep_integrity_after": keep_integrity_after,
+				"keep_damage": keep_damage,
+				"keep_destroyed": false,
+				"keep_spill": 0,
+				"lord_defense_after_keep": final_lord_defense,
+			}
+
+		# Equality or greater destroys the physical Keep. This is not a
+		# Siege Ruination action and deliberately does NOT invoke the Siege
+		# reward / Tear / Lord-kit consequence chain.
+		keep_damage = keep_integrity_before
+		keep_integrity_after = 0
+		keep_destroyed = true
+		keep_spill = maxi(
+			0,
+			remaining - keep_integrity_before
+		)
+
+		defender.castle_integrity[
+			"Keep"
+		] = 0
+
+		defender.castles.erase(
+			"Keep"
+		)
+
+		if not defender.ruined_castles.has(
+			"Keep"
+		):
+			defender.ruined_castles.append(
+				"Keep"
+			)
+
+		# Humbaba loses the fourth Castle Guard slot as soon as the first
+		# Castle becomes Ruined. Match Python: eject the lowest-value Guard
+		# to Garrison if possible, otherwise discard it.
+		if (
+			defender.lord == "Humbaba"
+			and rules.humbaba_gate4
+		):
+			while defender.castle_guards.size() > 3:
+				var weakest_index: int = _lowest_card_index(
+					defender.castle_guards
+				)
+
+				var displaced_guard = defender.castle_guards[
+					weakest_index
+				]
+
+				defender.castle_guards.remove_at(
+					weakest_index
+				)
+
+				if defender.garrison.size() < rules.garrison_max:
+					defender.garrison.append(
+						displaced_guard
+					)
+				else:
+					game.discard.append(
+						displaced_guard
+					)
+
+		remaining = keep_spill
+
+		# Humbaba's DEF depends on his standing Castle count, so compute
+		# the Lord layer again after the Keep leaves play.
+		final_lord_defense = _calculate_lord_defense(
+			defender,
+			rules
+		)
+
+	if remaining > final_lord_defense:
 		return {
 			"destroyed": true,
 			"sigil_broken": sigil_broken,
-			"excess": remaining - lord_defense,
+			"excess": remaining - final_lord_defense,
 			"stopped_at": "",
 			"guards_defeated": guards_defeated,
+			"keep_interposed": keep_interposed,
+			"keep_fortification": keep_fortification,
+			"keep_integrity_before": keep_integrity_before,
+			"keep_integrity_after": keep_integrity_after,
+			"keep_damage": keep_damage,
+			"keep_destroyed": keep_destroyed,
+			"keep_spill": keep_spill,
+			"lord_defense_after_keep": final_lord_defense,
 		}
 
 	return {
 		"destroyed": false,
 		"sigil_broken": sigil_broken,
 		"excess": 0,
-		"stopped_at": "Lord",
+		"stopped_at": "Lord" if remaining > 0 else "Keep",
 		"guards_defeated": guards_defeated,
+		"keep_interposed": keep_interposed,
+		"keep_fortification": keep_fortification,
+		"keep_integrity_before": keep_integrity_before,
+		"keep_integrity_after": keep_integrity_after,
+		"keep_damage": keep_damage,
+		"keep_destroyed": keep_destroyed,
+		"keep_spill": keep_spill,
+		"lord_defense_after_keep": final_lord_defense,
 	}
 
 
@@ -866,7 +1100,9 @@ static func _banish_lord(
 	game,
 	rules: RuleConfig,
 	attacker,
-	defender
+	defender,
+	fracture_target: String = ""
+
 ) -> Dictionary:
 	var attacker_souls_before: int = int(
 		attacker.souls
@@ -1013,6 +1249,17 @@ static func _banish_lord(
 		# snapshots and any doctrine that reads a Banished Lord's state.
 		defender.threat = return_threat
 
+	# FRACTURE_SYSTEM_V1: Banishment clears ordinary Threat before Fracture.
+	defender.return_threat_override = -1
+	defender.threat = 0
+	var fracture_event: Dictionary = FractureEngineData.resolve(
+		game,
+		rules,
+		attacker,
+		defender,
+		fracture_target
+	)
+
 	game.breach = String(
 		defender.lord
 	)
@@ -1051,6 +1298,7 @@ static func _banish_lord(
 		),
 		"harvested_card": harvested_card,
 		"harvested_by": harvested_by,
+		"fracture": fracture_event,
 		"breach": String(
 			game.breach
 		),

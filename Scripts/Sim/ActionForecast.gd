@@ -19,7 +19,7 @@ const PythonRandomData = preload(
 )
 
 
-const MODEL_VERSION: String = "action-forecast-v1"
+const MODEL_VERSION: String = "action-forecast-v1.1-monotonic-fastpath"
 const MAX_OWN_HAND: int = 12
 
 const VALUE_COUNTS: Dictionary = {
@@ -407,9 +407,35 @@ static func _forecast_action(
 		best_ward_primary[depth] = 0.0
 		best_ward_secondary[depth] = 0.0
 
+	# MONOTONIC WHOLE-HAND FAST PATH
+	#
+	# For ordinary defenders, Hunt/Siege reachability is monotonic with
+	# commitment size: every additional committed Subject contributes
+	# non-negative attack Strength, Butcher suit bonus cannot decrease, and
+	# the combat layers only consume arriving Strength. Therefore the maximum
+	# probability over EVERY non-empty subset is attained by the whole Hand.
+	#
+	# Odradek is deliberately excluded from this proof because Psychic
+	# Recoil / Interlock can mutate the committed set before Strength is
+	# measured. Keep the original exhaustive search there until that mechanic
+	# gets its own exact reduced-state model.
 	var mask_limit: int = 1 << attacker.hand.size()
+	var full_hand_mask: int = mask_limit - 1
+	var candidate_masks: Array[int] = []
 
-	for mask: int in range(1, mask_limit):
+	var odradek_non_monotonic: bool = (
+		defender != null
+		and bool(defender.alive)
+		and String(defender.lord) == "Odradek"
+	)
+
+	if odradek_non_monotonic:
+		for candidate_mask: int in range(1, mask_limit):
+			candidate_masks.append(candidate_mask)
+	else:
+		candidate_masks.append(full_hand_mask)
+
+	for mask: int in candidate_masks:
 		var open_primary: float = 0.0
 		var open_secondary: float = 0.0
 		var ward_primary: Dictionary = {}

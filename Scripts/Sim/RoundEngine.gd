@@ -1,3 +1,4 @@
+# CONSTRUCTION_PAYMENT_CAP_HARD_CEILING_V1
 class_name RoundEngine
 extends RefCounted
 
@@ -35,7 +36,7 @@ static func advance_to_round_draw(
 	rules: RuleConfig,
 	random_source = null
 ) -> void:
-	begin_round(game, round_number)
+	begin_round(game, round_number, rules)
 	_update_sigils(game, rules)
 	_apply_veil_drift(game, rules)
 	_run_draw_step(game, rules)
@@ -98,7 +99,8 @@ static func advance_to_round_repair(
 
 static func begin_round(
 	game,
-	round_number: int
+	round_number: int,
+	rules: RuleConfig = null
 ) -> void:
 	assert(
 		game != null,
@@ -114,6 +116,13 @@ static func begin_round(
 	game.reflex_winner = -1
 
 	for player in game.players:
+		# Read the completed prior-round structural state before resetting the
+		# ordinary per-round flags.
+		CastleIntegrityRulesData.prepare_repair_locks_for_new_round(
+			player,
+			rules
+		)
+
 		player.reset_round_state()
 
 	game.refresh_derived_values()
@@ -652,13 +661,7 @@ static func _resolve_castle_integrity_action(
 ) -> Dictionary:
 	var player_id: int = int(player.pid)
 
-	if player.castle_action_used_this_round:
-		return _invalid_castle_action_result(
-			player_id,
-			String(decision.get("castle", "")),
-			"castle_action_already_used"
-		)
-
+	# Pass is always legal, even after the one Construction action is spent.
 	if _repair_decision_is_pass(decision):
 		return {
 			"player_id": player_id,
@@ -672,6 +675,17 @@ static func _resolve_castle_integrity_action(
 
 	var action: String = String(decision.get("action", "repair"))
 	var castle_name: String = String(decision.get("castle", ""))
+
+	# Construction retains the one-Castle-action limit. Repair does not.
+	if (
+		action == "construct"
+		and player.castle_action_used_this_round
+	):
+		return _invalid_castle_action_result(
+			player_id,
+			castle_name,
+			"castle_action_already_used"
+		)
 
 	if not CastleIntegrityRulesData.CASTLES.has(castle_name):
 		return _invalid_castle_action_result(
@@ -709,6 +723,20 @@ static func _resolve_castle_integrity_action(
 		)
 
 	if action == "construct":
+		var construction_cap: int = int(
+			rules.construction_action_cap
+		)
+
+		if (
+			construction_cap > 0
+			and paid_total > construction_cap
+		):
+			return _invalid_castle_action_result(
+				player_id,
+				castle_name,
+				"construction_payment_exceeds_cap"
+			)
+
 		return _resolve_integrity_construction(
 			game,
 			player,
@@ -863,6 +891,17 @@ static func _resolve_integrity_repair(
 			"castle_irreparable"
 		)
 
+	if CastleIntegrityRulesData.repair_locked(
+		player,
+		castle_name,
+		rules
+	):
+		return _invalid_castle_action_result(
+			player_id,
+			castle_name,
+			"castle_repair_locked_defunct"
+		)
+
 	var maximum: int = CastleIntegrityRulesData.max_integrity(castle_name)
 	var before: int = int(player.castle_integrity.get(castle_name, maximum))
 	if before <= 0:
@@ -922,8 +961,15 @@ static func _resolve_integrity_repair(
 	)
 	var after: int = before + restored
 	player.castle_integrity[castle_name] = after
-	player.castle_action_used_this_round = true
+
+	# Repair is resource-limited, not action-limited.
 	player.repaired_this_round = true
+
+	CastleIntegrityRulesData.note_operational(
+		player,
+		castle_name,
+		rules
+	)
 	player.repair_token_used_this_repair = use_token
 	player.castle_repairs[castle_name] = int(
 		player.castle_repairs.get(castle_name, 0)
@@ -1009,6 +1055,12 @@ static func _resolve_integrity_construction(
 		if not player.castles.has(castle_name):
 			player.castles.append(castle_name)
 		player.castle_integrity[castle_name] = maximum
+
+		CastleIntegrityRulesData.note_operational(
+			player,
+			castle_name,
+			rules
+		)
 	else:
 		player.castle_construction_progress[castle_name] = after
 

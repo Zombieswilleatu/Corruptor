@@ -105,7 +105,9 @@ static func _test_profile() -> Dictionary:
 		or rules.kani_threat_cost
 		or rules.kro_fallback_feeds
 		or not rules.kro_milestone_once
-		or rules.lab_profile_version != "7.5.0-suit-identities"
+		or not rules.kro_cannibal_h1
+		or rules.kro_gorge
+		or rules.lab_profile_version != "6.8.3-kroni-cannibal-no-gorge"
 		or rules.momentum_refund != 1
 		or rules.veil_drift_after != 15
 		or not is_equal_approx(rules.veil_drift_growth, 0.25)
@@ -304,30 +306,46 @@ static func _test_kroni_fallback_cost_only() -> Dictionary:
 	kroni.alive = true
 	kroni.action = "Hunt"
 	kroni.kroni_hunger = 2
-	kroni.kroni_consume_done = false
+	# Simulate combat Consume already firing: H1+ upkeep is still owed.
+	kroni.kroni_consume_done = true
 	kroni.kroni_tear_milestone_fired = false
-	kroni.castle_guards.clear()
-	kroni.castle_guards.append(CardData.new("Penitent", 1))
+	kroni.castle_guards = [CardData.new("Penitent", 1)]
 
-	var result: Dictionary = ResolutionFinaleEngineData.resolve(
-		game,
-		rules
-	)
+	var result: Dictionary = ResolutionFinaleEngineData.resolve(game, rules)
 	var fallback_events: Array = result.get("fallback_events", [])
-
 	if (
 		kroni.kroni_hunger != 2
 		or kroni.tears != 0
-		or not kroni.kroni_consume_done
 		or not kroni.castle_guards.is_empty()
-		or game.removed_from_play.size() != 0
-		or game.discard.is_empty()
+		or game.removed_from_play.size() != 1
 		or fallback_events.size() != 1
 		or bool(fallback_events[0].get("fed_hunger", true))
+		or String(fallback_events[0].get("reason", "")) != "cannibal_meal"
 	):
 		return _fail(
 			"unit_lab_kroni_fallback_cost_only",
-			"Fallback must discard the card without granting Hunger or a milestone Tear."
+			"H1+ Cannibal Hunger failed to eat exactly one deployed Guard without feeding Hunger."
+		)
+
+	# Garrison alone cannot pay the meal; Kroni loses Hunger instead.
+	kroni.kroni_hunger = 2
+	kroni.kroni_consume_done = true
+	kroni.lord_guards.clear()
+	kroni.castle_guards.clear()
+	kroni.garrison = [CardData.new("Wright", 1)]
+	var removed_before: int = game.removed_from_play.size()
+	var starve_result: Dictionary = ResolutionFinaleEngineData.resolve(game, rules)
+	var starve_events: Array = starve_result.get("fallback_events", [])
+	if (
+		kroni.kroni_hunger != 1
+		or kroni.garrison.size() != 1
+		or game.removed_from_play.size() != removed_before
+		or starve_events.size() != 1
+		or String(starve_events[0].get("reason", "")) != "starved"
+	):
+		return _fail(
+			"unit_lab_kroni_fallback_cost_only",
+			"Garrison was eaten or Hunger did not fall when Kroni lacked a deployed Guard."
 		)
 
 	return _pass("unit_lab_kroni_fallback_cost_only")

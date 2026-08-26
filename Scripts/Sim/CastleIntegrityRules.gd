@@ -95,6 +95,157 @@ static func power_active(player, castle_name: String, rules: RuleConfig) -> bool
 	return state_for(player, castle_name, rules) == STATE_OPERATIONAL
 
 
+static func keep_interposes(
+	player,
+	rules: RuleConfig
+) -> bool:
+	return (
+		player != null
+		and rules != null
+		and rules.keep_interposition
+		and standing(player, "Keep")
+	)
+
+
+static func keep_fortification(
+	player,
+	rules: RuleConfig
+) -> int:
+	if not keep_interposes(player, rules):
+		return 0
+
+	# The physical Keep remains while Defunct, but Fortification is an
+	# Operational benefit and disappears below the operational floor.
+	if not power_active(player, "Keep", rules):
+		return 0
+
+	var override: int = int(
+		player.keep_fortification_level
+	)
+
+	if override >= 0:
+		return maxi(0, override)
+
+	return maxi(
+		0,
+		int(rules.keep_fortification)
+	)
+
+
+static func repair_locked(
+	player,
+	castle_name: String,
+	rules: RuleConfig
+) -> bool:
+	return (
+		player != null
+		and rules != null
+		and rules.defunct_repair_lock
+		and bool(
+			player.castle_repair_locked_this_round.get(
+				castle_name,
+				false
+			)
+		)
+	)
+
+
+static func note_operational(
+	player,
+	castle_name: String,
+	rules: RuleConfig
+) -> void:
+	if (
+		player == null
+		or rules == null
+		or not rules.defunct_repair_lock
+		or not standing(player, castle_name)
+	):
+		return
+
+	var integrity: int = int(
+		player.castle_integrity.get(
+			castle_name,
+			max_integrity(castle_name)
+		)
+	)
+
+	if integrity >= maxi(
+		1,
+		int(rules.castle_operational_floor)
+	):
+		player.castle_operational_seen_this_round[
+			castle_name
+		] = true
+
+
+static func prepare_repair_locks_for_new_round(
+	player,
+	rules: RuleConfig
+) -> void:
+	if player == null:
+		return
+
+	var next_locked: Dictionary = {}
+
+	if (
+		rules != null
+		and rules.defunct_repair_lock
+	):
+		var floor: int = maxi(
+			1,
+			int(rules.castle_operational_floor)
+		)
+
+		for castle_name: String in CASTLES:
+			if not bool(
+				player.castle_operational_seen_this_round.get(
+					castle_name,
+					false
+				)
+			):
+				continue
+
+			if not standing(
+				player,
+				castle_name
+			):
+				continue
+
+			var integrity: int = int(
+				player.castle_integrity.get(
+					castle_name,
+					max_integrity(castle_name)
+				)
+			)
+
+			if (
+				integrity > 0
+				and integrity < floor
+			):
+				next_locked[
+					castle_name
+				] = true
+
+	player.castle_repair_locked_this_round = (
+		next_locked
+	)
+
+	# Start recording the new round from the current board state.
+	player.castle_operational_seen_this_round.clear()
+
+	if (
+		rules != null
+		and rules.defunct_repair_lock
+	):
+		for castle_name: String in CASTLES:
+			note_operational(
+				player,
+				castle_name,
+				rules
+			)
+
+
 static func can_exert(
 	player,
 	castle_name: String,

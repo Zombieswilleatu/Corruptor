@@ -60,11 +60,13 @@ class KroniRevisionTests(unittest.TestCase):
         sim.activate_ruleset("lab-v6.5")
         self.assertFalse(sim.ACTIVE_FEATURES["kro_fallback_feeds"])
         self.assertTrue(sim.ACTIVE_FEATURES["kro_milestone_once"])
+        self.assertTrue(sim.ACTIVE_FEATURES["kro_cannibal_h1"])
+        self.assertFalse(sim.ACTIVE_FEATURES["kro_gorge"])
         self.assertTrue(sim.VARIANT["odr_recoil_bank"])
         self.assertTrue(sim.VARIANT["fix_breach_discard_alias"])
         self.assertTrue(sim.VARIANT["reconfig_neutral"])
         self.assertEqual(sim.VARIANT["reconfig_tokens_needed"], 3)
-        self.assertEqual(sim.LAB_PROFILE_VERSION, "7.5.0-suit-identities")
+        self.assertEqual(sim.LAB_PROFILE_VERSION, "6.8.3-kroni-cannibal-no-gorge")
 
     def test_canonical_fallback_still_feeds(self):
         sim.activate_ruleset("de-v2")
@@ -78,18 +80,41 @@ class KroniRevisionTests(unittest.TestCase):
         self.assertIn(victim, game.discard)
         self.assertEqual(game.removed_from_play, [])
 
-    def test_lab_fallback_is_cost_only(self):
+    def test_lab_cannibal_hunger_is_compulsory_guards_only(self):
         sim.activate_ruleset("lab-v6.5")
         game, kroni = self._fresh_kroni()
+        kroni.kroni_consume_done = True
         victim = sim.Card("Penitent", 1)
         kroni.castle_guards = [victim]
 
         self.assertIs(game._try_kroni_fallback(kroni), victim)
         self.assertEqual(kroni.kroni_hunger, 2)
         self.assertEqual(kroni.tears, 0)
-        self.assertTrue(kroni.kroni_consume_done)
-        self.assertIn(victim, game.discard)
+        self.assertIn(victim, game.removed_from_play)
+
+        game, kroni = self._fresh_kroni()
+        kroni.kroni_consume_done = True
+        garrison_card = sim.Card("Wright", 1)
+        kroni.garrison = [garrison_card]
+
+        self.assertIsNone(game._try_kroni_fallback(kroni))
+        self.assertEqual(kroni.kroni_hunger, 1)
+        self.assertEqual(kroni.garrison, [garrison_card])
         self.assertEqual(game.removed_from_play, [])
+
+    def test_lab_gorge_is_removed_but_combat_consume_still_feeds(self):
+        sim.activate_ruleset("lab-v6.5")
+        game, kroni = self._fresh_kroni()
+        kroni.kroni_hunger = 0
+        kroni.souls = 0
+        kroni.kroni_consume_done = False
+        kroni.kroni_personally_defeated_guard = True
+        game.any_destruction_this_round = True
+
+        game._try_kroni_consume(kroni)
+        self.assertEqual(kroni.kroni_hunger, 1)
+        self.assertEqual(kroni.souls, 0)
+        self.assertTrue(kroni.kroni_consume_done)
 
     def test_canonical_resummon_rearms_the_milestone(self):
         sim.activate_ruleset("de-v2")

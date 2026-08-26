@@ -18,6 +18,10 @@ var kroni_hunger: int = 0
 var momentum_refund_due: int = 0
 var repair_token: int = 0
 
+# -1 = use RuleConfig.keep_fortification. Future meta/loadout progression may
+# set a concrete per-player value.
+var keep_fortification_level: int = -1
+
 var repaired_this_round: bool = false
 var repair_token_used_this_repair: bool = false
 var castle_action_used_this_round: bool = false
@@ -87,6 +91,15 @@ var penitent_temp_guards: Array = []
 # hints: they must survive simulation copies and appear in trace snapshots.
 var castle_repairs: Dictionary = {}
 var castle_integrity: Dictionary = {}
+
+# Defunct Repair lock bookkeeping.
+#
+# operational_seen_this_round records that a Castle was Operational at some
+# point during the current round. At the next round boundary, if it is now
+# Defunct, it receives exactly one round of Repair lock.
+var castle_operational_seen_this_round: Dictionary = {}
+var castle_repair_locked_this_round: Dictionary = {}
+
 var castle_construction_progress: Dictionary = {}
 var castle_scars: Dictionary = {}
 var lost_castles: Array[String] = []
@@ -242,6 +255,7 @@ func duplicate_state() -> PlayerState:
 	copy.kroni_hunger = kroni_hunger
 	copy.momentum_refund_due = momentum_refund_due
 	copy.repair_token = repair_token
+	copy.keep_fortification_level = keep_fortification_level
 
 	copy.repaired_this_round = repaired_this_round
 	copy.repair_token_used_this_repair = repair_token_used_this_repair
@@ -311,6 +325,8 @@ func duplicate_state() -> PlayerState:
 
 	copy.castle_repairs = castle_repairs.duplicate(true)
 	copy.castle_integrity = castle_integrity.duplicate(true)
+	copy.castle_operational_seen_this_round = castle_operational_seen_this_round.duplicate(true)
+	copy.castle_repair_locked_this_round = castle_repair_locked_this_round.duplicate(true)
 	copy.castle_construction_progress = castle_construction_progress.duplicate(true)
 	copy.castle_scars = castle_scars.duplicate(true)
 	# Preserve typed-array metadata while copying the v6.5 board state. Assigning
