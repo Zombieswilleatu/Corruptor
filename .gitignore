@@ -8,3 +8,15 @@ __pycache__/
 # Local Corruptor patch backups / audit artifacts
 .corruptor_backups/
 CASTLE_RULES_LOCK_AUDIT_*.txt
+
+# Local development artifacts
+Backups/
+Experiments/
+
+# Patch / temporary source backups
+*_bak
+*.bak
+
+# Office / LibreOffice lock files
+.~lock.*#
+~$*
