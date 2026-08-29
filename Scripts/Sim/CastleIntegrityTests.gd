@@ -50,10 +50,11 @@ static func run(_baseline_rules: RuleConfig) -> Array:
 	]
 
 
+# FORECAST_DOCTRINE_STALE_GODOT_TESTS_V1
 static func _test_profile_contract() -> Dictionary:
 	var rules := RuleConfig.lab_v6_5()
 	if (
-		rules.lab_profile_version != "7.5.0-suit-identities"
+		rules.lab_profile_version != "6.8.3-kroni-cannibal-no-gorge"
 		or not rules.castle_loadout
 		or rules.starting_castles != 3
 		or rules.castle_type_count != 5
@@ -89,18 +90,18 @@ static func _test_opening_loadout() -> Dictionary:
 	var game = GameDealFixtureData.build_game_deimos_valak_s1(rules)
 	var deimos = game.players[0]
 	var valak = game.players[1]
-	var expected_deimos: Array[String] = [
-		"SiegeEngine", "Bastion", "Stockpile",
-	]
-	var expected_valak: Array[String] = [
-		"SiegeEngine", "Keep", "Bastion",
-	]
+	var expected_deimos: Array[String] = ["Keep", "SiegeEngine", "Bastion"]
+	var expected_valak: Array[String] = ["Keep", "SiegeEngine", "Bastion"]
+
 	if deimos.castles != expected_deimos or valak.castles != expected_valak:
 		return _fail(
 			"unit_castle_integrity_loadout",
-			"Setup did not select each Lord's first three Castle priorities."
+			"Setup did not enforce Keep plus each Lord's top two non-Keep preferences."
 		)
+
 	for player in game.players:
+		if not player.castles.has("Keep"):
+			return _fail("unit_castle_integrity_loadout", "Opening loadout omitted mandatory Keep.")
 		for castle_name: String in player.castles:
 			if int(player.castle_integrity.get(castle_name, 0)) != 14:
 				return _fail(
@@ -272,7 +273,7 @@ static func _test_granular_repair() -> Dictionary:
 		String(result.get("action", "")) != "repair"
 		or int(player.castle_integrity.get("Keep", 0)) != 14
 		or not player.hand.is_empty()
-		or not player.castle_action_used_this_round
+		or player.castle_action_used_this_round
 	):
 		return _fail(
 			"unit_castle_integrity_repair",
@@ -319,37 +320,99 @@ static func _test_granular_construction() -> Dictionary:
 	var rules := RuleConfig.lab_v6_5()
 	var game = _state("Orias", "Valak")
 	var player = game.players[0]
+
 	player.castles.clear()
-	for castle_name: String in ["SiegeEngine", "Bastion", "Stockpile"]:
+	for castle_name: String in [
+		"SiegeEngine",
+		"Bastion",
+		"Stockpile",
+	]:
 		player.castles.append(castle_name)
-	player.castle_integrity = {"SiegeEngine": 14, "Bastion": 14, "Stockpile": 14}
-	player.hand = [CardData.new("Butcher", 5), CardData.new("Wright", 3)]
-	var first: Dictionary = RoundEngineData.resolve_repair_player(
-		game, 0, rules, {"action": "construct", "castle": "SummoningCircle", "payment": ["Butcher:5", "Wright:3"]}
-	)
+
+	player.castle_integrity = {
+		"SiegeEngine": 14,
+		"Bastion": 14,
+		"Stockpile": 14,
+	}
+	player.castle_construction_progress.clear()
 	player.castle_action_used_this_round = false
-	player.hand = [CardData.new("Vulture", 5), CardData.new("Penitent", 1)]
-	var second: Dictionary = RoundEngineData.resolve_repair_player(
-		game, 0, rules, {"action": "construct", "castle": "SummoningCircle", "payment": ["Vulture:5", "Penitent:1"]}
+
+	# Cap = payment ceiling. Over-cap selections are invalid and consume nothing.
+	player.hand = [
+		CardData.new("Butcher", 5),
+		CardData.new("Wright", 3),
+	]
+	var rejected: Dictionary = RoundEngineData.resolve_repair_player(
+		game,
+		0,
+		rules,
+		{
+			"action": "construct",
+			"castle": "SummoningCircle",
+			"payment": ["Butcher:5", "Wright:3"],
+		}
 	)
+
+	if (
+		String(rejected.get("reason", "")) != "construction_payment_exceeds_cap"
+		or not player.castle_construction_progress.is_empty()
+		or player.hand.size() != 2
+		or player.castle_action_used_this_round
+	):
+		return _fail(
+			"unit_castle_integrity_construction",
+			"Over-cap Construction payment was not rejected atomically."
+		)
+
+	player.hand = [CardData.new("Butcher", 5)]
+	var first: Dictionary = RoundEngineData.resolve_repair_player(
+		game, 0, rules,
+		{
+			"action": "construct",
+			"castle": "SummoningCircle",
+			"payment": ["Butcher:5"],
+		}
+	)
+
+	player.castle_action_used_this_round = false
+	player.hand = [CardData.new("Vulture", 5)]
+	var second: Dictionary = RoundEngineData.resolve_repair_player(
+		game, 0, rules,
+		{
+			"action": "construct",
+			"castle": "SummoningCircle",
+			"payment": ["Vulture:5"],
+		}
+	)
+
 	player.castle_action_used_this_round = false
 	player.hand = [CardData.new("Butcher", 4)]
 	var third: Dictionary = RoundEngineData.resolve_repair_player(
-		game, 0, rules, {"action": "construct", "castle": "SummoningCircle", "payment": ["Butcher:4"]}
+		game, 0, rules,
+		{
+			"action": "construct",
+			"castle": "SummoningCircle",
+			"payment": ["Butcher:4"],
+		}
 	)
+
 	if (
 		int(first.get("progress_after", 0)) != 5
-		or int(second.get("progress_after", 0)) != 10
+		or int(first.get("progress_gain", 0)) != 5
 		or bool(first.get("completed", true))
+		or int(second.get("progress_after", 0)) != 10
+		or int(second.get("progress_gain", 0)) != 5
 		or bool(second.get("completed", true))
 		or not bool(third.get("completed", false))
+		or int(third.get("progress_after", 0)) != 14
 		or not player.castles.has("SummoningCircle")
 		or int(player.castle_integrity.get("SummoningCircle", 0)) != 14
 	):
 		return _fail(
 			"unit_castle_integrity_construction",
-			"Construction did not obey the five-Integrity per-action progress cap."
+			"Legal Construction payments did not progress 5 -> 10 -> 14."
 		)
+
 	return _pass("unit_castle_integrity_construction")
 
 

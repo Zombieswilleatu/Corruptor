@@ -55,7 +55,11 @@ class FractureSystemTests(unittest.TestCase):
         self.assertEqual(lord_card.value, 3)
         self.assertEqual(castle_card.value, 1)
         self.assertEqual(hand_card.value, 5)
+        self.assertTrue(lord_card.guard_revealed)
+        self.assertTrue(castle_card.guard_revealed)
         self.assertEqual(len(event["events"]), 2)
+        self.assertTrue(event["events"][0]["newly_revealed"])
+        self.assertTrue(event["events"][1]["newly_revealed"])
 
     def test_garrison_is_a_subject_target(self):
         game, attacker, target = self._game("Valak")

@@ -19,7 +19,7 @@ const PythonRandomData = preload(
 )
 
 
-const MODEL_VERSION: String = "action-forecast-v1.1-monotonic-fastpath"
+const MODEL_VERSION: String = "action-forecast-v1.1-monotonic-fastpath-doctrine-fast"
 const MAX_OWN_HAND: int = 12
 
 const VALUE_COUNTS: Dictionary = {
@@ -41,14 +41,16 @@ const SUITS: Array[String] = [
 static func forecast_all(
 	game,
 	rules: RuleConfig,
-	attacker_id: int
+	attacker_id: int,
+	doctrine_fast: bool = false
 ) -> Dictionary:
 	var result: Dictionary = {
 		"model_version": MODEL_VERSION,
 		"hunt": forecast_hunt(
 			game,
 			rules,
-			attacker_id
+			attacker_id,
+			doctrine_fast
 		),
 		"siege_targets": {},
 	}
@@ -77,7 +79,8 @@ static func forecast_all(
 			game,
 			rules,
 			attacker_id,
-			castle_name
+			castle_name,
+			doctrine_fast
 		)
 
 	result["siege_targets"] = siege_targets
@@ -88,7 +91,8 @@ static func forecast_all(
 static func forecast_hunt(
 	game,
 	rules: RuleConfig,
-	attacker_id: int
+	attacker_id: int,
+	doctrine_fast: bool = false
 ) -> Dictionary:
 	var availability: Dictionary = _availability(
 		game,
@@ -119,7 +123,8 @@ static func forecast_hunt(
 		rules,
 		attacker_id,
 		"Hunt",
-		""
+		"",
+		doctrine_fast
 	)
 
 	return {
@@ -172,7 +177,8 @@ static func forecast_siege(
 	game,
 	rules: RuleConfig,
 	attacker_id: int,
-	target_castle: String
+	target_castle: String,
+	doctrine_fast: bool = false
 ) -> Dictionary:
 	var availability: Dictionary = _availability(
 		game,
@@ -209,7 +215,8 @@ static func forecast_siege(
 		rules,
 		attacker_id,
 		"Siege",
-		target_castle
+		target_castle,
+		doctrine_fast
 	)
 
 	return {
@@ -358,7 +365,8 @@ static func _forecast_action(
 	rules: RuleConfig,
 	attacker_id: int,
 	action_name: String,
-	target_castle: String
+	target_castle: String,
+	doctrine_fast: bool = false
 ) -> Dictionary:
 	var attacker = game.get_player(
 		attacker_id
@@ -429,7 +437,9 @@ static func _forecast_action(
 		and String(defender.lord) == "Odradek"
 	)
 
-	if odradek_non_monotonic:
+	# UI/default Forecast remains exact against Odradek. Bot doctrine
+	# takes the whole-Hand fast path to keep AI turns bounded.
+	if odradek_non_monotonic and not doctrine_fast:
 		for candidate_mask: int in range(1, mask_limit):
 			candidate_masks.append(candidate_mask)
 	else:

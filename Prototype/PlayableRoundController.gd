@@ -1735,13 +1735,95 @@ func resolve_human_gremory(
 	payment_ids: Array[String]
 ) -> Dictionary:
 	if stage != Stage.RESOLUTION_GREMORY:
-		return _rejected("cleanup", "not_awaiting_gremory")
+		return _rejected(
+			"cleanup",
+			"not_awaiting_gremory"
+		)
 
-	var human_choice: Dictionary = {"pass": true}
+	var human_choice: Dictionary = {
+		"pass": true,
+	}
+
 	if not payment_ids.is_empty():
-		human_choice = {"payment": payment_ids.duplicate()}
+		var human = get_human_player()
 
-	return _resolve_human_cleanup(human_choice)
+		if human == null:
+			return _invalid(
+				"cleanup",
+				"human_player_missing"
+			)
+
+		var payment_entries: Array = (
+			_gremory_payment_entries_from_ids(
+				human,
+				payment_ids
+			)
+		)
+
+		if payment_entries.size() != payment_ids.size():
+			return _rejected(
+				"cleanup",
+				"gremory_payment_card_missing"
+			)
+
+		human_choice = {
+			"payment": payment_entries,
+		}
+
+	return _resolve_human_cleanup(
+		human_choice
+	)
+
+
+func _gremory_payment_entries_from_ids(
+	player,
+	payment_ids: Array[String]
+) -> Array:
+	var result: Array = []
+	var used_instance_ids: Dictionary = {}
+
+	for card_identifier: String in payment_ids:
+		var found = null
+		var found_source: String = ""
+
+		for card in player.hand:
+			var instance_id: int = int(
+				card.get_instance_id()
+			)
+
+			if used_instance_ids.has(instance_id):
+				continue
+
+			if String(card.card_id()) == card_identifier:
+				found = card
+				found_source = "Hand"
+				used_instance_ids[instance_id] = true
+				break
+
+		if found == null:
+			for card in player.garrison:
+				var instance_id: int = int(
+					card.get_instance_id()
+				)
+
+				if used_instance_ids.has(instance_id):
+					continue
+
+				if String(card.card_id()) == card_identifier:
+					found = card
+					found_source = "Garrison"
+					used_instance_ids[instance_id] = true
+					break
+
+		if found == null:
+			return []
+
+		result.append({
+			"source": found_source,
+			"card": card_identifier,
+		})
+
+	return result
 
 
 func _advance_human_resolution() -> Dictionary:
@@ -1903,16 +1985,70 @@ func _record_reflex_guard_reveal(
 func _human_gremory_choice_available(
 	human
 ) -> bool:
-	if human == null or human.lord != "Gremory" or not human.alive or human.gremory_inevitable_ruin_done:
+	# GREMORY_REBALANCE_OWN_RUIN_INEVITABLE_DEFUNCT_V1: human gate
+	if (
+		human == null
+		or human.lord != "Gremory"
+		or not human.alive
+		or human.gremory_inevitable_ruin_done
+	):
 		return false
-	var opponent = game.get_opponent(HUMAN_PLAYER_ID)
-	return (
-		opponent != null
-		and opponent.was_sieged
-		and not String(opponent.last_sieged_castle).is_empty()
-		and opponent.castles.has(String(opponent.last_sieged_castle))
-		and human.hand.size() + human.garrison.size() >= 4
+
+	var opponent = game.get_opponent(
+		HUMAN_PLAYER_ID
 	)
+
+	if opponent == null:
+		return false
+
+	var target_castle: String = String(
+		opponent.last_sieged_castle
+	)
+
+	if (
+		not opponent.was_sieged
+		or target_castle.is_empty()
+		or not opponent.castles.has(target_castle)
+		or (
+			CastleIntegrityRulesData.state_for(
+				opponent,
+				target_castle,
+				rules
+			)
+			!= CastleIntegrityRulesData.STATE_OPERATIONAL
+		)
+	):
+		return false
+
+	var available: Array = (
+		human.hand
+		+ human.garrison
+	)
+
+	if available.size() < 3:
+		return false
+
+	# Human has no artificial 2-card reserve; that is bot doctrine only.
+	for first: int in range(
+		available.size() - 2
+	):
+		for second: int in range(
+			first + 1,
+			available.size() - 1
+		):
+			for third: int in range(
+				second + 1,
+				available.size()
+			):
+				if (
+					int(available[first].value)
+					+ int(available[second].value)
+					+ int(available[third].value)
+					>= 5
+				):
+					return true
+
+	return false
 
 
 func _finish_human_resolution() -> Dictionary:

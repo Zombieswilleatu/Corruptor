@@ -123,10 +123,10 @@ const LORD_CARD_ABILITIES: Dictionary = {
 		"[b]Breach[/b] — Every Repair restores +1 additional Integrity.",
 	],
 	"Gremory": [
-		"[b]Picking the Bones[/b] — During Development draw 1 extra card, +1 if either player has a Ruin, and +1 more if Gremory has a Ruin.",
+		"[b]Picking the Bones[/b] — At the start of Development, if Gremory controls at least one Ruined Castle, draw 1 extra card. Profaned Castles do not count.",
 		"[b]Ruinous Harvest[/b] — On the first Tear placed each round, search from the top of the discard for a value-4/5 card and take it. The attempt is spent even if no eligible card exists.",
 		"[b]Predator of Ruin[/b] — The first Castle destroyed each round recovers the top discard. Independently, the first Lord Guard Defeated by any effect lets Gremory draw 1 outside the Draw step, then discard the lowest Hand card.",
-		"[b]Inevitable Ruin / Breach[/b] — Once per round, after a Siege leaves its target standing, pay exactly 2 Hand/Garrison cards to ruin it. During Gremory Breach, players with a Ruin draw 1 extra.",
+		"[b]Inevitable Ruin / Breach[/b] — At End of Round, after your Siege leaves an Operational Castle standing, discard exactly 3 Hand/Garrison cards totaling face value 5+ to set it to Defunct (6 Integrity). It remains repairable and is not Ruined. During Gremory Breach, players with a Ruin draw 1 extra.",
 	],
 	"Odradek": [
 		"[b]Psychic Recoil / Interlock[/b] — Once each round when living Odradek is Hunted or Sieged by an attack with at least 2 currently committed cards, take the attacker's second-highest committed card and bank it face-up, gaining 1 Soul. A new card replaces the bank only if strictly larger; otherwise Recoil locks. Odradek automatically spends the bank on his next Hunt or Siege.",
@@ -2465,7 +2465,7 @@ func _after_resolution_progress(
 	elif controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_GREMORY:
 		_build_hand_buttons(true)
 		_refresh_target_options()
-		_set_phase_message("Pay exactly two Hand/Garrison cards to ruin the surviving sieged Castle, or pass.")
+		_set_phase_message("Discard exactly three Hand/Garrison cards totaling face value 5+ to set the surviving Operational sieged Castle to Defunct (6 Integrity), or pass.")
 	_refresh_all()
 
 
@@ -2769,8 +2769,8 @@ func _refresh_all() -> void:
 			next_round_button.visible = false
 
 		PlayableRoundControllerData.Stage.RESOLUTION_GREMORY:
-			phase_label.text = "Cleanup — Inevitable Ruin"
-			confirm_button.text = "Ruin Sieged Castle"
+			phase_label.text = "End of Round — Inevitable Ruin"
+			confirm_button.text = "Corrupt Sieged Castle"
 			confirm_button.visible = true
 			development_finish_button.text = "Pass Inevitable Ruin"
 			development_finish_button.visible = true
@@ -9352,7 +9352,7 @@ func _log_cleanup_lord_powers(
 			continue
 
 		_log(
-			"[color=#d8b4fe][b]Gremory — Inevitable Ruin:[/b] %s paid %s to ruin %s after it survived a Siege%s.[/color]"
+			"[color=#d8b4fe][b]Gremory — Inevitable Ruin:[/b] %s paid %s to leave %s Defunct after it survived a Siege%s.[/color]"
 			% [
 				_player_name(
 					int(

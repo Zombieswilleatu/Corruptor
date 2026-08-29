@@ -6,6 +6,10 @@ const LordMathData = preload(
 	"res://Scripts/Sim/LordMath.gd"
 )
 
+const CastleIntegrityRulesData = preload(
+	"res://Scripts/Sim/CastleIntegrityRules.gd"
+)
+
 
 static func resolve(
 	game,
@@ -177,6 +181,7 @@ static func _resolve_inevitable_ruin(
 	rules: RuleConfig,
 	decision: Dictionary
 ) -> Dictionary:
+	# GREMORY_REBALANCE_OWN_RUIN_INEVITABLE_DEFUNCT_V1: Inevitable
 	var player_id: int = int(
 		player.pid
 	)
@@ -228,6 +233,20 @@ static func _resolve_inevitable_ruin(
 			target_castle
 		)
 
+	if (
+		CastleIntegrityRulesData.state_for(
+			opponent,
+			target_castle,
+			rules
+		)
+		!= CastleIntegrityRulesData.STATE_OPERATIONAL
+	):
+		return _invalid_gremory_result(
+			player_id,
+			"sieged_castle_not_operational",
+			target_castle
+		)
+
 	var raw_payment = decision.get(
 		"payment",
 		[]
@@ -244,10 +263,10 @@ static func _resolve_inevitable_ruin(
 
 	var payment_entries: Array = raw_payment
 
-	if payment_entries.size() != 2:
+	if payment_entries.size() != 3:
 		return _invalid_gremory_result(
 			player_id,
-			"payment_requires_exactly_two_cards",
+			"payment_requires_exactly_three_cards",
 			target_castle
 		)
 
@@ -277,6 +296,25 @@ static func _resolve_inevitable_ruin(
 		"entries",
 		[]
 	)
+
+	var payment_value: int = 0
+
+	for selected_entry in selected_entries:
+		var entry: Dictionary = selected_entry
+		var card = entry.get(
+			"card"
+		)
+
+		payment_value += int(
+			card.value
+		)
+
+	if payment_value < 5:
+		return _invalid_gremory_result(
+			player_id,
+			"payment_value_below_five",
+			target_castle
+		)
 
 	var paid_cards: Array = []
 
@@ -326,78 +364,28 @@ static func _resolve_inevitable_ruin(
 
 	player.gremory_inevitable_ruin_done = true
 
-	opponent.castles.erase(
-		target_castle
+	var integrity_before: int = int(
+		opponent.castle_integrity.get(
+			target_castle,
+			CastleIntegrityRulesData.max_integrity(
+				target_castle
+			)
+		)
 	)
 
-	if rules.castle_integrity:
-		opponent.castle_integrity[target_castle] = 0
-		opponent.castle_construction_progress.erase(target_castle)
-
-	if not opponent.ruined_castles.has(
-		target_castle
-	):
-		opponent.ruined_castles.append(
-			target_castle
-		)
-
-	game.set_meta(
-		"any_destruction_round",
+	var defunct_integrity: int = maxi(
+		1,
 		int(
-			game.round
-		)
+			rules.castle_operational_floor
+		) - 1
 	)
 
-	var neutral_tear_gain: int = 0
-	var harvested_card: String = ""
-	var harvested_by: int = -1
+	opponent.castle_integrity[
+		target_castle
+	] = defunct_integrity
 
-	if _castle_tear_available(
-		game,
-		rules
-	):
-		var tear_event: Dictionary = (
-			_gain_neutral_tear(
-				game
-			)
-		)
-
-		neutral_tear_gain = 1
-
-		harvested_card = String(
-			tear_event.get(
-				"harvested_card",
-				""
-			)
-		)
-
-		harvested_by = int(
-			tear_event.get(
-				"harvested_by",
-				-1
-			)
-		)
-
-		_mark_castle_tear_used(
-			game
-		)
-
-	var recovered_card = null
-
-	if not player.gremory_ruin_done:
-		if not game.discard.is_empty():
-			recovered_card = game.discard.pop_back()
-
-			player.hand.append(
-				recovered_card
-			)
-
-		player.gremory_ruin_done = true
-
-	var won: bool = _check_win(
-		game,
-		rules
-	)
+	# This is deliberately not destruction.
+	game.refresh_derived_values()
 
 	return {
 		"player_id": player_id,
@@ -410,17 +398,14 @@ static func _resolve_inevitable_ruin(
 		"paid_cards": _card_ids(
 			paid_cards
 		),
-		"neutral_tear_gain": neutral_tear_gain,
-		"harvested_card": harvested_card,
-		"harvested_by": harvested_by,
-		"recovered_card": (
-			""
-			if recovered_card == null
-			else _card_id(
-				recovered_card
-			)
-		),
-		"won": won,
+		"payment_value": payment_value,
+		"integrity_before": integrity_before,
+		"integrity_after": defunct_integrity,
+		"neutral_tear_gain": 0,
+		"harvested_card": "",
+		"harvested_by": -1,
+		"recovered_card": "",
+		"won": false,
 	}
 
 

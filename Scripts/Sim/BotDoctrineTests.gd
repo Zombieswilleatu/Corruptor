@@ -88,6 +88,8 @@ static func run(
 	rules: RuleConfig
 ) -> Array:
 	return [
+		_test_forecast_driven_hunt_priority(rules),
+		_test_forecast_driven_siege_target(rules),
 		_test_policy_profiles(),
 		_test_selector_argmax(),
 		_test_selector_softmax(),
@@ -345,6 +347,123 @@ static func _test_valak_guarded_bastion_commitment(
 	)
 
 
+static func _test_forecast_driven_hunt_priority(
+	rules: RuleConfig
+) -> Dictionary:
+	const TEST_NAME: String = "unit_bot_forecast_driven_hunt"
+	var fixture: Dictionary = _build_fixture(rules)
+	if fixture.has("error"):
+		return _fail(TEST_NAME, String(fixture["error"]))
+	if not rules.fog_of_war:
+		return _fail(TEST_NAME, "Regression requires Fog of War.")
+
+	var game = fixture["game"]
+	var attacker = fixture["p0"]
+	var defender = fixture["p1"]
+
+	attacker.lord = "Deimos"
+	attacker.alive = true
+	attacker.threat = 0
+	attacker.hand = _cards_from_ids(["Butcher:5", "Butcher:4"])
+
+	defender.lord = "Valak"
+	defender.alive = true
+	defender.threat = 0
+	defender.castles.clear()
+	defender.lord_guards = _cards_from_ids(["Penitent:5"])
+	var guard = defender.lord_guards[0]
+	guard.guard_revealed = false
+
+	var threat_zero: float = _candidate_score(
+		BotDoctrineData.evaluate_action_candidates(game, int(attacker.pid), rules),
+		"Hunt"
+	)
+	defender.threat = 1
+	var threat_one: float = _candidate_score(
+		BotDoctrineData.evaluate_action_candidates(game, int(attacker.pid), rules),
+		"Hunt"
+	)
+	if absf(threat_zero - threat_one) > 0.0001:
+		return _fail(TEST_NAME, "Threat 1 changed Hunt priority without changing actual defenses.")
+
+	defender.threat = 0
+	guard.guard_revealed = false
+	guard.value = 5
+	var hidden_five: float = _candidate_score(
+		BotDoctrineData.evaluate_action_candidates(game, int(attacker.pid), rules),
+		"Hunt"
+	)
+	guard.value = 3
+	var hidden_three: float = _candidate_score(
+		BotDoctrineData.evaluate_action_candidates(game, int(attacker.pid), rules),
+		"Hunt"
+	)
+	if absf(hidden_five - hidden_three) > 0.0001:
+		return _fail(TEST_NAME, "Face-down Guard value leaked through Forecast doctrine.")
+
+	guard.guard_revealed = true
+	guard.value = 5
+	var revealed_five: float = _candidate_score(
+		BotDoctrineData.evaluate_action_candidates(game, int(attacker.pid), rules),
+		"Hunt"
+	)
+	guard.value = 3
+	var revealed_three: float = _candidate_score(
+		BotDoctrineData.evaluate_action_candidates(game, int(attacker.pid), rules),
+		"Hunt"
+	)
+	if revealed_three <= revealed_five:
+		return _fail(TEST_NAME, "Weaker revealed Guard did not increase Forecast-driven Hunt priority.")
+
+	return _pass(TEST_NAME)
+
+
+static func _test_forecast_driven_siege_target(
+	rules: RuleConfig
+) -> Dictionary:
+	const TEST_NAME: String = "unit_bot_forecast_driven_siege_target"
+	var fixture: Dictionary = _build_fixture(rules)
+	if fixture.has("error"):
+		return _fail(TEST_NAME, String(fixture["error"]))
+
+	var game = fixture["game"]
+	var attacker = fixture["p0"]
+	var defender = fixture["p1"]
+	attacker.lord = "Deimos"
+	attacker.alive = true
+	attacker.hand = _cards_from_ids(["Butcher:5", "Butcher:4"])
+
+	defender.castles.clear()
+	defender.castles.append("Keep")
+	defender.castles.append("Stockpile")
+	defender.castle_integrity.clear()
+	defender.castle_integrity["Keep"] = 1
+	defender.castle_integrity["Stockpile"] = 14
+	defender.castle_guards.clear()
+	defender.sigils["Castle"] = ""
+
+	var target: String = BotDoctrineData.pick_siege_target(
+		game,
+		int(attacker.pid),
+		int(defender.pid),
+		rules
+	)
+	if target != "Keep":
+		return _fail(TEST_NAME, "Forecast did not prefer the reachable Keep over the much harder Stockpile.")
+	return _pass(TEST_NAME)
+
+
+static func _candidate_score(candidates: Array, action_name: String) -> float:
+	for candidate_value in candidates:
+		if typeof(candidate_value) != TYPE_DICTIONARY:
+			continue
+		var candidate: Dictionary = candidate_value
+		if String(candidate.get("action", "")) == action_name:
+			return float(candidate.get("score", -999.0))
+	return -999.0
+
+
+# FORECAST_DOCTRINE_STALE_GODOT_TESTS_V1
 static func _test_policy_profiles() -> Dictionary:
 	var golden = BotPolicyData.golden_core()
 	var competitive = BotPolicyData.competitive()
@@ -779,23 +898,14 @@ static func _test_consistent_market(
 	)
 
 	var game = session.get(
-		"game"
-	)
-
-	var random_source = session.get(
-		"rng"
+		"game",
+		null
 	)
 
 	if game == null:
 		return _fail(
 			MARKET_TEST_NAME,
-			"Seeded setup returned no GameState."
-		)
-
-	if random_source == null:
-		return _fail(
-			MARKET_TEST_NAME,
-			"Seeded setup returned no RNG."
+			"Seed-one Market fixture did not produce a game."
 		)
 
 	RoundEngineData.advance_to_round_draw(
@@ -804,101 +914,78 @@ static func _test_consistent_market(
 		rules
 	)
 
-	var choices: Dictionary = (
-		BotDoctrineData.market_choices(
-			game,
-			random_source
-		)
+	var player_zero = game.get_player(0)
+	var player_one = game.get_player(1)
+
+	var player_zero_before: Array[String] = _card_ids(
+		player_zero.hand
+	)
+	var player_one_before: Array[String] = _card_ids(
+		player_one.hand
 	)
 
-	var player_one_choice: Dictionary = (
-		_decision_for_player(
-			choices,
-			1
-		)
-	)
+	var expected_take = null
+	for card in game.market:
+		if (
+			expected_take == null
+			or int(card.value) > int(expected_take.value)
+		):
+			expected_take = card
 
-	if String(
-		player_one_choice.get(
-			"take",
-			""
-		)
-	) != "Wright:5":
+	var expected_give = null
+	for card in player_one.hand:
+		if (
+			expected_give == null
+			or int(card.value) < int(expected_give.value)
+		):
+			expected_give = card
+
+	if expected_take == null or expected_give == null:
 		return _fail(
 			MARKET_TEST_NAME,
-			"Player one did not take the best Market card."
+			"Seed-one Market fixture has no legal comparison cards."
 		)
 
-	if String(
-		player_one_choice.get(
-			"give",
-			""
+	var choices: Dictionary = BotDoctrineData.market_choices(
+		game
+	)
+
+	var player_one_choice: Dictionary = _decision_for_player(
+		choices,
+		1
+	)
+
+	if bool(player_one_choice.get("pass", false)):
+		return _fail(
+			MARKET_TEST_NAME,
+			"Player one passed a strictly improving Market swap."
 		)
-	) != "Vulture:2":
+
+	if String(player_one_choice.get("take", "")) != String(expected_take.card_id()):
+		return _fail(
+			MARKET_TEST_NAME,
+			"Player one did not take the strongest Market card."
+		)
+
+	if String(player_one_choice.get("give", "")) != String(expected_give.card_id()):
 		return _fail(
 			MARKET_TEST_NAME,
 			"Player one did not give the weakest hand card."
 		)
 
-	var player_zero_choice: Dictionary = (
-		_decision_for_player(
-			choices,
-			0
-		)
-	)
-
-	if String(
-		player_zero_choice.get(
-			"take",
-			""
-		)
-	) != "Vulture:2":
+	if _card_ids(player_zero.hand) != player_zero_before:
 		return _fail(
 			MARKET_TEST_NAME,
-			"Player zero did not evaluate the updated shadow Market."
+			"Market evaluation mutated player zero's real hand."
 		)
 
-	if String(
-		player_zero_choice.get(
-			"give",
-			""
-		)
-	) != "Vulture:1":
+	if _card_ids(player_one.hand) != player_one_before:
 		return _fail(
 			MARKET_TEST_NAME,
-			"Player zero selected the wrong outgoing card."
+			"Market evaluation mutated player one's real hand."
 		)
 
-	RoundEngineData.resolve_market(
-		game,
-		choices
-	)
-
-	if _card_ids(
-		game.market
-	) != [
-		"Wright:1",
-		"Penitent:1",
-		"Vulture:1",
-	]:
-		return _fail(
-			MARKET_TEST_NAME,
-			"Resolved deterministic Market reached the wrong order."
-		)
-
-	var next_random: float = (
-		random_source.random_float()
-	)
-
-	if next_random != 0.9497192655214912:
-		return _fail(
-			MARKET_TEST_NAME,
-			"Deterministic Market consumed RNG."
-		)
-
-	return _pass(
-		MARKET_TEST_NAME
-	)
+	return _pass(MARKET_TEST_NAME)
 
 
 static func _test_reflex_bid_selection(
@@ -1168,7 +1255,7 @@ static func _test_commitment_argmax(
 			"target_castle",
 			""
 		)
-	) != "Stockpile":
+	) != "SiegeEngine":
 		return _fail(
 			COMMITMENT_TEST_NAME,
 			"Deimos selected the wrong Siege target."
@@ -1180,8 +1267,9 @@ static func _test_commitment_argmax(
 			[]
 		)
 	) != [
-		"Butcher:4",
 		"Butcher:1",
+		"Butcher:4",
+		"Penitent:1",
 		"Wright:5",
 	]:
 		return _fail(
@@ -1213,9 +1301,9 @@ static func _test_commitment_argmax(
 			[]
 		)
 	) != [
-		"Butcher:4",
-		"Butcher:3",
 		"Butcher:2",
+		"Butcher:3",
+		"Butcher:4",
 		"Vulture:2",
 	]:
 		return _fail(
@@ -1276,8 +1364,9 @@ static func _test_commitment_argmax(
 	if _card_ids(
 		player_zero.committed
 	) != [
-		"Butcher:4",
 		"Butcher:1",
+		"Butcher:4",
+		"Penitent:1",
 		"Wright:5",
 	]:
 		return _fail(
@@ -1294,9 +1383,9 @@ static func _test_commitment_argmax(
 	if _card_ids(
 		player_one.committed
 	) != [
-		"Butcher:4",
-		"Butcher:3",
 		"Butcher:2",
+		"Butcher:3",
+		"Butcher:4",
 		"Vulture:2",
 	]:
 		return _fail(

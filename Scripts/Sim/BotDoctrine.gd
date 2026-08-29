@@ -15,6 +15,10 @@ const CastleIntegrityRulesData = preload(
 	"res://Scripts/Sim/CastleIntegrityRules.gd"
 )
 
+const ActionForecastData = preload(
+	"res://Scripts/Sim/ActionForecast.gd"
+)
+
 const LordMathData = preload(
 	"res://Scripts/Sim/LordMath.gd"
 )
@@ -308,59 +312,32 @@ static func pick_siege_target(
 	defender_id: int,
 	rules: RuleConfig = null
 ) -> String:
-	assert(
-		game != null,
-		"Bot Siege targeting requires a GameState."
-	)
-
-	var attacker = game.get_player(
-		attacker_id
-	)
-
-	var defender = game.get_player(
-		defender_id
-	)
-
-	assert(
-		attacker != null,
-		"Bot Siege attacker does not exist."
-	)
-
-	assert(
-		defender != null,
-		"Bot Siege defender does not exist."
-	)
+	assert(game != null, "Bot Siege targeting requires a GameState.")
+	var defender = game.get_player(defender_id)
+	assert(defender != null, "Bot Siege defender does not exist.")
 
 	if defender.castles.is_empty():
 		return ""
 
-	if (
-		defender.lord == "Deimos"
-		and defender.alive
-		and defender.castles.has(
-			"SiegeEngine"
-		)
-	):
-		return "SiegeEngine"
+	if rules != null:
+		var actual_opponent = game.get_opponent(attacker_id)
+		if actual_opponent != null and int(actual_opponent.pid) == defender_id:
+			var forecast: Dictionary = ActionForecastData.forecast_all(
+				game,
+				rules,
+				attacker_id,
+				true
+			)
+			var choice: Dictionary = _best_siege_target_from_forecast(
+				defender,
+				forecast,
+				rules
+			)
+			var chosen: String = String(choice.get("target_castle", ""))
+			if not chosen.is_empty():
+				return chosen
 
-	for castle_name: String in SIEGE_TARGET_ORDER:
-		if not defender.castles.has(castle_name):
-			continue
-		# Bastion remains a legal direct target, but while another Castle
-		# stands behind the wall a rear target preserves possible overflow.
-		if (
-			castle_name == "Bastion"
-			and rules != null
-			and rules.bastion_wall
-			and CastleIntegrityRulesData.standing(defender, "Bastion")
-			and defender.castles.size() > 1
-		):
-			continue
-		return castle_name
-
-	return String(
-		defender.castles[0]
-	)
+	return _fallback_siege_target(defender, rules)
 
 
 static func evaluate_market_candidates(
@@ -802,6 +779,21 @@ static func evaluate_action_candidates(
 		rules
 	)
 
+	var action_forecast: Dictionary = ActionForecastData.forecast_all(
+		game,
+		rules,
+		player_id,
+		true
+	)
+	var hunt_reach: float = _hunt_forecast_reach(action_forecast.get("hunt", {}))
+	var siege_choice: Dictionary = _best_siege_target_from_forecast(
+		opponent,
+		action_forecast,
+		rules
+	)
+	var siege_reach: float = float(siege_choice.get("reach", -1.0))
+	var siege_target_value: float = float(siege_choice.get("strategic_value", 0.0))
+
 	var hunt_score: float = (
 		_score_hunt(
 			game,
@@ -848,6 +840,17 @@ static func evaluate_action_candidates(
 			)
 		)
 	)
+
+
+	if hunt_reach >= 0.0:
+		hunt_score += _forecast_score_adjustment(hunt_reach)
+
+	if siege_reach >= 0.0:
+		siege_score += _forecast_score_adjustment(siege_reach)
+		siege_score += minf(
+			0.60,
+			siege_target_value * maxf(0.0, siege_reach) * 0.25
+		)
 
 	var caution: float = max(
 		0.0,
@@ -1008,6 +1011,7 @@ static func evaluate_action_candidates(
 			),
 			"tie_rank": 0,
 			"chip_siege": false,
+			"forecast_reach": hunt_reach,
 		})
 
 	if not opponent.castles.is_empty():
@@ -1020,6 +1024,9 @@ static func evaluate_action_candidates(
 			),
 			"tie_rank": 2,
 			"chip_siege": chip_siege,
+			"forecast_reach": siege_reach,
+			"forecast_target": String(siege_choice.get("target_castle", "")),
+			"forecast_target_value": siege_target_value,
 		})
 
 	candidates.append({
@@ -1311,6 +1318,211 @@ static func _commitment_decision_from_candidate(
 	}
 
 
+# BOT_DOCTRINE_ACTION_FORECAST_V1
+# Personality/plan supplies intent. ActionForecast supplies public-information
+# feasibility. Castle strategic value supplies payoff.
+static func _forecast_objective_reach(objective) -> float:
+	if typeof(objective) != TYPE_DICTIONARY:
+		return -1.0
+
+	var report: Dictionary = objective
+	var open_value = report.get("open", {})
+	if typeof(open_value) != TYPE_DICTIONARY:
+		return -1.0
+
+	var open_probability: float = clampf(
+		float(open_value.get("probability", 0.0)),
+		0.0,
+		1.0
+	)
+	var warded_range = report.get("warded_range", {})
+
+	if (
+		typeof(warded_range) != TYPE_DICTIONARY
+		or not bool(warded_range.get("available", false))
+	):
+		return open_probability
+
+	# Forecast intentionally does not predict whether Ward will be chosen.
+	# This is a robustness score: mostly open reach, plus some weight on the
+	# worst modeled Ward branch. It is not claimed expected win probability.
+	var ward_floor: float = clampf(
+		float(warded_range.get("min_probability", open_probability)),
+		0.0,
+		1.0
+	)
+	return open_probability * 0.75 + ward_floor * 0.25
+
+
+static func _hunt_forecast_reach(report) -> float:
+	if (
+		typeof(report) != TYPE_DICTIONARY
+		or not bool(report.get("available", false))
+	):
+		return -1.0
+
+	var pressure: float = _forecast_objective_reach(report.get("pressure", {}))
+	var banish: float = _forecast_objective_reach(report.get("banish", {}))
+	if pressure < 0.0 or banish < 0.0:
+		return -1.0
+	return clampf(pressure * 0.35 + banish * 0.65, 0.0, 1.0)
+
+
+static func _siege_forecast_reach(report) -> float:
+	if (
+		typeof(report) != TYPE_DICTIONARY
+		or not bool(report.get("available", false))
+	):
+		return -1.0
+
+	var damage: float = _forecast_objective_reach(report.get("damage", {}))
+	var ruin: float = _forecast_objective_reach(report.get("ruin", {}))
+	if damage < 0.0 or ruin < 0.0:
+		return -1.0
+	return clampf(damage * 0.40 + ruin * 0.60, 0.0, 1.0)
+
+
+static func _forecast_score_adjustment(reach: float) -> float:
+	if reach < 0.0:
+		return 0.0
+
+	# 35% is ActionForecast's RISKY/FAVORABLE boundary, so make it neutral.
+	return clampf((reach - 0.35) * 2.0, -0.70, 1.30)
+
+
+static func _castle_strategic_value(owner, castle_name: String, rules: RuleConfig) -> float:
+	if (
+		owner == null
+		or rules == null
+		or not CastleIntegrityRulesData.power_active(owner, castle_name, rules)
+	):
+		return 0.0
+
+	var value: float = 0.25
+
+	match castle_name:
+		"Keep":
+			if rules.keep_sanctuary and owner.alive:
+				value += 1.00 + float(owner.souls) / float(maxi(1, rules.win_souls)) * 0.35
+			if rules.keep_ignores_ward_tax:
+				value += 0.85
+		"Bastion":
+			if owner.alive:
+				value += 0.75
+			if rules.bastion_wall and owner.castles.size() > 1:
+				value += 1.00
+		"Stockpile":
+			if rules.stockpile_filter:
+				value += 0.55
+		"SummoningCircle":
+			if rules.circle_blood_summon and not owner.alive:
+				value += 0.75
+			if rules.circle_blood_conduit and owner.threat >= 1:
+				value += 0.35
+		"SiegeEngine":
+			if rules.attack_offsuit_penalty > 0:
+				value += 0.85
+			if rules.siege_engine_bypass:
+				value += 0.35
+			if owner.lord == "Deimos" and owner.alive:
+				value += 0.75
+
+	return value
+
+
+static func _fallback_siege_target(defender, rules: RuleConfig) -> String:
+	if defender == null or defender.castles.is_empty():
+		return ""
+
+	for castle_name: String in SIEGE_TARGET_ORDER:
+		if not defender.castles.has(castle_name):
+			continue
+		if (
+			castle_name == "Bastion"
+			and rules != null
+			and rules.bastion_wall
+			and CastleIntegrityRulesData.standing(defender, "Bastion")
+			and defender.castles.size() > 1
+		):
+			continue
+		return castle_name
+
+	return String(defender.castles[0])
+
+
+static func _best_siege_target_from_forecast(
+	defender,
+	forecast: Dictionary,
+	rules: RuleConfig
+) -> Dictionary:
+	var raw_targets = forecast.get("siege_targets", {})
+	if typeof(raw_targets) != TYPE_DICTIONARY:
+		return {}
+
+	var siege_targets: Dictionary = raw_targets
+	var names: Array[String] = []
+
+	for castle_value in defender.castles:
+		var castle_name: String = String(castle_value)
+		if not CastleIntegrityRulesData.standing(defender, castle_name):
+			continue
+		# With a standing Bastion wall, naming a rear Castle preserves overflow and
+		# dominates directly naming Bastion while something remains behind it.
+		if (
+			castle_name == "Bastion"
+			and rules.bastion_wall
+			and CastleIntegrityRulesData.standing(defender, "Bastion")
+			and defender.castles.size() > 1
+		):
+			continue
+		names.append(castle_name)
+
+	names.sort()
+	var best: Dictionary = {}
+	var best_utility: float = -999.0
+	var best_tie_rank: int = -999
+
+	for castle_name: String in names:
+		var raw_report = siege_targets.get(castle_name, {})
+		if typeof(raw_report) != TYPE_DICTIONARY:
+			continue
+		var report: Dictionary = raw_report
+		var reach: float = _siege_forecast_reach(report)
+		if reach < 0.0:
+			continue
+
+		var strategic: float = _castle_strategic_value(defender, castle_name, rules)
+		var maximum: int = maxi(1, CastleIntegrityRulesData.max_integrity(castle_name))
+		var current: int = int(defender.castle_integrity.get(castle_name, maximum))
+		var wounded: float = clampf(float(maximum - current) / float(maximum), 0.0, 1.0)
+
+		# Reach is dominant. Strategic value can justify a somewhat harder but more
+		# consequential engine; wounded state mildly rewards finishing work.
+		var utility: float = (
+			reach * (1.0 + strategic * 0.50)
+			+ strategic * 0.15
+			+ wounded * 0.15
+		)
+		var order_index: int = SIEGE_TARGET_ORDER.find(castle_name)
+		var tie_rank: int = SIEGE_TARGET_ORDER.size() - order_index if order_index >= 0 else 0
+
+		if (
+			utility > best_utility + 0.0001
+			or (is_equal_approx(utility, best_utility) and tie_rank > best_tie_rank)
+		):
+			best_utility = utility
+			best_tie_rank = tie_rank
+			best = {
+				"target_castle": castle_name,
+				"reach": reach,
+				"strategic_value": strategic,
+				"utility": utility,
+			}
+
+	return best
+
+
+
 static func _score_hunt(
 	game,
 	player,
@@ -1323,7 +1535,8 @@ static func _score_hunt(
 
 	var score: float = 0.90 if rules.fix_a else 1.8
 
-	score += opponent.threat * 0.55
+	# Opponent Threat is not a generic Hunt beacon. Actual defensive
+	# consequences are priced by ActionForecast in candidate evaluation.
 	score -= player.threat * 0.20
 
 	if player.threat >= 3:
@@ -1552,7 +1765,6 @@ static func _degraded_hunt_score(
 
 	return (
 		1.3
-		+ opponent.threat * 0.25
 		- player.threat * 0.25
 	)
 
@@ -1595,31 +1807,27 @@ static func _ward_read_zone(
 	elif preference == ACTION_SIEGE:
 		castle_score += 0.90
 
-	# Board-state read: a soft Lord invites a Hunt, while remaining structures
-	# invite Siege. This mirrors the lab's deliberately readable prediction
-	# rather than merely alternating Ward zones.
 	if not player.alive:
 		castle_score += 2.0
 	else:
-		lord_score += float(player.threat) * 0.5
+		# Threat 1 has no defensive consequence. Only actual Threat breakpoints
+		# soften the public Lord door.
 		if player.threat >= 2:
-			lord_score += 0.4
+			lord_score += float(player.threat - 1) * 0.50
 		if player.souls >= rules.win_souls - 2:
-			lord_score += 0.3
+			lord_score += 0.30
 
 	if not player.castles.is_empty():
-		castle_score += (
-			float(player.castles.size()) / 5.0
-		) * 0.75
+		castle_score += (float(player.castles.size()) / 5.0) * 0.75
 	else:
 		lord_score += 2.0
 
 	lord_score += float(opponent_profile.get("aggro", 1.0)) * 0.30
 
 	if player.was_lord_attacked_prev:
-		lord_score += 0.5
+		lord_score += 0.50
 	if player.was_castle_attacked_prev:
-		castle_score += 0.5
+		castle_score += 0.50
 
 	return TARGET_LORD if lord_score >= castle_score else TARGET_CASTLE
 

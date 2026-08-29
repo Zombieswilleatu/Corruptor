@@ -67,6 +67,16 @@ func _test_subject_spread_and_hand_immunity() -> void:
 		target,
 		"subjects"
 	)
+	var reveal_events: Array = result.get("events", [])
+	if (
+		not bool(lord_card.guard_revealed)
+		or not bool(castle_card.guard_revealed)
+		or reveal_events.size() < 2
+		or not bool(reveal_events[0].get("newly_revealed", false))
+		or not bool(reveal_events[1].get("newly_revealed", false))
+	):
+		_fail("guard_reveal", "Fractured Guards did not flip face-up.")
+		return
 	if (
 		int(lord_card.value) != 3
 		or int(castle_card.value) != 1

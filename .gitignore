@@ -20,3 +20,12 @@ Experiments/
 # Office / LibreOffice lock files
 .~lock.*#
 ~$*
+
+# Local experiment/report output
+/*_seed*.txt
+/*_validate.txt
+/*_audit*.txt
+/diagnose_*.txt
+
+# Local title shader iteration backups
+Prototype/TitleScreen/*.before_*

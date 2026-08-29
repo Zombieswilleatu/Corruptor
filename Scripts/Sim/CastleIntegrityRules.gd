@@ -333,6 +333,7 @@ static func priority_for(lord_name: String) -> Array[String]:
 	return result
 
 
+# KEEP_BASELINE_OPENING_V1
 static func opening_castles(
 	lord_name: String,
 	starting_count: int
@@ -341,8 +342,18 @@ static func opening_castles(
 	var result: Array[String] = []
 	var count: int = clampi(starting_count, 0, CASTLES.size())
 
-	for index: int in range(count):
-		result.append(priority[index])
+	if count <= 0:
+		return result
+
+	# Common defensive baseline; personality still controls the remaining slots.
+	result.append("Keep")
+	for castle_name: String in priority:
+		if result.size() >= count:
+			break
+		if castle_name == "Keep":
+			continue
+		if not result.has(castle_name):
+			result.append(castle_name)
 
 	return result
 

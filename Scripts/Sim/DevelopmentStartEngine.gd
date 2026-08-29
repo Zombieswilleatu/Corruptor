@@ -74,16 +74,14 @@ static func resolve(
 			"Gremory Development draw requires an opponent."
 		)
 
-		var draw_count: int = 1
-
-		if (
-			not player.ruined_castles.is_empty()
-			or not opponent.ruined_castles.is_empty()
-		):
-			draw_count += 1
-
-		if not player.ruined_castles.is_empty():
-			draw_count += 1
+		# GREMORY_REBALANCE_OWN_RUIN_INEVITABLE_DEFUNCT_V1: Picking
+		# Only Gremory's own truly Ruined Castles feed the draw.
+		# Profaned Castles live in profaned_castles and do not qualify.
+		var draw_count: int = (
+			1
+			if not player.ruined_castles.is_empty()
+			else 0
+		)
 
 		var draw_results: Array[Dictionary] = []
 

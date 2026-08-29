@@ -51,31 +51,24 @@ static func _test_gremory_inevitable_ruin(
 		rules
 	)
 
-	if fixture.has(
-		"error"
-	):
+	if fixture.has("error"):
 		return _fail(
 			GREMORY_TEST_NAME,
-			String(
-				fixture["error"]
-			)
+			String(fixture["error"])
 		)
 
 	var game = fixture["game"]
 	var gremory = fixture["p0"]
 	var opponent = fixture["p1"]
 
-	_prepare_game(
-		game
-	)
+	_prepare_game(game)
 
 	gremory.lord = "Gremory"
 	gremory.alive = true
-
 	gremory.hand = _cards_from_ids([
 		"Butcher:1",
+		"Penitent:2",
 	])
-
 	gremory.garrison = _cards_from_ids([
 		"Wright:2",
 	])
@@ -91,25 +84,25 @@ static func _test_gremory_inevitable_ruin(
 	opponent.was_sieged = true
 	opponent.last_sieged_castle = "Keep"
 
-	var result: Dictionary = (
-		ResolutionCleanupEngineData.resolve(
-			game,
-			rules,
-			{
-				0: {
-					"payment": [
-						{
-							"source": "Hand",
-							"card": "Butcher:1",
-						},
-						{
-							"source": "Garrison",
-							"card": "Wright:2",
-						},
-					],
-				},
-			}
+	var integrity_before: int = int(
+		opponent.castle_integrity.get(
+			"Keep",
+			14
 		)
+	)
+
+	var result: Dictionary = ResolutionCleanupEngineData.resolve(
+		game,
+		rules,
+		{
+			0: {
+				"payment": [
+					{"source": "Hand", "card": "Butcher:1"},
+					{"source": "Hand", "card": "Penitent:2"},
+					{"source": "Garrison", "card": "Wright:2"},
+				],
+			},
+		}
 	)
 
 	var event: Dictionary = _first_event(
@@ -117,119 +110,85 @@ static func _test_gremory_inevitable_ruin(
 		"gremory_events"
 	)
 
-	if String(
-		event.get(
-			"action",
-			""
-		)
-	) != "inevitable_ruin":
+	if String(event.get("action", "")) != "inevitable_ruin":
 		return _fail(
 			GREMORY_TEST_NAME,
 			"Inevitable Ruin did not resolve."
 		)
 
-	if opponent.castles.has(
-		"Keep"
-	):
+	if not opponent.castles.has("Keep"):
 		return _fail(
 			GREMORY_TEST_NAME,
-			"Inevitable Ruin left the Keep active."
+			"Inevitable removed the Castle instead of leaving it standing."
 		)
 
-	if not opponent.castles.has(
-		"Stockpile"
-	):
+	if opponent.ruined_castles.has("Keep"):
 		return _fail(
 			GREMORY_TEST_NAME,
-			"Inevitable Ruin removed the wrong Castle."
+			"Inevitable incorrectly created a Ruined Castle."
 		)
 
-	if not opponent.ruined_castles.has(
-		"Keep"
-	):
+	var expected_defunct: int = maxi(
+		1,
+		int(rules.castle_operational_floor) - 1
+	)
+
+	if int(opponent.castle_integrity.get("Keep", -1)) != expected_defunct:
 		return _fail(
 			GREMORY_TEST_NAME,
-			"Inevitable Ruin did not create a Ruined Keep."
+			"Inevitable did not set the Defunct threshold."
 		)
 
-	if game.neutral_tears != 1:
+	if game.neutral_tears != 0:
 		return _fail(
 			GREMORY_TEST_NAME,
-			"Inevitable Ruin did not place its Neutral Tear."
+			"Inevitable incorrectly placed a Neutral Tear."
+		)
+
+	if gremory.gremory_ruin_done:
+		return _fail(
+			GREMORY_TEST_NAME,
+			"Inevitable incorrectly triggered Predator of Ruin."
 		)
 
 	if not gremory.gremory_inevitable_ruin_done:
 		return _fail(
 			GREMORY_TEST_NAME,
-			"Inevitable Ruin usage flag was not set."
+			"Inevitable usage flag was not set."
 		)
 
-	if not gremory.gremory_ruin_done:
+	if (
+		not gremory.hand.is_empty()
+		or not gremory.garrison.is_empty()
+	):
 		return _fail(
 			GREMORY_TEST_NAME,
-			"Predator of Ruin did not trigger."
+			"Inevitable did not consume all three payment cards."
 		)
 
-	if not gremory.garrison.is_empty():
-		return _fail(
-			GREMORY_TEST_NAME,
-			"Garrison payment was not removed."
-		)
-
-	if _card_ids(
-		gremory.hand
-	) != [
+	if _card_ids(game.discard) != [
+		"Butcher:1",
+		"Penitent:2",
 		"Wright:2",
 	]:
 		return _fail(
 			GREMORY_TEST_NAME,
-			"Predator of Ruin recovered the wrong card."
+			"Inevitable reached the wrong discard state."
 		)
 
-	if _card_ids(
-		game.discard
-	) != [
-		"Butcher:1",
-	]:
+	if int(event.get("payment_value", 0)) != 5:
 		return _fail(
 			GREMORY_TEST_NAME,
-			"Inevitable Ruin reached the wrong discard state."
+			"Inevitable recorded the wrong payment value."
 		)
 
-	if _string_array(
-		event.get(
-			"paid_cards",
-			[]
-		)
-	) != [
-		"Butcher:1",
-		"Wright:2",
-	]:
+	if (
+		int(event.get("integrity_before", -1)) != integrity_before
+		or int(event.get("integrity_after", -1)) != expected_defunct
+	):
 		return _fail(
 			GREMORY_TEST_NAME,
-			"Inevitable Ruin recorded the wrong payment."
-		)
-
-	if String(
-		event.get(
-			"recovered_card",
-			""
-		)
-	) != "Wright:2":
-		return _fail(
-			GREMORY_TEST_NAME,
-			"Predator event recorded the wrong recovered card."
-		)
-
-	if int(
-		event.get(
-			"neutral_tear_gain",
-			0
-		)
-	) != 1:
-		return _fail(
-			GREMORY_TEST_NAME,
-			"Inevitable Ruin result did not record its Tear."
+			"Inevitable recorded the wrong Integrity transition."
 		)
 
 	return _pass(
@@ -244,29 +203,24 @@ static func _test_gremory_atomic_validation(
 		rules
 	)
 
-	if fixture.has(
-		"error"
-	):
+	if fixture.has("error"):
 		return _fail(
 			GREMORY_ATOMIC_TEST_NAME,
-			String(
-				fixture["error"]
-			)
+			String(fixture["error"])
 		)
 
 	var game = fixture["game"]
 	var gremory = fixture["p0"]
 	var opponent = fixture["p1"]
 
-	_prepare_game(
-		game
-	)
+	_prepare_game(game)
 
 	gremory.lord = "Gremory"
 	gremory.alive = true
-
 	gremory.hand = _cards_from_ids([
 		"Butcher:1",
+		"Penitent:1",
+		"Vulture:1",
 	])
 
 	_set_castles(
@@ -279,29 +233,20 @@ static func _test_gremory_atomic_validation(
 	opponent.was_sieged = true
 	opponent.last_sieged_castle = "Keep"
 
-	var hand_before: Array[String] = _card_ids(
-		gremory.hand
-	)
+	var hand_before: Array[String] = _card_ids(gremory.hand)
 
-	var result: Dictionary = (
-		ResolutionCleanupEngineData.resolve(
-			game,
-			rules,
-			{
-				0: {
-					"payment": [
-						{
-							"source": "Hand",
-							"card": "Butcher:1",
-						},
-						{
-							"source": "Garrison",
-							"card": "Wright:2",
-						},
-					],
-				},
-			}
-		)
+	var result: Dictionary = ResolutionCleanupEngineData.resolve(
+		game,
+		rules,
+		{
+			0: {
+				"payment": [
+					{"source": "Hand", "card": "Butcher:1"},
+					{"source": "Hand", "card": "Penitent:1"},
+					{"source": "Hand", "card": "Vulture:1"},
+				],
+			},
+		}
 	)
 
 	var event: Dictionary = _first_event(
@@ -309,66 +254,76 @@ static func _test_gremory_atomic_validation(
 		"gremory_events"
 	)
 
-	if String(
-		event.get(
-			"action",
-			""
-		)
-	) != "invalid":
+	if String(event.get("action", "")) != "invalid":
 		return _fail(
 			GREMORY_ATOMIC_TEST_NAME,
-			"Invalid payment was accepted."
+			"Sub-five three-card payment was accepted."
 		)
 
-	if String(
-		event.get(
-			"reason",
-			""
-		)
-	) != "payment_card_missing_Garrison_Wright:2":
+	if String(event.get("reason", "")) != "payment_value_below_five":
 		return _fail(
 			GREMORY_ATOMIC_TEST_NAME,
-			"Invalid payment returned the wrong reason."
+			"Sub-five payment returned the wrong reason."
 		)
 
-	if _card_ids(
-		gremory.hand
-	) != hand_before:
+	if _card_ids(gremory.hand) != hand_before:
 		return _fail(
 			GREMORY_ATOMIC_TEST_NAME,
 			"Invalid payment changed Gremory's hand."
 		)
 
-	if not opponent.castles.has(
-		"Keep"
+	if not opponent.castles.has("Keep"):
+		return _fail(
+			GREMORY_ATOMIC_TEST_NAME,
+			"Invalid payment removed the Keep."
+		)
+
+	if (
+		not opponent.ruined_castles.is_empty()
+		or game.neutral_tears != 0
+		or gremory.gremory_inevitable_ruin_done
+		or not game.discard.is_empty()
 	):
 		return _fail(
 			GREMORY_ATOMIC_TEST_NAME,
-			"Invalid payment destroyed the Keep."
+			"Invalid payment mutated cleanup state."
 		)
 
-	if not opponent.ruined_castles.is_empty():
-		return _fail(
-			GREMORY_ATOMIC_TEST_NAME,
-			"Invalid payment created a Ruined Castle."
-		)
+	# A target that is already Defunct is not eligible.
+	opponent.castle_integrity["Keep"] = maxi(
+		1,
+		int(rules.castle_operational_floor) - 1
+	)
 
-	if game.neutral_tears != 0:
-		return _fail(
-			GREMORY_ATOMIC_TEST_NAME,
-			"Invalid payment placed a Neutral Tear."
-		)
+	gremory.hand = _cards_from_ids([
+		"Butcher:1",
+		"Penitent:2",
+		"Vulture:2",
+	])
 
-	if gremory.gremory_inevitable_ruin_done:
-		return _fail(
-			GREMORY_ATOMIC_TEST_NAME,
-			"Invalid payment consumed Inevitable Ruin."
-		)
+	var defunct_result: Dictionary = ResolutionCleanupEngineData.resolve(
+		game,
+		rules,
+		{
+			0: {
+				"payment": [
+					{"source": "Hand", "card": "Butcher:1"},
+					{"source": "Hand", "card": "Penitent:2"},
+					{"source": "Hand", "card": "Vulture:2"},
+				],
+			},
+		}
+	)
 
-	if not game.discard.is_empty():
+	var defunct_event: Dictionary = _first_event(
+		defunct_result,
+		"gremory_events"
+	)
+
+	if String(defunct_event.get("reason", "")) != "sieged_castle_not_operational":
 		return _fail(
 			GREMORY_ATOMIC_TEST_NAME,
-			"Invalid payment changed the discard."
+			"Defunct target was not rejected as non-Operational."
 		)
 
 	return _pass(

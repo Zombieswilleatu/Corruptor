@@ -1,4 +1,5 @@
 class_name FractureEngine
+# FRACTURE_GUARD_REVEAL_V1
 # FRACTURE_MARCHERS_AFTERMATH_V1
 extends RefCounted
 
@@ -146,6 +147,12 @@ static func _fracture_subjects(
 				marcher["value"] = march_after
 				target.marchers[marcher_index] = marcher
 
+		var zone: String = String(selected.get("zone", ""))
+		var newly_revealed: bool = false
+		if zone in ["Lord", "Castle"]:
+			newly_revealed = not bool(card.guard_revealed)
+			card.guard_revealed = true
+
 		card.value = after
 		used[String(selected.get("key", ""))] = true
 
@@ -156,6 +163,7 @@ static func _fracture_subjects(
 			"card_after": _card_id(card),
 			"before": before,
 			"after": after,
+			"newly_revealed": newly_revealed,
 		}
 		if String(selected.get("zone", "")) == "Marcher":
 			event["lane"] = String(selected.get("lane", ""))

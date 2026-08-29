@@ -6,6 +6,10 @@ const LordMathData = preload(
 	"res://Scripts/Sim/LordMath.gd"
 )
 
+const CastleIntegrityRulesData = preload(
+	"res://Scripts/Sim/CastleIntegrityRules.gd"
+)
+
 const ResolutionEngineData = preload(
 	"res://Scripts/Sim/ResolutionEngine.gd"
 )
@@ -232,6 +236,7 @@ static func vessel_choices(
 	return decisions
 
 
+# GREMORY_REBALANCE_OWN_RUIN_INEVITABLE_DEFUNCT_V1: bot
 static func current_gremory_choices(
 	game,
 	rules: RuleConfig
@@ -282,14 +287,22 @@ static func current_gremory_choices(
 			or not opponent.castles.has(
 				target_castle
 			)
+			or (
+				CastleIntegrityRulesData.state_for(
+					opponent,
+					target_castle,
+					rules
+				)
+				!= CastleIntegrityRulesData.STATE_OPERATIONAL
+			)
 		):
 			continue
 
-		# Inevitable Ruin must retain two cards after payment.
+		# Inevitable Ruin pays 3 cards and retains two after payment.
 		if (
 			player.hand.size()
 			+ player.garrison.size()
-			< 4
+			< 5
 		):
 			continue
 
@@ -302,7 +315,7 @@ static func current_gremory_choices(
 			)
 		)
 
-		if payment.size() != 2:
+		if payment.size() != 3:
 			continue
 
 		choices[player_id] = {
@@ -408,14 +421,22 @@ static func _preview_gremory_choices(
 			or not preview_opponent.castles.has(
 				target_castle
 			)
+			or (
+				CastleIntegrityRulesData.state_for(
+					preview_opponent,
+					target_castle,
+					rules
+				)
+				!= CastleIntegrityRulesData.STATE_OPERATIONAL
+			)
 		):
 			continue
 
-		# Inevitable Ruin must retain two cards after payment.
+		# Inevitable Ruin pays 3 cards and retains two after payment.
 		if (
 			preview_player.hand.size()
 			+ preview_player.garrison.size()
-			< 4
+			< 5
 		):
 			continue
 
@@ -440,7 +461,7 @@ static func _preview_gremory_choices(
 			)
 		)
 
-		if payment.size() != 2:
+		if payment.size() != 3:
 			continue
 
 		choices[player_id] = {
@@ -634,13 +655,8 @@ static func _select_gremory_payment(
 
 		entries.append({
 			"source": "Garrison",
-			"card": card,
-			"card_id": _card_id(
-				card
-			),
-			"value": int(
-				card.value
-			),
+			"card_id": _card_id(card),
+			"value": int(card.value),
 			"source_rank": 0,
 			"index": index,
 		})
@@ -652,13 +668,8 @@ static func _select_gremory_payment(
 
 		entries.append({
 			"source": "Hand",
-			"card": card,
-			"card_id": _card_id(
-				card
-			),
-			"value": int(
-				card.value
-			),
+			"card_id": _card_id(card),
+			"value": int(card.value),
 			"source_rank": 1,
 			"index": index,
 		})
@@ -668,54 +679,22 @@ static func _select_gremory_payment(
 			entry_a: Dictionary,
 			entry_b: Dictionary
 		) -> bool:
-			var value_a: int = int(
-				entry_a.get(
-					"value",
-					0
-				)
-			)
-
-			var value_b: int = int(
-				entry_b.get(
-					"value",
-					0
-				)
-			)
+			var value_a: int = int(entry_a.get("value", 0))
+			var value_b: int = int(entry_b.get("value", 0))
 
 			if value_a != value_b:
 				return value_a < value_b
 
-			var source_rank_a: int = int(
-				entry_a.get(
-					"source_rank",
-					0
-				)
-			)
+			var rank_a: int = int(entry_a.get("source_rank", 0))
+			var rank_b: int = int(entry_b.get("source_rank", 0))
 
-			var source_rank_b: int = int(
-				entry_b.get(
-					"source_rank",
-					0
-				)
-			)
+			if rank_a != rank_b:
+				return rank_a < rank_b
 
-			if source_rank_a != source_rank_b:
-				return source_rank_a < source_rank_b
-
-			return int(
-				entry_a.get(
-					"index",
-					0
-				)
-			) < int(
-				entry_b.get(
-					"index",
-					0
-				)
-			)
+			return int(entry_a.get("index", 0)) < int(entry_b.get("index", 0))
 	)
 
-	var selected: Array = []
+	var eligible: Array[Dictionary] = []
 
 	for entry: Dictionary in entries:
 		var card_identifier: String = String(
@@ -733,24 +712,59 @@ static func _select_gremory_payment(
 		)
 
 		if exclusion_count > 0:
-			exclusion_counts[card_identifier] = (
-				exclusion_count - 1
-			)
-
+			exclusion_counts[card_identifier] = exclusion_count - 1
 			continue
 
-		selected.append({
-			"source": String(
-				entry.get(
-					"source",
-					""
-				)
-			),
-			"card": card_identifier,
-		})
+		eligible.append(entry)
 
-		if selected.size() >= 2:
-			break
+	if eligible.size() < 3:
+		return []
+
+	var best_indices: Array[int] = []
+	var best_total: int = 999999
+
+	for first: int in range(
+		eligible.size() - 2
+	):
+		for second: int in range(
+			first + 1,
+			eligible.size() - 1
+		):
+			for third: int in range(
+				second + 1,
+				eligible.size()
+			):
+				var total: int = (
+					int(eligible[first].get("value", 0))
+					+ int(eligible[second].get("value", 0))
+					+ int(eligible[third].get("value", 0))
+				)
+
+				if total < 5:
+					continue
+
+				# Entries are already value/source/index sorted, so first
+				# equal-total triple is the deterministic tie-break.
+				if total < best_total:
+					best_total = total
+					best_indices = [
+						first,
+						second,
+						third,
+					]
+
+	if best_indices.size() != 3:
+		return []
+
+	var selected: Array = []
+
+	for raw_index in best_indices:
+		var entry: Dictionary = eligible[int(raw_index)]
+
+		selected.append({
+			"source": String(entry.get("source", "")),
+			"card": String(entry.get("card_id", "")),
+		})
 
 	return selected
 

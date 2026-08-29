@@ -75,7 +75,7 @@ power gating/targeting, Ruination resolution, reproducibility, and reporting.
 
 SIM_VERSION = "7.6.2-defunct-repair-lock"
 SIM_CODENAME = "Defunct vulnerability + unrestricted Repair actions"
-AI_POLICY = "heuristic-2026.08-castle-contextual-v4"
+AI_POLICY = "heuristic-2026.08-action-forecast-v1-odradek-reconfig-menu-v1_1"
 LAB_PROFILE_VERSION = "6.8.3-kroni-cannibal-no-gorge"
 # KRONI_CANNIBAL_NO_GORGE_V1
 
@@ -84,6 +84,7 @@ LAB_PROFILE_VERSION = "6.8.3-kroni-cannibal-no-gorge"
 # and the castle experiment runner can sweep both.  The legacy rulesets remain
 # available for regression comparisons.
 
+import copy
 import random
 import argparse
 import time
@@ -780,8 +781,9 @@ CASTLE_PRIORITIES = {
     'Vanilla':  ['Keep',        'Bastion',   'Stockpile',       'SummoningCircle', 'SiegeEngine'],
 }
 
-# Opening loadouts use each Lord's existing five-Castle priority and take
-# the first three. No Castle is mandatory and construction can later reach all five.
+# KEEP_BASELINE_OPENING_V1
+# Default opening loadouts always include Keep, then each Lord's highest
+# remaining non-Keep preferences. Construction can later reach all five.
 
 LORD_AI = {
     'Orias':    dict(aggro=1.30, control=0.65, risk=1.20, prefer='Hunt'),
@@ -974,6 +976,9 @@ class Player:
         self.odradek_recoil_done         = False
         self.odradek_guards_defeated     = 0   # guards defeated from Odradek zones this round
         self.odradek_reconfig_tokens     = 0   # persists across rounds, resets on summon
+        self.odradek_reconfig_guard_swaps_this_round = 0
+        self.odradek_reconfig_inverted = False
+        self.odradek_reconfig_inverted_target = ''
         self.gremory_ruin_done           = False
         self.gremory_breach_soul_given   = False
         self.gremory_inevitable_ruin_done = False
@@ -1033,6 +1038,9 @@ class Player:
 
         self.odradek_recoil_done         = False
         self.odradek_guards_defeated     = 0   # guards defeated from Odradek zones this round
+        self.odradek_reconfig_guard_swaps_this_round = 0
+        self.odradek_reconfig_inverted = False
+        self.odradek_reconfig_inverted_target = ''
         self.gremory_ruin_done           = False
         self.gremory_breach_soul_given   = False
         self.gremory_inevitable_ruin_done = False
@@ -1224,7 +1232,8 @@ class Player:
         return d
 
     def max_castle_guards(self) -> int:
-        # Humbaba — Gate Guard: a 4th slot while the stones are unbroken
+        # Humbaba — Gate Guard
+        # A 4th Guard slot while the stones are unbroken.
         if (self.lord == 'Humbaba' and VARIANT['humbaba_gate4']
                 and not self.ruined_castles):
             return 4
@@ -1244,6 +1253,7 @@ class Player:
 
 # ═══════════════════════════════════════════════════════════════════════
 #  GAME ENGINE
+# LORD_POWER_COMMENT_LABELS_V3: short canonical Lord-power comment labels.
 # ═══════════════════════════════════════════════════════════════════════
 class Game:
     def __init__(self, pool0: list, pool1: list, *, seed: Optional[int] = None,
@@ -1583,59 +1593,54 @@ class Game:
         return value
 
     def _pick_siege_target(self, atk: Player, dfn: Player, *, record: bool = False) -> str:
-        """Choose the intended target; Bastion interposition resolves later.
-
-        Crucially, Fortified Bastion no longer rewrites the intended target to
-        Bastion.  Doing so made the actual interposition branch unreachable and
-        measured 'focus-fire this wall' rather than 'protect another engine'.
-        """
+        # Forecast-weighted target choice; static priority survives only in the
+        # explicit legacy targeting mode.
         if not dfn.castles:
             raise ValueError('cannot pick Siege target from empty castle set')
         candidates = list(dfn.castles)
-        # A standing Bastion physically screens rear Castles regardless of Defunct.
-        # Whether it may ALSO be chosen directly is an explicit design axis. If
-        # direct targeting is off, attackers choose the rear Castle they intend to
-        # breach; Bastion still takes the structural damage first and can Ruin.
-        _standing_bastion_screen = (
+        standing_bastion_screen = (
             bastion_wall_enabled()
             and 'Bastion' in candidates
             and 'Bastion' not in dfn.disabled_castle_powers
             and dfn.castle_integrity.get('Bastion', 0) > 0
             and len(candidates) > 1
         )
-        if _standing_bastion_screen:
-            # Rules legality: Bastion MAY be targeted directly. Doctrine: with
-            # shared Castle Guards/Sigil, a rear-target Siege deals the same
-            # structural damage to Bastion first and preserves possible overflow,
-            # so direct Bastion targeting is dominated. A human/UI may still force it.
+        if standing_bastion_screen:
             candidates.remove('Bastion')
+
         if VARIANT.get('castle_targeting_mode', 'strategic') == 'legacy':
             order = ['Stockpile', 'SummoningCircle', 'SiegeEngine', 'Bastion', 'Keep']
-            chosen = next((c for c in order if c in candidates), sorted(candidates)[0])
+            chosen = next((castle for castle in order if castle in candidates), sorted(candidates)[0])
             if record:
                 self.stat_castle_targeted[dfn.pid][chosen] += 1
             return chosen
 
         scored = []
         for castle in sorted(candidates):
-            mx = max(1, castle_max_integrity(castle))
-            cur = dfn.castle_integrity.get(castle, mx)
-            wounded = max(0.0, min(1.0, (mx - cur) / float(mx)))
-            score = self._castle_strategic_value(dfn, castle)
-            score += wounded * 1.30                 # finish a wounded engine
-            if cur == mx and profane_eligible(dfn, castle):
-                score += 0.20                      # a scratch can deny Profane
+            maximum = max(1, castle_max_integrity(castle))
+            current = dfn.castle_integrity.get(castle, maximum)
+            wounded = max(0.0, min(1.0, (maximum - current) / float(maximum)))
+            strategic = self._castle_strategic_value(dfn, castle)
             if dfn.lord == 'Deimos' and dfn.alive and castle == 'SiegeEngine':
-                score += 0.60                      # turn off War Machine synergy
-            scored.append((score, castle))
+                strategic += 0.60
+            reach = self._public_attack_reach(
+                atk,
+                dfn,
+                'Castle',
+                target_castle=castle,
+            )
+            utility = (
+                max(0.0, reach) * (1.0 + strategic * 0.50)
+                + strategic * 0.15
+                + wounded * 0.15
+            )
+            scored.append((utility, castle))
+
         chosen = max(scored)[1]
         if record:
             self.stat_castle_targeted[dfn.pid][chosen] += 1
         return chosen
 
-    # ─────────────────────────────────────────────────────────────────
-    #  DRAW
-    # ─────────────────────────────────────────────────────────────────
     def _draw(self, pl: Player, outside_draw: bool = False) -> bool:
         card = self._take_top_card()
         if card is None:
@@ -1869,8 +1874,17 @@ class Game:
             if pl.pid in self.opening_castles:
                 selected = list(self.opening_castles[pl.pid])
             elif ACTIVE_FEATURES['castle_integrity'] and VARIANT.get('castle_loadout', False):
-                opening_count = int(VARIANT.get('starting_castles', 3))
-                selected = CASTLE_PRIORITIES.get(pl.lord, CASTLES)[:opening_count]
+                opening_count = max(0, min(
+                    len(CASTLES), int(VARIANT.get('starting_castles', 3))))
+                selected = []
+                if opening_count > 0:
+                    selected.append('Keep')
+                    for castle in CASTLE_PRIORITIES.get(pl.lord, CASTLES):
+                        if len(selected) >= opening_count:
+                            break
+                        if castle == 'Keep' or castle in selected:
+                            continue
+                        selected.append(castle)
             else:
                 selected = list(CASTLES)
             for c in selected:
@@ -1979,11 +1993,11 @@ class Game:
         for pl in self.players:
             if pl.lord == 'Gremory' and pl.alive:
                 op = self.opp(pl.pid)
-                draw_count = 1                              # always draw 1
+                draw_count = 0                              # always draw 1  # GREMORY_REBALANCE_OWN_RUIN_INEVITABLE_DEFUNCT_V1: Picking
                 if pl.ruined_castles or op.ruined_castles:  # +1 if any ruins on board
-                    draw_count += 1
+                    draw_count += 0  # enemy/any Ruin no longer feeds Picking
                 if pl.ruined_castles:                       # +1 if Gremory herself has ruins
-                    draw_count += 1
+                    draw_count += 1  # own Ruined Castle only; Profaned Castles are separate
                 for _ in range(draw_count):
                     self._draw(pl, outside_draw=True)
 
@@ -2201,7 +2215,416 @@ class Game:
     # ─────────────────────────────────────────────────────────────────
     #  COMMITMENT / REVEAL / ORDER
     # ─────────────────────────────────────────────────────────────────
+
+    # ODRADEK_RECONFIGURATION_MENU_V1_1
+    #
+    # Reconfiguration is no longer a Tear clock. Tokens are a visible bank of
+    # permission to violate ordinary board assumptions.
+    def _odradek_reconfig_spend(self, odr: Player, amount: int,
+                                kind: str) -> bool:
+        if amount <= 0 or odr.odradek_reconfig_tokens < amount:
+            return False
+        odr.odradek_reconfig_tokens -= amount
+        self.stat_odradek_reconfig_tokens_spent = (
+            getattr(self, 'stat_odradek_reconfig_tokens_spent', 0) + amount
+        )
+        attr = 'stat_odradek_reconfig_' + kind
+        setattr(self, attr, getattr(self, attr, 0) + 1)
+        return True
+
+    def _odradek_reconfig_refund(self, odr: Player, amount: int,
+                                 kind: str) -> None:
+        odr.odradek_reconfig_tokens += amount
+        self.stat_odradek_reconfig_tokens_spent = max(
+            0,
+            getattr(self, 'stat_odradek_reconfig_tokens_spent', 0) - amount,
+        )
+        attr = 'stat_odradek_reconfig_' + kind
+        setattr(self, attr, max(0, getattr(self, attr, 0) - 1))
+        self.stat_odradek_reconfig_refunds = (
+            getattr(self, 'stat_odradek_reconfig_refunds', 0) + 1
+        )
+
+    @staticmethod
+    def _odradek_hidden_guards(player: Player, zone: str) -> list:
+        guards = (
+            player.lord_guards
+            if zone == 'Lord'
+            else player.castle_guards
+        )
+        temporary = set(id(card) for card in player.penitent_temp_guards)
+        return [
+            card for card in guards
+            if not getattr(card, 'guard_revealed', False)
+            and id(card) not in temporary
+        ]
+
+    def _odradek_reconfig_guard_exchange(self, odr: Player,
+                                         op: Player) -> bool:
+        # Blind 1-for-1 exchange. Hidden card suit/value is never inspected.
+        if (
+            odr.odradek_reconfig_tokens < 1
+            or odr.odradek_reconfig_guard_swaps_this_round >= 2
+        ):
+            return False
+
+        own_priority = (
+            ('Lord', 'Castle')
+            if odr.threat >= 2 or odr.was_lord_attacked_prev
+            else ('Castle', 'Lord')
+        )
+        enemy_priority = (
+            ('Lord', 'Castle')
+            if op.threat >= 2 or op.was_lord_attacked_prev
+            else ('Castle', 'Lord')
+        )
+
+        for own_zone in own_priority:
+            own_hidden = self._odradek_hidden_guards(odr, own_zone)
+            if not own_hidden:
+                continue
+            for enemy_zone in enemy_priority:
+                enemy_hidden = self._odradek_hidden_guards(op, enemy_zone)
+                if not enemy_hidden:
+                    continue
+
+                own_card = own_hidden[0]
+                enemy_card = enemy_hidden[0]
+                own_cards = (
+                    odr.lord_guards
+                    if own_zone == 'Lord'
+                    else odr.castle_guards
+                )
+                enemy_cards = (
+                    op.lord_guards
+                    if enemy_zone == 'Lord'
+                    else op.castle_guards
+                )
+                own_index = own_cards.index(own_card)
+                enemy_index = enemy_cards.index(enemy_card)
+
+                if not self._odradek_reconfig_spend(
+                    odr, 1, 'guard_exchanges'
+                ):
+                    return False
+
+                own_cards[own_index], enemy_cards[enemy_index] = (
+                    enemy_card,
+                    own_card,
+                )
+                own_cards[own_index].guard_revealed = False
+                enemy_cards[enemy_index].guard_revealed = False
+                odr.odradek_reconfig_guard_swaps_this_round += 1
+                return True
+        return False
+
+    def _odradek_march_collision_score(self, mine: dict,
+                                       enemy: dict) -> float:
+        if mine is None or enemy is None:
+            return 0.0
+
+        if (
+            (self._is_marshal(mine) and self._is_spy(enemy))
+            or (self._is_marshal(enemy) and self._is_spy(mine))
+        ):
+            return 0.0
+        if self._is_marshal(mine):
+            return 1.5
+        if self._is_marshal(enemy):
+            return -1.5
+
+        base = int(VARIANT.get('march_damage', 2))
+        bonus = int(VARIANT.get('march_suit_bonus', 1))
+        mine_damage = base + (
+            bonus
+            if self._suit_adv(enemy['card'].suit, mine['card'].suit)
+            else 0
+        )
+        enemy_damage = base + (
+            bonus
+            if self._suit_adv(mine['card'].suit, enemy['card'].suit)
+            else 0
+        )
+        mine_after = int(mine['value']) - mine_damage
+        enemy_after = int(enemy['value']) - enemy_damage
+        threshold = int(VARIANT.get('march_threshold', 3))
+
+        score = 0.0
+        if mine_after <= 0:
+            score -= 2.0
+        elif mine_after >= threshold:
+            score += 1.2
+        if enemy_after <= 0:
+            score += 2.0
+        elif enemy_after < threshold:
+            score += 1.0
+        else:
+            score -= 0.8
+        return score
+
+    def _odradek_reconfig_lane_shift(self, odr: Player,
+                                     op: Player) -> bool:
+        if odr.odradek_reconfig_tokens < 1:
+            return False
+
+        candidates = []
+
+        # Move an Odradek marcher away from a bad clash.
+        for marcher in odr.marchers:
+            old_lane = str(marcher['lane'])
+            new_lane = 'Castle' if old_lane == 'Lord' else 'Lord'
+            if any(m['lane'] == new_lane for m in odr.marchers):
+                continue
+            old_enemy = next(
+                (m for m in op.marchers if m['lane'] == old_lane),
+                None,
+            )
+            new_enemy = next(
+                (m for m in op.marchers if m['lane'] == new_lane),
+                None,
+            )
+            if old_enemy is None:
+                continue
+            before = self._odradek_march_collision_score(
+                marcher, old_enemy
+            )
+            after = (
+                0.8
+                if new_enemy is None
+                else self._odradek_march_collision_score(
+                    marcher, new_enemy
+                )
+            )
+            gain = after - before
+            if gain > 1.25:
+                candidates.append((gain, odr, marcher, new_lane))
+
+        # Move an enemy marcher into a favorable Odradek clash.
+        for marcher in op.marchers:
+            old_lane = str(marcher['lane'])
+            new_lane = 'Castle' if old_lane == 'Lord' else 'Lord'
+            if any(m['lane'] == new_lane for m in op.marchers):
+                continue
+            mine = next(
+                (m for m in odr.marchers if m['lane'] == new_lane),
+                None,
+            )
+            if mine is None:
+                continue
+            if any(m['lane'] == old_lane for m in odr.marchers):
+                continue
+            gain = self._odradek_march_collision_score(mine, marcher)
+            if gain > 1.25:
+                candidates.append((gain, op, marcher, new_lane))
+
+        if not candidates:
+            return False
+
+        _, owner, marcher, new_lane = max(
+            candidates,
+            key=lambda row: row[0],
+        )
+        if not self._odradek_reconfig_spend(
+            odr, 1, 'lane_shifts'
+        ):
+            return False
+        marcher['lane'] = new_lane
+        return True
+
+    def _odradek_reconfig_steal_marcher(self, odr: Player,
+                                        op: Player) -> bool:
+        if odr.odradek_reconfig_tokens < 3 or not op.marchers:
+            return False
+
+        threshold = int(VARIANT.get('march_threshold', 3))
+        steps = int(VARIANT.get('march_steps', 3))
+        candidates = []
+        for marcher in op.marchers:
+            lane = str(marcher['lane'])
+            if any(m['lane'] == lane for m in odr.marchers):
+                continue
+
+            imminent = (
+                int(marcher['pos']) >= steps - 1
+                and int(marcher['value']) >= threshold
+            )
+            score = (
+                float(marcher['value'])
+                + 2.0 * float(marcher['pos'])
+                + (4.0 if imminent else 0.0)
+            )
+            # Break the four-token reserve only for an imminent score.
+            if odr.odradek_reconfig_tokens < 7 and not imminent:
+                continue
+            candidates.append((score, marcher))
+
+        if not candidates:
+            return False
+
+        _, marcher = max(candidates, key=lambda row: row[0])
+        if not self._odradek_reconfig_spend(
+            odr, 3, 'allegiance_shifts'
+        ):
+            return False
+
+        op.marchers.remove(marcher)
+        odr.marchers.append(marcher)
+        return True
+
+    def _odradek_reconfiguration_precommit(self) -> None:
+        odr = next(
+            (
+                player for player in self.players
+                if player.lord == 'Odradek' and player.alive
+            ),
+            None,
+        )
+        if odr is None or odr.odradek_reconfig_tokens <= 0:
+            return
+        op = self.opp(odr.pid)
+
+        # Highest-leverage public manipulation first.
+        self._odradek_reconfig_steal_marcher(odr, op)
+
+        # Preserve four tokens for Inversion unless there is overflow.
+        if odr.odradek_reconfig_tokens > 4:
+            self._odradek_reconfig_lane_shift(odr, op)
+
+        # Blind exchanges consume overflow only. Maximum two per round.
+        while (
+            odr.odradek_reconfig_tokens > 4
+            and odr.odradek_reconfig_guard_swaps_this_round < 2
+        ):
+            if not self._odradek_reconfig_guard_exchange(odr, op):
+                break
+
+    def _odradek_reconfig_siege_target(self, attacker: Player,
+                                       odr: Player,
+                                       forced_target=None) -> str:
+        if forced_target and forced_target in odr.castles:
+            target = str(forced_target)
+        else:
+            target = str(self._pick_siege_target(attacker, odr))
+        if not target or target not in attacker.castles:
+            return ''
+        return target
+
+    def _odradek_reconfiguration_maybe_invert(
+            self, attacker: Player, odr: Player, action: str,
+            forced_target=None) -> bool:
+        if (
+            odr.lord != 'Odradek'
+            or not odr.alive
+            or attacker.pid == odr.pid
+            or odr.odradek_reconfig_tokens < 4
+            or action not in ('Hunt', 'Siege')
+        ):
+            return False
+
+        zone = 'Lord' if action == 'Hunt' else 'Castle'
+        if (
+            VARIANT.get('ward_threshold', False)
+            and zone in odr.ward_turned
+        ):
+            return False
+
+        target = ''
+        if action == 'Siege':
+            target = self._odradek_reconfig_siege_target(
+                attacker,
+                odr,
+                forced_target,
+            )
+            if not target:
+                return False
+        elif not attacker.alive:
+            return False
+
+        # Revealed commitment is public. Hidden Guard identities are not read.
+        raw = int(attacker.committed_value())
+        floor = 7 if action == 'Hunt' else 8
+        if raw < floor:
+            return False
+
+        if not self._odradek_reconfig_spend(
+            odr, 4, 'inversions'
+        ):
+            return False
+
+        attacker.odradek_reconfig_inverted = True
+        attacker.odradek_reconfig_inverted_target = target
+        return True
+
+    def _odradek_inverted_proxy(self, attacker: Player,
+                                odr: Player) -> Player:
+        # Reward-isolating proxy. Its pid points back to the real attacker when
+        # existing combat code asks self.opp(proxy.pid).
+        proxy = copy.copy(attacker)
+        proxy.pid = odr.pid
+        proxy.committed = list(attacker.committed)
+        proxy.hand = list(attacker.hand)
+        proxy.garrison = list(attacker.garrison)
+        proxy.souls = int(attacker.souls)
+        proxy.tears = 0
+        proxy.odradek_reconfig_inverted = False
+        proxy.odradek_reconfig_inverted_target = ''
+        return proxy
+
+    def _odradek_resolve_inverted_attack(
+            self, attacker: Player, odr: Player, action: str,
+            reflex: bool = False) -> bool:
+        target = str(
+            getattr(
+                attacker,
+                'odradek_reconfig_inverted_target',
+                '',
+            )
+        )
+
+        # A corresponding target can disappear before initiative reaches this
+        # action. Refund then allow the original attack to resolve normally.
+        if (
+            action == 'Hunt'
+            and not attacker.alive
+        ) or (
+            action == 'Siege'
+            and (not target or target not in attacker.castles)
+        ):
+            self._odradek_reconfig_refund(
+                odr, 4, 'inversions'
+            )
+            attacker.odradek_reconfig_inverted = False
+            attacker.odradek_reconfig_inverted_target = ''
+            return False
+
+        attacker.odradek_reconfig_inverted = False
+        attacker.odradek_reconfig_inverted_target = ''
+        proxy = self._odradek_inverted_proxy(attacker, odr)
+
+        if action == 'Hunt':
+            self._resolve_hunt(proxy, attacker)
+            return True
+
+        # A self-Siege should not divert the Castle Tear into a throwaway proxy.
+        old_consume = VARIANT.get('consume_the_siege', False)
+        old_claim = VARIANT.get('deimos_claims_breach', 0)
+        try:
+            VARIANT['consume_the_siege'] = False
+            VARIANT['deimos_claims_breach'] = 0
+            self._resolve_siege(
+                proxy,
+                attacker,
+                forced_target=target,
+                reflex=reflex,
+            )
+        finally:
+            VARIANT['consume_the_siege'] = old_consume
+            VARIANT['deimos_claims_breach'] = old_claim
+        return True
+
+
     def _phase_commitment(self):
+        self._odradek_reconfiguration_precommit()
         # Decisions are still applied one player at a time, but every doctrine
         # read of the opponent's hidden card pool uses this immutable precommit
         # snapshot.  Per-player RNG streams additionally prevent p0's branch
@@ -2383,6 +2806,19 @@ class Game:
                 and op.tgt_pid == pl.pid
                 and not VARIANT['recoil_hunts_only']
             )
+            if (
+                pl.lord == 'Odradek'
+                and pl.alive
+                and (attacked_by_hunt or attacked_by_siege)
+                and self._odradek_reconfiguration_maybe_invert(
+                    op,
+                    pl,
+                    op.action,
+                )
+            ):
+                # Inversion replaces Recoil for this attack.
+                continue
+
             orias_clean_hunt = (
                 attacked_by_hunt
                 and op.lord == 'Orias'
@@ -2440,8 +2876,9 @@ class Game:
             victim = ordered[1] if len(ordered) > 1 else ordered[0]
 
         if not VARIANT.get('odr_recoil_strip', True):
-            if VARIANT.get('odr_recoil_soul', True):
-                self._gain_soul(dfn, 1); res['soul_gain'] = 1
+            # ODRADEK_INTERLOCK_NO_SOUL_V1
+            # No Soul payout: diagnostic no-strip branch.
+            res['soul_gain'] = 0
             return res
 
         if VARIANT['odr_recoil_bank']:
@@ -2460,8 +2897,8 @@ class Game:
             self._discard([victim])
 
         res['taken_card'] = victim
-        if VARIANT.get('odr_recoil_soul', True):
-            self._gain_soul(dfn, 1); res['soul_gain'] = 1
+                # No Soul payout: successful strip/bank branch.
+        res['soul_gain'] = 0
         return res
 
     def _odradek_spend_bank(self, pl, committed: list):
@@ -2615,7 +3052,9 @@ class Game:
             self._apply_collapse_effect(pl, from_breach=(self.breach == 'Valak'),
                                          from_veil=self._threshold_active(9))
 
-        # ── Humbaba — The Toll (H2): once per round, ruin one of his own
+        # Humbaba — Toll
+
+        # Once per round, ruin one of his own Castles.
         # castles -> opponent loses 1 Soul, place 1 Neutral Tear.
         # Fires pre-combat so it can brake a lethal Ritual turn. Self-punishing:
         # the ruin drops his castle-tied defense and breaks the Gate Guard NOW.
@@ -2725,22 +3164,14 @@ class Game:
                     self._discard([victim])
                     self.stat_breach_triggers += 1
 
-        # Odradek — Reconfiguration (Passive)
+        # Odradek — Reconfiguration Menu V1
         # If fewer than 2 Guards were defeated from Odradek's zones this round,
-        # gain 1 token. At 3 tokens → 1 personal Tear.
-        # Opponent must defeat 2+ guards (any zones, Hunt or Siege) to block the token.
-        # One guard strip is no longer enough — sustained pressure required.
+        # bank 1 token. Tokens no longer auto-convert into any Tear.
         for pl in self.players:
             if pl.lord == 'Odradek' and pl.alive:
-                if pl.odradek_guards_defeated < (1 if VARIANT['reconfig_strict'] else 2):
+                denial = 1 if VARIANT['reconfig_strict'] else 2
+                if pl.odradek_guards_defeated < denial:
                     pl.odradek_reconfig_tokens += 1
-                    if pl.odradek_reconfig_tokens >= VARIANT['reconfig_tokens_needed']:
-                        pl.odradek_reconfig_tokens -= VARIANT['reconfig_tokens_needed']
-                        if VARIANT['reconfig_neutral']:
-                            self._gain_neutral_tear('odradek_reconfiguration')
-                        else:
-                            self._gain_tear(pl)
-                        if self._check_win(): return
 
         for pl in self.players:
             pl.prev_ward_target = pl.ward_target if pl.action == 'Ward' else ''
@@ -2749,48 +3180,142 @@ class Game:
             if pl.lord == 'Humbaba' and pl.alive and VARIANT['humbaba_patient']:
                 pl.humbaba_patient = pl.action not in ('Hunt', 'Siege')
 
-        # Gremory — Inevitable Ruin (Active, once per round, after Resolution)
-        # Discard 2 cards → the Castle that was attacked (Sieged) this round
-        # becomes Ruined. No Souls awarded. Neutral Tear and Predator of Ruin
-        # fire normally.
+        # Gremory — Inevitable Ruin
+
+        # End-of-Round active; once per round.
+        # GREMORY_REBALANCE_OWN_RUIN_INEVITABLE_DEFUNCT_V1: Inevitable
+        #
+        # After Gremory Sieges an Operational Castle and it survives, she may
+        # discard exactly 3 physical Hand/Garrison cards totaling face value 5+
+        # to leave that Castle Defunct rather than Ruined. The bot only fires
+        # when it can retain at least 2 cards after payment, and chooses the
+        # cheapest legal 3-card combination.
+        #
+        # This is NOT destruction: no Souls, no Neutral Tear, no Predator of
+        # Ruin, and no destruction flag. The Castle remains standing/repairable.
         for pl in self.players:
-            if pl.lord == 'Gremory' and pl.alive and not pl.gremory_inevitable_ruin_done:
-                op = self.opp(pl.pid)
-                # Gate: the castle Sieged this round must have survived
-                target = op.last_sieged_castle
-                if not (op.was_sieged and target and target in op.castles):
-                    continue
-                # Cost: 2 cards from hand + garrison combined
-                cost = 2
-                available = sorted(pl.hand + pl.garrison, key=lambda c: c.value)
-                if len(available) < cost:
-                    continue
-                # AI judgment: only fire if hand is healthy enough (keep at least 2 after)
-                if len(pl.hand) + len(pl.garrison) < cost + 2:
-                    continue
-                # Pay 2 lowest cards
-                to_discard = available[:cost]
-                for c in to_discard:
-                    if c in pl.hand:       pl.hand.remove(c)
-                    elif c in pl.garrison: pl.garrison.remove(c)
-                self._discard(to_discard)
-                pl.gremory_inevitable_ruin_done = True
-                op.castles.discard(target)
-                op.ruined_castles.add(target)
-                if ACTIVE_FEATURES['castle_integrity']:
-                    op.castle_integrity[target] = 0
-                self.stat_castles_destroyed += 1
-                self.any_destruction_this_round = True
-                # Neutral Tear: first castle destroyed this round (D4: every)
-                if VARIANT['castle_tear_uncapped'] or not self.first_castle_neutral_done:
-                    self._gain_neutral_tear('castle_inevitable_ruin')
-                    self.first_castle_neutral_done = True
-                # Predator of Ruin: Gremory herself triggered it — fire if not already done
-                if not pl.gremory_ruin_done and self.discard:
-                    pl.hand.append(self.discard[-1])
-                    self.discard.pop()
-                    pl.gremory_ruin_done = True
-                if self._check_win(): return
+            if (pl.lord != 'Gremory'
+                    or not pl.alive
+                    or pl.gremory_inevitable_ruin_done):
+                continue
+
+            op = self.opp(pl.pid)
+            target = op.last_sieged_castle
+
+            if not (
+                    op.was_sieged
+                    and target
+                    and target in op.castles
+                    and op.castle_operational(target)):
+                continue
+
+            # Exact cost = 3 cards, while bot doctrine preserves 2 in reserve.
+            total_available = len(pl.hand) + len(pl.garrison)
+            if total_available < 5:
+                continue
+
+            entries = []
+            for source_rank, (source_name, cards) in enumerate((
+                    ('Garrison', pl.garrison),
+                    ('Hand', pl.hand),
+            )):
+                for index, card in enumerate(cards):
+                    entries.append({
+                        'source': source_name,
+                        'source_rank': source_rank,
+                        'index': index,
+                        'card': card,
+                        'value': int(card.value),
+                    })
+
+            entries.sort(
+                key=lambda e: (
+                    e['value'],
+                    e['source_rank'],
+                    e['index'],
+                )
+            )
+
+            best_combo = None
+            best_key = None
+
+            for i in range(len(entries) - 2):
+                for j in range(i + 1, len(entries) - 1):
+                    for k in range(j + 1, len(entries)):
+                        combo = (
+                            entries[i],
+                            entries[j],
+                            entries[k],
+                        )
+                        total_value = sum(e['value'] for e in combo)
+                        if total_value < 5:
+                            continue
+
+                        key = (
+                            total_value,
+                            tuple(
+                                (
+                                    e['value'],
+                                    e['source_rank'],
+                                    e['index'],
+                                )
+                                for e in combo
+                            ),
+                        )
+
+                        if best_key is None or key < best_key:
+                            best_key = key
+                            best_combo = combo
+
+            if best_combo is None:
+                continue
+
+            to_discard = []
+            payment_value = 0
+
+            for entry in best_combo:
+                card = entry['card']
+                payment_value += int(card.value)
+
+                if entry['source'] == 'Hand':
+                    pl.hand.remove(card)
+                else:
+                    pl.garrison.remove(card)
+
+                to_discard.append(card)
+
+            self._discard(to_discard)
+            pl.gremory_inevitable_ruin_done = True
+
+            integrity_before = int(
+                op.castle_integrity.get(
+                    target,
+                    castle_max_integrity(target),
+                )
+            )
+
+            defunct_integrity = max(
+                1,
+                int(VARIANT.get('castle_operational_floor', 7)) - 1,
+            )
+
+            op.castle_integrity[target] = defunct_integrity
+
+            # Diagnostic telemetry only; no gameplay side effects.
+            self.stat_gremory_inevitable_activations = (
+                getattr(self, 'stat_gremory_inevitable_activations', 0) + 1
+            )
+            self.stat_gremory_inevitable_cards_paid = (
+                getattr(self, 'stat_gremory_inevitable_cards_paid', 0) + 3
+            )
+            self.stat_gremory_inevitable_value_paid = (
+                getattr(self, 'stat_gremory_inevitable_value_paid', 0)
+                + payment_value
+            )
+            self.stat_gremory_inevitable_integrity_removed = (
+                getattr(self, 'stat_gremory_inevitable_integrity_removed', 0)
+                + max(0, integrity_before - defunct_integrity)
+            )
 
         # Kanifous Penitent cleanup
         for pl in self.players:
@@ -3284,6 +3809,23 @@ class Game:
     #  COMBAT: HUNT
     # ─────────────────────────────────────────────────────────────────
     def _resolve_hunt(self, atk: Player, dfn: Player):
+        if getattr(atk, 'odradek_reconfig_inverted', False):
+            if self._odradek_resolve_inverted_attack(
+                atk, dfn, 'Hunt'
+            ):
+                return
+        elif (
+            dfn.lord == 'Odradek'
+            and dfn.alive
+            and self._odradek_reconfiguration_maybe_invert(
+                atk, dfn, 'Hunt'
+            )
+        ):
+            if self._odradek_resolve_inverted_attack(
+                atk, dfn, 'Hunt'
+            ):
+                return
+
         if not dfn.alive: return
         if (VARIANT.get('ward_threshold', False)
                 and not VARIANT.get('ward_frontline', False)
@@ -3306,7 +3848,9 @@ class Game:
         # — Recoil and Backwash are suppressed for this attack
         orias_clean_hunt = (atk.lord == 'Orias' and self.orias_marked_lord == dfn.lord)
 
-        # ── Odradek — Psychic Recoil (PRE-COMBAT, first attack this round)
+        # Odradek — Psychic Recoil
+
+        # Pre-Combat; first qualifying attack each round.
         # Discard the attacker's second-highest committed card and gain 1 Soul.
         if (dfn.lord == 'Odradek' and dfn.alive and not dfn.odradek_recoil_done
                 and not orias_clean_hunt):
@@ -3315,7 +3859,9 @@ class Game:
         strength  = atk.attack_value()
         strength += atk.suit_bonus('Butcher')
 
-        # Orias — Marked Prey: +1 Hunt Strength; +1 additional if defender 2+ Threat
+        # Orias — Marked Prey
+
+        # +1 Hunt Strength; +1 additional if defender has 2+ Threat.
         if atk.lord == 'Orias' and atk.alive:
             strength += 1
             if dfn.threat >= 2: strength += 1
@@ -3585,7 +4131,9 @@ class Game:
                     atk.committed.remove(keep)
                     atk.hand.append(keep)
 
-        # Valak — Siphon: after a Hunt that Defeated 1+ Guards, remove one more
+        # Valak — Siphon
+
+        # After a Hunt that Defeated 1+ Guards, remove one more Guard.
         # Guard from that zone (if any remain)
         if (atk.lord == 'Valak' and atk.alive
                 and guards_lost > 0 and dfn.lord_guards):
@@ -3595,19 +4143,25 @@ class Game:
             self.any_destruction_this_round = True
             self._gremory_lord_guard_trigger()
 
-        # Odradek — Psychic Backwash: attacker gains Threat if Odradek survives
+        # Odradek — Psychic Backwash
+
+        # Attacker gains Threat if Odradek survives.
         # Suppressed on Orias clean hunt (Relentless Pursuit)
         if (dfn.lord == 'Odradek' and dfn.alive and not orias_clean_hunt
                 and not VARIANT['no_backwash']):
             self._gain_threat(atk, 1)
 
-        # Orias — Barbed Web: after Hunt defeats 1+ guard, defender gains Threat
+        # Orias — Barbed Web
+
+        # After Hunt defeats 1+ Guard, defender gains Threat.
         # +1 normally; +2 if defender was already at 2+ Threat (escalation spiral)
         if atk.lord == 'Orias' and atk.alive and guards_lost > 0 and dfn.alive:
             threat_gain = 2 if dfn.threat >= 2 else 1
             self._gain_threat(dfn, threat_gain)
 
-        # Kroni — Ravenous (Hunger 3+, once per game): +2 Souls on kill
+        # Kroni — Ravenous
+
+        # Hunger 3+, once per game: +2 Souls on a qualifying kill.
         if (destroyed and atk.lord == 'Kroni' and atk.alive
                 and atk.kroni_hunger >= 3 and not atk.kroni_ravenous_used):
             self._gain_soul(atk, 2)
@@ -3750,7 +4304,9 @@ class Game:
                 p.gremory_ruin_done = True
                 break
 
-        # Kalligan — Wildfire resolves before Inferno so an Inferno
+        # Kalligan — Wildfire
+
+        # Resolves before Inferno so Inferno's Lord-zone Scorch remains final.
         # Scorch on the Lord zone remains the final persistent token.
         if atk.lord == 'Kalligan' and atk.alive:
             new_zone = 'Castle' if dfn.castles else 'Lord'
@@ -3760,7 +4316,9 @@ class Game:
             self.persist_scorch_pid = dfn.pid
             self.persist_scorch_type = new_zone
 
-        # Kalligan — Inferno defeats the highest Lord Guard. The measured
+        # Kalligan — Inferno
+
+        # Defeats the highest Lord Guard; measured-profile details follow.
         # profile removes its automatic Threat cost.
         if (atk.lord == 'Kalligan' and atk.alive
                 and (atk.threat < MAX_THREAT
@@ -3786,6 +4344,26 @@ class Game:
     def _resolve_siege(self, atk: Player, dfn: Player,
                        forced_target: Optional[str] = None,
                        reflex: bool = False):
+        if getattr(atk, 'odradek_reconfig_inverted', False):
+            if self._odradek_resolve_inverted_attack(
+                atk, dfn, 'Siege', reflex=reflex
+            ):
+                return
+        elif (
+            dfn.lord == 'Odradek'
+            and dfn.alive
+            and self._odradek_reconfiguration_maybe_invert(
+                atk,
+                dfn,
+                'Siege',
+                forced_target=forced_target,
+            )
+        ):
+            if self._odradek_resolve_inverted_attack(
+                atk, dfn, 'Siege', reflex=reflex
+            ):
+                return
+
         if not dfn.castles: return
         if (VARIANT.get('ward_threshold', False)
                 and not VARIANT.get('ward_frontline', False)
@@ -3803,7 +4381,9 @@ class Game:
                         self._pick_siege_target(atk, dfn, record=True)
         dfn.last_sieged_castle = target_castle
 
-        # ── Odradek — Psychic Recoil (PRE-COMBAT, first attack this round)
+        # Odradek — Psychic Recoil
+
+        # Pre-Combat; first qualifying attack each round.
         # Variant O1: Recoil fires on Hunts only — Sieges bypass it entirely
         if (dfn.lord == 'Odradek' and dfn.alive and not dfn.odradek_recoil_done
                 and not VARIANT['recoil_hunts_only']):
@@ -3817,7 +4397,9 @@ class Game:
             VARIANT.get('siege_engine_bypass', False)
             and atk.castle_power_active('SiegeEngine') and not reflex)
 
-        # Deimos — War Machine: +2 Siege Strength, −1 per castle lost.
+        # Deimos — War Machine
+
+        # +2 Siege Strength, −1 per Castle lost.
         # REQUIRES Siege Engine to be active.
         if atk.lord == 'Deimos' and atk.alive and (
                 atk.castle_power_active('SiegeEngine') or VARIANT['deimos_war_machine_free']):
@@ -3826,11 +4408,15 @@ class Game:
                 lost += len(atk.profaned_castles)
             strength += max(0, 2 - lost)
 
-        # Kalligan — Pyroclasm: +1 always; +1 additional if defender has Ruined Castles
+        # Kalligan — Pyroclasm
+
+        # +1 always; +1 additional if defender has Ruined Castles.
         if atk.lord == 'Kalligan' and atk.alive:
             strength += 2 if dfn.ruined_castles else 1
 
-        # Deimos — Fear Aura: defender with 2+ Castle Guards returns one to hand
+        # Deimos — Fear Aura
+
+        # Defender with 2+ Castle Guards returns one to Hand.
         # (before Defense is calculated; the last Guard cannot be returned)
         if atk.lord == 'Deimos' and atk.alive and len(dfn.castle_guards) >= 2:
             weakest = min(dfn.castle_guards, key=lambda c: c.value)
@@ -3999,7 +4585,9 @@ class Game:
             if self._resolve_castle_ruination(atk, dfn, target_castle, guards_lost):
                 return
 
-        # Valak — Siphon: after a Siege that Defeated 1+ Guards, remove one more
+        # Valak — Siphon
+
+        # After a Siege that Defeated 1+ Guards, remove one more Guard.
         # Guard from that zone (if any remain) — applies whether or not the
         # castle was destroyed
         if (atk.lord == 'Valak' and atk.alive
@@ -4425,6 +5013,14 @@ class Game:
                     march_after = max(1, march_before - 2)
                     marcher['value'] = march_after
 
+                zone = str(entry.get('zone', ''))
+                newly_revealed = False
+                if zone in ('Lord', 'Castle'):
+                    newly_revealed = not bool(
+                        getattr(card, 'guard_revealed', False)
+                    )
+                    card.guard_revealed = True
+
                 card.value = after
                 used.add(entry['key'])
                 event = {
@@ -4434,6 +5030,7 @@ class Game:
                     'card_after': f"{card.suit}:{after}",
                     'before': before,
                     'after': after,
+                    'newly_revealed': newly_revealed,
                 }
                 if isinstance(marcher, dict):
                     event['lane'] = entry.get('lane', '')
@@ -4510,13 +5107,17 @@ class Game:
         self._gain_soul(atk, 2)
         self.stat_hunt_souls += 2
 
-        # Orias — Marked Prey: Banishing a Lord with 3+ Threat → +2 additional Souls
+        # Orias — Marked Prey
+
+        # Banishing a Lord with 3+ Threat grants +2 additional Souls.
         if atk.lord == 'Orias' and atk.alive and dfn.threat >= 3:
             self._gain_soul(atk, 2)
 
         self._lose_soul(dfn, 1)
 
-        # Kanifous — Death Pact: +1 Soul when Banished by a Hunt;
+        # Kanifous — Death Pact
+
+        # +1 Soul when Banished by a Hunt;
         # if still behind on Souls after this gain, draw 2
         if dfn.lord == 'Kanifous':
             self._gain_soul(dfn, 1)
@@ -4541,6 +5142,7 @@ class Game:
 
         # FRACTURE_SYSTEM_V1: ordinary Banishment always clears Threat.
 # FRACTURE_MARCHERS_AFTERMATH_V1
+# FRACTURE_GUARD_REVEAL_V1
         dfn.return_threat_override = None
         dfn.threat = 0
         self.last_fracture_event = self._resolve_fracture(
@@ -5831,7 +6433,8 @@ class Game:
             self._commit_for_ward(pl, plan)
 
     def _ward_read_zone(self, pl: Player, op: Player) -> str:
-        """Predict the opponent's next attack door from public information."""
+        # Public-info prediction only. Never evaluate from the opponent's hidden
+        # Hand perspective when deciding our Ward target.
         profile = LORD_AI.get(op.lord, {})
         lord_score = 0.0
         castle_score = 0.0
@@ -5840,22 +6443,19 @@ class Game:
             lord_score += WARD_READ_PREF
         elif preferred == 'Siege':
             castle_score += WARD_READ_PREF
-
         if op.alive and pl.threat >= 2:
-            lord_score += 0.5
+            lord_score += (pl.threat - 1) * 0.35
         if pl.castles:
             castle_score += 0.35
         if pl.was_lord_attacked_prev:
             lord_score += 0.35
         if pl.was_castle_attacked_prev:
             castle_score += 0.35
-
         if VARIANT.get('adaptive_doctrine', False):
             memory = self.action_memory[op.pid]
             rate = ADAPT_RATE.get(pl.lord, 1.0)
             lord_score += memory.get('Hunt', 0.0) * rate * 0.8
             castle_score += memory.get('Siege', 0.0) * rate * 0.8
-
         return 'Lord' if lord_score >= castle_score else 'Castle'
 
     def _attack_tax_factor(self, pl: 'Player', target_type: str) -> float:
@@ -5866,45 +6466,96 @@ class Game:
         return sum(effective_attack_value(pl, c, target_type)
                    for c in pl.hand) / raw
 
+    # BOT_DOCTRINE_PERCEIVED_DEFENSE_V1
+    # BOT_DOCTRINE_ACTION_FORECAST_V1
+    def _public_attack_reach(self, atk: Player, dfn: Player,
+                             target_type: str,
+                             target_castle: Optional[str] = None) -> float:
+        # Fast Python parity proxy for Godot ActionForecast. It uses only public
+        # information: own Hand, exact revealed Guards, and deterministic expected
+        # value for hidden Guards. This is a reachability score, not a win chance.
+        if target_type == 'Lord' and not dfn.alive:
+            return -1.0
+        if target_type == 'Castle' and not dfn.castles:
+            return -1.0
+
+        need, _ = self._estimate_attack_defense(
+            atk,
+            dfn,
+            target_type,
+            context=f'forecast:{atk.pid}:{target_type}:{target_castle or ""}',
+            target_castle=target_castle,
+        )
+        capacity = sum(
+            effective_attack_value(atk, card, target_type)
+            for card in atk.hand
+        )
+        if sum(1 for card in atk.hand if card.suit == 'Butcher') >= 2:
+            capacity += 1
+
+        margin = capacity - need - 1
+        return max(0.0, min(1.0, 0.5 + margin / 8.0))
+
+    @staticmethod
+    def _forecast_score_adjustment(reach: float) -> float:
+        if reach < 0.0:
+            return 0.0
+        return max(-0.70, min(1.30, (reach - 0.35) * 2.0))
+
     def _score_hunt(self, pl: Player, op: Player, plan: str) -> float:
-        if not op.alive: return -5.0
+        if not op.alive:
+            return -5.0
         score = HUNT_BASE if VARIANT.get('fix_a', False) else 1.8
-        score += op.threat * 0.55
+        if (
+            op.lord == 'Odradek'
+            and op.alive
+            and op.odradek_reconfig_tokens >= 4
+        ):
+            score -= (
+                2.3
+                if op.odradek_reconfig_tokens >= 7
+                else 1.8
+            )
+
         score -= pl.threat * 0.20
-        if pl.threat >= 3:  score -= 2.5
-        elif pl.threat == 2: score -= 0.9
-        if op.lord == 'Orias' and op.alive and pl.threat >= 1: score -= 1.5
-        if plan == 'deny_ritual':    score += 2.8
-        if plan == 'protect_souls':  score -= 0.6
-        if plan == 'pressure_souls': score += 0.8
+        if pl.threat >= 3:
+            score -= 2.5
+        elif pl.threat == 2:
+            score -= 0.9
+        if op.lord == 'Orias' and op.alive and pl.threat >= 1:
+            score -= 1.5
+        if plan == 'deny_ritual':
+            score += 2.8
+        if plan == 'protect_souls':
+            score -= 0.6
+        if plan == 'pressure_souls':
+            score += 0.8
         if pl.lord == 'Orias':
-            score += 1.1   # +1 baseline Marked Prey
+            score += 1.1
             op_inst = self.opp(pl.pid)
             if op_inst.alive and op_inst.threat >= 2:
-                score += 0.5  # Barbed Web fires at +2 — escalation window open
-        if pl.lord == 'Gremory': score += 0.4
-        if pl.lord == 'Valak' and pl.souls < 2: score += 0.7
-        # Kroni: hunting becomes more attractive at higher Hunger
-        # At Hunger 3+ each successful attack also generates a Tear
-        if pl.lord == 'Kroni':  score += min(1.2, pl.kroni_hunger * 0.4)
+                score += 0.5
+        if pl.lord == 'Gremory':
+            score += 0.4
+        if pl.lord == 'Valak' and pl.souls < 2:
+            score += 0.7
+        if pl.lord == 'Kroni':
+            score += min(1.2, pl.kroni_hunger * 0.4)
         if op.lord == 'Odradek':
-            # Fear calibrated to the CURRENT recoil, not the pre-errata one:
-            # under hunts-only + strips-lowest, hunting him is a fair trade.
             harsh = not (VARIANT['recoil_hunts_only'] and VARIANT['recoil_lowest'])
             score -= 0.3 if not harsh else 0.9
             if VARIANT['ai_dominion_drive'] and harsh:
                 score -= 0.9
-
-        # Odradek: at Threat 3+ becomes an aggressive attacker
-        # Orias: Relentless Pursuit gives clean hunt vs marked lord — no Recoil cost
         if pl.lord == 'Orias' and self.orias_marked_lord == op.lord:
             score += 0.5
-        if pl.lord == 'Odradek': score -= 0.1   # Odradek prefers Ward
-        if (VARIANT.get('ward_threshold', False)
-                and op.prev_ward_target != 'Lord'):
+        if pl.lord == 'Odradek':
+            score -= 0.1
+        if VARIANT.get('ward_threshold', False) and op.prev_ward_target != 'Lord':
             score -= HUNT_W1_PENALTY
-        score += self._attack_feasibility_adjustment(pl, op, 'Lord')
-        # Easy resummon reduces the strategic value of a Banishment.
+
+        reach = self._public_attack_reach(pl, op, 'Lord')
+        score += self._forecast_score_adjustment(reach)
+
         if op.castle_power_active('SummoningCircle') and (
                 VARIANT.get('circle_ignores_delay', False)
                 or int(VARIANT.get('circle_discount', 0) or 0) > 0
@@ -5913,29 +6564,55 @@ class Game:
         return score * self._attack_tax_factor(pl, 'Lord')
 
     def _score_siege(self, pl: Player, op: Player, plan: str) -> float:
-        if not op.castles: return -5.0
+        if not op.castles:
+            return -5.0
         score = 0.333 if VARIANT.get('fix_a', False) else 1.0
+        if (
+            op.lord == 'Odradek'
+            and op.alive
+            and op.odradek_reconfig_tokens >= 4
+            and op.castles
+        ):
+            likely_target = self._pick_siege_target(pl, op)
+            if likely_target in pl.castles:
+                score -= (
+                    2.3
+                    if op.odradek_reconfig_tokens >= 7
+                    else 1.8
+                )
+
         score += len(op.castles) * 0.25
-        if plan == 'deny_dominion': score += 3.0
-        if plan == 'race_dominion': score += 1.2
-        if op.lord == 'Orias' and op.alive and pl.threat >= 1: score += 1.2
-        if pl.threat >= 2: score += 0.5
-        if pl.threat >= 3: score += 0.6
-        if pl.lord == 'Deimos':   score += 1.0
-        if pl.lord == 'Kalligan': score += 0.8   # now has +1 baseline from Pyroclasm
-        if pl.lord == 'Gremory':  score += 0.7
+        if plan == 'deny_dominion':
+            score += 3.0
+        if plan == 'race_dominion':
+            score += 1.2
+        if op.lord == 'Orias' and op.alive and pl.threat >= 1:
+            score += 1.2
+        if pl.threat >= 2:
+            score += 0.5
+        if pl.threat >= 3:
+            score += 0.6
+        if pl.lord == 'Deimos':
+            score += 1.0
+        if pl.lord == 'Kalligan':
+            score += 0.8
+        if pl.lord == 'Gremory':
+            score += 0.7
         if pl.lord == 'Kalligan' and pl.alive and self.opp(pl.pid).ruined_castles:
             score += 0.5
-        # Siege advances Veil track — bonus if we're ahead on personal tears
         op = self.opp(pl.pid)
-        if pl.tears > op.tears: score += 0.3
-        if (VARIANT.get('ward_threshold', False)
-                and op.prev_ward_target != 'Castle'):
+        if pl.tears > op.tears:
+            score += 0.3
+        if VARIANT.get('ward_threshold', False) and op.prev_ward_target != 'Castle':
             score -= HUNT_W1_PENALTY
-        score += self._attack_feasibility_adjustment(pl, op, 'Castle')
-        # Valuable live enemy engines make Siege strategically meaningful.
-        score += min(0.8, sum(self._castle_strategic_value(op, c)
-                              for c in op.castles) * 0.10)
+
+        target = self._pick_siege_target(pl, op)
+        reach = self._public_attack_reach(pl, op, 'Castle', target_castle=target)
+        score += self._forecast_score_adjustment(reach)
+        score += min(
+            0.60,
+            self._castle_strategic_value(op, target) * max(0.0, reach) * 0.25,
+        )
         return score * self._attack_tax_factor(pl, 'Castle')
 
     def _score_ward(self, pl: Player, op: Player, plan: str) -> float:
@@ -5998,11 +6675,11 @@ class Game:
             return known_total
 
         estimate = unknown_count * DECK_MEAN_VALUE
-        # Context+round streams make reserve/score/commit repeatable without one
-        # probe consuming the noise intended for another doctrine layer.
-        estimate += self.rng.stream(
-            f'fog:{context}:{self.round}'
-        ).gauss(0.0, FOG_NOISE * unknown_count ** 0.5)
+        # BOT_DOCTRINE_ACTION_FORECAST_V1: stable public-information reach.
+        if not str(context).startswith('forecast:'):
+            estimate += self.rng.stream(
+                f'fog:{context}:{self.round}'
+            ).gauss(0.0, FOG_NOISE * unknown_count ** 0.5)
         return known_total + max(unknown_count, int(round(estimate)))
 
     def _estimate_attack_defense(self, atk: Player, dfn: Player,

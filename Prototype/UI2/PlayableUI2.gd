@@ -2830,6 +2830,8 @@ func _ui2_action_result_summary(
 							int(fracture_event.get("before", 0)),
 							int(fracture_event.get("after", 0)),
 						]
+						if bool(fracture_event.get("newly_revealed", false)):
+							summary += " · REVEALED"
 						if (
 							zone == "Marcher"
 							and fracture_event.has("march_before")

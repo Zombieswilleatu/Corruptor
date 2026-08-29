@@ -30,9 +30,9 @@ class CastleIntegrityCanonicalTests(unittest.TestCase):
             setattr(sim, name, value)
 
     def test_current_profile_contract(self):
-        self.assertEqual(sim.SIM_VERSION, "7.5.0-suit-identities")
-        self.assertEqual(sim.LAB_PROFILE_VERSION, "7.5.0-suit-identities")
-        self.assertEqual(sim.AI_POLICY, "heuristic-2026.08-castle-contextual-v3")
+        self.assertEqual(sim.SIM_VERSION, "7.6.2-defunct-repair-lock")
+        self.assertEqual(sim.LAB_PROFILE_VERSION, "6.8.3-kroni-cannibal-no-gorge")
+        self.assertEqual(sim.AI_POLICY, "heuristic-2026.08-action-forecast-v1-odradek-reconfig-menu-v1_1")
         self.assertTrue(sim.VARIANT["castle_loadout"])
         self.assertEqual(sim.VARIANT["starting_castles"], 3)
         self.assertEqual(sim.VARIANT["castle_type_count"], 5)
@@ -51,15 +51,12 @@ class CastleIntegrityCanonicalTests(unittest.TestCase):
         self.assertTrue(sim.ACTIVE_FEATURES["castle_construction"])
         self.assertTrue(sim.ACTIVE_FEATURES["castle_irreparable"])
 
-    def test_setup_starts_with_any_three_and_flat_fourteen(self):
+    def test_setup_starts_with_keep_plus_two_lord_preferences(self):
         game = sim.Game(["Orias"], ["Valak"])
         game._setup()
         orias = game.players[0]
-        self.assertEqual(
-            orias.castles,
-            set(sim.CASTLE_PRIORITIES["Orias"][:3]),
-        )
-        self.assertNotIn("Keep", orias.castles)
+        self.assertEqual(orias.castles, {"Keep", "SiegeEngine", "Bastion"})
+        self.assertIn("Keep", orias.castles)
         self.assertEqual(
             orias.castle_integrity,
             {castle: 14 for castle in orias.castles},
@@ -129,7 +126,7 @@ class CastleIntegrityCanonicalTests(unittest.TestCase):
         self.assertEqual(defender.castle_guards, [])
         self.assertIn(guard, game.discard)
 
-    def test_granular_repair_uses_multiple_cards_and_one_action(self):
+    def test_granular_repair_uses_multiple_cards_without_castle_action_lock(self):
         game = sim.Game(["Orias"], ["Valak"])
         player = game.players[0]
         player.castles = set(sim.CASTLES)
@@ -154,12 +151,21 @@ class CastleIntegrityCanonicalTests(unittest.TestCase):
         self.assertEqual(game.stat_castle_repair_actions, 1)
         self.assertEqual(game.stat_repair_cards, 3)
         self.assertEqual(game.stat_repair_value, 10)
-        self.assertTrue(player.castle_action_used_this_round)
+        # Repair is intentionally unrestricted in the current profile:
+        # it does not consume the Construction action lock.
+        self.assertFalse(player.castle_action_used_this_round)
 
         player.hand = [sim.Card("Penitent", 5)]
         player.castle_integrity["Bastion"] = 5
+        total_before_second_repair = sum(player.castle_integrity.values())
         game._ai_repair_only(player)
-        self.assertEqual(player.castle_integrity["Bastion"], 5)
+        self.assertGreater(
+            sum(player.castle_integrity.values()),
+            total_before_second_repair,
+        )
+        self.assertEqual(player.hand, [])
+        self.assertEqual(game.stat_castle_repair_actions, 2)
+        self.assertFalse(player.castle_action_used_this_round)
 
     def test_bounded_repair_modifiers_trigger_once_per_action(self):
         game = sim.Game(["Kalligan"], ["Valak"])
@@ -228,25 +234,26 @@ class CastleIntegrityCanonicalTests(unittest.TestCase):
         self.assertEqual(player.castle_integrity["Keep"], 0)
         self.assertNotIn("Keep", player.castle_construction_progress)
 
-    def test_non_siege_ruination_gets_no_bonus_soul(self):
+    def test_non_siege_castle_loss_gets_no_ruination_bonus_soul(self):
+        # The historical fixture used Gremory's old Inevitable Ruin semantics
+        # as a non-Siege destruction path. Profane is an explicit non-Siege
+        # castle loss, so it cleanly tests the actual invariant here:
+        # ruination_soul_source == "enemy_siege".
         game = sim.Game(["Gremory"], ["Valak"])
-        gremory, opponent = game.players
-        gremory.alive = True
-        opponent.castles = {"Keep"}
-        opponent.castle_integrity = {"Keep": 7}
-        opponent.was_sieged = True
-        opponent.last_sieged_castle = "Keep"
-        gremory.hand = [
-            sim.Card("Butcher", 1), sim.Card("Wright", 1),
-            sim.Card("Vulture", 2), sim.Card("Penitent", 2),
-        ]
-        gremory.action = opponent.action = "Pass"
+        player, opponent = game.players
+        player.castles = {"Keep"}
+        player.castle_integrity = {"Keep": 14}
+        player.pending_profane = "Keep"
+        player.action = "Profane"
+        souls_before = player.souls
 
-        game._phase_resolution([0, 1])
+        game._resolve_profane(player, opponent)
 
-        self.assertEqual(gremory.souls, 0)
+        self.assertNotIn("Keep", player.castles)
+        self.assertIn("Keep", player.profaned_castles)
+        self.assertEqual(player.castle_integrity["Keep"], 0)
+        self.assertEqual(player.souls, souls_before)
         self.assertEqual(game.stat_ruination_soul_bonus, 0)
-        self.assertEqual(opponent.castle_integrity["Keep"], 0)
 
     def test_castle_doctrine_denominator_is_all_five_types(self):
         self.assertEqual(sim.castle_board_fraction(0), 0.0)

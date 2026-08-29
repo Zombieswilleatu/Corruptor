@@ -356,65 +356,46 @@ static func _test_gremory_draws(
 		rules
 	)
 
-	if fixture.has(
-		"error"
-	):
+	if fixture.has("error"):
 		return _fail(
 			GREMORY_TEST_NAME,
-			String(
-				fixture["error"]
-			)
+			String(fixture["error"])
 		)
 
 	var game = fixture["game"]
 	var gremory = fixture["p0"]
 	var opponent = fixture["p1"]
 
-	_prepare_game(
-		game
-	)
+	_prepare_game(game)
 
 	gremory.lord = "Gremory"
 	gremory.alive = true
-
-	gremory.ruined_castles.append(
-		"Keep"
-	)
-
-	opponent.ruined_castles.append(
-		"Bastion"
-	)
+	gremory.ruined_castles.append("Keep")
+	opponent.ruined_castles.append("Bastion")
+	gremory.profaned_castles.append("Stockpile")
 
 	game.deck = _cards_from_ids([
 		"Butcher:1",
-		"Penitent:2",
-		"Vulture:3",
 	])
 
-	var result: Dictionary = (
-		DevelopmentStartEngineData.resolve(
-			game,
-			rules,
-			null
-		)
+	var result: Dictionary = DevelopmentStartEngineData.resolve(
+		game,
+		rules,
+		null
 	)
 
-	if _card_ids(
-		gremory.hand
-	) != [
-		"Vulture:3",
-		"Penitent:2",
+	if _card_ids(gremory.hand) != [
 		"Butcher:1",
 	]:
 		return _fail(
 			GREMORY_TEST_NAME,
-			"Picking the Bones drew the wrong cards."
+			"Picking did not draw exactly once from Gremory's own Ruin."
 		)
 
-	if gremory.kanifous_outside_draws != 3:
+	if gremory.kanifous_outside_draws != 1:
 		return _fail(
 			GREMORY_TEST_NAME,
-			"Picking the Bones did not count three outside draws."
+			"Picking did not count exactly one outside draw."
 		)
 
 	var events: Array = result.get(
@@ -422,21 +403,46 @@ static func _test_gremory_draws(
 		[]
 	)
 
-	if events.size() != 1:
+	if (
+		events.size() != 1
+		or int(events[0].get("requested_draws", -1)) != 1
+	):
 		return _fail(
 			GREMORY_TEST_NAME,
-			"Picking the Bones produced the wrong event count."
+			"Picking requested the wrong own-Ruin draw count."
 		)
 
-	if int(
-		events[0].get(
-			"requested_draws",
-			0
-		)
-	) != 3:
+	# Enemy-only Ruin and Gremory's own Profaned Castle draw nothing.
+	gremory.hand.clear()
+	gremory.ruined_castles.clear()
+	game.deck = _cards_from_ids([
+		"Penitent:2",
+	])
+
+	var second_result: Dictionary = DevelopmentStartEngineData.resolve(
+		game,
+		rules,
+		null
+	)
+
+	if not gremory.hand.is_empty():
 		return _fail(
 			GREMORY_TEST_NAME,
-			"Picking the Bones requested the wrong number of draws."
+			"Enemy Ruin or Profaned Castle incorrectly fed Picking."
+		)
+
+	var second_events: Array = second_result.get(
+		"gremory_draw_events",
+		[]
+	)
+
+	if (
+		second_events.size() != 1
+		or int(second_events[0].get("requested_draws", -1)) != 0
+	):
+		return _fail(
+			GREMORY_TEST_NAME,
+			"Enemy/profaned-only state requested a Picking draw."
 		)
 
 	return _pass(
