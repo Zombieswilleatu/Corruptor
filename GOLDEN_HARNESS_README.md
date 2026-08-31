@@ -1,8 +1,15 @@
 # Golden-Master Harness — Cross-Implementation Test Contract
 
-The Python sim is the **oracle**. The GDScript engine must reproduce its state
-exactly. This harness makes that mechanical: the oracle emits versioned JSON
-traces; the Godot loader replays each scenario and asserts state-equality.
+<!-- PARITY_CONTRACT_SPLIT_V1 -->
+The harness now has **two contracts**. Python remains an independent reference
+implementation for deterministic **mechanics/rules parity**. Current Godot bot
+doctrine is tested by Godot's own regression suite and is no longer required to
+match the historical Python softmax adapter action-for-action.
+
+The legacy fixed-seed bot game and 81-cell Lord matrix are retained as explicit
+**AI-differential diagnostics**. They are non-gating by default because current
+Godot `ActionForecast` has evolved beyond the Python mirror. Set
+`CORRUPTOR_AI_PARITY=1` when intentionally investigating that differential.
 
 Because Corruptor is *a GUI over a state machine*, a single wrong number in
 resolution is invisible until the game feels "off." This harness is how you

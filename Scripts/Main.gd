@@ -296,7 +296,12 @@ func _run_golden_startup_checks() -> void:
 
 			print(text)
 			push_error(text)
-			if message.has("actual_snapshot"):
+			# TERSE_GOLDEN_MATRIX_OUTPUT_V1
+			# Full snapshots are opt-in so matrix failures do not overflow output.
+			var verbose_golden: bool = (
+				OS.get_environment("CORRUPTOR_GOLDEN_VERBOSE") == "1"
+			)
+			if verbose_golden and message.has("actual_snapshot"):
 				print(
 					"ACTUAL MATRIX SNAPSHOT %s\n%s" % [
 						String(message.get("checkpoint", "")),

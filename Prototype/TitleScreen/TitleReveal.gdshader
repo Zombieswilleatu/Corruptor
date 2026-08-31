@@ -1,4 +1,4 @@
-// TITLE_SCREEN_TENDRIL_BLOOM_ROT_V24
+// TITLE_SCREEN_REVERSE_FORMATION_EXIT_V31B
 shader_type canvas_item;
 
 // -----------------------------------------------------------------------------
@@ -21,39 +21,69 @@ uniform float living_enabled : hint_range(0.0, 1.0) = 0.0;
 uniform float living_time = 0.0;
 
 // -----------------------------------------------------------------------------
-// V22 ERODING ROT CONTROLS
+// V27 CORRUPTION WAVE
 // -----------------------------------------------------------------------------
 //
-// Deliberately visible first-pass defaults. Once the motion feels right, width
-// and colour can be dialled back without redesigning the simulation.
+// One readable event:
+//   sickly wave enters from the left -> sweeps across -> exits -> rest -> repeat.
+//
+// V29 keeps the slower V28 sweep range, but restores a deliberate clean-title
+// hold before ANY living effect begins. For the first ~6 seconds the revealed
+// logo is left alone. After that, the wave and a much more legible slow pulse
+// run continuously; there is still no post-wave flash.
+//
+// There is no crawler simulation, no infection graph, no FBM in the wave, and
+// no alpha erosion.
 
-uniform float infection_growth_seconds : hint_range(12.0, 60.0) = 34.0;
-uniform float infection_hold_seconds : hint_range(0.0, 20.0) = 4.0;
-uniform float recovery_seconds : hint_range(15.0, 90.0) = 32.0;
-uniform float infection_cycle_seconds : hint_range(55.0, 120.0) = 76.0;
-uniform float infection_seed_stagger : hint_range(0.0, 12.0) = 2.8;
+// Give the reveal room to finish before the title starts breathing/rotting.
+uniform float effect_delay_seconds : hint_range(0.0, 15.0) = 6.0;
 
-// V23 does not stop at an arbitrary radius. Main tendrils run to the
-// horizontal UV edge; daughter growth runs to the vertical UV edge.
-uniform float infection_edge_margin : hint_range(0.0, 0.08) = 0.012;
-uniform float infection_front_seconds : hint_range(0.05, 1.5) = 0.16;
-uniform float tendril_width : hint_range(0.008, 0.060) = 0.020;
-uniform float tendril_wander : hint_range(0.0, 0.16) = 0.105;
+uniform float wave_cycle_seconds : hint_range(10.0, 22.0) = 12.5;
+uniform float wave_sweep_min_seconds : hint_range(4.0, 12.0) = 6.0;
+uniform float wave_sweep_max_seconds : hint_range(5.0, 14.0) = 9.5;
 
-// Local colonies grow at roots and branch junctions. These break the long
-// tendrils into patches of corrosion instead of carving straight bands.
-uniform float bloom_radius : hint_range(0.025, 0.12) = 0.060;
-uniform float bloom_seconds : hint_range(1.0, 10.0) = 4.2;
+uniform float wave_front_width : hint_range(0.004, 0.10) = 0.022;
+uniform float wave_trail_width : hint_range(0.06, 0.50) = 0.24;
+uniform float wave_shape_scale : hint_range(2.0, 30.0) = 8.0;
+uniform float wave_shape_wander : hint_range(0.0, 0.12) = 0.035;
 
-// Material only. No moving material noise.
-uniform vec3 rot_sick_tint : source_color = vec3(0.18, 0.26, 0.035);
-uniform vec3 rot_fresh_tint : source_color = vec3(0.34, 0.55, 0.050);
-uniform vec3 rot_crust_tint : source_color = vec3(0.09, 0.12, 0.025);
+// Static breakup INSIDE the passing band. It never scrolls independently.
+uniform float wave_material_scale : hint_range(4.0, 60.0) = 18.0;
+uniform float wave_material_strength : hint_range(0.0, 1.0) = 0.42;
 
-uniform float rot_mottle_scale : hint_range(8.0, 60.0) = 36.0;
-uniform float rot_mottle_strength : hint_range(0.0, 1.0) = 0.38;
-uniform float rot_pit_scale : hint_range(12.0, 90.0) = 56.0;
-uniform float rot_pit_bite : hint_range(0.0, 1.0) = 0.26;
+// Dark sickly green -> almost black-green.
+uniform vec3 wave_sick_tint : source_color = vec3(0.26, 0.36, 0.075);
+uniform vec3 wave_black_tint : source_color = vec3(0.055, 0.075, 0.020);
+uniform float wave_corruption_strength : hint_range(0.0, 1.0) = 0.90;
+
+// Persistent scars left behind by each corruption pass.
+// A scar remains until the NEXT wave reaches that pixel and replaces it.
+
+    uniform float wave_residue_strength : hint_range(0.0, 1.0) = 0.72;
+
+
+    uniform float wave_residue_scale : hint_range(4.0, 80.0) = 18.0;
+
+
+    uniform float wave_residue_threshold : hint_range(0.05, 0.90) = 0.34;
+
+
+    uniform float wave_residue_black_strength : hint_range(0.0, 1.0) = 0.85;
+
+
+// Narrow damp edge at the front. Deliberately not a huge neon halo.
+uniform vec3 wave_front_tint : source_color = vec3(0.34, 0.42, 0.10);
+uniform float wave_front_strength : hint_range(0.0, 1.0) = 0.20;
+
+// Continuous breathing after the clean-title delay. V28's 11% dip was easy to
+// miss; 20% is still restrained but should now read clearly as a heartbeat.
+uniform float pulse_seconds : hint_range(2.0, 12.0) = 5.6;
+uniform float pulse_depth : hint_range(0.0, 0.35) = 0.20;
+
+// V31B exit transition. Controller still drives 0 -> 1 after confirmation.
+// Disappearance reuses the ORIGINAL FORMATION FIELD itself, played backward.
+uniform float exit_progress : hint_range(0.0, 1.0) = 0.0;
+uniform float exit_front_sickness : hint_range(0.0, 1.0) = 0.72;
 
 
 // -----------------------------------------------------------------------------
@@ -93,8 +123,7 @@ float value_noise(vec2 p) {
 }
 
 
-// The ORIGINAL reveal keeps its established FBM look.
-// Importantly, V21 rot never calls FBM.
+// FBM remains ONLY for the original reveal that already looked good.
 float fbm(vec2 p) {
     float value = 0.0;
     float amplitude = 0.5;
@@ -124,131 +153,6 @@ vec2 source_point(float index) {
 }
 
 
-// Dedicated rot seeds. These are intentionally NOT source_point(); reveal
-// sources are allowed to live in transparent space, infection seeds are not.
-vec2 infection_anchor(float index) {
-    float slot = mod(index, 12.0);
-
-    // Hand-picked substantial strokes at several heights. V23 put every root
-    // around y=0.50, which encouraged giant horizontal erosion bands.
-    if (slot < 0.5)  return vec2(0.110, 0.43); // C upper-left
-    if (slot < 1.5)  return vec2(0.118, 0.58); // C lower-left
-    if (slot < 2.5)  return vec2(0.195, 0.44); // first O left/upper
-    if (slot < 3.5)  return vec2(0.300, 0.56); // first R stem/lower
-    if (slot < 4.5)  return vec2(0.397, 0.43); // second R stem/upper
-    if (slot < 5.5)  return vec2(0.493, 0.58); // U lower stroke
-    if (slot < 6.5)  return vec2(0.590, 0.44); // P stem/upper
-    if (slot < 7.5)  return vec2(0.704, 0.56); // T stem/lower
-    if (slot < 8.5)  return vec2(0.787, 0.43); // second O left/upper
-    if (slot < 9.5)  return vec2(0.885, 0.56); // final R stem/lower
-    if (slot < 10.5) return vec2(0.545, 0.46); // U/P neighborhood
-    return vec2(0.340, 0.47);                  // R/R neighborhood
-}
-
-
-// x = soft body mask
-// y = arrival time at this point on the segment
-//
-// Squared distance is used deliberately: no sqrt/length per segment.
-vec2 rot_segment(
-    vec2 p,
-    vec2 a,
-    vec2 b,
-    float width,
-    float start_seconds,
-    float duration_seconds
-) {
-    vec2 ab = b - a;
-    vec2 ap = p - a;
-
-    float denom = max(
-        dot(ab, ab),
-        0.000001
-    );
-
-    float along = clamp(
-        dot(ap, ab) / denom,
-        0.0,
-        1.0
-    );
-
-    vec2 nearest = a + ab * along;
-    vec2 d = p - nearest;
-
-    float d2 = dot(d, d);
-    float w2 = width * width;
-
-    float body = 1.0 - smoothstep(
-        w2 * 0.48,
-        w2 * 1.10,
-        d2
-    );
-
-    float arrival = (
-        start_seconds
-        + along * duration_seconds
-    );
-
-    arrival = mix(
-        999.0,
-        arrival,
-        step(0.001, body)
-    );
-
-    return vec2(
-        body,
-        arrival
-    );
-}
-
-// x = soft bloom body
-// y = arrival time of the outward-growing local colony
-//
-// Uses squared radius so it stays cheap. The slightly non-linear radial timing
-// is useful here: a bloom establishes quickly near its seed, then creeps at the
-// perimeter.
-vec2 rot_bloom(
-    vec2 p,
-    vec2 center,
-    float radius,
-    float start_seconds,
-    float duration_seconds
-) {
-    vec2 d = p - center;
-    float d2 = dot(d, d);
-    float r2 = max(radius * radius, 0.000001);
-
-    float normalized_d2 = clamp(
-        d2 / r2,
-        0.0,
-        1.0
-    );
-
-    float body = 1.0 - smoothstep(
-        0.48,
-        1.04,
-        normalized_d2
-    );
-
-    float arrival = (
-        start_seconds
-        + normalized_d2 * duration_seconds
-    );
-
-    arrival = mix(
-        999.0,
-        arrival,
-        step(0.001, body)
-    );
-
-    return vec2(
-        body,
-        arrival
-    );
-}
-
-
-
 // -----------------------------------------------------------------------------
 // FRAGMENT
 // -----------------------------------------------------------------------------
@@ -257,7 +161,7 @@ void fragment() {
     vec4 c = texture(TEXTURE, UV);
 
     // -------------------------------------------------------------------------
-    // ORIGINAL REVEAL — intentionally retained from V20
+    // ORIGINAL REVEAL
     // -------------------------------------------------------------------------
 
     float warp_a = fbm(
@@ -339,715 +243,436 @@ void fragment() {
     );
 
     // -------------------------------------------------------------------------
-    // V24 TENDRILS + LOCAL BLOOMS
+    // V27 LEFT-TO-RIGHT CORRUPTION WAVE
     // -------------------------------------------------------------------------
-    //
-    // Four staggered deterministic networks.
-    //
-    // Each network is:
-    //   3 thin connected main tendril segments
-    //   2 daughter tendrils seeded from reached points
-    //   1 granddaughter seeded from daughter #1
-    //   several cheap local blooms at established junctions
-    //
-    // There is NO moving noise and NO noise call inside a segment loop.
-    // Overlaps use max(), not additive stacking, so they stay defined instead
-    // of averaging into a smoky haze.
 
-    float grain = value_noise(
-        UV * rot_mottle_scale
+    float activity = clamp(
+        living_enabled,
+        0.0,
+        1.0
+    );
+
+    float cycle_seconds = max(
+        wave_cycle_seconds,
+        wave_sweep_max_seconds + 0.75
+    );
+
+    float safe_time = max(
+        living_time,
+        0.0
+    );
+
+    // Old rule restored: reveal first, living title later. Before the delay,
+    // effect_started is zero and the logo is exactly the clean revealed title.
+    float effect_started = (
+        activity
+        * step(effect_delay_seconds, safe_time)
+    );
+
+    float effect_time = max(
+        safe_time - effect_delay_seconds,
+        0.0
+    );
+
+    float cycle_index = floor(
+        effect_time / cycle_seconds
+    );
+
+    float local_clock = mod(
+        effect_time,
+        cycle_seconds
+    );
+
+    // Every pass picks a different duration, but remains linear and readable.
+    float speed_random = hash21(
+        vec2(
+            run_seed * 13.71 + cycle_index * 17.0,
+            91.0 + cycle_index * 3.0
+        )
+    );
+
+    float sweep_min = min(
+        wave_sweep_min_seconds,
+        wave_sweep_max_seconds
+    );
+
+    float sweep_max = max(
+        wave_sweep_min_seconds,
+        wave_sweep_max_seconds
+    );
+
+    float sweep_seconds = mix(
+        sweep_min,
+        sweep_max,
+        speed_random
+    );
+
+    float sweep_t = clamp(
+        local_clock / max(sweep_seconds, 0.001),
+        0.0,
+        1.0
+    );
+
+    // Move far enough beyond each side that the ENTIRE trailing corruption
+    // band has left before the post-pass glow begins.
+    float travel_pad = wave_trail_width + 0.08;
+
+    float wave_x = mix(
+        -travel_pad,
+        1.0 + travel_pad,
+        sweep_t
+    );
+
+    // The front is not ruler-straight, but its shape is fixed for the duration
+    // of each pass. Nothing crawls or swims independently.
+    float front_shape = value_noise(
+        vec2(
+            UV.y * wave_shape_scale,
+            run_seed * 0.31 + cycle_index * 4.73
+        )
+    );
+
+    float local_front_x = (
+        wave_x
+        + (front_shape - 0.5) * wave_shape_wander
+    );
+
+    float behind_front = local_front_x - UV.x;
+
+    float crossed = smoothstep(
+        -wave_front_width,
+        wave_front_width,
+        behind_front
+    );
+
+    // A broad decaying tail behind the front. Farther behind = recovered metal.
+    float trail = 1.0 - smoothstep(
+        wave_trail_width * 0.22,
+        wave_trail_width,
+        behind_front
+    );
+
+    float wave_mask = (
+        crossed
+        * trail
+        * effect_started
+    );
+
+    // One stationary material field breaks up the dark-green band without
+    // turning it into animated smoke.
+    float material = value_noise(
+        UV * wave_material_scale
         + vec2(
             run_seed * 0.137,
             run_seed * 0.071
         )
     );
 
-    float width_mod = mix(
-        0.82,
-        1.18,
-        grain
-    );
-
-    float rot_amount = 0.0;
-    float fresh_amount = 0.0;
-    float decay_amount = 0.0;
-    float erosion_amount = 0.0;
-
-    // Aspect-corrected infection working space.
-    vec2 p = vec2(
-        UV.x * 2.35,
-        UV.y
-    );
-
-    for (int i = 0; i < 4; i++) {
-        float fi = float(i);
-
-        float h1 = hash21(
-            vec2(
-                run_seed * 0.173
-                + fi * 17.31,
-                19.7 + fi * 3.1
-            )
-        );
-
-        float h2 = hash21(
-            vec2(
-                41.3 + fi * 13.9,
-                run_seed * 0.097
-                + fi * 5.7
-            )
-        );
-
-        float h3 = hash21(
-            vec2(
-                run_seed * 0.131
-                + fi * 29.1,
-                73.7 + fi * 11.3
-            )
-        );
-
-        float seed_delay = (
-            fi * infection_seed_stagger
-            + h1 * 0.65
-        );
-
-        float raw_clock = (
-            living_time - seed_delay
-        );
-
-        float started = step(
-            0.0,
-            raw_clock
-        );
-
-        float cycle_index = floor(
-            max(raw_clock, 0.0)
-            / infection_cycle_seconds
-        );
-
-        float local_clock = mod(
-            max(raw_clock, 0.0),
-            infection_cycle_seconds
-        );
-
-        // Change the starting letter each cycle.
-        float anchor_slot = mod(
-            fi * 3.0
-            + cycle_index * 2.0
-            + floor(run_seed * 12.0),
-            12.0
-        );
-
-        vec2 anchor_uv = infection_anchor(
-            anchor_slot
-        );
-
-        vec2 p0 = vec2(
-            anchor_uv.x * 2.35,
-            anchor_uv.y
-        );
-
-        // ---------------------------------------------------------
-        // V24 EDGE-SEEKING TENDRILS
-        // ---------------------------------------------------------
-        //
-        // There is no arbitrary infection radius anymore.
-        //
-        // The primary tendril keeps travelling until it reaches the LEFT or
-        // RIGHT edge of this shader's pixel/UV area. Daughter tendrils bud from
-        // already infected points and continue until they reach the TOP or
-        // BOTTOM edge. A granddaughter then turns back across the title.
-        //
-        // The geometry remains fixed for the lifetime of the outbreak; only
-        // the infection front advances along it.
-
-        float x_min = infection_edge_margin * 2.35;
-        float x_max = (1.0 - infection_edge_margin) * 2.35;
-        float y_min = infection_edge_margin;
-        float y_max = 1.0 - infection_edge_margin;
-
-        // Left-side roots travel right. Right-side roots travel left.
-        // Middle roots choose a seeded direction.
-        float horizontal_sign = mix(
-            1.0,
-            -1.0,
-            step(0.50, anchor_uv.x)
-        );
-
-        if (
-            anchor_uv.x > 0.43
-            && anchor_uv.x < 0.57
-        ) {
-            horizontal_sign = (
-                step(0.5, h1) * 2.0
-                - 1.0
-            );
-        }
-
-        float target_x = mix(
-            x_min,
-            x_max,
-            step(0.0, horizontal_sign)
-        );
-
-        // Give the main line a gentle overall slope, but keep it inside the
-        // pixel area so horizontal spread always reaches its screen-side edge.
-        float target_y = clamp(
-            p0.y + (h1 - 0.5) * 0.24,
-            y_min,
-            y_max
-        );
-
-        vec2 p3 = vec2(
-            target_x,
-            target_y
-        );
-
-        vec2 primary_delta = p3 - p0;
-        vec2 primary_dir = normalize(primary_delta);
-        vec2 primary_perp = vec2(
-            -primary_dir.y,
-            primary_dir.x
-        );
-
-        // Crooked intermediate points. They do not shorten the path: p3 is
-        // still the actual horizontal boundary.
-        vec2 p1 = mix(
-            p0,
-            p3,
-            0.31
-        );
-
-        p1 += primary_perp * (
-            (h2 - 0.5)
-            * tendril_wander
-            * 1.25
-        );
-
-        p1.y = clamp(
-            p1.y,
-            y_min,
-            y_max
-        );
-
-        vec2 p2 = mix(
-            p0,
-            p3,
-            0.64
-        );
-
-        p2 += primary_perp * (
-            (h3 - 0.5)
-            * tendril_wander
-            * 1.55
-        );
-
-        p2.y = clamp(
-            p2.y,
-            y_min,
-            y_max
-        );
-
-        // Daughter #1 buds from the first third of established growth and runs
-        // all the way to a vertical edge.
-        vec2 d1_seed = mix(
-            p0,
-            p1,
-            0.72
-        );
-
-        float d1_to_top = step(
-            0.5,
-            h2
-        );
-
-        float d1_target_y = mix(
-            y_min,
-            y_max,
-            d1_to_top
-        );
-
-        vec2 d1_end = vec2(
-            clamp(
-                d1_seed.x
-                + (h3 - 0.5) * 0.34,
-                x_min,
-                x_max
-            ),
-            d1_target_y
-        );
-
-        // Daughter #2 starts later on the main line and deliberately seeks the
-        // opposite vertical edge, so the network expands through the full
-        // pixel area rather than collecting around one little root.
-        vec2 d2_seed = mix(
-            p1,
-            p2,
-            0.72
-        );
-
-        float d2_target_y = mix(
-            y_max,
-            y_min,
-            d1_to_top
-        );
-
-        vec2 d2_end = vec2(
-            clamp(
-                d2_seed.x
-                + (h1 - 0.5) * 0.30,
-                x_min,
-                x_max
-            ),
-            d2_target_y
-        );
-
-        // Granddaughter buds FROM daughter #1 and heads horizontally toward
-        // whichever screen edge is farther away from that daughter seed.
-        vec2 gd_seed = mix(
-            d1_seed,
-            d1_end,
-            0.58
-        );
-
-        float gd_left_distance = gd_seed.x - x_min;
-        float gd_right_distance = x_max - gd_seed.x;
-
-        float gd_target_x = mix(
-            x_min,
-            x_max,
-            step(
-                gd_left_distance,
-                gd_right_distance
-            )
-        );
-
-        vec2 gd_end = vec2(
-            gd_target_x,
-            clamp(
-                gd_seed.y
-                + (h2 - 0.5) * 0.18,
-                y_min,
-                y_max
-            )
-        );
-
-        float main_1_duration = infection_growth_seconds * 0.32;
-        float main_2_duration = infection_growth_seconds * 0.33;
-        float main_3_duration = infection_growth_seconds * 0.35;
-
-        float main_2_start = main_1_duration;
-        float main_3_start = main_1_duration + main_2_duration;
-
-        // Branches wait until their parent point has already been infected.
-        float d1_start = (
-            main_1_duration * 0.58
-            + 0.4
-        );
-
-        float d2_start = (
-            main_2_start
-            + main_2_duration * 0.58
-            + 0.5
-        );
-
-        float d1_duration = infection_growth_seconds * 0.43;
-        float d2_duration = infection_growth_seconds * 0.36;
-
-        float gd_start = (
-            d1_start
-            + d1_duration * 0.56
-            + 0.4
-        );
-
-        float gd_duration = infection_growth_seconds * 0.27;
-
-        float base_width = (
-            tendril_width * width_mod
-        );
-
-        // Root knot: visible immediately.
-        vec2 root_delta = p - p0;
-        float root_d2 = dot(
-            root_delta,
-            root_delta
-        );
-
-        float root_w = base_width * 1.30;
-        float root_w2 = root_w * root_w;
-
-        float root_body = 1.0 - smoothstep(
-            root_w2 * 0.42,
-            root_w2,
-            root_d2
-        );
-
-        float best_body = root_body;
-
-        float best_arrival = mix(
-            999.0,
-            0.0,
-            step(0.001, root_body)
-        );
-
-        vec2 seg;
-
-        // Main 1.
-        seg = rot_segment(
-            p,
-            p0,
-            p1,
-            base_width,
-            0.0,
-            main_1_duration
-        );
-
-        best_body = max(best_body, seg.x);
-        best_arrival = min(best_arrival, seg.y);
-
-        // Main 2.
-        seg = rot_segment(
-            p,
-            p1,
-            p2,
-            base_width * 0.94,
-            main_2_start,
-            main_2_duration
-        );
-
-        best_body = max(best_body, seg.x);
-        best_arrival = min(best_arrival, seg.y);
-
-        // Main 3.
-        seg = rot_segment(
-            p,
-            p2,
-            p3,
-            base_width * 0.88,
-            main_3_start,
-            main_3_duration
-        );
-
-        best_body = max(best_body, seg.x);
-        best_arrival = min(best_arrival, seg.y);
-
-        // Daughter 1.
-        seg = rot_segment(
-            p,
-            d1_seed,
-            d1_end,
-            base_width * 0.78,
-            d1_start,
-            d1_duration
-        );
-
-        best_body = max(best_body, seg.x);
-        best_arrival = min(best_arrival, seg.y);
-
-        // Daughter 2.
-        seg = rot_segment(
-            p,
-            d2_seed,
-            d2_end,
-            base_width * 0.72,
-            d2_start,
-            d2_duration
-        );
-
-        best_body = max(best_body, seg.x);
-        best_arrival = min(best_arrival, seg.y);
-
-        // Granddaughter.
-        seg = rot_segment(
-            p,
-            gd_seed,
-            gd_end,
-            base_width * 0.64,
-            gd_start,
-            gd_duration
-        );
-
-        best_body = max(best_body, seg.x);
-        best_arrival = min(best_arrival, seg.y);
-
-        // ---------------------------------------------------------
-        // LOCAL CORROSION BLOOMS
-        // ---------------------------------------------------------
-        //
-        // Thin tendrils carry the infection. At roots and branch junctions
-        // the infection establishes a local colony and eats outward before
-        // continuing. This prevents the edge-seeking network from reading as
-        // a set of horizontal/vertical slices cut through the lettering.
-        //
-        // width_mod is static per pixel, so it roughens bloom boundaries for
-        // free without another noise call.
-
-        vec2 bloom;
-
-        bloom = rot_bloom(
-            p,
-            p0,
-            bloom_radius * width_mod * (0.90 + h1 * 0.18),
-            0.0,
-            bloom_seconds
-        );
-
-        best_body = max(best_body, bloom.x);
-        best_arrival = min(best_arrival, bloom.y);
-
-        bloom = rot_bloom(
-            p,
-            p1,
-            bloom_radius * width_mod * (0.78 + h2 * 0.20),
-            main_1_duration * 0.70,
-            bloom_seconds * 0.90
-        );
-
-        best_body = max(best_body, bloom.x);
-        best_arrival = min(best_arrival, bloom.y);
-
-        bloom = rot_bloom(
-            p,
-            p2,
-            bloom_radius * width_mod * (0.72 + h3 * 0.22),
-            main_2_start + main_2_duration * 0.68,
-            bloom_seconds * 0.86
-        );
-
-        best_body = max(best_body, bloom.x);
-        best_arrival = min(best_arrival, bloom.y);
-
-        bloom = rot_bloom(
-            p,
-            d1_seed,
-            bloom_radius * width_mod * (0.68 + h1 * 0.18),
-            d1_start + d1_duration * 0.18,
-            bloom_seconds * 0.78
-        );
-
-        best_body = max(best_body, bloom.x);
-        best_arrival = min(best_arrival, bloom.y);
-
-        bloom = rot_bloom(
-            p,
-            d2_seed,
-            bloom_radius * width_mod * (0.62 + h2 * 0.18),
-            d2_start + d2_duration * 0.18,
-            bloom_seconds * 0.74
-        );
-
-        best_body = max(best_body, bloom.x);
-        best_arrival = min(best_arrival, bloom.y);
-
-        bloom = rot_bloom(
-            p,
-            gd_seed,
-            bloom_radius * width_mod * (0.52 + h3 * 0.14),
-            gd_start + gd_duration * 0.16,
-            bloom_seconds * 0.66
-        );
-
-        best_body = max(best_body, bloom.x);
-        best_arrival = min(best_arrival, bloom.y);
-
-        // Infection is a front moving down fixed geometry and expanding
-        // outward through local colonies.
-        float reached = smoothstep(
-            best_arrival,
-            best_arrival + infection_front_seconds,
-            local_clock
-        );
-
-        reached *= best_body;
-        reached *= started;
-
-        // Every pixel ages from its OWN arrival time.
-        // Root -> oldest -> heals first.
-        // New branch tips -> youngest -> stay green.
-        float pixel_age = max(
-            local_clock - best_arrival,
-            0.0
-        );
-
-        float recovery_age = max(
-            pixel_age - infection_hold_seconds,
-            0.0
-        );
-
-        float recovery_progress = clamp(
-            recovery_age
-            / max(recovery_seconds, 0.001),
-            0.0,
-            1.0
-        );
-
-        // The infection remains anchored, but its MATERIAL ages.
-        // A young point is merely sick. Older points corrode, then disappear.
-        // Near the end of the lifetime the original lettering returns, which
-        // keeps the title alive without snapping an entire colony off at once.
-        float persistence = pow(
-            1.0 - recovery_progress,
-            0.52
-        );
-
-        float layer = reached * persistence;
-
-        // Only the newest edge gets a hint of green. This is intentionally
-        // narrow so the effect reads as damage to the gold, not green paint.
-        float fresh = reached * (
-            1.0 - smoothstep(
-                1.2,
-                4.8,
-                pixel_age
-            )
-        );
-
-        // Established corrosion follows behind the green edge.
-        float decay = reached * smoothstep(
-            2.5,
-            8.5,
-            pixel_age
-        ) * persistence;
-
-        // Mature corrosion destroys the glyph itself. Because this is also
-        // multiplied by persistence, the oldest holes eventually restore
-        // gradually instead of popping back in a single frame.
-        float erosion = reached * smoothstep(
-            6.0,
-            15.0,
-            pixel_age
-        ) * persistence;
-
-        rot_amount = max(rot_amount, layer);
-        fresh_amount = max(fresh_amount, fresh);
-        decay_amount = max(decay_amount, decay);
-        erosion_amount = max(erosion_amount, erosion);
-    }
-
-    rot_amount *= (
-        living_enabled * reveal
-    );
-
-    fresh_amount *= (
-        living_enabled * reveal
-    );
-
-    decay_amount *= (
-        living_enabled * reveal
-    );
-
-    erosion_amount *= (
-        living_enabled * reveal
-    );
-
-    // -------------------------------------------------------------------------
-    // V24 CORROSION -> DESTRUCTION MATERIAL
-    // -------------------------------------------------------------------------
-    //
-    // The tendril is not a coloured overlay anymore. It attacks the existing
-    // lettering in place:
-    //
-    //     gold -> tarnished -> crusted -> eaten away -> slowly restored
-    //
-    // Green is confined mostly to the young advancing edge.
-
-    float pit_noise = value_noise(
-        UV * rot_pit_scale
-        + vec2(
-            run_seed * 0.091,
-            run_seed * 0.173
-        )
-    );
-
-    float fine_grain = value_noise(
-        UV * (rot_mottle_scale * 1.63)
-        + vec2(
-            run_seed * 0.271,
-            run_seed * 0.119
-        )
-    );
-
-    // Preserve the original gold texture. All corrosion colours MULTIPLY the
-    // title rather than replacing it with a flat green patch.
-    vec3 fresh_material = revealed_rgb * mix(
-        vec3(1.0),
-        rot_fresh_tint * 1.35,
-        0.58
-    );
-
-    vec3 sick_material = revealed_rgb * mix(
-        vec3(1.0),
-        rot_sick_tint,
-        0.84
-    );
-
-    vec3 rotted = mix(
-        revealed_rgb,
-        fresh_material,
-        fresh_amount * 0.62
-    );
-
-    // Behind the fresh edge the metal darkens and loses its warm gold.
-    rotted = mix(
-        rotted,
-        sick_material,
-        decay_amount * 0.92
-    );
-
-    // Dry, fixed crust interrupts the remaining material before it vanishes.
-    float crust = smoothstep(
-        0.50,
-        0.78,
-        grain * 0.62 + fine_grain * 0.38
-    );
-
-    rotted = mix(
-        rotted,
-        rotted * rot_crust_tint,
-        crust * decay_amount * rot_mottle_strength
-    );
-
-    // Erosion is thresholded against two STATIC material fields. At first only
-    // tiny pits vanish. As a point ages, the missing pieces join together until
-    // most of that part of the glyph is simply gone. This is destruction, not
-    // translucent green fog.
-    float erosion_field = (
-        erosion_amount * 1.18
-        + (0.5 - grain) * 0.26
-        + (0.5 - pit_noise) * 0.20
-    );
-
-    float destroyed = smoothstep(
-        0.32,
-        0.82,
-        erosion_field
-    );
-
-    // A few hard cavities arrive slightly ahead of total structural failure.
-    float hard_pits = step(
-        pit_noise,
-        0.14 + erosion_amount * 0.34
-    ) * smoothstep(
-        0.18,
-        0.68,
-        decay_amount
-    );
-
-    destroyed = max(
-        destroyed,
-        hard_pits * 0.78
-    );
-
-    // Near-destruction also darkens the surviving crumbs before alpha removes
-    // them, which makes the disappearance read as corrosion rather than fade.
-    rotted *= mix(
+    float material_mod = mix(
+        1.0 - wave_material_strength,
         1.0,
-        0.30,
-        destroyed * 0.72
+        material
+    );
+
+    float corruption = clamp(
+        wave_mask
+        * wave_corruption_strength
+        * material_mod,
+        0.0,
+        1.0
+    );
+
+    // ---------------------------------------------------------------------
+    // PERSISTENT CORRUPTION RESIDUE
+    // ---------------------------------------------------------------------
+    //
+    // Before the current wave reaches a pixel, show residue generated by
+    // the previous cycle. Once the new front crosses that pixel, replace
+    // the old scar with the current cycles residue pattern.
+
+    float previous_cycle_index = max(
+        cycle_index - 1.0,
+        0.0
+    );
+
+    float has_previous_cycle = step(
+        1.0,
+        cycle_index
+    );
+
+    vec2 residue_uv = UV * wave_residue_scale;
+
+    float current_residue_field = value_noise(
+        residue_uv
+        + vec2(
+            run_seed * 0.193 + cycle_index * 7.17,
+            run_seed * 0.083 + cycle_index * 13.31
+        )
+    );
+
+    float previous_residue_field = value_noise(
+        residue_uv
+        + vec2(
+            run_seed * 0.193 + previous_cycle_index * 7.17,
+            run_seed * 0.083 + previous_cycle_index * 13.31
+        )
+    );
+
+    // Finer breakup so residue reads as damage/pitting rather than fog.
+    float current_residue_detail = value_noise(
+        UV * wave_residue_scale * 2.35
+        + vec2(
+            run_seed * 0.417 + cycle_index * 19.37,
+            run_seed * 0.227 + cycle_index * 5.83
+        )
+    );
+
+    float previous_residue_detail = value_noise(
+        UV * wave_residue_scale * 2.35
+        + vec2(
+            run_seed * 0.417 + previous_cycle_index * 19.37,
+            run_seed * 0.227 + previous_cycle_index * 5.83
+        )
+    );
+
+    float residue_upper = min(
+        wave_residue_threshold + 0.25,
+        0.999
+    );
+
+    float current_residue = (
+        smoothstep(
+            wave_residue_threshold,
+            residue_upper,
+            current_residue_field
+        )
+        *
+    mix(
+            0.72,
+            1.0,
+            current_residue_detail
+        )
+
+        * wave_residue_strength
+    );
+
+    float previous_residue = (
+        smoothstep(
+            wave_residue_threshold,
+            residue_upper,
+            previous_residue_field
+        )
+        *
+    mix(
+            0.72,
+            1.0,
+            previous_residue_detail
+        )
+
+        * wave_residue_strength
+        * has_previous_cycle
+    );
+
+    // Each pixel keeps its old scar until the current wave reaches it.
+    float residue = (
+        mix(
+            previous_residue,
+            current_residue,
+            crossed
+        )
+        * effect_started
+    );
+
+    float active_residue_field = mix(
+        previous_residue_field,
+        current_residue_field,
+        crossed
+    );
+
+    // The moving wave overwhelms the weaker scar while it passes.
+    // After the tail leaves, persistent residue remains.
+    float surface_corruption = max(
+        corruption,
+        residue
+    );
+
+    // Dark sickly oxidation while preserving the underlying metal texture.
+    vec3 sick_rgb = revealed_rgb * wave_sick_tint;
+    vec3 black_rgb = revealed_rgb * wave_black_tint;
+
+    vec3 wave_rgb = mix(
+        revealed_rgb,
+        sick_rgb,
+        surface_corruption
+    );
+
+    // Active-wave black rot.
+    float active_deep_rot = (
+        wave_mask
+        * smoothstep(0.58, 0.88, material)
+        * 0.72
+    );
+
+    // Persistent black-green pits left behind by the wave.
+    float residue_deep_rot = (
+        residue
+        *
+    smoothstep(
+            0.55,
+            0.82,
+            active_residue_field
+        )
+
+        * wave_residue_black_strength
+    );
+
+    float deep_rot = clamp(
+        max(
+            active_deep_rot,
+            residue_deep_rot
+        ),
+        0.0,
+        1.0
+    );
+
+    wave_rgb = mix(
+        wave_rgb,
+        black_rgb,
+        deep_rot
+    );
+        // Persistent dirty oxidation underneath the discrete pits.
+    // This remains after the moving tail clears and is replaced
+    // pixel-by-pixel when the next wave front crosses.
+    float residue_stain = clamp(
+        residue * (0.90 + active_residue_field * 0.55),
+        0.0,
+        1.0
+    );
+
+    vec3 residue_stain_rgb = revealed_rgb * vec3(0.16, 0.23, 0.035);
+
+    wave_rgb = mix(
+        wave_rgb,
+        residue_stain_rgb,
+        residue_stain * 0.72
+    );
+
+// Narrow damp/sick leading edge so the moving boundary reads immediately.
+    float front_band = 1.0 - smoothstep(
+        wave_front_width * 0.35,
+        wave_front_width * 2.20,
+        abs(behind_front)
+    );
+
+    wave_rgb += (
+        wave_front_tint
+        * front_band
+        * wave_front_strength
+        * effect_started
+    );
+
+    // -------------------------------------------------------------------------
+    // DELAYED CONTINUOUS SLOW PULSE
+    // -------------------------------------------------------------------------
+    //
+    // No post-pass glow. The title simply breathes forever: gently dims, then
+    // returns to normal brightness. The wave rides inside that breathing state.
+
+    float pulse_phase = mod(
+        effect_time / max(pulse_seconds, 0.001),
+        1.0
+    );
+
+    // Starts at full brightness, reaches the shallowest point halfway through
+    // the cycle, then returns smoothly to full brightness.
+    float pulse_wave = 0.5 - 0.5 * cos(
+        pulse_phase * 6.28318531
+    );
+
+    float pulse_gain = mix(
+        1.0,
+        1.0 - pulse_depth * pulse_wave,
+        effect_started
+    );
+
+    vec3 final_rgb = wave_rgb * pulse_gain;
+
+    // -------------------------------------------------------------------------
+    // V31B REVERSE FORMATION EXIT
+    // -------------------------------------------------------------------------
+    //
+    // The opening already assigned every pixel an `arrival` value using the
+    // warped five-source field, coarse/fine breakup, and tendril ridges.
+    //
+    // Opening:
+    //     progress rises through arrival -> pixels appear.
+    //
+    // Exit:
+    //     reverse_progress falls through the SAME arrival -> pixels disappear
+    //     in exactly the opposite order.
+    //
+    // No left/right wipe exists here.
+
+    float exit_t = clamp(
+        exit_progress,
+        0.0,
+        1.0
+    );
+
+    // 1.20 is the same fully-revealed controller target. -0.06 is below the
+    // minimum clamped arrival so even the earliest source pixels vanish.
+    float reverse_progress = mix(
+        1.20,
+        -0.06,
+        exit_t
+    );
+
+    // Same threshold equation as the original reveal, but driven backward.
+    float reverse_alive = smoothstep(
+        arrival - edge_softness,
+        arrival + edge_softness,
+        reverse_progress
+    );
+
+    // Same arrival boundary supplies the brief sickly death rim.
+    float reverse_front = 1.0 - smoothstep(
+        edge_softness * 0.45,
+        edge_softness * 3.4,
+        abs(reverse_progress - arrival)
+    );
+
+    // Keep the pre-confirmation frame perfectly unchanged at exit_progress = 0.
+    float exit_started = step(
+        0.0001,
+        exit_t
+    );
+
+    float sick_front = (
+        reverse_front
+        * exit_started
+        * exit_front_sickness
+    );
+
+    vec3 consumed_rgb = mix(
+        final_rgb,
+        final_rgb * wave_sick_tint,
+        sick_front * 0.82
+    );
+
+    consumed_rgb = mix(
+        consumed_rgb,
+        final_rgb * wave_black_tint,
+        sick_front * material * 0.76
+    );
+
+    float exit_alpha = mix(
+        1.0,
+        reverse_alive,
+        exit_started
     );
 
     COLOR = vec4(
-        rotted,
-        c.a * reveal * (1.0 - destroyed)
+        consumed_rgb,
+        c.a * reveal * exit_alpha
     );
 }

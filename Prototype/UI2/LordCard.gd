@@ -65,8 +65,21 @@ var _rules_visible: bool = true
 
 var _left_down: bool = false
 var _hold_triggered: bool = false
+# UI2_LORD_INSPECT_PROMPT_FALLBACK_V1
 var _preview_left_down: bool = false
 var _preview_hold_triggered: bool = false
+# UI2_LORD_CARD_PHYSICAL_GESTURES_V1_1_1
+const LORD_HOLD_SECONDS: float = 0.30
+const LORD_HOLD_MOVE_CANCEL: float = 14.0
+
+var _physical_left_was_down: bool = false
+var _physical_gesture_surface: int = 0
+var _physical_gesture_started_msec: int = 0
+var _physical_gesture_origin: Vector2 = Vector2.ZERO
+var _physical_gesture_triggered: bool = false
+# UI2_LORD_CARD_SIZE_TOGGLE_SEMANTICS_V1
+var _lord_logically_enlarged: bool = false
+var _gesture_started_enlarged: bool = false
 
 var _lord_name: String = ""
 var _showing_back: bool = false
@@ -78,9 +91,13 @@ var _defense: int = 0
 var _summon_value: int = 0
 var _fracture_value: int = 0
 var _kroni_hunger: int = 0
+var _compact_size: Vector2 = Vector2.ZERO
+var _breach_context: bool = false
 
 
 func _ready() -> void:
+	set_process(true)
+	add_to_group("ui2_lord_card_instances")
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	clip_contents = true
@@ -140,17 +157,11 @@ func _ready() -> void:
 	hold_timer = Timer.new()
 	hold_timer.one_shot = true
 	hold_timer.wait_time = 0.28
-	hold_timer.timeout.connect(
-		_on_hold_timeout
-	)
 	add_child(hold_timer)
 
 	preview_hold_timer = Timer.new()
 	preview_hold_timer.one_shot = true
 	preview_hold_timer.wait_time = 0.28
-	preview_hold_timer.timeout.connect(
-		_on_preview_hold_timeout
-	)
 	add_child(preview_hold_timer)
 
 	_build_preview_popup()
@@ -161,6 +172,21 @@ func _ready() -> void:
 	)
 
 	_apply_size()
+
+
+func set_compact_size(value: Vector2) -> void:
+	_compact_size = value
+	_apply_size()
+
+
+func set_breach_context(enabled: bool) -> void:
+	_breach_context = enabled
+	modulate = (
+		Color(0.78, 0.76, 0.86, 1.0)
+		if enabled
+		else Color.WHITE
+	)
+	_refresh_art()
 
 
 func bind_player(
@@ -219,14 +245,74 @@ func bind_player(
 	_refresh_art()
 
 
+func bind_breach_lord(
+	lord_name: String
+) -> void:
+	# UI2_THEATER_PROMPT_VESSEL_TRUTH_V1
+	# Breach is global state. Bind the exact Lord identity stored in game.breach
+	# instead of deriving it from the owner's currently active Lord.
+	_prominent = false
+	_lord_name = lord_name
+	_alive = false
+	_kroni_hunger = 0
+
+	var lord_content: Dictionary = GameSetupData.LORD_CONTENT.get(
+		_lord_name,
+		{}
+	)
+
+	_summon_value = _printed_int(
+		lord_content,
+		["summon_cost", "summon", "cost", "s"],
+		0
+	)
+	_defense = _printed_int(
+		lord_content,
+		["defense", "def", "d"],
+		0
+	)
+	_fracture_value = _printed_int(
+		lord_content,
+		["fracture", "return_threat", "r"],
+		0
+	)
+
+	_front_texture = LordArtCatalogData.texture_for(
+		_lord_name,
+		false
+	)
+	_back_texture = LordArtCatalogData.texture_for(
+		_lord_name,
+		true
+	)
+
+	if String(get_meta("bound_lord", "")) != _lord_name:
+		_showing_back = false
+		set_meta(
+			"bound_lord",
+			_lord_name
+		)
+
+	_apply_size()
+	_refresh_art()
+
+
 func _apply_size() -> void:
 	# UI2_LORD_CARD_INTERACTION_V1
 # UI2_LORD_CARD_PINNED_PREVIEW_V1
 	# Both Lords use the full readable card footprint. Player ownership is already
 	# obvious from the board zone; shrinking the enemy card only hurts legibility.
-	custom_minimum_size = Vector2(188, 282)
+	custom_minimum_size = (
+		_compact_size
+		if _compact_size != Vector2.ZERO
+		else Vector2(188, 282)
+	)
 
-	var value_font_size: int = 17
+	var value_font_size: int = (
+		9
+		if _compact_size != Vector2.ZERO
+		else 17
+	)
 	for label in [
 		summon_value_label,
 		defense_value_label,
@@ -368,15 +454,19 @@ func _refresh_preview() -> void:
 	if preview_art == null:
 		return
 
+	var preview_on_back: bool = (
+		_breach_context
+		or _showing_back
+	)
 	var chosen: Texture2D = (
 		_back_texture
-		if _showing_back
+		if preview_on_back
 		else _front_texture
 	)
 	preview_art.texture = chosen
 
 	var show_front_stats: bool = (
-		not _showing_back
+		not preview_on_back
 		and chosen != null
 	)
 
@@ -400,25 +490,340 @@ func _refresh_preview() -> void:
 	_refresh_kroni_hunger_track()
 
 
-func _show_preview() -> void:
-	if preview_popup == null:
-		return
-	_refresh_preview()
-	preview_popup.popup_centered(
-		Vector2i(420, 630)
+# UI2_LORD_CARD_UNIFIED_GESTURES_V1_3
+func _lord_preview_is_open() -> bool:
+	return (
+		preview_popup != null
+		and preview_popup.visible
 	)
 
 
+func _another_lord_preview_is_open() -> bool:
+	for node in get_tree().get_nodes_in_group(
+		"ui2_lord_card_instances"
+	):
+		if (
+			node == self
+			or not is_instance_valid(node)
+			or not node.has_method(
+				"_lord_preview_is_open"
+			)
+		):
+			continue
+
+		if bool(
+			node.call("_lord_preview_is_open")
+		):
+			return true
+
+	return false
+
+
+func _small_card_mouse_position() -> Vector2:
+	return get_viewport().get_mouse_position()
+
+
+func _preview_mouse_position() -> Vector2:
+	if preview_input_surface == null:
+		return Vector2.ZERO
+
+	return (
+		preview_input_surface
+		.get_viewport()
+		.get_mouse_position()
+	)
+
+
+func _point_hits_preview_rules_button(
+	position: Vector2
+) -> bool:
+	if (
+		preview_rules_button == null
+		or not preview_rules_button.visible
+		or not preview_rules_button.is_visible_in_tree()
+	):
+		return false
+
+	return (
+		preview_rules_button
+		.get_global_rect()
+		.has_point(position)
+	)
+
+
+func _begin_physical_lord_gesture(
+	surface: int,
+	position: Vector2
+) -> void:
+	_physical_gesture_surface = surface
+	_physical_gesture_started_msec = Time.get_ticks_msec()
+	_physical_gesture_origin = position
+	_physical_gesture_triggered = false
+	_gesture_started_enlarged = _lord_logically_enlarged
+
+
+func _cancel_physical_lord_gesture() -> void:
+	_physical_gesture_surface = 0
+	_physical_gesture_started_msec = 0
+	_physical_gesture_origin = Vector2.ZERO
+	_physical_gesture_triggered = false
+	_gesture_started_enlarged = false
+
+
+func _gesture_position() -> Vector2:
+	if _physical_gesture_surface == 2:
+		return _preview_mouse_position()
+
+	return _small_card_mouse_position()
+
+
+func _gesture_still_inside(position: Vector2) -> bool:
+	if _physical_gesture_surface == 1:
+		return (
+			is_visible_in_tree()
+			and get_global_rect().has_point(position)
+			and not _point_hits_small_rules_button(
+				position
+			)
+		)
+
+	if _physical_gesture_surface == 2:
+		return (
+			preview_popup != null
+			and preview_popup.visible
+			and preview_input_surface != null
+			and preview_input_surface
+				.get_global_rect()
+				.has_point(position)
+			and not _point_hits_preview_rules_button(
+				position
+			)
+		)
+
+	return false
+
+
+func _process(_delta: float) -> void:
+	var left_down := Input.is_mouse_button_pressed(
+		MOUSE_BUTTON_LEFT
+	)
+
+	if left_down and not _physical_left_was_down:
+		_cancel_physical_lord_gesture()
+
+		var small_position := (
+			_small_card_mouse_position()
+		)
+		var over_small := (
+			is_visible_in_tree()
+			and get_global_rect().has_point(
+				small_position
+			)
+			and not _point_hits_small_rules_button(
+				small_position
+			)
+		)
+
+		var preview_position := (
+			_preview_mouse_position()
+		)
+		var over_big := (
+			preview_popup != null
+			and preview_popup.visible
+			and preview_input_surface != null
+			and preview_input_surface
+				.get_global_rect()
+				.has_point(preview_position)
+			and not _point_hits_preview_rules_button(
+				preview_position
+			)
+		)
+
+		if (
+			_lord_logically_enlarged
+			and over_big
+		):
+			_begin_physical_lord_gesture(
+				2,
+				preview_position
+			)
+
+		elif (
+			over_small
+			and not _true_modal_blocks_lord_input()
+			and not _another_lord_preview_is_open()
+		):
+			# If PopupPanel auto-hid because this press landed on the little
+			# board card, immediately restore the visual big state. The gesture
+			# itself will decide at 0.30s whether this was a click or a shrink.
+			if (
+				_lord_logically_enlarged
+				and (
+					preview_popup == null
+					or not preview_popup.visible
+				)
+			):
+				_show_preview()
+
+			_begin_physical_lord_gesture(
+				1,
+				small_position
+			)
+
+		elif (
+			_lord_logically_enlarged
+			and (
+				preview_popup == null
+				or not preview_popup.visible
+			)
+		):
+			# An outside click somewhere OTHER than this Lord card is still
+			# allowed to dismiss the enlarged inspection.
+			_lord_logically_enlarged = false
+
+	if (
+		left_down
+		and _physical_gesture_surface != 0
+		and not _physical_gesture_triggered
+	):
+		var current_position := _gesture_position()
+
+		if (
+			current_position.distance_to(
+				_physical_gesture_origin
+			)
+			> LORD_HOLD_MOVE_CANCEL
+			or not _gesture_still_inside(
+				current_position
+			)
+		):
+			_cancel_physical_lord_gesture()
+		else:
+			var elapsed := (
+				float(
+					Time.get_ticks_msec()
+					- _physical_gesture_started_msec
+				)
+				/ 1000.0
+			)
+
+			if elapsed >= LORD_HOLD_SECONDS:
+				_physical_gesture_triggered = true
+
+				# HOLD = TOGGLE SIZE from the size that existed when the
+				# physical press began. Never infer size from Popup visibility.
+				if _gesture_started_enlarged:
+					_hide_preview()
+				else:
+					_show_preview()
+
+	if (
+		not left_down
+		and _physical_left_was_down
+	):
+		if (
+			_physical_gesture_surface != 0
+			and not _physical_gesture_triggered
+		):
+			# CLICK = TOGGLE FACE. If an outside-popup click temporarily hid
+			# the enlarged window, restore it because click never changes size.
+			_toggle_face()
+
+			if (
+				_gesture_started_enlarged
+				and _lord_logically_enlarged
+				and (
+					preview_popup == null
+					or not preview_popup.visible
+				)
+			):
+				_show_preview()
+
+		_cancel_physical_lord_gesture()
+
+	_physical_left_was_down = left_down
+
+
+func _toggle_face() -> void:
+	_showing_back = not _showing_back
+	_refresh_art()
+
+	if (
+		preview_popup != null
+		and preview_popup.visible
+	):
+		_refresh_preview()
+
+
+func _point_hits_small_rules_button(
+	position: Vector2
+) -> bool:
+	if (
+		back_rules_button == null
+		or not back_rules_button.visible
+		or not back_rules_button.is_visible_in_tree()
+	):
+		return false
+
+	return back_rules_button.get_global_rect().has_point(
+		position
+	)
+
+
+func _true_modal_blocks_lord_input() -> bool:
+	# PhasePrompt is deliberately NOT in this list. Lord-card reference
+	# information remains available while ordinary human decisions are pending.
+	for modal_name in [
+		"ResolutionTheater",
+		"DevPanel",
+		"ConsoleOverlay",
+	]:
+		var modal = get_tree().root.find_child(
+			modal_name,
+			true,
+			false
+		)
+		if (
+			modal is CanvasItem
+			and (modal as CanvasItem).visible
+		):
+			return true
+
+	return false
+
+
+func _input(_event: InputEvent) -> void:
+	# UI2_LORD_CARD_PHYSICAL_GESTURES_V1_1
+	# _process() owns all Lord-card gestures.
+	return
+
+
+func _show_preview() -> void:
+	# UI2_LORD_CARD_SIZE_TOGGLE_SEMANTICS_V1
+	if preview_popup == null:
+		return
+
+	_lord_logically_enlarged = true
+	_refresh_preview()
+
+	if not preview_popup.visible:
+		preview_popup.popup_centered(
+			Vector2i(420, 630)
+		)
+
+
 func _hide_preview() -> void:
+	# UI2_LORD_CARD_SIZE_TOGGLE_SEMANTICS_V1
+	_lord_logically_enlarged = false
+
 	if preview_popup != null:
 		preview_popup.hide()
 
 
 func _on_hold_timeout() -> void:
-	if not _left_down:
-		return
-	_hold_triggered = true
-	_show_preview()
+	# UI2_LORD_CARD_PHYSICAL_GESTURES_V1_1
+	# Legacy Timer callback retained only for signal compatibility.
+	return
 
 
 func _build_kroni_hunger_track() -> void:
@@ -612,11 +1017,8 @@ func _make_power_panel(
 ) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.name = node_name
-	panel.mouse_filter = (
-		Control.MOUSE_FILTER_STOP
-		if enlarged
-		else Control.MOUSE_FILTER_IGNORE
-	)
+	# UI2_LORD_CARD_UNIFIED_GESTURES_V1_3
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.clip_contents = true
 
 	panel.anchor_left = (
@@ -689,8 +1091,9 @@ func _make_power_text(
 	label.fit_content = false
 	label.scroll_active = enlarged
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# UI2_LORD_CARD_UNIFIED_GESTURES_V1_3
 	label.mouse_filter = (
-		Control.MOUSE_FILTER_STOP
+		Control.MOUSE_FILTER_PASS
 		if enlarged
 		else Control.MOUSE_FILTER_IGNORE
 	)
@@ -878,43 +1281,59 @@ func _refresh_back_power_text() -> void:
 		_showing_back
 		and _back_texture != null
 	)
-	var show_rules: bool = (
-		on_back
-		and _rules_visible
+	var preview_on_back: bool = (
+		(_breach_context or _showing_back)
+		and _back_texture != null
 	)
-
-	var bbcode: String = (
-		LordPowerTextData.bbcode_for(
-			_lord_name
-		)
-		if show_rules
-		else ""
-	)
+	var show_main_rules: bool = on_back and _rules_visible
+	var show_preview_rules: bool = preview_on_back and _rules_visible
 
 	if back_power_panel != null:
-		back_power_panel.visible = show_rules
+		back_power_panel.visible = show_main_rules
 
 	if back_power_text != null:
-		back_power_text.text = bbcode
+		back_power_text.text = (
+			LordPowerTextData.bbcode_for(_lord_name)
+			if show_main_rules
+			else ""
+		)
 
 	if preview_power_panel != null:
-		preview_power_panel.visible = show_rules
+		preview_power_panel.visible = show_preview_rules
 
 	if preview_power_text != null:
-		preview_power_text.text = bbcode
+		preview_power_text.text = (
+			LordPowerTextData.breach_bbcode_for(_lord_name)
+			if show_preview_rules and _breach_context
+			else (
+				LordPowerTextData.bbcode_for(_lord_name)
+				if show_preview_rules
+				else ""
+			)
+		)
 
-	for button in [
-		back_rules_button,
-		preview_rules_button,
-	]:
-		if button == null:
-			continue
-
-		button.visible = on_back
-		button.text = (
+	if back_rules_button != null:
+		back_rules_button.visible = on_back
+		back_rules_button.text = (
 			"HIDE RULES"
 			if _rules_visible
 			else "SHOW RULES"
+		)
+
+	if preview_rules_button != null:
+		preview_rules_button.visible = preview_on_back
+		preview_rules_button.text = (
+			"HIDE BREACH POWER"
+			if _rules_visible and _breach_context
+			else (
+				"SHOW BREACH POWER"
+				if _breach_context
+				else (
+					"HIDE RULES"
+					if _rules_visible
+					else "SHOW RULES"
+				)
+			)
 		)
 
 func _printed_int(
@@ -978,88 +1397,35 @@ func _refresh_art() -> void:
 	_refresh_kroni_hunger_track()
 
 	tooltip_text = (
-		"%s · %s · Summon %d · DEF %s · Fracture %d · click to inspect · enlarged click flips"
-		% [
-			_lord_name,
-			"BACK" if _showing_back else "FRONT",
-			_summon_value,
-			str(_defense) if _alive else "—",
-			_fracture_value,
-		]
+		"%s · IN THE BREACH · hold to inspect Breach power"
+		% _lord_name
+		if _breach_context
+		else (
+			"%s · %s · Summon %d · DEF %s · Fracture %d · click to flip · hold to enlarge"
+			% [
+				_lord_name,
+				"BACK" if _showing_back else "FRONT",
+				_summon_value,
+				str(_defense) if _alive else "—",
+				_fracture_value,
+			]
+		)
 	)
 
 
-func _on_preview_gui_input(event: InputEvent) -> void:
-	if not (
-		event is InputEventMouseButton
-		and event.button_index == MOUSE_BUTTON_LEFT
-	):
-		return
-
-	if event.pressed:
-		_preview_left_down = true
-		_preview_hold_triggered = false
-		if preview_hold_timer != null:
-			preview_hold_timer.start()
-		if preview_input_surface != null:
-			preview_input_surface.accept_event()
-		return
-
-	# A release without a preview-side press can happen when the popup appears
-	# while the original board-card hold is still physically down. Ignore it.
-	if not _preview_left_down:
-		return
-
-	_preview_left_down = false
-	if preview_hold_timer != null:
-		preview_hold_timer.stop()
-
-	if _preview_hold_triggered:
-		_preview_hold_triggered = false
-	else:
-		# Quick click flips in place and deliberately leaves the preview open.
-		_showing_back = not _showing_back
-		_refresh_art()
-		_refresh_preview()
-
-	if preview_input_surface != null:
-		preview_input_surface.accept_event()
+func _on_preview_gui_input(_event: InputEvent) -> void:
+	# UI2_LORD_CARD_PHYSICAL_GESTURES_V1_1
+	# _process() owns all enlarged Lord-card gestures.
+	return
 
 
 func _on_preview_hold_timeout() -> void:
-	if not _preview_left_down:
-		return
-
-	_preview_hold_triggered = true
-	_preview_left_down = false
-	_hide_preview()
+	# UI2_LORD_CARD_PHYSICAL_GESTURES_V1_1
+	# Legacy Timer callback retained only for signal compatibility.
+	return
 
 
-func _on_gui_input(event: InputEvent) -> void:
-	if not (
-		event is InputEventMouseButton
-		and event.button_index == MOUSE_BUTTON_LEFT
-	):
-		return
-
-	if event.pressed:
-		_left_down = true
-		_hold_triggered = false
-		if hold_timer != null:
-			hold_timer.start()
-		accept_event()
-		return
-
-	_left_down = false
-	if hold_timer != null:
-		hold_timer.stop()
-
-	if _hold_triggered:
-		# Hold already opened this same pinned inspection view.
-		_hold_triggered = false
-	else:
-		# Board click means inspect. Front/back flip controls now live in the
-		# enlarged card where the art and stats are actually legible.
-		_show_preview()
-
-	accept_event()
+func _on_gui_input(_event: InputEvent) -> void:
+	# UI2_LORD_CARD_PHYSICAL_GESTURES_V1_1
+	# _process() owns all Lord-card gestures.
+	return

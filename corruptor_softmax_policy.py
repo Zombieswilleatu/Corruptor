@@ -328,60 +328,8 @@ def _ai_market(self, player) -> None:
 
 
 def _ai_bid(self, player):
-    """Evaluate bid sizes 0..3 and choose the golden-core argmax."""
-    sim = _require_sim()
-
-    if not player.hand:
-        return []
-
-    opponent = self.opp(player.pid)
-    profile = _profile_for(player)
-    plan = self._plan(player, opponent)
-
-    desired_count = 1
-
-    if plan in ("deny_ritual", "deny_dominion"):
-        desired_count = 2
-
-    if float(profile.get("control", 1.0)) >= 1.25:
-        desired_count = max(desired_count, 2)
-
-    if player.alive and player.souls >= sim.WIN_SOULS - 1:
-        desired_count = max(desired_count, 2)
-
-    ordered_hand = _stable_sorted_cards(player.hand)
-    maximum_count = min(3, len(ordered_hand))
-
-    candidates: List[Dict[str, Any]] = []
-
-    for bid_count in range(maximum_count + 1):
-        bid_cards = ordered_hand[:bid_count]
-        bid_total = _card_total(bid_cards)
-
-        score = (
-            -abs(bid_count - desired_count) * 2.0
-            - bid_total * 0.05
-        )
-
-        if bid_count == 0 and desired_count > 0:
-            score -= 0.75
-
-        candidates.append(
-            {
-                "score": score,
-                "tie_rank": -bid_count,
-                "cards": bid_cards,
-            }
-        )
-
-    selected = _argmax(candidates)
-    bid = list(selected["cards"])
-
-    for card in bid:
-        player.hand.remove(card)
-
-    return bid
-
+    """REFLEX_BID_DEPRECATED_RUNTIME_V1: Reflex Bid is retired; compatibility stub only."""
+    return []
 
 def _ai_choose_action(self, player) -> None:
     """Deterministic Commitment argmax with no score jitter."""
@@ -469,8 +417,10 @@ def _ai_choose_action(self, player) -> None:
 
 def _reserve_for_commitment(self, player):
     """
-    Reserve the exact deterministic Commitment cards, then one lowest card
-    from the remainder for Reflex Bid.
+    Reserve only the exact deterministic Commitment cards.
+
+    REFLEX_BID_DEPRECATED_RUNTIME_V1: Reflex Bid is retired, so deployment must not preserve an
+    additional low card for a nonexistent bid.
     """
     saved_hand = list(player.hand)
     saved_committed = list(player.committed)
@@ -492,21 +442,7 @@ def _reserve_for_commitment(self, player):
         player.ward_target = saved_ward_target
         player.pending_profane = saved_pending_profane
 
-    reserved_ids = {id(card) for card in reserved}
-    remaining = [
-        card
-        for card in saved_hand
-        if id(card) not in reserved_ids
-    ]
-
-    if remaining:
-        reserved.append(
-            min(
-                remaining,
-                key=lambda card: card.value,
-            )
-        )
-
+    # REFLEX_BID_DEPRECATED_RUNTIME_V1: do not add a phantom Reflex Bid card.
     return reserved
 
 

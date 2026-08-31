@@ -14,8 +14,10 @@ var first_player: int = -1
 
 var breach: String = ""
 var breach_owner: int = -1
-# `reflex_winner` now means "earned second action".  In DE v2 it is awarded
-# by the Reflex Bid; in v6.5 it is awarded by Momentum.
+# REFLEX_BID_DEPRECATED_RUNTIME_V1
+# LEGACY FIELD NAME: `reflex_winner` means "Momentum extra-action winner" in
+# live rules. Reflex Bid is retired; only historical/archive code assigns it
+# from a bid. Rename this field when the second-action plumbing is next migrated.
 var reflex_winner: int = -1
 
 # Per-player read of the opponent's repeated actions.  The v6.5 profile leaves

@@ -51,6 +51,10 @@ var was_sieged: bool = false
 var was_lord_attacked_prev: bool = false
 var was_castle_attacked_prev: bool = false
 var last_sieged_castle: String = ""
+var last_sieged_castle_damage: int = 0
+var last_sieged_castle_integrity_before: int = 0
+var last_sieged_castle_integrity_after: int = 0
+# GREMORY_INEVITABLE_FINAL_V2: exact Siege target damage memory
 
 var pending_profane: String = ""
 var orias_snare_active: bool = false
@@ -207,6 +211,9 @@ func reset_round_state() -> void:
 	was_hunted = false
 	was_sieged = false
 	last_sieged_castle = ""
+	last_sieged_castle_damage = 0
+	last_sieged_castle_integrity_before = 0
+	last_sieged_castle_integrity_after = 0
 
 	repaired_this_round = false
 	repair_token_used_this_repair = false
@@ -282,6 +289,13 @@ func duplicate_state() -> PlayerState:
 	copy.was_lord_attacked_prev = was_lord_attacked_prev
 	copy.was_castle_attacked_prev = was_castle_attacked_prev
 	copy.last_sieged_castle = last_sieged_castle
+	copy.last_sieged_castle_damage = last_sieged_castle_damage
+	copy.last_sieged_castle_integrity_before = (
+		last_sieged_castle_integrity_before
+	)
+	copy.last_sieged_castle_integrity_after = (
+		last_sieged_castle_integrity_after
+	)
 
 	copy.pending_profane = pending_profane
 	copy.orias_snare_active = orias_snare_active

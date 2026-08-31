@@ -156,6 +156,10 @@ class CardConservationTests(unittest.TestCase):
             ),
         )
 
+    # REFLEX_DEPRECATED_TEST_RETIREMENT_V1
+    @unittest.skip(
+        "Reflex is deprecated; _resolve_reflex_action is intentionally inert"
+    )
     def test_odradek_breach_discards_selected_cards_from_hand_exactly_once(self):
         game = sim.Game(["Odradek"], ["Kalligan"])
         thief, winner = game.players

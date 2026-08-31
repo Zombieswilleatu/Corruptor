@@ -458,25 +458,20 @@ static func resolve_round(
 			"summon"
 		)
 
+	# REFLEX_BID_DEPRECATED_RUNTIME_V1
+	# Reflex Bid is a retired rules state. Keep a structural phase record so
+	# old reports/snapshots remain readable, but never ask doctrine for bids and
+	# never call ReflexBidEngine. Momentum may still award the later extra action.
 	var bid_choices: Dictionary = {}
-
-	if game.round > 1:
-		bid_choices = (
-			BotDoctrineData.bid_choices(
-				game,
-				random_source,
-				rules,
-				effective_policy
-			)
-		)
-
-	var bid_result: Dictionary = (
-		ReflexBidEngineData.resolve(
-			game,
-			rules,
-			bid_choices
-		)
-	)
+	var bid_result: Dictionary = {
+		"action": "pass",
+		"reason": "reflex_bid_deprecated",
+		"winner": -1,
+		"tie": false,
+		"invalid_player_id": -1,
+		"bid_totals": [],
+		"players": [],
+	}
 
 	phase_results["reflex_bid"] = {
 		"choices": bid_choices,
@@ -489,25 +484,6 @@ static func resolve_round(
 		"reflex_bid",
 		phase_results["reflex_bid"]
 	)
-
-	if String(
-		bid_result.get(
-			"action",
-			""
-		)
-	) == "invalid":
-		return _invalid_round(
-			game,
-			phase_results,
-			events,
-			"reflex_bid",
-			String(
-				bid_result.get(
-					"reason",
-					"invalid_reflex_bid"
-				)
-			)
-		)
 
 	var commitment_choices: Dictionary = (
 		BotDoctrineData.commitment_choices(

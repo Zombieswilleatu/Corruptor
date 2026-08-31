@@ -27,6 +27,10 @@ const NORMAL_TEST_NAME: String = (
 	"unit_bot_deploy_reserved_cards"
 )
 
+const NO_REFLEX_RESERVE_TEST_NAME: String = (
+	"unit_bot_deploy_no_reflex_bid_reserve"
+)
+
 const REPAIR_TEST_NAME: String = (
 	"unit_bot_deploy_repair_restriction"
 )
@@ -45,6 +49,9 @@ static func run(
 ) -> Array:
 	var results: Array = [
 		_test_reserved_deploy(
+			rules
+		),
+		_test_no_reflex_bid_reserve(
 			rules
 		),
 		_test_repair_restriction(
@@ -70,29 +77,17 @@ static func run(
 static func _test_reserved_deploy(
 	rules: RuleConfig
 ) -> Dictionary:
-	var fixture: Dictionary = _build_fixture(
-		rules
-	)
-
-	if fixture.has(
-		"error"
-	):
-		return _fail(
-			NORMAL_TEST_NAME,
-			String(
-				fixture["error"]
-			)
-		)
+	var fixture: Dictionary = _build_fixture(rules)
+	if fixture.has("error"):
+		return _fail(NORMAL_TEST_NAME, String(fixture["error"]))
 
 	var game = fixture["game"]
 	var player = fixture["p0"]
-
 	player.lord = "Odradek"
 	player.alive = true
 	player.souls = 2
 	player.threat = 2
 	player.tears = 0
-
 	player.hand = _cards_from_ids([
 		"Penitent:5",
 		"Penitent:4",
@@ -100,114 +95,103 @@ static func _test_reserved_deploy(
 		"Vulture:2",
 		"Wright:3",
 	])
-
-	player.garrison = _cards_from_ids([
-		"Butcher:5",
-	])
-
-	player.castle_guards = _cards_from_ids([
-		"Vulture:1",
-	])
-
-	player.lord_guards = _cards_from_ids([
-		"Wright:1",
-		"Wright:2",
-	])
-
+	player.garrison = _cards_from_ids(["Butcher:5"])
+	player.castle_guards = _cards_from_ids(["Vulture:1"])
+	player.lord_guards = _cards_from_ids(["Wright:1", "Wright:2"])
 	player.repaired_this_round = false
 	player.repair_token_used_this_repair = false
 	player.orias_snare_active = false
 
-	var choices: Dictionary = (
-		BotDeployDoctrineData.deploy_choices(
-			game,
-			rules
-		)
+	var reserved_ids: Array[String] = _card_ids(
+		BotDeployDoctrineData.reserved_cards(game, 0, rules)
 	)
+	var choices: Dictionary = BotDeployDoctrineData.deploy_choices(game, rules)
+	var decision: Dictionary = _decision_for_player(choices, 0)
+	var moves: Array = decision.get("moves", [])
+	var hand_move_count: int = 0
 
-	var decision: Dictionary = (
-		_decision_for_player(
-			choices,
-			0
-		)
-	)
+	for raw_move in moves:
+		if typeof(raw_move) != TYPE_DICTIONARY:
+			continue
+		var move: Dictionary = raw_move
+		if String(move.get("source", "")) != "Hand":
+			continue
+		hand_move_count += 1
+		if reserved_ids.has(String(move.get("card", ""))):
+			return _fail(
+				NORMAL_TEST_NAME,
+				"Deploy spent a card reserved by current Commitment doctrine."
+			)
 
-	var moves: Array = decision.get(
-		"moves",
-		[]
-	)
-
-	if _move_signatures(
-		moves
-	) != [
-		"Garrison>Castle>Butcher:5",
-		"Hand>Castle>Vulture:2",
-		"Hand>Lord>Wright:3",
-	]:
+	if hand_move_count <= 0:
 		return _fail(
 			NORMAL_TEST_NAME,
-			"Deploy did not preserve Commitment and Bid cards."
+			"Deploy fixture did not exercise unreserved Hand deployment."
 		)
 
-	var results: Array[Dictionary] = (
-		DeployEngineData.resolve(
-			game,
-			rules,
-			choices
-		)
-	)
+	var results: Array[Dictionary] = DeployEngineData.resolve(game, rules, choices)
+	if int(results[0].get("invalid_count", -1)) != 0:
+		return _fail(NORMAL_TEST_NAME, "DeployEngine rejected a doctrine move.")
 
-	if int(
-		results[0].get(
-			"invalid_count",
-			-1
-		)
-	) != 0:
-		return _fail(
-			NORMAL_TEST_NAME,
-			"DeployEngine rejected a doctrine move."
-		)
+	var hand_after: Array[String] = _card_ids(player.hand)
+	for card_id: String in reserved_ids:
+		var index: int = hand_after.find(card_id)
+		if index < 0:
+			return _fail(
+				NORMAL_TEST_NAME,
+				"A current Commitment-reserved card left Hand during Deploy."
+			)
+		hand_after.remove_at(index)
 
-	if _card_ids(
-		player.hand
-	) != [
+	return _pass(NORMAL_TEST_NAME)
+
+static func _test_no_reflex_bid_reserve(
+	rules: RuleConfig
+) -> Dictionary:
+	var fixture: Dictionary = _build_fixture(rules)
+	if fixture.has("error"):
+		return _fail(NO_REFLEX_RESERVE_TEST_NAME, String(fixture["error"]))
+
+	var game = fixture["game"]
+	var player = fixture["p0"]
+	player.lord = "Odradek"
+	player.alive = true
+	player.souls = 2
+	player.threat = 2
+	player.tears = 0
+	player.hand = _cards_from_ids([
 		"Penitent:5",
 		"Penitent:4",
 		"Butcher:1",
-	]:
-		return _fail(
-			NORMAL_TEST_NAME,
-			"Reserved cards did not remain in hand."
-		)
-
-	if _card_ids(
-		player.castle_guards
-	) != [
-		"Vulture:1",
-		"Butcher:5",
 		"Vulture:2",
-	]:
-		return _fail(
-			NORMAL_TEST_NAME,
-			"Castle Guards reached the wrong state."
-		)
-
-	if _card_ids(
-		player.lord_guards
-	) != [
-		"Wright:1",
-		"Wright:2",
 		"Wright:3",
-	]:
-		return _fail(
-			NORMAL_TEST_NAME,
-			"Lord Guards reached the wrong state."
-		)
+	])
+	player.garrison.clear()
+	player.castle_guards.clear()
+	player.lord_guards.clear()
+	player.repaired_this_round = false
+	player.repair_token_used_this_repair = false
+	player.orias_snare_active = false
 
-	return _pass(
-		NORMAL_TEST_NAME
+	var stale_on: RuleConfig = rules.duplicate(true)
+	stale_on.reflex_bid = true
+	var stale_off: RuleConfig = rules.duplicate(true)
+	stale_off.reflex_bid = false
+
+	var reserved_on: Array[String] = _card_ids(
+		BotDeployDoctrineData.reserved_cards(game, 0, stale_on)
+	)
+	var reserved_off: Array[String] = _card_ids(
+		BotDeployDoctrineData.reserved_cards(game, 0, stale_off)
 	)
 
+	if reserved_on != reserved_off:
+		return _fail(
+			NO_REFLEX_RESERVE_TEST_NAME,
+			"Deprecated reflex_bid flag still changes Deploy reservations."
+		)
+
+	return _pass(NO_REFLEX_RESERVE_TEST_NAME)
 
 static func _test_repair_restriction(
 	rules: RuleConfig

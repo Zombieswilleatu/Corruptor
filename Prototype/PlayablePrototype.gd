@@ -2465,7 +2465,7 @@ func _after_resolution_progress(
 	elif controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_GREMORY:
 		_build_hand_buttons(true)
 		_refresh_target_options()
-		_set_phase_message("Discard exactly three Hand/Garrison cards totaling face value 5+ to set the surviving Operational sieged Castle to Defunct (6 Integrity), or pass.")
+		_set_phase_message("Discard exactly two Hand/Garrison cards totaling face value 5+ to set the damaged, still-Operational sieged Castle to Defunct (6 Integrity), or pass.")
 	_refresh_all()
 
 

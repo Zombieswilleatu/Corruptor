@@ -55,6 +55,7 @@ const CASTLE_ORDER: Array[String] = [
 
 var lord_group: PanelContainer = null
 var lord_card = null
+var lord_absent_label: Label = null
 var lord_sigil: Label = null
 var ward_lord_overlay: HBoxContainer = null
 
@@ -98,6 +99,23 @@ func _ready() -> void:
 
 	_build_lord_group()
 	_build_lord_guards()
+
+	# UI2_PROMPT_CASTLE_GUTTER_V1
+	# Reserve a small visual lane for the floating decision prompt. Because the
+	# Castle group expands into the remaining width, this 64 px gutter moves the
+	# centered Castle spine only about half that distance instead of wasting a
+	# huge permanent column.
+	var prompt_castle_gutter := Control.new()
+	prompt_castle_gutter.name = "PromptCastleGutter"
+	# UI2_CASTLE_PREVIEW_INTERACTION_GUTTER_V2
+	# The 64 px gutter still let the floating prompt nick the first Castle.
+	# Give the prompt a real visual lane while retaining the same overall board.
+	prompt_castle_gutter.custom_minimum_size = Vector2(112, 0)
+	prompt_castle_gutter.size_flags_horizontal = Control.SIZE_FILL
+	prompt_castle_gutter.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	prompt_castle_gutter.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(prompt_castle_gutter)
+
 	_build_castle_group()
 
 
@@ -851,6 +869,29 @@ func bind_player(
 		player,
 		reveal_all_guards
 	)
+	lord_card.visible = bool(player.alive)
+	if lord_absent_label != null:
+		# UI2_THEATER_PROMPT_VESSEL_TRUTH_V1
+		lord_absent_label.visible = not bool(player.alive)
+		if not bool(player.alive):
+			var current_lord: String = String(player.lord)
+			var vessel_lord: String = String(player.vessel_offered_lord)
+			if (
+				not vessel_lord.is_empty()
+				and vessel_lord == current_lord
+			):
+				lord_absent_label.text = "OFFERED AS VESSEL"
+				lord_absent_label.tooltip_text = (
+					"This Lord was offered as the Vessel. Vessel removal is not "
+					+ "Banishment, so it does not occupy the shared Breach."
+				)
+			else:
+				lord_absent_label.text = "IN THE BREACH"
+				lord_absent_label.tooltip_text = (
+					"This Lord is banished and occupies the shared Breach."
+				)
+	if lord_sigil != null:
+		lord_sigil.visible = bool(player.alive)
 
 	if attack_drop_enabled and bool(player.alive):
 		_configure_attack_drop_root(
@@ -1014,6 +1055,19 @@ func _build_lord_group() -> void:
 	lord_card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	lord_card.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	column.add_child(lord_card)
+
+	lord_absent_label = Label.new()
+	lord_absent_label.text = "IN THE BREACH"
+	lord_absent_label.visible = false
+	lord_absent_label.custom_minimum_size = Vector2(188, 282)
+	lord_absent_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lord_absent_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lord_absent_label.add_theme_font_size_override("font_size", 14)
+	lord_absent_label.add_theme_color_override(
+		"font_color",
+		Color(0.54, 0.48, 0.66, 1.0)
+	)
+	column.add_child(lord_absent_label)
 
 	lord_sigil = _sigil_badge()
 	lord_sigil.size_flags_horizontal = Control.SIZE_SHRINK_CENTER

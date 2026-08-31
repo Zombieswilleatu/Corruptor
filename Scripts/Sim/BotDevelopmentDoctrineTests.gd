@@ -774,7 +774,8 @@ static func _test_profane_choice(
 	var player_one = fixture["p1"]
 
 	player_zero.lord = "Deimos"
-	player_zero.tears = 1
+	player_zero.tears = 4
+	player_zero.souls = 2
 	player_zero.cataclysmic_used = true
 	player_zero.profane_ruins_used_this_round = false
 
@@ -894,10 +895,15 @@ static func _test_profane_choice(
 			"Profane the Ruins did not place a Tear."
 		)
 
+	if player_zero.souls != 0:
+		return _fail(
+			PROFANE_TEST_NAME,
+			"Profane the Ruins did not spend two Souls."
+		)
+
 	return _pass(
 		PROFANE_TEST_NAME
 	)
-
 
 static func _build_fixture(
 	rules: RuleConfig

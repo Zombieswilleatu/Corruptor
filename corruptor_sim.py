@@ -75,7 +75,7 @@ power gating/targeting, Ruination resolution, reproducibility, and reporting.
 
 SIM_VERSION = "7.6.2-defunct-repair-lock"
 SIM_CODENAME = "Defunct vulnerability + unrestricted Repair actions"
-AI_POLICY = "heuristic-2026.08-action-forecast-v1-odradek-reconfig-menu-v1_1"
+AI_POLICY = "heuristic-2026.08-action-forecast-v1-odradek-reconfig-menu-v1_1-deimos-siege-bias-v2-gremory-inevitable-v2"
 LAB_PROFILE_VERSION = "6.8.3-kroni-cannibal-no-gorge"
 # KRONI_CANNIBAL_NO_GORGE_V1
 
@@ -2181,36 +2181,11 @@ class Game:
     #  Winner gains an optional second action after Resolution.
     # ─────────────────────────────────────────────────────────────────
     def _phase_reflex_bid(self):
-        bids = [self._ai_bid(pl) for pl in self.players]
-        vals = [sum(c.value for c in b) for b in bids]
-
-        if vals[0] == vals[1]:
-            # Tie (including both passing): everything returns to hand
-            for i, pl in enumerate(self.players):
-                pl.hand.extend(bids[i])
-            self.reflex_winner = None
-            return
-
-        winner = 0 if vals[0] > vals[1] else 1
-        self.reflex_winner = winner
-
-        # Aha moment: bid margin ≤ 2 (one card decided tempo)
-        self._aha(abs(vals[0] - vals[1]), threshold=2)
-
-        for i, pl in enumerate(self.players):
-            bid = bids[i]
-            if not bid:
-                continue
-            # Retrieve the single lowest bid card
-            lowest = min(bid, key=lambda c: c.value)
-            bid.remove(lowest)
-            pl.hand.append(lowest)
-            if i == winner:
-                self._discard(bid)
-            else:
-                space = GARRISON_MAX - len(pl.garrison)
-                pl.garrison.extend(bid[:space])
-                self._discard(bid[space:])
+        # REFLEX_DEPRECATED_RUNTIME_CUTOFF_V1
+        # Reflex is a deprecated rules state. Keep legacy helpers in source,
+        # but never enter Reflex bidding from live round flow.
+        self.reflex_winner = None
+        return
 
     # ─────────────────────────────────────────────────────────────────
     #  COMMITMENT / REVEAL / ORDER
@@ -2568,6 +2543,11 @@ class Game:
         proxy.tears = 0
         proxy.odradek_reconfig_inverted = False
         proxy.odradek_reconfig_inverted_target = ''
+        # ODRADEK_INVERSION_REENTRANCY_GUARD_V1
+        # This proxy is the already-inverted synthetic attack. It may resolve
+        # normal combat, but it must NEVER trigger another Reconfiguration
+        # inversion against an Odradek defender.
+        proxy.odradek_inversion_proxy = True
         return proxy
 
     def _odradek_resolve_inverted_attack(
@@ -2601,8 +2581,34 @@ class Game:
         attacker.odradek_reconfig_inverted_target = ''
         proxy = self._odradek_inverted_proxy(attacker, odr)
 
+        # ODRADEK_INVERSION_COMMIT_SYNC_V2
+        # The proxy has its own commitment list, but those entries are references
+        # to the real attacker's physical Card objects. Any synthetic-combat
+        # effect that removes one (notably Odradek Recoil in Odradek/Odradek)
+        # must remove that same object from the real commitment before normal
+        # Resolution cleanup can spend it again.
+        inverted_commit_ids = {
+            id(card) for card in proxy.committed
+        }
+
+        def sync_inverted_commit_removals() -> None:
+            remaining_ids = {
+                id(card) for card in proxy.committed
+            }
+            attacker.committed[:] = [
+                card
+                for card in attacker.committed
+                if (
+                    id(card) not in inverted_commit_ids
+                    or id(card) in remaining_ids
+                )
+            ]
+
         if action == 'Hunt':
-            self._resolve_hunt(proxy, attacker)
+            try:
+                self._resolve_hunt(proxy, attacker)
+            finally:
+                sync_inverted_commit_removals()
             return True
 
         # A self-Siege should not divert the Castle Tear into a throwaway proxy.
@@ -2618,6 +2624,7 @@ class Game:
                 reflex=reflex,
             )
         finally:
+            sync_inverted_commit_removals()
             VARIANT['consume_the_siege'] = old_consume
             VARIANT['deimos_claims_breach'] = old_claim
         return True
@@ -3180,19 +3187,21 @@ class Game:
             if pl.lord == 'Humbaba' and pl.alive and VARIANT['humbaba_patient']:
                 pl.humbaba_patient = pl.action not in ('Hunt', 'Siege')
 
-        # Gremory — Inevitable Ruin
-
-        # End-of-Round active; once per round.
-        # GREMORY_REBALANCE_OWN_RUIN_INEVITABLE_DEFUNCT_V1: Inevitable
+        # Gremory — Inevitable Ruin (End-of-Round cleanup)
+        # GREMORY_INEVITABLE_FINAL_V2
         #
-        # After Gremory Sieges an Operational Castle and it survives, she may
-        # discard exactly 3 physical Hand/Garrison cards totaling face value 5+
-        # to leave that Castle Defunct rather than Ruined. The bot only fires
-        # when it can retain at least 2 cards after payment, and chooses the
-        # cheapest legal 3-card combination.
+        # RULE:
+        #   * Gremory's exact Siege target must have lost >=1 actual Integrity
+        #     from that Siege this round.
+        #   * It must still be standing and Operational.
+        #   * Pay exactly 2 physical Hand/Garrison cards, total printed face >=5.
+        #   * Set it directly to the Defunct threshold (normally 6 Integrity).
+        #   * This is NOT Ruin/destruction: no Tear, Soul, Predator, or Ruin flag.
         #
-        # This is NOT destruction: no Souls, no Neutral Tear, no Predator of
-        # Ruin, and no destruction flag. The Castle remains standing/repairable.
+        # BOT DOCTRINE ONLY:
+        #   * opportunistic follow-through; no special commitment resizing.
+        #   * target started the Siege at >=12 Integrity and remains >=10 after.
+        #   * cheapest legal 2-card payment; no artificial reserve requirement.
         for pl in self.players:
             if (pl.lord != 'Gremory'
                     or not pl.alive
@@ -3201,17 +3210,28 @@ class Game:
 
             op = self.opp(pl.pid)
             target = op.last_sieged_castle
+            target_damage = int(
+                getattr(op, 'last_sieged_castle_damage', 0) or 0
+            )
+            siege_before = int(
+                getattr(op, 'last_sieged_castle_integrity_before', 0) or 0
+            )
+            siege_after = int(
+                getattr(op, 'last_sieged_castle_integrity_after', 0) or 0
+            )
 
             if not (
                     op.was_sieged
                     and target
+                    and target_damage > 0
                     and target in op.castles
                     and op.castle_operational(target)):
                 continue
 
-            # Exact cost = 3 cards, while bot doctrine preserves 2 in reserve.
-            total_available = len(pl.hand) + len(pl.garrison)
-            if total_available < 5:
+            # Personalized Gremory doctrine: only convert a genuinely healthy
+            # Castle that took chip damage but remains healthy enough that the
+            # Defunct conversion is a substantial follow-through.
+            if siege_before < 12 or siege_after < 10:
                 continue
 
             entries = []
@@ -3239,49 +3259,40 @@ class Game:
             best_combo = None
             best_key = None
 
-            for i in range(len(entries) - 2):
-                for j in range(i + 1, len(entries) - 1):
-                    for k in range(j + 1, len(entries)):
-                        combo = (
-                            entries[i],
-                            entries[j],
-                            entries[k],
-                        )
-                        total_value = sum(e['value'] for e in combo)
-                        if total_value < 5:
-                            continue
+            for i in range(len(entries) - 1):
+                for j in range(i + 1, len(entries)):
+                    combo = (entries[i], entries[j])
+                    total_value = sum(e['value'] for e in combo)
+                    if total_value < 5:
+                        continue
 
-                        key = (
-                            total_value,
-                            tuple(
-                                (
-                                    e['value'],
-                                    e['source_rank'],
-                                    e['index'],
-                                )
-                                for e in combo
-                            ),
-                        )
-
-                        if best_key is None or key < best_key:
-                            best_key = key
-                            best_combo = combo
+                    key = (
+                        total_value,
+                        tuple(
+                            (
+                                e['value'],
+                                e['source_rank'],
+                                e['index'],
+                            )
+                            for e in combo
+                        ),
+                    )
+                    if best_key is None or key < best_key:
+                        best_key = key
+                        best_combo = combo
 
             if best_combo is None:
                 continue
 
             to_discard = []
             payment_value = 0
-
             for entry in best_combo:
                 card = entry['card']
                 payment_value += int(card.value)
-
                 if entry['source'] == 'Hand':
                     pl.hand.remove(card)
                 else:
                     pl.garrison.remove(card)
-
                 to_discard.append(card)
 
             self._discard(to_discard)
@@ -3293,20 +3304,17 @@ class Game:
                     castle_max_integrity(target),
                 )
             )
-
             defunct_integrity = max(
                 1,
                 int(VARIANT.get('castle_operational_floor', 7)) - 1,
             )
-
             op.castle_integrity[target] = defunct_integrity
 
-            # Diagnostic telemetry only; no gameplay side effects.
             self.stat_gremory_inevitable_activations = (
                 getattr(self, 'stat_gremory_inevitable_activations', 0) + 1
             )
             self.stat_gremory_inevitable_cards_paid = (
-                getattr(self, 'stat_gremory_inevitable_cards_paid', 0) + 3
+                getattr(self, 'stat_gremory_inevitable_cards_paid', 0) + 2
             )
             self.stat_gremory_inevitable_value_paid = (
                 getattr(self, 'stat_gremory_inevitable_value_paid', 0)
@@ -3393,42 +3401,11 @@ class Game:
     #  REFLEX SECOND ACTION (v5.29)
     # ─────────────────────────────────────────────────────────────────
     def _resolve_reflex_action(self, pid: int):
-        pl = self.players[pid]
-        op = self.opp(pid)
-
-        choice = self._ai_reflex_choice(pl, op)
-
-        # Odradek Breach — Paradox Geometry: the Odradek player may attempt
-        # to steal the Reflex action by secretly matching the action card.
-        if (self.breach == 'Odradek' and self.breach_owner >= 0
-                and self.breach_owner != pid and choice is not None):
-            thief = self.players[self.breach_owner]
-            if thief.hand:
-                # Secret guess: 50% the thief reads the winner correctly
-                guess = choice[0] if self.rng.stream(f'reflex-guess:{pl.pid}:{self.round}').random() < 0.5 else \
-                        self.rng.stream(f'reflex-guess:{pl.pid}:{self.round}').choice(['Hunt', 'Siege', 'Ward'])
-                if guess == choice[0]:
-                    self.stat_breach_triggers += 1
-                    # Winner's chosen Subjects are discarded, action stolen.
-                    # _ai_reflex_choice returns a selection that still lives in
-                    # Hand; remove the physical cards before placing them in
-                    # discard or the same objects occupy two zones.
-                    for card in choice[1]:
-                        if card in pl.hand:
-                            pl.hand.remove(card)
-                    # BUG FIX: these cards are a SELECTION and are still in
-                    # the winner's hand. Discarding without removing them put
-                    # the same Card object in two zones.
-                    if VARIANT['fix_breach_discard_alias']:
-                        for _c in choice[1]:
-                            if _c in pl.hand: pl.hand.remove(_c)
-                    self._discard(choice[1])
-                    steal = self._ai_reflex_choice(thief, self.players[pid])
-                    if steal is not None:
-                        self._execute_reflex(thief, self.players[pid], steal)
-                    return
-        if choice is not None:
-            self._execute_reflex(pl, op, choice)
+        # REFLEX_DEPRECATED_RUNTIME_CUTOFF_V1
+        # Defensive runtime cutoff: even if stale state or legacy callers
+        # reach this entry point, deprecated Reflex cannot execute combat.
+        self.reflex_winner = None
+        return
 
     def _ai_reflex_choice(self, pl: Player, op: Player):
         """Pick a second action with full board knowledge.
@@ -3809,13 +3786,24 @@ class Game:
     #  COMBAT: HUNT
     # ─────────────────────────────────────────────────────────────────
     def _resolve_hunt(self, atk: Player, dfn: Player):
-        if getattr(atk, 'odradek_reconfig_inverted', False):
+        # ODRADEK_INVERSION_REENTRANCY_GUARD_V1
+        # A synthetic inverted attack has already paid for / consumed its
+        # inversion. Do not let Odradek invert that synthetic attack again.
+        inversion_proxy = bool(
+            getattr(atk, 'odradek_inversion_proxy', False)
+        )
+
+        if (
+            not inversion_proxy
+            and getattr(atk, 'odradek_reconfig_inverted', False)
+        ):
             if self._odradek_resolve_inverted_attack(
                 atk, dfn, 'Hunt'
             ):
                 return
         elif (
-            dfn.lord == 'Odradek'
+            not inversion_proxy
+            and dfn.lord == 'Odradek'
             and dfn.alive
             and self._odradek_reconfiguration_maybe_invert(
                 atk, dfn, 'Hunt'
@@ -4344,13 +4332,24 @@ class Game:
     def _resolve_siege(self, atk: Player, dfn: Player,
                        forced_target: Optional[str] = None,
                        reflex: bool = False):
-        if getattr(atk, 'odradek_reconfig_inverted', False):
+        # ODRADEK_INVERSION_REENTRANCY_GUARD_V1
+        # Same non-reentrancy rule as Hunt: an already-inverted synthetic Siege
+        # cannot itself become eligible for another inversion.
+        inversion_proxy = bool(
+            getattr(atk, 'odradek_inversion_proxy', False)
+        )
+
+        if (
+            not inversion_proxy
+            and getattr(atk, 'odradek_reconfig_inverted', False)
+        ):
             if self._odradek_resolve_inverted_attack(
                 atk, dfn, 'Siege', reflex=reflex
             ):
                 return
         elif (
-            dfn.lord == 'Odradek'
+            not inversion_proxy
+            and dfn.lord == 'Odradek'
             and dfn.alive
             and self._odradek_reconfiguration_maybe_invert(
                 atk,
@@ -4380,6 +4379,9 @@ class Game:
         target_castle = forced_target if forced_target in dfn.castles else \
                         self._pick_siege_target(atk, dfn, record=True)
         dfn.last_sieged_castle = target_castle
+        dfn.last_sieged_castle_damage = 0
+        dfn.last_sieged_castle_integrity_before = 0
+        dfn.last_sieged_castle_integrity_after = 0
 
         # Odradek — Psychic Recoil
 
@@ -4443,6 +4445,8 @@ class Game:
         integrity_before = dfn.castle_integrity.get(
             target_castle, castle_max_integrity(target_castle)
         )
+        dfn.last_sieged_castle_integrity_before = int(integrity_before)
+        dfn.last_sieged_castle_integrity_after = int(integrity_before)
         ward_screen = 0
         if (ACTIVE_FEATURES['ward_commit_defense']
                 and dfn.action == 'Ward'
@@ -4534,6 +4538,12 @@ class Game:
 
             integrity_after = max(0, integrity_before - struct_hit)
             dfn.castle_integrity[target_castle] = integrity_after
+            dfn.last_sieged_castle_integrity_after = int(integrity_after)
+            dfn.last_sieged_castle_damage = max(
+                0,
+                int(dfn.last_sieged_castle_integrity_before)
+                - int(integrity_after),
+            )
 
             self._record_castle_defunct_transition(
                 dfn,
@@ -5788,9 +5798,8 @@ class Game:
             # Dead — will Ward with Penitents
             penitents = sorted([c for c in pl.hand if c.suit == 'Penitent'],
                                key=lambda c: c.value, reverse=True)[:2]
-            low_for_bid = sorted([c for c in pl.hand if c not in penitents],
-                                 key=lambda c: c.value)[:1]
-            return penitents + low_for_bid
+            # REFLEX_BID_DEPRECATED_RUNTIME_V1: no phantom Reflex Bid reserve.
+            return penitents
 
         plan = self._plan(pl, op)
         prof = LORD_AI.get(pl.lord, dict(aggro=1.0, control=1.0, prefer=''))
@@ -5820,9 +5829,8 @@ class Game:
         if best == 'Ward' or (best == 'Hunt' and not op.alive) or (best == 'Siege' and not op.castles):
             penitents = sorted([c for c in pl.hand if c.suit == 'Penitent'],
                                key=lambda c: c.value, reverse=True)[:2]
-            low_for_bid = sorted([c for c in pl.hand if c not in penitents],
-                                 key=lambda c: c.value)[:1]
-            return penitents + low_for_bid
+            # REFLEX_BID_DEPRECATED_RUNTIME_V1: no phantom Reflex Bid reserve.
+            return penitents
 
         # ── Attack reservation: use the same estimate final commitment uses.
         attack_target_type = 'Lord' if best == 'Hunt' else 'Castle'
@@ -5855,12 +5863,7 @@ class Game:
             if total >= target_str: break
             reserved.append(c); total += effective_attack_value(pl, c, attack_target_type)
 
-        # Reserve 1 low card for bid from whatever is left
-        non_reserved_low = sorted([c for c in pl.hand if c not in reserved],
-                                  key=lambda c: c.value)
-        if non_reserved_low:
-            reserved.append(non_reserved_low[0])
-
+        # REFLEX_BID_DEPRECATED_RUNTIME_V1: Reflex Bid is retired; no extra card is reserved.
         return reserved
 
     def _gain_threat(self, pl: 'Player', n: int = 1) -> int:
@@ -6593,7 +6596,7 @@ class Game:
         if pl.threat >= 3:
             score += 0.6
         if pl.lord == 'Deimos':
-            score += 1.0
+            score += 0.25
         if pl.lord == 'Kalligan':
             score += 0.8
         if pl.lord == 'Gremory':

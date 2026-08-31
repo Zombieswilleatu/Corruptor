@@ -32,7 +32,7 @@ class CastleIntegrityCanonicalTests(unittest.TestCase):
     def test_current_profile_contract(self):
         self.assertEqual(sim.SIM_VERSION, "7.6.2-defunct-repair-lock")
         self.assertEqual(sim.LAB_PROFILE_VERSION, "6.8.3-kroni-cannibal-no-gorge")
-        self.assertEqual(sim.AI_POLICY, "heuristic-2026.08-action-forecast-v1-odradek-reconfig-menu-v1_1")
+        self.assertEqual(sim.AI_POLICY, 'heuristic-2026.08-action-forecast-v1-odradek-reconfig-menu-v1_1-deimos-siege-bias-v2-gremory-inevitable-v2')
         self.assertTrue(sim.VARIANT["castle_loadout"])
         self.assertEqual(sim.VARIANT["starting_castles"], 3)
         self.assertEqual(sim.VARIANT["castle_type_count"], 5)

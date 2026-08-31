@@ -38,7 +38,7 @@ static func run() -> Array:
 		_test_offsuit_repair_resolves(),
 		_test_repair_no_longer_blocks_hand_deploy(),
 		_test_summon_shortfall_and_voluntary_underpay(),
-		_test_summon_retention_and_vessel_baselines(),
+		_test_summon_vessel_baseline(),
 		_test_kroni_fallback_conserves_card(),
 	]
 
@@ -232,12 +232,12 @@ static func _test_summon_shortfall_and_voluntary_underpay() -> Dictionary:
 	if (
 		String(short_result.get("action", "")) != "summon"
 		or int(short_result.get("threat_shortfall", -1)) != 3
-		or int(player.threat) != 4
+		or int(player.threat) != 3
 	):
 		return _fail(
 			"unit_agency_summon_shortfall",
-			"Cards 1/4 did not return Kalligan at Threat 4."
-		)
+			"Cards 1/4 did not add exactly 3 Threat of unpaid Summon cost."
+		) # FRACTURE_RETURN_THREAT_TEST_CLEANUP_V1
 
 	var game_two = GameStateData.new(["Kalligan"], ["Valak"])
 	var underpayer = game_two.players[0]
@@ -262,7 +262,7 @@ static func _test_summon_shortfall_and_voluntary_underpay() -> Dictionary:
 	if (
 		String(voluntary.get("action", "")) != "summon"
 		or int(voluntary.get("threat_shortfall", -1)) != 1
-		or int(underpayer.threat) != 2
+		or int(underpayer.threat) != 1
 		or underpayer.hand.size() != 1
 		or String(underpayer.hand[0].card_id()) != "Wright:3"
 	):
@@ -274,35 +274,9 @@ static func _test_summon_shortfall_and_voluntary_underpay() -> Dictionary:
 	return _pass("unit_agency_summon_shortfall_and_voluntary")
 
 
-static func _test_summon_retention_and_vessel_baselines() -> Dictionary:
+static func _test_summon_vessel_baseline() -> Dictionary:
+	# FRACTURE_RETURN_THREAT_TEST_CLEANUP_V1: retained Return-Threat is obsolete; Vessel remains explicit.
 	var rules := RuleConfig.lab_v6_5()
-
-	var retained_game = GameStateData.new(["Kalligan"], ["Valak"])
-	var retained = retained_game.players[0]
-	retained.lord = "Kalligan"
-	retained.alive = false
-	retained.first_summon_done = true
-	retained.return_threat_override = 3
-	retained.hand = [CardData.new("Butcher", 2)]
-
-	var blocked: Dictionary = SummonEngineData.resolve_player(
-		retained_game,
-		0,
-		rules,
-		{
-			"lord": "Kalligan",
-			"payment": ["Butcher:2"],
-		}
-	)
-
-	if (
-		String(blocked.get("action", "")) != "invalid"
-		or String(blocked.get("reason", "")) != "summon_threat_cap"
-	):
-		return _fail(
-			"unit_agency_summon_retention",
-			"Retained return Threat did not bound shortfall legality."
-		)
 
 	var vessel_game = GameStateData.new(["Kalligan"], ["Valak"])
 	var vessel = vessel_game.players[0]
@@ -334,7 +308,7 @@ static func _test_summon_retention_and_vessel_baselines() -> Dictionary:
 			"Vessel Threat 2 erased or mispriced the Summon shortfall."
 		)
 
-	return _pass("unit_agency_summon_retention_and_vessel")
+	return _pass("unit_agency_summon_vessel")
 
 
 static func _test_kroni_fallback_conserves_card() -> Dictionary:
@@ -355,15 +329,18 @@ static func _test_kroni_fallback_conserves_card() -> Dictionary:
 	)
 	var events: Array = result.get("fallback_events", [])
 
+	# CURRENT_RULE_FIXTURE_CLEANUP_V1
+	# Cannibal H1 consumes deployed Guards out of play. Cost-only means the meal
+	# does not feed Hunger; conservation is preserved through removed_from_play.
 	if (
 		events.size() != 1
-		or not game.discard.has(victim)
-		or game.removed_from_play.has(victim)
+		or game.discard.has(victim)
+		or not game.removed_from_play.has(victim)
 		or kroni.kroni_hunger != 2
 	):
 		return _fail(
 			"unit_agency_kroni_conservation",
-			"Kroni fallback did not pay to discard while staying cost-only in lab."
+			"Kroni Cannibal meal was not conserved in removed-from-play."
 		)
 
 	return _pass("unit_agency_kroni_conservation")

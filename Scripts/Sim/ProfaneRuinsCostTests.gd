@@ -19,9 +19,9 @@ const BotDominionRiteDoctrineData = preload(
 )
 
 
-const PAYMENT_TEST_NAME := "unit_profane_ruins_cost_five"
-const REJECTION_TEST_NAME := "unit_profane_ruins_rejects_insufficient_payment"
-const BOT_TEST_NAME := "unit_bot_profane_ruins_supplies_payment"
+const PAYMENT_TEST_NAME := "unit_profane_ruins_cost_two_souls"
+const REJECTION_TEST_NAME := "unit_profane_ruins_rejects_insufficient_souls"
+const BOT_TEST_NAME := "unit_bot_profane_ruins_respects_soul_cost"
 
 
 static func run(
@@ -42,6 +42,8 @@ static func _test_payment() -> Dictionary:
 	var game = fixture["game"]
 	var player = fixture["player"]
 	var rules: RuleConfig = fixture["rules"]
+	player.souls = 3
+	var hand_before: Array[String] = _card_ids(player.hand)
 
 	var result: Dictionary = DominionRiteEngineData.resolve_player(
 		game,
@@ -50,10 +52,6 @@ static func _test_payment() -> Dictionary:
 		{
 			"profane_ruins": {
 				"castle": "Stockpile",
-				"payment": [
-					"Butcher:3",
-					"Wright:2",
-				],
 			},
 		}
 	)
@@ -61,44 +59,24 @@ static func _test_payment() -> Dictionary:
 	var action: Dictionary = _single_action(result)
 	if action.is_empty():
 		return _fail(PAYMENT_TEST_NAME, "Profane the Ruins returned no action.")
-
 	if String(action.get("action", "")) != "profane_ruins":
-		return _fail(
-			PAYMENT_TEST_NAME,
-			"Profane the Ruins did not resolve: %s"
-			% String(action.get("reason", "unknown"))
-		)
-
-	if int(action.get("cost", -1)) != 5:
-		return _fail(PAYMENT_TEST_NAME, "Profane the Ruins cost should be 5.")
-
-	if int(action.get("paid_total", -1)) != 5:
-		return _fail(PAYMENT_TEST_NAME, "Profane the Ruins paid_total should be 5.")
-
-	if _string_array(action.get("paid_cards", [])) != [
-		"Butcher:3",
-		"Wright:2",
-	]:
-		return _fail(PAYMENT_TEST_NAME, "Profane the Ruins reported the wrong payment.")
-
-	if _card_ids(player.hand) != ["Vulture:1"]:
-		return _fail(PAYMENT_TEST_NAME, "Profane the Ruins left the wrong Hand.")
-
-	if _card_ids(game.discard) != [
-		"Butcher:3",
-		"Wright:2",
-	]:
-		return _fail(PAYMENT_TEST_NAME, "Profane the Ruins did not discard its payment.")
-
+		return _fail(PAYMENT_TEST_NAME, "Profane the Ruins did not resolve.")
+	if String(action.get("cost_type", "")) != "souls":
+		return _fail(PAYMENT_TEST_NAME, "Profane the Ruins did not report a Soul cost.")
+	if int(action.get("soul_cost", -1)) != 2:
+		return _fail(PAYMENT_TEST_NAME, "Profane the Ruins Soul cost should be 2.")
+	if int(action.get("souls_before", -1)) != 3 or int(action.get("souls_after", -1)) != 1:
+		return _fail(PAYMENT_TEST_NAME, "Profane the Ruins reported the wrong Soul exchange.")
+	if player.souls != 1:
+		return _fail(PAYMENT_TEST_NAME, "Profane the Ruins did not spend exactly 2 Souls.")
+	if _card_ids(player.hand) != hand_before or not game.discard.is_empty():
+		return _fail(PAYMENT_TEST_NAME, "Soul-priced Profane the Ruins touched Hand/discard.")
 	if player.ruined_castles.has("Stockpile"):
-		return _fail(PAYMENT_TEST_NAME, "Paid Stockpile remained Ruined.")
-
+		return _fail(PAYMENT_TEST_NAME, "Stockpile remained Ruined.")
 	if not player.profaned_castles.has("Stockpile"):
-		return _fail(PAYMENT_TEST_NAME, "Paid Stockpile did not become Profaned.")
-
+		return _fail(PAYMENT_TEST_NAME, "Stockpile did not become Profaned.")
 	if player.tears != 1:
 		return _fail(PAYMENT_TEST_NAME, "Profane the Ruins did not grant one Tear.")
-
 	return _pass(PAYMENT_TEST_NAME)
 
 
@@ -110,10 +88,9 @@ static func _test_insufficient_payment() -> Dictionary:
 	var game = fixture["game"]
 	var player = fixture["player"]
 	var rules: RuleConfig = fixture["rules"]
-
+	player.souls = 1
 	var hand_before: Array[String] = _card_ids(player.hand)
 	var ruined_before: Array[String] = _string_array(player.ruined_castles)
-	var discard_before: Array[String] = _card_ids(game.discard)
 
 	var result: Dictionary = DominionRiteEngineData.resolve_player(
 		game,
@@ -122,39 +99,21 @@ static func _test_insufficient_payment() -> Dictionary:
 		{
 			"profane_ruins": {
 				"castle": "Stockpile",
-				"payment": [
-					"Butcher:3",
-					"Vulture:1",
-				],
 			},
 		}
 	)
 
 	var action: Dictionary = _single_action(result)
 	if String(action.get("action", "")) != "invalid":
-		return _fail(REJECTION_TEST_NAME, "Sub-five Profane payment was accepted.")
-
-	if String(action.get("reason", "")) != "insufficient_payment":
-		return _fail(
-			REJECTION_TEST_NAME,
-			"Sub-five Profane returned the wrong rejection reason."
-		)
-
+		return _fail(REJECTION_TEST_NAME, "One-Soul Profane was accepted.")
+	if String(action.get("reason", "")) != "insufficient_souls":
+		return _fail(REJECTION_TEST_NAME, "Insufficient-Souls Profane returned the wrong reason.")
+	if player.souls != 1 or player.tears != 0:
+		return _fail(REJECTION_TEST_NAME, "Rejected Profane changed Souls/Tears.")
 	if _card_ids(player.hand) != hand_before:
 		return _fail(REJECTION_TEST_NAME, "Rejected Profane changed the Hand.")
-
-	if _string_array(player.ruined_castles) != ruined_before:
-		return _fail(REJECTION_TEST_NAME, "Rejected Profane changed Ruined Castles.")
-
-	if not player.profaned_castles.is_empty():
-		return _fail(REJECTION_TEST_NAME, "Rejected Profane created a Profaned Castle.")
-
-	if _card_ids(game.discard) != discard_before:
-		return _fail(REJECTION_TEST_NAME, "Rejected Profane changed discard.")
-
-	if player.tears != 0:
-		return _fail(REJECTION_TEST_NAME, "Rejected Profane changed Tears.")
-
+	if _string_array(player.ruined_castles) != ruined_before or not player.profaned_castles.is_empty():
+		return _fail(REJECTION_TEST_NAME, "Rejected Profane changed Castle state.")
 	return _pass(REJECTION_TEST_NAME)
 
 
@@ -166,10 +125,8 @@ static func _test_bot_payment() -> Dictionary:
 	var game = fixture["game"]
 	var player = fixture["player"]
 	var rules: RuleConfig = fixture["rules"]
-
-	# This bypasses plan ambiguity; the existing doctrine also Profanes once
-	# the player already owns a Tear.
-	player.tears = 1
+	player.tears = 4
+	player.souls = 2
 
 	var candidates: Array = BotDominionRiteDoctrineData.evaluate_profane_candidates(
 		game,
@@ -177,42 +134,47 @@ static func _test_bot_payment() -> Dictionary:
 		rules
 	)
 
+	var found: bool = false
 	for raw_candidate in candidates:
 		if typeof(raw_candidate) != TYPE_DICTIONARY:
 			continue
-
-		var candidate: Dictionary = raw_candidate
-		var payload = candidate.get("payload", {})
+		var payload = raw_candidate.get("payload", {})
 		if typeof(payload) != TYPE_DICTIONARY:
 			continue
-
 		if String(payload.get("castle", "")).is_empty():
 			continue
+		if payload.has("payment") and not _string_array(payload.get("payment", [])).is_empty():
+			return _fail(BOT_TEST_NAME, "Soul-priced bot Profane still supplied Hand payment.")
+		found = true
+		break
 
-		if _string_array(payload.get("payment", [])) != [
-			"Butcher:3",
-			"Wright:2",
-		]:
-			return _fail(BOT_TEST_NAME, "Bot Profane supplied the wrong payment.")
+	if not found:
+		return _fail(BOT_TEST_NAME, "Bot produced no affordable Soul-priced Profane candidate.")
 
-		return _pass(BOT_TEST_NAME)
+	player.souls = 1
+	var poor_candidates: Array = BotDominionRiteDoctrineData.evaluate_profane_candidates(
+		game,
+		0,
+		rules
+	)
+	for raw_candidate in poor_candidates:
+		if typeof(raw_candidate) != TYPE_DICTIONARY:
+			continue
+		var payload = raw_candidate.get("payload", {})
+		if typeof(payload) == TYPE_DICTIONARY and not String(payload.get("castle", "")).is_empty():
+			return _fail(BOT_TEST_NAME, "Bot attempted Profane the Ruins with only 1 Soul.")
 
-	return _fail(BOT_TEST_NAME, "Bot produced no paid Profane-the-Ruins candidate.")
+	return _pass(BOT_TEST_NAME)
 
 
 static func _build_fixture() -> Dictionary:
 	var rules: RuleConfig = RuleConfig.lab_v6_5()
-	var game = GameDealFixtureData.build_game_deimos_valak_s1(
-		rules
-	)
-
+	var game = GameDealFixtureData.build_game_deimos_valak_s1(rules)
 	if game == null:
 		return {"error": "Fixture returned no GameState."}
-
 	var player = game.get_player(0)
 	if player == null:
 		return {"error": "Fixture player zero is missing."}
-
 	player.hand = [
 		CardData.new("Butcher", 3),
 		CardData.new("Wright", 2),
@@ -227,71 +189,43 @@ static func _build_fixture() -> Dictionary:
 	player.castles.erase("SiegeEngine")
 	player.ruined_castles.append("Stockpile")
 	player.ruined_castles.append("SiegeEngine")
-
 	game.discard.clear()
 	game.neutral_tears = 0
 	game.winner = -1
 	game.win_by = ""
 	game.refresh_derived_values()
-
-	return {
-		"game": game,
-		"player": player,
-		"rules": rules,
-	}
+	return {"game": game, "player": player, "rules": rules}
 
 
-static func _single_action(
-	result: Dictionary
-) -> Dictionary:
+static func _single_action(result: Dictionary) -> Dictionary:
 	var actions = result.get("actions", [])
-	if typeof(actions) != TYPE_ARRAY:
-		return {}
-	if actions.size() != 1:
+	if typeof(actions) != TYPE_ARRAY or actions.size() != 1:
 		return {}
 	if typeof(actions[0]) != TYPE_DICTIONARY:
 		return {}
 	return actions[0]
 
 
-static func _card_ids(
-	cards: Array
-) -> Array[String]:
+static func _card_ids(cards: Array) -> Array[String]:
 	var result: Array[String] = []
 	for card in cards:
-		result.append(
-			String(card.card_id())
-		)
+		result.append(String(card.card_id()))
 	return result
 
 
-static func _string_array(
-	values
-) -> Array[String]:
+static func _string_array(values) -> Array[String]:
 	var result: Array[String] = []
+	if typeof(values) != TYPE_ARRAY:
+		return result
 	for value in values:
 		result.append(String(value))
+	result.sort()
 	return result
 
 
-static func _pass(
-	test_name: String
-) -> Dictionary:
-	return {
-		"passed": true,
-		"text": "PASS  %s" % test_name,
-	}
+static func _pass(name: String) -> Dictionary:
+	return {"text": "PASS  %s" % name, "passed": true}
 
 
-static func _fail(
-	test_name: String,
-	reason: String
-) -> Dictionary:
-	return {
-		"passed": false,
-		"text": "FAIL  %s: %s" % [
-			test_name,
-			reason,
-		],
-	}
-
+static func _fail(name: String, reason: String) -> Dictionary:
+	return {"text": "FAIL  %s: %s" % [name, reason], "passed": false}

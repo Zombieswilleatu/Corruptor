@@ -1,4 +1,9 @@
 class_name BotReflexDoctrine
+
+# REFLEX_BID_DEPRECATED_RUNTIME_V1
+# LEGACY NAME ONLY: Reflex Bid is retired. This doctrine survives because the
+# current Momentum mechanic reuses the old post-Resolution extra-action chooser.
+# Do not call this from a bid phase or reserve cards for it before Resolution.
 extends RefCounted
 
 

@@ -328,6 +328,12 @@ static func identity_matches(
 		"profane_no_castle_gate": rules.profane_no_castle_gate,
 		"castleless_siege": rules.castleless_siege,
 		"castleless_tear_neutral": rules.castleless_tear_neutral,
+		# GOLDEN_IDENTITY_SCHEMA_SYNC_V1
+		# Current v7.6 rule surface. `keep_hunt_armor` is deliberately absent:
+		# it is only a deprecated Python compatibility alias.
+		"keep_interposition": rules.keep_interposition,
+		"keep_fortification": rules.keep_fortification,
+		"defunct_repair_lock": rules.defunct_repair_lock,
 	}
 
 	for key in expected_variant:

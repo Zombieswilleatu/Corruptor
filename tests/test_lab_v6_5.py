@@ -270,7 +270,8 @@ class LabV65RulesTests(unittest.TestCase):
         self.assertEqual(defender.castle_integrity["Keep"], 0)
         self.assertEqual(defender.castle_scars, {})
 
-    def test_banished_lord_uses_the_retained_threat_on_resummon(self):
+    def test_banished_lord_resummons_at_zero_threat_after_fracture(self):
+        # FRACTURE_RETURN_THREAT_TEST_CLEANUP_V1
         game = sim.Game(["Deimos"], ["Valak"])
         attacker, defender = game.players
         attacker.alive = True
@@ -279,12 +280,13 @@ class LabV65RulesTests(unittest.TestCase):
 
         game._lord_killed(attacker, defender)
 
-        self.assertEqual(defender.return_threat_override, 3)
+        self.assertEqual(defender.threat, 0)
+        self.assertIsNone(defender.return_threat_override)
         defender.hand = [sim.Card("Butcher", 5), sim.Card("Wright", 5)]
         game._ai_summon(defender)
 
         self.assertTrue(defender.alive)
-        self.assertEqual(defender.threat, 3)
+        self.assertEqual(defender.threat, 0)
         self.assertIsNone(defender.return_threat_override)
 
     def test_momentum_awards_the_second_action_for_a_precise_clear(self):

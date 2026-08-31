@@ -305,137 +305,58 @@ static func _resolve_profane_ruins(
 	rules: RuleConfig,
 	decision: Dictionary
 ) -> Dictionary:
-	var player_id: int = int(
-		player.pid
-	)
+	var player_id: int = int(player.pid)
 
 	if player.profane_ruins_used_this_round:
-		return _invalid_rite_result(
-			"profane_ruins",
-			"profane_ruins_already_used"
-		)
+		return _invalid_rite_result("profane_ruins", "profane_ruins_already_used")
 
-	var ruined_count: int = int(
-		player.ruined_castles.size()
-	)
+	if int(player.ruined_castles.size()) < int(rules.profane_ruins_req):
+		return _invalid_rite_result("profane_ruins", "insufficient_ruined_castles")
 
-	if ruined_count < rules.profane_ruins_req:
-		return _invalid_rite_result(
-			"profane_ruins",
-			"insufficient_ruined_castles"
-		)
-
-	var castle_name: String = String(
-		decision.get(
-			"castle",
-			""
-		)
-	)
-
+	var castle_name: String = String(decision.get("castle", ""))
 	if castle_name.is_empty():
-		return _invalid_rite_result(
-			"profane_ruins",
-			"castle_required"
-		)
+		return _invalid_rite_result("profane_ruins", "castle_required")
+	if not player.ruined_castles.has(castle_name):
+		return _invalid_rite_result("profane_ruins", "castle_not_ruined")
 
-	if not player.ruined_castles.has(
-		castle_name
-	):
-		return _invalid_rite_result(
-			"profane_ruins",
-			"castle_not_ruined"
-		)
+	# PROFANE_RUINS_SOUL_EXCHANGE_V3
+	# Current rules use profane_ruins_cost as a Soul price when the historical
+	# profane_ruins_card_cost is zero. Old profiles with a card cost retain
+	# their archived Hand-payment behavior.
+	var hand_cost: int = maxi(0, int(rules.profane_ruins_card_cost))
+	var soul_cost: int = 0 if hand_cost > 0 else maxi(0, int(rules.profane_ruins_cost))
+	var souls_before: int = int(player.souls)
+	var selected_cards: Array = []
+	var paid_total: int = 0
 
-	var raw_payment = decision.get(
-		"payment",
-		[]
-	)
-
-	if typeof(
-		raw_payment
-	) != TYPE_ARRAY:
-		return _invalid_rite_result(
-			"profane_ruins",
-			"payment_must_be_array"
-		)
-
-	var payment_cost: int = maxi(
-		0,
-		rules.profane_ruins_cost
-	)
-
-	var selection: Dictionary = _select_hand_payment(
-		player,
-		raw_payment,
-		payment_cost
-	)
-
-	if not bool(
-		selection.get(
-			"valid",
-			false
-		)
-	):
-		return _invalid_rite_result(
-			"profane_ruins",
-			String(
-				selection.get(
-					"reason",
-					"invalid_payment"
-				)
+	if hand_cost > 0:
+		var raw_payment = decision.get("payment", [])
+		if typeof(raw_payment) != TYPE_ARRAY:
+			return _invalid_rite_result("profane_ruins", "payment_must_be_array")
+		var selection: Dictionary = _select_hand_payment(player, raw_payment, hand_cost)
+		if not bool(selection.get("valid", false)):
+			return _invalid_rite_result(
+				"profane_ruins",
+				String(selection.get("reason", "invalid_payment"))
 			)
-		)
+		selected_cards = selection.get("cards", [])
+		paid_total = int(selection.get("paid_total", 0))
+		for card in selected_cards:
+			assert(player.hand.has(card), "Profane-the-Ruins payment card left the player's hand.")
+			player.hand.erase(card)
+			game.discard.append(card)
+	else:
+		if souls_before < soul_cost:
+			return _invalid_rite_result("profane_ruins", "insufficient_souls")
+		player.souls -= soul_cost
 
-	var selected_cards: Array = selection.get(
-		"cards",
-		[]
-	)
-
-	var paid_total: int = int(
-		selection.get(
-			"paid_total",
-			0
-		)
-	)
-
-	for card in selected_cards:
-		assert(
-			player.hand.has(
-				card
-			),
-			"Profane-the-Ruins payment card left the player's hand."
-		)
-
-		player.hand.erase(
-			card
-		)
-
-		game.discard.append(
-			card
-		)
-
-	player.ruined_castles.erase(
-		castle_name
-	)
-
-	if not player.profaned_castles.has(
-		castle_name
-	):
-		player.profaned_castles.append(
-			castle_name
-		)
-
+	player.ruined_castles.erase(castle_name)
+	if not player.profaned_castles.has(castle_name):
+		player.profaned_castles.append(castle_name)
 	player.profane_ruins_used_this_round = true
 
-	var tear_event: Dictionary = _gain_personal_tear(
-		game,
-		player
-	)
-
-	var won: bool = _check_win(
-		game,
-		rules
-	)
+	var tear_event: Dictionary = _gain_personal_tear(game, player)
+	var won: bool = _check_win(game, rules)
 
 	return {
 		"player_id": player_id,
@@ -443,30 +364,19 @@ static func _resolve_profane_ruins(
 		"rite": "profane_ruins",
 		"reason": "",
 		"castle": castle_name,
-		"cost": payment_cost,
+		"cost": hand_cost if hand_cost > 0 else soul_cost,
+		"cost_type": "hand_value" if hand_cost > 0 else "souls",
+		"soul_cost": soul_cost,
+		"souls_before": souls_before,
+		"souls_after": int(player.souls),
 		"paid_total": paid_total,
-		"paid_cards": _card_ids(
-			selected_cards
-		),
+		"paid_cards": _card_ids(selected_cards),
 		"tear_gain": 1,
-		"veil_after": int(
-			game.calculate_veil_total()
-		),
-		"harvested_card": String(
-			tear_event.get(
-				"harvested_card",
-				""
-			)
-		),
-		"harvested_by": int(
-			tear_event.get(
-				"harvested_by",
-				-1
-			)
-		),
+		"veil_after": int(game.calculate_veil_total()),
+		"harvested_card": String(tear_event.get("harvested_card", "")),
+		"harvested_by": int(tear_event.get("harvested_by", -1)),
 		"won": won,
 	}
-
 
 static func _gain_personal_tear(
 	game,

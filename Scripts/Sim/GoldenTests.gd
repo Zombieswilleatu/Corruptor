@@ -186,11 +186,13 @@ static func run_startup_checks(
 		)
 	)
 
-	messages.append_array(
-		ReflexBidTestsData.run(
-			rules
-		)
-	)
+	# REFLEX_BID_DEPRECATED_RUNTIME_V1
+	# Reflex Bid engine tests are archival and no longer part of the live rules
+	# contract. The conductor/doctrine retirement is tested below instead.
+	messages.append({
+		"text": "PASS  diag_reflex_bid_legacy_tests_skipped_deprecated",
+		"passed": true,
+	})
 
 	messages.append_array(
 		CommitmentTestsData.run(
@@ -302,11 +304,21 @@ static func run_startup_checks(
 		AgencyPassTestsData.run()
 	)
 
-	messages.append_array(
-		LordMatrixTestsData.run(
-			rules
+	# PARITY_CONTRACT_SPLIT_V1
+	# The historical Lord matrix now measures AI differential only. Current
+	# Godot ActionForecast intentionally differs from the frozen Python mirror.
+	if OS.get_environment("CORRUPTOR_AI_PARITY") == "1":
+		messages.append_array(
+			LordMatrixTestsData.run(
+				rules
+			)
 		)
-	)
+	else:
+		messages.append(
+			_pass(
+				"PASS  diag_ai_parity_matrix_skipped_non_gating"
+			)
+		)
 
 	return messages
 

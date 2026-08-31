@@ -96,7 +96,7 @@ class SummonThreatExchangeTests(VariantIsolatedTest):
         game._ai_summon(player)
 
         self.assertTrue(player.alive)
-        self.assertEqual(player.threat, sim.MAX_THREAT)
+        self.assertEqual(player.threat, 3)  # FRACTURE_RETURN_THREAT_TEST_CLEANUP_V1
         self.assertEqual(player.hand, [])
 
     def test_shortfall_beyond_threat_room_is_refused(self):
@@ -111,23 +111,20 @@ class SummonThreatExchangeTests(VariantIsolatedTest):
             )
         )
 
-    def test_retained_return_threat_controls_room(self):
+    def test_ordinary_resummon_has_zero_threat_baseline(self):
+        # FRACTURE_RETURN_THREAT_TEST_CLEANUP_V1
         game, player = self._banished("Kalligan")
-        player.return_threat_override = 3
         player.hand = [sim.Card("Butcher", 2)]
 
-        self.assertFalse(
-            game._summon_affordable(
-                player,
-                player.lord,
-                4,
-            )
+        self.assertEqual(
+            game._summon_return_threat(player, player.lord),
+            0,
         )
         self.assertTrue(
             game._summon_affordable(
                 player,
                 player.lord,
-                3,
+                4,
             )
         )
 
@@ -183,12 +180,12 @@ class SummonThreatExchangeTests(VariantIsolatedTest):
         game._ai_summon(player)
 
         self.assertTrue(player.alive)
-        # Kalligan costs 4 and returns at 1. If doctrine asks to preserve cards,
-        # discrete 3s may force card overpay; Threat must reflect the ACTUAL gap.
+        # Kalligan costs 4 and ordinary resummon starts at Threat 0.
+        # Discrete 3s may force card overpay; Threat reflects the ACTUAL gap.
         spent = 6 - sum(c.value for c in player.hand)
         self.assertEqual(
             player.threat,
-            sim.return_threat("Kalligan") + max(0, 4 - spent),
+            game._summon_return_threat(player, "Kalligan") + max(0, 4 - spent),
         )
 
 

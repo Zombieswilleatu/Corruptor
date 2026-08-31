@@ -16,6 +16,10 @@ const RoundEngineData = preload(
 const ActionForecastData = preload(
     "res://Scripts/Sim/ActionForecast.gd"
 )
+# UI2_DOMINION_RITE_ENGINE_PRELOAD_HOTFIX_V1
+const DominionRiteEngineData = preload(
+    "res://Scripts/Sim/DominionRiteEngine.gd"
+)
 
 
 const CASTLE_ORDER: Array[String] = [
@@ -45,6 +49,7 @@ var primary_select: OptionButton = null
 var secondary_label: Label = null
 var secondary_select: OptionButton = null
 var option_toggle: CheckButton = null
+var rite_help_label: Label = null
 var aux_label: Label = null
 var aux_list: ItemList = null
 var deploy_staged_label: Label = null
@@ -65,6 +70,7 @@ var player_ref = null
 var opponent_ref = null
 var rules_ref = null
 var controller_ref = null
+var dialog_mode: bool = false
 
 
 var _forecast_cache: Dictionary = {}
@@ -109,7 +115,7 @@ func _ready() -> void:
     payment_label.visible = false
     payment_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     payment_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    payment_label.add_theme_font_size_override("font_size", 12)
+    payment_label.add_theme_font_size_override("font_size", 14)
     outer.add_child(payment_label)
 
     scope_label = Label.new()
@@ -156,6 +162,18 @@ func _ready() -> void:
     option_toggle.visible = false
     option_toggle.toggled.connect(_on_option_toggled)
     outer.add_child(option_toggle)
+
+    # UI2_DOMINION_RITE_EXPLANATIONS_V1
+    rite_help_label = Label.new()
+    rite_help_label.name = "RiteHelp"
+    rite_help_label.visible = false
+    rite_help_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    rite_help_label.add_theme_font_size_override("font_size", 13)
+    rite_help_label.add_theme_color_override(
+        "font_color",
+        Color(0.88, 0.84, 0.74, 1.0)
+    )
+    outer.add_child(rite_help_label)
 
     aux_label = Label.new()
     aux_label.visible = false
@@ -207,6 +225,47 @@ func _ready() -> void:
     outer.add_child(pass_button)
 
 
+func focus_direct_manipulation_end() -> void:
+    # UI2_DIRECT_MANIPULATION_SYNC_V1
+    # A board-first action should land the dialog on the useful end-state,
+    # not force the player to replay the same choice through dropdowns/pages.
+    call_deferred("_scroll_direct_manipulation_end")
+
+
+func _scroll_direct_manipulation_end() -> void:
+    var scroll := get_node_or_null("ActionScroll") as ScrollContainer
+    if scroll == null:
+        return
+
+    # Deliberately overshoot; ScrollContainer clamps to its legal maximum.
+    # This keeps the live payment/status/confirm controls in view after the
+    # PhasePrompt expands and its layout settles.
+    scroll.scroll_vertical = 1000000
+
+func set_dialog_mode(enabled: bool) -> void:
+    dialog_mode = enabled
+    custom_minimum_size = Vector2(0, 0) if enabled else Vector2(300, 0)
+    if title_label != null:
+        title_label.visible = not enabled
+    if phase_panel != null:
+        phase_panel.visible = not enabled
+
+
+func focus_castle_action_mode(action_name: String) -> void:
+    if stage_key != "REPAIR" or action_name not in ["repair", "construct"]:
+        return
+
+    for index: int in range(primary_select.item_count):
+        if String(primary_select.get_item_metadata(index)) != action_name:
+            continue
+        primary_select.select(index)
+        _refresh_castle_action_targets()
+        primary_label.visible = false
+        primary_select.visible = false
+        pass_button.text = "CONTINUE DEVELOPMENT"
+        return
+
+
 func bind_state(
     player,
     opponent,
@@ -241,10 +300,13 @@ func bind_state(
     title_label.text = _friendly_phase_name(stage_key)
     phase_label.text = ""
     phase_panel.text = _phase_copy(stage_key)
+    title_label.visible = not dialog_mode
+    phase_panel.visible = not dialog_mode
 
     _reset_stage_controls()
     _configure_stage()
     _refresh_action_copy()
+    _refresh_rite_help()
     _refresh_payment_feedback()
     _refresh_forecast()
     _refresh_confirm_state()
@@ -341,6 +403,7 @@ func set_selected_hand_cards(
         )
 
     selected_card_count = selected_hand_card_ids.size()
+    _refresh_rite_help()
     _refresh_payment_feedback()
     _refresh_confirm_state()
 
@@ -451,6 +514,8 @@ func _reset_stage_controls() -> void:
     secondary_select.clear()
     option_toggle.visible = false
     option_toggle.button_pressed = false
+    rite_help_label.visible = false
+    rite_help_label.text = ""
     aux_label.visible = false
     aux_list.visible = false
     aux_list.clear()
@@ -506,17 +571,18 @@ func _configure_stage() -> void:
             pass_button.text = "PASS CASTLE ACTION"
 
         "DOMINION_RITES":
-            phase_label.text = "Selected Hand cards pay rites in order."
-            _show_primary("Profane Ruins:")
-            _add_option(primary_select, "No Profane Ruins", "")
+            phase_label.text = "Choose a Rite. Selecting it explains exactly what it does and what it costs."
+            _show_primary("Defile the Ruins:")
+            _add_option(primary_select, "Do not Defile a Ruin", "")
             for castle_name in player_ref.ruined_castles:
                 _add_option(primary_select, String(castle_name), String(castle_name))
             option_toggle.visible = true
-            option_toggle.text = "Cataclysmic Invocation (first 11 selected value)"
+            option_toggle.text = "Perform Cataclysmic Invocation"
+            rite_help_label.visible = true
             confirm_button.visible = true
-            confirm_button.text = "RESOLVE RITES"
+            confirm_button.text = "PERFORM SELECTED RITES"
             pass_button.visible = true
-            pass_button.text = "PASS RITES"
+            pass_button.text = "CONTINUE WITHOUT RITES"
 
         "DEPLOY":
             phase_label.text = "Click a Hand card to use the selected destination, or drag it directly onto Lord / Castle Guards. STAGED Guards remain reversible."
@@ -581,7 +647,11 @@ func _configure_stage() -> void:
             confirm_button.text = "REVEAL ORDERS"
 
         "KANIFOUS_INVOKE":
-            phase_label.text = "Select exactly one Hand card as the toll."
+            phase_label.text = (
+                "1. Choose the revealed Invocation below.\n"
+                + "2. Click exactly one Hand card to discard as its toll.\n"
+                + "3. Press INVOKE."
+            )
             _show_primary("Invoke revealed card:")
             if controller_ref != null:
                 for card_id in controller_ref.kanifous_preview_cards:
@@ -625,11 +695,29 @@ func _configure_stage() -> void:
             )
 
         "RESOLUTION_VESSEL":
-            _show_primary("Vessel:")
-            _add_option(primary_select, "Keep your Lord", "pass")
-            _add_option(primary_select, "Offer your Lord", "offer")
+            title_label.text = "THE VESSEL"
+            phase_label.text = "ONCE PER MATCH · AFTER YOUR ACTION"
+            phase_panel.text = (
+                "The Veil does not open for the dead. It opens for what is "
+                + "willingly surrendered. You may offer your living Lord as "
+                + "the Vessel — abandoning the ruler of your domain for one "
+                + "final pull upon the abyss.\n\n"
+                + "Offering the Vessel immediately grants you 1 Tear, while "
+                + "your opponent gains 1 Soul. Every Lord Guard is destroyed "
+                + "and your Lord leaves play as OFFERED AS VESSEL rather than "
+                + "entering the Breach. If that Lord is summoned again later, "
+                + "it returns at Threat 2. Because the Tear is gained at once, "
+                + "this sacrifice can complete Dominion immediately."
+            )
+            _show_primary("Choose your fate:")
+            _add_option(primary_select, "KEEP LORD · no effect", "pass")
+            _add_option(
+                primary_select,
+                "OFFER LORD · +1 Tear · opponent +1 Soul",
+                "offer"
+            )
             confirm_button.visible = true
-            confirm_button.text = "RESOLVE VESSEL"
+            confirm_button.text = "CONFIRM VESSEL CHOICE"
 
         "RESOLUTION_REFLEX":
             title_label.text = "MOMENTUM ACTION"
@@ -745,6 +833,7 @@ func _on_primary_selected(_index: int) -> void:
         _populate_march_guards()
     elif stage_key == "REPAIR":
         _refresh_castle_action_targets()
+    _refresh_rite_help()
     _refresh_payment_feedback()
     _refresh_forecast()
     _refresh_confirm_state()
@@ -763,6 +852,7 @@ func _on_secondary_selected(_index: int) -> void:
 
 
 func _on_option_toggled(_pressed: bool) -> void:
+    _refresh_rite_help()
     _refresh_payment_feedback()
     _refresh_confirm_state()
 
@@ -1107,7 +1197,10 @@ func _add_option(control: OptionButton, label: String, value: String) -> void:
 
 
 func _selected_metadata(control: OptionButton) -> String:
-    if control == null or not control.visible or control.item_count <= 0 or control.selected < 0:
+    # UI2_CENTERED_PAYMENT_STAGING_FIX_V1
+    # Dialog mode intentionally hides controls whose choice was already made by the
+    # phase prompt. Hidden is presentation state, not "no semantic selection".
+    if control == null or control.item_count <= 0 or control.selected < 0:
         return ""
     return String(control.get_item_metadata(control.selected))
 
@@ -1300,6 +1393,173 @@ func _forecast_objective_line(
         ward_text,
     ]
 
+
+func _refresh_rite_help() -> void:
+    # UI2_PROFANE_SOUL_LIVE_BRANCH_SYNC_V1
+    if rite_help_label == null:
+        return
+
+    if stage_key != "DOMINION_RITES":
+        rite_help_label.visible = false
+        rite_help_label.text = ""
+        return
+
+    rite_help_label.visible = true
+
+    if player_ref == null or rules_ref == null:
+        rite_help_label.text = "Rite details unavailable."
+        return
+
+    var invocation_cost: int = int(
+        DominionRiteEngineData.INVOCATION_PAYMENT_THRESHOLD
+    )
+    var invocation_gate: int = int(rules_ref.invocation_gate)
+    var veil: int = 0
+
+    if controller_ref != null and controller_ref.game != null:
+        veil = int(
+            controller_ref.game.calculate_veil_total()
+        )
+
+    var invocation_selected: bool = (
+        option_toggle != null
+        and option_toggle.button_pressed
+    )
+
+    var profane_castle: String = get_primary_value()
+    var ruined_count: int = int(
+        player_ref.ruined_castles.size()
+    )
+    var ruined_required: int = int(
+        rules_ref.profane_ruins_req
+    )
+    var profane_soul_cost: int = maxi(
+        0,
+        int(rules_ref.profane_ruins_cost)
+    )
+    var souls_available: int = int(
+        player_ref.souls
+    )
+
+    var invocation_state: String = "AVAILABLE"
+
+    if (
+        not bool(rules_ref.invocation_repeatable)
+        and bool(player_ref.cataclysmic_used)
+    ):
+        invocation_state = "USED"
+    elif veil < invocation_gate:
+        invocation_state = "LOCKED · VEIL %d/%d" % [
+            veil,
+            invocation_gate,
+        ]
+
+    var profane_state: String = "AVAILABLE"
+
+    if bool(player_ref.profane_ruins_used_this_round):
+        profane_state = "USED THIS ROUND"
+    elif ruined_count < ruined_required:
+        profane_state = "LOCKED · RUINS %d/%d" % [
+            ruined_count,
+            ruined_required,
+        ]
+    elif souls_available < profane_soul_cost:
+        profane_state = "LOCKED · SOULS %d/%d" % [
+            souls_available,
+            profane_soul_cost,
+        ]
+
+    var selected_total: int = 0
+
+    for card in _selected_payment_cards():
+        selected_total += int(card.value)
+
+    var invocation_selection_copy: String = (
+        "Toggle it above to select this Rite."
+    )
+
+    if invocation_selected:
+        invocation_selection_copy = (
+            "SELECTED · Hand payment %d/%d."
+            % [
+                selected_total,
+                invocation_cost,
+            ]
+        )
+
+    var profane_selection_copy: String = (
+        "Choose a Ruined Castle above to select this Rite."
+    )
+
+    if not profane_castle.is_empty():
+        profane_selection_copy = (
+            "SELECTED · %s will be Profaned."
+            % profane_castle
+        )
+
+    var lines: Array[String] = []
+
+    lines.append(
+        (
+            "CATACLYSMIC INVOCATION · %s\n"
+            + "At Veil %d+, pay at least %d total Hand value to gain 1 Tear. %s"
+        ) % [
+            invocation_state,
+            invocation_gate,
+            invocation_cost,
+            invocation_selection_copy,
+        ]
+    )
+
+    lines.append(
+        (
+            "DEFILE THE RUINS · %s\n"
+            + "Choose one of your Ruined Castles to Defile and gain 1 Tear. "
+            + "Requires at least %d Ruined Castles and %d Souls. "
+            + "You have %d Souls. %s"
+        ) % [
+            profane_state,
+            ruined_required,
+            profane_soul_cost,
+            souls_available,
+            profane_selection_copy,
+        ]
+    )
+
+    if invocation_selected:
+        lines.append(
+            "INVOCATION HAND PAYMENT · %d/%d selected value%s"
+            % [
+                selected_total,
+                invocation_cost,
+                " · READY"
+                if selected_total >= invocation_cost
+                else " · SHORT",
+            ]
+        )
+
+    if not profane_castle.is_empty():
+        lines.append(
+            "DEFILE · SOULS %d/%d%s"
+            % [
+                souls_available,
+                profane_soul_cost,
+                " · READY"
+                if souls_available >= profane_soul_cost
+                else " · SHORT",
+            ]
+        )
+
+    if (
+        invocation_selected
+        and not profane_castle.is_empty()
+    ):
+        lines.append(
+            "PAYMENTS ARE SEPARATE · Hand cards pay only for Cataclysmic Invocation. "
+            + "Defile the Ruins spends Souls directly."
+        )
+
+    rite_help_label.text = "\n\n".join(lines)
 
 func _refresh_payment_feedback() -> void:
     if payment_label == null:
@@ -1598,6 +1858,67 @@ func _refresh_confirm_state() -> void:
                     selected_value
                     > construction_cap
                 )
+    elif stage_key == "DOMINION_RITES":
+        var invocation_selected: bool = (
+            option_toggle != null
+            and option_toggle.button_pressed
+        )
+        var profane_castle: String = get_primary_value()
+        var profane_selected: bool = (
+            not profane_castle.is_empty()
+        )
+
+        confirm_button.disabled = (
+            not invocation_selected
+            and not profane_selected
+        )
+
+        if (
+            not confirm_button.disabled
+            and invocation_selected
+        ):
+            var invocation_value: int = 0
+
+            for card in _selected_payment_cards():
+                invocation_value += int(card.value)
+
+            if (
+                (
+                    not bool(rules_ref.invocation_repeatable)
+                    and bool(player_ref.cataclysmic_used)
+                )
+                or controller_ref == null
+                or controller_ref.game == null
+                or int(
+                    controller_ref.game.calculate_veil_total()
+                ) < int(rules_ref.invocation_gate)
+                or invocation_value
+                < int(
+                    DominionRiteEngineData.INVOCATION_PAYMENT_THRESHOLD
+                )
+            ):
+                confirm_button.disabled = true
+
+        if (
+            not confirm_button.disabled
+            and profane_selected
+        ):
+            if (
+                bool(player_ref.profane_ruins_used_this_round)
+                or int(
+                    player_ref.ruined_castles.size()
+                ) < int(rules_ref.profane_ruins_req)
+                or not player_ref.ruined_castles.has(
+                    profane_castle
+                )
+                or int(player_ref.souls)
+                < maxi(
+                    0,
+                    int(rules_ref.profane_ruins_cost)
+                )
+            ):
+                confirm_button.disabled = true
+
     elif stage_key == "DEPLOY":
         confirm_button.disabled = get_aux_selected_values().is_empty()
     elif stage_key == "KANIFOUS_INVOKE":
@@ -1690,7 +2011,12 @@ func _phase_copy(stage_name: String) -> String:
         "RESOLUTION_ACTION":
             return "Resolve your sealed action and any optional modifier."
         "RESOLUTION_VESSEL":
-            return "Offer your Lord as the Vessel, or keep it."
+            return (
+                "Once per match, a living Lord may be offered as the Vessel: "
+                + "+1 Tear to you, +1 Soul to the opponent, discard your Lord "
+                + "Guards, and remove the Lord from play. It is not placed in "
+                + "the Breach; if summoned later it returns at Threat 2."
+            )
         "RESOLUTION_REFLEX":
             return "Take the extra Momentum action, or pass."
         "RESOLUTION_ODRADEK_BREACH":

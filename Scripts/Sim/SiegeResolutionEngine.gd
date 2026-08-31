@@ -131,6 +131,10 @@ static func resolve(
 
 	defender.was_sieged = true
 	defender.last_sieged_castle = target_castle
+	defender.last_sieged_castle_damage = 0
+	defender.last_sieged_castle_integrity_before = 0
+	defender.last_sieged_castle_integrity_after = 0
+	# GREMORY_INEVITABLE_FINAL_V2: exact target damage, not Bastion soak
 
 	# A threshold Ward turns the entire attack. The committed cards remain in
 	# the attacker zone for normal aftermath handling.
@@ -357,6 +361,9 @@ static func resolve(
 				CastleIntegrityRulesData.max_integrity(target_castle)
 			)
 		)
+	defender.last_sieged_castle_integrity_before = int(integrity_before)
+	defender.last_sieged_castle_integrity_after = int(integrity_before)
+
 	var structure_vulnerability: int = (
 		1
 		if game.breach == "Deimos" or game.breach == "Humbaba"
@@ -421,6 +428,12 @@ static func resolve(
 		var target_damage: int = mini(integrity_before, maxi(0, remaining_hit))
 		var integrity_after: int = maxi(0, integrity_before - target_damage)
 		defender.castle_integrity[target_castle] = integrity_after
+		defender.last_sieged_castle_integrity_after = int(integrity_after)
+		defender.last_sieged_castle_damage = maxi(
+			0,
+			int(defender.last_sieged_castle_integrity_before)
+			- int(integrity_after)
+		)
 		combat_result["integrity_before"] = integrity_before
 		combat_result["integrity_after"] = integrity_after
 		combat_result["structure_damage"] = target_damage

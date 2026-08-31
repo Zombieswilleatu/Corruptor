@@ -19,6 +19,7 @@ const SUCCESS_TEST_NAME := "unit_profane_success"
 const FRESH_SIGIL_TEST_NAME := "unit_profane_fresh_sigil_denial"
 const FLIPPED_SIGIL_TEST_NAME := "unit_profane_flipped_sigil"
 const INVALID_TARGET_TEST_NAME := "unit_profane_invalid_target"
+const RETARGET_TEST_NAME := "unit_profane_target_reevaluation"
 
 
 static func run(
@@ -32,6 +33,9 @@ static func run(
 			rules
 		),
 		_test_flipped_sigil(
+			rules
+		),
+		_test_target_reevaluation(
 			rules
 		),
 		_test_invalid_target(
@@ -436,6 +440,56 @@ static func _test_flipped_sigil(
 	return _pass(
 		FLIPPED_SIGIL_TEST_NAME
 	)
+
+
+static func _test_target_reevaluation(
+	rules: RuleConfig
+) -> Dictionary:
+	var test_rules: RuleConfig = rules.duplicate(true)
+	test_rules.castle_integrity = true
+	test_rules.profane_requires_full_integrity = true
+
+	var fixture: Dictionary = _build_fixture(test_rules)
+	if fixture.has("error"):
+		return _fail(RETARGET_TEST_NAME, String(fixture["error"]))
+
+	var game = fixture["game"]
+	var player = fixture["p0"]
+	var opponent = fixture["p1"]
+	_prepare_game(game)
+	_prepare_profane_player(player)
+	player.lord = "Gremory"
+	_set_castles(player, ["Bastion", "Stockpile", "SiegeEngine"])
+	player.castle_integrity.clear()
+	player.castle_integrity["Bastion"] = 3
+	player.castle_integrity["Stockpile"] = 14
+	player.castle_integrity["SiegeEngine"] = 14
+	opponent.sigils = {"Lord": "", "Castle": ""}
+
+	var result: Dictionary = ProfaneResolutionEngineData.resolve(
+		game,
+		test_rules,
+		0,
+		{
+			"target_castle": "Bastion",
+			"reevaluate_target": true,
+		}
+	)
+
+	if String(result.get("action", "")) != "profane":
+		return _fail(RETARGET_TEST_NAME, "Stale bot Profane target invalidated the round.")
+	if not bool(result.get("target_reevaluated", false)):
+		return _fail(RETARGET_TEST_NAME, "Stale Profane target was not reevaluated.")
+	if String(result.get("requested_castle", "")) != "Bastion":
+		return _fail(RETARGET_TEST_NAME, "Profane reevaluation lost the sealed target.")
+	if String(result.get("target_castle", "")) != "Stockpile":
+		return _fail(RETARGET_TEST_NAME, "Profane did not fall through to the next eligible Castle.")
+	if not player.castles.has("Bastion"):
+		return _fail(RETARGET_TEST_NAME, "Reevaluation removed the newly damaged Bastion.")
+	if not player.profaned_castles.has("Stockpile"):
+		return _fail(RETARGET_TEST_NAME, "Reevaluated Profane did not sacrifice Stockpile.")
+
+	return _pass(RETARGET_TEST_NAME)
 
 
 static func _test_invalid_target(

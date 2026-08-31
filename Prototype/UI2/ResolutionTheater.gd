@@ -12,6 +12,19 @@ const SubjectCardHoldPreviewData = preload(
 	"res://Prototype/UI2/SubjectCardHoldPreview.gd"
 )
 
+# UI2_VESSEL_CASTLE_RESOLUTION_POLISH_V1
+const CastleSpineData = preload(
+	"res://Prototype/UI2/CastleSpine.gd"
+)
+
+const CASTLE_TARGET_NAMES: Array[String] = [
+	"Keep",
+	"Bastion",
+	"SummoningCircle",
+	"Stockpile",
+	"SiegeEngine",
+]
+
 
 const SubjectSuitStyleData = preload(
 	"res://Prototype/UI2/SubjectSuitStyle.gd"
@@ -170,10 +183,20 @@ func play_reveal(
 
 	visible = true
 	_last_attack_header = ""
+	var both_ward: bool = (
+		String(human.action) == "Ward"
+		and String(bot.action) == "Ward"
+	)
 	title_label.text = "ORDERS REVEALED"
-	subtitle_label.text = "ENEMY LEFT  ·  PLAYER RIGHT"
-	clash_label.text = "◆"
-	footer_label.text = "Committed cards are now public."
+	if both_ward:
+		# UI2_AFTERMATH_WARD_REVEAL_CLEANUP_V1
+		subtitle_label.text = "BOTH SIDES WARD · NO COLLISION"
+		clash_label.text = "◇"
+		footer_label.text = "Both Sigils rise. No attack crosses the field."
+	else:
+		subtitle_label.text = "ENEMY LEFT  ·  PLAYER RIGHT"
+		clash_label.text = "◆"
+		footer_label.text = "Committed cards are now public."
 
 	# Match the permanent HUD: enemy always lives on the left and
 	# the human player always lives on the right.
@@ -208,7 +231,10 @@ func play_reveal(
 	await intro.finished
 
 	await get_tree().create_timer(1.05).timeout
-	footer_label.text = "Resolution order is about to begin."
+	if both_ward:
+		footer_label.text = "Both defensive orders stand. Resolution continues."
+	else:
+		footer_label.text = "Resolution order is about to begin."
 	await get_tree().create_timer(0.55).timeout
 	visible = false
 
@@ -370,7 +396,8 @@ func play_action(
 func play_interposition(
 	interposer_name: String,
 	defender_role: String,
-	detail_text: String
+	detail_text: String,
+	target_player = null
 ) -> void:
 	if interposer_name.is_empty():
 		return
@@ -415,10 +442,18 @@ func play_interposition(
 		interposer_name.to_upper(),
 	]
 	other_name_label.text = ""
-	_add_target_card(
-		defense_cards,
-		interposer_name
-	)
+	if target_player != null and _is_castle_target(interposer_name):
+		_add_castle_target_card(
+			defense_cards,
+			target_player,
+			interposer_name,
+			Vector2(150, 225)
+		)
+	else:
+		_add_target_card(
+			defense_cards,
+			interposer_name
+		)
 
 	await get_tree().process_frame
 	var home: Vector2 = defense_side.position
@@ -468,7 +503,8 @@ func play_target_impact(
 	value_before: int,
 	value_after: int,
 	damage: int,
-	destroyed: bool = false
+	destroyed: bool = false,
+	target_player = null
 ) -> void:
 	if target_name.is_empty():
 		return
@@ -511,42 +547,65 @@ func play_target_impact(
 	force_card.add_child(force_label)
 	force_cards.add_child(force_card)
 
-	var target := PanelContainer.new()
-	target.custom_minimum_size = Vector2(184, 132)
-	target.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.075, 0.075, 0.09, 1.0)
-	style.border_color = (
-		Color(0.72, 0.18, 0.16, 1.0)
-		if destroyed
-		else Color(0.62, 0.58, 0.40, 1.0)
+	var target = null
+	var value_label: Label = null
+	var target_is_castle_card: bool = (
+		target_player != null
+		and stat_name.to_lower() == "integrity"
+		and _is_castle_target(target_name)
 	)
-	style.set_border_width_all(3)
-	target.add_theme_stylebox_override("panel", style)
 
-	var stack := VBoxContainer.new()
-	stack.alignment = BoxContainer.ALIGNMENT_CENTER
-	stack.add_theme_constant_override("separation", 5)
-	target.add_child(stack)
+	if target_is_castle_card:
+		target = _add_castle_target_card(
+			target_cards,
+			target_player,
+			target_name,
+			Vector2(150, 225)
+		)
+		value_label = target.integrity_label
+		value_label.text = str(value_before)
+		value_label.add_theme_font_size_override("font_size", 18)
+		if target.state_label != null:
+			target.state_label.text = "UNDER ATTACK"
+	else:
+		var target_panel := PanelContainer.new()
+		target_panel.custom_minimum_size = Vector2(184, 132)
+		target_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		target = target_panel
 
-	var object_label := Label.new()
-	object_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	object_label.text = target_name.to_upper()
-	object_label.add_theme_font_size_override("font_size", 15)
-	stack.add_child(object_label)
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color(0.075, 0.075, 0.09, 1.0)
+		style.border_color = (
+			Color(0.72, 0.18, 0.16, 1.0)
+			if destroyed
+			else Color(0.62, 0.58, 0.40, 1.0)
+		)
+		style.set_border_width_all(3)
+		target_panel.add_theme_stylebox_override("panel", style)
 
-	var stat_label := Label.new()
-	stat_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	stat_label.text = stat_name.to_upper()
-	stat_label.add_theme_font_size_override("font_size", 11)
-	stack.add_child(stat_label)
+		var stack := VBoxContainer.new()
+		stack.alignment = BoxContainer.ALIGNMENT_CENTER
+		stack.add_theme_constant_override("separation", 5)
+		target_panel.add_child(stack)
 
-	var value_label := Label.new()
-	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	value_label.text = str(value_before)
-	value_label.add_theme_font_size_override("font_size", 34)
-	stack.add_child(value_label)
+		var object_label := Label.new()
+		object_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		object_label.text = target_name.to_upper()
+		object_label.add_theme_font_size_override("font_size", 15)
+		stack.add_child(object_label)
+
+		var stat_label := Label.new()
+		stat_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		stat_label.text = stat_name.to_upper()
+		stat_label.add_theme_font_size_override("font_size", 11)
+		stack.add_child(stat_label)
+
+		value_label = Label.new()
+		value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		value_label.text = str(value_before)
+		value_label.add_theme_font_size_override("font_size", 34)
+		stack.add_child(value_label)
+		target_cards.add_child(target_panel)
 
 	var crack_label := Label.new()
 	crack_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -557,8 +616,6 @@ func play_target_impact(
 	crack_label.modulate = Color(1.0, 0.72, 0.65, 0.0)
 	crack_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	target.add_child(crack_label)
-
-	target_cards.add_child(target)
 	footer_label.text = "%d FORCE REACHES %s" % [
 		maxi(0, damage),
 		target_name.to_upper(),
@@ -619,9 +676,15 @@ func play_target_impact(
 		)
 		await punch.finished
 
+	if target_is_castle_card and target_player != null:
+		# Restore the real post-impact Castle state after the count-down.
+		target.call("bind_castle", target_player, target_name)
+		value_label = target.integrity_label
+
 	if destroyed:
-		value_label.text = "RUINED"
-		value_label.add_theme_font_size_override("font_size", 22)
+		if not target_is_castle_card:
+			value_label.text = "RUINED"
+			value_label.add_theme_font_size_override("font_size", 22)
 		title_label.text = "%s RUINED" % target_name.to_upper()
 	else:
 		title_label.text = "TARGET DAMAGED"
@@ -681,6 +744,11 @@ func play_result(
 	footer_label.text = _compose_aftermath_text(result_text)
 
 	aftermath_button.visible = false
+	aftermath_button.text = (
+		"RETURN TO FINAL BOARD"
+		if bool(_aftermath_context.get("match_complete", false))
+		else "BEGIN NEXT ROUND"
+	)
 
 	frame.modulate = Color(1.18, 1.16, 1.05, 1.0)
 	frame.scale = Vector2(0.985, 0.985)
@@ -887,8 +955,22 @@ func _set_defense_side(
 		defense_name,
 	]
 
+	var castle_target: bool = _is_castle_target(target_name)
+	if castle_target:
+		_add_castle_target_card(
+			card_row,
+			player,
+			target_name,
+			Vector2(92, 138)
+		)
+
 	if String(player.action) == "Ward" and show_commitment:
-		_add_cards(card_row, player.committed)
+		# Leave room for the actual Castle card beside any Ward cards.
+		_add_cards(
+			card_row,
+			player.committed,
+			4 if castle_target else 5
+		)
 
 	if card_row.get_child_count() == 0:
 		_add_target_card(card_row, target_name)
@@ -917,10 +999,11 @@ func _attack_target_context(
 
 func _add_cards(
 	card_row: HBoxContainer,
-	cards: Array
+	cards: Array,
+	max_visible: int = 5
 ) -> void:
 	var count: int = cards.size()
-	var shown_count: int = mini(count, 5)
+	var shown_count: int = mini(count, maxi(1, max_visible))
 	var card_size := Vector2(112, 160)
 
 	if shown_count >= 4:
@@ -1015,6 +1098,29 @@ func _add_cards(
 			card_panel.add_child(label)
 
 		card_row.add_child(card_panel)
+
+func _is_castle_target(target_name: String) -> bool:
+	return target_name in CASTLE_TARGET_NAMES
+
+
+func _add_castle_target_card(
+	card_row: HBoxContainer,
+	player,
+	target_name: String,
+	card_size: Vector2 = Vector2(92, 138)
+):
+	if player == null or not _is_castle_target(target_name):
+		return null
+
+	var castle_card = CastleSpineData.new()
+	castle_card.name = "Resolution%s" % target_name
+	card_row.add_child(castle_card)
+	castle_card.bind_castle(player, target_name)
+	castle_card.custom_minimum_size = card_size
+	castle_card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	castle_card.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	return castle_card
+
 
 func _add_target_card(
 	card_row: HBoxContainer,

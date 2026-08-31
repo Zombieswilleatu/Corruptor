@@ -120,16 +120,9 @@ static func reserved_cards(
 			selected_card
 		)
 
-	# Preserve one cheap card for the next Reflex Bid.
-	if not available_hand.is_empty():
-		var bid_card = _stable_sorted_cards(
-			available_hand,
-			false
-		)[0]
-
-		reserved.append(
-			bid_card
-		)
+	# REFLEX_BID_DEPRECATED_RUNTIME_V1
+	# Reflex Bid is retired. Reserve ONLY the cards the current Commitment
+	# doctrine actually intends to use; do not hold back a phantom bid card.
 
 	return reserved
 

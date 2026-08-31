@@ -287,96 +287,57 @@ static func evaluate_profane_candidates(
 	player_id: int,
 	rules: RuleConfig
 ) -> Array:
-	var player = game.get_player(
-		player_id
-	)
-
-	assert(
-		player != null,
-		"Profane the Ruins evaluator player does not exist."
-	)
-
-	var candidates: Array = [
-		_pass_candidate(
-			"profane_ruins_pass"
-		),
-	]
-
+	var player = game.get_player(player_id)
+	assert(player != null, "Profane the Ruins evaluator player does not exist.")
+	var candidates: Array = [_pass_candidate("profane_ruins_pass")]
 	if player.profane_ruins_used_this_round:
 		return candidates
-
-	if (
-		player.ruined_castles.size()
-		< rules.profane_ruins_req
-	):
+	if player.ruined_castles.size() < rules.profane_ruins_req:
 		return candidates
 
-	var profane_cost: int = maxi(
-		0,
-		rules.profane_ruins_cost
+	var hand_cost: int = maxi(0, int(rules.profane_ruins_card_cost))
+	var soul_cost: int = 0 if hand_cost > 0 else maxi(0, int(rules.profane_ruins_cost))
+	if hand_cost > 0:
+		if _card_total(player.hand) < hand_cost:
+			return candidates
+	elif int(player.souls) < soul_cost:
+		return candidates
+
+	var current_plan: String = BotDoctrineData.plan(game, player_id, rules)
+	var reaches_dominion: bool = int(player.tears) + 1 >= int(rules.dominion_requirement)
+	var late_dominion_push: bool = (
+		int(player.tears) + 1 >= maxi(1, int(rules.dominion_requirement) - 1)
 	)
-
-	if _card_total(
-		player.hand
-	) < profane_cost:
-		return candidates
-
-	var current_plan: String = (
-		BotDoctrineData.plan(
-			game,
-			player_id,
-			rules
+	var wants_profane: bool
+	if hand_cost > 0:
+		wants_profane = current_plan in ["race_dominion", "deny_dominion"] or player.tears >= 1
+	else:
+		# Souls are a more strategically valuable sacrifice, so use this Rite as
+		# a last-ditch Dominion conversion rather than routine efficiency.
+		wants_profane = reaches_dominion or (
+			late_dominion_push and current_plan in ["race_dominion", "deny_dominion"]
 		)
-	)
-
-	var wants_profane: bool = (
-		current_plan in [
-			"race_dominion",
-			"deny_dominion",
-		]
-		or player.tears >= 1
-	)
-
 	if not wants_profane:
 		return candidates
 
-	var target_castle: String = (
-		_lowest_priority_ruin(
-			player
-		)
-	)
-
+	var target_castle: String = _lowest_priority_ruin(player)
 	if target_castle.is_empty():
 		return candidates
-
-	var payment_cards: Array = _select_high_payment(
-		player.hand,
-		profane_cost
-	)
-
-	if _card_total(
-		payment_cards
-	) < profane_cost:
-		return candidates
+	var payload: Dictionary = {"castle": target_castle}
+	if hand_cost > 0:
+		var payment_cards: Array = _select_high_payment(player.hand, hand_cost)
+		if _card_total(payment_cards) < hand_cost:
+			return candidates
+		payload["payment"] = _card_ids(payment_cards)
 
 	candidates.append({
-		"id": (
-			"profane_ruins_%s"
-			% target_castle
-		),
+		"id": "profane_ruins_%s" % target_castle,
 		"score": ACTION_SCORE,
 		"degraded_score": -1.0,
 		"tie_rank": 1,
-		"payload": {
-			"castle": target_castle,
-			"payment": _card_ids(
-				payment_cards
-			),
-		},
+		"payload": payload,
 	})
-
 	return candidates
-
 
 static func _apply_shadow_decision(
 	shadow,

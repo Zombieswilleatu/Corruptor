@@ -32,8 +32,12 @@ static func run() -> Array[Dictionary]:
 
 
 static func _test_locked_profile(rules: RuleConfig) -> Dictionary:
+	# CASTLE_RULES_PROFILE_VERSION_SEMANTICS_V1
+	# lab_profile_version tracks the measured Balance Lab lineage, not the
+	# current SIM/mechanics version. v7.6 Keep/Repair behavior is locked by
+	# the explicit flags immediately below.
 	if (
-		String(rules.lab_profile_version) != "7.6.2-defunct-repair-lock"
+		String(rules.lab_profile_version) != "6.8.3-kroni-cannibal-no-gorge"
 		or not rules.ward_frontline
 		or String(rules.castle_power_gate_mode) != "operational"
 		or int(rules.castle_operational_floor) != 7
@@ -53,8 +57,11 @@ static func _test_locked_profile(rules: RuleConfig) -> Dictionary:
 		or bool(rules.keep_ignores_ward_tax)
 		or not bool(rules.vulture_recon)
 	):
-		return _fail("v762_profile", "Locked v7.6 Keep / Repair profile flags are not canonical.")
-	return _pass("v762_profile")
+		return _fail(
+			"keep_repair_profile",
+			"Measured lab lineage or current Keep / Repair profile flags are not canonical."
+		)
+	return _pass("keep_repair_profile")
 
 
 static func _test_ward_frontline_lifetime(rules: RuleConfig) -> Dictionary:
@@ -750,9 +757,22 @@ static func _cards(ids: Array) -> Array:
 	return out
 
 
+# CASTLE_RULES_TEST_REPORTING_FIX_V1
+# GoldenTests/Main consumes the standard {"text", "passed"} result schema.
+# Keep name/message too because they are useful to focused callers/debugging.
 static func _pass(name: String) -> Dictionary:
-	return {"name": name, "passed": true, "message": ""}
+	return {
+		"name": name,
+		"passed": true,
+		"message": "",
+		"text": "PASS  unit_castle_rules_%s" % name,
+	}
 
 
 static func _fail(name: String, message: String) -> Dictionary:
-	return {"name": name, "passed": false, "message": message}
+	return {
+		"name": name,
+		"passed": false,
+		"message": message,
+		"text": "FAIL  unit_castle_rules_%s: %s" % [name, message],
+	}

@@ -77,6 +77,10 @@ LAB_ONLY_RUNTIME_VARIANT_KEYS = frozenset({
     "doctrine_ward_threat",
     "doctrine_ward_stagnation",
     "doctrine_bank_urgency",
+    # GOLDEN_IDENTITY_SCHEMA_SYNC_V1
+    # Deprecated Python compatibility alias; Godot has no independent rule
+    # surface for this. The live mechanic is keep_fortification.
+    "keep_hunt_armor",
 })
 
 

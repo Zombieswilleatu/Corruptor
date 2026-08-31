@@ -5,8 +5,7 @@ import corruptor_sim as sim
 
 
 EXPECTED_POLICY = (
-    "heuristic-2026.08-action-forecast-v1"
-    "-odradek-reconfig-menu-v1_1"
+    'heuristic-2026.08-action-forecast-v1-odradek-reconfig-menu-v1_1-deimos-siege-bias-v2-gremory-inevitable-v2'
 )
 
 

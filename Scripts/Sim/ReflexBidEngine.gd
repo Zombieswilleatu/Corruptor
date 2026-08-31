@@ -1,4 +1,8 @@
 class_name ReflexBidEngine
+
+# REFLEX_BID_DEPRECATED_RUNTIME_V1
+# DEPRECATED / ARCHIVAL ENGINE. No live round conductor calls this file.
+# Retained temporarily for historical fixtures and source archaeology only.
 extends RefCounted
 
 

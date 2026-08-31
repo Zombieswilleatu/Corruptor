@@ -74,7 +74,7 @@ static func run(_baseline_rules: RuleConfig) -> Array:
 		_test_flat_ward_and_fix_b(),
 		_test_market_rollover(),
 		_test_marching_clash(),
-		_test_retained_threat(),
+		_test_fracture_zero_threat_resummon(),
 	]
 
 
@@ -389,6 +389,10 @@ static func _test_kroni_milestone_once() -> Dictionary:
 	kroni.action = "Hunt"
 	kroni.kroni_hunger = 2
 	kroni.kroni_consume_done = false
+	# FINAL_STANDALONE_FIXTURE_CLEANUP_V1
+	# At H1+ Cannibal requires a deployed Guard every Finale. Supply one so
+	# this regression isolates the once-per-game milestone rather than starvation.
+	kroni.castle_guards = [CardData.new("Penitent", 1)]
 	game.set_meta("any_destruction_round", int(game.round))
 	var tears_before: int = int(kroni.tears)
 
@@ -867,7 +871,8 @@ static func _test_scarred_repair_cost() -> Dictionary:
 	return _pass("unit_lab_scarred_repair_cost")
 
 
-static func _test_retained_threat() -> Dictionary:
+static func _test_fracture_zero_threat_resummon() -> Dictionary:
+	# FRACTURE_RETURN_THREAT_TEST_CLEANUP_V1
 	var rules := RuleConfig.lab_v6_5()
 	var fixture: Dictionary = _fixture(rules)
 	var game = fixture["game"]
@@ -889,7 +894,7 @@ static func _test_retained_threat() -> Dictionary:
 		rules,
 		int(attacker.pid)
 	)
-	var retained_threat: int = int(defender.threat)
+	var post_fracture_threat: int = int(defender.threat)
 	defender.hand = [
 		CardData.new("Butcher", 5),
 		CardData.new("Wright", 5),
@@ -906,18 +911,18 @@ static func _test_retained_threat() -> Dictionary:
 
 	if (
 		not bool(hunt.get("banished", false))
-		or retained_threat != 3
+		or post_fracture_threat != 0
 		or String(summon.get("action", "")) != "summon"
 		or not defender.alive
-		or defender.threat != 3
+		or defender.threat != 0
 		or defender.return_threat_override >= 0
 	):
 		return _fail(
-			"unit_lab_retained_threat",
-			"A Banished Lord did not retain and return at printed Threat plus half retained Threat."
+			"unit_lab_fracture_zero_threat_resummon",
+			"Banishment/Fracture did not clear Threat or ordinary resummon did not start at Threat 0."
 		)
 
-	return _pass("unit_lab_retained_threat")
+	return _pass("unit_lab_fracture_zero_threat_resummon")
 
 
 static func _fixture(rules: RuleConfig) -> Dictionary:

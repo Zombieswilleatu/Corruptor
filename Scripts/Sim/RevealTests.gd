@@ -1133,7 +1133,10 @@ static func _validate_flipped_sigil(
 	if player_zero.threat != 0:
 		return "Siege incorrectly increased Threat."
 
-	if player_one.threat != 1:
+	# STALE_GOLDEN_FIXTURE_CLEANUP_V1
+	# Return Threat is retired. Fracture is separate, and ordinary Threat
+	# remains 0 unless another effect explicitly changes it.
+	if player_one.threat != 0:
 		return "Castle Ward incorrectly changed Valak's Threat."
 
 	var player_one_result: Dictionary = _player_result(

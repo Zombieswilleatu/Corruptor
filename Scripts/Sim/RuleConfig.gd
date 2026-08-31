@@ -133,6 +133,9 @@ extends Resource
 @export var veil_on_permanent_loss: bool = false
 @export var lord_threat_retention: bool = false
 
+# REFLEX_BID_DEPRECATED_RUNTIME_V1
+# DEPRECATED IDENTITY-ONLY SWITCH. Live conductors ignore this field.
+# Kept so historical snapshots/configs deserialize without schema churn.
 @export var reflex_bid: bool = true
 @export var momentum: bool = false
 @export var momentum_band: int = 3
@@ -274,7 +277,8 @@ static func lab_v6_5() -> RuleConfig:
 	# canonical DE v2 defaults.
 	config.invocation_gate = 7
 	config.profane_ruins_req = 2
-	config.profane_ruins_cost = 5
+	config.profane_ruins_card_cost = 0
+	config.profane_ruins_cost = 2
 	config.ai_dominion_drive = false
 	config.kroni_hunger_decay = false
 	config.neutral_tear_on_banish = false

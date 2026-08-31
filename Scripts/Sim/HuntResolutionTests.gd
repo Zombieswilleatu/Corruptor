@@ -262,10 +262,11 @@ static func _test_banish_overkill(
 			"Breach owner should be player one."
 		)
 
-	if defender.threat != 1:
+	# FRACTURE_RETURN_THREAT_TEST_CLEANUP_V1
+	if defender.threat != 0:
 		return _fail(
 			BANISH_TEST_NAME,
-			"Valak did not reset to return Threat 1."
+			"Banishment did not clear ordinary Threat before Fracture."
 		)
 
 	if String(

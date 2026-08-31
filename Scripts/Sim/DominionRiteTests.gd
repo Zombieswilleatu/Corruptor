@@ -348,6 +348,7 @@ static func _configure_profane_fixture(
 	player_zero
 ) -> void:
 	player_zero.tears = 0
+	player_zero.souls = 2
 	player_zero.profane_ruins_used_this_round = false
 
 	player_zero.profaned_castles.clear()
@@ -374,7 +375,6 @@ static func _configure_profane_fixture(
 	game.win_by = ""
 
 	game.refresh_derived_values()
-
 
 static func _round_one_market_choices() -> Dictionary:
 	return {
@@ -891,13 +891,17 @@ static func _validate_profane_ruins(
 			"Profane the Ruins did not grant one personal Tear."
 		)
 
+	if player_zero.souls != 0:
+		return (
+			"Profane the Ruins did not spend exactly two Souls."
+		)
+
 	if game.calculate_veil_total() != 1:
 		return (
 			"Profane the Ruins did not advance the Veil."
 		)
 
 	return ""
-
 
 static func _validate_profane_cannot_repeat(
 	game,

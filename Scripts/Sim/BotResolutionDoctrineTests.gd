@@ -407,8 +407,16 @@ static func _test_vessel_ritual_safety(
 static func _test_gremory_preview(
 	rules: RuleConfig
 ) -> Dictionary:
+	# FINAL_STANDALONE_FIXTURE_CLEANUP_V1
+	# Current Inevitable Ruin is defined in Castle-Integrity terms.
+	var test_rules: RuleConfig = rules.duplicate(true)
+	test_rules.castle_integrity = true
+	test_rules.castle_damage_mode = "arriving_strength"
+	test_rules.castle_power_gate_mode = "operational"
+	test_rules.castle_operational_floor = 7
+
 	var fixture: Dictionary = _build_fixture(
-		rules
+		test_rules
 	)
 
 	if fixture.has(
@@ -481,7 +489,7 @@ static func _test_gremory_preview(
 		BotResolutionDoctrineData
 		.build_decisions(
 			game,
-			rules,
+			test_rules,
 			commitment_choices,
 			null,
 			BotPolicyData.golden_core()
@@ -508,8 +516,10 @@ static func _test_gremory_preview(
 			[]
 		)
 	) != [
+		# CURRENT_RULE_FIXTURE_CLEANUP_V1
+		# Inevitable Ruin now requires exactly two cards totaling at least 5.
 		"Garrison>Wright:1",
-		"Hand>Penitent:1",
+		"Hand>Butcher:5",
 	]:
 		return _fail(
 			GREMORY_TEST_NAME,
@@ -550,7 +560,7 @@ static func _test_gremory_preview(
 	var result: Dictionary = (
 		ResolutionEngineData.resolve(
 			game,
-			rules,
+			test_rules,
 			decisions
 		)
 	)
@@ -607,20 +617,18 @@ static func _test_gremory_preview(
 			"Inevitable Ruin did not execute."
 		)
 
-	if defender.castles.has(
-		"Keep"
+	var expected_defunct: int = maxi(
+		1,
+		int(test_rules.castle_operational_floor) - 1
+	)
+	if (
+		not defender.castles.has("Keep")
+		or defender.ruined_castles.has("Keep")
+		or int(defender.castle_integrity.get("Keep", -1)) != expected_defunct
 	):
 		return _fail(
 			GREMORY_TEST_NAME,
-			"Inevitable Ruin left the Keep active."
-		)
-
-	if not defender.ruined_castles.has(
-		"Keep"
-	):
-		return _fail(
-			GREMORY_TEST_NAME,
-			"Inevitable Ruin did not create the Ruin."
+			"Inevitable Ruin did not leave the Keep standing and Defunct."
 		)
 
 	if not gremory.gremory_inevitable_ruin_done:
@@ -630,7 +638,7 @@ static func _test_gremory_preview(
 		)
 
 	var late_fixture: Dictionary = _build_fixture(
-		rules
+		test_rules
 	)
 
 	if late_fixture.has(
@@ -680,7 +688,7 @@ static func _test_gremory_preview(
 		BotResolutionDoctrineData
 		.build_decisions(
 			late_game,
-			rules,
+			test_rules,
 			{},
 			null,
 			BotPolicyData.golden_core()
@@ -715,6 +723,10 @@ static func _test_gremory_preview(
 
 	late_defender.was_sieged = true
 	late_defender.last_sieged_castle = "Keep"
+	late_defender.last_sieged_castle_damage = 2
+	late_defender.last_sieged_castle_integrity_before = 14
+	late_defender.last_sieged_castle_integrity_after = 12
+	late_defender.castle_integrity["Keep"] = 12
 
 	var raw_gremory_provider = late_decisions.get(
 		"gremory_provider",
@@ -739,7 +751,7 @@ static func _test_gremory_preview(
 
 	var raw_current_choices = gremory_provider.call(
 		late_game,
-		rules
+		test_rules
 	)
 
 	if typeof(
@@ -764,12 +776,12 @@ static func _test_gremory_preview(
 			[]
 		)
 	) != [
-		"Hand>Butcher:1",
 		"Hand>Wright:2",
+		"Hand>Vulture:3",
 	]:
 		return _fail(
 			GREMORY_TEST_NAME,
-			"Late Gremory provider ignored the current Cleanup state."
+			"Late Gremory provider ignored the current minimum-five payment."
 		)
 
 	return _pass(

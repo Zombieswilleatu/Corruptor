@@ -87,6 +87,14 @@ const ActionZoneData = preload(
 	"res://Prototype/UI2/ActionZone.gd"
 )
 
+const PhasePromptData = preload(
+	"res://Prototype/UI2/PhasePrompt.gd"
+)
+
+const BreachSlotData = preload(
+	"res://Prototype/UI2/BreachSlot.gd"
+)
+
 const ConsoleOverlayData = preload(
 	"res://Prototype/UI2/ConsoleOverlay.gd"
 )
@@ -131,8 +139,11 @@ const RANDOM_START_LORDS: Array[String] = [
 	"Kanifous",
 	"Humbaba",
 ]
-const TUTORIAL_ENABLED: bool = true
+const TUTORIAL_ENABLED: bool = false
 const RESOLUTION_PRESENTATION_ENABLED: bool = true
+
+# UI2_DIALOGUE_BREACH_OVERHAUL_V1
+@export var show_dev_controls: bool = false
 
 
 # Zero = normal playable UI2.
@@ -156,6 +167,9 @@ var human_lord_zone = null
 
 var marching_view = null
 var action_zone = null
+var phase_prompt = null
+var breach_slot = null
+var history_button: Button = null
 var console_overlay = null
 var activity_rail = null
 var hand_view = null
@@ -173,6 +187,11 @@ var active_match_seed: int = DEFAULT_SEED
 var active_human_lord: String = DEFAULT_HUMAN_LORD
 var active_bot_lord: String = DEFAULT_BOT_LORD
 var queued_deploy_moves: Array[Dictionary] = []
+# UI2_CASTLE_CARDS_AND_RITE_DISCOVERY_V1
+# Hide Dominion Rites until one is genuinely actionable; once discovered,
+# keep showing the phase for the rest of that match.
+var _dominion_rites_prompt_unlocked: bool = false
+var _dominion_rites_auto_pass_pending: bool = false
 
 
 func _ready() -> void:
@@ -215,6 +234,8 @@ func _ready() -> void:
 		starting_bot_lord,
 		starting_seed
 	)
+	_dominion_rites_prompt_unlocked = false
+	_dominion_rites_auto_pass_pending = false
 	active_human_lord = starting_human_lord
 	active_bot_lord = starting_bot_lord
 	active_match_seed = starting_seed
@@ -699,10 +720,29 @@ func _build_shell() -> void:
 	enemy_puck.name = "EnemyPuck"
 	enemy_summary.add_child(enemy_puck)
 
+	# UI2_DEV_RESTORE_INVOKE_GUIDANCE_V1
+	# Keep the setup/reproduction panel reachable while UI2 is under active
+	# development. This is intentionally beside the enemy summary rather than
+	# buried in the normal player decision interface.
+	var dev_button := Button.new()
+	dev_button.name = "DevButton"
+	dev_button.text = "DEV"
+	dev_button.tooltip_text = "Developer match setup / reproduction tools"
+	dev_button.custom_minimum_size = Vector2(52, 32)
+	dev_button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	dev_button.pressed.connect(
+		_on_dev_pressed
+	)
+	top.add_child(dev_button)
+
 	veil_track = VeilTrackData.new()
 	veil_track.name = "VeilTrack"
 	veil_track.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(veil_track)
+
+	breach_slot = BreachSlotData.new()
+	breach_slot.name = "BreachSlot"
+	top.add_child(breach_slot)
 
 	var human_summary := PanelContainer.new()
 	human_summary.custom_minimum_size = Vector2(205, 92)
@@ -718,19 +758,21 @@ func _build_shell() -> void:
 	human_puck.name = "HumanPuck"
 	human_summary.add_child(human_puck)
 
-	var console_button := Button.new()
-	console_button.text = "CONSOLE"
-	console_button.pressed.connect(
-		_on_console_pressed
+	history_button = Button.new()
+	history_button.text = "HISTORY"
+	history_button.pressed.connect(
+		_on_history_pressed
 	)
-	top.add_child(console_button)
+	top.add_child(history_button)
 
-	var dev_button := Button.new()
-	dev_button.text = "DEV"
-	dev_button.pressed.connect(
-		_on_dev_pressed
-	)
-	top.add_child(dev_button)
+	if show_dev_controls:
+		var console_button := Button.new()
+		console_button.text = "CONSOLE"
+		console_button.pressed.connect(
+			_on_console_pressed
+		)
+		top.add_child(console_button)
+
 
 	var body := HBoxContainer.new()
 	body.name = "Body"
@@ -740,13 +782,7 @@ func _build_shell() -> void:
 	body.add_theme_constant_override("separation", 8)
 	main.add_child(body)
 
-	activity_rail = ActivityRailData.new()
-	activity_rail.name = "ActivityRail"
-	body.add_child(activity_rail)
-	activity_rail.custom_minimum_size = Vector2(200, 0)
-	activity_rail.size_flags_horizontal = Control.SIZE_FILL
-	activity_rail.size_flags_vertical = Control.SIZE_EXPAND_FILL
-
+	# Activity is now a collapsible History overlay rather than permanent board chrome.
 	var center := VBoxContainer.new()
 	center.name = "Center"
 	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -988,10 +1024,7 @@ func _build_shell() -> void:
 
 	action_zone = ActionZoneData.new()
 	action_zone.name = "ActionZone"
-	action_zone.custom_minimum_size.x = 300
-	action_zone.size_flags_horizontal = Control.SIZE_FILL
-	action_zone.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_child(action_zone)
+	action_zone.set_dialog_mode(true)
 	action_zone.action_selected.connect(
 		_on_ui2_action_selected
 	)
@@ -1020,10 +1053,30 @@ func _build_shell() -> void:
 	marching_view.march_guard_dropped.connect(
 		_on_ui2_march_guard_dropped
 	)
-	body.move_child(
-		action_zone,
-		body.get_child_count() - 1
+	phase_prompt = PhasePromptData.new()
+	phase_prompt.name = "PhasePrompt"
+	add_child(phase_prompt)
+	phase_prompt.attach_action_zone(action_zone)
+	phase_prompt.confirm_requested.connect(
+		_on_ui2_confirm_requested
 	)
+	phase_prompt.pass_requested.connect(
+		_on_ui2_pass_requested
+	)
+
+	activity_rail = ActivityRailData.new()
+	activity_rail.name = "HistoryOverlay"
+	activity_rail.visible = false
+	activity_rail.z_index = 75
+	activity_rail.anchor_left = 0.0
+	activity_rail.anchor_top = 0.0
+	activity_rail.anchor_right = 0.0
+	activity_rail.anchor_bottom = 1.0
+	activity_rail.offset_left = 10.0
+	activity_rail.offset_top = 126.0
+	activity_rail.offset_right = 330.0
+	activity_rail.offset_bottom = -10.0
+	add_child(activity_rail)
 
 	console_overlay = ConsoleOverlayData.new()
 	console_overlay.name = "ConsoleOverlay"
@@ -1084,6 +1137,11 @@ func refresh_from_game() -> void:
 	var bot = controller.get_bot_player()
 
 	if human == null or bot == null:
+		return
+
+	if _queue_hidden_dominion_rites_pass_if_needed(human, rules):
+		if phase_prompt != null:
+			phase_prompt.visible = false
 		return
 
 	enemy_puck.bind_player(
@@ -1251,6 +1309,20 @@ func refresh_from_game() -> void:
 	action_zone.set_selected_hand_cards(
 		selected_hand_ids
 	)
+
+	phase_prompt.bind_state(
+		human,
+		bot,
+		rules,
+		controller,
+		_stage_text()
+	)
+
+	breach_slot.bind_state(
+		game,
+		PlayableRoundControllerData.HUMAN_PLAYER_ID
+	)
+
 	_sync_ui2_ward_preview()
 	_sync_ui2_attack_preview()
 	_sync_ui2_castle_payment_preview()
@@ -1262,7 +1334,7 @@ func refresh_from_game() -> void:
 
 	_refresh_tutorial_panel()
 
-	var veil_stage_text: String = _stage_text()
+	var veil_stage_text: String = _public_phase_text()
 
 	if showcase_rounds > 0:
 		veil_stage_text = (
@@ -1275,6 +1347,154 @@ func refresh_from_game() -> void:
 		rules,
 		veil_stage_text
 	)
+
+
+func _queue_hidden_dominion_rites_pass_if_needed(
+	human,
+	rules
+) -> bool:
+	if (
+		controller == null
+		or controller.game == null
+		or controller.stage
+		!= PlayableRoundControllerData.Stage.DOMINION_RITES
+	):
+		_dominion_rites_auto_pass_pending = false
+		return false
+
+	if _human_has_actionable_dominion_rite(human, rules):
+		_dominion_rites_prompt_unlocked = true
+		_dominion_rites_auto_pass_pending = false
+		return false
+
+	if _dominion_rites_prompt_unlocked:
+		return false
+
+	if not _dominion_rites_auto_pass_pending:
+		_dominion_rites_auto_pass_pending = true
+		call_deferred("_auto_pass_hidden_dominion_rites")
+
+	return true
+
+
+func _human_has_actionable_dominion_rite(
+	human,
+	rules
+) -> bool:
+	if (
+		human == null
+		or rules == null
+		or controller == null
+		or controller.game == null
+	):
+		return false
+
+	var hand_total: int = 0
+	for card in human.hand:
+		hand_total += int(card.value)
+
+	var invocation_available: bool = (
+		(bool(rules.invocation_repeatable) or not bool(human.cataclysmic_used))
+		and int(controller.game.calculate_veil_total()) >= int(rules.invocation_gate)
+		and hand_total >= int(DominionRiteEngineData.INVOCATION_PAYMENT_THRESHOLD)
+	)
+
+	var profane_available: bool = (
+		not bool(human.profane_ruins_used_this_round)
+		and int(human.ruined_castles.size()) >= int(rules.profane_ruins_req)
+	)
+
+	if profane_available:
+		var legacy_hand_cost: int = maxi(0, int(rules.profane_ruins_card_cost))
+		if legacy_hand_cost > 0:
+			profane_available = hand_total >= legacy_hand_cost
+		else:
+			profane_available = int(human.souls) >= maxi(0, int(rules.profane_ruins_cost))
+
+	return invocation_available or profane_available
+
+
+func _auto_pass_hidden_dominion_rites() -> void:
+	if not _dominion_rites_auto_pass_pending:
+		return
+
+	_dominion_rites_auto_pass_pending = false
+
+	if (
+		controller == null
+		or controller.game == null
+		or controller.stage != PlayableRoundControllerData.Stage.DOMINION_RITES
+	):
+		return
+
+	var human = controller.get_human_player()
+	if _human_has_actionable_dominion_rite(human, controller.rules):
+		_dominion_rites_prompt_unlocked = true
+		refresh_from_game()
+		return
+
+	var result: Dictionary = controller.resolve_human_dominion_rites({"pass": true})
+	_finish_ui2_controller_step(result)
+
+
+func _public_phase_text() -> String:
+	if controller == null:
+		return ""
+
+	var current_stage = controller.stage
+
+	if current_stage in [
+		PlayableRoundControllerData.Stage.DEVELOPMENT_SNARE,
+		PlayableRoundControllerData.Stage.MARKET,
+		PlayableRoundControllerData.Stage.REPAIR,
+		PlayableRoundControllerData.Stage.DOMINION_RITES,
+		PlayableRoundControllerData.Stage.DEPLOY,
+		PlayableRoundControllerData.Stage.MARCH,
+		PlayableRoundControllerData.Stage.SUMMON,
+	]:
+		return "DEVELOPMENT"
+
+	if current_stage in [
+		PlayableRoundControllerData.Stage.COMMITMENT,
+		PlayableRoundControllerData.Stage.SEALED,
+	]:
+		return "COMMITMENT"
+
+	if current_stage in [
+		PlayableRoundControllerData.Stage.KANIFOUS_INVOKE,
+		PlayableRoundControllerData.Stage.KANIFOUS_WRIGHT,
+		PlayableRoundControllerData.Stage.VULTURE_RECON,
+		PlayableRoundControllerData.Stage.REVEALED,
+	]:
+		return "REVEAL"
+
+	if current_stage in [
+		PlayableRoundControllerData.Stage.RESOLUTION_HUMBABA_TOLL,
+		PlayableRoundControllerData.Stage.RESOLUTION_ACTION,
+		PlayableRoundControllerData.Stage.RESOLUTION_VESSEL,
+		PlayableRoundControllerData.Stage.RESOLUTION_REFLEX,
+		PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH,
+		PlayableRoundControllerData.Stage.RESOLUTION_GREMORY,
+	]:
+		return "RESOLUTION"
+
+	if current_stage == PlayableRoundControllerData.Stage.TERMINAL:
+		return "MATCH COMPLETE"
+	if current_stage == PlayableRoundControllerData.Stage.INVALID:
+		return "MATCH HALTED"
+	return "BETWEEN ROUNDS"
+
+
+func _on_history_pressed() -> void:
+	if activity_rail == null:
+		return
+	activity_rail.visible = not activity_rail.visible
+	if history_button != null:
+		history_button.text = (
+			"CLOSE HISTORY"
+			if activity_rail.visible
+			else "HISTORY"
+		)
 
 
 func _header_text(
@@ -1419,6 +1639,21 @@ func _on_ui2_confirm_requested() -> void:
 		_ui2_resolution_action_event_count()
 	)
 	var human_action_preanimated: bool = false
+
+	# UI2_THEATER_PROMPT_VESSEL_TRUTH_V1
+	# The phase prompt is useful while choosing an action, but it becomes visual
+	# noise once ResolutionTheater takes over. Hide it for reveal/clash/impact
+	# presentation; _finish_ui2_controller_step() refreshes the correct prompt.
+	if (
+		RESOLUTION_PRESENTATION_ENABLED
+		and stage_before
+		in [
+			PlayableRoundControllerData.Stage.REVEALED,
+			PlayableRoundControllerData.Stage.RESOLUTION_ACTION,
+		]
+		and phase_prompt != null
+	):
+		phase_prompt.visible = false
 
 	match controller.stage:
 		PlayableRoundControllerData.Stage.NO_GAME:
@@ -1681,19 +1916,30 @@ func _play_ui2_reveal_presentation() -> void:
 		bot
 	)
 
-	# Two defensive orders did not collide. The board itself is the reveal:
-	# flash the newly raised Sigils and move on without a modal fake clash.
-	if (
-		String(human.action) == "Ward"
-		and String(bot.action) == "Ward"
-	):
-		await get_tree().create_timer(0.46).timeout
-		return
+	# UI2_THEATER_PROMPT_VESSEL_TRUTH_V1
+	# reveal_orders() refreshes UI2 before the theater animation starts, which
+	# would otherwise put the next action prompt underneath the reveal window.
+	if phase_prompt != null:
+		phase_prompt.visible = false
 
+	# UI2_AFTERMATH_WARD_REVEAL_CLEANUP_V1
+	# Ward/Ward has no combat collision, but the commitments are still important
+	# public information. Let ResolutionTheater show both revealed orders/cards;
+	# it will label the pair as defensive and omit any fake clash language.
 	await resolution_theater.play_reveal(
 		human,
 		bot
 	)
+
+	if phase_prompt != null:
+		# UI2_CONTROLLER_RULES_SCOPE_HOTFIX_V1
+		phase_prompt.bind_state(
+			human,
+			bot,
+			controller.rules,
+			controller,
+			_stage_text()
+		)
 
 
 func _flash_ui2_revealed_ward(
@@ -1807,7 +2053,7 @@ func _tutorial_text(stage_name: String) -> String:
 		"REPAIR":
 			return "TUTORIAL · REPAIR vs CONSTRUCTION — REPAIR restores an already-built damaged Castle: WRIGHT cards pay full printed value; every other suit pays 1 less (minimum 1). CONSTRUCTION builds an unbuilt Castle: suit does not matter and every card pays printed value; only 5 progress can be added in one Castle action. Drag a Hand card onto a Castle to choose the correct mode/target and add that card to payment."
 		"DOMINION_RITES":
-			return "TUTORIAL · DOMINION RITES — These are optional pre-combat rites. Cataclysmic Invocation takes the first 11 selected Hand value; if Profane Ruins is also chosen, later selected cards become its payment. Passing keeps those cards for later phases."
+			return "TUTORIAL · DOMINION RITES — These are optional pre-combat rites. Cataclysmic Invocation costs 11 selected Hand value. Defile the Ruins separately exchanges 2 Souls for 1 Tear and Profanes one Ruin. Passing keeps those cards for later phases."
 		"DEPLOY":
 			return "TUTORIAL · DEPLOY — Move cards into Lord or Castle Guard zones before combat. Click uses the destination on the right; drag goes directly to the final Guard zone. STAGED Guards are reversible until FINISH DEPLOY."
 		"MARCH":
@@ -1854,10 +2100,23 @@ func _finish_ui2_controller_step(result: Dictionary) -> void:
 		action_zone.set_status(
 			"Choice rejected: %s" % String(result.get("reason", "invalid_choice"))
 		)
+		if phase_prompt != null:
+			phase_prompt.bind_state(
+				controller.get_human_player(),
+				controller.get_bot_player(),
+				controller.rules,
+				controller,
+				_stage_text()
+			)
 		return
 
 	if controller.stage != PlayableRoundControllerData.Stage.DEPLOY:
 		queued_deploy_moves.clear()
+
+	if phase_prompt != null:
+		phase_prompt.note_controller_result(
+			result
+		)
 
 	refresh_from_game()
 
@@ -1894,7 +2153,6 @@ func _resolve_ui2_repair() -> Dictionary:
 func _build_ui2_rite_decision() -> Dictionary:
 	var selected_ids: Array[String] = hand_view.selected_card_ids()
 	var invocation_ids: Array[String] = []
-	var profane_ids: Array[String] = []
 	var invocation_value: int = 0
 	var use_invocation: bool = action_zone.get_option_enabled()
 
@@ -1907,8 +2165,6 @@ func _build_ui2_rite_decision() -> Dictionary:
 		if use_invocation and invocation_value < 11:
 			invocation_ids.append(card_id)
 			invocation_value += int(value_by_id.get(card_id, 0))
-		else:
-			profane_ids.append(card_id)
 
 	return {
 		"invocation": (
@@ -1919,13 +2175,11 @@ func _build_ui2_rite_decision() -> Dictionary:
 		"profane_ruins": (
 			{
 				"castle": action_zone.get_primary_value(),
-				"payment": profane_ids,
 			}
 			if not action_zone.get_primary_value().is_empty()
 			else {"pass": true}
 		),
 	}
-
 
 func _stage_ui2_hand_cards_immediately(card_ids) -> void:
 	var requested: Array[Dictionary] = []
@@ -1976,6 +2230,15 @@ func _sync_ui2_attack_preview() -> void:
 	)
 
 
+func _sync_ui2_prompt_after_direct_manipulation(
+	action_name: String = ""
+) -> void:
+	# UI2_DIRECT_MANIPULATION_SYNC_V1
+	if phase_prompt == null:
+		return
+	if phase_prompt.has_method("sync_direct_manipulation"):
+		phase_prompt.sync_direct_manipulation(action_name)
+
 func _on_ui2_attack_card_dropped(
 	card_id: String,
 	action_name: String,
@@ -2024,6 +2287,7 @@ func _on_ui2_attack_card_dropped(
 				target_name,
 			]
 		)
+		_sync_ui2_prompt_after_direct_manipulation(action_name)
 		_sync_ui2_ward_preview()
 		_sync_ui2_attack_preview()
 
@@ -2142,6 +2406,7 @@ func _on_ui2_ward_card_dropped(
 				target_zone,
 			]
 		)
+		_sync_ui2_prompt_after_direct_manipulation("Ward")
 		_sync_ui2_ward_preview()
 
 
@@ -2408,6 +2673,9 @@ func _play_ui2_target_impact_if_needed(
 		if before == after and not destroyed:
 			return
 
+		var target_player = controller.game.get_player(
+			1 if attacker_id == 0 else 0
+		)
 		await resolution_theater.play_target_impact(
 			String(
 				action_result.get(
@@ -2420,7 +2688,8 @@ func _play_ui2_target_impact_if_needed(
 			before,
 			after,
 			damage,
-			destroyed
+			destroyed,
+			target_player
 		)
 		return
 
@@ -2473,6 +2742,9 @@ func _play_ui2_interposition_if_needed(
 		if attacker_id == 0
 		else "PLAYER"
 	)
+	var target_player = controller.game.get_player(
+		1 if attacker_id == 0 else 0
+	)
 
 	if bool(action_result.get("keep_interposed", false)):
 		var keep_before: int = int(action_result.get("keep_integrity_before", 0))
@@ -2496,7 +2768,8 @@ func _play_ui2_interposition_if_needed(
 		await resolution_theater.play_interposition(
 			"Keep",
 			defender_role,
-			detail
+			detail,
+			target_player
 		)
 		return
 
@@ -2529,7 +2802,8 @@ func _play_ui2_interposition_if_needed(
 	await resolution_theater.play_interposition(
 		"Bastion",
 		defender_role,
-		detail
+		detail,
+		target_player
 	)
 
 
@@ -2554,10 +2828,40 @@ func _play_ui2_completed_aftermath() -> void:
 	context["round_complete"] = true
 	resolution_theater.set_aftermath_context(context)
 
+	# UI2_THEATER_PROMPT_VESSEL_TRUTH_V1
+	if phase_prompt != null:
+		phase_prompt.visible = false
+
 	await resolution_theater.play_result("")
+
+	# UI2_AFTERMATH_WARD_REVEAL_CLEANUP_V1
+	# NO_GAME used to expose a second "THE ROUND IS SPENT" prompt after this.
+	# AFTERMATH is now the single round-complete surface, so its button advances
+	# directly into the next Development sequence. Match-complete Aftermath still
+	# returns to the final board/terminal prompt instead.
+	if controller.stage == PlayableRoundControllerData.Stage.NO_GAME:
+		_ui2_aftermath_baseline_ready = false
+		_ui2_aftermath_showing = false
+		var next_round_result: Dictionary = controller.advance_to_commitment()
+		_finish_ui2_controller_step(next_round_result)
+		return
 
 	_ui2_aftermath_baseline_ready = false
 	_ui2_aftermath_showing = false
+
+	# Terminal Aftermath returns to the final board rather than refreshing via a
+	# next-round transition, so explicitly restore the terminal prompt here.
+	if (
+		controller.stage == PlayableRoundControllerData.Stage.TERMINAL
+		and phase_prompt != null
+	):
+		phase_prompt.bind_state(
+			controller.get_human_player(),
+			controller.get_bot_player(),
+			controller.rules,
+			controller,
+			_stage_text()
+		)
 
 func _capture_ui2_aftermath_baseline() -> void:
 	if controller == null or controller.game == null:
@@ -2618,6 +2922,10 @@ func _ui2_aftermath_context() -> Dictionary:
 			PlayableRoundControllerData.Stage.NO_GAME,
 			PlayableRoundControllerData.Stage.TERMINAL,
 		]
+	)
+	context["match_complete"] = (
+		controller.stage
+		== PlayableRoundControllerData.Stage.TERMINAL
 	)
 
 	return context
@@ -2949,6 +3257,7 @@ func _on_ui2_castle_payment_card_dropped(
 				card_id,
 			]
 		)
+		_sync_ui2_prompt_after_direct_manipulation(action_name)
 	_sync_ui2_castle_payment_preview()
 
 
@@ -3103,6 +3412,8 @@ func _stage_ui2_deploy_requests(
 			"card": String(entry.get("card", "")),
 			"source_index": -1,
 		})
+
+	_sync_ui2_prompt_after_direct_manipulation("deploy")
 
 	action_zone.clear_aux_selection()
 	call_deferred(
@@ -3472,6 +3783,8 @@ func _on_dev_start_requested(
 	showcase_rounds = 0
 	showcase_invalid_reason = ""
 	queued_deploy_moves.clear()
+	_dominion_rites_prompt_unlocked = false
+	_dominion_rites_auto_pass_pending = false
 
 	controller = PlayableRoundControllerData.new()
 	var result: Dictionary = controller.start_match(

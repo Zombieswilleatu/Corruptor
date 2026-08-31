@@ -200,6 +200,7 @@ static func action_choices(
 
 			options = {
 				"target_castle": target_profane,
+				"reevaluate_target": true,
 			}
 
 		decisions[player_id] = options
@@ -281,6 +282,14 @@ static func current_gremory_choices(
 			opponent.last_sieged_castle
 		)
 
+		# GREMORY_INEVITABLE_FINAL_V2: personalized opportunistic follow-through.
+		if (
+			int(opponent.last_sieged_castle_damage) <= 0
+			or int(opponent.last_sieged_castle_integrity_before) < 12
+			or int(opponent.last_sieged_castle_integrity_after) < 10
+		):
+			continue
+
 		if (
 			not opponent.was_sieged
 			or target_castle.is_empty()
@@ -298,11 +307,11 @@ static func current_gremory_choices(
 		):
 			continue
 
-		# Inevitable Ruin pays 3 cards and retains two after payment.
+		# Final doctrine: no artificial post-payment reserve.
 		if (
 			player.hand.size()
 			+ player.garrison.size()
-			< 5
+			< 2
 		):
 			continue
 
@@ -315,7 +324,7 @@ static func current_gremory_choices(
 			)
 		)
 
-		if payment.size() != 3:
+		if payment.size() != 2:
 			continue
 
 		choices[player_id] = {
@@ -415,6 +424,14 @@ static func _preview_gremory_choices(
 			preview_opponent.last_sieged_castle
 		)
 
+		# GREMORY_INEVITABLE_FINAL_V2: personalized opportunistic follow-through.
+		if (
+			int(preview_opponent.last_sieged_castle_damage) <= 0
+			or int(preview_opponent.last_sieged_castle_integrity_before) < 12
+			or int(preview_opponent.last_sieged_castle_integrity_after) < 10
+		):
+			continue
+
 		if (
 			not preview_opponent.was_sieged
 			or target_castle.is_empty()
@@ -432,11 +449,11 @@ static func _preview_gremory_choices(
 		):
 			continue
 
-		# Inevitable Ruin pays 3 cards and retains two after payment.
+		# Final doctrine: no artificial post-payment reserve.
 		if (
 			preview_player.hand.size()
 			+ preview_player.garrison.size()
-			< 5
+			< 2
 		):
 			continue
 
@@ -461,7 +478,7 @@ static func _preview_gremory_choices(
 			)
 		)
 
-		if payment.size() != 3:
+		if payment.size() != 2:
 			continue
 
 		choices[player_id] = {
@@ -633,26 +650,15 @@ static func _select_gremory_payment(
 	excluded_card_ids: Array
 ) -> Array:
 	var exclusion_counts: Dictionary = {}
-
 	for raw_card_id in excluded_card_ids:
-		var card_identifier: String = String(
-			raw_card_id
-		)
-
+		var card_identifier: String = String(raw_card_id)
 		exclusion_counts[card_identifier] = int(
-			exclusion_counts.get(
-				card_identifier,
-				0
-			)
+			exclusion_counts.get(card_identifier, 0)
 		) + 1
 
 	var entries: Array[Dictionary] = []
-
-	for index: int in range(
-		player.garrison.size()
-	):
+	for index: int in range(player.garrison.size()):
 		var card = player.garrison[index]
-
 		entries.append({
 			"source": "Garrison",
 			"card_id": _card_id(card),
@@ -660,12 +666,8 @@ static func _select_gremory_payment(
 			"source_rank": 0,
 			"index": index,
 		})
-
-	for index: int in range(
-		player.hand.size()
-	):
+	for index: int in range(player.hand.size()):
 		var card = player.hand[index]
-
 		entries.append({
 			"source": "Hand",
 			"card_id": _card_id(card),
@@ -675,97 +677,53 @@ static func _select_gremory_payment(
 		})
 
 	entries.sort_custom(
-		func(
-			entry_a: Dictionary,
-			entry_b: Dictionary
-		) -> bool:
-			var value_a: int = int(entry_a.get("value", 0))
-			var value_b: int = int(entry_b.get("value", 0))
-
-			if value_a != value_b:
-				return value_a < value_b
-
-			var rank_a: int = int(entry_a.get("source_rank", 0))
-			var rank_b: int = int(entry_b.get("source_rank", 0))
-
-			if rank_a != rank_b:
-				return rank_a < rank_b
-
-			return int(entry_a.get("index", 0)) < int(entry_b.get("index", 0))
+		func(a: Dictionary, b: Dictionary) -> bool:
+			var av: int = int(a.get("value", 0))
+			var bv: int = int(b.get("value", 0))
+			if av != bv:
+				return av < bv
+			var ar: int = int(a.get("source_rank", 0))
+			var br: int = int(b.get("source_rank", 0))
+			if ar != br:
+				return ar < br
+			return int(a.get("index", 0)) < int(b.get("index", 0))
 	)
 
 	var eligible: Array[Dictionary] = []
-
 	for entry: Dictionary in entries:
-		var card_identifier: String = String(
-			entry.get(
-				"card_id",
-				""
-			)
-		)
-
+		var card_identifier: String = String(entry.get("card_id", ""))
 		var exclusion_count: int = int(
-			exclusion_counts.get(
-				card_identifier,
-				0
-			)
+			exclusion_counts.get(card_identifier, 0)
 		)
-
 		if exclusion_count > 0:
 			exclusion_counts[card_identifier] = exclusion_count - 1
 			continue
-
 		eligible.append(entry)
 
-	if eligible.size() < 3:
-		return []
-
-	var best_indices: Array[int] = []
+	var best_pair: Array[int] = []
 	var best_total: int = 999999
+	for first: int in range(eligible.size() - 1):
+		for second: int in range(first + 1, eligible.size()):
+			var total: int = (
+				int(eligible[first].get("value", 0))
+				+ int(eligible[second].get("value", 0))
+			)
+			if total < 5:
+				continue
+			if total < best_total:
+				best_total = total
+				best_pair = [first, second]
 
-	for first: int in range(
-		eligible.size() - 2
-	):
-		for second: int in range(
-			first + 1,
-			eligible.size() - 1
-		):
-			for third: int in range(
-				second + 1,
-				eligible.size()
-			):
-				var total: int = (
-					int(eligible[first].get("value", 0))
-					+ int(eligible[second].get("value", 0))
-					+ int(eligible[third].get("value", 0))
-				)
-
-				if total < 5:
-					continue
-
-				# Entries are already value/source/index sorted, so first
-				# equal-total triple is the deterministic tie-break.
-				if total < best_total:
-					best_total = total
-					best_indices = [
-						first,
-						second,
-						third,
-					]
-
-	if best_indices.size() != 3:
+	if best_pair.size() != 2:
 		return []
 
 	var selected: Array = []
-
-	for raw_index in best_indices:
+	for raw_index in best_pair:
 		var entry: Dictionary = eligible[int(raw_index)]
-
 		selected.append({
 			"source": String(entry.get("source", "")),
 			"card": String(entry.get("card_id", "")),
 		})
-
 	return selected
 
 

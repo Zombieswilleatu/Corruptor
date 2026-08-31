@@ -1,4 +1,8 @@
 class_name ReflexActionEngine
+
+# REFLEX_BID_DEPRECATED_RUNTIME_V1
+# LEGACY NAME ONLY: this engine is retained as the Momentum extra-action
+# executor. Reflex Bid no longer exists in live round flow.
 extends RefCounted
 
 

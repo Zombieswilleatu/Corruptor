@@ -1,4 +1,8 @@
 class_name ExperimentalBotReflexDoctrine
+
+# REFLEX_BID_DEPRECATED_RUNTIME_V1
+# LEGACY NAME ONLY: Reflex Bid is retired. Experimental Momentum still reuses
+# this post-Resolution extra-action chooser. It is not a bidding mechanic.
 extends RefCounted
 
 

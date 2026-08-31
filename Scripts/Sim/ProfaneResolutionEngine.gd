@@ -77,6 +77,56 @@ static func resolve(
 		)
 	)
 
+	# PLAYABLE_PROFANE_RETARGET_AND_NO_REFLEX_RESERVE_V1
+	var requested_castle: String = target_castle
+	var target_reevaluated: bool = false
+
+	# A bot Profane target can become illegal after Commitment if an earlier
+	# Siege damages/removes that Castle. Re-evaluate at the exact action boundary.
+	if (
+		bool(
+			options.get(
+				"reevaluate_target",
+				false
+			)
+		)
+		and not _profane_castle_eligible(
+			player,
+			target_castle,
+			rules
+		)
+	):
+		target_castle = _fallback_profanable_castle(
+			player,
+			rules
+		)
+		target_reevaluated = (
+			target_castle
+			!= requested_castle
+		)
+
+		if target_castle.is_empty():
+			player.pending_profane = ""
+			return {
+				"action": "profane",
+				"reason": "no_eligible_castle_after_reevaluation",
+				"player_id": player_id,
+				"opponent_id": int(
+					opponent.pid
+				),
+				"target_castle": "",
+				"requested_castle": requested_castle,
+				"target_reevaluated": true,
+				"blocked": false,
+				"blocking_zone": "",
+				"profaned": false,
+				"tear_pending": false,
+				"tear_gain": 0,
+				"veil_after": int(
+					game.calculate_veil_total()
+				),
+			}
+
 	var blocking_zone: String = _fresh_sigil_zone(
 		opponent
 	)
@@ -94,6 +144,8 @@ static func resolve(
 				opponent.pid
 			),
 			"target_castle": target_castle,
+			"requested_castle": requested_castle,
+			"target_reevaluated": target_reevaluated,
 			"blocked": true,
 			"blocking_zone": blocking_zone,
 			"profaned": false,
@@ -157,6 +209,8 @@ static func resolve(
 			opponent.pid
 		),
 		"target_castle": target_castle,
+		"requested_castle": requested_castle,
+		"target_reevaluated": target_reevaluated,
 		"blocked": false,
 		"blocking_zone": "",
 		"profaned": true,
@@ -166,6 +220,78 @@ static func resolve(
 			game.calculate_veil_total()
 		),
 	}
+
+
+static func _profane_castle_eligible(
+	player,
+	castle_name: String,
+	rules: RuleConfig
+) -> bool:
+	if (
+		castle_name.is_empty()
+		or not player.castles.has(
+			castle_name
+		)
+	):
+		return false
+
+	if (
+		rules.profane_requires_full_integrity
+		and rules.castle_integrity
+	):
+		var maximum: int = (
+			CastleIntegrityRulesData.max_integrity(
+				castle_name
+			)
+		)
+		return int(
+			player.castle_integrity.get(
+				castle_name,
+				maximum
+			)
+		) >= maximum
+
+	return true
+
+
+static func _fallback_profanable_castle(
+	player,
+	rules: RuleConfig
+) -> String:
+	var priority: Array[String] = (
+		CastleIntegrityRulesData.priority_for(
+			String(
+				player.lord
+			)
+		)
+	)
+
+	# Profane sacrifices the lowest-priority Castle first.
+	for index: int in range(
+		priority.size() - 1,
+		-1,
+		-1
+	):
+		var castle_name: String = priority[index]
+		if _profane_castle_eligible(
+			player,
+			castle_name,
+			rules
+		):
+			return castle_name
+
+	for raw_castle_name in player.castles:
+		var castle_name: String = String(
+			raw_castle_name
+		)
+		if _profane_castle_eligible(
+			player,
+			castle_name,
+			rules
+		):
+			return castle_name
+
+	return ""
 
 
 static func _fresh_sigil_zone(

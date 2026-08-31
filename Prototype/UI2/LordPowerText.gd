@@ -94,6 +94,30 @@ static func bbcode_for(
 	return "\n\n".join(chunks)
 
 
+static func breach_bbcode_for(
+	lord_name: String
+) -> String:
+	var entries = POWERS.get(
+		lord_name,
+		[]
+	)
+
+	var breach_entry: String = ""
+	for raw_entry in entries:
+		var entry: String = String(raw_entry)
+		if "breach" in entry.to_lower():
+			breach_entry = entry
+			break
+
+	if breach_entry.is_empty():
+		breach_entry = "[i]No Breach power is defined for this Lord.[/i]"
+
+	return "[center][b]%s — THE BREACH[/b][/center]\n\n%s" % [
+		lord_name.to_upper(),
+		breach_entry,
+	]
+
+
 static func font() -> Font:
 	if not ResourceLoader.exists(
 		POWER_FONT_PATH

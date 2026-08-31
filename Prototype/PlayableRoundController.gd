@@ -1985,7 +1985,7 @@ func _record_reflex_guard_reveal(
 func _human_gremory_choice_available(
 	human
 ) -> bool:
-	# GREMORY_REBALANCE_OWN_RUIN_INEVITABLE_DEFUNCT_V1: human gate
+	# GREMORY_INEVITABLE_FINAL_V2: human rule legality only.
 	if (
 		human == null
 		or human.lord != "Gremory"
@@ -1994,20 +1994,15 @@ func _human_gremory_choice_available(
 	):
 		return false
 
-	var opponent = game.get_opponent(
-		HUMAN_PLAYER_ID
-	)
-
+	var opponent = game.get_opponent(HUMAN_PLAYER_ID)
 	if opponent == null:
 		return false
 
-	var target_castle: String = String(
-		opponent.last_sieged_castle
-	)
-
+	var target_castle: String = String(opponent.last_sieged_castle)
 	if (
 		not opponent.was_sieged
 		or target_castle.is_empty()
+		or int(opponent.last_sieged_castle_damage) <= 0
 		or not opponent.castles.has(target_castle)
 		or (
 			CastleIntegrityRulesData.state_for(
@@ -2020,33 +2015,14 @@ func _human_gremory_choice_available(
 	):
 		return false
 
-	var available: Array = (
-		human.hand
-		+ human.garrison
-	)
-
-	if available.size() < 3:
+	var available: Array = human.hand + human.garrison
+	if available.size() < 2:
 		return false
 
-	# Human has no artificial 2-card reserve; that is bot doctrine only.
-	for first: int in range(
-		available.size() - 2
-	):
-		for second: int in range(
-			first + 1,
-			available.size() - 1
-		):
-			for third: int in range(
-				second + 1,
-				available.size()
-			):
-				if (
-					int(available[first].value)
-					+ int(available[second].value)
-					+ int(available[third].value)
-					>= 5
-				):
-					return true
+	for first: int in range(available.size() - 1):
+		for second: int in range(first + 1, available.size()):
+			if int(available[first].value) + int(available[second].value) >= 5:
+				return true
 
 	return false
 

@@ -355,9 +355,11 @@ func _refresh_card_selection_visual(
 		return
 
 	var selected: bool = button.button_pressed
-	var staging_mode: bool = (
-		repair_drag_enabled
-		or ward_drag_enabled
+	# UI2_CENTERED_PAYMENT_STAGING_FIX_V1
+	# Castle payments stay visible/toggleable in Hand. Only combat-order staging
+	# continues to move selected cards out to the board preview.
+	var hide_after_staging: bool = (
+		ward_drag_enabled
 		or attack_drag_enabled
 	)
 	var hide_token: int = int(
@@ -366,7 +368,7 @@ func _refresh_card_selection_visual(
 	button.set_meta("ui2_stage_hide_token", hide_token)
 	button.visible = true
 
-	if staging_mode and selected:
+	if hide_after_staging and selected:
 		_hide_staged_hand_card_after_delay(
 			button,
 			hide_token
@@ -687,29 +689,26 @@ func _refresh_commitment_hand_title() -> void:
 	)
 
 	if staged_count > 0:
-		title_label.text += (
-			" · %d %s"
-			% [
-				staged_count,
-				(
-					"PAYMENT STAGED"
-					if repair_drag_enabled
-					else "COMMITTED"
-				),
-			]
-		)
+		if repair_drag_enabled:
+			title_label.text += (
+				" · %d PAYMENT STAGED · TOTAL %d"
+				% [
+					staged_count,
+					staged_total,
+				]
+			)
+		else:
+			title_label.text += (
+				" · %d COMMITTED"
+				% staged_count
+			)
 
-	# A commitment of two or more cards should never require mental addition.
-	# Repair/Construction already has its own effective-payment readout, so the
-	# consolidated value here is reserved for actual sealed commitments.
-	if (
-		staged_count > 1
-		and not repair_drag_enabled
-	):
-		title_label.text += (
-			" · TOTAL %d"
-			% staged_total
-		)
+			# A commitment of two or more cards should never require mental addition.
+			if staged_count > 1:
+				title_label.text += (
+					" · TOTAL %d"
+					% staged_total
+				)
 
 func selected_card_ids() -> Array[String]:
 	var ids: Array[String] = []

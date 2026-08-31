@@ -1,0 +1,977 @@
+AI_POLICY = heuristic-2026.08-action-forecast-v1-odradek-reconfig-menu-v1_1-deimos-siege-bias-v2
+
+================================================================================================================
+Game._est_guards
+================================================================================================================
+    def _est_guards(self, guards: List[Card], viewer_knows: bool = False,
+                    exempt: bool = False, context: str = 'generic') -> int:
+        if not guards:
+            return 0
+        if viewer_knows or not VARIANT.get('fog_of_war', False):
+            return sum(effective_guard_value(c, exempt) for c in guards)
+
+        known = [c for c in guards if getattr(c, 'guard_revealed', False)]
+        unknown_count = len(guards) - len(known)
+        known_total = sum(effective_guard_value(c, exempt) for c in known)
+        if unknown_count <= 0:
+            return known_total
+
+        estimate = unknown_count * DECK_MEAN_VALUE
+        # BOT_DOCTRINE_ACTION_FORECAST_V1: stable public-information reach.
+        if not str(context).startswith('forecast:'):
+            estimate += self.rng.stream(
+                f'fog:{context}:{self.round}'
+            ).gauss(0.0, FOG_NOISE * unknown_count ** 0.5)
+        return known_total + max(unknown_count, int(round(estimate)))
+
+================================================================================================================
+Game._estimate_attack_defense
+================================================================================================================
+    def _estimate_attack_defense(self, atk: Player, dfn: Player,
+                                 target_type: str, *, context: str,
+                                 target_castle: Optional[str] = None) -> Tuple[int, Optional[str]]:
+        """One doctrine estimate used by reserve, action scoring and commit.
+
+        It includes the *actual* defensive consequences of Castle powers. In
+        particular, Sanctuary adds the excess needed to overwhelm the Keep and
+        Fortified Bastion adds the wall that must be crossed before a rear Castle.
+        """
+        guard_exempt = (VARIANT.get('circle_ignores_guard_tax', False)
+                        and dfn.castle_power_active('SummoningCircle'))
+        if target_type == 'Lord':
+            est = dfn.lord_base_def(breach=self.breach)
+            est += self._est_guards(
+                dfn.lord_guards, exempt=guard_exempt, context=f'{context}:lord')
+            est += max(2, self._sigil_value(dfn, dfn.sigils['Lord']))
+            keep_wall = (
+                VARIANT.get('keep_interposition', False)
+                and 'Keep' in dfn.castles
+                and 'Keep' not in getattr(
+                    dfn, 'disabled_castle_powers', set()
+                )
+                and dfn.castle_integrity.get(
+                    'Keep', castle_max_integrity('Keep')
+                ) > 0
+            )
+
+            if keep_wall:
+                keep_hp = dfn.castle_integrity.get(
+                    'Keep', castle_max_integrity('Keep')
+                )
+
+                # If Humbaba's Keep falls during the Hunt, losing one intact
+                # Castle can reduce the Lord layer before spill reaches him.
+                humbaba_drop = 1 if dfn.lord == 'Humbaba' else 0
+
+                est += max(
+                    0,
+                    keep_hp - humbaba_drop,
+                )
+
+                est += self._keep_fortification(dfn)
+
+            elif (
+                VARIANT.get('keep_sanctuary', False)
+                and dfn.castle_power_active('Keep')
+            ):
+                keep_hp = dfn.castle_integrity.get(
+                    'Keep', castle_max_integrity('Keep')
+                )
+
+                # Historical Sanctuary behavior.
+                est += max(0, keep_hp - 1)
+            if atk.lord == 'Orias':
+                est -= 1
+                if dfn.threat >= 2:
+                    est -= 1
+            return max(0, est), None
+
+        target = target_castle or self._pick_siege_target(atk, dfn)
+        _forced_wall = (
+            bastion_wall_enabled()
+            and 'Bastion' in dfn.castles
+            and 'Bastion' not in dfn.disabled_castle_powers
+            and dfn.castle_integrity.get('Bastion', 0) > 0
+            and target != 'Bastion'
+        )
+        # The rear Castle remains the strategic target, but a standing Bastion
+        # is the immediate commitment objective. Commit/reserve only enough to
+        # clear Bastion; any overflow into the rear Castle is bonus damage.
+        #
+        # Action scoring keeps its existing shallow wall estimate so choosing
+        # whether Siege is worthwhile remains strategic rather than pretending
+        # the rear Castle no longer matters.
+        if _forced_wall and not str(context).startswith('score:'):
+            est = dfn.castle_def('Bastion', breach=self.breach)
+        else:
+            est = dfn.castle_def(target, breach=self.breach)
+            if _forced_wall:
+                _bhp = dfn.castle_integrity.get(
+                    'Bastion',
+                    castle_max_integrity('Bastion'),
+                )
+                est += min(
+                    _bhp,
+                    max(1, int(VARIANT.get('bastion_wall_chip_target', 4) or 4)),
+                )
+        bypass = (VARIANT.get('siege_engine_bypass', False)
+                  and atk.castle_power_active('SiegeEngine'))
+        if not bypass:
+            est += self._est_guards(
+                dfn.castle_guards, exempt=guard_exempt, context=f'{context}:castle')
+        est += max(1, self._sigil_value(dfn, dfn.sigils['Castle']))
+        # No overflow-mitigation budget is added while Bastion is the immediate
+        # objective; the rear structure is not required to be hit this Siege.
+        if atk.lord == 'Deimos' and atk.castle_power_active('SiegeEngine'):
+            est -= max(0, 2 - len(atk.ruined_castles) - len(atk.profaned_castles))
+        if atk.lord == 'Kalligan':
+            est -= 2 if dfn.ruined_castles else 1
+        return max(0, est), target
+
+================================================================================================================
+Game._public_attack_reach
+================================================================================================================
+    def _public_attack_reach(self, atk: Player, dfn: Player,
+                             target_type: str,
+                             target_castle: Optional[str] = None) -> float:
+        # Fast Python parity proxy for Godot ActionForecast. It uses only public
+        # information: own Hand, exact revealed Guards, and deterministic expected
+        # value for hidden Guards. This is a reachability score, not a win chance.
+        if target_type == 'Lord' and not dfn.alive:
+            return -1.0
+        if target_type == 'Castle' and not dfn.castles:
+            return -1.0
+
+        need, _ = self._estimate_attack_defense(
+            atk,
+            dfn,
+            target_type,
+            context=f'forecast:{atk.pid}:{target_type}:{target_castle or ""}',
+            target_castle=target_castle,
+        )
+        capacity = sum(
+            effective_attack_value(atk, card, target_type)
+            for card in atk.hand
+        )
+        if sum(1 for card in atk.hand if card.suit == 'Butcher') >= 2:
+            capacity += 1
+
+        margin = capacity - need - 1
+        return max(0.0, min(1.0, 0.5 + margin / 8.0))
+
+================================================================================================================
+Game._forecast_score_adjustment
+================================================================================================================
+    @staticmethod
+    def _forecast_score_adjustment(reach: float) -> float:
+        if reach < 0.0:
+            return 0.0
+        return max(-0.70, min(1.30, (reach - 0.35) * 2.0))
+
+================================================================================================================
+Game._reserve_for_commitment
+================================================================================================================
+    def _reserve_for_commitment(self, pl: Player) -> List[Card]:
+        """
+        Estimate which hand cards to hold back for this round's commitment.
+
+        Logic mirrors _commit_for_attack/_commit_for_ward but runs during
+        Deploy so that good cards are NOT sent to guard slots.
+
+        Returns a list of card objects to reserve (not remove from hand).
+        """
+        op = self.opp(pl.pid)
+
+        if not pl.alive:
+            # Dead — will Ward with Penitents
+            penitents = sorted([c for c in pl.hand if c.suit == 'Penitent'],
+                               key=lambda c: c.value, reverse=True)[:2]
+            low_for_bid = sorted([c for c in pl.hand if c not in penitents],
+                                 key=lambda c: c.value)[:1]
+            return penitents + low_for_bid
+
+        plan = self._plan(pl, op)
+        prof = LORD_AI.get(pl.lord, dict(aggro=1.0, control=1.0, prefer=''))
+
+        h = self._score_hunt( pl, op, plan) * prof.get('aggro', 1.0)
+        s = self._score_siege(pl, op, plan) * prof.get('aggro', 1.0)
+        w = self._score_ward( pl, op, plan) * prof.get('control', 1.0)
+
+        # ── Doctrine corrections. Ward was the only action with no Threat term
+        # and no cost for repetition, so it won by default under pressure. The
+        # bank term exists because attacking is the only way to unlock Recoil.
+        w -= pl.threat * VARIANT['doctrine_ward_threat']
+        w -= getattr(pl, 'consecutive_wards', 0) * VARIANT['doctrine_ward_stagnation']
+        _bank = getattr(pl, 'odradek_bank', None)
+        if VARIANT['odr_recoil_bank'] and pl.lord == 'Odradek' and _bank is not None:
+            _urg = VARIANT['doctrine_bank_urgency'] * _bank.value
+            h += _urg; s += _urg; w -= _urg * 0.5
+
+        pref = prof.get('prefer', '')
+        if pref == 'Hunt':  h += 0.25
+        if pref == 'Siege': s += 0.25
+        if pref == 'Ward':  w += 0.25
+
+        best = max((h, 'Hunt'), (s, 'Siege'), (w, 'Ward'))[1]
+
+        # ── Ward reservation ──────────────────────────────────────────
+        if best == 'Ward' or (best == 'Hunt' and not op.alive) or (best == 'Siege' and not op.castles):
+            penitents = sorted([c for c in pl.hand if c.suit == 'Penitent'],
+                               key=lambda c: c.value, reverse=True)[:2]
+            low_for_bid = sorted([c for c in pl.hand if c not in penitents],
+                                 key=lambda c: c.value)[:1]
+            return penitents + low_for_bid
+
+        # ── Attack reservation: use the same estimate final commitment uses.
+        attack_target_type = 'Lord' if best == 'Hunt' else 'Castle'
+        est_def, _ = self._estimate_attack_defense(
+            pl, op, attack_target_type, context=f'reserve:{pl.pid}')
+        if attack_target_type == 'Lord' and op.lord == 'Odradek':
+            est_def += 4   # rough reserve hedge; exact Recoil padding happens at commit
+
+        plan_pad = 2 if plan in ('deny_ritual', 'deny_dominion') else 1
+        target_str = max(3, est_def + plan_pad)
+
+        # ── Select cards to reserve ───────────────────────────────────
+        butchers = sorted([c for c in pl.hand if c.suit == 'Butcher'],
+                          key=lambda c: c.value, reverse=True)
+        others   = sorted([c for c in pl.hand if c.suit != 'Butcher'],
+                          key=lambda c: c.value, reverse=True)
+
+        reserved = []
+        total    = 0
+
+        # Grab Butcher pair first for suit bonus
+        want_bonus = pl.lord in ('Deimos', 'Orias', 'Gremory') or plan.startswith('deny')
+        if want_bonus and len(butchers) >= 2:
+            for c in butchers[:2]:
+                reserved.append(c); total += effective_attack_value(pl, c, attack_target_type)
+            butchers = butchers[2:]
+
+        # Fill to target Strength with remaining cards (highest first)
+        for c in butchers + others:
+            if total >= target_str: break
+            reserved.append(c); total += effective_attack_value(pl, c, attack_target_type)
+
+        # Reserve 1 low card for bid from whatever is left
+        non_reserved_low = sorted([c for c in pl.hand if c not in reserved],
+                                  key=lambda c: c.value)
+        if non_reserved_low:
+            reserved.append(non_reserved_low[0])
+
+        return reserved
+
+================================================================================================================
+Game._commit_for_attack
+================================================================================================================
+    def _commit_for_attack(self, pl: Player, op: Player, target_type: str, plan: str,
+                           chip: bool = False):
+        _cg_exempt = (VARIANT.get('circle_ignores_guard_tax', False)
+                      and op.castle_power_active('SummoningCircle'))
+        # Chip mode: commit just enough to strictly exceed the HIGHEST guard in
+        # the zone (guards strip highest-first) and no more — deny Reconfiguration
+        # tokens / feed Kroni's Hunger without reaching the Sigil layer.
+        if chip:
+            guards = op.castle_guards if target_type == 'Castle' else op.lord_guards
+            if guards:
+                need = max(effective_guard_value(g, _cg_exempt) for g in guards)
+                picked, total = [], 0
+                for c in sorted(pl.hand, key=lambda c: (effective_attack_value(pl, c, target_type), c.value)):
+                    if total > need: break
+                    picked.append(c); total += effective_attack_value(pl, c, target_type)
+                if total > need:
+                    for c in picked: pl.hand.remove(c)
+                    pl.committed = picked
+                    return
+            # no guards to chip — fall through to a normal commit
+        est_def, target_c = self._estimate_attack_defense(
+            pl, op, target_type, context=f'commit:{pl.pid}')
+
+        pad = 2 if plan in ('deny_ritual', 'deny_dominion') else (0 if plan == 'protect_souls' else 1)
+        if VARIANT.get('momentum', False):
+            pad = min(pad, 1)
+        target_str = est_def + pad
+
+        butchers = sorted([c for c in pl.hand if c.suit == 'Butcher'],
+                          key=lambda c: c.value,
+                          reverse=not VARIANT.get('momentum', False))
+        others   = sorted([c for c in pl.hand if c.suit != 'Butcher'],
+                          key=lambda c: c.value,
+                          reverse=not VARIANT.get('momentum', False))
+
+        committed = []; total = 0
+        want_bonus = (pl.lord in ('Deimos', 'Orias', 'Gremory') or plan.startswith('deny'))
+        if want_bonus:
+            for c in butchers[:2]:
+                committed.append(c); total += effective_attack_value(pl, c, target_type)
+            butchers = butchers[2:]
+
+        for c in butchers + others:
+            if total >= target_str: break
+            committed.append(c); total += effective_attack_value(pl, c, target_type)
+
+        trim = 3 if plan.startswith('deny') else 2
+        while (len(committed) > 1
+               and total - effective_attack_value(pl, committed[-1], target_type)
+               > target_str + trim):
+            total -= effective_attack_value(pl, committed[-1], target_type)
+            committed.pop()
+
+        # ── Play around Psychic Recoil: Odradek will delete our 2nd-highest
+        # committed card pre-combat, so pad until the EFFECTIVE total clears.
+        recoil_applies = (op.lord == 'Odradek' and op.alive
+                          and not (pl.lord == 'Orias'
+                                   and self.orias_marked_lord == op.lord)
+                          and (target_type == 'Lord'
+                               or not VARIANT['recoil_hunts_only']))
+        if recoil_applies and committed:
+            def eff_total():
+                if len(committed) <= 1:
+                    return sum(
+                        effective_attack_value(pl, c, target_type)
+                        for c in committed
+                    )
+                ordered = sorted(committed, key=lambda c: c.value, reverse=True)
+                victim = ordered[-1] if VARIANT['recoil_lowest'] else ordered[1]
+                return sum(effective_attack_value(pl, c, target_type)
+                           for c in committed if c is not victim)
+            remaining = list(pl.hand)
+            for c in committed:
+                remaining.remove(c)
+            remaining.sort(key=lambda c: c.value, reverse=True)
+            for c in remaining:
+                if eff_total() >= target_str: break
+                committed.append(c)
+            if eff_total() < target_str and len(committed) < 2:
+                pass  # can't clear recoil — commit what we have (bluff value)
+
+        for c in committed: pl.hand.remove(c)
+        # INTERLOCK: an attack spends the bank and rearms Recoil. Legal even
+        # when the player selected no Hand cards.
+        self._odradek_spend_bank(pl, committed)
+        pl.committed = committed
+
+================================================================================================================
+Game._resolve_hunt
+================================================================================================================
+    def _resolve_hunt(self, atk: Player, dfn: Player):
+        if getattr(atk, 'odradek_reconfig_inverted', False):
+            if self._odradek_resolve_inverted_attack(
+                atk, dfn, 'Hunt'
+            ):
+                return
+        elif (
+            dfn.lord == 'Odradek'
+            and dfn.alive
+            and self._odradek_reconfiguration_maybe_invert(
+                atk, dfn, 'Hunt'
+            )
+        ):
+            if self._odradek_resolve_inverted_attack(
+                atk, dfn, 'Hunt'
+            ):
+                return
+
+        if not dfn.alive: return
+        if (VARIANT.get('ward_threshold', False)
+                and not VARIANT.get('ward_frontline', False)
+                and 'Lord' in dfn.ward_turned
+                and not (VARIANT.get('se_breach_the_gate', False)
+                         and atk.castle_power_active('SiegeEngine'))):
+            # Historical binary-Ward compatibility only. In the current lab,
+            # Ward is a physical reinforcement layer and stops attacks naturally
+            # through combat rather than via a pre-combat cancellation flag.
+            dfn.was_hunted = True
+            return
+        # SiegeEngine — Breach the Gate: the engine rolls through the Ward.
+        # Keyed to banishment, the only currency measured above the floor.
+        dfn.was_hunted = True
+        # A committed Hunt turns the defending Lord Guard area face-up.
+        for _guard in dfn.lord_guards:
+            _guard.guard_revealed = True
+
+        # Relentless Pursuit: Orias hunting his marked lord gets a clean hunt
+        # — Recoil and Backwash are suppressed for this attack
+        orias_clean_hunt = (atk.lord == 'Orias' and self.orias_marked_lord == dfn.lord)
+
+        # Odradek — Psychic Recoil
+
+        # Pre-Combat; first qualifying attack each round.
+        # Discard the attacker's second-highest committed card and gain 1 Soul.
+        if (dfn.lord == 'Odradek' and dfn.alive and not dfn.odradek_recoil_done
+                and not orias_clean_hunt):
+            self._odradek_recoil(atk, dfn)
+
+        strength  = atk.attack_value()
+        strength += atk.suit_bonus('Butcher')
+
+        # Orias — Marked Prey
+
+        # +1 Hunt Strength; +1 additional if defender has 2+ Threat.
+        if atk.lord == 'Orias' and atk.alive:
+            strength += 1
+            if dfn.threat >= 2: strength += 1
+
+        # Crushing Presence / Invoked Butcher: lowest defending Guard gives no Defense
+        ignore_lowest = False
+        butcher_suppressed_guard = None
+        if atk.lord == 'Valak' and atk.alive and len(dfn.lord_guards) >= 2:
+            ignore_lowest = True
+        if (atk.lord == 'Kanifous' and atk.alive
+                and atk.kanifous_invoked_suit == 'Butcher' and dfn.lord_guards):
+            butcher_suppressed_guard = min(
+                dfn.lord_guards,
+                key=lambda c: c.value,
+            )
+            dfn.lord_guards.remove(butcher_suppressed_guard)
+            self._discard([butcher_suppressed_guard])
+
+        lord_def = dfn.lord_base_def(breach=self.breach)
+        ward_screen = 0
+        if (ACTIVE_FEATURES['ward_commit_defense']
+                and dfn.action == 'Ward'
+                and dfn.ward_target == 'Lord'):
+            # Canonical combat order: Ward reinforcements are physically in
+            # front of Guards, Sigil and the Lord. They are not part of DEF.
+            ward_screen = dfn.ward_reinforcement_value()
+
+        sigil_state = dfn.sigils['Lord']
+        sigil_value = self._sigil_value(dfn, sigil_state)
+
+        guards_before = len(dfn.lord_guards)
+        self.stat_combats += 1
+
+        if self._keep_interposes(dfn):
+            keep_hp = int(
+                dfn.castle_integrity.get(
+                    'Keep',
+                    castle_max_integrity('Keep'),
+                )
+            )
+
+            armor = self._keep_hunt_armor(
+                dfn
+            )
+
+            # Reuse the canonical Integrity resolver:
+            #
+            # Ward -> Guards -> Sigil -> temporary structure screen -> HP
+            #
+            # Hunt Armor is the temporary screen. Unlike Siege, Hunt supplies
+            # no structure vulnerability bonus.
+            keep_ruined, sigil_broken, wall_excess = self._combat_layers(
+                atk,
+                strength,
+                dfn.lord_guards,
+                ignore_lowest,
+                sigil_value,
+                has_sigil=(sigil_state != ''),
+                struct_def=0,
+                structure_integrity=keep_hp,
+                ward_screen=ward_screen,
+                structure_screen=armor,
+                structure_vulnerability=0,
+                guard_tax_exempt=(
+                    VARIANT.get(
+                        'circle_ignores_guard_tax',
+                        False,
+                    )
+                    and dfn.castle_power_active(
+                        'SummoningCircle'
+                    )
+                ),
+            )
+
+            keep_damage = int(
+                self._structure_damage
+            )
+
+            if keep_damage > 0:
+                dfn.castle_integrity[
+                    'Keep'
+                ] = max(
+                    0,
+                    keep_hp - keep_damage,
+                )
+
+                self._record_castle_defunct_transition(
+                    dfn,
+                    'Keep',
+                    keep_hp,
+                    dfn.castle_integrity['Keep'],
+                )
+
+                _kit(
+                    'keep_interpose_damage',
+                    keep_damage,
+                )
+
+            if keep_ruined:
+                _kit(
+                    'keep_interpose_ruin'
+                )
+
+                self._resolve_keep_hunt_ruin(
+                    dfn
+                )
+
+                spill = max(
+                    0,
+                    int(wall_excess),
+                )
+
+                if spill > 0:
+                    _kit(
+                        'keep_interpose_spill',
+                        spill,
+                    )
+
+                # Recompute after Keep Ruination: Humbaba and any other
+                # Castle-sensitive Lord defense must see the new board.
+                lord_def = dfn.lord_base_def(
+                    breach=self.breach
+                )
+
+                destroyed = (
+                    spill > lord_def
+                )
+
+                excess = (
+                    spill - lord_def
+                )
+
+            else:
+                # The wall survived, so no Strength reaches the Lord.
+                destroyed = False
+                excess = int(
+                    wall_excess
+                )
+
+        else:
+            # Historical / no-Keep path.
+            destroyed, sigil_broken, excess = self._combat_layers(
+                atk,
+                strength,
+                dfn.lord_guards,
+                ignore_lowest,
+                sigil_value,
+                has_sigil=(sigil_state != ''),
+                struct_def=lord_def,
+                ward_screen=ward_screen,
+                guard_tax_exempt=(
+                    VARIANT.get(
+                        'circle_ignores_guard_tax',
+                        False,
+                    )
+                    and dfn.castle_power_active(
+                        'SummoningCircle'
+                    )
+                ),
+            )
+
+            # Historical Sanctuary remains available to old profiles.
+            if (
+                destroyed
+                and VARIANT.get(
+                    'keep_sanctuary',
+                    False,
+                )
+                and dfn.castle_power_active(
+                    'Keep'
+                )
+            ):
+                _kit(
+                    'keep_opportunity'
+                )
+
+                need = max(
+                    1,
+                    excess,
+                )
+
+                if dfn.can_exert(
+                    'Keep',
+                    need,
+                ):
+                    dfn.exert(
+                        'Keep',
+                        need,
+                        game=self,
+                        reason='sanctuary',
+                    )
+
+                    _kit(
+                        'keep_activation'
+                    )
+
+                    _kit(
+                        'keep_integrity_spent',
+                        need,
+                    )
+
+                    destroyed = False
+                    excess = -1
+
+                else:
+                    _kit(
+                        'keep_short'
+                    )
+
+        guards_lost = (
+            guards_before
+            - len(dfn.lord_guards)
+        )
+
+        if (VARIANT.get('momentum', False)
+                and destroyed
+                and self.reflex_winner is None
+                and 0 <= excess <= VARIANT.get('momentum_band', 3)):
+            self.reflex_winner = atk.pid
+            atk.momentum_refund_due += ACTIVE_FEATURES['momentum_refund']
+            self.stat_momentum_triggers += 1
+
+        if guards_lost > 0:
+            self.any_destruction_this_round = True
+            if atk.lord == 'Kroni':
+                atk.kroni_personally_defeated_guard = True
+                atk.kroni_enemy_destroyed = True
+            if dfn.lord == 'Odradek':
+                dfn.odradek_guards_defeated += guards_lost
+            self._gremory_lord_guard_trigger()
+
+        # Sigil Broken: remove it; controller gains 1 Soul if the target survives
+        if sigil_broken:
+            dfn.sigils['Lord'] = ''
+            if not destroyed and (sigil_state == 'fresh'
+                                  or not VARIANT['sigil_soul_fresh_only']):
+                self._gain_soul(dfn, 1)
+                self.stat_ward_souls += 1
+
+        if destroyed:
+            op = self.opp(atk.pid)
+            # Consume the Hunt — forgo Banishment for a personal Tear (AI rite)
+            consume = False
+            total_after = self._total_tears() + 1
+            if (total_after >= DOMINION_TRACK and atk.tears + 1 > op.tears
+                    and atk.tears + 1 >= self._dominion_req()):
+                consume = True
+            elif (atk.tears >= 2 and atk.tears > op.tears
+                  and atk.souls < WIN_SOULS - 1 and self.rng.stream(f'consume-hunt:{atk.pid}:{self.round}').random() < 0.25):
+                consume = True
+            elif (VARIANT['ai_dominion_drive'] and atk.tears >= 1
+                  and atk.tears + 1 > op.tears and atk.souls < WIN_SOULS - 2
+                  and self.rng.stream(f'consume-hunt:{atk.pid}:{self.round}').random() < 0.5):
+                consume = True
+            if consume:
+                self._gain_tear(atk, 'consume_hunt')
+                self._check_win()
+                return
+
+            self._lord_killed(atk, dfn)
+
+            # Overkill: Banish with excess ≥3 → return one committed card ≤3 to hand
+            if excess >= 3:
+                low = [c for c in atk.committed if c.value <= 3]
+                if low:
+                    keep = max(low, key=lambda c: c.value)
+                    atk.committed.remove(keep)
+                    atk.hand.append(keep)
+
+        # Valak — Siphon
+
+        # After a Hunt that Defeated 1+ Guards, remove one more Guard.
+        # Guard from that zone (if any remain)
+        if (atk.lord == 'Valak' and atk.alive
+                and guards_lost > 0 and dfn.lord_guards):
+            victim = min(dfn.lord_guards, key=lambda c: c.value)
+            dfn.lord_guards.remove(victim)
+            self._discard([victim])
+            self.any_destruction_this_round = True
+            self._gremory_lord_guard_trigger()
+
+        # Odradek — Psychic Backwash
+
+        # Attacker gains Threat if Odradek survives.
+        # Suppressed on Orias clean hunt (Relentless Pursuit)
+        if (dfn.lord == 'Odradek' and dfn.alive and not orias_clean_hunt
+                and not VARIANT['no_backwash']):
+            self._gain_threat(atk, 1)
+
+        # Orias — Barbed Web
+
+        # After Hunt defeats 1+ Guard, defender gains Threat.
+        # +1 normally; +2 if defender was already at 2+ Threat (escalation spiral)
+        if atk.lord == 'Orias' and atk.alive and guards_lost > 0 and dfn.alive:
+            threat_gain = 2 if dfn.threat >= 2 else 1
+            self._gain_threat(dfn, threat_gain)
+
+        # Kroni — Ravenous
+
+        # Hunger 3+, once per game: +2 Souls on a qualifying kill.
+        if (destroyed and atk.lord == 'Kroni' and atk.alive
+                and atk.kroni_hunger >= 3 and not atk.kroni_ravenous_used):
+            self._gain_soul(atk, 2)
+            self._kroni_gain_hunger(atk)
+            atk.kroni_ravenous_used = True
+
+================================================================================================================
+Game._resolve_siege
+================================================================================================================
+    def _resolve_siege(self, atk: Player, dfn: Player,
+                       forced_target: Optional[str] = None,
+                       reflex: bool = False):
+        if getattr(atk, 'odradek_reconfig_inverted', False):
+            if self._odradek_resolve_inverted_attack(
+                atk, dfn, 'Siege', reflex=reflex
+            ):
+                return
+        elif (
+            dfn.lord == 'Odradek'
+            and dfn.alive
+            and self._odradek_reconfiguration_maybe_invert(
+                atk,
+                dfn,
+                'Siege',
+                forced_target=forced_target,
+            )
+        ):
+            if self._odradek_resolve_inverted_attack(
+                atk, dfn, 'Siege', reflex=reflex
+            ):
+                return
+
+        if not dfn.castles: return
+        if (VARIANT.get('ward_threshold', False)
+                and not VARIANT.get('ward_frontline', False)
+                and 'Castle' in dfn.ward_turned):
+            # Historical binary-Ward compatibility only; current Ward resolves
+            # as the first physical combat layer.
+            dfn.was_sieged = True
+            return
+        dfn.was_sieged = True
+        # A committed Siege turns the defending Castle Guard area face-up.
+        for _guard in dfn.castle_guards:
+            _guard.guard_revealed = True
+
+        target_castle = forced_target if forced_target in dfn.castles else \
+                        self._pick_siege_target(atk, dfn, record=True)
+        dfn.last_sieged_castle = target_castle
+
+        # Odradek — Psychic Recoil
+
+        # Pre-Combat; first qualifying attack each round.
+        # Variant O1: Recoil fires on Hunts only — Sieges bypass it entirely
+        if (dfn.lord == 'Odradek' and dfn.alive and not dfn.odradek_recoil_done
+                and not VARIANT['recoil_hunts_only']):
+            self._odradek_recoil(atk, dfn)
+
+        strength  = atk.attack_value(siege=True)
+        strength += atk.suit_bonus('Butcher')
+
+        # Siege Engine bypass does NOT apply to the Reflex second action
+        siege_engine_bypass = (
+            VARIANT.get('siege_engine_bypass', False)
+            and atk.castle_power_active('SiegeEngine') and not reflex)
+
+        # Deimos — War Machine
+
+        # +2 Siege Strength, −1 per Castle lost.
+        # REQUIRES Siege Engine to be active.
+        if atk.lord == 'Deimos' and atk.alive and (
+                atk.castle_power_active('SiegeEngine') or VARIANT['deimos_war_machine_free']):
+            lost = len(atk.ruined_castles)
+            if not VARIANT['war_machine_ignores_profaned']:
+                lost += len(atk.profaned_castles)
+            strength += max(0, 2 - lost)
+
+        # Kalligan — Pyroclasm
+
+        # +1 always; +1 additional if defender has Ruined Castles.
+        if atk.lord == 'Kalligan' and atk.alive:
+            strength += 2 if dfn.ruined_castles else 1
+
+        # Deimos — Fear Aura
+
+        # Defender with 2+ Castle Guards returns one to Hand.
+        # (before Defense is calculated; the last Guard cannot be returned)
+        if atk.lord == 'Deimos' and atk.alive and len(dfn.castle_guards) >= 2:
+            weakest = min(dfn.castle_guards, key=lambda c: c.value)
+            dfn.castle_guards.remove(weakest)
+            dfn.hand.append(weakest)
+
+        # Crushing Presence / Invoked Butcher: lowest defending Guard gives no Defense
+        ignore_lowest = False
+        butcher_suppressed_guard = None
+        if atk.lord == 'Valak' and atk.alive and len(dfn.castle_guards) >= 2:
+            ignore_lowest = True
+        if (atk.lord == 'Kanifous' and atk.alive
+                and atk.kanifous_invoked_suit == 'Butcher' and dfn.castle_guards):
+            butcher_suppressed_guard = min(
+                dfn.castle_guards,
+                key=lambda c: c.value,
+            )
+            dfn.castle_guards.remove(butcher_suppressed_guard)
+            self._discard([butcher_suppressed_guard])
+
+        # Integrity is structural HP. Ward commitments are temporary
+        # REINFORCEMENTS and therefore resolve before permanent Castle Guards,
+        # Sigil, Bastion and the target structure.
+        integrity_before = dfn.castle_integrity.get(
+            target_castle, castle_max_integrity(target_castle)
+        )
+        ward_screen = 0
+        if (ACTIVE_FEATURES['ward_commit_defense']
+                and dfn.action == 'Ward'
+                and dfn.ward_target == 'Castle'):
+            ward_screen = dfn.ward_reinforcement_value()
+        structure_screen = 0
+        structure_vulnerability = 1 if self.breach in ('Deimos', 'Humbaba') else 0
+
+        sigil_state = dfn.sigils['Castle']
+        sigil_value = self._sigil_value(dfn, sigil_state)
+
+        guards_before = len(dfn.castle_guards)
+        self.stat_combats += 1
+        self.stat_sieges += 1
+        if siege_engine_bypass:
+            self.stat_structure_first_bypasses += 1
+        if ACTIVE_FEATURES['castle_integrity']:
+            _wall_active = (
+                bastion_wall_enabled()
+                and 'Bastion' in dfn.castles
+                and 'Bastion' not in dfn.disabled_castle_powers
+                and dfn.castle_integrity.get('Bastion', 0) > 0
+                and target_castle != 'Bastion'
+            )
+            _wall_hp = (dfn.castle_integrity.get('Bastion', castle_max_integrity('Bastion'))
+                        if _wall_active else 0)
+            _wall_mit = (int(VARIANT.get('bastion_overflow_mitigation', 0) or 0)
+                         if _wall_active else 0)
+            # In forced-wall mode the physical structure layer is Bastion ->
+            # mitigation -> intended rear Castle. Feed the combined depth to the
+            # layer resolver so arriving Strength is not prematurely capped by
+            # the rear Castle's HP before Bastion gets a chance to absorb it.
+            _effective_structure_depth = integrity_before + _wall_hp + _wall_mit
+            destroyed, sigil_broken, excess = self._combat_layers(
+                atk, strength, dfn.castle_guards, ignore_lowest,
+                sigil_value, has_sigil=(sigil_state != ''), struct_def=0,
+                bypass=siege_engine_bypass, structure_integrity=_effective_structure_depth,
+                ward_screen=ward_screen, structure_screen=structure_screen,
+                structure_vulnerability=structure_vulnerability,
+                guard_tax_exempt=(VARIANT.get('circle_ignores_guard_tax', False)
+                and dfn.castle_power_active('SummoningCircle')))
+            struct_hit = self._structure_damage
+
+            # ── Bastion — Fortified Layers ───────────────────────────
+            # The outer wall interposes: it takes EVERY hit aimed at another
+            # Castle until it breaks. Not exertion — damage taken for someone
+            # else can kill you, so Bastion is destructible here and drops out
+            # of the "may not self-Ruin" rule. Mandatory, so there is no
+            # doctrine surface to over-fire (§3).
+            if (bastion_wall_enabled()
+                    and struct_hit > 0
+                    and 'Bastion' in dfn.castles
+                    and 'Bastion' not in dfn.disabled_castle_powers
+                    and dfn.castle_integrity.get('Bastion', 0) > 0
+                    and target_castle != 'Bastion'):
+                _kit('bastion_opportunity')
+                shield = dfn.castle_integrity.get('Bastion', castle_max_integrity('Bastion'))
+                soak = min(shield, struct_hit)
+                if soak > 0:
+                    dfn.castle_integrity['Bastion'] = shield - soak
+
+                    self._record_castle_defunct_transition(
+                        dfn,
+                        'Bastion',
+                        shield,
+                        dfn.castle_integrity['Bastion'],
+                    )
+
+                    struct_hit -= soak
+                    self.stat_castle_damage += soak
+                    _kit('bastion_activation'); _kit('bastion_integrity_spent', soak)
+                    # Optional LAB rider: a hit that actually punches THROUGH the
+                    # Bastion loses additional force before reaching the rear Castle.
+                    if struct_hit > 0:
+                        _mit = int(VARIANT.get('bastion_overflow_mitigation', 0) or 0)
+                        if _mit > 0:
+                            _saved = min(_mit, struct_hit)
+                            struct_hit -= _saved
+                            _kit('bastion_overflow_mitigated', _saved)
+                    if dfn.castle_integrity['Bastion'] <= 0:
+                        _kit('bastion_broken')
+                        _guards_lost_so_far = guards_before - len(dfn.castle_guards)
+                        if self._resolve_castle_ruination(
+                                atk, dfn, 'Bastion', _guards_lost_so_far):
+                            return
+                    destroyed = struct_hit >= integrity_before
+                    if struct_hit == 0:
+                        _kit('bastion_full_absorb')
+
+            integrity_after = max(0, integrity_before - struct_hit)
+            dfn.castle_integrity[target_castle] = integrity_after
+
+            self._record_castle_defunct_transition(
+                dfn,
+                target_castle,
+                integrity_before,
+                integrity_after,
+            )
+
+            self.stat_castle_damage += struct_hit
+            assert integrity_after == max(0, integrity_before - struct_hit)
+            assert destroyed == (integrity_after == 0)
+        else:
+            struct_def = dfn.castle_def(target_castle, breach=self.breach, game=self)
+            struct_def += structure_screen
+            destroyed, sigil_broken, excess = self._combat_layers(
+                atk, strength, dfn.castle_guards, ignore_lowest,
+                sigil_value, has_sigil=(sigil_state != ''), struct_def=struct_def,
+                bypass=siege_engine_bypass, ward_screen=ward_screen,
+                guard_tax_exempt=(VARIANT.get('circle_ignores_guard_tax', False)
+                and dfn.castle_power_active('SummoningCircle')))
+
+        guards_lost = guards_before - len(dfn.castle_guards)
+
+        if (VARIANT.get('momentum', False)
+                and destroyed
+                and self.reflex_winner is None
+                and 0 <= excess <= VARIANT.get('momentum_band', 3)):
+            self.reflex_winner = atk.pid
+            atk.momentum_refund_due += ACTIVE_FEATURES['momentum_refund']
+            self.stat_momentum_triggers += 1
+
+        if guards_lost > 0:
+            self.any_destruction_this_round = True
+            if atk.lord == 'Kroni':
+                atk.kroni_personally_defeated_guard = True
+                atk.kroni_enemy_destroyed = True
+            if dfn.lord == 'Odradek':
+                dfn.odradek_guards_defeated += guards_lost
+
+        # Sigil Broken: remove it; controller gains 1 Soul if the castle survives
+        if sigil_broken:
+            dfn.sigils['Castle'] = ''
+            if not destroyed and (sigil_state == 'fresh'
+                                  or not VARIANT['sigil_soul_fresh_only']):
+                self._gain_soul(dfn, 1)
+                self.stat_ward_souls += 1
+
+        if destroyed:
+            if self._resolve_castle_ruination(atk, dfn, target_castle, guards_lost):
+                return
+
+        # Valak — Siphon
+
+        # After a Siege that Defeated 1+ Guards, remove one more Guard.
+        # Guard from that zone (if any remain) — applies whether or not the
+        # castle was destroyed
+        if (atk.lord == 'Valak' and atk.alive
+                and guards_lost > 0 and dfn.castle_guards):
+            victim = min(dfn.castle_guards, key=lambda c: c.value)
+            dfn.castle_guards.remove(victim)
+            self._discard([victim])
+            self.any_destruction_this_round = True
+
+================================================================================================================
+DONE — no files modified.

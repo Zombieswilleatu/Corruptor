@@ -181,55 +181,39 @@ static func _resolve_inevitable_ruin(
 	rules: RuleConfig,
 	decision: Dictionary
 ) -> Dictionary:
-	# GREMORY_REBALANCE_OWN_RUIN_INEVITABLE_DEFUNCT_V1: Inevitable
-	var player_id: int = int(
-		player.pid
-	)
+	# GREMORY_INEVITABLE_FINAL_V2
+	var player_id: int = int(player.pid)
 
 	if not player.alive:
-		return _gremory_pass_result(
-			player_id,
-			"gremory_not_alive"
-		)
+		return _gremory_pass_result(player_id, "gremory_not_alive")
 
 	if player.gremory_inevitable_ruin_done:
-		return _gremory_pass_result(
-			player_id,
-			"inevitable_ruin_already_used"
-		)
+		return _gremory_pass_result(player_id, "inevitable_ruin_already_used")
 
-	if _decision_is_pass(
-		decision
-	):
-		return _gremory_pass_result(
-			player_id,
-			"pass"
-		)
+	if _decision_is_pass(decision):
+		return _gremory_pass_result(player_id, "pass")
 
-	var opponent = game.get_opponent(
-		player_id
-	)
-
+	var opponent = game.get_opponent(player_id)
 	if opponent == null:
-		return _invalid_gremory_result(
-			player_id,
-			"opponent_missing"
-		)
+		return _invalid_gremory_result(player_id, "opponent_missing")
 
-	var target_castle: String = String(
-		opponent.last_sieged_castle
-	)
+	var target_castle: String = String(opponent.last_sieged_castle)
 
 	if (
 		not opponent.was_sieged
 		or target_castle.is_empty()
-		or not opponent.castles.has(
-			target_castle
-		)
+		or not opponent.castles.has(target_castle)
 	):
 		return _invalid_gremory_result(
 			player_id,
 			"no_surviving_sieged_castle",
+			target_castle
+		)
+
+	if int(opponent.last_sieged_castle_damage) <= 0:
+		return _invalid_gremory_result(
+			player_id,
+			"siege_dealt_no_target_damage",
 			target_castle
 		)
 
@@ -247,14 +231,8 @@ static func _resolve_inevitable_ruin(
 			target_castle
 		)
 
-	var raw_payment = decision.get(
-		"payment",
-		[]
-	)
-
-	if typeof(
-		raw_payment
-	) != TYPE_ARRAY:
+	var raw_payment = decision.get("payment", [])
+	if typeof(raw_payment) != TYPE_ARRAY:
 		return _invalid_gremory_result(
 			player_id,
 			"payment_must_be_array",
@@ -262,52 +240,27 @@ static func _resolve_inevitable_ruin(
 		)
 
 	var payment_entries: Array = raw_payment
-
-	if payment_entries.size() != 3:
+	if payment_entries.size() != 2:
 		return _invalid_gremory_result(
 			player_id,
-			"payment_requires_exactly_three_cards",
+			"payment_requires_exactly_two_cards",
 			target_castle
 		)
 
-	var selection: Dictionary = _select_payment_cards(
-		player,
-		payment_entries
-	)
-
-	if not bool(
-		selection.get(
-			"valid",
-			false
-		)
-	):
+	var selection: Dictionary = _select_payment_cards(player, payment_entries)
+	if not bool(selection.get("valid", false)):
 		return _invalid_gremory_result(
 			player_id,
-			String(
-				selection.get(
-					"reason",
-					"invalid_payment"
-				)
-			),
+			String(selection.get("reason", "invalid_payment")),
 			target_castle
 		)
 
-	var selected_entries: Array = selection.get(
-		"entries",
-		[]
-	)
-
+	var selected_entries: Array = selection.get("entries", [])
 	var payment_value: int = 0
-
 	for selected_entry in selected_entries:
 		var entry: Dictionary = selected_entry
-		var card = entry.get(
-			"card"
-		)
-
-		payment_value += int(
-			card.value
-		)
+		var card = entry.get("card")
+		payment_value += int(card.value)
 
 	if payment_value < 5:
 		return _invalid_gremory_result(
@@ -317,90 +270,56 @@ static func _resolve_inevitable_ruin(
 		)
 
 	var paid_cards: Array = []
-
 	for selected_entry in selected_entries:
 		var entry: Dictionary = selected_entry
-		var source: String = String(
-			entry.get(
-				"source",
-				""
-			)
-		)
-
-		var card = entry.get(
-			"card"
-		)
+		var source: String = String(entry.get("source", ""))
+		var card = entry.get("card")
 
 		if source == "Hand":
-			assert(
-				player.hand.has(
-					card
-				),
-				"Inevitable Ruin hand payment disappeared."
-			)
-
-			player.hand.erase(
-				card
-			)
+			assert(player.hand.has(card), "Inevitable Ruin hand payment disappeared.")
+			player.hand.erase(card)
 		else:
-			assert(
-				player.garrison.has(
-					card
-				),
-				"Inevitable Ruin Garrison payment disappeared."
-			)
+			assert(player.garrison.has(card), "Inevitable Ruin Garrison payment disappeared.")
+			player.garrison.erase(card)
 
-			player.garrison.erase(
-				card
-			)
-
-		game.discard.append(
-			card
-		)
-
-		paid_cards.append(
-			card
-		)
+		game.discard.append(card)
+		paid_cards.append(card)
 
 	player.gremory_inevitable_ruin_done = true
 
 	var integrity_before: int = int(
 		opponent.castle_integrity.get(
 			target_castle,
-			CastleIntegrityRulesData.max_integrity(
-				target_castle
-			)
+			CastleIntegrityRulesData.max_integrity(target_castle)
 		)
 	)
-
 	var defunct_integrity: int = maxi(
 		1,
-		int(
-			rules.castle_operational_floor
-		) - 1
+		int(rules.castle_operational_floor) - 1
 	)
+	opponent.castle_integrity[target_castle] = defunct_integrity
 
-	opponent.castle_integrity[
-		target_castle
-	] = defunct_integrity
-
-	# This is deliberately not destruction.
+	# Deliberately not destruction: no Ruin flag, Tear, Soul, Predator trigger,
+	# or destruction flag. The Castle remains standing and repairable.
 	game.refresh_derived_values()
 
 	return {
 		"player_id": player_id,
 		"action": "inevitable_ruin",
 		"reason": "",
-		"target_player_id": int(
-			opponent.pid
-		),
+		"target_player_id": int(opponent.pid),
 		"target_castle": target_castle,
-		"paid_cards": _card_ids(
-			paid_cards
-		),
+		"paid_cards": _card_ids(paid_cards),
 		"payment_value": payment_value,
 		"integrity_before": integrity_before,
 		"integrity_after": defunct_integrity,
+		"siege_damage": int(opponent.last_sieged_castle_damage),
+		"siege_integrity_before": int(
+			opponent.last_sieged_castle_integrity_before
+		),
+		"siege_integrity_after": int(
+			opponent.last_sieged_castle_integrity_after
+		),
 		"neutral_tear_gain": 0,
 		"harvested_card": "",
 		"harvested_by": -1,

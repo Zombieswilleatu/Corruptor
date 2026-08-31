@@ -533,204 +533,40 @@ static func evaluate_bid_candidates(
 	player_id: int,
 	rules: RuleConfig
 ) -> Array:
-	var player = game.get_player(
-		player_id
-	)
-
-	assert(
-		player != null,
-		"Reflex Bid evaluator player does not exist."
-	)
-
-	if player.hand.is_empty():
-		return [
-			{
-				"id": "bid_0",
-				"score": 0.0,
-				"degraded_score": 0.0,
-				"tie_rank": 0,
-				"payload": {
-					"pass": true,
-				},
-			},
-		]
-
-	var profile: Dictionary = _profile_for(
-		String(
-			player.lord
-		)
-	)
-
-	var current_plan: String = plan(
-		game,
-		player_id,
-		rules
-	)
-
-	var desired_count: int = 1
-
-	if current_plan in [
-		"deny_ritual",
-		"deny_dominion",
-	]:
-		desired_count = 2
-
-	if float(
-		profile.get(
-			"control",
-			1.0
-		)
-	) >= 1.25:
-		desired_count = max(
-			desired_count,
-			2
-		)
-
-	if (
-		player.alive
-		and player.souls >= rules.win_souls - 1
-	):
-		desired_count = max(
-			desired_count,
-			2
-		)
-
-	var ordered_hand: Array = _stable_sorted_cards(
-		player.hand,
-		false
-	)
-
-	var maximum_count: int = min(
-		3,
-		ordered_hand.size()
-	)
-
-	var candidates: Array = []
-
-	for bid_count: int in range(
-		maximum_count + 1
-	):
-		var bid_cards: Array = []
-
-		for index: int in range(
-			bid_count
-		):
-			bid_cards.append(
-				ordered_hand[index]
-			)
-
-		var bid_total: int = _card_total(
-			bid_cards
-		)
-
-		var score: float = (
-			-float(
-				abs(
-					bid_count - desired_count
-				)
-			) * 2.0
-			- float(
-				bid_total
-			) * 0.05
-		)
-
-		if (
-			bid_count == 0
-			and desired_count > 0
-		):
-			score -= 0.75
-
-		var degraded_score: float = (
-			-float(
-				abs(
-					bid_count - 1
-				)
-			) * 1.5
-			- float(
-				bid_total
-			) * 0.05
-		)
-
-		var payload: Dictionary = {}
-
-		if bid_count == 0:
-			payload = {
-				"pass": true,
-			}
-		else:
-			payload = {
-				"bid": _card_ids(
-					bid_cards
-				),
-			}
-
-		candidates.append({
-			"id": "bid_%d" % bid_count,
-			"score": score,
-			"degraded_score": degraded_score,
-			"tie_rank": -bid_count,
-			"payload": payload,
-		})
-
-	return candidates
-
+	# REFLEX_BID_DEPRECATED_RUNTIME_V1
+	# Compatibility stub only. Reflex Bid is retired and may not spend or
+	# reserve cards even if a stale historical RuleConfig has reflex_bid=true.
+	assert(game != null, "deprecated Reflex evaluator requires a GameState.")
+	assert(rules != null, "deprecated Reflex evaluator requires RuleConfig.")
+	assert(game.get_player(player_id) != null, "Deprecated Reflex evaluator player does not exist.")
+	return [{
+		"id": "reflex_bid_deprecated",
+		"score": 0.0,
+		"degraded_score": 0.0,
+		"tie_rank": 0,
+		"payload": {
+			"pass": true,
+			"deprecated": true,
+		},
+	}]
 
 static func bid_choices(
 	game,
-	random_source,
+	_random_source,
 	rules: RuleConfig,
-	policy = null
+	_policy = null
 ) -> Dictionary:
-	assert(
-		game != null,
-		"Bot Reflex Bid doctrine requires a GameState."
-	)
-
-	assert(
-		rules != null,
-		"Bot Reflex Bid doctrine requires RuleConfig."
-	)
-
-	var effective_policy = _policy_or_default(
-		policy
-	)
-
+	# REFLEX_BID_DEPRECATED_RUNTIME_V1
+	# Compatibility stub only. Live round conductors never call this path.
+	assert(game != null, "deprecated Reflex Bid doctrine requires a GameState.")
+	assert(rules != null, "deprecated Reflex Bid doctrine requires RuleConfig.")
 	var decisions: Dictionary = {}
-
 	for player in game.players:
-		var player_id: int = int(
-			player.pid
-		)
-
-		var candidates: Array = (
-			evaluate_bid_candidates(
-				game,
-				player_id,
-				rules
-			)
-		)
-
-		var selection: Dictionary = (
-			BotSelectorData.choose(
-				candidates,
-				random_source,
-				effective_policy
-			)
-		)
-
-		var payload: Dictionary = selection.get(
-			"payload",
-			{
-				"pass": true,
-			}
-		)
-
-		decisions[player_id] = payload.duplicate(
-			true
-		)
-
+		decisions[int(player.pid)] = {
+			"pass": true,
+			"deprecated": true,
+		}
 	return decisions
-
 
 static func evaluate_action_candidates(
 	game,
