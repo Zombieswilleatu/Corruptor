@@ -92,58 +92,59 @@ const DEFAULT_SEED: int = 20260724
 
 const LORD_CARD_ABILITIES: Dictionary = {
 	"Orias": [
-		"[b]Snare[/b] — At the start of Development, if Orias is living and below Threat 3, gain 1 Threat to restrict the enemy Lord to one total Guard move this Development.",
-		"[b]Relentless Pursuit[/b] — Hunts gain +1 strength, plus another +1 against a Lord at Threat 2+.",
-		"[b]The Mark[/b] — Defeating a Lord Guard raises that Lord's Threat (2 at Threat 2+). Banishing a Lord at Threat 3+ grants +2 bonus Souls and marks it; it returns with +1 Threat. Orias bypasses that marked target's Recoil/Backwash.",
-		"[b]Breach: Frenzy[/b] — Players at Threat 3+ cannot Deploy cards from Garrison to Guard zones.",
+		"[color=#8fc9a3][b]PRE-COMMIT[/b][/color] · [b]Snare[/b] — At the start of Development, if Orias is living and below Threat 3, gain 1 Threat to restrict the enemy Lord to one total Guard move this Development.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Relentless Pursuit[/b] — Hunts gain +1 strength, plus another +1 against a Lord at Threat 2+.",
+		"[color=#c5a0d8][b]CROSS-COMMIT[/b][/color] · [b]The Mark[/b] — Defeating a Lord Guard raises that Lord's Threat (2 at Threat 2+). Banishing a Lord at Threat 3+ grants +2 bonus Souls and marks it; it returns with +1 Threat. Orias bypasses that marked target's Recoil/Backwash.",
+		"[color=#8fc9a3][b]PRE-COMMIT[/b][/color] · [b]Breach: Frenzy[/b] — Players at Threat 3+ cannot Deploy cards from Garrison to Guard zones.",
 	],
 	"Deimos": [
-		"[b]War Machine[/b] — Sieges gain +2 strength, reduced by 1 for each of Deimos's Ruined or Profaned Castles (minimum +0).",
-		"[b]Fear[/b] — Before a Siege against 2+ Castle Guards, return the lowest Guard to its owner's Hand.",
-		"[b]Claim the Breach[/b] — The first Castle Deimos ruins each game gives Deimos the Tear instead of adding a Neutral Tear.",
-		"[b]Breach[/b] — Every active Castle has 1 less structural DEF (minimum 0).",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]War Machine[/b] — Sieges gain +2 strength, reduced by 1 for each of Deimos's Ruined or Profaned Castles (minimum +0).",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Fear[/b] — Before a Siege against 2+ Castle Guards, return the lowest Guard to its owner's Hand.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Claim the Breach[/b] — The first Castle Deimos ruins each game gives Deimos the Tear instead of adding a Neutral Tear.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Breach[/b] — Every active Castle has 1 less structural DEF (minimum 0).",
 	],
 	"Valak": [
-		"[b]Crushing Presence[/b] — On Hunt or Siege against 2+ Guards, the lowest Guard contributes no defense.",
-		"[b]Siphon[/b] — After Valak defeats a Guard, discard the lowest Guard still protecting that same zone.",
-		"[b]Breach: Gravitational Collapse[/b] — At Resolution Prelude, each previously attacked zone loses its lowest Guard.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Crushing Presence[/b] — On Hunt or Siege against 2+ Guards, the lowest Guard contributes no defense.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Siphon / Life Essence[/b] — Each enemy Guard defeated by Valak's Hunt or Siege grants 2 Life Essence (max 5). Stored Essence persists and automatically reinforces incoming Hunts after ordinary Ward.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Projection[/b] — Once after primary and Reflex combat, spend 1–5 Life Essence on the enemy Lord or Castle Guard zone. Defeat the highest Guard there with printed value at or below the amount spent; a whiff still spends the Essence. Projection kills do not generate Life Essence.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Breach: Gravitational Collapse[/b] — At Resolution Prelude, each previously attacked zone loses its lowest Guard.",
 	],
 	"Kroni": [
-		"[b]HUNGER[/b] — a counter that persists across rounds and resets when Kroni is resummoned. Lord DEF is 4 at 0, 6 at 1–2, and 8 at 3+. The first time he reaches 3 each game, gain 1 personal Tear. Warding or Passing loses 1 Hunger.",
-		"[b]Consume[/b] — Once per round, after the first combat in which at least 1 Guard or Castle is destroyed, gain 1 Hunger.",
-		"[b]Cannibal Hunger[/b] — At Hunger 1+, end each round by removing your lowest deployed Lord or Castle Guard from play; if none is deployed, lose 1 Hunger. The meal grants no Hunger. At Hunger 0, if Consume did not fire, remove your lowest deployed Guard from play without gaining Hunger. Garrison cannot be consumed.",
-		"[b]Ravenous[/b] — At Hunger 3+, discard the opponent's lowest committed card. His next destroyed Lord or Castle grants +2 Souls and +1 Hunger.",
-		"[b]Breach — Insatiable Hunger[/b] — While Kroni is Banished, both players lose their lowest Guard each round.",
+		"[color=#c5a0d8][b]CROSS-COMMIT[/b][/color] · [b]HUNGER[/b] — a counter that persists across rounds and resets when Kroni is resummoned. Lord DEF is 4 at 0, 6 at 1–2, and 8 at 3+. The first time he reaches 3 each game, gain 1 personal Tear. Warding or Passing loses 1 Hunger.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Consume[/b] — Once per round, after the first combat in which at least 1 Guard or Castle is destroyed, gain 1 Hunger.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Cannibal Hunger[/b] — At Hunger 1+, end each round by removing your lowest deployed Lord or Castle Guard from play; if none is deployed, lose 1 Hunger. The meal grants no Hunger. At Hunger 0, if Consume did not fire, remove your lowest deployed Guard from play without gaining Hunger. Garrison cannot be consumed.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Ravenous[/b] — At Hunger 3+, discard the opponent's lowest committed card. His next destroyed Lord or Castle grants +2 Souls and +1 Hunger.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Breach — Insatiable Hunger[/b] — While Kroni is Banished, both players lose their lowest Guard each round.",
 	],
 	"Kalligan": [
-		"[b]SCORCH[/b] — A persistent fire starts at level 1, rises by 1 each round to 3, and defeats Guards at or below its level. It also burns matching-lane marchers at current value 2 or less. Each round it stands, gain Flame tokens equal to its level; 5 Flame becomes 1 Soul.",
-		"[b]Forge-Repair[/b] — A living Kalligan restores +2 Integrity once per Repair action. Every such Repair Scorches the enemy Lord zone.",
-		"[b]Pyroclasm[/b] — Sieges gain +1 strength, or +2 if the defender already has a Ruined Castle.",
-		"[b]Wildfire / Inferno[/b] — After ruining a Castle, Scorch its Castle zone (or Lord if none remain). Inferno defeats the highest enemy Lord Guard without gaining Threat; if none exists, Scorch the Lord zone.",
-		"[b]Breach[/b] — Every Repair restores +1 additional Integrity.",
+		"[color=#c5a0d8][b]CROSS-COMMIT[/b][/color] · [b]SCORCH[/b] — A persistent fire starts at level 1, rises by 1 each round to 3, and defeats Guards at or below its level. It also burns matching-lane marchers at current value 2 or less. Each round it stands, gain Flame tokens equal to its level; 5 Flame becomes 1 Soul.",
+		"[color=#8fc9a3][b]PRE-COMMIT[/b][/color] · [b]Forge-Repair[/b] — A living Kalligan restores +2 Integrity once per Repair action. After each such Repair, choose the enemy Lord or Castle zone for Scorch.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Pyroclasm[/b] — Sieges gain +1 strength, or +2 if the defender already has a Ruined Castle.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Wildfire / Inferno[/b] — After ruining a Castle, choose the enemy Lord or surviving Castle zone for Scorch. Inferno defeats the highest enemy Lord Guard without gaining Threat; if none exists, Scorch the Lord zone.",
+		"[color=#8fc9a3][b]PRE-COMMIT[/b][/color] · [b]Breach[/b] — Every Repair restores +1 additional Integrity.",
 	],
 	"Gremory": [
-		"[b]Picking the Bones[/b] — At the start of Development, if Gremory controls at least one Ruined Castle, draw 1 extra card. Profaned Castles do not count.",
-		"[b]Ruinous Harvest[/b] — On the first Tear placed each round, search from the top of the discard for a value-4/5 card and take it. The attempt is spent even if no eligible card exists.",
-		"[b]Predator of Ruin[/b] — The first Castle destroyed each round recovers the top discard. Independently, the first Lord Guard Defeated by any effect lets Gremory draw 1 outside the Draw step, then discard the lowest Hand card.",
-		"[b]Inevitable Ruin / Breach[/b] — At End of Round, after your Siege leaves an Operational Castle standing, discard exactly 3 Hand/Garrison cards totaling face value 5+ to set it to Defunct (6 Integrity). It remains repairable and is not Ruined. During Gremory Breach, players with a Ruin draw 1 extra.",
+		"[color=#8fc9a3][b]PRE-COMMIT[/b][/color] · [b]Picking the Bones[/b] — At the start of Development, if Gremory controls at least one Ruined Castle, draw 1 extra card. Profaned Castles do not count.",
+		"[color=#c5a0d8][b]CROSS-COMMIT[/b][/color] · [b]Ruinous Harvest[/b] — On the first Tear placed each round, search from the top of the discard for a value-4/5 card and take it. The attempt is spent even if no eligible card exists.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Predator of Ruin[/b] — The first Castle destroyed each round recovers the top discard. Independently, the first Lord Guard Defeated by any effect lets Gremory draw 1 outside the Draw step, then discard the lowest Hand card.",
+		"[color=#c5a0d8][b]CROSS-COMMIT[/b][/color] · [b]Inevitable Ruin / Breach: Sifting the Ruins[/b] — At End of Round, after your Siege deals Integrity damage to an Operational Castle and it remains standing, discard exactly 2 Hand/Garrison cards totaling face value 5+ to set it to Defunct (6 Integrity). It remains standing, repairable, and is not Ruined. During Gremory Breach, each player with at least one Ruined Castle draws 1 extra; Profaned Castles do not count.",
 	],
 	"Odradek": [
-		"[b]Psychic Recoil / Interlock[/b] — Once each round when living Odradek is Hunted or Sieged by an attack with at least 2 currently committed cards, take the attacker's second-highest committed card and bank it face-up, gaining 1 Soul. A new card replaces the bank only if strictly larger; otherwise Recoil locks. Odradek automatically spends the bank on his next Hunt or Siege.",
-		"[b]Reconfiguration[/b] — If fewer than 2 Odradek Guards were Defeated this round, gain 1 token. At 3 tokens, spend them to place 1 Neutral Tear. Banishment clears tokens.",
-		"[b]Breach: Paradox Geometry[/b] — Predict the second-action winner's action; a correct guess discards their selected cards and lets Odradek execute it instead.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Psychic Recoil / Interlock[/b] — Once each round when living Odradek is Hunted or Sieged by an attack with at least 2 currently committed cards, take the attacker's second-highest committed card and bank it face-up, gaining 1 Soul. A new card replaces the bank only if strictly larger; otherwise Recoil locks. Odradek automatically spends the bank on his next Hunt or Siege.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Reconfiguration[/b] — If fewer than 2 Odradek Guards were Defeated this round, gain 1 token. At 3 tokens, spend them to place 1 Neutral Tear. Banishment clears tokens.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Breach: Paradox Geometry[/b] — Predict the second-action winner's action; a correct guess discards their selected cards and lets Odradek execute it instead.",
 	],
 	"Kanifous": [
-		"[b]Invoke[/b] — After Reveal, discard one Hand card as the toll, reveal 2 cards, choose one to bank in Garrison, and discard the other. With no Hand card, Invoke does not fire and the reveals return to the deck.",
-		"[b]Suit Invocation[/b] — Vulture: draw 3 then discard the lowest Hand card. Wright: move up to 2 Lord Guards to Castle. Penitent: draw 2 temporary Guards. Butcher: treat the lowest target Guard as already Defeated this round, without triggering Defeat effects.",
-		"[b]Resonance / Defiance[/b] — If the chosen card's value equals current Threat, gain 1 Soul. A value-4+ first reveal creates a Neutral Tear. When Kanifous is banished, gain 1 Soul and draw 2 if still behind the attacker.",
-		"[b]Breach[/b] — Every draw outside the Draw step gives its recipient +1 Threat.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Invoke[/b] — After Reveal, discard one Hand card as the toll, reveal 2 cards, choose one to bank in Garrison, and discard the other. With no Hand card, Invoke does not fire and the reveals return to the deck.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Suit Invocation[/b] — Vulture: draw 3 then discard the lowest Hand card. Wright: move up to 2 Lord Guards to Castle. Penitent: draw 2 temporary Guards. Butcher: treat the lowest target Guard as already Defeated this round, without triggering Defeat effects.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Resonance / Defiance[/b] — If the chosen card's value equals current Threat, gain 1 Soul. A value-4+ first reveal creates a Neutral Tear. When Kanifous is banished, gain 1 Soul and draw 2 if still behind the attacker.",
+		"[color=#c5a0d8][b]CROSS-COMMIT[/b][/color] · [b]Breach[/b] — Every draw outside the Draw step gives its recipient +1 Threat.",
 	],
 	"Humbaba": [
-		"[b]Woven Into the Stones[/b] — Lord DEF equals 2 + standing Castles; Threat reductions still apply. Bastion no longer adds Lord DEF.",
-		"[b]Toll[/b] — Once per round under severe Soul pressure, ruin one of Humbaba's own Castles to remove 1 enemy Soul and create 1 Neutral Tear.",
-		"[b]Reactive Lane[/b] — Humbaba may hold a second marcher only as a response. An enemy marcher must already occupy the lane, and the new marcher is forced into it; Humbaba cannot open two attacks.",
-		"[b]Breach: The Stones Forget[/b] — While Humbaba is Banished, every active Castle has 1 less structural DEF (minimum 1).",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Woven Into the Stones[/b] — Lord DEF equals 2 + standing Castles; Threat reductions still apply. Bastion no longer adds Lord DEF.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Toll[/b] — Once per round under severe Soul pressure, ruin one of Humbaba's own Castles to remove 1 enemy Soul and create 1 Neutral Tear.",
+		"[color=#8fc9a3][b]PRE-COMMIT[/b][/color] · [b]Reactive Lane[/b] — Humbaba may hold a second marcher only as a response. An enemy marcher must already occupy the lane, and the new marcher is forced into it; Humbaba cannot open two attacks.",
+		"[color=#d7a26a][b]POST-COMMIT[/b][/color] · [b]Breach: The Stones Forget[/b] — While Humbaba is Banished, every active Castle has 1 less structural DEF (minimum 1).",
 	],
 }
 
@@ -375,6 +376,16 @@ func _build_interface() -> void:
 	page.add_child(
 		clock_panel
 	)
+
+	# CORRUPTOR_TOP_BANNER_SKIN_V1
+	var top_banner_texture := TextureRect.new()
+	top_banner_texture.name = "TopBannerTexture"
+	top_banner_texture.texture = load("res://ConceptImages/Menus/TopBanner.png") as Texture2D
+	top_banner_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	top_banner_texture.stretch_mode = TextureRect.STRETCH_SCALE
+	top_banner_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	top_banner_texture.modulate = Color(1.0, 1.0, 1.0, 0.92)
+	clock_panel.add_child(top_banner_texture)
 
 	var clock_row := HBoxContainer.new()
 	clock_row.add_theme_constant_override(
@@ -1924,6 +1935,8 @@ func _on_development_finish_pressed() -> void:
 			result = controller.resolve_human_reflex({"pass": true})
 		PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH:
 			result = controller.resolve_human_odradek_breach({"guess": ""})
+		PlayableRoundControllerData.Stage.RESOLUTION_VALAK_PROJECTION:
+			result = controller.resolve_human_valak_projection("", 0)
 		PlayableRoundControllerData.Stage.RESOLUTION_GREMORY:
 			result = controller.resolve_human_gremory([])
 		PlayableRoundControllerData.Stage.RESOLUTION_HUMBABA_TOLL:
@@ -1938,6 +1951,7 @@ func _on_development_finish_pressed() -> void:
 	if choice_stage in [
 		PlayableRoundControllerData.Stage.RESOLUTION_REFLEX,
 		PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH,
+		PlayableRoundControllerData.Stage.RESOLUTION_VALAK_PROJECTION,
 		PlayableRoundControllerData.Stage.RESOLUTION_GREMORY,
 		PlayableRoundControllerData.Stage.RESOLUTION_ACTION,
 		PlayableRoundControllerData.Stage.RESOLUTION_VESSEL,
@@ -1972,6 +1986,28 @@ func _after_summon_choice(
 
 
 func _on_confirm_pressed() -> void:
+	# KALLIGAN_SCORCH_ROOT_CONFIRM_V3
+	if controller.stage == PlayableRoundControllerData.Stage.KALLIGAN_SCORCH:
+		var scorch_result: Dictionary = controller.resolve_human_kalligan_scorch(
+			_selected_target_id()
+		)
+		if _show_failure_if_needed(
+			scorch_result,
+			false
+		):
+			_set_phase_message(
+				"Scorch choice rejected: %s"
+				% String(
+					scorch_result.get(
+						"reason",
+						"invalid_scorch_target"
+					)
+				)
+			)
+			return
+		_refresh_all()
+		return
+
 	if controller.stage == PlayableRoundControllerData.Stage.VULTURE_RECON:
 		var recon_result: Dictionary = controller.resolve_human_vulture_recon(_selected_target_id())
 		if _show_failure_if_needed(recon_result, false):
@@ -2074,6 +2110,46 @@ func _on_confirm_pressed() -> void:
 			_set_phase_message("Breach choice rejected: %s" % String(odradek_result.get("reason", "invalid_breach")))
 			return
 		_after_resolution_progress(odradek_result)
+		return
+
+	if controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_VALAK_PROJECTION:
+		var projection_id: String = _selected_target_id()
+		var projection_parts: PackedStringArray = projection_id.split("|", false)
+
+		if (
+			projection_parts.size() != 3
+			or String(projection_parts[0]) != "projection"
+		):
+			_set_phase_message(
+				"Choose a Guard zone and Life Essence amount, or Hold Essence."
+			)
+			return
+
+		var projection_result: Dictionary = (
+			controller.resolve_human_valak_projection(
+				String(projection_parts[1]),
+				int(projection_parts[2])
+			)
+		)
+
+		if _show_failure_if_needed(
+			projection_result,
+			false
+		):
+			_set_phase_message(
+				"Projection choice rejected: %s"
+				% String(
+					projection_result.get(
+						"reason",
+						"invalid_projection"
+					)
+				)
+			)
+			return
+
+		_after_resolution_progress(
+			projection_result
+		)
 		return
 
 	if controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_GREMORY:
@@ -2462,6 +2538,14 @@ func _after_resolution_progress(
 			"Predict the bot's %s action; on a correct read, execute your selected stolen action."
 			% _second_action_name()
 		)
+	elif controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_VALAK_PROJECTION:
+		_refresh_target_options()
+		_set_phase_message(
+			"Valak Projection — spend 1–%d Life Essence on an enemy Guard zone, or Hold Essence for defense."
+			% int(
+				controller.get_human_player().valak_life_essence
+			)
+		)
 	elif controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_GREMORY:
 		_build_hand_buttons(true)
 		_refresh_target_options()
@@ -2523,6 +2607,28 @@ func _refresh_all() -> void:
 	bot_lord_card_label.text = _lord_card_text(
 		bot
 	)
+
+	if (
+		human != null
+		and String(human.lord) == "Valak"
+	):
+		human_lord_card_label.text += (
+			"\n[color=#d8b4fe]Life Essence [b]%d/5[/b][/color]"
+			% int(
+				human.valak_life_essence
+			)
+		)
+
+	if (
+		bot != null
+		and String(bot.lord) == "Valak"
+	):
+		bot_lord_card_label.text += (
+			"\n[color=#d8b4fe]Life Essence [b]%d/5[/b][/color]"
+			% int(
+				bot.valak_life_essence
+			)
+		)
 	_refresh_castle_cards(human, true)
 	_refresh_castle_cards(bot, false)
 	_refresh_staging_area()
@@ -2545,6 +2651,7 @@ func _refresh_all() -> void:
 			PlayableRoundControllerData.Stage.MARKET,
 			PlayableRoundControllerData.Stage.DEVELOPMENT_SNARE,
 			PlayableRoundControllerData.Stage.REPAIR,
+			PlayableRoundControllerData.Stage.KALLIGAN_SCORCH,
 			PlayableRoundControllerData.Stage.DOMINION_RITES,
 			PlayableRoundControllerData.Stage.MARCH,
 			PlayableRoundControllerData.Stage.KANIFOUS_INVOKE,
@@ -2555,6 +2662,7 @@ func _refresh_all() -> void:
 			PlayableRoundControllerData.Stage.RESOLUTION_VESSEL,
 			PlayableRoundControllerData.Stage.RESOLUTION_REFLEX,
 			PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH,
+			PlayableRoundControllerData.Stage.RESOLUTION_VALAK_PROJECTION,
 		]
 	)
 	target_select.visible = target_label.visible
@@ -2582,6 +2690,18 @@ func _refresh_all() -> void:
 			phase_label.text = "Reveal — Kanifous Invoke"
 			confirm_button.text = "Choose Invoke Card"
 			confirm_button.visible = true
+			summon_button.visible = false
+			skip_summon_button.visible = false
+			reveal_button.visible = false
+			resolve_button.visible = false
+			next_round_button.visible = false
+
+		# KALLIGAN_SCORCH_ROOT_STAGE_V3
+		PlayableRoundControllerData.Stage.KALLIGAN_SCORCH:
+			phase_label.text = "Kalligan — Choose Scorch Zone"
+			confirm_button.text = "Place Scorch"
+			confirm_button.visible = true
+			development_finish_button.visible = false
 			summon_button.visible = false
 			skip_summon_button.visible = false
 			reveal_button.visible = false
@@ -2761,6 +2881,18 @@ func _refresh_all() -> void:
 			confirm_button.text = "Predict & Steal"
 			confirm_button.visible = true
 			development_finish_button.text = "Do Not Interfere"
+			development_finish_button.visible = true
+			summon_button.visible = false
+			skip_summon_button.visible = false
+			reveal_button.visible = false
+			resolve_button.visible = false
+			next_round_button.visible = false
+
+		PlayableRoundControllerData.Stage.RESOLUTION_VALAK_PROJECTION:
+			phase_label.text = "Aftermath — Valak Projection"
+			confirm_button.text = "Project Essence"
+			confirm_button.visible = true
+			development_finish_button.text = "Hold Essence"
 			development_finish_button.visible = true
 			summon_button.visible = false
 			skip_summon_button.visible = false
@@ -3217,6 +3349,25 @@ func _refresh_target_options() -> void:
 	if controller != null and controller.game != null:
 		var development_human = controller.get_human_player()
 
+		# KALLIGAN_SCORCH_ROOT_TARGETS_V3
+		if controller.stage == PlayableRoundControllerData.Stage.KALLIGAN_SCORCH:
+			target_label.text = "Scorch zone:"
+			_add_target_option(
+				"Enemy Lord zone",
+				"Lord"
+			)
+			var scorch_bot = controller.get_bot_player()
+			if (
+				scorch_bot != null
+				and not scorch_bot.castles.is_empty()
+			):
+				_add_target_option(
+					"Enemy Castle zone",
+					"Castle"
+				)
+			target_select.disabled = false
+			return
+
 		if controller.stage == PlayableRoundControllerData.Stage.VULTURE_RECON:
 			target_label.text = "Scout enemy Guards:"
 			var recon_bot = controller.get_bot_player()
@@ -3356,6 +3507,45 @@ func _refresh_target_options() -> void:
 			for castle_name: String in development_human.castles:
 				_add_target_option(castle_name, castle_name)
 			target_select.disabled = development_human.castles.is_empty()
+			_refresh_target_info()
+			return
+
+		if controller.stage == PlayableRoundControllerData.Stage.RESOLUTION_VALAK_PROJECTION:
+			target_label.text = "Projection:"
+			var projection_human = controller.get_human_player()
+			var projection_bot = controller.get_bot_player()
+
+			if (
+				projection_human != null
+				and projection_bot != null
+			):
+				var pool: int = int(
+					projection_human.valak_life_essence
+				)
+
+				if not projection_bot.lord_guards.is_empty():
+					for spend: int in range(
+						1,
+						pool + 1
+					):
+						_add_target_option(
+							"Lord Guards · Project %d Essence" % spend,
+							"projection|Lord|%d" % spend
+						)
+
+				if not projection_bot.castle_guards.is_empty():
+					for spend: int in range(
+						1,
+						pool + 1
+					):
+						_add_target_option(
+							"Castle Guards · Project %d Essence" % spend,
+							"projection|Castle|%d" % spend
+						)
+
+			target_select.disabled = (
+				target_select.item_count <= 0
+			)
 			_refresh_target_info()
 			return
 
@@ -5341,6 +5531,16 @@ func _phase_help_text() -> String:
 				+ "This action resolves immediately after the two main orders."
 			) % _second_action_name()
 
+		PlayableRoundControllerData.Stage.RESOLUTION_VALAK_PROJECTION:
+			return (
+				prefix
+				+ "[b]Valak — Projection.[/b] Spend 1–5 stored Life Essence on "
+				+ "the enemy Lord or Castle Guard zone, or hold it for defense. "
+				+ "Projection defeats the highest Guard whose printed value is at "
+				+ "or below the amount spent. Equality kills; a miss still spends "
+				+ "the Essence. Projection does not generate new Life Essence."
+			)
+
 		PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH:
 			return (
 				prefix
@@ -5353,9 +5553,9 @@ func _phase_help_text() -> String:
 		PlayableRoundControllerData.Stage.RESOLUTION_GREMORY:
 			return (
 				prefix
-				+ "[b]Gremory — Inevitable Ruin.[/b] After a Siege leaves its target "
-				+ "standing, you may pay exactly two Hand/Garrison cards to Ruin that "
-				+ "Castle anyway. This opportunity is once per round; pass to decline."
+				+ "[b]Gremory — Inevitable Ruin.[/b] At End of Round, after your Siege deals Integrity damage to an Operational Castle and leaves it standing, "
+				+ "you may discard exactly two Hand/Garrison cards totaling face value 5+ to set that Castle to Defunct (6 Integrity). "
+				+ "It remains standing and repairable and is not Ruined. Once per round; pass to decline."
 			)
 
 		PlayableRoundControllerData.Stage.NO_GAME:
@@ -11109,7 +11309,7 @@ func _log_repair_events(
 				and bool(repair_player.alive)
 			):
 				_log(
-					"[color=#d8b4fe][b]Kalligan — Forge-Repair:[/b] The Repair gained bonus Integrity and armed Scorch against the enemy Lord zone.[/color]"
+					"[color=#d8b4fe][b]Kalligan — Forge-Repair:[/b] The Repair gained bonus Integrity and placed persistent Scorch on the chosen enemy zone.[/color]"
 				)
 		elif action == "construct":
 			var completed: bool = bool(result.get("completed", false))

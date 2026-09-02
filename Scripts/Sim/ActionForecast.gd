@@ -38,6 +38,31 @@ const SUITS: Array[String] = [
 ]
 
 
+# DEFENSE_CULPABILITY_FORECAST_SIM_PROFILER_V1
+static var _forecast_sim_perf_enabled: bool = false
+static var _forecast_sim_perf_events: Array[Dictionary] = []
+
+
+static func forecast_sim_perf_start() -> void:
+	_forecast_sim_perf_events.clear()
+	_forecast_sim_perf_enabled = true
+
+
+static func forecast_sim_perf_stop() -> Array[Dictionary]:
+	_forecast_sim_perf_enabled = false
+	var out: Array[Dictionary] = []
+	for row in _forecast_sim_perf_events:
+		out.append(row.duplicate(true))
+	_forecast_sim_perf_events.clear()
+	return out
+
+
+static func _forecast_sim_perf_record(row: Dictionary) -> void:
+	if not _forecast_sim_perf_enabled:
+		return
+	_forecast_sim_perf_events.append(row)
+
+
 static func forecast_all(
 	game,
 	rules: RuleConfig,
@@ -666,6 +691,8 @@ static func _max_successful_ward_screen(
 	return best
 
 
+# DEFENSE_CULPABILITY_FORECAST_SETUP_PROFILER_V1
+# DEFENSE_CULPABILITY_FORECAST_RNG_PROFILER_V1
 static func _simulate_outcomes(
 	game,
 	rules: RuleConfig,
@@ -677,32 +704,72 @@ static func _simulate_outcomes(
 	guard_scenario: Dictionary,
 	ward_screen: int
 ) -> Dictionary:
-	var clone = game.duplicate_state()
+	var perf_enabled: bool = _forecast_sim_perf_enabled
+	var total_started_us: int = Time.get_ticks_usec() if perf_enabled else 0
 
-	# Resolver side-effects may perform deterministic outside-Development
-	# draws after combat (for example Gremory/Kanifous interactions).
-	# Object metadata is not copied by GameState.duplicate_state(), so give
-	# every forecast simulation its own isolated RNG. Never borrow the live
-	# game's RNG: forecasting must not inspect or advance future randomness.
+	var clone_started_us: int = Time.get_ticks_usec() if perf_enabled else 0
+	# FORECAST_SHALLOW_CLONE_V1
+	var clone = game.duplicate_state(true)
+	var clone_us: int = Time.get_ticks_usec() - clone_started_us if perf_enabled else 0
+
+	var rng_started_us: int = Time.get_ticks_usec() if perf_enabled else 0
+	var forecast_rng = PythonRandomData.forecast_seed_zero_fast()
+	var rng_init_us: int = Time.get_ticks_usec() - rng_started_us if perf_enabled else 0
+
+	var meta_started_us: int = Time.get_ticks_usec() if perf_enabled else 0
 	clone.set_meta(
 		"_resolution_random_source",
-		PythonRandomData.new(0)
+		forecast_rng
 	)
+	var meta_us: int = Time.get_ticks_usec() - meta_started_us if perf_enabled else 0
 
+	var lookup_started_us: int = Time.get_ticks_usec() if perf_enabled else 0
 	var attacker = clone.get_player(attacker_id)
 	var defender = clone.get_opponent(attacker_id)
+	var lookup_us: int = Time.get_ticks_usec() - lookup_started_us if perf_enabled else 0
 
 	if attacker == null or defender == null:
+		if perf_enabled:
+			_forecast_sim_perf_record({
+				"action": action_name,
+				"target_castle": target_castle,
+				"ward_screen": ward_screen,
+				"hidden_guard_count": int(guard_scenario.get("hidden_values", []).size()),
+				"source_guard_count": source_guards.size(),
+				"attacker_lord": "",
+				"defender_lord": "",
+				"clone_us": clone_us,
+				"rng_init_us": rng_init_us,
+				"meta_us": meta_us,
+				"lookup_us": lookup_us,
+				"seal_us": 0,
+				"sanitize_us": 0,
+				"guard_apply_us": 0,
+				"action_setup_us": 0,
+				"ward_setup_us": 0,
+				"before_snapshot_us": 0,
+				"setup_us": 0,
+				"resolve_us": 0,
+				"outcome_us": 0,
+				"elapsed_us": Time.get_ticks_usec() - total_started_us,
+				"invalid": true,
+			})
 		return {
 			"primary": false,
 			"secondary": false,
 		}
 
-	_seal_commitment(
-		attacker,
-		mask
-	)
+	var setup_started_us: int = Time.get_ticks_usec() if perf_enabled else 0
+
+	var step_started_us: int = Time.get_ticks_usec() if perf_enabled else 0
+	_seal_commitment(attacker, mask)
+	var seal_us: int = Time.get_ticks_usec() - step_started_us if perf_enabled else 0
+
+	step_started_us = Time.get_ticks_usec() if perf_enabled else 0
 	_sanitize_hidden_resources(defender)
+	var sanitize_us: int = Time.get_ticks_usec() - step_started_us if perf_enabled else 0
+
+	step_started_us = Time.get_ticks_usec() if perf_enabled else 0
 	_apply_guard_scenario(
 		defender,
 		action_name,
@@ -710,36 +777,26 @@ static func _simulate_outcomes(
 		guard_scenario,
 		rules
 	)
+	var guard_apply_us: int = Time.get_ticks_usec() - step_started_us if perf_enabled else 0
 
+	step_started_us = Time.get_ticks_usec() if perf_enabled else 0
 	attacker.action = action_name
 	attacker.tgt_pid = int(defender.pid)
-	attacker.tgt_type = (
-		"Lord"
-		if action_name == "Hunt"
-		else "Castle"
-	)
+	attacker.tgt_type = "Lord" if action_name == "Hunt" else "Castle"
 
 	defender.action = ""
 	defender.ward_target = ""
 	defender.committed.clear()
 	defender.ward_turned.clear()
+	var action_setup_us: int = Time.get_ticks_usec() - step_started_us if perf_enabled else 0
 
+	step_started_us = Time.get_ticks_usec() if perf_enabled else 0
 	if ward_screen > 0:
 		defender.action = "Ward"
-		defender.ward_target = (
-			"Lord"
-			if action_name == "Hunt"
-			else "Castle"
-		)
+		defender.ward_target = "Lord" if action_name == "Hunt" else "Castle"
 
-		var static_bonus: int = _ward_static_bonus(
-			defender,
-			rules
-		)
-		var card_effective_value: int = maxi(
-			1,
-			ward_screen - static_bonus
-		)
+		var static_bonus: int = _ward_static_bonus(defender, rules)
+		var card_effective_value: int = maxi(1, ward_screen - static_bonus)
 
 		defender.committed.append(
 			_synthetic_ward_card(
@@ -748,8 +805,15 @@ static func _simulate_outcomes(
 				card_effective_value
 			)
 		)
+	var ward_setup_us: int = Time.get_ticks_usec() - step_started_us if perf_enabled else 0
 
+	step_started_us = Time.get_ticks_usec() if perf_enabled else 0
 	var before: Dictionary = _combat_snapshot(defender)
+	var before_snapshot_us: int = Time.get_ticks_usec() - step_started_us if perf_enabled else 0
+
+	var setup_us: int = Time.get_ticks_usec() - setup_started_us if perf_enabled else 0
+
+	var resolve_started_us: int = Time.get_ticks_usec() if perf_enabled else 0
 	var resolution: Dictionary = {}
 
 	if action_name == "Hunt":
@@ -770,14 +834,47 @@ static func _simulate_outcomes(
 			}
 		)
 
+	var resolve_us: int = Time.get_ticks_usec() - resolve_started_us if perf_enabled else 0
+
+	var outcome_started_us: int = Time.get_ticks_usec() if perf_enabled else 0
 	var after: Dictionary = _combat_snapshot(defender)
 
-	return _outcomes_from_resolution(
+	var result: Dictionary = _outcomes_from_resolution(
 		action_name,
 		resolution,
 		before,
 		after
 	)
+
+	if perf_enabled:
+		var outcome_us: int = Time.get_ticks_usec() - outcome_started_us
+		_forecast_sim_perf_record({
+			"round": int(game.round),
+			"action": action_name,
+			"target_castle": target_castle,
+			"ward_screen": ward_screen,
+			"hidden_guard_count": int(guard_scenario.get("hidden_values", []).size()),
+			"source_guard_count": source_guards.size(),
+			"attacker_lord": String(attacker.lord),
+			"defender_lord": String(defender.lord),
+			"clone_us": clone_us,
+			"rng_init_us": rng_init_us,
+			"meta_us": meta_us,
+			"lookup_us": lookup_us,
+			"seal_us": seal_us,
+			"sanitize_us": sanitize_us,
+			"guard_apply_us": guard_apply_us,
+			"action_setup_us": action_setup_us,
+			"ward_setup_us": ward_setup_us,
+			"before_snapshot_us": before_snapshot_us,
+			"setup_us": setup_us,
+			"resolve_us": resolve_us,
+			"outcome_us": outcome_us,
+			"elapsed_us": Time.get_ticks_usec() - total_started_us,
+			"invalid": false,
+		})
+
+	return result
 
 
 static func _seal_commitment(

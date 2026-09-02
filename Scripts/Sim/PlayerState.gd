@@ -10,11 +10,16 @@ const CastleIntegrityRulesData = preload(
 var pid: int = 0
 var lord: String = ""
 var alive: bool = true
+# VACANT_THRONE_CORE_RULE_V1
+var vacant_throne_rounds: int = 0
+var lord_present_this_round: bool = false
 
 var souls: int = 0
 var tears: int = 0
 var threat: int = 0
 var kroni_hunger: int = 0
+var valak_life_essence: int = 0
+var valak_projection_used_this_round: bool = false
 var momentum_refund_due: int = 0
 var repair_token: int = 0
 
@@ -173,6 +178,35 @@ func ward_reinforcement_value(rules: RuleConfig) -> int:
 	return total
 
 
+# WARD_MISS_HALF_VALUE_V1
+# Correct-zone WARD = full reinforcement.
+# Opposite-zone WARD = half reinforcement, rounded down.
+func ward_reinforcement_value_for_zone(
+	rules: RuleConfig,
+	zone: String
+) -> int:
+	var total: int = ward_reinforcement_value(rules)
+
+	if total <= 0:
+		return 0
+
+	if ward_target == zone:
+		return total
+
+	var valid_ward_target: bool = ward_target in [
+		"Lord",
+		"Castle",
+	]
+	var valid_combat_zone: bool = zone in [
+		"Lord",
+		"Castle",
+	]
+
+	if valid_ward_target and valid_combat_zone:
+		return floori(float(total) * 0.5)
+
+	return 0
+
 func attack_card_value(card, rules: RuleConfig, siege: bool = false) -> int:
 	if card == null:
 		return 0
@@ -198,6 +232,8 @@ func attack_value(rules: RuleConfig, siege: bool = false, cards_override = null)
 
 
 func reset_round_state() -> void:
+	lord_present_this_round = alive
+
 	was_lord_attacked_prev = was_hunted
 	was_castle_attacked_prev = was_sieged
 
@@ -237,6 +273,8 @@ func reset_round_state() -> void:
 	kanifous_invoked_high = false
 	kanifous_invokes_this_round = 0
 
+	valak_projection_used_this_round = false
+
 	kroni_consume_done = false
 	kroni_personally_defeated_guard = false
 	kroni_enemy_destroyed = false
@@ -247,7 +285,8 @@ func reset_round_state() -> void:
 	ward_turned.clear()
 
 
-func duplicate_state() -> PlayerState:
+# FORECAST_SHALLOW_CLONE_V1
+func duplicate_state(forecast_fast: bool = false) -> PlayerState:
 	var copy := PlayerState.new(
 		pid,
 		lord_pool
@@ -255,11 +294,15 @@ func duplicate_state() -> PlayerState:
 
 	copy.lord = lord
 	copy.alive = alive
+	copy.vacant_throne_rounds = vacant_throne_rounds
+	copy.lord_present_this_round = lord_present_this_round
 
 	copy.souls = souls
 	copy.tears = tears
 	copy.threat = threat
 	copy.kroni_hunger = kroni_hunger
+	copy.valak_life_essence = valak_life_essence
+	copy.valak_projection_used_this_round = valak_projection_used_this_round
 	copy.momentum_refund_due = momentum_refund_due
 	copy.repair_token = repair_token
 	copy.keep_fortification_level = keep_fortification_level
@@ -328,14 +371,30 @@ func duplicate_state() -> PlayerState:
 	copy.kroni_enemy_destroyed = kroni_enemy_destroyed
 	copy.kroni_tear_milestone_fired = kroni_tear_milestone_fired
 
-	copy.hand = _duplicate_cards(hand)
-	copy.garrison = _duplicate_cards(garrison)
+	copy.hand = (
+				hand.duplicate()
+				if forecast_fast
+				else _duplicate_cards(hand)
+		)
+	copy.garrison = (
+				garrison.duplicate()
+				if forecast_fast
+				else _duplicate_cards(garrison)
+		)
 	copy.castle_guards = _duplicate_cards(castle_guards)
 	copy.lord_guards = _duplicate_cards(lord_guards)
-	copy.committed = _duplicate_cards(committed)
-	copy.penitent_temp_guards = _duplicate_cards(
-		penitent_temp_guards
-	)
+	copy.committed = (
+				committed.duplicate()
+				if forecast_fast
+				else _duplicate_cards(committed)
+		)
+	copy.penitent_temp_guards = (
+				penitent_temp_guards.duplicate()
+				if forecast_fast
+				else _duplicate_cards(
+						penitent_temp_guards
+				)
+		)
 
 	copy.castle_repairs = castle_repairs.duplicate(true)
 	copy.castle_integrity = castle_integrity.duplicate(true)

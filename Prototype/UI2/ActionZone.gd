@@ -209,7 +209,9 @@ func _ready() -> void:
     status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     outer.add_child(status_label)
 
+    # UI2_COMMITMENT_DIALOG_CLEANUP_V14_1
     var spacer := Control.new()
+    spacer.name = "ActionSpacerV14"
     spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
     outer.add_child(spacer)
 
@@ -237,6 +239,11 @@ func _scroll_direct_manipulation_end() -> void:
     if scroll == null:
         return
 
+    # UI2_DECISION_ALIGNMENT_CLEANUP_V15
+    # Fixed dialog actions make the old scroll-to-confirm behavior obsolete.
+    if dialog_mode:
+        return
+
     # Deliberately overshoot; ScrollContainer clamps to its legal maximum.
     # This keeps the live payment/status/confirm controls in view after the
     # PhasePrompt expands and its layout settles.
@@ -249,6 +256,17 @@ func set_dialog_mode(enabled: bool) -> void:
         title_label.visible = not enabled
     if phase_panel != null:
         phase_panel.visible = not enabled
+
+    # PhasePrompt owns the visible bottom action window in dialog mode.
+    # Do not let ActionZone's legacy flex spacer consume dialog height.
+    var spacer_v14 := get_node_or_null(
+        "ActionScroll/ActionContents/ActionSpacerV14"
+    ) as Control
+    if spacer_v14 != null:
+        spacer_v14.visible = not enabled
+
+    if enabled:
+        call_deferred("_reset_dialog_scroll_top_v14")
 
 
 func focus_castle_action_mode(action_name: String) -> void:
@@ -290,6 +308,7 @@ func bind_state(
         _invalidate_forecast_cache()
         if stage_key == "COMMITMENT":
             _build_forecast_cache()
+            call_deferred("_reset_dialog_scroll_top_v14")
     if stage_changed:
         selected_action = ""
         selected_card_count = 0
@@ -624,6 +643,13 @@ func _configure_stage() -> void:
             pass_button.visible = true
             pass_button.text = "STAY BANISHED"
 
+            if player_ref != null and not player_ref.alive:
+                phase_label.text += (
+                    "\nVacant Throne · %d full Lordless round(s) completed. "
+                    + "Two are safe; the third and each later round gives "
+                    + "your opponent 1 Soul."
+                ) % int(player_ref.vacant_throne_rounds)
+
         "REFLEX_BID":
             phase_label.text = "Select any Hand cards to bid."
             confirm_button.visible = true
@@ -665,6 +691,15 @@ func _configure_stage() -> void:
             confirm_button.text = "MOVE SELECTED GUARDS"
             pass_button.visible = true
             pass_button.text = "MOVE NONE"
+
+        "KALLIGAN_SCORCH":
+            phase_label.text = "Choose where the persistent Scorch burns."
+            _show_primary("Scorch zone:")
+            _add_option(primary_select, "Enemy Lord zone", "Lord")
+            if opponent_ref != null and not opponent_ref.castles.is_empty():
+                _add_option(primary_select, "Enemy Castle zone", "Castle")
+            confirm_button.visible = true
+            confirm_button.text = "PLACE SCORCH"
 
         "VULTURE_RECON":
             _show_primary("Scout enemy Guards:")
@@ -745,6 +780,48 @@ func _configure_stage() -> void:
             pass_button.text = "DO NOT INTERFERE"
             if not selected_action.is_empty():
                 _refresh_action_targets()
+
+        "RESOLUTION_VALAK_PROJECTION":
+            # VALAK_PROJECTION_UI2_DEAD_END_FIX_V1_1
+            phase_label.text = (
+                "Spend stored Life Essence on an enemy Guard zone, "
+                + "or hold it for defense."
+            )
+            _show_primary("Projection:")
+
+            var projection_pool: int = 0
+            if player_ref != null:
+                projection_pool = int(
+                    player_ref.valak_life_essence
+                )
+
+            if opponent_ref != null:
+                if not opponent_ref.lord_guards.is_empty():
+                    for spend: int in range(
+                        1,
+                        projection_pool + 1
+                    ):
+                        _add_option(
+                            primary_select,
+                            "Lord Guards · Project %d Essence" % spend,
+                            "projection|Lord|%d" % spend
+                        )
+
+                if not opponent_ref.castle_guards.is_empty():
+                    for spend: int in range(
+                        1,
+                        projection_pool + 1
+                    ):
+                        _add_option(
+                            primary_select,
+                            "Castle Guards · Project %d Essence" % spend,
+                            "projection|Castle|%d" % spend
+                        )
+
+            confirm_button.visible = true
+            confirm_button.text = "PROJECT ESSENCE"
+            pass_button.visible = true
+            pass_button.text = "HOLD ESSENCE"
 
         "RESOLUTION_GREMORY":
             phase_label.text = "Pay exactly two Hand/Garrison cards, or pass."
@@ -1812,6 +1889,10 @@ func _refresh_confirm_state() -> void:
 
     confirm_button.disabled = false
 
+    if stage_key == "RESOLUTION_VALAK_PROJECTION":
+        confirm_button.disabled = get_primary_value().is_empty()
+        return
+
     if stage_key == "COMMITMENT":
         if selected_action.is_empty():
             confirm_button.disabled = true
@@ -1927,6 +2008,8 @@ func _refresh_confirm_state() -> void:
         confirm_button.disabled = get_primary_value().is_empty() or get_secondary_value().is_empty() or get_aux_selected_values().size() != 1
     elif stage_key == "KANIFOUS_WRIGHT":
         confirm_button.disabled = get_aux_selected_values().size() > 2
+    elif stage_key == "KALLIGAN_SCORCH":
+        confirm_button.disabled = get_primary_value().is_empty()
     elif stage_key == "VULTURE_RECON":
         confirm_button.disabled = get_primary_value().is_empty()
     elif stage_key == "RESOLUTION_HUMBABA_TOLL":
@@ -2002,6 +2085,8 @@ func _phase_copy(stage_name: String) -> String:
             return "Invoke one revealed card and pay the Hand toll."
         "KANIFOUS_WRIGHT":
             return "Move up to two Lord Guards to the Castle zone."
+        "KALLIGAN_SCORCH":
+            return "Kalligan has created Scorch. Choose the enemy Lord or Castle zone before play continues."
         "VULTURE_RECON":
             return "Scout one enemy Guard zone before the clash."
         "REVEALED":
@@ -2021,6 +2106,12 @@ func _phase_copy(stage_name: String) -> String:
             return "Take the extra Momentum action, or pass."
         "RESOLUTION_ODRADEK_BREACH":
             return "Predict and steal the opponent's extra action, or pass."
+        "RESOLUTION_VALAK_PROJECTION":
+            return (
+                "Spend 1–5 stored Life Essence on the enemy Lord or Castle "
+                + "Guard zone. Equality defeats; a miss still spends the "
+                + "Essence. Hold to preserve it for defense."
+            )
         "RESOLUTION_GREMORY":
             return "Pay for Inevitable Ruin, or pass."
         "TERMINAL":
@@ -2033,3 +2124,12 @@ func _phase_copy(stage_name: String) -> String:
 
 func _friendly_phase_name(raw_stage: String) -> String:
     return raw_stage.replace("_", " ").capitalize()
+
+
+# UI2_COMMITMENT_DIALOG_CLEANUP_V14_1
+func _reset_dialog_scroll_top_v14() -> void:
+    var scroll := get_node_or_null("ActionScroll") as ScrollContainer
+    if scroll == null:
+        return
+
+    scroll.scroll_vertical = 0

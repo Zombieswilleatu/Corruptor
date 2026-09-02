@@ -6,6 +6,16 @@
 class_name UI2PlayerBoard
 # UI2_CASTLE_GUARD_COMPRESSION_V1
 extends HBoxContainer
+# UI2_SHARED_DOMAIN1_V1
+const UI2_SHARED_DOMAIN_TEXTURE: Texture2D = preload(
+	"res://ConceptImages/Menus/Domain1.png"
+)
+const UI2_SHARED_DOMAIN_ALPHA: float = 1.0
+const UI2_SHARED_DOMAIN_ENEMY_TOP: float = 0.0
+const UI2_SHARED_DOMAIN_ENEMY_BOTTOM: float = 0.5
+const UI2_SHARED_DOMAIN_PLAYER_TOP: float = 0.5
+const UI2_SHARED_DOMAIN_PLAYER_BOTTOM: float = 1.0
+
 
 
 const LordCardData = preload(
@@ -84,6 +94,8 @@ var _preview_click_tokens: Dictionary = {}
 
 
 func _ready() -> void:
+	# UI2_DOMAIN1_CLEAR_SECTION_BACKGROUNDS_V1
+	call_deferred("_apply_domain1_clear_section_backgrounds_v1")
 	custom_minimum_size = Vector2(
 		930,
 		300
@@ -2452,3 +2464,88 @@ func _clear_children(
 			child
 		)
 		child.queue_free()
+
+
+func _domain_uv_bounds_v1() -> Vector2:
+	var n := name.to_lower()
+
+	if n.find("enemy") != -1 or n.find("bot") != -1 or n.find("top") != -1:
+		return Vector2(
+			UI2_SHARED_DOMAIN_ENEMY_TOP,
+			UI2_SHARED_DOMAIN_ENEMY_BOTTOM
+		)
+
+	if n.find("human") != -1 or n.find("player") != -1 or n.find("bottom") != -1:
+		return Vector2(
+			UI2_SHARED_DOMAIN_PLAYER_TOP,
+			UI2_SHARED_DOMAIN_PLAYER_BOTTOM
+		)
+
+	# Fallback if the board is renamed in the future.
+	# Better to show the whole place than fail invisible.
+	return Vector2(0.0, 1.0)
+
+
+func _draw() -> void:
+	if UI2_SHARED_DOMAIN_TEXTURE == null:
+		return
+
+	if size.x <= 0.0 or size.y <= 0.0:
+		return
+
+	var texture_size: Vector2 = UI2_SHARED_DOMAIN_TEXTURE.get_size()
+	if texture_size.x <= 0.0 or texture_size.y <= 0.0:
+		return
+
+	var uv: Vector2 = _domain_uv_bounds_v1()
+	var top_v: float = clampf(uv.x, 0.0, 1.0)
+	var bottom_v: float = clampf(uv.y, top_v + 0.001, 1.0)
+
+	var source := Rect2(
+		0.0,
+		texture_size.y * top_v,
+		texture_size.x,
+		texture_size.y * (bottom_v - top_v)
+	)
+
+	draw_texture_rect_region(
+		UI2_SHARED_DOMAIN_TEXTURE,
+		Rect2(Vector2.ZERO, size),
+		source,
+		Color(1.0, 1.0, 1.0, UI2_SHARED_DOMAIN_ALPHA),
+		false,
+		true
+	)
+
+
+func _apply_domain1_clear_section_backgrounds_v1() -> void:
+	_make_domain1_major_panel_transparent_v1(lord_group)
+	_make_domain1_major_panel_transparent_v1(lord_guard_group)
+	_make_domain1_major_panel_transparent_v1(castle_group)
+
+
+func _make_domain1_major_panel_transparent_v1(
+	panel: PanelContainer
+) -> void:
+	if panel == null:
+		return
+
+	var current_style: StyleBox = panel.get_theme_stylebox("panel")
+
+	if current_style is StyleBoxFlat:
+		var transparent_style := current_style.duplicate() as StyleBoxFlat
+		var background := transparent_style.bg_color
+		background.a = 0.0
+		transparent_style.bg_color = background
+		panel.add_theme_stylebox_override(
+			"panel",
+			transparent_style
+		)
+		return
+
+	# Defensive fallback: the major section should never need to paint an
+	# opaque rectangle over Domain1. Child cards and slots keep their own styles.
+	panel.add_theme_stylebox_override(
+		"panel",
+		StyleBoxEmpty.new()
+	)

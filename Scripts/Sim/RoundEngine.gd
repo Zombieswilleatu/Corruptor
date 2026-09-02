@@ -727,16 +727,9 @@ static func _resolve_castle_integrity_action(
 			rules.construction_action_cap
 		)
 
-		if (
-			construction_cap > 0
-			and paid_total > construction_cap
-		):
-			return _invalid_castle_action_result(
-				player_id,
-				castle_name,
-				"construction_payment_exceeds_cap"
-			)
-
+		# CONSTRUCTION_OVERSPEND_ALLOWED_V1
+		# Payment may exceed the per-action progress cap. Excess value is
+		# consumed but yields no additional construction progress.
 		return _resolve_integrity_construction(
 			game,
 			player,
@@ -982,8 +975,10 @@ static func _resolve_integrity_repair(
 		player.kalligan_repair_used = true
 		var opponent = game.get_opponent(player_id)
 		if opponent != null:
-			game.persist_scorch_pid = int(opponent.pid)
-			game.persist_scorch_type = "Lord"
+			_set_kalligan_repair_scorch(
+				game,
+				opponent
+			)
 
 	game.refresh_derived_values()
 
@@ -1079,6 +1074,19 @@ static func _resolve_integrity_construction(
 		"paid_cards": _card_ids(selected_cards),
 		"used_token": false,
 	}
+
+
+static func _set_kalligan_repair_scorch(
+	game: GameState,
+	opponent
+) -> void:
+	# Bot/legacy Repair keeps the historical Lord-zone default.
+	# The playable human controller applies the explicitly chosen zone
+	# immediately after the committed Repair succeeds.
+	game.persist_scorch_pid = int(
+		opponent.pid
+	)
+	game.persist_scorch_type = "Lord"
 
 
 static func _consume_castle_payment(

@@ -67,6 +67,12 @@ const MarchingEngineData = preload(
 	"res://Scripts/Sim/MarchingEngine.gd"
 )
 
+# UI2_LORD_PANEL_SKIN_V1_2
+const UI2_LORD_PANEL_PATH: String = (
+	"res://ConceptImages/Menus/LordPanel.png"
+)
+var _ui2_lord_panel_texture_v1_2: Texture2D = null
+
 const PlayerPuckData = preload(
 	"res://Prototype/UI2/PlayerPuck.gd"
 )
@@ -179,6 +185,7 @@ var resolution_theater = null
 var _ui2_aftermath_human_souls_before: int = 0
 var _ui2_aftermath_bot_souls_before: int = 0
 var _ui2_aftermath_baseline_ready: bool = false
+var _snapshot_round_recaps: Array[Dictionary] = []
 var _ui2_aftermath_showing: bool = false
 # UI2_COMMITMENT_DOUBLE_CLICK_ALL_IN_V1
 var tutorial_panel: PanelContainer = null
@@ -715,6 +722,11 @@ func _build_shell() -> void:
 		)
 	)
 	top.add_child(enemy_summary)
+	_install_lord_panel_skin_v1_2(
+		enemy_summary,
+		Color(1.0, 0.72, 0.72, 1.0),
+		"EnemyLordPanelArtV1"
+	)
 
 	enemy_puck = PlayerPuckData.new()
 	enemy_puck.name = "EnemyPuck"
@@ -740,6 +752,20 @@ func _build_shell() -> void:
 	veil_track.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(veil_track)
 
+	# UI2_TOP_BANNER_CHILD_SKIN_V3
+	# Decorative background only; VeilTrack remains the live owner of all text/pips.
+	var veil_banner_art := TextureRect.new()
+	veil_banner_art.name = "TopBannerArt"
+	veil_banner_art.texture = load(
+		"res://ConceptImages/Menus/TopBanner.png"
+	) as Texture2D
+	veil_banner_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	veil_banner_art.stretch_mode = TextureRect.STRETCH_SCALE
+	veil_banner_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	veil_banner_art.modulate = Color(1.0, 1.0, 1.0, 0.92)
+	veil_track.add_child(veil_banner_art)
+	veil_track.move_child(veil_banner_art, 0)
+
 	breach_slot = BreachSlotData.new()
 	breach_slot.name = "BreachSlot"
 	top.add_child(breach_slot)
@@ -753,6 +779,11 @@ func _build_shell() -> void:
 		)
 	)
 	top.add_child(human_summary)
+	_install_lord_panel_skin_v1_2(
+		human_summary,
+		Color(0.72, 0.84, 1.0, 1.0),
+		"HumanLordPanelArtV1"
+	)
 
 	human_puck = PlayerPuckData.new()
 	human_puck.name = "HumanPuck"
@@ -1443,6 +1474,10 @@ func _public_phase_text() -> String:
 
 	var current_stage = controller.stage
 
+	# VALAK_PROJECTION_UI2_DEAD_END_FIX_V1_1
+	if current_stage == PlayableRoundControllerData.Stage.RESOLUTION_VALAK_PROJECTION:
+		return "RESOLUTION"
+
 	if current_stage in [
 		PlayableRoundControllerData.Stage.DEVELOPMENT_SNARE,
 		PlayableRoundControllerData.Stage.MARKET,
@@ -1727,6 +1762,11 @@ func _on_ui2_confirm_requested() -> void:
 				return
 			result = controller.resolve_human_kanifous_wright(guard_indices)
 
+		PlayableRoundControllerData.Stage.KALLIGAN_SCORCH:
+			result = controller.resolve_human_kalligan_scorch(
+				action_zone.get_primary_value()
+			)
+
 		PlayableRoundControllerData.Stage.VULTURE_RECON:
 			result = controller.resolve_human_vulture_recon(
 				action_zone.get_primary_value()
@@ -1771,6 +1811,35 @@ func _on_ui2_confirm_requested() -> void:
 				"guess": action_zone.get_primary_value(),
 				"stolen_action": _build_ui2_reflex_decision(true),
 			})
+
+		PlayableRoundControllerData.Stage.RESOLUTION_VALAK_PROJECTION:
+			# VALAK_PROJECTION_UI2_DEAD_END_FIX_V1_1
+			var projection_value: String = action_zone.get_primary_value()
+			var projection_parts: PackedStringArray = projection_value.split("|")
+
+			if (
+				projection_parts.size() != 3
+				or String(projection_parts[0]) != "projection"
+			):
+				action_zone.set_status(
+					"Choose a Projection zone and Essence spend."
+				)
+				return
+
+			var projection_zone: String = String(projection_parts[1])
+			var projection_spend: int = int(projection_parts[2])
+
+			if (
+				projection_zone not in ["Lord", "Castle"]
+				or projection_spend <= 0
+			):
+				action_zone.set_status("Choose a valid Projection option.")
+				return
+
+			result = controller.resolve_human_valak_projection(
+				projection_zone,
+				projection_spend
+			)
 
 		PlayableRoundControllerData.Stage.RESOLUTION_GREMORY:
 			result = controller.resolve_human_gremory(
@@ -2018,6 +2087,11 @@ func _on_ui2_pass_requested() -> void:
 			result = controller.resolve_human_reflex({"pass": true})
 		PlayableRoundControllerData.Stage.RESOLUTION_ODRADEK_BREACH:
 			result = controller.resolve_human_odradek_breach({"guess": ""})
+		PlayableRoundControllerData.Stage.RESOLUTION_VALAK_PROJECTION:
+			result = controller.resolve_human_valak_projection(
+				"",
+				0
+			)
 		PlayableRoundControllerData.Stage.RESOLUTION_GREMORY:
 			var no_cards: Array[String] = []
 			result = controller.resolve_human_gremory(no_cards)
@@ -2084,8 +2158,17 @@ func _tutorial_text(stage_name: String) -> String:
 			return "TUTORIAL · MOMENTUM / REFLEX — The extra-action winner may take a Hunt, Siege, or Ward using a fresh Hand commitment, or pass. This action happens after the primary sealed orders."
 		"RESOLUTION_ODRADEK_BREACH":
 			return "TUTORIAL · ODRADEK BREACH — Predict the opponent's extra action, then choose the action Odradek would steal if the prediction is correct. Passing declines the interference."
+		"RESOLUTION_VALAK_PROJECTION":
+			return (
+				"TUTORIAL · VALAK · PROJECTION — Once after primary and Reflex "
+				+ "combat, spend 1–5 stored Life Essence on the enemy Lord or "
+				+ "Castle Guard zone, or HOLD ESSENCE for defense. Projection "
+				+ "defeats the highest Guard whose printed value is at or below "
+				+ "the amount spent. Equality defeats; a miss still spends the "
+				+ "Essence. Projection kills do not generate Life Essence."
+			)
 		"RESOLUTION_GREMORY":
-			return "TUTORIAL · GREMORY · INEVITABLE RUIN — After a qualifying Siege leaves a Castle standing, Gremory may pay exactly two Hand/Garrison cards to finish the ruin. Pass to keep the cards."
+			return "TUTORIAL · GREMORY · INEVITABLE RUIN — At End of Round, after Gremory's Siege deals Integrity damage to an Operational Castle and leaves it standing, discard exactly two Hand/Garrison cards totaling face value 5+ to set it to Defunct (6 Integrity). It is not Ruined. Pass to keep the cards."
 		"TERMINAL":
 			return "TUTORIAL · MATCH COMPLETE — A win condition has been reached. The Activity rail preserves the final sequence; use DEV / restart when you want another seed or matchup."
 		"INVALID":
@@ -2826,6 +2909,7 @@ func _play_ui2_completed_aftermath() -> void:
 
 	var context: Dictionary = _ui2_aftermath_context()
 	context["round_complete"] = true
+	_record_snapshot_round_recap(context)
 	resolution_theater.set_aftermath_context(context)
 
 	# UI2_THEATER_PROMPT_VESSEL_TRUTH_V1
@@ -2862,6 +2946,778 @@ func _play_ui2_completed_aftermath() -> void:
 			controller,
 			_stage_text()
 		)
+
+# PLAYABLE_SNAPSHOT_COMPACT_ROUND_RECAP_V1
+# PLAYABLE_SNAPSHOT_DEFENSE_AUDIT_V2
+func _record_snapshot_round_recap(
+	context: Dictionary
+) -> void:
+	if controller == null or controller.game == null:
+		return
+
+	var round_number: int = int(controller.game.round)
+
+	for raw_existing in _snapshot_round_recaps:
+		if (
+			typeof(raw_existing) == TYPE_DICTIONARY
+			and int(raw_existing.get("round", -1)) == round_number
+		):
+			return
+
+	var human = controller.get_human_player()
+	var bot = controller.get_bot_player()
+
+	if human == null or bot == null:
+		return
+
+	var human_commitment: int = _snapshot_round_commitment(0)
+	var bot_commitment: int = _snapshot_round_commitment(1)
+
+	var human_before: int = int(
+		context.get("human_souls_before", int(human.souls))
+	)
+	var human_after: int = int(
+		context.get("human_souls_after", int(human.souls))
+	)
+	var bot_before: int = int(
+		context.get("bot_souls_before", int(bot.souls))
+	)
+	var bot_after: int = int(
+		context.get("bot_souls_after", int(bot.souls))
+	)
+
+	var human_row: Dictionary = {
+		"lord": String(context.get("player_lord", human.lord)),
+		"action": String(context.get("player_action", human.action)),
+		"target": String(context.get("player_target", "")),
+		"commitment": human_commitment,
+		"outcome": String(context.get("player_outcome", "")),
+	}
+
+	var bot_row: Dictionary = {
+		"lord": String(context.get("enemy_lord", bot.lord)),
+		"action": String(context.get("enemy_action", bot.action)),
+		"target": String(context.get("enemy_target", "")),
+		"commitment": bot_commitment,
+		"outcome": String(context.get("enemy_outcome", "")),
+	}
+
+	var human_state: Dictionary = _snapshot_round_player_state(human)
+	var bot_state: Dictionary = _snapshot_round_player_state(bot)
+
+	var previous_human: Dictionary = {}
+	var previous_bot: Dictionary = {}
+
+	if not _snapshot_round_recaps.is_empty():
+		var previous_raw = _snapshot_round_recaps[
+			_snapshot_round_recaps.size() - 1
+		]
+
+		if typeof(previous_raw) == TYPE_DICTIONARY:
+			var previous: Dictionary = previous_raw
+			var previous_end_raw = previous.get("end_state", {})
+
+			if typeof(previous_end_raw) == TYPE_DICTIONARY:
+				var previous_end: Dictionary = previous_end_raw
+				var old_human = previous_end.get("human", {})
+				var old_bot = previous_end.get("bot", {})
+
+				if typeof(old_human) == TYPE_DICTIONARY:
+					previous_human = old_human
+
+				if typeof(old_bot) == TYPE_DICTIONARY:
+					previous_bot = old_bot
+
+	var recap: Dictionary = {
+		"round": round_number,
+		"human": human_row,
+		"bot": bot_row,
+		"souls": {
+			"human_before": human_before,
+			"human_after": human_after,
+			"human_delta": human_after - human_before,
+			"bot_before": bot_before,
+			"bot_after": bot_after,
+			"bot_delta": bot_after - bot_before,
+		},
+		"defense_audit": {
+			"human": _snapshot_round_defense_audit(
+				0,
+				String(human_row.get("action", "")),
+				human_commitment,
+				previous_human,
+				human_state
+			),
+			"bot": _snapshot_round_defense_audit(
+				1,
+				String(bot_row.get("action", "")),
+				bot_commitment,
+				previous_bot,
+				bot_state
+			),
+		},
+		"notable": _snapshot_round_notables(human, bot),
+		"end_state": {
+			"human": human_state,
+			"bot": bot_state,
+		},
+	}
+
+	recap["summary"] = _snapshot_round_summary(
+		human_row,
+		bot_row,
+		human_before,
+		human_after,
+		bot_before,
+		bot_after
+	)
+
+	_snapshot_round_recaps.append(recap)
+
+
+func _snapshot_round_commitment(
+	player_id: int
+) -> int:
+	if controller == null:
+		return 0
+
+	var commitment_raw = controller.phase_results.get(
+		"commitment",
+		{}
+	)
+
+	if typeof(commitment_raw) != TYPE_DICTIONARY:
+		return 0
+
+	var commitment: Dictionary = commitment_raw
+	var result_raw = commitment.get("result", {})
+
+	if typeof(result_raw) != TYPE_DICTIONARY:
+		return 0
+
+	var result: Dictionary = result_raw
+	var players = result.get("players", [])
+
+	if typeof(players) != TYPE_ARRAY:
+		return 0
+
+	for raw_player in players:
+		if typeof(raw_player) != TYPE_DICTIONARY:
+			continue
+
+		var player_row: Dictionary = raw_player
+
+		if int(player_row.get("player_id", -1)) == player_id:
+			return int(player_row.get("committed_value", 0))
+
+	return 0
+
+
+# PLAYABLE_SNAPSHOT_DEFENSE_AUDIT_V2
+func _snapshot_round_defense_audit(
+	player_id: int,
+	action_name: String,
+	commitment_value: int,
+	previous_state: Dictionary,
+	current_state: Dictionary
+) -> Dictionary:
+	var committed_cards: int = 0
+	var lord_guard_cards: int = 0
+	var lord_guard_value: int = 0
+	var castle_guard_cards: int = 0
+	var castle_guard_value: int = 0
+	var repair_cards: int = 0
+	var repair_value: int = 0
+	var construction_cards: int = 0
+	var construction_value: int = 0
+
+	var commitment_raw = controller.phase_results.get("commitment", {})
+
+	if typeof(commitment_raw) == TYPE_DICTIONARY:
+		var commitment: Dictionary = commitment_raw
+		var result_raw = commitment.get("result", {})
+
+		if typeof(result_raw) == TYPE_DICTIONARY:
+			var result: Dictionary = result_raw
+			var players = result.get("players", [])
+
+			if typeof(players) == TYPE_ARRAY:
+				for raw_player in players:
+					if typeof(raw_player) != TYPE_DICTIONARY:
+						continue
+
+					var player_row: Dictionary = raw_player
+
+					if int(
+						player_row.get("player_id", -1)
+					) != player_id:
+						continue
+
+					var cards = player_row.get("committed_cards", [])
+
+					if typeof(cards) == TYPE_ARRAY:
+						committed_cards = cards.size()
+
+					break
+
+	var deploy_raw = controller.phase_results.get("deploy", {})
+
+	if typeof(deploy_raw) == TYPE_DICTIONARY:
+		var deploy: Dictionary = deploy_raw
+		var results = deploy.get("results", [])
+
+		if typeof(results) == TYPE_ARRAY:
+			for raw_result in results:
+				if typeof(raw_result) != TYPE_DICTIONARY:
+					continue
+
+				var deploy_result: Dictionary = raw_result
+
+				if int(
+					deploy_result.get("player_id", -1)
+				) != player_id:
+					continue
+
+				var moves = deploy_result.get("moves", [])
+
+				if typeof(moves) != TYPE_ARRAY:
+					continue
+
+				for raw_move in moves:
+					if typeof(raw_move) != TYPE_DICTIONARY:
+						continue
+
+					var move: Dictionary = raw_move
+					var face_value: int = _snapshot_card_face_value(
+						String(move.get("card", ""))
+					)
+					var target: String = String(
+						move.get("target", "")
+					)
+
+					if target == "Lord":
+						lord_guard_cards += 1
+						lord_guard_value += face_value
+					elif target == "Castle":
+						castle_guard_cards += 1
+						castle_guard_value += face_value
+
+	var repair_raw = controller.phase_results.get("repair", {})
+
+	if typeof(repair_raw) == TYPE_DICTIONARY:
+		var repair: Dictionary = repair_raw
+		var results = repair.get("results", [])
+
+		if typeof(results) == TYPE_ARRAY:
+			for raw_result in results:
+				if typeof(raw_result) != TYPE_DICTIONARY:
+					continue
+
+				var dev_result: Dictionary = raw_result
+
+				if int(
+					dev_result.get("player_id", -1)
+				) != player_id:
+					continue
+
+				var paid_cards = dev_result.get("paid_cards", [])
+				var paid_count: int = 0
+
+				if typeof(paid_cards) == TYPE_ARRAY:
+					paid_count = paid_cards.size()
+
+				var paid_value: int = int(
+					dev_result.get("paid_total", 0)
+				)
+				var dev_action: String = String(
+					dev_result.get("action", "")
+				)
+
+				if dev_action == "repair":
+					repair_cards += paid_count
+					repair_value += paid_value
+				elif dev_action == "construct":
+					construction_cards += paid_count
+					construction_value += paid_value
+
+	var ward: Dictionary = {
+		"attempted": action_name == "Ward",
+		"warded": false,
+		"turned": false,
+		"zone": "",
+		"own_commitment": 0,
+		"opposing_commitment": 0,
+		"refunded_card": "",
+	}
+
+	var reveal_raw = controller.phase_results.get("reveal", {})
+
+	if typeof(reveal_raw) == TYPE_DICTIONARY:
+		var reveal: Dictionary = reveal_raw
+		var reveal_players = reveal.get("players", [])
+
+		if typeof(reveal_players) == TYPE_ARRAY:
+			for raw_player in reveal_players:
+				if typeof(raw_player) != TYPE_DICTIONARY:
+					continue
+
+				var reveal_player: Dictionary = raw_player
+
+				if int(
+					reveal_player.get("player_id", -1)
+				) != player_id:
+					continue
+
+				var ward_raw = reveal_player.get("ward", {})
+
+				if typeof(ward_raw) == TYPE_DICTIONARY:
+					var ward_result: Dictionary = ward_raw
+					ward["warded"] = bool(
+						ward_result.get("warded", false)
+					)
+					ward["turned"] = bool(
+						ward_result.get("turned", false)
+					)
+					ward["zone"] = String(
+						ward_result.get("zone", "")
+					)
+					ward["own_commitment"] = int(
+						ward_result.get(
+							"own_committed_value",
+							0
+						)
+					)
+					ward["opposing_commitment"] = int(
+						ward_result.get(
+							"opposing_committed_value",
+							0
+						)
+					)
+					ward["refunded_card"] = String(
+						ward_result.get("refunded_card", "")
+					)
+
+				break
+
+	var generated: Dictionary = _snapshot_round_pressure_summary(
+		player_id,
+		true
+	)
+	var received: Dictionary = _snapshot_round_pressure_summary(
+		player_id,
+		false
+	)
+
+	var board_delta: Dictionary = {
+		"available": not previous_state.is_empty(),
+	}
+
+	if not previous_state.is_empty():
+		board_delta["hand_count"] = int(
+			current_state.get("hand_count", 0)
+		) - int(previous_state.get("hand_count", 0))
+		board_delta["garrison_count"] = int(
+			current_state.get("garrison_count", 0)
+		) - int(previous_state.get("garrison_count", 0))
+		board_delta["lord_guard_count"] = int(
+			current_state.get("lord_guard_count", 0)
+		) - int(previous_state.get("lord_guard_count", 0))
+		board_delta["castle_guard_count"] = int(
+			current_state.get("castle_guard_count", 0)
+		) - int(previous_state.get("castle_guard_count", 0))
+		board_delta["active_castles"] = int(
+			current_state.get("active_castle_count", 0)
+		) - int(previous_state.get("active_castle_count", 0))
+		board_delta["castle_integrity_total"] = int(
+			current_state.get("castle_integrity_total", 0)
+		) - int(
+			previous_state.get("castle_integrity_total", 0)
+		)
+		board_delta["alive_changed"] = (
+			bool(current_state.get("alive", false))
+			!= bool(previous_state.get("alive", false))
+		)
+
+	var ward_commitment: int = 0
+	var offensive_commitment: int = 0
+
+	if action_name == "Ward":
+		ward_commitment = commitment_value
+	elif action_name in ["Hunt", "Siege", "Profane"]:
+		offensive_commitment = commitment_value
+
+	return {
+		"action_commitment": commitment_value,
+		"committed_card_count": committed_cards,
+		"offensive_commitment": offensive_commitment,
+		"ward_commitment": ward_commitment,
+		"guard_deploy": {
+			"lord_cards": lord_guard_cards,
+			"lord_face_value": lord_guard_value,
+			"castle_cards": castle_guard_cards,
+			"castle_face_value": castle_guard_value,
+			"total_cards": lord_guard_cards + castle_guard_cards,
+			"total_face_value": lord_guard_value + castle_guard_value,
+		},
+		"repair": {
+			"cards_paid": repair_cards,
+			"value_paid": repair_value,
+		},
+		"construction": {
+			"cards_paid": construction_cards,
+			"value_paid": construction_value,
+		},
+		# A diagnostic comparison number only, not a rules currency.
+		"defense_proxy_value": (
+			ward_commitment
+			+ lord_guard_value
+			+ castle_guard_value
+			+ repair_value
+		),
+		"ward": ward,
+		"pressure_generated": generated,
+		"pressure_received": received,
+		"board_delta": board_delta,
+	}
+
+
+func _snapshot_round_pressure_summary(
+	player_id: int,
+	as_attacker: bool
+) -> Dictionary:
+	var summary: Dictionary = {
+		"resolved_actions": 0,
+		"successful_actions": 0,
+		"guards_defeated": 0,
+		"castle_integrity_damage": 0,
+		"castles_destroyed": 0,
+		"lord_banished": false,
+		"reported_soul_gain": 0,
+	}
+
+	var phase_raw = controller.phase_results.get("resolution", {})
+
+	if typeof(phase_raw) != TYPE_DICTIONARY:
+		return summary
+
+	var phase: Dictionary = phase_raw
+	var result_raw = phase.get("result", {})
+
+	if typeof(result_raw) != TYPE_DICTIONARY:
+		return summary
+
+	var result: Dictionary = result_raw
+	var action_events = result.get("action_events", [])
+
+	if typeof(action_events) != TYPE_ARRAY:
+		return summary
+
+	for raw_event in action_events:
+		if typeof(raw_event) != TYPE_DICTIONARY:
+			continue
+
+		var event: Dictionary = raw_event
+		var action_raw = event.get("action_result", {})
+
+		if typeof(action_raw) != TYPE_DICTIONARY:
+			continue
+
+		var action_result: Dictionary = action_raw
+		var matched: bool = false
+
+		if as_attacker:
+			matched = (
+				int(action_result.get("attacker_id", -1))
+				== player_id
+			)
+		else:
+			matched = (
+				int(action_result.get("defender_id", -1))
+				== player_id
+			)
+
+		if not matched:
+			continue
+
+		summary["resolved_actions"] = (
+			int(summary["resolved_actions"]) + 1
+		)
+
+		if bool(action_result.get("won", false)):
+			summary["successful_actions"] = (
+				int(summary["successful_actions"]) + 1
+			)
+
+		var guards = action_result.get("guards_defeated", [])
+
+		if typeof(guards) == TYPE_ARRAY:
+			summary["guards_defeated"] = (
+				int(summary["guards_defeated"]) + guards.size()
+			)
+
+		var resolved_action: String = String(
+			action_result.get("action", "")
+		)
+
+		if resolved_action == "siege":
+			summary["castle_integrity_damage"] = (
+				int(summary["castle_integrity_damage"])
+				+ int(action_result.get("structure_damage", 0))
+			)
+
+			if bool(
+				action_result.get("target_destroyed", false)
+			):
+				summary["castles_destroyed"] = (
+					int(summary["castles_destroyed"]) + 1
+				)
+
+		elif resolved_action == "hunt":
+			summary["castle_integrity_damage"] = (
+				int(summary["castle_integrity_damage"])
+				+ int(action_result.get("keep_damage", 0))
+			)
+
+			if bool(action_result.get("banished", false)):
+				summary["lord_banished"] = true
+
+		summary["reported_soul_gain"] = (
+			int(summary["reported_soul_gain"])
+			+ int(action_result.get("soul_gain", 0))
+		)
+
+	return summary
+
+
+func _snapshot_card_face_value(
+	card_id: String
+) -> int:
+	if card_id.is_empty():
+		return 0
+
+	var parts: PackedStringArray = card_id.split(":")
+
+	if parts.size() < 2:
+		return 0
+
+	return int(parts[parts.size() - 1])
+
+
+func _snapshot_round_player_state(
+	player
+) -> Dictionary:
+	var integrity_total: int = 0
+
+	for raw_value in player.castle_integrity.values():
+		integrity_total += int(raw_value)
+
+	return {
+		"lord": String(player.lord),
+		"alive": bool(player.alive),
+		"souls": int(player.souls),
+		"tears": int(player.tears),
+		"threat": int(player.threat),
+		"hand_count": player.hand.size(),
+		"garrison_count": player.garrison.size(),
+		"lord_guard_count": player.lord_guards.size(),
+		"castle_guard_count": player.castle_guards.size(),
+		"active_castle_count": player.castles.size(),
+		"castle_integrity_total": integrity_total,
+		"castles": _snapshot_round_string_array(player.castles),
+		"ruined_castles": _snapshot_round_string_array(
+			player.ruined_castles
+		),
+		"profaned_castles": _snapshot_round_string_array(
+			player.profaned_castles
+		),
+		"castle_integrity": player.castle_integrity.duplicate(true),
+		"vacant_throne_rounds": int(player.vacant_throne_rounds),
+	}
+
+
+func _snapshot_round_string_array(
+	values
+) -> Array[String]:
+	var result: Array[String] = []
+
+	if typeof(
+		values
+	) != TYPE_ARRAY:
+		return result
+
+	for raw_value in values:
+		result.append(
+			String(
+				raw_value
+			)
+		)
+
+	result.sort()
+
+	return result
+
+
+func _snapshot_round_notables(
+	human,
+	bot
+) -> Array[String]:
+	var result: Array[String] = []
+
+	for player in [
+		human,
+		bot,
+	]:
+		var lord_name: String = String(
+			player.lord
+		)
+
+		if not bool(
+			player.alive
+		):
+			result.append(
+				"%s has no living Lord."
+				% lord_name
+			)
+
+		if (
+			player.castles.is_empty()
+			and not player.castle_guards.is_empty()
+		):
+			result.append(
+				(
+					"%s ended with 0 Castles but %d Castle Guard(s)."
+					% [
+						lord_name,
+						player.castle_guards.size(),
+					]
+				)
+			)
+
+		if int(
+			player.vacant_throne_rounds
+		) > 0:
+			result.append(
+				(
+					"%s Vacant Throne count: %d."
+					% [
+						lord_name,
+						int(
+							player.vacant_throne_rounds
+						),
+					]
+				)
+			)
+
+	if (
+		controller != null
+		and controller.game != null
+		and int(
+			controller.game.winner
+		) >= 0
+	):
+		var winner = controller.game.get_player(
+			int(
+				controller.game.winner
+			)
+		)
+
+		result.append(
+			(
+				"Match ended: %s by %s."
+				% [
+					String(
+						winner.lord
+					)
+					if winner != null
+					else "unknown",
+					String(
+						controller.game.win_by
+					),
+				]
+			)
+		)
+
+	return result
+
+
+func _snapshot_round_summary(
+	human_row: Dictionary,
+	bot_row: Dictionary,
+	human_before: int,
+	human_after: int,
+	bot_before: int,
+	bot_after: int
+) -> String:
+	return (
+		"%s %s %d → %s — %s | %s %s %d → %s — %s | Souls %d→%d / %d→%d"
+		% [
+			String(
+				human_row.get(
+					"lord",
+					"Human"
+				)
+			),
+			String(
+				human_row.get(
+					"action",
+					""
+				)
+			),
+			int(
+				human_row.get(
+					"commitment",
+					0
+				)
+			),
+			String(
+				human_row.get(
+					"target",
+					""
+				)
+			),
+			String(
+				human_row.get(
+					"outcome",
+					""
+				)
+			),
+			String(
+				bot_row.get(
+					"lord",
+					"Bot"
+				)
+			),
+			String(
+				bot_row.get(
+					"action",
+					""
+				)
+			),
+			int(
+				bot_row.get(
+					"commitment",
+					0
+				)
+			),
+			String(
+				bot_row.get(
+					"target",
+					""
+				)
+			),
+			String(
+				bot_row.get(
+					"outcome",
+					""
+				)
+			),
+			human_before,
+			human_after,
+			bot_before,
+			bot_after,
+		]
+	)
+
 
 func _capture_ui2_aftermath_baseline() -> void:
 	if controller == null or controller.game == null:
@@ -3750,7 +4606,8 @@ func _on_dev_export_snapshot_requested() -> void:
 			controller,
 			active_match_seed,
 			_snapshot_stage_name(),
-			_snapshot_ui_context()
+			_snapshot_ui_context(),
+			_snapshot_round_recaps
 		)
 	)
 
@@ -3777,6 +4634,8 @@ func _on_dev_start_requested(
 	bot_lord: String,
 	seed_value: int
 ) -> void:
+	_snapshot_round_recaps.clear()
+
 	active_human_lord = human_lord
 	active_bot_lord = bot_lord
 	active_match_seed = seed_value
@@ -3847,3 +4706,105 @@ func _build_ui2_commitment_decision() -> Dictionary:
 func _on_console_pressed() -> void:
 	if console_overlay != null:
 		console_overlay.show_console()
+
+
+# UI2_LORD_PANEL_SKIN_V1_2
+func _lord_panel_texture_v1_2() -> Texture2D:
+	if _ui2_lord_panel_texture_v1_2 != null:
+		return _ui2_lord_panel_texture_v1_2
+
+	var image := Image.new()
+	var load_error: Error = image.load(
+		UI2_LORD_PANEL_PATH
+	)
+
+	if load_error != OK:
+		push_warning(
+			"LordPanel v1.2: could not load %s (error %d)"
+			% [
+				UI2_LORD_PANEL_PATH,
+				int(load_error),
+			]
+		)
+		return null
+
+	if image.is_empty():
+		push_warning(
+			"LordPanel v1.2: loaded image is empty: %s"
+			% UI2_LORD_PANEL_PATH
+		)
+		return null
+
+	_ui2_lord_panel_texture_v1_2 = (
+		ImageTexture.create_from_image(image)
+	)
+
+	return _ui2_lord_panel_texture_v1_2
+
+
+func _install_lord_panel_skin_v1_2(
+	panel: PanelContainer,
+	tint: Color,
+	art_name: String
+) -> void:
+	if panel == null:
+		return
+
+	var panel_texture := _lord_panel_texture_v1_2()
+	if panel_texture == null:
+		return
+
+	# LordPanel art supplies the visible frame.
+	var transparent := StyleBoxFlat.new()
+	transparent.bg_color = Color(
+		0.0,
+		0.0,
+		0.0,
+		0.0
+	)
+	transparent.border_color = Color(
+		0.0,
+		0.0,
+		0.0,
+		0.0
+	)
+	transparent.set_border_width_all(0)
+
+	# Keep live PlayerPuck text safely inside the ornamental edge.
+	transparent.content_margin_left = 8.0
+	transparent.content_margin_right = 8.0
+	transparent.content_margin_top = 6.0
+	transparent.content_margin_bottom = 6.0
+
+	panel.add_theme_stylebox_override(
+		"panel",
+		transparent
+	)
+
+	var art := panel.get_node_or_null(
+		art_name
+	) as TextureRect
+
+	if art == null:
+		art = TextureRect.new()
+		art.name = art_name
+		art.texture = panel_texture
+		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		art.stretch_mode = TextureRect.STRETCH_SCALE
+		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		art.self_modulate = tint
+
+		panel.add_child(art)
+		panel.move_child(
+			art,
+			0
+		)
+
+	art.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
+	)
+	art.offset_left = 0.0
+	art.offset_top = 0.0
+	art.offset_right = 0.0
+	art.offset_bottom = 0.0
+	art.self_modulate = tint

@@ -74,6 +74,10 @@ const MarchingEngineData = preload(
 	"res://Scripts/Sim/MarchingEngine.gd"
 )
 
+const VacantThroneEngineData = preload(
+	"res://Scripts/Sim/VacantThroneEngine.gd"
+)
+
 const BotResolutionDoctrineData = preload(
 	"res://Scripts/Sim/BotResolutionDoctrine.gd"
 )
@@ -86,6 +90,46 @@ const SIGIL_ZONES: Array[String] = [
 	"Lord",
 	"Castle",
 ]
+
+
+# DEFENSE_CULPABILITY_PHASE_PROFILER_V1
+static var _culpability_phase_profile_enabled: bool = false
+static var _culpability_phase_profile_events: Array[Dictionary] = []
+
+
+static func culpability_phase_profile_start() -> void:
+	_culpability_phase_profile_events.clear()
+	_culpability_phase_profile_enabled = true
+
+
+static func culpability_phase_profile_stop() -> Array[Dictionary]:
+	_culpability_phase_profile_enabled = false
+	var out: Array[Dictionary] = []
+	for row in _culpability_phase_profile_events:
+		out.append(row.duplicate(true))
+	return out
+
+
+static func _culpability_profile_now() -> int:
+	return Time.get_ticks_usec()
+
+
+static func _culpability_profile_mark(
+	label: String,
+	started_us: int,
+	game
+) -> void:
+	if not _culpability_phase_profile_enabled:
+		return
+
+	_culpability_phase_profile_events.append({
+		"round": int(game.round),
+		"phase": label,
+		"elapsed_us": (
+			Time.get_ticks_usec()
+			- started_us
+		),
+	})
 
 
 static func resolve_round(
@@ -210,12 +254,18 @@ static func resolve_round(
 			"veil_drift"
 		)
 
+	var _culp_prof_development_start_us: int = _culpability_profile_now()
 	var development_start_result: Dictionary = (
 		DevelopmentStartEngineData.resolve(
 			game,
 			rules,
 			random_source
 		)
+	)
+	_culpability_profile_mark(
+		"development_start",
+		_culp_prof_development_start_us,
+		game
 	)
 
 	phase_results["development_start"] = (
@@ -229,12 +279,18 @@ static func resolve_round(
 		development_start_result
 	)
 
+	var _culp_prof_draw_us: int = _culpability_profile_now()
 	var draw_result: Dictionary = (
 		_resolve_normal_draws(
 			game,
 			rules,
 			random_source
 		)
+	)
+	_culpability_profile_mark(
+		"draw",
+		_culp_prof_draw_us,
+		game
 	)
 
 	phase_results["draw"] = draw_result
@@ -246,12 +302,18 @@ static func resolve_round(
 		draw_result
 	)
 
+	var _culp_prof_market_rollover_us: int = _culpability_profile_now()
 	var market_rollover_result: Dictionary = (
 		RoundEngineData.refresh_market_offers(
 			game,
 			rules,
 			random_source
 		)
+	)
+	_culpability_profile_mark(
+		"market_rollover",
+		_culp_prof_market_rollover_us,
+		game
 	)
 
 	# Market rollover is a lab-only phase beginning in round two. Canonical
@@ -272,18 +334,30 @@ static func resolve_round(
 			market_rollover_result
 		)
 
+	var _culp_prof_market_choices_us: int = _culpability_profile_now()
 	var market_choices: Dictionary = (
 		BotDoctrineData.market_choices(
 			game,
 			random_source
 		)
 	)
+	_culpability_profile_mark(
+		"market_choices",
+		_culp_prof_market_choices_us,
+		game
+	)
 
+	var _culp_prof_market_resolve_us: int = _culpability_profile_now()
 	var market_results: Array[Dictionary] = (
 		RoundEngineData.resolve_market(
 			game,
 			market_choices
 		)
+	)
+	_culpability_profile_mark(
+		"market_resolve",
+		_culp_prof_market_resolve_us,
+		game
 	)
 
 	phase_results["market"] = {
@@ -309,6 +383,7 @@ static func resolve_round(
 			"Market generated an invalid decision."
 		)
 
+	var _culp_prof_repair_choices_us: int = _culpability_profile_now()
 	var repair_choices: Dictionary = (
 		BotDevelopmentDoctrineData
 		.repair_choices(
@@ -318,13 +393,24 @@ static func resolve_round(
 			effective_policy
 		)
 	)
+	_culpability_profile_mark(
+		"repair_choices",
+		_culp_prof_repair_choices_us,
+		game
+	)
 
+	var _culp_prof_repair_resolve_us: int = _culpability_profile_now()
 	var repair_results: Array[Dictionary] = (
 		RoundEngineData.resolve_repairs(
 			game,
 			rules,
 			repair_choices
 		)
+	)
+	_culpability_profile_mark(
+		"repair_resolve",
+		_culp_prof_repair_resolve_us,
+		game
 	)
 
 	phase_results["repair"] = {
@@ -350,6 +436,7 @@ static func resolve_round(
 			"Repair generated an invalid decision."
 		)
 
+	var _culp_prof_rite_choices_us: int = _culpability_profile_now()
 	var rite_choices: Dictionary = (
 		BotDominionRiteDoctrineData
 		.rite_choices(
@@ -359,13 +446,24 @@ static func resolve_round(
 			effective_policy
 		)
 	)
+	_culpability_profile_mark(
+		"rite_choices",
+		_culp_prof_rite_choices_us,
+		game
+	)
 
+	var _culp_prof_rite_resolve_us: int = _culpability_profile_now()
 	var rite_results: Array[Dictionary] = (
 		DominionRiteEngineData.resolve(
 			game,
 			rules,
 			rite_choices
 		)
+	)
+	_culpability_profile_mark(
+		"rite_resolve",
+		_culp_prof_rite_resolve_us,
+		game
 	)
 
 	phase_results["dominion_rites"] = {
@@ -402,19 +500,31 @@ static func resolve_round(
 			"dominion_rites"
 		)
 
+	var _culp_prof_deploy_choices_us: int = _culpability_profile_now()
 	var deploy_choices: Dictionary = (
 		BotDeployDoctrineData.deploy_choices(
 			game,
 			rules
 		)
 	)
+	_culpability_profile_mark(
+		"deploy_choices",
+		_culp_prof_deploy_choices_us,
+		game
+	)
 
+	var _culp_prof_deploy_resolve_us: int = _culpability_profile_now()
 	var deploy_results: Array[Dictionary] = (
 		DeployEngineData.resolve(
 			game,
 			rules,
 			deploy_choices
 		)
+	)
+	_culpability_profile_mark(
+		"deploy_resolve",
+		_culp_prof_deploy_resolve_us,
+		game
 	)
 
 	phase_results["deploy"] = {
@@ -484,6 +594,7 @@ static func resolve_round(
 				"March generated an invalid decision."
 			)
 
+	var _culp_prof_summon_choices_us: int = _culpability_profile_now()
 	var summon_choices: Dictionary = (
 		BotDevelopmentDoctrineData
 		.summon_choices(
@@ -493,13 +604,24 @@ static func resolve_round(
 			effective_policy
 		)
 	)
+	_culpability_profile_mark(
+		"summon_choices",
+		_culp_prof_summon_choices_us,
+		game
+	)
 
+	var _culp_prof_summon_resolve_us: int = _culpability_profile_now()
 	var summon_results: Array[Dictionary] = (
 		SummonEngineData.resolve(
 			game,
 			rules,
 			summon_choices
 		)
+	)
+	_culpability_profile_mark(
+		"summon_resolve",
+		_culp_prof_summon_resolve_us,
+		game
 	)
 
 	phase_results["summon"] = {
@@ -540,6 +662,7 @@ static func resolve_round(
 	# Reflex Bid is a retired rules state. Keep a structural phase record so
 	# old reports/snapshots remain readable, but never ask doctrine for bids and
 	# never call ReflexBidEngine. Momentum may still award the later extra action.
+	var _culp_prof_reflex_us: int = _culpability_profile_now()
 	var bid_choices: Dictionary = {}
 	var bid_result: Dictionary = {
 		"action": "pass",
@@ -550,6 +673,12 @@ static func resolve_round(
 		"bid_totals": [],
 		"players": [],
 	}
+
+	_culpability_profile_mark(
+		"reflex_total",
+		_culp_prof_reflex_us,
+		game
+	)
 
 	phase_results["reflex_bid"] = {
 		"choices": bid_choices,
@@ -563,6 +692,7 @@ static func resolve_round(
 		phase_results["reflex_bid"]
 	)
 
+	var _culp_prof_commitment_choices_us: int = _culpability_profile_now()
 	var commitment_choices: Dictionary = (
 		BotDoctrineData.commitment_choices(
 			game,
@@ -571,13 +701,24 @@ static func resolve_round(
 			effective_policy
 		)
 	)
+	_culpability_profile_mark(
+		"commitment_choices",
+		_culp_prof_commitment_choices_us,
+		game
+	)
 
+	var _culp_prof_commitment_resolve_us: int = _culpability_profile_now()
 	var commitment_result: Dictionary = (
 		CommitmentEngineData.resolve(
 			game,
 			commitment_choices,
 			rules
 		)
+	)
+	_culpability_profile_mark(
+		"commitment_resolve",
+		_culp_prof_commitment_resolve_us,
+		game
 	)
 
 	phase_results["commitment"] = {
@@ -611,12 +752,18 @@ static func resolve_round(
 			)
 		)
 
+	var _culp_prof_reveal_us: int = _culpability_profile_now()
 	var reveal_result: Dictionary = (
 		RevealEngineData.resolve(
 			game,
 			rules,
 			random_source
 		)
+	)
+	_culpability_profile_mark(
+		"reveal",
+		_culp_prof_reveal_us,
+		game
 	)
 
 	phase_results["reveal"] = reveal_result
@@ -650,6 +797,7 @@ static func resolve_round(
 	# Python oracle timing: Reveal mutations are not a victory checkpoint.
 	# Resolution begins before Kanifous Reveal gains are checked for victory.
 
+	var _culp_prof_resolution_choices_us: int = _culpability_profile_now()
 	var resolution_choices: Dictionary = (
 		BotResolutionDoctrineData
 		.build_decisions(
@@ -660,7 +808,13 @@ static func resolve_round(
 			effective_policy
 		)
 	)
+	_culpability_profile_mark(
+		"resolution_choices",
+		_culp_prof_resolution_choices_us,
+		game
+	)
 
+	var _culp_prof_resolution_resolve_us: int = _culpability_profile_now()
 	var resolution_result: Dictionary = (
 		ResolutionEngineData.resolve(
 			game,
@@ -668,6 +822,11 @@ static func resolve_round(
 			resolution_choices,
 			random_source
 		)
+	)
+	_culpability_profile_mark(
+		"resolution_resolve",
+		_culp_prof_resolution_resolve_us,
+		game
 	)
 
 	phase_results["resolution"] = {
@@ -719,6 +878,20 @@ static func resolve_round(
 			"march_advance",
 			march_advance_result
 		)
+
+	var vacant_throne_result: Dictionary = (
+		VacantThroneEngineData.resolve_end_round(
+			game,
+			rules
+		)
+	)
+	phase_results["vacant_throne"] = vacant_throne_result
+	_append_event(
+		events,
+		game,
+		"vacant_throne",
+		vacant_throne_result
+	)
 
 	return _finish_round(
 		game,

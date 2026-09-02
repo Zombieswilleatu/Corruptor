@@ -16,7 +16,8 @@ static func export_current_match(
 	controller,
 	match_seed: int,
 	stage_name: String,
-	ui_log: Array
+	ui_log: Array,
+	round_recaps: Array = []
 ) -> Dictionary:
 	if controller == null or controller.game == null:
 		return {
@@ -70,7 +71,8 @@ static func export_current_match(
 				controller,
 				match_seed,
 				stage_name,
-				ui_log
+				ui_log,
+				round_recaps
 			),
 			"\t",
 			true
@@ -96,7 +98,8 @@ static func _snapshot_payload(
 	controller,
 	match_seed: int,
 	stage_name: String,
-	ui_log: Array
+	ui_log: Array,
+	round_recaps: Array = []
 ) -> Dictionary:
 	return {
 		"format": FORMAT_VERSION,
@@ -130,7 +133,161 @@ static func _snapshot_payload(
 			"last_result": _json_value(controller.last_result),
 		},
 		"ui_log": _json_value(ui_log),
+		"match_recap": _match_recap(
+			controller,
+			round_recaps
+		),
 	}
+
+
+# PLAYABLE_SNAPSHOT_COMPACT_ROUND_RECAP_V1
+# PLAYABLE_SNAPSHOT_DEFENSE_AUDIT_V2
+static func _match_recap(
+	controller,
+	round_recaps: Array
+) -> Dictionary:
+	var safe_rounds: Array = []
+
+	for raw_row in round_recaps:
+		if typeof(
+			raw_row
+		) == TYPE_DICTIONARY:
+			safe_rounds.append(
+				_json_value(
+					raw_row
+				)
+			)
+
+	return {
+		"format": "compact-round-recap-v2",
+		"round_count": safe_rounds.size(),
+		"rounds": safe_rounds,
+		"final": _final_match_summary(
+			controller
+		),
+	}
+
+
+static func _final_match_summary(
+	controller
+) -> Dictionary:
+	if (
+		controller == null
+		or controller.game == null
+	):
+		return {}
+
+	var game = controller.game
+	var winner_pid: int = int(
+		game.winner
+	)
+	var winner_lord: String = ""
+
+	if winner_pid >= 0:
+		var winner = game.get_player(
+			winner_pid
+		)
+
+		if winner != null:
+			winner_lord = String(
+				winner.lord
+			)
+
+	var players: Array = []
+
+	for player in game.players:
+		players.append(
+			_compact_player_summary(
+				player
+			)
+		)
+
+	return {
+		"round": int(
+			game.round
+		),
+		"winner_pid": winner_pid,
+		"winner_lord": winner_lord,
+		"win_by": String(
+			game.win_by
+		),
+		"breach": String(
+			game.breach
+		),
+		"breach_owner": int(
+			game.breach_owner
+		),
+		"neutral_tears": int(
+			game.neutral_tears
+		),
+		"players": players,
+	}
+
+
+static func _compact_player_summary(
+	player
+) -> Dictionary:
+	return {
+		"pid": int(
+			player.pid
+		),
+		"lord": String(
+			player.lord
+		),
+		"alive": bool(
+			player.alive
+		),
+		"souls": int(
+			player.souls
+		),
+		"tears": int(
+			player.tears
+		),
+		"threat": int(
+			player.threat
+		),
+		"hand_count": player.hand.size(),
+		"garrison_count": player.garrison.size(),
+		"lord_guard_count": player.lord_guards.size(),
+		"castle_guard_count": player.castle_guards.size(),
+		"castles": _string_array(
+			player.castles
+		),
+		"ruined_castles": _string_array(
+			player.ruined_castles
+		),
+		"profaned_castles": _string_array(
+			player.profaned_castles
+		),
+		"castle_integrity": _json_value(
+			player.castle_integrity
+		),
+		"vacant_throne_rounds": int(
+			player.vacant_throne_rounds
+		),
+	}
+
+
+static func _string_array(
+	values
+) -> Array[String]:
+	var result: Array[String] = []
+
+	if typeof(
+		values
+	) != TYPE_ARRAY:
+		return result
+
+	for raw_value in values:
+		result.append(
+			String(
+				raw_value
+			)
+		)
+
+	result.sort()
+
+	return result
 
 
 static func _random_snapshot(random_source) -> Dictionary:

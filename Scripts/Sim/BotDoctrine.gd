@@ -322,12 +322,30 @@ static func pick_siege_target(
 	if rules != null:
 		var actual_opponent = game.get_opponent(attacker_id)
 		if actual_opponent != null and int(actual_opponent.pid) == defender_id:
-			var forecast: Dictionary = ActionForecastData.forecast_all(
-				game,
-				rules,
-				attacker_id,
-				true
-			)
+			# BOT_SIEGE_TARGET_FORECAST_ONLY_V1
+			# Target selection consumes only forecast["siege_targets"].
+			# forecast_all() also computed a Hunt report that cannot affect which
+			# Castle wins this comparison. Build the same Siege reports only.
+			var siege_targets: Dictionary = {}
+			for castle_value in defender.castles:
+				var castle_name: String = String(castle_value)
+				if not CastleIntegrityRulesData.standing(
+					defender,
+					castle_name
+				):
+					continue
+				siege_targets[castle_name] = ActionForecastData.forecast_siege(
+					game,
+					rules,
+					attacker_id,
+					castle_name,
+					true
+				)
+
+			var forecast: Dictionary = {
+				"model_version": ActionForecastData.MODEL_VERSION,
+				"siege_targets": siege_targets,
+			}
 			var choice: Dictionary = _best_siege_target_from_forecast(
 				defender,
 				forecast,
@@ -568,6 +586,259 @@ static func bid_choices(
 		}
 	return decisions
 
+# DEFENSE_CULPABILITY_COMMITMENT_DRILLDOWN_V1
+static var _culp_detail_enabled: bool = false
+static var _culp_detail_events: Array[Dictionary] = []
+
+
+static func culpability_detail_start() -> void:
+	_culp_detail_events.clear()
+	_culp_detail_enabled = true
+
+
+static func culpability_detail_stop() -> Array[Dictionary]:
+	_culp_detail_enabled = false
+	var out: Array[Dictionary] = []
+	for row in _culp_detail_events:
+		out.append(row.duplicate(true))
+	return out
+
+
+static func _culp_detail_mark(
+	label: String,
+	started_us: int,
+	game,
+	player
+) -> void:
+	if not _culp_detail_enabled:
+		return
+
+	var pid: int = -1
+	var lord: String = ""
+	var hand_size: int = -1
+
+	if player != null:
+		pid = int(player.pid)
+		lord = String(player.lord)
+		hand_size = int(player.hand.size())
+
+	_culp_detail_events.append({
+		"round": int(game.round) if game != null else -1,
+		"player_id": pid,
+		"lord": lord,
+		"hand_size": hand_size,
+		"phase": label,
+		"elapsed_us": Time.get_ticks_usec() - started_us,
+	})
+
+
+static func _culp_detail_plan(
+	game,
+	player_id: int,
+	rules: RuleConfig
+) -> String:
+	var started_us: int = Time.get_ticks_usec()
+	var result: String = plan(game, player_id, rules)
+	_culp_detail_mark(
+		"plan",
+		started_us,
+		game,
+		game.get_player(player_id)
+	)
+	return result
+
+
+static func _culp_detail_score_hunt(
+	game,
+	player,
+	opponent,
+	current_plan: String,
+	rules: RuleConfig
+) -> float:
+	var started_us: int = Time.get_ticks_usec()
+	var result: float = _score_hunt(
+		game,
+		player,
+		opponent,
+		current_plan,
+		rules
+	)
+	_culp_detail_mark("score_hunt", started_us, game, player)
+	return result
+
+
+static func _culp_detail_score_siege(
+	game,
+	player,
+	opponent,
+	current_plan: String,
+	rules: RuleConfig
+) -> float:
+	var started_us: int = Time.get_ticks_usec()
+	var result: float = _score_siege(
+		player,
+		opponent,
+		current_plan,
+		rules
+	)
+	_culp_detail_mark("score_siege", started_us, game, player)
+	return result
+
+
+static func _culp_detail_score_ward(
+	game,
+	player,
+	opponent,
+	current_plan: String,
+	rules: RuleConfig
+) -> float:
+	var started_us: int = Time.get_ticks_usec()
+	var result: float = _score_ward(
+		game,
+		player,
+		opponent,
+		current_plan,
+		rules
+	)
+	_culp_detail_mark("score_ward", started_us, game, player)
+	return result
+
+
+static func _culp_detail_doctrine_delta(
+	game,
+	player,
+	rules: RuleConfig
+) -> Vector3:
+	var started_us: int = Time.get_ticks_usec()
+	var result: Vector3 = OdradekInterlockEngineData.doctrine_delta(
+		player,
+		rules
+	)
+	_culp_detail_mark("doctrine_delta", started_us, game, player)
+	return result
+
+
+static func _culp_detail_profanable(
+	game,
+	player,
+	rules: RuleConfig
+) -> Array[String]:
+	var started_us: int = Time.get_ticks_usec()
+	var result: Array[String] = _profanable_castles(player, rules)
+	_culp_detail_mark("profanable", started_us, game, player)
+	return result
+
+
+static func _culp_detail_dominion_requirement(
+	game,
+	player,
+	rules: RuleConfig
+) -> int:
+	var started_us: int = Time.get_ticks_usec()
+	var result: int = _dominion_requirement(game, rules)
+	_culp_detail_mark(
+		"dominion_requirement",
+		started_us,
+		game,
+		player
+	)
+	return result
+
+
+static func _culp_detail_pick_siege_target(
+	game,
+	attacker_id: int,
+	defender_id: int,
+	rules: RuleConfig
+) -> String:
+	var started_us: int = Time.get_ticks_usec()
+	var result: String = pick_siege_target(
+		game,
+		attacker_id,
+		defender_id,
+		rules
+	)
+	_culp_detail_mark(
+		"pick_siege_target",
+		started_us,
+		game,
+		game.get_player(attacker_id)
+	)
+	return result
+
+
+static func _culp_detail_commit_attack(
+	game,
+	player,
+	opponent,
+	target_type: String,
+	current_plan: String,
+	chip: bool,
+	rules: RuleConfig,
+	target_castle_override: String = ""
+) -> Array:
+	var started_us: int = Time.get_ticks_usec()
+	var result: Array = _commit_for_attack(
+		game,
+		player,
+		opponent,
+		target_type,
+		current_plan,
+		chip,
+		rules,
+		target_castle_override
+	)
+	_culp_detail_mark("commit_attack", started_us, game, player)
+	return result
+
+
+static func _culp_detail_ward_read(
+	game,
+	player,
+	opponent,
+	rules: RuleConfig
+) -> String:
+	var started_us: int = Time.get_ticks_usec()
+	var result: String = _ward_read_zone(
+		game,
+		player,
+		opponent,
+		rules
+	)
+	_culp_detail_mark("ward_read", started_us, game, player)
+	return result
+
+
+static func _culp_detail_commit_ward(
+	game,
+	player,
+	opponent,
+	current_plan: String,
+	rules: RuleConfig
+) -> Array:
+	var started_us: int = Time.get_ticks_usec()
+	var result: Array = _commit_for_ward(
+		game,
+		player,
+		opponent,
+		current_plan,
+		rules
+	)
+	_culp_detail_mark("commit_ward", started_us, game, player)
+	return result
+
+
+static func _culp_detail_profane_target(
+	game,
+	player,
+	rules: RuleConfig
+) -> String:
+	var started_us: int = Time.get_ticks_usec()
+	var result: String = _profane_target(player, rules)
+	_culp_detail_mark("profane_target", started_us, game, player)
+	return result
+
+
 static func evaluate_action_candidates(
 	game,
 	player_id: int,
@@ -609,7 +880,7 @@ static func evaluate_action_candidates(
 		)
 	)
 
-	var current_plan: String = plan(
+	var current_plan: String = _culp_detail_plan(
 		game,
 		player_id,
 		rules
@@ -631,7 +902,7 @@ static func evaluate_action_candidates(
 	var siege_target_value: float = float(siege_choice.get("strategic_value", 0.0))
 
 	var hunt_score: float = (
-		_score_hunt(
+		_culp_detail_score_hunt(
 			game,
 			player,
 			opponent,
@@ -647,7 +918,8 @@ static func evaluate_action_candidates(
 	)
 
 	var siege_score: float = (
-		_score_siege(
+		_culp_detail_score_siege(
+			game,
 			player,
 			opponent,
 			current_plan,
@@ -662,7 +934,7 @@ static func evaluate_action_candidates(
 	)
 
 	var ward_score: float = (
-		_score_ward(
+		_culp_detail_score_ward(
 			game,
 			player,
 			opponent,
@@ -710,7 +982,8 @@ static func evaluate_action_candidates(
 		* 0.5
 	)
 
-	var doctrine_delta: Vector3 = OdradekInterlockEngineData.doctrine_delta(
+	var doctrine_delta: Vector3 = _culp_detail_doctrine_delta(
+		game,
 		player,
 		rules
 	)
@@ -735,7 +1008,7 @@ static func evaluate_action_candidates(
 		ward_score += 0.25
 
 	var profane_score: float = -5.0
-	var profanable: Array[String] = _profanable_castles(player, rules)
+	var profanable: Array[String] = _culp_detail_profanable(game, player, rules)
 	var can_profane: bool = (
 		not profanable.is_empty()
 		and (
@@ -889,6 +1162,45 @@ static func evaluate_action_candidates(
 	return candidates
 
 
+# DEFENSE_CULPABILITY_COMMITMENT_PROFILER_V1
+static var _culpability_commit_profile_enabled: bool = false
+static var _culpability_commit_profile_events: Array[Dictionary] = []
+
+
+static func culpability_commit_profile_start() -> void:
+	_culpability_commit_profile_events.clear()
+	_culpability_commit_profile_enabled = true
+
+
+static func culpability_commit_profile_stop() -> Array[Dictionary]:
+	_culpability_commit_profile_enabled = false
+	var out: Array[Dictionary] = []
+	for row in _culpability_commit_profile_events:
+		out.append(row.duplicate(true))
+	return out
+
+
+static func _culp_commit_now() -> int:
+	return Time.get_ticks_usec()
+
+
+static func _culp_commit_mark(
+	label: String,
+	started_us: int,
+	game,
+	player_id: int
+) -> void:
+	if not _culpability_commit_profile_enabled:
+		return
+
+	_culpability_commit_profile_events.append({
+		"round": int(game.round),
+		"player_id": player_id,
+		"phase": label,
+		"elapsed_us": Time.get_ticks_usec() - started_us,
+	})
+
+
 static func commitment_choices(
 	game,
 	random_source,
@@ -916,6 +1228,7 @@ static func commitment_choices(
 			player.pid
 		)
 
+		var _culp_candidates_us: int = _culp_commit_now()
 		var candidates: Array = (
 			evaluate_action_candidates(
 				game,
@@ -924,12 +1237,27 @@ static func commitment_choices(
 			)
 		)
 
+		_culp_commit_mark(
+			"candidate_evaluation",
+			_culp_candidates_us,
+			game,
+			player_id
+		)
+
+		var _culp_selector_us: int = _culp_commit_now()
 		var selection: Dictionary = (
 			BotSelectorData.choose(
 				candidates,
 				random_source,
 				effective_policy
 			)
+		)
+
+		_culp_commit_mark(
+			"selector",
+			_culp_selector_us,
+			game,
+			player_id
 		)
 
 		var selected_candidate: Dictionary = (
@@ -939,6 +1267,7 @@ static func commitment_choices(
 			)
 		)
 
+		var _culp_decision_us: int = _culp_commit_now()
 		decisions[player_id] = (
 			_commitment_decision_from_candidate(
 				game,
@@ -946,6 +1275,12 @@ static func commitment_choices(
 				selected_candidate,
 				rules
 			)
+		)
+		_culp_commit_mark(
+			"decision_construction",
+			_culp_decision_us,
+			game,
+			player_id
 		)
 
 	return decisions
@@ -1030,7 +1365,7 @@ static func _commitment_decision_from_candidate(
 		)
 	)
 
-	var current_plan: String = plan(
+	var current_plan: String = _culp_detail_plan(
 		game,
 		player_id,
 		rules
@@ -1046,7 +1381,7 @@ static func _commitment_decision_from_candidate(
 				opponent.pid
 			),
 			"cards": _card_ids(
-				_commit_for_attack(
+				_culp_detail_commit_attack(
 					game,
 					player,
 					opponent,
@@ -1066,26 +1401,32 @@ static func _commitment_decision_from_candidate(
 			)
 		)
 
+		# BOT_SIEGE_TARGET_REUSE_V1
+		# Forecast target once, then use that same Castle for payload and
+		# commitment sizing.
+		var selected_target: String = _culp_detail_pick_siege_target(
+			game,
+			player_id,
+			int(opponent.pid),
+			rules
+		)
+
 		return {
 			"action": ACTION_SIEGE,
 			"target_pid": int(
 				opponent.pid
 			),
-			"target_castle": pick_siege_target(
-				game,
-				player_id,
-				int(opponent.pid),
-				rules
-			),
+			"target_castle": selected_target,
 			"cards": _card_ids(
-				_commit_for_attack(
+				_culp_detail_commit_attack(
 					game,
 					player,
 					opponent,
 					TARGET_CASTLE,
 					current_plan,
 					chip_siege,
-					rules
+					rules,
+					selected_target
 				)
 			),
 		}
@@ -1094,7 +1435,8 @@ static func _commitment_decision_from_candidate(
 		return {
 			"action": ACTION_PROFANE,
 			"target_pid": player_id,
-			"target_castle": _profane_target(
+			"target_castle": _culp_detail_profane_target(
+				game,
 				player, rules
 			),
 			"cards": [],
@@ -1105,7 +1447,7 @@ static func _commitment_decision_from_candidate(
 	if not player.alive:
 		ward_target = TARGET_CASTLE
 	elif rules.ward_read:
-		ward_target = _ward_read_zone(
+		ward_target = _culp_detail_ward_read(
 			game,
 			player,
 			opponent,
@@ -1143,7 +1485,7 @@ static func _commitment_decision_from_candidate(
 		"target_pid": player_id,
 		"target_type": ward_target,
 		"cards": _card_ids(
-			_commit_for_ward(
+			_culp_detail_commit_ward(
 				game,
 				player,
 				opponent,
@@ -1784,7 +2126,8 @@ static func _commit_for_attack(
 	target_type: String,
 	current_plan: String,
 	chip: bool,
-	rules: RuleConfig
+	rules: RuleConfig,
+	target_castle_override: String = ""
 ) -> Array:
 	if chip:
 		var chip_guards: Array = (
@@ -1854,12 +2197,16 @@ static func _commit_for_attack(
 			)
 		)
 	else:
-		var target_castle: String = pick_siege_target(
-			game,
-			int(player.pid),
-			int(opponent.pid),
-			rules
-		)
+		# BOT_SIEGE_TARGET_REUSE_V1
+		# Reuse an already-selected forecast target when supplied.
+		var target_castle: String = target_castle_override
+		if target_castle.is_empty():
+			target_castle = pick_siege_target(
+				game,
+				int(player.pid),
+				int(opponent.pid),
+				rules
+			)
 
 		# Bastion may screen a strategically chosen rear Castle, but the bot's
 		# immediate commitment objective is only to destroy the wall. Overflow
@@ -2267,25 +2614,52 @@ static func _commit_for_ward(
 		)
 		var any_suit_commitment: Array = []
 		var any_suit_total: int = 0
+
+		# BOT_WARD_COMMIT_SORT_OPT_V1
+		# Preserve the old exact ordering:
+		#   1. effective Ward value descending
+		#   2. printed value descending
+		#   3. suit name ascending
+		#   4. original hand order for exact ties
+		# The previous repeated best-card scan was O(n^2) and recalculated
+		# ward_card_value for the same cards many times.
+		var ward_entries: Array[Dictionary] = []
+		for hand_index: int in range(player.hand.size()):
+			var hand_card = player.hand[hand_index]
+			ward_entries.append({
+				"card": hand_card,
+				"ward_value": int(player.ward_card_value(hand_card, rules)),
+				"printed_value": int(hand_card.value),
+				"suit": String(hand_card.suit),
+				"index": hand_index,
+			})
+
+		ward_entries.sort_custom(
+			func(
+				entry_a: Dictionary,
+				entry_b: Dictionary
+			) -> bool:
+				var ward_a: int = int(entry_a["ward_value"])
+				var ward_b: int = int(entry_b["ward_value"])
+				if ward_a != ward_b:
+					return ward_a > ward_b
+
+				var printed_a: int = int(entry_a["printed_value"])
+				var printed_b: int = int(entry_b["printed_value"])
+				if printed_a != printed_b:
+					return printed_a > printed_b
+
+				var suit_a: String = String(entry_a["suit"])
+				var suit_b: String = String(entry_b["suit"])
+				if suit_a != suit_b:
+					return suit_a < suit_b
+
+				return int(entry_a["index"]) < int(entry_b["index"])
+		)
+
 		var ward_cards: Array = []
-		var remaining_ward_cards: Array = player.hand.duplicate()
-		while not remaining_ward_cards.is_empty():
-			var best_card = remaining_ward_cards[0]
-			for candidate in remaining_ward_cards:
-				var candidate_value: int = int(player.ward_card_value(candidate, rules))
-				var best_value: int = int(player.ward_card_value(best_card, rules))
-				if candidate_value > best_value:
-					best_card = candidate
-				elif candidate_value == best_value and int(candidate.value) > int(best_card.value):
-					best_card = candidate
-				elif (
-					candidate_value == best_value
-					and int(candidate.value) == int(best_card.value)
-					and String(candidate.suit) < String(best_card.suit)
-				):
-					best_card = candidate
-			ward_cards.append(best_card)
-			remaining_ward_cards.erase(best_card)
+		for ward_entry: Dictionary in ward_entries:
+			ward_cards.append(ward_entry["card"])
 
 		for card in ward_cards:
 			if float(any_suit_total) >= budget:

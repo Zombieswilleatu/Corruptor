@@ -189,6 +189,7 @@ static func _resolve_player_summon(
 
 	player.lord = chosen_lord
 	player.alive = true
+	player.lord_present_this_round = true
 	player.threat = resolved_return_threat
 
 	# Retention belongs only to the immediately preceding Banishment.

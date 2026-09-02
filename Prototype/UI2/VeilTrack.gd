@@ -7,6 +7,7 @@ var track_box: HBoxContainer = null
 var warning_label: Label = null
 
 
+
 func _ready() -> void:
     custom_minimum_size = Vector2(500, 92)
 

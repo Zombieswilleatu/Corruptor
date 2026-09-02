@@ -7,6 +7,17 @@
 class_name UI2HandView
 extends PanelContainer
 
+# UI2_HAND_BANNER_SKIN_V1
+const UI2_HAND_BANNER_TEXTURE: Texture2D = preload(
+	"res://ConceptImages/Menus/BottomBanner.png"
+)
+
+# Generated source includes white top/bottom canvas.
+# These ratios isolate the actual ornate banner band.
+const UI2_HAND_BANNER_CROP_TOP_RATIO: float = 0.2334
+const UI2_HAND_BANNER_CROP_HEIGHT_RATIO: float = 0.5387
+const UI2_HAND_BANNER_ALPHA: float = 0.94
+
 
 const SubjectCardArtCatalogData = preload(
 	"res://Prototype/UI2/SubjectCardArtCatalog.gd"
@@ -40,6 +51,8 @@ var _last_commitment_click_ms: int = -1000
 
 
 func _ready() -> void:
+	# UI2_HAND_LEFT_LAYOUT_V1
+	call_deferred("_apply_hand_left_layout_v1")
 	custom_minimum_size = Vector2(0,220)
 
 	var outer := VBoxContainer.new()
@@ -769,3 +782,99 @@ func _on_card_toggled(
 	selection_changed.emit(
 		selected_card_ids()
 	)
+
+
+func _draw() -> void:
+	if UI2_HAND_BANNER_TEXTURE == null:
+		return
+
+	var texture_size: Vector2 = UI2_HAND_BANNER_TEXTURE.get_size()
+	if texture_size.x <= 0.0 or texture_size.y <= 0.0:
+		return
+
+	var source_rect := Rect2(
+		0.0,
+		texture_size.y * UI2_HAND_BANNER_CROP_TOP_RATIO,
+		texture_size.x,
+		texture_size.y * UI2_HAND_BANNER_CROP_HEIGHT_RATIO
+	)
+
+	var target_rect := Rect2(Vector2.ZERO, size)
+
+	draw_texture_rect_region(
+		UI2_HAND_BANNER_TEXTURE,
+		target_rect,
+		source_rect,
+		Color(1.0, 1.0, 1.0, UI2_HAND_BANNER_ALPHA)
+	)
+
+
+func _apply_hand_left_layout_v1() -> void:
+	var hand_header: Label = _find_hand_header_label_v1(self)
+
+	if hand_header != null:
+		hand_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		hand_header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_wrap_hand_control_with_left_margin_v1(
+			hand_header,
+			"HandHeaderInset",
+			24
+		)
+
+	if hand_box != null:
+		_wrap_hand_control_with_left_margin_v1(
+			hand_box,
+			"HandCardsInset",
+			52
+		)
+
+
+func _find_hand_header_label_v1(node: Node) -> Label:
+	for child: Node in node.get_children():
+		if child is Label:
+			var label := child as Label
+			if label.text.begins_with("YOUR HAND"):
+				return label
+
+		var nested: Label = _find_hand_header_label_v1(child)
+		if nested != null:
+			return nested
+
+	return null
+
+
+func _wrap_hand_control_with_left_margin_v1(
+	control: Control,
+	wrapper_name: String,
+	left_margin: int
+) -> void:
+	if control == null:
+		return
+
+	var old_parent := control.get_parent()
+	if old_parent == null:
+		return
+
+	if old_parent is MarginContainer and old_parent.name == wrapper_name:
+		return
+
+	var old_index: int = control.get_index()
+	var old_horizontal_flags: int = control.size_flags_horizontal
+	var old_vertical_flags: int = control.size_flags_vertical
+	var old_minimum: Vector2 = control.custom_minimum_size
+
+	old_parent.remove_child(control)
+
+	var wrapper := MarginContainer.new()
+	wrapper.name = wrapper_name
+	wrapper.size_flags_horizontal = old_horizontal_flags
+	wrapper.size_flags_vertical = old_vertical_flags
+	wrapper.custom_minimum_size = old_minimum
+	wrapper.add_theme_constant_override("margin_left", left_margin)
+
+	old_parent.add_child(wrapper)
+	old_parent.move_child(wrapper, old_index)
+
+	control.custom_minimum_size = Vector2.ZERO
+	control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	wrapper.add_child(control)

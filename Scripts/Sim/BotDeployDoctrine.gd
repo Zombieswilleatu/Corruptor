@@ -66,19 +66,17 @@ static func reserved_cards(
 		"Deploy reservation player does not exist."
 	)
 
-	var commitment_choices: Dictionary = (
-		BotDoctrineData.commitment_choices(
+	# BOT_DEPLOY_SINGLE_PLAYER_RESERVATION_V1
+	# Reservation only needs this player's deterministic
+	# Commitment. The old path calculated both players and
+	# discarded the opponent's result once per player.
+	var commitment_decision: Dictionary = (
+		BotDoctrineData.commitment_choice(
 			game,
+			player_id,
 			null,
 			rules,
 			BotPolicyData.golden_core()
-		)
-	)
-
-	var commitment_decision: Dictionary = (
-		_decision_for_player(
-			commitment_choices,
-			player_id
 		)
 	)
 
@@ -497,6 +495,16 @@ static func _maximum_castle_guards(
 	player,
 	rules: RuleConfig
 ) -> int:
+	# BOT_DEPLOY_NO_CASTLE_TARGET_V1
+	# With no live Castles there is no defendable Castle zone.
+	# Treat Castle-Guard capacity as zero so the existing shared
+	# planner immediately falls through to Lord Guards.
+	if (
+		player == null
+		or player.castles.is_empty()
+	):
+		return 0
+
 	if (
 		player.lord == "Humbaba"
 		and rules.humbaba_gate4

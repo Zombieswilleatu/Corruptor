@@ -6,6 +6,10 @@ const ResolutionPreludeEngineData = preload(
 	"res://Scripts/Sim/ResolutionPreludeEngine.gd"
 )
 
+const ValakEssenceEngineData = preload(
+	"res://Scripts/Sim/ValakEssenceEngine.gd"
+)
+
 const HuntResolutionEngineData = preload(
 	"res://Scripts/Sim/HuntResolutionEngine.gd"
 )
@@ -120,6 +124,13 @@ static func resolve(
 		_nested_dictionary(
 			decisions,
 			"gremory"
+		)
+	)
+
+	var valak_projection_choices: Dictionary = (
+		_nested_dictionary(
+			decisions,
+			"valak_projection"
 		)
 	)
 
@@ -452,6 +463,16 @@ static func resolve(
 			"reflex"
 		)
 
+	var valak_projection_events: Array[Dictionary] = (
+		ValakEssenceEngineData.resolve_projection_window(
+			game,
+			rules,
+			order,
+			valak_projection_choices,
+			random_source
+		)
+	)
+
 	var finale_result: Dictionary = (
 		ResolutionFinaleEngineData.resolve(
 			game,
@@ -462,6 +483,8 @@ static func resolve(
 			)
 		)
 	)
+
+	finale_result["valak_projection_events"] = valak_projection_events
 
 	if bool(
 		finale_result.get(

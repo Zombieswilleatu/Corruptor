@@ -6,6 +6,10 @@ const SeededGameSetupData = preload(
 	"res://Scripts/Sim/SeededGameSetup.gd"
 )
 
+const ValakEssenceEngineData = preload(
+	"res://Scripts/Sim/ValakEssenceEngine.gd"
+)
+
 const RoundEngineData = preload(
 	"res://Scripts/Sim/RoundEngine.gd"
 )
@@ -106,6 +110,10 @@ const MarchingEngineData = preload(
 	"res://Scripts/Sim/MarchingEngine.gd"
 )
 
+const VacantThroneEngineData = preload(
+	"res://Scripts/Sim/VacantThroneEngine.gd"
+)
+
 const BotResolutionDoctrineData = preload(
 	"res://Scripts/Sim/BotResolutionDoctrine.gd"
 )
@@ -124,6 +132,7 @@ enum Stage {
 	DEVELOPMENT_SNARE,
 	MARKET,
 	REPAIR,
+	KALLIGAN_SCORCH,
 	DOMINION_RITES,
 	DEPLOY,
 	MARCH,
@@ -140,6 +149,7 @@ enum Stage {
 	RESOLUTION_VESSEL,
 	RESOLUTION_REFLEX,
 	RESOLUTION_ODRADEK_BREACH,
+	RESOLUTION_VALAK_PROJECTION,
 	RESOLUTION_GREMORY,
 	TERMINAL,
 	INVALID,
@@ -174,6 +184,11 @@ var pending_market_results: Array[Dictionary] = []
 var pending_repair_choices: Array[Dictionary] = []
 var pending_repair_results: Array[Dictionary] = []
 
+
+# KALLIGAN_SCORCH_HUMAN_CHOICE_V1_1
+# One stage serves both the pre-Commitment Repair trigger and the
+# post-Commitment Wildfire trigger.
+var pending_kalligan_scorch: Dictionary = {}
 var last_result: Dictionary = {}
 
 
@@ -231,6 +246,7 @@ func start_match(
 	pending_market_results.clear()
 	pending_repair_choices.clear()
 	pending_repair_results.clear()
+	pending_kalligan_scorch.clear()
 	last_result.clear()
 
 	_sync_guard_visibility()
@@ -463,6 +479,67 @@ func resolve_human_repair(
 			"not_awaiting_repair"
 		)
 
+	var human = get_human_player()
+	if (
+		human != null
+		and String(human.lord) == "Kalligan"
+		and bool(human.alive)
+		and String(
+			decision.get(
+				"action",
+				""
+			)
+		).to_lower() == "repair"
+		and not decision.has(
+			"kalligan_scorch_type"
+		)
+	):
+		# Validate on a duplicate first. The real Repair/payment/Integrity and
+		# Scorch token remain untouched until the human chooses a zone.
+		var preview_game = _duplicate_game_with_metadata()
+		var preview_result: Dictionary = (
+			RoundEngineData.resolve_repair_player(
+				preview_game,
+				HUMAN_PLAYER_ID,
+				rules,
+				decision
+			)
+		)
+
+		if (
+			String(
+				preview_result.get(
+					"action",
+					""
+				)
+			) == "repair"
+		):
+			pending_kalligan_scorch = {
+				"source": "repair",
+				"target_pid": BOT_PLAYER_ID,
+				"decision": decision.duplicate(
+					true
+				),
+			}
+			stage = Stage.KALLIGAN_SCORCH
+			return _awaiting(
+				"kalligan_scorch"
+			)
+
+	return _resolve_human_repair_committed(
+		decision
+	)
+
+
+func _resolve_human_repair_committed(
+	decision: Dictionary
+) -> Dictionary:
+	if stage != Stage.REPAIR:
+		return _rejected(
+			"repair",
+			"not_awaiting_repair"
+		)
+
 	var human_result: Dictionary = (
 		RoundEngineData.resolve_repair_player(
 			game,
@@ -518,7 +595,6 @@ func resolve_human_repair(
 		)
 
 	return _finish_repair_phase()
-
 
 func _finish_repair_phase() -> Dictionary:
 	# Once the human is done, let the bot exhaust the same maintenance rules.
@@ -1480,6 +1556,14 @@ func resolve_revealed_round() -> Dictionary:
 	var march_advance_result: Dictionary = MarchingEngineData.advance(game, rules)
 	_record_phase("march_advance", march_advance_result)
 
+	var vacant_throne_result: Dictionary = (
+		VacantThroneEngineData.resolve_end_round(
+			game,
+			rules
+		)
+	)
+	_record_phase("vacant_throne", vacant_throne_result)
+
 	# Remove revelation from defeated/removed Guards while preserving it for
 	# survivors that remained in the same zone.
 	_sync_guard_visibility()
@@ -1555,6 +1639,7 @@ func _begin_human_resolution_with_toll(
 		"next_action_index": 0,
 		"action_events": [],
 		"reflex_result": {},
+		"valak_projection_events": [],
 		"finale_result": {},
 		"cleanup_result": {},
 		"stopped_stage": "",
@@ -1588,6 +1673,230 @@ func _human_humbaba_toll_available() -> bool:
 
 
 func resolve_human_resolution_action(
+	options: Dictionary
+) -> Dictionary:
+	if stage != Stage.RESOLUTION_ACTION:
+		return _rejected(
+			"resolution_action",
+			"not_awaiting_resolution_action"
+		)
+
+	var human = get_human_player()
+	if (
+		human != null
+		and String(human.lord) == "Kalligan"
+		and bool(human.alive)
+		and String(human.action) == "Siege"
+	):
+		# Preview on a duplicate only. If the Siege will actually trigger
+		# Wildfire, stop before the real action mutates anything.
+		var preview_game = _duplicate_game_with_metadata()
+		var preview_player = preview_game.get_player(
+			HUMAN_PLAYER_ID
+		)
+		var preview_result: Dictionary = (
+			ResolutionEngineData._resolve_committed_action(
+				preview_game,
+				rules,
+				preview_player,
+				options
+			)
+		)
+
+		if (
+			String(
+				preview_result.get(
+					"action",
+					""
+				)
+			) != "invalid"
+			and not String(
+				preview_result.get(
+					"wildfire_zone",
+					""
+				)
+			).is_empty()
+		):
+			pending_kalligan_scorch = {
+				"source": "wildfire",
+				"target_pid": int(
+					human.tgt_pid
+				),
+				"options": options.duplicate(
+					true
+				),
+			}
+			stage = Stage.KALLIGAN_SCORCH
+			return _awaiting(
+				"kalligan_scorch"
+			)
+
+	return _resolve_human_resolution_action_committed(
+		options
+	)
+
+
+func resolve_human_kalligan_scorch(
+	zone_name: String
+) -> Dictionary:
+	if stage != Stage.KALLIGAN_SCORCH:
+		return _rejected(
+			"kalligan_scorch",
+			"not_awaiting_kalligan_scorch"
+		)
+
+	var zone: String = zone_name.strip_edges()
+	if zone not in [
+		"Lord",
+		"Castle",
+	]:
+		return _rejected(
+			"kalligan_scorch",
+			"choose_lord_or_castle_zone"
+		)
+
+	if pending_kalligan_scorch.is_empty():
+		return _invalid(
+			"kalligan_scorch",
+			"kalligan_scorch_context_missing"
+		)
+
+	var target_pid: int = int(
+		pending_kalligan_scorch.get(
+			"target_pid",
+			BOT_PLAYER_ID
+		)
+	)
+	var target_player = game.get_player(
+		target_pid
+	)
+
+	if target_player == null:
+		return _invalid(
+			"kalligan_scorch",
+			"kalligan_scorch_target_missing"
+		)
+
+	if (
+		zone == "Castle"
+		and target_player.castles.is_empty()
+	):
+		return _rejected(
+			"kalligan_scorch",
+			"no_enemy_castle_zone_available"
+		)
+
+	var source: String = String(
+		pending_kalligan_scorch.get(
+			"source",
+			""
+		)
+	)
+
+	if source == "repair":
+		var decision: Dictionary = Dictionary(
+			pending_kalligan_scorch.get(
+				"decision",
+				{}
+			)
+		).duplicate(
+			true
+		)
+
+		pending_kalligan_scorch.clear()
+		stage = Stage.REPAIR
+
+		var repair_result: Dictionary = _resolve_human_repair_committed(
+			decision
+		)
+		if String(repair_result.get("action", "")) != "invalid":
+			_apply_human_kalligan_scorch(
+				target_pid,
+				zone
+			)
+		return repair_result
+
+	if source == "wildfire":
+		var options: Dictionary = Dictionary(
+			pending_kalligan_scorch.get(
+				"options",
+				{}
+			)
+		).duplicate(
+			true
+		)
+
+		pending_kalligan_scorch.clear()
+		stage = Stage.RESOLUTION_ACTION
+
+		var result: Dictionary = (
+			_resolve_human_resolution_action_committed(
+				options
+			)
+		)
+
+		# Combat/ruination is already resolved here. Override only the
+		# persistent Wildfire token and the reported wildfire_zone.
+		var action_result: Dictionary = Dictionary(
+			resolution_state.get(
+				"pending_action_result",
+				{}
+			)
+		).duplicate(
+			true
+		)
+
+		if (
+			String(
+				result.get(
+					"action",
+					""
+				)
+			) != "invalid"
+			and not String(
+				action_result.get(
+					"wildfire_zone",
+					""
+				)
+			).is_empty()
+		):
+			_apply_human_kalligan_scorch(
+				target_pid,
+				zone
+			)
+			action_result["wildfire_zone"] = zone
+			resolution_state[
+				"pending_action_result"
+			] = action_result
+
+		return result
+
+	return _invalid(
+		"kalligan_scorch",
+		"unknown_kalligan_scorch_source"
+	)
+
+
+func _apply_human_kalligan_scorch(
+	target_pid: int,
+	zone_name: String
+) -> void:
+	if (
+		int(
+			game.persist_scorch_pid
+		) != target_pid
+		or String(
+			game.persist_scorch_type
+		) != zone_name
+	):
+		# Match Wildfire's existing "new zone = new fire" behavior.
+		game.persist_scorch_level = 1
+
+	game.persist_scorch_pid = target_pid
+	game.persist_scorch_type = zone_name
+
+
+func _resolve_human_resolution_action_committed(
 	options: Dictionary
 ) -> Dictionary:
 	if stage != Stage.RESOLUTION_ACTION:
@@ -1628,7 +1937,6 @@ func resolve_human_resolution_action(
 		})
 
 	return _awaiting("resolution_vessel")
-
 
 func resolve_human_vessel(
 	decision: Dictionary
@@ -1903,22 +2211,111 @@ func _after_human_reflex() -> Dictionary:
 		resolution_state["stopped_stage"] = "reflex"
 		return _finish_human_resolution()
 
-	var finale_result: Dictionary = ResolutionFinaleEngineData.resolve(
-		game,
-		rules,
-		resolution_state.get("order", [])
+	if _human_valak_projection_available():
+		stage = Stage.RESOLUTION_VALAK_PROJECTION
+		return _awaiting("valak_projection")
+
+	# Explicit human pass prevents an automated human Valak choice. Bot Valak
+	# remains doctrine-driven in the shared Projection window.
+	return _resolve_valak_projection_and_continue({
+		HUMAN_PLAYER_ID: {
+			"pass": true,
+		},
+	})
+
+
+func resolve_human_valak_projection(
+	zone_name: String,
+	spend: int
+) -> Dictionary:
+	if stage != Stage.RESOLUTION_VALAK_PROJECTION:
+		return _rejected(
+			"valak_projection",
+			"not_awaiting_valak_projection"
+		)
+
+	var choice: Dictionary = {
+		"pass": true,
+	}
+
+	if (
+		not zone_name.is_empty()
+		and spend > 0
+	):
+		choice = {
+			"zone": zone_name,
+			"spend": spend,
+		}
+
+	return _resolve_valak_projection_and_continue({
+		HUMAN_PLAYER_ID: choice,
+	})
+
+
+func _human_valak_projection_available() -> bool:
+	return ValakEssenceEngineData.projection_available(
+		get_human_player(),
+		get_bot_player(),
+		rules
+	)
+
+
+func _resolve_valak_projection_and_continue(
+	explicit_choices: Dictionary
+) -> Dictionary:
+	var projection_events: Array[Dictionary] = (
+		ValakEssenceEngineData.resolve_projection_window(
+			game,
+			rules,
+			resolution_state.get(
+				"order",
+				[]
+			),
+			explicit_choices,
+			random_source
+		)
+	)
+
+	resolution_state["valak_projection_events"] = (
+		projection_events
+	)
+
+	return _continue_after_valak_projection()
+
+
+func _continue_after_valak_projection() -> Dictionary:
+	var finale_result: Dictionary = (
+		ResolutionFinaleEngineData.resolve(
+			game,
+			rules,
+			resolution_state.get(
+				"order",
+				[]
+			)
+		)
 	)
 	resolution_state["finale_result"] = finale_result
-	if bool(finale_result.get("stopped_on_win", false)):
+
+	if bool(
+		finale_result.get(
+			"stopped_on_win",
+			false
+		)
+	):
 		resolution_state["stopped_stage"] = "finale"
 		return _finish_human_resolution()
 
 	var human = get_human_player()
-	if _human_gremory_choice_available(human):
+
+	if _human_gremory_choice_available(
+		human
+	):
 		stage = Stage.RESOLUTION_GREMORY
 		return _awaiting("gremory")
 
-	return _resolve_human_cleanup({"pass": true})
+	return _resolve_human_cleanup({
+		"pass": true,
+	})
 
 
 func _resolve_human_cleanup(
@@ -2030,12 +2427,20 @@ func _human_gremory_choice_available(
 func _finish_human_resolution() -> Dictionary:
 	var march_advance_result: Dictionary = MarchingEngineData.advance(game, rules)
 
+	var vacant_throne_result: Dictionary = (
+		VacantThroneEngineData.resolve_end_round(
+			game,
+			rules
+		)
+	)
+
 	var resolution_result: Dictionary = {
 		"action": "resolution",
 		"reason": "",
 		"prelude_result": resolution_state.get("prelude_result", {}),
 		"action_events": resolution_state.get("action_events", []),
 		"reflex_result": resolution_state.get("reflex_result", {}),
+		"valak_projection_events": resolution_state.get("valak_projection_events", []),
 		"finale_result": resolution_state.get("finale_result", {}),
 		"cleanup_result": resolution_state.get("cleanup_result", {}),
 		"stopped_stage": String(resolution_state.get("stopped_stage", "")),
@@ -2046,6 +2451,7 @@ func _finish_human_resolution() -> Dictionary:
 
 	_record_phase("resolution", {"choices": resolution_state.get("action_choices", {}), "result": resolution_result})
 	_record_phase("march_advance", march_advance_result)
+	_record_phase("vacant_throne", vacant_throne_result)
 	_sync_guard_visibility()
 	stage = Stage.TERMINAL if int(game.winner) >= 0 else Stage.NO_GAME
 	last_result = _round_result(

@@ -6,6 +6,10 @@ const GameSetupData = preload(
 	"res://Scripts/Sim/GameSetup.gd"
 )
 
+const ValakEssenceEngineData = preload(
+	"res://Scripts/Sim/ValakEssenceEngine.gd"
+)
+
 const LordMathData = preload(
 	"res://Scripts/Sim/LordMath.gd"
 )
@@ -249,14 +253,32 @@ static func resolve(
 	if (
 		rules.ward_commit_defense
 		and defender.action == "Ward"
-		and defender.ward_target == ZONE_LORD
 	):
-		ward_commit_defense = _effective_ward_commitment(
-			defender,
-			rules
+		ward_commit_defense = int(
+			defender.ward_reinforcement_value_for_zone(
+				rules,
+				ZONE_LORD
+			)
 		)
 		if not rules.ward_frontline:
 			lord_defense += ward_commit_defense
+
+	var valak_essence_defense: Dictionary = (
+		ValakEssenceEngineData.reinforce_hunt(
+			defender,
+			max(
+				0,
+				strength - ward_commit_defense
+			),
+			rules
+		)
+	)
+	ward_commit_defense += int(
+		valak_essence_defense.get(
+			"spent",
+			0
+		)
+	)
 
 	var sigil_state: String = String(
 		defender.sigils.get(
@@ -291,6 +313,14 @@ static func resolve(
 	)
 
 	var guards_lost: int = guards_defeated.size()
+
+	var valak_siphon_event: Dictionary = (
+		ValakEssenceEngineData.gain_from_guards(
+			attacker,
+			guards_defeated,
+			rules
+		)
+	)
 
 	var destroyed: bool = bool(
 		combat_result.get(
@@ -487,7 +517,8 @@ static func resolve(
 	)
 
 	if (
-		not consumed
+		not ValakEssenceEngineData.enabled(rules)
+		and not consumed
 		and attacker.lord == "Valak"
 		and attacker.alive
 		and guards_lost > 0

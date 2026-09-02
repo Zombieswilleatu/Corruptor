@@ -112,7 +112,8 @@ func refresh_derived_values() -> void:
 	veil_total = calculate_veil_total()
 
 
-func duplicate_state() -> GameState:
+# FORECAST_SHALLOW_CLONE_V1
+func duplicate_state(forecast_fast: bool = false) -> GameState:
 	var copy := GameState.new()
 
 	copy.round = round
@@ -152,18 +153,34 @@ func duplicate_state() -> GameState:
 	copy.winner = winner
 	copy.win_by = win_by
 
-	copy.deck = _duplicate_cards(deck)
-	copy.discard = _duplicate_cards(discard)
-	copy.market = _duplicate_cards(market)
-	copy.removed_from_play = _duplicate_cards(
-		removed_from_play
-	)
+	copy.deck = (
+				deck.duplicate()
+				if forecast_fast
+				else _duplicate_cards(deck)
+		)
+	copy.discard = (
+				discard.duplicate()
+				if forecast_fast
+				else _duplicate_cards(discard)
+		)
+	copy.market = (
+				market.duplicate()
+				if forecast_fast
+				else _duplicate_cards(market)
+		)
+	copy.removed_from_play = (
+				removed_from_play.duplicate()
+				if forecast_fast
+				else _duplicate_cards(
+						removed_from_play
+				)
+		)
 
 	copy.players.clear()
 
 	for player in players:
 		copy.players.append(
-			player.duplicate_state()
+			player.duplicate_state(forecast_fast)
 		)
 
 	return copy
