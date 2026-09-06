@@ -5,6 +5,14 @@
 class_name UI2ResolutionTheater
 extends Control
 
+
+# UI2_RESOLUTION_THEATER_SCRUM_V1
+const MixedActionSquadBattleData = preload(
+	"res://Prototype/UI2/MixedActionSquadBattle.gd"
+)
+
+var _scrum_overlay_active: bool = false
+
 const SubjectCardArtCatalogData = preload(
 	"res://Prototype/UI2/SubjectCardArtCatalog.gd"
 )
@@ -1158,3 +1166,194 @@ func _clear_children(
 	for child in node.get_children():
 		node.remove_child(child)
 		child.queue_free()
+
+# UI2_RESOLUTION_THEATER_SCRUM_V1
+# Generic large-screen host for marching-battle presentations.
+func play_scrum(
+	enemy_specs: Array,
+	player_specs: Array,
+	swing_count: int = 3
+) -> void:
+	if _scrum_overlay_active:
+		return
+
+	if enemy_specs.is_empty() and player_specs.is_empty():
+		return
+
+	_scrum_overlay_active = true
+
+	var was_visible: bool = visible
+	visible = true
+
+	var overlay := Control.new()
+	overlay.name = "MarchScrumResolutionOverlay"
+	overlay.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
+	)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	overlay.z_index = 1000
+	add_child(overlay)
+
+	var scrim := ColorRect.new()
+	scrim.name = "ScrumScrim"
+	scrim.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
+	)
+	scrim.color = Color(
+		0.0,
+		0.0,
+		0.0,
+		0.88
+	)
+	scrim.mouse_filter = Control.MOUSE_FILTER_STOP
+	overlay.add_child(scrim)
+
+	var stage := PanelContainer.new()
+	stage.name = "ScrumBigScreen"
+	stage.set_anchors_preset(
+		Control.PRESET_FULL_RECT
+	)
+	stage.anchor_left = 0.07
+	stage.anchor_top = 0.15
+	stage.anchor_right = 0.93
+	stage.anchor_bottom = 0.84
+	stage.offset_left = 0.0
+	stage.offset_top = 0.0
+	stage.offset_right = 0.0
+	stage.offset_bottom = 0.0
+	overlay.add_child(stage)
+
+	var stage_style := StyleBoxFlat.new()
+	stage_style.bg_color = Color(
+		0.035,
+		0.035,
+		0.04,
+		0.98
+	)
+	stage_style.border_color = Color(
+		0.38,
+		0.34,
+		0.28,
+		1.0
+	)
+	stage_style.set_border_width_all(2)
+	stage_style.set_corner_radius_all(8)
+	stage.add_theme_stylebox_override(
+		"panel",
+		stage_style
+	)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override(
+		"margin_left",
+		28
+	)
+	margin.add_theme_constant_override(
+		"margin_right",
+		28
+	)
+	margin.add_theme_constant_override(
+		"margin_top",
+		18
+	)
+	margin.add_theme_constant_override(
+		"margin_bottom",
+		18
+	)
+	stage.add_child(margin)
+
+	var column := VBoxContainer.new()
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	column.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	column.add_theme_constant_override(
+		"separation",
+		10
+	)
+	margin.add_child(column)
+
+	var kicker := Label.new()
+	kicker.text = "RESOLUTION THEATER"
+	kicker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	kicker.add_theme_font_size_override(
+		"font_size",
+		13
+	)
+	kicker.add_theme_color_override(
+		"font_color",
+		Color(
+			0.65,
+			0.60,
+			0.52,
+			1.0
+		)
+	)
+	column.add_child(kicker)
+
+	var headline := Label.new()
+	headline.text = "THE BATTLEFIELD"
+	headline.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	headline.add_theme_font_size_override(
+		"font_size",
+		24
+	)
+	headline.add_theme_color_override(
+		"font_color",
+		Color(
+			0.92,
+			0.89,
+			0.82,
+			1.0
+		)
+	)
+	column.add_child(headline)
+
+	var rule := HSeparator.new()
+	column.add_child(rule)
+
+	var battle_view = MixedActionSquadBattleData.new()
+	battle_view.name = "ResolutionScrumBattle"
+	battle_view.setup(
+		enemy_specs,
+		player_specs,
+		swing_count
+	)
+
+	battle_view.set_presentation_scale(1.85)
+	battle_view.custom_minimum_size = Vector2(
+		0.0,
+		250.0
+	)
+	battle_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	battle_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	column.add_child(battle_view)
+
+	var footer := Label.new()
+	footer.text = "MARCHERS COLLIDE"
+	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	footer.add_theme_font_size_override(
+		"font_size",
+		11
+	)
+	footer.add_theme_color_override(
+		"font_color",
+		Color(
+			0.55,
+			0.53,
+			0.49,
+			1.0
+		)
+	)
+	column.add_child(footer)
+
+	await battle_view.battle_finished
+
+	await get_tree().create_timer(
+		1.55
+	).timeout
+
+	if is_instance_valid(overlay):
+		overlay.queue_free()
+		await get_tree().process_frame
+
+	visible = was_visible
+	_scrum_overlay_active = false

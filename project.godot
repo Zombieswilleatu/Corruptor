@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Corruptor"
-run/main_scene="res://Prototype/Prologue/PrologueRunner.tscn"
+run/main_scene="res://Prototype/Splash/GraveGamesSplash.tscn"
 config/features=PackedStringArray("4.2", "Mobile")
 config/icon="res://icon.svg"
 

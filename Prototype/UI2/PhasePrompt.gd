@@ -1,3 +1,4 @@
+# UI2_SLAVER_THEME_V1_1
 # UI2_DIALOGUE_BREACH_OVERHAUL_V1
 class_name UI2PhasePrompt
 extends PanelContainer
@@ -40,6 +41,10 @@ var maintenance_step: String = ""
 
 func _ready() -> void:
 	call_deferred("_apply_decision_panel_skin_v1")
+	# UI2_DECISION_PHASE_SLOT_READABILITY_V17_1
+	# Root-overlay header must follow the final PanelContainer rect.
+	if not resized.is_connected(_sync_decision_panel_layout_v4):
+		resized.connect(_sync_decision_panel_layout_v4)
 	z_index = 60
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	clip_contents = true
@@ -258,7 +263,7 @@ func _refresh_mode() -> void:
 		# UI2_DECISION_BOTTOM_ACTIONS_PARSE_FIX_V12_2
 		offset_bottom = 34.0
 		call_deferred("_sync_decision_bottom_actions_v12")
-		call_deferred("_sync_decision_header_slots_v15")
+		call_deferred("_sync_decision_panel_layout_v4")
 		return
 
 	title_label.visible = true
@@ -279,7 +284,8 @@ func _refresh_mode() -> void:
 	var commitment_text_height_v13: float = (
 		# UI2_COMMITMENT_TEXT_WINDOW_FILL_V13_1
 
-		270.0 if commitment_text_window_v13 else 0.0
+		# UI2_DECISION_HEADER_GLOBAL_RECT_V16_1
+		300.0 if commitment_text_window_v13 else 0.0
 
 	)
 
@@ -300,6 +306,25 @@ func _refresh_mode() -> void:
 			action_scroll_v13.custom_minimum_size.y = (
 				commitment_text_height_v13
 			)
+	# UI2_SLAVER_VISIBLE_OFFERS_V2_4
+	# Use the existing dead space above the artwork buttons.
+	if stage_key == "MARKET" and show_details:
+		var slaver_detail_height_v2_4: float = 225.0
+		if content_host != null:
+			content_host.custom_minimum_size.y = (
+				slaver_detail_height_v2_4
+			)
+		if action_zone != null:
+			action_zone.custom_minimum_size.y = (
+				slaver_detail_height_v2_4
+			)
+			var slaver_scroll_v2_4 := action_zone.get_node_or_null(
+				"ActionScroll"
+			) as ScrollContainer
+			if slaver_scroll_v2_4 != null:
+				slaver_scroll_v2_4.custom_minimum_size.y = (
+					slaver_detail_height_v2_4
+				)
 	intro_buttons.visible = not show_details and _has_buttons(stage_key)
 
 	# UI2_DECISION_PANEL_TRUE_FIXED_SIZE_V12
@@ -309,7 +334,7 @@ func _refresh_mode() -> void:
 	offset_top = -265.0
 	offset_bottom = 265.0
 	call_deferred("_sync_decision_bottom_actions_v12")
-	call_deferred("_sync_decision_header_slots_v15")
+	call_deferred("_sync_decision_panel_layout_v4")
 
 
 func _on_view_board_pressed() -> void:
@@ -343,8 +368,8 @@ func _configure_buttons() -> void:
 			yes_button.text = "SPRING THE SNARE"
 			no_button.text = "HOLD YOUR THREAT"
 		"MARKET":
-			yes_button.text = "VISIT THE MARKET"
-			no_button.text = "KEEP YOUR HAND"
+			yes_button.text = "VISIT THE SLAVER"
+			no_button.text = "PASS"
 		"REPAIR":
 			yes_button.text = (
 				"CONSTRUCT"
@@ -392,6 +417,7 @@ func _on_yes_pressed() -> void:
 
 	detail_open = true
 	_refresh_mode()
+	call_deferred("_sync_decision_panel_layout_v4")
 
 	if stage_key == "REPAIR" and action_zone != null:
 		action_zone.focus_castle_action_mode(maintenance_step)
@@ -483,7 +509,7 @@ func _title(stage_name: String) -> String:
 		"DEVELOPMENT_SNARE":
 			return "THE STALKER'S SNARE"
 		"MARKET":
-			return "THE MARKET"
+			return "THE SLAVER"
 		"REPAIR":
 			return (
 				"RAISE THE WALLS"
@@ -539,7 +565,7 @@ func _copy(stage_name: String) -> String:
 		"DEVELOPMENT_SNARE":
 			return "Orias can spend 1 Threat to restrict the enemy to one total Guard move during this Development."
 		"MARKET":
-			return "Exchange one card from your Hand for one offer from the Market, or keep what you have."
+			return "Exchange one Subject card from your Hand for one offer at the Slaver. New stock daily."
 		"REPAIR":
 			return _castle_maintenance_copy()
 		"DOMINION_RITES":
@@ -984,6 +1010,35 @@ func _sync_decision_panel_layout_v4() -> void:
 	var overlay := _decision_panel_overlay_v5()
 	if overlay == null:
 		return
+	# UI2_DECISION_PHASE_STALE_RUNTIME_PURGE_V17_6
+	# The retired V15 helper has no active callers. Purge any V15 label
+	# that survived in the scene tree before drawing the current V16 slot.
+	var stale_phase_v15_live := overlay.get_node_or_null(
+		"DecisionPhaseSlotV15"
+	) as Control
+	if stale_phase_v15_live != null:
+		stale_phase_v15_live.visible = false
+		stale_phase_v15_live.queue_free()
+
+
+	var phase_slot_v16 := overlay.get_node_or_null(
+		"DecisionPhaseSlotV16"
+	) as Label
+	# UI2_DECISION_OVERLAY_ORPHAN_LABEL_PURGE_V17_7
+	# Runtime census found an unnamed opaque Label stranded directly
+	# under DecisionPanelOverlayV5. Only title_label and phase_slot_v16
+	# are legitimate direct Label children of this header overlay.
+	for overlay_child_v17_7 in overlay.get_children():
+		var orphan_label_v17_7 := overlay_child_v17_7 as Label
+		if orphan_label_v17_7 == null:
+			continue
+		if orphan_label_v17_7 == title_label:
+			continue
+		if orphan_label_v17_7 == phase_slot_v16:
+			continue
+		orphan_label_v17_7.visible = false
+		orphan_label_v17_7.queue_free()
+
 
 	var content_root := get_node_or_null(
 		"DecisionPanelContentV4"
@@ -993,6 +1048,8 @@ func _sync_decision_panel_layout_v4() -> void:
 	# prompt's own visibility.
 	if not visible:
 		title_label.visible = false
+		if phase_slot_v16 != null:
+			phase_slot_v16.visible = false
 		view_board_button.visible = false
 		return
 
@@ -1002,6 +1059,8 @@ func _sync_decision_panel_layout_v4() -> void:
 			content_root.visible = false
 
 		title_label.visible = false
+		if phase_slot_v16 != null:
+			phase_slot_v16.visible = false
 		add_theme_stylebox_override(
 			"panel",
 			StyleBoxEmpty.new()
@@ -1048,12 +1107,78 @@ func _sync_decision_panel_layout_v4() -> void:
 
 	var prompt_rect: Rect2 = get_global_rect()
 
+	# UI2_DECISION_HEADER_GLOBAL_RECT_V16_1
+	# Keep the original eyebrow alive for state/layout, but render the
+	# phase name in the artwork's dedicated cutout instead.
+	# UI2_DECISION_PHASE_DUPLICATE_CLEANUP_V17_2
+	# Preserve the legacy eyebrow's layout footprint/text source,
+	# but make its glyphs impossible to render in the content VBox.
+	if eyebrow_label != null:
+		eyebrow_label.modulate = Color(1.0, 1.0, 1.0, 0.0)
+		eyebrow_label.self_modulate = Color(1.0, 1.0, 1.0, 0.0)
+		eyebrow_label.add_theme_color_override(
+			"font_color",
+			Color(1.0, 1.0, 1.0, 0.0)
+		)
+		eyebrow_label.add_theme_color_override(
+			"font_shadow_color",
+			Color(0.0, 0.0, 0.0, 0.0)
+		)
+
+	if phase_slot_v16 == null:
+		phase_slot_v16 = Label.new()
+		phase_slot_v16.name = "DecisionPhaseSlotV16"
+		phase_slot_v16.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		phase_slot_v16.z_index = 2
+		phase_slot_v16.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		phase_slot_v16.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		phase_slot_v16.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		phase_slot_v16.add_theme_font_size_override("font_size", 11)
+		phase_slot_v16.add_theme_color_override(
+			"font_color",
+			Color(0.76, 0.67, 0.48, 1.0)
+		)
+		phase_slot_v16.add_theme_color_override(
+			"font_shadow_color",
+			Color(0.0, 0.0, 0.0, 0.88)
+		)
+		phase_slot_v16.add_theme_constant_override("shadow_offset_x", 1)
+		phase_slot_v16.add_theme_constant_override("shadow_offset_y", 1)
+		overlay.add_child(phase_slot_v16)
+
+	phase_slot_v16.text = (
+		eyebrow_label.text
+		if eyebrow_label != null
+		else ""
+	)
+	phase_slot_v16.visible = true
+
+	# UI2_DECISION_PHASE_SLOT_READABILITY_V17_1
+	# Normalize to the live panel rectangle so intro/detail views share
+	# the exact same painted phase-window position.
+	var phase_rect_v17_1 := Rect2(
+		prompt_rect.position + Vector2(
+			prompt_rect.size.x * 0.065,
+			prompt_rect.size.y * 0.118
+		),
+		Vector2(
+			prompt_rect.size.x * 0.260,
+			prompt_rect.size.y * 0.052
+		)
+	)
+	_place_decision_overlay_rect_v5(
+		phase_slot_v16,
+		phase_rect_v17_1
+	)
+
 	# Dynamic title in the artwork's top plaque.
 	var title_rect := Rect2(
-		prompt_rect.position + Vector2(58.0, 12.0),
-		Vector2(prompt_rect.size.x - 116.0, 46.0)
+		prompt_rect.position + Vector2(90.0, 20.0),
+		Vector2(prompt_rect.size.x - 180.0, 44.0)
 	)
 	title_label.visible = true
+	title_label.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	title_label.add_theme_font_size_override("font_size", 16)
 	_place_decision_overlay_rect_v5(
 		title_label,
 		title_rect
@@ -1484,87 +1609,23 @@ func _place_decision_action_button_v12(
 
 
 # UI2_DECISION_ALIGNMENT_CLEANUP_V15
+# UI2_DECISION_PHASE_V15_RETIRE_V17_5
 func _sync_decision_header_slots_v15() -> void:
-	var overlay := get_node_or_null(
-		"DecisionPanelOverlayV5"
-	) as Control
-
+	# Historical compatibility shim only.
+	# Never create/render a second phase label again.
+	var overlay := _decision_panel_overlay_v5()
 	if overlay == null and title_label != null:
 		overlay = title_label.get_parent() as Control
 
 	if overlay == null:
 		return
 
-	# Preserve the old header-row footprint so copy/divider geometry does not
-	# shift. Only its rendering moves into the artwork's dedicated phase slot.
-	if eyebrow_label != null:
-		eyebrow_label.modulate = Color(
-			1.0,
-			1.0,
-			1.0,
-			0.0
-		)
-
-	var phase_slot := overlay.get_node_or_null(
+	var stale_phase_v15 := overlay.get_node_or_null(
 		"DecisionPhaseSlotV15"
-	) as Label
+	) as Control
 
-	if phase_slot == null:
-		phase_slot = Label.new()
-		phase_slot.name = "DecisionPhaseSlotV15"
-		phase_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		phase_slot.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		phase_slot.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		phase_slot.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		phase_slot.add_theme_font_size_override(
-			"font_size",
-			9
-		)
-		phase_slot.add_theme_color_override(
-			"font_color",
-			Color(0.76, 0.67, 0.48, 1.0)
-		)
-		phase_slot.add_theme_color_override(
-			"font_shadow_color",
-			Color(0.0, 0.0, 0.0, 0.85)
-		)
-		phase_slot.add_theme_constant_override(
-			"shadow_offset_x",
-			1
-		)
-		phase_slot.add_theme_constant_override(
-			"shadow_offset_y",
-			1
-		)
-		overlay.add_child(phase_slot)
+	if stale_phase_v15 != null:
+		stale_phase_v15.visible = false
+		stale_phase_v15.queue_free()
 
-	if eyebrow_label != null:
-		phase_slot.text = eyebrow_label.text
-
-	phase_slot.visible = not board_view_collapsed
-	phase_slot.anchor_left = 0.055
-	phase_slot.anchor_right = 0.245
-	phase_slot.anchor_top = 0.115
-	phase_slot.anchor_bottom = 0.160
-	phase_slot.offset_left = 0.0
-	phase_slot.offset_right = 0.0
-	phase_slot.offset_top = 0.0
-	phase_slot.offset_bottom = 0.0
-
-	# The generated plaque's visual center sits slightly below the old V5
-	# title position. Keep the live title, just place it in the artwork.
-	if title_label != null:
-		title_label.anchor_left = 0.19
-		title_label.anchor_right = 0.81
-		title_label.anchor_top = 0.028
-		title_label.anchor_bottom = 0.110
-		title_label.offset_left = 0.0
-		title_label.offset_right = 0.0
-		title_label.offset_top = 0.0
-		title_label.offset_bottom = 0.0
-		title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		title_label.add_theme_font_size_override(
-			"font_size",
-			16
-		)
+	return

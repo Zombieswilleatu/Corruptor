@@ -16,6 +16,9 @@ const UI2_HAND_BANNER_TEXTURE: Texture2D = preload(
 # These ratios isolate the actual ornate banner band.
 const UI2_HAND_BANNER_CROP_TOP_RATIO: float = 0.2334
 const UI2_HAND_BANNER_CROP_HEIGHT_RATIO: float = 0.5387
+# UI2_HAND_BANNER_SIDE_CROP_V1
+# UI2_HAND_BANNER_SIDE_CROP_V1_1
+const UI2_HAND_BANNER_CROP_SIDE_PX: float = 6.0
 const UI2_HAND_BANNER_ALPHA: float = 0.94
 
 
@@ -793,9 +796,13 @@ func _draw() -> void:
 		return
 
 	var source_rect := Rect2(
-		0.0,
+		UI2_HAND_BANNER_CROP_SIDE_PX,
 		texture_size.y * UI2_HAND_BANNER_CROP_TOP_RATIO,
-		texture_size.x,
+		maxf(
+			1.0,
+			texture_size.x
+				- (UI2_HAND_BANNER_CROP_SIDE_PX * 2.0)
+		),
 		texture_size.y * UI2_HAND_BANNER_CROP_HEIGHT_RATIO
 	)
 

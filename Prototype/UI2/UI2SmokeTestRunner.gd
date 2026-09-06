@@ -53,26 +53,31 @@ func _run() -> void:
 	else:
 		_pass("board_shell_present")
 
-	var action = screen.get_node_or_null(
-		"Frame/Main/Body/ActionZone"
-	)
+	# UI2_SMOKE_CURRENT_OVERLAY_PATHS_V1
+	# ActionZone is now hosted/reparented by PhasePrompt, so its old Body
+	# path is intentionally obsolete. Test the live screen reference instead.
+	var action = screen.action_zone
 
-	if action == null:
+	if action == null or not is_instance_valid(action):
 		_fail("action_zone_present")
 	else:
 		_pass("action_zone_present")
 
-	var activity = screen.get_node_or_null(
-		"Frame/Main/Body/ActivityRail"
-	)
-	var hand = screen.get_node_or_null(
-		"Frame/Main/Body/Center/HandView"
-	)
-	var veil = screen.get_node_or_null(
-		"Frame/Main/Top/VeilTrack"
-	)
+	# Activity is now the root HistoryOverlay, while Hand/Veil remain live
+	# screen-owned production regions. Use the screen references so this
+	# contract follows intentional reparenting instead of stale node paths.
+	var activity = screen.activity_rail
+	var hand = screen.hand_view
+	var veil = screen.veil_track
 
-	if activity == null or hand == null or veil == null:
+	if (
+		activity == null
+		or not is_instance_valid(activity)
+		or hand == null
+		or not is_instance_valid(hand)
+		or veil == null
+		or not is_instance_valid(veil)
+	):
 		_fail("production_shell_regions_present")
 	else:
 		_pass("production_shell_regions_present")

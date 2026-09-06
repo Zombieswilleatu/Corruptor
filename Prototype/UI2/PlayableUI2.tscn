@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=2 format=3 uid="uid://b7wjd6eaqm06v"]
 
 [ext_resource type="Script" path="res://Prototype/UI2/PlayableUI2.gd" id="1_ui2"]
 

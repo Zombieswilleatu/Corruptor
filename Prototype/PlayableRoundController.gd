@@ -166,6 +166,14 @@ var rules: RuleConfig = null
 var random_source = null
 var policy = null
 
+# U12_COMMIT_POLICY_DIVERGENCE_AUDIT_V1
+# Passive instrumentation only. The live bot still makes its normal choice
+# with the untouched live RNG after the audit previews run on cloned state.
+var _u12_policy_audit_rows: Array[Dictionary] = []
+var _u12_policy_audit_path: String = ""
+var _u12_policy_audit_seed: int = 0
+var _u12_policy_audit_started_unix: int = 0
+
 var stage: Stage = Stage.NO_GAME
 var phase_results: Dictionary = {}
 var events: Array[Dictionary] = []
@@ -201,6 +209,8 @@ func start_match(
 	# branch. DE v2 remains selectable in the simulation runners and goldens.
 	rules = RuleConfig.lab_v6_5()
 	policy = BotPolicyData.standard()
+
+	_u12_policy_audit_begin(seed_value)
 
 	var setup: Dictionary = (
 		SeededGameSetupData.setup_locked_game(
@@ -1166,21 +1176,725 @@ func resolve_human_reflex_bid(
 
 
 func _prepare_commitment() -> Dictionary:
-	# The bot receives its masked information view and only its own sealed
-	# order is generated.  Seat zero is left intentionally undecided until the
-	# player seals an order in the interface.
-	commitment_choices = {
-		BOT_PLAYER_ID: PlayableBotDoctrineData.commitment_choice(
-			_information_view(game, BOT_PLAYER_ID),
+	# U12_COMMIT_POLICY_DIVERGENCE_AUDIT_V1
+	#
+	# Preview BOTH selectors on the exact masked Commitment state without
+	# touching the live RNG. Then let U12 make its normal live decision.
+	var audit_view = _information_view(
+		game,
+		BOT_PLAYER_ID
+	)
+	var audit_candidates: Array = (
+		BotDoctrineData.evaluate_action_candidates(
+			audit_view,
+			BOT_PLAYER_ID,
+			rules
+		)
+	)
+
+	var audit_rng = _duplicate_random_source()
+	var standard_selection: Dictionary = (
+		BotSelectorData.choose(
+			audit_candidates,
+			audit_rng,
+			policy
+		)
+	)
+	var golden_selection: Dictionary = (
+		BotSelectorData.choose(
+			audit_candidates,
+			null,
+			BotPolicyData.golden_core()
+		)
+	)
+
+	var standard_candidate: Dictionary = (
+		standard_selection.get(
+			"candidate",
+			{}
+		)
+	)
+	var golden_candidate: Dictionary = (
+		golden_selection.get(
+			"candidate",
+			{}
+		)
+	)
+
+	var standard_preview: Dictionary = (
+		BotDoctrineData._commitment_decision_from_candidate(
+			audit_view,
+			BOT_PLAYER_ID,
+			standard_candidate,
+			rules
+		)
+	)
+	var golden_preview: Dictionary = (
+		BotDoctrineData._commitment_decision_from_candidate(
+			audit_view,
+			BOT_PLAYER_ID,
+			golden_candidate,
+			rules
+		)
+	)
+
+	# Fresh masked view for the live path so preview work cannot affect gameplay.
+	var actual_decision: Dictionary = (
+		PlayableBotDoctrineData.commitment_choice(
+			_information_view(
+				game,
+				BOT_PLAYER_ID
+			),
 			BOT_PLAYER_ID,
 			random_source,
 			rules,
 			policy
-		),
+		)
+	)
+
+	commitment_choices = {
+		BOT_PLAYER_ID: actual_decision,
 	}
+
+	_u12_policy_audit_record(
+		audit_candidates,
+		standard_selection,
+		golden_selection,
+		standard_preview,
+		golden_preview,
+		actual_decision
+	)
 
 	stage = Stage.COMMITMENT
 	return _awaiting("commitment")
+
+
+func _u12_policy_audit_begin(
+	seed_value: int
+) -> void:
+	_u12_policy_audit_rows.clear()
+	_u12_policy_audit_seed = seed_value
+	_u12_policy_audit_started_unix = int(
+		Time.get_unix_time_from_system()
+	)
+
+	var home: String = OS.get_environment(
+		"USERPROFILE"
+	).replace(
+		"\\",
+		"/"
+	)
+	if home.is_empty():
+		home = OS.get_environment(
+			"HOME"
+		).replace(
+			"\\",
+			"/"
+		)
+
+	_u12_policy_audit_path = (
+		home
+		+ "/Downloads/U12_COMMIT_POLICY_AUDIT_%d_%d.json"
+		% [
+			_u12_policy_audit_seed,
+			_u12_policy_audit_started_unix,
+		]
+	)
+
+	_u12_policy_audit_write()
+
+
+func _u12_policy_audit_record(
+	candidates: Array,
+	standard_selection: Dictionary,
+	golden_selection: Dictionary,
+	standard_preview: Dictionary,
+	golden_preview: Dictionary,
+	actual_decision: Dictionary
+) -> void:
+	var score_info: Dictionary = (
+		_u12_policy_audit_top_two(
+			candidates
+		)
+	)
+
+	var action_diff: bool = (
+		String(
+			standard_preview.get(
+				"action",
+				""
+			)
+		)
+		!= String(
+			golden_preview.get(
+				"action",
+				""
+			)
+		)
+	)
+	var target_diff: bool = (
+		_u12_policy_audit_target_signature(
+			standard_preview
+		)
+		!= _u12_policy_audit_target_signature(
+			golden_preview
+		)
+	)
+	var cards_diff: bool = (
+		_u12_policy_audit_cards(
+			standard_preview
+		)
+		!= _u12_policy_audit_cards(
+			golden_preview
+		)
+	)
+	var divergence: bool = (
+		action_diff
+		or target_diff
+		or cards_diff
+	)
+
+	var preview_mismatch: bool = (
+		not _u12_policy_audit_same_decision(
+			standard_preview,
+			actual_decision
+		)
+	)
+
+	var standard_index: int = int(
+		standard_selection.get(
+			"index",
+			-1
+		)
+	)
+	var standard_probability: float = -1.0
+	var raw_probabilities = (
+		standard_selection.get(
+			"probabilities",
+			[]
+		)
+	)
+	if (
+		typeof(raw_probabilities) == TYPE_ARRAY
+		and standard_index >= 0
+		and standard_index < raw_probabilities.size()
+	):
+		standard_probability = float(
+			raw_probabilities[
+				standard_index
+			]
+		)
+
+	var bot = get_bot_player()
+	var human = get_human_player()
+
+	var row: Dictionary = {
+		"round": int(game.round),
+		"bot_lord": (
+			String(bot.lord)
+			if bot != null
+			else ""
+		),
+		"human_lord": (
+			String(human.lord)
+			if human != null
+			else ""
+		),
+		"standard_candidate": String(
+			standard_selection.get(
+				"candidate_id",
+				""
+			)
+		),
+		"golden_candidate": String(
+			golden_selection.get(
+				"candidate_id",
+				""
+			)
+		),
+		"standard_action": String(
+			standard_preview.get(
+				"action",
+				""
+			)
+		),
+		"golden_action": String(
+			golden_preview.get(
+				"action",
+				""
+			)
+		),
+		"standard_target": (
+			_u12_policy_audit_target_signature(
+				standard_preview
+			)
+		),
+		"golden_target": (
+			_u12_policy_audit_target_signature(
+				golden_preview
+			)
+		),
+		"standard_cards": (
+			_u12_policy_audit_cards(
+				standard_preview
+			)
+		),
+		"golden_cards": (
+			_u12_policy_audit_cards(
+				golden_preview
+			)
+		),
+		"action_diff": action_diff,
+		"target_diff": target_diff,
+		"cards_diff": cards_diff,
+		"divergence": divergence,
+		"preview_mismatch": preview_mismatch,
+		"top_candidate": String(
+			score_info.get(
+				"top_candidate",
+				""
+			)
+		),
+		"second_candidate": String(
+			score_info.get(
+				"second_candidate",
+				""
+			)
+		),
+		"top_score": float(
+			score_info.get(
+				"top_score",
+				0.0
+			)
+		),
+		"second_score": float(
+			score_info.get(
+				"second_score",
+				0.0
+			)
+		),
+		"top_two_gap": float(
+			score_info.get(
+				"gap",
+				-1.0
+			)
+		),
+		"standard_roll": float(
+			standard_selection.get(
+				"roll",
+				-1.0
+			)
+		),
+		"standard_probability": (
+			standard_probability
+		),
+		"standard_was_argmax": (
+			String(
+				standard_selection.get(
+					"candidate_id",
+					""
+				)
+			)
+			== String(
+				golden_selection.get(
+					"candidate_id",
+					""
+				)
+			)
+		),
+	}
+
+	_u12_policy_audit_rows.append(
+		row
+	)
+
+	var status: String = (
+		"DIFF"
+		if divergence
+		else "same"
+	)
+	print(
+		(
+			"U12 POLICY AUDIT r%d %-4s "
+			+ "std=%s gold=%s gap=%.3f "
+			+ "p=%.3f roll=%.3f"
+		)
+		% [
+			int(game.round),
+			status,
+			String(
+				row.get(
+					"standard_action",
+					""
+				)
+			),
+			String(
+				row.get(
+					"golden_action",
+					""
+				)
+			),
+			float(
+				row.get(
+					"top_two_gap",
+					-1.0
+				)
+			),
+			standard_probability,
+			float(
+				row.get(
+					"standard_roll",
+					-1.0
+				)
+			),
+		]
+	)
+
+	if preview_mismatch:
+		push_warning(
+			"U12 policy audit preview did not match live decision; "
+			+ "audit row retained but RNG-equivalence assumption needs review."
+		)
+
+	_u12_policy_audit_write()
+
+
+func _u12_policy_audit_top_two(
+	candidates: Array
+) -> Dictionary:
+	var top_score: float = -1.0e30
+	var second_score: float = -1.0e30
+	var top_candidate: String = ""
+	var second_candidate: String = ""
+
+	for raw_candidate in candidates:
+		if typeof(
+			raw_candidate
+		) != TYPE_DICTIONARY:
+			continue
+
+		var candidate: Dictionary = (
+			raw_candidate
+		)
+		var score: float = float(
+			candidate.get(
+				"score",
+				-1.0e30
+			)
+		)
+		var candidate_id: String = String(
+			candidate.get(
+				"id",
+				candidate.get(
+					"action",
+					""
+				)
+			)
+		)
+
+		if score > top_score:
+			second_score = top_score
+			second_candidate = top_candidate
+			top_score = score
+			top_candidate = candidate_id
+		elif score > second_score:
+			second_score = score
+			second_candidate = candidate_id
+
+	var gap: float = -1.0
+	if second_score > -1.0e29:
+		gap = top_score - second_score
+
+	return {
+		"top_candidate": top_candidate,
+		"second_candidate": second_candidate,
+		"top_score": top_score,
+		"second_score": second_score,
+		"gap": gap,
+	}
+
+
+func _u12_policy_audit_target_signature(
+	decision: Dictionary
+) -> String:
+	# U12_COMMIT_POLICY_DIVERGENCE_AUDIT_V1_1_STRING_FIX
+	# str() safely converts arbitrary Variant values, including int target_pid.
+	return "%s|%s|%s" % [
+		str(
+			decision.get(
+				"target_pid",
+				""
+			)
+		),
+		str(
+			decision.get(
+				"target_type",
+				""
+			)
+		),
+		str(
+			decision.get(
+				"target_castle",
+				""
+			)
+		),
+	]
+
+
+func _u12_policy_audit_cards(
+	decision: Dictionary
+) -> Array[String]:
+	var result: Array[String] = []
+	var raw_cards = decision.get(
+		"cards",
+		[]
+	)
+
+	if typeof(
+		raw_cards
+	) == TYPE_ARRAY:
+		for raw_card in raw_cards:
+			result.append(
+				String(
+					raw_card
+				)
+			)
+
+	result.sort()
+	return result
+
+
+func _u12_policy_audit_same_decision(
+	a: Dictionary,
+	b: Dictionary
+) -> bool:
+	return (
+		String(
+			a.get(
+				"action",
+				""
+			)
+		)
+		== String(
+			b.get(
+				"action",
+				""
+			)
+		)
+		and _u12_policy_audit_target_signature(
+			a
+		)
+		== _u12_policy_audit_target_signature(
+			b
+		)
+		and _u12_policy_audit_cards(
+			a
+		)
+		== _u12_policy_audit_cards(
+			b
+		)
+	)
+
+
+func _u12_policy_audit_summary() -> Dictionary:
+	var total: int = (
+		_u12_policy_audit_rows.size()
+	)
+	var divergence: int = 0
+	var action_diff: int = 0
+	var target_diff: int = 0
+	var cards_diff: int = 0
+	var preview_mismatch: int = 0
+	var standard_not_argmax: int = 0
+
+	var gap_le_025: int = 0
+	var gap_le_050: int = 0
+	var gap_le_100: int = 0
+	var gap_le_200: int = 0
+	var gap_gt_200: int = 0
+	var gap_unavailable: int = 0
+
+	var divergent_gap_le_025: int = 0
+	var divergent_gap_le_050: int = 0
+	var divergent_gap_le_100: int = 0
+	var divergent_gap_le_200: int = 0
+	var divergent_gap_gt_200: int = 0
+	var divergent_gap_unavailable: int = 0
+
+	for row in _u12_policy_audit_rows:
+		var is_divergent: bool = bool(
+			row.get(
+				"divergence",
+				false
+			)
+		)
+		if is_divergent:
+			divergence += 1
+		if bool(
+			row.get(
+				"action_diff",
+				false
+			)
+		):
+			action_diff += 1
+		if bool(
+			row.get(
+				"target_diff",
+				false
+			)
+		):
+			target_diff += 1
+		if bool(
+			row.get(
+				"cards_diff",
+				false
+			)
+		):
+			cards_diff += 1
+		if bool(
+			row.get(
+				"preview_mismatch",
+				false
+			)
+		):
+			preview_mismatch += 1
+		if not bool(
+			row.get(
+				"standard_was_argmax",
+				true
+			)
+		):
+			standard_not_argmax += 1
+
+		var gap: float = float(
+			row.get(
+				"top_two_gap",
+				-1.0
+			)
+		)
+
+		if gap < 0.0:
+			gap_unavailable += 1
+			if is_divergent:
+				divergent_gap_unavailable += 1
+		elif gap <= 0.25:
+			gap_le_025 += 1
+			if is_divergent:
+				divergent_gap_le_025 += 1
+		elif gap <= 0.50:
+			gap_le_050 += 1
+			if is_divergent:
+				divergent_gap_le_050 += 1
+		elif gap <= 1.00:
+			gap_le_100 += 1
+			if is_divergent:
+				divergent_gap_le_100 += 1
+		elif gap <= 2.00:
+			gap_le_200 += 1
+			if is_divergent:
+				divergent_gap_le_200 += 1
+		else:
+			gap_gt_200 += 1
+			if is_divergent:
+				divergent_gap_gt_200 += 1
+
+	return {
+		"comparisons": total,
+		"divergence": divergence,
+		"divergence_rate": (
+			0.0
+			if total <= 0
+			else float(divergence) / float(total)
+		),
+		"action_diff": action_diff,
+		"target_diff": target_diff,
+		"cards_diff": cards_diff,
+		"preview_mismatch": preview_mismatch,
+		"standard_not_argmax": (
+			standard_not_argmax
+		),
+		"all_gap_buckets": {
+			"le_0_25": gap_le_025,
+			"gt_0_25_le_0_50": gap_le_050,
+			"gt_0_50_le_1_00": gap_le_100,
+			"gt_1_00_le_2_00": gap_le_200,
+			"gt_2_00": gap_gt_200,
+			"unavailable": gap_unavailable,
+		},
+		"divergent_gap_buckets": {
+			"le_0_25": divergent_gap_le_025,
+			"gt_0_25_le_0_50": divergent_gap_le_050,
+			"gt_0_50_le_1_00": divergent_gap_le_100,
+			"gt_1_00_le_2_00": divergent_gap_le_200,
+			"gt_2_00": divergent_gap_gt_200,
+			"unavailable": (
+				divergent_gap_unavailable
+			),
+		},
+	}
+
+
+func _u12_policy_audit_write() -> void:
+	if _u12_policy_audit_path.is_empty():
+		return
+
+	var policy_id: String = ""
+	var temperature: float = -1.0
+	var error_rate: float = -1.0
+
+	if policy != null:
+		policy_id = String(
+			policy.policy_id
+		)
+		temperature = float(
+			policy.temperature
+		)
+		error_rate = float(
+			policy.error_rate
+		)
+
+	var payload: Dictionary = {
+		"format": (
+			"u12-commit-policy-divergence-audit-v1"
+		),
+		"seed": _u12_policy_audit_seed,
+		"started_unix": (
+			_u12_policy_audit_started_unix
+		),
+		"actual_policy": {
+			"policy_id": policy_id,
+			"temperature": temperature,
+			"error_rate": error_rate,
+		},
+		"comparison_policy": (
+			"golden_core"
+		),
+		"summary": (
+			_u12_policy_audit_summary()
+		),
+		"rows": (
+			_u12_policy_audit_rows
+		),
+	}
+
+	var file = FileAccess.open(
+		_u12_policy_audit_path,
+		FileAccess.WRITE
+	)
+	if file == null:
+		push_warning(
+			"Could not write U12 policy audit: "
+			+ _u12_policy_audit_path
+		)
+		return
+
+	file.store_string(
+		JSON.stringify(
+			payload,
+			"\t"
+		)
+	)
+	file.close()
 
 
 func seal_human_commitment(
@@ -1914,7 +2628,31 @@ func _resolve_human_resolution_action_committed(
 	)
 
 	if String(action_result.get("action", "")) == "invalid":
-		return _rejected("resolution_action", String(action_result.get("reason", "invalid_committed_action")))
+		var invalid_reason_v1_7: String = String(
+			action_result.get(
+				"reason",
+				"invalid_committed_action"
+			)
+		)
+
+		# PROFANE_RESOLUTION_FIZZLE_V1_7
+		if (
+			String(player.action) == "Profane"
+			and invalid_reason_v1_7
+			== "profane_requires_full_integrity"
+		):
+			action_result = {
+				"action": "profane",
+				"reason": invalid_reason_v1_7,
+				"player_id": HUMAN_PLAYER_ID,
+				"fizzled": true,
+				"won": false,
+			}
+		else:
+			return _rejected(
+				"resolution_action",
+				invalid_reason_v1_7
+			)
 
 	resolution_state["pending_player_id"] = HUMAN_PLAYER_ID
 	resolution_state["pending_committed_action"] = String(player.action)
@@ -1924,6 +2662,7 @@ func _resolve_human_resolution_action_committed(
 
 	if (
 		bool(player.vessel_used)
+		or bool(action_result.get("fizzled", false))
 		or int(game.winner) >= 0
 		or bool(
 			action_result.get(
@@ -2156,14 +2895,43 @@ func _advance_human_resolution() -> Dictionary:
 		var options: Dictionary = _decision_for_player(action_choices, player_id)
 		var action_result: Dictionary = ResolutionEngineData._resolve_committed_action(game, rules, player, options)
 		if String(action_result.get("action", "")) == "invalid":
-			return _invalid("resolution", String(action_result.get("reason", "invalid_committed_action")))
+			var invalid_reason_v1_7: String = String(
+				action_result.get(
+					"reason",
+					"invalid_committed_action"
+				)
+			)
 
+			# PROFANE_RESOLUTION_FIZZLE_V1_7
+			if (
+				String(player.action) == "Profane"
+				and invalid_reason_v1_7
+				== "profane_requires_full_integrity"
+			):
+				action_result = {
+					"action": "profane",
+					"reason": invalid_reason_v1_7,
+					"player_id": player_id,
+					"fizzled": true,
+					"won": false,
+				}
+			else:
+				return _invalid(
+					"resolution",
+					invalid_reason_v1_7
+				)
+
+		var aftermath_vessel_v1_7: Dictionary = (
+			{"pass": true}
+			if bool(action_result.get("fizzled", false))
+			else {"reevaluate_after_action": true}
+		)
 		var aftermath_result: Dictionary = ResolutionActionAftermathEngineData.resolve(
 			game,
 			rules,
 			player_id,
 			action_result,
-			{"reevaluate_after_action": true},
+			aftermath_vessel_v1_7,
 			random_source
 		)
 		if String(aftermath_result.get("action", "")) == "invalid":

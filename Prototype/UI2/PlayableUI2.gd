@@ -1,3 +1,4 @@
+# UI2_SLAVER_THEME_V1_1
 # UI2_PREVIEW_STACK_COMPACTION_V1
 # UI2_CARD_INTERACTION_STAGING_V2
 extends Control
@@ -213,6 +214,7 @@ func _ready() -> void:
 		720
 	)
 
+	_install_ui2_black_gap_backdrop()
 	_build_shell()
 
 	controller = PlayableRoundControllerData.new()
@@ -253,6 +255,22 @@ func _ready() -> void:
 		)
 
 	refresh_from_game()
+
+
+# UI2_BLACK_GAP_BACKDROP_V1
+# Fill every part of the UI2 viewport that is not explicitly painted by
+# another control. This replaces the remaining default gray gutters/gaps
+# without changing any panel/button/card styling.
+func _install_ui2_black_gap_backdrop() -> void:
+	var backdrop := ColorRect.new()
+	backdrop.name = "UI2BlackGapBackdrop"
+	backdrop.color = Color.BLACK
+	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	backdrop.z_index = -100
+	add_child(backdrop)
+	backdrop.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
+	)
 
 
 func _random_round_one_start() -> Dictionary:
@@ -829,6 +847,7 @@ func _build_shell() -> void:
 
 	# Flexible height belongs to the board surface, not the Hand.
 	# Reveal/results can later overlay this surface without reserving a fifth row.
+	# UI2_BOARD_SURFACE_BLACK_V2
 	var board_surface := PanelContainer.new()
 	board_surface.name = "BoardSurface"
 	board_surface.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -836,12 +855,7 @@ func _build_shell() -> void:
 	board_surface.add_theme_stylebox_override(
 		"panel",
 		_panel_style(
-			Color(
-				0.055,
-				0.055,
-				0.06,
-				1.0
-			)
+			Color.BLACK
 		)
 	)
 	center.add_child(
@@ -1701,7 +1715,7 @@ func _on_ui2_confirm_requested() -> void:
 		PlayableRoundControllerData.Stage.MARKET:
 			var give_cards: Array[String] = hand_view.selected_card_ids()
 			if give_cards.size() != 1 or action_zone.get_primary_value().is_empty():
-				action_zone.set_status("Choose exactly one Hand card and one Market offer.")
+				action_zone.set_status("Choose exactly one Subject card from your Hand and one Slaver offer.")
 				return
 			result = controller.resolve_human_market({
 				"take": action_zone.get_primary_value(),
@@ -3905,7 +3919,12 @@ func _ui2_action_result_summary(
 		"Ward":
 			summary = "WARD RESOLVES"
 		"Profane":
-			summary = "PROFANE RESOLVES"
+			# PROFANE_RESOLUTION_FIZZLE_V1_7
+			summary = (
+				"PROFANE FIZZLES · TARGET NO LONGER FULL INTEGRITY"
+				if bool(action_result.get("fizzled", false))
+				else "PROFANE RESOLVES"
+			)
 		_:
 			summary = "%s RESOLVES" % action_name.to_upper()
 

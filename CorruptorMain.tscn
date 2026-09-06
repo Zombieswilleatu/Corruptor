@@ -6,6 +6,36 @@
 bg_color = Color(0.768627, 0.545098, 0.376471, 1)
 
 [sub_resource type="FontFile" id="FontFile_l6v48"]
+resource_local_to_scene = false
+resource_name = ""
+fallbacks = Array[Font]([])
+data = PackedByteArray()
+generate_mipmaps = false
+antialiasing = 1
+font_name = ""
+style_name = ""
+font_style = 0
+font_weight = 400
+font_stretch = 100
+subpixel_positioning = 1
+multichannel_signed_distance_field = false
+msdf_pixel_range = 16
+msdf_size = 48
+allow_system_fallback = true
+force_autohinter = false
+hinting = 1
+oversampling = 0.0
+fixed_size = 0
+fixed_size_scale_mode = 0
+opentype_feature_overrides = {}
+cache/0/variation_coordinates = {}
+cache/0/face_index = 0
+cache/0/embolden = 0.0
+cache/0/transform = Transform2D(1, 0, 0, 1, 0, 0)
+cache/0/spacing_top = 0
+cache/0/spacing_bottom = 0
+cache/0/spacing_space = 0
+cache/0/spacing_glyph = 0
 cache/0/16/0/ascent = 0.0
 cache/0/16/0/descent = 0.0
 cache/0/16/0/underline_position = 0.0

@@ -1,11 +1,43 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=5 format=3 uid="uid://di0pn051ssurd"]
 
 [ext_resource type="Script" path="res://Prototype/TitleScreen/TitleScreen.gd" id="1_title"]
-[ext_resource type="Texture2D" path="res://ConceptImages/Menus/TitleCard.png" id="2_logo"]
+[ext_resource type="Texture2D" uid="uid://hx8da8cspo0u" path="res://ConceptImages/Menus/TitleCard.png" id="2_logo"]
 [ext_resource type="Shader" path="res://Prototype/TitleScreen/TitleReveal.gdshader" id="3_shader"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_title"]
 shader = ExtResource("3_shader")
+shader_parameter/progress = 0.0
+shader_parameter/run_seed = 1.0
+shader_parameter/edge_softness = 0.018
+shader_parameter/warp_strength = 0.055
+shader_parameter/tendril_strength = 0.13
+shader_parameter/edge_tint = Color(0.72, 0.6, 0.34, 1)
+shader_parameter/edge_strength = 0.28
+shader_parameter/living_enabled = 0.0
+shader_parameter/living_time = 0.0
+shader_parameter/effect_delay_seconds = 6.0
+shader_parameter/wave_cycle_seconds = 12.5
+shader_parameter/wave_sweep_min_seconds = 6.0
+shader_parameter/wave_sweep_max_seconds = 9.5
+shader_parameter/wave_front_width = 0.022
+shader_parameter/wave_trail_width = 0.24
+shader_parameter/wave_shape_scale = 8.0
+shader_parameter/wave_shape_wander = 0.035
+shader_parameter/wave_material_scale = 18.0
+shader_parameter/wave_material_strength = 0.42
+shader_parameter/wave_sick_tint = Color(0.26, 0.36, 0.075, 1)
+shader_parameter/wave_black_tint = Color(0.055, 0.075, 0.02, 1)
+shader_parameter/wave_corruption_strength = 0.9
+shader_parameter/wave_residue_strength = 0.72
+shader_parameter/wave_residue_scale = 18.0
+shader_parameter/wave_residue_threshold = 0.34
+shader_parameter/wave_residue_black_strength = 0.85
+shader_parameter/wave_front_tint = Color(0.34, 0.42, 0.1, 1)
+shader_parameter/wave_front_strength = 0.2
+shader_parameter/pulse_seconds = 5.6
+shader_parameter/pulse_depth = 0.2
+shader_parameter/exit_progress = 0.0
+shader_parameter/exit_front_sickness = 0.72
 
 [node name="TitleScreen" type="Control"]
 layout_mode = 3
@@ -42,7 +74,7 @@ stretch_mode = 5
 
 [node name="Prompt" type="Label" parent="."]
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = -1
 anchor_left = 0.5
 anchor_top = 0.88
 anchor_right = 0.5
@@ -53,7 +85,6 @@ offset_right = 240.0
 offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.72, 0.67, 0.58, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
 theme_override_constants/shadow_offset_x = 1

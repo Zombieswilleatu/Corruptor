@@ -1,3 +1,4 @@
+# UI2_SLAVER_THEME_V1_1
 # CONSTRUCTION_PAYMENT_CAP_HARD_CEILING_V1
 # UI2_ZERO_CARD_WARD_CLEAN_V4
 # UI2_ZERO_CARD_WARD_KRONI_HUNGER_V3
@@ -46,6 +47,8 @@ var scope_label: Label = null
 var action_box: VBoxContainer = null
 var primary_label: Label = null
 var primary_select: OptionButton = null
+var market_offer_list_v2_4: ItemList = null
+var market_trade_summary_v2_4: Label = null
 var secondary_label: Label = null
 var secondary_select: OptionButton = null
 var option_toggle: CheckButton = null
@@ -146,6 +149,31 @@ func _ready() -> void:
     primary_select.clip_text = true
     primary_select.item_selected.connect(_on_primary_selected)
     outer.add_child(primary_select)
+    # UI2_SLAVER_VISIBLE_OFFERS_V2_4
+    # The hidden OptionButton remains authoritative.
+    market_offer_list_v2_4 = ItemList.new()
+    market_offer_list_v2_4.name = "SlaverOfferListV2_4"
+    market_offer_list_v2_4.visible = false
+    market_offer_list_v2_4.select_mode = ItemList.SELECT_SINGLE
+    market_offer_list_v2_4.custom_minimum_size = Vector2(0, 92)
+    market_offer_list_v2_4.item_selected.connect(
+        _on_market_offer_selected_v2_4
+    )
+    outer.add_child(market_offer_list_v2_4)
+
+    market_trade_summary_v2_4 = Label.new()
+    market_trade_summary_v2_4.name = "SlaverTradeSummaryV2_4"
+    market_trade_summary_v2_4.visible = false
+    market_trade_summary_v2_4.horizontal_alignment = (
+        HORIZONTAL_ALIGNMENT_CENTER
+    )
+    market_trade_summary_v2_4.autowrap_mode = (
+        TextServer.AUTOWRAP_WORD_SMART
+    )
+    market_trade_summary_v2_4.add_theme_font_size_override("font_size", 13)
+    market_trade_summary_v2_4.custom_minimum_size.y = 30
+    outer.add_child(market_trade_summary_v2_4)
+
 
     secondary_label = Label.new()
     secondary_label.visible = false
@@ -267,6 +295,7 @@ func set_dialog_mode(enabled: bool) -> void:
 
     if enabled:
         call_deferred("_reset_dialog_scroll_top_v14")
+    call_deferred("_refresh_confirm_state")
 
 
 func focus_castle_action_mode(action_name: String) -> void:
@@ -425,6 +454,7 @@ func set_selected_hand_cards(
     _refresh_rite_help()
     _refresh_payment_feedback()
     _refresh_confirm_state()
+    _refresh_market_trade_summary_v2_4()
 
 
 func set_commitment_action_target(
@@ -528,6 +558,12 @@ func _reset_stage_controls() -> void:
     primary_label.visible = false
     primary_select.visible = false
     primary_select.clear()
+    if market_offer_list_v2_4 != null:
+        market_offer_list_v2_4.visible = false
+        market_offer_list_v2_4.clear()
+    if market_trade_summary_v2_4 != null:
+        market_trade_summary_v2_4.visible = false
+        market_trade_summary_v2_4.text = ""
     secondary_label.visible = false
     secondary_select.visible = false
     secondary_select.clear()
@@ -567,15 +603,18 @@ func _configure_stage() -> void:
             pass_button.text = "PASS SNARE"
 
         "MARKET":
-            phase_label.text = "Select one Hand card to give."
-            _show_primary("Trade for:")
+            phase_label.text = "Select one Subject card from your Hand to offer."
+            _show_primary("Choose an offer from the Slaver:")
             if controller_ref != null and controller_ref.game != null:
                 for card in controller_ref.game.market:
                     _add_option(primary_select, _card_id(card), _card_id(card))
+            _populate_market_offer_list_v2_4()
+            primary_select.visible = false
+            _refresh_market_trade_summary_v2_4()
             confirm_button.visible = true
-            confirm_button.text = "TRADE"
+            confirm_button.text = "EXCHANGE SUBJECT"
             pass_button.visible = true
-            pass_button.text = "PASS MARKET"
+            pass_button.text = "PASS"
 
         "REPAIR":
             phase_label.text = "Repair and Construction are separate choices. Hand + Garrison may pay."
@@ -905,6 +944,156 @@ func _on_action_pressed(action_name: String) -> void:
     action_selected.emit(action_name)
 
 
+func _populate_market_offer_list_v2_4() -> void:
+    if (
+        market_offer_list_v2_4 == null
+        or primary_select == null
+    ):
+        return
+
+    market_offer_list_v2_4.clear()
+    market_offer_list_v2_4.visible = (
+        stage_key == "MARKET"
+    )
+
+    if stage_key != "MARKET":
+        return
+
+    for primary_index: int in range(
+        primary_select.item_count
+    ):
+        var list_index: int = (
+            market_offer_list_v2_4.item_count
+        )
+
+        market_offer_list_v2_4.add_item(
+            _market_card_label_v2_4(
+                primary_select.get_item_text(
+                    primary_index
+                )
+            )
+        )
+
+        # Store the authoritative OptionButton index, not a duplicate card
+        # decision payload.
+        market_offer_list_v2_4.set_item_metadata(
+            list_index,
+            primary_index
+        )
+
+    if primary_select.item_count <= 0:
+        return
+
+    var selected_index: int = primary_select.selected
+
+    if (
+        selected_index < 0
+        or selected_index >= primary_select.item_count
+    ):
+        selected_index = 0
+        primary_select.select(
+            selected_index
+        )
+
+    if selected_index < market_offer_list_v2_4.item_count:
+        market_offer_list_v2_4.select(
+            selected_index
+        )
+
+
+func _on_market_offer_selected_v2_4(
+    list_index: int
+) -> void:
+    if (
+        stage_key != "MARKET"
+        or market_offer_list_v2_4 == null
+        or primary_select == null
+        or list_index < 0
+        or list_index >= market_offer_list_v2_4.item_count
+    ):
+        return
+
+    var primary_index: int = int(
+        market_offer_list_v2_4.get_item_metadata(
+            list_index
+        )
+    )
+
+    if (
+        primary_index < 0
+        or primary_index >= primary_select.item_count
+    ):
+        return
+
+    primary_select.select(
+        primary_index
+    )
+
+    # Reuse every existing authoritative primary-selection side effect.
+    _on_primary_selected(
+        primary_index
+    )
+
+
+func _refresh_market_trade_summary_v2_4() -> void:
+    if market_trade_summary_v2_4 == null:
+        return
+
+    market_trade_summary_v2_4.visible = (
+        stage_key == "MARKET"
+    )
+
+    if stage_key != "MARKET":
+        return
+
+    if selected_hand_card_ids.is_empty():
+        market_trade_summary_v2_4.text = (
+            "SELECT ONE SUBJECT FROM YOUR HAND"
+        )
+        return
+
+    if selected_hand_card_ids.size() != 1:
+        market_trade_summary_v2_4.text = (
+            "SELECT EXACTLY ONE SUBJECT FROM YOUR HAND"
+        )
+        return
+
+    var give_id: String = String(
+        selected_hand_card_ids[0]
+    )
+
+    var take_id: String = get_primary_value()
+
+    if take_id.is_empty():
+        market_trade_summary_v2_4.text = (
+            "CHOOSE A SLAVER OFFER"
+        )
+        return
+
+    market_trade_summary_v2_4.text = (
+        "TRADE %s FOR %s"
+        % [
+            _market_card_label_v2_4(
+                give_id
+            ),
+            _market_card_label_v2_4(
+                take_id
+            ),
+        ]
+    )
+
+
+func _market_card_label_v2_4(
+    card_id: String
+) -> String:
+    return (
+        card_id
+        .replace(":", " ")
+        .replace("_", " ")
+        .to_upper()
+    )
+
+
 func _on_primary_selected(_index: int) -> void:
     if stage_key == "MARCH":
         _populate_march_guards()
@@ -914,6 +1103,7 @@ func _on_primary_selected(_index: int) -> void:
     _refresh_payment_feedback()
     _refresh_forecast()
     _refresh_confirm_state()
+    _refresh_market_trade_summary_v2_4()
     target_changed.emit(
         get_primary_value()
     )
@@ -948,8 +1138,29 @@ func _on_aux_multi_selected(
 
 
 func _on_confirm_pressed() -> void:
-    if confirm_button.disabled:
+    if confirm_button == null:
         return
+
+    # UI2_DECISION_CONFIRM_RELIABILITY_V17
+    # Re-read every live control immediately before acting. Board-driven
+    # Repair/Commitment state can change without a normal OptionButton signal.
+    _compute_confirm_state_v17()
+    var locally_blocked_v17: bool = confirm_button.disabled
+
+    # Restore physical clickability in dialog mode after the compute pass.
+    _apply_dialog_confirm_interaction_v17()
+
+    if locally_blocked_v17:
+        var reason_v17: String = _confirm_block_reason_v17()
+        if status_label != null:
+            status_label.text = reason_v17
+
+        # Repair and Commitment both support direct board manipulation. Let the
+        # authoritative PlayableUI2/controller decision builder validate the
+        # current board state instead of silently swallowing the click here.
+        if stage_key not in ["REPAIR", "COMMITMENT"]:
+            return
+
     confirm_requested.emit()
 
 
@@ -1883,7 +2094,15 @@ func _refresh_action_copy() -> void:
         ]
 
 
+
+        # UI2_DECISION_CONFIRM_RELIABILITY_V17
 func _refresh_confirm_state() -> void:
+    _compute_confirm_state_v17()
+    _apply_dialog_confirm_interaction_v17()
+
+
+func _compute_confirm_state_v17() -> void:
+
     if confirm_button == null or not confirm_button.visible:
         return
 
@@ -2064,7 +2283,7 @@ func _phase_copy(stage_name: String) -> String:
         "DEVELOPMENT_SNARE":
             return "Orias may spend 1 Threat to Snare enemy Development."
         "MARKET":
-            return "Trade one Hand card for one Market offer, or pass."
+            return "Exchange one Subject card from your Hand for one offer at the Slaver. New stock daily."
         "REPAIR":
             return "Choose REPAIR for a damaged active Castle or CONSTRUCT for an unbuilt Castle. Wright efficiency applies only to Repair."
         "DOMINION_RITES":
@@ -2133,3 +2352,96 @@ func _reset_dialog_scroll_top_v14() -> void:
         return
 
     scroll.scroll_vertical = 0
+
+
+# UI2_DECISION_CONFIRM_RELIABILITY_V17
+func _apply_dialog_confirm_interaction_v17() -> void:
+    if confirm_button == null:
+        return
+
+    var logically_disabled_v17: bool = confirm_button.disabled
+    confirm_button.set_meta(
+        "_ui2_confirm_logically_disabled_v17",
+        logically_disabled_v17
+    )
+
+    # Outside the DecisionPanel, preserve the original hard-disabled behavior.
+    if not dialog_mode:
+        confirm_button.modulate.a = 1.0
+        return
+
+    # A disabled Godot Button emits no pressed signal, which made valid-looking
+    # actions appear completely dead. Keep it clickable in dialog mode and
+    # represent readiness visually instead.
+    confirm_button.disabled = false
+    confirm_button.modulate.a = (
+        0.58 if logically_disabled_v17 else 1.0
+    )
+    confirm_button.tooltip_text = (
+        _confirm_block_reason_v17()
+        if logically_disabled_v17
+        else ""
+    )
+
+
+func _confirm_block_reason_v17() -> String:
+    match stage_key:
+        "COMMITMENT":
+            if selected_action.is_empty():
+                return "Choose an order first."
+
+            if (
+                selected_action != "Hunt"
+                and get_primary_value().is_empty()
+            ):
+                return "Choose a target for %s." % selected_action.to_upper()
+
+            if (
+                selected_action in ["Hunt", "Siege"]
+                and selected_card_count <= 0
+            ):
+                return "Commit at least one Hand card to this attack."
+
+            return "This order is not locally ready; click to validate the current board state."
+
+        "REPAIR":
+            if get_primary_value().is_empty():
+                return "Choose Repair or Construction."
+
+            if get_secondary_value().is_empty():
+                return "Choose a Castle."
+
+            if _selected_payment_cards().is_empty():
+                return "Select payment cards for this Castle action."
+
+            return "This Castle action is not locally ready; click to validate the current board state."
+
+        "MARKET":
+            return "Choose exactly one Hand card and one Market offer."
+
+        "DEPLOY":
+            return "Choose at least one Guard to stage."
+
+        "MARCH":
+            return "Choose a Guard zone, lane, and exactly one Guard."
+
+        "KANIFOUS_INVOKE":
+            return "Choose the Invocation and exactly one Hand card as its toll."
+
+        "KALLIGAN_SCORCH":
+            return "Choose a Scorch zone."
+
+        "VULTURE_RECON":
+            return "Choose a Guard area to recon."
+
+        "RESOLUTION_HUMBABA_TOLL":
+            return "Choose a Castle for the Toll."
+
+        "RESOLUTION_REFLEX":
+            return "Choose a Momentum action first."
+
+        "RESOLUTION_ODRADEK_BREACH":
+            return "Complete the prediction, stolen action, and target."
+
+        _:
+            return "Complete the required selections before confirming."

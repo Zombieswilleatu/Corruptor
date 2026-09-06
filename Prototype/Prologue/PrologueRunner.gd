@@ -10,6 +10,15 @@ const CRAWLER_WIDTH_RATIO: float = 0.68
 const CRAWLER_FONT_SIZE: int = 41
 const CRAWLER_TOP_PAD: float = 45.0
 const CRAWLER_BOTTOM_PAD: float = 110.0
+# Opening mix.
+
+
+# Music crossfade.
+
+
+# Timed against the 105-second crawler. These are deliberately exposed.
+
+
 
 const STILL_PATHS: PackedStringArray = [
 	"res://ConceptImages/StoryBoard/IdyllicConcept.png",
@@ -123,105 +132,79 @@ const STILL_OPACITY: PackedFloat32Array = [
 	0.98,
 ]
 
+# CORRUPTOR_PROLOGUE_CRAWLER_TEXT_REVISION_V1_1
 const CRAWLER_TEXT: String = """THE BREACH
 
-There was a kingdom once.
-
-Not a good one. No kingdom ever is. But one where the cruelties were small, the harvests were enough, and the dead stayed where they were put.
+There was a kingdom once. Not a good one. But the cruelties were small, and the harvests were usually enough.
 
 A man named Aldric loved his wife.
 
 That is the entire catastrophe.
 
-The fever took two of their children first.
+The fever took their two children first. Then it took her.
 
-Then it took her.
+First he turned to prayer. Then medicine.
 
-Aldric was a scholar of minor reputation and moderate talent. He had read texts he should not have read. He knew a name he should not have known.
+Then to something darker.
+
+He read a text he should not have read. A list of names, a copy of a copy of a copy of something ancient and long since forgotten, and among them, he found a name he should not have known.
 
 And in a cottage at the edge of a village that no longer exists, he spoke that name into the silence where her breathing used to be.
 
 Kanifous.
 
-There was no devil at the door. No sulfur or bargain.
+There was no devil at the door. No sulfur or bargain or maniacal laughter.
 
 Only a feeling, like a lock turning somewhere beneath the world.
 
-Then Aldric's wife opened her eyes.
-
-She breathed. She sat up. She called his name.
+Then Aldric's wife opened her eyes. She breathed. She sat up. She called his name.
 
 For three days, Aldric believed he had succeeded.
 
-On the first day, a guard abandoned his post and walked to an empty hillside.
+On the first day, a guard abandoned his post and walked to an empty hillside. He stood there all night, guarding nothing.
 
-There was nothing there to defend.
-
-On the second day, a mother left her child and began carrying stones to the hill.
-
-One stone. Then another.
+On the second day, a mother left her child and began carrying stones to that same hill. One stone. Then another.
 
 On the third day, a farmer stopped his plow in the middle of a field, took up an old spear, and walked away.
 
-The Lords had not yet come through.
+Through quiet whispers and untold pacts, people found new purposes. Some built. Some guarded. Some marched.
 
-But their whispers had.
-
-Across the kingdom, people found new purposes. Some built. Some guarded. Some marched. Some followed willingly.
+Some just followed.
 
 They were still themselves, but their priorities had been...rearranged.
 
-On the fourth day, the sky above the capital split like a wound.
+On the fourth day, the sky above the capital split open, and the Lords came through.
 
-And the Lords came through.
+Aldric ran home to find that his wife was gone.
 
-Aldric ran home, but his wife was gone.
-
-There was no blood. No struggle.
-
-A bowl of soup still steamed on the table.
+There were no signs of struggle.  A bowl of soup still steamed on the table.
 
 The stones on the hillside had become a keep.
 
-Aldric went there carrying the old book.
-
-“KANIFOUS! WHERE IS MY WIFE?”
+Aldric went there carrying the old book. He called the name into the open field.
 
 Nothing answered.
 
-A breeze moved through the grass.
+A breeze stirred through the grass. Then a gust. Then a torrent.
 
-Then a gust.
+And in that gale came Kanifous.
 
-Then a torrent.
+Not because Aldric had called it. It had been coming already.
 
-And Kanifous came.
-
-Not because Aldric had called it.
-
-It had been coming already.
-
-Kanifous towered above the keep, ancient and immense, occupied with some vast design of its own.
-
-Lines and symbols covered the earth beneath it.
-
-The keep. The roads. The cottage. The people.
+Kanifous towered above the keep, occupied with some vast design of its own. Lines and symbols were carved into the earth beneath it. The keep. The roads. The cottage. The people.
 
 Aldric shouted again.
 
-Kanifous did not threaten him.
+Kanifous did not threaten him. It did not mock him. It didn't even look down.
 
-It did not mock him.
+Aldric had opened a door. That did not mean anything on the other side knew his name.
 
-It didn't even look down.
+He stood beneath Kanifous, calling for his wife.
 
-Aldric had merely opened the door.
-
-That did not mean anything on the other side knew his name.
-
-He stood beneath Kanifous, calling for his wife;
-
-a weeping man screaming into a hurricane, waiting for an answer that would never come."""
+A weeping man screaming into a storm, waiting for an answer that would never come.
+"""
+# CORRUPTOR_PROLOGUE_CRAWLER_TEXT_REVISION_V3
+# CORRUPTOR_PROLOGUE_CRAWLER_TEXT_REVISION_V2
 
 var _crawler_root: Control
 var _still_layer: Control
@@ -229,16 +212,22 @@ var _text_scrim: ColorRect
 var _crawler_text: RichTextLabel
 var _crawl_tween: Tween
 var _music: AudioStreamPlayer
+
 var _crawler_active: bool = true
 var _transitioning: bool = false
 var _crawl_elapsed: float = 0.0
 var _stills: Array[TextureRect] = []
 
 
+# CORRUPTOR_SEPARATE_SPLASH_TRANSITION_CLEANUP_V1
+# CORRUPTOR_MURDER_PROCEDURAL_WIND_WHOLESALE_V1
 func _ready() -> void:
+	_crawler_active = true
+	_crawl_elapsed = 0.0
 	_start_menu_music()
 	_build_crawler()
-	get_viewport().size_changed.connect(_layout_stills)
+	if not get_viewport().size_changed.is_connected(_layout_stills):
+		get_viewport().size_changed.connect(_layout_stills)
 	set_process(true)
 	call_deferred("_start_crawl")
 
@@ -293,6 +282,7 @@ func _build_crawler() -> void:
 
 	_crawler_text = RichTextLabel.new()
 	_crawler_text.name = "Text"
+	_crawler_text.visible = false
 	_crawler_text.bbcode_enabled = true
 	_crawler_text.fit_content = true
 	_crawler_text.scroll_active = false
@@ -390,7 +380,6 @@ func _build_stills() -> void:
 	_update_still_opacity()
 
 
-
 # CORRUPTOR_TEXT_SCRIM_V2
 func _build_text_scrim() -> void:
 	_text_scrim = ColorRect.new()
@@ -474,6 +463,33 @@ func _layout_stills() -> void:
 
 
 
+
+# CORRUPTOR_PROLOGUE_STORYBOARD_CHAPTER_CADENCE_V1
+# CORRUPTOR_PROLOGUE_STORYBOARD_CHAPTER_CADENCE_V1_1
+# CORRUPTOR_PROLOGUE_STORYBOARD_ORIGINAL_PLUS3_V1
+# CORRUPTOR_PROLOGUE_STORYBOARD_DESPAIR_SLOWFADE_V1_1
+func _storyboard_chapter_window_for_path(path: String) -> PackedFloat32Array:
+	match path.get_file():
+		"IdyllicConcept.png":
+			return PackedFloat32Array([10.0, 12.0, 23.0, 26.5])
+		"DeathConcept.png":
+			return PackedFloat32Array([22.0, 24.0, 32.0, 35.5])
+		"ResurrectionConcept.png":
+			return PackedFloat32Array([31.0, 33.5, 42.0, 45.5])
+		"WallConcept.png":
+			return PackedFloat32Array([41.0, 43.0, 53.5, 57.0])
+		"CapitalConcept.png":
+			return PackedFloat32Array([53.0, 55.0, 61.5, 65.0])
+		"SoupConcept.png":
+			return PackedFloat32Array([61.0, 63.0, 69.5, 73.0])
+		"ConfrontationConcept.png":
+			return PackedFloat32Array([69.0, 72.0, 88.5, 92.0])
+		"DespairConcept.png":
+			return PackedFloat32Array([87.0, 89.8, 97.0, 105.0])
+		_:
+			return PackedFloat32Array()
+
+
 func _update_still_opacity() -> void:
 	var strongest_visible_image: float = 0.0
 
@@ -496,8 +512,48 @@ func _update_still_opacity() -> void:
 			)
 
 
-
 func _alpha_for_still(index: int, elapsed: float) -> float:
+	if index < 0 or index >= STILL_PATHS.size():
+		return 0.0
+
+	var chapter_window: PackedFloat32Array = (
+		_storyboard_chapter_window_for_path(STILL_PATHS[index])
+	)
+
+	if chapter_window.size() == 4:
+		var fade_in_start: float = chapter_window[0]
+		var full_start: float = chapter_window[1]
+		var fade_out_start: float = chapter_window[2]
+		var end_time: float = chapter_window[3]
+
+		if elapsed < fade_in_start or elapsed >= end_time:
+			return 0.0
+
+		if elapsed < full_start:
+			return smoothstep(
+				fade_in_start,
+				full_start,
+				elapsed
+			)
+
+		if elapsed >= fade_out_start:
+			return 1.0 - smoothstep(
+				fade_out_start,
+				end_time,
+				elapsed
+			)
+
+		return 1.0
+
+	# Unknown/additional stills keep their existing legacy timed-array behavior.
+	if (
+		index >= STILL_STARTS.size()
+		or index >= STILL_FADE_INS.size()
+		or index >= STILL_FADE_OUT_STARTS.size()
+		or index >= STILL_ENDS.size()
+	):
+		return 0.0
+
 	var start: float = STILL_STARTS[index]
 	var fade_in: float = STILL_FADE_INS[index]
 	var fade_out_start: float = STILL_FADE_OUT_STARTS[index]
@@ -524,6 +580,7 @@ func _alpha_for_still(index: int, elapsed: float) -> float:
 	return 1.0
 
 
+
 func _without_heading(text: String) -> String:
 	var prefix := "THE BREACH\n\n"
 	if text.begins_with(prefix):
@@ -548,6 +605,7 @@ func _start_crawl() -> void:
 
 	_crawler_text.size.y = content_height
 	_crawler_text.position.y = viewport_size.y + CRAWLER_TOP_PAD
+	_crawler_text.visible = true
 
 	var end_y: float = -content_height - CRAWLER_BOTTOM_PAD
 
@@ -592,7 +650,6 @@ func _enter_title() -> void:
 
 	_transitioning = true
 	_crawler_active = false
-	set_process(false)
 
 	if _crawl_tween != null:
 		_crawl_tween.kill()
@@ -605,6 +662,8 @@ func _enter_title() -> void:
 		set_process(true)
 		push_error("PrologueRunner: could not load title scene: %s" % TITLE_SCENE)
 		return
+
+	set_process(false)
 
 	var title: Node = packed.instantiate()
 	add_child(title)
