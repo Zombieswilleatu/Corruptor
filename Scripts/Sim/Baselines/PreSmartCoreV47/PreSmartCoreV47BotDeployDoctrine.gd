@@ -1,21 +1,14 @@
-class_name BotDeployDoctrine
+# Exact pre-promotion Production deploy snapshot.
+class_name PreSmartCoreV47BotDeployDoctrine
 extends RefCounted
 
 
 const BotDoctrineData = preload(
-	"res://Scripts/Sim/BotDoctrine.gd"
+	"res://Scripts/Sim/Baselines/PreSmartCoreV47/PreSmartCoreV47BotDoctrine.gd"
 )
 
 const BotPolicyData = preload(
 	"res://Scripts/Sim/BotPolicy.gd"
-)
-
-# SMART_CORE_V47_PROMOTED_SHARED_V1
-const SmartCoreV47ShippingPolicyFactoryData = preload(
-	"res://Scripts/Sim/SmartCoreV47ShippingPolicyFactory.gd"
-)
-const SmartCoreV47DeployDoctrineData = preload(
-	"res://Scripts/Sim/SmartCoreV47DeployDoctrine.gd"
 )
 
 
@@ -28,14 +21,6 @@ static func deploy_choices(
 	game,
 	rules: RuleConfig
 ) -> Dictionary:
-	# SMART_CORE_V47_PROMOTED_SHARED_V1
-	# Keep Deploy's future Commitment planner deterministic. This promotion does
-	# NOT change the Standard-vs-Golden planning seam measured separately.
-	var smart_policy = SmartCoreV47ShippingPolicyFactoryData.golden_planner()
-	return SmartCoreV47DeployDoctrineData.deploy_choices(
-		game, rules, smart_policy
-	)
-
 	assert(
 		game != null,
 		"Bot Deploy doctrine requires a GameState."
@@ -62,12 +47,6 @@ static func deploy_choice(
 	player_id: int,
 	rules: RuleConfig
 ) -> Dictionary:
-	# SMART_CORE_V47_PROMOTED_SHARED_V1
-	var smart_policy = SmartCoreV47ShippingPolicyFactoryData.golden_planner()
-	return SmartCoreV47DeployDoctrineData.deploy_choice(
-		game, player_id, rules, smart_policy
-	)
-
 	var moves: Array = _deploy_moves_for_player(game, player_id, rules)
 	if moves.is_empty():
 		return {"pass": true}

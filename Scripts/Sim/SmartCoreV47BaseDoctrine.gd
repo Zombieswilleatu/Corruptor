@@ -1,4 +1,7 @@
-class_name BotDoctrine
+# Shipping-only optimized copy of exact frozen V4.7 base.
+# Frozen comparator remains untouched.
+# Exact pre-promotion Production doctrine snapshot.
+class_name SmartCoreV47BaseDoctrine
 extends RefCounted
 
 
@@ -29,14 +32,6 @@ const BotPolicyData = preload(
 
 const BotSelectorData = preload(
 	"res://Scripts/Sim/BotSelector.gd"
-)
-
-# SMART_CORE_V47_PROMOTED_SHARED_V1
-const SmartCoreV47ShippingPolicyFactoryData = preload(
-	"res://Scripts/Sim/SmartCoreV47ShippingPolicyFactory.gd"
-)
-const SmartCoreV47DoctrineData = preload(
-	"res://Scripts/Sim/SmartCoreV47Doctrine.gd"
 )
 
 
@@ -847,6 +842,116 @@ static func _culp_detail_profane_target(
 	return result
 
 
+
+# SMART_CORE_V47_LAZY_SIEGE_BOUND_V1
+# Shipping-only exact branch-and-bound for doctrine Siege target forecasts.
+static func _smartcore_lazy_action_forecast(
+	game,
+	rules: RuleConfig,
+	attacker_id: int,
+	defender
+) -> Dictionary:
+	var result: Dictionary = {
+		"model_version": ActionForecastData.MODEL_VERSION,
+		"hunt": ActionForecastData.forecast_hunt(
+			game, rules, attacker_id, true
+		),
+		"siege_targets": {},
+	}
+	if defender == null:
+		return result
+
+	var names: Array[String] = []
+	for castle_value in defender.castles:
+		var castle_name: String = String(castle_value)
+		if not CastleIntegrityRulesData.standing(defender, castle_name):
+			continue
+		if (
+			castle_name == "Bastion"
+			and rules.bastion_wall
+			and CastleIntegrityRulesData.standing(defender, "Bastion")
+			and defender.castles.size() > 1
+		):
+			continue
+		names.append(castle_name)
+
+	names.sort()
+	var siege_targets: Dictionary = {}
+	var best_utility: float = -999.0
+	var best_tie_rank: int = -999
+
+	for castle_name: String in names:
+		var strategic: float = _castle_strategic_value(
+			defender, castle_name, rules
+		)
+		var maximum: int = maxi(
+			1, CastleIntegrityRulesData.max_integrity(castle_name)
+		)
+		var current: int = int(
+			defender.castle_integrity.get(castle_name, maximum)
+		)
+		var wounded: float = clampf(
+			float(maximum - current) / float(maximum), 0.0, 1.0
+		)
+		var order_index: int = SIEGE_TARGET_ORDER.find(castle_name)
+		var tie_rank: int = (
+			SIEGE_TARGET_ORDER.size() - order_index
+			if order_index >= 0 else 0
+		)
+
+		var reach_coefficient: float = 1.0 + strategic * 0.50
+		var upper_utility: float = (
+			maxf(0.0, reach_coefficient)
+			+ strategic * 0.15
+			+ wounded * 0.15
+		)
+
+		if (
+			best_utility > -998.0
+			and not _smartcore_siege_target_would_win(
+				upper_utility, tie_rank, best_utility, best_tie_rank
+			)
+		):
+			continue
+
+		var report: Dictionary = ActionForecastData.forecast_siege(
+			game, rules, attacker_id, castle_name, true
+		)
+		siege_targets[castle_name] = report
+
+		var reach: float = _siege_forecast_reach(report)
+		if reach < 0.0:
+			continue
+		var utility: float = (
+			reach * reach_coefficient
+			+ strategic * 0.15
+			+ wounded * 0.15
+		)
+		if _smartcore_siege_target_would_win(
+			utility, tie_rank, best_utility, best_tie_rank
+		):
+			best_utility = utility
+			best_tie_rank = tie_rank
+
+	result["siege_targets"] = siege_targets
+	return result
+
+
+static func _smartcore_siege_target_would_win(
+	utility: float,
+	tie_rank: int,
+	best_utility: float,
+	best_tie_rank: int
+) -> bool:
+	return (
+		utility > best_utility + 0.0001
+		or (
+			is_equal_approx(utility, best_utility)
+			and tie_rank > best_tie_rank
+		)
+	)
+
+
 static func evaluate_action_candidates(
 	game,
 	player_id: int,
@@ -894,11 +999,11 @@ static func evaluate_action_candidates(
 		rules
 	)
 
-	var action_forecast: Dictionary = ActionForecastData.forecast_all(
+	var action_forecast: Dictionary = _smartcore_lazy_action_forecast(
 		game,
 		rules,
 		player_id,
-		true
+		opponent
 	)
 	var hunt_reach: float = _hunt_forecast_reach(action_forecast.get("hunt", {}))
 	var siege_choice: Dictionary = _best_siege_target_from_forecast(
@@ -1453,12 +1558,6 @@ static func commitment_choices(
 	rules: RuleConfig,
 	policy = null
 ) -> Dictionary:
-	# SMART_CORE_V47_PROMOTED_SHARED_V1
-	var smart_policy = SmartCoreV47ShippingPolicyFactoryData.from_selector(policy)
-	return SmartCoreV47DoctrineData.commitment_choices(
-		game, random_source, rules, smart_policy
-	)
-
 	assert(
 		game != null,
 		"Bot Commitment doctrine requires a GameState."
@@ -1555,12 +1654,6 @@ static func commitment_choice(
 	rules: RuleConfig,
 	policy = null
 ) -> Dictionary:
-	# SMART_CORE_V47_PROMOTED_SHARED_V1
-	var smart_policy = SmartCoreV47ShippingPolicyFactoryData.from_selector(policy)
-	return SmartCoreV47DoctrineData.commitment_choice(
-		game, player_id, random_source, rules, smart_policy
-	)
-
 	assert(
 		game != null,
 		"Bot Commitment doctrine requires a GameState."

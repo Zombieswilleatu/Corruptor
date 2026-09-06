@@ -412,6 +412,16 @@ static func _forecast_action(
 		rules
 	)
 
+	var valak_barrier_cache_enabled: bool = (
+		action_name == "Siege"
+		and attacker != null
+		and bool(attacker.alive)
+		and String(attacker.lord) == "Valak"
+		and source_guards.size() >= 2
+		and _valak_guard_barrier_rules_safe(rules)
+	)
+
+
 	var opponent_hand_count: int = defender.hand.size()
 	var ward_models: Dictionary = {}
 
@@ -481,6 +491,8 @@ static func _forecast_action(
 			ward_primary[depth] = 0.0
 			ward_secondary[depth] = 0.0
 
+		var valak_barrier_caches: Dictionary = {}
+
 		for guard_scenario: Dictionary in guard_scenarios:
 			var guard_probability: float = float(
 				guard_scenario.get(
@@ -493,6 +505,25 @@ static func _forecast_action(
 				continue
 
 			var cache: Dictionary = {}
+
+			if valak_barrier_cache_enabled:
+				var barrier_key: String = (
+					_valak_guard_barrier_cache_key(
+						source_guards,
+						guard_scenario,
+						rules
+					)
+				)
+
+				if not barrier_key.is_empty():
+					if not valak_barrier_caches.has(
+						barrier_key
+					):
+						valak_barrier_caches[barrier_key] = {}
+
+					cache = valak_barrier_caches[
+						barrier_key
+					]
 			var open_outcomes: Dictionary = _cached_outcomes(
 				cache,
 				0,
@@ -1139,6 +1170,83 @@ static func _new_ruination(
 
 	return after_lost.size() > before_lost.size()
 
+
+# VALAK_GUARD_BARRIER_CACHE_V1
+#
+# Valak-Siege-only exact forecast cache reuse.
+#
+# Crushing Presence makes the lowest defending Guard contribute zero Defense
+# whenever Valak attacks a pool containing 2+ Guards. Under the current locked
+# Guard rules (off-suit penalty = 0), Siege reachability depends on the Guard
+# pool through sum(values) - lowest(values).
+#
+# We do NOT merge/reorder scenarios or probabilities. Equivalent scenarios only
+# share their _cached_outcomes() dictionary, preserving the caller's original
+# probability accumulation order.
+static func _valak_guard_barrier_rules_safe(
+	rules: RuleConfig
+) -> bool:
+	# Current Godot RuleConfig has no Guard off-suit penalty property.
+	# If a future RuleConfig adds one, disable this optimization unless
+	# that property is explicitly zero.
+	for raw_property in rules.get_property_list():
+		if typeof(raw_property) != TYPE_DICTIONARY:
+			continue
+
+		var property: Dictionary = raw_property
+		if String(
+			property.get("name", "")
+		) != "guard_offsuit_penalty":
+			continue
+
+		return int(
+			rules.get("guard_offsuit_penalty")
+		) == 0
+
+	return true
+
+
+static func _valak_guard_barrier_cache_key(
+	source_guards: Array,
+	guard_scenario: Dictionary,
+	rules: RuleConfig
+) -> String:
+	if source_guards.size() < 2:
+		return ""
+
+	if not _valak_guard_barrier_rules_safe(rules):
+		return ""
+
+	var hidden_values: Array = guard_scenario.get(
+		"hidden_values",
+		[]
+	)
+	var hidden_index: int = 0
+	var total_value: int = 0
+	var lowest_value: int = 999999
+
+	for source_card in source_guards:
+		var value: int = 0
+		var hidden: bool = (
+			rules.fog_of_war
+			and not bool(source_card.guard_revealed)
+		)
+
+		if hidden:
+			if hidden_index >= hidden_values.size():
+				return ""
+			value = int(hidden_values[hidden_index])
+			hidden_index += 1
+		else:
+			value = int(source_card.value)
+
+		total_value += value
+		lowest_value = mini(lowest_value, value)
+
+	if hidden_index != hidden_values.size():
+		return ""
+
+	return "b%d" % (total_value - lowest_value)
 
 static func _guard_scenarios(
 	guards: Array,

@@ -1,4 +1,5 @@
-class_name BotDoctrine
+# Exact pre-promotion Production doctrine snapshot.
+class_name PreSmartCoreV47BotDoctrine
 extends RefCounted
 
 
@@ -29,14 +30,6 @@ const BotPolicyData = preload(
 
 const BotSelectorData = preload(
 	"res://Scripts/Sim/BotSelector.gd"
-)
-
-# SMART_CORE_V47_PROMOTED_SHARED_V1
-const SmartCoreV47ShippingPolicyFactoryData = preload(
-	"res://Scripts/Sim/SmartCoreV47ShippingPolicyFactory.gd"
-)
-const SmartCoreV47DoctrineData = preload(
-	"res://Scripts/Sim/SmartCoreV47Doctrine.gd"
 )
 
 
@@ -1453,12 +1446,6 @@ static func commitment_choices(
 	rules: RuleConfig,
 	policy = null
 ) -> Dictionary:
-	# SMART_CORE_V47_PROMOTED_SHARED_V1
-	var smart_policy = SmartCoreV47ShippingPolicyFactoryData.from_selector(policy)
-	return SmartCoreV47DoctrineData.commitment_choices(
-		game, random_source, rules, smart_policy
-	)
-
 	assert(
 		game != null,
 		"Bot Commitment doctrine requires a GameState."
@@ -1555,12 +1542,6 @@ static func commitment_choice(
 	rules: RuleConfig,
 	policy = null
 ) -> Dictionary:
-	# SMART_CORE_V47_PROMOTED_SHARED_V1
-	var smart_policy = SmartCoreV47ShippingPolicyFactoryData.from_selector(policy)
-	return SmartCoreV47DoctrineData.commitment_choice(
-		game, player_id, random_source, rules, smart_policy
-	)
-
 	assert(
 		game != null,
 		"Bot Commitment doctrine requires a GameState."
