@@ -127,8 +127,8 @@ artillery and duplicate-Engine tests still assert War Machine's exact behavior.
 The focused wrapper runs seven processes with the unchanged **30-second**
 per-process limit. Full foundation now contains 21 runners. Script grammar and
 shell launcher behavior can be checked in the implementation workspace; only
-local Godot 4.7.2 execution is authoritative engine verification. These new
-runners have not yet been reported green by the user.
+local Godot 4.7.2 execution is authoritative engine verification. The user has now reported the focused **7/7 green** on Godot 4.7.2.
+The subsequent loadout batch also completed OK (see acceptance below).
 
 ```bash
 git pull --ff-only origin u13-lord-overhaul &&
@@ -164,3 +164,19 @@ with replay checks: 24 measured rounds, four reconstructions, seven activations
 This is acceptance of the prior Construction slice, not a 21/21 claim for the
 new loadout/Rout changes. The pasted summary is the evidence; the full JSON was
 not supplied for this final prior batch.
+
+
+## Castle/Rout local acceptance
+
+The user reported the focused seven-runner gate green, then supplied console
+output from `--roster=loadout`: four seeds, six rounds per trial, each followed
+by independent replay, ending `U13 random-legal batch completed: OK`.
+
+Across 24 measured rounds: 72 normal artillery shots and 16 War Machine shots,
+with nonzero shot counts from both Engine instances on both sides. Six Rout
+activations resolved without reported fizzles, affecting 19 bodies; none had an
+empty cohort. Five Commissions occurred at Integrity 7–8, alongside 11 repairs,
+one reconstruction and five Castle destructions. These are coverage/frequency
+observations, not balance conclusions. The console summary is the evidence;
+the full JSON was not attached for this run. This does not claim full-foundation
+22/22 or local acceptance of the later board integration.

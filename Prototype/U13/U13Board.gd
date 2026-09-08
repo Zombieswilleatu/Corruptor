@@ -3,6 +3,10 @@ extends Control
 const PhasePrompt = preload("res://Prototype/U13/U13PhasePrompt.gd")
 const ActionZone = preload("res://Prototype/U13/U13ActionZone.gd")
 const Session = preload("res://Scripts/Sim/U13BoardSession.gd")
+const LoadoutSession = preload("res://Scripts/Sim/U13LoadoutBoardSession.gd")
+const LoadoutPicker = preload("res://Prototype/U13/U13LoadoutPicker.gd")
+const Deimos = preload("res://Scripts/Sim/U13Deimos.gd")
+const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const BoardJob = preload("res://Prototype/U13/U13BoardJob.gd")
 const DenseSession = preload("res://Scripts/Sim/U13DenseBoardSession.gd")
 const Playback = preload("res://Prototype/U13/U13SmokePlayback.gd")
@@ -30,6 +34,27 @@ class CardFace:
 		return id
 
 
+var setup_enabled: bool = true
+var setup_open: bool = false
+var match_started: bool = false
+var setup_picker
+var setup_hand_selection: Array = []
+var setup_button: Button
+var castle_plan: Dictionary = {}
+var castle_box: VBoxContainer
+var castle_action_choice: OptionButton
+var castle_target: OptionButton
+var castle_token: CheckBox
+var castle_note: Label
+var castle_stage: Button
+var gremory_box: VBoxContainer
+var deimos_box: VBoxContainer
+var engine_choice: OptionButton
+var rout_lane: OptionButton
+var war_button: Button
+var rout_button: Button
+var war_state: Label
+var rout_state: Label
 var session = Session.new()
 var playback = Playback.new()
 var dense_mode: bool = false
@@ -97,7 +122,10 @@ func _ready() -> void:
 		get_window().size = Vector2i(1440, 810)
 	_build()
 	if _runtime_ok:
-		restart()
+		if setup_enabled and not dense_mode:
+			open_setup()
+		else:
+			restart()
 	else:
 		status.text = "U13 requires Godot 4.7.2 stable."
 		confirm.disabled = true
@@ -105,6 +133,8 @@ func _ready() -> void:
 
 
 func restart() -> void:
+	if setup_open:
+		return
 	if _job != null:
 		_restart_pending = true
 		_continue_dense = false
@@ -112,6 +142,7 @@ func restart() -> void:
 	if not _runtime_ok:
 		return
 	playing = false
+	castle_plan = {}
 	clock = 0
 	queued = []
 	payment = []
@@ -120,6 +151,7 @@ func restart() -> void:
 	var result: Dictionary = session.reset()
 	if _error(result):
 		return
+	match_started = true
 	action_choice.select(0)
 	_refresh()
 	reopen_decision()
@@ -145,6 +177,8 @@ func _build() -> void:
 	if dense_mode:
 		dense_button = _button(header.tools_box, "Run dense round", run_dense_round)
 		decision_button.hide()
+	if setup_enabled and not dense_mode:
+		setup_button = _button(header.tools_box, "New loadout", open_setup)
 	_button(header.tools_box, "Restart", restart)
 	_button(header.tools_box, "Exit", request_exit)
 	_button(
@@ -209,13 +243,16 @@ func _build() -> void:
 	pass_button = action_zone.pass_button
 	action_zone.confirm_requested.connect(_confirm_decision)
 	action_zone.pass_requested.connect(pass_round)
+	_build_castle_controls(decisions)
 	var powers := VBoxContainer.new()
 	powers_box = powers
 	decisions.add_child(powers)
+	gremory_box = VBoxContainer.new()
+	powers.add_child(gremory_box)
 	var predator_section := VBoxContainer.new()
 	predator_section.name = "PredatorOfRuinSection"
 	predator_section.add_theme_constant_override("separation", 6)
-	powers.add_child(predator_section)
+	gremory_box.add_child(predator_section)
 	_label(predator_section, "PREDATOR OF RUIN", 17)
 	_label(predator_section, "Summon 3 Vultures", 13)
 	predator_state = _label(predator_section, "", 13)
@@ -224,11 +261,11 @@ func _build() -> void:
 	power_lane = _option(predator_section, ["Castle", "Lord"])
 	predator_button = _button(predator_section, "Queue Predator of Ruin", queue_predator)
 	controls.append(predator_button)
-	powers.add_child(HSeparator.new())
+	gremory_box.add_child(HSeparator.new())
 	var ruin_section := VBoxContainer.new()
 	ruin_section.name = "InevitableRuinSection"
 	ruin_section.add_theme_constant_override("separation", 6)
-	powers.add_child(ruin_section)
+	gremory_box.add_child(ruin_section)
 	_label(ruin_section, "INEVITABLE RUIN", 17)
 	ruin_state = _label(ruin_section, "", 13)
 	ruin_state.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -237,6 +274,7 @@ func _build() -> void:
 	ruin_button = _button(ruin_section, "Queue Ruin · reserve 2 selected", queue_ruin)
 	controls.append(ruin_button)
 	powers.add_child(HSeparator.new())
+	_build_deimos_controls(powers)
 	_button(powers, "Back to combat · clear powers", back_to_combat)
 	controls.append(_button(powers, "Clear powers · return cards", clear_powers))
 	plan_label = _label(powers, "", 15)
@@ -278,6 +316,12 @@ func _build() -> void:
 	history_panel.hide()
 	_busy_label = _label(main, "", 16)
 	_busy_label.custom_minimum_size.y = 26
+	if setup_enabled and not dense_mode:
+		setup_picker = LoadoutPicker.new()
+		add_child(setup_picker)
+		setup_picker.hide()
+		setup_picker.start_requested.connect(start_loadout)
+		setup_picker.cancelled.connect(close_setup)
 
 
 func _refresh(presented: Dictionary = {}) -> void:
@@ -290,7 +334,11 @@ func _refresh(presented: Dictionary = {}) -> void:
 		lanes.show_world(world.entities, session.round_number())
 	var cards: Array = []
 	for id in world.hand:
-		if id in payment or (powers_step and id in staged_order.get("card_ids", [])):
+		if (
+			id in payment
+			or id in castle_plan.get("card_ids", [])
+			or (powers_step and id in staged_order.get("card_ids", []))
+		):
 			continue
 		for entity in world.entities:
 			if entity.id == id:
@@ -302,23 +350,7 @@ func _refresh(presented: Dictionary = {}) -> void:
 			"%s %d — click to select"
 			% [button.get_meta("card_suit"), button.get_meta("card_value")]
 		)
-	target_choice.clear()
-	for entity in world.entities:
-		if entity.kind == "castle" and entity.owner == 1:
-			target_choice.add_item("Enemy Castle · %s" % entity.attributes.status)
-			target_choice.set_item_metadata(target_choice.item_count - 1, entity.id)
-	ruin_target.clear()
-	for entity in world.entities:
-		if (
-			entity.kind == "castle"
-			and entity.owner == 1
-			and entity.attributes.status == "standing"
-			and entity.attributes.integrity > 0
-			and entity.attributes.integrity < entity.attributes.max_integrity
-		):
-			ruin_target.add_item("Enemy Castle · %s" % entity.attributes.status)
-			ruin_target.set_item_metadata(ruin_target.item_count - 1, entity.id)
-	ruin_target.tooltip_text = "Inevitable Ruin targets a damaged enemy Castle."
+	_refresh_castle_targets(world)
 	history.text = ""
 	for event in view.events.slice(maxi(0, view.events.size() - 15)):
 		var text_value: String = String(event.get("text", ""))
@@ -356,6 +388,8 @@ func _board_target_selected(action: String, lane: String, target_id: String) -> 
 func _planning() -> bool:
 	return (
 		_runtime_ok
+		and not setup_open
+		and match_started
 		and _job == null
 		and not playing
 		and session.next_hook() == Timeline.SUBMISSION_LOCK
@@ -367,7 +401,7 @@ func _order() -> Dictionary:
 		return staged_order.duplicate(true)
 	var action: String = action_choice.get_item_text(action_choice.selected)
 	if action == "Pass":
-		return {}
+		return {} if castle_plan.is_empty() else {"castle_action": castle_plan.duplicate(true)}
 	var result: Dictionary = {
 		"action": action,
 		"lane": "Castle" if action == "Siege" else lane_choice.get_item_text(lane_choice.selected),
@@ -379,6 +413,8 @@ func _order() -> Dictionary:
 			if target_choice.item_count == 0
 			else target_choice.get_item_metadata(target_choice.selected)
 		)
+	if not castle_plan.is_empty():
+		result["castle_action"] = castle_plan.duplicate(true)
 	return result
 
 
@@ -387,13 +423,22 @@ func _preview() -> void:
 		return
 	var names: Array[String] = []
 	for source in queued:
-		names.append(
-			"Predator of Ruin" if source.power_id == Gremory.PREDATOR else "Inevitable Ruin"
-		)
+		names.append(_power_name(source.power_id))
 	plan_label.text = (
 		"Powers: %s     Reserved for Ruin: %d cards"
 		% ["None" if names.is_empty() else ", ".join(names), payment.size()]
 	)
+	if not castle_plan.is_empty():
+		for entity in session.board_view().world.entities:
+			if entity.id == castle_plan.target_id:
+				plan_label.text += (
+					"\nCastle: %s · %s · %d cards"
+					% [
+						"Commission" if castle_plan.action == "Activate" else castle_plan.action,
+						_castle_name(entity),
+						castle_plan.card_ids.size()
+					]
+				)
 	if not _planning():
 		confirm.disabled = true
 		return
@@ -411,7 +456,7 @@ func _preview() -> void:
 	var result: Dictionary = session.choose(queued, _order())
 	confirm.disabled = result.action == "invalid"
 	status.text = (
-		"Combat selected. Next opens Lord powers without advancing the round."
+		"Orders selected. Next opens Lord powers without advancing the round."
 		if not confirm.disabled
 		else _friendly_error(result)
 	)
@@ -422,6 +467,7 @@ func _preview() -> void:
 		status.text = "No enemy Castle remains. Choose Ward or Skip Combat."
 	action_zone.action_buttons["Siege"].disabled = target_choice.item_count == 0
 	_update_power_controls()
+	_update_castle_controls()
 	_update_decision_copy()
 
 
@@ -486,6 +532,7 @@ func run_dense_round() -> void:
 	payment = []
 	powers_step = false
 	staged_order = {}
+	castle_plan = {}
 	action_choice.select(0)
 	hand_view.clear_selection()
 	resolve_round()
@@ -594,6 +641,7 @@ func _complete_job() -> void:
 		payment = []
 		powers_step = false
 		staged_order = {}
+		castle_plan = {}
 		action_choice.select(0)
 		_refresh(result.presented)
 	print(
@@ -701,7 +749,7 @@ func pass_round() -> void:
 
 
 func reopen_decision() -> void:
-	if dense_mode or _job != null:
+	if dense_mode or setup_open or _job != null:
 		return
 	if playing or phase_prompt == null:
 		return
@@ -714,30 +762,40 @@ func _update_decision_copy() -> void:
 	if not _planning():
 		return
 	action_zone.action_box.visible = not powers_step
+	castle_box.visible = not powers_step and session is LoadoutSession
 	powers_box.visible = powers_step
+	gremory_box.visible = _human_lord() == "Gremory"
+	deimos_box.visible = _human_lord() == "Deimos"
 	if powers_step:
 		(
 			phase_prompt
 			. bind_decision(
 				"LORD_POWERS",
 				"LORD POWERS",
-				"Combat is staged. Choose optional powers using the remaining cards, then resolve both together.",
+				"Your orders are staged. Choose optional powers with remaining cards, then resolve together.",
 				"ROUND %d" % session.round_number()
 			)
 		)
 	else:
-		phase_prompt.bind_decision(
-			"COMMITMENT",
-			"COMBAT",
-			"Choose combat and select cards. Next opens Lord powers; the round has not advanced.",
-			"ROUND %d" % session.round_number()
+		(
+			phase_prompt
+			. bind_decision(
+				"COMMITMENT",
+				"COMBAT",
+				(
+					"Stage an optional Castle action, then select combat cards. Next opens Lord powers without advancing."
+					if session is LoadoutSession
+					else "Choose combat and select cards. Next opens Lord powers; the round has not advanced."
+				),
+				"ROUND %d" % session.round_number()
+			)
 		)
 	confirm.text = "RESOLVE ROUND" if powers_step else "NEXT · LORD POWERS"
 	pass_button.text = "NO POWERS" if powers_step else "SKIP COMBAT"
 	pass_button.tooltip_text = (
-		"Clear queued powers and resolve your staged combat."
+		"Clear queued powers and resolve your staged orders."
 		if powers_step
-		else "Skip combat and continue to Lord powers."
+		else "Skip combat, keep your Castle action, and continue to Lord powers."
 	)
 
 
@@ -749,7 +807,7 @@ func _queued_power(power: String) -> bool:
 
 
 func _update_power_controls() -> void:
-	for power in [Gremory.PREDATOR, Gremory.RUIN]:
+	for power in [Gremory.PREDATOR, Gremory.RUIN] if _human_lord() == "Gremory" else []:
 		var state: Dictionary = session.power_status(power)
 		var label: Label = predator_state if power == Gremory.PREDATOR else ruin_state
 		var button: Button = predator_button if power == Gremory.PREDATOR else ruin_button
@@ -782,9 +840,10 @@ func _update_power_controls() -> void:
 				and (ruin_target.item_count == 0 or hand_view.card_buttons.size() < 2)
 			)
 		)
+	_update_deimos_controls()
 	if powers_step and not confirm.disabled:
 		status.text = (
-			"Combat: %s · %d cards. Powers: %d queued. Resolve submits both together."
+			"Combat: %s · %d cards. Powers: %d queued. Resolve submits all orders together."
 			% [
 				staged_order.get("action", "Skipped"),
 				staged_order.get("card_ids", []).size(),
@@ -845,7 +904,17 @@ func _friendly_error(result: Dictionary) -> String:
 	if reason == "power_not_ready" or reason.contains("cooldown"):
 		return "That power is still cooling down. Choose another power or pass."
 	if reason == "combat_order_invalid":
-		return "Check your combat target and selected cards, or choose Powers Only or Pass Round."
+		return "Check your combat target and cards, or Skip Combat to continue."
+	if reason == "castle_not_ready_to_activate":
+		return "Commission needs a protected Castle with at least 7 Integrity."
+	if reason == "castle_not_under_construction":
+		return "Choose an unfinished Castle. Commissioned Castles use Repair."
+	if reason.contains("repair_lock"):
+		return "Repair is locked this round after damage took this Castle below 7."
+	if reason.contains("castle_payment") or reason.contains("repair_payment"):
+		return "Select available hand cards for this Castle action."
+	if reason == "activation_does_not_accept_payment":
+		return "Commission uses no cards or Repair token."
 	if reason.contains("discard") or reason.contains("cost") or reason.contains("payment"):
 		return "Ruin needs two available cards, separate from cards committed to combat."
 	return "That choice is unavailable: " + reason.replace("_", " ")
@@ -878,6 +947,8 @@ func _button(parent: Node, text_value: String, callback: Callable) -> Button:
 
 func _option(parent: Node, entries: Array) -> OptionButton:
 	var option := OptionButton.new()
+	option.fit_to_longest_item = false
+	option.clip_text = true
 	for entry in entries:
 		option.add_item(entry)
 	parent.add_child(option)
@@ -892,3 +963,318 @@ func _picture(parent: Node, texture: Texture2D, dimensions: Vector2) -> void:
 	picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	parent.add_child(picture)
+
+
+func open_setup() -> void:
+	if not _runtime_ok or _job != null or playing or setup_picker == null:
+		return
+	setup_hand_selection = hand_view.selected_card_ids()
+	setup_open = true
+	phase_prompt.set_presenting(false)
+	history_panel.hide()
+	var draft = session if session is LoadoutSession else LoadoutSession.new()
+	setup_picker.present(draft.setup_lords, draft.setup_castles, draft.quick_start, match_started)
+
+
+func close_setup() -> void:
+	if not match_started:
+		return
+	setup_open = false
+	setup_picker.hide()
+	_refresh()
+	for id in setup_hand_selection:
+		hand_view.select_card_id(id)
+	_preview()
+	reopen_decision()
+
+
+func start_loadout(lords: Array, castles: Array, quick: bool) -> void:
+	if not setup_open or _job != null:
+		return
+	var candidate = LoadoutSession.new()
+	var result: Dictionary = candidate.configure(lords, castles, quick)
+	if result.action == "invalid":
+		setup_picker.message.text = _friendly_error(result)
+		return
+	session = candidate
+	match_started = true
+	setup_open = false
+	setup_picker.hide()
+	queued = []
+	payment = []
+	castle_plan = {}
+	staged_order = {}
+	powers_step = false
+	playing = false
+	clock = 0.0
+	action_choice.select(0)
+	_refresh()
+	reopen_decision()
+
+
+func _human_lord() -> String:
+	return session.setup_lords[0] if session is LoadoutSession else "Gremory"
+
+
+func _power_name(power: String) -> String:
+	return (
+		{
+			Gremory.PREDATOR: "Predator of Ruin",
+			Gremory.RUIN: "Inevitable Ruin",
+			Deimos.WAR_MACHINE: "War Machine",
+			Deimos.ROUT: "Rout"
+		}
+		. get(power, power)
+	)
+
+
+func _build_castle_controls(parent: Node) -> void:
+	castle_box = VBoxContainer.new()
+	castle_box.add_theme_constant_override("separation", 6)
+	parent.add_child(castle_box)
+	_label(castle_box, "CASTLE ACTION · OPTIONAL", 17)
+	castle_action_choice = _option(castle_box, ["Construct", "Commission", "Repair"])
+	castle_action_choice.item_selected.connect(func(_index): _update_castle_controls())
+	castle_target = _option(castle_box, [])
+	castle_target.item_selected.connect(func(_index): _update_castle_controls())
+	castle_token = CheckBox.new()
+	castle_token.text = "Use one Repair token (+3)"
+	castle_box.add_child(castle_token)
+	controls.append(castle_token)
+	castle_note = _label(castle_box, "", 12)
+	castle_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	castle_stage = _button(castle_box, "Stage Castle action", stage_castle_action)
+	controls.append(castle_stage)
+	controls.append(_button(castle_box, "Clear Castle action · return cards", clear_castle_action))
+	castle_box.add_child(HSeparator.new())
+	castle_box.hide()
+
+
+func _build_deimos_controls(parent: Node) -> void:
+	deimos_box = VBoxContainer.new()
+	deimos_box.add_theme_constant_override("separation", 6)
+	parent.add_child(deimos_box)
+	_label(deimos_box, "WAR MACHINE", 17)
+	_label(deimos_box, "One operational Siege Engine fires once more at its retained target.", 13).autowrap_mode = (
+		TextServer.AUTOWRAP_WORD_SMART
+	)
+	war_state = _label(deimos_box, "", 13)
+	war_state.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_label(deimos_box, "Your Siege Engine", 12)
+	engine_choice = _option(deimos_box, [])
+	war_button = _button(deimos_box, "Queue War Machine", queue_war_machine)
+	controls.append(war_button)
+	deimos_box.add_child(HSeparator.new())
+	_label(deimos_box, "ROUT", 17)
+	_label(deimos_box, "Enemy Marchers in this lane retreat this round, then recover at half speed next round.", 13).autowrap_mode = (
+		TextServer.AUTOWRAP_WORD_SMART
+	)
+	rout_state = _label(deimos_box, "", 13)
+	rout_state.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_label(deimos_box, "Enemy lane", 12)
+	rout_lane = _option(deimos_box, ["Castle", "Lord"])
+	rout_button = _button(deimos_box, "Queue Rout", queue_rout)
+	controls.append(rout_button)
+	deimos_box.hide()
+
+
+func _refresh_castle_targets(world: Dictionary) -> void:
+	var enemies: Array = []
+	var damaged: Array = []
+	var own: Array = []
+	var engines: Array = []
+	for entity in world.entities:
+		if entity.kind != "castle":
+			continue
+		if entity.owner == 0:
+			own.append(entity)
+			if (
+				entity.attributes.get("combat_profile") == "siege_engine"
+				and Structures.operational(entity)
+			):
+				engines.append(entity)
+		elif Structures.targetable(entity):
+			enemies.append(entity)
+			if (
+				entity.attributes.status == "standing"
+				and entity.attributes.integrity > 0
+				and entity.attributes.integrity < entity.attributes.max_integrity
+			):
+				damaged.append(entity)
+	_fill_castles(target_choice, enemies)
+	_fill_castles(ruin_target, damaged)
+	_fill_castles(castle_target, own)
+	_fill_castles(engine_choice, engines)
+	ruin_target.tooltip_text = "Inevitable Ruin targets a damaged enemy Castle that has been commissioned."
+
+
+func _fill_castles(option: OptionButton, entities: Array) -> void:
+	var previous: String = (
+		"" if option.selected < 0 else String(option.get_item_metadata(option.selected))
+	)
+	option.clear()
+	entities.sort_custom(
+		func(a, b):
+			return int(a.attributes.get("castle_slot", 0)) < int(b.attributes.get("castle_slot", 0))
+	)
+	for entity in entities:
+		option.add_item(_castle_name(entity))
+		var index: int = option.item_count - 1
+		option.set_item_metadata(index, entity.id)
+		option.set_item_tooltip(index, _castle_name(entity))
+		if entity.id == previous:
+			option.select(index)
+
+
+func _castle_name(entity: Dictionary) -> String:
+	var a: Dictionary = entity.attributes
+	var type: String = (
+		String(a.get("castle_type", "Test Castle"))
+		. replace("SiegeEngine", "Siege Engine")
+		. replace("SummoningCircle", "Summoning Circle")
+	)
+	var prefix: String = "Slot %d · " % (int(a.castle_slot) + 1) if a.has("castle_slot") else ""
+	return "%s%s · %d/%d" % [prefix, type, a.integrity, a.max_integrity]
+
+
+func stage_castle_action() -> void:
+	if (
+		not _planning()
+		or powers_step
+		or not session is LoadoutSession
+		or castle_target.selected < 0
+	):
+		return
+	if not castle_plan.is_empty():
+		status.text = "Clear the staged Castle action before replacing it."
+		return
+	var action: String = ["Construct", "Activate", "Repair"][castle_action_choice.selected]
+	var choice: Dictionary = {
+		"action": action,
+		"target_id": castle_target.get_item_metadata(castle_target.selected),
+		"card_ids": [] if action == "Activate" else hand_view.selected_card_ids(),
+		"use_repair_token": action == "Repair" and castle_token.button_pressed
+	}
+	# Ask the same owner validator as submission. No second UI rules engine.
+	if _error(session.choose([], {"castle_action": choice})):
+		return
+	castle_plan = choice
+	hand_view.clear_selection()
+	_refresh()
+
+
+func clear_castle_action() -> void:
+	if not _planning() or powers_step:
+		return
+	var selected: Array = hand_view.selected_card_ids()
+	castle_plan = {}
+	_refresh()
+	for id in selected:
+		hand_view.select_card_id(id)
+	_preview()
+
+
+func _update_castle_controls() -> void:
+	if castle_note == null or not _planning() or not session is LoadoutSession:
+		return
+	var action: String = ["Construct", "Activate", "Repair"][castle_action_choice.selected]
+	castle_action_choice.disabled = not castle_plan.is_empty()
+	castle_target.disabled = not castle_plan.is_empty()
+	castle_token.visible = action == "Repair"
+	castle_token.disabled = not castle_plan.is_empty()
+	castle_stage.disabled = (
+		powers_step or castle_target.item_count == 0 or not castle_plan.is_empty()
+	)
+	castle_stage.text = (
+		"Stage %s" % ["Construct", "Commission", "Repair"][castle_action_choice.selected]
+	)
+	var explanation: String = {
+		"Construct":
+		"Select optional payment cards, then Stage. Progress includes +3 passive even with payment. Protected until you Commission.",
+		"Activate":
+		"Commission at 7+ uses no cards. This copy becomes vulnerable at its current Integrity. This cannot be undone.",
+		"Repair":
+		"Select payment cards, then Stage. Wrights give printed value; others give value minus 1 (minimum 1). Optional token adds 3."
+	}[action]
+	var world: Dictionary = session.board_view().world
+	for entity in world.entities:
+		if (
+			castle_target.selected >= 0
+			and entity.id == castle_target.get_item_metadata(castle_target.selected)
+		):
+			var a: Dictionary = entity.attributes
+			explanation += (
+				"\n%s · %s" % [String(a.get("construction_state", "active")).capitalize(), a.status]
+			)
+			if int(a.get("repair_lock_until_round", 0)) >= session.round_number():
+				explanation += " · Repair locked this round"
+	if not castle_plan.is_empty():
+		explanation = (
+			"STAGED: %s · %d cards. Clear to change.\nNow choose combat using the remaining hand."
+			% [
+				"Commission" if castle_plan.action == "Activate" else castle_plan.action,
+				castle_plan.card_ids.size()
+			]
+		)
+	var automatic: String = ""
+	if not String(world.get("construction_target", "")).is_empty():
+		for entity in world.entities:
+			if entity.id == world.construction_target:
+				automatic = "\nUnfinished construction: " + _castle_name(entity)
+	castle_note.text = (
+		explanation + "\nRepair tokens: %d" % int(world.get("repair_tokens", 0)) + automatic
+	)
+
+
+func queue_war_machine() -> void:
+	if engine_choice.selected < 0:
+		return
+	_queue_deimos(
+		Deimos.WAR_MACHINE, {"entity_id": engine_choice.get_item_metadata(engine_choice.selected)}
+	)
+
+
+func queue_rout() -> void:
+	_queue_deimos(Deimos.ROUT, {"lane": rout_lane.get_item_text(rout_lane.selected)})
+
+
+func _queue_deimos(power: String, target: Dictionary) -> void:
+	if not _planning() or not powers_step or _human_lord() != "Deimos" or _queued_power(power):
+		return
+	var candidate: Array = queued.duplicate(true)
+	candidate.append(session.declaration(power, queued.size(), target))
+	if _error(session.choose(candidate, _order())):
+		return
+	queued = candidate
+	_preview()
+
+
+func _update_deimos_controls() -> void:
+	if _human_lord() != "Deimos":
+		return
+	for power in [Deimos.WAR_MACHINE, Deimos.ROUT]:
+		var state: Dictionary = session.power_status(power)
+		var label: Label = war_state if power == Deimos.WAR_MACHINE else rout_state
+		var button: Button = war_button if power == Deimos.WAR_MACHINE else rout_button
+		var queued_now: bool = _queued_power(power)
+		label.text = "Queued · not spent yet" if queued_now else "Ready · cooldown 0"
+		if state.awaiting_expiration:
+			label.text = "Active / recovering · then 2 cooldown rounds"
+		elif state.remaining > 0:
+			label.text = "Cooldown %d · ready round %d" % [state.remaining, state.ready_round]
+		label.text += (
+			"\nFree · one extra shot, from one Engine"
+			if power == Deimos.WAR_MACHINE
+			else "\nFree · cooldown starts when recovery ends"
+		)
+		if power == Deimos.WAR_MACHINE and engine_choice.item_count == 0:
+			label.text += "\nNo operational Siege Engine."
+		button.disabled = (
+			not _planning()
+			or not powers_step
+			or _human_lord() != "Deimos"
+			or queued_now
+			or state.awaiting_expiration
+			or state.remaining > 0
+			or (power == Deimos.WAR_MACHINE and engine_choice.item_count == 0)
+		)

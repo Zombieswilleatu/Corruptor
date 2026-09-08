@@ -78,11 +78,14 @@ func random_opponent_plan() -> Dictionary:
 
 # Read-only UI status from the same public clocks used by the owner.
 func power_status(power: String) -> Dictionary:
-	var result: Dictionary = {"remaining": 0, "ready_round": round_number(), "fire_round": 0}
+	var result: Dictionary = {
+		"remaining": 0, "ready_round": round_number(), "fire_round": 0, "awaiting_expiration": false
+	}
 	var public: Dictionary = _owner.player_view(0, 0)
 	for row in public.cooldowns:
 		var source: Dictionary = row.get("declaration", {})
 		if source.get("player_id") == 0 and source.get("power_id") == power:
+			result.awaiting_expiration = row.get("phase") == "awaiting_expiration"
 			result.ready_round = int(row.ready_round)
 			result.remaining = maxi(0, result.ready_round - round_number())
 	for row in public.pending:

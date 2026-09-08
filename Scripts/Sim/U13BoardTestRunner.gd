@@ -171,6 +171,7 @@ func _butcher_movement() -> void:
 
 func _board_controls() -> void:
 	var board = Scene.instantiate()
+	board.setup_enabled = false
 	root.add_child(board)
 	await process_frame
 	await process_frame

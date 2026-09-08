@@ -7,6 +7,7 @@ var scores: Dictionary = {}
 var tools_box: VBoxContainer
 var history_box: VBoxContainer
 var breach_art: TextureRect
+var scope: Label
 
 
 func _ready() -> void:
@@ -25,7 +26,7 @@ func _ready() -> void:
 	banner.add_child(text)
 	round_label = _label(text, "", 18)
 	veil_label = _label(text, "", 18)
-	var scope: Label = _label(text, "U13 · Gremory combat", 12)
+	scope = _label(text, "U13 · Gremory combat", 12)
 	scope.tooltip_text = "Siege, Ward and Lord powers are playable. Development, Hunt, normal draws, named Castle powers and victory are not connected yet."
 	var breach := VBoxContainer.new()
 	breach.custom_minimum_size.x = 94
@@ -84,12 +85,21 @@ func bind_world(world: Dictionary, round_number: int) -> void:
 	veil_label.text = "NEUTRAL TEARS  %d" % world.neutral_tears
 	for pid in [0, 1]:
 		scores[pid].text = (
-			"%s · GREMORY\nSouls  %d\nHand  %d"
+			"%s · %s\nSouls  %d\nHand  %d"
 			% [
 				"YOU" if pid == 0 else "OPPONENT",
+				String(world.get("lord_ids", ["Gremory", "Gremory"])[pid]).to_upper(),
 				world.souls[pid],
 				world.hand.size() if pid == 0 else world.opponent_hand_count
 			]
 		)
-	breach_art.texture = Art.lord_texture(world.breach_lord)
+	if world.has("castle_loadouts"):
+		scope.text = "U13 · Castle / Lord exercise"
+		scope.tooltip_text = "Construct, Commission, Repair, Siege, Ward and Gremory/Deimos powers. Only Siege Engine printed Castle power is connected. Hunt, normal draws and victory are pending."
+		veil_label.text += (
+			" · PERSONAL %d : %d" % [world.personal_tears[0], world.personal_tears[1]]
+		)
+	breach_art.texture = (
+		null if String(world.breach_lord).is_empty() else Art.lord_texture(world.breach_lord)
+	)
 	breach_art.tooltip_text = world.breach_lord

@@ -325,23 +325,32 @@ func _configure_deploy_drop_target(_control: Control, _lane: String) -> void:
 
 
 func bind_world(world: Dictionary, pid: int, planning: bool) -> void:
-	lord_card.bind_art(Textures.lord_texture("Gremory"), "GREMORY", "Gremory — hold to inspect")
+	var lord_name: String = world.get("lord_ids", ["Gremory", "Gremory"])[pid]
+	lord_card.bind_art(
+		Textures.lord_texture(lord_name), lord_name.to_upper(), lord_name + " — hold to inspect"
+	)
 	if not lord_card.input_surface.pressed.is_connected(_select_lord):
 		lord_card.input_surface.pressed.connect(_select_lord)
 	lord_card.input_surface.set_meta("planning", planning and pid == 0)
 	var live_castle: Dictionary = {}
+	var slots: Dictionary = {}
 	var guards: Dictionary = {"Lord": {}, "Castle": {}}
 	for entity in world.entities:
 		if entity.owner != pid:
 			continue
 		if entity.kind == "castle":
 			live_castle = entity
+			if entity.attributes.has("castle_slot"):
+				slots[int(entity.attributes.castle_slot)] = entity
 		elif entity.kind == "card" and entity.attributes.get("role") == "guard":
 			guards[entity.attributes.lane][int(entity.attributes.slot)] = entity
 	_clear_children(castle_row)
 	# Preserve all five physical positions without pretending their U12 powers run.
 	var names: Array = ["Keep", "Bastion", "SummoningCircle", "Stockpile", "SiegeEngine"]
 	for index in range(names.size()):
+		if slots.has(index):
+			_add_instance_card(slots[index], pid, planning)
+			continue
 		var card = Card.new()
 		card.custom_minimum_size = Vector2(124, 180)
 		castle_row.add_child(card)
@@ -399,3 +408,53 @@ func _select_lord() -> void:
 func _select_castle(pid: int, id: String, planning: bool) -> void:
 	if planning:
 		target_selected.emit("Siege" if pid == 1 else "Ward", "Castle", id)
+
+
+func _add_instance_card(entity: Dictionary, pid: int, planning: bool) -> void:
+	var a: Dictionary = entity.attributes
+	var card = Card.new()
+	card.custom_minimum_size = Vector2(124, 180)
+	castle_row.add_child(card)
+	var type: String = String(a.castle_type).replace("SiegeEngine", "Siege Engine").replace(
+		"SummoningCircle", "Summoning Circle"
+	)
+	var lifecycle: String = (
+		"PROTECTED"
+		if a.construction_state != "active"
+		else ("OPERATIONAL" if a.integrity >= 7 and a.status == "standing" else "OFFLINE")
+	)
+	if a.status in ["ruined", "profaned"]:
+		lifecycle = String(a.status).to_upper()
+	elif a.construction_state == "unbuilt":
+		lifecycle = "UNBUILT"
+	var caption: String = (
+		"%d · %s\n%s · %d/%d"
+		% [int(a.castle_slot) + 1, type, lifecycle, a.integrity, a.max_integrity]
+	)
+	var help: String = (
+		"Slot %d · %s\n%s · %s\nIntegrity %d/%d. All Castles share one Castle Guard zone."
+		% [
+			int(a.castle_slot) + 1,
+			type,
+			a.construction_state,
+			a.status,
+			a.integrity,
+			a.max_integrity
+		]
+	)
+	if a.castle_type != "SiegeEngine":
+		help += "\nPrinted Castle power is not connected in this U13 slice."
+	if a.construction_state != "active":
+		help += "\nProtected. Commission at 7+ makes this copy vulnerable."
+	card.bind_art(
+		Textures.texture(Castles.ART_PATHS[a.castle_type]),
+		caption,
+		help,
+		a.construction_state != "unbuilt" and a.status not in ["ruined", "profaned"]
+	)
+	card.caption.add_theme_font_size_override("font_size", 10)
+	card.set_meta("castle_id", entity.id)
+	# Own cards still select the shared Ward lane. Only exposed enemy copies
+	# offer a Siege target; construction never becomes a clickable attack target.
+	if pid == 0 or (a.construction_state == "active" and a.status in ["standing", "defunct"]):
+		card.input_surface.pressed.connect(_select_castle.bind(pid, entity.id, planning))
