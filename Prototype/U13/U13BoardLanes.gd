@@ -66,11 +66,19 @@ func _draw() -> void:
 			_draw_chit(unit, Vector2(54 + (index % 4) * 56, 176))
 			index += 1
 	draw_string(font, Vector2(18, 250), action, HORIZONTAL_ALIGNMENT_CENTER, size.x - 36, 12, MUTED)
+	# One continuous battlefield surface; only the lane boundary divides it.
+	var field_rect := Rect2(16, 279, size.x - 32, size.y - 303)
+	_scenery(field_rect, Rect2(0.36, 0.10, 0.24, 0.82))
+	draw_line(
+		Vector2(size.x * 0.5, field_rect.position.y),
+		Vector2(size.x * 0.5, field_rect.end.y),
+		Color("625234"),
+		2
+	)
 	for lane_index in range(2):
 		var lane: String = "Lord" if lane_index == 0 else "Castle"
 		var width: float = (size.x - 37) / 2.0
 		var rect := Rect2(16 + lane_index * (width + 5), 279, width, size.y - 303)
-		_scenery(rect, Rect2(0.36 if lane_index == 0 else 0.48, 0.10, 0.12, 0.82))
 		draw_string(
 			font,
 			Vector2(rect.position.x, rect.position.y + 20),
@@ -83,15 +91,6 @@ func _draw() -> void:
 		var top: float = rect.position.y + 65
 		var bottom: float = rect.end.y - 52
 		var middle: float = rect.get_center().x
-		draw_line(Vector2(middle, top), Vector2(middle, bottom), Color("625234"), 1)
-		for mark in range(4):
-			var y: float = lerpf(bottom, top, float(mark) / 3.0)
-			draw_line(
-				Vector2(rect.position.x + 7, y),
-				Vector2(rect.end.x - 7, y),
-				Color(0.6, 0.5, 0.3, 0.35),
-				1
-			)
 		var occupied: Dictionary = {}
 		for unit in _units:
 			var a: Dictionary = unit.attributes
