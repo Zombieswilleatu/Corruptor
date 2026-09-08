@@ -143,6 +143,7 @@ u13_runners=(
   U13SpatialMarching
   U13MarchingIntegration
   U13Smoke
+  U13BoardModel
   U13Board
   U13DenseBoard
   U13LoadoutBoard
@@ -169,6 +170,7 @@ u13_markers=(
   'U13 spatial Marching failures: 0'
   'U13 Marching integration failures: 0'
   'U13 smoke scene failures: 0'
+  'U13 board model failures: 0'
   'U13 board failures: 0'
   'U13 dense board failures: 0'
   'U13 loadout board failures: 0'
@@ -176,8 +178,8 @@ u13_markers=(
   'U13 direct board failures: 0'
 )
 if [[ $u13_board_only == true ]]; then
-  u13_runners=(U13Board U13DenseBoard U13LoadoutBoard U13Hunt U13DirectBoard)
-  u13_markers=('U13 board failures: 0' 'U13 dense board failures: 0' 'U13 loadout board failures: 0' 'U13 Hunt failures: 0' 'U13 direct board failures: 0')
+  u13_runners=(U13BoardModel U13Board U13DenseBoard U13LoadoutBoard U13Hunt U13DirectBoard)
+  u13_markers=('U13 board model failures: 0' 'U13 board failures: 0' 'U13 dense board failures: 0' 'U13 loadout board failures: 0' 'U13 Hunt failures: 0' 'U13 direct board failures: 0')
 fi
 if [[ $u13_construction_only == true ]]; then
   u13_runners=(U13Construction U13ConstructionRandom)

@@ -216,3 +216,25 @@ Existing board regressions cover Guard color, event delivery, paired War Machine
 and normal shots, nonoverlapping flights/impacts, repeatable path variation,
 correct endpoint, skip cleanup and unchanged authoritative state. Counts remain
 board 5/5 and interaction 2/2. Godot 4.7.2 engine/visual verification is local.
+
+
+### Board runner deadline separation
+
+The Windows failure log `u13-foundation-failure-3A5Bl3.log` shows the old board
+runner entering UI checks at 17,893 ms, after texture, model, replay and movement
+fixtures. Its subsequent Marching workers completed in approximately two seconds
+each before the process exhausted its cumulative 30-second deadline during the
+Ruin check. This fixture has no Siege Engines and does not wait for artillery
+animation. The logged frame gaps alone do not establish an in-game freeze.
+
+`U13BoardModelTestRunner` now runs the unchanged texture, payment, three-round
+random/replay and Butcher movement checks in a separate process before
+`U13BoardTestRunner` runs the unchanged UI controls and worker checks. Dense,
+loadout and direct board coverage remains in its existing runners. No assertions,
+fixtures or replay rounds were removed, and no production code was changed.
+This separates test budgets; it is not a claimed production performance gain.
+
+Every runner retains the default 30-second deadline, error-log detection,
+required completion footer and fail-fast behavior. Current totals are board
+**6/6**, foundation **25/25**, interaction **2/2**. Local Godot 4.7.2 verification
+is required; grammar and wrapper orchestration checks do not execute gameplay.
