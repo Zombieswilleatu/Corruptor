@@ -36,6 +36,30 @@ static func apply(
 			details["castle"] = target
 			entities.retire(target.id)
 			event_type = "CASTLE_DESTROYED"
+		"ruin_castle":
+			if world.data.get("combat_profile") != "U13_CORE_ARTILLERY_COMBAT_V1":
+				return Data.invalid("ruined_structure_profile_required")
+			if (
+				target.is_empty()
+				or target.kind != "castle"
+				or target.attributes.get("status") not in ["standing", "defunct"]
+			):
+				return Data.invalid("castle_not_ruinable")
+			if (
+				not Data.is_integer(command.get("player_id"))
+				or command.player_id not in [0, 1]
+				or target.owner != 1 - int(command.player_id)
+			):
+				return Data.invalid("castle_ruination_attribution_invalid")
+			details["castle"] = target.duplicate(true)
+			details["player_id"] = command.player_id
+			details["cause"] = command.get("cause", "siege")
+			details["source_id"] = command.get("source_id", "")
+			target.attributes.integrity = 0
+			target.attributes.status = "ruined"
+			target.attributes.artillery_target = ""
+			entities.update(target.id, target.owner, target.attributes)
+			event_type = "CASTLE_DESTROYED"
 		"repair_castle":
 			if (
 				target.is_empty()

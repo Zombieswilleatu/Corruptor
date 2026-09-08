@@ -7,6 +7,7 @@ const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
 const Battle = preload("res://Scripts/Sim/U13BattleEvents.gd")
 const Marching = preload("res://Scripts/Sim/U13Marching.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
+const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const VERSION: String = "U13_GREMORY_BASIC_COMBAT_V1"
 
 
@@ -16,18 +17,24 @@ const VERSION: String = "U13_GREMORY_BASIC_COMBAT_V1"
 # Refuse unsupported profiles instead of silently treating this as all U12 rules.
 static func valid(world: Dictionary) -> bool:
 	if (
-		world.data.get("combat_profile") != VERSION
+		world.data.get("combat_profile") not in [VERSION, Structures.PROFILE]
 		or not Cards.valid(world)
 		or not Marching.valid(world)
 	):
 		return false
-	if world.data.get("breach_lord") not in ["", "Gremory"]:
+	var core: bool = world.data.get("combat_profile") == Structures.PROFILE
+	if core and not Structures.valid(world):
+		return false
+	if (
+		world.data.get("breach_lord")
+		not in (["", "Gremory", "Deimos"] if core else ["", "Gremory"])
+	):
 		return false
 	var sigils = world.data.get("sigils")
 	if typeof(sigils) != TYPE_ARRAY or sigils.size() != 2:
 		return false
 	for player_id in [0, 1]:
-		if world.players[player_id].lord_id != "Gremory":
+		if world.players[player_id].lord_id not in (["Gremory", "Deimos"] if core else ["Gremory"]):
 			return false
 		if typeof(sigils[player_id]) != TYPE_DICTIONARY:
 			return false
@@ -38,7 +45,10 @@ static func valid(world: Dictionary) -> bool:
 	for entity in world.entities.entities:
 		var a: Dictionary = entity.attributes
 		if entity.kind == "castle":
-			if a.get("combat_profile") != "plain_integrity":
+			if (
+				a.get("combat_profile")
+				not in (["plain_integrity", "siege_engine"] if core else ["plain_integrity"])
+			):
 				return false
 		if entity.kind != "card":
 			continue
@@ -268,6 +278,15 @@ static func _siege(
 			}
 		)
 	)
+	if world.data.combat_profile == Structures.PROFILE:
+		var reacted: Dictionary = reaction.call(
+			world, events.back().event, context.seed, context.player_order
+		)
+		if reacted.action == "invalid":
+			return reacted
+		world = reacted.world
+		events.append_array(reacted.events)
+		entities.restore(world.entities)
 	var ward: Dictionary = context.combat_orders[1 - player_id]
 	var screen: int = 0
 	if ward.get("action") == "Ward":
@@ -323,7 +342,14 @@ static func _siege(
 			remaining = 0
 	var integrity_before: int = target.attributes.integrity
 	var damage: int = mini(integrity_before, remaining)
-	var destroyed: bool = integrity_before > 0 and damage == integrity_before
+	var destroyed: bool = (
+		damage == integrity_before
+		and (
+			remaining > 0
+			if world.data.combat_profile == Structures.PROFILE
+			else integrity_before > 0
+		)
+	)
 	if destroyed:
 		# Baseline unconsumed enemy Siege reward: 1/2 Souls, plus measured +1.
 		world.players[player_id].resources["souls"] = (
@@ -340,8 +366,10 @@ static func _siege(
 			)
 		var command: Dictionary = {
 			"command_id": "siege:%d:castle:%s" % [player_id, target.id],
-			"kind": "destroy_castle",
-			"target_id": target.id
+			"kind":
+			"ruin_castle" if world.data.combat_profile == Structures.PROFILE else "destroy_castle",
+			"target_id": target.id,
+			"player_id": player_id
 		}
 		var applied: Dictionary = _fact(world, command, context, reaction)
 		if applied.action == "invalid":
@@ -443,6 +471,8 @@ static func _snapshot_order(context: Dictionary) -> Dictionary:
 		"marching_round": Timeline.MARCHING,
 		"combat_cleanup_round": Timeline.AFTERMATH
 	}
+	if world.data.combat_profile == Structures.PROFILE:
+		phases["artillery_round"] = Timeline.POST_REPAIR_ARTILLERY
 	for field in phases:
 		var expected: int = (
 			context.round if phase > Timeline.hook_rank(phases[field]) else context.round - 1

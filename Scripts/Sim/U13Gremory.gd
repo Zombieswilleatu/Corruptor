@@ -53,7 +53,10 @@ func create_match(adapter_version: String):
 
 
 func valid_world(world: Dictionary) -> bool:
-	if _combat_enabled and not Combat.valid(world):
+	if (
+		_combat_enabled
+		and (world.data.get("combat_profile") != Combat.VERSION or not Combat.valid(world))
+	):
 		return false
 	if (
 		not Cards.valid(world)

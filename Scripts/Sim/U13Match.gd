@@ -446,7 +446,8 @@ func _resolve(record: Dictionary) -> Dictionary:
 		"world": _world.duplicate(true),
 		"seed": _seed,
 		"round": _runtime.round_number,
-		"rng_version": Rng.VERSION
+		"rng_version": Rng.VERSION,
+		"player_order": _order.duplicate()
 	}
 	var transformed = _resolvers[source.power_id].call(record.duplicate(true), context)
 	var applied: Dictionary = _apply_transform(transformed, source)

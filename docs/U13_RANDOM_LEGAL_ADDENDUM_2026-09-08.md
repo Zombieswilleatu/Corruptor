@@ -255,11 +255,11 @@ found on top of eight milestones of accumulated assumptions.
 
 # Implementation status and acceptance notes
 
-The shared chooser and Gremory frequency batches are now implemented, pending
-local Godot 4.7.2 verification. See [the batch contract and run command](U13_RANDOM_BATCH_2026-09-08.md).
+The shared chooser and Gremory frequency batches are implemented and locally
+verified on Godot 4.7.2 (four seeds, six rounds, identical independent replays). See [the batch contract and run command](U13_RANDOM_BATCH_2026-09-08.md).
 The original smoke scene remains a preset scenario, and the new batches remain
-explicitly scoped to the current combat slice. Another Lord stays gated on local
-foundation and batch acceptance. The following acceptance requirements still apply.
+explicitly scoped to the current combat slice. The user accepted that gate and authorized Deimos; see
+[its current scoped implementation](U13_DEIMOS_ARTILLERY_2026-09-08.md). The following acceptance requirements still apply.
 
 At the 11/11 checkpoint, `U13Legality` validates individual declarations but does
 not enumerate legal sets. Implementation must add data-only candidate generation

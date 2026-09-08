@@ -25,7 +25,9 @@ func begin(round_number: int, view: Dictionary) -> void:
 		"castles_destroyed": 0,
 		"ticks_observed": 0,
 		"neutral_tears": view.world.neutral_tears,
-		"personal_tears": null,
+		"personal_tears": view.world.get("personal_tears", null),
+		"artillery_shots": {},
+		"personal_tears_by_source": {},
 		"both_players_passed": false
 	}
 	for player_id in [0, 1]:
@@ -48,6 +50,7 @@ func observe_hook(view: Dictionary, hook: String) -> void:
 		_row.souls_gained_by_hook[hook] = gains
 	_souls = view.world.souls.duplicate()
 	_row.neutral_tears = view.world.neutral_tears
+	_row.personal_tears = view.world.get("personal_tears", null)
 
 
 func consume(events: Array) -> void:
@@ -94,9 +97,23 @@ func consume(events: Array) -> void:
 						_row.fizzle_causes,
 						key + ":" + String(data.get("result", {}).get("reason", "unspecified"))
 					)
+			"ARTILLERY_FIRED":
+				_increment(
+					_row.artillery_shots,
+					(
+						"%d:%s"
+						% [int(data.player_id), "normal" if data.shot == "normal" else "WarMachine"]
+					)
+				)
+			"PERSONAL_TEAR_CREATED":
+				_increment(
+					_row.personal_tears_by_source,
+					"%d:%s" % [int(data.player_id), data.source],
+					int(data.amount)
+				)
 			"NEUTRAL_TEAR_CREATED":
 				_increment(_row.tears_by_source, String(data.source), int(data.amount))
-			"PICKING_THE_BONES", "SIFTING_THE_RUINS", "GEM_DAGGER":
+			"PICKING_THE_BONES", "SIFTING_THE_RUINS", "GEM_DAGGER", "FEAR_AURA":
 				_increment(_row.passive_triggers, "%d:%s" % [int(data.player_id), event.type])
 			"CASTLE_DESTROYED":
 				_row.castles_destroyed += 1
@@ -146,7 +163,13 @@ static func summarize(rows: Array) -> Dictionary:
 	var fizzles: Dictionary = {}
 	var triggers: Dictionary = {}
 	var souls: Dictionary = {}
+	var artillery: Dictionary = {}
+	var personal: Dictionary = {}
 	for row in rows:
+		for key in row.artillery_shots:
+			_increment(artillery, key, row.artillery_shots[key])
+		for key in row.personal_tears_by_source:
+			_increment(personal, key, row.personal_tears_by_source[key])
 		all_pass += 1 if row.both_players_passed else 0
 		castles += int(row.castles_destroyed)
 		for key in row.arrivals:
@@ -188,6 +211,8 @@ static func summarize(rows: Array) -> Dictionary:
 			_increment(tears, key, row.tears_by_source[key])
 	return {
 		"round_samples": rows.size(),
+		"artillery_shots": artillery,
+		"personal_tears_by_source": personal,
 		"both_players_passed_rounds": all_pass,
 		"castles_destroyed": castles,
 		"arrivals": arrivals,
@@ -204,7 +229,7 @@ static func summarize(rows: Array) -> Dictionary:
 		"tears_by_source": tears,
 		"threshold_power_ratios": null,
 		"threshold_note":
-		"No implemented Gremory active power has a counted Marcher threshold. Future Lord thresholds are not measured."
+		"No active power in this slice has a counted Marcher threshold. Future Lord thresholds are not measured."
 	}
 
 

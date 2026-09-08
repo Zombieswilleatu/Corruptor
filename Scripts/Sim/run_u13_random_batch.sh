@@ -7,15 +7,19 @@ if [[ $# -lt 1 || ! -x "$1" ]]; then
 fi
 u13_batch_exe=$1
 shift
+u13_batch_roster=gremory
 for u13_batch_arg in "$@"; do
   case "$u13_batch_arg" in
     --trials=*|--rounds=*|--seed-prefix=*) ;;
+    --roster=gremory|--roster=deimos|--roster=mixed) u13_batch_roster=${u13_batch_arg#--roster=} ;;
     *) printf 'Unsupported batch argument: %s\n' "$u13_batch_arg" >&2; exit 2 ;;
   esac
 done
 u13_batch_project=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd) || exit 2
-u13_batch_report=${U13_RANDOM_REPORT:-"$HOME/Downloads/u13_random_legal.json"}
-u13_batch_log=${U13_RANDOM_LOG:-"$HOME/Downloads/u13_random_legal.log"}
+u13_batch_name=u13_random_legal
+if [[ "$u13_batch_roster" != gremory ]]; then u13_batch_name="u13_random_${u13_batch_roster}"; fi
+u13_batch_report=${U13_RANDOM_REPORT:-"$HOME/Downloads/${u13_batch_name}.json"}
+u13_batch_log=${U13_RANDOM_LOG:-"$HOME/Downloads/${u13_batch_name}.log"}
 u13_batch_timeout=${U13_BATCH_TIMEOUT_SECONDS:-300}
 if [[ ! "$u13_batch_timeout" =~ ^[1-9][0-9]{0,3}$ ]]; then
   printf 'U13_BATCH_TIMEOUT_SECONDS must be 1..9999.\n' >&2

@@ -127,3 +127,19 @@ weight domains, enemy Ruin targets, whole-plan payment legality, both-player
 submission, real-doctrine precedence, deterministic selection, compact-event
 telemetry, zero/absent metrics and independent two-round replay. The full wrapper
 adds this as suite 16 and retains the 30-second per-suite gate.
+
+
+## Accepted Gremory report and Deimos extension
+
+The user verified the four-seed/six-round Gremory batch on Godot 4.7.2 and approved
+proceeding. All replays matched, all rounds included 200 ticks, both sides spawned
+48 units, and all 34 power declarations resolved (24 Predator, 10 Ruin). Start
+density was mean 9.08, median 8.5, range 3–16. Both sides spawned in 11/24 rounds.
+This is an accepted measurement-path checkpoint, not shipping-roster balance data.
+
+The [Deimos artillery slice](U13_DEIMOS_ARTILLERY_2026-09-08.md) adds an explicit
+second profile and optional `--roster=mixed` / `--roster=deimos` batches, each with
+its own Downloads report name. The full foundation suite is now 17 runners.
+Personal Tear counters in the new profile cover Spoils of War only; Veil and the
+rest of the economy remain absent. Existing sections above describe the original
+Gremory profile and its historical 16-suite acceptance command.

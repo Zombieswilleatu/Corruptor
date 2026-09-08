@@ -9,17 +9,41 @@ const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Marching = preload("res://Scripts/Sim/U13Marching.gd")
 const Combat = preload("res://Scripts/Sim/U13Combat.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
+const Deimos = preload("res://Scripts/Sim/U13Deimos.gd")
+const Core = preload("res://Scripts/Sim/U13CoreScenario.gd")
+const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const VERSION: String = "U13_RANDOM_BATCH_V1"
 
 
 static func trial(
-	seed_value: String, round_limit: int, progress: Callable = Callable()
+	seed_value: String,
+	round_limit: int,
+	progress: Callable = Callable(),
+	roster_mode: String = "gremory"
 ) -> Dictionary:
-	if seed_value.is_empty() or round_limit < 1 or round_limit > 100:
+	if (
+		seed_value.is_empty()
+		or round_limit < 1
+		or round_limit > 100
+		or roster_mode not in ["gremory", "deimos", "mixed"]
+	):
 		return Data.invalid("batch_limits_invalid")
-	var content = Gremory.new()
+	var content = Gremory.new() if roster_mode == "gremory" else Deimos.new()
+	var roster: Array = (
+		["Gremory", "Gremory"]
+		if roster_mode == "gremory"
+		else (["Deimos", "Deimos"] if roster_mode == "deimos" else ["Deimos", "Gremory"])
+	)
 	var owner = content.create_combat_match()
-	var started: Dictionary = owner.start(seed_value, Opening._initial_world(), [0, 1])
+	var opening: Dictionary = (
+		Opening._initial_world() if roster_mode == "gremory" else Core.world(roster)
+	)
+	var provider: Callable = (
+		Callable(Candidates, "enumerate")
+		if roster_mode == "gremory"
+		else Callable(Core, "enumerate")
+	)
+	var started: Dictionary = owner.start(seed_value, opening, [0, 1])
 	if started.action == "invalid":
 		return started
 	var telemetry = Telemetry.new()
@@ -42,9 +66,7 @@ static func trial(
 				var plans: Array = []
 				# Compute both complete choices before either player submits.
 				for player_id in [0, 1]:
-					var plan: Dictionary = Bot.plan(
-						owner, player_id, Callable(Candidates, "enumerate")
-					)
+					var plan: Dictionary = Bot.plan(owner, player_id, provider)
 					if plan.action == "invalid":
 						return plan
 					plans.append(plan)
@@ -82,6 +104,8 @@ static func trial(
 	return {
 		"action": "batch_trial_complete",
 		"seed": seed_value,
+		"roster": roster,
+		"roster_mode": roster_mode,
 		"rounds": telemetry.rounds,
 		"summary": Telemetry.summarize(telemetry.rounds),
 		"termination": "round_limit",
@@ -102,11 +126,16 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 		"schema_version": VERSION,
 		"runtime": "4.7.2.stable",
 		"policy": Bot.VERSION,
-		"roster": ["Gremory", "Gremory"],
-		"combat_profile": Combat.VERSION,
+		"roster": trials[0].roster,
+		"combat_profile":
+		Combat.VERSION if trials[0].roster_mode == "gremory" else Structures.PROFILE,
 		"marching_model": Marching.VERSION,
 		"opening":
-		"U13SmokeSession opening: four cards and two Wright guards per player; damaged plain Integrity Castles",
+		(
+			"U13SmokeSession opening: four cards and two Wright guards per player; damaged plain Integrity Castles"
+			if trials[0].roster_mode == "gremory"
+			else "U13CoreScenario: same cards/guards; one plain Castle at 8/21 and one prebuilt Siege Engine at 12/21 per player; empty Breach"
+		),
 		"scope": "bounded combat-slice trials; frequency and reachability observations only",
 		"absent_systems":
 		[
@@ -114,7 +143,13 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 			"normal round draws",
 			"Hunt",
 			"victory",
-			"personal Tear/Veil progression",
+			(
+				"personal Tear/Veil progression"
+				if trials[0].roster_mode == "gremory"
+				else "Veil progression (personal Tear counters only)"
+			),
+			"Construction/Reconstruction",
+			"Rout",
 			"other Lords",
 			"waiter spending"
 		],

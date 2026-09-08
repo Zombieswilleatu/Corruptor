@@ -5,6 +5,7 @@ var trials: int = 4
 var rounds: int = 6
 var seed_prefix: String = "u13-frequency-v1"
 var output: String = ""
+var roster_mode: String = "gremory"
 
 
 func _init() -> void:
@@ -28,6 +29,8 @@ func _run() -> void:
 			rounds = int(arg.trim_prefix("--rounds="))
 		elif arg.begins_with("--seed-prefix="):
 			seed_prefix = arg.trim_prefix("--seed-prefix=")
+		elif arg.begins_with("--roster="):
+			roster_mode = arg.trim_prefix("--roster=")
 		elif arg.begins_with("--output="):
 			output = arg.trim_prefix("--output=")
 		else:
@@ -40,6 +43,7 @@ func _run() -> void:
 		or rounds > 100
 		or seed_prefix.is_empty()
 		or output.is_empty()
+		or roster_mode not in ["gremory", "deimos", "mixed"]
 	):
 		_fail("Use 1..100 trials/rounds, a seed prefix, and --output=report.json")
 		return
@@ -47,12 +51,16 @@ func _run() -> void:
 	for index in range(trials):
 		var seed_value: String = seed_prefix + ":" + str(index)
 		print("BATCH TRIAL ", index + 1, "/", trials)
-		var first: Dictionary = Batch.trial(seed_value, rounds, Callable(self, "_progress"))
+		var first: Dictionary = Batch.trial(
+			seed_value, rounds, Callable(self, "_progress"), roster_mode
+		)
 		if first.action == "invalid":
 			_fail(JSON.stringify(first))
 			return
 		print("BATCH REPLAY ", seed_value)
-		var replay: Dictionary = Batch.trial(seed_value, rounds, Callable(self, "_progress"))
+		var replay: Dictionary = Batch.trial(
+			seed_value, rounds, Callable(self, "_progress"), roster_mode
+		)
 		if first != replay:
 			_fail("Replay diverged for " + seed_value)
 			return
