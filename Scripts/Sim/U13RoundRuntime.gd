@@ -95,7 +95,7 @@ func run_hook(
 		# Handlers own their game-state transaction; this only preserves cursor
 		# position. Retrying a partially completed pending batch is safe because
 		# its manager has already removed each successfully resolved effect.
-		if String(payload.get("action", "")) == "invalid":
+		if payload.get("action", "") == "invalid":
 			var rejected: Dictionary = _invalid("handler_rejected_hook", hook)
 			rejected["result"] = payload.duplicate(true)
 			return rejected
