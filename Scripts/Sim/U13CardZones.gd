@@ -63,13 +63,16 @@ static func can_discard(world: Dictionary, player_id: int, selected, count: int)
 		or selected.size() != count
 	):
 		return false
+	return can_discard_from_hand(world.data.card_zones.hands[player_id], selected, count)
+
+
+# Shared selection predicate once the caller has validated the owning zones.
+static func can_discard_from_hand(hand: Array, selected, count: int) -> bool:
+	if typeof(selected) != TYPE_ARRAY or selected.size() != count:
+		return false
 	var seen: Dictionary = {}
 	for card_id in selected:
-		if (
-			typeof(card_id) != TYPE_STRING
-			or seen.has(card_id)
-			or card_id not in world.data.card_zones.hands[player_id]
-		):
+		if typeof(card_id) != TYPE_STRING or seen.has(card_id) or card_id not in hand:
 			return false
 		seen[card_id] = true
 	return true

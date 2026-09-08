@@ -20,7 +20,8 @@ static func trial(
 	seed_value: String,
 	round_limit: int,
 	progress: Callable = Callable(),
-	roster_mode: String = "gremory"
+	roster_mode: String = "gremory",
+	trace_times: bool = false
 ) -> Dictionary:
 	if (
 		seed_value.is_empty()
@@ -71,7 +72,17 @@ static func trial(
 				var plans: Array = []
 				# Compute both complete choices before either player submits.
 				for player_id in [0, 1]:
+					var plan_started_ms: int = Time.get_ticks_msec() if trace_times else 0
 					var plan: Dictionary = Bot.plan(owner, player_id, provider)
+					if trace_times:
+						print(
+							"BATCH TIMING round=",
+							round_number,
+							" player=",
+							player_id,
+							" planning_ms=",
+							Time.get_ticks_msec() - plan_started_ms
+						)
 					if plan.action == "invalid":
 						return plan
 					plans.append(plan)
@@ -83,7 +94,17 @@ static func trial(
 					)
 					if accepted.action == "invalid":
 						return accepted
+			var hook_started_ms: int = Time.get_ticks_msec() if trace_times else 0
 			var result: Dictionary = owner.run_next_hook()
+			if trace_times and hook in [Timeline.SUBMISSION_LOCK, Timeline.MARCHING]:
+				print(
+					"BATCH TIMING round=",
+					round_number,
+					" hook=",
+					hook,
+					" elapsed_ms=",
+					Time.get_ticks_msec() - hook_started_ms
+				)
 			if result.action == "invalid":
 				return result
 			# Gremory measurement events are public. Hidden draw identities are

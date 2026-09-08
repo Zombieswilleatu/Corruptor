@@ -184,14 +184,15 @@ static func legal_combat_orders(
 	owner, player_id: int, powers: Array, raw: Array, castle_action: Dictionary = {}
 ) -> Array:
 	var unique: Dictionary = {}
+	var candidates: Array = []
 	for item in raw:
 		if typeof(item) != TYPE_DICTIONARY or not Data.is_data(item):
 			continue
 		var order: Dictionary = item.duplicate(true)
 		if not castle_action.is_empty():
 			order["castle_action"] = castle_action.duplicate(true)
-		if owner.preview_submission(player_id, powers, order).action == "invalid":
-			continue
+		candidates.append(order)
+	for order in owner.legal_order_candidates(player_id, powers, candidates):
 		if typeof(order.get("card_ids")) == TYPE_ARRAY:
 			order.card_ids.sort()
 		unique[JSON.stringify(order, "", true)] = order
@@ -205,17 +206,12 @@ static func legal_combat_orders(
 
 static func legal_castle_groups(owner, player_id: int, powers: Array, raw: Array) -> Array:
 	var grouped: Dictionary = {}
+	var candidates: Array = []
 	for item in raw:
-		if typeof(item) != TYPE_DICTIONARY or not Data.is_data(item):
-			continue
-		var choice: Dictionary = item.duplicate(true)
-		if choice.is_empty():
-			continue
-		if (
-			owner.preview_submission(player_id, powers, {"castle_action": choice}).action
-			== "invalid"
-		):
-			continue
+		if typeof(item) == TYPE_DICTIONARY and Data.is_data(item) and not item.is_empty():
+			candidates.append({"castle_action": item.duplicate(true)})
+	for order in owner.legal_order_candidates(player_id, powers, candidates):
+		var choice: Dictionary = order.castle_action
 		choice.card_ids.sort()
 		if not grouped.has(choice.action):
 			grouped[choice.action] = {}

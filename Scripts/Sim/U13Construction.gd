@@ -124,7 +124,7 @@ static func validate_choice(world: Dictionary, player_id: int, choice: Dictionar
 		return Data.invalid("castle_action_target_invalid")
 	if not Cards.can_discard(world, player_id, choice.card_ids, choice.card_ids.size()):
 		return Data.invalid("castle_payment_unavailable")
-	var target_check: Dictionary = validate_target(world, player_id, choice)
+	var target_check: Dictionary = _validate_target(world, player_id, choice, entities)
 	if target_check.action == "invalid":
 		return target_check
 	if choice.use_repair_token and world.players[player_id].resources.repair_tokens < 1:
@@ -139,6 +139,12 @@ static func validate_choice(world: Dictionary, player_id: int, choice: Dictionar
 static func validate_target(world: Dictionary, player_id: int, choice: Dictionary) -> Dictionary:
 	var entities = Ids.new()
 	entities.restore(world.entities)
+	return _validate_target(world, player_id, choice, entities)
+
+
+static func _validate_target(
+	world: Dictionary, player_id: int, choice: Dictionary, entities
+) -> Dictionary:
 	var target: Dictionary = entities.get_entity(choice.target_id)
 	if target.is_empty() or target.kind != "castle" or target.owner != player_id:
 		return Data.invalid("castle_action_target_invalid")
@@ -399,3 +405,43 @@ static func resolve(context: Dictionary) -> Dictionary:
 	world.entities = entities.snapshot()
 	world.data.construction_round = context.round
 	return {"action": "resolved", "world": world, "events": events}
+
+
+# Optional owner-side enumeration screen. It can reject but cannot authorize.
+# Shared target predicates and Hand selection rules are reused; no bot rule copy.
+static func screen_orders(context: Dictionary) -> Array:
+	var world: Dictionary = context.world
+	var orders: Array = context.orders
+	var player_id: int = context.player_id
+	if not enabled(world) or not Cards.valid(world):
+		return range(orders.size())
+	var entities = Ids.new()
+	entities.restore(world.entities)
+	var hand: Array = world.data.card_zones.hands[player_id]
+	var power_cards: Array = []
+	for raw_source in context.declarations:
+		var source: Dictionary = Data.declaration_copy(raw_source)
+		if source.is_empty() or typeof(source.cost.get("discard_ids", [])) != TYPE_ARRAY:
+			return []
+		power_cards.append_array(source.cost.get("discard_ids", []))
+	var result: Array = []
+	for index in range(orders.size()):
+		var order = orders[index]
+		if typeof(order) != TYPE_DICTIONARY or not Data.is_data(order):
+			continue
+		var choice = order.get("castle_action", {})
+		var combat: Dictionary = combat_order(order)
+		if not choice_shape(choice) or not Combat.order_shape(combat):
+			continue
+		var selected: Array = power_cards.duplicate()
+		selected.append_array(combat.get("card_ids", []))
+		if not choice.is_empty():
+			if _validate_target(world, player_id, choice, entities).action == "invalid":
+				continue
+			if choice.use_repair_token and world.players[player_id].resources.repair_tokens < 1:
+				continue
+			selected.append_array(choice.card_ids)
+		if not Cards.can_discard_from_hand(hand, selected, selected.size()):
+			continue
+		result.append(index)
+	return result

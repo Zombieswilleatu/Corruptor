@@ -30,6 +30,7 @@ func _run() -> void:
 		Callable(self, "_activation_lifecycle"),
 		Callable(self, "_completion_and_repair"),
 		Callable(self, "_atomic_plans"),
+		Callable(self, "_screen_equivalence"),
 		Callable(self, "_replay_and_timing")
 	]:
 		var started_ms: int = Time.get_ticks_msec()
@@ -602,6 +603,95 @@ func _atomic_plans() -> void:
 	)
 
 
+func _screen_equivalence() -> void:
+	var world: Dictionary = Core.construction_world()
+	var owner = _ready_owner(world)
+	if owner == null:
+		return
+	var hand: Array = world.data.card_zones.hands[0]
+	var orders: Array = [
+		{"castle_action": _choice("Construct", _engine(0))},
+		{"castle_action": _choice("Construct", _engine(0), [hand[0]])},
+		{"castle_action": _choice("Construct", Opening._castle_id(0))},
+		{"castle_action": _choice("Activate", _engine(0))},
+		{"castle_action": _choice("Repair", Opening._castle_id(0), [], true)},
+		{"castle_action": _choice("Repair", Opening._castle_id(0), [hand[0], hand[0]])},
+		{"castle_action": _choice("Construct", _engine(1))},
+		{
+			"action": "Ward",
+			"lane": "Castle",
+			"card_ids": [hand[0]],
+			"castle_action": _choice("Construct", _engine(0), [hand[0]])
+		},
+		{
+			"action": "Ward",
+			"lane": "Castle",
+			"card_ids": [hand[1]],
+			"castle_action": _choice("Construct", _engine(0), [hand[0]])
+		},
+		{}
+	]
+	_check_screen(owner, 0, [], orders, "reconstruction_repair_and_combat")
+	hand = world.data.card_zones.hands[1]
+	var source: Dictionary = GremoryCandidates._source(
+		1, 1, Gremory.RUIN, {"entity_id": Opening._castle_id(0)}, {"discard_ids": hand.slice(0, 2)}
+	)
+	orders = [
+		{"castle_action": _choice("Construct", _engine(1), [hand[0]])},
+		{"castle_action": _choice("Construct", _engine(1), [hand[2]])},
+		{"castle_action": _choice("Construct", _engine(1))},
+		{"castle_action": _choice("Repair", Opening._castle_id(1), [], true)}
+	]
+	_check_screen(owner, 1, [source], orders, "power_payment_budget")
+	world = Core.construction_world()
+	_patch_attributes(
+		world, _engine(0), {"status": "standing", "integrity": 7, "construction_state": "building"}
+	)
+	world.players[0].resources.repair_tokens = 0
+	owner = _ready_owner(world)
+	if owner == null:
+		return
+	orders = [
+		{"castle_action": _choice("Activate", _engine(0))},
+		{"castle_action": _choice("Construct", _engine(0))},
+		{"castle_action": _choice("Repair", _engine(0), [], true)},
+		{"castle_action": _choice("Repair", Opening._castle_id(0), [], true)}
+	]
+	_check_screen(owner, 0, [], orders, "activation_and_empty_token_budget")
+	var screen: Callable = owner._order_screen
+	owner._order_screen = Callable(self, "_malformed_screen")
+	_check(
+		owner.screen_order_candidates(0, [], orders) == orders,
+		"malformed_screen_falls_back_to_full_validation"
+	)
+	owner._order_screen = screen
+
+
+func _check_screen(owner, player_id: int, powers: Array, orders: Array, label: String) -> void:
+	var before: Dictionary = owner.snapshot()
+	var expected: Array = []
+	for order in orders:
+		if owner.preview_submission(player_id, powers, order).action != "invalid":
+			expected.append(order)
+	var screened: Array = owner.screen_order_candidates(player_id, powers, orders)
+	var actual: Array = owner.legal_order_candidates(player_id, powers, orders)
+	_check(actual == expected and not actual.is_empty(), "screen_preserves_legal_domain_" + label)
+	_check(screened.size() < orders.size(), "screen_rejects_impossible_plans_" + label)
+	_check(owner.snapshot() == before, "screen_and_preview_are_pure_" + label)
+	print(
+		"CONSTRUCTION SCREEN ",
+		label,
+		" candidates=",
+		orders.size(),
+		" full_previews=",
+		screened.size()
+	)
+
+
+func _malformed_screen(_context: Dictionary) -> Array:
+	return [999999]
+
+
 func _replay_and_timing() -> void:
 	var world: Dictionary = Core.construction_world()
 	_patch_attributes(
@@ -727,6 +817,23 @@ func _random_path() -> void:
 		_check(
 			first.order.has("castle_action"), "castle_random_path_produces_action_" + str(player_id)
 		)
+		var vocabulary: Dictionary = Core.enumerate(owner, player_id)
+		var castle_orders: Array = []
+		for choice in vocabulary.castle_actions:
+			castle_orders.append({"castle_action": choice})
+		var screened: Array = owner.screen_order_candidates(player_id, first.powers, castle_orders)
+		print(
+			"CONSTRUCTION SCREEN player=",
+			player_id,
+			" candidates=",
+			castle_orders.size(),
+			" full_previews=",
+			screened.size()
+		)
+		_check(
+			screened.size() < castle_orders.size(),
+			"random_screen_prunes_before_full_preview_" + str(player_id)
+		)
 		_check(
 			owner.preview_submission(player_id, first.powers, first.order).action != "invalid",
 			"castle_random_full_plan_legal_" + str(player_id)
@@ -735,7 +842,7 @@ func _random_path() -> void:
 	_batch_started_ms = Time.get_ticks_msec()
 	print("CONSTRUCTION BATCH trial BEGIN")
 	var trial: Dictionary = Batch.trial(
-		"construction-batch-test", 2, Callable(self, "_batch_progress"), "construction"
+		"construction-batch-test", 2, Callable(self, "_batch_progress"), "construction", true
 	)
 	print("CONSTRUCTION BATCH trial elapsed_ms=", Time.get_ticks_msec() - _batch_started_ms)
 	if not _check(trial.action == "batch_trial_complete", "construction_random_batch_completes"):
@@ -745,7 +852,7 @@ func _random_path() -> void:
 	_batch_started_ms = Time.get_ticks_msec()
 	print("CONSTRUCTION BATCH replay BEGIN")
 	var replay: Dictionary = Batch.trial(
-		"construction-batch-test", 2, Callable(self, "_batch_progress"), "construction"
+		"construction-batch-test", 2, Callable(self, "_batch_progress"), "construction", true
 	)
 	print("CONSTRUCTION BATCH replay elapsed_ms=", Time.get_ticks_msec() - _batch_started_ms)
 	_check(trial == replay, "construction_random_batch_replays")

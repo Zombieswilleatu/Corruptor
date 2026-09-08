@@ -29,6 +29,7 @@ var _context_hook: Callable
 var _content_owner: RefCounted
 var _world_validator: Callable
 var _order_handler: Callable
+var _order_screen: Callable
 var _seed: String = ""
 var _world: Dictionary = {}
 var _presentation_world: Dictionary = {}
@@ -53,7 +54,8 @@ func _init(
 	context_hook: Callable = Callable(),
 	content_owner: RefCounted = null,
 	world_validator: Callable = Callable(),
-	order_handler: Callable = Callable()
+	order_handler: Callable = Callable(),
+	order_screen: Callable = Callable()
 ) -> void:
 	_policy_id = policy_id
 	_rules = rules.duplicate(true)
@@ -65,6 +67,7 @@ func _init(
 	_content_owner = content_owner
 	_world_validator = world_validator
 	_order_handler = order_handler
+	_order_screen = order_screen
 
 
 static func declaration_id(player_id: int, round_number: int, queue_index: int) -> String:
@@ -123,6 +126,76 @@ func preview_submission(
 	if candidate == null:
 		return Data.invalid("match_clone_failed")
 	return candidate._accept(player_id, declarations, combat_order)
+
+
+# Conservative rejection only. Every survivor still goes through full preview.
+# One detached world per enumeration replaces repeated clones for impossible plans.
+# Missing/malformed screening falls back to the established full-validation path.
+func screen_order_candidates(player_id: int, declarations: Array, orders: Array) -> Array:
+	if not _order_screen.is_valid():
+		return orders
+	if (
+		_seed.is_empty()
+		or player_id not in [0, 1]
+		or next_hook() != Timeline.SUBMISSION_LOCK
+		or _submissions[player_id] != null
+	):
+		return []
+	var indices = _order_screen.call(
+		{
+			"world": _world.duplicate(true),
+			"player_id": player_id,
+			"declarations": declarations.duplicate(true),
+			"orders": orders.duplicate(true)
+		}
+	)
+	if typeof(indices) != TYPE_ARRAY:
+		return orders
+	var seen: Dictionary = {}
+	for index in indices:
+		if typeof(index) != TYPE_INT or index < 0 or index >= orders.size() or seen.has(index):
+			return orders
+		seen[index] = true
+	var result: Array = []
+	for index in range(orders.size()):
+		if seen.has(index):
+			result.append(orders[index])
+	return result
+
+
+# The baseline is identical for every candidate. Validate it once, then fork
+# independent transactions and run the same complete _accept checks on each.
+func legal_order_candidates(player_id: int, declarations: Array, orders: Array) -> Array:
+	if (
+		_seed.is_empty()
+		or player_id not in [0, 1]
+		or next_hook() != Timeline.SUBMISSION_LOCK
+		or _submissions[player_id] != null
+	):
+		return []
+	if not _order_screen.is_valid():
+		var legacy: Array = []
+		for order in orders:
+			if (
+				typeof(order) == TYPE_DICTIONARY
+				and preview_submission(player_id, declarations, order).action != "invalid"
+			):
+				legacy.append(order)
+		return legacy
+	var screened: Array = screen_order_candidates(player_id, declarations, orders)
+	if screened.is_empty():
+		return []
+	var baseline = _clone()
+	if baseline == null:
+		return []
+	var result: Array = []
+	for order in screened:
+		if typeof(order) != TYPE_DICTIONARY:
+			continue
+		var candidate = baseline._fork_validated()
+		if candidate._accept(player_id, declarations, order).action != "invalid":
+			result.append(order)
+	return result
 
 
 func submit(player_id: int, declarations: Array, combat_order: Dictionary = {}) -> Dictionary:
@@ -684,7 +757,8 @@ func _new_owner():
 		_context_hook,
 		_content_owner,
 		_world_validator,
-		_order_handler
+		_order_handler,
+		_order_screen
 	)
 
 
@@ -694,6 +768,11 @@ func _clone():
 	# checks here, but do not serialize/revalidate the immutable event history.
 	if _seed.is_empty() or not _consistent():
 		return null
+	return _fork_validated()
+
+
+# Internal only: callers must have validated this exact owned baseline.
+func _fork_validated():
 	var candidate = _new_owner()
 	candidate._seed = _seed
 	candidate._world = _world.duplicate(true)

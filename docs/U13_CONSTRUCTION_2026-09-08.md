@@ -204,3 +204,48 @@ Expect `U13 construction runners passed: 2/2`; this focused result does not clai
 a full 19/19 run. Then run the previously requested `--roster=construction` batch.
 The split's wall-time margin still requires local measurement. Grammar and
 simulated launcher checks do not establish Godot runtime performance.
+
+
+## Random planning cost correction
+
+The subsequent local log `u13-foundation-failure-2g4eHc.log` shows the separate
+random runner still timing out during its replay. The first two-round batch took
+12,681 ms; round two began at 9,736 ms. Splitting runners alone was insufficient.
+Those timings include all work in each round, not an isolated planner benchmark.
+
+Source review found a repeated cost: every raw Castle/combat candidate entered
+whole-match cloning and validation, including protected/ineligible targets and
+physical-card conflicts that the shared rules could reject earlier.
+
+An optional owner-side order screen now evaluates a batch against one detached
+world. Construction reuses its authoritative target predicate and the shared
+CardZones Hand-selection predicate; it screens Castle eligibility, token budget
+and card conflicts across the selected power, Castle spending and combat. It
+returns candidate indices, preserving payloads and input ordering. Every survivor
+still runs the same complete `_accept` checks used by `preview_submission`, and
+the selected plan still requires normal submission. The screen cannot authorize an action. Missing/malformed
+screening falls back to full validation. The ordinary Gremory and prebuilt Deimos
+profiles have no screen and keep their existing path.
+
+The optimization creates no persistent candidate cache, random draws or new game
+state. Restore and transactional forks retain the configured content callback.
+Full world checks at normal payment/submit/restore boundaries remain. The legal
+domain, canonical ordering, keyed purposes, seeds, two-round trials and independent
+replay assertions are unchanged.
+
+Small differential fixtures compare screened-plus-full validation with the
+original full-preview path for reconstruction, Repair, activation, token shortages
+and power/combat card conflicts. They also check purity and malformed-screen
+fallback. The random runner prints candidate/survivor counts and optional batch
+timings for planning, lock and Marching, so another local failure identifies the
+remaining cost. These diagnostics do not enter replay state or report digests.
+
+Grammar and source checks are available here; no Godot executable is installed.
+The actual speedup and 30-second margin require the focused local 2/2 run.
+
+Candidate-batch validation also checks the unchanged owned baseline once, then
+forks isolated transactions for each surviving plan. This removes repeated
+cross-component snapshot consistency checks on the exact same baseline. Public
+single-plan previews retain their original checks; loading a save retains full
+restore validation. Differential fixtures compare this batched path directly
+with repeated public `preview_submission` calls.
