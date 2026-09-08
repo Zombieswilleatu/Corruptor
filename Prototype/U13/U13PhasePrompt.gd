@@ -2,7 +2,7 @@
 # UI2_SLAVER_THEME_V1_1
 # UI2_DIALOGUE_BREACH_OVERHAUL_V1
 class_name U13PhasePrompt
-extends PanelContainer
+extends Panel
 
 # UI2_DECISION_PANEL_SKIN_V1
 const Textures = preload("res://Prototype/U13/U13BoardTextures.gd")
@@ -71,6 +71,8 @@ func _ready() -> void:
 
 	var outer := VBoxContainer.new()
 	outer.name = "PromptContents"
+	outer.position = Vector2(36, 102)
+	outer.size = Vector2(328, 285)
 	outer.add_theme_constant_override("separation", 10)
 	add_child(outer)
 
@@ -187,7 +189,7 @@ func _refresh_mode() -> void:
 	# UI2_COMMITMENT_TEXT_WINDOW_EXPAND_V13
 	# Use the dead space above the artwork's bottom action windows.
 	var commitment_text_window_v13: bool = stage_key == "COMMITMENT" and show_details
-	var commitment_text_height_v13: float = 300.0 if commitment_text_window_v13 else 0.0
+	var commitment_text_height_v13: float = 0.0
 
 	if content_host != null:
 		content_host.custom_minimum_size.y = (commitment_text_height_v13)
@@ -266,7 +268,11 @@ func _apply_decision_panel_skin_v1() -> void:
 # UI2_DECISION_PANEL_BREATHING_ROOM_V6
 func _refresh_decision_panel_art_mode_v3() -> void:
 	var collapsed_now: bool = size.y <= 100.0
-	var previous_mode = get_meta("_ui2_decision_panel_collapsed_v3", null)
+	var previous_mode = (
+		get_meta("_ui2_decision_panel_collapsed_v3")
+		if has_meta("_ui2_decision_panel_collapsed_v3")
+		else null
+	)
 
 	if previous_mode != null and bool(previous_mode) == collapsed_now:
 		return
@@ -364,9 +370,8 @@ func _install_decision_panel_layout_v4() -> void:
 
 	content_root.name = "DecisionPanelContentV4"
 
-	# IMPORTANT: PhasePrompt is a PanelContainer. Do NOT make the title or
-	# button direct children of it; Container layout will stretch them.
-	# Instead create a plain Control sibling that is outside container layout.
+	# Keep the original overlay positioning for the art plaques and buttons.
+	# U13 uses a fixed Panel; its scroll content cannot enlarge the footprint.
 	var parent_control := get_parent() as Control
 	if parent_control == null:
 		return

@@ -28,7 +28,15 @@ func _source_textures() -> void:
 	for path in [
 		"res://ConceptImages/Menus/Domain1.png",
 		"res://ConceptImages/Menus/BottomBanner.png",
-		"res://ConceptImages/Menus/DecisionPanel.png"
+		"res://ConceptImages/Menus/DecisionPanel.png",
+		"res://ConceptImages/Menus/TopBanner.png",
+		"res://ConceptImages/Menus/LordPanel.png",
+		"res://ConceptImages/Menus/Battlefield.png",
+		"res://ConceptImages/CastleCards/Keep.png",
+		"res://ConceptImages/CastleCards/Bastion.png",
+		"res://ConceptImages/CastleCards/SummoningCircle.png",
+		"res://ConceptImages/CastleCards/Stockpile.png",
+		"res://ConceptImages/CastleCards/SiegeEngine.png"
 	]:
 		var texture: Texture2D = Textures.texture(path)
 		_check(
@@ -135,6 +143,69 @@ func _board_controls() -> void:
 	root.add_child(board)
 	await process_frame
 	await process_frame
+	# Container layout and deferred overlay placement must settle before geometry checks.
+	await process_frame
+	await process_frame
+	var enemy = board.sides[0]
+	var human = board.sides[1]
+	_check(
+		enemy.castle_row.get_child_count() == 5 and human.castle_row.get_child_count() == 5,
+		"board_old_layout_has_five_castle_positions"
+	)
+	_check(
+		(
+			enemy.lord_guard_box.get_child_count() == 3
+			and human.castle_guard_box.get_child_count() == 3
+		),
+		"board_old_layout_has_guard_slots"
+	)
+	_check(
+		(
+			enemy.castle_row.get_global_rect().position.y
+			< enemy.castle_guard_box.get_global_rect().position.y
+		),
+		"board_enemy_castles_above_guards"
+	)
+	_check(
+		(
+			human.castle_row.get_global_rect().position.y
+			> human.castle_guard_box.get_global_rect().position.y
+		),
+		"board_human_guards_above_castles"
+	)
+	_check(
+		board.lanes.get_global_rect().position.x >= human.get_global_rect().end.x,
+		"board_battlefield_is_right_sidebar"
+	)
+	_check(
+		board.hand_view.get_global_rect().position.y >= human.get_global_rect().end.y,
+		"board_hand_below_domains"
+	)
+	_check(
+		not board.phase_prompt.get_global_rect().intersects(board.hand_view.get_global_rect()),
+		"board_modal_does_not_cover_hand"
+	)
+	_check(
+		board.phase_prompt.size.is_equal_approx(Vector2(400, 530)), "board_modal_fixed_footprint"
+	)
+	_check(board.hand_view.get_global_rect().end.y <= board.size.y + 1, "board_hand_fits_viewport")
+	_check(not board.history_panel.visible, "board_history_is_collapsed_overlay")
+	var preview = human.lord_card.preview
+	var preview_children: int = preview.get_child_count()
+	board.restart()
+	_check(preview.get_child_count() == preview_children, "board_refresh_reuses_lord_preview")
+	var ids_for_target: Array = board.session.view().world.hand
+	board.hand_view.select_card_id(ids_for_target[0])
+	human.lord_card.input_surface.pressed.emit()
+	_check(
+		board.action_choice.selected == 2 and board.lane_choice.selected == 1,
+		"board_lord_click_selects_ward"
+	)
+	_check(
+		board.hand_view.selected_card_ids() == [ids_for_target[0]],
+		"board_target_click_keeps_selected_cards"
+	)
+	board.restart()
 	_check(
 		board.phase_prompt.visible and board.pass_button.is_visible_in_tree(),
 		"board_existing_prompt_has_visible_pass"

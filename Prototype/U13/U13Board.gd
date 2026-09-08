@@ -5,7 +5,8 @@ const ActionZone = preload("res://Prototype/U13/U13ActionZone.gd")
 const Session = preload("res://Scripts/Sim/U13BoardSession.gd")
 const Playback = preload("res://Prototype/U13/U13SmokePlayback.gd")
 const Lanes = preload("res://Prototype/U13/U13BoardLanes.gd")
-const DomainRow = preload("res://Prototype/U13/U13DomainRow.gd")
+const DomainRow = preload("res://Prototype/U13/U13PlayerBoard.gd")
+const Header = preload("res://Prototype/U13/U13BoardHeader.gd")
 const Hand = preload("res://Prototype/U13/U13BoardHand.gd")
 const Art = preload("res://Prototype/U13/U13BoardTextures.gd")
 const Gremory = preload("res://Scripts/Sim/U13Gremory.gd")
@@ -38,6 +39,8 @@ var lanes
 var sides: Array = []
 var status: Label
 var summary: Label
+var header
+var history_panel: PanelContainer
 var plan_label: Label
 var action_choice: OptionButton
 var lane_choice: OptionButton
@@ -63,11 +66,12 @@ func _ready() -> void:
 		and int(version.patch) == 2
 		and String(version.status) == "stable"
 	)
-	get_window().content_scale_size = Vector2i(1600, 1080)
+	get_window().content_scale_size = Vector2i(1920, 1080)
 	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
 	if DisplayServer.get_name() != "headless":
 		get_window().mode = Window.MODE_WINDOWED
-		get_window().size = Vector2i(1440, 972)
+		get_window().size = Vector2i(1440, 810)
 	_build()
 	if _runtime_ok:
 		restart()
@@ -100,46 +104,60 @@ func _build() -> void:
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for edge in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + edge, 12)
+		margin.add_theme_constant_override("margin_" + edge, 8)
 	add_child(margin)
 	var main := VBoxContainer.new()
 	main.add_theme_constant_override("separation", 6)
 	margin.add_child(main)
-	var top := HBoxContainer.new()
-	main.add_child(top)
-	summary = _label(top, "", 23)
-	summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	decision_button = _button(top, "CURRENT DECISION", reopen_decision)
-	_button(top, "Restart board", restart)
-	_button(top, "Exit", func(): get_tree().quit())
-	_label(
-		main,
-		(
-			"U13 • Gremory combat board — Siege, Ward and Lord powers. "
-			+ "Development, Hunt, normal draws and victory are not yet connected."
-		),
-		16
+	header = Header.new()
+	main.add_child(header)
+	summary = header.round_label
+	decision_button = _button(header.tools_box, "DECISION", reopen_decision)
+	_button(header.tools_box, "Restart", restart)
+	_button(header.tools_box, "Exit", func(): get_tree().quit())
+	_button(
+		header.history_box, "HISTORY", func(): history_panel.visible = not history_panel.visible
 	)
+	var body := HBoxContainer.new()
+	body.name = "Body"
+	body.add_theme_constant_override("separation", 8)
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	main.add_child(body)
+	var center := VBoxContainer.new()
+	center.name = "Center"
+	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	center.add_theme_constant_override("separation", 5)
+	body.add_child(center)
+	var stack := VBoxContainer.new()
+	stack.name = "BoardStack"
+	stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	stack.add_theme_constant_override("separation", 6)
+	center.add_child(stack)
 	var enemy = DomainRow.new()
-	enemy.player_id = 1
-	enemy.custom_minimum_size.y = 165
-	main.add_child(enemy)
+	enemy.name = "EnemyPlayerBoard"
+	stack.add_child(enemy)
+	enemy.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	enemy.target_selected.connect(_board_target_selected)
 	sides.append(enemy)
-	lanes = Lanes.new()
-	lanes.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	main.add_child(lanes)
+	var gap := Control.new()
+	gap.custom_minimum_size.y = 12
+	stack.add_child(gap)
 	var own = DomainRow.new()
-	own.player_id = 0
-	own.custom_minimum_size.y = 165
-	main.add_child(own)
+	own.name = "HumanPlayerBoard"
+	own.castle_guards_above_castles = true
+	stack.add_child(own)
+	own.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	own.target_selected.connect(_board_target_selected)
 	sides.append(own)
+	lanes = Lanes.new()
+	lanes.name = "MarchingBattlefield"
+	lanes.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(lanes)
 	action_zone = ActionZone.new()
 	add_child(action_zone)
 	action_zone.configure_u13()
 	phase_prompt = PhasePrompt.new()
 	add_child(phase_prompt)
-	phase_prompt.anchor_top = 0.43
-	phase_prompt.anchor_bottom = 0.43
 	phase_prompt.attach_action_zone(action_zone)
 	var decisions: VBoxContainer = action_zone.get_node("ActionScroll/ActionContents")
 	# Backing selection retained for existing board/test callers; UI uses buttons.
@@ -163,41 +181,49 @@ func _build() -> void:
 	decisions.add_child(powers)
 	_label(powers, "GREMORY'S POWERS", 16)
 	power_lane = _option(powers, ["Castle", "Lord"])
-	controls.append(_button(powers, "PREDATOR OF RUIN · summon 3 Vultures", queue_predator))
+	controls.append(_button(powers, "PREDATOR OF RUIN\nSummon 3 Vultures", queue_predator))
 	ruin_target = _option(powers, [])
-	controls.append(_button(powers, "INEVITABLE RUIN · reserve 2 selected", queue_ruin))
-	controls.append(_button(powers, "Clear powers / return reserved cards", clear_powers))
+	controls.append(_button(powers, "INEVITABLE RUIN\nReserve 2 selected cards", queue_ruin))
+	controls.append(_button(powers, "Clear powers · return cards", clear_powers))
 	plan_label = _label(powers, "", 15)
 	plan_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	status = action_zone.status_label
-	status.reparent(powers)
+	status.reparent(phase_prompt)
+	status.position = Vector2(36, 401)
+	status.size = Vector2(328, 49)
+	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	status.add_theme_font_size_override("font_size", 12)
+	status.clip_contents = true
 	var navigation := HBoxContainer.new()
-	main.add_child(navigation)
+	header.history_box.add_child(navigation)
 	next_button = _button(navigation, "Next round", next_round)
 	next_button.hide()
 	_button(navigation, "Skip animation", finish_playback)
 	hand_view = Hand.new()
-	main.add_child(hand_view)
+	center.add_child(hand_view)
+	hand_view.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	hand_view.selection_changed.connect(func(_ids): _preview())
+	history_panel = PanelContainer.new()
+	history_panel.name = "HistoryOverlay"
+	history_panel.z_index = 80
+	history_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	history_panel.position = Vector2(850, 200)
+	history_panel.size = Vector2(620, 480)
+	add_child(history_panel)
+	var history_column := VBoxContainer.new()
+	history_panel.add_child(history_column)
+	_button(history_column, "CLOSE HISTORY", func(): history_panel.hide())
 	history = RichTextLabel.new()
-	history.custom_minimum_size.y = 85
+	history.custom_minimum_size = Vector2(600, 400)
 	history.scroll_following = true
-	main.add_child(history)
+	history_column.add_child(history)
+	history_panel.hide()
 
 
 func _refresh(presented: Dictionary = {}) -> void:
 	var view: Dictionary = session.view() if presented.is_empty() else presented
 	var world: Dictionary = view.world
-	summary.text = (
-		"CORRUPTOR  /  U13     ROUND %d     Souls %d : %d     Neutral Tears %d     Breach: %s"
-		% [
-			session.round_number(),
-			world.souls[0],
-			world.souls[1],
-			world.neutral_tears,
-			world.breach_lord
-		]
-	)
+	header.bind_world(world, session.round_number())
 	_render_side(sides[0], world, 1)
 	_render_side(sides[1], world, 0)
 	if not playing:
@@ -237,56 +263,21 @@ func _refresh(presented: Dictionary = {}) -> void:
 	_sync_decision()
 
 
-func _render_side(row: HBoxContainer, world: Dictionary, pid: int) -> void:
-	for child in row.get_children():
-		row.remove_child(child)
-		child.queue_free()
-	_picture(row, Art.lord_texture("Gremory"), Vector2(110, 155))
-	var details := VBoxContainer.new()
-	details.custom_minimum_size.x = 240
-	row.add_child(details)
-	_label(details, "YOUR DOMAIN" if pid == 0 else "OPPONENT DOMAIN", 21)
-	_label(details, "Gremory · Souls %d" % world.souls[pid], 18)
-	_label(details, "Hand: %d" % (world.hand.size() if pid == 0 else world.opponent_hand_count), 17)
-	for entity in world.entities:
-		if entity.owner != pid:
-			continue
-		if entity.kind == "castle":
-			_label(
-				details,
-				(
-					"Castle · %s\nIntegrity %d / %d"
-					% [
-						entity.attributes.status,
-						entity.attributes.integrity,
-						entity.attributes.max_integrity
-					]
-				),
-				18
-			)
-	var guard_box := HBoxContainer.new()
-	row.add_child(guard_box)
-	_label(guard_box, "CASTLE\nGUARDS", 16)
-	for entity in world.entities:
-		if (
-			entity.owner == pid
-			and entity.kind == "card"
-			and entity.attributes.get("role") == "guard"
-		):
-			_picture(
-				guard_box,
-				Art.texture_for(entity.attributes.suit, int(entity.attributes.value)),
-				Vector2(82, 120)
-			)
-	var note := Label.new()
-	note.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	note.text = (
-		"Choose your cards and powers below."
-		if pid == 0
-		else "Random-legal exercise opponent\nCommitments stay hidden until reveal."
-	)
-	row.add_child(note)
+func _render_side(row, world: Dictionary, pid: int) -> void:
+	row.bind_world(world, pid, _planning())
+
+
+func _board_target_selected(action: String, lane: String, target_id: String) -> void:
+	if not _planning():
+		return
+	_select_action(action)
+	lane_choice.select(0 if lane == "Castle" else 1)
+	if action == "Siege":
+		for index in range(target_choice.item_count):
+			if target_choice.get_item_metadata(index) == target_id:
+				target_choice.select(index)
+	_preview()
+	reopen_decision()
 
 
 func _planning() -> bool:
@@ -563,6 +554,7 @@ func _label(parent: Node, text_value: String, font_size: int) -> Label:
 func _button(parent: Node, text_value: String, callback: Callable) -> Button:
 	var button := Button.new()
 	button.text = text_value
+	button.add_theme_font_size_override("font_size", 13)
 	button.pressed.connect(callback)
 	parent.add_child(button)
 	return button
