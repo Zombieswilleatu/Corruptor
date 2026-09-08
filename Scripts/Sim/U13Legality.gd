@@ -150,3 +150,50 @@ static func _extra(
 			return Data.invalid("validator_contract_error")
 		return {"action": "invalid", "reason": "rule_rejected", "detail": result.reason}
 	return {"action": "legal"}
+
+
+# Enumeration boundary shared by UI/bot callers. Canonical representations do
+# not grant extra lottery weight, and every candidate uses whole-plan preview.
+static func legal_power_groups(owner, player_id: int, raw: Array) -> Array:
+	var grouped: Dictionary = {}
+	for item in raw:
+		var source: Dictionary = Data.declaration_copy(item)
+		if source.is_empty():
+			continue
+		if owner.preview_submission(player_id, [source], {}).action == "invalid":
+			continue
+		if source.cost.has("discard_ids"):
+			source.cost.discard_ids.sort()
+		if not grouped.has(source.power_id):
+			grouped[source.power_id] = {}
+		grouped[source.power_id][JSON.stringify(source, "", true)] = source
+	var names: Array = grouped.keys()
+	names.sort()
+	var result: Array = []
+	for power in names:
+		var keys: Array = grouped[power].keys()
+		keys.sort()
+		var candidates: Array = []
+		for key in keys:
+			candidates.append(grouped[power][key])
+		result.append({"power": power, "candidates": candidates})
+	return result
+
+
+static func legal_combat_orders(owner, player_id: int, powers: Array, raw: Array) -> Array:
+	var unique: Dictionary = {}
+	for item in raw:
+		if typeof(item) != TYPE_DICTIONARY or not Data.is_data(item):
+			continue
+		var order: Dictionary = item.duplicate(true)
+		if owner.preview_submission(player_id, powers, order).action == "invalid":
+			continue
+		if typeof(order.get("card_ids")) == TYPE_ARRAY:
+			order.card_ids.sort()
+		unique[JSON.stringify(order, "", true)] = order
+	var keys: Array = unique.keys()
+	keys.sort()
+	var result: Array = []
+	for key in keys:
+		result.append(unique[key])
+	return result

@@ -734,3 +734,7 @@ func _event_cursor() -> int:
 
 func _player_events_since(player_id: int, cursor: int) -> Array:
 	return _events.for_player(player_id, cursor)
+
+
+func rng_seed() -> String:
+	return _seed

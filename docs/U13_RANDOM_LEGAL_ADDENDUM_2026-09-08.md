@@ -255,11 +255,11 @@ found on top of eight milestones of accumulated assumptions.
 
 # Implementation status and acceptance notes
 
-This amendment is accepted; the tier and instrumentation are **not implemented by
-the smoke-scene commit**. The current scene uses clearly labeled preset plans.
-It is not a random-declaration batch, a full match, or frequency evidence for the
-shipping roster. Gremory's random-legal path and instrumentation are the next task
-after the smoke-scene gate, before expansion to another Lord.
+The shared chooser and Gremory frequency batches are now implemented, pending
+local Godot 4.7.2 verification. See [the batch contract and run command](U13_RANDOM_BATCH_2026-09-08.md).
+The original smoke scene remains a preset scenario, and the new batches remain
+explicitly scoped to the current combat slice. Another Lord stays gated on local
+foundation and batch acceptance. The following acceptance requirements still apply.
 
 At the 11/11 checkpoint, `U13Legality` validates individual declarations but does
 not enumerate legal sets. Implementation must add data-only candidate generation

@@ -1,0 +1,138 @@
+extends RefCounted
+
+const Gremory = preload("res://Scripts/Sim/U13Gremory.gd")
+const Opening = preload("res://Scripts/Sim/U13SmokeSession.gd")
+const Candidates = preload("res://Scripts/Sim/U13GremoryCandidates.gd")
+const Bot = preload("res://Scripts/Sim/U13RandomLegal.gd")
+const Telemetry = preload("res://Scripts/Sim/U13FrequencyTelemetry.gd")
+const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
+const Marching = preload("res://Scripts/Sim/U13Marching.gd")
+const Combat = preload("res://Scripts/Sim/U13Combat.gd")
+const Data = preload("res://Scripts/Sim/U13EffectData.gd")
+const VERSION: String = "U13_RANDOM_BATCH_V1"
+
+
+static func trial(
+	seed_value: String, round_limit: int, progress: Callable = Callable()
+) -> Dictionary:
+	if seed_value.is_empty() or round_limit < 1 or round_limit > 100:
+		return Data.invalid("batch_limits_invalid")
+	var content = Gremory.new()
+	var owner = content.create_combat_match()
+	var started: Dictionary = owner.start(seed_value, Opening._initial_world(), [0, 1])
+	if started.action == "invalid":
+		return started
+	var telemetry = Telemetry.new()
+	var decisions: Array = []
+	var unchanged_rounds: int = 0
+	var prior_world_digest: String = ""
+	for round_number in range(1, round_limit + 1):
+		if progress.is_valid():
+			progress.call(seed_value, round_number)
+		telemetry.begin(round_number, owner.player_view(0, 0))
+		var both_passed: bool = true
+		var hook_count: int = 0
+		while not owner.next_hook().is_empty():
+			hook_count += 1
+			if hook_count > 32:
+				return Data.invalid("batch_hook_progress_limit")
+			var hook: String = owner.next_hook()
+			var cursor: int = owner._event_cursor()
+			if hook == Timeline.SUBMISSION_LOCK:
+				var plans: Array = []
+				# Compute both complete choices before either player submits.
+				for player_id in [0, 1]:
+					var plan: Dictionary = Bot.plan(
+						owner, player_id, Callable(Candidates, "enumerate")
+					)
+					if plan.action == "invalid":
+						return plan
+					plans.append(plan)
+					both_passed = both_passed and plan.powers.is_empty() and plan.order.is_empty()
+					decisions.append({"round": round_number, "player_id": player_id, "plan": plan})
+				for player_id in [0, 1]:
+					var accepted: Dictionary = owner.submit(
+						player_id, plans[player_id].powers, plans[player_id].order
+					)
+					if accepted.action == "invalid":
+						return accepted
+			var result: Dictionary = owner.run_next_hook()
+			if result.action == "invalid":
+				return result
+			# Gremory measurement events are public. Hidden draw identities are
+			# unnecessary; use the same redacted event surface as the board.
+			telemetry.consume(owner._player_events_since(0, cursor))
+			telemetry.observe_hook(owner.player_view(0, 0), hook)
+		var row: Dictionary = telemetry.finish(both_passed)
+		if (
+			row.marching_start == null
+			or row.marching_end == null
+			or row.ticks_observed != Marching.TICKS
+		):
+			return Data.invalid("batch_marching_telemetry_incomplete")
+		var world_digest: String = _digest(owner.player_view(0, 0).world)
+		if world_digest == prior_world_digest:
+			unchanged_rounds += 1
+		prior_world_digest = world_digest
+		if round_number < round_limit:
+			var begun: Dictionary = owner.begin_next_round([0, 1])
+			if begun.action == "invalid":
+				return begun
+	var snapshot: Dictionary = owner.snapshot()
+	return {
+		"action": "batch_trial_complete",
+		"seed": seed_value,
+		"rounds": telemetry.rounds,
+		"summary": Telemetry.summarize(telemetry.rounds),
+		"termination": "round_limit",
+		"unchanged_public_world_rounds": unchanged_rounds,
+		"decision_digest": _digest(decisions),
+		"state_and_events_digest": _digest(snapshot),
+		"pending_at_limit": snapshot.pending.pending.size()
+	}
+
+
+static func report(trials: Array, round_limit: int) -> Dictionary:
+	var rows: Array = []
+	var seeds: Array = []
+	for item in trials:
+		seeds.append(item.seed)
+		rows.append_array(item.rounds)
+	return {
+		"schema_version": VERSION,
+		"runtime": "4.7.2.stable",
+		"policy": Bot.VERSION,
+		"roster": ["Gremory", "Gremory"],
+		"combat_profile": Combat.VERSION,
+		"marching_model": Marching.VERSION,
+		"opening":
+		"U13SmokeSession opening: four cards and two Wright guards per player; damaged plain Integrity Castles",
+		"scope": "bounded combat-slice trials; frequency and reachability observations only",
+		"absent_systems":
+		[
+			"Development",
+			"normal round draws",
+			"Hunt",
+			"victory",
+			"personal Tear/Veil progression",
+			"other Lords",
+			"waiter spending"
+		],
+		"sampling":
+		{
+			"hooks": ["MARCHING_STARTED", "MARCHING_FINISHED"],
+			"peak": "hook boundaries and all Marching ticks",
+			"waiter_duration_unit": "fixed Marching ticks",
+			"ticks_per_round": Marching.TICKS,
+			"choice":
+			"uniform legal power name, then uniform canonical complete payload; combat uniform over legal single-card/pair Siege/Ward orders"
+		},
+		"round_limit": round_limit,
+		"seeds": seeds,
+		"trials": trials,
+		"summary": Telemetry.summarize(rows)
+	}
+
+
+static func _digest(value) -> String:
+	return JSON.stringify(value, "", true).sha256_text()

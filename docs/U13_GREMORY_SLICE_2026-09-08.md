@@ -146,7 +146,8 @@ bash Scripts/Sim/run_u13_foundation_tests.sh \
 The user's [Random-Legal Doctrine Tier addendum](U13_RANDOM_LEGAL_ADDENDUM_2026-09-08.md)
 adds a legal random-declaration path to each power's definition of done.
 Gremory's verified correctness checkpoint does not complete that new requirement.
-The chooser and frequency/reachability instrumentation remain pending, scheduled
-after the smoke-scene gate and before adding another Lord. Milestone 3 proves
+The shared chooser and frequency/reachability batches are implemented and await
+local Godot 4.7.2 acceptance before adding another Lord. See
+[the current 16-suite gate and batch command](U13_RANDOM_BATCH_2026-09-08.md). Milestone 3 proves
 correctness, not balance; Level 5.5 batches report distributions and trigger counts,
 never random-bot win rates. Real doctrine retains priority and Milestone 9 stays put.
