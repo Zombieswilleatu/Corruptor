@@ -27,8 +27,22 @@ bash Scripts/Sim/run_u13_foundation_tests.sh \
 
 Expected final line: `U13 foundation runners passed: 6/6`.
 The wrapper fails on a nonzero exit, missing completion footer, `FAIL`, or
-Godot error output. Its temporary logs are outside the project and are removed
+Godot error output. It first checks the shared helper directly with Godot's
+`--check-only`, stops at the first failed suite, and limits each Godot invocation
+to 30 seconds (override with `U13_TEST_TIMEOUT_SECONDS`). Its temporary logs are outside the project and are removed
 after their contents have been printed.
+
+### First local run and corrective patch
+
+The user's Godot 4.2 run at `8b05f9a` passed the timeline, runtime and declaration
+suites. The effect suites could not load `U13EffectData.gd`; integration then
+hung and required Ctrl+C. The root cause was the helper's `namespace` parameter:
+Godot 4.2 reserves that token, while gdtoolkit accepted it as an identifier.
+The parameter is now `effect_scope`; generated IDs and snapshot data are unchanged.
+The runner changes above expose the direct error and bound failed-load hangs.
+The corrected six-suite run still requires local Godot verification.
+
+Reference: [Godot 4.2 tokenizer keywords](https://github.com/godotengine/godot/blob/4.2-stable/modules/gdscript/gdscript_tokenizer.cpp).
 
 ## Pending Effects contract
 

@@ -89,13 +89,13 @@ static func declaration_copy(raw) -> Dictionary:
 	return result
 
 
-static func instance_id(namespace: String, declaration_id: String, effect_key: String) -> String:
+static func instance_id(effect_scope: String, declaration_id: String, effect_key: String) -> String:
 	# Length prefixes make keys unambiguous, with no RNG or process-global counter.
 	# Distinct children of one declaration must use distinct semantic effect keys.
 	return (
 		"u13_%s:%d:%s:%d:%s"
 		% [
-			namespace,
+			effect_scope,
 			declaration_id.length(),
 			declaration_id,
 			effect_key.length(),
@@ -105,7 +105,7 @@ static func instance_id(namespace: String, declaration_id: String, effect_key: S
 
 
 static func make_record(
-	namespace: String,
+	effect_scope: String,
 	declaration: Dictionary,
 	effect_key: String,
 	payload: Dictionary,
@@ -120,7 +120,7 @@ static func make_record(
 	):
 		return {}
 	return {
-		"effect_id": instance_id(namespace, source.declaration_id, effect_key),
+		"effect_id": instance_id(effect_scope, source.declaration_id, effect_key),
 		"effect_key": effect_key,
 		"declaration": source,
 		"payload": copy_data(payload),
@@ -128,7 +128,7 @@ static func make_record(
 	}
 
 
-static func record_copy(raw, namespace: String) -> Dictionary:
+static func record_copy(raw, effect_scope: String) -> Dictionary:
 	if typeof(raw) != TYPE_DICTIONARY or not is_data(raw):
 		return {}
 	if typeof(raw.get("effect_key")) != TYPE_STRING:
@@ -137,7 +137,7 @@ static func record_copy(raw, namespace: String) -> Dictionary:
 		if typeof(raw.get(key)) != TYPE_DICTIONARY:
 			return {}
 	var result: Dictionary = make_record(
-		namespace, raw.declaration, raw.effect_key, raw.payload, raw.public_data
+		effect_scope, raw.declaration, raw.effect_key, raw.payload, raw.public_data
 	)
 	if result.is_empty() or raw.get("effect_id") != result.effect_id:
 		return {}
