@@ -20,6 +20,13 @@ const VALID_VISIBILITY: Array[String] = [
 	VISIBILITY_HIDDEN,
 ]
 
+const TOP_LEVEL_INTEGER_FIELDS: Array[String] = [
+	"player_id",
+	"declared_round",
+	"fire_round",
+	"queue_index",
+]
+
 
 static func create(
 	declaration_id: String,
@@ -136,8 +143,42 @@ static func from_json(encoded: String) -> Dictionary:
 	if typeof(parsed) != TYPE_DICTIONARY:
 		return {}
 	var declaration: Dictionary = parsed
+	_normalize_integer_fields(declaration)
 	var validation: Dictionary = validate(declaration)
 	return declaration if bool(validation.get("valid", false)) else {}
+
+
+# JSON is the project's existing debug/save serialization family. JSON number
+# decoding is allowed to lose Variant integer typing, so canonical fixed-point
+# coordinates and known control integers are normalized explicitly on load.
+# Any future payload field ending in `_fp` automatically receives the same
+# treatment, keeping spatial declarations stable without teaching this schema
+# each power's coordinate names.
+static func _normalize_integer_fields(declaration: Dictionary) -> void:
+	for field_name: String in TOP_LEVEL_INTEGER_FIELDS:
+		if declaration.has(field_name):
+			declaration[field_name] = int(declaration[field_name])
+	_normalize_fixed_point_values(declaration)
+
+
+static func _normalize_fixed_point_values(value) -> void:
+	match typeof(value):
+		TYPE_ARRAY:
+			var values: Array = value
+			for entry in values:
+				_normalize_fixed_point_values(entry)
+		TYPE_DICTIONARY:
+			var values: Dictionary = value
+			for raw_key in values.keys():
+				var key: String = String(raw_key)
+				var child = values[raw_key]
+				if (
+					key.ends_with("_fp")
+					and typeof(child) in [TYPE_INT, TYPE_FLOAT]
+				):
+					values[raw_key] = int(child)
+				else:
+					_normalize_fixed_point_values(child)
 
 
 static func _validate_serializable_value(
