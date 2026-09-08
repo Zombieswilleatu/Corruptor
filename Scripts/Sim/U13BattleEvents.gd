@@ -40,7 +40,7 @@ static func apply(
 			details["castle"] = target
 			entities.retire(target.id)
 			event_type = "CASTLE_DESTROYED"
-		"ruin_castle":
+		"ruin_castle", "ruin_castle_hazard":
 			if world.data.get("combat_profile") != "U13_CORE_ARTILLERY_COMBAT_V1":
 				return Data.invalid("ruined_structure_profile_required")
 			if (
@@ -50,14 +50,28 @@ static func apply(
 				or target.attributes.get("construction_state", "active") != "active"
 			):
 				return Data.invalid("castle_not_ruinable")
-			if (
+			var hazard: bool = command.kind == "ruin_castle_hazard"
+			if hazard:
+				var source: Dictionary = entities.get_entity(String(command.get("source_id", "")))
+				if (
+					source.is_empty()
+					or source.kind != "lord"
+					or source.attributes.get("alive", true)
+					or source.attributes.get("lord_id") != world.data.get("breach_lord")
+					or command.get("cause") != "breach"
+					or command.has("player_id")
+				):
+					return Data.invalid("castle_hazard_source_invalid")
+			elif (
 				not Data.is_integer(command.get("player_id"))
 				or command.player_id not in [0, 1]
 				or target.owner != 1 - int(command.player_id)
 			):
 				return Data.invalid("castle_ruination_attribution_invalid")
 			details["castle"] = target.duplicate(true)
-			details["player_id"] = command.player_id
+			# Environmental destruction has no credited attacker, even when
+			# it hits the banished Lord's own Castle. It never earns Siege Souls.
+			details["player_id"] = -1 if hazard else command.player_id
 			details["cause"] = command.get("cause", "siege")
 			details["source_id"] = command.get("source_id", "")
 			target.attributes.integrity = 0
@@ -95,6 +109,16 @@ static func apply(
 				return Data.invalid("breach_lord_invalid")
 			world.data["breach_lord"] = command.lord_id
 			details["lord_id"] = command.lord_id
+			if command.has("source_id"):
+				var source: Dictionary = entities.get_entity(String(command.source_id))
+				if (
+					source.is_empty()
+					or source.kind != "lord"
+					or source.attributes.get("lord_id") != command.lord_id
+					or source.attributes.get("alive", true)
+				):
+					return Data.invalid("breach_source_invalid")
+				details["source_id"] = source.id
 			event_type = "BREACH_CHANGED"
 		"defeat_guard":
 			if (

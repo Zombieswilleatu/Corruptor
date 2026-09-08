@@ -9,6 +9,7 @@ const Marching = preload("res://Scripts/Sim/U13Marching.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
+const LordStats = preload("res://Scripts/Sim/U13LordStats.gd")
 const HUNT_VERSION: String = "U13_CORE_HUNT_V1"
 const VERSION: String = "U13_GREMORY_BASIC_COMBAT_V1"
 
@@ -26,20 +27,22 @@ static func valid(world: Dictionary) -> bool:
 	):
 		return false
 	var core: bool = world.data.get("combat_profile") == Structures.PROFILE
+	var lords: Array = ["Gremory", "Deimos"] if core else ["Gremory"]
+	if world.data.has("humbaba_profile"):
+		if not core or world.data.humbaba_profile != LordStats.HUMBABA_PROFILE:
+			return false
+		lords.append("Humbaba")
 	if world.data.has("hunt_profile") and (not core or world.data.hunt_profile != HUNT_VERSION):
 		return false
 	if core and not Structures.valid(world):
 		return false
-	if (
-		world.data.get("breach_lord")
-		not in (["", "Gremory", "Deimos"] if core else ["", "Gremory"])
-	):
+	if world.data.get("breach_lord") != "" and world.data.get("breach_lord") not in lords:
 		return false
 	var sigils = world.data.get("sigils")
 	if typeof(sigils) != TYPE_ARRAY or sigils.size() != 2:
 		return false
 	for player_id in [0, 1]:
-		if world.players[player_id].lord_id not in (["Gremory", "Deimos"] if core else ["Gremory"]):
+		if world.players[player_id].lord_id not in lords:
 			return false
 		if typeof(sigils[player_id]) != TYPE_DICTIONARY:
 			return false
@@ -618,8 +621,7 @@ static func _hunt(
 			sigil_broken = true
 		else:
 			remaining = 0
-	var threat: int = int(target.attributes.get("threat", 0))
-	var defense: int = 4 - (3 if threat >= 4 else (2 if threat >= 3 else (1 if threat >= 2 else 0)))
+	var defense: int = LordStats.defense(world, target)
 	var banished: bool = remaining > defense
 	if banished:
 		world.players[player_id].resources.souls += 2
@@ -645,6 +647,8 @@ static func _hunt(
 				"lord_id": world.players[1 - player_id].lord_id
 			}
 		]:
+			if world.data.has("humbaba_profile") and command.kind == "set_breach":
+				command["source_id"] = target.id
 			var applied: Dictionary = _fact(world, command, context, reaction)
 			if applied.action == "invalid":
 				return applied

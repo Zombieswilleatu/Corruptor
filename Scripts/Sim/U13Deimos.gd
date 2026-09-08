@@ -89,7 +89,10 @@ static func rules() -> Dictionary:
 	return result
 
 
-func valid_world(world: Dictionary) -> bool:
+func valid_world(world: Dictionary, allow_humbaba: bool = false) -> bool:
+	# The later content adapter owns its additional rules and snapshot ledger.
+	if world.data.has("humbaba_profile") and not allow_humbaba:
+		return false
 	if (
 		_hunt_enabled != world.data.has("hunt_profile")
 		or (_hunt_enabled and world.data.get("hunt_profile") != Combat.HUNT_VERSION)

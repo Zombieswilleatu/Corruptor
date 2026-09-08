@@ -43,7 +43,7 @@ func _run() -> void:
 		or rounds > 100
 		or seed_prefix.is_empty()
 		or output.is_empty()
-		or roster_mode not in ["gremory", "deimos", "mixed", "construction", "loadout"]
+		or roster_mode not in ["gremory", "deimos", "mixed", "construction", "loadout", "humbaba"]
 	):
 		_fail("Use 1..100 trials/rounds, a seed prefix, and --output=report.json")
 		return

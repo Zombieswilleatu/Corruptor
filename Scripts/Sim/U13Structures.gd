@@ -307,6 +307,93 @@ static func fire(
 	return {"action": "resolved", "world": world, "events": events}
 
 
+# Shared environmental structure-damage path. Protected builds are ignored;
+# destruction keeps instance identity, emits the normal fact/Tear and runs Lord
+# reactions, but has no attacking player to credit with Souls or Spoils of War.
+static func breach_damage(
+	raw: Dictionary,
+	castle_id: String,
+	source_id: String,
+	damage: int,
+	entry_id: String,
+	context: Dictionary,
+	reaction: Callable
+) -> Dictionary:
+	if damage < 0:
+		return Data.invalid("castle_damage_invalid")
+	var world: Dictionary = raw.duplicate(true)
+	var entities = Ids.new()
+	entities.restore(world.entities)
+	var castle: Dictionary = entities.get_entity(castle_id)
+	var source: Dictionary = entities.get_entity(source_id)
+	if (
+		source.is_empty()
+		or source.kind != "lord"
+		or source.attributes.get("alive", true)
+		or source.attributes.get("lord_id") != world.data.breach_lord
+	):
+		return Data.invalid("castle_hazard_source_invalid")
+	var events: Array = []
+	if not targetable(castle) or castle.attributes.integrity <= 0 or damage == 0:
+		return {"action": "resolved", "world": world, "events": events}
+	var before: int = int(castle.attributes.integrity)
+	var dealt: int = mini(before, damage)
+	if dealt == before:
+		var changed: Dictionary = Battle.apply(
+			world,
+			{
+				"command_id": Data.instance_id("breach_damage", entry_id, castle_id),
+				"kind": "ruin_castle_hazard",
+				"target_id": castle_id,
+				"source_id": source_id,
+				"cause": "breach"
+			},
+			context.round,
+			context.hook
+		)
+		if changed.action == "invalid":
+			return changed
+		world = changed.world
+		events.append(public_event(changed.event.type, changed.event.data))
+		if world.data.get("castle_tear_round", 0) != context.round:
+			world.data.neutral_tears += 1
+			world.data["castle_tear_round"] = context.round
+			events.append(
+				public_event(
+					"NEUTRAL_TEAR_CREATED",
+					{"amount": 1, "source": "CastleDestruction", "round": context.round}
+				)
+			)
+		var reacted: Dictionary = reaction.call(
+			world, changed.event, context.seed, context.player_order
+		)
+		if reacted.action == "invalid":
+			return reacted
+		world = reacted.world
+		events.append_array(reacted.events)
+	else:
+		castle.attributes.integrity = before - dealt
+		note_integrity_loss(castle, before, context.round)
+		entities.update(castle.id, castle.owner, castle.attributes)
+		world.entities = entities.snapshot()
+	events.append(
+		public_event(
+			"CASTLE_DAMAGED",
+			{
+				"castle_id": castle_id,
+				"source_id": source_id,
+				"source": "TheStonesForget",
+				"cause": "breach",
+				"round": context.round,
+				"damage": dealt,
+				"integrity": before - dealt,
+				"destroyed": dealt == before
+			}
+		)
+	)
+	return {"action": "resolved", "world": world, "events": events}
+
+
 static func public_event(type: String, data: Dictionary) -> Dictionary:
 	var event: Dictionary = {"type": type, "text": "", "data": data}
 	return {"event": event, "views": [event, event]}

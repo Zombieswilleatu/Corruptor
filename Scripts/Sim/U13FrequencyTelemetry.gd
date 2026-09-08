@@ -29,6 +29,8 @@ func begin(round_number: int, view: Dictionary) -> void:
 		"artillery_shots": {},
 		"artillery_by_instance": {},
 		"rout": {},
+		"endurance": {},
+		"stones_forget": {},
 		"castle_actions": {},
 		"activation_integrity": [],
 		"personal_tears_by_source": {},
@@ -110,6 +112,16 @@ func consume(events: Array) -> void:
 					_increment(_row.castle_actions, str(data.player_id) + ":reconstructions")
 				if event.type == "CONSTRUCTION_PROGRESS" and data.complete:
 					_increment(_row.castle_actions, str(data.player_id) + ":builds_completed")
+			"ENDURANCE_CHECKED":
+				var key: String = str(data.player_id)
+				if not _row.endurance.has(key):
+					_row.endurance[key] = {"checks": 0, "threshold_met": 0, "qualifying_bodies": 0}
+				_row.endurance[key].checks += 1
+				_row.endurance[key].threshold_met += 1 if data.threshold_met else 0
+				_row.endurance[key].qualifying_bodies += data.qualifying_ids.size()
+			"THE_STONES_FORGET":
+				_increment(_row.stones_forget, "entries")
+				_increment(_row.stones_forget, "castles_hit", data.castle_ids.size())
 			"ROUT_APPLIED":
 				_increment(_row.rout, "activations")
 				_increment(_row.rout, "affected_units", data.affected_ids.size())
@@ -188,9 +200,18 @@ static func summarize(rows: Array) -> Dictionary:
 	var castle_actions: Dictionary = {}
 	var instance_shots: Dictionary = {}
 	var rout: Dictionary = {}
+	var endurance: Dictionary = {}
+	var stones: Dictionary = {}
 	var activation_integrity: Array = []
 	var personal: Dictionary = {}
 	for row in rows:
+		for key in row.get("stones_forget", {}):
+			_increment(stones, key, row.stones_forget[key])
+		for key in row.get("endurance", {}):
+			if not endurance.has(key):
+				endurance[key] = {"checks": 0, "threshold_met": 0, "qualifying_bodies": 0}
+			for metric in row.endurance[key]:
+				endurance[key][metric] += row.endurance[key][metric]
 		for key in row.get("artillery_by_instance", {}):
 			_increment(instance_shots, key, row.artillery_by_instance[key])
 		for key in row.get("rout", {}):
@@ -246,6 +267,8 @@ static func summarize(rows: Array) -> Dictionary:
 		"artillery_shots": artillery,
 		"artillery_by_instance": instance_shots,
 		"rout": rout,
+		"endurance": endurance,
+		"stones_forget": stones,
 		"castle_actions": castle_actions,
 		"activation_integrity": distribution(activation_integrity),
 		"personal_tears_by_source": personal,
@@ -265,7 +288,11 @@ static func summarize(rows: Array) -> Dictionary:
 		"tears_by_source": tears,
 		"threshold_power_ratios": null,
 		"threshold_note":
-		"No active power in this slice has a counted Marcher threshold. Future Lord thresholds are not measured."
+		(
+			"Endurance is passive: report Step-13 checks and threshold-met counts, not declarations/threshold ratio. Muster has no activation threshold. Other Lord thresholds are not measured."
+			if not endurance.is_empty()
+			else "No active power in this slice has a counted Marcher threshold. Future Lord thresholds are not measured."
+		)
 	}
 
 

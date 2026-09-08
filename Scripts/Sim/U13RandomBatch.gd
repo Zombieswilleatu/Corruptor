@@ -15,6 +15,8 @@ const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const Construction = preload("res://Scripts/Sim/U13Construction.gd")
 const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
 const Rout = preload("res://Scripts/Sim/U13Rout.gd")
+const Humbaba = preload("res://Scripts/Sim/U13Humbaba.gd")
+const HumbabaScenario = preload("res://Scripts/Sim/U13HumbabaScenario.gd")
 const VERSION: String = "U13_RANDOM_BATCH_V1"
 
 
@@ -29,7 +31,7 @@ static func trial(
 		seed_value.is_empty()
 		or round_limit < 1
 		or round_limit > 100
-		or roster_mode not in ["gremory", "deimos", "mixed", "construction", "loadout"]
+		or roster_mode not in ["gremory", "deimos", "mixed", "construction", "loadout", "humbaba"]
 	):
 		return Data.invalid("batch_limits_invalid")
 	var content = (
@@ -42,6 +44,9 @@ static func trial(
 		if roster_mode == "gremory"
 		else (["Deimos", "Deimos"] if roster_mode == "deimos" else ["Deimos", "Gremory"])
 	)
+	if roster_mode == "humbaba":
+		content = Humbaba.new()
+		roster = ["Humbaba", "Gremory"]
 	var owner = content.create_combat_match()
 	var opening: Dictionary = (
 		Opening._initial_world()
@@ -59,6 +64,9 @@ static func trial(
 		if roster_mode == "gremory"
 		else Callable(Core, "enumerate")
 	)
+	if roster_mode == "humbaba":
+		opening = HumbabaScenario.world()
+		provider = Callable(HumbabaScenario, "enumerate")
 	var started: Dictionary = owner.start(seed_value, opening, [0, 1])
 	if started.action == "invalid":
 		return started
@@ -163,26 +171,40 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 		"runtime": "4.7.2.stable",
 		"policy": Bot.VERSION,
 		"castle_policy":
-		Bot.CASTLE_POLICY if trials[0].roster_mode in ["construction", "loadout"] else null,
+		(
+			Bot.CASTLE_POLICY
+			if trials[0].roster_mode in ["construction", "loadout", "humbaba"]
+			else null
+		),
 		"construction_profile":
-		Construction.VERSION if trials[0].roster_mode in ["construction", "loadout"] else null,
+		(
+			Construction.VERSION
+			if trials[0].roster_mode in ["construction", "loadout", "humbaba"]
+			else null
+		),
+		"humbaba_profile": Humbaba.POLICY if trials[0].roster_mode == "humbaba" else null,
 		"roster": trials[0].roster,
 		"combat_profile":
 		Combat.VERSION if trials[0].roster_mode == "gremory" else Structures.PROFILE,
 		"marching_model": Marching.VERSION,
-		"castle_slot_profile": Slots.VERSION if trials[0].roster_mode == "loadout" else null,
+		"castle_slot_profile":
+		Slots.VERSION if trials[0].roster_mode in ["loadout", "humbaba"] else null,
 		"rout_profile": Rout.VERSION if trials[0].roster_mode != "gremory" else null,
 		"opening":
 		(
-			"Loadout fixture: two commissioned Engines at 21/21 and three unbuilt Castles per side; one shared Castle Guard zone per side; starting economy is an exercise fixture"
-			if trials[0].roster_mode == "loadout"
+			"Humbaba/Gremory rules fixture: five slots per player, Keep at 8 and Bastion at 3 exposed, three unbuilt Castles; exercise cards/resources, Hunt enabled"
+			if trials[0].roster_mode == "humbaba"
 			else (
-				"U13SmokeSession opening: four cards and two Wright guards per player; damaged plain Integrity Castles"
-				if trials[0].roster_mode == "gremory"
+				"Loadout fixture: two commissioned Engines at 21/21 and three unbuilt Castles per side; one shared Castle Guard zone per side; starting economy is an exercise fixture"
+				if trials[0].roster_mode == "loadout"
 				else (
-					"Construction fixture: same cards/guards and damaged active plain Castles; ruined Deimos Engine, unbuilt Gremory Engine, two Repair tokens per side; protected builds require manual activation"
-					if trials[0].roster_mode in ["construction", "loadout"]
-					else "U13CoreScenario: same cards/guards; one plain Castle at 8/21 and one prebuilt Siege Engine at 12/21 per player; empty Breach"
+					"U13SmokeSession opening: four cards and two Wright guards per player; damaged plain Integrity Castles"
+					if trials[0].roster_mode == "gremory"
+					else (
+						"Construction fixture: same cards/guards and damaged active plain Castles; ruined Deimos Engine, unbuilt Gremory Engine, two Repair tokens per side; protected builds require manual activation"
+						if trials[0].roster_mode in ["construction", "loadout", "humbaba"]
+						else "U13CoreScenario: same cards/guards; one plain Castle at 8/21 and one prebuilt Siege Engine at 12/21 per player; empty Breach"
+					)
 				)
 			)
 		),
@@ -191,11 +213,11 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 		[
 			(
 				"Other Development actions"
-				if trials[0].roster_mode in ["construction", "loadout"]
+				if trials[0].roster_mode in ["construction", "loadout", "humbaba"]
 				else "Development"
 			),
 			"normal round draws",
-			"Hunt",
+			"Breath of Life" if trials[0].roster_mode == "humbaba" else "Hunt",
 			"victory",
 			(
 				"personal Tear/Veil progression"
@@ -204,7 +226,7 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 			),
 			(
 				"Guard deployment/Summon/Profane"
-				if trials[0].roster_mode in ["construction", "loadout"]
+				if trials[0].roster_mode in ["construction", "loadout", "humbaba"]
 				else "Construction/Reconstruction"
 			),
 			"non-artillery Castle printed powers",
@@ -218,11 +240,11 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 			"waiter_duration_unit": "fixed Marching ticks",
 			"ticks_per_round": Marching.TICKS,
 			"choice":
-			"uniform legal power name, then uniform canonical complete payload; combat uniform over legal single-card/pair Siege/Ward orders",
+			"uniform legal power name, then uniform canonical complete payload; combat uniform over legal single-card/pair Siege/Ward orders (also Hunt in the Humbaba profile)",
 			"castle_choice":
 			(
 				"uniform legal Construct/Repair/Activate action, then uniform legal target/payment; filtered against the selected power before combat selection"
-				if trials[0].roster_mode in ["construction", "loadout"]
+				if trials[0].roster_mode in ["construction", "loadout", "humbaba"]
 				else null
 			)
 		},
