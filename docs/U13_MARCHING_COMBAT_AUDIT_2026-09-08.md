@@ -5,7 +5,9 @@
 The user verified **10/10 on Godot 4.7.2** for U13 commit
 `827e7cc0c2baba64a3fdcf3446cbc4273dc86ef2`. That checkpoint proved the Gremory
 content/transition slice. This batch adds actual contact, damage and committed-card
-combat, with an eleventh runner. **The new 11/11 Godot gate is pending.**
+combat, with an eleventh runner. **The user verified 11/11 on Godot 4.7.2** at
+`b1b3e60f2e0874555b802f2c9e57db9c8d41953a`, reporting both
+`U13 Marching integration failures: 0` and `U13 foundation runners passed: 11/11`.
 
 No U12 implementation or playable controller is changed. This remains a headless
 U13 match path, not a playable scene or full migration of every ordinary action.
@@ -21,7 +23,7 @@ new runner calls `Gremory.new().create_combat_match()` and submits cards/powers;
 it never supplies damage, kill, Guard-defeat or Castle-destruction commands.
 The combat module derives those outcomes and delivers the same authoritative facts
 and immediate Gremory reactions. Do not advance to another Lord or spatial powers
-until this new local gate is green.
+without their own acceptance gates. This Marching/Gremory integration gate is now green.
 
 ## Audit: extend the math, adapt ownership and timing
 
@@ -41,7 +43,7 @@ Inspected sources at the verified checkpoint: `MarchingEngine.gd`, `PlayerState.
 | Combat targets | U12 uses mutable marcher dictionaries in owner arrays. U13 uses registered physical entity IDs, owner, lane and canonical position. Kill facts retain both combatant snapshots before retirement. Guard targets remain physical card IDs with explicit lane and slot. |
 | Waiters | Arrival retains the unit and marks it waiting; it creates no Tear. Waiters do not move or regenerate, remain eligible for contact, and fight fresh held defenders. A valid matching Siege adds +1 per waiter and consumes them even if blocked. A vanished target leaves its waiters. U12 Hunt support is audited but the U13 Hunt action is not implemented in this profile. |
 | Legacy config | `march_max_in_flight` belongs to launch/reactive paths; `march_steps`, `march_threshold`, `march_damage`, `march_suit_bonus`, and `march_exception_pair` belong to legacy advance/scoring/marshal logic. Modern `resolve_half` does not use them as caps or damage rules. `BotMarchingDoctrine` still reads legacy knobs; it is not connected to this U13 owner. |
-| Repeated headless determinism | New Godot runner compares repeated results with reversed registry insertion order, JSON restores at every owner hook, a one-sided sealed submission, and a full real Marching replay. Source/static checks are complete; runtime evidence for this batch is pending the user's 11/11 run. |
+| Repeated headless determinism | New Godot runner compares repeated results with reversed registry insertion order, JSON restores at every owner hook, a one-sided sealed submission, and a full real Marching replay. The user verified the complete 11/11 runner set on Godot 4.7.2 at `b1b3e60`, including these runtime assertions. |
 | Reusable behavior | Profiles, integer movement, birth hold for commitments, regeneration rules, geometric fronts, midpoint snapping, simultaneous exchanges, armor depletion, waiter interception and support. These are extracted from the audited modern engine, not redesigned from the legacy launch engine. |
 | Required refactor | The existing engine couples typed U12 state/config/finale, owner arrays, mutable global RNG and `source == commitment` filtering. Calling it directly would exclude Lord spawns and retain old phase/victory coupling. `U13Marching` adapts those boundaries to registered entities, keyed RNG and a single owner transaction. No full physics or spatial targeting rewrite is justified. |
 
@@ -139,7 +141,7 @@ neutral. A broken Fresh Sigil rewards the defender one Soul if the Castle surviv
 Consume-the-Siege and alternate reward profiles are not accepted inputs. These
 rewards do not imply that victory/endgame orchestration has been migrated.
 
-## Verification and next gate
+## Verification and next step
 
 Added `U13MarchingIntegrationTestRunner.gd` and direct preflight checks for the two
 new dependencies. The runner covers movement vectors, birth hold, waiting, regen,
@@ -151,7 +153,8 @@ real-target Ruin fizzle, repeated rounds, malformed restores and JSON replay.
 Coding-environment checks: all U13 scripts parsed with gdtoolkit; formatting/lint
 review; Bash syntax; wrapper subprocess shims for success, old runtime, failed
 preflight, missing footer and engine error. Shims exercise orchestration only.
-**Godot is unavailable here; no new runtime pass is claimed.**
+Godot is unavailable in the coding environment. Runtime verification comes from
+the user's local Godot 4.7.2 run at `b1b3e60`, which passed **11/11**.
 
 ```bash
 git pull --ff-only origin u13-lord-overhaul &&
@@ -159,10 +162,10 @@ bash Scripts/Sim/run_u13_foundation_tests.sh \
   "/c/Users/jerem/OneDrive/Documents/Godot_v4.7.2-stable_win64.exe/Godot_v4.7.2-stable_win64.exe"
 ```
 
-Expected final line: `U13 foundation runners passed: 11/11`.
-A failure blocks further Lord/spatial work. Once green, the next product-facing
-step is a U13 smoke scene/controller over this owner, with its supported profile
-made clear; the broader ordinary-rule migration remains necessary for full matches.
+Verified final line: `U13 foundation runners passed: 11/11`.
+The next product-facing step is a U13 smoke scene/controller over this owner, with
+its supported profile made clear; the broader ordinary-rule migration remains
+necessary for full matches. This gate does not certify a full playable U13 ruleset.
 
 
 ## Local gate follow-up: fractional-position fixture
@@ -178,5 +181,5 @@ The corrected test separately verifies atomic registry rejection, a valid intege
 startup control, an actual fraction in raw external data, direct Marching validation,
 and atomic rejection at match start/restore. The normal setup helper now reports
 rejected edits. Production validation and combat rules are unchanged. Static parsing
-passes; the corrected **11/11 local Godot gate remains pending**, including the
-real-target Ruin test that follows this check.
+passes. The user subsequently verified the corrected **11/11 local Godot gate**
+at `b1b3e60`, including the real-target Ruin test that follows this check.
