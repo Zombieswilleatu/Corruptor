@@ -62,3 +62,12 @@ static func _valid_event(event) -> bool:
 		and typeof(event.get("text")) == TYPE_STRING
 		and typeof(event.get("data")) == TYPE_DICTIONARY
 	)
+
+
+# Stored rows are immutable: append() owns its data; every public read returns
+# deep copies; restore() replaces the list. Fork only the private outer array.
+# Sharing immutable past rows avoids recopying every tick payload per hook.
+func _fork():
+	var candidate = get_script().new()
+	candidate._rows = _rows.duplicate()
+	return candidate

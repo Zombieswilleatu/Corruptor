@@ -680,9 +680,24 @@ func _new_owner():
 
 
 func _clone():
-	var candidate = _new_owner()
-	if candidate.restore(snapshot()).action == "invalid":
+	# Internal transactions operate on already-owned, normalized state. Loading a
+	# save still uses restore() and all of its validation. Keep live cross-component
+	# checks here, but do not serialize/revalidate the immutable event history.
+	if _seed.is_empty() or not _consistent():
 		return null
+	var candidate = _new_owner()
+	candidate._seed = _seed
+	candidate._world = _world.duplicate(true)
+	candidate._presentation_world = _presentation_world.duplicate(true)
+	candidate._submissions = _submissions.duplicate(true)
+	candidate._combat_orders = _combat_orders.duplicate(true)
+	candidate._order = _order.duplicate()
+	candidate._runtime = _runtime._fork()
+	candidate._pending = _pending._fork()
+	candidate._persistent = _persistent._fork()
+	candidate._cooldowns = _cooldowns._fork()
+	candidate._entities = _entities._fork()
+	candidate._events = _events._fork()
 	return candidate
 
 

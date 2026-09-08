@@ -100,3 +100,11 @@ func restore(raw: Dictionary) -> Dictionary:
 	_entities = candidate._entities
 	_used = used
 	return {"action": "u13_entities_restored"}
+
+
+# Internal copy of already-owned state; external data must still use restore().
+func _fork():
+	var candidate = get_script().new()
+	candidate._entities = _entities.duplicate(true)
+	candidate._used = _used.duplicate(true)
+	return candidate

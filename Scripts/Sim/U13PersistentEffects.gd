@@ -196,3 +196,12 @@ static func _valid_stages(stages) -> bool:
 		if typeof(stage) != TYPE_DICTIONARY:
 			return false
 	return true
+
+
+# Internal copy of already-owned state; external data must still use restore().
+func _fork():
+	var candidate = get_script().new()
+	candidate._active = _active.duplicate(true)
+	candidate._used_ids = _used_ids.duplicate(true)
+	candidate._advanced_round = _advanced_round
+	return candidate

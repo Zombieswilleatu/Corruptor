@@ -209,3 +209,14 @@ static func _valid_result(result) -> bool:
 		and typeof(result.get("reason")) == TYPE_STRING
 		and not result.reason.is_empty()
 	)
+
+
+# Internal copy of already-owned state; external data must still use restore().
+func _fork():
+	var candidate = get_script().new()
+	candidate._pending = _pending.duplicate(true)
+	candidate._used_ids = _used_ids.duplicate(true)
+	candidate._resolving = _resolving
+	candidate._resolving_round = _resolving_round
+	candidate._resolving_hook = _resolving_hook
+	return candidate

@@ -272,3 +272,12 @@ static func _timing(record: Dictionary) -> Dictionary:
 		"ready_round": record.ready_round,
 		"cooldown_rounds": record.cooldown_rounds,
 	}
+
+
+# Internal copy of already-owned state; external data must still use restore().
+func _fork():
+	var candidate = get_script().new()
+	candidate._round_number = _round_number
+	candidate._locks = _locks.duplicate(true)
+	candidate._used_ids = _used_ids.duplicate(true)
+	return candidate

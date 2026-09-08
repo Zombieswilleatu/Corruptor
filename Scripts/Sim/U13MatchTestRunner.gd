@@ -1,5 +1,6 @@
 extends SceneTree
 
+const EventLog = preload("res://Scripts/Sim/U13EventLog.gd")
 const MatchOwner = preload("res://Scripts/Sim/U13Match.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Decl = preload("res://Scripts/Sim/U13LordPowerDeclaration.gd")
@@ -23,6 +24,8 @@ func _init() -> void:
 	_test_independent_persistent_slots()
 	_test_joint_declaration_context()
 	_test_restore_guards()
+	_test_event_forks()
+	_test_internal_forks()
 	print("U13 match foundation failures: %d" % failures)
 	quit(0 if failures == 0 else 1)
 
@@ -525,6 +528,138 @@ func _test_restore_guards() -> void:
 	resumed.submit(1, [])
 	_check(
 		resumed.run_next_hook().action != "invalid", "restored_submission_can_complete_joint_lock"
+	)
+
+
+func _test_event_forks() -> void:
+	var original = EventLog.new()
+	var event: Dictionary = {"type": "FORK_FIXTURE", "text": "", "data": {"nested": {"value": 1}}}
+	original.append(event, [event, null])
+	var before: Dictionary = original.snapshot()
+	var fork = original._fork()
+	var public_rows: Array = fork.for_player(0)
+	public_rows[0].data.nested.value = 99
+	var exported: Dictionary = fork.snapshot()
+	exported.rows[0].event.data.nested.value = 88
+	exported.rows[0].views[0].data.nested.value = 77
+	_check(
+		original.snapshot() == before and fork.snapshot() == before,
+		"fork_history_exports_are_deep_copies"
+	)
+	_check(fork.for_player(1).is_empty(), "fork_history_keeps_hidden_views_hidden")
+	fork.append(event, [event, event])
+	_check(
+		original.snapshot() == before and fork.snapshot().rows.size() == 2,
+		"fork_event_append_isolated"
+	)
+	original.append(event, [null, event])
+	_check(
+		fork.for_player(0).size() == 2 and original.for_player(0).size() == 1,
+		"parent_event_append_isolated_from_fork"
+	)
+	var replacement: Dictionary = before.duplicate(true)
+	replacement.rows[0].event.data.nested.value = 5
+	_check(fork.restore(replacement).action != "invalid", "fork_event_restore_validated")
+	_check(
+		original.snapshot().rows[0].event.data.nested.value == 1,
+		"fork_restore_does_not_replace_parent_history"
+	)
+	var stable: Dictionary = fork.snapshot()
+	replacement.rows[0].event.text = 123
+	_check(
+		fork.restore(replacement).action == "invalid" and fork.snapshot() == stable,
+		"fork_external_event_restore_still_rejects_bad_data"
+	)
+
+
+func _test_internal_forks() -> void:
+	var owner = _fixture()
+	if owner == null:
+		return
+	owner.submit(
+		0,
+		[
+			_declaration("Zone"),
+			_declaration("Secret", 1),
+			_declaration("Delayed", 2),
+			_declaration("Strike", 3)
+		]
+	)
+	owner.submit(1, [])
+	for round_number in [1, 2, 3]:
+		if round_number > 1:
+			owner.begin_next_round([0, 1])
+		for boundary in range(21):
+			if owner.next_hook().is_empty():
+				break
+			if owner.next_hook() == Timeline.SUBMISSION_LOCK and round_number > 1:
+				owner.submit(0, [])
+				owner.submit(1, [])
+			var before: Dictionary = owner.snapshot()
+			var fork = owner._clone()
+			if fork == null:
+				_check(false, "internal_fork_available")
+				return
+			_check(
+				(
+					fork.snapshot() == before
+					and fork._entities.snapshot() == owner._entities.snapshot()
+				),
+				"internal_fork_exact_state_r%d_hook%d" % [round_number, boundary]
+			)
+			var restored = _owner()
+			if restored.restore(before).action == "invalid":
+				_check(false, "reference_restore_available")
+				return
+			var fast_result: Dictionary = fork.run_next_hook()
+			var restored_result: Dictionary = restored.run_next_hook()
+			_check(
+				(
+					fast_result == restored_result
+					and fast_result.action != "invalid"
+					and fork.snapshot() == restored.snapshot()
+				),
+				"fork_matches_validated_restore_r%d_hook%d" % [round_number, boundary]
+			)
+			_check(owner.snapshot() == before, "discarded_fork_does_not_advance_parent")
+			_probe_mutable_fork(owner)
+			if owner.run_next_hook().action == "invalid":
+				_check(false, "fork_reference_hook_succeeds")
+				return
+		_check(owner.next_hook().is_empty(), "fork_reference_round_completes")
+
+
+func _probe_mutable_fork(owner) -> void:
+	var before: Dictionary = owner.snapshot()
+	var registry: Dictionary = owner._entities.snapshot()
+	var fork = owner._clone()
+	fork._world.players[0].resources.souls = 999
+	fork._world.data.order.append("fork_only")
+	fork._presentation_world.data.hits = 999
+	fork._combat_orders[0]["fork_only"] = [1]
+	fork._order.reverse()
+	for submission in fork._submissions:
+		if submission != null and not submission.is_empty():
+			submission[0].parameters["fork_only"] = [1]
+	for records in [fork._pending._pending, fork._persistent._active, fork._cooldowns._locks]:
+		for record in records.values():
+			record.declaration.parameters["fork_only"] = [1]
+	for used in [
+		fork._pending._used_ids,
+		fork._persistent._used_ids,
+		fork._cooldowns._used_ids,
+		fork._entities._used
+	]:
+		used["fork_only"] = true
+	if not fork._runtime.execution_log.is_empty():
+		fork._runtime.execution_log[0]["fork_only"] = true
+	fork._runtime.completed = not fork._runtime.completed
+	var lord: Dictionary = fork._entities.get_entity(fork._world.players[0].lord_entity_id)
+	lord.attributes.alive = false
+	fork._entities.update(lord.id, lord.owner, lord.attributes)
+	_check(
+		owner.snapshot() == before and owner._entities.snapshot() == registry,
+		"fork_nested_mutable_state_isolated"
 	)
 
 

@@ -195,3 +195,13 @@ func _invalid(reason: String, hook: String) -> Dictionary:
 		"expected_hook": next_hook(),
 		"next_hook": next_hook(),
 	}
+
+
+# Internal copy of already-owned state; external data must still use restore().
+func _fork():
+	var candidate = get_script().new()
+	candidate.round_number = round_number
+	candidate.next_hook_index = next_hook_index
+	candidate.completed = completed
+	candidate.execution_log = execution_log.duplicate(true)
+	return candidate

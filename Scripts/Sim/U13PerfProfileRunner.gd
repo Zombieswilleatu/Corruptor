@@ -199,6 +199,7 @@ func _json_roundtrip(snapshot: Dictionary) -> Dictionary:
 
 
 func _state_costs(owner, label: String) -> void:
+	_measure(label, "internal_transaction_clone", Callable(owner, "_clone"))
 	var snapshot = _measure(label, "snapshot_copy", Callable(owner, "snapshot"))
 	if failed:
 		return
@@ -337,6 +338,10 @@ func _record(label: String, metric: String, timings: Array) -> void:
 
 
 func _ok(value) -> bool:
+	if value == null:
+		failed = true
+		print("PROFILE ERROR: unexpected null result")
+		return false
 	if (
 		(typeof(value) == TYPE_DICTIONARY and value.get("action", "") == "invalid")
 		or (typeof(value) == TYPE_BOOL and not value)
