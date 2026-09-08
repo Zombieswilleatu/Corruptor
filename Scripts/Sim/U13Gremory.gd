@@ -130,6 +130,8 @@ func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionar
 		or castle.attributes.get("status") not in ["standing", "defunct"]
 	):
 		return {"legal": false, "reason": "castle_not_standing"}
+	if castle.owner != 1 - int(source.player_id):
+		return {"legal": false, "reason": "castle_not_enemy"}
 	if phase == "declaration":
 		var attributes: Dictionary = castle.attributes
 		if (

@@ -76,7 +76,7 @@ func random_opponent_plan() -> Dictionary:
 	hand.sort()
 	var targets: Array = []
 	for entity in public.entities:
-		if entity.kind == "castle":
+		if entity.kind == "castle" and entity.owner == 0:
 			targets.append(entity.id)
 	targets.sort()
 	var groups: Array = []

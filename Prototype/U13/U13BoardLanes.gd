@@ -5,9 +5,11 @@ extends "res://Prototype/U13/U13SmokeBoard.gd"
 const Art = preload("res://Prototype/U13/U13BoardTextures.gd")
 var domain: Texture2D
 var skin: Texture2D
+var chit_sheet: Texture2D
 
 
 func _ready() -> void:
+	chit_sheet = Art.texture("res://ConceptImages/Sprites/Chits.png")
 	domain = Art.texture("res://ConceptImages/Menus/Domain1.png")
 	skin = Art.texture("res://ConceptImages/Menus/Battlefield.png")
 	custom_minimum_size = Vector2(290, 600)
@@ -61,11 +63,7 @@ func _draw() -> void:
 		for unit in _units:
 			if unit.id not in _clash:
 				continue
-			var card := Rect2(30 + (index % 4) * 56, 140, 48, 68)
-			var texture: Texture2D = Art.texture_for(unit.attributes.suit, 1)
-			if texture != null:
-				draw_texture_rect(texture, card, false)
-			draw_rect(card, BLUE if unit.owner == 0 else RED, false, 2)
+			_draw_chit(unit, Vector2(54 + (index % 4) * 56, 176))
 			index += 1
 	draw_string(font, Vector2(18, 250), action, HORIZONTAL_ALIGNMENT_CENTER, size.x - 36, 12, MUTED)
 	for lane_index in range(2):
@@ -110,17 +108,9 @@ func _draw() -> void:
 				middle + (-19 if unit.owner == 0 else 19) + (ordinal % 2) * 8,
 				y + floori(float(ordinal) / 2.0) * 9
 			)
-			var card := Rect2(center - Vector2(17, 25), Vector2(34, 50))
-			var texture: Texture2D = Art.texture_for(a.suit, 1)
-			if texture != null:
-				draw_texture_rect(texture, card, false)
-			draw_rect(card, BLUE if unit.owner == 0 else RED, false, 2)
+			_draw_chit(unit, center)
 			if unit.id in _clash:
-				draw_rect(card.grow(3), Color("f5d39a"), false, 2)
-			draw_rect(
-				Rect2(center + Vector2(-17, 27), Vector2(34 * float(a.hp) / float(a.max_hp), 3)),
-				BLUE if unit.owner == 0 else RED
-			)
+				draw_arc(center, 26.0, 0.0, TAU, 48, Color("f5d39a"), 2.0, true)
 			if a.waiting or a.movement_ready_round > _round:
 				draw_string(
 					font,
@@ -130,3 +120,24 @@ func _draw() -> void:
 					45,
 					11
 				)
+
+
+func _draw_chit(unit: Dictionary, center: Vector2) -> void:
+	var attributes: Dictionary = unit.attributes
+	var tint: Color = BLUE if unit.owner == 0 else RED
+	if chit_sheet != null:
+		# UI2 atlas: Butcher/Penitent/Vulture/Wright columns, human/enemy rows.
+		var column: int = int(
+			{"Butcher": 0, "Penitent": 1, "Vulture": 2, "Wright": 3}.get(attributes.suit, 0)
+		)
+		var cell: Vector2 = chit_sheet.get_size() / Vector2(4.0, 2.0)
+		var row: float = 0.0 if unit.owner == 0 else 1.0
+		draw_texture_rect_region(
+			chit_sheet,
+			Rect2(center - Vector2(22, 22), Vector2(44, 44)),
+			Rect2(Vector2(float(column), row) * cell, cell)
+		)
+	var health: float = clampf(float(attributes.hp) / maxf(1.0, float(attributes.max_hp)), 0.0, 1.0)
+	draw_arc(center, 23.0, 0.0, TAU, 48, Color("302e29"), 3.0, true)
+	if health > 0.0:
+		draw_arc(center, 23.0, -PI / 2.0, -PI / 2.0 + TAU * health, 48, tint, 3.0, true)

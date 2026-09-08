@@ -27,6 +27,7 @@ func _run() -> void:
 func _source_textures() -> void:
 	for path in [
 		"res://ConceptImages/Menus/Domain1.png",
+		"res://ConceptImages/Sprites/Chits.png",
 		"res://ConceptImages/Menus/BottomBanner.png",
 		"res://ConceptImages/Menus/DecisionPanel.png",
 		"res://ConceptImages/Menus/TopBanner.png",
@@ -146,6 +147,11 @@ func _board_controls() -> void:
 	# Container layout and deferred overlay placement must settle before geometry checks.
 	await process_frame
 	await process_frame
+	_check(board.ruin_target.item_count == 1, "board_ruin_only_enemy_target")
+	var ruin_id: String = board.ruin_target.get_item_metadata(0)
+	for entity in board.session.view().world.entities:
+		if entity.id == ruin_id:
+			_check(entity.owner == 1, "board_ruin_target_is_enemy")
 	var enemy = board.sides[0]
 	var human = board.sides[1]
 	_check(

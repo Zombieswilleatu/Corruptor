@@ -248,16 +248,17 @@ func _refresh(presented: Dictionary = {}) -> void:
 			target_choice.add_item("Enemy Castle · %s" % entity.attributes.status)
 			target_choice.set_item_metadata(target_choice.item_count - 1, entity.id)
 	ruin_target.clear()
-	for pid in [1, 0]:
-		for entity in world.entities:
-			if entity.kind == "castle" and entity.owner == pid:
-				ruin_target.add_item("Enemy Castle" if pid == 1 else "Your Castle")
-				ruin_target.set_item_metadata(ruin_target.item_count - 1, entity.id)
+	for entity in world.entities:
+		if entity.kind == "castle" and entity.owner == 1:
+			ruin_target.add_item("Enemy Castle · %s" % entity.attributes.status)
+			ruin_target.set_item_metadata(ruin_target.item_count - 1, entity.id)
+	ruin_target.tooltip_text = "Inevitable Ruin targets a damaged enemy Castle."
 	history.text = ""
 	for event in view.events.slice(maxi(0, view.events.size() - 15)):
 		history.append_text(String(event.get("text", event.type)) + "\n")
 	for control in controls:
 		control.disabled = not _planning()
+	ruin_target.disabled = ruin_target.item_count == 0 or not _planning()
 	next_button.disabled = playing or not session.next_hook().is_empty()
 	_preview()
 	_sync_decision()
@@ -359,7 +360,10 @@ func queue_predator() -> void:
 
 
 func queue_ruin() -> void:
-	if not _planning() or ruin_target.item_count == 0:
+	if not _planning():
+		return
+	if ruin_target.item_count == 0:
+		status.text = "No enemy Castle remains for Inevitable Ruin."
 		return
 	var selected: Array = hand_view.selected_card_ids()
 	if selected.size() != 2:
@@ -526,6 +530,8 @@ func _sync_decision() -> void:
 
 func _friendly_error(result: Dictionary) -> String:
 	var reason: String = result.get("reason", "")
+	if reason == "castle_not_enemy":
+		return "Inevitable Ruin must target an enemy Castle."
 	if reason.contains("cooldown"):
 		return "That power is still cooling down. Choose another power or pass."
 	if reason == "combat_order_invalid":

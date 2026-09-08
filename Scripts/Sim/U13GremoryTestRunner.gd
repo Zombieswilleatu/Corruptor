@@ -189,6 +189,15 @@ func _predator() -> void:
 func _ruin() -> void:
 	var world: Dictionary = _world()
 	var castle_id: String = Ids.identity("castle", "castle:1")
+	var own_source: Dictionary = _source(
+		Gremory.RUIN, {"entity_id": Ids.identity("castle", "castle:0")}
+	)
+	for phase in ["declaration", "firing"]:
+		var rejected: Dictionary = Gremory.new().validate(own_source, world, phase)
+		_check(
+			not rejected.legal and rejected.reason == "castle_not_enemy",
+			"ruin_rejects_friendly_castle_" + phase
+		)
 	var hand: Array = world.data.card_zones.hands[0].duplicate()
 	_command(
 		world,
@@ -209,6 +218,12 @@ func _ruin() -> void:
 	var owner = _fixture(world)
 	if owner == null:
 		return
+	var before_friendly: Dictionary = owner.snapshot()
+	var friendly: Dictionary = _source(
+		Gremory.RUIN, {"entity_id": Ids.identity("castle", "castle:0")}, 1, 0, [hand[0], hand[1]]
+	)
+	_check(owner.submit(0, [friendly]).action == "invalid", "ruin_friendly_submission_rejected")
+	_check(owner.snapshot() == before_friendly, "ruin_friendly_rejection_preserves_state")
 	for selected in [
 		[], [hand[0]], [hand[0], hand[0]], [hand[0], "missing"], [hand[0], hand[1], hand[2]]
 	]:
