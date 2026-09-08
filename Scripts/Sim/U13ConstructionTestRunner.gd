@@ -15,6 +15,8 @@ const Bot = preload("res://Scripts/Sim/U13RandomLegal.gd")
 const Legality = preload("res://Scripts/Sim/U13Legality.gd")
 const Batch = preload("res://Scripts/Sim/U13RandomBatch.gd")
 var failures: int = 0
+var _batch_started_ms: int = 0
+var _batch_phase: String = ""
 
 
 func _init() -> void:
@@ -28,10 +30,17 @@ func _run() -> void:
 		Callable(self, "_activation_lifecycle"),
 		Callable(self, "_completion_and_repair"),
 		Callable(self, "_atomic_plans"),
-		Callable(self, "_replay_and_timing"),
-		Callable(self, "_random_path")
+		Callable(self, "_replay_and_timing")
 	]:
+		var started_ms: int = Time.get_ticks_msec()
+		print("CONSTRUCTION STAGE ", test.get_method(), " BEGIN")
 		test.call()
+		print(
+			"CONSTRUCTION STAGE ",
+			test.get_method(),
+			" elapsed_ms=",
+			Time.get_ticks_msec() - started_ms
+		)
 		if failures > 0:
 			break
 	print("U13 Construction failures: %d" % failures)
@@ -722,14 +731,37 @@ func _random_path() -> void:
 			owner.preview_submission(player_id, first.powers, first.order).action != "invalid",
 			"castle_random_full_plan_legal_" + str(player_id)
 		)
-	var trial: Dictionary = Batch.trial("construction-batch-test", 2, Callable(), "construction")
+	_batch_phase = "trial"
+	_batch_started_ms = Time.get_ticks_msec()
+	print("CONSTRUCTION BATCH trial BEGIN")
+	var trial: Dictionary = Batch.trial(
+		"construction-batch-test", 2, Callable(self, "_batch_progress"), "construction"
+	)
+	print("CONSTRUCTION BATCH trial elapsed_ms=", Time.get_ticks_msec() - _batch_started_ms)
 	if not _check(trial.action == "batch_trial_complete", "construction_random_batch_completes"):
 		print("CONSTRUCTION BATCH ERROR ", trial)
 		return
-	var replay: Dictionary = Batch.trial("construction-batch-test", 2, Callable(), "construction")
+	_batch_phase = "replay"
+	_batch_started_ms = Time.get_ticks_msec()
+	print("CONSTRUCTION BATCH replay BEGIN")
+	var replay: Dictionary = Batch.trial(
+		"construction-batch-test", 2, Callable(self, "_batch_progress"), "construction"
+	)
+	print("CONSTRUCTION BATCH replay elapsed_ms=", Time.get_ticks_msec() - _batch_started_ms)
 	_check(trial == replay, "construction_random_batch_replays")
 	_check(
 		not trial.summary.castle_actions.is_empty(), "construction_batch_measures_castle_actions"
+	)
+
+
+func _batch_progress(_seed_value: String, round_number: int) -> void:
+	print(
+		"CONSTRUCTION BATCH ",
+		_batch_phase,
+		" round=",
+		round_number,
+		"/2 elapsed_ms=",
+		Time.get_ticks_msec() - _batch_started_ms
 	)
 
 

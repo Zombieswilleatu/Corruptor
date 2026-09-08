@@ -16,7 +16,7 @@ Castle effects, normal draws, Hunt, Profane, Veil and victory remain outstanding
 Godot **4.7.2 stable** is authoritative. This environment has no Godot binary.
 Grammar parsing, source review and simulated Bash launcher checks passed here;
 compiler and runtime verification of this change is still pending locally.
-The full wrapper now expects **18/18**, retaining its 30-second suite watchdog.
+The full wrapper now expects **19/19**, retaining its 30-second suite watchdog.
 
 ## Castle lifecycle
 
@@ -172,7 +172,35 @@ bash Scripts/Sim/run_u13_foundation_tests.sh "$u13_godot" &&
 bash Scripts/Sim/run_u13_random_batch.sh "$u13_godot" --roster=construction
 ```
 
-Expected local gate: `U13 foundation runners passed: 18/18`, then
+Expected local gate: `U13 foundation runners passed: 19/19`, then
 `U13 random-legal batch completed: OK`. Share Downloads
 `u13_random_construction.json` and `u13_random_construction.log`.
 Do not mark this runtime-verified or start Rout until that gate is green.
+
+
+## Construction runner timeout correction
+
+The user's Godot 4.7.2 failure log `u13-foundation-failure-sK1aHe.log` records
+all Construction rules, activation/protection, payment checks, every per-hook
+JSON restore/replay check and both deterministic player plans passing. The first
+two-round Construction batch also completed. The combined process reached its
+30-second watchdog during the independent replay of that batch. This establishes
+the stopping point; the old log has no stage timings to assign exact costs.
+
+Separate the rule/owner replay checks (`U13Construction`) and random-plan/batch
+replay checks (`U13ConstructionRandom`) into two processes. Both retain the same
+30-second watchdog. No assertion, seed, round, independent replay or production
+rule is removed or changed. The new runner inherits the existing fixture and
+assertion code and overrides only deferred test dispatch. Stage timings and batch
+round progress identify any remaining slow section on the local machine.
+
+The full foundation wrapper has 19 suites. To rerun just this corrected gate:
+
+```bash
+bash Scripts/Sim/run_u13_foundation_tests.sh "$u13_godot" --construction
+```
+
+Expect `U13 construction runners passed: 2/2`; this focused result does not claim
+a full 19/19 run. Then run the previously requested `--roster=construction` batch.
+The split's wall-time margin still requires local measurement. Grammar and
+simulated launcher checks do not establish Godot runtime performance.

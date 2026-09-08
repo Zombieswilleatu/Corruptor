@@ -3,12 +3,16 @@
 # Successful logs are temporary; failure logs are preserved in Downloads.
 set -uo pipefail
 
-if [[ $# -lt 1 || $# -gt 2 || ( $# -eq 2 && "$2" != --board ) ]]; then
-  printf 'Usage: bash %s /path/to/Godot_console_executable [--board]\n' "$0" >&2
+if [[ $# -lt 1 || $# -gt 2 || ( $# -eq 2 && "$2" != --board && "$2" != --construction ) ]]; then
+  printf 'Usage: bash %s /path/to/Godot_console_executable [--board|--construction]\n' "$0" >&2
   exit 2
 fi
 godot_u13_exe=$1
 u13_board_only=false
+u13_construction_only=false
+if [[ ${2:-} == --construction ]]; then
+  u13_construction_only=true
+fi
 if [[ ${2:-} == --board ]]; then
   u13_board_only=true
 fi
@@ -36,8 +40,8 @@ u13_cleanup() {
     local u13_failure_dir=${U13_TEST_LOG_DIR:-$HOME/Downloads}
     local u13_failure_log
     if mkdir -p -- "$u13_failure_dir" && u13_failure_log=$(mktemp "$u13_failure_dir/u13-foundation-failure-XXXXXX.log"); then
-      printf 'U13 wrapper exit: %s; board_only: %s; timeout: %ss\n' \
-        "$u13_cleanup_status" "$u13_board_only" "$u13_timeout_seconds" >"$u13_failure_log"
+      printf 'U13 wrapper exit: %s; board_only: %s; construction_only: %s; timeout: %ss\n' \
+        "$u13_cleanup_status" "$u13_board_only" "$u13_construction_only" "$u13_timeout_seconds" >"$u13_failure_log"
       for u13_saved_log in "$u13_test_logs"/*.log; do
         [[ -f "$u13_saved_log" ]] || continue
         printf '\nLOG: %s\n' "${u13_saved_log##*/}" >>"$u13_failure_log"
@@ -125,6 +129,7 @@ u13_runners=(
   U13RandomLegal
   U13Deimos
   U13Construction
+  U13ConstructionRandom
   U13SpatialMarching
   U13MarchingIntegration
   U13Smoke
@@ -145,6 +150,7 @@ u13_markers=(
   'U13 random-legal failures: 0'
   'U13 Deimos failures: 0'
   'U13 Construction failures: 0'
+  'U13 Construction random failures: 0'
   'U13 spatial Marching failures: 0'
   'U13 Marching integration failures: 0'
   'U13 smoke scene failures: 0'
@@ -154,6 +160,10 @@ u13_markers=(
 if [[ $u13_board_only == true ]]; then
   u13_runners=(U13Board U13DenseBoard)
   u13_markers=('U13 board failures: 0' 'U13 dense board failures: 0')
+fi
+if [[ $u13_construction_only == true ]]; then
+  u13_runners=(U13Construction U13ConstructionRandom)
+  u13_markers=('U13 Construction failures: 0' 'U13 Construction random failures: 0')
 fi
 u13_failed=0
 for u13_index in "${!u13_runners[@]}"; do
@@ -178,6 +188,9 @@ done
 u13_suite_label=foundation
 if [[ $u13_board_only == true ]]; then
   u13_suite_label=board
+fi
+if [[ $u13_construction_only == true ]]; then
+  u13_suite_label=construction
 fi
 printf 'U13 %s runners passed: %s/%s\n' "$u13_suite_label" \
   "$((${#u13_runners[@]} - u13_failed))" "${#u13_runners[@]}"
