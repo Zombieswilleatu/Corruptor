@@ -139,3 +139,14 @@ git pull --ff-only origin u13-lord-overhaul &&
 bash Scripts/Sim/run_u13_foundation_tests.sh \
   "/c/Users/jerem/OneDrive/Documents/Godot_v4.7.2-stable_win64.exe/Godot_v4.7.2-stable_win64.exe"
 ```
+
+
+## Accepted plan amendment: random-legal declarations
+
+The user's [Random-Legal Doctrine Tier addendum](U13_RANDOM_LEGAL_ADDENDUM_2026-09-08.md)
+adds a legal random-declaration path to each power's definition of done.
+Gremory's verified correctness checkpoint does not complete that new requirement.
+The chooser and frequency/reachability instrumentation remain pending, scheduled
+after the smoke-scene gate and before adding another Lord. Milestone 3 proves
+correctness, not balance; Level 5.5 batches report distributions and trigger counts,
+never random-bot win rates. Real doctrine retains priority and Milestone 9 stays put.

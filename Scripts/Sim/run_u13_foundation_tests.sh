@@ -70,17 +70,23 @@ fi
 
 # Check dependencies directly so the compiler can report the actual source file.
 # Godot 4.7.2 is the authoritative U13 runtime; this wrapper is not a migration test.
-for u13_dependency in U13EffectData U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13Legality U13Match U13Marching U13Combat U13Gremory; do
-  printf 'Checking %s.gd with Godot before running suites...\n' "$u13_dependency"
+u13_check_script() {
+  local u13_script=$1
+  printf 'Checking %s with Godot before running suites...\n' "$u13_script"
   u13_preflight_log="$u13_test_logs/preflight.log"
   u13_status=0
-  u13_run_godot "$u13_preflight_log" --check-only \
-    --script "res://Scripts/Sim/${u13_dependency}.gd" || u13_status=$?
+  u13_run_godot "$u13_preflight_log" --check-only --script "$u13_script" || u13_status=$?
   cat -- "$u13_preflight_log"
   if [[ $u13_status -ne 0 ]] || grep -Eq -- 'SCRIPT ERROR:|ERROR:' "$u13_preflight_log"; then
-    printf 'FAILED PREFLIGHT: %s (exit %s). Suites were not started.\n' "$u13_dependency" "$u13_status" >&2
+    printf 'FAILED PREFLIGHT: %s (exit %s). Suites were not started.\n' "$u13_script" "$u13_status" >&2
     exit 1
   fi
+}
+for u13_dependency in U13EffectData U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13Legality U13Match U13Marching U13Combat U13Gremory U13SmokeSession; do
+  u13_check_script "res://Scripts/Sim/${u13_dependency}.gd"
+done
+for u13_dependency in U13SmokePlayback U13SmokeBoard U13Smoke; do
+  u13_check_script "res://Prototype/U13/${u13_dependency}.gd"
 done
 
 u13_runners=(
@@ -95,6 +101,7 @@ u13_runners=(
   U13Match
   U13Gremory
   U13MarchingIntegration
+  U13Smoke
 )
 u13_markers=(
   'U13 round timeline failures: 0'
@@ -108,6 +115,7 @@ u13_markers=(
   'U13 match foundation failures: 0'
   'U13 Gremory failures: 0'
   'U13 Marching integration failures: 0'
+  'U13 smoke scene failures: 0'
 )
 u13_failed=0
 for u13_index in "${!u13_runners[@]}"; do

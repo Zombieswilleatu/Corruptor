@@ -240,3 +240,14 @@ rules data, configuration, seed, player order, and an already-started owner.
 
 The change passes static parsing here. Godot is still unavailable in this coding
 environment; the authoritative 4.7.2 wrapper rerun is required. Gremory stays blocked.
+
+
+## Accepted plan amendment: random-legal declarations
+
+The user's [Random-Legal Doctrine Tier addendum](U13_RANDOM_LEGAL_ADDENDUM_2026-09-08.md)
+adds a legal random-declaration path to each power's definition of done.
+Gremory's verified correctness checkpoint does not complete that new requirement.
+The chooser and frequency/reachability instrumentation remain pending, scheduled
+after the smoke-scene gate and before adding another Lord. Milestone 3 proves
+correctness, not balance; Level 5.5 batches report distributions and trigger counts,
+never random-bot win rates. Real doctrine retains priority and Milestone 9 stays put.

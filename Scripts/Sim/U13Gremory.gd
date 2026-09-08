@@ -326,5 +326,7 @@ func project(world: Dictionary, player_id: int) -> Dictionary:
 		"deck_count": zones.deck.size(),
 		"discard": zones.discard.duplicate(),
 		"neutral_tears": world.data.neutral_tears,
+		"souls":
+		[world.players[0].resources.get("souls", 0), world.players[1].resources.get("souls", 0)],
 		"breach_lord": world.data.get("breach_lord", "")
 	}
