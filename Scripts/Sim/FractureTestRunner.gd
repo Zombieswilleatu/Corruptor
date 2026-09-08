@@ -3,6 +3,10 @@ extends SceneTree
 const CardData = preload(
 	"res://Scripts/Sim/Card.gd"
 )
+
+const PythonRandomData = preload(
+	"res://Scripts/Sim/PythonRandom.gd"
+)
 const PlayerStateData = preload(
 	"res://Scripts/Sim/PlayerState.gd"
 )
@@ -52,86 +56,213 @@ func _test_values() -> void:
 
 
 func _test_subject_spread_and_hand_immunity() -> void:
-	var target = _player("Gremory")
-	var lord_card = CardData.new("Penitent", 5)
-	var castle_card = CardData.new("Penitent", 3)
-	var hand_card = CardData.new("Butcher", 5)
-	target.lord_guards.append(lord_card)
-	target.castle_guards.append(castle_card)
-	target.hand.append(hand_card)
+	var target = _player(
+		"Gremory"
+	)
+	var lord_card = CardData.new(
+		"Penitent",
+		5
+	)
+	var hand_card = CardData.new(
+		"Butcher",
+		5
+	)
 
+	target.lord_guards.append(
+		lord_card
+	)
+	target.hand.append(
+		hand_card
+	)
+
+	# Only Lord Guards are live. Gremory Fracture 2 therefore rolls that bucket
+	# twice, and the SAME Guard is allowed to take both independent hits.
 	var result: Dictionary = FractureEngineData.resolve(
 		null,
 		RuleConfigData.lab_v6_5(),
 		null,
 		target,
-		"subjects"
+		"subjects",
+		PythonRandomData.new(11)
 	)
-	var reveal_events: Array = result.get("events", [])
+
 	if (
-		not bool(lord_card.guard_revealed)
-		or not bool(castle_card.guard_revealed)
-		or reveal_events.size() < 2
-		or not bool(reveal_events[0].get("newly_revealed", false))
-		or not bool(reveal_events[1].get("newly_revealed", false))
-	):
-		_fail("guard_reveal", "Fractured Guards did not flip face-up.")
-		return
-	if (
-		int(lord_card.value) != 3
-		or int(castle_card.value) != 1
+		int(lord_card.value) != 1
 		or int(hand_card.value) != 5
-		or result.get("events", []).size() != 2
+		or result.get(
+			"events",
+			[]
+		).size() != 2
 	):
-		_fail("subject_spread", str(result))
+		_fail(
+			"subject_repeat",
+			str(result)
+		)
 		return
-	_pass("subject_spread")
+
+	_pass(
+		"subject_repeat"
+	)
 
 
 func _test_garrison_is_subject() -> void:
-	var target = _player("Valak")
-	var card = CardData.new("Penitent", 5)
-	target.garrison.append(card)
-	FractureEngineData.resolve(
-		null,
-		RuleConfigData.lab_v6_5(),
-		null,
-		target,
-		"subjects"
+	var target = _player(
+		"Valak"
 	)
-	if int(card.value) != 3:
-		_fail("garrison_subject", "Garrison 5 did not mar to 3")
-		return
-	_pass("garrison_subject")
+	var card = CardData.new(
+		"Penitent",
+		5
+	)
+	target.garrison.append(
+		card
+	)
 
-
-func _test_marcher_is_subject() -> void:
-	var target = _player("Valak")
-	var card = CardData.new("Vulture", 5)
-	target.marchers.append({
-		"card": card,
-		"value": 4,
-		"lane": "Lord",
-		"pos": 1,
-	})
 	var result: Dictionary = FractureEngineData.resolve(
 		null,
 		RuleConfigData.lab_v6_5(),
 		null,
 		target,
-		"subjects"
+		"subjects",
+		PythonRandomData.new(12)
 	)
-	var marcher: Dictionary = target.marchers[0]
-	var events: Array = result.get("events", [])
+
 	if (
-		int(card.value) != 3
-		or int(marcher.get("value", -1)) != 2
-		or events.is_empty()
-		or String(events[0].get("zone", "")) != "Marcher"
+		int(card.value) != 5
+		or not result.get(
+			"events",
+			[]
+		).is_empty()
 	):
-		_fail("marcher_subject", str(result))
+		_fail(
+			"garrison_immune",
+			"Garrison changed or received a Fracture event: %s"
+			% str(result)
+		)
 		return
-	_pass("marcher_subject")
+
+	_pass(
+		"garrison_immune"
+	)
+
+
+func _test_marcher_is_subject() -> void:
+	var target = _player(
+		"Valak"
+	)
+
+	for index: int in range(
+		4
+	):
+		target.marchers.append({
+			"id": "fracture_test_m%d" % index,
+			"suit": "Vulture",
+			"lane": (
+				"Lord"
+				if index % 2 == 0
+				else "Castle"
+			),
+			"hp": 5,
+			"armor": 3,
+			"spawn_round": 1,
+		})
+
+	var result: Dictionary = FractureEngineData.resolve(
+		null,
+		RuleConfigData.lab_v6_5(),
+		null,
+		target,
+		"subjects",
+		PythonRandomData.new(13)
+	)
+
+	var damaged: int = 0
+
+	for marcher: Dictionary in target.marchers:
+		var hp: int = int(
+			marcher.get(
+				"hp",
+				0
+			)
+		)
+
+		if hp == 4:
+			damaged += 1
+		elif hp != 5:
+			_fail(
+				"marcher_subject",
+				"Unexpected marcher HP: %s"
+				% str(marcher)
+			)
+			return
+
+		if int(
+			marcher.get(
+				"armor",
+				0
+			)
+		) != 3:
+			_fail(
+				"marcher_subject",
+				"Fracture touched Armor."
+			)
+			return
+
+	var events: Array = result.get(
+		"events",
+		[]
+	)
+
+	if (
+		damaged != 3
+		or events.size() != 3
+	):
+		_fail(
+			"marcher_subject",
+			str(result)
+		)
+		return
+
+	# Direct HP means even absurd Armor cannot save a 1-HP marcher.
+	target.marchers.clear()
+
+	for index: int in range(
+		3
+	):
+		target.marchers.append({
+			"id": "fracture_death_m%d" % index,
+			"suit": "Penitent",
+			"lane": "Castle",
+			"hp": 1,
+			"armor": 9,
+			"spawn_round": 1,
+		})
+
+	var lethal: Dictionary = FractureEngineData.resolve(
+		null,
+		RuleConfigData.lab_v6_5(),
+		null,
+		target,
+		"subjects",
+		PythonRandomData.new(14)
+	)
+
+	if (
+		not target.marchers.is_empty()
+		or lethal.get(
+			"events",
+			[]
+		).size() != 3
+	):
+		_fail(
+			"marcher_subject",
+			"1-HP marchers survived: %s"
+			% str(lethal)
+		)
+		return
+
+	_pass(
+		"marcher_subject"
+	)
 
 
 func _test_infrastructure_spread() -> void:

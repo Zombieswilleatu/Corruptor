@@ -5,14 +5,6 @@
 class_name UI2ResolutionTheater
 extends Control
 
-
-# UI2_RESOLUTION_THEATER_SCRUM_V1
-const MixedActionSquadBattleData = preload(
-	"res://Prototype/UI2/MixedActionSquadBattle.gd"
-)
-
-var _scrum_overlay_active: bool = false
-
 const SubjectCardArtCatalogData = preload(
 	"res://Prototype/UI2/SubjectCardArtCatalog.gd"
 )
@@ -793,6 +785,198 @@ func play_result(
 	visible = false
 
 
+
+# UI2_RESOLUTION_THEATER_SCRUM_V1
+func play_scrum(
+	enemy_specs: Array,
+	player_specs: Array,
+	swing_count: int = 3,
+	headline: String = "THE BATTLEFIELD",
+	subtitle: String = "MARCHING CLASH"
+) -> void:
+	if (
+		enemy_specs.is_empty()
+		or player_specs.is_empty()
+		or frame == null
+	):
+		return
+
+	if DisplayServer.get_name() == "headless":
+		return
+
+	var battle_script = load(
+		"res://Prototype/UI2/MixedActionSquadBattle.gd"
+	)
+	var domain_script = load(
+		"res://Prototype/UI2/DomainCropView.gd"
+	)
+	var domain_texture := load(
+		"res://ConceptImages/Menus/Domain1.png"
+	) as Texture2D
+
+	if (
+		battle_script == null
+		or domain_script == null
+		or domain_texture == null
+	):
+		push_warning(
+			"ResolutionTheater scrum presentation resources unavailable."
+		)
+		return
+
+	visible = true
+
+	var old_minimum: Vector2 = frame.custom_minimum_size
+	frame.custom_minimum_size = Vector2(
+		1040.0,
+		390.0
+	)
+
+	var normal_content: Control = null
+	if frame.get_child_count() > 0:
+		normal_content = frame.get_child(0) as Control
+		if normal_content != null:
+			normal_content.visible = false
+
+	var presentation := Control.new()
+	presentation.name = "ScrumPresentation"
+	presentation.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	presentation.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
+	)
+	frame.add_child(presentation)
+
+	var title := Label.new()
+	title.text = headline
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.position = Vector2(28.0, 10.0)
+	title.size = Vector2(940.0, 30.0)
+	title.add_theme_font_size_override("font_size", 25)
+	presentation.add_child(title)
+
+	var subtitle_view := Label.new()
+	subtitle_view.text = subtitle
+	subtitle_view.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	subtitle_view.position = Vector2(28.0, 40.0)
+	subtitle_view.size = Vector2(940.0, 22.0)
+	subtitle_view.add_theme_font_size_override("font_size", 14)
+	presentation.add_child(subtitle_view)
+
+	var stage := Control.new()
+	stage.name = "ScrumBattleStage"
+	stage.position = Vector2(46.0, 70.0)
+	stage.size = Vector2(904.0, 232.0)
+	stage.clip_contents = true
+	presentation.add_child(stage)
+
+	var terrain = domain_script.new()
+	terrain.name = "ActionDomainBackdrop"
+	terrain.position = Vector2.ZERO
+	terrain.size = stage.size
+	terrain.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	terrain.z_index = 0
+	stage.add_child(terrain)
+
+	terrain.setup_camera(
+		domain_texture,
+		Vector2(0.5, 0.7),
+		2.2
+	)
+
+	var terrain_scrim := ColorRect.new()
+	terrain_scrim.name = "ActionDomainReadabilityScrim"
+	terrain_scrim.position = Vector2.ZERO
+	terrain_scrim.size = stage.size
+	terrain_scrim.color = Color(0.0, 0.0, 0.0, 0.10)
+	terrain_scrim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	terrain_scrim.z_index = 1
+	stage.add_child(terrain_scrim)
+
+	var battle = battle_script.new()
+	battle.name = "TheaterMixedScrum"
+	battle.position = Vector2.ZERO
+	battle.size = Vector2(400.0, 100.0)
+	battle.scale = Vector2(2.25, 2.25)
+	battle.z_index = 10
+	stage.add_child(battle)
+
+	var stage_border := Panel.new()
+	stage_border.name = "ScrumBattleStageBorder"
+	stage_border.position = Vector2.ZERO
+	stage_border.size = stage.size
+	stage_border.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stage_border.z_index = 20
+
+	var border_style := StyleBoxFlat.new()
+	border_style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+	border_style.border_color = Color(0.20, 0.18, 0.16, 1.0)
+	border_style.set_border_width_all(1)
+	stage_border.add_theme_stylebox_override("panel", border_style)
+	stage.add_child(stage_border)
+
+	var status := Label.new()
+	status.text = "FORCES ENGAGED"
+	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	status.position = Vector2(28.0, 314.0)
+	status.size = Vector2(940.0, 22.0)
+	status.add_theme_font_size_override("font_size", 13)
+	presentation.add_child(status)
+
+	frame.modulate = Color(1.14, 1.12, 1.04, 1.0)
+	frame.scale = Vector2(0.985, 0.985)
+
+	var intro = create_tween().set_parallel(true)
+	intro.tween_property(
+		frame,
+		"modulate",
+		Color.WHITE,
+		0.18
+	)
+	intro.tween_property(
+		frame,
+		"scale",
+		Vector2.ONE,
+		0.22
+	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+	battle.setup(
+		enemy_specs,
+		player_specs,
+		swing_count
+	)
+
+	var resolved = await battle.battle_finished
+	var enemy_survivors: int = 0
+	var player_survivors: int = 0
+
+	if typeof(resolved) == TYPE_ARRAY:
+		if resolved.size() > 0:
+			enemy_survivors = int(resolved[0])
+		if resolved.size() > 1:
+			player_survivors = int(resolved[1])
+
+	status.text = (
+		"RESOLVED · ENEMY %d · PLAYER %d"
+		% [
+			enemy_survivors,
+			player_survivors,
+		]
+	)
+
+	await get_tree().create_timer(1.35).timeout
+
+	if is_instance_valid(presentation):
+		presentation.queue_free()
+
+	if normal_content != null and is_instance_valid(normal_content):
+		normal_content.visible = true
+
+	frame.custom_minimum_size = old_minimum
+	frame.modulate = Color.WHITE
+	frame.scale = Vector2.ONE
+	visible = false
+
+
 func _compose_aftermath_text(
 	result_text: String
 ) -> String:
@@ -1166,194 +1350,3 @@ func _clear_children(
 	for child in node.get_children():
 		node.remove_child(child)
 		child.queue_free()
-
-# UI2_RESOLUTION_THEATER_SCRUM_V1
-# Generic large-screen host for marching-battle presentations.
-func play_scrum(
-	enemy_specs: Array,
-	player_specs: Array,
-	swing_count: int = 3
-) -> void:
-	if _scrum_overlay_active:
-		return
-
-	if enemy_specs.is_empty() and player_specs.is_empty():
-		return
-
-	_scrum_overlay_active = true
-
-	var was_visible: bool = visible
-	visible = true
-
-	var overlay := Control.new()
-	overlay.name = "MarchScrumResolutionOverlay"
-	overlay.set_anchors_and_offsets_preset(
-		Control.PRESET_FULL_RECT
-	)
-	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	overlay.z_index = 1000
-	add_child(overlay)
-
-	var scrim := ColorRect.new()
-	scrim.name = "ScrumScrim"
-	scrim.set_anchors_and_offsets_preset(
-		Control.PRESET_FULL_RECT
-	)
-	scrim.color = Color(
-		0.0,
-		0.0,
-		0.0,
-		0.88
-	)
-	scrim.mouse_filter = Control.MOUSE_FILTER_STOP
-	overlay.add_child(scrim)
-
-	var stage := PanelContainer.new()
-	stage.name = "ScrumBigScreen"
-	stage.set_anchors_preset(
-		Control.PRESET_FULL_RECT
-	)
-	stage.anchor_left = 0.07
-	stage.anchor_top = 0.15
-	stage.anchor_right = 0.93
-	stage.anchor_bottom = 0.84
-	stage.offset_left = 0.0
-	stage.offset_top = 0.0
-	stage.offset_right = 0.0
-	stage.offset_bottom = 0.0
-	overlay.add_child(stage)
-
-	var stage_style := StyleBoxFlat.new()
-	stage_style.bg_color = Color(
-		0.035,
-		0.035,
-		0.04,
-		0.98
-	)
-	stage_style.border_color = Color(
-		0.38,
-		0.34,
-		0.28,
-		1.0
-	)
-	stage_style.set_border_width_all(2)
-	stage_style.set_corner_radius_all(8)
-	stage.add_theme_stylebox_override(
-		"panel",
-		stage_style
-	)
-
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override(
-		"margin_left",
-		28
-	)
-	margin.add_theme_constant_override(
-		"margin_right",
-		28
-	)
-	margin.add_theme_constant_override(
-		"margin_top",
-		18
-	)
-	margin.add_theme_constant_override(
-		"margin_bottom",
-		18
-	)
-	stage.add_child(margin)
-
-	var column := VBoxContainer.new()
-	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	column.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_theme_constant_override(
-		"separation",
-		10
-	)
-	margin.add_child(column)
-
-	var kicker := Label.new()
-	kicker.text = "RESOLUTION THEATER"
-	kicker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	kicker.add_theme_font_size_override(
-		"font_size",
-		13
-	)
-	kicker.add_theme_color_override(
-		"font_color",
-		Color(
-			0.65,
-			0.60,
-			0.52,
-			1.0
-		)
-	)
-	column.add_child(kicker)
-
-	var headline := Label.new()
-	headline.text = "THE BATTLEFIELD"
-	headline.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	headline.add_theme_font_size_override(
-		"font_size",
-		24
-	)
-	headline.add_theme_color_override(
-		"font_color",
-		Color(
-			0.92,
-			0.89,
-			0.82,
-			1.0
-		)
-	)
-	column.add_child(headline)
-
-	var rule := HSeparator.new()
-	column.add_child(rule)
-
-	var battle_view = MixedActionSquadBattleData.new()
-	battle_view.name = "ResolutionScrumBattle"
-	battle_view.setup(
-		enemy_specs,
-		player_specs,
-		swing_count
-	)
-
-	battle_view.set_presentation_scale(1.85)
-	battle_view.custom_minimum_size = Vector2(
-		0.0,
-		250.0
-	)
-	battle_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	battle_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_child(battle_view)
-
-	var footer := Label.new()
-	footer.text = "MARCHERS COLLIDE"
-	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	footer.add_theme_font_size_override(
-		"font_size",
-		11
-	)
-	footer.add_theme_color_override(
-		"font_color",
-		Color(
-			0.55,
-			0.53,
-			0.49,
-			1.0
-		)
-	)
-	column.add_child(footer)
-
-	await battle_view.battle_finished
-
-	await get_tree().create_timer(
-		1.55
-	).timeout
-
-	if is_instance_valid(overlay):
-		overlay.queue_free()
-		await get_tree().process_frame
-
-	visible = was_visible
-	_scrum_overlay_active = false

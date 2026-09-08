@@ -10,9 +10,6 @@ const MixedActionSquadBattleData = preload(
 	"res://Prototype/UI2/MixedActionSquadBattle.gd"
 )
 
-# UI2_ACTION_SCRUM_THEATER_HOOK_V1
-var _scrum_theater_demo_sent: bool = false
-
 # UI2_STANDIN_ACTION_DUEL_WIRING_V1
 const StandinActionDuelData = preload(
 	"res://Prototype/UI2/StandinActionDuel.gd"
@@ -39,11 +36,19 @@ const SubjectCardHoldPreviewData = preload(
 
 
 signal march_guard_dropped(source_zone, card_id, lane_name)
+signal battlefield_playback_finished
 
 
 const SubjectSuitStyleData = preload(
 	"res://Prototype/UI2/SubjectSuitStyle.gd"
 )
+
+# UI2_MARCHER_CHIT_SHEET_V1
+# UI2_MARCHER_CHIT_RUNTIME_IMAGE_HOTFIX_V1
+const MARCHER_CHIT_SHEET_PATH: String = (
+	"res://ConceptImages/Sprites/Chits.png"
+)
+var _marcher_chit_sheet_cache: Texture2D = null
 
 # UI2_VULTURE_LPC_ACTION_V6
 # UI2_ACTION_FULL_WIDTH_OCCLUSION_V6_1
@@ -108,6 +113,22 @@ const LEGACY_STEP_COUNT: float = 3.0
 const TRACK_TOP: float = 0.13
 const TRACK_BOTTOM: float = 0.87
 const AMBIENT_SECONDS: float = 12.0
+
+# BATTLEFIELD_PLAYBACK_V1
+# Simulation stays instant; these are presentation seconds only.
+const BATTLEFIELD_HALF_PLAYBACK_SECONDS: float = 15.0
+const BATTLEFIELD_COLLISION_RESOLVE_SECONDS: float = 1.0
+const BATTLEFIELD_DEATH_FLASH_START: float = 0.35
+const BATTLEFIELD_DEATH_FADE_START: float = 0.85
+const BATTLEFIELD_DEATH_FLASH_COUNT: int = 3
+const BATTLEFIELD_DEATH_DIM_ALPHA: float = 0.16
+const BATTLEFIELD_ARRIVAL_FADE_SECONDS: float = 0.28
+# BATTLEFIELD_SQUAREUP_V1
+# Chits bend toward their actual next clash partner instead of
+# marching straight through on parallel visual tracks.
+const BATTLEFIELD_SQUAREUP_APPROACH_SECONDS: float = 3.0
+const BATTLEFIELD_SQUAREUP_RELEASE_SECONDS: float = 1.15
+const BATTLEFIELD_SQUAREUP_PULL: float = 0.92
 const AMBIENT_ARCHETYPES: Array[String] = ["Butcher", "Penitent", "Vulture", "Wright"]
 const AMBIENT_STATES: Array[String] = ["IDLE", "WALK", "WATCH", "WALK"]
 
@@ -135,6 +156,14 @@ var _ambient_index: int = -1
 var _action_event_active: bool = false
 var _battlefield_skin_active: bool = false
 var _domain_texture: Texture2D = null
+
+# BATTLEFIELD_PLAYBACK_V1
+var _battlefield_playback_active: bool = false
+var _battlefield_playback_clock: float = 0.0
+var _battlefield_playback_duration: float = 0.0
+var _battlefield_playback_units: Dictionary = {}
+var _battlefield_playback_chits: Dictionary = {}
+var _battlefield_playback_collision_groups: Dictionary = {}
 
 
 func _ready() -> void:
@@ -294,6 +323,7 @@ func bind_players(
 
 	_last_human = human
 	_last_bot = bot
+	_battlefield_playback_chits.clear()
 
 	for child in lanes_box.get_children():
 		lanes_box.remove_child(child)
@@ -595,14 +625,155 @@ func _add_track_furniture(field: Control) -> void:
 	field.add_child(human_gate)
 
 
+func _marcher_chit_sheet_texture() -> Texture2D:
+	if _marcher_chit_sheet_cache != null:
+		return _marcher_chit_sheet_cache
+
+	var image := Image.load_from_file(
+		MARCHER_CHIT_SHEET_PATH
+	)
+	if image == null or image.is_empty():
+		push_warning(
+			"Could not load marcher chit sheet: %s"
+			% MARCHER_CHIT_SHEET_PATH
+		)
+		return null
+
+	_marcher_chit_sheet_cache = ImageTexture.create_from_image(
+		image
+	)
+	return _marcher_chit_sheet_cache
+
+
+# UI2_MARCHER_CHIT_SOFT_PACKING_V1
+# Visual-only personal space for battlefield chits. This deliberately does NOT
+# use physics bodies: these are UI tokens, and their logical march position
+# remains entirely owned by the simulation.
+func _marcher_chit_visual_position(
+	field: Control,
+	base_y: float,
+	enemy_side: bool,
+	index: int
+) -> Vector2:
+	var phase: int = index + (5 if enemy_side else 0)
+
+	# Broad horizontal scatter first, then a tiny vertical weave. The values
+	# are normalized to the lane so they scale with the battlefield.
+	# UI2_MARCHER_CHIT_LOOSE_PACKING_V2
+	# Wider, less regimented formation. These are deterministic presentation
+	# offsets around the true logical march position.
+	var x_offsets: Array[float] = [
+		-0.27,
+		0.24,
+		-0.11,
+		0.14,
+		-0.20,
+		0.29,
+		0.02,
+		-0.05,
+		0.18,
+		-0.29,
+		0.08,
+		-0.15,
+	]
+
+	var y_offsets: Array[float] = [
+		0.000,
+		0.031,
+		-0.038,
+		0.052,
+		-0.019,
+		-0.051,
+		0.020,
+		0.061,
+		-0.060,
+		0.040,
+		-0.046,
+		0.011,
+	]
+
+	var start_slot: int = phase % x_offsets.size()
+	var layer: int = int(float(index) / float(x_offsets.size()))
+	var layer_shift: float = (
+		float(layer)
+		* 0.022
+		* (1.0 if (layer % 2) == 0 else -1.0)
+	)
+
+	# "Collider" is intentionally just a small center exclusion zone.
+	# Chit artwork may still overlap at the edges, but two units should not
+	# collapse onto the exact same visual center.
+	const MIN_X_SEPARATION: float = 0.105
+	const MIN_Y_SEPARATION: float = 0.032
+
+	for attempt: int in range(x_offsets.size()):
+		var slot: int = (
+			start_slot + attempt
+		) % x_offsets.size()
+
+		var candidate := Vector2(
+			clampf(
+				0.5 + x_offsets[slot],
+				0.20,
+				0.80
+			),
+			clampf(
+				base_y + y_offsets[slot] + layer_shift,
+				TRACK_TOP,
+				TRACK_BOTTOM
+			)
+		)
+
+		var blocked: bool = false
+		for child in field.get_children():
+			if not child.has_meta(
+				"_ui2_marcher_chit_visual_position"
+			):
+				continue
+
+			var other: Vector2 = child.get_meta(
+				"_ui2_marcher_chit_visual_position"
+			)
+
+			if (
+				absf(candidate.x - other.x)
+				< MIN_X_SEPARATION
+				and absf(candidate.y - other.y)
+				< MIN_Y_SEPARATION
+			):
+				blocked = true
+				break
+
+		if not blocked:
+			return candidate
+
+	# Extremely crowded lane: keep deterministic scatter rather than allowing
+	# every excess unit to snap back to the center.
+	var fallback_slot: int = start_slot
+	return Vector2(
+		clampf(
+			0.5 + x_offsets[fallback_slot],
+			0.20,
+			0.80
+		),
+		clampf(
+			base_y
+			+ y_offsets[fallback_slot]
+			+ layer_shift,
+			TRACK_TOP,
+			TRACK_BOTTOM
+		)
+	)
+
+
 func _add_marcher_chit(
 	field: Control,
 	marcher,
 	enemy_side: bool,
 	index: int
 ) -> void:
+	# UI2_MARCHER_CHIT_SHEET_V1
 	var suit_name: String = _marcher_suit_name(marcher)
-	var accent: Color = _marcher_color(suit_name)
 	var progress: float = _marcher_progress(marcher)
 	var y_anchor: float = (
 		lerpf(TRACK_TOP, TRACK_BOTTOM, progress)
@@ -610,106 +781,78 @@ func _add_marcher_chit(
 		else lerpf(TRACK_BOTTOM, TRACK_TOP, progress)
 	)
 
-	# Both armies share the same lane width. Ownership is communicated by
-	# the directional pointer on the leading edge of the chit.
-	var spread_column: int = index % 3
-	var depth_row: int = int(index / 3)
-	var x_anchor: float = (
-		0.5
-		+ float(spread_column - 1) * 0.105
-	)
-	var depth_nudge: float = (
-		float(depth_row)
-		* 0.014
-		* (1.0 if enemy_side else -1.0)
+	var visual_position: Vector2 = _marcher_chit_visual_position(
+		field,
+		y_anchor,
+		enemy_side,
+		index
 	)
 
 	var holder := Control.new()
-	holder.custom_minimum_size = Vector2(30, 34)
-	holder.anchor_left = clampf(
-		x_anchor,
-		0.18,
-		0.82
+	holder.name = "MarcherChitHolder"
+	holder.custom_minimum_size = Vector2(48, 48)
+	holder.anchor_left = visual_position.x
+	holder.anchor_right = visual_position.x
+	holder.anchor_top = visual_position.y
+	holder.anchor_bottom = visual_position.y
+	holder.set_meta(
+		"_ui2_marcher_chit_visual_position",
+		visual_position
 	)
-	holder.anchor_right = holder.anchor_left
-	holder.anchor_top = clampf(
-		y_anchor + depth_nudge,
-		TRACK_TOP,
-		TRACK_BOTTOM
-	)
-	holder.anchor_bottom = holder.anchor_top
-	holder.offset_left = -15.0
-	holder.offset_right = 15.0
-	holder.offset_top = -17.0
-	holder.offset_bottom = 17.0
+	holder.offset_left = -24.0
+	holder.offset_right = 24.0
+	holder.offset_top = -24.0
+	holder.offset_bottom = 24.0
 	holder.mouse_filter = Control.MOUSE_FILTER_STOP
 
-	var body := PanelContainer.new()
-	body.custom_minimum_size = Vector2(24, 24)
-	body.anchor_left = 0.5
-	body.anchor_right = 0.5
-	body.anchor_top = 0.5
-	body.anchor_bottom = 0.5
-	body.offset_left = -12.0
-	body.offset_right = 12.0
-	body.offset_top = -12.0
-	body.offset_bottom = 12.0
-	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Chits.png is a 4-column x 2-row atlas:
+	#   columns: Butcher, Penitent, Vulture, Wright
+	#   top row: player / moving up
+	#   bottom row: enemy / moving down
+	var column: int = 0
+	match suit_name.to_lower():
+		"butcher":
+			column = 0
+		"penitent":
+			column = 1
+		"vulture":
+			column = 2
+		"wright":
+			column = 3
+		_:
+			column = 0
 
-	var style := StyleBoxFlat.new()
-	style.bg_color = accent.darkened(0.58)
-	style.border_color = accent
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(12)
-	body.add_theme_stylebox_override(
-		"panel",
-		style
-	)
-	holder.add_child(body)
+	var row: int = 1 if enemy_side else 0
+	var chit_sheet: Texture2D = _marcher_chit_sheet_texture()
+	if chit_sheet == null:
+		return
 
-	var glyph := Label.new()
-	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	glyph.text = _marcher_glyph(suit_name)
-	glyph.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	glyph.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	glyph.add_theme_font_size_override(
-		"font_size",
-		10
+	var cell_size := Vector2(
+		float(chit_sheet.get_width()) / 4.0,
+		float(chit_sheet.get_height()) / 2.0
 	)
-	glyph.add_theme_color_override(
-		"font_color",
-		accent.lightened(0.38)
-	)
-	body.add_child(glyph)
 
-	var pointer := Label.new()
-	pointer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	pointer.text = "▼" if enemy_side else "▲"
-	pointer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	pointer.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	pointer.anchor_left = 0.5
-	pointer.anchor_right = 0.5
-	pointer.anchor_top = 0.5
-	pointer.anchor_bottom = 0.5
-	pointer.offset_left = -7.0
-	pointer.offset_right = 7.0
-
-	if enemy_side:
-		pointer.offset_top = 9.0
-		pointer.offset_bottom = 24.0
-	else:
-		pointer.offset_top = -24.0
-		pointer.offset_bottom = -9.0
-
-	pointer.add_theme_font_size_override(
-		"font_size",
-		11
+	var atlas := AtlasTexture.new()
+	atlas.atlas = chit_sheet
+	atlas.region = Rect2(
+		Vector2(
+			float(column) * cell_size.x,
+			float(row) * cell_size.y
+		),
+		cell_size
 	)
-	pointer.add_theme_color_override(
-		"font_color",
-		accent
+
+	var chit := TextureRect.new()
+	chit.name = "MarcherChit"
+	chit.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
 	)
-	holder.add_child(pointer)
+	chit.texture = atlas
+	chit.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	chit.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	chit.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chit.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	holder.add_child(chit)
 
 	holder.tooltip_text = (
 		"%s · %s · %d%% across the lane"
@@ -722,11 +865,684 @@ func _add_marcher_chit(
 
 	field.add_child(holder)
 
+	if _battlefield_playback_active:
+		var marcher_id: String = String(marcher.get("id", ""))
+		if not marcher_id.is_empty():
+			holder.set_meta("_ui2_battlefield_enemy_side", enemy_side)
+			holder.set_meta(
+				"_ui2_battlefield_y_offset",
+				visual_position.y - y_anchor
+			)
+			holder.set_meta(
+				"_ui2_battlefield_home_x",
+				visual_position.x
+			)
+			_battlefield_playback_chits[marcher_id] = holder
+
+
+
+# BATTLEFIELD_PLAYBACK_V1
+func begin_battlefield_playback(
+	half_result: Dictionary
+) -> bool:
+	if _battlefield_playback_active:
+		return false
+
+	var raw_start = half_result.get("start_state", [])
+	var raw_end = half_result.get("end_state", [])
+	var raw_events = half_result.get("events", [])
+	if (
+		typeof(raw_start) != TYPE_ARRAY
+		or typeof(raw_end) != TYPE_ARRAY
+		or typeof(raw_events) != TYPE_ARRAY
+	):
+		return false
+
+	_battlefield_playback_units.clear()
+	_battlefield_playback_chits.clear()
+	_battlefield_playback_collision_groups.clear()
+	_battlefield_playback_clock = 0.0
+	_battlefield_playback_duration = BATTLEFIELD_HALF_PLAYBACK_SECONDS
+
+	var end_by_id: Dictionary = {}
+	for raw_row in raw_end:
+		if typeof(raw_row) != TYPE_DICTIONARY:
+			continue
+		var end_id: String = String(raw_row.get("id", ""))
+		if not end_id.is_empty():
+			end_by_id[end_id] = raw_row.duplicate(true)
+
+	for raw_row in raw_start:
+		if typeof(raw_row) != TYPE_DICTIONARY:
+			continue
+		var unit_id: String = String(raw_row.get("id", ""))
+		if unit_id.is_empty():
+			continue
+		var unit: Dictionary = raw_row.duplicate(true)
+		var start_progress: float = clampf(
+			float(unit.get("progress", 0.0)),
+			0.0,
+			1.0
+		)
+		unit["progress"] = start_progress
+		unit["keyframes"] = [
+			{
+				"time": 0.0,
+				"progress": start_progress,
+			},
+		]
+		unit["time_shift"] = 0.0
+		unit["death_start"] = -1.0
+		unit["death_end"] = -1.0
+		unit["arrival_start"] = -1.0
+		unit["arrival_end"] = -1.0
+		unit["squareups"] = []
+		_battlefield_playback_units[unit_id] = unit
+
+	var half_ticks: int = maxi(
+		1,
+		int(half_result.get("half_ticks", 100))
+	)
+
+	var groups: Dictionary = {}
+	var group_order: Array[String] = []
+	var latest_group_for_lane_tick: Dictionary = {}
+
+	for raw_event in raw_events:
+		if typeof(raw_event) != TYPE_DICTIONARY:
+			continue
+		var event_type: String = String(raw_event.get("type", ""))
+		var lane_name: String = String(raw_event.get("lane", ""))
+		var tick: int = int(raw_event.get("tick", -1))
+		var lane_tick_key: String = "%s|%d" % [lane_name, tick]
+
+		if event_type == "march_clash":
+			var contact: float = clampf(
+				float(raw_event.get("contact_progress", 0.5)),
+				0.0,
+				1.0
+			)
+			var contact_key: int = int(round(contact * 100000.0))
+			var group_key: String = "%s|%d|%d" % [
+				lane_name,
+				tick,
+				contact_key,
+			]
+			if not groups.has(group_key):
+				groups[group_key] = {
+					"lane": lane_name,
+					"tick": tick,
+					"contact": contact,
+					"participants": {},
+					"destroyed": {},
+				}
+				group_order.append(group_key)
+
+			var group: Dictionary = groups[group_key]
+			var participants: Dictionary = group.get("participants", {})
+			var first_id: String = String(raw_event.get("first_id", ""))
+			var second_id: String = String(raw_event.get("second_id", ""))
+			if not first_id.is_empty():
+				participants[first_id] = contact
+			if not second_id.is_empty():
+				participants[second_id] = 1.0 - contact
+			group["participants"] = participants
+			groups[group_key] = group
+			latest_group_for_lane_tick[lane_tick_key] = group_key
+
+		elif event_type == "march_destroyed":
+			var group_key: String = String(
+				latest_group_for_lane_tick.get(lane_tick_key, "")
+			)
+			if not group_key.is_empty() and groups.has(group_key):
+				var group: Dictionary = groups[group_key]
+				var destroyed: Dictionary = group.get("destroyed", {})
+				var destroyed_id: String = String(raw_event.get("id", ""))
+				if not destroyed_id.is_empty():
+					destroyed[destroyed_id] = true
+				group["destroyed"] = destroyed
+				groups[group_key] = group
+
+	# BATTLEFIELD_SQUAREUP_V1
+	# If a marcher is absent from end_state and did not arrive, its final clash
+	# in this half is its death. This keeps visual death at the actual collision
+	# even when a destroy event lacks enough metadata for direct association.
+	var arrival_ids: Dictionary = {}
+	for raw_event in raw_events:
+		if (
+			typeof(raw_event) == TYPE_DICTIONARY
+			and String(raw_event.get("type", "")) == "march_arrival"
+		):
+			var arrival_id: String = String(raw_event.get("id", ""))
+			if not arrival_id.is_empty():
+				arrival_ids[arrival_id] = true
+
+	var last_group_for_unit: Dictionary = {}
+	for raw_group_key in group_order:
+		var group_key: String = String(raw_group_key)
+		var group: Dictionary = groups.get(group_key, {})
+		var participants: Dictionary = group.get("participants", {})
+		for raw_id in participants.keys():
+			last_group_for_unit[String(raw_id)] = group_key
+
+	for raw_id in last_group_for_unit.keys():
+		var unit_id: String = String(raw_id)
+		if end_by_id.has(unit_id) or arrival_ids.has(unit_id):
+			continue
+		var group_key: String = String(last_group_for_unit[unit_id])
+		if not groups.has(group_key):
+			continue
+		var group: Dictionary = groups[group_key]
+		var destroyed: Dictionary = group.get("destroyed", {})
+		destroyed[unit_id] = true
+		group["destroyed"] = destroyed
+		groups[group_key] = group
+
+	group_order.sort_custom(
+		func(left_key: String, right_key: String) -> bool:
+			var left_group: Dictionary = groups.get(left_key, {})
+			var right_group: Dictionary = groups.get(right_key, {})
+			var left_tick: int = int(left_group.get("tick", 0))
+			var right_tick: int = int(right_group.get("tick", 0))
+			if left_tick != right_tick:
+				return left_tick < right_tick
+			return left_key < right_key
+	)
+
+	for group_key: String in group_order:
+		var group: Dictionary = groups.get(group_key, {})
+		var tick: int = int(group.get("tick", 0))
+		var base_time: float = (
+			float(tick + 1)
+			/ float(half_ticks)
+			* BATTLEFIELD_HALF_PLAYBACK_SECONDS
+		)
+		var participants: Dictionary = group.get("participants", {})
+		var destroyed: Dictionary = group.get("destroyed", {})
+		var collision_time: float = base_time
+
+		for raw_id in participants.keys():
+			var unit_id: String = String(raw_id)
+			if not _battlefield_playback_units.has(unit_id):
+				continue
+			var unit: Dictionary = _battlefield_playback_units[unit_id]
+			collision_time = maxf(
+				collision_time,
+				base_time + float(unit.get("time_shift", 0.0))
+			)
+
+		var resolve_end: float = (
+			collision_time
+			+ BATTLEFIELD_COLLISION_RESOLVE_SECONDS
+		)
+		_battlefield_playback_duration = maxf(
+			_battlefield_playback_duration,
+			resolve_end
+		)
+
+		_battlefield_playback_collision_groups[group_key] = {
+			"time": collision_time,
+			"resolve_end": resolve_end,
+			"participants": participants.keys(),
+			"target_x": {},
+		}
+
+		for raw_id in participants.keys():
+			var unit_id: String = String(raw_id)
+			if not _battlefield_playback_units.has(unit_id):
+				continue
+			var unit: Dictionary = _battlefield_playback_units[unit_id]
+			if float(unit.get("death_end", -1.0)) >= 0.0:
+				continue
+
+			var contact_progress: float = clampf(
+				float(participants.get(raw_id, unit.get("progress", 0.0))),
+				0.0,
+				1.0
+			)
+			_playback_add_keyframe(
+				unit,
+				collision_time,
+				contact_progress
+			)
+
+			if bool(destroyed.get(raw_id, false)):
+				unit["death_start"] = collision_time
+				unit["death_end"] = resolve_end
+			else:
+				_playback_add_keyframe(
+					unit,
+					resolve_end,
+					contact_progress
+				)
+				unit["time_shift"] = resolve_end - base_time
+
+			var squareups = unit.get("squareups", [])
+			if typeof(squareups) != TYPE_ARRAY:
+				squareups = []
+			squareups.append({
+				"group_key": group_key,
+				"time": collision_time,
+				"resolve_end": resolve_end,
+			})
+			unit["squareups"] = squareups
+			_battlefield_playback_units[unit_id] = unit
+
+	for raw_event in raw_events:
+		if (
+			typeof(raw_event) != TYPE_DICTIONARY
+			or String(raw_event.get("type", "")) != "march_arrival"
+		):
+			continue
+		var unit_id: String = String(raw_event.get("id", ""))
+		if not _battlefield_playback_units.has(unit_id):
+			continue
+		var unit: Dictionary = _battlefield_playback_units[unit_id]
+		if float(unit.get("death_end", -1.0)) >= 0.0:
+			continue
+		var tick: int = int(raw_event.get("tick", 0))
+		var arrival_time: float = (
+			float(tick + 1)
+			/ float(half_ticks)
+			* BATTLEFIELD_HALF_PLAYBACK_SECONDS
+			+ float(unit.get("time_shift", 0.0))
+		)
+		_playback_add_keyframe(unit, arrival_time, 1.0)
+		unit["arrival_start"] = arrival_time
+		unit["arrival_end"] = (
+			arrival_time
+			+ BATTLEFIELD_ARRIVAL_FADE_SECONDS
+		)
+		_battlefield_playback_duration = maxf(
+			_battlefield_playback_duration,
+			float(unit["arrival_end"])
+		)
+		_battlefield_playback_units[unit_id] = unit
+
+	for raw_id in _battlefield_playback_units.keys():
+		var unit_id: String = String(raw_id)
+		var unit: Dictionary = _battlefield_playback_units[unit_id]
+		if (
+			float(unit.get("death_end", -1.0)) >= 0.0
+			or float(unit.get("arrival_end", -1.0)) >= 0.0
+		):
+			continue
+
+		if end_by_id.has(unit_id):
+			var end_row: Dictionary = end_by_id[unit_id]
+			var end_time: float = (
+				BATTLEFIELD_HALF_PLAYBACK_SECONDS
+				+ float(unit.get("time_shift", 0.0))
+			)
+			_playback_add_keyframe(
+				unit,
+				end_time,
+				clampf(
+					float(end_row.get("progress", unit.get("progress", 0.0))),
+					0.0,
+					1.0
+				)
+			)
+			_battlefield_playback_duration = maxf(
+				_battlefield_playback_duration,
+				end_time
+			)
+			_battlefield_playback_units[unit_id] = unit
+
+	_battlefield_playback_active = true
+	set_process(true)
+	bind_players(_last_human, _last_bot)
+	_prepare_battlefield_squareup_targets()
+
+	var half_name: String = String(
+		half_result.get("half", "")
+	).to_upper()
+	if subtitle_label != null:
+		subtitle_label.text = (
+			"BATTLEFIELD · %s HALF"
+			% half_name
+		)
+
+	_update_battlefield_playback(0.0)
+	return true
+
+
+func _process(delta: float) -> void:
+	if not _battlefield_playback_active:
+		return
+
+	_battlefield_playback_clock = minf(
+		_battlefield_playback_duration,
+		_battlefield_playback_clock + maxf(0.0, delta)
+	)
+	_update_battlefield_playback(_battlefield_playback_clock)
+
+	if _battlefield_playback_clock >= _battlefield_playback_duration:
+		_battlefield_playback_active = false
+		set_process(false)
+		battlefield_playback_finished.emit()
+
+
+func _update_battlefield_playback(clock: float) -> void:
+	for raw_id in _battlefield_playback_units.keys():
+		var unit_id: String = String(raw_id)
+		var unit: Dictionary = _battlefield_playback_units[unit_id]
+		var progress: float = _playback_progress_at(unit, clock)
+		unit["progress"] = progress
+		_battlefield_playback_units[unit_id] = unit
+
+		var holder = _battlefield_playback_chits.get(unit_id, null)
+		if holder == null or not is_instance_valid(holder):
+			continue
+
+		_set_playback_chit_pose(holder, unit, clock, progress)
+		holder.visible = true
+		holder.modulate = Color.WHITE
+
+		var death_start: float = float(unit.get("death_start", -1.0))
+		var death_end: float = float(unit.get("death_end", -1.0))
+		if death_start >= 0.0 and clock >= death_start:
+			if clock >= death_end:
+				holder.visible = false
+				continue
+
+			var local_t: float = clampf(
+				(clock - death_start)
+				/ maxf(
+					0.001,
+					BATTLEFIELD_COLLISION_RESOLVE_SECONDS
+				),
+				0.0,
+				1.0
+			)
+
+			var alpha: float = 1.0
+			if local_t >= BATTLEFIELD_DEATH_FADE_START:
+				alpha = 1.0 - (
+					(local_t - BATTLEFIELD_DEATH_FADE_START)
+					/ maxf(
+						0.001,
+						1.0 - BATTLEFIELD_DEATH_FADE_START
+					)
+				)
+			elif local_t >= BATTLEFIELD_DEATH_FLASH_START:
+				var flash_t: float = (
+					(local_t - BATTLEFIELD_DEATH_FLASH_START)
+					/ maxf(
+						0.001,
+						BATTLEFIELD_DEATH_FADE_START
+						- BATTLEFIELD_DEATH_FLASH_START
+					)
+				)
+				var flash_step: int = int(
+					floor(
+						flash_t
+						* float(BATTLEFIELD_DEATH_FLASH_COUNT * 2)
+					)
+				)
+				alpha = (
+					1.0
+					if (flash_step % 2) == 0
+					else BATTLEFIELD_DEATH_DIM_ALPHA
+				)
+
+			holder.modulate = Color(1.0, 1.0, 1.0, alpha)
+			continue
+
+		var arrival_start: float = float(unit.get("arrival_start", -1.0))
+		var arrival_end: float = float(unit.get("arrival_end", -1.0))
+		if arrival_start >= 0.0 and clock >= arrival_start:
+			if clock >= arrival_end:
+				holder.visible = false
+				continue
+			var arrival_alpha: float = 1.0 - clampf(
+				(clock - arrival_start)
+				/ maxf(
+					0.001,
+					BATTLEFIELD_ARRIVAL_FADE_SECONDS
+				),
+				0.0,
+				1.0
+			)
+			holder.modulate = Color(
+				1.0,
+				1.0,
+				1.0,
+				arrival_alpha
+			)
+
+
+func _playback_add_keyframe(
+	unit: Dictionary,
+	time_value: float,
+	progress_value: float
+) -> void:
+	var keyframes = unit.get("keyframes", [])
+	if typeof(keyframes) != TYPE_ARRAY:
+		keyframes = []
+	keyframes.append({
+		"time": maxf(0.0, time_value),
+		"progress": clampf(progress_value, 0.0, 1.0),
+	})
+	unit["keyframes"] = keyframes
+
+
+func _playback_progress_at(
+	unit: Dictionary,
+	clock: float
+) -> float:
+	var keyframes = unit.get("keyframes", [])
+	if typeof(keyframes) != TYPE_ARRAY or keyframes.is_empty():
+		return clampf(
+			float(unit.get("progress", 0.0)),
+			0.0,
+			1.0
+		)
+
+	var first: Dictionary = keyframes[0]
+	if clock <= float(first.get("time", 0.0)):
+		return clampf(
+			float(first.get("progress", 0.0)),
+			0.0,
+			1.0
+		)
+
+	for index: int in range(1, keyframes.size()):
+		var previous: Dictionary = keyframes[index - 1]
+		var current: Dictionary = keyframes[index]
+		var current_time: float = float(current.get("time", 0.0))
+		if clock > current_time:
+			continue
+
+		var previous_time: float = float(previous.get("time", 0.0))
+		var previous_progress: float = float(
+			previous.get("progress", 0.0)
+		)
+		var current_progress: float = float(
+			current.get("progress", previous_progress)
+		)
+		var span: float = current_time - previous_time
+		if span <= 0.0001:
+			return clampf(current_progress, 0.0, 1.0)
+
+		var t: float = clampf(
+			(clock - previous_time) / span,
+			0.0,
+			1.0
+		)
+		return clampf(
+			lerpf(previous_progress, current_progress, t),
+			0.0,
+			1.0
+		)
+
+	var last: Dictionary = keyframes[keyframes.size() - 1]
+	return clampf(
+		float(last.get("progress", 0.0)),
+		0.0,
+		1.0
+	)
+
+
+func _prepare_battlefield_squareup_targets() -> void:
+	for raw_group_key in _battlefield_playback_collision_groups.keys():
+		var group_key: String = String(raw_group_key)
+		var group: Dictionary = _battlefield_playback_collision_groups[group_key]
+		var participants = group.get("participants", [])
+		if typeof(participants) != TYPE_ARRAY or participants.is_empty():
+			continue
+
+		var home_sum: float = 0.0
+		var home_count: int = 0
+		for raw_id in participants:
+			var unit_id: String = String(raw_id)
+			var holder = _battlefield_playback_chits.get(unit_id, null)
+			if holder == null or not is_instance_valid(holder):
+				continue
+			home_sum += float(
+				holder.get_meta("_ui2_battlefield_home_x", 0.5)
+			)
+			home_count += 1
+
+		if home_count <= 0:
+			continue
+
+		var local_center: float = home_sum / float(home_count)
+		var targets: Dictionary = {}
+		for raw_id in participants:
+			var unit_id: String = String(raw_id)
+			var holder = _battlefield_playback_chits.get(unit_id, null)
+			if holder == null or not is_instance_valid(holder):
+				continue
+			var home_x: float = float(
+				holder.get_meta("_ui2_battlefield_home_x", 0.5)
+			)
+			# Almost meet, but keep a sliver of native spread. Multi-unit scrums
+			# bunch locally without collapsing all chits onto one exact x.
+			targets[unit_id] = clampf(
+				lerpf(home_x, local_center, BATTLEFIELD_SQUAREUP_PULL),
+				0.18,
+				0.82
+			)
+
+		group["target_x"] = targets
+		_battlefield_playback_collision_groups[group_key] = group
+
+
+func _set_playback_chit_pose(
+	holder: Control,
+	unit: Dictionary,
+	clock: float,
+	progress: float
+) -> void:
+	var enemy_side: bool = bool(
+		holder.get_meta("_ui2_battlefield_enemy_side", false)
+	)
+	var y_offset: float = float(
+		holder.get_meta("_ui2_battlefield_y_offset", 0.0)
+	)
+	var y_anchor: float = (
+		lerpf(TRACK_TOP, TRACK_BOTTOM, progress)
+		if enemy_side
+		else lerpf(TRACK_BOTTOM, TRACK_TOP, progress)
+	)
+	var visual_y: float = clampf(
+		y_anchor + y_offset,
+		TRACK_TOP,
+		TRACK_BOTTOM
+	)
+	holder.anchor_top = visual_y
+	holder.anchor_bottom = visual_y
+
+	var home_x: float = float(
+		holder.get_meta("_ui2_battlefield_home_x", holder.anchor_left)
+	)
+	var visual_x: float = home_x
+	var best_weight: float = 0.0
+	var best_target: float = home_x
+	var unit_id: String = String(unit.get("id", ""))
+	var squareups = unit.get("squareups", [])
+
+	if typeof(squareups) == TYPE_ARRAY:
+		for raw_squareup in squareups:
+			if typeof(raw_squareup) != TYPE_DICTIONARY:
+				continue
+			var group_key: String = String(
+				raw_squareup.get("group_key", "")
+			)
+			if not _battlefield_playback_collision_groups.has(group_key):
+				continue
+			var group: Dictionary = (
+				_battlefield_playback_collision_groups[group_key]
+			)
+			var targets: Dictionary = group.get("target_x", {})
+			if not targets.has(unit_id):
+				continue
+
+			var collision_time: float = float(
+				raw_squareup.get("time", 0.0)
+			)
+			var resolve_end: float = float(
+				raw_squareup.get("resolve_end", collision_time)
+			)
+			var approach_start: float = maxf(
+				0.0,
+				collision_time - BATTLEFIELD_SQUAREUP_APPROACH_SECONDS
+			)
+			var release_end: float = (
+				resolve_end + BATTLEFIELD_SQUAREUP_RELEASE_SECONDS
+			)
+
+			var weight: float = 0.0
+			if clock >= approach_start and clock < collision_time:
+				var approach_t: float = clampf(
+					(clock - approach_start)
+					/ maxf(0.001, collision_time - approach_start),
+					0.0,
+					1.0
+				)
+				# Ease-in: mostly forward first, increasingly lateral near contact.
+				weight = approach_t * approach_t
+			elif clock >= collision_time and clock <= resolve_end:
+				weight = 1.0
+			elif clock > resolve_end and clock < release_end:
+				var release_t: float = clampf(
+					(clock - resolve_end)
+					/ maxf(
+						0.001,
+						BATTLEFIELD_SQUAREUP_RELEASE_SECONDS
+					),
+					0.0,
+					1.0
+				)
+				weight = 1.0 - smoothstep(0.0, 1.0, release_t)
+
+			if weight > best_weight:
+				best_weight = weight
+				best_target = float(targets[unit_id])
+
+	visual_x = lerpf(home_x, best_target, best_weight)
+	holder.anchor_left = visual_x
+	holder.anchor_right = visual_x
+
 
 func _marchers_in_lane(player, lane_name: String) -> Array:
 	var result: Array = []
 	if player == null:
 		return result
+
+	if _battlefield_playback_active:
+		var player_id: int = int(player.pid)
+		for raw_id in _battlefield_playback_units.keys():
+			var playback_unit = _battlefield_playback_units.get(raw_id, {})
+			if (
+				typeof(playback_unit) == TYPE_DICTIONARY
+				and int(playback_unit.get("player_id", -1)) == player_id
+				and String(playback_unit.get("lane", "")) == lane_name
+			):
+				result.append(playback_unit)
+		return result
+
 	for marcher in player.marchers:
 		if String(marcher.get("lane", "")) == lane_name:
 			result.append(marcher)
@@ -1366,15 +2182,6 @@ func _refresh_ambient_window() -> void:
 
 		action_actor_row.add_child(battle)
 
-
-	battle.battle_finished.connect(
-		_on_ui2_ambient_scrum_finished_for_theater.bind(
-			enemy_specs,
-			player_specs,
-			3
-		)
-	)
-
 		suit_name = "5v5 mixed melee"
 		state_name = "SCRUM"
 	else:
@@ -1673,42 +2480,3 @@ func _marcher_in_lane(
 			return marcher
 
 	return null
-
-# UI2_ACTION_SCRUM_THEATER_HOOK_V1
-# Temporary one-shot proof of the generic small-screen -> Theater hook.
-func _on_ui2_ambient_scrum_finished_for_theater(
-	_enemy_survivors: int,
-	_player_survivors: int,
-	enemy_specs: Array,
-	player_specs: Array,
-	swing_count: int
-) -> void:
-	if _scrum_theater_demo_sent:
-		return
-
-	_scrum_theater_demo_sent = true
-
-	var theater = get_tree().root.find_child(
-		"ResolutionTheater",
-		true,
-		false
-	)
-
-	if theater == null:
-		push_warning(
-			"UI2 scrum Theater hook could not find ResolutionTheater."
-		)
-		return
-
-	if not theater.has_method("play_scrum"):
-		push_warning(
-			"UI2 ResolutionTheater does not expose play_scrum()."
-		)
-		return
-
-	theater.call_deferred(
-		"play_scrum",
-		enemy_specs,
-		player_specs,
-		swing_count
-	)

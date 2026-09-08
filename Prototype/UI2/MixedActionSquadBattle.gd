@@ -85,9 +85,6 @@ var current_frame: int = 0
 var completed_swings: int = 0
 var attack_swings: int = 3
 
-# UI2_MIXED_ACTION_PRESENTATION_SCALE_V1
-var actor_draw_size: Vector2 = DRAW_SIZE
-
 
 func setup(
 	enemy_specs: Array,
@@ -172,19 +169,6 @@ func _add_fighter(
 	})
 
 
-func set_presentation_scale(
-	scale_factor: float
-) -> void:
-	actor_draw_size = (
-		DRAW_SIZE
-		* clampf(
-			scale_factor,
-			0.5,
-			3.0
-		)
-	)
-
-
 func _reset_battle() -> void:
 	phase = Phase.APPROACH
 	phase_clock = 0.0
@@ -194,7 +178,7 @@ func _reset_battle() -> void:
 
 	var available_y: float = maxf(
 		0.0,
-		size.y - actor_draw_size.y
+		size.y - DRAW_SIZE.y
 	)
 	var center_x: float = size.x * 0.5
 
@@ -232,18 +216,18 @@ func _reset_battle() -> void:
 			)
 			fighter["target_x"] = (
 				center_x
-				- actor_draw_size.x * 0.30
+				- DRAW_SIZE.x * 0.30
 				- row_jitter
 			)
 		else:
 			fighter["x"] = (
-				-actor_draw_size.x
+				-DRAW_SIZE.x
 				- ENTRY_PAD
 				- float(index) * 10.0
 			)
 			fighter["target_x"] = (
 				center_x
-				- actor_draw_size.x * 0.70
+				- DRAW_SIZE.x * 0.70
 				+ row_jitter
 			)
 
@@ -809,7 +793,7 @@ func _draw_region_actor(
 ) -> void:
 	var center := (
 		position
-		+ actor_draw_size * 0.5
+		+ DRAW_SIZE * 0.5
 	)
 
 	var shadow_alpha: float = (
@@ -821,7 +805,7 @@ func _draw_region_actor(
 	draw_circle(
 		Vector2(
 			center.x,
-			position.y + actor_draw_size.y - 4.0
+			position.y + DRAW_SIZE.y - 4.0
 		),
 		11.5,
 		Color(
@@ -841,8 +825,8 @@ func _draw_region_actor(
 	draw_texture_rect_region(
 		texture,
 		Rect2(
-			-actor_draw_size * 0.5,
-			actor_draw_size
+			-DRAW_SIZE * 0.5,
+			DRAW_SIZE
 		),
 		region,
 		Color(

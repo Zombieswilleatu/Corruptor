@@ -76,6 +76,10 @@ var castle_group: PanelContainer = null
 var castle_row: HBoxContainer = null
 var castle_guard_box: HBoxContainer = null
 var castle_guard_drop_area: HBoxContainer = null
+# UI2_HUMAN_CASTLE_GUARDS_ABOVE_CASTLES_V1
+# Enemy boards keep the historical order; PlayableUI2 enables this only
+# for the human board so defenders sit visually nearer the battlefield.
+var castle_guards_above_castles: bool = false
 var castle_sigil: Label = null
 var ward_castle_overlay: HBoxContainer = null
 
@@ -129,6 +133,7 @@ func _ready() -> void:
 	add_child(prompt_castle_gutter)
 
 	_build_castle_group()
+	_apply_castle_vertical_order()
 
 
 func _exit_tree() -> void:
@@ -140,6 +145,90 @@ func _exit_tree() -> void:
 	):
 		_zone_helper.free()
 		_zone_helper = null
+
+
+# UI2_HUMAN_CASTLE_GUARDS_ABOVE_CASTLES_V1
+func set_castle_guards_above_castles(
+	enabled: bool
+) -> void:
+	castle_guards_above_castles = enabled
+	_apply_castle_vertical_order()
+
+
+func _apply_castle_vertical_order() -> void:
+	if (
+		castle_group == null
+		or castle_row == null
+		or castle_guard_drop_area == null
+		or castle_group.get_child_count() <= 0
+	):
+		return
+
+	var column = castle_group.get_child(
+		0
+	)
+	if column == null:
+		return
+
+	var castle_index: int = castle_row.get_index()
+	var guard_index: int = castle_guard_drop_area.get_index()
+
+	if (
+		castle_index <= 0
+		or guard_index <= 0
+	):
+		return
+
+	# Each row's header is its immediate previous sibling. Capture the actual
+	# nodes before moving anything so repeated calls remain safe in either order.
+	var castle_header = column.get_child(
+		castle_index - 1
+	)
+	var guard_header = column.get_child(
+		guard_index - 1
+	)
+
+	if (
+		castle_header == null
+		or guard_header == null
+		or castle_header == guard_header
+	):
+		return
+
+	if castle_guards_above_castles:
+		column.move_child(
+			guard_header,
+			0
+		)
+		column.move_child(
+			castle_guard_drop_area,
+			1
+		)
+		column.move_child(
+			castle_header,
+			2
+		)
+		column.move_child(
+			castle_row,
+			3
+		)
+	else:
+		column.move_child(
+			castle_header,
+			0
+		)
+		column.move_child(
+			castle_row,
+			1
+		)
+		column.move_child(
+			guard_header,
+			2
+		)
+		column.move_child(
+			castle_guard_drop_area,
+			3
+		)
 
 
 func set_deploy_drop_enabled(

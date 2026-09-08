@@ -17,7 +17,8 @@ const CastleConstructionShader = preload(
 )
 
 
-const MAX_INTEGRITY: int = 14
+# CASTLE_INTEGRITY_150_PERCENT_V1
+const MAX_INTEGRITY: int = 21
 const OPERATIONAL_FLOOR: int = 7
 
 const INTEGRITY_LEFT: float = 0.755
@@ -285,9 +286,9 @@ func bind_castle(
 		border = Color(0.72, 0.18, 0.18, 1.0)
 
 	elif progress > 0:
-		_integrity_text = "%d/14" % progress
+		_integrity_text = "%d/%d" % [progress, MAX_INTEGRITY]
 		_state_text = "BUILDING"
-		_state_detail = "Construction %d/14." % progress
+		_state_detail = "Construction %d/%d." % [progress, MAX_INTEGRITY]
 		# UI2_CASTLE_BUILD_PROGRESS_HOLDBUTTON_V2
 		_art_modulate = Color.WHITE
 		border = Color(0.62, 0.48, 0.16, 1.0)

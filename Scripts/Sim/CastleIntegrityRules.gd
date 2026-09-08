@@ -10,7 +10,8 @@ const CASTLES: Array[String] = [
 	"SiegeEngine",
 ]
 
-const MAX_INTEGRITY: int = 14
+# CASTLE_INTEGRITY_150_PERCENT_V1
+const MAX_INTEGRITY: int = 21
 
 const STATE_OPERATIONAL: String = "operational"
 const STATE_DEFUNCT: String = "defunct"

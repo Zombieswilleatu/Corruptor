@@ -277,7 +277,7 @@ static func _evaluate_integrity_candidates(
 			)
 		):
 			damaged.append(castle_name)
-			if integrity <= maximum / 2:
+			if integrity * 2 <= maximum:
 				severe.append(castle_name)
 
 	var buildable: Array[String] = []

@@ -763,10 +763,12 @@ func _configure_stage() -> void:
             _show_primary("Modifier:")
             _populate_resolution_action_options()
             confirm_button.visible = true
-            confirm_button.text = (
-                "RESOLVE %s"
-                % String(player_ref.action).to_upper()
+            var resolve_name: String = (
+                "PILLAGE"
+                if String(player_ref.action) == "Siege" and _pillage_active()
+                else String(player_ref.action).to_upper()
             )
+            confirm_button.text = "RESOLVE %s" % resolve_name
 
         "RESOLUTION_VESSEL":
             title_label.text = "THE VESSEL"
@@ -885,6 +887,16 @@ func _configure_stage() -> void:
             pass_button.visible = false
 
 
+# CASTLELESS_PILLAGE_V1
+func _pillage_active() -> bool:
+    return (
+        rules_ref != null
+        and opponent_ref != null
+        and bool(rules_ref.castleless_siege)
+        and opponent_ref.castles.is_empty()
+    )
+
+
 func _enable_action_mode(include_profane: bool) -> void:
     action_box.visible = true
     for action_name in action_buttons.keys():
@@ -908,8 +920,9 @@ func _action_is_legal(action_name: String, include_profane: bool) -> bool:
                 return player_ref.alive and opponent_ref.alive and player_ref.threat < rules_ref.max_threat
             return player_ref.alive and opponent_ref.alive
         "Siege":
-            return not opponent_ref.castles.is_empty() and (
-                player_ref.alive or stage_key != "COMMITMENT"
+            return (
+                (not opponent_ref.castles.is_empty() or (rules_ref != null and bool(rules_ref.castleless_siege)))
+                and (player_ref.alive or stage_key != "COMMITMENT")
             )
         "Ward":
             return true
@@ -1187,9 +1200,14 @@ func _refresh_action_targets() -> void:
                 _add_option(primary_select, "Opponent Lord", "Lord")
                 primary_select.disabled = true
             "Siege":
-                primary_label.text = "Castle:"
-                for castle_name in opponent_ref.castles:
-                    _add_option(primary_select, String(castle_name), String(castle_name))
+                # CASTLELESS_PILLAGE_V1
+                if _pillage_active():
+                    primary_label.text = "Target:"
+                    _add_option(primary_select, "Enemy Realm · Pillage", "Pillage")
+                else:
+                    primary_label.text = "Castle:"
+                    for castle_name in opponent_ref.castles:
+                        _add_option(primary_select, String(castle_name), String(castle_name))
             "Ward":
                 primary_label.text = "Zone:"
                 if player_ref.alive and (
@@ -1222,6 +1240,10 @@ func _populate_reflex_targets(control: OptionButton) -> void:
             _add_option(control, "Opponent Lord · Consume · Fracture Subjects", "Lord|1|subjects")
             _add_option(control, "Opponent Lord · Consume · Fracture Infrastructure", "Lord|1|infrastructure")
         "Siege":
+            if _pillage_active():
+                _add_option(control, "Enemy Realm · Pillage", "Pillage|0|0")
+                control.disabled = true
+                return
             var allow_consume: bool = bool(rules_ref.consume_the_siege)
             var allow_inferno: bool = player_ref.alive and String(player_ref.lord) == "Kalligan"
             for castle_name in opponent_ref.castles:
@@ -1447,15 +1469,18 @@ func _populate_resolution_action_options() -> void:
             _add_option(primary_select, "Consume · Fracture Subjects", "hunt:1:subjects")
             _add_option(primary_select, "Consume · Fracture Infrastructure", "hunt:1:infrastructure")
         "Siege":
-            var allow_consume: bool = bool(rules_ref.consume_the_siege)
-            var allow_inferno: bool = player_ref.alive and String(player_ref.lord) == "Kalligan"
-            _add_option(primary_select, "No modifier", "siege:0:0")
-            if allow_consume:
-                _add_option(primary_select, "Consume", "siege:1:0")
-            if allow_inferno:
-                _add_option(primary_select, "Inferno", "siege:0:1")
-            if allow_consume and allow_inferno:
-                _add_option(primary_select, "Consume + Inferno", "siege:1:1")
+            if _pillage_active():
+                _add_option(primary_select, "Pillage · no modifier", "siege:0:0")
+            else:
+                var allow_consume: bool = bool(rules_ref.consume_the_siege)
+                var allow_inferno: bool = player_ref.alive and String(player_ref.lord) == "Kalligan"
+                _add_option(primary_select, "No modifier", "siege:0:0")
+                if allow_consume:
+                    _add_option(primary_select, "Consume", "siege:1:0")
+                if allow_inferno:
+                    _add_option(primary_select, "Inferno", "siege:0:1")
+                if allow_consume and allow_inferno:
+                    _add_option(primary_select, "Consume + Inferno", "siege:1:1")
         _:
             _add_option(primary_select, "Resolve sealed action", "default")
     primary_select.disabled = primary_select.item_count <= 1
@@ -1516,8 +1541,58 @@ func _build_forecast_cache() -> void:
     _forecast_cache_ready = true
 
 
+# UI2_WAITER_SUPPORT_COUNTER_V1
+func _waiter_support_count_for_selected_action() -> int:
+    if player_ref == null:
+        return 0
+    if not player_ref.has_method("waiting_marcher_support"):
+        return 0
+
+    match selected_action:
+        "Hunt":
+            return int(
+                player_ref.waiting_marcher_support(false)
+            )
+        "Siege":
+            return int(
+                player_ref.waiting_marcher_support(true)
+            )
+        _:
+            return 0
+
+
+func _waiter_support_line() -> String:
+    if selected_action not in ["Hunt", "Siege"]:
+        return ""
+
+    var support: int = _waiter_support_count_for_selected_action()
+    # UI2_WAITER_SUPPORT_HIDE_ZERO_V1
+    if support <= 0:
+        return ""
+    return "MARCHER SUPPORT · +%d ATTACK · consumed on resolve" % support
+
+
+func _apply_waiter_support_to_forecast_label() -> void:
+    if forecast_label == null:
+        return
+
+    var support_line: String = _waiter_support_line()
+    if support_line.is_empty():
+        return
+
+    var current_text: String = String(forecast_label.text)
+    if current_text.begins_with(support_line):
+        return
+
+    if current_text.is_empty():
+        forecast_label.text = support_line
+    else:
+        forecast_label.text = support_line + "\n" + current_text
+
+
 func _refresh_forecast() -> void:
     if forecast_label == null:
+        _apply_waiter_support_to_forecast_label()
         return
 
     if (
@@ -1527,10 +1602,12 @@ func _refresh_forecast() -> void:
         or rules_ref == null
         or player_ref == null
     ):
+        _apply_waiter_support_to_forecast_label()
         return
 
     if selected_action.is_empty():
         forecast_label.text = "Choose an order to show reachability bands."
+        _apply_waiter_support_to_forecast_label()
         return
 
     if selected_action == "Ward":
@@ -1538,6 +1615,7 @@ func _refresh_forecast() -> void:
             "WARD · defensive order\n"
             + "Offensive reachability bands apply to Hunt and Siege."
         )
+        _apply_waiter_support_to_forecast_label()
         return
 
     if selected_action == "Profane":
@@ -1545,10 +1623,19 @@ func _refresh_forecast() -> void:
             "PROFANE · deterministic board eligibility\n"
             + "No hidden-combat reachability roll."
         )
+        _apply_waiter_support_to_forecast_label()
+        return
+
+    if selected_action == "Siege" and _pillage_active():
+        forecast_label.text = (
+            "PILLAGE · 1 Soul on breakthrough\n"
+            + "Castle Ward + Castle Guards defend · excess attack is wasted."
+        )
         return
 
     if not _forecast_cache_ready:
         forecast_label.text = "FORECAST · cache unavailable"
+        _apply_waiter_support_to_forecast_label()
         return
 
     var report: Dictionary = {}
@@ -1559,6 +1646,7 @@ func _refresh_forecast() -> void:
         var castle_name: String = get_primary_value()
         if castle_name.is_empty():
             forecast_label.text = "SIEGE · choose a Castle to forecast."
+            _apply_waiter_support_to_forecast_label()
             return
         var siege_targets: Dictionary = _forecast_cache.get(
             "siege_targets",
@@ -1567,6 +1655,7 @@ func _refresh_forecast() -> void:
         report = siege_targets.get(castle_name, {})
     else:
         forecast_label.text = "No forecast available."
+        _apply_waiter_support_to_forecast_label()
         return
 
     if not bool(report.get("available", false)):
@@ -1577,6 +1666,7 @@ func _refresh_forecast() -> void:
                 String(report.get("reason", "unknown")).replace("_", " "),
             ]
         )
+        _apply_waiter_support_to_forecast_label()
         return
 
     var lines: Array[String] = []
@@ -1619,6 +1709,7 @@ func _refresh_forecast() -> void:
     )
 
     forecast_label.text = "\n".join(lines)
+    _apply_waiter_support_to_forecast_label()
 
 
 func _forecast_objective_line(
@@ -2096,6 +2187,16 @@ func _refresh_action_copy() -> void:
 
 
         # UI2_DECISION_CONFIRM_RELIABILITY_V17
+
+    # CASTLELESS_PILLAGE_V1
+    var siege: Button = action_buttons.get("Siege", null)
+    if siege != null:
+        if _pillage_active():
+            siege.text = "PILLAGE\nRaid the enemy realm.\nBreak Castle Ward + Guards · gain 1 Soul."
+        else:
+            siege.text = "SIEGE\nAttack an enemy Castle."
+
+
 func _refresh_confirm_state() -> void:
     _compute_confirm_state_v17()
     _apply_dialog_confirm_interaction_v17()

@@ -24,6 +24,11 @@ const RoundEngineData = preload(
 	"res://Scripts/Sim/RoundEngine.gd"
 )
 
+# SIEGE_ENGINE_BOMBARDMENT_V1
+const SiegeEngineFireEngineData = preload(
+	"res://Scripts/Sim/SiegeEngineFireEngine.gd"
+)
+
 const DevelopmentStartEngineData = preload(
 	"res://Scripts/Sim/DevelopmentStartEngine.gd"
 )
@@ -132,6 +137,12 @@ const ResolutionTheaterData = preload(
 )
 
 
+# UI2_SIEGE_ENGINE_BOMBARDMENT_FX_V1
+const SiegeEngineBombardmentViewData = preload(
+	"res://Prototype/UI2/SiegeEngineBombardmentView.gd"
+)
+
+
 const DEFAULT_HUMAN_LORD: String = "Orias"
 const DEFAULT_BOT_LORD: String = "Valak"
 const DEFAULT_SEED: int = 20260724
@@ -159,6 +170,11 @@ const RESOLUTION_PRESENTATION_ENABLED: bool = true
 var showcase_invalid_reason: String = ""
 
 
+# UI2_SIEGE_ENGINE_BOMBARDMENT_FX_V1
+var siege_engine_bombardment_view = null
+var _ui2_siege_engine_fx_played_keys: Dictionary = {}
+
+
 var controller = null
 
 var header_label: Label = null
@@ -183,11 +199,21 @@ var hand_view = null
 var veil_track = null
 var dev_panel = null
 var resolution_theater = null
+# UI2_SCRUM_THEATER_PRODUCTION_WIRING_V1
+var _ui2_scrum_theater_demo_shown: bool = false
 var _ui2_aftermath_human_souls_before: int = 0
 var _ui2_aftermath_bot_souls_before: int = 0
 var _ui2_aftermath_baseline_ready: bool = false
 var _snapshot_round_recaps: Array[Dictionary] = []
 var _ui2_aftermath_showing: bool = false
+# BATTLEFIELD_PLAYBACK_V1
+var _ui2_battlefield_playback_active: bool = false
+var _ui2_battlefield_stage_override: String = ""
+var _ui2_battlefield_input_blocker: Control = null
+# BATTLEFIELD_PLAYBACK_NONBLOCKING_ONCE_V1
+# Playback is presentation only and never gates decisions.
+var _ui2_battlefield_played_half_keys: Dictionary = {}
+var _ui2_battlefield_pending_halves: Array[Dictionary] = []
 # UI2_COMMITMENT_DOUBLE_CLICK_ALL_IN_V1
 var tutorial_panel: PanelContainer = null
 var tutorial_label: Label = null
@@ -216,6 +242,14 @@ func _ready() -> void:
 
 	_install_ui2_black_gap_backdrop()
 	_build_shell()
+
+	# UI2_SIEGE_ENGINE_BOMBARDMENT_FX_V1
+	siege_engine_bombardment_view = SiegeEngineBombardmentViewData.new()
+	siege_engine_bombardment_view.name = "SiegeEngineBombardmentView"
+	add_child(siege_engine_bombardment_view)
+	siege_engine_bombardment_view.set_anchors_and_offsets_preset(
+		Control.PRESET_FULL_RECT
+	)
 
 	controller = PlayableRoundControllerData.new()
 
@@ -547,6 +581,21 @@ func _advance_showcase_to_commitment(
 			"choices": repair_choices,
 			"results": repair_results,
 		}
+	)
+
+	# SIEGE_ENGINE_BOMBARDMENT_V1
+	var siege_engine_fire_result: Dictionary = (
+		SiegeEngineFireEngineData.resolve(
+			showcase_game,
+			controller.rules,
+			showcase_rng
+		)
+	)
+	_append_showcase_event(
+		showcase_events,
+		showcase_game,
+		"siege_engine_fire",
+		siege_engine_fire_result
 	)
 
 	var rite_choices: Dictionary = BotDominionRiteDoctrineData.rite_choices(
@@ -1009,6 +1058,8 @@ func _build_shell() -> void:
 	human_lord_zone.visible = false
 	human_player_board = PlayerBoardData.new()
 	human_player_board.name = "HumanPlayerBoard"
+	# UI2_HUMAN_CASTLE_GUARDS_ABOVE_CASTLES_V1
+	human_player_board.castle_guards_above_castles = true
 	human_player_board.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	human_player_board.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	human_zones.add_child(human_player_board)
@@ -1391,6 +1442,82 @@ func refresh_from_game() -> void:
 		game,
 		rules,
 		veil_stage_text
+	)
+
+	# UI2_SIEGE_ENGINE_BOMBARDMENT_FX_V1
+	_queue_ui2_siege_engine_bombardment_if_needed()
+
+# UI2_SIEGE_ENGINE_BOMBARDMENT_FX_V1
+func _queue_ui2_siege_engine_bombardment_if_needed() -> void:
+	if (
+		controller == null
+		or controller.game == null
+		or siege_engine_bombardment_view == null
+	):
+		return
+
+	var raw_phase = controller.phase_results.get(
+		"siege_engine_fire",
+		null
+	)
+
+	if typeof(raw_phase) != TYPE_DICTIONARY:
+		if int(controller.game.round) <= 1:
+			_ui2_siege_engine_fx_played_keys.clear()
+		return
+
+	var phase: Dictionary = raw_phase
+	var fired_events: Array = []
+
+	for raw_event in phase.get("events", []):
+		if (
+			typeof(raw_event) == TYPE_DICTIONARY
+			and bool(raw_event.get("fired", false))
+			and not String(
+				raw_event.get("target_castle", "")
+			).is_empty()
+		):
+			fired_events.append(
+				raw_event.duplicate(true)
+			)
+
+	if fired_events.is_empty():
+		return
+
+	var key: String = "%d|%d" % [
+		active_match_seed,
+		int(controller.game.round),
+	]
+
+	if _ui2_siege_engine_fx_played_keys.has(key):
+		return
+
+	_ui2_siege_engine_fx_played_keys[key] = true
+
+	call_deferred(
+		"_play_ui2_siege_engine_bombardment",
+		fired_events
+	)
+
+
+func _play_ui2_siege_engine_bombardment(
+	fired_events: Array
+) -> void:
+	if (
+		siege_engine_bombardment_view == null
+		or not is_instance_valid(siege_engine_bombardment_view)
+		or human_player_board == null
+		or enemy_player_board == null
+	):
+		return
+
+	# Let HBox/VBox layout settle after the just-completed refresh.
+	await get_tree().process_frame
+
+	siege_engine_bombardment_view.play_bombardment(
+		fired_events,
+		human_player_board,
+		enemy_player_board
 	)
 
 
@@ -1964,7 +2091,10 @@ func _on_ui2_confirm_requested() -> void:
 						)
 					)
 
-	_finish_ui2_controller_step(result)
+	_finish_ui2_controller_step(
+		result,
+		stage_before == PlayableRoundControllerData.Stage.SEALED
+	)
 
 	if (
 		RESOLUTION_PRESENTATION_ENABLED
@@ -1973,6 +2103,13 @@ func _on_ui2_confirm_requested() -> void:
 		and String(result.get("action", "")) == "revealed"
 	):
 		await _play_ui2_reveal_presentation()
+		var revealed_second_half: Dictionary = (
+			_ui2_battlefield_half_result(
+				result,
+				"march_second_half"
+			)
+		)
+		_queue_ui2_battlefield_half(revealed_second_half)
 
 
 func _play_ui2_reveal_presentation() -> void:
@@ -2191,7 +2328,217 @@ func _tutorial_text(stage_name: String) -> String:
 			return "TUTORIAL · CURRENT PHASE — Follow the decision on the right. This phase has no special tutorial entry yet."
 
 
-func _finish_ui2_controller_step(result: Dictionary) -> void:
+
+# BATTLEFIELD_PLAYBACK_V1
+func _ui2_battlefield_half_result(
+	result: Dictionary,
+	phase_name: String
+) -> Dictionary:
+	var raw_phases = result.get("phases", {})
+	if typeof(raw_phases) != TYPE_DICTIONARY:
+		return {}
+	var raw_half = raw_phases.get(phase_name, {})
+	return (
+		raw_half
+		if typeof(raw_half) == TYPE_DICTIONARY
+		else {}
+	)
+
+
+func _ui2_battlefield_half_has_motion(
+	half_result: Dictionary
+) -> bool:
+	if half_result.is_empty():
+		return false
+
+	var raw_events = half_result.get("events", [])
+	if typeof(raw_events) == TYPE_ARRAY:
+		for raw_event in raw_events:
+			if typeof(raw_event) != TYPE_DICTIONARY:
+				continue
+			if String(raw_event.get("type", "")) in [
+				"march_clash",
+				"march_destroyed",
+				"march_arrival",
+			]:
+				return true
+
+	var raw_start = half_result.get("start_state", [])
+	var raw_end = half_result.get("end_state", [])
+	if typeof(raw_start) != TYPE_ARRAY or typeof(raw_end) != TYPE_ARRAY:
+		return false
+
+	var end_progress: Dictionary = {}
+	for raw_row in raw_end:
+		if typeof(raw_row) != TYPE_DICTIONARY:
+			continue
+		var unit_id: String = String(raw_row.get("id", ""))
+		if not unit_id.is_empty():
+			end_progress[unit_id] = float(raw_row.get("progress", 0.0))
+
+	for raw_row in raw_start:
+		if typeof(raw_row) != TYPE_DICTIONARY:
+			continue
+		var unit_id: String = String(raw_row.get("id", ""))
+		if unit_id.is_empty() or not end_progress.has(unit_id):
+			continue
+		if absf(
+			float(raw_row.get("progress", 0.0))
+			- float(end_progress[unit_id])
+		) > 0.0001:
+			return true
+
+	return false
+
+
+func _ui2_battlefield_half_key(
+	half_result: Dictionary
+) -> String:
+	if (
+		controller == null
+		or controller.game == null
+		or half_result.is_empty()
+	):
+		return ""
+
+	var half_name: String = String(
+		half_result.get("half", "")
+	).to_lower()
+	if half_name.is_empty():
+		return ""
+
+	return "%d|%d|%s" % [
+		active_match_seed,
+		int(controller.game.round),
+		half_name,
+	]
+
+
+func _queue_ui2_battlefield_half(
+	half_result: Dictionary
+) -> void:
+	if not _ui2_battlefield_half_has_motion(half_result):
+		return
+
+	var half_key: String = _ui2_battlefield_half_key(half_result)
+	if half_key.is_empty():
+		return
+	if _ui2_battlefield_played_half_keys.has(half_key):
+		return
+
+	# Claim immediately so later results carrying the same phase cannot replay it.
+	_ui2_battlefield_played_half_keys[half_key] = true
+
+	if _ui2_battlefield_playback_active:
+		_ui2_battlefield_pending_halves.append(
+			half_result.duplicate(true)
+		)
+		return
+
+	# Fire-and-forget. This runs until its first await, then returns control.
+	_play_ui2_battlefield_half(
+		half_result.duplicate(true)
+	)
+
+
+func _play_next_ui2_battlefield_half_if_any() -> void:
+	if (
+		_ui2_battlefield_playback_active
+		or _ui2_battlefield_pending_halves.is_empty()
+	):
+		return
+
+	var next_half: Dictionary = (
+		_ui2_battlefield_pending_halves.pop_front()
+	)
+	call_deferred(
+		"_play_ui2_battlefield_half",
+		next_half
+	)
+
+
+func _play_ui2_battlefield_half(
+	half_result: Dictionary
+) -> void:
+	if (
+		_ui2_battlefield_playback_active
+		or marching_view == null
+		or controller == null
+		or controller.game == null
+		or not _ui2_battlefield_half_has_motion(half_result)
+	):
+		return
+
+	_ui2_battlefield_playback_active = true
+	var half_name: String = String(
+		half_result.get("half", "")
+	).to_upper()
+	_ui2_battlefield_stage_override = (
+		"BATTLEFIELD · %s HALF"
+		% half_name
+	)
+
+	# No modal blocker: battlefield motion is ambient presentation.
+	if header_label != null:
+		header_label.text = _header_text(
+			controller.game,
+			controller.rules
+		)
+
+	var started: bool = marching_view.begin_battlefield_playback(
+		half_result
+	)
+	if not started:
+		_ui2_battlefield_playback_active = false
+		_ui2_battlefield_stage_override = ""
+		_play_next_ui2_battlefield_half_if_any()
+		return
+
+	await marching_view.battlefield_playback_finished
+
+	_ui2_battlefield_playback_active = false
+	_ui2_battlefield_stage_override = ""
+
+	# Never full-refresh when background playback ends; the player may be
+	# midway through selecting cards or targets.
+	_schedule_ui2_aftermath_if_needed()
+	_play_next_ui2_battlefield_half_if_any()
+
+
+func _set_ui2_battlefield_input_blocked(
+	blocked: bool
+) -> void:
+	if _ui2_battlefield_input_blocker == null:
+		_ui2_battlefield_input_blocker = Control.new()
+		_ui2_battlefield_input_blocker.name = "BattlefieldPlaybackInputBlocker"
+		_ui2_battlefield_input_blocker.mouse_filter = Control.MOUSE_FILTER_STOP
+		_ui2_battlefield_input_blocker.z_index = 74
+		add_child(_ui2_battlefield_input_blocker)
+		_ui2_battlefield_input_blocker.set_anchors_and_offsets_preset(
+			Control.PRESET_FULL_RECT
+		)
+
+	_ui2_battlefield_input_blocker.visible = blocked
+
+
+func _schedule_ui2_aftermath_if_needed() -> void:
+	if (
+		RESOLUTION_PRESENTATION_ENABLED
+		and _ui2_aftermath_baseline_ready
+		and controller != null
+		and controller.stage
+		in [
+			PlayableRoundControllerData.Stage.NO_GAME,
+			PlayableRoundControllerData.Stage.TERMINAL,
+		]
+	):
+		call_deferred("_play_ui2_completed_aftermath")
+
+
+func _finish_ui2_controller_step(
+	result: Dictionary,
+	defer_second_half_playback: bool = false
+) -> void:
 	var action_name: String = String(result.get("action", ""))
 	if action_name == "invalid":
 		action_zone.set_status(
@@ -2215,10 +2562,25 @@ func _finish_ui2_controller_step(result: Dictionary) -> void:
 			result
 		)
 
+	var first_half: Dictionary = _ui2_battlefield_half_result(
+		result,
+		"march_first_half"
+	)
+	_queue_ui2_battlefield_half(first_half)
+
+	var second_half: Dictionary = _ui2_battlefield_half_result(
+		result,
+		"march_second_half"
+	)
+	if not defer_second_half_playback:
+		_queue_ui2_battlefield_half(second_half)
+
+	# Playback is background presentation. Keep the actual phase UI live.
 	refresh_from_game()
 
 	if (
-		RESOLUTION_PRESENTATION_ENABLED
+		not defer_second_half_playback
+		and RESOLUTION_PRESENTATION_ENABLED
 		and _ui2_aftermath_baseline_ready
 		and controller.stage
 		in [
@@ -3879,27 +4241,33 @@ func _ui2_action_result_summary(
 
 	match action_name:
 		"Siege":
-			var integrity_before: int = int(action_result.get("integrity_before", -1))
-			var integrity_after: int = int(action_result.get("integrity_after", integrity_before))
-			var castle_ruined: bool = (
-				bool(action_result.get("destroyed", false))
-				or bool(action_result.get("target_destroyed", false))
-				or (integrity_before > 0 and integrity_after <= 0)
-			)
-			var castle_damaged: bool = (
-				integrity_before >= 0
-				and integrity_after >= 0
-				and integrity_after < integrity_before
-			)
-
-			if castle_ruined:
-				summary = "SIEGE RESOLVES · CASTLE RUINED"
-			elif castle_damaged:
-				summary = "SIEGE RESOLVES · CASTLE DAMAGED"
-			elif won:
-				summary = "SIEGE BREAKS THROUGH"
+			if bool(action_result.get("pillage", false)):
+				if bool(action_result.get("pillage_success", false)):
+					summary = "PILLAGE RESOLVES · +1 SOUL"
+				else:
+					summary = "PILLAGE REPELLED"
 			else:
-				summary = "SIEGE RESOLVES · CASTLE HOLDS"
+				var integrity_before: int = int(action_result.get("integrity_before", -1))
+				var integrity_after: int = int(action_result.get("integrity_after", integrity_before))
+				var castle_ruined: bool = (
+					bool(action_result.get("destroyed", false))
+					or bool(action_result.get("target_destroyed", false))
+					or (integrity_before > 0 and integrity_after <= 0)
+				)
+				var castle_damaged: bool = (
+					integrity_before >= 0
+					and integrity_after >= 0
+					and integrity_after < integrity_before
+				)
+
+				if castle_ruined:
+					summary = "SIEGE RESOLVES · CASTLE RUINED"
+				elif castle_damaged:
+					summary = "SIEGE RESOLVES · CASTLE DAMAGED"
+				elif won:
+					summary = "SIEGE BREAKS THROUGH"
+				else:
+					summary = "SIEGE RESOLVES · CASTLE HOLDS"
 		"Hunt":
 			var lord_banished: bool = bool(
 				action_result.get("banished", false)
@@ -4396,6 +4764,147 @@ func _deploy_staging_status() -> String:
 	)
 
 
+
+# UI2_SCRUM_THEATER_PRODUCTION_WIRING_V1
+func _play_ui2_scrum_theater_demo() -> void:
+	if (
+		_ui2_scrum_theater_demo_shown
+		or not RESOLUTION_PRESENTATION_ENABLED
+		or resolution_theater == null
+		or controller == null
+		or controller.game == null
+		or DisplayServer.get_name() == "headless"
+	):
+		return
+
+	var vulture_texture := load(
+		"res://ConceptImages/Sprites/VultureSpriteConcept.png"
+	) as Texture2D
+	var penitent_texture := load(
+		"res://ConceptImages/Sprites/PenitentSpriteConcept.png"
+	) as Texture2D
+	var wright_texture := load(
+		"res://ConceptImages/Sprites/WrightSpriteConcept.png"
+	) as Texture2D
+	var butcher_texture := load(
+		"res://ConceptImages/Sprites/ButcherSpriteConcept.png"
+	) as Texture2D
+
+	if (
+		vulture_texture == null
+		or penitent_texture == null
+		or wright_texture == null
+		or butcher_texture == null
+	):
+		return
+
+	var enemy_specs: Array = [
+		{
+			"name": "Vulture",
+			"texture": vulture_texture,
+			"mode": "lpc",
+			"depth": 0,
+			"survives": false,
+		},
+		{
+			"name": "Butcher",
+			"texture": butcher_texture,
+			"mode": "standin",
+			"depth": 2,
+			"survives": true,
+		},
+		{
+			"name": "Vulture",
+			"texture": vulture_texture,
+			"mode": "lpc",
+			"depth": 4,
+			"survives": false,
+		},
+		{
+			"name": "Wright",
+			"texture": wright_texture,
+			"mode": "standin",
+			"depth": 1,
+			"survives": false,
+		},
+		{
+			"name": "Butcher",
+			"texture": butcher_texture,
+			"mode": "standin",
+			"depth": 3,
+			"survives": true,
+		},
+	]
+
+	var player_specs: Array = [
+		{
+			"name": "Penitent",
+			"texture": penitent_texture,
+			"mode": "lpc",
+			"depth": 1,
+			"survives": true,
+		},
+		{
+			"name": "Wright",
+			"texture": wright_texture,
+			"mode": "standin",
+			"depth": 3,
+			"survives": false,
+		},
+		{
+			"name": "Penitent",
+			"texture": penitent_texture,
+			"mode": "lpc",
+			"depth": 0,
+			"survives": false,
+		},
+		{
+			"name": "Butcher",
+			"texture": butcher_texture,
+			"mode": "standin",
+			"depth": 4,
+			"survives": true,
+		},
+		{
+			"name": "Wright",
+			"texture": wright_texture,
+			"mode": "standin",
+			"depth": 2,
+			"survives": false,
+		},
+	]
+
+	_ui2_scrum_theater_demo_shown = true
+
+	if phase_prompt != null:
+		phase_prompt.visible = false
+
+	await resolution_theater.play_scrum(
+		enemy_specs,
+		player_specs,
+		3,
+		"THE BATTLEFIELD",
+		"MARCHING CLASH"
+	)
+
+	if (
+		phase_prompt != null
+		and controller != null
+		and controller.game != null
+	):
+		var human = controller.get_human_player()
+		var bot = controller.get_bot_player()
+
+		if human != null and bot != null:
+			phase_prompt.bind_state(
+				human,
+				bot,
+				controller.rules,
+				controller,
+				_stage_text()
+			)
+
+
 func _on_ui2_march_guard_dropped(
 	source_zone: String,
 	card_id: String,
@@ -4453,6 +4962,11 @@ func _resolve_ui2_march() -> Dictionary:
 	var selected_guards: Array[String] = action_zone.get_aux_selected_values()
 	if selected_guards.size() != 1:
 		return {"action": "invalid", "reason": "choose_one_guard"}
+	# UI2_SCRUM_THEATER_PRODUCTION_WIRING_V1
+	# Temporary one-shot stand-in presentation after a real March resolve.
+	if RESOLUTION_PRESENTATION_ENABLED:
+		call_deferred("_play_ui2_scrum_theater_demo")
+
 	return controller.resolve_human_march({
 		"action": "march",
 		"source_zone": action_zone.get_primary_value(),
@@ -4654,6 +5168,9 @@ func _on_dev_start_requested(
 	seed_value: int
 ) -> void:
 	_snapshot_round_recaps.clear()
+	_ui2_battlefield_played_half_keys.clear()
+	_ui2_battlefield_pending_halves.clear()
+	_ui2_battlefield_playback_active = false
 
 	active_human_lord = human_lord
 	active_bot_lord = bot_lord

@@ -36,27 +36,6 @@ static func deploy_choices(
 		game, rules, smart_policy
 	)
 
-	assert(
-		game != null,
-		"Bot Deploy doctrine requires a GameState."
-	)
-
-	assert(
-		rules != null,
-		"Bot Deploy doctrine requires RuleConfig."
-	)
-
-	var decisions: Dictionary = {}
-
-	for player in game.players:
-		var player_id: int = int(
-			player.pid
-		)
-		decisions[player_id] = deploy_choice(game, player_id, rules)
-
-	return decisions
-
-
 static func deploy_choice(
 	game,
 	player_id: int,
@@ -67,12 +46,6 @@ static func deploy_choice(
 	return SmartCoreV47DeployDoctrineData.deploy_choice(
 		game, player_id, rules, smart_policy
 	)
-
-	var moves: Array = _deploy_moves_for_player(game, player_id, rules)
-	if moves.is_empty():
-		return {"pass": true}
-	return {"moves": moves}
-
 
 static func reserved_cards(
 	game,

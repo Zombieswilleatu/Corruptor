@@ -306,7 +306,11 @@ static func _validate_commitment(
 					"siege_must_target_opponent"
 				)
 
-			if opponent.castles.is_empty():
+			# CASTLELESS_PILLAGE_V1
+			if (
+				opponent.castles.is_empty()
+				and (rules == null or not rules.castleless_siege)
+			):
 				return _invalid_plan(
 					player_id,
 					"siege_target_has_no_castles"

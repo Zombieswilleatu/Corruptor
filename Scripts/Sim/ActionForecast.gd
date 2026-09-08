@@ -698,7 +698,8 @@ static func _max_successful_ward_screen(
 	var best: int = 0
 
 	while low <= high:
-		var middle: int = int((low + high) / 2)
+		# ACTION_FORECAST_INTEGER_DIVISION_FIX_V1
+		var middle: int = int((float(low) + float(high)) / 2.0)
 		var screen: int = int(ward_screens[middle])
 		var outcomes: Dictionary = _cached_outcomes(
 			cache,
@@ -1601,7 +1602,7 @@ static func _ward_probability_at_most(
 	var best_index: int = -1
 
 	while low <= high:
-		var middle: int = int((low + high) / 2)
+		var middle: int = int((float(low) + float(high)) / 2.0)
 
 		if int(screens[middle]) <= threshold:
 			best_index = middle

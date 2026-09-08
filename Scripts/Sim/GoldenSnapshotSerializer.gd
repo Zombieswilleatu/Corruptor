@@ -303,6 +303,10 @@ static func snapshot_player(
 		)
 
 	if rules != null and not rules.lab_profile_version.is_empty():
+		# SIEGE_ENGINE_BOMBARDMENT_V1
+		snapshot["siege_engine_target"] = str(
+			player.siege_engine_target
+		)
 		snapshot["odradek_bank"] = card_id(player.odradek_bank)
 		snapshot["consecutive_wards"] = int(player.consecutive_wards)
 		snapshot["kalligan_flame_tokens"] = int(
@@ -427,18 +431,48 @@ static func snapshot_marchers(
 	var result: Array[Dictionary] = []
 
 	for marcher in marchers:
-		result.append({
-			"card": card_id(marcher.get("card", null)),
+		var card = marcher.get("card", null)
+		var row: Dictionary = {
+			"card": card_id(card),
 			"value": int(marcher.get("value", 0)),
 			"lane": String(marcher.get("lane", "")),
 			"pos": int(marcher.get("pos", 0)),
-		})
+		}
 
+		# BATTLEFIELD_CLOCK_V1
+		# Preserve exact legacy shape for card-backed marchers. Standard tokens
+		# serialize their deterministic fixed-point position and persistent combat state.
+		if card == null:
+			row["id"] = String(marcher.get("id", ""))
+			row["unit"] = String(marcher.get("unit", "Standard"))
+			row["suit"] = String(marcher.get("suit", ""))
+			row["attack"] = int(marcher.get("attack", 0))
+			row["armor"] = int(marcher.get("armor", 0))
+			row["max_armor"] = int(marcher.get("max_armor", 0))
+			row["hp"] = int(marcher.get("hp", 0))
+			row["max_hp"] = int(marcher.get("max_hp", 0))
+			row["move"] = float(marcher.get("move", 0.0))
+			row["regen"] = int(marcher.get("regen", 0))
+			row["armor_bypass"] = bool(marcher.get("armor_bypass", false))
+			row["distance_fp"] = int(marcher.get("distance_fp", 0))
+			row["distance"] = float(marcher.get("distance", 0.0))
+			row["speed"] = float(marcher.get("speed", 0.0))
+			row["source"] = String(marcher.get("source", ""))
+			row["spawn_round"] = int(marcher.get("spawn_round", 0))
+			row["waiting"] = bool(marcher.get("waiting", false))
+			row["waiting_since_round"] = int(marcher.get("waiting_since_round", -1))
+
+		result.append(row)
+
+	# GOLDEN_SNAPSHOT_MARCHER_SORT_STRING_FIX_V1
+	# str() is the generic Variant -> text conversion in Godot 4.2.
+	# String(...) is not a valid constructor for numeric marcher fields such
+	# as pos / distance_fp / value and can fail at runtime inside this sorter.
 	result.sort_custom(
 		func(left: Dictionary, right: Dictionary) -> bool:
-			for key: String in ["lane", "pos", "card", "value"]:
-				var left_value: String = String(left.get(key, ""))
-				var right_value: String = String(right.get(key, ""))
+			for key: String in ["lane", "pos", "distance_fp", "id", "card", "value", "suit"]:
+				var left_value: String = str(left.get(key, ""))
+				var right_value: String = str(right.get(key, ""))
 				if left_value != right_value:
 					return left_value < right_value
 			return false

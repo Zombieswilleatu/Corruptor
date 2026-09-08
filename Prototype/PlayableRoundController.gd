@@ -14,6 +14,11 @@ const RoundEngineData = preload(
 	"res://Scripts/Sim/RoundEngine.gd"
 )
 
+# SIEGE_ENGINE_BOMBARDMENT_V1
+const SiegeEngineFireEngineData = preload(
+	"res://Scripts/Sim/SiegeEngineFireEngine.gd"
+)
+
 const CastleIntegrityRulesData = preload(
 	"res://Scripts/Sim/CastleIntegrityRules.gd"
 )
@@ -307,6 +312,29 @@ func advance_to_commitment() -> Dictionary:
 		}
 	)
 
+	# BATTLEFIELD_CLOCK_V1 — regen once at round start, then resolve the
+	# autonomous first half before any new Commitment decisions are made.
+	if rules.marching:
+		var march_regen_result: Dictionary = (
+			MarchingEngineData.regenerate_at_round_start(game, rules)
+		)
+		_record_phase("march_regen", march_regen_result)
+
+		var march_first_half_result: Dictionary = (
+			MarchingEngineData.resolve_half(
+				game,
+				rules,
+				random_source,
+				"first"
+			)
+		)
+		_record_phase("march_first_half", march_first_half_result)
+
+		if bool(march_first_half_result.get("terminal", false)):
+			stage = Stage.TERMINAL
+			last_result = _round_result(false, "march_first_half")
+			return last_result
+
 	var sigil_result: Dictionary = (
 		BotRoundEngineData._update_sigils(
 			game,
@@ -428,6 +456,8 @@ func resolve_human_market(
 	# There is no decision to make if neither side has a Ruined Castle.
 	# Skip the empty Repair prompt and move directly to Dominion Rites.
 	if not _repair_phase_has_choices():
+		# SIEGE_ENGINE_BOMBARDMENT_V1
+		_resolve_siege_engine_fire_after_repair()
 		stage = Stage.DOMINION_RITES
 		return _awaiting("dominion_rites")
 
@@ -675,11 +705,30 @@ func _finish_repair_phase() -> Dictionary:
 	pending_repair_choices.clear()
 	pending_repair_results.clear()
 
+	# SIEGE_ENGINE_BOMBARDMENT_V1
+	_resolve_siege_engine_fire_after_repair()
+
 	stage = Stage.DOMINION_RITES
 
 	return _awaiting(
 		"dominion_rites"
 	)
+
+
+# SIEGE_ENGINE_BOMBARDMENT_V1
+func _resolve_siege_engine_fire_after_repair() -> Dictionary:
+	var result: Dictionary = (
+		SiegeEngineFireEngineData.resolve(
+			game,
+			rules,
+			random_source
+		)
+	)
+	_record_phase(
+		"siege_engine_fire",
+		result
+	)
+	return result
 
 
 func _repair_phase_has_choices() -> bool:
@@ -878,10 +927,9 @@ func resolve_human_deploy(
 		"results": [human_result, bot_result],
 	})
 
-	if rules.marching:
-		stage = Stage.MARCH
-		return _awaiting("march")
-
+	# COMMITMENT_MARCHING_FOUNDATION_V1
+	# Guard-launch Marching Orders is retired from the live playable path.
+	# Commitment now creates battlefield tokens after public Reveal.
 	return _prepare_after_march()
 
 
@@ -2096,11 +2144,36 @@ func _resolve_revealed_orders(
 			)
 		)
 
+	# BATTLEFIELD_CLOCK_V1 — Reveal becomes public before any new token exists.
 	_record_phase(
 		"reveal",
 		reveal_result
 	)
+
+	var march_spawn_result: Dictionary = (
+		MarchingEngineData.spawn_from_commitments(
+			game,
+			rules,
+			commitment_choices
+		)
+	)
+	_record_phase("march_spawn", march_spawn_result)
+
+	var march_second_half_result: Dictionary = (
+		MarchingEngineData.resolve_half(
+			game,
+			rules,
+			random_source,
+			"second"
+		)
+	)
+	_record_phase("march_second_half", march_second_half_result)
+
 	kanifous_preview_cards.clear()
+	if bool(march_second_half_result.get("terminal", false)):
+		stage = Stage.TERMINAL
+		last_result = _round_result(false, "march_second_half")
+		return last_result
 
 	stage = Stage.VULTURE_RECON if _human_vulture_recon_available() else Stage.REVEALED
 	last_result = {
@@ -2266,9 +2339,6 @@ func resolve_revealed_round() -> Dictionary:
 			"result": resolution_result,
 		}
 	)
-
-	var march_advance_result: Dictionary = MarchingEngineData.advance(game, rules)
-	_record_phase("march_advance", march_advance_result)
 
 	var vacant_throne_result: Dictionary = (
 		VacantThroneEngineData.resolve_end_round(
@@ -2613,6 +2683,11 @@ func _apply_human_kalligan_scorch(
 func _resolve_human_resolution_action_committed(
 	options: Dictionary
 ) -> Dictionary:
+	game.set_meta(
+		"_resolution_random_source",
+		random_source
+	)
+
 	if stage != Stage.RESOLUTION_ACTION:
 		return _rejected("resolution_action", "not_awaiting_resolution_action")
 
@@ -2735,6 +2810,11 @@ func resolve_human_vessel(
 func resolve_human_reflex(
 	decision: Dictionary
 ) -> Dictionary:
+	game.set_meta(
+		"_resolution_random_source",
+		random_source
+	)
+
 	if stage != Stage.RESOLUTION_REFLEX:
 		return _rejected("reflex", "not_awaiting_human_reflex")
 
@@ -2759,6 +2839,11 @@ func resolve_human_reflex(
 func resolve_human_odradek_breach(
 	breach_decision: Dictionary
 ) -> Dictionary:
+	game.set_meta(
+		"_resolution_random_source",
+		random_source
+	)
+
 	if stage != Stage.RESOLUTION_ODRADEK_BREACH:
 		return _rejected("reflex", "not_awaiting_odradek_breach")
 
@@ -2874,6 +2959,11 @@ func _gremory_payment_entries_from_ids(
 
 
 func _advance_human_resolution() -> Dictionary:
+	game.set_meta(
+		"_resolution_random_source",
+		random_source
+	)
+
 	var raw_order = resolution_state.get("order", [])
 	if typeof(raw_order) != TYPE_ARRAY:
 		return _invalid("resolution", "resolution_order_not_array")
@@ -3193,8 +3283,9 @@ func _human_gremory_choice_available(
 
 
 func _finish_human_resolution() -> Dictionary:
-	var march_advance_result: Dictionary = MarchingEngineData.advance(game, rules)
-
+	# COMMITMENT_MARCHING_FOUNDATION_V1
+	# No legacy end-of-round step advance. The real-time battlefield clock owns
+	# movement in the next architecture slice.
 	var vacant_throne_result: Dictionary = (
 		VacantThroneEngineData.resolve_end_round(
 			game,
@@ -3218,13 +3309,12 @@ func _finish_human_resolution() -> Dictionary:
 	}
 
 	_record_phase("resolution", {"choices": resolution_state.get("action_choices", {}), "result": resolution_result})
-	_record_phase("march_advance", march_advance_result)
 	_record_phase("vacant_throne", vacant_throne_result)
 	_sync_guard_visibility()
 	stage = Stage.TERMINAL if int(game.winner) >= 0 else Stage.NO_GAME
 	last_result = _round_result(
 		true,
-		"march_advance" if stage == Stage.TERMINAL else ""
+		"resolution" if stage == Stage.TERMINAL else ""
 	)
 	return last_result
 

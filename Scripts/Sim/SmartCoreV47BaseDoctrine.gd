@@ -1236,7 +1236,8 @@ static func evaluate_action_candidates(
 			"forecast_reach": hunt_reach,
 		})
 
-	if not opponent.castles.is_empty():
+	# CASTLELESS_PILLAGE_V1
+	if not opponent.castles.is_empty() or rules.castleless_siege:
 		candidates.append({
 			"id": ACTION_SIEGE,
 			"action": ACTION_SIEGE,
@@ -2171,7 +2172,8 @@ static func _score_siege(
 	current_plan: String,
 	rules: RuleConfig
 ) -> float:
-	if opponent.castles.is_empty():
+	# CASTLELESS_PILLAGE_V1
+	if opponent.castles.is_empty() and not rules.castleless_siege:
 		return -5.0
 
 	var score: float = 0.333 if rules.fix_a else 1.0

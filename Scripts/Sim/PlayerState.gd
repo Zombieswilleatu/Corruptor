@@ -22,6 +22,9 @@ var valak_life_essence: int = 0
 var valak_projection_used_this_round: bool = false
 var momentum_refund_due: int = 0
 var repair_token: int = 0
+# SIEGE_ENGINE_BOMBARDMENT_V1
+# Persistent target lock; never reset at a round boundary.
+var siege_engine_target: String = ""
 
 # -1 = use RuleConfig.keep_fortification. Future meta/loadout progression may
 # set a concrete per-player value.
@@ -223,11 +226,27 @@ func attack_card_value(card, rules: RuleConfig, siege: bool = false) -> int:
 	return maxi(int(rules.attack_offsuit_floor), printed - penalty)
 
 
+# MARCHER_WAITING_SUPPORT_V1
+func waiting_marcher_support(siege: bool = false) -> int:
+	var lane_name: String = "Castle" if siege else "Lord"
+	var support: int = 0
+	for marcher in marchers:
+		if (
+			bool(marcher.get("waiting", false))
+			and String(marcher.get("lane", "")) == lane_name
+			and int(marcher.get("hp", 0)) > 0
+		):
+			support += 1
+	return support
+
+
 func attack_value(rules: RuleConfig, siege: bool = false, cards_override = null) -> int:
 	var source: Array = committed if cards_override == null else cards_override
 	var total: int = 0
 	for card in source:
 		total += attack_card_value(card, rules, siege)
+	# Each surviving waiter contributes exactly +1, regardless of suit/stats.
+	total += waiting_marcher_support(siege)
 	return total
 
 
@@ -305,6 +324,8 @@ func duplicate_state(forecast_fast: bool = false) -> PlayerState:
 	copy.valak_projection_used_this_round = valak_projection_used_this_round
 	copy.momentum_refund_due = momentum_refund_due
 	copy.repair_token = repair_token
+	# SIEGE_ENGINE_BOMBARDMENT_V1
+	copy.siege_engine_target = siege_engine_target
 	copy.keep_fortification_level = keep_fortification_level
 
 	copy.repaired_this_round = repaired_this_round

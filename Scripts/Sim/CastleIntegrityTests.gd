@@ -1,3 +1,4 @@
+# SIEGE_ENGINE_BOMBARDMENT_V1
 class_name CastleIntegrityTests
 extends RefCounted
 
@@ -67,7 +68,8 @@ static func _test_profile_contract() -> Dictionary:
 		or rules.castle_construction_mode != "granular"
 		or rules.castle_action_limit != 1
 		or rules.siege_engine_bypass
-		or rules.siege_engine_scope != "siege"
+		or rules.siege_engine_scope != "none"
+		or rules.siege_engine_round_damage != 2
 		or rules.attack_offsuit_penalty != 1
 		or rules.construction_action_cap != 5
 		or rules.repair_wright_mode != "tax"
@@ -234,17 +236,33 @@ static func _test_attack_tax_and_forge() -> Dictionary:
 		CardData.new("Penitent", 1),
 	]
 	if player.attack_value(rules, false) != 4:
-		return _fail("unit_suit_economy_attack_tax", "Hunt did not tax non-Butchers with floor 1.")
+		return _fail(
+			"unit_suit_economy_attack_tax",
+			"Hunt did not tax non-Butchers with floor 1."
+		)
 	if player.attack_value(rules, true) != 4:
-		return _fail("unit_suit_economy_attack_tax", "Ordinary Siege did not use the same tax.")
+		return _fail(
+			"unit_suit_economy_attack_tax",
+			"Ordinary Siege did not use the same Butcher/off-suit tax."
+		)
+
 	player.castles.append("SiegeEngine")
-	if player.attack_value(rules, true) != 5 or player.attack_value(rules, false) != 4:
-		return _fail("unit_suit_economy_forge", "Forge Discipline did not exempt Sieges only.")
-	rules.siege_engine_scope = "all"
-	if player.attack_value(rules, false) != 5:
-		return _fail("unit_suit_economy_forge_scope", "Siege Engine scope=all did not exempt Hunts.")
-	rules.siege_engine_scope = "siege"
-	return _pass("unit_suit_economy_attack_tax_and_forge")
+	player.castle_integrity["SiegeEngine"] = (
+		CastleIntegrityRulesData.max_integrity("SiegeEngine")
+	)
+
+	if (
+		player.attack_value(rules, true) != 4
+		or player.attack_value(rules, false) != 4
+	):
+		return _fail(
+			"unit_suit_economy_forge",
+			"Siege Engine still altered committed attack values after Forge Discipline retirement."
+		)
+
+	return _pass(
+		"unit_suit_economy_attack_tax_and_forge"
+	)
 
 
 static func _test_granular_repair() -> Dictionary:
@@ -327,20 +345,33 @@ static func _test_granular_construction() -> Dictionary:
 		"Bastion",
 		"Stockpile",
 	]:
-		player.castles.append(castle_name)
+		player.castles.append(
+			castle_name
+		)
+
+	var maximum: int = CastleIntegrityRulesData.max_integrity(
+		"SummoningCircle"
+	)
 
 	player.castle_integrity = {
-		"SiegeEngine": 14,
-		"Bastion": 14,
-		"Stockpile": 14,
+		"SiegeEngine": maximum,
+		"Bastion": maximum,
+		"Stockpile": maximum,
 	}
 	player.castle_construction_progress.clear()
 	player.castle_action_used_this_round = false
 
-	# Cap = payment ceiling. Over-cap selections are invalid and consume nothing.
+	# Per-action Construction cap stays 5. Higher max Integrity therefore
+	# means a new Castle needs more total progress, not a larger one-turn build.
 	player.hand = [
-		CardData.new("Butcher", 5),
-		CardData.new("Wright", 3),
+		CardData.new(
+			"Butcher",
+			5
+		),
+		CardData.new(
+			"Wright",
+			3
+		),
 	]
 	var rejected: Dictionary = RoundEngineData.resolve_repair_player(
 		game,
@@ -349,12 +380,20 @@ static func _test_granular_construction() -> Dictionary:
 		{
 			"action": "construct",
 			"castle": "SummoningCircle",
-			"payment": ["Butcher:5", "Wright:3"],
+			"payment": [
+				"Butcher:5",
+				"Wright:3",
+			],
 		}
 	)
 
 	if (
-		String(rejected.get("reason", "")) != "construction_payment_exceeds_cap"
+		String(
+			rejected.get(
+				"reason",
+				""
+			)
+		) != "construction_payment_exceeds_cap"
 		or not player.castle_construction_progress.is_empty()
 		or player.hand.size() != 2
 		or player.castle_action_used_this_round
@@ -364,56 +403,94 @@ static func _test_granular_construction() -> Dictionary:
 			"Over-cap Construction payment was not rejected atomically."
 		)
 
-	player.hand = [CardData.new("Butcher", 5)]
-	var first: Dictionary = RoundEngineData.resolve_repair_player(
-		game, 0, rules,
-		{
-			"action": "construct",
-			"castle": "SummoningCircle",
-			"payment": ["Butcher:5"],
-		}
-	)
+	var payments: Array[int] = [
+		5,
+		5,
+		5,
+		5,
+		1,
+	]
+	var expected_progress: Array[int] = [
+		5,
+		10,
+		15,
+		20,
+		21,
+	]
 
-	player.castle_action_used_this_round = false
-	player.hand = [CardData.new("Vulture", 5)]
-	var second: Dictionary = RoundEngineData.resolve_repair_player(
-		game, 0, rules,
-		{
-			"action": "construct",
-			"castle": "SummoningCircle",
-			"payment": ["Vulture:5"],
-		}
-	)
+	for index: int in range(
+		payments.size()
+	):
+		player.castle_action_used_this_round = false
 
-	player.castle_action_used_this_round = false
-	player.hand = [CardData.new("Butcher", 4)]
-	var third: Dictionary = RoundEngineData.resolve_repair_player(
-		game, 0, rules,
-		{
-			"action": "construct",
-			"castle": "SummoningCircle",
-			"payment": ["Butcher:4"],
-		}
-	)
+		var value: int = payments[index]
+		player.hand = [
+			CardData.new(
+				"Butcher",
+				value
+			),
+		]
+
+		var result: Dictionary = RoundEngineData.resolve_repair_player(
+			game,
+			0,
+			rules,
+			{
+				"action": "construct",
+				"castle": "SummoningCircle",
+				"payment": [
+					"Butcher:%d" % value,
+				],
+			}
+		)
+
+		if int(
+			result.get(
+				"progress_after",
+				0
+			)
+		) != expected_progress[index]:
+			return _fail(
+				"unit_castle_integrity_construction",
+				"Construction progress did not follow 5 -> 10 -> 15 -> 20 -> 21."
+			)
+
+		var should_complete: bool = (
+			index
+			== payments.size() - 1
+		)
+
+		if bool(
+			result.get(
+				"completed",
+				false
+			)
+		) != should_complete:
+			return _fail(
+				"unit_castle_integrity_construction",
+				"Construction completion timing drifted at 21 Integrity."
+			)
 
 	if (
-		int(first.get("progress_after", 0)) != 5
-		or int(first.get("progress_gain", 0)) != 5
-		or bool(first.get("completed", true))
-		or int(second.get("progress_after", 0)) != 10
-		or int(second.get("progress_gain", 0)) != 5
-		or bool(second.get("completed", true))
-		or not bool(third.get("completed", false))
-		or int(third.get("progress_after", 0)) != 14
-		or not player.castles.has("SummoningCircle")
-		or int(player.castle_integrity.get("SummoningCircle", 0)) != 14
+		maximum != 21
+		or not player.castles.has(
+			"SummoningCircle"
+		)
+		or int(
+			player.castle_integrity.get(
+				"SummoningCircle",
+				0
+			)
+		) != maximum
 	):
 		return _fail(
 			"unit_castle_integrity_construction",
-			"Legal Construction payments did not progress 5 -> 10 -> 14."
+			"Completed Castle did not enter play at 21/21 Integrity."
 		)
 
-	return _pass("unit_castle_integrity_construction")
+	return _pass(
+		"unit_castle_integrity_construction"
+	)
 
 
 static func _test_irreparable_ruination() -> Dictionary:
@@ -454,7 +531,7 @@ static func _test_profane_burns_type_without_soul_bonus() -> Dictionary:
 	var player = game.players[0]
 	player.castles.clear()
 	player.castles.append("Keep")
-	player.castle_integrity = {"Keep": 14}
+	player.castle_integrity = {"Keep": 21}
 	player.action = "Profane"
 	player.tgt_pid = 0
 	player.tgt_type = "Castle"

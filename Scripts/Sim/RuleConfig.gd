@@ -199,6 +199,8 @@ extends Resource
 # 6.10 suit economy. Defaults preserve DE v2; the measured lab enables them.
 @export var siege_engine_bypass: bool = true
 @export var siege_engine_scope: String = "none"
+# SIEGE_ENGINE_BOMBARDMENT_V1
+@export var siege_engine_round_damage: int = 0
 @export var attack_offsuit_penalty: int = 0
 @export var attack_penalty_exempt_suit: String = "Butcher"
 @export var attack_offsuit_floor: int = 1
@@ -427,7 +429,21 @@ static func lab_v6_5() -> RuleConfig:
 	config.march_suit_bonus = 1
 	config.march_steps = 3
 	config.march_exception_pair = true
-	config.lane_kill_soul = true
+	# BATTLEFIELD_NO_KILL_SOUL_V1
+	# Kept as a legacy schema field, but the current battlefield does not
+	# award Souls for killing marchers.
+	config.lane_kill_soul = false
+
+	# CASTLELESS_PILLAGE_V1
+	config.castleless_siege = true
+	config.castleless_tear_neutral = false
+
+
+	# SIEGE_ENGINE_BOMBARDMENT_V1
+	# Operational Siege Engines fire after Repair for 2 direct Integrity.
+	# Forge Discipline is retired; Butcher remains the attack-tax exception.
+	config.siege_engine_round_damage = 2
+	config.siege_engine_scope = "none"
 
 	return config
 

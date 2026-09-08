@@ -108,6 +108,9 @@ static func resolve(
 		)
 
 	if defender.castles.is_empty():
+		# CASTLELESS_PILLAGE_V1
+		if rules.castleless_siege:
+			return _resolve_castleless_pillage(game, rules, attacker, defender, options)
 		return _pass_result(
 			attacker_id,
 			defender_id,
@@ -755,6 +758,213 @@ static func resolve(
 		"ravenous_soul_gain": (
 			ravenous_soul_gain
 		),
+		"won": won,
+	}
+
+
+# CASTLELESS_PILLAGE_V1
+# Castleless Siege becomes Pillage. It keeps the Siege attack grammar, but the
+# physical objective is gone: Castle Ward -> Castle Guards -> exactly 1 Soul.
+static func _resolve_castleless_pillage(
+	game,
+	rules: RuleConfig,
+	attacker,
+	defender,
+	options: Dictionary = {}
+) -> Dictionary:
+	var attacker_id: int = int(attacker.pid)
+	var defender_id: int = int(defender.pid)
+	var souls_before: int = int(attacker.souls)
+
+	defender.was_sieged = true
+	defender.last_sieged_castle = ""
+	defender.last_sieged_castle_damage = 0
+	defender.last_sieged_castle_integrity_before = 0
+	defender.last_sieged_castle_integrity_after = 0
+
+	# Historical threshold Ward still turns the whole attack in non-frontline
+	# profiles. The current lab uses frontline Ward below.
+	if (
+		rules.ward_threshold
+		and not rules.ward_frontline
+		and bool(defender.ward_turned.get(ZONE_CASTLE, false))
+	):
+		return {
+			"action": "siege",
+			"reason": "",
+			"attacker_id": attacker_id,
+			"defender_id": defender_id,
+			"target_castle": "",
+			"pillage": true,
+			"pillage_success": false,
+			"strength": int(attacker.attack_value(rules, true)),
+			"guards_defeated": [],
+			"destroyed": false,
+			"target_destroyed": false,
+			"stopped_at": "Ward",
+			"soul_gain": 0,
+			"neutral_tear_gain": 0,
+			"personal_tear_gain": 0,
+			"won": false,
+		}
+
+	var recoil_result: Dictionary = OdradekInterlockEngineData.empty_result(
+		defender_id,
+		attacker_id
+	)
+	if (
+		defender.lord == "Odradek"
+		and defender.alive
+		and not rules.recoil_hunts_only
+	):
+		recoil_result = OdradekInterlockEngineData.resolve_recoil(
+			game,
+			defender,
+			attacker,
+			rules
+		)
+
+	# attack_value(..., true) already includes Castle-lane waiter support.
+	var strength: int = attacker.attack_value(rules, true)
+	strength += _suit_bonus(attacker.committed, "Butcher")
+
+	var war_machine_bonus: int = 0
+	if (
+		attacker.lord == "Deimos"
+		and attacker.alive
+		and (
+			CastleIntegrityRulesData.power_active(attacker, "SiegeEngine", rules)
+			or rules.deimos_war_machine_free
+		)
+	):
+		var lost_castles: int = attacker.ruined_castles.size()
+		if not rules.war_machine_ignores_profaned:
+			lost_castles += attacker.profaned_castles.size()
+		war_machine_bonus = maxi(0, 2 - lost_castles)
+		strength += war_machine_bonus
+
+	var pyroclasm_bonus: int = 0
+	if attacker.lord == "Kalligan" and attacker.alive:
+		pyroclasm_bonus = 2 if not defender.ruined_castles.is_empty() else 1
+		strength += pyroclasm_bonus
+
+	# Ordinary Siege interactions with the remaining Castle defenders still work.
+	var fear_returned_card = null
+	if (
+		attacker.lord == "Deimos"
+		and attacker.alive
+		and defender.castle_guards.size() >= 2
+	):
+		var fear_index: int = _lowest_card_index(defender.castle_guards)
+		fear_returned_card = defender.castle_guards[fear_index]
+		defender.castle_guards.remove_at(fear_index)
+		defender.hand.append(fear_returned_card)
+
+	var ignore_lowest: bool = (
+		attacker.lord == "Valak"
+		and attacker.alive
+		and defender.castle_guards.size() >= 2
+	)
+
+	var butcher_suppressed_card = null
+	if (
+		attacker.lord == "Kanifous"
+		and attacker.alive
+		and attacker.kanifous_invoked_suit == "Butcher"
+		and not defender.castle_guards.is_empty()
+	):
+		var suppressed_index: int = _lowest_card_index(defender.castle_guards)
+		butcher_suppressed_card = defender.castle_guards[suppressed_index]
+		defender.castle_guards.remove_at(suppressed_index)
+		game.discard.append(butcher_suppressed_card)
+
+	if rules.fog_of_war:
+		for guard in defender.castle_guards:
+			guard.guard_revealed = true
+
+	var ward_commit_defense: int = 0
+	if rules.ward_commit_defense and defender.action == "Ward":
+		ward_commit_defense = int(
+			defender.ward_reinforcement_value_for_zone(rules, ZONE_CASTLE)
+		)
+	var ward_screen: int = ward_commit_defense if rules.ward_frontline else 0
+
+	# No structure and no persistent Castle Sigil remain to defend. A positive
+	# point of attack left after Ward + Guards is a successful Pillage.
+	var combat_result: Dictionary = _resolve_combat(
+		game,
+		strength,
+		defender.castle_guards,
+		ignore_lowest,
+		"",
+		0,
+		0,
+		false,
+		ward_screen
+	)
+
+	var guards_defeated: Array = combat_result.get("guards_defeated", [])
+	var guards_lost: int = guards_defeated.size()
+	ValakEssenceEngineData.gain_from_guards(attacker, guards_defeated, rules)
+
+	if guards_lost > 0:
+		_mark_destruction(game)
+		if attacker.lord == "Kroni":
+			attacker.kroni_personally_defeated_guard = true
+			attacker.kroni_enemy_destroyed = true
+		if defender.lord == "Odradek":
+			defender.odradek_guards_defeated += guards_lost
+
+	var success: bool = bool(combat_result.get("destroyed", false))
+	if success:
+		_gain_soul(attacker, 1)
+
+	attacker.derived_lord_def = _calculate_lord_defense(attacker, rules)
+	defender.derived_lord_def = _calculate_lord_defense(defender, rules)
+	game.refresh_derived_values()
+	var won: bool = _check_win(game, rules)
+
+	var stopped_at: String = String(combat_result.get("stopped_at", ""))
+	if stopped_at == "Castle":
+		stopped_at = "Ruins"
+
+	return {
+		"action": "siege",
+		"reason": "",
+		"attacker_id": attacker_id,
+		"defender_id": defender_id,
+		"target_castle": "",
+		"pillage": true,
+		"pillage_success": success,
+		"reflex": bool(options.get("reflex", false)),
+		"strength": strength,
+		"war_machine_bonus": war_machine_bonus,
+		"pyroclasm_bonus": pyroclasm_bonus,
+		"structural_defense": 0,
+		"integrity_before": 0,
+		"integrity_after": 0,
+		"structure_damage": 0,
+		"ward_commit_defense": ward_commit_defense,
+		"siege_engine_bypass": false,
+		"fear_returned_card": "" if fear_returned_card == null else _card_id(fear_returned_card),
+		"ignore_lowest_guard": ignore_lowest,
+		"butcher_suppressed_card": "" if butcher_suppressed_card == null else _card_id(butcher_suppressed_card),
+		"sigil_state": "",
+		"sigil_value": 0,
+		"guards_defeated": _card_ids(guards_defeated),
+		"sigil_broken": false,
+		"destroyed": false,
+		"target_destroyed": false,
+		"bastion_ruined": false,
+		"excess": int(combat_result.get("excess", 0)),
+		"stopped_at": stopped_at,
+		"recoil_result": recoil_result,
+		"consumed": false,
+		"soul_gain": int(attacker.souls) - souls_before,
+		"neutral_tear_gain": 0,
+		"personal_tear_gain": 0,
+		"permanent_loss": false,
+		"tear_source": "",
 		"won": won,
 	}
 

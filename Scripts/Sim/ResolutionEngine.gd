@@ -582,7 +582,77 @@ static func _flush_frontline_ward_commitments(game) -> void:
 		player.committed.clear()
 
 
+# MARCHER_WAITING_SUPPORT_V1
 static func _resolve_committed_action(
+	game,
+	rules,
+	player,
+	options: Dictionary
+) -> Dictionary:
+	var action_name: String = String(player.action) if player != null else ""
+	var lane_name: String = ""
+	if action_name == "Hunt":
+		lane_name = "Lord"
+	elif action_name == "Siege":
+		lane_name = "Castle"
+
+	var advertised_support: int = 0
+	if not lane_name.is_empty() and player != null:
+		advertised_support = int(
+			player.waiting_marcher_support(action_name == "Siege")
+		)
+
+	# Keep waiters present while the base resolver calculates attack_value();
+	# PlayerState.attack_value() therefore includes their +1 each.
+	var result: Dictionary = _resolve_committed_action_base(
+		game,
+		rules,
+		player,
+		options
+	)
+
+	if (
+		lane_name.is_empty()
+		or advertised_support <= 0
+		or String(result.get("action", "")) == "invalid"
+	):
+		return result
+
+	var consumed_ids: Array[String] = _consume_waiting_marchers(
+		player,
+		lane_name
+	)
+	result["marcher_support"] = consumed_ids.size()
+	result["marcher_support_lane"] = lane_name
+	result["marcher_support_ids"] = consumed_ids
+	if game != null and game.has_method("refresh_derived_values"):
+		game.refresh_derived_values()
+	return result
+
+
+static func _consume_waiting_marchers(
+	player,
+	lane_name: String
+) -> Array[String]:
+	var consumed: Array[String] = []
+	if player == null:
+		return consumed
+
+	for index: int in range(player.marchers.size() - 1, -1, -1):
+		var marcher: Dictionary = player.marchers[index]
+		if (
+			not bool(marcher.get("waiting", false))
+			or String(marcher.get("lane", "")) != lane_name
+			or int(marcher.get("hp", 0)) <= 0
+		):
+			continue
+		consumed.append(String(marcher.get("id", "")))
+		player.marchers.remove_at(index)
+
+	consumed.reverse()
+	return consumed
+
+static func _resolve_committed_action_base(
 	game,
 	rules: RuleConfig,
 	player,

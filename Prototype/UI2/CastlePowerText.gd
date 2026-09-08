@@ -1,3 +1,4 @@
+# SIEGE_ENGINE_BOMBARDMENT_V1
 # UI2_CASTLE_CARD_TEXT_V1
 # Castle rules copy lives here instead of being baked into the art.
 # Edit this file when Castle wording changes; the PNGs never need repainting.
@@ -10,7 +11,7 @@ const POWER_NAMES: Dictionary = {
 	"Bastion": "FORTIFIED LAYERS",
 	"SummoningCircle": "BLOOD CONDUIT / BLOOD OFFERING",
 	"Stockpile": "SELECTIVE STORES",
-	"SiegeEngine": "FORGE DISCIPLINE",
+	"SiegeEngine": "BOMBARDMENT",
 }
 
 
@@ -19,7 +20,7 @@ const COMPACT_TEXT: Dictionary = {
 	"Bastion": "Sieges strike Bastion before another Castle.",
 	"SummoningCircle": "Exert Integrity to resist Threat or cheapen Summon.",
 	"Stockpile": "Draw 2 extra; keep 1 and discard 1.",
-	"SiegeEngine": "Sieges use full printed attack value.",
+	"SiegeEngine": "After Repair: deal 2 direct Integrity to a random enemy Castle; keep that target until Ruined.",
 }
 
 
@@ -49,8 +50,12 @@ const FULL_TEXT: Dictionary = {
 		+ "cards survives."
 	),
 	"SiegeEngine": (
-		"FORGE DISCIPLINE — During Siege, every committed suit contributes its "
-		+ "full printed value; ignore the normal off-suit attack penalty."
+		"BOMBARDMENT — After the Repair phase, if this Castle is Operational, "
+		+ "choose a random active enemy Castle if no target is locked. Deal 2 "
+		+ "direct Integrity damage to that Castle. Keep firing at the same target "
+		+ "on later rounds until it is Ruined; then choose a new target on a later "
+		+ "firing. Bombardment ignores Ward, Guards, and Bastion because it is not "
+		+ "a Siege action, and it grants no Souls or Tears."
 	),
 }
 

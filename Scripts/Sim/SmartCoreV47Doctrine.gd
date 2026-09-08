@@ -77,7 +77,41 @@ static func bid_choices(game, rng, rules: RuleConfig, policy = null) -> Dictiona
             d[pid] = y
     return d
 
-static func commitment_choices(game, rng, rules: RuleConfig, policy = null) -> Dictionary:
+static func commitment_choices(
+    game,
+    rng,
+    rules: RuleConfig,
+    policy = null
+) -> Dictionary:
+    var d: Dictionary = _commitment_choices_waiter_annotation_base(
+        game,
+        rng,
+        rules,
+        policy
+    )
+
+    # BATTLEFIELD_BOT_WAITER_ANNOTATION_V1
+    # Annotation only. No action, target, score, or RNG mutation.
+    for player in game.players:
+        var pid: int = int(player.pid)
+        var raw_choice = d.get(
+            pid,
+            d.get(str(pid), {})
+        )
+        if typeof(raw_choice) != TYPE_DICTIONARY:
+            continue
+        var choice: Dictionary = raw_choice.duplicate(true)
+        if choice.is_empty():
+            continue
+        d[pid] = _battlefield_annotate_waiters(
+            game,
+            pid,
+            choice
+        )
+
+    return d
+
+static func _commitment_choices_waiter_annotation_base(game, rng, rules: RuleConfig, policy = null) -> Dictionary:
     var d: Dictionary = Prod.commitment_choices(game, rng, rules, policy)
     if policy == null or not policy.has_method("mode_for"):
         return d
@@ -697,7 +731,57 @@ static func commitment_choices(game, rng, rules: RuleConfig, policy = null) -> D
         d[pid] = ward_choice
 
 
+
     return d
+
+# BATTLEFIELD_BOT_WAITER_ANNOTATION_V1
+static func _battlefield_annotate_waiters(
+    game,
+    pid: int,
+    choice: Dictionary
+) -> Dictionary:
+    var out: Dictionary = choice.duplicate(true)
+    var player = game.get_player(pid)
+    var opponent = game.get_opponent(pid)
+    if player == null:
+        return out
+
+    # Canonical waiter-count API. Doctrine does not duplicate marcher schema.
+    var own_lord: int = int(
+        player.waiting_marcher_support(false)
+    )
+    var own_castle: int = int(
+        player.waiting_marcher_support(true)
+    )
+    var enemy_lord: int = 0
+    var enemy_castle: int = 0
+
+    if opponent != null:
+        enemy_lord = int(
+            opponent.waiting_marcher_support(false)
+        )
+        enemy_castle = int(
+            opponent.waiting_marcher_support(true)
+        )
+
+    out["battlefield_waiter_own_lord"] = own_lord
+    out["battlefield_waiter_own_castle"] = own_castle
+    out["battlefield_waiter_enemy_lord"] = enemy_lord
+    out["battlefield_waiter_enemy_castle"] = enemy_castle
+
+    var action_name: String = String(
+        out.get("action", "")
+    )
+
+    if action_name == "Hunt":
+        out["battlefield_waiter_cash_bonus"] = own_lord
+        out["battlefield_waiter_cash_lane"] = "Lord"
+    elif action_name == "Siege":
+        out["battlefield_waiter_cash_bonus"] = own_castle
+        out["battlefield_waiter_cash_lane"] = "Castle"
+
+    return out
+
 
 static func commitment_choice(
     game,

@@ -10,6 +10,11 @@ const RoundEngineData = preload(
 	"res://Scripts/Sim/RoundEngine.gd"
 )
 
+# SIEGE_ENGINE_BOMBARDMENT_V1
+const SiegeEngineFireEngineData = preload(
+	"res://Scripts/Sim/SiegeEngineFireEngine.gd"
+)
+
 const DrawEngineData = preload(
 	"res://Scripts/Sim/DrawEngine.gd"
 )
@@ -210,6 +215,35 @@ static func resolve_round(
 		"begin_round",
 		phase_results["begin_round"]
 	)
+
+	# BATTLEFIELD_CLOCK_V1 — autonomous first half at round opening.
+	# Gate this entirely so marching-disabled canonical traces remain unchanged.
+	if rules.marching:
+		var march_regen_result: Dictionary = (
+			MarchingEngineData.regenerate_at_round_start(game, rules)
+		)
+		phase_results["march_regen"] = march_regen_result
+		_append_event(events, game, "march_regen", march_regen_result)
+
+		var march_first_half_result: Dictionary = (
+			MarchingEngineData.resolve_half(
+				game,
+				rules,
+				random_source,
+				"first"
+			)
+		)
+		phase_results["march_first_half"] = march_first_half_result
+		_append_event(events, game, "march_first_half", march_first_half_result)
+
+		if bool(march_first_half_result.get("terminal", false)):
+			return _finish_round(
+				game,
+				phase_results,
+				events,
+				false,
+				"march_first_half"
+			)
 
 	var sigil_result: Dictionary = (
 		_update_sigils(
@@ -436,6 +470,25 @@ static func resolve_round(
 			"Repair generated an invalid decision."
 		)
 
+	# SIEGE_ENGINE_BOMBARDMENT_V1
+	# Castle powers resolve after the complete Repair phase and before Dominion.
+	var siege_engine_fire_result: Dictionary = (
+		SiegeEngineFireEngineData.resolve(
+			game,
+			rules,
+			random_source
+		)
+	)
+	phase_results["siege_engine_fire"] = (
+		siege_engine_fire_result
+	)
+	_append_event(
+		events,
+		game,
+		"siege_engine_fire",
+		siege_engine_fire_result
+	)
+
 	var _culp_prof_rite_choices_us: int = _culpability_profile_now()
 	var rite_choices: Dictionary = (
 		BotDominionRiteDoctrineData
@@ -550,49 +603,9 @@ static func resolve_round(
 			"Deploy generated an invalid decision."
 		)
 
-	# Launching Marchers is likewise a real Development phase only in the lab.
-	# A disabled system must not add a synthetic canonical event.
-	if rules.marching:
-		var march_results: Array[Dictionary] = []
-
-		for player in game.players:
-			var player_id: int = int(player.pid)
-			var march_choice: Dictionary = (
-				BotMarchingDoctrineData.march_choice(
-					game,
-					player_id,
-					rules
-				)
-			)
-
-			march_results.append(
-				MarchingEngineData.launch(
-					game,
-					rules,
-					player_id,
-					march_choice
-				)
-			)
-
-		phase_results["march"] = {
-			"results": march_results,
-		}
-
-		_append_event(
-			events,
-			game,
-			"march",
-			phase_results["march"]
-		)
-
-		if _contains_invalid(march_results):
-			return _invalid_round(
-				game,
-				phase_results,
-				events,
-				"march",
-				"March generated an invalid decision."
-			)
+	# COMMITMENT_MARCHING_FOUNDATION_V1
+	# Guard-launch Marching Orders is retired. Commitment-generated tokens are
+	# created after Reveal below.
 
 	var _culp_prof_summon_choices_us: int = _culpability_profile_now()
 	var summon_choices: Dictionary = (
@@ -794,6 +807,39 @@ static func resolve_round(
 			)
 		)
 
+	# BATTLEFIELD_CLOCK_V1 — public Reveal, then spawn, then autonomous second half.
+	# Keep the whole battlefield extension absent when marching is disabled.
+	if rules.marching:
+		var march_spawn_result: Dictionary = (
+			MarchingEngineData.spawn_from_commitments(
+				game,
+				rules,
+				commitment_choices
+			)
+		)
+		phase_results["march_spawn"] = march_spawn_result
+		_append_event(events, game, "march_spawn", march_spawn_result)
+
+		var march_second_half_result: Dictionary = (
+			MarchingEngineData.resolve_half(
+				game,
+				rules,
+				random_source,
+				"second"
+			)
+		)
+		phase_results["march_second_half"] = march_second_half_result
+		_append_event(events, game, "march_second_half", march_second_half_result)
+
+		if bool(march_second_half_result.get("terminal", false)):
+			return _finish_round(
+				game,
+				phase_results,
+				events,
+				false,
+				"march_second_half"
+			)
+
 	# Python oracle timing: Reveal mutations are not a victory checkpoint.
 	# Resolution begins before Kanifous Reveal gains are checked for victory.
 
@@ -860,24 +906,9 @@ static func resolve_round(
 		)
 	)
 
-	# Marching Orders is a lab-only phase.  Do not emit an inert event in DE v2:
-	# the event sequence is part of the canonical round contract.
-	if rules.marching:
-		var march_advance_result: Dictionary = (
-			MarchingEngineData.advance(
-				game,
-				rules
-			)
-		)
-
-		phase_results["march_advance"] = march_advance_result
-
-		_append_event(
-			events,
-			game,
-			"march_advance",
-			march_advance_result
-		)
+	# COMMITMENT_MARCHING_FOUNDATION_V1
+	# Legacy end-of-round step movement is retired from the live round engine.
+	# The upcoming battlefield clock will own first-half / second-half movement.
 
 	var vacant_throne_result: Dictionary = (
 		VacantThroneEngineData.resolve_end_round(
@@ -899,8 +930,8 @@ static func resolve_round(
 		events,
 		true,
 		(
-			"march_advance"
-			if rules.marching and int(game.winner) >= 0
+			"resolution"
+			if int(game.winner) >= 0
 			else ""
 		)
 	)
