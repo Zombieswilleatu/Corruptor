@@ -33,7 +33,7 @@ func _ready() -> void:
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 12)
 	margin.add_child(root)
-	_label(root, "CASTLE DAMAGE — visual preview", 24)
+	_label(root, "CASTLE DAMAGE — settled shards preview", 24)
 	_label(
 		root,
 		"Cycles damage and repair every 2 seconds. Same renderer as the board; no game running."
@@ -92,7 +92,10 @@ func _ready() -> void:
 		_references.append(_card(column, Vector2(160, 232)))
 	_label(comparisons, "BOARD SIZE — animated (124 × 180)")
 	_board_size = _card(comparisons, Vector2(124, 180))
-	_label(root, "Look for separating seams, inward/downward movement and recovery during repairs.")
+	_label(
+		root,
+		"Wider cracks, lit fracture edges and gravity-settled pieces. Repairs reassemble the card."
+	)
 	_label(root, "Above 2/3: intact. At 2/3 or below: fractured. At 1/3 or below: heavily damaged.")
 	_timer = Timer.new()
 	_timer.wait_time = 2.0

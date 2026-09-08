@@ -3,9 +3,10 @@ extends Control
 const ConstructionShader = preload(
 	"res://Prototype/UI2/Shaders/CastleConstructionProgress.gdshader"
 )
+const Fracture = preload("res://Prototype/U13/U13CastleFracture.gd")
 
-# Presentation only: reuse one texture, with deterministic polygon pieces.
-# No physics, generated textures, RNG stream or gameplay state is involved.
+# Presentation only: textured shards with cached gravity/contact poses.
+# No live physics bodies, generated textures or gameplay state is involved.
 var texture: Texture2D
 var construction: bool = false
 var display_ratio: float = 1.0:
@@ -27,7 +28,7 @@ static func damage_band(integrity: int, maximum: int) -> int:
 func bind_castle(image: Texture2D, attributes: Dictionary, previous: Dictionary = {}) -> void:
 	texture = image
 	if _fragments.is_empty():
-		_build_fragments()
+		_fragments = Fracture.source()
 	construction = attributes.construction_state != "active"
 	if construction:
 		var progress_material := ShaderMaterial.new()
@@ -48,7 +49,7 @@ func bind_castle(image: Texture2D, attributes: Dictionary, previous: Dictionary 
 		_transition = create_tween()
 		(
 			_transition
-			. tween_property(self, "display_ratio", ratio, 0.65)
+			. tween_property(self, "display_ratio", ratio, 1.1)
 			. set_trans(Tween.TRANS_SINE)
 			. set_ease(Tween.EASE_IN_OUT)
 		)
@@ -73,38 +74,49 @@ func _draw() -> void:
 		draw_texture_rect(texture, rect, false)
 		return
 	var collapse: float = clampf((2.0 / 3.0 - display_ratio) * 1.5, 0.0, 1.0)
+	var stage: float = collapse * 3.0
+	var lower: int = mini(int(floor(stage)) + 1, 4)
+	var upper: int = mini(lower + 1, 4)
+	var blend: float = stage - floor(stage)
+	var first: Array = Fracture.pose(lower)
+	var second: Array = Fracture.pose(upper)
+	# A dark cavity behind separated faces makes the cracks readable at 124px.
+	draw_rect(rect, Color("090807"))
+	var polygons: Array = []
 	for index in range(_fragments.size()):
-		_piece(_fragments[index], rect, collapse, index)
+		var points := PackedVector2Array()
+		for vertex in range(3):
+			var point: Vector2 = first[index][vertex].lerp(second[index][vertex], blend)
+			points.append(rect.position + point * rect.size)
+		polygons.append(points)
+	# Draw all shadows before all faces so a later shard cannot paint its
+	# shadow over a neighbouring face. Shadows are also kept in the container.
+	var depth: float = maxf(1.0, rect.size.x * 0.012)
+	for polygon in polygons:
+		var shadow := PackedVector2Array()
+		for point in polygon:
+			shadow.append(
+				Vector2(
+					clampf(point.x + depth * 0.4, rect.position.x, rect.end.x),
+					clampf(point.y + depth, rect.position.y, rect.end.y)
+				)
+			)
+		draw_colored_polygon(shadow, Color(0, 0, 0, 0.9))
+	for index in range(polygons.size()):
+		_piece(polygons[index], _fragments[index], rect, collapse, index)
+	draw_rect(rect, Color("625234"), false, 1.0)
 
 
-func _build_fragments() -> void:
-	# Jagged seams rather than a uniform rectangular tile grid.
-	var rows: Array = [
-		[Vector2(0, 0), Vector2(0.34, 0), Vector2(0.68, 0), Vector2(1, 0)],
-		[Vector2(0, 0.31), Vector2(0.28, 0.26), Vector2(0.74, 0.36), Vector2(1, 0.28)],
-		[Vector2(0, 0.67), Vector2(0.39, 0.72), Vector2(0.63, 0.62), Vector2(1, 0.73)],
-		[Vector2(0, 1), Vector2(0.32, 1), Vector2(0.70, 1), Vector2(1, 1)]
-	]
-	for row in range(3):
-		for column in range(3):
-			var a: Vector2 = rows[row][column]
-			var b: Vector2 = rows[row][column + 1]
-			var c: Vector2 = rows[row + 1][column + 1]
-			var d: Vector2 = rows[row + 1][column]
-			_fragments.append(PackedVector2Array([a, b, c]))
-			_fragments.append(PackedVector2Array([a, c, d]))
-
-
-func _piece(uv: PackedVector2Array, rect: Rect2, collapse: float, ordinal: int) -> void:
-	var center: Vector2 = (uv[0] + uv[1] + uv[2]) / 3.0
-	var destination: Vector2 = center.lerp(Vector2(0.5, 0.76), collapse * 0.32)
-	destination.y += collapse * 0.08
-	var angle: float = float(ordinal % 5 - 2) * collapse * 0.035
-	var points := PackedVector2Array()
-	for point in uv:
-		var local: Vector2 = (
-			((point - center) * rect.size).rotated(angle) * (0.985 - collapse * 0.06)
-		)
-		points.append(rect.position + destination * rect.size + local)
-	var shade: float = 1.0 - collapse * (0.10 + float(ordinal % 3) * 0.04)
+func _piece(
+	points: PackedVector2Array, uv: PackedVector2Array, rect: Rect2, collapse: float, ordinal: int
+) -> void:
+	var shade: float = 1.0 - collapse * (0.12 + float(ordinal % 3) * 0.06)
 	draw_polygon(points, PackedColorArray([Color(shade, shade, shade)]), uv, texture)
+	var width: float = maxf(0.7, rect.size.x * 0.0035)
+	for edge in range(points.size()):
+		var a: Vector2 = points[edge]
+		var b: Vector2 = points[(edge + 1) % points.size()]
+		var direction: Vector2 = b - a
+		var lit: bool = direction.x - direction.y > 0
+		var color := Color(0.68, 0.59, 0.43, 0.75) if lit else Color(0.035, 0.025, 0.02, 0.95)
+		draw_line(a, b, color, width, true)
