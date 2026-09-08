@@ -41,8 +41,14 @@ func _run() -> void:
 		)
 		quit(1)
 		return
-	var version: String = str(Engine.get_version_info().string)
-	if not version.begins_with("4.7.2.stable"):
+	var info: Dictionary = Engine.get_version_info()
+	var version: String = str(info.get("string", "unknown"))
+	if (
+		info.get("major") != 4
+		or info.get("minor") != 7
+		or info.get("patch") != 2
+		or info.get("status") != "stable"
+	):
 		print("PROFILE ERROR: requires Godot 4.7.2 stable; got ", version)
 		quit(1)
 		return
