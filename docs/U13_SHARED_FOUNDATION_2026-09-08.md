@@ -213,3 +213,30 @@ The player path never returns the authoritative snapshot or RNG seed.
 
 No Gremory content, U12 runtime/controller edits, or playable U13 scene are part of
 this commit. The next action is the local 4.7.2 nine-suite gate.
+
+
+## Local verification follow-up: match fixture startup
+
+The user's Godot 4.7.2 run of `ca160e9` compiled every shared dependency and passed
+all first eight suites. `U13Match` failed its initial `match_starts` check; later
+missing-world errors were consequences of continuing after failed initialization.
+The nine-suite gate therefore remains **not cleared**.
+
+The fixture added its last rule using `rules.SecondZone = ...`. Godot's named
+Dictionary setter takes a `StringName`, whereas U13's strict data boundary requires
+String keys. All other rule keys already existed as String keys in a literal.
+Use `rules["SecondZone"] = ...` when inserting that new key. Do not loosen
+`U13EffectData.is_data` or silently convert arbitrary non-data objects.
+
+Engine source reference: `Variant::set_named` forwards its StringName member to
+`Dictionary::set` in
+https://github.com/godotengine/godot/blob/4.4-stable/core/variant/variant_setget.cpp.
+
+The match runner now checks serializable fixture rules and a complete startup
+before running dependent scenarios, and verifies explicit rejection of a
+StringName rule key. Startup errors print the returned reason; failed fixture
+creation does not lead to reading an empty world. Match start distinguishes invalid
+rules data, configuration, seed, player order, and an already-started owner.
+
+The change passes static parsing here. Godot is still unavailable in this coding
+environment; the authoritative 4.7.2 wrapper rerun is required. Gremory stays blocked.

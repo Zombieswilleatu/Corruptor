@@ -57,13 +57,17 @@ static func declaration_id(player_id: int, round_number: int, queue_index: int) 
 
 
 func start(seed_value: String, world: Dictionary, player_order: Array) -> Dictionary:
-	if (
-		not _seed.is_empty()
-		or seed_value.is_empty()
-		or not _configuration_valid()
-		or not Data.valid_player_order(player_order)
-	):
-		return Data.invalid("match_start_invalid")
+	if not _seed.is_empty():
+		return Data.invalid("match_already_started")
+	if seed_value.is_empty():
+		return Data.invalid("match_seed_required")
+	if not Data.valid_player_order(player_order):
+		return Data.invalid("match_player_order_invalid")
+	# Preserve the strict data contract and report the failed startup boundary.
+	if not Data.is_data(_rules):
+		return Data.invalid("match_rules_data_invalid")
+	if not _configuration_valid():
+		return Data.invalid("match_configuration_invalid")
 	var candidate = _new_owner()
 	var installed: Dictionary = candidate._install_world(world)
 	if installed.action == "invalid":

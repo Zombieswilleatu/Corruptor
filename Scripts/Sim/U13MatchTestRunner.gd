@@ -4,12 +4,17 @@ const MatchOwner = preload("res://Scripts/Sim/U13Match.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Decl = preload("res://Scripts/Sim/U13LordPowerDeclaration.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
+const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
 var failures: int = 0
 var _inject_failure: bool = false
 
 
 func _init() -> void:
+	if not _test_startup():
+		print("U13 match foundation failures: %d" % failures)
+		quit(1)
+		return
 	_test_submission()
 	_test_fizzle_and_survival()
 	_test_persistent_and_hidden_replay()
@@ -20,6 +25,34 @@ func _init() -> void:
 	_test_restore_guards()
 	print("U13 match foundation failures: %d" % failures)
 	quit(0 if failures == 0 else 1)
+
+
+func _test_startup() -> bool:
+	var rules: Dictionary = _rules()
+	_check(Data.is_data(rules), "fixture_rules_use_serializable_string_keys")
+	if failures > 0:
+		return false
+	var invalid_rules: Dictionary = rules.duplicate(true)
+	invalid_rules[StringName("InvalidKey")] = rules.Zone.duplicate(true)
+	var rejected: Dictionary = _owner("fixture_v1", invalid_rules).start(
+		"fixture_seed", _world(), [1, 0]
+	)
+	_check(
+		rejected.get("reason") == "match_rules_data_invalid",
+		"non_string_rule_key_rejected_explicitly"
+	)
+	var owner = _owner()
+	var started: Dictionary = owner.start("fixture_seed", _world(), [1, 0])
+	_check(started.action != "invalid", "startup_precondition")
+	if started.action == "invalid":
+		print("MATCH START ERROR: ", started)
+		return false
+	var world: Dictionary = owner.snapshot().world
+	_check(
+		world.players.size() == 2 and world.entities.entities.size() == 4,
+		"startup_installs_complete_world"
+	)
+	return failures == 0
 
 
 func _rules() -> Dictionary:
@@ -53,7 +86,8 @@ func _rules() -> Dictionary:
 	rules.Secret.fire_hook = Timeline.ROUND_START_SCHEDULED
 	rules.Secret.visibility = "hidden"
 	rules.Secret.target_kind = ""
-	rules.SecondZone = rules.Zone.duplicate(true)
+	# New data keys must be String, not the StringName produced by dot insertion.
+	rules["SecondZone"] = rules.Zone.duplicate(true)
 	return rules
 
 
@@ -99,9 +133,11 @@ func _world(settings: Dictionary = {}) -> Dictionary:
 
 func _fixture(settings: Dictionary = {}):
 	var owner = _owner()
-	_check(
-		owner.start("fixture_seed", _world(settings), [1, 0]).action != "invalid", "match_starts"
-	)
+	var started: Dictionary = owner.start("fixture_seed", _world(settings), [1, 0])
+	_check(started.action != "invalid", "match_starts")
+	if started.action == "invalid":
+		print("MATCH START ERROR: ", started)
+		return null
 	_drive(owner, Timeline.SUBMISSION_LOCK)
 	return owner
 
@@ -189,6 +225,8 @@ func _project(world: Dictionary, player_id: int) -> Dictionary:
 
 func _test_submission() -> void:
 	var owner = _fixture()
+	if owner == null:
+		return
 	var before: Dictionary = owner.snapshot()
 	_check(
 		owner.run_next_hook().action == "invalid" and owner.snapshot() == before,
@@ -254,6 +292,8 @@ func _test_submission() -> void:
 
 func _test_fizzle_and_survival() -> void:
 	var owner = _fixture({"destroy": true})
+	if owner == null:
+		return
 	owner.submit(0, [_declaration("Strike")])
 	owner.submit(1, [])
 	_drive(owner)
@@ -270,6 +310,8 @@ func _test_fizzle_and_survival() -> void:
 	)
 	_check(owner.snapshot().pending.pending.is_empty(), "fizzle_consumes_pending_instance")
 	owner = _fixture({"banish": true})
+	if owner == null:
+		return
 	owner.submit(0, [_declaration("Delayed")])
 	owner.submit(1, [])
 	_drive(owner)
@@ -284,6 +326,8 @@ func _test_fizzle_and_survival() -> void:
 		"banished_source_cannot_declare_new_power"
 	)
 	owner = _fixture({"reject_firing": true})
+	if owner == null:
+		return
 	owner.submit(0, [_declaration("Strike")])
 	owner.submit(1, [])
 	_drive(owner)
@@ -298,6 +342,8 @@ func _test_fizzle_and_survival() -> void:
 
 func _test_persistent_and_hidden_replay() -> void:
 	var owner = _fixture()
+	if owner == null:
+		return
 	owner.submit(0, [_declaration("Zone"), _declaration("Secret", 1)])
 	owner.submit(1, [])
 	_drive(owner)
@@ -365,6 +411,8 @@ func _test_persistent_and_hidden_replay() -> void:
 
 func _test_transaction() -> void:
 	var owner = _fixture()
+	if owner == null:
+		return
 	owner.submit(0, [_declaration("Strike"), _declaration("Other", 1)])
 	owner.submit(1, [])
 	_drive(owner, Timeline.POST_RESOLUTION_DIRECT)
@@ -387,6 +435,8 @@ func _test_transaction() -> void:
 
 func _test_order() -> void:
 	var owner = _fixture()
+	if owner == null:
+		return
 	owner.submit(0, [_declaration("Strike"), _declaration("Other", 1)])
 	owner.submit(1, [_declaration("Strike", 0, 1, 1)])
 	_drive(owner)
@@ -398,6 +448,8 @@ func _test_order() -> void:
 
 func _test_independent_persistent_slots() -> void:
 	var owner = _fixture()
+	if owner == null:
+		return
 	_check(
 		owner.submit(0, [_declaration("Zone"), _declaration("SecondZone", 1)]).action != "invalid",
 		"independent_persistent_powers_can_be_declared"
@@ -416,6 +468,8 @@ func _test_independent_persistent_slots() -> void:
 
 func _test_joint_declaration_context() -> void:
 	var owner = _fixture({"opponent_unspent": true})
+	if owner == null:
+		return
 	_check(
 		owner.submit(0, [_declaration("Strike")]).action != "invalid",
 		"first_submission_uses_presented_world"
@@ -432,6 +486,8 @@ func _test_joint_declaration_context() -> void:
 
 func _test_restore_guards() -> void:
 	var owner = _fixture()
+	if owner == null:
+		return
 	var before: Dictionary = owner.snapshot()
 	for key in ["policy_id", "rng_version", "engine_version", "rules_hash"]:
 		var corrupt: Dictionary = before.duplicate(true)
