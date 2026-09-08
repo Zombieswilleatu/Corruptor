@@ -37,6 +37,6 @@ check; it does not produce balance data or replace deterministic runner coverage
   duration. See [board responsiveness](U13_BOARD_RESPONSIVENESS_2026-09-08.md) for
   the worker boundary, frame-gap logging and the pending black-flash investigation.
 
-The existing U13Board runner also exercises dense launch controls, population,
+The U13DenseBoard runner exercises dense launch controls, population,
 damage playback, completion, and deterministic restart. Source grammar and shell
 argument routing were checked here; Godot runtime and visual verification remain local.

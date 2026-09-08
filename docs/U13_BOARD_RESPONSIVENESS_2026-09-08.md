@@ -73,4 +73,7 @@ duplicate requests, worker rejection and restart discarding obsolete results.
 Existing board interaction tests now await the production worker path.
 
 GDScript grammar and shell syntax checks pass in the workspace. Godot 4.7.2 execution,
-14/14 foundation results and in-game frame behavior still require local verification.
+15/15 foundation results and in-game frame behavior still require local verification.
+
+The [runner timeout follow-up](U13_BOARD_RUNNER_TIMEOUT_2026-09-08.md) separates
+dense integration into its own runner and adds a focused `--board` rerun.

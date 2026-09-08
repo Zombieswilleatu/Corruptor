@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 # Usage: bash Scripts/Sim/run_u13_foundation_tests.sh /path/to/godot_console.exe
-# Logs stay in the system temp directory, outside the project.
+# Successful logs are temporary; failure logs are preserved in Downloads.
 set -uo pipefail
 
-if [[ $# -ne 1 ]]; then
-  printf 'Usage: bash %s /path/to/Godot_console_executable\n' "$0" >&2
+if [[ $# -lt 1 || $# -gt 2 || ( $# -eq 2 && "$2" != --board ) ]]; then
+  printf 'Usage: bash %s /path/to/Godot_console_executable [--board]\n' "$0" >&2
   exit 2
 fi
 godot_u13_exe=$1
+u13_board_only=false
+if [[ ${2:-} == --board ]]; then
+  u13_board_only=true
+fi
 if [[ ! -x "$godot_u13_exe" ]]; then
   printf 'Godot executable not found or not executable: %s\n' "$godot_u13_exe" >&2
   exit 2
@@ -23,9 +27,27 @@ if [[ ! "$u13_timeout_seconds" =~ ^[1-9][0-9]{0,3}$ ]]; then
 fi
 
 u13_cleanup() {
+  local u13_cleanup_status=$?
   if [[ -n "$u13_active_pid" ]]; then
     kill -KILL "$u13_active_pid" 2>/dev/null || true
     wait "$u13_active_pid" 2>/dev/null || true
+  fi
+  if [[ $u13_cleanup_status -ne 0 ]]; then
+    local u13_failure_dir=${U13_TEST_LOG_DIR:-$HOME/Downloads}
+    local u13_failure_log
+    if mkdir -p -- "$u13_failure_dir" && u13_failure_log=$(mktemp "$u13_failure_dir/u13-foundation-failure-XXXXXX.log"); then
+      printf 'U13 wrapper exit: %s; board_only: %s; timeout: %ss\n' \
+        "$u13_cleanup_status" "$u13_board_only" "$u13_timeout_seconds" >"$u13_failure_log"
+      for u13_saved_log in "$u13_test_logs"/*.log; do
+        [[ -f "$u13_saved_log" ]] || continue
+        printf '\nLOG: %s\n' "${u13_saved_log##*/}" >>"$u13_failure_log"
+        cat -- "$u13_saved_log" >>"$u13_failure_log"
+      done
+      printf 'Failure log saved: %s\n' "$u13_failure_log" >&2
+    else
+      printf 'Could not save failure log; preserving logs at %s\n' "$u13_test_logs" >&2
+      return
+    fi
   fi
   rm -rf -- "$u13_test_logs"
 }
@@ -104,6 +126,7 @@ u13_runners=(
   U13MarchingIntegration
   U13Smoke
   U13Board
+  U13DenseBoard
 )
 u13_markers=(
   'U13 round timeline failures: 0'
@@ -120,7 +143,12 @@ u13_markers=(
   'U13 Marching integration failures: 0'
   'U13 smoke scene failures: 0'
   'U13 board failures: 0'
+  'U13 dense board failures: 0'
 )
+if [[ $u13_board_only == true ]]; then
+  u13_runners=(U13Board U13DenseBoard)
+  u13_markers=('U13 board failures: 0' 'U13 dense board failures: 0')
+fi
 u13_failed=0
 for u13_index in "${!u13_runners[@]}"; do
   u13_runner=${u13_runners[$u13_index]}
@@ -141,6 +169,10 @@ for u13_index in "${!u13_runners[@]}"; do
     exit 1
   fi
 done
-printf 'U13 foundation runners passed: %s/%s\n' \
+u13_suite_label=foundation
+if [[ $u13_board_only == true ]]; then
+  u13_suite_label=board
+fi
+printf 'U13 %s runners passed: %s/%s\n' "$u13_suite_label" \
   "$((${#u13_runners[@]} - u13_failed))" "${#u13_runners[@]}"
 [[ $u13_failed -eq 0 ]]
