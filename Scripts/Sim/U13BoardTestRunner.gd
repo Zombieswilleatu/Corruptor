@@ -256,6 +256,7 @@ func _board_controls() -> void:
 	board.hand_view.select_card_id(ids[1])
 	var before_modal: Dictionary = board.session.checkpoint()
 	board.confirm.pressed.emit()
+	await _wait_board_job(board)
 	_check(board.powers_step and not board.playing, "board_combat_confirm_opens_powers")
 	_check(board.session.checkpoint() == before_modal, "board_no_state_advance_between_modals")
 	_check(
@@ -316,8 +317,10 @@ func _board_controls() -> void:
 		"board_back_restores_combat_selection"
 	)
 	board.confirm.pressed.emit()
+	await _wait_board_job(board)
 	board.queue_predator()
 	board.pass_button.pressed.emit()
+	await _wait_board_job(board)
 	_check(
 		board.playing and board.session.plans().powers.is_empty(), "board_no_powers_clears_queue"
 	)
@@ -330,9 +333,11 @@ func _board_controls() -> void:
 		"board_playback_and_repeat_confirm_do_not_resolve_again"
 	)
 	board.finish_playback()
+	await _wait_board_job(board)
 	board.restart()
 	var before_skip: Dictionary = board.session.checkpoint()
 	board.pass_button.pressed.emit()
+	await _wait_board_job(board)
 	_check(
 		board.powers_step and board.staged_order.is_empty() and not board.playing,
 		"board_skip_combat_still_offers_powers"
@@ -340,6 +345,7 @@ func _board_controls() -> void:
 	_check(board.session.checkpoint() == before_skip, "board_skip_combat_does_not_advance_state")
 	board.queue_predator()
 	board.confirm.pressed.emit()
+	await _wait_board_job(board)
 	_check(
 		board.playing and board.session.plans().powers.size() == 1,
 		"board_power_only_round_resolves"
@@ -347,26 +353,34 @@ func _board_controls() -> void:
 	await process_frame
 	_check(not board.pass_button.is_visible_in_tree(), "board_playback_hides_modal_actions")
 	board.finish_playback()
+	await _wait_board_job(board)
 	board.confirm.pressed.emit()
+	await _wait_board_job(board)
 	_check(
 		board.session.round_number() == 2 and not board.powers_step,
 		"board_next_round_starts_with_combat"
 	)
 	board.pass_button.pressed.emit()
+	await _wait_board_job(board)
 	_check(
 		board.predator_state.text.contains("Cooldown 1") and board.predator_button.disabled,
 		"board_predator_current_cooldown_shown"
 	)
 	board.pass_button.pressed.emit()
+	await _wait_board_job(board)
 	board.finish_playback()
+	await _wait_board_job(board)
 	board.confirm.pressed.emit()
+	await _wait_board_job(board)
 	board.pass_button.pressed.emit()
+	await _wait_board_job(board)
 	_check(
 		board.predator_state.text.contains("Ready") and not board.predator_button.disabled,
 		"board_predator_ready_after_cooldown"
 	)
 	board.restart()
 	board.pass_button.pressed.emit()
+	await _wait_board_job(board)
 	var fired_target: String = board.ruin_target.get_item_metadata(0)
 	var ruin_hand: Array = board.session.view().world.hand
 	board.hand_view.select_card_id(ruin_hand[0])
@@ -374,7 +388,9 @@ func _board_controls() -> void:
 	board.ruin_button.pressed.emit()
 	_check(board.queued.size() == 1 and not board.confirm.disabled, "board_ruin_can_be_queued")
 	board.confirm.pressed.emit()
+	await _wait_board_job(board)
 	board.finish_playback()
+	await _wait_board_job(board)
 	_check(
 		board.session.power_status(Gremory.RUIN).fire_round == 2, "board_ruin_armed_for_next_round"
 	)
@@ -382,6 +398,7 @@ func _board_controls() -> void:
 		board.phase_prompt.copy_label.text.contains("armed"), "board_aftermath_explains_armed_ruin"
 	)
 	board.confirm.pressed.emit()
+	await _wait_board_job(board)
 	var defunct: bool = false
 	for entity in board.session.view().world.entities:
 		if entity.id == fired_target:
@@ -403,6 +420,7 @@ func _dense_board() -> void:
 	await process_frame
 	board.set_process(false)
 	var initial: Dictionary = board.session.checkpoint()
+	var reference = board.session._fork_for_job()
 	var counts: Array = [0, 0]
 	var suits: Array = [{}, {}]
 	var positions: Dictionary = {}
@@ -417,11 +435,24 @@ func _dense_board() -> void:
 	_check(board.status.is_visible_in_tree(), "dense_board_instructions_visible")
 	_check(board.dense_button.is_visible_in_tree(), "dense_board_run_button_visible")
 	board.dense_button.pressed.emit()
+	var running = board._job
+	_check(running != null and not board.playing, "dense_board_prepares_without_blocking")
+	_check(
+		board.session.checkpoint() == initial, "dense_board_worker_does_not_publish_partial_state"
+	)
+	board.run_dense_round()
+	_check(board._job == running, "dense_board_worker_duplicate_click_ignored")
+	await _wait_board_job(board)
 	if not _check(board.playing, "dense_board_button_resolves_real_marching"):
 		board.queue_free()
 		await process_frame
 		return
 	_check(board.dense_button.disabled, "dense_board_cannot_double_resolve")
+	_check(reference.run_to_marching().action != "invalid", "dense_board_synchronous_reference")
+	_check(
+		board.session.checkpoint() == reference.checkpoint(),
+		"dense_board_worker_exact_state_and_events"
+	)
 	_check(
 		board.playback.sample(0).units.size() == DenseSession.COUNT,
 		"dense_board_no_extra_bot_spawns"
@@ -438,12 +469,35 @@ func _dense_board() -> void:
 	_check(damaged, "dense_board_visible_damage_for_health_rings")
 	_check(moved, "dense_board_authoritative_positions_move")
 	board.finish_playback()
+	await _wait_board_job(board)
 	_check(board.session.next_hook().is_empty(), "dense_board_round_completes")
 	_check(not board.dense_button.disabled, "dense_board_next_round_available")
 	board.restart()
 	_check(board.session.checkpoint() == initial, "dense_board_restart_repeats_opening")
+	board._start_job("invalid_fixture_operation")
+	await _wait_board_job(board)
+	_check(board.session.checkpoint() == initial, "dense_board_worker_failure_preserves_state")
+	board.run_dense_round()
+	board.restart()
+	_check(board._restart_pending, "dense_board_restart_waits_without_joining")
+	await _wait_board_job(board)
+	_check(
+		board.session.checkpoint() == initial and not board.playing,
+		"dense_board_restart_discards_old_job"
+	)
 	board.queue_free()
 	await process_frame
+
+
+func _wait_board_job(board) -> void:
+	if board._job == null:
+		return
+	var deadline: int = Time.get_ticks_msec() + 15000
+	while board._job != null and Time.get_ticks_msec() < deadline:
+		await process_frame
+		if not board.is_processing():
+			board._process(0.0)
+	_check(board._job == null, "board_worker_completed")
 
 
 func _finish(session) -> bool:

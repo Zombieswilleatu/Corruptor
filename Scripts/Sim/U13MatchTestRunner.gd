@@ -24,6 +24,7 @@ func _init() -> void:
 	_test_independent_persistent_slots()
 	_test_joint_declaration_context()
 	_test_restore_guards()
+	_test_bounded_event_reads()
 	_test_event_forks()
 	_test_shared_event_input()
 	_test_internal_forks()
@@ -729,3 +730,21 @@ func _check(condition: bool, label: String) -> void:
 	else:
 		failures += 1
 		print("FAIL  " + label)
+
+
+func _test_bounded_event_reads() -> void:
+	var log = EventLog.new()
+	for index in range(6):
+		var event: Dictionary = {
+			"type": "READ_FIXTURE", "text": str(index), "data": {"value": index}
+		}
+		log.append(event, [event if index % 2 == 0 else null, null])
+	var full: Array = log.for_player(0)
+	_check(log.for_player(0, 0, 2) == full.slice(1), "event_tail_counts_visible_rows")
+	_check(log.for_player(0, 3) == full.slice(2), "event_cursor_uses_authoritative_rows")
+	_check(log.for_player(0, 0, 0).is_empty(), "event_zero_limit_omits_history")
+	_check(log.for_player(1, 0, 2).is_empty(), "event_tail_preserves_hidden_views")
+	_check(log.for_player(0, 6).is_empty(), "event_cursor_at_end_is_empty")
+	var tail: Array = log.for_player(0, 0, 1)
+	tail[0].data.value = 99
+	_check(log.for_player(0) == full, "event_tail_isolated_from_mutation")

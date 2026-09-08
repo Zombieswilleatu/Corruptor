@@ -42,7 +42,7 @@ func next_hook() -> String:
 
 
 func round_number() -> int:
-	return 0 if _owner == null else int(_owner.snapshot().runtime.round)
+	return 0 if _owner == null else _owner.round_number()
 
 
 func scenario() -> int:
@@ -139,11 +139,14 @@ func step() -> Dictionary:
 	if next_hook() == Timeline.SUBMISSION_LOCK:
 		return lock_plans()
 	var hook: String = next_hook()
-	var before_view: Dictionary = view()
-	var count_before: int = before_view.events.size()
+	var before_view: Dictionary = {}
+	var cursor: int = 0
+	if hook == Timeline.MARCHING:
+		before_view = _owner.player_view(0, 15)
+		cursor = _owner._event_cursor()
 	var result: Dictionary = _owner.run_next_hook()
 	if result.action != "invalid" and hook == Timeline.MARCHING:
-		_last_marching = view().events.slice(count_before)
+		_last_marching = _owner._player_events_since(0, cursor)
 		result["before_marching"] = before_view
 	return result
 

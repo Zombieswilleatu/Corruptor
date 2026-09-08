@@ -3,6 +3,7 @@ extends Control
 const PhasePrompt = preload("res://Prototype/U13/U13PhasePrompt.gd")
 const ActionZone = preload("res://Prototype/U13/U13ActionZone.gd")
 const Session = preload("res://Scripts/Sim/U13BoardSession.gd")
+const BoardJob = preload("res://Prototype/U13/U13BoardJob.gd")
 const DenseSession = preload("res://Scripts/Sim/U13DenseBoardSession.gd")
 const Playback = preload("res://Prototype/U13/U13SmokePlayback.gd")
 const Lanes = preload("res://Prototype/U13/U13BoardLanes.gd")
@@ -33,6 +34,14 @@ var session = Session.new()
 var playback = Playback.new()
 var dense_mode: bool = false
 var dense_button: Button
+var _job = null
+var _job_operation: String = ""
+var _restart_pending: bool = false
+var _quit_pending: bool = false
+var _continue_dense: bool = false
+var _busy_label: Label
+var _busy_clock: float = 0.0
+var _previous_frame_us: int = 0
 var playing: bool = false
 var clock: float = 0.0
 var queued: Array = []
@@ -79,6 +88,7 @@ func _ready() -> void:
 		and int(version.patch) == 2
 		and String(version.status) == "stable"
 	)
+	get_tree().auto_accept_quit = false
 	get_window().content_scale_size = Vector2i(1920, 1080)
 	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
@@ -95,6 +105,10 @@ func _ready() -> void:
 
 
 func restart() -> void:
+	if _job != null:
+		_restart_pending = true
+		_continue_dense = false
+		return
 	if not _runtime_ok:
 		return
 	playing = false
@@ -132,7 +146,7 @@ func _build() -> void:
 		dense_button = _button(header.tools_box, "Run dense round", run_dense_round)
 		decision_button.hide()
 	_button(header.tools_box, "Restart", restart)
-	_button(header.tools_box, "Exit", func(): get_tree().quit())
+	_button(header.tools_box, "Exit", request_exit)
 	_button(
 		header.history_box, "HISTORY", func(): history_panel.visible = not history_panel.visible
 	)
@@ -262,10 +276,12 @@ func _build() -> void:
 	history.scroll_following = true
 	history_column.add_child(history)
 	history_panel.hide()
+	_busy_label = _label(main, "", 16)
+	_busy_label.custom_minimum_size.y = 26
 
 
 func _refresh(presented: Dictionary = {}) -> void:
-	var view: Dictionary = session.view() if presented.is_empty() else presented
+	var view: Dictionary = session.board_view() if presented.is_empty() else presented
 	var world: Dictionary = view.world
 	header.bind_world(world, session.round_number())
 	_render_side(sides[0], world, 1)
@@ -338,7 +354,12 @@ func _board_target_selected(action: String, lane: String, target_id: String) -> 
 
 
 func _planning() -> bool:
-	return _runtime_ok and not playing and session.next_hook() == Timeline.SUBMISSION_LOCK
+	return (
+		_runtime_ok
+		and _job == null
+		and not playing
+		and session.next_hook() == Timeline.SUBMISSION_LOCK
+	)
 
 
 func _order() -> Dictionary:
@@ -453,10 +474,12 @@ func clear_powers() -> void:
 
 
 func run_dense_round() -> void:
-	if not dense_mode or playing or not _runtime_ok:
+	if not dense_mode or playing or _job != null or not _runtime_ok:
 		return
 	if session.next_hook().is_empty():
+		_continue_dense = true
 		next_round()
+		return
 	if not _planning():
 		return
 	queued = []
@@ -471,28 +494,64 @@ func run_dense_round() -> void:
 func resolve_round() -> void:
 	if not _planning():
 		return
-	if _error(session.choose(queued, _order())):
-		return
-	var result: Dictionary = session.run_to_marching()
-	if _error(result):
-		return
-	if not playback.build(session.marching_events()):
-		status.text = "Marching tape missing; playback stopped."
-		return
-	clock = 0.0
-	playing = true
-	_refresh(result.before_marching)
-	lanes.show_frame(playback.sample(0), session.round_number())
-	status.text = (
-		"Marching — committed Marchers wait until next round; "
-		+ "summoned Vultures move immediately."
-	)
+	_start_job("marching", queued, _order())
 
-	if dense_mode:
-		status.text = "Dense Marching · watch steering, queued contacts and shrinking health rings."
+
+func _start_job(operation: String, powers: Array = [], order: Dictionary = {}) -> void:
+	if _job != null:
+		return
+	var started: int = Time.get_ticks_usec()
+	var job = BoardJob.new()
+	var result: Dictionary = job.start(session, operation, powers, order)
+	if _error(result):
+		_continue_dense = false
+		return
+	_job = job
+	_job_operation = operation
+	_busy_clock = 0.0
+	phase_prompt.set_presenting(false)
+	confirm.disabled = true
+	pass_button.disabled = true
+	next_button.disabled = true
+	decision_button.disabled = true
+	if dense_button != null:
+		dense_button.disabled = true
+	# Leave the rendered board intact. The worker owns no Nodes or textures.
+	_busy_label.text = "Preparing round…"
+	print(
+		(
+			"U13 BOARD prepare_submit_ms=%.3f operation=%s"
+			% [float(Time.get_ticks_usec() - started) / 1000.0, operation]
+		)
+	)
 
 
 func _process(delta: float) -> void:
+	var now: int = Time.get_ticks_usec()
+	if _previous_frame_us > 0 and now - _previous_frame_us > 100000:
+		print(
+			(
+				"U13 BOARD frame_gap_ms=%.3f state=%s"
+				% [
+					float(now - _previous_frame_us) / 1000.0,
+					_job_operation if _job != null else ("playback" if playing else "idle")
+				]
+			)
+		)
+	_previous_frame_us = now
+	if _job != null:
+		_busy_clock += maxf(delta, 0.0)
+		_busy_label.text = (
+			(
+				"Closing"
+				if _quit_pending
+				else ("Restarting" if _restart_pending else "Preparing round")
+			)
+			+ ".".repeat(1 + int(_busy_clock * 3.0) % 3)
+		)
+		if _job.ready():
+			_complete_job()
+		return
 	if not playing:
 		return
 	clock = minf(playback.duration, clock + maxf(delta, 0.0))
@@ -501,36 +560,85 @@ func _process(delta: float) -> void:
 		finish_playback()
 
 
-func finish_playback() -> void:
-	if not playing:
+func _complete_job() -> void:
+	var started: int = Time.get_ticks_usec()
+	var result: Dictionary = _job.take()
+	_job = null
+	_job_operation = ""
+	_busy_label.text = ""
+	if _quit_pending:
+		get_tree().quit()
 		return
-	playing = false
-	for index in range(3):
-		if session.next_hook().is_empty():
-			break
-		if _error(session.step()):
-			return
-	_refresh()
-	status.text = (
-		"Round resolved. Next round continues; Restart restores the opening hand. "
-		+ "This slice has no normal draw or victory yet."
+	if _restart_pending:
+		_restart_pending = false
+		restart()
+		return
+	if result.action == "invalid":
+		_continue_dense = false
+		_refresh()
+		_error(result)
+		return
+	# Publish only a complete successful transaction; failures leave session intact.
+	session = result.session
+	if result.operation == "marching":
+		playback = result.playback
+		clock = 0.0
+		playing = true
+		_refresh(result.presented)
+		lanes.show_frame(playback.sample(0), session.round_number())
+	elif result.operation == "aftermath":
+		_refresh(result.presented)
+		status.text = "Round resolved. Next round continues; Restart restores the opening."
+	else:
+		queued = []
+		payment = []
+		powers_step = false
+		staged_order = {}
+		action_choice.select(0)
+		_refresh(result.presented)
+	print(
+		(
+			"U13 BOARD worker_ms=%.3f install_ms=%.3f operation=%s"
+			% [result.worker_ms, float(Time.get_ticks_usec() - started) / 1000.0, result.operation]
+		)
 	)
+	if _continue_dense:
+		_continue_dense = false
+		run_dense_round()
 
-	if dense_mode:
-		status.text = "Dense round complete. Next dense round continues; Restart restores all 48 Marchers."
+
+func finish_playback() -> void:
+	if not playing or _job != null:
+		return
+	# Skip goes to the actual final picture, never leaves a half-played field.
+	clock = playback.duration
+	lanes.show_frame(playback.sample(clock), session.round_number())
+	playing = false
+	_start_job("aftermath")
 
 
 func next_round() -> void:
-	if playing or not session.next_hook().is_empty():
+	if playing or _job != null or not session.next_hook().is_empty():
 		return
-	if _error(session.next_round()):
+	_start_job("next_round")
+
+
+func request_exit() -> void:
+	if _job != null:
+		_quit_pending = true
 		return
-	queued = []
-	payment = []
-	powers_step = false
-	staged_order = {}
-	action_choice.select(0)
-	_refresh()
+	get_tree().quit()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		request_exit()
+
+
+func _exit_tree() -> void:
+	if _job != null:
+		_job.join_on_exit()
+		_job = null
 
 
 func _select_action(action: String) -> void:
@@ -541,6 +649,8 @@ func _select_action(action: String) -> void:
 
 
 func _confirm_decision() -> void:
+	if _job != null:
+		return
 	if session.next_hook().is_empty():
 		next_round()
 	elif not powers_step:
@@ -591,7 +701,7 @@ func pass_round() -> void:
 
 
 func reopen_decision() -> void:
-	if dense_mode:
+	if dense_mode or _job != null:
 		return
 	if playing or phase_prompt == null:
 		return

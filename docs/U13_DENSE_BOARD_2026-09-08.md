@@ -32,9 +32,10 @@ check; it does not produce balance data or replace deterministic runner coverage
   and damage use existing Marching rules without overrides.
 - Both players pass combat and powers through normal owner submission. The fixture
   opponent does not add summons, so the initial tape contains exactly 48 Marchers.
-- Match resolution remains synchronous. Playback uses the existing six-second preview
-  duration; this change does not implement the proposed 15-second production schedule
-  or spread simulation work across frames.
+- Round preparation now runs on an isolated worker; the board remains displayed
+  while it prepares a complete result. Playback uses the existing six-second preview
+  duration. See [board responsiveness](U13_BOARD_RESPONSIVENESS_2026-09-08.md) for
+  the worker boundary, frame-gap logging and the pending black-flash investigation.
 
 The existing U13Board runner also exercises dense launch controls, population,
 damage playback, completion, and deterministic restart. Source grammar and shell

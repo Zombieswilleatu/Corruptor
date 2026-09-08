@@ -151,7 +151,7 @@ func run_next_hook() -> Dictionary:
 	return {"action": "u13_match_hook", "next_hook": next_hook(), "round": _runtime.round_number}
 
 
-func player_view(player_id: int) -> Dictionary:
+func player_view(player_id: int, history_limit: int = -1) -> Dictionary:
 	if player_id not in [0, 1] or _seed.is_empty():
 		return Data.invalid("viewer_invalid")
 	# While choosing, both players see the same pre-submission world.
@@ -166,7 +166,7 @@ func player_view(player_id: int) -> Dictionary:
 		"next_hook": next_hook(),
 		"submitted": _submissions[player_id] != null,
 		"world": Data.copy_data(projection),
-		"events": _events.for_player(player_id),
+		"events": _events.for_player(player_id, 0, history_limit),
 		"pending": _pending.public_state(),
 		"persistent": _persistent.public_state(),
 		"cooldowns": _cooldowns.public_state()
@@ -721,3 +721,16 @@ static func _source_for(effect_id: String, records: Array) -> Dictionary:
 		if record.effect_id == effect_id:
 			return record.declaration
 	return {}
+
+
+# Scalar/UI reads do not serialize the authoritative replay envelope.
+func round_number() -> int:
+	return _runtime.round_number
+
+
+func _event_cursor() -> int:
+	return _events._cursor()
+
+
+func _player_events_since(player_id: int, cursor: int) -> Array:
+	return _events.for_player(player_id, cursor)

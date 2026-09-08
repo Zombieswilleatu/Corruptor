@@ -53,16 +53,18 @@ func lock_plans() -> Dictionary:
 		return Data.invalid("planning_closed")
 	if _opponent.is_empty():
 		_opponent = random_opponent_plan()
-	var before: Dictionary = _owner.snapshot()
+	var before = _owner._clone()
+	if before == null:
+		return Data.invalid("match_clone_failed")
 	for pid in [0, 1]:
 		var selected: Dictionary = plans() if pid == 0 else _opponent
 		var result: Dictionary = _owner.submit(pid, selected.powers, selected.order)
 		if result.action == "invalid":
-			_owner.restore(before)
+			_owner = before
 			return result
 	var result: Dictionary = _owner.run_next_hook()
 	if result.action == "invalid":
-		_owner.restore(before)
+		_owner = before
 	return result
 
 
@@ -71,7 +73,7 @@ func lock_plans() -> Dictionary:
 # Legality and shared costs are owned exclusively by preview_submission.
 # Card order is canonical: payment permutations do not weight the lottery.
 func random_opponent_plan() -> Dictionary:
-	var public: Dictionary = _owner.player_view(1).world
+	var public: Dictionary = _owner.player_view(1, 0).world
 	var hand: Array = public.hand.duplicate()
 	hand.sort()
 	var targets: Array = []
@@ -145,7 +147,7 @@ func _pick(purpose: String, decision: String, bound: int) -> int:
 # Read-only UI status from the same public clocks used by the owner.
 func power_status(power: String) -> Dictionary:
 	var result: Dictionary = {"remaining": 0, "ready_round": round_number(), "fire_round": 0}
-	var public: Dictionary = view()
+	var public: Dictionary = _owner.player_view(0, 0)
 	for row in public.cooldowns:
 		var source: Dictionary = row.get("declaration", {})
 		if source.get("player_id") == 0 and source.get("power_id") == power:
@@ -156,3 +158,23 @@ func power_status(power: String) -> Dictionary:
 		if source.get("player_id") == 0 and source.get("power_id") == power:
 			result.fire_round = int(source.fire_round)
 	return result
+
+
+func board_view() -> Dictionary:
+	return _owner.player_view(0, 15)
+
+
+# The worker gets independent mutable state. Match forks share only immutable
+# past event rows and stateless content callbacks, just like hook transactions.
+func _fork_for_job():
+	var candidate = get_script().new()
+	candidate._owner = _owner._clone()
+	if candidate._owner == null:
+		return null
+	candidate._scenario = _scenario
+	candidate._lane = _lane
+	candidate._last_marching = _last_marching
+	candidate._powers = _powers.duplicate(true)
+	candidate._order = _order.duplicate(true)
+	candidate._opponent = _opponent.duplicate(true)
+	return candidate

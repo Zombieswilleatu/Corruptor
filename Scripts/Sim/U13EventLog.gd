@@ -30,11 +30,25 @@ func append(event: Dictionary, views: Array) -> Dictionary:
 	return {"action": "u13_event_recorded"}
 
 
-func for_player(player_id: int) -> Array:
+func for_player(player_id: int, from_row: int = 0, max_events: int = -1) -> Array:
 	var result: Array = []
 	if player_id not in [0, 1]:
 		return result
-	for row in _rows:
+	var first: int = clampi(from_row, 0, _rows.size())
+	# Tail limits count visible events, not authoritative rows: hidden entries
+	# cannot displace a visible event from a player's history summary.
+	if max_events >= 0:
+		if max_events == 0:
+			return result
+		var remaining: int = max_events
+		for index in range(_rows.size() - 1, first - 1, -1):
+			if _rows[index].views[player_id] != null:
+				remaining -= 1
+				if remaining == 0:
+					first = index
+					break
+	for index in range(first, _rows.size()):
+		var row: Dictionary = _rows[index]
 		if row.views[player_id] != null:
 			result.append(row.views[player_id].duplicate(true))
 	return result
@@ -83,3 +97,8 @@ func _fork():
 	var candidate = get_script().new()
 	candidate._rows = _rows.duplicate()
 	return candidate
+
+
+# Internal owner cursor; never a player-visible count of hidden events.
+func _cursor() -> int:
+	return _rows.size()
