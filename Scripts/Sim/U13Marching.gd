@@ -280,13 +280,20 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 				return Data.invalid("marching_reaction_entities_invalid")
 		# Contact takes precedence over arrival, including a waiting gate defender.
 		var arrival_rows: Array = _units(entities)
-		var arrival_teams: Dictionary = _teams(arrival_rows)
+		var arrival_grids: Dictionary = {}
 		for unit in arrival_rows:
 			var attributes: Dictionary = unit.attributes
+			if attributes.waiting or attributes.x_fp != (LANE_FP if unit.owner == 0 else 0):
+				continue
+			if arrival_grids.is_empty():
+				arrival_grids = _team_grids(arrival_rows, 8)
 			if (
 				attributes.waiting
 				or _busy(unit.id, duels)
-				or _touches_enemy(unit, arrival_teams[attributes.lane][1 - int(unit.owner)])
+				or _touches_enemy(
+					unit,
+					_near_rows(attributes, arrival_grids[attributes.lane][1 - int(unit.owner)], 8)
+				)
 			):
 				continue
 			if attributes.x_fp == (LANE_FP if unit.owner == 0 else 0):
@@ -381,6 +388,93 @@ static func _teams(rows: Array) -> Dictionary:
 	return result
 
 
+# Local contact first: queued/held units need no long-range target search.
+# For mobile units, each opposing pair is measured once. ID order preserves ties.
+static func _movement_neighbors(rows: Array, duels: Dictionary, round_number: int) -> Dictionary:
+	var result: Dictionary = {}
+	var grids: Dictionary = _team_grids(rows, 8)
+	var seekers: Dictionary = {"Lord": [[], []], "Castle": [[], []]}
+	for unit in rows:
+		var a: Dictionary = unit.attributes
+		var touching: bool = _touches_enemy(
+			unit, _near_rows(a, grids[a.lane][1 - int(unit.owner)], 8)
+		)
+		var seek: bool = (
+			not touching
+			and not a.waiting
+			and a.movement_ready_round <= round_number
+			and not _busy(unit.id, duels)
+		)
+		result[unit.id] = {
+			"distance": 0 if touching else 9223372036854775807, "unit": {}, "seek": seek
+		}
+		if seek:
+			seekers[a.lane][unit.owner].append(unit)
+	var teams: Dictionary = _teams(rows)
+	for lane in LANES:
+		for left in teams[lane][0]:
+			var left_info: Dictionary = result[left.id]
+			var candidates: Array = teams[lane][1] if left_info.seek else seekers[lane][1]
+			for right in candidates:
+				var right_info: Dictionary = result[right.id]
+				var distance: int = _distance(left.attributes, right.attributes)
+				if left_info.seek and distance < int(left_info.distance):
+					left_info.distance = distance
+					left_info.unit = right
+				if right_info.seek and distance < int(right_info.distance):
+					right_info.distance = distance
+					right_info.unit = left
+	return result
+
+
+static func _cell(attributes: Dictionary, shift: int) -> Vector2i:
+	return Vector2i(int(attributes.x_fp) >> shift, int(attributes.y_fp) >> shift)
+
+
+static func _spatial_grid(rows: Array, shift: int) -> Dictionary:
+	var grid: Dictionary = {}
+	for unit in rows:
+		var key: Vector2i = _cell(unit.attributes, shift)
+		if not grid.has(key):
+			grid[key] = []
+		grid[key].append(unit)
+	return grid
+
+
+static func _team_grids(rows: Array, shift: int) -> Dictionary:
+	var teams: Dictionary = _teams(rows)
+	var result: Dictionary = {}
+	for lane in LANES:
+		result[lane] = [_spatial_grid(teams[lane][0], shift), _spatial_grid(teams[lane][1], shift)]
+	return result
+
+
+# Callers use cells wider than their query radius (128 for 84; 256 for 180).
+# These nine cells include every possible contact; exact distance still decides.
+static func _near_rows(attributes: Dictionary, grid: Dictionary, shift: int) -> Array:
+	var center: Vector2i = _cell(attributes, shift)
+	var result: Array = []
+	for dx in range(-1, 2):
+		for dy in range(-1, 2):
+			var key: Vector2i = center + Vector2i(dx, dy)
+			if grid.has(key):
+				result.append_array(grid[key])
+	return result
+
+
+static func _grid_relocate(
+	grid: Dictionary, unit: Dictionary, before: Dictionary, after: Dictionary, shift: int
+) -> void:
+	var old_cell: Vector2i = _cell(before, shift)
+	var new_cell: Vector2i = _cell(after, shift)
+	if old_cell == new_cell:
+		return
+	grid[old_cell].erase(unit)
+	if not grid.has(new_cell):
+		grid[new_cell] = []
+	grid[new_cell].append(unit)
+
+
 static func _distance(a: Dictionary, b: Dictionary) -> int:
 	var dx: int = int(a.x_fp) - int(b.x_fp)
 	var dy: int = int(a.y_fp) - int(b.y_fp)
@@ -425,7 +519,7 @@ static func _touches_enemy(unit: Dictionary, rows: Array) -> bool:
 
 static func _move(entities, duels: Dictionary, context: Dictionary, clock: int) -> void:
 	var rows: Array = _units(entities)
-	var teams: Dictionary = _teams(rows)
+	var neighbors: Dictionary = _movement_neighbors(rows, duels, int(context.round))
 	var accepted: Array = []
 	var accepted_by_id: Dictionary = {}
 	for row in rows:
@@ -433,28 +527,25 @@ static func _move(entities, duels: Dictionary, context: Dictionary, clock: int) 
 		var copy: Dictionary = row.duplicate()
 		accepted.append(copy)
 		accepted_by_id[row.id] = copy
-	var accepted_teams: Dictionary = _teams(accepted)
+	var accepted_grids: Dictionary = _team_grids(accepted, 7)
 	# Read targets from one tick snapshot; resolve personal-space conflicts in ID order.
 	for unit in rows:
-		var a: Dictionary = unit.attributes.duplicate(true)
-		var enemies: Array = teams[a.lane][1 - int(unit.owner)]
-		var allies: Array = accepted_teams[a.lane][unit.owner]
-		if _touches_enemy(unit, enemies):
-			if int(a.contact_tick) < 0:
+		var a: Dictionary = unit.attributes
+		var nearby: Dictionary = neighbors[unit.id]
+		var allies: Dictionary = accepted_grids[a.lane][unit.owner]
+		var previous_ticket: int = int(a.contact_tick)
+		if int(nearby.distance) <= CONTACT_FP * CONTACT_FP:
+			if previous_ticket < 0:
 				a.contact_tick = clock
-			entities.update(unit.id, unit.owner, a)
+				entities.update(unit.id, unit.owner, a)
 			continue
 		a.contact_tick = -1
 		if a.waiting or a.movement_ready_round > context.round or _busy(unit.id, duels):
-			entities.update(unit.id, unit.owner, a)
+			if previous_ticket != -1:
+				entities.update(unit.id, unit.owner, a)
 			continue
-		var nearest: Dictionary = {}
-		var best: int = 9223372036854775807
-		for other in enemies:
-			var distance: int = _distance(a, other.attributes)
-			if distance < best:
-				nearest = other
-				best = distance
+		var nearest: Dictionary = nearby.unit
+		var best: int = int(nearby.distance)
 		var dx: int = int(a.direction) * int(a.step_fp)
 		var dy: int = 0
 		if not nearest.is_empty():
@@ -471,19 +562,21 @@ static func _move(entities, duels: Dictionary, context: Dictionary, clock: int) 
 		var proposed: Dictionary = a.duplicate(true)
 		proposed.x_fp = clampi(int(a.x_fp) + dx, 0, LANE_FP)
 		proposed.y_fp = clampi(int(a.y_fp) + dy, 0, WIDTH_FP)
-		if not _space_free(unit, proposed, allies):
+		if not _space_free(unit, proposed, _near_rows(proposed, allies, 7)):
 			# A deterministic lateral detour avoids permanent single-file blockage.
 			var side: int = (
 				1 if (String(unit.id).unicode_at(String(unit.id).length() - 1) % 2) == 0 else -1
 			)
 			proposed = a.duplicate(true)
 			proposed.y_fp = clampi(int(a.y_fp) + side * int(a.step_fp), 0, WIDTH_FP)
-			if not _space_free(unit, proposed, allies):
+			if not _space_free(unit, proposed, _near_rows(proposed, allies, 7)):
 				proposed.y_fp = clampi(int(a.y_fp) - side * int(a.step_fp), 0, WIDTH_FP)
-				if not _space_free(unit, proposed, allies):
+				if not _space_free(unit, proposed, _near_rows(proposed, allies, 7)):
 					proposed = a
 		entities.update(unit.id, unit.owner, proposed)
-		accepted_by_id[unit.id].attributes = proposed
+		var accepted_row: Dictionary = accepted_by_id[unit.id]
+		_grid_relocate(allies, accepted_row, a, proposed, 7)
+		accepted_row.attributes = proposed
 
 
 static func _space_free(unit: Dictionary, proposed: Dictionary, accepted: Array) -> bool:
@@ -523,10 +616,14 @@ static func _scaled(value: int, speed: int, distance: int) -> int:
 
 static func _contact_pair(entities, lane: String, context: Dictionary, clock: int) -> Array:
 	var teams: Array = _teams(_units(entities))[lane]
+	var right_grid: Dictionary = _spatial_grid(teams[1], 8)
 	var candidates: Array = []
 	var earliest: int = 9223372036854775807
 	for left in teams[0]:
-		for right in teams[1]:
+		var local: Array = _near_rows(left.attributes, right_grid, 8)
+		# Preserve the old ID-ordered candidate list for keyed tie selection.
+		local.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.id < b.id)
+		for right in local:
 			if (
 				right.owner != 1
 				or right.attributes.lane != lane

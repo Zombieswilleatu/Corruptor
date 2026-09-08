@@ -14,6 +14,7 @@ func _init() -> void:
 	_contact_and_steering()
 	_join_queue()
 	_round_boundary()
+	_spatial_query_edges()
 	_reference_equivalence()
 	print("U13 spatial Marching failures: %d" % failures)
 	quit(0 if failures == 0 else 1)
@@ -265,8 +266,25 @@ func _round_boundary() -> void:
 	_check(not Marching.valid(bad), "forged_duel_clock_rejected")
 
 
+func _spatial_query_edges() -> void:
+	var rows: Array = []
+	for x in [0, 127, 128, 255, 256, 511, 600]:
+		for y in [0, 127, 128, 255, 256, 511, 600]:
+			rows.append({"id": "%d:%d" % [x, y], "attributes": {"x_fp": x, "y_fp": y}})
+	for shift in [7, 8]:
+		var radius: int = 84 if shift == 7 else 180
+		var grid: Dictionary = Marching._spatial_grid(rows, shift)
+		var complete: bool = true
+		for center in rows:
+			var candidates: Array = Marching._near_rows(center.attributes, grid, shift)
+			for other in rows:
+				if Marching._distance(center.attributes, other.attributes) <= radius * radius:
+					complete = complete and other in candidates
+		_check(complete, "spatial_query_keeps_all_contacts_across_cell_edges_%d" % radius)
+
+
 func _reference_equivalence() -> void:
-	for count in [6, 24]:
+	for count in [6, 24, 48]:
 		for mode in ["travel", "contact"]:
 			var ids = Ids.new()
 			ids.create("card", "unrelated", 0, 0, {"nested": {"values": [1, 2, 3]}})
