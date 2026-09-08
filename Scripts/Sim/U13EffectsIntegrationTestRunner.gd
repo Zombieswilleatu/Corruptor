@@ -5,6 +5,7 @@ const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Declaration = preload("res://Scripts/Sim/U13LordPowerDeclaration.gd")
 const Pending = preload("res://Scripts/Sim/U13PendingEffects.gd")
 const Persistent = preload("res://Scripts/Sim/U13PersistentEffects.gd")
+const EffectData = preload("res://Scripts/Sim/U13EffectData.gd")
 
 var failures: int = 0
 
@@ -131,7 +132,13 @@ func _save(fixture: Dictionary) -> Dictionary:
 
 
 func _restore_fixture(snapshot: Dictionary) -> Dictionary:
-	var raw: Dictionary = JSON.parse_string(JSON.stringify(snapshot))
+	# The U13 match-load boundary canonicalizes the complete JSON envelope,
+	# including runtime history and event metadata outside the effect managers.
+	var decoded: Dictionary = JSON.parse_string(JSON.stringify(snapshot))
+	if not EffectData.is_data(decoded):
+		_check(false, "fixture_snapshot_data_invalid")
+		return {}
+	var raw: Dictionary = EffectData.copy_data(decoded)
 	var fixture: Dictionary = {
 		"runtime": Runtime.new(),
 		"pending": Pending.new(),

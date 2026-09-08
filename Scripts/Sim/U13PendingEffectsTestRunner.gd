@@ -233,16 +233,24 @@ func _test_follow_up_and_reentrancy() -> void:
 	var source: Dictionary = _declaration("parent")
 	manager.schedule(source)
 	var observations: Dictionary = {}
+	# Bind outside the lambda; avoid implicit instance-method lookup inside
+	# the anonymous callback on Godot 4.2.
+	var resolved_callback: Callable = Callable(self, "_resolved")
 	var resolver: Callable = func(_row: Dictionary) -> Dictionary:
 		observations["nested"] = manager.resolve_hook(
-			3, Timeline.POST_RESOLUTION_SPAWNS, [0, 1], _resolved
+			3, Timeline.POST_RESOLUTION_SPAWNS, [0, 1], resolved_callback
 		)
 		observations["same_hook"] = manager.schedule(source, "same_hook")
 		observations["future"] = manager.schedule(
 			source, "price", {}, {}, 5, Timeline.ROUND_START_SCHEDULED
 		)
 		return {"action": "resolved"}
-	manager.resolve_hook(3, Timeline.POST_RESOLUTION_SPAWNS, [0, 1], resolver)
+	var result: Dictionary = manager.resolve_hook(
+		3, Timeline.POST_RESOLUTION_SPAWNS, [0, 1], resolver
+	)
+	_check(result.action == "u13_effects_resolved", "follow_up_resolver_completed")
+	if result.action != "u13_effects_resolved":
+		return
 	_check(
 		observations.nested.reason == "effect_resolution_reentrant", "reentrant_resolution_blocked"
 	)

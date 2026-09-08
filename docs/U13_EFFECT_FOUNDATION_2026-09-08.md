@@ -42,6 +42,20 @@ The parameter is now `effect_scope`; generated IDs and snapshot data are unchang
 The runner changes above expose the direct error and bound failed-load hangs.
 The corrected six-suite run still requires local Godot verification.
 
+The next local 4.7.2 run passed Pending Effects and reached one Persistent
+Effects failure: strict replay-state equality. The shared copy boundary had
+normalized controls and fixed-point values, but left payload counters such as
+`kills` as JSON floats. Whole numbers now canonicalize consistently during both
+creation and restoration, including stage data and nested arrays; fractional
+values remain floats. The integration fixture also normalizes its outer match
+envelope before restoring runtime history and event metadata. Strict snapshot
+equality remains in place, with typed state dumps if it still fails.
+
+The corresponding 4.2 run exposed an implicit method lookup inside the pending
+fixture's lambda. That fixture now captures an explicitly bound Callable and
+checks resolver completion before inspecting observations. Cooldowns remain
+blocked until the complete local wrapper reports 6/6.
+
 Reference: [Godot 4.2 tokenizer keywords](https://github.com/godotengine/godot/blob/4.2-stable/modules/gdscript/gdscript_tokenizer.cpp).
 
 ## Pending Effects contract
@@ -107,9 +121,13 @@ Snapshots retain full authoritative state and spent-ID ledgers. Restore validate
 the entire replacement before modifying the collection. Control integers and
 `*_fp` coordinates normalize from integral JSON numbers. Fractions in integer
 fields, numeric strings, nonfinite numbers, non-string dictionary keys, and
-Object/Callable payloads are rejected. Arbitrary non-coordinate numeric payload
-fields retain JSON's normal number representation; their type-specific meaning
-belongs to the consuming power schema.
+Object/Callable payloads are rejected. All safely representable whole numeric
+values use integer form, including arbitrary payload counters, stages, arrays,
+and public data. This applies to live input and JSON restoration alike. Genuine
+fractions remain floats; consumers needing a float API argument explicitly cast
+at that API boundary. A future U13 match loader must validate and canonicalize
+its complete decoded envelope before dispatching individual restore methods,
+as the integration fixture does for runtime history and events.
 
 `public_state()` returns copies. Hidden effects expose only their public identity,
 source power, and explicitly supplied `public_data`; pending effects also show

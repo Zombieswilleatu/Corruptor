@@ -49,7 +49,12 @@ static func is_data(value, depth: int = 0) -> bool:
 
 
 static func copy_data(value):
-	# Call only after is_data(). Recursively restore fixed-point integer types.
+	# Call only after is_data(). JSON has one numeric kind; canonical U13 data
+	# uses integers for every safely representable whole number, including
+	# counters in arbitrary payloads/stages/arrays. Apply on creation AND load.
+	# Fractional values remain floats; *_fp validation still rejects fractions.
+	if typeof(value) == TYPE_FLOAT and is_integer(value):
+		return int(value)
 	if typeof(value) == TYPE_DICTIONARY:
 		var result: Dictionary = {}
 		for key in value:

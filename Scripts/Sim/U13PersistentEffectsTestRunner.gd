@@ -103,10 +103,13 @@ func _test_snapshot_and_visibility() -> void:
 	var source: Dictionary = _declaration("hidden")
 	source.visibility = Declaration.VISIBILITY_HIDDEN
 	var created: Dictionary = manager.activate(
-		source, "hidden", [{"secret": "private_stage"}, {}], {"kills": 2}
+		source, "hidden", [{"secret": "private_stage", "intensity": 1}, {}], {"kills": 2}
 	)
 	var id: String = created.effect.effect_id
-	manager.set_payload(id, {"kills": 3, "position": {"x_fp": 125, "y_fp": -7}})
+	manager.set_payload(id, {
+		"kills": 3, "position": {"x_fp": 125, "y_fp": -7},
+		"samples": [2, 2.0, 0.25], "speed_multiplier": 1.25,
+	})
 	var visible: String = JSON.stringify(manager.public_state())
 	_check(
 		not visible.contains("private_stage") and not visible.contains("kills"),
@@ -118,6 +121,23 @@ func _test_snapshot_and_visibility() -> void:
 		"persistent_json_restore"
 	)
 	var copy: Dictionary = restored.get_effect(id)
+	_check(typeof(copy.payload.kills) == TYPE_INT, "json_payload_counter_is_integer")
+	_check(typeof(copy.stages[0].intensity) == TYPE_INT, "json_stage_counter_is_integer")
+	_check(
+		typeof(copy.payload.samples[0]) == TYPE_INT
+		and typeof(copy.payload.samples[1]) == TYPE_INT,
+		"json_nested_whole_numbers_are_integers"
+	)
+	_check(
+		typeof(copy.payload.speed_multiplier) == TYPE_FLOAT
+		and copy.payload.speed_multiplier == 1.25
+		and copy.payload.samples[2] == 0.25,
+		"json_fractional_payload_values_preserved"
+	)
+	_check(
+		typeof(manager.get_effect(id).payload.samples[1]) == TYPE_INT,
+		"live_and_restored_numbers_share_canonical_types"
+	)
 	_check(
 		typeof(copy.stage_index) == TYPE_INT and typeof(copy.payload.position.x_fp) == TYPE_INT,
 		"persistent_json_control_and_spatial_integers"
@@ -131,7 +151,12 @@ func _test_snapshot_and_visibility() -> void:
 		),
 		"persistent_replay_events_match"
 	)
-	_check(manager.snapshot() == restored.snapshot(), "persistent_replay_state_matches")
+	var original_snapshot: Dictionary = manager.snapshot()
+	var restored_snapshot: Dictionary = restored.snapshot()
+	_check(original_snapshot == restored_snapshot, "persistent_replay_state_matches")
+	if original_snapshot != restored_snapshot:
+		print("Original persistent state: %s" % var_to_str(original_snapshot))
+		print("Restored persistent state: %s" % var_to_str(restored_snapshot))
 	manager.advance(5, Timeline.PERSISTENT_ADVANCEMENT)
 	var expired_copy = Persistent.new()
 	expired_copy.restore(JSON.parse_string(JSON.stringify(manager.snapshot())))
