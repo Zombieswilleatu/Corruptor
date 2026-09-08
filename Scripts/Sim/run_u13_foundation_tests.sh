@@ -82,10 +82,10 @@ u13_check_script() {
     exit 1
   fi
 }
-for u13_dependency in U13EffectData U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13Legality U13Match U13Marching U13Combat U13Gremory U13SmokeSession; do
+for u13_dependency in U13EffectData U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13Legality U13Match U13Marching U13Combat U13Gremory U13SmokeSession U13BoardSession; do
   u13_check_script "res://Scripts/Sim/${u13_dependency}.gd"
 done
-for u13_dependency in U13SmokePlayback U13SmokeBoard U13Smoke; do
+for u13_dependency in U13SmokePlayback U13SmokeBoard U13Smoke U13BoardLanes U13DomainRow U13Board; do
   u13_check_script "res://Prototype/U13/${u13_dependency}.gd"
 done
 
@@ -102,6 +102,7 @@ u13_runners=(
   U13Gremory
   U13MarchingIntegration
   U13Smoke
+  U13Board
 )
 u13_markers=(
   'U13 round timeline failures: 0'
@@ -116,6 +117,7 @@ u13_markers=(
   'U13 Gremory failures: 0'
   'U13 Marching integration failures: 0'
   'U13 smoke scene failures: 0'
+  'U13 board failures: 0'
 )
 u13_failed=0
 for u13_index in "${!u13_runners[@]}"; do
