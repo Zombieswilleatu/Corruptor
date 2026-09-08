@@ -1,16 +1,19 @@
 extends "res://Prototype/U13/U13SmokeBoard.gd"
 
-const Art = preload("res://Prototype/UI2/SubjectCardArtCatalog.gd")
-const DOMAIN = preload("res://ConceptImages/Menus/Domain1.png")
+const Art = preload("res://Prototype/U13/U13BoardTextures.gd")
+const Textures = preload("res://Prototype/U13/U13BoardTextures.gd")
+var domain: Texture2D = null
 
 
 func _ready() -> void:
+	domain = Textures.texture("res://ConceptImages/Menus/Domain1.png")
 	custom_minimum_size = Vector2(650, 220)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func _draw() -> void:
-	draw_texture_rect(DOMAIN, Rect2(Vector2.ZERO, size), false)
+	if domain != null:
+		draw_texture_rect(domain, Rect2(Vector2.ZERO, size), false)
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.0, 0.0, 0.0, 0.65))
 	var font: Font = ThemeDB.fallback_font
 	var width: float = maxf(100.0, size.x - 140.0)

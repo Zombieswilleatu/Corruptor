@@ -4,9 +4,8 @@ const Session = preload("res://Scripts/Sim/U13BoardSession.gd")
 const Playback = preload("res://Prototype/U13/U13SmokePlayback.gd")
 const Lanes = preload("res://Prototype/U13/U13BoardLanes.gd")
 const DomainRow = preload("res://Prototype/U13/U13DomainRow.gd")
-const Hand = preload("res://Prototype/UI2/HandView.gd")
-const Art = preload("res://Prototype/UI2/SubjectCardArtCatalog.gd")
-const LordArt = preload("res://Prototype/UI2/LordArtCatalog.gd")
+const Hand = preload("res://Prototype/U13/U13BoardHand.gd")
+const Art = preload("res://Prototype/U13/U13BoardTextures.gd")
 const Gremory = preload("res://Scripts/Sim/U13Gremory.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 
@@ -214,7 +213,7 @@ func _render_side(row: HBoxContainer, world: Dictionary, pid: int) -> void:
 	for child in row.get_children():
 		row.remove_child(child)
 		child.queue_free()
-	_picture(row, LordArt.texture_for("Gremory"), Vector2(110, 155))
+	_picture(row, Art.lord_texture("Gremory"), Vector2(110, 155))
 	var details := VBoxContainer.new()
 	details.custom_minimum_size.x = 240
 	row.add_child(details)

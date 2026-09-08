@@ -1,5 +1,6 @@
 extends SceneTree
 
+const Textures = preload("res://Prototype/U13/U13BoardTextures.gd")
 const Session = preload("res://Scripts/Sim/U13BoardSession.gd")
 const Playback = preload("res://Prototype/U13/U13SmokePlayback.gd")
 const Scene = preload("res://Prototype/U13/U13Board.tscn")
@@ -13,6 +14,7 @@ func _init() -> void:
 
 
 func _run() -> void:
+	_source_textures()
 	_manual_and_payment()
 	_random_and_replay()
 	_butcher_movement()
@@ -20,6 +22,24 @@ func _run() -> void:
 		await _board_controls()
 	print("U13 board failures: %d" % failures)
 	quit(0 if failures == 0 else 1)
+
+
+func _source_textures() -> void:
+	for path in [
+		"res://ConceptImages/Menus/Domain1.png", "res://ConceptImages/Menus/BottomBanner.png"
+	]:
+		var texture: Texture2D = Textures.texture(path)
+		_check(
+			texture != null and texture.get_width() > 0, "board_source_texture_" + path.get_file()
+		)
+		_check(texture == Textures.texture(path), "board_source_texture_cached")
+	_check(Textures.lord_texture("Gremory") != null, "board_source_lord_art")
+	for suit in ["Butcher", "Penitent", "Vulture", "Wright"]:
+		for value in range(1, 6):
+			_check(
+				Textures.texture_for(suit, value) != null, "board_source_card_%s_%d" % [suit, value]
+			)
+	_check(Textures.texture_for("", 0, true) != null, "board_source_card_back")
 
 
 func _manual_and_payment() -> void:
