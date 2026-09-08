@@ -134,3 +134,38 @@ func _draw_chit(unit: Dictionary, center: Vector2) -> void:
 	draw_arc(center, 23.0, 0.0, TAU, 48, Color("302e29"), 3.0, true)
 	if health > 0.0:
 		draw_arc(center, 23.0, -PI / 2.0, -PI / 2.0 + TAU * health, 48, tint, 3.0, true)
+
+
+signal lane_selected(lane: String)
+var target_lane_enabled: bool = false
+var _lane_pulses: Array = []
+
+
+func _gui_input(event: InputEvent) -> void:
+	if (
+		target_lane_enabled
+		and event is InputEventMouseButton
+		and event.button_index == MOUSE_BUTTON_LEFT
+		and event.pressed
+	):
+		if event.position.y >= 279 and event.position.y <= size.y - 24:
+			accept_event()
+			lane_selected.emit("Lord" if event.position.x < size.x * 0.5 else "Castle")
+
+
+func pulse_lanes() -> void:
+	for marker in _lane_pulses:
+		if is_instance_valid(marker):
+			marker.queue_free()
+	_lane_pulses = []
+	for index in range(2):
+		var marker := ColorRect.new()
+		marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		marker.color = Color(0.95, 0.76, 0.33, 0.32)
+		marker.position = Vector2(16 + float(index) * (size.x - 32) * 0.5, 279)
+		marker.size = Vector2((size.x - 32) * 0.5, size.y - 303)
+		add_child(marker)
+		_lane_pulses.append(marker)
+		var tween = marker.create_tween()
+		tween.tween_property(marker, "color:a", 0.0, 0.7)
+		tween.tween_callback(marker.queue_free)

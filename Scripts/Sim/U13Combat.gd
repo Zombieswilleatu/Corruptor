@@ -9,11 +9,12 @@ const Marching = preload("res://Scripts/Sim/U13Marching.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
+const HUNT_VERSION: String = "U13_CORE_HUNT_V1"
 const VERSION: String = "U13_GREMORY_BASIC_COMBAT_V1"
 
 
 # Explicit first integration profile: Gremory mirrors, ordinary Siege/Ward,
-# flat Sigils and plain Integrity targets. Named Castle powers, Hunt/Keep,
+# flat Sigils and plain Integrity targets. Basic Hunt is opt-in; named Castle powers, Keep,
 # construction, Fracture and victory orchestration need their own migration.
 # Refuse unsupported profiles instead of silently treating this as all U12 rules.
 static func valid(world: Dictionary) -> bool:
@@ -25,6 +26,8 @@ static func valid(world: Dictionary) -> bool:
 	):
 		return false
 	var core: bool = world.data.get("combat_profile") == Structures.PROFILE
+	if world.data.has("hunt_profile") and (not core or world.data.hunt_profile != HUNT_VERSION):
+		return false
 	if core and not Structures.valid(world):
 		return false
 	if (
@@ -84,15 +87,15 @@ static func valid(world: Dictionary) -> bool:
 static func order_shape(order: Dictionary) -> bool:
 	if order.is_empty():
 		return true
-	if not Data.is_data(order) or order.get("action") not in ["Siege", "Ward"]:
+	if not Data.is_data(order) or order.get("action") not in ["Siege", "Hunt", "Ward"]:
 		return false
 	var expected: Array = ["action", "lane", "card_ids"]
-	if order.action == "Siege":
+	if order.action in ["Siege", "Hunt"]:
 		expected.append("target_id")
 		if (
 			typeof(order.get("target_id")) != TYPE_STRING
 			or order.target_id.is_empty()
-			or order.get("lane") != "Castle"
+			or order.get("lane") != ("Lord" if order.action == "Hunt" else "Castle")
 		):
 			return false
 	if order.keys().size() != expected.size():
@@ -115,6 +118,8 @@ static func accept(context: Dictionary) -> Dictionary:
 	if not order_shape(order):
 		return Data.invalid("combat_order_invalid")
 	var world: Dictionary = context.world
+	if order.get("action") == "Hunt" and world.data.get("hunt_profile") != HUNT_VERSION:
+		return Data.invalid("hunt_profile_required")
 	if context.phase == "snapshot":
 		return _snapshot_order(context)
 	if order.is_empty():
@@ -134,6 +139,15 @@ static func accept(context: Dictionary) -> Dictionary:
 			or not Structures.targetable(target)
 		):
 			return Data.invalid("combat_target_invalid")
+	if order.action == "Hunt":
+		var target: Dictionary = entities.get_entity(order.target_id)
+		if (
+			target.is_empty()
+			or target.kind != "lord"
+			or target.owner != 1 - player_id
+			or not target.attributes.alive
+		):
+			return Data.invalid("hunt_target_invalid")
 	if Cards.commit(world, player_id, order.card_ids).action == "invalid":
 		return Data.invalid("combat_cards_unavailable")
 	var event: Dictionary = {
@@ -227,9 +241,13 @@ static func _resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 	var events: Array = []
 	for player_id in context.player_order:
 		var order: Dictionary = context.combat_orders[player_id]
-		if order.get("action") != "Siege":
+		if order.get("action") not in ["Siege", "Hunt"]:
 			continue
-		var result: Dictionary = _siege(world, context, player_id, order, reaction)
+		var result: Dictionary = (
+			_hunt(world, context, player_id, order, reaction)
+			if order.action == "Hunt"
+			else _siege(world, context, player_id, order, reaction)
+		)
 		if result.action == "invalid":
 			return result
 		world = result.world
@@ -449,11 +467,15 @@ static func _snapshot_order(context: Dictionary) -> Dictionary:
 		var card: Dictionary = entities.get_entity(card_id)
 		if card.is_empty() or card.kind != "card":
 			return Data.invalid("combat_order_identity_missing")
-	if order.get("action") == "Siege" and order.target_id not in world.entities.used_ids:
+	if order.get("action") in ["Siege", "Hunt"] and order.target_id not in world.entities.used_ids:
 		return Data.invalid("combat_target_identity_missing")
-	if order.get("action") == "Siege":
+	if order.get("action") in ["Siege", "Hunt"]:
 		var target: Dictionary = entities.get_entity(order.target_id)
-		if not target.is_empty() and (target.kind != "castle" or target.owner != 1 - player_id):
+		var expected_kind: String = "lord" if order.action == "Hunt" else "castle"
+		if (
+			not target.is_empty()
+			and (target.kind != expected_kind or target.owner != 1 - player_id)
+		):
 			return Data.invalid("combat_target_identity_invalid")
 	var committed: Array = world.data.card_zones.get("committed", [[], []])[player_id]
 	if phase <= Timeline.hook_rank(Timeline.SUBMISSION_LOCK):
@@ -483,3 +505,173 @@ static func _snapshot_order(context: Dictionary) -> Dictionary:
 		if world.data.get(field, 0) != expected:
 			return Data.invalid("combat_phase_ledger_mismatch")
 	return {"action": "legal"}
+
+
+# Opt-in basic Hunt for the direct board. U12 HuntResolutionEngine order:
+# Ward -> Lord Guards -> flat Sigil -> Lord DEF, with strict > at the last layer.
+# Gremory and Deimos have printed DEF 4 (GameSetup.LORD_CONTENT). Named Castle
+# effects and Fracture remain separate migrations, as in the rest of this slice.
+static func _hunt(
+	world: Dictionary, context: Dictionary, player_id: int, order: Dictionary, reaction: Callable
+) -> Dictionary:
+	var entities = Ids.new()
+	entities.restore(world.entities)
+	var target: Dictionary = entities.get_entity(order.target_id)
+	var events: Array = []
+	if target.is_empty() or not target.attributes.alive:
+		events.append(
+			Marching.public_event(
+				"COMBAT_ORDER_FIZZLED",
+				{
+					"player_id": player_id,
+					"round": context.round,
+					"target_id": order.target_id,
+					"reason": "lord_banished"
+				}
+			)
+		)
+		return {"action": "resolved", "world": world, "events": events}
+	var strength: int = _card_strength(entities, order.card_ids, "Butcher")
+	var waiter_ids: Array = []
+	for entity in entities.snapshot().entities:
+		if (
+			entity.kind == "marcher"
+			and entity.owner == player_id
+			and entity.attributes.lane == "Lord"
+			and entity.attributes.waiting
+		):
+			strength += 1
+			waiter_ids.append(entity.id)
+			entities.retire(entity.id)
+	world.entities = entities.snapshot()
+	events.append(
+		Marching.public_event(
+			"HUNT_STARTED",
+			{
+				"player_id": player_id,
+				"round": context.round,
+				"target_id": target.id,
+				"strength": strength,
+				"waiters_consumed": waiter_ids
+			}
+		)
+	)
+	if world.data.combat_profile == Structures.PROFILE:
+		var reacted: Dictionary = reaction.call(
+			world, events.back().event, context.seed, context.player_order
+		)
+		if reacted.action == "invalid":
+			return reacted
+		world = reacted.world
+		events.append_array(reacted.events)
+		entities.restore(world.entities)
+	var ward: Dictionary = context.combat_orders[1 - player_id]
+	var screen: int = 0
+	if ward.get("action") == "Ward":
+		screen = _card_strength(entities, ward.card_ids, "Penitent")
+		if ward.lane != "Lord":
+			screen = screen >> 1
+	var remaining: int = strength
+	if screen > 0:
+		remaining = maxi(0, remaining - screen)
+	var guards: Array = []
+	for entity in entities.snapshot().entities:
+		if (
+			entity.kind == "card"
+			and entity.owner == 1 - player_id
+			and entity.attributes.get("role") == "guard"
+			and entity.attributes.lane == "Lord"
+		):
+			guards.append(entity)
+	guards.sort_custom(
+		func(a: Dictionary, b: Dictionary) -> bool:
+			if a.attributes.value != b.attributes.value:
+				return a.attributes.value > b.attributes.value
+			return a.attributes.slot < b.attributes.slot
+	)
+	var guards_lost: int = 0
+	for guard in guards:
+		# Strictly greater defeats a Guard; equality leaves it in its slot.
+		if remaining <= guard.attributes.value:
+			remaining = 0
+			break
+		remaining -= int(guard.attributes.value)
+		var command: Dictionary = {
+			"command_id": "hunt:%d:guard:%s" % [player_id, guard.id],
+			"kind": "defeat_guard",
+			"target_id": guard.id
+		}
+		var applied: Dictionary = _fact(world, command, context, reaction)
+		if applied.action == "invalid":
+			return applied
+		world = applied.world
+		events.append_array(applied.events)
+		guards_lost += 1
+	# Flat measured-profile Sigil: Fresh 2, Flipped 1. Equality stops it.
+	var sigil: String = world.data.sigils[1 - player_id].Lord
+	var sigil_broken: bool = false
+	if remaining > 0 and not sigil.is_empty():
+		var value: int = 2 if sigil == "fresh" else 1
+		if remaining > value:
+			remaining -= value
+			world.data.sigils[1 - player_id].Lord = ""
+			sigil_broken = true
+		else:
+			remaining = 0
+	var threat: int = int(target.attributes.get("threat", 0))
+	var defense: int = 4 - (3 if threat >= 4 else (2 if threat >= 3 else (1 if threat >= 2 else 0)))
+	var banished: bool = remaining > defense
+	if banished:
+		world.players[player_id].resources.souls += 2
+		world.players[1 - player_id].resources.souls = maxi(
+			0, int(world.players[1 - player_id].resources.souls) - 1
+		)
+		world.data.neutral_tears += 1
+		events.append(
+			Marching.public_event(
+				"NEUTRAL_TEAR_CREATED",
+				{"amount": 1, "source": "LordBanishment", "round": context.round}
+			)
+		)
+		for command in [
+			{
+				"command_id": "hunt:%d:lord:%s" % [player_id, target.id],
+				"kind": "banish_lord",
+				"target_id": target.id
+			},
+			{
+				"command_id": "hunt:%d:breach:%s" % [player_id, target.id],
+				"kind": "set_breach",
+				"lord_id": world.players[1 - player_id].lord_id
+			}
+		]:
+			var applied: Dictionary = _fact(world, command, context, reaction)
+			if applied.action == "invalid":
+				return applied
+			world = applied.world
+			events.append_array(applied.events)
+		entities.restore(world.entities)
+		target = entities.get_entity(target.id)
+		if target.attributes.has("threat"):
+			target.attributes.threat = 0
+			entities.update(target.id, target.owner, target.attributes)
+			world.entities = entities.snapshot()
+	elif sigil_broken and sigil == "fresh":
+		world.players[1 - player_id].resources.souls += 1
+	events.append(
+		Marching.public_event(
+			"HUNT_RESOLVED",
+			{
+				"player_id": player_id,
+				"round": context.round,
+				"target_id": target.id,
+				"strength": strength,
+				"ward_screen": screen,
+				"guards_defeated": guards_lost,
+				"sigil_broken": sigil_broken,
+				"lord_defense": defense,
+				"banished": banished
+			}
+		)
+	)
+	return {"action": "resolved", "world": world, "events": events}

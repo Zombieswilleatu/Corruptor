@@ -38,7 +38,16 @@ static func enumerate(owner, player_id: int) -> Dictionary:
 					)
 				)
 	var orders: Array = []
+	var hunt_targets: Array = []
+	if view.world.has("hunt_profile"):
+		for entity in view.world.entities:
+			if entity.kind == "lord" and entity.owner == 1 - player_id:
+				hunt_targets.append(entity.id)
 	for cards in payments:
+		for target in hunt_targets:
+			orders.append(
+				{"action": "Hunt", "lane": "Lord", "target_id": target, "card_ids": cards}
+			)
 		for lane in ["Lord", "Castle"]:
 			orders.append({"action": "Ward", "lane": lane, "card_ids": cards})
 		for target in targets:

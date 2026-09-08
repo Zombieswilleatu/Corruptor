@@ -103,3 +103,6 @@ func bind_world(world: Dictionary, round_number: int) -> void:
 		null if String(world.breach_lord).is_empty() else Art.lord_texture(world.breach_lord)
 	)
 	breach_art.tooltip_text = world.breach_lord
+
+	if world.has("hunt_profile"):
+		scope.tooltip_text = "Hunt, Siege, Ward, Castle development and Lord powers are connected. Named Castle powers other than artillery, Fracture, resummoning, ordinary draws and victory are pending."

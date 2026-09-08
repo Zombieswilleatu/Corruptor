@@ -1,5 +1,12 @@
 # U13 Lord/Castle picker and development board — 2026-09-08
 
+## Subsequent interaction update
+
+The picker and instance model remain. The default board now uses direct card
+and lane targets, on-card Commission and all-in; see
+[U13_DIRECT_BOARD_2026-09-08.md](U13_DIRECT_BOARD_2026-09-08.md).
+The detailed staging-button flow below describes the preceding fixture.
+
 ## What changed
 
 The explicit U13 board launcher now opens a pregame picker. Choose Deimos or

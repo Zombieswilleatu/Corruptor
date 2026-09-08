@@ -17,11 +17,15 @@ const POLICY: String = "U13_DEIMOS_ROUT_SLICE_V2"
 var _gremory = Gremory.new()
 var _construction_enabled: bool = false
 var _slots_enabled: bool = false
+var _hunt_enabled: bool = false
 
 
-func _init(construction_enabled: bool = false, slots_enabled: bool = false) -> void:
+func _init(
+	construction_enabled: bool = false, slots_enabled: bool = false, hunt_enabled: bool = false
+) -> void:
 	_construction_enabled = construction_enabled
 	_slots_enabled = slots_enabled
+	_hunt_enabled = hunt_enabled
 
 
 func create_combat_match():
@@ -41,6 +45,7 @@ func create_combat_match():
 			+ ":"
 			+ Rout.VERSION
 			+ (":" + Slots.VERSION if _slots_enabled else "")
+			+ (":" + Combat.HUNT_VERSION if _hunt_enabled else "")
 		),
 		rules(),
 		validators,
@@ -85,6 +90,11 @@ static func rules() -> Dictionary:
 
 
 func valid_world(world: Dictionary) -> bool:
+	if (
+		_hunt_enabled != world.data.has("hunt_profile")
+		or (_hunt_enabled and world.data.get("hunt_profile") != Combat.HUNT_VERSION)
+	):
+		return false
 	if world.data.get("rout_profile") != Rout.VERSION:
 		return false
 	if _slots_enabled != Slots.enabled(world) or (_slots_enabled and not _construction_enabled):
@@ -341,6 +351,8 @@ func project(world: Dictionary, player_id: int) -> Dictionary:
 	view["personal_tears"] = [
 		world.players[0].resources.personal_tears, world.players[1].resources.personal_tears
 	]
+	if _hunt_enabled:
+		view["hunt_profile"] = Combat.HUNT_VERSION
 	view["lord_ids"] = [world.players[0].lord_id, world.players[1].lord_id]
 	if _construction_enabled:
 		view["construction_profile"] = Construction.VERSION

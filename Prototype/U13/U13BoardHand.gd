@@ -38,6 +38,9 @@ const SubjectSuitStyleData = preload(
 
 
 signal selection_changed(card_ids)
+signal all_in_requested
+var direct_gestures: bool = false
+var all_in_enabled: bool = false
 
 
 var title_label: Label = null
@@ -616,6 +619,8 @@ func select_all_cards() -> bool:
 func _on_commitment_hand_card_pressed(
 	button: Button
 ) -> void:
+	if direct_gestures:
+		return
 	if (
 		not (repair_drag_enabled or ward_drag_enabled or attack_drag_enabled)
 		or button == null
@@ -886,3 +891,20 @@ func _wrap_hand_control_with_left_margin_v1(
 	control.custom_minimum_size = Vector2.ZERO
 	control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	wrapper.add_child(control)
+
+
+func _input(event: InputEvent) -> void:
+	# The old gesture required the same card Button to survive two clicks.
+	# Direct staging removes that card, so listen across the whole hand surface.
+	if (
+		direct_gestures
+		and all_in_enabled
+		and is_visible_in_tree()
+		and event is InputEventMouseButton
+		and event.button_index == MOUSE_BUTTON_LEFT
+		and event.pressed
+		and event.double_click
+		and get_global_rect().has_point(get_global_mouse_position())
+	):
+		get_viewport().set_input_as_handled()
+		all_in_requested.emit()

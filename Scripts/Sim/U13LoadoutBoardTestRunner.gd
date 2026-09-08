@@ -17,6 +17,7 @@ func _init() -> void:
 
 func _run() -> void:
 	var board = Scene.instantiate()
+	board.direct_enabled = false
 	root.add_child(board)
 	await process_frame
 	await process_frame

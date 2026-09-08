@@ -3,14 +3,18 @@
 # Successful logs are temporary; failure logs are preserved in Downloads.
 set -uo pipefail
 
-if [[ $# -lt 1 || $# -gt 2 || ( $# -eq 2 && "$2" != --board && "$2" != --construction && "$2" != --castle-rout ) ]]; then
-  printf 'Usage: bash %s /path/to/Godot_console_executable [--board|--construction|--castle-rout]\n' "$0" >&2
+if [[ $# -lt 1 || $# -gt 2 || ( $# -eq 2 && "$2" != --board && "$2" != --construction && "$2" != --castle-rout && "$2" != --interaction ) ]]; then
+  printf 'Usage: bash %s /path/to/Godot_console_executable [--board|--construction|--castle-rout|--interaction]\n' "$0" >&2
   exit 2
 fi
 godot_u13_exe=$1
 u13_board_only=false
 u13_construction_only=false
 u13_castle_rout_only=false
+u13_interaction_only=false
+if [[ ${2:-} == --interaction ]]; then
+  u13_interaction_only=true
+fi
 if [[ ${2:-} == --castle-rout ]]; then
   u13_castle_rout_only=true
 fi
@@ -115,7 +119,7 @@ u13_check_script() {
 for u13_dependency in U13EffectData U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13CastleSlots U13Rout U13Structures U13Legality U13Match U13MarchingBuffer U13Marching U13Combat U13Construction U13ConstructionCandidates U13Gremory U13Deimos U13SmokeSession U13DeimosCandidates U13CoreScenario U13GremoryCandidates U13RandomLegal U13FrequencyTelemetry U13RandomBatch U13BoardSession U13LoadoutBoardSession U13DenseBoardSession; do
   u13_check_script "res://Scripts/Sim/${u13_dependency}.gd"
 done
-for u13_dependency in U13SmokePlayback U13SmokeBoard U13Smoke U13BoardTextures U13BoardHand U13BoardLanes U13LayoutCard U13PlayerBoard U13BoardHeader U13DomainRow U13ActionZone U13PhasePrompt U13BoardJob U13LoadoutPicker U13Board; do
+for u13_dependency in U13SmokePlayback U13SmokeBoard U13Smoke U13BoardTextures U13BoardHand U13BoardLanes U13LayoutCard U13PlayerBoard U13BoardHeader U13DomainRow U13ActionZone U13PhasePrompt U13BoardJob U13LoadoutPicker U13Board U13OrderPreview U13DirectBoard; do
   u13_check_script "res://Prototype/U13/${u13_dependency}.gd"
 done
 
@@ -142,6 +146,8 @@ u13_runners=(
   U13Board
   U13DenseBoard
   U13LoadoutBoard
+  U13Hunt
+  U13DirectBoard
 )
 u13_markers=(
   'U13 round timeline failures: 0'
@@ -166,10 +172,12 @@ u13_markers=(
   'U13 board failures: 0'
   'U13 dense board failures: 0'
   'U13 loadout board failures: 0'
+  'U13 Hunt failures: 0'
+  'U13 direct board failures: 0'
 )
 if [[ $u13_board_only == true ]]; then
-  u13_runners=(U13Board U13DenseBoard U13LoadoutBoard)
-  u13_markers=('U13 board failures: 0' 'U13 dense board failures: 0' 'U13 loadout board failures: 0')
+  u13_runners=(U13Board U13DenseBoard U13LoadoutBoard U13Hunt U13DirectBoard)
+  u13_markers=('U13 board failures: 0' 'U13 dense board failures: 0' 'U13 loadout board failures: 0' 'U13 Hunt failures: 0' 'U13 direct board failures: 0')
 fi
 if [[ $u13_construction_only == true ]]; then
   u13_runners=(U13Construction U13ConstructionRandom)
@@ -178,6 +186,10 @@ fi
 if [[ $u13_castle_rout_only == true ]]; then
   u13_runners=(U13Match U13CastleLoadout U13Rout U13Deimos U13Construction U13ConstructionRandom U13SpatialMarching)
   u13_markers=('U13 match foundation failures: 0' 'U13 Castle loadout failures: 0' 'U13 Rout failures: 0' 'U13 Deimos failures: 0' 'U13 Construction failures: 0' 'U13 Construction random failures: 0' 'U13 spatial Marching failures: 0')
+fi
+if [[ $u13_interaction_only == true ]]; then
+  u13_runners=(U13Hunt U13DirectBoard)
+  u13_markers=('U13 Hunt failures: 0' 'U13 direct board failures: 0')
 fi
 u13_failed=0
 for u13_index in "${!u13_runners[@]}"; do
@@ -200,6 +212,9 @@ for u13_index in "${!u13_runners[@]}"; do
   fi
 done
 u13_suite_label=foundation
+if [[ $u13_interaction_only == true ]]; then
+  u13_suite_label=interaction
+fi
 if [[ $u13_board_only == true ]]; then
   u13_suite_label=board
 fi

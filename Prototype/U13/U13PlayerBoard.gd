@@ -22,6 +22,10 @@ var castle_row
 var castle_guard_box
 var lord_guard_box
 var castle_guard_drop_area
+var direct_targets: bool = false
+var target_controls: Dictionary = {}
+var commission_buttons: Dictionary = {}
+signal commission_requested(castle_id: String)
 var ward_lord_overlay
 var attack_lord_overlay
 var ward_castle_overlay
@@ -331,7 +335,19 @@ func bind_world(world: Dictionary, pid: int, planning: bool) -> void:
 	)
 	if not lord_card.input_surface.pressed.is_connected(_select_lord):
 		lord_card.input_surface.pressed.connect(_select_lord)
-	lord_card.input_surface.set_meta("planning", planning and pid == 0)
+	lord_card.input_surface.set_meta("planning", planning)
+	lord_card.input_surface.set_meta("owner_id", pid)
+	var lord_id: String = ""
+	var alive: bool = true
+	for entity in world.entities:
+		if entity.kind == "lord" and entity.owner == pid:
+			lord_id = entity.id
+			alive = entity.attributes.alive
+	lord_card.input_surface.set_meta("lord_id", lord_id)
+	lord_card.input_surface.set_meta("alive", alive)
+	lord_card.caption.text = lord_name.to_upper() if alive else lord_name.to_upper() + "\nBANISHED"
+	target_controls = {lord_id: lord_card.input_surface}
+	commission_buttons = {}
 	var live_castle: Dictionary = {}
 	var slots: Dictionary = {}
 	var guards: Dictionary = {"Lord": {}, "Castle": {}}
@@ -401,8 +417,14 @@ func bind_world(world: Dictionary, pid: int, planning: bool) -> void:
 
 
 func _select_lord() -> void:
+	if not direct_targets and int(lord_card.input_surface.get_meta("owner_id", 0)) == 1:
+		return
 	if lord_card.input_surface.get_meta("planning", false):
-		target_selected.emit("Ward", "Lord", "")
+		target_selected.emit(
+			"Ward" if int(lord_card.input_surface.get_meta("owner_id", 0)) == 0 else "Hunt",
+			"Lord",
+			String(lord_card.input_surface.get_meta("lord_id", ""))
+		)
 
 
 func _select_castle(pid: int, id: String, planning: bool) -> void:
@@ -454,7 +476,37 @@ func _add_instance_card(entity: Dictionary, pid: int, planning: bool) -> void:
 	)
 	card.caption.add_theme_font_size_override("font_size", 10)
 	card.set_meta("castle_id", entity.id)
+	target_controls[entity.id] = card.input_surface
+	if (
+		pid == 0
+		and a.construction_state in ["building", "ready"]
+		and a.status == "standing"
+		and a.integrity >= 7
+	):
+		card.input_surface.set_meta("commission_eligible", true)
 	# Own cards still select the shared Ward lane. Only exposed enemy copies
 	# offer a Siege target; construction never becomes a clickable attack target.
 	if pid == 0 or (a.construction_state == "active" and a.status in ["standing", "defunct"]):
 		card.input_surface.pressed.connect(_select_castle.bind(pid, entity.id, planning))
+
+
+func show_commission_buttons(enabled: bool, staged_id: String) -> void:
+	for id in target_controls:
+		var control = target_controls[id]
+		if not control.has_meta("commission_eligible"):
+			continue
+		var button := Button.new()
+		button.text = "UNDO COMMISSION" if id == staged_id else "COMMISSION"
+		button.add_theme_font_size_override("font_size", 10)
+		button.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+		button.offset_top = 4
+		button.offset_bottom = 28
+		button.tooltip_text = "Stage Commission for this round. This Castle becomes vulnerable at its current Integrity when orders resolve."
+		control.add_child(button)
+		button.disabled = not enabled
+		button.pressed.connect(_commission_clicked.bind(id))
+		commission_buttons[id] = button
+
+
+func _commission_clicked(id: String) -> void:
+	commission_requested.emit(id)

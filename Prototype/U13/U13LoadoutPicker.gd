@@ -75,7 +75,7 @@ func _ready() -> void:
 	)
 	_label(
 		column,
-		"Siege Engine artillery is implemented. Other Castle types have construction and repair, but their printed powers are not connected yet. Hunt, normal draws and victory are also pending.",
+		"Siege Engine artillery is implemented. Other Castle types have construction and repair, but their printed powers are not connected yet. Normal draws, resummoning, Fracture and victory are also pending.",
 		14
 	)
 	message = _label(column, "", 15)

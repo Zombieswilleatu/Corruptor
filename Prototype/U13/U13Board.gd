@@ -298,7 +298,7 @@ func _build() -> void:
 	hand_view = Hand.new()
 	center.add_child(hand_view)
 	hand_view.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-	hand_view.selection_changed.connect(func(_ids): _preview())
+	hand_view.selection_changed.connect(_hand_selection_changed)
 	history_panel = PanelContainer.new()
 	history_panel.name = "HistoryOverlay"
 	history_panel.z_index = 80
@@ -334,11 +334,7 @@ func _refresh(presented: Dictionary = {}) -> void:
 		lanes.show_world(world.entities, session.round_number())
 	var cards: Array = []
 	for id in world.hand:
-		if (
-			id in payment
-			or id in castle_plan.get("card_ids", [])
-			or (powers_step and id in staged_order.get("card_ids", []))
-		):
+		if _hand_reserved(id):
 			continue
 		for entity in world.entities:
 			if entity.id == id:
@@ -442,7 +438,7 @@ func _preview() -> void:
 	if not _planning():
 		confirm.disabled = true
 		return
-	var name: String = {0: "Powers Only", 1: "Siege", 2: "Ward"}[action_choice.selected]
+	var name: String = {0: "Powers Only", 1: "Siege", 2: "Ward", 3: "Hunt"}[action_choice.selected]
 	for key in action_zone.action_buttons:
 		action_zone.action_buttons[key].set_pressed_no_signal(key == name)
 	lane_choice.visible = not powers_step and action_choice.selected == 2
@@ -991,7 +987,7 @@ func close_setup() -> void:
 func start_loadout(lords: Array, castles: Array, quick: bool) -> void:
 	if not setup_open or _job != null:
 		return
-	var candidate = LoadoutSession.new()
+	var candidate = _new_loadout_session()
 	var result: Dictionary = candidate.configure(lords, castles, quick)
 	if result.action == "invalid":
 		setup_picker.message.text = _friendly_error(result)
@@ -1278,3 +1274,19 @@ func _update_deimos_controls() -> void:
 			or state.remaining > 0
 			or (power == Deimos.WAR_MACHINE and engine_choice.item_count == 0)
 		)
+
+
+func _hand_reserved(id: String) -> bool:
+	return (
+		id in payment
+		or id in castle_plan.get("card_ids", [])
+		or (powers_step and id in staged_order.get("card_ids", []))
+	)
+
+
+func _hand_selection_changed(_ids: Array) -> void:
+	_preview()
+
+
+func _new_loadout_session():
+	return LoadoutSession.new()

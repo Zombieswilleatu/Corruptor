@@ -10,6 +10,7 @@ var setup_castles: Array = [
 	["SiegeEngine", "SiegeEngine", "Keep", "Bastion", "Stockpile"]
 ]
 var quick_start: bool = true
+var hunt_enabled: bool = false
 
 
 # Only the exercise opening differs from Core's all-unbuilt setup boundary.
@@ -29,7 +30,9 @@ func configure(lords: Array, castles: Array, quick: bool) -> Dictionary:
 				castle.attributes.construction_state = "active" if slot == 0 else "building"
 				entities.update(castle.id, pid, castle.attributes)
 		initial.entities = entities.snapshot()
-	var content = Deimos.new(true, true)
+	if hunt_enabled:
+		initial.data["hunt_profile"] = Combat.HUNT_VERSION
+	var content = Deimos.new(true, true, hunt_enabled)
 	var candidate = content.create_combat_match()
 	var started: Dictionary = candidate.start(BOARD_SEED, initial, [0, 1])
 	if started.action == "invalid":
@@ -90,6 +93,7 @@ func _fork_for_job():
 		candidate.setup_lords = setup_lords.duplicate(true)
 		candidate.setup_castles = setup_castles.duplicate(true)
 		candidate.quick_start = quick_start
+		candidate.hunt_enabled = hunt_enabled
 	return candidate
 
 
@@ -98,7 +102,8 @@ func checkpoint() -> Dictionary:
 	result["board_setup"] = {
 		"lords": setup_lords.duplicate(true),
 		"castles": setup_castles.duplicate(true),
-		"quick": quick_start
+		"quick": quick_start,
+		"hunt": hunt_enabled
 	}
 	return result
 
@@ -118,12 +123,13 @@ func restore_checkpoint(raw: Dictionary) -> Dictionary:
 		typeof(setup.get("lords")) != TYPE_ARRAY
 		or typeof(setup.get("castles")) != TYPE_ARRAY
 		or typeof(setup.get("quick")) != TYPE_BOOL
+		or typeof(setup.get("hunt", false)) != TYPE_BOOL
 	):
 		return Data.invalid("loadout_checkpoint_setup_invalid")
 	var initial: Dictionary = Core.loadout_world(setup.lords, setup.castles)
 	if initial.get("action") == "invalid":
 		return initial
-	var content = Deimos.new(true, true)
+	var content = Deimos.new(true, true, setup.get("hunt", false))
 	var candidate = content.create_combat_match()
 	var restored: Dictionary = candidate.restore(raw.match)
 	if restored.action == "invalid":
@@ -135,6 +141,7 @@ func restore_checkpoint(raw: Dictionary) -> Dictionary:
 	setup_lords = setup.lords.duplicate(true)
 	setup_castles = setup.castles.duplicate(true)
 	quick_start = setup.quick
+	hunt_enabled = setup.get("hunt", false)
 	_lane = raw.lane
 	_scenario = 0
 	_last_marching = Data.copy_data(raw.marching_events)
