@@ -153,15 +153,18 @@ func _gui_input(event: InputEvent) -> void:
 			lane_selected.emit("Lord" if event.position.x < size.x * 0.5 else "Castle")
 
 
-func pulse_lanes() -> void:
+func pulse_lanes(selected_lane: String = "") -> void:
 	for marker in _lane_pulses:
 		if is_instance_valid(marker):
+			marker.hide()
 			marker.queue_free()
 	_lane_pulses = []
 	for index in range(2):
+		if not selected_lane.is_empty() and selected_lane != ("Lord" if index == 0 else "Castle"):
+			continue
 		var marker := ColorRect.new()
 		marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		marker.color = Color(0.95, 0.76, 0.33, 0.32)
+		marker.color = Color(0.95, 0.76, 0.33, 0.32 if selected_lane.is_empty() else 0.5)
 		marker.position = Vector2(16 + float(index) * (size.x - 32) * 0.5, 279)
 		marker.size = Vector2((size.x - 32) * 0.5, size.y - 303)
 		add_child(marker)

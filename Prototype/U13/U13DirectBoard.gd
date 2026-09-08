@@ -10,6 +10,7 @@ var _power_cost: Array = []
 var _direct_refresh_pending: bool = false
 var _direct_binding: bool = false
 var _pulse_pending: bool = false
+var _selected_pulse: Dictionary = {}
 var _visible_world: Dictionary = {}
 var _order_preview
 var _direct_castle_buttons: Array = []
@@ -97,6 +98,9 @@ func _refresh(presented: Dictionary = {}) -> void:
 	if _pulse_pending:
 		_pulse_pending = false
 		_pulse_targets()
+	if not _selected_pulse.is_empty():
+		_flash_selected(_selected_pulse)
+		_selected_pulse = {}
 	call_deferred("_show_stacks")
 
 
@@ -351,6 +355,8 @@ func _choose_target(target: Dictionary) -> void:
 		return
 	_interaction_error = ""
 	_target = target.duplicate(true)
+	_selected_pulse = target.duplicate(true)
+	_schedule_refresh()
 	if _intent == "Construct":
 		_apply_cards([], false)
 	elif _intent in ["Siege", "Hunt", "Ward"]:
@@ -389,7 +395,8 @@ func _drop(at_position: Vector2, data, target: Dictionary) -> void:
 	_target = target.duplicate(true)
 	if _intent in ["Siege", "Hunt", "Ward"]:
 		action_choice.select({"Siege": 1, "Hunt": 3, "Ward": 2}[_intent])
-	_apply_cards([String(data.card)], true)
+	if _apply_cards([String(data.card)], true):
+		_selected_pulse = target.duplicate(true)
 
 
 func _hand_selection_changed(ids: Array) -> void:
@@ -559,6 +566,7 @@ func _submit_power(target: Dictionary) -> void:
 	if _error(session.choose(candidate, _order())):
 		return
 	queued = candidate
+	_selected_pulse = target.duplicate(true)
 	payment.append_array(_power_cost)
 	_power_cost = []
 	_intent = ""
@@ -632,6 +640,8 @@ func pass_round() -> void:
 
 
 func _reset_direct() -> void:
+	_selected_pulse = {}
+	_pulse_pending = false
 	_interaction_error = ""
 	_draft_combat = {}
 	_intent = ""
@@ -703,8 +713,6 @@ func _human_alive() -> bool:
 func _reveal_targets() -> void:
 	if not _planning():
 		return
-	phase_prompt.board_view_collapsed = true
-	phase_prompt._refresh_mode()
 	_pulse_pending = true
 	_schedule_refresh()
 	_update_direct_ui()
@@ -718,8 +726,7 @@ func _pulse_targets() -> void:
 			for id in row.target_controls:
 				if _target_allowed(_entity_target(id), _intent):
 					var control: Control = row.target_controls[id].get_parent().get_parent()
-					control.modulate = Color(1.5, 1.25, 0.6)
-					control.create_tween().tween_property(control, "modulate", Color.WHITE, 0.7)
+					_flash_control(control, Color(1.5, 1.25, 0.6))
 	_update_direct_ui()
 
 
@@ -852,3 +859,28 @@ func _artillery_target_note(engine: Dictionary) -> String:
 	if targets.is_empty():
 		return "No eligible enemy Castle now. The Engine checks for a target when firing."
 	return "No target retained yet. The Engine automatically acquires one of the eligible enemy Castles when firing."
+
+
+func _flash_selected(target: Dictionary) -> void:
+	if not target.has("id"):
+		lanes.pulse_lanes(target.lane)
+		return
+	var row = sides[1] if target.owner == 0 else sides[0]
+	var control: Control = row.target_controls.get(target.id)
+	if control != null:
+		_flash_control(control.get_parent().get_parent(), Color(1.8, 1.5, 0.7))
+	elif target.kind == "zone":
+		_flash_control(
+			row.castle_guard_box if target.lane == "Castle" else row.lord_card, Color(1.8, 1.5, 0.7)
+		)
+
+
+func _flash_control(control: Control, tint: Color) -> void:
+	if control.has_meta("u13_target_flash"):
+		var previous = control.get_meta("u13_target_flash")
+		if is_instance_valid(previous):
+			previous.kill()
+	control.modulate = tint
+	var tween = control.create_tween()
+	control.set_meta("u13_target_flash", tween)
+	tween.tween_property(control, "modulate", Color.WHITE, 0.7)

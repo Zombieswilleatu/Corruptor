@@ -41,6 +41,10 @@ signal selection_changed(card_ids)
 signal all_in_requested
 var direct_gestures: bool = false
 var all_in_enabled: bool = false
+const ALL_IN_CLICK_WINDOW_MS: int = 650
+const ALL_IN_CLICK_DISTANCE: float = 48.0
+var _all_in_click_ms: int = -1
+var _all_in_click_point: Vector2 = Vector2.ZERO
 
 
 var title_label: Label = null
@@ -441,6 +445,7 @@ func _get_hand_card_drag_data(
 	_at_position: Vector2,
 	button: Button
 ):
+	_all_in_click_ms = -1
 	if (
 		(
 			not deploy_drag_enabled
@@ -894,17 +899,34 @@ func _wrap_hand_control_with_left_margin_v1(
 
 
 func _input(event: InputEvent) -> void:
-	# The old gesture required the same card Button to survive two clicks.
-	# Direct staging removes that card, so listen across the whole hand surface.
-	if (
-		direct_gestures
-		and all_in_enabled
-		and is_visible_in_tree()
-		and event is InputEventMouseButton
-		and event.button_index == MOUSE_BUTTON_LEFT
-		and event.pressed
-		and event.double_click
-		and get_global_rect().has_point(get_global_mouse_position())
-	):
+	if not direct_gestures or not event is InputEventMouseButton:
+		return
+	if event.button_index != MOUSE_BUTTON_LEFT or not event.pressed:
+		return
+	var point: Vector2 = get_global_mouse_position()
+	var hovered: Control = get_viewport().gui_get_hovered_control()
+	var inside: bool = (
+		is_visible_in_tree()
+		and get_global_rect().has_point(point)
+		and (hovered == self or (hovered != null and is_ancestor_of(hovered)))
+	)
+	if _register_all_in_click(Time.get_ticks_msec(), point, inside):
 		get_viewport().set_input_as_handled()
 		all_in_requested.emit()
+
+
+func _register_all_in_click(now_ms: int, point: Vector2, inside: bool) -> bool:
+	# Track the hand surface rather than a Button that staging removes.
+	# Two nearby clicks may be 650 ms apart; distinct card clicks stay individual.
+	if not inside:
+		_all_in_click_ms = -1
+		return false
+	var repeated: bool = (
+		all_in_enabled
+		and _all_in_click_ms >= 0
+		and now_ms - _all_in_click_ms <= ALL_IN_CLICK_WINDOW_MS
+		and point.distance_to(_all_in_click_point) <= ALL_IN_CLICK_DISTANCE
+	)
+	_all_in_click_ms = -1 if repeated else now_ms
+	_all_in_click_point = point
+	return repeated

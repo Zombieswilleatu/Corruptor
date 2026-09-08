@@ -29,8 +29,8 @@ The default playable entry uses direct targeting:
 
 The action and power target dropdowns are hidden in this interaction mode.
 The backing controls remain for the established fixture tests. Valid target
-surfaces pulse once and the prompt collapses to its existing Return tab while
-selecting on the board. No continuous highlighting/redraw loop is introduced.
+surfaces pulse once; the chosen Castle, Lord or lane flashes again on selection.
+The prompt stays open while targeting, with View Board remaining a manual toggle. No continuous highlighting/redraw loop is introduced.
 
 ## Lord power gestures
 
@@ -166,3 +166,17 @@ persisted dismissal, global reset (including another tutorial ID), and the gate.
 Its preference checks use an isolated temporary user path and leave the player's
 real tutorial choices alone. Runner counts remain interaction 2/2, board 5/5,
 foundation 24/24. Local Godot 4.7.2 acceptance is still required for this update.
+
+
+### Target feedback and all-in timing
+
+Selected-target feedback is queued until the board refresh has rebuilt its
+cards, so the new flash survives selection. A new flash replaces any still
+running pulse on that control; a selected lane flashes alone.
+
+Direct all-in uses a 650 ms interval and a 48 logical-pixel proximity limit,
+independent of Godot's shorter native double-click timing. It tracks the hand
+surface across card removal/reflow. Clicking outside the hand (including a
+modal overlay) or starting a drag breaks the pair. All existing available-card
+and phase locks still apply. The interaction runner checks the relaxed interval,
+expired/separate clicks, modal isolation and selected-target feedback.

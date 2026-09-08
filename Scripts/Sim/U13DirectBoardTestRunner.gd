@@ -77,11 +77,16 @@ func _run() -> void:
 		"direct_active_castle_has_no_commission"
 	)
 	board.action_zone.action_buttons.Siege.pressed.emit()
+	_check(not board.phase_prompt.board_view_collapsed, "direct_target_selection_keeps_modal_open")
 	board.hand_view.select_card_id(hand[0])
 	await _settle()
 	_check(board._draft_combat.is_empty(), "direct_click_requires_target_before_cards")
 	board._choose_target(enemy_castle)
 	await _settle()
+	_check(
+		board.sides[0].target_controls[enemy_castle.id].get_parent().get_parent().modulate.r > 1.5,
+		"direct_selected_castle_flashes_again"
+	)
 	board.hand_view.select_card_id(hand[0])
 	await _settle()
 	_check(
@@ -103,6 +108,32 @@ func _run() -> void:
 				"direct_committed_card_keeps_suit_outline"
 			)
 	_check(board.hand_view.all_in_enabled, "direct_first_staged_card_enables_all_in")
+	var hand_ui = board.hand_view
+	hand_ui._all_in_click_ms = -1
+	_check(
+		not hand_ui._register_all_in_click(1000, Vector2(20, 20), true),
+		"direct_all_in_first_click_waits"
+	)
+	_check(
+		hand_ui._register_all_in_click(1600, Vector2(22, 20), true),
+		"direct_all_in_accepts_relaxed_600ms_click"
+	)
+	hand_ui._register_all_in_click(2000, Vector2(20, 20), true)
+	_check(
+		not hand_ui._register_all_in_click(2800, Vector2(20, 20), true),
+		"direct_all_in_expired_click_stays_individual"
+	)
+	_check(
+		not hand_ui._register_all_in_click(2900, Vector2(140, 20), true),
+		"direct_separate_card_clicks_do_not_all_in"
+	)
+	hand_ui._register_all_in_click(2950, Vector2.ZERO, false)
+	_check(
+		not hand_ui._register_all_in_click(3000, Vector2(140, 20), true),
+		"direct_modal_click_breaks_all_in_pair"
+	)
+	hand_ui._all_in_click_ms = -1
+
 	board.hand_view.all_in_requested.emit()
 	await _settle()
 	_check(
@@ -256,6 +287,7 @@ func _run() -> void:
 	)
 	board.lanes.lane_selected.emit("Lord")
 	await _settle()
+	_check(board.lanes._lane_pulses.size() == 1, "direct_selected_lane_flashes_alone")
 	_check(
 		board.queued.size() == 1 and board.queued[0].target.lane == "Lord",
 		"direct_predator_lane_queues_declaration"
