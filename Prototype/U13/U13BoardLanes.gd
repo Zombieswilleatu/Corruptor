@@ -107,7 +107,8 @@ func _draw() -> void:
 			var ordinal: int = int(occupied.get(key, 0))
 			occupied[key] = ordinal + 1
 			var center := Vector2(
-				middle + (-19 if unit.owner == 0 else 19) + (ordinal % 2) * 8, y + (ordinal / 2) * 9
+				middle + (-19 if unit.owner == 0 else 19) + (ordinal % 2) * 8,
+				y + floori(float(ordinal) / 2.0) * 9
 			)
 			var card := Rect2(center - Vector2(17, 25), Vector2(34, 50))
 			var texture: Texture2D = Art.texture_for(a.suit, 1)
