@@ -163,3 +163,20 @@ Expected final line: `U13 foundation runners passed: 11/11`.
 A failure blocks further Lord/spatial work. Once green, the next product-facing
 step is a U13 smoke scene/controller over this owner, with its supported profile
 made clear; the broader ordinary-rule migration remains necessary for full matches.
+
+
+## Local gate follow-up: fractional-position fixture
+
+The user's Godot 4.7.2 run of `6b51866` reached
+`FAIL fractional_marching_position_rejected`; the preceding replay and order
+validation checks passed. The test attempted to corrupt `x_fp` through its normal
+`_edit` helper. That helper called `U13EntityIds.update`, which correctly rejected
+the fraction through `U13EffectData.is_data`, but ignored the returned rejection.
+The subsequent match-start assertion therefore received the original valid world.
+
+The corrected test separately verifies atomic registry rejection, a valid integer
+startup control, an actual fraction in raw external data, direct Marching validation,
+and atomic rejection at match start/restore. The normal setup helper now reports
+rejected edits. Production validation and combat rules are unchanged. Static parsing
+passes; the corrected **11/11 local Godot gate remains pending**, including the
+real-target Ruin test that follows this check.

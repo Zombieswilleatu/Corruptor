@@ -20,6 +20,7 @@ func _init() -> void:
 		Callable(self, "_defense_boundaries"),
 		Callable(self, "_predator_and_replay"),
 		Callable(self, "_atomic_validation"),
+		Callable(self, "_fractional_positions"),
 		Callable(self, "_real_ruin_fizzle")
 	]:
 		test.call()
@@ -120,7 +121,11 @@ func _edit(world: Dictionary, entity_id: String, changes: Dictionary) -> void:
 	var entity: Dictionary = entities.get_entity(entity_id)
 	for key in changes:
 		entity.attributes[key] = changes[key]
-	entities.update(entity_id, entity.owner, entity.attributes)
+	var updated: Dictionary = entities.update(entity_id, entity.owner, entity.attributes)
+	if updated.action == "invalid":
+		print("MARCHING FIXTURE UPDATE ERROR: ", updated)
+		_check(false, "fixture_entity_update_rejected")
+		return
 	world.entities = entities.snapshot()
 
 
@@ -578,12 +583,57 @@ func _atomic_validation() -> void:
 		restored.restore(malformed).action == "invalid",
 		"restore_rejects_phase_ledger_ahead_of_cursor"
 	)
+
+
+func _fractional_positions() -> void:
+	var world: Dictionary = _world()
 	var unit: String = _spawn(world, "fractional", 0, "Vulture", 0)
-	_edit(world, unit, {"x_fp": 0.5})
-	var invalid_owner = _new_match()
+	var entities = Ids.new()
+	entities.restore(world.entities)
+	var before_entities: Dictionary = entities.snapshot()
+	var attributes: Dictionary = entities.get_entity(unit).attributes
+	attributes["x_fp"] = 0.5
 	_check(
-		invalid_owner.start("seed", world, [0, 1]).action == "invalid",
+		(
+			entities.update(unit, 0, attributes).action == "invalid"
+			and entities.snapshot() == before_entities
+		),
+		"fractional_registry_update_rejected_atomically"
+	)
+	var valid_owner = _new_match()
+	if not _check(
+		valid_owner.start("seed", world, [0, 1]).action != "invalid",
+		"integer_position_control_starts"
+	):
+		return
+	# Intentionally corrupt raw external data. The normal _edit helper uses
+	# Ids.update, which rejects *_fp fractions before they can enter the world.
+	var malformed_world: Dictionary = world.duplicate(true)
+	_entity(malformed_world, unit).attributes["x_fp"] = 0.5
+	if not _check(
+		_entity(malformed_world, unit).attributes.x_fp == 0.5,
+		"fractional_fixture_contains_fraction"
+	):
+		return
+	_check(not Marching.valid(malformed_world), "marching_validator_rejects_fractional_position")
+	var invalid_owner = _new_match()
+	var before_start: Dictionary = invalid_owner.snapshot()
+	_check(
+		(
+			invalid_owner.start("seed", malformed_world, [0, 1]).action == "invalid"
+			and invalid_owner.snapshot() == before_start
+		),
 		"fractional_marching_position_rejected"
+	)
+	var before_restore: Dictionary = valid_owner.snapshot()
+	var malformed_snapshot: Dictionary = before_restore.duplicate(true)
+	_entity(malformed_snapshot.world, unit).attributes["x_fp"] = 0.5
+	_check(
+		(
+			valid_owner.restore(malformed_snapshot).action == "invalid"
+			and valid_owner.snapshot() == before_restore
+		),
+		"fractional_marching_restore_rejected_atomically"
 	)
 
 
