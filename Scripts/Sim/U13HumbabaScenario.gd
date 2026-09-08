@@ -13,21 +13,11 @@ const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
 # playable picker remains Gremory/Deimos; this is not a production starting build.
 static func world(opponent: String = "Gremory") -> Dictionary:
 	var selection: Array = ["Keep", "Bastion", "SummoningCircle", "Stockpile", "SiegeEngine"]
-	var result: Dictionary = Core.loadout_world(["Gremory", opponent], [selection, selection])
+	var result: Dictionary = loadout_world(["Humbaba", opponent], [selection, selection])
 	if result.get("action") == "invalid":
 		return result
-	result.data["humbaba_profile"] = Humbaba.POLICY
-	result.data["lane_aura_profile"] = Humbaba.LaneAuras.VERSION
-	result.data["humbaba_end_round"] = 0
-	result.data["humbaba_breach_entries"] = {}
-	result.data["hunt_profile"] = Combat.HUNT_VERSION
-	result.players[0].lord_id = "Humbaba"
 	var entities = Ids.new()
 	entities.restore(result.entities)
-	var lord: Dictionary = entities.get_entity(result.players[0].lord_entity_id)
-	lord.attributes.lord_id = "Humbaba"
-	lord.attributes.erase("threat")
-	entities.update(lord.id, lord.owner, lord.attributes)
 	for player_id in [0, 1]:
 		# Two exposed non-artillery Castles, including one vulnerable to Stones
 		# Forget; three protected choices remain available for construction.
@@ -37,6 +27,35 @@ static func world(opponent: String = "Gremory") -> Dictionary:
 			castle.attributes.status = "standing"
 			castle.attributes.construction_state = "active"
 			entities.update(castle.id, castle.owner, castle.attributes)
+	result.entities = entities.snapshot()
+	return result
+
+
+static func loadout_world(lords: Array, selections: Array) -> Dictionary:
+	if lords.size() != 2:
+		return Humbaba.Data.invalid("loadout_players_invalid")
+	var base_lords: Array = lords.duplicate()
+	for pid in [0, 1]:
+		if base_lords[pid] == "Humbaba":
+			base_lords[pid] = "Gremory"
+	var result: Dictionary = Core.loadout_world(base_lords, selections)
+	if result.get("action") == "invalid":
+		return result
+	result.data["humbaba_profile"] = Humbaba.POLICY
+	result.data["lane_aura_profile"] = Humbaba.LaneAuras.VERSION
+	result.data["humbaba_end_round"] = 0
+	result.data["humbaba_breach_entries"] = {}
+	result.data["hunt_profile"] = Combat.HUNT_VERSION
+	var entities = Ids.new()
+	entities.restore(result.entities)
+	for pid in [0, 1]:
+		if lords[pid] != "Humbaba":
+			continue
+		result.players[pid].lord_id = "Humbaba"
+		var lord: Dictionary = entities.get_entity(result.players[pid].lord_entity_id)
+		lord.attributes.lord_id = "Humbaba"
+		lord.attributes.erase("threat")
+		entities.update(lord.id, pid, lord.attributes)
 	result.entities = entities.snapshot()
 	return result
 

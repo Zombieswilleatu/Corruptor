@@ -2,10 +2,12 @@ extends PanelContainer
 
 const Preview = preload("res://Prototype/UI2/SubjectCardHoldPreview.gd")
 const SuitStyle = preload("res://Prototype/UI2/SubjectSuitStyle.gd")
+const CastleArtwork = preload("res://Prototype/U13/U13CastleArtwork.gd")
 var art: TextureRect
 var caption: Label
 var input_surface: Button
 var preview
+var castle_artwork
 
 
 func _ready() -> void:
@@ -51,3 +53,23 @@ func bind_art(texture: Texture2D, label: String, help: String, enabled: bool = t
 
 func bind_suit(suit: String) -> void:
 	add_theme_stylebox_override("panel", SuitStyle.card_style(suit, Color("111113"), 3))
+
+
+func bind_castle_art(attributes: Dictionary, previous: Dictionary) -> void:
+	if castle_artwork == null:
+		castle_artwork = CastleArtwork.new()
+		art.add_child(castle_artwork)
+		castle_artwork.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	# Keep the source available for inspection; only replace its board drawing.
+	art.self_modulate.a = 0.0
+	art.modulate = Color.WHITE
+	castle_artwork.bind_castle(art.texture, attributes, previous)
+	if attributes.construction_state == "active":
+		input_surface.tooltip_text += (
+			"\n"
+			+ ["Undamaged", "Damaged", "Heavily damaged"][CastleArtwork.damage_band(
+				attributes.integrity, attributes.max_integrity
+			)]
+		)
+	else:
+		input_surface.tooltip_text += "\nArtwork fills upward with construction progress."

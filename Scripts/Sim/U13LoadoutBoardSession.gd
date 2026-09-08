@@ -2,6 +2,8 @@ extends "res://Scripts/Sim/U13BoardSession.gd"
 
 const Core = preload("res://Scripts/Sim/U13CoreScenario.gd")
 const Deimos = preload("res://Scripts/Sim/U13Deimos.gd")
+const Humbaba = preload("res://Scripts/Sim/U13Humbaba.gd")
+const HumbabaScenario = preload("res://Scripts/Sim/U13HumbabaScenario.gd")
 const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
 const BOARD_SEED: String = "u13-loadout-board-v1"
 var setup_lords: Array = ["Deimos", "Gremory"]
@@ -16,7 +18,7 @@ var hunt_enabled: bool = false
 # Only the exercise opening differs from Core's all-unbuilt setup boundary.
 # Keep production starting economy undecided, and never mutate a running match.
 func configure(lords: Array, castles: Array, quick: bool) -> Dictionary:
-	var initial: Dictionary = Core.loadout_world(lords, castles)
+	var initial: Dictionary = _initial(lords, castles)
 	if initial.get("action") == "invalid":
 		return initial
 	if quick:
@@ -32,7 +34,7 @@ func configure(lords: Array, castles: Array, quick: bool) -> Dictionary:
 		initial.entities = entities.snapshot()
 	if hunt_enabled:
 		initial.data["hunt_profile"] = Combat.HUNT_VERSION
-	var content = Deimos.new(true, true, hunt_enabled)
+	var content = _content(lords, hunt_enabled)
 	var candidate = content.create_combat_match()
 	var started: Dictionary = candidate.start(BOARD_SEED, initial, [0, 1])
 	if started.action == "invalid":
@@ -47,6 +49,7 @@ func configure(lords: Array, castles: Array, quick: bool) -> Dictionary:
 	setup_lords = lords.duplicate(true)
 	setup_castles = castles.duplicate(true)
 	quick_start = quick
+	hunt_enabled = hunt_enabled or lords.has("Humbaba")
 	_scenario = 0
 	_lane = "Castle"
 	_last_marching = []
@@ -63,7 +66,9 @@ func reset(_scenario_index: int = 0) -> Dictionary:
 func declaration(
 	power: String, index: int, target: Dictionary, cost: Dictionary = {}
 ) -> Dictionary:
-	var rule: Dictionary = Deimos.rules().get(power, {})
+	var rule: Dictionary = (Humbaba.rules() if setup_lords.has("Humbaba") else Deimos.rules()).get(
+		power, {}
+	)
 	if rule.is_empty():
 		return Data.invalid("power_unknown")
 	var current: int = round_number()
@@ -84,7 +89,21 @@ func declaration(
 
 
 func random_opponent_plan() -> Dictionary:
-	return RandomLegal.plan(_owner, 1, Callable(Core, "enumerate"))
+	return RandomLegal.plan(
+		_owner, 1, Callable(HumbabaScenario if setup_lords.has("Humbaba") else Core, "enumerate")
+	)
+
+
+static func _initial(lords: Array, castles: Array) -> Dictionary:
+	return (
+		HumbabaScenario.loadout_world(lords, castles)
+		if lords.has("Humbaba")
+		else Core.loadout_world(lords, castles)
+	)
+
+
+static func _content(lords: Array, hunt: bool):
+	return Humbaba.new() if lords.has("Humbaba") else Deimos.new(true, true, hunt)
 
 
 func _fork_for_job():
@@ -126,10 +145,12 @@ func restore_checkpoint(raw: Dictionary) -> Dictionary:
 		or typeof(setup.get("hunt", false)) != TYPE_BOOL
 	):
 		return Data.invalid("loadout_checkpoint_setup_invalid")
-	var initial: Dictionary = Core.loadout_world(setup.lords, setup.castles)
+	if setup.lords.has("Humbaba") and not setup.get("hunt", false):
+		return Data.invalid("humbaba_checkpoint_requires_hunt")
+	var initial: Dictionary = _initial(setup.lords, setup.castles)
 	if initial.get("action") == "invalid":
 		return initial
-	var content = Deimos.new(true, true, setup.get("hunt", false))
+	var content = _content(setup.lords, setup.get("hunt", false))
 	var candidate = content.create_combat_match()
 	var restored: Dictionary = candidate.restore(raw.match)
 	if restored.action == "invalid":

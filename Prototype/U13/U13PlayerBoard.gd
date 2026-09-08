@@ -15,6 +15,7 @@ var lord_group
 var lord_guard_group
 var castle_group
 var lord_card
+var _castle_art_states: Dictionary = {}
 var lord_absent_label
 var lord_sigil
 var castle_sigil
@@ -346,6 +347,14 @@ func bind_world(world: Dictionary, pid: int, planning: bool) -> void:
 	lord_card.input_surface.set_meta("lord_id", lord_id)
 	lord_card.input_surface.set_meta("alive", alive)
 	lord_card.caption.text = lord_name.to_upper() if alive else lord_name.to_upper() + "\nBANISHED"
+	if lord_name == "Humbaba" and world.has("lord_stats"):
+		var stats: Dictionary = world.lord_stats[pid]
+		if alive:
+			lord_card.caption.text += "\nDEFENSE %d · NO THREAT" % stats.defense
+		lord_card.input_surface.tooltip_text += (
+			"\nNo Threat stat. Defense: 2 + standing Castles (%d).\nEndurance: one Neutral Tear if a friendly Penitent ends Marching at exactly 1 HP while Humbaba lives.\nThe Stones Forget: entering the Breach damages every exposed Castle by 4."
+			% stats.standing_castles
+		)
 	target_controls = {lord_id: lord_card.input_surface}
 	commission_buttons = {}
 	var live_castle: Dictionary = {}
@@ -476,6 +485,11 @@ func _add_instance_card(entity: Dictionary, pid: int, planning: bool) -> void:
 		a.construction_state != "unbuilt" and a.status not in ["ruined", "profaned"]
 	)
 	card.caption.add_theme_font_size_override("font_size", 10)
+	card.bind_castle_art(a, _castle_art_states.get(entity.id, {}))
+	_castle_art_states[entity.id] = {
+		"ratio": float(a.integrity) / maxf(1.0, float(a.max_integrity)),
+		"construction": a.construction_state != "active"
+	}
 	card.set_meta("castle_id", entity.id)
 	target_controls[entity.id] = card.input_surface
 	if (

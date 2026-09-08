@@ -6,6 +6,7 @@ const Session = preload("res://Scripts/Sim/U13BoardSession.gd")
 const LoadoutSession = preload("res://Scripts/Sim/U13LoadoutBoardSession.gd")
 const LoadoutPicker = preload("res://Prototype/U13/U13LoadoutPicker.gd")
 const Deimos = preload("res://Scripts/Sim/U13Deimos.gd")
+const Humbaba = preload("res://Scripts/Sim/U13Humbaba.gd")
 const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const BoardJob = preload("res://Prototype/U13/U13BoardJob.gd")
 const DenseSession = preload("res://Scripts/Sim/U13DenseBoardSession.gd")
@@ -49,6 +50,10 @@ var castle_note: Label
 var castle_stage: Button
 var gremory_box: VBoxContainer
 var deimos_box: VBoxContainer
+var humbaba_box: VBoxContainer
+var humbaba_buttons: Dictionary = {}
+var humbaba_states: Dictionary = {}
+var humbaba_lanes: Dictionary = {}
 var engine_choice: OptionButton
 var rout_lane: OptionButton
 var war_button: Button
@@ -155,6 +160,8 @@ func restart() -> void:
 	if _error(result):
 		return
 	match_started = true
+	for row in sides:
+		row._castle_art_states.clear()
 	action_choice.select(0)
 	_refresh()
 	reopen_decision()
@@ -280,6 +287,7 @@ func _build() -> void:
 	controls.append(ruin_button)
 	powers.add_child(HSeparator.new())
 	_build_deimos_controls(powers)
+	_build_humbaba_controls(powers)
 	_button(powers, "Back to combat · clear powers", back_to_combat)
 	controls.append(_button(powers, "Clear powers · return cards", clear_powers))
 	plan_label = _label(powers, "", 15)
@@ -332,6 +340,7 @@ func _build() -> void:
 func _refresh(presented: Dictionary = {}) -> void:
 	var view: Dictionary = session.board_view() if presented.is_empty() else presented
 	var world: Dictionary = view.world
+	lanes.bind_auras(view.get("persistent", []), session.round_number())
 	header.bind_world(world, session.round_number())
 	_render_side(sides[0], world, 1)
 	_render_side(sides[1], world, 0)
@@ -773,6 +782,7 @@ func _update_decision_copy() -> void:
 	powers_box.visible = powers_step
 	gremory_box.visible = _human_lord() == "Gremory"
 	deimos_box.visible = _human_lord() == "Deimos"
+	humbaba_box.visible = _human_lord() == "Humbaba"
 	if powers_step:
 		(
 			phase_prompt
@@ -848,6 +858,7 @@ func _update_power_controls() -> void:
 			)
 		)
 	_update_deimos_controls()
+	_update_humbaba_controls()
 	if powers_step and not confirm.disabled:
 		status.text = (
 			"Combat: %s · %d cards. Powers: %d queued. Resolve submits all orders together."
@@ -1014,6 +1025,8 @@ func start_loadout(lords: Array, castles: Array, quick: bool) -> void:
 	powers_step = false
 	playing = false
 	clock = 0.0
+	for row in sides:
+		row._castle_art_states.clear()
 	action_choice.select(0)
 	_refresh()
 	reopen_decision()
@@ -1029,7 +1042,9 @@ func _power_name(power: String) -> String:
 			Gremory.PREDATOR: "Predator of Ruin",
 			Gremory.RUIN: "Inevitable Ruin",
 			Deimos.WAR_MACHINE: "War Machine",
-			Deimos.ROUT: "Rout"
+			Deimos.ROUT: "Rout",
+			Humbaba.MUSTER: "Muster the Faithful",
+			Humbaba.BREATH: "Breath of Life"
 		}
 		. get(power, power)
 	)
@@ -1301,3 +1316,75 @@ func _hand_selection_changed(_ids: Array) -> void:
 
 func _new_loadout_session():
 	return LoadoutSession.new()
+
+
+func _build_humbaba_controls(parent: Node) -> void:
+	humbaba_box = VBoxContainer.new()
+	humbaba_box.add_theme_constant_override("separation", 6)
+	parent.add_child(humbaba_box)
+	for power in [Humbaba.MUSTER, Humbaba.BREATH]:
+		_label(humbaba_box, _power_name(power).to_upper(), 17)
+		var description: String = (
+			"Summon 3 Penitents into one lane. They march this round."
+			if power == Humbaba.MUSTER
+			else "Friendly Marchers in one lane: +25% movement for this round and next; +1 regeneration at next round's start."
+		)
+		_label(humbaba_box, description, 13).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		humbaba_states[power] = _label(humbaba_box, "", 13)
+		humbaba_states[power].autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		humbaba_lanes[power] = _option(humbaba_box, ["Castle", "Lord"])
+		var callback: Callable = queue_muster if power == Humbaba.MUSTER else queue_breath
+		humbaba_buttons[power] = _button(
+			humbaba_box, "CHOOSE " + _power_name(power).to_upper(), callback
+		)
+		controls.append(humbaba_buttons[power])
+		humbaba_box.add_child(HSeparator.new())
+	humbaba_box.hide()
+
+
+func queue_muster() -> void:
+	_queue_humbaba(Humbaba.MUSTER)
+
+
+func queue_breath() -> void:
+	_queue_humbaba(Humbaba.BREATH)
+
+
+func _queue_humbaba(power: String) -> void:
+	if not _planning() or not powers_step or _human_lord() != "Humbaba" or _queued_power(power):
+		return
+	var option: OptionButton = humbaba_lanes[power]
+	var candidate: Array = queued.duplicate(true)
+	candidate.append(
+		session.declaration(power, queued.size(), {"lane": option.get_item_text(option.selected)})
+	)
+	if _error(session.choose(candidate, _order())):
+		return
+	queued = candidate
+	_preview()
+
+
+func _update_humbaba_controls() -> void:
+	if _human_lord() != "Humbaba":
+		return
+	for power in [Humbaba.MUSTER, Humbaba.BREATH]:
+		var state: Dictionary = session.power_status(power)
+		var label: Label = humbaba_states[power]
+		var queued_now: bool = _queued_power(power)
+		label.text = "Queued · not spent yet" if queued_now else "Ready · cooldown 0"
+		if state.awaiting_expiration:
+			label.text = "Breath active · then 2 cooldown rounds"
+		elif state.remaining > 0:
+			label.text = "Cooldown %d · ready round %d" % [state.remaining, state.ready_round]
+		label.text += (
+			"\nFree · 1 round cooldown after use"
+			if power == Humbaba.MUSTER
+			else "\nFree · 2 active rounds, then 2 cooldown rounds"
+		)
+		humbaba_buttons[power].disabled = (
+			not _planning()
+			or not powers_step
+			or queued_now
+			or state.awaiting_expiration
+			or state.remaining > 0
+		)

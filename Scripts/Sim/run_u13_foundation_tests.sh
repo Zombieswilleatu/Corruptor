@@ -123,7 +123,7 @@ u13_check_script() {
 for u13_dependency in U13EffectData U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13CastleSlots U13Rout U13Structures U13Legality U13Match U13MarchingBuffer U13LaneAuras U13Marching U13Combat U13Construction U13ConstructionCandidates U13Gremory U13Deimos U13LordStats U13Humbaba U13HumbabaCandidates U13HumbabaScenario U13SmokeSession U13DeimosCandidates U13CoreScenario U13GremoryCandidates U13RandomLegal U13FrequencyTelemetry U13RandomBatch U13BoardSession U13LoadoutBoardSession U13DenseBoardSession; do
   u13_check_script "res://Scripts/Sim/${u13_dependency}.gd"
 done
-for u13_dependency in U13SmokePlayback U13SmokeBoard U13Smoke U13BoardTextures U13ArtilleryView U13BoardHand U13BoardLanes U13LayoutCard U13PlayerBoard U13BoardHeader U13DomainRow U13ActionZone U13PhasePrompt U13BoardJob U13TutorialPreferences U13TutorialPopup U13LoadoutPicker U13Board U13OrderPreview U13DirectBoard; do
+for u13_dependency in U13SmokePlayback U13SmokeBoard U13Smoke U13BoardTextures U13CastleArtwork U13ArtilleryView U13BoardHand U13BoardLanes U13LayoutCard U13PlayerBoard U13BoardHeader U13DomainRow U13ActionZone U13PhasePrompt U13BoardJob U13TutorialPreferences U13TutorialPopup U13LoadoutPicker U13Board U13OrderPreview U13DirectBoard; do
   u13_check_script "res://Prototype/U13/${u13_dependency}.gd"
 done
 
@@ -158,6 +158,8 @@ u13_runners=(
   U13LoadoutBoard
   U13Hunt
   U13DirectBoard
+  U13HumbabaBoardSession
+  U13HumbabaBoard
 )
 u13_markers=(
   'U13 round timeline failures: 0'
@@ -190,10 +192,12 @@ u13_markers=(
   'U13 loadout board failures: 0'
   'U13 Hunt failures: 0'
   'U13 direct board failures: 0'
+  'U13 Humbaba board session failures: 0'
+  'U13 Humbaba board failures: 0'
 )
 if [[ $u13_board_only == true ]]; then
-  u13_runners=(U13BoardModel U13Board U13DenseBoard U13LoadoutBoard U13Hunt U13DirectBoard)
-  u13_markers=('U13 board model failures: 0' 'U13 board failures: 0' 'U13 dense board failures: 0' 'U13 loadout board failures: 0' 'U13 Hunt failures: 0' 'U13 direct board failures: 0')
+  u13_runners=(U13HumbabaBoardSession U13HumbabaBoard U13BoardModel U13Board U13DenseBoard U13LoadoutBoard U13Hunt U13DirectBoard)
+  u13_markers=('U13 Humbaba board session failures: 0' 'U13 Humbaba board failures: 0' 'U13 board model failures: 0' 'U13 board failures: 0' 'U13 dense board failures: 0' 'U13 loadout board failures: 0' 'U13 Hunt failures: 0' 'U13 direct board failures: 0')
 fi
 if [[ $u13_construction_only == true ]]; then
   u13_runners=(U13Construction U13ConstructionRandom)

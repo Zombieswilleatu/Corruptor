@@ -6,6 +6,24 @@ const Art = preload("res://Prototype/U13/U13BoardTextures.gd")
 var domain: Texture2D
 var skin: Texture2D
 var chit_sheet: Texture2D
+var active_auras: Array = []
+
+
+func bind_auras(records: Array, round_number: int) -> void:
+	active_auras = []
+	for record in records:
+		if not record.get("payload", {}).has("lane_aura"):
+			continue
+		var remaining: int = int(record.activated_round) + record.stages.size() - round_number
+		if remaining > 0:
+			active_auras.append(
+				{
+					"owner": record.declaration.player_id,
+					"lane": record.target.lane,
+					"remaining": remaining
+				}
+			)
+	queue_redraw()
 
 
 func _ready() -> void:
@@ -79,6 +97,20 @@ func _draw() -> void:
 		var lane: String = "Lord" if lane_index == 0 else "Castle"
 		var width: float = (size.x - 37) / 2.0
 		var rect := Rect2(16 + lane_index * (width + 5), 279, width, size.y - 303)
+		for aura in active_auras:
+			if aura.lane != lane:
+				continue
+			var tint: Color = Color("9fddb5") if aura.owner == 0 else Color("efada5")
+			draw_rect(rect, Color(tint, 0.08))
+			draw_string(
+				font,
+				Vector2(rect.position.x, rect.position.y + (35 if aura.owner == 0 else 48)),
+				"%s BREATH · %dr" % ["YOUR" if aura.owner == 0 else "ENEMY", aura.remaining],
+				HORIZONTAL_ALIGNMENT_CENTER,
+				width,
+				10,
+				tint
+			)
 		draw_string(
 			font,
 			Vector2(rect.position.x, rect.position.y + 20),

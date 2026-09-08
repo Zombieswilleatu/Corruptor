@@ -1,5 +1,9 @@
 # Castle damage presentation — accepted follow-up
 
+Implementation status: included in the [Humbaba board slice](U13_HUMBABA_BOARD_2026-09-08.md).
+The original U12 construction shader is reused unchanged; commissioned damage
+uses cached fragments. Local board and visual acceptance are pending.
+
 User request, recorded during the first Humbaba rules slice. Apply at the next
 appropriate Castle presentation pass; do not interrupt the current rules gate.
 

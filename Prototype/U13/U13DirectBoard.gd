@@ -131,6 +131,8 @@ func _update_direct_ui() -> void:
 		rout_lane
 	]:
 		control.hide()
+	for option in humbaba_lanes.values():
+		option.hide()
 	# Target headings remain as prose; choices happen on the board.
 	predator_button.text = "CHOOSE PREDATOR OF RUIN"
 	ruin_button.text = "CHOOSE INEVITABLE RUIN"
@@ -162,9 +164,7 @@ func _update_direct_ui() -> void:
 		and not _target.is_empty()
 		and _intent_cards().size() > 0
 	)
-	lanes.target_lane_enabled = (
-		_planning() and powers_step and _intent in [Gremory.PREDATOR, Deimos.ROUT]
-	)
+	lanes.target_lane_enabled = (_planning() and powers_step and _is_lane_power(_intent))
 	lanes.mouse_filter = (
 		Control.MOUSE_FILTER_STOP if lanes.target_lane_enabled else Control.MOUSE_FILTER_IGNORE
 	)
@@ -176,7 +176,17 @@ func _update_direct_ui() -> void:
 			not _intent.is_empty()
 			and (
 				_target.is_empty()
-				or _intent in [Gremory.PREDATOR, Gremory.RUIN, Deimos.WAR_MACHINE, Deimos.ROUT]
+				or (
+					_intent
+					in [
+						Gremory.PREDATOR,
+						Gremory.RUIN,
+						Deimos.WAR_MACHINE,
+						Deimos.ROUT,
+						Humbaba.MUSTER,
+						Humbaba.BREATH
+					]
+				)
 			)
 		):
 			confirm.disabled = true
@@ -190,7 +200,9 @@ func _update_direct_ui() -> void:
 		):
 			confirm.disabled = true
 		if not _human_alive():
-			for button in [predator_button, ruin_button, war_button, rout_button]:
+			for button in (
+				[predator_button, ruin_button, war_button, rout_button] + humbaba_buttons.values()
+			):
 				button.disabled = true
 			status.text = "Your Lord is banished. Powers and combat are unavailable; Castle development or a new exercise remain available."
 		if powers_step:
@@ -206,7 +218,7 @@ func _guide() -> String:
 			"INEVITABLE RUIN · select payment %d/2, then click a damaged enemy Castle."
 			% _power_cost.size()
 		)
-	if _intent in [Gremory.PREDATOR, Deimos.ROUT]:
+	if _is_lane_power(_intent):
 		return _power_name(_intent).to_upper() + " · click LORD or CASTLE lane on the right."
 	if _intent == Deimos.WAR_MACHINE:
 		return "WAR MACHINE · click your Engine. Its extra shot uses its retained or automatically acquired target."
@@ -548,15 +560,13 @@ func _arm_power(power: String) -> void:
 
 
 func _lane_selected(lane: String) -> void:
-	if _planning() and powers_step and _intent in [Gremory.PREDATOR, Deimos.ROUT]:
+	if _planning() and powers_step and _is_lane_power(_intent):
 		_submit_power({"lane": lane})
 
 
 func _submit_power(target: Dictionary) -> void:
 	var payload: Dictionary = (
-		{"lane": target.lane}
-		if _intent in [Gremory.PREDATOR, Deimos.ROUT]
-		else {"entity_id": target.id}
+		{"lane": target.lane} if _is_lane_power(_intent) else {"entity_id": target.id}
 	)
 	var cost: Dictionary = (
 		{"discard_ids": _power_cost.duplicate()} if _intent == Gremory.RUIN else {}
@@ -719,7 +729,7 @@ func _reveal_targets() -> void:
 
 
 func _pulse_targets() -> void:
-	if _intent in [Gremory.PREDATOR, Deimos.ROUT]:
+	if _is_lane_power(_intent):
 		lanes.pulse_lanes()
 	else:
 		for row in sides:
@@ -884,3 +894,21 @@ func _flash_control(control: Control, tint: Color) -> void:
 	var tween = control.create_tween()
 	control.set_meta("u13_target_flash", tween)
 	tween.tween_property(control, "modulate", Color.WHITE, 0.7)
+
+
+func _is_lane_power(power: String) -> bool:
+	return power in [Gremory.PREDATOR, Deimos.ROUT, Humbaba.MUSTER, Humbaba.BREATH]
+
+
+func queue_muster() -> void:
+	if not _direct():
+		super.queue_muster()
+		return
+	_arm_power(Humbaba.MUSTER)
+
+
+func queue_breath() -> void:
+	if not _direct():
+		super.queue_breath()
+		return
+	_arm_power(Humbaba.BREATH)
