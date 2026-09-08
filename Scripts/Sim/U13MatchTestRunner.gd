@@ -25,6 +25,7 @@ func _init() -> void:
 	_test_joint_declaration_context()
 	_test_restore_guards()
 	_test_event_forks()
+	_test_shared_event_input()
 	_test_internal_forks()
 	print("U13 match foundation failures: %d" % failures)
 	quit(0 if failures == 0 else 1)
@@ -569,6 +570,45 @@ func _test_event_forks() -> void:
 	_check(
 		fork.restore(replacement).action == "invalid" and fork.snapshot() == stable,
 		"fork_external_event_restore_still_rejects_bad_data"
+	)
+
+
+func _test_shared_event_input() -> void:
+	var log = EventLog.new()
+	var event: Dictionary = {"type": "PUBLIC", "text": "", "data": {"nested": {"value": 2.0}}}
+	_check(log.append(event, [event, event]).action != "invalid", "shared_public_event_accepted")
+	var saved: Dictionary = log.snapshot()
+	_check(
+		typeof(saved.rows[0].event.data.nested.value) == TYPE_INT, "shared_public_event_normalized"
+	)
+	event.data.nested.value = 99
+	_check(log.snapshot() == saved, "shared_public_event_owns_input")
+	var player: Array = log.for_player(0)
+	player[0].data.nested.value = 88
+	_check(
+		log.for_player(1)[0].data.nested.value == 2 and log.snapshot() == saved,
+		"shared_public_views_isolated_from_caller_mutation"
+	)
+	var secret: Dictionary = {"type": "PRIVATE", "text": "", "data": {"secret": "hidden"}}
+	var redacted: Dictionary = {"type": "PRIVATE", "text": "", "data": {}}
+	_check(
+		log.append(secret, [redacted, redacted]).action != "invalid",
+		"shared_redacted_event_accepted"
+	)
+	redacted.data["secret"] = "leaked_by_caller"
+	_check(
+		not log.for_player(0)[1].data.has("secret") and not log.for_player(1)[1].data.has("secret"),
+		"shared_redacted_views_never_alias_input_or_secret"
+	)
+	var before: Dictionary = log.snapshot()
+	var bad: Dictionary = {"type": "BROKEN", "text": 7, "data": {}}
+	_check(
+		log.append(secret, [bad, bad]).action == "invalid" and log.snapshot() == before,
+		"shared_invalid_view_still_rejected_atomically"
+	)
+	var separate: Dictionary = secret.duplicate(true)
+	_check(
+		log.append(secret, [separate, null]).action != "invalid", "separate_equal_view_supported"
 	)
 
 

@@ -1,7 +1,6 @@
-class_name U13Marching
+# Test-only reference frozen from cc0939d. Do not optimize this oracle.
 extends RefCounted
 
-const Buffer = preload("res://Scripts/Sim/U13MarchingBuffer.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
@@ -143,9 +142,8 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 		return Data.invalid("marching_context_invalid")
 	if world.data.get("marching_round", 0) >= context.round:
 		return Data.invalid("marching_already_applied")
-	var entities = Buffer.new()
-	if entities.restore(world.entities).action == "invalid":
-		return Data.invalid("marching_entities_invalid")
+	var entities = Ids.new()
+	entities.restore(world.entities)
 	var duels: Dictionary = world.data.get("marching_duels", {}).duplicate(true)
 	var events: Array = [
 		public_event(
@@ -276,18 +274,12 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 					return Data.invalid("marching_reaction_invalid")
 				world = reacted.world
 				events.append_array(reacted.events)
-			if entities.restore(world.entities).action == "invalid":
-				return Data.invalid("marching_reaction_entities_invalid")
+			entities.restore(world.entities)
 		# Contact takes precedence over arrival, including a waiting gate defender.
 		var arrival_rows: Array = _units(entities)
-		var arrival_teams: Dictionary = _teams(arrival_rows)
 		for unit in arrival_rows:
 			var attributes: Dictionary = unit.attributes
-			if (
-				attributes.waiting
-				or _busy(unit.id, duels)
-				or _touches_enemy(unit, arrival_teams[attributes.lane][1 - int(unit.owner)])
-			):
+			if attributes.waiting or _busy(unit.id, duels) or _touches_enemy(unit, arrival_rows):
 				continue
 			if attributes.x_fp == (LANE_FP if unit.owner == 0 else 0):
 				attributes.waiting = true
@@ -364,20 +356,10 @@ static func _tick_units(entities, bases: Dictionary) -> Array:
 
 
 static func _units(entities) -> Array:
-	if entities is Buffer:
-		return entities.marchers()
 	var result: Array = []
 	for entity in entities.snapshot().entities:
 		if entity.kind == "marcher":
 			result.append(entity)
-	return result
-
-
-# Filtering preserves immutable-ID order within every lane/owner group.
-static func _teams(rows: Array) -> Dictionary:
-	var result: Dictionary = {"Lord": [[], []], "Castle": [[], []]}
-	for unit in rows:
-		result[unit.attributes.lane][unit.owner].append(unit)
 	return result
 
 
@@ -425,21 +407,11 @@ static func _touches_enemy(unit: Dictionary, rows: Array) -> bool:
 
 static func _move(entities, duels: Dictionary, context: Dictionary, clock: int) -> void:
 	var rows: Array = _units(entities)
-	var teams: Dictionary = _teams(rows)
-	var accepted: Array = []
-	var accepted_by_id: Dictionary = {}
-	for row in rows:
-		# Shallow row copies are enough: attributes are read-only until replaced.
-		var copy: Dictionary = row.duplicate()
-		accepted.append(copy)
-		accepted_by_id[row.id] = copy
-	var accepted_teams: Dictionary = _teams(accepted)
+	var accepted: Array = rows.duplicate(true)
 	# Read targets from one tick snapshot; resolve personal-space conflicts in ID order.
 	for unit in rows:
 		var a: Dictionary = unit.attributes.duplicate(true)
-		var enemies: Array = teams[a.lane][1 - int(unit.owner)]
-		var allies: Array = accepted_teams[a.lane][unit.owner]
-		if _touches_enemy(unit, enemies):
+		if _touches_enemy(unit, rows):
 			if int(a.contact_tick) < 0:
 				a.contact_tick = clock
 			entities.update(unit.id, unit.owner, a)
@@ -450,7 +422,9 @@ static func _move(entities, duels: Dictionary, context: Dictionary, clock: int) 
 			continue
 		var nearest: Dictionary = {}
 		var best: int = 9223372036854775807
-		for other in enemies:
+		for other in rows:
+			if other.owner == unit.owner or other.attributes.lane != a.lane:
+				continue
 			var distance: int = _distance(a, other.attributes)
 			if distance < best:
 				nearest = other
@@ -471,19 +445,22 @@ static func _move(entities, duels: Dictionary, context: Dictionary, clock: int) 
 		var proposed: Dictionary = a.duplicate(true)
 		proposed.x_fp = clampi(int(a.x_fp) + dx, 0, LANE_FP)
 		proposed.y_fp = clampi(int(a.y_fp) + dy, 0, WIDTH_FP)
-		if not _space_free(unit, proposed, allies):
+		if not _space_free(unit, proposed, accepted):
 			# A deterministic lateral detour avoids permanent single-file blockage.
 			var side: int = (
 				1 if (String(unit.id).unicode_at(String(unit.id).length() - 1) % 2) == 0 else -1
 			)
 			proposed = a.duplicate(true)
 			proposed.y_fp = clampi(int(a.y_fp) + side * int(a.step_fp), 0, WIDTH_FP)
-			if not _space_free(unit, proposed, allies):
+			if not _space_free(unit, proposed, accepted):
 				proposed.y_fp = clampi(int(a.y_fp) - side * int(a.step_fp), 0, WIDTH_FP)
-				if not _space_free(unit, proposed, allies):
+				if not _space_free(unit, proposed, accepted):
 					proposed = a
 		entities.update(unit.id, unit.owner, proposed)
-		accepted_by_id[unit.id].attributes = proposed
+		for changed in accepted:
+			if changed.id == unit.id:
+				changed.attributes = proposed
+				break
 
 
 static func _space_free(unit: Dictionary, proposed: Dictionary, accepted: Array) -> bool:
@@ -522,11 +499,13 @@ static func _scaled(value: int, speed: int, distance: int) -> int:
 
 
 static func _contact_pair(entities, lane: String, context: Dictionary, clock: int) -> Array:
-	var teams: Array = _teams(_units(entities))[lane]
+	var rows: Array = _units(entities)
 	var candidates: Array = []
 	var earliest: int = 9223372036854775807
-	for left in teams[0]:
-		for right in teams[1]:
+	for left in rows:
+		if left.owner != 0 or left.attributes.lane != lane:
+			continue
+		for right in rows:
 			if (
 				right.owner != 1
 				or right.attributes.lane != lane

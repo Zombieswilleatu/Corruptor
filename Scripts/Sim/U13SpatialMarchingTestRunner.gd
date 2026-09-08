@@ -1,5 +1,6 @@
 extends SceneTree
 
+const Reference = preload("res://Scripts/Sim/Reference/U13MarchingBeforeOptimization.gd")
 const Marching = preload("res://Scripts/Sim/U13Marching.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
@@ -13,6 +14,7 @@ func _init() -> void:
 	_contact_and_steering()
 	_join_queue()
 	_round_boundary()
+	_reference_equivalence()
 	print("U13 spatial Marching failures: %d" % failures)
 	quit(0 if failures == 0 else 1)
 
@@ -261,6 +263,54 @@ func _round_boundary() -> void:
 	bad = decoded.duplicate(true)
 	bad.data.marching_duels.Castle.next_tick += 1
 	_check(not Marching.valid(bad), "forged_duel_clock_rejected")
+
+
+func _reference_equivalence() -> void:
+	for count in [6, 24]:
+		for mode in ["travel", "contact"]:
+			var ids = Ids.new()
+			ids.create("card", "unrelated", 0, 0, {"nested": {"values": [1, 2, 3]}})
+			for index in range(count):
+				var owner: int = index % 2
+				var lane: String = "Lord" if mode == "travel" and owner == 0 else "Castle"
+				var attributes: Dictionary = Marching.profile(
+					Marching.SUITS[index % 4], lane, owner, 0, 1
+				)
+				var created: Dictionary = ids.create(
+					"marcher", "equivalence", index, owner, attributes
+				)
+				Marching.place_spawn(ids, created.entity.id, "spatial_fixture")
+				if mode == "contact":
+					var unit: Dictionary = ids.get_entity(created.entity.id)
+					unit.attributes.x_fp += 900 if owner == 0 else -900
+					ids.update(unit.id, owner, unit.attributes)
+			var world: Dictionary = {"entities": ids.snapshot(), "data": {}}
+			# Include an unordered import; both implementations canonicalize IDs.
+			world.entities.entities.reverse()
+			for round_number in [1, 2]:
+				var before: Dictionary = world.duplicate(true)
+				var expected: Dictionary = Reference.resolve(
+					{
+						"world": world,
+						"round": round_number,
+						"hook": Timeline.MARCHING,
+						"seed": "spatial_fixture",
+						"player_order": [0, 1]
+					},
+					Callable(self, "_reaction")
+				)
+				var actual: Dictionary = _run(world, round_number)
+				if not _check(
+					expected.action == "resolved" and actual.action == "resolved",
+					"optimized_reference_fixture_resolves"
+				):
+					return
+				_check(
+					actual == expected,
+					"optimized_exact_reference_%s_n%d_r%d" % [mode, count, round_number]
+				)
+				_check(world == before, "optimized_phase_leaves_input_untouched")
+				world = actual.world
 
 
 func _check(ok: bool, label: String) -> bool:

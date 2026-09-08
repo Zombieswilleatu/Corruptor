@@ -11,10 +11,22 @@ var _rows: Array = []
 func append(event: Dictionary, views: Array) -> Dictionary:
 	if not _valid_event(event) or views.size() != 2:
 		return Data.invalid("event_data_invalid")
-	for view in views:
-		if view != null and not _valid_event(view):
-			return Data.invalid("event_view_invalid")
-	_rows.append({"event": Data.copy_data(event), "views": Data.copy_data(views)})
+	var owned: Dictionary = Data.copy_data(event)
+	var copied_views: Array = []
+	for index in range(views.size()):
+		var view = views[index]
+		if view == null:
+			copied_views.append(null)
+		elif is_same(view, event):
+			# Exact same input object: already validated and normalized above.
+			copied_views.append(owned)
+		elif index == 1 and is_same(view, views[0]):
+			copied_views.append(copied_views[0])
+		else:
+			if not _valid_event(view):
+				return Data.invalid("event_view_invalid")
+			copied_views.append(Data.copy_data(view))
+	_rows.append({"event": owned, "views": copied_views})
 	return {"action": "u13_event_recorded"}
 
 
