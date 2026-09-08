@@ -1,5 +1,7 @@
 extends Control
 
+const PhasePrompt = preload("res://Prototype/U13/U13PhasePrompt.gd")
+const ActionZone = preload("res://Prototype/U13/U13ActionZone.gd")
 const Session = preload("res://Scripts/Sim/U13BoardSession.gd")
 const Playback = preload("res://Prototype/U13/U13SmokePlayback.gd")
 const Lanes = preload("res://Prototype/U13/U13BoardLanes.gd")
@@ -45,6 +47,10 @@ var power_lane: OptionButton
 var confirm: Button
 var next_button: Button
 var controls: Array = []
+var phase_prompt
+var action_zone
+var pass_button: Button
+var decision_button: Button
 var history: RichTextLabel
 var _runtime_ok: bool = false
 
@@ -83,6 +89,7 @@ func restart() -> void:
 		return
 	action_choice.select(0)
 	_refresh()
+	reopen_decision()
 
 
 func _build() -> void:
@@ -102,6 +109,7 @@ func _build() -> void:
 	main.add_child(top)
 	summary = _label(top, "", 23)
 	summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	decision_button = _button(top, "CURRENT DECISION", reopen_decision)
 	_button(top, "Restart board", restart)
 	_button(top, "Exit", func(): get_tree().quit())
 	_label(
@@ -125,30 +133,49 @@ func _build() -> void:
 	own.custom_minimum_size.y = 165
 	main.add_child(own)
 	sides.append(own)
-	var decisions := HBoxContainer.new()
-	main.add_child(decisions)
-	_label(decisions, "COMMIT", 18)
+	action_zone = ActionZone.new()
+	add_child(action_zone)
+	action_zone.configure_u13()
+	phase_prompt = PhasePrompt.new()
+	add_child(phase_prompt)
+	phase_prompt.anchor_top = 0.43
+	phase_prompt.anchor_bottom = 0.43
+	phase_prompt.attach_action_zone(action_zone)
+	var decisions: VBoxContainer = action_zone.get_node("ActionScroll/ActionContents")
+	# Backing selection retained for existing board/test callers; UI uses buttons.
 	action_choice = _option(decisions, ["Pass", "Siege", "Ward"])
-	lane_choice = _option(decisions, ["Castle", "Lord"])
-	target_choice = OptionButton.new()
-	target_choice.custom_minimum_size.x = 190
-	decisions.add_child(target_choice)
+	action_choice.hide()
+	lane_choice = action_zone.secondary_select
+	lane_choice.add_item("Castle")
+	lane_choice.add_item("Lord")
+	target_choice = action_zone.primary_select
+	controls.append(lane_choice)
 	controls.append(target_choice)
-	for option in [action_choice, lane_choice, target_choice]:
-		option.item_selected.connect(func(_index): _preview())
-	confirm = _button(decisions, "Commit & resolve", resolve_round)
-	next_button = _button(decisions, "Next round", next_round)
-	_button(decisions, "Skip animation", finish_playback)
-	var powers := HBoxContainer.new()
-	main.add_child(powers)
-	_label(powers, "GREMORY", 18)
+	for button in action_zone.action_buttons.values():
+		controls.append(button)
+	action_zone.action_selected.connect(_select_action)
+	action_zone.target_changed.connect(func(_target): _preview())
+	confirm = action_zone.confirm_button
+	pass_button = action_zone.pass_button
+	action_zone.confirm_requested.connect(_confirm_decision)
+	action_zone.pass_requested.connect(pass_round)
+	var powers := VBoxContainer.new()
+	decisions.add_child(powers)
+	_label(powers, "GREMORY'S POWERS", 16)
 	power_lane = _option(powers, ["Castle", "Lord"])
-	controls.append(_button(powers, "Queue 3 Vultures", queue_predator))
+	controls.append(_button(powers, "PREDATOR OF RUIN · summon 3 Vultures", queue_predator))
 	ruin_target = _option(powers, [])
-	controls.append(_button(powers, "Queue Ruin · discard 2 selected", queue_ruin))
-	controls.append(_button(powers, "Clear powers", clear_powers))
-	plan_label = _label(main, "", 16)
-	status = _label(main, "Select cards, choose an action, then commit.", 17)
+	controls.append(_button(powers, "INEVITABLE RUIN · reserve 2 selected", queue_ruin))
+	controls.append(_button(powers, "Clear powers / return reserved cards", clear_powers))
+	plan_label = _label(powers, "", 15)
+	plan_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	status = action_zone.status_label
+	status.reparent(powers)
+	var navigation := HBoxContainer.new()
+	main.add_child(navigation)
+	next_button = _button(navigation, "Next round", next_round)
+	next_button.hide()
+	_button(navigation, "Skip animation", finish_playback)
 	hand_view = Hand.new()
 	main.add_child(hand_view)
 	hand_view.selection_changed.connect(func(_ids): _preview())
@@ -207,6 +234,7 @@ func _refresh(presented: Dictionary = {}) -> void:
 		control.disabled = not _planning()
 	next_button.disabled = playing or not session.next_hook().is_empty()
 	_preview()
+	_sync_decision()
 
 
 func _render_side(row: HBoxContainer, world: Dictionary, pid: int) -> void:
@@ -298,6 +326,15 @@ func _preview() -> void:
 	if not _planning():
 		confirm.disabled = true
 		return
+	var name: String = {0: "Powers Only", 1: "Siege", 2: "Ward"}[action_choice.selected]
+	for key in action_zone.action_buttons:
+		action_zone.action_buttons[key].set_pressed_no_signal(key == name)
+	lane_choice.visible = action_choice.selected == 2
+	target_choice.visible = action_choice.selected == 1
+	action_zone.primary_label.visible = target_choice.visible
+	action_zone.primary_label.text = "Enemy Castle"
+	action_zone.secondary_label.visible = lane_choice.visible
+	action_zone.secondary_label.text = "Defend lane"
 	lane_choice.disabled = action_choice.selected != 2
 	target_choice.disabled = action_choice.selected != 1
 	var result: Dictionary = session.choose(queued, _order())
@@ -305,11 +342,15 @@ func _preview() -> void:
 	status.text = (
 		"Ready. Selected cards pay for your combat action; queued Ruin cards are reserved separately."
 		if not confirm.disabled
-		else "Cannot commit: " + String(result.get("reason", "invalid plan"))
+		else _friendly_error(result)
 	)
 
 	if not confirm.disabled and action_choice.selected == 0:
-		status.text = "Pass selected. Your cards stay in hand; queued Lord powers still fire."
+		status.text = "Combat is skipped. Confirm keeps queued powers; Pass Round cancels them."
+	if action_choice.selected == 1 and target_choice.item_count == 0:
+		status.text = "No enemy Castle remains. Choose Ward or Powers Only, or Pass Round."
+	action_zone.action_buttons["Siege"].disabled = target_choice.item_count == 0
+	_update_decision_copy()
 
 
 func queue_predator() -> void:
@@ -320,7 +361,7 @@ func queue_predator() -> void:
 	)
 	var candidate: Array = queued.duplicate(true)
 	candidate.append(source)
-	if _error(session.choose(candidate, _order())):
+	if _error(session.choose(candidate, {})):
 		return
 	queued = candidate
 	_preview()
@@ -410,13 +451,104 @@ func next_round() -> void:
 		return
 	queued = []
 	payment = []
+	action_choice.select(0)
 	_refresh()
+
+
+func _select_action(action: String) -> void:
+	if not _planning():
+		return
+	action_choice.select({"Siege": 1, "Ward": 2, "Powers Only": 0}[action])
+	_preview()
+
+
+func _confirm_decision() -> void:
+	if session.next_hook().is_empty():
+		next_round()
+	else:
+		resolve_round()
+
+
+func pass_round() -> void:
+	if not _planning():
+		return
+	queued = []
+	payment = []
+	action_choice.select(0)
+	hand_view.clear_selection()
+	resolve_round()
+
+
+func reopen_decision() -> void:
+	if playing or phase_prompt == null:
+		return
+	phase_prompt.board_view_collapsed = false
+	phase_prompt.set_presenting(true)
+	phase_prompt._refresh_mode()
+
+
+func _update_decision_copy() -> void:
+	if not _planning():
+		return
+	var copy: String = {
+		0:
+		"Queue Lord powers below, then confirm. Pass Round skips combat and cancels all queued powers.",
+		1:
+		"Select cards from your hand to attack the enemy Castle. Queued Lord powers resolve alongside combat.",
+		2:
+		"Choose a lane and select cards from your hand to defend it. You may also queue Lord powers."
+	}[action_choice.selected]
+	phase_prompt.bind_decision(
+		"COMMITMENT", "YOUR ORDERS", copy, "ROUND %d" % session.round_number()
+	)
+
+
+func _sync_decision() -> void:
+	decision_button.disabled = playing
+	next_button.hide()
+	if playing:
+		phase_prompt.set_presenting(false)
+		return
+	if session.next_hook().is_empty():
+		(
+			phase_prompt
+			. bind_decision(
+				"AFTERMATH",
+				"AFTERMATH",
+				"The round has resolved. View Board to inspect it, or begin the next round. This slice has no normal draws or victory yet.",
+				"ROUND %d" % session.round_number()
+			)
+		)
+		action_zone.hide()
+		confirm.show()
+		confirm.disabled = false
+		confirm.text = "NEXT ROUND"
+		pass_button.hide()
+	else:
+		action_zone.show()
+		confirm.text = "CONFIRM"
+		pass_button.show()
+		pass_button.disabled = not _planning()
+		_update_decision_copy()
+	phase_prompt.call_deferred("_sync_decision_bottom_actions_v12")
+
+
+func _friendly_error(result: Dictionary) -> String:
+	var reason: String = result.get("reason", "")
+	if reason.contains("cooldown"):
+		return "That power is still cooling down. Choose another power or pass."
+	if reason == "combat_order_invalid":
+		return "Check your combat target and selected cards, or choose Powers Only or Pass Round."
+	if reason.contains("discard") or reason.contains("cost") or reason.contains("payment"):
+		return "Ruin needs two available cards, separate from cards committed to combat."
+	return "That choice is unavailable: " + reason.replace("_", " ")
 
 
 func _error(result: Dictionary) -> bool:
 	if result.action != "invalid":
 		return false
-	status.text = "Stopped: " + String(result.get("reason", "unknown error"))
+	status.text = _friendly_error(result)
+	reopen_decision()
 	return true
 
 

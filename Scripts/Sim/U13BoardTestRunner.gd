@@ -26,7 +26,9 @@ func _run() -> void:
 
 func _source_textures() -> void:
 	for path in [
-		"res://ConceptImages/Menus/Domain1.png", "res://ConceptImages/Menus/BottomBanner.png"
+		"res://ConceptImages/Menus/Domain1.png",
+		"res://ConceptImages/Menus/BottomBanner.png",
+		"res://ConceptImages/Menus/DecisionPanel.png"
 	]:
 		var texture: Texture2D = Textures.texture(path)
 		_check(
@@ -132,6 +134,23 @@ func _board_controls() -> void:
 	var board = Scene.instantiate()
 	root.add_child(board)
 	await process_frame
+	await process_frame
+	_check(
+		board.phase_prompt.visible and board.pass_button.is_visible_in_tree(),
+		"board_existing_prompt_has_visible_pass"
+	)
+	board.action_zone.action_buttons["Siege"].pressed.emit()
+	_check(board.action_choice.selected == 1, "board_actionzone_button_selects_siege")
+	var untouched: Dictionary = board.session.checkpoint()
+	board.target_choice.clear()
+	board._preview()
+	_check(
+		board.confirm.disabled and not board.pass_button.disabled,
+		"board_missing_target_keeps_pass_available"
+	)
+	_check(board.status.text.contains("No enemy Castle"), "board_missing_target_explained")
+	_check(board.session.checkpoint() == untouched, "board_modal_preview_is_pure")
+	board.restart()
 	_check(board.hand_view.card_buttons.size() == 4, "board_actual_hand_is_visible")
 	var ids: Array = board.session.view().world.hand
 	board.hand_view.select_card_id(ids[0])
@@ -140,6 +159,25 @@ func _board_controls() -> void:
 	_check(
 		board.payment.size() == 2 and board.hand_view.card_buttons.size() == 2,
 		"board_ruin_reserves_selected_physical_cards"
+	)
+	var reserved: Array = board.payment.duplicate()
+	var planned: Array = board.queued.duplicate(true)
+	board.phase_prompt.view_board_button.pressed.emit()
+	await process_frame
+	_check(board.phase_prompt.board_view_collapsed, "board_view_board_collapses_prompt")
+	_check(
+		board.phase_prompt.view_board_button.is_visible_in_tree(),
+		"board_return_tab_remains_visible"
+	)
+	_check(
+		board.payment == reserved and board.queued == planned,
+		"board_collapse_preserves_power_payment"
+	)
+	board.phase_prompt.view_board_button.pressed.emit()
+	await process_frame
+	_check(
+		not board.phase_prompt.board_view_collapsed and board.pass_button.is_visible_in_tree(),
+		"board_return_restores_buttons"
 	)
 	board.clear_powers()
 	_check(
@@ -159,10 +197,29 @@ func _board_controls() -> void:
 	)
 	board.finish_playback()
 	_check(board.session.next_hook().is_empty(), "board_skip_completes_aftermath")
-	board.next_round()
+	board.confirm.pressed.emit()
 	_check(board.session.round_number() == 2, "board_next_round_control")
 	board.restart()
 	_check(board.session.round_number() == 1 and not board.playing, "board_restart_isolated")
+	board.queue_predator()
+	board.pass_button.pressed.emit()
+	_check(board.playing and board.queued.is_empty(), "board_pass_round_cancels_queued_powers")
+	_check(
+		board.session.plans().powers.is_empty() and board.session.plans().order.is_empty(),
+		"board_pass_submits_empty_plan"
+	)
+	await process_frame
+	_check(not board.pass_button.is_visible_in_tree(), "board_playback_hides_modal_actions")
+	board.finish_playback()
+	board.restart()
+	board.queue_predator()
+	board.action_zone.action_buttons["Powers Only"].pressed.emit()
+	board.confirm.pressed.emit()
+	_check(
+		board.playing and board.session.plans().powers.size() == 1,
+		"board_powers_only_preserves_queued_power"
+	)
+	board.finish_playback()
 	board.queue_free()
 	await process_frame
 
