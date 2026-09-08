@@ -198,7 +198,9 @@ func _spoils_and_identity() -> void:
 	_check(second.world.data.deimos_spoils == [2, 0], "spoils_tracks_attributed_lifetime_ruins")
 	world = second.world
 	# War Foundry is admission to normal Construction, never a free mutation.
-	_patch_entity_attributes(world, _engine(0), {"integrity": 0, "status": "ruined", "artillery_target": ""})
+	_patch_entity_attributes(
+		world, _engine(0), {"integrity": 0, "status": "ruined", "artillery_target": ""}
+	)
 	var before: Dictionary = world.duplicate(true)
 	var eligibility: Dictionary = Structures.reconstruction_eligibility(world, 0, _engine(0))
 	_check(
@@ -489,8 +491,14 @@ func _mixed_batch() -> void:
 	var second: Dictionary = Batch.trial("deimos-mixed-test", 2, Callable(), "mixed")
 	_check(first == second, "deimos_mixed_random_replays")
 	_check(
-		first.summary.artillery_shots.get("0:WarMachine", 0) > 0,
-		"deimos_random_path_exercises_war_machine"
+		(
+			(
+				first.summary.powers.get("0:WarMachine", {}).get("declared", 0)
+				+ first.summary.powers.get("0:Rout", {}).get("declared", 0)
+			)
+			> 0
+		),
+		"deimos_random_path_exercises_legal_power"
 	)
 	_check(first.roster == ["Deimos", "Gremory"], "deimos_batch_roster_pinned")
 

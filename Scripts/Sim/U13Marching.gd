@@ -6,6 +6,7 @@ const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
+const Rout = preload("res://Scripts/Sim/U13Rout.gd")
 const VERSION: String = "U13_MARCHING_SPATIAL_V2"
 const LANE_FP: int = 2400
 const TICKS: int = 200
@@ -97,6 +98,11 @@ static func valid(world: Dictionary) -> bool:
 			or typeof(a.get("armor_bypass")) != TYPE_BOOL
 		):
 			return false
+		if (
+			not Rout.valid_attributes(a)
+			or (a.has("rout_round") and world.data.get("rout_profile") != Rout.VERSION)
+		):
+			return false
 		if a.waiting and a.waiting_since_round < 1:
 			return false
 	return _valid_duels(world)
@@ -159,6 +165,11 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			}
 		)
 	]
+	var has_retreat: bool = false
+	var has_rout: bool = false
+	for unit in _units(entities):
+		has_retreat = has_retreat or Rout.retreating(unit.attributes, int(context.round))
+		has_rout = has_rout or unit.attributes.has("rout_round")
 	var tape_bases: Dictionary = {}
 	for unit in _units(entities):
 		tape_bases[unit.id] = unit
@@ -174,7 +185,17 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 					)
 				)
 				duels.erase(lane)
-		_move(entities, duels, context, clock)
+		_move(entities, duels, context, clock, has_rout)
+		if has_retreat:
+			for lane in duels.keys():
+				if not _duel_alive(duels[lane], entities):
+					events.append(
+						public_event(
+							"MARCHER_DUEL_INTERRUPTED",
+							{"event_id": duels[lane].id, "round": context.round, "tick": tick}
+						)
+					)
+					duels.erase(lane)
 		for lane in LANES:
 			if not duels.has(lane):
 				var pair: Array = _contact_pair(entities, lane, context, clock)
@@ -283,7 +304,11 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 		var arrival_grids: Dictionary = {}
 		for unit in arrival_rows:
 			var attributes: Dictionary = unit.attributes
-			if attributes.waiting or attributes.x_fp != (LANE_FP if unit.owner == 0 else 0):
+			if (
+				attributes.waiting
+				or (has_retreat and Rout.retreating(attributes, int(context.round)))
+				or attributes.x_fp != (LANE_FP if unit.owner == 0 else 0)
+			):
 				continue
 			if arrival_grids.is_empty():
 				arrival_grids = _team_grids(arrival_rows, 8)
@@ -390,7 +415,9 @@ static func _teams(rows: Array) -> Dictionary:
 
 # Local contact first: queued/held units need no long-range target search.
 # For mobile units, each opposing pair is measured once. ID order preserves ties.
-static func _movement_neighbors(rows: Array, duels: Dictionary, round_number: int) -> Dictionary:
+static func _movement_neighbors(
+	rows: Array, duels: Dictionary, round_number: int, has_rout: bool = false
+) -> Dictionary:
 	var result: Dictionary = {}
 	var grids: Dictionary = _team_grids(rows, 8)
 	var seekers: Dictionary = {"Lord": [[], []], "Castle": [[], []]}
@@ -404,6 +431,7 @@ static func _movement_neighbors(rows: Array, duels: Dictionary, round_number: in
 			and not a.waiting
 			and a.movement_ready_round <= round_number
 			and not _busy(unit.id, duels)
+			and (not has_rout or not Rout.retreating(a, round_number))
 		)
 		result[unit.id] = {
 			"distance": 0 if touching else 9223372036854775807, "unit": {}, "seek": seek
@@ -517,9 +545,11 @@ static func _touches_enemy(unit: Dictionary, rows: Array) -> bool:
 	return false
 
 
-static func _move(entities, duels: Dictionary, context: Dictionary, clock: int) -> void:
+static func _move(
+	entities, duels: Dictionary, context: Dictionary, clock: int, has_rout: bool = false
+) -> void:
 	var rows: Array = _units(entities)
-	var neighbors: Dictionary = _movement_neighbors(rows, duels, int(context.round))
+	var neighbors: Dictionary = _movement_neighbors(rows, duels, int(context.round), has_rout)
 	var accepted: Array = []
 	var accepted_by_id: Dictionary = {}
 	for row in rows:
@@ -534,27 +564,32 @@ static func _move(entities, duels: Dictionary, context: Dictionary, clock: int) 
 		var nearby: Dictionary = neighbors[unit.id]
 		var allies: Dictionary = accepted_grids[a.lane][unit.owner]
 		var previous_ticket: int = int(a.contact_tick)
-		if int(nearby.distance) <= CONTACT_FP * CONTACT_FP:
+		var retreat: bool = has_rout and Rout.retreating(a, int(context.round))
+		var step: int = Rout.speed(a, int(context.round), clock) if has_rout else int(a.step_fp)
+		if not retreat and int(nearby.distance) <= CONTACT_FP * CONTACT_FP:
 			if previous_ticket < 0:
 				a.contact_tick = clock
 				entities.update(unit.id, unit.owner, a)
 			continue
 		a.contact_tick = -1
-		if a.waiting or a.movement_ready_round > context.round or _busy(unit.id, duels):
+		if (
+			a.movement_ready_round > context.round
+			or (not retreat and (a.waiting or _busy(unit.id, duels)))
+		):
 			if previous_ticket != -1:
 				entities.update(unit.id, unit.owner, a)
 			continue
 		var nearest: Dictionary = nearby.unit
 		var best: int = int(nearby.distance)
-		var dx: int = int(a.direction) * int(a.step_fp)
+		var dx: int = int(a.direction) * step * (-1 if retreat else 1)
 		var dy: int = 0
-		if not nearest.is_empty():
+		if not retreat and not nearest.is_empty():
 			var vx: int = int(nearest.attributes.x_fp) - int(a.x_fp)
 			var vy: int = int(nearest.attributes.y_fp) - int(a.y_fp)
 			var distance: int = maxi(1, _ceil_sqrt(best))
-			dx = _scaled(vx, int(a.step_fp), distance)
-			dy = _scaled(vy, int(a.step_fp), distance)
-			if dx == 0 and dy == 0 and a.step_fp > 0:
+			dx = _scaled(vx, step, distance)
+			dy = _scaled(vy, step, distance)
+			if dx == 0 and dy == 0 and step > 0:
 				if absi(vx) >= absi(vy):
 					dx = 1 if vx > 0 else -1
 				else:
@@ -568,9 +603,9 @@ static func _move(entities, duels: Dictionary, context: Dictionary, clock: int) 
 				1 if (String(unit.id).unicode_at(String(unit.id).length() - 1) % 2) == 0 else -1
 			)
 			proposed = a.duplicate(true)
-			proposed.y_fp = clampi(int(a.y_fp) + side * int(a.step_fp), 0, WIDTH_FP)
+			proposed.y_fp = clampi(int(a.y_fp) + side * step, 0, WIDTH_FP)
 			if not _space_free(unit, proposed, _near_rows(proposed, allies, 7)):
-				proposed.y_fp = clampi(int(a.y_fp) - side * int(a.step_fp), 0, WIDTH_FP)
+				proposed.y_fp = clampi(int(a.y_fp) - side * step, 0, WIDTH_FP)
 				if not _space_free(unit, proposed, _near_rows(proposed, allies, 7)):
 					proposed = a
 		entities.update(unit.id, unit.owner, proposed)
@@ -728,7 +763,9 @@ static func _valid_duels(world: Dictionary) -> bool:
 				return false
 			if Ids.identity("marcher", unit.origin, int(unit.ordinal)) != unit.id:
 				return false
-			var single: Dictionary = {"entities": {"entities": [unit]}, "data": {}}
+			var single: Dictionary = {
+				"entities": {"entities": [unit]}, "data": {"rout_profile": Rout.VERSION}
+			}
 			if not valid(single):
 				return false
 			used.append(unit.id)

@@ -185,3 +185,12 @@ Construction, Rout, full-game economy, or balance validation. The opening has
 prebuilt structures and lacks normal round draws, so its frequencies retain that
 scope. This documentation update changes no runtime behavior and needs no test
 rerun by itself.
+
+## Rout and duplicate-Engine follow-up
+
+Rout is now implemented behind the versioned Deimos owner and has a dedicated
+local verification runner. War Machine continues to select one Engine instance;
+every operational copy fires normally, while all Castles still share the one
+Castle Guard zone. See `U13_CASTLE_LOADOUT_ROUT_2026-09-08.md` for the amended
+scope, movement semantics and outstanding local Godot gate. Earlier statements
+that Rout is unimplemented describe the historical artillery-only slice.

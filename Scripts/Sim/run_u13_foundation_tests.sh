@@ -3,13 +3,17 @@
 # Successful logs are temporary; failure logs are preserved in Downloads.
 set -uo pipefail
 
-if [[ $# -lt 1 || $# -gt 2 || ( $# -eq 2 && "$2" != --board && "$2" != --construction ) ]]; then
-  printf 'Usage: bash %s /path/to/Godot_console_executable [--board|--construction]\n' "$0" >&2
+if [[ $# -lt 1 || $# -gt 2 || ( $# -eq 2 && "$2" != --board && "$2" != --construction && "$2" != --castle-rout ) ]]; then
+  printf 'Usage: bash %s /path/to/Godot_console_executable [--board|--construction|--castle-rout]\n' "$0" >&2
   exit 2
 fi
 godot_u13_exe=$1
 u13_board_only=false
 u13_construction_only=false
+u13_castle_rout_only=false
+if [[ ${2:-} == --castle-rout ]]; then
+  u13_castle_rout_only=true
+fi
 if [[ ${2:-} == --construction ]]; then
   u13_construction_only=true
 fi
@@ -40,8 +44,8 @@ u13_cleanup() {
     local u13_failure_dir=${U13_TEST_LOG_DIR:-$HOME/Downloads}
     local u13_failure_log
     if mkdir -p -- "$u13_failure_dir" && u13_failure_log=$(mktemp "$u13_failure_dir/u13-foundation-failure-XXXXXX.log"); then
-      printf 'U13 wrapper exit: %s; board_only: %s; construction_only: %s; timeout: %ss\n' \
-        "$u13_cleanup_status" "$u13_board_only" "$u13_construction_only" "$u13_timeout_seconds" >"$u13_failure_log"
+      printf 'U13 wrapper exit: %s; board_only: %s; construction_only: %s; castle_rout_only: %s; timeout: %ss\n' \
+        "$u13_cleanup_status" "$u13_board_only" "$u13_construction_only" "$u13_castle_rout_only" "$u13_timeout_seconds" >"$u13_failure_log"
       for u13_saved_log in "$u13_test_logs"/*.log; do
         [[ -f "$u13_saved_log" ]] || continue
         printf '\nLOG: %s\n' "${u13_saved_log##*/}" >>"$u13_failure_log"
@@ -108,7 +112,7 @@ u13_check_script() {
     exit 1
   fi
 }
-for u13_dependency in U13EffectData U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13Structures U13Legality U13Match U13MarchingBuffer U13Marching U13Combat U13Construction U13ConstructionCandidates U13Gremory U13Deimos U13SmokeSession U13DeimosCandidates U13CoreScenario U13GremoryCandidates U13RandomLegal U13FrequencyTelemetry U13RandomBatch U13BoardSession U13DenseBoardSession; do
+for u13_dependency in U13EffectData U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13CastleSlots U13Rout U13Structures U13Legality U13Match U13MarchingBuffer U13Marching U13Combat U13Construction U13ConstructionCandidates U13Gremory U13Deimos U13SmokeSession U13DeimosCandidates U13CoreScenario U13GremoryCandidates U13RandomLegal U13FrequencyTelemetry U13RandomBatch U13BoardSession U13DenseBoardSession; do
   u13_check_script "res://Scripts/Sim/${u13_dependency}.gd"
 done
 for u13_dependency in U13SmokePlayback U13SmokeBoard U13Smoke U13BoardTextures U13BoardHand U13BoardLanes U13LayoutCard U13PlayerBoard U13BoardHeader U13DomainRow U13ActionZone U13PhasePrompt U13BoardJob U13Board; do
@@ -128,6 +132,8 @@ u13_runners=(
   U13Gremory
   U13RandomLegal
   U13Deimos
+  U13CastleLoadout
+  U13Rout
   U13Construction
   U13ConstructionRandom
   U13SpatialMarching
@@ -149,6 +155,8 @@ u13_markers=(
   'U13 Gremory failures: 0'
   'U13 random-legal failures: 0'
   'U13 Deimos failures: 0'
+  'U13 Castle loadout failures: 0'
+  'U13 Rout failures: 0'
   'U13 Construction failures: 0'
   'U13 Construction random failures: 0'
   'U13 spatial Marching failures: 0'
@@ -164,6 +172,10 @@ fi
 if [[ $u13_construction_only == true ]]; then
   u13_runners=(U13Construction U13ConstructionRandom)
   u13_markers=('U13 Construction failures: 0' 'U13 Construction random failures: 0')
+fi
+if [[ $u13_castle_rout_only == true ]]; then
+  u13_runners=(U13Match U13CastleLoadout U13Rout U13Deimos U13Construction U13ConstructionRandom U13SpatialMarching)
+  u13_markers=('U13 match foundation failures: 0' 'U13 Castle loadout failures: 0' 'U13 Rout failures: 0' 'U13 Deimos failures: 0' 'U13 Construction failures: 0' 'U13 Construction random failures: 0' 'U13 spatial Marching failures: 0')
 fi
 u13_failed=0
 for u13_index in "${!u13_runners[@]}"; do
@@ -191,6 +203,9 @@ if [[ $u13_board_only == true ]]; then
 fi
 if [[ $u13_construction_only == true ]]; then
   u13_suite_label=construction
+fi
+if [[ $u13_castle_rout_only == true ]]; then
+  u13_suite_label=castle-rout
 fi
 printf 'U13 %s runners passed: %s/%s\n' "$u13_suite_label" \
   "$((${#u13_runners[@]} - u13_failed))" "${#u13_runners[@]}"

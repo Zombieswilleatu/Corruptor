@@ -154,3 +154,13 @@ and Castle chooser policies, count Castle actions/reconstruction, and include th
 distribution of Integrity when Castles activate. See
 [the Construction contract and 18/18 gate](U13_CONSTRUCTION_2026-09-08.md).
 This new mode awaits authoritative local Godot 4.7.2 verification.
+
+## Castle loadout / Rout mode
+
+`--roster=loadout` exercises two commissioned Siege Engines per side plus three
+unbuilt Castle instances, using five chosen slots with at most two per type and
+one shared Castle Guard zone per player. It uses the same 300-second batch
+watchdog and saves `u13_random_loadout.json` / `.log` in Downloads. Deimos's
+candidate domain now includes Rout in all Deimos-enabled modes. Reports include
+per-Engine shot counts and Rout cohort/recovery counters. See
+`U13_CASTLE_LOADOUT_ROUT_2026-09-08.md` for fixture limitations and local gates.

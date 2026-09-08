@@ -9,14 +9,19 @@ const Marching = preload("res://Scripts/Sim/U13Marching.gd")
 const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Construction = preload("res://Scripts/Sim/U13Construction.gd")
+const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
+const Rout = preload("res://Scripts/Sim/U13Rout.gd")
+const ROUT: String = "Rout"
 const WAR_MACHINE: String = "WarMachine"
-const POLICY: String = "U13_DEIMOS_ARTILLERY_SLICE_V1"
+const POLICY: String = "U13_DEIMOS_ROUT_SLICE_V2"
 var _gremory = Gremory.new()
 var _construction_enabled: bool = false
+var _slots_enabled: bool = false
 
 
-func _init(construction_enabled: bool = false) -> void:
+func _init(construction_enabled: bool = false, slots_enabled: bool = false) -> void:
 	_construction_enabled = construction_enabled
+	_slots_enabled = slots_enabled
 
 
 func create_combat_match():
@@ -33,6 +38,9 @@ func create_combat_match():
 			+ ":"
 			+ Marching.VERSION
 			+ (":" + Construction.VERSION if _construction_enabled else "")
+			+ ":"
+			+ Rout.VERSION
+			+ (":" + Slots.VERSION if _slots_enabled else "")
 		),
 		rules(),
 		validators,
@@ -61,10 +69,26 @@ static func rules() -> Dictionary:
 		"target_relation": "own",
 		"visibility": "public"
 	}
+	result[ROUT] = {
+		"lord_id": "Deimos",
+		"fire_hook": Timeline.POST_RESOLUTION_MOVEMENT_STATE,
+		"cooldown_on": "expiration",
+		"cooldown_rounds": 2,
+		"delay_rounds": 0,
+		"cost": {},
+		"stages": [{"movement": "retreat"}, {"movement": "half_speed"}],
+		"target_kind": "",
+		"target_relation": "enemy",
+		"visibility": "public"
+	}
 	return result
 
 
 func valid_world(world: Dictionary) -> bool:
+	if world.data.get("rout_profile") != Rout.VERSION:
+		return false
+	if _slots_enabled != Slots.enabled(world) or (_slots_enabled and not _construction_enabled):
+		return false
 	if _construction_enabled:
 		if not Construction.valid(world):
 			return false
@@ -122,6 +146,16 @@ func valid_world(world: Dictionary) -> bool:
 
 
 func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionary:
+	if source.power_id == ROUT:
+		return {
+			"legal":
+			(
+				source.target.keys().size() == 1
+				and source.target.get("lane") in ["Lord", "Castle"]
+				and source.parameters.is_empty()
+			),
+			"reason": "rout_lane_invalid"
+		}
 	if source.power_id != WAR_MACHINE:
 		if source.power_id == Gremory.RUIN:
 			var target_entities = Ids.new()
@@ -145,6 +179,8 @@ func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionar
 
 
 func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
+	if record.declaration.power_id == ROUT:
+		return Rout.apply(record, context)
 	if record.declaration.power_id != WAR_MACHINE:
 		var original: Dictionary = {}
 		if _construction_enabled and record.declaration.power_id == Gremory.RUIN:
@@ -187,6 +223,8 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 
 func accept_order(context: Dictionary) -> Dictionary:
 	if context.phase == "snapshot":
+		if not Rout.snapshot_valid(context):
+			return Data.invalid("rout_snapshot_timing_invalid")
 		for delivered_round in context.world.data.deimos_fear_round:
 			if delivered_round > context.world.data.get("combat_resolved_round", 0):
 				return Data.invalid("fear_ledger_ahead_of_combat")
@@ -194,6 +232,8 @@ func accept_order(context: Dictionary) -> Dictionary:
 
 
 func on_hook(context: Dictionary) -> Dictionary:
+	if context.hook == Timeline.PERSISTENT_ADVANCEMENT:
+		return Rout.advance(context)
 	if _construction_enabled and context.hook == Timeline.DEVELOPMENT:
 		return Construction.resolve(context)
 	if context.hook == Timeline.POST_REPAIR_ARTILLERY:
@@ -307,4 +347,7 @@ func project(world: Dictionary, player_id: int) -> Dictionary:
 		view["viewer_id"] = player_id
 		view["construction_target"] = world.data.construction_targets[player_id]
 		view["repair_tokens"] = world.players[player_id].resources.repair_tokens
+	if Slots.enabled(world):
+		view["castle_slot_profile"] = Slots.VERSION
+		view["castle_loadouts"] = world.data.castle_loadouts.duplicate(true)
 	return view

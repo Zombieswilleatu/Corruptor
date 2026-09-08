@@ -249,3 +249,11 @@ cross-component snapshot consistency checks on the exact same baseline. Public
 single-plan previews retain their original checks; loading a save retains full
 restore validation. Differential fixtures compare this batched path directly
 with repeated public `preview_submission` calls.
+
+## Castle composition and Rout follow-up
+
+The user has now locally verified the focused 2/2 at the 30-second default and
+reported the four-seed Construction batch completed with matching replays.
+See `U13_CASTLE_LOADOUT_ROUT_2026-09-08.md` for the accepted prior measurements,
+new five-slot/two-copy setup rule, Commission terminology, **shared** Castle
+Guard zone, and the next local verification gate.

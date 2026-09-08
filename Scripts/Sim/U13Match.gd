@@ -309,12 +309,21 @@ func restore(raw: Dictionary) -> Dictionary:
 			return Data.invalid("match_runtime_invalid")
 	if typeof(decoded.runtime.get("completed")) != TYPE_BOOL:
 		return Data.invalid("match_runtime_invalid")
+
 	var candidate = _new_owner()
 	if (
 		candidate._install_world(decoded.presentation_world).action == "invalid"
 		or candidate._install_world(decoded.world).action == "invalid"
 	):
 		return Data.invalid("match_world_invalid")
+	if (
+		decoded.world.get("data", {}).has("castle_slot_profile")
+		and (
+			decoded.presentation_world.get("data", {}).get("castle_loadouts")
+			!= decoded.world.data.get("castle_loadouts")
+		)
+	):
+		return Data.invalid("castle_loadout_snapshot_mismatch")
 	for pair in [
 		[candidate._runtime, "runtime"],
 		[candidate._pending, "pending"],
@@ -527,8 +536,11 @@ func _resolve(record: Dictionary) -> Dictionary:
 	if applied.action == "invalid":
 		return applied
 	if record.effect_key == "main" and not rule.stages.is_empty():
+		var lifetime_payload = transformed.get("persistent_payload", {})
+		if typeof(lifetime_payload) != TYPE_DICTIONARY:
+			return Data.invalid("persistent_payload_invalid")
 		var started: Dictionary = _persistent.activate(
-			source, source.power_id, rule.stages, {}, {}, _runtime.round_number
+			source, source.power_id, rule.stages, lifetime_payload, {}, _runtime.round_number
 		)
 		if started.action == "invalid":
 			return started
@@ -546,6 +558,14 @@ func _apply_transform(result, source: Dictionary = {}) -> Dictionary:
 		return Data.invalid("transform_contract_error")
 	if typeof(result.get("world")) != TYPE_DICTIONARY or typeof(result.get("events")) != TYPE_ARRAY:
 		return Data.invalid("transform_contract_error")
+	if _world.data.has("castle_slot_profile"):
+		var next_data = result.world.get("data")
+		if (
+			typeof(next_data) != TYPE_DICTIONARY
+			or next_data.get("castle_slot_profile") != _world.data.castle_slot_profile
+			or next_data.get("castle_loadouts") != _world.data.castle_loadouts
+		):
+			return Data.invalid("castle_loadout_is_sealed")
 	var previous_used: Array = _entities.snapshot().used_ids
 	var previous_active: Dictionary = {}
 	for row in _entities.snapshot().entities:
@@ -655,6 +675,8 @@ func _consistent() -> bool:
 						if _submissions[player_id] == null
 						else _submissions[player_id].duplicate(true)
 					),
+					"persistent_effects":
+					_persistent.snapshot().active if _world.data.has("rout_profile") else [],
 					"world": _world.duplicate(true)
 				}
 			)

@@ -2,7 +2,7 @@
 # Frequency trials, not balance matches. Each seed is independently replayed.
 set -uo pipefail
 if [[ $# -lt 1 || ! -x "$1" ]]; then
-  printf 'Usage: bash %s /path/to/Godot.exe [--trials=4] [--rounds=6] [--seed-prefix=name] [--roster=gremory|deimos|mixed|construction]\n' "$0" >&2
+  printf 'Usage: bash %s /path/to/Godot.exe [--trials=4] [--rounds=6] [--seed-prefix=name] [--roster=gremory|deimos|mixed|construction|loadout]\n' "$0" >&2
   exit 2
 fi
 u13_batch_exe=$1
@@ -11,7 +11,7 @@ u13_batch_roster=gremory
 for u13_batch_arg in "$@"; do
   case "$u13_batch_arg" in
     --trials=*|--rounds=*|--seed-prefix=*) ;;
-    --roster=gremory|--roster=deimos|--roster=mixed|--roster=construction) u13_batch_roster=${u13_batch_arg#--roster=} ;;
+    --roster=gremory|--roster=deimos|--roster=mixed|--roster=construction|--roster=loadout) u13_batch_roster=${u13_batch_arg#--roster=} ;;
     *) printf 'Unsupported batch argument: %s\n' "$u13_batch_arg" >&2; exit 2 ;;
   esac
 done

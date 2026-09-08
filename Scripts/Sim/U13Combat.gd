@@ -8,6 +8,7 @@ const Battle = preload("res://Scripts/Sim/U13BattleEvents.gd")
 const Marching = preload("res://Scripts/Sim/U13Marching.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Structures = preload("res://Scripts/Sim/U13Structures.gd")
+const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
 const VERSION: String = "U13_GREMORY_BASIC_COMBAT_V1"
 
 
@@ -20,6 +21,7 @@ static func valid(world: Dictionary) -> bool:
 		world.data.get("combat_profile") not in [VERSION, Structures.PROFILE]
 		or not Cards.valid(world)
 		or not Marching.valid(world)
+		or not Slots.valid(world)
 	):
 		return false
 	var core: bool = world.data.get("combat_profile") == Structures.PROFILE

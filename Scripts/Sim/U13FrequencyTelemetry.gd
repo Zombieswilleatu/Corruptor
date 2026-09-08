@@ -27,6 +27,8 @@ func begin(round_number: int, view: Dictionary) -> void:
 		"neutral_tears": view.world.neutral_tears,
 		"personal_tears": view.world.get("personal_tears", null),
 		"artillery_shots": {},
+		"artillery_by_instance": {},
+		"rout": {},
 		"castle_actions": {},
 		"activation_integrity": [],
 		"personal_tears_by_source": {},
@@ -108,7 +110,15 @@ func consume(events: Array) -> void:
 					_increment(_row.castle_actions, str(data.player_id) + ":reconstructions")
 				if event.type == "CONSTRUCTION_PROGRESS" and data.complete:
 					_increment(_row.castle_actions, str(data.player_id) + ":builds_completed")
+			"ROUT_APPLIED":
+				_increment(_row.rout, "activations")
+				_increment(_row.rout, "affected_units", data.affected_ids.size())
+				_increment(_row.rout, "empty_activations", 1 if data.affected_ids.is_empty() else 0)
+			"ROUT_RECOVERING", "ROUT_ENDED":
+				_increment(_row.rout, event.type)
 			"ARTILLERY_FIRED":
+				_increment(_row.artillery_by_instance, data.engine_id)
+
 				_increment(
 					_row.artillery_shots,
 					(
@@ -176,9 +186,15 @@ static func summarize(rows: Array) -> Dictionary:
 	var souls: Dictionary = {}
 	var artillery: Dictionary = {}
 	var castle_actions: Dictionary = {}
+	var instance_shots: Dictionary = {}
+	var rout: Dictionary = {}
 	var activation_integrity: Array = []
 	var personal: Dictionary = {}
 	for row in rows:
+		for key in row.get("artillery_by_instance", {}):
+			_increment(instance_shots, key, row.artillery_by_instance[key])
+		for key in row.get("rout", {}):
+			_increment(rout, key, row.rout[key])
 		activation_integrity.append_array(row.get("activation_integrity", []))
 		for key in row.get("castle_actions", {}):
 			_increment(castle_actions, key, row.castle_actions[key])
@@ -228,6 +244,8 @@ static func summarize(rows: Array) -> Dictionary:
 	return {
 		"round_samples": rows.size(),
 		"artillery_shots": artillery,
+		"artillery_by_instance": instance_shots,
+		"rout": rout,
 		"castle_actions": castle_actions,
 		"activation_integrity": distribution(activation_integrity),
 		"personal_tears_by_source": personal,

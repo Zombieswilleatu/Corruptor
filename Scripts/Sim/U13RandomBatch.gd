@@ -13,6 +13,8 @@ const Deimos = preload("res://Scripts/Sim/U13Deimos.gd")
 const Core = preload("res://Scripts/Sim/U13CoreScenario.gd")
 const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const Construction = preload("res://Scripts/Sim/U13Construction.gd")
+const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
+const Rout = preload("res://Scripts/Sim/U13Rout.gd")
 const VERSION: String = "U13_RANDOM_BATCH_V1"
 
 
@@ -27,11 +29,13 @@ static func trial(
 		seed_value.is_empty()
 		or round_limit < 1
 		or round_limit > 100
-		or roster_mode not in ["gremory", "deimos", "mixed", "construction"]
+		or roster_mode not in ["gremory", "deimos", "mixed", "construction", "loadout"]
 	):
 		return Data.invalid("batch_limits_invalid")
 	var content = (
-		Gremory.new() if roster_mode == "gremory" else Deimos.new(roster_mode == "construction")
+		Gremory.new()
+		if roster_mode == "gremory"
+		else Deimos.new(roster_mode in ["construction", "loadout"], roster_mode == "loadout")
 	)
 	var roster: Array = (
 		["Gremory", "Gremory"]
@@ -42,7 +46,13 @@ static func trial(
 	var opening: Dictionary = (
 		Opening._initial_world()
 		if roster_mode == "gremory"
-		else (Core.construction_world() if roster_mode == "construction" else Core.world(roster))
+		else (
+			Core.duplicate_world()
+			if roster_mode == "loadout"
+			else (
+				Core.construction_world() if roster_mode == "construction" else Core.world(roster)
+			)
+		)
 	)
 	var provider: Callable = (
 		Callable(Candidates, "enumerate")
@@ -152,21 +162,28 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 		"schema_version": VERSION,
 		"runtime": "4.7.2.stable",
 		"policy": Bot.VERSION,
-		"castle_policy": Bot.CASTLE_POLICY if trials[0].roster_mode == "construction" else null,
+		"castle_policy":
+		Bot.CASTLE_POLICY if trials[0].roster_mode in ["construction", "loadout"] else null,
 		"construction_profile":
-		Construction.VERSION if trials[0].roster_mode == "construction" else null,
+		Construction.VERSION if trials[0].roster_mode in ["construction", "loadout"] else null,
 		"roster": trials[0].roster,
 		"combat_profile":
 		Combat.VERSION if trials[0].roster_mode == "gremory" else Structures.PROFILE,
 		"marching_model": Marching.VERSION,
+		"castle_slot_profile": Slots.VERSION if trials[0].roster_mode == "loadout" else null,
+		"rout_profile": Rout.VERSION if trials[0].roster_mode != "gremory" else null,
 		"opening":
 		(
-			"U13SmokeSession opening: four cards and two Wright guards per player; damaged plain Integrity Castles"
-			if trials[0].roster_mode == "gremory"
+			"Loadout fixture: two commissioned Engines at 21/21 and three unbuilt Castles per side; one shared Castle Guard zone per side; starting economy is an exercise fixture"
+			if trials[0].roster_mode == "loadout"
 			else (
-				"Construction fixture: same cards/guards and damaged active plain Castles; ruined Deimos Engine, unbuilt Gremory Engine, two Repair tokens per side; protected builds require manual activation"
-				if trials[0].roster_mode == "construction"
-				else "U13CoreScenario: same cards/guards; one plain Castle at 8/21 and one prebuilt Siege Engine at 12/21 per player; empty Breach"
+				"U13SmokeSession opening: four cards and two Wright guards per player; damaged plain Integrity Castles"
+				if trials[0].roster_mode == "gremory"
+				else (
+					"Construction fixture: same cards/guards and damaged active plain Castles; ruined Deimos Engine, unbuilt Gremory Engine, two Repair tokens per side; protected builds require manual activation"
+					if trials[0].roster_mode in ["construction", "loadout"]
+					else "U13CoreScenario: same cards/guards; one plain Castle at 8/21 and one prebuilt Siege Engine at 12/21 per player; empty Breach"
+				)
 			)
 		),
 		"scope": "bounded combat-slice trials; frequency and reachability observations only",
@@ -174,7 +191,7 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 		[
 			(
 				"Other Development actions"
-				if trials[0].roster_mode == "construction"
+				if trials[0].roster_mode in ["construction", "loadout"]
 				else "Development"
 			),
 			"normal round draws",
@@ -187,10 +204,10 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 			),
 			(
 				"Guard deployment/Summon/Profane"
-				if trials[0].roster_mode == "construction"
+				if trials[0].roster_mode in ["construction", "loadout"]
 				else "Construction/Reconstruction"
 			),
-			"Rout",
+			"non-artillery Castle printed powers",
 			"other Lords",
 			"waiter spending"
 		],
@@ -205,7 +222,7 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 			"castle_choice":
 			(
 				"uniform legal Construct/Repair/Activate action, then uniform legal target/payment; filtered against the selected power before combat selection"
-				if trials[0].roster_mode == "construction"
+				if trials[0].roster_mode in ["construction", "loadout"]
 				else null
 			)
 		},
