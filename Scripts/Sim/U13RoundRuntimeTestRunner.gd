@@ -15,6 +15,7 @@ func _init() -> void:
 	_test_rejects_out_of_order_hook()
 	_test_full_order()
 	_test_snapshot_restore()
+	_test_handler_rejection()
 
 	print("U13 round runtime failures: %d" % failures)
 	quit(0 if failures == 0 else 1)
@@ -103,6 +104,27 @@ func _test_snapshot_restore() -> void:
 		return
 
 	_pass("snapshot_restore")
+
+
+func _test_handler_rejection() -> void:
+	var runtime = U13RoundRuntimeData.new()
+	runtime.begin_round(2)
+	var before: Dictionary = runtime.snapshot()
+	var hook: String = runtime.next_hook()
+	var handler: Callable = func(_context: Dictionary) -> Dictionary:
+		return {"action": "invalid", "reason": "fixture_rejection"}
+	var rejected: Dictionary = runtime.run_hook(hook, handler)
+	if (
+		rejected.get("reason") != "handler_rejected_hook"
+		or runtime.snapshot() != before
+		or rejected.get("result", {}).get("reason") != "fixture_rejection"
+	):
+		_fail("handler_rejection", str(rejected))
+		return
+	if runtime.run_hook(hook).get("action") != "u13_hook":
+		_fail("handler_rejection", "same hook could not be retried")
+		return
+	_pass("handler_rejection")
 
 
 func _pass(name: String) -> void:

@@ -91,6 +91,14 @@ func run_hook(
 				"next_hook": expected,
 			}
 		payload = raw_result
+		# A rules/dispatch error must not silently consume the timeline hook.
+		# Handlers own their game-state transaction; this only preserves cursor
+		# position. Retrying a partially completed pending batch is safe because
+		# its manager has already removed each successfully resolved effect.
+		if String(payload.get("action", "")) == "invalid":
+			var rejected: Dictionary = _invalid("handler_rejected_hook", hook)
+			rejected["result"] = payload.duplicate(true)
+			return rejected
 
 	var row: Dictionary = {
 		"round": round_number,
