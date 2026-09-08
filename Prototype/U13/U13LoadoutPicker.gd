@@ -3,6 +3,8 @@ extends Control
 signal start_requested(lords: Array, castles: Array, quick: bool)
 signal cancelled
 const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
+const Tutorials = preload("res://Prototype/U13/U13TutorialPreferences.gd")
+const TutorialPopup = preload("res://Prototype/U13/U13TutorialPopup.gd")
 const LORDS: Array = ["Deimos", "Gremory"]
 var lord_choices: Array = []
 var castle_choices: Array = [[], []]
@@ -10,6 +12,10 @@ var opening: OptionButton
 var start_button: Button
 var cancel_button: Button
 var message: Label
+var tutorials = Tutorials.new()
+var tutorial_popup
+var show_tutorials: Button
+var _accepted_castles: Array = [[], []]
 
 
 func _ready() -> void:
@@ -58,8 +64,16 @@ func _ready() -> void:
 			side.add_child(row)
 			_label(row, "Slot %d" % (slot + 1), 16)
 			var choice := _option(row, Slots.TYPES)
-			choice.select([4, 4, 0, 1, 3][slot])
+			choice.select(slot)
+			_accepted_castles[pid].append(Slots.TYPES[slot])
+			choice.item_selected.connect(_castle_changed.bind(pid, slot))
 			castle_choices[pid].append(choice)
+	_label(column, "BEGINNER SUGGESTION · Keep first, with one of each Castle type.", 16)
+	show_tutorials = Button.new()
+	show_tutorials.text = "SHOW TUTORIAL POPUPS"
+	show_tutorials.tooltip_text = "Reset every Don't show this again choice for tutorial modals."
+	column.add_child(show_tutorials)
+	show_tutorials.pressed.connect(_reset_tutorials)
 	_label(column, "TEST OPENING", 16)
 	opening = _option(
 		column,
@@ -91,10 +105,14 @@ func _ready() -> void:
 	cancel_button.text = "RETURN TO CURRENT BOARD"
 	buttons.add_child(cancel_button)
 	cancel_button.pressed.connect(func(): cancelled.emit())
+	tutorial_popup = TutorialPopup.new()
+	add_child(tutorial_popup)
 	_validate()
 
 
 func present(lords: Array, castles: Array, quick: bool, can_cancel: bool) -> void:
+	tutorial_popup.hide()
+	_accepted_castles = castles.duplicate(true)
 	for pid in [0, 1]:
 		lord_choices[pid].select(LORDS.find(lords[pid]))
 		for slot in range(Slots.SLOT_COUNT):
@@ -132,7 +150,7 @@ func _validate() -> void:
 
 func _start() -> void:
 	_validate()
-	if start_button.disabled:
+	if start_button.disabled or tutorial_popup.visible:
 		return
 	var draft: Dictionary = selection()
 	start_requested.emit(draft.lords, draft.castles, draft.quick)
@@ -160,3 +178,35 @@ func _label(parent: Node, value: String, font_size: int) -> Label:
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	parent.add_child(label)
 	return label
+
+
+func _castle_changed(index: int, pid: int, slot: int) -> void:
+	var previous: String = _accepted_castles[pid][slot]
+	if previous == "Keep" and Slots.TYPES[index] != "Keep":
+		castle_choices[pid][slot].select(Slots.TYPES.find(previous))
+		_validate()
+		if (
+			tutorial_popup
+			. present(
+				tutorials,
+				Tutorials.KEEP_LOADOUT,
+				"BUILDING YOUR FORTRESS",
+				"Keep is strongly suggested for all builds. For beginners, one of each Castle type is also suggested.\n\nYou can still specialize and choose any legal loadout.\n\nIn this test build, Keep's printed power is not connected yet.",
+				_apply_castle_choice.bind(index, pid, slot)
+			)
+		):
+			return
+	_apply_castle_choice(index, pid, slot)
+
+
+func _apply_castle_choice(index: int, pid: int, slot: int) -> void:
+	castle_choices[pid][slot].select(index)
+	_accepted_castles[pid][slot] = Slots.TYPES[index]
+	_validate()
+
+
+func _reset_tutorials() -> void:
+	if tutorials.reset_all() == OK:
+		message.text = "Tutorial popups enabled. All Don't show this again choices have been reset."
+	else:
+		message.text = "Tutorials enabled for this session; the preference could not be saved."

@@ -81,6 +81,12 @@ func _refresh(presented: Dictionary = {}) -> void:
 		)
 		for id in row.target_controls:
 			_wire_target(row.target_controls[id], _entity_target(id))
+			if (
+				powers_step
+				and _intent == Deimos.WAR_MACHINE
+				and _target_allowed(_entity_target(id), _intent)
+			):
+				row.target_controls[id].tooltip_text += "\n" + _artillery_target_note(_entity(id))
 		var shared: Dictionary = {
 			"id": "", "kind": "zone", "owner": 0 if row == sides[1] else 1, "lane": "Castle"
 		}
@@ -126,6 +132,9 @@ func _update_direct_ui() -> void:
 	ruin_button.text = "CHOOSE INEVITABLE RUIN"
 	war_button.text = "CHOOSE WAR MACHINE"
 	rout_button.text = "CHOOSE ROUT"
+	war_state.text = (
+		String(war_state.text.split("\nArtillery:")[0]) + "\nArtillery: " + _war_machine_note()
+	)
 	castle_token.visible = not powers_step and _intent == "Repair"
 	castle_token.disabled = not _planning()
 	castle_note.text = "Construct / Repair: choose the action, click your Castle, then click payment cards. Commission is on each eligible Castle."
@@ -196,7 +205,7 @@ func _guide() -> String:
 	if _intent in [Gremory.PREDATOR, Deimos.ROUT]:
 		return _power_name(_intent).to_upper() + " · click LORD or CASTLE lane on the right."
 	if _intent == Deimos.WAR_MACHINE:
-		return "WAR MACHINE · click one of your operational Siege Engines."
+		return "WAR MACHINE · click your Engine. Its extra shot uses its retained or automatically acquired target."
 	if _intent in ["Siege", "Hunt", "Ward", "Construct", "Repair"]:
 		if _target.is_empty():
 			return _intent.to_upper() + " · click a highlighted target."
@@ -639,6 +648,13 @@ func restart() -> void:
 func open_setup() -> void:
 	super.open_setup()
 	if _direct() and setup_open:
+		if not match_started:
+			setup_picker.present(
+				["Deimos", "Gremory"],
+				[setup_picker.Slots.TYPES.duplicate(), setup_picker.Slots.TYPES.duplicate()],
+				true,
+				false
+			)
 		hand_view.all_in_enabled = false
 		_show_stacks()
 
@@ -708,7 +724,7 @@ func _pulse_targets() -> void:
 
 
 func _return_card(role: String, id: String) -> void:
-	if not _planning():
+	if not _planning() or (powers_step and role in ["combat", "castle"]):
 		return
 	_interaction_error = ""
 	if role == "combat":
@@ -788,6 +804,7 @@ func _add_stack(stacks: Array, role: String, label: String, ids: Array, target: 
 	stacks.append(
 		{
 			"role": role,
+			"locked": powers_step and role in ["combat", "castle"],
 			"label": label,
 			"cards": cards,
 			"anchor": anchor,
@@ -805,3 +822,33 @@ func _repair_token_changed(_enabled: bool) -> void:
 		and not castle_plan.is_empty()
 	):
 		_apply_cards(castle_plan.card_ids, false)
+
+
+func _war_machine_note() -> String:
+	for source in queued:
+		if source.power_id == Deimos.WAR_MACHINE:
+			return _artillery_target_note(_entity(source.target.entity_id))
+	return "Choose one Engine for one extra shot. It keeps its current enemy Castle target, or acquires one automatically when firing."
+
+
+func _artillery_target_note(engine: Dictionary) -> String:
+	if engine.is_empty():
+		return "The selected Engine is unavailable."
+	var retained: Dictionary = _entity(engine.attributes.get("artillery_target", ""))
+	if not retained.is_empty() and Structures.targetable(retained):
+		return (
+			"Retained enemy target: %s. Reacquires automatically if it becomes invalid."
+			% _castle_name(retained)
+		)
+	var targets: Array = []
+	for entity in _visible_world.get("entities", []):
+		if entity.kind == "castle" and entity.owner == 1 and Structures.targetable(entity):
+			targets.append(entity)
+	if targets.size() == 1:
+		return (
+			"No target retained yet. Only eligible enemy Castle now: %s. Target is acquired when firing."
+			% _castle_name(targets[0])
+		)
+	if targets.is_empty():
+		return "No eligible enemy Castle now. The Engine checks for a target when firing."
+	return "No target retained yet. The Engine automatically acquires one of the eligible enemy Castles when firing."

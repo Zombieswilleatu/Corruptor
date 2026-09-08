@@ -2,6 +2,7 @@ extends Control
 
 # UI2 PlayerBoard's overlapping, clickable card stacks, bound to U13 IDs.
 const Art = preload("res://Prototype/U13/U13BoardTextures.gd")
+const SuitStyle = preload("res://Prototype/UI2/SubjectSuitStyle.gd")
 var _positions: Dictionary = {}
 var _stacks: Array = []
 var _return_card: Callable
@@ -38,7 +39,8 @@ func show_orders(
 		if String(stack.role).begins_with("ruin"):
 			origin.y = rect.end.y - 74 - global_position.y
 		var label := Label.new()
-		label.text = stack.label
+		var locked: bool = stack.get("locked", false)
+		label.text = stack.label + (" · LOCKED" if locked else "")
 		label.position = origin + Vector2(0, -22)
 		label.add_theme_font_size_override("font_size", 12)
 		label.add_theme_color_override("font_shadow_color", Color.BLACK)
@@ -52,22 +54,50 @@ func show_orders(
 			var destination: Vector2 = origin + Vector2(float(index) * spacing, 0)
 			button.position = destination
 			button.tooltip_text = (
-				"%s %d · %s · click to return"
-				% [entity.attributes.suit, entity.attributes.value, stack.label]
+				"%s %d · %s · %s"
+				% [
+					entity.attributes.suit,
+					entity.attributes.value,
+					stack.label,
+					(
+						"Locked during Lord powers; return to combat to edit"
+						if locked
+						else "click to return"
+					)
+				]
 			)
 			var texture: Texture2D = Art.texture_for(
 				entity.attributes.suit, int(entity.attributes.value)
 			)
-			var skin := StyleBoxTexture.new()
-			skin.texture = texture
-			button.add_theme_stylebox_override("normal", skin)
-			button.add_theme_stylebox_override("hover", skin)
-			button.add_theme_stylebox_override("pressed", skin)
+			for state in ["normal", "hover", "pressed", "disabled", "focus"]:
+				button.add_theme_stylebox_override(
+					state, SuitStyle.card_style(entity.attributes.suit, Color("111113"), 3)
+				)
+			var art := TextureRect.new()
+			art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			art.offset_left = 4
+			art.offset_top = 4
+			art.offset_right = -4
+			art.offset_bottom = -4
+			art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			art.texture = texture
+			button.add_child(art)
+			button.set_meta("role", stack.role)
+			button.set_meta("card_id", entity.id)
+			button.set_meta("locked", locked)
 			add_child(button)
-			button.pressed.connect(_return_card.bind(stack.role, entity.id))
-			button.set_drag_forwarding(
-				Callable(), _can_drop.bind(stack.target), _drop_card.bind(stack.target)
+			# Pass target clicks through the locked stack to its Castle/Lord.
+			button.mouse_filter = (
+				Control.MOUSE_FILTER_IGNORE if locked else Control.MOUSE_FILTER_STOP
 			)
+			button.focus_mode = Control.FOCUS_NONE if locked else Control.FOCUS_ALL
+			if not locked:
+				button.pressed.connect(_return_card.bind(stack.role, entity.id))
+				button.set_drag_forwarding(
+					Callable(), _can_drop.bind(stack.target), _drop_card.bind(stack.target)
+				)
 			var key: String = stack.role + ":" + entity.id
 			current[key] = stack.target
 			if not _positions.has(key) or _positions[key] != stack.target:

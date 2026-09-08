@@ -4,6 +4,7 @@ const Scene = preload("res://Prototype/U13/U13Board.tscn")
 const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
 const Gremory = preload("res://Scripts/Sim/U13Gremory.gd")
 const Deimos = preload("res://Scripts/Sim/U13Deimos.gd")
+const Tutorials = preload("res://Prototype/U13/U13TutorialPreferences.gd")
 var failures: int = 0
 
 
@@ -34,6 +35,14 @@ func _run() -> void:
 	var board = Scene.instantiate()
 	root.add_child(board)
 	await _settle()
+	_check(
+		board.setup_picker.selection().castles == [Slots.TYPES, Slots.TYPES],
+		"direct_beginner_picker_keep_first_one_each"
+	)
+	_test_tutorial_picker(board.setup_picker)
+	# Keep the accepted double-Engine fixture explicit; UI defaults are beginner-facing.
+	var exercise: Array = ["SiegeEngine", "SiegeEngine", "Keep", "Bastion", "Stockpile"]
+	board.setup_picker.present(["Deimos", "Gremory"], [exercise, exercise], true, false)
 	board.setup_picker.start_button.pressed.emit()
 	await _settle()
 	if not _check(
@@ -86,6 +95,13 @@ func _run() -> void:
 		board.hand_view.card_buttons.size() == 3 and board._order_preview._stacks.size() == 1,
 		"direct_card_moves_from_hand_to_target_stack"
 	)
+	for child in board._order_preview.get_children():
+		if child is Button:
+			var skin: StyleBoxFlat = child.get_theme_stylebox("normal") as StyleBoxFlat
+			_check(
+				skin.border_width_left == 3 and skin.border_color == Color(0.86, 0.24, 0.22, 1.0),
+				"direct_committed_card_keeps_suit_outline"
+			)
 	_check(board.hand_view.all_in_enabled, "direct_first_staged_card_enables_all_in")
 	board.hand_view.all_in_requested.emit()
 	await _settle()
@@ -165,6 +181,27 @@ func _run() -> void:
 		board._draft_combat.card_ids == hand.slice(2, 4) and board.castle_plan.card_ids.size() == 2,
 		"direct_all_in_excludes_reserved_castle_payment"
 	)
+	board.enter_powers()
+	await _settle()
+	var locked_order: Dictionary = board._order().duplicate(true)
+	board._return_card("combat", hand[2])
+	board._return_card("castle", hand[0])
+	_check(
+		board._order() == locked_order and board._available_ids().is_empty(),
+		"direct_powers_lock_combat_and_castle_payments"
+	)
+	for child in board._order_preview.get_children():
+		if child is Button:
+			_check(
+				(
+					child.mouse_filter == Control.MOUSE_FILTER_IGNORE
+					and child.focus_mode == Control.FOCUS_NONE
+				),
+				"direct_locked_stack_passes_clicks_to_board_target"
+			)
+	board.back_to_combat()
+	await _settle()
+	_check(board._order() == locked_order, "direct_back_to_combat_preserves_locked_draft")
 	board.sides[1].commission_buttons[Slots.castle_id(0, 1)].pressed.emit()
 	await _settle()
 	_check(
@@ -185,6 +222,16 @@ func _run() -> void:
 	_check(
 		board.queued.size() == 1 and board.queued[0].power_id == Deimos.WAR_MACHINE,
 		"direct_war_machine_clicks_specific_engine"
+	)
+	_check(
+		board.war_state.text.contains("Only eligible enemy Castle now"),
+		"direct_war_machine_explains_automatic_target"
+	)
+	var engine: Dictionary = board._entity(Slots.castle_id(0, 0)).duplicate(true)
+	engine.attributes.artillery_target = Slots.castle_id(1, 0)
+	_check(
+		board._artillery_target_note(engine).contains("Retained enemy target"),
+		"direct_war_machine_shows_retained_target"
 	)
 	board.rout_button.pressed.emit()
 	await _settle()
@@ -272,3 +319,56 @@ func _run() -> void:
 func _finish() -> void:
 	print("U13 direct board failures: %d" % failures)
 	quit(0 if failures == 0 else 1)
+
+
+func _test_tutorial_picker(picker) -> void:
+	var original = picker.tutorials
+	var path: String = "user://u13_tutorial_test_%d.cfg" % Time.get_ticks_usec()
+	picker.tutorials = Tutorials.new(path)
+	var choice: OptionButton = picker.castle_choices[0][0]
+	choice.select(4)
+	choice.item_selected.emit(4)
+	_check(
+		picker.tutorial_popup.visible and picker.selection().castles[0][0] == "Keep",
+		"tutorial_keep_change_waits_for_choice"
+	)
+	picker.tutorial_popup.cancel_button.pressed.emit()
+	_check(
+		not picker.tutorial_popup.visible and choice.selected == 0, "tutorial_cancel_preserves_keep"
+	)
+	choice.select(4)
+	choice.item_selected.emit(4)
+	picker.tutorial_popup.dont_show.set_pressed_no_signal(true)
+	picker.tutorial_popup.continue_button.pressed.emit()
+	_check(
+		choice.selected == 4 and not picker.tutorial_popup.visible,
+		"tutorial_accept_allows_specialized_loadout"
+	)
+	var restored = Tutorials.new(path)
+	_check(not restored.should_show(Tutorials.KEEP_LOADOUT), "tutorial_dont_show_persists")
+	picker._apply_castle_choice(0, 0, 0)
+	choice.select(4)
+	choice.item_selected.emit(4)
+	_check(
+		not picker.tutorial_popup.visible and choice.selected == 4,
+		"tutorial_dismissed_hint_does_not_block_choice"
+	)
+	picker.tutorials.dismiss("future_tutorial_test")
+	picker.show_tutorials.pressed.emit()
+	_check(
+		(
+			restored.should_show(Tutorials.KEEP_LOADOUT)
+			and restored.should_show("future_tutorial_test")
+		),
+		"tutorial_reset_restores_all_popup_flags"
+	)
+	picker._apply_castle_choice(0, 0, 0)
+	picker.tutorials.enabled = false
+	choice.select(4)
+	choice.item_selected.emit(4)
+	_check(
+		not picker.tutorial_popup.visible and choice.selected == 4,
+		"tutorial_gate_can_be_disabled_without_changing_rules"
+	)
+	picker.tutorials = original
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))

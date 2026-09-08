@@ -11,7 +11,9 @@ The default playable entry uses direct targeting:
 - Or drag a hand card onto an enemy Castle (Siege), enemy Lord (Hunt), your
   Lord (Lord Ward), or your Castle/shared Castle Guard zone (Castle Ward).
 - Staged cards leave the hand and form an overlapping, clickable stack at the
-  destination. Clicking a staged card returns it. Both input methods update
+  destination. Clicking a staged card returns it during the ordinary-order phase. Combat and
+  Castle-payment stacks lock during Lord powers and pass target clicks through;
+  return to combat to edit those commitments. The original suit outlines remain. Both input methods update
   the same draft and stable physical card IDs.
 - After at least one card is staged to the selected destination, double-click
   anywhere in the hand to add all remaining available cards. This excludes
@@ -39,7 +41,10 @@ The separate Lord-power prompt still follows combat with no simulation advance.
   click a damaged, exposed enemy Castle instance. The cost stack is labeled
   beside your Lord while being selected and after queuing. Returning a queued
   Ruin payment cancels Ruin and preserves any other queued power.
-- War Machine: click power, then one operational own Siege Engine.
+- War Machine: click power, then one operational own Siege Engine. The prompt
+  explains and displays its retained artillery target, or automatic acquisition
+  at firing (including the only currently eligible target when there is one).
+  War Machine does not select a separate enemy target.
 - Rout: click power, then the enemy lane in the right battlefield.
 
 Names remain above target instructions and cooldowns remain visible. Pending
@@ -133,3 +138,31 @@ the remaining hand. Click a card in the destination stack to return it. Try
 an own Castle and each Lord. Restart, click Commission on slot 2, then continue
 to the power prompt and select War Machine -> slot 1 or Rout -> a lane. For
 Gremory, select Predator -> lane and Ruin -> two cards -> enemy Castle.
+
+
+## Board polish after direct-target acceptance
+
+The default new direct board picker now offers one of each Castle type, Keep
+first. Existing match loadouts and regression fixtures retain their selected
+physical slot order; this does not silently reorder a running match.
+
+Replacing a Keep opens beginner advice: Keep is strongly suggested for all
+builds, and one of each Castle type is suggested for beginners. The choice is
+held until Continue; Cancel or × retains Keep. It remains possible to use any
+legal specialized loadout. The advice acknowledges Keep's printed effect is
+still unimplemented in this slice.
+
+`U13TutorialPreferences` gates prompts by stable tutorial ID and an `enabled`
+flag. Dismissals persist in `user://u13_tutorial_popups.cfg`; the picker’s
+**Show tutorial popups** button clears *all* dismissed IDs and enables the gate.
+Live consumers reload at the popup boundary, so reset also affects already
+created modal instances. Future tutorial modals should use this gate and
+`U13TutorialPopup` rather than introducing separate don't-show preferences.
+
+The existing direct interaction runner additionally covers locked commitment
+and Castle payments, mouse pass-through, preserved suit outlines, automatic/
+retained War Machine target copy, beginner defaults, tutorial cancel/accept,
+persisted dismissal, global reset (including another tutorial ID), and the gate.
+Its preference checks use an isolated temporary user path and leave the player's
+real tutorial choices alone. Runner counts remain interaction 2/2, board 5/5,
+foundation 24/24. Local Godot 4.7.2 acceptance is still required for this update.
