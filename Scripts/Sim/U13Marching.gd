@@ -7,6 +7,7 @@ const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Rout = preload("res://Scripts/Sim/U13Rout.gd")
+const LaneAuras = preload("res://Scripts/Sim/U13LaneAuras.gd")
 const VERSION: String = "U13_MARCHING_SPATIAL_V2"
 const LANE_FP: int = 2400
 const TICKS: int = 200
@@ -47,6 +48,8 @@ static func profile(
 
 
 static func valid(world: Dictionary) -> bool:
+	if world.data.has("lane_aura_profile") and not LaneAuras.enabled(world):
+		return false
 	for field in ["marching_round", "marching_regen_round"]:
 		if not Data.is_integer(world.data.get(field, 0)) or world.data.get(field, 0) < 0:
 			return false
@@ -114,6 +117,11 @@ static func regenerate(context: Dictionary) -> Dictionary:
 		return Data.invalid("marching_regen_context_invalid")
 	if world.data.get("marching_regen_round", 0) >= context.round:
 		return Data.invalid("marching_regen_already_applied")
+	var modifiers: Dictionary = (
+		LaneAuras.compile(context.get("persistent_effects", []), context.round)
+		if LaneAuras.enabled(world)
+		else {}
+	)
 	var entities = Ids.new()
 	entities.restore(world.entities)
 	var events: Array = []
@@ -121,7 +129,14 @@ static func regenerate(context: Dictionary) -> Dictionary:
 		if unit.kind != "marcher" or unit.attributes.waiting:
 			continue
 		var before: int = unit.attributes.hp
-		unit.attributes.hp = mini(unit.attributes.max_hp, before + int(unit.attributes.regen))
+		var bonus: int = (
+			0
+			if modifiers.is_empty()
+			else int(modifiers[unit.attributes.lane][unit.owner].regen_bonus)
+		)
+		unit.attributes.hp = mini(
+			unit.attributes.max_hp, before + int(unit.attributes.regen) + bonus
+		)
 		entities.update(unit.id, unit.owner, unit.attributes)
 		if unit.attributes.hp != before:
 			events.append(
@@ -171,6 +186,12 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 		has_retreat = has_retreat or Rout.retreating(unit.attributes, int(context.round))
 		has_rout = has_rout or unit.attributes.has("rout_round")
 	var tape_bases: Dictionary = {}
+	var motion_context: Dictionary = context
+	if LaneAuras.enabled(world):
+		motion_context = context.duplicate()
+		motion_context["lane_modifiers"] = LaneAuras.compile(
+			context.get("persistent_effects", []), context.round
+		)
 	for unit in _units(entities):
 		tape_bases[unit.id] = unit
 	for tick in range(TICKS):
@@ -185,7 +206,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 					)
 				)
 				duels.erase(lane)
-		_move(entities, duels, context, clock, has_rout)
+		_move(entities, duels, motion_context, clock, has_rout)
 		if has_retreat:
 			for lane in duels.keys():
 				if not _duel_alive(duels[lane], entities):
@@ -549,6 +570,7 @@ static func _move(
 	entities, duels: Dictionary, context: Dictionary, clock: int, has_rout: bool = false
 ) -> void:
 	var rows: Array = _units(entities)
+	var lane_modifiers: Dictionary = context.get("lane_modifiers", {})
 	var neighbors: Dictionary = _movement_neighbors(rows, duels, int(context.round), has_rout)
 	var accepted: Array = []
 	var accepted_by_id: Dictionary = {}
@@ -566,6 +588,16 @@ static func _move(
 		var previous_ticket: int = int(a.contact_tick)
 		var retreat: bool = has_rout and Rout.retreating(a, int(context.round))
 		var step: int = Rout.speed(a, int(context.round), clock) if has_rout else int(a.step_fp)
+		if not lane_modifiers.is_empty():
+			var percent: int = int(lane_modifiers[a.lane][unit.owner].speed_percent)
+			# Keep the historical rounding path exactly when there is no bonus.
+			if percent != 0:
+				step = LaneAuras.speed(
+					int(a.step_fp),
+					percent,
+					has_rout and Rout.recovering(a, int(context.round)),
+					clock
+				)
 		if not retreat and int(nearby.distance) <= CONTACT_FP * CONTACT_FP:
 			if previous_ticket < 0:
 				a.contact_tick = clock

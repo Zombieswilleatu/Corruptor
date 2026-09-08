@@ -74,7 +74,7 @@ func _admission() -> void:
 			owner.restore(bad).action == "invalid" and owner.snapshot() == before,
 			"humbaba_corrupt_restore_atomic_" + kind
 		)
-	_check(not Content.rules().has("BreathOfLife"), "breath_waits_for_lane_aura_foundation")
+	_check(Content.rules().has(Content.BREATH), "breath_uses_shared_lane_aura_foundation")
 
 
 func _cooldown_replay() -> void:

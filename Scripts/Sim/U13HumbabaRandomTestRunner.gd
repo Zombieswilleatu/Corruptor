@@ -21,8 +21,14 @@ func _run() -> void:
 		)
 		_check(trial == replay, "humbaba_random_batch_replays")
 		_check(
-			trial.summary.powers.get("0:MusterTheFaithful", {}).get("declared", 0) == 1,
-			"humbaba_random_batch_exercises_muster"
+			(
+				(
+					trial.summary.powers.get("0:MusterTheFaithful", {}).get("declared", 0)
+					+ trial.summary.powers.get("0:BreathOfLife", {}).get("declared", 0)
+				)
+				== 1
+			),
+			"humbaba_random_batch_exercises_legal_power"
 		)
 		_check(
 			trial.summary.endurance.get("0", {}).get("checks", 0) == 1,

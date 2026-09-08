@@ -486,16 +486,19 @@ func _dispatch(_context: Dictionary) -> Dictionary:
 	# Ordinary rules (combat, Banishment, etc.) enter as a versioned pure transform.
 	var transformed
 	if _context_hook.is_valid():
-		transformed = _context_hook.call(
-			{
-				"hook": hook,
-				"round": round_number,
-				"seed": _seed,
-				"player_order": _order.duplicate(),
-				"combat_orders": _combat_orders.duplicate(true),
-				"world": _world.duplicate(true)
-			}
-		)
+		var context: Dictionary = {
+			"hook": hook,
+			"round": round_number,
+			"seed": _seed,
+			"player_order": _order.duplicate(),
+			"combat_orders": _combat_orders.duplicate(true),
+			"world": _world.duplicate(true)
+		}
+		# Aura consumers read the authoritative registry, never a second lifetime
+		# mirror in world state. Existing profiles pay no additional copy cost.
+		if _world.data.has("lane_aura_profile"):
+			context["persistent_effects"] = _persistent.snapshot().active
+		transformed = _context_hook.call(context)
 	else:
 		transformed = _hook_handler.call(hook, round_number, _world.duplicate(true))
 	var applied: Dictionary = _apply_transform(transformed)
@@ -676,7 +679,13 @@ func _consistent() -> bool:
 						else _submissions[player_id].duplicate(true)
 					),
 					"persistent_effects":
-					_persistent.snapshot().active if _world.data.has("rout_profile") else [],
+					(
+						_persistent.snapshot().active
+						if (_world.data.has("rout_profile") or _world.data.has("lane_aura_profile"))
+						else []
+					),
+					"cooldown_locks":
+					_cooldowns.snapshot().locks if _world.data.has("lane_aura_profile") else [],
 					"world": _world.duplicate(true)
 				}
 			)

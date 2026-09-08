@@ -1,6 +1,6 @@
 extends RefCounted
 
-const HUMBABA_PROFILE: String = "U13_HUMBABA_STONES_V1"
+const HUMBABA_PROFILE: String = "U13_HUMBABA_BREATH_V2"
 
 
 # Absence is distinct from zero, including the zero threshold. Callers must

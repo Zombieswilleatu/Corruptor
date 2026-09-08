@@ -17,6 +17,7 @@ static func world(opponent: String = "Gremory") -> Dictionary:
 	if result.get("action") == "invalid":
 		return result
 	result.data["humbaba_profile"] = Humbaba.POLICY
+	result.data["lane_aura_profile"] = Humbaba.LaneAuras.VERSION
 	result.data["humbaba_end_round"] = 0
 	result.data["humbaba_breach_entries"] = {}
 	result.data["hunt_profile"] = Combat.HUNT_VERSION

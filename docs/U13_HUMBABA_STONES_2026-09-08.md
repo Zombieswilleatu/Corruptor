@@ -2,6 +2,10 @@
 
 Runtime: Godot 4.7.2 stable. Branch: `u13-lord-overhaul`.
 
+Status: this first slice is locally accepted at `fc65cb4`. The subsequent
+[Breath of Life slice](U13_BREATH_OF_LIFE_2026-09-08.md) supersedes the "next"
+scope and gate counts below; they describe this slice's original checkpoint.
+
 The prior board gate is locally accepted: 6/6 at the 30-second default, followed
 by the user's visual acceptance of Guard outlines and sequential curved artillery.
 This returns to the implementation plan's low-spatial Humbaba wave.
@@ -113,4 +117,4 @@ results, and verifies that the replacement has a new ID and 1 HP. A positive
 control confirms that it qualifies before Banishment, then the existing assertion
 confirms that the passive stops when Humbaba is banished. Production identity
 rules, gameplay and wrapper error handling are unchanged. The focused 6/6 gate
-still requires a clean local rerun.
+was subsequently reported green by the user.

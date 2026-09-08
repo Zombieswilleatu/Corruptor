@@ -11,8 +11,10 @@ const Construction = preload("res://Scripts/Sim/U13Construction.gd")
 const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
 const Rout = preload("res://Scripts/Sim/U13Rout.gd")
 const Stats = preload("res://Scripts/Sim/U13LordStats.gd")
+const LaneAuras = preload("res://Scripts/Sim/U13LaneAuras.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const MUSTER: String = "MusterTheFaithful"
+const BREATH: String = "BreathOfLife"
 const POLICY: String = Stats.HUMBABA_PROFILE
 var _deimos = Deimos.new(true, true, true)
 
@@ -40,6 +42,8 @@ func create_combat_match():
 			+ Rout.VERSION
 			+ ":"
 			+ Combat.HUNT_VERSION
+			+ ":"
+			+ LaneAuras.VERSION
 		),
 		rules(),
 		validators,
@@ -68,11 +72,28 @@ static func rules() -> Dictionary:
 		"target_relation": "own",
 		"visibility": "public"
 	}
+	result[BREATH] = {
+		"lord_id": "Humbaba",
+		"fire_hook": Timeline.POST_RESOLUTION_MOVEMENT_STATE,
+		"cooldown_on": "expiration",
+		"cooldown_rounds": 2,
+		"delay_rounds": 0,
+		"cost": {},
+		"stages": [{"active": true}, {"active": true}],
+		"target_kind": "",
+		"target_relation": "own",
+		"visibility": "public",
+		"lane_aura": {"regen_bonus": 1, "speed_percent": 25}
+	}
 	return result
 
 
 func valid_world(world: Dictionary) -> bool:
-	if world.data.get("humbaba_profile") != POLICY or not _deimos.valid_world(world, true):
+	if (
+		world.data.get("humbaba_profile") != POLICY
+		or not LaneAuras.enabled(world)
+		or not _deimos.valid_world(world, true)
+	):
 		return false
 	var checked = world.data.get("humbaba_end_round")
 	var entries = world.data.get("humbaba_breach_entries")
@@ -95,6 +116,8 @@ func valid_world(world: Dictionary) -> bool:
 
 func accept_order(context: Dictionary) -> Dictionary:
 	if context.phase == "snapshot":
+		if not LaneAuras.snapshot_valid(context, rules()):
+			return Data.invalid("lane_aura_snapshot_invalid")
 		var completed: int = (
 			context.round
 			if context.next_hook_index > Timeline.hook_rank(Timeline.END_MARCHING_CHECKS)
@@ -109,7 +132,7 @@ func accept_order(context: Dictionary) -> Dictionary:
 
 
 func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionary:
-	if source.power_id != MUSTER:
+	if source.power_id not in [MUSTER, BREATH]:
 		return _deimos.validate(source, world, phase)
 	return {
 		"legal":
@@ -118,11 +141,13 @@ func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionar
 			and source.target.get("lane") in Marching.LANES
 			and source.parameters.is_empty()
 		),
-		"reason": "muster_lane_invalid"
+		"reason": "humbaba_lane_invalid"
 	}
 
 
 func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
+	if record.declaration.power_id == BREATH:
+		return LaneAuras.activate(record, context, rules()[BREATH].lane_aura)
 	if record.declaration.power_id != MUSTER:
 		return _deimos.resolve(record, context)
 	var world: Dictionary = context.world.duplicate(true)

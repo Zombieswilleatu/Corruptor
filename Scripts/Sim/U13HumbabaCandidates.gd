@@ -13,21 +13,28 @@ static func enumerate(owner, player_id: int) -> Dictionary:
 		return result
 	var view: Dictionary = owner.player_view(player_id, 0)
 	result.powers = []
-	for lane in ["Lord", "Castle"]:
-		result.powers.append(source(player_id, view.round, lane))
+	for power in [Humbaba.MUSTER, Humbaba.BREATH]:
+		for lane in ["Lord", "Castle"]:
+			result.powers.append(source(player_id, view.round, lane, power))
 	return result
 
 
-static func source(player_id: int, round_number: int, lane: String) -> Dictionary:
+static func source(
+	player_id: int,
+	round_number: int,
+	lane: String,
+	power: String = Humbaba.MUSTER,
+	queue_index: int = 0
+) -> Dictionary:
 	return Decl.create(
-		MatchOwner.declaration_id(player_id, round_number, 0),
+		MatchOwner.declaration_id(player_id, round_number, queue_index),
 		player_id,
 		"Humbaba",
-		Humbaba.MUSTER,
+		power,
 		round_number,
-		Humbaba.rules()[Humbaba.MUSTER].fire_hook,
+		Humbaba.rules()[power].fire_hook,
 		round_number,
-		0,
+		queue_index,
 		"public",
 		{"lane": lane},
 		{},

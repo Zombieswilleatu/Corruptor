@@ -120,7 +120,7 @@ u13_check_script() {
     exit 1
   fi
 }
-for u13_dependency in U13EffectData U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13CastleSlots U13Rout U13Structures U13Legality U13Match U13MarchingBuffer U13Marching U13Combat U13Construction U13ConstructionCandidates U13Gremory U13Deimos U13LordStats U13Humbaba U13HumbabaCandidates U13HumbabaScenario U13SmokeSession U13DeimosCandidates U13CoreScenario U13GremoryCandidates U13RandomLegal U13FrequencyTelemetry U13RandomBatch U13BoardSession U13LoadoutBoardSession U13DenseBoardSession; do
+for u13_dependency in U13EffectData U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13CastleSlots U13Rout U13Structures U13Legality U13Match U13MarchingBuffer U13LaneAuras U13Marching U13Combat U13Construction U13ConstructionCandidates U13Gremory U13Deimos U13LordStats U13Humbaba U13HumbabaCandidates U13HumbabaScenario U13SmokeSession U13DeimosCandidates U13CoreScenario U13GremoryCandidates U13RandomLegal U13FrequencyTelemetry U13RandomBatch U13BoardSession U13LoadoutBoardSession U13DenseBoardSession; do
   u13_check_script "res://Scripts/Sim/${u13_dependency}.gd"
 done
 for u13_dependency in U13SmokePlayback U13SmokeBoard U13Smoke U13BoardTextures U13ArtilleryView U13BoardHand U13BoardLanes U13LayoutCard U13PlayerBoard U13BoardHeader U13DomainRow U13ActionZone U13PhasePrompt U13BoardJob U13TutorialPreferences U13TutorialPopup U13LoadoutPicker U13Board U13OrderPreview U13DirectBoard; do
@@ -143,6 +143,8 @@ u13_runners=(
   U13Humbaba
   U13HumbabaIntegration
   U13HumbabaRandom
+  U13LaneAuras
+  U13Breath
   U13CastleLoadout
   U13Rout
   U13Construction
@@ -173,6 +175,8 @@ u13_markers=(
   'U13 Humbaba failures: 0'
   'U13 Humbaba integration failures: 0'
   'U13 Humbaba random failures: 0'
+  'U13 lane auras failures: 0'
+  'U13 Breath of Life failures: 0'
   'U13 Castle loadout failures: 0'
   'U13 Rout failures: 0'
   'U13 Construction failures: 0'
@@ -204,8 +208,8 @@ if [[ $u13_interaction_only == true ]]; then
   u13_markers=('U13 Hunt failures: 0' 'U13 direct board failures: 0')
 fi
 if [[ $u13_humbaba_only == true ]]; then
-  u13_runners=(U13Humbaba U13HumbabaIntegration U13HumbabaRandom U13Hunt U13Deimos U13CastleLoadout)
-  u13_markers=('U13 Humbaba failures: 0' 'U13 Humbaba integration failures: 0' 'U13 Humbaba random failures: 0' 'U13 Hunt failures: 0' 'U13 Deimos failures: 0' 'U13 Castle loadout failures: 0')
+  u13_runners=(U13LaneAuras U13Breath U13Humbaba U13HumbabaIntegration U13HumbabaRandom U13Rout U13SpatialMarching U13Hunt U13Deimos U13CastleLoadout)
+  u13_markers=('U13 lane auras failures: 0' 'U13 Breath of Life failures: 0' 'U13 Humbaba failures: 0' 'U13 Humbaba integration failures: 0' 'U13 Humbaba random failures: 0' 'U13 Rout failures: 0' 'U13 spatial Marching failures: 0' 'U13 Hunt failures: 0' 'U13 Deimos failures: 0' 'U13 Castle loadout failures: 0')
 fi
 u13_failed=0
 for u13_index in "${!u13_runners[@]}"; do
