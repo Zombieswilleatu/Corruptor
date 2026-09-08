@@ -91,17 +91,20 @@ cross-Lord reactions; the timeline and pending-effect ordering are unchanged.
 
 ## Construction clarification
 
-After the first local Deimos runner attempt, the user clarified:
+The user clarified the earlier shorthand explicitly:
 
-> btw yes, passive contruction continues with a const token.
+> i did mean any construction btw. you can spend whatever and still get the passive bonus.
 
-Carry forward passive Construction continuing with a Construction token. This
-supersedes treating the earlier Repair-pauses-progress proposal as an approved
-rule. The token's application/consumption and the rate/completion details still
-need to be mapped to the ordinary Construction action before War Foundry can
-execute it. Do not implement the prior proposed action model by inference.
-The current adapter continues to reject Construction submissions; the eligibility
-check grants no free progress.
+Any Construction receives its passive bonus regardless of the spending choice.
+A Construction token is not a prerequisite for that bonus. Do not implement a
+special token-only passive path or make the bonus disappear for another permitted
+Construction payment. This supersedes the prior interpretation of “with a const
+token.” It specifies Construction behavior; do not extrapolate it into progress
+on a round with no Construction action. The tick rate and completion threshold
+must still be pinned when implementing the ordinary action.
+
+Actual Construction/Reconstruction remains outside this artillery slice; the
+War Foundry eligibility check itself grants no free progress.
 
 ## Local parser correction
 
@@ -144,3 +147,32 @@ Fear Aura events and personal Tears by source. No win rates are produced.
 Implementation-environment checks cover grammar, Bash syntax and simulated
 launcher sequencing/error handling. No Godot executable is available here;
 Godot 4.7.2 compiler and runtime verification remains local and pending.
+
+
+## Local mixed-batch acceptance
+
+The user supplied `u13_random_mixed.json` after the parser-helper fix. The Godot
+4.7.2 report contains four seeds, six rounds each, all marked replay-verified, no
+pending effects at the limits, and 200 Marching ticks in each of 24 measured rounds.
+The summary density histograms agree with the per-round records.
+
+Observed coverage:
+
+- Eight Castle destructions and eight Gremory Sifting events.
+- Five Fear Aura events; Spoils produced three personal Tears and one extra
+  Neutral Tear across the batch.
+- War Machine: 13 declarations/resolutions and 12 actual extra shots. The one
+  no-shot activation is seed `u13-frequency-v1:1`, round six. This is consistent
+  with the explicit successful no-target path; the frequency report does not
+  retain that event separately, so do not call resolutions and shots synonymous.
+- Deimos spawned 16 Marchers; Gremory spawned 50. Both spawned in ten rounds.
+  Start density mean 8.5, range 3–14; end density mean 7.25, range 3–13.
+- Gremory reached five Lord-lane waiters in seed `u13-frequency-v1:2`, rounds
+  four through six: one sustained occurrence across three rounds, not three
+  independent threshold discoveries. The count persisted for 402 fixed ticks.
+
+These results accept the mixed-batch measurement/replay path. They do not complete
+Construction, Rout, full-game economy, or balance validation. The opening has
+prebuilt structures and lacks normal round draws, so its frequencies retain that
+scope. This documentation update changes no runtime behavior and needs no test
+rerun by itself.
