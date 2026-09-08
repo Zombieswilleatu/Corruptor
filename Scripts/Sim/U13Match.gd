@@ -347,6 +347,7 @@ func restore(raw: Dictionary) -> Dictionary:
 func _accept(player_id: int, declarations: Array, combat_order: Dictionary = {}) -> Dictionary:
 	if not Data.is_data(declarations) or not Data.is_data(combat_order):
 		return Data.invalid("submission_data_invalid")
+	var seen_powers: Dictionary = {}
 	for index in range(declarations.size()):
 		var source: Dictionary = Data.declaration_copy(declarations[index])
 		if (
@@ -359,9 +360,13 @@ func _accept(player_id: int, declarations: Array, combat_order: Dictionary = {})
 		if not _rules.has(source.power_id):
 			return Data.invalid("unknown_power")
 		var rule: Dictionary = _rules[source.power_id]
-		for active in _persistent.snapshot().active:
-			if active.declaration.player_id == player_id and active.effect_key == source.power_id:
-				return Data.invalid("persistent_power_already_active")
+		if seen_powers.has(source.power_id):
+			return Data.invalid("duplicate_power_in_submission")
+		seen_powers[source.power_id] = true
+		var active_rows: Array = _persistent.snapshot().active
+		var active: Dictionary = Legality.active_for(source, active_rows)
+		if not active.is_empty() and not rule.get("persistent_relocatable", false):
+			return Data.invalid("persistent_power_already_active")
 		# Both players choose against the presented round state. Only this
 		# player's staged resource budget changes across its own queue.
 		var legality_world: Dictionary = _presentation_world.duplicate(true)
@@ -375,7 +380,8 @@ func _accept(player_id: int, declarations: Array, combat_order: Dictionary = {})
 			_runtime.round_number,
 			_cooldowns,
 			_entities,
-			_validators[source.power_id]
+			_validators[source.power_id],
+			active_rows
 		)
 		if checked.action == "invalid":
 			return checked
@@ -400,7 +406,11 @@ func _accept(player_id: int, declarations: Array, combat_order: Dictionary = {})
 				source
 			)
 		var registered: Dictionary
-		if rule.cooldown_on == "expiration":
+		if not active.is_empty():
+			# Relocation reserves a new pending declaration, never a new lifetime
+			# or clock. The existing expiration lock stays bound to its instance.
+			registered = {"action": "relocation_reserved", "events": []}
+		elif rule.cooldown_on == "expiration":
 			registered = _cooldowns.wait_for_expiration(
 				source,
 				rule.cooldown_rounds,
@@ -414,7 +424,10 @@ func _accept(player_id: int, declarations: Array, combat_order: Dictionary = {})
 			_world.players[player_id].resources[resource] = (
 				_world.players[player_id].resources.get(resource, 0) - rule.cost[resource]
 			)
-		var scheduled: Dictionary = _pending.schedule(source)
+		var payload: Dictionary = (
+			{} if active.is_empty() else {"relocate_effect_id": active.effect_id}
+		)
+		var scheduled: Dictionary = _pending.schedule(source, "main", payload)
 		if scheduled.action == "invalid":
 			return scheduled
 		var record: Dictionary = Data.make_record("pending", source, "main", {}, {})
@@ -496,7 +509,7 @@ func _dispatch(_context: Dictionary) -> Dictionary:
 		}
 		# Aura consumers read the authoritative registry, never a second lifetime
 		# mirror in world state. Existing profiles pay no additional copy cost.
-		if _world.data.has("lane_aura_profile"):
+		if _world.data.has("lane_aura_profile") or _world.data.has("hazard_profile"):
 			context["persistent_effects"] = _persistent.snapshot().active
 		transformed = _context_hook.call(context)
 	else:
@@ -514,11 +527,18 @@ func _resolve(record: Dictionary) -> Dictionary:
 	if not _rules.has(source.power_id):
 		return Data.invalid("resolver_power_missing")
 	var rule: Dictionary = _rules[source.power_id]
+	var relocation_id: String = String(record.payload.get("relocate_effect_id", ""))
+	if not relocation_id.is_empty() and _persistent.get_effect(relocation_id).is_empty():
+		return {"action": "fizzle", "reason": "relocation_effect_expired"}
 	var checked: Dictionary = Legality.firing(
-		source, rule, _world, _entities, _validators[source.power_id]
+		source, rule, _world, _entities, _validators[source.power_id], _persistent.snapshot().active
 	)
 	if checked.action == "fizzle":
-		if record.effect_key == "main" and rule.cooldown_on == "expiration":
+		if (
+			record.effect_key == "main"
+			and rule.cooldown_on == "expiration"
+			and relocation_id.is_empty()
+		):
 			var clock: Dictionary = _cooldowns.fizzle_waiting(source, _runtime.round_number)
 			if clock.action == "invalid":
 				return clock
@@ -534,11 +554,28 @@ func _resolve(record: Dictionary) -> Dictionary:
 		"rng_version": Rng.VERSION,
 		"player_order": _order.duplicate()
 	}
+	if rule.get("persistent_context", false):
+		context["persistent_effects"] = _persistent.snapshot().active
 	var transformed = _resolvers[source.power_id].call(record.duplicate(true), context)
 	var applied: Dictionary = _apply_transform(transformed, source)
 	if applied.action == "invalid":
 		return applied
-	if record.effect_key == "main" and not rule.stages.is_empty():
+	if not relocation_id.is_empty():
+		var relocated: Dictionary = _persistent.relocate(relocation_id, source.target)
+		if relocated.action == "invalid":
+			return relocated
+		var payload: Dictionary = relocated.effect.payload
+		payload["last_relocation"] = source.duplicate(true)
+		_persistent.set_payload(relocation_id, payload)
+		_record(
+			Data.event(
+				"PERSISTENT_EFFECT_RELOCATED",
+				relocated.effect,
+				{"target": source.target, "round": _runtime.round_number}
+			),
+			source
+		)
+	elif record.effect_key == "main" and not rule.stages.is_empty():
 		var lifetime_payload = transformed.get("persistent_payload", {})
 		if typeof(lifetime_payload) != TYPE_DICTIONARY:
 			return Data.invalid("persistent_payload_invalid")
@@ -584,15 +621,19 @@ func _apply_transform(result, source: Dictionary = {}) -> Dictionary:
 		if entity_id not in installed_ids.used_ids:
 			return Data.invalid("entity_history_rewritten")
 	for event in result.events:
-		if source.is_empty():
-			# Ordinary-hook events must supply explicit views; no default leak.
+		if source.is_empty() or (typeof(event) == TYPE_DICTIONARY and event.has("views")):
+			# Reactions to public powers can contain private draws. Keep their
+			# explicit per-player views; public power != public reaction payload.
 			if (
 				typeof(event) != TYPE_DICTIONARY
 				or typeof(event.get("event")) != TYPE_DICTIONARY
 				or typeof(event.get("views")) != TYPE_ARRAY
 			):
 				return Data.invalid("transform_event_views_required")
-			if _events.append(event.event, event.views).action == "invalid":
+			var views: Array = event.views
+			if not source.is_empty() and source.get("visibility") != "public":
+				views = [null, null]
+			if _events.append(event.event, views).action == "invalid":
 				return Data.invalid("transform_event_invalid")
 		else:
 			if not EventLog._valid_event(event):
@@ -686,6 +727,8 @@ func _consistent() -> bool:
 					),
 					"cooldown_locks":
 					_cooldowns.snapshot().locks if _world.data.has("lane_aura_profile") else [],
+					"pending_effects":
+					_pending.snapshot().pending if _world.data.has("hazard_profile") else [],
 					"world": _world.duplicate(true)
 				}
 			)
@@ -721,6 +764,18 @@ func _consistent() -> bool:
 	for row in pending_rows + persistent_rows + _cooldowns.snapshot().locks:
 		if not _source_matches_rule(row.declaration) or row.declaration.declared_round > current:
 			return false
+	for row in pending_rows:
+		if row.payload.has("relocate_effect_id"):
+			var active: Dictionary = _persistent.get_effect(String(row.payload.relocate_effect_id))
+			if (
+				not _rules[row.declaration.power_id].get("persistent_relocatable", false)
+				or active.is_empty()
+				or active.effect_key != row.declaration.power_id
+				or active.declaration.player_id != row.declaration.player_id
+				or row.payload.size() != 1
+				or row.fire_round >= active.activated_round + active.stages.size()
+			):
+				return false
 	for clock in _cooldowns.snapshot().locks:
 		if clock.phase == Cooldowns.WAITING:
 			var bound: bool = false

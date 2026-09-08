@@ -47,6 +47,15 @@ static func validate_rule(rule: Dictionary) -> bool:
 			return false
 	if rule.cooldown_on == "expiration" and rule.stages.is_empty():
 		return false
+	if typeof(rule.get("persistent_relocatable", false)) != TYPE_BOOL:
+		return false
+	if typeof(rule.get("persistent_context", false)) != TYPE_BOOL:
+		return false
+	if (
+		rule.get("persistent_relocatable", false)
+		and (rule.cooldown_on != "expiration" or rule.delay_rounds < 1)
+	):
+		return false
 	return true
 
 
@@ -73,7 +82,8 @@ static func declaration(
 	round_number: int,
 	cooldowns,
 	entities,
-	extra: Callable
+	extra: Callable,
+	active_effects: Array = []
 ) -> Dictionary:
 	var source: Dictionary = Data.declaration_copy(raw)
 	if source.is_empty() or not validate_rule(rule):
@@ -94,7 +104,21 @@ static func declaration(
 		or not lord.attributes.get("alive", false)
 	):
 		return Data.invalid("source_unavailable")
-	if not cooldowns.is_ready(source.player_id, source.lord_id, source.power_id):
+	var relocating: bool = false
+	if rule.get("persistent_relocatable", false):
+		var active: Dictionary = active_for(source, active_effects)
+		var clock: Dictionary = cooldowns.get_state(
+			source.player_id, source.lord_id, source.power_id
+		)
+		relocating = (
+			not active.is_empty()
+			and clock.get("phase") == "awaiting_expiration"
+			and clock.get("persistent_effect_id") == active.effect_id
+			and fire_round < active.activated_round + active.stages.size()
+		)
+		if not active.is_empty() and not relocating:
+			return Data.invalid("persistent_relocation_not_ready")
+	if not relocating and not cooldowns.is_ready(source.player_id, source.lord_id, source.power_id):
 		return Data.invalid("power_not_ready")
 	for resource in rule.cost:
 		if player.resources.get(resource, 0) < rule.cost[resource]:
@@ -102,20 +126,45 @@ static func declaration(
 	var target_result: Dictionary = _target(source, rule, entities)
 	if target_result.action == "invalid":
 		return target_result
-	return _extra(source, world, "declaration", extra)
+	return _extra(source, _with_effects(world, rule, active_effects), "declaration", extra)
 
 
 static func firing(
-	source: Dictionary, rule: Dictionary, world: Dictionary, entities, extra: Callable
+	source: Dictionary,
+	rule: Dictionary,
+	world: Dictionary,
+	entities,
+	extra: Callable,
+	active_effects: Array = []
 ) -> Dictionary:
 	# No alive/cost/cooldown recheck: an armed power survives source Banishment.
 	var target_result: Dictionary = _target(source, rule, entities)
 	if target_result.action == "invalid":
 		return {"action": "fizzle", "reason": target_result.reason}
-	var checked: Dictionary = _extra(source, world, "firing", extra)
+	var checked: Dictionary = _extra(
+		source, _with_effects(world, rule, active_effects), "firing", extra
+	)
 	if checked.action == "invalid" and checked.reason == "rule_rejected":
 		return {"action": "fizzle", "reason": checked.detail}
 	return checked
+
+
+static func active_for(source: Dictionary, effects: Array) -> Dictionary:
+	for active in effects:
+		if (
+			active.declaration.player_id == source.player_id
+			and active.effect_key == source.power_id
+		):
+			return active
+	return {}
+
+
+static func _with_effects(world: Dictionary, rule: Dictionary, effects: Array) -> Dictionary:
+	if not rule.get("persistent_context", false):
+		return world
+	var context: Dictionary = world.duplicate(true)
+	context["persistent_effects"] = effects.duplicate(true)
+	return context
 
 
 static func _target(source: Dictionary, rule: Dictionary, entities) -> Dictionary:

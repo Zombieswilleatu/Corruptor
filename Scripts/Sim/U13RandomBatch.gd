@@ -17,6 +17,8 @@ const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
 const Rout = preload("res://Scripts/Sim/U13Rout.gd")
 const Humbaba = preload("res://Scripts/Sim/U13Humbaba.gd")
 const HumbabaScenario = preload("res://Scripts/Sim/U13HumbabaScenario.gd")
+const Kalligan = preload("res://Scripts/Sim/U13Kalligan.gd")
+const KalliganScenario = preload("res://Scripts/Sim/U13KalliganScenario.gd")
 const VERSION: String = "U13_RANDOM_BATCH_V1"
 
 
@@ -31,7 +33,10 @@ static func trial(
 		seed_value.is_empty()
 		or round_limit < 1
 		or round_limit > 100
-		or roster_mode not in ["gremory", "deimos", "mixed", "construction", "loadout", "humbaba"]
+		or (
+			roster_mode
+			not in ["gremory", "deimos", "mixed", "construction", "loadout", "humbaba", "kalligan"]
+		)
 	):
 		return Data.invalid("batch_limits_invalid")
 	var content = (
@@ -47,6 +52,9 @@ static func trial(
 	if roster_mode == "humbaba":
 		content = Humbaba.new()
 		roster = ["Humbaba", "Gremory"]
+	if roster_mode == "kalligan":
+		content = Kalligan.new()
+		roster = ["Kalligan", "Gremory"]
 	var owner = content.create_combat_match()
 	var opening: Dictionary = (
 		Opening._initial_world()
@@ -67,6 +75,9 @@ static func trial(
 	if roster_mode == "humbaba":
 		opening = HumbabaScenario.world()
 		provider = Callable(HumbabaScenario, "enumerate")
+	if roster_mode == "kalligan":
+		opening = KalliganScenario.world()
+		provider = Callable(KalliganScenario, "enumerate")
 	var started: Dictionary = owner.start(seed_value, opening, [0, 1])
 	if started.action == "invalid":
 		return started
@@ -173,27 +184,33 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 		"castle_policy":
 		(
 			Bot.CASTLE_POLICY
-			if trials[0].roster_mode in ["construction", "loadout", "humbaba"]
+			if trials[0].roster_mode in ["construction", "loadout", "humbaba", "kalligan"]
 			else null
 		),
 		"construction_profile":
 		(
 			Construction.VERSION
-			if trials[0].roster_mode in ["construction", "loadout", "humbaba"]
+			if trials[0].roster_mode in ["construction", "loadout", "humbaba", "kalligan"]
 			else null
 		),
-		"humbaba_profile": Humbaba.POLICY if trials[0].roster_mode == "humbaba" else null,
+		"humbaba_profile":
+		Humbaba.POLICY if trials[0].roster_mode in ["humbaba", "kalligan"] else null,
+		"kalligan_profile": Kalligan.POLICY if trials[0].roster_mode == "kalligan" else null,
+		"hazard_profile": Kalligan.Hazards.VERSION if trials[0].roster_mode == "kalligan" else null,
 		"roster": trials[0].roster,
 		"combat_profile":
 		Combat.VERSION if trials[0].roster_mode == "gremory" else Structures.PROFILE,
 		"marching_model": Marching.VERSION,
 		"castle_slot_profile":
-		Slots.VERSION if trials[0].roster_mode in ["loadout", "humbaba"] else null,
+		Slots.VERSION if trials[0].roster_mode in ["loadout", "humbaba", "kalligan"] else null,
 		"rout_profile": Rout.VERSION if trials[0].roster_mode != "gremory" else null,
 		"opening":
 		(
-			"Humbaba/Gremory rules fixture: five slots per player, Keep at 8 and Bastion at 3 exposed, three unbuilt Castles; exercise cards/resources, Hunt enabled"
-			if trials[0].roster_mode == "humbaba"
+			(
+				"%s/Gremory rules fixture: five slots per player, Keep at 8 and Bastion at 3 exposed, three unbuilt Castles; exercise cards/resources, Hunt enabled"
+				% ("Kalligan" if trials[0].roster_mode == "kalligan" else "Humbaba")
+			)
+			if trials[0].roster_mode in ["humbaba", "kalligan"]
 			else (
 				"Loadout fixture: two commissioned Engines at 21/21 and three unbuilt Castles per side; one shared Castle Guard zone per side; starting economy is an exercise fixture"
 				if trials[0].roster_mode == "loadout"
@@ -202,7 +219,10 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 					if trials[0].roster_mode == "gremory"
 					else (
 						"Construction fixture: same cards/guards and damaged active plain Castles; ruined Deimos Engine, unbuilt Gremory Engine, two Repair tokens per side; protected builds require manual activation"
-						if trials[0].roster_mode in ["construction", "loadout", "humbaba"]
+						if (
+							trials[0].roster_mode
+							in ["construction", "loadout", "humbaba", "kalligan"]
+						)
 						else "U13CoreScenario: same cards/guards; one plain Castle at 8/21 and one prebuilt Siege Engine at 12/21 per player; empty Breach"
 					)
 				)
@@ -213,11 +233,11 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 		[
 			(
 				"Other Development actions"
-				if trials[0].roster_mode in ["construction", "loadout", "humbaba"]
+				if trials[0].roster_mode in ["construction", "loadout", "humbaba", "kalligan"]
 				else "Development"
 			),
 			"normal round draws",
-			"Breath of Life" if trials[0].roster_mode == "humbaba" else "Hunt",
+			"Breath of Life" if trials[0].roster_mode in ["humbaba", "kalligan"] else "Hunt",
 			"victory",
 			(
 				"personal Tear/Veil progression"
@@ -226,7 +246,7 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 			),
 			(
 				"Guard deployment/Summon/Profane"
-				if trials[0].roster_mode in ["construction", "loadout", "humbaba"]
+				if trials[0].roster_mode in ["construction", "loadout", "humbaba", "kalligan"]
 				else "Construction/Reconstruction"
 			),
 			"non-artillery Castle printed powers",
@@ -244,7 +264,7 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 			"castle_choice":
 			(
 				"uniform legal Construct/Repair/Activate action, then uniform legal target/payment; filtered against the selected power before combat selection"
-				if trials[0].roster_mode in ["construction", "loadout", "humbaba"]
+				if trials[0].roster_mode in ["construction", "loadout", "humbaba", "kalligan"]
 				else null
 			)
 		},

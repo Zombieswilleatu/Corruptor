@@ -31,6 +31,8 @@ func begin(round_number: int, view: Dictionary) -> void:
 		"rout": {},
 		"endurance": {},
 		"stones_forget": {},
+		"hazards": {},
+		"automatic_repairs": {},
 		"castle_actions": {},
 		"activation_integrity": [],
 		"personal_tears_by_source": {},
@@ -112,6 +114,19 @@ func consume(events: Array) -> void:
 					_increment(_row.castle_actions, str(data.player_id) + ":reconstructions")
 				if event.type == "CONSTRUCTION_PROGRESS" and data.complete:
 					_increment(_row.castle_actions, str(data.player_id) + ":builds_completed")
+			"HAZARD_PULSED":
+				var key: String = (
+					"%d:%s:%s:%s"
+					% [int(data.player_id), data.target.kind, data.target.lane, data.hook]
+				)
+				_increment(_row.hazards, key + ":pulses")
+				_increment(_row.hazards, key + ":affected", data.affected_ids.size())
+			"FORGE_REPAIR", "RAPID_CONSTRUCTION":
+				_increment(
+					_row.automatic_repairs,
+					"%d:%s" % [int(data.player_id), event.type],
+					int(data.after) - int(data.before)
+				)
 			"ENDURANCE_CHECKED":
 				var key: String = str(data.player_id)
 				if not _row.endurance.has(key):
@@ -202,9 +217,15 @@ static func summarize(rows: Array) -> Dictionary:
 	var rout: Dictionary = {}
 	var endurance: Dictionary = {}
 	var stones: Dictionary = {}
+	var hazards: Dictionary = {}
+	var repairs: Dictionary = {}
 	var activation_integrity: Array = []
 	var personal: Dictionary = {}
 	for row in rows:
+		for key in row.get("hazards", {}):
+			_increment(hazards, key, row.hazards[key])
+		for key in row.get("automatic_repairs", {}):
+			_increment(repairs, key, row.automatic_repairs[key])
 		for key in row.get("stones_forget", {}):
 			_increment(stones, key, row.stones_forget[key])
 		for key in row.get("endurance", {}):
@@ -269,6 +290,8 @@ static func summarize(rows: Array) -> Dictionary:
 		"rout": rout,
 		"endurance": endurance,
 		"stones_forget": stones,
+		"hazards": hazards,
+		"automatic_repairs": repairs,
 		"castle_actions": castle_actions,
 		"activation_integrity": distribution(activation_integrity),
 		"personal_tears_by_source": personal,

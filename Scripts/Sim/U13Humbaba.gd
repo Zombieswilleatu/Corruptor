@@ -88,7 +88,9 @@ static func rules() -> Dictionary:
 	return result
 
 
-func valid_world(world: Dictionary) -> bool:
+func valid_world(world: Dictionary, allow_kalligan: bool = false) -> bool:
+	if world.data.has("kalligan_profile") and not allow_kalligan:
+		return false
 	if (
 		world.data.get("humbaba_profile") != POLICY
 		or not LaneAuras.enabled(world)

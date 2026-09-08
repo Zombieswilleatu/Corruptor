@@ -1,6 +1,7 @@
 extends RefCounted
 
 const HUMBABA_PROFILE: String = "U13_HUMBABA_BREATH_V2"
+const KALLIGAN_PROFILE: String = "U13_KALLIGAN_FIRE_V1"
 
 
 # Absence is distinct from zero, including the zero threshold. Callers must
