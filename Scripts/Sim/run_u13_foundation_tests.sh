@@ -57,18 +57,31 @@ u13_run_godot() {
   return "$u13_exit"
 }
 
-# Check the shared helper directly so Godot reports its actual parse location,
-# instead of burying the root cause under dependent preload/compile failures.
-printf 'Checking U13EffectData.gd with Godot before running suites...\n'
-u13_preflight_log="$u13_test_logs/preflight.log"
+# Reject accidental runs with the old 4.2 executable. Accept mono/non-mono
+# builds of the pinned stable runtime, while retaining its full version output.
+u13_version_log="$u13_test_logs/version.log"
 u13_status=0
-u13_run_godot "$u13_preflight_log" --check-only \
-  --script res://Scripts/Sim/U13EffectData.gd || u13_status=$?
-cat -- "$u13_preflight_log"
-if [[ $u13_status -ne 0 ]] || grep -Eq -- 'SCRIPT ERROR:|ERROR:' "$u13_preflight_log"; then
-  printf 'FAILED PREFLIGHT: U13EffectData (exit %s). Suites were not started.\n' "$u13_status" >&2
+u13_run_godot "$u13_version_log" --version || u13_status=$?
+cat -- "$u13_version_log"
+if [[ $u13_status -ne 0 ]] || ! grep -Eq -- '^4\.7\.2\.stable([.[:space:]]|$)' "$u13_version_log"; then
+  printf 'U13 requires Godot 4.7.2 stable. Pass the 4.7.2 executable to this wrapper.\n' >&2
   exit 1
 fi
+
+# Check dependencies directly so the compiler can report the actual source file.
+# Godot 4.7.2 is the authoritative U13 runtime; this wrapper is not a migration test.
+for u13_dependency in U13EffectData U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13Legality U13Match; do
+  printf 'Checking %s.gd with Godot before running suites...\n' "$u13_dependency"
+  u13_preflight_log="$u13_test_logs/preflight.log"
+  u13_status=0
+  u13_run_godot "$u13_preflight_log" --check-only \
+    --script "res://Scripts/Sim/${u13_dependency}.gd" || u13_status=$?
+  cat -- "$u13_preflight_log"
+  if [[ $u13_status -ne 0 ]] || grep -Eq -- 'SCRIPT ERROR:|ERROR:' "$u13_preflight_log"; then
+    printf 'FAILED PREFLIGHT: %s (exit %s). Suites were not started.\n' "$u13_dependency" "$u13_status" >&2
+    exit 1
+  fi
+done
 
 u13_runners=(
   U13RoundTimeline
@@ -77,6 +90,9 @@ u13_runners=(
   U13PendingEffects
   U13PersistentEffects
   U13EffectsIntegration
+  U13Cooldowns
+  U13Determinism
+  U13Match
 )
 u13_markers=(
   'U13 round timeline failures: 0'
@@ -85,6 +101,9 @@ u13_markers=(
   'U13 pending effects failures: 0'
   'U13 persistent effects failures: 0'
   'U13 effects integration failures: 0'
+  'U13 cooldowns failures: 0'
+  'U13 determinism and identity failures: 0'
+  'U13 match foundation failures: 0'
 )
 u13_failed=0
 for u13_index in "${!u13_runners[@]}"; do
