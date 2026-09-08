@@ -79,6 +79,7 @@ func _run(candidate, operation: String, powers: Array, order: Dictionary) -> Dic
 		"operation": operation,
 		"session": candidate,
 		"playback": playback,
+		"artillery_events": candidate.artillery_events() if operation == "marching" else [],
 		"presented":
 		result.before_marching if result.has("before_marching") else candidate.board_view(),
 		"worker_ms": float(Time.get_ticks_usec() - started) / 1000.0

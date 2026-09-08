@@ -56,6 +56,8 @@ var rout_button: Button
 var war_state: Label
 var rout_state: Label
 var session = Session.new()
+const ArtilleryView = preload("res://Prototype/U13/U13ArtilleryView.gd")
+var artillery_view
 var playback = Playback.new()
 var dense_mode: bool = false
 var dense_button: Button
@@ -142,6 +144,7 @@ func restart() -> void:
 	if not _runtime_ok:
 		return
 	playing = false
+	artillery_view.clear()
 	castle_plan = {}
 	clock = 0
 	queued = []
@@ -158,6 +161,8 @@ func restart() -> void:
 
 
 func _build() -> void:
+	artillery_view = ArtilleryView.new()
+	add_child(artillery_view)
 	var background := ColorRect.new()
 	background.color = Color.BLACK
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -597,6 +602,10 @@ func _process(delta: float) -> void:
 		return
 	if not playing:
 		return
+	if artillery_view.advance(delta):
+		_busy_label.text = "Siege Engine fire…"
+		return
+	_busy_label.text = ""
 	clock = minf(playback.duration, clock + maxf(delta, 0.0))
 	lanes.show_frame(playback.sample(clock), session.round_number())
 	if clock >= playback.duration:
@@ -628,6 +637,7 @@ func _complete_job() -> void:
 		clock = 0.0
 		playing = true
 		_refresh(result.presented)
+		artillery_view.play_shots(result.get("artillery_events", []), sides)
 		lanes.show_frame(playback.sample(0), session.round_number())
 	elif result.operation == "aftermath":
 		_refresh(result.presented)
@@ -654,6 +664,7 @@ func _complete_job() -> void:
 func finish_playback() -> void:
 	if not playing or _job != null:
 		return
+	artillery_view.clear()
 	# Skip goes to the actual final picture, never leaves a half-played field.
 	clock = playback.duration
 	lanes.show_frame(playback.sample(clock), session.round_number())

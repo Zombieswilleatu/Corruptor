@@ -52,6 +52,16 @@ func _run() -> void:
 		await process_frame
 		_finish()
 		return
+	for row in board.sides:
+		for guard in row.castle_guard_box.get_children().slice(0, 2):
+			var border: StyleBoxFlat = guard.get_theme_stylebox("panel") as StyleBoxFlat
+			_check(
+				(
+					border.border_width_left == 3
+					and border.border_color == Color(0.90, 0.72, 0.20, 1.0)
+				),
+				"direct_guard_preserves_wright_outline"
+			)
 	var initial: Dictionary = board.session.checkpoint()
 	var hand: Array = board.session.board_view().world.hand
 	var enemy_castle: Dictionary = board._entity_target(Slots.castle_id(1, 0))
@@ -343,6 +353,10 @@ func _run() -> void:
 		# The installed presentation is before Marching and includes Development.
 		_check(castle.attributes.integrity == 3, "direct_free_construction_resolves")
 		_check(board.session.plans().powers.size() == 1, "direct_selected_lane_power_submitted")
+		_check(
+			board.artillery_view.active() and board.clock == 0.0,
+			"direct_artillery_plays_before_marching_clock"
+		)
 	board.queue_free()
 	await process_frame
 	_finish()

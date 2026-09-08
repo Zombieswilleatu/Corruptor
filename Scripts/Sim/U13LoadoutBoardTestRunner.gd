@@ -158,7 +158,59 @@ func _run() -> void:
 			board.session.power_status(Deimos.ROUT).awaiting_expiration,
 			"loadout_rout_not_ready_during_lifetime"
 		)
+		var artillery: Array = board.session.artillery_events()
+		var paired: Array = []
+		for event in artillery:
+			if event.data.engine_id == Slots.castle_id(0, 0):
+				paired.append(event.data)
+		_check(paired.size() == 2, "loadout_war_machine_and_normal_fire_captured_once")
+		_check(
+			board.artillery_view._shots.size() == artillery.size(),
+			"loadout_worker_preserves_full_artillery_tape"
+		)
+		var authority: Dictionary = board.session.checkpoint()
+		var fx = board.artillery_view
+		fx.advance(0.0)
+		_check(
+			fx._index == 0 and fx._bolt.visible and not fx._blast.visible,
+			"loadout_artillery_first_shot_only"
+		)
+		fx.advance(fx.FLIGHT_SECONDS + 0.01)
+		_check(
+			fx._index == 0 and not fx._bolt.visible and fx._blast.visible,
+			"loadout_artillery_waits_for_impact_before_next_shot"
+		)
+		fx.advance(fx.IMPACT_SECONDS + 0.06)
+		fx.advance(0.0)
+		_check(
+			fx._index == 1 and fx._bolt.visible and not fx._blast.visible,
+			"loadout_artillery_next_shot_is_sequential"
+		)
+		if paired.size() == 2:
+			var from_rect := Rect2(100, 600, 124, 180)
+			var to_rect := Rect2(100, 100, 124, 180)
+			var first_path: Dictionary = fx.path_for(paired[0], from_rect, to_rect)
+			var second_path: Dictionary = fx.path_for(paired[1], from_rect, to_rect)
+			_check(
+				(
+					first_path != second_path
+					and first_path == fx.path_for(paired[0], from_rect, to_rect)
+				),
+				"loadout_artillery_variation_is_repeatable_per_shot"
+			)
+			_check(
+				to_rect.has_point(first_path.end) and to_rect.has_point(second_path.end),
+				"loadout_artillery_variation_hits_selected_castle"
+			)
+		_check(
+			board.session.checkpoint() == authority,
+			"loadout_artillery_playback_does_not_mutate_match"
+		)
 		board.finish_playback()
+		_check(
+			not fx.active() and not fx._bolt.visible and not fx._blast.visible,
+			"loadout_skip_clears_artillery"
+		)
 		await _wait_job(board)
 		var restored = Session.new()
 		var checkpoint: Dictionary = board.session.checkpoint()

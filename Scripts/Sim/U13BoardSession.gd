@@ -4,6 +4,7 @@ extends "res://Scripts/Sim/U13SmokeSession.gd"
 # The board has manual submissions; inherited methods only drive the U13 owner.
 const RandomLegal = preload("res://Scripts/Sim/U13RandomLegal.gd")
 const Candidates = preload("res://Scripts/Sim/U13GremoryCandidates.gd")
+var _artillery_events: Array = []
 var _powers: Array = []
 var _order: Dictionary = {}
 var _opponent: Dictionary = {}
@@ -113,3 +114,23 @@ func _fork_for_job():
 	candidate._order = _order.duplicate(true)
 	candidate._opponent = _opponent.duplicate(true)
 	return candidate
+
+
+func run_to_marching() -> Dictionary:
+	_artillery_events = []
+	return super.run_to_marching()
+
+
+func step() -> Dictionary:
+	var capture: bool = next_hook() == Timeline.POST_REPAIR_ARTILLERY
+	var cursor: int = _owner._event_cursor() if capture else 0
+	var result: Dictionary = super.step()
+	if capture and result.action != "invalid":
+		for event in _owner._player_events_since(0, cursor):
+			if event.type == "ARTILLERY_FIRED":
+				_artillery_events.append(event)
+	return result
+
+
+func artillery_events() -> Array:
+	return _artillery_events.duplicate(true)

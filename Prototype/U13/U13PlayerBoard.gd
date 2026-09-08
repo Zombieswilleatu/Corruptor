@@ -407,6 +407,7 @@ func bind_world(world: Dictionary, pid: int, planning: bool) -> void:
 			if guard.is_empty():
 				card.bind_art(null, "", "Empty Guard slot")
 			else:
+				card.bind_suit(guard.attributes.suit)
 				card.bind_art(
 					Textures.texture_for(guard.attributes.suit, guard.attributes.value),
 					"",

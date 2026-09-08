@@ -1,6 +1,7 @@
 extends PanelContainer
 
 const Preview = preload("res://Prototype/UI2/SubjectCardHoldPreview.gd")
+const SuitStyle = preload("res://Prototype/UI2/SubjectSuitStyle.gd")
 var art: TextureRect
 var caption: Label
 var input_surface: Button
@@ -46,3 +47,7 @@ func bind_art(texture: Texture2D, label: String, help: String, enabled: bool = t
 	caption.text = label
 	input_surface.tooltip_text = help
 	preview.set_texture(texture)
+
+
+func bind_suit(suit: String) -> void:
+	add_theme_stylebox_override("panel", SuitStyle.card_style(suit, Color("111113"), 3))

@@ -119,7 +119,7 @@ u13_check_script() {
 for u13_dependency in U13EffectData U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13CastleSlots U13Rout U13Structures U13Legality U13Match U13MarchingBuffer U13Marching U13Combat U13Construction U13ConstructionCandidates U13Gremory U13Deimos U13SmokeSession U13DeimosCandidates U13CoreScenario U13GremoryCandidates U13RandomLegal U13FrequencyTelemetry U13RandomBatch U13BoardSession U13LoadoutBoardSession U13DenseBoardSession; do
   u13_check_script "res://Scripts/Sim/${u13_dependency}.gd"
 done
-for u13_dependency in U13SmokePlayback U13SmokeBoard U13Smoke U13BoardTextures U13BoardHand U13BoardLanes U13LayoutCard U13PlayerBoard U13BoardHeader U13DomainRow U13ActionZone U13PhasePrompt U13BoardJob U13TutorialPreferences U13TutorialPopup U13LoadoutPicker U13Board U13OrderPreview U13DirectBoard; do
+for u13_dependency in U13SmokePlayback U13SmokeBoard U13Smoke U13BoardTextures U13ArtilleryView U13BoardHand U13BoardLanes U13LayoutCard U13PlayerBoard U13BoardHeader U13DomainRow U13ActionZone U13PhasePrompt U13BoardJob U13TutorialPreferences U13TutorialPopup U13LoadoutPicker U13Board U13OrderPreview U13DirectBoard; do
   u13_check_script "res://Prototype/U13/${u13_dependency}.gd"
 done
 

@@ -180,3 +180,39 @@ surface across card removal/reflow. Clicking outside the hand (including a
 modal overlay) or starting a drag breaks the pair. All existing available-card
 and phase locks still apply. The interaction runner checks the relaxed interval,
 expired/separate clicks, modal isolation and selected-target feedback.
+
+
+### Guard outlines and Siege Engine presentation
+
+Occupied Lord and Castle Guard cards now use the same suit-border catalog as
+the hand and committed stacks. Empty Guard slots retain their neutral outline.
+
+`U13ArtilleryView` reuses U12 `SiegeEngineBombardmentView`'s BallistaBolt.png
+(8 x 1 at 12 fps) and Explosion.png (4 x 2 at 10 fps), original visual scaling
+and 0.96-second flight. Atlas textures and two reusable Sprite2D nodes are
+prepared once. A native image bounding-box scan replaces U12's interpreted
+per-pixel crop loop. No full-screen redraw, particles or additional physics.
+
+The board session captures public ARTILLERY_FIRED events only around the
+artillery hook, before the potentially large Marching log exists. BoardJob
+passes that small tape alongside its completed presentation. This avoids the
+15-event history limit and does not copy the entire Marching event history to
+find shots. The simulation and its damage/replay rules are unchanged.
+
+Every actual firing plays in event order: bolt flight, complete impact, then
+the next shot. War Machine's extra shot and that Engine's normal shot are
+therefore sequential. The prelude finishes before the existing 15-second
+Marching playback starts. Skip clears both effects and advances to the actual
+final Marching frame; restart also clears the visual tape. Castles retain their
+physical slot even when destroyed, preserving a lethal shot's destination.
+
+Each shot has a small curved trajectory, muzzle variation and bounded impact
+variation inside its target card. The round, source/target instance IDs and shot
+identity determine those visual values without consuming simulation RNG. The
+board already shows resolved pre-Marching Integrity; these effects illustrate
+the recorded hits and never apply damage again.
+
+Existing board regressions cover Guard color, event delivery, paired War Machine
+and normal shots, nonoverlapping flights/impacts, repeatable path variation,
+correct endpoint, skip cleanup and unchanged authoritative state. Counts remain
+board 5/5 and interaction 2/2. Godot 4.7.2 engine/visual verification is local.
