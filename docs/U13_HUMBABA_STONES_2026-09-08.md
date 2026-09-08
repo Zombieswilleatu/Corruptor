@@ -99,3 +99,18 @@ checks, threshold-met rounds and qualifying bodies separately; Endurance is a
 passive, so a declaration/threshold ratio is not meaningful. Tear source and
 Stones Forget entry/Castle-hit counts are included. These measure frequency and
 reachability, not strength, win rates or balance.
+
+## First local gate: fixture identity correction
+
+The first local run passed the printed rules assertions but the wrapper correctly
+rejected a script error in `_add_unit`. After retiring a Penitent, the fixture
+reused its ordinal because it derived identities from the live entity count.
+The registry rejected the retired ID; the helper then accessed a missing result
+entity. This also made the final living-Lord check pass without its intended body.
+
+The helper now uses the nonshrinking historical ID count, checks restore/create
+results, and verifies that the replacement has a new ID and 1 HP. A positive
+control confirms that it qualifies before Banishment, then the existing assertion
+confirms that the passive stops when Humbaba is banished. Production identity
+rules, gameplay and wrapper error handling are unchanged. The focused 6/6 gate
+still requires a clean local rerun.

@@ -111,13 +111,19 @@ func _stats() -> void:
 
 func _add_unit(world: Dictionary, pid: int, suit: String, hp: int, armor: int = 0) -> String:
 	var entities = Ids.new()
-	entities.restore(world.entities)
+	if not _check(
+		entities.restore(world.entities).action != "invalid", "endurance_fixture_restores"
+	):
+		return ""
 	var a: Dictionary = Marching.profile(suit, "Lord", pid, 1, 1)
 	a.hp = hp
 	a.armor = armor
+	# Historical identity count cannot shrink when a fixture unit dies.
 	var created: Dictionary = entities.create(
-		"marcher", "endurance-test", world.entities.entities.size(), pid, a
+		"marcher", "endurance-test", world.entities.used_ids.size(), pid, a
 	)
+	if not _check(created.action != "invalid", "endurance_fixture_unit_created"):
+		return ""
 	world.entities = entities.snapshot()
 	return created.entity.id
 
@@ -177,7 +183,30 @@ func _endurance() -> void:
 		Content.endurance(_context(world, Timeline.MARCHING)).action == "invalid",
 		"endurance_only_at_step_thirteen"
 	)
-	_add_unit(world, 0, "Penitent", 1)
+	var replacement_id: String = _add_unit(world, 0, "Penitent", 1)
+	if not _check(
+		(
+			not replacement_id.is_empty()
+			and replacement_id != unit_id
+			and _entity(world, replacement_id).get("attributes", {}).get("hp") == 1
+			and unit_id in world.entities.used_ids
+		),
+		"endurance_replacement_has_new_identity_and_one_hp"
+	):
+		return
+	_check(
+		(
+			(
+				Content
+				. endurance(_context(world, Timeline.END_MARCHING_CHECKS))
+				. world
+				. data
+				. neutral_tears
+			)
+			== 1
+		),
+		"endurance_replacement_qualifies_before_banishment"
+	)
 	_lord(world, 0).attributes.alive = false
 	_check(
 		(
