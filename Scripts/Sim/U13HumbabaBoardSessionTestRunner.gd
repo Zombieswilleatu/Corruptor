@@ -75,7 +75,7 @@ func _run() -> void:
 				(
 					(
 						restored
-						. configure(["Humbaba", "Kalligan"], [Slots.TYPES, Slots.TYPES], false)
+						. configure(["Humbaba", "Orias"], [Slots.TYPES, Slots.TYPES], false)
 						. action
 					)
 					== "invalid"

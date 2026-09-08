@@ -10,6 +10,23 @@ static func world(opponent: String = "Gremory") -> Dictionary:
 	var result: Dictionary = Base.world("Gremory" if opponent == "Kalligan" else opponent)
 	if result.get("action") == "invalid":
 		return result
+	return _configure(result, ["Kalligan", opponent])
+
+
+static func loadout_world(lords: Array, selections: Array) -> Dictionary:
+	if lords.size() != 2:
+		return Kalligan.Data.invalid("loadout_players_invalid")
+	var base_lords: Array = lords.duplicate()
+	for pid in [0, 1]:
+		if base_lords[pid] == "Kalligan":
+			base_lords[pid] = "Gremory"
+	var result: Dictionary = Base.loadout_world(base_lords, selections)
+	if result.get("action") == "invalid":
+		return result
+	return _configure(result, lords)
+
+
+static func _configure(result: Dictionary, lords: Array) -> Dictionary:
 	result.data["kalligan_profile"] = Kalligan.POLICY
 	result.data["hazard_profile"] = Kalligan.Hazards.VERSION
 	result.data["kalligan_upkeep_round"] = 0
@@ -19,7 +36,9 @@ static func world(opponent: String = "Gremory") -> Dictionary:
 	result.data["rekindle_defunct_ids"] = []
 	var ids = Kalligan.Ids.new()
 	ids.restore(result.entities)
-	for pid in [0, 1] if opponent == "Kalligan" else [0]:
+	for pid in [0, 1]:
+		if lords[pid] != "Kalligan":
+			continue
 		result.players[pid].lord_id = "Kalligan"
 		var lord: Dictionary = ids.get_entity(result.players[pid].lord_entity_id)
 		lord.attributes.lord_id = "Kalligan"

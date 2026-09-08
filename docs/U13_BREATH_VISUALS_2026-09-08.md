@@ -1,21 +1,21 @@
 # Breath of Life: supplied art and next board pass
 
-User request, recorded alongside Kalligan's rules slice. Not implemented in
-the board yet; preserve the existing authoritative Breath lifetime and aura.
+User request, recorded alongside Kalligan's rules slice. Implemented in the
+following board pass; see `U13_KALLIGAN_BOARD_2026-09-08.md` for commands and
+validation status. The authoritative Breath lifetime and aura are preserved.
 
 ## Assets
 
 User's original checkout contains
 `ConceptImages/Sprites/BreathOfLife/Flower1.png` through `Flower4.png`, plus a
-healing-effect texture. Neither the current `u13-lord-overhaul` tree nor
-`main` contains these assets at the time of this check. The Windows-local
-checkout is not accessible to the implementation environment.
+healing-effect texture. These were initially local-only; the user subsequently
+pushed all five to `main` in `e357b4a`. This board pass imports the exact five
+asset blobs to U13, including `HealEffect.png`.
 
 The uploaded Flower example is 1536 x 1024 RGBA: three columns by two rows of
 512 x 512 cells. Read left-to-right, then top-to-bottom. It is a reference for
-the following sequence, not a substitute for the remaining source files.
-Bring the full four-flower set and healing strip into the repository before
-the board pass; confirm the strip's actual filename and frame layout then.
+the following sequence. All four supplied flowers and `HealEffect.png` have
+the same six-frame atlas layout. The healing effect loops all six cells.
 
 ## Visual lifecycle
 

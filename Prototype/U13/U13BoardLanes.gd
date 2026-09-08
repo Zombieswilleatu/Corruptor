@@ -3,13 +3,23 @@ extends "res://Prototype/U13/U13SmokeBoard.gd"
 # UI2 MarchingLaneView's right rail geometry and original frame/domain crops.
 # Positions come exclusively from the U13 playback tape, never the U12 simulator.
 const Art = preload("res://Prototype/U13/U13BoardTextures.gd")
+const BreathVisuals = preload("res://Prototype/U13/U13BreathVisuals.gd")
+var breath_visuals = BreathVisuals.new()
 var domain: Texture2D
 var skin: Texture2D
 var chit_sheet: Texture2D
 var active_auras: Array = []
+var active_scorches: Array = []
+
+
+func bind_scorch(records: Array) -> void:
+	active_scorches = records.duplicate(true)
+	queue_redraw()
 
 
 func bind_auras(records: Array, round_number: int) -> void:
+	breath_visuals.sync(records, round_number)
+	set_process(breath_visuals.textures.size() < 5 or not breath_visuals.groups.is_empty())
 	active_auras = []
 	for record in records:
 		if not record.get("payload", {}).has("lane_aura"):
@@ -104,7 +114,7 @@ func _draw() -> void:
 			draw_rect(rect, Color(tint, 0.08))
 			draw_string(
 				font,
-				Vector2(rect.position.x, rect.position.y + (35 if aura.owner == 0 else 48)),
+				Vector2(rect.position.x, rect.end.y - (25 if aura.owner == 0 else 12)),
 				"%s BREATH · %dr" % ["YOUR" if aura.owner == 0 else "ENEMY", aura.remaining],
 				HORIZONTAL_ALIGNMENT_CENTER,
 				width,
@@ -119,6 +129,34 @@ func _draw() -> void:
 			width,
 			13,
 			Color("ebdab4")
+		)
+		for player_id in [0, 1]:
+			var notes: Array[String] = []
+			for scorch in active_scorches:
+				if (
+					scorch.owner != player_id
+					or scorch.target.kind != "lane"
+					or scorch.target.lane != lane
+				):
+					continue
+				if scorch.fire_round == 0:
+					draw_rect(rect, Color(0.9, 0.22, 0.04, 0.055 * float(scorch.intensity)))
+					notes.append("%d · %dr" % [scorch.intensity, scorch.remaining])
+				else:
+					draw_rect(rect.grow(-3), Color(1.0, 0.60, 0.22, 0.7), false, 1.5)
+					notes.append("R%d→" % scorch.fire_round)
+			if not notes.is_empty():
+				draw_string(
+					font,
+					Vector2(rect.position.x, rect.position.y + (35 if player_id == 0 else 48)),
+					("Y FIRE " if player_id == 0 else "E FIRE ") + " / ".join(notes),
+					HORIZONTAL_ALIGNMENT_CENTER,
+					width,
+					10,
+					Color("ffb26e")
+				)
+		breath_visuals.draw_lane(
+			self, Rect2(rect.position.x, rect.position.y + 55, rect.size.x, rect.size.y - 85), lane
 		)
 		var top: float = rect.position.y + 65
 		var bottom: float = rect.end.y - 52
@@ -204,3 +242,18 @@ func pulse_lanes(selected_lane: String = "") -> void:
 		var tween = marker.create_tween()
 		tween.tween_property(marker, "color:a", 0.0, 0.7)
 		tween.tween_callback(marker.queue_free)
+
+
+func reset_effects() -> void:
+	breath_visuals.clear()
+	active_auras = []
+	active_scorches = []
+	queue_redraw()
+
+
+func _process(delta: float) -> void:
+	breath_visuals.warm_next()
+	breath_visuals.advance(delta)
+	queue_redraw()
+	if breath_visuals.textures.size() == 5 and breath_visuals.groups.is_empty():
+		set_process(false)

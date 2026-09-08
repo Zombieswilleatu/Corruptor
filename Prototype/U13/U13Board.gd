@@ -7,6 +7,8 @@ const LoadoutSession = preload("res://Scripts/Sim/U13LoadoutBoardSession.gd")
 const LoadoutPicker = preload("res://Prototype/U13/U13LoadoutPicker.gd")
 const Deimos = preload("res://Scripts/Sim/U13Deimos.gd")
 const Humbaba = preload("res://Scripts/Sim/U13Humbaba.gd")
+const Kalligan = preload("res://Scripts/Sim/U13Kalligan.gd")
+const ScorchView = preload("res://Prototype/U13/U13ScorchPresentation.gd")
 const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const BoardJob = preload("res://Prototype/U13/U13BoardJob.gd")
 const DenseSession = preload("res://Scripts/Sim/U13DenseBoardSession.gd")
@@ -50,6 +52,11 @@ var castle_note: Label
 var castle_stage: Button
 var gremory_box: VBoxContainer
 var deimos_box: VBoxContainer
+var kalligan_box: VBoxContainer
+var kalligan_buttons: Dictionary = {}
+var kalligan_states: Dictionary = {}
+var inferno_target: OptionButton
+var _scorch_rows: Array = []
 var humbaba_box: VBoxContainer
 var humbaba_buttons: Dictionary = {}
 var humbaba_states: Dictionary = {}
@@ -159,6 +166,7 @@ func restart() -> void:
 	var result: Dictionary = session.reset()
 	if _error(result):
 		return
+	lanes.reset_effects()
 	match_started = true
 	for row in sides:
 		row._castle_art_states.clear()
@@ -288,6 +296,7 @@ func _build() -> void:
 	powers.add_child(HSeparator.new())
 	_build_deimos_controls(powers)
 	_build_humbaba_controls(powers)
+	_build_kalligan_controls(powers)
 	_button(powers, "Back to combat · clear powers", back_to_combat)
 	controls.append(_button(powers, "Clear powers · return cards", clear_powers))
 	plan_label = _label(powers, "", 15)
@@ -341,9 +350,15 @@ func _refresh(presented: Dictionary = {}) -> void:
 	var view: Dictionary = session.board_view() if presented.is_empty() else presented
 	var world: Dictionary = view.world
 	lanes.bind_auras(view.get("persistent", []), session.round_number())
+	_scorch_rows = ScorchView.records(
+		view.get("persistent", []), view.get("pending", []), session.round_number()
+	)
+	lanes.bind_scorch(_scorch_rows)
 	header.bind_world(world, session.round_number())
 	_render_side(sides[0], world, 1)
 	_render_side(sides[1], world, 0)
+	sides[0].bind_scorch(_scorch_rows, 1)
+	sides[1].bind_scorch(_scorch_rows, 0)
 	if not playing:
 		lanes.show_world(world.entities, session.round_number())
 	var cards: Array = []
@@ -783,6 +798,7 @@ func _update_decision_copy() -> void:
 	gremory_box.visible = _human_lord() == "Gremory"
 	deimos_box.visible = _human_lord() == "Deimos"
 	humbaba_box.visible = _human_lord() == "Humbaba"
+	kalligan_box.visible = _human_lord() == "Kalligan"
 	if powers_step:
 		(
 			phase_prompt
@@ -859,6 +875,7 @@ func _update_power_controls() -> void:
 		)
 	_update_deimos_controls()
 	_update_humbaba_controls()
+	_update_kalligan_controls()
 	if powers_step and not confirm.disabled:
 		status.text = (
 			"Combat: %s · %d cards. Powers: %d queued. Resolve submits all orders together."
@@ -1015,6 +1032,7 @@ func start_loadout(lords: Array, castles: Array, quick: bool) -> void:
 		setup_picker.message.text = _friendly_error(result)
 		return
 	session = candidate
+	lanes.reset_effects()
 	match_started = true
 	setup_open = false
 	setup_picker.hide()
@@ -1044,7 +1062,9 @@ func _power_name(power: String) -> String:
 			Deimos.WAR_MACHINE: "War Machine",
 			Deimos.ROUT: "Rout",
 			Humbaba.MUSTER: "Muster the Faithful",
-			Humbaba.BREATH: "Breath of Life"
+			Humbaba.BREATH: "Breath of Life",
+			Kalligan.INFERNO: "Inferno",
+			Kalligan.PYROCLASM: "Pyroclasm"
 		}
 		. get(power, power)
 	)
@@ -1388,3 +1408,128 @@ func _update_humbaba_controls() -> void:
 			or state.awaiting_expiration
 			or state.remaining > 0
 		)
+
+
+func _build_kalligan_controls(parent: Node) -> void:
+	kalligan_box = VBoxContainer.new()
+	kalligan_box.add_theme_constant_override("separation", 6)
+	parent.add_child(kalligan_box)
+	for power in [Kalligan.INFERNO, Kalligan.PYROCLASM]:
+		_label(kalligan_box, _power_name(power).to_upper(), 17)
+		var description: String = (
+			"Prepare fire for next round. Choose enemy Guards or either lane. Lane fire hits both sides. Moving preserves its 1 → 2 → 1 lifetime."
+			if power == Kalligan.INFERNO
+			else "Pulse your current Scorch once more this round. Uses its current location and intensity; normal fire still occurs."
+		)
+		_label(kalligan_box, description, 13).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		kalligan_states[power] = _label(kalligan_box, "", 13)
+		kalligan_states[power].autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		if power == Kalligan.INFERNO:
+			inferno_target = _option(
+				kalligan_box,
+				[
+					"Enemy Lord Guards",
+					"Enemy Castle Guards",
+					"Lord lane · both sides",
+					"Castle lane · both sides"
+				]
+			)
+		kalligan_buttons[power] = _button(
+			kalligan_box,
+			"CHOOSE INFERNO" if power == Kalligan.INFERNO else "QUEUE PYROCLASM",
+			queue_inferno if power == Kalligan.INFERNO else queue_pyroclasm
+		)
+		controls.append(kalligan_buttons[power])
+		kalligan_box.add_child(HSeparator.new())
+	kalligan_box.hide()
+
+
+func _kalligan_can_choose(power: String) -> bool:
+	if (
+		not _planning()
+		or not powers_step
+		or _human_lord() != "Kalligan"
+		or _queued_power(power)
+		or not session is LoadoutSession
+	):
+		return false
+	# One representative legal region is sufficient for Inferno's readiness.
+	# Final selection still submits its actual target through shared legality.
+	var target: Dictionary = {"kind": "lane", "lane": "Lord"} if power == Kalligan.INFERNO else {}
+	return session.preview_power(power, target, queued, _order()).action != "invalid"
+
+
+func queue_inferno() -> void:
+	if not _kalligan_can_choose(Kalligan.INFERNO):
+		return
+	var index: int = inferno_target.selected
+	var target: Dictionary = (
+		{"kind": "guard", "lane": "Lord" if index == 0 else "Castle", "player_id": 1}
+		if index < 2
+		else {"kind": "lane", "lane": "Lord" if index == 2 else "Castle"}
+	)
+	_queue_kalligan(Kalligan.INFERNO, target)
+
+
+func queue_pyroclasm() -> void:
+	if _kalligan_can_choose(Kalligan.PYROCLASM):
+		_queue_kalligan(Kalligan.PYROCLASM, {})
+
+
+func _queue_kalligan(power: String, target: Dictionary) -> bool:
+	var candidate: Array = queued.duplicate(true)
+	candidate.append(session.declaration(power, queued.size(), target))
+	if _error(session.choose(candidate, _order())):
+		return false
+	queued = candidate
+	_preview()
+	return true
+
+
+func _update_kalligan_controls() -> void:
+	if _human_lord() != "Kalligan":
+		return
+	var active: Dictionary = ScorchView.active_for(_scorch_rows, 0)
+	for power in [Kalligan.INFERNO, Kalligan.PYROCLASM]:
+		var clock_state: Dictionary = session.power_status(power)
+		var text: String = "Ready · cooldown 0"
+		if not active.is_empty():
+			text = (
+				"Intensity %d · %d active rounds left\n%s"
+				% [active.intensity, active.remaining, ScorchView.target_name(active.target)]
+			)
+		if power == Kalligan.INFERNO:
+			if not active.is_empty():
+				text += (
+					"\nRelocation ready · fires next round"
+					if active.remaining > 1
+					else "\nFinal active round · relocation unavailable"
+				)
+			elif clock_state.awaiting_expiration:
+				text = "Inferno prepared"
+			elif clock_state.remaining > 0:
+				text = (
+					"Cooldown %d · ready round %d"
+					% [clock_state.remaining, clock_state.ready_round]
+				)
+			text += "\nFree · 1 cooldown round after Scorch expires"
+			if clock_state.fire_round > 0:
+				text += "\nArmed · applies round %d" % clock_state.fire_round
+		else:
+			if active.is_empty():
+				text = "Requires active Scorch"
+			elif clock_state.remaining > 0:
+				text += "\nUsed this round · ready round %d" % clock_state.ready_round
+			text += "\nFree · once per round · no extra cooldown"
+		if _queued_power(power):
+			var queued_note: String = "Queued · not spent yet"
+			if power == Kalligan.INFERNO:
+				for source in queued:
+					if source.power_id == power:
+						queued_note += (
+							"\nRound %d → %s"
+							% [source.fire_round, ScorchView.target_name(source.target)]
+						)
+			text = queued_note + "\n" + text
+		kalligan_states[power].text = text
+		kalligan_buttons[power].disabled = not _kalligan_can_choose(power)

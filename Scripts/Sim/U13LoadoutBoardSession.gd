@@ -5,6 +5,8 @@ const Deimos = preload("res://Scripts/Sim/U13Deimos.gd")
 const Humbaba = preload("res://Scripts/Sim/U13Humbaba.gd")
 const HumbabaScenario = preload("res://Scripts/Sim/U13HumbabaScenario.gd")
 const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
+const Kalligan = preload("res://Scripts/Sim/U13Kalligan.gd")
+const KalliganScenario = preload("res://Scripts/Sim/U13KalliganScenario.gd")
 const BOARD_SEED: String = "u13-loadout-board-v1"
 var setup_lords: Array = ["Deimos", "Gremory"]
 var setup_castles: Array = [
@@ -49,7 +51,7 @@ func configure(lords: Array, castles: Array, quick: bool) -> Dictionary:
 	setup_lords = lords.duplicate(true)
 	setup_castles = castles.duplicate(true)
 	quick_start = quick
-	hunt_enabled = hunt_enabled or lords.has("Humbaba")
+	hunt_enabled = hunt_enabled or lords.has("Humbaba") or lords.has("Kalligan")
 	_scenario = 0
 	_lane = "Castle"
 	_last_marching = []
@@ -66,8 +68,13 @@ func reset(_scenario_index: int = 0) -> Dictionary:
 func declaration(
 	power: String, index: int, target: Dictionary, cost: Dictionary = {}
 ) -> Dictionary:
-	var rule: Dictionary = (Humbaba.rules() if setup_lords.has("Humbaba") else Deimos.rules()).get(
-		power, {}
+	var rule: Dictionary = (
+		(
+			Kalligan.rules()
+			if setup_lords.has("Kalligan")
+			else (Humbaba.rules() if setup_lords.has("Humbaba") else Deimos.rules())
+		)
+		. get(power, {})
 	)
 	if rule.is_empty():
 		return Data.invalid("power_unknown")
@@ -90,11 +97,22 @@ func declaration(
 
 func random_opponent_plan() -> Dictionary:
 	return RandomLegal.plan(
-		_owner, 1, Callable(HumbabaScenario if setup_lords.has("Humbaba") else Core, "enumerate")
+		_owner,
+		1,
+		Callable(
+			(
+				KalliganScenario
+				if setup_lords.has("Kalligan")
+				else (HumbabaScenario if setup_lords.has("Humbaba") else Core)
+			),
+			"enumerate"
+		)
 	)
 
 
 static func _initial(lords: Array, castles: Array) -> Dictionary:
+	if lords.has("Kalligan"):
+		return KalliganScenario.loadout_world(lords, castles)
 	return (
 		HumbabaScenario.loadout_world(lords, castles)
 		if lords.has("Humbaba")
@@ -103,6 +121,8 @@ static func _initial(lords: Array, castles: Array) -> Dictionary:
 
 
 static func _content(lords: Array, hunt: bool):
+	if lords.has("Kalligan"):
+		return Kalligan.new()
 	return Humbaba.new() if lords.has("Humbaba") else Deimos.new(true, true, hunt)
 
 
@@ -145,7 +165,7 @@ func restore_checkpoint(raw: Dictionary) -> Dictionary:
 		or typeof(setup.get("hunt", false)) != TYPE_BOOL
 	):
 		return Data.invalid("loadout_checkpoint_setup_invalid")
-	if setup.lords.has("Humbaba") and not setup.get("hunt", false):
+	if (setup.lords.has("Humbaba") or setup.lords.has("Kalligan")) and not setup.get("hunt", false):
 		return Data.invalid("humbaba_checkpoint_requires_hunt")
 	var initial: Dictionary = _initial(setup.lords, setup.castles)
 	if initial.get("action") == "invalid":
@@ -170,3 +190,12 @@ func restore_checkpoint(raw: Dictionary) -> Dictionary:
 	_order = {}
 	_opponent = {}
 	return {"action": "loadout_checkpoint_restored"}
+
+
+# Read-only whole-plan check for UI readiness, including persistent relocation.
+func preview_power(
+	power: String, target: Dictionary, queued: Array, order: Dictionary
+) -> Dictionary:
+	var draft: Array = queued.duplicate(true)
+	draft.append(declaration(power, draft.size(), target))
+	return _owner.preview_submission(0, draft, order)

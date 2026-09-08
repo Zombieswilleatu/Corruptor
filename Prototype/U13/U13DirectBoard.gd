@@ -42,6 +42,14 @@ func _build() -> void:
 	for row in sides:
 		row.direct_targets = true
 		row.commission_requested.connect(_commission)
+		var owner_id: int = 0 if row == sides[1] else 1
+		for pair in [
+			[row.lord_guard_group, "Lord"],
+			[row.lord_guard_box, "Lord"],
+			[row.castle_guard_drop_area, "Castle"],
+			[row.castle_guard_box, "Castle"]
+		]:
+			pair[0].gui_input.connect(_guard_input.bind(owner_id, pair[1], pair[0]))
 	lanes.lane_selected.connect(_lane_selected)
 	hand_view.direct_gestures = true
 	hand_view.set_attack_drag_enabled(true)
@@ -88,12 +96,17 @@ func _refresh(presented: Dictionary = {}) -> void:
 				and _target_allowed(_entity_target(id), _intent)
 			):
 				row.target_controls[id].tooltip_text += "\n" + _artillery_target_note(_entity(id))
-		var shared: Dictionary = {
-			"id": "", "kind": "zone", "owner": 0 if row == sides[1] else 1, "lane": "Castle"
-		}
-		_wire_target(row.castle_guard_box, shared)
-		for slot in row.castle_guard_box.get_children():
-			_wire_target(slot.input_surface, shared)
+		for lane in ["Lord", "Castle"]:
+			var shared: Dictionary = {
+				"id": "", "kind": "zone", "owner": 0 if row == sides[1] else 1, "lane": lane
+			}
+			var guard_box: Container = (
+				row.lord_guard_box if lane == "Lord" else row.castle_guard_box
+			)
+			_wire_target(guard_box, shared)
+			for slot in guard_box.get_children():
+				_wire_target(slot.input_surface, shared)
+				slot.input_surface.pressed.connect(_guard_selected.bind(shared))
 	_update_direct_ui()
 	if _pulse_pending:
 		_pulse_pending = false
@@ -131,6 +144,7 @@ func _update_direct_ui() -> void:
 		rout_lane
 	]:
 		control.hide()
+	inferno_target.hide()
 	for option in humbaba_lanes.values():
 		option.hide()
 	# Target headings remain as prose; choices happen on the board.
@@ -164,7 +178,9 @@ func _update_direct_ui() -> void:
 		and not _target.is_empty()
 		and _intent_cards().size() > 0
 	)
-	lanes.target_lane_enabled = (_planning() and powers_step and _is_lane_power(_intent))
+	lanes.target_lane_enabled = (
+		_planning() and powers_step and (_is_lane_power(_intent) or _intent == Kalligan.INFERNO)
+	)
 	lanes.mouse_filter = (
 		Control.MOUSE_FILTER_STOP if lanes.target_lane_enabled else Control.MOUSE_FILTER_IGNORE
 	)
@@ -184,7 +200,8 @@ func _update_direct_ui() -> void:
 						Deimos.WAR_MACHINE,
 						Deimos.ROUT,
 						Humbaba.MUSTER,
-						Humbaba.BREATH
+						Humbaba.BREATH,
+						Kalligan.INFERNO
 					]
 				)
 			)
@@ -201,7 +218,9 @@ func _update_direct_ui() -> void:
 			confirm.disabled = true
 		if not _human_alive():
 			for button in (
-				[predator_button, ruin_button, war_button, rout_button] + humbaba_buttons.values()
+				[predator_button, ruin_button, war_button, rout_button]
+				+ humbaba_buttons.values()
+				+ kalligan_buttons.values()
 			):
 				button.disabled = true
 			status.text = "Your Lord is banished. Powers and combat are unavailable; Castle development or a new exercise remain available."
@@ -213,6 +232,8 @@ func _update_direct_ui() -> void:
 
 
 func _guide() -> String:
+	if _intent == Kalligan.INFERNO:
+		return "INFERNO · click enemy LORD GUARDS, shared CASTLE GUARDS, or either Marching lane. Fires next round; lane fire hits both sides."
 	if _intent == Gremory.RUIN:
 		return (
 			"INEVITABLE RUIN · select payment %d/2, then click a damaged enemy Castle."
@@ -333,6 +354,8 @@ func _target_allowed(target: Dictionary, intent: String) -> bool:
 				and a.integrity < a.max_integrity
 				and int(a.get("repair_lock_until_round", 0)) < session.round_number()
 			)
+		Kalligan.INFERNO:
+			return target.kind == "zone" and target.owner == 1 and target.lane in ["Lord", "Castle"]
 		Gremory.RUIN:
 			return (
 				_power_cost.size() == 2
@@ -549,7 +572,10 @@ func _arm_power(power: String) -> void:
 	if not _planning() or not powers_step or _queued_power(power) or not _human_alive():
 		return
 	var clock_state: Dictionary = session.power_status(power)
-	if clock_state.remaining > 0 or clock_state.awaiting_expiration:
+	if power == Kalligan.INFERNO:
+		if not _kalligan_can_choose(power):
+			return
+	elif clock_state.remaining > 0 or clock_state.awaiting_expiration:
 		return
 	_interaction_error = ""
 	_intent = "" if _intent == power else power
@@ -560,14 +586,22 @@ func _arm_power(power: String) -> void:
 
 
 func _lane_selected(lane: String) -> void:
-	if _planning() and powers_step and _is_lane_power(_intent):
+	if _planning() and powers_step and (_is_lane_power(_intent) or _intent == Kalligan.INFERNO):
 		_submit_power({"lane": lane})
 
 
 func _submit_power(target: Dictionary) -> void:
-	var payload: Dictionary = (
-		{"lane": target.lane} if _is_lane_power(_intent) else {"entity_id": target.id}
-	)
+	var payload: Dictionary = {}
+	if _intent == Kalligan.INFERNO:
+		payload = (
+			{"kind": "lane", "lane": target.lane}
+			if not target.has("id")
+			else {"kind": "guard", "lane": target.lane, "player_id": target.owner}
+		)
+	elif _is_lane_power(_intent):
+		payload = {"lane": target.lane}
+	else:
+		payload = {"entity_id": target.id}
 	var cost: Dictionary = (
 		{"discard_ids": _power_cost.duplicate()} if _intent == Gremory.RUIN else {}
 	)
@@ -729,7 +763,11 @@ func _reveal_targets() -> void:
 
 
 func _pulse_targets() -> void:
-	if _is_lane_power(_intent):
+	if _intent == Kalligan.INFERNO:
+		lanes.pulse_lanes()
+		_flash_control(sides[0].lord_guard_box, Color(1.5, 1.25, 0.6))
+		_flash_control(sides[0].castle_guard_box, Color(1.5, 1.25, 0.6))
+	elif _is_lane_power(_intent):
 		lanes.pulse_lanes()
 	else:
 		for row in sides:
@@ -881,7 +919,8 @@ func _flash_selected(target: Dictionary) -> void:
 		_flash_control(control.get_parent().get_parent(), Color(1.8, 1.5, 0.7))
 	elif target.kind == "zone":
 		_flash_control(
-			row.castle_guard_box if target.lane == "Castle" else row.lord_card, Color(1.8, 1.5, 0.7)
+			row.castle_guard_box if target.lane == "Castle" else row.lord_guard_box,
+			Color(1.8, 1.5, 0.7)
 		)
 
 
@@ -912,3 +951,50 @@ func queue_breath() -> void:
 		super.queue_breath()
 		return
 	_arm_power(Humbaba.BREATH)
+
+
+func queue_inferno() -> void:
+	if not _direct():
+		super.queue_inferno()
+		return
+	_arm_power(Kalligan.INFERNO)
+
+
+func queue_pyroclasm() -> void:
+	if not _direct():
+		super.queue_pyroclasm()
+		return
+	if not _kalligan_can_choose(Kalligan.PYROCLASM):
+		return
+	var active: Dictionary = ScorchView.active_for(_scorch_rows, 0)
+	if not _queue_kalligan(Kalligan.PYROCLASM, {}):
+		return
+	_intent = ""
+	_target = {}
+	_interaction_error = ""
+	_selected_pulse = (
+		{"lane": active.target.lane}
+		if active.target.kind == "lane"
+		else {
+			"id": "", "kind": "zone", "owner": active.target.player_id, "lane": active.target.lane
+		}
+	)
+	_schedule_refresh()
+	reopen_decision()
+
+
+func _guard_selected(target: Dictionary) -> void:
+	if _intent == Kalligan.INFERNO or (_intent == "Ward" and target.owner == 0):
+		_choose_target(target)
+
+
+func _guard_input(event: InputEvent, owner_id: int, lane: String, control: Control) -> void:
+	if (
+		event is InputEventMouseButton
+		and event.button_index == MOUSE_BUTTON_LEFT
+		and event.pressed
+		and _planning()
+	):
+		if _intent == Kalligan.INFERNO or (_intent == "Ward" and owner_id == 0):
+			control.accept_event()
+			_guard_selected({"id": "", "kind": "zone", "owner": owner_id, "lane": lane})

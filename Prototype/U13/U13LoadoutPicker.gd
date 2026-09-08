@@ -5,7 +5,7 @@ signal cancelled
 const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
 const Tutorials = preload("res://Prototype/U13/U13TutorialPreferences.gd")
 const TutorialPopup = preload("res://Prototype/U13/U13TutorialPopup.gd")
-const LORDS: Array = ["Deimos", "Gremory", "Humbaba"]
+const LORDS: Array = ["Deimos", "Gremory", "Humbaba", "Kalligan"]
 var lord_choices: Array = []
 var castle_choices: Array = [[], []]
 var opening: OptionButton

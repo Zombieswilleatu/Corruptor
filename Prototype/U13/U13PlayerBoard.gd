@@ -23,6 +23,7 @@ var castle_row
 var castle_guard_box
 var lord_guard_box
 var castle_guard_drop_area
+var scorch_titles: Dictionary = {}
 var direct_targets: bool = false
 var target_controls: Dictionary = {}
 var commission_buttons: Dictionary = {}
@@ -171,7 +172,8 @@ func _build_lord_guards() -> void:
 	column.add_theme_constant_override("separation", 4)
 	lord_guard_group.add_child(column)
 
-	column.add_child(_header_label("LORD\nGUARDS"))
+	scorch_titles.Lord = _header_label("LORD\nGUARDS")
+	column.add_child(scorch_titles.Lord)
 
 	lord_guard_box = VBoxContainer.new()
 	lord_guard_box.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -206,7 +208,8 @@ func _build_castle_group() -> void:
 	castle_row.add_theme_constant_override("separation", 8)
 	column.add_child(castle_row)
 
-	column.add_child(_header_label("CASTLE GUARDS"))
+	scorch_titles.Castle = _header_label("CASTLE GUARDS")
+	column.add_child(scorch_titles.Castle)
 
 	castle_guard_drop_area = HBoxContainer.new()
 	castle_guard_drop_area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -525,3 +528,25 @@ func show_commission_buttons(enabled: bool, staged_id: String) -> void:
 
 func _commission_clicked(id: String) -> void:
 	commission_requested.emit(id)
+
+
+func bind_scorch(records: Array, player_id: int) -> void:
+	for lane in ["Lord", "Castle"]:
+		var title: Label = scorch_titles[lane]
+		title.text = "LORD\nGUARDS" if lane == "Lord" else "CASTLE GUARDS"
+		title.remove_theme_color_override("font_color")
+		for row in records:
+			if (
+				row.target.kind == "guard"
+				and row.target.player_id == player_id
+				and row.target.lane == lane
+			):
+				title.text += (
+					"\n"
+					+ (
+						"FIRE R%d" % row.fire_round
+						if row.fire_round > 0
+						else "SCORCH %d · %dr" % [row.intensity, row.remaining]
+					)
+				)
+				title.add_theme_color_override("font_color", Color("ffb26e"))

@@ -3,8 +3,8 @@
 # Successful logs are temporary; failure logs are preserved in Downloads.
 set -uo pipefail
 
-if [[ $# -lt 1 || $# -gt 2 || ( $# -eq 2 && "$2" != --board && "$2" != --construction && "$2" != --castle-rout && "$2" != --interaction && "$2" != --humbaba && "$2" != --kalligan ) ]]; then
-  printf 'Usage: bash %s /path/to/Godot_console_executable [--board|--construction|--castle-rout|--interaction|--humbaba|--kalligan]\n' "$0" >&2
+if [[ $# -lt 1 || $# -gt 2 || ( $# -eq 2 && "$2" != --board && "$2" != --construction && "$2" != --castle-rout && "$2" != --interaction && "$2" != --humbaba && "$2" != --kalligan && "$2" != --kalligan-board ) ]]; then
+  printf 'Usage: bash %s /path/to/Godot_console_executable [--board|--construction|--castle-rout|--interaction|--humbaba|--kalligan|--kalligan-board]\n' "$0" >&2
   exit 2
 fi
 godot_u13_exe=$1
@@ -14,6 +14,10 @@ u13_castle_rout_only=false
 u13_interaction_only=false
 u13_humbaba_only=false
 u13_kalligan_only=false
+u13_kalligan_board_only=false
+if [[ ${2:-} == --kalligan-board ]]; then
+  u13_kalligan_board_only=true
+fi
 if [[ ${2:-} == --kalligan ]]; then
   u13_kalligan_only=true
 fi
@@ -127,7 +131,7 @@ u13_check_script() {
 for u13_dependency in U13EffectData U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13CastleSlots U13Rout U13Structures U13Legality U13Match U13MarchingBuffer U13LaneAuras U13Marching U13Combat U13Construction U13ConstructionCandidates U13Gremory U13Deimos U13LordStats U13Humbaba U13HumbabaCandidates U13HumbabaScenario U13Hazards U13Kalligan U13KalliganCandidates U13KalliganScenario U13SmokeSession U13DeimosCandidates U13CoreScenario U13GremoryCandidates U13RandomLegal U13FrequencyTelemetry U13RandomBatch U13BoardSession U13LoadoutBoardSession U13DenseBoardSession; do
   u13_check_script "res://Scripts/Sim/${u13_dependency}.gd"
 done
-for u13_dependency in U13SmokePlayback U13SmokeBoard U13Smoke U13BoardTextures U13CastleArtwork U13ArtilleryView U13BoardHand U13BoardLanes U13LayoutCard U13PlayerBoard U13BoardHeader U13DomainRow U13ActionZone U13PhasePrompt U13BoardJob U13TutorialPreferences U13TutorialPopup U13LoadoutPicker U13Board U13OrderPreview U13DirectBoard; do
+for u13_dependency in U13SmokePlayback U13SmokeBoard U13Smoke U13BoardTextures U13ScorchPresentation U13BreathVisuals U13BreathPreview U13CastleArtwork U13ArtilleryView U13BoardHand U13BoardLanes U13LayoutCard U13PlayerBoard U13BoardHeader U13DomainRow U13ActionZone U13PhasePrompt U13BoardJob U13TutorialPreferences U13TutorialPopup U13LoadoutPicker U13Board U13OrderPreview U13DirectBoard; do
   u13_check_script "res://Prototype/U13/${u13_dependency}.gd"
 done
 
@@ -168,6 +172,9 @@ u13_runners=(
   U13Kalligan
   U13KalliganIntegration
   U13KalliganRandom
+  U13KalliganBoardSession
+  U13KalliganBoard
+  U13BreathVisuals
 )
 u13_markers=(
   'U13 round timeline failures: 0'
@@ -206,14 +213,17 @@ u13_markers=(
   'U13 Kalligan failures: 0'
   'U13 Kalligan integration failures: 0'
   'U13 Kalligan random failures: 0'
+  'U13 Kalligan board session failures: 0'
+  'U13 Kalligan board failures: 0'
+  'U13 Breath visuals failures: 0'
 )
 if [[ $u13_kalligan_only == true ]]; then
   u13_runners=(U13Hazards U13Kalligan U13KalliganIntegration U13KalliganRandom U13PendingEffects U13PersistentEffects U13Cooldowns U13Match U13LaneAuras U13Breath)
   u13_markers=('U13 hazards failures: 0' 'U13 Kalligan failures: 0' 'U13 Kalligan integration failures: 0' 'U13 Kalligan random failures: 0' 'U13 pending effects failures: 0' 'U13 persistent effects failures: 0' 'U13 cooldowns failures: 0' 'U13 match foundation failures: 0' 'U13 lane auras failures: 0' 'U13 Breath of Life failures: 0')
 fi
 if [[ $u13_board_only == true ]]; then
-  u13_runners=(U13HumbabaBoardSession U13HumbabaBoard U13BoardModel U13Board U13DenseBoard U13LoadoutBoard U13Hunt U13DirectBoard)
-  u13_markers=('U13 Humbaba board session failures: 0' 'U13 Humbaba board failures: 0' 'U13 board model failures: 0' 'U13 board failures: 0' 'U13 dense board failures: 0' 'U13 loadout board failures: 0' 'U13 Hunt failures: 0' 'U13 direct board failures: 0')
+  u13_runners=(U13KalliganBoardSession U13KalliganBoard U13BreathVisuals U13HumbabaBoardSession U13HumbabaBoard U13BoardModel U13Board U13DenseBoard U13LoadoutBoard U13Hunt U13DirectBoard)
+  u13_markers=('U13 Kalligan board session failures: 0' 'U13 Kalligan board failures: 0' 'U13 Breath visuals failures: 0' 'U13 Humbaba board session failures: 0' 'U13 Humbaba board failures: 0' 'U13 board model failures: 0' 'U13 board failures: 0' 'U13 dense board failures: 0' 'U13 loadout board failures: 0' 'U13 Hunt failures: 0' 'U13 direct board failures: 0')
 fi
 if [[ $u13_construction_only == true ]]; then
   u13_runners=(U13Construction U13ConstructionRandom)
@@ -230,6 +240,10 @@ fi
 if [[ $u13_humbaba_only == true ]]; then
   u13_runners=(U13LaneAuras U13Breath U13Humbaba U13HumbabaIntegration U13HumbabaRandom U13Rout U13SpatialMarching U13Hunt U13Deimos U13CastleLoadout)
   u13_markers=('U13 lane auras failures: 0' 'U13 Breath of Life failures: 0' 'U13 Humbaba failures: 0' 'U13 Humbaba integration failures: 0' 'U13 Humbaba random failures: 0' 'U13 Rout failures: 0' 'U13 spatial Marching failures: 0' 'U13 Hunt failures: 0' 'U13 Deimos failures: 0' 'U13 Castle loadout failures: 0')
+fi
+if [[ $u13_kalligan_board_only == true ]]; then
+  u13_runners=(U13KalliganBoardSession U13KalliganBoard U13BreathVisuals)
+  u13_markers=('U13 Kalligan board session failures: 0' 'U13 Kalligan board failures: 0' 'U13 Breath visuals failures: 0')
 fi
 u13_failed=0
 for u13_index in "${!u13_runners[@]}"; do
@@ -252,6 +266,9 @@ for u13_index in "${!u13_runners[@]}"; do
   fi
 done
 u13_suite_label=foundation
+if [[ $u13_kalligan_board_only == true ]]; then
+  u13_suite_label=Kalligan-board
+fi
 if [[ $u13_kalligan_only == true ]]; then
   u13_suite_label=Kalligan
 fi
