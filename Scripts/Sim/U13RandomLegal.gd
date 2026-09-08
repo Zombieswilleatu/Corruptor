@@ -3,6 +3,7 @@ extends RefCounted
 const Legality = preload("res://Scripts/Sim/U13Legality.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
+const CASTLE_POLICY: String = "U13_RANDOM_CASTLE_V1"
 const VERSION: String = "U13_RANDOM_LEGAL_V1"
 
 
@@ -36,12 +37,34 @@ static func plan(
 				owner, player_id, "BOT_POWER_TARGET", group.power, group.candidates.size()
 			)]
 		)
-	var orders: Array = Legality.legal_combat_orders(owner, player_id, powers, raw.orders)
+	var castle_action: Dictionary = {}
+	if raw.has("castle_actions"):
+		if typeof(raw.castle_actions) != TYPE_ARRAY:
+			return Data.invalid("castle_candidates_invalid")
+		var choices: Array = Legality.legal_castle_groups(
+			owner, player_id, powers, raw.castle_actions
+		)
+		if not choices.is_empty():
+			var group: Dictionary = choices[_pick(
+				owner, player_id, "BOT_CASTLE_ACTION", CASTLE_POLICY, choices.size()
+			)]
+			castle_action = group.candidates[_pick(
+				owner,
+				player_id,
+				"BOT_CASTLE_PAYMENT",
+				CASTLE_POLICY + ":" + group.action,
+				group.candidates.size()
+			)]
+	var orders: Array = Legality.legal_combat_orders(
+		owner, player_id, powers, raw.orders, castle_action
+	)
 	var order: Dictionary = (
 		{}
 		if orders.is_empty()
 		else orders[_pick(owner, player_id, "BOT_COMBAT_CHOICE", "order", orders.size())]
 	)
+	if orders.is_empty() and not castle_action.is_empty():
+		order["castle_action"] = castle_action
 	return _checked(owner, player_id, {"powers": powers, "order": order})
 
 

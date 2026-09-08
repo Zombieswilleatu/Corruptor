@@ -574,6 +574,14 @@ func _consistent() -> bool:
 					"order": _combat_orders[player_id].duplicate(true),
 					"round": current,
 					"next_hook_index": _runtime.next_hook_index,
+					"presentation_world":
+					_presentation_world.duplicate(true) if _world.data.has("castle_orders") else {},
+					"declarations":
+					(
+						[]
+						if _submissions[player_id] == null
+						else _submissions[player_id].duplicate(true)
+					),
 					"world": _world.duplicate(true)
 				}
 			)

@@ -1,5 +1,14 @@
 # U13 Deimos: artillery and siege slice
 
+## Follow-up: Construction and activation
+
+The subsequent opt-in Development slice implements normal Construction, Repair,
+manual activation and War Foundry reconstruction. Protected builds remain
+invulnerable until the player activates at seven or more Integrity. See
+[U13 Construction](U13_CONSTRUCTION_2026-09-08.md) for the current contract and
+**18/18** local gate. The historical artillery-only scope and 17-suite acceptance
+below describe the earlier checkpoint.
+
 ## Gates and scope
 
 Gremory's random-legal gate was locally accepted on Godot 4.7.2: four seeds,

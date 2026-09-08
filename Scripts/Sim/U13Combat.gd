@@ -129,7 +129,7 @@ static func accept(context: Dictionary) -> Dictionary:
 			target.is_empty()
 			or target.kind != "castle"
 			or target.owner != 1 - player_id
-			or target.attributes.status not in ["standing", "defunct"]
+			or not Structures.targetable(target)
 		):
 			return Data.invalid("combat_target_invalid")
 	if Cards.commit(world, player_id, order.card_ids).action == "invalid":
@@ -245,7 +245,7 @@ static func _siege(
 	var events: Array = []
 	# A vanished target is a spent order; cards still leave via Aftermath, and
 	# its waiters remain. No retargeting or fresh decision after the joint lock.
-	if target.is_empty() or target.attributes.status not in ["standing", "defunct"]:
+	if not Structures.targetable(target):
 		events.append(
 			Marching.public_event(
 				"COMBAT_ORDER_FIZZLED",
@@ -379,6 +379,7 @@ static func _siege(
 	else:
 		entities.restore(world.entities)
 		target.attributes.integrity = integrity_before - damage
+		Structures.note_integrity_loss(target, integrity_before, context.round)
 		if target.attributes.integrity == 0:
 			target.attributes.status = "defunct"
 		entities.update(target.id, target.owner, target.attributes)

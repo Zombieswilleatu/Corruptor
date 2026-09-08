@@ -143,3 +143,14 @@ its own Downloads report name. The full foundation suite is now 17 runners.
 Personal Tear counters in the new profile cover Spoils of War only; Veil and the
 rest of the economy remain absent. Existing sections above describe the original
 Gremory profile and its historical 16-suite acceptance command.
+
+
+## Construction/activation exercise mode
+
+`--roster=construction` adds protected Construction, optional activation at seven,
+Repair and War Foundry to the mixed fixture. It writes
+`u13_random_construction.json` and `.log` in Downloads. Reports pin the Construction
+and Castle chooser policies, count Castle actions/reconstruction, and include the
+distribution of Integrity when Castles activate. See
+[the Construction contract and 18/18 gate](U13_CONSTRUCTION_2026-09-08.md).
+This new mode awaits authoritative local Godot 4.7.2 verification.

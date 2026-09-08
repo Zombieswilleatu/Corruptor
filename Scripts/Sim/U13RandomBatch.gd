@@ -12,6 +12,7 @@ const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Deimos = preload("res://Scripts/Sim/U13Deimos.gd")
 const Core = preload("res://Scripts/Sim/U13CoreScenario.gd")
 const Structures = preload("res://Scripts/Sim/U13Structures.gd")
+const Construction = preload("res://Scripts/Sim/U13Construction.gd")
 const VERSION: String = "U13_RANDOM_BATCH_V1"
 
 
@@ -25,10 +26,12 @@ static func trial(
 		seed_value.is_empty()
 		or round_limit < 1
 		or round_limit > 100
-		or roster_mode not in ["gremory", "deimos", "mixed"]
+		or roster_mode not in ["gremory", "deimos", "mixed", "construction"]
 	):
 		return Data.invalid("batch_limits_invalid")
-	var content = Gremory.new() if roster_mode == "gremory" else Deimos.new()
+	var content = (
+		Gremory.new() if roster_mode == "gremory" else Deimos.new(roster_mode == "construction")
+	)
 	var roster: Array = (
 		["Gremory", "Gremory"]
 		if roster_mode == "gremory"
@@ -36,7 +39,9 @@ static func trial(
 	)
 	var owner = content.create_combat_match()
 	var opening: Dictionary = (
-		Opening._initial_world() if roster_mode == "gremory" else Core.world(roster)
+		Opening._initial_world()
+		if roster_mode == "gremory"
+		else (Core.construction_world() if roster_mode == "construction" else Core.world(roster))
 	)
 	var provider: Callable = (
 		Callable(Candidates, "enumerate")
@@ -126,6 +131,9 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 		"schema_version": VERSION,
 		"runtime": "4.7.2.stable",
 		"policy": Bot.VERSION,
+		"castle_policy": Bot.CASTLE_POLICY if trials[0].roster_mode == "construction" else null,
+		"construction_profile":
+		Construction.VERSION if trials[0].roster_mode == "construction" else null,
 		"roster": trials[0].roster,
 		"combat_profile":
 		Combat.VERSION if trials[0].roster_mode == "gremory" else Structures.PROFILE,
@@ -134,12 +142,20 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 		(
 			"U13SmokeSession opening: four cards and two Wright guards per player; damaged plain Integrity Castles"
 			if trials[0].roster_mode == "gremory"
-			else "U13CoreScenario: same cards/guards; one plain Castle at 8/21 and one prebuilt Siege Engine at 12/21 per player; empty Breach"
+			else (
+				"Construction fixture: same cards/guards and damaged active plain Castles; ruined Deimos Engine, unbuilt Gremory Engine, two Repair tokens per side; protected builds require manual activation"
+				if trials[0].roster_mode == "construction"
+				else "U13CoreScenario: same cards/guards; one plain Castle at 8/21 and one prebuilt Siege Engine at 12/21 per player; empty Breach"
+			)
 		),
 		"scope": "bounded combat-slice trials; frequency and reachability observations only",
 		"absent_systems":
 		[
-			"Development",
+			(
+				"Other Development actions"
+				if trials[0].roster_mode == "construction"
+				else "Development"
+			),
 			"normal round draws",
 			"Hunt",
 			"victory",
@@ -148,7 +164,11 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 				if trials[0].roster_mode == "gremory"
 				else "Veil progression (personal Tear counters only)"
 			),
-			"Construction/Reconstruction",
+			(
+				"Guard deployment/Summon/Profane"
+				if trials[0].roster_mode == "construction"
+				else "Construction/Reconstruction"
+			),
 			"Rout",
 			"other Lords",
 			"waiter spending"
@@ -160,7 +180,13 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 			"waiter_duration_unit": "fixed Marching ticks",
 			"ticks_per_round": Marching.TICKS,
 			"choice":
-			"uniform legal power name, then uniform canonical complete payload; combat uniform over legal single-card/pair Siege/Ward orders"
+			"uniform legal power name, then uniform canonical complete payload; combat uniform over legal single-card/pair Siege/Ward orders",
+			"castle_choice":
+			(
+				"uniform legal Construct/Repair/Activate action, then uniform legal target/payment; filtered against the selected power before combat selection"
+				if trials[0].roster_mode == "construction"
+				else null
+			)
 		},
 		"round_limit": round_limit,
 		"seeds": seeds,

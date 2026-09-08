@@ -31,7 +31,11 @@ static func apply(
 	var event_type: String = ""
 	match command.get("kind"):
 		"destroy_castle":
-			if target.is_empty() or target.kind != "castle":
+			if (
+				target.is_empty()
+				or target.kind != "castle"
+				or target.attributes.get("construction_state", "active") != "active"
+			):
 				return Data.invalid("castle_missing")
 			details["castle"] = target
 			entities.retire(target.id)
@@ -43,6 +47,7 @@ static func apply(
 				target.is_empty()
 				or target.kind != "castle"
 				or target.attributes.get("status") not in ["standing", "defunct"]
+				or target.attributes.get("construction_state", "active") != "active"
 			):
 				return Data.invalid("castle_not_ruinable")
 			if (
@@ -59,11 +64,17 @@ static func apply(
 			target.attributes.status = "ruined"
 			target.attributes.artillery_target = ""
 			entities.update(target.id, target.owner, target.attributes)
+			if (
+				world.data.has("construction_targets")
+				and world.data.construction_targets[target.owner] == target.id
+			):
+				world.data.construction_targets[target.owner] = ""
 			event_type = "CASTLE_DESTROYED"
 		"repair_castle":
 			if (
 				target.is_empty()
 				or target.kind != "castle"
+				or target.attributes.get("construction_state", "active") != "active"
 				or not Data.is_integer(target.attributes.get("max_integrity"))
 			):
 				return Data.invalid("castle_missing")

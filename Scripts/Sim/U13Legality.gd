@@ -180,12 +180,16 @@ static func legal_power_groups(owner, player_id: int, raw: Array) -> Array:
 	return result
 
 
-static func legal_combat_orders(owner, player_id: int, powers: Array, raw: Array) -> Array:
+static func legal_combat_orders(
+	owner, player_id: int, powers: Array, raw: Array, castle_action: Dictionary = {}
+) -> Array:
 	var unique: Dictionary = {}
 	for item in raw:
 		if typeof(item) != TYPE_DICTIONARY or not Data.is_data(item):
 			continue
 		var order: Dictionary = item.duplicate(true)
+		if not castle_action.is_empty():
+			order["castle_action"] = castle_action.duplicate(true)
 		if owner.preview_submission(player_id, powers, order).action == "invalid":
 			continue
 		if typeof(order.get("card_ids")) == TYPE_ARRAY:
@@ -196,4 +200,34 @@ static func legal_combat_orders(owner, player_id: int, powers: Array, raw: Array
 	var result: Array = []
 	for key in keys:
 		result.append(unique[key])
+	return result
+
+
+static func legal_castle_groups(owner, player_id: int, powers: Array, raw: Array) -> Array:
+	var grouped: Dictionary = {}
+	for item in raw:
+		if typeof(item) != TYPE_DICTIONARY or not Data.is_data(item):
+			continue
+		var choice: Dictionary = item.duplicate(true)
+		if choice.is_empty():
+			continue
+		if (
+			owner.preview_submission(player_id, powers, {"castle_action": choice}).action
+			== "invalid"
+		):
+			continue
+		choice.card_ids.sort()
+		if not grouped.has(choice.action):
+			grouped[choice.action] = {}
+		grouped[choice.action][JSON.stringify(choice, "", true)] = choice
+	var names: Array = grouped.keys()
+	names.sort()
+	var result: Array = []
+	for action in names:
+		var keys: Array = grouped[action].keys()
+		keys.sort()
+		var choices: Array = []
+		for key in keys:
+			choices.append(grouped[action][key])
+		result.append({"action": action, "candidates": choices})
 	return result

@@ -8,9 +8,15 @@ const Combat = preload("res://Scripts/Sim/U13Combat.gd")
 const Marching = preload("res://Scripts/Sim/U13Marching.gd")
 const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
+const Construction = preload("res://Scripts/Sim/U13Construction.gd")
 const WAR_MACHINE: String = "WarMachine"
 const POLICY: String = "U13_DEIMOS_ARTILLERY_SLICE_V1"
 var _gremory = Gremory.new()
+var _construction_enabled: bool = false
+
+
+func _init(construction_enabled: bool = false) -> void:
+	_construction_enabled = construction_enabled
 
 
 func create_combat_match():
@@ -20,7 +26,14 @@ func create_combat_match():
 		validators[power] = Callable(self, "validate")
 		resolvers[power] = Callable(self, "resolve")
 	return MatchOwner.new(
-		POLICY + ":" + Structures.PROFILE + ":" + Marching.VERSION,
+		(
+			POLICY
+			+ ":"
+			+ Structures.PROFILE
+			+ ":"
+			+ Marching.VERSION
+			+ (":" + Construction.VERSION if _construction_enabled else "")
+		),
 		rules(),
 		validators,
 		resolvers,
@@ -51,6 +64,11 @@ static func rules() -> Dictionary:
 
 
 func valid_world(world: Dictionary) -> bool:
+	if _construction_enabled:
+		if not Construction.valid(world):
+			return false
+	elif world.data.has("construction_profile"):
+		return false
 	if (
 		not Combat.valid(world)
 		or world.data.combat_profile != Structures.PROFILE
@@ -104,6 +122,13 @@ func valid_world(world: Dictionary) -> bool:
 
 func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionary:
 	if source.power_id != WAR_MACHINE:
+		if source.power_id == Gremory.RUIN:
+			var target_entities = Ids.new()
+			target_entities.restore(world.entities)
+			if not Structures.targetable(
+				target_entities.get_entity(String(source.target.get("entity_id", "")))
+			):
+				return {"legal": false, "reason": "castle_not_targetable"}
 		return _gremory.validate(source, world, phase)
 	var entities = Ids.new()
 	entities.restore(world.entities)
@@ -120,7 +145,22 @@ func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionar
 
 func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 	if record.declaration.power_id != WAR_MACHINE:
-		return _gremory.resolve(record, context)
+		var original: Dictionary = {}
+		if _construction_enabled and record.declaration.power_id == Gremory.RUIN:
+			var prior_entities = Ids.new()
+			prior_entities.restore(context.world.entities)
+			original = prior_entities.get_entity(record.declaration.target.entity_id)
+		var result: Dictionary = _gremory.resolve(record, context)
+		if not original.is_empty() and result.action != "invalid":
+			var entities = Ids.new()
+			entities.restore(result.world.entities)
+			var target: Dictionary = entities.get_entity(original.id)
+			Structures.note_integrity_loss(
+				target, int(original.attributes.integrity), context.round
+			)
+			entities.update(target.id, target.owner, target.attributes)
+			result.world.entities = entities.snapshot()
+		return result
 	# The match's established same-hook contract resolves pending powers before
 	# the ordinary hook. Extra shot first, then the normal artillery sweep.
 	var changed: Dictionary = Structures.fire(
@@ -149,13 +189,26 @@ func accept_order(context: Dictionary) -> Dictionary:
 		for delivered_round in context.world.data.deimos_fear_round:
 			if delivered_round > context.world.data.get("combat_resolved_round", 0):
 				return Data.invalid("fear_ledger_ahead_of_combat")
-	return Combat.accept(context)
+	return Construction.accept(context) if _construction_enabled else Combat.accept(context)
 
 
 func on_hook(context: Dictionary) -> Dictionary:
+	if _construction_enabled and context.hook == Timeline.DEVELOPMENT:
+		return Construction.resolve(context)
 	if context.hook == Timeline.POST_REPAIR_ARTILLERY:
 		return Structures.normal_fire(context, Callable(self, "react"))
-	return Combat.on_hook(context, Callable(self, "react"))
+	if not _construction_enabled:
+		return Combat.on_hook(context, Callable(self, "react"))
+	var ordinary: Dictionary = context.duplicate(true)
+	if _construction_enabled:
+		ordinary.combat_orders = [
+			Construction.combat_order(context.combat_orders[0]),
+			Construction.combat_order(context.combat_orders[1])
+		]
+	var result: Dictionary = Combat.on_hook(ordinary, Callable(self, "react"))
+	if _construction_enabled and result.action != "invalid" and context.hook == Timeline.AFTERMATH:
+		result.world.data.castle_orders = [null, null]
+	return result
 
 
 func react(
@@ -248,4 +301,9 @@ func project(world: Dictionary, player_id: int) -> Dictionary:
 		world.players[0].resources.personal_tears, world.players[1].resources.personal_tears
 	]
 	view["lord_ids"] = [world.players[0].lord_id, world.players[1].lord_id]
+	if _construction_enabled:
+		view["construction_profile"] = Construction.VERSION
+		view["viewer_id"] = player_id
+		view["construction_target"] = world.data.construction_targets[player_id]
+		view["repair_tokens"] = world.players[player_id].resources.repair_tokens
 	return view

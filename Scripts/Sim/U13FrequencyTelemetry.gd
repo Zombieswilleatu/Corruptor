@@ -27,6 +27,8 @@ func begin(round_number: int, view: Dictionary) -> void:
 		"neutral_tears": view.world.neutral_tears,
 		"personal_tears": view.world.get("personal_tears", null),
 		"artillery_shots": {},
+		"castle_actions": {},
+		"activation_integrity": [],
 		"personal_tears_by_source": {},
 		"both_players_passed": false
 	}
@@ -97,6 +99,15 @@ func consume(events: Array) -> void:
 						_row.fizzle_causes,
 						key + ":" + String(data.get("result", {}).get("reason", "unspecified"))
 					)
+			"CONSTRUCTION_PROGRESS", "CASTLE_REPAIRED", "CASTLE_ACTIVATED", "CASTLE_ACTION_FIZZLED":
+				var key: String = "%d:%s" % [int(data.player_id), event.type]
+				_increment(_row.castle_actions, key)
+				if event.type == "CASTLE_ACTIVATED":
+					_row.activation_integrity.append(data.after)
+				if data.get("reconstruction", false):
+					_increment(_row.castle_actions, str(data.player_id) + ":reconstructions")
+				if event.type == "CONSTRUCTION_PROGRESS" and data.complete:
+					_increment(_row.castle_actions, str(data.player_id) + ":builds_completed")
 			"ARTILLERY_FIRED":
 				_increment(
 					_row.artillery_shots,
@@ -164,8 +175,13 @@ static func summarize(rows: Array) -> Dictionary:
 	var triggers: Dictionary = {}
 	var souls: Dictionary = {}
 	var artillery: Dictionary = {}
+	var castle_actions: Dictionary = {}
+	var activation_integrity: Array = []
 	var personal: Dictionary = {}
 	for row in rows:
+		activation_integrity.append_array(row.get("activation_integrity", []))
+		for key in row.get("castle_actions", {}):
+			_increment(castle_actions, key, row.castle_actions[key])
 		for key in row.artillery_shots:
 			_increment(artillery, key, row.artillery_shots[key])
 		for key in row.personal_tears_by_source:
@@ -212,6 +228,8 @@ static func summarize(rows: Array) -> Dictionary:
 	return {
 		"round_samples": rows.size(),
 		"artillery_shots": artillery,
+		"castle_actions": castle_actions,
+		"activation_integrity": distribution(activation_integrity),
 		"personal_tears_by_source": personal,
 		"both_players_passed_rounds": all_pass,
 		"castles_destroyed": castles,

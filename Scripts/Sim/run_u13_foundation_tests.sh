@@ -104,7 +104,7 @@ u13_check_script() {
     exit 1
   fi
 }
-for u13_dependency in U13EffectData U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13Structures U13Legality U13Match U13MarchingBuffer U13Marching U13Combat U13Gremory U13Deimos U13SmokeSession U13DeimosCandidates U13CoreScenario U13GremoryCandidates U13RandomLegal U13FrequencyTelemetry U13RandomBatch U13BoardSession U13DenseBoardSession; do
+for u13_dependency in U13EffectData U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13Structures U13Legality U13Match U13MarchingBuffer U13Marching U13Combat U13Construction U13ConstructionCandidates U13Gremory U13Deimos U13SmokeSession U13DeimosCandidates U13CoreScenario U13GremoryCandidates U13RandomLegal U13FrequencyTelemetry U13RandomBatch U13BoardSession U13DenseBoardSession; do
   u13_check_script "res://Scripts/Sim/${u13_dependency}.gd"
 done
 for u13_dependency in U13SmokePlayback U13SmokeBoard U13Smoke U13BoardTextures U13BoardHand U13BoardLanes U13LayoutCard U13PlayerBoard U13BoardHeader U13DomainRow U13ActionZone U13PhasePrompt U13BoardJob U13Board; do
@@ -124,6 +124,7 @@ u13_runners=(
   U13Gremory
   U13RandomLegal
   U13Deimos
+  U13Construction
   U13SpatialMarching
   U13MarchingIntegration
   U13Smoke
@@ -143,6 +144,7 @@ u13_markers=(
   'U13 Gremory failures: 0'
   'U13 random-legal failures: 0'
   'U13 Deimos failures: 0'
+  'U13 Construction failures: 0'
   'U13 spatial Marching failures: 0'
   'U13 Marching integration failures: 0'
   'U13 smoke scene failures: 0'

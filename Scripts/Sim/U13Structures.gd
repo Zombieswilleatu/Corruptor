@@ -72,11 +72,33 @@ static func valid(world: Dictionary) -> bool:
 	return true
 
 
+# Protected construction never grants Castle effects and cannot be targeted.
+# Legacy profiles have no lifecycle field and retain their established behavior.
+static func targetable(castle: Dictionary) -> bool:
+	return (
+		not castle.is_empty()
+		and castle.kind == "castle"
+		and castle.attributes.get("status") in ["standing", "defunct"]
+		and castle.attributes.get("construction_state", "active") == "active"
+	)
+
+
+# The opt-in Development profile retains the old following-round Repair lock.
+# Reconstruction is a Construct action and uses its own admission rules.
+static func note_integrity_loss(castle: Dictionary, before: int, round_number: int) -> void:
+	var a: Dictionary = castle.attributes
+	if a.has("construction_state") and before >= FLOOR and a.integrity < FLOOR:
+		a["repair_lock_until_round"] = maxi(
+			int(a.get("repair_lock_until_round", 0)), round_number + 1
+		)
+
+
 static func operational(castle: Dictionary) -> bool:
 	return (
 		not castle.is_empty()
 		and castle.kind == "castle"
 		and castle.attributes.get("status") == "standing"
+		and castle.attributes.get("construction_state", "active") == "active"
 		and int(castle.attributes.get("integrity", 0)) >= FLOOR
 	)
 
@@ -98,6 +120,10 @@ static func sync_breach(raw: Dictionary) -> Dictionary:
 		a.max_integrity = ceiling
 		# Removing a temporary ceiling never restores lost Integrity.
 		a.integrity = mini(int(a.integrity), ceiling)
+		if a.get("construction_state") == "building" and a.integrity == ceiling:
+			a.construction_state = "ready"
+			if world.data.construction_targets[castle.owner] == castle.id:
+				world.data.construction_targets[castle.owner] = ""
 		entities.update(castle.id, castle.owner, a)
 		events.append(
 			public_event(
@@ -109,8 +135,8 @@ static func sync_breach(raw: Dictionary) -> Dictionary:
 	return {"action": "resolved", "world": world, "events": events}
 
 
-# Admission only. The eventual ordinary Construction action must still own
-# costs, action limits and progress. No reconstruction mutation/free build here.
+# Admission only. U13Construction owns costs, action limits and progress.
+# This eligibility query never mutates or grants a free build.
 static func reconstruction_eligibility(
 	world: Dictionary, player_id: int, castle_id: String
 ) -> Dictionary:
@@ -188,13 +214,13 @@ static func fire(
 	if not operational(engine):
 		return {"action": "resolved", "world": world, "events": events}
 	var target: Dictionary = entities.get_entity(engine.attributes.artillery_target)
-	if target.is_empty() or target.attributes.status not in ["standing", "defunct"]:
+	if not targetable(target):
 		var targets: Array = []
 		for castle in entities.snapshot().entities:
 			if (
 				castle.kind == "castle"
 				and castle.owner == 1 - int(engine.owner)
-				and castle.attributes.status in ["standing", "defunct"]
+				and targetable(castle)
 			):
 				targets.append(castle.id)
 		targets.sort()
@@ -261,6 +287,7 @@ static func fire(
 		events.append_array(reacted.events)
 	else:
 		target.attributes.integrity = before - damage
+		note_integrity_loss(target, before, round_number)
 		entities.update(target.id, target.owner, target.attributes)
 		world.entities = entities.snapshot()
 	events.append(
