@@ -89,22 +89,27 @@ views exactly equal the authoritative event. A future private reaction is reject
 instead of leaking it. The match resolver context now supplies player order for
 cross-Lord reactions; the timeline and pending-effect ordering are unchanged.
 
-## Construction decision still required
+## Construction clarification
 
-The handoff explicitly says not to infer this rule silently. Its addendum both
-calls Construction automatic and says that choosing Repair prevents progress.
-No later resolution was found. Three connected decisions remain:
+After the first local Deimos runner attempt, the user clarified:
 
-1. Does Repair pause the passive Construction tick, or does building continue?
-2. Is the per-round tick three or four Integrity?
-3. Does a build target complete at operational floor seven or full Integrity 21?
+> btw yes, passive contruction continues with a const token.
 
-A concrete proposed rule for review is: Construction occupies the Castle action,
-adds three Integrity, becomes operational at seven, and remains the selected build
-target until full 21; choosing Repair pauses that round's progress. This is a
-proposal, not an implemented default. Normal costs, action restrictions and
-acceleration rules must be implemented once the decision is settled. The current
-adapter rejects Construction submissions rather than silently granting progress.
+Carry forward passive Construction continuing with a Construction token. This
+supersedes treating the earlier Repair-pauses-progress proposal as an approved
+rule. The token's application/consumption and the rate/completion details still
+need to be mapped to the ordinary Construction action before War Foundry can
+execute it. Do not implement the prior proposed action model by inference.
+The current adapter continues to reject Construction submissions; the eligibility
+check grants no free progress.
+
+## Local parser correction
+
+The first local run caught a test-helper collision: `_set` overrides Godot's
+`Object._set(StringName, Variant) -> bool`, so a three-argument helper with that
+name cannot compile. Rename the helper and every call to
+`_patch_entity_attributes`. This changes test plumbing only. Grammar parsing is
+available here; the corrected runner still needs authoritative Godot verification.
 
 ## Tests and local command
 

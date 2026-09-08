@@ -51,7 +51,7 @@ func _entity(world: Dictionary, id: String) -> Dictionary:
 	return entities.get_entity(id)
 
 
-func _set(world: Dictionary, id: String, patch: Dictionary) -> void:
+func _patch_entity_attributes(world: Dictionary, id: String, patch: Dictionary) -> void:
 	var entities = Ids.new()
 	entities.restore(world.entities)
 	var entity: Dictionary = entities.get_entity(id)
@@ -88,7 +88,7 @@ func _artillery() -> void:
 		"gremory_adapter_rejects_unhandled_artillery_profile"
 	)
 	var target: String = Opening._castle_id(1)
-	_set(world, _engine(0), {"artillery_target": target})
+	_patch_entity_attributes(world, _engine(0), {"artillery_target": target})
 	var fired: Dictionary = Structures.fire(
 		world, _engine(0), "artillery", 1, "normal", Callable(content, "react"), [0, 1]
 	)
@@ -98,7 +98,7 @@ func _artillery() -> void:
 		"artillery_persistent_target"
 	)
 	world = fired.world
-	_set(world, target, {"integrity": 21})
+	_patch_entity_attributes(world, target, {"integrity": 21})
 	fired = Structures.fire(
 		world, _engine(0), "artillery", 2, "normal", Callable(content, "react"), [0, 1]
 	)
@@ -107,7 +107,7 @@ func _artillery() -> void:
 		"artillery_full_repair_does_not_retarget"
 	)
 	world = fired.world
-	_set(world, _engine(0), {"integrity": 6})
+	_patch_entity_attributes(world, _engine(0), {"integrity": 6})
 	fired = Structures.fire(
 		world, _engine(0), "artillery", 3, "normal", Callable(content, "react"), [0, 1]
 	)
@@ -115,12 +115,12 @@ func _artillery() -> void:
 		fired.world == world and fired.events.is_empty(),
 		"artillery_below_operational_floor_does_not_fire"
 	)
-	_set(world, _engine(0), {"integrity": 7})
+	_patch_entity_attributes(world, _engine(0), {"integrity": 7})
 	fired = Structures.fire(
 		world, _engine(0), "artillery", 3, "normal", Callable(content, "react"), [0, 1]
 	)
 	_check(_entity(fired.world, target).attributes.integrity == 17, "artillery_floor_seven_fires")
-	_set(world, target, {"integrity": 0, "status": "ruined"})
+	_patch_entity_attributes(world, target, {"integrity": 0, "status": "ruined"})
 	fired = Structures.fire(
 		world, _engine(0), "artillery", 4, "normal", Callable(content, "react"), [0, 1]
 	)
@@ -142,7 +142,7 @@ func _artillery() -> void:
 		[0, 1]
 	)
 	_check(replay == fired, "artillery_json_replays_target_and_events")
-	_set(world, _engine(1), {"integrity": 0, "status": "profaned"})
+	_patch_entity_attributes(world, _engine(1), {"integrity": 0, "status": "profaned"})
 	fired = Structures.fire(
 		world, _engine(0), "artillery", 5, "normal", Callable(content, "react"), [0, 1]
 	)
@@ -158,8 +158,8 @@ func _spoils_and_identity() -> void:
 	var content = Deimos.new()
 	var world: Dictionary = _world()
 	var target: String = Opening._castle_id(1)
-	_set(world, target, {"integrity": 2})
-	_set(world, _engine(0), {"artillery_target": target})
+	_patch_entity_attributes(world, target, {"integrity": 2})
+	_patch_entity_attributes(world, _engine(0), {"artillery_target": target})
 	var first: Dictionary = Structures.fire(
 		world, _engine(0), "spoils", 1, "normal", Callable(content, "react"), [0, 1]
 	)
@@ -184,7 +184,7 @@ func _spoils_and_identity() -> void:
 		"spoils_duplicate_fact_no_second_reward"
 	)
 	world = first.world
-	_set(world, _engine(1), {"integrity": 2})
+	_patch_entity_attributes(world, _engine(1), {"integrity": 2})
 	var second: Dictionary = Structures.fire(
 		world, _engine(0), "spoils", 1, "second", Callable(content, "react"), [0, 1]
 	)
@@ -198,7 +198,7 @@ func _spoils_and_identity() -> void:
 	_check(second.world.data.deimos_spoils == [2, 0], "spoils_tracks_attributed_lifetime_ruins")
 	world = second.world
 	# War Foundry is admission to normal Construction, never a free mutation.
-	_set(world, _engine(0), {"integrity": 0, "status": "ruined", "artillery_target": ""})
+	_patch_entity_attributes(world, _engine(0), {"integrity": 0, "status": "ruined", "artillery_target": ""})
 	var before: Dictionary = world.duplicate(true)
 	var eligibility: Dictionary = Structures.reconstruction_eligibility(world, 0, _engine(0))
 	_check(
@@ -209,7 +209,7 @@ func _spoils_and_identity() -> void:
 		),
 		"war_foundry_eligibility_is_not_free_construction"
 	)
-	_set(world, _engine(0), {"status": "profaned"})
+	_patch_entity_attributes(world, _engine(0), {"status": "profaned"})
 	_check(
 		Structures.reconstruction_eligibility(world, 0, _engine(0)).action == "invalid",
 		"war_foundry_rejects_profaned_engine"
@@ -219,10 +219,10 @@ func _spoils_and_identity() -> void:
 		"war_foundry_rejects_enemy_engine"
 	)
 	var bad: Dictionary = _world()
-	_set(bad, _engine(0), {"artillery_target": Opening._castle_id(0)})
+	_patch_entity_attributes(bad, _engine(0), {"artillery_target": Opening._castle_id(0)})
 	_check(not content.valid_world(bad), "artillery_restore_rejects_friendly_target")
 	bad = _world()
-	_set(bad, _engine(0), {"artillery_acquisitions": 0.5})
+	_patch_entity_attributes(bad, _engine(0), {"artillery_acquisitions": 0.5})
 	_check(not content.valid_world(bad), "artillery_restore_rejects_fractional_counter")
 
 
@@ -230,7 +230,7 @@ func _fear_and_breach() -> void:
 	var content = Deimos.new()
 	var world: Dictionary = _world()
 	var lord_id: String = world.players[0].lord_entity_id
-	_set(world, lord_id, {"threat": 1})
+	_patch_entity_attributes(world, lord_id, {"threat": 1})
 	var entities = Ids.new()
 	entities.restore(world.entities)
 	var extra: Dictionary = entities.create(
@@ -262,7 +262,7 @@ func _fear_and_breach() -> void:
 		"fear_duplicate_fact_does_not_return_more_guards"
 	)
 	world = _world()
-	_set(world, Opening._castle_id(0), {"integrity": 21})
+	_patch_entity_attributes(world, Opening._castle_id(0), {"integrity": 21})
 	var transition: Dictionary = Battle.apply(
 		world,
 		{"kind": "set_breach", "command_id": "enter-breach", "lord_id": "Deimos"},
@@ -310,8 +310,8 @@ func _match_and_replay() -> void:
 	var content = Deimos.new()
 	var owner = content.create_combat_match()
 	var world: Dictionary = _world()
-	_set(world, _engine(0), {"artillery_target": Opening._castle_id(1)})
-	_set(world, _engine(1), {"artillery_target": Opening._castle_id(0)})
+	_patch_entity_attributes(world, _engine(0), {"artillery_target": Opening._castle_id(1)})
+	_patch_entity_attributes(world, _engine(1), {"artillery_target": Opening._castle_id(0)})
 	if (
 		not _check(
 			owner.start("deimos-replay", world, [0, 1]).action != "invalid", "deimos_match_starts"
@@ -415,8 +415,8 @@ func _match_and_replay() -> void:
 	# A power-caused Ruination also triggers public discard reclamation.
 	world = _world()
 	world.data.breach_lord = "Gremory"
-	_set(world, Opening._castle_id(1), {"integrity": 2})
-	_set(world, _engine(0), {"artillery_target": Opening._castle_id(1)})
+	_patch_entity_attributes(world, Opening._castle_id(1), {"integrity": 2})
+	_patch_entity_attributes(world, _engine(0), {"artillery_target": Opening._castle_id(1)})
 	Cards.discard(world, 0, world.data.card_zones.hands[0].slice(0, 1))
 	owner = content.create_combat_match()
 	if (
@@ -442,7 +442,7 @@ func _firing_recheck() -> void:
 	var content = Deimos.new()
 	var world: Dictionary = Core.world(["Deimos", "Deimos"])
 	for player_id in [0, 1]:
-		_set(
+		_patch_entity_attributes(
 			world, _engine(player_id), {"integrity": 7, "artillery_target": _engine(1 - player_id)}
 		)
 	var owner = content.create_combat_match()
