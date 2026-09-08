@@ -228,75 +228,149 @@ func _board_controls() -> void:
 	_check(board.status.text.contains("No enemy Castle"), "board_missing_target_explained")
 	_check(board.session.checkpoint() == untouched, "board_modal_preview_is_pure")
 	board.restart()
-	_check(board.hand_view.card_buttons.size() == 4, "board_actual_hand_is_visible")
+	_check(not board.powers_box.visible, "board_combat_modal_hides_powers")
 	var ids: Array = board.session.view().world.hand
+	board.action_zone.action_buttons["Ward"].pressed.emit()
 	board.hand_view.select_card_id(ids[0])
 	board.hand_view.select_card_id(ids[1])
+	var before_modal: Dictionary = board.session.checkpoint()
+	board.confirm.pressed.emit()
+	_check(board.powers_step and not board.playing, "board_combat_confirm_opens_powers")
+	_check(board.session.checkpoint() == before_modal, "board_no_state_advance_between_modals")
+	_check(
+		board.powers_box.visible and not board.action_zone.action_box.visible,
+		"board_power_modal_hides_combat"
+	)
+	_check(
+		board.hand_view.card_buttons.size() == 2,
+		"board_combat_cards_not_available_as_power_payment"
+	)
+	_check(board.staged_order.card_ids == [ids[0], ids[1]], "board_staged_combat_preserved")
+	board.hand_view.select_card_id(ids[2])
+	board.hand_view.select_card_id(ids[3])
 	board.queue_ruin()
 	_check(
-		board.payment.size() == 2 and board.hand_view.card_buttons.size() == 2,
-		"board_ruin_reserves_selected_physical_cards"
+		board.payment.size() == 2 and board.hand_view.card_buttons.is_empty(),
+		"board_ruin_uses_only_remaining_cards"
 	)
-	var reserved: Array = board.payment.duplicate()
+	_check(not board.confirm.disabled, "board_combat_and_ruin_valid_together")
 	var planned: Array = board.queued.duplicate(true)
 	board.phase_prompt.view_board_button.pressed.emit()
 	await process_frame
-	_check(board.phase_prompt.board_view_collapsed, "board_view_board_collapses_prompt")
 	_check(
-		board.phase_prompt.view_board_button.is_visible_in_tree(),
-		"board_return_tab_remains_visible"
-	)
-	_check(
-		board.payment == reserved and board.queued == planned,
-		"board_collapse_preserves_power_payment"
+		(
+			board.phase_prompt.board_view_collapsed
+			and board.phase_prompt.view_board_button.is_visible_in_tree()
+		),
+		"board_power_modal_collapses_to_return_tab"
 	)
 	board.phase_prompt.view_board_button.pressed.emit()
 	await process_frame
 	_check(
-		not board.phase_prompt.board_view_collapsed and board.pass_button.is_visible_in_tree(),
-		"board_return_restores_buttons"
+		board.queued == planned and board.payment.size() == 2,
+		"board_return_preserves_power_payment"
+	)
+	_check(
+		not board.phase_prompt.get_global_rect().intersects(board.hand_view.get_global_rect()),
+		"board_power_modal_keeps_hand_accessible"
 	)
 	board.clear_powers()
 	_check(
-		board.payment.is_empty() and board.hand_view.card_buttons.size() == 4,
-		"board_clear_returns_reserved_cards"
+		board.hand_view.card_buttons.size() == 2 and board.payment.is_empty(),
+		"board_clear_powers_keeps_combat_reservation"
 	)
-	board.action_choice.select(2)
-	board.hand_view.select_card_id(ids[0])
-	board.hand_view.select_card_id(ids[1])
-	board.resolve_round()
-	_check(board.playing, "board_commit_starts_playback")
+	board.queue_predator()
+	var once: Array = board.queued.duplicate(true)
+	board.queue_predator()
+	_check(board.queued == once and once.size() == 1, "board_predator_second_click_is_noop")
+	_check(
+		board.predator_button.disabled and board.predator_state.text.contains("Queued"),
+		"board_predator_shows_queued"
+	)
+	_check(not board.confirm.disabled, "board_duplicate_click_does_not_invalidate_plan")
+	board.back_to_combat()
+	_check(not board.powers_step and board.queued.is_empty(), "board_back_clears_powers")
+	_check(
+		board.hand_view.selected_card_ids() == [ids[0], ids[1]],
+		"board_back_restores_combat_selection"
+	)
+	board.confirm.pressed.emit()
+	board.queue_predator()
+	board.pass_button.pressed.emit()
+	_check(
+		board.playing and board.session.plans().powers.is_empty(), "board_no_powers_clears_queue"
+	)
+	_check(board.session.plans().order.card_ids == [ids[0], ids[1]], "board_no_powers_keeps_combat")
 	var before: Dictionary = board.session.checkpoint()
 	board.resolve_round()
 	board._process(0.5)
 	_check(
-		board.session.checkpoint() == before, "board_double_click_and_playback_do_not_resolve_again"
+		board.session.checkpoint() == before,
+		"board_playback_and_repeat_confirm_do_not_resolve_again"
 	)
 	board.finish_playback()
-	_check(board.session.next_hook().is_empty(), "board_skip_completes_aftermath")
-	board.confirm.pressed.emit()
-	_check(board.session.round_number() == 2, "board_next_round_control")
 	board.restart()
-	_check(board.session.round_number() == 1 and not board.playing, "board_restart_isolated")
-	board.queue_predator()
+	var before_skip: Dictionary = board.session.checkpoint()
 	board.pass_button.pressed.emit()
-	_check(board.playing and board.queued.is_empty(), "board_pass_round_cancels_queued_powers")
 	_check(
-		board.session.plans().powers.is_empty() and board.session.plans().order.is_empty(),
-		"board_pass_submits_empty_plan"
+		board.powers_step and board.staged_order.is_empty() and not board.playing,
+		"board_skip_combat_still_offers_powers"
+	)
+	_check(board.session.checkpoint() == before_skip, "board_skip_combat_does_not_advance_state")
+	board.queue_predator()
+	board.confirm.pressed.emit()
+	_check(
+		board.playing and board.session.plans().powers.size() == 1,
+		"board_power_only_round_resolves"
 	)
 	await process_frame
 	_check(not board.pass_button.is_visible_in_tree(), "board_playback_hides_modal_actions")
 	board.finish_playback()
-	board.restart()
-	board.queue_predator()
-	board.action_zone.action_buttons["Powers Only"].pressed.emit()
 	board.confirm.pressed.emit()
 	_check(
-		board.playing and board.session.plans().powers.size() == 1,
-		"board_powers_only_preserves_queued_power"
+		board.session.round_number() == 2 and not board.powers_step,
+		"board_next_round_starts_with_combat"
 	)
+	board.pass_button.pressed.emit()
+	_check(
+		board.predator_state.text.contains("Cooldown 1") and board.predator_button.disabled,
+		"board_predator_current_cooldown_shown"
+	)
+	board.pass_button.pressed.emit()
 	board.finish_playback()
+	board.confirm.pressed.emit()
+	board.pass_button.pressed.emit()
+	_check(
+		board.predator_state.text.contains("Ready") and not board.predator_button.disabled,
+		"board_predator_ready_after_cooldown"
+	)
+	board.restart()
+	board.pass_button.pressed.emit()
+	var fired_target: String = board.ruin_target.get_item_metadata(0)
+	var ruin_hand: Array = board.session.view().world.hand
+	board.hand_view.select_card_id(ruin_hand[0])
+	board.hand_view.select_card_id(ruin_hand[1])
+	board.ruin_button.pressed.emit()
+	_check(board.queued.size() == 1 and not board.confirm.disabled, "board_ruin_can_be_queued")
+	board.confirm.pressed.emit()
+	board.finish_playback()
+	_check(
+		board.session.power_status(Gremory.RUIN).fire_round == 2, "board_ruin_armed_for_next_round"
+	)
+	_check(
+		board.phase_prompt.copy_label.text.contains("armed"), "board_aftermath_explains_armed_ruin"
+	)
+	board.confirm.pressed.emit()
+	var defunct: bool = false
+	for entity in board.session.view().world.entities:
+		if entity.id == fired_target:
+			defunct = entity.attributes.status == "defunct" and entity.attributes.integrity == 0
+	_check(defunct, "board_ruin_fires_from_real_modal_flow")
+	_check(
+		board.session.power_status(Gremory.RUIN).fire_round == 0,
+		"board_ruin_no_longer_pending_after_firing"
+	)
+	_check(board.ruin_target.item_count == 0, "board_already_defunct_castle_not_offered_for_ruin")
 	board.queue_free()
 	await process_frame
 

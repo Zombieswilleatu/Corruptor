@@ -56,6 +56,13 @@ var pass_button: Button
 var decision_button: Button
 var history: RichTextLabel
 var _runtime_ok: bool = false
+var powers_step: bool = false
+var staged_order: Dictionary = {}
+var powers_box: VBoxContainer
+var predator_button: Button
+var ruin_button: Button
+var predator_state: Label
+var ruin_state: Label
 
 
 func _ready() -> void:
@@ -88,6 +95,8 @@ func restart() -> void:
 	clock = 0
 	queued = []
 	payment = []
+	powers_step = false
+	staged_order = {}
 	var result: Dictionary = session.reset()
 	if _error(result):
 		return
@@ -178,12 +187,20 @@ func _build() -> void:
 	action_zone.confirm_requested.connect(_confirm_decision)
 	action_zone.pass_requested.connect(pass_round)
 	var powers := VBoxContainer.new()
+	powers_box = powers
 	decisions.add_child(powers)
+	_button(powers, "Back to combat · clear powers", back_to_combat)
 	_label(powers, "GREMORY'S POWERS", 16)
 	power_lane = _option(powers, ["Castle", "Lord"])
-	controls.append(_button(powers, "PREDATOR OF RUIN\nSummon 3 Vultures", queue_predator))
+	predator_state = _label(powers, "", 13)
+	predator_state.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	predator_button = _button(powers, "PREDATOR OF RUIN\nSummon 3 Vultures", queue_predator)
+	controls.append(predator_button)
 	ruin_target = _option(powers, [])
-	controls.append(_button(powers, "INEVITABLE RUIN\nReserve 2 selected cards", queue_ruin))
+	ruin_state = _label(powers, "", 13)
+	ruin_state.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ruin_button = _button(powers, "INEVITABLE RUIN\nReserve 2 selected cards", queue_ruin)
+	controls.append(ruin_button)
 	controls.append(_button(powers, "Clear powers · return cards", clear_powers))
 	plan_label = _label(powers, "", 15)
 	plan_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -230,7 +247,7 @@ func _refresh(presented: Dictionary = {}) -> void:
 		lanes.show_world(world.entities, session.round_number())
 	var cards: Array = []
 	for id in world.hand:
-		if id in payment:
+		if id in payment or (powers_step and id in staged_order.get("card_ids", [])):
 			continue
 		for entity in world.entities:
 			if entity.id == id:
@@ -249,13 +266,25 @@ func _refresh(presented: Dictionary = {}) -> void:
 			target_choice.set_item_metadata(target_choice.item_count - 1, entity.id)
 	ruin_target.clear()
 	for entity in world.entities:
-		if entity.kind == "castle" and entity.owner == 1:
+		if (
+			entity.kind == "castle"
+			and entity.owner == 1
+			and entity.attributes.status == "standing"
+			and entity.attributes.integrity > 0
+			and entity.attributes.integrity < entity.attributes.max_integrity
+		):
 			ruin_target.add_item("Enemy Castle · %s" % entity.attributes.status)
 			ruin_target.set_item_metadata(ruin_target.item_count - 1, entity.id)
 	ruin_target.tooltip_text = "Inevitable Ruin targets a damaged enemy Castle."
 	history.text = ""
 	for event in view.events.slice(maxi(0, view.events.size() - 15)):
-		history.append_text(String(event.get("text", event.type)) + "\n")
+		var text_value: String = String(event.get("text", ""))
+		history.append_text(
+			(
+				(text_value if not text_value.is_empty() else String(event.type).replace("_", " "))
+				+ "\n"
+			)
+		)
 	for control in controls:
 		control.disabled = not _planning()
 	ruin_target.disabled = ruin_target.item_count == 0 or not _planning()
@@ -269,7 +298,7 @@ func _render_side(row, world: Dictionary, pid: int) -> void:
 
 
 func _board_target_selected(action: String, lane: String, target_id: String) -> void:
-	if not _planning():
+	if not _planning() or powers_step:
 		return
 	_select_action(action)
 	lane_choice.select(0 if lane == "Castle" else 1)
@@ -286,6 +315,8 @@ func _planning() -> bool:
 
 
 func _order() -> Dictionary:
+	if powers_step:
+		return staged_order.duplicate(true)
 	var action: String = action_choice.get_item_text(action_choice.selected)
 	if action == "Pass":
 		return {}
@@ -321,8 +352,8 @@ func _preview() -> void:
 	var name: String = {0: "Powers Only", 1: "Siege", 2: "Ward"}[action_choice.selected]
 	for key in action_zone.action_buttons:
 		action_zone.action_buttons[key].set_pressed_no_signal(key == name)
-	lane_choice.visible = action_choice.selected == 2
-	target_choice.visible = action_choice.selected == 1
+	lane_choice.visible = not powers_step and action_choice.selected == 2
+	target_choice.visible = not powers_step and action_choice.selected == 1
 	action_zone.primary_label.visible = target_choice.visible
 	action_zone.primary_label.text = "Enemy Castle"
 	action_zone.secondary_label.visible = lane_choice.visible
@@ -332,38 +363,39 @@ func _preview() -> void:
 	var result: Dictionary = session.choose(queued, _order())
 	confirm.disabled = result.action == "invalid"
 	status.text = (
-		"Ready. Selected cards pay for your combat action; queued Ruin cards are reserved separately."
+		"Combat selected. Next opens Lord powers without advancing the round."
 		if not confirm.disabled
 		else _friendly_error(result)
 	)
 
 	if not confirm.disabled and action_choice.selected == 0:
-		status.text = "Combat is skipped. Confirm keeps queued powers; Pass Round cancels them."
+		status.text = "No combat selected. Continue to Lord powers."
 	if action_choice.selected == 1 and target_choice.item_count == 0:
-		status.text = "No enemy Castle remains. Choose Ward or Powers Only, or Pass Round."
+		status.text = "No enemy Castle remains. Choose Ward or Skip Combat."
 	action_zone.action_buttons["Siege"].disabled = target_choice.item_count == 0
+	_update_power_controls()
 	_update_decision_copy()
 
 
 func queue_predator() -> void:
-	if not _planning():
+	if not _planning() or not powers_step or _queued_power(Gremory.PREDATOR):
 		return
 	var source: Dictionary = session.declaration(
 		Gremory.PREDATOR, queued.size(), {"lane": power_lane.get_item_text(power_lane.selected)}
 	)
 	var candidate: Array = queued.duplicate(true)
 	candidate.append(source)
-	if _error(session.choose(candidate, {})):
+	if _error(session.choose(candidate, _order())):
 		return
 	queued = candidate
 	_preview()
 
 
 func queue_ruin() -> void:
-	if not _planning():
+	if not _planning() or not powers_step or _queued_power(Gremory.RUIN):
 		return
 	if ruin_target.item_count == 0:
-		status.text = "No enemy Castle remains for Inevitable Ruin."
+		status.text = "Ruin needs a damaged, standing enemy Castle. Defunct Castles are already ruined."
 		return
 	var selected: Array = hand_view.selected_card_ids()
 	if selected.size() != 2:
@@ -378,7 +410,7 @@ func queue_ruin() -> void:
 	var candidate: Array = queued.duplicate(true)
 	candidate.append(source)
 	# Reserving payment removes these cards from the combat selection.
-	if _error(session.choose(candidate, {})):
+	if _error(session.choose(candidate, _order())):
 		return
 	queued = candidate
 	payment.append_array(selected)
@@ -446,12 +478,14 @@ func next_round() -> void:
 		return
 	queued = []
 	payment = []
+	powers_step = false
+	staged_order = {}
 	action_choice.select(0)
 	_refresh()
 
 
 func _select_action(action: String) -> void:
-	if not _planning():
+	if not _planning() or powers_step:
 		return
 	action_choice.select({"Siege": 1, "Ward": 2, "Powers Only": 0}[action])
 	_preview()
@@ -460,8 +494,37 @@ func _select_action(action: String) -> void:
 func _confirm_decision() -> void:
 	if session.next_hook().is_empty():
 		next_round()
+	elif not powers_step:
+		enter_powers()
 	else:
 		resolve_round()
+
+
+func enter_powers() -> void:
+	if not _planning() or powers_step:
+		return
+	var order: Dictionary = _order()
+	if _error(session.choose([], order)):
+		return
+	staged_order = order.duplicate(true)
+	powers_step = true
+	hand_view.clear_selection()
+	_refresh()
+	reopen_decision()
+
+
+func back_to_combat() -> void:
+	if not _planning() or not powers_step:
+		return
+	var selected: Array = staged_order.get("card_ids", []).duplicate()
+	powers_step = false
+	staged_order = {}
+	queued = []
+	payment = []
+	_refresh()
+	for id in selected:
+		hand_view.select_card_id(id)
+	_preview()
 
 
 func pass_round() -> void:
@@ -469,9 +532,13 @@ func pass_round() -> void:
 		return
 	queued = []
 	payment = []
-	action_choice.select(0)
-	hand_view.clear_selection()
-	resolve_round()
+	if not powers_step:
+		action_choice.select(0)
+		hand_view.clear_selection()
+		enter_powers()
+	else:
+		# Skip powers only; the combat order from the first prompt is preserved.
+		resolve_round()
 
 
 func reopen_decision() -> void:
@@ -485,17 +552,91 @@ func reopen_decision() -> void:
 func _update_decision_copy() -> void:
 	if not _planning():
 		return
-	var copy: String = {
-		0:
-		"Queue Lord powers below, then confirm. Pass Round skips combat and cancels all queued powers.",
-		1:
-		"Select cards from your hand to attack the enemy Castle. Queued Lord powers resolve alongside combat.",
-		2:
-		"Choose a lane and select cards from your hand to defend it. You may also queue Lord powers."
-	}[action_choice.selected]
-	phase_prompt.bind_decision(
-		"COMMITMENT", "YOUR ORDERS", copy, "ROUND %d" % session.round_number()
+	action_zone.action_box.visible = not powers_step
+	powers_box.visible = powers_step
+	if powers_step:
+		(
+			phase_prompt
+			. bind_decision(
+				"LORD_POWERS",
+				"LORD POWERS",
+				"Combat is staged. Choose optional powers using the remaining cards, then resolve both together.",
+				"ROUND %d" % session.round_number()
+			)
+		)
+	else:
+		phase_prompt.bind_decision(
+			"COMMITMENT",
+			"COMBAT",
+			"Choose combat and select cards. Next opens Lord powers; the round has not advanced.",
+			"ROUND %d" % session.round_number()
+		)
+	confirm.text = "RESOLVE ROUND" if powers_step else "NEXT · LORD POWERS"
+	pass_button.text = "NO POWERS" if powers_step else "SKIP COMBAT"
+	pass_button.tooltip_text = (
+		"Clear queued powers and resolve your staged combat."
+		if powers_step
+		else "Skip combat and continue to Lord powers."
 	)
+
+
+func _queued_power(power: String) -> bool:
+	for source in queued:
+		if source.power_id == power:
+			return true
+	return false
+
+
+func _update_power_controls() -> void:
+	for power in [Gremory.PREDATOR, Gremory.RUIN]:
+		var state: Dictionary = session.power_status(power)
+		var label: Label = predator_state if power == Gremory.PREDATOR else ruin_state
+		var button: Button = predator_button if power == Gremory.PREDATOR else ruin_button
+		var queued_now: bool = _queued_power(power)
+		label.text = "Queued · not spent yet" if queued_now else "Ready · cooldown 0"
+		if not queued_now and state.remaining > 0:
+			label.text = "Cooldown %d · ready round %d" % [state.remaining, state.ready_round]
+		if state.fire_round > 0:
+			label.text += "\nArmed · fires at start of round %d" % state.fire_round
+		if power == Gremory.RUIN:
+			label.text += (
+				"\nDiscard 2 · damaged enemy Castle\nFires next round (%d), making it defunct."
+				% (session.round_number() + 1)
+			)
+			if ruin_target.item_count == 0:
+				label.text += "\nNo eligible enemy Castle."
+			if not queued_now and hand_view.card_buttons.size() < 2:
+				label.text += (
+					"\nNot enough uncommitted cards: %d/2." % hand_view.card_buttons.size()
+				)
+		else:
+			label.text += "\nFree · cooldown after use: 1 round"
+		button.disabled = (
+			not _planning()
+			or not powers_step
+			or queued_now
+			or state.remaining > 0
+			or (
+				power == Gremory.RUIN
+				and (ruin_target.item_count == 0 or hand_view.card_buttons.size() < 2)
+			)
+		)
+	if powers_step and not confirm.disabled:
+		status.text = (
+			"Combat: %s · %d cards. Powers: %d queued. Resolve submits both together."
+			% [
+				staged_order.get("action", "Skipped"),
+				staged_order.get("card_ids", []).size(),
+				queued.size()
+			]
+		)
+
+
+func _pending_notice() -> String:
+	var state: Dictionary = session.power_status(Gremory.RUIN)
+	if state.fire_round > 0:
+		return "Inevitable Ruin is armed for the start of round %d." % state.fire_round
+	return "View Board to inspect the result."
 
 
 func _sync_decision() -> void:
@@ -505,14 +646,11 @@ func _sync_decision() -> void:
 		phase_prompt.set_presenting(false)
 		return
 	if session.next_hook().is_empty():
-		(
-			phase_prompt
-			. bind_decision(
-				"AFTERMATH",
-				"AFTERMATH",
-				"The round has resolved. View Board to inspect it, or begin the next round. This slice has no normal draws or victory yet.",
-				"ROUND %d" % session.round_number()
-			)
+		phase_prompt.bind_decision(
+			"AFTERMATH",
+			"AFTERMATH",
+			"The round has resolved. " + _pending_notice() + " Begin the next round to continue.",
+			"ROUND %d" % session.round_number()
 		)
 		action_zone.hide()
 		confirm.show()
@@ -532,7 +670,9 @@ func _friendly_error(result: Dictionary) -> String:
 	var reason: String = result.get("reason", "")
 	if reason == "castle_not_enemy":
 		return "Inevitable Ruin must target an enemy Castle."
-	if reason.contains("cooldown"):
+	if reason == "castle_not_damaged":
+		return "Ruin requires a damaged enemy Castle before this round resolves."
+	if reason == "power_not_ready" or reason.contains("cooldown"):
 		return "That power is still cooling down. Choose another power or pass."
 	if reason == "combat_order_invalid":
 		return "Check your combat target and selected cards, or choose Powers Only or Pass Round."

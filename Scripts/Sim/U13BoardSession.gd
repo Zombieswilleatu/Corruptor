@@ -140,3 +140,19 @@ func _add_legal(candidates: Array, source: Dictionary) -> void:
 func _pick(purpose: String, decision: String, bound: int) -> int:
 	var key: String = "board:round:%d:player:1:%s" % [round_number(), decision]
 	return int(Rng.draw(SEED, key, purpose, 0, bound).value)
+
+
+# Read-only UI status from the same public clocks used by the owner.
+func power_status(power: String) -> Dictionary:
+	var result: Dictionary = {"remaining": 0, "ready_round": round_number(), "fire_round": 0}
+	var public: Dictionary = view()
+	for row in public.cooldowns:
+		var source: Dictionary = row.get("declaration", {})
+		if source.get("player_id") == 0 and source.get("power_id") == power:
+			result.ready_round = int(row.ready_round)
+			result.remaining = maxi(0, result.ready_round - round_number())
+	for row in public.pending:
+		var source: Dictionary = row.get("declaration", {})
+		if source.get("player_id") == 0 and source.get("power_id") == power:
+			result.fire_round = int(source.fire_round)
+	return result
