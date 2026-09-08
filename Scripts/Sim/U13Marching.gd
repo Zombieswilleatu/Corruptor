@@ -157,6 +157,9 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			}
 		)
 	]
+	var tape_bases: Dictionary = {}
+	for unit in _units(entities):
+		tape_bases[unit.id] = unit
 	for tick in range(TICKS):
 		var clock: int = int(context.round) * TICKS + tick
 		# A prior hook may consume a waiting participant or retire an entity.
@@ -304,7 +307,13 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 		events.append(
 			public_event(
 				"MARCHING_TICK",
-				{"round": context.round, "tick": tick, "units": _units(entities), "clash": active}
+				{
+					"round": context.round,
+					"tick": tick,
+					"unit_format": "attribute_delta_v1",
+					"units": _tick_units(entities, tape_bases),
+					"clash": active
+				}
 			)
 		)
 	world.entities = entities.snapshot()
@@ -322,6 +331,28 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 		)
 	)
 	return {"action": "resolved", "world": world, "events": events}
+
+
+# Each row is relative to the phase-start unit, never to a preceding tick.
+# Keep commonly inspected dynamic coordinates/vitals explicit. Immutable origin,
+# source IDs and unchanged stats are already present in MARCHING_STARTED.
+static func _tick_units(entities, bases: Dictionary) -> Array:
+	var result: Array = []
+	for unit in _units(entities):
+		if not bases.has(unit.id):
+			result.append(unit)
+			continue
+		var attributes: Dictionary = {}
+		var original: Dictionary = bases[unit.id].attributes
+		for key in unit.attributes:
+			if (
+				key in ["x_fp", "y_fp", "hp", "armor"]
+				or not original.has(key)
+				or unit.attributes[key] != original[key]
+			):
+				attributes[key] = unit.attributes[key]
+		result.append({"id": unit.id, "owner": unit.owner, "attributes": attributes})
+	return result
 
 
 static func _units(entities) -> Array:

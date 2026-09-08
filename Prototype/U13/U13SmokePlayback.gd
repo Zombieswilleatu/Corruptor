@@ -133,6 +133,7 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 	var units: Dictionary = {}
 	for unit in started.units:
 		units[unit.id] = unit.duplicate(true)
+	var bases: Dictionary = units.duplicate(true)
 	_append(units, "Marching begins", [])
 	var expected_tick: int = 0
 	for event in events:
@@ -146,7 +147,13 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 		duration = MOVE_SECONDS * float(expected_tick) / float(started.ticks)
 		units = {}
 		for unit in details.units:
-			units[unit.id] = unit.duplicate(true)
+			if details.get("unit_format", "") == "attribute_delta_v1" and bases.has(unit.id):
+				var restored: Dictionary = bases[unit.id].duplicate(true)
+				restored.owner = unit.owner
+				restored.attributes.merge(unit.attributes, true)
+				units[unit.id] = restored
+			else:
+				units[unit.id] = unit.duplicate(true)
 		_append(
 			units,
 			"Contact queue — duel in progress" if not details.clash.is_empty() else "Marching",

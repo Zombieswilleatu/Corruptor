@@ -13,17 +13,27 @@ func _init() -> void:
 
 
 func _run() -> void:
+	var started: int = Time.get_ticks_msec()
+	print("SMOKE: scenarios starting")
 	_scenarios()
+	print("SMOKE: scenarios elapsed %d ms" % (Time.get_ticks_msec() - started))
 	if failures == 0:
+		started = Time.get_ticks_msec()
+		print("SMOKE: replay/checkpoint starting")
 		_replay_and_checkpoint()
+		print("SMOKE: replay/checkpoint elapsed %d ms" % (Time.get_ticks_msec() - started))
 	if failures == 0:
+		started = Time.get_ticks_msec()
+		print("SMOKE: scene controls starting")
 		await _scene_controls()
+		print("SMOKE: scene controls elapsed %d ms" % (Time.get_ticks_msec() - started))
 	print("U13 smoke scene failures: %d" % failures)
 	quit(0 if failures == 0 else 1)
 
 
 func _scenarios() -> void:
 	for scenario in range(3):
+		print("SMOKE: scenario %d" % scenario)
 		var session = Session.new()
 		if not _check(
 			session.reset(scenario).action != "invalid", "smoke_scenario_starts_" + str(scenario)

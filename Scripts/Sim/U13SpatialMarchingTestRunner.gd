@@ -148,6 +148,30 @@ func _contact_and_steering() -> void:
 		tape.append(row.event)
 	if not _check(playback.build(tape), "spatial_playback_builds"):
 		return
+	_check(ticks[0].unit_format == "attribute_delta_v1", "tick_uses_compact_attribute_format")
+	_check(not ticks[0].units[0].has("origin"), "tick_does_not_repeat_immutable_identity_metadata")
+	var full_tape: Array = tape.duplicate(true)
+	var bases: Dictionary = {}
+	for unit in before.entities.entities:
+		bases[unit.id] = unit
+	for event in full_tape:
+		if event.type != "MARCHING_TICK":
+			continue
+		var rows: Array = []
+		for delta in event.data.units:
+			var unit: Dictionary = bases[delta.id].duplicate(true)
+			unit.owner = delta.owner
+			unit.attributes.merge(delta.attributes, true)
+			rows.append(unit)
+		event.data.units = rows
+		event.data.erase("unit_format")
+	var full_playback = Playback.new()
+	_check(full_playback.build(full_tape), "full_tick_tapes_remain_readable")
+	for at in [0.0, 0.015, 0.24, 1.125, 3.0, 6.0]:
+		_check(
+			playback.sample(at) == full_playback.sample(at),
+			"compact_and_full_tick_playback_identical"
+		)
 	var unchanged: Array = tape.duplicate(true)
 	for tick in [0, 7, 20, 70, 199]:
 		var sampled: Dictionary = playback.sample(6.0 * float(tick + 1) / 200.0)

@@ -45,3 +45,10 @@ bash Scripts/Sim/run_u13_foundation_tests.sh \
 ```
 
 After 14/14, launch `run_u13_board.sh` with the same executable. Queue Predator on a lane and watch the real spread, convergence, shrinking health rings, and waiting joiners. A late-starting fight may finish next round. Do not treat random-legal match win rates as balance evidence.
+
+
+## Smoke timeout follow-up
+
+The first local verification reached U13Smoke and hit its 30-second watchdog. Full unit records on all 200 ticks amplified the cost of subsequent match snapshot validation. Tick rows now use `attribute_delta_v1`: immutable metadata and unchanged attributes are inherited from the phase-start unit; coordinates, HP and armor remain explicit. Each tick is independently reconstructed against that baseline, so scrubbing cannot accumulate deltas. Full tick tapes remain readable. A regression compares full and compact tape samples, including fractional times.
+
+Smoke tests print section timings and scenario starts to distinguish a slow section from an apparent hang. The default watchdog remains 30 seconds. This addresses a concrete source of avoidable work; runtime improvement and completion still require local Godot verification.
