@@ -37,6 +37,8 @@ static func validate_rule(rule: Dictionary) -> bool:
 		return false
 	if typeof(rule.get("cost")) != TYPE_DICTIONARY or typeof(rule.get("stages")) != TYPE_ARRAY:
 		return false
+	if not Data.is_integer(rule.get("discard_count", 0)) or rule.get("discard_count", 0) < 0:
+		return false
 	for stage in rule.stages:
 		if typeof(stage) != TYPE_DICTIONARY:
 			return false
@@ -46,6 +48,22 @@ static func validate_rule(rule: Dictionary) -> bool:
 	if rule.cooldown_on == "expiration" and rule.stages.is_empty():
 		return false
 	return true
+
+
+static func cost_matches(source: Dictionary, rule: Dictionary) -> bool:
+	var expected: Dictionary = Data.copy_data(rule.cost)
+	var count: int = int(rule.get("discard_count", 0))
+	if count > 0:
+		var selected = source.cost.get("discard_ids")
+		if typeof(selected) != TYPE_ARRAY or selected.size() != count:
+			return false
+		var seen: Dictionary = {}
+		for card_id in selected:
+			if typeof(card_id) != TYPE_STRING or card_id.is_empty() or seen.has(card_id):
+				return false
+			seen[card_id] = true
+		expected["discard_ids"] = selected.duplicate()
+	return source.cost == expected
 
 
 static func declaration(
@@ -65,7 +83,7 @@ static func declaration(
 	var fire_round: int = source.declared_round if source.fire_round == -1 else source.fire_round
 	if fire_round != round_number + int(rule.delay_rounds) or source.fire_hook != rule.fire_hook:
 		return Data.invalid("declaration_timing_invalid")
-	if source.visibility != rule.visibility or source.cost != Data.copy_data(rule.cost):
+	if source.visibility != rule.visibility or not cost_matches(source, rule):
 		return Data.invalid("declaration_terms_invalid")
 	var player: Dictionary = world.players[source.player_id]
 	var lord: Dictionary = entities.get_entity(player.lord_entity_id)

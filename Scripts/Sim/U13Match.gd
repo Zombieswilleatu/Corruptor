@@ -1,6 +1,7 @@
 class_name U13Match
 extends RefCounted
 
+const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Runtime = preload("res://Scripts/Sim/U13RoundRuntime.gd")
@@ -23,6 +24,10 @@ var _validators: Dictionary
 var _resolvers: Dictionary
 var _projector: Callable
 var _hook_handler: Callable
+var _context_hook: Callable
+# Retain RefCounted content that owns configured Callables, without serializing it.
+var _content_owner: RefCounted
+var _world_validator: Callable
 var _seed: String = ""
 var _world: Dictionary = {}
 var _presentation_world: Dictionary = {}
@@ -42,7 +47,10 @@ func _init(
 	validators: Dictionary = {},
 	resolvers: Dictionary = {},
 	projector: Callable = Callable(),
-	hook_handler: Callable = Callable()
+	hook_handler: Callable = Callable(),
+	context_hook: Callable = Callable(),
+	content_owner: RefCounted = null,
+	world_validator: Callable = Callable()
 ) -> void:
 	_policy_id = policy_id
 	_rules = rules.duplicate(true)
@@ -50,6 +58,9 @@ func _init(
 	_resolvers = resolvers.duplicate()
 	_projector = projector
 	_hook_handler = hook_handler
+	_context_hook = context_hook
+	_content_owner = content_owner
+	_world_validator = world_validator
 
 
 static func declaration_id(player_id: int, round_number: int, queue_index: int) -> String:
@@ -269,6 +280,26 @@ func _accept(player_id: int, declarations: Array) -> Dictionary:
 		)
 		if checked.action == "invalid":
 			return checked
+		var discard_count: int = int(rule.get("discard_count", 0))
+		if discard_count > 0:
+			var selected = source.cost.get("discard_ids")
+			if not Cards.can_discard(_world, player_id, selected, discard_count):
+				return Data.invalid("discard_payment_invalid")
+			Cards.discard(_world, player_id, selected)
+			_entities.restore(_world.entities)
+			_record(
+				{
+					"type": "CARDS_DISCARDED",
+					"text": "",
+					"data":
+					{
+						"player_id": player_id,
+						"card_ids": selected.duplicate(),
+						"declaration_id": source.declaration_id
+					}
+				},
+				source
+			)
 		var registered: Dictionary
 		if rule.cooldown_on == "expiration":
 			registered = _cooldowns.wait_for_expiration(
@@ -335,7 +366,19 @@ func _dispatch(_context: Dictionary) -> Dictionary:
 	for event in resolved.events:
 		_record(event, _source_for(event.data.effect_id, due.effects))
 	# Ordinary rules (combat, Banishment, etc.) enter as a versioned pure transform.
-	var transformed = _hook_handler.call(hook, round_number, _world.duplicate(true))
+	var transformed
+	if _context_hook.is_valid():
+		transformed = _context_hook.call(
+			{
+				"hook": hook,
+				"round": round_number,
+				"seed": _seed,
+				"player_order": _order.duplicate(),
+				"world": _world.duplicate(true)
+			}
+		)
+	else:
+		transformed = _hook_handler.call(hook, round_number, _world.duplicate(true))
 	var applied: Dictionary = _apply_transform(transformed)
 	if applied.action == "invalid":
 		return applied
@@ -464,6 +507,12 @@ func _install_world(raw: Dictionary) -> Dictionary:
 		for amount in player.resources.values():
 			if not Data.is_integer(amount) or amount < 0:
 				return Data.invalid("world_resources_invalid")
+	if raw.data.has("card_zones") and not Cards.valid(raw):
+		return Data.invalid("world_card_zones_invalid")
+	if _world_validator.is_valid():
+		var accepted = _world_validator.call(Data.copy_data(raw))
+		if typeof(accepted) != TYPE_BOOL or not accepted:
+			return Data.invalid("content_world_invalid")
 	_world = Data.copy_data(raw)
 	_entities = candidate
 	return {"action": "u13_world_installed"}
@@ -531,7 +580,7 @@ func _source_matches_rule(source: Dictionary) -> bool:
 	return (
 		source.lord_id == rule.lord_id
 		and source.visibility == rule.visibility
-		and source.cost == Data.copy_data(rule.cost)
+		and Legality.cost_matches(source, rule)
 		and source.fire_hook == rule.fire_hook
 		and fire_round == source.declared_round + int(rule.delay_rounds)
 	)
@@ -541,7 +590,7 @@ func _configuration_valid() -> bool:
 	if (
 		_policy_id.is_empty()
 		or not _projector.is_valid()
-		or not _hook_handler.is_valid()
+		or (not _hook_handler.is_valid() and not _context_hook.is_valid())
 		or not Data.is_data(_rules)
 	):
 		return false
@@ -562,7 +611,17 @@ func _configuration_valid() -> bool:
 
 
 func _new_owner():
-	return get_script().new(_policy_id, _rules, _validators, _resolvers, _projector, _hook_handler)
+	return get_script().new(
+		_policy_id,
+		_rules,
+		_validators,
+		_resolvers,
+		_projector,
+		_hook_handler,
+		_context_hook,
+		_content_owner,
+		_world_validator
+	)
 
 
 func _clone():
