@@ -3,6 +3,7 @@ extends Control
 const PhasePrompt = preload("res://Prototype/U13/U13PhasePrompt.gd")
 const ActionZone = preload("res://Prototype/U13/U13ActionZone.gd")
 const Session = preload("res://Scripts/Sim/U13BoardSession.gd")
+const DenseSession = preload("res://Scripts/Sim/U13DenseBoardSession.gd")
 const Playback = preload("res://Prototype/U13/U13SmokePlayback.gd")
 const Lanes = preload("res://Prototype/U13/U13BoardLanes.gd")
 const DomainRow = preload("res://Prototype/U13/U13PlayerBoard.gd")
@@ -30,6 +31,8 @@ class CardFace:
 
 var session = Session.new()
 var playback = Playback.new()
+var dense_mode: bool = false
+var dense_button: Button
 var playing: bool = false
 var clock: float = 0.0
 var queued: Array = []
@@ -66,6 +69,9 @@ var ruin_state: Label
 
 
 func _ready() -> void:
+	dense_mode = dense_mode or OS.get_cmdline_user_args().has("--dense")
+	if dense_mode:
+		session = DenseSession.new()
 	var version: Dictionary = Engine.get_version_info()
 	_runtime_ok = (
 		int(version.major) == 4
@@ -122,6 +128,9 @@ func _build() -> void:
 	main.add_child(header)
 	summary = header.round_label
 	decision_button = _button(header.tools_box, "DECISION", reopen_decision)
+	if dense_mode:
+		dense_button = _button(header.tools_box, "Run dense round", run_dense_round)
+		decision_button.hide()
 	_button(header.tools_box, "Restart", restart)
 	_button(header.tools_box, "Exit", func(): get_tree().quit())
 	_button(
@@ -225,6 +234,10 @@ func _build() -> void:
 	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	status.add_theme_font_size_override("font_size", 12)
 	status.clip_contents = true
+	if dense_mode:
+		status.reparent(main)
+		status.custom_minimum_size.y = 30
+		status.add_theme_font_size_override("font_size", 14)
 	var navigation := HBoxContainer.new()
 	header.history_box.add_child(navigation)
 	next_button = _button(navigation, "Next round", next_round)
@@ -439,6 +452,22 @@ func clear_powers() -> void:
 	_refresh()
 
 
+func run_dense_round() -> void:
+	if not dense_mode or playing or not _runtime_ok:
+		return
+	if session.next_hook().is_empty():
+		next_round()
+	if not _planning():
+		return
+	queued = []
+	payment = []
+	powers_step = false
+	staged_order = {}
+	action_choice.select(0)
+	hand_view.clear_selection()
+	resolve_round()
+
+
 func resolve_round() -> void:
 	if not _planning():
 		return
@@ -458,6 +487,9 @@ func resolve_round() -> void:
 		"Marching — committed Marchers wait until next round; "
 		+ "summoned Vultures move immediately."
 	)
+
+	if dense_mode:
+		status.text = "Dense Marching · watch steering, queued contacts and shrinking health rings."
 
 
 func _process(delta: float) -> void:
@@ -483,6 +515,9 @@ func finish_playback() -> void:
 		"Round resolved. Next round continues; Restart restores the opening hand. "
 		+ "This slice has no normal draw or victory yet."
 	)
+
+	if dense_mode:
+		status.text = "Dense round complete. Next dense round continues; Restart restores all 48 Marchers."
 
 
 func next_round() -> void:
@@ -556,6 +591,8 @@ func pass_round() -> void:
 
 
 func reopen_decision() -> void:
+	if dense_mode:
+		return
 	if playing or phase_prompt == null:
 		return
 	phase_prompt.board_view_collapsed = false
@@ -654,6 +691,15 @@ func _pending_notice() -> String:
 
 
 func _sync_decision() -> void:
+	if dense_mode:
+		phase_prompt.set_presenting(false)
+		next_button.hide()
+		dense_button.disabled = playing or not _runtime_ok
+		dense_button.text = (
+			"Next dense round" if session.next_hook().is_empty() else "Run dense round"
+		)
+		status.text = "Dense field: 48 Marchers at start · 24 per side · Castle lane. Click Run dense round."
+		return
 	decision_button.disabled = playing
 	next_button.hide()
 	if playing:

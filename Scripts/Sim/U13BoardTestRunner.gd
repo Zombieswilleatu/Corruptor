@@ -2,6 +2,7 @@ extends SceneTree
 
 const Textures = preload("res://Prototype/U13/U13BoardTextures.gd")
 const Session = preload("res://Scripts/Sim/U13BoardSession.gd")
+const DenseSession = preload("res://Scripts/Sim/U13DenseBoardSession.gd")
 const Playback = preload("res://Prototype/U13/U13SmokePlayback.gd")
 const Scene = preload("res://Prototype/U13/U13Board.tscn")
 const Gremory = preload("res://Scripts/Sim/U13Gremory.gd")
@@ -20,6 +21,8 @@ func _run() -> void:
 	_butcher_movement()
 	if failures == 0:
 		await _board_controls()
+	if failures == 0:
+		await _dense_board()
 	print("U13 board failures: %d" % failures)
 	quit(0 if failures == 0 else 1)
 
@@ -389,6 +392,56 @@ func _board_controls() -> void:
 		"board_ruin_no_longer_pending_after_firing"
 	)
 	_check(board.ruin_target.item_count == 0, "board_already_defunct_castle_not_offered_for_ruin")
+	board.queue_free()
+	await process_frame
+
+
+func _dense_board() -> void:
+	var board = Scene.instantiate()
+	board.dense_mode = true
+	root.add_child(board)
+	await process_frame
+	board.set_process(false)
+	var initial: Dictionary = board.session.checkpoint()
+	var counts: Array = [0, 0]
+	var suits: Array = [{}, {}]
+	var positions: Dictionary = {}
+	for entity in board.session.view().world.entities:
+		if entity.kind != "marcher":
+			continue
+		counts[entity.owner] += 1
+		suits[entity.owner][entity.attributes.suit] = true
+		positions[entity.id] = entity.attributes.duplicate(true)
+	_check(counts == [24, 24], "dense_board_24_per_side")
+	_check(suits[0].size() == 4 and suits[1].size() == 4, "dense_board_all_four_suits_per_side")
+	_check(board.status.is_visible_in_tree(), "dense_board_instructions_visible")
+	_check(board.dense_button.is_visible_in_tree(), "dense_board_run_button_visible")
+	board.dense_button.pressed.emit()
+	if not _check(board.playing, "dense_board_button_resolves_real_marching"):
+		board.queue_free()
+		await process_frame
+		return
+	_check(board.dense_button.disabled, "dense_board_cannot_double_resolve")
+	_check(
+		board.playback.sample(0).units.size() == DenseSession.COUNT,
+		"dense_board_no_extra_bot_spawns"
+	)
+	var damaged: bool = false
+	var moved: bool = false
+	for index in range(1, 201):
+		var frame: Dictionary = board.playback.sample(
+			board.playback.duration * float(index) / 200.0
+		)
+		for unit in frame.units:
+			damaged = damaged or unit.attributes.hp < unit.attributes.max_hp
+			moved = moved or unit.attributes.x_fp != positions[unit.id].x_fp
+	_check(damaged, "dense_board_visible_damage_for_health_rings")
+	_check(moved, "dense_board_authoritative_positions_move")
+	board.finish_playback()
+	_check(board.session.next_hook().is_empty(), "dense_board_round_completes")
+	_check(not board.dense_button.disabled, "dense_board_next_round_available")
+	board.restart()
+	_check(board.session.checkpoint() == initial, "dense_board_restart_repeats_opening")
 	board.queue_free()
 	await process_frame
 
