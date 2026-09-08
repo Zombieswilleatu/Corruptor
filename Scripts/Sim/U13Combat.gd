@@ -197,7 +197,12 @@ static func _reveal(context: Dictionary) -> Dictionary:
 				)
 				if created.action == "invalid":
 					return created
-				events.append(Marching.public_event("MARCHER_SPAWNED", created.entity))
+				var placed: Dictionary = Marching.place_spawn(
+					entities, created.entity.id, context.seed
+				)
+				if placed.action == "invalid":
+					return placed
+				events.append(Marching.public_event("MARCHER_SPAWNED", placed.entity))
 	world.entities = entities.snapshot()
 	world.data["combat_reveal_round"] = context.round
 	return {"action": "resolved", "world": world, "events": events}

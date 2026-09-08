@@ -90,8 +90,6 @@ func _draw() -> void:
 		)
 		var top: float = rect.position.y + 65
 		var bottom: float = rect.end.y - 52
-		var middle: float = rect.get_center().x
-		var occupied: Dictionary = {}
 		for unit in _units:
 			var a: Dictionary = unit.attributes
 			if a.lane != lane:
@@ -100,13 +98,9 @@ func _draw() -> void:
 			var y: float = lerpf(
 				bottom, top, clampf(float(a.get("visual_x", a.x_fp)) / 2400.0, 0, 1)
 			)
-			var key: String = "%s:%d" % [unit.owner, roundi(y / 24.0)]
-			var ordinal: int = int(occupied.get(key, 0))
-			occupied[key] = ordinal + 1
-			var center := Vector2(
-				middle + (-19 if unit.owner == 0 else 19) + (ordinal % 2) * 8,
-				y + floori(float(ordinal) / 2.0) * 9
-			)
+			# Both axes are recorded game positions; no per-frame scatter or packing.
+			var lateral: float = clampf(float(a.get("visual_y", a.y_fp)) / 600.0, 0, 1)
+			var center := Vector2(rect.position.x + rect.size.x * lateral, y)
 			_draw_chit(unit, center)
 			if unit.id in _clash:
 				draw_arc(center, 26.0, 0.0, TAU, 48, Color("f5d39a"), 2.0, true)

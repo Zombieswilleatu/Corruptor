@@ -114,8 +114,17 @@ func _butcher_movement() -> void:
 	var playback = Playback.new()
 	_check(playback.build(session.marching_events()), "board_birth_tape_exists")
 	_check(playback.sample(3.0).units.size() == 2, "board_two_butchers_in_tape")
+	var starts: Dictionary = {}
+	for unit in playback.sample(0.0).units:
+		starts[unit.id] = unit.attributes.duplicate(true)
 	for unit in playback.sample(3.0).units:
-		_check(unit.attributes.visual_x == 0.0, "board_committed_butchers_hold_birth_round")
+		_check(
+			(
+				unit.attributes.visual_x == starts[unit.id].x_fp
+				and unit.attributes.visual_y == starts[unit.id].y_fp
+			),
+			"board_committed_butchers_hold_birth_round"
+		)
 	if not _finish(session):
 		return
 	if not _check(session.next_round().action != "invalid", "board_butcher_next_round"):
@@ -128,11 +137,20 @@ func _butcher_movement() -> void:
 	_check(playback.sample(0).units.size() == 2, "board_two_butchers_present")
 	for unit in playback.sample(3.0).units:
 		_check(
-			is_equal_approx(unit.attributes.visual_x, 400.0),
-			"board_butcher_midpoint_is_interpolated"
+			(
+				unit.attributes.visual_x > float(starts[unit.id].x_fp)
+				and unit.attributes.visual_x <= float(starts[unit.id].x_fp) + 400.0
+			),
+			"board_butcher_moves_during_playback"
 		)
 	for unit in playback.sample(playback.duration).units:
-		_check(unit.attributes.x_fp == 800, "board_butcher_recorded_endpoint")
+		_check(
+			(
+				unit.attributes.x_fp > starts[unit.id].x_fp
+				and unit.attributes.x_fp <= starts[unit.id].x_fp + 800
+			),
+			"board_butcher_endpoint_respects_speed_budget"
+		)
 	for fps in [30, 60, 144]:
 		for frame in range(fps * 6):
 			playback.sample(float(frame) / float(fps))

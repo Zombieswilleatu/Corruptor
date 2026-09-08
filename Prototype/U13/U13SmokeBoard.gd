@@ -73,20 +73,15 @@ func _draw() -> void:
 		for mark in range(1, 4):
 			var x: float = left + width * float(mark) / 4.0
 			draw_line(Vector2(x, center - 3), Vector2(x, center + 3), Color("697687"), 1)
-		var occupied: Dictionary = {}
 		for unit in _units:
 			if unit.attributes.lane != lane:
 				continue
 			var a: Dictionary = unit.attributes
 			var x: float = left + width * clampf(float(a.get("visual_x", a.x_fp)) / 2400.0, 0, 1)
-			var bucket: String = "%d:%d" % [unit.owner, floori(x / 36.0)]
-			var ordinal: int = int(occupied.get(bucket, 0))
-			occupied[bucket] = ordinal + 1
-			# Packing offsets are visual only. All units keep their recorded x.
-			var y: float = (
-				center + (-26.0 if unit.owner == 0 else 26.0) + float(ordinal % 3 - 1) * 14.0
+			var lateral: float = clampf(
+				float(a.get("visual_y", a.get("y_fp", 300))) / 600.0, 0.0, 1.0
 			)
-			x += float(floori(float(ordinal) / 3.0)) * (16.0 if unit.owner == 0 else -16.0)
+			var y: float = center - 35.0 + 70.0 * lateral
 			var point: Vector2 = Vector2(x, y)
 			var color: Color = BLUE if unit.owner == 0 else RED
 			if unit.id in _clash:

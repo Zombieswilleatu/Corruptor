@@ -165,7 +165,10 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 			)
 			if created.action == "invalid":
 				return created
-			events.append({"type": "MARCHER_SPAWNED", "text": "", "data": created.entity})
+			var placed: Dictionary = Marching.place_spawn(entities, created.entity.id, context.seed)
+			if placed.action == "invalid":
+				return placed
+			events.append({"type": "MARCHER_SPAWNED", "text": "", "data": placed.entity})
 	else:
 		var castle: Dictionary = entities.get_entity(source.target.entity_id)
 		castle.attributes["integrity"] = 0

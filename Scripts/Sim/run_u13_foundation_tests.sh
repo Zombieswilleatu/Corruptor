@@ -100,6 +100,7 @@ u13_runners=(
   U13Determinism
   U13Match
   U13Gremory
+  U13SpatialMarching
   U13MarchingIntegration
   U13Smoke
   U13Board
@@ -115,6 +116,7 @@ u13_markers=(
   'U13 determinism and identity failures: 0'
   'U13 match foundation failures: 0'
   'U13 Gremory failures: 0'
+  'U13 spatial Marching failures: 0'
   'U13 Marching integration failures: 0'
   'U13 smoke scene failures: 0'
   'U13 board failures: 0'

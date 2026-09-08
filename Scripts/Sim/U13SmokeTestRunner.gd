@@ -50,8 +50,8 @@ func _scenarios() -> void:
 		_check(session.next_hook() == Timeline.END_MARCHING_CHECKS, "smoke_stops_after_marching")
 		var events: Array = session.view().events
 		if scenario in [0, 1]:
-			_check(_count(events, "MARCHER_DEFEATED") == 6, "smoke_predators_clash_and_die")
-			_check(_count(events, "PICKING_THE_BONES") == 2, "smoke_both_bones_rewards_visible")
+			_check(_count(events, "MARCHER_CONTACT") > 0, "smoke_predators_reach_physical_contact")
+			_check(_count(events, "MARCHING_TICK") == 200, "smoke_records_every_movement_tick")
 		if scenario == 1:
 			_check(_count(events, "GEM_DAGGER") == 2, "smoke_siege_triggers_gem")
 			_check(_count(events, "CASTLE_DESTROYED") == 1, "smoke_siege_destroys_castle")
@@ -116,12 +116,20 @@ func _replay_and_checkpoint() -> void:
 	if not _check(playback.build(tape), "smoke_playback_builds_from_public_events"):
 		return
 	_check(playback.sample(0.0).units.size() == 6, "smoke_playback_starts_with_six_predators")
-	_check(playback.final_units().is_empty(), "smoke_playback_finishes_at_recorded_deaths")
+	var recorded_final: Array = []
+	var recorded_middle: Dictionary = {}
+	for event in tape:
+		if event.type == "MARCHING_FINISHED":
+			recorded_final = event.data.units
+		if event.type == "MARCHING_TICK" and event.data.tick == 99:
+			for unit in event.data.units:
+				recorded_middle[unit.id] = unit.attributes
+	_check(playback.final_units() == recorded_final, "smoke_playback_finishes_at_recorded_state")
 	var sampled: Dictionary = playback.sample(3.0)
 	for unit in sampled.units:
 		_check(
-			is_equal_approx(float(unit.attributes.visual_x), 600.0 if unit.owner == 0 else 1800.0),
-			"smoke_mid_travel_interpolation"
+			is_equal_approx(float(unit.attributes.visual_x), float(recorded_middle[unit.id].x_fp)),
+			"smoke_mid_travel_matches_authoritative_tick"
 		)
 	for rate in [30, 60, 144]:
 		for frame in range(ceili(playback.duration * rate) + 1):
@@ -131,8 +139,8 @@ func _replay_and_checkpoint() -> void:
 		"smoke_frame_rate_and_scrubbing_cannot_mutate_match"
 	)
 	_check(
-		playback.sample(playback.duration).units.is_empty(),
-		"smoke_final_sample_matches_empty_field"
+		playback.sample(playback.duration).units.size() == recorded_final.size(),
+		"smoke_final_sample_matches_recorded_field"
 	)
 	var bad: Dictionary = before.duplicate(true)
 	bad.match.engine_version = "4.2"

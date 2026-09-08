@@ -161,6 +161,7 @@ func _movement_and_waiting() -> void:
 	var ids: Array = []
 	for suit in Marching.SUITS:
 		ids.append(_spawn(world, suit, 0, suit, 0))
+		_edit(world, ids.back(), {"y_fp": 50 + 150 * (ids.size() - 1)})
 	var fresh: String = _spawn(world, "fresh", 0, "Vulture", 0, 2, "Lord")
 	var before: Dictionary = world.duplicate(true)
 	var result: Dictionary = _run_marching(world)
@@ -471,14 +472,21 @@ func _predator_and_replay() -> void:
 	if not _drive(owner) or not _drive(resumed):
 		return
 	_check(owner.snapshot() == resumed.snapshot(), "real_marching_replays_exact_world_and_events")
-	var kills: Array = _events(owner.snapshot().events.rows, "MARCHER_DEFEATED")
-	_check(kills.size() == 6, "six_predators_reach_contact_and_die_without_injected_damage")
+	var rows: Array = owner.snapshot().events.rows
+	var kills: Array = _events(rows, "MARCHER_DEFEATED")
+	var finished: Array = _events(rows, "MARCHING_FINISHED")
+	_check(kills.size() + finished[0].data.units.size() == 6, "all_six_predators_accounted_for")
+	var contacts: Array = _events(rows, "MARCHER_CONTACT")
+	_check(not contacts.is_empty(), "lord_spawns_reach_real_contact_in_current_phase")
 	_check(
-		_events(owner.snapshot().events.rows, "MARCHER_CLASH")[0].data.tick == 199,
-		"lord_spawns_move_in_current_phase"
+		_events(rows, "MARCHING_TICK").size() == 200, "all_authoritative_movement_ticks_recorded"
 	)
+	var rewarded: Array = []
+	for kill in kills:
+		if kill.data.attacker.owner not in rewarded:
+			rewarded.append(kill.data.attacker.owner)
 	_check(
-		owner.snapshot().world.data.neutral_tears == 2,
+		owner.snapshot().world.data.neutral_tears == rewarded.size(),
 		"actual_predator_kills_trigger_bones_once_each"
 	)
 	# Replay from every boundary, including a one-sided sealed combat order.

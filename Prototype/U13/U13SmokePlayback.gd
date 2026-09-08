@@ -9,10 +9,12 @@ const EXCHANGE_SECONDS: float = 0.24
 var duration: float = 0.0
 var round_number: int = 0
 var _frames: Array = []
+var _spatial: bool = false
 
 
 func build(events: Array) -> bool:
 	_frames = []
+	_spatial = false
 	duration = 0.0
 	round_number = 0
 	var started: Dictionary = {}
@@ -24,6 +26,8 @@ func build(events: Array) -> bool:
 			finished = event.data
 	if started.is_empty() or finished.is_empty():
 		return false
+	if started.get("model", "") == "U13_MARCHING_SPATIAL_V2":
+		return _build_spatial(events, started, finished)
 	round_number = int(started.round)
 	var units: Dictionary = {}
 	for unit in started.units:
@@ -92,6 +96,10 @@ func sample(seconds: float) -> Dictionary:
 	for unit in result:
 		var ending: Dictionary = right_units.get(unit.id, unit)
 		# Keep fractional visual positions out of the simulation's *_fp fields.
+		if _spatial:
+			unit.attributes["visual_y"] = lerpf(
+				float(unit.attributes.y_fp), float(ending.attributes.y_fp), weight
+			)
 		unit.attributes["visual_x"] = lerpf(
 			float(unit.attributes.x_fp), float(ending.attributes.x_fp), weight
 		)
@@ -117,3 +125,38 @@ static func _advance_picture(units: Dictionary, ticks: int, round_number: int) -
 		if a.waiting or a.movement_ready_round > round_number:
 			continue
 		a.x_fp = clampi(int(a.x_fp) + int(a.direction) * int(a.step_fp) * ticks, 0, 2400)
+
+
+func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) -> bool:
+	_spatial = true
+	round_number = int(started.round)
+	var units: Dictionary = {}
+	for unit in started.units:
+		units[unit.id] = unit.duplicate(true)
+	_append(units, "Marching begins", [])
+	var expected_tick: int = 0
+	for event in events:
+		if event.type != "MARCHING_TICK":
+			continue
+		var details: Dictionary = event.data
+		if int(details.tick) != expected_tick:
+			_frames = []
+			return false
+		expected_tick += 1
+		duration = MOVE_SECONDS * float(expected_tick) / float(started.ticks)
+		units = {}
+		for unit in details.units:
+			units[unit.id] = unit.duplicate(true)
+		_append(
+			units,
+			"Contact queue — duel in progress" if not details.clash.is_empty() else "Marching",
+			details.clash
+		)
+	if expected_tick != int(started.ticks):
+		_frames = []
+		return false
+	units = {}
+	for unit in finished.units:
+		units[unit.id] = unit.duplicate(true)
+	_append(units, "Marching complete", [])
+	return true
