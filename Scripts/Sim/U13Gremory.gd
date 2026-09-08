@@ -4,6 +4,8 @@ extends RefCounted
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
+const Combat = preload("res://Scripts/Sim/U13Combat.gd")
+const Marching = preload("res://Scripts/Sim/U13Marching.gd")
 const Battle = preload("res://Scripts/Sim/U13BattleEvents.gd")
 const MatchOwner = preload("res://Scripts/Sim/U13Match.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
@@ -11,12 +13,20 @@ const POLICY: String = "U13_GREMORY_SLICE_V1"
 const PREDATOR: String = "PredatorOfRuin"
 const RUIN: String = "InevitableRuin"
 var _driver: Callable
+var _combat_enabled: bool = false
 
 
 # Driver is a versioned, pure authoritative phase adapter returning a command
 # array. It supplies combat/development results, never a post-lock player prompt.
-func _init(driver: Callable = Callable()) -> void:
+func _init(driver: Callable = Callable(), combat_enabled: bool = false) -> void:
 	_driver = driver
+	_combat_enabled = combat_enabled
+
+
+# Built-in path takes sealed orders, never injected kill/defeat commands.
+func create_combat_match():
+	var content = get_script().new(Callable(), true)
+	return content.create_match(Combat.VERSION + ":" + Marching.VERSION)
 
 
 func create_match(adapter_version: String):
@@ -29,7 +39,7 @@ func create_match(adapter_version: String):
 		PREDATOR: Callable(self, "resolve"), RUIN: Callable(self, "resolve")
 	}
 	return MatchOwner.new(
-		POLICY + ":" + adapter_version,
+		POLICY + (":combat:" if _combat_enabled else ":") + adapter_version,
 		rules(),
 		validators,
 		resolvers,
@@ -37,11 +47,14 @@ func create_match(adapter_version: String):
 		Callable(),
 		Callable(self, "on_hook"),
 		self,
-		Callable(self, "valid_world")
+		Callable(self, "valid_world"),
+		Callable(self, "accept_order")
 	)
 
 
 func valid_world(world: Dictionary) -> bool:
+	if _combat_enabled and not Combat.valid(world):
+		return false
 	if (
 		not Cards.valid(world)
 		or not Data.is_integer(world.data.get("neutral_tears"))
@@ -139,22 +152,12 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 	var events: Array = []
 	if source.power_id == PREDATOR:
 		for ordinal in range(3):
-			# Baseline Vulture profile; movement/contact scheduling is a separate adapter.
-			var attributes: Dictionary = {
-				"suit": "Vulture",
-				"lane": source.target.lane,
-				"hp": 5,
-				"max_hp": 5,
-				"attack": 2,
-				"armor": 1,
-				"regen": 1,
-				"step_fp": 6,
-				"armor_bypass": true,
-				"birth_round": context.round,
-				"x_fp": 0 if source.player_id == 0 else 2400,
-				"direction": 1 if source.player_id == 0 else -1,
-				"source_effect_id": record.effect_id
-			}
+			# Lord spawns move in this round's upcoming Step 12. Commitments
+			# separately retain the audited birth-round movement hold.
+			var attributes: Dictionary = Marching.profile(
+				"Vulture", source.target.lane, source.player_id, context.round, context.round
+			)
+			attributes["source_effect_id"] = record.effect_id
 			var created: Dictionary = entities.create(
 				"marcher", record.effect_id, ordinal, source.player_id, attributes
 			)
@@ -177,7 +180,19 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 	return {"action": "resolved", "world": world, "events": events}
 
 
+func accept_order(context: Dictionary) -> Dictionary:
+	if _combat_enabled:
+		return Combat.accept(context)
+	if not context.order.is_empty():
+		return Data.invalid("combat_orders_not_supported")
+	if context.phase == "snapshot":
+		return {"action": "legal"}
+	return {"action": "resolved", "world": context.world, "events": []}
+
+
 func on_hook(context: Dictionary) -> Dictionary:
+	if _combat_enabled:
+		return Combat.on_hook(context, Callable(self, "react"))
 	var world: Dictionary = context.world
 	var commands = [] if not _driver.is_valid() else _driver.call(context.duplicate(true))
 	if typeof(commands) != TYPE_ARRAY or not Data.is_data(commands):
@@ -286,18 +301,28 @@ static func _draw_event(event_type: String, drawn: Dictionary) -> Dictionary:
 func project(world: Dictionary, player_id: int) -> Dictionary:
 	var zones: Dictionary = world.data.card_zones
 	var visible: Array = []
+	var committed: Array = zones.get("committed", [[], []])
+	var revealed: bool = (
+		int(world.data.get("combat_reveal_round", 0))
+		> int(world.data.get("combat_cleanup_round", 0))
+	)
 	for entity in world.entities.entities:
 		if (
 			entity.kind != "card"
 			or entity.attributes.get("role") == "guard"
 			or entity.id in zones.hands[player_id]
 			or entity.id in zones.discard
+			or entity.id in committed[player_id]
+			or (revealed and entity.id in committed[1 - player_id])
 		):
 			visible.append(entity.duplicate(true))
 	return {
 		"entities": visible,
 		"hand": zones.hands[player_id].duplicate(),
-		"opponent_hand_count": zones.hands[1 - player_id].size(),
+		"committed": committed[player_id].duplicate(),
+		"sigils": world.data.get("sigils", []).duplicate(true),
+		"opponent_hand_count":
+		zones.hands[1 - player_id].size() + (0 if revealed else committed[1 - player_id].size()),
 		"deck_count": zones.deck.size(),
 		"discard": zones.discard.duplicate(),
 		"neutral_tears": world.data.neutral_tears,

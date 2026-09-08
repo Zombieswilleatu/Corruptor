@@ -28,10 +28,12 @@ var _context_hook: Callable
 # Retain RefCounted content that owns configured Callables, without serializing it.
 var _content_owner: RefCounted
 var _world_validator: Callable
+var _order_handler: Callable
 var _seed: String = ""
 var _world: Dictionary = {}
 var _presentation_world: Dictionary = {}
 var _submissions: Array = [null, null]
+var _combat_orders: Array = [{}, {}]
 var _order: Array = [0, 1]
 var _runtime = Runtime.new()
 var _pending = Pending.new()
@@ -50,7 +52,8 @@ func _init(
 	hook_handler: Callable = Callable(),
 	context_hook: Callable = Callable(),
 	content_owner: RefCounted = null,
-	world_validator: Callable = Callable()
+	world_validator: Callable = Callable(),
+	order_handler: Callable = Callable()
 ) -> void:
 	_policy_id = policy_id
 	_rules = rules.duplicate(true)
@@ -61,6 +64,7 @@ func _init(
 	_context_hook = context_hook
 	_content_owner = content_owner
 	_world_validator = world_validator
+	_order_handler = order_handler
 
 
 static func declaration_id(player_id: int, round_number: int, queue_index: int) -> String:
@@ -98,6 +102,7 @@ func begin_next_round(player_order: Array) -> Dictionary:
 		return Data.invalid("match_round_overflow")
 	_order = player_order.duplicate()
 	_submissions = [null, null]
+	_combat_orders = [{}, {}]
 	return _runtime.begin_round(_runtime.round_number + 1)
 
 
@@ -107,7 +112,9 @@ func next_hook() -> String:
 
 # Same entry point for UI, bot and submit. A complete queue is evaluated together
 # so two powers cannot spend the same resources or reserve the same cooldown.
-func preview_submission(player_id: int, declarations: Array) -> Dictionary:
+func preview_submission(
+	player_id: int, declarations: Array, combat_order: Dictionary = {}
+) -> Dictionary:
 	if _seed.is_empty() or player_id not in [0, 1] or next_hook() != Timeline.SUBMISSION_LOCK:
 		return Data.invalid("submission_window_closed")
 	if _submissions[player_id] != null:
@@ -115,14 +122,15 @@ func preview_submission(player_id: int, declarations: Array) -> Dictionary:
 	var candidate = _clone()
 	if candidate == null:
 		return Data.invalid("match_clone_failed")
-	return candidate._accept(player_id, declarations)
+	return candidate._accept(player_id, declarations, combat_order)
 
 
-func submit(player_id: int, declarations: Array) -> Dictionary:
-	var result: Dictionary = preview_submission(player_id, declarations)
+func submit(player_id: int, declarations: Array, combat_order: Dictionary = {}) -> Dictionary:
+	var result: Dictionary = preview_submission(player_id, declarations, combat_order)
 	if result.action == "invalid":
 		return result
 	_submissions[player_id] = Data.copy_data(declarations)
+	_combat_orders[player_id] = Data.copy_data(combat_order)
 	return {"action": "u13_submission_accepted"}
 
 
@@ -177,6 +185,7 @@ func snapshot() -> Dictionary:
 		"world": _world.duplicate(true),
 		"presentation_world": _presentation_world.duplicate(true),
 		"submissions": _submissions.duplicate(true),
+		"combat_orders": _combat_orders.duplicate(true),
 		"player_order": _order.duplicate(),
 		"runtime": _runtime.snapshot(),
 		"pending": _pending.snapshot(),
@@ -203,6 +212,13 @@ func restore(raw: Dictionary) -> Dictionary:
 	if typeof(raw.get("seed")) != TYPE_STRING or raw.seed.is_empty():
 		return Data.invalid("match_seed_invalid")
 	var decoded: Dictionary = Data.copy_data(raw)
+	if not decoded.has("combat_orders"):
+		decoded["combat_orders"] = [{}, {}]
+	if typeof(decoded.combat_orders) != TYPE_ARRAY or decoded.combat_orders.size() != 2:
+		return Data.invalid("match_orders_invalid")
+	for combat_order in decoded.combat_orders:
+		if typeof(combat_order) != TYPE_DICTIONARY:
+			return Data.invalid("match_orders_invalid")
 	for key in [
 		"world", "presentation_world", "runtime", "pending", "persistent", "cooldowns", "events"
 	]:
@@ -239,14 +255,15 @@ func restore(raw: Dictionary) -> Dictionary:
 	candidate._order = decoded.player_order
 	candidate._presentation_world = decoded.presentation_world
 	candidate._submissions = decoded.submissions
+	candidate._combat_orders = decoded.combat_orders
 	if not candidate._consistent():
 		return Data.invalid("match_snapshot_inconsistent")
 	_adopt(candidate)
 	return {"action": "u13_match_restored"}
 
 
-func _accept(player_id: int, declarations: Array) -> Dictionary:
-	if not Data.is_data(declarations):
+func _accept(player_id: int, declarations: Array, combat_order: Dictionary = {}) -> Dictionary:
+	if not Data.is_data(declarations) or not Data.is_data(combat_order):
 		return Data.invalid("submission_data_invalid")
 	for index in range(declarations.size()):
 		var source: Dictionary = Data.declaration_copy(declarations[index])
@@ -322,6 +339,23 @@ func _accept(player_id: int, declarations: Array) -> Dictionary:
 		_record(Data.event("POWER_DECLARED", record), source)
 		for event in registered.events:
 			_record(event, source)
+	if _order_handler.is_valid():
+		var ordered = _order_handler.call(
+			{
+				"phase": "commit",
+				"player_id": player_id,
+				"order": combat_order.duplicate(true),
+				"round": _runtime.round_number,
+				"world": _world.duplicate(true)
+			}
+		)
+		if typeof(ordered) == TYPE_DICTIONARY and ordered.get("action") == "invalid":
+			return ordered
+		var applied: Dictionary = _apply_transform(ordered)
+		if applied.action == "invalid":
+			return applied
+	elif not combat_order.is_empty():
+		return Data.invalid("combat_orders_not_supported")
 	return {"action": "legal"}
 
 
@@ -332,7 +366,9 @@ func _dispatch(_context: Dictionary) -> Dictionary:
 		if _submissions[0] == null or _submissions[1] == null:
 			return Data.invalid("both_submissions_required")
 		for player_id in _order:
-			var accepted: Dictionary = _accept(player_id, _submissions[player_id])
+			var accepted: Dictionary = _accept(
+				player_id, _submissions[player_id], _combat_orders[player_id]
+			)
 			if accepted.action == "invalid":
 				return accepted
 	if hook == Timeline.PERSISTENT_ADVANCEMENT:
@@ -374,6 +410,7 @@ func _dispatch(_context: Dictionary) -> Dictionary:
 				"round": round_number,
 				"seed": _seed,
 				"player_order": _order.duplicate(),
+				"combat_orders": _combat_orders.duplicate(true),
 				"world": _world.duplicate(true)
 			}
 		)
@@ -528,8 +565,25 @@ func _consistent() -> bool:
 	if _cooldowns.snapshot().round != expected or _persistent.snapshot().advanced_round != expected:
 		return false
 	for player_id in [0, 1]:
+		if _order_handler.is_valid():
+			var checked = _order_handler.call(
+				{
+					"phase": "snapshot",
+					"player_id": player_id,
+					"order": _combat_orders[player_id].duplicate(true),
+					"round": current,
+					"next_hook_index": _runtime.next_hook_index,
+					"world": _world.duplicate(true)
+				}
+			)
+			if typeof(checked) != TYPE_DICTIONARY or checked.get("action") != "legal":
+				return false
+		elif not _combat_orders[player_id].is_empty():
+			return false
 		var submission = _submissions[player_id]
 		if submission == null:
+			if not _combat_orders[player_id].is_empty():
+				return false
 			if _runtime.next_hook_index > Timeline.hook_rank(Timeline.SUBMISSION_LOCK):
 				return false
 			continue
@@ -620,7 +674,8 @@ func _new_owner():
 		_hook_handler,
 		_context_hook,
 		_content_owner,
-		_world_validator
+		_world_validator,
+		_order_handler
 	)
 
 
@@ -636,6 +691,7 @@ func _adopt(candidate) -> void:
 	_world = candidate._world
 	_presentation_world = candidate._presentation_world
 	_submissions = candidate._submissions
+	_combat_orders = candidate._combat_orders
 	_order = candidate._order
 	_runtime = candidate._runtime
 	_pending = candidate._pending

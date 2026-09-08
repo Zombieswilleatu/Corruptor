@@ -70,7 +70,7 @@ fi
 
 # Check dependencies directly so the compiler can report the actual source file.
 # Godot 4.7.2 is the authoritative U13 runtime; this wrapper is not a migration test.
-for u13_dependency in U13EffectData U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13Legality U13Match U13Gremory; do
+for u13_dependency in U13EffectData U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13Legality U13Match U13Marching U13Combat U13Gremory; do
   printf 'Checking %s.gd with Godot before running suites...\n' "$u13_dependency"
   u13_preflight_log="$u13_test_logs/preflight.log"
   u13_status=0
@@ -94,6 +94,7 @@ u13_runners=(
   U13Determinism
   U13Match
   U13Gremory
+  U13MarchingIntegration
 )
 u13_markers=(
   'U13 round timeline failures: 0'
@@ -106,6 +107,7 @@ u13_markers=(
   'U13 determinism and identity failures: 0'
   'U13 match foundation failures: 0'
   'U13 Gremory failures: 0'
+  'U13 Marching integration failures: 0'
 )
 u13_failed=0
 for u13_index in "${!u13_runners[@]}"; do

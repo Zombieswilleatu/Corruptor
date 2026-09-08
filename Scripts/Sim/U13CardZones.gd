@@ -18,8 +18,18 @@ static func valid(world: Dictionary) -> bool:
 	var entities = Ids.new()
 	if entities.restore(world.entities).action == "invalid":
 		return false
+	var committed = zones.get("committed", [[], []])
+	if typeof(committed) != TYPE_ARRAY or committed.size() != 2:
+		return false
 	var seen: Dictionary = {}
-	var piles: Array = [zones.get("deck"), zones.get("discard"), zones.hands[0], zones.hands[1]]
+	var piles: Array = [
+		zones.get("deck"),
+		zones.get("discard"),
+		zones.hands[0],
+		zones.hands[1],
+		committed[0],
+		committed[1]
+	]
 	for index in range(piles.size()):
 		if typeof(piles[index]) != TYPE_ARRAY:
 			return false
@@ -31,7 +41,7 @@ static func valid(world: Dictionary) -> bool:
 				card.is_empty()
 				or card.kind != "card"
 				or card.attributes.get("role") == "guard"
-				or card.owner != (index - 2 if index >= 2 else -1)
+				or card.owner != ((index - 2) % 2 if index >= 2 else -1)
 			):
 				return false
 			seen[card_id] = true
@@ -114,3 +124,34 @@ static func draw(
 	entities.update(card_id, player_id, card.attributes)
 	world.entities = entities.snapshot()
 	return {"action": "draw", "drawn": true, "player_id": player_id, "card_id": card_id}
+
+
+# Sealed commitments are neither draw candidates nor available discard payment.
+static func commit(world: Dictionary, player_id: int, selected: Array) -> Dictionary:
+	if not can_discard(world, player_id, selected, selected.size()):
+		return Data.invalid("combat_commitment_invalid")
+	var zones: Dictionary = world.data.card_zones
+	if not zones.has("committed"):
+		zones["committed"] = [[], []]
+	if not zones.committed[player_id].is_empty():
+		return Data.invalid("combat_already_committed")
+	for card_id in selected:
+		zones.hands[player_id].erase(card_id)
+		zones.committed[player_id].append(card_id)
+	return {"action": "resolved"}
+
+
+static func clear_commitments(world: Dictionary, player_order: Array) -> Dictionary:
+	if not valid(world) or not Data.valid_player_order(player_order):
+		return Data.invalid("combat_cleanup_invalid")
+	var entities = Ids.new()
+	entities.restore(world.entities)
+	var zones: Dictionary = world.data.card_zones
+	for player_id in player_order:
+		for card_id in zones.get("committed", [[], []])[player_id]:
+			var card: Dictionary = entities.get_entity(card_id)
+			entities.update(card_id, -1, card.attributes)
+			zones.discard.append(card_id)
+	zones["committed"] = [[], []]
+	world.entities = entities.snapshot()
+	return {"action": "resolved"}

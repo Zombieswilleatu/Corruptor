@@ -7,9 +7,11 @@ The user confirmed `U13 foundation runners passed: 9/9` on Godot 4.7.2 at
 This batch implements the five finalized Gremory mechanics through the U13 match
 owner, and adds a tenth acceptance suite. Godot 4.7.2 remains the target runtime.
 
-**This batch is not locally runtime-verified yet.** Static GDScript parsing and Bash
-wrapper checks were performed in the coding environment, where Godot is unavailable.
-Do not expand to the next Lord until the user verifies **10/10** locally.
+**Historical gate cleared:** the user confirmed **10/10 on Godot 4.7.2** for
+`827e7cc0c2baba64a3fdcf3446cbc4273dc86ef2`. The subsequent actual Marching/combat
+integration and its pending **11/11** gate are documented in
+[U13_MARCHING_COMBAT_AUDIT_2026-09-08.md](U13_MARCHING_COMBAT_AUDIT_2026-09-08.md).
+The scope below describes the original isolated ten-suite checkpoint.
 
 This is a headless content slice. It does not add a playable scene, a UI/bot adapter,
 a complete combat controller, or new Marching movement/contact rules. The included
