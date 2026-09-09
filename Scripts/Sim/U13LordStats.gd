@@ -1,5 +1,6 @@
 extends RefCounted
 
+const ORIAS_WEB_PROFILE: String = "U13_ORIAS_WEB_V1"
 const HUMBABA_PROFILE: String = "U13_HUMBABA_BREATH_V2"
 const KALLIGAN_PROFILE: String = "U13_KALLIGAN_FIRE_V1"
 

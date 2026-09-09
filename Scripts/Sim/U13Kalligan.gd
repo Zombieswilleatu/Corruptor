@@ -70,7 +70,9 @@ static func rules() -> Dictionary:
 	return result
 
 
-func valid_world(world: Dictionary) -> bool:
+func valid_world(world: Dictionary, allow_orias: bool = false) -> bool:
+	if world.data.has("orias_profile") and not allow_orias:
+		return false
 	if (
 		world.data.get("kalligan_profile") != POLICY
 		or world.data.get("hazard_profile") != Hazards.VERSION

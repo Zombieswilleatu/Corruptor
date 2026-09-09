@@ -1,6 +1,7 @@
 class_name U13Marching
 extends RefCounted
 
+const SpatialFields = preload("res://Scripts/Sim/U13SpatialFields.gd")
 const Space = preload("res://Scripts/Sim/U13SpatialSpace.gd")
 const Buffer = preload("res://Scripts/Sim/U13MarchingBuffer.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
@@ -49,6 +50,8 @@ static func profile(
 
 
 static func valid(world: Dictionary) -> bool:
+	if world.data.has("spatial_field_profile") and world.data.spatial_field_profile != SpatialFields.VERSION:
+		return false
 	if world.data.has("lane_aura_profile") and not LaneAuras.enabled(world):
 		return false
 	for field in ["marching_round", "marching_regen_round"]:
@@ -193,6 +196,12 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 		motion_context["lane_modifiers"] = LaneAuras.compile(
 			context.get("persistent_effects", []), context.round
 		)
+	if world.data.has("spatial_field_profile"):
+		var compiled: Dictionary = SpatialFields.compile(context.get("persistent_effects", []), context.round)
+		if compiled.action == "invalid":
+			return compiled
+		motion_context = motion_context.duplicate()
+		motion_context["spatial_fields"] = compiled.lanes
 	for unit in _units(entities):
 		tape_bases[unit.id] = unit
 	for tick in range(TICKS):
@@ -572,6 +581,7 @@ static func _move(
 ) -> void:
 	var rows: Array = _units(entities)
 	var lane_modifiers: Dictionary = context.get("lane_modifiers", {})
+	var spatial_fields: Dictionary = context.get("spatial_fields", {})
 	var neighbors: Dictionary = _movement_neighbors(rows, duels, int(context.round), has_rout)
 	var accepted: Array = []
 	var accepted_by_id: Dictionary = {}
@@ -599,6 +609,9 @@ static func _move(
 					has_rout and Rout.recovering(a, int(context.round)),
 					clock
 				)
+		if not spatial_fields.is_empty() and SpatialFields.slowed(spatial_fields, unit.owner, a):
+			var web_percent: int = 0 if lane_modifiers.is_empty() else int(lane_modifiers[a.lane][unit.owner].speed_percent)
+			step = LaneAuras.speed(int(a.step_fp), web_percent, has_rout and Rout.recovering(a, int(context.round)), clock, true)
 		if not retreat and int(nearby.distance) <= CONTACT_FP * CONTACT_FP:
 			if previous_ticket < 0:
 				a.contact_tick = clock

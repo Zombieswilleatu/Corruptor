@@ -1,0 +1,101 @@
+extends RefCounted
+
+const Art = preload("res://Prototype/U13/U13BoardTextures.gd")
+const Space = preload("res://Scripts/Sim/U13SpatialSpace.gd")
+var web: Texture2D
+var spider: Texture2D
+var elapsed: float = 0.0
+# A closed path on the supplied image's strands, in normalized image space.
+const PATH: Array[Vector2] = [
+	Vector2(0.25, 0.38),
+	Vector2(0.51, 0.56),
+	Vector2(0.75, 0.46),
+	Vector2(0.62, 0.70),
+	Vector2(0.39, 0.73),
+	Vector2(0.25, 0.38)
+]
+
+
+func warm_next() -> void:
+	if web == null:
+		web = Art.texture("res://ConceptImages/Sprites/Orias/Web.png")
+	elif spider == null:
+		spider = Art.texture("res://ConceptImages/Sprites/Orias/Spider.png")
+
+
+func advance(delta: float) -> void:
+	elapsed = fposmod(elapsed + maxf(delta, 0.0), 120.0)
+
+
+# Caller supplies an authoritative region and its actual lane rectangle.
+# The same projection used for choosing positions is used for presentation.
+static func region_rect(lane_rect: Rect2, center: Dictionary, radius_fp: int) -> Rect2:
+	var anchor := Vector2(
+		lane_rect.position.x + float(center.y_fp) / Space.WIDTH_FP * lane_rect.size.x,
+		lane_rect.end.y - float(center.x_fp) / Space.LANE_FP * lane_rect.size.y
+	)
+	var half_size := Vector2(
+		float(radius_fp) / Space.WIDTH_FP * lane_rect.size.x,
+		float(radius_fp) / Space.LANE_FP * lane_rect.size.y
+	)
+	return Rect2(anchor - half_size, half_size * 2.0)
+
+
+func spider_pose(phase: float = 0.0) -> Dictionary:
+	var travel: float = fposmod(elapsed / 12.0 + phase, 1.0) * float(PATH.size() - 1)
+	var segment: int = int(floor(travel))
+	var start: Vector2 = PATH[segment]
+	var end: Vector2 = PATH[segment + 1]
+	return {
+		"position": start.lerp(end, travel - float(segment)),
+		"frame": int(floor(elapsed * 8.0)) % 6,
+		"left": end.x < start.x
+	}
+
+
+# Static web; only the spider moves. Destination clipping trims the matching
+# source rectangle, so neither the web nor the spider bleeds into another lane.
+func draw_area(
+	canvas: CanvasItem, area: Rect2, clip: Rect2, fading: bool = false, phase: float = 0.0
+) -> void:
+	if web == null or area.size.x <= 0.0 or area.size.y <= 0.0:
+		return
+	var tint := Color(1, 1, 1, 0.30 if fading else 0.58)
+	_draw_clipped(canvas, web, area, Rect2(Vector2.ZERO, web.get_size()), clip, tint)
+	if spider == null:
+		return
+	var pose: Dictionary = spider_pose(phase)
+	var center: Vector2 = area.position + pose.position * area.size
+	var width: float = clampf(area.size.x * 0.20, 18.0, 46.0)
+	var destination := Rect2(
+		center - Vector2(width, width * 1.32) * 0.5, Vector2(width, width * 1.32)
+	)
+	var cell_width: float = spider.get_width() / 6.0
+	# Shared occupied vertical crop; original six-frame PNG is unchanged.
+	var source := Rect2(float(pose.frame) * cell_width, 95, cell_width, 451)
+	# Keep crop/clipping simple and invariant; direction is conveyed by the crawl
+	# path. All six supplied frames loop continuously, including while fading.
+	_draw_clipped(
+		canvas, spider, destination, source, clip, Color(1, 1, 1, 0.5 if fading else 0.95)
+	)
+
+
+static func _draw_clipped(
+	canvas: CanvasItem,
+	texture: Texture2D,
+	destination: Rect2,
+	source: Rect2,
+	clip: Rect2,
+	tint: Color
+) -> void:
+	var visible: Rect2 = destination.intersection(clip)
+	if visible.size.x <= 0.0 or visible.size.y <= 0.0:
+		return
+	var offset: Vector2 = (visible.position - destination.position) / destination.size
+	var fraction: Vector2 = visible.size / destination.size
+	canvas.draw_texture_rect_region(
+		texture,
+		visible,
+		Rect2(source.position + offset * source.size, source.size * fraction),
+		tint
+	)

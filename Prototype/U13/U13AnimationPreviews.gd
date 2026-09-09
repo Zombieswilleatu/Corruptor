@@ -3,6 +3,12 @@ extends Control
 signal closed
 const PREVIEWS: Array = [
 	{
+		"title": "Orias · Web & Snare",
+		"note": "Static web, crawling spider, radius and shared Guard-zone markers.",
+		"scene": "res://Prototype/U13/U13WebPreview.tscn",
+		"size": Vector2(1100, 850)
+	},
+	{
 		"title": "Castle damage & repair",
 		"note": "Cycle Castle types and Integrity, or scrub the damage manually.",
 		"scene": "res://Prototype/U13/U13CastleDamagePreview.tscn",

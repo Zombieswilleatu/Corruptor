@@ -89,6 +89,7 @@ func _run(candidate, operation: String, powers: Array, order: Dictionary) -> Dic
 	return {
 		"action": "board_job_complete",
 		"feedback": feedback,
+		"gem_dagger_events": candidate._owner._player_selected_events_since(0, event_cursor, ["GUARD_DEFEATED", "GEM_DAGGER"], Timeline.MARCHING),
 		"operation": operation,
 		"session": candidate,
 		"playback": playback,

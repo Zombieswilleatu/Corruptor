@@ -3,6 +3,7 @@ extends Control
 signal start_requested(lords: Array, castles: Array, quick: bool)
 signal cancelled
 const AnimationPreviews = preload("res://Prototype/U13/U13AnimationPreviews.gd")
+const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
 const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
 const Tutorials = preload("res://Prototype/U13/U13TutorialPreferences.gd")
 const TutorialPopup = preload("res://Prototype/U13/U13TutorialPopup.gd")
@@ -10,6 +11,7 @@ const LORDS: Array = ["Deimos", "Gremory", "Humbaba", "Kalligan"]
 var lord_choices: Array = []
 var castle_choices: Array = [[], []]
 var opening: OptionButton
+var quickstart_button: Button
 var start_button: Button
 var cancel_button: Button
 var message: Label
@@ -108,6 +110,12 @@ func _ready() -> void:
 	message = _label(column, "", 15)
 	var buttons := HBoxContainer.new()
 	column.add_child(buttons)
+	quickstart_button = Button.new()
+	quickstart_button.text = "QUICKSTART · RANDOM"
+	quickstart_button.tooltip_text = "Random playable Lords and Castle loadouts. Keep is always slot 1 on both sides."
+	quickstart_button.custom_minimum_size.y = 42
+	buttons.add_child(quickstart_button)
+	quickstart_button.pressed.connect(_quickstart)
 	start_button = Button.new()
 	start_button.text = "START BOARD"
 	start_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -241,3 +249,30 @@ func _open_animation_previews() -> void:
 func _animation_previews_closed() -> void:
 	_loadout_content.show()
 	animation_button.grab_focus()
+
+
+static func quickstart_selection(seed_value: String) -> Dictionary:
+	if seed_value.is_empty():
+		return {}
+	var result: Dictionary = {"lords": [], "castles": [[], []], "quick": true}
+	for pid in [0, 1]:
+		var key: String = "U13_QUICKSTART_V1:player:" + str(pid)
+		result.lords.append(LORDS[int(Rng.draw(seed_value, key, "LORD", 0, LORDS.size()).value)])
+		var castles: Array = result.castles[pid]
+		castles.append("Keep")
+		for slot in range(1, Slots.SLOT_COUNT):
+			var legal: Array = []
+			for castle_type in Slots.TYPES:
+				if castles.count(castle_type) < 2:
+					legal.append(castle_type)
+			castles.append(legal[int(Rng.draw(seed_value, key, "CASTLE_SLOT_" + str(slot), 0, legal.size()).value)])
+	return result
+
+
+func _quickstart() -> void:
+	if tutorial_popup.visible:
+		return
+	var seed_value: String = str(Time.get_unix_time_from_system()) + ":" + str(Time.get_ticks_usec())
+	var draft: Dictionary = quickstart_selection(seed_value)
+	present(draft.lords, draft.castles, true, cancel_button.visible)
+	_start()

@@ -69,6 +69,9 @@ var war_state: Label
 var rout_state: Label
 var session = Session.new()
 const ArtilleryView = preload("res://Prototype/U13/U13ArtilleryView.gd")
+const GemDaggerView = preload("res://Prototype/U13/U13GemDaggerView.gd")
+var gem_dagger_view
+var _gem_final_view: Dictionary = {}
 var artillery_view
 var _artillery_final_castles: Dictionary = {}
 var playback = Playback.new()
@@ -163,6 +166,8 @@ func restart() -> void:
 		return
 	playing = false
 	artillery_view.clear()
+	gem_dagger_view.clear()
+	_gem_final_view = {}
 	_artillery_final_castles = {}
 	castle_plan = {}
 	clock = 0
@@ -184,6 +189,9 @@ func restart() -> void:
 
 
 func _build() -> void:
+	gem_dagger_view = GemDaggerView.new()
+	add_child(gem_dagger_view)
+	gem_dagger_view.impact.connect(_gem_dagger_impact)
 	artillery_view = ArtilleryView.new()
 	add_child(artillery_view)
 	artillery_view.impact.connect(_artillery_impact)
@@ -397,7 +405,7 @@ func _refresh(presented: Dictionary = {}) -> void:
 	for control in controls:
 		control.disabled = not _planning()
 	ruin_target.disabled = ruin_target.item_count == 0 or not _planning()
-	next_button.disabled = playing or not session.next_hook().is_empty()
+	next_button.disabled = playing or gem_dagger_view.active() or not session.next_hook().is_empty()
 	_preview()
 	_sync_decision()
 
@@ -426,6 +434,7 @@ func _planning() -> bool:
 		and match_started
 		and _job == null
 		and not playing
+		and (gem_dagger_view == null or not gem_dagger_view.active())
 		and session.next_hook() == Timeline.SUBMISSION_LOCK
 	)
 
@@ -634,12 +643,20 @@ func _process(delta: float) -> void:
 			_complete_job()
 		return
 	if not playing:
+		if gem_dagger_view.advance(delta):
+			_busy_label.text = "Gem Dagger…"
+			return
+		_finish_gem_presentation()
 		_advance_impacts(delta)
 		return
 	if artillery_view.advance(delta):
 		_busy_label.text = "Siege Engine fire…"
 		return
 	_restore_artillery_castles()
+	if gem_dagger_view.advance(delta):
+		_busy_label.text = "Gem Dagger…"
+		return
+	_finish_gem_presentation()
 	if _advance_impacts(delta):
 		_busy_label.text = "Scorch pulse…"
 		return
@@ -673,6 +690,8 @@ func _complete_job() -> void:
 		return
 	# Publish only a complete successful transaction; failures leave session intact.
 	session = result.session
+	gem_dagger_view.play_events(result.get("gem_dagger_events", []), sides)
+	_gem_final_view = result.presented.duplicate(true) if gem_dagger_view.active() else {}
 	_install_impacts(result.get("feedback", []))
 	if result.operation == "marching":
 		_feedback_cursor = 0
@@ -681,7 +700,7 @@ func _complete_job() -> void:
 		playing = true
 		artillery_view.play_shots(result.get("artillery_events", []), sides)
 		var initial: Dictionary = artillery_view.initial_castles()
-		var shown: Dictionary = result.presented.duplicate(true)
+		var shown: Dictionary = gem_dagger_view.mask_view(result.presented)
 		_artillery_final_castles = {}
 		for entity in shown.world.entities:
 			if initial.has(entity.id):
@@ -690,7 +709,7 @@ func _complete_job() -> void:
 		_refresh(shown)
 		lanes.show_frame(playback.sample(0), session.round_number())
 	elif result.operation == "aftermath":
-		_refresh(result.presented)
+		_refresh(gem_dagger_view.mask_view(result.presented))
 		status.text = "Round resolved. Next round continues; Restart restores the opening."
 	else:
 		queued = []
@@ -699,7 +718,7 @@ func _complete_job() -> void:
 		staged_order = {}
 		castle_plan = {}
 		action_choice.select(0)
-		_refresh(result.presented)
+		_refresh(gem_dagger_view.mask_view(result.presented))
 	print(
 		(
 			"U13 BOARD worker_ms=%.3f install_ms=%.3f operation=%s"
@@ -730,9 +749,15 @@ func _restore_artillery_castles() -> void:
 
 
 func finish_playback(skipped: bool = true) -> void:
-	if not playing or _job != null:
+	if _job != null:
+		return
+	if not playing:
+		gem_dagger_view.clear()
+		_finish_gem_presentation()
 		return
 	_restore_artillery_castles()
+	gem_dagger_view.clear()
+	_finish_gem_presentation()
 	artillery_view.clear()
 	_artillery_final_castles = {}
 	_install_impacts([])
@@ -746,7 +771,7 @@ func finish_playback(skipped: bool = true) -> void:
 
 
 func next_round() -> void:
-	if playing or _job != null or not session.next_hook().is_empty():
+	if playing or gem_dagger_view.active() or _job != null or not session.next_hook().is_empty():
 		return
 	_start_job("next_round")
 
@@ -831,7 +856,7 @@ func pass_round() -> void:
 func reopen_decision() -> void:
 	if dense_mode or setup_open or _job != null:
 		return
-	if playing or phase_prompt == null:
+	if playing or gem_dagger_view.active() or phase_prompt == null:
 		return
 	phase_prompt.board_view_collapsed = false
 	phase_prompt.set_presenting(true)
@@ -953,9 +978,9 @@ func _sync_decision() -> void:
 		)
 		status.text = "Dense field: 48 Marchers at start · 24 per side · Castle lane. Click Run dense round."
 		return
-	decision_button.disabled = playing
+	decision_button.disabled = playing or gem_dagger_view.active()
 	next_button.hide()
-	if playing:
+	if playing or gem_dagger_view.active():
 		phase_prompt.set_presenting(false)
 		return
 	if session.next_hook().is_empty():
@@ -1050,7 +1075,7 @@ func _picture(parent: Node, texture: Texture2D, dimensions: Vector2) -> void:
 
 
 func open_setup() -> void:
-	if not _runtime_ok or _job != null or playing or setup_picker == null:
+	if not _runtime_ok or _job != null or playing or gem_dagger_view.active() or setup_picker == null:
 		return
 	setup_hand_selection = hand_view.selected_card_ids()
 	setup_open = true
@@ -1081,6 +1106,8 @@ func start_loadout(lords: Array, castles: Array, quick: bool) -> void:
 		setup_picker.message.text = _friendly_error(result)
 		return
 	session = candidate
+	gem_dagger_view.clear()
+	_gem_final_view = {}
 	_install_impacts([])
 	lanes.reset_effects()
 	match_started = true
@@ -1611,3 +1638,17 @@ func _advance_impacts(delta: float) -> bool:
 		_impact_cursor += 1
 	lanes.show_feedback(ready_rows)
 	return _impact_clock < _impact_duration
+
+
+func _gem_dagger_impact(_shot: Dictionary) -> void:
+	if not _gem_final_view.is_empty():
+		_refresh(gem_dagger_view.mask_view(_gem_final_view))
+
+
+func _finish_gem_presentation() -> void:
+	if _gem_final_view.is_empty() or gem_dagger_view.active():
+		return
+	var shown: Dictionary = _gem_final_view
+	_gem_final_view = {}
+	_refresh(shown)
+	_busy_label.text = ""
