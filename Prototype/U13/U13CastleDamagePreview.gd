@@ -1,6 +1,6 @@
-extends Control
+extends "res://Prototype/U13/U13VisualPreview.gd"
 
-# Disposable visual harness. Uses the real board card and artwork renderer.
+# Retained visual harness. Uses the real board card and artwork renderer.
 # No match, rules owner, workers, opponents or foundation suites are started.
 const Card = preload("res://Prototype/U13/U13LayoutCard.gd")
 const Artwork = preload("res://Prototype/U13/U13CastleArtwork.gd")
@@ -24,7 +24,6 @@ var _step: int = 0
 
 
 func _ready() -> void:
-	RenderingServer.set_default_clear_color(Color("161719"))
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side in ["left", "top", "right", "bottom"]:
@@ -58,7 +57,7 @@ func _ready() -> void:
 	_button(controls, "Previous", _previous)
 	_button(controls, "Next", _next)
 	_button(controls, "Restart cycle", _restart)
-	_button(controls, "Exit", func(): get_tree().quit())
+	_button(controls, "Back to previews" if embedded else "Exit", _close_preview)
 	var slider_row := HBoxContainer.new()
 	root.add_child(slider_row)
 	_label(slider_row, "Integrity")
@@ -144,7 +143,7 @@ func _choose_castle(index: int) -> void:
 	_image = Textures.texture(Castles.ART_PATHS[TYPES[index]])
 	if _image == null:
 		push_error("Castle preview could not load " + TYPES[index])
-		get_tree().quit(1)
+		_close_preview(1)
 		return
 	for sample in range(_references.size()):
 		_bind(_references[sample], [21, 11, 4][sample])
@@ -207,8 +206,11 @@ func _restart() -> void:
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_ESCAPE:
-			get_tree().quit()
-		elif event.keycode == KEY_SPACE:
-			_play.button_pressed = not _play.button_pressed
+	super._unhandled_key_input(event)
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_SPACE:
+		get_viewport().set_input_as_handled()
+		_play.button_pressed = not _play.button_pressed
+
+
+func _draw() -> void:
+	draw_rect(Rect2(Vector2.ZERO, size), Color("161719"))

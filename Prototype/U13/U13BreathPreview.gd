@@ -1,4 +1,4 @@
-extends Control
+extends "res://Prototype/U13/U13VisualPreview.gd"
 
 # Visual-only harness using the board's real renderer. No match or worker.
 const Visuals = preload("res://Prototype/U13/U13BreathVisuals.gd")
@@ -31,7 +31,7 @@ func _ready() -> void:
 	_automatic.text = "Auto cycle"
 	_automatic.button_pressed = true
 	buttons.add_child(_automatic)
-	_button(buttons, "Exit", func(): get_tree().quit())
+	_button(buttons, "Back to previews" if embedded else "Exit", _close_preview)
 	_status = Label.new()
 	column.add_child(_status)
 	_restart()

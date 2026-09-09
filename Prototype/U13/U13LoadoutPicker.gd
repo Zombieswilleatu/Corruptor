@@ -2,6 +2,7 @@ extends Control
 
 signal start_requested(lords: Array, castles: Array, quick: bool)
 signal cancelled
+const AnimationPreviews = preload("res://Prototype/U13/U13AnimationPreviews.gd")
 const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
 const Tutorials = preload("res://Prototype/U13/U13TutorialPreferences.gd")
 const TutorialPopup = preload("res://Prototype/U13/U13TutorialPopup.gd")
@@ -15,6 +16,9 @@ var message: Label
 var tutorials = Tutorials.new()
 var tutorial_popup
 var show_tutorials: Button
+var animation_previews
+var animation_button: Button
+var _loadout_content: Control
 var _accepted_castles: Array = [[], []]
 
 
@@ -26,6 +30,7 @@ func _ready() -> void:
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(shade)
 	var center := CenterContainer.new()
+	_loadout_content = center
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(center)
 	var panel := PanelContainer.new()
@@ -69,11 +74,19 @@ func _ready() -> void:
 			choice.item_selected.connect(_castle_changed.bind(pid, slot))
 			castle_choices[pid].append(choice)
 	_label(column, "BEGINNER SUGGESTION · Keep first, with one of each Castle type.", 16)
+	var extras := HBoxContainer.new()
+	column.add_child(extras)
 	show_tutorials = Button.new()
 	show_tutorials.text = "SHOW TUTORIAL POPUPS"
 	show_tutorials.tooltip_text = "Reset every Don't show this again choice for tutorial modals."
-	column.add_child(show_tutorials)
+	show_tutorials.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	extras.add_child(show_tutorials)
 	show_tutorials.pressed.connect(_reset_tutorials)
+	animation_button = Button.new()
+	animation_button.text = "ANIMATION PREVIEWS"
+	animation_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	extras.add_child(animation_button)
+	animation_button.pressed.connect(_open_animation_previews)
 	_label(column, "TEST OPENING", 16)
 	opening = _option(
 		column,
@@ -111,6 +124,8 @@ func _ready() -> void:
 
 
 func present(lords: Array, castles: Array, quick: bool, can_cancel: bool) -> void:
+	if animation_previews != null and animation_previews.visible:
+		animation_previews.dismiss()
 	tutorial_popup.hide()
 	_accepted_castles = castles.duplicate(true)
 	for pid in [0, 1]:
@@ -210,3 +225,19 @@ func _reset_tutorials() -> void:
 		message.text = "Tutorial popups enabled. All Don't show this again choices have been reset."
 	else:
 		message.text = "Tutorials enabled for this session; the preference could not be saved."
+
+
+func _open_animation_previews() -> void:
+	if tutorial_popup.visible:
+		return
+	if animation_previews == null:
+		animation_previews = AnimationPreviews.new()
+		add_child(animation_previews)
+		animation_previews.closed.connect(_animation_previews_closed)
+	_loadout_content.hide()
+	animation_previews.present()
+
+
+func _animation_previews_closed() -> void:
+	_loadout_content.show()
+	animation_button.grab_focus()

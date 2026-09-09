@@ -1,4 +1,4 @@
-extends Control
+extends "res://Prototype/U13/U13VisualPreview.gd"
 
 # Visual-only harness: the same lane renderer used by the playable board.
 const Lanes = preload("res://Prototype/U13/U13BoardLanes.gd")
@@ -33,7 +33,7 @@ func _ready() -> void:
 	_button(column, "Show −1 HP", _number.bind(-1, 0))
 	_button(column, "Show +1 HP", _number.bind(1, 0))
 	_button(column, "Show −1 ARM", _number.bind(0, -1))
-	_button(column, "Exit", func(): get_tree().quit())
+	_button(column, "Back to previews" if embedded else "Exit", _close_preview)
 	lanes = Lanes.new()
 	lanes.position = Vector2(20, 0)
 	lanes.size = Vector2(370, 880)
