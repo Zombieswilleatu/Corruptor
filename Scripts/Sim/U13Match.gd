@@ -412,7 +412,7 @@ func _accept(player_id: int, declarations: Array, combat_order: Dictionary = {})
 	var declared: Dictionary = _accept_declarations(player_id, declarations)
 	if declared.action == "invalid":
 		return declared
-	return _accept_order(player_id, combat_order)
+	return _accept_order(player_id, combat_order, declarations)
 
 
 func _accept_declarations(player_id: int, declarations: Array) -> Dictionary:
@@ -508,13 +508,14 @@ func _accept_declarations(player_id: int, declarations: Array) -> Dictionary:
 	return {"action": "legal"}
 
 
-func _accept_order(player_id: int, combat_order: Dictionary) -> Dictionary:
+func _accept_order(player_id: int, combat_order: Dictionary, declarations: Array) -> Dictionary:
 	if _order_handler.is_valid():
 		var ordered = _order_handler.call(
 			{
 				"phase": "commit",
 				"player_id": player_id,
 				"order": combat_order.duplicate(true),
+				"declarations": declarations.duplicate(true),
 				"round": _runtime.round_number,
 				"world": _world.duplicate(true)
 			}

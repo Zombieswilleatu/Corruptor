@@ -3,8 +3,8 @@
 # Successful logs are temporary; failure logs are preserved in Downloads.
 set -uo pipefail
 
-if [[ $# -lt 1 || $# -gt 2 || ( $# -eq 2 && "$2" != --board && "$2" != --construction && "$2" != --castle-rout && "$2" != --interaction && "$2" != --humbaba && "$2" != --kalligan && "$2" != --kalligan-board && "$2" != --marcher-feedback && "$2" != --alpha && "$2" != --planning && "$2" != --marching && "$2" != --breath && "$2" != --spatial && "$2" != --rout-visuals && "$2" != --orias-web && "$2" != --quickstart && "$2" != --gem-dagger ) ]]; then
-  printf 'Usage: bash %s /path/to/Godot_console_executable [--board|--construction|--castle-rout|--interaction|--humbaba|--kalligan|--kalligan-board|--marcher-feedback|--alpha|--planning|--marching|--breath|--spatial|--rout-visuals|--orias-web|--quickstart|--gem-dagger]\n' "$0" >&2
+if [[ $# -lt 1 || $# -gt 2 || ( $# -eq 2 && "$2" != --board && "$2" != --construction && "$2" != --castle-rout && "$2" != --interaction && "$2" != --humbaba && "$2" != --kalligan && "$2" != --kalligan-board && "$2" != --marcher-feedback && "$2" != --alpha && "$2" != --planning && "$2" != --marching && "$2" != --breath && "$2" != --spatial && "$2" != --rout-visuals && "$2" != --orias-web && "$2" != --quickstart && "$2" != --gem-dagger && "$2" != --snare ) ]]; then
+  printf 'Usage: bash %s /path/to/Godot_console_executable [--board|--construction|--castle-rout|--interaction|--humbaba|--kalligan|--kalligan-board|--marcher-feedback|--alpha|--planning|--marching|--breath|--spatial|--rout-visuals|--orias-web|--quickstart|--gem-dagger|--snare]\n' "$0" >&2
   exit 2
 fi
 godot_u13_exe=$1
@@ -18,6 +18,10 @@ u13_kalligan_board_only=false
 u13_alpha_only=false
 u13_planning_only=false
 u13_marching_only=false
+u13_snare_only=false
+if [[ ${2:-} == --snare ]]; then
+  u13_snare_only=true
+fi
 u13_orias_web_only=false
 u13_quickstart_only=false
 u13_gem_dagger_only=false
@@ -168,7 +172,7 @@ u13_check_script() {
     exit 1
   fi
 }
-for u13_dependency in U13EffectData U13SpatialSpace U13SpatialQueries U13SpatialFields U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13CastleSlots U13Rout U13Structures U13Legality U13Match U13MarchingBuffer U13LaneAuras U13Marching U13Combat U13Construction U13ConstructionCandidates U13Gremory U13Deimos U13LordStats U13Humbaba U13HumbabaCandidates U13HumbabaScenario U13Hazards U13Kalligan U13KalliganCandidates U13KalliganScenario U13Orias U13OriasCandidates U13OriasScenario U13SmokeSession U13DeimosCandidates U13CoreScenario U13GremoryCandidates U13RandomLegal U13FrequencyTelemetry U13RandomBatch U13AlphaScenario U13AlphaBatch U13BoardSession U13LoadoutBoardSession U13DenseBoardSession; do
+for u13_dependency in U13EffectData U13SpatialSpace U13SpatialQueries U13SpatialFields U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13CastleSlots U13Rout U13Structures U13Legality U13Match U13MarchingBuffer U13LaneAuras U13Marching U13Combat U13Construction U13ConstructionCandidates U13Gremory U13Deimos U13LordStats U13Humbaba U13HumbabaCandidates U13HumbabaScenario U13Hazards U13Kalligan U13KalliganCandidates U13KalliganScenario U13GuardDeployment U13Orias U13OriasCandidates U13OriasScenario U13SmokeSession U13DeimosCandidates U13CoreScenario U13GremoryCandidates U13RandomLegal U13FrequencyTelemetry U13RandomBatch U13AlphaScenario U13AlphaBatch U13BoardSession U13LoadoutBoardSession U13DenseBoardSession; do
   u13_check_script "res://Scripts/Sim/${u13_dependency}.gd"
 done
 for u13_dependency in U13SpatialInput U13WebVisuals U13WebPreview U13GemDaggerView U13RoutVisuals U13ScorchVisuals U13ScorchPreview U13MarcherFeedback U13SmokePlayback U13SmokeBoard U13Smoke U13BoardTextures U13ScorchPresentation U13BreathVisuals U13BreathPreview U13CastleArtwork U13ArtilleryView U13BoardHand U13BoardLanes U13LayoutCard U13PlayerBoard U13BoardHeader U13DomainRow U13ActionZone U13PhasePrompt U13BoardJob U13TutorialPreferences U13TutorialPopup U13LoadoutPicker U13Board U13OrderPreview U13DirectBoard; do
@@ -248,6 +252,12 @@ u13_runners=(
   U13WebVisuals
   U13Quickstart
   U13GemDagger
+  U13GuardDeployment
+  U13Snare
+  U13SnareReplay1
+  U13SnareReplay2
+  U13SnareReplay3
+  U13GuardRandom
 )
 u13_markers=(
   'U13 round timeline failures: 0'
@@ -322,6 +332,12 @@ u13_markers=(
   'U13 Web visuals failures: 0'
   'U13 quickstart failures: 0'
   'U13 Gem Dagger visuals failures: 0'
+  'U13 Guard deployment failures: 0'
+  'U13 Snare failures: 0'
+  'U13 Snare replay 1 failures: 0'
+  'U13 Snare replay 2 failures: 0'
+  'U13 Snare replay 3 failures: 0'
+  'U13 Guard random failures: 0'
 )
 if [[ $u13_spatial_only == true ]]; then
   u13_runners=(U13LordPowerDeclaration U13SpatialSpace U13SpatialQueries U13SpatialInput U13Determinism)
@@ -391,6 +407,10 @@ if [[ $u13_gem_dagger_only == true ]]; then
   u13_runners=(U13Gremory U13GemDagger)
   u13_markers=('U13 Gremory failures: 0' 'U13 Gem Dagger visuals failures: 0')
 fi
+if [[ $u13_snare_only == true ]]; then
+  u13_runners=(U13GuardDeployment U13Snare U13SnareReplay1 U13SnareReplay2 U13SnareReplay3 U13GuardRandom)
+  u13_markers=('U13 Guard deployment failures: 0' 'U13 Snare failures: 0' 'U13 Snare replay 1 failures: 0' 'U13 Snare replay 2 failures: 0' 'U13 Snare replay 3 failures: 0' 'U13 Guard random failures: 0')
+fi
 u13_failed=0
 for u13_index in "${!u13_runners[@]}"; do
   u13_runner=${u13_runners[$u13_index]}
@@ -412,6 +432,9 @@ for u13_index in "${!u13_runners[@]}"; do
   fi
 done
 u13_suite_label=foundation
+if [[ $u13_snare_only == true ]]; then
+  u13_suite_label=Snare
+fi
 if [[ $u13_orias_web_only == true ]]; then
   u13_suite_label=Orias-Web
 fi

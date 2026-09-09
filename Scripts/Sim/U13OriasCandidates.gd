@@ -45,4 +45,20 @@ static func enumerate(owner, player_id: int) -> Dictionary:
 				{"lane": lane, "field_position": sampled.field_position}
 			)
 		)
-	return result
+	result.powers.append(snare_source(player_id, owner.round_number()))
+	return Content.Guards.add_candidates(result, owner.player_view(player_id, 0), owner.rng_seed())
+
+
+static func snare_source(player_id: int, round_number: int, queue_index: int = 0) -> Dictionary:
+	return Decl.create(
+		Content.MatchOwner.declaration_id(player_id, round_number, queue_index),
+		player_id,
+		"Orias",
+		Content.SNARE,
+		round_number,
+		Content.Timeline.ROUND_START_SCHEDULED,
+		round_number + 1,
+		queue_index,
+		"public",
+		{"player_id": 1 - player_id}
+	)

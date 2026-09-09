@@ -10,10 +10,18 @@ experimental match-owner fixture, shared declaration/firing legality, a keyed
 random-legal declaration provider, and focused rules/replay runners.
 
 Snare's actual Guard-placement restriction, Relentless Pursuit, Accelerate,
-Mark/resummoning, and Breach Frenzy remain outstanding. The normal board does
+Mark/resummoning, and Breach Entanglement remain outstanding in this initial slice. The normal board does
 not yet offer Web targeting. Snare artwork in Animation Previews is explicitly
 a visual example, not a claim that its Development restriction is implemented.
 No four-Lord alpha frequency report or completion claim is extended to Orias.
+
+## Subsequent Snare / Entanglement extension
+
+The initial 72-runner slice was locally verified on Godot 4.7.2 at `00860af`.
+The subsequent [Snare and Guard deployment extension](U13_SNARE_GUARD_DEPLOYMENT_2026-09-09.md)
+implements headless hand deployment, Snare, and the Breach limit. Entanglement
+is the user-approved replacement name for Frenzy. Orias is still outside the
+playable picker; the new six-runner group requires its own local verification.
 
 ## Web rules and movement
 
