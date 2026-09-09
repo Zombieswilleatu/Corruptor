@@ -221,13 +221,13 @@ static func run_started(owner, provider: Callable, settings: Dictionary) -> Dict
 							restored.action == "invalid"
 							or _digest(replacement.snapshot()) != digest
 						):
-						return {
-							"action": "invalid",
-							"reason": "alpha_json_restore_diverged",
-							"round": round_number,
-							"hook": hook,
-							"restore": restored
-						}
+							return {
+								"action": "invalid",
+								"reason": "alpha_json_restore_diverged",
+								"round": round_number,
+								"hook": hook,
+								"restore": restored
+							}
 						# Continue on the restored owner: loading without using it is not a replay check.
 						owner = replacement
 					performance.checkpoints.append(
