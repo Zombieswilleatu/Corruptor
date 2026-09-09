@@ -1,5 +1,6 @@
 extends RefCounted
 
+const Stats = preload("res://Scripts/Sim/U13LordStats.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const MatchOwner = preload("res://Scripts/Sim/U13Match.gd")
@@ -364,6 +365,14 @@ func project(world: Dictionary, player_id: int) -> Dictionary:
 	if _hunt_enabled:
 		view["hunt_profile"] = Combat.HUNT_VERSION
 	view["lord_ids"] = [world.players[0].lord_id, world.players[1].lord_id]
+	view["lord_stats"] = [{}, {}]
+	for lord in world.entities.entities:
+		if lord.kind == "lord" and lord.owner in [0, 1]:
+			view.lord_stats[lord.owner] = {
+				"threat": Stats.threat_value(lord),
+				"defense": Stats.defense(world, lord),
+				"standing_castles": Stats.standing_castles(world, lord.owner)
+			}
 	if _construction_enabled:
 		view["construction_profile"] = Construction.VERSION
 		view["viewer_id"] = player_id

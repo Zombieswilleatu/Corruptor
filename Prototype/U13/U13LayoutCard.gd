@@ -3,6 +3,9 @@ extends PanelContainer
 const Preview = preload("res://Prototype/UI2/SubjectCardHoldPreview.gd")
 const SuitStyle = preload("res://Prototype/UI2/SubjectSuitStyle.gd")
 const CastleArtwork = preload("res://Prototype/U13/U13CastleArtwork.gd")
+const LordCardStats = preload("res://Prototype/U13/U13LordCardStats.gd")
+var lord_stats_overlay
+var lord_preview_stats
 var art: TextureRect
 var caption: Label
 var input_surface: Button
@@ -73,3 +76,13 @@ func bind_castle_art(attributes: Dictionary, previous: Dictionary) -> void:
 		)
 	else:
 		input_surface.tooltip_text += "\nArtwork fills upward with construction progress."
+
+
+func bind_lord_stats(values: Dictionary) -> void:
+	if lord_stats_overlay == null:
+		lord_stats_overlay = LordCardStats.new()
+		art.add_child(lord_stats_overlay)
+		lord_preview_stats = LordCardStats.new()
+		preview.preview_art.add_child(lord_preview_stats)
+	lord_stats_overlay.bind_stats(values)
+	lord_preview_stats.bind_stats(values, true)

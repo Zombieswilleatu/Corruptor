@@ -14,6 +14,9 @@ const UI2_SHARED_DOMAIN_PLAYER_TOP: float = 0.5
 const UI2_SHARED_DOMAIN_PLAYER_BOTTOM: float = 1.0
 var UI2_SHARED_DOMAIN_TEXTURE: Texture2D
 var castle_guards_above_castles: bool = false
+const Resummon = preload("res://Scripts/Sim/U13Resummoning.gd")
+# Printed ratings from the existing Lord content; independent of return Threat.
+const FRACTURE: Dictionary = {"Orias": 0, "Deimos": 0, "Gremory": 2, "Humbaba": 2, "Kalligan": 1}
 var lord_group
 var lord_guard_group
 var castle_group
@@ -389,6 +392,42 @@ func bind_world(world: Dictionary, pid: int, planning: bool) -> void:
 			"\nNo Threat stat. Defense: 2 + standing Castles (%d).\nEndurance: one Neutral Tear if a friendly Penitent ends Marching at exactly 1 HP while Humbaba lives.\nThe Stones Forget: entering the Breach damages every exposed Castle by 4."
 			% stats.standing_castles
 		)
+	if world.has("lord_stats"):
+		var stats: Dictionary = world.lord_stats[pid]
+		var bonus: int = 0
+		if world.has("relentless_pursuit"):
+			bonus = int(world.relentless_pursuit[pid].strength_bonus)
+		lord_card.bind_lord_stats(
+			{
+				"lord": lord_name,
+				"alive": alive,
+				"defense": stats.defense,
+				"threat": stats.threat,
+				"summon": Resummon.COSTS.get(lord_name, 0),
+				"fracture": FRACTURE.get(lord_name, 0),
+				"hunt_bonus": bonus
+			}
+		)
+		if alive and lord_name != "Humbaba":
+			lord_card.caption.text += "\nTHREAT %d" % stats.threat
+		if alive and bonus > 0:
+			lord_card.caption.text += "\nHUNT +%d" % bonus
+		lord_card.input_surface.tooltip_text += (
+			"\nBase Summon cost: %d. Breach and Circle modifiers are shown when resummoning."
+			% Resummon.COSTS.get(lord_name, 0)
+		)
+		lord_card.input_surface.tooltip_text += (
+			"\nCurrent Defense: %s. Hunt must exceed Defense after Guards and Sigil."
+			% (str(stats.defense) if alive else "— (banished)")
+		)
+		lord_card.input_surface.tooltip_text += (
+			"\nFracture rating: %d. Fracture effects are not yet active in U13; this is not current Threat."
+			% FRACTURE.get(lord_name, 0)
+		)
+		if bonus > 0:
+			lord_card.input_surface.tooltip_text += (
+				"\nRelentless Pursuit: +%d Hunt Strength against the current enemy Lord." % bonus
+			)
 	target_controls = {lord_id: lord_card.input_surface}
 	commission_buttons = {}
 	var live_castle: Dictionary = {}
