@@ -158,8 +158,9 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 	return result
 
 
-func on_hook(context: Dictionary) -> Dictionary:
-	var result: Dictionary = _humbaba.on_hook(context)
+func on_hook(context: Dictionary, reaction: Callable = Callable()) -> Dictionary:
+	var handler: Callable = reaction if reaction.is_valid() else Callable(_humbaba, "react")
+	var result: Dictionary = _humbaba.on_hook(context, handler)
 	if result.action == "invalid":
 		return result
 	if context.hook == Timeline.ROUND_START_AUTOMATIC:
@@ -196,7 +197,7 @@ func on_hook(context: Dictionary) -> Dictionary:
 				Data.instance_id(
 					"normal_pulse", active.effect_id, str(context.round) + context.hook
 				),
-				Callable(_humbaba, "react")
+				handler
 			)
 			if pulse.action == "invalid":
 				return pulse

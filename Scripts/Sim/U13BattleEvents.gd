@@ -127,6 +127,24 @@ static func apply(
 				or target.attributes.get("role") != "guard"
 			):
 				return Data.invalid("guard_missing")
+			# Optional credited attack identity. Unattributed hazards keep their old
+			# event shape and cannot masquerade as a Lord defeating a Guard.
+			if command.has("attacker_id"):
+				var attacker: Dictionary = entities.get_entity(String(command.attacker_id))
+				if (
+					attacker.is_empty()
+					or attacker.kind != "lord"
+					or attacker.owner != 1 - target.owner
+					or hook != Timeline.COMBAT_RESOLUTION
+					or command.get("attack_kind") not in ["Hunt", "Siege"]
+					or (
+						target.attributes.get("lane")
+						!= ("Lord" if command.attack_kind == "Hunt" else "Castle")
+					)
+				):
+					return Data.invalid("guard_attack_attribution_invalid")
+				details["attacker"] = attacker.duplicate(true)
+				details["attack_kind"] = command.attack_kind
 			details["guard"] = target.duplicate(true)
 			target.attributes["role"] = "card"
 			entities.update(target.id, -1, target.attributes)

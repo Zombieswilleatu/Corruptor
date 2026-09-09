@@ -24,6 +24,7 @@ static func loadout_world(lords: Array, choices: Array) -> Dictionary:
 		return result
 	Content.Guards.configure(result)
 	result.data["snare_paid_rounds"] = [0, 0]
+	result.data["orias_accelerate"] = [null, null]
 	result.data["orias_profile"] = Content.POLICY
 	result.data["spatial_field_profile"] = Content.Fields.VERSION
 	var entities = Content.Ids.new()

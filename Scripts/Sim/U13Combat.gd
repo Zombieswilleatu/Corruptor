@@ -587,6 +587,12 @@ static func _hunt(
 		)
 		return {"action": "resolved", "world": world, "events": events}
 	var strength: int = _card_strength(entities, order.card_ids, "Butcher")
+	var pursuit: int = 0
+	if world.data.get("orias_profile") == LordStats.ORIAS_WEB_PROFILE:
+		pursuit = LordStats.relentless_pursuit(
+			entities.get_entity(world.players[player_id].lord_entity_id), target
+		)
+		strength += pursuit
 	var waiter_ids: Array = []
 	for entity in entities.snapshot().entities:
 		if (
@@ -611,6 +617,8 @@ static func _hunt(
 			}
 		)
 	)
+	if world.data.get("orias_profile") == LordStats.ORIAS_WEB_PROFILE:
+		events.back().event.data["relentless_pursuit"] = pursuit
 	if world.data.combat_profile == Structures.PROFILE:
 		var reacted: Dictionary = reaction.call(
 			world, events.back().event, context.seed, context.player_order
@@ -656,6 +664,9 @@ static func _hunt(
 			"kind": "defeat_guard",
 			"target_id": guard.id
 		}
+		if world.data.get("orias_profile") == LordStats.ORIAS_WEB_PROFILE:
+			command["attacker_id"] = world.players[player_id].lord_entity_id
+			command["attack_kind"] = "Hunt"
 		var applied: Dictionary = _fact(world, command, context, reaction)
 		if applied.action == "invalid":
 			return applied
@@ -673,6 +684,9 @@ static func _hunt(
 			sigil_broken = true
 		else:
 			remaining = 0
+	# Guard reactions may have changed Threat during this same Hunt.
+	entities.restore(world.entities)
+	target = entities.get_entity(target.id)
 	var defense: int = LordStats.defense(world, target)
 	var banished: bool = remaining > defense
 	if banished:
@@ -730,4 +744,6 @@ static func _hunt(
 			}
 		)
 	)
+	if world.data.get("orias_profile") == LordStats.ORIAS_WEB_PROFILE:
+		events.back().event.data["relentless_pursuit"] = pursuit
 	return {"action": "resolved", "world": world, "events": events}

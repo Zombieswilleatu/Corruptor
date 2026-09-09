@@ -1,6 +1,6 @@
 extends RefCounted
 
-const ORIAS_WEB_PROFILE: String = "U13_ORIAS_SNARE_WEB_V2"
+const ORIAS_WEB_PROFILE: String = "U13_ORIAS_PURSUIT_V3"
 const HUMBABA_PROFILE: String = "U13_HUMBABA_BREATH_V2"
 const KALLIGAN_PROFILE: String = "U13_KALLIGAN_FIRE_V1"
 
@@ -37,3 +37,11 @@ static func defense(world: Dictionary, lord: Dictionary) -> int:
 		return 2 + standing_castles(world, lord.owner)
 	var threat: int = int(threat_value(lord))
 	return 4 - (3 if threat >= 4 else (2 if threat >= 3 else (1 if threat >= 2 else 0)))
+
+
+# Public, read-only planning value. Snapshot it once at Hunt start; changes to
+# target Threat later in the attack affect Defense, not this Strength bonus.
+static func relentless_pursuit(attacker: Dictionary, target: Dictionary) -> int:
+	if attacker.attributes.get("lord_id") != "Orias" or not attacker.attributes.get("alive", false):
+		return 0
+	return 1 + (1 if threat_at_least(target, 2) else 0)

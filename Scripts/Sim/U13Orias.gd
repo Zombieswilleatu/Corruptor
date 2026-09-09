@@ -86,6 +86,8 @@ func valid_world(world: Dictionary) -> bool:
 		or world.data.snare_paid_rounds.size() != 2
 	):
 		return false
+	if not _accelerate_world_valid(world):
+		return false
 	for paid_round in world.data.snare_paid_rounds:
 		if not Data.is_integer(paid_round) or paid_round < 0:
 			return false
@@ -225,7 +227,7 @@ func on_hook(context: Dictionary) -> Dictionary:
 	ordinary.combat_orders = [
 		Guards.strip_order(context.combat_orders[0]), Guards.strip_order(context.combat_orders[1])
 	]
-	var result: Dictionary = _base.on_hook(ordinary)
+	var result: Dictionary = _base.on_hook(ordinary, Callable(self, "react"))
 	if result.action == "invalid":
 		return result
 	if context.hook == Timeline.PRESENT_PUBLIC_STATE:
@@ -249,6 +251,21 @@ func project(world: Dictionary, player_id: int) -> Dictionary:
 	result["web_radius_fp"] = WEB_RADIUS_FP
 	result["guard_deployment_profile"] = Guards.VERSION
 	result["orias_breach_name"] = Guards.BREACH_NAME
+	var entities = Ids.new()
+	entities.restore(world.entities)
+	result["relentless_pursuit"] = []
+	for pid in [0, 1]:
+		var attacker: Dictionary = entities.get_entity(world.players[pid].lord_entity_id)
+		var target: Dictionary = entities.get_entity(world.players[1 - pid].lord_entity_id)
+		result.relentless_pursuit.append(
+			{
+				"player_id": pid,
+				"target_id": target.id,
+				"strength_bonus":
+				Stats.relentless_pursuit(attacker, target) if target.attributes.alive else 0
+			}
+		)
+	result["accelerate"] = world.data.orias_accelerate.duplicate(true)
 	result["guard_limit_round"] = world.data.guard_public_round
 	result["guard_placement_limits"] = world.data.guard_public_limits.duplicate()
 	result["snare_rounds"] = world.data.snare_rounds.duplicate()
@@ -262,7 +279,11 @@ func accept_order(context: Dictionary) -> Dictionary:
 	trimmed.order = Guards.strip_order(context.order)
 	var sealed_events: Array = []
 	if context.phase == "snapshot":
-		if not Guards.snapshot_valid(context) or not _snare_payments_valid(context):
+		if (
+			not Guards.snapshot_valid(context)
+			or not _snare_payments_valid(context)
+			or not _accelerate_snapshot_valid(context)
+		):
 			return Data.invalid("guard_or_snare_snapshot_invalid")
 	else:
 		var reserved: Dictionary = Guards.reserve(
@@ -460,4 +481,125 @@ static func _snare_payments_valid(context: Dictionary) -> bool:
 			!= prior_ids.get_entity(id).attributes.threat + 1
 		):
 			return false
+	return true
+
+
+# Chain existing Gremory/Deimos/Humbaba reactions first. The fact carries the
+# defeated Guard and credited Lord; never infer credit merely from ownership.
+func react(
+	raw: Dictionary, fact: Dictionary, seed_value: String, player_order: Array
+) -> Dictionary:
+	var result: Dictionary = _base._humbaba.react(raw, fact, seed_value, player_order)
+	if result.action == "invalid" or fact.type != "GUARD_DEFEATED" or not fact.data.has("attacker"):
+		return result
+	var guard: Dictionary = fact.data.guard
+	if guard.attributes.get("lane") != "Lord":
+		return result
+	var world: Dictionary = result.world
+	var entities = Ids.new()
+	entities.restore(world.entities)
+	var attacker: Dictionary = entities.get_entity(fact.data.attacker.id)
+	if (
+		attacker.is_empty()
+		or attacker.kind != "lord"
+		or attacker.attributes.get("lord_id") != "Orias"
+		or not attacker.attributes.alive
+		or attacker.owner != 1 - guard.owner
+	):
+		return result
+	var pid: int = attacker.owner
+	var expected: String = Data.instance_id(
+		"battle", str(fact.data.round), "hunt:%d:guard:%s" % [pid, guard.id]
+	)
+	if (
+		fact.data.get("attack_kind") != "Hunt"
+		or fact.data.hook != Timeline.COMBAT_RESOLUTION
+		or fact.data.event_id != expected
+		or not world.data.get("battle_commands", {}).has(expected)
+	):
+		return Data.invalid("accelerate_requires_credited_guard_fact")
+	var spent = world.data.orias_accelerate[pid]
+	if spent != null and spent.round >= fact.data.round:
+		return result
+	var target: Dictionary = entities.get_entity(world.players[guard.owner].lord_entity_id)
+	var threat = Stats.threat_value(target)
+	if threat == null:
+		return result
+	if threat >= 1000000:
+		return Data.invalid("accelerate_threat_limit")
+	target.attributes["threat"] = int(threat) + 1
+	entities.update(target.id, target.owner, target.attributes)
+	world.entities = entities.snapshot()
+	world.data.orias_accelerate[pid] = {
+		"round": fact.data.round, "event_id": expected, "guard_id": guard.id
+	}
+	result.events.append(
+		_event(
+			"ACCELERATE",
+			{
+				"player_id": pid,
+				"lord_id": target.id,
+				"guard_id": guard.id,
+				"event_id": expected,
+				"round": fact.data.round,
+				"hook": fact.data.hook,
+				"threat_before": threat,
+				"threat_after": int(threat) + 1
+			}
+		)
+	)
+	return result
+
+
+static func _accelerate_world_valid(world: Dictionary) -> bool:
+	var rows = world.data.get("orias_accelerate")
+	if typeof(rows) != TYPE_ARRAY or rows.size() != 2:
+		return false
+	for pid in [0, 1]:
+		var row = rows[pid]
+		if row == null:
+			continue
+		if (
+			typeof(row) != TYPE_DICTIONARY
+			or row.size() != 3
+			or not Data.is_integer(row.get("round"))
+			or row.round < 1
+			or typeof(row.get("event_id")) != TYPE_STRING
+			or typeof(row.get("guard_id")) != TYPE_STRING
+			or world.players[pid].lord_id != "Orias"
+		):
+			return false
+		if (
+			row.guard_id not in world.entities.used_ids
+			or (
+				row.event_id
+				!= Data.instance_id(
+					"battle", str(row.round), "hunt:%d:guard:%s" % [pid, row.guard_id]
+				)
+			)
+			or not world.data.get("battle_commands", {}).has(row.event_id)
+		):
+			return false
+	return true
+
+
+static func _accelerate_snapshot_valid(context: Dictionary) -> bool:
+	var rows: Array = context.world.data.orias_accelerate
+	for row in rows:
+		if (
+			row != null
+			and (
+				row.round > context.round
+				or (
+					row.round == context.round
+					and context.next_hook_index <= Timeline.hook_rank(Timeline.COMBAT_RESOLUTION)
+				)
+			)
+		):
+			return false
+	if (
+		context.next_hook_index > Timeline.hook_rank(Timeline.PRESENT_PUBLIC_STATE)
+		and context.next_hook_index <= Timeline.hook_rank(Timeline.COMBAT_RESOLUTION)
+	):
+		return rows == context.presentation_world.data.orias_accelerate
 	return true

@@ -176,13 +176,14 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 	return {"action": "resolved", "world": world, "events": events}
 
 
-func on_hook(context: Dictionary) -> Dictionary:
+func on_hook(context: Dictionary, reaction: Callable = Callable()) -> Dictionary:
+	var handler: Callable = reaction if reaction.is_valid() else Callable(self, "react")
 	if context.hook == Timeline.PERSISTENT_ADVANCEMENT:
 		return Rout.advance(context)
 	if context.hook == Timeline.DEVELOPMENT:
 		return Construction.resolve(context)
 	if context.hook == Timeline.POST_REPAIR_ARTILLERY:
-		return Structures.normal_fire(context, Callable(self, "react"))
+		return Structures.normal_fire(context, handler)
 	if context.hook == Timeline.END_MARCHING_CHECKS:
 		return endurance(context)
 	var ordinary: Dictionary = context.duplicate(true)
@@ -190,7 +191,7 @@ func on_hook(context: Dictionary) -> Dictionary:
 		Construction.combat_order(context.combat_orders[0]),
 		Construction.combat_order(context.combat_orders[1])
 	]
-	var result: Dictionary = Combat.on_hook(ordinary, Callable(self, "react"))
+	var result: Dictionary = Combat.on_hook(ordinary, handler)
 	if result.action != "invalid" and context.hook == Timeline.AFTERMATH:
 		result.world.data.castle_orders = [null, null]
 	return result
