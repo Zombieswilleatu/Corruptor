@@ -57,13 +57,14 @@ func spider_pose(phase: float = 0.0) -> Dictionary:
 # Static web; only the spider moves. Destination clipping trims the matching
 # source rectangle, so neither the web nor the spider bleeds into another lane.
 func draw_area(
-	canvas: CanvasItem, area: Rect2, clip: Rect2, fading: bool = false, phase: float = 0.0
+	canvas: CanvasItem, area: Rect2, clip: Rect2, fading: bool = false,
+	phase: float = 0.0, show_spider: bool = true
 ) -> void:
 	if web == null or area.size.x <= 0.0 or area.size.y <= 0.0:
 		return
 	var tint := Color(1, 1, 1, 0.30 if fading else 0.58)
 	_draw_clipped(canvas, web, area, Rect2(Vector2.ZERO, web.get_size()), clip, tint)
-	if spider == null:
+	if not show_spider or spider == null:
 		return
 	var pose: Dictionary = spider_pose(phase)
 	var center: Vector2 = area.position + pose.position * area.size

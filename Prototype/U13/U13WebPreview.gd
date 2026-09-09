@@ -118,5 +118,5 @@ func _draw() -> void:
 			# Square art centered on the middle physical card, not panel padding.
 			var diameter: float = card_height + 50.0
 			var snare_area := Rect2(middle - Vector2.ONE * diameter * 0.5, Vector2.ONE * diameter)
-			visuals.draw_area(self, snare_area, Rect2(Vector2.ZERO, size), false, float(index) * 0.3)
+			visuals.draw_area(self, snare_area, Rect2(Vector2.ZERO, size), false, 0.0, false)
 	draw_string(font, Vector2(25, size.y - 20), "Cross-lane overlap is a size preview. Gameplay Web still affects its selected lane.", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("c9bfa7"))
