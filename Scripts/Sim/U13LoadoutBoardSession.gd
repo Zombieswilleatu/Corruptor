@@ -1,5 +1,7 @@
 extends "res://Scripts/Sim/U13BoardSession.gd"
 
+const Orias = preload("res://Scripts/Sim/U13Orias.gd")
+const OriasScenario = preload("res://Scripts/Sim/U13OriasScenario.gd")
 const Core = preload("res://Scripts/Sim/U13CoreScenario.gd")
 const Deimos = preload("res://Scripts/Sim/U13Deimos.gd")
 const Humbaba = preload("res://Scripts/Sim/U13Humbaba.gd")
@@ -51,7 +53,9 @@ func configure(lords: Array, castles: Array, quick: bool) -> Dictionary:
 	setup_lords = lords.duplicate(true)
 	setup_castles = castles.duplicate(true)
 	quick_start = quick
-	hunt_enabled = hunt_enabled or lords.has("Humbaba") or lords.has("Kalligan")
+	hunt_enabled = (
+		hunt_enabled or lords.has("Humbaba") or lords.has("Kalligan") or lords.has("Orias")
+	)
 	_scenario = 0
 	_lane = "Castle"
 	_last_marching = []
@@ -68,14 +72,7 @@ func reset(_scenario_index: int = 0) -> Dictionary:
 func declaration(
 	power: String, index: int, target: Dictionary, cost: Dictionary = {}
 ) -> Dictionary:
-	var rule: Dictionary = (
-		(
-			Kalligan.rules()
-			if setup_lords.has("Kalligan")
-			else (Humbaba.rules() if setup_lords.has("Humbaba") else Deimos.rules())
-		)
-		. get(power, {})
-	)
+	var rule: Dictionary = _content(setup_lords, hunt_enabled).rules().get(power, {})
 	if rule.is_empty():
 		return Data.invalid("power_unknown")
 	var current: int = round_number()
@@ -96,6 +93,8 @@ func declaration(
 
 
 func random_opponent_plan() -> Dictionary:
+	if setup_lords.has("Orias"):
+		return RandomLegal.plan(_owner, 1, Callable(OriasScenario, "enumerate"))
 	return RandomLegal.plan(
 		_owner,
 		1,
@@ -111,6 +110,8 @@ func random_opponent_plan() -> Dictionary:
 
 
 static func _initial(lords: Array, castles: Array) -> Dictionary:
+	if lords.has("Orias"):
+		return OriasScenario.loadout_world(lords, castles)
 	if lords.has("Kalligan"):
 		return KalliganScenario.loadout_world(lords, castles)
 	return (
@@ -121,6 +122,8 @@ static func _initial(lords: Array, castles: Array) -> Dictionary:
 
 
 static func _content(lords: Array, hunt: bool):
+	if lords.has("Orias"):
+		return Orias.new()
 	if lords.has("Kalligan"):
 		return Kalligan.new()
 	return Humbaba.new() if lords.has("Humbaba") else Deimos.new(true, true, hunt)
@@ -165,7 +168,10 @@ func restore_checkpoint(raw: Dictionary) -> Dictionary:
 		or typeof(setup.get("hunt", false)) != TYPE_BOOL
 	):
 		return Data.invalid("loadout_checkpoint_setup_invalid")
-	if (setup.lords.has("Humbaba") or setup.lords.has("Kalligan")) and not setup.get("hunt", false):
+	if (
+		(setup.lords.has("Humbaba") or setup.lords.has("Kalligan") or setup.lords.has("Orias"))
+		and not setup.get("hunt", false)
+	):
 		return Data.invalid("humbaba_checkpoint_requires_hunt")
 	var initial: Dictionary = _initial(setup.lords, setup.castles)
 	if initial.get("action") == "invalid":
@@ -199,3 +205,9 @@ func preview_power(
 	var draft: Array = queued.duplicate(true)
 	draft.append(declaration(power, draft.size(), target))
 	return _owner.preview_submission(0, draft, order)
+
+
+func summon_preview(cards: Array) -> Dictionary:
+	if not setup_lords.has("Orias"):
+		return Data.invalid("summon_profile_unavailable")
+	return Orias.Resummon.quote(_owner.snapshot().world, 0, cards)

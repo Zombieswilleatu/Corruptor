@@ -1,6 +1,6 @@
 extends RefCounted
 
-const ORIAS_WEB_PROFILE: String = "U13_ORIAS_PURSUIT_V3"
+const ORIAS_WEB_PROFILE: String = "U13_ORIAS_MARK_BOARD_V4"
 const HUMBABA_PROFILE: String = "U13_HUMBABA_BREATH_V2"
 const KALLIGAN_PROFILE: String = "U13_KALLIGAN_FIRE_V1"
 
@@ -36,7 +36,10 @@ static func defense(world: Dictionary, lord: Dictionary) -> int:
 	if lord.attributes.get("lord_id") == "Humbaba":
 		return 2 + standing_castles(world, lord.owner)
 	var threat: int = int(threat_value(lord))
-	return 4 - (3 if threat >= 4 else (2 if threat >= 3 else (1 if threat >= 2 else 0)))
+	return (
+		(6 if lord.attributes.get("lord_id") == "Orias" else 4)
+		- (3 if threat >= 4 else (2 if threat >= 3 else (1 if threat >= 2 else 0)))
+	)
 
 
 # Public, read-only planning value. Snapshot it once at Hunt start; changes to

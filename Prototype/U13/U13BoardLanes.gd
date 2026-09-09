@@ -14,6 +14,9 @@ var skin: Texture2D
 var chit_sheet: Texture2D
 var active_auras: Array = []
 var active_scorches: Array = []
+const WebVisuals = preload("res://Prototype/U13/U13WebVisuals.gd")
+var web_visuals = WebVisuals.new()
+var active_webs: Array = []
 
 
 func bind_scorch(records: Array) -> void:
@@ -167,6 +170,21 @@ func _draw() -> void:
 		breath_visuals.draw_lane(
 			self, Rect2(rect.position.x, rect.position.y + 55, rect.size.x, rect.size.y - 85), lane
 		)
+		for web in active_webs:
+			if web.target.lane == lane:
+				var travel_rect := Rect2(
+					rect.position.x, rect.position.y + 65, rect.size.x, rect.size.y - 117
+				)
+				web_visuals.draw_area(
+					self,
+					WebVisuals.region_rect(
+						travel_rect,
+						web.target.field_position,
+						int(web.payload.spatial_field.radius_fp)
+					),
+					travel_rect,
+					_round > int(web.activated_round)
+				)
 		var top: float = rect.position.y + 65
 		var bottom: float = rect.end.y - 52
 		for unit in _units:
@@ -263,12 +281,14 @@ func reset_effects() -> void:
 	breath_visuals.clear()
 	active_auras = []
 	active_scorches = []
+	active_webs = []
 	queue_redraw()
 
 
 func _effects_need_process() -> bool:
 	return (
-		breath_visuals.textures.size() < 5
+		not active_webs.is_empty()
+		or breath_visuals.textures.size() < 5
 		or scorch_visuals.textures.size() < 3
 		or not breath_visuals.groups.is_empty()
 		or not scorch_visuals.groups.is_empty()
@@ -283,6 +303,9 @@ func _process(delta: float) -> void:
 		breath_visuals.warm_next()
 	else:
 		scorch_visuals.warm_next()
+	if not active_webs.is_empty():
+		web_visuals.warm_next()
+		web_visuals.advance(delta)
 	breath_visuals.advance(delta)
 	scorch_visuals.advance(delta)
 	feedback.advance(delta)
@@ -366,3 +389,12 @@ func flash_scorch(effect_id: String) -> void:
 	if not scorch_visuals.groups.is_empty():
 		set_process(true)
 		queue_redraw()
+
+
+func bind_webs(records: Array) -> void:
+	active_webs = []
+	for record in records:
+		if record.get("payload", {}).get("spatial_field", {}).get("kind") == "web":
+			active_webs.append(record.duplicate(true))
+	set_process(_effects_need_process())
+	queue_redraw()

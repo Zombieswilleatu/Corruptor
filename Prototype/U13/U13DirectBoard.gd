@@ -105,8 +105,10 @@ func _refresh(presented: Dictionary = {}) -> void:
 			)
 			_wire_target(guard_box, shared)
 			for slot in guard_box.get_children():
-				_wire_target(slot.input_surface, shared)
-				slot.input_surface.pressed.connect(_guard_selected.bind(shared))
+				var cell: Dictionary = shared.duplicate(true)
+				cell["slot"] = slot.get_index()
+				_wire_target(slot.input_surface, cell)
+				slot.input_surface.pressed.connect(_guard_selected.bind(cell))
 	_update_direct_ui()
 	if _pulse_pending:
 		_pulse_pending = false
@@ -498,6 +500,7 @@ func _apply_cards(ids: Array, append: bool) -> bool:
 	var order: Dictionary = combat.duplicate(true)
 	if not castle.is_empty():
 		order["castle_action"] = castle
+	order = _with_development(order)
 	var checked: Dictionary = session.choose(queued, order)
 	if checked.action == "invalid":
 		_interaction_error = _friendly_error(checked)
@@ -543,7 +546,7 @@ func _commission(id: String) -> void:
 	var order: Dictionary = _draft_combat.duplicate(true)
 	if not choice.is_empty():
 		order["castle_action"] = choice
-	if _error(session.choose(queued, order)):
+	if _error(session.choose(queued, _with_development(order))):
 		return
 	castle_plan = choice
 	if _intent in ["Construct", "Repair"]:
@@ -849,6 +852,7 @@ func _show_stacks() -> void:
 			payment_target
 		)
 		_add_stack(stacks, "ruin", "RUIN PAYMENT", payment, payment_target)
+	_development_stacks(stacks)
 	_order_preview.show_orders(stacks, _return_card, _can_drop, _drop)
 
 
@@ -1010,3 +1014,11 @@ func _guard_input(event: InputEvent, owner_id: int, lane: String, control: Contr
 		if _intent == Kalligan.INFERNO or (_intent == "Ward" and owner_id == 0):
 			control.accept_event()
 			_guard_selected({"id": "", "kind": "zone", "owner": owner_id, "lane": lane})
+
+
+func _with_development(order: Dictionary) -> Dictionary:
+	return order
+
+
+func _development_stacks(_stacks: Array) -> void:
+	pass

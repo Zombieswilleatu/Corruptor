@@ -713,6 +713,12 @@ static func _hunt(
 				"lord_id": world.players[1 - player_id].lord_id
 			}
 		]:
+			if (
+				world.data.get("orias_profile") == LordStats.ORIAS_WEB_PROFILE
+				and command.kind == "banish_lord"
+			):
+				command["attacker_id"] = world.players[player_id].lord_entity_id
+				command["attack_kind"] = "Hunt"
 			if world.data.has("humbaba_profile") and command.kind == "set_breach":
 				command["source_id"] = target.id
 			var applied: Dictionary = _fact(world, command, context, reaction)

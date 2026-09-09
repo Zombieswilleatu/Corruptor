@@ -5,8 +5,7 @@ const Candidates = preload("res://Scripts/Sim/U13OriasCandidates.gd")
 const Content = preload("res://Scripts/Sim/U13Orias.gd")
 
 
-# Rules fixture, not a production opening. Orias is not added to the playable
-# roster until the remaining powers and Development dependencies are complete.
+# Compact rules fixture. The playable picker uses loadout_world directly.
 static func world(opponent: String = "Gremory") -> Dictionary:
 	var choices: Array = ["Keep", "Bastion", "SummoningCircle", "Stockpile", "SiegeEngine"]
 	return loadout_world(["Orias", opponent], [choices, choices])
@@ -23,6 +22,7 @@ static func loadout_world(lords: Array, choices: Array) -> Dictionary:
 	if result.get("action") == "invalid":
 		return result
 	Content.Guards.configure(result)
+	Content.Resummon.configure(result)
 	result.data["snare_paid_rounds"] = [0, 0]
 	result.data["orias_accelerate"] = [null, null]
 	result.data["orias_profile"] = Content.POLICY
@@ -45,5 +45,13 @@ static func enumerate(owner, player_id: int) -> Dictionary:
 	if view.action == "invalid":
 		return view
 	if view.world.lord_ids[player_id] == "Orias":
-		return Candidates.enumerate(owner, player_id)
-	return Content.Guards.add_candidates(Base.enumerate(owner, player_id), view, owner.rng_seed())
+		var raw: Dictionary = Candidates.enumerate(owner, player_id)
+		raw["castle_actions"] = Base.CastleCandidates.enumerate(view)
+		return Content.Resummon.add_candidates(
+			raw, owner.snapshot().world, player_id
+		)
+	return Content.Resummon.add_candidates(
+		Content.Guards.add_candidates(Base.enumerate(owner, player_id), view, owner.rng_seed()),
+		owner.snapshot().world,
+		player_id
+	)

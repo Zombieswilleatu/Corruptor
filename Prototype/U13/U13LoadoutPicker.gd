@@ -7,7 +7,7 @@ const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
 const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
 const Tutorials = preload("res://Prototype/U13/U13TutorialPreferences.gd")
 const TutorialPopup = preload("res://Prototype/U13/U13TutorialPopup.gd")
-const LORDS: Array = ["Deimos", "Gremory", "Humbaba", "Kalligan"]
+const LORDS: Array = ["Deimos", "Gremory", "Humbaba", "Kalligan", "Orias"]
 var lord_choices: Array = []
 var castle_choices: Array = [[], []]
 var opening: OptionButton
@@ -265,14 +265,20 @@ static func quickstart_selection(seed_value: String) -> Dictionary:
 			for castle_type in Slots.TYPES:
 				if castles.count(castle_type) < 2:
 					legal.append(castle_type)
-			castles.append(legal[int(Rng.draw(seed_value, key, "CASTLE_SLOT_" + str(slot), 0, legal.size()).value)])
+			castles.append(
+				legal[int(
+					Rng.draw(seed_value, key, "CASTLE_SLOT_" + str(slot), 0, legal.size()).value
+				)]
+			)
 	return result
 
 
 func _quickstart() -> void:
 	if tutorial_popup.visible:
 		return
-	var seed_value: String = str(Time.get_unix_time_from_system()) + ":" + str(Time.get_ticks_usec())
+	var seed_value: String = (
+		str(Time.get_unix_time_from_system()) + ":" + str(Time.get_ticks_usec())
+	)
 	var draft: Dictionary = quickstart_selection(seed_value)
 	present(draft.lords, draft.castles, true, cancel_button.visible)
 	_start()

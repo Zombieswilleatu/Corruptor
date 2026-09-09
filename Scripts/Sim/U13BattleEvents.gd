@@ -100,6 +100,21 @@ static func apply(
 		"banish_lord":
 			if target.is_empty() or target.kind != "lord":
 				return Data.invalid("lord_missing")
+			if command.has("attacker_id"):
+				var attacker: Dictionary = entities.get_entity(String(command.attacker_id))
+				if (
+					attacker.is_empty()
+					or attacker.kind != "lord"
+					or attacker.owner != 1 - target.owner
+					or not attacker.attributes.alive
+					or not target.attributes.alive
+					or hook != Timeline.COMBAT_RESOLUTION
+					or command.get("attack_kind") != "Hunt"
+				):
+					return Data.invalid("banishment_attribution_invalid")
+				details["attacker"] = attacker.duplicate(true)
+				details["lord"] = target.duplicate(true)
+				details["attack_kind"] = "Hunt"
 			target.attributes["alive"] = false
 			entities.update(target.id, target.owner, target.attributes)
 			details["lord_id"] = target.id

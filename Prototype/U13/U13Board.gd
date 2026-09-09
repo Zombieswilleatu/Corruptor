@@ -367,6 +367,7 @@ func _refresh(presented: Dictionary = {}) -> void:
 	var view: Dictionary = session.board_view() if presented.is_empty() else presented
 	var world: Dictionary = view.world
 	lanes.bind_auras(view.get("persistent", []), session.round_number())
+	lanes.bind_webs(view.get("persistent", []))
 	_scorch_rows = ScorchView.records(
 		view.get("persistent", []), view.get("pending", []), session.round_number()
 	)
@@ -1075,7 +1076,13 @@ func _picture(parent: Node, texture: Texture2D, dimensions: Vector2) -> void:
 
 
 func open_setup() -> void:
-	if not _runtime_ok or _job != null or playing or gem_dagger_view.active() or setup_picker == null:
+	if (
+		not _runtime_ok
+		or _job != null
+		or playing
+		or gem_dagger_view.active()
+		or setup_picker == null
+	):
 		return
 	setup_hand_selection = hand_view.selected_card_ids()
 	setup_open = true

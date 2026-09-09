@@ -1,5 +1,6 @@
 extends RefCounted
 
+const Resummon = preload("res://Scripts/Sim/U13Resummoning.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
@@ -103,6 +104,7 @@ static func moves_shape(moves) -> bool:
 static func strip_order(order: Dictionary) -> Dictionary:
 	var stripped: Dictionary = order.duplicate(true)
 	stripped.erase("guard_moves")
+	stripped.erase("summon")
 	return stripped
 
 
@@ -143,6 +145,10 @@ static func validate_order(
 	# U12 production allows Repair and deployment; only shared card costs conflict.
 	if typeof(order.get("card_ids", [])) != TYPE_ARRAY:
 		return Data.invalid("combat_order_shape_invalid")
+	if world.data.get("resummon_profile") == Resummon.VERSION:
+		var summon_check: Dictionary = Resummon.validate_order(world, pid, order)
+		if summon_check.action == "invalid":
+			return summon_check
 	var spent: Array = order.get("card_ids", []).duplicate()
 	spent.append_array(castle.get("card_ids", []))
 	var hand: Array = world.data.card_zones.hands[pid]

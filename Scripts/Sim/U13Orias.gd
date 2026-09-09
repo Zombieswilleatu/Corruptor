@@ -1,5 +1,6 @@
 extends RefCounted
 
+const Resummon = preload("res://Scripts/Sim/U13Resummoning.gd")
 const Guards = preload("res://Scripts/Sim/U13GuardDeployment.gd")
 const Base = preload("res://Scripts/Sim/U13Kalligan.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
@@ -79,6 +80,7 @@ func valid_world(world: Dictionary) -> bool:
 		or world.data.get("spatial_field_profile") != Fields.VERSION
 		or not _base.valid_world(world, true)
 		or not Guards.valid(world)
+		or not Resummon.valid(world)
 	):
 		return false
 	if (
@@ -224,12 +226,20 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 
 func on_hook(context: Dictionary) -> Dictionary:
 	var ordinary: Dictionary = context.duplicate(true)
+	var summon_events: Array = []
+	if context.hook == Timeline.DEVELOPMENT:
+		var summoned: Dictionary = Resummon.resolve(context)
+		if summoned.action == "invalid":
+			return summoned
+		ordinary.world = summoned.world
+		summon_events = summoned.events
 	ordinary.combat_orders = [
 		Guards.strip_order(context.combat_orders[0]), Guards.strip_order(context.combat_orders[1])
 	]
 	var result: Dictionary = _base.on_hook(ordinary, Callable(self, "react"))
 	if result.action == "invalid":
 		return result
+	result.events = summon_events + result.events
 	if context.hook == Timeline.PRESENT_PUBLIC_STATE:
 		Guards.capture_limits(result.world, context.round)
 	elif context.hook == Timeline.DEVELOPMENT:
@@ -242,6 +252,7 @@ func on_hook(context: Dictionary) -> Dictionary:
 		result.events.append_array(deployed.events)
 	elif context.hook == Timeline.AFTERMATH:
 		result.world.data.guard_orders = [null, null]
+		result.world.data.summon_orders = [null, null]
 	return result
 
 
@@ -266,6 +277,10 @@ func project(world: Dictionary, player_id: int) -> Dictionary:
 			}
 		)
 	result["accelerate"] = world.data.orias_accelerate.duplicate(true)
+	result["orias_marks"] = world.data.orias_marks.duplicate(true)
+	result["resummon_profile"] = Resummon.VERSION
+	result["summon_quote"] = Resummon.quote(world, player_id, [])
+	result["summon_counts"] = world.data.summon_counts.duplicate()
 	result["guard_limit_round"] = world.data.guard_public_round
 	result["guard_placement_limits"] = world.data.guard_public_limits.duplicate()
 	result["snare_rounds"] = world.data.snare_rounds.duplicate()
@@ -283,11 +298,18 @@ func accept_order(context: Dictionary) -> Dictionary:
 			not Guards.snapshot_valid(context)
 			or not _snare_payments_valid(context)
 			or not _accelerate_snapshot_valid(context)
+			or not Resummon.snapshot_valid(context)
 		):
 			return Data.invalid("guard_or_snare_snapshot_invalid")
 	else:
-		var reserved: Dictionary = Guards.reserve(
+		var summoned: Dictionary = Resummon.reserve(
 			trimmed.world, context.player_id, context.order, context.round
+		)
+		if summoned.action == "invalid":
+			return summoned
+		trimmed.world = summoned.world
+		var reserved: Dictionary = Guards.reserve(
+			trimmed.world, context.player_id, Resummon.strip(context.order), context.round
 		)
 		if reserved.action == "invalid":
 			return reserved
@@ -490,6 +512,8 @@ func react(
 	raw: Dictionary, fact: Dictionary, seed_value: String, player_order: Array
 ) -> Dictionary:
 	var result: Dictionary = _base._humbaba.react(raw, fact, seed_value, player_order)
+	if result.action != "invalid" and fact.type == "LORD_BANISHED":
+		return _mark(result, fact)
 	if result.action == "invalid" or fact.type != "GUARD_DEFEATED" or not fact.data.has("attacker"):
 		return result
 	var guard: Dictionary = fact.data.guard
@@ -603,3 +627,54 @@ static func _accelerate_snapshot_valid(context: Dictionary) -> bool:
 	):
 		return rows == context.presentation_world.data.orias_accelerate
 	return true
+
+
+func _mark(result: Dictionary, fact: Dictionary) -> Dictionary:
+	if not fact.data.has("attacker") or not fact.data.has("lord"):
+		return result
+	var attacker: Dictionary = fact.data.attacker
+	var target: Dictionary = fact.data.lord
+	if (
+		attacker.attributes.get("lord_id") != "Orias"
+		or not attacker.attributes.alive
+		or not Stats.threat_at_least(target, 3)
+	):
+		return result
+	var expected: String = Data.instance_id(
+		"battle", str(fact.data.round), "hunt:%d:lord:%s" % [attacker.owner, target.id]
+	)
+	if (
+		fact.data.event_id != expected
+		or fact.data.hook != Timeline.COMBAT_RESOLUTION
+		or fact.data.get("attack_kind") != "Hunt"
+		or not result.world.data.get("battle_commands", {}).has(expected)
+	):
+		return Data.invalid("mark_requires_credited_banishment")
+	var prior = result.world.data.orias_marks[target.owner]
+	if prior != null and prior.event_id == expected:
+		return result
+	result.world.data.orias_marks[target.owner] = {
+		"lord_id": target.id,
+		"marked_by": attacker.id,
+		"round": fact.data.round,
+		"event_id": expected
+	}
+	result.world.players[attacker.owner].resources.souls += 2
+	result.world.data.neutral_tears += 1
+	result.events.append(
+		_event(
+			"ORIAS_MARKED",
+			{
+				"player_id": attacker.owner,
+				"lord_id": target.id,
+				"threat": target.attributes.threat,
+				"bonus_souls": 2,
+				"round": fact.data.round,
+				"event_id": expected
+			}
+		)
+	)
+	result.events.append(
+		_event("NEUTRAL_TEAR_CREATED", {"amount": 1, "source": "TheMark", "round": fact.data.round})
+	)
+	return result
