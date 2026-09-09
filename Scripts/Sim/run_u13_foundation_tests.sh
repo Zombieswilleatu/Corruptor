@@ -3,8 +3,8 @@
 # Successful logs are temporary; failure logs are preserved in Downloads.
 set -uo pipefail
 
-if [[ $# -lt 1 || $# -gt 2 || ( $# -eq 2 && "$2" != --board && "$2" != --construction && "$2" != --castle-rout && "$2" != --interaction && "$2" != --humbaba && "$2" != --kalligan && "$2" != --kalligan-board && "$2" != --marcher-feedback && "$2" != --alpha && "$2" != --planning && "$2" != --marching ) ]]; then
-  printf 'Usage: bash %s /path/to/Godot_console_executable [--board|--construction|--castle-rout|--interaction|--humbaba|--kalligan|--kalligan-board|--marcher-feedback|--alpha|--planning|--marching]\n' "$0" >&2
+if [[ $# -lt 1 || $# -gt 2 || ( $# -eq 2 && "$2" != --board && "$2" != --construction && "$2" != --castle-rout && "$2" != --interaction && "$2" != --humbaba && "$2" != --kalligan && "$2" != --kalligan-board && "$2" != --marcher-feedback && "$2" != --alpha && "$2" != --planning && "$2" != --marching && "$2" != --breath ) ]]; then
+  printf 'Usage: bash %s /path/to/Godot_console_executable [--board|--construction|--castle-rout|--interaction|--humbaba|--kalligan|--kalligan-board|--marcher-feedback|--alpha|--planning|--marching|--breath]\n' "$0" >&2
   exit 2
 fi
 godot_u13_exe=$1
@@ -18,6 +18,10 @@ u13_kalligan_board_only=false
 u13_alpha_only=false
 u13_planning_only=false
 u13_marching_only=false
+u13_breath_only=false
+if [[ ${2:-} == --breath ]]; then
+  u13_breath_only=true
+fi
 if [[ ${2:-} == --planning ]]; then
   u13_planning_only=true
 fi
@@ -170,6 +174,11 @@ u13_runners=(
   U13HumbabaRandom
   U13LaneAuras
   U13Breath
+  U13BreathLifetime1
+  U13BreathLifetime2
+  U13BreathLifetime3
+  U13BreathLifetime4
+  U13BreathLifetime5
   U13CastleLoadout
   U13Rout
   U13Construction
@@ -226,6 +235,11 @@ u13_markers=(
   'U13 Humbaba random failures: 0'
   'U13 lane auras failures: 0'
   'U13 Breath of Life failures: 0'
+  'U13 Breath lifetime 1 failures: 0'
+  'U13 Breath lifetime 2 failures: 0'
+  'U13 Breath lifetime 3 failures: 0'
+  'U13 Breath lifetime 4 failures: 0'
+  'U13 Breath lifetime 5 failures: 0'
   'U13 Castle loadout failures: 0'
   'U13 Rout failures: 0'
   'U13 Construction failures: 0'
@@ -264,8 +278,8 @@ u13_markers=(
   'U13 Scorch visuals failures: 0'
 )
 if [[ $u13_kalligan_only == true ]]; then
-  u13_runners=(U13Hazards U13Kalligan U13KalliganIntegration U13KalliganRandom U13PendingEffects U13PersistentEffects U13Cooldowns U13Match U13LaneAuras U13Breath)
-  u13_markers=('U13 hazards failures: 0' 'U13 Kalligan failures: 0' 'U13 Kalligan integration failures: 0' 'U13 Kalligan random failures: 0' 'U13 pending effects failures: 0' 'U13 persistent effects failures: 0' 'U13 cooldowns failures: 0' 'U13 match foundation failures: 0' 'U13 lane auras failures: 0' 'U13 Breath of Life failures: 0')
+  u13_runners=(U13Hazards U13Kalligan U13KalliganIntegration U13KalliganRandom U13PendingEffects U13PersistentEffects U13Cooldowns U13Match U13LaneAuras U13Breath U13BreathLifetime1 U13BreathLifetime2 U13BreathLifetime3 U13BreathLifetime4 U13BreathLifetime5)
+  u13_markers=('U13 hazards failures: 0' 'U13 Kalligan failures: 0' 'U13 Kalligan integration failures: 0' 'U13 Kalligan random failures: 0' 'U13 pending effects failures: 0' 'U13 persistent effects failures: 0' 'U13 cooldowns failures: 0' 'U13 match foundation failures: 0' 'U13 lane auras failures: 0' 'U13 Breath of Life failures: 0' 'U13 Breath lifetime 1 failures: 0' 'U13 Breath lifetime 2 failures: 0' 'U13 Breath lifetime 3 failures: 0' 'U13 Breath lifetime 4 failures: 0' 'U13 Breath lifetime 5 failures: 0')
 fi
 if [[ $u13_board_only == true ]]; then
   u13_runners=(U13MarcherFeedback U13MarcherFeedbackBoard U13ScorchVisuals U13KalliganBoardSession U13KalliganBoard U13BreathVisuals U13HumbabaBoardSession U13HumbabaBoard U13BoardModel U13Board U13DenseBoard U13LoadoutBoard U13Hunt U13DirectBoard)
@@ -284,16 +298,16 @@ if [[ $u13_interaction_only == true ]]; then
   u13_markers=('U13 Hunt failures: 0' 'U13 direct board failures: 0' 'U13 artillery impact timing failures: 0')
 fi
 if [[ $u13_humbaba_only == true ]]; then
-  u13_runners=(U13LaneAuras U13Breath U13Humbaba U13HumbabaIntegration U13HumbabaRandom U13Rout U13SpatialMarching U13SpatialReference6 U13SpatialReference24 U13SpatialReference48 U13Hunt U13Deimos U13CastleLoadout)
-  u13_markers=('U13 lane auras failures: 0' 'U13 Breath of Life failures: 0' 'U13 Humbaba failures: 0' 'U13 Humbaba integration failures: 0' 'U13 Humbaba random failures: 0' 'U13 Rout failures: 0' 'U13 spatial Marching failures: 0' 'U13 spatial reference 6 failures: 0' 'U13 spatial reference 24 failures: 0' 'U13 spatial reference 48 failures: 0' 'U13 Hunt failures: 0' 'U13 Deimos failures: 0' 'U13 Castle loadout failures: 0')
+  u13_runners=(U13LaneAuras U13Breath U13BreathLifetime1 U13BreathLifetime2 U13BreathLifetime3 U13BreathLifetime4 U13BreathLifetime5 U13Humbaba U13HumbabaIntegration U13HumbabaRandom U13Rout U13SpatialMarching U13SpatialReference6 U13SpatialReference24 U13SpatialReference48 U13Hunt U13Deimos U13CastleLoadout)
+  u13_markers=('U13 lane auras failures: 0' 'U13 Breath of Life failures: 0' 'U13 Breath lifetime 1 failures: 0' 'U13 Breath lifetime 2 failures: 0' 'U13 Breath lifetime 3 failures: 0' 'U13 Breath lifetime 4 failures: 0' 'U13 Breath lifetime 5 failures: 0' 'U13 Humbaba failures: 0' 'U13 Humbaba integration failures: 0' 'U13 Humbaba random failures: 0' 'U13 Rout failures: 0' 'U13 spatial Marching failures: 0' 'U13 spatial reference 6 failures: 0' 'U13 spatial reference 24 failures: 0' 'U13 spatial reference 48 failures: 0' 'U13 Hunt failures: 0' 'U13 Deimos failures: 0' 'U13 Castle loadout failures: 0')
 fi
 if [[ $u13_kalligan_board_only == true ]]; then
   u13_runners=(U13KalliganBoardSession U13KalliganBoard U13BreathVisuals)
   u13_markers=('U13 Kalligan board session failures: 0' 'U13 Kalligan board failures: 0' 'U13 Breath visuals failures: 0')
 fi
 if [[ $u13_feedback_only == true ]]; then
-  u13_runners=(U13MarcherFeedback U13MarcherFeedbackBoard U13ScorchVisuals U13Breath)
-  u13_markers=('U13 Marcher feedback failures: 0' 'U13 Marcher feedback board failures: 0' 'U13 Scorch visuals failures: 0' 'U13 Breath of Life failures: 0')
+  u13_runners=(U13MarcherFeedback U13MarcherFeedbackBoard U13ScorchVisuals U13Breath U13BreathLifetime1 U13BreathLifetime2 U13BreathLifetime3 U13BreathLifetime4 U13BreathLifetime5)
+  u13_markers=('U13 Marcher feedback failures: 0' 'U13 Marcher feedback board failures: 0' 'U13 Scorch visuals failures: 0' 'U13 Breath of Life failures: 0' 'U13 Breath lifetime 1 failures: 0' 'U13 Breath lifetime 2 failures: 0' 'U13 Breath lifetime 3 failures: 0' 'U13 Breath lifetime 4 failures: 0' 'U13 Breath lifetime 5 failures: 0')
 fi
 if [[ $u13_alpha_only == true ]]; then
   u13_runners=(U13Alpha U13AlphaReplay U13AlphaInteraction U13AlphaRout U13LaneAuras U13ConstructionAuto U13Construction U13ConstructionRandom U13ScorchVisuals U13ArtilleryTiming U13DirectBoard)
@@ -304,8 +318,12 @@ if [[ $u13_planning_only == true ]]; then
   u13_markers=('U13 planning legality failures: 0' 'U13 match foundation failures: 0' 'U13 random-legal failures: 0' 'U13 random-legal replay failures: 0' 'U13 Construction failures: 0' 'U13 Construction random failures: 0' 'U13 alpha replay failures: 0' 'U13 Hunt failures: 0')
 fi
 if [[ $u13_marching_only == true ]]; then
-  u13_runners=(U13MarchingAudit U13SpatialMarching U13SpatialReference6 U13SpatialReference24 U13SpatialReference48 U13MarchingIntegration U13Rout U13LaneAuras U13Breath U13Hazards U13Humbaba U13AlphaInteraction U13AlphaRout U13MarcherFeedback)
-  u13_markers=('U13 Marching audit failures: 0' 'U13 spatial Marching failures: 0' 'U13 spatial reference 6 failures: 0' 'U13 spatial reference 24 failures: 0' 'U13 spatial reference 48 failures: 0' 'U13 Marching integration failures: 0' 'U13 Rout failures: 0' 'U13 lane auras failures: 0' 'U13 Breath of Life failures: 0' 'U13 hazards failures: 0' 'U13 Humbaba failures: 0' 'U13 alpha Scorch Breath failures: 0' 'U13 alpha Scorch Rout failures: 0' 'U13 Marcher feedback failures: 0')
+  u13_runners=(U13MarchingAudit U13SpatialMarching U13SpatialReference6 U13SpatialReference24 U13SpatialReference48 U13MarchingIntegration U13Rout U13LaneAuras U13Breath U13BreathLifetime1 U13BreathLifetime2 U13BreathLifetime3 U13BreathLifetime4 U13BreathLifetime5 U13Hazards U13Humbaba U13AlphaInteraction U13AlphaRout U13MarcherFeedback)
+  u13_markers=('U13 Marching audit failures: 0' 'U13 spatial Marching failures: 0' 'U13 spatial reference 6 failures: 0' 'U13 spatial reference 24 failures: 0' 'U13 spatial reference 48 failures: 0' 'U13 Marching integration failures: 0' 'U13 Rout failures: 0' 'U13 lane auras failures: 0' 'U13 Breath of Life failures: 0' 'U13 Breath lifetime 1 failures: 0' 'U13 Breath lifetime 2 failures: 0' 'U13 Breath lifetime 3 failures: 0' 'U13 Breath lifetime 4 failures: 0' 'U13 Breath lifetime 5 failures: 0' 'U13 hazards failures: 0' 'U13 Humbaba failures: 0' 'U13 alpha Scorch Breath failures: 0' 'U13 alpha Scorch Rout failures: 0' 'U13 Marcher feedback failures: 0')
+fi
+if [[ $u13_breath_only == true ]]; then
+  u13_runners=(U13Breath U13BreathLifetime1 U13BreathLifetime2 U13BreathLifetime3 U13BreathLifetime4 U13BreathLifetime5)
+  u13_markers=('U13 Breath of Life failures: 0' 'U13 Breath lifetime 1 failures: 0' 'U13 Breath lifetime 2 failures: 0' 'U13 Breath lifetime 3 failures: 0' 'U13 Breath lifetime 4 failures: 0' 'U13 Breath lifetime 5 failures: 0')
 fi
 u13_failed=0
 for u13_index in "${!u13_runners[@]}"; do
@@ -328,6 +346,9 @@ for u13_index in "${!u13_runners[@]}"; do
   fi
 done
 u13_suite_label=foundation
+if [[ $u13_breath_only == true ]]; then
+  u13_suite_label=Breath
+fi
 if [[ $u13_planning_only == true ]]; then
   u13_suite_label=planning
 fi

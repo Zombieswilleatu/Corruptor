@@ -144,9 +144,9 @@ After checking that performance result, the Marching gate is ready:
 bash Scripts/Sim/run_u13_foundation_tests.sh "$GODOT_U13" --marching
 ```
 
-Expected: Marching-audit **14/14**. This collects existing meaningful spatial,
+Expected: Marching-audit **19/19**. This collects existing meaningful spatial,
 replay, combat, aura, hazard and feedback tests with the two new audit cases.
-The full foundation list is now 54 runners; the spatial comparison split and
+The full foundation list is now 59 runners; the spatial comparison split and
 affected focused-group counts are recorded in the follow-up below.
 
 Workspace verification is grammar/block structure, preload call arity,
@@ -219,3 +219,49 @@ runners: full foundation **54**, Marching-audit **14**, castle-rout **10**, Humb
 unchanged; this split changes only test orchestration, not production movement.
 Static grammar/block and wrapper checks are workspace checks only. The new local
 gate is `--marching`, expected **14/14**, before the Marching gate is complete.
+
+
+## Breath lifetime timeout follow-up — 2026-09-09
+
+`u13-foundation-failure-DSQ2dL.log` verifies the split spatial comparisons at all
+three populations, including both 48-body contact rounds. Marching integration,
+Rout, lane auras and the dedicated Marching audit also pass. The 48-body reference
+runner reports about 25.3 seconds across its two case timers; it passed the
+existing 30-second limit but has limited margin on this machine.
+
+Breath admission, keyed random declarations and rejected-snapshot atomicity pass.
+Its combined five-round replay passes rounds 1–3, including expiration and the
+round-5 cooldown date. It times out in round 4 after movement-state replay and
+before that hook's JSON check reports. No completed assertion fails. The empty
+field still emits a complete Marching event history, which is copied and restored
+repeatedly by the test; emptiness does not make this five-round replay cheap.
+
+The Breath suite now has six processes under the same 30-second watchdog:
+
+- `U13Breath`: admission/random legality, authoritative regeneration, and armed
+  Breath firing after Banishment.
+- `U13BreathLifetime1` through `U13BreathLifetime5`: one checked lifecycle round
+  each. Earlier rounds are rebuilt through real submissions and authoritative
+  hooks, with the original seed, world, round-one declaration and later passes.
+  There are no fabricated effect records, round clocks or cooldown snapshots.
+
+For the checked round, a second owner starts from a JSON-restored complete
+checkpoint and advances alongside the first. Every hook still compares full
+snapshots (including event history), and the original three in-round JSON checks,
+round-boundary JSON checks, readiness checks, corruption cases and lifecycle
+assertions remain. Round-boundary equality and both players' submission results
+are now explicitly checked. Progress separates lead-in generation from the
+checked replay round. This changes the test's replay entry point, not game rules.
+
+All groups that previously included Breath also include all five lifecycle
+runners. Current counts: full foundation **59**, Marching-audit **19**, Humbaba
+**18**, Kalligan **15**, Marcher-feedback **9**. Planning remains **8**; board
+remains **14**. A new `--breath` group runs only these six processes:
+
+```bash
+bash Scripts/Sim/run_u13_foundation_tests.sh "$GODOT_U13" --breath
+```
+
+Expected: **U13 Breath runners passed: 6/6**. Run this focused check before the
+complete `--marching` gate. Source/grammar and stubbed wrapper checks in the
+workspace are not Godot execution; local verification is still required.

@@ -4,9 +4,8 @@ const Bot = preload("res://Scripts/Sim/U13RandomLegal.gd")
 
 
 func _run() -> void:
+	print("BREATH STAGE admission_and_bot")
 	_admission_and_bot()
-	print("BREATH STAGE lifetime_replay")
-	_lifetime_replay()
 	print("BREATH STAGE canonical_regeneration")
 	_regeneration_owner()
 	print("BREATH STAGE armed_after_banishment")
@@ -60,103 +59,140 @@ func _admission_and_bot() -> void:
 	_check(owner.snapshot() == before, "breath_previews_and_chooser_are_pure")
 
 
-# Empty field keeps the five-round timing/replay gate cheap. Actual moving
-# bodies, healing, lane changes and Rout composition live in U13LaneAuras.
-func _lifetime_replay() -> void:
+# The empty field isolates lifecycle/save-load work from movement. Each round
+# has its own runner because snapshots retain the full growing event history.
+# Moving bodies, lane changes and Rout composition also have U13LaneAuras coverage.
+func _lifetime_replay(round_number: int) -> void:
+	var started: int = Time.get_ticks_msec()
 	var owner = _owner()
-	var replay = _owner()
-	if owner == null or replay == null:
+	if owner == null:
 		return
-	for round_number in range(1, 6):
-		print("BREATH ROUND ", round_number, "/5")
+	# Rebuild the complete lead-in through real submissions/hooks. Never forge
+	# an active effect, cooldown clock, event history or round cursor.
+	for warmup_round in range(1, round_number):
+		print("BREATH WARMUP round=", warmup_round, " target=", round_number)
 		while not owner.next_hook().is_empty():
-			var hook: String = owner.next_hook()
-			if hook == Timeline.SUBMISSION_LOCK:
-				var source: Dictionary = Candidates.source(0, round_number, "Lord", Content.BREATH)
-				# Exercise the shared immediate-fire sentinel as well as explicit
-				# firing rounds used by the bot and the armed-Banishment fixture.
+			if owner.next_hook() == Timeline.SUBMISSION_LOCK:
+				var source: Dictionary = Candidates.source(0, warmup_round, "Lord", Content.BREATH)
 				source.fire_round = -1
-				var ready: bool = owner.preview_submission(0, [source], {}).action != "invalid"
-				_check(
-					ready == (round_number in [1, 5]), "breath_readiness_round_" + str(round_number)
-				)
-				for match_owner in [owner, replay]:
-					if not _check(
-						(
-							match_owner.submit(0, [source] if round_number == 1 else [], {}).action
-							!= "invalid"
-						),
-						"breath_submission"
-					):
+				for player_id in [0, 1]:
+					var powers: Array = [source] if player_id == 0 and warmup_round == 1 else []
+					if owner.submit(player_id, powers, {}).action == "invalid":
+						_check(false, "breath_warmup_submission")
 						return
-					match_owner.submit(1, [], {})
-			if not _check(
-				(
-					owner.run_next_hook().action != "invalid"
-					and replay.run_next_hook().action != "invalid"
-				),
-				"breath_hook_" + hook
-			):
+			if owner.run_next_hook().action == "invalid":
+				_check(false, "breath_warmup_hook")
 				return
-			var snapshot: Dictionary = owner.snapshot()
-			_check(snapshot == replay.snapshot(), "breath_replay_" + hook)
-			if (
-				hook
-				in [
-					Timeline.PERSISTENT_ADVANCEMENT,
-					Timeline.POST_RESOLUTION_MOVEMENT_STATE,
-					Timeline.AFTERMATH
-				]
-			):
-				var restored = Content.new().create_combat_match()
-				_check(
+		if owner.begin_next_round([0, 1]).action == "invalid":
+			_check(false, "breath_warmup_boundary")
+			return
+	print("BREATH WARMUP elapsed_ms=", Time.get_ticks_msec() - started)
+	var start_snapshot: Dictionary = owner.snapshot()
+	var replay = Content.new().create_combat_match()
+	if not _check(
+		(
+			replay.restore(JSON.parse_string(JSON.stringify(start_snapshot))).action != "invalid"
+			and replay.snapshot() == start_snapshot
+		),
+		"breath_round_start_json_replay_" + str(round_number)
+	):
+		return
+	started = Time.get_ticks_msec()
+	print("BREATH ROUND ", round_number, "/5")
+	while not owner.next_hook().is_empty():
+		var hook: String = owner.next_hook()
+		if hook == Timeline.SUBMISSION_LOCK:
+			var source: Dictionary = Candidates.source(0, round_number, "Lord", Content.BREATH)
+			# Exercise the shared immediate-fire sentinel as well as explicit
+			# firing rounds used by the bot and the armed-Banishment fixture.
+			source.fire_round = -1
+			var ready: bool = owner.preview_submission(0, [source], {}).action != "invalid"
+			_check(ready == (round_number in [1, 5]), "breath_readiness_round_" + str(round_number))
+			for match_owner in [owner, replay]:
+				if not _check(
 					(
-						(
-							restored.restore(JSON.parse_string(JSON.stringify(snapshot))).action
-							!= "invalid"
-						)
-						and restored.snapshot() == snapshot
+						match_owner.submit(0, [source] if round_number == 1 else [], {}).action
+						!= "invalid"
 					),
-					"breath_json_" + hook
-				)
-			if hook == Timeline.POST_RESOLUTION_MOVEMENT_STATE:
-				_check(
-					snapshot.persistent.active.size() == (1 if round_number <= 2 else 0),
-					"breath_two_active_rounds_" + str(round_number)
-				)
-				if round_number == 1:
-					_check(
-						(
-							snapshot.persistent.active[0].payload
-							== {"lane_aura": {"regen_bonus": 1, "speed_percent": 25}}
-						),
-						"breath_registry_owns_modifiers"
-					)
-					_corrupt_snapshots(owner)
-			if hook == Timeline.PERSISTENT_ADVANCEMENT and round_number == 3:
-				_check(
-					(
-						snapshot.cooldowns.locks.size() == 1
-						and snapshot.cooldowns.locks[0].first_blocked_round == 3
-						and snapshot.cooldowns.locks[0].ready_round == 5
-					),
-					"breath_expiration_starts_two_round_cooldown"
-				)
-		if round_number < 5:
-			owner.begin_next_round([0, 1])
-			replay.begin_next_round([0, 1])
-			var boundary: Dictionary = owner.snapshot()
+					"breath_submission"
+				):
+					return
+				if not _check(
+					match_owner.submit(1, [], {}).action != "invalid", "breath_opponent_submission"
+				):
+					return
+		if not _check(
+			(
+				owner.run_next_hook().action != "invalid"
+				and replay.run_next_hook().action != "invalid"
+			),
+			"breath_hook_" + hook
+		):
+			return
+		var snapshot: Dictionary = owner.snapshot()
+		_check(snapshot == replay.snapshot(), "breath_replay_" + hook)
+		if (
+			hook
+			in [
+				Timeline.PERSISTENT_ADVANCEMENT,
+				Timeline.POST_RESOLUTION_MOVEMENT_STATE,
+				Timeline.AFTERMATH
+			]
+		):
 			var restored = Content.new().create_combat_match()
 			_check(
 				(
 					(
-						restored.restore(JSON.parse_string(JSON.stringify(boundary))).action
+						restored.restore(JSON.parse_string(JSON.stringify(snapshot))).action
 						!= "invalid"
 					)
-					and restored.snapshot() == boundary
+					and restored.snapshot() == snapshot
 				),
-				"breath_before_step_two_json"
+				"breath_json_" + hook
 			)
+		if hook == Timeline.POST_RESOLUTION_MOVEMENT_STATE:
+			_check(
+				snapshot.persistent.active.size() == (1 if round_number <= 2 else 0),
+				"breath_two_active_rounds_" + str(round_number)
+			)
+			if round_number == 1:
+				_check(
+					(
+						snapshot.persistent.active[0].payload
+						== {"lane_aura": {"regen_bonus": 1, "speed_percent": 25}}
+					),
+					"breath_registry_owns_modifiers"
+				)
+				_corrupt_snapshots(owner)
+		if hook == Timeline.PERSISTENT_ADVANCEMENT and round_number == 3:
+			_check(
+				(
+					snapshot.cooldowns.locks.size() == 1
+					and snapshot.cooldowns.locks[0].first_blocked_round == 3
+					and snapshot.cooldowns.locks[0].ready_round == 5
+				),
+				"breath_expiration_starts_two_round_cooldown"
+			)
+	if round_number < 5:
+		if not _check(
+			(
+				owner.begin_next_round([0, 1]).action != "invalid"
+				and replay.begin_next_round([0, 1]).action != "invalid"
+			),
+			"breath_next_round_starts"
+		):
+			return
+		var boundary: Dictionary = owner.snapshot()
+		_check(replay.snapshot() == boundary, "breath_round_boundary_replays")
+		var restored = Content.new().create_combat_match()
+		_check(
+			(
+				(restored.restore(JSON.parse_string(JSON.stringify(boundary))).action != "invalid")
+				and restored.snapshot() == boundary
+			),
+			"breath_before_step_two_json"
+		)
+	print("BREATH ROUND completed=", round_number, " elapsed_ms=", Time.get_ticks_msec() - started)
 
 
 func _corrupt_snapshots(owner) -> void:
