@@ -4,6 +4,7 @@ const Content = preload("res://Scripts/Sim/U13Orias.gd")
 const Scenario = preload("res://Scripts/Sim/U13OriasScenario.gd")
 const Candidates = preload("res://Scripts/Sim/U13OriasCandidates.gd")
 const Marching = preload("res://Scripts/Sim/U13Marching.gd")
+const Pending = preload("res://Scripts/Sim/U13PendingEffects.gd")
 const Persistent = preload("res://Scripts/Sim/U13PersistentEffects.gd")
 const RandomLegal = preload("res://Scripts/Sim/U13RandomLegal.gd")
 const Timeline = Content.Timeline
@@ -103,12 +104,27 @@ func _damage() -> void:
 	var doomed: String = _add(world, 6, 1, "Lord", 1200, 300, 0, 1)
 	var before: Dictionary = world.duplicate(true)
 	var source: Dictionary = Candidates.source(0, 1, _target())
-	var record: Dictionary = Content.Data.make_record("pending", source, "main", {}, {})
+	# Use the match's scheduler: make_record alone omits firing metadata.
+	var pending = Pending.new()
+	var scheduled: Dictionary = pending.schedule(source)
+	if not _check(
+		scheduled.get("action") == "u13_effect_scheduled", "web_damage_fixture_schedules"
+	):
+		return
+	var record: Dictionary = scheduled.effect
+	if not _check(
+		(
+			record.get("fire_hook") == Timeline.POST_RESOLUTION_HAZARDS
+			and record.get("fire_round") == 1
+		),
+		"web_damage_fixture_has_firing_metadata"
+	):
+		return
 	var content = Content.new()
 	var fire_context: Dictionary = _context(world, Timeline.POST_RESOLUTION_HAZARDS)
 	fire_context.erase("hook")
 	var result: Dictionary = content.resolve(record, fire_context)
-	if not _check(result.action == "resolved", "web_fires_at_10e"):
+	if not _check(result.get("action") == "resolved", "web_fires_at_10e"):
 		return
 	_check(world == before, "web_activation_leaves_input_untouched")
 	_check(_entity(result.world, bare).attributes.hp == 4, "web_single_damage_pulse")
