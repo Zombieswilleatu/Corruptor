@@ -144,9 +144,10 @@ After checking that performance result, the Marching gate is ready:
 bash Scripts/Sim/run_u13_foundation_tests.sh "$GODOT_U13" --marching
 ```
 
-Expected: Marching-audit **11/11**. This collects existing meaningful spatial,
+Expected: Marching-audit **14/14**. This collects existing meaningful spatial,
 replay, combat, aura, hazard and feedback tests with the two new audit cases.
-The full foundation list is now 51 runners; other focused groups are unchanged.
+The full foundation list is now 54 runners; the spatial comparison split and
+affected focused-group counts are recorded in the follow-up below.
 
 Workspace verification is grammar/block structure, preload call arity,
 dependency closure, diff review and stub-based launcher checks. This workspace
@@ -176,3 +177,45 @@ round counts, seeds and replay equality assertions are unchanged.
 
 Local gate after this follow-up: planning 8/8, then the same four-Lord ABBA
 profiler. Workspace validation remains static/launcher-only, not a Godot pass.
+
+
+## Local planning verification and spatial-runner split — 2026-09-09
+
+The user verified planning **8/8** and profiles **4/4** on Godot 4.7.2.
+Every profile reports zero failures and equivalent candidate domains/plans; the
+uploaded samples have matching plan digests and legal counts. Mean round-one
+planning wall times over two measurements per mode were:
+
+| Lord | Reference | Optimized |
+|---|---:|---:|
+| Gremory | 7.771 s | 1.996 s |
+| Deimos | 10.207 s | 0.464 s |
+| Humbaba | 10.461 s | 0.453 s |
+| Kalligan | 8.505 s | 0.394 s |
+
+Round-two optimized measurements ranged from 0.178 to 0.547 s. Gremory's opening
+power checks remain the largest cost (1.109–2.883 s total planning across its two
+opening measurements). This bounded ABBA probe is not a frame-rate measurement
+or universal production performance clearance.
+
+In `u13-foundation-failure-UrZu7c.log`, **U13MarchingAudit passed**, including real
+combat leaving a Penitent at exactly 1 HP, the subsequent Endurance trigger,
+JSON replay and the legacy-key sentinel. The spatial suite passed its movement,
+spawn, contact, queue, round-boundary, playback and grid-edge cases. It then passed
+all reference comparisons through both 48-body travel rounds and timed out before
+the 48-body contact case reported. No completed assertion failed.
+
+The original runner combined those behavior cases with twelve full-phase
+reference/optimized comparisons. Reference simulation intentionally remains slow.
+The comparisons now run in separate 6-, 24- and 48-body processes. Each retains
+both travel/contact cases, both consecutive rounds, reversed imported ID order,
+the unrelated entity, exact complete result equality and input-purity assertions.
+Nothing is sampled or omitted. Progress and per-engine timings identify the
+remaining stage if a process exceeds its budget.
+
+All groups previously containing `U13SpatialMarching` include the three comparison
+runners: full foundation **54**, Marching-audit **14**, castle-rout **10**, Humbaba
+**13**. Planning remains **8**. The 30-second limit and frozen reference engine are
+unchanged; this split changes only test orchestration, not production movement.
+Static grammar/block and wrapper checks are workspace checks only. The new local
+gate is `--marching`, expected **14/14**, before the Marching gate is complete.

@@ -182,6 +182,9 @@ u13_runners=(
   U13AlphaInteraction
   U13AlphaRout
   U13SpatialMarching
+  U13SpatialReference6
+  U13SpatialReference24
+  U13SpatialReference48
   U13MarchingIntegration
   U13Smoke
   U13BoardModel
@@ -235,6 +238,9 @@ u13_markers=(
   'U13 alpha Scorch Breath failures: 0'
   'U13 alpha Scorch Rout failures: 0'
   'U13 spatial Marching failures: 0'
+  'U13 spatial reference 6 failures: 0'
+  'U13 spatial reference 24 failures: 0'
+  'U13 spatial reference 48 failures: 0'
   'U13 Marching integration failures: 0'
   'U13 smoke scene failures: 0'
   'U13 board model failures: 0'
@@ -270,16 +276,16 @@ if [[ $u13_construction_only == true ]]; then
   u13_markers=('U13 Construction failures: 0' 'U13 Construction random failures: 0' 'U13 automatic construction failures: 0')
 fi
 if [[ $u13_castle_rout_only == true ]]; then
-  u13_runners=(U13Match U13CastleLoadout U13Rout U13Deimos U13Construction U13ConstructionRandom U13SpatialMarching)
-  u13_markers=('U13 match foundation failures: 0' 'U13 Castle loadout failures: 0' 'U13 Rout failures: 0' 'U13 Deimos failures: 0' 'U13 Construction failures: 0' 'U13 Construction random failures: 0' 'U13 spatial Marching failures: 0')
+  u13_runners=(U13Match U13CastleLoadout U13Rout U13Deimos U13Construction U13ConstructionRandom U13SpatialMarching U13SpatialReference6 U13SpatialReference24 U13SpatialReference48)
+  u13_markers=('U13 match foundation failures: 0' 'U13 Castle loadout failures: 0' 'U13 Rout failures: 0' 'U13 Deimos failures: 0' 'U13 Construction failures: 0' 'U13 Construction random failures: 0' 'U13 spatial Marching failures: 0' 'U13 spatial reference 6 failures: 0' 'U13 spatial reference 24 failures: 0' 'U13 spatial reference 48 failures: 0')
 fi
 if [[ $u13_interaction_only == true ]]; then
   u13_runners=(U13Hunt U13DirectBoard U13ArtilleryTiming)
   u13_markers=('U13 Hunt failures: 0' 'U13 direct board failures: 0' 'U13 artillery impact timing failures: 0')
 fi
 if [[ $u13_humbaba_only == true ]]; then
-  u13_runners=(U13LaneAuras U13Breath U13Humbaba U13HumbabaIntegration U13HumbabaRandom U13Rout U13SpatialMarching U13Hunt U13Deimos U13CastleLoadout)
-  u13_markers=('U13 lane auras failures: 0' 'U13 Breath of Life failures: 0' 'U13 Humbaba failures: 0' 'U13 Humbaba integration failures: 0' 'U13 Humbaba random failures: 0' 'U13 Rout failures: 0' 'U13 spatial Marching failures: 0' 'U13 Hunt failures: 0' 'U13 Deimos failures: 0' 'U13 Castle loadout failures: 0')
+  u13_runners=(U13LaneAuras U13Breath U13Humbaba U13HumbabaIntegration U13HumbabaRandom U13Rout U13SpatialMarching U13SpatialReference6 U13SpatialReference24 U13SpatialReference48 U13Hunt U13Deimos U13CastleLoadout)
+  u13_markers=('U13 lane auras failures: 0' 'U13 Breath of Life failures: 0' 'U13 Humbaba failures: 0' 'U13 Humbaba integration failures: 0' 'U13 Humbaba random failures: 0' 'U13 Rout failures: 0' 'U13 spatial Marching failures: 0' 'U13 spatial reference 6 failures: 0' 'U13 spatial reference 24 failures: 0' 'U13 spatial reference 48 failures: 0' 'U13 Hunt failures: 0' 'U13 Deimos failures: 0' 'U13 Castle loadout failures: 0')
 fi
 if [[ $u13_kalligan_board_only == true ]]; then
   u13_runners=(U13KalliganBoardSession U13KalliganBoard U13BreathVisuals)
@@ -298,8 +304,8 @@ if [[ $u13_planning_only == true ]]; then
   u13_markers=('U13 planning legality failures: 0' 'U13 match foundation failures: 0' 'U13 random-legal failures: 0' 'U13 random-legal replay failures: 0' 'U13 Construction failures: 0' 'U13 Construction random failures: 0' 'U13 alpha replay failures: 0' 'U13 Hunt failures: 0')
 fi
 if [[ $u13_marching_only == true ]]; then
-  u13_runners=(U13MarchingAudit U13SpatialMarching U13MarchingIntegration U13Rout U13LaneAuras U13Breath U13Hazards U13Humbaba U13AlphaInteraction U13AlphaRout U13MarcherFeedback)
-  u13_markers=('U13 Marching audit failures: 0' 'U13 spatial Marching failures: 0' 'U13 Marching integration failures: 0' 'U13 Rout failures: 0' 'U13 lane auras failures: 0' 'U13 Breath of Life failures: 0' 'U13 hazards failures: 0' 'U13 Humbaba failures: 0' 'U13 alpha Scorch Breath failures: 0' 'U13 alpha Scorch Rout failures: 0' 'U13 Marcher feedback failures: 0')
+  u13_runners=(U13MarchingAudit U13SpatialMarching U13SpatialReference6 U13SpatialReference24 U13SpatialReference48 U13MarchingIntegration U13Rout U13LaneAuras U13Breath U13Hazards U13Humbaba U13AlphaInteraction U13AlphaRout U13MarcherFeedback)
+  u13_markers=('U13 Marching audit failures: 0' 'U13 spatial Marching failures: 0' 'U13 spatial reference 6 failures: 0' 'U13 spatial reference 24 failures: 0' 'U13 spatial reference 48 failures: 0' 'U13 Marching integration failures: 0' 'U13 Rout failures: 0' 'U13 lane auras failures: 0' 'U13 Breath of Life failures: 0' 'U13 hazards failures: 0' 'U13 Humbaba failures: 0' 'U13 alpha Scorch Breath failures: 0' 'U13 alpha Scorch Rout failures: 0' 'U13 Marcher feedback failures: 0')
 fi
 u13_failed=0
 for u13_index in "${!u13_runners[@]}"; do
