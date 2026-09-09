@@ -190,6 +190,27 @@ static func validate_commit(
 	return {"action": "legal"}
 
 
+# Plain-combat owners have no Construction adapter. Reuse the same commit
+# predicate on a once-validated registry and the Hand after staged power costs.
+static func legal_orders(context: Dictionary) -> Dictionary:
+	var world: Dictionary = context.world
+	var player_id: int = context.player_id
+	if not Cards.valid(world):
+		return Data.invalid("combat_batch_world_invalid")
+	var entities = Ids.new()
+	if entities.restore(world.entities).action == "invalid":
+		return Data.invalid("combat_batch_entities_invalid")
+	var hand: Array = world.data.card_zones.hands[player_id]
+	var indices: Array = []
+	for index in range(context.orders.size()):
+		var order = context.orders[index]
+		if typeof(order) != TYPE_DICTIONARY or not Data.is_data(order):
+			continue
+		if validate_commit(world, player_id, order, entities, hand).action != "invalid":
+			indices.append(index)
+	return {"action": "legal_orders", "indices": indices}
+
+
 static func on_hook(context: Dictionary, reaction: Callable) -> Dictionary:
 	match context.hook:
 		Timeline.ROUND_START_AUTOMATIC:

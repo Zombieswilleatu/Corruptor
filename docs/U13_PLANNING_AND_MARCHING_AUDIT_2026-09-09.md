@@ -132,7 +132,7 @@ bash Scripts/Sim/run_u13_foundation_tests.sh "$GODOT_U13" --planning &&
 bash Scripts/Sim/run_u13_planning_profile.sh "$GODOT_U13"
 ```
 
-Expected: planning **7/7**, profiles **4/4**. The profiler saves four JSON files
+Expected: planning **8/8**, profiles **4/4**. The profiler saves four JSON files
 and logs in the unique Downloads directory printed by the script:
 `u13-planning-XXXXXX`. Share the four JSON files. It intentionally runs the slower
 reference path too. Each profile shard retains the existing 300-second batch
@@ -146,8 +146,33 @@ bash Scripts/Sim/run_u13_foundation_tests.sh "$GODOT_U13" --marching
 
 Expected: Marching-audit **11/11**. This collects existing meaningful spatial,
 replay, combat, aura, hazard and feedback tests with the two new audit cases.
-The full foundation list is now 50 runners; other focused groups are unchanged.
+The full foundation list is now 51 runners; other focused groups are unchanged.
 
 Workspace verification is grammar/block structure, preload call arity,
 dependency closure, diff review and stub-based launcher checks. This workspace
 has no Godot 4.7.2 runtime; these are not engine compilation or gameplay passes.
+
+
+## Plain-combat timeout follow-up
+
+The first local planning gate passed the new Construction legality regressions,
+Match tests, all RandomLegal candidate/telemetry checks and the first two-round
+trial, then exceeded its 30-second cumulative budget during replay. The
+RandomLegal fixture uses `Gremory.create_combat_match`, which was not configured
+with the new exact order validator; its candidates still used full transactions.
+
+Plain Combat now exposes `legal_orders` through the already shared
+`validate_commit` predicate. Gremory combat and Deimos without Construction
+configure it; custom non-combat adapters retain the fallback. A directed
+plain-combat regression compares the complete legal array against strict preview,
+including Ruin payment overlap, duplicate cards, wrong-owner targets, unsupported
+Hunt/Castle orders and malformed candidates.
+
+The unchanged two-round trial and replay assertions now run together in
+`U13RandomLegalReplayTestRunner`, separate from candidate/telemetry tests. Both
+runners remain in the full foundation and `--planning` groups. Per-trial timing
+and round progress distinguish expensive work from a stalled runner. Limits,
+round counts, seeds and replay equality assertions are unchanged.
+
+Local gate after this follow-up: planning 8/8, then the same four-Lord ABBA
+profiler. Workspace validation remains static/launcher-only, not a Godot pass.

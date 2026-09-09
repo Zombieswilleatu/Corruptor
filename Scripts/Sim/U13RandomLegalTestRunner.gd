@@ -20,7 +20,7 @@ func _init() -> void:
 func _run() -> void:
 	_candidates_and_plans()
 	_telemetry()
-	_batch_replay()
+	_plain_combat_legality()
 	print("U13 random-legal failures: %d" % failures)
 	quit(0 if failures == 0 else 1)
 
@@ -221,11 +221,66 @@ func _telemetry() -> void:
 	)
 
 
+func _plain_combat_legality() -> void:
+	var owner = _owner()
+	if owner == null:
+		return
+	_check(owner._order_validator.is_valid(), "plain_combat_uses_exact_batch_validator")
+	var raw: Dictionary = Candidates.enumerate(owner, 0)
+	var ruin: Dictionary = {}
+	for source in raw.powers:
+		if source.power_id == Gremory.RUIN:
+			ruin = source
+			break
+	if not _check(not ruin.is_empty(), "plain_combat_ruin_fixture_exists"):
+		return
+	var hand: Array = owner.player_view(0, 0).world.hand
+	var free: Array = hand.duplicate()
+	for card_id in ruin.cost.discard_ids:
+		free.erase(card_id)
+	var orders: Array = [
+		{},
+		{"action": "Ward", "lane": "Castle", "card_ids": [free[0]]},
+		{"action": "Ward", "lane": "Castle", "card_ids": [ruin.cost.discard_ids[0]]},
+		{"action": "Ward", "lane": "Castle", "card_ids": [free[0], free[0]]},
+		{"action": "Siege", "lane": "Castle", "target_id": Opening._castle_id(1), "card_ids": free},
+		{"action": "Siege", "lane": "Castle", "target_id": Opening._castle_id(0), "card_ids": free},
+		{"action": "Hunt", "lane": "Lord", "target_id": "missing", "card_ids": free},
+		{"castle_action": {}},
+		{"action": "unsupported"},
+		7
+	]
+	var before: Dictionary = owner.snapshot()
+	var expected: Array = []
+	for order in orders:
+		if (
+			typeof(order) == TYPE_DICTIONARY
+			and owner.preview_submission(0, [ruin], order).action != "invalid"
+		):
+			expected.append(order)
+	_check(expected.size() == 3, "plain_combat_expected_legal_count")
+	_check(
+		owner.legal_order_candidates(0, [ruin], orders) == expected,
+		"plain_combat_batch_matches_full_transactions"
+	)
+	_check(owner.snapshot() == before, "plain_combat_batch_preserves_owner")
+
+
 func _batch_replay() -> void:
-	var first: Dictionary = Batch.trial("random-batch-regression", 2)
+	var started: int = Time.get_ticks_msec()
+	print("RANDOM BATCH trial BEGIN")
+	var first: Dictionary = Batch.trial(
+		"random-batch-regression", 2, Callable(self, "_batch_progress")
+	)
+	print("RANDOM BATCH trial elapsed_ms=", Time.get_ticks_msec() - started)
 	if not _check(first.action == "batch_trial_complete", "batch_two_rounds_complete"):
 		return
-	var second: Dictionary = Batch.trial("random-batch-regression", 2)
+	started = Time.get_ticks_msec()
+	print("RANDOM BATCH replay BEGIN")
+	var second: Dictionary = Batch.trial(
+		"random-batch-regression", 2, Callable(self, "_batch_progress")
+	)
+	print("RANDOM BATCH replay elapsed_ms=", Time.get_ticks_msec() - started)
 	_check(first == second, "batch_seed_replays_state_events_decisions_and_metrics")
 	_check(
 		first.rounds.size() == 2 and first.summary.round_samples == 2,
@@ -247,6 +302,10 @@ func _batch_replay() -> void:
 		Batch.trial("", 2).action == "invalid" and Batch.trial("seed", 0).action == "invalid",
 		"batch_invalid_limits_rejected"
 	)
+
+
+func _batch_progress(seed_value: String, round_number: int) -> void:
+	print("RANDOM BATCH seed=", seed_value, " round=", round_number, "/2")
 
 
 func _event(type: String, data: Dictionary) -> Dictionary:

@@ -48,7 +48,9 @@ func create_match(adapter_version: String):
 		Callable(self, "on_hook"),
 		self,
 		Callable(self, "valid_world"),
-		Callable(self, "accept_order")
+		Callable(self, "accept_order"),
+		Callable(),
+		Callable(Combat, "legal_orders") if _combat_enabled else Callable()
 	)
 
 

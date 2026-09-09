@@ -57,7 +57,11 @@ func create_combat_match():
 		Callable(self, "valid_world"),
 		Callable(self, "accept_order"),
 		Callable(Construction, "screen_orders") if _construction_enabled else Callable(),
-		Callable(Construction, "legal_orders") if _construction_enabled else Callable()
+		(
+			Callable(Construction, "legal_orders")
+			if _construction_enabled
+			else Callable(Combat, "legal_orders")
+		)
 	)
 
 

@@ -163,6 +163,7 @@ u13_runners=(
   U13Match
   U13Gremory
   U13RandomLegal
+  U13RandomLegalReplay
   U13Deimos
   U13Humbaba
   U13HumbabaIntegration
@@ -215,6 +216,7 @@ u13_markers=(
   'U13 match foundation failures: 0'
   'U13 Gremory failures: 0'
   'U13 random-legal failures: 0'
+  'U13 random-legal replay failures: 0'
   'U13 Deimos failures: 0'
   'U13 Humbaba failures: 0'
   'U13 Humbaba integration failures: 0'
@@ -292,8 +294,8 @@ if [[ $u13_alpha_only == true ]]; then
   u13_markers=('U13 alpha manifest failures: 0' 'U13 alpha replay failures: 0' 'U13 alpha Scorch Breath failures: 0' 'U13 alpha Scorch Rout failures: 0' 'U13 lane auras failures: 0' 'U13 automatic construction failures: 0' 'U13 Construction failures: 0' 'U13 Construction random failures: 0' 'U13 Scorch visuals failures: 0' 'U13 artillery impact timing failures: 0' 'U13 direct board failures: 0')
 fi
 if [[ $u13_planning_only == true ]]; then
-  u13_runners=(U13PlanningLegality U13Match U13RandomLegal U13Construction U13ConstructionRandom U13AlphaReplay U13Hunt)
-  u13_markers=('U13 planning legality failures: 0' 'U13 match foundation failures: 0' 'U13 random-legal failures: 0' 'U13 Construction failures: 0' 'U13 Construction random failures: 0' 'U13 alpha replay failures: 0' 'U13 Hunt failures: 0')
+  u13_runners=(U13PlanningLegality U13Match U13RandomLegal U13RandomLegalReplay U13Construction U13ConstructionRandom U13AlphaReplay U13Hunt)
+  u13_markers=('U13 planning legality failures: 0' 'U13 match foundation failures: 0' 'U13 random-legal failures: 0' 'U13 random-legal replay failures: 0' 'U13 Construction failures: 0' 'U13 Construction random failures: 0' 'U13 alpha replay failures: 0' 'U13 Hunt failures: 0')
 fi
 if [[ $u13_marching_only == true ]]; then
   u13_runners=(U13MarchingAudit U13SpatialMarching U13MarchingIntegration U13Rout U13LaneAuras U13Breath U13Hazards U13Humbaba U13AlphaInteraction U13AlphaRout U13MarcherFeedback)
