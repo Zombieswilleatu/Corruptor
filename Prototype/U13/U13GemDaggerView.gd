@@ -1,6 +1,7 @@
 extends Control
 
 const Art = preload("res://Prototype/U13/U13BoardTextures.gd")
+const SPRITE_SCALE: float = 0.66
 const FLIGHT_SECONDS: float = 0.70
 const BURST_SECONDS: float = 0.32
 signal impact(shot: Dictionary)
@@ -115,11 +116,11 @@ func _draw_drop() -> void:
 	var picture: Dictionary = pose(_elapsed, end)
 	var width: float = _texture.get_width() / 5.0
 	_sprite.region_rect = Rect2(float(picture.frame) * width, 0, width, _texture.get_height())
-	_sprite.scale = Vector2.ONE * 0.22
+	_sprite.scale = Vector2.ONE * SPRITE_SCALE
 	var origin: float = (
 		width * (0.95 if picture.frame < 3 else (0.75 if picture.frame == 3 else 0.5))
 	)
-	_sprite.position = picture.position - Vector2(0, (origin - width * 0.5) * 0.22)
+	_sprite.position = picture.position - Vector2(0, (origin - width * 0.5) * SPRITE_SCALE)
 	_sprite.show()
 
 

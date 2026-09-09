@@ -9,7 +9,7 @@ const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const VERSION: String = "U13_RESUMMON_V1"
 # Existing U12 agency profile: raw card value, +3 Breach cost, Circle blood
 # offering (-3 cost for 3 Integrity), up to four Threat of payment shortfall.
-const COSTS: Dictionary = {"Orias": 6, "Deimos": 7, "Gremory": 6, "Humbaba": 6, "Kalligan": 4}
+const COSTS: Dictionary = {"Orias": 6, "Deimos": 7, "Gremory": 6, "Humbaba": 6, "Kalligan": 4, "Odradek": 8}
 const MAX_RETURN_THREAT: int = 4
 
 

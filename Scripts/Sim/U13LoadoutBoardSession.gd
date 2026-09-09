@@ -1,5 +1,7 @@
 extends "res://Scripts/Sim/U13BoardSession.gd"
 
+const Odradek = preload("res://Scripts/Sim/U13Odradek.gd")
+const OdradekScenario = preload("res://Scripts/Sim/U13OdradekScenario.gd")
 const Orias = preload("res://Scripts/Sim/U13Orias.gd")
 const OriasScenario = preload("res://Scripts/Sim/U13OriasScenario.gd")
 const Core = preload("res://Scripts/Sim/U13CoreScenario.gd")
@@ -54,7 +56,11 @@ func configure(lords: Array, castles: Array, quick: bool) -> Dictionary:
 	setup_castles = castles.duplicate(true)
 	quick_start = quick
 	hunt_enabled = (
-		hunt_enabled or lords.has("Humbaba") or lords.has("Kalligan") or lords.has("Orias")
+		hunt_enabled
+		or lords.has("Humbaba")
+		or lords.has("Kalligan")
+		or lords.has("Orias")
+		or lords.has("Odradek")
 	)
 	_scenario = 0
 	_lane = "Castle"
@@ -75,6 +81,8 @@ func declaration(
 	var rule: Dictionary = _content(setup_lords, hunt_enabled).rules().get(power, {})
 	if rule.is_empty():
 		return Data.invalid("power_unknown")
+	if cost.is_empty():
+		cost = rule.cost.duplicate(true)
 	var current: int = round_number()
 	return Decl.create(
 		MatchOwner.declaration_id(0, current, index),
@@ -93,6 +101,8 @@ func declaration(
 
 
 func random_opponent_plan() -> Dictionary:
+	if setup_lords.has("Odradek"):
+		return RandomLegal.plan(_owner, 1, Callable(OdradekScenario, "enumerate"))
 	if setup_lords.has("Orias"):
 		return RandomLegal.plan(_owner, 1, Callable(OriasScenario, "enumerate"))
 	return RandomLegal.plan(
@@ -110,6 +120,8 @@ func random_opponent_plan() -> Dictionary:
 
 
 static func _initial(lords: Array, castles: Array) -> Dictionary:
+	if lords.has("Odradek"):
+		return OdradekScenario.loadout_world(lords, castles)
 	if lords.has("Orias"):
 		return OriasScenario.loadout_world(lords, castles)
 	if lords.has("Kalligan"):
@@ -122,6 +134,8 @@ static func _initial(lords: Array, castles: Array) -> Dictionary:
 
 
 static func _content(lords: Array, hunt: bool):
+	if lords.has("Odradek"):
+		return Odradek.new()
 	if lords.has("Orias"):
 		return Orias.new()
 	if lords.has("Kalligan"):
@@ -169,7 +183,12 @@ func restore_checkpoint(raw: Dictionary) -> Dictionary:
 	):
 		return Data.invalid("loadout_checkpoint_setup_invalid")
 	if (
-		(setup.lords.has("Humbaba") or setup.lords.has("Kalligan") or setup.lords.has("Orias"))
+		(
+			setup.lords.has("Humbaba")
+			or setup.lords.has("Kalligan")
+			or setup.lords.has("Orias")
+			or setup.lords.has("Odradek")
+		)
 		and not setup.get("hunt", false)
 	):
 		return Data.invalid("humbaba_checkpoint_requires_hunt")
@@ -208,6 +227,6 @@ func preview_power(
 
 
 func summon_preview(cards: Array) -> Dictionary:
-	if not setup_lords.has("Orias"):
+	if not setup_lords.has("Orias") and not setup_lords.has("Odradek"):
 		return Data.invalid("summon_profile_unavailable")
 	return Orias.Resummon.quote(_owner.snapshot().world, 0, cards)

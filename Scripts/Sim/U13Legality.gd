@@ -56,6 +56,18 @@ static func validate_rule(rule: Dictionary) -> bool:
 		and (rule.cooldown_on != "expiration" or rule.delay_rounds < 1)
 	):
 		return false
+	if typeof(rule.get("repeatable", false)) != TYPE_BOOL:
+		return false
+	if rule.get("repeatable", false):
+		if (
+			rule.cooldown_on != "activation"
+			or rule.cooldown_rounds != 0
+			or not rule.stages.is_empty()
+			or rule.cost.is_empty()
+		):
+			return false
+		if not rule.cost.values().any(func(amount) -> bool: return amount > 0):
+			return false
 	return true
 
 
@@ -118,7 +130,11 @@ static func declaration(
 		)
 		if not active.is_empty() and not relocating:
 			return Data.invalid("persistent_relocation_not_ready")
-	if not relocating and not cooldowns.is_ready(source.player_id, source.lord_id, source.power_id):
+	if (
+		not rule.get("repeatable", false)
+		and not relocating
+		and not cooldowns.is_ready(source.player_id, source.lord_id, source.power_id)
+	):
 		return Data.invalid("power_not_ready")
 	for resource in rule.cost:
 		if player.resources.get(resource, 0) < rule.cost[resource]:

@@ -431,7 +431,7 @@ func _accept_declarations(player_id: int, declarations: Array) -> Dictionary:
 		if not _rules.has(source.power_id):
 			return Data.invalid("unknown_power")
 		var rule: Dictionary = _rules[source.power_id]
-		if seen_powers.has(source.power_id):
+		if seen_powers.has(source.power_id) and not rule.get("repeatable", false):
 			return Data.invalid("duplicate_power_in_submission")
 		seen_powers[source.power_id] = true
 		var active_rows: Array = _persistent.snapshot().active
@@ -477,7 +477,9 @@ func _accept_declarations(player_id: int, declarations: Array) -> Dictionary:
 				source
 			)
 		var registered: Dictionary
-		if not active.is_empty():
+		if rule.get("repeatable", false):
+			registered = {"action": "repeatable_reserved", "events": []}
+		elif not active.is_empty():
 			# Relocation reserves a new pending declaration, never a new lifetime
 			# or clock. The existing expiration lock stays bound to its instance.
 			registered = {"action": "relocation_reserved", "events": []}
