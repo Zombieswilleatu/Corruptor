@@ -122,23 +122,32 @@ func clear() -> void:
 	groups.clear()
 
 
-func draw_area(canvas: CanvasItem, bounds: Rect2, lane: String) -> void:
+func draw_area(
+	canvas: CanvasItem,
+	bounds: Rect2,
+	lane: String,
+	ground: bool = true,
+	flames: bool = true,
+	opacity: float = 1.0
+) -> void:
 	if textures.size() < 3 or not bounds.has_area():
 		return
 	for group in groups.values():
 		if group.target.lane != lane:
 			continue
 		var heat: Dictionary = strength(group)
-		if group.ground == null or group.ground_size != bounds.size:
+		if ground and (group.ground == null or group.ground_size != bounds.size):
 			group.ground = ground_mesh(bounds.size, group.id)
 			group.ground_size = bounds.size
-		if textures[2] != null:
+		if ground and textures[2] != null:
 			canvas.draw_mesh(
 				group.ground,
 				textures[2],
 				Transform2D(0.0, bounds.position),
 				Color(heat.light, heat.light, heat.light, 1.0)
 			)
+		if not flames:
+			continue
 		for flame in group.flames:
 			var animation: Dictionary = flame_frame(group.age, flame)
 			var height: float = minf(float(flame.height) * float(heat.scale), bounds.size.y * 0.8)
@@ -150,7 +159,7 @@ func draw_area(canvas: CanvasItem, bounds: Rect2, lane: String) -> void:
 				animation.frame,
 				Rect2(anchor - Vector2(width * 0.5, height), Vector2(width, height)),
 				bounds,
-				Color(heat.light, heat.light, heat.light, heat.alpha)
+				Color(heat.light, heat.light, heat.light, float(heat.alpha) * opacity)
 			)
 
 

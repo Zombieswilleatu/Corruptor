@@ -357,6 +357,23 @@ func _run() -> void:
 			board.artillery_view.active() and board.clock == 0.0,
 			"direct_artillery_plays_before_marching_clock"
 		)
+		board.set_process(false)
+		var shot: Dictionary = board.artillery_view._shots[0]
+		var card = null
+		for side in board.sides:
+			var surface = side.target_controls.get(shot.target_id)
+			if is_instance_valid(surface):
+				card = surface.get_parent().get_parent()
+		if _check(card != null, "artillery_target_card_present"):
+			_check(
+				card.get_meta("display_integrity", -1) == shot.target_before.integrity,
+				"castle_keeps_pre_shot_integrity_during_flight"
+			)
+			board.artillery_view.advance(board.artillery_view.FLIGHT_SECONDS + 0.01)
+			_check(
+				card.get_meta("display_integrity", -1) == shot.target_after.integrity,
+				"bolt_impact_updates_existing_castle_card"
+			)
 	board.queue_free()
 	await process_frame
 	_finish()

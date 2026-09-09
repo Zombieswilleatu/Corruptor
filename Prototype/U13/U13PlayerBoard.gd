@@ -3,6 +3,7 @@ extends HBoxContainer
 # Layout methods extracted from UI2 PlayerBoard at b8259e4.
 const ScorchVisuals = preload("res://Prototype/U13/U13ScorchVisuals.gd")
 var scorch_visuals = ScorchVisuals.new()
+var scorch_front: Node2D
 const Textures = preload("res://Prototype/U13/U13BoardTextures.gd")
 const Card = preload("res://Prototype/U13/U13LayoutCard.gd")
 const Castles = preload("res://Prototype/UI2/CastleArtCatalog.gd")
@@ -66,6 +67,13 @@ func _ready() -> void:
 	add_child(prompt_castle_gutter)
 
 	_build_castle_group()
+	# Node2D avoids participating in the HBox layout or intercepting card input.
+	# Ground stays below cards; translucent flames can lick over their faces.
+	scorch_front = Node2D.new()
+	scorch_front.name = "GuardFireForeground"
+	scorch_front.z_index = 1
+	add_child(scorch_front)
+	scorch_front.draw.connect(_draw_guard_flames)
 	_apply_castle_vertical_order()
 	_apply_domain1_clear_section_backgrounds_v1()
 
@@ -313,7 +321,24 @@ func _draw() -> void:
 
 	for lane in ["Lord", "Castle"]:
 		var box = lord_guard_box if lane == "Lord" else castle_guard_box
-		scorch_visuals.draw_area(self, Rect2(box.global_position - global_position, box.size), lane)
+		scorch_visuals.draw_area(
+			self, Rect2(box.global_position - global_position, box.size), lane, true, false
+		)
+	if scorch_front != null:
+		scorch_front.queue_redraw()
+
+
+func _draw_guard_flames() -> void:
+	for lane in ["Lord", "Castle"]:
+		var box = lord_guard_box if lane == "Lord" else castle_guard_box
+		scorch_visuals.draw_area(
+			scorch_front,
+			Rect2(box.global_position - global_position, box.size),
+			lane,
+			false,
+			true,
+			0.8
+		)
 
 
 func _apply_domain1_clear_section_backgrounds_v1() -> void:
@@ -452,10 +477,37 @@ func _select_castle(pid: int, id: String, planning: bool) -> void:
 
 
 func _add_instance_card(entity: Dictionary, pid: int, planning: bool) -> void:
-	var a: Dictionary = entity.attributes
 	var card = Card.new()
 	card.custom_minimum_size = Vector2(124, 180)
 	castle_row.add_child(card)
+	_bind_instance_art(card, entity)
+	var a: Dictionary = entity.attributes
+	card.set_meta("castle_id", entity.id)
+	target_controls[entity.id] = card.input_surface
+	if (
+		pid == 0
+		and a.construction_state in ["building", "ready"]
+		and a.status == "standing"
+		and a.integrity >= 7
+	):
+		card.input_surface.set_meta("commission_eligible", true)
+	# Own cards still select the shared Ward lane. Only exposed enemy copies
+	# offer a Siege target; construction never becomes a clickable attack target.
+	if pid == 0 or (a.construction_state == "active" and a.status in ["standing", "defunct"]):
+		card.input_surface.pressed.connect(_select_castle.bind(pid, entity.id, planning))
+
+
+# Impact presentation updates the existing card; no row rebuild or input rewiring.
+func update_castle_presentation(id: String, attributes: Dictionary) -> void:
+	var surface = target_controls.get(id)
+	if not is_instance_valid(surface) or not attributes.has("castle_type"):
+		return
+	var card = surface.get_parent().get_parent()
+	_bind_instance_art(card, {"id": id, "attributes": attributes})
+
+
+func _bind_instance_art(card, entity: Dictionary) -> void:
+	var a: Dictionary = entity.attributes
 	var type: String = String(a.castle_type).replace("SiegeEngine", "Siege Engine").replace(
 		"SummoningCircle", "Summoning Circle"
 	)
@@ -499,19 +551,7 @@ func _add_instance_card(entity: Dictionary, pid: int, planning: bool) -> void:
 		"ratio": float(a.integrity) / maxf(1.0, float(a.max_integrity)),
 		"construction": a.construction_state != "active"
 	}
-	card.set_meta("castle_id", entity.id)
-	target_controls[entity.id] = card.input_surface
-	if (
-		pid == 0
-		and a.construction_state in ["building", "ready"]
-		and a.status == "standing"
-		and a.integrity >= 7
-	):
-		card.input_surface.set_meta("commission_eligible", true)
-	# Own cards still select the shared Ward lane. Only exposed enemy copies
-	# offer a Siege target; construction never becomes a clickable attack target.
-	if pid == 0 or (a.construction_state == "active" and a.status in ["standing", "defunct"]):
-		card.input_surface.pressed.connect(_select_castle.bind(pid, entity.id, planning))
+	card.set_meta("display_integrity", a.integrity)
 
 
 func show_commission_buttons(enabled: bool, staged_id: String) -> void:

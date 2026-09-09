@@ -121,9 +121,22 @@ static func sync_breach(raw: Dictionary) -> Dictionary:
 		# Removing a temporary ceiling never restores lost Integrity.
 		a.integrity = mini(int(a.integrity), ceiling)
 		if a.get("construction_state") == "building" and a.integrity == ceiling:
-			a.construction_state = "ready"
+			a.construction_state = "active"
 			if world.data.construction_targets[castle.owner] == castle.id:
 				world.data.construction_targets[castle.owner] = ""
+			events.append(
+				public_event(
+					"CASTLE_ACTIVATED",
+					{
+						"player_id": castle.owner,
+						"castle_id": castle.id,
+						"before": a.integrity,
+						"after": a.integrity,
+						"automatic": true,
+						"reason": "construction_reached_changed_ceiling"
+					}
+				)
+			)
 		entities.update(castle.id, castle.owner, a)
 		events.append(
 			public_event(
@@ -252,6 +265,7 @@ static func fire(
 				{"engine_id": engine.id, "target_id": target.id, "round": round_number}
 			)
 		)
+	var target_before: Dictionary = target.attributes.duplicate(true)
 	var before: int = int(target.attributes.integrity)
 	var damage: int = mini(before, DAMAGE)
 	world.entities = entities.snapshot()
@@ -290,6 +304,11 @@ static func fire(
 		note_integrity_loss(target, before, round_number)
 		entities.update(target.id, target.owner, target.attributes)
 		world.entities = entities.snapshot()
+	var target_after: Dictionary = {}
+	for entity in world.entities.entities:
+		if entity.id == target.id:
+			target_after = entity.attributes.duplicate(true)
+			break
 	events.append(
 		public_event(
 			"ARTILLERY_FIRED",
@@ -300,7 +319,9 @@ static func fire(
 				"target_id": target.id,
 				"shot": shot,
 				"damage": damage,
-				"destroyed": before <= DAMAGE
+				"destroyed": before <= DAMAGE,
+				"target_before": target_before,
+				"target_after": target_after
 			}
 		)
 	)

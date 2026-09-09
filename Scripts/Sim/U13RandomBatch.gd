@@ -81,6 +81,45 @@ static func trial(
 	var started: Dictionary = owner.start(seed_value, opening, [0, 1])
 	if started.action == "invalid":
 		return started
+	return run_started(
+		owner,
+		provider,
+		{
+			"seed": seed_value,
+			"rounds": round_limit,
+			"roster": roster,
+			"mode": roster_mode,
+			"progress": progress,
+			"trace_times": trace_times
+		}
+	)
+
+
+# Shared lifecycle for the existing profiles and the four-Lord matrix. A resume
+# factory is opt-in; ordinary batches retain their prior behavior and outputs.
+static func run_started(owner, provider: Callable, settings: Dictionary) -> Dictionary:
+	var seed_value: String = settings.seed
+	var round_limit: int = settings.rounds
+	var roster: Array = settings.roster
+	var roster_mode: String = settings.mode
+	var progress: Callable = settings.get("progress", Callable())
+	var trace_times: bool = settings.get("trace_times", false)
+	var audit: bool = settings.get("audit", false)
+	var restore_factory: Callable = settings.get("restore_factory", Callable())
+	var performance: Dictionary = settings.get("performance", {})
+	for category in ["planning", "hooks", "checkpoints"]:
+		if audit and not performance.has(category):
+			performance[category] = []
+	var trace: Array = []
+	var checkpoints: Array = []
+	var checkpoint_hooks: Array = [
+		Timeline.SUBMISSION_LOCK,
+		Timeline.POST_RESOLUTION_MOVEMENT_STATE,
+		Timeline.MARCHING,
+		Timeline.PERSISTENT_ADVANCEMENT,
+		Timeline.COMBAT_RESOLUTION,
+		Timeline.MARCHING_START
+	]
 	var telemetry = Telemetry.new()
 	var decisions: Array = []
 	var unchanged_rounds: int = 0
@@ -101,7 +140,7 @@ static func trial(
 				var plans: Array = []
 				# Compute both complete choices before either player submits.
 				for player_id in [0, 1]:
-					var plan_started_ms: int = Time.get_ticks_msec() if trace_times else 0
+					var plan_started_ms: int = Time.get_ticks_msec() if trace_times or audit else 0
 					var plan: Dictionary = Bot.plan(owner, player_id, provider)
 					if trace_times:
 						print(
@@ -111,6 +150,14 @@ static func trial(
 							player_id,
 							" planning_ms=",
 							Time.get_ticks_msec() - plan_started_ms
+						)
+					if audit:
+						performance.planning.append(
+							{
+								"round": round_number,
+								"player_id": player_id,
+								"ms": Time.get_ticks_msec() - plan_started_ms
+							}
 						)
 					if plan.action == "invalid":
 						return plan
@@ -123,7 +170,7 @@ static func trial(
 					)
 					if accepted.action == "invalid":
 						return accepted
-			var hook_started_ms: int = Time.get_ticks_msec() if trace_times else 0
+			var hook_started_ms: int = Time.get_ticks_msec() if trace_times or audit else 0
 			var result: Dictionary = owner.run_next_hook()
 			if trace_times and hook in [Timeline.SUBMISSION_LOCK, Timeline.MARCHING]:
 				print(
@@ -136,10 +183,61 @@ static func trial(
 				)
 			if result.action == "invalid":
 				return result
-			# Gremory measurement events are public. Hidden draw identities are
-			# unnecessary; use the same redacted event surface as the board.
-			telemetry.consume(owner._player_events_since(0, cursor))
-			telemetry.observe_hook(owner.player_view(0, 0), hook)
+			if audit:
+				performance.hooks.append(
+					{
+						"round": round_number,
+						"hook": hook,
+						"ms": Time.get_ticks_msec() - hook_started_ms
+					}
+				)
+			# Reuse the same public projection for telemetry and phase diagnostics.
+			var events: Array = owner._player_events_since(0, cursor)
+			var visible: Dictionary = owner.player_view(0, 0)
+			telemetry.consume(events)
+			telemetry.observe_hook(visible, hook)
+			if audit:
+				trace.append(
+					{
+						"round": round_number,
+						"hook": hook,
+						"events": _digest(events),
+						"world": _digest(visible.world)
+					}
+				)
+				if hook == checkpoint_hooks[(round_number - 1) % checkpoint_hooks.size()]:
+					var checkpoint_started: int = Time.get_ticks_msec()
+					var saved: Dictionary = owner.snapshot()
+					var digest: String = _digest(saved)
+					checkpoints.append(
+						{"round": round_number, "after_hook": hook, "digest": digest}
+					)
+					if restore_factory.is_valid():
+						var replacement = restore_factory.call()
+						var restored: Dictionary = replacement.restore(
+							JSON.parse_string(JSON.stringify(saved))
+						)
+						if (
+							restored.action == "invalid"
+							or _digest(replacement.snapshot()) != digest
+						):
+						return {
+							"action": "invalid",
+							"reason": "alpha_json_restore_diverged",
+							"round": round_number,
+							"hook": hook,
+							"restore": restored
+						}
+						# Continue on the restored owner: loading without using it is not a replay check.
+						owner = replacement
+					performance.checkpoints.append(
+						{
+							"round": round_number,
+							"hook": hook,
+							"ms": Time.get_ticks_msec() - checkpoint_started
+						}
+					)
+
 		var row: Dictionary = telemetry.finish(both_passed)
 		if (
 			row.marching_start == null
@@ -156,7 +254,7 @@ static func trial(
 			if begun.action == "invalid":
 				return begun
 	var snapshot: Dictionary = owner.snapshot()
-	return {
+	var completed: Dictionary = {
 		"action": "batch_trial_complete",
 		"seed": seed_value,
 		"roster": roster,
@@ -169,6 +267,11 @@ static func trial(
 		"state_and_events_digest": _digest(snapshot),
 		"pending_at_limit": snapshot.pending.pending.size()
 	}
+
+	if audit:
+		completed["hook_trace"] = trace
+		completed["checkpoints"] = checkpoints
+	return completed
 
 
 static func report(trials: Array, round_limit: int) -> Dictionary:
@@ -237,7 +340,11 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 				else "Development"
 			),
 			"normal round draws",
-			"Breath of Life" if trials[0].roster_mode in ["humbaba", "kalligan"] else "Hunt",
+			(
+				"Unimplemented later Lords"
+				if trials[0].roster_mode in ["humbaba", "kalligan"]
+				else "Hunt"
+			),
 			"victory",
 			(
 				"personal Tear/Veil progression"

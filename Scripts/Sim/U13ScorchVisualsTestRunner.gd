@@ -1,6 +1,7 @@
 extends SceneTree
 
 const Visuals = preload("res://Prototype/U13/U13ScorchVisuals.gd")
+const PlayerBoard = preload("res://Prototype/U13/U13PlayerBoard.gd")
 const Preview = preload("res://Prototype/U13/U13ScorchPreview.tscn")
 var failures: int = 0
 
@@ -162,6 +163,30 @@ func _run() -> void:
 		cached != null and cached == preview.lanes.scorch_visuals.groups.values()[0].ground,
 		"ground_mesh_reused_between_frames"
 	)
+	# Exercise the actual domain draw layers, including fire removal. The broad
+	# Guard row remains intentional; no flames cover unrelated Lord/Castle rows.
+	var board = PlayerBoard.new()
+	root.add_child(board)
+	board.size = Vector2(1400, 320)
+	record.target = {"kind": "guard", "lane": "Castle", "player_id": 1}
+	board.bind_scorch([record], 1)
+	for _frame in range(8):
+		await process_frame
+	_check(
+		board.scorch_front is Node2D and board.scorch_front.z_index == 1,
+		"guard_flames_above_cards_without_a_layout_or_input_control"
+	)
+	_check(
+		(
+			board.scorch_visuals.groups.size() == 1
+			and board.scorch_visuals.groups[record.id].ground != null
+		),
+		"guard_ground_and_foreground_share_one_cached_effect"
+	)
+	board.bind_scorch([], 1)
+	await process_frame
+	_check(board.scorch_visuals.groups.is_empty(), "guard_foreground_clears_on_expiration")
+	board.queue_free()
 	preview.queue_free()
 	await process_frame
 	print("U13 Scorch visuals failures: %d" % failures)

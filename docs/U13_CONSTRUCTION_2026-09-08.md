@@ -1,3 +1,5 @@
+> Superseded behavior: [2026-09-09 construction amendment](U13_CORE_ALPHA_2026-09-09.md#construction-interaction-amendment) makes the selected project continue each round and auto-commission at full Integrity. Early commissioning at 7+ remains optional. Historical V1 details below describe the earlier implementation.
+
 # U13 Construction, activation and War Foundry
 
 ## Scope and local gate

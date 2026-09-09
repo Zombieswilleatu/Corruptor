@@ -15,6 +15,8 @@ var _sides: Array = []
 var _index: int = 0
 var _elapsed: float = 0.0
 var _started: bool = false
+var _impacted: bool = false
+signal impact(shot: Dictionary)
 var _start: Vector2
 var _end: Vector2
 var _bend: Vector2
@@ -67,6 +69,20 @@ func play_shots(events: Array, sides: Array) -> void:
 			_shots.append(event.data.duplicate(true))
 
 
+func initial_castles() -> Dictionary:
+	var result: Dictionary = {}
+	for shot in _shots:
+		if not result.has(shot.target_id) and shot.has("target_before"):
+			result[shot.target_id] = shot.target_before.duplicate(true)
+	return result
+
+
+func _impact_once() -> void:
+	if not _impacted:
+		_impacted = true
+		impact.emit(_shots[_index].duplicate(true))
+
+
 func active() -> bool:
 	return _index < _shots.size()
 
@@ -77,10 +93,14 @@ func advance(delta: float) -> bool:
 		return false
 	if not _started:
 		if not _begin_shot(_shots[_index]):
+			_impact_once()
 			_index += 1
+			_impacted = false
 			return true
 		_started = true
 	_elapsed += maxf(0.0, delta)
+	if _elapsed >= FLIGHT_SECONDS:
+		_impact_once()
 	if _elapsed < FLIGHT_SECONDS:
 		var t: float = clampf(_elapsed / FLIGHT_SECONDS, 0.0, 1.0)
 		_bolt.texture = _bolt_frames[int(_elapsed * 12.0) % _bolt_frames.size()]
@@ -99,6 +119,7 @@ func advance(delta: float) -> bool:
 		_index += 1
 		_elapsed = 0.0
 		_started = false
+		_impacted = false
 	return true
 
 
@@ -163,6 +184,7 @@ func clear() -> void:
 	_index = 0
 	_elapsed = 0.0
 	_started = false
+	_impacted = false
 	if is_instance_valid(_bolt):
 		_bolt.hide()
 	if is_instance_valid(_blast):

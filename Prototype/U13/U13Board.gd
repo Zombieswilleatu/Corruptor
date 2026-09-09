@@ -70,6 +70,7 @@ var rout_state: Label
 var session = Session.new()
 const ArtilleryView = preload("res://Prototype/U13/U13ArtilleryView.gd")
 var artillery_view
+var _artillery_final_castles: Dictionary = {}
 var playback = Playback.new()
 var dense_mode: bool = false
 var dense_button: Button
@@ -162,6 +163,7 @@ func restart() -> void:
 		return
 	playing = false
 	artillery_view.clear()
+	_artillery_final_castles = {}
 	castle_plan = {}
 	clock = 0
 	queued = []
@@ -184,6 +186,7 @@ func restart() -> void:
 func _build() -> void:
 	artillery_view = ArtilleryView.new()
 	add_child(artillery_view)
+	artillery_view.impact.connect(_artillery_impact)
 	var background := ColorRect.new()
 	background.color = Color.BLACK
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -636,6 +639,7 @@ func _process(delta: float) -> void:
 	if artillery_view.advance(delta):
 		_busy_label.text = "Siege Engine fire…"
 		return
+	_restore_artillery_castles()
 	if _advance_impacts(delta):
 		_busy_label.text = "Scorch pulse…"
 		return
@@ -675,8 +679,15 @@ func _complete_job() -> void:
 		playback = result.playback
 		clock = 0.0
 		playing = true
-		_refresh(result.presented)
 		artillery_view.play_shots(result.get("artillery_events", []), sides)
+		var initial: Dictionary = artillery_view.initial_castles()
+		var shown: Dictionary = result.presented.duplicate(true)
+		_artillery_final_castles = {}
+		for entity in shown.world.entities:
+			if initial.has(entity.id):
+				_artillery_final_castles[entity.id] = entity.attributes.duplicate(true)
+				entity.attributes = initial[entity.id]
+		_refresh(shown)
 		lanes.show_frame(playback.sample(0), session.round_number())
 	elif result.operation == "aftermath":
 		_refresh(result.presented)
@@ -700,10 +711,30 @@ func _complete_job() -> void:
 		run_dense_round()
 
 
+func _artillery_impact(shot: Dictionary) -> void:
+	if shot.get("target_after", {}).is_empty():
+		return
+	for side in sides:
+		side.update_castle_presentation(shot.target_id, shot.target_after)
+
+
+func _restore_artillery_castles() -> void:
+	if _artillery_final_castles.is_empty():
+		return
+	# Later combat/powers may also change the same Castle. Apply that completed
+	# phase state after the shot tape, without recreating board rows or Hand.
+	for id in _artillery_final_castles:
+		for side in sides:
+			side.update_castle_presentation(id, _artillery_final_castles[id])
+	_artillery_final_castles = {}
+
+
 func finish_playback(skipped: bool = true) -> void:
 	if not playing or _job != null:
 		return
+	_restore_artillery_castles()
 	artillery_view.clear()
+	_artillery_final_castles = {}
 	_install_impacts([])
 	if skipped:
 		lanes.clear_feedback()

@@ -157,7 +157,7 @@ func _update_direct_ui() -> void:
 	)
 	castle_token.visible = not powers_step and _intent == "Repair"
 	castle_token.disabled = not _planning()
-	castle_note.text = "Construct / Repair: choose the action, click your Castle, then click payment cards. Commission is on each eligible Castle."
+	castle_note.text = "Construct / Repair: choose the action, click your Castle, then optionally pay cards. Construction continues until you change projects or commission. Full Integrity commissions automatically."
 	if not castle_plan.is_empty():
 		castle_note.text = (
 			"Staged: %s · %d cards. Click a staged card to return it."
@@ -166,9 +166,21 @@ func _update_direct_ui() -> void:
 				castle_plan.card_ids.size()
 			]
 		)
+	var project_id: String = _visible_world.get("construction_target", "")
+	if not project_id.is_empty():
+		for castle in _visible_world.get("entities", []):
+			if castle.id == project_id:
+				castle_note.text += (
+					"\nContinuing: %s · %d/%d (+3 each round)."
+					% [
+						String(castle.attributes.get("castle_type", "Castle")),
+						castle.attributes.integrity,
+						castle.attributes.max_integrity
+					]
+				)
 	castle_note.text += "\nRepair tokens: %d" % int(_visible_world.get("repair_tokens", 0))
 	if _intent == "Construct":
-		castle_note.text += "\nSelecting an eligible Castle stages free +3 progress. Cards add progress."
+		castle_note.text += "\nSelect a project once: +3 each round until complete. Cards add progress this round only."
 	if _intent == "Repair":
 		castle_note.text += "\nWrights: full value; other cards: value minus 1 (minimum 1). Token: +3."
 	hand_view.all_in_enabled = (

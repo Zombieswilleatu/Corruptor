@@ -6,7 +6,7 @@ const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
 const Combat = preload("res://Scripts/Sim/U13Combat.gd")
 const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
-const VERSION: String = "U13_CASTLE_DEVELOPMENT_V1"
+const VERSION: String = "U13_CASTLE_DEVELOPMENT_V2"
 const PASSIVE: int = 3
 const CARD_VALUE_PER_INTEGRITY: int = 3
 const REPAIR_TOKEN: int = 3
@@ -328,6 +328,7 @@ static func resolve(context: Dictionary) -> Dictionary:
 	var entities = Ids.new()
 	entities.restore(world.entities)
 	var events: Array = []
+	var advanced: Dictionary = {}
 	for player_id in context.player_order:
 		var record = world.data.castle_orders[player_id]
 		if not record_shape(record) or record.round != context.round:
@@ -350,29 +351,28 @@ static func resolve(context: Dictionary) -> Dictionary:
 			)
 			continue
 		var target: Dictionary = entities.get_entity(choice.target_id)
+		if choice.action == "Construct":
+			world.data.construction_targets[player_id] = target.id
+			events.append_array(
+				_advance_build(
+					world,
+					entities,
+					target,
+					context.round,
+					int(record.paid_value),
+					bool(record.reconstruction),
+					false
+				)
+			)
+			advanced[player_id] = true
+			continue
 		var a: Dictionary = target.attributes
 		var before: int = int(a.integrity)
 		var bonus: int = (
-			PASSIVE
-			if choice.action == "Construct"
-			else (REPAIR_TOKEN if choice.action == "Repair" and choice.use_repair_token else 0)
+			REPAIR_TOKEN if choice.action == "Repair" and choice.use_repair_token else 0
 		)
-		var paid_gain: int = (
-			floori(float(record.paid_value) / float(CARD_VALUE_PER_INTEGRITY))
-			if choice.action == "Construct"
-			else int(record.paid_value)
-		)
-		if choice.action == "Construct":
-			a.construction_state = "building"
-			world.data.construction_targets[player_id] = target.id
-			if record.reconstruction:
-				a.artillery_target = ""
-				a.erase("repair_lock_until_round")
-		a.integrity = mini(int(a.max_integrity), before + bonus + paid_gain)
+		a.integrity = mini(int(a.max_integrity), before + bonus + int(record.paid_value))
 		a.status = "standing" if a.integrity > 0 else "defunct"
-		if choice.action == "Construct" and a.integrity == a.max_integrity:
-			a.construction_state = "ready"
-			world.data.construction_targets[player_id] = ""
 		if choice.action == "Activate":
 			a.construction_state = "active"
 			if world.data.construction_targets[player_id] == target.id:
@@ -380,31 +380,89 @@ static func resolve(context: Dictionary) -> Dictionary:
 		entities.update(target.id, target.owner, a)
 		events.append(
 			Structures.public_event(
-				(
-					"CONSTRUCTION_PROGRESS"
-					if choice.action == "Construct"
-					else ("CASTLE_ACTIVATED" if choice.action == "Activate" else "CASTLE_REPAIRED")
-				),
+				"CASTLE_ACTIVATED" if choice.action == "Activate" else "CASTLE_REPAIRED",
 				{
 					"player_id": player_id,
 					"round": context.round,
 					"castle_id": target.id,
 					"before": before,
 					"after": a.integrity,
-					"passive_bonus": PASSIVE if choice.action == "Construct" else 0,
+					"passive_bonus": 0,
 					"paid_value": record.paid_value,
-					"paid_gain": paid_gain,
-					"token_bonus": REPAIR_TOKEN if choice.use_repair_token else 0,
-					"reconstruction": record.reconstruction,
-					"complete": a.construction_state == "ready",
+					"paid_gain": record.paid_value,
+					"token_bonus": bonus,
+					"reconstruction": false,
+					"complete": false,
 					"activated": a.construction_state == "active",
 					"operational": Structures.operational(target)
 				}
 			)
 		)
+	# A selected project advances once per Development even on a pass, combat,
+	# powers, or repair elsewhere. Payments are never remembered or repeated.
+	for player_id in context.player_order:
+		var id: String = world.data.construction_targets[player_id]
+		if advanced.has(player_id) or id.is_empty():
+			continue
+		var target: Dictionary = entities.get_entity(id)
+		if (
+			target.is_empty()
+			or target.attributes.construction_state != "building"
+			or target.attributes.status != "standing"
+		):
+			return Data.invalid("continuing_construction_target_invalid")
+		events.append_array(_advance_build(world, entities, target, context.round, 0, false, true))
 	world.entities = entities.snapshot()
 	world.data.construction_round = context.round
 	return {"action": "resolved", "world": world, "events": events}
+
+
+static func _advance_build(
+	world: Dictionary,
+	entities,
+	target: Dictionary,
+	round_number: int,
+	paid_value: int,
+	reconstruction: bool,
+	continuing: bool
+) -> Array:
+	var a: Dictionary = target.attributes
+	var before: int = int(a.integrity)
+	var paid_gain: int = floori(float(paid_value) / float(CARD_VALUE_PER_INTEGRITY))
+	a.construction_state = "building"
+	if reconstruction:
+		a.artillery_target = ""
+		a.erase("repair_lock_until_round")
+	a.integrity = mini(int(a.max_integrity), before + PASSIVE + paid_gain)
+	a.status = "standing"
+	var complete: bool = a.integrity == a.max_integrity
+	if complete:
+		a.construction_state = "active"
+		world.data.construction_targets[target.owner] = ""
+	entities.update(target.id, target.owner, a)
+	var fact: Dictionary = {
+		"player_id": target.owner,
+		"round": round_number,
+		"castle_id": target.id,
+		"before": before,
+		"after": a.integrity,
+		"passive_bonus": PASSIVE,
+		"paid_value": paid_value,
+		"paid_gain": paid_gain,
+		"token_bonus": 0,
+		"reconstruction": reconstruction,
+		"complete": complete,
+		"activated": complete,
+		"operational": Structures.operational(target),
+		"continuing": continuing
+	}
+	var events: Array = [Structures.public_event("CONSTRUCTION_PROGRESS", fact)]
+	if complete:
+		var activation: Dictionary = fact.duplicate(true)
+		activation.reconstruction = false
+		activation["automatic"] = true
+		events.append(Structures.public_event("CASTLE_ACTIVATED", activation))
+	return events
 
 
 # Optional owner-side enumeration screen. It can reject but cannot authorize.

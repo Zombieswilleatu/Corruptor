@@ -151,8 +151,8 @@ func _progress_and_payments() -> void:
 	var pass_result: Dictionary = _develop(free.world, [{}, {}])
 	if _resolved(pass_result, "construction_pass_resolves"):
 		_check(
-			_entity(pass_result.world, _engine(0)).attributes.integrity == 3,
-			"pass_does_not_perform_castle_action"
+			_entity(pass_result.world, _engine(0)).attributes.integrity == 6,
+			"pass_continues_selected_construction"
 		)
 		_check(
 			pass_result.world.data.construction_targets[0] == _engine(0),
@@ -409,7 +409,7 @@ func _completion_and_repair() -> void:
 	_check(
 		(
 			_entity(built.world, _engine(0)).attributes.integrity == 21
-			and _entity(built.world, _engine(0)).attributes.construction_state == "ready"
+			and _entity(built.world, _engine(0)).attributes.construction_state == "active"
 		),
 		"completion_caps_at_twenty_one"
 	)
@@ -419,15 +419,11 @@ func _completion_and_repair() -> void:
 	)
 	_check(
 		(
-			not Structures.targetable(_entity(built.world, _engine(0)))
-			and not Structures.operational(_entity(built.world, _engine(0)))
+			Structures.targetable(_entity(built.world, _engine(0)))
+			and Structures.operational(_entity(built.world, _engine(0)))
 		),
-		"full_build_awaits_player_activation"
+		"full_build_automatically_activates"
 	)
-	var activated: Dictionary = _develop(built.world, [_choice("Activate", _engine(0)), {}])
-	if not _resolved(activated, "full_castle_activation_resolves"):
-		return
-	built = activated
 	_patch_attributes(built.world, _engine(0), {"integrity": 10})
 	_check(
 		(
@@ -516,10 +512,10 @@ func _completion_and_repair() -> void:
 	var ceiling: Dictionary = Structures.sync_breach(world)
 	_check(
 		(
-			_entity(ceiling.world, _engine(0)).attributes.construction_state == "ready"
+			_entity(ceiling.world, _engine(0)).attributes.construction_state == "active"
 			and ceiling.world.data.construction_targets[0] == ""
 		),
-		"reduced_ceiling_finishes_protected_build_without_activation"
+		"reduced_ceiling_completes_and_activates_build"
 	)
 
 
