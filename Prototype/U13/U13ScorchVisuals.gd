@@ -52,7 +52,10 @@ static func _group(id: String, target: Dictionary) -> Dictionary:
 					(float(index % 3) + 0.25 + 0.5 * float(digest[0]) / 255.0) / 3.0,
 					(floor(float(index) / 3.0) + 0.35 + 0.5 * float(digest[1]) / 255.0) / 4.0
 				),
-				"phase": int(digest[2]) % 25,
+				"phase": int(digest[2]) % 5,
+				"choice_key": id + ":scorch-flame:" + str(index),
+				"choice_loop": -1,
+				"choice_sheet": 0,
 				"height": 45.0 + 19.0 * float(digest[3]) / 255.0
 			}
 		)
@@ -71,10 +74,19 @@ static func _group(id: String, target: Dictionary) -> Dictionary:
 	}
 
 
-static func flame_frame(age: float, phase: int) -> Dictionary:
-	var cycle: int = int(floor(maxf(0.0, age) * FPS) + phase) % 25
-	# Four complete orange loops, then one complete alien loop. Repeat.
-	return {"sheet": 1 if cycle >= 20 else 0, "frame": cycle % 5}
+static func flame_frame(age: float, flame: Dictionary) -> Dictionary:
+	var tick: int = int(floor(maxf(0.0, age) * FPS)) + int(flame.phase)
+	var loop: int = int(floor(float(tick) / 5.0))
+	if int(flame.choice_loop) != loop:
+		# One independent 1-in-4 cosmetic choice per completed five-frame loop.
+		# Cache it: drawing cannot reroll mid-loop. Keys also make skipped frames
+		# and relocation harmless, without touching the simulation RNG.
+		var digest: PackedByteArray = (
+			(String(flame.choice_key) + ":loop:" + str(loop)).sha256_buffer()
+		)
+		flame.choice_sheet = 1 if int(digest[0]) % 4 == 0 else 0
+		flame.choice_loop = loop
+	return {"sheet": int(flame.choice_sheet), "frame": tick % 5}
 
 
 func advance(delta: float) -> void:
@@ -128,7 +140,7 @@ func draw_area(canvas: CanvasItem, bounds: Rect2, lane: String) -> void:
 				Color(heat.light, heat.light, heat.light, 1.0)
 			)
 		for flame in group.flames:
-			var animation: Dictionary = flame_frame(group.age, flame.phase)
+			var animation: Dictionary = flame_frame(group.age, flame)
 			var height: float = minf(float(flame.height) * float(heat.scale), bounds.size.y * 0.8)
 			var width: float = height * 0.6
 			var anchor: Vector2 = bounds.position + flame.position * bounds.size

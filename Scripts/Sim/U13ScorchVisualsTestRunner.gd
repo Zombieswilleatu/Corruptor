@@ -39,14 +39,35 @@ func _run() -> void:
 		phases[flame.phase] = true
 		_check(Rect2(0, 0, 1, 1).has_point(flame.position), "flame_jitter_inside_target")
 	_check(phases.size() > 1, "flames_start_at_different_animation_phases")
-	for phase in range(25):
-		var counts: Array = [0, 0]
-		var ordered: bool = true
-		for frame in range(25):
-			var value: Dictionary = Visuals.flame_frame((float(frame) + 0.1) / Visuals.FPS, phase)
-			counts[value.sheet] += 1
-			ordered = ordered and value.frame == (frame + phase) % 5
-		_check(ordered and counts == [20, 5], "four_normal_loops_one_alien_loop_" + str(phase))
+	var golden: Array = [0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0]
+	var flame: Dictionary = {
+		"phase": 0, "choice_key": "flame-choice-test", "choice_loop": -1, "choice_sheet": 0
+	}
+	var holds: bool = true
+	for loop in range(golden.size()):
+		for frame in range(5):
+			var age: float = (float(loop * 5 + frame) + 0.1) / Visuals.FPS
+			var value: Dictionary = Visuals.flame_frame(age, flame)
+			holds = holds and value.sheet == golden[loop] and value.frame == frame
+			var repeated: Dictionary = Visuals.flame_frame(age, flame)
+			holds = holds and repeated == value
+	_check(holds, "independent_loop_choices_hold_for_all_five_frames")
+	_check(golden[13] == 1 and golden[14] == 1, "consecutive_purple_loops_are_allowed")
+	var skipped: Dictionary = {
+		"phase": 0, "choice_key": "flame-choice-test", "choice_loop": -1, "choice_sheet": 0
+	}
+	var end_age: float = 79.1 / Visuals.FPS
+	_check(
+		Visuals.flame_frame(end_age, skipped) == Visuals.flame_frame(end_age, flame),
+		"frame_skips_do_not_change_cosmetic_choices"
+	)
+	var distinct: bool = false
+	for loop in range(16):
+		var age: float = (float(loop * 5) + 0.1) / Visuals.FPS
+		var left: Dictionary = Visuals.flame_frame(age, group.flames[0])
+		var right: Dictionary = Visuals.flame_frame(age, group.flames[1])
+		distinct = distinct or left.sheet != right.sheet
+	_check(distinct, "individual_flames_choose_independently")
 	visuals.advance(3.0)
 	var initial_age: float = group.age
 	var normal: Dictionary = Visuals.strength(group)

@@ -76,7 +76,7 @@ The focused group runs:
    feedback pause, distinct pulses, coexistence with Breath, Skip, final hits,
    planning-time healing, and save independence. Only subsequent worker dispatch
    is replaced in this fixture; it does not resolve redundant full matches.
-3. `U13ScorchVisuals`: sprite phases, the four-normal/one-alien cycle, intensity,
+3. `U13ScorchVisuals`: sprite phases, independent 25% alien-loop choices, intensity,
    Pyroclasm flash/return, bounded radial mesh, assets and real preview draw path.
 4. `U13Breath`: existing authoritative Breath/regen integration regression gate.
 

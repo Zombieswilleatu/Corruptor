@@ -22,7 +22,7 @@ func _ready() -> void:
 	var note := Label.new()
 	note.text = (
 		"No match or damage simulation.\n\n12 flames per lane, staggered.\n"
-		+ "Four Fire1 loops, then one Fire2 loop.\nGroundFire uses soft radial brush stamps.\n\n"
+		+ "Each flame: 25% purple chance per loop.\nGroundFire uses soft radial brush stamps.\n\n"
 		+ "Chits and health rings draw above fire.\nNumber buttons show cosmetic examples only."
 	)
 	column.add_child(note)

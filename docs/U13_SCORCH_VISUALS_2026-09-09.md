@@ -11,9 +11,13 @@ other main-branch changes were brought into U13.
   One cached mesh holds the entire brush layer, with a maximum of 160 stamps.
 - Twelve small flames per active instance, distributed with stratified jitter.
   Stable cosmetic offsets vary position, height and starting animation phase.
-- Fire1 and Fire2 each use their five horizontal frames at 6 FPS. Every repeating
-  block contains four full Fire1 loops and one full Fire2 loop; phase offsets keep
-  all flames from switching to alien fire together.
+- Fire1 and Fire2 each use their five horizontal frames at 6 FPS. Each flame
+  independently chooses Fire2 with a 25% chance at each loop boundary; otherwise
+  it chooses Fire1. Consecutive purple loops and long orange stretches are valid.
+  There is no repeating five-loop color schedule. Phase offsets remain staggered.
+  The cached cosmetic choice is keyed by effect, flame and loop, so it costs one
+  small hash per loop and never consumes simulation RNG. Repeated draws cannot
+  reroll it; frame skips do not change the selected sequence.
 - Intensity 2 increases every flame's size by 12%, brightness by 15%, and opacity
   from 0.62 to 0.72. The ground layer brightens too. Intensity 1 restores baseline.
 - A resolved Pyroclasm pulse creates a one-second envelope: 0.10-second ramp,
