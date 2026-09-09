@@ -45,6 +45,23 @@ func _run() -> void:
 	var motion := InputEventMouseMotion.new()
 	motion.position = board.placement.lane_rect("Castle").get_center()
 	board.placement._gui_input(motion)
+	_check(
+		not board.placement.placed and board.placement.confirm_button.disabled,
+		"orias_hover_cannot_place_or_confirm"
+	)
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	click.position = motion.position
+	board.placement._gui_input(click)
+	_check(
+		(
+			board.placement.placed
+			and not board.placement.dragging
+			and not board.placement.confirm_button.disabled
+		),
+		"orias_first_click_places_without_dragging"
+	)
 	var preview: Dictionary = board.placement.target.duplicate(true)
 	_check(
 		preview.lane == "Castle" and preview.field_position == {"x_fp": 1200, "y_fp": 300},
@@ -57,6 +74,33 @@ func _run() -> void:
 	_check(
 		board.placement.confirm_button.text == "SET THE SNARE", "orias_web_thematic_confirmation"
 	)
+	motion.position = board.placement.lane_rect("Lord").get_center()
+	board.placement._gui_input(motion)
+	_check(board.placement.target == preview, "orias_placed_web_ignores_unheld_motion")
+	# Grab slightly off center: dragging preserves that grip across lanes.
+	click.position = board.placement.lane_rect("Castle").get_center() + Vector2(5, 0)
+	board.placement._gui_input(click)
+	motion.position += Vector2(5, 0)
+	motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+	board.placement._gui_input(motion)
+	_check(
+		(
+			board.placement.target.lane == "Lord"
+			and board.placement.target.field_position == {"x_fp": 1200, "y_fp": 300}
+		),
+		"orias_drag_moves_web_and_preserves_grip"
+	)
+	click.pressed = false
+	click.position = board.placement.confirm_button.get_global_rect().get_center()
+	board.placement._input(click)
+	preview = board.placement.target.duplicate(true)
+	motion.position = board.placement.lane_rect("Castle").get_center()
+	motion.button_mask = 0
+	board.placement._gui_input(motion)
+	_check(
+		not board.placement.dragging and board.placement.target == preview,
+		"orias_release_over_button_stops_drag"
+	)
 	board.placement.cancel_button.pressed.emit()
 	await _settle()
 	_check(
@@ -64,6 +108,15 @@ func _run() -> void:
 	)
 	board.web_button.pressed.emit()
 	await _settle()
+	_check(
+		not board.placement.placed and board.placement.confirm_button.disabled,
+		"orias_reopen_requires_new_placement"
+	)
+	click.pressed = true
+	click.position = board.placement.lane_rect("Lord").get_center()
+	board.placement._gui_input(click)
+	click.pressed = false
+	board.placement._gui_input(click)
 	board.placement.confirm_button.pressed.emit()
 	await _settle()
 	_check(

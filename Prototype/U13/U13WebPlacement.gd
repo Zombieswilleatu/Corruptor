@@ -9,6 +9,9 @@ var target: Dictionary = {"lane": "Lord", "field_position": {"x_fp": 1200, "y_fp
 var radius_fp: int = 270
 var confirm_button: Button
 var cancel_button: Button
+var placed: bool = false
+var dragging: bool = false
+var drag_offset: Vector2 = Vector2.ZERO
 
 
 func _ready() -> void:
@@ -26,7 +29,7 @@ func _ready() -> void:
 	confirm_button = Button.new()
 	confirm_button.text = "SET THE SNARE"
 	confirm_button.custom_minimum_size = Vector2(220, 42)
-	confirm_button.pressed.connect(func() -> void: confirmed.emit(target.duplicate(true)))
+	confirm_button.pressed.connect(_confirm)
 	actions.add_child(confirm_button)
 	cancel_button = Button.new()
 	cancel_button.text = "CANCEL"
@@ -38,7 +41,11 @@ func _ready() -> void:
 
 
 func open(initial: Dictionary = {}) -> void:
-	if not initial.is_empty():
+	placed = not initial.is_empty()
+	dragging = false
+	drag_offset = Vector2.ZERO
+	confirm_button.disabled = not placed
+	if placed:
 		target = initial.duplicate(true)
 	show()
 	set_process(true)
@@ -47,6 +54,7 @@ func open(initial: Dictionary = {}) -> void:
 
 
 func close() -> void:
+	dragging = false
 	hide()
 	set_process(false)
 
@@ -57,25 +65,57 @@ func lane_rect(lane: String) -> Rect2:
 	return Rect2(size.x * 0.5 - width + (width if lane == "Castle" else 0.0), 110, width, height)
 
 
+func _confirm() -> void:
+	if placed and not dragging:
+		confirmed.emit(target.duplicate(true))
+
+
+func _place_at(point: Vector2) -> bool:
+	for lane in ["Lord", "Castle"]:
+		var proposed: Dictionary = SpatialInput.target_at(point, lane_rect(lane), lane)
+		if not proposed.is_empty():
+			target = proposed
+			placed = true
+			confirm_button.disabled = false
+			queue_redraw()
+			return true
+	return false
+
+
 func _gui_input(event: InputEvent) -> void:
-	if (
-		event is InputEventMouseMotion
-		or (
-			event is InputEventMouseButton
-			and event.pressed
-			and event.button_index == MOUSE_BUTTON_LEFT
-		)
-	):
-		for lane in ["Lord", "Castle"]:
-			var proposed: Dictionary = SpatialInput.target_at(event.position, lane_rect(lane), lane)
-			if not proposed.is_empty():
-				target = proposed
-				accept_event()
-				queue_redraw()
-				break
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if not event.pressed:
+			dragging = false
+		elif not placed:
+			_place_at(event.position)
+		else:
+			var area: Rect2 = Visuals.region_rect(
+				lane_rect(target.lane), target.field_position, radius_fp
+			)
+			var offset: Vector2 = event.position - area.get_center()
+			if (
+				lane_rect(target.lane).has_point(event.position)
+				and (offset / (area.size * 0.5)).length_squared() <= 1.0
+			):
+				dragging = true
+				drag_offset = offset
+		accept_event()
+	elif event is InputEventMouseMotion and dragging:
+		if event.button_mask & MOUSE_BUTTON_MASK_LEFT:
+			_place_at(event.position - drag_offset)
+			accept_event()
+		else:
+			dragging = false
 
 
 func _input(event: InputEvent) -> void:
+	# Release can land over a button or outside the lane; always end the drag.
+	if (
+		event is InputEventMouseButton
+		and event.button_index == MOUSE_BUTTON_LEFT
+		and not event.pressed
+	):
+		dragging = false
 	if visible and event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		get_viewport().set_input_as_handled()
 		cancelled.emit()
@@ -102,7 +142,11 @@ func _draw() -> void:
 	draw_string(
 		font,
 		Vector2(30, 70),
-		"Move the web around either lane. Set the Snare confirms this position; Cancel queues nothing.",
+		(
+			"Drag the web to adjust it, then click Set the Snare."
+			if placed
+			else "Click a spot in either lane to place the web. Then drag the web to adjust it."
+		),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		size.x - 60,
 		16
@@ -119,14 +163,22 @@ func _draw() -> void:
 			rect.size.x,
 			16
 		)
-	var selected: Rect2 = lane_rect(target.lane)
-	visuals.draw_area(
-		self, Visuals.region_rect(selected, target.field_position, radius_fp), selected
-	)
+	if placed:
+		var selected: Rect2 = lane_rect(target.lane)
+		visuals.draw_area(
+			self, Visuals.region_rect(selected, target.field_position, radius_fp), selected
+		)
 	draw_string(
 		font,
 		Vector2(30, size.y - 82),
-		"%s lane · enemy Marchers in the Web take 1 damage, then move at half speed." % target.lane,
+		(
+			(
+				"%s lane · enemy Marchers in the Web take 1 damage, then move at half speed."
+				% target.lane
+			)
+			if placed
+			else "Choose your ambush."
+		),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		size.x - 60,
 		15,

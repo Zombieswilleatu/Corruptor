@@ -4,7 +4,7 @@ Orias is now selectable in `Prototype/U13/U13Board.tscn` and the same roster sup
 
 ## Board interaction
 
-- Place Web opens two labeled lanes. Move the pointer to reposition the draft, then press **Set the Snare** to queue the selected Web position. Cancel or Escape queues nothing. Confirmation stages the declaration; the normal round submission still resolves it.
+- Place Web opens two labeled lanes. Click once in either lane to place the draft. Grab and drag the placed web to adjust it, then press **Set the Snare** to queue that position. Unheld mouse movement leaves the web in place; confirmation stays disabled until the first placement. Cancel or Escape queues nothing. Confirmation stages the declaration; the normal round submission still resolves it.
 - Prepare Snare stages the existing next-round restriction and gains 1 Threat at joint lock. Guard webs remain centered on each zone's middle Guard card and contain no extra spiders.
 - Place Guard accepts an empty numbered slot, then one hand card. Both Guard zones share the public Snare/Entanglement limit. Cards are reserved in the draft and can be returned before the powers step.
 - Resummon Lord appears while banished. Select payment cards and review cost, payment, return Threat, and The Mark. Development returns the same Lord. An absent Lord cannot submit combat or new powers in its return round; those are available at the following submission.
