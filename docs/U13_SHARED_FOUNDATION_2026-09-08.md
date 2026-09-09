@@ -251,3 +251,14 @@ The chooser and frequency/reachability instrumentation remain pending, scheduled
 after the smoke-scene gate and before adding another Lord. Milestone 3 proves
 correctness, not balance; Level 5.5 batches report distributions and trigger counts,
 never random-bot win rates. Real doctrine retains priority and Milestone 9 stays put.
+
+
+## Accepted Kanifous power-list amendment — 2026-09-09
+
+The [Kanifous power list](U13_KANIFOUS_POWERS.md) now names its passive
+battlefield objective **The Wishmaster**. The accepted
+[Smoke/Lamp addendum](U13_KANIFOUS_THE_WISHMASTER_2026-09-09.md) replaces the
+immediate Chest and draw-one reward with a one-round public telegraph,
+next-round contested Lamp, 10% rejection and suit-specific claimant effects.
+Kanifous remains design-only; this amendment does not clear or bypass the
+Marching/spatial gates. The active Wish/Price system is retained.
