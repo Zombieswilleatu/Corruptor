@@ -160,7 +160,9 @@ static func apply(
 			details["victim"] = target.duplicate(true)
 			details["attacker"] = attacker
 			details["cause"] = command.cause
+			details["hp_before"] = int(target.attributes.hp)
 			target.attributes.hp = maxi(0, int(target.attributes.hp) - int(command.damage))
+			details["hp_after"] = int(target.attributes.hp)
 			if target.attributes.hp == 0:
 				entities.retire(target.id)
 				event_type = "MARCHER_DEFEATED"

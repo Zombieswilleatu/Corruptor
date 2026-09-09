@@ -4,6 +4,11 @@ extends RefCounted
 # Presentation only. These frames never flow back into U13Match or its saves.
 # Clashes/HP/Armor/deaths come from the resolved event tape. Movement between
 # captured endpoints is visual interpolation, independent of frame rate.
+const Feedback = preload("res://Prototype/U13/U13MarcherFeedback.gd")
+var feedback_rows: Array = []
+var _previous_units: Dictionary = {}
+var _terminal: Dictionary = {}
+
 const MOVE_SECONDS: float = 6.0
 const EXCHANGE_SECONDS: float = 0.24
 var duration: float = 0.0
@@ -14,12 +19,22 @@ var _spatial: bool = false
 
 func build(events: Array) -> bool:
 	_frames = []
+	feedback_rows = []
+	_previous_units = {}
+	_terminal = {}
 	_spatial = false
 	duration = 0.0
 	round_number = 0
 	var started: Dictionary = {}
 	var finished: Dictionary = {}
 	for event in events:
+		if event.type == "MARCHER_DEFEATED" and event.data.has("hp_after"):
+			_terminal[event.data.victim.id] = int(event.data.victim.attributes.armor)
+		if event.type == "MARCHER_CLASH" and not event.data.exchanges.is_empty():
+			var ending: Dictionary = event.data.exchanges.back()
+			for fighter in range(event.data.units.size()):
+				if int(ending.hp[fighter]) == 0:
+					_terminal[event.data.units[fighter].id] = int(ending.armor[fighter])
 		if event.type == "MARCHING_STARTED":
 			started = event.data
 		elif event.type == "MARCHING_FINISHED":
@@ -111,11 +126,33 @@ func final_units() -> Array:
 
 
 func _append(units: Dictionary, caption: String, clash: Array) -> void:
+	for entity_id in _previous_units:
+		var before: Dictionary = _previous_units[entity_id]
+		var after: Dictionary = units.get(entity_id, {})
+		var hp: int = int(before.attributes.hp)
+		var armor: int = int(before.attributes.armor)
+		if not after.is_empty():
+			hp = int(after.attributes.hp)
+			armor = int(after.attributes.armor)
+		elif _terminal.has(entity_id):
+			hp = 0
+			armor = int(_terminal[entity_id])
+		var hp_delta: int = hp - int(before.attributes.hp)
+		var armor_delta: int = armor - int(before.attributes.armor)
+		if hp_delta != 0 or armor_delta != 0:
+			feedback_rows.append(
+				Feedback.row(
+					after if not after.is_empty() else before, hp_delta, armor_delta, duration
+				)
+			)
+	_previous_units = {}
 	var ids: Array = units.keys()
 	ids.sort()
 	var rows: Array = []
 	for entity_id in ids:
-		rows.append(units[entity_id].duplicate(true))
+		var owned: Dictionary = units[entity_id].duplicate(true)
+		rows.append(owned)
+		_previous_units[entity_id] = owned
 	_frames.append({"at": duration, "units": rows, "caption": caption, "clash": clash.duplicate()})
 
 
@@ -167,3 +204,12 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 		units[unit.id] = unit.duplicate(true)
 	_append(units, "Marching complete", [])
 	return true
+
+
+func feedback_through(seconds: float, cursor: int) -> Dictionary:
+	var rows: Array = []
+	var next: int = clampi(cursor, 0, feedback_rows.size())
+	while next < feedback_rows.size() and float(feedback_rows[next].at) <= seconds:
+		rows.append(feedback_rows[next].duplicate(true))
+		next += 1
+	return {"rows": rows, "cursor": next}

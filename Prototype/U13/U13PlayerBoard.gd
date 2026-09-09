@@ -1,6 +1,8 @@
 extends HBoxContainer
 
 # Layout methods extracted from UI2 PlayerBoard at b8259e4.
+const ScorchVisuals = preload("res://Prototype/U13/U13ScorchVisuals.gd")
+var scorch_visuals = ScorchVisuals.new()
 const Textures = preload("res://Prototype/U13/U13BoardTextures.gd")
 const Card = preload("res://Prototype/U13/U13LayoutCard.gd")
 const Castles = preload("res://Prototype/UI2/CastleArtCatalog.gd")
@@ -309,6 +311,10 @@ func _draw() -> void:
 		true
 	)
 
+	for lane in ["Lord", "Castle"]:
+		var box = lord_guard_box if lane == "Lord" else castle_guard_box
+		scorch_visuals.draw_area(self, Rect2(box.global_position - global_position, box.size), lane)
+
 
 func _apply_domain1_clear_section_backgrounds_v1() -> void:
 	_make_domain1_major_panel_transparent_v1(lord_group)
@@ -531,6 +537,9 @@ func _commission_clicked(id: String) -> void:
 
 
 func bind_scorch(records: Array, player_id: int) -> void:
+	scorch_visuals.sync(records, "guard", player_id)
+	set_process(not scorch_visuals.groups.is_empty())
+	queue_redraw()
 	for lane in ["Lord", "Castle"]:
 		var title: Label = scorch_titles[lane]
 		title.text = "LORD\nGUARDS" if lane == "Lord" else "CASTLE GUARDS"
@@ -550,3 +559,19 @@ func bind_scorch(records: Array, player_id: int) -> void:
 					)
 				)
 				title.add_theme_color_override("font_color", Color("ffb26e"))
+
+
+func _process(delta: float) -> void:
+	if scorch_visuals.groups.is_empty():
+		set_process(false)
+		return
+	scorch_visuals.warm_next()
+	scorch_visuals.advance(delta)
+	queue_redraw()
+
+
+func flash_scorch(effect_id: String) -> void:
+	scorch_visuals.flash(effect_id)
+	if not scorch_visuals.groups.is_empty():
+		set_process(true)
+		queue_redraw()

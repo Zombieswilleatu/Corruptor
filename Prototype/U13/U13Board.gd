@@ -80,6 +80,11 @@ var _quit_pending: bool = false
 var _continue_dense: bool = false
 var _busy_label: Label
 var _busy_clock: float = 0.0
+var _impact_rows: Array = []
+var _impact_cursor: int = 0
+var _impact_clock: float = 0.0
+var _impact_duration: float = 0.0
+var _feedback_cursor: int = 0
 var _previous_frame_us: int = 0
 var playing: bool = false
 var clock: float = 0.0
@@ -166,6 +171,7 @@ func restart() -> void:
 	var result: Dictionary = session.reset()
 	if _error(result):
 		return
+	_install_impacts([])
 	lanes.reset_effects()
 	match_started = true
 	for row in sides:
@@ -625,15 +631,22 @@ func _process(delta: float) -> void:
 			_complete_job()
 		return
 	if not playing:
+		_advance_impacts(delta)
 		return
 	if artillery_view.advance(delta):
 		_busy_label.text = "Siege Engine fire…"
 		return
+	if _advance_impacts(delta):
+		_busy_label.text = "Scorch pulse…"
+		return
 	_busy_label.text = ""
 	clock = minf(playback.duration, clock + maxf(delta, 0.0))
 	lanes.show_frame(playback.sample(clock), session.round_number())
+	var changes: Dictionary = playback.feedback_through(clock, _feedback_cursor)
+	_feedback_cursor = int(changes.cursor)
+	lanes.show_feedback(changes.rows)
 	if clock >= playback.duration:
-		finish_playback()
+		finish_playback(false)
 
 
 func _complete_job() -> void:
@@ -656,7 +669,9 @@ func _complete_job() -> void:
 		return
 	# Publish only a complete successful transaction; failures leave session intact.
 	session = result.session
+	_install_impacts(result.get("feedback", []))
 	if result.operation == "marching":
+		_feedback_cursor = 0
 		playback = result.playback
 		clock = 0.0
 		playing = true
@@ -685,10 +700,13 @@ func _complete_job() -> void:
 		run_dense_round()
 
 
-func finish_playback() -> void:
+func finish_playback(skipped: bool = true) -> void:
 	if not playing or _job != null:
 		return
 	artillery_view.clear()
+	_install_impacts([])
+	if skipped:
+		lanes.clear_feedback()
 	# Skip goes to the actual final picture, never leaves a half-played field.
 	clock = playback.duration
 	lanes.show_frame(playback.sample(clock), session.round_number())
@@ -1032,6 +1050,7 @@ func start_loadout(lords: Array, castles: Array, quick: bool) -> void:
 		setup_picker.message.text = _friendly_error(result)
 		return
 	session = candidate
+	_install_impacts([])
 	lanes.reset_effects()
 	match_started = true
 	setup_open = false
@@ -1533,3 +1552,31 @@ func _update_kalligan_controls() -> void:
 			text = queued_note + "\n" + text
 		kalligan_states[power].text = text
 		kalligan_buttons[power].disabled = not _kalligan_can_choose(power)
+
+
+func _install_impacts(rows: Array) -> void:
+	_impact_rows = rows
+	_impact_cursor = 0
+	_impact_clock = 0.0
+	_impact_duration = 0.0 if rows.is_empty() else float(rows.back().at) + 1.1
+
+
+func _advance_impacts(delta: float) -> bool:
+	if _impact_clock >= _impact_duration:
+		return false
+	_impact_clock += maxf(0.0, delta)
+	var ready_rows: Array = []
+	while (
+		_impact_cursor < _impact_rows.size()
+		and float(_impact_rows[_impact_cursor].at) <= _impact_clock
+	):
+		var impact: Dictionary = _impact_rows[_impact_cursor]
+		if impact.has("pulse"):
+			lanes.flash_scorch(impact.pulse)
+			for side in sides:
+				side.flash_scorch(impact.pulse)
+		else:
+			ready_rows.append(impact)
+		_impact_cursor += 1
+	lanes.show_feedback(ready_rows)
+	return _impact_clock < _impact_duration

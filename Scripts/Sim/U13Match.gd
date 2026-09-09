@@ -912,3 +912,9 @@ func _player_events_since(player_id: int, cursor: int) -> Array:
 
 func rng_seed() -> String:
 	return _seed
+
+
+func _player_selected_events_since(
+	player_id: int, cursor: int, types: Array, excluded_hook: String = ""
+) -> Array:
+	return _events.selected_for_player(player_id, cursor, types, excluded_hook)

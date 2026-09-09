@@ -1,6 +1,8 @@
 extends RefCounted
 
 const Playback = preload("res://Prototype/U13/U13SmokePlayback.gd")
+const Feedback = preload("res://Prototype/U13/U13MarcherFeedback.gd")
+const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 var _thread: Thread
 
@@ -46,6 +48,7 @@ func join_on_exit() -> void:
 
 func _run(candidate, operation: String, powers: Array, order: Dictionary) -> Dictionary:
 	var started: int = Time.get_ticks_usec()
+	var event_cursor: int = candidate._owner._event_cursor()
 	var result: Dictionary
 	var playback = null
 	if operation == "marching":
@@ -74,13 +77,22 @@ func _run(candidate, operation: String, powers: Array, order: Dictionary) -> Dic
 			return result
 	else:
 		return Data.invalid("board_job_operation_invalid")
+	var presented: Dictionary = (
+		result.before_marching if result.has("before_marching") else candidate.board_view()
+	)
+	var feedback: Array = Feedback.outside_marching(
+		candidate._owner._player_selected_events_since(
+			0, event_cursor, Feedback.TYPES, Timeline.MARCHING
+		),
+		presented.world.entities
+	)
 	return {
 		"action": "board_job_complete",
+		"feedback": feedback,
 		"operation": operation,
 		"session": candidate,
 		"playback": playback,
 		"artillery_events": candidate.artillery_events() if operation == "marching" else [],
-		"presented":
-		result.before_marching if result.has("before_marching") else candidate.board_view(),
+		"presented": presented,
 		"worker_ms": float(Time.get_ticks_usec() - started) / 1000.0
 	}

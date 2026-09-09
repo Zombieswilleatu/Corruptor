@@ -102,3 +102,21 @@ func _fork():
 # Internal owner cursor; never a player-visible count of hidden events.
 func _cursor() -> int:
 	return _rows.size()
+
+
+# Filter the player's projection BEFORE copying. Board feedback must not copy
+# the dense Marching tape or inspect authoritative/hidden event payloads.
+func selected_for_player(
+	player_id: int, from_row: int, types: Array, excluded_hook: String = ""
+) -> Array:
+	var result: Array = []
+	if player_id not in [0, 1]:
+		return result
+	for index in range(clampi(from_row, 0, _rows.size()), _rows.size()):
+		var view = _rows[index].views[player_id]
+		if view == null or view.type not in types:
+			continue
+		if not excluded_hook.is_empty() and view.data.get("hook", "") == excluded_hook:
+			continue
+		result.append(view.duplicate(true))
+	return result
