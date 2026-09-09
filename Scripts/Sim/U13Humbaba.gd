@@ -54,7 +54,8 @@ func create_combat_match():
 		self,
 		Callable(self, "valid_world"),
 		Callable(self, "accept_order"),
-		Callable(Construction, "screen_orders")
+		Callable(Construction, "screen_orders"),
+		Callable(Construction, "legal_orders")
 	)
 
 

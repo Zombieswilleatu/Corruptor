@@ -30,6 +30,8 @@ var _content_owner: RefCounted
 var _world_validator: Callable
 var _order_handler: Callable
 var _order_screen: Callable
+# Optional exact batch validator owned by the configured commit adapter.
+var _order_validator: Callable
 var _seed: String = ""
 var _world: Dictionary = {}
 var _presentation_world: Dictionary = {}
@@ -55,7 +57,8 @@ func _init(
 	content_owner: RefCounted = null,
 	world_validator: Callable = Callable(),
 	order_handler: Callable = Callable(),
-	order_screen: Callable = Callable()
+	order_screen: Callable = Callable(),
+	order_validator: Callable = Callable()
 ) -> void:
 	_policy_id = policy_id
 	_rules = rules.duplicate(true)
@@ -68,6 +71,7 @@ func _init(
 	_world_validator = world_validator
 	_order_handler = order_handler
 	_order_screen = order_screen
+	_order_validator = order_validator
 
 
 static func declaration_id(player_id: int, round_number: int, queue_index: int) -> String:
@@ -173,6 +177,10 @@ func legal_order_candidates(player_id: int, declarations: Array, orders: Array) 
 		or _submissions[player_id] != null
 	):
 		return []
+	if _order_validator.is_valid():
+		var validated = _validated_orders(player_id, declarations, orders)
+		if typeof(validated) == TYPE_ARRAY:
+			return validated
 	if not _order_screen.is_valid():
 		var legacy: Array = []
 		for order in orders:
@@ -195,6 +203,60 @@ func legal_order_candidates(player_id: int, declarations: Array, orders: Array) 
 		var candidate = baseline._fork_validated()
 		if candidate._accept(player_id, declarations, order).action != "invalid":
 			result.append(order)
+	return result
+
+
+func _validated_orders(player_id: int, declarations: Array, orders: Array):
+	var baseline = _clone()
+	if baseline == null:
+		return []
+	# Stage exactly the same identity/cooldown/cost/target checks as commit once.
+	if baseline._accept_declarations(player_id, declarations).action == "invalid":
+		return []
+	var checked = _order_validator.call(
+		{
+			"world": baseline._world.duplicate(true),
+			"player_id": player_id,
+			"orders": orders.duplicate(true)
+		}
+	)
+	# A malformed adapter falls back to full preview; it never authorizes a plan.
+	if typeof(checked) != TYPE_DICTIONARY or checked.get("action") != "legal_orders":
+		return null
+	if typeof(checked.get("indices")) != TYPE_ARRAY:
+		return null
+	var seen: Dictionary = {}
+	for index in checked.indices:
+		if typeof(index) != TYPE_INT or index < 0 or index >= orders.size() or seen.has(index):
+			return null
+		seen[index] = true
+	var result: Array = []
+	for index in range(orders.size()):
+		if seen.has(index):
+			result.append(orders[index])
+	return result
+
+
+# A fresh independent transaction for each declaration, but only one baseline
+# consistency scan. No new cached state survives an enumeration call.
+func legal_power_candidates(player_id: int, sources: Array) -> Array:
+	if (
+		_seed.is_empty()
+		or player_id not in [0, 1]
+		or next_hook() != Timeline.SUBMISSION_LOCK
+		or _submissions[player_id] != null
+	):
+		return []
+	var baseline = _clone()
+	if baseline == null:
+		return []
+	var result: Array = []
+	for source in sources:
+		if typeof(source) != TYPE_DICTIONARY:
+			continue
+		var candidate = baseline._fork_validated()
+		if candidate._accept(player_id, [source], {}).action != "invalid":
+			result.append(source)
 	return result
 
 
@@ -345,7 +407,16 @@ func restore(raw: Dictionary) -> Dictionary:
 
 
 func _accept(player_id: int, declarations: Array, combat_order: Dictionary = {}) -> Dictionary:
-	if not Data.is_data(declarations) or not Data.is_data(combat_order):
+	if not Data.is_data(combat_order):
+		return Data.invalid("submission_data_invalid")
+	var declared: Dictionary = _accept_declarations(player_id, declarations)
+	if declared.action == "invalid":
+		return declared
+	return _accept_order(player_id, combat_order)
+
+
+func _accept_declarations(player_id: int, declarations: Array) -> Dictionary:
+	if not Data.is_data(declarations):
 		return Data.invalid("submission_data_invalid")
 	var seen_powers: Dictionary = {}
 	for index in range(declarations.size()):
@@ -434,6 +505,10 @@ func _accept(player_id: int, declarations: Array, combat_order: Dictionary = {})
 		_record(Data.event("POWER_DECLARED", record), source)
 		for event in registered.events:
 			_record(event, source)
+	return {"action": "legal"}
+
+
+func _accept_order(player_id: int, combat_order: Dictionary) -> Dictionary:
 	if _order_handler.is_valid():
 		var ordered = _order_handler.call(
 			{
@@ -844,7 +919,8 @@ func _new_owner():
 		_content_owner,
 		_world_validator,
 		_order_handler,
-		_order_screen
+		_order_screen,
+		_order_validator
 	)
 
 

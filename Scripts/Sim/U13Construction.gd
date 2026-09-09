@@ -117,12 +117,28 @@ static func validate_choice(world: Dictionary, player_id: int, choice: Dictionar
 		return Data.invalid("castle_action_shape_invalid")
 	if choice.is_empty():
 		return {"action": "legal", "paid_value": 0, "reconstruction": false}
+	if not Cards.valid(world):
+		return Data.invalid("castle_payment_unavailable")
 	var entities = Ids.new()
 	entities.restore(world.entities)
+	return _validate_choice(
+		world, player_id, choice, entities, world.data.card_zones.hands[player_id]
+	)
+
+
+# Both commit and batch enumeration use this predicate. The owning world and
+# card registry have been validated once, outside the candidate loop.
+static func _validate_choice(
+	world: Dictionary, player_id: int, choice: Dictionary, entities, hand: Array
+) -> Dictionary:
+	if not choice_shape(choice):
+		return Data.invalid("castle_action_shape_invalid")
+	if choice.is_empty():
+		return {"action": "legal", "paid_value": 0, "reconstruction": false}
 	var target: Dictionary = entities.get_entity(choice.target_id)
 	if target.is_empty() or target.kind != "castle" or target.owner != player_id:
 		return Data.invalid("castle_action_target_invalid")
-	if not Cards.can_discard(world, player_id, choice.card_ids, choice.card_ids.size()):
+	if not Cards.can_discard_from_hand(hand, choice.card_ids, choice.card_ids.size()):
 		return Data.invalid("castle_payment_unavailable")
 	var target_check: Dictionary = _validate_target(world, player_id, choice, entities)
 	if target_check.action == "invalid":
@@ -131,9 +147,49 @@ static func validate_choice(world: Dictionary, player_id: int, choice: Dictionar
 		return Data.invalid("repair_token_unavailable")
 	return {
 		"action": "legal",
-		"paid_value": payment_value(world, choice),
+		"paid_value": _payment_value(entities, choice),
 		"reconstruction": target_check.reconstruction
 	}
+
+
+# Exact order legality for the Construction/Combat adapter only. Powers have
+# already paid/reserved in an isolated owner; their cards are no longer in Hand.
+# The final selected plan still goes through preview_submission and joint lock.
+static func legal_orders(context: Dictionary) -> Dictionary:
+	var world: Dictionary = context.world
+	var player_id: int = context.player_id
+	if not enabled(world) or not Cards.valid(world):
+		return Data.invalid("castle_batch_world_invalid")
+	var entities = Ids.new()
+	if entities.restore(world.entities).action == "invalid":
+		return Data.invalid("castle_batch_entities_invalid")
+	var hand: Array = world.data.card_zones.hands[player_id]
+	var indices: Array = []
+	if world.data.castle_orders[player_id] != null:
+		return {"action": "legal_orders", "indices": indices}
+	for index in range(context.orders.size()):
+		var order = context.orders[index]
+		if typeof(order) != TYPE_DICTIONARY or not Data.is_data(order):
+			continue
+		var choice = order.get("castle_action", {})
+		if not choice_shape(choice):
+			continue
+		if _validate_choice(world, player_id, choice, entities, hand).action == "invalid":
+			continue
+		var available: Array = hand.duplicate()
+		for card_id in choice.get("card_ids", []):
+			available.erase(card_id)
+		if (
+			(
+				Combat
+				. validate_commit(world, player_id, combat_order(order), entities, available)
+				. action
+			)
+			== "invalid"
+		):
+			continue
+		indices.append(index)
+	return {"action": "legal_orders", "indices": indices}
 
 
 static func validate_target(world: Dictionary, player_id: int, choice: Dictionary) -> Dictionary:
@@ -189,10 +245,14 @@ static func _validate_target(
 
 
 static func payment_value(world: Dictionary, choice: Dictionary) -> int:
-	if choice.is_empty():
-		return 0
 	var entities = Ids.new()
 	entities.restore(world.entities)
+	return _payment_value(entities, choice)
+
+
+static func _payment_value(entities, choice: Dictionary) -> int:
+	if choice.is_empty():
+		return 0
 	var total: int = 0
 	for card_id in choice.card_ids:
 		var card: Dictionary = entities.get_entity(card_id)

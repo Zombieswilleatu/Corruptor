@@ -202,15 +202,15 @@ static func _extra(
 
 
 # Enumeration boundary shared by UI/bot callers. Canonical representations do
-# not grant extra lottery weight, and every candidate uses whole-plan preview.
+# not grant extra lottery weight. The owner uses the same commit predicates.
 static func legal_power_groups(owner, player_id: int, raw: Array) -> Array:
 	var grouped: Dictionary = {}
+	var sources: Array = []
 	for item in raw:
 		var source: Dictionary = Data.declaration_copy(item)
-		if source.is_empty():
-			continue
-		if owner.preview_submission(player_id, [source], {}).action == "invalid":
-			continue
+		if not source.is_empty():
+			sources.append(source)
+	for source in owner.legal_power_candidates(player_id, sources):
 		if source.cost.has("discard_ids"):
 			source.cost.discard_ids.sort()
 		if not grouped.has(source.power_id):

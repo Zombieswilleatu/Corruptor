@@ -134,6 +134,34 @@ static func accept(context: Dictionary) -> Dictionary:
 	var player_id: int = context.player_id
 	var entities = Ids.new()
 	entities.restore(world.entities)
+	var checked: Dictionary = validate_commit(
+		world, player_id, order, entities, world.data.card_zones.hands[player_id]
+	)
+	if checked.action == "invalid":
+		return checked
+	if Cards.commit(world, player_id, order.card_ids).action == "invalid":
+		return Data.invalid("combat_cards_unavailable")
+	var event: Dictionary = {
+		"type": "COMBAT_ORDER_SEALED",
+		"text": "",
+		"data": {"player_id": player_id, "round": context.round, "order": order.duplicate(true)}
+	}
+	var views: Array = [null, null]
+	views[player_id] = event
+	return {"action": "resolved", "world": world, "events": [{"event": event, "views": views}]}
+
+
+# Shared by authoritative commit and batch legality on an owned valid world.
+# Hand may exclude a staged Castle payment; this function never mutates it.
+static func validate_commit(
+	world: Dictionary, player_id: int, order: Dictionary, entities, hand: Array
+) -> Dictionary:
+	if not order_shape(order):
+		return Data.invalid("combat_order_invalid")
+	if order.get("action") == "Hunt" and world.data.get("hunt_profile") != HUNT_VERSION:
+		return Data.invalid("hunt_profile_required")
+	if order.is_empty():
+		return {"action": "legal"}
 	var lord: Dictionary = entities.get_entity(world.players[player_id].lord_entity_id)
 	if not lord.attributes.alive:
 		return Data.invalid("combat_source_banished")
@@ -155,16 +183,11 @@ static func accept(context: Dictionary) -> Dictionary:
 			or not target.attributes.alive
 		):
 			return Data.invalid("hunt_target_invalid")
-	if Cards.commit(world, player_id, order.card_ids).action == "invalid":
+	if not Cards.can_discard_from_hand(hand, order.card_ids, order.card_ids.size()):
 		return Data.invalid("combat_cards_unavailable")
-	var event: Dictionary = {
-		"type": "COMBAT_ORDER_SEALED",
-		"text": "",
-		"data": {"player_id": player_id, "round": context.round, "order": order.duplicate(true)}
-	}
-	var views: Array = [null, null]
-	views[player_id] = event
-	return {"action": "resolved", "world": world, "events": [{"event": event, "views": views}]}
+	if not world.data.card_zones.get("committed", [[], []])[player_id].is_empty():
+		return Data.invalid("combat_cards_unavailable")
+	return {"action": "legal"}
 
 
 static func on_hook(context: Dictionary, reaction: Callable) -> Dictionary:
