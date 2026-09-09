@@ -1,6 +1,9 @@
 class_name U13SmokeBoard
 extends Control
 
+const RoutVisuals = preload("res://Prototype/U13/U13RoutVisuals.gd")
+var rout_visuals = RoutVisuals.new()
+
 const INK: Color = Color("111821")
 const MUTED: Color = Color("a3adbb")
 const BLUE: Color = Color("72cddd")
@@ -28,6 +31,9 @@ func show_world(entities: Array, round_number: int) -> void:
 			_units.append(entity.duplicate(true))
 	_clash = []
 	_round = round_number
+	rout_visuals.sync(_units, _round)
+	if not rout_visuals.subjects.is_empty():
+		set_process(true)
 	queue_redraw()
 
 
@@ -35,7 +41,17 @@ func show_frame(frame: Dictionary, round_number: int) -> void:
 	_units = frame.units.duplicate(true)
 	_clash = frame.clash.duplicate()
 	_round = round_number
+	rout_visuals.sync(_units, _round)
+	if not rout_visuals.subjects.is_empty():
+		set_process(true)
 	queue_redraw()
+
+
+func _process(delta: float) -> void:
+	rout_visuals.advance(delta)
+	queue_redraw()
+	if rout_visuals.subjects.is_empty():
+		set_process(false)
 
 
 func _draw() -> void:
@@ -87,6 +103,7 @@ func _draw() -> void:
 			if unit.id in _clash:
 				draw_arc(point, 19, 0.0, TAU, 32, Color("f5d39a"), 2.0, true)
 			draw_circle(point, 13, SUIT_COLORS.get(a.suit, MUTED))
+			rout_visuals.draw_chit(self, String(unit.id), point, 0.8)
 			draw_arc(point, 14, 0.0, TAU, 32, color, 2.0, true)
 			draw_string(
 				font,

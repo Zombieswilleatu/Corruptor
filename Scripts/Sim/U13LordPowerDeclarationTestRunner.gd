@@ -15,6 +15,7 @@ func _init() -> void:
 	_test_spatial_payload_round_trip()
 	_test_rejects_node_like_payload()
 	_test_future_fire_round()
+	_test_rejects_lossy_json()
 
 	print("U13 Lord declaration failures: %d" % failures)
 	quit(0 if failures == 0 else 1)
@@ -153,3 +154,30 @@ func _pass(name: String) -> void:
 func _fail(name: String, reason: String) -> void:
 	failures += 1
 	print("FAIL  %s: %s" % [name, reason])
+
+
+
+func _test_rejects_lossy_json() -> void:
+	var original: Dictionary = U13LordPowerDeclarationData.create(
+		"spatial-json", 0, "Orias", "SpatialPayloadSmokeTest", 1,
+		U13RoundTimelineData.POST_RESOLUTION_HAZARDS, 1, 0, "public",
+		{"field_position": {"x_fp": 1200, "y_fp": 300}}, {}, {"radius_fp": 250}
+	)
+	for bad in [1.5, "12", true, null, 9007199254740992]:
+		var changed: Dictionary = original.duplicate(true)
+		changed.target.field_position.x_fp = bad
+		if not U13LordPowerDeclarationData.from_json(JSON.stringify(changed)).is_empty():
+			_fail("rejects_lossy_spatial_json", str(bad))
+			return
+		for field in U13LordPowerDeclarationData.TOP_LEVEL_INTEGER_FIELDS:
+			changed = original.duplicate(true)
+			changed[field] = bad
+			if not U13LordPowerDeclarationData.from_json(JSON.stringify(changed)).is_empty():
+				_fail("rejects_lossy_control_json", field + ":" + str(bad))
+				return
+	var nested: Dictionary = original.duplicate(true)
+	nested.parameters.regions = [{"radius_fp": 2.5}]
+	if not U13LordPowerDeclarationData.from_json(JSON.stringify(nested)).is_empty():
+		_fail("rejects_nested_fractional_radius", str(nested))
+		return
+	_pass("rejects_lossy_spatial_and_control_json")

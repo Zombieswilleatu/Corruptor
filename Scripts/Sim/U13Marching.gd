@@ -1,6 +1,7 @@
 class_name U13Marching
 extends RefCounted
 
+const Space = preload("res://Scripts/Sim/U13SpatialSpace.gd")
 const Buffer = preload("res://Scripts/Sim/U13MarchingBuffer.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
@@ -9,15 +10,15 @@ const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Rout = preload("res://Scripts/Sim/U13Rout.gd")
 const LaneAuras = preload("res://Scripts/Sim/U13LaneAuras.gd")
 const VERSION: String = "U13_MARCHING_SPATIAL_V2"
-const LANE_FP: int = 2400
+const LANE_FP: int = Space.LANE_FP
 const TICKS: int = 200
 # Initial spatial tuning, in the same fixed-point units as forward distance.
-const WIDTH_FP: int = 600
+const WIDTH_FP: int = Space.WIDTH_FP
 const CONTACT_FP: int = 180
 const CENTER_GAP_FP: int = 84
 const SPAWN_DEPTH_FP: int = 120
 const EXCHANGE_TICKS: int = 8
-const LANES: Array = ["Lord", "Castle"]
+const LANES: Array = Space.LANES
 const SUITS: Array = ["Butcher", "Penitent", "Vulture", "Wright"]
 # Extracted from MarchingEngine.STANDARD_STATS, not the legacy launch engine.
 const STATS: Dictionary = {

@@ -3,8 +3,8 @@
 # Successful logs are temporary; failure logs are preserved in Downloads.
 set -uo pipefail
 
-if [[ $# -lt 1 || $# -gt 2 || ( $# -eq 2 && "$2" != --board && "$2" != --construction && "$2" != --castle-rout && "$2" != --interaction && "$2" != --humbaba && "$2" != --kalligan && "$2" != --kalligan-board && "$2" != --marcher-feedback && "$2" != --alpha && "$2" != --planning && "$2" != --marching && "$2" != --breath ) ]]; then
-  printf 'Usage: bash %s /path/to/Godot_console_executable [--board|--construction|--castle-rout|--interaction|--humbaba|--kalligan|--kalligan-board|--marcher-feedback|--alpha|--planning|--marching|--breath]\n' "$0" >&2
+if [[ $# -lt 1 || $# -gt 2 || ( $# -eq 2 && "$2" != --board && "$2" != --construction && "$2" != --castle-rout && "$2" != --interaction && "$2" != --humbaba && "$2" != --kalligan && "$2" != --kalligan-board && "$2" != --marcher-feedback && "$2" != --alpha && "$2" != --planning && "$2" != --marching && "$2" != --breath && "$2" != --spatial && "$2" != --rout-visuals ) ]]; then
+  printf 'Usage: bash %s /path/to/Godot_console_executable [--board|--construction|--castle-rout|--interaction|--humbaba|--kalligan|--kalligan-board|--marcher-feedback|--alpha|--planning|--marching|--breath|--spatial|--rout-visuals]\n' "$0" >&2
   exit 2
 fi
 godot_u13_exe=$1
@@ -18,6 +18,14 @@ u13_kalligan_board_only=false
 u13_alpha_only=false
 u13_planning_only=false
 u13_marching_only=false
+u13_spatial_only=false
+u13_rout_visuals_only=false
+if [[ ${2:-} == --spatial ]]; then
+  u13_spatial_only=true
+fi
+if [[ ${2:-} == --rout-visuals ]]; then
+  u13_rout_visuals_only=true
+fi
 u13_breath_only=false
 if [[ ${2:-} == --breath ]]; then
   u13_breath_only=true
@@ -148,10 +156,10 @@ u13_check_script() {
     exit 1
   fi
 }
-for u13_dependency in U13EffectData U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13CastleSlots U13Rout U13Structures U13Legality U13Match U13MarchingBuffer U13LaneAuras U13Marching U13Combat U13Construction U13ConstructionCandidates U13Gremory U13Deimos U13LordStats U13Humbaba U13HumbabaCandidates U13HumbabaScenario U13Hazards U13Kalligan U13KalliganCandidates U13KalliganScenario U13SmokeSession U13DeimosCandidates U13CoreScenario U13GremoryCandidates U13RandomLegal U13FrequencyTelemetry U13RandomBatch U13AlphaScenario U13AlphaBatch U13BoardSession U13LoadoutBoardSession U13DenseBoardSession; do
+for u13_dependency in U13EffectData U13SpatialSpace U13SpatialQueries U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13BattleEvents U13CastleSlots U13Rout U13Structures U13Legality U13Match U13MarchingBuffer U13LaneAuras U13Marching U13Combat U13Construction U13ConstructionCandidates U13Gremory U13Deimos U13LordStats U13Humbaba U13HumbabaCandidates U13HumbabaScenario U13Hazards U13Kalligan U13KalliganCandidates U13KalliganScenario U13SmokeSession U13DeimosCandidates U13CoreScenario U13GremoryCandidates U13RandomLegal U13FrequencyTelemetry U13RandomBatch U13AlphaScenario U13AlphaBatch U13BoardSession U13LoadoutBoardSession U13DenseBoardSession; do
   u13_check_script "res://Scripts/Sim/${u13_dependency}.gd"
 done
-for u13_dependency in U13ScorchVisuals U13ScorchPreview U13MarcherFeedback U13SmokePlayback U13SmokeBoard U13Smoke U13BoardTextures U13ScorchPresentation U13BreathVisuals U13BreathPreview U13CastleArtwork U13ArtilleryView U13BoardHand U13BoardLanes U13LayoutCard U13PlayerBoard U13BoardHeader U13DomainRow U13ActionZone U13PhasePrompt U13BoardJob U13TutorialPreferences U13TutorialPopup U13LoadoutPicker U13Board U13OrderPreview U13DirectBoard; do
+for u13_dependency in U13SpatialInput U13RoutVisuals U13ScorchVisuals U13ScorchPreview U13MarcherFeedback U13SmokePlayback U13SmokeBoard U13Smoke U13BoardTextures U13ScorchPresentation U13BreathVisuals U13BreathPreview U13CastleArtwork U13ArtilleryView U13BoardHand U13BoardLanes U13LayoutCard U13PlayerBoard U13BoardHeader U13DomainRow U13ActionZone U13PhasePrompt U13BoardJob U13TutorialPreferences U13TutorialPopup U13LoadoutPicker U13Board U13OrderPreview U13DirectBoard; do
   u13_check_script "res://Prototype/U13/${u13_dependency}.gd"
 done
 
@@ -159,6 +167,10 @@ u13_runners=(
   U13RoundTimeline
   U13RoundRuntime
   U13LordPowerDeclaration
+  U13SpatialSpace
+  U13SpatialQueries
+  U13SpatialInput
+  U13RoutVisuals
   U13PendingEffects
   U13PersistentEffects
   U13EffectsIntegration
@@ -220,6 +232,10 @@ u13_markers=(
   'U13 round timeline failures: 0'
   'U13 round runtime failures: 0'
   'U13 Lord declaration failures: 0'
+  'U13 spatial space failures: 0'
+  'U13 spatial queries failures: 0'
+  'U13 spatial input failures: 0'
+  'U13 Rout visuals failures: 0'
   'U13 pending effects failures: 0'
   'U13 persistent effects failures: 0'
   'U13 effects integration failures: 0'
@@ -277,6 +293,14 @@ u13_markers=(
   'U13 Marcher feedback board failures: 0'
   'U13 Scorch visuals failures: 0'
 )
+if [[ $u13_spatial_only == true ]]; then
+  u13_runners=(U13LordPowerDeclaration U13SpatialSpace U13SpatialQueries U13SpatialInput U13Determinism)
+  u13_markers=('U13 Lord declaration failures: 0' 'U13 spatial space failures: 0' 'U13 spatial queries failures: 0' 'U13 spatial input failures: 0' 'U13 determinism and identity failures: 0')
+fi
+if [[ $u13_rout_visuals_only == true ]]; then
+  u13_runners=(U13RoutVisuals U13Rout)
+  u13_markers=('U13 Rout visuals failures: 0' 'U13 Rout failures: 0')
+fi
 if [[ $u13_kalligan_only == true ]]; then
   u13_runners=(U13Hazards U13Kalligan U13KalliganIntegration U13KalliganRandom U13PendingEffects U13PersistentEffects U13Cooldowns U13Match U13LaneAuras U13Breath U13BreathLifetime1 U13BreathLifetime2 U13BreathLifetime3 U13BreathLifetime4 U13BreathLifetime5)
   u13_markers=('U13 hazards failures: 0' 'U13 Kalligan failures: 0' 'U13 Kalligan integration failures: 0' 'U13 Kalligan random failures: 0' 'U13 pending effects failures: 0' 'U13 persistent effects failures: 0' 'U13 cooldowns failures: 0' 'U13 match foundation failures: 0' 'U13 lane auras failures: 0' 'U13 Breath of Life failures: 0' 'U13 Breath lifetime 1 failures: 0' 'U13 Breath lifetime 2 failures: 0' 'U13 Breath lifetime 3 failures: 0' 'U13 Breath lifetime 4 failures: 0' 'U13 Breath lifetime 5 failures: 0')
@@ -346,6 +370,12 @@ for u13_index in "${!u13_runners[@]}"; do
   fi
 done
 u13_suite_label=foundation
+if [[ $u13_spatial_only == true ]]; then
+  u13_suite_label=spatial
+fi
+if [[ $u13_rout_visuals_only == true ]]; then
+  u13_suite_label=Rout-visuals
+fi
 if [[ $u13_breath_only == true ]]; then
   u13_suite_label=Breath
 fi

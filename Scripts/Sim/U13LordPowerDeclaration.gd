@@ -108,7 +108,7 @@ static func validate(declaration: Dictionary) -> Dictionary:
 
 
 # Spatial powers store canonical simulation coordinates as plain fixed-point
-# integers. Bounds/meaning are intentionally deferred to the spatial audit.
+# integers. U13SpatialSpace checks lane bounds; this envelope stays geometry-neutral.
 # This schema proves we never need to serialize screen pixels or Vector2 nodes.
 static func canonical_position(x_fp: int, y_fp: int) -> Dictionary:
 	return {
@@ -143,7 +143,8 @@ static func from_json(encoded: String) -> Dictionary:
 	if typeof(parsed) != TYPE_DICTIONARY:
 		return {}
 	var declaration: Dictionary = parsed
-	_normalize_integer_fields(declaration)
+	if not _normalize_integer_fields(declaration):
+		return {}
 	var validation: Dictionary = validate(declaration)
 	return declaration if bool(validation.get("valid", false)) else {}
 
@@ -154,31 +155,50 @@ static func from_json(encoded: String) -> Dictionary:
 # Any future payload field ending in `_fp` automatically receives the same
 # treatment, keeping spatial declarations stable without teaching this schema
 # each power's coordinate names.
-static func _normalize_integer_fields(declaration: Dictionary) -> void:
+static func _normalize_integer_fields(declaration: Dictionary) -> bool:
 	for field_name: String in TOP_LEVEL_INTEGER_FIELDS:
 		if declaration.has(field_name):
+			if not _json_integer(declaration[field_name]):
+				return false
 			declaration[field_name] = int(declaration[field_name])
-	_normalize_fixed_point_values(declaration)
+	return _normalize_fixed_point_values(declaration)
 
 
-static func _normalize_fixed_point_values(value) -> void:
+# Do not import EffectData here: it depends on this declaration schema.
+static func _json_integer(value) -> bool:
+	if typeof(value) == TYPE_INT:
+		return value >= -9007199254740991 and value <= 9007199254740991
+	return (
+		typeof(value) == TYPE_FLOAT
+		and is_finite(value)
+		and value >= -9007199254740991
+		and value <= 9007199254740991
+		and value == floor(value)
+	)
+
+
+static func _normalize_fixed_point_values(value, depth: int = 0) -> bool:
+	if depth > 64:
+		return false
 	match typeof(value):
+		TYPE_FLOAT:
+			return is_finite(value)
 		TYPE_ARRAY:
-			var values: Array = value
-			for entry in values:
-				_normalize_fixed_point_values(entry)
+			for entry in value:
+				if not _normalize_fixed_point_values(entry, depth + 1):
+					return false
 		TYPE_DICTIONARY:
-			var values: Dictionary = value
-			for raw_key in values.keys():
-				var key: String = String(raw_key)
-				var child = values[raw_key]
-				if (
-					key.ends_with("_fp")
-					and typeof(child) in [TYPE_INT, TYPE_FLOAT]
-				):
-					values[raw_key] = int(child)
-				else:
-					_normalize_fixed_point_values(child)
+			for raw_key in value.keys():
+				if typeof(raw_key) != TYPE_STRING:
+					return false
+				var child = value[raw_key]
+				if String(raw_key).ends_with("_fp"):
+					if not _json_integer(child):
+						return false
+					value[raw_key] = int(child)
+				elif not _normalize_fixed_point_values(child, depth + 1):
+					return false
+	return true
 
 
 static func _validate_serializable_value(
@@ -213,3 +233,4 @@ static func _validate_serializable_value(
 				"non_serializable_value_at_%s_type_%d"
 				% [path, typeof(value)]
 			)
+

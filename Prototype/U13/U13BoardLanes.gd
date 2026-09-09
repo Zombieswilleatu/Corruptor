@@ -211,6 +211,7 @@ func _draw_chit(unit: Dictionary, center: Vector2) -> void:
 			Rect2(center - Vector2(22, 22), Vector2(44, 44)),
 			Rect2(Vector2(float(column), row) * cell, cell)
 		)
+	rout_visuals.draw_chit(self, String(unit.id), center)
 	var health: float = clampf(float(attributes.hp) / maxf(1.0, float(attributes.max_hp)), 0.0, 1.0)
 	draw_arc(center, 23.0, 0.0, TAU, 48, Color("302e29"), 3.0, true)
 	if health > 0.0:
@@ -256,6 +257,7 @@ func pulse_lanes(selected_lane: String = "") -> void:
 
 
 func reset_effects() -> void:
+	rout_visuals.clear()
 	scorch_visuals.clear()
 	feedback.clear()
 	breath_visuals.clear()
@@ -271,6 +273,7 @@ func _effects_need_process() -> bool:
 		or not breath_visuals.groups.is_empty()
 		or not scorch_visuals.groups.is_empty()
 		or not feedback.visible.is_empty()
+		or not rout_visuals.subjects.is_empty()
 	)
 
 
@@ -283,6 +286,7 @@ func _process(delta: float) -> void:
 	breath_visuals.advance(delta)
 	scorch_visuals.advance(delta)
 	feedback.advance(delta)
+	rout_visuals.advance(delta)
 	queue_redraw()
 	if not _effects_need_process():
 		set_process(false)
