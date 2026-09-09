@@ -49,7 +49,8 @@ func spider_pose(phase: float = 0.0) -> Dictionary:
 	return {
 		"position": start.lerp(end, travel - float(segment)),
 		"frame": int(floor(elapsed * 8.0)) % 6,
-		"left": end.x < start.x
+		"left": end.x < start.x,
+		"direction": end - start
 	}
 
 
@@ -73,11 +74,30 @@ func draw_area(
 	var cell_width: float = spider.get_width() / 6.0
 	# Shared occupied vertical crop; original six-frame PNG is unchanged.
 	var source := Rect2(float(pose.frame) * cell_width, 95, cell_width, 451)
-	# Keep crop/clipping simple and invariant; direction is conveyed by the crawl
-	# path. All six supplied frames loop continuously, including while fading.
-	_draw_clipped(
-		canvas, spider, destination, source, clip, Color(1, 1, 1, 0.5 if fading else 0.95)
-	)
+	# The supplied sprite faces diagonally down-right. Match its heading to
+	# the projected path, including non-square presentation areas.
+	var heading: Vector2 = pose.direction * area.size
+	var angle: float = heading.angle() - PI / 4.0
+	_draw_rotated_clipped(canvas, spider, destination, source, clip, angle, Color(1, 1, 1, 0.5 if fading else 0.95))
+
+
+static func _draw_rotated_clipped(
+	canvas: CanvasItem, texture: Texture2D, destination: Rect2,
+	source: Rect2, clip: Rect2, angle: float, tint: Color
+) -> void:
+	var center: Vector2 = destination.get_center()
+	var corners := PackedVector2Array()
+	for point in [destination.position, Vector2(destination.end.x, destination.position.y), destination.end, Vector2(destination.position.x, destination.end.y)]:
+		corners.append(center + (point - center).rotated(angle))
+	var bounds := PackedVector2Array([clip.position, Vector2(clip.end.x, clip.position.y), clip.end, Vector2(clip.position.x, clip.end.y)])
+	# Clip the rotated quad and derive UVs from the inverse transform. Rotation
+	# never leaks into adjacent panels or samples a neighboring sprite frame.
+	for polygon in Geometry2D.intersect_polygons(corners, bounds):
+		var uv := PackedVector2Array()
+		for point in polygon:
+			var local: Vector2 = ((point - center).rotated(-angle) + destination.size * 0.5) / destination.size
+			uv.append((source.position + local * source.size) / texture.get_size())
+		canvas.draw_polygon(polygon, PackedColorArray([tint]), uv, texture)
 
 
 static func _draw_clipped(
