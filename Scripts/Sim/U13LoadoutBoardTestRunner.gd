@@ -40,7 +40,14 @@ func _run() -> void:
 	await process_frame
 	_check(board.session is Session, "loadout_board_uses_core_owner_session")
 	_check(board.header.scores[0].text.contains("DEIMOS"), "loadout_header_shows_chosen_lord")
-	_check(board.sides[1].lord_card.caption.text == "DEIMOS", "loadout_lord_card_shows_deimos")
+	_check(
+		board.sides[1].lord_card.caption.text.get_slice("\n", 0) == "DEIMOS",
+		"loadout_lord_card_shows_deimos"
+	)
+	_check(
+		board.sides[1].lord_card.caption.text.contains("\nTHREAT 0"),
+		"loadout_lord_card_shows_live_threat"
+	)
 	var first = board.sides[1].castle_row.get_child(0)
 	var second = board.sides[1].castle_row.get_child(1)
 	_check(
