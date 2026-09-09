@@ -111,6 +111,25 @@ func _run() -> void:
 		"gem_burst_uses_last_two_frames"
 	)
 	visual.free()
+	var preview_scene = load("res://Prototype/U13/U13GemDaggerPreview.tscn").instantiate()
+	root.add_child(preview_scene)
+	preview_scene.set_process(false)
+	preview_scene.looping = false
+	_check(preview_scene.animation.active(), "gem_preview_starts_without_hand_payment")
+	preview_scene.animation.advance(View.FLIGHT_SECONDS + 0.01)
+	_check(
+		(
+			preview_scene.status.text.contains("You +1 card")
+			and preview_scene.guard_box.get_child(1).modulate.a < 0.3
+		),
+		"gem_preview_guard_and_rewards_change_at_impact"
+	)
+	preview_scene.play()
+	_check(
+		preview_scene.guard_box.get_child(1).modulate.a == 1.0 and preview_scene.animation.active(),
+		"gem_preview_replays_cleanly"
+	)
+	preview_scene.free()
 	print("U13 Gem Dagger visuals failures: %d" % failures)
 	quit(0 if failures == 0 else 1)
 

@@ -1,6 +1,7 @@
 class_name U13BattleEvents
 extends RefCounted
 
+const Allegiance = preload("res://Scripts/Sim/U13MarcherAllegiance.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
@@ -30,6 +31,25 @@ static func apply(
 	var details: Dictionary = {"event_id": event_id, "round": round_number, "hook": hook}
 	var event_type: String = ""
 	match command.get("kind"):
+		"change_marcher_allegiance":
+			var changed: Dictionary = Allegiance.change_marcher_allegiance(
+				world,
+				String(command.get("target_id", "")),
+				command.get("new_owner"),
+				round_number,
+				hook
+			)
+			if changed.action == "invalid":
+				return changed
+			world = changed.world
+			entities.restore(world.entities)
+			details["entity_id"] = target.id
+			details["previous_owner"] = changed.before.owner
+			details["new_owner"] = changed.after.owner
+			details["before"] = changed.before
+			details["after"] = changed.after
+			details["interrupted_duels"] = changed.interrupted_duels
+			event_type = "MARCHER_ALLEGIANCE_CHANGED"
 		"destroy_castle":
 			if (
 				target.is_empty()

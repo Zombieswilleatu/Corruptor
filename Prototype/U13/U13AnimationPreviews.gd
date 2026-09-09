@@ -3,6 +3,12 @@ extends Control
 signal closed
 const PREVIEWS: Array = [
 	{
+		"title": "Gremory · Gem Dagger",
+		"note": "Replay the falling dagger and draw rewards, with loop and slow motion.",
+		"scene": "res://Prototype/U13/U13GemDaggerPreview.tscn",
+		"size": Vector2(1100, 850)
+	},
+	{
 		"title": "Orias · Web & Snare",
 		"note": "Static web, crawling spider, radius and shared Guard-zone markers.",
 		"scene": "res://Prototype/U13/U13WebPreview.tscn",
