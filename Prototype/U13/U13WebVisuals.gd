@@ -2,6 +2,15 @@ extends RefCounted
 
 const Art = preload("res://Prototype/U13/U13BoardTextures.gd")
 const Space = preload("res://Scripts/Sim/U13SpatialSpace.gd")
+# Build one presentation texture, shared by placement, lanes, and Guard webs.
+# The source PNG and its alpha channel remain unchanged.
+const WEB_BRIGHTNESS: float = 2.4
+const WEB_CONTRAST: float = 0.70
+const WEB_SATURATION: float = 0.12
+const WEB_OPACITY: float = 0.88
+const WEB_FADED_OPACITY: float = 0.46
+const WEB_GLOW_OPACITY: float = 0.065
+static var _silver_web: Texture2D
 var web: Texture2D
 var spider: Texture2D
 var elapsed: float = 0.0
@@ -18,7 +27,13 @@ const PATH: Array[Vector2] = [
 
 func warm_next() -> void:
 	if web == null:
-		web = Art.texture("res://ConceptImages/Sprites/Orias/Web.png")
+		if _silver_web == null:
+			var source: Texture2D = Art.texture("res://ConceptImages/Sprites/Orias/Web.png")
+			if source != null:
+				var adjusted: Image = source.get_image()
+				adjusted.adjust_bcs(WEB_BRIGHTNESS, WEB_CONTRAST, WEB_SATURATION)
+				_silver_web = ImageTexture.create_from_image(adjusted)
+		web = _silver_web
 	elif spider == null:
 		spider = Art.texture("res://ConceptImages/Sprites/Orias/Spider.png")
 
@@ -62,8 +77,14 @@ func draw_area(
 ) -> void:
 	if web == null or area.size.x <= 0.0 or area.size.y <= 0.0:
 		return
-	var tint := Color(1, 1, 1, 0.30 if fading else 0.58)
-	_draw_clipped(canvas, web, area, Rect2(Vector2.ZERO, web.get_size()), clip, tint)
+	var tint := Color(1.0, 0.97, 0.91, WEB_FADED_OPACITY if fading else WEB_OPACITY)
+	var web_source := Rect2(Vector2.ZERO, web.get_size())
+	var glow := Color(1.0, 0.97, 0.91, WEB_GLOW_OPACITY * (0.5 if fading else 1.0))
+	# A small screen-space halo holds thin strands against detailed ground art.
+	# Every pass uses the same lane clip, including at the lane boundary.
+	for offset in [Vector2(-1, 0), Vector2(1, 0), Vector2(0, -1), Vector2(0, 1)]:
+		_draw_clipped(canvas, web, Rect2(area.position + offset, area.size), web_source, clip, glow)
+	_draw_clipped(canvas, web, area, web_source, clip, tint)
 	if not show_spider or spider == null:
 		return
 	var pose: Dictionary = spider_pose(phase)
