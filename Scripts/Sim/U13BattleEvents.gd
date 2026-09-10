@@ -213,6 +213,7 @@ static func apply(
 			details["victim"] = target.duplicate(true)
 			details["attacker"] = attacker
 			details["cause"] = command.cause
+			details["damage_dealt"] = int(command.damage)
 			details["hp_before"] = int(target.attributes.hp)
 			target.attributes.hp = maxi(0, int(target.attributes.hp) - int(command.damage))
 			details["hp_after"] = int(target.attributes.hp)

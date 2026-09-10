@@ -1,6 +1,6 @@
 # Odradek entry slice: Marcher allegiance
 
-This started Milestone 6. The follow-up Redirect slice now makes Odradek selectable with Reconfiguration and repeatable Redirects; see `U13_ODRADEK_REDIRECT_2026-09-09.md`. False Orders, Allegiance Shift, Inversion, Psychic Interlock, Guard transfers, and Paradox Geometry remain pending.
+This started Milestone 6. The follow-up Redirect slice now makes Odradek selectable with Reconfiguration and repeatable Redirects; see `U13_ODRADEK_REDIRECT_2026-09-09.md`. The remaining powers, Guard transfers, Psychic Interlock and Paradox Geometry are now implemented; see [Odradek completion](U13_ODRADEK_COMPLETE_2026-09-10.md).
 
 The prerequisite shared `change_marcher_allegiance()` transition is now available through the authoritative `U13BattleEvents` command of the same name. It runs at Post-Resolution Allegiance (Step 10C), before any live Marching buffer exists. A command supplies a stable command ID, target Marcher ID, and new owner. Repeating that command is rejected; two distinct effects may change the same Marcher twice.
 

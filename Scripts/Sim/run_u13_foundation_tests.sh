@@ -184,7 +184,7 @@ u13_check_script() {
     exit 1
   fi
 }
-for u13_dependency in U13EffectData U13SpatialSpace U13SpatialQueries U13SpatialFields U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13MarcherAllegiance U13BattleEvents U13CastleSlots U13Rout U13Structures U13Legality U13Match U13MarchingBuffer U13LaneAuras U13Marching U13Combat U13Construction U13ConstructionCandidates U13Gremory U13Deimos U13LordStats U13Humbaba U13HumbabaCandidates U13HumbabaScenario U13Hazards U13Kalligan U13KalliganCandidates U13KalliganScenario U13Resummoning U13GuardDeployment U13Orias U13OriasCandidates U13OriasScenario U13Odradek U13OdradekScenario U13SmokeSession U13DeimosCandidates U13CoreScenario U13GremoryCandidates U13RandomLegal U13FrequencyTelemetry U13RandomBatch U13AlphaScenario U13AlphaBatch U13BoardSession U13LoadoutBoardSession U13DenseBoardSession; do
+for u13_dependency in U13EffectData U13SpatialSpace U13SpatialQueries U13SpatialFields U13Cooldowns U13KeyedRng U13EntityIds U13EventLog U13CardZones U13MarcherAllegiance U13BattleEvents U13CastleSlots U13Rout U13Structures U13Legality U13Match U13MarchingBuffer U13LaneAuras U13Marching U13Combat U13Construction U13ConstructionCandidates U13Gremory U13Deimos U13LordStats U13Humbaba U13HumbabaCandidates U13HumbabaScenario U13Hazards U13Kalligan U13KalliganCandidates U13KalliganScenario U13Resummoning U13GuardDeployment U13Orias U13OriasCandidates U13OriasScenario U13GuardTransfers U13Odradek U13OdradekScenario U13SmokeSession U13DeimosCandidates U13CoreScenario U13GremoryCandidates U13RandomLegal U13FrequencyTelemetry U13RandomBatch U13AlphaScenario U13AlphaBatch U13BoardSession U13LoadoutBoardSession U13DenseBoardSession; do
   u13_check_script "res://Scripts/Sim/${u13_dependency}.gd"
 done
 for u13_dependency in U13SpatialInput U13WebVisuals U13WebPreview U13GemDaggerView U13RoutVisuals U13ScorchVisuals U13ScorchPreview U13MarcherFeedback U13SmokePlayback U13SmokeBoard U13Smoke U13BoardTextures U13ScorchPresentation U13BreathVisuals U13BreathPreview U13CastleArtwork U13ArtilleryView U13BoardHand U13BoardLanes U13LayoutCard U13PlayerBoard U13BoardHeader U13DomainRow U13ActionZone U13PhasePrompt U13BoardJob U13TutorialPreferences U13TutorialPopup U13LoadoutPicker U13Board U13OrderPreview U13DirectBoard U13WebPlacement U13OriasBoard U13OdradekBoard U13RedirectPlacement U13GemDaggerPreview; do
@@ -277,6 +277,9 @@ u13_runners=(
   U13MarcherAllegiance
   U13Odradek
   U13OdradekBoard
+  U13OdradekPowers
+  U13OdradekCompleteBoard
+  U13OdradekBot
 )
 u13_markers=(
   'U13 round timeline failures: 0'
@@ -364,6 +367,9 @@ u13_markers=(
   'U13 Marcher allegiance failures: 0'
   'U13 Odradek failures: 0'
   'U13 Odradek board failures: 0'
+  'U13 Odradek powers failures: 0'
+  'U13 Odradek complete board failures: 0'
+  'U13 Odradek bot failures: 0'
 )
 if [[ $u13_spatial_only == true ]]; then
   u13_runners=(U13LordPowerDeclaration U13SpatialSpace U13SpatialQueries U13SpatialInput U13Determinism)
@@ -442,8 +448,8 @@ if [[ $u13_orias_only == true ]]; then
   u13_markers=('U13 Orias pursuit failures: 0' 'U13 Orias Mark failures: 0' 'U13 Orias resummon failures: 0' 'U13 Orias board failures: 0')
 fi
 if [[ $u13_odradek_only == true ]]; then
-  u13_runners=(U13Odradek U13OdradekBoard U13MarcherAllegiance U13Match U13PlanningLegality)
-  u13_markers=('U13 Odradek failures: 0' 'U13 Odradek board failures: 0' 'U13 Marcher allegiance failures: 0' 'U13 match foundation failures: 0' 'U13 planning legality failures: 0')
+  u13_runners=(U13Odradek U13OdradekBoard U13OdradekPowers U13OdradekCompleteBoard U13OdradekBot U13MarcherAllegiance U13Match U13PlanningLegality)
+  u13_markers=('U13 Odradek failures: 0' 'U13 Odradek board failures: 0' 'U13 Odradek powers failures: 0' 'U13 Odradek complete board failures: 0' 'U13 Odradek bot failures: 0' 'U13 Marcher allegiance failures: 0' 'U13 match foundation failures: 0' 'U13 planning legality failures: 0')
 fi
 if [[ $u13_allegiance_only == true ]]; then
   u13_runners=(U13MarcherAllegiance)

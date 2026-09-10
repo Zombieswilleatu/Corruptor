@@ -102,7 +102,7 @@ func declaration(
 
 func random_opponent_plan() -> Dictionary:
 	if setup_lords.has("Odradek"):
-		return RandomLegal.plan(_owner, 1, Callable(OdradekScenario, "enumerate"))
+		return OdradekScenario.plan(_owner, 1)
 	if setup_lords.has("Orias"):
 		return RandomLegal.plan(_owner, 1, Callable(OriasScenario, "enumerate"))
 	return RandomLegal.plan(

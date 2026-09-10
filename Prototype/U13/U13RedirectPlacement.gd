@@ -2,6 +2,7 @@ extends "res://Prototype/U13/U13WebPlacement.gd"
 
 const Content = preload("res://Scripts/Sim/U13Odradek.gd")
 var marchers: Array = []
+var allegiance_mode: bool = false
 
 
 func _ready() -> void:
@@ -28,7 +29,11 @@ func _draw() -> void:
 	draw_string(
 		font,
 		Vector2(25, 36),
-		"REDIRECT · REWRITE THE PATH",
+		(
+			"ALLEGIANCE SHIFT · TURN THEIR LOYALTY"
+			if allegiance_mode
+			else "REDIRECT · REWRITE THE PATH"
+		),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		size.x - 50,
 		24,
@@ -37,7 +42,11 @@ func _draw() -> void:
 	draw_string(
 		font,
 		Vector2(25, 68),
-		"Click to place, drag to adjust, then confirm. Both sides move to the opposite lane.",
+		(
+			"Click to place, drag to adjust, then confirm. Enemy Marchers inside become yours."
+			if allegiance_mode
+			else "Click to place, drag to adjust, then confirm. Both sides move to the opposite lane."
+		),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		size.x - 50,
 		16
@@ -78,12 +87,20 @@ func _draw() -> void:
 				. inside
 			)
 		)
-		if inside:
+		if inside and (not allegiance_mode or unit.owner == 1):
 			affected += 1
 			var other: String = "Castle" if a.lane == "Lord" else "Lord"
-			var destination: Vector2 = _point(other, a)
+			var destination: Vector2 = point if allegiance_mode else _point(other, a)
 			draw_line(point, destination, Color(color, 0.45), 2)
-			draw_arc(destination, 9, 0, TAU, 32, color, 2)
+			draw_arc(
+				destination,
+				11 if allegiance_mode else 9,
+				0,
+				TAU,
+				32,
+				Color("79d5ff") if allegiance_mode else color,
+				2
+			)
 	if placed:
 		var area: Rect2 = Visuals.region_rect(
 			lane_rect(target.lane), target.field_position, radius_fp
@@ -93,7 +110,14 @@ func _draw() -> void:
 	draw_string(
 		font,
 		Vector2(25, size.y - 86),
-		"%d currently inside · Blue: yours · Coral: enemy · Outlines: destinations" % affected,
+		(
+			(
+				"%d enemies would convert · Blue: yours · Coral: enemy"
+				if allegiance_mode
+				else "%d currently inside · Blue: yours · Coral: enemy · Outlines: destinations"
+			)
+			% affected
+		),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		size.x - 50,
 		15

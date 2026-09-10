@@ -259,8 +259,12 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			var duel: Dictionary = duels[lane]
 			var left: Dictionary = entities.get_entity(duel.units[0].id)
 			var right: Dictionary = entities.get_entity(duel.units[1].id)
-			_attack(left.attributes, int(right.attributes.attack), right.attributes.armor_bypass)
-			_attack(right.attributes, int(left.attributes.attack), left.attributes.armor_bypass)
+			var damage_to_left: int = _attack(
+				left.attributes, int(right.attributes.attack), right.attributes.armor_bypass
+			)
+			var damage_to_right: int = _attack(
+				right.attributes, int(left.attributes.attack), left.attributes.armor_bypass
+			)
 			duel.exchanges.append(
 				{
 					"hp": [left.attributes.hp, right.attributes.hp],
@@ -319,7 +323,8 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 						"tick": tick,
 						"victim": duel.units[victim_id],
 						"attacker": duel.units[attacker_id],
-						"cause": "combat"
+						"cause": "combat",
+						"damage_dealt": damage_to_left if victim_id == 0 else damage_to_right
 					}
 				}
 				events.append({"event": fact, "views": [fact, fact]})
@@ -836,13 +841,15 @@ static func _valid_duels(world: Dictionary) -> bool:
 	return true
 
 
-static func _attack(target: Dictionary, amount: int, bypass: bool) -> void:
+static func _attack(target: Dictionary, amount: int, bypass: bool) -> int:
 	var remaining: int = maxi(1, amount)
 	if not bypass:
 		var absorbed: int = mini(int(target.armor), remaining)
 		target.armor -= absorbed
 		remaining -= absorbed
 	target.hp = maxi(0, int(target.hp) - remaining)
+	# Resolved HP damage, after Armor and before overkill clamping.
+	return remaining
 
 
 static func public_event(kind: String, details: Dictionary) -> Dictionary:

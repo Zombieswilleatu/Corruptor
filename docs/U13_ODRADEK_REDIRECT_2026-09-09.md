@@ -1,6 +1,6 @@
 # Odradek: Reconfiguration and Redirect
 
-Odradek is now selectable in the U13 main runner and Quickstart. This is his first playable slice. False Orders, Allegiance Shift, Inversion, Psychic Interlock and Paradox Geometry are still pending. U12 is unchanged.
+Odradek is now selectable in the U13 main runner and Quickstart. This is his first playable slice. The remaining powers, Psychic Interlock and Paradox Geometry were implemented in the follow-up described in [Odradek completion](U13_ODRADEK_COMPLETE_2026-09-10.md). U12 is unchanged.
 
 Reconfiguration starts at 0, gains 1 at Step 3 while Odradek is alive, caps at 4, and resets immediately when he is Banished. The first planning phase therefore shows 1. Both players' Lord cards expose the current bank. Printed stats use the existing Lord data: Summon 8, base Defense 5, Fracture 2; normal Threat reduction applies to Defense. Fracture's U13 gameplay migration remains pending.
 
