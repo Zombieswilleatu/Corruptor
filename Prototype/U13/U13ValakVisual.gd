@@ -27,6 +27,7 @@ var formation_seconds: float = 0.8
 var rotation_fps: float = 9.0
 var orb_size: float = 140.0
 var energy_size: float = 54.0
+var energy_step: float = 18.0
 var hover_amount: float = 5.0
 var phase: String = "idle"
 var phase_time: float = 0.0
@@ -158,7 +159,7 @@ func _energy(center: Vector2, count: int, factor: float = 1.0) -> void:
 		var texture: Texture2D = energy_textures[mini(index, ENERGY.size() - 1)]
 		if texture == null:
 			continue
-		var side: float = (energy_size + float(index) * 18.0) * factor
+		var side: float = (energy_size + float(index) * energy_step) * factor
 		var direction: float = 1.0 if index % 2 == 0 else -1.0
 		var angle: float = clock * direction * (0.16 + float(index) * 0.045)
 		draw_set_transform(center, angle)

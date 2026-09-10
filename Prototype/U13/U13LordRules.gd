@@ -2,6 +2,10 @@ extends RefCounted
 
 # U13 rules text is separate from the printed art and from legacy U12 cards.
 const RULES: Dictionary = {
+	"Valak": {
+		"passive": "LIFE ESSENCE\nEnemy Guards defeated by your Hunt or Siege grant 2 Essence each, capped at 5. Unreserved Essence absorbs incoming Hunt strength after Ward.\n\nPROJECTION\nReserve 1–5 stored Essence and an enemy Lord or Castle Guard zone during submission. After combat, defeat its highest-value Guard at or below the spend. A miss still spends Essence. Projection kills grant no Essence.",
+		"breach": "GRAVITATIONAL COLLAPSE\nAll Marchers move at 50% speed while Valak is in the Breach."
+	},
 	"Kroni": {
 		"passive": "HUNGER\nStarts at 0. Defense is 4 at 0 Hunger, 6 at 1–2, and 8 at 3+. Ward or Pass loses 1 Hunger. First reaching 3 each game grants 1 personal Tear.\n\nCANNIBAL HUNGER\nAfter the round-start Consume check, if Consume did not feed Kroni, devour your lowest-value Guard. If none exists, lose 1 Hunger. Eating your own Guard does not increase Hunger.",
 		"breach": "INSATIABLE HUNGER\nOnce each Marching phase, manifest at a random field point and move briefly in a random direction. Devour any friendly or enemy Marchers touched, then disappear. This grants no Hunger, Souls, Tears or Ravenous progress."

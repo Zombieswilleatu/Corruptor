@@ -1,5 +1,7 @@
 extends "res://Scripts/Sim/U13BoardSession.gd"
 
+const Valak = preload("res://Scripts/Sim/U13Valak.gd")
+const ValakScenario = preload("res://Scripts/Sim/U13ValakScenario.gd")
 const Kroni = preload("res://Scripts/Sim/U13Kroni.gd")
 const KroniScenario = preload("res://Scripts/Sim/U13KroniScenario.gd")
 const Odradek = preload("res://Scripts/Sim/U13Odradek.gd")
@@ -23,6 +25,7 @@ var quick_start: bool = true
 var hunt_enabled: bool = false
 var odradek_visuals: Array = []
 var kroni_guard_events: Array = []
+var valak_events: Array = []
 
 
 # Only the exercise opening differs from Core's all-unbuilt setup boundary.
@@ -66,6 +69,7 @@ func configure(lords: Array, castles: Array, quick: bool) -> Dictionary:
 		or lords.has("Orias")
 		or lords.has("Odradek")
 		or lords.has("Kroni")
+		or lords.has("Valak")
 	)
 	_scenario = 0
 	_lane = "Castle"
@@ -108,6 +112,8 @@ func declaration(
 
 
 func random_opponent_plan() -> Dictionary:
+	if setup_lords.has("Valak"):
+		return ValakScenario.plan(_owner, 1)
 	if setup_lords.has("Kroni"):
 		return KroniScenario.plan(_owner, 1)
 	if setup_lords.has("Odradek"):
@@ -129,6 +135,8 @@ func random_opponent_plan() -> Dictionary:
 
 
 static func _initial(lords: Array, castles: Array) -> Dictionary:
+	if lords.has("Valak"):
+		return ValakScenario.loadout_world(lords, castles)
 	if lords.has("Kroni"):
 		return KroniScenario.loadout_world(lords, castles)
 	if lords.has("Odradek"):
@@ -145,6 +153,8 @@ static func _initial(lords: Array, castles: Array) -> Dictionary:
 
 
 static func _content(lords: Array, hunt: bool):
+	if lords.has("Valak"):
+		return Valak.new()
 	if lords.has("Kroni"):
 		return Kroni.new()
 	if lords.has("Odradek"):
@@ -202,6 +212,7 @@ func restore_checkpoint(raw: Dictionary) -> Dictionary:
 			or setup.lords.has("Orias")
 			or setup.lords.has("Odradek")
 			or setup.lords.has("Kroni")
+			or setup.lords.has("Valak")
 		)
 		and not setup.get("hunt", false)
 	):
@@ -242,9 +253,10 @@ func preview_power(
 
 
 func summon_preview(cards: Array) -> Dictionary:
-	if not setup_lords.has("Orias") and not setup_lords.has("Odradek"):
+	var world: Dictionary = _owner.snapshot().world
+	if not world.data.has("resummon_profile"):
 		return Data.invalid("summon_profile_unavailable")
-	return Orias.Resummon.quote(_owner.snapshot().world, 0, cards)
+	return Orias.Resummon.quote(world, 0, cards)
 
 
 func debug_action(action: String, pid: int, lane: String) -> Dictionary:
@@ -275,11 +287,13 @@ func debug_action(action: String, pid: int, lane: String) -> Dictionary:
 
 
 func run_to_marching() -> Dictionary:
+	valak_events = []
 	odradek_visuals = []
 	return super.run_to_marching()
 
 
 func step() -> Dictionary:
+	var valak_cursor: int = _owner._event_cursor() if setup_lords.has("Valak") else -1
 	var hook: String = next_hook()
 	if hook == Timeline.ROUND_START_SCHEDULED:
 		kroni_guard_events = []
@@ -287,6 +301,10 @@ func step() -> Dictionary:
 	var cursor: int = _owner._event_cursor() if capture else 0
 	var before: Array = _owner.player_view(0, 0).world.entities.duplicate(true) if capture else []
 	var result: Dictionary = super.step()
+	if valak_cursor >= 0 and result.action != "invalid":
+		for event in _owner._player_events_since(0, valak_cursor):
+			if event.type in ["VALAK_ESSENCE_GAINED", "VALAK_ESSENCE_REINFORCED", "VALAK_PROJECTION_RESOLVED", "GRAVITY_ORB_STARTED"]:
+				valak_events.append(event.duplicate(true))
 	if capture and result.action != "invalid":
 		var events: Array = _owner._player_events_since(0, cursor)
 		_capture_odradek_visuals(before, events)

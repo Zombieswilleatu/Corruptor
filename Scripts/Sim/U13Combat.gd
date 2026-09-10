@@ -10,6 +10,7 @@ const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
 const LordStats = preload("res://Scripts/Sim/U13LordStats.gd")
+const Essence = preload("res://Scripts/Sim/U13ValakState.gd")
 const HUNT_VERSION: String = "U13_CORE_HUNT_V1"
 const VERSION: String = "U13_GREMORY_BASIC_COMBAT_V1"
 
@@ -48,6 +49,10 @@ static func valid(world: Dictionary) -> bool:
 		if not core or world.data.kroni_profile != "U13_KRONI_WEIGHTED_ANGLES_V8":
 			return false
 		lords.append("Kroni")
+	if world.data.has("valak_profile"):
+		if not core or world.data.valak_profile != Essence.VERSION:
+			return false
+		lords.append("Valak")
 	if world.data.has("hunt_profile") and (not core or world.data.hunt_profile != HUNT_VERSION):
 		return false
 	if core and not Structures.valid(world):
@@ -408,6 +413,9 @@ static func _siege(
 			"kind": "defeat_guard",
 			"target_id": guard.id
 		}
+		if world.data.has("valak_profile") and command.kind == "defeat_guard":
+			command["attacker_id"] = world.players[player_id].lord_entity_id
+			command["attack_kind"] = order.action
 		var applied: Dictionary = _fact(world, command, context, reaction)
 		if applied.action == "invalid":
 			return applied
@@ -647,6 +655,9 @@ static func _hunt(
 	var remaining: int = strength
 	if screen > 0:
 		remaining = maxi(0, remaining - screen)
+	var reinforcement: Dictionary = Essence.reinforce(world, 1 - player_id, remaining, context.round)
+	remaining -= int(reinforcement.spent)
+	events.append_array(reinforcement.events)
 	var guards: Array = []
 	for entity in entities.snapshot().entities:
 		if (
@@ -677,6 +688,9 @@ static func _hunt(
 		if world.data.get("orias_profile") == LordStats.ORIAS_WEB_PROFILE:
 			command["attacker_id"] = world.players[player_id].lord_entity_id
 			command["attack_kind"] = "Hunt"
+		if world.data.has("valak_profile") and command.kind == "defeat_guard":
+			command["attacker_id"] = world.players[player_id].lord_entity_id
+			command["attack_kind"] = order.action
 		var applied: Dictionary = _fact(world, command, context, reaction)
 		if applied.action == "invalid":
 			return applied

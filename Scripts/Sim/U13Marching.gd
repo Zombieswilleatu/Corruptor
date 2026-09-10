@@ -5,6 +5,7 @@ const KroniActors = preload("res://Scripts/Sim/U13KroniActors.gd")
 const SpatialFields = preload("res://Scripts/Sim/U13SpatialFields.gd")
 const Space = preload("res://Scripts/Sim/U13SpatialSpace.gd")
 const Buffer = preload("res://Scripts/Sim/U13MarchingBuffer.gd")
+const Gravity = preload("res://Scripts/Sim/U13GravityOrbs.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
@@ -205,12 +206,17 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 		motion_context["spatial_fields"] = compiled.lanes
 	for unit in _units(entities):
 		tape_bases[unit.id] = unit
+	var gravity_orbs: Array = world.data.get("valak_orbs", [])
+	var collapse: bool = world.data.get("breach_lord") == "Valak"
+	motion_context = motion_context.duplicate()
+	motion_context["gravitational_collapse"] = collapse
 	var kroni_actors: Array = world.data.get("kroni_actors", [])
 	if not kroni_actors.is_empty():
 		events.append(public_event("KRONI_ACTORS_STARTED", {"round": context.round, "actors": kroni_actors.duplicate(true)}))
 	for tick in range(TICKS):
+		var gravity_before: Array = _units(entities) if not gravity_orbs.is_empty() else []
 		if not kroni_actors.is_empty():
-			events.append_array(KroniActors.step(kroni_actors, entities, int(context.round), tick))
+			events.append_array(KroniActors.step(kroni_actors, entities, int(context.round), tick, collapse))
 		var clock: int = int(context.round) * TICKS + tick
 		# A prior hook may consume a waiting participant or retire an entity.
 		for lane in duels.keys():
@@ -229,7 +235,12 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			for identity in actor.fleeing:
 				fleeing_ids[identity] = true
 		_move(entities, duels, motion_context, clock, has_rout, fleeing_ids)
-		if has_retreat:
+		if not gravity_orbs.is_empty():
+			var gravity_events: Array = Gravity.step(gravity_orbs, entities, gravity_before, context.round, tick, collapse)
+			for event in gravity_events:
+				world.data.neutral_tears += int(event.event.data.neutral_tears)
+			events.append_array(gravity_events)
+		if has_retreat or not gravity_orbs.is_empty():
 			for lane in duels.keys():
 				if not _duel_alive(duels[lane], entities):
 					events.append(
@@ -406,6 +417,8 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 				}
 			)
 		)
+	if world.data.has("valak_orbs"):
+		world.data.valak_orbs = gravity_orbs
 	if world.data.has("kroni_actors"):
 		world.data.kroni_actors = kroni_actors
 	world.entities = entities.snapshot()
@@ -635,6 +648,9 @@ static func _move(
 		if not spatial_fields.is_empty() and SpatialFields.slowed(spatial_fields, unit.owner, a):
 			var web_percent: int = 0 if lane_modifiers.is_empty() else int(lane_modifiers[a.lane][unit.owner].speed_percent)
 			step = LaneAuras.speed(int(a.step_fp), web_percent, has_rout and Rout.recovering(a, int(context.round)), clock, true)
+		if context.get("gravitational_collapse", false):
+			var percent: int = 0 if lane_modifiers.is_empty() else int(lane_modifiers[a.lane][unit.owner].speed_percent)
+			step = LaneAuras.speed(int(a.step_fp), percent, has_rout and Rout.recovering(a, int(context.round)), clock, not spatial_fields.is_empty() and SpatialFields.slowed(spatial_fields, unit.owner, a), true)
 		if not retreat and int(nearby.distance) <= CONTACT_FP * CONTACT_FP:
 			if previous_ticket < 0:
 				a.contact_tick = clock

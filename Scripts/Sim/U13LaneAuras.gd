@@ -80,8 +80,10 @@ static func compile(effects: Array, round_number: int) -> Dictionary:
 # Exact rational step with deterministic fractional distribution. Compose Rout
 # recovery before rounding, so (3 * 1.25 * 0.5) does not truncate to 1 per tick.
 # Clock phase is bounded before multiplication and no float or RNG is involved.
-static func speed(base: int, percent: int, recovering: bool, clock: int, web_slowed: bool = false) -> int:
+static func speed(base: int, percent: int, recovering: bool, clock: int, web_slowed: bool = false, collapse: bool = false) -> int:
 	var denominator: int = 200 if recovering else 100
+	if collapse:
+		denominator *= 2
 	if web_slowed:
 		denominator *= 2
 	var numerator: int = base * (100 + percent)

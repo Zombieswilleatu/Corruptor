@@ -44,7 +44,7 @@ static func defense(world: Dictionary, lord: Dictionary) -> int:
 		(
 			6
 			if lord.attributes.get("lord_id") == "Orias"
-			else (5 if lord.attributes.get("lord_id") == "Odradek" else 4)
+			else (5 if lord.attributes.get("lord_id") in ["Odradek", "Valak"] else 4)
 		)
 		- (3 if threat >= 4 else (2 if threat >= 3 else (1 if threat >= 2 else 0)))
 	)

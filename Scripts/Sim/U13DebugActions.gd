@@ -9,7 +9,7 @@ const Transfers = preload("res://Scripts/Sim/U13GuardTransfers.gd")
 const Marching = preload("res://Scripts/Sim/U13Marching.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
-const ACTIONS: Array = ["guard", "cards", "marcher", "banish", "defeat_guard", "reconfiguration", "hunger"]
+const ACTIONS: Array = ["guard", "cards", "marcher", "banish", "defeat_guard", "reconfiguration", "hunger", "essence"]
 
 
 # Debug edits use a disposable world and the regular reactions. The session
@@ -52,6 +52,11 @@ static func apply(raw: Dictionary, action: String, pid: int, lane: String, round
 			ids.create("marcher", key, 0, pid, attributes)
 			world.entities = ids.snapshot()
 			message = "Added a %s Marcher in %s lane." % [suit, lane]
+		"essence":
+			if not preload("res://Scripts/Sim/U13ValakState.gd").active(world, pid):
+				return Data.invalid("debug_requires_active_valak")
+			world.players[pid].resources.life_essence = 5 - int(world.data.valak_reserved[pid])
+			message = "Filled Valak Life Essence to five."
 		"hunger":
 			var hunger_state = preload("res://Scripts/Sim/U13KroniState.gd")
 			if not hunger_state.active(world, pid):

@@ -1,5 +1,8 @@
 # Valak animation preview — September 10, 2026
 
+Gameplay integration now follows this preview; see
+`U13_VALAK_IMPLEMENTATION_2026-09-10.md` for current rules and the board runner.
+
 Adds **Valak · Orbs & Absorption** to the U13 animation gallery and a standalone
 `Prototype/U13/U13ValakPreview.tscn` scene. The gallery sidebar now scrolls and
 keeps its Back button visible as the roster grows.

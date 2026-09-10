@@ -40,7 +40,7 @@ func _ready() -> void:
 	lane.add_item("Lord lane / Guards")
 	lane.add_item("Castle lane / Guards")
 	selectors.add_child(lane)
-	for pair in [["guard", "ADD RANDOM GUARD"], ["cards", "DRAW 2 HAND CARDS"], ["marcher", "ADD RANDOM MARCHER"], ["banish", "KILL LORD · MOVE TO BREACH"], ["defeat_guard", "DEFEAT FIRST GUARD"], ["reconfiguration", "FILL ODRADEK RECONFIGURATION"], ["hunger", "ADD 1 KRONI HUNGER"]]:
+	for pair in [["guard", "ADD RANDOM GUARD"], ["cards", "DRAW 2 HAND CARDS"], ["marcher", "ADD RANDOM MARCHER"], ["banish", "KILL LORD · MOVE TO BREACH"], ["defeat_guard", "DEFEAT FIRST GUARD"], ["reconfiguration", "FILL ODRADEK RECONFIGURATION"], ["hunger", "ADD 1 KRONI HUNGER"], ["essence", "FILL VALAK ESSENCE"]]:
 		var button := Button.new()
 		button.text = pair[1]
 		button.pressed.connect(_request.bind(pair[0]))

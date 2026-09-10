@@ -2,6 +2,7 @@ extends Control
 
 # Centers measured on each source artwork, independent of viewport size.
 const LAYOUTS: Dictionary = {
+	"Valak": [0.239, 0.5, 0.770, 0.167, 0.111],
 	"Orias": [0.219, 0.500, 0.782, 0.145, 0.096],
 	"Deimos": [0.227, 0.500, 0.769, 0.158, 0.096],
 	"Gremory": [0.240, 0.500, 0.757, 0.169, 0.110],
