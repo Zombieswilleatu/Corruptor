@@ -179,6 +179,34 @@ func _run() -> void:
 	preview.breach = true
 	preview._restart()
 	_check(preview.visual.frames[0].actors[0].breach, "preview switches to real Breach actor")
+
+	preview._set_editing(true)
+	var arranged: Dictionary = preview.layout_units[0]
+	var original_lane: String = arranged.attributes.lane
+	var original_start: Dictionary = preview.start.duplicate(true)
+	var grab := InputEventMouseButton.new()
+	grab.button_index = MOUSE_BUTTON_LEFT
+	grab.pressed = true
+	grab.position = preview.visual.point(arranged.attributes.x_fp, arranged.attributes.y_fp + (600 if original_lane == "Castle" else 0))
+	preview._gui_input(grab)
+	_check(preview.dragged_id == arranged.id, "arrange mode selects a Marcher for dragging")
+	var drag := InputEventMouseMotion.new()
+	drag.position = preview.visual.field_rect.position + preview.visual.field_rect.size * Vector2(0.9 if original_lane == "Lord" else 0.1, 0.5)
+	preview._gui_input(drag)
+	var release := InputEventMouseButton.new()
+	release.button_index = MOUSE_BUTTON_LEFT
+	release.pressed = false
+	release.position = drag.position
+	preview._gui_input(release)
+	_check(arranged.attributes.lane == original_lane and arranged.attributes.x_fp == 1200 and arranged.attributes.y_fp == (600 if original_lane == "Lord" else 0), "drag clamps Marcher inside its original lane")
+	_check(preview.start == original_start and preview.dragged_id.is_empty(), "dragging does not change Kroni start and release ends drag")
+	var saved_layout: Array = preview.layout_units.duplicate(true)
+	preview.breach = false
+	preview._restart()
+	_check(not preview.editing and preview.frames[0] == saved_layout, "new launch simulates edited layout")
+	_check(preview.status.text.begins_with("75%") or preview.status.text.begins_with("25%"), "preview labels actual random selection branch")
+	preview._restart()
+	_check(preview.layout_units == saved_layout and preview.frames[0] == saved_layout, "edited layout persists across launches")
 	preview.queue_free()
 	await process_frame
 	print("U13 Kroni board failures: %d" % failures)

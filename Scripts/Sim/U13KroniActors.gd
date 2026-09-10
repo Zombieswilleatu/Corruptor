@@ -22,7 +22,7 @@ static func radius(hunger: int) -> int:
 
 
 static func create(identity: String, pid: int, round_number: int, hunger: int, breach: bool = false, seed_value: String = "kroni-actor-fixture", start: Dictionary = {}, units: Array = []) -> Dictionary:
-	var actor: Dictionary = {"id": identity, "owner": pid, "round": round_number, "breach": breach, "x_fp": 0 if pid == 0 else LENGTH, "y_fp": 300, "vx_fp": FORWARD if pid == 0 else -FORWARD, "vy_fp": LATERAL_MIN, "radius_fp": radius(hunger), "hunger": hunger, "age": 0, "active": true, "consumed": 0, "rewarded": false, "fleeing": {}, "nearby": [], "fled_this_tick": []}
+	var actor: Dictionary = {"id": identity, "owner": pid, "round": round_number, "breach": breach, "x_fp": 0 if pid == 0 else LENGTH, "y_fp": 300, "vx_fp": FORWARD if pid == 0 else -FORWARD, "vy_fp": LATERAL_MIN, "radius_fp": radius(hunger), "hunger": hunger, "age": 0, "active": true, "consumed": 0, "rewarded": false, "fleeing": {}, "nearby": [], "fled_this_tick": [], "launch_mode": "breach" if breach else "random"}
 	if not breach:
 		if not start.is_empty():
 			actor.y_fp = int(start.field_position.y_fp) + (600 if start.lane == "Castle" else 0)
@@ -32,8 +32,10 @@ static func create(identity: String, pid: int, round_number: int, hunger: int, b
 		var magnitude: int = LATERAL_MIN + int(Rng.draw(seed_value, key, "RAVENOUS_ANGLE", 0, LATERAL_MAX - LATERAL_MIN + 1).value)
 		actor.vy_fp = magnitude * (-1 if int(Rng.draw(seed_value, key, "RAVENOUS_SIDE", 0, 2).value) == 0 else 1)
 	if not breach and int(Rng.draw(seed_value, identity + ":" + str(round_number), "RAVENOUS_BIAS", 0, 4).value) < 3:
+		actor.launch_mode = "fallback"
 		var candidates: Array = favored_routes(actor, units)
 		if not candidates.is_empty():
+			actor.launch_mode = "favored"
 			actor.vy_fp = candidates[int(Rng.draw(seed_value, identity + ":" + str(round_number), "RAVENOUS_FAVORED_ROUTE", 0, candidates.size()).value)]
 	if breach:
 		actor.x_fp = int(Rng.draw(seed_value, identity, "BREACH_FORWARD", 0, LENGTH + 1).value)
@@ -233,8 +235,8 @@ static func _flee_slice(actor: Dictionary, entities, elapsed_ms: int) -> Array:
 		state.carry_x = move_x - shift_x
 		state.carry_y = move_y - shift_y
 		a.x_fp = clampi(int(a.x_fp) + shift_x, 0, LENGTH)
-		var after_lateral: int = clampi(lateral + shift_y, 0, WIDTH)
-		a.lane = "Lord" if after_lateral < 600 else "Castle"
+		var lane_origin: int = 600 if a.lane == "Castle" else 0
+		var after_lateral: int = clampi(lateral + shift_y, lane_origin, lane_origin + 600)
 		a.y_fp = after_lateral - (600 if a.lane == "Castle" else 0)
 		a.contact_tick = -1
 		if a.x_fp != (LENGTH if unit.owner == 0 else 0):
@@ -257,6 +259,8 @@ static func valid(actors) -> bool:
 		if typeof(a) != TYPE_DICTIONARY or typeof(a.get("id")) != TYPE_STRING or a.id.is_empty() or a.id in seen:
 			return false
 		seen.append(a.id)
+		if a.get("launch_mode") not in ["random", "favored", "fallback", "breach"] or (a.launch_mode == "breach") != a.get("breach"):
+			return false
 		if typeof(a.get("fleeing")) != TYPE_DICTIONARY or typeof(a.get("nearby")) != TYPE_ARRAY or typeof(a.get("fled_this_tick")) != TYPE_ARRAY:
 			return false
 		for identity in a.fleeing:

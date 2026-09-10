@@ -52,7 +52,7 @@ Kroni is available in the main runner's Lord picker and the animation gallery.
 
 ## Placement/random-launch revision
 
-The preview accepts starting-point clicks and rolls a fresh launch each time. Two fast six-frame chomp cycles remain in each bite pause. Kroni content version is now U13_KRONI_BIASED_LAUNCH_V6; older Kroni checkpoints are rejected rather than silently replayed with changed rules.
+The preview accepts starting-point clicks and rolls a fresh launch each time. Two fast six-frame chomp cycles remain in each bite pause. Kroni content version is now U13_KRONI_LANE_FLEE_V7; older Kroni checkpoints are rejected rather than silently replayed with changed rules.
 
 Revision validation: Godot 4.7.2 Kroni core and board suites passed with zero failures. Coverage includes required position-only declarations, fresh launch angles, forward-only motion for both owners, launch-hook JSON replay, board placement/cancel/confirmation, worker playback coordinates, and preview placement/new launches.
 
@@ -73,11 +73,11 @@ Hunt and Siege require at least one committed card for every U13 Lord. Empty att
 
 Entering twice Kroni's consumption radius starts a 1.1-second panic timer, independent of his 0.55-second double chomp. Units flee directly away at 30% normal speed during normal field ticks and during his bite pause; both spend the same timer. Proximity continually refreshes the timer, including during a chomp; it expires 1.1 seconds after leaving range. Refreshes do not replay the scream. Fractional movement carry preserves the 30% rate across small ticks. Panic replaces normal forward movement while active.
 
-The authoritative positions change for both sides, including waiting and duelling units. Units can cross the internal lane seam; outer edges clamp movement. Exact overlaps use a stable keyed radial direction. There is no guaranteed escape or fixed meal count.
+The authoritative positions change for both sides, including waiting and duelling units. Marchers remain in their original lane; lane boundaries and outer edges clamp movement. Kroni alone can cross between lanes. Exact overlaps use a stable keyed radial direction. There is no guaranteed escape or fixed meal count.
 
 The board and animation preview show Deimos's Rout ghost on active fleers before, during, and after bites. A proximity event triggers one audio voice for the group from res://Sounds/Wilhelm.wav when present. An ongoing scream finishes without being restarted by a neighboring group's entry. The actual user-supplied clip remains local to their checkout.
 
-Validation includes proximity before contact, 1.1-second expiry, continuous refresh while nearby without repeated sound, movement without a bite and after Kroni disappears, fractional speed, deterministic replay, lane crossing, outer boundaries, and board/preview ghost and sound lifecycle.
+Validation includes proximity before contact, 1.1-second expiry, continuous refresh while nearby without repeated sound, movement without a bite and after Kroni disappears, fractional speed, deterministic replay, lane confinement, outer boundaries, and board/preview ghost and sound lifecycle.
 
 
 ## Favored Ravenous launch
@@ -87,3 +87,12 @@ A keyed four-way draw chooses the favored branch 75% of the time. That branch sa
 The estimate uses the current activation snapshot and exact existing path/bounce geometry. This favors contact but cannot guarantee two meals: Marching and fleeing can move units out of the projected path. Kroni never homes or changes his selected heading to pursue a target. The preview uses the same selection routine.
 
 Panic refreshes in 30ms steps while nearby, including throughout the chomp pause, with no extra scream for timer refreshes. Core coverage checks both selection branches, fallback, enemy-only filtering, mirrored ownership, replay, and continuous panic refresh.
+
+
+## Lane confinement and configurable preview
+
+Flee movement now clamps local lateral coordinates to 0–600 without changing the Marcher's lane. Playback preserves that lane too, including exactly on the shared boundary. Both Lord-to-Castle and Castle-to-Lord crossing are covered by regression fixtures.
+
+The Kroni preview provides Arrange Marchers: drag the starting tokens within their existing lane; New launch simulates the edited arrangement. The layout persists across launches, Hunger changes, and Ravenous/Breach selection. Reset layout restores the original formation. Editing freezes playback and suppresses start-placement clicks.
+
+Each actor records its actual launch mode: favored, random, favored-roll fallback, or Breach. The preview explicitly displays 75% Enemy-favored, 25% Random, 75% Random fallback (no two-enemy route), or Breach Random. This describes the launch roll rather than inferring it from the route or meals.

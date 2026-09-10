@@ -8,6 +8,10 @@ const Marching = preload("res://Scripts/Sim/U13Marching.gd")
 const Visual = preload("res://Prototype/U13/U13KroniVisual.gd")
 const Art = preload("res://Prototype/U13/U13BoardTextures.gd")
 var visual
+var layout_units: Array = []
+var editing: bool = false
+var dragged_id: String = ""
+var arrange_button: CheckButton
 var terrain: Texture2D
 var chits: Texture2D
 var status: Label
@@ -60,16 +64,25 @@ func _ready() -> void:
 	replay.text = "New launch"
 	replay.pressed.connect(_restart)
 	controls.add_child(replay)
+	arrange_button = CheckButton.new()
+	arrange_button.text = "Arrange Marchers"
+	arrange_button.toggled.connect(_set_editing)
+	controls.add_child(arrange_button)
+	var reset := Button.new()
+	reset.text = "Reset layout"
+	reset.pressed.connect(func(): layout_units.clear(); _restart(); _set_editing(true))
+	controls.add_child(reset)
 	var close := Button.new()
 	close.text = "Back / Exit"
 	close.pressed.connect(_close_preview.bind(0))
 	controls.add_child(close)
 	status = Label.new()
 	status.position = Vector2(24, 126)
+	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	add_child(status)
 	guide = Label.new()
 	guide.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	guide.text = "RAVENOUS\nClick either lane to choose his horizontal start along the bottom edge. 75% of launches favor a route through two current enemy positions; otherwise the angle is random. He travels toward the enemy and bounces off outer walls. No steering. Both sides can be eaten. Nearby units flee directly away when he approaches, at 30% normal speed while he is nearby and for 1.1 seconds after he leaves range. No three-unit cap.\n\n6+ DEVOURED\nOne Soul, one Hunger and one Neutral Tear per activation.\n\nHUNGER\n0: Defense 4\n1–2: Defense 6\n3+: Defense 8\nFirst reaching 3 grants one personal Tear.\n\nBREACH\nA short random manifestation. No rewards."
+	guide.text = "RAVENOUS\nClick empty field to choose his horizontal start. Enable Arrange Marchers to drag units within their lane, then New launch to test your layout. 75% of launches favor a route through two current enemy positions; otherwise the angle is random. He travels toward the enemy and bounces off outer walls. No steering. Both sides can be eaten. Nearby units flee directly away when he approaches, at 30% normal speed while he is nearby and for 1.1 seconds after he leaves range. No three-unit cap.\n\n6+ DEVOURED\nOne Soul, one Hunger and one Neutral Tear per activation.\n\nHUNGER\n0: Defense 4\n1–2: Defense 6\n3+: Defense 8\nFirst reaching 3 grants one personal Tear.\n\nBREACH\nA short random manifestation. No rewards."
 	add_child(guide)
 	resized.connect(_layout)
 	_layout()
@@ -94,6 +107,8 @@ func _slider(parent: Node, title: String, low: float, high: float, initial: floa
 
 
 func _layout() -> void:
+	if status != null:
+		status.size = Vector2(maxf(200, size.x - 48), 46)
 	if visual != null:
 		var height: float = maxf(200, size.y - 215)
 		var width: float = minf(size.x - 120, height * 0.5)
@@ -108,15 +123,27 @@ func _restart() -> void:
 	seed_index += 1
 	elapsed = 0.0
 	frames = []
-	var ids = Ids.new()
-	# Stable scene fixtures include both sides, every suit, and both lanes.
-	for index in range(32):
-		var a: Dictionary = Marching.profile(Marching.SUITS[index % 4], "Lord" if index % 2 == 0 else "Castle", index % 2, 0, 1)
-		a.x_fp = 380 + int(floor(float(index) / 4.0)) * 250
-		a.y_fp = 80 + (index % 4) * 140
-		ids.create("marcher", "kroni-preview", index, index % 2, a)
+	editing = false
+	dragged_id = ""
+	if arrange_button != null:
+		arrange_button.set_pressed_no_signal(false)
+	if layout_units.is_empty():
+		var ids = Ids.new()
+		for index in range(32):
+			var a: Dictionary = Marching.profile(Marching.SUITS[index % 4], "Lord" if index % 2 == 0 else "Castle", index % 2, 0, 1)
+			a.x_fp = 380 + int(floor(float(index) / 4.0)) * 250
+			a.y_fp = 80 + (index % 4) * 140
+			ids.create("marcher", "kroni-preview", index, index % 2, a)
+		var initial = Buffer.new()
+		initial.restore(ids.snapshot())
+		layout_units = initial.marchers().duplicate(true)
 	var buffer = Buffer.new()
-	buffer.restore(ids.snapshot())
+	var fixture_ids = Ids.new()
+	# Preserve stable identities while rebuilding the editable opening positions.
+	var fixture: Dictionary = fixture_ids.snapshot()
+	fixture.entities = layout_units.duplicate(true)
+	fixture.used_ids = layout_units.map(func(u): return u.id)
+	buffer.restore(fixture)
 	var actor: Dictionary = Actors.create("preview", -1 if breach else 0, 1, 0 if breach else hunger, breach, "kroni-preview-%d" % seed_index, start, buffer.marchers())
 	var actors: Array = [actor]
 	var events: Array = [State.event("KRONI_ACTORS_STARTED", {"actors": actors.duplicate(true)}).event]
@@ -127,12 +154,57 @@ func _restart() -> void:
 		events.append(State.event("KRONI_ACTOR_TICK", {"tick": tick, "actors": actors.duplicate(true)}).event)
 		frames.append(buffer.marchers())
 	visual.load_tape(events)
-	status.text = "Both lanes · Blue = yours / Red = enemy · %d devoured%s" % [actor.consumed, " · Breach grants no rewards" if breach else (" · 6+ reward earned" if actor.consumed >= 6 else " · 6 needed for reward")]
+	var launch_label: String = {"favored": "75% · Enemy-favored", "random": "25% · Random", "fallback": "75% · Random fallback (no two-enemy route)", "breach": "Breach · Random"}[actor.launch_mode]
+	status.text = launch_label + " · Both lanes · Blue = yours / Red = enemy · %d devoured%s" % [actor.consumed, " · Breach grants no rewards" if breach else (" · 6+ reward earned" if actor.consumed >= 6 else " · 6 needed for reward")]
 	duration = 6.0
 	queue_redraw()
 
 
+func _set_editing(value: bool) -> void:
+	editing = value
+	dragged_id = ""
+	arrange_button.set_pressed_no_signal(value)
+	if value:
+		visual.clear()
+		elapsed = 0.0
+		status.text = "Arrange Marchers · Drag within each lane · New launch tests this layout"
+	else:
+		_restart()
+	queue_redraw()
+
+
+func _drag_to(position_value: Vector2) -> void:
+	for unit in layout_units:
+		if unit.id != dragged_id:
+			continue
+		var rect: Rect2 = visual.field_rect
+		var lane_origin: float = 600.0 if unit.attributes.lane == "Castle" else 0.0
+		unit.attributes.x_fp = clampi(int(round((rect.end.y - position_value.y) / rect.size.y * 2400.0)), 0, 2400)
+		unit.attributes.y_fp = clampi(int(round((position_value.x - rect.position.x) / rect.size.x * 1200.0 - lane_origin)), 0, 600)
+	queue_redraw()
+
+
 func _gui_input(event: InputEvent) -> void:
+	if editing:
+		if event is InputEventMouseMotion and not dragged_id.is_empty():
+			_drag_to(event.position)
+			accept_event()
+		elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				var best: float = 30.0
+				for unit in layout_units:
+					var a: Dictionary = unit.attributes
+					var center: Vector2 = visual.point(a.x_fp, a.y_fp + (600 if a.lane == "Castle" else 0))
+					var distance: float = center.distance_to(event.position)
+					if distance <= best:
+						best = distance
+						dragged_id = unit.id
+			else:
+				if not dragged_id.is_empty():
+					_drag_to(event.position)
+				dragged_id = ""
+			accept_event()
+		return
 	if breach or visual == null or not event is InputEventMouseButton or event.button_index != MOUSE_BUTTON_LEFT or not event.pressed:
 		return
 	for lane in ["Lord", "Castle"]:
@@ -150,7 +222,7 @@ func _gui_input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
-	if visual == null or paused:
+	if visual == null or paused or editing:
 		return
 	if visual.busy():
 		visual.advance_bite(delta * speed)
@@ -177,7 +249,7 @@ func _draw() -> void:
 		return
 	var index: int = clampi(int(floor(elapsed / Visual.TICK_SECONDS + 0.00001)), 0, frames.size() - 1)
 	var cell: Vector2 = chits.get_size() / Vector2(4.0, 2.0)
-	for unit in visual.flee_frame(frames[index]):
+	for unit in (layout_units if editing else visual.flee_frame(frames[index])):
 		var a: Dictionary = unit.attributes
 		var center: Vector2 = visual.point(float(a.x_fp), float(a.y_fp) + (600.0 if a.lane == "Castle" else 0.0))
 		var column: int = Marching.SUITS.find(a.suit)

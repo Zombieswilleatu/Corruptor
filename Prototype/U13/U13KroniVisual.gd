@@ -252,8 +252,7 @@ func flee_frame(units: Array) -> Array:
 				continue
 			var a: Dictionary = change.before.attributes
 			var b: Dictionary = change.after.attributes
-			var lateral: float = lerpf(float(a.y_fp) + (600.0 if a.lane == "Castle" else 0.0), float(b.y_fp) + (600.0 if b.lane == "Castle" else 0.0), progress)
 			unit.attributes.x_fp = lerpf(float(a.x_fp), float(b.x_fp), progress)
-			unit.attributes.lane = "Lord" if lateral < 600.0 else "Castle"
-			unit.attributes.y_fp = lateral - (600.0 if lateral >= 600.0 else 0.0)
+			unit.attributes.lane = a.lane
+			unit.attributes.y_fp = lerpf(float(a.y_fp), float(b.y_fp), progress)
 	return shown

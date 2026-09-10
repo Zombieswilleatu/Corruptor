@@ -308,8 +308,21 @@ func _flee() -> void:
 	actor.nearby = []
 	Actors.notice(actor, buffer)
 	var fled: Array = Actors.flee(actor, buffer)
-	check(fled.size() == 1 and fled[0].after.attributes.lane == "Castle" and fled[0].after.attributes.x_fp == 2400, "escape crosses lane seam and clamps outer boundary")
+	check(fled.size() == 1 and fled[0].after.attributes.lane == "Lord" and fled[0].after.attributes.y_fp == 600 and fled[0].after.attributes.x_fp == 2400, "escape stays in original lane and clamps boundaries")
 
+
+	var castle_world: Dictionary = Scenario.world()
+	add_unit(castle_world, 31, 1, 1200, 1)
+	var castle_unit: Dictionary = castle_world.entities.entities.filter(func(u): return u.kind == "marcher")[0]
+	castle_unit.attributes.lane = "Castle"
+	buffer.restore(castle_world.entities)
+	actor.fleeing = {}
+	actor.nearby = []
+	actor.x_fp = 1200
+	actor.y_fp = 620
+	Actors.notice(actor, buffer)
+	var castle_fled: Array = Actors.flee(actor, buffer)
+	check(castle_fled.size() == 1 and castle_fled[0].after.attributes.lane == "Castle" and castle_fled[0].after.attributes.y_fp == 0, "Castle fleers cannot cross into Lord lane")
 	var approach_world: Dictionary = Scenario.world()
 	add_unit(approach_world, 40, 1, 600, 300)
 	buffer.restore(approach_world.entities)
@@ -377,10 +390,10 @@ func _biased_launch() -> void:
 		var roll: int = int(preload("res://Scripts/Sim/U13KeyedRng.gd").draw(seed_value, "bias:1", "RAVENOUS_BIAS", 0, 4).value)
 		if roll < 3:
 			biased += 1
-			check(actor.vy_fp in routes, "75 percent branch selects a two-enemy route")
+			check(actor.vy_fp in routes and actor.launch_mode == "favored", "75 percent branch selects a two-enemy route")
 		else:
 			random_count += 1
-			check(actor == Actors.create("bias", 0, 1, 0, false, seed_value), "25 percent branch preserves original random launch")
+			check(actor.vy_fp == Actors.create("bias", 0, 1, 0, false, seed_value).vy_fp and actor.launch_mode == "random", "25 percent branch preserves original random launch")
 		check(actor == Actors.create("bias", 0, 1, 0, false, seed_value, {}, units), "biased launch replays deterministically")
 	check(biased > 0 and random_count > 0, "both launch branches exercised")
 	var allies: Array = units.duplicate(true)
