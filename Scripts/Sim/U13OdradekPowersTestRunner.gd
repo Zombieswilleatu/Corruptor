@@ -81,6 +81,12 @@ func _guard_moves() -> void:
 		"partial_inversion_grants_exactly_one_tear"
 	)
 	_check(Transfers.Guards.valid(flipped.world), "inversion_preserves_card_zone_invariants")
+	var donated: Dictionary = _fire(flipped.world, Odradek.INVERSION, {"owner_id": 0, "lane": "Castle"})
+	_check(donated.action == "resolved" and _guards(donated.world, 1, "Castle").size() == 3 and _guards(donated.world, 0, "Castle").size() == 1, "self_inversion_donates_only_into_free_enemy_slots")
+	_check(donated.world.data.neutral_tears == flipped.world.data.neutral_tears + 1 and Transfers.Guards.valid(donated.world), "self_inversion_grants_one_tear_and_preserves_invariants")
+	_check(Odradek.new().validate(OdradekScenario.source(0, 1, {"owner_id": 0, "lane": "Castle"}, 0, Odradek.INVERSION), flipped.world, "declaration").legal, "self_inversion_accepted_at_declaration")
+	var blocked_donation: Dictionary = _fire(donated.world, Odradek.INVERSION, {"owner_id": 0, "lane": "Castle"})
+	_check(blocked_donation.world == donated.world, "full_enemy_zone_blocks_donation_without_tear")
 	var full: Dictionary = _fire(
 		flipped.world, Odradek.INVERSION, {"owner_id": 1, "lane": "Castle"}, 1
 	)

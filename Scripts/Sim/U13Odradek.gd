@@ -102,7 +102,7 @@ func valid_world(world: Dictionary) -> bool:
 	return true
 
 
-static func target_shape(power: String, target: Dictionary, pid: int) -> bool:
+static func target_shape(power: String, target: Dictionary, _pid: int) -> bool:
 	if power in [REDIRECT, SHIFT]:
 		return Fields.target_valid(target)
 	if power == FALSE_ORDERS:
@@ -118,7 +118,7 @@ static func target_shape(power: String, target: Dictionary, pid: int) -> bool:
 		return (
 			target.size() == 2
 			and Data.is_integer(target.get("owner_id"))
-			and target.owner_id == 1 - pid
+			and target.owner_id in [0, 1]
 			and target.get("lane") in Guards.LANES
 		)
 	return false
@@ -149,7 +149,7 @@ func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionar
 	elif legal and source.power_id == INVERSION:
 		legal = not (
 			Transfers
-			. eligible(world, source.target.owner_id, source.target.lane, source.player_id)
+			. eligible(world, source.target.owner_id, source.target.lane, 1 - int(source.target.owner_id))
 			. is_empty()
 		)
 	return {"legal": legal, "reason": "reconfiguration_target_unavailable"}
@@ -365,7 +365,7 @@ func _resolve_reconfiguration(record: Dictionary, context: Dictionary) -> Dictio
 		[source.target.entity_id]
 		if source.power_id == FALSE_ORDERS
 		else Transfers.eligible(
-			result.world, source.target.owner_id, source.target.lane, source.player_id
+			result.world, source.target.owner_id, source.target.lane, 1 - int(source.target.owner_id)
 		)
 	)
 	var changed: int = 0
@@ -374,7 +374,7 @@ func _resolve_reconfiguration(record: Dictionary, context: Dictionary) -> Dictio
 			result.world,
 			id,
 			source.target.owner_id,
-			source.target.owner_id if source.power_id == FALSE_ORDERS else source.player_id,
+			source.target.owner_id if source.power_id == FALSE_ORDERS else 1 - int(source.target.owner_id),
 			source.target.lane
 		)
 		if moved.action == "invalid":

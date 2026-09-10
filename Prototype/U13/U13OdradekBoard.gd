@@ -53,7 +53,7 @@ func _build() -> void:
 		[redirect_button, "Both sides inside the circle move to the other lane after combat."],
 		[false_orders_button, "Move one Guard to its owner's other zone before next round's deployment."],
 		[shift_button, "Enemy Marchers inside the smaller circle become yours after combat."],
-		[inversion_button, "Take legal Guards from an enemy zone next round. Any success adds 1 Neutral Tear."]
+		[inversion_button, "Flip legal Guards from either side to the opposite matching zone next round. Any success adds 1 Neutral Tear."]
 	]:
 		var note: Label = _label(odradek_box, pair[1], 13)
 		note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -295,7 +295,7 @@ func _guide() -> String:
 			else "FALSE ORDERS · now click the other Guard zone on the same side. The move happens next round."
 		)
 	if _intent == Odradek.INVERSION:
-		return "INVERSION · click an enemy Guard zone. Next round its Guards transfer into free slots in your matching zone; success grants one Neutral Tear."
+		return "INVERSION · select your or the enemy's Guard zone. Next round its Guards transfer to free slots in the opposite side's matching zone; success grants one Neutral Tear."
 	return super._guide()
 
 
@@ -323,7 +323,7 @@ func _target_allowed(target: Dictionary, intent: String) -> bool:
 	if not _planning() or not powers_step or target.get("lane") not in Odradek.Guards.LANES:
 		return false
 	if intent == Odradek.INVERSION:
-		return target.get("owner") == 1 and target.get("kind") in ["zone", "card"]
+		return target.get("owner") in [0, 1] and target.get("kind") in ["zone", "card"]
 	if guard_source.is_empty():
 		return not _cell_guard(target).is_empty()
 	return (
@@ -492,4 +492,6 @@ func _sync_guard_targeting() -> void:
 		message += "\nSelected: %s %s Guard, slot %d." % ["your" if guard_source.owner == 0 else "enemy", guard_source.attributes.lane, int(guard_source.attributes.slot) + 1]
 	if not guard_destination.is_empty():
 		message += "\nSelected zone: %s %s Guards.\nConfirm to queue; resolves NEXT ROUND." % ["your" if guard_destination.owner == 0 else "enemy", guard_destination.lane]
+	if _intent == Odradek.INVERSION and not guard_destination.is_empty():
+		message += "\nDestination: %s %s Guards." % ["ENEMY" if guard_destination.owner == 0 else "YOUR", guard_destination.lane]
 	guard_targeting.display(message, not guard_destination.is_empty(), zones, markers)
