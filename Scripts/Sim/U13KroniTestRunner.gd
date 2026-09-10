@@ -34,6 +34,7 @@ func _run() -> void:
 	_hunger_growth()
 	_attack_commitment()
 	_flee()
+	_biased_launch()
 	_placement()
 	_actors()
 	_match()
@@ -320,7 +321,11 @@ func _flee() -> void:
 	check(actor.consumed == 0 and approach_events.any(func(e): return e.event.type == "KRONI_FLEE_STARTED"), "proximity starts fleeing before a bite")
 	var identity: String = buffer.marchers()[0].id
 	check(actor.fleeing[identity].remaining_ms == 1100, "panic begins with independent 1.1 second timer")
-	check(Actors.notice(actor, buffer).is_empty(), "remaining nearby does not repeat flee event")
+	actor.fleeing[identity].remaining_ms = 50
+	check(Actors.notice(actor, buffer).is_empty() and actor.fleeing[identity].remaining_ms == 1100, "nearby refreshes timer without repeating flee event")
+	Actors.flee(actor, buffer, 550)
+	check(actor.fleeing[identity].remaining_ms >= 1070, "proximity keeps refreshing throughout the chomp")
+	Actors.notice(actor, buffer)
 	var before_escape: int = buffer.get_entity(identity).attributes.x_fp
 	actor.active = false
 	Actors.step([actor], buffer, 1, 1)
@@ -355,3 +360,37 @@ func _attack_commitment() -> void:
 		check(owner.preview_submission(0, [], order).action != "invalid", "one-card " + action + " remains legal")
 	check(owner.preview_submission(0, [], {"action": "Ward", "lane": "Lord", "card_ids": []}).action != "invalid", "zero-card Ward remains legal")
 	check(owner.preview_submission(0, [], {}).action != "invalid", "Pass remains legal")
+
+func _biased_launch() -> void:
+	var world: Dictionary = Scenario.world()
+	add_unit(world, 70, 1, 800, 100)
+	add_unit(world, 71, 1, 1000, 150)
+	var units: Array = world.entities.entities.filter(func(u): return u.kind == "marcher")
+	var base: Dictionary = Actors.create("bias", 0, 1, 0)
+	var routes: Array = Actors.favored_routes(base, units)
+	check(not routes.is_empty() and routes.size() < 34, "bias fixture separates qualifying and empty routes")
+	var biased: int = 0
+	var random_count: int = 0
+	for i in range(64):
+		var seed_value: String = "bias-seed-%d" % i
+		var actor: Dictionary = Actors.create("bias", 0, 1, 0, false, seed_value, {}, units)
+		var roll: int = int(preload("res://Scripts/Sim/U13KeyedRng.gd").draw(seed_value, "bias:1", "RAVENOUS_BIAS", 0, 4).value)
+		if roll < 3:
+			biased += 1
+			check(actor.vy_fp in routes, "75 percent branch selects a two-enemy route")
+		else:
+			random_count += 1
+			check(actor == Actors.create("bias", 0, 1, 0, false, seed_value), "25 percent branch preserves original random launch")
+		check(actor == Actors.create("bias", 0, 1, 0, false, seed_value, {}, units), "biased launch replays deterministically")
+	check(biased > 0 and random_count > 0, "both launch branches exercised")
+	var allies: Array = units.duplicate(true)
+	for unit in allies:
+		unit.owner = 0
+	check(Actors.favored_routes(base, allies).is_empty(), "friendly units cannot qualify a favored route")
+	check(Actors.favored_routes(base, [units[0]]).is_empty(), "fewer than two enemies falls back to random")
+	var mirrored: Array = units.duplicate(true)
+	for unit in mirrored:
+		unit.owner = 0
+		unit.attributes.x_fp = 2400 - int(unit.attributes.x_fp)
+	var opponent: Dictionary = Actors.create("bias", 1, 1, 0)
+	check(Actors.favored_routes(opponent, mirrored) == routes, "enemy launch uses the same bias toward player units")

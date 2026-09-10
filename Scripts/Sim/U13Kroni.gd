@@ -61,7 +61,7 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 		events.append_array(Hunger.feed(world, pid, 1, context.round, CONSUME))
 		world.data.kroni_fed[pid] = context.round
 	else:
-		var actor: Dictionary = Actors.create(source.declaration_id, pid, context.round, Hunger.hunger(world, pid), false, context.seed, source.target)
+		var actor: Dictionary = Actors.create(source.declaration_id, pid, context.round, Hunger.hunger(world, pid), false, context.seed, source.target, world.entities.entities)
 		world.data.kroni_actors.append(actor)
 		events.append(Hunger.event("RAVENOUS_ARMED", {"actor": actor, "round": context.round, "hook": record.fire_hook}, "Ravenous: Kroni will cross the field during Marching."))
 	return {"action": "resolved", "world": world, "events": events}

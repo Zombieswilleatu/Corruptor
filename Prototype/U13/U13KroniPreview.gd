@@ -69,7 +69,7 @@ func _ready() -> void:
 	add_child(status)
 	guide = Label.new()
 	guide.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	guide.text = "RAVENOUS\nClick either lane to choose his horizontal start along the bottom edge. Each launch rolls a new angle toward the enemy, bouncing off outer walls. No steering. Both sides can be eaten. Nearby units flee directly away when he approaches, at 30% normal speed for 1.1 seconds, independently of his chomp. No three-unit cap.\n\n6+ DEVOURED\nOne Soul, one Hunger and one Neutral Tear per activation.\n\nHUNGER\n0: Defense 4\n1–2: Defense 6\n3+: Defense 8\nFirst reaching 3 grants one personal Tear.\n\nBREACH\nA short random manifestation. No rewards."
+	guide.text = "RAVENOUS\nClick either lane to choose his horizontal start along the bottom edge. 75% of launches favor a route through two current enemy positions; otherwise the angle is random. He travels toward the enemy and bounces off outer walls. No steering. Both sides can be eaten. Nearby units flee directly away when he approaches, at 30% normal speed while he is nearby and for 1.1 seconds after he leaves range. No three-unit cap.\n\n6+ DEVOURED\nOne Soul, one Hunger and one Neutral Tear per activation.\n\nHUNGER\n0: Defense 4\n1–2: Defense 6\n3+: Defense 8\nFirst reaching 3 grants one personal Tear.\n\nBREACH\nA short random manifestation. No rewards."
 	add_child(guide)
 	resized.connect(_layout)
 	_layout()
@@ -117,7 +117,7 @@ func _restart() -> void:
 		ids.create("marcher", "kroni-preview", index, index % 2, a)
 	var buffer = Buffer.new()
 	buffer.restore(ids.snapshot())
-	var actor: Dictionary = Actors.create("preview", -1 if breach else 0, 1, 0 if breach else hunger, breach, "kroni-preview-%d" % seed_index, start)
+	var actor: Dictionary = Actors.create("preview", -1 if breach else 0, 1, 0 if breach else hunger, breach, "kroni-preview-%d" % seed_index, start, buffer.marchers())
 	var actors: Array = [actor]
 	var events: Array = [State.event("KRONI_ACTORS_STARTED", {"actors": actors.duplicate(true)}).event]
 	frames.append(buffer.marchers())

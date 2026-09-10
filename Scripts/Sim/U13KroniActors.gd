@@ -21,7 +21,7 @@ static func radius(hunger: int) -> int:
 	return int(round(float(RADIUS) * [1.0, 1.1, 1.2, 1.35][clampi(hunger, 0, 3)]))
 
 
-static func create(identity: String, pid: int, round_number: int, hunger: int, breach: bool = false, seed_value: String = "kroni-actor-fixture", start: Dictionary = {}) -> Dictionary:
+static func create(identity: String, pid: int, round_number: int, hunger: int, breach: bool = false, seed_value: String = "kroni-actor-fixture", start: Dictionary = {}, units: Array = []) -> Dictionary:
 	var actor: Dictionary = {"id": identity, "owner": pid, "round": round_number, "breach": breach, "x_fp": 0 if pid == 0 else LENGTH, "y_fp": 300, "vx_fp": FORWARD if pid == 0 else -FORWARD, "vy_fp": LATERAL_MIN, "radius_fp": radius(hunger), "hunger": hunger, "age": 0, "active": true, "consumed": 0, "rewarded": false, "fleeing": {}, "nearby": [], "fled_this_tick": []}
 	if not breach:
 		if not start.is_empty():
@@ -31,6 +31,10 @@ static func create(identity: String, pid: int, round_number: int, hunger: int, b
 		var key: String = Data.instance_id(identity, str(round_number), "ravenous_launch")
 		var magnitude: int = LATERAL_MIN + int(Rng.draw(seed_value, key, "RAVENOUS_ANGLE", 0, LATERAL_MAX - LATERAL_MIN + 1).value)
 		actor.vy_fp = magnitude * (-1 if int(Rng.draw(seed_value, key, "RAVENOUS_SIDE", 0, 2).value) == 0 else 1)
+	if not breach and int(Rng.draw(seed_value, identity + ":" + str(round_number), "RAVENOUS_BIAS", 0, 4).value) < 3:
+		var candidates: Array = favored_routes(actor, units)
+		if not candidates.is_empty():
+			actor.vy_fp = candidates[int(Rng.draw(seed_value, identity + ":" + str(round_number), "RAVENOUS_FAVORED_ROUTE", 0, candidates.size()).value)]
 	if breach:
 		actor.x_fp = int(Rng.draw(seed_value, identity, "BREACH_FORWARD", 0, LENGTH + 1).value)
 		actor.y_fp = int(Rng.draw(seed_value, identity, "BREACH_LATERAL", 0, WIDTH + 1).value)
@@ -39,6 +43,53 @@ static func create(identity: String, pid: int, round_number: int, hunger: int, b
 		actor.vx_fp = direction[0]
 		actor.vy_fp = direction[1]
 	return actor
+
+
+# Favor any legal launch crossing at least two current enemy positions.
+# This is a launch-time estimate, not homing: fleeing and Marching can evade it.
+static func favored_routes(actor: Dictionary, units: Array) -> Array:
+	var enemies: Array = units.filter(func(u): return u.get("kind") == "marcher" and u.get("owner") == 1 - int(actor.owner))
+	var routes: Array = []
+	if enemies.size() < 2:
+		return routes
+	for side in [-1, 1]:
+		for magnitude in range(LATERAL_MIN, LATERAL_MAX + 1):
+			if projected_hits(actor, side * magnitude, enemies) >= 2:
+				routes.append(side * magnitude)
+	return routes
+
+
+static func projected_hits(actor: Dictionary, velocity: int, enemies: Array) -> int:
+	var x: int = actor.x_fp
+	var y: int = actor.y_fp
+	var vy: int = velocity
+	var hit_ids: Dictionary = {}
+	for tick in range(200):
+		var bx: int = clampi(x + int(actor.vx_fp), 0, LENGTH)
+		var by: int = y + vy
+		var segments: Array = [[x, y, bx, by]]
+		if by < 0 or by > WIDTH:
+			var wall: int = 0 if by < 0 else WIDTH
+			var contact_x: int = x + int(round(float(bx - x) * float(wall - y) / float(by - y)))
+			by = -by if by < 0 else 2 * WIDTH - by
+			segments = [[x, y, contact_x, wall], [contact_x, wall, bx, by]]
+			vy = -vy
+		for unit in enemies:
+			if hit_ids.has(unit.id):
+				continue
+			var a: Dictionary = unit.attributes
+			var lateral: int = int(a.y_fp) + (600 if a.lane == "Castle" else 0)
+			for segment in segments:
+				if touches(segment[0], segment[1], segment[2], segment[3], a.x_fp, lateral, actor.radius_fp):
+					hit_ids[unit.id] = true
+					break
+		if hit_ids.size() >= 2:
+			return hit_ids.size()
+		x = bx
+		y = by
+		if x == (LENGTH if actor.owner == 0 else 0):
+			break
+	return hit_ids.size()
 
 
 # Integer segment/circle test includes the boundary and prevents tunnelling.
@@ -112,8 +163,7 @@ static func step(actors: Array, entities, round_number: int, tick: int) -> Array
 	return events
 
 
-# Entry into the warning radius starts an independent panic timer. Staying
-# nearby does not renew it or replay audio; leaving and returning can retrigger.
+# Proximity refreshes the panic timer. Refreshes do not replay audio.
 static func notice(actor: Dictionary, entities) -> Array:
 	var nearby: Array = []
 	var started: Array = []
@@ -126,7 +176,8 @@ static func notice(actor: Dictionary, entities) -> Array:
 		if dx * dx + dy * dy > reach * reach or int(a.step_fp) == 0:
 			continue
 		nearby.append(unit.id)
-		if unit.id in actor.nearby or actor.fleeing.has(unit.id):
+		if actor.fleeing.has(unit.id):
+			actor.fleeing[unit.id].remaining_ms = FLEE_MS
 			continue
 		actor.fleeing[unit.id] = {"remaining_ms": FLEE_MS, "carry_x": 0.0, "carry_y": 0.0, "unit": unit}
 		started.append(unit.id)
@@ -137,6 +188,22 @@ static func notice(actor: Dictionary, entities) -> Array:
 # Both normal field ticks and the bite pause spend the same panic timer.
 # Publish the bite's before/after positions for presentation interpolation.
 static func flee(actor: Dictionary, entities, elapsed_ms: int = CHOMP_MS) -> Array:
+	var merged: Dictionary = {}
+	var remaining: int = elapsed_ms
+	while remaining > 0 and not actor.fleeing.is_empty():
+		var slice_ms: int = mini(TICK_MS, remaining)
+		for change in _flee_slice(actor, entities, slice_ms):
+			var identity: String = change.before.id
+			if not merged.has(identity):
+				merged[identity] = change
+			else:
+				merged[identity].after = change.after
+				merged[identity].duration_ms += change.duration_ms
+		remaining -= slice_ms
+	return merged.values()
+
+
+static func _flee_slice(actor: Dictionary, entities, elapsed_ms: int) -> Array:
 	var changes: Array = []
 	for identity in actor.fleeing.keys():
 		var unit: Dictionary = entities.get_entity(identity)
@@ -144,11 +211,14 @@ static func flee(actor: Dictionary, entities, elapsed_ms: int = CHOMP_MS) -> Arr
 			actor.fleeing.erase(identity)
 			continue
 		var state: Dictionary = actor.fleeing[identity]
-		var duration: int = mini(elapsed_ms, int(state.remaining_ms))
 		var a: Dictionary = unit.attributes.duplicate(true)
 		var lateral: int = int(a.y_fp) + (600 if a.lane == "Castle" else 0)
 		var dx: int = int(a.x_fp) - int(actor.x_fp)
 		var dy: int = lateral - int(actor.y_fp)
+		var reach: int = int(actor.radius_fp) * FLEE_RADIUS_SCALE
+		if actor.active and dx * dx + dy * dy <= reach * reach:
+			state.remaining_ms = FLEE_MS
+		var duration: int = mini(elapsed_ms, int(state.remaining_ms))
 		if dx == 0 and dy == 0:
 			var directions: Array = [[1,0], [1,1], [0,1], [-1,1], [-1,0], [-1,-1], [0,-1], [1,-1]]
 			var direction: Array = directions[int(Rng.draw(actor.id, unit.id, "FLEE_OVERLAP", 0, 8).value)]

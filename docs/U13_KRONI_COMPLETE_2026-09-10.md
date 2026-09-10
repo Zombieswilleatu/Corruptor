@@ -8,7 +8,7 @@ Implements the accepted 2026-09-08 V2 handoff, section 5.5, and the random-legal
 - **Ward / Pass:** an active Kroni loses one Hunger when combat resolves, before either player's attacks. This makes the resulting Defense apply consistently to both combat orders. Other actions do not incur this penalty.
 - **Consume:** free prepared power, once per submission. Select one specific enemy Guard. At the start of the next round, before replenishment and deployment, Devour it and gain one Hunger if it is still an enemy Guard. A different lane does not invalidate that same Guard. A missing or friendly target fizzles; never retarget.
 - **Cannibal Hunger:** after scheduled Consume checks, every active Kroni not fed by Consume this round Devours his own lowest-value Guard across both zones. Equal values use stable entity-ID ordering. If none exists, lose one Hunger. The accepted rule gives no Hunger increase for the friendly meal. This also applies when Consume was not declared, including the first round's automatic check.
-- **Ravenous:** free immediate power. Step 10G arms one special actor; Marching executes it. The player selects only a horizontal starting position along their own field edge: bottom for player 0, top for player 1. When the power fires, it rolls a random launch angle toward the enemy boundary. Forward movement always remains enemy-facing; lateral movement starts in a random direction. Outer walls reverse lateral velocity. No steering, selected victim, pursuit or pathfinding. One touched friendly or enemy Marcher is Devoured per chomp. Nearby units on both sides begin fleeing on entry into twice his bite radius, moving directly away at 30% normal speed for 1.1 seconds. The 0.55-second double chomp does not start or renew their timers. No per-spot consumption cap. End at the far boundary. Six or more Devoured in one activation grants one Soul, one Hunger and one Neutral Tear, once only. Activation in round R blocks R+1 and R+2; ready in R+3.
+- **Ravenous:** free immediate power. Step 10G arms one special actor; Marching executes it. The player selects only a horizontal starting position along their own field edge: bottom for player 0, top for player 1. When the power fires, it rolls a random launch angle toward the enemy boundary. Forward movement always remains enemy-facing; lateral movement starts in a random direction. Outer walls reverse lateral velocity. No steering, selected victim, pursuit or pathfinding. One touched friendly or enemy Marcher is Devoured per chomp. Nearby units on both sides begin fleeing on entry into twice his bite radius, moving directly away at 30% normal speed while he remains nearby and for 1.1 seconds afterward. Proximity refreshes the timer during the 0.55-second double chomp too. No per-spot consumption cap. End at the far boundary. Six or more Devoured in one activation grants one Soul, one Hunger and one Neutral Tear, once only. Activation in round R blocks R+1 and R+2; ready in R+3.
 - **Hunger footprint:** 100%, 110%, 120%, 135% at 0, 1, 2, 3+. The activation snapshots Hunger. Rendering and actual collision radius use that same snapshot; rewards do not resize an actor halfway through an activation.
 - **Insatiable Hunger (Breach):** once per Marching phase while Kroni occupies the shared Breach. A keyed random point and random direction produce a brief special actor. It Devours either side with the same radial fleeing response, then disappears. No Hunger, Souls, Tears, milestone or Ravenous reward progress comes from it.
 
@@ -52,7 +52,7 @@ Kroni is available in the main runner's Lord picker and the animation gallery.
 
 ## Placement/random-launch revision
 
-The preview accepts starting-point clicks and rolls a fresh launch each time. Two fast six-frame chomp cycles remain in each bite pause. Kroni content version is now U13_KRONI_PROXIMITY_FLEE_V5; older Kroni checkpoints are rejected rather than silently replayed with changed rules.
+The preview accepts starting-point clicks and rolls a fresh launch each time. Two fast six-frame chomp cycles remain in each bite pause. Kroni content version is now U13_KRONI_BIASED_LAUNCH_V6; older Kroni checkpoints are rejected rather than silently replayed with changed rules.
 
 Revision validation: Godot 4.7.2 Kroni core and board suites passed with zero failures. Coverage includes required position-only declarations, fresh launch angles, forward-only motion for both owners, launch-hook JSON replay, board placement/cancel/confirmation, worker playback coordinates, and preview placement/new launches.
 
@@ -71,10 +71,19 @@ Hunt and Siege require at least one committed card for every U13 Lord. Empty att
 
 ## Fleeing replaces the consumption cap
 
-Entering twice Kroni's consumption radius starts a 1.1-second panic timer, independent of his 0.55-second double chomp. Units flee directly away at 30% normal speed during normal field ticks and during his bite pause; both spend the same timer. Staying nearby does not refresh the timer. Leaving and re-entering can start another event. Fractional movement carry preserves the 30% rate across small ticks. Panic replaces normal forward movement while active.
+Entering twice Kroni's consumption radius starts a 1.1-second panic timer, independent of his 0.55-second double chomp. Units flee directly away at 30% normal speed during normal field ticks and during his bite pause; both spend the same timer. Proximity continually refreshes the timer, including during a chomp; it expires 1.1 seconds after leaving range. Refreshes do not replay the scream. Fractional movement carry preserves the 30% rate across small ticks. Panic replaces normal forward movement while active.
 
 The authoritative positions change for both sides, including waiting and duelling units. Units can cross the internal lane seam; outer edges clamp movement. Exact overlaps use a stable keyed radial direction. There is no guaranteed escape or fixed meal count.
 
 The board and animation preview show Deimos's Rout ghost on active fleers before, during, and after bites. A proximity event triggers one audio voice for the group from res://Sounds/Wilhelm.wav when present. An ongoing scream finishes without being restarted by a neighboring group's entry. The actual user-supplied clip remains local to their checkout.
 
-Validation includes proximity before contact, 1.1-second expiry, no refresh while nearby, movement without a bite and after Kroni disappears, fractional speed, deterministic replay, lane crossing, outer boundaries, and board/preview ghost and sound lifecycle.
+Validation includes proximity before contact, 1.1-second expiry, continuous refresh while nearby without repeated sound, movement without a bite and after Kroni disappears, fractional speed, deterministic replay, lane crossing, outer boundaries, and board/preview ghost and sound lifecycle.
+
+
+## Favored Ravenous launch
+
+A keyed four-way draw chooses the favored branch 75% of the time. That branch samples uniformly among legal launch angles whose bounced path crosses at least two current enemy Marcher positions. If no such angle exists, the original random launch remains. The other 25% always uses the original random angle. Friendly bodies never qualify a route. Both owners use the same rule; Breach remains fully random.
+
+The estimate uses the current activation snapshot and exact existing path/bounce geometry. This favors contact but cannot guarantee two meals: Marching and fleeing can move units out of the projected path. Kroni never homes or changes his selected heading to pursue a target. The preview uses the same selection routine.
+
+Panic refreshes in 30ms steps while nearby, including throughout the chomp pause, with no extra scream for timer refreshes. Core coverage checks both selection branches, fallback, enemy-only filtering, mirrored ownership, replay, and continuous panic refresh.
