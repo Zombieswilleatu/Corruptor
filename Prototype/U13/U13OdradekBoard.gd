@@ -12,6 +12,8 @@ var false_orders_button: Button
 var inversion_button: Button
 var area_power: String = Odradek.REDIRECT
 var guard_source: Dictionary = {}
+var guard_destination: Dictionary = {}
+var guard_targeting
 var debug_panel
 var debug_button: Button
 var odradek_effects
@@ -21,6 +23,11 @@ func _build() -> void:
 	super._build()
 	if not _direct():
 		return
+	guard_targeting = preload("res://Prototype/U13/U13GuardTargeting.gd").new()
+	add_child(guard_targeting)
+	guard_targeting.confirmed.connect(_confirm_guard_power)
+	guard_targeting.cancelled.connect(_cancel_guard_power)
+	guard_targeting.zone_selected.connect(func(pid: int, lane: String) -> void: _guard_selected({"kind": "zone", "owner": pid, "lane": lane}))
 	odradek_effects = preload("res://Prototype/U13/U13OdradekEffects.gd").new()
 	add_child(odradek_effects)
 	debug_panel = preload("res://Prototype/U13/U13DebugPanel.gd").new()
@@ -68,6 +75,7 @@ func _build() -> void:
 
 func _update_direct_ui() -> void:
 	super._update_direct_ui()
+	_sync_guard_targeting()
 	if debug_button != null:
 		debug_button.disabled = not _planning()
 	if odradek_box == null:
@@ -238,6 +246,9 @@ func _replace_redirect_queue(draft: Array) -> void:
 
 
 func _reset_direct() -> void:
+	guard_destination = {}
+	if guard_targeting != null:
+		guard_targeting.hide()
 	guard_source = {}
 	area_power = Odradek.REDIRECT
 	if odradek_effects != null:
@@ -268,6 +279,7 @@ func _begin_guard_power(power: String) -> void:
 	):
 		return
 	_intent = power
+	guard_destination = {}
 	guard_source = {}
 	_target = {}
 	_refresh()
@@ -332,15 +344,26 @@ func _guard_selected(target: Dictionary) -> void:
 		_refresh()
 		phase_prompt.set_presenting(false)
 		return
+	guard_destination = target.duplicate(true)
+	_sync_guard_targeting()
+
+
+func _confirm_guard_power() -> void:
+	if guard_destination.is_empty() or not _target_allowed(guard_destination, _intent):
+		return
+	var target: Dictionary = guard_destination
 	var payload: Dictionary = {"owner_id": int(target.owner), "lane": target.lane}
 	if _intent == Odradek.FALSE_ORDERS:
 		payload["entity_id"] = guard_source.id
 	var draft: Array = queued.duplicate(true)
 	draft.append(session.declaration(_intent, draft.size(), payload))
-	if _error(session.choose(draft, _order())):
+	var result: Dictionary = session.choose(draft, _order())
+	if _error(result):
+		guard_targeting.note.text += "\nCould not queue: " + String(result.get("reason", "Target unavailable"))
 		return
 	queued = draft
 	_intent = ""
+	guard_destination = {}
 	guard_source = {}
 	_refresh()
 	reopen_decision()
@@ -428,3 +451,45 @@ func finish_playback(skip: bool = true) -> void:
 
 func _planning() -> bool:
 	return (odradek_effects == null or not odradek_effects.active()) and super._planning()
+
+
+func _cancel_guard_power() -> void:
+	_intent = ""
+	guard_source = {}
+	guard_destination = {}
+	_refresh()
+	reopen_decision()
+
+
+func _sync_guard_targeting() -> void:
+	if guard_targeting == null:
+		return
+	if _intent not in [Odradek.FALSE_ORDERS, Odradek.INVERSION] or not _planning():
+		guard_targeting.hide()
+		return
+	var zones: Array = []
+	var markers: Array = []
+	for pid in [0, 1]:
+		var side = sides[1 - pid]
+		for lane in ["Lord", "Castle"]:
+			var box = side.lord_guard_box if lane == "Lord" else side.castle_guard_box
+			var target: Dictionary = {"kind": "zone", "owner": pid, "lane": lane}
+			if _intent == Odradek.FALSE_ORDERS and guard_source.is_empty():
+				for slot in box.get_children():
+					var cell: Dictionary = target.duplicate()
+					cell.slot = slot.get_index()
+					if _target_allowed(cell, _intent):
+						markers.append({"control": slot, "selected": false})
+			elif _target_allowed(target, _intent):
+				zones.append(target)
+				markers.append({"control": box, "selected": guard_destination.get("owner", -1) == pid and guard_destination.get("lane", "") == lane})
+	if not guard_source.is_empty():
+		var side = sides[1 - int(guard_source.owner)]
+		var box = side.lord_guard_box if guard_source.attributes.lane == "Lord" else side.castle_guard_box
+		markers.append({"control": box.get_child(int(guard_source.attributes.slot)), "selected": true})
+	var message: String = _guide() + "\nCyan = available. Gold = selected."
+	if not guard_source.is_empty():
+		message += "\nSelected: %s %s Guard, slot %d." % ["your" if guard_source.owner == 0 else "enemy", guard_source.attributes.lane, int(guard_source.attributes.slot) + 1]
+	if not guard_destination.is_empty():
+		message += "\nSelected zone: %s %s Guards.\nConfirm to queue; resolves NEXT ROUND." % ["your" if guard_destination.owner == 0 else "enemy", guard_destination.lane]
+	guard_targeting.display(message, not guard_destination.is_empty(), zones, markers)

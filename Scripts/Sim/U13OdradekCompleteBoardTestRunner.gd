@@ -22,6 +22,13 @@ func _run() -> void:
 	var before: Dictionary = board.session.checkpoint()
 	board.false_orders_button.pressed.emit()
 	await _settle()
+	board.sides[1].castle_guard_box.get_child(0).input_surface.pressed.emit()
+	await _settle()
+	_check(board.guard_source.get("owner", -1) == 0 and board.guard_targeting.visible, "own_guard_selection_keeps_targeting_instructions_visible")
+	board._cancel_guard_power()
+	_check(board.queued.is_empty() and not board.guard_targeting.visible, "cancel_returns_without_reserving_points")
+	board.false_orders_button.pressed.emit()
+	await _settle()
 	board.sides[0].castle_guard_box.get_child(0).input_surface.pressed.emit()
 	await _settle()
 	_check(
@@ -31,6 +38,8 @@ func _run() -> void:
 	board.sides[1].lord_guard_box.get_child(0).input_surface.pressed.emit()
 	_check(board.queued.is_empty(), "false_orders_rejects_other_owner_destination")
 	board.sides[0].lord_guard_box.get_child(0).input_surface.pressed.emit()
+	_check(board.guard_targeting.visible and board.queued.is_empty(), "destination_visible_before_confirmation")
+	board.guard_targeting.confirm_button.pressed.emit()
 	await _settle()
 	_check(
 		(
@@ -39,7 +48,7 @@ func _run() -> void:
 			and board.queued[0].target.owner_id == 1
 			and board.queued[0].target.lane == "Lord"
 		),
-		"false_orders_second_click_queues_destination"
+		"false_orders_confirmation_queues_destination"
 	)
 	_check(
 		board.shift_button.disabled and not board.false_orders_button.disabled,
@@ -90,6 +99,8 @@ func _run() -> void:
 	board.inversion_button.pressed.emit()
 	await _settle()
 	board.sides[0].castle_guard_box.get_child(0).input_surface.pressed.emit()
+	_check(board.guard_targeting.visible and board.queued.is_empty(), "inversion_previews_zone_before_confirmation")
+	board.guard_targeting.confirm_button.pressed.emit()
 	await _settle()
 	_check(
 		(
