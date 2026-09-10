@@ -4,7 +4,7 @@ signal closed
 const PREVIEWS: Array = [
 	{
 		"title": "Odradek · Spiral",
-		"note": "Large oil-slick vortex with radius, twist, speed and pause controls.",
+		"note": "Spiral, randomized glitches, Marchers and cards. Tune color depth, radius and speed.",
 		"scene": "res://Prototype/U13/U13OdradekPreview.tscn",
 		"size": Vector2(1280, 900)
 	},

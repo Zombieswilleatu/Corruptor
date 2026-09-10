@@ -12,6 +12,7 @@ var records: Array = []
 var elapsed: float = 0.0
 var switched: bool = false
 var changed_ids: Array = []
+var glitch_pattern: Dictionary = {}
 
 
 func _ready() -> void:
@@ -36,6 +37,7 @@ func active() -> bool:
 
 
 func _begin() -> void:
+	glitch_pattern = Timing.new_pattern()
 	battlefield.paradox_glitches.clear()
 	changed_ids.clear()
 	for before in records[0].before:
@@ -75,11 +77,11 @@ func advance(delta: float) -> bool:
 		area = transform * Visuals.region_rect(lane_rect, data.target.field_position, int(data.radius_fp))
 		clip = transform * lane_rect
 	# Stutter in, snap to a sustained warp, then break apart on exit.
-	var envelope: float = Timing.envelope(progress)
+	var envelope: float = Timing.envelope(progress, glitch_pattern)
 	vortex.glitch = Timing.edge_glitch(progress)
 	battlefield.paradox_glitches.clear()
 	for id in changed_ids:
-		battlefield.paradox_glitches[id] = {"amount": Timing.transfer(progress), "tick": int(elapsed * 40)}
+		battlefield.paradox_glitches[id] = {"amount": Timing.transfer(progress), "tick": int(elapsed * 40) + int(glitch_pattern.tick_offset)}
 	battlefield.queue_redraw()
 	vortex.present(area, clip, envelope, 8.0 if paradox else 4.0, 0.8 if paradox else 0.0)
 	if progress >= 0.5 and not switched:

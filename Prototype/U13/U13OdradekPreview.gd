@@ -22,6 +22,7 @@ var mode_index: int = 0
 var progress: float = 0.0
 var chits: Texture2D
 var cards: Array = []
+var glitch_pattern: Dictionary = Timing.new_pattern()
 
 
 func _ready() -> void:
@@ -43,13 +44,13 @@ func _ready() -> void:
 	_slider("Twist", 0, 12, twist, func(v: float) -> void: twist = v)
 	_slider("Speed", 0.1, 2, speed, func(v: float) -> void: speed = v)
 	_slider("Color depth", 0, 1, color_depth, func(v: float) -> void: color_depth = v)
-	_toggle("Hold effect", false, func(v: bool) -> void: hold = v; elapsed = 0.0)
+	_toggle("Hold effect", false, func(v: bool) -> void: hold = v; _restart())
 	_toggle("Pause", false, func(v: bool) -> void: paused = v)
 	_toggle("Reference grid", true, func(v: bool) -> void: grid = v)
 	_toggle("Effect on", true, func(v: bool) -> void: enabled = v)
 	var replay := Button.new()
 	replay.text = "Replay"
-	replay.pressed.connect(func() -> void: elapsed = 0.0; vortex.phase = 0.0)
+	replay.pressed.connect(_restart)
 	controls.add_child(replay)
 	var close := Button.new()
 	close.text = "Back / Exit"
@@ -94,7 +95,14 @@ func _preset(index: int) -> void:
 	chaos = 0.8 if index == 2 else 0.0
 	var slider := controls.find_child("Twist", true, false) as HSlider
 	slider.value = 8.0 if index == 2 else 4.0
+	_restart()
+
+
+func _restart() -> void:
 	elapsed = 0.0
+	glitch_pattern = Timing.new_pattern()
+	if vortex != null:
+		vortex.phase = 0.0
 
 
 func _layout() -> void:
@@ -120,10 +128,13 @@ func _process(delta: float) -> void:
 		return
 	var duration: float = Effects.PARADOX_DURATION if chaos > 0 else Effects.EFFECT_DURATION
 	if not paused:
-		elapsed = fmod(elapsed + delta * speed, duration + 0.6)
+		var next_elapsed: float = elapsed + delta * speed
+		if next_elapsed >= duration + 0.6:
+			glitch_pattern = Timing.new_pattern()
+		elapsed = fmod(next_elapsed, duration + 0.6)
 		vortex.phase += delta * speed
 	progress = clampf(elapsed / duration, 0.0, 1.0)
-	var amount: float = 1.0 if hold else Timing.envelope(progress)
+	var amount: float = 1.0 if hold else Timing.envelope(progress, glitch_pattern)
 	vortex.color_depth = color_depth
 	vortex.glitch = 0.0 if hold else Timing.edge_glitch(progress)
 	var field: Rect2 = _field()
@@ -151,7 +162,7 @@ func _draw() -> void:
 			draw_line(Vector2(x, field.position.y), Vector2(x, field.end.y), Color(0.7, 0.8, 0.7, 0.45), 2)
 		for y in range(int(field.position.y), int(field.end.y), 48):
 			draw_line(Vector2(field.position.x, y), Vector2(field.end.x, y), Color(0.7, 0.8, 0.7, 0.45), 2)
-	var tick: int = int(elapsed * 40)
+	var tick: int = int(elapsed * 40) + int(glitch_pattern.tick_offset)
 	var transfer: float = Timing.transfer(progress) if enabled and not hold else 0.0
 	var changed: bool = enabled and not hold and progress >= 0.5
 	var center: Vector2 = field.position + center_ratio * field.size
