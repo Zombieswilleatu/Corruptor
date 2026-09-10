@@ -159,7 +159,7 @@ func _draw() -> void:
 	draw_string(font, field.position + Vector2(15, 25), "LORD LANE", HORIZONTAL_ALIGNMENT_LEFT, -1, 18)
 	draw_string(font, Vector2(field.get_center().x + 15, field.position.y + 25), "CASTLE LANE", HORIZONTAL_ALIGNMENT_LEFT, -1, 18)
 	for index in range(6):
-		var point: Vector2 = field.position + field.size * Vector2(0.28 + (index % 2) * 0.1, 0.3 + (index / 2) * 0.18)
+		var point: Vector2 = field.position + field.size * Vector2(0.28 + (index % 2) * 0.1, 0.3 + floorf(float(index) / 2.0) * 0.18)
 		var owner: int = index % 2
 		var affected: bool = point.distance_to(center) <= radius and (mode_index != 1 or owner == 1)
 		if affected and changed:
