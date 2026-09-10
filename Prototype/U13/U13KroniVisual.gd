@@ -1,5 +1,10 @@
 extends Node2D
 
+signal flee_started
+@export var flee_sound: AudioStream
+var flee_audio: AudioStreamPlayer
+var bite_field: Array = []
+
 const Art = preload("res://Prototype/U13/U13BoardTextures.gd")
 const TICK_SECONDS: float = 6.0 / 200.0
 const SHEET_PATH: String = "res://ConceptImages/Sprites/Kroni/KroniSprite.png"
@@ -31,9 +36,14 @@ func _ready() -> void:
 	sheet = Art.texture(SHEET_PATH)
 	chits = Art.texture("res://ConceptImages/Sprites/Chits.png")
 	z_index = 45
+	flee_audio = AudioStreamPlayer.new()
+	add_child(flee_audio)
 
 
 func clear() -> void:
+	_restore_bite_field()
+	if flee_audio != null:
+		flee_audio.stop()
 	frames = []
 	bites = []
 	bite = {}
@@ -83,6 +93,15 @@ func show_time(at: float) -> void:
 		bite = bites[bite_index].data
 		bite_index += 1
 		bite_elapsed = 0.0
+		if is_instance_valid(battlefield):
+			bite_field = battlefield._units.duplicate(true)
+			battlefield._units = flee_frame(bite_field)
+			battlefield.queue_redraw()
+		if not bite.get("flee", []).is_empty():
+			flee_started.emit()
+			if flee_sound != null and not flee_audio.playing:
+				flee_audio.stream = flee_sound
+				flee_audio.play()
 	queue_redraw()
 
 
@@ -90,7 +109,11 @@ func advance_bite(delta: float) -> void:
 	if not busy():
 		return
 	bite_elapsed += delta
+	if is_instance_valid(battlefield):
+		battlefield._units = flee_frame(bite_field)
+		battlefield.queue_redraw()
 	if bite_elapsed >= chomp_seconds:
+		_restore_bite_field()
 		bite = {}
 		show_time(clock)
 	queue_redraw()
@@ -158,3 +181,28 @@ func _draw() -> void:
 			var column: int = ["Butcher", "Penitent", "Vulture", "Wright"].find(bite.before.attributes.suit)
 			var cell: Vector2 = chits.get_size() / Vector2(4.0, 2.0)
 			draw_texture_rect_region(chits, Rect2(p - Vector2.ONE * side * 0.5, Vector2.ONE * side), Rect2(Vector2(float(column), float(bite.before.owner)) * cell, cell))
+
+
+func _restore_bite_field() -> void:
+	if is_instance_valid(battlefield) and not bite_field.is_empty():
+		battlefield._units = bite_field
+		battlefield.queue_redraw()
+	bite_field = []
+
+
+func flee_frame(units: Array) -> Array:
+	if not busy() or bite.get("flee", []).is_empty():
+		return units
+	var shown: Array = units.duplicate(true)
+	var progress: float = clampf(bite_elapsed / chomp_seconds, 0.0, 1.0)
+	for change in bite.flee:
+		for unit in shown:
+			if unit.id != change.before.id:
+				continue
+			var a: Dictionary = change.before.attributes
+			var b: Dictionary = change.after.attributes
+			var lateral: float = lerpf(float(a.y_fp) + (600.0 if a.lane == "Castle" else 0.0), float(b.y_fp) + (600.0 if b.lane == "Castle" else 0.0), progress)
+			unit.attributes.x_fp = lerpf(float(a.x_fp), float(b.x_fp), progress)
+			unit.attributes.lane = "Lord" if lateral < 600.0 else "Castle"
+			unit.attributes.y_fp = lateral - (600.0 if lateral >= 600.0 else 0.0)
+	return shown

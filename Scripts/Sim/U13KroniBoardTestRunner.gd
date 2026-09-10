@@ -123,11 +123,25 @@ func _run() -> void:
 	await _settle()
 	_check(not preview.visual.bites.is_empty() and preview.visual.sheet != null, "standalone preview has real consumption events and sprite")
 	preview.set_process(false)
+	preview._restart()
 	var visual = preview.visual
 	var at: float = visual.bites[0].at
 	visual.show_time(at)
 	_check(visual.busy(), "consumption starts presentation pause")
+	var escape: Array = visual.bite.get("flee", [])
+	_check(not escape.is_empty(), "preview bite records nearby fleeing survivors")
+	var flight_units: Array = []
+	for change in escape:
+		flight_units.append(change.after.duplicate(true))
+	var original_units: Array = flight_units.duplicate(true)
+	var start_units: Array = visual.flee_frame(flight_units)
 	visual.advance_bite(visual.chomp_seconds * 0.5)
+	var middle_units: Array = visual.flee_frame(flight_units)
+	for i in range(escape.size()):
+		var a: Dictionary = escape[i].before.attributes
+		var b: Dictionary = escape[i].after.attributes
+		_check(start_units[i].attributes.x_fp == a.x_fp and is_equal_approx(float(middle_units[i].attributes.x_fp), (float(a.x_fp) + float(b.x_fp)) * 0.5), "flee playback interpolates authoritative escape")
+	_check(flight_units == original_units, "flee playback leaves recorded positions unchanged")
 	_check(visual.busy() and visual.clock == at, "chomp animates without advancing field clock")
 	_check(Visual.facing(Vector2(1, 0)) == 2 and Visual.facing(Vector2(-1, 0)) == 1 and Visual.facing(Vector2(0, 1)) == 0 and Visual.facing(Vector2(0, -1)) == 3, "all four supplied directions supported")
 	var preview_click := InputEventMouseButton.new()

@@ -69,7 +69,7 @@ func _ready() -> void:
 	add_child(status)
 	guide = Label.new()
 	guide.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	guide.text = "RAVENOUS\nClick either lane to choose his horizontal start along the bottom edge. Each launch rolls a new angle toward the enemy, bouncing off outer walls. No steering. Both sides can be eaten. Up to 3 per spot, then move one body-width before feeding again.\n\n6+ DEVOURED\nOne Soul, one Hunger and one Neutral Tear per activation.\n\nHUNGER\n0: Defense 4\n1–2: Defense 6\n3+: Defense 8\nFirst reaching 3 grants one personal Tear.\n\nBREACH\nA short random manifestation. No rewards."
+	guide.text = "RAVENOUS\nClick either lane to choose his horizontal start along the bottom edge. Each launch rolls a new angle toward the enemy, bouncing off outer walls. No steering. Both sides can be eaten. Nearby survivors flee directly away during each chomp at 30% normal speed. No three-unit cap.\n\n6+ DEVOURED\nOne Soul, one Hunger and one Neutral Tear per activation.\n\nHUNGER\n0: Defense 4\n1–2: Defense 6\n3+: Defense 8\nFirst reaching 3 grants one personal Tear.\n\nBREACH\nA short random manifestation. No rewards."
 	add_child(guide)
 	resized.connect(_layout)
 	_layout()
@@ -177,7 +177,7 @@ func _draw() -> void:
 		return
 	var index: int = clampi(int(floor(elapsed / Visual.TICK_SECONDS + 0.00001)), 0, frames.size() - 1)
 	var cell: Vector2 = chits.get_size() / Vector2(4.0, 2.0)
-	for unit in frames[index]:
+	for unit in visual.flee_frame(frames[index]):
 		var a: Dictionary = unit.attributes
 		var center: Vector2 = visual.point(float(a.x_fp), float(a.y_fp) + (600.0 if a.lane == "Castle" else 0.0))
 		var column: int = Marching.SUITS.find(a.suit)

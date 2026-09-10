@@ -10,7 +10,10 @@ const FORWARD: int = 16
 const LATERAL_MIN: int = 8
 const LATERAL_MAX: int = 24
 const BREACH_TICKS: int = 33
-const MEAL_LIMIT: int = 3
+const FLEE_PERCENT: int = 30
+const CHOMP_MS: int = 550
+const TICK_MS: int = 30
+const FLEE_RADIUS_SCALE: int = 2
 
 
 static func radius(hunger: int) -> int:
@@ -18,7 +21,7 @@ static func radius(hunger: int) -> int:
 
 
 static func create(identity: String, pid: int, round_number: int, hunger: int, breach: bool = false, seed_value: String = "kroni-actor-fixture", start: Dictionary = {}) -> Dictionary:
-	var actor: Dictionary = {"id": identity, "owner": pid, "round": round_number, "breach": breach, "x_fp": 0 if pid == 0 else LENGTH, "y_fp": 300, "vx_fp": FORWARD if pid == 0 else -FORWARD, "vy_fp": LATERAL_MIN, "radius_fp": radius(hunger), "hunger": hunger, "age": 0, "active": true, "consumed": 0, "rewarded": false, "meal_count": 0, "meal_x_fp": 0, "meal_y_fp": 0}
+	var actor: Dictionary = {"id": identity, "owner": pid, "round": round_number, "breach": breach, "x_fp": 0 if pid == 0 else LENGTH, "y_fp": 300, "vx_fp": FORWARD if pid == 0 else -FORWARD, "vy_fp": LATERAL_MIN, "radius_fp": radius(hunger), "hunger": hunger, "age": 0, "active": true, "consumed": 0, "rewarded": false}
 	if not breach:
 		if not start.is_empty():
 			actor.y_fp = int(start.field_position.y_fp) + (600 if start.lane == "Castle" else 0)
@@ -77,25 +80,19 @@ static func step(actors: Array, entities, round_number: int, tick: int) -> Array
 		actor.x_fp = bx
 		actor.y_fp = by
 		actor.age += 1
-		# A feeding spot lasts one footprint diameter from its first bite.
-		if actor.meal_count > 0 and (bx - int(actor.meal_x_fp)) * (bx - int(actor.meal_x_fp)) + (by - int(actor.meal_y_fp)) * (by - int(actor.meal_y_fp)) >= 4 * int(actor.radius_fp) * int(actor.radius_fp):
-			actor.meal_count = 0
 		for unit in entities.marchers():
-			if actor.meal_count >= MEAL_LIMIT:
-				break
 			var a: Dictionary = unit.attributes
 			var lateral: int = int(a.y_fp) + (600 if a.lane == "Castle" else 0)
 			var hit: bool = false
 			for segment in segments:
 				hit = hit or touches(segment[0], segment[1], segment[2], segment[3], int(a.x_fp), lateral, int(actor.radius_fp))
 			if hit:
-				if actor.meal_count == 0:
-					actor.meal_x_fp = bx
-					actor.meal_y_fp = by
-				actor.meal_count += 1
 				entities.retire(unit.id)
 				actor.consumed += 1
-				events.append(State.event("MARCHER_DEVOURED", {"actor_id": actor.id, "actor": actor.duplicate(true), "before": unit, "round": round_number, "tick": tick, "breach": actor.breach}, "Insatiable Hunger devours a Marcher." if actor.breach else "Ravenous devours a Marcher."))
+				var fleeing: Array = flee(actor, entities)
+				events.append(State.event("MARCHER_DEVOURED", {"actor_id": actor.id, "actor": actor.duplicate(true), "before": unit, "round": round_number, "tick": tick, "breach": actor.breach, "flee": fleeing, "chomp_ms": CHOMP_MS}, "Insatiable Hunger devours a Marcher." if actor.breach else "Ravenous devours a Marcher."))
+				# One victim per chomp; survivors have time to flee before the next bite.
+				break
 		if actor.breach:
 			if bx == 0 or bx == LENGTH:
 				actor.vx_fp = -int(actor.vx_fp)
@@ -107,6 +104,42 @@ static func step(actors: Array, entities, round_number: int, tick: int) -> Array
 	return events
 
 
+# A chomp is a bounded subphase: Kroni and normal Marching pause while nearby
+# survivors move. Publish before/after rows so playback shows that exact motion.
+static func flee(actor: Dictionary, entities) -> Array:
+	var changes: Array = []
+	var reach: int = int(actor.radius_fp) * FLEE_RADIUS_SCALE
+	for unit in entities.marchers():
+		var a: Dictionary = unit.attributes.duplicate(true)
+		var lateral: int = int(a.y_fp) + (600 if a.lane == "Castle" else 0)
+		var dx: int = int(a.x_fp) - int(actor.x_fp)
+		var dy: int = lateral - int(actor.y_fp)
+		if dx * dx + dy * dy > reach * reach or int(a.step_fp) == 0:
+			continue
+		if dx == 0 and dy == 0:
+			# Exact overlap has no away vector; stable IDs choose a radial exit.
+			var directions: Array = [[1,0], [1,1], [0,1], [-1,1], [-1,0], [-1,-1], [0,-1], [1,-1]]
+			var direction: Array = directions[int(Rng.draw(actor.id, unit.id, "FLEE_OVERLAP", 0, 8).value)]
+			dx = direction[0]
+			dy = direction[1]
+		var length: float = sqrt(float(dx * dx + dy * dy))
+		var distance: float = float(int(a.step_fp) * FLEE_PERCENT * CHOMP_MS) / float(100 * TICK_MS)
+		a.x_fp = clampi(int(a.x_fp) + int(round(float(dx) / length * distance)), 0, LENGTH)
+		var after_lateral: int = clampi(lateral + int(round(float(dy) / length * distance)), 0, WIDTH)
+		# Clamp at outer walls, but permit fleeing across the shared lane boundary.
+		a.lane = "Lord" if after_lateral < 600 else "Castle"
+		a.y_fp = after_lateral - (600 if a.lane == "Castle" else 0)
+		if a.x_fp == unit.attributes.x_fp and after_lateral == lateral:
+			continue
+		a.contact_tick = -1
+		if a.x_fp != (LENGTH if unit.owner == 0 else 0):
+			a.waiting = false
+			a.waiting_since_round = 0
+		entities.update(unit.id, unit.owner, a)
+		changes.append({"before": unit, "after": entities.get_entity(unit.id)})
+	return changes
+
+
 static func valid(actors) -> bool:
 	if typeof(actors) != TYPE_ARRAY or actors.size() > 3:
 		return false
@@ -115,15 +148,13 @@ static func valid(actors) -> bool:
 		if typeof(a) != TYPE_DICTIONARY or typeof(a.get("id")) != TYPE_STRING or a.id.is_empty() or a.id in seen:
 			return false
 		seen.append(a.id)
-		for field in ["owner", "round", "x_fp", "y_fp", "vx_fp", "vy_fp", "radius_fp", "hunger", "age", "consumed", "meal_count", "meal_x_fp", "meal_y_fp"]:
+		for field in ["owner", "round", "x_fp", "y_fp", "vx_fp", "vy_fp", "radius_fp", "hunger", "age", "consumed"]:
 			if not Data.is_integer(a.get(field)):
 				return false
 		for field in ["breach", "active", "rewarded"]:
 			if typeof(a.get(field)) != TYPE_BOOL:
 				return false
 		if a.owner not in [-1, 0, 1] or (not a.breach and a.owner == -1) or a.round < 1 or a.x_fp < 0 or a.x_fp > LENGTH or a.y_fp < 0 or a.y_fp > WIDTH or a.age < 0 or a.age > 200 or a.consumed < 0 or a.hunger < 0 or a.radius_fp != radius(a.hunger):
-			return false
-		if a.meal_count < 0 or a.meal_count > MEAL_LIMIT or a.meal_x_fp < 0 or a.meal_x_fp > LENGTH or a.meal_y_fp < 0 or a.meal_y_fp > WIDTH:
 			return false
 		if absi(a.vx_fp) > 24 or absi(a.vy_fp) > 24 or (a.vx_fp == 0 and a.vy_fp == 0):
 			return false

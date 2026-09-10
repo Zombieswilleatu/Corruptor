@@ -8,9 +8,9 @@ Implements the accepted 2026-09-08 V2 handoff, section 5.5, and the random-legal
 - **Ward / Pass:** an active Kroni loses one Hunger when combat resolves, before either player's attacks. This makes the resulting Defense apply consistently to both combat orders. Other actions do not incur this penalty.
 - **Consume:** free prepared power, once per submission. Select one specific enemy Guard. At the start of the next round, before replenishment and deployment, Devour it and gain one Hunger if it is still an enemy Guard. A different lane does not invalidate that same Guard. A missing or friendly target fizzles; never retarget.
 - **Cannibal Hunger:** after scheduled Consume checks, every active Kroni not fed by Consume this round Devours his own lowest-value Guard across both zones. Equal values use stable entity-ID ordering. If none exists, lose one Hunger. The accepted rule gives no Hunger increase for the friendly meal. This also applies when Consume was not declared, including the first round's automatic check.
-- **Ravenous:** free immediate power. Step 10G arms one special actor; Marching executes it. The player selects only a horizontal starting position along their own field edge: bottom for player 0, top for player 1. When the power fires, it rolls a random launch angle toward the enemy boundary. Forward movement always remains enemy-facing; lateral movement starts in a random direction. Outer walls reverse lateral velocity. No steering, selected victim, pursuit or pathfinding. Up to three touched friendly or enemy Marcher centers are Devoured per feeding spot. The spot is anchored at the first bite; another spot becomes available after his center moves at least one footprint diameter from that anchor. The three-bite count persists across ticks and saves, so remaining on the pile cannot reset it. End at the far boundary. Six or more Devoured in one activation grants one Soul, one Hunger and one Neutral Tear, once only. Activation in round R blocks R+1 and R+2; ready in R+3.
+- **Ravenous:** free immediate power. Step 10G arms one special actor; Marching executes it. The player selects only a horizontal starting position along their own field edge: bottom for player 0, top for player 1. When the power fires, it rolls a random launch angle toward the enemy boundary. Forward movement always remains enemy-facing; lateral movement starts in a random direction. Outer walls reverse lateral velocity. No steering, selected victim, pursuit or pathfinding. One touched friendly or enemy Marcher is Devoured per chomp. Nearby survivors on both sides flee directly away during the 0.55-second double chomp at 30% of their normal movement speed. No per-spot consumption cap. End at the far boundary. Six or more Devoured in one activation grants one Soul, one Hunger and one Neutral Tear, once only. Activation in round R blocks R+1 and R+2; ready in R+3.
 - **Hunger footprint:** 100%, 110%, 120%, 135% at 0, 1, 2, 3+. The activation snapshots Hunger. Rendering and actual collision radius use that same snapshot; rewards do not resize an actor halfway through an activation.
-- **Insatiable Hunger (Breach):** once per Marching phase while Kroni occupies the shared Breach. A keyed random point and random direction produce a brief special actor. It Devours either side with the same three-per-spot limit, then disappears. No Hunger, Souls, Tears, milestone or Ravenous reward progress comes from it.
+- **Insatiable Hunger (Breach):** once per Marching phase while Kroni occupies the shared Breach. A keyed random point and random direction produce a brief special actor. It Devours either side with the same radial fleeing response, then disappears. No Hunger, Souls, Tears, milestone or Ravenous reward progress comes from it.
 
 Devour retires the entity and retains its used identity. A Devoured Guard does not enter the discard pile. Devour is not combat damage or a combat kill: it ignores Armor and does not synthesize Guard-defeat/Marcher-kill reactions. Both types emit explicit public consumption events with the original victim for history and playback.
 
@@ -52,7 +52,7 @@ Kroni is available in the main runner's Lord picker and the animation gallery.
 
 ## Placement/random-launch revision
 
-The preview accepts starting-point clicks and rolls a fresh launch each time. Two fast six-frame chomp cycles remain in each bite pause. Kroni content version is now U13_KRONI_FEEDING_SPOTS_V3; older Kroni checkpoints are rejected rather than silently replayed with changed rules.
+The preview accepts starting-point clicks and rolls a fresh launch each time. Two fast six-frame chomp cycles remain in each bite pause. Kroni content version is now U13_KRONI_FLEE_V4; older Kroni checkpoints are rejected rather than silently replayed with changed rules.
 
 Revision validation: Godot 4.7.2 Kroni core and board suites passed with zero failures. Coverage includes required position-only declarations, fresh launch angles, forward-only motion for both owners, launch-hook JSON replay, board placement/cancel/confirmation, worker playback coordinates, and preview placement/new launches.
 
@@ -62,8 +62,19 @@ Both Consume and Cannibal Hunger play the exact Kroni sprite beside the eaten Gu
 
 Hunger has no cap of 1 and is not reset at round start. Ward/Pass loses 1 during combat; powers without a combat order count as Pass. No friendly Guard during the Cannibal check also loses 1. The powers panel now states when the current order will cost Hunger. Consecutive Consume meals with Hunt instead of Pass reach Hunger 3 and award the milestone once.
 
-Validation for this revision: Godot 4.7.2 Kroni core and board suites passed, including Hunger 1→2→3 across offensive rounds, milestone payout, three-per-spot continuation and JSON state, first-round Cannibal animation, next-round Consume animation, and safe animation completion/skip.
+Validation for this revision: Godot 4.7.2 Kroni core and board suites passed, including Hunger 1→2→3 across offensive rounds, milestone payout, JSON state (the former three-per-spot rule is superseded below), first-round Cannibal animation, next-round Consume animation, and safe animation completion/skip.
 
 ## Minimum attack commitment
 
 Hunt and Siege require at least one committed card for every U13 Lord. Empty attacks are rejected in order validation, strict preview, batch/bot legality and submission. Ward may commit zero cards, and Pass remains available. This closes the no-cost attack loophole for retaining Hunger. Hunger-growth fixtures now use a real card commitment.
+
+
+## Fleeing replaces the consumption cap
+
+Each bite pauses Kroni and normal Marching for the existing 0.55-second double chomp. Surviving Marchers within twice his consumption radius move radially away at 30% normal movement speed. This updates authoritative positions, including waiting and duelling units; it is not a cosmetic displacement. Normal Butchers move about 22 fixed-point units per chomp. Faster suits flee farther. Units can cross the internal lane seam; outer edges clamp movement. Exact overlaps use a stable keyed radial direction.
+
+There is no guaranteed escape or fixed meal count: units behind him can escape, while a packed group directly along his route or against a wall can still be eaten. The 30% value is initial balance tuning.
+
+The board and animation preview interpolate the recorded escape during each double chomp. Playback does not reapply movement. The visual exposes a flee_started signal and an optional flee_sound AudioStream, with overlapping sound playback suppressed. No scream asset is included yet.
+
+Validation: Godot 4.7.2 core and board runners cover radial speed, both owners, repeatable event/state results, consumption beyond three with survivors in a surrounding group, lane crossing, outer boundaries, and preview interpolation without mutating recorded positions.

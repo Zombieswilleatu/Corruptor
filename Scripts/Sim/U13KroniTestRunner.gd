@@ -33,7 +33,7 @@ func _run() -> void:
 	_feeding()
 	_hunger_growth()
 	_attack_commitment()
-	_meal_limit()
+	_flee()
 	_placement()
 	_actors()
 	_match()
@@ -268,27 +268,43 @@ func _hunger_growth() -> void:
 	check(world.players[0].resources.personal_tears == 1, "successive meals award Hunger-3 milestone once")
 
 
-func _meal_limit() -> void:
+func _flee() -> void:
 	var world: Dictionary = Scenario.world()
 	for i in range(12):
-		add_unit(world, i, i % 2, 16, 322)
+		add_unit(world, i, i % 2, 300 if i < 6 else 100, 320)
 	var buffer = Buffer.new()
 	buffer.restore(world.entities)
-	var actor: Dictionary = Actors.create("meal-limit", 0, 1, 0)
-	actor.vy_fp = 22
+	var actor: Dictionary = Actors.create("flee-test", 0, 1, 0)
+	actor.x_fp = 250
+	actor.y_fp = 300
+	actor.vy_fp = 8
 	var events: Array = Actors.step([actor], buffer, 1, 0)
-	check(actor.consumed == 3 and buffer.marchers().size() == 9, "dense pile consumes only three on first contact")
-	Actors.step([actor], buffer, 1, 1)
-	check(actor.consumed == 3 and actor.x_fp == 32, "next tick moves on instead of eating the same pile again")
-	var restored: Dictionary = Content.Data.copy_data(JSON.parse_string(JSON.stringify(actor)))
-	check(Actors.valid([restored]) and restored.meal_count == 3, "feeding-spot quota persists through JSON")
-	var next_world: Dictionary = Scenario.world()
-	for i in range(8):
-		add_unit(next_world, i, i % 2, 960, 180, "Castle")
-	buffer.restore(next_world.entities)
-	for tick in range(2, 65):
+	check(actor.consumed == 1 and buffer.marchers().size() == 11, "one victim per chomp lets survivors flee")
+	var changes: Array = events[0].event.data.flee
+	check(changes.size() == 11, "all nearby survivors on both sides flee")
+	for change in changes:
+		var a: Dictionary = change.before.attributes
+		var b: Dictionary = change.after.attributes
+		var old_distance: float = Vector2(a.x_fp - actor.x_fp, a.y_fp - actor.y_fp).length()
+		var new_distance: float = Vector2(b.x_fp - actor.x_fp, b.y_fp - actor.y_fp).length()
+		check(new_distance > old_distance and absf(Vector2(b.x_fp - a.x_fp, b.y_fp - a.y_fp).length() - 22.0) < 1.0, "radial escape covers 30 percent speed during 550ms chomp")
+	var replay_buffer = Buffer.new()
+	replay_buffer.restore(world.entities)
+	var replay_actor: Dictionary = Actors.create("flee-test", 0, 1, 0)
+	replay_actor.x_fp = 250
+	replay_actor.y_fp = 300
+	replay_actor.vy_fp = 8
+	check(events == Actors.step([replay_actor], replay_buffer, 1, 0), "flee result and tape deterministic")
+	for tick in range(1, 30):
 		Actors.step([actor], buffer, 1, tick)
-	check(actor.consumed == 6, "another feeding spot can supply three more")
+	check(actor.consumed > 3 and actor.consumed < 12, "escape replaces the hard cap and leaves survivors")
+	var boundary_world: Dictionary = Scenario.world()
+	add_unit(boundary_world, 30, 0, 2400, 599)
+	buffer.restore(boundary_world.entities)
+	actor.x_fp = 2380
+	actor.y_fp = 590
+	var fled: Array = Actors.flee(actor, buffer)
+	check(fled.size() == 1 and fled[0].after.attributes.lane == "Castle" and fled[0].after.attributes.x_fp == 2400, "escape crosses lane seam and clamps outer boundary")
 
 
 func _attack_commitment() -> void:

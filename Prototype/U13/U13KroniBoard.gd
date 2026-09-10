@@ -27,7 +27,7 @@ func _build() -> void:
 	var consume_note: Label = _label(kroni_box, "Choose an enemy Guard. At next round's start, devour that exact Guard and gain 1 Hunger. No retargeting.", 13)
 	consume_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	ravenous_button = _button(kroni_box, "RAVENOUS", _begin_ravenous)
-	var ravenous_note: Label = _label(kroni_box, "Place his start along your bottom edge. A random angle sends him toward the enemy, bouncing off the outer walls. Eat up to 3 friendly or enemy Marchers per spot, then move one body-width before feeding again. Eat 6+ for 1 Soul, 1 Hunger and 1 Neutral Tear, once per activation. Two-round cooldown.", 13)
+	var ravenous_note: Label = _label(kroni_box, "Place his start along your bottom edge. A random angle sends him toward the enemy, bouncing off the outer walls. Nearby Marchers on both sides flee directly away during each chomp at 30% normal speed. Eat 6+ for 1 Soul, 1 Hunger and 1 Neutral Tear, once per activation. Two-round cooldown.", 13)
 	ravenous_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	kroni_queue = VBoxContainer.new()
 	kroni_box.add_child(kroni_queue)
