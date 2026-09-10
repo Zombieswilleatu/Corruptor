@@ -1,6 +1,7 @@
 extends Node
 
 const Rules = preload("res://Prototype/U13/U13LordRules.gd")
+const Textures = preload("res://Prototype/U13/U13BoardTextures.gd")
 const HOLD_SECONDS: float = 0.35
 const MOVE_CANCEL_DISTANCE: float = 9.0
 var source: Control
@@ -9,6 +10,9 @@ var hold_timer: Timer
 var preview_layer: CanvasLayer
 var preview_root: Control
 var preview_art: TextureRect
+var back_art: TextureRect
+var back_margin: MarginContainer
+var back_scroll: ScrollContainer
 var frame: PanelContainer
 var back: VBoxContainer
 var passive_label: Label
@@ -52,22 +56,44 @@ func configure(p_source: Control, texture: Texture2D) -> void:
 	style.bg_color = Color("14120f")
 	style.border_color = Color("b3945d")
 	style.set_border_width_all(2)
-	style.set_content_margin_all(12)
+	style.set_content_margin_all(0)
 	frame.add_theme_stylebox_override("panel", style)
 	preview_root.add_child(frame)
 	preview_art = TextureRect.new()
 	preview_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	preview_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	preview_art.stretch_mode = TextureRect.STRETCH_SCALE
 	preview_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	frame.add_child(preview_art)
+	back_art = TextureRect.new()
+	back_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	back_art.stretch_mode = TextureRect.STRETCH_SCALE
+	back_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(back_art)
+	back_margin = MarginContainer.new()
+	back_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for side in ["left", "right", "top", "bottom"]:
+		back_margin.add_theme_constant_override("margin_" + side, 28)
+	frame.add_child(back_margin)
+	var scroll := ScrollContainer.new()
+	back_scroll = scroll
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.mouse_filter = Control.MOUSE_FILTER_PASS
+	back_margin.add_child(scroll)
 	back = VBoxContainer.new()
+	back.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	back.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	back.add_theme_constant_override("separation", 14)
-	frame.add_child(back)
+	scroll.add_child(back)
 	title_label = _label(back, 25)
+	title_label.hide()
 	state_label = _label(back, 16)
 	passive_label = _label(back, 18)
 	breach_label = _label(back, 18)
+	for label in [state_label, passive_label, breach_label]:
+		var ink_panel := StyleBoxFlat.new()
+		ink_panel.bg_color = Color(0.025, 0.02, 0.015, 0.82)
+		ink_panel.set_content_margin_all(10)
+		label.add_theme_stylebox_override("normal", ink_panel)
 	var hint := _label(back, 14)
 	hint.text = "Click to flip · Hold either card to close · Esc to close"
 	hint.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -84,6 +110,8 @@ func _label(parent: Node, font_size: int) -> Label:
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", Color("ebdab4"))
+	label.add_theme_color_override("font_shadow_color", Color.BLACK)
+	label.add_theme_constant_override("shadow_outline_size", 4)
 	parent.add_child(label)
 	return label
 
@@ -98,6 +126,7 @@ func bind_lord(name_value: String, alive: bool, breach: bool) -> void:
 	if lord != name_value and preview_root.visible:
 		_hide_preview()
 	lord = name_value
+	back_art.texture = Textures.lord_texture(lord, true)
 	active = alive
 	in_breach = breach
 	_render()
@@ -114,6 +143,8 @@ func _render() -> void:
 	passive_label.modulate = Color.WHITE if active and not in_breach else Color("858585")
 	breach_label.modulate = Color("ffe4a0") if in_breach else Color("858585")
 	preview_art.visible = not showing_back
+	back_art.visible = showing_back
+	back_margin.visible = showing_back
 	back.visible = showing_back
 
 
@@ -145,6 +176,10 @@ func _on_hold_timeout() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if preview_root.visible and showing_back and event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+		back_scroll.scroll_vertical += 48 if event.button_index == MOUSE_BUTTON_WHEEL_DOWN else -48
+		get_viewport().set_input_as_handled()
+		return
 	if preview_root.visible and event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		_hide_preview()
 		get_viewport().set_input_as_handled()
@@ -177,8 +212,10 @@ func _input(event: InputEvent) -> void:
 
 func _show_preview() -> void:
 	preview_root.size = source.get_viewport_rect().size
-	var height: float = minf(760, preview_root.size.y - 48)
-	frame.size = Vector2(minf(510, preview_root.size.x - 40), height)
+	var ratio: float = float(card_texture.get_width()) / float(card_texture.get_height()) if card_texture != null else 2.0 / 3.0
+	var height: float = minf(900, minf(preview_root.size.y - 48, (preview_root.size.x - 40) / ratio))
+	frame.size = Vector2(height * ratio, height)
+	back_margin.add_theme_constant_override("margin_top", int(height * 0.115))
 	frame.position = (preview_root.size - frame.size) * 0.5
 	showing_back = false
 	_render()

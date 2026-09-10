@@ -274,12 +274,12 @@ func bind_player(
 			card_art_rect.name = "SubjectCardArt"
 			card_art_rect.anchor_right = 1.0
 			card_art_rect.anchor_bottom = 1.0
-			card_art_rect.offset_left = 5.0
-			card_art_rect.offset_top = 5.0
-			card_art_rect.offset_right = -5.0
-			card_art_rect.offset_bottom = -5.0
+			card_art_rect.offset_left = 2.0
+			card_art_rect.offset_top = 2.0
+			card_art_rect.offset_right = -2.0
+			card_art_rect.offset_bottom = -2.0
 			card_art_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			card_art_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			card_art_rect.stretch_mode = TextureRect.STRETCH_SCALE
 			card_art_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			card_art_rect.texture = card_art
 			button.add_child(card_art_rect)

@@ -20,10 +20,11 @@ func _ready() -> void:
 	border.bg_color = Color(0.025, 0.024, 0.022, 0.8)
 	border.border_color = Color("625234")
 	border.set_border_width_all(1)
+	border.set_content_margin_all(0)
 	add_theme_stylebox_override("panel", border)
 	art = TextureRect.new()
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	art.stretch_mode = TextureRect.STRETCH_SCALE
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(art)
 	var overlay := Control.new()

@@ -17,7 +17,7 @@ var castle_guards_above_castles: bool = false
 const Resummon = preload("res://Scripts/Sim/U13Resummoning.gd")
 # Printed ratings from the existing Lord content; independent of return Threat.
 const FRACTURE: Dictionary = {
-	"Orias": 0, "Deimos": 0, "Gremory": 2, "Humbaba": 2, "Kalligan": 1, "Odradek": 2
+	"Orias": 0, "Deimos": 0, "Gremory": 2, "Humbaba": 2, "Kalligan": 1, "Odradek": 2, "Kroni": 1
 }
 var lord_group
 var lord_guard_group
@@ -431,6 +431,8 @@ func bind_world(world: Dictionary, pid: int, planning: bool) -> void:
 			lord_card.input_surface.tooltip_text += (
 				"\nRelentless Pursuit: +%d Hunt Strength against the current enemy Lord." % bonus
 			)
+	if lord_name == "Kroni" and world.has("hunger"):
+		lord_card.caption.text += "\nHUNGER %d" % world.hunger[pid]
 	if lord_name == "Odradek" and world.has("reconfiguration"):
 		lord_card.caption.text += "\nRECONFIGURATION %d/4" % world.reconfiguration[pid]
 		lord_card.input_surface.tooltip_text += "\nReconfiguration: +1 each round while active, capped at 4. Banishment resets it to 0."

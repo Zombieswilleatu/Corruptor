@@ -34,6 +34,9 @@ static func standing_castles(world: Dictionary, player_id: int) -> int:
 
 
 static func defense(world: Dictionary, lord: Dictionary) -> int:
+	if lord.attributes.get("lord_id") == "Kroni":
+		var hunger: int = int(lord.attributes.get("hunger", 0))
+		return 8 if hunger >= 3 else (6 if hunger >= 1 else 4)
 	if lord.attributes.get("lord_id") == "Humbaba":
 		return 2 + standing_castles(world, lord.owner)
 	var threat: int = int(threat_value(lord))

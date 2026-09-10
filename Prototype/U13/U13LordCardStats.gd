@@ -7,6 +7,7 @@ const LAYOUTS: Dictionary = {
 	"Gremory": [0.240, 0.500, 0.757, 0.169, 0.110],
 	"Humbaba": [0.228, 0.500, 0.774, 0.165, 0.120],
 	"Kalligan": [0.233, 0.500, 0.767, 0.190, 0.105],
+	"Kroni": [0.234, 0.500, 0.766, 0.164, 0.110],
 	"Odradek": [0.250, 0.500, 0.745, 0.182, 0.122]
 }
 var values: Dictionary = {}
@@ -29,6 +30,8 @@ func artwork_rect() -> Rect2:
 	var texture: Texture2D = get_parent().texture
 	if texture == null or size.x <= 0 or size.y <= 0:
 		return Rect2()
+	if get_parent().stretch_mode == TextureRect.STRETCH_SCALE:
+		return Rect2(Vector2.ZERO, size)
 	var scale_factor: float = minf(size.x / texture.get_width(), size.y / texture.get_height())
 	var extent: Vector2 = texture.get_size() * scale_factor
 	return Rect2((size - extent) * 0.5, extent)
@@ -66,7 +69,7 @@ func _draw() -> void:
 			font_size,
 			ink
 		)
-	if values.lord in ["Deimos", "Gremory", "Kalligan", "Odradek"]:
+	if values.lord in ["Deimos", "Gremory", "Kalligan", "Odradek", "Kroni"]:
 		var center: Vector2 = rect.position + Vector2(layout[2], layout[4]) * rect.size
 		var extent: Vector2 = Vector2(0.24, 0.026) * rect.size
 		draw_rect(Rect2(center - extent * 0.5, extent), Color(0.015, 0.012, 0.008, 0.97))

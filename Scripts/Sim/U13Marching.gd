@@ -1,6 +1,7 @@
 class_name U13Marching
 extends RefCounted
 
+const KroniActors = preload("res://Scripts/Sim/U13KroniActors.gd")
 const SpatialFields = preload("res://Scripts/Sim/U13SpatialFields.gd")
 const Space = preload("res://Scripts/Sim/U13SpatialSpace.gd")
 const Buffer = preload("res://Scripts/Sim/U13MarchingBuffer.gd")
@@ -204,7 +205,12 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 		motion_context["spatial_fields"] = compiled.lanes
 	for unit in _units(entities):
 		tape_bases[unit.id] = unit
+	var kroni_actors: Array = world.data.get("kroni_actors", [])
+	if not kroni_actors.is_empty():
+		events.append(public_event("KRONI_ACTORS_STARTED", {"round": context.round, "actors": kroni_actors.duplicate(true)}))
 	for tick in range(TICKS):
+		if not kroni_actors.is_empty():
+			events.append_array(KroniActors.step(kroni_actors, entities, int(context.round), tick))
 		var clock: int = int(context.round) * TICKS + tick
 		# A prior hook may consume a waiting participant or retire an entity.
 		for lane in duels.keys():
@@ -375,6 +381,8 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 						}
 					)
 				)
+		if not kroni_actors.is_empty():
+			events.append(public_event("KRONI_ACTOR_TICK", {"round": context.round, "tick": tick, "actors": kroni_actors.duplicate(true)}))
 		var active: Array = []
 		for lane in LANES:
 			if duels.has(lane):
@@ -392,6 +400,8 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 				}
 			)
 		)
+	if world.data.has("kroni_actors"):
+		world.data.kroni_actors = kroni_actors
 	world.entities = entities.snapshot()
 	world.data["marching_duels"] = duels
 	world.data["marching_round"] = context.round

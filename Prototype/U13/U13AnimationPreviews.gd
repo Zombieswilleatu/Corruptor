@@ -2,6 +2,7 @@ extends Control
 
 signal closed
 const PREVIEWS: Array = [
+	{"title": "Kroni · Ravenous", "note": "Both lanes, Hunger sizes, chomping and Insatiable Hunger. Tune the pause and walking speed.", "scene": "res://Prototype/U13/U13KroniPreview.tscn", "size": Vector2(1280, 900)},
 	{
 		"title": "Odradek · Spiral",
 		"note": "Spiral, randomized glitches, Marchers and cards. Tune color depth, radius and speed.",

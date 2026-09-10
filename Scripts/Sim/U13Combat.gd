@@ -44,6 +44,10 @@ static func valid(world: Dictionary) -> bool:
 		if not core or world.data.odradek_profile != LordStats.ODRADEK_PROFILE:
 			return false
 		lords.append("Odradek")
+	if world.data.has("kroni_profile"):
+		if not core or world.data.kroni_profile != "U13_KRONI_COMPLETE_V1":
+			return false
+		lords.append("Kroni")
 	if world.data.has("hunt_profile") and (not core or world.data.hunt_profile != HUNT_VERSION):
 		return false
 	if core and not Structures.valid(world):

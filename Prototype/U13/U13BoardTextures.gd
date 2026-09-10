@@ -34,5 +34,5 @@ static func texture_for(suit: String, value: int, hidden: bool = false) -> Textu
 	return texture(Subjects.path_for(suit, value, hidden))
 
 
-static func lord_texture(lord_name: String) -> Texture2D:
-	return texture(Lords.path_for(lord_name))
+static func lord_texture(lord_name: String, back: bool = false) -> Texture2D:
+	return texture(Lords.path_for(lord_name, back))

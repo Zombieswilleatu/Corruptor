@@ -2,6 +2,10 @@ extends RefCounted
 
 # U13 rules text is separate from the printed art and from legacy U12 cards.
 const RULES: Dictionary = {
+	"Kroni": {
+		"passive": "HUNGER\nStarts at 0. Defense is 4 at 0 Hunger, 6 at 1–2, and 8 at 3+. Ward or Pass loses 1 Hunger. First reaching 3 each game grants 1 personal Tear.\n\nCANNIBAL HUNGER\nAfter the round-start Consume check, if Consume did not feed Kroni, devour your lowest-value Guard. If none exists, lose 1 Hunger. Eating your own Guard does not increase Hunger.",
+		"breach": "INSATIABLE HUNGER\nOnce each Marching phase, manifest at a random field point and move briefly in a random direction. Devour any friendly or enemy Marchers touched, then disappear. This grants no Hunger, Souls, Tears or Ravenous progress."
+	},
 	"Odradek": {
 		"passive": "RECONFIGURATION\nGain 1 each round while active, up to 4. Banishment resets it to 0. Spend it on powers during submission.\n\nPSYCHIC INTERLOCK\nOnce per round, after an enemy Marcher kills one of yours, reflect the killing attack's damage onto the attacker. Armor applies; the original kill still happens.",
 		"breach": "PARADOX GEOMETRY\nOnce per round after combat, randomly change allegiance: one Lord Guard, one Castle Guard, or all Marchers in a small circle around a random Marcher. Only legal transfers are chosen. Either side can benefit."

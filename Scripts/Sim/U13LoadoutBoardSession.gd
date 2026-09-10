@@ -1,5 +1,7 @@
 extends "res://Scripts/Sim/U13BoardSession.gd"
 
+const Kroni = preload("res://Scripts/Sim/U13Kroni.gd")
+const KroniScenario = preload("res://Scripts/Sim/U13KroniScenario.gd")
 const Odradek = preload("res://Scripts/Sim/U13Odradek.gd")
 const OdradekScenario = preload("res://Scripts/Sim/U13OdradekScenario.gd")
 const Orias = preload("res://Scripts/Sim/U13Orias.gd")
@@ -62,6 +64,7 @@ func configure(lords: Array, castles: Array, quick: bool) -> Dictionary:
 		or lords.has("Kalligan")
 		or lords.has("Orias")
 		or lords.has("Odradek")
+		or lords.has("Kroni")
 	)
 	_scenario = 0
 	_lane = "Castle"
@@ -103,6 +106,8 @@ func declaration(
 
 
 func random_opponent_plan() -> Dictionary:
+	if setup_lords.has("Kroni"):
+		return KroniScenario.plan(_owner, 1)
 	if setup_lords.has("Odradek"):
 		return OdradekScenario.plan(_owner, 1)
 	if setup_lords.has("Orias"):
@@ -122,6 +127,8 @@ func random_opponent_plan() -> Dictionary:
 
 
 static func _initial(lords: Array, castles: Array) -> Dictionary:
+	if lords.has("Kroni"):
+		return KroniScenario.loadout_world(lords, castles)
 	if lords.has("Odradek"):
 		return OdradekScenario.loadout_world(lords, castles)
 	if lords.has("Orias"):
@@ -136,6 +143,8 @@ static func _initial(lords: Array, castles: Array) -> Dictionary:
 
 
 static func _content(lords: Array, hunt: bool):
+	if lords.has("Kroni"):
+		return Kroni.new()
 	if lords.has("Odradek"):
 		return Odradek.new()
 	if lords.has("Orias"):
@@ -190,6 +199,7 @@ func restore_checkpoint(raw: Dictionary) -> Dictionary:
 			or setup.lords.has("Kalligan")
 			or setup.lords.has("Orias")
 			or setup.lords.has("Odradek")
+			or setup.lords.has("Kroni")
 		)
 		and not setup.get("hunt", false)
 	):
