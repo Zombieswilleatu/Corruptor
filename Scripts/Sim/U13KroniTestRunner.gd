@@ -280,7 +280,7 @@ func _flee() -> void:
 	actor.vy_fp = 8
 	var events: Array = Actors.step([actor], buffer, 1, 0)
 	check(actor.consumed == 1 and buffer.marchers().size() == 11, "one victim per chomp lets survivors flee")
-	var changes: Array = events[0].event.data.flee
+	var changes: Array = events.filter(func(e): return e.event.type == "MARCHER_DEVOURED")[0].event.data.flee
 	check(changes.size() == 11, "all nearby survivors on both sides flee")
 	for change in changes:
 		var a: Dictionary = change.before.attributes
@@ -303,8 +303,35 @@ func _flee() -> void:
 	buffer.restore(boundary_world.entities)
 	actor.x_fp = 2380
 	actor.y_fp = 590
+	actor.fleeing = {}
+	actor.nearby = []
+	Actors.notice(actor, buffer)
 	var fled: Array = Actors.flee(actor, buffer)
 	check(fled.size() == 1 and fled[0].after.attributes.lane == "Castle" and fled[0].after.attributes.x_fp == 2400, "escape crosses lane seam and clamps outer boundary")
+
+	var approach_world: Dictionary = Scenario.world()
+	add_unit(approach_world, 40, 1, 600, 300)
+	buffer.restore(approach_world.entities)
+	actor = Actors.create("approach", 0, 1, 0)
+	actor.x_fp = 200
+	actor.y_fp = 300
+	actor.vy_fp = 8
+	var approach_events: Array = Actors.step([actor], buffer, 1, 0)
+	check(actor.consumed == 0 and approach_events.any(func(e): return e.event.type == "KRONI_FLEE_STARTED"), "proximity starts fleeing before a bite")
+	var identity: String = buffer.marchers()[0].id
+	check(actor.fleeing[identity].remaining_ms == 1100, "panic begins with independent 1.1 second timer")
+	check(Actors.notice(actor, buffer).is_empty(), "remaining nearby does not repeat flee event")
+	var before_escape: int = buffer.get_entity(identity).attributes.x_fp
+	actor.active = false
+	Actors.step([actor], buffer, 1, 1)
+	check(buffer.get_entity(identity).attributes.x_fp > before_escape and actor.fleeing[identity].remaining_ms == 1070, "flee continues during normal ticks even after Kroni leaves")
+	Actors.flee(actor, buffer, 550)
+	check(actor.fleeing[identity].remaining_ms == 520, "chomp spends the same timer without restarting it")
+	Actors.flee(actor, buffer, 520)
+	check(actor.fleeing.is_empty(), "panic expires after total 1.1 seconds")
+	var stopped: Array = buffer.marchers()
+	Actors.flee(actor, buffer, 550)
+	check(buffer.marchers() == stopped, "expired fleeing adds no further movement")
 
 
 func _attack_commitment() -> void:

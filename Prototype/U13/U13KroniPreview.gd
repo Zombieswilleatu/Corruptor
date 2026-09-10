@@ -69,7 +69,7 @@ func _ready() -> void:
 	add_child(status)
 	guide = Label.new()
 	guide.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	guide.text = "RAVENOUS\nClick either lane to choose his horizontal start along the bottom edge. Each launch rolls a new angle toward the enemy, bouncing off outer walls. No steering. Both sides can be eaten. Nearby survivors flee directly away during each chomp at 30% normal speed. No three-unit cap.\n\n6+ DEVOURED\nOne Soul, one Hunger and one Neutral Tear per activation.\n\nHUNGER\n0: Defense 4\n1–2: Defense 6\n3+: Defense 8\nFirst reaching 3 grants one personal Tear.\n\nBREACH\nA short random manifestation. No rewards."
+	guide.text = "RAVENOUS\nClick either lane to choose his horizontal start along the bottom edge. Each launch rolls a new angle toward the enemy, bouncing off outer walls. No steering. Both sides can be eaten. Nearby units flee directly away when he approaches, at 30% normal speed for 1.1 seconds, independently of his chomp. No three-unit cap.\n\n6+ DEVOURED\nOne Soul, one Hunger and one Neutral Tear per activation.\n\nHUNGER\n0: Defense 4\n1–2: Defense 6\n3+: Defense 8\nFirst reaching 3 grants one personal Tear.\n\nBREACH\nA short random manifestation. No rewards."
 	add_child(guide)
 	resized.connect(_layout)
 	_layout()
@@ -112,7 +112,7 @@ func _restart() -> void:
 	# Stable scene fixtures include both sides, every suit, and both lanes.
 	for index in range(32):
 		var a: Dictionary = Marching.profile(Marching.SUITS[index % 4], "Lord" if index % 2 == 0 else "Castle", index % 2, 0, 1)
-		a.x_fp = 150 + int(floor(float(index) / 4.0)) * 290
+		a.x_fp = 380 + int(floor(float(index) / 4.0)) * 250
 		a.y_fp = 80 + (index % 4) * 140
 		ids.create("marcher", "kroni-preview", index, index % 2, a)
 	var buffer = Buffer.new()

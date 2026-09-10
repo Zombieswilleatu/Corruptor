@@ -222,7 +222,13 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 					)
 				)
 				duels.erase(lane)
-		_move(entities, duels, motion_context, clock, has_rout)
+		var fleeing_ids: Dictionary = {}
+		for actor in kroni_actors:
+			for identity in actor.fled_this_tick:
+				fleeing_ids[identity] = true
+			for identity in actor.fleeing:
+				fleeing_ids[identity] = true
+		_move(entities, duels, motion_context, clock, has_rout, fleeing_ids)
 		if has_retreat:
 			for lane in duels.keys():
 				if not _duel_alive(duels[lane], entities):
@@ -592,7 +598,7 @@ static func _touches_enemy(unit: Dictionary, rows: Array) -> bool:
 
 
 static func _move(
-	entities, duels: Dictionary, context: Dictionary, clock: int, has_rout: bool = false
+	entities, duels: Dictionary, context: Dictionary, clock: int, has_rout: bool = false, fleeing_ids: Dictionary = {}
 ) -> void:
 	var rows: Array = _units(entities)
 	var lane_modifiers: Dictionary = context.get("lane_modifiers", {})
@@ -608,6 +614,8 @@ static func _move(
 	var accepted_grids: Dictionary = _team_grids(accepted, 7)
 	# Read targets from one tick snapshot; resolve personal-space conflicts in ID order.
 	for unit in rows:
+		if fleeing_ids.has(unit.id):
+			continue
 		var a: Dictionary = unit.attributes
 		var nearby: Dictionary = neighbors[unit.id]
 		var allies: Dictionary = accepted_grids[a.lane][unit.owner]

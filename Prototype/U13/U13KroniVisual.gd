@@ -26,6 +26,8 @@ var field_rect := Rect2(0, 0, 600, 900)
 var frames: Array = []
 var bites: Array = []
 var bite_index: int = 0
+var flee_events: Array = []
+var flee_index: int = 0
 var bite: Dictionary = {}
 var bite_elapsed: float = 0.0
 var chomp_seconds: float = 0.55
@@ -52,6 +54,8 @@ func clear() -> void:
 		flee_audio.stop()
 	frames = []
 	bites = []
+	flee_events = []
+	flee_index = 0
 	bite = {}
 	bite_index = 0
 	actors = []
@@ -66,6 +70,8 @@ func load_tape(events: Array) -> void:
 			frames.append({"at": 0.0, "actors": event.data.actors.duplicate(true)})
 		elif event.type == "KRONI_ACTOR_TICK":
 			frames.append({"at": (float(event.data.tick) + 1.0) * TICK_SECONDS, "actors": event.data.actors.duplicate(true)})
+		elif event.type == "KRONI_FLEE_STARTED":
+			flee_events.append({"at": (float(event.data.tick) + 1.0) * TICK_SECONDS, "data": event.data})
 		elif event.type == "MARCHER_DEVOURED":
 			bites.append({"at": (float(event.data.tick) + 1.0) * TICK_SECONDS, "data": event.data.duplicate(true)})
 	show_time(0.0)
@@ -76,7 +82,10 @@ func busy() -> bool:
 
 
 func limit_delta(at: float, delta: float) -> float:
-	return minf(delta, maxf(0.0, float(bites[bite_index].at) - at)) if bite_index < bites.size() else delta
+	var limited: float = minf(delta, maxf(0.0, float(bites[bite_index].at) - at)) if bite_index < bites.size() else delta
+	if flee_index < flee_events.size():
+		limited = minf(limited, maxf(0.0, float(flee_events[flee_index].at) - at))
+	return limited
 
 
 func show_time(at: float) -> void:
@@ -103,16 +112,14 @@ func show_time(at: float) -> void:
 			bite_field = battlefield._units.duplicate(true)
 			battlefield._units = flee_frame(bite_field)
 			battlefield.queue_redraw()
-		if not bite.get("flee", []).is_empty():
-			flee_ghosts.clear()
-			for change in bite.flee:
-				flee_ghosts.subjects[change.before.id] = {"effect": "kroni_flee", "age": 0.0, "phase": PI}
-			flee_ghosts.advance(0.0)
-			flee_started.emit()
-			if flee_sound != null:
-				# One voice per event, never one voice per fleeing unit.
-				flee_audio.stream = flee_sound
-				flee_audio.play()
+	while flee_index < flee_events.size() and float(flee_events[flee_index].at) <= at + 0.00001:
+		flee_index += 1
+		flee_started.emit()
+		if flee_sound != null and not flee_audio.playing:
+			# One voice per proximity group; let an ongoing scream finish.
+			flee_audio.stream = flee_sound
+			flee_audio.play()
+	_sync_flee_ghosts()
 	queue_redraw()
 
 
@@ -120,12 +127,11 @@ func advance_bite(delta: float) -> void:
 	if not busy():
 		return
 	bite_elapsed += delta
-	flee_ghosts.advance(delta)
+	_sync_flee_ghosts()
 	if is_instance_valid(battlefield):
 		battlefield._units = flee_frame(bite_field)
 		battlefield.queue_redraw()
 	if bite_elapsed >= chomp_seconds:
-		flee_ghosts.clear()
 		_restore_bite_field()
 		bite = {}
 		show_time(clock)
@@ -153,14 +159,38 @@ func extent(actor: Dictionary) -> Vector2:
 	return Vector2(absf(point(float(actor.x_fp), float(actor.y_fp) + r).x - center.x), absf(point(float(actor.x_fp) + r, float(actor.y_fp)).y - center.y)) * 2.0
 
 
-func _draw() -> void:
+func _ghost_units() -> Array:
+	var units: Dictionary = {}
+	var shown: Array = actors.duplicate()
 	if busy():
-		var fleeing_units: Array = []
-		for change in bite.get("flee", []):
-			fleeing_units.append(change.after)
-		for unit in flee_frame(fleeing_units):
-			var a: Dictionary = unit.attributes
-			flee_ghosts.draw_chit(self, String(unit.id), point(float(a.x_fp), float(a.y_fp) + (600.0 if a.lane == "Castle" else 0.0)))
+		shown = shown.filter(func(a: Dictionary) -> bool: return a.id != bite.actor_id)
+		shown.append(bite.actor)
+	for actor in shown:
+		for identity in actor.get("fleeing", {}):
+			var panic: Dictionary = actor.fleeing[identity]
+			if busy() and actor.id == bite.actor_id and int(panic.remaining_ms) <= bite_elapsed / maxf(chomp_seconds, 0.001) * 550.0:
+				continue
+			units[identity] = panic.unit
+	return flee_frame(units.values())
+
+
+func _sync_flee_ghosts() -> void:
+	var next: Dictionary = {}
+	for unit in _ghost_units():
+		next[unit.id] = flee_ghosts.subjects.get(unit.id, {"effect": "kroni_flee", "age": 0.35, "phase": PI})
+	flee_ghosts.subjects = next
+	flee_ghosts.advance(0.0)
+
+
+func _draw() -> void:
+	for unit in _ghost_units():
+		var a: Dictionary = unit.attributes
+		# Use the board's displayed position when normal playback interpolates it.
+		if is_instance_valid(battlefield) and not busy():
+			for displayed in battlefield._units:
+				if displayed.id == unit.id:
+					a = displayed.attributes
+		flee_ghosts.draw_chit(self, String(unit.id), point(float(a.x_fp), float(a.y_fp) + (600.0 if a.lane == "Castle" else 0.0)))
 	if sheet == null:
 		return
 	var shown: Array = actors.duplicate(true)
@@ -214,8 +244,9 @@ func flee_frame(units: Array) -> Array:
 	if not busy() or bite.get("flee", []).is_empty():
 		return units
 	var shown: Array = units.duplicate(true)
-	var progress: float = clampf(bite_elapsed / chomp_seconds, 0.0, 1.0)
 	for change in bite.flee:
+		var motion_seconds: float = chomp_seconds * float(change.get("duration_ms", 550)) / 550.0
+		var progress: float = clampf(bite_elapsed / maxf(0.001, motion_seconds), 0.0, 1.0)
 		for unit in shown:
 			if unit.id != change.before.id:
 				continue
