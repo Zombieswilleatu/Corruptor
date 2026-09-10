@@ -52,7 +52,7 @@ Kroni is available in the main runner's Lord picker and the animation gallery.
 
 ## Placement/random-launch revision
 
-The preview accepts starting-point clicks and rolls a fresh launch each time. Two fast six-frame chomp cycles remain in each bite pause. Kroni content version is now U13_KRONI_LANE_FLEE_V7; older Kroni checkpoints are rejected rather than silently replayed with changed rules.
+The preview accepts starting-point clicks and rolls a fresh launch each time. Two fast six-frame chomp cycles remain in each bite pause. Kroni content version is now U13_KRONI_WEIGHTED_ANGLES_V8; older Kroni checkpoints are rejected rather than silently replayed with changed rules.
 
 Revision validation: Godot 4.7.2 Kroni core and board suites passed with zero failures. Coverage includes required position-only declarations, fresh launch angles, forward-only motion for both owners, launch-hook JSON replay, board placement/cancel/confirmation, worker playback coordinates, and preview placement/new launches.
 
@@ -82,7 +82,7 @@ Validation includes proximity before contact, 1.1-second expiry, continuous refr
 
 ## Favored Ravenous launch
 
-A keyed four-way draw chooses the favored branch 75% of the time. That branch samples uniformly among legal launch angles whose bounced path crosses at least two current enemy Marcher positions. If no such angle exists, the original random launch remains. The other 25% always uses the original random angle. Friendly bodies never qualify a route. Both owners use the same rule; Breach remains fully random.
+A keyed four-way draw chooses the favored branch 75% of the time. That branch samples with diagonal-biased weights among legal launch angles whose bounced path crosses at least two current enemy Marcher positions. If no such angle exists, the original random launch remains. The other 25% always uses the original random angle. Friendly bodies never qualify a route. Both owners use the same rule; Breach remains fully random.
 
 The estimate uses the current activation snapshot and exact existing path/bounce geometry. This favors contact but cannot guarantee two meals: Marching and fleeing can move units out of the projected path. Kroni never homes or changes his selected heading to pursue a target. The preview uses the same selection routine.
 
@@ -96,3 +96,10 @@ Flee movement now clamps local lateral coordinates to 0–600 without changing t
 The Kroni preview provides Arrange Marchers: drag the starting tokens within their existing lane; New launch simulates the edited arrangement. The layout persists across launches, Hunger changes, and Ravenous/Breach selection. Reset layout restores the original formation. Editing freezes playback and suppresses start-placement clicks.
 
 Each actor records its actual launch mode: favored, random, favored-roll fallback, or Breach. The preview explicitly displays 75% Enemy-favored, 25% Random, 75% Random fallback (no two-enemy route), or Breach Random. This describes the launch roll rather than inferring it from the route or meals.
+
+
+## Launch angle gradient
+
+Ravenous lateral speeds now span 1–24 against forward speed 16. Each magnitude has weight 16 + magnitude squared, producing a steep preference for diagonal movement while allowing rare almost-forward routes. Random launches choose left/right evenly. The 75% enemy-favored branch applies the same weights within its qualifying routes; the 25% random branch and no-route fallback use the full weighted range. The 75/25 branch split, lane confinement, panic, and Breach behavior are unchanged.
+
+Core checks cover the increasing weights, nonzero near-forward probability, reachable extreme angles, deterministic favored routes, and valid forward movement for both seats.

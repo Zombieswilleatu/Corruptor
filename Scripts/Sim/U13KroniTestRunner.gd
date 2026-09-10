@@ -35,6 +35,7 @@ func _run() -> void:
 	_attack_commitment()
 	_flee()
 	_biased_launch()
+	_angle_gradient()
 	_placement()
 	_actors()
 	_match()
@@ -381,7 +382,7 @@ func _biased_launch() -> void:
 	var units: Array = world.entities.entities.filter(func(u): return u.kind == "marcher")
 	var base: Dictionary = Actors.create("bias", 0, 1, 0)
 	var routes: Array = Actors.favored_routes(base, units)
-	check(not routes.is_empty() and routes.size() < 34, "bias fixture separates qualifying and empty routes")
+	check(not routes.is_empty() and routes.size() < 2 * (Actors.LATERAL_MAX - Actors.LATERAL_MIN + 1), "bias fixture separates qualifying and empty routes")
 	var biased: int = 0
 	var random_count: int = 0
 	for i in range(64):
@@ -407,3 +408,21 @@ func _biased_launch() -> void:
 		unit.attributes.x_fp = 2400 - int(unit.attributes.x_fp)
 	var opponent: Dictionary = Actors.create("bias", 1, 1, 0)
 	check(Actors.favored_routes(opponent, mirrored) == routes, "enemy launch uses the same bias toward player units")
+
+func _angle_gradient() -> void:
+	var total: int = 0
+	var shallow: int = 0
+	for magnitude in range(1, 25):
+		var weight: int = Actors.route_weight(magnitude)
+		total += weight
+		if magnitude < 8:
+			shallow += weight
+		if magnitude > 1:
+			check(weight > Actors.route_weight(magnitude - 1), "diagonal preference increases smoothly and sharply")
+	check(float(shallow) / float(total) > 0.03 and float(shallow) / float(total) < 0.06, "near-forward range has a small nonzero share")
+	var seen: Dictionary = {}
+	for i in range(512):
+		var actor: Dictionary = Actors.create("gradient", 0, 1, 0, false, "angle-%d" % i)
+		seen[absi(actor.vy_fp)] = true
+		check(Actors.valid([actor]), "weighted launch stays valid and enemy-facing")
+	check(seen.has(1) and seen.has(24), "near-vertical and strong diagonal launches both reachable")

@@ -7,7 +7,7 @@ const LENGTH: int = 2400
 const WIDTH: int = 1200
 const RADIUS: int = 220
 const FORWARD: int = 16
-const LATERAL_MIN: int = 8
+const LATERAL_MIN: int = 1
 const LATERAL_MAX: int = 24
 const BREACH_TICKS: int = 33
 const FLEE_PERCENT: int = 30
@@ -29,14 +29,14 @@ static func create(identity: String, pid: int, round_number: int, hunger: int, b
 		# Roll only at authoritative activation. Placement exposes no direction.
 		# Separate activation/round keys preserve replays without repeating a route.
 		var key: String = Data.instance_id(identity, str(round_number), "ravenous_launch")
-		var magnitude: int = LATERAL_MIN + int(Rng.draw(seed_value, key, "RAVENOUS_ANGLE", 0, LATERAL_MAX - LATERAL_MIN + 1).value)
+		var magnitude: int = weighted_route(range(LATERAL_MIN, LATERAL_MAX + 1), seed_value, key, "RAVENOUS_ANGLE")
 		actor.vy_fp = magnitude * (-1 if int(Rng.draw(seed_value, key, "RAVENOUS_SIDE", 0, 2).value) == 0 else 1)
 	if not breach and int(Rng.draw(seed_value, identity + ":" + str(round_number), "RAVENOUS_BIAS", 0, 4).value) < 3:
 		actor.launch_mode = "fallback"
 		var candidates: Array = favored_routes(actor, units)
 		if not candidates.is_empty():
 			actor.launch_mode = "favored"
-			actor.vy_fp = candidates[int(Rng.draw(seed_value, identity + ":" + str(round_number), "RAVENOUS_FAVORED_ROUTE", 0, candidates.size()).value)]
+			actor.vy_fp = weighted_route(candidates, seed_value, identity + ":" + str(round_number), "RAVENOUS_FAVORED_ROUTE")
 	if breach:
 		actor.x_fp = int(Rng.draw(seed_value, identity, "BREACH_FORWARD", 0, LENGTH + 1).value)
 		actor.y_fp = int(Rng.draw(seed_value, identity, "BREACH_LATERAL", 0, WIDTH + 1).value)
@@ -45,6 +45,24 @@ static func create(identity: String, pid: int, round_number: int, hunger: int, b
 		actor.vx_fp = direction[0]
 		actor.vy_fp = direction[1]
 	return actor
+
+
+# A quadratic gradient makes near-forward launches possible but uncommon.
+# Apply the same weights after filtering the enemy-favored candidate routes.
+static func route_weight(velocity: int) -> int:
+	return 16 + velocity * velocity
+
+
+static func weighted_route(routes: Array, seed_value: String, key: String, purpose: String) -> int:
+	var total: int = 0
+	for velocity in routes:
+		total += route_weight(velocity)
+	var roll: int = int(Rng.draw(seed_value, key, purpose, 0, total).value)
+	for velocity in routes:
+		roll -= route_weight(velocity)
+		if roll < 0:
+			return velocity
+	return routes.back()
 
 
 # Favor any legal launch crossing at least two current enemy positions.
