@@ -2,6 +2,8 @@ extends "res://Prototype/U13/U13OriasBoard.gd"
 
 const Odradek = preload("res://Scripts/Sim/U13Odradek.gd")
 const RedirectPlacement = preload("res://Prototype/U13/U13RedirectPlacement.gd")
+var reconfiguration_menu: PanelContainer
+var reconfiguration_entry: Button
 var odradek_box: VBoxContainer
 var odradek_note: Label
 var redirect_button: Button
@@ -35,9 +37,25 @@ func _build() -> void:
 	debug_panel.requested.connect(_debug_action)
 	debug_panel.closed.connect(reopen_decision)
 	debug_button = _button(header.tools_box, "DEBUG", _open_debug)
+	reconfiguration_entry = _button(powers_box, "RECONFIGURATION", _open_reconfiguration)
+	powers_box.move_child(reconfiguration_entry, 0)
+	reconfiguration_menu = PanelContainer.new()
+	reconfiguration_menu.z_index = 121
+	preload("res://Prototype/U13/U13ReconfigurationStyle.gd").apply(reconfiguration_menu)
+	add_child(reconfiguration_menu)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 14)
+	reconfiguration_menu.add_child(column)
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	column.add_child(scroll)
 	odradek_box = VBoxContainer.new()
-	powers_box.add_child(odradek_box)
-	powers_box.move_child(odradek_box, 0)
+	odradek_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	odradek_box.add_theme_constant_override("separation", 10)
+	scroll.add_child(odradek_box)
+	_button(column, "BACK TO POWERS", _close_reconfiguration)
+	reconfiguration_menu.hide()
 	_label(odradek_box, "ODRADEK · THE PARADOX", 18)
 	odradek_note = _label(odradek_box, "", 14)
 	odradek_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -81,9 +99,12 @@ func _update_direct_ui() -> void:
 	if odradek_box == null:
 		return
 	odradek_box.visible = _human_lord() == "Odradek"
+	reconfiguration_entry.visible = odradek_box.visible
 	if not odradek_box.visible:
 		return
 	var bank: int = _visible_world.get("reconfiguration", [0, 0])[0]
+	reconfiguration_entry.text = "RECONFIGURATION · %d / 4" % bank
+	reconfiguration_entry.disabled = not _planning() or not powers_step or not _human_alive()
 	var reserved: int = 0
 	for source in queued:
 		reserved += int(source.cost.get(Odradek.RESOURCE, 0))
@@ -151,6 +172,7 @@ func _begin_shift() -> void:
 
 
 func _open_odradek_area() -> void:
+	reconfiguration_menu.hide()
 	_intent = ""
 	_target = {}
 	var preview: Array = []
@@ -214,7 +236,7 @@ func _confirm_redirect(target: Dictionary) -> void:
 func _cancel_redirect() -> void:
 	redirect_placement.close()
 	_refresh()
-	reopen_decision()
+	_open_reconfiguration()
 
 
 func _move_redirect(index: int, direction: int) -> void:
@@ -246,6 +268,8 @@ func _replace_redirect_queue(draft: Array) -> void:
 
 
 func _reset_direct() -> void:
+	if reconfiguration_menu != null:
+		reconfiguration_menu.hide()
 	guard_destination = {}
 	if guard_targeting != null:
 		guard_targeting.hide()
@@ -278,6 +302,7 @@ func _begin_guard_power(power: String) -> void:
 		or (power == Odradek.INVERSION and inversion_button.disabled)
 	):
 		return
+	reconfiguration_menu.hide()
 	_intent = power
 	guard_destination = {}
 	guard_source = {}
@@ -366,7 +391,7 @@ func _confirm_guard_power() -> void:
 	guard_destination = {}
 	guard_source = {}
 	_refresh()
-	reopen_decision()
+	_open_reconfiguration()
 
 
 func _guard_input(event: InputEvent, owner_id: int, lane: String, control: Control) -> void:
@@ -420,6 +445,7 @@ func _complete_job() -> void:
 
 
 func _process(delta: float) -> void:
+	_sync_reconfiguration_panels()
 	if _job == null and odradek_effects != null and odradek_effects.active():
 		if artillery_view.active():
 			artillery_view.advance(delta)
@@ -438,6 +464,7 @@ func _process(delta: float) -> void:
 		_busy_label.text = "Odradek reconfigures the battlefield…"
 		return
 	super._process(delta)
+	_sync_reconfiguration_panels()
 
 
 func finish_playback(skip: bool = true) -> void:
@@ -458,7 +485,7 @@ func _cancel_guard_power() -> void:
 	guard_source = {}
 	guard_destination = {}
 	_refresh()
-	reopen_decision()
+	_open_reconfiguration()
 
 
 func _sync_guard_targeting() -> void:
@@ -487,11 +514,46 @@ func _sync_guard_targeting() -> void:
 		var side = sides[1 - int(guard_source.owner)]
 		var box = side.lord_guard_box if guard_source.attributes.lane == "Lord" else side.castle_guard_box
 		markers.append({"control": box.get_child(int(guard_source.attributes.slot)), "selected": true})
-	var message: String = _guide() + "\nCyan = available. Gold = selected."
+	var message: String = "Choose a Guard zone on either side.\nGuards switch sides next round, filling free slots. A successful transfer adds 1 Neutral Tear."
+	if _intent == Odradek.FALSE_ORDERS:
+		message = "Choose a Guard to move next round." if guard_source.is_empty() else "Choose the other Guard zone on the same side."
 	if not guard_source.is_empty():
 		message += "\nSelected: %s %s Guard, slot %d." % ["your" if guard_source.owner == 0 else "enemy", guard_source.attributes.lane, int(guard_source.attributes.slot) + 1]
 	if not guard_destination.is_empty():
 		message += "\nSelected zone: %s %s Guards.\nConfirm to queue; resolves NEXT ROUND." % ["your" if guard_destination.owner == 0 else "enemy", guard_destination.lane]
 	if _intent == Odradek.INVERSION and not guard_destination.is_empty():
 		message += "\nDestination: %s %s Guards." % ["ENEMY" if guard_destination.owner == 0 else "YOUR", guard_destination.lane]
+	guard_targeting.heading.text = _odradek_name(_intent).to_upper()
 	guard_targeting.display(message, not guard_destination.is_empty(), zones, markers)
+
+
+func _open_reconfiguration() -> void:
+	if reconfiguration_menu == null or not _planning() or not powers_step:
+		return
+	reconfiguration_menu.show()
+	phase_prompt.set_presenting(false)
+	_sync_reconfiguration_panels()
+
+
+func _close_reconfiguration() -> void:
+	reconfiguration_menu.hide()
+	reopen_decision()
+
+
+func _sync_reconfiguration_panels() -> void:
+	if reconfiguration_menu == null:
+		return
+	var targeting: bool = guard_targeting != null and guard_targeting.visible
+	if not targeting and not reconfiguration_menu.visible:
+		return
+	if phase_prompt.visible:
+		phase_prompt.set_presenting(false)
+	var rect: Rect2 = get_global_transform_with_canvas().affine_inverse() * phase_prompt.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, phase_prompt.size)
+	if targeting:
+		reconfiguration_menu.hide()
+		guard_targeting.frame.position = rect.position
+		guard_targeting.frame.custom_minimum_size.x = rect.size.x
+		guard_targeting.frame.size = Vector2(rect.size.x, 0)
+	else:
+		reconfiguration_menu.position = rect.position
+		reconfiguration_menu.size = rect.size
