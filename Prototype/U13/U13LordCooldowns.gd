@@ -4,13 +4,20 @@ const Content = preload("res://Scripts/Sim/U13Valak.gd")
 
 
 static func lines(view: Dictionary, pid: int) -> PackedStringArray:
+	var result := PackedStringArray()
+	for row in statuses(view, pid):
+		result.append("%s: %s" % [row.title, row.status])
+	return result
+
+
+static func statuses(view: Dictionary, pid: int) -> Array:
 	var world: Dictionary = view.world
 	var lord: String = world.get("lord_ids", ["Gremory", "Gremory"])[pid]
 	var alive: bool = true
 	for entity in world.entities:
 		if entity.kind == "lord" and entity.owner == pid:
 			alive = entity.attributes.alive
-	var result := PackedStringArray()
+	var result: Array = []
 	var rules: Dictionary = Content.rules()
 	for power in rules:
 		var rule: Dictionary = rules[power]
@@ -48,7 +55,7 @@ static func lines(view: Dictionary, pid: int) -> PackedStringArray:
 		var title: String = String(power).capitalize()
 		if power == "Web":
 			title = "Entanglement"
-		result.append("%s: %s" % [title, status])
+		result.append({"power": power, "title": title, "status": status, "ready": alive and status == "Ready"})
 	return result
 
 

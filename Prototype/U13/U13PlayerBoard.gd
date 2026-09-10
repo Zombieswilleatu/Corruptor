@@ -23,6 +23,7 @@ var lord_group
 var lord_guard_group
 var castle_group
 var lord_card
+var lord_ready_visual
 var lord_cooldowns: Label
 var _castle_art_states: Dictionary = {}
 var lord_absent_label
@@ -676,5 +677,10 @@ func flash_scorch(effect_id: String) -> void:
 
 
 func bind_cooldowns(view: Dictionary, pid: int) -> void:
+	if lord_ready_visual == null:
+		lord_ready_visual = preload("res://Prototype/U13/U13LordReadyVisual.gd").new()
+		lord_card.art.add_child(lord_ready_visual)
+		lord_ready_visual.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	lord_ready_visual.bind_view(view, pid)
 	lord_cooldowns.text = "\n".join(preload("res://Prototype/U13/U13LordCooldowns.gd").lines(view, pid))
 	lord_cooldowns.visible = not lord_cooldowns.text.is_empty()
