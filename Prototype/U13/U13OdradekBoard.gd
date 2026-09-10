@@ -12,12 +12,22 @@ var false_orders_button: Button
 var inversion_button: Button
 var area_power: String = Odradek.REDIRECT
 var guard_source: Dictionary = {}
+var debug_panel
+var debug_button: Button
+var odradek_effects
 
 
 func _build() -> void:
 	super._build()
 	if not _direct():
 		return
+	odradek_effects = preload("res://Prototype/U13/U13OdradekEffects.gd").new()
+	add_child(odradek_effects)
+	debug_panel = preload("res://Prototype/U13/U13DebugPanel.gd").new()
+	add_child(debug_panel)
+	debug_panel.requested.connect(_debug_action)
+	debug_panel.closed.connect(reopen_decision)
+	debug_button = _button(header.tools_box, "DEBUG", _open_debug)
 	odradek_box = VBoxContainer.new()
 	powers_box.add_child(odradek_box)
 	powers_box.move_child(odradek_box, 0)
@@ -32,6 +42,15 @@ func _build() -> void:
 	inversion_button = _button(
 		odradek_box, "INVERSION · 4 · NEXT ROUND", _begin_guard_power.bind(Odradek.INVERSION)
 	)
+	for pair in [
+		[redirect_button, "Both sides inside the circle move to the other lane after combat."],
+		[false_orders_button, "Move one Guard to its owner's other zone before next round's deployment."],
+		[shift_button, "Enemy Marchers inside the smaller circle become yours after combat."],
+		[inversion_button, "Take legal Guards from an enemy zone next round. Any success adds 1 Neutral Tear."]
+	]:
+		var note: Label = _label(odradek_box, pair[1], 13)
+		note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		odradek_box.move_child(note, pair[0].get_index() + 1)
 	redirect_queue = VBoxContainer.new()
 	odradek_box.add_child(redirect_queue)
 	var scope: Label = _label(
@@ -42,12 +61,15 @@ func _build() -> void:
 	scope.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	redirect_placement = RedirectPlacement.new()
 	add_child(redirect_placement)
+	redirect_placement.battlefield = lanes
 	redirect_placement.confirmed.connect(_confirm_redirect)
 	redirect_placement.cancelled.connect(_cancel_redirect)
 
 
 func _update_direct_ui() -> void:
 	super._update_direct_ui()
+	if debug_button != null:
+		debug_button.disabled = not _planning()
 	if odradek_box == null:
 		return
 	odradek_box.visible = _human_lord() == "Odradek"
@@ -218,6 +240,8 @@ func _replace_redirect_queue(draft: Array) -> void:
 func _reset_direct() -> void:
 	guard_source = {}
 	area_power = Odradek.REDIRECT
+	if odradek_effects != null:
+		odradek_effects.clear()
 	if redirect_placement != null:
 		redirect_placement.close()
 	super._reset_direct()
@@ -333,3 +357,74 @@ func _guard_input(event: InputEvent, owner_id: int, lane: String, control: Contr
 		_guard_selected({"id": "", "kind": "zone", "owner": owner_id, "lane": lane})
 		return
 	super._guard_input(event, owner_id, lane, control)
+
+
+func _open_debug() -> void:
+	if not _planning() or not session.has_method("debug_action"):
+		return
+	redirect_placement.close()
+	debug_panel.show()
+	phase_prompt.set_presenting(false)
+
+
+func _debug_action(action: String, pid: int, lane: String) -> void:
+	if not _planning():
+		debug_panel.message.text = "Debug controls are available during planning."
+		return
+	var result: Dictionary = session.debug_action(action, pid, lane)
+	if result.action == "invalid":
+		debug_panel.message.text = String(result.get("reason", "Action unavailable")).replace("debug_", "").replace("_", " ").capitalize()
+		return
+	_reset_direct()
+	queued = []
+	payment = []
+	castle_plan = {}
+	staged_order = {}
+	_refresh()
+	debug_panel.message.text = result.message
+	phase_prompt.set_presenting(false)
+
+
+func _complete_job() -> void:
+	var previous_session = session
+	super._complete_job()
+	if odradek_effects != null and session != previous_session and session.has_method("_capture_odradek_visuals"):
+		odradek_effects.play(session.odradek_visuals, lanes, sides)
+		if odradek_effects.active():
+			if not playing:
+				_refresh()
+			odradek_effects._begin()
+
+
+func _process(delta: float) -> void:
+	if _job == null and odradek_effects != null and odradek_effects.active():
+		if artillery_view.active():
+			artillery_view.advance(delta)
+			if not artillery_view.active():
+				_restore_artillery_castles()
+			return
+		if gem_dagger_view.active():
+			gem_dagger_view.advance(delta)
+			if not gem_dagger_view.active():
+				_finish_gem_presentation()
+			return
+		odradek_effects.advance(delta)
+		if not odradek_effects.active() and not playing:
+			_refresh()
+			reopen_decision()
+		_busy_label.text = "Odradek reconfigures the battlefield…"
+		return
+	super._process(delta)
+
+
+func finish_playback(skip: bool = true) -> void:
+	var was_effect: bool = odradek_effects != null and odradek_effects.active()
+	if odradek_effects != null:
+		odradek_effects.clear()
+	super.finish_playback(skip)
+	if was_effect and not playing and _job == null:
+		_refresh()
+
+
+func _planning() -> bool:
+	return (odradek_effects == null or not odradek_effects.active()) and super._planning()

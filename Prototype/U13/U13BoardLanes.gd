@@ -398,3 +398,9 @@ func bind_webs(records: Array) -> void:
 			active_webs.append(record.duplicate(true))
 	set_process(_effects_need_process())
 	queue_redraw()
+
+
+# One geometry contract for the drawn chits and live spatial targeting.
+func travel_rect(lane: String) -> Rect2:
+	var width: float = (size.x - 37) / 2.0
+	return Rect2(16 + (width + 5) * (1 if lane == "Castle" else 0), 344, width, maxf(1, size.y - 420))

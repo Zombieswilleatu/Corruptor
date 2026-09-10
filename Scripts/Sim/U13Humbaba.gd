@@ -128,8 +128,11 @@ func accept_order(context: Dictionary) -> Dictionary:
 		)
 		if context.world.data.humbaba_end_round != completed:
 			return Data.invalid("humbaba_end_ledger_wrong_phase")
-		for round_number in context.world.data.humbaba_breach_entries.values():
-			if round_number > context.world.data.get("combat_resolved_round", 0):
+		for entry_id in context.world.data.humbaba_breach_entries:
+			var round_number: int = context.world.data.humbaba_breach_entries[entry_id]
+			var debug_entries = context.world.data.get("debug_breach_entries", {})
+			var debug_entry: bool = typeof(debug_entries) == TYPE_DICTIONARY and debug_entries.get(entry_id) == round_number and round_number <= context.round
+			if round_number > context.world.data.get("combat_resolved_round", 0) and not debug_entry:
 				return Data.invalid("humbaba_breach_ledger_ahead")
 	return _deimos.accept_order(context)
 

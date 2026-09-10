@@ -4,6 +4,8 @@ const Preview = preload("res://Prototype/UI2/SubjectCardHoldPreview.gd")
 const SuitStyle = preload("res://Prototype/UI2/SubjectSuitStyle.gd")
 const CastleArtwork = preload("res://Prototype/U13/U13CastleArtwork.gd")
 const LordCardStats = preload("res://Prototype/U13/U13LordCardStats.gd")
+const LordPreview = preload("res://Prototype/U13/U13LordCardPreview.gd")
+var lord_inspection: bool = false
 var lord_stats_overlay
 var lord_preview_stats
 var art: TextureRect
@@ -86,3 +88,14 @@ func bind_lord_stats(values: Dictionary) -> void:
 		preview.preview_art.add_child(lord_preview_stats)
 	lord_stats_overlay.bind_stats(values)
 	lord_preview_stats.bind_stats(values, true)
+
+
+func bind_lord(name_value: String, alive: bool, in_breach: bool) -> void:
+	if not lord_inspection:
+		input_surface.gui_input.disconnect(preview._on_source_gui_input)
+		preview.queue_free()
+		preview = LordPreview.new()
+		input_surface.add_child(preview)
+		preview.configure(input_surface, art.texture)
+		lord_inspection = true
+	preview.bind_lord(name_value, alive, in_breach)

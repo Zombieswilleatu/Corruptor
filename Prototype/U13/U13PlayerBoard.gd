@@ -385,6 +385,7 @@ func bind_world(world: Dictionary, pid: int, planning: bool) -> void:
 			alive = entity.attributes.alive
 	lord_card.input_surface.set_meta("lord_id", lord_id)
 	lord_card.input_surface.set_meta("alive", alive)
+	lord_card.bind_lord(lord_name, alive, not alive and world.breach_lord == lord_name)
 	lord_card.caption.text = lord_name.to_upper() if alive else lord_name.to_upper() + "\nBANISHED"
 	if lord_name == "Humbaba" and world.has("lord_stats"):
 		var stats: Dictionary = world.lord_stats[pid]

@@ -19,6 +19,7 @@ var setup_castles: Array = [
 ]
 var quick_start: bool = true
 var hunt_enabled: bool = false
+var odradek_visuals: Array = []
 
 
 # Only the exercise opening differs from Core's all-unbuilt setup boundary.
@@ -68,6 +69,7 @@ func configure(lords: Array, castles: Array, quick: bool) -> Dictionary:
 	_powers = []
 	_order = {}
 	_opponent = {}
+	odradek_visuals = []
 	return {"action": "loadout_board_ready"}
 
 
@@ -214,6 +216,7 @@ func restore_checkpoint(raw: Dictionary) -> Dictionary:
 	_powers = []
 	_order = {}
 	_opponent = {}
+	odradek_visuals = []
 	return {"action": "loadout_checkpoint_restored"}
 
 
@@ -230,3 +233,72 @@ func summon_preview(cards: Array) -> Dictionary:
 	if not setup_lords.has("Orias") and not setup_lords.has("Odradek"):
 		return Data.invalid("summon_profile_unavailable")
 	return Orias.Resummon.quote(_owner.snapshot().world, 0, cards)
+
+
+func debug_action(action: String, pid: int, lane: String) -> Dictionary:
+	if next_hook() != Timeline.SUBMISSION_LOCK:
+		return Data.invalid("debug_planning_only")
+	var content = _content(setup_lords, hunt_enabled)
+	var candidate = content.create_combat_match()
+	var restored: Dictionary = candidate.restore(_owner.snapshot())
+	if restored.action == "invalid":
+		return restored
+	var result: Dictionary = preload("res://Scripts/Sim/U13DebugActions.gd").apply(candidate.snapshot().world, action, pid, lane, round_number(), candidate.rng_seed(), content)
+	if result.action == "invalid":
+		return result
+	var changed: Dictionary = candidate._apply_transform({"action": "resolved", "world": result.world, "events": result.events})
+	if changed.action == "invalid":
+		return changed
+	candidate._presentation_world = candidate._world.duplicate(true)
+	var checked = content.create_combat_match()
+	var valid: Dictionary = checked.restore(candidate.snapshot())
+	if valid.action == "invalid":
+		return valid
+	_owner = checked
+	_powers = []
+	_order = {}
+	_opponent = {}
+	odradek_visuals = []
+	return {"action": "debug_applied", "message": result.message}
+
+
+func run_to_marching() -> Dictionary:
+	odradek_visuals = []
+	return super.run_to_marching()
+
+
+func step() -> Dictionary:
+	var hook: String = next_hook()
+	var capture: bool = hook in [Timeline.POST_RESOLUTION_POSITION, Timeline.POST_RESOLUTION_ALLEGIANCE, Timeline.ROUND_START_SCHEDULED]
+	var cursor: int = _owner._event_cursor() if capture else 0
+	var before: Array = _owner.player_view(0, 0).world.entities.duplicate(true) if capture else []
+	var result: Dictionary = super.step()
+	if capture and result.action != "invalid":
+		_capture_odradek_visuals(before, _owner._player_events_since(0, cursor))
+	return result
+
+
+func _capture_odradek_visuals(before: Array, events: Array) -> void:
+	var working: Array = before.duplicate(true)
+	var allegiance_changes: Array = []
+	for event in events:
+		var data: Dictionary = event.data
+		if event.type == "MARCHER_ALLEGIANCE_CHANGED":
+			allegiance_changes.append({"before": data.before, "after": data.after})
+			continue
+		var changes: Array = []
+		if event.type == "REDIRECT_RESOLVED":
+			changes = data.changes
+		elif event.type == "ALLEGIANCE_SHIFT_RESOLVED":
+			changes = allegiance_changes
+			allegiance_changes = []
+		elif event.type == "GUARD_RECONFIGURED":
+			changes = [{"before": data.before, "after": data.after}]
+		else:
+			continue
+		var start: Array = working.duplicate(true)
+		for change in changes:
+			for index in range(working.size()):
+				if working[index].id == change.after.id:
+					working[index] = change.after.duplicate(true)
+		odradek_visuals.append({"type": event.type, "data": data.duplicate(true), "before": start, "after": working.duplicate(true), "round": round_number()})

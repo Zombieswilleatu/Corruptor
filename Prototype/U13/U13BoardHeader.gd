@@ -6,6 +6,8 @@ var veil_label: Label
 var scores: Dictionary = {}
 var tools_box: VBoxContainer
 var history_box: VBoxContainer
+const LordPreview = preload("res://Prototype/U13/U13LordCardPreview.gd")
+var breach_preview
 var breach_art: TextureRect
 var scope: Label
 
@@ -37,6 +39,10 @@ func _ready() -> void:
 	breach_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	breach_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	breach.add_child(breach_art)
+	breach_art.mouse_filter = Control.MOUSE_FILTER_STOP
+	breach_preview = LordPreview.new()
+	breach_art.add_child(breach_preview)
+	breach_preview.configure(breach_art, null)
 	_score(0)
 	history_box = VBoxContainer.new()
 	add_child(history_box)
@@ -102,7 +108,9 @@ func bind_world(world: Dictionary, round_number: int) -> void:
 	breach_art.texture = (
 		null if String(world.breach_lord).is_empty() else Art.lord_texture(world.breach_lord)
 	)
-	breach_art.tooltip_text = world.breach_lord
+	breach_art.tooltip_text = world.breach_lord + " · hold to inspect"
+	breach_preview.set_texture(breach_art.texture)
+	breach_preview.bind_lord(world.breach_lord, false, not String(world.breach_lord).is_empty())
 
 	if world.has("hunt_profile"):
 		scope.tooltip_text = "Hunt, Siege, Ward, Castle development and Lord powers are connected. Named Castle powers other than artillery, Fracture, resummoning, ordinary draws and victory are pending."
