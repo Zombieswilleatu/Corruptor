@@ -4,6 +4,9 @@ signal flee_started
 @export var flee_sound: AudioStream
 var flee_audio: AudioStreamPlayer
 var bite_field: Array = []
+const FLEE_SOUND_PATH: String = "res://Sounds/Wilhelm.wav"
+const RoutVisuals = preload("res://Prototype/U13/U13RoutVisuals.gd")
+var flee_ghosts = RoutVisuals.new()
 
 const Art = preload("res://Prototype/U13/U13BoardTextures.gd")
 const TICK_SECONDS: float = 6.0 / 200.0
@@ -38,9 +41,12 @@ func _ready() -> void:
 	z_index = 45
 	flee_audio = AudioStreamPlayer.new()
 	add_child(flee_audio)
+	if flee_sound == null and FileAccess.file_exists(FLEE_SOUND_PATH):
+		flee_sound = AudioStreamWAV.load_from_file(FLEE_SOUND_PATH)
 
 
 func clear() -> void:
+	flee_ghosts.clear()
 	_restore_bite_field()
 	if flee_audio != null:
 		flee_audio.stop()
@@ -98,8 +104,13 @@ func show_time(at: float) -> void:
 			battlefield._units = flee_frame(bite_field)
 			battlefield.queue_redraw()
 		if not bite.get("flee", []).is_empty():
+			flee_ghosts.clear()
+			for change in bite.flee:
+				flee_ghosts.subjects[change.before.id] = {"effect": "kroni_flee", "age": 0.0, "phase": PI}
+			flee_ghosts.advance(0.0)
 			flee_started.emit()
-			if flee_sound != null and not flee_audio.playing:
+			if flee_sound != null:
+				# One voice per event, never one voice per fleeing unit.
 				flee_audio.stream = flee_sound
 				flee_audio.play()
 	queue_redraw()
@@ -109,10 +120,12 @@ func advance_bite(delta: float) -> void:
 	if not busy():
 		return
 	bite_elapsed += delta
+	flee_ghosts.advance(delta)
 	if is_instance_valid(battlefield):
 		battlefield._units = flee_frame(bite_field)
 		battlefield.queue_redraw()
 	if bite_elapsed >= chomp_seconds:
+		flee_ghosts.clear()
 		_restore_bite_field()
 		bite = {}
 		show_time(clock)
@@ -141,6 +154,13 @@ func extent(actor: Dictionary) -> Vector2:
 
 
 func _draw() -> void:
+	if busy():
+		var fleeing_units: Array = []
+		for change in bite.get("flee", []):
+			fleeing_units.append(change.after)
+		for unit in flee_frame(fleeing_units):
+			var a: Dictionary = unit.attributes
+			flee_ghosts.draw_chit(self, String(unit.id), point(float(a.x_fp), float(a.y_fp) + (600.0 if a.lane == "Castle" else 0.0)))
 	if sheet == null:
 		return
 	var shown: Array = actors.duplicate(true)

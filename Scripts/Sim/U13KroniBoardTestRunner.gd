@@ -125,6 +125,14 @@ func _run() -> void:
 	preview.set_process(false)
 	preview._restart()
 	var visual = preview.visual
+	var flee_events: Array = [0]
+	visual.flee_started.connect(func(): flee_events[0] += 1)
+	var test_audio := AudioStreamWAV.new()
+	test_audio.mix_rate = 22050
+	var silence := PackedByteArray()
+	silence.resize(22050)
+	test_audio.data = silence
+	visual.flee_sound = test_audio
 	var at: float = visual.bites[0].at
 	visual.show_time(at)
 	_check(visual.busy(), "consumption starts presentation pause")
@@ -133,6 +141,8 @@ func _run() -> void:
 	var flight_units: Array = []
 	for change in escape:
 		flight_units.append(change.after.duplicate(true))
+	_check(flee_events[0] == 1 and visual.flee_audio.playing, "one flee event starts one audio voice for the group")
+	_check(visual.flee_ghosts.subjects.size() == escape.size(), "each fleer gets the shared Rout ghost")
 	var original_units: Array = flight_units.duplicate(true)
 	var start_units: Array = visual.flee_frame(flight_units)
 	visual.advance_bite(visual.chomp_seconds * 0.5)
@@ -141,9 +151,12 @@ func _run() -> void:
 		var a: Dictionary = escape[i].before.attributes
 		var b: Dictionary = escape[i].after.attributes
 		_check(start_units[i].attributes.x_fp == a.x_fp and is_equal_approx(float(middle_units[i].attributes.x_fp), (float(a.x_fp) + float(b.x_fp)) * 0.5), "flee playback interpolates authoritative escape")
+	_check(flee_events[0] == 1, "animation frames do not retrigger scream")
 	_check(flight_units == original_units, "flee playback leaves recorded positions unchanged")
 	_check(visual.busy() and visual.clock == at, "chomp animates without advancing field clock")
 	_check(Visual.facing(Vector2(1, 0)) == 2 and Visual.facing(Vector2(-1, 0)) == 1 and Visual.facing(Vector2(0, 1)) == 0 and Visual.facing(Vector2(0, -1)) == 3, "all four supplied directions supported")
+	visual.clear()
+	_check(visual.flee_ghosts.subjects.is_empty() and not visual.flee_audio.playing, "skipping clears flee ghosts and sound")
 	var preview_click := InputEventMouseButton.new()
 	preview_click.button_index = MOUSE_BUTTON_LEFT
 	preview_click.pressed = true
