@@ -63,3 +63,7 @@ Both Consume and Cannibal Hunger play the exact Kroni sprite beside the eaten Gu
 Hunger has no cap of 1 and is not reset at round start. Ward/Pass loses 1 during combat; powers without a combat order count as Pass. No friendly Guard during the Cannibal check also loses 1. The powers panel now states when the current order will cost Hunger. Consecutive Consume meals with Hunt instead of Pass reach Hunger 3 and award the milestone once.
 
 Validation for this revision: Godot 4.7.2 Kroni core and board suites passed, including Hunger 1→2→3 across offensive rounds, milestone payout, three-per-spot continuation and JSON state, first-round Cannibal animation, next-round Consume animation, and safe animation completion/skip.
+
+## Minimum attack commitment
+
+Hunt and Siege require at least one committed card for every U13 Lord. Empty attacks are rejected in order validation, strict preview, batch/bot legality and submission. Ward may commit zero cards, and Pass remains available. This closes the no-cost attack loophole for retaining Hunger. Hunger-growth fixtures now use a real card commitment.

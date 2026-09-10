@@ -1013,8 +1013,8 @@ func _friendly_error(result: Dictionary) -> String:
 		return "Ruin requires a damaged enemy Castle before this round resolves."
 	if reason == "power_not_ready" or reason.contains("cooldown"):
 		return "That power is still cooling down. Choose another power or pass."
-	if reason == "combat_order_invalid":
-		return "Check your combat target and cards, or Skip Combat to continue."
+	if reason in ["combat_order_invalid", "combat_order_shape_invalid"]:
+		return "Hunt and Siege require at least one committed card and a valid enemy target. Ward can use zero cards; Skip Combat passes."
 	if reason == "castle_not_ready_to_activate":
 		return "Commission needs a protected Castle with at least 7 Integrity."
 	if reason == "castle_not_under_construction":

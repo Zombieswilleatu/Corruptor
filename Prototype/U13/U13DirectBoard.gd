@@ -484,6 +484,11 @@ func _apply_cards(ids: Array, append: bool) -> bool:
 	for id in ids:
 		if id not in selected:
 			selected.append(id)
+	if _intent in ["Hunt", "Siege"] and selected.is_empty():
+		_interaction_error = "Hunt and Siege require at least one committed card. Ward can use zero cards."
+		_busy_label.text = _interaction_error
+		status.text = _interaction_error
+		return false
 	var combat: Dictionary = _draft_combat.duplicate(true)
 	var castle: Dictionary = castle_plan.duplicate(true)
 	if _intent in ["Construct", "Repair"]:

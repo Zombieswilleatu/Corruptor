@@ -14,6 +14,18 @@ func _run() -> void:
 	var opening_state: Dictionary = board.session.checkpoint()
 	board._process(1.0)
 	_check(not board.guard_chomp.active() and board.session.checkpoint() == opening_state, "Guard chomp completion changes no game state")
+	var commit_before: Dictionary = board.session.checkpoint()
+	var enemy_lord: Dictionary = {}
+	for row in board._visible_world.entities:
+		if row.kind == "lord" and row.owner == 1:
+			enemy_lord = row
+	board._intent = "Hunt"
+	board._target = {"id": enemy_lord.id, "kind": "lord", "owner": 1, "lane": "Lord"}
+	_check(not board._apply_cards([], false) and board.session.checkpoint() == commit_before, "board refuses zero-card Hunt without staging it")
+	_check(board._interaction_error.contains("at least one"), "board explains minimum attack commitment")
+	board._intent = ""
+	board._target = {}
+	board._interaction_error = ""
 	board.enter_powers()
 	await _settle()
 	_check(board.kroni_box.visible and not board.consume_button.disabled and not board.ravenous_button.disabled, "both active powers available")

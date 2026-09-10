@@ -323,7 +323,7 @@ func _activation_lifecycle() -> void:
 				. preview_submission(
 					1,
 					[],
-					{"action": "Siege", "lane": "Castle", "target_id": _engine(0), "card_ids": []}
+					{"action": "Siege", "lane": "Castle", "target_id": _engine(0), "card_ids": owner.player_view(1, 0).world.hand.slice(0, 1)}
 				)
 				. action
 			)
@@ -585,7 +585,7 @@ func _atomic_plans() -> void:
 				. preview_submission(
 					0,
 					[],
-					{"action": "Siege", "lane": "Castle", "target_id": _engine(1), "card_ids": []}
+					{"action": "Siege", "lane": "Castle", "target_id": _engine(1), "card_ids": owner.player_view(0, 0).world.hand.slice(0, 1)}
 				)
 				. action
 			)

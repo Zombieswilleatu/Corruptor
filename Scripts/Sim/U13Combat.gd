@@ -124,6 +124,8 @@ static func order_shape(order: Dictionary) -> bool:
 			return false
 	if order.lane not in Marching.LANES or typeof(order.card_ids) != TYPE_ARRAY:
 		return false
+	if order.action in ["Siege", "Hunt"] and order.card_ids.is_empty():
+		return false
 	var seen: Dictionary = {}
 	for card_id in order.card_ids:
 		if typeof(card_id) != TYPE_STRING or card_id.is_empty() or seen.has(card_id):

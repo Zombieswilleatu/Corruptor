@@ -32,6 +32,7 @@ func _run() -> void:
 	_hunger()
 	_feeding()
 	_hunger_growth()
+	_attack_commitment()
 	_meal_limit()
 	_placement()
 	_actors()
@@ -257,7 +258,7 @@ func _hunger_growth() -> void:
 			return
 		world = result.world
 		var attack: Dictionary = context(world, Timeline.COMBAT_RESOLUTION, round_number)
-		attack.combat_orders[0] = {"action": "Hunt", "lane": "Lord", "target_id": State.lord(world, 1).id, "card_ids": []}
+		attack.combat_orders[0] = {"action": "Hunt", "lane": "Lord", "target_id": State.lord(world, 1).id, "card_ids": world.data.card_zones.hands[0].slice(0, 1)}
 		result = content.on_hook(attack)
 		if not check(result.action == "resolved", "Hunt round preserves fed Hunger"):
 			print(result)
@@ -288,3 +289,26 @@ func _meal_limit() -> void:
 	for tick in range(2, 65):
 		Actors.step([actor], buffer, 1, tick)
 	check(actor.consumed == 6, "another feeding spot can supply three more")
+
+
+func _attack_commitment() -> void:
+	var session = Session.new()
+	check(session.configure(["Kroni", "Gremory"], Scenario.world().data.castle_loadouts, true).action != "invalid", "commitment fixture starts")
+	var owner = session._owner
+	var before: Dictionary = owner.snapshot()
+	var world: Dictionary = before.world
+	var castle: String = ""
+	for row in world.entities.entities:
+		if row.kind == "castle" and row.owner == 1 and preload("res://Scripts/Sim/U13Structures.gd").targetable(row):
+			castle = row.id
+			break
+	var hand: Array = world.data.card_zones.hands[0]
+	for action in ["Hunt", "Siege"]:
+		var order: Dictionary = {"action": action, "lane": "Lord" if action == "Hunt" else "Castle", "target_id": State.lord(world, 1).id if action == "Hunt" else castle, "card_ids": []}
+		check(owner.preview_submission(0, [], order).action == "invalid", "zero-card " + action + " rejected by preview")
+		check(owner.legal_order_candidates(0, [], [order]).is_empty(), "zero-card " + action + " excluded from bot legality")
+		check(owner.submit(0, [], order).action == "invalid" and owner.snapshot() == before, "zero-card " + action + " rejected atomically by submission")
+		order.card_ids = hand.slice(0, 1)
+		check(owner.preview_submission(0, [], order).action != "invalid", "one-card " + action + " remains legal")
+	check(owner.preview_submission(0, [], {"action": "Ward", "lane": "Lord", "card_ids": []}).action != "invalid", "zero-card Ward remains legal")
+	check(owner.preview_submission(0, [], {}).action != "invalid", "Pass remains legal")
