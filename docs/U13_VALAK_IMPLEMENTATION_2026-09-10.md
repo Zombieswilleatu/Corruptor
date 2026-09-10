@@ -30,7 +30,7 @@ U12 and the project's default scene are unchanged.
 - Printed ratings use the existing Valak content: Summon 6, Defense 5, Fracture 1.
   Standard Threat reduction and U13 resummoning remain in effect.
 
-The initial fixed-point Orb tuning is attraction radius 330, destruction radius
+The initial fixed-point Orb tuning is attraction radius 248 (25% below the original 330, rounded), destruction radius
 65 and pull 7 per tick in a 2400 × 600 lane. These are balance parameters in
 `U13GravityOrbs.gd`, not screen pixels. Pull includes engaged and waiting actors;
 new commitments keep their normal movement-ready round. Contact with the core
@@ -73,3 +73,14 @@ Banishment after arming, no self-refund, actual Hunt/Siege gain, Ward precedence
 reserved capacity, source/target rejection, friendly/enemy Orb deaths, later
 entrants, one reward across rounds, two-round lifetime/cooldown, composed Breach
 slowdown, checkpoint integrity and identical populated-Orb replay results.
+
+## Gravity tuning preview
+
+The Valak animation preview now moves both armies through separate lanes and
+uses the shared Gravity Orb pull and swept-contact calculation once the Orb
+finishes forming. Pull strength (0–14, default 7) and pull radius (65–500,
+default 248) are preview-only controls. Rings show attraction and destruction
+ranges; friendly/enemy counters record consumed marchers. Reset marchers
+repopulates both lanes. Movement is a simplified 4-unit march per 0.05-second
+preview tick, without combat. The game attraction radius is reduced from 330
+to 248; pull speed and core size retain their existing defaults.

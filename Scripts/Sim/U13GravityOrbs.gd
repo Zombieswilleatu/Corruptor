@@ -4,7 +4,7 @@ const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Space = preload("res://Scripts/Sim/U13SpatialSpace.gd")
 const Events = preload("res://Scripts/Sim/U13ValakState.gd")
 # Fixed-point tuning, independent of viewport pixels and render frame rate.
-const ATTRACTION_FP: int = 330
+const ATTRACTION_FP: int = 248 # 330 reduced by 25%, rounded to fixed-point units.
 const DESTRUCTION_FP: int = 65
 const PULL_FP: int = 7
 
@@ -48,7 +48,7 @@ static func _touches(a: Dictionary, b: Dictionary, point: Dictionary) -> bool:
 	return cross * cross <= DESTRUCTION_FP * DESTRUCTION_FP * length_sq
 
 
-static func step(orbs: Array, entities, before: Array, round_number: int, tick: int, collapse: bool = false) -> Array:
+static func step(orbs: Array, entities, before: Array, round_number: int, tick: int, collapse: bool = false, pull_fp: int = PULL_FP, radius_fp: int = ATTRACTION_FP) -> Array:
 	var events: Array = []
 	for old in before:
 		var unit: Dictionary = entities.get_entity(old.id)
@@ -61,15 +61,15 @@ static func step(orbs: Array, entities, before: Array, round_number: int, tick: 
 			if orb.target.lane != a.lane:
 				continue
 			var distance: int = _distance(a, orb.target.field_position)
-			if distance <= ATTRACTION_FP * ATTRACTION_FP and (distance < best or (distance == best and (chosen.is_empty() or orb.id < chosen.id))):
+			if distance <= radius_fp * radius_fp and (distance < best or (distance == best and (chosen.is_empty() or orb.id < chosen.id))):
 				chosen = orb
 				best = distance
 		# Pull affects both sides, including waiters and engaged Marchers.
 		# New commitments still wait until their normal movement-ready round.
-		if not chosen.is_empty() and a.movement_ready_round <= round_number:
+		if pull_fp > 0 and not chosen.is_empty() and a.movement_ready_round <= round_number:
 			var point: Dictionary = chosen.target.field_position
 			var distance: int = maxi(1, ceili(sqrt(float(best))))
-			var speed: int = ((PULL_FP + tick % 2) >> 1) if collapse else PULL_FP
+			var speed: int = ((pull_fp + tick % 2) >> 1) if collapse else pull_fp
 			var next: Dictionary = unit.attributes.duplicate(true)
 			next.x_fp = int(a.x_fp) + roundi(float(int(point.x_fp) - int(a.x_fp)) * speed / distance)
 			next.y_fp = int(a.y_fp) + roundi(float(int(point.y_fp) - int(a.y_fp)) * speed / distance)
