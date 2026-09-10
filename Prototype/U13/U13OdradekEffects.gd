@@ -1,6 +1,9 @@
 extends Control
 
 const Visuals = preload("res://Prototype/U13/U13WebVisuals.gd")
+const EFFECT_DURATION: float = 1.6
+const PARADOX_DURATION: float = 2.1
+
 var vortex
 var battlefield
 var sides: Array = []
@@ -44,7 +47,7 @@ func advance(delta: float) -> bool:
 	var record: Dictionary = records[0]
 	var data: Dictionary = record.data
 	var paradox: bool = data.get("player_id", 0) == -1 or data.get("power", "") == "ParadoxGeometry"
-	var duration: float = 1.15 if paradox else 0.8
+	var duration: float = PARADOX_DURATION if paradox else EFFECT_DURATION
 	elapsed += maxf(delta, 0.0)
 	var progress: float = clampf(elapsed / duration, 0.0, 1.0)
 	var area: Rect2
@@ -61,7 +64,9 @@ func advance(delta: float) -> bool:
 		var lane_rect: Rect2 = battlefield.travel_rect(data.target.lane)
 		area = transform * Visuals.region_rect(lane_rect, data.target.field_position, int(data.radius_fp))
 		clip = transform * lane_rect
-	vortex.present(area, clip, sin(progress * PI), 8.0 if paradox else 4.0, 0.8 if paradox else 0.0)
+	# Hold the moving film long enough to read before it recedes.
+	var envelope: float = smoothstep(0.0, 0.2, progress) * (1.0 - smoothstep(0.72, 1.0, progress))
+	vortex.present(area, clip, envelope, 8.0 if paradox else 4.0, 0.8 if paradox else 0.0)
 	if progress >= 0.5 and not switched:
 		switched = true
 		battlefield.show_world(record.after, record.round)

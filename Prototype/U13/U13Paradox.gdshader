@@ -19,10 +19,19 @@ void fragment() {
 	float edge_warp = sin(atan(p.y, p.x) * 9.0 + phase * 3.0) * chaos * 0.12;
 	float angle = (1.0 - clamp(dist + edge_warp, 0.0, 1.0)) * swirl * strength + sin(phase) * 0.2 * feather;
 	mat2 rotation = mat2(vec2(cos(angle), sin(angle)), vec2(-sin(angle), cos(angle)));
-	vec2 warped = center_uv + (rotation * p) * radii;
+	// Rolling displacement and uneven interference bands suggest an oil film.
+	vec2 rolled = rotation * p;
+	float flow = sin(rolled.y * 8.0 - phase * 2.0 + sin(rolled.x * 5.0 + phase));
+	rolled.x += flow * 0.055 * feather * strength;
+	rolled.y += sin(rolled.x * 7.0 + phase * 1.6) * 0.035 * feather * strength;
+	vec2 warped = center_uv + rolled * radii;
 	warped = clamp(warped, clip_uv.xy, clip_uv.zw);
 	vec3 color = texture(screen_texture, warped).rgb;
-	vec3 negative = vec3(1.0) - color;
+	float film = dist * 2.8 + flow * 0.35 + sin(rolled.x * 4.0 - rolled.y * 3.0 + phase * 0.7) * 0.45 - phase * 0.32;
+	vec3 rainbow = 0.5 + 0.5 * cos(6.2831853 * (film + vec3(0.0, 0.33, 0.67)));
+	// Saturated, bounded sheen: never invert the dark field into a white disk.
+	float sheen = 0.26 + 0.12 * sin(film * 6.2831853);
+	vec3 oil = color * (vec3(0.55) + rainbow * 0.45) + rainbow * sheen;
 	float inside_lane = step(clip_uv.x, SCREEN_UV.x) * step(clip_uv.y, SCREEN_UV.y) * step(SCREEN_UV.x, clip_uv.z) * step(SCREEN_UV.y, clip_uv.w);
-	COLOR = vec4(mix(color, negative, 0.88), feather * strength * inside_lane);
+	COLOR = vec4(oil, feather * strength * inside_lane);
 }
