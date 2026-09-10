@@ -83,7 +83,10 @@ func advance(delta: float) -> bool:
 	for id in changed_ids:
 		battlefield.paradox_glitches[id] = {"amount": Timing.transfer(progress), "tick": int(elapsed * 40) + int(glitch_pattern.tick_offset)}
 	battlefield.queue_redraw()
-	vortex.present(area, clip, envelope, 8.0 if paradox else 4.0, 0.8 if paradox else 0.0)
+	# Small Guard-card effects need more contrast than the large lane circles.
+	var guard_boost: float = 1.5 if record.type == "GUARD_RECONFIGURED" and data.get("power", "") in ["FalseOrders", "Inversion"] else 1.0
+	vortex.color_depth = 0.25 * guard_boost
+	vortex.present(area, clip, envelope, (8.0 if paradox else 4.0) * guard_boost, 0.8 if paradox else 0.0)
 	if progress >= 0.5 and not switched:
 		switched = true
 		battlefield.show_world(record.after, record.round)
