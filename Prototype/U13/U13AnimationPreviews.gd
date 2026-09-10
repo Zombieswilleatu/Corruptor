@@ -2,6 +2,7 @@ extends Control
 
 signal closed
 const PREVIEWS: Array = [
+	{"title": "Valak · Orbs & Absorption", "note": "Staff launch, singularity, rotating hold and five layers of stored energy.", "scene": "res://Prototype/U13/U13ValakPreview.tscn", "size": Vector2(1280, 900)},
 	{"title": "Kroni · Ravenous", "note": "Both lanes, Hunger sizes, chomping and Insatiable Hunger. Tune the pause and walking speed.", "scene": "res://Prototype/U13/U13KroniPreview.tscn", "size": Vector2(1280, 900)},
 	{
 		"title": "Odradek · Spiral",
@@ -62,10 +63,17 @@ func _ready() -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 20)
 	margin.add_child(row)
+	var sidebar := VBoxContainer.new()
+	sidebar.custom_minimum_size.x = 300
+	row.add_child(sidebar)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	sidebar.add_child(scroll)
 	var menu := VBoxContainer.new()
-	menu.custom_minimum_size.x = 300
+	menu.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	menu.add_theme_constant_override("separation", 16)
-	row.add_child(menu)
+	scroll.add_child(menu)
 	_label(menu, "ANIMATION PREVIEWS", 22)
 	_label(menu, "Choose an effect to revisit. Your Lord and Castle selections are kept.")
 	for index in range(PREVIEWS.size()):
@@ -76,14 +84,11 @@ func _ready() -> void:
 		menu.add_child(choice)
 		_choices.append(choice)
 		_label(menu, PREVIEWS[index].note)
-	var spacer := Control.new()
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	menu.add_child(spacer)
 	var back := Button.new()
 	back.text = "BACK TO LORDS & CASTLES"
 	back.custom_minimum_size.y = 48
 	back.pressed.connect(dismiss)
-	menu.add_child(back)
+	sidebar.add_child(back)
 	host = Control.new()
 	host.clip_contents = true
 	host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
