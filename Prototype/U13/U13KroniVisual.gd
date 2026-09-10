@@ -140,7 +140,10 @@ func _draw() -> void:
 		if chomping and row == 3:
 			row = 1 if direction.x < 0 else 2
 		var size_value: Vector2 = extent(actor)
-		var frame_index: int = int(floor((bite_elapsed if chomping else clock) * frame_rate)) % 6
+		# Two complete chomp cycles per pause (~22 FPS at the default 0.55s).
+		# Walking keeps its own frame rate; the preview pause scales both bites.
+		var animation_frame: float = minf(bite_elapsed / maxf(chomp_seconds, 0.001), 0.99999) * 12.0 if chomping else clock * frame_rate
+		var frame_index: int = int(floor(animation_frame)) % 6
 		if show_footprint:
 			draw_set_transform(center, 0.0, size_value * 0.5)
 			draw_arc(Vector2.ZERO, 1.0, 0.0, TAU, 64, Color("eac16c"), 0.015, true)
