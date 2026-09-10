@@ -3,7 +3,17 @@ extends Control
 # Shared by standalone scenes and the in-board gallery. Closing an embedded
 # preview releases that scene; only a standalone preview exits the application.
 signal close_requested
+signal main_menu_requested
 var embedded: bool = false
+
+
+func _main_menu() -> void:
+	if embedded:
+		main_menu_requested.emit()
+	else:
+		var error := get_tree().change_scene_to_file("res://Prototype/U13/U13Board.tscn")
+		if error != OK:
+			push_error("Could not open the U13 main menu (error %d)." % error)
 
 
 func _close_preview(exit_code: int = 0) -> void:

@@ -53,6 +53,7 @@ func _ready() -> void:
 	_toggle(controls, "Pause", func(v: bool) -> void: pause = v)
 	_toggle(controls, "Move staff origin", func(v: bool) -> void: move_staff = v)
 	_button(controls, "Back / Exit", _close_preview.bind(0))
+	_button(controls, "Main Menu", _main_menu)
 	_slider(controls, "Speed", 0.1, 2.0, 1.0, func(v: float) -> void: speed = v)
 	_slider(controls, "Flight", 0.2, 2.0, 0.8, func(v: float) -> void: visual.flight_seconds = v)
 	_slider(controls, "Formation", 0.2, 2.0, 0.8, func(v: float) -> void: visual.formation_seconds = v)

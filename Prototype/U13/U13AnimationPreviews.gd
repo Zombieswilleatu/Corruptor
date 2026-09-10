@@ -85,7 +85,7 @@ func _ready() -> void:
 		_choices.append(choice)
 		_label(menu, PREVIEWS[index].note)
 	var back := Button.new()
-	back.text = "BACK TO LORDS & CASTLES"
+	back.text = "MAIN MENU · LORDS & CASTLES"
 	back.custom_minimum_size.y = 48
 	back.pressed.connect(dismiss)
 	sidebar.add_child(back)
@@ -133,6 +133,7 @@ func open_preview(index: int) -> void:
 	active_preview = instance
 	active_preview.set("embedded", true)
 	active_preview.connect("close_requested", close_preview)
+	active_preview.connect("main_menu_requested", dismiss)
 	active_preview.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	active_preview.size = PREVIEWS[index].size
 	status.hide()
