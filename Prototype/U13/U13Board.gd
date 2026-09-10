@@ -375,6 +375,8 @@ func _refresh(presented: Dictionary = {}) -> void:
 	header.bind_world(world, session.round_number())
 	_render_side(sides[0], world, 1)
 	_render_side(sides[1], world, 0)
+	sides[0].bind_cooldowns(view, 1)
+	sides[1].bind_cooldowns(view, 0)
 	sides[0].bind_scorch(_scorch_rows, 1)
 	sides[1].bind_scorch(_scorch_rows, 0)
 	if not playing:

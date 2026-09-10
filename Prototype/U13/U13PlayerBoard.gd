@@ -23,6 +23,7 @@ var lord_group
 var lord_guard_group
 var castle_group
 var lord_card
+var lord_cooldowns: Label
 var _castle_art_states: Dictionary = {}
 var lord_absent_label
 var lord_sigil
@@ -142,6 +143,14 @@ func _build_lord_group() -> void:
 	lord_card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	lord_card.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	column.add_child(lord_card)
+	lord_cooldowns = Label.new()
+	lord_cooldowns.custom_minimum_size.x = 188
+	lord_cooldowns.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lord_cooldowns.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	lord_cooldowns.add_theme_font_size_override("font_size", 12)
+	lord_cooldowns.add_theme_color_override("font_color", Color("efdeb8"))
+	lord_cooldowns.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_child(lord_cooldowns)
 
 	lord_absent_label = Label.new()
 	lord_absent_label.text = "IN THE BREACH"
@@ -664,3 +673,8 @@ func flash_scorch(effect_id: String) -> void:
 	if not scorch_visuals.groups.is_empty():
 		set_process(true)
 		queue_redraw()
+
+
+func bind_cooldowns(view: Dictionary, pid: int) -> void:
+	lord_cooldowns.text = "\n".join(preload("res://Prototype/U13/U13LordCooldowns.gd").lines(view, pid))
+	lord_cooldowns.visible = not lord_cooldowns.text.is_empty()
