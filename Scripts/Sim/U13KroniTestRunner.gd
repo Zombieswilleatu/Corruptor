@@ -114,18 +114,21 @@ func add_unit(world: Dictionary, index: int, pid: int, x: int, y: int, lane: Str
 	return row.entity.id
 
 func _placement() -> void:
-	var start: Dictionary = {"lane": "Castle", "field_position": {"x_fp": 650, "y_fp": 450}}
+	var start: Dictionary = {"lane": "Castle", "field_position": {"x_fp": 0, "y_fp": 450}}
 	var world: Dictionary = Scenario.world()
 	var source: Dictionary = Scenario.source(0, 1, start)
 	check(Content.new().validate(source, world, "declaration").legal, "chosen field start is legal")
-	for target in [{}, {"lane": "Lord", "field_position": {"x_fp": -1, "y_fp": 20}}, {"lane": "Castle", "field_position": {"x_fp": 20, "y_fp": 601}}, {"lane": "Lord", "field_position": {"x_fp": 20.5, "y_fp": 20}}, {"lane": "Lord", "field_position": {"x_fp": 20, "y_fp": 20}, "angle": 10}]:
+	for target in [{"lane": "Lord", "field_position": {"x_fp": 1200, "y_fp": 300}}, {"lane": "Lord", "field_position": {"x_fp": 2400, "y_fp": 300}}, {}, {"lane": "Lord", "field_position": {"x_fp": -1, "y_fp": 20}}, {"lane": "Castle", "field_position": {"x_fp": 20, "y_fp": 601}}, {"lane": "Lord", "field_position": {"x_fp": 20.5, "y_fp": 20}}, {"lane": "Lord", "field_position": {"x_fp": 20, "y_fp": 20}, "angle": 10}]:
 		var bad: Dictionary = source.duplicate(true)
 		bad.target = target
 		check(not Content.new().validate(bad, world, "declaration").legal, "reject missing/invalid start and player-selected angle " + str(target))
+	var enemy_start: Dictionary = {"lane": "Castle", "field_position": {"x_fp": 2400, "y_fp": 450}}
+	check(Content.new().validate(Scenario.source(1, 1, enemy_start), Scenario.world("Kroni"), "declaration").legal, "enemy may start at top edge")
+	check(not Content.new().validate(Scenario.source(1, 1, start), Scenario.world("Kroni"), "declaration").legal, "enemy cannot start at player edge")
 	var pending = preload("res://Scripts/Sim/U13PendingEffects.gd").new()
 	var record: Dictionary = pending.schedule(source).effect
 	var result: Dictionary = Content.new().resolve(record, context(world, Timeline.POST_RESOLUTION_SPECIAL_ACTORS))
-	check(result.action == "resolved" and result.world.data.kroni_actors[0].x_fp == 650 and result.world.data.kroni_actors[0].y_fp == 1050, "authoritative launch uses chosen Castle position")
+	check(result.action == "resolved" and result.world.data.kroni_actors[0].x_fp == 0 and result.world.data.kroni_actors[0].y_fp == 1050, "authoritative launch uses chosen Castle position")
 	check(result == Content.new().resolve(record, context(JSON.parse_string(JSON.stringify(world)), Timeline.POST_RESOLUTION_SPECIAL_ACTORS)), "launch roll survives exact JSON replay")
 	var angles: Dictionary = {}
 	var round_angles: Dictionary = {}
@@ -133,7 +136,7 @@ func _placement() -> void:
 		for pid in [0, 1]:
 			var actor: Dictionary = Actors.create("placed", pid, 1, 0, false, "seed-%d" % index, start)
 			angles[actor.vy_fp] = true
-			check(Actors.valid([actor]) and actor.x_fp == 650 and actor.y_fp == 1050 and actor.vx_fp * (1 if pid == 0 else -1) > 0, "placed actor valid and enemy-facing %d/%d" % [index, pid])
+			check(Actors.valid([actor]) and actor.x_fp == (0 if pid == 0 else 2400) and actor.y_fp == 1050 and actor.vx_fp * (1 if pid == 0 else -1) > 0, "placed actor valid and enemy-facing %d/%d" % [index, pid])
 			var buffer = Buffer.new()
 			buffer.restore(world.entities)
 			var previous: int = actor.x_fp

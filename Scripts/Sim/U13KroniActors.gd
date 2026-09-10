@@ -21,7 +21,6 @@ static func create(identity: String, pid: int, round_number: int, hunger: int, b
 	var actor: Dictionary = {"id": identity, "owner": pid, "round": round_number, "breach": breach, "x_fp": 0 if pid == 0 else LENGTH, "y_fp": 300, "vx_fp": FORWARD if pid == 0 else -FORWARD, "vy_fp": LATERAL_MIN, "radius_fp": radius(hunger), "hunger": hunger, "age": 0, "active": true, "consumed": 0, "rewarded": false, "meal_count": 0, "meal_x_fp": 0, "meal_y_fp": 0}
 	if not breach:
 		if not start.is_empty():
-			actor.x_fp = int(start.field_position.x_fp)
 			actor.y_fp = int(start.field_position.y_fp) + (600 if start.lane == "Castle" else 0)
 		# Roll only at authoritative activation. Placement exposes no direction.
 		# Separate activation/round keys preserve replays without repeating a route.

@@ -45,7 +45,8 @@ func _run() -> void:
 	click.position = chosen_rect.position + chosen_rect.size * Vector2(0.75, 0.75)
 	board.ravenous_placement._gui_input(click)
 	var start: Dictionary = board.ravenous_placement.target.duplicate(true)
-	_check(start.lane == "Castle" and start.field_position.x_fp == 600 and start.field_position.y_fp == 450, "field click selects exact start across lanes")
+	_check(start.lane == "Castle" and start.field_position.x_fp == 0 and start.field_position.y_fp == 450, "field click selects exact start across lanes")
+	board.ravenous_placement.dragging = false
 	board.ravenous_placement.confirm_button.pressed.emit()
 	await _settle()
 	_check(board.queued.size() == 2 and board.ravenous_button.disabled and board.queued[1].target == start, "Ravenous queues only selected position alongside Consume")
@@ -71,7 +72,7 @@ func _run() -> void:
 	_check(board._job == null and board.playing, "Kroni worker resolves")
 	_check(not board.kroni_visual.frames.is_empty(), "authoritative actor tape reaches board playback")
 	var launched: Dictionary = board.kroni_visual.frames[0].actors[0]
-	_check(launched.x_fp == 600 and launched.y_fp == 1050, "worker and playback preserve player starting position")
+	_check(launched.x_fp == 0 and launched.y_fp == 1050, "worker and playback preserve player starting position")
 	board.finish_playback()
 	_check(board.kroni_visual.frames.is_empty() and not board.kroni_visual.busy(), "skip clears actor and chomp state")
 	deadline = Time.get_ticks_msec() + 15000
@@ -122,7 +123,7 @@ func _run() -> void:
 	preview_click.pressed = true
 	preview_click.position = preview.visual.field_rect.position + preview.visual.field_rect.size * Vector2(0.875, 0.75)
 	preview._gui_input(preview_click)
-	_check(preview.visual.frames[0].actors[0].x_fp == 600 and preview.visual.frames[0].actors[0].y_fp == 1050, "preview click uses same chosen-position mapping")
+	_check(preview.visual.frames[0].actors[0].x_fp == 0 and preview.visual.frames[0].actors[0].y_fp == 1050, "preview click uses same chosen-position mapping")
 	var directions: Dictionary = {}
 	for i in range(8):
 		preview._restart()

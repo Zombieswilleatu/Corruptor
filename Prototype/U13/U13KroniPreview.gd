@@ -69,7 +69,7 @@ func _ready() -> void:
 	add_child(status)
 	guide = Label.new()
 	guide.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	guide.text = "RAVENOUS\nClick either lane to place his start. Each launch rolls a new angle toward the enemy, bouncing off outer walls. No steering. Both sides can be eaten. Up to 3 per spot, then move one body-width before feeding again.\n\n6+ DEVOURED\nOne Soul, one Hunger and one Neutral Tear per activation.\n\nHUNGER\n0: Defense 4\n1–2: Defense 6\n3+: Defense 8\nFirst reaching 3 grants one personal Tear.\n\nBREACH\nA short random manifestation. No rewards."
+	guide.text = "RAVENOUS\nClick either lane to choose his horizontal start along the bottom edge. Each launch rolls a new angle toward the enemy, bouncing off outer walls. No steering. Both sides can be eaten. Up to 3 per spot, then move one body-width before feeding again.\n\n6+ DEVOURED\nOne Soul, one Hunger and one Neutral Tear per activation.\n\nHUNGER\n0: Defense 4\n1–2: Defense 6\n3+: Defense 8\nFirst reaching 3 grants one personal Tear.\n\nBREACH\nA short random manifestation. No rewards."
 	add_child(guide)
 	resized.connect(_layout)
 	_layout()
@@ -142,6 +142,7 @@ func _gui_input(event: InputEvent) -> void:
 			rect.position.x += rect.size.x
 		var target: Dictionary = preload("res://Prototype/U13/U13SpatialInput.gd").target_at(event.position, rect, lane)
 		if not target.is_empty():
+			target.field_position.x_fp = 0
 			start = target
 			_restart()
 			accept_event()

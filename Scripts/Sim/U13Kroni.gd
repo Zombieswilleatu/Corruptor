@@ -28,16 +28,16 @@ func valid_world(world: Dictionary) -> bool:
 	return super.valid_world(world) and Hunger.valid(world) and Actors.valid(world.data.get("kroni_actors"))
 
 
-static func kroni_target(power: String, target: Dictionary) -> bool:
+static func kroni_target(power: String, target: Dictionary, pid: int = 0) -> bool:
 	if power == RAVENOUS:
-		return target.size() == 2 and target.get("lane") in ["Lord", "Castle"] and not preload("res://Scripts/Sim/U13SpatialSpace.gd").position(target.get("field_position")).is_empty()
+		return target.size() == 2 and target.get("lane") in ["Lord", "Castle"] and not preload("res://Scripts/Sim/U13SpatialSpace.gd").position(target.get("field_position")).is_empty() and int(target.field_position.x_fp) == (0 if pid == 0 else 2400)
 	return target.size() == 1 and typeof(target.get("entity_id")) == TYPE_STRING and not target.entity_id.is_empty()
 
 
 func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionary:
 	if source.power_id not in KRONI_POWERS:
 		return super.validate(source, world, phase)
-	var legal: bool = source.parameters.is_empty() and kroni_target(source.power_id, source.target)
+	var legal: bool = source.parameters.is_empty() and kroni_target(source.power_id, source.target, int(source.player_id))
 	if legal and source.power_id == CONSUME:
 		var victim: Dictionary = Hunger.guard(world, source.target.entity_id)
 		legal = not victim.is_empty() and victim.owner == 1 - int(source.player_id)
@@ -139,7 +139,7 @@ func accept_order(context: Dictionary) -> Dictionary:
 			return Data.invalid("kroni_clock_invalid")
 	for pending in context.pending_effects:
 		var source: Dictionary = pending.declaration
-		if source.power_id in KRONI_POWERS and (pending.effect_key != "main" or not pending.payload.is_empty() or not source.parameters.is_empty() or not kroni_target(source.power_id, source.target)):
+		if source.power_id in KRONI_POWERS and (pending.effect_key != "main" or not pending.payload.is_empty() or not source.parameters.is_empty() or not kroni_target(source.power_id, source.target, int(source.player_id))):
 			return Data.invalid("kroni_pending_invalid")
 	for stamp in context.world.data.kroni_fed:
 		if stamp > context.world.data.kroni_feed_round:
