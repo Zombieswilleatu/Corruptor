@@ -117,7 +117,8 @@ func _slider(parent: Node, title: String, low: float, high: float, initial: floa
 
 func _sync_anchors() -> void:
 	visual.staff_position = card_rect.position + card_rect.size * staff_anchor
-	visual.hover_position = Vector2(card_rect.end.x + 47, card_rect.position.y + card_rect.size.y * 0.45)
+	# Keep all five rotating layers inside the artwork, below the stat row.
+	visual.hover_position = card_rect.position + card_rect.size * Vector2(0.69, 0.48)
 
 
 func _reset() -> void:
