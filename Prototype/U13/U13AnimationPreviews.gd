@@ -3,6 +3,12 @@ extends Control
 signal closed
 const PREVIEWS: Array = [
 	{
+		"title": "Odradek · Spiral",
+		"note": "Large oil-slick vortex with radius, twist, speed and pause controls.",
+		"scene": "res://Prototype/U13/U13OdradekPreview.tscn",
+		"size": Vector2(1280, 900)
+	},
+	{
 		"title": "Gremory · Gem Dagger",
 		"note": "Replay the falling dagger and draw rewards, with loop and slow motion.",
 		"scene": "res://Prototype/U13/U13GemDaggerPreview.tscn",
