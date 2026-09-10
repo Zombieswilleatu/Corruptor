@@ -1,6 +1,6 @@
 extends RefCounted
 
-const Content = preload("res://Scripts/Sim/U13Valak.gd")
+const Content = preload("res://Scripts/Sim/U13Kanifous.gd")
 
 
 static func lines(view: Dictionary, pid: int) -> PackedStringArray:
@@ -56,6 +56,9 @@ static func statuses(view: Dictionary, pid: int) -> Array:
 		if power == "Web":
 			title = "Entanglement"
 		result.append({"power": power, "title": title, "status": status, "ready": alive and status == "Ready"})
+	for price in world.get("wish_prices", []):
+		if price.owner == pid:
+			result.append({"power": "", "title": "Price", "status": "Round %d" % price.due_round, "ready": false})
 	return result
 
 

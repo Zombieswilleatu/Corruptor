@@ -1,5 +1,7 @@
 extends "res://Scripts/Sim/U13BoardSession.gd"
 
+const Kanifous = preload("res://Scripts/Sim/U13Kanifous.gd")
+const KanifousScenario = preload("res://Scripts/Sim/U13KanifousScenario.gd")
 const Valak = preload("res://Scripts/Sim/U13Valak.gd")
 const ValakScenario = preload("res://Scripts/Sim/U13ValakScenario.gd")
 const Kroni = preload("res://Scripts/Sim/U13Kroni.gd")
@@ -26,6 +28,7 @@ var hunt_enabled: bool = false
 var odradek_visuals: Array = []
 var kroni_guard_events: Array = []
 var valak_events: Array = []
+var kanifous_events: Array = []
 
 
 # Only the exercise opening differs from Core's all-unbuilt setup boundary.
@@ -70,6 +73,7 @@ func configure(lords: Array, castles: Array, quick: bool) -> Dictionary:
 		or lords.has("Odradek")
 		or lords.has("Kroni")
 		or lords.has("Valak")
+		or lords.has("Kanifous")
 	)
 	_scenario = 0
 	_lane = "Castle"
@@ -112,6 +116,8 @@ func declaration(
 
 
 func random_opponent_plan() -> Dictionary:
+	if setup_lords.has("Kanifous"):
+		return KanifousScenario.plan(_owner, 1)
 	if setup_lords.has("Valak"):
 		return ValakScenario.plan(_owner, 1)
 	if setup_lords.has("Kroni"):
@@ -135,6 +141,8 @@ func random_opponent_plan() -> Dictionary:
 
 
 static func _initial(lords: Array, castles: Array) -> Dictionary:
+	if lords.has("Kanifous"):
+		return KanifousScenario.loadout_world(lords, castles)
 	if lords.has("Valak"):
 		return ValakScenario.loadout_world(lords, castles)
 	if lords.has("Kroni"):
@@ -153,6 +161,8 @@ static func _initial(lords: Array, castles: Array) -> Dictionary:
 
 
 static func _content(lords: Array, hunt: bool):
+	if lords.has("Kanifous"):
+		return Kanifous.new()
 	if lords.has("Valak"):
 		return Valak.new()
 	if lords.has("Kroni"):
@@ -213,6 +223,7 @@ func restore_checkpoint(raw: Dictionary) -> Dictionary:
 			or setup.lords.has("Odradek")
 			or setup.lords.has("Kroni")
 			or setup.lords.has("Valak")
+			or setup.lords.has("Kanifous")
 		)
 		and not setup.get("hunt", false)
 	):
@@ -287,12 +298,14 @@ func debug_action(action: String, pid: int, lane: String) -> Dictionary:
 
 
 func run_to_marching() -> Dictionary:
+	kanifous_events = []
 	valak_events = []
 	odradek_visuals = []
 	return super.run_to_marching()
 
 
 func step() -> Dictionary:
+	var kanifous_cursor: int = _owner._event_cursor() if setup_lords.has("Kanifous") else -1
 	var valak_cursor: int = _owner._event_cursor() if setup_lords.has("Valak") else -1
 	var hook: String = next_hook()
 	if hook == Timeline.ROUND_START_SCHEDULED:
@@ -301,6 +314,10 @@ func step() -> Dictionary:
 	var cursor: int = _owner._event_cursor() if capture else 0
 	var before: Array = _owner.player_view(0, 0).world.entities.duplicate(true) if capture else []
 	var result: Dictionary = super.step()
+	if kanifous_cursor >= 0 and result.action != "invalid":
+		for event in _owner._player_events_since(0, kanifous_cursor):
+			if event.type.begins_with("KANIFOUS_") or event.type.begins_with("WISHMASTER_"):
+				kanifous_events.append(event.duplicate(true))
 	if valak_cursor >= 0 and result.action != "invalid":
 		for event in _owner._player_events_since(0, valak_cursor):
 			if event.type in ["VALAK_ESSENCE_GAINED", "VALAK_ESSENCE_REINFORCED", "VALAK_PROJECTION_RESOLVED", "GRAVITY_ORB_STARTED"]:

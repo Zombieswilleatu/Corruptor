@@ -53,6 +53,8 @@ static func valid(world: Dictionary) -> bool:
 		if not core or world.data.valak_profile != Essence.VERSION:
 			return false
 		lords.append("Valak")
+	if world.data.has("kanifous_profile"):
+		lords.append("Kanifous")
 	if world.data.has("hunt_profile") and (not core or world.data.hunt_profile != HUNT_VERSION):
 		return false
 	if core and not Structures.valid(world):

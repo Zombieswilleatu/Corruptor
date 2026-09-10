@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Prototype/U13/U13ValakBoard.gd" id="1"]
+[ext_resource type="Script" path="res://Prototype/U13/U13KanifousBoard.gd" id="1"]
 
 [node name="U13Board" type="Control"]
 layout_mode = 3

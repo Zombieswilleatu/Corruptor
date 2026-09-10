@@ -5,6 +5,7 @@ const KroniActors = preload("res://Scripts/Sim/U13KroniActors.gd")
 const SpatialFields = preload("res://Scripts/Sim/U13SpatialFields.gd")
 const Space = preload("res://Scripts/Sim/U13SpatialSpace.gd")
 const Buffer = preload("res://Scripts/Sim/U13MarchingBuffer.gd")
+const Wishmaster = preload("res://Scripts/Sim/U13Wishmaster.gd")
 const Gravity = preload("res://Scripts/Sim/U13GravityOrbs.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
@@ -206,6 +207,8 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 		motion_context["spatial_fields"] = compiled.lanes
 	for unit in _units(entities):
 		tape_bases[unit.id] = unit
+	var lamp_objects: Array = world.data.get("kanifous_objects", [])
+	var has_wishes: bool = world.data.has("kanifous_profile")
 	var gravity_orbs: Array = world.data.get("valak_orbs", [])
 	var collapse: bool = world.data.get("breach_lord") == "Valak"
 	motion_context = motion_context.duplicate()
@@ -214,6 +217,9 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 	if not kroni_actors.is_empty():
 		events.append(public_event("KRONI_ACTORS_STARTED", {"round": context.round, "actors": kroni_actors.duplicate(true)}))
 	for tick in range(TICKS):
+		var lamp_before: Array = _units(entities) if not lamp_objects.is_empty() else []
+		if has_wishes:
+			events.append_array(Wishmaster.bypass(entities, context.round, tick))
 		var gravity_before: Array = _units(entities) if not gravity_orbs.is_empty() else []
 		if not kroni_actors.is_empty():
 			events.append_array(KroniActors.step(kroni_actors, entities, int(context.round), tick, collapse))
@@ -240,7 +246,11 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			for event in gravity_events:
 				world.data.neutral_tears += int(event.event.data.neutral_tears)
 			events.append_array(gravity_events)
-		if has_retreat or not gravity_orbs.is_empty():
+		if not lamp_objects.is_empty():
+			events.append_array(Wishmaster.claim(lamp_objects, entities, lamp_before, context.seed, context.round, tick))
+		if has_wishes:
+			events.append_array(Wishmaster.bypass(entities, context.round, tick))
+		if has_retreat or not gravity_orbs.is_empty() or has_wishes:
 			for lane in duels.keys():
 				if not _duel_alive(duels[lane], entities):
 					events.append(
@@ -283,10 +293,10 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			var left: Dictionary = entities.get_entity(duel.units[0].id)
 			var right: Dictionary = entities.get_entity(duel.units[1].id)
 			var damage_to_left: int = _attack(
-				left.attributes, int(right.attributes.attack), right.attributes.armor_bypass
+				left.attributes, Wishmaster.attack_amount(right.attributes), right.attributes.armor_bypass
 			)
 			var damage_to_right: int = _attack(
-				right.attributes, int(left.attributes.attack), left.attributes.armor_bypass
+				right.attributes, Wishmaster.attack_amount(left.attributes), left.attributes.armor_bypass
 			)
 			duel.exchanges.append(
 				{
@@ -417,6 +427,8 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 				}
 			)
 		)
+	if has_wishes:
+		world.data.kanifous_objects = lamp_objects
 	if world.data.has("valak_orbs"):
 		world.data.valak_orbs = gravity_orbs
 	if world.data.has("kroni_actors"):
@@ -509,6 +521,8 @@ static func _movement_neighbors(
 			var left_info: Dictionary = result[left.id]
 			var candidates: Array = teams[lane][1] if left_info.seek else seekers[lane][1]
 			for right in candidates:
+				if Wishmaster.ignored(left, right):
+					continue
 				var right_info: Dictionary = result[right.id]
 				var distance: int = _distance(left.attributes, right.attributes)
 				if left_info.seek and distance < int(left_info.distance):
@@ -590,6 +604,8 @@ static func _duel_alive(duel: Dictionary, entities) -> bool:
 			or live.attributes.lane != source.attributes.lane
 		):
 			return false
+	if Wishmaster.ignored(entities.get_entity(duel.units[0].id), entities.get_entity(duel.units[1].id)):
+		return false
 	return (
 		_distance(
 			entities.get_entity(duel.units[0].id).attributes,
@@ -603,6 +619,7 @@ static func _touches_enemy(unit: Dictionary, rows: Array) -> bool:
 	for other in rows:
 		if (
 			other.owner != unit.owner
+			and not Wishmaster.ignored(unit, other)
 			and other.attributes.lane == unit.attributes.lane
 			and _distance(unit.attributes, other.attributes) <= CONTACT_FP * CONTACT_FP
 		):
@@ -746,6 +763,7 @@ static func _contact_pair(entities, lane: String, context: Dictionary, clock: in
 		for right in local:
 			if (
 				right.owner != 1
+			or Wishmaster.ignored(left, right)
 				or right.attributes.lane != lane
 				or _distance(left.attributes, right.attributes) > CONTACT_FP * CONTACT_FP
 			):
@@ -889,3 +907,16 @@ static func _attack(target: Dictionary, amount: int, bypass: bool) -> int:
 static func public_event(kind: String, details: Dictionary) -> Dictionary:
 	var event: Dictionary = {"type": kind, "text": "", "data": details}
 	return {"event": event, "views": [event, event]}
+
+
+# Shared local-spawn placement for effects that create a fresh unit in the field.
+static func place_near_spawn(entities, id: String, origin: Dictionary) -> void:
+	var unit: Dictionary = entities.get_entity(id)
+	for offset in [Vector2i(0, 84), Vector2i(0, -84), Vector2i(84, 0), Vector2i(-84, 0), Vector2i(84, 84), Vector2i(-84, -84)]:
+		var a: Dictionary = unit.attributes.duplicate(true)
+		a.x_fp = clampi(int(origin.x_fp) + offset.x, 0, LANE_FP)
+		a.y_fp = clampi(int(origin.y_fp) + offset.y, 0, WIDTH_FP)
+		if _space_free(unit, a, _units(entities)):
+			entities.update(id, unit.owner, a)
+			return
+	# Fully packed neighborhoods retain the valid origin; normal movement separates them.

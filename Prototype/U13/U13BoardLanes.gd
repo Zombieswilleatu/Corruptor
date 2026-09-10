@@ -12,6 +12,7 @@ var breath_visuals = BreathVisuals.new()
 var domain: Texture2D
 var skin: Texture2D
 var chit_sheet: Texture2D
+var void_active: bool = false
 var active_auras: Array = []
 var active_scorches: Array = []
 const WebVisuals = preload("res://Prototype/U13/U13WebVisuals.gd")
@@ -235,6 +236,8 @@ func _draw_chit(unit: Dictionary, center: Vector2) -> void:
 			float(glitch.get("amount", 0.0)), int(glitch.get("tick", 0)))
 	rout_visuals.draw_chit(self, String(unit.id), center)
 	var health: float = clampf(float(attributes.hp) / maxf(1.0, float(attributes.max_hp)), 0.0, 1.0)
+	if void_active and health > 0:
+		health = ceilf(health * 3.0) / 3.0
 	draw_arc(center, 23.0, 0.0, TAU, 48, Color("302e29"), 3.0, true)
 	if health > 0.0:
 		draw_arc(center, 23.0, -PI / 2.0, -PI / 2.0 + TAU * health, 48, tint, 3.0, true)

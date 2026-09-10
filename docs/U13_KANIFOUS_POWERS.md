@@ -1,6 +1,6 @@
 # Kanifous — U13 power list
 
-**Status:** Design reference; Kanifous implementation pending.
+**Status:** Implemented U13 rules; sprite integration pending. See [implementation notes](U13_KANIFOUS_IMPLEMENTATION_2026-09-10.md).
 **Amended:** 2026-09-09.
 
 Carried forward from Section 5.9 of the 2026-09-08 U13 Astra handoff, with

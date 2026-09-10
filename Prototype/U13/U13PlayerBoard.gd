@@ -23,6 +23,7 @@ var lord_group
 var lord_guard_group
 var castle_group
 var lord_card
+var void_active: bool = false
 var lord_ready_visual
 var lord_cooldowns: Label
 var _castle_art_states: Dictionary = {}
@@ -379,6 +380,7 @@ func _configure_deploy_drop_target(_control: Control, _lane: String) -> void:
 
 
 func bind_world(world: Dictionary, pid: int, planning: bool) -> void:
+	void_active = world.get("void_active", false)
 	var lord_name: String = world.get("lord_ids", ["Gremory", "Gremory"])[pid]
 	lord_card.bind_art(
 		Textures.lord_texture(lord_name), lord_name.to_upper(), lord_name + " — hold to inspect"
@@ -515,6 +517,15 @@ func bind_world(world: Dictionary, pid: int, planning: bool) -> void:
 					"",
 					"%s %d" % [guard.attributes.suit, guard.attributes.value]
 				)
+				if void_active:
+					card.input_surface.tooltip_text = guard.attributes.suit + " · Value obscured by The Void"
+					card.preview.set_texture(null)
+					var veil := ColorRect.new()
+					veil.color = Color(0.14, 0.07, 0.20, 0.96)
+					veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+					veil.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+					veil.anchor_bottom = 0.28
+					card.art.add_child(veil)
 	lord_sigil.text = "◈ " + String(world.sigils[pid].Lord)
 	castle_sigil.text = "◈ " + String(world.sigils[pid].Castle)
 
@@ -594,6 +605,11 @@ func _bind_instance_art(card, entity: Dictionary) -> void:
 			a.max_integrity
 		]
 	)
+	if void_active:
+		var ratio: float = float(a.integrity) / maxf(1.0, float(a.max_integrity))
+		var band: String = "HEALTHY" if ratio > 0.66 else ("DAMAGED" if ratio > 0.33 else "CRITICAL")
+		caption = "%d · %s\n%s · %s" % [int(a.castle_slot) + 1, type, lifecycle, band]
+		help = type + " · " + lifecycle + " · " + band + "\nIntegrity obscured by The Void."
 	if a.castle_type != "SiegeEngine":
 		help += "\nPrinted Castle power is not connected in this U13 slice."
 	if a.construction_state != "active":

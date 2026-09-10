@@ -3,8 +3,8 @@
 # Successful logs are temporary; failure logs are preserved in Downloads.
 set -uo pipefail
 
-if [[ $# -lt 1 || $# -gt 2 || ( $# -eq 2 && "$2" != --board && "$2" != --construction && "$2" != --castle-rout && "$2" != --interaction && "$2" != --humbaba && "$2" != --kalligan && "$2" != --kalligan-board && "$2" != --marcher-feedback && "$2" != --alpha && "$2" != --planning && "$2" != --marching && "$2" != --breath && "$2" != --spatial && "$2" != --rout-visuals && "$2" != --orias-web && "$2" != --quickstart && "$2" != --gem-dagger && "$2" != --snare && "$2" != --orias && "$2" != --allegiance && "$2" != --odradek && "$2" != --kroni && "$2" != --valak ) ]]; then
-  printf 'Usage: bash %s /path/to/Godot_console_executable [--board|--construction|--castle-rout|--interaction|--humbaba|--kalligan|--kalligan-board|--marcher-feedback|--alpha|--planning|--marching|--breath|--spatial|--rout-visuals|--orias-web|--quickstart|--gem-dagger|--snare|--orias|--allegiance|--odradek|--kroni|--valak]\n' "$0" >&2
+if [[ $# -lt 1 || $# -gt 2 || ( $# -eq 2 && "$2" != --board && "$2" != --construction && "$2" != --castle-rout && "$2" != --interaction && "$2" != --humbaba && "$2" != --kalligan && "$2" != --kalligan-board && "$2" != --marcher-feedback && "$2" != --alpha && "$2" != --planning && "$2" != --marching && "$2" != --breath && "$2" != --spatial && "$2" != --rout-visuals && "$2" != --orias-web && "$2" != --quickstart && "$2" != --gem-dagger && "$2" != --snare && "$2" != --orias && "$2" != --allegiance && "$2" != --odradek && "$2" != --kroni && "$2" != --valak && "$2" != --kanifous ) ]]; then
+  printf 'Usage: bash %s /path/to/Godot_console_executable [--board|--construction|--castle-rout|--interaction|--humbaba|--kalligan|--kalligan-board|--marcher-feedback|--alpha|--planning|--marching|--breath|--spatial|--rout-visuals|--orias-web|--quickstart|--gem-dagger|--snare|--orias|--allegiance|--odradek|--kroni|--valak|--kanifous]\n' "$0" >&2
   exit 2
 fi
 godot_u13_exe=$1
@@ -287,6 +287,8 @@ u13_runners=(
   U13KroniBoard
   U13Valak
   U13ValakBoard
+  U13Kanifous
+  U13KanifousBoard
 )
 u13_markers=(
   'U13 round timeline failures: 0'
@@ -384,6 +386,8 @@ u13_markers=(
   'U13 Kroni board failures: 0'
   'U13 Valak failures: 0'
   'U13 Valak board failures: 0'
+  'U13 Kanifous failures: 0'
+  'U13 Kanifous board failures: 0'
 )
 if [[ $u13_spatial_only == true ]]; then
   u13_runners=(U13LordPowerDeclaration U13SpatialSpace U13SpatialQueries U13SpatialInput U13Determinism)
@@ -477,6 +481,10 @@ if [[ ${2:-} == --valak ]]; then
   u13_runners=(U13Valak U13ValakBoard U13ValakVisual U13Kroni U13Odradek U13MarchingIntegration U13LaneAuras)
   u13_markers=('U13 Valak failures: 0' 'U13 Valak board failures: 0' 'U13 Valak visual checks: 23/23; failures: 0' 'U13 Kroni failures: 0' 'U13 Odradek failures: 0' 'U13 Marching integration failures: 0' 'U13 lane auras failures: 0')
 fi
+if [[ ${2:-} == --kanifous ]]; then
+  u13_runners=(U13Kanifous U13KanifousBoard U13Valak U13Kroni U13MarchingIntegration)
+  u13_markers=('U13 Kanifous failures: 0' 'U13 Kanifous board failures: 0' 'U13 Valak failures: 0' 'U13 Kroni failures: 0' 'U13 Marching integration failures: 0')
+fi
 u13_failed=0
 for u13_index in "${!u13_runners[@]}"; do
   u13_runner=${u13_runners[$u13_index]}
@@ -565,6 +573,9 @@ if [[ ${2:-} == --kroni ]]; then
 fi
 if [[ ${2:-} == --valak ]]; then
   u13_suite_label=Valak
+fi
+if [[ ${2:-} == --kanifous ]]; then
+  u13_suite_label=Kanifous
 fi
 printf 'U13 %s runners passed: %s/%s\n' "$u13_suite_label" \
   "$((${#u13_runners[@]} - u13_failed))" "${#u13_runners[@]}"
