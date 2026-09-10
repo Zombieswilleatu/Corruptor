@@ -24,7 +24,19 @@ void fragment() {
 	float flow = sin(rolled.y * 8.0 - phase * 2.0 + sin(rolled.x * 5.0 + phase));
 	rolled.x += flow * 0.055 * feather * strength;
 	rolled.y += sin(rolled.x * 7.0 + phase * 1.6) * 0.035 * feather * strength;
-	vec2 warped = center_uv + rolled * radii;
+	// Keep the approved oil palette, but move the sampled battlefield itself.
+	// The old angle barely changed during the sustained part of the effect.
+	float interior = 1.0 - smoothstep(0.0, 1.0, dist);
+	float twist = (swirl * 1.5 + sin(phase * 1.8) * (2.8 + chaos)) * interior;
+	twist += sin(dist * 10.0 - phase * 3.0) * chaos * 0.4 * feather;
+	twist *= strength;
+	mat2 pixel_rotation = mat2(vec2(cos(twist), sin(twist)), vec2(-sin(twist), cos(twist)));
+	vec2 pulled = pixel_rotation * p;
+	// Pull inward while twisting, keeping the normal effect a clean spiral.
+	float pull = 1.0 - 0.28 * interior * strength;
+	pulled *= pull;
+	pulled += vec2(sin(p.y * 9.0 - phase * 3.4), cos(p.x * 8.0 + phase * 2.7)) * 0.08 * chaos * feather * strength;
+	vec2 warped = center_uv + pulled * radii;
 	warped = clamp(warped, clip_uv.xy, clip_uv.zw);
 	vec3 color = texture(screen_texture, warped).rgb;
 	float film = dist * 2.8 + flow * 0.35 + sin(rolled.x * 4.0 - rolled.y * 3.0 + phase * 0.7) * 0.45 - phase * 0.32;
