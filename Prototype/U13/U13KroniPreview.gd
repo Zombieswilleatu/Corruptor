@@ -15,6 +15,10 @@ var arrange_button: CheckButton
 var terrain: Texture2D
 var chits: Texture2D
 var status: Label
+var meal_table: GridContainer
+var meal_cells: Dictionary = {}
+var counted_bites: int = -1
+var launch_label: String = ""
 var lord_card: Texture2D
 var guide: Label
 var hunger: int = 0
@@ -80,6 +84,27 @@ func _ready() -> void:
 	status.position = Vector2(24, 126)
 	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	add_child(status)
+	meal_table = GridContainer.new()
+	meal_table.columns = 3
+	meal_table.add_theme_constant_override("h_separation", 18)
+	meal_table.add_theme_constant_override("v_separation", 6)
+	add_child(meal_table)
+	for heading in ["EATEN", "Enemy", "Friendly"]:
+		var cell := Label.new()
+		cell.text = heading
+		meal_table.add_child(cell)
+	for suit in Marching.SUITS + ["Total"]:
+		var title := Label.new()
+		title.text = suit
+		meal_table.add_child(title)
+		meal_cells[suit] = []
+		for side in range(2):
+			var cell := Label.new()
+			cell.text = "0"
+			cell.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			cell.modulate = Color("ef9786") if side == 0 else Color("72cddd")
+			meal_table.add_child(cell)
+			meal_cells[suit].append(cell)
 	guide = Label.new()
 	guide.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	guide.text = "RAVENOUS\nClick empty field to choose his horizontal start. Enable Arrange Marchers to drag units within their lane, then New launch to test your layout. 75% of launches favor a route through two current enemy positions; otherwise the angle is random. He travels toward the enemy and bounces off outer walls. No steering. Both sides can be eaten. Nearby units flee directly away when he approaches, at 30% normal speed while he is nearby and for 1.1 seconds after he leaves range. No three-unit cap.\n\n6+ DEVOURED\nOne Soul, one Hunger and one Neutral Tear per activation.\n\nHUNGER\n0: Defense 4\n1–2: Defense 6\n3+: Defense 8\nFirst reaching 3 grants one personal Tear.\n\nBREACH\nA short random manifestation. No rewards."
@@ -114,7 +139,8 @@ func _layout() -> void:
 		var width: float = minf(size.x - 120, height * 0.5)
 		visual.field_rect = Rect2((size.x - width) * 0.5, 175, width, height)
 		if guide != null:
-			guide.position = Vector2(visual.field_rect.end.x + 36, 195)
+			meal_table.position = Vector2(visual.field_rect.end.x + 36, 195)
+			guide.position = Vector2(visual.field_rect.end.x + 36, 195 + meal_table.get_combined_minimum_size().y + 28)
 			guide.size = Vector2(maxf(100, size.x - guide.position.x - 32), height)
 	queue_redraw()
 
@@ -154,10 +180,36 @@ func _restart() -> void:
 		events.append(State.event("KRONI_ACTOR_TICK", {"tick": tick, "actors": actors.duplicate(true)}).event)
 		frames.append(buffer.marchers())
 	visual.load_tape(events)
-	var launch_label: String = {"favored": "75% · Enemy-favored", "random": "25% · Random", "fallback": "75% · Random fallback (no two-enemy route)", "breach": "Breach · Random"}[actor.launch_mode]
-	status.text = launch_label + " · Both lanes · Blue = yours / Red = enemy · %d devoured%s" % [actor.consumed, " · Breach grants no rewards" if breach else (" · 6+ reward earned" if actor.consumed >= 6 else " · 6 needed for reward")]
+	launch_label = {"favored": "75% · Enemy-favored", "random": "25% · Random", "fallback": "75% · Random fallback (no two-enemy route)", "breach": "Breach · Random"}[actor.launch_mode]
+	counted_bites = -1
+	_refresh_meals()
+
 	duration = 6.0
 	queue_redraw()
+
+
+func _refresh_meals() -> void:
+	var count: int = 0 if editing else visual.bite_index
+	if count == counted_bites:
+		return
+	counted_bites = count
+	var totals: Array = [0, 0]
+	var counts: Dictionary = {}
+	for suit in Marching.SUITS:
+		counts[suit] = [0, 0]
+	for index in range(count):
+		var victim: Dictionary = visual.bites[index].data.before
+		# Preview colors stay player-relative, including the neutral Breach actor.
+		var side: int = 0 if victim.owner == 1 else 1
+		counts[victim.attributes.suit][side] += 1
+		totals[side] += 1
+	counts["Total"] = totals
+	for suit in counts:
+		for side in range(2):
+			meal_cells[suit][side].text = str(counts[suit][side])
+	if not editing:
+		var total: int = totals[0] + totals[1]
+		status.text = launch_label + " · Blue = friendly / Red = enemy · %d eaten%s" % [total, " · Breach grants no rewards" if breach else (" · 6+ reward earned" if total >= 6 else " · 6 needed for reward")]
 
 
 func _set_editing(value: bool) -> void:
@@ -166,6 +218,7 @@ func _set_editing(value: bool) -> void:
 	arrange_button.set_pressed_no_signal(value)
 	if value:
 		visual.clear()
+		_refresh_meals()
 		elapsed = 0.0
 		status.text = "Arrange Marchers · Drag within each lane · New launch tests this layout"
 	else:
@@ -231,6 +284,7 @@ func _process(delta: float) -> void:
 		visual.show_time(elapsed)
 		if elapsed > duration + 1.0:
 			_restart()
+	_refresh_meals()
 	queue_redraw()
 
 
