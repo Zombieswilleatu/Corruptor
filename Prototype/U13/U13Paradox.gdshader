@@ -10,6 +10,8 @@ uniform float strength : hint_range(0.0, 1.0) = 0.0;
 uniform float swirl = 2.5;
 uniform float phase = 0.0;
 uniform float chaos = 0.0;
+uniform float color_depth : hint_range(0.0, 1.0) = 0.25;
+uniform float glitch : hint_range(0.0, 1.0) = 0.0;
 
 void fragment() {
 	vec2 radii = max(radius_uv, vec2(0.00001));
@@ -36,6 +38,9 @@ void fragment() {
 	float pull = 1.0 - 0.28 * interior * strength;
 	pulled *= pull;
 	pulled += vec2(sin(p.y * 9.0 - phase * 3.4), cos(p.x * 8.0 + phase * 2.7)) * 0.08 * chaos * feather * strength;
+	float band = floor(p.y * 18.0);
+	float jump = sin(band * 91.7 + floor(phase * 32.0) * 13.1);
+	pulled.x += jump * 0.18 * glitch * feather;
 	vec2 warped = center_uv + pulled * radii;
 	warped = clamp(warped, clip_uv.xy, clip_uv.zw);
 	vec3 color = texture(screen_texture, warped).rgb;
@@ -45,5 +50,5 @@ void fragment() {
 	float sheen = 0.26 + 0.12 * sin(film * 6.2831853);
 	vec3 oil = color * (vec3(0.55) + rainbow * 0.45) + rainbow * sheen;
 	float inside_lane = step(clip_uv.x, SCREEN_UV.x) * step(clip_uv.y, SCREEN_UV.y) * step(SCREEN_UV.x, clip_uv.z) * step(SCREEN_UV.y, clip_uv.w);
-	COLOR = vec4(oil, feather * strength * inside_lane);
+	COLOR = vec4(mix(color, oil, color_depth), feather * strength * inside_lane);
 }

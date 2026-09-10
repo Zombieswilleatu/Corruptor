@@ -7,6 +7,8 @@ var strength: float = 0.0
 var swirl: float = 2.5
 var chaos: float = 0.0
 var phase: float = 0.0
+var color_depth: float = 0.25
+var glitch: float = 0.0
 
 
 func _ready() -> void:
@@ -47,3 +49,5 @@ func _sync() -> void:
 	material.set_shader_parameter("swirl", swirl)
 	material.set_shader_parameter("chaos", chaos)
 	material.set_shader_parameter("phase", phase)
+	material.set_shader_parameter("color_depth", color_depth)
+	material.set_shader_parameter("glitch", glitch)

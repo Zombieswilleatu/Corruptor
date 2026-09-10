@@ -38,9 +38,11 @@ func _run() -> void:
 	if effects.records.size() == 2:
 		_check(effects.records[0].type == "REDIRECT_RESOLVED" and effects.records[1].type == "ALLEGIANCE_SHIFT_RESOLVED", "visual_order_matches_authoritative_hook_order")
 		effects.advance(effects.EFFECT_DURATION * 0.51)
+		_check(board.lanes.paradox_glitches.get(unit.id, {}).get("amount", 0.0) > 0.0, "redirect_glitches_affected_marcher_at_transfer")
 		_check(_unit(board.lanes._units, unit.id).attributes.lane == "Castle", "redirect_blinks_chit_to_other_lane_at_peak")
 		effects.advance(effects.EFFECT_DURATION * 0.51)
 		effects.advance(effects.EFFECT_DURATION * 0.51)
+		_check(board.lanes.paradox_glitches.get(unit.id, {}).get("amount", 0.0) > 0.0, "shift_glitches_affected_marcher_at_color_change")
 		_check(_unit(board.lanes._units, unit.id).owner == 0, "shift_emerges_with_changed_ownership_color")
 		effects.advance(effects.EFFECT_DURATION * 0.51)
 	_check(not effects.active() and not effects.vortex.visible, "resolution_vortex_collapses_cleanly")
@@ -51,7 +53,7 @@ func _run() -> void:
 	effects.advance(0.5)
 	_check(effects.vortex.swirl == 8.0 and effects.vortex.chaos > 0.0, "paradox_has_stronger_distortion_without_inflating_game_radius")
 	board.finish_playback()
-	_check(not effects.active(), "skip_animation_clears_vortex")
+	_check(not effects.active() and board.lanes.paradox_glitches.is_empty(), "skip_animation_clears_vortex_and_chit_glitches")
 	while board._job != null:
 		await process_frame
 	board.queue_free()

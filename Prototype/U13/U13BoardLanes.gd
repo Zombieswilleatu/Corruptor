@@ -214,6 +214,10 @@ func _draw() -> void:
 	_draw_feedback()
 
 
+var paradox_glitches: Dictionary = {}
+const ParadoxTiming = preload("res://Prototype/U13/U13ParadoxTiming.gd")
+
+
 func _draw_chit(unit: Dictionary, center: Vector2) -> void:
 	var attributes: Dictionary = unit.attributes
 	var tint: Color = BLUE if unit.owner == 0 else RED
@@ -224,11 +228,11 @@ func _draw_chit(unit: Dictionary, center: Vector2) -> void:
 		)
 		var cell: Vector2 = chit_sheet.get_size() / Vector2(4.0, 2.0)
 		var row: float = 0.0 if unit.owner == 0 else 1.0
-		draw_texture_rect_region(
-			chit_sheet,
+		var glitch: Dictionary = paradox_glitches.get(unit.id, {})
+		ParadoxTiming.draw_slices(self, chit_sheet,
 			Rect2(center - Vector2(22, 22), Vector2(44, 44)),
-			Rect2(Vector2(float(column), row) * cell, cell)
-		)
+			Rect2(Vector2(float(column), row) * cell, cell),
+			float(glitch.get("amount", 0.0)), int(glitch.get("tick", 0)))
 	rout_visuals.draw_chit(self, String(unit.id), center)
 	var health: float = clampf(float(attributes.hp) / maxf(1.0, float(attributes.max_hp)), 0.0, 1.0)
 	draw_arc(center, 23.0, 0.0, TAU, 48, Color("302e29"), 3.0, true)
