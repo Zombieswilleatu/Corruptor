@@ -29,7 +29,9 @@ func valid_world(world: Dictionary) -> bool:
 
 
 static func kroni_target(power: String, target: Dictionary) -> bool:
-	return target.is_empty() if power == RAVENOUS else (target.size() == 1 and typeof(target.get("entity_id")) == TYPE_STRING and not target.entity_id.is_empty())
+	if power == RAVENOUS:
+		return target.size() == 2 and target.get("lane") in ["Lord", "Castle"] and not preload("res://Scripts/Sim/U13SpatialSpace.gd").position(target.get("field_position")).is_empty()
+	return target.size() == 1 and typeof(target.get("entity_id")) == TYPE_STRING and not target.entity_id.is_empty()
 
 
 func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionary:
@@ -59,7 +61,7 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 		events.append_array(Hunger.feed(world, pid, 1, context.round, CONSUME))
 		world.data.kroni_fed[pid] = context.round
 	else:
-		var actor: Dictionary = Actors.create(source.declaration_id, pid, context.round, Hunger.hunger(world, pid))
+		var actor: Dictionary = Actors.create(source.declaration_id, pid, context.round, Hunger.hunger(world, pid), false, context.seed, source.target)
 		world.data.kroni_actors.append(actor)
 		events.append(Hunger.event("RAVENOUS_ARMED", {"actor": actor, "round": context.round, "hook": record.fire_hook}, "Ravenous: Kroni will cross the field during Marching."))
 	return {"action": "resolved", "world": world, "events": events}

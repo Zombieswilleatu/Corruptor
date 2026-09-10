@@ -7,7 +7,8 @@ const LENGTH: int = 2400
 const WIDTH: int = 1200
 const RADIUS: int = 220
 const FORWARD: int = 16
-const LATERAL: int = 22
+const LATERAL_MIN: int = 8
+const LATERAL_MAX: int = 24
 const BREACH_TICKS: int = 33
 
 
@@ -15,8 +16,17 @@ static func radius(hunger: int) -> int:
 	return int(round(float(RADIUS) * [1.0, 1.1, 1.2, 1.35][clampi(hunger, 0, 3)]))
 
 
-static func create(identity: String, pid: int, round_number: int, hunger: int, breach: bool = false, seed_value: String = "") -> Dictionary:
-	var actor: Dictionary = {"id": identity, "owner": pid, "round": round_number, "breach": breach, "x_fp": 0 if pid == 0 else LENGTH, "y_fp": 300, "vx_fp": FORWARD if pid == 0 else -FORWARD, "vy_fp": LATERAL, "radius_fp": radius(hunger), "hunger": hunger, "age": 0, "active": true, "consumed": 0, "rewarded": false}
+static func create(identity: String, pid: int, round_number: int, hunger: int, breach: bool = false, seed_value: String = "kroni-actor-fixture", start: Dictionary = {}) -> Dictionary:
+	var actor: Dictionary = {"id": identity, "owner": pid, "round": round_number, "breach": breach, "x_fp": 0 if pid == 0 else LENGTH, "y_fp": 300, "vx_fp": FORWARD if pid == 0 else -FORWARD, "vy_fp": LATERAL_MIN, "radius_fp": radius(hunger), "hunger": hunger, "age": 0, "active": true, "consumed": 0, "rewarded": false}
+	if not breach:
+		if not start.is_empty():
+			actor.x_fp = int(start.field_position.x_fp)
+			actor.y_fp = int(start.field_position.y_fp) + (600 if start.lane == "Castle" else 0)
+		# Roll only at authoritative activation. Placement exposes no direction.
+		# Separate activation/round keys preserve replays without repeating a route.
+		var key: String = Data.instance_id(identity, str(round_number), "ravenous_launch")
+		var magnitude: int = LATERAL_MIN + int(Rng.draw(seed_value, key, "RAVENOUS_ANGLE", 0, LATERAL_MAX - LATERAL_MIN + 1).value)
+		actor.vy_fp = magnitude * (-1 if int(Rng.draw(seed_value, key, "RAVENOUS_SIDE", 0, 2).value) == 0 else 1)
 	if breach:
 		actor.x_fp = int(Rng.draw(seed_value, identity, "BREACH_FORWARD", 0, LENGTH + 1).value)
 		actor.y_fp = int(Rng.draw(seed_value, identity, "BREACH_LATERAL", 0, WIDTH + 1).value)
@@ -106,7 +116,7 @@ static func valid(actors) -> bool:
 			return false
 		if absi(a.vx_fp) > 24 or absi(a.vy_fp) > 24 or (a.vx_fp == 0 and a.vy_fp == 0):
 			return false
-		if not a.breach and (a.vx_fp != (FORWARD if a.owner == 0 else -FORWARD) or absi(a.vy_fp) != LATERAL):
+		if not a.breach and (a.vx_fp != (FORWARD if a.owner == 0 else -FORWARD) or absi(a.vy_fp) < LATERAL_MIN or absi(a.vy_fp) > LATERAL_MAX):
 			return false
 		if a.breach and (a.hunger != 0 or a.rewarded):
 			return false

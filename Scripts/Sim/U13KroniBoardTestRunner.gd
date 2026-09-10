@@ -28,7 +28,24 @@ func _run() -> void:
 	_check(not board.consume_targeting.visible and board.phase_prompt.visible, "target dialogue dismisses automatically")
 	board.ravenous_button.pressed.emit()
 	await _settle()
-	_check(board.queued.size() == 2 and board.ravenous_button.disabled, "Ravenous queues alongside Consume")
+	_check(board.ravenous_placement.visible and board.queued.size() == 1 and not board.phase_prompt.visible, "Ravenous requires starting placement before queuing")
+	_check(board.ravenous_placement.confirm_button.disabled and board.confirm.disabled, "cannot confirm or submit an unplaced start")
+	board._cancel_ravenous()
+	_check(board.queued.size() == 1 and not board.ravenous_placement.visible, "cancel leaves no Ravenous declaration")
+	board.ravenous_button.pressed.emit()
+	await _settle()
+	var chosen_rect: Rect2 = board.ravenous_placement.lane_rect("Castle")
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	click.position = chosen_rect.position + chosen_rect.size * Vector2(0.75, 0.75)
+	board.ravenous_placement._gui_input(click)
+	var start: Dictionary = board.ravenous_placement.target.duplicate(true)
+	_check(start.lane == "Castle" and start.field_position.x_fp == 600 and start.field_position.y_fp == 450, "field click selects exact start across lanes")
+	board.ravenous_placement.confirm_button.pressed.emit()
+	await _settle()
+	_check(board.queued.size() == 2 and board.ravenous_button.disabled and board.queued[1].target == start, "Ravenous queues only selected position alongside Consume")
+	_check(not board.ravenous_placement.visible and board.phase_prompt.visible, "placement closes on confirmation")
 	_check(board.session.checkpoint() == checkpoint, "UI planning leaves authoritative state unchanged")
 	board._remove_kroni(0)
 	await _settle()
@@ -40,7 +57,7 @@ func _run() -> void:
 	_check(board.session.board_view().world.hunger[0] == 3 and board.session.board_view().world.personal_tears[0] == 1, "debug Hunger follows milestone rules")
 	board._refresh()
 	board.queued = []
-	board._queue_kroni(Kroni.RAVENOUS, {})
+	board._queue_kroni(Kroni.RAVENOUS, start)
 	board.session._opponent = {"powers": [], "order": {}}
 	board.resolve_round()
 	var deadline: int = Time.get_ticks_msec() + 15000
@@ -48,6 +65,8 @@ func _run() -> void:
 		await process_frame
 	_check(board._job == null and board.playing, "Kroni worker resolves")
 	_check(not board.kroni_visual.frames.is_empty(), "authoritative actor tape reaches board playback")
+	var launched: Dictionary = board.kroni_visual.frames[0].actors[0]
+	_check(launched.x_fp == 600 and launched.y_fp == 1050, "worker and playback preserve player starting position")
 	board.finish_playback()
 	_check(board.kroni_visual.frames.is_empty() and not board.kroni_visual.busy(), "skip clears actor and chomp state")
 	deadline = Time.get_ticks_msec() + 15000
@@ -86,6 +105,17 @@ func _run() -> void:
 	visual.advance_bite(visual.chomp_seconds * 0.5)
 	_check(visual.busy() and visual.clock == at, "chomp animates without advancing field clock")
 	_check(Visual.facing(Vector2(1, 0)) == 2 and Visual.facing(Vector2(-1, 0)) == 1 and Visual.facing(Vector2(0, 1)) == 0 and Visual.facing(Vector2(0, -1)) == 3, "all four supplied directions supported")
+	var preview_click := InputEventMouseButton.new()
+	preview_click.button_index = MOUSE_BUTTON_LEFT
+	preview_click.pressed = true
+	preview_click.position = preview.visual.field_rect.position + preview.visual.field_rect.size * Vector2(0.875, 0.75)
+	preview._gui_input(preview_click)
+	_check(preview.visual.frames[0].actors[0].x_fp == 600 and preview.visual.frames[0].actors[0].y_fp == 1050, "preview click uses same chosen-position mapping")
+	var directions: Dictionary = {}
+	for i in range(8):
+		preview._restart()
+		directions[preview.visual.frames[0].actors[0].vy_fp] = true
+	_check(directions.size() > 1, "preview fresh launches vary the trajectory")
 	preview.breach = true
 	preview._restart()
 	_check(preview.visual.frames[0].actors[0].breach, "preview switches to real Breach actor")

@@ -8,6 +8,7 @@ var ravenous_button: Button
 var kroni_note: Label
 var kroni_queue: VBoxContainer
 var consume_targeting
+var ravenous_placement
 var kroni_visual
 
 
@@ -24,14 +25,19 @@ func _build() -> void:
 	consume_button = _button(kroni_box, "CONSUME · NEXT ROUND", _begin_consume)
 	var consume_note: Label = _label(kroni_box, "Choose an enemy Guard. At next round's start, devour that exact Guard and gain 1 Hunger. No retargeting.", 13)
 	consume_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	ravenous_button = _button(kroni_box, "RAVENOUS", _queue_kroni.bind(Kroni.RAVENOUS, {}))
-	var ravenous_note: Label = _label(kroni_box, "Cross both lanes, bouncing off the outer walls. Devour friendly and enemy Marchers touched. Eat 6+ for 1 Soul, 1 Hunger and 1 Neutral Tear, once per activation. Two-round cooldown.", 13)
+	ravenous_button = _button(kroni_box, "RAVENOUS", _begin_ravenous)
+	var ravenous_note: Label = _label(kroni_box, "Place his starting point. A random angle sends him toward the enemy, bouncing off the outer walls. Devour friendly and enemy Marchers touched. Eat 6+ for 1 Soul, 1 Hunger and 1 Neutral Tear, once per activation. Two-round cooldown.", 13)
 	ravenous_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	kroni_queue = VBoxContainer.new()
 	kroni_box.add_child(kroni_queue)
 	consume_targeting = preload("res://Prototype/U13/U13GuardTargeting.gd").new()
 	add_child(consume_targeting)
 	consume_targeting.cancelled.connect(_cancel_consume)
+	ravenous_placement = preload("res://Prototype/U13/U13KroniPlacement.gd").new()
+	add_child(ravenous_placement)
+	ravenous_placement.battlefield = lanes
+	ravenous_placement.confirmed.connect(_confirm_ravenous)
+	ravenous_placement.cancelled.connect(_cancel_ravenous)
 	kroni_visual = KroniVisual.new()
 	add_child(kroni_visual)
 	kroni_visual.battlefield = lanes
@@ -43,6 +49,10 @@ func _update_direct_ui() -> void:
 		return
 	kroni_box.visible = _human_lord() == "Kroni"
 	_sync_consume()
+	if ravenous_placement != null and ravenous_placement.visible:
+		confirm.disabled = true
+		pass_button.disabled = true
+		phase_prompt.set_presenting(false)
 	if not kroni_box.visible:
 		return
 	var hunger: int = int(_visible_world.get("hunger", [0, 0])[0])
@@ -64,6 +74,37 @@ func _update_direct_ui() -> void:
 		var label: Label = _label(row, source.power_id + " queued", 13)
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_button(row, "REMOVE", _remove_kroni.bind(index))
+
+
+func _begin_ravenous() -> void:
+	if ravenous_button.disabled:
+		return
+	_intent = Kroni.RAVENOUS
+	ravenous_placement.radius_fp = Kroni.Actors.radius(int(_visible_world.get("hunger", [0, 0])[0]))
+	ravenous_placement.open()
+	_refresh()
+	phase_prompt.set_presenting(false)
+
+
+func _confirm_ravenous(target: Dictionary) -> void:
+	_queue_kroni(Kroni.RAVENOUS, target)
+	if _intent != Kroni.RAVENOUS:
+		ravenous_placement.close()
+		_refresh()
+		reopen_decision()
+
+
+func _cancel_ravenous() -> void:
+	ravenous_placement.close()
+	_intent = ""
+	_refresh()
+	reopen_decision()
+
+
+func _reset_direct() -> void:
+	if ravenous_placement != null:
+		ravenous_placement.close()
+	super._reset_direct()
 
 
 func _begin_consume() -> void:

@@ -2,7 +2,7 @@ extends RefCounted
 
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
-const VERSION: String = "U13_KRONI_COMPLETE_V1"
+const VERSION: String = "U13_KRONI_PLACED_RANDOM_V2"
 
 
 static func lord(world: Dictionary, pid: int) -> Dictionary:

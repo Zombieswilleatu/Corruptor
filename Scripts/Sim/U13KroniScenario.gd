@@ -40,6 +40,8 @@ static func loadout_world(lords: Array, choices: Array) -> Dictionary:
 
 
 static func source(pid: int, round_number: int, target: Dictionary = {}, index: int = 0, power: String = Content.RAVENOUS) -> Dictionary:
+	if power == Content.RAVENOUS and target.is_empty():
+		target = {"lane": "Lord", "field_position": {"x_fp": 0 if pid == 0 else 2400, "y_fp": 300}}
 	var rule: Dictionary = Content.rules()[power]
 	return Decl.create(Content.MatchOwner.declaration_id(pid, round_number, index), pid, "Kroni", power, round_number, rule.fire_hook, round_number + int(rule.delay_rounds), index, "public", target, rule.cost)
 
@@ -49,7 +51,12 @@ static func enumerate(owner, pid: int) -> Dictionary:
 	var view: Dictionary = owner.player_view(pid, 0)
 	if result.action == "invalid" or view.world.lord_ids[pid] != "Kroni":
 		return result
-	result.powers = [source(pid, owner.round_number())]
+	result.powers = []
+	# Position candidates only: bots cannot inspect or choose the launch angle.
+	for lane in ["Lord", "Castle"]:
+		for forward in [0, 600, 1200, 1800]:
+			for lateral in [150, 450]:
+				result.powers.append(source(pid, owner.round_number(), {"lane": lane, "field_position": {"x_fp": forward if pid == 0 else 2400 - forward, "y_fp": lateral}}))
 	for row in view.world.entities:
 		if row.kind == "card" and row.owner == 1 - pid and row.attributes.get("role") == "guard":
 			result.powers.append(source(pid, owner.round_number(), {"entity_id": row.id}, 0, Content.CONSUME))

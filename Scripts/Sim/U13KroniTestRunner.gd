@@ -31,6 +31,7 @@ func _run() -> void:
 		check(restored.restore_checkpoint(session.checkpoint()).action != "invalid", "restore " + lord)
 	_hunger()
 	_feeding()
+	_placement()
 	_actors()
 	_match()
 	print("U13 Kroni failures: %d" % failures)
@@ -110,6 +111,41 @@ func add_unit(world: Dictionary, index: int, pid: int, x: int, y: int, lane: Str
 	world.entities = ids.snapshot()
 	return row.entity.id
 
+func _placement() -> void:
+	var start: Dictionary = {"lane": "Castle", "field_position": {"x_fp": 650, "y_fp": 450}}
+	var world: Dictionary = Scenario.world()
+	var source: Dictionary = Scenario.source(0, 1, start)
+	check(Content.new().validate(source, world, "declaration").legal, "chosen field start is legal")
+	for target in [{}, {"lane": "Lord", "field_position": {"x_fp": -1, "y_fp": 20}}, {"lane": "Castle", "field_position": {"x_fp": 20, "y_fp": 601}}, {"lane": "Lord", "field_position": {"x_fp": 20.5, "y_fp": 20}}, {"lane": "Lord", "field_position": {"x_fp": 20, "y_fp": 20}, "angle": 10}]:
+		var bad: Dictionary = source.duplicate(true)
+		bad.target = target
+		check(not Content.new().validate(bad, world, "declaration").legal, "reject missing/invalid start and player-selected angle " + str(target))
+	var pending = preload("res://Scripts/Sim/U13PendingEffects.gd").new()
+	var record: Dictionary = pending.schedule(source).effect
+	var result: Dictionary = Content.new().resolve(record, context(world, Timeline.POST_RESOLUTION_SPECIAL_ACTORS))
+	check(result.action == "resolved" and result.world.data.kroni_actors[0].x_fp == 650 and result.world.data.kroni_actors[0].y_fp == 1050, "authoritative launch uses chosen Castle position")
+	check(result == Content.new().resolve(record, context(JSON.parse_string(JSON.stringify(world)), Timeline.POST_RESOLUTION_SPECIAL_ACTORS)), "launch roll survives exact JSON replay")
+	var angles: Dictionary = {}
+	var round_angles: Dictionary = {}
+	for index in range(24):
+		for pid in [0, 1]:
+			var actor: Dictionary = Actors.create("placed", pid, 1, 0, false, "seed-%d" % index, start)
+			angles[actor.vy_fp] = true
+			check(Actors.valid([actor]) and actor.x_fp == 650 and actor.y_fp == 1050 and actor.vx_fp * (1 if pid == 0 else -1) > 0, "placed actor valid and enemy-facing %d/%d" % [index, pid])
+			var buffer = Buffer.new()
+			buffer.restore(world.entities)
+			var previous: int = actor.x_fp
+			var forward_only: bool = true
+			for tick in range(200):
+				Actors.step([actor], buffer, 1, tick)
+				forward_only = forward_only and (actor.x_fp - previous) * (1 if pid == 0 else -1) >= 0
+				previous = actor.x_fp
+			check(forward_only and not actor.active and actor.x_fp == (2400 if pid == 0 else 0), "random route always reaches enemy boundary %d/%d" % [index, pid])
+		var next: Dictionary = Actors.create("placed", 0, index + 1, 0, false, "same-match", start)
+		round_angles[next.vy_fp] = true
+	check(angles.size() > 4 and angles.keys().any(func(v: int) -> bool: return v < 0) and angles.keys().any(func(v: int) -> bool: return v > 0), "same placement produces varied launch angles in both lateral directions")
+	check(round_angles.size() > 4, "later activations in same match roll fresh directions")
+
 func _actors() -> void:
 	check(Actors.touches(0, 0, 100, 0, 50, 10, 10), "swept collision includes boundary")
 	check(not Actors.touches(0, 0, 100, 0, 50, 11, 10), "swept collision excludes outside")
@@ -120,6 +156,8 @@ func _actors() -> void:
 		add_unit(world, index, index % 2, 16, 322)
 	var outside: String = add_unit(world, 20, 0, 2399, 0)
 	world.data.kroni_actors = [Actors.create("ravenous-test", 0, 1, 0)]
+	# Fixed path fixture tests consumption independently of launch randomness.
+	world.data.kroni_actors[0].vy_fp = 22
 	var result: Dictionary = Content.new().on_hook(context(world, Timeline.MARCHING))
 	if not check(result.action == "resolved", "Ravenous integrated Marching resolves"):
 		print(result)

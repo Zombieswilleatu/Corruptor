@@ -21,6 +21,7 @@ var elapsed: float = 0.0
 var frames: Array = []
 var duration: float = 6.0
 var seed_index: int = 0
+var start: Dictionary = {"lane": "Lord", "field_position": {"x_fp": 0, "y_fp": 300}}
 
 
 func _ready() -> void:
@@ -56,7 +57,7 @@ func _ready() -> void:
 	footprint.toggled.connect(func(v: bool) -> void: visual.show_footprint = v)
 	controls.add_child(footprint)
 	var replay := Button.new()
-	replay.text = "Replay / new Breach seed"
+	replay.text = "New launch"
 	replay.pressed.connect(_restart)
 	controls.add_child(replay)
 	var close := Button.new()
@@ -68,7 +69,7 @@ func _ready() -> void:
 	add_child(status)
 	guide = Label.new()
 	guide.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	guide.text = "RAVENOUS\nStraight ahead, bouncing off outer walls. No steering. Both sides can be eaten.\n\n6+ DEVOURED\nOne Soul, one Hunger and one Neutral Tear per activation.\n\nHUNGER\n0: Defense 4\n1–2: Defense 6\n3+: Defense 8\nFirst reaching 3 grants one personal Tear.\n\nBREACH\nA short random manifestation. No rewards."
+	guide.text = "RAVENOUS\nClick either lane to place his start. Each launch rolls a new angle toward the enemy, bouncing off outer walls. No steering. Both sides can be eaten.\n\n6+ DEVOURED\nOne Soul, one Hunger and one Neutral Tear per activation.\n\nHUNGER\n0: Defense 4\n1–2: Defense 6\n3+: Defense 8\nFirst reaching 3 grants one personal Tear.\n\nBREACH\nA short random manifestation. No rewards."
 	add_child(guide)
 	resized.connect(_layout)
 	_layout()
@@ -116,7 +117,7 @@ func _restart() -> void:
 		ids.create("marcher", "kroni-preview", index, index % 2, a)
 	var buffer = Buffer.new()
 	buffer.restore(ids.snapshot())
-	var actor: Dictionary = Actors.create("preview", -1 if breach else 0, 1, 0 if breach else hunger, breach, "kroni-preview-%d" % seed_index)
+	var actor: Dictionary = Actors.create("preview", -1 if breach else 0, 1, 0 if breach else hunger, breach, "kroni-preview-%d" % seed_index, start)
 	var actors: Array = [actor]
 	var events: Array = [State.event("KRONI_ACTORS_STARTED", {"actors": actors.duplicate(true)}).event]
 	frames.append(buffer.marchers())
@@ -129,6 +130,22 @@ func _restart() -> void:
 	status.text = "Both lanes · Blue = yours / Red = enemy · %d devoured%s" % [actor.consumed, " · Breach grants no rewards" if breach else (" · 6+ reward earned" if actor.consumed >= 6 else " · 6 needed for reward")]
 	duration = 6.0
 	queue_redraw()
+
+
+func _gui_input(event: InputEvent) -> void:
+	if breach or visual == null or not event is InputEventMouseButton or event.button_index != MOUSE_BUTTON_LEFT or not event.pressed:
+		return
+	for lane in ["Lord", "Castle"]:
+		var rect: Rect2 = visual.field_rect
+		rect.size.x *= 0.5
+		if lane == "Castle":
+			rect.position.x += rect.size.x
+		var target: Dictionary = preload("res://Prototype/U13/U13SpatialInput.gd").target_at(event.position, rect, lane)
+		if not target.is_empty():
+			start = target
+			_restart()
+			accept_event()
+			return
 
 
 func _process(delta: float) -> void:
