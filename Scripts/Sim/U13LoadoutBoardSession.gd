@@ -22,6 +22,7 @@ var setup_castles: Array = [
 var quick_start: bool = true
 var hunt_enabled: bool = false
 var odradek_visuals: Array = []
+var kroni_guard_events: Array = []
 
 
 # Only the exercise opening differs from Core's all-unbuilt setup boundary.
@@ -73,6 +74,7 @@ func configure(lords: Array, castles: Array, quick: bool) -> Dictionary:
 	_order = {}
 	_opponent = {}
 	odradek_visuals = []
+	kroni_guard_events = prepared.kroni_guard_events.duplicate(true)
 	return {"action": "loadout_board_ready"}
 
 
@@ -279,12 +281,18 @@ func run_to_marching() -> Dictionary:
 
 func step() -> Dictionary:
 	var hook: String = next_hook()
+	if hook == Timeline.ROUND_START_SCHEDULED:
+		kroni_guard_events = []
 	var capture: bool = hook in [Timeline.POST_RESOLUTION_POSITION, Timeline.POST_RESOLUTION_ALLEGIANCE, Timeline.ROUND_START_SCHEDULED]
 	var cursor: int = _owner._event_cursor() if capture else 0
 	var before: Array = _owner.player_view(0, 0).world.entities.duplicate(true) if capture else []
 	var result: Dictionary = super.step()
 	if capture and result.action != "invalid":
-		_capture_odradek_visuals(before, _owner._player_events_since(0, cursor))
+		var events: Array = _owner._player_events_since(0, cursor)
+		_capture_odradek_visuals(before, events)
+		for event in events:
+			if event.type == "GUARD_DEVOURED":
+				kroni_guard_events.append(event.duplicate(true))
 	return result
 
 

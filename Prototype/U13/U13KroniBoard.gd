@@ -9,6 +9,7 @@ var kroni_note: Label
 var kroni_queue: VBoxContainer
 var consume_targeting
 var ravenous_placement
+var guard_chomp
 var kroni_visual
 
 
@@ -26,7 +27,7 @@ func _build() -> void:
 	var consume_note: Label = _label(kroni_box, "Choose an enemy Guard. At next round's start, devour that exact Guard and gain 1 Hunger. No retargeting.", 13)
 	consume_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	ravenous_button = _button(kroni_box, "RAVENOUS", _begin_ravenous)
-	var ravenous_note: Label = _label(kroni_box, "Place his starting point. A random angle sends him toward the enemy, bouncing off the outer walls. Devour friendly and enemy Marchers touched. Eat 6+ for 1 Soul, 1 Hunger and 1 Neutral Tear, once per activation. Two-round cooldown.", 13)
+	var ravenous_note: Label = _label(kroni_box, "Place his starting point. A random angle sends him toward the enemy, bouncing off the outer walls. Eat up to 3 friendly or enemy Marchers per spot, then move one body-width before feeding again. Eat 6+ for 1 Soul, 1 Hunger and 1 Neutral Tear, once per activation. Two-round cooldown.", 13)
 	ravenous_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	kroni_queue = VBoxContainer.new()
 	kroni_box.add_child(kroni_queue)
@@ -41,6 +42,8 @@ func _build() -> void:
 	kroni_visual = KroniVisual.new()
 	add_child(kroni_visual)
 	kroni_visual.battlefield = lanes
+	guard_chomp = preload("res://Prototype/U13/U13KroniGuardChomp.gd").new()
+	add_child(guard_chomp)
 
 
 func _update_direct_ui() -> void:
@@ -57,6 +60,12 @@ func _update_direct_ui() -> void:
 		return
 	var hunger: int = int(_visible_world.get("hunger", [0, 0])[0])
 	kroni_note.text = "HUNGER %d · DEFENSE %d\nIf Consume does not feed him, Kroni eats your lowest Guard—or loses 1 Hunger if none exists. Ward / Pass also loses 1 Hunger." % [hunger, 8 if hunger >= 3 else (6 if hunger >= 1 else 4)]
+	var combat: Dictionary = Kroni.Guards.strip_order(_order())
+	if _planning() and (combat.is_empty() or combat.get("action") == "Ward"):
+		kroni_note.text += "\nTHIS TURN: %s will remove 1 Hunger. Powers alone still count as Pass." % ("PASS" if combat.is_empty() else "WARD")
+	for event in session.board_view().events:
+		if event.type == "KRONI_HUNGER_CHANGED" and event.data.player_id == 0 and event.data.before != event.data.after:
+			kroni_note.tooltip_text = "Last Hunger change: %s · %d → %d" % [event.data.cause, event.data.before, event.data.after]
 	for power in Kroni.KRONI_POWERS:
 		var button: Button = consume_button if power == Kroni.CONSUME else ravenous_button
 		var status: Dictionary = session.power_status(power)
@@ -102,6 +111,8 @@ func _cancel_ravenous() -> void:
 
 
 func _reset_direct() -> void:
+	if guard_chomp != null:
+		guard_chomp.clear()
 	if ravenous_placement != null:
 		ravenous_placement.close()
 	super._reset_direct()
@@ -191,12 +202,22 @@ func _fit_consume() -> void:
 
 func _complete_job() -> void:
 	var previous_session = session
+	var operation: String = _job_operation
 	super._complete_job()
 	if kroni_visual != null and session != previous_session and playing:
 		kroni_visual.load_tape(session.marching_events())
+	if session != previous_session and operation == "next_round":
+		_play_guard_chomps()
 
 
 func _process(delta: float) -> void:
+	if _job == null and guard_chomp != null and guard_chomp.active():
+		guard_chomp.advance(delta)
+		phase_prompt.set_presenting(false)
+		if not guard_chomp.active():
+			_refresh()
+			reopen_decision()
+		return
 	_fit_consume()
 	if _job == null and kroni_visual != null and kroni_visual.busy():
 		kroni_visual.advance_bite(delta)
@@ -212,12 +233,36 @@ func _process(delta: float) -> void:
 
 
 func finish_playback(skip: bool = true) -> void:
+	var was_guard: bool = guard_chomp != null and guard_chomp.active()
+	if guard_chomp != null:
+		guard_chomp.clear()
 	if kroni_visual != null:
 		kroni_visual.clear()
 	super.finish_playback(skip)
+	if was_guard and _job == null:
+		_refresh()
+		reopen_decision()
 
 
 func start_loadout(lords: Array, castles: Array, quick: bool) -> void:
+	var previous_session = session
 	if setup_open and _job == null and kroni_visual != null:
 		kroni_visual.clear()
 	super.start_loadout(lords, castles, quick)
+	if session != previous_session:
+		_play_guard_chomps()
+
+
+func _play_guard_chomps() -> void:
+	if guard_chomp == null:
+		return
+	guard_chomp.play(session.kroni_guard_events, sides)
+	if guard_chomp.active():
+		phase_prompt.set_presenting(false)
+		# Disable decisions without rebinding the Guard controls being animated.
+		for control in controls:
+			control.disabled = true
+
+
+func _planning() -> bool:
+	return (guard_chomp == null or not guard_chomp.active()) and super._planning()

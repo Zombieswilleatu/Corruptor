@@ -10,6 +10,10 @@ func _run() -> void:
 	board.start_loadout(["Kroni", "Odradek"], [Slots.TYPES, Slots.TYPES], true)
 	await _settle()
 	_check(board.match_started and board._visible_world.lord_ids[0] == "Kroni", "Kroni main runner starts")
+	_check(board.guard_chomp.active() and board.guard_chomp.rows[0].event.data.cause == "Cannibal Hunger", "opening Cannibal Hunger plays Guard chomp")
+	var opening_state: Dictionary = board.session.checkpoint()
+	board._process(1.0)
+	_check(not board.guard_chomp.active() and board.session.checkpoint() == opening_state, "Guard chomp completion changes no game state")
 	board.enter_powers()
 	await _settle()
 	_check(board.kroni_box.visible and not board.consume_button.disabled and not board.ravenous_button.disabled, "both active powers available")
@@ -58,6 +62,7 @@ func _run() -> void:
 	board._refresh()
 	board.queued = []
 	board._queue_kroni(Kroni.RAVENOUS, start)
+	board._queue_kroni(Kroni.CONSUME, {"entity_id": enemy.id})
 	board.session._opponent = {"powers": [], "order": {}}
 	board.resolve_round()
 	var deadline: int = Time.get_ticks_msec() + 15000
@@ -77,6 +82,13 @@ func _run() -> void:
 	while board._job != null and Time.get_ticks_msec() < deadline:
 		await process_frame
 	_check(board.session.round_number() == 2, "runner continues after Ravenous")
+	_check(board.guard_chomp.active() and board.guard_chomp.rows[0].event.data.cause == "Consume", "next-round Consume plays Guard chomp")
+	_check(not board._planning() and not board.phase_prompt.visible, "decisions wait for Guard consumption playback")
+	var meal_state: Dictionary = board.session.checkpoint()
+	board.guard_chomp.advance(0.35)
+	_check(board.guard_chomp.active(), "double chomp remains active midway")
+	board.finish_playback()
+	_check(not board.guard_chomp.active() and board.session.checkpoint() == meal_state, "skipping Guard chomp restores slots without replaying Devour")
 	var banished: Dictionary = board.session.debug_action("banish", 0, "Lord")
 	_check(banished.action != "invalid", "Kroni banishes into Breach")
 	board.session.choose([], {})

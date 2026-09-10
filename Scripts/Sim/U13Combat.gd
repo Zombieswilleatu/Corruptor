@@ -45,7 +45,7 @@ static func valid(world: Dictionary) -> bool:
 			return false
 		lords.append("Odradek")
 	if world.data.has("kroni_profile"):
-		if not core or world.data.kroni_profile != "U13_KRONI_PLACED_RANDOM_V2":
+		if not core or world.data.kroni_profile != "U13_KRONI_FEEDING_SPOTS_V3":
 			return false
 		lords.append("Kroni")
 	if world.data.has("hunt_profile") and (not core or world.data.hunt_profile != HUNT_VERSION):

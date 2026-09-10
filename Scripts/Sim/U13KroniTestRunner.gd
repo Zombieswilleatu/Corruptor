@@ -31,6 +31,8 @@ func _run() -> void:
 		check(restored.restore_checkpoint(session.checkpoint()).action != "invalid", "restore " + lord)
 	_hunger()
 	_feeding()
+	_hunger_growth()
+	_meal_limit()
 	_placement()
 	_actors()
 	_match()
@@ -153,7 +155,7 @@ func _actors() -> void:
 	check([Actors.radius(0), Actors.radius(1), Actors.radius(2), Actors.radius(3)] == [220, 242, 264, 297], "Hunger changes real footprint")
 	var world: Dictionary = Scenario.world()
 	for index in range(8):
-		add_unit(world, index, index % 2, 16, 322)
+		add_unit(world, index, index % 2, 16 if index < 4 else 960, 322 if index < 4 else 180, "Lord" if index < 4 else "Castle")
 	var outside: String = add_unit(world, 20, 0, 2399, 0)
 	world.data.kroni_actors = [Actors.create("ravenous-test", 0, 1, 0)]
 	# Fixed path fixture tests consumption independently of launch randomness.
@@ -163,7 +165,7 @@ func _actors() -> void:
 		print(result)
 		return
 	var actor: Dictionary = result.world.data.kroni_actors[0]
-	check(actor.consumed >= 8 and actor.rewarded and not actor.active and actor.x_fp == 2400, "friendly and enemy Devour, then stop at far boundary")
+	check(actor.consumed >= 6 and actor.rewarded and not actor.active and actor.x_fp == 2400, "friendly and enemy Devour, then stop at far boundary")
 	check(result.world.players[0].resources.souls == world.players[0].resources.souls + 1 and result.world.data.neutral_tears == world.data.neutral_tears + 1 and State.hunger(result.world, 0) == 1, "6-plus pays exactly one full reward")
 	check(result.world.entities.entities.any(func(e: Dictionary) -> bool: return e.id == outside), "off-path Marcher survives")
 	check(Content.new().valid_world(result.world), "post-Ravenous world validates")
@@ -178,7 +180,7 @@ func _actors() -> void:
 	b.y_fp = 322
 	world.data.kroni_actors = [b]
 	result = Content.new().on_hook(context(world, Timeline.MARCHING))
-	check(result.action != "invalid" and result.world.data.kroni_actors[0].consumed >= 8, "Breach can Devour both sides")
+	check(result.action != "invalid" and result.world.data.kroni_actors[0].consumed > 0, "Breach can Devour both sides")
 	check(result.world.players[0].resources == world.players[0].resources and result.world.data.neutral_tears == world.data.neutral_tears and State.hunger(result.world, 0) == 0, "Breach gives no Hunger Souls Tears or Ravenous reward")
 	check(result.world.data.kroni_actors[0].age == Actors.BREACH_TICKS, "Breach lifetime is fixed")
 	var reverse: Array = [Actors.create("reverse", 1, 1, 0)]
@@ -229,3 +231,57 @@ func _match() -> void:
 			return
 		if round_number < 4:
 			check(owner.begin_next_round([0, 1]).action != "invalid", "next round")
+
+func _hunger_growth() -> void:
+	var world: Dictionary = Scenario.world()
+	var content = Content.new()
+	for round_number in [1, 2, 3]:
+		var enemy: Array = guards(world, 1)
+		if enemy.is_empty():
+			var replacement: Dictionary = preload("res://Scripts/Sim/U13DebugActions.gd").apply(world, "guard", 1, "Castle", round_number, "hunger-growth", content)
+			world = replacement.world
+			enemy = guards(world, 1)
+		if not check(not enemy.is_empty(), "enemy meal available for Hunger growth"):
+			return
+		var source: Dictionary = Scenario.source(0, round_number - 1, {"entity_id": enemy[0].id}, 0, Content.CONSUME)
+		var record: Dictionary = {"declaration": source, "fire_hook": Timeline.ROUND_START_SCHEDULED}
+		var result: Dictionary = content.resolve(record, context(world, Timeline.ROUND_START_SCHEDULED, round_number))
+		if not check(result.action == "resolved", "successive Consume resolves"):
+			return
+		world = result.world
+		result = content.on_hook(context(world, Timeline.ROUND_START_SCHEDULED, round_number))
+		if not check(result.action == "resolved", "successful Consume survives Cannibal check"):
+			return
+		world = result.world
+		var attack: Dictionary = context(world, Timeline.COMBAT_RESOLUTION, round_number)
+		attack.combat_orders[0] = {"action": "Hunt", "lane": "Lord", "target_id": State.lord(world, 1).id, "card_ids": []}
+		result = content.on_hook(attack)
+		if not check(result.action == "resolved", "Hunt round preserves fed Hunger"):
+			print(result)
+			return
+		world = result.world
+		check(State.hunger(world, 0) == round_number, "Hunger accumulates to %d without Ward/Pass" % round_number)
+	check(world.players[0].resources.personal_tears == 1, "successive meals award Hunger-3 milestone once")
+
+
+func _meal_limit() -> void:
+	var world: Dictionary = Scenario.world()
+	for i in range(12):
+		add_unit(world, i, i % 2, 16, 322)
+	var buffer = Buffer.new()
+	buffer.restore(world.entities)
+	var actor: Dictionary = Actors.create("meal-limit", 0, 1, 0)
+	actor.vy_fp = 22
+	var events: Array = Actors.step([actor], buffer, 1, 0)
+	check(actor.consumed == 3 and buffer.marchers().size() == 9, "dense pile consumes only three on first contact")
+	Actors.step([actor], buffer, 1, 1)
+	check(actor.consumed == 3 and actor.x_fp == 32, "next tick moves on instead of eating the same pile again")
+	var restored: Dictionary = Content.Data.copy_data(JSON.parse_string(JSON.stringify(actor)))
+	check(Actors.valid([restored]) and restored.meal_count == 3, "feeding-spot quota persists through JSON")
+	var next_world: Dictionary = Scenario.world()
+	for i in range(8):
+		add_unit(next_world, i, i % 2, 960, 180, "Castle")
+	buffer.restore(next_world.entities)
+	for tick in range(2, 65):
+		Actors.step([actor], buffer, 1, tick)
+	check(actor.consumed == 6, "another feeding spot can supply three more")

@@ -10,6 +10,7 @@ const FORWARD: int = 16
 const LATERAL_MIN: int = 8
 const LATERAL_MAX: int = 24
 const BREACH_TICKS: int = 33
+const MEAL_LIMIT: int = 3
 
 
 static func radius(hunger: int) -> int:
@@ -17,7 +18,7 @@ static func radius(hunger: int) -> int:
 
 
 static func create(identity: String, pid: int, round_number: int, hunger: int, breach: bool = false, seed_value: String = "kroni-actor-fixture", start: Dictionary = {}) -> Dictionary:
-	var actor: Dictionary = {"id": identity, "owner": pid, "round": round_number, "breach": breach, "x_fp": 0 if pid == 0 else LENGTH, "y_fp": 300, "vx_fp": FORWARD if pid == 0 else -FORWARD, "vy_fp": LATERAL_MIN, "radius_fp": radius(hunger), "hunger": hunger, "age": 0, "active": true, "consumed": 0, "rewarded": false}
+	var actor: Dictionary = {"id": identity, "owner": pid, "round": round_number, "breach": breach, "x_fp": 0 if pid == 0 else LENGTH, "y_fp": 300, "vx_fp": FORWARD if pid == 0 else -FORWARD, "vy_fp": LATERAL_MIN, "radius_fp": radius(hunger), "hunger": hunger, "age": 0, "active": true, "consumed": 0, "rewarded": false, "meal_count": 0, "meal_x_fp": 0, "meal_y_fp": 0}
 	if not breach:
 		if not start.is_empty():
 			actor.x_fp = int(start.field_position.x_fp)
@@ -77,13 +78,22 @@ static func step(actors: Array, entities, round_number: int, tick: int) -> Array
 		actor.x_fp = bx
 		actor.y_fp = by
 		actor.age += 1
+		# A feeding spot lasts one footprint diameter from its first bite.
+		if actor.meal_count > 0 and (bx - int(actor.meal_x_fp)) * (bx - int(actor.meal_x_fp)) + (by - int(actor.meal_y_fp)) * (by - int(actor.meal_y_fp)) >= 4 * int(actor.radius_fp) * int(actor.radius_fp):
+			actor.meal_count = 0
 		for unit in entities.marchers():
+			if actor.meal_count >= MEAL_LIMIT:
+				break
 			var a: Dictionary = unit.attributes
 			var lateral: int = int(a.y_fp) + (600 if a.lane == "Castle" else 0)
 			var hit: bool = false
 			for segment in segments:
 				hit = hit or touches(segment[0], segment[1], segment[2], segment[3], int(a.x_fp), lateral, int(actor.radius_fp))
 			if hit:
+				if actor.meal_count == 0:
+					actor.meal_x_fp = bx
+					actor.meal_y_fp = by
+				actor.meal_count += 1
 				entities.retire(unit.id)
 				actor.consumed += 1
 				events.append(State.event("MARCHER_DEVOURED", {"actor_id": actor.id, "actor": actor.duplicate(true), "before": unit, "round": round_number, "tick": tick, "breach": actor.breach}, "Insatiable Hunger devours a Marcher." if actor.breach else "Ravenous devours a Marcher."))
@@ -106,13 +116,15 @@ static func valid(actors) -> bool:
 		if typeof(a) != TYPE_DICTIONARY or typeof(a.get("id")) != TYPE_STRING or a.id.is_empty() or a.id in seen:
 			return false
 		seen.append(a.id)
-		for field in ["owner", "round", "x_fp", "y_fp", "vx_fp", "vy_fp", "radius_fp", "hunger", "age", "consumed"]:
+		for field in ["owner", "round", "x_fp", "y_fp", "vx_fp", "vy_fp", "radius_fp", "hunger", "age", "consumed", "meal_count", "meal_x_fp", "meal_y_fp"]:
 			if not Data.is_integer(a.get(field)):
 				return false
 		for field in ["breach", "active", "rewarded"]:
 			if typeof(a.get(field)) != TYPE_BOOL:
 				return false
 		if a.owner not in [-1, 0, 1] or (not a.breach and a.owner == -1) or a.round < 1 or a.x_fp < 0 or a.x_fp > LENGTH or a.y_fp < 0 or a.y_fp > WIDTH or a.age < 0 or a.age > 200 or a.consumed < 0 or a.hunger < 0 or a.radius_fp != radius(a.hunger):
+			return false
+		if a.meal_count < 0 or a.meal_count > MEAL_LIMIT or a.meal_x_fp < 0 or a.meal_x_fp > LENGTH or a.meal_y_fp < 0 or a.meal_y_fp > WIDTH:
 			return false
 		if absi(a.vx_fp) > 24 or absi(a.vy_fp) > 24 or (a.vx_fp == 0 and a.vy_fp == 0):
 			return false
