@@ -230,7 +230,10 @@ func _confirm_redirect(target: Dictionary) -> void:
 	if _error(session.choose(draft, _order())):
 		return
 	queued = draft
-	_cancel_redirect()
+	redirect_placement.close()
+	reconfiguration_menu.hide()
+	_refresh()
+	reopen_decision()
 
 
 func _cancel_redirect() -> void:
@@ -314,11 +317,7 @@ func _begin_guard_power(power: String) -> void:
 
 func _guide() -> String:
 	if _intent == Odradek.FALSE_ORDERS:
-		return (
-			"FALSE ORDERS · click any Guard, then its owner's other Guard zone."
-			if guard_source.is_empty()
-			else "FALSE ORDERS · now click the other Guard zone on the same side. The move happens next round."
-		)
+		return "FALSE ORDERS · click a Guard to queue its move to the same owner's other zone next round."
 	if _intent == Odradek.INVERSION:
 		return "INVERSION · select your or the enemy's Guard zone. Next round its Guards transfer to free slots in the opposite side's matching zone; success grants one Neutral Tear."
 	return super._guide()
@@ -366,8 +365,8 @@ func _guard_selected(target: Dictionary) -> void:
 		return
 	if _intent == Odradek.FALSE_ORDERS and guard_source.is_empty():
 		guard_source = _cell_guard(target).duplicate(true)
-		_refresh()
-		phase_prompt.set_presenting(false)
+		guard_destination = {"kind": "zone", "owner": guard_source.owner, "lane": "Castle" if guard_source.attributes.lane == "Lord" else "Lord"}
+		_confirm_guard_power()
 		return
 	guard_destination = target.duplicate(true)
 	_sync_guard_targeting()
@@ -384,6 +383,10 @@ func _confirm_guard_power() -> void:
 	draft.append(session.declaration(_intent, draft.size(), payload))
 	var result: Dictionary = session.choose(draft, _order())
 	if _error(result):
+		if _intent == Odradek.FALSE_ORDERS:
+			guard_source = {}
+			guard_destination = {}
+			_sync_guard_targeting()
 		guard_targeting.note.text += "\nCould not queue: " + String(result.get("reason", "Target unavailable"))
 		return
 	queued = draft
@@ -391,7 +394,8 @@ func _confirm_guard_power() -> void:
 	guard_destination = {}
 	guard_source = {}
 	_refresh()
-	_open_reconfiguration()
+	reconfiguration_menu.hide()
+	reopen_decision()
 
 
 func _guard_input(event: InputEvent, owner_id: int, lane: String, control: Control) -> void:
@@ -516,7 +520,7 @@ func _sync_guard_targeting() -> void:
 		markers.append({"control": box.get_child(int(guard_source.attributes.slot)), "selected": true})
 	var message: String = "Choose a Guard zone on either side.\nGuards switch sides next round, filling free slots. A successful transfer adds 1 Neutral Tear."
 	if _intent == Odradek.FALSE_ORDERS:
-		message = "Choose a Guard to move next round." if guard_source.is_empty() else "Choose the other Guard zone on the same side."
+		message = "Click a Guard to queue its move to the same owner's other zone next round. The destination is automatic."
 	if not guard_source.is_empty():
 		message += "\nSelected: %s %s Guard, slot %d." % ["your" if guard_source.owner == 0 else "enemy", guard_source.attributes.lane, int(guard_source.attributes.slot) + 1]
 	if not guard_destination.is_empty():
@@ -525,6 +529,7 @@ func _sync_guard_targeting() -> void:
 		message += "\nDestination: %s %s Guards." % ["ENEMY" if guard_destination.owner == 0 else "YOUR", guard_destination.lane]
 	guard_targeting.heading.text = _odradek_name(_intent).to_upper()
 	guard_targeting.display(message, not guard_destination.is_empty(), zones, markers)
+	guard_targeting.confirm_button.visible = _intent != Odradek.FALSE_ORDERS
 
 
 func _open_reconfiguration() -> void:

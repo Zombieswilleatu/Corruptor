@@ -28,33 +28,18 @@ func _run() -> void:
 	await _settle()
 	board.sides[1].castle_guard_box.get_child(0).input_surface.pressed.emit()
 	await _settle()
-	_check(board.guard_source.get("owner", -1) == 0 and board.guard_targeting.visible, "own_guard_selection_keeps_targeting_instructions_visible")
-	_check(not board.reconfiguration_menu.visible and not board.phase_prompt.visible, "guard_targeting_is_the_only_visible_modal")
+	_check(board.queued.size() == 1 and board.queued[0].target.owner_id == 0 and board.queued[0].target.lane == "Lord", "own_guard_click_automatically_queues_other_zone")
+	_check(not board.guard_targeting.visible and not board.reconfiguration_menu.visible and board.phase_prompt.visible, "completed_false_orders_returns_to_main_powers")
+	board.clear_powers()
+	board.false_orders_button.pressed.emit()
+	await _settle()
 	board._cancel_guard_power()
-	_check(board.queued.is_empty() and not board.guard_targeting.visible, "cancel_returns_without_reserving_points")
+	_check(board.queued.is_empty(), "cancel_before_selection_reserves_nothing")
 	board.false_orders_button.pressed.emit()
 	await _settle()
 	board.sides[0].castle_guard_box.get_child(0).input_surface.pressed.emit()
 	await _settle()
-	_check(
-		not board.guard_source.is_empty() and board.queued.is_empty(),
-		"false_orders_first_click_selects_guard"
-	)
-	board.sides[1].lord_guard_box.get_child(0).input_surface.pressed.emit()
-	_check(board.queued.is_empty(), "false_orders_rejects_other_owner_destination")
-	board.sides[0].lord_guard_box.get_child(0).input_surface.pressed.emit()
-	_check(board.guard_targeting.visible and board.queued.is_empty(), "destination_visible_before_confirmation")
-	board.guard_targeting.confirm_button.pressed.emit()
-	await _settle()
-	_check(
-		(
-			board.queued.size() == 1
-			and board.queued[0].power_id == Odradek.FALSE_ORDERS
-			and board.queued[0].target.owner_id == 1
-			and board.queued[0].target.lane == "Lord"
-		),
-		"false_orders_confirmation_queues_destination"
-	)
+	_check(board.queued.size() == 1 and board.queued[0].target.owner_id == 1 and board.queued[0].target.lane == "Lord", "enemy_guard_click_automatically_queues_other_zone")
 	_check(
 		board.shift_button.disabled and not board.false_orders_button.disabled,
 		"guard_order_reserves_two_points"
@@ -87,6 +72,7 @@ func _run() -> void:
 		),
 		"shift_queues_three_points_leaving_one"
 	)
+	_check(not board.reconfiguration_menu.visible and not placement.visible, "completed_shift_dismisses_reconfiguration")
 	board.redirect_button.pressed.emit()
 	placement._gui_input(click)
 	placement.confirm_button.pressed.emit()
@@ -122,6 +108,7 @@ func _run() -> void:
 		),
 		"inversion_zone_click_reserves_four_points"
 	)
+	_check(not board.guard_targeting.visible and not board.reconfiguration_menu.visible, "completed_inversion_dismisses_reconfiguration")
 	board.session._opponent = {"powers": [], "order": {}}
 	board.resolve_round()
 	await _worker(board)
