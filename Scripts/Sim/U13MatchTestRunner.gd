@@ -25,6 +25,7 @@ func _init() -> void:
 	_test_joint_declaration_context()
 	_test_restore_guards()
 	_test_bounded_event_reads()
+	_test_event_restore_equivalence()
 	_test_event_forks()
 	_test_shared_event_input()
 	_test_internal_forks()
@@ -748,3 +749,51 @@ func _test_bounded_event_reads() -> void:
 	var tail: Array = log.for_player(0, 0, 1)
 	tail[0].data.value = 99
 	_check(log.for_player(0) == full, "event_tail_isolated_from_mutation")
+
+
+# Reference restore follows the former per-event append path. Compare complete
+# snapshots and both player projections, then verify the public boundary rejects
+# malformed nested data without mutating a populated owner.
+func _test_event_restore_equivalence() -> void:
+	var source = EventLog.new()
+	for index in range(40):
+		var event: Dictionary = {"type": "RESTORE", "text": "history", "data": {"x_fp": index, "values": [1.0, 2.5, {"counter": 3.0}]}}
+		var redacted: Dictionary = {"type": "REDACTED", "text": "hidden result", "data": {}}
+		source.append(event, [event if index % 2 == 0 else null, redacted])
+	var raw: Dictionary = JSON.parse_string(JSON.stringify(source.snapshot()))
+	var reference = EventLog.new()
+	for row in raw.rows:
+		reference.append(row.event, row.views)
+	var restored = EventLog.new()
+	_check(restored.restore(raw).action != "invalid", "event_restore_accepts_json")
+	_check(restored.snapshot() == reference.snapshot() and restored.for_player(0) == reference.for_player(0) and restored.for_player(1) == reference.for_player(1), "event_restore_matches_reference_and_hidden_views")
+	_check(typeof(restored.snapshot().rows[0].event.data.values[0]) == TYPE_INT, "event_restore_normalizes_json_integers")
+	var stable: Dictionary = restored.snapshot()
+	raw.rows[0].event.data.values[2].counter = 999
+	_check(restored.snapshot() == stable, "event_restore_owns_caller_payload")
+	for mode in range(7):
+		var bad: Dictionary = stable.duplicate(true)
+		match mode:
+			0: bad.rows[-1].views = [null]
+			1: bad.rows[-1].views[1].type = ""
+			2: bad.rows[-1].event.data.x_fp = 0.5
+			3: bad.rows[-1].event.data.values = [NAN]
+			4: bad.rows[-1].event.data[1] = "non-string key"
+			5: bad.rows[-1].event.text = 42
+			6: bad.rows[-1].views[0] = ["not an event"]
+		_check(restored.restore(bad).action == "invalid" and restored.snapshot() == stable, "event_restore_bad_payload_atomic_%d" % mode)
+	var owner = _owner()
+	owner.start("restore-regression", _world(), [0, 1])
+	var envelope: Dictionary = owner.snapshot()
+	envelope.events = stable.duplicate(true)
+	_check(owner.restore(envelope).action != "invalid", "match_restore_owned_history")
+	var checkpoint: Dictionary = owner.snapshot()
+	envelope.events.rows[0].event.data.values[0] = 700
+	_check(owner.snapshot() == checkpoint, "match_restore_history_caller_isolation")
+	for mode in range(3):
+		var bad: Dictionary = checkpoint.duplicate(true)
+		match mode:
+			0: bad.events.rows[-1].views[1].type = ""
+			1: bad.events.rows[-1].event.data.x_fp = 0.5
+			2: bad.events.rows[-1].event.data.values = [INF]
+		_check(owner.restore(bad).action == "invalid" and owner.snapshot() == checkpoint, "match_restore_bad_history_atomic_%d" % mode)

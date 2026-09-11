@@ -9,19 +9,25 @@ const Buffer = preload("res://Scripts/Sim/U13MarchingBuffer.gd")
 const Marching = preload("res://Scripts/Sim/U13Marching.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 var failures: int = 0
+var checks: int = 0
+var verbose_checks: bool = "--verbose-checks" in OS.get_cmdline_user_args()
 var profile_enabled: bool = "--profile" in OS.get_cmdline_user_args()
 
 func _timing(label: String, started: int) -> void:
 	if profile_enabled:
 		print("KRONI_PROFILE ", label, " ms=", (Time.get_ticks_usec() - started) / 1000.0)
+	elif not label.contains("/"):
+		print("Kroni section complete: ", label)
 
 func _initialize() -> void:
 	call_deferred("_run")
 
 func check(ok: bool, name_value: String) -> bool:
+	checks += 1
 	if not ok:
 		failures += 1
-	print(("PASS " if ok else "FAIL ") + name_value)
+	if not ok or verbose_checks:
+		print(("PASS " if ok else "FAIL ") + name_value)
 	return ok
 
 func _run() -> void:
@@ -70,6 +76,7 @@ func _run() -> void:
 	_match()
 	_timing("match", section_started)
 	_timing("suite", suite_started)
+	print("Kroni assertions: %d passed / %d checked" % [checks - failures, checks])
 	print("U13 Kroni failures: %d" % failures)
 	quit(0 if failures == 0 else 1)
 
@@ -283,6 +290,9 @@ func _match() -> void:
 			return
 		if round_number < 4:
 			check(owner.begin_next_round([0, 1]).action != "invalid", "next round")
+
+	if profile_enabled:
+		print("KRONI_PROFILE final_snapshot_sha256=", JSON.stringify(owner.snapshot(), "", true).sha256_text())
 
 func _hunger_growth() -> void:
 	var world: Dictionary = Scenario.world()

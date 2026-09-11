@@ -59,30 +59,37 @@ func snapshot() -> Dictionary:
 
 
 func restore(raw: Dictionary) -> Dictionary:
-	if (
-		not Data.is_data(raw)
-		or raw.get("schema_version") != VERSION
-		or typeof(raw.get("rows")) != TYPE_ARRAY
-	):
+	if not Data.is_data(raw):
 		return Data.invalid("event_snapshot_invalid")
-	var candidate = get_script().new()
+	return _restore_owned(Data.copy_data(raw))
+
+
+# Internal ownership transfer only: caller has validated the ENTIRE envelope
+# with is_data and normalized/deep-copied it with copy_data. Match.restore
+# already performs these steps, including history, before reaching this method.
+# Keep structural checks and atomic installation; never expose owned rows.
+func _restore_owned(raw: Dictionary) -> Dictionary:
+	if raw.get("schema_version") != VERSION or typeof(raw.get("rows")) != TYPE_ARRAY:
+		return Data.invalid("event_snapshot_invalid")
+	var rows: Array = []
 	for row in raw.rows:
-		if (
-			typeof(row) != TYPE_DICTIONARY
-			or typeof(row.get("event")) != TYPE_DICTIONARY
-			or typeof(row.get("views")) != TYPE_ARRAY
-		):
+		if typeof(row) != TYPE_DICTIONARY or not _valid_event_shape(row.get("event")) or typeof(row.get("views")) != TYPE_ARRAY or row.views.size() != 2:
 			return Data.invalid("event_snapshot_invalid")
-		if candidate.append(row.event, row.views).action == "invalid":
-			return Data.invalid("event_snapshot_invalid")
-	_rows = candidate._rows
+		for view in row.views:
+			if view != null and not _valid_event_shape(view):
+				return Data.invalid("event_snapshot_invalid")
+		rows.append({"event": row.event, "views": row.views})
+	_rows = rows
 	return {"action": "u13_events_restored"}
 
 
 static func _valid_event(event) -> bool:
+	return _valid_event_shape(event) and Data.is_data(event)
+
+
+static func _valid_event_shape(event) -> bool:
 	return (
 		typeof(event) == TYPE_DICTIONARY
-		and Data.is_data(event)
 		and typeof(event.get("type")) == TYPE_STRING
 		and not event.type.is_empty()
 		and typeof(event.get("text")) == TYPE_STRING

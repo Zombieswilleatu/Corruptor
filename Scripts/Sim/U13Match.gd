@@ -390,11 +390,13 @@ func restore(raw: Dictionary) -> Dictionary:
 		[candidate._runtime, "runtime"],
 		[candidate._pending, "pending"],
 		[candidate._persistent, "persistent"],
-		[candidate._cooldowns, "cooldowns"],
-		[candidate._events, "events"]
+		[candidate._cooldowns, "cooldowns"]
 	]:
 		if pair[0].restore(decoded[pair[1]]).action == "invalid":
 			return Data.invalid("match_component_invalid_" + pair[1])
+	# decoded is exclusively owned, normalized, and recursively validated above.
+	if candidate._events._restore_owned(decoded.events).action == "invalid":
+		return Data.invalid("match_component_invalid_events")
 	candidate._seed = decoded.seed
 	candidate._order = decoded.player_order
 	candidate._presentation_world = decoded.presentation_world
