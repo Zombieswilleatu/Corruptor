@@ -35,7 +35,11 @@ obsolete U12 Lord callbacks.
 
 ## Duplicate policy
 
-One physical screen applies per attack: the lowest eligible Castle slot of that
+Every loadout must contain exactly one Keep. Keep cannot be double-picked.
+Other Castle types retain the two-copy limit. Manual selection and random
+Quickstart both enforce this rule.
+
+For Bastions, one physical screen applies per attack: the lowest eligible Castle slot of that
 printed type. Copies do not stack reductions or chain screens during one attack.
 A surviving copy becomes eligible for the next attack after the first is Ruined.
 This follows the existing stable-slot, non-stacking Summoning Circle convention.

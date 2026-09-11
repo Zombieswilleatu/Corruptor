@@ -16,6 +16,7 @@ func _init() -> void:
 				(
 					draft.lords[pid] in Picker.LORDS
 					and draft.castles[pid][0] == "Keep"
+					and draft.castles[pid].count("Keep") == 1
 					and Picker.Slots.selection_valid(draft.castles[pid])
 				),
 				"quickstart_valid_keep_first_%d_%d" % [index, pid]

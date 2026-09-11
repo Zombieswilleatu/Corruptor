@@ -52,7 +52,7 @@ func _ready() -> void:
 	panel.add_child(column)
 	_label(column, "CHOOSE YOUR LORD & CASTLES", 24)
 	_label(
-		column, "Five Castle slots · maximum two of each type · one shared Castle Guard zone", 16
+		column, "Five Castle slots · exactly one Keep · maximum two of each other type · one shared Castle Guard zone", 16
 	)
 	var players := HBoxContainer.new()
 	players.add_theme_constant_override("separation", 36)
@@ -167,7 +167,7 @@ func _validate() -> void:
 	message.text = (
 		"Start creates a new match. Your Castle types stay fixed for that match."
 		if valid
-		else "Choose no more than two Castles of the same type on either side."
+		else "Choose exactly one Keep and no more than two of each other Castle type."
 	)
 
 
@@ -204,21 +204,6 @@ func _label(parent: Node, value: String, font_size: int) -> Label:
 
 
 func _castle_changed(index: int, pid: int, slot: int) -> void:
-	var previous: String = _accepted_castles[pid][slot]
-	if previous == "Keep" and Slots.TYPES[index] != "Keep":
-		castle_choices[pid][slot].select(Slots.TYPES.find(previous))
-		_validate()
-		if (
-			tutorial_popup
-			. present(
-				tutorials,
-				Tutorials.KEEP_LOADOUT,
-				"BUILDING YOUR FORTRESS",
-				"Keep is strongly suggested for all builds. For beginners, one of each Castle type is also suggested.\n\nYou can still specialize and choose any legal loadout.\n\nIn this test build, Keep's printed power is not connected yet.",
-				_apply_castle_choice.bind(index, pid, slot)
-			)
-		):
-			return
 	_apply_castle_choice(index, pid, slot)
 
 
@@ -256,14 +241,14 @@ static func quickstart_selection(seed_value: String) -> Dictionary:
 		return {}
 	var result: Dictionary = {"lords": [], "castles": [[], []], "quick": true}
 	for pid in [0, 1]:
-		var key: String = "U13_QUICKSTART_V1:player:" + str(pid)
+		var key: String = "U13_QUICKSTART_V2:player:" + str(pid)
 		result.lords.append(LORDS[int(Rng.draw(seed_value, key, "LORD", 0, LORDS.size()).value)])
 		var castles: Array = result.castles[pid]
 		castles.append("Keep")
 		for slot in range(1, Slots.SLOT_COUNT):
 			var legal: Array = []
 			for castle_type in Slots.TYPES:
-				if castles.count(castle_type) < 2:
+				if castle_type != "Keep" and castles.count(castle_type) < Slots.TYPE_LIMIT:
 					legal.append(castle_type)
 			castles.append(
 				legal[int(

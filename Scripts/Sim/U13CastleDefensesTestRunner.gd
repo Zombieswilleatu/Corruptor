@@ -51,6 +51,9 @@ func attack(f: Dictionary, direct: bool = false, ward: Dictionary = {}) -> Dicti
 	return result
 
 func run() -> void:
+	for selection in [["Keep", "Keep", "Bastion", "Stockpile", "SiegeEngine"], ["Bastion", "Bastion", "Stockpile", "SiegeEngine", "SummoningCircle"]]:
+		var invalid_game = Game.new()
+		check(invalid_game.start("invalid-keep", ["Gremory", "Gremory"], [selection, Slots.TYPES]).action == "invalid", "game rejects duplicate or missing Keep")
 	for example in [[7, "active", 5, 5, false], [7, "active", 10, 0, false], [7, "active", 15, 0, true], [6, "active", 5, 1, false], [0, "active", 5, 0, true], [7, "building", 5, 7, true], [0, "ruined", 5, 0, true], [0, "profaned", 5, 0, true]]:
 		var f: Dictionary = fixture("Keep", example[0], example[1], example[2])
 		var result: Dictionary = attack(f)
@@ -66,7 +69,7 @@ func run() -> void:
 	var direct: Dictionary = fixture("Bastion", 7, "active", 16, true)
 	var hit: Dictionary = attack(direct, true)
 	check(row(hit.world, Slots.castle_id(1, 0)).attributes.integrity == 9 and row(hit.world, Slots.castle_id(1, 2)).attributes.integrity == 7, "direct Bastion Siege never spills or uses another Bastion")
-	for kind in ["Keep", "Bastion"]:
+	for kind in ["Bastion"]:
 		var doubled: Dictionary = fixture(kind, 7, "active", 16, true)
 		var after: Dictionary = attack(doubled)
 		check(row(after.world, Slots.castle_id(1, 2)).attributes.integrity == 7 and Defenses.screen(after.world, 1, kind).id == Slots.castle_id(1, 2), "duplicate screen takes over next attack, no stacking")

@@ -55,6 +55,8 @@ func _patch(world: Dictionary, id: String, values: Dictionary) -> void:
 
 func _setup() -> void:
 	_check(Slots.selection_valid(_selection()), "two_copies_legal")
+	_check(not Slots.selection_valid(["Keep", "Keep", "Bastion", "Stockpile", "SiegeEngine"]), "duplicate_keep_rejected")
+	_check(not Slots.selection_valid(["Bastion", "Bastion", "Stockpile", "SiegeEngine", "SummoningCircle"]), "missing_keep_rejected")
 	_check(Slots.selection_valid(Slots.TYPES), "five_distinct_types_legal")
 	_check(
 		not Slots.selection_valid(["SiegeEngine", "SiegeEngine", "SiegeEngine", "Keep", "Keep"]),
