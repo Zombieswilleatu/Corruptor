@@ -73,6 +73,7 @@ static func initialize(raw: Dictionary, seed_value: String) -> Dictionary:
 		}
 	}
 	preload("res://Scripts/Sim/U13Sigils.gd").configure(world)
+	preload("res://Scripts/Sim/U13Fracture.gd").configure(world)
 	Market.initialize(world, seed_value)
 	# Setup draws are already represented in the initial saved state. Private
 	# identities are exposed only by the existing per-player projection.

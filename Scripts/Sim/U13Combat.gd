@@ -16,8 +16,8 @@ const VERSION: String = "U13_GREMORY_BASIC_COMBAT_V1"
 
 
 # Explicit first integration profile: Gremory mirrors, ordinary Siege/Ward,
-# flat Sigils and plain Integrity targets. Basic Hunt is opt-in; named Castle powers, Keep,
-# construction, Fracture and victory orchestration need their own migration.
+# flat Sigils and plain Integrity targets. Later profiles opt into Castle powers,
+# construction, Hunt and game Fracture; victory orchestration remains separate.
 # Refuse unsupported profiles instead of silently treating this as all U12 rules.
 static func valid(world: Dictionary) -> bool:
 	if (
@@ -116,6 +116,10 @@ static func order_shape(order: Dictionary) -> bool:
 	if not Data.is_data(order) or order.get("action") not in ["Siege", "Hunt", "Ward"]:
 		return false
 	var expected: Array = ["action", "lane", "card_ids"]
+	if order.has("fracture_target"):
+		if order.action != "Hunt" or order.fracture_target not in ["subjects", "infrastructure"]:
+			return false
+		expected.append("fracture_target")
 	if order.action in ["Siege", "Hunt"]:
 		expected.append("target_id")
 		if (
@@ -146,6 +150,8 @@ static func accept(context: Dictionary) -> Dictionary:
 	if not order_shape(order):
 		return Data.invalid("combat_order_invalid")
 	var world: Dictionary = context.world
+	if order.has("fracture_target") and world.data.get("fracture_profile") != "U13_FRACTURE_V1":
+		return Data.invalid("fracture_profile_required")
 	if order.get("action") == "Hunt" and world.data.get("hunt_profile") != HUNT_VERSION:
 		return Data.invalid("hunt_profile_required")
 	if context.phase == "snapshot":
@@ -177,6 +183,8 @@ static func accept(context: Dictionary) -> Dictionary:
 static func validate_commit(
 	world: Dictionary, player_id: int, order: Dictionary, entities, hand: Array
 ) -> Dictionary:
+	if order.has("fracture_target") and world.data.get("fracture_profile") != "U13_FRACTURE_V1":
+		return Data.invalid("fracture_profile_required")
 	if not order_shape(order):
 		return Data.invalid("combat_order_invalid")
 	if order.get("action") == "Hunt" and world.data.get("hunt_profile") != HUNT_VERSION:
@@ -610,8 +618,8 @@ static func _snapshot_order(context: Dictionary) -> Dictionary:
 
 # Opt-in basic Hunt for the direct board. U12 HuntResolutionEngine order:
 # Ward -> Lord Guards -> flat Sigil -> Lord DEF, with strict > at the last layer.
-# Gremory and Deimos have printed DEF 4 (GameSetup.LORD_CONTENT). Named Castle
-# effects and Fracture remain separate migrations, as in the rest of this slice.
+# Gremory and Deimos have printed DEF 4. Game profiles additionally route Keep
+# absorption and the banishment fact through their Castle/Fracture authorities.
 static func _hunt(
 	world: Dictionary, context: Dictionary, player_id: int, order: Dictionary, reaction: Callable
 ) -> Dictionary:
@@ -783,6 +791,8 @@ static func _hunt(
 				command["attack_kind"] = "Hunt"
 			if world.data.has("humbaba_profile") and command.kind == "set_breach":
 				command["source_id"] = target.id
+			if command.kind == "banish_lord" and order.has("fracture_target"):
+				command["fracture_target"] = order.fracture_target
 			var applied: Dictionary = _fact(world, command, context, reaction)
 			if applied.action == "invalid":
 				return applied

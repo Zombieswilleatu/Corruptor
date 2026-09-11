@@ -44,8 +44,8 @@ underpays a summon. U13Resummoning's dynamic `return_threat` quote field refers 
 that payment/Mark result, not the printed Fracture rating. Its current mechanics
 are preserved; rules and explanatory text must make the distinction explicit.
 Blood Conduit prevents an applicable Threat gain; it does not prevent Fracture
-or convert banishment damage into Threat. The complete Fracture gameplay port is
-still pending and belongs in the banishment/lifecycle queue.
+or convert banishment damage into Threat. The later `U13_FRACTURE_2026-09-11.md`
+checkpoint implements the printed banishment effect in the full-game conductor.
 
 ## Verification
 

@@ -1,5 +1,7 @@
 extends "res://Scripts/Sim/U13Kanifous.gd"
 
+const Fracture = preload("res://Scripts/Sim/U13Fracture.gd")
+
 const Sigils = preload("res://Scripts/Sim/U13Sigils.gd")
 const Market = preload("res://Scripts/Sim/U13GameMarket.gd")
 const Economy = preload("res://Scripts/Sim/U13GameEconomy.gd")
@@ -12,11 +14,22 @@ func create_combat_match():
 	for power in rules():
 		validators[power] = Callable(self, "validate")
 		resolvers[power] = Callable(self, "resolve")
-	return MatchOwner.new(Sigils.VERSION + ":" + Conduit.VERSION + ":" + Market.VERSION + ":" + CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY, rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Guards, "legal_orders"))
+	return MatchOwner.new(Fracture.VERSION + ":" + Sigils.VERSION + ":" + Conduit.VERSION + ":" + Market.VERSION + ":" + CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY, rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Guards, "legal_orders"))
 
 
 func valid_world(world: Dictionary) -> bool:
-	return super.valid_world(world) and Economy.valid(world) and Market.valid(world) and Sigils.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
+	return super.valid_world(world) and Fracture.valid(world) and Economy.valid(world) and Market.valid(world) and Sigils.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
+
+
+func react(raw: Dictionary, fact: Dictionary, seed_value: String, player_order: Array) -> Dictionary:
+	var result: Dictionary = super.react(raw, fact, seed_value, player_order)
+	if result.action == "invalid" or fact.type != "LORD_BANISHED":
+		return result
+	var fractured: Dictionary = Fracture.resolve(result.world, fact, seed_value, player_order, Callable(self, "react"))
+	if fractured.action == "invalid":
+		return fractured
+	fractured.events = result.events + fractured.events
+	return fractured
 
 
 func on_hook(context: Dictionary) -> Dictionary:
@@ -48,6 +61,12 @@ func on_hook(context: Dictionary) -> Dictionary:
 
 func accept_order(context: Dictionary) -> Dictionary:
 	if context.phase == "snapshot":
+		if context.order.get("action") == "Hunt" and context.next_hook_index > Timeline.hook_rank(Timeline.COMBAT_RESOLUTION):
+			var banishment: String = Data.instance_id("battle", str(context.round), "hunt:%d:lord:%s" % [context.player_id, context.order.target_id])
+			if context.world.data.get("battle_commands", {}).has(banishment):
+				var fracture: Dictionary = context.world.data.fracture_events.get(banishment, {})
+				if fracture.is_empty() or fracture.player_id != 1 - context.player_id or (context.order.has("fracture_target") and fracture.category != context.order.fracture_target):
+					return Data.invalid("fracture_snapshot_order_invalid")
 		for entry in [["aged_round", Timeline.ROUND_START_AUTOMATIC], ["created_round", Timeline.COMMITMENT_REVEAL]]:
 			var sigil_round: int = context.round - (1 if context.next_hook_index <= Timeline.hook_rank(entry[1]) else 0)
 			if context.world.data.sigil_lifecycle[entry[0]] != sigil_round:

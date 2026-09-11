@@ -1,5 +1,8 @@
 # U13 production opening economy
 
+The user reported this checkpoint's 12/12 gate green. The following Fracture
+checkpoint expands the gate to 13/13; see `U13_FRACTURE_2026-09-11.md`.
+
 This checkpoint replaces the provisional all-unbuilt/free-Lord setup in the
 full-game conductor. It does not change U12 or the deliberately small U13 visual
 exercise openings.

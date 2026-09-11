@@ -60,7 +60,7 @@ static func apply(
 			details["castle"] = target
 			entities.retire(target.id)
 			event_type = "CASTLE_DESTROYED"
-		"ruin_castle", "ruin_castle_hazard":
+		"ruin_castle", "ruin_castle_hazard", "ruin_castle_fracture":
 			if world.data.get("combat_profile") != "U13_CORE_ARTILLERY_COMBAT_V1":
 				return Data.invalid("ruined_structure_profile_required")
 			if (
@@ -70,15 +70,17 @@ static func apply(
 				or target.attributes.get("construction_state", "active") != "active"
 			):
 				return Data.invalid("castle_not_ruinable")
-			var hazard: bool = command.kind == "ruin_castle_hazard"
+			var fracture: bool = command.kind == "ruin_castle_fracture"
+			var hazard: bool = command.kind == "ruin_castle_hazard" or fracture
 			if hazard:
 				var source: Dictionary = entities.get_entity(String(command.get("source_id", "")))
 				if (
 					source.is_empty()
 					or source.kind != "lord"
 					or source.attributes.get("alive", true)
-					or source.attributes.get("lord_id") != world.data.get("breach_lord")
-					or command.get("cause") != "breach"
+					or (not fracture and source.attributes.get("lord_id") != world.data.get("breach_lord"))
+					or command.get("cause") != ("fracture" if fracture else "breach")
+					or (fracture and (world.data.get("fracture_profile") != "U13_FRACTURE_V1" or source.owner != target.owner))
 					or command.has("player_id")
 				):
 					return Data.invalid("castle_hazard_source_invalid")
@@ -120,6 +122,12 @@ static func apply(
 		"banish_lord":
 			if target.is_empty() or target.kind != "lord":
 				return Data.invalid("lord_missing")
+			if world.data.get("fracture_profile") == "U13_FRACTURE_V1":
+				if not target.attributes.alive or command.get("fracture_target", "") not in ["", "subjects", "infrastructure"]:
+					return Data.invalid("fracture_banishment_invalid")
+				details["fracture_target"] = command.get("fracture_target", "")
+				if target.attributes.has("threat"):
+					target.attributes.threat = 0
 			if command.has("attacker_id"):
 				var attacker: Dictionary = entities.get_entity(String(command.attacker_id))
 				if (

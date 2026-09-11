@@ -1,6 +1,7 @@
 > Follow-up: Blood Conduit is implemented in `U13_BLOOD_CONDUIT_2026-09-11.md`.
 > That note also distinguishes printed Fracture from summon-payment Threat.
-> Sigil lifecycle is implemented; see U13_SIGILS_2026-09-11.md. The full Fracture banishment effect remains pending.
+> Sigil lifecycle and printed Fracture are implemented; see
+> `U13_SIGILS_2026-09-11.md` and `U13_FRACTURE_2026-09-11.md`.
 
 # Final playable U12 versus migrated U13 — audit
 
@@ -62,9 +63,8 @@ checkpoint at **11/11**; the production-opening change expands the next gate to
 
 ## Revised queue
 
-1. Complete printed Fracture and the remaining banishment lifecycle.
-2. Waiter spending, Dominion rites, Vacant Throne, Veil and actual victory.
-3. Full-match Random-Legal acceptance, then playable UI with the Slaver's actual
+1. Waiter spending, Dominion rites, Vacant Throne, Veil and actual victory.
+2. Full-match Random-Legal acceptance, then playable UI with the Slaver's actual
    offer presentation and established warning/selection behavior.
 
 Later reviews must follow the playable controller and active config, compare the

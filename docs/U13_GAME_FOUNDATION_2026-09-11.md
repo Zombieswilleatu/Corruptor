@@ -1,8 +1,8 @@
 # U13 full-game foundation — milestone 1
 
-**Current checkpoint:** `U13_PRODUCTION_OPENING_2026-09-11.md` settles the active
-Castle and paid-Lord opening, preserves U13's one-Castle-action rule, and expands
-the game runner to 12/12.
+**Current checkpoint:** `U13_FRACTURE_2026-09-11.md` adds printed Fracture on
+banishment and expands the game runner to 13/13. The user accepted the preceding
+production-opening gate at 12/12.
 
 **Accepted previous checkpoint:** the user reported the Sigil-expanded 11/11
 game gate green on Windows Godot 4.7.2 at `3ef5964`.
@@ -33,7 +33,7 @@ This commit begins that work; it does not claim the full-match gate is green.
 bash Scripts/Sim/run_u13_game.sh "$GODOT_U13"
 ```
 
-Expected: **12/12 game foundation runners**, on Windows Godot 4.7.2 stable.
+Expected: **13/13 game foundation runners**, on Windows Godot 4.7.2 stable.
 This is a headless gate, not the playable board. The wrapper preserves failure
 logs and checks both process status and explicit success markers. Its per-suite
 watchdog is 90 seconds, matching the recent focused Kanifous wrapper.
@@ -49,8 +49,8 @@ Local compatibility testing uses Godot 4.5.1; it does not replace that Windows g
 - `U13GameConductor`: validated loadout, setup, round advancement, two complete
   submissions, public views and atomic save/restore. An invalid second plan leaves
   the first player's live state untouched. Existing legality remains authoritative.
-- Twelve focused runners cover economy/opening, all nine Lords, every-hook replay,
-  Development, Castle powers, Slaver choices, Sigils, and Random-Legal rounds.
+- Thirteen focused runners cover economy/opening, all nine Lords, every-hook
+  replay, Fracture, Development, Castle powers, Slaver, Sigils and Random-Legal.
 
 No U12 or UI2 implementation was modified. Existing U13 visual/fixture runners
 retain their previous economy while the full-game path is assembled separately.
@@ -96,7 +96,7 @@ model instead of importing the U12 controller wholesale.
 | Player UI / Action Window / theater | Existing presentation references | `Prototype/UI2/ActionZone.gd`, `ResolutionTheater.gd`, U13 counterparts; observe resolved events only |
 | Forecast / smart doctrine | Later phase | `ActionForecast`, `BotDoctrine`, `BotDeployDoctrine`, `BotDominionRiteDoctrine`; reuse heuristics, not old authority |
 
-Next milestone: complete waiter spending, printed Fracture/banishment, Dominion,
+Next milestone: complete waiter spending, Dominion,
 Vacant Throne, and the Veil/win lifecycle. Only after genuine game termination
 exists should
 100–1,000 full games be called the autonomous match gate. A round budget must

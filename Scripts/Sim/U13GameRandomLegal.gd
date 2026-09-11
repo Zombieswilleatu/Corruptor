@@ -5,7 +5,7 @@ const Scenario = preload("res://Scripts/Sim/U13KanifousScenario.gd")
 const Legality = preload("res://Scripts/Sim/U13Legality.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
-const VERSION: String = "U13_GAME_RANDOM_LEGAL_V1"
+const VERSION: String = "U13_GAME_RANDOM_LEGAL_V2"
 
 
 static func plan(owner, pid: int) -> Dictionary:
@@ -39,6 +39,8 @@ static func plan(owner, pid: int) -> Dictionary:
 				combat.append(candidate)
 				seen[identity] = true
 	order = _choose(owner, pid, powers, order, combat, "combat")
+	if order.get("action") == "Hunt":
+		order["fracture_target"] = ["subjects", "infrastructure"][_pick(owner, pid, "fracture", 2)]
 	var amount: int = _pick(owner, pid, "guard-count", int(view.world.guard_placement_limits[pid]) + 1)
 	for index in range(amount):
 		var legal: Array = owner.legal_order_candidates(pid, powers, Development.guard_orders(view, powers, order))
