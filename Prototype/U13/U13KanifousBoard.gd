@@ -10,6 +10,7 @@ var wish_note: Label
 var price_note: Label
 var wish_placement
 var wish_visual
+var price_visual
 
 func _build() -> void:
 	super._build()
@@ -35,6 +36,8 @@ func _build() -> void:
 	wish_visual = preload("res://Prototype/U13/U13WishmasterVisual.gd").new()
 	add_child(wish_visual)
 	wish_visual.battlefield = lanes
+	price_visual = preload("res://Prototype/U13/U13WishPriceVisual.gd").new()
+	add_child(price_visual)
 	void_overlay = ColorRect.new()
 	void_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	void_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -118,6 +121,8 @@ func _complete_job() -> void:
 	var previous = session
 	var operation: String = _job_operation
 	super._complete_job()
+	if session != previous and price_visual != null:
+		price_visual.present(session.kanifous_events, sides)
 	if session != previous and operation == "marching" and wish_visual != null:
 		wish_visual.play_events(session.kanifous_events)
 

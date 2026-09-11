@@ -187,7 +187,17 @@ func interactions() -> void:
 	Content.Lamp.advance(again, Timeline.MARCHING_START, 2, "lamp-spawn")
 	check(model.data.kanifous_objects == again.data.kanifous_objects, "keyed spawn replay")
 	var spawned: Dictionary = model.data.kanifous_objects[0]
-	check(spawned.phase == "lamp" and spawned.target.lane == smoke.target.lane and Content.Lamp.distance(spawned.target.field_position, smoke.target.field_position) <= 180 * 180, "spawn within telegraphed lane and radius")
+	check(spawned.phase == "lamp" and spawned.target.lane == smoke.target.lane and Content.Lamp.distance(spawned.target.field_position, smoke.target.field_position) <= 540 * 540, "spawn within telegraphed lane and radius")
+	var beyond_old_radius: bool = false
+	var bounded: bool = true
+	for sample in range(64):
+		var probe: Dictionary = snapshot.match.world.duplicate(true)
+		Content.Lamp.advance(probe, Timeline.MARCHING_START, 2, "wide-lamp-%d" % sample)
+		var point: Dictionary = probe.data.kanifous_objects[0].target.field_position
+		var distance: int = Content.Lamp.distance(point, smoke.target.field_position)
+		beyond_old_radius = beyond_old_radius or distance > 180 * 180
+		bounded = bounded and distance <= 540 * 540 and point.x_fp >= 0 and point.x_fp <= 2400 and point.y_fp >= 0 and point.y_fp <= 600
+	check(beyond_old_radius and bounded, "wider lamp scatter stays in lane")
 	Content.Lamp.advance(model, Timeline.END_MARCHING_CHECKS, 2, "lamp-spawn")
 	check(model.data.kanifous_objects.is_empty(), "unclaimed lamp expires")
 

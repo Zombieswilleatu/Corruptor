@@ -166,6 +166,20 @@ func _price(raw: Dictionary, price: Dictionary, context: Dictionary) -> Dictiona
 	for index in range(mini(targets.size(), 2 if outcome in ["Cards", "Blood"] else 1)):
 		var pick: int = Lamp.draw(context.seed, price.id, "PRICE_TARGET", targets.size(), index)
 		chosen.append(targets.pop_at(pick))
+	var taken: Array = []
+	for target in chosen:
+		if typeof(target) != TYPE_STRING:
+			continue
+		for entity in raw.entities.entities:
+			if entity.id != target:
+				continue
+			var a: Dictionary = entity.attributes
+			if entity.kind == "castle":
+				taken.append("%s (slot %d)" % [a.get("castle_type", "Castle"), int(a.get("castle_slot", 0)) + 1])
+			elif entity.kind == "lord":
+				taken.append(a.get("lord_id", "Lord"))
+			else:
+				taken.append("%s %s · %s%s" % [str(a.get("value", "")), a.get("suit", "Card"), "Marcher" if entity.kind == "marcher" else a.get("role", "card"), " · " + str(a.get("lane", a.get("guard_zone", "")))])
 	var ids = Ids.new()
 	ids.restore(world.entities)
 	match outcome:
@@ -204,7 +218,7 @@ func _price(raw: Dictionary, price: Dictionary, context: Dictionary) -> Dictiona
 	world.entities = ids.snapshot()
 	if outcome in ["Stone", "Soul", "Ruin", "Wishmaster"]:
 		world.data.neutral_tears += 1
-	events.append(Lamp.event("KANIFOUS_PRICE_RESOLVED", {"id": price.id, "outcome": outcome, "targets": chosen, "player_id": pid, "round": context.round}))
+	events.append(Lamp.event("KANIFOUS_PRICE_RESOLVED", {"id": price.id, "outcome": outcome, "targets": chosen, "taken": taken, "player_id": pid, "round": context.round}))
 	return {"action": "resolved", "world": world, "events": events}
 
 func project(world: Dictionary, player_id: int) -> Dictionary:

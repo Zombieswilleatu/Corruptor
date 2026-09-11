@@ -38,6 +38,24 @@ func _run() -> void:
 		_check(board._job == null and board.playing, "Wish resolves through board worker")
 		_check(not board.session.board_view().world.wish_prices.is_empty(), "Price due round available")
 		board.finish_playback()
+		for attempt in range(3):
+			board._start_job("next_round")
+			deadline = Time.get_ticks_msec() + 60000
+			while board._job != null and Time.get_ticks_msec() < deadline:
+				await process_frame
+			if board.price_visual.visible:
+				break
+			board.session._opponent = {"powers": [], "order": {}}
+			board._start_job("marching", [], {})
+			deadline = Time.get_ticks_msec() + 60000
+			while board._job != null and Time.get_ticks_msec() < deadline:
+				await process_frame
+			board.finish_playback()
+		_check(board.price_visual.visible and board.price_visual.copy.text.contains("THE PRICE OF WISHES"), "due Price automatically opens readable popup")
+		var price_state: Dictionary = board.session.checkpoint()
+		board.price_visual._next()
+		_check(not board.price_visual.visible and board.session.checkpoint() == price_state, "acknowledging Price changes no game state")
+		_check(board.wish_visual.lamp_texture != null, "provided lamp art loaded")
 		var before: Dictionary = board.session.checkpoint()
 		var obscured: Dictionary = board.session.board_view()
 		obscured.world.void_active = true

@@ -2,7 +2,7 @@ extends Control
 
 # Replaceable art hooks. Missing sprites use explicit smoke/lantern placeholders.
 @export var smoke_texture: Texture2D
-@export var lamp_texture: Texture2D
+@export var lamp_texture: Texture2D = preload("res://ConceptImages/Sprites/Kanifous/Lamp.png")
 signal presentation_event(kind: String, details: Dictionary)
 var battlefield
 var objects: Array = []
@@ -50,11 +50,6 @@ func _draw() -> void:
 		var p: Dictionary = row.target.field_position
 		var center: Vector2 = lane.position + Vector2(float(p.y_fp) / 600.0, 1.0 - float(p.x_fp) / 2400.0) * lane.size
 		if row.phase == "smoke":
-			var points := PackedVector2Array()
-			for i in range(65):
-				var a: float = TAU * i / 64.0
-				points.append(center + Vector2(cos(a) * lane.size.x / 600.0, sin(a) * lane.size.y / 2400.0) * 180)
-			draw_polyline(points, Color(0.75, 0.6, 0.95, 0.65), 1.5, true)
 			if smoke_texture != null:
 				draw_texture_rect(smoke_texture, Rect2(center - Vector2(24, 36), Vector2(48, 48)), false)
 			else:
@@ -64,7 +59,7 @@ func _draw() -> void:
 			draw_string(ThemeDB.fallback_font, center + Vector2(-28, 24), "Lamp R%d" % row.due_round, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color("dac2ee"))
 		else:
 			if lamp_texture != null:
-				draw_texture_rect(lamp_texture, Rect2(center - Vector2(18, 18), Vector2(36, 36)), false)
+				draw_texture_rect(lamp_texture, Rect2(center - Vector2(32, 32), Vector2(64, 64)), false)
 			else:
 				draw_circle(center, 12, Color("c9943b"))
 				draw_arc(center, 16, 0, TAU, 32, Color("f2dc94"), 2, true)

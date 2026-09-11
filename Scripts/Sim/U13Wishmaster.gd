@@ -6,7 +6,7 @@ const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Fields = preload("res://Scripts/Sim/U13SpatialFields.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const VERSION: String = "U13_KANIFOUS_V1"
-const RADIUS: int = 180
+const RADIUS: int = 540
 const CONTACT: int = 65
 const DEATH_RADIUS: int = 270
 
@@ -46,7 +46,7 @@ static func advance(world: Dictionary, hook: String, round_number: int, seed_val
 			for attempt in range(128):
 				var dx: int = draw(seed_value, row.id, "LAMP_X", RADIUS * 2 + 1, attempt) - RADIUS
 				var dy: int = draw(seed_value, row.id, "LAMP_Y", RADIUS * 2 + 1, attempt) - RADIUS
-				if dx * dx + dy * dy <= RADIUS * RADIUS:
+				if dx * dx + dy * dy <= RADIUS * RADIUS and origin.x_fp + dx >= 0 and origin.x_fp + dx <= 2400 and origin.y_fp + dy >= 0 and origin.y_fp + dy <= 600:
 					origin.x_fp += dx
 					origin.y_fp += dy
 					break
