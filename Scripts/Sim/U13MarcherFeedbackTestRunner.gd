@@ -6,6 +6,7 @@ const EventLog = preload("res://Scripts/Sim/U13EventLog.gd")
 
 
 func _run() -> void:
+	_death_animation()
 	_hazard_numbers()
 	_regeneration_numbers()
 	_tick_numbers()
@@ -266,3 +267,31 @@ func _filtered_projection() -> void:
 		log.selected_for_player(0, 3, Feedback.TYPES, Timeline.MARCHING).is_empty(),
 		"feedback_cursor_excludes_prior_rounds"
 	)
+
+
+func _death_animation() -> void:
+	var visual = preload("res://Prototype/U13/U13MarcherDeathVisual.gd").new()
+	var unit: Dictionary = {"id": "dead", "kind": "marcher", "owner": 0, "attributes": {"hp": 2, "armor": 1, "max_hp": 2, "suit": "Butcher", "lane": "Lord", "x_fp": 1200, "y_fp": 300}}
+	var original: Dictionary = unit.duplicate(true)
+	visual.observe([], [unit])
+	_check(visual.visible.is_empty(), "death_initial_population_is_not_a_casualty")
+	visual.observe([unit], [])
+	visual.observe([unit], [])
+	_check(visual.visible.size() == 1 and visual.texture != null, "death_removal_plays_once_and_loads_source_atlas")
+	visual.advance(0.16)
+	_check(visual.visible.size() == 1 and visual.visible[0].age > visual.FLASH_DURATION, "death_ghost_continues_after_chit_flash_ends")
+	visual.advance(0.4)
+	_check(visual.visible.is_empty() and unit == original, "death_animation_finishes_without_world_mutation")
+	visual.clear()
+	_check(visual.seen.is_empty(), "death_restart_clears_casualty_history")
+	var zero: Dictionary = unit.duplicate(true)
+	zero.attributes.hp = 0
+	visual.observe([unit], [zero])
+	visual.observe([zero], [])
+	_check(visual.visible.size() == 1, "death_zero_hp_then_removal_does_not_duplicate")
+	var playback = Playback.new()
+	playback._append({unit.id: unit}, "start", [])
+	playback.duration = 0.1
+	playback._append({}, "removed by any cause", [])
+	var drained: Dictionary = playback.deaths_through(5, 0)
+	_check(drained.rows.size() == 1 and drained.rows[0].unit == original and playback.deaths_through(5, drained.cursor).rows.is_empty(), "death_tape_drain_catches_skipped_frames_once")

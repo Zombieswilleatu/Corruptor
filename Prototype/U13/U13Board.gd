@@ -89,6 +89,7 @@ var _impact_cursor: int = 0
 var _impact_clock: float = 0.0
 var _impact_duration: float = 0.0
 var _feedback_cursor: int = 0
+var _death_cursor: int = 0
 var _previous_frame_us: int = 0
 var playing: bool = false
 var clock: float = 0.0
@@ -665,6 +666,9 @@ func _process(delta: float) -> void:
 		return
 	_busy_label.text = ""
 	clock = minf(playback.duration, clock + maxf(delta, 0.0))
+	var casualties: Dictionary = playback.deaths_through(clock, _death_cursor)
+	_death_cursor = int(casualties.cursor)
+	lanes.show_deaths(casualties.rows)
 	lanes.show_frame(playback.sample(clock), session.round_number())
 	var changes: Dictionary = playback.feedback_through(clock, _feedback_cursor)
 	_feedback_cursor = int(changes.cursor)
@@ -698,6 +702,7 @@ func _complete_job() -> void:
 	_install_impacts(result.get("feedback", []))
 	if result.operation == "marching":
 		_feedback_cursor = 0
+		_death_cursor = 0
 		playback = result.playback
 		clock = 0.0
 		playing = true

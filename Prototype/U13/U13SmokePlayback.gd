@@ -6,6 +6,8 @@ extends RefCounted
 # captured endpoints is visual interpolation, independent of frame rate.
 const Feedback = preload("res://Prototype/U13/U13MarcherFeedback.gd")
 var feedback_rows: Array = []
+var death_rows: Array = []
+var _death_ids: Dictionary = {}
 var _previous_units: Dictionary = {}
 var _terminal: Dictionary = {}
 
@@ -20,6 +22,8 @@ var _spatial: bool = false
 func build(events: Array) -> bool:
 	_frames = []
 	feedback_rows = []
+	death_rows = []
+	_death_ids = {}
 	_previous_units = {}
 	_terminal = {}
 	_spatial = false
@@ -129,6 +133,9 @@ func _append(units: Dictionary, caption: String, clash: Array) -> void:
 	for entity_id in _previous_units:
 		var before: Dictionary = _previous_units[entity_id]
 		var after: Dictionary = units.get(entity_id, {})
+		if (after.is_empty() or int(after.attributes.hp) <= 0) and not _death_ids.has(entity_id):
+			_death_ids[entity_id] = true
+			death_rows.append({"at": duration, "unit": (before if after.is_empty() else after).duplicate(true)})
 		var hp: int = int(before.attributes.hp)
 		var armor: int = int(before.attributes.armor)
 		if not after.is_empty():
@@ -211,5 +218,15 @@ func feedback_through(seconds: float, cursor: int) -> Dictionary:
 	var next: int = clampi(cursor, 0, feedback_rows.size())
 	while next < feedback_rows.size() and float(feedback_rows[next].at) <= seconds:
 		rows.append(feedback_rows[next].duplicate(true))
+		next += 1
+	return {"rows": rows, "cursor": next}
+
+
+# Drain every recorded casualty even when a slow display skips sampled ticks.
+func deaths_through(seconds: float, cursor: int) -> Dictionary:
+	var rows: Array = []
+	var next: int = clampi(cursor, 0, death_rows.size())
+	while next < death_rows.size() and float(death_rows[next].at) <= seconds:
+		rows.append(death_rows[next])
 		next += 1
 	return {"rows": rows, "cursor": next}

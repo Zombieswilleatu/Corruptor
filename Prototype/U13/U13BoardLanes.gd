@@ -7,6 +7,7 @@ const ScorchVisuals = preload("res://Prototype/U13/U13ScorchVisuals.gd")
 var scorch_visuals = ScorchVisuals.new()
 const Feedback = preload("res://Prototype/U13/U13MarcherFeedback.gd")
 var feedback = Feedback.new()
+var deaths = preload("res://Prototype/U13/U13MarcherDeathVisual.gd").new()
 const BreathVisuals = preload("res://Prototype/U13/U13BreathVisuals.gd")
 var breath_visuals = BreathVisuals.new()
 var domain: Texture2D
@@ -47,6 +48,7 @@ func bind_auras(records: Array, round_number: int) -> void:
 
 
 func _ready() -> void:
+	deaths.texture = Art.texture("res://ConceptImages/Sprites/Effects/MarcherDeath.png")
 	chit_sheet = Art.texture("res://ConceptImages/Sprites/Chits.png")
 	domain = Art.texture("res://ConceptImages/Menus/Domain1.png")
 	skin = Art.texture("res://ConceptImages/Menus/Battlefield.png")
@@ -99,7 +101,7 @@ func _draw() -> void:
 		action = "CLASH"
 		var index: int = 0
 		for unit in _units:
-			if unit.id not in _clash:
+			if unit.id not in _clash or deaths.seen.has(unit.id):
 				continue
 			_draw_chit(unit, Vector2(54 + (index % 4) * 56, 176))
 			index += 1
@@ -190,7 +192,7 @@ func _draw() -> void:
 		var bottom: float = rect.end.y - 52
 		for unit in _units:
 			var a: Dictionary = unit.attributes
-			if a.lane != lane:
+			if a.lane != lane or deaths.seen.has(unit.id):
 				continue
 			# Global x=0 is the human end (bottom), x=2400 the enemy end (top).
 			var y: float = lerpf(
@@ -213,13 +215,14 @@ func _draw() -> void:
 				)
 
 	_draw_feedback()
+	deaths.draw(self)
 
 
 var paradox_glitches: Dictionary = {}
 const ParadoxTiming = preload("res://Prototype/U13/U13ParadoxTiming.gd")
 
 
-func _draw_chit(unit: Dictionary, center: Vector2) -> void:
+func _draw_chit(unit: Dictionary, center: Vector2, flash: bool = false) -> void:
 	var attributes: Dictionary = unit.attributes
 	var tint: Color = BLUE if unit.owner == 0 else RED
 	if chit_sheet != null:
@@ -234,6 +237,8 @@ func _draw_chit(unit: Dictionary, center: Vector2) -> void:
 			Rect2(center - Vector2(22, 22), Vector2(44, 44)),
 			Rect2(Vector2(float(column), row) * cell, cell),
 			float(glitch.get("amount", 0.0)), int(glitch.get("tick", 0)))
+		if flash:
+			draw_texture_rect_region(chit_sheet, Rect2(center - Vector2(22, 22), Vector2(44, 44)), Rect2(Vector2(float(column), row) * cell, cell), Color(4, 4, 4, 1))
 	rout_visuals.draw_chit(self, String(unit.id), center)
 	var health: float = clampf(float(attributes.hp) / maxf(1.0, float(attributes.max_hp)), 0.0, 1.0)
 	if void_active and health > 0:
@@ -282,6 +287,8 @@ func pulse_lanes(selected_lane: String = "") -> void:
 
 
 func reset_effects() -> void:
+	deaths.clear()
+	_units = []
 	rout_visuals.clear()
 	scorch_visuals.clear()
 	feedback.clear()
@@ -294,7 +301,8 @@ func reset_effects() -> void:
 
 func _effects_need_process() -> bool:
 	return (
-		not active_webs.is_empty()
+		not deaths.visible.is_empty()
+		or not active_webs.is_empty()
 		or breath_visuals.textures.size() < 5
 		or scorch_visuals.textures.size() < 3
 		or not breath_visuals.groups.is_empty()
@@ -316,6 +324,7 @@ func _process(delta: float) -> void:
 	breath_visuals.advance(delta)
 	scorch_visuals.advance(delta)
 	feedback.advance(delta)
+	deaths.advance(delta)
 	rout_visuals.advance(delta)
 	queue_redraw()
 	if not _effects_need_process():
@@ -411,3 +420,19 @@ func bind_webs(records: Array) -> void:
 func travel_rect(lane: String) -> Rect2:
 	var width: float = (size.x - 37) / 2.0
 	return Rect2(16 + (width + 5) * (1 if lane == "Castle" else 0), 344, width, maxf(1, size.y - 420))
+
+
+func show_world(entities: Array, round_number: int) -> void:
+	deaths.observe(_units, entities)
+	super.show_world(entities, round_number)
+	set_process(_effects_need_process())
+
+func show_frame(frame: Dictionary, round_number: int) -> void:
+	deaths.observe(_units, frame.units)
+	super.show_frame(frame, round_number)
+	set_process(_effects_need_process())
+
+func show_deaths(rows: Array) -> void:
+	for row in rows:
+		deaths.add(row.unit)
+	set_process(_effects_need_process())
