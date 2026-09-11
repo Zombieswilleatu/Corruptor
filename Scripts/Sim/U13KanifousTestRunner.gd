@@ -12,6 +12,7 @@ func check(value: bool, title: String) -> bool:
 	print(("PASS " if value else "FAIL ") + title)
 	return value
 func run() -> void:
+	balance_and_debt()
 	mechanics()
 	interactions()
 	mirror_marching()
@@ -41,6 +42,17 @@ func run() -> void:
 					return
 			if round_number < 4:
 				check(owner.begin_next_round([0, 1]).action != "invalid", "next round")
+		var checkpoint: Dictionary = owner.snapshot()
+		checkpoint.world.data.kanifous_prices.append({"id": "old-debt", "owner": 0, "created_round": 1, "due_round": 2})
+		var debtor = Content.new().create_combat_match()
+		if check(debtor.restore(JSON.parse_string(JSON.stringify(checkpoint))).action != "invalid", "actual match restores overdue debt"):
+			check(debtor.begin_next_round([0, 1]).action != "invalid", "resume overdue debt next round")
+			for i in range(5):
+				if debtor.next_hook() == Timeline.SUBMISSION_LOCK:
+					break
+				if not check(debtor.run_next_hook().action != "invalid", "overdue debt round hook"):
+					break
+			check(not debtor.snapshot().world.data.kanifous_prices.any(func(p): return p.id == "old-debt"), "round hook removes overdue debt after collection")
 	print("U13 Kanifous failures: ", failures)
 	quit(failures)
 
@@ -228,3 +240,63 @@ func mirror_marching() -> void:
 		for row in result.events:
 			events.append(row.event)
 		check(playback.build(events), "Mirror fresh identity supported by playback tape")
+
+
+func balance_and_debt() -> void:
+	var counts: Array = [0, 0, 0]
+	var replay: bool = true
+	for i in range(1000):
+		var n: int = Content.Lamp.power_count("balance-%d" % i, "wish")
+		counts[n - 1] += 1
+		replay = replay and n == Content.Lamp.power_count("balance-%d" % i, "wish")
+	check(replay and counts[0] > 600 and counts[1] > 150 and counts[1] < 350 and counts[2] > 0 and counts[2] < 100, "Wish count favors one and rarely three with keyed replay")
+	var content = Content.new()
+	var world: Dictionary = Scenario.world()
+	var ids = Content.Ids.new()
+	ids.restore(world.entities)
+	for x in [990, 1100, 1200, 1290, 1301]:
+		var a: Dictionary = Content.Marching.profile("Butcher", "Lord", 0, 1, 1)
+		a.x_fp = x
+		a.y_fp = 300
+		ids.create("marcher", "death-radius", x, 0, a)
+	world.entities = ids.snapshot()
+	var source: Dictionary = Scenario.source(0, 1, {"lane": "Lord", "field_position": {"x_fp": 1200, "y_fp": 300}}, 0, "WishDeath")
+	var ctx: Dictionary = {"world": world, "round": 1, "seed": "balance", "hook": Timeline.POST_RESOLUTION_DIRECT, "player_order": [0, 1]}
+	var hit: Dictionary = content.resolve({"declaration": source}, ctx)
+	check(hit.action != "invalid" and hit.world.entities.entities.filter(func(e): return e.kind == "marcher").size() == 2, "small Death circle hits three close Marchers and spares outside units")
+	for pid in [0, 1]:
+		var a: Dictionary = Content.Marching.profile("Butcher", "Lord", pid, 1, 1)
+		a.x_fp = 1200
+		a.y_fp = 300
+		var lamps: Array = [{"id": "b", "phase": "lamp", "target": {"lane": "Lord", "field_position": {"x_fp": 1200, "y_fp": 480}}}]
+		check(not Content.Lamp.nearby_lamp(a, lamps).is_empty(), "lamp attraction includes radius 180")
+		lamps[0].target.field_position.y_fp = 481
+		check(Content.Lamp.nearby_lamp(a, lamps).is_empty(), "lamp attraction excludes radius 181")
+		lamps[0].target.field_position.y_fp = 440
+		var fresh = Content.Ids.new()
+		var unit: Dictionary = fresh.create("marcher", "lamp-steer", pid, pid, a).entity
+		var buffer = Content.Marching.Buffer.new()
+		buffer.restore(fresh.snapshot())
+		Content.Marching._move(buffer, {}, {"round": 1, "wishmaster_lamps": lamps}, 200)
+		var after: Dictionary = buffer.get_entity(unit.id).attributes
+		check(after.x_fp == 1200 and after.y_fp > 300 and after.lane == "Lord", "both sides steer toward lamp at normal speed in own lane")
+		lamps[0].phase = "smoke"
+		check(Content.Lamp.nearby_lamp(a, lamps).is_empty(), "smoke never attracts")
+		lamps[0].phase = "lamp"
+		lamps[0].target.lane = "Castle"
+		check(Content.Lamp.nearby_lamp(a, lamps).is_empty(), "other lane lamp never attracts")
+		lamps[0].target.lane = "Lord"
+		var tied: Dictionary = lamps[0].duplicate(true)
+		tied.id = "a"
+		check(Content.Lamp.nearby_lamp(a, [lamps[0], tied]).id == "a" and Content.Lamp.nearby_lamp(a, [tied, lamps[0]]).id == "a", "equal distance lamps use stable ID tie")
+	var debt: Dictionary = {"id": "debt", "owner": 0, "created_round": 1, "due_round": 2}
+	var empty: Dictionary = {"entities": Content.Ids.new().snapshot(), "players": [{"resources": {"souls": 0}}, {"resources": {"souls": 0}}], "data": {"card_zones": {"hands": [[], []]}, "kanifous_prices": [debt], "neutral_tears": 0}}
+	var deferred: Dictionary = content._price(empty, debt, {"round": 2, "seed": "debt"})
+	check(deferred.get("deferred", false) and deferred.world.data.kanifous_prices[0].id == "debt" and deferred.world.data.kanifous_prices[0].due_round == 2 and empty.data.kanifous_prices[0].due_round == 2, "unpayable Price remains owed without mutating caller")
+	for round_number in range(3, 8):
+		deferred = content._price(deferred.world, deferred.world.data.kanifous_prices[0], {"round": round_number, "seed": "debt"})
+	check(deferred.world.data.kanifous_prices[0] == debt, "debt survives repeated missed collections beyond original delay")
+	var resumed: Dictionary = JSON.parse_string(JSON.stringify(deferred.world))
+	resumed.players[0].resources.souls = 1
+	var collected: Dictionary = content._price(resumed, resumed.data.kanifous_prices[0], {"round": 8, "seed": "debt"})
+	check(not collected.get("deferred", false) and collected.world.players[0].resources.souls == 0 and collected.events[-1].event.data.id == "debt", "saved debt collects when payment becomes available")

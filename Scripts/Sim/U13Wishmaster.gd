@@ -8,7 +8,8 @@ const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const VERSION: String = "U13_KANIFOUS_V1"
 const RADIUS: int = 540
 const CONTACT: int = 65
-const DEATH_RADIUS: int = 270
+const DEATH_RADIUS: int = 100
+const ATTRACTION_RADIUS: int = 180
 
 static func event(kind: String, data: Dictionary) -> Dictionary:
 	var fact: Dictionary = {"type": kind, "text": kind.replace("_", " ").capitalize(), "data": data}
@@ -192,3 +193,21 @@ static func valid(world: Dictionary) -> bool:
 		if a.has("ghost_bypassed") and (typeof(a.ghost_bypassed) != TYPE_ARRAY or not a.ghost_bypassed.all(func(id): return typeof(id) == TYPE_STRING)):
 			return false
 	return true
+
+
+# Only materialized lamps attract; nearest distance then stable ID breaks ties.
+static func nearby_lamp(attributes: Dictionary, rows: Array) -> Dictionary:
+	var selected: Dictionary = {}
+	var best: int = ATTRACTION_RADIUS * ATTRACTION_RADIUS
+	for row in rows:
+		if row.phase != "lamp" or row.target.lane != attributes.lane:
+			continue
+		var d: int = distance(attributes, row.target.field_position)
+		if d < best or (d == best and (selected.is_empty() or str(row.id) < str(selected.id))):
+			selected = row
+			best = d
+	return selected
+
+static func power_count(seed_value: String, declaration_id: String) -> int:
+	var roll: int = draw(seed_value, declaration_id, "WISH_COUNT", 100)
+	return 1 if roll < 70 else (2 if roll < 95 else 3)

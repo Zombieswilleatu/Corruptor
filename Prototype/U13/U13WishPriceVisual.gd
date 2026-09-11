@@ -43,7 +43,7 @@ func _ready() -> void:
 
 func present(events: Array, sides: Array) -> void:
 	for event in events:
-		if event.type != "KANIFOUS_PRICE_RESOLVED":
+		if event.type not in ["KANIFOUS_PRICE_RESOLVED", "KANIFOUS_PRICE_DEFERRED"]:
 			continue
 		var row: Dictionary = event.data.duplicate(true)
 		var side = sides[1 if int(row.player_id) == 0 else 0]
@@ -56,6 +56,7 @@ static func description(row: Dictionary) -> String:
 	var amount: int = row.get("targets", []).size()
 	var detail: String = "Nothing could be collected."
 	match row.outcome:
+		"Deferred": detail = "Nothing available to collect. This Price is still owed.\nCollection retries in round %d." % row.due_round
 		"Cards": detail = "%d hand card(s) discarded." % amount
 		"Blood": detail = "%d Marcher(s) destroyed." % amount
 		"Guards": detail = "A Guard was defeated."

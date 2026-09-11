@@ -213,6 +213,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 	var collapse: bool = world.data.get("breach_lord") == "Valak"
 	motion_context = motion_context.duplicate()
 	motion_context["gravitational_collapse"] = collapse
+	motion_context["wishmaster_lamps"] = lamp_objects
 	var kroni_actors: Array = world.data.get("kroni_actors", [])
 	if not kroni_actors.is_empty():
 		events.append(public_event("KRONI_ACTORS_STARTED", {"round": context.round, "actors": kroni_actors.duplicate(true)}))
@@ -685,9 +686,15 @@ static func _move(
 		var best: int = int(nearby.distance)
 		var dx: int = int(a.direction) * step * (-1 if retreat else 1)
 		var dy: int = 0
-		if not retreat and not nearest.is_empty():
-			var vx: int = int(nearest.attributes.x_fp) - int(a.x_fp)
-			var vy: int = int(nearest.attributes.y_fp) - int(a.y_fp)
+		var destination: Dictionary = nearest.attributes if not nearest.is_empty() else {}
+		if not retreat and not context.get("wishmaster_lamps", []).is_empty():
+			var lamp: Dictionary = Wishmaster.nearby_lamp(a, context.wishmaster_lamps)
+			if not lamp.is_empty():
+				destination = lamp.target.field_position
+				best = Wishmaster.distance(a, destination)
+		if not retreat and not destination.is_empty():
+			var vx: int = int(destination.x_fp) - int(a.x_fp)
+			var vy: int = int(destination.y_fp) - int(a.y_fp)
 			var distance: int = maxi(1, _ceil_sqrt(best))
 			dx = _scaled(vx, step, distance)
 			dy = _scaled(vy, step, distance)

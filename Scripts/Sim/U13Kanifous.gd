@@ -60,7 +60,7 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 	var pid: int = source.player_id
 	match source.power_id:
 		"WishPower":
-			for index in range(3):
+			for index in range(Lamp.power_count(context.seed, source.declaration_id)):
 				var suit: String = Marching.SUITS[Lamp.draw(context.seed, source.declaration_id, "WISH_SUIT", 4, index)]
 				var unit: Dictionary = ids.create("marcher", source.declaration_id, index, pid, Marching.profile(suit, source.target.lane, pid, context.round, context.round)).entity
 				Marching.place_spawn(ids, unit.id, context.seed)
@@ -130,7 +130,8 @@ func on_hook(context: Dictionary) -> Dictionary:
 				return paid
 			result.world = paid.world
 			result.events.append_array(paid.events)
-			result.world.data.kanifous_prices = result.world.data.kanifous_prices.filter(func(row: Dictionary) -> bool: return row.id != price.id)
+			if not paid.get("deferred", false):
+				result.world.data.kanifous_prices = result.world.data.kanifous_prices.filter(func(row: Dictionary) -> bool: return row.id != price.id)
 	return result
 
 func _price(raw: Dictionary, price: Dictionary, context: Dictionary) -> Dictionary:
@@ -158,7 +159,8 @@ func _price(raw: Dictionary, price: Dictionary, context: Dictionary) -> Dictiona
 				pool.append(outcome)
 	var events: Array = []
 	if pool.is_empty():
-		return {"action": "resolved", "world": world, "events": [Lamp.event("KANIFOUS_PRICE_RESOLVED", {"id": price.id, "outcome": "No valid outcome", "player_id": pid})]}
+		# Keep the original due date: overdue Prices remain in the saved ledger.
+		return {"action": "resolved", "world": world, "deferred": true, "events": [Lamp.event("KANIFOUS_PRICE_DEFERRED", {"id": price.id, "outcome": "Deferred", "player_id": pid, "round": context.round, "due_round": int(context.round) + 1})]}
 	var outcome: String = pool[Lamp.draw(context.seed, price.id, "PRICE_OUTCOME", pool.size())]
 	var targets: Array = groups[outcome]
 	targets.sort()
@@ -246,6 +248,6 @@ func accept_order(context: Dictionary) -> Dictionary:
 			if row.id != Data.instance_id("wishmaster", str(row.owner), str(row.created_round)) or row.created_round > context.round or row.due_round < context.round:
 				return Data.invalid("wishmaster_clock_invalid")
 		for price in context.world.data.kanifous_prices:
-			if price.created_round > context.round or price.due_round < context.round:
+			if price.created_round > context.round:
 				return Data.invalid("price_clock_invalid")
 	return result

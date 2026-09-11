@@ -61,7 +61,7 @@ func _wish_targets() -> void:
 				wish_target.add_item("%s · slot %d" % [row.attributes.get("castle_type", "Castle"), int(row.attributes.get("castle_slot", 0)) + 1])
 				wish_target.set_item_metadata(wish_target.item_count - 1, row.id)
 	wish_target.visible = power not in ["WishDeath", "WishWealth"]
-	wish_note.text = ["Spawn 3 random-suit Marchers in the selected lane.", "Restore your Castle to full Integrity. Ruined/Profaned targets fail.", "Restore your Guards defeated this round in the selected zone.", "Choose a circle on the field. Destroy every Marcher inside, friend or enemy.", "Draw 2 cards."][wish_choice.selected] + "\nSuccess creates a hidden Price due in 1–3 rounds."
+	wish_note.text = ["Spawn 1–3 random-suit Marchers: 70% one, 25% two, 5% three.", "Restore your Castle to full Integrity. Ruined/Profaned targets fail.", "Restore your Guards defeated this round in the selected zone.", "Choose a small circle on the field. Destroy every Marcher inside, friend or enemy.", "Draw 2 cards."][wish_choice.selected] + "\nSuccess creates a hidden Price due in 1–3 rounds."
 
 func _update_direct_ui() -> void:
 	super._update_direct_ui()
@@ -76,7 +76,7 @@ func _update_direct_ui() -> void:
 	wish_remove.visible = has_wish
 	price_note.text = ""
 	for price in _visible_world.get("wish_prices", []):
-		price_note.text += "%s Price: Round %d\n" % ["Your" if price.owner == 0 else "Enemy", price.due_round]
+		price_note.text += "%s Price: %s\n" % ["Your" if price.owner == 0 else "Enemy", "Overdue · still owed" if price.due_round < session.round_number() else "Round %d" % price.due_round]
 	if wish_placement.visible:
 		confirm.disabled = true
 		pass_button.disabled = true
