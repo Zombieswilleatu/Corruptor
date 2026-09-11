@@ -11,11 +11,11 @@ func create_combat_match():
 	for power in rules():
 		validators[power] = Callable(self, "validate")
 		resolvers[power] = Callable(self, "resolve")
-	return MatchOwner.new(Market.VERSION + ":" + CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY, rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Guards, "legal_orders"))
+	return MatchOwner.new(Conduit.VERSION + ":" + Market.VERSION + ":" + CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY, rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Guards, "legal_orders"))
 
 
 func valid_world(world: Dictionary) -> bool:
-	return super.valid_world(world) and Economy.valid(world) and Market.valid(world) and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
+	return super.valid_world(world) and Economy.valid(world) and Market.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
 
 
 func on_hook(context: Dictionary) -> Dictionary:
@@ -58,6 +58,7 @@ func project(world: Dictionary, player_id: int) -> Dictionary:
 	var pending: Dictionary = result.game_economy.stockpile_pending
 	if not pending.is_empty() and pending.player_id != player_id:
 		result.game_economy.stockpile_pending = {"player_id": pending.player_id}
+	result["blood_conduit_profile"] = Conduit.VERSION
 	result["game_market"] = world.data.game_market.duplicate(true)
 	result["market"] = world.data.card_zones.market.duplicate()
 	result["castle_defense_profile"] = CastleDefenses.VERSION

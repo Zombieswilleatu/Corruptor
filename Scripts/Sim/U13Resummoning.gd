@@ -1,5 +1,6 @@
 extends RefCounted
 
+const Conduit = preload("res://Scripts/Sim/U13BloodConduit.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
@@ -81,6 +82,13 @@ static func quote(world: Dictionary, pid: int, selected: Array) -> Dictionary:
 		and not (actor.attributes.lord_id == "Humbaba" and shortfall > 0)
 	)
 	var marked: bool = world.data.orias_marks[pid] != null
+	var return_threat: int = mini(MAX_RETURN_THREAT, shortfall + (1 if marked else 0))
+	if marked and shortfall < MAX_RETURN_THREAT:
+		var predicted: Dictionary = world.duplicate(true)
+		for row in predicted.entities.entities:
+			if row.id == circle_id:
+				row.attributes.integrity -= 3
+		return_threat = Conduit.quote(predicted, actor, shortfall, 1).after
 	return {
 		"action": "legal" if affordable else "invalid",
 		"reason": "" if affordable else "summon_payment_shortfall",
@@ -89,7 +97,7 @@ static func quote(world: Dictionary, pid: int, selected: Array) -> Dictionary:
 		"paid_value": paid,
 		"circle_id": circle_id,
 		"shortfall": shortfall,
-		"return_threat": mini(MAX_RETURN_THREAT, shortfall + (1 if marked else 0)),
+		"return_threat": return_threat,
 		"marked": marked
 	}
 
@@ -170,8 +178,13 @@ static func resolve(context: Dictionary) -> Dictionary:
 			entities.update(circle.id, pid, circle.attributes)
 		actor.attributes.alive = true
 		if actor.attributes.lord_id != "Humbaba":
-			actor.attributes["threat"] = record.quote.return_threat
+			actor.attributes["threat"] = record.quote.shortfall
 		entities.update(actor.id, pid, actor.attributes)
+		if record.quote.marked and record.quote.shortfall < MAX_RETURN_THREAT and actor.attributes.lord_id != "Humbaba":
+			world.entities = entities.snapshot()
+			var gain: Dictionary = Conduit.gain(world, actor.id, 1, context.round)
+			events.append_array(gain.events)
+			entities.restore(world.entities)
 		world.data.summon_counts[pid] += 1
 		# Accepted U13 addendum: a resummoned Lord adds one Neutral Tear.
 		world.data.neutral_tears += 1

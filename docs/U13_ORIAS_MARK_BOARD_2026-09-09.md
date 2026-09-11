@@ -1,3 +1,7 @@
+> Terminology: dynamic Threat from summon payment/The Mark below is separate from
+> the printed **Fracture** rating (formerly Return Threat). See
+> `U13_BLOOD_CONDUIT_2026-09-11.md` for the current full-game Conduit interaction.
+
 # Orias: Mark, resummoning, and playable board
 
 Orias is now selectable in `Prototype/U13/U13Board.tscn` and the same roster supplies Quickstart. Matches containing Orias use the Orias rules owner, including Guard deployment and resummoning for both players. Existing four-Lord fixtures and U12 remain separate.

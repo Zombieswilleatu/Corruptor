@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Conduit = preload("res://Scripts/Sim/U13BloodConduit.gd")
+
 const Resummon = preload("res://Scripts/Sim/U13Resummoning.gd")
 const Guards = preload("res://Scripts/Sim/U13GuardDeployment.gd")
 const Base = preload("res://Scripts/Sim/U13Kalligan.gd")
@@ -416,15 +418,14 @@ static func _pay_snare(world: Dictionary, source: Dictionary, round_number: int)
 	var before: int = lord.attributes.threat
 	if before >= 1000000:
 		return Data.invalid("snare_threat_limit")
-	lord.attributes.threat = before + 1
-	entities.update(lord.id, pid, lord.attributes)
-	world.entities = entities.snapshot()
+	var gain: Dictionary = Conduit.gain(world, lord.id, 1, round_number)
+	world = gain.world
 	world.data.snare_paid_rounds[pid] = round_number
 	return {
 		"action": "resolved",
 		"world": world,
 		"events":
-		[
+		gain.events + [
 			_event(
 				"SNARE_ARMED",
 				{
@@ -434,7 +435,7 @@ static func _pay_snare(world: Dictionary, source: Dictionary, round_number: int)
 					"hook": Timeline.SUBMISSION_LOCK,
 					"declaration_id": source.declaration_id,
 					"threat_before": before,
-					"threat_after": before + 1
+					"threat_after": gain.after
 				}
 			)
 		]
@@ -498,9 +499,12 @@ static func _snare_payments_valid(context: Dictionary) -> bool:
 		current_ids.restore(context.world.entities)
 		prior_ids.restore(context.presentation_world.entities)
 		var id: String = context.world.players[context.player_id].lord_entity_id
+		var conduit: Dictionary = Conduit.quote(context.presentation_world, prior_ids.get_entity(id), prior_ids.get_entity(id).attributes.threat, 1)
+		if not conduit.circle_id.is_empty() and current_ids.get_entity(conduit.circle_id).attributes.integrity != prior_ids.get_entity(conduit.circle_id).attributes.integrity - 3:
+			return false
 		if (
 			current_ids.get_entity(id).attributes.threat
-			!= prior_ids.get_entity(id).attributes.threat + 1
+			!= conduit.after
 		):
 			return false
 	return true
@@ -551,9 +555,10 @@ func react(
 		return result
 	if threat >= 1000000:
 		return Data.invalid("accelerate_threat_limit")
-	target.attributes["threat"] = int(threat) + 1
-	entities.update(target.id, target.owner, target.attributes)
-	world.entities = entities.snapshot()
+	var gain: Dictionary = Conduit.gain(world, target.id, 1, fact.data.round)
+	world = gain.world
+	result.world = world
+	result.events.append_array(gain.events)
 	world.data.orias_accelerate[pid] = {
 		"round": fact.data.round, "event_id": expected, "guard_id": guard.id
 	}
@@ -568,7 +573,7 @@ func react(
 				"round": fact.data.round,
 				"hook": fact.data.hook,
 				"threat_before": threat,
-				"threat_after": int(threat) + 1
+				"threat_after": gain.after
 			}
 		)
 	)

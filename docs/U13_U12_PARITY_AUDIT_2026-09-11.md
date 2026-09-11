@@ -1,3 +1,7 @@
+> Follow-up: Blood Conduit is implemented in `U13_BLOOD_CONDUIT_2026-09-11.md`.
+> That note also distinguishes printed Fracture from summon-payment Threat.
+> Sigil lifecycle and the full Fracture banishment effect remain pending.
+
 # Final playable U12 versus migrated U13 — audit
 
 ## Baseline and scope

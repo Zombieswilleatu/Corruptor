@@ -1,5 +1,8 @@
 # U13 full-game foundation — milestone 1
 
+**Current checkpoint:** `U13_BLOOD_CONDUIT_2026-09-11.md` enables Blood Conduit,
+clarifies Fracture terminology, and expands the game runner to 9/9.
+
 **Parity audit:** See `U13_U12_PARITY_AUDIT_2026-09-11.md` for the verified
 playable baseline, corrected Slaver priority, missing Conduit/Sigil lifecycle,
 and revised completion queue.
