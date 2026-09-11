@@ -5,7 +5,7 @@ const Scenario = preload("res://Scripts/Sim/U13KanifousScenario.gd")
 const Legality = preload("res://Scripts/Sim/U13Legality.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
-const VERSION: String = "U13_GAME_RANDOM_LEGAL_V2"
+const VERSION: String = "U13_GAME_RANDOM_LEGAL_V3"
 
 
 static func plan(owner, pid: int) -> Dictionary:
@@ -22,6 +22,8 @@ static func plan(owner, pid: int) -> Dictionary:
 		var choices: Array = groups[picked].candidates
 		powers.append(choices[_pick(owner, pid, "power-target", choices.size())])
 	var order: Dictionary = {}
+	for stage in ["waiters", "invocation", "profane_ruins"]:
+		order = _choose(owner, pid, powers, order, Development.rite_orders(view, powers, order, stage), stage)
 	order = _choose(owner, pid, powers, order, Development.summon_orders(view, powers, order), "summon")
 	order = _choose(owner, pid, powers, order, Development.castle_orders(view, powers, order), "castle")
 	var combat: Array = []

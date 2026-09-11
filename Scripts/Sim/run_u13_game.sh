@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Game-conductor gates: paid production opening, draws, Development plans, and replay.
+# Game-conductor gates: paid production opening, draws, Development/rites, and replay.
 # This is a headless foundation gate; full victory/UI integration is pending.
 set -euo pipefail
 export U13_TEST_TIMEOUT_SECONDS=${U13_TEST_TIMEOUT_SECONDS:-90}

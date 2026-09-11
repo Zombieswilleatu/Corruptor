@@ -13,6 +13,7 @@ static func reserved_cards(powers: Array, order: Dictionary) -> Array:
 	var result: Array = []
 	for source in powers:
 		result.append_array(source.cost.get("discard_ids", []))
+	result.append_array(order.get("rites", {}).get("invocation", {}).get("card_ids", []))
 	result.append_array(order.get("card_ids", []))
 	result.append_array(order.get("castle_action", {}).get("card_ids", []))
 	result.append_array(order.get("summon", {}).get("card_ids", []))
@@ -90,4 +91,52 @@ static func guard_orders(view: Dictionary, powers: Array, base: Dictionary) -> A
 				order["guard_moves"] = moves.duplicate(true)
 				order.guard_moves.append({"card_id": id, "lane": lane, "slot": slot})
 				result.append(order)
+	return result
+
+
+# Bounded public-state samples. Exact physical IDs remain player-selectable.
+static func rite_orders(view: Dictionary, powers: Array, base: Dictionary, stage: String) -> Array:
+	const Rites = preload("res://Scripts/Sim/U13DominionRites.gd")
+	var pid: int = view.world.viewer_id
+	var result: Array = []
+	var choices: Array = []
+	if stage == "waiters":
+		for lane in Guards.LANES:
+			var bodies: Array = view.world.entities.filter(func(e): return e.kind == "marcher" and e.owner == pid and e.attributes.waiting and e.attributes.lane == lane)
+			bodies.sort_custom(func(a, b): return a.id < b.id)
+			var spends: Array = []
+			for offset in range(0, bodies.size() - Rites.WAITERS_PER_TEAR + 1, Rites.WAITERS_PER_TEAR):
+				var selected: Array = []
+				for body in bodies.slice(offset, offset + Rites.WAITERS_PER_TEAR):
+					selected.append(body.id)
+				spends.append({"lane": lane, "marcher_ids": selected})
+				choices.append({"waiter_spends": spends.duplicate(true)})
+	elif stage == "invocation":
+		if view.world.veil_total < Rites.INVOCATION_GATE or view.world.dominion_rites.invocation_rounds[pid] != 0:
+			return []
+		var available: Array = free_cards(view, powers, base)
+		var cards: Array = view.world.entities.filter(func(e): return e.id in available)
+		cards.sort_custom(func(a, b): return a.id < b.id if a.attributes.value == b.attributes.value else a.attributes.value < b.attributes.value)
+		for descending in [false, true]:
+			var ordered: Array = cards.duplicate()
+			if descending:
+				ordered.reverse()
+			var payment: Array = []
+			var total: int = 0
+			for card in ordered:
+				payment.append(card.id)
+				total += int(card.attributes.value)
+				if total >= Rites.INVOCATION_COST:
+					choices.append({"invocation": {"card_ids": payment}})
+					break
+	elif stage == "profane_ruins":
+		for castle in view.world.entities:
+			if castle.kind == "castle" and castle.owner == pid and castle.attributes.status == "ruined":
+				choices.append({"profane_ruins": {"castle_id": castle.id}})
+	for choice in choices:
+		var order: Dictionary = base.duplicate(true)
+		var rites: Dictionary = order.get("rites", {}).duplicate(true)
+		rites.merge(choice)
+		order["rites"] = rites
+		result.append(order)
 	return result

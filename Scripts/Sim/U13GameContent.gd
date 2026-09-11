@@ -1,5 +1,7 @@
 extends "res://Scripts/Sim/U13Kanifous.gd"
 
+const Rites = preload("res://Scripts/Sim/U13DominionRites.gd")
+
 const Fracture = preload("res://Scripts/Sim/U13Fracture.gd")
 
 const Sigils = preload("res://Scripts/Sim/U13Sigils.gd")
@@ -14,11 +16,11 @@ func create_combat_match():
 	for power in rules():
 		validators[power] = Callable(self, "validate")
 		resolvers[power] = Callable(self, "resolve")
-	return MatchOwner.new(Fracture.VERSION + ":" + Sigils.VERSION + ":" + Conduit.VERSION + ":" + Market.VERSION + ":" + CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY, rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Guards, "legal_orders"))
+	return MatchOwner.new(Rites.VERSION + ":" + Fracture.VERSION + ":" + Sigils.VERSION + ":" + Conduit.VERSION + ":" + Market.VERSION + ":" + CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY, rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Rites, "legal_orders"))
 
 
 func valid_world(world: Dictionary) -> bool:
-	return super.valid_world(world) and Fracture.valid(world) and Economy.valid(world) and Market.valid(world) and Sigils.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
+	return super.valid_world(world) and Rites.valid(world) and Fracture.valid(world) and Economy.valid(world) and Market.valid(world) and Sigils.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
 
 
 func react(raw: Dictionary, fact: Dictionary, seed_value: String, player_order: Array) -> Dictionary:
@@ -35,14 +37,25 @@ func react(raw: Dictionary, fact: Dictionary, seed_value: String, player_order: 
 func on_hook(context: Dictionary) -> Dictionary:
 	if context.hook == Timeline.PRESENT_PUBLIC_STATE and (not context.world.data.game_economy.stockpile_pending.is_empty() or context.world.data.game_market.seat != 2):
 		return Data.invalid("development_choice_required")
-	var sigils: Dictionary = Sigils.on_hook(context)
+	var ordinary_context: Dictionary = context.duplicate(true)
+	ordinary_context.combat_orders = [Rites.strip(context.combat_orders[0]), Rites.strip(context.combat_orders[1])]
+	var rite_events: Array = []
+	if context.hook == Timeline.DEVELOPMENT:
+		var rites: Dictionary = Rites.resolve(context)
+		if rites.action == "invalid":
+			return rites
+		ordinary_context.world = rites.world
+		rite_events = rites.events
+	var sigils: Dictionary = Sigils.on_hook(ordinary_context)
 	if sigils.action == "invalid":
 		return sigils
-	var prepared: Dictionary = context.duplicate()
+	var prepared: Dictionary = ordinary_context.duplicate()
 	prepared.world = sigils.world
 	var result: Dictionary = super.on_hook(prepared)
 	if result.action != "invalid":
-		result.events = sigils.events + result.events
+		result.events = rite_events + sigils.events + result.events
+		if context.hook == Timeline.AFTERMATH:
+			result.world.data.dominion_rites.orders = [null, null]
 	if result.action == "invalid" or context.hook != Timeline.ROUND_START_AUTOMATIC:
 		return result
 	var ordinary: Dictionary = context.duplicate(true)
@@ -61,6 +74,8 @@ func on_hook(context: Dictionary) -> Dictionary:
 
 func accept_order(context: Dictionary) -> Dictionary:
 	if context.phase == "snapshot":
+		if not Rites.snapshot_valid(context):
+			return Data.invalid("rites_snapshot_invalid")
 		if context.order.get("action") == "Hunt" and context.next_hook_index > Timeline.hook_rank(Timeline.COMBAT_RESOLUTION):
 			var banishment: String = Data.instance_id("battle", str(context.round), "hunt:%d:lord:%s" % [context.player_id, context.order.target_id])
 			if context.world.data.get("battle_commands", {}).has(banishment):
@@ -80,11 +95,20 @@ func accept_order(context: Dictionary) -> Dictionary:
 		var ready: bool = context.next_hook_index > Timeline.hook_rank(Timeline.ROUND_START_AUTOMATIC) and context.world.data.game_economy.stockpile_pending.is_empty()
 		if market.round != context.round - (0 if ready else 1) or (market.seat != 2 and context.next_hook_index != Timeline.hook_rank(Timeline.PRESENT_PUBLIC_STATE)):
 			return Data.invalid("market_snapshot_clock_invalid")
-	return super.accept_order(context)
+	var ordinary: Dictionary = context.duplicate(true)
+	ordinary.order = Rites.strip(context.order)
+	if context.phase != "snapshot":
+		var reserved: Dictionary = Rites.reserve(context)
+		if reserved.action == "invalid":
+			return reserved
+		ordinary.world = reserved.world
+	return super.accept_order(ordinary)
 
 
 func project(world: Dictionary, player_id: int) -> Dictionary:
 	var result: Dictionary = super.project(world, player_id)
+	result["dominion_rites"] = {"version": Rites.VERSION, "invocation_rounds": world.data.dominion_rites.invocation_rounds.duplicate(), "resolved_round": world.data.dominion_rites.resolved_round}
+	result["veil_total"] = Rites.veil(world)
 	result["game_economy"] = world.data.game_economy.duplicate(true)
 	var pending: Dictionary = result.game_economy.stockpile_pending
 	if not pending.is_empty() and pending.player_id != player_id:
