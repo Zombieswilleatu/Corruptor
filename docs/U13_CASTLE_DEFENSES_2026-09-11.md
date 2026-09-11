@@ -35,7 +35,8 @@ obsolete U12 Lord callbacks.
 
 ## Duplicate policy
 
-Every loadout must contain exactly one Keep. Keep cannot be double-picked.
+Keep is optional, with a maximum of one per loadout. Removing it in the picker
+retains the recommendation warning. Quickstart still includes one Keep first.
 Other Castle types retain the two-copy limit. Manual selection and random
 Quickstart both enforce this rule.
 

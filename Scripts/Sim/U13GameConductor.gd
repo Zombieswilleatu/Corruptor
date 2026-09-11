@@ -19,7 +19,7 @@ func start(seed_value: String, lords: Array, castles: Array) -> Dictionary:
 	if lords.size() != 2 or castles.size() != 2:
 		return Data.invalid("game_setup_invalid")
 	for pid in [0, 1]:
-		if lords[pid] not in LORDS or not Slots.selection_valid(castles[pid]) or castles[pid][0] != "Keep":
+		if lords[pid] not in LORDS or not Slots.selection_valid(castles[pid]):
 			return Data.invalid("game_loadout_invalid")
 	var schema: Dictionary = Scenario.loadout_world(lords, castles)
 	if schema.get("action") == "invalid":

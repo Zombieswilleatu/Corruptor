@@ -51,9 +51,12 @@ func attack(f: Dictionary, direct: bool = false, ward: Dictionary = {}) -> Dicti
 	return result
 
 func run() -> void:
-	for selection in [["Keep", "Keep", "Bastion", "Stockpile", "SiegeEngine"], ["Bastion", "Bastion", "Stockpile", "SiegeEngine", "SummoningCircle"]]:
-		var invalid_game = Game.new()
-		check(invalid_game.start("invalid-keep", ["Gremory", "Gremory"], [selection, Slots.TYPES]).action == "invalid", "game rejects duplicate or missing Keep")
+	var duplicate_game = Game.new()
+	check(duplicate_game.start("duplicate-keep", ["Gremory", "Gremory"], [["Keep", "Keep", "Bastion", "Stockpile", "SiegeEngine"], Slots.TYPES]).action == "invalid", "game rejects duplicate Keep")
+	for selection in [["Bastion", "Bastion", "Stockpile", "SiegeEngine", "SummoningCircle"], ["Bastion", "Keep", "Stockpile", "SiegeEngine", "SummoningCircle"]]:
+		var optional_game = Game.new()
+		check(optional_game.start("optional-keep", ["Gremory", "Gremory"], [selection, Slots.TYPES]).action != "invalid", "game accepts no Keep or Keep outside first slot")
+
 	for example in [[7, "active", 5, 5, false], [7, "active", 10, 0, false], [7, "active", 15, 0, true], [6, "active", 5, 1, false], [0, "active", 5, 0, true], [7, "building", 5, 7, true], [0, "ruined", 5, 0, true], [0, "profaned", 5, 0, true]]:
 		var f: Dictionary = fixture("Keep", example[0], example[1], example[2])
 		var result: Dictionary = attack(f)

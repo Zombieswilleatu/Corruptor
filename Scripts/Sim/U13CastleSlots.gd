@@ -22,7 +22,7 @@ static func selection_valid(selection) -> bool:
 		counts[type] = int(counts.get(type, 0)) + 1
 		if counts[type] > (1 if type == "Keep" else TYPE_LIMIT):
 			return false
-	return counts.get("Keep", 0) == 1
+	return true
 
 
 # Physical slot is identity; changing type in a setup draft does not change it.

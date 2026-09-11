@@ -52,7 +52,7 @@ func _ready() -> void:
 	panel.add_child(column)
 	_label(column, "CHOOSE YOUR LORD & CASTLES", 24)
 	_label(
-		column, "Five Castle slots · exactly one Keep · maximum two of each other type · one shared Castle Guard zone", 16
+		column, "Five Castle slots · maximum one Keep · maximum two of each other type · one shared Castle Guard zone", 16
 	)
 	var players := HBoxContainer.new()
 	players.add_theme_constant_override("separation", 36)
@@ -167,7 +167,7 @@ func _validate() -> void:
 	message.text = (
 		"Start creates a new match. Your Castle types stay fixed for that match."
 		if valid
-		else "Choose exactly one Keep and no more than two of each other Castle type."
+		else "Choose at most one Keep and no more than two of each other Castle type."
 	)
 
 
@@ -204,6 +204,21 @@ func _label(parent: Node, value: String, font_size: int) -> Label:
 
 
 func _castle_changed(index: int, pid: int, slot: int) -> void:
+	var previous: String = _accepted_castles[pid][slot]
+	if previous == "Keep" and Slots.TYPES[index] != "Keep":
+		castle_choices[pid][slot].select(Slots.TYPES.find(previous))
+		_validate()
+		if (
+			tutorial_popup
+			. present(
+				tutorials,
+				Tutorials.KEEP_LOADOUT,
+				"BUILDING YOUR FORTRESS",
+				"Keep is strongly suggested for all builds. For beginners, one of each Castle type is also suggested.\n\nYou can still specialize and choose any legal loadout.\n\nIn this test build, Keep's printed power is not connected yet.",
+				_apply_castle_choice.bind(index, pid, slot)
+			)
+		):
+			return
 	_apply_castle_choice(index, pid, slot)
 
 
