@@ -102,7 +102,7 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 					ids.retire(row.id)
 					count += 1
 		"WishWealth":
-			for index in range(2):
+			for index in range(Lamp.wealth_count(context.seed, source.declaration_id)):
 				var drawn: Dictionary = Cards.draw(world, pid, context.seed, source.declaration_id + ":" + str(index))
 				if drawn.action == "invalid":
 					return drawn

@@ -74,7 +74,7 @@ func _wish_targets() -> void:
 	elif previous_index >= 0 and previous_index < wish_target.item_count:
 		wish_target.select(previous_index)
 	wish_target.visible = power not in ["WishDeath", "WishWealth"]
-	wish_note.text = ["Spawn 1–3 random-suit Marchers: 70% one, 25% two, 5% three.", "Restore a damaged, active Castle to full Integrity. Protected construction and Ruined/Profaned Castles cannot be targeted.", "Restore your Guards defeated this round in the selected zone.", "Choose a small circle on the field. Destroy every Marcher inside, friend or enemy.", "Draw 2 cards."][wish_choice.selected] + "\nSuccess creates a hidden Price due in 1–3 rounds."
+	wish_note.text = ["Spawn 1–3 random-suit Marchers: 70% one, 25% two, 5% three.", "Restore a damaged, active Castle to full Integrity. Protected construction and Ruined/Profaned Castles cannot be targeted.", "Restore your Guards defeated this round in the selected zone.", "Choose a small circle on the field. Destroy every Marcher inside, friend or enemy.", "Draw 1–3 cards: 20% one, 50% two, 30% three."][wish_choice.selected] + "\nSuccess creates a hidden Price due in 1–3 rounds."
 
 func _update_direct_ui() -> void:
 	super._update_direct_ui()

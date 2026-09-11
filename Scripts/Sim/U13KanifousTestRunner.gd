@@ -12,6 +12,7 @@ func check(value: bool, title: String) -> bool:
 	print(("PASS " if value else "FAIL ") + title)
 	return value
 func run() -> void:
+	wealth_draws()
 	longevity_targets()
 	balance_and_debt()
 	mechanics()
@@ -323,3 +324,27 @@ func longevity_targets() -> void:
 						check(restored.attributes.integrity == restored.attributes.max_integrity and restored.attributes.status == "standing" and result.world.data.kanifous_prices.size() == 1, "Longevity repairs and charges " + label)
 					else:
 						check(result.world == world and not result.events.back().event.data.success, "Longevity rechecks target without mutation or Price " + label)
+
+func wealth_draws() -> void:
+	var source: Dictionary = Scenario.source(0, 1, {}, 0, "WishWealth")
+	var counts: Array = [0, 0, 0]
+	var seeds: Dictionary = {}
+	for i in range(1000):
+		var seed_value: String = "wealth-%d" % i
+		var count: int = Content.Lamp.wealth_count(seed_value, source.declaration_id)
+		counts[count - 1] += 1
+		seeds[count] = seed_value
+	check(counts[0] > 140 and counts[0] < 260 and counts[1] > 420 and counts[1] < 580 and counts[2] > 230 and counts[2] < 370, "Wealth distribution favors two, then three, then one")
+	var content = Content.new()
+	for count in seeds:
+		var world: Dictionary = Scenario.world()
+		world.data.card_zones.hand_limit = 100
+		var before: int = world.data.card_zones.hands[0].size()
+		var context: Dictionary = {"world": world, "round": 1, "seed": seeds[count]}
+		var result: Dictionary = content.resolve({"declaration": source}, context)
+		check(result.action != "invalid" and content.valid_world(result.world) and result.world.data.card_zones.hands[0].size() == before + count, "Wealth actually draws %d cards" % count)
+		check(result.events.back().event.data.count == count and result.world.data.kanifous_prices.size() == 1, "Wealth reports %d cards with one Price" % count)
+		check(result == content.resolve({"declaration": source}, context), "Wealth replay identical for %d cards" % count)
+		context.world.data.card_zones.hand_limit = before
+		var capped: Dictionary = content.resolve({"declaration": source}, context)
+		check(capped.world.data.card_zones.hands[0].size() == before and capped.world.data.kanifous_prices.is_empty(), "Wealth respects full hand without charging Price")

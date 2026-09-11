@@ -211,3 +211,7 @@ static func nearby_lamp(attributes: Dictionary, rows: Array) -> Dictionary:
 static func power_count(seed_value: String, declaration_id: String) -> int:
 	var roll: int = draw(seed_value, declaration_id, "WISH_COUNT", 100)
 	return 1 if roll < 70 else (2 if roll < 95 else 3)
+
+static func wealth_count(seed_value: String, declaration_id: String) -> int:
+	var roll: int = draw(seed_value, declaration_id, "WEALTH_COUNT", 100)
+	return 1 if roll < 20 else (2 if roll < 70 else 3)
