@@ -1,6 +1,7 @@
 extends "res://Scripts/Sim/U13Kanifous.gd"
 
 const Economy = preload("res://Scripts/Sim/U13GameEconomy.gd")
+const CastleDefenses = preload("res://Scripts/Sim/U13CastleDefenses.gd")
 
 
 func create_combat_match():
@@ -9,11 +10,11 @@ func create_combat_match():
 	for power in rules():
 		validators[power] = Callable(self, "validate")
 		resolvers[power] = Callable(self, "resolve")
-	return MatchOwner.new(Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY, rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Guards, "legal_orders"))
+	return MatchOwner.new(CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY, rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Guards, "legal_orders"))
 
 
 func valid_world(world: Dictionary) -> bool:
-	return super.valid_world(world) and Economy.valid(world)
+	return super.valid_world(world) and Economy.valid(world) and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
 
 
 func on_hook(context: Dictionary) -> Dictionary:
@@ -41,4 +42,5 @@ func accept_order(context: Dictionary) -> Dictionary:
 func project(world: Dictionary, player_id: int) -> Dictionary:
 	var result: Dictionary = super.project(world, player_id)
 	result["game_economy"] = world.data.game_economy.duplicate(true)
+	result["castle_defense_profile"] = CastleDefenses.VERSION
 	return result

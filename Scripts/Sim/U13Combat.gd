@@ -435,6 +435,51 @@ static func _siege(
 			sigil_broken = true
 		else:
 			remaining = 0
+	var defenses = preload("res://Scripts/Sim/U13CastleDefenses.gd")
+	var bastion: Dictionary = defenses.screen(world, 1 - player_id, "Bastion") if target.attributes.get("castle_type") != "Bastion" else {}
+	if remaining > 0 and not bastion.is_empty():
+		var wall: Dictionary = _siege_castle(world, context, player_id, bastion.id, remaining, guards_lost, reaction)
+		if wall.action == "invalid":
+			return wall
+		world = wall.world
+		events.append_array(wall.events)
+		remaining = wall.overflow
+		events.append(Marching.public_event("BASTION_SCREENED", {"player_id": 1 - player_id, "round": context.round, "castle_id": bastion.id, "target_id": target.id, "damage": wall.damage, "destroyed": wall.destroyed, "overflow": remaining}))
+	var hit: Dictionary = _siege_castle(world, context, player_id, target.id, remaining, guards_lost, reaction)
+	if hit.action == "invalid":
+		return hit
+	world = hit.world
+	events.append_array(hit.events)
+	var integrity_before: int = hit.integrity_before
+	var damage: int = hit.damage
+	var destroyed: bool = hit.destroyed
+	if not destroyed and sigil_broken and sigil == "fresh":
+		world.players[1 - player_id].resources.souls += 1
+	events.append(
+		Marching.public_event(
+			"SIEGE_RESOLVED",
+			{
+				"player_id": player_id,
+				"round": context.round,
+				"target_id": target.id,
+				"strength": strength,
+				"ward_screen": screen,
+				"guards_defeated": guards_lost,
+				"sigil_broken": sigil_broken,
+				"integrity_before": integrity_before,
+				"damage": damage,
+				"destroyed": destroyed
+			}
+		)
+	)
+	return {"action": "resolved", "world": world, "events": events}
+
+
+static func _siege_castle(world: Dictionary, context: Dictionary, player_id: int, target_id: String, remaining: int, guards_lost: int, reaction: Callable) -> Dictionary:
+	var entities = Ids.new()
+	entities.restore(world.entities)
+	var target: Dictionary = entities.get_entity(target_id)
+	var events: Array = []
 	var integrity_before: int = target.attributes.integrity
 	var damage: int = mini(integrity_before, remaining)
 	var destroyed: bool = (
@@ -473,33 +518,14 @@ static func _siege(
 		events.append_array(applied.events)
 	else:
 		entities.restore(world.entities)
+		target = entities.get_entity(target.id)
 		target.attributes.integrity = integrity_before - damage
 		Structures.note_integrity_loss(target, integrity_before, context.round)
 		if target.attributes.integrity == 0:
 			target.attributes.status = "defunct"
 		entities.update(target.id, target.owner, target.attributes)
 		world.entities = entities.snapshot()
-		if sigil_broken and sigil == "fresh":
-			var defender: Dictionary = world.players[1 - player_id]
-			defender.resources["souls"] = int(defender.resources.get("souls", 0)) + 1
-	events.append(
-		Marching.public_event(
-			"SIEGE_RESOLVED",
-			{
-				"player_id": player_id,
-				"round": context.round,
-				"target_id": target.id,
-				"strength": strength,
-				"ward_screen": screen,
-				"guards_defeated": guards_lost,
-				"sigil_broken": sigil_broken,
-				"integrity_before": integrity_before,
-				"damage": damage,
-				"destroyed": destroyed
-			}
-		)
-	)
-	return {"action": "resolved", "world": world, "events": events}
+	return {"action": "resolved", "world": world, "events": events, "integrity_before": integrity_before, "damage": damage, "destroyed": destroyed, "overflow": maxi(0, remaining - damage)}
 
 
 static func _card_strength(entities, cards: Array, exempt: String) -> int:
@@ -710,6 +736,16 @@ static func _hunt(
 			sigil_broken = true
 		else:
 			remaining = 0
+	var keep: Dictionary = preload("res://Scripts/Sim/U13CastleDefenses.gd").absorb_hunt(world, 1 - player_id, remaining, context.round)
+	world = keep.world
+	remaining = keep.remaining
+	if not keep.get("ruin_id", "").is_empty():
+		var ruined: Dictionary = _fact(world, {"command_id": "hunt:%d:keep:%s" % [player_id, keep.ruin_id], "kind": "ruin_castle", "target_id": keep.ruin_id, "player_id": player_id, "cause": "hunt"}, context, reaction)
+		if ruined.action == "invalid":
+			return ruined
+		world = ruined.world
+		events.append_array(ruined.events)
+	events.append_array(keep.events)
 	# Guard reactions may have changed Threat during this same Hunt.
 	entities.restore(world.entities)
 	target = entities.get_entity(target.id)

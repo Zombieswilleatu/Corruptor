@@ -30,6 +30,7 @@ static func initialize(raw: Dictionary, seed_value: String) -> Dictionary:
 			player.resources[resource] = 0
 	world.data.neutral_tears = 0
 	world.data.breach_lord = ""
+	world.data["castle_defense_profile"] = preload("res://Scripts/Sim/U13CastleDefenses.gd").VERSION
 	var deck: Array = []
 	for suit in SUITS:
 		var suit_cards: Array = []
