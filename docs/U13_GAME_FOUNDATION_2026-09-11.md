@@ -1,5 +1,9 @@
 # U13 full-game foundation — milestone 1
 
+**Later checkpoint:** `U13_GAME_DEVELOPMENT_2026-09-11.md` adds combined
+Development planning and expands the current runner to 5/5. The 3/3 count below
+describes the original opening/draw milestone.
+
 The Lord overhaul is complete. The next acceptance target is the autonomous,
 legitimate full match described in `U13_POST_OVERHAUL_ROADMAP.md`.
 This commit begins that work; it does not claim the full-match gate is green.

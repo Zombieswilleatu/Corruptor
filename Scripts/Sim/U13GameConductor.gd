@@ -6,6 +6,7 @@ const Economy = preload("res://Scripts/Sim/U13GameEconomy.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
+const GameBot = preload("res://Scripts/Sim/U13GameRandomLegal.gd")
 const LORDS: Array = ["Gremory", "Deimos", "Humbaba", "Kalligan", "Orias", "Odradek", "Kroni", "Valak", "Kanifous"]
 var _owner
 
@@ -54,7 +55,7 @@ func to_planning() -> Dictionary:
 func plan(player_id: int) -> Dictionary:
 	if player_id not in [0, 1] or _owner == null or _owner.next_hook() != Timeline.SUBMISSION_LOCK:
 		return Data.invalid("game_not_planning")
-	return Scenario.plan(_owner, player_id)
+	return GameBot.plan(_owner, player_id)
 
 
 func submit(plans: Array) -> Dictionary:
