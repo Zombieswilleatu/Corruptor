@@ -50,7 +50,7 @@ static func initialize(raw: Dictionary, seed_value: String) -> Dictionary:
 	world.entities = ids.snapshot()
 	world.data.card_zones = {"hands": [[], []], "deck": deck, "discard": [], "committed": [[], []], "hand_limit": HAND_LIMIT}
 	world.data["game_economy"] = {"version": VERSION, "opening_dealt": true, "draw_round": 0, "draw_player": 2, "stockpile_pending": {}}
-	Market.initialize(world)
+	Market.initialize(world, seed_value)
 	# Setup draws are already represented in the initial saved state. Private
 	# identities are exposed only by the existing per-player projection.
 	for pid in [0, 1]:

@@ -1,3 +1,6 @@
+> Audit correction: `U13_U12_PARITY_AUDIT_2026-09-11.md` replaces fixed visitor
+> priority below with a seeded first visitor and identifies remaining migration gaps.
+
 # U13 public market checkpoint
 
 The game foundation runner now expects **8/8**. The market is part of the

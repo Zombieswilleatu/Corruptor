@@ -7,6 +7,11 @@ func run() -> void:
 	if not check(game.start("market-test", ["Gremory", "Gremory"], [Slots.TYPES, Slots.TYPES]).action != "invalid", "market opening"):
 		quit(1)
 		return
+	# This directed exchange uses seat 0 first; separate cases below cover both.
+	while game.player_view(0).world.game_market.first_player != 0:
+		var next_seed: String = game._owner.rng_seed() + "x"
+		game = Game.new()
+		game.start(next_seed, ["Gremory", "Gremory"], [Slots.TYPES, Slots.TYPES])
 	var initial: Dictionary = game.player_view(0).world
 	check(initial.market.size() == 3 and initial.deck_count == 47, "market dealt before opening hands")
 	check(initial.market.all(func(id): return initial.entities.any(func(e): return e.id == id and e.owner == -1)), "offers and card faces are public")
@@ -42,6 +47,17 @@ func run() -> void:
 	check(game.to_planning().action == "game_market_choice" and saved.to_planning().action == "game_market_choice" and saved.snapshot() == game.snapshot(), "refresh replay matches before decisions")
 	check(game.player_view(0).world.market.all(func(id): return id not in old) and game.snapshot().world.data.card_zones.deck.slice(0, 3) == [old[2], old[1], old[0]], "fresh row then old offers below draw pile")
 	check(game.to_planning(true).action == "game_planning" and saved.to_planning(true).action == "game_planning" and game.snapshot() == saved.snapshot(), "Random-Legal market choices replay")
+	var seen: Array = []
+	for index in range(12):
+		var sample = Game.new()
+		sample.start("slaver-priority:%d" % index, ["Gremory", "Gremory"], [Slots.TYPES, Slots.TYPES])
+		var first: int = sample.player_view(0).world.game_market.first_player
+		if first not in seen:
+			seen.append(first)
+		check(sample.to_planning().player_id == first, "seeded first visitor reaches Slaver")
+		check(sample.choose_market(first, {"market": "Pass"}).action != "invalid" and sample.to_planning().player_id == 1 - first, "other visitor follows first")
+		check(sample.choose_market(1 - first, {"market": "Pass"}).action != "invalid" and sample.to_planning().action == "game_planning", "both priority orders complete")
+	check(seen.size() == 2, "both seeded first visitors covered")
 	scarcity()
 	print("U13 game market failures: %d" % failures)
 	quit(failures)
@@ -60,5 +76,5 @@ func scarcity() -> void:
 	world.data.game_market.round = 1
 	var reused: Dictionary = Market.begin(world, "market-scarce", 2)
 	check(reused.action != "invalid" and Cards.valid(reused.world) and reused.world.data.card_zones.market.size() == 3 and reused.world.data.card_zones.market.all(func(id): return id in original), "fully exhausted refresh reuses old offers without duplication")
-	var context: Dictionary = {"world": reused.world, "seed": "market-scarce", "round": 2, "hook": Game.Timeline.PRESENT_PUBLIC_STATE, "player_id": 0, "choice": {"market": "Pass"}}
+	var context: Dictionary = {"world": reused.world, "seed": "market-scarce", "round": 2, "hook": Game.Timeline.PRESENT_PUBLIC_STATE, "player_id": reused.world.data.game_market.first_player, "choice": {"market": "Pass"}}
 	check(Market.choose(context).action != "invalid", "empty hand can pass market")

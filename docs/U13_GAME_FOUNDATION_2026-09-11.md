@@ -1,5 +1,9 @@
 # U13 full-game foundation — milestone 1
 
+**Parity audit:** See `U13_U12_PARITY_AUDIT_2026-09-11.md` for the verified
+playable baseline, corrected Slaver priority, missing Conduit/Sigil lifecycle,
+and revised completion queue.
+
 **Current checkpoint:** `U13_GAME_MARKET_2026-09-11.md` adds market swaps and
 refresh, expanding the runner to 8/8. Earlier checkpoint counts below are historical.
 

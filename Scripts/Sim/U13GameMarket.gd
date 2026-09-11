@@ -1,14 +1,15 @@
 extends RefCounted
 
+const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
 const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
-const VERSION: String = "U13_GAME_MARKET_V1"
+const VERSION: String = "U13_GAME_MARKET_V2"
 const SIZE: int = 3
 
-static func initialize(world: Dictionary) -> void:
-	world.data["game_market"] = {"version": VERSION, "round": 0, "seat": 2}
+static func initialize(world: Dictionary, seed_value: String) -> void:
+	world.data["game_market"] = {"version": VERSION, "round": 0, "seat": 2, "first_player": int(Rng.draw(seed_value, VERSION, "FIRST_PLAYER", 0, 2).value)}
 	world.data.card_zones["market"] = []
 	world.data.card_zones["market_reserve"] = []
 	for index in range(SIZE):
@@ -17,10 +18,10 @@ static func initialize(world: Dictionary) -> void:
 static func valid(world: Dictionary) -> bool:
 	var state = world.data.get("game_market")
 	var zones: Dictionary = world.data.card_zones
-	return typeof(state) == TYPE_DICTIONARY and state.get("version") == VERSION and Data.is_integer(state.get("round")) and state.round >= 0 and Data.is_integer(state.get("seat")) and state.seat >= 0 and state.seat <= 2 and typeof(zones.get("market")) == TYPE_ARRAY and zones.market.size() <= SIZE and zones.get("market_reserve") == [] and (state.round > 0 or state.seat == 2)
+	return typeof(state) == TYPE_DICTIONARY and state.get("version") == VERSION and state.get("first_player") in [0, 1] and Data.is_integer(state.get("round")) and state.round >= 0 and Data.is_integer(state.get("seat")) and state.seat >= 0 and state.seat <= 2 and typeof(zones.get("market")) == TYPE_ARRAY and zones.market.size() <= SIZE and zones.get("market_reserve") == [] and (state.round > 0 or state.seat == 2)
 
 static func public_event(type: String, data: Dictionary) -> Dictionary:
-	var event: Dictionary = {"type": type, "text": type, "data": data}
+	var event: Dictionary = {"type": type, "text": {"MARKET_REFRESHED": "The Slaver has new stock.", "MARKET_PASSED": "Passed the Slaver.", "MARKET_SWAPPED": "Exchanged a Subject at the Slaver."}.get(type, type), "data": data}
 	return {"event": event, "views": [event, event]}
 
 static func begin(world: Dictionary, seed_value: String, round_number: int) -> Dictionary:
@@ -45,7 +46,7 @@ static func begin(world: Dictionary, seed_value: String, round_number: int) -> D
 		_bottom(zones)
 		events.append(public_event("MARKET_REFRESHED", {"round": round_number, "old_ids": old, "card_ids": zones.market.duplicate()}))
 	world.data.game_market.round = round_number
-	world.data.game_market.seat = 0
+	world.data.game_market.seat = world.data.game_market.first_player
 	return {"action": "resolved", "world": world, "events": events}
 
 static func _bottom(zones: Dictionary) -> void:
@@ -73,6 +74,6 @@ static func choose(context: Dictionary) -> Dictionary:
 		ids.update(choice.take_id, pid, ids.get_entity(choice.take_id).attributes)
 		ids.update(choice.give_id, -1, ids.get_entity(choice.give_id).attributes)
 		world.entities = ids.snapshot()
-	world.data.game_market.seat += 1
+	world.data.game_market.seat = 1 - pid if pid == world.data.game_market.first_player else 2
 	var data: Dictionary = {"player_id": pid, "round": context.round, "choice": choice.duplicate(true)}
 	return {"action": "resolved", "world": world, "events": [public_event("MARKET_PASSED" if passed else "MARKET_SWAPPED", data)]}
