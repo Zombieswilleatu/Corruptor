@@ -1,5 +1,8 @@
 # U13 full-game foundation — milestone 1
 
+**Current checkpoint:** `U13_STOCKPILE_2026-09-11.md` adds private Selective Stores
+choices and expands the game runner to 7/7.
+
 **Current Castle checkpoint:** `U13_CASTLE_DEFENSES_2026-09-11.md` adds Keep/Bastion protection and expands the runner to 6/6.
 
 **Later checkpoint:** `U13_GAME_DEVELOPMENT_2026-09-11.md` adds combined

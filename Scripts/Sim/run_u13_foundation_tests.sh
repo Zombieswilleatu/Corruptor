@@ -295,6 +295,7 @@ u13_runners=(
   U13GameDevelopment
   U13GamePlanCoverage
   U13CastleDefenses
+  U13Stockpile
 )
 u13_markers=(
   'U13 round timeline failures: 0'
@@ -400,6 +401,7 @@ u13_markers=(
   'U13 game development failures: 0'
   'U13 game plan coverage failures: 0'
   'U13 castle defenses failures: 0'
+  'U13 Stockpile failures: 0'
 )
 if [[ $u13_spatial_only == true ]]; then
   u13_runners=(U13LordPowerDeclaration U13SpatialSpace U13SpatialQueries U13SpatialInput U13Determinism)
@@ -494,8 +496,8 @@ if [[ ${2:-} == --valak ]]; then
   u13_markers=('U13 Valak failures: 0' 'U13 Valak board failures: 0' 'U13 Valak visual checks: 23/23; failures: 0' 'U13 Kroni failures: 0' 'U13 Odradek failures: 0' 'U13 Marching integration failures: 0' 'U13 lane auras failures: 0')
 fi
 if [[ ${2:-} == --game ]]; then
-  u13_runners=(U13GameEconomy U13GameConductor U13GameRandom U13GameDevelopment U13GamePlanCoverage U13CastleDefenses)
-  u13_markers=('U13 game economy failures: 0' 'U13 game conductor failures: 0' 'U13 game random failures: 0' 'U13 game development failures: 0' 'U13 game plan coverage failures: 0' 'U13 castle defenses failures: 0')
+  u13_runners=(U13GameEconomy U13GameConductor U13GameRandom U13GameDevelopment U13GamePlanCoverage U13CastleDefenses U13Stockpile)
+  u13_markers=('U13 game economy failures: 0' 'U13 game conductor failures: 0' 'U13 game random failures: 0' 'U13 game development failures: 0' 'U13 game plan coverage failures: 0' 'U13 castle defenses failures: 0' 'U13 Stockpile failures: 0')
 fi
 if [[ ${2:-} == --kanifous ]]; then
   u13_runners=(U13Kanifous U13KanifousBoard U13MarcherFeedback U13MarcherFeedbackBoard U13Valak U13Kroni U13MarchingIntegration)

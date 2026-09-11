@@ -40,12 +40,23 @@ func step() -> Dictionary:
 	return _owner.run_next_hook()
 
 
-func to_planning() -> Dictionary:
+func to_planning(random_choices: bool = false) -> Dictionary:
 	if _owner == null:
 		return Data.invalid("game_not_started")
 	while _owner.next_hook() != Timeline.SUBMISSION_LOCK:
 		if _owner.next_hook().is_empty():
 			return Data.invalid("game_round_complete")
+		var pending: Dictionary = _owner.player_view(0, 0).world.game_economy.stockpile_pending
+		if not pending.is_empty():
+			var pid: int = pending.player_id
+			if not random_choices:
+				return {"action": "game_draw_choice", "player_id": pid}
+			var offered: Array = _owner.player_view(pid, 0).world.game_economy.stockpile_pending.card_ids
+			var index: int = int(Economy.Rng.draw(_owner.rng_seed(), "STOCKPILE_RANDOM_V1", "%d:%d" % [_owner.round_number(), pid], 0, offered.size()).value)
+			var selected: Dictionary = choose_stockpile(pid, offered[index])
+			if selected.action == "invalid":
+				return selected
+			continue
 		var result: Dictionary = step()
 		if result.action == "invalid":
 			return result
@@ -108,3 +119,7 @@ func restore(raw: Dictionary) -> Dictionary:
 	if result.action != "invalid":
 		_owner = candidate
 	return result
+
+
+func choose_stockpile(player_id: int, keep_id: String) -> Dictionary:
+	return Data.invalid("game_not_started") if _owner == null else _owner.submit_choice(player_id, {"keep_id": keep_id})

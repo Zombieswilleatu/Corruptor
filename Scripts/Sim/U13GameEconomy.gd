@@ -5,8 +5,9 @@ const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
+const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const DrawEvents = preload("res://Scripts/Sim/U13Gremory.gd")
-const VERSION: String = "U13_GAME_ECONOMY_V1"
+const VERSION: String = "U13_GAME_ECONOMY_V2"
 # Transcribed from SeededGameSetup, GameSetup, RoundEngine and RuleConfig.
 # No old Lord callbacks or sequential Python RNG enter the U13 rules path.
 const SUITS: Array = ["Butcher", "Penitent", "Vulture", "Wright"]
@@ -47,7 +48,7 @@ static func initialize(raw: Dictionary, seed_value: String) -> Dictionary:
 	_shuffle(deck, seed_value, "opening")
 	world.entities = ids.snapshot()
 	world.data.card_zones = {"hands": [[], []], "deck": deck, "discard": [], "committed": [[], []], "hand_limit": HAND_LIMIT}
-	world.data["game_economy"] = {"version": VERSION, "opening_dealt": true, "draw_round": 0}
+	world.data["game_economy"] = {"version": VERSION, "opening_dealt": true, "draw_round": 0, "draw_player": 2, "stockpile_pending": {}}
 	# Setup draws are already represented in the initial saved state. Private
 	# identities are exposed only by the existing per-player projection.
 	for pid in [0, 1]:
@@ -75,23 +76,89 @@ static func valid(world: Dictionary) -> bool:
 		and Data.is_integer(state.get("draw_round"))
 		and state.draw_round >= 0
 		and world.data.card_zones.hand_limit == HAND_LIMIT
+		and pending_valid(world, state)
 	)
 
 
 static func on_hook(context: Dictionary) -> Dictionary:
 	if context.hook != Timeline.ROUND_START_AUTOMATIC:
 		return {"action": "resolved", "world": context.world, "events": []}
-	if not valid(context.world) or context.world.data.game_economy.draw_round != context.round - 1:
+	if not valid(context.world) or not context.world.data.game_economy.stockpile_pending.is_empty() or context.world.data.game_economy.draw_round != context.round - 1:
 		return Data.invalid("game_draw_clock_invalid")
 	var world: Dictionary = context.world.duplicate(true)
+	world.data.game_economy.draw_round = context.round
+	world.data.game_economy.draw_player = 0
+	return continue_draw(world, context.seed, context.round)
+
+
+static func pending_valid(world: Dictionary, state: Dictionary) -> bool:
+	if not Data.is_integer(state.get("draw_player")) or state.draw_player < 0 or state.draw_player > 2 or typeof(state.get("stockpile_pending")) != TYPE_DICTIONARY:
+		return false
+	var pending: Dictionary = state.stockpile_pending
+	if pending.is_empty():
+		return state.draw_player == 2
+	if pending.get("player_id") not in [0, 1] or state.draw_player != pending.player_id + 1 or state.draw_round < 1:
+		return false
+	if not Cards.can_discard_from_hand(world.data.card_zones.hands[pending.player_id], pending.get("card_ids"), 2):
+		return false
+	return active_stockpile(world, pending.player_id).get("id") == pending.get("castle_id")
+
+
+static func active_stockpile(world: Dictionary, pid: int) -> Dictionary:
+	var choices: Array = world.entities.entities.filter(func(e): return e.kind == "castle" and e.owner == pid and e.attributes.get("castle_type") == "Stockpile" and Structures.operational(e))
+	choices.sort_custom(func(a, b): return a.attributes.castle_slot < b.attributes.castle_slot)
+	return {} if choices.is_empty() else choices[0]
+
+
+# Stop between seats when a private choice is needed: its discard must be
+# available for recycling before the next player's ordinary draw begins.
+static func continue_draw(world: Dictionary, seed_value: String, round_number: int) -> Dictionary:
 	var events: Array = []
-	# Seat order matches the old draw step. Resolution/Reflex order must not
-	# change who receives which hidden card from the shared deck.
-	for pid in [0, 1]:
+	var state: Dictionary = world.data.game_economy
+	while state.draw_player < 2:
+		var pid: int = state.draw_player
 		for index in range(ROUND_CARDS):
-			var drawn: Dictionary = Cards.draw(world, pid, context.seed, "round:%d:draw:%d:%d" % [context.round, pid, index])
+			var drawn: Dictionary = Cards.draw(world, pid, seed_value, "round:%d:draw:%d:%d" % [round_number, pid, index])
 			if drawn.action == "invalid":
 				return drawn
 			events.append(DrawEvents._draw_event("ROUND_DRAW", drawn))
-	world.data.game_economy.draw_round = context.round
+		state.draw_player += 1
+		var stockpile: Dictionary = active_stockpile(world, pid)
+		if stockpile.is_empty():
+			continue
+		var offered: Array = []
+		for index in range(2):
+			var drawn: Dictionary = Cards.draw(world, pid, seed_value, "round:%d:stockpile:%d:%d" % [round_number, pid, index])
+			if drawn.action == "invalid":
+				return drawn
+			events.append(DrawEvents._draw_event("STOCKPILE_DRAW", drawn))
+			if drawn.drawn:
+				offered.append(drawn.card_id)
+		if offered.size() == 2:
+			state.stockpile_pending = {"player_id": pid, "castle_id": stockpile.id, "card_ids": offered}
+			break
 	return {"action": "resolved", "world": world, "events": events}
+
+
+static func choose(context: Dictionary) -> Dictionary:
+	var world: Dictionary = context.world.duplicate(true)
+	if context.hook != Timeline.PRESENT_PUBLIC_STATE or not valid(world):
+		return Data.invalid("stockpile_choice_window_closed")
+	var pending: Dictionary = world.data.game_economy.stockpile_pending
+	var choice: Dictionary = context.choice
+	if pending.is_empty() or context.player_id != pending.player_id or choice.keys().size() != 1 or choice.get("keep_id") not in pending.card_ids:
+		return Data.invalid("stockpile_choice_invalid")
+	var discarded: String = pending.card_ids[1] if choice.keep_id == pending.card_ids[0] else pending.card_ids[0]
+	var result: Dictionary = Cards.discard(world, context.player_id, [discarded])
+	if result.action == "invalid":
+		return result
+	world.data.game_economy.stockpile_pending = {}
+	var event: Dictionary = {"type": "STOCKPILE_SELECTED", "text": "Stockpile selection resolved.", "data": {"player_id": context.player_id, "castle_id": pending.castle_id, "discard_id": discarded}}
+	var private_event: Dictionary = event.duplicate(true)
+	private_event.data["keep_id"] = choice.keep_id
+	var views: Array = [event, event]
+	views[context.player_id] = private_event
+	var continued: Dictionary = continue_draw(world, context.seed, context.round)
+	if continued.action != "invalid":
+		continued.events.push_front({"event": private_event, "views": views})
+	return continued

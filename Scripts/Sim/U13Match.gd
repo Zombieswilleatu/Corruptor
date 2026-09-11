@@ -286,6 +286,24 @@ func run_next_hook() -> Dictionary:
 	return {"action": "u13_match_hook", "next_hook": next_hook(), "round": _runtime.round_number}
 
 
+# Content-owned, immediate choices between hooks use the same atomic transform
+# and private event path as hook resolution. Caller cannot supply a transform.
+func submit_choice(player_id: int, choice: Dictionary) -> Dictionary:
+	if _seed.is_empty() or player_id not in [0, 1] or not Data.is_data(choice) or _content_owner == null or not _content_owner.has_method("resolve_choice"):
+		return Data.invalid("match_choice_unavailable")
+	var candidate = _clone()
+	if candidate == null:
+		return Data.invalid("match_clone_failed")
+	var result: Dictionary = candidate._content_owner.resolve_choice({"world": candidate._world.duplicate(true), "hook": next_hook(), "round": round_number(), "seed": _seed, "player_id": player_id, "choice": choice.duplicate(true)})
+	if result.action == "invalid":
+		return result
+	var applied: Dictionary = candidate._apply_transform(result)
+	if applied.action == "invalid":
+		return applied
+	_adopt(candidate)
+	return {"action": "match_choice_accepted"}
+
+
 func player_view(player_id: int, history_limit: int = -1) -> Dictionary:
 	if player_id not in [0, 1] or _seed.is_empty():
 		return Data.invalid("viewer_invalid")

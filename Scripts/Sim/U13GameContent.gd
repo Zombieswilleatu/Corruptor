@@ -18,6 +18,8 @@ func valid_world(world: Dictionary) -> bool:
 
 
 func on_hook(context: Dictionary) -> Dictionary:
+	if context.hook == Timeline.PRESENT_PUBLIC_STATE and not context.world.data.game_economy.stockpile_pending.is_empty():
+		return Data.invalid("stockpile_choice_required")
 	var result: Dictionary = super.on_hook(context)
 	if result.action == "invalid" or context.hook != Timeline.ROUND_START_AUTOMATIC:
 		return result
@@ -36,11 +38,20 @@ func accept_order(context: Dictionary) -> Dictionary:
 		var expected: int = context.round - (1 if context.next_hook_index <= Timeline.hook_rank(Timeline.ROUND_START_AUTOMATIC) else 0)
 		if context.world.data.game_economy.draw_round != expected:
 			return Data.invalid("game_draw_snapshot_clock_invalid")
+		if not context.world.data.game_economy.stockpile_pending.is_empty() and context.next_hook_index != Timeline.hook_rank(Timeline.PRESENT_PUBLIC_STATE):
+			return Data.invalid("stockpile_snapshot_window_invalid")
 	return super.accept_order(context)
 
 
 func project(world: Dictionary, player_id: int) -> Dictionary:
 	var result: Dictionary = super.project(world, player_id)
 	result["game_economy"] = world.data.game_economy.duplicate(true)
+	var pending: Dictionary = result.game_economy.stockpile_pending
+	if not pending.is_empty() and pending.player_id != player_id:
+		result.game_economy.stockpile_pending = {"player_id": pending.player_id}
 	result["castle_defense_profile"] = CastleDefenses.VERSION
 	return result
+
+
+func resolve_choice(context: Dictionary) -> Dictionary:
+	return Economy.choose(context)
