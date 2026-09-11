@@ -28,6 +28,8 @@ var lord_ready_visual
 var _castle_art_states: Dictionary = {}
 var lord_absent_label
 var lord_sigil
+var lord_sigil_visual
+var castle_sigil_visual
 var castle_sigil
 var castle_row
 var castle_guard_box
@@ -74,6 +76,10 @@ func _ready() -> void:
 	add_child(prompt_castle_gutter)
 
 	_build_castle_group()
+	lord_sigil_visual = preload("res://Prototype/U13/U13SigilOverlay.gd").new()
+	lord_group.add_child(lord_sigil_visual)
+	castle_sigil_visual = preload("res://Prototype/U13/U13SigilOverlay.gd").new()
+	castle_guard_drop_area.add_child(castle_sigil_visual)
 	# Node2D avoids participating in the HBox layout or intercepting card input.
 	# Ground stays below cards; translucent flames can lick over their faces.
 	scorch_front = Node2D.new()
@@ -517,8 +523,10 @@ func bind_world(world: Dictionary, pid: int, planning: bool) -> void:
 					veil.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
 					veil.anchor_bottom = 0.28
 					card.art.add_child(veil)
-	lord_sigil.text = "◈ " + String(world.sigils[pid].Lord)
-	castle_sigil.text = "◈ " + String(world.sigils[pid].Castle)
+	lord_sigil_visual.set_state(String(world.sigils[pid].Lord))
+	castle_sigil_visual.set_state(String(world.sigils[pid].Castle))
+	lord_sigil.text = lord_sigil_visual.state_label()
+	castle_sigil.text = castle_sigil_visual.state_label()
 
 
 func _select_lord() -> void:

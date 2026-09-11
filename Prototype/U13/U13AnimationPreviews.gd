@@ -2,6 +2,7 @@ extends Control
 
 signal closed
 const PREVIEWS: Array = [
+	{"title": "Sigils · Fresh & Decaying", "note": "Gold fresh and silver decaying overlays follow the protected zone; click through to cards.", "scene": "res://Prototype/U13/U13SigilPreview.tscn", "size": Vector2(1100, 700)},
 	{"title": "Valak · Orbs & Absorption", "note": "Staff launch, singularity, rotating hold and five layers of stored energy.", "scene": "res://Prototype/U13/U13ValakPreview.tscn", "size": Vector2(1280, 900)},
 	{"title": "Kroni · Ravenous", "note": "Both lanes, Hunger sizes, chomping and Insatiable Hunger. Tune the pause and walking speed.", "scene": "res://Prototype/U13/U13KroniPreview.tscn", "size": Vector2(1280, 900)},
 	{

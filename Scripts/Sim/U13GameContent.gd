@@ -1,5 +1,6 @@
 extends "res://Scripts/Sim/U13Kanifous.gd"
 
+const Sigils = preload("res://Scripts/Sim/U13Sigils.gd")
 const Market = preload("res://Scripts/Sim/U13GameMarket.gd")
 const Economy = preload("res://Scripts/Sim/U13GameEconomy.gd")
 const CastleDefenses = preload("res://Scripts/Sim/U13CastleDefenses.gd")
@@ -11,17 +12,24 @@ func create_combat_match():
 	for power in rules():
 		validators[power] = Callable(self, "validate")
 		resolvers[power] = Callable(self, "resolve")
-	return MatchOwner.new(Conduit.VERSION + ":" + Market.VERSION + ":" + CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY, rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Guards, "legal_orders"))
+	return MatchOwner.new(Sigils.VERSION + ":" + Conduit.VERSION + ":" + Market.VERSION + ":" + CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY, rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Guards, "legal_orders"))
 
 
 func valid_world(world: Dictionary) -> bool:
-	return super.valid_world(world) and Economy.valid(world) and Market.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
+	return super.valid_world(world) and Economy.valid(world) and Market.valid(world) and Sigils.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
 
 
 func on_hook(context: Dictionary) -> Dictionary:
 	if context.hook == Timeline.PRESENT_PUBLIC_STATE and (not context.world.data.game_economy.stockpile_pending.is_empty() or context.world.data.game_market.seat != 2):
 		return Data.invalid("development_choice_required")
-	var result: Dictionary = super.on_hook(context)
+	var sigils: Dictionary = Sigils.on_hook(context)
+	if sigils.action == "invalid":
+		return sigils
+	var prepared: Dictionary = context.duplicate()
+	prepared.world = sigils.world
+	var result: Dictionary = super.on_hook(prepared)
+	if result.action != "invalid":
+		result.events = sigils.events + result.events
 	if result.action == "invalid" or context.hook != Timeline.ROUND_START_AUTOMATIC:
 		return result
 	var ordinary: Dictionary = context.duplicate(true)
@@ -40,6 +48,10 @@ func on_hook(context: Dictionary) -> Dictionary:
 
 func accept_order(context: Dictionary) -> Dictionary:
 	if context.phase == "snapshot":
+		for entry in [["aged_round", Timeline.ROUND_START_AUTOMATIC], ["created_round", Timeline.COMMITMENT_REVEAL]]:
+			var sigil_round: int = context.round - (1 if context.next_hook_index <= Timeline.hook_rank(entry[1]) else 0)
+			if context.world.data.sigil_lifecycle[entry[0]] != sigil_round:
+				return Data.invalid("sigil_snapshot_clock_invalid")
 		var expected: int = context.round - (1 if context.next_hook_index <= Timeline.hook_rank(Timeline.ROUND_START_AUTOMATIC) else 0)
 		if context.world.data.game_economy.draw_round != expected:
 			return Data.invalid("game_draw_snapshot_clock_invalid")
@@ -58,6 +70,7 @@ func project(world: Dictionary, player_id: int) -> Dictionary:
 	var pending: Dictionary = result.game_economy.stockpile_pending
 	if not pending.is_empty() and pending.player_id != player_id:
 		result.game_economy.stockpile_pending = {"player_id": pending.player_id}
+	result["sigil_lifecycle"] = world.data.sigil_lifecycle.duplicate(true)
 	result["blood_conduit_profile"] = Conduit.VERSION
 	result["game_market"] = world.data.game_market.duplicate(true)
 	result["market"] = world.data.card_zones.market.duplicate()

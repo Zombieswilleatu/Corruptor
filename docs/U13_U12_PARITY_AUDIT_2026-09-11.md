@@ -1,6 +1,6 @@
 > Follow-up: Blood Conduit is implemented in `U13_BLOOD_CONDUIT_2026-09-11.md`.
 > That note also distinguishes printed Fracture from summon-payment Threat.
-> Sigil lifecycle and the full Fracture banishment effect remain pending.
+> Sigil lifecycle is implemented; see U13_SIGILS_2026-09-11.md. The full Fracture banishment effect remains pending.
 
 # Final playable U12 versus migrated U13 — audit
 
@@ -37,7 +37,7 @@ or a reason to restore the old Lord kits over the explicit U13 overhaul.
 | Integrity / repair lock | U12 ceiling 21, operational floor 7, vulnerability-round lock after crossing below 7. | Present in U13 Structures/Construction. |
 | Resummon Tears | Latest U12 config sets resummon_tear_mode to none. | U13 adds one Neutral Tear by an explicitly accepted addendum, documented in `U13_ORIAS_MARK_BOARD_2026-09-09.md`. Intentional difference; preserved. |
 | Opening | U12 deals public row then five-card hands, starts selected Castles at full Integrity and pays an opening summon. | Row/deck distribution migrated. U13 currently starts all Castles unbuilt and Lords present without that payment. Already documented provisional setup, not completed parity. Resolve before balance/full-game acceptance. |
-| Sigils | Live BotRoundEngine ages Fresh -> Flipped -> gone; `RevealEngine` handles creation. | U13 can consume pre-existing Sigils and resolve their defense, but normal creation/aging is absent. Fixtures containing Sigils do not prove a complete Sigil lifecycle. |
+| Sigils | Live BotRoundEngine ages Fresh -> Flipped -> gone; `RevealEngine` handles creation. | U13 now creates Sigils at Ward reveal, ages Fresh -> Decaying -> gone, and renders the supplied zone overlays; lifecycle and replay gates are included. |
 | Vacant Throne | Controller calls `VacantThroneEngine.resolve_end_round`. | Not connected to U13 full-game conductor. Add alongside banishment/Veil lifecycle. |
 | Dominion rites, waiter spending, Veil, victory | Explicit U12 controller/engine phases. | Still pending; existing Souls/Tears counters and bounded test rounds are not a complete game. |
 
