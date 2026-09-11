@@ -9,6 +9,11 @@ const Buffer = preload("res://Scripts/Sim/U13MarchingBuffer.gd")
 const Marching = preload("res://Scripts/Sim/U13Marching.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 var failures: int = 0
+var profile_enabled: bool = "--profile" in OS.get_cmdline_user_args()
+
+func _timing(label: String, started: int) -> void:
+	if profile_enabled:
+		print("KRONI_PROFILE ", label, " ms=", (Time.get_ticks_usec() - started) / 1000.0)
 
 func _initialize() -> void:
 	call_deferred("_run")
@@ -20,6 +25,10 @@ func check(ok: bool, name_value: String) -> bool:
 	return ok
 
 func _run() -> void:
+	if profile_enabled:
+		print("KRONI_PROFILE runtime=", Engine.get_version_info().string, " os=", OS.get_name(), " cpu=", OS.get_processor_name())
+	var suite_started: int = Time.get_ticks_usec()
+	var section_started: int = suite_started
 	var world: Dictionary = Scenario.world()
 	check(Content.new().valid_world(world), "initial world valid")
 	for lord in ["Gremory", "Deimos", "Humbaba", "Kalligan", "Orias", "Odradek", "Kroni"]:
@@ -29,16 +38,38 @@ func _run() -> void:
 			continue
 		var restored = Session.new()
 		check(restored.restore_checkpoint(session.checkpoint()).action != "invalid", "restore " + lord)
+	_timing("configure_restore", section_started)
+	section_started = Time.get_ticks_usec()
 	_hunger()
+	_timing("hunger", section_started)
+	section_started = Time.get_ticks_usec()
 	_feeding()
+	_timing("feeding", section_started)
+	section_started = Time.get_ticks_usec()
 	_hunger_growth()
+	_timing("hunger_growth", section_started)
+	section_started = Time.get_ticks_usec()
 	_attack_commitment()
+	_timing("attack_commitment", section_started)
+	section_started = Time.get_ticks_usec()
 	_flee()
+	_timing("flee", section_started)
+	section_started = Time.get_ticks_usec()
 	_biased_launch()
+	_timing("biased_launch", section_started)
+	section_started = Time.get_ticks_usec()
 	_angle_gradient()
+	_timing("angle_gradient", section_started)
+	section_started = Time.get_ticks_usec()
 	_placement()
+	_timing("placement", section_started)
+	section_started = Time.get_ticks_usec()
 	_actors()
+	_timing("actors", section_started)
+	section_started = Time.get_ticks_usec()
 	_match()
+	_timing("match", section_started)
+	_timing("suite", suite_started)
 	print("U13 Kroni failures: %d" % failures)
 	quit(0 if failures == 0 else 1)
 
@@ -201,13 +232,26 @@ func _advance(owner, target: String) -> bool:
 		var hook: String = owner.next_hook()
 		if hook.is_empty():
 			return target.is_empty()
+		var started: int = Time.get_ticks_usec()
 		var result: Dictionary = owner.run_next_hook()
+		_timing("hook/" + hook, started)
 		if not check(result.action != "invalid", "hook " + hook + " " + str(result.get("reason", ""))):
 			return false
 		if hook not in [Timeline.ROUND_START_SCHEDULED, Timeline.SUBMISSION_LOCK, Timeline.POST_RESOLUTION_SPECIAL_ACTORS, Timeline.MARCHING_START, Timeline.MARCHING, Timeline.AFTERMATH]:
 			continue
+		started = Time.get_ticks_usec()
 		var restored = Content.new().create_combat_match()
-		var loaded: Dictionary = restored.restore(JSON.parse_string(JSON.stringify(owner.snapshot())))
+		_timing("restore_create/" + hook, started)
+		var stage_started: int = Time.get_ticks_usec()
+		var raw: Dictionary = owner.snapshot()
+		_timing("snapshot/" + hook, stage_started)
+		stage_started = Time.get_ticks_usec()
+		var decoded: Dictionary = JSON.parse_string(JSON.stringify(raw))
+		_timing("json/" + hook, stage_started)
+		stage_started = Time.get_ticks_usec()
+		var loaded: Dictionary = restored.restore(decoded)
+		_timing("restore_validate/" + hook, stage_started)
+		_timing("restore/" + hook, started)
 		if not check(loaded.action != "invalid", "restore after " + hook + " " + str(loaded.get("reason", ""))):
 			return false
 	return false
@@ -230,7 +274,9 @@ func _match() -> void:
 			var victim: Dictionary = guards(owner.snapshot().world, 1)[0]
 			powers.append(Scenario.source(0, 1, {"entity_id": victim.id}, 1, Content.CONSUME))
 		check(owner.preview_submission(0, powers, {}).action != "invalid", "Kroni powers can queue together")
+		var plan_started: int = Time.get_ticks_usec()
 		check(Scenario.plan(owner, 0).action != "invalid", "random legal Kroni plan")
+		_timing("plan/round_%d" % round_number, plan_started)
 		check(owner.submit(0, powers, {}).action != "invalid", "submit Kroni")
 		check(owner.submit(1, [], {}).action != "invalid", "submit opponent")
 		if not _advance(owner, ""):
