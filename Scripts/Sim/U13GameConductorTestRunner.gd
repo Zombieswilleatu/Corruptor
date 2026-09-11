@@ -5,7 +5,10 @@ func run() -> void:
 		var probe = Game.new()
 		if not check(probe.start("opening-" + lord, [lord, "Gremory"], [Slots.TYPES, Slots.TYPES]).action != "invalid", lord + " opening"):
 			continue
-		check(planning_with_market_passes(probe).action != "invalid" and probe.player_view(0).world.hand.size() == 10, lord + " reaches planning with normal draws")
+		var planned: Dictionary = planning_with_market_passes(probe)
+		var view: Dictionary = probe.player_view(0).world
+		var expected_hand: int = 10 - view.game_economy.opening.summons[0].card_ids.size()
+		check(planned.action != "invalid" and view.hand.size() == expected_hand, lord + " reaches planning after paid opening and normal draw")
 	var game = Game.new()
 	if not check(game.start("conductor-replay", ["Gremory", "Deimos"], [Slots.TYPES, Slots.TYPES]).action != "invalid", "start conductor"):
 		quit(1)

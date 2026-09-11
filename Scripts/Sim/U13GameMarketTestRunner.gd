@@ -20,6 +20,7 @@ func run() -> void:
 	check(game.step().action == "invalid" and game.snapshot() == before, "market must finish before planning")
 	var take: String = initial.market[0]
 	var give: String = game.player_view(0).world.hand[0]
+	var hand_size_before_swap: int = game.player_view(0).world.hand.size()
 	check(game.choose_market(1, {"market": "Swap", "take_id": take, "give_id": game.player_view(1).world.hand[0]}).action == "invalid" and game.snapshot() == before, "second player cannot act early")
 	check(game.choose_market(0, {"market": "Swap", "take_id": give, "give_id": take}).action == "invalid" and game.snapshot() == before, "reversed or foreign card zones rejected atomically")
 	var corrupt: Dictionary = before.duplicate(true)
@@ -29,7 +30,7 @@ func run() -> void:
 	check(replay.restore(JSON.parse_string(JSON.stringify(before))).action != "invalid", "save at first market choice")
 	var swap: Dictionary = {"market": "Swap", "take_id": take, "give_id": give}
 	check(game.choose_market(0, swap).action != "invalid" and replay.choose_market(0, swap).action != "invalid" and game.snapshot() == replay.snapshot(), "first swap replays exactly")
-	check(take in game.player_view(0).world.hand and give in game.player_view(1).world.market and game.player_view(0).world.hand.size() == 10, "swap preserves hand cap and returns payment to public row")
+	check(take in game.player_view(0).world.hand and give in game.player_view(1).world.market and game.player_view(0).world.hand.size() == hand_size_before_swap, "swap preserves hand size and returns payment to public row")
 	before = game.snapshot()
 	check(game.choose_market(0, {"market": "Pass"}).action == "invalid" and game.snapshot() == before, "one choice per player")
 	check(game.choose_market(1, {"market": "Swap", "take_id": take, "give_id": game.player_view(1).world.hand[0]}).action == "invalid" and game.snapshot() == before, "stale taken offer rejected")
@@ -73,6 +74,7 @@ func scarcity() -> void:
 	world.entities = ids.snapshot()
 	world.data.card_zones.hands = [[], []]
 	world.data.card_zones.deck = []
+	world.data.card_zones.discard = []
 	world.data.game_market.round = 1
 	var reused: Dictionary = Market.begin(world, "market-scarce", 2)
 	check(reused.action != "invalid" and Cards.valid(reused.world) and reused.world.data.card_zones.market.size() == 3 and reused.world.data.card_zones.market.all(func(id): return id in original), "fully exhausted refresh reuses old offers without duplication")

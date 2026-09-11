@@ -6,9 +6,11 @@ const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Market = preload("res://Scripts/Sim/U13GameMarket.gd")
+const Resummon = preload("res://Scripts/Sim/U13Resummoning.gd")
+const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
 const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const DrawEvents = preload("res://Scripts/Sim/U13Gremory.gd")
-const VERSION: String = "U13_GAME_ECONOMY_V3"
+const VERSION: String = "U13_GAME_ECONOMY_V4"
 # Transcribed from SeededGameSetup, GameSetup, RoundEngine and RuleConfig.
 # No old Lord callbacks or sequential Python RNG enter the U13 rules path.
 const SUITS: Array = ["Butcher", "Penitent", "Vulture", "Wright"]
@@ -16,6 +18,9 @@ const COUNTS: Array = [4, 4, 4, 3, 3]
 const OPENING_CARDS: int = 5
 const ROUND_CARDS: int = 5
 const HAND_LIMIT: int = 10
+const STARTING_CASTLES: int = 3
+const BLOOD_OFFERING_INTEGRITY: int = 3
+const BLOOD_OFFERING_DISCOUNT: int = 3
 
 
 static func initialize(raw: Dictionary, seed_value: String) -> Dictionary:
@@ -34,6 +39,11 @@ static func initialize(raw: Dictionary, seed_value: String) -> Dictionary:
 	world.data.breach_lord = ""
 	world.data["blood_conduit_profile"] = preload("res://Scripts/Sim/U13BloodConduit.gd").VERSION
 	world.data["castle_defense_profile"] = preload("res://Scripts/Sim/U13CastleDefenses.gd").VERSION
+	world.entities = ids.snapshot()
+	var castles: Dictionary = _prepare_opening_castles(world)
+	if castles.action == "invalid":
+		return castles
+	ids.restore(world.entities)
 	var deck: Array = []
 	for suit in SUITS:
 		var suit_cards: Array = []
@@ -50,7 +60,18 @@ static func initialize(raw: Dictionary, seed_value: String) -> Dictionary:
 	_shuffle(deck, seed_value, "opening")
 	world.entities = ids.snapshot()
 	world.data.card_zones = {"hands": [[], []], "deck": deck, "discard": [], "committed": [[], []], "hand_limit": HAND_LIMIT}
-	world.data["game_economy"] = {"version": VERSION, "opening_dealt": true, "draw_round": 0, "draw_player": 2, "stockpile_pending": {}}
+	world.data["game_economy"] = {
+		"version": VERSION,
+		"opening_dealt": true,
+		"draw_round": 0,
+		"draw_player": 2,
+		"stockpile_pending": {},
+		"opening": {
+			"active_castle_count": STARTING_CASTLES,
+			"active_castle_ids": castles.active_castle_ids,
+			"summons": []
+		}
+	}
 	preload("res://Scripts/Sim/U13Sigils.gd").configure(world)
 	Market.initialize(world, seed_value)
 	# Setup draws are already represented in the initial saved state. Private
@@ -60,7 +81,128 @@ static func initialize(raw: Dictionary, seed_value: String) -> Dictionary:
 			var drawn: Dictionary = Cards.draw(world, pid, seed_value, "opening:%d:%d" % [pid, index])
 			if drawn.action == "invalid" or not drawn.drawn:
 				return Data.invalid("game_opening_deal_failed")
+	var summons: Dictionary = _pay_opening_summons(world)
+	if summons.action == "invalid":
+		return summons
+	world.data.game_economy.opening.summons = summons.records
+	if not valid(world):
+		return Data.invalid("game_opening_state_invalid")
 	return {"action": "game_opening", "world": world}
+
+
+# The loadout's physical order is meaningful: its first three slots are the
+# player's starting Castles and the final two are protected blueprints. This
+# carries the accepted any-three opening into U13's five sealed physical slots.
+static func _prepare_opening_castles(world: Dictionary) -> Dictionary:
+	var ids = Ids.new()
+	if ids.restore(world.entities).action == "invalid":
+		return Data.invalid("game_opening_castles_invalid")
+	var active: Array = [[], []]
+	for pid in [0, 1]:
+		for slot in range(Slots.SLOT_COUNT):
+			var castle: Dictionary = ids.get_entity(Slots.castle_id(pid, slot))
+			if castle.is_empty() or castle.kind != "castle" or castle.owner != pid:
+				return Data.invalid("game_opening_castle_missing")
+			var starting: bool = slot < STARTING_CASTLES
+			castle.attributes.integrity = (
+				int(castle.attributes.max_integrity) if starting else 0
+			)
+			castle.attributes.status = "standing" if starting else "defunct"
+			castle.attributes.construction_state = "active" if starting else "unbuilt"
+			castle.attributes.artillery_target = ""
+			castle.attributes.erase("repair_lock_until_round")
+			ids.update(castle.id, pid, castle.attributes)
+			if starting:
+				active[pid].append(castle.id)
+	world.entities = ids.snapshot()
+	return {"action": "resolved", "active_castle_ids": active}
+
+
+# Opening summons are forced setup, as in the verified playable controller:
+# pay lowest-value cards until the current U13 Lord cost is met or Hand is
+# exhausted. An operational starting Circle automatically makes one Blood
+# Offering. Opening shortfall never creates Fracture and the first summon never
+# creates a Tear.
+static func _pay_opening_summons(world: Dictionary) -> Dictionary:
+	if not Cards.valid(world):
+		return Data.invalid("game_opening_summon_cards_invalid")
+	var records: Array = []
+	for pid in [0, 1]:
+		var ids = Ids.new()
+		if ids.restore(world.entities).action == "invalid":
+			return Data.invalid("game_opening_summon_entities_invalid")
+		var actor: Dictionary = Resummon.lord(world, pid)
+		if (
+			actor.is_empty()
+			or actor.owner != pid
+			or not Resummon.COSTS.has(actor.attributes.get("lord_id"))
+		):
+			return Data.invalid("game_opening_lord_invalid")
+		var circles: Array = world.entities.entities.filter(
+			func(row):
+				return (
+					row.kind == "castle"
+					and row.owner == pid
+					and row.attributes.get("castle_type") == "SummoningCircle"
+					and Structures.operational(row)
+					and int(row.attributes.integrity) >= BLOOD_OFFERING_INTEGRITY
+				)
+		)
+		circles.sort_custom(
+			func(a: Dictionary, b: Dictionary) -> bool:
+				return int(a.attributes.castle_slot) < int(b.attributes.castle_slot)
+		)
+		var circle_id: String = ""
+		var cost: int = int(Resummon.COSTS[actor.attributes.lord_id])
+		if not circles.is_empty():
+			var circle: Dictionary = circles[0]
+			circle_id = circle.id
+			circle.attributes.integrity -= BLOOD_OFFERING_INTEGRITY
+			ids.update(circle.id, pid, circle.attributes)
+			world.entities = ids.snapshot()
+			cost = maxi(0, cost - BLOOD_OFFERING_DISCOUNT)
+		var selected: Array = []
+		var values: Array = []
+		var paid_value: int = 0
+		var available: Array = world.data.card_zones.hands[pid].duplicate()
+		while paid_value < cost and not available.is_empty():
+			ids.restore(world.entities)
+			var lowest_index: int = 0
+			var lowest: int = int(ids.get_entity(available[0]).attributes.value)
+			for index in range(1, available.size()):
+				var value: int = int(ids.get_entity(available[index]).attributes.value)
+				if value < lowest:
+					lowest = value
+					lowest_index = index
+			var card_id: String = available.pop_at(lowest_index)
+			selected.append(card_id)
+			values.append(lowest)
+			paid_value += lowest
+		var payment: Dictionary = Cards.discard(world, pid, selected)
+		if payment.action == "invalid":
+			return payment
+		ids.restore(world.entities)
+		actor = ids.get_entity(actor.id)
+		actor.attributes.alive = true
+		if actor.attributes.lord_id != "Humbaba":
+			actor.attributes["threat"] = 0
+		ids.update(actor.id, pid, actor.attributes)
+		world.entities = ids.snapshot()
+		records.append(
+			{
+				"player_id": pid,
+				"lord_id": actor.attributes.lord_id,
+				"lord_entity_id": actor.id,
+				"cost": cost,
+				"paid_value": paid_value,
+				"shortfall": maxi(0, cost - paid_value),
+				"card_ids": selected,
+				"card_values": values,
+				"circle_id": circle_id,
+				"circle_exerted": BLOOD_OFFERING_INTEGRITY if not circle_id.is_empty() else 0
+			}
+		)
+	return {"action": "resolved", "records": records}
 
 
 static func _shuffle(cards: Array, seed_value: String, purpose: String) -> void:
@@ -80,8 +222,108 @@ static func valid(world: Dictionary) -> bool:
 		and Data.is_integer(state.get("draw_round"))
 		and state.draw_round >= 0
 		and world.data.card_zones.hand_limit == HAND_LIMIT
+		and _opening_valid(world, state.get("opening"))
 		and pending_valid(world, state)
 	)
+
+
+static func _opening_valid(world: Dictionary, opening) -> bool:
+	if (
+		typeof(opening) != TYPE_DICTIONARY
+		or opening.keys().size() != 3
+		or opening.get("active_castle_count") != STARTING_CASTLES
+		or typeof(opening.get("active_castle_ids")) != TYPE_ARRAY
+		or opening.active_castle_ids.size() != 2
+		or typeof(opening.get("summons")) != TYPE_ARRAY
+		or opening.summons.size() != 2
+	):
+		return false
+	var ids = Ids.new()
+	if ids.restore(world.entities).action == "invalid":
+		return false
+	var used = world.entities.get("used_ids", [])
+	var all_cards: Dictionary = {}
+	for pid in [0, 1]:
+		var castles = opening.active_castle_ids[pid]
+		if typeof(castles) != TYPE_ARRAY or castles.size() != STARTING_CASTLES:
+			return false
+		var expected_circle_id: String = ""
+		for slot in range(STARTING_CASTLES):
+			if castles[slot] != Slots.castle_id(pid, slot) or castles[slot] not in used:
+				return false
+			var castle: Dictionary = ids.get_entity(castles[slot])
+			if (
+				castle.is_empty()
+				or castle.kind != "castle"
+				or castle.owner != pid
+				or castle.attributes.get("castle_slot") != slot
+			):
+				return false
+			if (
+				expected_circle_id.is_empty()
+				and castle.attributes.get("castle_type") == "SummoningCircle"
+			):
+				expected_circle_id = castle.id
+		var record = opening.summons[pid]
+		if (
+			typeof(record) != TYPE_DICTIONARY
+			or record.keys().size() != 10
+			or record.get("player_id") != pid
+			or record.get("lord_id") != world.players[pid].lord_id
+			or record.get("lord_entity_id") != world.players[pid].lord_entity_id
+			or not Resummon.COSTS.has(record.get("lord_id"))
+			or not Data.is_integer(record.get("cost"))
+			or not Data.is_integer(record.get("paid_value"))
+			or not Data.is_integer(record.get("shortfall"))
+			or typeof(record.get("card_ids")) != TYPE_ARRAY
+			or typeof(record.get("card_values")) != TYPE_ARRAY
+			or record.card_ids.size() != record.card_values.size()
+			or typeof(record.get("circle_id")) != TYPE_STRING
+			or not Data.is_integer(record.get("circle_exerted"))
+		):
+			return false
+		var expected_cost: int = int(Resummon.COSTS[record.lord_id])
+		if record.circle_id != expected_circle_id:
+			return false
+		if not expected_circle_id.is_empty():
+			if record.circle_exerted != BLOOD_OFFERING_INTEGRITY:
+				return false
+			expected_cost = maxi(0, expected_cost - BLOOD_OFFERING_DISCOUNT)
+		elif record.circle_exerted != 0:
+			return false
+		if record.cost != expected_cost:
+			return false
+		var sorted: Array = record.card_values.duplicate()
+		sorted.sort()
+		if record.card_values != sorted:
+			return false
+		var total: int = 0
+		for index in range(record.card_ids.size()):
+			var card_id = record.card_ids[index]
+			var value = record.card_values[index]
+			if (
+				typeof(card_id) != TYPE_STRING
+				or card_id.is_empty()
+				or card_id not in used
+				or all_cards.has(card_id)
+				or not Data.is_integer(value)
+				or value < 1
+				or value > 5
+			):
+				return false
+			all_cards[card_id] = true
+			total += value
+		if (
+			record.paid_value != total
+			or record.shortfall != maxi(0, record.cost - total)
+			or (
+				total >= record.cost
+				and not record.card_values.is_empty()
+				and total - int(record.card_values[-1]) >= record.cost
+			)
+		):
+			return false
+	return true
 
 
 static func on_hook(context: Dictionary) -> Dictionary:

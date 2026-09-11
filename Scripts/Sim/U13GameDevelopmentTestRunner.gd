@@ -33,26 +33,26 @@ func construction_lifecycle() -> void:
 	var game = Game.new()
 	if not check(game.start("development-build", ["Gremory", "Deimos"], [Slots.TYPES, Slots.TYPES]).action != "invalid", "construction game starts"):
 		return
-	var keep: String = Slots.castle_id(0, 0)
+	var project: String = Slots.castle_id(0, 3)
 	for round_number in range(1, 6):
 		if not check(planning_with_market_passes(game).action != "invalid", "Development planning %d" % round_number):
 			return
 		var order: Dictionary = {}
 		if round_number == 1:
 			var hand: Array = game.player_view(0).world.hand
-			order = {"castle_action": choice("Construct", keep), "action": "Ward", "lane": "Lord", "card_ids": hand.slice(0, 2), "guard_moves": [{"card_id": hand[2], "lane": "Lord", "slot": 0}, {"card_id": hand[3], "lane": "Castle", "slot": 0}]}
+			order = {"castle_action": choice("Construct", project), "action": "Ward", "lane": "Lord", "card_ids": hand.slice(0, 2), "guard_moves": [{"card_id": hand[2], "lane": "Lord", "slot": 0}, {"card_id": hand[3], "lane": "Castle", "slot": 0}]}
 			var bad: Dictionary = order.duplicate(true)
 			bad.guard_moves[0].card_id = hand[0]
 			var before: Dictionary = game.snapshot()
 			check(game._owner.preview_submission(0, [], bad).action == "invalid" and game.snapshot() == before, "combat/deployment double spend rejected atomically")
 		elif round_number == 4:
-			order = {"castle_action": choice("Activate", keep)}
+			order = {"castle_action": choice("Activate", project)}
 		elif round_number == 5:
 			var hand: Array = game.player_view(0).world.hand
-			order = {"castle_action": choice("Repair", keep, [hand[0]]), "guard_moves": [{"card_id": hand[1], "lane": "Lord", "slot": 1}]}
+			order = {"castle_action": choice("Repair", project, [hand[0]]), "guard_moves": [{"card_id": hand[1], "lane": "Lord", "slot": 1}]}
 		if not finish(game, order):
 			return
-		var castle: Dictionary = entity(game, keep)
+		var castle: Dictionary = entity(game, project)
 		if round_number <= 3:
 			check(castle.attributes.integrity == 3 * round_number and castle.attributes.construction_state == "building", "automatic project advances once during mixed/pass round")
 		elif round_number == 4:

@@ -31,8 +31,9 @@ var valak_events: Array = []
 var kanifous_events: Array = []
 
 
-# Only the exercise opening differs from Core's all-unbuilt setup boundary.
-# Keep production starting economy undecided, and never mutate a running match.
+# This legacy board session keeps its explicit exercise opening. Production
+# starting Castles and summon payment belong to U13GameEconomy; never blend that
+# path into these focused visual fixtures or mutate a running match.
 func configure(lords: Array, castles: Array, quick: bool) -> Dictionary:
 	var initial: Dictionary = _initial(lords, castles)
 	if initial.get("action") == "invalid":

@@ -57,6 +57,10 @@ and retains the exercise fixture's cards/resources. The separate loadout batch
 explicitly commissions two Engines per side to exercise duplicate artillery.
 Neither fixture decides how many completed Castles production starts with.
 
+> Follow-up: `U13_PRODUCTION_OPENING_2026-09-11.md` now settles that later
+> production boundary: the ordered first three slots start active and the final
+> two remain constructible. This historical exercise fixture remains unchanged.
+
 Siege Engine is the currently migrated printed Castle effect. Keep, Bastion,
 Stockpile and Summoning Circle now have selectable stable identities and the
 Construction lifecycle, but their printed powers still need their U13 migration.

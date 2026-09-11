@@ -8,11 +8,21 @@ const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 func row(world: Dictionary, id: String) -> Dictionary:
 	return world.entities.entities.filter(func(e): return e.id == id)[0]
 
-func fixture(kind: String, integrity: int, state: String, strength: int, duplicate: bool = false) -> Dictionary:
+func fixture(
+	kind: String,
+	integrity: int,
+	state: String,
+	strength: int,
+	duplicate: bool = false,
+	defender_lord: String = "Gremory"
+) -> Dictionary:
 	var choices: Array = Slots.TYPES.duplicate()
 	if duplicate:
 		choices[2] = kind
-	var world: Dictionary = Economy.initialize(Game.Scenario.loadout_world(["Gremory", "Gremory"], [Slots.TYPES, choices]), "castle-defenses").world
+	var world: Dictionary = Economy.initialize(
+		Game.Scenario.loadout_world(["Gremory", defender_lord], [Slots.TYPES, choices]),
+		"castle-defenses"
+	).world
 	var ids = Ids.new()
 	ids.restore(world.entities)
 	var screen_id: String = Slots.castle_id(1, 0 if kind == "Keep" else 1)
@@ -100,14 +110,16 @@ func run() -> void:
 	var content = Game.Content.new()
 	var shot: Dictionary = Structures.fire(bombardment.world, engine.id, "bypass", 1, "test", Callable(content, "react"), [0, 1])
 	check(shot.action != "invalid" and row(shot.world, bombardment.screen).attributes.integrity == 7 and row(shot.world, Slots.castle_id(1, 0)).attributes.integrity == 7 and shot.world.players[0].resources.souls == 0, "artillery bypasses Bastion and earns no Siege reward")
-	var humbaba: Dictionary = fixture("Keep", 7, "active", 13)
+	var humbaba: Dictionary = fixture("Keep", 7, "active", 13, false, "Humbaba")
 	ids.restore(humbaba.world.entities)
-	var actor: Dictionary = ids.get_entity(humbaba.world.players[1].lord_entity_id)
-	actor.attributes.lord_id = "Humbaba"
-	actor.attributes.erase("threat")
-	ids.update(actor.id, 1, actor.attributes)
+	for slot in [1, 2]:
+		var support: Dictionary = ids.get_entity(Slots.castle_id(1, slot))
+		support.attributes.integrity = 0
+		support.attributes.status = "defunct"
+		support.attributes.construction_state = "unbuilt"
+		ids.update(support.id, 1, support.attributes)
 	humbaba.world.entities = ids.snapshot()
-	humbaba.world.players[1].lord_id = "Humbaba"
+	var actor: Dictionary = row(humbaba.world, humbaba.world.players[1].lord_entity_id)
 	var hum_hit: Dictionary = attack(humbaba)
 	check(not row(hum_hit.world, actor.id).attributes.alive, "Humbaba defense recalculates after Keep falls before overflow")
 	integration()

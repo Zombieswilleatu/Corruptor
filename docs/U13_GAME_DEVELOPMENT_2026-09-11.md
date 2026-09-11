@@ -57,7 +57,8 @@ exact. Recorded submissions still resolve under unchanged mechanics.
 
 Directed cases include:
 
-- A real opening constructs a Keep while deploying guards and committing a Ward.
+- A real opening constructs its fourth-slot blueprint while deploying guards and
+  committing a Ward; the first three selected slots already stand.
 - Automatic construction advances once on subsequent pass rounds.
 - Early activation stops free protected progress; repair can coexist with a guard.
 - A banished Lord returns while constructing and deploying a guard in the same
@@ -85,3 +86,7 @@ Candidate sampling is deliberately bounded: one Lord power, existing combat
 payments, single/pair Castle payments, and ascending/descending payment prefixes
 for resummoning. This proves useful combinations are reachable, not that every
 possible legal strategy has been enumerated or that the bot plays well.
+
+> Later checkpoints add Blood Conduit, Sigils, and the settled production setup;
+> see `U13_PRODUCTION_OPENING_2026-09-11.md`. Printed Fracture banishment remains
+> pending.

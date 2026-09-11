@@ -18,6 +18,10 @@ func fixture(hand_count: int = 0, integrity: int = 7, construction: String = "ac
 			ids.update(castle.id, pid, castle.attributes)
 	world.entities = ids.snapshot()
 	for pid in [0, 1]:
+		while world.data.card_zones.hands[pid].size() < hand_count:
+			var drawn: Dictionary = Cards.draw(world, pid, "stockpile-fixture", "fill:%d" % pid)
+			if not drawn.get("drawn", false):
+				break
 		Cards.discard(world, pid, world.data.card_zones.hands[pid].slice(hand_count))
 	if supply >= 0:
 		var retained: Array = world.data.card_zones.deck.slice(0, supply)

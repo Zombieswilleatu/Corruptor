@@ -56,8 +56,9 @@ Offers and exchanges are public. Other hidden cards retain existing projections.
 Shared discard recycling was factored into a helper also used by neutral market
 draws; its keyed shuffle and error propagation are unchanged.
 
-Economy policy is now `U13_GAME_ECONOMY_V3`, requiring new games for old saved game
-checkpoints. Opening seeds change because the previously missing market is dealt.
+This checkpoint introduced `U13_GAME_ECONOMY_V3`. The later paid production
+opening advances that policy to `U13_GAME_ECONOMY_V4`; both changes require new
+games, and neither promises old seed-to-state parity.
 
 ## Verification
 
