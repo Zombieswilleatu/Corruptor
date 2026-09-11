@@ -28,7 +28,9 @@ static func valid(world: Dictionary) -> bool:
 		zones.hands[0],
 		zones.hands[1],
 		committed[0],
-		committed[1]
+		committed[1],
+		zones.get("market", []),
+		zones.get("market_reserve", [])
 	]
 	for index in range(piles.size()):
 		if typeof(piles[index]) != TYPE_ARRAY:
@@ -41,7 +43,7 @@ static func valid(world: Dictionary) -> bool:
 				card.is_empty()
 				or card.kind != "card"
 				or card.attributes.get("role") == "guard"
-				or card.owner != ((index - 2) % 2 if index >= 2 else -1)
+				or card.owner != ((index - 2) % 2 if index >= 2 and index < 6 else -1)
 			):
 				return false
 			seen[card_id] = true
@@ -103,19 +105,10 @@ static func draw(
 		return Data.invalid("card_draw_world_invalid")
 	var zones: Dictionary = world.data.card_zones
 	# Preserve baseline recycle-before-hand-limit semantics. Sifting never recycles.
-	if not from_discard and zones.deck.is_empty() and not zones.discard.is_empty():
-		var shuffled: Array = zones.discard.duplicate()
-		for index in range(shuffled.size() - 1, 0, -1):
-			var roll: Dictionary = Rng.draw(
-				seed_value, event_id, "DISCARD_RECYCLE", index, index + 1
-			)
-			if roll.action == "invalid":
-				return roll
-			var swap = shuffled[index]
-			shuffled[index] = shuffled[roll.value]
-			shuffled[roll.value] = swap
-		zones.deck = shuffled
-		zones.discard.clear()
+	if not from_discard:
+		var recycled: Dictionary = _recycle(zones, seed_value, event_id)
+		if recycled.action == "invalid":
+			return recycled
 	var pile: Array = zones.discard if from_discard else zones.deck
 	if zones.hands[player_id].size() >= zones.hand_limit or pile.is_empty():
 		return {"action": "draw", "drawn": false, "player_id": player_id}
@@ -158,3 +151,32 @@ static func clear_commitments(world: Dictionary, player_order: Array) -> Diction
 	zones["committed"] = [[], []]
 	world.entities = entities.snapshot()
 	return {"action": "resolved"}
+
+
+static func _recycle(zones: Dictionary, seed_value: String, event_id: String) -> Dictionary:
+	if zones.deck.is_empty() and not zones.discard.is_empty():
+		var shuffled: Array = zones.discard.duplicate()
+		for index in range(shuffled.size() - 1, 0, -1):
+			var roll: Dictionary = Rng.draw(
+				seed_value, event_id, "DISCARD_RECYCLE", index, index + 1
+			)
+			if roll.action == "invalid":
+				return roll
+			var swap = shuffled[index]
+			shuffled[index] = shuffled[roll.value]
+			shuffled[roll.value] = swap
+		zones.deck = shuffled
+		zones.discard.clear()
+	return {"action": "resolved"}
+
+
+# Caller immediately assigns the returned neutral card to its destination pile.
+static func take_neutral(world: Dictionary, seed_value: String, event_id: String) -> Dictionary:
+	if not valid(world):
+		return Data.invalid("neutral_draw_world_invalid")
+	var recycled: Dictionary = _recycle(world.data.card_zones, seed_value, event_id)
+	if recycled.action == "invalid":
+		return recycled
+	if world.data.card_zones.deck.is_empty():
+		return {"action": "taken", "card_id": ""}
+	return {"action": "taken", "card_id": world.data.card_zones.deck.pop_back()}

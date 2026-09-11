@@ -5,9 +5,10 @@ const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
+const Market = preload("res://Scripts/Sim/U13GameMarket.gd")
 const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const DrawEvents = preload("res://Scripts/Sim/U13Gremory.gd")
-const VERSION: String = "U13_GAME_ECONOMY_V2"
+const VERSION: String = "U13_GAME_ECONOMY_V3"
 # Transcribed from SeededGameSetup, GameSetup, RoundEngine and RuleConfig.
 # No old Lord callbacks or sequential Python RNG enter the U13 rules path.
 const SUITS: Array = ["Butcher", "Penitent", "Vulture", "Wright"]
@@ -49,6 +50,7 @@ static func initialize(raw: Dictionary, seed_value: String) -> Dictionary:
 	world.entities = ids.snapshot()
 	world.data.card_zones = {"hands": [[], []], "deck": deck, "discard": [], "committed": [[], []], "hand_limit": HAND_LIMIT}
 	world.data["game_economy"] = {"version": VERSION, "opening_dealt": true, "draw_round": 0, "draw_player": 2, "stockpile_pending": {}}
+	Market.initialize(world)
 	# Setup draws are already represented in the initial saved state. Private
 	# identities are exposed only by the existing per-player projection.
 	for pid in [0, 1]:

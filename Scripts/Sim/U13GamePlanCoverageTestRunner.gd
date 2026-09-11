@@ -5,7 +5,7 @@ const Development = preload("res://Scripts/Sim/U13GameDevelopment.gd")
 func run() -> void:
 	for lord in Game.LORDS:
 		var game = Game.new()
-		if not check(game.start("development-plan-" + lord, [lord, "Gremory"], [Slots.TYPES, Slots.TYPES]).action != "invalid" and game.to_planning().action != "invalid", lord + " planning"):
+		if not check(game.start("development-plan-" + lord, [lord, "Gremory"], [Slots.TYPES, Slots.TYPES]).action != "invalid" and planning_with_market_passes(game).action != "invalid", lord + " planning"):
 			continue
 		var before: Dictionary = game.snapshot()
 		var plan: Dictionary = game.plan(0)

@@ -118,7 +118,7 @@ func integration() -> void:
 	var f: Dictionary = fixture("Bastion", 7, "active", 16)
 	var game = Game.new()
 	game._owner = Game.Content.new().create_combat_match()
-	if not check(game._owner.start("castle-defenses", f.world, [0, 1]).action != "invalid" and game.to_planning().action != "invalid", "screening match starts"):
+	if not check(game._owner.start("castle-defenses", f.world, [0, 1]).action != "invalid" and planning_with_market_passes(game).action != "invalid", "screening match starts"):
 		return
 	var order: Dictionary = {"action": "Siege", "lane": "Castle", "target_id": Slots.castle_id(1, 0), "card_ids": f.cards}
 	if not check(game.submit([{"powers": [], "order": order}, {"powers": [], "order": {}}]).action != "invalid", "screening joint submission"):

@@ -28,6 +28,7 @@ func fixture(hand_count: int = 0, integrity: int = 7, construction: String = "ac
 		world.entities = ids.snapshot()
 		world.data.card_zones.deck = retained
 		world.data.card_zones.discard = []
+		world.data.card_zones.market = []
 	var game = Game.new()
 	game._owner = Game.Content.new().create_combat_match()
 	if not check(game._owner.start("stockpile", world, [0, 1]).action != "invalid", "Stockpile directed match starts"):
@@ -39,7 +40,7 @@ func run() -> void:
 		var game = fixture(0, 7, "active", copies)
 		if game == null:
 			continue
-		check(game.to_planning().action == "game_draw_choice", "draw pauses for private choice")
+		check(planning_with_market_passes(game).action == "game_draw_choice", "draw pauses for private choice")
 		var before: Dictionary = game.snapshot()
 		var offer: Dictionary = game.player_view(0).world.game_economy.stockpile_pending
 		check(offer.card_ids.size() == 2 and game.player_view(0).world.hand.size() == 7, "one Stockpile benefit regardless of copies")
@@ -67,16 +68,16 @@ func run() -> void:
 		var game = fixture(example[0], example[1], example[2])
 		if game == null:
 			continue
-		check(game.to_planning().action == "game_planning" and game.player_view(0).world.hand.size() == example[3], "cap and inactive Stockpile %s" % str(example))
+		check(planning_with_market_passes(game).action == "game_planning" and game.player_view(0).world.hand.size() == example[3], "cap and inactive Stockpile %s" % str(example))
 	for supply in [0, 6, 7]:
 		var scarce = fixture(0, 7, "active", 1, supply)
 		if scarce == null:
 			continue
-		var advance: Dictionary = scarce.to_planning()
+		var advance: Dictionary = planning_with_market_passes(scarce)
 		if supply == 7:
 			check(advance.action == "game_draw_choice", "last two cards still offer a choice")
 			var offered: Array = scarce.player_view(0).world.game_economy.stockpile_pending.card_ids
-			check(scarce.choose_stockpile(0, offered[0]).action != "invalid" and scarce.to_planning().action == "game_planning", "scarce draw resumes")
+			check(scarce.choose_stockpile(0, offered[0]).action != "invalid" and planning_with_market_passes(scarce).action == "game_planning", "scarce draw resumes")
 			check(scarce.player_view(1).world.hand == [offered[1]], "discard recycles into second player's draw in seat order")
 		else:
 			check(advance.action == "game_planning" and scarce.player_view(0).world.hand.size() == supply, "zero or one available extra card needs no choice")

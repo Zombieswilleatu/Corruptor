@@ -35,7 +35,7 @@ func construction_lifecycle() -> void:
 		return
 	var keep: String = Slots.castle_id(0, 0)
 	for round_number in range(1, 6):
-		if not check(game.to_planning().action != "invalid", "Development planning %d" % round_number):
+		if not check(planning_with_market_passes(game).action != "invalid", "Development planning %d" % round_number):
 			return
 		var order: Dictionary = {}
 		if round_number == 1:
@@ -80,7 +80,7 @@ func fixture(lords: Array, mode: String):
 	# Explicit pre-match states isolate return/reconstruction; never patch a
 	# running owner or count these fixtures as autonomously reached full games.
 	game._owner = Game.Content.new().create_combat_match()
-	if not check(game._owner.start("development-" + mode, world, [0, 1]).action != "invalid" and game.to_planning().action != "invalid", mode + " directed opening"):
+	if not check(game._owner.start("development-" + mode, world, [0, 1]).action != "invalid" and planning_with_market_passes(game).action != "invalid", mode + " directed opening"):
 		return null
 	return game
 

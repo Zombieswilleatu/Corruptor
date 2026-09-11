@@ -57,6 +57,16 @@ func to_planning(random_choices: bool = false) -> Dictionary:
 			if selected.action == "invalid":
 				return selected
 			continue
+		var market: Dictionary = _owner.player_view(0, 0).world.game_market
+		if market.seat != 2:
+			if not random_choices:
+				return {"action": "game_market_choice", "player_id": market.seat}
+			var options: Array = market_choices(market.seat)
+			var index: int = int(Economy.Rng.draw(_owner.rng_seed(), "MARKET_RANDOM_V1", "%d:%d" % [_owner.round_number(), market.seat], 0, options.size()).value)
+			var selected: Dictionary = choose_market(market.seat, options[index])
+			if selected.action == "invalid":
+				return selected
+			continue
 		var result: Dictionary = step()
 		if result.action == "invalid":
 			return result
@@ -123,3 +133,21 @@ func restore(raw: Dictionary) -> Dictionary:
 
 func choose_stockpile(player_id: int, keep_id: String) -> Dictionary:
 	return Data.invalid("game_not_started") if _owner == null else _owner.submit_choice(player_id, {"keep_id": keep_id})
+
+
+func market_choices(player_id: int) -> Array:
+	if _owner == null or player_id not in [0, 1] or _owner.next_hook() != Timeline.PRESENT_PUBLIC_STATE:
+		return []
+	var view: Dictionary = _owner.player_view(player_id, 0).world
+	if view.game_market.seat != player_id:
+		return []
+	var choices: Array = [{"market": "Pass"}]
+	for take in view.market:
+		for give in view.hand:
+			choices.append({"market": "Swap", "take_id": take, "give_id": give})
+	return choices
+
+func choose_market(player_id: int, choice: Dictionary) -> Dictionary:
+	if not choice.has("market"):
+		return Data.invalid("market_choice_invalid")
+	return Data.invalid("game_not_started") if _owner == null else _owner.submit_choice(player_id, choice)

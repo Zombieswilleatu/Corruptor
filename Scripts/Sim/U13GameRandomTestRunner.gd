@@ -6,7 +6,7 @@ func run() -> void:
 		quit(1)
 		return
 	for round_number in range(1, 4):
-		if not check(game.to_planning().action != "invalid", "round %d draws and planning" % round_number):
+		if not check(game.to_planning(true).action != "invalid", "round %d draws and planning" % round_number):
 			break
 		var before: Dictionary = game.snapshot()
 		var restored = Game.new()

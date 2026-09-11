@@ -23,7 +23,7 @@ func run() -> void:
 		return
 	var world: Dictionary = opening.world
 	check(Game.Content.new().valid_world(world), "opening valid under all-Lord content")
-	check(world.data.card_zones.hands[0].size() == 5 and world.data.card_zones.hands[1].size() == 5 and world.data.card_zones.deck.size() == 50, "five opening cards each from sixty-card deck")
+	check(world.data.card_zones.hands[0].size() == 5 and world.data.card_zones.hands[1].size() == 5 and world.data.card_zones.deck.size() == 47, "three market offers plus five opening cards each from sixty-card deck")
 	var counts: Dictionary = {}
 	var high: bool = false
 	for row in world.entities.entities:
@@ -60,7 +60,19 @@ func run() -> void:
 		Cards.discard(recycled_world, 0, recycled_world.data.card_zones.hands[0].duplicate())
 	ctx.world = recycled_world
 	var recycled: Dictionary = Economy.on_hook(ctx)
-	check(recycled.action != "invalid" and Cards.valid(recycled.world) and recycled.world.data.card_zones.hands[0].size() == 5 and recycled.world.data.card_zones.deck.size() == 50, "normal draws recycle exhausted deck without lost cards")
+	check(recycled.action != "invalid" and Cards.valid(recycled.world) and recycled.world.data.card_zones.hands[0].size() == 5 and recycled.world.data.card_zones.deck.size() == 47, "normal draws recycle exhausted deck without lost cards")
 	check(recycled == Economy.on_hook(ctx), "recycling and draws replay exactly")
 	print("U13 game economy failures: %d" % failures)
 	quit(failures)
+
+
+# Directed combat fixtures explicitly pass market choices to preserve their
+# intended payments. Random-Legal suites exercise real swap choices separately.
+func planning_with_market_passes(game) -> Dictionary:
+	var result: Dictionary = game.to_planning()
+	while result.action == "game_market_choice":
+		var passed: Dictionary = game.choose_market(result.player_id, {"market": "Pass"})
+		if passed.action == "invalid":
+			return passed
+		result = game.to_planning()
+	return result

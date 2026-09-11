@@ -322,6 +322,7 @@ func project(world: Dictionary, player_id: int) -> Dictionary:
 			or entity.attributes.get("role") == "guard"
 			or entity.id in zones.hands[player_id]
 			or entity.id in zones.discard
+			or entity.id in zones.get("market", [])
 			or entity.id in committed[player_id]
 			or (revealed and entity.id in committed[1 - player_id])
 		):

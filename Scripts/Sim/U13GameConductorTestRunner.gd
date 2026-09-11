@@ -5,7 +5,7 @@ func run() -> void:
 		var probe = Game.new()
 		if not check(probe.start("opening-" + lord, [lord, "Gremory"], [Slots.TYPES, Slots.TYPES]).action != "invalid", lord + " opening"):
 			continue
-		check(probe.to_planning().action != "invalid" and probe.player_view(0).world.hand.size() == 10, lord + " reaches planning with normal draws")
+		check(planning_with_market_passes(probe).action != "invalid" and probe.player_view(0).world.hand.size() == 10, lord + " reaches planning with normal draws")
 	var game = Game.new()
 	if not check(game.start("conductor-replay", ["Gremory", "Deimos"], [Slots.TYPES, Slots.TYPES]).action != "invalid", "start conductor"):
 		quit(1)
@@ -42,6 +42,8 @@ func checkpoint_step(game) -> bool:
 	var hook: String = game._owner.next_hook()
 	if not check(restored.restore(JSON.parse_string(JSON.stringify(game.snapshot()))).action != "invalid", "restore before " + hook):
 		return false
-	var result: Dictionary = game.step()
-	var replay: Dictionary = restored.step()
+	var market: Dictionary = game.player_view(0).world.game_market
+	var choosing: bool = hook == Game.Timeline.PRESENT_PUBLIC_STATE and market.seat != 2
+	var result: Dictionary = game.choose_market(market.seat, {"market": "Pass"}) if choosing else game.step()
+	var replay: Dictionary = restored.choose_market(market.seat, {"market": "Pass"}) if choosing else restored.step()
 	return check(result.action != "invalid" and replay == result and restored.snapshot() == game.snapshot(), "same state and events after " + hook)
