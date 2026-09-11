@@ -25,7 +25,6 @@ var castle_group
 var lord_card
 var void_active: bool = false
 var lord_ready_visual
-var lord_cooldowns: Label
 var _castle_art_states: Dictionary = {}
 var lord_absent_label
 var lord_sigil
@@ -141,23 +140,15 @@ func _build_lord_group() -> void:
 	column.add_child(_header_label("LORD"))
 
 	lord_card = Card.new()
-	lord_card.custom_minimum_size = Vector2(188, 282)
+	lord_card.custom_minimum_size = Vector2(180, 270)
 	lord_card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	lord_card.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	column.add_child(lord_card)
-	lord_cooldowns = Label.new()
-	lord_cooldowns.custom_minimum_size.x = 188
-	lord_cooldowns.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	lord_cooldowns.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	lord_cooldowns.add_theme_font_size_override("font_size", 12)
-	lord_cooldowns.add_theme_color_override("font_color", Color("efdeb8"))
-	lord_cooldowns.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	column.add_child(lord_cooldowns)
 
 	lord_absent_label = Label.new()
 	lord_absent_label.text = "IN THE BREACH"
 	lord_absent_label.visible = false
-	lord_absent_label.custom_minimum_size = Vector2(188, 282)
+	lord_absent_label.custom_minimum_size = Vector2(180, 270)
 	lord_absent_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lord_absent_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	lord_absent_label.add_theme_font_size_override("font_size", 14)
@@ -698,5 +689,3 @@ func bind_cooldowns(view: Dictionary, pid: int) -> void:
 		lord_card.art.add_child(lord_ready_visual)
 		lord_ready_visual.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	lord_ready_visual.bind_view(view, pid)
-	lord_cooldowns.text = "\n".join(preload("res://Prototype/U13/U13LordCooldowns.gd").lines(view, pid))
-	lord_cooldowns.visible = not lord_cooldowns.text.is_empty()
