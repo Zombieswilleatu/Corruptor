@@ -2,7 +2,7 @@ extends Control
 
 # Replaceable art hooks. Missing sprites use explicit smoke/lantern placeholders.
 @export var smoke_texture: Texture2D
-@export var lamp_texture: Texture2D = preload("res://ConceptImages/Sprites/Kanifous/Lamp.png")
+@export var lamp_texture: Texture2D
 signal presentation_event(kind: String, details: Dictionary)
 var battlefield
 var objects: Array = []
@@ -11,6 +11,8 @@ var claims: Array = []
 var playback_time: float = -1.0
 
 func _ready() -> void:
+	if lamp_texture == null:
+		lamp_texture = preload("res://Prototype/U13/U13BoardTextures.gd").texture("res://ConceptImages/Sprites/Kanifous/Lamp.png")
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	z_index = 47
