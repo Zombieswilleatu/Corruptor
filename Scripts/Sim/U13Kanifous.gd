@@ -57,6 +57,7 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 	ids.restore(world.entities)
 	var events: Array = []
 	var count: int = 0
+	var death_victims: Array = []
 	var pid: int = source.player_id
 	match source.power_id:
 		"WishPower":
@@ -90,6 +91,7 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 		"WishDeath":
 			for row in world.entities.entities:
 				if row.kind == "marcher" and row.attributes.lane == source.target.lane and Lamp.distance(row.attributes, source.target.field_position) <= Lamp.DEATH_RADIUS * Lamp.DEATH_RADIUS:
+					death_victims.append(row.duplicate(true))
 					ids.retire(row.id)
 					count += 1
 		"WishWealth":
@@ -105,7 +107,7 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 		var price: Dictionary = {"id": Data.instance_id("price", source.declaration_id, "main"), "owner": pid, "created_round": context.round, "due_round": int(context.round) + 1 + Lamp.draw(context.seed, source.declaration_id, "PRICE_DELAY", 3)}
 		world.data.kanifous_prices.append(price)
 		events.append(Lamp.event("KANIFOUS_PRICE_SCHEDULED", price))
-	events.append(Lamp.event("KANIFOUS_WISH_RESOLVED", {"player_id": pid, "power": source.power_id, "target": source.target, "count": count, "success": success, "round": context.round}))
+	events.append(Lamp.event("KANIFOUS_WISH_RESOLVED", {"player_id": pid, "power": source.power_id, "target": source.target, "count": count, "success": success, "round": context.round, "victims": death_victims}))
 	return {"action": "resolved", "world": world, "events": events}
 
 func react(world: Dictionary, fact: Dictionary, seed_value: String, order: Array) -> Dictionary:

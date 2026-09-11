@@ -482,8 +482,8 @@ if [[ ${2:-} == --valak ]]; then
   u13_markers=('U13 Valak failures: 0' 'U13 Valak board failures: 0' 'U13 Valak visual checks: 23/23; failures: 0' 'U13 Kroni failures: 0' 'U13 Odradek failures: 0' 'U13 Marching integration failures: 0' 'U13 lane auras failures: 0')
 fi
 if [[ ${2:-} == --kanifous ]]; then
-  u13_runners=(U13Kanifous U13KanifousBoard U13Valak U13Kroni U13MarchingIntegration)
-  u13_markers=('U13 Kanifous failures: 0' 'U13 Kanifous board failures: 0' 'U13 Valak failures: 0' 'U13 Kroni failures: 0' 'U13 Marching integration failures: 0')
+  u13_runners=(U13Kanifous U13KanifousBoard U13MarcherFeedback U13MarcherFeedbackBoard U13Valak U13Kroni U13MarchingIntegration)
+  u13_markers=('U13 Kanifous failures: 0' 'U13 Kanifous board failures: 0' 'U13 Marcher feedback failures: 0' 'U13 Marcher feedback board failures: 0' 'U13 Valak failures: 0' 'U13 Kroni failures: 0' 'U13 Marching integration failures: 0')
 fi
 u13_failed=0
 for u13_index in "${!u13_runners[@]}"; do

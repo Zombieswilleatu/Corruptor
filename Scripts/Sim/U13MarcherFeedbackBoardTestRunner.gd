@@ -19,9 +19,17 @@ func _run() -> void:
 	root.add_child(board)
 	await process_frame
 	await process_frame
+	if OS.get_cmdline_user_args().has("--compatibility-check") and DisplayServer.get_name() == "headless":
+		board._runtime_ok = true
+		board.open_setup()
 	board.setup_picker.start_button.pressed.emit()
 	await process_frame
 	await process_frame
+	if not _check(board.match_started, "feedback_board_match_started"):
+		board.queue_free()
+		await process_frame
+		_finish_feedback_board()
+		return
 	board.set_process(false)
 	var saved: Dictionary = board.session.checkpoint()
 	board.playback = Playback.new()

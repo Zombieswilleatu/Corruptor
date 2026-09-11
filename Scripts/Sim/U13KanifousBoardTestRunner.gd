@@ -27,9 +27,10 @@ func _run() -> void:
 		board.wish_placement._confirm()
 		_check(board.queued.size() == 1 and board.queued[0].power_id == "WishDeath" and not board.wish_placement.visible, "Death queues and closes")
 		board._remove_wish()
-		board.wish_choice.select(4)
-		board._wish_targets()
-		board._queue_wish()
+		_check(board.session.debug_action("marcher", 1, "Lord").action != "invalid", "Death animation victim fixture")
+		board._refresh()
+		var victim: Dictionary = board.session.board_view().world.entities.filter(func(e): return e.kind == "marcher")[0]
+		board._confirm_wish_death({"lane": victim.attributes.lane, "field_position": {"x_fp": victim.attributes.x_fp, "y_fp": victim.attributes.y_fp}})
 		board.session._opponent = {"powers": [], "order": {}}
 		board._start_job("marching", board.queued, {})
 		var deadline: int = Time.get_ticks_msec() + 60000
@@ -37,7 +38,26 @@ func _run() -> void:
 			await process_frame
 		_check(board._job == null and board.playing, "Wish resolves through board worker")
 		_check(not board.session.board_view().world.wish_prices.is_empty(), "Price due round available")
+		_check(board.death_wish_visual.active() and board.death_wish_visual.texture != null and board.lanes._units.any(func(e): return e.id == victim.id), "skull starts with victim held until impact")
+		var resolved_state: Dictionary = board.session.checkpoint()
+		board._process(0.45)
+		_check(not board.lanes.deaths.seen.has(victim.id) and board.clock == 0, "no early chit death or Marching advance")
+		board._process(0.02)
+		_check(board.lanes.deaths.seen.has(victim.id) and not board.lanes._units.any(func(e): return e.id == victim.id), "skull impact starts chit flash and ghost together")
+		var deaths: int = board.lanes.deaths.visible.size()
+		board._process(0.4)
+		_check(not board.death_wish_visual.active() and board.lanes.deaths.visible.size() == deaths and board.session.checkpoint() == resolved_state, "skull finishes once without applying damage again")
+		# Replaying a presentation queue must handle a slow frame and cancellation.
+		var wish_events: Array = board.session.kanifous_events.filter(func(e): return e.type == "KANIFOUS_WISH_RESOLVED" and e.data.power == "WishDeath")
+		var impacts: Array = []
+		board.death_wish_visual.impact.connect(func(details): impacts.append(details))
+		board.death_wish_visual.play_events(wish_events + wish_events)
+		board.death_wish_visual.advance(2.0)
+		_check(impacts.size() == 2 and not board.death_wish_visual.active() and board.lanes.deaths.visible.size() == deaths, "slow frame drains queued skulls without duplicate chit deaths")
+		board.death_wish_visual.play_events(wish_events)
 		board.finish_playback()
+		board.death_wish_visual.advance(1.0)
+		_check(not board.death_wish_visual.active() and impacts.size() == 2 and not board.lanes._units.any(func(e): return e.id == victim.id), "skip cancels pending skull impact and restores final field")
 		for attempt in range(3):
 			board._start_job("next_round")
 			deadline = Time.get_ticks_msec() + 60000

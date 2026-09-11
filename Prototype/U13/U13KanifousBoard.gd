@@ -11,6 +11,7 @@ var price_note: Label
 var wish_placement
 var wish_visual
 var price_visual
+var death_wish_visual
 
 func _build() -> void:
 	super._build()
@@ -36,6 +37,10 @@ func _build() -> void:
 	wish_visual = preload("res://Prototype/U13/U13WishmasterVisual.gd").new()
 	add_child(wish_visual)
 	wish_visual.battlefield = lanes
+	death_wish_visual = preload("res://Prototype/U13/U13WishDeathVisual.gd").new()
+	add_child(death_wish_visual)
+	death_wish_visual.battlefield = lanes
+	death_wish_visual.impact.connect(_death_wish_impact)
 	price_visual = preload("res://Prototype/U13/U13WishPriceVisual.gd").new()
 	add_child(price_visual)
 	void_overlay = ColorRect.new()
@@ -125,19 +130,44 @@ func _complete_job() -> void:
 		price_visual.present(session.kanifous_events, sides)
 	if session != previous and operation == "marching" and wish_visual != null:
 		wish_visual.play_events(session.kanifous_events)
+		var victims: Array = death_wish_visual.play_events(session.kanifous_events)
+		for victim in victims:
+			# Super installed the post-resolution picture in this same call. Restore
+			# these presentation-only chits until the skull reaches its impact frame.
+			lanes.deaths.visible = lanes.deaths.visible.filter(func(row): return row.unit.id != victim.id)
+			lanes.deaths.seen.erase(victim.id)
+			lanes._units = lanes._units.filter(func(row): return row.id != victim.id)
+			lanes._units.append(victim)
+		lanes.queue_redraw()
 
 func _process(delta: float) -> void:
+	if death_wish_visual != null and death_wish_visual.active():
+		death_wish_visual.advance(delta)
+		return
 	super._process(delta)
 	if wish_visual != null and playing:
 		wish_visual.show_time(clock)
 
 func finish_playback(skip: bool = true) -> void:
+	if death_wish_visual != null:
+		death_wish_visual.clear()
 	super.finish_playback(skip)
 	if wish_visual != null:
 		wish_visual.playback_time = -1.0
 		wish_visual.bind_world(session.board_view().world)
 
 func _reset_direct() -> void:
+	if death_wish_visual != null:
+		death_wish_visual.clear()
 	if wish_placement != null:
 		wish_placement.close()
 	super._reset_direct()
+
+
+func _death_wish_impact(details: Dictionary) -> void:
+	var rows: Array = []
+	for victim in details.get("victims", []):
+		lanes._units = lanes._units.filter(func(unit): return unit.id != victim.id)
+		rows.append({"unit": victim})
+	lanes.show_deaths(rows)
+	lanes.queue_redraw()
