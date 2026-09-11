@@ -12,6 +12,7 @@ func check(value: bool, title: String) -> bool:
 	print(("PASS " if value else "FAIL ") + title)
 	return value
 func run() -> void:
+	longevity_targets()
 	balance_and_debt()
 	mechanics()
 	interactions()
@@ -300,3 +301,25 @@ func balance_and_debt() -> void:
 	resumed.players[0].resources.souls = 1
 	var collected: Dictionary = content._price(resumed, resumed.data.kanifous_prices[0], {"round": 8, "seed": "debt"})
 	check(not collected.get("deferred", false) and collected.world.players[0].resources.souls == 0 and collected.events[-1].event.data.id == "debt", "saved debt collects when payment becomes available")
+
+func longevity_targets() -> void:
+	var content = Content.new()
+	for state in ["building", "unbuilt", "active"]:
+		for status in ["standing", "defunct", "ruined", "profaned"]:
+			for full in [false, true]:
+				for pid in [0, 1]:
+					var world: Dictionary = Scenario.world()
+					var castle: Dictionary = world.entities.entities.filter(func(e): return e.kind == "castle" and e.owner == pid)[0]
+					castle.attributes.construction_state = state
+					castle.attributes.status = status
+					castle.attributes.integrity = castle.attributes.max_integrity if full else (7 if status == "standing" else 0)
+					var source: Dictionary = Scenario.source(0, 1, {"entity_id": castle.id}, 0, "WishLongevity")
+					var expected: bool = state == "active" and status in ["standing", "defunct"] and not full and pid == 0
+					var label: String = "%s/%s/full=%s/owner=%d" % [state, status, full, pid]
+					check(content.validate(source, world, "declaration").legal == expected, "Longevity admission " + label)
+					var result: Dictionary = content.resolve({"declaration": source}, {"world": world, "round": 1, "seed": "longevity"})
+					if expected:
+						var restored: Dictionary = Content._entity(result.world, castle.id)
+						check(restored.attributes.integrity == restored.attributes.max_integrity and restored.attributes.status == "standing" and result.world.data.kanifous_prices.size() == 1, "Longevity repairs and charges " + label)
+					else:
+						check(result.world == world and not result.events.back().event.data.success, "Longevity rechecks target without mutation or Price " + label)

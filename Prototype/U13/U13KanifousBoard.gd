@@ -21,7 +21,7 @@ func _build() -> void:
 	powers_box.add_child(wish_box)
 	_label(wish_box, "WISH · ONE PER ROUND", 18)
 	wish_choice = _option(wish_box, ["Power", "Longevity", "Resurrection", "Death", "Wealth"])
-	wish_choice.item_selected.connect(func(_index): _wish_targets())
+	wish_choice.item_selected.connect(func(_index): _update_direct_ui())
 	wish_target = _option(wish_box, [])
 	wish_note = _label(wish_box, "", 13)
 	wish_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -55,6 +55,8 @@ func _build() -> void:
 	_wish_targets()
 
 func _wish_targets() -> void:
+	var previous_target = wish_target.get_item_metadata(wish_target.selected) if wish_target.selected >= 0 else null
+	var previous_index: int = wish_target.selected
 	wish_target.clear()
 	var power: String = Kanifous.Wishes[wish_choice.selected]
 	if power in ["WishPower", "WishResurrection"]:
@@ -62,22 +64,29 @@ func _wish_targets() -> void:
 		wish_target.add_item("Castle lane" if power == "WishPower" else "Castle guards")
 	elif power == "WishLongevity":
 		for row in _visible_world.get("entities", []):
-			if row.kind == "castle" and row.owner == 0 and row.attributes.status in ["standing", "defunct"]:
+			if Kanifous.longevity_target(row, 0):
 				wish_target.add_item("%s · slot %d" % [row.attributes.get("castle_type", "Castle"), int(row.attributes.get("castle_slot", 0)) + 1])
 				wish_target.set_item_metadata(wish_target.item_count - 1, row.id)
+	if power == "WishLongevity":
+		for index in range(wish_target.item_count):
+			if wish_target.get_item_metadata(index) == previous_target:
+				wish_target.select(index)
+	elif previous_index >= 0 and previous_index < wish_target.item_count:
+		wish_target.select(previous_index)
 	wish_target.visible = power not in ["WishDeath", "WishWealth"]
-	wish_note.text = ["Spawn 1–3 random-suit Marchers: 70% one, 25% two, 5% three.", "Restore your Castle to full Integrity. Ruined/Profaned targets fail.", "Restore your Guards defeated this round in the selected zone.", "Choose a small circle on the field. Destroy every Marcher inside, friend or enemy.", "Draw 2 cards."][wish_choice.selected] + "\nSuccess creates a hidden Price due in 1–3 rounds."
+	wish_note.text = ["Spawn 1–3 random-suit Marchers: 70% one, 25% two, 5% three.", "Restore a damaged, active Castle to full Integrity. Protected construction and Ruined/Profaned Castles cannot be targeted.", "Restore your Guards defeated this round in the selected zone.", "Choose a small circle on the field. Destroy every Marcher inside, friend or enemy.", "Draw 2 cards."][wish_choice.selected] + "\nSuccess creates a hidden Price due in 1–3 rounds."
 
 func _update_direct_ui() -> void:
 	super._update_direct_ui()
 	if wish_box == null:
 		return
+	_wish_targets()
 	wish_box.visible = _human_lord() == "Kanifous"
 	lanes.void_active = _visible_world.get("void_active", false)
 	void_overlay.visible = _visible_world.get("void_active", false)
 	wish_visual.bind_world(_visible_world)
 	var has_wish: bool = queued.any(func(row: Dictionary) -> bool: return row.power_id in Kanifous.Wishes)
-	wish_button.disabled = not _planning() or not powers_step or not _human_alive() or has_wish
+	wish_button.disabled = not _planning() or not powers_step or not _human_alive() or has_wish or (Kanifous.Wishes[wish_choice.selected] == "WishLongevity" and wish_target.item_count == 0)
 	wish_remove.visible = has_wish
 	price_note.text = ""
 	for price in _visible_world.get("wish_prices", []):

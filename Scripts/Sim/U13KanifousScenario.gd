@@ -52,7 +52,7 @@ static func enumerate(owner, pid: int) -> Dictionary:
 		for x in [600, 1200, 1800]:
 			result.powers.append(source(pid, owner.round_number(), {"lane": lane, "field_position": {"x_fp": x, "y_fp": 300}}, 0, "WishDeath"))
 	for row in view.world.entities:
-		if row.kind == "castle" and row.owner == pid and row.attributes.status in ["standing", "defunct"]:
+		if Content.longevity_target(row, pid):
 			result.powers.append(source(pid, owner.round_number(), {"entity_id": row.id}, 0, "WishLongevity"))
 	return result
 

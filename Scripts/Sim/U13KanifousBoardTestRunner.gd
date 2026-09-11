@@ -13,7 +13,26 @@ func _run() -> void:
 		await _settle()
 		_check(board.wish_box.visible and not board.wish_button.disabled, "Wish controls available")
 		_check(board.wish_visual.objects.size() == 1 and board.wish_visual.objects[0].phase == "smoke", "visible first-round smoke")
+		var actual_view: Dictionary = board._visible_world.duplicate(true)
+		board.wish_choice.select(1)
+		for row in board._visible_world.entities:
+			if row.kind == "castle" and row.owner == 0:
+				row.attributes.construction_state = "building"
+				row.attributes.integrity = 7
+		board._update_direct_ui()
+		_check(board.wish_target.item_count == 0 and board.wish_button.disabled, "Longevity excludes protected castles and disables empty selection")
+		var damaged: Dictionary = board._visible_world.entities.filter(func(e): return e.kind == "castle" and e.owner == 0)[0]
+		damaged.attributes.construction_state = "active"
+		damaged.attributes.status = "standing"
+		board._update_direct_ui()
+		_check(board.wish_target.item_count == 1 and board.wish_target.get_item_metadata(0) == damaged.id and not board.wish_button.disabled, "Longevity offers damaged active castle")
+		damaged.attributes.integrity = damaged.attributes.max_integrity
+		board._update_direct_ui()
+		_check(board.wish_target.item_count == 0 and board.wish_button.disabled, "Longevity removes fully repaired target on refresh")
+		board._visible_world = actual_view
 		board.wish_choice.select(0)
+		board._update_direct_ui()
+
 		board._wish_targets()
 		board._queue_wish()
 		_check(board.queued.size() == 1 and board.queued[0].power_id == "WishPower", "Power queues")

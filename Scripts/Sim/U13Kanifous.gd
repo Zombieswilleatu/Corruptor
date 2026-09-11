@@ -33,7 +33,7 @@ func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionar
 			legal = legal and t.size() == 1 and t.get("lane") in ["Lord", "Castle"]
 		"WishLongevity":
 			var castle: Dictionary = _entity(world, t.get("entity_id", ""))
-			legal = legal and t.size() == 1 and not castle.is_empty() and castle.kind == "castle" and castle.owner == source.player_id and castle.attributes.status in ["standing", "defunct"]
+			legal = legal and t.size() == 1 and longevity_target(castle, source.player_id)
 		"WishResurrection":
 			legal = legal and t.size() == 2 and t.get("kind") == "guard_zone" and t.get("zone") in ["Lord", "Castle"]
 		"WishDeath":
@@ -41,6 +41,13 @@ func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionar
 		"WishWealth":
 			legal = legal and t.is_empty()
 	return {"legal": legal, "reason": "wish_target_invalid"}
+
+static func longevity_target(castle: Dictionary, player_id: int) -> bool:
+	return (
+		preload("res://Scripts/Sim/U13Structures.gd").targetable(castle)
+		and castle.owner == player_id
+		and castle.attributes.integrity < castle.attributes.max_integrity
+	)
 
 static func _entity(world: Dictionary, id: String) -> Dictionary:
 	for row in world.entities.entities:
@@ -68,7 +75,7 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 				count += 1
 		"WishLongevity":
 			var castle: Dictionary = ids.get_entity(source.target.entity_id)
-			if not castle.is_empty() and castle.attributes.status in ["standing", "defunct"]:
+			if longevity_target(castle, pid):
 				castle.attributes.integrity = castle.attributes.max_integrity
 				castle.attributes.status = "standing"
 				castle.attributes.construction_state = "active"
