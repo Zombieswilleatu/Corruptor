@@ -13,7 +13,10 @@ bash Scripts/Sim/run_u13_full_matches.sh \
 ```
 
 The wrapper requires Windows-compatible Godot 4.7.2 stable, runs a fast harness
-check, then 100 seeded full games. Expect a long run, potentially overnight.
+check, then 100 seeded full games, using **four Godot processes** by default. Each
+worker runs one game and takes the next available index when it finishes. Expect
+a long run; four workers improve throughput when CPU and memory allow, but do
+not guarantee a fourfold speedup.
 It prints a heartbeat every 15 seconds and each game's result. Keep the computer
 awake; sleep can consume the watchdog budget.
 
@@ -21,13 +24,17 @@ Expected acceptance: **100/100 won; 0 censored; 0 failed/missing**. A smaller
 smoke run is not the 100-game gate. The existing `run_u13_game.sh` stays at 18/18.
 
 Reports go to a stable folder in Downloads. Rerunning the same command reuses
-completed, replay-verified reports for the same code revision, simulation diff,
+completed, replay-verified reports for the same content revision, tracked diff,
 runtime, setup and round limit. In-progress games restart from their deterministic
 seed. Logs and the latest round-start snapshot remain available for diagnosis.
-An optional second argument selects the report directory.
+An optional second argument selects the report directory. Scheduler/docs-only
+updates retain the content identity, so the four-worker update can reuse results
+from the preceding serial runner. Worker count does not change seeds or results.
+Ctrl-C, a failure or a timeout stops all Godot processes owned by the runner.
 
 | Setting | Default | Meaning |
 | --- | --- | --- |
+| `U13_BATCH_WORKERS` | 4 | Concurrent Godot processes; 1 for serial, maximum 16 |
 | `U13_BATCH_GAMES` | 100 | Number of games, starting at index 0; maximum 1000 |
 | `U13_BATCH_ROUND_LIMIT` | 80 | Diagnostic cap per game; maximum 200; never awards a winner |
 | `U13_BATCH_TIMEOUT_SECONDS` | 1200 | Wall-clock watchdog per game, including replay |
@@ -101,3 +108,13 @@ follow-up is to inspect gaps and then connect the full conductor to playable U13
 - Actual capped-game reporting, completed-report reuse and incomplete-batch
   summaries were checked. Missing/censored games prevent acceptance.
 - **The full 100-game Windows Godot 4.7.2 acceptance run remains pending.**
+
+## Four-worker scheduler verification
+
+The scheduler protocol tests exercised seven jobs with a peak of four workers,
+plus failure, timeout and Ctrl-C cleanup with no surviving worker processes.
+These used a test double and are not Godot acceptance results. Four actual Linux
+Godot 4.5.1 processes also ran independent one-round capped games concurrently;
+game 8 reproduced its prior serial plans and complete-state hash. These were
+explicitly censored smoke tests, not four completed victories. Windows 100-game
+acceptance remains pending.
