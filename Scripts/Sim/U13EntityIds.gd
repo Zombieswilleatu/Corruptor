@@ -73,7 +73,7 @@ func restore(raw: Dictionary) -> Dictionary:
 	if typeof(raw.get("entities")) != TYPE_ARRAY or typeof(raw.get("used_ids")) != TYPE_ARRAY:
 		return Data.invalid("entity_snapshot_invalid")
 	var decoded: Dictionary = Data.copy_data(raw)
-	var candidate = get_script().new()
+	var entries: Dictionary = {}
 	for row in decoded.entities:
 		if typeof(row) != TYPE_DICTIONARY:
 			return Data.invalid("entity_snapshot_invalid")
@@ -84,20 +84,22 @@ func restore(raw: Dictionary) -> Dictionary:
 			return Data.invalid("entity_snapshot_invalid")
 		if typeof(row.get("attributes")) != TYPE_DICTIONARY:
 			return Data.invalid("entity_snapshot_invalid")
-		var result: Dictionary = candidate.create(
-			row.kind, row.origin, row.ordinal, row.owner, row.attributes
-		)
-		if result.action == "invalid" or result.entity.id != row.id:
+		var entity_id: String = identity(row.kind, row.origin, row.ordinal)
+		if entity_id.is_empty() or row.owner not in [-1, 0, 1] or entity_id != row.id or entries.has(entity_id):
 			return Data.invalid("entity_snapshot_invalid")
+		# The complete input was validated and normalized above. Rebuilding via
+		# create() used to validate/copy attributes again and copy a return value
+		# for every entity. Own the one decoded copy; keep the same canonical keys.
+		entries[entity_id] = {"id": entity_id, "kind": row.kind, "origin": row.origin, "ordinal": row.ordinal, "owner": row.owner, "attributes": row.attributes}
 	var used: Dictionary = {}
 	for entity_id in decoded.used_ids:
 		if typeof(entity_id) != TYPE_STRING or entity_id.is_empty() or used.has(entity_id):
 			return Data.invalid("entity_snapshot_ids_invalid")
 		used[entity_id] = true
-	for entity_id in candidate._entities:
+	for entity_id in entries:
 		if not used.has(entity_id):
 			return Data.invalid("entity_snapshot_ids_invalid")
-	_entities = candidate._entities
+	_entities = entries
 	_used = used
 	return {"action": "u13_entities_restored"}
 

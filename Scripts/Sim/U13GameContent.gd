@@ -5,6 +5,9 @@ extends "res://Scripts/Sim/U13Kanifous.gd"
 # These report the current profile; no Veil effect resolver is installed.
 const VEIL_EFFECTS_ENABLED: bool = false
 const VEIL_DRIFT_ENABLED: bool = false
+const BATCH_EVENTS_VERSION: String = "U13_BATCH_EVENTS_V1"
+const BATCH_SAMPLE_EVENTS: Array = ["MARCHING_TICK", "KRONI_ACTOR_TICK"]
+var batch_events: bool = false
 
 const Victory = preload("res://Scripts/Sim/U13Victory.gd")
 const Plunder = preload("res://Scripts/Sim/U13Plunder.gd")
@@ -20,13 +23,14 @@ const Economy = preload("res://Scripts/Sim/U13GameEconomy.gd")
 const CastleDefenses = preload("res://Scripts/Sim/U13CastleDefenses.gd")
 
 
-func create_combat_match():
+func create_combat_match(compact_events: bool = false):
+	batch_events = compact_events
 	var validators: Dictionary = {}
 	var resolvers: Dictionary = {}
 	for power in rules():
 		validators[power] = Callable(self, "validate")
 		resolvers[power] = Callable(self, "resolve")
-	return MatchOwner.new(Victory.VERSION + ":" + Plunder.VERSION + ":" + Marching.Ranged.VERSION + ":" + Throne.VERSION + ":" + Rites.VERSION + ":" + Fracture.VERSION + ":" + Sigils.VERSION + ":" + Conduit.VERSION + ":" + Market.VERSION + ":" + CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY, rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Rites, "legal_orders"))
+	return MatchOwner.new(Victory.VERSION + ":" + Plunder.VERSION + ":" + Marching.Ranged.VERSION + ":" + Throne.VERSION + ":" + Rites.VERSION + ":" + Fracture.VERSION + ":" + Sigils.VERSION + ":" + Conduit.VERSION + ":" + Market.VERSION + ":" + CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY + (":" + BATCH_EVENTS_VERSION if batch_events else ""), rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Rites, "legal_orders"))
 
 
 func valid_world(world: Dictionary) -> bool:
@@ -80,6 +84,8 @@ func on_hook(context: Dictionary) -> Dictionary:
 			if victory.action == "invalid":
 				return victory
 			result.events.append_array(victory.events)
+	if batch_events and result.action != "invalid":
+		result.events = result.events.filter(func(row): return row.event.type not in BATCH_SAMPLE_EVENTS)
 	if result.action == "invalid" or context.hook != Timeline.ROUND_START_AUTOMATIC:
 		return result
 	var ordinary: Dictionary = context.duplicate(true)

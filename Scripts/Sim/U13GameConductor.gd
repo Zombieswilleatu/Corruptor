@@ -13,7 +13,7 @@ var _owner
 
 # Owns setup, round advancement and terminal outcomes. Veil penalties and
 # automatic drift remain disabled pending redesign.
-func start(seed_value: String, lords: Array, castles: Array) -> Dictionary:
+func start(seed_value: String, lords: Array, castles: Array, compact_events: bool = false) -> Dictionary:
 	if _owner != null:
 		return Data.invalid("game_already_started")
 	if lords.size() != 2 or castles.size() != 2:
@@ -27,7 +27,7 @@ func start(seed_value: String, lords: Array, castles: Array) -> Dictionary:
 	var opening: Dictionary = Economy.initialize(schema, seed_value)
 	if opening.action == "invalid":
 		return opening
-	var candidate = Content.new().create_combat_match()
+	var candidate = Content.new().create_combat_match(compact_events)
 	var result: Dictionary = candidate.start(seed_value, opening.world, [0, 1])
 	if result.action != "invalid":
 		_owner = candidate
@@ -86,7 +86,7 @@ func submit(plans: Array) -> Dictionary:
 		return Data.invalid("game_submissions_invalid")
 	# Both plans use one public snapshot. An invalid second submission must not
 	# leave the first committed, paid, or queued in the live owner.
-	var candidate = Content.new().create_combat_match()
+	var candidate = Content.new().create_combat_match(_owner._content_owner.batch_events)
 	var restored: Dictionary = candidate.restore(_owner.snapshot())
 	if restored.action == "invalid":
 		return restored
@@ -126,7 +126,9 @@ func snapshot() -> Dictionary:
 
 
 func restore(raw: Dictionary) -> Dictionary:
-	var candidate = Content.new().create_combat_match()
+	var policy = raw.get("policy_id", "")
+	var compact: bool = typeof(policy) == TYPE_STRING and policy.ends_with(":" + Content.BATCH_EVENTS_VERSION)
+	var candidate = Content.new().create_combat_match(compact)
 	var result: Dictionary = candidate.restore(raw)
 	if result.action != "invalid":
 		_owner = candidate

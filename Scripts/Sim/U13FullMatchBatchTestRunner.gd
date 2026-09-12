@@ -55,5 +55,29 @@ func run() -> void:
 	check(replay.restore_json(game.snapshot_json()).action != "invalid" and replay.snapshot() == game.snapshot(), "lossless JSON save preserves exact fractional event history")
 	var unchanged: Dictionary = replay.snapshot()
 	check(replay.restore_json("[]").action == "invalid" and replay.snapshot() == unchanged, "invalid JSON root cannot replace live game")
+	compact_history_parity()
 	print("U13 full match harness failures: ", failures)
 	quit(failures)
+
+func compact_history_parity() -> void:
+	var chosen: Dictionary = Batch.setup(6)
+	var full = Batch.Game.new()
+	var compact = Batch.Game.new()
+	full.start(chosen.seed, chosen.lords, chosen.castles)
+	compact.start(chosen.seed, chosen.lords, chosen.castles, true)
+	for round_number in range(1, 3):
+		check(full.to_planning(true).action == "game_planning" and compact.to_planning(true).action == "game_planning", "both history modes reach planning")
+		var plans: Array = [full.plan(0), full.plan(1)]
+		check(plans == [compact.plan(0), compact.plan(1)], "history mode preserves complete seeded plans")
+		check(full.submit(plans).action != "invalid" and compact.submit(plans).action != "invalid", "both history modes submit")
+		check(full.finish_round().action != "invalid" and compact.finish_round().action != "invalid", "both history modes resolve")
+		var expected: Dictionary = full.snapshot()
+		check(expected.events.rows.any(func(row): return row.event.type == "MARCHING_TICK"), "normal mode keeps presentation ticks")
+		expected.policy_id += ":" + Batch.Game.Content.BATCH_EVENTS_VERSION
+		expected.events.rows = expected.events.rows.filter(func(row): return row.event.type not in Batch.Game.Content.BATCH_SAMPLE_EVENTS)
+		check(expected == compact.snapshot(), "batch differs only by declared profile and tick samples")
+		var restored = Batch.Game.new()
+		check(restored.restore_json(compact.snapshot_json()).action != "invalid" and restored.snapshot() == expected and restored._owner._content_owner.batch_events, "batch save restores exact state and mode")
+		compact = restored
+		if round_number < 2:
+			check(full.next_round().action != "invalid" and compact.next_round().action != "invalid", "restored batch continues")

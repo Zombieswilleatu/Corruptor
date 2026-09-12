@@ -79,12 +79,19 @@ if ! grep -Eq '^4\.7\.2\.stable([.[:space:]]|$)' "$u13_reports/version.log"; the
   exit 1
 fi
 u13_status=0
+printf 'Checking planning parity before starting workers...\n'
+run_godot "$u13_reports/planning-parity.log" --script Scripts/Sim/U13PlanningPerformanceTestRunner.gd || u13_status=$?
+if [[ $u13_status -ne 0 ]] || grep -Eq 'SCRIPT ERROR|ERROR:|^FAIL ' "$u13_reports/planning-parity.log" || ! grep -q '^U13 planning performance failures: 0$' "$u13_reports/planning-parity.log"; then
+  cat -- "$u13_reports/planning-parity.log"
+  exit 1
+fi
+printf 'Checking batch saves and gameplay parity...\n'
 run_godot "$u13_reports/harness.log" --script Scripts/Sim/U13FullMatchBatchTestRunner.gd || u13_status=$?
 if [[ $u13_status -ne 0 ]] || grep -Eq 'SCRIPT ERROR|ERROR:|^FAIL ' "$u13_reports/harness.log" || ! grep -q '^U13 full match harness failures: 0$' "$u13_reports/harness.log"; then
   cat -- "$u13_reports/harness.log"
   exit 1
 fi
-printf 'Running %s games with %s Godot workers; round limit %s; watchdog %ss per game.\nReports/checkpoints: %s\n' "$u13_games" "$u13_workers" "$u13_round_limit" "$u13_timeout" "$u13_reports"
+printf 'Running %s games with %s Godot workers; round limit %s; watchdog %ss per game.\nBatch event profile: state changes; position samples omitted.\nReports/checkpoints: %s\n' "$u13_games" "$u13_workers" "$u13_round_limit" "$u13_timeout" "$u13_reports"
 u13_next=0
 u13_completed=0
 u13_heartbeat=$((SECONDS + 15))
@@ -132,6 +139,7 @@ while ((u13_completed < u13_games)); do
     fi
   done
   if ((SECONDS >= u13_heartbeat)); then
+    printf 'Elapsed %sm %ss\n' "$((SECONDS / 60))" "$((SECONDS % 60))"
     for ((u13_slot=0; u13_slot<u13_workers; u13_slot++)); do
       if [[ -n "${u13_pool_pids[u13_slot]:-}" ]]; then
         tail -n 1 -- "${u13_pool_logs[u13_slot]}"

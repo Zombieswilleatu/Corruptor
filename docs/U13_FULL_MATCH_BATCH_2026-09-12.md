@@ -12,12 +12,13 @@ bash Scripts/Sim/run_u13_full_matches.sh \
   "/c/Users/jerem/OneDrive/Documents/Godot_v4.7.2-stable_win64.exe/Godot_v4.7.2-stable_win64.exe"
 ```
 
-The wrapper requires Windows-compatible Godot 4.7.2 stable, runs a fast harness
-check, then 100 seeded full games, using **four Godot processes** by default. Each
+The wrapper requires Windows-compatible Godot 4.7.2 stable, checks planning
+against the previous implementation and checks batch/full-history parity,
+then runs 100 seeded full games, using **four Godot processes** by default. Each
 worker runs one game and takes the next available index when it finishes. Expect
 a long run; four workers improve throughput when CPU and memory allow, but do
 not guarantee a fourfold speedup.
-It prints a heartbeat every 15 seconds and each game's result. Keep the computer
+It prints elapsed time every 15 seconds, completed-round timings, and each game's result. Keep the computer
 awake; sleep can consume the watchdog budget.
 
 Expected acceptance: **100/100 won; 0 censored; 0 failed/missing**. A smaller
@@ -87,7 +88,7 @@ Every game has two independently started conductors. Each round:
    and reject advancing to another round.
 
 Each game report includes its setup, code/runtime identity, elapsed time, plans,
-round state hashes, action/power/Development/event counts and outcome. Failed and
+round state hashes, phase timings, action/power/Development/event counts and outcome. Failed and
 censored reports also retain snapshots. `summary.json` aggregates outcomes and
 observed coverage. Report validation rejects incomplete/stale entries and records
 that relabel an unfinished outcome as a victory.
@@ -119,14 +120,26 @@ game 8 reproduced its prior serial plans and complete-state hash. These were
 explicitly censored smoke tests, not four completed victories. Windows 100-game
 acceptance remains pending.
 
-## Performance follow-up — user bookmark
+## Targeted performance pass
 
-The user is letting the current four-worker batch run overnight. Do not interrupt
-it or treat its completion as known until results arrive. Simulation performance
-is the next engineering priority: profile planning, resolution, serialization,
-restoration and history comparisons before another large campaign. See the
-performance bookmark near the top of `U13_POST_OVERHAUL_ROADMAP.md`.
+The user canceled the slow run and supplied its round-7 checkpoint. The targeted
+fix and reproduction are documented in `U13_SIM_PERFORMANCE_2026-09-12.md`.
+Batch V2 uses `U13_BATCH_EVENTS_V1`: omit `MARCHING_TICK` and `KRONI_ACTOR_TICK`
+position samples, preserving every simulation step and all other events. Exact
+replay compares the complete state and retained event history in this profile.
+Normal gameplay keeps its full presentation history by default. Old full-trace
+saves still restore in full-trace mode. Old V1 batch results cannot satisfy V2.
 
-This heavy replay batch is an occasional integration gate, not the default check
-for each change. Establish a fast targeted loop and measure ordinary simulation
-throughput separately. No bottleneck has yet been established by profiling.
+Each round now records `timings_ms` for checkpointing, reaching planning,
+independent bot planning, planning save/restore, submission, resolution/comparison,
+and round-end save/hash. These diagnostics are outside authoritative snapshots
+and hashes. Planning and resolution timings include both verification conductors.
+Completed-round totals also appear in logs, so an interrupted run retains timing
+evidence even before its final result is written.
+
+For an overnight run, `U13_BATCH_TIMEOUT_SECONDS=3600` allows an hour per game
+while retaining the 80-round censoring cap; this is an explicit watchdog choice,
+not a prediction that all 100 games will finish overnight.
+
+This heavy replay batch remains an occasional integration gate. Use targeted
+tests for routine changes; defer large-volume throughput work to PySim parity.

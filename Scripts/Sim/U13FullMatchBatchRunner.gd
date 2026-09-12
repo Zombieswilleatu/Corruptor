@@ -22,7 +22,7 @@ func write_json(path: String, value: Dictionary) -> bool:
 	return error == OK and DirAccess.rename_absolute(path + ".tmp", path) == OK
 
 func identity(game_index: int) -> Dictionary:
-	return {"batch_version": Batch.VERSION, "bot_version": Batch.Game.GameBot.VERSION, "revision": revision, "runtime": Engine.get_version_info().string, "index": game_index, "setup": Batch.setup(game_index), "round_limit": round_limit}
+	return {"batch_version": Batch.VERSION, "event_profile": Batch.Game.Content.BATCH_EVENTS_VERSION, "bot_version": Batch.Game.GameBot.VERSION, "revision": revision, "runtime": Engine.get_version_info().string, "index": game_index, "setup": Batch.setup(game_index), "round_limit": round_limit}
 
 func checkpoint(snapshot: Dictionary, round_number: int) -> bool:
 	print("GAME ", index, " START ROUND ", round_number)
