@@ -197,7 +197,8 @@ static func validate_commit(
 	if order.is_empty():
 		return {"action": "legal"}
 	var lord: Dictionary = entities.get_entity(world.players[player_id].lord_entity_id)
-	if not lord.attributes.alive:
+	# Hunt is an army action, available even while the player's Lord is absent.
+	if not lord.attributes.alive and order.action != "Hunt":
 		return Data.invalid("combat_source_banished")
 	if order.action == "Siege":
 		var target: Dictionary = entities.get_entity(order.target_id)

@@ -130,11 +130,13 @@ static func apply(
 					target.attributes.threat = 0
 			if command.has("attacker_id"):
 				var attacker: Dictionary = entities.get_entity(String(command.attacker_id))
+				# Hunt belongs to the player's army. This Lord ID supplies player
+				# attribution; its presence is not required to declare or resolve
+				# the attack, including two opposing Hunts in the same combat.
 				if (
 					attacker.is_empty()
 					or attacker.kind != "lord"
 					or attacker.owner != 1 - target.owner
-					or not attacker.attributes.alive
 					or not target.attributes.alive
 					or hook != Timeline.COMBAT_RESOLUTION
 					or command.get("attack_kind") != "Hunt"

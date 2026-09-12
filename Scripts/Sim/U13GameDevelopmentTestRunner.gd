@@ -90,7 +90,7 @@ func return_and_deploy() -> void:
 		return
 	var view: Dictionary = game.player_view(0)
 	var return_plan: Dictionary = game.plan(0)
-	check(return_plan.action != "invalid" and return_plan.powers.is_empty() and not return_plan.order.has("action"), "banished Lord planner returns a legal non-combat submission")
+	check(return_plan.action != "invalid" and return_plan.powers.is_empty() and return_plan.order.get("action", "Hunt") == "Hunt", "banished Lord planner may Hunt while Lord powers remain unavailable")
 	var legal: Array = game._owner.legal_order_candidates(0, [], Development.summon_orders(view, [], {}))
 	if not check(not legal.is_empty(), "return candidates from public hand"):
 		return

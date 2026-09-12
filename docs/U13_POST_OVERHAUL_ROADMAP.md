@@ -3,6 +3,13 @@
 **Status:** Working roadmap / engineering addendum
 **Date:** 2026-09-10
 
+**2026-09-12 doctrine steering:** User authorized an early, bounded common planner
+and Tier 1A targeting now, using the originating Astra handoff/Implementation Plan
+v3 and individual ideas from legacy doctrine. Do not port the old Smart Core.
+The `u13-basic-doctrine` branch adds a short simulation loop with explicit fast
+versus independent replay scope; do not wait for the running 100-game campaign
+before developing this pass. See `U13_BASIC_DOCTRINE_2026-09-12.md`.
+
 **2026-09-12 steering:** Veil threshold effects and automatic drift are disabled
 pending a dedicated design pass. Keep Tear accumulation and Lord Breach powers.
 Victory resolution is now implemented after Aftermath; see

@@ -107,8 +107,9 @@ static func validate_order(world: Dictionary, pid: int, order: Dictionary) -> Di
 		return {"action": "legal"}
 	if not choice_shape(order.summon):
 		return Data.invalid("summon_choice_invalid")
-	# A Lord absent at public submission cannot declare combat/powers this round.
-	if order.has("action"):
+	# Army Hunt can accompany a return, using a separate card commitment.
+	# Lord powers still use their own source-presence validation at declaration.
+	if order.has("action") and order.action != "Hunt":
 		return Data.invalid("summon_combat_unavailable")
 	var selected: Array = order.summon.card_ids
 	var castle = order.get("castle_action", {})
@@ -116,10 +117,12 @@ static func validate_order(world: Dictionary, pid: int, order: Dictionary) -> Di
 	if (
 		typeof(castle) != TYPE_DICTIONARY
 		or typeof(castle.get("card_ids", [])) != TYPE_ARRAY
+		or typeof(order.get("card_ids", [])) != TYPE_ARRAY
 		or typeof(moves) != TYPE_ARRAY
 	):
 		return Data.invalid("summon_order_shape_invalid")
 	var spent: Array = castle.get("card_ids", []).duplicate()
+	spent.append_array(order.get("card_ids", []))
 	for move in moves:
 		if typeof(move) != TYPE_DICTIONARY:
 			return Data.invalid("guard_moves_invalid")

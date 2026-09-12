@@ -5,7 +5,7 @@ const Scenario = preload("res://Scripts/Sim/U13KanifousScenario.gd")
 const Legality = preload("res://Scripts/Sim/U13Legality.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
-const VERSION: String = "U13_GAME_RANDOM_LEGAL_V4"
+const VERSION: String = "U13_GAME_RANDOM_LEGAL_V5"
 
 
 static func plan(owner, pid: int) -> Dictionary:
@@ -27,19 +27,20 @@ static func plan(owner, pid: int) -> Dictionary:
 	order = _choose(owner, pid, powers, order, Development.summon_orders(view, powers, order), "summon")
 	order = _choose(owner, pid, powers, order, Development.castle_orders(view, powers, order), "castle")
 	var combat: Array = []
-	if not order.has("summon"):
-		var seen: Dictionary = {}
-		for original in raw.orders:
-			if not original.has("action"):
-				continue
-			var candidate: Dictionary = order.duplicate(true)
-			for key in ["action", "lane", "target_id", "card_ids"]:
-				if original.has(key):
-					candidate[key] = original[key]
-			var identity: String = JSON.stringify(candidate, "", true)
-			if not seen.has(identity):
-				combat.append(candidate)
-				seen[identity] = true
+	var seen: Dictionary = {}
+	for original in raw.orders:
+		if not original.has("action"):
+			continue
+		if order.has("summon") and original.action != "Hunt":
+			continue
+		var candidate: Dictionary = order.duplicate(true)
+		for key in ["action", "lane", "target_id", "card_ids"]:
+			if original.has(key):
+				candidate[key] = original[key]
+		var identity: String = JSON.stringify(candidate, "", true)
+		if not seen.has(identity):
+			combat.append(candidate)
+			seen[identity] = true
 	order = _choose(owner, pid, powers, order, combat, "combat")
 	if order.get("action") == "Hunt":
 		order["fracture_target"] = ["subjects", "infrastructure"][_pick(owner, pid, "fracture", 2)]
