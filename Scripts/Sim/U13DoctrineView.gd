@@ -8,6 +8,7 @@ var view: Dictionary
 var w: Dictionary
 var pid: int
 var rows: Dictionary = {}
+const UNKNOWN_GUARD_ESTIMATE: int = 3
 
 func _init(source: Dictionary) -> void:
 	view = source
@@ -30,8 +31,12 @@ func guards(owner_id: int, lane: String) -> Array:
 func guard_value(owner_id: int, lane: String) -> int:
 	var total: int = 0
 	for row in guards(owner_id, lane):
-		total += int(row.attributes.value)
+		total += guard_strength(row)
 	return total
+
+func guard_strength(row: Dictionary) -> int:
+	# A fixed prior, never the concealed face or an inference from its card ID.
+	return UNKNOWN_GUARD_ESTIMATE if row.attributes.get("concealed", false) else int(row.attributes.value)
 
 func waiters(owner_id: int, lane: String, order: Dictionary = {}) -> int:
 	var used: Array = []

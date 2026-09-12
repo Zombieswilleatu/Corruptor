@@ -116,7 +116,7 @@ static func odradek(c) -> Array:
 		var value: int = c.guard_value(1 - c.pid, lane)
 		add(result, c, "Inversion", {"owner_id": 1 - c.pid, "lane": lane}, value * 1.2)
 		for guard in c.guards(1 - c.pid, lane).slice(0, 3):
-			add(result, c, "FalseOrders", {"entity_id": guard.id, "owner_id": 1 - c.pid, "lane": "Castle" if lane == "Lord" else "Lord"}, float(guard.attributes.value) - 1.0)
+			add(result, c, "FalseOrders", {"entity_id": guard.id, "owner_id": 1 - c.pid, "lane": "Castle" if lane == "Lord" else "Lord"}, float(c.guard_strength(guard)) - 1.0)
 	return result
 
 static func kroni(c) -> Array:
@@ -124,7 +124,7 @@ static func kroni(c) -> Array:
 	for lane in ["Lord", "Castle"]:
 		add(result, c, "Ravenous", {"lane": lane, "field_position": {"x_fp": 0 if c.pid == 0 else 2400, "y_fp": 300}}, c.select("marcher", 1 - c.pid, lane).size() * 2.0 + c.guards(1 - c.pid, lane).size() * 2.0 - c.select("marcher", c.pid, lane).size())
 		for guard in c.guards(1 - c.pid, lane).slice(0, 3):
-			add(result, c, "Consume", {"entity_id": guard.id}, float(guard.attributes.value) + 4.0)
+			add(result, c, "Consume", {"entity_id": guard.id}, float(c.guard_strength(guard)) + 4.0)
 	return result
 
 static func valak(c) -> Array:
@@ -133,11 +133,38 @@ static func valak(c) -> Array:
 		add(result, c, "GravityOrb", point.target, point.score * 3.0)
 	var essence: int = c.w.life_essence[c.pid]
 	for lane in ["Lord", "Castle"]:
-		var value: int = c.guard_value(1 - c.pid, lane)
-		if value > 0 and essence > 0:
-			var spend: int = mini(essence, value + 1)
-			add(result, c, "Projection", {"kind": "guard_zone", "player_id": 1 - c.pid, "zone": lane}, mini(spend, value) * 2.0, {}, {"spend": spend})
+		for guard in c.guards(1 - c.pid, lane):
+			# Projection defeats one guard, not a zone's combined strength. For a
+			# hidden face, bank toward the fixed prior; success is never guaranteed.
+			var spend: int = c.guard_strength(guard)
+			if essence >= spend:
+				add(result, c, "Projection", {"kind": "guard_zone", "player_id": 1 - c.pid, "zone": lane}, spend * 1.5, {}, {"spend": spend})
 	return result
+
+static func redundant(c, source: Dictionary, order: Dictionary) -> bool:
+	var action: String = order.get("action", "Pass")
+	if action not in ["Hunt", "Siege"]:
+		return false
+	var strength: int = c.strength(order.card_ids) + c.waiters(c.pid, order.lane, order)
+	if action == "Hunt":
+		strength += int(c.w.relentless_pursuit[c.pid].strength_bonus)
+		# Valak can reinforce from public Essence before guards take damage.
+		strength -= int(c.w.life_essence[1 - c.pid]) if c.w.lord_ids[1 - c.pid] == "Valak" else 0
+	# This is a heuristic using occupied slots and estimated hidden faces. It
+	# neither reads enemy submissions nor promises what simultaneous combat does.
+	var guard_screen: int = c.guard_value(1 - c.pid, order.lane)
+	if source.power_id == "Projection":
+		return source.target.zone == order.lane and strength > guard_screen
+	if source.power_id != "InevitableRuin" or action != "Siege" or source.target.entity_id != order.target_id:
+		return false
+	var remaining: int = maxi(0, strength - c.screen("Castle"))
+	var row: Dictionary = c.rows[order.target_id]
+	if row.attributes.castle_type != "Bastion":
+		for castle in c.castles(1 - c.pid):
+			if castle.attributes.castle_type == "Bastion":
+				remaining = maxi(0, remaining - int(castle.attributes.integrity))
+				break
+	return remaining >= int(row.attributes.integrity)
 
 static func kanifous(c) -> Array:
 	var result: Array = []

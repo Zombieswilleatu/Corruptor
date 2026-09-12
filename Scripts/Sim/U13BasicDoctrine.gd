@@ -4,7 +4,8 @@ const Context = preload("res://Scripts/Sim/U13DoctrineView.gd")
 const Common = preload("res://Scripts/Sim/U13CommonDoctrine.gd")
 const Powers = preload("res://Scripts/Sim/U13PowerDoctrine.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
-const VERSION: String = "U13_BASIC_DOCTRINE_V1"
+const BotPlanning = preload("res://Scripts/Sim/U13BotPlanning.gd")
+const VERSION: String = "U13_BASIC_DOCTRINE_V2"
 const CANDIDATE_LIMIT: int = 32
 
 static func ranked(options: Array) -> Array:
@@ -29,7 +30,12 @@ static func choose(owner, pid: int, powers: Array, base: Dictionary, options: Ar
 	# Never catch a failed final preview and silently substitute a pass.
 	return base if legal.is_empty() else legal[0].duplicate(true)
 
-static func plan(owner, pid: int) -> Dictionary:
+static func plan(owner, pid: int, reuse_validation: bool = true) -> Dictionary:
+	if reuse_validation:
+		owner = owner.planning_session(pid)
+		if owner == null:
+			return Data.invalid("doctrine_not_planning")
+	owner = BotPlanning.new(owner, pid)
 	var view: Dictionary = owner.player_view(pid, 0)
 	if view.action == "invalid" or view.next_hook != "submission_lock" or view.submitted:
 		return Data.invalid("doctrine_not_planning")
@@ -39,17 +45,21 @@ static func plan(owner, pid: int) -> Dictionary:
 	for stage in ["waiters", "invocation", "profane_ruins"]:
 		order = choose(owner, pid, [], order, Common.rites(c, [], order, stage))
 	order = choose(owner, pid, [], order, Common.summon(c, [], order))
-	var powers: Array = []
-	var options: Array = ranked(Powers.options(c, order))
-	var admitted: Array = owner.legal_power_candidates(pid, options.map(func(x): return x.payload)) if not options.is_empty() else []
-	# Check the already-reserved rite/summon cart too. Bound expensive complete
-	# previews to four, rather than discovering conflicts after the whole plan.
-	for source in admitted.slice(0, 4):
-		if owner.preview_submission(pid, [source], order).action != "invalid":
-			powers = [source]
-			break
+	var powers: Array = choose_power(owner, pid, c, order)
 	order = choose(owner, pid, powers, order, Common.castles(c, powers, order))
 	order = choose(owner, pid, powers, order, Common.combat(c, powers, order))
+	# Re-evaluate only the selected power against our own chosen combat. If it
+	# becomes predictably redundant, drop it and spend the released cards on the
+	# same two bounded development/combat stages. No opponent-order forecasting.
+	if not powers.is_empty() and Powers.redundant(c, powers[0], order):
+		powers = choose_power(owner, pid, c, order)
+		if powers.is_empty():
+			var reserved: Dictionary = {}
+			for key in ["rites", "summon"]:
+				if order.has(key):
+					reserved[key] = order[key].duplicate(true)
+			order = choose(owner, pid, powers, reserved, Common.castles(c, powers, reserved))
+			order = choose(owner, pid, powers, order, Common.combat(c, powers, order))
 	for index in range(mini(3, int(c.w.guard_placement_limits[pid]))):
 		var next: Dictionary = choose(owner, pid, powers, order, Common.guards(c, powers, order))
 		if next == order:
@@ -58,7 +68,16 @@ static func plan(owner, pid: int) -> Dictionary:
 	var checked: Dictionary = owner.preview_submission(pid, powers, order)
 	if checked.action == "invalid":
 		return checked
-	return {"action": "bot_plan", "powers": powers, "order": order}
+	return owner.canonical_plan({"action": "bot_plan", "powers": powers, "order": order})
+
+static func choose_power(owner, pid: int, c, order: Dictionary) -> Array:
+	var options: Array = ranked(Powers.options(c, order).filter(func(x): return not Powers.redundant(c, x.payload, order)))
+	var admitted: Array = owner.legal_power_candidates(pid, options.map(func(x): return x.payload)) if not options.is_empty() else []
+	# The full cart, including rites and resummoning, must be admitted together.
+	for source in admitted.slice(0, 4):
+		if owner.preview_submission(pid, [source], order).action != "invalid":
+			return [source]
+	return []
 
 static func to_planning(game) -> Dictionary:
 	for attempt in range(12):
@@ -66,7 +85,7 @@ static func to_planning(game) -> Dictionary:
 		if result.action not in ["game_draw_choice", "game_market_choice"]:
 			return result
 		var pid: int = result.player_id
-		var c = Context.new(game._owner.player_view(pid, 0))
+		var c = Context.new(BotPlanning.new(game._owner, pid).player_view(pid, 0))
 		if result.action == "game_draw_choice":
 			var cards: Array = c.w.game_economy.stockpile_pending.card_ids.duplicate()
 			cards.sort_custom(func(a, b): return a < b if c.card_score(a) == c.card_score(b) else c.card_score(a) > c.card_score(b))

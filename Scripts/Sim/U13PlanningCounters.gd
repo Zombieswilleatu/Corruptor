@@ -8,6 +8,16 @@ var calls: Array = []
 func _init(source) -> void:
 	owner = source
 
+func planning_session(pid: int):
+	var started: int = Time.get_ticks_usec()
+	var session = owner.planning_session(pid)
+	record("planning_setup", 0, 0, started)
+	if session == null:
+		return null
+	var measured = get_script().new(session)
+	measured.calls = calls
+	return measured
+
 func player_view(pid: int, history_limit: int = -1) -> Dictionary:
 	var started: int = Time.get_ticks_usec()
 	var result: Dictionary = owner.player_view(pid, history_limit)

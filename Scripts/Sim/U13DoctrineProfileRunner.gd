@@ -45,16 +45,19 @@ func run() -> void:
 	var baseline = game._owner._clone()
 	report["one_validated_match_clone_ms"] = (Time.get_ticks_usec() - phase_started) / 1000.0
 	report.success = baseline != null and detached == before.world
-	for policy in [Game.GameBot, Bot]:
+	for policy in [Game.GameBot, Bot, Bot]:
 		for pid in [0, 1]:
 			var counter = Counters.new(game._owner)
 			var started: int = Time.get_ticks_usec()
-			var plan: Dictionary = policy.plan(counter, pid)
+			var reuse: bool = report.samples.size() >= 4
+			var plan: Dictionary = policy.plan(counter, pid, reuse) if policy == Bot else policy.plan(counter, pid)
 			var row: Dictionary = counter.summary((Time.get_ticks_usec() - started) / 1000.0)
-			row.merge({"policy": policy.VERSION, "player_id": pid, "plan": plan})
+			row.merge({"policy": policy.VERSION, "player_id": pid, "plan": plan, "reuse_validation": reuse})
 			report.samples.append(row)
 			print("PLANNING ", policy.VERSION, " seat ", pid, " candidates=", row.candidates_validated, " validation_ms=", snappedf(row.validation_ms, 0.1), " total_ms=", snappedf(row.planning_ms, 0.1))
 			if plan.action == "invalid" or game.snapshot() != before:
+				report.success = false
+			if reuse and plan != report.samples[2 + pid].plan:
 				report.success = false
 	if not output.is_empty():
 		var file = FileAccess.open(output, FileAccess.WRITE)

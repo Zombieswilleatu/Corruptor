@@ -34,10 +34,10 @@ func start(seed_value: String, lords: Array, castles: Array, compact_events: boo
 	return result
 
 
-func step() -> Dictionary:
+func step(timings: Dictionary = {}) -> Dictionary:
 	if _owner == null:
 		return Data.invalid("game_not_started")
-	return _owner.run_next_hook()
+	return _owner.run_next_hook(timings)
 
 
 func to_planning(random_choices: bool = false) -> Dictionary:
@@ -101,11 +101,16 @@ func submit(plans: Array) -> Dictionary:
 	return {"action": "game_submitted"}
 
 
-func finish_round() -> Dictionary:
+func finish_round(hook_timings: Array = []) -> Dictionary:
 	if _owner == null:
 		return Data.invalid("game_not_started")
 	while not _owner.next_hook().is_empty():
-		var result: Dictionary = step()
+		var hook: String = _owner.next_hook()
+		var started: int = Time.get_ticks_usec()
+		var detail: Dictionary = {"hook": hook}
+		var result: Dictionary = step(detail)
+		detail["ms"] = (Time.get_ticks_usec() - started) / 1000.0
+		hook_timings.append(detail)
 		if result.action == "invalid":
 			return result
 	return outcome() if is_finished() else {"action": "game_round_complete", "round": _owner.round_number()}

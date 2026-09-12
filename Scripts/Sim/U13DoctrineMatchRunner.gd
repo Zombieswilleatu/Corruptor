@@ -8,6 +8,7 @@ func identity(game_index: int) -> Dictionary:
 	var result: Dictionary = super.identity(game_index)
 	result.batch_version = "U13_DOCTRINE_MATCH_V1"
 	result.bot_version = Bot.VERSION
+	result["information_policy"] = Bot.BotPlanning.VERSION
 	result["verification"] = "independent_planning_save_replay" if verify else "single_conductor_legality"
 	return result
 
@@ -53,11 +54,12 @@ func trial() -> Dictionary:
 	var coverage: Dictionary = {"actions": {}, "powers": {}, "development": {}}
 	for round_number in range(1, round_limit + 1):
 		var begin: int = Time.get_ticks_usec()
-		var timings: Dictionary = {}
+		var timings: Dictionary = {"checkpoint": 0.0}
 		# Failure includes the exact current save; periodic checkpoints also survive
 		# process termination. No full-history JSON encoding every round in fast mode.
 		if round_number == 1 or round_number % 5 == 0:
 			if not checkpoint(game.snapshot(), round_number): return Batch.failed(game, "checkpoint", {})
+			timings.checkpoint = (Time.get_ticks_usec() - begin) / 1000.0
 		print("DOCTRINE GAME ", index, " START ROUND ", round_number)
 		var phase: int = Time.get_ticks_usec()
 		result = Bot.to_planning(game)
@@ -91,12 +93,30 @@ func trial() -> Dictionary:
 			return Batch.failed(game, "submit", {"result": result, "plans": plans})
 		timings.submission = (Time.get_ticks_usec() - phase) / 1000.0
 		phase = Time.get_ticks_usec()
-		result = game.finish_round()
+		var hook_timings: Array = []
+		var replay_hook_timings: Array = []
+		var resolution_detail: Dictionary = {"replay_execution": 0.0, "snapshot_compare": 0.0, "save_encode": 0.0, "save_restore": 0.0, "restore_compare": 0.0}
+		result = game.finish_round(hook_timings)
+		resolution_detail["primary_execution"] = (Time.get_ticks_usec() - phase) / 1000.0
 		if result.action == "invalid": return Batch.failed(game, "resolution", result)
-		if verify and (replay.finish_round() != result or replay.snapshot() != game.snapshot()):
-			return Batch.failed(game, "resolution_replay", {})
-		if verify and (replay.restore_json(game.snapshot_json()).action == "invalid" or replay.snapshot() != game.snapshot()):
-			return Batch.failed(game, "round_end_restore", {})
+		if verify:
+			var detail_started: int = Time.get_ticks_usec()
+			var replay_result: Dictionary = replay.finish_round(replay_hook_timings)
+			resolution_detail.replay_execution = (Time.get_ticks_usec() - detail_started) / 1000.0
+			detail_started = Time.get_ticks_usec()
+			var equal: bool = replay_result == result and replay.snapshot() == game.snapshot()
+			resolution_detail.snapshot_compare = (Time.get_ticks_usec() - detail_started) / 1000.0
+			if not equal: return Batch.failed(game, "resolution_replay", {})
+			detail_started = Time.get_ticks_usec()
+			var encoded: String = game.snapshot_json()
+			resolution_detail.save_encode = (Time.get_ticks_usec() - detail_started) / 1000.0
+			detail_started = Time.get_ticks_usec()
+			var restored: Dictionary = replay.restore_json(encoded)
+			resolution_detail.save_restore = (Time.get_ticks_usec() - detail_started) / 1000.0
+			detail_started = Time.get_ticks_usec()
+			equal = restored.action != "invalid" and replay.snapshot() == game.snapshot()
+			resolution_detail.restore_compare = (Time.get_ticks_usec() - detail_started) / 1000.0
+			if not equal: return Batch.failed(game, "round_end_restore", {})
 		timings.resolution = (Time.get_ticks_usec() - phase) / 1000.0
 		timings.total = (Time.get_ticks_usec() - begin) / 1000.0
 		for pid in [0, 1]:
@@ -105,7 +125,7 @@ func trial() -> Dictionary:
 			for power in plans[pid].powers: Batch.count_key(coverage.powers, power.power_id)
 			for key in ["rites", "summon", "castle_action", "guard_moves"]:
 				if order.has(key): Batch.count_key(coverage.development, key)
-		rounds.append({"round": round_number, "plans": plans, "planning_counters": counters, "timings_ms": timings})
+		rounds.append({"round": round_number, "plans": plans, "planning_counters": counters, "timings_ms": timings, "resolution_detail_ms": resolution_detail, "resolution_hooks": hook_timings, "replay_resolution_hooks": replay_hook_timings})
 		print("DOCTRINE GAME ", index, " ROUND ", round_number, " ", result.action, " | ", snappedf(timings.total / 1000.0, 0.01), "s; planning ", snappedf(timings.planning / 1000.0, 0.01), "s; resolution ", snappedf(timings.resolution / 1000.0, 0.01), "s; candidates ", counters[0].candidates_validated + counters[1].candidates_validated)
 		if game.is_finished():
 			var expected: Dictionary = Batch.Game.Content.Victory.evaluate(game.snapshot().world)

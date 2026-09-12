@@ -123,6 +123,75 @@ func next_hook() -> String:
 	return _runtime.next_hook()
 
 
+# A short-lived read-only authority facade. Its baseline is detached and checked
+# once; only independent candidate transactions may mutate forks of that state.
+# It cannot submit or advance the live match. Commit still uses full validation.
+func planning_session(player_id: int):
+	if _seed.is_empty() or player_id not in [0, 1] or next_hook() != Timeline.SUBMISSION_LOCK or _submissions[player_id] != null:
+		return null
+	var baseline = _clone()
+	return null if baseline == null else PlanningSession.new(baseline, player_id)
+
+
+class PlanningSession extends RefCounted:
+	var _baseline
+	var _pid: int
+	var _staged: Dictionary = {}
+
+	func _init(baseline, pid: int) -> void:
+		_baseline = baseline
+		_pid = pid
+
+	func player_view(pid: int, history_limit: int = -1) -> Dictionary:
+		return Data.invalid("planning_session_player_mismatch") if pid != _pid else _baseline.player_view(pid, history_limit)
+
+	func _declarations(declarations: Array) -> Dictionary:
+		if not Data.is_data(declarations):
+			return {"result": Data.invalid("submission_data_invalid")}
+		# Preserve Variant types in the key: JSON conflates integer/float payloads.
+		var key: String = var_to_bytes(declarations).hex_encode()
+		if not _staged.has(key):
+			var candidate = _baseline._fork_validated()
+			var result: Dictionary = candidate._accept_declarations(_pid, declarations)
+			_staged[key] = {"result": result, "owner": candidate}
+		return _staged[key]
+
+	func preview_submission(pid: int, declarations: Array, order: Dictionary = {}) -> Dictionary:
+		if pid != _pid:
+			return Data.invalid("planning_session_player_mismatch")
+		if not Data.is_data(order):
+			return Data.invalid("submission_data_invalid")
+		var staged: Dictionary = _declarations(declarations)
+		if staged.result.action == "invalid":
+			return staged.result.duplicate(true)
+		var candidate = staged.owner._fork_validated()
+		return candidate._accept_order(pid, order, declarations)
+
+	func legal_order_candidates(pid: int, declarations: Array, orders: Array) -> Array:
+		if pid != _pid or orders.is_empty():
+			return []
+		var staged: Dictionary = _declarations(declarations)
+		if staged.result.action == "invalid":
+			return []
+		if staged.owner._order_validator.is_valid():
+			var checked = staged.owner._orders_after_declarations(pid, orders, declarations)
+			if typeof(checked) == TYPE_ARRAY:
+				return checked
+		# Preserve complete-transaction fallback for absent/malformed adapters.
+		var result: Array = []
+		for order in orders:
+			if typeof(order) == TYPE_DICTIONARY and preview_submission(pid, declarations, order).action != "invalid":
+				result.append(order)
+		return result
+
+	func legal_power_candidates(pid: int, sources: Array) -> Array:
+		var result: Array = []
+		for source in sources:
+			if typeof(source) == TYPE_DICTIONARY and not legal_order_candidates(pid, [source], [{}]).is_empty():
+				result.append(source)
+		return result
+
+
 # Same entry point for UI, bot and submit. A complete queue is evaluated together
 # so two powers cannot spend the same resources or reserve the same cooldown.
 func preview_submission(
@@ -288,15 +357,19 @@ func submit(player_id: int, declarations: Array, combat_order: Dictionary = {}) 
 
 
 # The whole hook (world, queues, clocks, events and cursor) commits together.
-func run_next_hook() -> Dictionary:
+func run_next_hook(timings: Dictionary = {}) -> Dictionary:
 	if _seed.is_empty() or _runtime.completed:
 		return Data.invalid("match_hook_unavailable")
+	var started: int = Time.get_ticks_usec()
 	var candidate = _clone()
+	timings["validation_clone_ms"] = (Time.get_ticks_usec() - started) / 1000.0
 	if candidate == null:
 		return Data.invalid("match_clone_failed")
+	started = Time.get_ticks_usec()
 	var result: Dictionary = candidate._runtime.run_hook(
 		candidate.next_hook(), Callable(candidate, "_dispatch")
 	)
+	timings["dispatch_ms"] = (Time.get_ticks_usec() - started) / 1000.0
 	if result.action == "invalid":
 		return result
 	_adopt(candidate)
