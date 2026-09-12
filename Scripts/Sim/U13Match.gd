@@ -44,6 +44,13 @@ var _persistent = Persistent.new()
 var _cooldowns = Cooldowns.new()
 var _entities = Entities.new()
 var _events = EventLog.new()
+# Opt-in for the fixed, pure GameContent validator. Cache only the most recent
+# successfully installed canonical world, privately owned and never mutated.
+# This is validation reuse, not permission to skip checking changed state.
+var _cache_world_validation: bool = false
+var _world_validation_cache: Dictionary = {}
+var _world_cache_hits: int = 0
+var _world_validations: int = 0
 
 
 func _init(
@@ -370,6 +377,8 @@ func run_next_hook(timings: Dictionary = {}) -> Dictionary:
 		candidate.next_hook(), Callable(candidate, "_dispatch")
 	)
 	timings["dispatch_ms"] = (Time.get_ticks_usec() - started) / 1000.0
+	timings["world_cache_hits"] = candidate._world_cache_hits
+	timings["world_validations"] = candidate._world_validations
 	if result.action == "invalid":
 		return result
 	_adopt(candidate)
@@ -849,6 +858,19 @@ func _install_world(raw: Dictionary) -> Dictionary:
 		or typeof(raw.get("data")) != TYPE_DICTIONARY
 	):
 		return Data.invalid("world_data_invalid")
+	# Always enforce the raw plain-data/type boundary before comparison. Normalize
+	# as ordinary install does: equivalent JSON integer/float encodings are safe.
+	# No hashes, mutable object identity, or unchecked caller-provided cache tokens.
+	if _cache_world_validation and not _world_validation_cache.is_empty() and _world_validation_cache.validator == _world_validator:
+		var canonical: Dictionary = Data.copy_data(raw)
+		# Native Variant bytes preserve types (including bool versus integer).
+		# A different dictionary insertion order only causes a harmless cache miss.
+		if var_to_bytes(canonical) == _world_validation_cache.encoded:
+			_world = canonical
+			_entities = _world_validation_cache.entities._fork()
+			_world_cache_hits += 1
+			return {"action": "u13_world_installed"}
+	_world_validations += 1
 	var candidate = Entities.new()
 	if candidate.restore(raw.entities).action == "invalid":
 		return Data.invalid("world_entities_invalid")
@@ -881,6 +903,8 @@ func _install_world(raw: Dictionary) -> Dictionary:
 			return Data.invalid("content_world_invalid")
 	_world = Data.copy_data(raw)
 	_entities = candidate
+	if _cache_world_validation:
+		_world_validation_cache = {"encoded": var_to_bytes(_world), "entities": _entities._fork(), "validator": _world_validator}
 	return {"action": "u13_world_installed"}
 
 
@@ -1024,7 +1048,7 @@ func _configuration_valid() -> bool:
 
 
 func _new_owner():
-	return get_script().new(
+	var candidate = get_script().new(
 		_policy_id,
 		_rules,
 		_validators,
@@ -1038,6 +1062,8 @@ func _new_owner():
 		_order_screen,
 		_order_validator
 	)
+	candidate._cache_world_validation = _cache_world_validation
+	return candidate
 
 
 func _clone():
@@ -1064,6 +1090,9 @@ func _fork_validated():
 	candidate._cooldowns = _cooldowns._fork()
 	candidate._entities = _entities._fork()
 	candidate._events = _events._fork()
+	# Cache snapshots stay separate from both owners' mutable world/registry.
+	# Entries are replaced as a whole after successful validation, never edited.
+	candidate._world_validation_cache = _world_validation_cache
 	return candidate
 
 
@@ -1080,6 +1109,7 @@ func _adopt(candidate) -> void:
 	_cooldowns = candidate._cooldowns
 	_entities = candidate._entities
 	_events = candidate._events
+	_world_validation_cache = candidate._world_validation_cache
 
 
 static func _source_for(effect_id: String, records: Array) -> Dictionary:
