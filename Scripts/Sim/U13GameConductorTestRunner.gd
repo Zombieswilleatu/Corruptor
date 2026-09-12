@@ -43,7 +43,7 @@ func run() -> void:
 func checkpoint_step(game) -> bool:
 	var restored = Game.new()
 	var hook: String = game._owner.next_hook()
-	if not check(restored.restore(JSON.parse_string(JSON.stringify(game.snapshot()))).action != "invalid", "restore before " + hook):
+	if not check(restored.restore_json(game.snapshot_json()).action != "invalid", "restore before " + hook):
 		return false
 	var market: Dictionary = game.player_view(0).world.game_market
 	var choosing: bool = hook == Game.Timeline.PRESENT_PUBLIC_STATE and market.seat != 2

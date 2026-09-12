@@ -10,7 +10,7 @@ func run() -> void:
 			break
 		var before: Dictionary = game.snapshot()
 		var restored = Game.new()
-		if not check(restored.restore(JSON.parse_string(JSON.stringify(before))).action != "invalid", "restore random planning"):
+		if not check(restored.restore_json(game.snapshot_json()).action != "invalid", "restore random planning"):
 			break
 		var plans: Array = [game.plan(0), game.plan(1)]
 		if not check(plans.all(func(p): return p.action != "invalid"), "both seats produce legal plans from real hands"):

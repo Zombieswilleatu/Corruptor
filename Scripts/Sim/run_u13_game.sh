@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Game-conductor gates: paid production opening, draws, Development/rites, and replay.
-# This is a headless foundation gate; full victory/UI integration is pending.
+# Fast foundation gate including victory; run_u13_full_matches.sh is the long batch.
 set -euo pipefail
 export U13_TEST_TIMEOUT_SECONDS=${U13_TEST_TIMEOUT_SECONDS:-90}
 if [[ $# -ne 1 || ! -x "$1" ]]; then

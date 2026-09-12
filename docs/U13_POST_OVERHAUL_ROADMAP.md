@@ -7,7 +7,9 @@
 pending a dedicated design pass. Keep Tear accumulation and Lord Breach powers.
 Victory resolution is now implemented after Aftermath; see
 `U13_VICTORY_2026-09-12.md`. Next: autonomous matches through real termination
-and the remaining candidate coverage audit.
+and the remaining candidate coverage audit. The separate 100-game runner is
+now available in `U13_FULL_MATCH_BATCH_2026-09-12.md`; Windows batch acceptance
+is pending.
 This decision supersedes references below to implementing Veil effects before
 the full-game and playable-UI milestones.
 

@@ -164,3 +164,23 @@ func outcome() -> Dictionary:
 		return Data.invalid("game_not_started")
 	var state: Dictionary = _owner.player_view(0, 0).world.victory
 	return {"action": "game_finished" if state.winner != -1 else "game_in_progress", "round": _owner.round_number(), "winner": state.winner, "win_by": state.win_by}
+
+
+# Godot's JSON float parser can change the last bit even with full_precision.
+# Keep a JSON envelope, with a lossless Variant payload restricted to plain data.
+static func encode_snapshot(snapshot_data: Dictionary) -> String:
+	return JSON.stringify({"codec": "U13_GAME_JSON_SAVE_V1", "payload": Marshalls.raw_to_base64(var_to_bytes(snapshot_data))})
+
+
+func snapshot_json() -> String:
+	return encode_snapshot(snapshot())
+
+
+func restore_json(encoded: String) -> Dictionary:
+	var envelope = JSON.parse_string(encoded)
+	if typeof(envelope) != TYPE_DICTIONARY or envelope.size() != 2 or envelope.get("codec") != "U13_GAME_JSON_SAVE_V1" or typeof(envelope.get("payload")) != TYPE_STRING:
+		return Data.invalid("game_json_invalid")
+	var decoded = bytes_to_var(Marshalls.base64_to_raw(envelope.payload))
+	if typeof(decoded) != TYPE_DICTIONARY:
+		return Data.invalid("game_json_invalid")
+	return restore(decoded)

@@ -99,6 +99,9 @@ model instead of importing the U12 controller wholesale.
 | Player UI / Action Window / theater | Existing presentation references | `Prototype/UI2/ActionZone.gd`, `ResolutionTheater.gd`, U13 counterparts; observe resolved events only |
 | Forecast / smart doctrine | Later phase | `ActionForecast`, `BotDoctrine`, `BotDeployDoctrine`, `BotDominionRiteDoctrine`; reuse heuristics, not old authority |
 
+The 18/18 Windows victory gate is accepted. The separate long-run command is
+documented in `U13_FULL_MATCH_BATCH_2026-09-12.md`.
+
 Next milestone: exercise autonomous matches through genuine victory and audit
 remaining candidate coverage. Per the 2026-09-12 user decision,
 Veil threshold effects and automatic drift stay disabled pending a design pass.
