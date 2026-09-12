@@ -13,6 +13,30 @@ is pending.
 This decision supersedes references below to implementing Veil effects before
 the full-game and playable-UI milestones.
 
+## Next engineering priority: simulation performance
+
+User steering after starting the four-worker overnight batch: let that run finish,
+but bookmark simulation performance. Multi-hour batches are not acceptable as the
+routine test loop. Review its results when available; do not require another
+100-game run for every change.
+
+Before the next large campaign:
+
+- Profile legal-plan generation, ordinary resolution/Marching, snapshot encoding
+  and restoration, and complete-state/history comparisons separately.
+- Measure growing event-history cost and compare one versus four workers using
+  the same seeds and runtime. Separate per-game CPU cost from wall-clock contention.
+- Optimize measured bottlenecks while preserving authoritative behavior and exact
+  replay. Expensive planning/history work is a hypothesis, not yet a finding.
+- Establish a fast targeted regression loop and a separate lightweight simulation
+  throughput benchmark. Keep the full 100-game replay batch as an occasional
+  integration gate, with explicit scope for each tier.
+- Record before/after timings, hardware/runtime, game rounds and validation scope;
+  select practical time budgets from measurements rather than inventing a target.
+
+This bookmark does not authorize replacing correctness checks with approximate
+comparisons or declaring capped games victories. Veil effects and drift stay off.
+
 ## 1. Immediate Objective
 
 Once all nine Lords are mechanically complete, the next goal is:

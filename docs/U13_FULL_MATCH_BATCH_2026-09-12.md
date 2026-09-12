@@ -118,3 +118,15 @@ Godot 4.5.1 processes also ran independent one-round capped games concurrently;
 game 8 reproduced its prior serial plans and complete-state hash. These were
 explicitly censored smoke tests, not four completed victories. Windows 100-game
 acceptance remains pending.
+
+## Performance follow-up — user bookmark
+
+The user is letting the current four-worker batch run overnight. Do not interrupt
+it or treat its completion as known until results arrive. Simulation performance
+is the next engineering priority: profile planning, resolution, serialization,
+restoration and history comparisons before another large campaign. See the
+performance bookmark near the top of `U13_POST_OVERHAUL_ROADMAP.md`.
+
+This heavy replay batch is an occasional integration gate, not the default check
+for each change. Establish a fast targeted loop and measure ordinary simulation
+throughput separately. No bottleneck has yet been established by profiling.
