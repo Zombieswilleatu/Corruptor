@@ -5,6 +5,7 @@ const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
 const Construction = preload("res://Scripts/Sim/U13Construction.gd")
+const SnareCost = preload("res://Scripts/Sim/U13SnareCost.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Stats = preload("res://Scripts/Sim/U13LordStats.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
@@ -338,6 +339,16 @@ static func legal_orders(context: Dictionary) -> Dictionary:
 		):
 			allowed[index] = true
 		trimmed.orders[index] = strip_order(order) if typeof(order) == TYPE_DICTIONARY else order
+	# Submission reserves guards before paying Snare, then admits Castle actions.
+	# Stage that same payment once for the whole isolated domain: Blood Conduit
+	# can make a previously repairable Circle locked, or damage a full Circle.
+	for raw_source in context.get("declarations", []):
+		var source: Dictionary = Data.declaration_copy(raw_source)
+		if source.get("power_id") == "Snare":
+			var paid: Dictionary = SnareCost.pay(trimmed.world, source, context.get("round", context.world.data.guard_public_round))
+			if paid.action == "invalid":
+				return paid
+			trimmed.world = paid.world
 	var result: Dictionary = Construction.legal_orders(trimmed)
 	if result.action == "invalid":
 		return result

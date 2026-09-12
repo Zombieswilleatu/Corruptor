@@ -273,7 +273,10 @@ static func legal_orders(context: Dictionary) -> Dictionary:
 	for group in groups.values():
 		var world: Dictionary = context.world.duplicate(true)
 		pay(world, context.player_id, group.choice)
-		var checked: Dictionary = Guards.legal_orders({"world": world, "player_id": context.player_id, "orders": group.orders})
+		var ordinary: Dictionary = context.duplicate()
+		ordinary.world = world
+		ordinary.orders = group.orders
+		var checked: Dictionary = Guards.legal_orders(ordinary)
 		if checked.action == "invalid":
 			return checked
 		for index in checked.indices:

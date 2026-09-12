@@ -221,15 +221,15 @@ func _validated_orders(player_id: int, declarations: Array, orders: Array):
 	# Stage exactly the same identity/cooldown/cost/target checks as commit once.
 	if baseline._accept_declarations(player_id, declarations).action == "invalid":
 		return []
-	return baseline._orders_after_declarations(player_id, orders)
+	return baseline._orders_after_declarations(player_id, orders, declarations)
 
 
 # Exact bulk predicate on an already-staged declaration transaction. This is the
 # same content adapter for power-only previews and complete combat order lists.
 # A malformed adapter returns null so callers keep the full preview fallback.
-func _orders_after_declarations(player_id: int, orders: Array):
+func _orders_after_declarations(player_id: int, orders: Array, declarations: Array):
 	var checked = _order_validator.call(
-		{"world": _world.duplicate(true), "player_id": player_id, "orders": orders.duplicate(true)}
+		{"world": _world.duplicate(true), "player_id": player_id, "orders": orders.duplicate(true), "declarations": declarations.duplicate(true), "round": _runtime.round_number}
 	)
 	if typeof(checked) != TYPE_DICTIONARY or checked.get("action") != "legal_orders":
 		return null
@@ -268,7 +268,7 @@ func legal_power_candidates(player_id: int, sources: Array) -> Array:
 		if candidate._accept_declarations(player_id, [source]).action == "invalid":
 			continue
 		if _order_validator.is_valid():
-			var checked = candidate._orders_after_declarations(player_id, [{}])
+			var checked = candidate._orders_after_declarations(player_id, [{}], [source])
 			if typeof(checked) == TYPE_ARRAY:
 				if not checked.is_empty():
 					result.append(source)

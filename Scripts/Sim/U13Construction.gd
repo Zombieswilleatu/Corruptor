@@ -345,7 +345,7 @@ static func snapshot_order(context: Dictionary) -> Dictionary:
 	if locked:
 		if not record_shape(record) or record.round != context.round or record.choice != choice:
 			return Data.invalid("castle_order_snapshot_mismatch")
-		var prior: Dictionary = context.presentation_world
+		var prior: Dictionary = context.get("castle_admission_world", context.presentation_world)
 		var check: Dictionary = validate_choice(prior, player_id, choice)
 		if (
 			check.action == "invalid"
@@ -367,7 +367,7 @@ static func snapshot_order(context: Dictionary) -> Dictionary:
 	elif record != null:
 		return Data.invalid("castle_order_outside_locked_round")
 	elif phase <= Timeline.hook_rank(Timeline.SUBMISSION_LOCK):
-		if validate_choice(world, player_id, choice).action == "invalid":
+		if validate_choice(context.get("castle_admission_world", world), player_id, choice).action == "invalid":
 			return Data.invalid("sealed_castle_order_invalid")
 	var expected: int = (
 		context.round if phase > Timeline.hook_rank(Timeline.DEVELOPMENT) else context.round - 1

@@ -86,6 +86,11 @@ if [[ $u13_status -ne 0 ]] || grep -Eq 'SCRIPT ERROR|ERROR:|^FAIL ' "$u13_report
   exit 1
 fi
 printf 'Checking batch saves and gameplay parity...\n'
+run_godot "$u13_reports/snare-planning.log" --script Scripts/Sim/U13SnarePlanningTestRunner.gd || u13_status=$?
+if [[ $u13_status -ne 0 ]] || grep -Eq 'SCRIPT ERROR|ERROR:|^FAIL ' "$u13_reports/snare-planning.log" || ! grep -q '^U13 Snare planning failures: 0$' "$u13_reports/snare-planning.log"; then
+  cat -- "$u13_reports/snare-planning.log"
+  exit 1
+fi
 run_godot "$u13_reports/harness.log" --script Scripts/Sim/U13FullMatchBatchTestRunner.gd || u13_status=$?
 if [[ $u13_status -ne 0 ]] || grep -Eq 'SCRIPT ERROR|ERROR:|^FAIL ' "$u13_reports/harness.log" || ! grep -q '^U13 full match harness failures: 0$' "$u13_reports/harness.log"; then
   cat -- "$u13_reports/harness.log"

@@ -13,7 +13,8 @@ bash Scripts/Sim/run_u13_full_matches.sh \
 ```
 
 The wrapper requires Windows-compatible Godot 4.7.2 stable, checks planning
-against the previous implementation and checks batch/full-history parity,
+against the previous implementation, checks Snare/Conduit Repair admission,
+and checks batch/full-history parity,
 then runs 100 seeded full games, using **four Godot processes** by default. Each
 worker runs one game and takes the next available index when it finishes. Expect
 a long run; four workers improve throughput when CPU and memory allow, but do
@@ -143,3 +144,12 @@ not a prediction that all 100 games will finish overnight.
 
 This heavy replay batch remains an occasional integration gate. Use targeted
 tests for routine changes; defer large-volume throughput work to PySim parity.
+
+## Game 37 planning regression
+
+The `7522bee` Windows run reached game 37 and stopped at round 16 when both
+conductors generated the same invalid Repair plan. Snare's Blood Conduit payment
+could create a Repair lock after the bulk filter had admitted that Repair.
+The targeted fix shares the payment between filtering and submission, retains
+strict final validation, and covers save/restore at both Repair boundaries.
+See `U13_SNARE_PLANNING_2026-09-12.md` for reproduction and the short Windows gate.

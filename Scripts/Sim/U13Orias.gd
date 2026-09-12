@@ -13,6 +13,7 @@ const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Battle = preload("res://Scripts/Sim/U13BattleEvents.gd")
 const MatchOwner = preload("res://Scripts/Sim/U13Match.gd")
 const Construction = preload("res://Scripts/Sim/U13Construction.gd")
+const SnareCost = preload("res://Scripts/Sim/U13SnareCost.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Stats = preload("res://Scripts/Sim/U13LordStats.gd")
 const POLICY: String = Stats.ORIAS_WEB_PROFILE
@@ -324,6 +325,16 @@ func accept_order(context: Dictionary) -> Dictionary:
 					return paid
 				trimmed.world = paid.world
 				sealed_events.append_array(paid.events)
+	if context.phase == "snapshot":
+		# Castle admission occurs after Snare's payment. Reconstruct that same
+		# admission world when checking sealed orders, without paying live state.
+		# A previously full Circle may legitimately be repaired after exertion.
+		for source in context.declarations:
+			if source.power_id == SNARE:
+				var paid: Dictionary = _pay_snare(context.presentation_world.duplicate(true), source, context.round)
+				if paid.action == "invalid":
+					return paid
+				trimmed["castle_admission_world"] = paid.world
 	var ordinary: Dictionary = _base.accept_order(trimmed)
 	if ordinary.action != "invalid" and context.phase != "snapshot":
 		ordinary.events = sealed_events + ordinary.events
@@ -409,37 +420,7 @@ static func _snare_target_valid(source: Dictionary) -> bool:
 
 
 static func _pay_snare(world: Dictionary, source: Dictionary, round_number: int) -> Dictionary:
-	var pid: int = source.player_id
-	if world.data.snare_paid_rounds[pid] >= round_number:
-		return Data.invalid("snare_already_paid")
-	var entities = Ids.new()
-	entities.restore(world.entities)
-	var lord: Dictionary = entities.get_entity(world.players[pid].lord_entity_id)
-	var before: int = lord.attributes.threat
-	if before >= 1000000:
-		return Data.invalid("snare_threat_limit")
-	var gain: Dictionary = Conduit.gain(world, lord.id, 1, round_number)
-	world = gain.world
-	world.data.snare_paid_rounds[pid] = round_number
-	return {
-		"action": "resolved",
-		"world": world,
-		"events":
-		gain.events + [
-			_event(
-				"SNARE_ARMED",
-				{
-					"player_id": pid,
-					"target_player_id": 1 - pid,
-					"round": round_number,
-					"hook": Timeline.SUBMISSION_LOCK,
-					"declaration_id": source.declaration_id,
-					"threat_before": before,
-					"threat_after": gain.after
-				}
-			)
-		]
-	}
+	return SnareCost.pay(world, source, round_number)
 
 
 static func _resolve_snare(record: Dictionary, context: Dictionary) -> Dictionary:
