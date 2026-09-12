@@ -1,5 +1,11 @@
 extends "res://Scripts/Sim/U13Kanifous.gd"
 
+# Veil redesign hold (2026-09-12): threshold penalties and automatic drift
+# stay off. Tear accounting, Dominion rites and Lord Breach powers remain live.
+# These report the current profile; no Veil effect resolver is installed.
+const VEIL_EFFECTS_ENABLED: bool = false
+const VEIL_DRIFT_ENABLED: bool = false
+
 const Plunder = preload("res://Scripts/Sim/U13Plunder.gd")
 const Throne = preload("res://Scripts/Sim/U13VacantThrone.gd")
 
@@ -128,6 +134,8 @@ func project(world: Dictionary, player_id: int) -> Dictionary:
 	result["vacant_throne"] = world.data.vacant_throne.duplicate(true)
 	result["dominion_rites"] = {"version": Rites.VERSION, "invocation_rounds": world.data.dominion_rites.invocation_rounds.duplicate(), "resolved_round": world.data.dominion_rites.resolved_round}
 	result["veil_total"] = Rites.veil(world)
+	result["veil_effects_enabled"] = VEIL_EFFECTS_ENABLED
+	result["veil_drift_enabled"] = VEIL_DRIFT_ENABLED
 	result["game_economy"] = world.data.game_economy.duplicate(true)
 	var pending: Dictionary = result.game_economy.stockpile_pending
 	if not pending.is_empty() and pending.player_id != player_id:

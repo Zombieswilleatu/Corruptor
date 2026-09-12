@@ -91,12 +91,14 @@ model instead of importing the U12 controller wholesale.
 | Development / market / additional choices | Core Development and Slaver paths implemented | Add only the remaining waiter/lifecycle choices through explicit U13 APIs |
 | Siege / Ward / Hunt / waiter support | Existing `U13Combat` | Audit awards against accepted U13 rules rather than treating exercise behavior as final |
 | Profane / Pillage / waiter-to-Tear spending | Implemented in the full-game profile | `U13Plunder` and `U13DominionRites`; exact shared legality and replay |
-| Veil / Dominion / victory | Tear routes, Dominion rites and Vacant Throne connected; Veil effects and victory remain | Recover current lifecycle from `ResolutionFinaleEngine` and `BotRoundEngine` |
+| Veil / Dominion / victory | Tear routes, Dominion rites and Vacant Throne connected; Veil effects/drift disabled pending redesign; victory next | Recover current lifecycle from `ResolutionFinaleEngine` and `BotRoundEngine` |
 | Random-Legal | Existing bounded candidate vocabulary, exercised here | Full-game coverage still required; three rounds do not prove all required choices |
 | Player UI / Action Window / theater | Existing presentation references | `Prototype/UI2/ActionZone.gd`, `ResolutionTheater.gd`, U13 counterparts; observe resolved events only |
 | Forecast / smart doctrine | Later phase | `ActionForecast`, `BotDoctrine`, `BotDeployDoctrine`, `BotDominionRiteDoctrine`; reuse heuristics, not old authority |
 
-Next milestone: complete Veil effects and the win lifecycle. Waiter spending,
+Next milestone: complete the win lifecycle. Per the 2026-09-12 user decision,
+Veil threshold effects and automatic drift stay disabled pending a design pass.
+Tear accumulation, Dominion rites and current Lord Breach powers remain active. Waiter spending,
 Dominion rites, Vacant Throne and Profane/Pillage have focused authorities. Only after genuine game termination
 exists should
 100–1,000 full games be called the autonomous match gate. A round budget must

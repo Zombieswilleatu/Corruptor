@@ -3,6 +3,12 @@
 **Status:** Working roadmap / engineering addendum
 **Date:** 2026-09-10
 
+**2026-09-12 steering:** Veil threshold effects and automatic drift are disabled
+pending a dedicated design pass. Keep Tear accumulation and Lord Breach powers.
+Proceed from the accepted Profane/Pillage checkpoint to victory resolution.
+This decision supersedes references below to implementing Veil effects before
+the full-game and playable-UI milestones.
+
 ## 1. Immediate Objective
 
 Once all nine Lords are mechanically complete, the next goal is:
@@ -41,7 +47,7 @@ Required systems include:
 - waiter support
 - waiter-to-personal-Tear spending
 - Souls, personal Tears, Neutral Tears
-- Veil progression and threshold effects
+- Veil accounting; threshold effects and automatic drift disabled pending redesign
 - Dominion / victory
 - Castle picker/loadout state
 - complete save/load and replay
