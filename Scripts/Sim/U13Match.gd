@@ -103,6 +103,8 @@ func start(seed_value: String, world: Dictionary, player_order: Array) -> Dictio
 
 
 func begin_next_round(player_order: Array) -> Dictionary:
+	if is_finished():
+		return Data.invalid("match_finished")
 	if not _runtime.completed or not Data.valid_player_order(player_order):
 		return Data.invalid("match_round_not_complete")
 	if not Data.is_integer(_runtime.round_number + 1):
@@ -111,6 +113,10 @@ func begin_next_round(player_order: Array) -> Dictionary:
 	_submissions = [null, null]
 	_combat_orders = [{}, {}]
 	return _runtime.begin_round(_runtime.round_number + 1)
+
+
+func is_finished() -> bool:
+	return not _world.is_empty() and _content_owner != null and _content_owner.has_method("is_finished") and _content_owner.is_finished(_world.duplicate(true))
 
 
 func next_hook() -> String:
@@ -289,6 +295,8 @@ func run_next_hook() -> Dictionary:
 # Content-owned, immediate choices between hooks use the same atomic transform
 # and private event path as hook resolution. Caller cannot supply a transform.
 func submit_choice(player_id: int, choice: Dictionary) -> Dictionary:
+	if is_finished():
+		return Data.invalid("match_finished")
 	if _seed.is_empty() or player_id not in [0, 1] or not Data.is_data(choice) or _content_owner == null or not _content_owner.has_method("resolve_choice"):
 		return Data.invalid("match_choice_unavailable")
 	var candidate = _clone()

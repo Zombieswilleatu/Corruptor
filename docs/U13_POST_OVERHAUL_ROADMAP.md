@@ -5,7 +5,9 @@
 
 **2026-09-12 steering:** Veil threshold effects and automatic drift are disabled
 pending a dedicated design pass. Keep Tear accumulation and Lord Breach powers.
-Proceed from the accepted Profane/Pillage checkpoint to victory resolution.
+Victory resolution is now implemented after Aftermath; see
+`U13_VICTORY_2026-09-12.md`. Next: autonomous matches through real termination
+and the remaining candidate coverage audit.
 This decision supersedes references below to implementing Veil effects before
 the full-game and playable-UI milestones.
 

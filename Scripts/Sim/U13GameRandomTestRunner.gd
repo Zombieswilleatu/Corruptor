@@ -23,7 +23,9 @@ func run() -> void:
 			break
 		check(game.snapshot() == restored.snapshot(), "all random results and private events replay")
 		var view: Dictionary = game.player_view(0)
-		print("ROUND %d complete: hand=%d opponent_hand=%d deck=%d discard=%d; victory gate pending" % [round_number, view.world.hand.size(), view.world.opponent_hand_count, view.world.deck_count, view.world.discard.size()])
+		print("ROUND %d complete: hand=%d opponent_hand=%d deck=%d discard=%d; outcome=%s" % [round_number, view.world.hand.size(), view.world.opponent_hand_count, view.world.deck_count, view.world.discard.size(), game.outcome().action])
+		if game.is_finished():
+			break
 		if round_number < 3:
 			check(game.next_round().action != "invalid", "begin next random round")
 	print("U13 game random failures: %d" % failures)

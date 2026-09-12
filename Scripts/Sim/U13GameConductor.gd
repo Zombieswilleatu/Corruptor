@@ -11,8 +11,8 @@ const LORDS: Array = ["Gremory", "Deimos", "Humbaba", "Kalligan", "Orias", "Odra
 var _owner
 
 
-# Milestone 1 owns setup and round advancement. Victory/Veil and the remaining
-# Development choices are still pending; a bounded exercise is not a won game.
+# Owns setup, round advancement and terminal outcomes. Veil penalties and
+# automatic drift remain disabled pending redesign.
 func start(seed_value: String, lords: Array, castles: Array) -> Dictionary:
 	if _owner != null:
 		return Data.invalid("game_already_started")
@@ -43,9 +43,11 @@ func step() -> Dictionary:
 func to_planning(random_choices: bool = false) -> Dictionary:
 	if _owner == null:
 		return Data.invalid("game_not_started")
+	if is_finished():
+		return outcome()
 	while _owner.next_hook() != Timeline.SUBMISSION_LOCK:
 		if _owner.next_hook().is_empty():
-			return Data.invalid("game_round_complete")
+			return outcome() if is_finished() else Data.invalid("game_round_complete")
 		var pending: Dictionary = _owner.player_view(0, 0).world.game_economy.stockpile_pending
 		if not pending.is_empty():
 			var pid: int = pending.player_id
@@ -106,7 +108,7 @@ func finish_round() -> Dictionary:
 		var result: Dictionary = step()
 		if result.action == "invalid":
 			return result
-	return {"action": "game_round_complete", "round": _owner.round_number()}
+	return outcome() if is_finished() else {"action": "game_round_complete", "round": _owner.round_number()}
 
 
 func next_round() -> Dictionary:
@@ -151,3 +153,14 @@ func choose_market(player_id: int, choice: Dictionary) -> Dictionary:
 	if not choice.has("market"):
 		return Data.invalid("market_choice_invalid")
 	return Data.invalid("game_not_started") if _owner == null else _owner.submit_choice(player_id, choice)
+
+
+func is_finished() -> bool:
+	return _owner != null and _owner.is_finished()
+
+
+func outcome() -> Dictionary:
+	if _owner == null:
+		return Data.invalid("game_not_started")
+	var state: Dictionary = _owner.player_view(0, 0).world.victory
+	return {"action": "game_finished" if state.winner != -1 else "game_in_progress", "round": _owner.round_number(), "winner": state.winner, "win_by": state.win_by}

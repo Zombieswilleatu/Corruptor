@@ -1,6 +1,9 @@
 # U13 full-game foundation — milestone 1
 
-**Current checkpoint:** `U13_FRACTURE_2026-09-11.md` adds printed Fracture on
+**Current checkpoint:** `U13_VICTORY_2026-09-12.md` adds round-end Ritual,
+Dominion and Final Collapse, terminal saves and an 18-runner game gate.
+
+**Earlier checkpoint:** `U13_FRACTURE_2026-09-11.md` adds printed Fracture on
 banishment and expands the game runner to 13/13. The user accepted the preceding
 production-opening gate at 12/12.
 
@@ -33,7 +36,7 @@ This commit begins that work; it does not claim the full-match gate is green.
 bash Scripts/Sim/run_u13_game.sh "$GODOT_U13"
 ```
 
-Expected: **13/13 game foundation runners**, on Windows Godot 4.7.2 stable.
+Expected: **18/18 game foundation runners**, on Windows Godot 4.7.2 stable.
 This is a headless gate, not the playable board. The wrapper preserves failure
 logs and checks both process status and explicit success markers. Its per-suite
 watchdog is 90 seconds, matching the recent focused Kanifous wrapper.
@@ -91,17 +94,17 @@ model instead of importing the U12 controller wholesale.
 | Development / market / additional choices | Core Development and Slaver paths implemented | Add only the remaining waiter/lifecycle choices through explicit U13 APIs |
 | Siege / Ward / Hunt / waiter support | Existing `U13Combat` | Audit awards against accepted U13 rules rather than treating exercise behavior as final |
 | Profane / Pillage / waiter-to-Tear spending | Implemented in the full-game profile | `U13Plunder` and `U13DominionRites`; exact shared legality and replay |
-| Veil / Dominion / victory | Tear routes, Dominion rites and Vacant Throne connected; Veil effects/drift disabled pending redesign; victory next | Recover current lifecycle from `ResolutionFinaleEngine` and `BotRoundEngine` |
+| Veil / Dominion / victory | Tear routes, Dominion rites and Vacant Throne connected; Veil effects/drift disabled pending redesign; round-end victory implemented | `U13Victory` owns Ritual, Dominion, Final Collapse and terminal save checks |
 | Random-Legal | Existing bounded candidate vocabulary, exercised here | Full-game coverage still required; three rounds do not prove all required choices |
 | Player UI / Action Window / theater | Existing presentation references | `Prototype/UI2/ActionZone.gd`, `ResolutionTheater.gd`, U13 counterparts; observe resolved events only |
 | Forecast / smart doctrine | Later phase | `ActionForecast`, `BotDoctrine`, `BotDeployDoctrine`, `BotDominionRiteDoctrine`; reuse heuristics, not old authority |
 
-Next milestone: complete the win lifecycle. Per the 2026-09-12 user decision,
+Next milestone: exercise autonomous matches through genuine victory and audit
+remaining candidate coverage. Per the 2026-09-12 user decision,
 Veil threshold effects and automatic drift stay disabled pending a design pass.
 Tear accumulation, Dominion rites and current Lord Breach powers remain active. Waiter spending,
-Dominion rites, Vacant Throne and Profane/Pillage have focused authorities. Only after genuine game termination
-exists should
-100–1,000 full games be called the autonomous match gate. A round budget must
+Dominion rites, Vacant Throne and Profane/Pillage have focused authorities. Victory now terminates the game after Aftermath. The separate
+100–1,000 full-game exercise is still required for the autonomous match gate. A round budget must
 remain a diagnostic limit, never be reported as a legitimate victory.
 
 ## Verification scope
@@ -116,5 +119,5 @@ remain a diagnostic limit, never be reported as a legitimate victory.
 - Kanifous versus Orias: three Random-Legal rounds, identical plans after restore,
   complete authoritative submission/resolution and exact replay.
 
-No balance, victory, UI migration, full candidate coverage, or old-PySim parity
+The original checks above make no balance, UI migration, full candidate coverage, or old-PySim parity
 claim is made by these checks.
