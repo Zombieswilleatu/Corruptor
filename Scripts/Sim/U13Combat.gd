@@ -1,6 +1,7 @@
 class_name U13Combat
 extends RefCounted
 
+const Plunder = preload("res://Scripts/Sim/U13Plunder.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
@@ -113,14 +114,14 @@ static func valid(world: Dictionary) -> bool:
 static func order_shape(order: Dictionary) -> bool:
 	if order.is_empty():
 		return true
-	if not Data.is_data(order) or order.get("action") not in ["Siege", "Hunt", "Ward"]:
+	if not Data.is_data(order) or order.get("action") not in ["Siege", "Hunt", "Ward", "Profane"]:
 		return false
 	var expected: Array = ["action", "lane", "card_ids"]
 	if order.has("fracture_target"):
 		if order.action != "Hunt" or order.fracture_target not in ["subjects", "infrastructure"]:
 			return false
 		expected.append("fracture_target")
-	if order.action in ["Siege", "Hunt"]:
+	if order.action in ["Siege", "Hunt", "Profane"]:
 		expected.append("target_id")
 		if (
 			typeof(order.get("target_id")) != TYPE_STRING
@@ -152,6 +153,8 @@ static func accept(context: Dictionary) -> Dictionary:
 	var world: Dictionary = context.world
 	if order.has("fracture_target") and world.data.get("fracture_profile") != "U13_FRACTURE_V1":
 		return Data.invalid("fracture_profile_required")
+	if order.get("action") == "Profane" and not Plunder.enabled(world):
+		return Data.invalid("profane_profile_required")
 	if order.get("action") == "Hunt" and world.data.get("hunt_profile") != HUNT_VERSION:
 		return Data.invalid("hunt_profile_required")
 	if context.phase == "snapshot":
@@ -187,6 +190,8 @@ static func validate_commit(
 		return Data.invalid("fracture_profile_required")
 	if not order_shape(order):
 		return Data.invalid("combat_order_invalid")
+	if order.get("action") == "Profane" and not Plunder.enabled(world):
+		return Data.invalid("profane_profile_required")
 	if order.get("action") == "Hunt" and world.data.get("hunt_profile") != HUNT_VERSION:
 		return Data.invalid("hunt_profile_required")
 	if order.is_empty():
@@ -196,13 +201,16 @@ static func validate_commit(
 		return Data.invalid("combat_source_banished")
 	if order.action == "Siege":
 		var target: Dictionary = entities.get_entity(order.target_id)
-		if (
+		var zone: bool = Plunder.enabled(world) and order.target_id == Plunder.zone_id(1 - player_id) and Plunder.castleless(world, 1 - player_id)
+		if not zone and (
 			target.is_empty()
 			or target.kind != "castle"
 			or target.owner != 1 - player_id
 			or not Structures.targetable(target)
 		):
 			return Data.invalid("combat_target_invalid")
+	if order.action == "Profane" and not Plunder.eligible(entities.get_entity(order.target_id), player_id):
+		return Data.invalid("profane_target_not_full_active_own_castle")
 	if order.action == "Hunt":
 		var target: Dictionary = entities.get_entity(order.target_id)
 		if (
@@ -319,8 +327,20 @@ static func _resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 	if world.data.get("combat_resolved_round", 0) >= context.round:
 		return Data.invalid("combat_already_resolved")
 	var events: Array = []
+	if Plunder.enabled(world):
+		if world.data.plunder.resolved_round != context.round - 1:
+			return Data.invalid("plunder_resolution_clock_invalid")
+		world.data.plunder.results = [null, null]
+		world.data.plunder.resolved_round = context.round
 	for player_id in context.player_order:
 		var order: Dictionary = context.combat_orders[player_id]
+		if order.get("action") == "Profane":
+			if not Plunder.enabled(world):
+				return Data.invalid("profane_profile_required")
+			var profaned: Dictionary = Plunder.profane(world, context, player_id, order)
+			world = profaned.world
+			events.append_array(profaned.events)
+			continue
 		if order.get("action") not in ["Siege", "Hunt"]:
 			continue
 		var result: Dictionary = (
@@ -332,6 +352,8 @@ static func _resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			return result
 		world = result.world
 		events.append_array(result.events)
+	if Plunder.enabled(world):
+		events.append_array(Plunder.finish(world, context.round))
 	world.data["combat_resolved_round"] = context.round
 	return {"action": "resolved", "world": world, "events": events}
 
@@ -343,9 +365,10 @@ static func _siege(
 	entities.restore(world.entities)
 	var target: Dictionary = entities.get_entity(order.target_id)
 	var events: Array = []
-	# A vanished target is a spent order; cards still leave via Aftermath, and
-	# its waiters remain. No retargeting or fresh decision after the joint lock.
-	if not Structures.targetable(target):
+	var pillage: bool = Plunder.enabled(world) and Plunder.castleless(world, 1 - player_id)
+	# If other Castles remain, a vanished target is a spent order and keeps its
+	# waiters. Castleless Siege changes only the payout, never selects a new Castle.
+	if not pillage and not Structures.targetable(target):
 		events.append(
 			Marching.public_event(
 				"COMBAT_ORDER_FIZZLED",
@@ -372,7 +395,7 @@ static func _siege(
 			{
 				"player_id": player_id,
 				"round": context.round,
-				"target_id": target.id,
+				"target_id": order.target_id,
 				"strength": strength,
 				"waiters_consumed": waiter_ids
 			}
@@ -432,6 +455,14 @@ static func _siege(
 		world = applied.world
 		events.append_array(applied.events)
 		guards_lost += 1
+	if pillage:
+		var success: bool = remaining > 0
+		if success:
+			world.players[player_id].resources.souls += 1
+		Plunder.record(world, player_id, context.round, "Pillage", order.target_id, success)
+		events.append_array(Plunder.clear_castle_sigils(world, context.round))
+		events.append(Marching.public_event("SIEGE_RESOLVED", {"player_id": player_id, "round": context.round, "target_id": order.target_id, "pillage": true, "pillage_success": success, "strength": strength, "ward_screen": screen, "guards_defeated": guards_lost, "sigil_broken": false, "integrity_before": 0, "damage": 0, "destroyed": false, "soul_gain": 1 if success else 0, "neutral_tear_gain": 0, "personal_tear_gain": 0}))
+		return {"action": "resolved", "world": world, "events": events}
 	# Flat measured-profile Sigil: Fresh 2, Flipped 1. Equality stops it.
 	var sigil: String = world.data.sigils[1 - player_id].Castle
 	var sigil_broken: bool = false
@@ -576,14 +607,17 @@ static func _snapshot_order(context: Dictionary) -> Dictionary:
 		var card: Dictionary = entities.get_entity(card_id)
 		if card.is_empty() or card.kind != "card":
 			return Data.invalid("combat_order_identity_missing")
-	if order.get("action") in ["Siege", "Hunt"] and order.target_id not in world.entities.used_ids:
+	var zone_target: bool = Plunder.enabled(world) and order.get("action") == "Siege" and order.get("target_id") == Plunder.zone_id(1 - player_id)
+	if zone_target and phase <= Timeline.hook_rank(Timeline.SUBMISSION_LOCK) and not Plunder.castleless(world, 1 - player_id):
+		return Data.invalid("pillage_target_has_active_castles")
+	if order.get("action") in ["Siege", "Hunt", "Profane"] and not zone_target and order.target_id not in world.entities.used_ids:
 		return Data.invalid("combat_target_identity_missing")
-	if order.get("action") in ["Siege", "Hunt"]:
+	if order.get("action") in ["Siege", "Hunt", "Profane"] and not zone_target:
 		var target: Dictionary = entities.get_entity(order.target_id)
 		var expected_kind: String = "lord" if order.action == "Hunt" else "castle"
 		if (
 			not target.is_empty()
-			and (target.kind != expected_kind or target.owner != 1 - player_id)
+			and (target.kind != expected_kind or target.owner != (player_id if order.action == "Profane" else 1 - player_id))
 		):
 			return Data.invalid("combat_target_identity_invalid")
 	var committed: Array = world.data.card_zones.get("committed", [[], []])[player_id]

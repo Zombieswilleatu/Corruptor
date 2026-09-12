@@ -90,14 +90,14 @@ model instead of importing the U12 controller wholesale.
 | Castle printed powers | Engine, Keep, Bastion, Stockpile and Circle paths migrated | Keep their instance and operational rules in focused authorities |
 | Development / market / additional choices | Core Development and Slaver paths implemented | Add only the remaining waiter/lifecycle choices through explicit U13 APIs |
 | Siege / Ward / Hunt / waiter support | Existing `U13Combat` | Audit awards against accepted U13 rules rather than treating exercise behavior as final |
-| Pillage / waiter-to-Tear spending | Not complete | Recover applicable rules and add exact shared legality |
-| Veil / Dominion / victory | Not connected to this conductor | `DominionRiteEngine`, `VacantThroneEngine`, `ResolutionFinaleEngine`, `BotRoundEngine` |
+| Profane / Pillage / waiter-to-Tear spending | Implemented in the full-game profile | `U13Plunder` and `U13DominionRites`; exact shared legality and replay |
+| Veil / Dominion / victory | Tear routes, Dominion rites and Vacant Throne connected; Veil effects and victory remain | Recover current lifecycle from `ResolutionFinaleEngine` and `BotRoundEngine` |
 | Random-Legal | Existing bounded candidate vocabulary, exercised here | Full-game coverage still required; three rounds do not prove all required choices |
 | Player UI / Action Window / theater | Existing presentation references | `Prototype/UI2/ActionZone.gd`, `ResolutionTheater.gd`, U13 counterparts; observe resolved events only |
 | Forecast / smart doctrine | Later phase | `ActionForecast`, `BotDoctrine`, `BotDeployDoctrine`, `BotDominionRiteDoctrine`; reuse heuristics, not old authority |
 
-Next milestone: complete waiter spending, Dominion,
-Vacant Throne, and the Veil/win lifecycle. Only after genuine game termination
+Next milestone: complete Veil effects and the win lifecycle. Waiter spending,
+Dominion rites, Vacant Throne and Profane/Pillage have focused authorities. Only after genuine game termination
 exists should
 100–1,000 full games be called the autonomous match gate. A round budget must
 remain a diagnostic limit, never be reported as a legitimate victory.

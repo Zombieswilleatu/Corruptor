@@ -43,6 +43,14 @@ static func enumerate(owner, player_id: int) -> Dictionary:
 		for entity in view.world.entities:
 			if entity.kind == "lord" and entity.owner == 1 - player_id:
 				hunt_targets.append(entity.id)
+	if view.world.has("plunder"):
+		var active: Array = view.world.entities.filter(func(e): return e.owner == 1 - player_id and Gremory.Combat.Structures.targetable(e))
+		if active.is_empty():
+			targets = [Gremory.Combat.Plunder.zone_id(1 - player_id)]
+		for castle in view.world.entities:
+			if Gremory.Combat.Plunder.eligible(castle, player_id):
+				for cards in [[]] + payments:
+					orders.append({"action": "Profane", "lane": "Castle", "target_id": castle.id, "card_ids": cards})
 	for cards in payments:
 		for target in hunt_targets:
 			orders.append(

@@ -5,7 +5,7 @@ const Scenario = preload("res://Scripts/Sim/U13KanifousScenario.gd")
 const Legality = preload("res://Scripts/Sim/U13Legality.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
-const VERSION: String = "U13_GAME_RANDOM_LEGAL_V3"
+const VERSION: String = "U13_GAME_RANDOM_LEGAL_V4"
 
 
 static func plan(owner, pid: int) -> Dictionary:

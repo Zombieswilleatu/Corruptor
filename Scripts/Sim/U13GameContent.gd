@@ -1,5 +1,6 @@
 extends "res://Scripts/Sim/U13Kanifous.gd"
 
+const Plunder = preload("res://Scripts/Sim/U13Plunder.gd")
 const Throne = preload("res://Scripts/Sim/U13VacantThrone.gd")
 
 const Rites = preload("res://Scripts/Sim/U13DominionRites.gd")
@@ -18,11 +19,11 @@ func create_combat_match():
 	for power in rules():
 		validators[power] = Callable(self, "validate")
 		resolvers[power] = Callable(self, "resolve")
-	return MatchOwner.new(Marching.Ranged.VERSION + ":" + Throne.VERSION + ":" + Rites.VERSION + ":" + Fracture.VERSION + ":" + Sigils.VERSION + ":" + Conduit.VERSION + ":" + Market.VERSION + ":" + CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY, rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Rites, "legal_orders"))
+	return MatchOwner.new(Plunder.VERSION + ":" + Marching.Ranged.VERSION + ":" + Throne.VERSION + ":" + Rites.VERSION + ":" + Fracture.VERSION + ":" + Sigils.VERSION + ":" + Conduit.VERSION + ":" + Market.VERSION + ":" + CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY, rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Rites, "legal_orders"))
 
 
 func valid_world(world: Dictionary) -> bool:
-	return super.valid_world(world) and Throne.valid(world) and Rites.valid(world) and Fracture.valid(world) and Economy.valid(world) and Market.valid(world) and Sigils.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
+	return super.valid_world(world) and Plunder.valid(world) and Throne.valid(world) and Rites.valid(world) and Fracture.valid(world) and Economy.valid(world) and Market.valid(world) and Sigils.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
 
 
 func react(raw: Dictionary, fact: Dictionary, seed_value: String, player_order: Array) -> Dictionary:
@@ -60,6 +61,7 @@ func on_hook(context: Dictionary) -> Dictionary:
 	var result: Dictionary = super.on_hook(prepared)
 	if result.action != "invalid":
 		result.events = rite_events + sigils.events + result.events
+		result.events.append_array(Plunder.clear_castle_sigils(result.world, context.round))
 		Throne.observe(result.world)
 		if context.hook == Timeline.AFTERMATH:
 			result.world.data.dominion_rites.orders = [null, null]
@@ -85,6 +87,8 @@ func on_hook(context: Dictionary) -> Dictionary:
 
 func accept_order(context: Dictionary) -> Dictionary:
 	if context.phase == "snapshot":
+		if not Plunder.snapshot_valid(context):
+			return Data.invalid("plunder_snapshot_invalid")
 		if not Throne.snapshot_valid(context):
 			return Data.invalid("vacant_throne_snapshot_invalid")
 		if not Rites.snapshot_valid(context):
@@ -120,6 +124,7 @@ func accept_order(context: Dictionary) -> Dictionary:
 
 func project(world: Dictionary, player_id: int) -> Dictionary:
 	var result: Dictionary = super.project(world, player_id)
+	result["plunder"] = world.data.plunder.duplicate(true)
 	result["vacant_throne"] = world.data.vacant_throne.duplicate(true)
 	result["dominion_rites"] = {"version": Rites.VERSION, "invocation_rounds": world.data.dominion_rites.invocation_rounds.duplicate(), "resolved_round": world.data.dominion_rites.resolved_round}
 	result["veil_total"] = Rites.veil(world)

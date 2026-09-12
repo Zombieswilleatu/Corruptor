@@ -1,5 +1,6 @@
 extends RefCounted
 
+const Plunder = preload("res://Scripts/Sim/U13Plunder.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Stats = preload("res://Scripts/Sim/U13LordStats.gd")
@@ -52,6 +53,8 @@ static func on_hook(context: Dictionary) -> Dictionary:
 			var lane: String = order.lane
 			if lane not in LANES:
 				return Data.invalid("sigil_lane_invalid")
+			if lane == "Castle" and Plunder.enabled(world) and Plunder.castleless(world, pid):
+				continue
 			var before: String = world.data.sigils[pid][lane]
 			world.data.sigils[pid][lane] = "fresh"
 			var actor: Dictionary = ids.get_entity(world.players[pid].lord_entity_id)
