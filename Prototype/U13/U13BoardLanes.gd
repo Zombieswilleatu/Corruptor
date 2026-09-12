@@ -7,6 +7,8 @@ const ScorchVisuals = preload("res://Prototype/U13/U13ScorchVisuals.gd")
 var scorch_visuals = ScorchVisuals.new()
 const Feedback = preload("res://Prototype/U13/U13MarcherFeedback.gd")
 var feedback = Feedback.new()
+var projectiles: Array = []
+var projectile_visual = preload("res://Prototype/U13/U13VultureProjectile.gd").new()
 var deaths = preload("res://Prototype/U13/U13MarcherDeathVisual.gd").new()
 const BreathVisuals = preload("res://Prototype/U13/U13BreathVisuals.gd")
 var breath_visuals = BreathVisuals.new()
@@ -215,6 +217,7 @@ func _draw() -> void:
 				)
 
 	_draw_feedback()
+	projectile_visual.draw(self, projectiles)
 	deaths.draw(self)
 
 
@@ -287,6 +290,7 @@ func pulse_lanes(selected_lane: String = "") -> void:
 
 
 func reset_effects() -> void:
+	projectiles = []
 	deaths.clear()
 	_units = []
 	rout_visuals.clear()
@@ -423,11 +427,13 @@ func travel_rect(lane: String) -> Rect2:
 
 
 func show_world(entities: Array, round_number: int) -> void:
+	projectiles = []
 	deaths.observe(_units, entities)
 	super.show_world(entities, round_number)
 	set_process(_effects_need_process())
 
 func show_frame(frame: Dictionary, round_number: int) -> void:
+	projectiles = frame.get("projectiles", [])
 	deaths.observe(_units, frame.units)
 	super.show_frame(frame, round_number)
 	set_process(_effects_need_process())

@@ -299,7 +299,7 @@ static func _reveal(context: Dictionary) -> Dictionary:
 					origin,
 					ordinal,
 					player_id,
-					Marching.profile(suit, order.lane, player_id, context.round, context.round + 1)
+					Marching.profile(suit, order.lane, player_id, context.round, context.round + 1, Marching.Ranged.enabled(world))
 				)
 				if created.action == "invalid":
 					return created

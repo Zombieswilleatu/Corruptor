@@ -162,7 +162,7 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 			# Lord spawns move in this round's upcoming Step 12. Commitments
 			# separately retain the audited birth-round movement hold.
 			var attributes: Dictionary = Marching.profile(
-				"Vulture", source.target.lane, source.player_id, context.round, context.round
+				"Vulture", source.target.lane, source.player_id, context.round, context.round, Marching.Ranged.enabled(world)
 			)
 			attributes["source_effect_id"] = record.effect_id
 			var created: Dictionary = entities.create(

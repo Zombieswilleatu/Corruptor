@@ -5,6 +5,8 @@ extends RefCounted
 # Clashes/HP/Armor/deaths come from the resolved event tape. Movement between
 # captured endpoints is visual interpolation, independent of frame rate.
 const Feedback = preload("res://Prototype/U13/U13MarcherFeedback.gd")
+const FLIGHT_SECONDS: float = 0.18
+var projectile_rows: Array = []
 var feedback_rows: Array = []
 var death_rows: Array = []
 var _death_ids: Dictionary = {}
@@ -21,6 +23,7 @@ var _spatial: bool = false
 
 func build(events: Array) -> bool:
 	_frames = []
+	projectile_rows = []
 	feedback_rows = []
 	death_rows = []
 	_death_ids = {}
@@ -122,7 +125,13 @@ func sample(seconds: float) -> Dictionary:
 		unit.attributes["visual_x"] = lerpf(
 			float(unit.attributes.x_fp), float(ending.attributes.x_fp), weight
 		)
-	return {"units": result, "caption": left.caption, "clash": left.clash.duplicate()}
+	var projectiles: Array = []
+	for shot in projectile_rows:
+		if at >= shot.start and at < shot.end:
+			var picture: Dictionary = shot.duplicate(true)
+			picture["weight"] = (at - shot.start) / FLIGHT_SECONDS
+			projectiles.append(picture)
+	return {"units": result, "caption": left.caption, "clash": left.clash.duplicate(), "projectiles": projectiles}
 
 
 func final_units() -> Array:
@@ -179,6 +188,11 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 		units[unit.id] = unit.duplicate(true)
 	var bases: Dictionary = units.duplicate(true)
 	_append(units, "Marching begins", [])
+	var lead: float = FLIGHT_SECONDS if started.has("ranged_profile") else 0.0
+	for event in events:
+		if event.type == "MARCHER_RANGED_ATTACK":
+			var impact: float = lead + MOVE_SECONDS * float(int(event.data.tick) + 1) / float(started.ticks)
+			projectile_rows.append({"start": impact - FLIGHT_SECONDS, "end": impact, "lane": event.data.lane, "source": event.data.attacker.attributes.duplicate(true), "target": event.data.target.attributes.duplicate(true)})
 	var expected_tick: int = 0
 	for event in events:
 		if event.type != "MARCHING_TICK":
@@ -188,7 +202,7 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 			_frames = []
 			return false
 		expected_tick += 1
-		duration = MOVE_SECONDS * float(expected_tick) / float(started.ticks)
+		duration = lead + MOVE_SECONDS * float(expected_tick) / float(started.ticks)
 		units = {}
 		for unit in details.units:
 			if details.get("unit_format", "") == "attribute_delta_v1" and bases.has(unit.id):

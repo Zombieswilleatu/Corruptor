@@ -1,6 +1,7 @@
 class_name U13Marching
 extends RefCounted
 
+const Ranged = preload("res://Scripts/Sim/U13RangedMarching.gd")
 const KroniActors = preload("res://Scripts/Sim/U13KroniActors.gd")
 const SpatialFields = preload("res://Scripts/Sim/U13SpatialFields.gd")
 const Space = preload("res://Scripts/Sim/U13SpatialSpace.gd")
@@ -24,7 +25,8 @@ const SPAWN_DEPTH_FP: int = 120
 const EXCHANGE_TICKS: int = 8
 const LANES: Array = Space.LANES
 const SUITS: Array = ["Butcher", "Penitent", "Vulture", "Wright"]
-# Extracted from MarchingEngine.STANDARD_STATS, not the legacy launch engine.
+# Frozen subsystem profile extracted from MarchingEngine.STANDARD_STATS.
+# Current all-Lord/full-game worlds enable Ranged.VERSION and use the override below.
 const STATS: Dictionary = {
 	"Butcher": {"attack": 3, "armor": 1, "regen": 1, "step_fp": 4, "armor_bypass": false},
 	"Penitent": {"attack": 1, "armor": 3, "regen": 2, "step_fp": 3, "armor_bypass": false},
@@ -34,9 +36,12 @@ const STATS: Dictionary = {
 
 
 static func profile(
-	suit: String, lane: String, player_id: int, birth: int, ready: int
+	suit: String, lane: String, player_id: int, birth: int, ready: int, ranged: bool = false
 ) -> Dictionary:
 	var attributes: Dictionary = STATS[suit].duplicate(true)
+	if ranged and suit == "Vulture":
+		attributes.step_fp = 4
+		attributes.armor_bypass = false
 	attributes["suit"] = suit
 	attributes["lane"] = lane
 	attributes["hp"] = 5
@@ -53,6 +58,8 @@ static func profile(
 
 
 static func valid(world: Dictionary) -> bool:
+	if world.data.has("ranged_profile") and not Ranged.enabled(world):
+		return false
 	if world.data.has("spatial_field_profile") and world.data.spatial_field_profile != SpatialFields.VERSION:
 		return false
 	if world.data.has("lane_aura_profile") and not LaneAuras.enabled(world):
@@ -64,6 +71,8 @@ static func valid(world: Dictionary) -> bool:
 		if entity.kind != "marcher":
 			continue
 		var a: Dictionary = entity.attributes
+		if a.has("ranged_next_tick") and (not Data.is_integer(a.ranged_next_tick) or a.ranged_next_tick < 0):
+			return false
 		if entity.owner not in [0, 1] or a.get("suit") not in SUITS or a.get("lane") not in LANES:
 			return false
 		for field in [
@@ -174,6 +183,13 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 	var entities = Buffer.new()
 	if entities.restore(world.entities).action == "invalid":
 		return Data.invalid("marching_entities_invalid")
+	var has_ranged: bool = Ranged.enabled(world)
+	if has_ranged:
+		for unit in entities.marchers():
+			if unit.attributes.suit == "Vulture":
+				unit.attributes.step_fp = 4
+				unit.attributes.armor_bypass = false
+				entities.update(unit.id, unit.owner, unit.attributes)
 	var duels: Dictionary = world.data.get("marching_duels", {}).duplicate(true)
 	var events: Array = [
 		public_event(
@@ -187,6 +203,8 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			}
 		)
 	]
+	if has_ranged:
+		events[0].event.data["ranged_profile"] = Ranged.VERSION
 	var has_retreat: bool = false
 	var has_rout: bool = false
 	for unit in _units(entities):
@@ -213,6 +231,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 	var collapse: bool = world.data.get("breach_lord") == "Valak"
 	motion_context = motion_context.duplicate()
 	motion_context["gravitational_collapse"] = collapse
+	motion_context["ranged_enabled"] = has_ranged
 	motion_context["wishmaster_lamps"] = lamp_objects
 	var kroni_actors: Array = world.data.get("kroni_actors", [])
 	if not kroni_actors.is_empty():
@@ -307,6 +326,8 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			)
 			duel.next_tick = clock + EXCHANGE_TICKS
 			for unit in [left, right]:
+				if has_ranged and unit.attributes.suit == "Vulture":
+					unit.attributes["ranged_next_tick"] = clock + EXCHANGE_TICKS
 				if unit.attributes.hp == 0:
 					entities.retire(unit.id)
 				else:
@@ -369,6 +390,16 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 				events.append_array(reacted.events)
 			if entities.restore(world.entities).action == "invalid":
 				return Data.invalid("marching_reaction_entities_invalid")
+		if has_ranged:
+			var volley: Dictionary = Ranged.volley(world, entities, context, duels, tick, fleeing_ids, reaction)
+			if volley.action == "invalid":
+				return volley
+			world = volley.world
+			events.append_array(volley.events)
+			for lane in duels.keys():
+				if not _duel_alive(duels[lane], entities):
+					events.append(public_event("MARCHER_DUEL_INTERRUPTED", {"event_id": duels[lane].id, "round": context.round, "tick": tick}))
+					duels.erase(lane)
 		# Contact takes precedence over arrival, including a waiting gate defender.
 		var arrival_rows: Array = _units(entities)
 		var arrival_grids: Dictionary = {}
@@ -682,6 +713,11 @@ static func _move(
 			if previous_ticket != -1:
 				entities.update(unit.id, unit.owner, a)
 			continue
+		if not retreat and context.get("ranged_enabled", false) and a.suit == "Vulture" and nearby.distance <= Ranged.RANGE_FP * Ranged.RANGE_FP:
+			# Stop at range; do not kite away when an enemy closes to melee.
+			if previous_ticket != -1:
+				entities.update(unit.id, unit.owner, a)
+			continue
 		var nearest: Dictionary = nearby.unit
 		var best: int = int(nearby.distance)
 		var dx: int = int(a.direction) * step * (-1 if retreat else 1)
@@ -770,7 +806,8 @@ static func _contact_pair(entities, lane: String, context: Dictionary, clock: in
 		for right in local:
 			if (
 				right.owner != 1
-			or Wishmaster.ignored(left, right)
+				or Wishmaster.ignored(left, right)
+				or (Ranged.enabled(context.get("world", {})) and (not Ranged.ready(left, clock) or not Ranged.ready(right, clock)))
 				or right.attributes.lane != lane
 				or _distance(left.attributes, right.attributes) > CONTACT_FP * CONTACT_FP
 			):

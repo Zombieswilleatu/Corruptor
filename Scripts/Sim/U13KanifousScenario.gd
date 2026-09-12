@@ -33,6 +33,7 @@ static func loadout_world(lords: Array, choices: Array) -> Dictionary:
 			lord.attributes["threat"] = 0
 			ids.update(lord.id, pid, lord.attributes)
 	result.entities = ids.snapshot()
+	preload("res://Scripts/Sim/U13RangedMarching.gd").configure(result)
 	return result
 
 

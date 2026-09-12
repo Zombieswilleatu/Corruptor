@@ -46,7 +46,7 @@ static func apply(raw: Dictionary, action: String, pid: int, lane: String, round
 				return Data.invalid("debug_hand_full_or_deck_empty")
 			message = "Drew %d hand card(s)." % count
 		"marcher":
-			var attributes: Dictionary = Marching.profile(suit, lane, pid, round_number - 1, round_number)
+			var attributes: Dictionary = Marching.profile(suit, lane, pid, round_number - 1, round_number, Marching.Ranged.enabled(world))
 			attributes.x_fp = 800 if pid == 0 else 1600
 			attributes.y_fp = 100 + int(Rng.draw(seed_value, key, "LATERAL", 0, 401).value)
 			ids.create("marcher", key, 0, pid, attributes)

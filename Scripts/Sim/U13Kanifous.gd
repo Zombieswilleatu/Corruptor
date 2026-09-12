@@ -12,7 +12,7 @@ func create_combat_match():
 	for power in rules():
 		validators[power] = Callable(self, "validate")
 		resolvers[power] = Callable(self, "resolve")
-	return MatchOwner.new(Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY, rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Guards, "legal_orders"))
+	return MatchOwner.new(Marching.Ranged.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY, rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Guards, "legal_orders"))
 
 static func rules() -> Dictionary:
 	var result: Dictionary = preload("res://Scripts/Sim/U13Valak.gd").rules()
@@ -21,7 +21,7 @@ static func rules() -> Dictionary:
 	return result
 
 func valid_world(world: Dictionary) -> bool:
-	return super.valid_world(world) and Lamp.valid(world)
+	return super.valid_world(world) and Lamp.valid(world) and Marching.Ranged.enabled(world)
 
 func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionary:
 	if source.power_id not in Wishes:
@@ -70,7 +70,7 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 		"WishPower":
 			for index in range(Lamp.power_count(context.seed, source.declaration_id)):
 				var suit: String = Marching.SUITS[Lamp.draw(context.seed, source.declaration_id, "WISH_SUIT", 4, index)]
-				var unit: Dictionary = ids.create("marcher", source.declaration_id, index, pid, Marching.profile(suit, source.target.lane, pid, context.round, context.round)).entity
+				var unit: Dictionary = ids.create("marcher", source.declaration_id, index, pid, Marching.profile(suit, source.target.lane, pid, context.round, context.round, Marching.Ranged.enabled(world))).entity
 				Marching.place_spawn(ids, unit.id, context.seed)
 				count += 1
 		"WishLongevity":
