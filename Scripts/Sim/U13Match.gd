@@ -44,6 +44,7 @@ var _persistent = Persistent.new()
 var _cooldowns = Cooldowns.new()
 var _entities = Entities.new()
 var _events = EventLog.new()
+var _revision: int = 0
 # Opt-in for the fixed, pure GameContent validator. Cache only the most recent
 # successfully installed canonical world, privately owned and never mutated.
 # This is validation reuse, not permission to skip checking changed state.
@@ -119,6 +120,7 @@ func begin_next_round(player_order: Array) -> Dictionary:
 	_order = player_order.duplicate()
 	_submissions = [null, null]
 	_combat_orders = [{}, {}]
+	_revision += 1
 	return _runtime.begin_round(_runtime.round_number + 1)
 
 
@@ -128,6 +130,15 @@ func is_finished() -> bool:
 
 func next_hook() -> String:
 	return _runtime.next_hook()
+
+
+# Local cache invalidation only; never part of saves, replay, or game rules.
+func revision() -> int:
+	return _revision
+
+
+func _world_snapshot() -> Dictionary:
+	return _world.duplicate(true)
 
 
 # A short-lived read-only authority facade. Its baseline is detached and checked
@@ -360,6 +371,7 @@ func submit(player_id: int, declarations: Array, combat_order: Dictionary = {}) 
 		return result
 	_submissions[player_id] = Data.copy_data(declarations)
 	_combat_orders[player_id] = Data.copy_data(combat_order)
+	_revision += 1
 	return {"action": "u13_submission_accepted"}
 
 
@@ -1097,6 +1109,7 @@ func _fork_validated():
 
 
 func _adopt(candidate) -> void:
+	_revision += 1
 	_seed = candidate._seed
 	_world = candidate._world
 	_presentation_world = candidate._presentation_world

@@ -30,7 +30,7 @@ if ! grep -Eq '^4\.7\.2\.stable([.[:space:]]|$)' "$u13_play_reports/version.log"
 fi
 git -C "$u13_play_root" rev-parse HEAD >"$u13_play_reports/revision.txt"
 printf 'Playable check reports: %s\n' "$u13_play_reports"
-for u13_play_suite in U13CommittedHunt U13WishDoctrine U13PlayableSession U13PlayableBoard; do
+for u13_play_suite in U13CommittedHunt U13WishDoctrine U13PlayableInteraction U13PlayableSession U13PlayableBoard; do
   u13_play_extra=()
   if [[ "$u13_play_suite" == U13PlayableSession ]]; then
     u13_play_extra=(-- --fixtures-only)

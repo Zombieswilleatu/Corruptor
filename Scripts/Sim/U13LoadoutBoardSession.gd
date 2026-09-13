@@ -265,7 +265,7 @@ func preview_power(
 
 
 func summon_preview(cards: Array) -> Dictionary:
-	var world: Dictionary = _owner.snapshot().world
+	var world: Dictionary = _owner._world_snapshot()
 	if not world.data.has("resummon_profile"):
 		return Data.invalid("summon_profile_unavailable")
 	return Orias.Resummon.quote(world, 0, cards)

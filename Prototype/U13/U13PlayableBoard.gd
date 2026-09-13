@@ -75,8 +75,6 @@ func _refresh(presented: Dictionary = {}) -> void:
 	load_button.disabled = _job != null or playing
 	if _planning() and not _human_alive():
 		status.text = "Your Lord is banished. Your army can still Hunt, Siege, Pillage or Ward; stage resummoning in Guards & Lord Return."
-	if _planning() and _intent == "Pillage":
-		status.text = "Pillage the empty enemy Castle zone. Click hand cards, then continue to powers."
 	if not rites_plan.is_empty():
 		plan_label.text += "\nTear rites staged · inspect or clear in GAME / RITES."
 	if not session.pending_choice.is_empty() and _job == null:
@@ -86,6 +84,8 @@ func _target_allowed(target: Dictionary, intent: String) -> bool:
 	if intent == "Ward":
 		return _planning() and target.get("owner") == 0 and target.get("kind") in ["lord", "castle", "zone"] and target.get("lane") in ["Lord", "Castle"]
 	if intent == "Siege":
+		if target.get("kind") == "zone":
+			return _planning() and target.get("owner") == 1 and target.get("lane") == "Castle" and _pillage_available()
 		return _planning() and target.get("owner") == 1 and target.get("kind") == "castle" and Structures.targetable(_entity(str(target.get("id", ""))))
 	if intent == "Hunt":
 		var entity: Dictionary = _entity(str(target.get("id", "")))
@@ -179,7 +179,6 @@ func _open_game_menu() -> void:
 	var fracture = game_menu.option(["Infrastructure", "Subjects"])
 	fracture.select(0 if fracture_choice == "infrastructure" else 1)
 	fracture.item_selected.connect(func(index): fracture_choice = "infrastructure" if index == 0 else "subjects"; _refresh())
-	game_menu.button("PILLAGE EMPTY ENEMY CASTLE ZONE", _stage_pillage)
 	game_menu.button("PROFANE A FULL CASTLE · gain a Tear", _choose_profane)
 	game_menu.button("SPEND FIVE WAITERS · gain a Tear", _choose_waiters)
 	game_menu.button("INVOCATION · once per game · value 11 at Veil 7+", _choose_invocation)
@@ -188,34 +187,41 @@ func _open_game_menu() -> void:
 	if not rites_plan.is_empty():
 		game_menu.label("Staged: " + ", ".join(rites_plan.keys()))
 
-func _stage_pillage() -> void:
-	if _visible_world.entities.any(func(e): return e.owner == 1 and Structures.targetable(e)):
-		game_menu.message.text = "An active targetable enemy Castle remains. Siege it first."
+func _pillage_available() -> bool:
+	return not _visible_world.get("entities", []).is_empty() and not _visible_world.entities.any(func(e): return e.owner == 1 and Structures.targetable(e))
+
+func _select_direct_action(action: String) -> void:
+	if action != "Siege" or not _pillage_available():
+		super._select_direct_action(action)
 		return
-	game_menu.hide()
-	_intent = "Pillage"
+	if not _planning() or powers_step:
+		return
+	_interaction_error = ""
+	_intent = "Siege"
 	_target = {"id": Plunder.zone_id(1), "kind": "zone", "owner": 1, "lane": "Castle"}
 	action_choice.select(1)
-	powers_step = false
-	_refresh()
-	reopen_decision()
+	_preview()
+	_schedule_refresh()
+
+func _update_direct_ui() -> void:
+	super._update_direct_ui()
+	if action_zone == null or not match_started:
+		return
+	var pillage: bool = _pillage_available()
+	action_zone.action_buttons["Siege"].text = "Pillage" if pillage else "Siege"
+	action_zone.action_buttons["Siege"].disabled = not _planning()
+	if _planning() and pillage and _intent == "Siege":
+		status.text = _guide() if _interaction_error.is_empty() else _interaction_error
+
+func _guide() -> String:
+	if _intent == "Siege" and _pillage_available():
+		return "PILLAGE · no targetable enemy Castles. Click hand cards or use ALL IN, then continue to powers."
+	return super._guide()
 
 func _apply_cards(ids: Array, append: bool) -> bool:
-	if _intent != "Pillage":
-		return super._apply_cards(ids, append)
-	var selected: Array = _draft_combat.get("card_ids", []).duplicate() if append else []
-	for id in ids:
-		if id not in selected:
-			selected.append(id)
-	var combat: Dictionary = {"action": "Siege", "lane": "Castle", "target_id": Plunder.zone_id(1), "card_ids": selected}
-	var order: Dictionary = _with_development(combat)
-	if not castle_plan.is_empty():
-		order["castle_action"] = castle_plan.duplicate(true)
-	if _error(session.choose(queued, order)):
-		return false
-	_draft_combat = combat
-	_refresh()
-	return true
+	if _intent == "Siege" and _target.get("kind") == "zone" and _pillage_available():
+		_target["id"] = Plunder.zone_id(1)
+	return super._apply_cards(ids, append)
 
 func _choose_profane() -> void:
 	game_menu.present("PROFANE CASTLE", "Sacrifice one of your full, active Castles for a Personal Tear. This uses your combat action.")

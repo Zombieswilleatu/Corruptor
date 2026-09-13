@@ -37,6 +37,9 @@ static func kroni_target(power: String, target: Dictionary, pid: int = 0) -> boo
 func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionary:
 	if source.power_id not in KRONI_POWERS:
 		return super.validate(source, world, phase)
+	# Consume requires Kroni to perform the bite at next round's start.
+	if source.power_id == CONSUME and phase == "firing" and not Hunger.active(world, int(source.player_id)):
+		return {"legal": false, "reason": "kroni_source_banished"}
 	var legal: bool = source.parameters.is_empty() and kroni_target(source.power_id, source.target, int(source.player_id))
 	if legal and source.power_id == CONSUME:
 		var victim: Dictionary = Hunger.guard(world, source.target.entity_id)
@@ -148,3 +151,4 @@ func accept_order(context: Dictionary) -> Dictionary:
 		if actor.round != (context.round - 1 if context.next_hook_index == 0 else context.round):
 			return Data.invalid("kroni_actor_round_invalid")
 	return result
+

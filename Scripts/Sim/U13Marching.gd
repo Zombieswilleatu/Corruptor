@@ -73,6 +73,8 @@ static func valid(world: Dictionary) -> bool:
 		var a: Dictionary = entity.attributes
 		if a.has("ranged_next_tick") and (not Data.is_integer(a.ranged_next_tick) or a.ranged_next_tick < 0):
 			return false
+		if a.has("melee_next_tick") and (not Data.is_integer(a.melee_next_tick) or a.melee_next_tick < 0):
+			return false
 		if entity.owner not in [0, 1] or a.get("suit") not in SUITS or a.get("lane") not in LANES:
 			return false
 		for field in [
@@ -327,7 +329,8 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			duel.next_tick = clock + EXCHANGE_TICKS
 			for unit in [left, right]:
 				if has_ranged and unit.attributes.suit == "Vulture":
-					unit.attributes["ranged_next_tick"] = clock + EXCHANGE_TICKS
+					unit.attributes["melee_next_tick"] = clock + EXCHANGE_TICKS
+					unit.attributes["ranged_next_tick"] = maxi(int(unit.attributes.get("ranged_next_tick", 0)), clock + EXCHANGE_TICKS)
 				if unit.attributes.hp == 0:
 					entities.retire(unit.id)
 				else:
@@ -807,7 +810,7 @@ static func _contact_pair(entities, lane: String, context: Dictionary, clock: in
 			if (
 				right.owner != 1
 				or Wishmaster.ignored(left, right)
-				or (Ranged.enabled(context.get("world", {})) and (not Ranged.ready(left, clock) or not Ranged.ready(right, clock)))
+				or (Ranged.enabled(context.get("world", {})) and (not Ranged.melee_ready(left, clock) or not Ranged.melee_ready(right, clock)))
 				or right.attributes.lane != lane
 				or _distance(left.attributes, right.attributes) > CONTACT_FP * CONTACT_FP
 			):
@@ -964,3 +967,4 @@ static func place_near_spawn(entities, id: String, origin: Dictionary) -> void:
 			entities.update(id, unit.owner, a)
 			return
 	# Fully packed neighborhoods retain the valid origin; normal movement separates them.
+

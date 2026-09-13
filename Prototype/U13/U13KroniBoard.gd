@@ -24,6 +24,7 @@ func _build() -> void:
 	kroni_note = _label(kroni_box, "", 14)
 	kroni_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	consume_button = _button(kroni_box, "CONSUME · NEXT ROUND", _begin_consume)
+	consume_button.tooltip_text = "Consume the selected enemy Guard next round. Fails if Kroni is banished before it fires."
 	var consume_note: Label = _label(kroni_box, "Choose an enemy Guard. At next round's start, devour that exact Guard and gain 1 Hunger. No retargeting.", 13)
 	consume_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	ravenous_button = _button(kroni_box, "RAVENOUS", _begin_ravenous)

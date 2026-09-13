@@ -7,6 +7,7 @@ const VERSION: String = "U13_VULTURE_RANGED_V1"
 const RANGE_FP: int = 800 # Four units at 200 fixed-point units per unit.
 const CONTACT_FP: int = 180
 const EXCHANGE_TICKS: int = 8
+const RANGED_INTERVAL_TICKS: int = 32
 
 
 static func enabled(world: Dictionary) -> bool:
@@ -44,6 +45,11 @@ static func ready(unit: Dictionary, clock: int) -> bool:
 	return unit.attributes.suit != "Vulture" or int(unit.attributes.get("ranged_next_tick", 0)) <= clock
 
 
+static func melee_ready(unit: Dictionary, clock: int) -> bool:
+	# Old saves used the ranged field for the shared eight-tick attack recovery.
+	return unit.attributes.suit != "Vulture" or int(unit.attributes.get("melee_next_tick", unit.attributes.get("ranged_next_tick", 0))) <= clock
+
+
 static func volley(world: Dictionary, entities, context: Dictionary, duels: Dictionary, tick: int, fleeing: Dictionary, reaction: Callable) -> Dictionary:
 	var rows: Array = entities.marchers()
 	var clock: int = int(context.round) * 200 + tick
@@ -61,7 +67,8 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 			continue
 		var attacker: Dictionary = entities.get_entity(unit.id)
 		var amount: int = Wishmaster.attack_amount(attacker.attributes)
-		attacker.attributes["ranged_next_tick"] = clock + EXCHANGE_TICKS
+		attacker.attributes["ranged_next_tick"] = clock + RANGED_INTERVAL_TICKS
+		attacker.attributes["melee_next_tick"] = clock + EXCHANGE_TICKS
 		entities.update(attacker.id, attacker.owner, attacker.attributes)
 		shots.append({"attacker": unit, "target": target, "amount": amount})
 	if shots.is_empty():
@@ -103,3 +110,4 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 static func event(kind: String, details: Dictionary) -> Dictionary:
 	var fact: Dictionary = {"type": kind, "text": "", "data": details}
 	return {"event": fact, "views": [fact, fact]}
+

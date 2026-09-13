@@ -35,8 +35,12 @@ match snapshots, not a bot input or a public multiplayer projection.
   Guard placement, resummoning, and all nine Lords' powers. A banished Lord
   does not disable the army's Hunt, Siege, Pillage or Ward. Opposing Hunts and
   resummoning alongside these army actions remain legal with separate card payments.
+- With no active targetable enemy Castle, the **Siege** button automatically
+  reads **Pillage** and selects the Castle zone. Choose cards normally, use
+  ALL IN, or drag cards into that zone. Protected construction does not prevent
+  Pillage. There is no separate Pillage choice in GAME / RITES.
 - GAME / RITES provides Hunt's Subjects/Infrastructure Fracture choice,
-  Pillage, Profane, waiter spending, Invocation, and Profane Ruins. It stages
+  Profane, waiter spending, Invocation, and Profane Ruins. It stages
   these into the same complete submission. Multiple groups of five waiters in
   the same lane are supported; reserved waiters and Invocation cards are removed
   from the corresponding available choices.
@@ -54,6 +58,32 @@ The full conductor owns draws, named Castle effects, combat, resummoning,
 Fracture, Tear accounting and victory. The UI adds no parallel rule engine.
 Veil threshold penalties and automatic drift remain disabled; Lord Breach powers
 and victory thresholds remain active. Exercise-only debug mutations are disabled.
+
+## Interaction and balance patch · 2026-09-13
+
+The playable session now reuses public views, terminal status and one validated
+planning baseline while the match is unchanged. A local revision changes on
+submission, hook/choice adoption, restore and next-round advancement. Replacing
+the owner also clears caches. Returned views are detached copies, caches are
+bounded, and worker sessions do not share them. The existing batch legality
+validator admits edited carts; rejected carts retain full preview error details.
+Live submission still performs full authoritative validation. Resummoning
+quotes and save loading no longer copy event history just to read the world.
+
+Local Godot 4.5.1 opening-board measurements: repeated refreshes went from
+90–94 ms to 15–17 ms; staging a Guard plus refreshing went from 151 ms to
+21 ms. These are local interaction measurements, not Windows GPU or full-match
+timings. They do not claim every frame or machine will meet the same budget.
+
+Vulture ranged shots now repeat every 32 simulation ticks instead of 8, a 75%
+reduction in firing rate. Its 2 attack, 1 armor, speed 2, four-unit range and
+non-piercing damage remain. Melee retains eight-tick exchanges, including when
+an enemy closes during ranged reload; switching modes cannot reset the ranged
+reload. Existing saves with the old shared attack clock remain readable.
+
+Consume now checks that Kroni is present when the delayed bite fires. If he is
+banished, it fizzles without eating the Guard or granting Hunger/feeding credit.
+This is a Consume-specific firing check; the general armed-power rule remains.
 
 ## Doctrine V3
 
@@ -110,7 +140,7 @@ For a focused Windows check without another full campaign:
 bash Scripts/Sim/run_u13_playable_checks.sh "/path/to/Godot_4.7.2_executable"
 ```
 
-That gate runs the army-action, V3 wish, playable-session fixture and playable-widget
+That gate runs the army-action, V3 wish, interaction/cache, playable-session fixture and playable-widget
 suites, preserves failures, and exports a unique upload ZIP directly to
 Downloads. The longer representative full match is included when
 `U13PlayableSessionTestRunner.gd` runs without `--fixtures-only`.

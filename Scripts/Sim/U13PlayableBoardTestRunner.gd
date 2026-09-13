@@ -31,6 +31,7 @@ func run() -> void:
 		finish(); return
 	await human_choices()
 	check(board._planning(), "human choices unlock the board's planning controls")
+	check(board.action_zone.action_buttons["Siege"].text == "Siege", "active enemy castles keep the Siege action")
 	var enemy: Dictionary = board._visible_world.entities.filter(func(e): return e.kind == "lord" and e.owner == 1)[0]
 	# The target picker uses public enemy presence, independent of own presence.
 	var own: Dictionary = board._visible_world.entities.filter(func(e): return e.kind == "lord" and e.owner == 0)[0]
@@ -154,9 +155,19 @@ func special_actions() -> void:
 	board._refresh()
 	await human_choices()
 	board._open_game_menu()
-	board._stage_pillage()
+	check(not board.game_menu.column.get_children().any(func(child): return child is Button and "PILLAGE" in child.text), "Pillage needs no separate rites-menu selection")
+	board.game_menu.hide()
+	check(board.action_zone.action_buttons["Siege"].text == "Pillage" and not board.action_zone.action_buttons["Siege"].disabled, "Siege automatically becomes an enabled Pillage action")
+	board._select_direct_action("Siege")
 	var card: String = board._visible_world.hand[0]
 	check(board._apply_cards([card], false) and board._order().target_id == "castle_zone:1", "Pillage stages against protected construction with no active enemy castle")
+	board._all_in()
+	check(board._order().card_ids.size() == board._visible_world.hand.size(), "automatic Pillage supports normal ALL IN")
+	board._draft_combat = {}
+	board._intent = ""
+	board._target = {}
+	board._drop(Vector2.ZERO, {"ui2_type": "commitment_hand_card", "source": "Hand", "card": card}, {"id": "", "kind": "zone", "owner": 1, "lane": "Castle"})
+	check(board._order().get("target_id") == "castle_zone:1", "dragging to the empty enemy Castle zone stages Pillage")
 	board._draft_combat = {}
 	board._intent = ""
 	board._target = {}
