@@ -3,6 +3,14 @@
 **Status:** Working roadmap / engineering addendum
 **Date:** 2026-09-10
 
+**Latest V5 campaign:** Windows fixture gate accepted 462 checks on `9e55f654`.
+The local nine-match campaign completed 9 wins, zero caps/failures in 163 rounds.
+User authorized an unattended 100-game campaign: use `run_u13_doctrine_100.sh`
+(four workers, 40-round cap, replay every fifth game, distinct seeds beyond 81).
+See `U13_DOCTRINE_V5_CAMPAIGN_2026-09-13.md`. Next directed review: repeated
+low-impact Kanifous Hunts in seed 79; avoid changing the accepted gameplay
+baseline while collecting this larger batch.
+
 **2026-09-13 resumed simulation work:** The Windows submission performance gate
 passed on `5b7dffbb`: 317 checks, 176 exact hooks, no failures. A fresh local V3
 campaign completed nine wins in 146 rounds, no caps/failures, with 20/23 active

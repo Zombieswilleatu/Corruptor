@@ -102,8 +102,9 @@ while ((u13_done < u13_games)); do
   for ((u13_slot=0; u13_slot<u13_workers; u13_slot++)); do
     if [[ -z ${u13_pids[u13_slot]:-} ]] && ((u13_next < u13_games)); then
       # First nine form a ring: all Lords in both seats, distinct opponents.
-      u13_index=$((u13_next % 9 + 9 * ((u13_next / 9 + u13_next + 1) % 9)))
-      # Cover all 81 ordered pairs before repeating; label by campaign slot.
+      u13_index=$((u13_next % 9 + 9 * ((u13_next / 9 + u13_next + 1) % 9) + 81 * (u13_next / 81)))
+      # Cover all 81 ordered pairs before repeating. Each later cycle uses
+      # fresh seed indices while preserving the same ordered Lord pairings.
       u13_dir="$u13_reports/match-$(printf '%03d' "$u13_next")"
       mkdir -p -- "$u13_dir"
       u13_extra=()
