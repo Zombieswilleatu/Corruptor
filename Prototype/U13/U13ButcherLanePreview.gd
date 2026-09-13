@@ -1,6 +1,37 @@
 extends "res://Prototype/U13/U13VisualPreview.gd"
 
 # Presentation-only trial: no combat outcomes or authoritative movement are simulated.
+# Regions measured against the original 1374x1145 sheet, not an equal grid.
+# Each entry is [crop rect, ground anchor in sheet coordinates]. Keep one scale
+# for all frames: fitting individual crops would inflate the collapsing body.
+const FRAMES = {
+	0: [
+		[Rect2(20, 10, 240, 205), Vector2(155, 213)],
+		[Rect2(267, 10, 221, 205), Vector2(390, 213)],
+		[Rect2(495, 10, 225, 205), Vector2(625, 213)],
+		[Rect2(720, 10, 232, 205), Vector2(856, 213)],
+		[Rect2(952, 10, 226, 205), Vector2(1086, 213)],
+		[Rect2(1178, 10, 196, 205), Vector2(1315, 213)]
+	],
+	1: [
+		[Rect2(0, 230, 244, 209), Vector2(106, 436)],
+		[Rect2(244, 230, 244, 209), Vector2(350, 436)],
+		[Rect2(488, 230, 228, 209), Vector2(582, 436)],
+		[Rect2(716, 230, 226, 209), Vector2(813, 436)],
+		[Rect2(942, 230, 230, 209), Vector2(1045, 436)],
+		[Rect2(1172, 230, 202, 209), Vector2(1268, 436)]
+	],
+	4: [
+		[Rect2(10, 957, 180, 188), Vector2(100, 1139)],
+		[Rect2(228, 957, 210, 188), Vector2(315, 1139)],
+		[Rect2(453, 957, 234, 188), Vector2(540, 1139)],
+		[Rect2(688, 957, 234, 188), Vector2(770, 1139)],
+		[Rect2(922, 957, 218, 188), Vector2(1000, 1139)],
+		[Rect2(1140, 957, 234, 188), Vector2(1230, 1139)]
+	]
+}
+var inspection_row: int = -1
+var inspection_frame: int = 0
 var sheet: Texture2D
 var clock: float = 0.0
 var paused: bool = false
@@ -54,6 +85,26 @@ func _ready() -> void:
 		sprite_size = value
 		size_label.text = "Sprite size: %d px" % int(value))
 	sizing.add_child(slider)
+	var inspector := HBoxContainer.new()
+	panel.add_child(inspector)
+	var animation := OptionButton.new()
+	for caption in ["Live lane", "Inspect right walk", "Inspect left walk", "Inspect death"]:
+		animation.add_item(caption)
+	animation.item_selected.connect(func(index: int):
+		inspection_row = [-1, 0, 1, 4][index])
+	inspector.add_child(animation)
+	var frame_label := Label.new()
+	frame_label.text = "Frame 1 / 6"
+	inspector.add_child(frame_label)
+	var frame_slider := HSlider.new()
+	frame_slider.min_value = 0
+	frame_slider.max_value = 5
+	frame_slider.step = 1
+	frame_slider.custom_minimum_size.x = 200
+	frame_slider.value_changed.connect(func(value: float):
+		inspection_frame = int(value)
+		frame_label.text = "Frame %d / 6" % (inspection_frame + 1))
+	inspector.add_child(frame_slider)
 	status = Label.new()
 	panel.add_child(status)
 	if sheet == null:
@@ -79,7 +130,7 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color("11151c"))
-	var top := 166.0
+	var top := 205.0
 	var bottom := maxf(top + 260.0, size.y - 55.0)
 	var middle := (top + bottom) * 0.5
 	var width := minf(290.0, size.x * 0.32)
@@ -93,7 +144,7 @@ func _draw() -> void:
 		return
 	var phase := fmod(clock, 10.0)
 	var walking := phase < 7.0
-	var progress := minf(phase / 7.0, 1.0)
+	var progress := minf(phase / 7.0, 1.0) if inspection_row < 0 else 0.0
 	# Depth sorting keeps feet and ownership markers legible through overlapping sprites.
 	var units: Array = []
 	for lane in range(2):
@@ -116,7 +167,7 @@ func _draw() -> void:
 	draw_string(ThemeDB.fallback_font, Vector2(24, size.y - 20), caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 18)
 
 func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool) -> void:
-	var dying := death_time >= 0.0 and index == 1
+	var dying := death_time >= 0.0 and index == 1 and inspection_row < 0
 	var tint := Color("64c8f0") if owner == 0 else Color("f29d68")
 	var opacity := 1.0 - clampf((death_time - 1.1) / 0.6, 0.0, 1.0) if dying else 1.0
 	tint.a = opacity
@@ -130,12 +181,20 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool) -> void:
 	if dying:
 		row = 4
 		frame = mini(5, int(death_time * 7.0))
-	var cell := sheet.get_size() / Vector2(6, 5)
-	var source := Rect2(Vector2(frame, row) * cell, cell)
-	var destination := Rect2(feet - Vector2(sprite_size * 0.5, sprite_size - 7), Vector2.ONE * sprite_size)
+	if inspection_row >= 0:
+		row = inspection_row
+		frame = inspection_frame
+	var crop: Rect2 = FRAMES[row][frame][0]
+	var anchor: Vector2 = FRAMES[row][frame][1]
+	var source_scale := sheet.get_size() / Vector2(1374, 1145)
+	var source := Rect2(crop.position * source_scale, crop.size * source_scale)
+	var factor := sprite_size / 229.0
+	var offset := (crop.position - anchor) * factor
+	var dimensions := crop.size * factor
+	var destination := Rect2(feet + offset, dimensions)
 	if dying and owner == 1:
-		destination.position.x += sprite_size
-		destination.size.x = -sprite_size
+		destination.position.x = feet.x - offset.x
+		destination.size.x = -dimensions.x
 	draw_texture_rect_region(sheet, destination, source, Color(1, 1, 1, opacity))
 	if not dying:
 		draw_line(feet + Vector2(-13, 9), feet + Vector2(13, 9), tint, 3.0)

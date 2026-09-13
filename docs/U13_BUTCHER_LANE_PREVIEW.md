@@ -10,8 +10,9 @@ bash Scripts/Sim/run_u13_butcher_preview.sh \
 ```
 
 Loads the external PNG directly, without copying or importing it into the worktree.
-The sheet is six columns by five rows: right walk, left walk, two attack rows,
-and death. Idle holds the first movement frame. Attack rows are unused.
+The sheet contains six poses per row: right walk, left walk, two attack rows,
+and death. Cuts use measured per-pose rectangles, not a uniform grid; ground
+anchors and a shared scale keep the sprite aligned without enlarging death poses. Idle holds the first movement frame. Attack rows are unused.
 
 Default sprite height is 56 pixels, with 24 units across two vertical lanes.
 Select 1, 24, or 48 units; adjust size from 32–512 pixels with a pixel readout; pause, compare chits, or trigger
@@ -23,3 +24,8 @@ and illustrative full-health bars remain separate from the sprite.
 This is an art/readability trial with scripted movement and contact pauses,
 not a combat test. It deliberately does not play attacks in the lane. Existing
 action-window combat is unchanged. Escape or Close exits.
+
+Use the inspection selector for right walk, left walk or death, then scrub frames
+1–6. Inspection holds movement and disables death fading so every cut can be
+examined. The final death poses touch in the source art; rectangular separation
+cannot reconstruct pixels already overlapping or clipped at the sheet edge.
