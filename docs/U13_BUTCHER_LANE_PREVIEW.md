@@ -16,8 +16,8 @@ anchors and a shared scale keep the sprite aligned without enlarging death poses
 
 Default sprite height is 56 pixels, with 24 units across two vertical lanes.
 Select 1, 24, or 48 units; adjust size from 32–512 pixels with a pixel readout; pause, compare chits, or trigger
-one death per side per lane (or the single sprite in solo mode). Solo mode centers a single Butcher for frame inspection. The bottom army faces right; top faces left.
-Death uses the last row, mirrored for the top army, then fades. Units reappear
+one death per side per lane (or the single sprite in solo mode). Solo mode centers a single Butcher for frame inspection. Every marcher independently chooses left or right with 50% probability at spawn. Horizontal travel overrides facing to match its direction; vertical travel, idle and death preserve the last facing; Restart rerolls the choices.
+Death uses the last row, mirrored for left-facing units, then fades. Units reappear
 after the death preview; movement repeats after ten seconds. Ownership rings
 and illustrative full-health bars remain separate from the sprite.
 

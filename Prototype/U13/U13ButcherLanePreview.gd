@@ -32,6 +32,9 @@ const FRAMES = {
 }
 var inspection_row: int = -1
 var inspection_frame: int = 0
+var facings: Array[bool] = []
+var previous_positions: Dictionary = {}
+var facing_rng := RandomNumberGenerator.new()
 var use_redraw: bool = true
 var redraw: Texture2D
 var redraw_layer: Node2D
@@ -46,6 +49,8 @@ var death_time: float = -1.0
 var status: Label
 
 func _ready() -> void:
+	facing_rng.randomize()
+	_roll_facings()
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	var path := "res://ConceptImages/Sprites/ButcherSprite.png"
 	for argument in OS.get_cmdline_user_args():
@@ -82,7 +87,7 @@ func _ready() -> void:
 	count_picker.item_selected.connect(func(index: int): unit_count = count_picker.get_item_id(index))
 	controls.add_child(count_picker)
 	_button(controls, "Try lane death", func(): death_time = 0.0)
-	_button(controls, "Restart", func(): clock = 0.0; death_time = -1.0)
+	_button(controls, "Restart", func(): clock = 0.0; death_time = -1.0; _roll_facings())
 	_button(controls, "Close", func(): _close_preview())
 	var sizing := HBoxContainer.new()
 	panel.add_child(sizing)
@@ -179,16 +184,16 @@ func _draw() -> void:
 				var rank := floorf(float(index) / 3.0)
 				var y := lerpf(start, target, progress) + rank * 32.0 * (-1.0 if owner == 1 else 1.0)
 				y = clampf(y, top + 32.0, bottom - 8.0)
-				units.append({"feet": Vector2(x, y), "owner": owner, "index": index})
+				units.append({"feet": Vector2(x, y), "owner": owner, "index": index, "left": _facing_for_position(lane * 24 + owner * 12 + index, Vector2(x, y))})
 	if unit_count == 1:
-		units = [{"feet": Vector2(size.x * 0.5, size.y - 65.0 - progress * 28.0), "owner": 0, "index": 1}]
+		units = [{"feet": Vector2(size.x * 0.5, size.y - 65.0 - progress * 28.0), "owner": 0, "index": 1, "left": facings[1]}]
 	units.sort_custom(func(a: Dictionary, b: Dictionary): return a.feet.y < b.feet.y)
 	for unit in units:
-		_draw_unit(unit.feet, unit.owner, unit.index, walking)
+		_draw_unit(unit.feet, unit.owner, unit.index, walking, unit.left)
 	var caption := "Idle / engaged · attacks belong in the action window" if not walking else "Walking vertically · stable left/right facing"
 	draw_string(ThemeDB.fallback_font, Vector2(24, size.y - 20), caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 18)
 
-func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool) -> void:
+func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool, face_left: bool) -> void:
 	var dying := death_time >= 0.0 and index == 1 and inspection_row < 0
 	var tint := Color("64c8f0") if owner == 0 else Color("f29d68")
 	var opacity := 1.0 - clampf((death_time - 1.1) / 0.6, 0.0, 1.0) if dying else 1.0
@@ -199,7 +204,7 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool) -> void:
 		draw_string(ThemeDB.fallback_font, feet + Vector2(-5, -7), "B", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color.BLACK)
 		return
 	var frame := int(clock * 8.0 + index) % 6 if walking else 0
-	var row := owner # right-facing bottom army, left-facing top army
+	var row := 1 if face_left else 0
 	if dying:
 		row = 4
 		frame = mini(5, int(death_time * 7.0))
@@ -229,7 +234,7 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool) -> void:
 	var offset := (crop.position - anchor) * factor
 	var dimensions := crop.size * factor
 	var destination := Rect2(feet + offset, dimensions)
-	if dying and owner == 1:
+	if dying and face_left:
 		destination.position.x = feet.x - offset.x - dimensions.x
 		destination.size.x = -dimensions.x
 	draw_texture_rect_region(sheet, destination, source, Color(1, 1, 1, opacity))
@@ -239,3 +244,19 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool) -> void:
 func _draw_redraw_layer() -> void:
 	for command in redraw_commands:
 		redraw_layer.draw_texture_rect_region(redraw, command[0], command[1])
+
+func _roll_facings() -> void:
+	# Cosmetic preview RNG only. Roll once per slot, never during frame drawing.
+	facings.clear()
+	previous_positions.clear()
+	for slot in range(48):
+		facings.append(facing_rng.randf() < 0.5)
+
+func _facing_for_position(slot: int, point: Vector2) -> bool:
+	if previous_positions.has(slot):
+		var movement: Vector2 = point - Vector2(previous_positions[slot])
+		# Ignore subpixel jitter; horizontal travel overrides the vertical choice.
+		if absf(movement.x) > 0.01:
+			facings[slot] = movement.x < 0.0
+	previous_positions[slot] = point
+	return facings[slot]
