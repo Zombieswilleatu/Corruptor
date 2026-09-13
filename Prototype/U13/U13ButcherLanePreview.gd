@@ -6,7 +6,7 @@ var clock: float = 0.0
 var paused: bool = false
 var chits: bool = false
 var sprite_size: float = 56.0
-var crowded: bool = false
+var unit_count: int = 24
 var death_time: float = -1.0
 var status: Label
 
@@ -30,20 +30,30 @@ func _ready() -> void:
 	panel.add_child(controls)
 	_button(controls, "Pause / resume", func(): paused = not paused)
 	_button(controls, "Sprites / chits", func(): chits = not chits)
-	_button(controls, "24 / 48 units", func(): crowded = not crowded)
+	var count_picker := OptionButton.new()
+	for count in [1, 24, 48]:
+		count_picker.add_item("%d unit%s" % [count, "" if count == 1 else "s"], count)
+	count_picker.select(1)
+	count_picker.item_selected.connect(func(index: int): unit_count = count_picker.get_item_id(index))
+	controls.add_child(count_picker)
 	_button(controls, "Try lane death", func(): death_time = 0.0)
 	_button(controls, "Restart", func(): clock = 0.0; death_time = -1.0)
 	_button(controls, "Close", func(): _close_preview())
+	var sizing := HBoxContainer.new()
+	panel.add_child(sizing)
 	var size_label := Label.new()
-	size_label.text = "  Sprite size"
-	controls.add_child(size_label)
+	size_label.text = "Sprite size: 56 px"
+	sizing.add_child(size_label)
 	var slider := HSlider.new()
 	slider.min_value = 32
-	slider.max_value = 112
+	slider.max_value = 512
+	slider.step = 1
 	slider.value = sprite_size
-	slider.custom_minimum_size.x = 160
-	slider.value_changed.connect(func(value: float): sprite_size = value)
-	controls.add_child(slider)
+	slider.custom_minimum_size.x = 300
+	slider.value_changed.connect(func(value: float):
+		sprite_size = value
+		size_label.text = "Sprite size: %d px" % int(value))
+	sizing.add_child(slider)
 	status = Label.new()
 	panel.add_child(status)
 	if sheet == null:
@@ -88,7 +98,7 @@ func _draw() -> void:
 	var units: Array = []
 	for lane in range(2):
 		for owner in range(2):
-			for index in range(12 if crowded else 6):
+			for index in range(12 if unit_count == 48 else 6):
 				var center := size.x * (0.30 if lane == 0 else 0.70)
 				var x := center + (index % 3 - 1) * 61.0
 				var start := top + 135.0 if owner == 1 else bottom - 110.0
@@ -97,6 +107,8 @@ func _draw() -> void:
 				var y := lerpf(start, target, progress) + rank * 32.0 * (-1.0 if owner == 1 else 1.0)
 				y = clampf(y, top + 32.0, bottom - 8.0)
 				units.append({"feet": Vector2(x, y), "owner": owner, "index": index})
+	if unit_count == 1:
+		units = [{"feet": Vector2(size.x * 0.5, size.y - 65.0 - progress * 28.0), "owner": 0, "index": 1}]
 	units.sort_custom(func(a: Dictionary, b: Dictionary): return a.feet.y < b.feet.y)
 	for unit in units:
 		_draw_unit(unit.feet, unit.owner, unit.index, walking)
