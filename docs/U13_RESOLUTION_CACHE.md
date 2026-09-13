@@ -60,6 +60,11 @@ invariance and Hunt while the acting player's Lord is banished.
 
 ## Focused Windows gate
 
+Windows follow-up (2026-09-13): the uploaded Godot 4.7.2 report passed 287 checks
+with zero failures across the nine opening pairs (144 hooks). Execution totals
+were 43.978 s original and 38.665 s cached, 12.1% less resolution time. This
+acceptance run did not include the optional saved midgame checkpoint cases.
+
 After the current campaign finishes, fetch this branch in the doctrine worktree
 and run `Scripts/Sim/run_u13_resolution_perf.sh` with the usual Godot 4.7.2 stable
 executable. The script compares all nine opening pairs against the old installer,
@@ -67,6 +72,8 @@ checks rejection/isolation fixtures, and writes `resolution.json` and
 `resolution.log` under the printed Downloads report directory. It does not start
 another full campaign. The watchdog is 600 seconds; timing differences themselves
 are reported rather than used as a flaky pass/fail threshold.
+The report folder is also exported as a new Downloads ZIP; upload the file printed
+on the final `UPLOAD THIS FILE:` line (see `U13_REPORT_EXPORTS.md`).
 
 For additional saved-state diagnostics, invoke `U13ResolutionCacheTestRunner.gd`
 directly with `--output=/path/to/report.json` and one or more

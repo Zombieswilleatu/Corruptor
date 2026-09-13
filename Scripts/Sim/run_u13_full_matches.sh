@@ -26,7 +26,10 @@ fi
 u13_commit=$(git -C "$u13_root" log -1 --format=%H -- . ':(exclude)docs' ':(exclude)Scripts/Sim/run_u13_full_matches.sh')
 u13_diff=$(git -C "$u13_root" diff HEAD -- . ':(exclude)docs' ':(exclude)Scripts/Sim/run_u13_full_matches.sh' | git -C "$u13_root" hash-object --stdin)
 u13_revision="$u13_commit-$u13_diff"
-u13_reports=${2:-"$HOME/Downloads/u13-full-matches-${u13_commit:0:8}-${u13_diff:0:8}-r$u13_round_limit"}
+mkdir -p -- "$HOME/Downloads"
+# A fresh default run never mixes files with an earlier campaign. Pass an old
+# report directory explicitly as argument 2 to keep the existing resume behavior.
+u13_reports=${2:-$(mktemp -d "$HOME/Downloads/u13-full-matches-${u13_commit:0:8}-${u13_diff:0:8}-r${u13_round_limit}-XXXXXX")}
 mkdir -p -- "$u13_reports"
 u13_reports=$(cd -- "$u13_reports" && pwd)
 u13_pid=""
@@ -35,6 +38,7 @@ u13_pool_indices=()
 u13_pool_logs=()
 u13_pool_deadlines=()
 cleanup() {
+  local run_status=$?
   local pid
   # The parent owns every Godot PID, so Ctrl-C/failure cannot leave workers behind.
   for pid in "$u13_pid" "${u13_pool_pids[@]}"; do
@@ -42,6 +46,11 @@ cleanup() {
     kill -KILL "$pid" 2>/dev/null || true
     wait "$pid" 2>/dev/null || true
   done
+  printf 'runner=full-matches\nrevision=%s\nexit_status=%s\nrequested_games=%s\nround_limit=%s\n' "$u13_revision" "$run_status" "$u13_games" "$u13_round_limit" >"$u13_reports/run-status.txt" || true
+  if ! bash "$u13_root/Scripts/Sim/package_u13_reports.sh" "$u13_reports"; then
+    printf 'Upload ZIP unavailable. Reports remain at: %s\n' "$u13_reports" >&2
+  fi
+  exit "$run_status"
 }
 trap cleanup EXIT
 trap 'exit 130' INT

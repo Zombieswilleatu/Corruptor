@@ -14,10 +14,16 @@ mkdir -p -- "$u13_perf_reports"
 u13_perf_reports=$(cd -- "$u13_perf_reports" && pwd)
 u13_perf_pid=""
 cleanup() {
+  local run_status=$?
   if [[ -n "$u13_perf_pid" ]]; then
     kill -KILL "$u13_perf_pid" 2>/dev/null || true
     wait "$u13_perf_pid" 2>/dev/null || true
   fi
+  printf 'runner=resolution\nrevision=%s\nexit_status=%s\n' "$u13_perf_commit" "$run_status" >"$u13_perf_reports/run-status.txt" || true
+  if ! bash "$u13_perf_root/Scripts/Sim/package_u13_reports.sh" "$u13_perf_reports"; then
+    printf 'Upload ZIP unavailable. Reports remain at: %s\n' "$u13_perf_reports" >&2
+  fi
+  exit "$run_status"
 }
 trap cleanup EXIT
 trap 'exit 130' INT

@@ -33,12 +33,18 @@ u13_pids=()
 u13_indices=()
 u13_deadlines=()
 cleanup() {
+  local run_status=$?
   local pid
   for pid in "${u13_pids[@]}"; do
     [[ -n "$pid" ]] || continue
     kill -KILL "$pid" 2>/dev/null || true
     wait "$pid" 2>/dev/null || true
   done
+  printf 'runner=doctrine\nrevision=%s\nexit_status=%s\nrequested_games=%s\nround_limit=%s\n' "$u13_revision" "$run_status" "$u13_games" "$u13_rounds" >"$u13_reports/run-status.txt" || true
+  if ! bash "$u13_root/Scripts/Sim/package_u13_reports.sh" "$u13_reports"; then
+    printf 'Upload ZIP unavailable. Reports remain at: %s\n' "$u13_reports" >&2
+  fi
+  exit "$run_status"
 }
 trap cleanup EXIT
 trap 'exit 130' INT
