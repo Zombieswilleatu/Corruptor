@@ -3,12 +3,29 @@
 **Status:** Working roadmap / engineering addendum
 **Date:** 2026-09-10
 
+**2026-09-13 resumed simulation work:** After the playable detour, resume the
+bounded doctrine/simulation track. Doctrine V3's Odradek saving and Kanifous wish
+follow-ups are already implemented, and the unchanged-world validation cache
+passed the uploaded Windows comparison. The next measured patch removes the
+full-history save reload during joint plan submission; see
+`U13_SUBMISSION_PERFORMANCE.md` and `run_u13_submission_perf.sh`. The short
+performance gate compares exact accepted state, each resolution hook and player
+history against the previous submission path. It does not require another
+100-game campaign. Next after Windows acceptance: review the current V3 campaign
+for weak action/power coverage and choose directed doctrine fixtures; retain the
+larger throughput project for PySim.
+
+The uploaded earlier random-legal summary completed 100 games: 92 wins, 8 censored
+at the round cap, zero failed/missing. Its own `gate_passed` is false because of
+the capped games; it is neither current V3 balance evidence nor a clean full-win
+gate. The playable build has since been exercised in two uploaded Windows games.
+
 **2026-09-13 playable steering:** User clarified that the requested next runner
 is a visible human-versus-doctrine game. `run_u13_playable.sh` now connects the
 existing board to the production conductor, human draw/Slaver choices, complete
 sealed plans, Tear rites, save/load and terminal victory. Doctrine V3 also fixes
 Odradek saving and Kanifous wish valuation. Local engine and widget checks pass;
-Windows 4.7.2 visual acceptance is next. See `U13_PLAYABLE_RUNNER.md`. Keep the
+See `U13_PLAYABLE_RUNNER.md` for the subsequent Windows feedback and fixes. Keep the
 Action Window / Resolution Theater and Action Forecast work as later milestones.
 
 **2026-09-12 doctrine steering:** User authorized an early, bounded common planner
