@@ -68,7 +68,7 @@ func _refresh(presented: Dictionary = {}) -> void:
 		return
 	var w: Dictionary = _visible_world
 	header.scope.text = "U13 · YOU vs DOCTRINE"
-	header.scope.tooltip_text = "Full game · Dominion, Ritual or Final Collapse. Veil threshold penalties are disabled."
+	header.scope.tooltip_text = "Full game · Dominion, Ritual or Final Collapse. Neutral Tears: +1 each round 13-20, +2 from round 21. Final Collapse at 26 total Tears. Veil threshold penalties are disabled."
 	header.veil_label.text = "VEIL %d · TEARS %d : %d · NEUTRAL %d" % [w.veil_total, w.personal_tears[0], w.personal_tears[1], w.neutral_tears]
 	game_button.disabled = _job != null or playing or setup_open
 	save_button.disabled = not _can_save()

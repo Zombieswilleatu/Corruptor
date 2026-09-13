@@ -1,10 +1,10 @@
 extends "res://Scripts/Sim/U13Kanifous.gd"
 
-# Veil redesign hold (2026-09-12): threshold penalties and automatic drift
-# stay off. Tear accounting, Dominion rites and Lord Breach powers remain live.
+# Veil threshold penalties stay off. End-of-round neutral pressure is live:
+# +1 in rounds 13-20, +2 from round 21, before the victory check.
 # These report the current profile; no Veil effect resolver is installed.
 const VEIL_EFFECTS_ENABLED: bool = false
-const VEIL_DRIFT_ENABLED: bool = false
+const VEIL_DRIFT_ENABLED: bool = true
 const BATCH_EVENTS_VERSION: String = "U13_BATCH_EVENTS_V1"
 const BATCH_SAMPLE_EVENTS: Array = ["MARCHING_TICK", "KRONI_ACTOR_TICK"]
 var batch_events: bool = false

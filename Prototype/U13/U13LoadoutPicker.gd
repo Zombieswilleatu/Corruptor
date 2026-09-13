@@ -106,7 +106,7 @@ func _ready() -> void:
 	)
 	_label(
 		column,
-		"Play to Dominion, Ritual or Final Collapse against the doctrine bot. All nine Lords, Castle powers, resummoning and Tear rites are connected. Veil threshold penalties remain disabled." if full_game else "Siege Engine artillery is implemented. Other Castle types have construction and repair, but their printed powers are not connected yet. Normal draws, resummoning, Fracture and victory are also pending.",
+		"Play to Dominion, Ritual or Final Collapse against the doctrine bot. All nine Lords, Castle powers, resummoning and Tear rites are connected. Neutral Tears: +1 each round 13-20, +2 from round 21. Final Collapse at 26 total Tears. Veil threshold penalties remain disabled." if full_game else "Siege Engine artillery is implemented. Other Castle types have construction and repair, but their printed powers are not connected yet. Normal draws, resummoning, Fracture and victory are also pending.",
 		14
 	)
 	message = _label(column, "", 15)

@@ -5,7 +5,7 @@ const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Throne = preload("res://Scripts/Sim/U13VacantThrone.gd")
 const Rites = preload("res://Scripts/Sim/U13DominionRites.gd")
 const Marching = preload("res://Scripts/Sim/U13Marching.gd")
-const VERSION: String = "U13_VICTORY_V1"
+const VERSION: String = "U13_VICTORY_V2_ROUND_PRESSURE"
 # Carry forward Lab v6.5 thresholds and precedence; no legacy Humbaba Seal.
 const RITUAL_SOULS: int = 12
 const DOMINION_VEIL: int = 12
@@ -47,15 +47,25 @@ static func valid(world: Dictionary) -> bool:
 	return state.winner == expected.winner and state.get("win_by") == expected.win_by
 
 
+static func neutral_pressure(round_number: int) -> int:
+	return 2 if round_number > 20 else (1 if round_number > 12 else 0)
+
+
 # Only the final hook calls this, after both players' Vacant Throne rewards.
 # No mid-round truncation: all sealed actions and Marching settle first.
 static func finish(world: Dictionary, round_number: int) -> Dictionary:
 	var state: Dictionary = world.data.victory
 	if state.winner != -1 or state.checked_round != round_number - 1:
 		return Data.invalid("victory_already_resolved")
+	var events: Array = []
+	var gain: int = neutral_pressure(round_number)
+	if gain > 0:
+		world.data.neutral_tears += gain
+		events.append(Marching.public_event("NEUTRAL_TEAR_CREATED", {
+			"round": round_number, "amount": gain, "source": "RoundPressure"
+		}))
 	state.merge(evaluate(world), true)
 	state.checked_round = round_number
-	var events: Array = []
 	if state.winner != -1:
 		events.append(Marching.public_event("MATCH_FINISHED", {
 			"round": round_number, "winner": state.winner, "win_by": state.win_by,
@@ -77,3 +87,4 @@ static func snapshot_valid(context: Dictionary) -> bool:
 		var expected: Dictionary = evaluate(context.world)
 		return state.winner == expected.winner and state.win_by == expected.win_by
 	return true
+

@@ -11,8 +11,8 @@ const LORDS: Array = ["Gremory", "Deimos", "Humbaba", "Kalligan", "Orias", "Odra
 var _owner
 
 
-# Owns setup, round advancement and terminal outcomes. Veil penalties and
-# automatic drift remain disabled pending redesign.
+# Owns setup, round advancement and terminal outcomes. Veil penalties remain
+# disabled; automatic neutral pressure starts after round 12.
 func start(seed_value: String, lords: Array, castles: Array, compact_events: bool = false) -> Dictionary:
 	if _owner != null:
 		return Data.invalid("game_already_started")

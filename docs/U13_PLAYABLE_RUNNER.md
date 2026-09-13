@@ -56,8 +56,9 @@ match snapshots, not a bot input or a public multiplayer projection.
 
 The full conductor owns draws, named Castle effects, combat, resummoning,
 Fracture, Tear accounting and victory. The UI adds no parallel rule engine.
-Veil threshold penalties and automatic drift remain disabled; Lord Breach powers
-and victory thresholds remain active. Exercise-only debug mutations are disabled.
+Veil threshold penalties remain disabled. Automatic neutral pressure adds one
+Tear at the end of rounds 13-20 and two from round 21, before the victory check.
+Lord Breach powers and victory thresholds remain active. Exercise-only debug mutations are disabled.
 
 ## Interaction and balance patch · 2026-09-13
 

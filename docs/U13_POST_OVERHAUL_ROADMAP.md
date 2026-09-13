@@ -3,6 +3,14 @@
 **Status:** Working roadmap / engineering addendum
 **Date:** 2026-09-10
 
+**Latest round-length rule:** Starting at the end of round 13, add one neutral
+Tear per round through round 20, then two per round from round 21 onward. Apply
+once at Aftermath before victory evaluation. Final Collapse at 26 total Tears
+bounds even a zero-Tear opening to round 29. Threshold penalties remain disabled;
+this supersedes the older drift-off notes below. New victory policy requires
+fresh matches; do not combine the earlier 42 results with this rule profile.
+See `U13_ROUND_PRESSURE.md`.
+
 **Latest V5 campaign:** Windows fixture gate accepted 462 checks on `9e55f654`.
 The local nine-match campaign completed 9 wins, zero caps/failures in 163 rounds.
 User authorized an unattended 100-game campaign: use `run_u13_doctrine_100.sh`
