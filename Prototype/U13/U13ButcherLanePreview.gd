@@ -217,7 +217,7 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool) -> void:
 		var dimensions := Vector2(512, 512) * factor
 		var destination := Rect2(feet + offset, dimensions)
 		if row == 1:
-			destination.position.x = feet.x - offset.x
+			destination.position.x = feet.x - offset.x - dimensions.x
 			destination.size.x = -dimensions.x
 		redraw_commands.append([destination, Rect2(origin, Vector2(512, 512))])
 		return
@@ -230,7 +230,7 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool) -> void:
 	var dimensions := crop.size * factor
 	var destination := Rect2(feet + offset, dimensions)
 	if dying and owner == 1:
-		destination.position.x = feet.x - offset.x
+		destination.position.x = feet.x - offset.x - dimensions.x
 		destination.size.x = -dimensions.x
 	draw_texture_rect_region(sheet, destination, source, Color(1, 1, 1, opacity))
 	if not dying:
