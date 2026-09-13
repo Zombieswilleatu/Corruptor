@@ -12,6 +12,13 @@ u13_workers=${U13_DOCTRINE_WORKERS:-2}
 u13_rounds=${U13_DOCTRINE_ROUND_LIMIT:-40}
 u13_timeout=${U13_DOCTRINE_TIMEOUT_SECONDS:-1200}
 u13_verify=${U13_DOCTRINE_VERIFY_EVERY:-5}
+u13_fixtures_only=${U13_DOCTRINE_FIXTURES_ONLY:-0}
+if [[ "$u13_fixtures_only" != 0 && "$u13_fixtures_only" != 1 ]]; then
+  printf 'U13_DOCTRINE_FIXTURES_ONLY must be 0 or 1.\n' >&2
+  exit 2
+fi
+u13_requested_games=$u13_games
+if [[ "$u13_fixtures_only" == 1 ]]; then u13_requested_games=0; fi
 for u13_number in "$u13_games" "$u13_workers" "$u13_rounds" "$u13_timeout" "$u13_verify"; do
   if [[ ! "$u13_number" =~ ^[1-9][0-9]{0,4}$ ]]; then
     printf 'Doctrine limits must be positive integers.\n' >&2
@@ -40,7 +47,7 @@ cleanup() {
     kill -KILL "$pid" 2>/dev/null || true
     wait "$pid" 2>/dev/null || true
   done
-  printf 'runner=doctrine\nrevision=%s\nexit_status=%s\nrequested_games=%s\nround_limit=%s\n' "$u13_revision" "$run_status" "$u13_games" "$u13_rounds" >"$u13_reports/run-status.txt" || true
+  printf 'runner=doctrine\nrevision=%s\nexit_status=%s\nrequested_games=%s\nround_limit=%s\nfixtures_only=%s\n' "$u13_revision" "$run_status" "$u13_requested_games" "$u13_rounds" "$u13_fixtures_only" >"$u13_reports/run-status.txt" || true
   if ! bash "$u13_root/Scripts/Sim/package_u13_reports.sh" "$u13_reports"; then
     printf 'Upload ZIP unavailable. Reports remain at: %s\n' "$u13_reports" >&2
   fi
@@ -56,7 +63,7 @@ if ! grep -Eq '^4\.7\.2\.stable([.[:space:]]|$)' "$u13_reports/version.log"; the
   exit 1
 fi
 printf 'Doctrine reports: %s\nChecking doctrine legality and replay fixtures...\n' "$u13_reports"
-for u13_suite in U13CommittedHunt U13BasicDoctrine; do
+for u13_suite in U13CommittedHunt U13BasicDoctrine U13WishDoctrine U13ConstructionDoctrine U13DoctrineCoverage; do
 "$u13_exe" --headless --path "$u13_root" --script "Scripts/Sim/${u13_suite}TestRunner.gd" >"$u13_reports/${u13_suite}.log" 2>&1 &
 u13_pids[0]=$!
 u13_deadline=$((SECONDS + u13_timeout))
@@ -75,11 +82,15 @@ done
 u13_status=0
 wait "${u13_pids[0]}" || u13_status=$?
 u13_pids=()
-if ((u13_status != 0)) || grep -Eq 'SCRIPT ERROR|ERROR:|^FAIL ' "$u13_reports/${u13_suite}.log" || ! grep -Eq '^U13 (basic doctrine|committed Hunt) failures: 0$' "$u13_reports/${u13_suite}.log"; then
+if ((u13_status != 0)) || grep -Eq 'SCRIPT ERROR|ERROR:|^FAIL ' "$u13_reports/${u13_suite}.log" || ! grep -Eq '^U13 (basic doctrine|committed army action|committed Hunt|wish doctrine|construction doctrine|doctrine coverage) failures: 0$' "$u13_reports/${u13_suite}.log"; then
   cat -- "$u13_reports/${u13_suite}.log"
   exit 1
 fi
 done
+if [[ "$u13_fixtures_only" == 1 ]]; then
+  printf 'Doctrine fixtures passed: 5/5. Reports: %s\n' "$u13_reports"
+  exit 0
+fi
 printf 'Running %s matches, %s workers, cap %s rounds; independent replay on every %sth game starting with game 1.\n' "$u13_games" "$u13_workers" "$u13_rounds" "$u13_verify"
 printf 'index\tstatus\tverification\n' >"$u13_reports/results.tsv"
 u13_next=0

@@ -3,17 +3,18 @@
 **Status:** Working roadmap / engineering addendum
 **Date:** 2026-09-10
 
-**2026-09-13 resumed simulation work:** After the playable detour, resume the
-bounded doctrine/simulation track. Doctrine V3's Odradek saving and Kanifous wish
-follow-ups are already implemented, and the unchanged-world validation cache
-passed the uploaded Windows comparison. The next measured patch removes the
-full-history save reload during joint plan submission; see
-`U13_SUBMISSION_PERFORMANCE.md` and `run_u13_submission_perf.sh`. The short
-performance gate compares exact accepted state, each resolution hook and player
-history against the previous submission path. It does not require another
-100-game campaign. Next after Windows acceptance: review the current V3 campaign
-for weak action/power coverage and choose directed doctrine fixtures; retain the
-larger throughput project for PySim.
+**2026-09-13 resumed simulation work:** The Windows submission performance gate
+passed on `5b7dffbb`: 317 checks, 176 exact hooks, no failures. A fresh local V3
+campaign completed nine wins in 146 rounds, no caps/failures, with 20/23 active
+powers used. Directed fixtures cover the three absent powers. V4 addresses the
+observed construction switching by keeping an active project focused while
+retaining Repair and commissioning choices. See
+`U13_DOCTRINE_COVERAGE_2026-09-13.md` for scope and the new fixture-only command.
+Next acceptance is the short Windows doctrine fixture gate. The V4 seed 19
+diagnostic exposed repeated Ward versus ineffective Siege and was deliberately
+stopped during round 28; keep that longer-game regression as the next directed
+case, using only public observations. Keep the larger throughput work
+for PySim and the Action Window / Resolution Theater as a later milestone.
 
 The uploaded earlier random-legal summary completed 100 games: 92 wins, 8 censored
 at the round cap, zero failed/missing. Its own `gate_passed` is false because of

@@ -75,3 +75,20 @@ Do not extrapolate these numbers into a promised full-campaign speedup. Use the
 short Windows comparison first, then the current doctrine campaign for action
 coverage and termination. Avoid turning the 100-game random-legal campaign into
 the routine regression gate.
+
+## Windows acceptance — 2026-09-13
+
+The uploaded `u13-submission-5b7dffbb-p4CLbx` report ran the published commit
+with a clean worktree on Godot 4.7.2 stable, Windows, Intel i7-1165G7
+(eight logical processors). It passed 317 checks and 176 exact hook comparisons;
+zero failures/script errors and process exit zero.
+
+| Joint submission | Previous path | Internal transaction | Reduction |
+| --- | ---: | ---: | ---: |
+| Nine openings, summed | 4,281 ms | 3,401 ms | 20.5% |
+| 2,000 prior events, compact | 658 ms | 367 ms | 44.2% |
+| 2,000 prior events, full trace | 682 ms | 365 ms | 46.5% |
+
+The Windows run did not include the optional midgame checkpoints. The full-run
+submission sum fell 26.5%; this is not a whole-campaign runtime measurement.
+The directed gate is accepted. Resume current-doctrine action/power coverage.

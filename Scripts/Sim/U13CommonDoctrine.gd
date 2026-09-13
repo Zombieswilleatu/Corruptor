@@ -2,6 +2,7 @@ extends RefCounted
 
 const Development = preload("res://Scripts/Sim/U13GameDevelopment.gd")
 const Plunder = preload("res://Scripts/Sim/U13Plunder.gd")
+const Construction = preload("res://Scripts/Sim/U13Construction.gd")
 
 static func candidate(payload: Dictionary, score: float, reason: String) -> Dictionary:
 	return {"payload": payload, "score": score, "reason": reason}
@@ -29,10 +30,18 @@ static func summon(c, powers: Array, base: Dictionary) -> Array:
 static func castles(c, powers: Array, base: Dictionary) -> Array:
 	var result: Array = []
 	var payments: Array = c.payments(powers, base, "Wright")
+	var project: String = String(c.w.construction_target)
 	for row in c.castles(c.pid, false):
 		var a: Dictionary = row.attributes
 		var actions: Array = ["Repair"] if a.construction_state == "active" and a.status != "ruined" else ["Construct", "Activate"]
 		for action in actions:
+			# A new Construct redirects the one automatic work crew. Finish or
+			# commission the current protected project before starting another.
+			# Repair and Activate remain available while that project advances.
+			if action == "Construct" and not project.is_empty() and row.id != project:
+				continue
+			if action == "Activate" and row.id == project and a.integrity + Construction.PASSIVE >= a.max_integrity:
+				continue # This Development will complete it at full health for free.
 			for ids in payments:
 				if action == "Activate" and not ids.is_empty():
 					continue
@@ -52,9 +61,13 @@ static func castles(c, powers: Array, base: Dictionary) -> Array:
 						score = c.castle_value(row) - (10.0 if a.integrity < 12 else 0.0)
 					else:
 						score = 2.5 + c.castle_value(row) * 0.2 - paid * 0.65
-						if c.w.construction_target == row.id:
-							score -= 4.0 # its free continuing progress already happens
-						if a.integrity + 3 + floori(paid / 3.0) >= a.max_integrity:
+						var automatic: int = mini(a.max_integrity, a.integrity + Construction.PASSIVE)
+						var extra: int = mini(a.max_integrity - automatic, floori(float(paid) / Construction.CARD_VALUE_PER_INTEGRITY))
+						if project == row.id:
+							# Continuing progress is free even if we take another action.
+							# Value only acceleration beyond it, never pay for a free finish.
+							score = extra * 1.15 - paid * 0.65
+						if automatic < a.max_integrity and automatic + extra >= a.max_integrity:
 							score += c.castle_value(row)
 					var order: Dictionary = base.duplicate(true)
 					order["castle_action"] = {"action": action, "target_id": row.id, "card_ids": ids, "use_repair_token": token}
