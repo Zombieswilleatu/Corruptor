@@ -357,7 +357,7 @@ func _build() -> void:
 	_busy_label = _label(main, "", 16)
 	_busy_label.custom_minimum_size.y = 26
 	if setup_enabled and not dense_mode:
-		setup_picker = LoadoutPicker.new()
+		setup_picker = _new_loadout_picker()
 		add_child(setup_picker)
 		setup_picker.hide()
 		setup_picker.start_requested.connect(start_loadout)
@@ -1427,6 +1427,10 @@ func _hand_selection_changed(_ids: Array) -> void:
 
 func _new_loadout_session():
 	return LoadoutSession.new()
+
+
+func _new_loadout_picker():
+	return LoadoutPicker.new()
 
 
 func _build_humbaba_controls(parent: Node) -> void:

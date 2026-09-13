@@ -75,6 +75,10 @@ func _run(candidate, operation: String, powers: Array, order: Dictionary) -> Dic
 		result = candidate.next_round()
 		if result.action == "invalid":
 			return result
+	elif operation == "economy_choice" and candidate.has_method("choose_economy"):
+		result = candidate.choose_economy(order)
+		if result.action == "invalid":
+			return result
 	else:
 		return Data.invalid("board_job_operation_invalid")
 	var presented: Dictionary = (

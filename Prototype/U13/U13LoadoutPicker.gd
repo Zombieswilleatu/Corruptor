@@ -22,6 +22,7 @@ var animation_previews
 var animation_button: Button
 var _loadout_content: Control
 var _accepted_castles: Array = [[], []]
+var full_game: bool = false
 
 
 func _ready() -> void:
@@ -62,7 +63,7 @@ func _ready() -> void:
 		side.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		side.add_theme_constant_override("separation", 8)
 		players.add_child(side)
-		_label(side, "YOU" if pid == 0 else "RANDOM-LEGAL OPPONENT", 18)
+		_label(side, "YOU" if pid == 0 else ("DOCTRINE OPPONENT" if full_game else "RANDOM-LEGAL OPPONENT"), 18)
 		var lord := _option(side, LORDS)
 		lord.select(pid)
 		lord_choices.append(lord)
@@ -89,7 +90,7 @@ func _ready() -> void:
 	animation_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	extras.add_child(animation_button)
 	animation_button.pressed.connect(_open_animation_previews)
-	_label(column, "TEST OPENING", 16)
+	_label(column, "FULL GAME OPENING" if full_game else "TEST OPENING", 16)
 	opening = _option(
 		column,
 		[
@@ -97,14 +98,15 @@ func _ready() -> void:
 			"Construction start: all five Castles unbuilt"
 		]
 	)
+	opening.visible = not full_game
 	_label(
 		column,
-		"Both openings use four hand cards and two Repair tokens per side. These are exercise resources, not the final starting economy.",
+		"Slots 1–3 begin active; slots 4–5 are blueprints. Five opening cards and paid starting Lord summons. Normal draws and Slaver trades follow each round." if full_game else "Both openings use four hand cards and two Repair tokens per side. These are exercise resources, not the final starting economy.",
 		14
 	)
 	_label(
 		column,
-		"Siege Engine artillery is implemented. Other Castle types have construction and repair, but their printed powers are not connected yet. Normal draws, resummoning, Fracture and victory are also pending.",
+		"Play to Dominion, Ritual or Final Collapse against the doctrine bot. All nine Lords, Castle powers, resummoning and Tear rites are connected. Veil threshold penalties remain disabled." if full_game else "Siege Engine artillery is implemented. Other Castle types have construction and repair, but their printed powers are not connected yet. Normal draws, resummoning, Fracture and victory are also pending.",
 		14
 	)
 	message = _label(column, "", 15)
@@ -117,7 +119,7 @@ func _ready() -> void:
 	buttons.add_child(quickstart_button)
 	quickstart_button.pressed.connect(_quickstart)
 	start_button = Button.new()
-	start_button.text = "START BOARD"
+	start_button.text = "START GAME" if full_game else "START BOARD"
 	start_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	start_button.custom_minimum_size.y = 42
 	buttons.add_child(start_button)
@@ -214,7 +216,7 @@ func _castle_changed(index: int, pid: int, slot: int) -> void:
 				tutorials,
 				Tutorials.KEEP_LOADOUT,
 				"BUILDING YOUR FORTRESS",
-				"Keep is strongly suggested for all builds. For beginners, one of each Castle type is also suggested.\n\nYou can still specialize and choose any legal loadout.\n\nIn this test build, Keep's printed power is not connected yet.",
+				"Keep is strongly suggested for beginners. One of each Castle type is also suggested, but any legal loadout is allowed." if full_game else "Keep is strongly suggested for all builds. For beginners, one of each Castle type is also suggested.\n\nYou can still specialize and choose any legal loadout.\n\nIn this test build, Keep's printed power is not connected yet.",
 				_apply_castle_choice.bind(index, pid, slot)
 			)
 		):

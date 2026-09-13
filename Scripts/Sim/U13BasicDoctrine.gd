@@ -5,7 +5,7 @@ const Common = preload("res://Scripts/Sim/U13CommonDoctrine.gd")
 const Powers = preload("res://Scripts/Sim/U13PowerDoctrine.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const BotPlanning = preload("res://Scripts/Sim/U13BotPlanning.gd")
-const VERSION: String = "U13_BASIC_DOCTRINE_V2"
+const VERSION: String = "U13_BASIC_DOCTRINE_V3"
 const CANDIDATE_LIMIT: int = 32
 
 static func ranked(options: Array) -> Array:
@@ -45,7 +45,10 @@ static func plan(owner, pid: int, reuse_validation: bool = true) -> Dictionary:
 	for stage in ["waiters", "invocation", "profane_ruins"]:
 		order = choose(owner, pid, [], order, Common.rites(c, [], order, stage))
 	order = choose(owner, pid, [], order, Common.summon(c, [], order))
-	var powers: Array = choose_power(owner, pid, c, order)
+	# Wishes fire after combat. Score them against our actual committed cards,
+	# guards and Repair, without simulating the opponent's sealed order.
+	var late_wish: bool = c.w.lord_ids[pid] == "Kanifous"
+	var powers: Array = [] if late_wish else choose_power(owner, pid, c, order)
 	order = choose(owner, pid, powers, order, Common.castles(c, powers, order))
 	order = choose(owner, pid, powers, order, Common.combat(c, powers, order))
 	# Re-evaluate only the selected power against our own chosen combat. If it
@@ -65,6 +68,8 @@ static func plan(owner, pid: int, reuse_validation: bool = true) -> Dictionary:
 		if next == order:
 			break
 		order = next
+	if late_wish:
+		powers = choose_power(owner, pid, c, order)
 	var checked: Dictionary = owner.preview_submission(pid, powers, order)
 	if checked.action == "invalid":
 		return checked
@@ -84,23 +89,28 @@ static func to_planning(game) -> Dictionary:
 		var result: Dictionary = game.to_planning()
 		if result.action not in ["game_draw_choice", "game_market_choice"]:
 			return result
-		var pid: int = result.player_id
-		var c = Context.new(BotPlanning.new(game._owner, pid).player_view(pid, 0))
-		if result.action == "game_draw_choice":
-			var cards: Array = c.w.game_economy.stockpile_pending.card_ids.duplicate()
-			cards.sort_custom(func(a, b): return a < b if c.card_score(a) == c.card_score(b) else c.card_score(a) > c.card_score(b))
-			result = game.choose_stockpile(pid, cards[0])
-		else:
-			var choice: Dictionary = {"market": "Pass"}
-			var best: float = 0.0
-			for option in game.market_choices(pid):
-				if option.market != "Swap":
-					continue
-				var gain: float = c.card_score(option.take_id) - c.card_score(option.give_id)
-				if gain > best:
-					best = gain
-					choice = option
-			result = game.choose_market(pid, choice)
+		result = resolve_choice(game, result)
 		if result.action == "invalid":
 			return result
 	return Data.invalid("doctrine_choice_limit")
+
+# Resolve only the supplied seat. The playable adapter pauses for human input.
+static func resolve_choice(game, pending: Dictionary) -> Dictionary:
+	if pending.get("action") not in ["game_draw_choice", "game_market_choice"]:
+		return Data.invalid("doctrine_choice_invalid")
+	var pid: int = pending.player_id
+	var c = Context.new(BotPlanning.new(game._owner, pid).player_view(pid, 0))
+	if pending.action == "game_draw_choice":
+		var cards: Array = c.w.game_economy.stockpile_pending.card_ids.duplicate()
+		cards.sort_custom(func(a, b): return a < b if c.card_score(a) == c.card_score(b) else c.card_score(a) > c.card_score(b))
+		return game.choose_stockpile(pid, cards[0])
+	var choice: Dictionary = {"market": "Pass"}
+	var best: float = 0.0
+	for option in game.market_choices(pid):
+		if option.market != "Swap":
+			continue
+		var gain: float = c.card_score(option.take_id) - c.card_score(option.give_id)
+		if gain > best:
+			best = gain
+			choice = option
+	return game.choose_market(pid, choice)

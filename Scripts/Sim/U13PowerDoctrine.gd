@@ -6,6 +6,8 @@ const Content = preload("res://Scripts/Sim/U13Kanifous.gd")
 const Decl = preload("res://Scripts/Sim/U13LordPowerDeclaration.gd")
 const Owner = preload("res://Scripts/Sim/U13Match.gd")
 const Common = preload("res://Scripts/Sim/U13CommonDoctrine.gd")
+const Wishmaster = preload("res://Scripts/Sim/U13Wishmaster.gd")
+const Economy = preload("res://Scripts/Sim/U13GameEconomy.gd")
 
 static func options(c, order: Dictionary) -> Array:
 	match c.w.lord_ids[c.pid]:
@@ -17,7 +19,7 @@ static func options(c, order: Dictionary) -> Array:
 		"Odradek": return odradek(c)
 		"Kroni": return kroni(c)
 		"Valak": return valak(c)
-		"Kanifous": return kanifous(c)
+		"Kanifous": return kanifous(c, order)
 	return []
 
 static func add(result: Array, c, power: String, target: Dictionary, score: float, cost: Dictionary = {}, parameters: Dictionary = {}) -> void:
@@ -107,16 +109,35 @@ static func orias(c) -> Array:
 static func odradek(c) -> Array:
 	var result: Array = []
 	var resource: int = c.w.reconfiguration[c.pid]
-	for point in points(c, int(c.w.shift_radius_fp), 1.0):
+	# A normal Shift only converts enemy marchers; it never flips our own.
+	for point in points(c, int(c.w.shift_radius_fp)):
 		add(result, c, "AllegianceShift", point.target, point.score * 5.0)
-		# Bank for allegiance swing when it is reachable next round.
-		if resource >= 4 or point.score < 2:
-			add(result, c, "Redirect", point.target, point.score * 1.5)
+	for point in points(c, int(c.w.redirect_radius_fp), 1.0):
+		add(result, c, "Redirect", point.target, point.score * 1.5)
 	for lane in ["Lord", "Castle"]:
-		var value: int = c.guard_value(1 - c.pid, lane)
-		add(result, c, "Inversion", {"owner_id": 1 - c.pid, "lane": lane}, value * 1.2)
+		var free_slots: int = maxi(0, 3 - c.guards(c.pid, lane).size())
+		var value: int = 0
+		for guard in c.guards(1 - c.pid, lane).slice(0, free_slots):
+			value += c.guard_strength(guard)
+		add(result, c, "Inversion", {"owner_id": 1 - c.pid, "lane": lane}, value * 1.6)
+		var other: String = "Castle" if lane == "Lord" else "Lord"
+		if c.guards(1 - c.pid, other).size() >= 3:
+			continue
 		for guard in c.guards(1 - c.pid, lane).slice(0, 3):
-			add(result, c, "FalseOrders", {"entity_id": guard.id, "owner_id": 1 - c.pid, "lane": "Castle" if lane == "Lord" else "Lord"}, float(c.guard_strength(guard)) - 1.0)
+			var pressure: int = c.waiters(c.pid, lane) - c.waiters(c.pid, other)
+			add(result, c, "FalseOrders", {"entity_id": guard.id, "owner_id": 1 - c.pid, "lane": other}, float(c.guard_strength(guard)) - 2.0 + clampi(pressure, -2, 2))
+	# Compare today's affordable effect with an observed, useful future target.
+	# One point arrives per living round. No forced spell quotas or RNG peeking.
+	var now: float = 0.0
+	var saving: float = 0.0
+	for option in result:
+		var cost: int = option.payload.cost.reconfiguration
+		if cost <= resource:
+			now = maxf(now, option.score)
+		else:
+			saving = maxf(saving, option.score / (cost - resource + 1.0))
+	if saving > now + 0.1:
+		return []
 	return result
 
 static func kroni(c) -> Array:
@@ -166,17 +187,36 @@ static func redundant(c, source: Dictionary, order: Dictionary) -> bool:
 				break
 	return remaining >= int(row.attributes.integrity)
 
-static func kanifous(c) -> Array:
+static func kanifous(c, order: Dictionary = {}) -> Array:
 	var result: Array = []
-	# Price is deferred and uncertain: do not treat any Wish as free or roll it
-	# during planning. V1 pays a fixed risk penalty; no RNG peeking.
+	# Only the existence of outstanding Prices is public. Never forecast their
+	# outcomes. Accumulated debts make marginal wishes less attractive.
+	var debts: int = c.w.get("wish_prices", []).filter(func(p): return p.owner == c.pid).size()
+	var risk: float = 3.0 + mini(debts, 6) * 1.25
 	for row in c.castles(c.pid):
 		var missing: int = row.attributes.max_integrity - row.attributes.integrity
-		add(result, c, "WishLongevity", {"entity_id": row.id}, mini(missing, 12) - 3.0)
-	for point in points(c, 300, 1.0):
-		add(result, c, "WishDeath", point.target, point.score * 3.0 - 3.0)
+		var repair: Dictionary = order.get("castle_action", {})
+		if repair.get("action") == "Repair" and repair.get("target_id") == row.id:
+			var cards: Array = repair.card_ids
+			missing -= c.strength(cards, "Wright") - Common._pair_bonus(c, cards, "Wright") + (3 if repair.get("use_repair_token", false) else 0)
+		add(result, c, "WishLongevity", {"entity_id": row.id}, mini(missing, 12) - risk)
+	for point in points(c, Wishmaster.DEATH_RADIUS, 1.0):
+		add(result, c, "WishDeath", point.target, point.score * 3.0 - risk)
 	for lane in ["Lord", "Castle"]:
-		add(result, c, "WishPower", {"lane": lane}, lane_value(c, lane) - 3.0)
-		add(result, c, "WishResurrection", {"kind": "guard_zone", "zone": lane}, 4.0 - c.guards(c.pid, lane).size() * 2.0)
-	add(result, c, "WishWealth", {}, 3.0 if c.w.souls[c.pid] < 10 else 0.0)
+		var pressure: int = c.select("marcher", 1 - c.pid, lane).size()
+		# Power averages 1.35 bodies. Saturated lanes have less use for recruits.
+		var need: float = clampf(1.0 + pressure * 0.1 - c.select("marcher", c.pid, lane).size() * 0.1, 0.25, 1.5)
+		add(result, c, "WishPower", {"lane": lane}, 1.35 * 3.0 * need - risk)
+		var guards: int = c.guards(c.pid, lane).size()
+		for move in order.get("guard_moves", []):
+			if move.lane == lane:
+				guards += 1
+		# Resurrection restores this round's losses; bare zones have no victims.
+		# Public approaching units are a threat estimate, not knowledge of orders.
+		add(result, c, "WishResurrection", {"kind": "guard_zone", "zone": lane}, mini(guards, pressure) * 2.5 - risk)
+	var remaining: int = c.available([], order).size()
+	var room: int = maxi(0, Economy.HAND_LIMIT - remaining)
+	var need: float = clampf((6.0 - remaining) / 4.0, 0.0, 1.0)
+	# Wealth draws cards (expected 2.1), regardless of current soul count.
+	add(result, c, "WishWealth", {}, minf(room, 2.1) * 3.0 * need - risk)
 	return result

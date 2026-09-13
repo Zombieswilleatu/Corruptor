@@ -3,6 +3,14 @@
 **Status:** Working roadmap / engineering addendum
 **Date:** 2026-09-10
 
+**2026-09-13 playable steering:** User clarified that the requested next runner
+is a visible human-versus-doctrine game. `run_u13_playable.sh` now connects the
+existing board to the production conductor, human draw/Slaver choices, complete
+sealed plans, Tear rites, save/load and terminal victory. Doctrine V3 also fixes
+Odradek saving and Kanifous wish valuation. Local engine and widget checks pass;
+Windows 4.7.2 visual acceptance is next. See `U13_PLAYABLE_RUNNER.md`. Keep the
+Action Window / Resolution Theater and Action Forecast work as later milestones.
+
 **2026-09-12 doctrine steering:** User authorized an early, bounded common planner
 and Tier 1A targeting now, using the originating Astra handoff/Implementation Plan
 v3 and individual ideas from legacy doctrine. Do not port the old Smart Core.
