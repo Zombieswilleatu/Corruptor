@@ -101,6 +101,40 @@ or simultaneous order. No Ward/Siege score change is included in this patch.
 
 ## Short Windows check
 
+The `35edeaf` upload passed all five suites: 456 checks, zero failures/script
+errors, exit zero on Windows Godot 4.7.2. It requested zero matches, as intended.
+
+## V5: correct immediate Ward pressure
+
+The preserved V4 round-25 checkpoint had **83 enemy Castle-lane marchers but
+zero waiters** facing Deimos. The old score added the entire marching population
+to waiters, both inventing immediate support from travelling units and counting
+actual waiters twice. Siege/Hunt resolution only consumes units already waiting
+at the matching zone; movement happens later.
+
+V5 values that known support using waiters once. The same saved position changes
+Deimos from Ward to a legal Siege. Unknown enemy cards and simultaneous orders
+remain unknown; the patch adds no history-based inference or hidden information.
+It corrects the observed source of excessive Ward, without claiming every
+possible defensive stalemate is solved.
+
+Six new basic-doctrine checks cover a dense travelling field, real waiting
+pressure, single-count support, opposite-lane isolation and read-only scoring.
+All 226 basic-doctrine checks passed on the local Godot 4.5.1 diagnostic engine,
+including nine-Lord legality, cached/uncached plans and exact resolution replay.
+The actual round-25 saved position also passed admission, resolution and exact
+independent replay with V5 plans. Both sides damaged the opposing Keep (14 and
+16 integrity), instead of repeating the earlier Ward screen. This is a
+saved-position result, separate from a full-match outcome.
+The fresh V5 seed-19 match then finished in round 18 with a Deimos Dominion
+victory, no failures or script errors. This fresh run used single-conductor
+legality; independent replay is covered separately by the saved position and
+basic fixtures. V4 had remained unfinished when stopped in round 28. This
+demonstrates progress on the reproduced matchup, not a roster-wide balance or
+performance result. The Windows fixture-only run now contains 462 checks.
+
+## Windows command
+
 ```bash
 U13_DOCTRINE_FIXTURES_ONLY=1 bash Scripts/Sim/run_u13_doctrine.sh \
   "/c/Users/jerem/OneDrive/Documents/Godot_v4.7.2-stable_win64.exe/Godot_v4.7.2-stable_win64.exe"

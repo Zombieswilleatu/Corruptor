@@ -122,7 +122,10 @@ static func combat_score(c, order: Dictionary) -> float:
 	if order.action == "Profane":
 		return c.tear_value() - c.castle_value(c.rows[order.target_id]) - 8.0
 	if order.action == "Ward":
-		var pressure: int = c.waiters(1 - c.pid, lane) + c.select("marcher", 1 - c.pid, lane).size()
+		# Combat consumes only enemies already waiting at this zone. Travelling
+		# units move later; field population is not this round's attack strength.
+		# Waiters are marchers too, so adding both lists also counted them twice.
+		var pressure: int = c.waiters(1 - c.pid, lane)
 		return score + mini(total, maxi(0, pressure - c.guard_value(c.pid, lane))) * 1.5
 	total += c.waiters(c.pid, lane, order)
 	var remaining: int = maxi(0, total - c.screen(lane))

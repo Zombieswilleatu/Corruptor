@@ -10,11 +10,24 @@ powers used. Directed fixtures cover the three absent powers. V4 addresses the
 observed construction switching by keeping an active project focused while
 retaining Repair and commissioning choices. See
 `U13_DOCTRINE_COVERAGE_2026-09-13.md` for scope and the new fixture-only command.
-Next acceptance is the short Windows doctrine fixture gate. The V4 seed 19
+The short Windows doctrine fixture gate passed on `35edeaf`: five suites,
+456 checks, no failures or script errors on Godot 4.7.2. The V4 seed 19
 diagnostic exposed repeated Ward versus ineffective Siege and was deliberately
 stopped during round 28; keep that longer-game regression as the next directed
 case, using only public observations. Keep the larger throughput work
 for PySim and the Action Window / Resolution Theater as a later milestone.
+
+**V5 directed Ward correction:** The saved round-25 stall had 83 travelling
+enemy Castle-lane marchers and zero waiters. Ward scored all 83 as immediate
+support; its formula also counted actual waiters twice. Score only enemy
+waiters for this round's visible support threat, matching combat consumption.
+Moving units still matter to spatial powers and Marching. This does not predict
+the opponent's hidden hand or simultaneous order. See the coverage report for
+the saved-position and fresh-match verification.
+
+**Deferred visual feedback:** The Ward graphic is stretched too far and looks
+poor. User requested moving on with doctrine; adjust its aspect/extent in the
+next visual pass. No Ward artwork or rendering change is included here.
 
 The uploaded earlier random-legal summary completed 100 games: 92 wins, 8 censored
 at the round cap, zero failed/missing. Its own `gate_passed` is false because of

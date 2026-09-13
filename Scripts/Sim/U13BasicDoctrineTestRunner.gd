@@ -9,11 +9,37 @@ func run() -> void:
 		opening(index)
 	snare_lock()
 	directed_scores()
+	ward_pressure()
 	hidden_guard_boundary()
 	coordinated_powers()
 	session_isolation()
 	print("U13 basic doctrine failures: %d" % failures)
 	quit(failures)
+
+func ward_pressure() -> void:
+	var game = Game.new()
+	var setup: Dictionary = Batch.setup(19)
+	if not check(game.start(setup.seed, setup.lords, setup.castles, true).action != "invalid" and Bot.to_planning(game).action == "game_planning", "Ward pressure fixture"): return
+	var public_view: Dictionary = Bot.BotPlanning.new(game._owner, 0).player_view(0, 0)
+	var baseline = Bot.Context.new(public_view)
+	var order: Dictionary = {"action": "Ward", "lane": "Castle", "card_ids": baseline.w.hand}
+	var empty_score: float = Bot.Common.combat_score(baseline, order)
+	# Only public unit locations/states change. No hidden faces or future orders.
+	var crowded: Dictionary = public_view.duplicate(true)
+	for index in range(83):
+		crowded.world.entities.append({"id": "pressure-fixture:" + str(index), "kind": "marcher", "owner": 1, "attributes": {"lane": "Castle", "waiting": false}})
+	var moving = Bot.Context.new(crowded)
+	check(Bot.Common.combat_score(moving, order) == empty_score, "83 travelling enemies do not manufacture immediate Ward demand")
+	for entity in crowded.world.entities:
+		if entity.kind == "marcher": entity.attributes.waiting = true
+	var waiting = Bot.Context.new(crowded)
+	check(Bot.Common.combat_score(waiting, order) > empty_score, "arrived enemies still make protective Ward useful")
+	var small: Dictionary = public_view.duplicate(true)
+	small.world.entities.append({"id": "single-waiter", "kind": "marcher", "owner": 1, "attributes": {"lane": "Castle", "waiting": true}})
+	check(is_equal_approx(Bot.Common.combat_score(Bot.Context.new(small), order) - empty_score, 1.5), "one waiting enemy contributes one point of support, not two")
+	small.world.entities.back().attributes.lane = "Lord"
+	check(Bot.Common.combat_score(Bot.Context.new(small), order) == empty_score, "opposite-lane waiter does not justify Castle Ward")
+	check(Bot.BotPlanning.new(game._owner, 0).player_view(0, 0) == public_view, "pressure scoring leaves the authoritative public view unchanged")
 
 func opening(index: int) -> void:
 	var chosen: Dictionary = Batch.setup(index + 9 * ((index + 1) % 9))
