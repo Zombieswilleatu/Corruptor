@@ -33,13 +33,17 @@ match snapshots, not a bot input or a public multiplayer projection.
   its own choices. Card capacity can mean there is no Stockpile choice to make.
 - Use the existing board gestures for Hunt, Siege, Ward, Castle development,
   Guard placement, resummoning, and all nine Lords' powers. A banished Lord
-  does not disable the army's Hunt. Opposing Hunts and resummon-plus-Hunt remain
-  legal, subject to separate card payments.
+  does not disable the army's Hunt, Siege, Pillage or Ward. Opposing Hunts and
+  resummoning alongside these army actions remain legal with separate card payments.
 - GAME / RITES provides Hunt's Subjects/Infrastructure Fracture choice,
   Pillage, Profane, waiter spending, Invocation, and Profane Ruins. It stages
   these into the same complete submission. Multiple groups of five waiters in
   the same lane are supported; reserved waiters and Invocation cards are removed
   from the corresponding available choices.
+- To turn waiters into Tears, open **GAME / RITES → SPEND FIVE WAITERS**,
+  select five waiting marchers in one lane, and stage the group. Each group is
+  consumed for one Personal Tear when the round resolves. Marchers still
+  traveling and groups mixing lanes are ineligible.
 - Continue from combat to powers, then resolve the sealed plan. The board plays
   the actual Marching tape. Skip Animation completes presentation and advances
   Aftermath; it does not skip authoritative hooks.
@@ -94,13 +98,19 @@ automatic terminal screen. It retains the production runtime check; its own
 test harness explicitly enables widget exercise under the local diagnostic
 engine. This is not Windows visual acceptance or a broad balance campaign.
 
+Directed army-action checks also cover an absent Lord's Hunt, Siege, Pillage
+and Ward, with and without resummoning. They verify separate card payments,
+protected construction, guard defeats, Ward screening in both lanes, sealed
+save/replay, and continued rejection of powers from an absent Lord. The widget
+test stages Siege and Ward with an actually absent Lord.
+
 For a focused Windows check without another full campaign:
 
 ```bash
 bash Scripts/Sim/run_u13_playable_checks.sh "/path/to/Godot_4.7.2_executable"
 ```
 
-That gate runs the Hunt, V3 wish, playable-session fixture and playable-widget
+That gate runs the army-action, V3 wish, playable-session fixture and playable-widget
 suites, preserves failures, and exports a unique upload ZIP directly to
 Downloads. The longer representative full match is included when
 `U13PlayableSessionTestRunner.gd` runs without `--fixtures-only`.

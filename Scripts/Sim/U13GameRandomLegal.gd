@@ -31,7 +31,7 @@ static func plan(owner, pid: int) -> Dictionary:
 	for original in raw.orders:
 		if not original.has("action"):
 			continue
-		if order.has("summon") and original.action != "Hunt":
+		if order.has("summon") and original.action not in ["Hunt", "Siege", "Ward"]:
 			continue
 		var candidate: Dictionary = order.duplicate(true)
 		for key in ["action", "lane", "target_id", "card_ids"]:
@@ -79,3 +79,4 @@ static func _choose(owner, pid: int, powers: Array, base: Dictionary, candidates
 
 static func _pick(owner, pid: int, stage: String, count: int) -> int:
 	return int(Rng.draw(owner.rng_seed(), "%s:%d:%d" % [VERSION, owner.round_number(), pid], stage, 0, count).value)
+

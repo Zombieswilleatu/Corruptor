@@ -36,6 +36,9 @@ func run() -> void:
 	var own: Dictionary = board._visible_world.entities.filter(func(e): return e.kind == "lord" and e.owner == 0)[0]
 	own.attributes.alive = false
 	check(board._target_allowed(board._entity_target(enemy.id), "Hunt"), "Hunt target stays selectable with own Lord absent")
+	check(board._target_allowed(board._entity_target(Slots.castle_id(1, 1)), "Siege"), "Siege target stays selectable with own Lord absent")
+	check(not board._target_allowed(board._entity_target(Slots.castle_id(0, 1)), "Siege") and not board._target_allowed(board._entity_target(Slots.castle_id(1, 4)), "Siege"), "absent Lord cannot select friendly or unbuilt castles for Siege")
+	check(board._target_allowed(board._entity_target(own.id), "Ward") and board._target_allowed(board._entity_target(Slots.castle_id(0, 1)), "Ward") and not board._target_allowed(board._entity_target(enemy.id), "Ward"), "absent Lord can Ward either own lane only")
 	board._refresh()
 	board._select_direct_action("Hunt")
 	board._choose_target(board._entity_target(enemy.id))
@@ -69,8 +72,38 @@ func run() -> void:
 		await human_choices()
 		check(board.session.round_number() == 2 and board._planning(), "next round draws and returns to interactive planning")
 		check(board.rites_plan.is_empty() and board.queued.is_empty(), "new round clears the old cart")
+	await absent_siege()
 	await special_actions()
 	finish()
+
+func absent_siege() -> void:
+	const Game = Board.PlaySession.Game
+	var world: Dictionary = Game.Economy.initialize(Game.Scenario.loadout_world(["Gremory", "Deimos"], [Slots.TYPES, Slots.TYPES]), "playable-absent-siege").world
+	var ids = Game.Content.Ids.new()
+	ids.restore(world.entities)
+	var actor: Dictionary = ids.get_entity(world.players[0].lord_entity_id)
+	actor.attributes.alive = false
+	ids.update(actor.id, 0, actor.attributes)
+	world.entities = ids.snapshot()
+	var play = Board.PlaySession.new()
+	play._owner = Game.Content.new().create_combat_match()
+	if not check(play._owner.start("playable-absent-siege", world, [0, 1]).action != "invalid", "playable absent Lord fixture is valid"): return
+	play._to_planning()
+	board._reset_direct()
+	board.session = play
+	board.queued = []
+	board.castle_plan = {}
+	board.powers_step = false
+	board._refresh()
+	await human_choices()
+	board._select_direct_action("Siege")
+	board._choose_target(board._entity_target(Slots.castle_id(1, 1)))
+	var staged: bool = board._apply_cards([board._visible_world.hand[0]], false)
+	check(staged and board._order().get("action") == "Siege" and board.session.preview().action != "invalid", "playable board stages a legal Siege with the Lord actually absent")
+	for lane in ["Lord", "Castle"]:
+		board._select_direct_action("Ward")
+		board._choose_target({"id": "", "kind": "zone", "owner": 0, "lane": lane})
+		check(board._apply_cards([board._visible_world.hand[0]], false) and board._order().get("action") == "Ward" and board.session.preview().action != "invalid", "playable board stages absent Lord Ward in " + lane)
 
 func special_actions() -> void:
 	const Game = Board.PlaySession.Game

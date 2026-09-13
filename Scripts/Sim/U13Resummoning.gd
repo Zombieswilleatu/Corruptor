@@ -107,9 +107,9 @@ static func validate_order(world: Dictionary, pid: int, order: Dictionary) -> Di
 		return {"action": "legal"}
 	if not choice_shape(order.summon):
 		return Data.invalid("summon_choice_invalid")
-	# Army Hunt can accompany a return, using a separate card commitment.
+	# Army actions can accompany a return with separate card commitments.
 	# Lord powers still use their own source-presence validation at declaration.
-	if order.has("action") and order.action != "Hunt":
+	if order.has("action") and order.action not in ["Hunt", "Siege", "Ward"]:
 		return Data.invalid("summon_combat_unavailable")
 	var selected: Array = order.summon.card_ids
 	var castle = order.get("castle_action", {})
@@ -363,3 +363,4 @@ static func add_candidates(raw: Dictionary, world: Dictionary, pid: int) -> Dict
 		if validate_order(world, pid, candidate).action != "invalid":
 			result.orders.append(candidate)
 	return result
+

@@ -80,7 +80,7 @@ static func combat(c, powers: Array, base: Dictionary) -> Array:
 	for lane in ["Lord", "Castle"]:
 		targets.append({"action": "Ward", "lane": lane})
 	for target in targets:
-		if base.has("summon") and target.action != "Hunt":
+		if base.has("summon") and target.action not in ["Hunt", "Siege", "Ward"]:
 			continue
 		for ids in ([[]] if target.action == "Profane" else c.payments(powers, base, "Penitent" if target.action == "Ward" else "Butcher")):
 			var order: Dictionary = base.duplicate(true)

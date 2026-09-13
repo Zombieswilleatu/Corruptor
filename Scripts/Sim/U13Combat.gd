@@ -197,8 +197,8 @@ static func validate_commit(
 	if order.is_empty():
 		return {"action": "legal"}
 	var lord: Dictionary = entities.get_entity(world.players[player_id].lord_entity_id)
-	# Hunt is an army action, available even while the player's Lord is absent.
-	if not lord.attributes.alive and order.action != "Hunt":
+	# Hunt, Siege (including castle-zone Pillage), and Ward are army actions.
+	if not lord.attributes.alive and order.action not in ["Hunt", "Siege", "Ward"]:
 		return Data.invalid("combat_source_banished")
 	if order.action == "Siege":
 		var target: Dictionary = entities.get_entity(order.target_id)
@@ -860,3 +860,4 @@ static func _hunt(
 	if world.data.get("orias_profile") == LordStats.ORIAS_WEB_PROFILE:
 		events.back().event.data["relentless_pursuit"] = pursuit
 	return {"action": "resolved", "world": world, "events": events}
+

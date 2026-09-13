@@ -74,7 +74,7 @@ func _refresh(presented: Dictionary = {}) -> void:
 	save_button.disabled = not _can_save()
 	load_button.disabled = _job != null or playing
 	if _planning() and not _human_alive():
-		status.text = "Your Lord is banished. Your army can still Hunt; stage resummoning in Guards & Lord Return."
+		status.text = "Your Lord is banished. Your army can still Hunt, Siege, Pillage or Ward; stage resummoning in Guards & Lord Return."
 	if _planning() and _intent == "Pillage":
 		status.text = "Pillage the empty enemy Castle zone. Click hand cards, then continue to powers."
 	if not rites_plan.is_empty():
@@ -83,6 +83,10 @@ func _refresh(presented: Dictionary = {}) -> void:
 		call_deferred("_show_economy")
 
 func _target_allowed(target: Dictionary, intent: String) -> bool:
+	if intent == "Ward":
+		return _planning() and target.get("owner") == 0 and target.get("kind") in ["lord", "castle", "zone"] and target.get("lane") in ["Lord", "Castle"]
+	if intent == "Siege":
+		return _planning() and target.get("owner") == 1 and target.get("kind") == "castle" and Structures.targetable(_entity(str(target.get("id", ""))))
 	if intent == "Hunt":
 		var entity: Dictionary = _entity(str(target.get("id", "")))
 		return _planning() and target.get("owner") == 1 and target.get("kind") == "lord" and not entity.is_empty() and entity.attributes.alive
