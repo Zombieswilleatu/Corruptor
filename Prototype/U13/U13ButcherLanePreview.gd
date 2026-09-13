@@ -32,6 +32,10 @@ const FRAMES = {
 }
 var inspection_row: int = -1
 var inspection_frame: int = 0
+var use_redraw: bool = true
+var redraw: Texture2D
+var redraw_layer: Node2D
+var redraw_commands: Array = []
 var sheet: Texture2D
 var clock: float = 0.0
 var paused: bool = false
@@ -50,6 +54,16 @@ func _ready() -> void:
 	var source := Image.load_from_file(path)
 	if source != null and not source.is_empty():
 		sheet = ImageTexture.create_from_image(source)
+	var walk_image := Image.load_from_file("res://Prototype/U13/Assets/ButcherWalkV2.png")
+	if walk_image != null:
+		redraw = ImageTexture.create_from_image(walk_image)
+	redraw_layer = Node2D.new()
+	redraw_layer.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var key_material := ShaderMaterial.new()
+	key_material.shader = load("res://Prototype/U13/U13ButcherKey.gdshader")
+	redraw_layer.material = key_material
+	redraw_layer.draw.connect(_draw_redraw_layer)
+	add_child(redraw_layer)
 	var panel := VBoxContainer.new()
 	panel.position = Vector2(24, 16)
 	add_child(panel)
@@ -85,6 +99,11 @@ func _ready() -> void:
 		sprite_size = value
 		size_label.text = "Sprite size: %d px" % int(value))
 	sizing.add_child(slider)
+	var art_picker := OptionButton.new()
+	art_picker.add_item("New walk")
+	art_picker.add_item("Original walk")
+	art_picker.item_selected.connect(func(index: int): use_redraw = index == 0)
+	sizing.add_child(art_picker)
 	var inspector := HBoxContainer.new()
 	panel.add_child(inspector)
 	var animation := OptionButton.new()
@@ -125,10 +144,13 @@ func _process(delta: float) -> void:
 			death_time += delta
 			if death_time > 2.0:
 				death_time = -1.0
-	status.text = "Walk → idle at contact → reset. No lane attack animation. Death button previews one casualty per side."
+	status.text = "Walk → idle at contact → reset. New walk / original walk comparison. Death uses the original sheet."
 	queue_redraw()
 
 func _draw() -> void:
+	redraw_commands.clear()
+	if redraw_layer != null:
+		redraw_layer.queue_redraw()
 	draw_rect(Rect2(Vector2.ZERO, size), Color("11151c"))
 	var top := 205.0
 	var bottom := maxf(top + 260.0, size.y - 55.0)
@@ -184,6 +206,21 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool) -> void:
 	if inspection_row >= 0:
 		row = inspection_row
 		frame = inspection_frame
+	if use_redraw and redraw != null and row != 4:
+		# Same body scale and ground line for all six frames. Bottom row's
+		# artwork baseline is 974, top row's is 502 in the 1536x1024 source.
+		var origin := Vector2((frame % 3) * 512, floori(float(frame) / 3.0) * 512)
+		var baseline := 502.0 if frame < 3 else 462.0
+		var anchor := Vector2(300, baseline)
+		var factor := sprite_size / 455.0
+		var offset := -anchor * factor
+		var dimensions := Vector2(512, 512) * factor
+		var destination := Rect2(feet + offset, dimensions)
+		if row == 1:
+			destination.position.x = feet.x - offset.x
+			destination.size.x = -dimensions.x
+		redraw_commands.append([destination, Rect2(origin, Vector2(512, 512))])
+		return
 	var crop: Rect2 = FRAMES[row][frame][0]
 	var anchor: Vector2 = FRAMES[row][frame][1]
 	var source_scale := sheet.get_size() / Vector2(1374, 1145)
@@ -198,3 +235,7 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool) -> void:
 	draw_texture_rect_region(sheet, destination, source, Color(1, 1, 1, opacity))
 	if not dying:
 		draw_line(feet + Vector2(-13, 9), feet + Vector2(13, 9), tint, 3.0)
+
+func _draw_redraw_layer() -> void:
+	for command in redraw_commands:
+		redraw_layer.draw_texture_rect_region(redraw, command[0], command[1])

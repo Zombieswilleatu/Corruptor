@@ -29,3 +29,7 @@ Use the inspection selector for right walk, left walk or death, then scrub frame
 1–6. Inspection holds movement and disables death fading so every cut can be
 examined. The final death poses touch in the source art; rectangular separation
 cannot reconstruct pixels already overlapping or clipped at the sheet edge.
+
+## New walk draft
+
+The preview defaults to the approved six-pose redraw in `Prototype/U13/Assets/ButcherWalkV2.png`. Select Original walk to compare. The new sheet has three columns and two rows; left-facing playback mirrors the same cycle. Idle holds frame one, and death continues to use the original external sheet. Ground anchors correct the different row baselines without independently scaling frames. The generated RGB asset uses a green background, removed by a shader on a separate sprite layer; the board and ownership markers are not keyed. This remains a preview, not a change to simulation or the playable board.
