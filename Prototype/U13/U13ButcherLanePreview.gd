@@ -30,6 +30,9 @@ const FRAMES = {
 		[Rect2(1160, 957, 214, 188), Vector2(1230, 1139)]
 	]
 }
+var character_name: String = "Butcher"
+var frame_regions: Dictionary = FRAMES
+var has_redraw: bool = true
 var inspection_row: int = -1
 var inspection_frame: int = 0
 var facings: Array[bool] = []
@@ -43,7 +46,7 @@ var sheet: Texture2D
 var clock: float = 0.0
 var paused: bool = false
 var chits: bool = false
-var sprite_size: float = 56.0
+var sprite_size: float = 75.0
 var unit_count: int = 24
 var death_time: float = -1.0
 var displayed_units: Array = []
@@ -54,16 +57,17 @@ func _ready() -> void:
 	facing_rng.randomize()
 	_roll_facings()
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	var path := "res://ConceptImages/Sprites/ButcherSprite.png"
+	var path := "res://ConceptImages/Sprites/%sSprite.png" % character_name
 	for argument in OS.get_cmdline_user_args():
-		if argument.begins_with("--butcher-sheet="):
-			path = argument.trim_prefix("--butcher-sheet=")
+		if argument.begins_with("--%s-sheet=" % character_name.to_lower()):
+			path = argument.trim_prefix("--%s-sheet=" % character_name.to_lower())
 	var source := Image.load_from_file(path)
 	if source != null and not source.is_empty():
 		sheet = ImageTexture.create_from_image(source)
-	var walk_image := Image.load_from_file("res://Prototype/U13/Assets/ButcherWalkV2.png")
-	if walk_image != null:
-		redraw = ImageTexture.create_from_image(walk_image)
+	if has_redraw:
+		var walk_image := Image.load_from_file("res://Prototype/U13/Assets/ButcherWalkV2.png")
+		if walk_image != null:
+			redraw = ImageTexture.create_from_image(walk_image)
 	redraw_layer = Node2D.new()
 	redraw_layer.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	var key_material := ShaderMaterial.new()
@@ -75,7 +79,7 @@ func _ready() -> void:
 	panel.position = Vector2(24, 16)
 	add_child(panel)
 	var title := Label.new()
-	title.text = "BUTCHER · VERTICAL LANE TRIAL"
+	title.text = "%s · VERTICAL LANE TRIAL" % character_name.to_upper()
 	title.add_theme_font_size_override("font_size", 24)
 	panel.add_child(title)
 	var controls := HBoxContainer.new()
@@ -94,7 +98,7 @@ func _ready() -> void:
 	var sizing := HBoxContainer.new()
 	panel.add_child(sizing)
 	var size_label := Label.new()
-	size_label.text = "Sprite size: 56 px"
+	size_label.text = "Sprite size: 75 px"
 	sizing.add_child(size_label)
 	var slider := HSlider.new()
 	slider.min_value = 32
@@ -110,6 +114,7 @@ func _ready() -> void:
 	art_picker.add_item("New walk")
 	art_picker.add_item("Original walk")
 	art_picker.item_selected.connect(func(index: int): use_redraw = index == 0)
+	art_picker.visible = has_redraw
 	sizing.add_child(art_picker)
 	var inspector := HBoxContainer.new()
 	panel.add_child(inspector)
@@ -134,8 +139,8 @@ func _ready() -> void:
 	status = Label.new()
 	panel.add_child(status)
 	if sheet == null:
-		status.text = "Missing ButcherSprite.png. Launch with the sprite path as the runner's second argument."
-		push_error("Butcher lane preview could not load sprite: " + path)
+		status.text = "Missing %sSprite.png. Pass its path as the runner's second argument." % character_name
+		push_error(character_name + " lane preview could not load sprite: " + path)
 	set_process(sheet != null)
 
 func _button(parent: Node, caption: String, action: Callable) -> void:
@@ -151,7 +156,7 @@ func _process(delta: float) -> void:
 			death_time += delta
 			if death_time > 2.0:
 				death_time = -1.0
-	status.text = "Walk → idle at contact → reset. New walk / original walk comparison. Death uses the original sheet."
+	status.text = "Walk → idle at contact → reset. Death stops in place. Inspect individual frames above."
 	queue_redraw()
 
 func _draw() -> void:
@@ -209,7 +214,7 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool, face_left:
 	draw_arc(feet, 15.0, 0.0, TAU, 24, tint, 2.0, true)
 	if chits:
 		draw_circle(feet - Vector2(0, 13), 12, tint)
-		draw_string(ThemeDB.fallback_font, feet + Vector2(-5, -7), "B", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color.BLACK)
+		draw_string(ThemeDB.fallback_font, feet + Vector2(-5, -7), character_name.left(1), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color.BLACK)
 		return
 	var frame := int(clock * 8.0 + index) % 6 if walking else 0
 	var row := 1 if face_left else 0
@@ -234,8 +239,8 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool, face_left:
 			destination.size.x = -dimensions.x
 		redraw_commands.append([destination, Rect2(origin, Vector2(512, 512))])
 		return
-	var crop: Rect2 = FRAMES[row][frame][0]
-	var anchor: Vector2 = FRAMES[row][frame][1]
+	var crop: Rect2 = frame_regions[row][frame][0]
+	var anchor: Vector2 = frame_regions[row][frame][1]
 	var source_scale := sheet.get_size() / Vector2(1374, 1145)
 	var source := Rect2(crop.position * source_scale, crop.size * source_scale)
 	var factor := sprite_size / 229.0
