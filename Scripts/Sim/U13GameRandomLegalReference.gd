@@ -1,3 +1,4 @@
+# Frozen a0b774c Random-Legal policy for exact seeded-plan comparisons.
 extends RefCounted
 
 const Development = preload("res://Scripts/Sim/U13GameDevelopment.gd")
@@ -5,7 +6,6 @@ const Scenario = preload("res://Scripts/Sim/U13KanifousScenario.gd")
 const Legality = preload("res://Scripts/Sim/U13Legality.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
-const PowerChoice = preload("res://Scripts/Sim/U13RandomPowerChoice.gd")
 const VERSION: String = "U13_GAME_RANDOM_LEGAL_V5"
 
 
@@ -16,12 +16,11 @@ static func plan(owner, pid: int) -> Dictionary:
 	var raw: Dictionary = Scenario.enumerate(owner, pid)
 	if raw.action == "invalid":
 		return raw
-	var lazy: bool = raw.powers.size() > 64
-	var groups: Array = PowerChoice.groups(owner, pid, raw.powers) if lazy else Legality.legal_power_groups(owner, pid, raw.powers)
+	var groups: Array = Legality.legal_power_groups(owner, pid, raw.powers)
 	var powers: Array = []
 	var picked: int = _pick(owner, pid, "power", groups.size() + 1)
 	if picked < groups.size():
-		var choices: Array = PowerChoice.candidates(owner, pid, groups[picked]) if lazy else groups[picked].candidates
+		var choices: Array = groups[picked].candidates
 		powers.append(choices[_pick(owner, pid, "power-target", choices.size())])
 	var order: Dictionary = {}
 	for stage in ["waiters", "invocation", "profane_ruins"]:

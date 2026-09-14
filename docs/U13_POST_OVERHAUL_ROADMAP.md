@@ -1,5 +1,14 @@
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
+**2026-09-14 Random-Legal timeout:** The a0b774c Windows flow gate passed both
+suites (858 checks). The subsequent 20-game Random-Legal diagnostic completed
+three replay-verified games before game 0 hit its 1,200-second watchdog in round
+14. User authorized profiling and fixing the planning bottleneck. The bounded
+lazy power-domain change preserves seeded choices; see
+`U13_RANDOM_POWER_PERFORMANCE_2026-09-14.md`. A 12-round smoke test does not replace
+full-game completion. Balance tuning and the larger gate remain paused pending
+the focused Windows comparison.
+
 **2026-09-14 targeted performance steering:** User authorized shared-engine
 optimization before another Random-Legal batch. Balance tuning remains paused.
 Windows e4d9501 doctrine fixtures passed 7/7 (759 checks); the subsequent doctrine
