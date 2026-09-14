@@ -4,7 +4,7 @@ extends "res://Prototype/U13/U13VisualPreview.gd"
 # Regions measured against the original 1374x1145 sheet, not an equal grid.
 # Each entry is [crop rect, ground anchor in sheet coordinates]. Keep one scale
 # for all frames: fitting individual crops would inflate the collapsing body.
-const CHARACTERS = ["Butcher", "Penitent", "Vulture", "Wright", "Batboy", "LanternTree"]
+const CHARACTERS = ["Butcher", "Penitent", "Vulture", "Wright", "Batboy", "BottleTree", "Dogger", "Kopita", "Lemek", "Pixie", "Ratton", "Sinodek", "Wraith"]
 const FRAMES = {
 	0: [
 		[Rect2(20, 10, 240, 205), Vector2(155, 213)],
@@ -115,13 +115,18 @@ func _build_preview() -> void:
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--%s-sheet=" % character_name.to_lower()):
 			path = argument.trim_prefix("--%s-sheet=" % character_name.to_lower())
-	# A runner may point at a separate art checkout; use its sibling sheet.
+	# External sheet paths may point at the Subjects or Monsters folder.
 	if not FileAccess.file_exists(path):
 		for argument in OS.get_cmdline_user_args():
-			if argument.begins_with("--butcher-sheet=") or argument.begins_with("--penitent-sheet=") or argument.begins_with("--vulture-sheet=") or argument.begins_with("--wright-sheet=") or argument.begins_with("--batboy-sheet=") or argument.begins_with("--lanterntree-sheet="):
-				var sibling := argument.substr(argument.find("=") + 1).get_base_dir().path_join("%sSprite.png" % character_name)
-				if FileAccess.file_exists(sibling):
-					path = sibling
+			if argument.begins_with("--") and argument.contains("-sheet="):
+				var folder := argument.substr(argument.find("=") + 1).get_base_dir()
+				for candidate in [folder.path_join("%sSprite.png" % character_name),
+					folder.path_join("%s.png" % character_name),
+					folder.path_join("Monsters/%s.png" % character_name)]:
+					if FileAccess.file_exists(candidate):
+						path = candidate
+						break
+				if FileAccess.file_exists(path):
 					break
 	if not FileAccess.file_exists(path) and not bundled_sheet_path.is_empty():
 		path = bundled_sheet_path
@@ -218,12 +223,12 @@ func _build_preview() -> void:
 	inspector.add_child(animation)
 	var frame_label := Label.new()
 	inspection_label = frame_label
-	frame_label.text = "Frame 1 / 6"
+	frame_label.text = "Frame 1 / %d" % _frame_count(0)
 	inspector.add_child(frame_label)
 	var frame_slider := HSlider.new()
 	inspection_slider = frame_slider
 	frame_slider.min_value = 0
-	frame_slider.max_value = 5
+	frame_slider.max_value = _frame_count(0) - 1
 	frame_slider.step = 1
 	frame_slider.custom_minimum_size.x = 200
 	frame_slider.value_changed.connect(func(value: float):

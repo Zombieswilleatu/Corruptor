@@ -1,8 +1,8 @@
 extends "res://Prototype/U13/U13ButcherLanePreview.gd"
 
 func _configure_character() -> void:
-	character_name = "LanternTree"
-	bundled_sheet_path = "res://Prototype/U13/Assets/LanternTreeSprite.png"
+	character_name = "BottleTree"
+	bundled_sheet_path = "res://Prototype/U13/Assets/BottleTreeSprite.png"
 	source_dimensions = Vector2(1377, 1142)
 	source_body_height = 205.0
 	source_shader_path = "res://Prototype/U13/U13VultureKey.gdshader"
