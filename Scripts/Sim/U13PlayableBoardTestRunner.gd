@@ -1,6 +1,6 @@
 extends SceneTree
 
-const Board = preload("res://Prototype/U13/U13PlayableBoard.gd")
+const Board = preload("res://Prototype/U13/U13ActionFlowBoard.gd")
 const Bot = preload("res://Scripts/Sim/U13BasicDoctrine.gd")
 const Slots = preload("res://Scripts/Sim/U13CastleSlots.gd")
 var failures: int = 0
@@ -193,6 +193,7 @@ func special_actions() -> void:
 	board._open_game_menu()
 	check(not board.game_menu.column.get_children().any(func(child): return child is Button and "PILLAGE" in child.text), "Pillage needs no separate rites-menu selection")
 	board.game_menu.hide()
+	board.back_to_combat()
 	check(board.action_zone.action_buttons["Siege"].text == "Pillage" and not board.action_zone.action_buttons["Siege"].disabled, "Siege automatically becomes an enabled Pillage action")
 	board._select_direct_action("Siege")
 	var card: String = board._visible_world.hand[0]

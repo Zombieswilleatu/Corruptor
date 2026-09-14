@@ -1,6 +1,7 @@
 extends Control
 
 signal closed
+var embedded: bool = false
 var column: VBoxContainer
 var message: Label
 var close_button: Button
@@ -53,9 +54,10 @@ func present(title: String, description: String, dismissible: bool = true) -> vo
 		column.remove_child(child)
 		child.queue_free()
 	message.text = ""
-	label(title, 24)
+	if not embedded: label(title, 24)
 	label(description, 16)
 	close_button.visible = dismissible
+	if embedded: close_button.text = "BACK"
 	show()
 
 func label(value: String, size_value: int = 16) -> Label:
@@ -70,6 +72,9 @@ func label(value: String, size_value: int = 16) -> Label:
 func button(value: String, callback: Callable) -> Button:
 	var result := Button.new()
 	result.text = value
+	if embedded:
+		result.clip_text = true
+		result.tooltip_text = value
 	result.custom_minimum_size.y = 42
 	result.pressed.connect(callback)
 	column.add_child(result)
@@ -92,3 +97,23 @@ func checks(values: Array) -> Array:
 		column.add_child(box)
 		result.append(box)
 	return result
+
+# Share the board's decision shell; retain the same choice callbacks and widgets.
+func embed_in(host: Control) -> void:
+	embedded = true
+	var contents := VBoxContainer.new()
+	add_child(contents)
+	column.reparent(contents)
+	message.reparent(contents)
+	close_button.reparent(contents)
+	for child in get_children():
+		if child != contents:
+			remove_child(child)
+			child.queue_free()
+	reparent(host)
+	set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	z_index = 0
+	mouse_filter = Control.MOUSE_FILTER_PASS
+	size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	contents.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	contents.minimum_size_changed.connect(func(): custom_minimum_size.y = contents.get_combined_minimum_size().y)

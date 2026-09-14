@@ -31,7 +31,7 @@ if ! grep -Eq '^4\.7\.2\.stable([.[:space:]]|$)' "$u13_work_reports/version.log"
 fi
 git -C "$u13_work_root" diff HEAD >"$u13_work_reports/worktree.diff"
 printf 'Guard work reports: %s\n' "$u13_work_reports"
-for u13_work_suite in U13GuardWork U13GameDevelopment U13PlayableBoard U13AftermathLedger; do
+for u13_work_suite in U13GuardWork U13GameDevelopment U13PlayableBoard U13ActionFlowBoard U13AftermathLedger; do
   printf 'Checking %s...\n' "$u13_work_suite"
   "$u13_work_exe" --headless --path "$u13_work_root" --script "Scripts/Sim/${u13_work_suite}TestRunner.gd" >"$u13_work_reports/$u13_work_suite.log" 2>&1 &
   u13_work_pid=$!
