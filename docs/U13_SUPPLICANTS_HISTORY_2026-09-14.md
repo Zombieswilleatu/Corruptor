@@ -63,3 +63,24 @@ Production acceptance remains exact Godot 4.7.2 stable:
 
 This bounded runner packages its logs. A new 100-game balance run is not needed
 to check these fixes. Balance conclusions need fresh V2 evidence later.
+
+## Scheduled Consume follow-up
+
+The submitted round-2 save (seed 248581842) could not enter round 3:
+round_start_scheduled rejected Kroni's Consume with effect_result_invalid.
+Consume retires a Guard directly, without a battle reaction. The full-game
+adapter reconciled pair bonds after hooks and reactions, but not after an
+individual power resolver. The still-active bond then referenced a missing
+Guard and correctly failed world validation before the hook could finish.
+
+Full-game power resolution now reconciles Guard bonds before returning the
+transformed world to the match owner. Validators and transaction boundaries
+remain strict. This also covers other direct power removals/relocations.
+No profile change or save migration is required; reload the original save.
+
+Local 4.5.1 diagnosis verified that the uploaded save reaches round-3 planning
+twice with identical results and that the resulting checkpoint restores exactly.
+Guard Work fixtures cover Consume breaking each of the four suit bonds, keeping
+the other Guard alive, preserving input state, and preventing a replacement
+beside the survivor from reactivating the old pair. The existing
+run_u13_supplicant_history.sh includes these fixtures through Guard Work.

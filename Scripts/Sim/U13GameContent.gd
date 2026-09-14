@@ -41,6 +41,16 @@ func valid_world(world: Dictionary) -> bool:
 	return GuardWork.valid(world) and super.valid_world(world) and Victory.valid(world) and Plunder.valid(world) and Throne.valid(world) and Rites.valid(world) and Fracture.valid(world) and Economy.valid(world) and Market.valid(world) and Sigils.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
 
 
+# Direct/scheduled powers can remove or relocate Guards without a battle
+# reaction (e.g. Kroni Consume). Reconcile before the owner validates the
+# transformed world, just as hook and reaction transforms already do.
+func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
+	var result: Dictionary = super.resolve(record, context)
+	if result.action != "invalid" and result.has("world"):
+		GuardWork.reconcile(result.world)
+	return result
+
+
 func react(raw: Dictionary, fact: Dictionary, seed_value: String, player_order: Array) -> Dictionary:
 	var result: Dictionary = super.react(raw, fact, seed_value, player_order)
 	if result.action != "invalid": GuardWork.reconcile(result.world)

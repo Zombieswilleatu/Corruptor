@@ -18,6 +18,7 @@ func check(ok: bool, label: String) -> bool:
 func _initialize() -> void:
 	work_rules()
 	pair_rules()
+	scheduled_consume_pairs()
 	conversion()
 	conductor()
 	print("U13 Guard work failures: ", failures)
@@ -146,3 +147,23 @@ func conductor() -> void:
 			var a: Dictionary = game.step(); var b: Dictionary = replay.step()
 			if not check(a.action != "invalid" and a == b and game.snapshot() == replay.snapshot(), "hook replay agrees including work and bonds"): return
 		if round_number < 3: game.next_round()
+
+
+func scheduled_consume_pairs() -> void:
+	for suit in ["Butcher", "Penitent", "Wright", "Vulture"]:
+		var w: Dictionary = Game.Economy.initialize(Game.Scenario.loadout_world(["Deimos", "Kroni"], [Slots.TYPES, Slots.TYPES]), "consume-pair").world
+		reset_orders(w, 1)
+		var victim: String = guard(w, suit, "Castle", 0)
+		var survivor: String = guard(w, suit, "Castle", 1)
+		Work.develop(w, 1, [0, 1])
+		var before: Dictionary = w.duplicate(true)
+		check(Work.valid(w) and w.data.guard_work.pairs[0].active, "Consume fixture has an intact " + suit + " pair")
+		var result: Dictionary = Game.Content.new().resolve({"fire_hook": Game.Timeline.ROUND_START_SCHEDULED, "declaration": {"power_id": "Consume", "player_id": 1, "parameters": {}, "target": {"entity_id": victim}}}, {"world": w, "round": 2})
+		if not check(result.action == "resolved", "scheduled Consume resolves against " + suit): continue
+		check(w == before, "power transform preserves its input")
+		check(Work.valid(result.world) and not result.world.data.guard_work.pairs[0].active, "scheduled removal breaks pair before authority validation")
+		check(entity(result.world, victim).is_empty() and not entity(result.world, survivor).is_empty(), "Consume removes only the targeted Guard")
+		reset_orders(result.world, 2)
+		guard(result.world, suit, "Castle", 0)
+		Work.develop(result.world, 2, [0, 1])
+		check(not result.world.data.guard_work.pairs[0].active and result.world.data.guard_work.pairs.size() == 1, "replacement beside survivor does not reactivate consumed pair")
