@@ -4,7 +4,7 @@ extends "res://Prototype/U13/U13VisualPreview.gd"
 # Regions measured against the original 1374x1145 sheet, not an equal grid.
 # Each entry is [crop rect, ground anchor in sheet coordinates]. Keep one scale
 # for all frames: fitting individual crops would inflate the collapsing body.
-const CHARACTERS = ["Butcher", "Penitent", "Vulture"]
+const CHARACTERS = ["Butcher", "Penitent", "Vulture", "Wright"]
 const FRAMES = {
 	0: [
 		[Rect2(20, 10, 240, 205), Vector2(155, 213)],
@@ -118,7 +118,7 @@ func _build_preview() -> void:
 	# A runner may point at a separate art checkout; use its sibling sheet.
 	if not FileAccess.file_exists(path):
 		for argument in OS.get_cmdline_user_args():
-			if argument.begins_with("--butcher-sheet=") or argument.begins_with("--penitent-sheet=") or argument.begins_with("--vulture-sheet="):
+			if argument.begins_with("--butcher-sheet=") or argument.begins_with("--penitent-sheet=") or argument.begins_with("--vulture-sheet=") or argument.begins_with("--wright-sheet="):
 				var sibling := argument.substr(argument.find("=") + 1).get_base_dir().path_join("%sSprite.png" % character_name)
 				if FileAccess.file_exists(sibling):
 					path = sibling
