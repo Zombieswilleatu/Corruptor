@@ -47,9 +47,22 @@ func run() -> void:
 	board.pass_round()
 	await job_done()
 	check(board.playing, "final rites confirmation starts actual resolution")
+	check(not board.session._owner._player_selected_events_since(0, 0, ["MARCHING_TICK"]).is_empty(), "current animation samples survive until playback finishes")
 	board.finish_playback()
 	await job_done()
 	check(board.session.next_hook().is_empty() and board.phase_prompt.stage_key == "AFTERMATH", "Aftermath remains outside planning sequence")
+	check(board.session._owner._player_selected_events_since(0, 0, ["MARCHING_TICK", "KRONI_ACTOR_TICK"]).is_empty(), "Aftermath retires completed visual samples")
+	var saved: Dictionary = board.session.checkpoint()
+	var restored = Board.PlaySession.new()
+	check(restored.restore_checkpoint(bytes_to_var(var_to_bytes(saved))).action != "invalid" and restored._owner.snapshot() == board.session._owner.snapshot(), "playable checkpoint restores exactly after visual retirement")
+	board.next_round(); await job_done(); await choices()
+	for index in range(6):
+		if board.playing: break
+		board.pass_round()
+	await job_done()
+	check(board.playing and not board.session._owner._player_selected_events_since(0, 0, ["MARCHING_TICK"]).is_empty(), "next round builds a fresh playable tape")
+	board.finish_playback(); await job_done()
+	check(board.session._owner._player_selected_events_since(0, 0, ["MARCHING_TICK"]).is_empty(), "second Aftermath also retires samples")
 	await stockpile_and_resummon()
 	board.queue_free()
 	await process_frame

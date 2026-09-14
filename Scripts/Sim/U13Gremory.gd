@@ -177,15 +177,18 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 	else:
 		var castle: Dictionary = entities.get_entity(source.target.entity_id)
 		castle.attributes["integrity"] = 0
-		castle.attributes["status"] = "defunct"
+		castle.attributes["status"] = "ruined" if world.data.has("guard_work") else "defunct"
+		if world.data.has("guard_work"): castle.attributes["artillery_target"] = ""
 		entities.update(castle.id, castle.owner, castle.attributes)
 		events.append(
 			{
-				"type": "CASTLE_DEFUNCT",
+				"type": "CASTLE_RUINED" if world.data.has("guard_work") else "CASTLE_DEFUNCT",
 				"text": "",
 				"data": {"castle_id": castle.id, "declaration_id": source.declaration_id}
 			}
 		)
+	if world.data.has("guard_work") and source.power_id != PREDATOR:
+		events.back().data.merge({"player_id": source.player_id, "round": context.round, "cause": "Inevitable Ruin"})
 	world.entities = entities.snapshot()
 	return {"action": "resolved", "world": world, "events": events}
 

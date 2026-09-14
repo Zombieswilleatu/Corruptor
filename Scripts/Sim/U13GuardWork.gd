@@ -6,7 +6,7 @@ const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
 const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const Battle = preload("res://Scripts/Sim/U13BattleEvents.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
-const VERSION: String = "U13_GUARD_WORK_V1"
+const VERSION: String = "U13_GUARD_WORK_V2"
 
 static func enabled(world: Dictionary) -> bool:
 	var state = world.data.get("guard_work")

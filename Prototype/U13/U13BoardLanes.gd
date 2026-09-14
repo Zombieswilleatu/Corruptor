@@ -210,7 +210,7 @@ func _draw() -> void:
 				draw_string(
 					font,
 					center + Vector2(-17, -29),
-					"WAIT" if a.waiting else "NEW",
+					"SUPPLICANT" if a.waiting else "NEW",
 					HORIZONTAL_ALIGNMENT_LEFT,
 					45,
 					11

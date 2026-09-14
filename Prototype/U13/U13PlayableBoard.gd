@@ -194,10 +194,10 @@ func _open_game_menu() -> void:
 	fracture.select(0 if fracture_choice == "infrastructure" else 1)
 	fracture.item_selected.connect(func(index): fracture_choice = "infrastructure" if index == 0 else "subjects"; _refresh())
 	game_menu.button("PROFANE A FULL CASTLE · gain a Tear", _choose_profane)
-	game_menu.button("SPEND FIVE WAITERS · gain a Tear", _choose_waiters)
+	game_menu.button("SPEND FIVE SUPPLICANTS · gain a Tear", _choose_waiters)
 	game_menu.button("INVOCATION · once per game · value 11 at Veil 7+", _choose_invocation)
 	game_menu.button("PROFANE RUINS · pay 2 Souls with two ruins", _choose_ruins)
-	game_menu.button("CLEAR TEAR RITES · return reserved cards / waiters", func(): rites_plan = {}; _refresh(); _open_game_menu())
+	game_menu.button("CLEAR TEAR RITES · return reserved cards / Supplicants", func(): rites_plan = {}; _refresh(); _open_game_menu())
 	if not rites_plan.is_empty():
 		game_menu.label("Staged: " + ", ".join(rites_plan.keys()))
 
@@ -271,7 +271,7 @@ func _choose_invocation() -> void:
 		_stage_rite("invocation", {"card_ids": selected}))
 
 func _choose_waiters() -> void:
-	game_menu.present("SPEND WAITERS", "Choose exactly five waiting marchers in one lane. Each selected group creates one Personal Tear.")
+	game_menu.present("SPEND SUPPLICANTS", "Choose exactly five Supplicants in one lane. Each selected group creates one Personal Tear.")
 	for lane in ["Lord", "Castle"]:
 		var rows: Array = _visible_world.entities.filter(func(e): return e.kind == "marcher" and e.owner == 0 and e.attributes.lane == lane and e.attributes.waiting)
 		game_menu.label(lane + " lane")
@@ -317,8 +317,8 @@ func _friendly_error(result: Dictionary) -> String:
 		"invocation_veil_below_gate": "Invocation becomes available at Veil 7.",
 		"invocation_already_used": "You have already used your once-per-game Invocation.",
 		"rite_card_already_reserved": "That card is already committed to another part of your plan.",
-		"rites_shape_invalid": "Choose exactly five different waiting marchers in one lane.",
-		"rite_waiter_unavailable": "Choose five of your available waiting marchers in the same lane.",
+		"rites_shape_invalid": "Choose exactly five different Supplicants in one lane.",
+		"rite_waiter_unavailable": "Choose five of your available Supplicants in the same lane.",
 		"profane_ruins_insufficient_souls": "Profaning a ruin costs 2 Souls.",
 		"profane_ruins_target_unavailable": "You need at least two ruined Castles; select one of them.",
 		"rite_castle_already_reserved": "That Castle is already part of your development order."

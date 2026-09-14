@@ -208,6 +208,9 @@ func _price(raw: Dictionary, price: Dictionary, context: Dictionary) -> Dictiona
 			castle.attributes.status = "standing" if castle.attributes.integrity > 0 else "defunct"
 			if castle.attributes.status == "defunct":
 				castle.attributes.artillery_target = ""
+				if world.data.has("guard_work"):
+					castle.attributes.status = "ruined"
+					events.append(Lamp.event("CASTLE_RUINED", {"player_id": pid, "castle_id": castle.id, "round": context.round, "cause": "Wish Price"}))
 			ids.update(castle.id, pid, castle.attributes)
 		"Guards", "Wishmaster":
 			var hit: Dictionary = Battle.apply(world, {"command_id": price.id, "kind": "defeat_guard" if outcome == "Guards" else "banish_lord", "target_id": chosen[0]}, context.round, context.hook)

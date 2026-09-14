@@ -66,6 +66,7 @@ static func name_of(entity: Dictionary) -> String:
 
 static func describe(kind: String, d: Dictionary) -> String:
 	match kind:
+		"CASTLE_RUINED": return "Ruined " + str(d.get("castle_id", "Castle"))
 		"WORK_RESOLVED": return "Work · %s: %d → %d" % [d.get("castle_id", "Castle"), d.get("before", 0), d.get("after", 0)]
 		"GUARD_PAIR_DRAW": return "Vulture pair drew 1 card"
 		"GUARD_PAIR_STRIKE": return "Butcher pair destroyed an enemy Marcher"

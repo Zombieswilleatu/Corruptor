@@ -70,6 +70,8 @@ func _run(candidate, operation: String, powers: Array, order: Dictionary) -> Dic
 				return result
 		if not candidate.next_hook().is_empty():
 			return Data.invalid("board_aftermath_incomplete")
+		if candidate.has_method("retire_completed_visual_samples"):
+			candidate.retire_completed_visual_samples()
 		result = {"action": "board_aftermath_complete"}
 	elif operation == "next_round":
 		result = candidate.next_round()

@@ -127,3 +127,19 @@ func selected_for_player(
 			continue
 		result.append(view.duplicate(true))
 	return result
+
+
+# Presentation samples are disposable once their round has finished playback.
+# Replace whole immutable rows (never edit shared fork data). Keep cursor slots
+# so in-flight feedback cursors cannot skip later state-change events.
+func _retire_visual_samples(through_round: int) -> int:
+	var retired: int = 0
+	for index in range(_rows.size()):
+		var event: Dictionary = _rows[index].event
+		if event.type not in ["MARCHING_TICK", "KRONI_ACTOR_TICK"]:
+			continue
+		if int(event.data.get("round", through_round + 1)) > through_round:
+			continue
+		_rows[index] = {"event": {"type": "VISUAL_SAMPLE_RETIRED", "text": "", "data": {}}, "views": [null, null]}
+		retired += 1
+	return retired

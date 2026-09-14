@@ -252,6 +252,7 @@ func restore_checkpoint(raw: Dictionary) -> Dictionary:
 		# Resolution saves store no editable cart; declarations are in the match.
 		return Data.invalid("playable_save_draft_phase")
 	_owner = conductor._owner
+	_owner._retire_completed_visual_samples()
 	setup_lords = world.lord_ids.duplicate(true)
 	setup_castles = world.castle_loadouts.duplicate(true)
 	match_seed = _owner.rng_seed()
@@ -263,3 +264,7 @@ func restore_checkpoint(raw: Dictionary) -> Dictionary:
 	_powers = raw.powers.duplicate(true)
 	_order = raw.order.duplicate(true)
 	return {"action": "playable_restored"}
+
+
+func retire_completed_visual_samples() -> int:
+	return _owner._retire_completed_visual_samples()

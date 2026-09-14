@@ -665,6 +665,7 @@ static func _touches_enemy(unit: Dictionary, rows: Array) -> bool:
 static func _move(
 	entities, duels: Dictionary, context: Dictionary, clock: int, has_rout: bool = false, fleeing_ids: Dictionary = {}
 ) -> void:
+	var gate_queue: bool = context.get("world", {}).get("data", {}).get("guard_work", {}).get("version") == "U13_GUARD_WORK_V2"
 	var rows: Array = _units(entities)
 	var lane_modifiers: Dictionary = context.get("lane_modifiers", {})
 	var spatial_fields: Dictionary = context.get("spatial_fields", {})
@@ -745,16 +746,16 @@ static func _move(
 		var proposed: Dictionary = a.duplicate(true)
 		proposed.x_fp = clampi(int(a.x_fp) + dx, 0, LANE_FP)
 		proposed.y_fp = clampi(int(a.y_fp) + dy, 0, WIDTH_FP)
-		if not _space_free(unit, proposed, _near_rows(proposed, allies, 7)):
+		if not _space_free(unit, proposed, _near_rows(proposed, allies, 7), gate_queue):
 			# A deterministic lateral detour avoids permanent single-file blockage.
 			var side: int = (
 				1 if (String(unit.id).unicode_at(String(unit.id).length() - 1) % 2) == 0 else -1
 			)
 			proposed = a.duplicate(true)
 			proposed.y_fp = clampi(int(a.y_fp) + side * step, 0, WIDTH_FP)
-			if not _space_free(unit, proposed, _near_rows(proposed, allies, 7)):
+			if not _space_free(unit, proposed, _near_rows(proposed, allies, 7), gate_queue):
 				proposed.y_fp = clampi(int(a.y_fp) - side * step, 0, WIDTH_FP)
-				if not _space_free(unit, proposed, _near_rows(proposed, allies, 7)):
+				if not _space_free(unit, proposed, _near_rows(proposed, allies, 7), gate_queue):
 					proposed = a
 		entities.update(unit.id, unit.owner, proposed)
 		var accepted_row: Dictionary = accepted_by_id[unit.id]
@@ -762,13 +763,17 @@ static func _move(
 		accepted_row.attributes = proposed
 
 
-static func _space_free(unit: Dictionary, proposed: Dictionary, accepted: Array) -> bool:
+static func _space_free(unit: Dictionary, proposed: Dictionary, accepted: Array, gate_queue: bool = false) -> bool:
 	for other in accepted:
 		if (
 			other.id == unit.id
 			or other.owner != unit.owner
 			or other.attributes.lane != unit.attributes.lane
 		):
+			continue
+		# Arrived allies queue at the boundary without forming a physical wall.
+		# Hostile contact/arrival checks remain unchanged.
+		if gate_queue and other.attributes.waiting and other.attributes.x_fp == (LANE_FP if unit.owner == 0 else 0):
 			continue
 		var after: int = _distance(proposed, other.attributes)
 		if (

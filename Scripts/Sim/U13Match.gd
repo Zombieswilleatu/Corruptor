@@ -1158,3 +1158,13 @@ func _player_selected_events_since(
 	player_id: int, cursor: int, types: Array, excluded_hook: String = ""
 ) -> Array:
 	return _events.selected_for_player(player_id, cursor, types, excluded_hook)
+
+
+# Called by the playable presentation only after playback, or at a saved pause.
+# During an unfinished round retain its samples; completed rounds need no tape.
+func _retire_completed_visual_samples() -> int:
+	var through_round: int = round_number() - (0 if next_hook().is_empty() else 1)
+	var retired: int = _events._retire_visual_samples(through_round)
+	if retired > 0:
+		_revision += 1
+	return retired

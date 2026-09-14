@@ -6,6 +6,7 @@ var flow_ready: bool = false
 var flow_work: VBoxContainer
 var flow_back: Button
 var flow_fracture: VBoxContainer
+var flow_support: Label
 
 func _build() -> void:
 	super._build()
@@ -22,6 +23,8 @@ func _build() -> void:
 	_label(flow_fracture, "Hunt Fracture", 13)
 	var fracture: OptionButton = _option(flow_fracture, ["Infrastructure", "Subjects"])
 	fracture.item_selected.connect(func(index): fracture_choice = "infrastructure" if index == 0 else "subjects"; _refresh())
+	flow_support = _label(contents, "", 13)
+	flow_support.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	flow_back = _button(contents, "BACK", _flow_back)
 	game_button.hide()
 	flow_ready = true
@@ -47,6 +50,7 @@ func _sync_flow() -> void:
 		if child is Button and child.text.begins_with("Back to combat"): child.hide()
 	flow_work.hide()
 	flow_fracture.hide()
+	flow_support.hide()
 	flow_back.hide()
 	if playing or _job != null or session.next_hook().is_empty(): return
 	var mandatory: bool = not session.pending_choice.is_empty()
@@ -61,6 +65,8 @@ func _sync_flow() -> void:
 			child.visible = (child == guard_button or child.text.begins_with("Clear Guard")) if step == "Guards" else (child == summon_button or child.text.begins_with("Cancel resummon"))
 	powers_box.visible = not mandatory and step == "Lord Powers"
 	flow_work.visible = not mandatory and step == "Work Target"
+	flow_support.visible = not mandatory and step == "Combat"
+	flow_support.text = _supplicant_note()
 	flow_fracture.visible = not mandatory and step == "Combat" and _draft_combat.get("action") == "Hunt"
 	flow_fracture.get_child(1).select(0 if fracture_choice == "infrastructure" else 1)
 	flow_back.visible = not mandatory and flow_step > 0
@@ -175,10 +181,10 @@ func _open_game_menu() -> void:
 	if _planning():
 		flow_step = 5
 		powers_step = true
-		game_menu.present("DOMINION RITES", "Optional rites use the remaining cards, Souls, Castles or waiters.", false)
+		game_menu.present("DOMINION RITES", "Optional rites use the remaining cards, Souls, Castles or Supplicants.", false)
 		game_menu.button("PROFANE CASTLE", _choose_profane)
 		game_menu.label("Sacrifice a full Castle for a Tear. Replaces this round's combat.", 13)
-		game_menu.button("SPEND FIVE WAITERS", _choose_waiters)
+		game_menu.button("SPEND FIVE SUPPLICANTS", _choose_waiters)
 		game_menu.button("INVOCATION", _choose_invocation)
 		game_menu.button("PROFANE RUINS", _choose_ruins)
 		game_menu.button("CLEAR RITES", func(): rites_plan = {}; _refresh(); _open_game_menu())
@@ -234,3 +240,12 @@ func _guards_available() -> bool:
 		for slot in range(3):
 			if _target_allowed({"kind": "zone", "owner": 0, "lane": lane, "slot": slot}, "Guard"): return true
 	return false
+
+func _supplicant_note() -> String:
+	var reserved: Array = []
+	for spend in rites_plan.get("waiter_spends", []): reserved.append_array(spend.marcher_ids)
+	var counts: Dictionary = {"Lord": 0, "Castle": 0}
+	for row in _visible_world.get("entities", []):
+		if row.kind == "marcher" and row.owner == 0 and row.attributes.waiting and row.id not in reserved:
+			counts[row.attributes.lane] += 1
+	return "SUPPLICANTS · Lord %d / Castle %d\nHunt automatically uses Lord-lane Supplicants; Siege uses Castle-lane Supplicants. Each adds +1 strength and is consumed. Those reserved for rites are excluded. Counts can change before combat." % [counts.Lord, counts.Castle]
