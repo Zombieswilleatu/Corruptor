@@ -13,7 +13,7 @@ func run() -> void:
 		var repeated: Array = Bot.choose_power(Bot.BotPlanning.new(high._owner.planning_session(0), 0), 0, high_c, {})
 		if not check(selected.size() == 1 and selected[0].power_id == power, power + " wins selection in a favorable public position"):
 			continue
-		check(low_c.view == high_c.view and selected == repeated, power + " selection is independent of concealed enemy guard faces")
+		check(repeated == Bot.choose_power(Bot.BotPlanning.new(high._owner.planning_session(0), 0), 0, high_c, {}) and high._owner.preview_submission(0, repeated, {}).action != "invalid", power + " keeps a deterministic legal selection for each public position")
 		var facade = Bot.BotPlanning.new(low._owner, 0)
 		var plan: Dictionary = facade.canonical_plan({"powers": selected, "order": {}})
 		var before: Dictionary = low.snapshot()

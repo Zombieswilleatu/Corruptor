@@ -1,7 +1,7 @@
 extends RefCounted
 
-# Bounded public estimates, not authoritative forecasts. Concealed Guard faces
-# always use DoctrineView's fixed prior; enemy cards/orders are never inspected.
+# Bounded public estimates; deployed Guard faces are public.
+# Enemy hand cards and simultaneous orders are never inspected.
 static func threat_penalty(value: int) -> int:
 	return 3 if value >= 4 else (2 if value >= 3 else (1 if value >= 2 else 0))
 
@@ -14,7 +14,7 @@ static func hunt(c, order: Dictionary, strength: int) -> float:
 	var target: Dictionary = c.rows[order.target_id]
 	var orias: bool = c.w.lord_ids[c.pid] == "Orias" and c.select("lord", c.pid)[0].attributes.alive
 	# Pursuit is attack strength: it must face Guards, not bypass their screen.
-	var remaining: int = strength + int(c.w.relentless_pursuit[c.pid].strength_bonus)
+	var remaining: int = maxi(0, strength + int(c.w.relentless_pursuit[c.pid].strength_bonus) - c.pair_screen(1 - c.pid, "Lord"))
 	var guards: Array = c.guards(1 - c.pid, "Lord")
 	guards.sort_custom(func(a, b): return a.attributes.slot < b.attributes.slot if c.guard_strength(a) == c.guard_strength(b) else c.guard_strength(a) > c.guard_strength(b))
 	var removed: int = 0

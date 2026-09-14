@@ -1,5 +1,13 @@
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
+**2026-09-14 parallel forecast checkpoint:** User accepted the playable build,
+started the 357d793 full-game campaign, and authorized Action Forecast in
+parallel plus public deployed Guard faces/values for both human and bot. Work
+is isolated on `u13-action-forecast`; see `U13_ACTION_FORECAST_2026-09-14.md`.
+The first forecast is a visible-board baseline, not a hidden-hand probability
+model. Preserve the running campaign's revision and do not mix bot versions.
+
+
 **2026-09-14 user-authorized mechanics checkpoint:** Guard deployment work,
 defensive suit bonds, a single Work Target and Ward 2:1 recruitment supersede
 the earlier paid-development rules. See `U13_GUARD_WORK_2026-09-14.md`.

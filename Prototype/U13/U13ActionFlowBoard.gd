@@ -6,6 +6,7 @@ var flow_ready: bool = false
 var flow_work: VBoxContainer
 var flow_back: Button
 var flow_fracture: VBoxContainer
+const Forecast = preload("res://Scripts/Sim/U13ActionForecast.gd")
 var flow_support: Label
 
 func _build() -> void:
@@ -66,7 +67,7 @@ func _sync_flow() -> void:
 	powers_box.visible = not mandatory and step == "Lord Powers"
 	flow_work.visible = not mandatory and step == "Work Target"
 	flow_support.visible = not mandatory and step == "Combat"
-	flow_support.text = _supplicant_note()
+	flow_support.text = Forecast.text(Forecast.evaluate({"world": _visible_world.merged({"viewer_id": 0})}, _order())) if flow_support.visible else ""
 	flow_fracture.visible = not mandatory and step == "Combat" and _draft_combat.get("action") == "Hunt"
 	flow_fracture.get_child(1).select(0 if fracture_choice == "infrastructure" else 1)
 	flow_back.visible = not mandatory and flow_step > 0
@@ -240,12 +241,3 @@ func _guards_available() -> bool:
 		for slot in range(3):
 			if _target_allowed({"kind": "zone", "owner": 0, "lane": lane, "slot": slot}, "Guard"): return true
 	return false
-
-func _supplicant_note() -> String:
-	var reserved: Array = []
-	for spend in rites_plan.get("waiter_spends", []): reserved.append_array(spend.marcher_ids)
-	var counts: Dictionary = {"Lord": 0, "Castle": 0}
-	for row in _visible_world.get("entities", []):
-		if row.kind == "marcher" and row.owner == 0 and row.attributes.waiting and row.id not in reserved:
-			counts[row.attributes.lane] += 1
-	return "SUPPLICANTS · Lord %d / Castle %d\nHunt automatically uses Lord-lane Supplicants; Siege uses Castle-lane Supplicants. Each adds +1 strength and is consumed. Those reserved for rites are excluded. Counts can change before combat." % [counts.Lord, counts.Castle]

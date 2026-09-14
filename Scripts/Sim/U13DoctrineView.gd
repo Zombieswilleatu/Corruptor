@@ -8,7 +8,6 @@ var view: Dictionary
 var w: Dictionary
 var pid: int
 var rows: Dictionary = {}
-const UNKNOWN_GUARD_ESTIMATE: int = 3
 
 func _init(source: Dictionary) -> void:
 	view = source
@@ -35,8 +34,8 @@ func guard_value(owner_id: int, lane: String) -> int:
 	return total
 
 func guard_strength(row: Dictionary) -> int:
-	# A fixed prior, never the concealed face or an inference from its card ID.
-	return UNKNOWN_GUARD_ESTIMATE if row.attributes.get("concealed", false) else int(row.attributes.value)
+	# Deployed Guard values are public for both seats.
+	return int(row.attributes.value)
 
 func waiters(owner_id: int, lane: String, order: Dictionary = {}) -> int:
 	var used: Array = []
@@ -97,8 +96,14 @@ func tear_value(gain: int = 1) -> float:
 		return 150.0
 	return 13.0 if w.personal_tears[pid] < 5 or w.personal_tears[pid] <= w.personal_tears[1 - pid] else 5.0
 
+func pair_screen(owner_id: int, lane: String) -> int:
+	var result: int = 0
+	for pair in w.get("guard_work", {}).get("pairs", []):
+		if pair.player_id == owner_id and pair.lane == lane and pair.suit == "Penitent": result += 5
+	return result
+
 func screen(lane: String) -> int:
-	var result: int = guard_value(1 - pid, lane)
+	var result: int = guard_value(1 - pid, lane) + pair_screen(1 - pid, lane)
 	var sigil: String = w.sigils[1 - pid][lane]
 	result += 2 if sigil == "fresh" else (1 if sigil == "flipped" else 0)
 	return result

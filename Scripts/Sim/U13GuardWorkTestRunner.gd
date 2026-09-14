@@ -58,7 +58,7 @@ func work_rules() -> void:
 	guard(w, "Wright", "Lord", 0); guard(w, "Wright", "Lord", 1)
 	var events: Array = Work.develop(w, 1, [0, 1])
 	check(entity(w, target).attributes.integrity == 10, "new Lord Wright pair supplies 7 work plus 3 passive construction")
-	check(events.filter(func(e): return e.event.type == "GUARD_PAIR_FORMED")[0].views[1] == null, "bond formation does not expose hidden suits to opponent")
+	check(events.filter(func(e): return e.event.type == "GUARD_PAIR_FORMED")[0].views[1] != null, "deployed bond formation is public to both players")
 	check(Work.develop(w, 1, [0, 1]).is_empty(), "Development work cannot run twice")
 	reset_orders(w, 2); Work.develop(w, 2, [0, 1])
 	check(entity(w, target).attributes.integrity == 13, "persistent project gains passive 3; surviving Guards do not repeat deployment work")

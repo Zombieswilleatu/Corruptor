@@ -511,7 +511,8 @@ func _show_pair_badges() -> void:
 			pair.slots = pair.slots.slice(0, 2)
 			pairs.append(pair)
 	for pair in pairs:
-		var box = sides[1].lord_guard_box if pair.lane == "Lord" else sides[1].castle_guard_box
+		var side = sides[1 if int(pair.get("player_id", 0)) == 0 else 0]
+		var box = side.lord_guard_box if pair.lane == "Lord" else side.castle_guard_box
 		for slot in pair.slots:
 			if slot >= box.get_child_count(): continue
 			var card = box.get_child(slot)

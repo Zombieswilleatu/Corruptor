@@ -10,7 +10,7 @@ func run() -> void:
 	snare_lock()
 	directed_scores()
 	ward_pressure()
-	hidden_guard_boundary()
+	public_guard_boundary()
 	coordinated_powers()
 	session_isolation()
 	print("U13 basic doctrine failures: %d" % failures)
@@ -73,7 +73,6 @@ func opening(index: int) -> void:
 func snare_lock() -> void:
 	var world: Dictionary = fixture("Orias", 7, 2)
 	patch(world, world.players[0].lord_entity_id, {"threat": 1})
-	world.players[0].resources.repair_tokens = 1
 	var game = Game.new()
 	game._owner = Game.Content.new().create_combat_match(true)
 	if not check(game._owner.start("conduit", world, [0, 1]).action != "invalid" and Bot.to_planning(game).action == "game_planning", "Snare doctrine fixture"):
@@ -82,7 +81,7 @@ func snare_lock() -> void:
 	var c = Bot.Context.new(game._owner.player_view(0, 0))
 	var powers: Array = [Candidates.snare_source(0, 1)]
 	var order: Dictionary = Bot.choose(game._owner, 0, powers, {}, Bot.Common.castles(c, powers, {}))
-	check(game._owner.preview_submission(0, powers, order).action != "invalid" and before == game.snapshot(), "shared admission respects post-Snare Repair lock")
+	check(game._owner.preview_submission(0, powers, order).action != "invalid" and before == game.snapshot(), "shared admission respects post-Snare Work selection")
 
 func directed_scores() -> void:
 	var game = Game.new()
@@ -111,21 +110,21 @@ func directed_scores() -> void:
 	var empty_points: Array = Bot.Powers.points(c, 300)
 	check(empty_points.is_empty(), "empty field has no damaging area targets")
 
-func guarded_game(lord_name: String, hidden_value: int):
+func guarded_game(lord_name: String, guard_value: int):
 	var world: Dictionary = fixture(lord_name)
 	for slot in range(2):
 		var id: String = world.data.card_zones.hands[1][0]
 		world.data.card_zones.hands[1].erase(id)
-		patch(world, id, {"role": "guard", "lane": "Lord" if slot == 0 else "Castle", "slot": 0, "value": hidden_value, "suit": "Wright" if hidden_value == 1 else "Penitent"})
+		patch(world, id, {"role": "guard", "lane": "Lord" if slot == 0 else "Castle", "slot": 0, "value": guard_value, "suit": "Wright" if guard_value == 1 else "Penitent"})
 	if lord_name == "Valak":
 		world.players[0].resources.life_essence = 5
 	var game = Game.new()
 	game._owner = Game.Content.new().create_combat_match(true)
-	if not check(game._owner.start("conduit", world, [0, 1]).action != "invalid" and Bot.to_planning(game).action == "game_planning", "hidden-guard fixture " + lord_name):
+	if not check(game._owner.start("conduit", world, [0, 1]).action != "invalid" and Bot.to_planning(game).action == "game_planning", "public-guard fixture " + lord_name):
 		return null
 	return game
 
-func hidden_guard_boundary() -> void:
+func public_guard_boundary() -> void:
 	for lord_name in ["Valak", "Gremory", "Odradek", "Kroni", "Orias"]:
 		var low = guarded_game(lord_name, 1)
 		var high = guarded_game(lord_name, 5)
@@ -133,32 +132,32 @@ func hidden_guard_boundary() -> void:
 			continue
 		var low_view: Dictionary = Bot.BotPlanning.new(low._owner, 0).player_view(0)
 		var high_view: Dictionary = Bot.BotPlanning.new(high._owner, 0).player_view(0)
-		check(low_view == high_view, "hidden guard values do not change bot input " + lord_name)
+		check(low_view != high_view, "public Guard values change bot input " + lord_name)
 		var guards: Array = low_view.world.entities.filter(func(e): return e.owner == 1 and e.attributes.get("role") == "guard")
-		check(guards.size() == 2 and guards.all(func(e): return not e.attributes.has("value") and not e.attributes.has("suit") and e.id.begins_with("hidden_guard:") and e.origin == "concealed_guard"), "hidden faces and physical identity metadata are absent")
+		check(guards.size() == 2 and guards.all(func(e): return e.attributes.get("value") == 1 and e.attributes.has("suit") and not e.attributes.get("concealed", false)), "deployed Guard faces and values reach the bot")
 		var planned: Dictionary = Bot.plan(low._owner, 0)
-		check(planned.action == "bot_plan" and planned == Bot.plan(high._owner, 0), "concealed face changes cannot alter doctrine plan " + lord_name)
-		check(low._owner.preview_submission(0, planned.powers, planned.order).action != "invalid", "opaque targets translate to a legal real submission")
-		# Explicitly exercise a guard-targeting power through the opaque handle.
+		check(planned.action == "bot_plan" and planned == Bot.plan(low._owner, 0), "public Guard planning is deterministic " + lord_name)
+		check(low._owner.preview_submission(0, planned.powers, planned.order).action != "invalid", "public Guard plan is legal")
+		# Guard-targeting powers use the same public IDs as the board.
 		if lord_name == "Kroni":
 			var boundary = Bot.BotPlanning.new(low._owner, 0)
 			var c = Bot.Context.new(boundary.player_view(0))
 			var sources: Array = Bot.Powers.options(c, {}).filter(func(x): return x.payload.power_id == "Consume").map(func(x): return x.payload)
 			var legal: Array = boundary.legal_power_candidates(0, sources)
-			check(not legal.is_empty() and legal[0].target.entity_id.begins_with("hidden_guard:"), "admission does not reveal physical guard IDs")
+			check(not legal.is_empty() and c.rows.has(legal[0].target.entity_id), "admission keeps public Guard IDs")
 			if not legal.is_empty():
 				var canonical: Dictionary = boundary.canonical_plan({"powers": [legal[0]], "order": {}})
-				check(low._owner.preview_submission(0, canonical.powers, {}).action != "invalid", "guard target mapping round trips through authority")
+				check(low._owner.preview_submission(0, canonical.powers, {}).action != "invalid", "public Guard target round trips through authority")
 
 func coordinated_powers() -> void:
 	var game = guarded_game("Valak", 5)
 	if game == null: return
 	var c = Bot.Context.new(Bot.BotPlanning.new(game._owner, 0).player_view(0))
 	c.w.life_essence[0] = 2
-	check(Bot.Powers.valak(c).all(func(x): return x.payload.power_id != "Projection"), "Projection banks rather than underfunding a concealed guard estimate")
+	check(Bot.Powers.valak(c).all(func(x): return x.payload.power_id != "Projection"), "Projection banks rather than underfunding a public Guard")
 	c.w.life_essence[0] = 5
 	var options: Array = Bot.Powers.valak(c).filter(func(x): return x.payload.power_id == "Projection")
-	check(options.size() == 2 and options.all(func(x): return x.payload.parameters.spend == 3), "Projection spends for one estimated guard, never a zone total")
+	check(options.size() == 2 and options.all(func(x): return x.payload.parameters.spend == 5), "Projection spends for one visible Guard, never a zone total")
 	var ids: Array = c.w.hand.slice(0, 4)
 	for id in ids:
 		c.rows[id].attributes.suit = "Butcher"
