@@ -4,6 +4,7 @@ extends "res://Prototype/U13/U13VisualPreview.gd"
 # Regions measured against the original 1374x1145 sheet, not an equal grid.
 # Each entry is [crop rect, ground anchor in sheet coordinates]. Keep one scale
 # for all frames: fitting individual crops would inflate the collapsing body.
+const CHARACTERS = ["Butcher", "Penitent", "Vulture"]
 const FRAMES = {
 	0: [
 		[Rect2(20, 10, 240, 205), Vector2(155, 213)],
@@ -31,6 +32,12 @@ const FRAMES = {
 	]
 }
 var character_name: String = "Butcher"
+var source_dimensions := Vector2(1374, 1145)
+var source_body_height: float = 229.0
+var source_shader_path: String = ""
+var bundled_sheet_path: String = ""
+var source_layer: Node2D
+var source_commands: Array = []
 var frame_regions: Dictionary = FRAMES
 var has_redraw: bool = true
 var redraw_path: String = "res://Prototype/U13/Assets/ButcherWalkV2.png"
@@ -71,13 +78,14 @@ func _ready() -> void:
 	_build_preview()
 
 func _select_character(index: int) -> void:
-	var selected: String = ["Butcher", "Penitent"][index]
+	var selected: String = CHARACTERS[index]
 	if selected == character_name:
 		return
 	var config = load("res://Prototype/U13/U13%sLanePreview.gd" % selected).new()
 	config._configure_character()
 	for property in ["character_name", "frame_regions", "extra_animation_labels", "frame_polygons",
-		"has_redraw", "use_redraw", "redraw_path", "redraw_shader_path", "redraw_body_height", "redraw_anchors"]:
+		"has_redraw", "use_redraw", "redraw_path", "redraw_shader_path", "redraw_body_height", "redraw_anchors",
+		"source_dimensions", "source_body_height", "source_shader_path", "bundled_sheet_path"]:
 		set(property, config.get(property))
 	config.free()
 	for child in get_children():
@@ -109,11 +117,13 @@ func _build_preview() -> void:
 	# A runner may point at a separate art checkout; use its sibling sheet.
 	if not FileAccess.file_exists(path):
 		for argument in OS.get_cmdline_user_args():
-			if argument.begins_with("--butcher-sheet=") or argument.begins_with("--penitent-sheet="):
+			if argument.begins_with("--butcher-sheet=") or argument.begins_with("--penitent-sheet=") or argument.begins_with("--vulture-sheet="):
 				var sibling := argument.substr(argument.find("=") + 1).get_base_dir().path_join("%sSprite.png" % character_name)
 				if FileAccess.file_exists(sibling):
 					path = sibling
 					break
+	if not FileAccess.file_exists(path) and not bundled_sheet_path.is_empty():
+		path = bundled_sheet_path
 	var source: Image = Image.load_from_file(path) if FileAccess.file_exists(path) else null
 	if source != null and not source.is_empty():
 		sheet = ImageTexture.create_from_image(source)
@@ -128,15 +138,24 @@ func _build_preview() -> void:
 	redraw_layer.material = key_material
 	redraw_layer.draw.connect(_draw_redraw_layer)
 	add_child(redraw_layer)
+	source_commands.clear()
+	source_layer = Node2D.new()
+	source_layer.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	if not source_shader_path.is_empty():
+		var source_material := ShaderMaterial.new()
+		source_material.shader = load(source_shader_path)
+		source_layer.material = source_material
+	source_layer.draw.connect(_draw_source_layer)
+	add_child(source_layer)
 	var panel := VBoxContainer.new()
 	panel.position = Vector2(24, 16)
 	add_child(panel)
 	var heading := HBoxContainer.new()
 	panel.add_child(heading)
 	var character_picker := OptionButton.new()
-	character_picker.add_item("Butcher")
-	character_picker.add_item("Penitent")
-	character_picker.select(0 if character_name == "Butcher" else 1)
+	for character in CHARACTERS:
+		character_picker.add_item(character)
+	character_picker.select(CHARACTERS.find(character_name))
 	character_picker.item_selected.connect(func(index: int): _select_character.call_deferred(index))
 	heading.add_child(character_picker)
 	var title := Label.new()
@@ -243,6 +262,9 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 func _draw() -> void:
+	source_commands.clear()
+	if source_layer != null:
+		source_layer.queue_redraw()
 	redraw_commands.clear()
 	if redraw_layer != null:
 		redraw_layer.queue_redraw()
@@ -328,9 +350,9 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool, face_left:
 		return
 	var crop: Rect2 = frame_regions[row][frame][0]
 	var anchor: Vector2 = frame_regions[row][frame][1]
-	var source_scale := sheet.get_size() / Vector2(1374, 1145)
+	var source_scale := sheet.get_size() / source_dimensions
 	var source := Rect2(crop.position * source_scale, crop.size * source_scale)
-	var factor := sprite_size / 229.0
+	var factor := sprite_size / source_body_height
 	var offset := (crop.position - anchor) * factor
 	var dimensions := crop.size * factor
 	var destination := Rect2(feet + offset, dimensions)
@@ -342,12 +364,18 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool, face_left:
 		var uvs := PackedVector2Array()
 		for point in frame_polygons[row][frame]:
 			vertices.append(feet + (point - anchor) * factor)
-			uvs.append(point / Vector2(1374, 1145))
+			uvs.append(point / source_dimensions)
 		draw_colored_polygon(vertices, Color(1, 1, 1, opacity), uvs, sheet)
+	elif not source_shader_path.is_empty():
+		source_commands.append([destination, source, Color(1, 1, 1, opacity)])
 	else:
 		draw_texture_rect_region(sheet, destination, source, Color(1, 1, 1, opacity))
 	if not dying:
 		draw_line(feet + Vector2(-13, 9), feet + Vector2(13, 9), tint, 3.0)
+
+func _draw_source_layer() -> void:
+	for command in source_commands:
+		source_layer.draw_texture_rect_region(sheet, command[0], command[1], command[2])
 
 func _draw_redraw_layer() -> void:
 	for command in redraw_commands:
