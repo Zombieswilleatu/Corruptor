@@ -4,7 +4,7 @@ extends "res://Prototype/U13/U13VisualPreview.gd"
 # Regions measured against the original 1374x1145 sheet, not an equal grid.
 # Each entry is [crop rect, ground anchor in sheet coordinates]. Keep one scale
 # for all frames: fitting individual crops would inflate the collapsing body.
-const CHARACTERS = ["Butcher", "Penitent", "Vulture", "Wright", "Batboy", "BottleTree", "Dogger", "Kopita", "Lemek", "Pixie", "Ratton", "Sinodek", "Wraith"]
+const CHARACTERS = ["Butcher", "Penitent", "Vulture", "Wright", "Batboy", "BottleTree", "Dogger", "Kopita", "Lemek", "Pixie", "Ratton", "Sinodek", "Wraith", "Sooge"]
 const FRAMES = {
 	0: [
 		[Rect2(20, 10, 240, 205), Vector2(155, 213)],
@@ -47,10 +47,16 @@ var redraw_body_height: float = 455.0
 var redraw_anchors: Array[Vector2] = []
 var extra_animation_labels: Dictionary = {}
 var frame_polygons: Dictionary = {}
+var row_sources: Dictionary = {}
+var row_textures: Dictionary = {}
+var permanent_row: int = -1
+var transform_time: float = -1.0
+var rooted_poses: Dictionary = {}
 var inspection_row: int = -1
 var inspection_frame: int = 0
 var inspection_playing: bool = false
 var inspection_elapsed: float = 0.0
+var animation_picker: OptionButton
 var inspection_slider: HSlider
 var inspection_label: Label
 var facings: Array[bool] = []
@@ -84,7 +90,7 @@ func _select_character(index: int) -> void:
 		return
 	var config = load("res://Prototype/U13/U13%sLanePreview.gd" % selected).new()
 	config._configure_character()
-	for property in ["character_name", "frame_regions", "extra_animation_labels", "frame_polygons",
+	for property in ["row_sources", "permanent_row", "character_name", "frame_regions", "extra_animation_labels", "frame_polygons",
 		"has_redraw", "use_redraw", "redraw_path", "redraw_shader_path", "redraw_body_height", "redraw_anchors",
 		"source_dimensions", "source_body_height", "source_shader_path", "bundled_sheet_path"]:
 		set(property, config.get(property))
@@ -92,6 +98,9 @@ func _select_character(index: int) -> void:
 	for child in get_children():
 		remove_child(child)
 		child.queue_free()
+	row_textures.clear()
+	transform_time = -1.0
+	rooted_poses.clear()
 	sheet = null
 	redraw = null
 	clock = 0.0
@@ -122,7 +131,9 @@ func _build_preview() -> void:
 				var folder := argument.substr(argument.find("=") + 1).get_base_dir()
 				for candidate in [folder.path_join("%sSprite.png" % character_name),
 					folder.path_join("%s.png" % character_name),
-					folder.path_join("Monsters/%s.png" % character_name)]:
+					folder.path_join("Monsters/%s.png" % character_name),
+					folder.path_join("%s.png" % character_name.to_lower()),
+					folder.path_join("Monsters/%s.png" % character_name.to_lower())]:
 					if FileAccess.file_exists(candidate):
 						path = candidate
 						break
@@ -133,6 +144,16 @@ func _build_preview() -> void:
 	var source: Image = Image.load_from_file(path) if FileAccess.file_exists(path) else null
 	if source != null and not source.is_empty():
 		sheet = ImageTexture.create_from_image(source)
+	for row in row_sources:
+		var row_path: String = row_sources[row].path
+		for folder in [path.get_base_dir(), path.get_base_dir().path_join("Monsters")]:
+			for filename in [row_sources[row].filename, row_sources[row].filename.to_lower()]:
+				var candidate: String = folder.path_join(filename)
+				if FileAccess.file_exists(candidate):
+					row_path = candidate
+		var row_image := Image.load_from_file(row_path)
+		if row_image != null and not row_image.is_empty():
+			row_textures[row] = ImageTexture.create_from_image(row_image)
 	if has_redraw:
 		var walk_image := Image.load_from_file(redraw_path)
 		if walk_image != null and not walk_image.is_empty():
@@ -180,7 +201,14 @@ func _build_preview() -> void:
 	count_picker.item_selected.connect(func(index: int): unit_count = count_picker.get_item_id(index))
 	controls.add_child(count_picker)
 	_button(controls, "Try lane death", _start_death)
-	_button(controls, "Restart", func(): clock = 0.0; death_time = -1.0; _roll_facings())
+	if permanent_row >= 0:
+		_button(controls, "Turret form", _start_transform)
+	_button(controls, "Restart", func():
+		clock = 0.0
+		death_time = -1.0
+		transform_time = -1.0
+		rooted_poses.clear()
+		_roll_facings())
 	_button(controls, "Close", func(): _close_preview())
 	var sizing := HBoxContainer.new()
 	panel.add_child(sizing)
@@ -206,10 +234,11 @@ func _build_preview() -> void:
 	var inspector := HBoxContainer.new()
 	panel.add_child(inspector)
 	var animation := OptionButton.new()
+	animation_picker = animation
 	var inspection_rows: Array[int] = [-1, 0, 1, 4]
 	for caption in ["Live lane", "Inspect right walk", "Inspect left walk", "Inspect death"]:
 		animation.add_item(caption)
-	for attack_row in [2, 3]:
+	for attack_row in [2, 3, 5]:
 		if frame_regions.has(attack_row):
 			animation.add_item(extra_animation_labels.get(attack_row, "Inspect attack %d" % (attack_row - 1)))
 			inspection_rows.append(attack_row)
@@ -260,9 +289,16 @@ func _frame_count(row: int) -> int:
 func _process(delta: float) -> void:
 	if not paused:
 		clock += delta
+		if transform_time >= 0.0:
+			transform_time += delta
 		if inspection_row >= 0 and inspection_playing:
 			inspection_elapsed += delta
-			inspection_frame = int(inspection_elapsed * 8.0) % _frame_count(inspection_row)
+			if inspection_row == permanent_row:
+				inspection_frame = mini(int(inspection_elapsed * 8.0), _frame_count(inspection_row) - 1)
+				if inspection_frame == _frame_count(inspection_row) - 1:
+					inspection_playing = false
+			else:
+				inspection_frame = int(inspection_elapsed * 8.0) % _frame_count(inspection_row)
 			inspection_slider.set_value_no_signal(inspection_frame)
 			inspection_label.text = "Frame %d / %d" % [inspection_frame + 1, _frame_count(inspection_row)]
 		if death_time >= 0.0:
@@ -270,6 +306,8 @@ func _process(delta: float) -> void:
 			if death_time > 2.0:
 				death_time = -1.0
 	status.text = "Walk → idle at contact → reset. Death stops in place. Inspect individual frames above."
+	if transform_time >= 0.0:
+		status.text = "Rooted permanently · Restart restores the mobile form."
 	if inspection_row >= 0:
 		status.text = "Inspection: %s · 8 FPS · scrub to hold a frame." % ("playing" if inspection_playing and not paused else "held")
 	queue_redraw()
@@ -313,6 +351,12 @@ func _draw() -> void:
 				units.append({"slot": lane * 24 + owner * 12 + index, "feet": Vector2(x, y), "owner": owner, "index": index, "left": _facing_for_position(lane * 24 + owner * 12 + index, Vector2(x, y))})
 	if unit_count == 1:
 		units = [{"slot": 1, "feet": Vector2(size.x * 0.5, size.y - 65.0 - progress * 28.0), "owner": 0, "index": 1, "left": facings[1]}]
+	if transform_time >= 0.0 and inspection_row < 0:
+		for unit in units:
+			if not rooted_poses.has(unit.slot):
+				rooted_poses[unit.slot] = {"feet": unit.feet, "left": unit.left}
+			unit.feet = rooted_poses[unit.slot].feet
+			unit.left = rooted_poses[unit.slot].left
 	if death_time >= 0.0 and inspection_row < 0:
 		for unit in units:
 			if death_poses.has(unit.slot):
@@ -339,6 +383,9 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool, face_left:
 		return
 	var row := 1 if face_left else 0
 	var frame := int(clock * 8.0 + index) % _frame_count(row) if walking else 0
+	if transform_time >= 0.0:
+		row = permanent_row
+		frame = mini(int(transform_time * 8.0), _frame_count(row) - 1)
 	if dying:
 		row = 4
 		frame = mini(_frame_count(4) - 1, int(death_time * 7.0))
@@ -364,9 +411,12 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool, face_left:
 		return
 	var crop: Rect2 = frame_regions[row][frame][0]
 	var anchor: Vector2 = frame_regions[row][frame][1]
-	var source_scale := sheet.get_size() / source_dimensions
+	var active_sheet: Texture2D = row_textures.get(row, sheet)
+	var active_dimensions: Vector2 = row_sources[row].dimensions if row_sources.has(row) else source_dimensions
+	var body_height: float = row_sources[row].body_height if row_sources.has(row) else source_body_height
+	var source_scale := active_sheet.get_size() / active_dimensions
 	var source := Rect2(crop.position * source_scale, crop.size * source_scale)
-	var factor := sprite_size / source_body_height
+	var factor := sprite_size / body_height
 	var offset := (crop.position - anchor) * factor
 	var dimensions := crop.size * factor
 	var destination := Rect2(feet + offset, dimensions)
@@ -384,9 +434,9 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool, face_left:
 		else:
 			draw_colored_polygon(vertices, Color(1, 1, 1, opacity), uvs, sheet)
 	elif not source_shader_path.is_empty():
-		source_commands.append([destination, source, Color(1, 1, 1, opacity)])
+		source_commands.append([destination, source, Color(1, 1, 1, opacity), active_sheet])
 	else:
-		draw_texture_rect_region(sheet, destination, source, Color(1, 1, 1, opacity))
+		draw_texture_rect_region(active_sheet, destination, source, Color(1, 1, 1, opacity))
 	if not dying:
 		draw_line(feet + Vector2(-13, 9), feet + Vector2(13, 9), tint, 3.0)
 
@@ -394,7 +444,7 @@ func _draw_source_layer() -> void:
 	for command in source_polygon_commands:
 		source_layer.draw_colored_polygon(command[0], command[1], command[2], sheet)
 	for command in source_commands:
-		source_layer.draw_texture_rect_region(sheet, command[0], command[1], command[2])
+		source_layer.draw_texture_rect_region(command[3], command[0], command[1], command[2])
 
 func _draw_redraw_layer() -> void:
 	for command in redraw_commands:
@@ -422,3 +472,14 @@ func _start_death() -> void:
 		if unit.index == 1:
 			death_poses[unit.slot] = {"feet": unit.feet, "left": unit.left}
 	death_time = 0.0
+
+func _start_transform() -> void:
+	if permanent_row < 0 or transform_time >= 0.0:
+		return
+	inspection_row = -1
+	inspection_playing = false
+	animation_picker.select(0)
+	rooted_poses.clear()
+	for unit in displayed_units:
+		rooted_poses[unit.slot] = {"feet": unit.feet, "left": unit.left}
+	transform_time = 0.0
