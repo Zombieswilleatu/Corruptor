@@ -28,7 +28,7 @@ const PENITENT_FRAMES = {
 	],
 }
 
-func _ready() -> void:
+func _configure_character() -> void:
 	character_name = "Penitent"
 	frame_regions = PENITENT_FRAMES.duplicate(true)
 	extra_animation_labels = {2: "Inspect celebrate", 3: "Inspect attack"}
@@ -59,4 +59,3 @@ func _ready() -> void:
 	]
 	has_redraw = true
 	use_redraw = true
-	super._ready()

@@ -63,7 +63,42 @@ var displayed_units: Array = []
 var death_poses: Dictionary = {}
 var status: Label
 
+func _configure_character() -> void:
+	pass
+
 func _ready() -> void:
+	_configure_character()
+	_build_preview()
+
+func _select_character(index: int) -> void:
+	var selected: String = ["Butcher", "Penitent"][index]
+	if selected == character_name:
+		return
+	var config = load("res://Prototype/U13/U13%sLanePreview.gd" % selected).new()
+	config._configure_character()
+	for property in ["character_name", "frame_regions", "extra_animation_labels", "frame_polygons",
+		"has_redraw", "use_redraw", "redraw_path", "redraw_shader_path", "redraw_body_height", "redraw_anchors"]:
+		set(property, config.get(property))
+	config.free()
+	for child in get_children():
+		remove_child(child)
+		child.queue_free()
+	sheet = null
+	redraw = null
+	clock = 0.0
+	death_time = -1.0
+	inspection_row = -1
+	inspection_frame = 0
+	inspection_elapsed = 0.0
+	inspection_playing = false
+	previous_positions.clear()
+	displayed_units.clear()
+	death_poses.clear()
+	redraw_commands.clear()
+	_build_preview()
+	queue_redraw()
+
+func _build_preview() -> void:
 	facing_rng.randomize()
 	_roll_facings()
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -71,7 +106,15 @@ func _ready() -> void:
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--%s-sheet=" % character_name.to_lower()):
 			path = argument.trim_prefix("--%s-sheet=" % character_name.to_lower())
-	var source := Image.load_from_file(path)
+	# A runner may point at a separate art checkout; use its sibling sheet.
+	if not FileAccess.file_exists(path):
+		for argument in OS.get_cmdline_user_args():
+			if argument.begins_with("--butcher-sheet=") or argument.begins_with("--penitent-sheet="):
+				var sibling := argument.substr(argument.find("=") + 1).get_base_dir().path_join("%sSprite.png" % character_name)
+				if FileAccess.file_exists(sibling):
+					path = sibling
+					break
+	var source: Image = Image.load_from_file(path) if FileAccess.file_exists(path) else null
 	if source != null and not source.is_empty():
 		sheet = ImageTexture.create_from_image(source)
 	if has_redraw:
@@ -88,10 +131,18 @@ func _ready() -> void:
 	var panel := VBoxContainer.new()
 	panel.position = Vector2(24, 16)
 	add_child(panel)
+	var heading := HBoxContainer.new()
+	panel.add_child(heading)
+	var character_picker := OptionButton.new()
+	character_picker.add_item("Butcher")
+	character_picker.add_item("Penitent")
+	character_picker.select(0 if character_name == "Butcher" else 1)
+	character_picker.item_selected.connect(func(index: int): _select_character.call_deferred(index))
+	heading.add_child(character_picker)
 	var title := Label.new()
 	title.text = "%s · VERTICAL LANE TRIAL" % character_name.to_upper()
 	title.add_theme_font_size_override("font_size", 24)
-	panel.add_child(title)
+	heading.add_child(title)
 	var controls := HBoxContainer.new()
 	panel.add_child(controls)
 	_button(controls, "Pause / resume", func(): paused = not paused)
@@ -99,7 +150,7 @@ func _ready() -> void:
 	var count_picker := OptionButton.new()
 	for count in [1, 24, 48]:
 		count_picker.add_item("%d unit%s" % [count, "" if count == 1 else "s"], count)
-	count_picker.select(1)
+	count_picker.select([1, 24, 48].find(unit_count))
 	count_picker.item_selected.connect(func(index: int): unit_count = count_picker.get_item_id(index))
 	controls.add_child(count_picker)
 	_button(controls, "Try lane death", _start_death)
@@ -108,7 +159,7 @@ func _ready() -> void:
 	var sizing := HBoxContainer.new()
 	panel.add_child(sizing)
 	var size_label := Label.new()
-	size_label.text = "Sprite size: 75 px"
+	size_label.text = "Sprite size: %d px" % int(sprite_size)
 	sizing.add_child(size_label)
 	var slider := HSlider.new()
 	slider.min_value = 32
