@@ -1009,7 +1009,7 @@ func _sync_decision() -> void:
 			"The round has resolved. " + _pending_notice() + " Begin the next round to continue.",
 			"ROUND %d" % session.round_number()
 		)
-		phase_prompt.show_ledger(AftermathLedger.render(session.board_view().world, session._owner._player_events_since(0, 0), session.round_number(), _ledger_before))
+		phase_prompt.show_ledger(AftermathLedger.render(session.board_view().world, session._owner._player_events_since(0, 0), session.round_number(), _ledger_before, session.board_view().get("pending", [])))
 		action_zone.hide()
 		confirm.show()
 		confirm.disabled = false

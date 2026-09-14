@@ -1,8 +1,15 @@
 extends RefCounted
 
 # Public presentation only. Never infer an attacker from the victim's owner.
-static func render(world: Dictionary, events: Array, round_number: int, before: Dictionary = {}) -> String:
+static func render(world: Dictionary, events: Array, round_number: int, before: Dictionary = {}, pending: Array = []) -> String:
 	var groups: Array = [{}, {}, {}]
+	# Public pending declarations include delayed powers used this round.
+	events = events.duplicate()
+	for record in pending:
+		var source: Dictionary = record.get("declaration", {})
+		if int(source.get("declared_round", -1)) == round_number:
+			events.append({"type": "POWER_QUEUED", "data": {"round": round_number, "player_id": source.get("player_id", -1), "power_id": source.get("power_id", ""), "fire_round": record.get("fire_round", round_number)}})
+
 	for event in events:
 		var d: Dictionary = event.get("data", {})
 		if int(d.get("round", d.get("attributes", {}).get("birth_round", -1))) != round_number:
@@ -59,6 +66,10 @@ static func name_of(entity: Dictionary) -> String:
 
 static func describe(kind: String, d: Dictionary) -> String:
 	match kind:
+		"COMBAT_ORDER_REVEALED": return "Action: " + str(d.get("order", {}).get("action", "Pass"))
+		"POWER_RESOLVED": return "Power: " + str(d.get("power_id", "")).capitalize()
+		"FIZZLE_INVALID_TARGET": return "Power: " + str(d.get("power_id", "")).capitalize() + " · fizzled"
+		"POWER_QUEUED": return "Power: %s · scheduled for round %d" % [str(d.get("power_id", "")).capitalize(), d.get("fire_round", 0)]
 		"CASTLE_DESTROYED": return "Destroyed " + name_of(d.get("castle", {}))
 		"LORD_BANISHED": return "Banished " + name_of(d.get("lord", {"kind": "lord"}))
 		"GUARD_DEFEATED": return "Guard defeated" if d.get("attack_kind", "") not in ["Hunt", "Siege"] else ""

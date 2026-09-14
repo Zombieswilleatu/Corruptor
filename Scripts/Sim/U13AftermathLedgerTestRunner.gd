@@ -22,6 +22,23 @@ func _initialize() -> void:
 	siege.data.damage = 2
 	result = Ledger.render(world, hits, 2)
 	ok = ok and result.contains("original target took 2 damage")
+	var actions: Array = []
+	for action in ["Siege", "Hunt", "Ward"]:
+		actions.append({"type": "COMBAT_ORDER_REVEALED", "data": {"round": 2, "player_id": 1, "order": {"action": action}}})
+	actions.append({"type": "POWER_RESOLVED", "data": {"round": 2, "player_id": 0, "power_id": "WarMachine"}})
+	var pending: Array = [{"declaration": {"declared_round": 2, "player_id": 1, "power_id": "InevitableRuin"}, "fire_round": 3}]
+	result = Ledger.render(world, actions, 2, {}, pending)
+	for action in ["Siege", "Hunt", "Ward"]: ok = ok and result.contains("Action: " + action)
+	ok = ok and result.contains("Power: War Machine") and result.contains("Power: Inevitable Ruin · scheduled for round 3")
+	var board = preload("res://Prototype/U13/U13DirectBoard.gd").new()
+	board._visible_world = {"entities": [{"id": "a", "attributes": {"value": 3}}, {"id": "b", "attributes": {"value": 7}}]}
+	board._intent = "Siege"
+	board._target = {"id": "keep"}
+	board._draft_combat = {"card_ids": ["a", "b"]}
+	ok = ok and board._staged_card_value() == 10 and board._guide().contains("2 cards staged · 10 total value")
+	board._draft_combat.card_ids = ["a"]
+	ok = ok and board._staged_card_value() == 3
+	board.free()
 	print(result)
 	print("U13 aftermath ledger failures: ", 0 if ok else 1)
 	quit(0 if ok else 1)

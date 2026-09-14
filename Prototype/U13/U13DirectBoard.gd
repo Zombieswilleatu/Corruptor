@@ -261,8 +261,8 @@ func _guide() -> String:
 		if _target.is_empty():
 			return _intent.to_upper() + " · click a highlighted target."
 		return (
-			"%s · %d cards staged. Click hand cards, drag more here, or double-click the hand for ALL IN."
-			% [_intent.to_upper(), _intent_cards().size()]
+			"%s · %d cards staged · %d total value. Click hand cards, drag more here, or double-click the hand for ALL IN."
+			% [_intent.to_upper(), _intent_cards().size(), _staged_card_value()]
 		)
 	return (
 		"Choose an action or drag a card to a destination."
@@ -1027,3 +1027,10 @@ func _with_development(order: Dictionary) -> Dictionary:
 
 func _development_stacks(_stacks: Array) -> void:
 	pass
+
+
+func _staged_card_value() -> int:
+	var total: int = 0
+	for id in _intent_cards():
+		total += int(_entity(id).get("attributes", {}).get("value", 0))
+	return total
