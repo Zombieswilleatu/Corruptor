@@ -1,5 +1,9 @@
 extends Control
 
+const AftermathLedger = preload("res://Prototype/U13/U13AftermathLedger.gd")
+var _ledger_before: Dictionary = {}
+var _ledger_round: int = -1
+
 const PhasePrompt = preload("res://Prototype/U13/U13PhasePrompt.gd")
 const ActionZone = preload("res://Prototype/U13/U13ActionZone.gd")
 const Session = preload("res://Scripts/Sim/U13BoardSession.gd")
@@ -157,6 +161,8 @@ func _ready() -> void:
 
 
 func restart() -> void:
+	_ledger_before = {}
+	_ledger_round = -1
 	if setup_open:
 		return
 	if _job != null:
@@ -367,6 +373,9 @@ func _build() -> void:
 func _refresh(presented: Dictionary = {}) -> void:
 	var view: Dictionary = session.board_view() if presented.is_empty() else presented
 	var world: Dictionary = view.world
+	if _ledger_round != session.round_number():
+		_ledger_round = session.round_number()
+		_ledger_before = world.duplicate(true) if not session.next_hook().is_empty() else {}
 	lanes.bind_auras(view.get("persistent", []), session.round_number())
 	lanes.bind_webs(view.get("persistent", []))
 	_scorch_rows = ScorchView.records(
@@ -781,6 +790,8 @@ func finish_playback(skipped: bool = true) -> void:
 func next_round() -> void:
 	if playing or gem_dagger_view.active() or _job != null or not session.next_hook().is_empty():
 		return
+	_ledger_before = session.board_view().world.duplicate(true)
+	_ledger_round = session.round_number() + 1
 	_start_job("next_round")
 
 
@@ -998,6 +1009,7 @@ func _sync_decision() -> void:
 			"The round has resolved. " + _pending_notice() + " Begin the next round to continue.",
 			"ROUND %d" % session.round_number()
 		)
+		phase_prompt.show_ledger(AftermathLedger.render(session.board_view().world, session._owner._player_events_since(0, 0), session.round_number(), _ledger_before))
 		action_zone.hide()
 		confirm.show()
 		confirm.disabled = false
@@ -1119,6 +1131,8 @@ func start_loadout(lords: Array, castles: Array, quick: bool) -> void:
 	if result.action == "invalid":
 		setup_picker.message.text = _friendly_error(result)
 		return
+	_ledger_before = {}
+	_ledger_round = -1
 	session = candidate
 	gem_dagger_view.clear()
 	_gem_final_view = {}

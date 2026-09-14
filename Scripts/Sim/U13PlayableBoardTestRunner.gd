@@ -198,7 +198,10 @@ func special_actions() -> void:
 	if board.playing:
 		board.finish_playback()
 		await job_done()
-	check(board.session.is_finished() and board.game_menu.visible, "victory automatically opens the playable result screen")
+	check(board.session.is_finished() and board.phase_prompt.visible and board.phase_prompt.ledger.visible, "victory preserves final round ledger")
+	check(board.phase_prompt.ledger.text.contains("Personal Tears") and board.phase_prompt.ledger.text.contains("OPPONENT"), "ledger shows both players and economy")
+	board._confirm_decision()
+	check(board.game_menu.visible, "ledger confirmation opens match result")
 	var terminal: Dictionary = board.session._owner.snapshot()
 	board.next_round()
 	check(board._job == null and terminal == board.session._owner.snapshot(), "finished UI cannot begin another round")

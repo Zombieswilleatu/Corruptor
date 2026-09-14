@@ -105,8 +105,9 @@ func _sync_decision() -> void:
 		phase_prompt.set_presenting(false)
 		confirm.disabled = true
 	elif session.is_finished():
-		phase_prompt.set_presenting(false)
-		confirm.disabled = true
+		phase_prompt.set_presenting(true)
+		confirm.text = "MATCH RESULT"
+		confirm.disabled = false
 		next_button.disabled = true
 
 func _confirm_decision() -> void:
@@ -117,8 +118,7 @@ func _confirm_decision() -> void:
 
 func _complete_job() -> void:
 	super._complete_job()
-	if session is PlaySession and session.is_finished() and not playing:
-		_open_game_menu()
+	# Keep the final round ledger visible until MATCH RESULT is selected.
 
 func next_round() -> void:
 	if session is PlaySession and session.is_finished():
@@ -360,6 +360,8 @@ func _load_game(path: String) -> void:
 		_busy_label.text = "Could not load game: " + str(result.get("reason", "invalid save"))
 		return
 	_reset_direct()
+	_ledger_before = {}
+	_ledger_round = candidate.round_number() # Loaded mid-round: show totals, never invent a baseline.
 	session = candidate
 	setup_open = false
 	setup_picker.hide()

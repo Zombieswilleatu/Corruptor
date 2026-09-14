@@ -22,6 +22,8 @@ var view_board_button: Button = null
 var content_host: VBoxContainer = null
 var action_zone = null
 
+var ledger: RichTextLabel
+
 var stage_key: String = ""
 var detail_open: bool = false
 var board_view_collapsed: bool = false
@@ -150,6 +152,7 @@ func attach_action_zone(zone) -> void:
 
 
 func _refresh_mode() -> void:
+	if ledger != null: ledger.visible = stage_key == "AFTERMATH" and not board_view_collapsed
 	var can_view_board: bool = _can_view_board(stage_key)
 
 	if view_board_button != null:
@@ -178,7 +181,7 @@ func _refresh_mode() -> void:
 		return
 
 	title_label.visible = true
-	copy_label.visible = true
+	copy_label.visible = not (stage_key == "AFTERMATH" and ledger != null)
 	divider.visible = true
 
 	var show_details: bool = detail_open and action_zone != null
@@ -858,6 +861,7 @@ func _sync_decision_header_slots_v15() -> void:
 
 
 func bind_decision(key: String, title: String, copy: String, phase: String) -> void:
+	if ledger != null: ledger.hide()
 	if stage_key != key:
 		board_view_collapsed = false
 	stage_key = key
@@ -890,3 +894,17 @@ func _on_yes_pressed() -> void:
 
 func _on_no_pressed() -> void:
 	pass_requested.emit()
+
+
+func show_ledger(text: String) -> void:
+	if ledger == null:
+		ledger = RichTextLabel.new()
+		ledger.name = "AftermathLedger"
+		ledger.position = Vector2(36, 150)
+		ledger.size = Vector2(328, 245)
+		ledger.add_theme_font_size_override("normal_font_size", 14)
+		ledger.selection_enabled = true
+		add_child(ledger)
+	ledger.text = text
+	ledger.visible = not board_view_collapsed
+	copy_label.hide()

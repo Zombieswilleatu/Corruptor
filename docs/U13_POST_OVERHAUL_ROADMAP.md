@@ -1,5 +1,22 @@
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
+**2026-09-14 accepted full-game gate:** Windows Godot 4.7.2, clean
+`d605e3a7976735d0c933818cbfa965f5d41d78d7`: 100/100 complete games, all independently
+replay-verified, zero caps/timeouts/errors/missing games, all 81 ordered Lord
+pairings. 63 Dominion / 37 Final Collapse; rounds 10–26 (mean 19.46).
+This supersedes the pending/timeout status below. No additional large batch is
+required for the presentation pass; balance remains paused.
+
+**2026-09-14 user priority: Aftermath ledger first.** Before Action Window /
+Resolution Theater, replace the empty Aftermath copy with a scrollable public
+round ledger, grouped by credited player with shared/unattributed effects
+separate. Show Souls/Personal Tears/Neutral Tears totals and net changes,
+combat/destruction results and meaningful position changes. Preserve the final
+round ledger before opening the victory screen. Loaded mid-round saves without
+an opening balance show current totals, not fabricated net changes. This is
+presentation only; no balance or authoritative mechanics changes.
+
+
 **2026-09-14 Random-Legal timeout:** The a0b774c Windows flow gate passed both
 suites (858 checks). The subsequent 20-game Random-Legal diagnostic completed
 three replay-verified games before game 0 hit its 1,200-second watchdog in round
