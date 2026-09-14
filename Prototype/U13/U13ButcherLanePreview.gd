@@ -33,6 +33,10 @@ const FRAMES = {
 var character_name: String = "Butcher"
 var frame_regions: Dictionary = FRAMES
 var has_redraw: bool = true
+var redraw_path: String = "res://Prototype/U13/Assets/ButcherWalkV2.png"
+var redraw_shader_path: String = "res://Prototype/U13/U13ButcherKey.gdshader"
+var redraw_body_height: float = 455.0
+var redraw_anchors: Array[Vector2] = []
 var extra_animation_labels: Dictionary = {}
 var frame_polygons: Dictionary = {}
 var inspection_row: int = -1
@@ -71,13 +75,13 @@ func _ready() -> void:
 	if source != null and not source.is_empty():
 		sheet = ImageTexture.create_from_image(source)
 	if has_redraw:
-		var walk_image := Image.load_from_file("res://Prototype/U13/Assets/ButcherWalkV2.png")
-		if walk_image != null:
+		var walk_image := Image.load_from_file(redraw_path)
+		if walk_image != null and not walk_image.is_empty():
 			redraw = ImageTexture.create_from_image(walk_image)
 	redraw_layer = Node2D.new()
 	redraw_layer.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	var key_material := ShaderMaterial.new()
-	key_material.shader = load("res://Prototype/U13/U13ButcherKey.gdshader")
+	key_material.shader = load(redraw_shader_path)
 	redraw_layer.material = key_material
 	redraw_layer.draw.connect(_draw_redraw_layer)
 	add_child(redraw_layer)
@@ -260,7 +264,9 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool, face_left:
 		var origin := Vector2((frame % 3) * 512, floori(float(frame) / 3.0) * 512)
 		var baseline := 502.0 if frame < 3 else 462.0
 		var anchor := Vector2(300, baseline)
-		var factor := sprite_size / 455.0
+		if redraw_anchors.size() == 6:
+			anchor = redraw_anchors[frame]
+		var factor := sprite_size / redraw_body_height
 		var offset := -anchor * factor
 		var dimensions := Vector2(512, 512) * factor
 		var destination := Rect2(feet + offset, dimensions)

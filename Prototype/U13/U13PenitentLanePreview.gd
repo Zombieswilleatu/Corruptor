@@ -48,6 +48,15 @@ func _ready() -> void:
 	frame_regions[3][3] = [Rect2(675, 724, 262, 181), Vector2(801.5, 912)]
 	frame_regions[3][4] = [Rect2(930, 722, 245, 183), Vector2(1030.5, 912)]
 	frame_regions[3][5] = [Rect2(1179, 707, 184, 198), Vector2(1259.5, 912)]
-	has_redraw = false
-	use_redraw = false
+	# Approved six-frame walk: left-to-right across the top row, then bottom.
+	# Anchors are local to each 512px cell and keep the pelvis/ground stable.
+	redraw_path = "res://Prototype/U13/Assets/PenitentWalkV2.png"
+	redraw_shader_path = "res://Prototype/U13/U13PenitentKey.gdshader"
+	redraw_body_height = 410.0
+	redraw_anchors = [
+		Vector2(285, 476), Vector2(258, 476), Vector2(246, 476),
+		Vector2(273, 442), Vector2(258, 442), Vector2(256, 442),
+	]
+	has_redraw = true
+	use_redraw = true
 	super._ready()
