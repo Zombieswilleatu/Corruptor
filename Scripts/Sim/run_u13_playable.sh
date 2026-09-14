@@ -12,8 +12,8 @@ if [[ ! "$u13_play_version" =~ ^4\.7\.2\.stable([.[:space:]]|$) ]]; then
   printf 'The playable U13 runner requires Godot 4.7.2 stable. Found: %s\n' "$u13_play_version" >&2
   exit 1
 fi
-mkdir -p -- "$HOME/Downloads"
-u13_play_log=$(mktemp "$HOME/Downloads/u13-playable-$(date +%Y-%m-%d_%H-%M-%S)-XXXXXX.log")
-printf 'Launching the playable game against the doctrine bot.\nRun log: %s\nSaved games also go directly to Downloads.\n' "$u13_play_log"
+mkdir -p -- "$HOME/Downloads/Corruptor/Logs"
+u13_play_log=$(mktemp "$HOME/Downloads/Corruptor/Logs/u13-playable-$(date +%Y-%m-%d_%H-%M-%S)-XXXXXX.log")
+printf 'Launching the playable game against the doctrine bot.\nRun log: %s\nSaved games: Downloads/Corruptor/Saves. Use OLDER SAVES IN DOWNLOADS to load earlier matches.\n' "$u13_play_log"
 "$u13_play_exe" --path "$u13_play_root" --windowed --resolution 1440x810 \
   --rendering-method gl_compatibility res://Prototype/U13/U13PlayableBoard.tscn 2>&1 | tee "$u13_play_log"

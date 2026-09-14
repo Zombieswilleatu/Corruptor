@@ -41,8 +41,12 @@ func _build() -> void:
 	load_dialog = FileDialog.new()
 	load_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	load_dialog.access = FileDialog.ACCESS_FILESYSTEM
-	load_dialog.filters = PackedStringArray(["*.json ; U13 saved game"])
+	load_dialog.filters = PackedStringArray(["u13-playable-*.json ; Corruptor saved games", "*.json ; Other JSON files"])
 	load_dialog.file_selected.connect(_load_game)
+	var older_saves: Button = Button.new()
+	older_saves.text = "OLDER SAVES IN DOWNLOADS"
+	older_saves.pressed.connect(func(): load_dialog.current_dir = _downloads_folder())
+	load_dialog.get_vbox().add_child(older_saves)
 	add_child(load_dialog)
 	setup_load_button = _button(setup_picker.start_button.get_parent(), "LOAD SAVED GAME", _open_load)
 
@@ -330,6 +334,13 @@ func _error(result: Dictionary) -> bool:
 		choice_error = _friendly_error(result)
 	return super._error(result)
 
+static func _downloads_folder() -> String:
+	var folder: String = OS.get_system_dir(OS.SYSTEM_DIR_DOWNLOADS)
+	return OS.get_user_data_dir() if folder.is_empty() else folder
+
+static func _save_folder() -> String:
+	return _downloads_folder().path_join("Corruptor/Saves")
+
 func _save_game() -> void:
 	if not _can_save():
 		return
@@ -338,8 +349,11 @@ func _save_game() -> void:
 		if checked.action == "invalid":
 			game_menu.message.text = "Finish or clear the incomplete order before saving."
 			return
-	var folder: String = OS.get_system_dir(OS.SYSTEM_DIR_DOWNLOADS)
-	if folder.is_empty(): folder = OS.get_user_data_dir()
+	var folder: String = _save_folder()
+	if DirAccess.make_dir_recursive_absolute(folder) != OK:
+		_busy_label.text = "Could not create the saved-games folder: " + folder
+		game_menu.message.text = _busy_label.text
+		return
 	var stamp: String = Time.get_datetime_string_from_system().replace(":", "-")
 	var path: String = folder.path_join("u13-playable-%s-r%d-%d.json" % [stamp, session.round_number(), Time.get_ticks_usec()])
 	var file = FileAccess.open(path, FileAccess.WRITE)
@@ -356,7 +370,8 @@ func _save_game() -> void:
 func _open_load() -> void:
 	if _job != null or playing:
 		return
-	load_dialog.current_dir = OS.get_system_dir(OS.SYSTEM_DIR_DOWNLOADS)
+	var folder: String = _save_folder()
+	load_dialog.current_dir = folder if DirAccess.make_dir_recursive_absolute(folder) == OK else _downloads_folder()
 	load_dialog.popup_centered(Vector2i(1100, 700))
 
 func _load_game(path: String) -> void:
