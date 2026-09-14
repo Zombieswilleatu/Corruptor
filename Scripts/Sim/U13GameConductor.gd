@@ -48,18 +48,19 @@ func to_planning(random_choices: bool = false) -> Dictionary:
 	while _owner.next_hook() != Timeline.SUBMISSION_LOCK:
 		if _owner.next_hook().is_empty():
 			return outcome() if is_finished() else Data.invalid("game_round_complete")
-		var pending: Dictionary = _owner.player_view(0, 0).world.game_economy.stockpile_pending
+		var flow: Dictionary = _flow_view(0)
+		var pending: Dictionary = flow.game_economy.stockpile_pending
 		if not pending.is_empty():
 			var pid: int = pending.player_id
 			if not random_choices:
 				return {"action": "game_draw_choice", "player_id": pid}
-			var offered: Array = _owner.player_view(pid, 0).world.game_economy.stockpile_pending.card_ids
+			var offered: Array = _flow_view(pid).game_economy.stockpile_pending.card_ids
 			var index: int = int(Economy.Rng.draw(_owner.rng_seed(), "STOCKPILE_RANDOM_V1", "%d:%d" % [_owner.round_number(), pid], 0, offered.size()).value)
 			var selected: Dictionary = choose_stockpile(pid, offered[index])
 			if selected.action == "invalid":
 				return selected
 			continue
-		var market: Dictionary = _owner.player_view(0, 0).world.game_market
+		var market: Dictionary = flow.game_market
 		if market.seat != 2:
 			if not random_choices:
 				return {"action": "game_market_choice", "player_id": market.seat}
@@ -149,7 +150,7 @@ func choose_stockpile(player_id: int, keep_id: String) -> Dictionary:
 func market_choices(player_id: int) -> Array:
 	if _owner == null or player_id not in [0, 1] or _owner.next_hook() != Timeline.PRESENT_PUBLIC_STATE:
 		return []
-	var view: Dictionary = _owner.player_view(player_id, 0).world
+	var view: Dictionary = _flow_view(player_id)
 	if view.game_market.seat != player_id:
 		return []
 	var choices: Array = [{"market": "Pass"}]
@@ -171,7 +172,7 @@ func is_finished() -> bool:
 func outcome() -> Dictionary:
 	if _owner == null:
 		return Data.invalid("game_not_started")
-	var state: Dictionary = _owner.player_view(0, 0).world.victory
+	var state: Dictionary = _flow_view(0).victory
 	return {"action": "game_finished" if state.winner != -1 else "game_in_progress", "round": _owner.round_number(), "winner": state.winner, "win_by": state.win_by}
 
 
@@ -193,3 +194,18 @@ func restore_json(encoded: String) -> Dictionary:
 	if typeof(decoded) != TYPE_DICTIONARY:
 		return Data.invalid("game_json_invalid")
 	return restore(decoded)
+
+
+# Internal conductor flow reads need no entity, guard, effect or history projection.
+# Preserve the public view's pre-submission baseline and Stockpile redaction.
+# Every returned container is detached; no authoritative reference escapes.
+func _flow_view(player_id: int) -> Dictionary:
+	var world: Dictionary = _owner._presentation_world if _owner.next_hook() == Timeline.SUBMISSION_LOCK else _owner._world
+	var pending: Dictionary = world.data.game_economy.stockpile_pending
+	return Data.copy_data({
+		"game_economy": {"stockpile_pending": pending if pending.is_empty() or pending.player_id == player_id else {"player_id": pending.player_id}},
+		"game_market": world.data.game_market,
+		"market": world.data.card_zones.market,
+		"hand": world.data.card_zones.hands[player_id],
+		"victory": world.data.victory
+	})

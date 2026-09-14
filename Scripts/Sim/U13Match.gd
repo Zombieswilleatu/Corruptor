@@ -873,8 +873,9 @@ func _install_world(raw: Dictionary) -> Dictionary:
 	# Always enforce the raw plain-data/type boundary before comparison. Normalize
 	# as ordinary install does: equivalent JSON integer/float encodings are safe.
 	# No hashes, mutable object identity, or unchecked caller-provided cache tokens.
+	var canonical: Dictionary = {}
 	if _cache_world_validation and not _world_validation_cache.is_empty() and _world_validation_cache.validator == _world_validator:
-		var canonical: Dictionary = Data.copy_data(raw)
+		canonical = Data.copy_data(raw)
 		# Native Variant bytes preserve types (including bool versus integer).
 		# A different dictionary insertion order only causes a harmless cache miss.
 		if var_to_bytes(canonical) == _world_validation_cache.encoded:
@@ -909,11 +910,15 @@ func _install_world(raw: Dictionary) -> Dictionary:
 				return Data.invalid("world_resources_invalid")
 	if raw.data.has("card_zones") and not Cards.valid(raw):
 		return Data.invalid("world_card_zones_invalid")
+	# Normalize once; callbacks still receive their own detached container.
+	# Reuse a cache-miss normalization instead of recursively copying it again.
+	if canonical.is_empty():
+		canonical = Data.copy_data(raw)
 	if _world_validator.is_valid():
-		var accepted = _world_validator.call(Data.copy_data(raw))
+		var accepted = _world_validator.call(canonical.duplicate(true))
 		if typeof(accepted) != TYPE_BOOL or not accepted:
 			return Data.invalid("content_world_invalid")
-	_world = Data.copy_data(raw)
+	_world = canonical
 	_entities = candidate
 	if _cache_world_validation:
 		_world_validation_cache = {"encoded": var_to_bytes(_world), "entities": _entities._fork(), "validator": _world_validator}

@@ -1,5 +1,12 @@
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
+**2026-09-14 targeted performance steering:** User authorized shared-engine
+optimization before another Random-Legal batch. Balance tuning remains paused.
+Windows e4d9501 doctrine fixtures passed 7/7 (759 checks); the subsequent doctrine
+campaign was interrupted after 54 completed games and does not close Random-Legal
+acceptance. See `U13_SHARED_FLOW_PERFORMANCE_2026-09-14.md` for the bounded changes,
+exact differential tests, and phase-level timing limits.
+
 **Status:** Working roadmap / engineering addendum
 **Date:** 2026-09-10
 
