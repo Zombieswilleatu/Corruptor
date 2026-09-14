@@ -181,12 +181,17 @@ func development_edges() -> void:
 	if check(result.action != "invalid", "ordinary pre-combat artillery fires"):
 		result = resolve_combat(result.world, [profane(), {}])
 		check(not facts(result, "PROFANE_RESOLVED")[0].profaned and result.world.players[0].resources.personal_tears == 0, "artillery-damaged Profane target fizzles without reward")
-	# A locked zone attack cannot pick a freshly activated Castle after planning.
+	# A locked zone attack becomes Siege when a Castle activates after planning.
 	world = prepared()
 	var attack: Dictionary = siege(world, 0, Plunder.zone_id(1))
 	patch(world, Slots.castle_id(1, 0), {"status": "standing", "integrity": 21})
 	result = resolve_combat(world, [attack, {}])
-	check(result.world.players[0].resources.souls == 0 and facts(result, "COMBAT_ORDER_FIZZLED").size() == 1, "new active Castle prevents previously planned Pillage without retargeting")
+	check(result.world.players[0].resources.souls == 0 and facts(result, "COMBAT_ORDER_FIZZLED").is_empty() and facts(result, "SIEGE_RESOLVED")[0].target_id == Slots.castle_id(1, 0), "planned Pillage becomes Siege against newly active Castle")
+	check(facts(result, "PILLAGE_RETARGETED").size() == 1, "retargeting has an explicit Aftermath result")
+	patch(world, Slots.castle_id(1, 3), {"status": "standing", "integrity": 21})
+	world.entities.entities.reverse()
+	result = resolve_combat(world, [attack, {}])
+	check(facts(result, "SIEGE_RESOLVED")[0].target_id == Slots.castle_id(1, 0), "multiple active Castles use slot order despite reversed entity storage")
 	# Castleless Ward remains a frontline defense but cannot leave a Castle Sigil.
 	world = prepared()
 	var ward: Dictionary = {"action": "Ward", "lane": "Castle", "card_ids": []}

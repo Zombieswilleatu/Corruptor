@@ -84,3 +84,14 @@ Guard Work fixtures cover Consume breaking each of the four suit bonds, keeping
 the other Guard alive, preserving input state, and preventing a replacement
 beside the survivor from reactivating the old pair. The existing
 run_u13_supplicant_history.sh includes these fixtures through Guard Work.
+
+## Pillage after construction
+
+In the guard-work game, a sealed Castle-zone Pillage becomes Siege if an enemy
+Castle is active at combat resolution. It selects the lowest Castle slot if
+multiple targets exist. The local resolution order is copied, preserving the
+sealed declaration; the resulting Siege uses ordinary Guards, screens,
+Supplicants, damage, and rewards. PILLAGE_RETARGETED identifies the Castle in
+Aftermath. Explicit Castle targets retain their existing invalidation behavior.
+Local Profane/Pillage replay and ledger suites pass, including reversed entity
+storage with multiple available Castles. Existing saves remain loadable.

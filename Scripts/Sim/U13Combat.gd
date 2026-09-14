@@ -368,8 +368,17 @@ static func _siege(
 	var target: Dictionary = entities.get_entity(order.target_id)
 	var events: Array = []
 	var pillage: bool = Plunder.enabled(world) and Plunder.castleless(world, 1 - player_id)
-	# If other Castles remain, a vanished target is a spent order and keeps its
-	# waiters. Castleless Siege changes only the payout, never selects a new Castle.
+	# A sealed zone attack adapts when Development creates an active Castle.
+	# Multiple completions use board slot order, independent of entity storage.
+	if not pillage and Plunder.enabled(world) and GuardWork.enabled(world) and order.target_id == Plunder.zone_id(1 - player_id):
+		var candidates: Array = entities.snapshot().entities.filter(func(e): return e.owner == 1 - player_id and Structures.targetable(e))
+		candidates.sort_custom(func(a, b): return int(a.attributes.castle_slot) < int(b.attributes.castle_slot))
+		if not candidates.is_empty():
+			target = candidates[0]
+			order = order.duplicate(true)
+			order.target_id = target.id
+			events.append(Marching.public_event("PILLAGE_RETARGETED", {"player_id": player_id, "round": context.round, "castle_id": target.id}))
+	# Explicit Castle targets still fizzle if lost while other Castles remain.
 	if not pillage and not Structures.targetable(target):
 		events.append(
 			Marching.public_event(
