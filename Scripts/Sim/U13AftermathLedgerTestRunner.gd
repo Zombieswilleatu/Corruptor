@@ -10,7 +10,18 @@ func _initialize() -> void:
 	]
 	var saved: Array = events.duplicate(true)
 	var text: String = Ledger.render(world, events, 2, {"souls": [2, 3], "personal_tears": [0, 0], "neutral_tears": 2})
-	var ok: bool = text.contains("(+2 net)") and text.contains("(-1 net)") and not text.contains("99") and text.find("Banished") < text.find("OPPONENT") and text.find("Destroyed") > text.find("SHARED") and text.contains("Raised Opponent's Vulture") and events == saved
-	print(text)
+	var ok: bool = text.contains("(+2 net)") and text.contains("(-1 net)") and not text.contains("99") and text.find("Banished") < text.find("OPPONENT") and text.find("Destroyed") > text.find("SHARED") and not text.contains("Raised") and events == saved
+	var siege: Dictionary = {"type": "SIEGE_RESOLVED", "data": {"round": 2, "player_id": 0, "target_id": "keep", "damage": 0}}
+	var hits: Array = [
+		{"type": "BASTION_SCREENED", "data": {"round": 2, "player_id": 1, "target_id": "keep", "damage": 4}},
+		{"type": "BASTION_SCREENED", "data": {"round": 1, "player_id": 1, "target_id": "keep", "damage": 99}},
+		{"type": "BASTION_SCREENED", "data": {"round": 2, "player_id": 0, "target_id": "keep", "damage": 99}},
+		{"type": "BASTION_SCREENED", "data": {"round": 2, "player_id": 1, "target_id": "other", "damage": 99}}, siege]
+	var result: String = Ledger.render(world, hits, 2)
+	ok = ok and result.contains("Bastion interposed and took 4 damage") and not result.contains("0 Castle damage") and result.find("Bastion interposed") < result.find("OPPONENT")
+	siege.data.damage = 2
+	result = Ledger.render(world, hits, 2)
+	ok = ok and result.contains("original target took 2 damage")
+	print(result)
 	print("U13 aftermath ledger failures: ", 0 if ok else 1)
 	quit(0 if ok else 1)
