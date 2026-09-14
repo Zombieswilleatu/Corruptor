@@ -4,7 +4,7 @@ extends "res://Prototype/U13/U13VisualPreview.gd"
 # Regions measured against the original 1374x1145 sheet, not an equal grid.
 # Each entry is [crop rect, ground anchor in sheet coordinates]. Keep one scale
 # for all frames: fitting individual crops would inflate the collapsing body.
-const CHARACTERS = ["Butcher", "Penitent", "Vulture", "Wright"]
+const CHARACTERS = ["Butcher", "Penitent", "Vulture", "Wright", "Batboy", "LanternTree"]
 const FRAMES = {
 	0: [
 		[Rect2(20, 10, 240, 205), Vector2(155, 213)],
@@ -118,7 +118,7 @@ func _build_preview() -> void:
 	# A runner may point at a separate art checkout; use its sibling sheet.
 	if not FileAccess.file_exists(path):
 		for argument in OS.get_cmdline_user_args():
-			if argument.begins_with("--butcher-sheet=") or argument.begins_with("--penitent-sheet=") or argument.begins_with("--vulture-sheet=") or argument.begins_with("--wright-sheet="):
+			if argument.begins_with("--butcher-sheet=") or argument.begins_with("--penitent-sheet=") or argument.begins_with("--vulture-sheet=") or argument.begins_with("--wright-sheet=") or argument.begins_with("--batboy-sheet=") or argument.begins_with("--lanterntree-sheet="):
 				var sibling := argument.substr(argument.find("=") + 1).get_base_dir().path_join("%sSprite.png" % character_name)
 				if FileAccess.file_exists(sibling):
 					path = sibling
@@ -213,7 +213,8 @@ func _build_preview() -> void:
 		inspection_elapsed = 0.0
 		inspection_frame = 0
 		inspection_slider.set_value_no_signal(0)
-		inspection_label.text = "Frame 1 / 6")
+		inspection_slider.max_value = _frame_count(inspection_row) - 1
+		inspection_label.text = "Frame 1 / %d" % _frame_count(inspection_row))
 	inspector.add_child(animation)
 	var frame_label := Label.new()
 	inspection_label = frame_label
@@ -228,7 +229,7 @@ func _build_preview() -> void:
 	frame_slider.value_changed.connect(func(value: float):
 		inspection_playing = false
 		inspection_frame = int(value)
-		frame_label.text = "Frame %d / 6" % (inspection_frame + 1))
+		frame_label.text = "Frame %d / %d" % [inspection_frame + 1, _frame_count(inspection_row)])
 	inspector.add_child(frame_slider)
 	_button(inspector, "Play / hold", func():
 		inspection_playing = not inspection_playing
@@ -246,14 +247,19 @@ func _button(parent: Node, caption: String, action: Callable) -> void:
 	button.pressed.connect(action)
 	parent.add_child(button)
 
+func _frame_count(row: int) -> int:
+	if use_redraw and redraw != null and row in [0, 1]:
+		return 6
+	return frame_regions.get(row, frame_regions[0]).size()
+
 func _process(delta: float) -> void:
 	if not paused:
 		clock += delta
 		if inspection_row >= 0 and inspection_playing:
 			inspection_elapsed += delta
-			inspection_frame = int(inspection_elapsed * 8.0) % 6
+			inspection_frame = int(inspection_elapsed * 8.0) % _frame_count(inspection_row)
 			inspection_slider.set_value_no_signal(inspection_frame)
-			inspection_label.text = "Frame %d / 6" % (inspection_frame + 1)
+			inspection_label.text = "Frame %d / %d" % [inspection_frame + 1, _frame_count(inspection_row)]
 		if death_time >= 0.0:
 			death_time += delta
 			if death_time > 2.0:
@@ -326,11 +332,11 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool, face_left:
 		draw_circle(feet - Vector2(0, 13), 12, tint)
 		draw_string(ThemeDB.fallback_font, feet + Vector2(-5, -7), character_name.left(1), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color.BLACK)
 		return
-	var frame := int(clock * 8.0 + index) % 6 if walking else 0
 	var row := 1 if face_left else 0
+	var frame := int(clock * 8.0 + index) % _frame_count(row) if walking else 0
 	if dying:
 		row = 4
-		frame = mini(5, int(death_time * 7.0))
+		frame = mini(_frame_count(4) - 1, int(death_time * 7.0))
 	if inspection_row >= 0:
 		row = inspection_row
 		frame = inspection_frame
