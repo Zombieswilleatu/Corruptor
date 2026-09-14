@@ -35,6 +35,10 @@ var frame_regions: Dictionary = FRAMES
 var has_redraw: bool = true
 var inspection_row: int = -1
 var inspection_frame: int = 0
+var inspection_playing: bool = false
+var inspection_elapsed: float = 0.0
+var inspection_slider: HSlider
+var inspection_label: Label
 var facings: Array[bool] = []
 var previous_positions: Dictionary = {}
 var facing_rng := RandomNumberGenerator.new()
@@ -119,23 +123,38 @@ func _ready() -> void:
 	var inspector := HBoxContainer.new()
 	panel.add_child(inspector)
 	var animation := OptionButton.new()
+	var inspection_rows: Array[int] = [-1, 0, 1, 4]
 	for caption in ["Live lane", "Inspect right walk", "Inspect left walk", "Inspect death"]:
 		animation.add_item(caption)
+	for attack_row in [2, 3]:
+		if frame_regions.has(attack_row):
+			animation.add_item("Inspect attack %d" % (attack_row - 1))
+			inspection_rows.append(attack_row)
 	animation.item_selected.connect(func(index: int):
-		inspection_row = [-1, 0, 1, 4][index])
+		inspection_row = inspection_rows[index]
+		inspection_elapsed = 0.0
+		inspection_frame = 0
+		inspection_slider.set_value_no_signal(0)
+		inspection_label.text = "Frame 1 / 6")
 	inspector.add_child(animation)
 	var frame_label := Label.new()
+	inspection_label = frame_label
 	frame_label.text = "Frame 1 / 6"
 	inspector.add_child(frame_label)
 	var frame_slider := HSlider.new()
+	inspection_slider = frame_slider
 	frame_slider.min_value = 0
 	frame_slider.max_value = 5
 	frame_slider.step = 1
 	frame_slider.custom_minimum_size.x = 200
 	frame_slider.value_changed.connect(func(value: float):
+		inspection_playing = false
 		inspection_frame = int(value)
 		frame_label.text = "Frame %d / 6" % (inspection_frame + 1))
 	inspector.add_child(frame_slider)
+	_button(inspector, "Play / hold", func():
+		inspection_playing = not inspection_playing
+		inspection_elapsed = float(inspection_frame) / 8.0)
 	status = Label.new()
 	panel.add_child(status)
 	if sheet == null:
@@ -152,11 +171,18 @@ func _button(parent: Node, caption: String, action: Callable) -> void:
 func _process(delta: float) -> void:
 	if not paused:
 		clock += delta
+		if inspection_row >= 0 and inspection_playing:
+			inspection_elapsed += delta
+			inspection_frame = int(inspection_elapsed * 8.0) % 6
+			inspection_slider.set_value_no_signal(inspection_frame)
+			inspection_label.text = "Frame %d / 6" % (inspection_frame + 1)
 		if death_time >= 0.0:
 			death_time += delta
 			if death_time > 2.0:
 				death_time = -1.0
 	status.text = "Walk → idle at contact → reset. Death stops in place. Inspect individual frames above."
+	if inspection_row >= 0:
+		status.text = "Inspection: %s · 8 FPS · scrub to hold a frame." % ("playing" if inspection_playing and not paused else "held")
 	queue_redraw()
 
 func _draw() -> void:
@@ -204,6 +230,8 @@ func _draw() -> void:
 	for unit in units:
 		_draw_unit(unit.feet, unit.owner, unit.index, walking, unit.left)
 	var caption := "Idle / engaged · attacks belong in the action window" if not walking else "Walking vertically · stable left/right facing"
+	if inspection_row >= 0:
+		caption = "Animation inspection · movement held"
 	draw_string(ThemeDB.fallback_font, Vector2(24, size.y - 20), caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 18)
 
 func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool, face_left: bool) -> void:
@@ -224,7 +252,7 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool, face_left:
 	if inspection_row >= 0:
 		row = inspection_row
 		frame = inspection_frame
-	if use_redraw and redraw != null and row != 4:
+	if use_redraw and redraw != null and row in [0, 1]:
 		# Same body scale and ground line for all six frames. Bottom row's
 		# artwork baseline is 974, top row's is 502 in the 1536x1024 source.
 		var origin := Vector2((frame % 3) * 512, floori(float(frame) / 3.0) * 512)

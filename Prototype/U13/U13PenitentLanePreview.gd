@@ -30,7 +30,15 @@ const PENITENT_FRAMES = {
 
 func _ready() -> void:
 	character_name = "Penitent"
-	frame_regions = PENITENT_FRAMES
+	frame_regions = PENITENT_FRAMES.duplicate(true)
+	# Provisional full-cell cuts for the two attack rows. Keep the existing
+	# measured walk/death crops intact; inspect these against the external PNG.
+	for row in [2, 3]:
+		var poses: Array = []
+		for column in range(6):
+			var origin := Vector2(column * 229, row * 229)
+			poses.append([Rect2(origin, Vector2(229, 229)), origin + Vector2(114.5, 225)])
+		frame_regions[row] = poses
 	has_redraw = false
 	use_redraw = false
 	super._ready()
