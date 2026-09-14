@@ -46,6 +46,8 @@ var chits: bool = false
 var sprite_size: float = 56.0
 var unit_count: int = 24
 var death_time: float = -1.0
+var displayed_units: Array = []
+var death_poses: Dictionary = {}
 var status: Label
 
 func _ready() -> void:
@@ -86,7 +88,7 @@ func _ready() -> void:
 	count_picker.select(1)
 	count_picker.item_selected.connect(func(index: int): unit_count = count_picker.get_item_id(index))
 	controls.add_child(count_picker)
-	_button(controls, "Try lane death", func(): death_time = 0.0)
+	_button(controls, "Try lane death", _start_death)
 	_button(controls, "Restart", func(): clock = 0.0; death_time = -1.0; _roll_facings())
 	_button(controls, "Close", func(): _close_preview())
 	var sizing := HBoxContainer.new()
@@ -184,9 +186,15 @@ func _draw() -> void:
 				var rank := floorf(float(index) / 3.0)
 				var y := lerpf(start, target, progress) + rank * 32.0 * (-1.0 if owner == 1 else 1.0)
 				y = clampf(y, top + 32.0, bottom - 8.0)
-				units.append({"feet": Vector2(x, y), "owner": owner, "index": index, "left": _facing_for_position(lane * 24 + owner * 12 + index, Vector2(x, y))})
+				units.append({"slot": lane * 24 + owner * 12 + index, "feet": Vector2(x, y), "owner": owner, "index": index, "left": _facing_for_position(lane * 24 + owner * 12 + index, Vector2(x, y))})
 	if unit_count == 1:
-		units = [{"feet": Vector2(size.x * 0.5, size.y - 65.0 - progress * 28.0), "owner": 0, "index": 1, "left": facings[1]}]
+		units = [{"slot": 1, "feet": Vector2(size.x * 0.5, size.y - 65.0 - progress * 28.0), "owner": 0, "index": 1, "left": facings[1]}]
+	if death_time >= 0.0 and inspection_row < 0:
+		for unit in units:
+			if death_poses.has(unit.slot):
+				unit.feet = death_poses[unit.slot].feet
+				unit.left = death_poses[unit.slot].left
+	displayed_units = units.duplicate(true)
 	units.sort_custom(func(a: Dictionary, b: Dictionary): return a.feet.y < b.feet.y)
 	for unit in units:
 		_draw_unit(unit.feet, unit.owner, unit.index, walking, unit.left)
@@ -260,3 +268,10 @@ func _facing_for_position(slot: int, point: Vector2) -> bool:
 			facings[slot] = movement.x < 0.0
 	previous_positions[slot] = point
 	return facings[slot]
+
+func _start_death() -> void:
+	death_poses.clear()
+	for unit in displayed_units:
+		if unit.index == 1:
+			death_poses[unit.slot] = {"feet": unit.feet, "left": unit.left}
+	death_time = 0.0
