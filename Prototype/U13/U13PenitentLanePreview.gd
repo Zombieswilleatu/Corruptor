@@ -42,7 +42,7 @@ func _ready() -> void:
 	# Angled boundaries exclude adjacent shield effects while retaining the
 	# trailing hair and feet. Coordinates use the original sheet space.
 	frame_polygons = {3: {
-		3: PackedVector2Array([Vector2(719, 724), Vector2(937, 724), Vector2(937, 905), Vector2(675, 905), Vector2(675, 859), Vector2(705, 810), Vector2(719, 781)]),
+		3: PackedVector2Array([Vector2(719, 724), Vector2(937, 724), Vector2(937, 854), Vector2(916, 875), Vector2(916, 905), Vector2(675, 905), Vector2(675, 859), Vector2(705, 810), Vector2(719, 781)]),
 		4: PackedVector2Array([Vector2(959, 722), Vector2(1175, 722), Vector2(1175, 905), Vector2(930, 905), Vector2(930, 861), Vector2(945, 827), Vector2(959, 795)]),
 	}}
 	frame_regions[3][3] = [Rect2(675, 724, 262, 181), Vector2(801.5, 912)]
