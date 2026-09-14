@@ -1,5 +1,6 @@
 extends RefCounted
 
+const HuntWard = preload("res://Scripts/Sim/U13HuntWardDoctrine.gd")
 const Development = preload("res://Scripts/Sim/U13GameDevelopment.gd")
 const Plunder = preload("res://Scripts/Sim/U13Plunder.gd")
 const Construction = preload("res://Scripts/Sim/U13Construction.gd")
@@ -122,24 +123,11 @@ static func combat_score(c, order: Dictionary) -> float:
 	if order.action == "Profane":
 		return c.tear_value() - c.castle_value(c.rows[order.target_id]) - 8.0
 	if order.action == "Ward":
-		# Combat consumes only enemies already waiting at this zone. Travelling
-		# units move later; field population is not this round's attack strength.
-		# Waiters are marchers too, so adding both lists also counted them twice.
-		var pressure: int = c.waiters(1 - c.pid, lane)
-		return score + mini(total, maxi(0, pressure - c.guard_value(c.pid, lane))) * 1.5
+		return score + HuntWard.ward(c, order, total)
 	total += c.waiters(c.pid, lane, order)
 	var remaining: int = maxi(0, total - c.screen(lane))
 	if order.action == "Hunt":
-		remaining += int(c.w.relentless_pursuit[c.pid].strength_bonus)
-		for castle in c.castles(1 - c.pid):
-			if castle.attributes.castle_type == "Keep":
-				remaining = maxi(0, remaining - int(castle.attributes.integrity) - (3 if c.Structures.operational(castle) else 0))
-				break
-		var threshold: int = int(c.w.lord_stats[1 - c.pid].defense)
-		if remaining > threshold:
-			score += 28.0 + (120.0 if c.w.souls[c.pid] >= 10 else 0.0)
-		else:
-			score += mini(total, c.screen(lane)) * 0.8
+		score += HuntWard.hunt(c, order, total)
 	else:
 		if order.target_id.begins_with("castle_zone:"):
 			# No castle sigil while pillaging; all active targetable castles count.

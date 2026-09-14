@@ -126,8 +126,6 @@ static func apply(
 				if not target.attributes.alive or command.get("fracture_target", "") not in ["", "subjects", "infrastructure"]:
 					return Data.invalid("fracture_banishment_invalid")
 				details["fracture_target"] = command.get("fracture_target", "")
-				if target.attributes.has("threat"):
-					target.attributes.threat = 0
 			if command.has("attacker_id"):
 				var attacker: Dictionary = entities.get_entity(String(command.attacker_id))
 				# Hunt belongs to the player's army. This Lord ID supplies player
@@ -145,6 +143,10 @@ static func apply(
 				details["attacker"] = attacker.duplicate(true)
 				details["lord"] = target.duplicate(true)
 				details["attack_kind"] = "Hunt"
+			# Reactions (especially The Mark) consume the victim's pre-reset
+			# stats. Reset only the authoritative entity after capturing the fact.
+			if world.data.get("fracture_profile") == "U13_FRACTURE_V1" and target.attributes.has("threat"):
+				target.attributes.threat = 0
 			target.attributes["alive"] = false
 			entities.update(target.id, target.owner, target.attributes)
 			details["lord_id"] = target.id

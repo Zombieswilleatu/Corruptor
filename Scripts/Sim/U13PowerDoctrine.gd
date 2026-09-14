@@ -99,10 +99,9 @@ static func orias(c) -> Array:
 	var result: Array = []
 	for point in points(c, int(c.w.web_radius_fp)):
 		add(result, c, "Web", point.target, point.score * 4.0)
-	# Threat/Conduit is a real opportunity cost. Avoid repeatedly disabling our
-	# last operational Circle merely to deny an empty opponent's deployment.
-	var fragile: bool = c.castles(c.pid).any(func(e): return e.attributes.castle_type == "SummoningCircle" and e.attributes.integrity in [7, 8, 9])
-	var score: float = mini(8, int(c.w.opponent_hand_count)) - (6.0 if fragile else 0.0)
+	# Snare can deny next round's Guard replacement, but pays a real
+	# personal Threat / Circle-integrity cost at declaration time.
+	var score: float = mini(8, int(c.w.opponent_hand_count)) - Common.HuntWard.snare_cost(c)
 	add(result, c, "Snare", {"player_id": 1 - c.pid}, score)
 	return result
 

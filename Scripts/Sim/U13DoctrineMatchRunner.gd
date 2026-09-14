@@ -3,6 +3,7 @@ extends "res://Scripts/Sim/U13FullMatchBatchRunner.gd"
 const Bot = preload("res://Scripts/Sim/U13BasicDoctrine.gd")
 const Counters = preload("res://Scripts/Sim/U13PlanningCounters.gd")
 var verify: bool = false
+const COMBAT_EVENTS: Array = ["HUNT_STARTED", "HUNT_RESOLVED", "SIEGE_RESOLVED", "COMBAT_ORDER_FIZZLED", "KEEP_INTERPOSED", "LORD_BANISHED", "ORIAS_MARKED", "ACCELERATE", "BLOOD_CONDUIT", "SIGIL_CREATED", "FRACTURE_RESOLVED"]
 
 func identity(game_index: int) -> Dictionary:
 	var result: Dictionary = super.identity(game_index)
@@ -54,6 +55,7 @@ func trial() -> Dictionary:
 	var coverage: Dictionary = {"actions": {}, "powers": {}, "development": {}}
 	for round_number in range(1, round_limit + 1):
 		var begin: int = Time.get_ticks_usec()
+		var event_cursor: int = game._owner._event_cursor()
 		var timings: Dictionary = {"checkpoint": 0.0}
 		# Failure includes the exact current save; periodic checkpoints also survive
 		# process termination. No full-history JSON encoding every round in fast mode.
@@ -125,7 +127,7 @@ func trial() -> Dictionary:
 			for power in plans[pid].powers: Batch.count_key(coverage.powers, power.power_id)
 			for key in ["rites", "summon", "castle_action", "guard_moves"]:
 				if order.has(key): Batch.count_key(coverage.development, key)
-		rounds.append({"round": round_number, "plans": plans, "planning_counters": counters, "timings_ms": timings, "resolution_detail_ms": resolution_detail, "resolution_hooks": hook_timings, "replay_resolution_hooks": replay_hook_timings})
+		rounds.append({"round": round_number, "plans": plans, "combat_events": game._owner._player_selected_events_since(0, event_cursor, COMBAT_EVENTS), "planning_counters": counters, "timings_ms": timings, "resolution_detail_ms": resolution_detail, "resolution_hooks": hook_timings, "replay_resolution_hooks": replay_hook_timings})
 		print("DOCTRINE GAME ", index, " ROUND ", round_number, " ", result.action, " | ", snappedf(timings.total / 1000.0, 0.01), "s; planning ", snappedf(timings.planning / 1000.0, 0.01), "s; resolution ", snappedf(timings.resolution / 1000.0, 0.01), "s; candidates ", counters[0].candidates_validated + counters[1].candidates_validated)
 		if game.is_finished():
 			var expected: Dictionary = Batch.Game.Content.Victory.evaluate(game.snapshot().world)

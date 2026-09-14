@@ -21,6 +21,7 @@ func ward_pressure() -> void:
 	var setup: Dictionary = Batch.setup(19)
 	if not check(game.start(setup.seed, setup.lords, setup.castles, true).action != "invalid" and Bot.to_planning(game).action == "game_planning", "Ward pressure fixture"): return
 	var public_view: Dictionary = Bot.BotPlanning.new(game._owner, 0).player_view(0, 0)
+	public_view.world.opponent_hand_count = 0 # isolate certain waiter support from the hand-count prior
 	var baseline = Bot.Context.new(public_view)
 	var order: Dictionary = {"action": "Ward", "lane": "Castle", "card_ids": baseline.w.hand}
 	var empty_score: float = Bot.Common.combat_score(baseline, order)
@@ -38,8 +39,8 @@ func ward_pressure() -> void:
 	small.world.entities.append({"id": "single-waiter", "kind": "marcher", "owner": 1, "attributes": {"lane": "Castle", "waiting": true}})
 	check(is_equal_approx(Bot.Common.combat_score(Bot.Context.new(small), order) - empty_score, 1.5), "one waiting enemy contributes one point of support, not two")
 	small.world.entities.back().attributes.lane = "Lord"
-	check(Bot.Common.combat_score(Bot.Context.new(small), order) == empty_score, "opposite-lane waiter does not justify Castle Ward")
-	check(Bot.BotPlanning.new(game._owner, 0).player_view(0, 0) == public_view, "pressure scoring leaves the authoritative public view unchanged")
+	check(is_equal_approx(Bot.Common.combat_score(Bot.Context.new(small), order) - empty_score, 1.5), "opposite-lane waiter can be screened by half-strength Castle Ward")
+	check(Bot.BotPlanning.new(game._owner, 0).player_view(0, 0).world.entities == public_view.world.entities, "pressure scoring leaves authoritative public entities unchanged")
 
 func opening(index: int) -> void:
 	var chosen: Dictionary = Batch.setup(index + 9 * ((index + 1) % 9))
@@ -125,7 +126,7 @@ func guarded_game(lord_name: String, hidden_value: int):
 	return game
 
 func hidden_guard_boundary() -> void:
-	for lord_name in ["Valak", "Gremory", "Odradek", "Kroni"]:
+	for lord_name in ["Valak", "Gremory", "Odradek", "Kroni", "Orias"]:
 		var low = guarded_game(lord_name, 1)
 		var high = guarded_game(lord_name, 5)
 		if low == null or high == null:

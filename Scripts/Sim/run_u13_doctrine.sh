@@ -63,7 +63,7 @@ if ! grep -Eq '^4\.7\.2\.stable([.[:space:]]|$)' "$u13_reports/version.log"; the
   exit 1
 fi
 printf 'Doctrine reports: %s\nChecking doctrine legality and replay fixtures...\n' "$u13_reports"
-for u13_suite in U13CommittedHunt U13BasicDoctrine U13WishDoctrine U13ConstructionDoctrine U13DoctrineCoverage U13RoundPressure; do
+for u13_suite in U13CommittedHunt U13BasicDoctrine U13WishDoctrine U13ConstructionDoctrine U13DoctrineCoverage U13RoundPressure U13HuntWardDoctrine; do
 "$u13_exe" --headless --path "$u13_root" --script "Scripts/Sim/${u13_suite}TestRunner.gd" >"$u13_reports/${u13_suite}.log" 2>&1 &
 u13_pids[0]=$!
 u13_deadline=$((SECONDS + u13_timeout))
@@ -82,13 +82,13 @@ done
 u13_status=0
 wait "${u13_pids[0]}" || u13_status=$?
 u13_pids=()
-if ((u13_status != 0)) || grep -Eq 'SCRIPT ERROR|ERROR:|^FAIL ' "$u13_reports/${u13_suite}.log" || ! grep -Eq '^U13 (basic doctrine|committed army action|committed Hunt|wish doctrine|construction doctrine|doctrine coverage|round pressure) failures: 0$' "$u13_reports/${u13_suite}.log"; then
+if ((u13_status != 0)) || grep -Eq 'SCRIPT ERROR|ERROR:|^FAIL ' "$u13_reports/${u13_suite}.log" || ! grep -Eq '^U13 (basic doctrine|committed army action|committed Hunt|wish doctrine|construction doctrine|doctrine coverage|round pressure|hunt ward doctrine) failures: 0$' "$u13_reports/${u13_suite}.log"; then
   cat -- "$u13_reports/${u13_suite}.log"
   exit 1
 fi
 done
 if [[ "$u13_fixtures_only" == 1 ]]; then
-  printf 'Doctrine fixtures passed: 6/6. Reports: %s\n' "$u13_reports"
+  printf 'Doctrine fixtures passed: 7/7. Reports: %s\n' "$u13_reports"
   exit 0
 fi
 printf 'Running %s matches, %s workers, cap %s rounds; independent replay on every %sth game starting with game 1.\n' "$u13_games" "$u13_workers" "$u13_rounds" "$u13_verify"
