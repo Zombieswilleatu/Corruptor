@@ -31,14 +31,23 @@ const PENITENT_FRAMES = {
 func _ready() -> void:
 	character_name = "Penitent"
 	frame_regions = PENITENT_FRAMES.duplicate(true)
-	# Provisional full-cell cuts for the two attack rows. Keep the existing
-	# measured walk/death crops intact; inspect these against the external PNG.
+	extra_animation_labels = {2: "Inspect celebrate", 3: "Inspect attack"}
+	# Celebrate uses the third source row; attack uses the fourth.
 	for row in [2, 3]:
 		var poses: Array = []
 		for column in range(6):
 			var origin := Vector2(column * 229, row * 229)
 			poses.append([Rect2(origin, Vector2(229, 229)), origin + Vector2(114.5, 225)])
 		frame_regions[row] = poses
+	# Angled boundaries exclude adjacent shield effects while retaining the
+	# trailing hair and feet. Coordinates use the original sheet space.
+	frame_polygons = {3: {
+		3: PackedVector2Array([Vector2(719, 724), Vector2(937, 724), Vector2(937, 905), Vector2(675, 905), Vector2(675, 859), Vector2(705, 810), Vector2(719, 781)]),
+		4: PackedVector2Array([Vector2(959, 722), Vector2(1175, 722), Vector2(1175, 905), Vector2(930, 905), Vector2(930, 861), Vector2(945, 827), Vector2(959, 795)]),
+	}}
+	frame_regions[3][3] = [Rect2(675, 724, 262, 181), Vector2(801.5, 912)]
+	frame_regions[3][4] = [Rect2(930, 722, 245, 183), Vector2(1030.5, 912)]
+	frame_regions[3][5] = [Rect2(1179, 707, 184, 198), Vector2(1259.5, 912)]
 	has_redraw = false
 	use_redraw = false
 	super._ready()

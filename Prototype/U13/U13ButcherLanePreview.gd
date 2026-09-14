@@ -33,6 +33,8 @@ const FRAMES = {
 var character_name: String = "Butcher"
 var frame_regions: Dictionary = FRAMES
 var has_redraw: bool = true
+var extra_animation_labels: Dictionary = {}
+var frame_polygons: Dictionary = {}
 var inspection_row: int = -1
 var inspection_frame: int = 0
 var inspection_playing: bool = false
@@ -128,7 +130,7 @@ func _ready() -> void:
 		animation.add_item(caption)
 	for attack_row in [2, 3]:
 		if frame_regions.has(attack_row):
-			animation.add_item("Inspect attack %d" % (attack_row - 1))
+			animation.add_item(extra_animation_labels.get(attack_row, "Inspect attack %d" % (attack_row - 1)))
 			inspection_rows.append(attack_row)
 	animation.item_selected.connect(func(index: int):
 		inspection_row = inspection_rows[index]
@@ -278,7 +280,15 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool, face_left:
 	if dying and face_left:
 		destination.position.x = feet.x - offset.x - dimensions.x
 		destination.size.x = -dimensions.x
-	draw_texture_rect_region(sheet, destination, source, Color(1, 1, 1, opacity))
+	if frame_polygons.has(row) and frame_polygons[row].has(frame):
+		var vertices := PackedVector2Array()
+		var uvs := PackedVector2Array()
+		for point in frame_polygons[row][frame]:
+			vertices.append(feet + (point - anchor) * factor)
+			uvs.append(point / Vector2(1374, 1145))
+		draw_colored_polygon(vertices, Color(1, 1, 1, opacity), uvs, sheet)
+	else:
+		draw_texture_rect_region(sheet, destination, source, Color(1, 1, 1, opacity))
 	if not dying:
 		draw_line(feet + Vector2(-13, 9), feet + Vector2(13, 9), tint, 3.0)
 
