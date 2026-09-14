@@ -38,6 +38,7 @@ var source_shader_path: String = ""
 var bundled_sheet_path: String = ""
 var source_layer: Node2D
 var source_commands: Array = []
+var source_polygon_commands: Array = []
 var frame_regions: Dictionary = FRAMES
 var has_redraw: bool = true
 var redraw_path: String = "res://Prototype/U13/Assets/ButcherWalkV2.png"
@@ -139,6 +140,7 @@ func _build_preview() -> void:
 	redraw_layer.draw.connect(_draw_redraw_layer)
 	add_child(redraw_layer)
 	source_commands.clear()
+	source_polygon_commands.clear()
 	source_layer = Node2D.new()
 	source_layer.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	if not source_shader_path.is_empty():
@@ -263,6 +265,7 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	source_commands.clear()
+	source_polygon_commands.clear()
 	if source_layer != null:
 		source_layer.queue_redraw()
 	redraw_commands.clear()
@@ -365,7 +368,10 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool, face_left:
 		for point in frame_polygons[row][frame]:
 			vertices.append(feet + (point - anchor) * factor)
 			uvs.append(point / source_dimensions)
-		draw_colored_polygon(vertices, Color(1, 1, 1, opacity), uvs, sheet)
+		if not source_shader_path.is_empty():
+			source_polygon_commands.append([vertices, Color(1, 1, 1, opacity), uvs])
+		else:
+			draw_colored_polygon(vertices, Color(1, 1, 1, opacity), uvs, sheet)
 	elif not source_shader_path.is_empty():
 		source_commands.append([destination, source, Color(1, 1, 1, opacity)])
 	else:
@@ -374,6 +380,8 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool, face_left:
 		draw_line(feet + Vector2(-13, 9), feet + Vector2(13, 9), tint, 3.0)
 
 func _draw_source_layer() -> void:
+	for command in source_polygon_commands:
+		source_layer.draw_colored_polygon(command[0], command[1], command[2], sheet)
 	for command in source_commands:
 		source_layer.draw_texture_rect_region(sheet, command[0], command[1], command[2])
 
