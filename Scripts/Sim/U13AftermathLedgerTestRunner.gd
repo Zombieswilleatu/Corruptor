@@ -30,6 +30,18 @@ func _initialize() -> void:
 	result = Ledger.render(world, actions, 2, {}, pending)
 	for action in ["Siege", "Hunt", "Ward"]: ok = ok and result.contains("Action: " + action)
 	ok = ok and result.contains("Power: War Machine") and result.contains("Power: Inevitable Ruin · scheduled for round 3")
+	var raw_unit: Dictionary = {"id": "u13_entity_marcher:internal", "owner": 1, "attributes": {"suit": "Wright", "x_fp": 123, "hp": 5}}
+	var noisy: Array = [
+		{"type": "MARCHER_ALLEGIANCE_CHANGED", "data": {"round": 2, "previous_owner": 0, "new_owner": 1, "before": raw_unit, "after": raw_unit}},
+		{"type": "CASTLE_ACTIVATED", "data": {"round": 2, "player_id": 1, "castle_id": "engine", "before": 17, "after": 21}},
+		{"type": "UNKNOWN_INTERNAL_EVENT", "data": {"round": 2, "before": raw_unit}}
+	]
+	world["entities"] = [{"id": "engine", "owner": 1, "attributes": {"castle_type": "SiegeEngine"}}]
+	var clean: String = Ledger.render(world, noisy, 2)
+	ok = ok and clean.contains("Gained control of Wright Marcher") and clean.find("Gained control") > clean.find("OPPONENT") and clean.find("Gained control") < clean.find("SHARED")
+	ok = ok and clean.contains("Completed Opponent's Siege Engine")
+	for junk in ["u13_entity", "x_fp", "Before:", "After:", "Castle Id:", "{"]:
+		ok = ok and not clean.contains(junk)
 	var board = preload("res://Prototype/U13/U13DirectBoard.gd").new()
 	board._visible_world = {"entities": [{"id": "a", "attributes": {"value": 3}}, {"id": "b", "attributes": {"value": 7}}]}
 	board._intent = "Siege"

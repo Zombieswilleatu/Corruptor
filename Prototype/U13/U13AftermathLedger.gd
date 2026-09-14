@@ -12,12 +12,14 @@ static func render(world: Dictionary, events: Array, round_number: int, before: 
 
 	for event in events:
 		var d: Dictionary = event.get("data", {})
-		if int(d.get("round", d.get("attributes", {}).get("birth_round", -1))) != round_number:
+		if int(d.get("round", d.get("created_round", d.get("attributes", {}).get("birth_round", -1)))) != round_number:
 			continue
 		var pid: int = int(d.get("player_id", d.get("owner", -1)))
 		if event.get("type") == "VACANT_THRONE_RESOLVED": pid = int(d.get("soul_recipient", -1))
 		if d.get("attacker") is Dictionary:
 			pid = int(d.attacker.get("owner", -1))
+		if event.get("type") == "MARCHER_ALLEGIANCE_CHANGED":
+			pid = int(d.get("new_owner", -1))
 		d = d.duplicate(true)
 		if event.get("type") == "SIEGE_RESOLVED":
 			# Bastion facts credit the defender. Join to this attack using the
@@ -27,8 +29,10 @@ static func render(world: Dictionary, events: Array, round_number: int, before: 
 				if fact.get("type") == "BASTION_SCREENED" and int(hit.get("round", -1)) == round_number and hit.get("player_id", -1) == 1 - pid and hit.get("target_id", "") == d.get("target_id", ""):
 					d["bastion_damage"] = int(d.get("bastion_damage", 0)) + int(hit.get("damage", 0))
 		if d.has("castle_id"):
+			var castle_id: String = str(d.castle_id)
+			d.castle_id = "Castle"
 			for entity in world.get("entities", []):
-				if entity.id == d.castle_id:
+				if entity.id == castle_id:
 					d.castle_id = name_of(entity)
 					break
 		var line: String = describe(String(event.get("type", "")), d)
@@ -92,9 +96,19 @@ static func describe(kind: String, d: Dictionary) -> String:
 			if d.get("guards_defeated", 0) > 0: result += "; %d Guards defeated" % d.guards_defeated
 			return result
 		"HUNT_RESOLVED": return "Hunt: %d Guards defeated; %s" % [d.get("guards_defeated", 0), "Lord banished" if d.get("banished", false) else "no banishment"]
-		"CASTLE_REPAIRED", "CASTLE_RESTORED", "CASTLE_ACTIVATED", "LORD_RESUMMONED", "MARCHER_ALLEGIANCE_CHANGED", "FRACTURE_RESOLVED", "KANIFOUS_PRICE_PAID", "KANIFOUS_PRICE_SCHEDULED", "COMBAT_ORDER_FIZZLED", "PROFANE_RESOLVED":
-			var label: String = kind.capitalize()
-			for key in ["power_id", "castle_id", "lane", "before", "after", "amount", "souls", "damage", "reason"]:
-				if d.has(key): label += " · %s: %s" % [key.capitalize(), str(d[key]).capitalize()]
-			return label
+		"CASTLE_REPAIRED", "CASTLE_RESTORED":
+			return "%s · %s" % ["Repaired" if kind == "CASTLE_REPAIRED" else "Restored", d.get("castle_id", "Castle")]
+		"CASTLE_ACTIVATED": return "Completed " + str(d.get("castle_id", "Castle"))
+		"LORD_RESUMMONED": return "Lord resummoned"
+		"MARCHER_ALLEGIANCE_CHANGED":
+			var unit: Dictionary = d.get("after", {})
+			var suit: String = str(unit.get("attributes", {}).get("suit", ""))
+			return "Gained control of " + (suit + " Marcher" if suit in ["Butcher", "Penitent", "Wright", "Vulture"] else "a Marcher")
+		"FRACTURE_RESOLVED": return "Fracture: %s · %d" % [str(d.get("category", "")).capitalize(), d.get("value", 0)]
+		"KANIFOUS_PRICE_PAID": return "Wish price paid"
+		"KANIFOUS_PRICE_SCHEDULED": return "Wish price due round %d" % d.get("due_round", 0)
+		"COMBAT_ORDER_FIZZLED": return "Combat action fizzled · target or payment no longer available"
+		"PROFANE_RESOLVED": return "Castle profaned" if d.get("profaned", false) else "Profane failed · Castle no longer eligible"
+	# Only explicitly formatted results belong in the ledger. Never serialize
+	# arbitrary event fields: before/after may contain entire entity records.
 	return ""
