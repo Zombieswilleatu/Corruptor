@@ -1,5 +1,6 @@
 extends RefCounted
 
+const Work = preload("res://Scripts/Sim/U13GuardWork.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
@@ -76,11 +77,11 @@ static func choice_shape(choice) -> bool:
 		return false
 	if choice.is_empty():
 		return true
-	if choice.keys().size() != 4 or choice.get("action") not in ["Construct", "Repair", "Activate"]:
+	if choice.keys().size() != 4 or choice.get("action") not in ["Construct", "Repair", "Activate", "Work"]:
 		return false
 	if (
 		typeof(choice.get("target_id")) != TYPE_STRING
-		or choice.target_id.is_empty()
+		or (choice.target_id.is_empty() and choice.action != "Work")
 		or typeof(choice.get("card_ids")) != TYPE_ARRAY
 		or typeof(choice.get("use_repair_token")) != TYPE_BOOL
 	):
@@ -117,6 +118,8 @@ static func validate_choice(world: Dictionary, player_id: int, choice: Dictionar
 		return Data.invalid("castle_action_shape_invalid")
 	if choice.is_empty():
 		return {"action": "legal", "paid_value": 0, "reconstruction": false}
+	if Work.enabled(world): return Work.validate_choice(world, player_id, choice)
+	if choice.get("action") == "Work": return Data.invalid("work_profile_required")
 	if not Cards.valid(world):
 		return Data.invalid("castle_payment_unavailable")
 	var entities = Ids.new()
@@ -135,6 +138,8 @@ static func _validate_choice(
 		return Data.invalid("castle_action_shape_invalid")
 	if choice.is_empty():
 		return {"action": "legal", "paid_value": 0, "reconstruction": false}
+	if Work.enabled(world): return Work.validate_choice(world, player_id, choice)
+	if choice.get("action") == "Work": return Data.invalid("work_profile_required")
 	var target: Dictionary = entities.get_entity(choice.target_id)
 	if target.is_empty() or target.kind != "castle" or target.owner != player_id:
 		return Data.invalid("castle_action_target_invalid")
@@ -201,6 +206,8 @@ static func validate_target(world: Dictionary, player_id: int, choice: Dictionar
 static func _validate_target(
 	world: Dictionary, player_id: int, choice: Dictionary, entities
 ) -> Dictionary:
+	if Work.enabled(world): return Work.validate_choice(world, player_id, choice)
+	if choice.get("action") == "Work": return Data.invalid("work_profile_required")
 	var target: Dictionary = entities.get_entity(choice.target_id)
 	if target.is_empty() or target.kind != "castle" or target.owner != player_id:
 		return Data.invalid("castle_action_target_invalid")
@@ -320,7 +327,7 @@ static func snapshot_order(context: Dictionary) -> Dictionary:
 	var player_id: int = context.player_id
 	var choice: Dictionary = context.order.get("castle_action", {})
 	var record = world.data.castle_orders[player_id]
-	if not choice.is_empty():
+	if not choice.is_empty() and not choice.target_id.is_empty():
 		var identities = Ids.new()
 		identities.restore(world.entities)
 		var target: Dictionary = identities.get_entity(choice.target_id)
@@ -385,6 +392,9 @@ static func resolve(context: Dictionary) -> Dictionary:
 	var world: Dictionary = context.world.duplicate(true)
 	if world.data.construction_round >= context.round:
 		return Data.invalid("construction_already_resolved")
+	if Work.enabled(world):
+		world.data.construction_round = context.round
+		return {"action": "resolved", "world": world, "events": []}
 	var entities = Ids.new()
 	entities.restore(world.entities)
 	var events: Array = []

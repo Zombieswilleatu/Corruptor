@@ -31,6 +31,7 @@ func run() -> void:
 		finish(); return
 	await human_choices()
 	check(board._planning(), "human choices unlock the board's planning controls")
+	work_and_guard_controls()
 	check(board.action_zone.action_buttons["Siege"].text == "Siege", "active enemy castles keep the Siege action")
 	var enemy: Dictionary = board._visible_world.entities.filter(func(e): return e.kind == "lord" and e.owner == 1)[0]
 	# The target picker uses public enemy presence, independent of own presence.
@@ -76,6 +77,41 @@ func run() -> void:
 	await absent_siege()
 	await special_actions()
 	finish()
+
+func work_and_guard_controls() -> void:
+	board._refresh()
+	var available: String = Slots.castle_id(0, 4)
+	var target: Dictionary = board._entity_target(available)
+	board._open_work_target()
+	check(board.choosing_work and not board.game_menu.visible and board._work_target_allowed(target), "Work button arms eligible Castles directly without a menu")
+	var control: Control = board.sides[1].target_controls[available].get_parent().get_parent()
+	check(control.has_meta("u13_target_flash"), "eligible Work target pulses")
+	board._choose_target(board._entity_target(Slots.castle_id(1, 4)))
+	check(board.choosing_work and board.castle_plan.is_empty(), "enemy Castle cannot receive work")
+	board._choose_target(target)
+	check(not board.choosing_work and board.castle_plan.target_id == available and board._order().castle_action.card_ids.is_empty(), "clicking Castle stages Work without card payment")
+	board._open_work_target()
+	board._choose_target(target)
+	check(board.castle_plan.target_id.is_empty(), "clicking selected Work target clears it")
+	board.castle_plan = {}
+	for lane in ["Lord", "Castle"]:
+		var card: String = board._available_ids()[0]
+		var data: Dictionary = {"ui2_type": "commitment_hand_card", "source": "Hand", "card": card}
+		var zone: Dictionary = {"kind": "zone", "owner": 0, "lane": lane, "id": ""}
+		check(board._can_drop(Vector2.ZERO, data, zone), "whole " + lane + " Guard zone accepts a hand card")
+		board._drop(Vector2.ZERO, data, zone)
+		check(board.guard_plan.any(func(m): return m.card_id == card and m.lane == lane) and board._draft_combat.is_empty(), "Guard-zone drop places Guard without staging Ward in " + lane)
+		board._refresh()
+	var lord: Dictionary = board._visible_world.entities.filter(func(e): return e.kind == "lord" and e.owner == 0)[0]
+	for destination in [board._entity_target(lord.id), board._entity_target(Slots.castle_id(0, 1))]:
+		var card: String = board._available_ids()[0]
+		var data: Dictionary = {"ui2_type": "commitment_hand_card", "source": "Hand", "card": card}
+		board._drop(Vector2.ZERO, data, destination)
+		check(board._draft_combat.get("action") == "Ward" and board._draft_combat.lane == destination.lane, "direct " + destination.kind + " drop stages Ward")
+		board._draft_combat = {}
+		board._refresh()
+	board._reset_direct()
+	board._refresh()
 
 func absent_siege() -> void:
 	const Game = Board.PlaySession.Game

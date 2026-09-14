@@ -5,7 +5,7 @@ const Common = preload("res://Scripts/Sim/U13CommonDoctrine.gd")
 const Powers = preload("res://Scripts/Sim/U13PowerDoctrine.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const BotPlanning = preload("res://Scripts/Sim/U13BotPlanning.gd")
-const VERSION: String = "U13_BASIC_DOCTRINE_V6"
+const VERSION: String = "U13_BASIC_DOCTRINE_V7"
 const CANDIDATE_LIMIT: int = 32
 
 static func ranked(options: Array) -> Array:
@@ -50,6 +50,9 @@ static func plan(owner, pid: int, reuse_validation: bool = true) -> Dictionary:
 	var late_wish: bool = c.w.lord_ids[pid] == "Kanifous"
 	var powers: Array = [] if late_wish else choose_power(owner, pid, c, order)
 	order = choose(owner, pid, powers, order, Common.castles(c, powers, order))
+	if c.w.has("guard_work"):
+		for index in range(mini(2, int(c.w.guard_placement_limits[pid]))):
+			order = choose(owner, pid, powers, order, Common.guards(c, powers, order))
 	order = choose(owner, pid, powers, order, Common.combat(c, powers, order))
 	# Re-evaluate only the selected power against our own chosen combat. If it
 	# becomes predictably redundant, drop it and spend the released cards on the
@@ -58,7 +61,7 @@ static func plan(owner, pid: int, reuse_validation: bool = true) -> Dictionary:
 		powers = choose_power(owner, pid, c, order)
 		if powers.is_empty():
 			var reserved: Dictionary = {}
-			for key in ["rites", "summon"]:
+			for key in ["rites", "summon", "guard_moves"]:
 				if order.has(key):
 					reserved[key] = order[key].duplicate(true)
 			order = choose(owner, pid, powers, reserved, Common.castles(c, powers, reserved))

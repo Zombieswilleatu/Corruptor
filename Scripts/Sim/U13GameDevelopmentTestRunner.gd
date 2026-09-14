@@ -40,25 +40,15 @@ func construction_lifecycle() -> void:
 		var order: Dictionary = {}
 		if round_number == 1:
 			var hand: Array = game.player_view(0).world.hand
-			order = {"castle_action": choice("Construct", project), "action": "Ward", "lane": "Lord", "card_ids": hand.slice(0, 2), "guard_moves": [{"card_id": hand[2], "lane": "Lord", "slot": 0}, {"card_id": hand[3], "lane": "Castle", "slot": 0}]}
+			order = {"castle_action": choice("Work", project), "action": "Ward", "lane": "Lord", "card_ids": hand.slice(0, 2), "guard_moves": [{"card_id": hand[2], "lane": "Lord", "slot": 0}, {"card_id": hand[3], "lane": "Castle", "slot": 0}]}
 			var bad: Dictionary = order.duplicate(true)
 			bad.guard_moves[0].card_id = hand[0]
 			var before: Dictionary = game.snapshot()
 			check(game._owner.preview_submission(0, [], bad).action == "invalid" and game.snapshot() == before, "combat/deployment double spend rejected atomically")
-		elif round_number == 4:
-			order = {"castle_action": choice("Activate", project)}
-		elif round_number == 5:
-			var hand: Array = game.player_view(0).world.hand
-			order = {"castle_action": choice("Repair", project, [hand[0]]), "guard_moves": [{"card_id": hand[1], "lane": "Lord", "slot": 1}]}
 		if not finish(game, order):
 			return
 		var castle: Dictionary = entity(game, project)
-		if round_number <= 3:
-			check(castle.attributes.integrity == 3 * round_number and castle.attributes.construction_state == "building", "automatic project advances once during mixed/pass round")
-		elif round_number == 4:
-			check(castle.attributes.integrity == 9 and castle.attributes.construction_state == "active" and game.snapshot().world.data.construction_targets[0] == "", "commission activates selected castle and stops free progress")
-		else:
-			check(castle.attributes.integrity > 9 and entity(game, order.guard_moves[0].card_id).attributes.get("role") == "guard", "repair and separate guard deployment resolve together")
+		check(castle.attributes.integrity == mini(castle.attributes.max_integrity, 3 * round_number + 2), "new Guards add work once; persistent project gains passive 3")
 		if round_number < 5:
 			check(game.next_round().action != "invalid", "next Development round")
 
@@ -90,7 +80,7 @@ func return_and_deploy() -> void:
 		return
 	var view: Dictionary = game.player_view(0)
 	var return_plan: Dictionary = game.plan(0)
-	check(return_plan.action != "invalid" and return_plan.powers.is_empty() and return_plan.order.get("action", "Hunt") == "Hunt", "banished Lord planner may Hunt while Lord powers remain unavailable")
+	check(return_plan.action != "invalid" and return_plan.powers.is_empty() and game._owner.preview_submission(0, [], return_plan.order).action != "invalid", "banished Lord planner remains legal while Lord powers are unavailable")
 	var legal: Array = game._owner.legal_order_candidates(0, [], Development.summon_orders(view, [], {}))
 	if not check(not legal.is_empty(), "return candidates from public hand"):
 		return
@@ -120,7 +110,7 @@ func reconstruction() -> void:
 	var view: Dictionary = game.player_view(0)
 	var candidates: Array = Development.castle_orders(view, [], {})
 	var legal: Array = game._owner.legal_order_candidates(0, [], candidates)
-	var rebuilding: Array = legal.filter(func(o): return o.castle_action.target_id == engine and o.castle_action.action == "Construct" and o.castle_action.card_ids.is_empty())
+	var rebuilding: Array = legal.filter(func(o): return o.castle_action.target_id == engine and o.castle_action.action == "Work" and o.castle_action.card_ids.is_empty())
 	if not check(rebuilding.size() == 1, "Deimos reconstruction uses ordinary construction candidate"):
 		return
 	if finish(game, rebuilding[0]):

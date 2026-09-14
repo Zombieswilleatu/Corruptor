@@ -30,6 +30,15 @@ static func summon(c, powers: Array, base: Dictionary) -> Array:
 
 static func castles(c, powers: Array, base: Dictionary) -> Array:
 	var result: Array = []
+	if c.w.has("guard_work"):
+		for row in c.castles(c.pid, false):
+			var order: Dictionary = base.duplicate(true)
+			order["castle_action"] = preload("res://Scripts/Sim/U13GuardWork.gd").choice(row.id)
+			var missing: int = maxi(0, int(row.attributes.max_integrity - row.attributes.integrity))
+			var score: float = minf(missing, 6) + c.castle_value(row) * 0.3
+			if row.id == c.w.guard_work.target: score += 2.0
+			result.append(candidate(order, score, "work target"))
+		return result
 	var payments: Array = c.payments(powers, base, "Wright")
 	var project: String = String(c.w.construction_target)
 	for row in c.castles(c.pid, false):
@@ -118,7 +127,7 @@ static func combat_score(c, order: Dictionary) -> float:
 		bodies[a.suit] = int(bodies.get(a.suit, 0)) + int(a.value)
 	var recruits: int = 0
 	for value in bodies.values():
-		recruits += floori(value / 3.0)
+		recruits += floori(value / (2.0 if c.w.has("guard_work") and order.action == "Ward" else 3.0))
 	var score: float = recruits * 1.8 - cost
 	if order.action == "Profane":
 		return c.tear_value() - c.castle_value(c.rows[order.target_id]) - 8.0
@@ -159,5 +168,9 @@ static func guards(c, powers: Array, base: Dictionary) -> Array:
 		var score: float = 9.0 + mini(5, c.select("marcher", 1 - c.pid, move.lane).size()) - coverage * 1.5 - c.printed([move.card_id]) * 0.4
 		if move.lane == "Lord":
 			score += 2.0
+		if c.w.has("guard_work"):
+			score += 1.0
+			for prior in base.get("guard_moves", []):
+				if prior.lane == move.lane and c.rows[prior.card_id].attributes.suit == c.rows[move.card_id].attributes.suit: score += 6.0
 		result.append(candidate(order, score, "cover " + str(move.lane)))
 	return result

@@ -4,6 +4,11 @@ extends RefCounted
 # Finite payment vocabulary: free build, every single card/pair, optional Repair
 # token. All legality/costs still belong to the complete-plan preview.
 static func enumerate(view: Dictionary) -> Array:
+	if view.world.has("guard_work"):
+		var targets: Array = [preload("res://Scripts/Sim/U13GuardWork.gd").choice("")]
+		for entity in view.world.entities:
+			if entity.kind == "castle" and entity.owner == _player_id(view): targets.append(preload("res://Scripts/Sim/U13GuardWork.gd").choice(entity.id))
+		return targets
 	var cards: Array = view.world.hand.duplicate()
 	cards.sort()
 	var payments: Array = [[]]

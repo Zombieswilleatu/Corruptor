@@ -66,6 +66,10 @@ static func name_of(entity: Dictionary) -> String:
 
 static func describe(kind: String, d: Dictionary) -> String:
 	match kind:
+		"WORK_RESOLVED": return "Work · %s: %d → %d" % [d.get("castle_id", "Castle"), d.get("before", 0), d.get("after", 0)]
+		"GUARD_PAIR_DRAW": return "Vulture pair drew 1 card"
+		"GUARD_PAIR_STRIKE": return "Butcher pair destroyed an enemy Marcher"
+		"GUARD_PAIR_SCREEN": return "Penitent pair provided 5 protection"
 		"COMBAT_ORDER_REVEALED": return "Action: " + str(d.get("order", {}).get("action", "Pass"))
 		"POWER_RESOLVED": return "Power: " + str(d.get("power_id", "")).capitalize()
 		"FIZZLE_INVALID_TARGET": return "Power: " + str(d.get("power_id", "")).capitalize() + " · fizzled"

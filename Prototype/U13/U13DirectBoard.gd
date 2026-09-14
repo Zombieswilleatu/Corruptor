@@ -104,6 +104,7 @@ func _refresh(presented: Dictionary = {}) -> void:
 				row.lord_guard_box if lane == "Lord" else row.castle_guard_box
 			)
 			_wire_target(guard_box, shared)
+			_wire_target(row.lord_guard_group if lane == "Lord" else row.castle_guard_drop_area, shared)
 			for slot in guard_box.get_children():
 				var cell: Dictionary = shared.duplicate(true)
 				cell["slot"] = slot.get_index()

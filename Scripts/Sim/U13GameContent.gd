@@ -9,6 +9,7 @@ const BATCH_EVENTS_VERSION: String = "U13_BATCH_EVENTS_V1"
 const BATCH_SAMPLE_EVENTS: Array = ["MARCHING_TICK", "KRONI_ACTOR_TICK"]
 var batch_events: bool = false
 
+const GuardWork = preload("res://Scripts/Sim/U13GuardWork.gd")
 const Victory = preload("res://Scripts/Sim/U13Victory.gd")
 const Plunder = preload("res://Scripts/Sim/U13Plunder.gd")
 const Throne = preload("res://Scripts/Sim/U13VacantThrone.gd")
@@ -30,18 +31,19 @@ func create_combat_match(compact_events: bool = false):
 	for power in rules():
 		validators[power] = Callable(self, "validate")
 		resolvers[power] = Callable(self, "resolve")
-	var owner = MatchOwner.new(Victory.VERSION + ":" + Plunder.VERSION + ":" + Marching.Ranged.VERSION + ":" + Throne.VERSION + ":" + Rites.VERSION + ":" + Fracture.VERSION + ":" + Sigils.VERSION + ":" + Conduit.VERSION + ":" + Market.VERSION + ":" + CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY + (":" + BATCH_EVENTS_VERSION if batch_events else ""), rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Rites, "legal_orders"))
+	var owner = MatchOwner.new(GuardWork.VERSION + ":" + Victory.VERSION + ":" + Plunder.VERSION + ":" + Marching.Ranged.VERSION + ":" + Throne.VERSION + ":" + Rites.VERSION + ":" + Fracture.VERSION + ":" + Sigils.VERSION + ":" + Conduit.VERSION + ":" + Market.VERSION + ":" + CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY + (":" + BATCH_EVENTS_VERSION if batch_events else ""), rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Rites, "legal_orders"))
 	# valid_world is a pure function of this world and fixed content rules.
 	owner._cache_world_validation = true
 	return owner
 
 
 func valid_world(world: Dictionary) -> bool:
-	return super.valid_world(world) and Victory.valid(world) and Plunder.valid(world) and Throne.valid(world) and Rites.valid(world) and Fracture.valid(world) and Economy.valid(world) and Market.valid(world) and Sigils.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
+	return GuardWork.valid(world) and super.valid_world(world) and Victory.valid(world) and Plunder.valid(world) and Throne.valid(world) and Rites.valid(world) and Fracture.valid(world) and Economy.valid(world) and Market.valid(world) and Sigils.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
 
 
 func react(raw: Dictionary, fact: Dictionary, seed_value: String, player_order: Array) -> Dictionary:
 	var result: Dictionary = super.react(raw, fact, seed_value, player_order)
+	if result.action != "invalid": GuardWork.reconcile(result.world)
 	if result.action == "invalid" or fact.type != "LORD_BANISHED":
 		return result
 	if not Throne.note_banishment(result.world, fact):
@@ -49,6 +51,7 @@ func react(raw: Dictionary, fact: Dictionary, seed_value: String, player_order: 
 	var fractured: Dictionary = Fracture.resolve(result.world, fact, seed_value, player_order, Callable(self, "react"))
 	if fractured.action == "invalid":
 		return fractured
+	GuardWork.reconcile(fractured.world)
 	fractured.events = result.events + fractured.events
 	return fractured
 
@@ -74,6 +77,9 @@ func on_hook(context: Dictionary) -> Dictionary:
 	prepared.world = sigils.world
 	var result: Dictionary = super.on_hook(prepared)
 	if result.action != "invalid":
+		GuardWork.reconcile(result.world)
+		if context.hook == Timeline.DEVELOPMENT:
+			result.events.append_array(GuardWork.develop(result.world, context.round, context.player_order))
 		result.events = rite_events + sigils.events + result.events
 		result.events.append_array(Plunder.clear_castle_sigils(result.world, context.round))
 		Throne.observe(result.world)
@@ -96,6 +102,7 @@ func on_hook(context: Dictionary) -> Dictionary:
 	var economy: Dictionary = Economy.on_hook(ordinary)
 	if economy.action == "invalid":
 		return economy
+	economy.events.append_array(GuardWork.draw_pairs(economy.world, context.round, context.seed))
 	if economy.world.data.game_economy.stockpile_pending.is_empty():
 		economy = _begin_market(economy, context.seed, context.round)
 		if economy.action == "invalid":
@@ -107,6 +114,10 @@ func on_hook(context: Dictionary) -> Dictionary:
 
 func accept_order(context: Dictionary) -> Dictionary:
 	if context.phase == "snapshot":
+		for entry in [["developed_round", Timeline.DEVELOPMENT], ["draw_round", Timeline.ROUND_START_AUTOMATIC]]:
+			var expected_work: int = context.round - (1 if context.next_hook_index <= Timeline.hook_rank(entry[1]) else 0)
+			if context.world.data.guard_work[entry[0]] != expected_work:
+				return Data.invalid("guard_work_snapshot_clock_invalid")
 		if not Victory.snapshot_valid(context):
 			return Data.invalid("victory_snapshot_invalid")
 		if not Plunder.snapshot_valid(context):
@@ -146,6 +157,10 @@ func accept_order(context: Dictionary) -> Dictionary:
 
 func project(world: Dictionary, player_id: int) -> Dictionary:
 	var result: Dictionary = super.project(world, player_id)
+	result["guard_work"] = {"version": GuardWork.VERSION, "target": world.data.guard_work.targets[player_id], "pairs": []}
+	# Enemy pair identities stay hidden until the Guards themselves are public.
+	for pair in world.data.guard_work.pairs:
+		if pair.player_id == player_id and GuardWork.intact(world, pair): result.guard_work.pairs.append(pair.duplicate(true))
 	result["victory"] = world.data.victory.duplicate(true)
 	result["plunder"] = world.data.plunder.duplicate(true)
 	result["vacant_throne"] = world.data.vacant_throne.duplicate(true)

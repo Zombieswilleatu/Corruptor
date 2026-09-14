@@ -2,6 +2,7 @@ class_name U13Combat
 extends RefCounted
 
 const Plunder = preload("res://Scripts/Sim/U13Plunder.gd")
+const GuardWork = preload("res://Scripts/Sim/U13GuardWork.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
@@ -298,7 +299,7 @@ static func _reveal(context: Dictionary) -> Dictionary:
 		)
 		# Baseline immutable commitment input, floor(printed suit total / 3).
 		for suit in Marching.SUITS:
-			var count: int = floori(float(totals.get(suit, 0)) / 3.0)
+			var count: int = floori(float(totals.get(suit, 0)) / (2.0 if GuardWork.enabled(world) and order.action == "Ward" else 3.0))
 			var origin: String = Data.instance_id(
 				"commitment", "%d:%d" % [context.round, player_id], suit
 			)
@@ -377,7 +378,7 @@ static func _siege(
 			)
 		)
 		return {"action": "resolved", "world": world, "events": events}
-	var strength: int = _card_strength(entities, order.card_ids, "Butcher")
+	var strength: int = _card_strength(entities, order.card_ids, "Butcher", not GuardWork.enabled(world))
 	var waiter_ids: Array = []
 	for entity in entities.snapshot().entities:
 		if (
@@ -414,12 +415,19 @@ static func _siege(
 	var ward: Dictionary = context.combat_orders[1 - player_id]
 	var screen: int = 0
 	if ward.get("action") == "Ward":
-		screen = _card_strength(entities, ward.card_ids, "Penitent")
+		screen = _card_strength(entities, ward.card_ids, "Penitent", not GuardWork.enabled(world))
 		if ward.lane != "Castle":
 			screen = screen >> 1
 	var remaining: int = strength
 	if screen > 0:
 		remaining = maxi(0, remaining - screen)
+	if GuardWork.enabled(world):
+		var defense: Dictionary = GuardWork.defend(world, 1 - player_id, "Castle", context, reaction)
+		if defense.action == "invalid": return defense
+		world = defense.world
+		entities.restore(world.entities)
+		remaining = maxi(0, remaining - int(defense.screen))
+		events.append_array(defense.events)
 	var guards: Array = []
 	for entity in entities.snapshot().entities:
 		if (
@@ -568,7 +576,7 @@ static func _siege_castle(world: Dictionary, context: Dictionary, player_id: int
 	return {"action": "resolved", "world": world, "events": events, "integrity_before": integrity_before, "damage": damage, "destroyed": destroyed, "overflow": maxi(0, remaining - damage)}
 
 
-static func _card_strength(entities, cards: Array, exempt: String) -> int:
+static func _card_strength(entities, cards: Array, exempt: String, pair_bonus: bool = true) -> int:
 	var strength: int = 0
 	var suited: int = 0
 	for card_id in cards:
@@ -578,7 +586,7 @@ static func _card_strength(entities, cards: Array, exempt: String) -> int:
 			suited += 1
 		else:
 			strength += maxi(1, int(a.value) - 1)
-	return strength + (1 if suited >= 2 else 0)
+	return strength + (1 if pair_bonus and suited >= 2 else 0)
 
 
 static func _fact(
@@ -675,7 +683,7 @@ static func _hunt(
 			)
 		)
 		return {"action": "resolved", "world": world, "events": events}
-	var strength: int = _card_strength(entities, order.card_ids, "Butcher")
+	var strength: int = _card_strength(entities, order.card_ids, "Butcher", not GuardWork.enabled(world))
 	var pursuit: int = 0
 	if world.data.get("orias_profile") == LordStats.ORIAS_WEB_PROFILE:
 		pursuit = LordStats.relentless_pursuit(
@@ -720,12 +728,19 @@ static func _hunt(
 	var ward: Dictionary = context.combat_orders[1 - player_id]
 	var screen: int = 0
 	if ward.get("action") == "Ward":
-		screen = _card_strength(entities, ward.card_ids, "Penitent")
+		screen = _card_strength(entities, ward.card_ids, "Penitent", not GuardWork.enabled(world))
 		if ward.lane != "Lord":
 			screen = screen >> 1
 	var remaining: int = strength
 	if screen > 0:
 		remaining = maxi(0, remaining - screen)
+	if GuardWork.enabled(world):
+		var defense: Dictionary = GuardWork.defend(world, 1 - player_id, "Lord", context, reaction)
+		if defense.action == "invalid": return defense
+		world = defense.world
+		entities.restore(world.entities)
+		remaining = maxi(0, remaining - int(defense.screen))
+		events.append_array(defense.events)
 	var reinforcement: Dictionary = Essence.reinforce(world, 1 - player_id, remaining, context.round)
 	remaining -= int(reinforcement.spent)
 	events.append_array(reinforcement.events)

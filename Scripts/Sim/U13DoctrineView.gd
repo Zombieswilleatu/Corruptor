@@ -61,7 +61,7 @@ func strength(ids: Array, exempt: String = "Butcher") -> int:
 		var a: Dictionary = rows[id].attributes
 		total += int(a.value) if a.suit == exempt else maxi(1, int(a.value) - 1)
 		suited += 1 if a.suit == exempt else 0
-	return total + (1 if suited >= 2 else 0)
+	return total + (1 if not w.has("guard_work") and suited >= 2 else 0)
 
 func card_score(id: String) -> float:
 	var a: Dictionary = rows[id].attributes

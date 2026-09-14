@@ -1,5 +1,8 @@
 extends "res://Prototype/U13/U13KanifousBoard.gd"
 
+const Work = preload("res://Scripts/Sim/U13GuardWork.gd")
+var work_button: Button
+var choosing_work: bool = false
 const PlaySession = preload("res://Scripts/Sim/U13PlayableSession.gd")
 const GameMenu = preload("res://Prototype/U13/U13GameMenu.gd")
 const Plunder = preload("res://Scripts/Sim/U13Plunder.gd")
@@ -27,6 +30,9 @@ func _build() -> void:
 	game_menu = GameMenu.new()
 	add_child(game_menu)
 	game_menu.closed.connect(reopen_decision)
+	work_button = _button(header.history_box, "WORK TARGET", _open_work_target)
+	work_button.tooltip_text = "Click, then select a pulsing Castle. Each newly placed Guard gives 1 work; a fresh Wright pair adds 5. Unbuilt targets also gain 3 per round. No card payment."
+	action_zone.action_buttons["Ward"].tooltip_text = "Defend a lane and recruit one Marcher per 2 printed suit value. Hunt and Siege recruit at 3:1."
 	game_button = _button(header.history_box, "GAME / RITES", _open_game_menu)
 	var files := HBoxContainer.new()
 	header.history_box.add_child(files)
@@ -55,6 +61,7 @@ func _hand_reserved(id: String) -> bool:
 	return id in rites_plan.get("invocation", {}).get("card_ids", []) or super._hand_reserved(id)
 
 func _reset_direct() -> void:
+	choosing_work = false
 	rites_plan = {}
 	fracture_choice = "infrastructure"
 	choice_error = ""
@@ -70,6 +77,13 @@ func _refresh(presented: Dictionary = {}) -> void:
 	header.scope.text = "U13 · YOU vs DOCTRINE"
 	header.scope.tooltip_text = "Full game · Dominion, Ritual or Final Collapse. Neutral Tears: +1 each round 13-20, +2 from round 21. Final Collapse at 26 total Tears. Veil threshold penalties are disabled."
 	header.veil_label.text = "VEIL %d · TEARS %d : %d · NEUTRAL %d" % [w.veil_total, w.personal_tears[0], w.personal_tears[1], w.neutral_tears]
+	work_button.disabled = not _planning() or playing or _job != null
+	work_button.text = "CANCEL WORK" if choosing_work else "WORK TARGET"
+	castle_box.hide()
+	for row in sides: row.show_commission_buttons(false, "")
+	if _planning():
+		plan_label.text += "\n" + _work_preview()
+		_show_pair_badges()
 	game_button.disabled = _job != null or playing or setup_open
 	save_button.disabled = not _can_save()
 	load_button.disabled = _job != null or playing
@@ -191,6 +205,7 @@ func _pillage_available() -> bool:
 	return not _visible_world.get("entities", []).is_empty() and not _visible_world.entities.any(func(e): return e.owner == 1 and Structures.targetable(e))
 
 func _select_direct_action(action: String) -> void:
+	choosing_work = false
 	if action != "Siege" or not _pillage_available():
 		super._select_direct_action(action)
 		return
@@ -386,3 +401,110 @@ func _load_game(path: String) -> void:
 	_refresh()
 	if session.is_finished(): _open_game_menu()
 	else: reopen_decision()
+
+
+func _work_preview() -> String:
+	if not _visible_world.has("guard_work"): return ""
+	var target_id: String = castle_plan.get("target_id", _visible_world.guard_work.target)
+	if target_id.is_empty(): return "Work target: none · choose WORK TARGET"
+	var target: Dictionary = _entity(target_id)
+	if target.is_empty(): return "Work target unavailable"
+	var work: int = guard_plan.size()
+	var counts: Dictionary = {}
+	for move in guard_plan:
+		if _entity(move.card_id).get("attributes", {}).get("suit") == "Wright": counts[move.lane] = int(counts.get(move.lane, 0)) + 1
+	for count in counts.values():
+		if count >= 2: work += 5
+	var a: Dictionary = target.attributes
+	var passive: int = 3 if a.construction_state != "active" or a.status == "ruined" else 0
+	var locked: bool = passive == 0 and int(a.get("repair_lock_until_round", 0)) >= session.round_number()
+	return "Work: %s · %d/%d · Guards/pairs +%d · passive +%d → %d%s" % [a.castle_type, a.integrity, a.max_integrity, work, passive, mini(a.max_integrity, a.integrity + (0 if locked else work + passive)), " · repair locked" if locked else ""]
+
+func _open_work_target() -> void:
+	if not _planning(): return
+	choosing_work = not choosing_work
+	phase_prompt.set_presenting(false)
+	_refresh()
+	if choosing_work:
+		_busy_label.text = "WORK · click a pulsing Castle. Click the selected target to clear it; WORK TARGET cancels."
+		_pulse_targets()
+
+func _work_target_allowed(target: Dictionary) -> bool:
+	if not _planning() or target.get("kind") != "castle" or target.get("owner") != 0: return false
+	var order: Dictionary = _order().duplicate(true)
+	order["castle_action"] = Work.choice(str(target.id))
+	var checked: Dictionary = session._owner.preview_submission(0, queued, order)
+	return checked.action != "invalid"
+
+func _choose_target(target: Dictionary) -> void:
+	if not choosing_work:
+		super._choose_target(target)
+		return
+	if not _work_target_allowed(target): return
+	var current: String = castle_plan.get("target_id", _visible_world.guard_work.target)
+	_set_work_target("" if current == target.id else str(target.id))
+
+func _pulse_targets() -> void:
+	if not choosing_work:
+		super._pulse_targets()
+		return
+	for id in sides[1].target_controls:
+		if _work_target_allowed(_entity_target(id)):
+			_flash_selected(_entity_target(id))
+
+func _set_work_target(id: String) -> void:
+	var prior: Dictionary = castle_plan
+	castle_plan = Work.choice(id)
+	if _error(session.choose(queued, _order())):
+		castle_plan = prior
+		return
+	choosing_work = false
+	_refresh()
+	reopen_decision()
+
+func _drop_intent(target: Dictionary) -> String:
+	if target.get("owner") == 0:
+		return "Guard" if target.get("kind") == "zone" else "Ward"
+	return super._drop_intent(target)
+
+func _guard_drop_target(target: Dictionary) -> Dictionary:
+	if target.get("owner") != 0 or target.get("kind") != "zone" or target.has("slot"): return target
+	for slot in range(3):
+		var cell: Dictionary = target.duplicate(true)
+		cell["slot"] = slot
+		if _target_allowed(cell, "Guard"): return cell
+	return target
+
+func _can_drop(at_position: Vector2, data, target: Dictionary) -> bool:
+	return super._can_drop(at_position, data, _guard_drop_target(target))
+
+func _drop(at_position: Vector2, data, target: Dictionary) -> void:
+	choosing_work = false
+	super._drop(at_position, data, _guard_drop_target(target))
+
+func _show_pair_badges() -> void:
+	var pairs: Array = _visible_world.guard_work.pairs.duplicate(true)
+	var fresh: Dictionary = {}
+	for move in guard_plan:
+		var suit: String = _entity(move.card_id).get("attributes", {}).get("suit", "")
+		var key: String = move.lane + ":" + suit
+		if not fresh.has(key): fresh[key] = {"lane": move.lane, "suit": suit, "slots": []}
+		fresh[key].slots.append(move.slot)
+	for pair in fresh.values():
+		pair.slots.sort()
+		if pair.slots.size() >= 2:
+			pair.slots = pair.slots.slice(0, 2)
+			pairs.append(pair)
+	for pair in pairs:
+		var box = sides[1].lord_guard_box if pair.lane == "Lord" else sides[1].castle_guard_box
+		for slot in pair.slots:
+			if slot >= box.get_child_count(): continue
+			var card = box.get_child(slot)
+			var badge := Label.new()
+			badge.text = "◆ " + pair.suit
+			badge.add_theme_font_size_override("font_size", 10)
+			badge.modulate = Color("e6cc75")
+			badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			card.add_child(badge)
+			var benefit: String = {"Butcher": "When attacked, destroy one random enemy Marcher in this lane.", "Penitent": "5 protection before Guards while intact.", "Wright": "+5 work once on placement.", "Vulture": "Draw 1 each following round while intact."}[pair.suit]
+			card.input_surface.tooltip_text += "\nBonded " + pair.suit + " pair. " + benefit + " Either card leaving breaks the bond; a replacement does not restore it."

@@ -1,5 +1,12 @@
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
+**2026-09-14 user-authorized mechanics checkpoint:** Guard deployment work,
+defensive suit bonds, a single Work Target and Ward 2:1 recruitment supersede
+the earlier paid-development rules. See `U13_GUARD_WORK_2026-09-14.md`.
+The accepted 100-game gate below remains historical evidence for its original
+rules; validate this new policy before drawing new balance conclusions.
+
+
 **2026-09-14 accepted full-game gate:** Windows Godot 4.7.2, clean
 `d605e3a7976735d0c933818cbfa965f5d41d78d7`: 100/100 complete games, all independently
 replay-verified, zero caps/timeouts/errors/missing games, all 81 ordered Lord
