@@ -20,11 +20,12 @@ checks, 252 exact snapshots, 241 component operations, 36 Python tests and 16
 rejected evidence corruptions. Independent Python replay reproduced the complete
 uploaded summary. It stops before Post-Resolution and Marching, and does not
 implement subsequent rounds or full matches.
-The [isolated Marching spike](U13_PYSIM_MARCHING_2026-09-15.md) is now implemented
-with Windows acceptance pending: local diagnostics matched 28 phases / 5,600
-tick frames, ordered events and full operation-boundary worlds, with 394 Godot
-checks, 46 Python tests and 14 corruption probes. It uses flat phase columns and
-explicit contact ordering, with ordinary/dense/Gravity timing probes. It is not
+The [isolated Marching spike](U13_PYSIM_MARCHING_2026-09-15.md) passed Windows
+4.7.2 acceptance at clean `e8cc3f9`: 28 phases / 5,600 tick frames, ordered events
+and full operation-boundary worlds, with 394 Godot checks, 46 Python tests and
+14 corruption probes. Independent replay reproduced the complete uploaded
+summary. It uses flat phase columns and explicit contact ordering; Windows batch
+phase means were 57.73 / 130.52 / 6.37 ms for ordinary/dense/Gravity. It is not
 wired into `ResolutionMatch`; full rounds, Lord-effect integration and complete
 matches remain pending. Phase timing does not establish full-match throughput.
 The [copying optimization](U13_PYSIM_COPYING_2026-09-15.md) passed its combined

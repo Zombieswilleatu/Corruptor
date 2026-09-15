@@ -80,7 +80,7 @@ satisfy the later full-match throughput gate. Full-match speed remains unknown.
 Ordinary resolution
 is now implemented in a separate [nine-hook adapter](U13_PYSIM_RESOLUTION_2026-09-15.md),
 with focused Windows 4.7.2 acceptance passed at clean `e51588d` and no new
-throughput claim. The early spatial spike is now implemented as scoped below.
+throughput claim. The early spatial spike now has Windows acceptance as scoped below.
 
 Additional user steering: consider parallel arrays before writing the tick loop,
 preserve Godot's explicit contact ordering, and establish the first complete-game
@@ -92,9 +92,11 @@ capture tick/field/event differences, including registry-order permutations.
 
 The [isolated Marching spike](U13_PYSIM_MARCHING_2026-09-15.md) now uses flat
 parallel Python lists, with exact contact-order/registry-permutation coverage.
-Local diagnostics matched all 5,600 tick frames across 28 phases and the batch
-projection retaining every non-tick event and final field. Windows acceptance
-is pending. On one Linux CPython 3.12.14 worker, mean 200-tick batch phase times
+Windows Godot 4.7.2 acceptance passed at clean `e8cc3f9`: all 5,600 tick frames
+across 28 phases and the batch projection retaining every non-tick event and
+final field matched, with 394 Godot checks, 46 Python tests and 14 corruption
+rejections. Independent replay reproduced the complete uploaded summary.
+On one Linux CPython 3.12.14 worker, the earlier diagnostic batch phase times
 were **30.22 ms ordinary, 106.19 ms dense and 6.80 ms Gravity**. The Gravity case
 consumes 13 of 14 units; this is not a representative game workload distribution.
 Movement and nearby searches dominate the separate instrumented profile. Import
@@ -102,7 +104,20 @@ and publication are measured against owned row dictionaries, but no competing
 row tick kernel exists, so no array-loop speedup is established. The exact trace
 path remains the reference for the mode that omits visual tick records.
 
-The dense phase alone exceeds the suggested 50 ms whole-match target locally.
+On the user's Windows CPython 3.14.7 machine, 20 samples per case measured
+**57.73 ms ordinary, 130.52 ms dense and 6.37 ms Gravity** mean batch phase time.
+Ordinary median/p95 were 60.11 / 76.82 ms; dense were 96.78 / 210.33 ms.
+Preserve this observed variability rather than presenting a guaranteed rate.
+The Windows profiles also identify movement/nearby searches as dominant.
+CPU samples in this report occur in 15.625 ms increments; zero short boundary
+samples do not mean zero cost. The [accepted evidence](evidence/U13_PYSIM_MARCHING_e8cc3f9.json)
+retains all wall/CPU distributions, profiles, layout costs and output hashes.
+The Linux/Windows difference changes hardware and Python, so it does not measure
+an optimization or regression. The gate establishes correctness at this scope
+and records performance; it is not a passed full-match speed target.
+
+Ordinary and dense phase means exceed the suggested 50 ms whole-match target in
+this Windows run.
 The nine-hook full-game adapter has not advanced, and full-game speed and
 50,000-game wall time remain unknown. Use this measured cost to guide algorithm
 work while completing the first legitimate full-game reference.
@@ -121,12 +136,12 @@ Apply these gates before committing to the rest of the performance plan:
    Optimize measured costs with unchanged exact fixtures and rejection rollback.
    Do not copy the diagnostic export/comparison loop into the production batch
    loop. Avoid a speculative rewrite or removing correctness gates.
-2. **Accept the implemented spatial spike on Windows.** The isolated ordinary,
-   dense/contact-heavy and Gravity phase probes now have local exact evidence,
-   conversion costs and CPU/wall distributions. Run the focused Windows gate
-   before treating these as target-runtime results. This gate measures isolated
-   phases, not complete rounds, matches or balance; use its profiles to guide
-   representation/algorithm work while completing the remaining spatial port.
+2. **Spatial gate completed at `e8cc3f9`.** The isolated ordinary,
+   dense/contact-heavy and Gravity phase probes have Windows exact evidence,
+   conversion costs and CPU/wall distributions. Use the measured search costs
+   to guide optimization against the retained exact traces while integrating
+   the remaining round lifecycle. This gate measures isolated phases, not
+   complete rounds, matches or balance; a documentation update needs no rerun.
 3. **Measure the first supported complete-match path promptly.** Once a legitimate
    setup-to-victory Python path exists, measure fresh matches with recorded legal
    decisions and then include policy cost separately. Record rounds, unit/contact

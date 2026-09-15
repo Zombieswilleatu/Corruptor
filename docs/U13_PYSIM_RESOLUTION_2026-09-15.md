@@ -145,12 +145,12 @@ opening from it and assign the remainder to Marching: matches contain many
 rounds, growing boards, reactions and policy work.
 
 The subsequent [bounded Marching kernel](U13_PYSIM_MARCHING_2026-09-15.md) is now
-implemented with flat phase columns and local exact diagnostics; Windows
-acceptance is pending. It follows Godot's separation of phase working state from
-authoritative snapshots and measures import/publication costs against owned row
-dictionaries. It does not claim a row-versus-column tick-loop speedup. Its local
-30.22 ms ordinary and 106.19 ms dense 200-tick phase means are not complete-round
-or complete-game timings. This isolated subsystem does not change the accepted
+accepted on Windows Godot 4.7.2 at clean `e8cc3f9`, with flat phase columns and
+all 5,600 tick frames matching. It follows Godot's separation of phase working
+state from authoritative snapshots and measures import/publication costs against
+owned row dictionaries. It does not claim a row-versus-column tick-loop speedup.
+The recorded 57.73 ms ordinary and 130.52 ms dense Windows 200-tick phase means
+are not complete-round or complete-game timings. This subsystem does not change the accepted
 nine-hook adapter's boundary or certify its integration with later hooks.
 
 Contact ordering is a rule: current Godot uses immutable-ID candidate order,

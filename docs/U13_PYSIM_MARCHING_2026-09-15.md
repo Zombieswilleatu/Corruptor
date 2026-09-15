@@ -1,9 +1,11 @@
 # U13 PySim — isolated Marching parity and performance spike
 
-**Implemented; Windows Godot 4.7.2 acceptance pending.** Local Godot 4.5.1
-diagnostics passed 394 checks. Independent Python matched 28 isolated phases,
-all 5,600 tick frames and their ordered events; 46 unit tests and 14 deliberate
-evidence corruptions passed. This implements the early spatial measurement gate
+**Windows Godot 4.7.2 acceptance passed at clean `e8cc3f9`.** The uploaded gate
+passed 394 Godot checks, 28 isolated phases, all 5,600 tick frames and their
+ordered events, 46 Python tests and 14 deliberate evidence corruptions.
+Independent replay reproduced the complete Windows summary without a diagnostic
+override. The [accepted record](evidence/U13_PYSIM_MARCHING_e8cc3f9.json) also
+retains the target-machine phase timings. This completes the early spatial gate
 from the [policy/performance plan](U13_PYSIM_POLICY_AND_PERFORMANCE_2026-09-15.md).
 
 The existing `ResolutionMatch` still stops after nine fresh-game hooks, before
@@ -108,7 +110,7 @@ The approximately 24.93-second Godot export/replay/check duration is gate overhe
 not a Godot phase-throughput measurement. These results are diagnostic only;
 they do not replace Windows 4.7.2 acceptance.
 
-## Measured phase costs
+## Local diagnostic phase costs
 
 Single worker, normal garbage collection, two warmups per mode/case and 20 fresh
 measurements per case, alternating batch/trace order. Wall and CPU distributions
@@ -160,6 +162,54 @@ do not add/subtract them as if they established a full-match budget.
 
 ## Windows acceptance and next dependency
 
+Accepted archive:
+`u13-pysim-marching-zRzlKJ-2026-09-15_02-04-06-YwsZq6.zip`.
+
+- Archive SHA-256: `8b6b39327544352880bfd1dd3a4b2997b27f1e2cf2d7f8ced4d0e16cf423e978`.
+- Source revision: `e8cc3f9c236afa2ce4586999913a52e833b5813f`.
+- Source fingerprint: `6ce44971808ae9d45815da43e478978022f279259e083d38cc421e99c8898fc4`.
+- Input fingerprint: `5baaab5d5a70fbc0c89c633bf7bc043e328f0784f604f821f1a9dd96b539e4de`.
+- Runtime: `4.7.2.stable.official.ed1daf0bf`, Windows 11; CPython 3.14.7.
+- Empty working diff, exit status 0, 12 unique members and valid archive CRCs.
+- 394 Godot checks, 22 cases, 41 operations (three fixture edits and five
+  rejections), 28 phases / 5,600 tick frames, 33 contact probes, 46 Python tests
+  and 14 corruption rejections; zero failures or script errors.
+
+Independent Python replay against the uploaded Windows reference reproduced the
+entire verifier summary, including the batch projection and all corruption
+rejections. A separate check independently reconstructed and matched the input,
+trace-result and batch-result digests for all three timing cases. Neither check
+claims local Godot 4.7.2 execution or remeasurement of the user's hardware.
+
+Windows measurements use the same 20 fresh samples, two warmups per mode/case,
+one worker and normal garbage collection as the local probe:
+
+| Prepared case | Batch mean | Batch median | Batch p95 | With all tick records, mean |
+| --- | ---: | ---: | ---: | ---: |
+| Ordinary mixed, 12 → 12 Marchers | 57.73 ms | 60.11 ms | 76.82 ms | 118.79 ms |
+| Dense contacts, 64 → 8 Marchers | 130.52 ms | 96.78 ms | 210.33 ms | 257.01 ms |
+| Gravity, 14 → 1 Marchers | 6.37 ms | 6.30 ms | 7.02 ms | 12.08 ms |
+
+These are observed isolated 200-tick phase costs, not a full-match throughput
+result or a passed speed target. Ordinary batch samples ranged from 36.58 to
+96.52 ms; dense samples ranged from 83.44 to 211.53 ms. The report does not
+identify the cause of that variability. Different hardware and Python versions
+prevent interpreting the Linux/Windows difference as an optimization or regression.
+The Gravity case's much smaller surviving field still limits its interpretation.
+
+Windows CPU samples occur in 15.625 ms increments in this report; zeros for short
+import/publication operations do not establish zero CPU cost. Use their wall
+distributions for boundary-cost interpretation. Phase preparation averaged
+0.64 ms ordinary and 2.06 ms dense; separate instrumented profiles again place
+movement and nearby searches at the top. These findings support targeted search
+optimization, while full-game speed and worker scaling remain unmeasured.
+
+The [acceptance record](evidence/U13_PYSIM_MARCHING_e8cc3f9.json) preserves the
+complete verifier and timing reports, case/test inventory, independent replay
+result and all archive-member hashes. The earlier Linux diagnostic record is
+unchanged. The command below is retained for reproduction; this documentation
+update requires no rerun.
+
 ```bash
 cd /c/Users/jerem/OneDrive/Documents/Corruptor-U13-Perf &&
 git pull --ff-only origin u13-basic-doctrine &&
@@ -175,7 +225,7 @@ working diff, logs, exact export and timing report. It retains 15-second
 heartbeats, a 420-second Godot watchdog and 180-second Python stage watchdogs.
 This is a focused fixture gate, not another 100-game campaign.
 
-After acceptance, integrate this kernel with the remaining round lifecycle and
+Next, integrate this accepted kernel with the remaining round lifecycle and
 reactions. Preserve the first legitimate independent setup-to-victory reference
 as soon as a supported path exists, with no fixture bridges. Optimize measured
 search/recording costs against exact references and measure fresh complete
