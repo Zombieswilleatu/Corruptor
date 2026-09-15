@@ -1,5 +1,17 @@
 # U13 PySim — swappable doctrine and early performance gates
 
+**Current implementation:** [the first complete-game gate](U13_PYSIM_FULL_MATCH_2026-09-15.md)
+now supplies a four-Lord ordinary setup-to-victory path and a real match timing
+harness. Its reference policy is injected separately and receives a detached own-hand/public-board
+observation. The full experimental legal-choice/RNG/counter/sweep interface below
+remains future work. Windows 4.7.2 acceptance is pending; the earlier partial and
+isolated timings below retain their dated scopes.
+
+The first local complete-game measurements are in seconds, well above the
+proposed 50 ms target. Transaction and retained event-history copying dominate
+those profiles. Preserve that exact reference while addressing the measured
+cost; the earlier partial timings cannot establish the full-match budget.
+
 User steering on 2026-09-15: the simulator should shorten the experiment loop,
 including quickly identifying inert doctrine terms. Do not hard-code the
 current BasicDoctrine into Python rules or require each experimental policy to
@@ -18,9 +30,10 @@ no BasicDoctrine. Keep this boundary as the full-match harness grows.
 | Shipping doctrine | The selected production policy must also reproduce Godot decisions on shared observation/legal-choice fixtures, including tie-breaking and policy RNG. Port and verify the selected policy when preparing it to ship. |
 | Experiment harness | Schedules seeds/seats/matchups, loads policies/configurations, captures explicit decisions and measures results independently of the rules implementation. |
 
-The injected full-game policy interface is a **future implementation requirement**,
-not a capability claimed by the current bounded adapter. Build it when the
-public-observation and complete-choice surfaces are available. Its input must
+The complete experiment interface is a **future implementation requirement**.
+The current adapter already accepts a replaceable policy and weights through
+`next_operation`; the legal-choice and policy-RNG surfaces still need to be built.
+The complete interface's input must
 contain the acting player's permitted observations, legal choices and a separate
 deterministic policy RNG key. It must never receive the authoritative parity
 trace, an opponent's hand or unrevealed simultaneous order. Deployed Guards and

@@ -37,13 +37,23 @@ def validate_choice(world, pid, choice):
     # The caller supplies the Construction.choice_shape data contract, as in
     # Godot GuardWork.validate_choice. This function is the Work admission rule.
     if choice:
-        e.require(choice.get("action") == "Work" and choice.get("card_ids") == []
+        e.require(choice.get("action") in ("Work", "Activate") and choice.get("card_ids") == []
                   and choice.get("use_repair_token") is False, "choose_work_target_without_payment")
+        if choice["action"] == "Activate":
+            e.require(commission_eligible(e.entity(world, choice["target_id"]), pid), "castle_not_ready_to_activate")
+            return dict(action="legal", paid_value=0, reconstruction=False)
         if choice["target_id"]:
             target = e.entity(world, choice["target_id"])
             e.require(eligible(world, pid, target), "work_target_unavailable")
             return dict(action="legal", paid_value=0, reconstruction=target["attributes"]["status"] == "ruined")
     return dict(action="legal", paid_value=0, reconstruction=False)
+
+
+def commission_eligible(target, pid):
+    return bool(target and target["kind"] == "castle" and target["owner"] == pid
+                and target["attributes"]["status"] == "standing"
+                and target["attributes"]["construction_state"] in ("building", "ready")
+                and target["attributes"]["integrity"] >= 7)
 
 
 def intact(world, pair):
@@ -116,7 +126,14 @@ def work(world, number, player_order):
                 events.append(e.event("GUARD_PAIR_FORMED", dict(player_id=pid, round=number,
                                       lane=lane, suit=suit, card_ids=pair["ids"])))
         selected = world["data"]["castle_orders"][pid]["choice"]
-        if selected:
+        if selected and selected["action"] == "Activate":
+            castle = e.entity(world, selected["target_id"])
+            ready = commission_eligible(castle, pid)
+            if ready:
+                castle["attributes"]["construction_state"] = "active"
+            events.append(e.event("CASTLE_ACTIVATED" if ready else "COMMISSION_FIZZLED",
+                                 dict(player_id=pid, round=number, castle_id=selected["target_id"])))
+        elif selected:
             state["targets"][pid] = selected["target_id"]
         if not state["targets"][pid]:
             continue

@@ -22,6 +22,9 @@ def main():
     commands.add_parser("self-test-copying")
     commands.add_parser("self-test-resolution")
     commands.add_parser("self-test-marching")
+    commands.add_parser("self-test-full-match")
+    inputs = commands.add_parser("generate-full-match-inputs")
+    inputs.add_argument("--output",type=Path,required=True)
     benchmark = commands.add_parser("benchmark-development")
     benchmark.add_argument("--iterations", type=int, default=30, help="Measured cycles per setup; nine setups")
     benchmark.add_argument("--report", type=Path)
@@ -33,7 +36,11 @@ def main():
     marching.add_argument("--iterations", type=int, default=20)
     marching.add_argument("--verified-report", type=Path, required=True)
     marching.add_argument("--report", type=Path)
-    for command in ("verify", "verify-planning", "verify-development", "verify-resolution", "verify-marching"):
+    full = commands.add_parser("benchmark-full-match")
+    full.add_argument("--iterations",type=int,default=3)
+    full.add_argument("--verified-report",type=Path,required=True)
+    full.add_argument("--report",type=Path)
+    for command in ("verify", "verify-planning", "verify-development", "verify-resolution", "verify-marching", "verify-full-match"):
         check = commands.add_parser(command)
         check.add_argument("trace", type=Path)
         check.add_argument("--diagnostic", action="store_true", help="Label local non-Windows/4.7.2 results diagnostic only")
@@ -41,20 +48,17 @@ def main():
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[2]
     if args.command.startswith("self-test"):
-        modules = ["u13_pysim.test_foundation"]
-        if args.command in ("self-test-planning", "self-test-development", "self-test-copying", "self-test-resolution", "self-test-marching"):
-            modules.append("u13_pysim.test_planning")
-        if args.command in ("self-test-development", "self-test-copying", "self-test-resolution", "self-test-marching"):
-            modules.append("u13_pysim.test_development")
-        if args.command in ("self-test-copying", "self-test-resolution", "self-test-marching"):
-            modules.append("u13_pysim.test_copying")
-        if args.command in ("self-test-resolution", "self-test-marching"):
-            modules.append("u13_pysim.test_resolution")
-        if args.command == "self-test-marching":
-            modules.append("u13_pysim.test_marching")
+        stages = ["foundation","planning","development","copying","resolution","marching","full_match"]
+        stage = "foundation" if args.command == "self-test" else args.command.removeprefix("self-test-").replace("-","_")
+        modules = ["u13_pysim.test_"+name for name in stages[:stages.index(stage)+1]]
         tests = unittest.defaultTestLoader.loadTestsFromNames(modules)
         result = unittest.TextTestRunner(verbosity=2).run(tests)
         return 0 if result.wasSuccessful() else 1
+    if args.command == "generate-full-match-inputs":
+        from u13_pysim.full_match_inputs import generate
+        args.output.write_text(json.dumps(generate(),indent=2)+"\n",encoding="utf-8")
+        print("Generated explicit complete-game inputs; Godot verification is required")
+        return 0
     revision, source_hash = source_identity(root)
     if args.command == "source-identity":
         print(revision)
@@ -104,6 +108,32 @@ def main():
             return 0
         except (ValueError, OSError, KeyError, TypeError) as error:
             print(f"FAIL U13 PySim marching timing: {error}", file=sys.stderr)
+            return 1
+    if args.command == "benchmark-full-match":
+        from u13_pysim.benchmark_full_match import run
+        try:
+            parity = json.loads(args.verified_report.read_text(encoding="utf-8"))
+            result = run(revision,source_hash,parity,args.iterations)
+            if args.report: args.report.write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8")
+            for game in result["games"]:
+                print(f"{game['name']}: {game['wall']['mean_ms']:.2f} ms per complete {game['rounds']}-round match")
+            print("Explicit ordinary games; policy selection excluded; not roster-complete doctrine throughput")
+            print("U13 PySim full-match timing failures: 0")
+            return 0
+        except (ValueError,OSError,KeyError,TypeError) as error:
+            print(f"FAIL U13 PySim full-match timing: {error}",file=sys.stderr)
+            return 1
+    if args.command == "verify-full-match":
+        from u13_pysim.verify_full_match import verify as compare, verify_rejections as reject
+        try:
+            result = compare(args.trace,revision,source_hash,args.diagnostic)
+            result["deliberate_mismatches_rejected"] = reject(args.trace,revision,source_hash,args.diagnostic)
+            if args.report: args.report.write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8")
+            print(json.dumps(result,indent=2))
+            print("U13 PySim full-match Python failures: 0")
+            return 0
+        except (ValueError,TypeError,KeyError,OSError,UnicodeError) as error:
+            print(f"FAIL U13 PySim full-match: {error}",file=sys.stderr)
             return 1
     label = {"verify-planning": "planning", "verify-development": "development", "verify-resolution": "resolution", "verify-marching": "marching"}.get(args.command, "foundation")
     compare, reject = verify, verify_rejections

@@ -28,8 +28,7 @@ def note_loss(row, before, number):
 
 
 def operational(row):
-    # Structure powers have a seven-Integrity floor; economy's active-pile
-    # predicate deliberately has a different contract.
+    # All Structure abilities require the seven-Integrity floor.
     return targetable(row) and row["attributes"]["status"] == "standing" and row["attributes"]["integrity"] >= 7
 
 
@@ -196,6 +195,15 @@ class Battle:
             if self.active(pid, "Gremory") and kind == "CASTLE_DESTROYED" and take("Sifting:" + str(pid)):
                 drawn = e.draw(w, pid, self.seed, detail["event_id"] + ":sift:" + str(pid), True)
                 events.append(e.event("SIFTING_THE_RUINS", drawn))
+            if (self.active(pid, "Gremory") and kind == "MARCHER_DEFEATED"
+                    and detail.get("cause") == "combat" and detail.get("hook") == "marching"
+                    and detail["attacker"]["owner"] == pid
+                    and detail["attacker"]["attributes"]["suit"] == "Vulture"
+                    and detail["victim"]["owner"] == 1-pid and take("Bones:" + str(pid))):
+                drawn = e.draw(w, pid, self.seed, detail["event_id"] + ":bones:" + str(pid))
+                d["neutral_tears"] += 1
+                events.append(e.event("PICKING_THE_BONES", drawn, private=pid, redact=("card_id",)))
+                events.append(e.event("NEUTRAL_TEAR_CREATED", dict(player_id=pid, amount=1, source="PickingTheBones")))
         if kind == "BREACH_CHANGED":
             events.extend(self.sync_breach())
         pid = detail.get("player_id", -1)

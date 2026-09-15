@@ -15,12 +15,14 @@ FIELDS = ("attack", "armor", "regen", "step_fp", "armor_bypass", "suit", "lane",
 
 
 class Columns:
-    def __init__(self, raw):
+    def __init__(self, raw, *, keep_background=False):
         checked = Entities()
         checked.restore(raw)
         rows = [checked.rows[key] for key in sorted(checked.rows)]
-        if any(row["kind"] != "marcher" for row in rows):
+        if not keep_background and any(row["kind"] != "marcher" for row in rows):
             raise ValueError("The isolated Marching kernel accepts Marchers only")
+        self.background = [row for row in rows if row["kind"] != "marcher"] if keep_background else []
+        rows = [row for row in rows if row["kind"] == "marcher"]
         self.ids = [row["id"] for row in rows]
         self.index = {identity: i for i, identity in enumerate(self.ids)}
         self.origins = [row["origin"] for row in rows]
@@ -48,7 +50,10 @@ class Columns:
         return [self.row(i) for i in self.active()]
 
     def snapshot(self):
-        return dict(schema_version=IDS_VERSION, entities=self.rows(), used_ids=self.used_ids[:])
+        rows = self.rows()
+        if self.background:
+            rows = sorted(copy_data(self.background) + rows, key=lambda row: row["id"])
+        return dict(schema_version=IDS_VERSION, entities=rows, used_ids=self.used_ids[:])
 
     def retire(self, i):
         self.alive[i] = False

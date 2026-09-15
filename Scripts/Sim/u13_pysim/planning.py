@@ -137,17 +137,15 @@ class PlanningMatch:
         for move in moves:
             e.require(move["card_id"] in z["hands"][pid] and move["card_id"] not in order.get("card_ids", [])
                       and move["card_id"] not in choice.get("card_ids", []), "guard_card_unavailable")
+            e.require(not any(row["kind"] == "card" and row["owner"] == pid
+                              and row["attributes"].get("role") == "guard"
+                              and row["attributes"]["lane"] == move["lane"]
+                              and row["attributes"]["slot"] == move["slot"]
+                              for row in w["entities"]["entities"]), "guard_slot_occupied")
         combat = {k: v for k, v in order.items() if k not in ("guard_moves", "castle_action", "rites")}
         e.require(self._combat_shape(combat), "castle_order_invalid")
-        if choice:
-            e.require(choice["action"] == "Work" and choice["card_ids"] == []
-                      and choice["use_repair_token"] is False, "choose_work_target_without_payment")
-            if choice["target_id"]:
-                target = e.entity(w, choice["target_id"])
-                e.require(target and target["kind"] == "castle" and target["owner"] == pid
-                          and target["attributes"]["status"] not in ("profaned", "ruined")
-                          and (target["attributes"]["integrity"] < target["attributes"]["max_integrity"]
-                               or target["attributes"]["construction_state"] != "active"), "work_target_unavailable")
+        from .development import validate_choice
+        quote = validate_choice(w, pid, choice)
         if combat:
             action = combat["action"]
             target = e.entity(w, combat.get("target_id", ""))
@@ -155,10 +153,16 @@ class PlanningMatch:
                 e.require(target and target["kind"] == "lord" and target["owner"] == 1 - pid
                           and target["attributes"]["alive"], "hunt_target_invalid")
             elif action == "Siege":
-                e.require(target and target["kind"] == "castle" and target["owner"] == 1 - pid
+                castleless = not any(row["kind"] == "castle" and row["owner"] == 1-pid
+                                    and row["attributes"]["construction_state"] == "active"
+                                    and row["attributes"]["status"] in ("standing", "defunct")
+                                    for row in w["entities"]["entities"])
+                zone = combat["target_id"] == "castle_zone:" + str(1-pid) and castleless
+                e.require(zone or target and target["kind"] == "castle" and target["owner"] == 1 - pid
                           and target["attributes"]["construction_state"] == "active"
                           and target["attributes"]["status"] not in ("ruined", "profaned"), "combat_target_invalid")
             elif action == "Profane":
+                e.require(e.entity(w, w["players"][pid]["lord_entity_id"])["attributes"]["alive"], "combat_source_banished")
                 e.require(target and target["owner"] == pid and e.operational(target)
                           and target["attributes"]["integrity"] == target["attributes"]["max_integrity"],
                           "profane_target_not_full_active_own_castle")
@@ -173,7 +177,7 @@ class PlanningMatch:
         d["guard_orders"][pid] = dict(round=number, moves=copy_data(moves))
         if moves:
             events.append(e.sealed_event("GUARDS_SEALED", dict(player_id=pid, round=number, moves=moves), pid))
-        d["castle_orders"][pid] = dict(round=number, choice=copy_data(choice), paid_value=0, reconstruction=False)
+        d["castle_orders"][pid] = dict(round=number, choice=copy_data(choice), paid_value=0, reconstruction=quote["reconstruction"])
         if choice:
             events.append(e.sealed_event("CASTLE_ACTION_SEALED", dict(player_id=pid, round=number, choice=choice), pid))
         if combat:
