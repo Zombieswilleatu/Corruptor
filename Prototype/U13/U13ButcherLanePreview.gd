@@ -139,6 +139,19 @@ func _build_preview() -> void:
 						break
 				if FileAccess.file_exists(path):
 					break
+	# The embedded gallery has no standalone runner sheet argument. Also look
+	# beside this checkout, where the user's separate art checkout lives.
+	if not FileAccess.file_exists(path):
+		for folder in ["res://ConceptImages/Sprites", "res://../Corruptor/ConceptImages/Sprites"]:
+			for filename in ["%sSprite.png" % character_name, "%s.png" % character_name,
+				"%s.png" % character_name.to_lower(), "Monsters/%s.png" % character_name,
+				"Monsters/%s.png" % character_name.to_lower()]:
+				var candidate := ProjectSettings.globalize_path(folder.path_join(filename))
+				if FileAccess.file_exists(candidate):
+					path = candidate
+					break
+			if FileAccess.file_exists(path):
+				break
 	if not FileAccess.file_exists(path) and not bundled_sheet_path.is_empty():
 		path = bundled_sheet_path
 	var source: Image = Image.load_from_file(path) if FileAccess.file_exists(path) else null
