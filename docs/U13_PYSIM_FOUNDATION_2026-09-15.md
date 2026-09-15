@@ -147,8 +147,8 @@ This is a short fixture gate, not another full-match campaign.
 ## Next slice
 
 The [planning slice](U13_PYSIM_PLANNING_2026-09-15.md) now mirrors the first five
-game hooks, submissions and opening-round economy. Its Windows acceptance is
-pending. Next, extend through Guard
+game hooks, submissions and opening-round economy. Its Windows 4.7.2 acceptance
+passed at clean `f318d6d`. Next, extend through Guard
 deployment/Work/pairs, ordinary combat, then Marching and Lord effects in the
 existing roadmap order. Expand deterministic reference games only after the
 component boundaries agree. Common Smart Core/Lord doctrines and balance remain

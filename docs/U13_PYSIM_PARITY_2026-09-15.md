@@ -5,8 +5,9 @@ at clean revision `4e485b1`: 14 exact Python opening snapshots, 49 Godot-replaye
 operations, and ten rejected evidence corruptions. See
 [foundation implementation and accepted evidence](U13_PYSIM_FOUNDATION_2026-09-15.md).
 The [planning slice](U13_PYSIM_PLANNING_2026-09-15.md) now implements the first
-five game hooks, sealed submissions and opening-round economy with green local
-diagnostics; its Windows acceptance is pending. Development and subsequent
+five game hooks, sealed submissions and opening-round economy. Windows Godot
+4.7.2 acceptance passed at clean `f318d6d`, including 222 exact game operations
+and eleven rejected evidence corruptions. Development and subsequent
 game resolution remain unimplemented in Python.
 This document retains the initial inventory and subsequent implementation
 boundaries. The [accepted checkpoint](U13_ACCEPTED_CHECKPOINT_2026-09-15.md) clears

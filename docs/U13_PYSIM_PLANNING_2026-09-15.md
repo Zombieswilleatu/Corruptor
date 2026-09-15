@@ -1,7 +1,7 @@
 # U13 PySim planning — round opening, choices and sealed submissions
 
-Status: implemented with green local Godot 4.5.1 diagnostics; **Windows Godot
-4.7.2 acceptance is pending** the focused command below. This extends the
+Status: **Windows Godot 4.7.2 acceptance passed at clean revision `f318d6d`**.
+The focused command below is retained for reproduction. This extends the
 [accepted foundation at 4e485b1](U13_PYSIM_FOUNDATION_2026-09-15.md).
 
 ## Implemented boundary
@@ -51,7 +51,8 @@ later Lord reactions and complete Python round/match parity remain future work.
 
 ## Focused evidence and its limits
 
-Local diagnostics on Godot **4.5.1 Linux**:
+Accepted Windows **Godot 4.7.2** results (also previously green in local
+Godot 4.5.1 diagnostics):
 
 | Comparison | Result |
 | --- | --- |
@@ -88,8 +89,8 @@ coverage boundary. Missing/extra fields and numeric/type differences still use
 the foundation's exact comparator without rounding tolerances.
 
 The original 100-game Random-Legal campaign at `357d793` and Windows foundation
-gate at `4e485b1` retain their original identities. Neither is relabeled as
-Windows acceptance of this subsequent slice.
+gate at `4e485b1` retain their original identities. This subsequent slice has
+its own Windows acceptance evidence at `f318d6d`.
 
 ## Trace and implementation identity
 
@@ -113,6 +114,24 @@ sprites, U12 files, legacy Python simulator or old goldens are changed.
 
 ## Windows acceptance
 
+Accepted archive, reviewed on 2026-09-15:
+`u13-pysim-planning-LLBxFN-2026-09-14_22-55-12-IV7Deo.zip`.
+
+- Clean source revision: `f318d6d775901c86c3bdb27c966bfb6e649256b6`;
+  packaged working diff is empty.
+- Simulation/tool source SHA-256:
+  `3ba32423b5f95c880185744430ba1788aa100d6d4e12c5cf875a03afde4f0838`.
+- Runtime: Windows `4.7.2.stable.official.ed1daf0bf`; Python `3.14.7`.
+- Runner exit status zero, `diagnostic_only=false`, zero failures or script
+  errors. All results in the table above passed, including nine decoded Godot
+  trace replays and eleven deliberate corruption rejections.
+
+The attached export was decoded and all Python result/state/outcome comparisons
+and corruption probes rerun against the pinned source. They agree exactly with
+the supplied Windows summary. [Machine-readable evidence](evidence/U13_PYSIM_PLANNING_f318d6d.json)
+records the cases, provenance, archive hash and every member hash. This closes
+the planning gate; no repeat run is needed for this documentation update.
+
 Requires Git Bash, **Godot 4.7.2 stable on Windows** and Python 3.10+; no pip
 packages are needed. The runner discovers Python or accepts its executable as
 an optional second argument.
@@ -131,7 +150,7 @@ runtime/Python versions, logs and summary. Acceptance verifies the actual
 Windows platform/runtime and recomputes the checkout's revision and source hash.
 Local diagnostic mode remains explicitly separate.
 
-After this gate passes, extend from the established lock boundary through
+Next, extend from the established lock boundary through
 Development: Guard deployment, Work settlement and stable pair identity, with
 their directed timing/repair-lock cases. Full-round reference games, Common
 Smart Core/Lord doctrines, balance and roguelite work remain later milestones.

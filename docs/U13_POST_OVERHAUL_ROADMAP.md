@@ -1,13 +1,14 @@
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
-**2026-09-15 PySim planning slice implemented:** Python now matches the first
+**2026-09-15 PySim planning slice accepted at `f318d6d`:** Python now matches the first
 five game hooks through submission lock, opening draws/Stockpile/Slaver and
-power-free sealed orders with Guard/Work reservations. Local 4.5.1 diagnostics
-match 222 game operations (including 140 atomic rejections), 21 economy
-component transitions and 52 standalone cursor operations. Windows 4.7.2
-acceptance is pending `run_u13_pysim_planning.sh`; see
-[scope and focused runner](U13_PYSIM_PLANNING_2026-09-15.md).
-After acceptance, extend through Guard deployment, Work and pairs at Development.
+power-free sealed orders with Guard/Work reservations. The clean Windows 4.7.2
+gate passed: 429 Godot checks, 231 exact Python snapshots across nine Lord
+cases, 222 game operations (including 140 atomic rejections), 21 economy
+component transitions and 52 standalone cursor operations. Thirteen Python unit
+tests and eleven corruption probes also passed; zero failures or script errors.
+See [scope and accepted evidence](U13_PYSIM_PLANNING_2026-09-15.md).
+Next, extend through Guard deployment, Work and pairs at Development.
 Full Python round resolution remains unimplemented; standalone cursor coverage
 does not certify the later hooks' game mechanics.
 

@@ -1,0 +1,451 @@
+{
+  "schema": "U13_PYSIM_PLANNING_ACCEPTANCE_V1",
+  "recorded_on": "2026-09-15",
+  "scope": "Exact Python fresh-game parity through submission lock, isolated economy transitions and standalone cursor checks; not full-round or full-match Python parity.",
+  "source_archive": "u13-pysim-planning-LLBxFN-2026-09-14_22-55-12-IV7Deo.zip",
+  "archive_sha256": "6e54bede6cc4273257b2329207ceb58951e156b8eeb3438902623f5e0b5b54d9",
+  "source_revision": "f318d6d775901c86c3bdb27c966bfb6e649256b6",
+  "source_sha256": "3ba32423b5f95c880185744430ba1788aa100d6d4e12c5cf875a03afde4f0838",
+  "runtime_build": "4.7.2.stable.official.ed1daf0bf",
+  "platform": "Windows",
+  "python_version": "Python 3.14.7",
+  "working_diff_bytes": 0,
+  "run_status": {
+    "runner": "u13-pysim-planning",
+    "exit_status": "0"
+  },
+  "gate_passed": true,
+  "godot_checks": 429,
+  "godot_failures": 0,
+  "godot_replayed_game_traces": 9,
+  "python_unit_tests": 13,
+  "python_summary": {
+    "python_mirror": "U13_PYSIM_PLANNING_V1",
+    "source_revision": "f318d6d775901c86c3bdb27c966bfb6e649256b6",
+    "source_sha256": "3ba32423b5f95c880185744430ba1788aa100d6d4e12c5cf875a03afde4f0838",
+    "runtime": "4.7.2-stable (official)",
+    "diagnostic_only": false,
+    "planning_games_matched": 9,
+    "full_game_snapshots_matched": 231,
+    "game_operations_matched": 222,
+    "rejected_operations_matched": 140,
+    "economy_component_operations_matched": 21,
+    "timeline_operations_matched": 52,
+    "game_hooks_implemented": [
+      "round_start_scheduled",
+      "persistent_advancement",
+      "round_start_automatic",
+      "present_public_state",
+      "submission_lock"
+    ],
+    "python_full_round_parity": false,
+    "failures": 0,
+    "deliberate_mismatches_rejected": 11
+  },
+  "trace_identity": {
+    "authority": "Godot U13",
+    "choice_policy": "explicit inputs; fixture selection is not doctrine",
+    "engine_version": "4.7.2",
+    "event_profile": "U13_BATCH_EVENTS_V1",
+    "excluded_visual_events": [
+      "MARCHING_TICK",
+      "KRONI_ACTOR_TICK"
+    ],
+    "platform": "Windows",
+    "policy_id": "U13_GUARD_WORK_V2:U13_VICTORY_V2_ROUND_PRESSURE:U13_PROFANE_PILLAGE_V1:U13_VULTURE_RANGED_V1:U13_VACANT_THRONE_V1:U13_DOMINION_RITES_V1:U13_FRACTURE_V1:U13_SIGIL_LIFECYCLE_V1:U13_BLOOD_CONDUIT_V1:U13_GAME_MARKET_V2:U13_CASTLE_DEFENSES_V1:U13_GAME_ECONOMY_V4:U13_KANIFOUS_V1:U13_VALAK_V1:U13_KRONI_WEIGHTED_ANGLES_V8:U13_ODRADEK_COMPLETE_V2:U13_ORIAS_MARK_BOARD_V4:U13_BATCH_EVENTS_V1",
+    "producer": "U13_PYSIM_PLANNING_EXPORT_V1",
+    "rng_version": "U13_SHA256_REJECTION_V1",
+    "rules_hash": "77bdef9e9cc0e83cd34a3cbd04a9d8492211aae2ccabe6e0c1172a474a10e3c4",
+    "runtime": "4.7.2-stable (official)",
+    "schema_version": "U13_MATCH_V1",
+    "source_revision": "f318d6d775901c86c3bdb27c966bfb6e649256b6",
+    "source_sha256": "3ba32423b5f95c880185744430ba1788aa100d6d4e12c5cf875a03afde4f0838",
+    "trace_schema": "U13_PLANNING_TRACE_V1"
+  },
+  "cases": [
+    {
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "Bastion",
+            "SiegeEngine"
+          ],
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ]
+        ],
+        "lords": [
+          "Gremory",
+          "Deimos"
+        ],
+        "seed": "u13-python-planning:\u00e9:0"
+      },
+      "operations": 25,
+      "accepted": 9,
+      "rejected": 16,
+      "final_hook": "development"
+    },
+    {
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ],
+          [
+            "Stockpile",
+            "Stockpile",
+            "SummoningCircle",
+            "Bastion",
+            "SiegeEngine"
+          ]
+        ],
+        "lords": [
+          "Deimos",
+          "Humbaba"
+        ],
+        "seed": "u13-python-planning:\u00e9:1"
+      },
+      "operations": 28,
+      "accepted": 10,
+      "rejected": 18,
+      "final_hook": "development"
+    },
+    {
+      "setup": {
+        "castles": [
+          [
+            "Stockpile",
+            "Stockpile",
+            "SummoningCircle",
+            "Bastion",
+            "SiegeEngine"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "Bastion",
+            "SiegeEngine"
+          ]
+        ],
+        "lords": [
+          "Humbaba",
+          "Kalligan"
+        ],
+        "seed": "u13-python-planning:\u00e9:2"
+      },
+      "operations": 20,
+      "accepted": 8,
+      "rejected": 12,
+      "final_hook": "development"
+    },
+    {
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "Bastion",
+            "SiegeEngine"
+          ],
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ]
+        ],
+        "lords": [
+          "Kalligan",
+          "Orias"
+        ],
+        "seed": "u13-python-planning:\u00e9:3"
+      },
+      "operations": 23,
+      "accepted": 9,
+      "rejected": 14,
+      "final_hook": "development"
+    },
+    {
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ],
+          [
+            "Stockpile",
+            "Stockpile",
+            "SummoningCircle",
+            "Bastion",
+            "SiegeEngine"
+          ]
+        ],
+        "lords": [
+          "Orias",
+          "Odradek"
+        ],
+        "seed": "u13-python-planning:\u00e9:4"
+      },
+      "operations": 25,
+      "accepted": 9,
+      "rejected": 16,
+      "final_hook": "development"
+    },
+    {
+      "setup": {
+        "castles": [
+          [
+            "Stockpile",
+            "Stockpile",
+            "SummoningCircle",
+            "Bastion",
+            "SiegeEngine"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "Bastion",
+            "SiegeEngine"
+          ]
+        ],
+        "lords": [
+          "Odradek",
+          "Kroni"
+        ],
+        "seed": "u13-python-planning:\u00e9:5"
+      },
+      "operations": 33,
+      "accepted": 11,
+      "rejected": 22,
+      "final_hook": "development"
+    },
+    {
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "Bastion",
+            "SiegeEngine"
+          ],
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ]
+        ],
+        "lords": [
+          "Kroni",
+          "Valak"
+        ],
+        "seed": "u13-python-planning:\u00e9:6"
+      },
+      "operations": 25,
+      "accepted": 9,
+      "rejected": 16,
+      "final_hook": "development"
+    },
+    {
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ],
+          [
+            "Stockpile",
+            "Stockpile",
+            "SummoningCircle",
+            "Bastion",
+            "SiegeEngine"
+          ]
+        ],
+        "lords": [
+          "Valak",
+          "Kanifous"
+        ],
+        "seed": "u13-python-planning:\u00e9:7"
+      },
+      "operations": 23,
+      "accepted": 9,
+      "rejected": 14,
+      "final_hook": "development"
+    },
+    {
+      "setup": {
+        "castles": [
+          [
+            "Stockpile",
+            "Stockpile",
+            "SummoningCircle",
+            "Bastion",
+            "SiegeEngine"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "Bastion",
+            "SiegeEngine"
+          ]
+        ],
+        "lords": [
+          "Kanifous",
+          "Gremory"
+        ],
+        "seed": "u13-python-planning:\u00e9:8"
+      },
+      "operations": 20,
+      "accepted": 8,
+      "rejected": 12,
+      "final_hook": "development"
+    }
+  ],
+  "component_cases": [
+    {
+      "spec": {
+        "deck": 0,
+        "discard": 8,
+        "hand0": 10,
+        "hand1": 0,
+        "name": "recycle_full_hand",
+        "round": 1
+      },
+      "operations": 2
+    },
+    {
+      "spec": {
+        "deck": 0,
+        "discard": 1,
+        "hand0": 0,
+        "hand1": 0,
+        "name": "discard_only",
+        "round": 1
+      },
+      "operations": 2
+    },
+    {
+      "spec": {
+        "deck": 0,
+        "discard": 0,
+        "hand0": 0,
+        "hand1": 0,
+        "name": "empty_piles",
+        "round": 1
+      },
+      "operations": 2
+    },
+    {
+      "spec": {
+        "deck": 7,
+        "discard": 0,
+        "hand0": 0,
+        "hand1": 0,
+        "name": "stockpile_interseat",
+        "round": 1
+      },
+      "operations": 5
+    },
+    {
+      "spec": {
+        "deck": 18,
+        "discard": 0,
+        "hand0": 4,
+        "hand1": 0,
+        "name": "stockpile_one_offer",
+        "round": 1
+      },
+      "operations": 4
+    },
+    {
+      "spec": {
+        "deck": 0,
+        "discard": 0,
+        "hand0": 0,
+        "hand1": 0,
+        "name": "market_exhausted",
+        "round": 2
+      },
+      "operations": 3
+    },
+    {
+      "spec": {
+        "deck": 1,
+        "discard": 8,
+        "hand0": 0,
+        "hand1": 0,
+        "name": "market_recycle",
+        "round": 2
+      },
+      "operations": 3
+    }
+  ],
+  "script_error_logs": [],
+  "evidence_review": "Decoded the attached exact export and independently reran all Python comparisons and eleven corruption probes against the clean pinned source. Verified all nine trace identities, result/state/outcome records, source identity, empty working diff, Windows runtime, logs, completion footers and archive member hashes. Godot replay and unit-test counts come from the supplied Windows run. Standalone cursor tests use empty handlers; component pile inputs are directed subsystem fixtures.",
+  "files": {
+    "godot.log": {
+      "bytes": 14996,
+      "sha256": "f90f94caa65c87320229c73bcb7a719f4182b14e079a9935d1d91d27c6966184"
+    },
+    "planning.exact.json": {
+      "bytes": 18773917,
+      "sha256": "409d229e0f2f787b8c3acde46376358cae088a2840f48b66dab61d767cbc8878"
+    },
+    "python-parity.log": {
+      "bytes": 820,
+      "sha256": "c581b50043e2d6fd660120e1b49af9434a6ded34e5fbc4e88adc4799743d53c0"
+    },
+    "python-summary.json": {
+      "bytes": 781,
+      "sha256": "3774b20295c4fc1ac3cab38103f8eb631d291e4a00cb7b1c3af7a1e2390c1aa9"
+    },
+    "python-tests.log": {
+      "bytes": 1982,
+      "sha256": "e3a7e79d0641ba4223da9dc082058cd78c97256c8cb2e4c0e380c2634472d283"
+    },
+    "python-version.log": {
+      "bytes": 15,
+      "sha256": "9fc9968e3ae8d82284d7426a87e1426e07246027c7706b0803a1c8d9c60c7a4d"
+    },
+    "run-status.txt": {
+      "bytes": 40,
+      "sha256": "16f6b9c626b9f5e23c95906fc57cdcf324bf2c3047c07d0f88e4654c249d1286"
+    },
+    "source-identity.txt": {
+      "bytes": 108,
+      "sha256": "83562c58bbcb130f2274be187feddfe53d770d394167466052ff15dc3074cccd"
+    },
+    "version.log": {
+      "bytes": 33,
+      "sha256": "bf8803022b574250bb04dea65053a46b7c58570725316c1f7fe2aa6735706498"
+    },
+    "worktree.diff": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}
