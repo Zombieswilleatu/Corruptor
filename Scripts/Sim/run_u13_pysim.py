@@ -20,6 +20,7 @@ def main():
     commands.add_parser("self-test-planning")
     commands.add_parser("self-test-development")
     commands.add_parser("self-test-copying")
+    commands.add_parser("self-test-resolution")
     benchmark = commands.add_parser("benchmark-development")
     benchmark.add_argument("--iterations", type=int, default=30, help="Measured cycles per setup; nine setups")
     benchmark.add_argument("--report", type=Path)
@@ -27,7 +28,7 @@ def main():
     copying.add_argument("--iterations", type=int, default=15, help="Cycles per setup per block; two blocks per implementation")
     copying.add_argument("--no-profiles", action="store_true")
     copying.add_argument("--report", type=Path)
-    for command in ("verify", "verify-planning", "verify-development"):
+    for command in ("verify", "verify-planning", "verify-development", "verify-resolution"):
         check = commands.add_parser(command)
         check.add_argument("trace", type=Path)
         check.add_argument("--diagnostic", action="store_true", help="Label local non-Windows/4.7.2 results diagnostic only")
@@ -36,12 +37,14 @@ def main():
     root = Path(__file__).resolve().parents[2]
     if args.command.startswith("self-test"):
         modules = ["u13_pysim.test_foundation"]
-        if args.command in ("self-test-planning", "self-test-development", "self-test-copying"):
+        if args.command in ("self-test-planning", "self-test-development", "self-test-copying", "self-test-resolution"):
             modules.append("u13_pysim.test_planning")
-        if args.command in ("self-test-development", "self-test-copying"):
+        if args.command in ("self-test-development", "self-test-copying", "self-test-resolution"):
             modules.append("u13_pysim.test_development")
-        if args.command == "self-test-copying":
+        if args.command in ("self-test-copying", "self-test-resolution"):
             modules.append("u13_pysim.test_copying")
+        if args.command == "self-test-resolution":
+            modules.append("u13_pysim.test_resolution")
         tests = unittest.defaultTestLoader.loadTestsFromNames(modules)
         result = unittest.TextTestRunner(verbosity=2).run(tests)
         return 0 if result.wasSuccessful() else 1
@@ -79,12 +82,14 @@ def main():
             if isinstance(error, subprocess.CalledProcessError) and error.stderr:
                 print(error.stderr, file=sys.stderr)
             return 1
-    label = {"verify-planning": "planning", "verify-development": "development"}.get(args.command, "foundation")
+    label = {"verify-planning": "planning", "verify-development": "development", "verify-resolution": "resolution"}.get(args.command, "foundation")
     compare, reject = verify, verify_rejections
     if label == "planning":
         from u13_pysim.verify_planning import verify as compare, verify_rejections as reject
     elif label == "development":
         from u13_pysim.verify_development import verify as compare, verify_rejections as reject
+    elif label == "resolution":
+        from u13_pysim.verify_resolution import verify as compare, verify_rejections as reject
     try:
         suite = codec.loads(args.trace.read_text(encoding="utf-8"))
         result = compare(suite, revision, source_hash, diagnostic=args.diagnostic)

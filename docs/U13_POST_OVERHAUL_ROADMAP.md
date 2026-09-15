@@ -2,6 +2,15 @@
 
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
+**2026-09-15 ordinary resolution implemented; Windows acceptance pending:**
+The new Python adapter extends through artillery, commitment reveal/recruitment
+and combat (the first nine fresh-game hooks), including required immediate Lord
+reactions and exact event visibility. It stops before Post-Resolution/Marching.
+See [scope, directed corpus and Windows gate](U13_PYSIM_RESOLUTION_2026-09-15.md).
+No new full-match speed or balance claim follows from this slice. The next
+spatial spike will compare explicit contact ordering and candidate data layouts;
+preserve the first complete-game reference as soon as a supported path exists.
+
 **2026-09-15 Python copying optimization accepted at clean `88ef438`:**
 The Windows Godot 4.7.2 gate passed: 926 Godot checks, 321 exact snapshots,
 27 Python tests and 25 rejected evidence corruptions, with zero failures or script
@@ -18,7 +27,8 @@ operations, 20 Python unit tests and 14 rejected evidence corruptions; no failur
 or script errors. The independent Python mirror extends through the sixth hook,
 Guard deployment and Work/pairs. See
 [implementation and accepted evidence](U13_PYSIM_DEVELOPMENT_2026-09-15.md).
-Artillery, combat, Marching and full rounds remain outside the Python adapter.
+That Development adapter stops before artillery; the new resolution adapter
+extends it as scoped above. Marching and full rounds remain unimplemented.
 
 **2026-09-15 policy and performance steering:** Keep doctrine swappable in the
 harness. Experimental Python policies/configurations do not need Godot ports;
@@ -65,7 +75,8 @@ The campaign predates forecast/public-Guard changes and is not balance evidence.
 now have the focused implementation above. The
 trace contract, exact deterministic primitives and opening-state parity are
 accepted through Development, with the copying optimization also Windows-accepted.
-Extend ordinary resolution with the early spatial performance gate above;
+Ordinary resolution is implemented above and awaits its focused Windows gate.
+Then begin the early spatial performance gate;
 see [inventory and subsequent parity order](U13_PYSIM_PARITY_2026-09-15.md).
 Then Common Smart Core + separate Lord doctrines, serious balance, and roguelite
 work. Preserve the accepted UI. No new broad campaign is needed for this

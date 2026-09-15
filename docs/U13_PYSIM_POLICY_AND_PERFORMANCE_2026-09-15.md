@@ -19,7 +19,7 @@ no BasicDoctrine. Keep this boundary as the full-match harness grows.
 | Experiment harness | Schedules seeds/seats/matchups, loads policies/configurations, captures explicit decisions and measures results independently of the rules implementation. |
 
 The injected full-game policy interface is a **future implementation requirement**,
-not a capability claimed by the current six-hook adapter. Build it when the
+not a capability claimed by the current bounded adapter. Build it when the
 public-observation and complete-choice surfaces are available. Its input must
 contain the acting player's permitted observations, legal choices and a separate
 deterministic policy RNG key. It must never receive the authoritative parity
@@ -77,7 +77,24 @@ The earlier local Linux diagnostic measured 36.02 ms versus 10.08 ms (3.57×).
 The comparison uses unchanged timing/fixture source and records separate
 instrumented profiles. It remains a partial-engine measurement and does not
 satisfy the later full-match throughput gate. Continue ordinary resolution and
-the early spatial spike; full-match speed remains unknown.
+the early spatial spike; full-match speed remains unknown. Ordinary resolution
+is now implemented in a separate [nine-hook adapter](U13_PYSIM_RESOLUTION_2026-09-15.md),
+with focused Windows acceptance pending and no new throughput claim.
+
+Additional user steering: consider parallel arrays before writing the tick loop,
+preserve Godot's explicit contact ordering, and establish the first complete-game
+reference before trusting an optimized path. Inspect `U13MarchingBuffer` and
+measure candidate layouts, including conversion cost; flat Python arrays are not
+an assumed speedup. The current contact selector first uses stable ID order and
+earliest arrival, then keyed `CONTACT_TIE` selection. Match that sequence and
+capture tick/field/event differences, including registry-order permutations.
+
+The 7.98 ms Windows and 10.08 ms Linux figures measured the same six-hook slice
+on different runtime/hardware. They show neither free extra hooks nor 42 ms
+remaining in a demonstrated 50 ms full-match budget. A match has many rounds and
+changing board sizes; the 50 ms suggestion remains an unmeasured target. The
+early spatial spike can inform implementation while the first legitimate full
+game is being completed; it cannot substitute for that game's exact reference.
 
 Apply these gates before committing to the rest of the performance plan:
 

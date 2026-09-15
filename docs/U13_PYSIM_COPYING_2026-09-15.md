@@ -182,7 +182,8 @@ contains both Godot exports, parity summaries, unit log, source/runtime identity
 working diff and `copying-comparison.json` with separate profiles. No 100-game
 campaign is part of this gate. Preserve the exact 4.7.2 acceptance requirement.
 
-Next, continue ordinary resolution with artillery/commitment/
-combat interfaces, then run the early Marching performance spike before finishing
+The subsequent [ordinary resolution slice](U13_PYSIM_RESOLUTION_2026-09-15.md)
+implements artillery/commitment/combat and awaits its focused Windows gate.
+Then run the early Marching performance spike before finishing
 the spatial/Lord-effect port. Common Smart Core, Lord doctrines, serious balance
 and roguelite work retain their later positions in the roadmap.
