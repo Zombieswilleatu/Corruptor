@@ -181,3 +181,9 @@ accepted. Profile the optimized implementation separately from timing to choose
 the next optimization; the pre-change copying fractions cannot identify its new
 dominant cost. Preserve rollback, detached views and exact events. The 50 ms
 suggestion and full-roster doctrine throughput remain unpassed targets.
+
+The [focused optimized-profile runner](U13_PYSIM_OPTIMIZED_PROFILE_2026-09-15.md)
+is now available. It retains full function/caller data and separate unprofiled
+timing under both runtimes, using this accepted engine fingerprint. Its local
+diagnostic points to Marching and reaction-registry rebuilding; Windows/PyPy
+capture is pending before choosing another performance change.

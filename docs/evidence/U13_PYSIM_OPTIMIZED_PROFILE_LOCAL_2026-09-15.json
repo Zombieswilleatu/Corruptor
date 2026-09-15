@@ -1,0 +1,4756 @@
+{
+  "schema": "U13_OPTIMIZED_FULL_MATCH_LOCAL_PROFILE_EVIDENCE_V1",
+  "recorded_on": "2026-09-15",
+  "source_was_uncommitted_observer_on_revision": "550f5bd0f03f2300dd964019cfa62fd4763adaf7",
+  "scope": "Linux CPython diagnostic for the unchanged accepted c228d85 engine; Windows/PyPy profile pending",
+  "observer_tests": {
+    "passed": 3,
+    "failed": 0,
+    "checks": [
+      "changed engine/input cannot reuse acceptance",
+      "failed acceptance cannot satisfy prerequisites",
+      "actual cProfile recursive caller count ordering"
+    ]
+  },
+  "artifact_hashes": {
+    "profiles.json": {
+      "bytes": 666508,
+      "sha256": "324136ee5d5934a59e627f4457dbbc812e67b68faf80f9e522df4e4f9bfa5f7c"
+    },
+    "profile-summary.json": {
+      "bytes": 711333,
+      "sha256": "95e74ed9dd9f3a50a2ead841782faf478efc417befa5f0f9a8deeb1ddc9d94d1"
+    },
+    "bones_endurance-profile.txt": {
+      "bytes": 250838,
+      "sha256": "b7d964a83283826417c2990203b4aaaae3fb29c5ef585899210afd5160b9bd8f"
+    },
+    "bones_endurance-profile.json": {
+      "bytes": 295217,
+      "sha256": "8e98854f8e97e27e43d06ad7550616d237917697c23f6b866045f0f03e15a165"
+    },
+    "bones_endurance.prof": {
+      "bytes": 45209,
+      "sha256": "a7e8025a1a6500d0461f2c3ae3f102d4541e594d4ca450134199177b68e2f75f"
+    },
+    "unprofiled-samples.json": {
+      "bytes": 4001,
+      "sha256": "c5e52ca474d7ccd2d7f1d9080034163e3bfdbb623395567cc1ff8df71e4f5683"
+    },
+    "spoils_rekindle.prof": {
+      "bytes": 44655,
+      "sha256": "a0988b9d254636340339f18ba1eae47834d0032f7968b0e557a25eff399df42a"
+    },
+    "spoils_rekindle-profile.txt": {
+      "bytes": 247395,
+      "sha256": "2f8af2b4d3444ab5548936ce20548ed36ade51665041891a0f27e5a1d3f420c9"
+    },
+    "spoils_rekindle-profile.json": {
+      "bytes": 291192,
+      "sha256": "f2e1bba45d66af568aea4eccfbaf96ecbd895729819da9b8b4e365602b50e6e6"
+    },
+    "profile-identity.json": {
+      "bytes": 669,
+      "sha256": "2a0b6c52dc90124512937452cdc78942b7a2bb1aa90d69cc09bc364daeff84dd"
+    }
+  },
+  "result": {
+    "source_revision": "550f5bd0f03f2300dd964019cfa62fd4763adaf7",
+    "source_sha256": "e34ef7c6e3aeb39040ad413159feb6b2cef5e15e19adbe6accf777339613854f",
+    "accepted_engine_revision": "c228d85d449b19cfb3cd929479b0255c7e49bfc1",
+    "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+    "observer_sha256": "7eca3e93c6d71aa308aad8f2dea46bff64021245e5abb957dbd0fd74021e10aa",
+    "accepted_evidence_sha256": "9af5c3e42e5053f2717e67bf82180dbf457bbb6061d84ca0e65bcd2b5730f097",
+    "reference_revision": "d059b9560a95c32779597260d99829f9f1534f22",
+    "prior_dual_runtime_parity_reused_by_identical_engine_source": true,
+    "new_parity_run": false,
+    "schema": "U13_OPTIMIZED_FULL_MATCH_PROFILE_V1",
+    "runtime_matches_accepted_windows_runtime": false,
+    "diagnostic_only": true,
+    "timing": {
+      "implementation": "accepted_optimized",
+      "source_revision": "550f5bd0f03f2300dd964019cfa62fd4763adaf7",
+      "source_sha256": "e34ef7c6e3aeb39040ad413159feb6b2cef5e15e19adbe6accf777339613854f",
+      "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+      "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+      "python_implementation": "CPython",
+      "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+      "processor": "x86_64",
+      "logical_cpus": 9,
+      "gc_enabled": true,
+      "process_id": 7,
+      "one_process_for_all_games": true,
+      "unrecorded_warmup_games": 0,
+      "measured_games": 4,
+      "samples": [
+        {
+          "index": 0,
+          "name": "bones_endurance",
+          "rounds": 13,
+          "wall_ms": 2189.255192,
+          "cpu_ms": 2184.541547,
+          "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+        },
+        {
+          "index": 1,
+          "name": "spoils_rekindle",
+          "rounds": 17,
+          "wall_ms": 3277.214625,
+          "cpu_ms": 3276.810998,
+          "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+        },
+        {
+          "index": 2,
+          "name": "bones_endurance",
+          "rounds": 13,
+          "wall_ms": 1924.124202,
+          "cpu_ms": 1923.731392,
+          "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+        },
+        {
+          "index": 3,
+          "name": "spoils_rekindle",
+          "rounds": 17,
+          "wall_ms": 3335.515448,
+          "cpu_ms": 3334.758514,
+          "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+        }
+      ],
+      "cases": [
+        {
+          "name": "bones_endurance",
+          "rounds": 13,
+          "input_sha256": "0fd5f4737585bb16fb5836f3e68aabcf0dc84e109216513983ce9b56395a5c2f",
+          "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce",
+          "outcome": {
+            "action": "game_finished",
+            "round": 13,
+            "winner": 0,
+            "win_by": "Ritual"
+          },
+          "wall": {
+            "samples": 2,
+            "mean_ms": 2056.689697,
+            "median_ms": 2056.689697,
+            "p95_ms": 2189.255192,
+            "min_ms": 1924.124202,
+            "max_ms": 2189.255192
+          },
+          "cpu": {
+            "samples": 2,
+            "mean_ms": 2054.1364694999997,
+            "median_ms": 2054.1364694999997,
+            "p95_ms": 2184.541547,
+            "min_ms": 1923.731392,
+            "max_ms": 2184.541547
+          }
+        },
+        {
+          "name": "spoils_rekindle",
+          "rounds": 17,
+          "input_sha256": "c9d5e3e20d2bae6f21cc489f838ad1e37cf1dbcc36b1c6f0f3b7349d79876c3e",
+          "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72",
+          "outcome": {
+            "action": "game_finished",
+            "round": 17,
+            "winner": 1,
+            "win_by": "Ritual"
+          },
+          "wall": {
+            "samples": 2,
+            "mean_ms": 3306.3650365000003,
+            "median_ms": 3306.3650365000003,
+            "p95_ms": 3335.515448,
+            "min_ms": 3277.214625,
+            "max_ms": 3335.515448
+          },
+          "cpu": {
+            "samples": 2,
+            "mean_ms": 3305.784756,
+            "median_ms": 3305.784756,
+            "p95_ms": 3334.758514,
+            "min_ms": 3276.810998,
+            "max_ms": 3334.758514
+          }
+        }
+      ],
+      "mean_wall_ms": 2681.52736675,
+      "mean_cpu_ms": 2679.96061275,
+      "first_half_mean_wall_ms": 2733.2349085,
+      "last_half_mean_wall_ms": 2629.819825,
+      "initial_pair_mean_wall_ms": 2733.2349085,
+      "all_final_digests_matched": true,
+      "profiling_enabled": false,
+      "pypy_environment": {},
+      "interpreter_flags": "sys.flags(debug=0, inspect=0, interactive=0, optimize=0, dont_write_bytecode=0, no_user_site=0, no_site=0, ignore_environment=0, verbose=0, bytes_warning=0, quiet=0, hash_randomization=1, isolated=0, dev_mode=False, utf8_mode=0, warn_default_encoding=0, safe_path=False, int_max_str_digits=4300)",
+      "interpreter_xoptions": {},
+      "memory_measurement": null,
+      "failures": 0
+    },
+    "profile_details": {
+      "schema": "U13_OPTIMIZED_FULL_MATCH_PROFILE_DETAILS_V1",
+      "warmups": [
+        {
+          "index": 0,
+          "name": "bones_endurance",
+          "wall_ms": 2170.221875,
+          "stage_timers_enabled": true,
+          "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+        },
+        {
+          "index": 1,
+          "name": "spoils_rekindle",
+          "wall_ms": 3256.869789,
+          "stage_timers_enabled": true,
+          "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+        }
+      ],
+      "stage_samples_without_cprofile": [
+        {
+          "index": 0,
+          "name": "bones_endurance",
+          "wall_ms": 2170.221875,
+          "stage_timers_enabled": true,
+          "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce",
+          "stage_wall_ms": {
+            "setup": 2.889169,
+            "round_start_scheduled": 8.315807000000001,
+            "persistent_advancement": 10.162237999999999,
+            "round_start_automatic": 64.276416,
+            "stockpile": 33.176633,
+            "market": 16.425897000000003,
+            "present_public_state": 15.342081999999998,
+            "submit": 9.224457,
+            "submission_lock": 10.985641000000001,
+            "development": 12.673914,
+            "post_repair_artillery": 10.73912,
+            "commitment_reveal": 114.070624,
+            "combat_resolution": 21.098899000000003,
+            "post_resolution_spawns": 10.456520999999999,
+            "post_resolution_position": 13.907480000000001,
+            "post_resolution_allegiance": 10.140929,
+            "post_resolution_movement_state": 11.356325,
+            "post_resolution_hazards": 10.524866999999999,
+            "post_resolution_direct": 11.221983000000002,
+            "post_resolution_special_actors": 11.552215,
+            "marching_start": 11.746934999999999,
+            "marching": 1710.142209,
+            "end_marching_checks": 14.885352,
+            "aftermath": 16.422397,
+            "next_round": 7.766421
+          },
+          "stage_sum_ms": 2169.504531
+        },
+        {
+          "index": 1,
+          "name": "spoils_rekindle",
+          "wall_ms": 3256.869789,
+          "stage_timers_enabled": true,
+          "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72",
+          "stage_wall_ms": {
+            "setup": 5.477188,
+            "round_start_scheduled": 13.171706,
+            "persistent_advancement": 12.808975,
+            "round_start_automatic": 81.79353800000001,
+            "stockpile": 32.786346,
+            "market": 18.723834,
+            "present_public_state": 18.361497000000004,
+            "submit": 11.179954,
+            "submission_lock": 19.83348,
+            "development": 14.451498,
+            "post_repair_artillery": 17.67591,
+            "commitment_reveal": 138.252076,
+            "combat_resolution": 24.919327,
+            "post_resolution_spawns": 14.614929,
+            "post_resolution_position": 16.117397,
+            "post_resolution_allegiance": 14.552349000000001,
+            "post_resolution_movement_state": 18.994577999999997,
+            "post_resolution_hazards": 14.221255,
+            "post_resolution_direct": 13.688400000000001,
+            "post_resolution_special_actors": 14.952873000000004,
+            "marching_start": 16.090260999999998,
+            "marching": 2670.935875,
+            "end_marching_checks": 17.736341000000007,
+            "aftermath": 20.206974000000002,
+            "next_round": 11.164981000000001
+          },
+          "stage_sum_ms": 3252.711542
+        }
+      ],
+      "profiles": [
+        {
+          "name": "bones_endurance",
+          "rounds": 13,
+          "operations": 334,
+          "outcome": {
+            "action": "game_finished",
+            "round": 13,
+            "winner": 0,
+            "win_by": "Ritual"
+          },
+          "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce",
+          "wall_ms": 6332.801547,
+          "profiled_stage_wall_ms": {
+            "setup": 9.507139,
+            "round_start_scheduled": 22.790644999999998,
+            "persistent_advancement": 30.964322,
+            "round_start_automatic": 195.355223,
+            "stockpile": 83.44769000000001,
+            "market": 43.350757,
+            "present_public_state": 38.67694,
+            "submit": 30.046513999999995,
+            "submission_lock": 33.986826,
+            "development": 33.86814,
+            "post_repair_artillery": 32.543163,
+            "commitment_reveal": 284.324635,
+            "combat_resolution": 65.597619,
+            "post_resolution_spawns": 35.778934,
+            "post_resolution_position": 36.772227,
+            "post_resolution_allegiance": 37.21551,
+            "post_resolution_movement_state": 39.705887000000004,
+            "post_resolution_hazards": 41.480346000000004,
+            "post_resolution_direct": 40.051109,
+            "post_resolution_special_actors": 45.15972500000001,
+            "marching_start": 46.297658999999996,
+            "marching": 4948.312696999999,
+            "end_marching_checks": 54.855581,
+            "aftermath": 59.235631999999995,
+            "next_round": 34.900051999999995
+          },
+          "total_profile_seconds": 6.325357963000009,
+          "primitive_calls": 8772092,
+          "total_calls": 9458575,
+          "functions": [
+            {
+              "file": "Scripts/Sim/u13_pysim/benchmark_full_match.py",
+              "line": 22,
+              "function": "play",
+              "primitive_calls": 1,
+              "total_calls": 1,
+              "exclusive_seconds": 0.019182683000000002,
+              "cumulative_seconds": 6.325129004000001,
+              "callers": []
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/planning.py",
+              "line": 56,
+              "function": "apply",
+              "primitive_calls": 334,
+              "total_calls": 334,
+              "exclusive_seconds": 0.002563754,
+              "cumulative_seconds": 6.295758765,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/benchmark_full_match.py",
+                  "line": 22,
+                  "function": "play",
+                  "total_calls": 334,
+                  "primitive_calls": 334,
+                  "exclusive_seconds": 0.002563754,
+                  "cumulative_seconds": 6.295758765
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/full_match.py",
+              "line": 38,
+              "function": "_apply",
+              "primitive_calls": 334,
+              "total_calls": 334,
+              "exclusive_seconds": 0.0017521180000000002,
+              "cumulative_seconds": 5.563325293,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 56,
+                  "function": "apply",
+                  "total_calls": 334,
+                  "primitive_calls": 334,
+                  "exclusive_seconds": 0.0017521180000000002,
+                  "cumulative_seconds": 5.563325293
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/planning.py",
+              "line": 74,
+              "function": "_apply",
+              "primitive_calls": 322,
+              "total_calls": 322,
+              "exclusive_seconds": 0.0026598470000000003,
+              "cumulative_seconds": 5.5189191950000005,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/full_match.py",
+                  "line": 38,
+                  "function": "_apply",
+                  "total_calls": 322,
+                  "primitive_calls": 322,
+                  "exclusive_seconds": 0.0026598470000000003,
+                  "cumulative_seconds": 5.5189191950000005
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/full_match.py",
+              "line": 55,
+              "function": "_hook",
+              "primitive_calls": 260,
+              "total_calls": 260,
+              "exclusive_seconds": 0.003635782,
+              "cumulative_seconds": 5.454394096000001,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 74,
+                  "function": "_apply",
+                  "total_calls": 260,
+                  "primitive_calls": 260,
+                  "exclusive_seconds": 0.003635782,
+                  "cumulative_seconds": 5.454394096000001
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/lifecycle.py",
+              "line": 74,
+              "function": "run",
+              "primitive_calls": 260,
+              "total_calls": 260,
+              "exclusive_seconds": 0.010596968,
+              "cumulative_seconds": 5.403928976,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/full_match.py",
+                  "line": 55,
+                  "function": "_hook",
+                  "total_calls": 260,
+                  "primitive_calls": 260,
+                  "exclusive_seconds": 0.010596968,
+                  "cumulative_seconds": 5.403928976
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching_game.py",
+              "line": 30,
+              "function": "resolve",
+              "primitive_calls": 13,
+              "total_calls": 13,
+              "exclusive_seconds": 0.000700076,
+              "cumulative_seconds": 4.895501102,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/lifecycle.py",
+                  "line": 74,
+                  "function": "run",
+                  "total_calls": 13,
+                  "primitive_calls": 13,
+                  "exclusive_seconds": 0.000700076,
+                  "cumulative_seconds": 4.895501102
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching.py",
+              "line": 359,
+              "function": "run",
+              "primitive_calls": 13,
+              "total_calls": 13,
+              "exclusive_seconds": 0.06033277,
+              "cumulative_seconds": 4.768132613000001,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_game.py",
+                  "line": 30,
+                  "function": "resolve",
+                  "total_calls": 13,
+                  "primitive_calls": 13,
+                  "exclusive_seconds": 0.06033277,
+                  "cumulative_seconds": 4.768132613000001
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching.py",
+              "line": 148,
+              "function": "move",
+              "primitive_calls": 2600,
+              "total_calls": 2600,
+              "exclusive_seconds": 0.6168214700000001,
+              "cumulative_seconds": 2.3543833060000003,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 359,
+                  "function": "run",
+                  "total_calls": 2600,
+                  "primitive_calls": 2600,
+                  "exclusive_seconds": 0.6168214700000001,
+                  "cumulative_seconds": 2.3543833060000003
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching.py",
+              "line": 314,
+              "function": "volley",
+              "primitive_calls": 2600,
+              "total_calls": 2600,
+              "exclusive_seconds": 0.099886664,
+              "cumulative_seconds": 1.394331357,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 359,
+                  "function": "run",
+                  "total_calls": 2600,
+                  "primitive_calls": 2600,
+                  "exclusive_seconds": 0.099886664,
+                  "cumulative_seconds": 1.394331357
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching_columns.py",
+              "line": 18,
+              "function": "__init__",
+              "primitive_calls": 207,
+              "total_calls": 207,
+              "exclusive_seconds": 0.07609964500000001,
+              "cumulative_seconds": 1.383003644,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 277,
+                  "function": "__init__",
+                  "total_calls": 13,
+                  "primitive_calls": 13,
+                  "exclusive_seconds": 0.0051004150000000005,
+                  "cumulative_seconds": 0.094794416
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 300,
+                  "function": "restore_reactions",
+                  "total_calls": 181,
+                  "primitive_calls": 181,
+                  "exclusive_seconds": 0.067011573,
+                  "cumulative_seconds": 1.205150836
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_game.py",
+                  "line": 46,
+                  "function": "regenerate",
+                  "total_calls": 13,
+                  "primitive_calls": 13,
+                  "exclusive_seconds": 0.003987657,
+                  "cumulative_seconds": 0.08305839200000001
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/primitives.py",
+              "line": 102,
+              "function": "restore",
+              "primitive_calls": 207,
+              "total_calls": 207,
+              "exclusive_seconds": 0.07052096000000001,
+              "cumulative_seconds": 1.2663389760000001,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_columns.py",
+                  "line": 18,
+                  "function": "__init__",
+                  "total_calls": 207,
+                  "primitive_calls": 207,
+                  "exclusive_seconds": 0.07052096000000001,
+                  "cumulative_seconds": 1.2663389760000001
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching.py",
+              "line": 130,
+              "function": "near",
+              "primitive_calls": 236698,
+              "total_calls": 236698,
+              "exclusive_seconds": 0.790795671,
+              "cumulative_seconds": 1.223244743,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 148,
+                  "function": "move",
+                  "total_calls": 97795,
+                  "primitive_calls": 97795,
+                  "exclusive_seconds": 0.316442999,
+                  "cumulative_seconds": 0.489433047
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 206,
+                  "function": "free",
+                  "total_calls": 63451,
+                  "primitive_calls": 63451,
+                  "exclusive_seconds": 0.240754705,
+                  "cumulative_seconds": 0.375625298
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 237,
+                  "function": "contact",
+                  "total_calls": 75452,
+                  "primitive_calls": 75452,
+                  "exclusive_seconds": 0.23359796700000002,
+                  "cumulative_seconds": 0.358186398
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching.py",
+              "line": 300,
+              "function": "restore_reactions",
+              "primitive_calls": 181,
+              "total_calls": 181,
+              "exclusive_seconds": 0.0037681230000000004,
+              "cumulative_seconds": 1.208918959,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 314,
+                  "function": "volley",
+                  "total_calls": 153,
+                  "primitive_calls": 153,
+                  "exclusive_seconds": 0.002182934,
+                  "cumulative_seconds": 1.02191738
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 359,
+                  "function": "run",
+                  "total_calls": 28,
+                  "primitive_calls": 28,
+                  "exclusive_seconds": 0.001585189,
+                  "cumulative_seconds": 0.187001579
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/primitives.py",
+              "line": 19,
+              "function": "normalize",
+              "primitive_calls": 331,
+              "total_calls": 379024,
+              "exclusive_seconds": 0.486495133,
+              "cumulative_seconds": 1.1003804670000001,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 122,
+                  "function": "_submit_one",
+                  "total_calls": 26,
+                  "primitive_calls": 26,
+                  "exclusive_seconds": 0.00019864400000000002,
+                  "cumulative_seconds": 0.001550616
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 19,
+                  "function": "normalize",
+                  "total_calls": 378693,
+                  "primitive_calls": 1031,
+                  "exclusive_seconds": 0.48383139500000005,
+                  "cumulative_seconds": 1.09437345
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 69,
+                  "function": "create",
+                  "total_calls": 84,
+                  "primitive_calls": 84,
+                  "exclusive_seconds": 0.000362219,
+                  "cumulative_seconds": 0.001130598
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 83,
+                  "function": "update",
+                  "total_calls": 14,
+                  "primitive_calls": 14,
+                  "exclusive_seconds": 5.1515000000000004e-05,
+                  "cumulative_seconds": 0.00014066300000000002
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 102,
+                  "function": "restore",
+                  "total_calls": 207,
+                  "primitive_calls": 207,
+                  "exclusive_seconds": 0.0020513600000000003,
+                  "cumulative_seconds": 1.09755859
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/copying.py",
+              "line": 44,
+              "function": "_clone",
+              "primitive_calls": 6360,
+              "total_calls": 223728,
+              "exclusive_seconds": 0.704916855,
+              "cumulative_seconds": 0.853479053,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/copying.py",
+                  "line": 12,
+                  "function": "copy_data",
+                  "total_calls": 6026,
+                  "primitive_calls": 6026,
+                  "exclusive_seconds": 0.033640797,
+                  "cumulative_seconds": 0.379955248
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/copying.py",
+                  "line": 25,
+                  "function": "__init__",
+                  "total_calls": 334,
+                  "primitive_calls": 334,
+                  "exclusive_seconds": 0.003508503,
+                  "cumulative_seconds": 0.473523805
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/copying.py",
+                  "line": 44,
+                  "function": "_clone",
+                  "total_calls": 217368,
+                  "primitive_calls": 23725,
+                  "exclusive_seconds": 0.6677675550000001,
+                  "cumulative_seconds": 0.8110017690000001
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching.py",
+              "line": 206,
+              "function": "free",
+              "primitive_calls": 63451,
+              "total_calls": 63451,
+              "exclusive_seconds": 0.15046454,
+              "cumulative_seconds": 0.603109018,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 148,
+                  "function": "move",
+                  "total_calls": 63451,
+                  "primitive_calls": 63451,
+                  "exclusive_seconds": 0.15046454,
+                  "cumulative_seconds": 0.603109018
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching.py",
+              "line": 237,
+              "function": "contact",
+              "primitive_calls": 4905,
+              "total_calls": 4905,
+              "exclusive_seconds": 0.07894194,
+              "cumulative_seconds": 0.59982649,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 359,
+                  "function": "run",
+                  "total_calls": 4905,
+                  "primitive_calls": 4905,
+                  "exclusive_seconds": 0.07894194,
+                  "cumulative_seconds": 0.59982649
+                }
+              ]
+            },
+            {
+              "file": "~",
+              "line": 0,
+              "function": "<built-in method builtins.any>",
+              "primitive_calls": 244633,
+              "total_calls": 244633,
+              "exclusive_seconds": 0.192507856,
+              "cumulative_seconds": 0.5426777110000001,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 181,
+                  "function": "react",
+                  "total_calls": 22,
+                  "primitive_calls": 22,
+                  "exclusive_seconds": 3.8438e-05,
+                  "cumulative_seconds": 5.3375e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 28,
+                  "function": "valid",
+                  "total_calls": 969,
+                  "primitive_calls": 969,
+                  "exclusive_seconds": 0.003967352,
+                  "cumulative_seconds": 0.010952344000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 148,
+                  "function": "move",
+                  "total_calls": 195590,
+                  "primitive_calls": 195590,
+                  "exclusive_seconds": 0.095707653,
+                  "cumulative_seconds": 0.13407756
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 359,
+                  "function": "run",
+                  "total_calls": 125,
+                  "primitive_calls": 125,
+                  "exclusive_seconds": 0.000495634,
+                  "cumulative_seconds": 0.000976189
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_game.py",
+                  "line": 16,
+                  "function": "supported",
+                  "total_calls": 1863,
+                  "primitive_calls": 1863,
+                  "exclusive_seconds": 0.015086176000000001,
+                  "cumulative_seconds": 0.065154239
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/opening.py",
+                  "line": 85,
+                  "function": "world",
+                  "total_calls": 5,
+                  "primitive_calls": 5,
+                  "exclusive_seconds": 1.0633000000000001e-05,
+                  "cumulative_seconds": 2.2261000000000003e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 136,
+                  "function": "_accept_order",
+                  "total_calls": 66,
+                  "primitive_calls": 66,
+                  "exclusive_seconds": 0.000850933,
+                  "cumulative_seconds": 0.0022481000000000003
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 19,
+                  "function": "normalize",
+                  "total_calls": 45435,
+                  "primitive_calls": 45435,
+                  "exclusive_seconds": 0.07062578400000001,
+                  "cumulative_seconds": 0.31507654900000004
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 100,
+                  "function": "castleless",
+                  "total_calls": 558,
+                  "primitive_calls": 558,
+                  "exclusive_seconds": 0.0057252530000000005,
+                  "cumulative_seconds": 0.014117094
+                }
+              ]
+            },
+            {
+              "file": "~",
+              "line": 0,
+              "function": "<method 'get' of 'dict' objects>",
+              "primitive_calls": 2536632,
+              "total_calls": 2536632,
+              "exclusive_seconds": 0.517907699,
+              "cumulative_seconds": 0.517907699,
+              "callers": [
+                {
+                  "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py",
+                  "line": 118,
+                  "function": "deepcopy",
+                  "total_calls": 166030,
+                  "primitive_calls": 166030,
+                  "exclusive_seconds": 0.038481395,
+                  "cumulative_seconds": 0.038481395
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 19,
+                  "function": "targetable",
+                  "total_calls": 3143,
+                  "primitive_calls": 3143,
+                  "exclusive_seconds": 0.000988608,
+                  "cumulative_seconds": 0.000988608
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 24,
+                  "function": "note_loss",
+                  "total_calls": 4,
+                  "primitive_calls": 4,
+                  "exclusive_seconds": 9.440000000000001e-07,
+                  "cumulative_seconds": 9.440000000000001e-07
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 35,
+                  "function": "threat",
+                  "total_calls": 10,
+                  "primitive_calls": 10,
+                  "exclusive_seconds": 2.471e-06,
+                  "cumulative_seconds": 2.471e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 63,
+                  "function": "fact",
+                  "total_calls": 208,
+                  "primitive_calls": 208,
+                  "exclusive_seconds": 5.3175000000000005e-05,
+                  "cumulative_seconds": 5.3175000000000005e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 151,
+                  "function": "castle_tear",
+                  "total_calls": 4,
+                  "primitive_calls": 4,
+                  "exclusive_seconds": 1.003e-06,
+                  "cumulative_seconds": 1.003e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 181,
+                  "function": "react",
+                  "total_calls": 299,
+                  "primitive_calls": 299,
+                  "exclusive_seconds": 0.00011516,
+                  "cumulative_seconds": 0.00011516
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 185,
+                  "function": "take",
+                  "total_calls": 45,
+                  "primitive_calls": 45,
+                  "exclusive_seconds": 6.802e-05,
+                  "cumulative_seconds": 6.802e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 332,
+                  "function": "fracture_groups",
+                  "total_calls": 54,
+                  "primitive_calls": 54,
+                  "exclusive_seconds": 9.401e-06,
+                  "cumulative_seconds": 9.401e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 346,
+                  "function": "fracture",
+                  "total_calls": 1,
+                  "primitive_calls": 1,
+                  "exclusive_seconds": 2.54e-07,
+                  "cumulative_seconds": 2.54e-07
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/benchmark_full_match.py",
+                  "line": 22,
+                  "function": "play",
+                  "total_calls": 668,
+                  "primitive_calls": 668,
+                  "exclusive_seconds": 0.000323739,
+                  "cumulative_seconds": 0.000323739
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/development.py",
+                  "line": 36,
+                  "function": "validate_choice",
+                  "total_calls": 156,
+                  "primitive_calls": 156,
+                  "exclusive_seconds": 3.5131e-05,
+                  "cumulative_seconds": 3.5131e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/development.py",
+                  "line": 59,
+                  "function": "intact",
+                  "total_calls": 9860,
+                  "primitive_calls": 9860,
+                  "exclusive_seconds": 0.002396488,
+                  "cumulative_seconds": 0.002396488
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/development.py",
+                  "line": 105,
+                  "function": "work",
+                  "total_calls": 17,
+                  "primitive_calls": 17,
+                  "exclusive_seconds": 5.428e-06,
+                  "cumulative_seconds": 5.428e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 36,
+                  "function": "cards_valid",
+                  "total_calls": 12725,
+                  "primitive_calls": 12725,
+                  "exclusive_seconds": 0.00257895,
+                  "cumulative_seconds": 0.00257895
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 52,
+                  "function": "<genexpr>",
+                  "total_calls": 14160,
+                  "primitive_calls": 14160,
+                  "exclusive_seconds": 0.002370146,
+                  "cumulative_seconds": 0.002370146
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 110,
+                  "function": "operational",
+                  "total_calls": 789,
+                  "primitive_calls": 789,
+                  "exclusive_seconds": 0.000145796,
+                  "cumulative_seconds": 0.000145796
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/full_match.py",
+                  "line": 38,
+                  "function": "_apply",
+                  "total_calls": 334,
+                  "primitive_calls": 334,
+                  "exclusive_seconds": 0.00014763500000000002,
+                  "cumulative_seconds": 0.00014763500000000002
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/lifecycle.py",
+                  "line": 74,
+                  "function": "run",
+                  "total_calls": 39,
+                  "primitive_calls": 39,
+                  "exclusive_seconds": 3.4576e-05,
+                  "cumulative_seconds": 3.4576e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 28,
+                  "function": "valid",
+                  "total_calls": 2084,
+                  "primitive_calls": 2084,
+                  "exclusive_seconds": 0.000410422,
+                  "cumulative_seconds": 0.000410422
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 45,
+                  "function": "<genexpr>",
+                  "total_calls": 12285,
+                  "primitive_calls": 12285,
+                  "exclusive_seconds": 0.0022840950000000003,
+                  "cumulative_seconds": 0.0022840950000000003
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 77,
+                  "function": "<genexpr>",
+                  "total_calls": 12,
+                  "primitive_calls": 12,
+                  "exclusive_seconds": 2.0330000000000003e-06,
+                  "cumulative_seconds": 2.0330000000000003e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 130,
+                  "function": "near",
+                  "total_calls": 2130282,
+                  "primitive_calls": 2130282,
+                  "exclusive_seconds": 0.43244907200000005,
+                  "cumulative_seconds": 0.43244907200000005
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 148,
+                  "function": "move",
+                  "total_calls": 10400,
+                  "primitive_calls": 10400,
+                  "exclusive_seconds": 0.002815348,
+                  "cumulative_seconds": 0.002815348
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 237,
+                  "function": "contact",
+                  "total_calls": 4905,
+                  "primitive_calls": 4905,
+                  "exclusive_seconds": 0.001321094,
+                  "cumulative_seconds": 0.001321094
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 291,
+                  "function": "react",
+                  "total_calls": 79,
+                  "primitive_calls": 79,
+                  "exclusive_seconds": 1.3903e-05,
+                  "cumulative_seconds": 1.3903e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 359,
+                  "function": "run",
+                  "total_calls": 65,
+                  "primitive_calls": 65,
+                  "exclusive_seconds": 3.0126000000000003e-05,
+                  "cumulative_seconds": 3.0126000000000003e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_columns.py",
+                  "line": 18,
+                  "function": "__init__",
+                  "total_calls": 160062,
+                  "primitive_calls": 160062,
+                  "exclusive_seconds": 0.028786055,
+                  "cumulative_seconds": 0.028786055
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_columns.py",
+                  "line": 61,
+                  "function": "live",
+                  "total_calls": 1530,
+                  "primitive_calls": 1530,
+                  "exclusive_seconds": 0.00040050400000000004,
+                  "cumulative_seconds": 0.00040050400000000004
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_game.py",
+                  "line": 16,
+                  "function": "supported",
+                  "total_calls": 1242,
+                  "primitive_calls": 1242,
+                  "exclusive_seconds": 0.000345536,
+                  "cumulative_seconds": 0.000345536
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_game.py",
+                  "line": 22,
+                  "function": "<genexpr>",
+                  "total_calls": 2484,
+                  "primitive_calls": 2484,
+                  "exclusive_seconds": 0.00046840000000000006,
+                  "cumulative_seconds": 0.00046840000000000006
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_game.py",
+                  "line": 30,
+                  "function": "resolve",
+                  "total_calls": 26,
+                  "primitive_calls": 26,
+                  "exclusive_seconds": 5.344e-06,
+                  "cumulative_seconds": 5.344e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_game.py",
+                  "line": 46,
+                  "function": "regenerate",
+                  "total_calls": 26,
+                  "primitive_calls": 26,
+                  "exclusive_seconds": 8.08e-06,
+                  "cumulative_seconds": 8.08e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 74,
+                  "function": "_apply",
+                  "total_calls": 374,
+                  "primitive_calls": 374,
+                  "exclusive_seconds": 9.837600000000001e-05,
+                  "cumulative_seconds": 9.837600000000001e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 136,
+                  "function": "_accept_order",
+                  "total_calls": 364,
+                  "primitive_calls": 364,
+                  "exclusive_seconds": 9.8622e-05,
+                  "cumulative_seconds": 9.8622e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 166,
+                  "function": "<genexpr>",
+                  "total_calls": 464,
+                  "primitive_calls": 464,
+                  "exclusive_seconds": 8.5345e-05,
+                  "cumulative_seconds": 8.5345e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 216,
+                  "function": "_combat_shape",
+                  "total_calls": 220,
+                  "primitive_calls": 220,
+                  "exclusive_seconds": 0.000140505,
+                  "cumulative_seconds": 0.000140505
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 102,
+                  "function": "restore",
+                  "total_calls": 621,
+                  "primitive_calls": 621,
+                  "exclusive_seconds": 0.000236939,
+                  "cumulative_seconds": 0.000236939
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 56,
+                  "function": "artillery",
+                  "total_calls": 13,
+                  "primitive_calls": 13,
+                  "exclusive_seconds": 3.712e-06,
+                  "cumulative_seconds": 3.712e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 111,
+                  "function": "reveal",
+                  "total_calls": 39,
+                  "primitive_calls": 39,
+                  "exclusive_seconds": 1.2488000000000001e-05,
+                  "cumulative_seconds": 1.2488000000000001e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 173,
+                  "function": "attack_layers",
+                  "total_calls": 16,
+                  "primitive_calls": 16,
+                  "exclusive_seconds": 4.5720000000000004e-06,
+                  "cumulative_seconds": 4.5720000000000004e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 201,
+                  "function": "<genexpr>",
+                  "total_calls": 165,
+                  "primitive_calls": 165,
+                  "exclusive_seconds": 3.3548000000000005e-05,
+                  "cumulative_seconds": 3.3548000000000005e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 327,
+                  "function": "combat",
+                  "total_calls": 68,
+                  "primitive_calls": 68,
+                  "exclusive_seconds": 2.0198000000000002e-05,
+                  "cumulative_seconds": 2.0198000000000002e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/timeline.py",
+                  "line": 38,
+                  "function": "run",
+                  "total_calls": 260,
+                  "primitive_calls": 260,
+                  "exclusive_seconds": 7.506200000000001e-05,
+                  "cumulative_seconds": 7.506200000000001e-05
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/full_match.py",
+              "line": 23,
+              "function": "_rollback_snapshot",
+              "primitive_calls": 334,
+              "total_calls": 334,
+              "exclusive_seconds": 0.005886016,
+              "cumulative_seconds": 0.49035546700000004,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 56,
+                  "function": "apply",
+                  "total_calls": 334,
+                  "primitive_calls": 334,
+                  "exclusive_seconds": 0.005886016,
+                  "cumulative_seconds": 0.49035546700000004
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/copying.py",
+              "line": 25,
+              "function": "__init__",
+              "primitive_calls": 334,
+              "total_calls": 334,
+              "exclusive_seconds": 0.0009169450000000001,
+              "cumulative_seconds": 0.47849743400000005,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/full_match.py",
+                  "line": 23,
+                  "function": "_rollback_snapshot",
+                  "total_calls": 334,
+                  "primitive_calls": 334,
+                  "exclusive_seconds": 0.0009169450000000001,
+                  "cumulative_seconds": 0.47849743400000005
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/copying.py",
+              "line": 12,
+              "function": "copy_data",
+              "primitive_calls": 6026,
+              "total_calls": 6026,
+              "exclusive_seconds": 0.005178709,
+              "cumulative_seconds": 0.385133957,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 63,
+                  "function": "fact",
+                  "total_calls": 68,
+                  "primitive_calls": 68,
+                  "exclusive_seconds": 3.9842e-05,
+                  "cumulative_seconds": 0.000542157
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 181,
+                  "function": "react",
+                  "total_calls": 22,
+                  "primitive_calls": 22,
+                  "exclusive_seconds": 1.213e-05,
+                  "cumulative_seconds": 0.000143876
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 93,
+                  "function": "event",
+                  "total_calls": 3446,
+                  "primitive_calls": 3446,
+                  "exclusive_seconds": 0.002185823,
+                  "cumulative_seconds": 0.039304736
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/full_match.py",
+                  "line": 55,
+                  "function": "_hook",
+                  "total_calls": 13,
+                  "primitive_calls": 13,
+                  "exclusive_seconds": 4.6785e-05,
+                  "cumulative_seconds": 0.013488035
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 277,
+                  "function": "__init__",
+                  "total_calls": 13,
+                  "primitive_calls": 13,
+                  "exclusive_seconds": 6.596e-05,
+                  "cumulative_seconds": 0.023343424
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 286,
+                  "function": "emit",
+                  "total_calls": 1257,
+                  "primitive_calls": 1257,
+                  "exclusive_seconds": 0.0012457990000000001,
+                  "cumulative_seconds": 0.077248442
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 291,
+                  "function": "react",
+                  "total_calls": 237,
+                  "primitive_calls": 237,
+                  "exclusive_seconds": 0.000463075,
+                  "cumulative_seconds": 0.10709698200000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 359,
+                  "function": "run",
+                  "total_calls": 13,
+                  "primitive_calls": 13,
+                  "exclusive_seconds": 1.7108e-05,
+                  "cumulative_seconds": 0.00017900000000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_columns.py",
+                  "line": 52,
+                  "function": "snapshot",
+                  "total_calls": 207,
+                  "primitive_calls": 207,
+                  "exclusive_seconds": 0.000571077,
+                  "cumulative_seconds": 0.10385386
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_game.py",
+                  "line": 46,
+                  "function": "regenerate",
+                  "total_calls": 43,
+                  "primitive_calls": 43,
+                  "exclusive_seconds": 8.6749e-05,
+                  "cumulative_seconds": 0.014723767
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/opening.py",
+                  "line": 174,
+                  "function": "snapshot",
+                  "total_calls": 1,
+                  "primitive_calls": 1,
+                  "exclusive_seconds": 5.409e-06,
+                  "cumulative_seconds": 0.0007037300000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 136,
+                  "function": "_accept_order",
+                  "total_calls": 52,
+                  "primitive_calls": 52,
+                  "exclusive_seconds": 4.4761e-05,
+                  "cumulative_seconds": 0.00034316100000000003
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/recruitment.py",
+                  "line": 24,
+                  "function": "create",
+                  "total_calls": 153,
+                  "primitive_calls": 153,
+                  "exclusive_seconds": 8.8968e-05,
+                  "cumulative_seconds": 0.000913644
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/recruitment.py",
+                  "line": 44,
+                  "function": "place_spawn",
+                  "total_calls": 153,
+                  "primitive_calls": 153,
+                  "exclusive_seconds": 8.1724e-05,
+                  "cumulative_seconds": 0.00108759
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 19,
+                  "function": "combat_order",
+                  "total_calls": 282,
+                  "primitive_calls": 282,
+                  "exclusive_seconds": 0.000177426,
+                  "cumulative_seconds": 0.000548651
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 66,
+                  "function": "fire",
+                  "total_calls": 16,
+                  "primitive_calls": 16,
+                  "exclusive_seconds": 9.043000000000001e-06,
+                  "cumulative_seconds": 8.109000000000001e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 152,
+                  "function": "pairs",
+                  "total_calls": 16,
+                  "primitive_calls": 16,
+                  "exclusive_seconds": 1.8061000000000002e-05,
+                  "cumulative_seconds": 0.0012969610000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 201,
+                  "function": "<genexpr>",
+                  "total_calls": 34,
+                  "primitive_calls": 34,
+                  "exclusive_seconds": 1.8969e-05,
+                  "cumulative_seconds": 0.000234851
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/resolution.py",
+              "line": 24,
+              "function": "run",
+              "primitive_calls": 39,
+              "total_calls": 39,
+              "exclusive_seconds": 0.001337997,
+              "cumulative_seconds": 0.28701440300000003,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/lifecycle.py",
+                  "line": 74,
+                  "function": "run",
+                  "total_calls": 39,
+                  "primitive_calls": 39,
+                  "exclusive_seconds": 0.001337997,
+                  "cumulative_seconds": 0.28701440300000003
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/resolution.py",
+              "line": 111,
+              "function": "reveal",
+              "primitive_calls": 13,
+              "total_calls": 13,
+              "exclusive_seconds": 0.001573682,
+              "cumulative_seconds": 0.251039344,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 24,
+                  "function": "run",
+                  "total_calls": 13,
+                  "primitive_calls": 13,
+                  "exclusive_seconds": 0.001573682,
+                  "cumulative_seconds": 0.251039344
+                }
+              ]
+            },
+            {
+              "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py",
+              "line": 118,
+              "function": "deepcopy",
+              "primitive_calls": 1260,
+              "total_calls": 82848,
+              "exclusive_seconds": 0.11723770800000001,
+              "cumulative_seconds": 0.248102235,
+              "callers": [
+                {
+                  "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py",
+                  "line": 191,
+                  "function": "_deepcopy_list",
+                  "total_calls": 5838,
+                  "primitive_calls": 5838,
+                  "exclusive_seconds": 0.013455626,
+                  "cumulative_seconds": 0.212175987
+                },
+                {
+                  "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py",
+                  "line": 217,
+                  "function": "_deepcopy_dict",
+                  "total_calls": 75082,
+                  "primitive_calls": 33866,
+                  "exclusive_seconds": 0.097173995,
+                  "cumulative_seconds": 0.200707186
+                },
+                {
+                  "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py",
+                  "line": 247,
+                  "function": "_reconstruct",
+                  "total_calls": 334,
+                  "primitive_calls": 334,
+                  "exclusive_seconds": 0.0007201330000000001,
+                  "cumulative_seconds": 0.11773030300000001
+                },
+                {
+                  "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py",
+                  "line": 252,
+                  "function": "<genexpr>",
+                  "total_calls": 334,
+                  "primitive_calls": 334,
+                  "exclusive_seconds": 0.000621785,
+                  "cumulative_seconds": 0.000950407
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 56,
+                  "function": "apply",
+                  "total_calls": 334,
+                  "primitive_calls": 334,
+                  "exclusive_seconds": 0.002876444,
+                  "cumulative_seconds": 0.12860301700000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 97,
+                  "function": "snapshot",
+                  "total_calls": 72,
+                  "primitive_calls": 72,
+                  "exclusive_seconds": 0.00013511,
+                  "cumulative_seconds": 0.00307281
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/timeline.py",
+                  "line": 38,
+                  "function": "run",
+                  "total_calls": 520,
+                  "primitive_calls": 520,
+                  "exclusive_seconds": 0.001491754,
+                  "cumulative_seconds": 0.006685597000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/timeline.py",
+                  "line": 60,
+                  "function": "snapshot",
+                  "total_calls": 334,
+                  "primitive_calls": 334,
+                  "exclusive_seconds": 0.0007628610000000001,
+                  "cumulative_seconds": 0.10974081100000001
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/primitives.py",
+              "line": 31,
+              "function": "<genexpr>",
+              "primitive_calls": 368262,
+              "total_calls": 368262,
+              "exclusive_seconds": 0.14398023100000001,
+              "cumulative_seconds": 0.24445076500000001,
+              "callers": [
+                {
+                  "file": "~",
+                  "line": 0,
+                  "function": "<built-in method builtins.any>",
+                  "total_calls": 368262,
+                  "primitive_calls": 368262,
+                  "exclusive_seconds": 0.14398023100000001,
+                  "cumulative_seconds": 0.24445076500000001
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching.py",
+              "line": 123,
+              "function": "grid",
+              "primitive_calls": 25705,
+              "total_calls": 25705,
+              "exclusive_seconds": 0.138248798,
+              "cumulative_seconds": 0.24241296,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 148,
+                  "function": "move",
+                  "total_calls": 20800,
+                  "primitive_calls": 20800,
+                  "exclusive_seconds": 0.126773285,
+                  "cumulative_seconds": 0.222232283
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 237,
+                  "function": "contact",
+                  "total_calls": 4905,
+                  "primitive_calls": 4905,
+                  "exclusive_seconds": 0.011475513000000001,
+                  "cumulative_seconds": 0.020180677
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/recruitment.py",
+              "line": 44,
+              "function": "place_spawn",
+              "primitive_calls": 153,
+              "total_calls": 153,
+              "exclusive_seconds": 0.06420584800000001,
+              "cumulative_seconds": 0.224937466,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 111,
+                  "function": "reveal",
+                  "total_calls": 153,
+                  "primitive_calls": 153,
+                  "exclusive_seconds": 0.06420584800000001,
+                  "cumulative_seconds": 0.224937466
+                }
+              ]
+            },
+            {
+              "file": "~",
+              "line": 0,
+              "function": "<built-in method builtins.all>",
+              "primitive_calls": 52838,
+              "total_calls": 52838,
+              "exclusive_seconds": 0.084871571,
+              "cumulative_seconds": 0.200218739,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 31,
+                  "function": "selection",
+                  "total_calls": 150,
+                  "primitive_calls": 150,
+                  "exclusive_seconds": 0.000244974,
+                  "cumulative_seconds": 0.000461736
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 36,
+                  "function": "cards_valid",
+                  "total_calls": 236,
+                  "primitive_calls": 236,
+                  "exclusive_seconds": 0.0028528190000000004,
+                  "cumulative_seconds": 0.011694283000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/full_match.py",
+                  "line": 23,
+                  "function": "_rollback_snapshot",
+                  "total_calls": 334,
+                  "primitive_calls": 334,
+                  "exclusive_seconds": 0.001093314,
+                  "cumulative_seconds": 0.005867729
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/full_match.py",
+                  "line": 55,
+                  "function": "_hook",
+                  "total_calls": 13,
+                  "primitive_calls": 13,
+                  "exclusive_seconds": 2.1823e-05,
+                  "cumulative_seconds": 3.1866e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/lifecycle.py",
+                  "line": 74,
+                  "function": "run",
+                  "total_calls": 26,
+                  "primitive_calls": 26,
+                  "exclusive_seconds": 3.7742000000000006e-05,
+                  "cumulative_seconds": 6.2117e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 136,
+                  "function": "_accept_order",
+                  "total_calls": 52,
+                  "primitive_calls": 52,
+                  "exclusive_seconds": 4.6557e-05,
+                  "cumulative_seconds": 6.0197000000000007e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 216,
+                  "function": "_combat_shape",
+                  "total_calls": 52,
+                  "primitive_calls": 52,
+                  "exclusive_seconds": 0.00010296,
+                  "cumulative_seconds": 0.00020332300000000002
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 19,
+                  "function": "normalize",
+                  "total_calls": 45435,
+                  "primitive_calls": 45435,
+                  "exclusive_seconds": 0.06918410600000001,
+                  "cumulative_seconds": 0.156337373
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 37,
+                  "function": "draw",
+                  "total_calls": 6307,
+                  "primitive_calls": 6307,
+                  "exclusive_seconds": 0.006005758000000001,
+                  "cumulative_seconds": 0.012826474000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 102,
+                  "function": "restore",
+                  "total_calls": 207,
+                  "primitive_calls": 207,
+                  "exclusive_seconds": 0.005265494,
+                  "cumulative_seconds": 0.012657617000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 111,
+                  "function": "reveal",
+                  "total_calls": 26,
+                  "primitive_calls": 26,
+                  "exclusive_seconds": 1.6024e-05,
+                  "cumulative_seconds": 1.6024e-05
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching_spatial.py",
+              "line": 15,
+              "function": "distance",
+              "primitive_calls": 482537,
+              "total_calls": 482537,
+              "exclusive_seconds": 0.155388263,
+              "cumulative_seconds": 0.155388263,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 28,
+                  "function": "valid",
+                  "total_calls": 4,
+                  "primitive_calls": 4,
+                  "exclusive_seconds": 6.525e-06,
+                  "cumulative_seconds": 6.525e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 139,
+                  "function": "duel_alive",
+                  "total_calls": 590,
+                  "primitive_calls": 590,
+                  "exclusive_seconds": 0.000206908,
+                  "cumulative_seconds": 0.000206908
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 148,
+                  "function": "move",
+                  "total_calls": 177573,
+                  "primitive_calls": 177573,
+                  "exclusive_seconds": 0.052973037,
+                  "cumulative_seconds": 0.052973037
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 159,
+                  "function": "<genexpr>",
+                  "total_calls": 10474,
+                  "primitive_calls": 10474,
+                  "exclusive_seconds": 0.003581126,
+                  "cumulative_seconds": 0.003581126
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 206,
+                  "function": "free",
+                  "total_calls": 227405,
+                  "primitive_calls": 227405,
+                  "exclusive_seconds": 0.07701918,
+                  "cumulative_seconds": 0.07701918
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 237,
+                  "function": "contact",
+                  "total_calls": 2297,
+                  "primitive_calls": 2297,
+                  "exclusive_seconds": 0.0009382450000000001,
+                  "cumulative_seconds": 0.0009382450000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 314,
+                  "function": "volley",
+                  "total_calls": 64194,
+                  "primitive_calls": 64194,
+                  "exclusive_seconds": 0.020663242000000002,
+                  "cumulative_seconds": 0.020663242000000002
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/primitives.py",
+              "line": 13,
+              "function": "integer",
+              "primitive_calls": 270249,
+              "total_calls": 270249,
+              "exclusive_seconds": 0.12055181200000001,
+              "cumulative_seconds": 0.154529735,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 19,
+                  "function": "normalize",
+                  "total_calls": 218303,
+                  "primitive_calls": 218303,
+                  "exclusive_seconds": 0.096887106,
+                  "cumulative_seconds": 0.121804174
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 31,
+                  "function": "<genexpr>",
+                  "total_calls": 22866,
+                  "primitive_calls": 22866,
+                  "exclusive_seconds": 0.010328641000000001,
+                  "cumulative_seconds": 0.015346913
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 37,
+                  "function": "draw",
+                  "total_calls": 6307,
+                  "primitive_calls": 6307,
+                  "exclusive_seconds": 0.003308042,
+                  "cumulative_seconds": 0.004334314000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 58,
+                  "function": "entity_id",
+                  "total_calls": 22773,
+                  "primitive_calls": 22773,
+                  "exclusive_seconds": 0.010028023,
+                  "cumulative_seconds": 0.013044334000000001
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching.py",
+              "line": 116,
+              "function": "teams",
+              "primitive_calls": 7505,
+              "total_calls": 7505,
+              "exclusive_seconds": 0.085915301,
+              "cumulative_seconds": 0.135347686,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 148,
+                  "function": "move",
+                  "total_calls": 2600,
+                  "primitive_calls": 2600,
+                  "exclusive_seconds": 0.029016982,
+                  "cumulative_seconds": 0.044733156
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 237,
+                  "function": "contact",
+                  "total_calls": 4905,
+                  "primitive_calls": 4905,
+                  "exclusive_seconds": 0.056898319,
+                  "cumulative_seconds": 0.09061453000000001
+                }
+              ]
+            },
+            {
+              "file": "~",
+              "line": 0,
+              "function": "<method 'append' of 'list' objects>",
+              "primitive_calls": 571354,
+              "total_calls": 571354,
+              "exclusive_seconds": 0.11409053200000001,
+              "cumulative_seconds": 0.11409053200000001,
+              "callers": [
+                {
+                  "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py",
+                  "line": 191,
+                  "function": "_deepcopy_list",
+                  "total_calls": 5838,
+                  "primitive_calls": 5838,
+                  "exclusive_seconds": 0.000957748,
+                  "cumulative_seconds": 0.000957748
+                },
+                {
+                  "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py",
+                  "line": 231,
+                  "function": "_keep_alive",
+                  "total_calls": 12416,
+                  "primitive_calls": 12416,
+                  "exclusive_seconds": 0.002809269,
+                  "cumulative_seconds": 0.002809269
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 63,
+                  "function": "fact",
+                  "total_calls": 22,
+                  "primitive_calls": 22,
+                  "exclusive_seconds": 6.1180000000000005e-06,
+                  "cumulative_seconds": 6.1180000000000005e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 181,
+                  "function": "react",
+                  "total_calls": 45,
+                  "primitive_calls": 45,
+                  "exclusive_seconds": 1.2629e-05,
+                  "cumulative_seconds": 1.2629e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 314,
+                  "function": "breach_damage",
+                  "total_calls": 10,
+                  "primitive_calls": 10,
+                  "exclusive_seconds": 2.369e-06,
+                  "cumulative_seconds": 2.369e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 346,
+                  "function": "fracture",
+                  "total_calls": 9,
+                  "primitive_calls": 9,
+                  "exclusive_seconds": 2.8290000000000004e-06,
+                  "cumulative_seconds": 2.8290000000000004e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/development.py",
+                  "line": 85,
+                  "function": "_deploy_owned",
+                  "total_calls": 26,
+                  "primitive_calls": 26,
+                  "exclusive_seconds": 6.844e-06,
+                  "cumulative_seconds": 6.844e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/development.py",
+                  "line": 105,
+                  "function": "work",
+                  "total_calls": 56,
+                  "primitive_calls": 56,
+                  "exclusive_seconds": 1.6526e-05,
+                  "cumulative_seconds": 1.6526e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/development.py",
+                  "line": 170,
+                  "function": "draw_pairs",
+                  "total_calls": 9,
+                  "primitive_calls": 9,
+                  "exclusive_seconds": 2.322e-06,
+                  "cumulative_seconds": 2.322e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 67,
+                  "function": "draw",
+                  "total_calls": 199,
+                  "primitive_calls": 199,
+                  "exclusive_seconds": 5.2101e-05,
+                  "cumulative_seconds": 5.2101e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 82,
+                  "function": "discard",
+                  "total_calls": 23,
+                  "primitive_calls": 23,
+                  "exclusive_seconds": 7.914e-06,
+                  "cumulative_seconds": 7.914e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 122,
+                  "function": "continue_draw",
+                  "total_calls": 225,
+                  "primitive_calls": 225,
+                  "exclusive_seconds": 5.6172000000000004e-05,
+                  "cumulative_seconds": 5.6172000000000004e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 175,
+                  "function": "market_begin",
+                  "total_calls": 48,
+                  "primitive_calls": 48,
+                  "exclusive_seconds": 1.2739000000000001e-05,
+                  "cumulative_seconds": 1.2739000000000001e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 202,
+                  "function": "choose_market",
+                  "total_calls": 46,
+                  "primitive_calls": 46,
+                  "exclusive_seconds": 1.0406e-05,
+                  "cumulative_seconds": 1.0406e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/lifecycle.py",
+                  "line": 33,
+                  "function": "settle",
+                  "total_calls": 28,
+                  "primitive_calls": 28,
+                  "exclusive_seconds": 7.558e-06,
+                  "cumulative_seconds": 7.558e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/lifecycle.py",
+                  "line": 74,
+                  "function": "run",
+                  "total_calls": 185,
+                  "primitive_calls": 185,
+                  "exclusive_seconds": 4.4941e-05,
+                  "cumulative_seconds": 4.4941e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 116,
+                  "function": "teams",
+                  "total_calls": 281555,
+                  "primitive_calls": 281555,
+                  "exclusive_seconds": 0.049432385,
+                  "cumulative_seconds": 0.049432385
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 123,
+                  "function": "grid",
+                  "total_calls": 211267,
+                  "primitive_calls": 211267,
+                  "exclusive_seconds": 0.043744722,
+                  "cumulative_seconds": 0.043744722
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 148,
+                  "function": "move",
+                  "total_calls": 57323,
+                  "primitive_calls": 57323,
+                  "exclusive_seconds": 0.013670046000000002,
+                  "cumulative_seconds": 0.013670046000000002
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 237,
+                  "function": "contact",
+                  "total_calls": 136,
+                  "primitive_calls": 136,
+                  "exclusive_seconds": 2.8917e-05,
+                  "cumulative_seconds": 2.8917e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 286,
+                  "function": "emit",
+                  "total_calls": 419,
+                  "primitive_calls": 419,
+                  "exclusive_seconds": 0.0026544090000000004,
+                  "cumulative_seconds": 0.0026544090000000004
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 314,
+                  "function": "volley",
+                  "total_calls": 252,
+                  "primitive_calls": 252,
+                  "exclusive_seconds": 8.102200000000001e-05,
+                  "cumulative_seconds": 8.102200000000001e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 359,
+                  "function": "run",
+                  "total_calls": 68,
+                  "primitive_calls": 68,
+                  "exclusive_seconds": 2.4269e-05,
+                  "cumulative_seconds": 2.4269e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_game.py",
+                  "line": 46,
+                  "function": "regenerate",
+                  "total_calls": 15,
+                  "primitive_calls": 15,
+                  "exclusive_seconds": 5.902e-06,
+                  "cumulative_seconds": 5.902e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/opening.py",
+                  "line": 85,
+                  "function": "world",
+                  "total_calls": 104,
+                  "primitive_calls": 104,
+                  "exclusive_seconds": 2.6196e-05,
+                  "cumulative_seconds": 2.6196e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 136,
+                  "function": "_accept_order",
+                  "total_calls": 220,
+                  "primitive_calls": 220,
+                  "exclusive_seconds": 5.0841e-05,
+                  "cumulative_seconds": 5.0841e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/recruitment.py",
+                  "line": 24,
+                  "function": "create",
+                  "total_calls": 306,
+                  "primitive_calls": 306,
+                  "exclusive_seconds": 0.000191291,
+                  "cumulative_seconds": 0.000191291
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 66,
+                  "function": "fire",
+                  "total_calls": 20,
+                  "primitive_calls": 20,
+                  "exclusive_seconds": 6.6870000000000005e-06,
+                  "cumulative_seconds": 6.6870000000000005e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 111,
+                  "function": "reveal",
+                  "total_calls": 189,
+                  "primitive_calls": 189,
+                  "exclusive_seconds": 6.742900000000001e-05,
+                  "cumulative_seconds": 6.742900000000001e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 152,
+                  "function": "pairs",
+                  "total_calls": 14,
+                  "primitive_calls": 14,
+                  "exclusive_seconds": 4.559e-06,
+                  "cumulative_seconds": 4.559e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 249,
+                  "function": "siege",
+                  "total_calls": 10,
+                  "primitive_calls": 10,
+                  "exclusive_seconds": 2.539e-06,
+                  "cumulative_seconds": 2.539e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 284,
+                  "function": "hunt",
+                  "total_calls": 11,
+                  "primitive_calls": 11,
+                  "exclusive_seconds": 3.2350000000000004e-06,
+                  "cumulative_seconds": 3.2350000000000004e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/timeline.py",
+                  "line": 38,
+                  "function": "run",
+                  "total_calls": 260,
+                  "primitive_calls": 260,
+                  "exclusive_seconds": 8.759800000000001e-05,
+                  "cumulative_seconds": 8.759800000000001e-05
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/primitives.py",
+              "line": 30,
+              "function": "<genexpr>",
+              "primitive_calls": 368262,
+              "total_calls": 368262,
+              "exclusive_seconds": 0.087153267,
+              "cumulative_seconds": 0.087153267,
+              "callers": [
+                {
+                  "file": "~",
+                  "line": 0,
+                  "function": "<built-in method builtins.all>",
+                  "total_calls": 368262,
+                  "primitive_calls": 368262,
+                  "exclusive_seconds": 0.087153267,
+                  "cumulative_seconds": 0.087153267
+                }
+              ]
+            },
+            {
+              "file": "~",
+              "line": 0,
+              "function": "<method 'endswith' of 'str' objects>",
+              "primitive_calls": 322827,
+              "total_calls": 322827,
+              "exclusive_seconds": 0.08512362100000001,
+              "cumulative_seconds": 0.08512362100000001,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 31,
+                  "function": "<genexpr>",
+                  "total_calls": 322827,
+                  "primitive_calls": 322827,
+                  "exclusive_seconds": 0.08512362100000001,
+                  "cumulative_seconds": 0.08512362100000001
+                }
+              ]
+            },
+            {
+              "file": "~",
+              "line": 0,
+              "function": "<method 'copy' of 'dict' objects>",
+              "primitive_calls": 182616,
+              "total_calls": 182616,
+              "exclusive_seconds": 0.065972826,
+              "cumulative_seconds": 0.065972826,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/copying.py",
+                  "line": 44,
+                  "function": "_clone",
+                  "total_calls": 182616,
+                  "primitive_calls": 182616,
+                  "exclusive_seconds": 0.065972826,
+                  "cumulative_seconds": 0.065972826
+                }
+              ]
+            },
+            {
+              "file": "~",
+              "line": 0,
+              "function": "<method 'setdefault' of 'dict' objects>",
+              "primitive_calls": 212796,
+              "total_calls": 212796,
+              "exclusive_seconds": 0.061155245000000004,
+              "cumulative_seconds": 0.061155245000000004,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 63,
+                  "function": "fact",
+                  "total_calls": 37,
+                  "primitive_calls": 37,
+                  "exclusive_seconds": 1.1995000000000001e-05,
+                  "cumulative_seconds": 1.1995000000000001e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 181,
+                  "function": "react",
+                  "total_calls": 132,
+                  "primitive_calls": 132,
+                  "exclusive_seconds": 8.2946e-05,
+                  "cumulative_seconds": 8.2946e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 123,
+                  "function": "grid",
+                  "total_calls": 211267,
+                  "primitive_calls": 211267,
+                  "exclusive_seconds": 0.060419440000000005,
+                  "cumulative_seconds": 0.060419440000000005
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 148,
+                  "function": "move",
+                  "total_calls": 1360,
+                  "primitive_calls": 1360,
+                  "exclusive_seconds": 0.000640864,
+                  "cumulative_seconds": 0.000640864
+                }
+              ]
+            },
+            {
+              "file": "~",
+              "line": 0,
+              "function": "<method 'items' of 'dict' objects>",
+              "primitive_calls": 294275,
+              "total_calls": 294275,
+              "exclusive_seconds": 0.060811494,
+              "cumulative_seconds": 0.060811494,
+              "callers": [
+                {
+                  "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py",
+                  "line": 217,
+                  "function": "_deepcopy_dict",
+                  "total_calls": 12674,
+                  "primitive_calls": 12674,
+                  "exclusive_seconds": 0.00275127,
+                  "cumulative_seconds": 0.00275127
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 346,
+                  "function": "fracture",
+                  "total_calls": 1,
+                  "primitive_calls": 1,
+                  "exclusive_seconds": 3.3100000000000004e-07,
+                  "cumulative_seconds": 3.3100000000000004e-07
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/copying.py",
+                  "line": 44,
+                  "function": "_clone",
+                  "total_calls": 182616,
+                  "primitive_calls": 182616,
+                  "exclusive_seconds": 0.035789852000000004,
+                  "cumulative_seconds": 0.035789852000000004
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/full_match.py",
+                  "line": 23,
+                  "function": "_rollback_snapshot",
+                  "total_calls": 334,
+                  "primitive_calls": 334,
+                  "exclusive_seconds": 0.000104288,
+                  "cumulative_seconds": 0.000104288
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 28,
+                  "function": "valid",
+                  "total_calls": 26,
+                  "primitive_calls": 26,
+                  "exclusive_seconds": 9.399000000000001e-06,
+                  "cumulative_seconds": 9.399000000000001e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_columns.py",
+                  "line": 18,
+                  "function": "__init__",
+                  "total_calls": 7622,
+                  "primitive_calls": 7622,
+                  "exclusive_seconds": 0.0014515060000000002,
+                  "cumulative_seconds": 0.0014515060000000002
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/opening.py",
+                  "line": 85,
+                  "function": "world",
+                  "total_calls": 2,
+                  "primitive_calls": 2,
+                  "exclusive_seconds": 1.3100000000000002e-06,
+                  "cumulative_seconds": 1.3100000000000002e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 136,
+                  "function": "_accept_order",
+                  "total_calls": 52,
+                  "primitive_calls": 52,
+                  "exclusive_seconds": 1.6008e-05,
+                  "cumulative_seconds": 1.6008e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 19,
+                  "function": "normalize",
+                  "total_calls": 90870,
+                  "primitive_calls": 90870,
+                  "exclusive_seconds": 0.020667238,
+                  "cumulative_seconds": 0.020667238
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 19,
+                  "function": "combat_order",
+                  "total_calls": 78,
+                  "primitive_calls": 78,
+                  "exclusive_seconds": 2.0292e-05,
+                  "cumulative_seconds": 2.0292e-05
+                }
+              ]
+            }
+          ],
+          "exclusive_seconds_by_file": {
+            "~": 1.5745601369999997,
+            "<frozen importlib._bootstrap>": 0.00013189700000000001,
+            "<frozen abc>": 2.7320000000000003e-06,
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/encoder.py": 0.001004719,
+            "Scripts/Sim/u13_pysim/primitives.py": 1.076490364,
+            "Scripts/Sim/u13_pysim/marching.py": 2.086683405,
+            "Scripts/Sim/u13_pysim/development.py": 0.008801765,
+            "Scripts/Sim/u13_pysim/planning.py": 0.011641935,
+            "Scripts/Sim/u13_pysim/opening.py": 0.000442275,
+            "Scripts/Sim/u13_pysim/full_match.py": 0.015459902000000001,
+            "Scripts/Sim/u13_pysim/marching_game.py": 0.054904065999999994,
+            "Scripts/Sim/u13_pysim/marching_columns.py": 0.172088931,
+            "Scripts/Sim/u13_pysim/marching_spatial.py": 0.21038180000000004,
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py": 0.181109875,
+            "Scripts/Sim/u13_pysim/battle.py": 0.015447487999999999,
+            "Scripts/Sim/u13_pysim/timeline.py": 0.00459127,
+            "Scripts/Sim/u13_pysim/lifecycle.py": 0.012121521,
+            "Scripts/Sim/u13_pysim/resolution.py": 0.014655468999999999,
+            "Scripts/Sim/u13_pysim/benchmark_full_match.py": 0.019182683000000002,
+            "Scripts/Sim/u13_pysim/copying.py": 0.7110125089999999,
+            "Scripts/Sim/u13_pysim/economy.py": 0.08615091200000001,
+            "Scripts/Sim/u13_pysim/recruitment.py": 0.06761911200000001,
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py": 0.000384459,
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copyreg.py": 0.000448484,
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/collections/__init__.py": 4.0253e-05
+          },
+          "all_functions_count": 267,
+          "selection": "top 25 by cumulative time plus top 25 by exclusive time; selected functions retain every caller; original complete report is hashed below"
+        },
+        {
+          "name": "spoils_rekindle",
+          "rounds": 17,
+          "operations": 433,
+          "outcome": {
+            "action": "game_finished",
+            "round": 17,
+            "winner": 1,
+            "win_by": "Ritual"
+          },
+          "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72",
+          "wall_ms": 9866.427288,
+          "profiled_stage_wall_ms": {
+            "setup": 9.73878,
+            "round_start_scheduled": 40.606398000000006,
+            "persistent_advancement": 39.81095500000001,
+            "round_start_automatic": 296.739697,
+            "stockpile": 102.935834,
+            "market": 60.777351,
+            "present_public_state": 61.26292299999999,
+            "submit": 37.330706,
+            "submission_lock": 46.79273199999999,
+            "development": 51.103635999999995,
+            "post_repair_artillery": 47.823264,
+            "commitment_reveal": 380.051304,
+            "combat_resolution": 78.037492,
+            "post_resolution_spawns": 50.632711,
+            "post_resolution_position": 51.30874200000001,
+            "post_resolution_allegiance": 51.02036299999999,
+            "post_resolution_movement_state": 50.952386000000004,
+            "post_resolution_hazards": 52.02025599999999,
+            "post_resolution_direct": 52.346081,
+            "post_resolution_special_actors": 54.355094,
+            "marching_start": 54.52105599999999,
+            "marching": 8013.937620000001,
+            "end_marching_checks": 61.59657399999999,
+            "aftermath": 69.249455,
+            "next_round": 46.177868
+          },
+          "total_profile_seconds": 9.862246441000012,
+          "primitive_calls": 13487594,
+          "total_calls": 14654186,
+          "functions": [
+            {
+              "file": "Scripts/Sim/u13_pysim/benchmark_full_match.py",
+              "line": 22,
+              "function": "play",
+              "primitive_calls": 1,
+              "total_calls": 1,
+              "exclusive_seconds": 0.025572929,
+              "cumulative_seconds": 9.862216632,
+              "callers": []
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/planning.py",
+              "line": 56,
+              "function": "apply",
+              "primitive_calls": 433,
+              "total_calls": 433,
+              "exclusive_seconds": 0.0030024030000000003,
+              "cumulative_seconds": 9.825908534,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/benchmark_full_match.py",
+                  "line": 22,
+                  "function": "play",
+                  "total_calls": 433,
+                  "primitive_calls": 433,
+                  "exclusive_seconds": 0.0030024030000000003,
+                  "cumulative_seconds": 9.825908534
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/full_match.py",
+              "line": 38,
+              "function": "_apply",
+              "primitive_calls": 433,
+              "total_calls": 433,
+              "exclusive_seconds": 0.002205381,
+              "cumulative_seconds": 8.866243594,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 56,
+                  "function": "apply",
+                  "total_calls": 433,
+                  "primitive_calls": 433,
+                  "exclusive_seconds": 0.002205381,
+                  "cumulative_seconds": 8.866243594
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/planning.py",
+              "line": 74,
+              "function": "_apply",
+              "primitive_calls": 417,
+              "total_calls": 417,
+              "exclusive_seconds": 0.003495171,
+              "cumulative_seconds": 8.810107532,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/full_match.py",
+                  "line": 38,
+                  "function": "_apply",
+                  "total_calls": 417,
+                  "primitive_calls": 417,
+                  "exclusive_seconds": 0.003495171,
+                  "cumulative_seconds": 8.810107532
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/full_match.py",
+              "line": 55,
+              "function": "_hook",
+              "primitive_calls": 340,
+              "total_calls": 340,
+              "exclusive_seconds": 0.004705315000000001,
+              "cumulative_seconds": 8.731608715,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 74,
+                  "function": "_apply",
+                  "total_calls": 340,
+                  "primitive_calls": 340,
+                  "exclusive_seconds": 0.004705315000000001,
+                  "cumulative_seconds": 8.731608715
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/lifecycle.py",
+              "line": 74,
+              "function": "run",
+              "primitive_calls": 340,
+              "total_calls": 340,
+              "exclusive_seconds": 0.018037816,
+              "cumulative_seconds": 8.659825077,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/full_match.py",
+                  "line": 55,
+                  "function": "_hook",
+                  "total_calls": 340,
+                  "primitive_calls": 340,
+                  "exclusive_seconds": 0.018037816,
+                  "cumulative_seconds": 8.659825077
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching_game.py",
+              "line": 30,
+              "function": "resolve",
+              "primitive_calls": 17,
+              "total_calls": 17,
+              "exclusive_seconds": 0.0012000180000000002,
+              "cumulative_seconds": 7.95182602,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/lifecycle.py",
+                  "line": 74,
+                  "function": "run",
+                  "total_calls": 17,
+                  "primitive_calls": 17,
+                  "exclusive_seconds": 0.0012000180000000002,
+                  "cumulative_seconds": 7.95182602
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching.py",
+              "line": 359,
+              "function": "run",
+              "primitive_calls": 17,
+              "total_calls": 17,
+              "exclusive_seconds": 0.086326842,
+              "cumulative_seconds": 7.784773271000001,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_game.py",
+                  "line": 30,
+                  "function": "resolve",
+                  "total_calls": 17,
+                  "primitive_calls": 17,
+                  "exclusive_seconds": 0.086326842,
+                  "cumulative_seconds": 7.784773271000001
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching.py",
+              "line": 148,
+              "function": "move",
+              "primitive_calls": 3400,
+              "total_calls": 3400,
+              "exclusive_seconds": 0.935375281,
+              "cumulative_seconds": 3.703364553,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 359,
+                  "function": "run",
+                  "total_calls": 3400,
+                  "primitive_calls": 3400,
+                  "exclusive_seconds": 0.935375281,
+                  "cumulative_seconds": 3.703364553
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching.py",
+              "line": 314,
+              "function": "volley",
+              "primitive_calls": 3400,
+              "total_calls": 3400,
+              "exclusive_seconds": 0.256365952,
+              "cumulative_seconds": 2.77013985,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 359,
+                  "function": "run",
+                  "total_calls": 3400,
+                  "primitive_calls": 3400,
+                  "exclusive_seconds": 0.256365952,
+                  "cumulative_seconds": 2.77013985
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching_columns.py",
+              "line": 18,
+              "function": "__init__",
+              "primitive_calls": 341,
+              "total_calls": 341,
+              "exclusive_seconds": 0.14106933800000002,
+              "cumulative_seconds": 2.6167856560000002,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 277,
+                  "function": "__init__",
+                  "total_calls": 17,
+                  "primitive_calls": 17,
+                  "exclusive_seconds": 0.006593449,
+                  "cumulative_seconds": 0.123629684
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 300,
+                  "function": "restore_reactions",
+                  "total_calls": 307,
+                  "primitive_calls": 307,
+                  "exclusive_seconds": 0.128725255,
+                  "cumulative_seconds": 2.368686791
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_game.py",
+                  "line": 46,
+                  "function": "regenerate",
+                  "total_calls": 17,
+                  "primitive_calls": 17,
+                  "exclusive_seconds": 0.005750634,
+                  "cumulative_seconds": 0.12446918100000001
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/primitives.py",
+              "line": 102,
+              "function": "restore",
+              "primitive_calls": 341,
+              "total_calls": 341,
+              "exclusive_seconds": 0.127129709,
+              "cumulative_seconds": 2.38459234,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_columns.py",
+                  "line": 18,
+                  "function": "__init__",
+                  "total_calls": 341,
+                  "primitive_calls": 341,
+                  "exclusive_seconds": 0.127129709,
+                  "cumulative_seconds": 2.38459234
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching.py",
+              "line": 300,
+              "function": "restore_reactions",
+              "primitive_calls": 307,
+              "total_calls": 307,
+              "exclusive_seconds": 0.006395574,
+              "cumulative_seconds": 2.3750823650000004,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 314,
+                  "function": "volley",
+                  "total_calls": 261,
+                  "primitive_calls": 261,
+                  "exclusive_seconds": 0.004498421000000001,
+                  "cumulative_seconds": 2.020660195
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 359,
+                  "function": "run",
+                  "total_calls": 46,
+                  "primitive_calls": 46,
+                  "exclusive_seconds": 0.0018971530000000002,
+                  "cumulative_seconds": 0.35442217000000004
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/primitives.py",
+              "line": 19,
+              "function": "normalize",
+              "primitive_calls": 473,
+              "total_calls": 727866,
+              "exclusive_seconds": 0.9056506480000001,
+              "cumulative_seconds": 2.083359879,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 122,
+                  "function": "_submit_one",
+                  "total_calls": 34,
+                  "primitive_calls": 34,
+                  "exclusive_seconds": 0.00026873900000000004,
+                  "cumulative_seconds": 0.002211925
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 19,
+                  "function": "normalize",
+                  "total_calls": 727393,
+                  "primitive_calls": 1473,
+                  "exclusive_seconds": 0.901577544,
+                  "cumulative_seconds": 2.0737635670000003
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 69,
+                  "function": "create",
+                  "total_calls": 84,
+                  "primitive_calls": 84,
+                  "exclusive_seconds": 0.00042137,
+                  "cumulative_seconds": 0.0012525120000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 83,
+                  "function": "update",
+                  "total_calls": 14,
+                  "primitive_calls": 14,
+                  "exclusive_seconds": 5.3395000000000006e-05,
+                  "cumulative_seconds": 0.000139325
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 102,
+                  "function": "restore",
+                  "total_calls": 341,
+                  "primitive_calls": 341,
+                  "exclusive_seconds": 0.0033296000000000003,
+                  "cumulative_seconds": 2.079756117
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching.py",
+              "line": 130,
+              "function": "near",
+              "primitive_calls": 292075,
+              "total_calls": 292075,
+              "exclusive_seconds": 1.004354573,
+              "cumulative_seconds": 1.583658291,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 148,
+                  "function": "move",
+                  "total_calls": 155212,
+                  "primitive_calls": 155212,
+                  "exclusive_seconds": 0.497874295,
+                  "cumulative_seconds": 0.7845675480000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 206,
+                  "function": "free",
+                  "total_calls": 95668,
+                  "primitive_calls": 95668,
+                  "exclusive_seconds": 0.37337175,
+                  "cumulative_seconds": 0.5824852060000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 237,
+                  "function": "contact",
+                  "total_calls": 41195,
+                  "primitive_calls": 41195,
+                  "exclusive_seconds": 0.133108528,
+                  "cumulative_seconds": 0.21660553700000001
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/copying.py",
+              "line": 44,
+              "function": "_clone",
+              "primitive_calls": 8491,
+              "total_calls": 330190,
+              "exclusive_seconds": 1.0507344220000001,
+              "cumulative_seconds": 1.269629739,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/copying.py",
+                  "line": 12,
+                  "function": "copy_data",
+                  "total_calls": 8058,
+                  "primitive_calls": 8058,
+                  "exclusive_seconds": 0.040148548,
+                  "cumulative_seconds": 0.6238969870000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/copying.py",
+                  "line": 25,
+                  "function": "__init__",
+                  "total_calls": 433,
+                  "primitive_calls": 433,
+                  "exclusive_seconds": 0.00487383,
+                  "cumulative_seconds": 0.645732752
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/copying.py",
+                  "line": 44,
+                  "function": "_clone",
+                  "total_calls": 321699,
+                  "primitive_calls": 36306,
+                  "exclusive_seconds": 1.005712044,
+                  "cumulative_seconds": 1.21752765
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching.py",
+              "line": 206,
+              "function": "free",
+              "primitive_calls": 95668,
+              "total_calls": 95668,
+              "exclusive_seconds": 0.258508277,
+              "cumulative_seconds": 0.9828862300000001,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 148,
+                  "function": "move",
+                  "total_calls": 95668,
+                  "primitive_calls": 95668,
+                  "exclusive_seconds": 0.258508277,
+                  "cumulative_seconds": 0.9828862300000001
+                }
+              ]
+            },
+            {
+              "file": "~",
+              "line": 0,
+              "function": "<built-in method builtins.any>",
+              "primitive_calls": 397044,
+              "total_calls": 397044,
+              "exclusive_seconds": 0.324210369,
+              "cumulative_seconds": 0.945459484,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 181,
+                  "function": "react",
+                  "total_calls": 29,
+                  "primitive_calls": 29,
+                  "exclusive_seconds": 3.6321e-05,
+                  "cumulative_seconds": 5.5883e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 28,
+                  "function": "valid",
+                  "total_calls": 1520,
+                  "primitive_calls": 1520,
+                  "exclusive_seconds": 0.003538153,
+                  "cumulative_seconds": 0.014958113
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 148,
+                  "function": "move",
+                  "total_calls": 310424,
+                  "primitive_calls": 310424,
+                  "exclusive_seconds": 0.156579401,
+                  "cumulative_seconds": 0.22000139300000002
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 359,
+                  "function": "run",
+                  "total_calls": 186,
+                  "primitive_calls": 186,
+                  "exclusive_seconds": 0.0008898010000000001,
+                  "cumulative_seconds": 0.0016648720000000002
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_game.py",
+                  "line": 16,
+                  "function": "supported",
+                  "total_calls": 2424,
+                  "primitive_calls": 2424,
+                  "exclusive_seconds": 0.018770162,
+                  "cumulative_seconds": 0.083740273
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/opening.py",
+                  "line": 85,
+                  "function": "world",
+                  "total_calls": 5,
+                  "primitive_calls": 5,
+                  "exclusive_seconds": 7.657e-06,
+                  "cumulative_seconds": 1.7800000000000002e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 136,
+                  "function": "_accept_order",
+                  "total_calls": 88,
+                  "primitive_calls": 88,
+                  "exclusive_seconds": 0.001240364,
+                  "cumulative_seconds": 0.00288556
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 19,
+                  "function": "normalize",
+                  "total_calls": 81638,
+                  "primitive_calls": 81638,
+                  "exclusive_seconds": 0.13643286300000002,
+                  "cumulative_seconds": 0.602995503
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 100,
+                  "function": "castleless",
+                  "total_calls": 730,
+                  "primitive_calls": 730,
+                  "exclusive_seconds": 0.006715647000000001,
+                  "cumulative_seconds": 0.019140087
+                }
+              ]
+            },
+            {
+              "file": "~",
+              "line": 0,
+              "function": "<method 'get' of 'dict' objects>",
+              "primitive_calls": 3287284,
+              "total_calls": 3287284,
+              "exclusive_seconds": 0.7130551500000001,
+              "cumulative_seconds": 0.7130551500000001,
+              "callers": [
+                {
+                  "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py",
+                  "line": 118,
+                  "function": "deepcopy",
+                  "total_calls": 215697,
+                  "primitive_calls": 215697,
+                  "exclusive_seconds": 0.042394135,
+                  "cumulative_seconds": 0.042394135
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 19,
+                  "function": "targetable",
+                  "total_calls": 4015,
+                  "primitive_calls": 4015,
+                  "exclusive_seconds": 0.0008836540000000001,
+                  "cumulative_seconds": 0.0008836540000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 24,
+                  "function": "note_loss",
+                  "total_calls": 5,
+                  "primitive_calls": 5,
+                  "exclusive_seconds": 1.247e-06,
+                  "cumulative_seconds": 1.247e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 35,
+                  "function": "threat",
+                  "total_calls": 23,
+                  "primitive_calls": 23,
+                  "exclusive_seconds": 5.631e-06,
+                  "cumulative_seconds": 5.631e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 63,
+                  "function": "fact",
+                  "total_calls": 214,
+                  "primitive_calls": 214,
+                  "exclusive_seconds": 5.5361e-05,
+                  "cumulative_seconds": 5.5361e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 151,
+                  "function": "castle_tear",
+                  "total_calls": 3,
+                  "primitive_calls": 3,
+                  "exclusive_seconds": 8.920000000000001e-07,
+                  "cumulative_seconds": 8.920000000000001e-07
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 181,
+                  "function": "react",
+                  "total_calls": 199,
+                  "primitive_calls": 199,
+                  "exclusive_seconds": 8.2865e-05,
+                  "cumulative_seconds": 8.2865e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 213,
+                  "function": "<genexpr>",
+                  "total_calls": 9,
+                  "primitive_calls": 9,
+                  "exclusive_seconds": 2.2810000000000003e-06,
+                  "cumulative_seconds": 2.2810000000000003e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 332,
+                  "function": "fracture_groups",
+                  "total_calls": 18,
+                  "primitive_calls": 18,
+                  "exclusive_seconds": 2.945e-06,
+                  "cumulative_seconds": 2.945e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 346,
+                  "function": "fracture",
+                  "total_calls": 1,
+                  "primitive_calls": 1,
+                  "exclusive_seconds": 2.16e-07,
+                  "cumulative_seconds": 2.16e-07
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/benchmark_full_match.py",
+                  "line": 22,
+                  "function": "play",
+                  "total_calls": 866,
+                  "primitive_calls": 866,
+                  "exclusive_seconds": 0.000540413,
+                  "cumulative_seconds": 0.000540413
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/development.py",
+                  "line": 36,
+                  "function": "validate_choice",
+                  "total_calls": 186,
+                  "primitive_calls": 186,
+                  "exclusive_seconds": 4.1777e-05,
+                  "cumulative_seconds": 4.1777e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/development.py",
+                  "line": 59,
+                  "function": "intact",
+                  "total_calls": 14665,
+                  "primitive_calls": 14665,
+                  "exclusive_seconds": 0.003352734,
+                  "cumulative_seconds": 0.003352734
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/development.py",
+                  "line": 105,
+                  "function": "work",
+                  "total_calls": 22,
+                  "primitive_calls": 22,
+                  "exclusive_seconds": 7.386e-06,
+                  "cumulative_seconds": 7.386e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 36,
+                  "function": "cards_valid",
+                  "total_calls": 14618,
+                  "primitive_calls": 14618,
+                  "exclusive_seconds": 0.003273864,
+                  "cumulative_seconds": 0.003273864
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 52,
+                  "function": "<genexpr>",
+                  "total_calls": 16320,
+                  "primitive_calls": 16320,
+                  "exclusive_seconds": 0.004750128,
+                  "cumulative_seconds": 0.004750128
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 110,
+                  "function": "operational",
+                  "total_calls": 1160,
+                  "primitive_calls": 1160,
+                  "exclusive_seconds": 0.00018682,
+                  "cumulative_seconds": 0.00018682
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/full_match.py",
+                  "line": 38,
+                  "function": "_apply",
+                  "total_calls": 433,
+                  "primitive_calls": 433,
+                  "exclusive_seconds": 0.000195758,
+                  "cumulative_seconds": 0.000195758
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/lifecycle.py",
+                  "line": 74,
+                  "function": "run",
+                  "total_calls": 51,
+                  "primitive_calls": 51,
+                  "exclusive_seconds": 2.5124000000000002e-05,
+                  "cumulative_seconds": 2.5124000000000002e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 28,
+                  "function": "valid",
+                  "total_calls": 3210,
+                  "primitive_calls": 3210,
+                  "exclusive_seconds": 0.001505355,
+                  "cumulative_seconds": 0.001505355
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 45,
+                  "function": "<genexpr>",
+                  "total_calls": 19760,
+                  "primitive_calls": 19760,
+                  "exclusive_seconds": 0.0035312710000000003,
+                  "cumulative_seconds": 0.0035312710000000003
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 130,
+                  "function": "near",
+                  "total_calls": 2628675,
+                  "primitive_calls": 2628675,
+                  "exclusive_seconds": 0.579303718,
+                  "cumulative_seconds": 0.579303718
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 148,
+                  "function": "move",
+                  "total_calls": 13600,
+                  "primitive_calls": 13600,
+                  "exclusive_seconds": 0.003645615,
+                  "cumulative_seconds": 0.003645615
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 237,
+                  "function": "contact",
+                  "total_calls": 6292,
+                  "primitive_calls": 6292,
+                  "exclusive_seconds": 0.0017582390000000002,
+                  "cumulative_seconds": 0.0017582390000000002
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 291,
+                  "function": "react",
+                  "total_calls": 136,
+                  "primitive_calls": 136,
+                  "exclusive_seconds": 2.4216e-05,
+                  "cumulative_seconds": 2.4216e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 359,
+                  "function": "run",
+                  "total_calls": 85,
+                  "primitive_calls": 85,
+                  "exclusive_seconds": 3.7714000000000005e-05,
+                  "cumulative_seconds": 3.7714000000000005e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_columns.py",
+                  "line": 18,
+                  "function": "__init__",
+                  "total_calls": 335958,
+                  "primitive_calls": 335958,
+                  "exclusive_seconds": 0.06456154700000001,
+                  "cumulative_seconds": 0.06456154700000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_columns.py",
+                  "line": 61,
+                  "function": "live",
+                  "total_calls": 2566,
+                  "primitive_calls": 2566,
+                  "exclusive_seconds": 0.000668154,
+                  "cumulative_seconds": 0.000668154
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_game.py",
+                  "line": 16,
+                  "function": "supported",
+                  "total_calls": 1616,
+                  "primitive_calls": 1616,
+                  "exclusive_seconds": 0.000443442,
+                  "cumulative_seconds": 0.000443442
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_game.py",
+                  "line": 22,
+                  "function": "<genexpr>",
+                  "total_calls": 3232,
+                  "primitive_calls": 3232,
+                  "exclusive_seconds": 0.000709862,
+                  "cumulative_seconds": 0.000709862
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_game.py",
+                  "line": 30,
+                  "function": "resolve",
+                  "total_calls": 34,
+                  "primitive_calls": 34,
+                  "exclusive_seconds": 7.624e-06,
+                  "cumulative_seconds": 7.624e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_game.py",
+                  "line": 46,
+                  "function": "regenerate",
+                  "total_calls": 34,
+                  "primitive_calls": 34,
+                  "exclusive_seconds": 1.1147e-05,
+                  "cumulative_seconds": 1.1147e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 74,
+                  "function": "_apply",
+                  "total_calls": 485,
+                  "primitive_calls": 485,
+                  "exclusive_seconds": 0.000191406,
+                  "cumulative_seconds": 0.000191406
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 136,
+                  "function": "_accept_order",
+                  "total_calls": 476,
+                  "primitive_calls": 476,
+                  "exclusive_seconds": 0.000131068,
+                  "cumulative_seconds": 0.000131068
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 166,
+                  "function": "<genexpr>",
+                  "total_calls": 588,
+                  "primitive_calls": 588,
+                  "exclusive_seconds": 0.00010718500000000001,
+                  "cumulative_seconds": 0.00010718500000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 216,
+                  "function": "_combat_shape",
+                  "total_calls": 292,
+                  "primitive_calls": 292,
+                  "exclusive_seconds": 7.1129e-05,
+                  "cumulative_seconds": 7.1129e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 102,
+                  "function": "restore",
+                  "total_calls": 1023,
+                  "primitive_calls": 1023,
+                  "exclusive_seconds": 0.000337899,
+                  "cumulative_seconds": 0.000337899
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 56,
+                  "function": "artillery",
+                  "total_calls": 17,
+                  "primitive_calls": 17,
+                  "exclusive_seconds": 5.138000000000001e-06,
+                  "cumulative_seconds": 5.138000000000001e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 111,
+                  "function": "reveal",
+                  "total_calls": 51,
+                  "primitive_calls": 51,
+                  "exclusive_seconds": 1.6876000000000002e-05,
+                  "cumulative_seconds": 1.6876000000000002e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 173,
+                  "function": "attack_layers",
+                  "total_calls": 21,
+                  "primitive_calls": 21,
+                  "exclusive_seconds": 5.894000000000001e-06,
+                  "cumulative_seconds": 5.894000000000001e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 201,
+                  "function": "<genexpr>",
+                  "total_calls": 200,
+                  "primitive_calls": 200,
+                  "exclusive_seconds": 4.2374000000000005e-05,
+                  "cumulative_seconds": 4.2374000000000005e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 327,
+                  "function": "combat",
+                  "total_calls": 88,
+                  "primitive_calls": 88,
+                  "exclusive_seconds": 2.8042e-05,
+                  "cumulative_seconds": 2.8042e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/timeline.py",
+                  "line": 38,
+                  "function": "run",
+                  "total_calls": 340,
+                  "primitive_calls": 340,
+                  "exclusive_seconds": 0.00010700400000000001,
+                  "cumulative_seconds": 0.00010700400000000001
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/full_match.py",
+              "line": 23,
+              "function": "_rollback_snapshot",
+              "primitive_calls": 433,
+              "total_calls": 433,
+              "exclusive_seconds": 0.004335996,
+              "cumulative_seconds": 0.6596829590000001,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 56,
+                  "function": "apply",
+                  "total_calls": 433,
+                  "primitive_calls": 433,
+                  "exclusive_seconds": 0.004335996,
+                  "cumulative_seconds": 0.6596829590000001
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/copying.py",
+              "line": 25,
+              "function": "__init__",
+              "primitive_calls": 433,
+              "total_calls": 433,
+              "exclusive_seconds": 0.001153125,
+              "cumulative_seconds": 0.648201676,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/full_match.py",
+                  "line": 23,
+                  "function": "_rollback_snapshot",
+                  "total_calls": 433,
+                  "primitive_calls": 433,
+                  "exclusive_seconds": 0.001153125,
+                  "cumulative_seconds": 0.648201676
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/copying.py",
+              "line": 12,
+              "function": "copy_data",
+              "primitive_calls": 8058,
+              "total_calls": 8058,
+              "exclusive_seconds": 0.007549229,
+              "cumulative_seconds": 0.6314462160000001,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 63,
+                  "function": "fact",
+                  "total_calls": 74,
+                  "primitive_calls": 74,
+                  "exclusive_seconds": 4.3701e-05,
+                  "cumulative_seconds": 0.0005215370000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 181,
+                  "function": "react",
+                  "total_calls": 29,
+                  "primitive_calls": 29,
+                  "exclusive_seconds": 1.6305e-05,
+                  "cumulative_seconds": 0.000287604
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 93,
+                  "function": "event",
+                  "total_calls": 4258,
+                  "primitive_calls": 4258,
+                  "exclusive_seconds": 0.002741077,
+                  "cumulative_seconds": 0.047823806
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/full_match.py",
+                  "line": 55,
+                  "function": "_hook",
+                  "total_calls": 17,
+                  "primitive_calls": 17,
+                  "exclusive_seconds": 6.9738e-05,
+                  "cumulative_seconds": 0.020743592
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 277,
+                  "function": "__init__",
+                  "total_calls": 17,
+                  "primitive_calls": 17,
+                  "exclusive_seconds": 9.4961e-05,
+                  "cumulative_seconds": 0.029638303
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 286,
+                  "function": "emit",
+                  "total_calls": 1887,
+                  "primitive_calls": 1887,
+                  "exclusive_seconds": 0.002067988,
+                  "cumulative_seconds": 0.10232953900000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 291,
+                  "function": "react",
+                  "total_calls": 408,
+                  "primitive_calls": 408,
+                  "exclusive_seconds": 0.0008483830000000001,
+                  "cumulative_seconds": 0.202907906
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 359,
+                  "function": "run",
+                  "total_calls": 17,
+                  "primitive_calls": 17,
+                  "exclusive_seconds": 2.2777000000000002e-05,
+                  "cumulative_seconds": 0.000108566
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_columns.py",
+                  "line": 52,
+                  "function": "snapshot",
+                  "total_calls": 341,
+                  "primitive_calls": 341,
+                  "exclusive_seconds": 0.0008906570000000001,
+                  "cumulative_seconds": 0.18833537
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_game.py",
+                  "line": 46,
+                  "function": "regenerate",
+                  "total_calls": 67,
+                  "primitive_calls": 67,
+                  "exclusive_seconds": 0.000132711,
+                  "cumulative_seconds": 0.028644943000000003
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/opening.py",
+                  "line": 174,
+                  "function": "snapshot",
+                  "total_calls": 1,
+                  "primitive_calls": 1,
+                  "exclusive_seconds": 1.9191e-05,
+                  "cumulative_seconds": 0.000673835
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 136,
+                  "function": "_accept_order",
+                  "total_calls": 68,
+                  "primitive_calls": 68,
+                  "exclusive_seconds": 5.763e-05,
+                  "cumulative_seconds": 0.000463983
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/recruitment.py",
+                  "line": 24,
+                  "function": "create",
+                  "total_calls": 203,
+                  "primitive_calls": 203,
+                  "exclusive_seconds": 0.000117863,
+                  "cumulative_seconds": 0.0013534080000000002
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/recruitment.py",
+                  "line": 44,
+                  "function": "place_spawn",
+                  "total_calls": 203,
+                  "primitive_calls": 203,
+                  "exclusive_seconds": 0.00010661700000000001,
+                  "cumulative_seconds": 0.001268377
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 19,
+                  "function": "combat_order",
+                  "total_calls": 372,
+                  "primitive_calls": 372,
+                  "exclusive_seconds": 0.00021351400000000002,
+                  "cumulative_seconds": 0.000665194
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 66,
+                  "function": "fire",
+                  "total_calls": 31,
+                  "primitive_calls": 31,
+                  "exclusive_seconds": 2.0686e-05,
+                  "cumulative_seconds": 0.00016134500000000002
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 152,
+                  "function": "pairs",
+                  "total_calls": 21,
+                  "primitive_calls": 21,
+                  "exclusive_seconds": 4.7166e-05,
+                  "cumulative_seconds": 0.005183109
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 201,
+                  "function": "<genexpr>",
+                  "total_calls": 44,
+                  "primitive_calls": 44,
+                  "exclusive_seconds": 3.8264000000000005e-05,
+                  "cumulative_seconds": 0.000335799
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching.py",
+              "line": 237,
+              "function": "contact",
+              "primitive_calls": 6292,
+              "total_calls": 6292,
+              "exclusive_seconds": 0.07205605500000001,
+              "cumulative_seconds": 0.5801584780000001,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 359,
+                  "function": "run",
+                  "total_calls": 6292,
+                  "primitive_calls": 6292,
+                  "exclusive_seconds": 0.07205605500000001,
+                  "cumulative_seconds": 0.5801584780000001
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/primitives.py",
+              "line": 31,
+              "function": "<genexpr>",
+              "primitive_calls": 699639,
+              "total_calls": 699639,
+              "exclusive_seconds": 0.277512902,
+              "cumulative_seconds": 0.46656264000000003,
+              "callers": [
+                {
+                  "file": "~",
+                  "line": 0,
+                  "function": "<built-in method builtins.any>",
+                  "total_calls": 699639,
+                  "primitive_calls": 699639,
+                  "exclusive_seconds": 0.277512902,
+                  "cumulative_seconds": 0.46656264000000003
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching.py",
+              "line": 123,
+              "function": "grid",
+              "primitive_calls": 33492,
+              "total_calls": 33492,
+              "exclusive_seconds": 0.253896722,
+              "cumulative_seconds": 0.43937717800000003,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 148,
+                  "function": "move",
+                  "total_calls": 27200,
+                  "primitive_calls": 27200,
+                  "exclusive_seconds": 0.19495041200000002,
+                  "cumulative_seconds": 0.335391873
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 237,
+                  "function": "contact",
+                  "total_calls": 6292,
+                  "primitive_calls": 6292,
+                  "exclusive_seconds": 0.05894631,
+                  "cumulative_seconds": 0.103985305
+                }
+              ]
+            },
+            {
+              "file": "~",
+              "line": 0,
+              "function": "<built-in method builtins.all>",
+              "primitive_calls": 90455,
+              "total_calls": 90455,
+              "exclusive_seconds": 0.149631745,
+              "cumulative_seconds": 0.36217039700000003,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 31,
+                  "function": "selection",
+                  "total_calls": 188,
+                  "primitive_calls": 188,
+                  "exclusive_seconds": 0.000295984,
+                  "cumulative_seconds": 0.0005458090000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 36,
+                  "function": "cards_valid",
+                  "total_calls": 272,
+                  "primitive_calls": 272,
+                  "exclusive_seconds": 0.002494174,
+                  "cumulative_seconds": 0.016919123
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/full_match.py",
+                  "line": 23,
+                  "function": "_rollback_snapshot",
+                  "total_calls": 433,
+                  "primitive_calls": 433,
+                  "exclusive_seconds": 0.001093652,
+                  "cumulative_seconds": 0.007010819000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/full_match.py",
+                  "line": 55,
+                  "function": "_hook",
+                  "total_calls": 17,
+                  "primitive_calls": 17,
+                  "exclusive_seconds": 2.9239000000000002e-05,
+                  "cumulative_seconds": 4.2997e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/lifecycle.py",
+                  "line": 74,
+                  "function": "run",
+                  "total_calls": 34,
+                  "primitive_calls": 34,
+                  "exclusive_seconds": 5.0877e-05,
+                  "cumulative_seconds": 8.242e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 136,
+                  "function": "_accept_order",
+                  "total_calls": 62,
+                  "primitive_calls": 62,
+                  "exclusive_seconds": 5.8266e-05,
+                  "cumulative_seconds": 7.365300000000001e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 216,
+                  "function": "_combat_shape",
+                  "total_calls": 68,
+                  "primitive_calls": 68,
+                  "exclusive_seconds": 0.00012968500000000002,
+                  "cumulative_seconds": 0.00024580500000000004
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 19,
+                  "function": "normalize",
+                  "total_calls": 81638,
+                  "primitive_calls": 81638,
+                  "exclusive_seconds": 0.127730588,
+                  "cumulative_seconds": 0.292471103
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 37,
+                  "function": "draw",
+                  "total_calls": 7368,
+                  "primitive_calls": 7368,
+                  "exclusive_seconds": 0.007057558,
+                  "cumulative_seconds": 0.016880996000000002
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 102,
+                  "function": "restore",
+                  "total_calls": 341,
+                  "primitive_calls": 341,
+                  "exclusive_seconds": 0.010671353000000001,
+                  "cumulative_seconds": 0.027877303000000003
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 111,
+                  "function": "reveal",
+                  "total_calls": 34,
+                  "primitive_calls": 34,
+                  "exclusive_seconds": 2.0369e-05,
+                  "cumulative_seconds": 2.0369e-05
+                }
+              ]
+            },
+            {
+              "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py",
+              "line": 118,
+              "function": "deepcopy",
+              "primitive_calls": 1618,
+              "total_calls": 107632,
+              "exclusive_seconds": 0.140982366,
+              "cumulative_seconds": 0.307997807,
+              "callers": [
+                {
+                  "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py",
+                  "line": 191,
+                  "function": "_deepcopy_list",
+                  "total_calls": 7616,
+                  "primitive_calls": 7616,
+                  "exclusive_seconds": 0.013144949000000001,
+                  "cumulative_seconds": 0.258322133
+                },
+                {
+                  "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py",
+                  "line": 217,
+                  "function": "_deepcopy_dict",
+                  "total_calls": 97532,
+                  "primitive_calls": 43868,
+                  "exclusive_seconds": 0.11889083700000001,
+                  "cumulative_seconds": 0.24295397700000002
+                },
+                {
+                  "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py",
+                  "line": 247,
+                  "function": "_reconstruct",
+                  "total_calls": 433,
+                  "primitive_calls": 433,
+                  "exclusive_seconds": 0.000836344,
+                  "cumulative_seconds": 0.141743657
+                },
+                {
+                  "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py",
+                  "line": 252,
+                  "function": "<genexpr>",
+                  "total_calls": 433,
+                  "primitive_calls": 433,
+                  "exclusive_seconds": 0.001041831,
+                  "cumulative_seconds": 0.00149565
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 56,
+                  "function": "apply",
+                  "total_calls": 433,
+                  "primitive_calls": 433,
+                  "exclusive_seconds": 0.00397929,
+                  "cumulative_seconds": 0.15863743000000002
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 97,
+                  "function": "snapshot",
+                  "total_calls": 72,
+                  "primitive_calls": 72,
+                  "exclusive_seconds": 0.00015189400000000002,
+                  "cumulative_seconds": 0.0032645160000000003
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/timeline.py",
+                  "line": 38,
+                  "function": "run",
+                  "total_calls": 680,
+                  "primitive_calls": 680,
+                  "exclusive_seconds": 0.0018788770000000002,
+                  "cumulative_seconds": 0.009131076
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/timeline.py",
+                  "line": 60,
+                  "function": "snapshot",
+                  "total_calls": 433,
+                  "primitive_calls": 433,
+                  "exclusive_seconds": 0.0010583440000000001,
+                  "cumulative_seconds": 0.136964785
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/primitives.py",
+              "line": 13,
+              "function": "integer",
+              "primitive_calls": 517795,
+              "total_calls": 517795,
+              "exclusive_seconds": 0.247113402,
+              "cumulative_seconds": 0.30435246200000005,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 19,
+                  "function": "normalize",
+                  "total_calls": 421594,
+                  "primitive_calls": 421594,
+                  "exclusive_seconds": 0.199325578,
+                  "cumulative_seconds": 0.24340546300000002
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 31,
+                  "function": "<genexpr>",
+                  "total_calls": 47994,
+                  "primitive_calls": 47994,
+                  "exclusive_seconds": 0.023580473,
+                  "cumulative_seconds": 0.0300015
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 37,
+                  "function": "draw",
+                  "total_calls": 7368,
+                  "primitive_calls": 7368,
+                  "exclusive_seconds": 0.0033767980000000003,
+                  "cumulative_seconds": 0.004560401
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 58,
+                  "function": "entity_id",
+                  "total_calls": 40839,
+                  "primitive_calls": 40839,
+                  "exclusive_seconds": 0.020830553,
+                  "cumulative_seconds": 0.026385098000000003
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching_spatial.py",
+              "line": 15,
+              "function": "distance",
+              "primitive_calls": 858105,
+              "total_calls": 858105,
+              "exclusive_seconds": 0.282708358,
+              "cumulative_seconds": 0.282708358,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 139,
+                  "function": "duel_alive",
+                  "total_calls": 1016,
+                  "primitive_calls": 1016,
+                  "exclusive_seconds": 0.00042596400000000003,
+                  "cumulative_seconds": 0.00042596400000000003
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 148,
+                  "function": "move",
+                  "total_calls": 257745,
+                  "primitive_calls": 257745,
+                  "exclusive_seconds": 0.076466852,
+                  "cumulative_seconds": 0.076466852
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 159,
+                  "function": "<genexpr>",
+                  "total_calls": 22837,
+                  "primitive_calls": 22837,
+                  "exclusive_seconds": 0.00786972,
+                  "cumulative_seconds": 0.00786972
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 206,
+                  "function": "free",
+                  "total_calls": 403572,
+                  "primitive_calls": 403572,
+                  "exclusive_seconds": 0.141892747,
+                  "cumulative_seconds": 0.141892747
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 237,
+                  "function": "contact",
+                  "total_calls": 3366,
+                  "primitive_calls": 3366,
+                  "exclusive_seconds": 0.00114006,
+                  "cumulative_seconds": 0.00114006
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 314,
+                  "function": "volley",
+                  "total_calls": 169569,
+                  "primitive_calls": 169569,
+                  "exclusive_seconds": 0.054913015,
+                  "cumulative_seconds": 0.054913015
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching.py",
+              "line": 116,
+              "function": "teams",
+              "primitive_calls": 9692,
+              "total_calls": 9692,
+              "exclusive_seconds": 0.130835673,
+              "cumulative_seconds": 0.20791700400000002,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 148,
+                  "function": "move",
+                  "total_calls": 3400,
+                  "primitive_calls": 3400,
+                  "exclusive_seconds": 0.043535567000000004,
+                  "cumulative_seconds": 0.074224861
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 237,
+                  "function": "contact",
+                  "total_calls": 6292,
+                  "primitive_calls": 6292,
+                  "exclusive_seconds": 0.087300106,
+                  "cumulative_seconds": 0.133692143
+                }
+              ]
+            },
+            {
+              "file": "~",
+              "line": 0,
+              "function": "<method 'append' of 'list' objects>",
+              "primitive_calls": 962481,
+              "total_calls": 962481,
+              "exclusive_seconds": 0.178414179,
+              "cumulative_seconds": 0.178414179,
+              "callers": [
+                {
+                  "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py",
+                  "line": 191,
+                  "function": "_deepcopy_list",
+                  "total_calls": 7616,
+                  "primitive_calls": 7616,
+                  "exclusive_seconds": 0.001254102,
+                  "cumulative_seconds": 0.001254102
+                },
+                {
+                  "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py",
+                  "line": 231,
+                  "function": "_keep_alive",
+                  "total_calls": 16170,
+                  "primitive_calls": 16170,
+                  "exclusive_seconds": 0.003950045,
+                  "cumulative_seconds": 0.003950045
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 63,
+                  "function": "fact",
+                  "total_calls": 29,
+                  "primitive_calls": 29,
+                  "exclusive_seconds": 8.685e-06,
+                  "cumulative_seconds": 8.685e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 181,
+                  "function": "react",
+                  "total_calls": 32,
+                  "primitive_calls": 32,
+                  "exclusive_seconds": 9.612e-06,
+                  "cumulative_seconds": 9.612e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 297,
+                  "function": "sync_breach",
+                  "total_calls": 10,
+                  "primitive_calls": 10,
+                  "exclusive_seconds": 3.017e-06,
+                  "cumulative_seconds": 3.017e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 346,
+                  "function": "fracture",
+                  "total_calls": 1,
+                  "primitive_calls": 1,
+                  "exclusive_seconds": 4.44e-07,
+                  "cumulative_seconds": 4.44e-07
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/development.py",
+                  "line": 85,
+                  "function": "_deploy_owned",
+                  "total_calls": 34,
+                  "primitive_calls": 34,
+                  "exclusive_seconds": 9.790000000000001e-06,
+                  "cumulative_seconds": 9.790000000000001e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/development.py",
+                  "line": 105,
+                  "function": "work",
+                  "total_calls": 69,
+                  "primitive_calls": 69,
+                  "exclusive_seconds": 2.0110000000000002e-05,
+                  "cumulative_seconds": 2.0110000000000002e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/development.py",
+                  "line": 170,
+                  "function": "draw_pairs",
+                  "total_calls": 5,
+                  "primitive_calls": 5,
+                  "exclusive_seconds": 1.771e-06,
+                  "cumulative_seconds": 1.771e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 67,
+                  "function": "draw",
+                  "total_calls": 227,
+                  "primitive_calls": 227,
+                  "exclusive_seconds": 6.2625e-05,
+                  "cumulative_seconds": 6.2625e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 82,
+                  "function": "discard",
+                  "total_calls": 26,
+                  "primitive_calls": 26,
+                  "exclusive_seconds": 9.249e-06,
+                  "cumulative_seconds": 9.249e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 122,
+                  "function": "continue_draw",
+                  "total_calls": 277,
+                  "primitive_calls": 277,
+                  "exclusive_seconds": 7.1592e-05,
+                  "cumulative_seconds": 7.1592e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 175,
+                  "function": "market_begin",
+                  "total_calls": 64,
+                  "primitive_calls": 64,
+                  "exclusive_seconds": 1.7081e-05,
+                  "cumulative_seconds": 1.7081e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/economy.py",
+                  "line": 202,
+                  "function": "choose_market",
+                  "total_calls": 60,
+                  "primitive_calls": 60,
+                  "exclusive_seconds": 1.3587e-05,
+                  "cumulative_seconds": 1.3587e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/lifecycle.py",
+                  "line": 33,
+                  "function": "settle",
+                  "total_calls": 40,
+                  "primitive_calls": 40,
+                  "exclusive_seconds": 1.2312e-05,
+                  "cumulative_seconds": 1.2312e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/lifecycle.py",
+                  "line": 74,
+                  "function": "run",
+                  "total_calls": 219,
+                  "primitive_calls": 219,
+                  "exclusive_seconds": 5.4086000000000004e-05,
+                  "cumulative_seconds": 5.4086000000000004e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 116,
+                  "function": "teams",
+                  "total_calls": 438461,
+                  "primitive_calls": 438461,
+                  "exclusive_seconds": 0.077081331,
+                  "cumulative_seconds": 0.077081331
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 123,
+                  "function": "grid",
+                  "total_calls": 409128,
+                  "primitive_calls": 409128,
+                  "exclusive_seconds": 0.075591381,
+                  "cumulative_seconds": 0.075591381
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 148,
+                  "function": "move",
+                  "total_calls": 86703,
+                  "primitive_calls": 86703,
+                  "exclusive_seconds": 0.0191621,
+                  "cumulative_seconds": 0.0191621
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 237,
+                  "function": "contact",
+                  "total_calls": 727,
+                  "primitive_calls": 727,
+                  "exclusive_seconds": 0.000155833,
+                  "cumulative_seconds": 0.000155833
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 286,
+                  "function": "emit",
+                  "total_calls": 629,
+                  "primitive_calls": 629,
+                  "exclusive_seconds": 0.000225715,
+                  "cumulative_seconds": 0.000225715
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 314,
+                  "function": "volley",
+                  "total_calls": 376,
+                  "primitive_calls": 376,
+                  "exclusive_seconds": 0.000150516,
+                  "cumulative_seconds": 0.000150516
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 359,
+                  "function": "run",
+                  "total_calls": 112,
+                  "primitive_calls": 112,
+                  "exclusive_seconds": 4.0065000000000003e-05,
+                  "cumulative_seconds": 4.0065000000000003e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_game.py",
+                  "line": 46,
+                  "function": "regenerate",
+                  "total_calls": 25,
+                  "primitive_calls": 25,
+                  "exclusive_seconds": 1.0816000000000001e-05,
+                  "cumulative_seconds": 1.0816000000000001e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/opening.py",
+                  "line": 85,
+                  "function": "world",
+                  "total_calls": 104,
+                  "primitive_calls": 104,
+                  "exclusive_seconds": 2.7236e-05,
+                  "cumulative_seconds": 2.7236e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 136,
+                  "function": "_accept_order",
+                  "total_calls": 256,
+                  "primitive_calls": 256,
+                  "exclusive_seconds": 6.687300000000001e-05,
+                  "cumulative_seconds": 6.687300000000001e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/recruitment.py",
+                  "line": 24,
+                  "function": "create",
+                  "total_calls": 406,
+                  "primitive_calls": 406,
+                  "exclusive_seconds": 0.00013803400000000001,
+                  "cumulative_seconds": 0.00013803400000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 66,
+                  "function": "fire",
+                  "total_calls": 35,
+                  "primitive_calls": 35,
+                  "exclusive_seconds": 1.2088e-05,
+                  "cumulative_seconds": 1.2088e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 111,
+                  "function": "reveal",
+                  "total_calls": 249,
+                  "primitive_calls": 249,
+                  "exclusive_seconds": 0.000113999,
+                  "cumulative_seconds": 0.000113999
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 152,
+                  "function": "pairs",
+                  "total_calls": 18,
+                  "primitive_calls": 18,
+                  "exclusive_seconds": 6.43e-06,
+                  "cumulative_seconds": 6.43e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 249,
+                  "function": "siege",
+                  "total_calls": 13,
+                  "primitive_calls": 13,
+                  "exclusive_seconds": 4.715000000000001e-06,
+                  "cumulative_seconds": 4.715000000000001e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 284,
+                  "function": "hunt",
+                  "total_calls": 18,
+                  "primitive_calls": 18,
+                  "exclusive_seconds": 5.326e-06,
+                  "cumulative_seconds": 5.326e-06
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 327,
+                  "function": "combat",
+                  "total_calls": 2,
+                  "primitive_calls": 2,
+                  "exclusive_seconds": 6.380000000000001e-07,
+                  "cumulative_seconds": 6.380000000000001e-07
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/timeline.py",
+                  "line": 38,
+                  "function": "run",
+                  "total_calls": 340,
+                  "primitive_calls": 340,
+                  "exclusive_seconds": 0.00012297500000000002,
+                  "cumulative_seconds": 0.00012297500000000002
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/primitives.py",
+              "line": 30,
+              "function": "<genexpr>",
+              "primitive_calls": 699639,
+              "total_calls": 699639,
+              "exclusive_seconds": 0.164740515,
+              "cumulative_seconds": 0.164740515,
+              "callers": [
+                {
+                  "file": "~",
+                  "line": 0,
+                  "function": "<built-in method builtins.all>",
+                  "total_calls": 699639,
+                  "primitive_calls": 699639,
+                  "exclusive_seconds": 0.164740515,
+                  "cumulative_seconds": 0.164740515
+                }
+              ]
+            },
+            {
+              "file": "Scripts/Sim/u13_pysim/marching_columns.py",
+              "line": 40,
+              "function": "row",
+              "primitive_calls": 19066,
+              "total_calls": 19066,
+              "exclusive_seconds": 0.109021528,
+              "cumulative_seconds": 0.164524857,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 314,
+                  "function": "volley",
+                  "total_calls": 676,
+                  "primitive_calls": 676,
+                  "exclusive_seconds": 0.005748570000000001,
+                  "cumulative_seconds": 0.008493594
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 359,
+                  "function": "run",
+                  "total_calls": 102,
+                  "primitive_calls": 102,
+                  "exclusive_seconds": 0.000821787,
+                  "cumulative_seconds": 0.0012460260000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_columns.py",
+                  "line": 49,
+                  "function": "rows",
+                  "total_calls": 18288,
+                  "primitive_calls": 18288,
+                  "exclusive_seconds": 0.10245117100000001,
+                  "cumulative_seconds": 0.15478523700000002
+                }
+              ]
+            },
+            {
+              "file": "~",
+              "line": 0,
+              "function": "<method 'endswith' of 'str' objects>",
+              "primitive_calls": 618001,
+              "total_calls": 618001,
+              "exclusive_seconds": 0.159048238,
+              "cumulative_seconds": 0.159048238,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 31,
+                  "function": "<genexpr>",
+                  "total_calls": 618001,
+                  "primitive_calls": 618001,
+                  "exclusive_seconds": 0.159048238,
+                  "cumulative_seconds": 0.159048238
+                }
+              ]
+            },
+            {
+              "file": "~",
+              "line": 0,
+              "function": "<method 'setdefault' of 'dict' objects>",
+              "primitive_calls": 411525,
+              "total_calls": 411525,
+              "exclusive_seconds": 0.11112099,
+              "cumulative_seconds": 0.11112099,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 63,
+                  "function": "fact",
+                  "total_calls": 40,
+                  "primitive_calls": 40,
+                  "exclusive_seconds": 1.4691e-05,
+                  "cumulative_seconds": 1.4691e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 181,
+                  "function": "react",
+                  "total_calls": 197,
+                  "primitive_calls": 197,
+                  "exclusive_seconds": 0.000121886,
+                  "cumulative_seconds": 0.000121886
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 123,
+                  "function": "grid",
+                  "total_calls": 409128,
+                  "primitive_calls": 409128,
+                  "exclusive_seconds": 0.109889075,
+                  "cumulative_seconds": 0.109889075
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 148,
+                  "function": "move",
+                  "total_calls": 2160,
+                  "primitive_calls": 2160,
+                  "exclusive_seconds": 0.0010953380000000002,
+                  "cumulative_seconds": 0.0010953380000000002
+                }
+              ]
+            },
+            {
+              "file": "~",
+              "line": 0,
+              "function": "<method 'items' of 'dict' objects>",
+              "primitive_calls": 467866,
+              "total_calls": 467866,
+              "exclusive_seconds": 0.105416559,
+              "cumulative_seconds": 0.105416559,
+              "callers": [
+                {
+                  "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py",
+                  "line": 217,
+                  "function": "_deepcopy_dict",
+                  "total_calls": 16489,
+                  "primitive_calls": 16489,
+                  "exclusive_seconds": 0.005924329000000001,
+                  "cumulative_seconds": 0.005924329000000001
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/battle.py",
+                  "line": 346,
+                  "function": "fracture",
+                  "total_calls": 1,
+                  "primitive_calls": 1,
+                  "exclusive_seconds": 3.3e-07,
+                  "cumulative_seconds": 3.3e-07
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/copying.py",
+                  "line": 44,
+                  "function": "_clone",
+                  "total_calls": 271463,
+                  "primitive_calls": 271463,
+                  "exclusive_seconds": 0.057114604000000006,
+                  "cumulative_seconds": 0.057114604000000006
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/full_match.py",
+                  "line": 23,
+                  "function": "_rollback_snapshot",
+                  "total_calls": 433,
+                  "primitive_calls": 433,
+                  "exclusive_seconds": 0.000134468,
+                  "cumulative_seconds": 0.000134468
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching.py",
+                  "line": 28,
+                  "function": "valid",
+                  "total_calls": 34,
+                  "primitive_calls": 34,
+                  "exclusive_seconds": 1.2137000000000001e-05,
+                  "cumulative_seconds": 1.2137000000000001e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/marching_columns.py",
+                  "line": 18,
+                  "function": "__init__",
+                  "total_calls": 15998,
+                  "primitive_calls": 15998,
+                  "exclusive_seconds": 0.0033452380000000004,
+                  "cumulative_seconds": 0.0033452380000000004
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/opening.py",
+                  "line": 85,
+                  "function": "world",
+                  "total_calls": 2,
+                  "primitive_calls": 2,
+                  "exclusive_seconds": 9.05e-07,
+                  "cumulative_seconds": 9.05e-07
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/planning.py",
+                  "line": 136,
+                  "function": "_accept_order",
+                  "total_calls": 68,
+                  "primitive_calls": 68,
+                  "exclusive_seconds": 2.0865e-05,
+                  "cumulative_seconds": 2.0865e-05
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/primitives.py",
+                  "line": 19,
+                  "function": "normalize",
+                  "total_calls": 163276,
+                  "primitive_calls": 163276,
+                  "exclusive_seconds": 0.038837162,
+                  "cumulative_seconds": 0.038837162
+                },
+                {
+                  "file": "Scripts/Sim/u13_pysim/resolution.py",
+                  "line": 19,
+                  "function": "combat_order",
+                  "total_calls": 102,
+                  "primitive_calls": 102,
+                  "exclusive_seconds": 2.6521000000000002e-05,
+                  "cumulative_seconds": 2.6521000000000002e-05
+                }
+              ]
+            },
+            {
+              "file": "~",
+              "line": 0,
+              "function": "<method 'copy' of 'dict' objects>",
+              "primitive_calls": 271463,
+              "total_calls": 271463,
+              "exclusive_seconds": 0.09739613600000001,
+              "cumulative_seconds": 0.09739613600000001,
+              "callers": [
+                {
+                  "file": "Scripts/Sim/u13_pysim/copying.py",
+                  "line": 44,
+                  "function": "_clone",
+                  "total_calls": 271463,
+                  "primitive_calls": 271463,
+                  "exclusive_seconds": 0.09739613600000001,
+                  "cumulative_seconds": 0.09739613600000001
+                }
+              ]
+            }
+          ],
+          "exclusive_seconds_by_file": {
+            "~": 2.409501165,
+            "<frozen importlib._bootstrap>": 7.7855e-05,
+            "<frozen abc>": 2.465e-06,
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/encoder.py": 0.0010891770000000002,
+            "Scripts/Sim/u13_pysim/primitives.py": 1.9747049860000003,
+            "Scripts/Sim/u13_pysim/marching.py": 3.1012633020000004,
+            "Scripts/Sim/u13_pysim/development.py": 0.01496804,
+            "Scripts/Sim/u13_pysim/planning.py": 0.011731281000000001,
+            "Scripts/Sim/u13_pysim/opening.py": 0.000393958,
+            "Scripts/Sim/u13_pysim/full_match.py": 0.018577121000000002,
+            "Scripts/Sim/u13_pysim/marching_game.py": 0.071933128,
+            "Scripts/Sim/u13_pysim/marching_columns.py": 0.312688521,
+            "Scripts/Sim/u13_pysim/marching_spatial.py": 0.36465735899999996,
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copy.py": 0.224519132,
+            "Scripts/Sim/u13_pysim/battle.py": 0.020206797000000002,
+            "Scripts/Sim/u13_pysim/timeline.py": 0.005808776,
+            "Scripts/Sim/u13_pysim/lifecycle.py": 0.019933645999999996,
+            "Scripts/Sim/u13_pysim/resolution.py": 0.022462866,
+            "Scripts/Sim/u13_pysim/benchmark_full_match.py": 0.025572929,
+            "Scripts/Sim/u13_pysim/copying.py": 1.0594367760000003,
+            "Scripts/Sim/u13_pysim/economy.py": 0.11373613300000002,
+            "Scripts/Sim/u13_pysim/recruitment.py": 0.08802901099999999,
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py": 0.00046019,
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copyreg.py": 0.00045392800000000004,
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/collections/__init__.py": 3.7899000000000004e-05
+          },
+          "all_functions_count": 265,
+          "selection": "top 25 by cumulative time plus top 25 by exclusive time; selected functions retain every caller; original complete report is hashed below"
+        }
+      ],
+      "all_final_digests_matched": true,
+      "failures": 0
+    },
+    "instrumentation_comparison": [
+      {
+        "name": "bones_endurance",
+        "unprofiled_mean_wall_ms": 2056.689697,
+        "separate_stage_game_wall_ms": 2170.221875,
+        "profiled_wall_ms": 6332.801547,
+        "observed_profile_to_timing_ratio": 3.0791234848102613
+      },
+      {
+        "name": "spoils_rekindle",
+        "unprofiled_mean_wall_ms": 3306.3650365000003,
+        "separate_stage_game_wall_ms": 3256.869789,
+        "profiled_wall_ms": 9866.427288,
+        "observed_profile_to_timing_ratio": 2.98407077835672
+      }
+    ],
+    "included": "independent setup; explicit decisions; all 20 hooks; transactions; complete semantic history; victory",
+    "excluded": "policy selection; input loading; result snapshots/digests; process startup/imports; report export",
+    "scope": "same two accepted ordinary games; no mechanics changes or wider corpus",
+    "interpretation": "cProfile changes runtime cost, especially with PyPy; use separate unprofiled timings for speed and stage timers as supporting evidence, not cumulative-time sums",
+    "decision_thresholds": "2x whole-match speed needs 50% net time removed; 3x needs 66.7%. A profile alone does not establish achievable savings.",
+    "memory_measurement": null,
+    "failures": 0
+  },
+  "findings": [
+    {
+      "name": "bones_endurance",
+      "unprofiled_stage_game_ms": 2170.221875,
+      "marching_ms": 1710.142209,
+      "marching_percent": 78.80033966573119,
+      "functions_retained_by_runner": 267,
+      "profile_seconds": 6.325357963000009,
+      "targets": [
+        {
+          "file": "Scripts/Sim/u13_pysim/marching.py",
+          "function": "move",
+          "calls": 2600,
+          "cumulative_percent": 37.22134493845083
+        },
+        {
+          "file": "Scripts/Sim/u13_pysim/marching.py",
+          "function": "restore_reactions",
+          "calls": 181,
+          "cumulative_percent": 19.112261567986113
+        },
+        {
+          "file": "Scripts/Sim/u13_pysim/copying.py",
+          "function": "_clone",
+          "calls": 223728,
+          "cumulative_percent": 13.492976334183775
+        },
+        {
+          "file": "Scripts/Sim/u13_pysim/full_match.py",
+          "function": "_rollback_snapshot",
+          "calls": 334,
+          "cumulative_percent": 7.752216868489018
+        }
+      ]
+    },
+    {
+      "name": "spoils_rekindle",
+      "unprofiled_stage_game_ms": 3256.869789,
+      "marching_ms": 2670.935875,
+      "marching_percent": 82.00929260423682,
+      "functions_retained_by_runner": 265,
+      "profile_seconds": 9.862246441000012,
+      "targets": [
+        {
+          "file": "Scripts/Sim/u13_pysim/marching.py",
+          "function": "move",
+          "calls": 3400,
+          "cumulative_percent": 37.55092285672478
+        },
+        {
+          "file": "Scripts/Sim/u13_pysim/marching.py",
+          "function": "restore_reactions",
+          "calls": 307,
+          "cumulative_percent": 24.08256961746711
+        },
+        {
+          "file": "Scripts/Sim/u13_pysim/copying.py",
+          "function": "_clone",
+          "calls": 330190,
+          "cumulative_percent": 12.8736363119239
+        },
+        {
+          "file": "Scripts/Sim/u13_pysim/full_match.py",
+          "function": "_rollback_snapshot",
+          "calls": 433,
+          "cumulative_percent": 6.6889725677257506
+        }
+      ]
+    }
+  ],
+  "no_speedup_demonstrated": "This profile identifies candidates; no rule or performance implementation changed."
+}
