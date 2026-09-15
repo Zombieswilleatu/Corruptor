@@ -99,9 +99,12 @@ func _refresh(presented: Dictionary = {}) -> void:
 	if not session is PlaySession:
 		return
 	var w: Dictionary = _visible_world
-	header.scope.text = "U13 · YOU vs DOCTRINE"
+	header.scope.text = "Dominion %s · 5+ Personal Tears and the lead\nFinal Collapse: 26 · Neutral Tears: %d" % ["OPEN" if int(w.veil_total) >= 12 else "at Veil 12", w.neutral_tears]
+	header.veil_track.show()
+	header.veil_track.value = w.veil_total
 	header.scope.tooltip_text = "Full game · Dominion, Ritual or Final Collapse. Neutral Tears: +1 each round 13-20, +2 from round 21. Final Collapse at 26 total Tears. Veil threshold penalties are disabled."
-	header.veil_label.text = "VEIL %d · TEARS %d : %d · NEUTRAL %d" % [w.veil_total, w.personal_tears[0], w.personal_tears[1], w.neutral_tears]
+	header.veil_label.text = "VEIL  %d / 26" % w.veil_total
+	header.veil_label.tooltip_text = "Total Veil = both players’ Personal Tears + shared Neutral Tears."
 	work_button.disabled = not _planning() or playing or _job != null
 	work_button.text = "CANCEL WORK" if choosing_work else "WORK TARGET"
 	castle_box.hide()
@@ -147,6 +150,7 @@ func _sync_decision() -> void:
 		confirm.disabled = true
 	elif session.is_finished():
 		phase_prompt.set_presenting(true)
+		phase_prompt.title_label.text = "VICTORY" if session.outcome().winner == 0 else "DEFEAT"
 		confirm.text = "MATCH RESULT"
 		confirm.disabled = false
 		next_button.disabled = true
@@ -210,7 +214,7 @@ func _open_game_menu() -> void:
 	phase_prompt.set_presenting(false)
 	if session.is_finished():
 		var outcome: Dictionary = session.outcome()
-		game_menu.present("YOU WIN" if outcome.winner == 0 else "OPPONENT WINS", "%s · round %d" % [outcome.win_by, outcome.round])
+		game_menu.present("YOU WIN" if outcome.winner == 0 else "OPPONENT WINS", AftermathLedger.result_summary(session.board_view().world, outcome) + "\nRound %d" % outcome.round)
 		_sample_playtime()
 		game_menu.label("Playtime: " + playtime.summary())
 		game_menu.button("NEW GAME", func(): game_menu.hide(); open_setup())
@@ -474,14 +478,6 @@ func _work_preview() -> String:
 	var passive: int = 3 if a.construction_state != "active" or a.status == "ruined" else 0
 	var locked: bool = passive == 0 and int(a.get("repair_lock_until_round", 0)) >= session.round_number()
 	return "Work: %s · %d/%d · Guards/pairs +%d · passive +%d → %d%s" % [a.castle_type, a.integrity, a.max_integrity, work, passive, mini(a.max_integrity, a.integrity + (0 if locked else work + passive)), " · repair locked" if locked else ""]
-
-func _add_stack(stacks: Array, role: String, label: String, ids: Array, target: Dictionary) -> void:
-	var before: int = stacks.size()
-	super._add_stack(stacks, role, label, ids, target)
-	if role == "combat" and stacks.size() > before:
-		var forecast_script = preload("res://Scripts/Sim/U13ActionForecast.gd")
-		var forecast: Dictionary = forecast_script.evaluate({"world": _visible_world.merged({"viewer_id": 0})}, _order())
-		stacks.back()["forecast"] = forecast_script.compact(forecast, _draft_combat.get("action", ""))
 
 func _show_work_target() -> void:
 	var id: String = _visible_world.get("guard_work", {}).get("target", "")

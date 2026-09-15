@@ -8,6 +8,7 @@ var flow_back: Button
 var flow_fracture: VBoxContainer
 const Forecast = preload("res://Scripts/Sim/U13ActionForecast.gd")
 var flow_support: Label
+var flow_forecast: Label
 
 func _build() -> void:
 	super._build()
@@ -24,6 +25,9 @@ func _build() -> void:
 	_label(flow_fracture, "Hunt Fracture", 13)
 	var fracture: OptionButton = _option(flow_fracture, ["Infrastructure", "Subjects"])
 	fracture.item_selected.connect(func(index): fracture_choice = "infrastructure" if index == 0 else "subjects"; _refresh())
+	flow_forecast = _label(action_zone.action_box, "", 16)
+	flow_forecast.name = "SelectedActionForecast"
+	flow_forecast.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	flow_support = _label(contents, "", 13)
 	flow_support.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	flow_back = _button(contents, "BACK", _flow_back)
@@ -52,6 +56,7 @@ func _sync_flow() -> void:
 	flow_work.hide()
 	flow_fracture.hide()
 	flow_support.hide()
+	flow_forecast.hide()
 	flow_back.hide()
 	if playing or _job != null or session.next_hook().is_empty(): return
 	var mandatory: bool = not session.pending_choice.is_empty()
@@ -67,7 +72,17 @@ func _sync_flow() -> void:
 	powers_box.visible = not mandatory and step == "Lord Powers"
 	flow_work.visible = not mandatory and step == "Work Target"
 	flow_support.visible = not mandatory and step == "Combat"
-	flow_support.text = Forecast.text(Forecast.evaluate({"world": _visible_world.merged({"viewer_id": 0})}, _order())) if flow_support.visible else ""
+	var forecast: Dictionary = Forecast.evaluate({"world": _visible_world.merged({"viewer_id": 0})}, _order()) if flow_support.visible else {}
+	flow_support.text = Forecast.text(forecast) if flow_support.visible else ""
+	var action: String = _intent if _intent in ["Hunt", "Siege", "Ward"] else _draft_combat.get("action", "")
+	var selected: Button = action_zone.action_buttons.get(action)
+	if flow_support.visible and selected != null:
+		action_zone.action_box.move_child(flow_forecast, selected.get_index() + (0 if flow_forecast.get_index() < selected.get_index() else 1))
+		flow_forecast.text = Forecast.compact(forecast, action) if _draft_combat.get("action") == action else ""
+		if flow_forecast.text.is_empty(): flow_forecast.text = "Select cards and a target for visible offense / defense."
+		flow_forecast.tooltip_text = "Current visible board only. Hidden orders and later effects can change the result. Full calculation below."
+		flow_forecast.show()
+		action_zone.get_node("ActionScroll").call_deferred("ensure_control_visible", flow_forecast)
 	flow_fracture.visible = not mandatory and step == "Combat" and _draft_combat.get("action") == "Hunt"
 	flow_fracture.get_child(1).select(0 if fracture_choice == "infrastructure" else 1)
 	flow_back.visible = not mandatory and flow_step > 0

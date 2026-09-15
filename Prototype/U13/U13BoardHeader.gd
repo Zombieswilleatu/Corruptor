@@ -10,6 +10,7 @@ const LordPreview = preload("res://Prototype/U13/U13LordCardPreview.gd")
 var breach_preview
 var breach_art: TextureRect
 var scope: Label
+var veil_track: ProgressBar
 
 
 func _ready() -> void:
@@ -23,12 +24,37 @@ func _ready() -> void:
 	banner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var text := VBoxContainer.new()
 	text.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	text.offset_top = 20
-	text.offset_bottom = -16
+	text.offset_top = 8
+	text.offset_bottom = -8
+	text.offset_left = 20
+	text.offset_right = -20
+	text.add_theme_constant_override("separation", 3)
+	var backing := ColorRect.new()
+	backing.color = Color("121016ed")
+	backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	backing.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	backing.offset_left = 12
+	backing.offset_right = -12
+	backing.offset_top = 5
+	backing.offset_bottom = -5
+	banner.add_child(backing)
 	banner.add_child(text)
-	round_label = _label(text, "", 18)
-	veil_label = _label(text, "", 18)
-	scope = _label(text, "U13 · Gremory combat", 12)
+	round_label = _label(text, "", 14)
+	veil_label = _label(text, "", 22)
+	veil_track = ProgressBar.new()
+	veil_track.max_value = 26
+	veil_track.show_percentage = false
+	veil_track.custom_minimum_size.y = 8
+	veil_track.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var track := StyleBoxFlat.new()
+	track.bg_color = Color("302c37")
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = Color("bea3e3")
+	veil_track.add_theme_stylebox_override("background", track)
+	veil_track.add_theme_stylebox_override("fill", fill)
+	veil_track.hide()
+	text.add_child(veil_track)
+	scope = _label(text, "U13 · Gremory combat", 13)
 	scope.tooltip_text = "Siege, Ward and Lord powers are playable. Development, Hunt, normal draws, named Castle powers and victory are not connected yet."
 	var breach := VBoxContainer.new()
 	breach.custom_minimum_size.x = 94
@@ -91,11 +117,12 @@ func bind_world(world: Dictionary, round_number: int) -> void:
 	veil_label.text = "NEUTRAL TEARS  %d" % world.neutral_tears
 	for pid in [0, 1]:
 		scores[pid].text = (
-			"%s · %s\nSouls  %d\nHand  %d"
+			"%s · %s\nSouls  %d\nPersonal Tears  %d\nHand  %d"
 			% [
 				"YOU" if pid == 0 else "OPPONENT",
 				String(world.get("lord_ids", ["Gremory", "Gremory"])[pid]).to_upper(),
 				world.souls[pid],
+				world.get("personal_tears", [0, 0])[pid],
 				world.hand.size() if pid == 0 else world.opponent_hand_count
 			]
 		)

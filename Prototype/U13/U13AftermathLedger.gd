@@ -41,6 +41,9 @@ static func render(world: Dictionary, events: Array, round_number: int, before: 
 		var group: Dictionary = groups[pid if pid in [0, 1] else 2]
 		group[line] = int(group.get(line, 0)) + 1
 	var sections: PackedStringArray = []
+	var victory: Dictionary = world.get("victory", {})
+	if int(victory.get("winner", -1)) in [0, 1] and int(victory.get("checked_round", -1)) == round_number:
+		sections.append(result_summary(world, victory))
 	for pid in [0, 1]:
 		var lines: PackedStringArray = ["%s · %s" % ["YOU" if pid == 0 else "OPPONENT", world.get("lord_ids", ["", ""])[pid]]]
 		for key in ["souls", "personal_tears"]:
@@ -58,6 +61,21 @@ static func render(world: Dictionary, events: Array, round_number: int, before: 
 	append_rows(shared, groups[2])
 	sections.append("\n".join(shared))
 	return "\n\n".join(sections)
+
+static func result_summary(world: Dictionary, outcome: Dictionary) -> String:
+	var winner: int = int(outcome.get("winner", -1))
+	if winner not in [0, 1]: return ""
+	var method: String = outcome.get("win_by", "")
+	var title: String = "%s · %s" % ["VICTORY" if winner == 0 else "DEFEAT", method.capitalize()]
+	var lord: String = world.get("lord_ids", ["You", "Opponent"])[winner]
+	var tears: Array = world.get("personal_tears", [0, 0])
+	var souls: Array = world.get("souls", [0, 0])
+	var veil: int = int(world.get("veil_total", int(world.get("neutral_tears", 0)) + int(tears[0]) + int(tears[1])))
+	match method:
+		"Dominion": return "%s\n%s won with %d Personal Tears to %d. Veil reached %d.\nRequires Veil 12+, at least 5 Personal Tears and more than the opponent." % [title, lord, tears[winner], tears[1 - winner], veil]
+		"Ritual": return "%s\n%s won with %d Souls and their Lord present.\nRequires 12 Souls and a present Lord." % [title, lord, souls[winner]]
+		"FinalCollapse": return "%s\nVeil reached %d. %s won with %d Souls to %d.%s" % [title, veil, lord, souls[winner], souls[1 - winner], " Seat 0 wins a tied Soul count." if souls[0] == souls[1] else ""]
+	return title
 
 static func append_rows(lines: PackedStringArray, rows: Dictionary) -> void:
 	for line in rows:
