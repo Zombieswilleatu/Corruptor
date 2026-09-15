@@ -1,6 +1,6 @@
 """Physical card piles, round draws and Slaver choices (Godot U13 authority)."""
 
-from copy import deepcopy
+from .copying import copy_data
 
 from .primitives import draw as roll
 
@@ -91,13 +91,13 @@ def discard(world, pid, selected):
 
 
 def event(kind, data, text="", private=None, redact=()):
-    fact = {"type": kind, "text": text, "data": deepcopy(data)}
-    public = deepcopy(fact)
+    fact = {"type": kind, "text": text, "data": copy_data(data)}
+    public = copy_data(fact)
     for key in redact:
         public["data"].pop(key, None)
-    views = [deepcopy(public), deepcopy(public)]
+    views = [copy_data(public), copy_data(public)]
     if private is not None:
-        views[private] = deepcopy(fact)
+        views[private] = copy_data(fact)
     return {"event": fact, "views": views}
 
 

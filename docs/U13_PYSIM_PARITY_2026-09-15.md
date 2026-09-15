@@ -14,6 +14,9 @@ Guard deployment and Work/pairs, with Windows 4.7.2 acceptance passed at clean
 evidence corruptions. The separate Windows timing probe measured 31.35 ms mean
 per opening-through-Development cycle; it is not a full-match speed measurement.
 Subsequent game resolution remains unimplemented in Python.
+The [copying optimization](U13_PYSIM_COPYING_2026-09-15.md) is now implemented
+with a same-machine partial comparison (36.02 to 10.08 ms); its combined
+planning/Development Windows gate is pending. It changes no parity boundary.
 This document retains the initial inventory and subsequent implementation
 boundaries. The [accepted checkpoint](U13_ACCEPTED_CHECKPOINT_2026-09-15.md) clears
 the pending mechanics-validation bookmark.

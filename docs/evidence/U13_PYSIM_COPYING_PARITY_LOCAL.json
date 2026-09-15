@@ -1,0 +1,69 @@
+{
+  "schema": "U13_PYSIM_COPYING_PARITY_LOCAL_V1",
+  "diagnostic_only": true,
+  "windows_acceptance": "pending",
+  "source_revision": "1fc29d78b1650084f3d462883ffdfbd144c76de4",
+  "source_sha256": "88547dc7c9c86c9265ca4a4a50007af1ab319c081492ef0186be7516e097b859",
+  "source_worktree": "pre-commit optimized changes",
+  "python_tests": 27,
+  "suites": {
+    "planning": {
+      "godot_checks": 429,
+      "godot_failures": 0,
+      "python_summary": {
+        "python_mirror": "U13_PYSIM_PLANNING_V1",
+        "source_revision": "1fc29d78b1650084f3d462883ffdfbd144c76de4",
+        "source_sha256": "88547dc7c9c86c9265ca4a4a50007af1ab319c081492ef0186be7516e097b859",
+        "runtime": "4.5.1-stable (official)",
+        "diagnostic_only": true,
+        "planning_games_matched": 9,
+        "full_game_snapshots_matched": 231,
+        "game_operations_matched": 222,
+        "rejected_operations_matched": 140,
+        "economy_component_operations_matched": 21,
+        "timeline_operations_matched": 52,
+        "game_hooks_implemented": [
+          "round_start_scheduled",
+          "persistent_advancement",
+          "round_start_automatic",
+          "present_public_state",
+          "submission_lock"
+        ],
+        "python_full_round_parity": false,
+        "failures": 0,
+        "deliberate_mismatches_rejected": 11
+      },
+      "trace_sha256": "69db4164954ab1eb21fc17497ae39c5f78ed1ff24f852fee7e5bf32e57e67644"
+    },
+    "development": {
+      "godot_checks": 497,
+      "godot_failures": 0,
+      "python_summary": {
+        "python_mirror": "U13_PYSIM_DEVELOPMENT_V1",
+        "source_revision": "1fc29d78b1650084f3d462883ffdfbd144c76de4",
+        "source_sha256": "88547dc7c9c86c9265ca4a4a50007af1ab319c081492ef0186be7516e097b859",
+        "runtime": "4.5.1-stable (official)",
+        "diagnostic_only": true,
+        "development_games_matched": 9,
+        "full_game_snapshots_matched": 90,
+        "game_operations_matched": 81,
+        "component_operations_matched": 217,
+        "component_fixture_operations": 106,
+        "rejected_component_operations_matched": 7,
+        "game_hooks_implemented": [
+          "round_start_scheduled",
+          "persistent_advancement",
+          "round_start_automatic",
+          "present_public_state",
+          "submission_lock",
+          "development"
+        ],
+        "python_full_round_parity": false,
+        "python_full_match_parity": false,
+        "failures": 0,
+        "deliberate_mismatches_rejected": 14
+      },
+      "trace_sha256": "08540a4d3054e57c55580fb2ba1c4e02e0c7eea44c94647dbbca629766d505e6"
+    }
+  }
+}

@@ -1,0 +1,922 @@
+{
+  "schema": "U13_PYSIM_COPYING_BENCHMARK_V1",
+  "source_revision": "1fc29d78b1650084f3d462883ffdfbd144c76de4",
+  "source_sha256": "88547dc7c9c86c9265ca4a4a50007af1ab319c081492ef0186be7516e097b859",
+  "baseline_revision": "1fc29d78b1650084f3d462883ffdfbd144c76de4",
+  "baseline_source_sha256": "73072edd9ea35c3d50edef2cdcc85adaafbf48490f9801a959bf973679c8d089",
+  "scope": "opening through first Development; not full-round or full-match throughput",
+  "block_order": [
+    "baseline",
+    "current",
+    "current",
+    "baseline"
+  ],
+  "workers": 1,
+  "same_python_executable": true,
+  "shared_source_sha256": {
+    "Scripts/Sim/u13_pysim/benchmark_development.py": "12a744083c55416ad4584aab3ca670a70934a97b59b12d48e792eaa37eda9075",
+    "Scripts/Sim/u13_pysim/development_fixtures.py": "defa09f312b15788414f3c04b39c7fc6ac5810d7cf8ca829061627ba90153ca4"
+  },
+  "input_sha256": "d9eac2bfaa0f6b1edd7743f0f90162f31b09b3fcb8d6b8d52ef159a33918bc60",
+  "exact_result_sha256": "b4297d60573538ef0bb5e39f572ac4e774609bc6acb86f58e21036950cd9b74d",
+  "exact_results_match": true,
+  "summary": {
+    "baseline": {
+      "measured_cycles": 270,
+      "warmup_cycles": 18,
+      "mean_wall_ms": 36.02411803333334,
+      "measured_wall_seconds": 9.726511869000001,
+      "mean_cpu_ms": 36.0365459925926,
+      "measured_cpu_seconds": 9.729867418000001,
+      "phase_mean_wall_ms": {
+        "opening": 2.802613074074074,
+        "upkeep_and_choices": 19.970754240740742,
+        "submission_and_lock": 7.808418588888889,
+        "development": 5.44233212962963
+      }
+    },
+    "current": {
+      "measured_cycles": 270,
+      "warmup_cycles": 18,
+      "mean_wall_ms": 10.080163203703703,
+      "measured_wall_seconds": 2.721644065,
+      "mean_cpu_ms": 10.084485759259259,
+      "measured_cpu_seconds": 2.722811155,
+      "phase_mean_wall_ms": {
+        "opening": 2.2318978,
+        "upkeep_and_choices": 5.478919366666667,
+        "submission_and_lock": 1.4171972851851853,
+        "development": 0.952148751851852
+      }
+    }
+  },
+  "mean_wall_speedup": 3.573763371221726,
+  "mean_wall_reduction_percent": 72.0182928715244,
+  "blocks": [
+    {
+      "implementation": "baseline",
+      "report": {
+        "schema": "U13_PYSIM_DEVELOPMENT_TIMING_V1",
+        "python_mirror": "U13_PYSIM_DEVELOPMENT_V1",
+        "source_revision": "1fc29d78b1650084f3d462883ffdfbd144c76de4",
+        "source_sha256": "73072edd9ea35c3d50edef2cdcc85adaafbf48490f9801a959bf973679c8d089",
+        "python": "3.12.14",
+        "python_implementation": "CPython",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+        "machine": "x86_64",
+        "processor": "x86_64",
+        "logical_cpus": 9,
+        "workers": 1,
+        "warmup_cycles": 9,
+        "measured_cycles": 135,
+        "iterations_per_setup": 15,
+        "scope": "fresh opening through first Development; six hooks; not a full round or match",
+        "includes": [
+          "opening RNG and setup",
+          "engine transaction copies",
+          "upkeep and Slaver passes",
+          "sealed submissions and lock",
+          "two deployed pairs and Work",
+          "engine events",
+          "small timing bookkeeping overhead"
+        ],
+        "excludes": [
+          "input selection and doctrine",
+          "Godot execution",
+          "trace encoding or decoding",
+          "external snapshots and exact comparisons",
+          "artillery and combat",
+          "Marching",
+          "later rounds and Lord effects",
+          "victory",
+          "worker scaling"
+        ],
+        "wall_cycle": {
+          "samples": 135,
+          "mean_ms": 36.567519725925926,
+          "median_ms": 34.595575,
+          "p95_ms": 44.911802,
+          "min_ms": 31.24748,
+          "max_ms": 58.330639
+        },
+        "cpu_cycle": {
+          "samples": 135,
+          "mean_ms": 36.565022911111114,
+          "median_ms": 34.596716,
+          "p95_ms": 44.919559,
+          "min_ms": 31.253052,
+          "max_ms": 58.338081
+        },
+        "phase_wall": {
+          "opening": {
+            "samples": 135,
+            "mean_ms": 2.8437477555555555,
+            "median_ms": 2.588475,
+            "p95_ms": 4.622375,
+            "min_ms": 2.416931,
+            "max_ms": 5.860796
+          },
+          "upkeep_and_choices": {
+            "samples": 135,
+            "mean_ms": 20.30519348148148,
+            "median_ms": 18.874509,
+            "p95_ms": 26.993341,
+            "min_ms": 17.282866,
+            "max_ms": 31.057663
+          },
+          "submission_and_lock": {
+            "samples": 135,
+            "mean_ms": 7.919943481481481,
+            "median_ms": 7.405944,
+            "p95_ms": 10.699776,
+            "min_ms": 6.82036,
+            "max_ms": 20.027162
+          },
+          "development": {
+            "samples": 135,
+            "mean_ms": 5.498635007407407,
+            "median_ms": 5.082639,
+            "p95_ms": 8.423711,
+            "min_ms": 4.682704,
+            "max_ms": 10.705626
+          }
+        },
+        "measured_wall_seconds": 4.936615163000001,
+        "measured_cpu_seconds": 4.936278093,
+        "python_full_match_implemented": false,
+        "full_match_games_per_second": null,
+        "full_match_50000_wall_seconds": null,
+        "input_sha256": "d9eac2bfaa0f6b1edd7743f0f90162f31b09b3fcb8d6b8d52ef159a33918bc60",
+        "exact_result_sha256": "b4297d60573538ef0bb5e39f572ac4e774609bc6acb86f58e21036950cd9b74d"
+      }
+    },
+    {
+      "implementation": "current",
+      "report": {
+        "schema": "U13_PYSIM_DEVELOPMENT_TIMING_V1",
+        "python_mirror": "U13_PYSIM_DEVELOPMENT_V1",
+        "source_revision": "1fc29d78b1650084f3d462883ffdfbd144c76de4",
+        "source_sha256": "88547dc7c9c86c9265ca4a4a50007af1ab319c081492ef0186be7516e097b859",
+        "python": "3.12.14",
+        "python_implementation": "CPython",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+        "machine": "x86_64",
+        "processor": "x86_64",
+        "logical_cpus": 9,
+        "workers": 1,
+        "warmup_cycles": 9,
+        "measured_cycles": 135,
+        "iterations_per_setup": 15,
+        "scope": "fresh opening through first Development; six hooks; not a full round or match",
+        "includes": [
+          "opening RNG and setup",
+          "engine transaction copies",
+          "upkeep and Slaver passes",
+          "sealed submissions and lock",
+          "two deployed pairs and Work",
+          "engine events",
+          "small timing bookkeeping overhead"
+        ],
+        "excludes": [
+          "input selection and doctrine",
+          "Godot execution",
+          "trace encoding or decoding",
+          "external snapshots and exact comparisons",
+          "artillery and combat",
+          "Marching",
+          "later rounds and Lord effects",
+          "victory",
+          "worker scaling"
+        ],
+        "wall_cycle": {
+          "samples": 135,
+          "mean_ms": 10.346712540740741,
+          "median_ms": 9.51512,
+          "p95_ms": 15.437246,
+          "min_ms": 8.582873,
+          "max_ms": 17.53973
+        },
+        "cpu_cycle": {
+          "samples": 135,
+          "mean_ms": 10.351509422222222,
+          "median_ms": 9.52019,
+          "p95_ms": 15.442897,
+          "min_ms": 8.585612,
+          "max_ms": 17.533615
+        },
+        "phase_wall": {
+          "opening": {
+            "samples": 135,
+            "mean_ms": 2.2747015555555556,
+            "median_ms": 2.051191,
+            "p95_ms": 3.563057,
+            "min_ms": 1.935156,
+            "max_ms": 5.196098
+          },
+          "upkeep_and_choices": {
+            "samples": 135,
+            "mean_ms": 5.673439192592593,
+            "median_ms": 5.081633,
+            "p95_ms": 8.583918,
+            "min_ms": 4.640733,
+            "max_ms": 12.262343
+          },
+          "submission_and_lock": {
+            "samples": 135,
+            "mean_ms": 1.4193833111111112,
+            "median_ms": 1.312934,
+            "p95_ms": 1.812726,
+            "min_ms": 1.218043,
+            "max_ms": 3.943591
+          },
+          "development": {
+            "samples": 135,
+            "mean_ms": 0.9791884814814815,
+            "median_ms": 0.865807,
+            "p95_ms": 1.240511,
+            "min_ms": 0.752965,
+            "max_ms": 4.004906
+          }
+        },
+        "measured_wall_seconds": 1.396806193,
+        "measured_cpu_seconds": 1.397453772,
+        "python_full_match_implemented": false,
+        "full_match_games_per_second": null,
+        "full_match_50000_wall_seconds": null,
+        "input_sha256": "d9eac2bfaa0f6b1edd7743f0f90162f31b09b3fcb8d6b8d52ef159a33918bc60",
+        "exact_result_sha256": "b4297d60573538ef0bb5e39f572ac4e774609bc6acb86f58e21036950cd9b74d"
+      }
+    },
+    {
+      "implementation": "current",
+      "report": {
+        "schema": "U13_PYSIM_DEVELOPMENT_TIMING_V1",
+        "python_mirror": "U13_PYSIM_DEVELOPMENT_V1",
+        "source_revision": "1fc29d78b1650084f3d462883ffdfbd144c76de4",
+        "source_sha256": "88547dc7c9c86c9265ca4a4a50007af1ab319c081492ef0186be7516e097b859",
+        "python": "3.12.14",
+        "python_implementation": "CPython",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+        "machine": "x86_64",
+        "processor": "x86_64",
+        "logical_cpus": 9,
+        "workers": 1,
+        "warmup_cycles": 9,
+        "measured_cycles": 135,
+        "iterations_per_setup": 15,
+        "scope": "fresh opening through first Development; six hooks; not a full round or match",
+        "includes": [
+          "opening RNG and setup",
+          "engine transaction copies",
+          "upkeep and Slaver passes",
+          "sealed submissions and lock",
+          "two deployed pairs and Work",
+          "engine events",
+          "small timing bookkeeping overhead"
+        ],
+        "excludes": [
+          "input selection and doctrine",
+          "Godot execution",
+          "trace encoding or decoding",
+          "external snapshots and exact comparisons",
+          "artillery and combat",
+          "Marching",
+          "later rounds and Lord effects",
+          "victory",
+          "worker scaling"
+        ],
+        "wall_cycle": {
+          "samples": 135,
+          "mean_ms": 9.813613866666667,
+          "median_ms": 9.105765,
+          "p95_ms": 13.298553,
+          "min_ms": 8.56631,
+          "max_ms": 16.504411
+        },
+        "cpu_cycle": {
+          "samples": 135,
+          "mean_ms": 9.817462096296296,
+          "median_ms": 9.110556,
+          "p95_ms": 13.306273,
+          "min_ms": 8.568966,
+          "max_ms": 16.51194
+        },
+        "phase_wall": {
+          "opening": {
+            "samples": 135,
+            "mean_ms": 2.1890940444444444,
+            "median_ms": 2.009325,
+            "p95_ms": 3.147797,
+            "min_ms": 1.935285,
+            "max_ms": 6.20028
+          },
+          "upkeep_and_choices": {
+            "samples": 135,
+            "mean_ms": 5.284399540740741,
+            "median_ms": 4.870988,
+            "p95_ms": 7.094108,
+            "min_ms": 4.614418,
+            "max_ms": 11.201358
+          },
+          "submission_and_lock": {
+            "samples": 135,
+            "mean_ms": 1.4150112592592592,
+            "median_ms": 1.283044,
+            "p95_ms": 2.122561,
+            "min_ms": 1.211271,
+            "max_ms": 4.431263
+          },
+          "development": {
+            "samples": 135,
+            "mean_ms": 0.9251090222222222,
+            "median_ms": 0.849884,
+            "p95_ms": 1.140351,
+            "min_ms": 0.753398,
+            "max_ms": 4.635859
+          }
+        },
+        "measured_wall_seconds": 1.324837872,
+        "measured_cpu_seconds": 1.325357383,
+        "python_full_match_implemented": false,
+        "full_match_games_per_second": null,
+        "full_match_50000_wall_seconds": null,
+        "input_sha256": "d9eac2bfaa0f6b1edd7743f0f90162f31b09b3fcb8d6b8d52ef159a33918bc60",
+        "exact_result_sha256": "b4297d60573538ef0bb5e39f572ac4e774609bc6acb86f58e21036950cd9b74d"
+      }
+    },
+    {
+      "implementation": "baseline",
+      "report": {
+        "schema": "U13_PYSIM_DEVELOPMENT_TIMING_V1",
+        "python_mirror": "U13_PYSIM_DEVELOPMENT_V1",
+        "source_revision": "1fc29d78b1650084f3d462883ffdfbd144c76de4",
+        "source_sha256": "73072edd9ea35c3d50edef2cdcc85adaafbf48490f9801a959bf973679c8d089",
+        "python": "3.12.14",
+        "python_implementation": "CPython",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+        "machine": "x86_64",
+        "processor": "x86_64",
+        "logical_cpus": 9,
+        "workers": 1,
+        "warmup_cycles": 9,
+        "measured_cycles": 135,
+        "iterations_per_setup": 15,
+        "scope": "fresh opening through first Development; six hooks; not a full round or match",
+        "includes": [
+          "opening RNG and setup",
+          "engine transaction copies",
+          "upkeep and Slaver passes",
+          "sealed submissions and lock",
+          "two deployed pairs and Work",
+          "engine events",
+          "small timing bookkeeping overhead"
+        ],
+        "excludes": [
+          "input selection and doctrine",
+          "Godot execution",
+          "trace encoding or decoding",
+          "external snapshots and exact comparisons",
+          "artillery and combat",
+          "Marching",
+          "later rounds and Lord effects",
+          "victory",
+          "worker scaling"
+        ],
+        "wall_cycle": {
+          "samples": 135,
+          "mean_ms": 35.48071634074074,
+          "median_ms": 34.377694,
+          "p95_ms": 43.854842,
+          "min_ms": 31.325615,
+          "max_ms": 53.578372
+        },
+        "cpu_cycle": {
+          "samples": 135,
+          "mean_ms": 35.50806907407407,
+          "median_ms": 34.385398,
+          "p95_ms": 43.862913,
+          "min_ms": 31.334868,
+          "max_ms": 53.586254
+        },
+        "phase_wall": {
+          "opening": {
+            "samples": 135,
+            "mean_ms": 2.7614783925925925,
+            "median_ms": 2.569369,
+            "p95_ms": 4.457693,
+            "min_ms": 2.408002,
+            "max_ms": 5.037926
+          },
+          "upkeep_and_choices": {
+            "samples": 135,
+            "mean_ms": 19.636315,
+            "median_ms": 18.67704,
+            "p95_ms": 24.999025,
+            "min_ms": 17.237951,
+            "max_ms": 34.820482
+          },
+          "submission_and_lock": {
+            "samples": 135,
+            "mean_ms": 7.696893696296296,
+            "median_ms": 7.282494,
+            "p95_ms": 10.708742,
+            "min_ms": 6.815684,
+            "max_ms": 13.521333
+          },
+          "development": {
+            "samples": 135,
+            "mean_ms": 5.386029251851852,
+            "median_ms": 5.011474,
+            "p95_ms": 7.651359,
+            "min_ms": 4.665909,
+            "max_ms": 11.837694
+          }
+        },
+        "measured_wall_seconds": 4.789896706,
+        "measured_cpu_seconds": 4.793589325,
+        "python_full_match_implemented": false,
+        "full_match_games_per_second": null,
+        "full_match_50000_wall_seconds": null,
+        "input_sha256": "d9eac2bfaa0f6b1edd7743f0f90162f31b09b3fcb8d6b8d52ef159a33918bc60",
+        "exact_result_sha256": "b4297d60573538ef0bb5e39f572ac4e774609bc6acb86f58e21036950cd9b74d"
+      }
+    }
+  ],
+  "separate_profiles": [
+    {
+      "implementation": "baseline",
+      "report": {
+        "schema": "U13_PYSIM_DEVELOPMENT_TIMING_V1",
+        "python_mirror": "U13_PYSIM_DEVELOPMENT_V1",
+        "source_revision": "1fc29d78b1650084f3d462883ffdfbd144c76de4",
+        "source_sha256": "73072edd9ea35c3d50edef2cdcc85adaafbf48490f9801a959bf973679c8d089",
+        "python": "3.12.14",
+        "python_implementation": "CPython",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+        "machine": "x86_64",
+        "processor": "x86_64",
+        "logical_cpus": 9,
+        "workers": 1,
+        "warmup_cycles": 9,
+        "measured_cycles": 9,
+        "iterations_per_setup": 1,
+        "scope": "fresh opening through first Development; six hooks; not a full round or match",
+        "includes": [
+          "opening RNG and setup",
+          "engine transaction copies",
+          "upkeep and Slaver passes",
+          "sealed submissions and lock",
+          "two deployed pairs and Work",
+          "engine events",
+          "small timing bookkeeping overhead"
+        ],
+        "excludes": [
+          "input selection and doctrine",
+          "Godot execution",
+          "trace encoding or decoding",
+          "external snapshots and exact comparisons",
+          "artillery and combat",
+          "Marching",
+          "later rounds and Lord effects",
+          "victory",
+          "worker scaling"
+        ],
+        "wall_cycle": {
+          "samples": 9,
+          "mean_ms": 209.950664,
+          "median_ms": 209.142859,
+          "p95_ms": 226.468799,
+          "min_ms": 196.119387,
+          "max_ms": 226.468799
+        },
+        "cpu_cycle": {
+          "samples": 9,
+          "mean_ms": 209.88914177777778,
+          "median_ms": 209.137739,
+          "p95_ms": 226.318451,
+          "min_ms": 195.796898,
+          "max_ms": 226.318451
+        },
+        "phase_wall": {
+          "opening": {
+            "samples": 9,
+            "mean_ms": 14.372478222222222,
+            "median_ms": 12.600419,
+            "p95_ms": 20.459666,
+            "min_ms": 12.213779,
+            "max_ms": 20.459666
+          },
+          "upkeep_and_choices": {
+            "samples": 9,
+            "mean_ms": 118.67787844444445,
+            "median_ms": 111.721993,
+            "p95_ms": 139.680063,
+            "min_ms": 107.226491,
+            "max_ms": 139.680063
+          },
+          "submission_and_lock": {
+            "samples": 9,
+            "mean_ms": 45.47879811111111,
+            "median_ms": 44.761558,
+            "p95_ms": 49.440029,
+            "min_ms": 43.904436,
+            "max_ms": 49.440029
+          },
+          "development": {
+            "samples": 9,
+            "mean_ms": 31.421509222222223,
+            "median_ms": 30.10766,
+            "p95_ms": 37.95753,
+            "min_ms": 29.270916,
+            "max_ms": 37.95753
+          }
+        },
+        "measured_wall_seconds": 1.889555976,
+        "measured_cpu_seconds": 1.889002276,
+        "python_full_match_implemented": false,
+        "full_match_games_per_second": null,
+        "full_match_50000_wall_seconds": null,
+        "input_sha256": "d9eac2bfaa0f6b1edd7743f0f90162f31b09b3fcb8d6b8d52ef159a33918bc60",
+        "exact_result_sha256": "b4297d60573538ef0bb5e39f572ac4e774609bc6acb86f58e21036950cd9b74d",
+        "profile_scope": "instrumented run including input preparation and warmups; not throughput",
+        "profile_top": [
+          {
+            "file": "benchmark_development.py",
+            "line": 23,
+            "function": "run",
+            "primitive_calls": 1,
+            "total_calls": 1,
+            "exclusive_seconds": 0.001499225,
+            "cumulative_seconds": 4.882247121000001
+          },
+          {
+            "file": "copy.py",
+            "line": 118,
+            "function": "deepcopy",
+            "primitive_calls": 6090,
+            "total_calls": 1893463,
+            "exclusive_seconds": 2.188724481,
+            "cumulative_seconds": 4.506162311000001
+          },
+          {
+            "file": "copy.py",
+            "line": 217,
+            "function": "_deepcopy_dict",
+            "primitive_calls": 6648,
+            "total_calls": 179408,
+            "exclusive_seconds": 0.6869123570000001,
+            "cumulative_seconds": 4.467388477
+          },
+          {
+            "file": "planning.py",
+            "line": 33,
+            "function": "apply",
+            "primitive_calls": 216,
+            "total_calls": 216,
+            "exclusive_seconds": 0.005908163,
+            "cumulative_seconds": 4.425543934
+          },
+          {
+            "file": "planning.py",
+            "line": 25,
+            "function": "snapshot",
+            "primitive_calls": 360,
+            "total_calls": 360,
+            "exclusive_seconds": 0.003004328,
+            "cumulative_seconds": 3.722064162
+          },
+          {
+            "file": "copy.py",
+            "line": 191,
+            "function": "_deepcopy_list",
+            "primitive_calls": 40860,
+            "total_calls": 54371,
+            "exclusive_seconds": 0.15677954500000002,
+            "cumulative_seconds": 3.70671708
+          },
+          {
+            "file": "benchmark_development.py",
+            "line": 33,
+            "function": "cycle",
+            "primitive_calls": 18,
+            "total_calls": 18,
+            "exclusive_seconds": 0.0069157210000000005,
+            "cumulative_seconds": 3.663753814
+          },
+          {
+            "file": "planning.py",
+            "line": 47,
+            "function": "_apply",
+            "primitive_calls": 216,
+            "total_calls": 216,
+            "exclusive_seconds": 0.0026984490000000003,
+            "cumulative_seconds": 2.1183611520000003
+          },
+          {
+            "file": "development_fixtures.py",
+            "line": 33,
+            "function": "scripted_operations",
+            "primitive_calls": 9,
+            "total_calls": 9,
+            "exclusive_seconds": 0.000460699,
+            "cumulative_seconds": 1.1366160920000001
+          },
+          {
+            "file": "development_fixtures.py",
+            "line": 37,
+            "function": "apply",
+            "primitive_calls": 54,
+            "total_calls": 54,
+            "exclusive_seconds": 0.0017674320000000002,
+            "cumulative_seconds": 1.0150638
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'get' of 'dict' objects>",
+            "primitive_calls": 3830764,
+            "total_calls": 3830764,
+            "exclusive_seconds": 0.6802530750000001,
+            "cumulative_seconds": 0.6802530750000001
+          },
+          {
+            "file": "development.py",
+            "line": 168,
+            "function": "_hook",
+            "primitive_calls": 144,
+            "total_calls": 144,
+            "exclusive_seconds": 0.0011512480000000001,
+            "cumulative_seconds": 0.442673582
+          },
+          {
+            "file": "planning.py",
+            "line": 20,
+            "function": "__init__",
+            "primitive_calls": 27,
+            "total_calls": 27,
+            "exclusive_seconds": 0.00015931700000000002,
+            "cumulative_seconds": 0.36448251000000004
+          },
+          {
+            "file": "opening.py",
+            "line": 174,
+            "function": "snapshot",
+            "primitive_calls": 27,
+            "total_calls": 27,
+            "exclusive_seconds": 0.00066845,
+            "cumulative_seconds": 0.36420492400000004
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<built-in method builtins.id>",
+            "primitive_calls": 2367543,
+            "total_calls": 2367543,
+            "exclusive_seconds": 0.34933364100000003,
+            "cumulative_seconds": 0.34933364100000003
+          }
+        ]
+      }
+    },
+    {
+      "implementation": "current",
+      "report": {
+        "schema": "U13_PYSIM_DEVELOPMENT_TIMING_V1",
+        "python_mirror": "U13_PYSIM_DEVELOPMENT_V1",
+        "source_revision": "1fc29d78b1650084f3d462883ffdfbd144c76de4",
+        "source_sha256": "88547dc7c9c86c9265ca4a4a50007af1ab319c081492ef0186be7516e097b859",
+        "python": "3.12.14",
+        "python_implementation": "CPython",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+        "machine": "x86_64",
+        "processor": "x86_64",
+        "logical_cpus": 9,
+        "workers": 1,
+        "warmup_cycles": 9,
+        "measured_cycles": 9,
+        "iterations_per_setup": 1,
+        "scope": "fresh opening through first Development; six hooks; not a full round or match",
+        "includes": [
+          "opening RNG and setup",
+          "engine transaction copies",
+          "upkeep and Slaver passes",
+          "sealed submissions and lock",
+          "two deployed pairs and Work",
+          "engine events",
+          "small timing bookkeeping overhead"
+        ],
+        "excludes": [
+          "input selection and doctrine",
+          "Godot execution",
+          "trace encoding or decoding",
+          "external snapshots and exact comparisons",
+          "artillery and combat",
+          "Marching",
+          "later rounds and Lord effects",
+          "victory",
+          "worker scaling"
+        ],
+        "wall_cycle": {
+          "samples": 9,
+          "mean_ms": 31.975937666666667,
+          "median_ms": 31.392741,
+          "p95_ms": 36.182897,
+          "min_ms": 30.445835,
+          "max_ms": 36.182897
+        },
+        "cpu_cycle": {
+          "samples": 9,
+          "mean_ms": 31.984021555555557,
+          "median_ms": 31.402713,
+          "p95_ms": 36.193897,
+          "min_ms": 30.455541,
+          "max_ms": 36.193897
+        },
+        "phase_wall": {
+          "opening": {
+            "samples": 9,
+            "mean_ms": 9.214464333333334,
+            "median_ms": 8.654563,
+            "p95_ms": 13.300953,
+            "min_ms": 8.555721,
+            "max_ms": 13.300953
+          },
+          "upkeep_and_choices": {
+            "samples": 9,
+            "mean_ms": 15.324704222222222,
+            "median_ms": 15.28294,
+            "p95_ms": 16.675154,
+            "min_ms": 14.768035,
+            "max_ms": 16.675154
+          },
+          "submission_and_lock": {
+            "samples": 9,
+            "mean_ms": 4.639547222222222,
+            "median_ms": 4.550412,
+            "p95_ms": 4.905952,
+            "min_ms": 4.468734,
+            "max_ms": 4.905952
+          },
+          "development": {
+            "samples": 9,
+            "mean_ms": 2.7972218888888887,
+            "median_ms": 2.738736,
+            "p95_ms": 3.103936,
+            "min_ms": 2.653345,
+            "max_ms": 3.103936
+          }
+        },
+        "measured_wall_seconds": 0.287783439,
+        "measured_cpu_seconds": 0.287856194,
+        "python_full_match_implemented": false,
+        "full_match_games_per_second": null,
+        "full_match_50000_wall_seconds": null,
+        "input_sha256": "d9eac2bfaa0f6b1edd7743f0f90162f31b09b3fcb8d6b8d52ef159a33918bc60",
+        "exact_result_sha256": "b4297d60573538ef0bb5e39f572ac4e774609bc6acb86f58e21036950cd9b74d",
+        "profile_scope": "instrumented run including input preparation and warmups; not throughput",
+        "profile_top": [
+          {
+            "file": "benchmark_development.py",
+            "line": 23,
+            "function": "run",
+            "primitive_calls": 1,
+            "total_calls": 1,
+            "exclusive_seconds": 0.0012665970000000002,
+            "cumulative_seconds": 0.8881059440000001
+          },
+          {
+            "file": "benchmark_development.py",
+            "line": 33,
+            "function": "cycle",
+            "primitive_calls": 18,
+            "total_calls": 18,
+            "exclusive_seconds": 0.005227722000000001,
+            "cumulative_seconds": 0.620298739
+          },
+          {
+            "file": "planning.py",
+            "line": 34,
+            "function": "apply",
+            "primitive_calls": 216,
+            "total_calls": 216,
+            "exclusive_seconds": 0.0009923240000000002,
+            "cumulative_seconds": 0.5878734800000001
+          },
+          {
+            "file": "copying.py",
+            "line": 12,
+            "function": "copy_data",
+            "primitive_calls": 2868,
+            "total_calls": 2868,
+            "exclusive_seconds": 0.0027450210000000003,
+            "cumulative_seconds": 0.423345267
+          },
+          {
+            "file": "copying.py",
+            "line": 16,
+            "function": "_clone",
+            "primitive_calls": 2868,
+            "total_calls": 135795,
+            "exclusive_seconds": 0.34391335700000003,
+            "cumulative_seconds": 0.420600246
+          },
+          {
+            "file": "planning.py",
+            "line": 26,
+            "function": "snapshot",
+            "primitive_calls": 216,
+            "total_calls": 216,
+            "exclusive_seconds": 0.000164002,
+            "cumulative_seconds": 0.36363304100000005
+          },
+          {
+            "file": "planning.py",
+            "line": 21,
+            "function": "__init__",
+            "primitive_calls": 27,
+            "total_calls": 27,
+            "exclusive_seconds": 0.00017010900000000002,
+            "cumulative_seconds": 0.26290725400000003
+          },
+          {
+            "file": "opening.py",
+            "line": 174,
+            "function": "snapshot",
+            "primitive_calls": 27,
+            "total_calls": 27,
+            "exclusive_seconds": 0.000617268,
+            "cumulative_seconds": 0.262641642
+          },
+          {
+            "file": "opening.py",
+            "line": 85,
+            "function": "world",
+            "primitive_calls": 27,
+            "total_calls": 27,
+            "exclusive_seconds": 0.006947001,
+            "cumulative_seconds": 0.240940916
+          },
+          {
+            "file": "development_fixtures.py",
+            "line": 33,
+            "function": "scripted_operations",
+            "primitive_calls": 9,
+            "total_calls": 9,
+            "exclusive_seconds": 0.00038978900000000003,
+            "cumulative_seconds": 0.23922395700000001
+          },
+          {
+            "file": "planning.py",
+            "line": 48,
+            "function": "_apply",
+            "primitive_calls": 216,
+            "total_calls": 216,
+            "exclusive_seconds": 0.001864413,
+            "cumulative_seconds": 0.16277918400000002
+          },
+          {
+            "file": "copy.py",
+            "line": 118,
+            "function": "deepcopy",
+            "primitive_calls": 2664,
+            "total_calls": 57324,
+            "exclusive_seconds": 0.072612066,
+            "cumulative_seconds": 0.15414127400000002
+          },
+          {
+            "file": "development_fixtures.py",
+            "line": 37,
+            "function": "apply",
+            "primitive_calls": 54,
+            "total_calls": 54,
+            "exclusive_seconds": 0.00165255,
+            "cumulative_seconds": 0.152732485
+          },
+          {
+            "file": "development.py",
+            "line": 175,
+            "function": "_hook",
+            "primitive_calls": 144,
+            "total_calls": 144,
+            "exclusive_seconds": 0.000591852,
+            "cumulative_seconds": 0.148346148
+          },
+          {
+            "file": "planning.py",
+            "line": 207,
+            "function": "_hook",
+            "primitive_calls": 126,
+            "total_calls": 126,
+            "exclusive_seconds": 0.001621955,
+            "cumulative_seconds": 0.13952624200000002
+          }
+        ]
+      }
+    }
+  ],
+  "full_match_games_per_second": null,
+  "full_match_50000_wall_seconds": null,
+  "diagnostic_only": true,
+  "windows_acceptance": "pending",
+  "source_worktree": "pre-commit optimized changes based on source_revision; baseline package is the clean pinned commit"
+}

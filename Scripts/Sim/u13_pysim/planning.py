@@ -8,6 +8,7 @@ resolve those orders. No expected Godot state is loaded into this match.
 from copy import deepcopy
 
 from . import economy as e, opening
+from .copying import copy_data
 from .primitives import normalize, instance_id, draw as roll
 from .timeline import Timeline
 
@@ -23,7 +24,7 @@ class PlanningMatch:
         self.clock.begin(1)
 
     def snapshot(self):
-        return deepcopy(self.state)
+        return copy_data(self.state)
 
     def outcome(self):
         victory = self.state["world"]["data"]["victory"]
@@ -34,7 +35,7 @@ class PlanningMatch:
         # Include clock, event rows and sealed slots in the transaction.
         before, clock = self.snapshot(), deepcopy(self.clock)
         try:
-            result = self._apply(operation)
+            result = self._apply(operation, before)
             self.state["runtime"] = self.clock.snapshot()
             return result
         except e.Rejected as error:
@@ -44,18 +45,19 @@ class PlanningMatch:
             self.state, self.clock = before, clock
             raise
 
-    def _apply(self, operation):
+    def _apply(self, operation, rollback_state):
         kind = operation.get("kind")
         if kind == "step":
             e.require(set(operation) == {"kind", "hook"} and operation["hook"] == self.clock.hook,
                       "trace_operation_invalid")
             if self.clock.index >= self.HOOK_LIMIT:
                 raise e.Unsupported("Python planning stops before " + self.clock.hook)
-            before = self.snapshot()
             try:
                 self._hook()
             except e.Rejected as error:
-                self.state = before
+                # Reuse the enclosing transaction's detached backup. The clock
+                # has not run yet; its rejection contract leaves it unchanged.
+                self.state = rollback_state
                 return self.clock.run(self.clock.hook, {"action": "invalid", "reason": str(error)})
             self.clock.run(self.clock.hook, {"action": "u13_dispatched"})
             return dict(action="u13_match_hook", next_hook=self.clock.hook, round=self.clock.round)
@@ -101,11 +103,11 @@ class PlanningMatch:
         except ValueError as error:
             raise e.Rejected("submission_data_invalid") from error
         # A validation preview does not pay, reserve or append events to live state.
-        self._accept_order(deepcopy(self.state["world"]), pid, order)
+        self._accept_order(self.state["world"], pid, order, reserve=False)
         self.state["submissions"][pid] = []
         self.state["combat_orders"][pid] = order
 
-    def _accept_order(self, w, pid, order):
+    def _accept_order(self, w, pid, order, reserve=True):
         d, z, number = w["data"], e.zones(w), self.clock.round
         if "summon" in order or order.get("rites"):
             raise e.Unsupported("Resummon and paid Rites are outside planning V1")
@@ -135,7 +137,7 @@ class PlanningMatch:
         for move in moves:
             e.require(move["card_id"] in z["hands"][pid] and move["card_id"] not in order.get("card_ids", [])
                       and move["card_id"] not in choice.get("card_ids", []), "guard_card_unavailable")
-        combat = {k: deepcopy(v) for k, v in order.items() if k not in ("guard_moves", "castle_action", "rites")}
+        combat = {k: v for k, v in order.items() if k not in ("guard_moves", "castle_action", "rites")}
         e.require(self._combat_shape(combat), "castle_order_invalid")
         if choice:
             e.require(choice["action"] == "Work" and choice["card_ids"] == []
@@ -146,15 +148,6 @@ class PlanningMatch:
                           and target["attributes"]["status"] not in ("profaned", "ruined")
                           and (target["attributes"]["integrity"] < target["attributes"]["max_integrity"]
                                or target["attributes"]["construction_state"] != "active"), "work_target_unavailable")
-        events = []
-        d["dominion_rites"]["orders"][pid] = dict(round=number, choice={})
-        d["summon_orders"][pid] = dict(round=number, choice={}, quote={"action": "legal"})
-        d["guard_orders"][pid] = dict(round=number, moves=deepcopy(moves))
-        if moves:
-            events.append(e.sealed_event("GUARDS_SEALED", dict(player_id=pid, round=number, moves=moves), pid))
-        d["castle_orders"][pid] = dict(round=number, choice=deepcopy(choice), paid_value=0, reconstruction=False)
-        if choice:
-            events.append(e.sealed_event("CASTLE_ACTION_SEALED", dict(player_id=pid, round=number, choice=choice), pid))
         if combat:
             action = combat["action"]
             target = e.entity(w, combat.get("target_id", ""))
@@ -170,6 +163,20 @@ class PlanningMatch:
                           and target["attributes"]["integrity"] == target["attributes"]["max_integrity"],
                           "profane_target_not_full_active_own_castle")
             e.require(e.selection(z["hands"][pid], combat["card_ids"]) and not z["committed"][pid], "combat_cards_unavailable")
+        # Preview and lock share all validation above. Only lock reserves cards,
+        # writes ledgers and emits events, so a preview needs no throwaway world.
+        if not reserve:
+            return []
+        events = []
+        d["dominion_rites"]["orders"][pid] = dict(round=number, choice={})
+        d["summon_orders"][pid] = dict(round=number, choice={}, quote={"action": "legal"})
+        d["guard_orders"][pid] = dict(round=number, moves=copy_data(moves))
+        if moves:
+            events.append(e.sealed_event("GUARDS_SEALED", dict(player_id=pid, round=number, moves=moves), pid))
+        d["castle_orders"][pid] = dict(round=number, choice=copy_data(choice), paid_value=0, reconstruction=False)
+        if choice:
+            events.append(e.sealed_event("CASTLE_ACTION_SEALED", dict(player_id=pid, round=number, choice=choice), pid))
+        if combat:
             for identity in combat["card_ids"]:
                 z["hands"][pid].remove(identity)
                 z["committed"][pid].append(identity)
@@ -259,7 +266,7 @@ class PlanningMatch:
             e.require(not d["game_economy"]["stockpile_pending"] and d["game_market"]["seat"] == 2,
                       "transform_contract_error")
             d["guard_public_round"] = number
-            self.state["presentation_world"] = deepcopy(w)
+            self.state["presentation_world"] = copy_data(w)
         elif hook == "submission_lock":
             e.require(all(x is not None for x in self.state["submissions"]), "both_submissions_required")
             for pid in self.state["player_order"]:

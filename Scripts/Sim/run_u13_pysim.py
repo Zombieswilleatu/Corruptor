@@ -5,6 +5,7 @@ import argparse
 import json
 from pathlib import Path
 import sys
+import subprocess
 import unittest
 
 from u13_pysim import codec
@@ -18,9 +19,14 @@ def main():
     commands.add_parser("self-test")
     commands.add_parser("self-test-planning")
     commands.add_parser("self-test-development")
+    commands.add_parser("self-test-copying")
     benchmark = commands.add_parser("benchmark-development")
     benchmark.add_argument("--iterations", type=int, default=30, help="Measured cycles per setup; nine setups")
     benchmark.add_argument("--report", type=Path)
+    copying = commands.add_parser("benchmark-copying")
+    copying.add_argument("--iterations", type=int, default=15, help="Cycles per setup per block; two blocks per implementation")
+    copying.add_argument("--no-profiles", action="store_true")
+    copying.add_argument("--report", type=Path)
     for command in ("verify", "verify-planning", "verify-development"):
         check = commands.add_parser(command)
         check.add_argument("trace", type=Path)
@@ -30,10 +36,12 @@ def main():
     root = Path(__file__).resolve().parents[2]
     if args.command.startswith("self-test"):
         modules = ["u13_pysim.test_foundation"]
-        if args.command in ("self-test-planning", "self-test-development"):
+        if args.command in ("self-test-planning", "self-test-development", "self-test-copying"):
             modules.append("u13_pysim.test_planning")
-        if args.command == "self-test-development":
+        if args.command in ("self-test-development", "self-test-copying"):
             modules.append("u13_pysim.test_development")
+        if args.command == "self-test-copying":
+            modules.append("u13_pysim.test_copying")
         tests = unittest.defaultTestLoader.loadTestsFromNames(modules)
         result = unittest.TextTestRunner(verbosity=2).run(tests)
         return 0 if result.wasSuccessful() else 1
@@ -53,6 +61,23 @@ def main():
             return 0
         except (ValueError, OSError) as error:
             print(f"FAIL U13 PySim development timing: {error}", file=sys.stderr)
+            return 1
+    if args.command == "benchmark-copying":
+        from u13_pysim.benchmark_copying import run
+        try:
+            result = run(root, args.iterations, not args.no_profiles)
+            if args.report:
+                args.report.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+            before = result["summary"]["baseline"]["mean_wall_ms"]
+            after = result["summary"]["current"]["mean_wall_ms"]
+            print(f"Partial cycle: {before:.2f} ms baseline -> {after:.2f} ms current; {result['mean_wall_speedup']:.2f}x")
+            print("Full-match speed remains unknown")
+            print("U13 PySim copying comparison failures: 0")
+            return 0
+        except (ValueError, OSError, KeyError, subprocess.SubprocessError) as error:
+            print(f"FAIL U13 PySim copying: {error}", file=sys.stderr)
+            if isinstance(error, subprocess.CalledProcessError) and error.stderr:
+                print(error.stderr, file=sys.stderr)
             return 1
     label = {"verify-planning": "planning", "verify-development": "development"}.get(args.command, "foundation")
     compare, reject = verify, verify_rejections

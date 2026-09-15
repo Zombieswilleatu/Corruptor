@@ -67,6 +67,14 @@ profile included fixture preparation and warmup; its instrumented duration is
 not a throughput measurement. It identifies copying as the first optimization
 candidate, with transaction rollback and exact snapshots retained as gates.
 
+The [copying pass](U13_PYSIM_COPYING_2026-09-15.md) implements that optimization.
+On the same local Python executable/hardware, sequential baseline/current/current/
+baseline blocks measured 36.02 ms versus 10.08 ms mean partial-cycle time, with
+identical exact results. Windows acceptance is pending. The comparison uses the
+unchanged timing/fixture source and records separate instrumented profiles;
+it remains a partial-engine measurement and does not satisfy the later full-match
+throughput gate.
+
 Apply these gates before committing to the rest of the performance plan:
 
 1. **Profile the implemented slice before extending its hot path.** Separate

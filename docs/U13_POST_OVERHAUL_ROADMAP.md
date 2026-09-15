@@ -1,5 +1,13 @@
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
+**2026-09-15 Python copying optimization implemented; Windows acceptance pending:**
+The partial cycle measures 36.02 ms before and 10.08 ms after on the same local
+Python/runtime/hardware: 3.57× throughput with identical exact results. The pass
+removes duplicate transaction/preview/deployment copies and uses an exact
+plain-data copier. It preserves complete snapshots, event views and rollback.
+See [implementation, comparison and focused Windows gate](U13_PYSIM_COPYING_2026-09-15.md).
+This remains opening-through-Development timing, not full-match throughput.
+
 **2026-09-15 Development accepted at clean `108fc15`:** The Windows Godot 4.7.2
 gate passed: 497 Godot checks, 90 exact Python snapshots, 217 isolated lifecycle
 operations, 20 Python unit tests and 14 rejected evidence corruptions; no failures
@@ -52,7 +60,7 @@ The campaign predates forecast/public-Guard changes and is not balance evidence.
 **PySim progression:** Round sequencing, submissions and opening-round economy
 now have the focused implementation above. The
 trace contract, exact deterministic primitives and opening-state parity are
-accepted through Development. Optimize the measured copying overhead,
+accepted through Development. Complete the copying optimization's Windows gate,
 then extend ordinary resolution with the early spatial performance gate above;
 see [inventory and subsequent parity order](U13_PYSIM_PARITY_2026-09-15.md).
 Then Common Smart Core + separate Lord doctrines, serious balance, and roguelite

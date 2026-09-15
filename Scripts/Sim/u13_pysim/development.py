@@ -1,10 +1,10 @@
 """U13 Guard deployment, Work and stable bonds; no paid repairs or combat."""
 
-from copy import deepcopy
 import json
 
 from . import economy as e
 from .planning import PlanningMatch
+from .copying import copy_data
 from .primitives import instance_id
 
 VERSION = "U13_PYSIM_DEVELOPMENT_V1"
@@ -67,9 +67,16 @@ def reconcile(world):
 
 def deploy(raw, number, player_order, hook="development"):
     """Pure counterpart of GuardDeployment.resolve, after validated reservations."""
-    e.require(hook == "development" and raw["data"]["guard_deployment_round"] < number,
+    world = copy_data(raw)
+    events = _deploy_owned(world, number, player_order, hook)
+    return dict(action="resolved", world=world, events=events)
+
+
+def _deploy_owned(world, number, player_order, hook="development"):
+    """Internal mutation; callers must own the world and its transaction."""
+    e.require(hook == "development" and world["data"]["guard_deployment_round"] < number,
               "guard_development_timing_invalid")
-    world, events = deepcopy(raw), []
+    events = []
     for pid in player_order:
         record = world["data"]["guard_orders"][pid]
         e.require(record is not None and record["round"] == number, "guard_order_missing")
@@ -82,7 +89,7 @@ def deploy(raw, number, player_order, hook="development"):
             events.append(e.event("GUARD_DEPLOYED", dict(player_id=pid, card_id=card["id"],
                                  lane=move["lane"], slot=move["slot"], round=number, hook=hook)))
     world["data"]["guard_deployment_round"] = number
-    return dict(action="resolved", world=world, events=events)
+    return events
 
 
 def work(world, number, player_order):
@@ -187,12 +194,11 @@ class DevelopmentMatch(PlanningMatch):
         d["summon_round"] = number
         d["construction_round"] = number
         try:
-            deployed = deploy(w, number, self.state["player_order"])
+            deployed_events = _deploy_owned(w, number, self.state["player_order"])
         except e.Rejected as error:
             # Match._apply_transform wraps the content rejection at this hook.
             raise e.Rejected("transform_contract_error") from error
-        self.state["world"] = deployed["world"]
         rows = self.state["events"]["rows"]
-        rows.extend(deployed["events"])
+        rows.extend(deployed_events)
         rows.extend(work(self.state["world"], number, self.state["player_order"]))
         self.state["world"]["data"]["vacant_throne"]["present"] = [True, True]

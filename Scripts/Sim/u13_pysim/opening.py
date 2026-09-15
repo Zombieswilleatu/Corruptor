@@ -172,12 +172,12 @@ def world(seed, lords, loadouts):
 
 
 def snapshot(seed, lords, loadouts):
-    import copy
+    from .copying import copy_data
     state = world(seed, lords, loadouts)
     return {
         "schema_version": "U13_MATCH_V1", "engine_version": "4.7.2",
         "policy_id": POLICY, "rules_hash": RULES_HASH, "rng_version": "U13_SHA256_REJECTION_V1",
-        "seed": seed, "world": state, "presentation_world": copy.deepcopy(state),
+        "seed": seed, "world": state, "presentation_world": copy_data(state),
         "submissions": [None, None], "combat_orders": [{}, {}], "player_order": [0, 1],
         "runtime": {"round": 1, "next_hook_index": 0, "next_hook": "round_start_scheduled",
                     "completed": False, "execution_log": [], "timeline_version": "U13_LORD_TIMELINE_V1"},
