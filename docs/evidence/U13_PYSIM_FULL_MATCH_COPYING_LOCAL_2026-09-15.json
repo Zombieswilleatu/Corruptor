@@ -1,0 +1,698 @@
+{
+  "schema": "U13_FULL_MATCH_COPYING_LOCAL_EVIDENCE_V1",
+  "recorded_on": "2026-09-15",
+  "acceptance": "Local Linux CPython diagnostic; changed-code Windows CPython and PyPy gates pending",
+  "candidate_working_tree_base_revision": "96c72ad0ae1d606b22c9aea14a7a0726b52872ba",
+  "candidate_source_sha256": "e34ef7c6e3aeb39040ad413159feb6b2cef5e15e19adbe6accf777339613854f",
+  "candidate_was_uncommitted": true,
+  "reference_revision": "d059b9560a95c32779597260d99829f9f1534f22",
+  "reference_source_sha256": "b25bdf65d1f1689f7e0b5e35cee748e810bd1bf409f2084ee55b0b280ad7358e",
+  "reference_trace_sha256": "81318a197145163bbd0d282c16a2b1ccc19d92c8ad7f68b1c6c8ac3f2f697b72",
+  "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+  "tests": {
+    "count": 63,
+    "elapsed_seconds": 5.108,
+    "status": "OK",
+    "names": [
+      "test_comparison_locates_real_changes (u13_pysim.test_foundation.FoundationTests.test_comparison_locates_real_changes) ... ok",
+      "test_identity_unicode_uses_characters (u13_pysim.test_foundation.FoundationTests.test_identity_unicode_uses_characters) ... ok",
+      "test_known_rng_vectors_and_independence (u13_pysim.test_foundation.FoundationTests.test_known_rng_vectors_and_independence) ... ok",
+      "test_opening_input_boundaries (u13_pysim.test_foundation.FoundationTests.test_opening_input_boundaries) ... ok",
+      "test_retirement_restore_and_atomic_rejection (u13_pysim.test_foundation.FoundationTests.test_retirement_restore_and_atomic_rejection) ... ok",
+      "test_transport_boundaries_and_malformed_input (u13_pysim.test_foundation.FoundationTests.test_transport_boundaries_and_malformed_input) ... ok",
+      "test_cursor_rejections_and_completed_round_reset (u13_pysim.test_planning.PlanningTests.test_cursor_rejections_and_completed_round_reset) ... ok",
+      "test_discard_rejects_duplicate_and_foreign_cards_atomically (u13_pysim.test_planning.PlanningTests.test_discard_rejects_duplicate_and_foreign_cards_atomically) ... ok",
+      "test_exhausted_market_preserves_physical_ids (u13_pysim.test_planning.PlanningTests.test_exhausted_market_preserves_physical_ids) ... ok",
+      "test_full_hand_recycles_before_limit_and_discard_draw_does_not (u13_pysim.test_planning.PlanningTests.test_full_hand_recycles_before_limit_and_discard_draw_does_not) ... ok",
+      "test_future_hooks_and_powers_fail_explicitly_without_mutation (u13_pysim.test_planning.PlanningTests.test_future_hooks_and_powers_fail_explicitly_without_mutation) ... ok",
+      "test_second_plan_rejection_is_atomic_and_retryable (u13_pysim.test_planning.PlanningTests.test_second_plan_rejection_is_atomic_and_retryable) ... ok",
+      "test_stockpile_discard_is_available_to_next_seat (u13_pysim.test_planning.PlanningTests.test_stockpile_discard_is_available_to_next_seat) ... ok",
+      "test_bad_second_guard_rolls_back_first_and_ledger (u13_pysim.test_development.DevelopmentTests.test_bad_second_guard_rolls_back_first_and_ledger) ... ok",
+      "test_every_identity_dimension_can_break_pair_permanently (u13_pysim.test_development.DevelopmentTests.test_every_identity_dimension_can_break_pair_permanently) ... ok",
+      "test_match_stops_at_supported_boundary_and_detaches_inputs (u13_pysim.test_development.DevelopmentTests.test_match_stops_at_supported_boundary_and_detaches_inputs) ... ok",
+      "test_reconstruction_exception_requires_live_owner_deimos (u13_pysim.test_development.DevelopmentTests.test_reconstruction_exception_requires_live_owner_deimos) ... ok",
+      "test_repeated_work_reconciles_broken_pair_before_clock_return (u13_pysim.test_development.DevelopmentTests.test_repeated_work_reconciles_broken_pair_before_clock_return) ... ok",
+      "test_vulture_draw_is_once_per_later_round_and_private_identity (u13_pysim.test_development.DevelopmentTests.test_vulture_draw_is_once_per_later_round_and_private_identity) ... ok",
+      "test_wright_and_guards_pay_once_passive_persists_until_clear (u13_pysim.test_development.DevelopmentTests.test_wright_and_guards_pay_once_passive_persists_until_clear) ... ok",
+      "test_development_second_guard_failure_restores_first_and_all_hook_clocks (u13_pysim.test_copying.CopyingTests.test_development_second_guard_failure_restores_first_and_all_hook_clocks) ... ok",
+      "test_exception_after_clock_change_restores_clock_too (u13_pysim.test_copying.CopyingTests.test_exception_after_clock_change_restores_clock_too) ... ok",
+      "test_float_bits_types_and_aliases_are_preserved_without_sharing_input (u13_pysim.test_copying.CopyingTests.test_float_bits_types_and_aliases_are_preserved_without_sharing_input) ... ok",
+      "test_hook_failure_restores_nested_world_presentation_and_existing_events (u13_pysim.test_copying.CopyingTests.test_hook_failure_restores_nested_world_presentation_and_existing_events) ... ok",
+      "test_preview_validates_without_reserving_or_emitting (u13_pysim.test_copying.CopyingTests.test_preview_validates_without_reserving_or_emitting) ... ok",
+      "test_public_views_and_snapshots_are_detached_after_later_mutations (u13_pysim.test_copying.CopyingTests.test_public_views_and_snapshots_are_detached_after_later_mutations) ... ok",
+      "test_submission_lock_second_failure_restores_first_reservations (u13_pysim.test_copying.CopyingTests.test_submission_lock_second_failure_restores_first_reservations) ... ok",
+      "test_artillery_kill_awards_two_souls_to_engine_owner (u13_pysim.test_resolution.ResolutionTests.test_artillery_kill_awards_two_souls_to_engine_owner) ... ok",
+      "test_engine_disabled_by_earlier_shot_does_not_fire (u13_pysim.test_resolution.ResolutionTests.test_engine_disabled_by_earlier_shot_does_not_fire) ... ok",
+      "test_gem_dagger_draw_id_is_private_and_trigger_is_once_per_round (u13_pysim.test_resolution.ResolutionTests.test_gem_dagger_draw_id_is_private_and_trigger_is_once_per_round) ... ok",
+      "test_owned_match_failure_restores_world_events_and_cursor (u13_pysim.test_resolution.ResolutionTests.test_owned_match_failure_restores_world_events_and_cursor) ... ok",
+      "test_post_resolution_boundary_fails_without_advancing (u13_pysim.test_resolution.ResolutionTests.test_post_resolution_boundary_fails_without_advancing) ... ok",
+      "test_pure_result_and_event_views_do_not_alias_world_or_inputs (u13_pysim.test_resolution.ResolutionTests.test_pure_result_and_event_views_do_not_alias_world_or_inputs) ... ok",
+      "test_second_hunt_resolves_after_its_own_lord_is_banished (u13_pysim.test_resolution.ResolutionTests.test_second_hunt_resolves_after_its_own_lord_is_banished) ... ok",
+      "test_second_player_spawn_collision_rolls_back_sigils_and_first_army (u13_pysim.test_resolution.ResolutionTests.test_second_player_spawn_collision_rolls_back_sigils_and_first_army) ... ok",
+      "test_spawn_positions_ignore_registry_order_without_rewriting_ids (u13_pysim.test_resolution.ResolutionTests.test_spawn_positions_ignore_registry_order_without_rewriting_ids) ... ok",
+      "test_strict_guard_threshold_survives_equality (u13_pysim.test_resolution.ResolutionTests.test_strict_guard_threshold_survives_equality) ... ok",
+      "test_batch_path_keeps_every_semantic_event_and_final_field (u13_pysim.test_marching.MarchingTests.test_batch_path_keeps_every_semantic_event_and_final_field) ... ok",
+      "test_columns_own_inputs_and_outputs_without_recycling_ids (u13_pysim.test_marching.MarchingTests.test_columns_own_inputs_and_outputs_without_recycling_ids) ... ok",
+      "test_complete_games_and_unported_actors_fail_explicitly (u13_pysim.test_marching.MarchingTests.test_complete_games_and_unported_actors_fail_explicitly) ... ok",
+      "test_earliest_contact_precedes_keyed_front_tie (u13_pysim.test_marching.MarchingTests.test_earliest_contact_precedes_keyed_front_tie) ... ok",
+      "test_exception_in_reaction_cannot_mutate_caller (u13_pysim.test_marching.MarchingTests.test_exception_in_reaction_cannot_mutate_caller) ... ok",
+      "test_flat_column_kernel_keeps_registry_permutations_equivalent (u13_pysim.test_marching.MarchingTests.test_flat_column_kernel_keeps_registry_permutations_equivalent) ... ok",
+      "test_persistent_duel_resume_and_whole_phase_exchange_limit (u13_pysim.test_marching.MarchingTests.test_persistent_duel_resume_and_whole_phase_exchange_limit) ... ok",
+      "test_ranged_reciprocal_lethal_shots_are_not_cancelled (u13_pysim.test_marching.MarchingTests.test_ranged_reciprocal_lethal_shots_are_not_cancelled) ... ok",
+      "test_rejected_reaction_rolls_back_all_prior_tick_work (u13_pysim.test_marching.MarchingTests.test_rejected_reaction_rolls_back_all_prior_tick_work) ... ok",
+      "test_spatial_rounding_and_swept_destruction_boundary (u13_pysim.test_marching.MarchingTests.test_spatial_rounding_and_swept_destruction_boundary) ... ok",
+      "test_cleanup_and_next_round_preserve_cards_and_reset_only_sealed_inputs (u13_pysim.test_full_match.FullMatchTests.test_cleanup_and_next_round_preserve_cards_and_reset_only_sealed_inputs) ... ok",
+      "test_commission_rechecks_target_and_does_not_revive_ruins (u13_pysim.test_full_match.FullMatchTests.test_commission_rechecks_target_and_does_not_revive_ruins) ... ok",
+      "test_commission_uses_existing_work_without_passive_construction_gain (u13_pysim.test_full_match.FullMatchTests.test_commission_uses_existing_work_without_passive_construction_gain) ... ok",
+      "test_custom_private_hooks_keep_complete_rollback (u13_pysim.test_full_match.FullMatchTests.test_custom_private_hooks_keep_complete_rollback) ... ok",
+      "test_full_world_marching_preserves_cards_and_rolls_back_reactions (u13_pysim.test_full_match.FullMatchTests.test_full_world_marching_preserves_cards_and_rolls_back_reactions) ... ok",
+      "test_live_state_escape_during_hook_restores_old_history_and_presentation (u13_pysim.test_full_match.FullMatchTests.test_live_state_escape_during_hook_restores_old_history_and_presentation) ... ok",
+      "test_native_ranged_nearest_includes_initial_squared_range_sentinel (u13_pysim.test_full_match.FullMatchTests.test_native_ranged_nearest_includes_initial_squared_range_sentinel) ... ok",
+      "test_new_full_match_boundary_rejects_unported_choices_atomically (u13_pysim.test_full_match.FullMatchTests.test_new_full_match_boundary_rejects_unported_choices_atomically) ... ok",
+      "test_owned_hook_failure_restores_appended_events_and_clock (u13_pysim.test_full_match.FullMatchTests.test_owned_hook_failure_restores_appended_events_and_clock) ... ok",
+      "test_policy_is_injected_and_cannot_see_or_mutate_hidden_state (u13_pysim.test_full_match.FullMatchTests.test_policy_is_injected_and_cannot_see_or_mutate_hidden_state) ... ok",
+      "test_retained_live_reference_preserves_cross_branch_aliases_on_rollback (u13_pysim.test_full_match.FullMatchTests.test_retained_live_reference_preserves_cross_branch_aliases_on_rollback) ... ok",
+      "test_reused_native_reference_rejects_source_changes_and_wrong_stream (u13_pysim.test_full_match.FullMatchTests.test_reused_native_reference_rejects_source_changes_and_wrong_stream) ... ok",
+      "test_settlement_precedence_grace_and_living_lord_gate (u13_pysim.test_full_match.FullMatchTests.test_settlement_precedence_grace_and_living_lord_gate) ... ok",
+      "test_stockpile_stops_below_seven_integrity (u13_pysim.test_full_match.FullMatchTests.test_stockpile_stops_below_seven_integrity) ... ok",
+      "test_successful_state_escape_commits_edits_without_mutating_public_snapshot (u13_pysim.test_full_match.FullMatchTests.test_successful_state_escape_commits_edits_without_mutating_public_snapshot) ... ok",
+      "test_sustained_worker_rejects_wrong_final_digest_even_with_python_optimization (u13_pysim.test_full_match.FullMatchTests.test_sustained_worker_rejects_wrong_final_digest_even_with_python_optimization) ... ok"
+    ]
+  },
+  "dynamic_policy_regenerated_accepted_inputs": true,
+  "parity": {
+    "schema": "U13_FULL_MATCH_COPYING_PARITY_V1",
+    "source_revision": "96c72ad0ae1d606b22c9aea14a7a0726b52872ba",
+    "source_sha256": "e34ef7c6e3aeb39040ad413159feb6b2cef5e15e19adbe6accf777339613854f",
+    "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "python_implementation": "CPython",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "reference_revision": "d059b9560a95c32779597260d99829f9f1534f22",
+    "reference_source_sha256": "b25bdf65d1f1689f7e0b5e35cee748e810bd1bf409f2084ee55b0b280ad7358e",
+    "reference_trace_sha256": "81318a197145163bbd0d282c16a2b1ccc19d92c8ad7f68b1c6c8ac3f2f697b72",
+    "native_sources": {
+      "files": 386,
+      "sha256": "94233ad6271203a05f324fc691ef098ab45397d4f6cbe12922caec90854bafac"
+    },
+    "native_sources_unchanged": true,
+    "new_godot_run": false,
+    "reference_verification": {
+      "python_mirror": "U13_PYSIM_FULL_MATCH_V1",
+      "source_revision": "d059b9560a95c32779597260d99829f9f1534f22",
+      "source_sha256": "b25bdf65d1f1689f7e0b5e35cee748e810bd1bf409f2084ee55b0b280ad7358e",
+      "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+      "runtime": "4.7.2-stable (official)",
+      "reference_platform": "Windows",
+      "diagnostic_only": false,
+      "complete_games_matched": 2,
+      "complete_rounds_matched": 30,
+      "game_operations_matched": 767,
+      "fixture_operations": 0,
+      "terminal_rejections_matched": 4,
+      "scope_lords": [
+        "Gremory",
+        "Deimos",
+        "Humbaba",
+        "Kalligan"
+      ],
+      "directed_settlement_components_matched": 8,
+      "scope": "explicit ordinary decisions; no declared powers, paid Rites or Resummon; not roster-complete parity",
+      "event_profile": "U13_BATCH_EVENTS_V1",
+      "full_world_tick_probes_matched": 1,
+      "tick_frames_compared": 200,
+      "all_semantic_rows_and_views_matched": true,
+      "games": [
+        {
+          "name": "bones_endurance",
+          "setup": {
+            "seed": "u13-full-match:bones_endurance",
+            "lords": [
+              "Gremory",
+              "Humbaba"
+            ],
+            "castles": [
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ],
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ]
+            ]
+          },
+          "operations_matched": 334,
+          "terminal_rejections_matched": 2,
+          "rounds": 13,
+          "outcome": {
+            "action": "game_finished",
+            "round": 13,
+            "winner": 0,
+            "win_by": "Ritual"
+          },
+          "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce",
+          "event_rows": 1206,
+          "peak_marchers": 63,
+          "orders": {
+            "Hunt": 9,
+            "Siege": 7,
+            "Ward": 10
+          },
+          "event_coverage": {
+            "ARTILLERY_FIRED": 16,
+            "ARTILLERY_TARGET_ACQUIRED": 4,
+            "BASTION_SCREENED": 3,
+            "BREACH_CHANGED": 1,
+            "CASTLE_ACTION_SEALED": 26,
+            "CASTLE_ACTIVATED": 4,
+            "CASTLE_DAMAGED": 9,
+            "CASTLE_DESTROYED": 4,
+            "COMBAT_ORDER_REVEALED": 26,
+            "COMBAT_ORDER_SEALED": 26,
+            "ENDURANCE_CHECKED": 13,
+            "FRACTURE_HIT": 4,
+            "FRACTURE_RESOLVED": 1,
+            "GUARDS_SEALED": 13,
+            "GUARD_DEFEATED": 22,
+            "GUARD_DEPLOYED": 26,
+            "GUARD_PAIR_DRAW": 9,
+            "GUARD_PAIR_FORMED": 13,
+            "GUARD_PAIR_SCREEN": 2,
+            "GUARD_PAIR_STRIKE": 6,
+            "HUNT_RESOLVED": 9,
+            "HUNT_STARTED": 9,
+            "KEEP_INTERPOSED": 1,
+            "LORD_BANISHED": 1,
+            "MARCHER_CLASH": 28,
+            "MARCHER_CONTACT": 33,
+            "MARCHER_DAMAGED": 3,
+            "MARCHER_DEFEATED": 85,
+            "MARCHER_DUEL_INTERRUPTED": 5,
+            "MARCHER_RANGED_ATTACK": 204,
+            "MARCHER_REGENERATED": 15,
+            "MARCHER_SPAWNED": 153,
+            "MARCHER_WAITING": 44,
+            "MARCHING_FINISHED": 13,
+            "MARCHING_STARTED": 13,
+            "MARKET_PASSED": 3,
+            "MARKET_REFRESHED": 12,
+            "MARKET_SWAPPED": 23,
+            "MATCH_FINISHED": 1,
+            "NEUTRAL_TEAR_CREATED": 15,
+            "PICKING_THE_BONES": 9,
+            "ROUND_DRAW": 130,
+            "SIEGE_RESOLVED": 7,
+            "SIEGE_STARTED": 7,
+            "SIFTING_THE_RUINS": 4,
+            "SIGIL_AGED": 17,
+            "SIGIL_CREATED": 10,
+            "STOCKPILE_DRAW": 48,
+            "STOCKPILE_SELECTED": 23,
+            "THE_STONES_FORGET": 1,
+            "VACANT_THRONE_RESOLVED": 26,
+            "WORK_RESOLVED": 26
+          }
+        },
+        {
+          "name": "spoils_rekindle",
+          "setup": {
+            "seed": "u13-full-match:spoils_rekindle",
+            "lords": [
+              "Deimos",
+              "Kalligan"
+            ],
+            "castles": [
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ],
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ]
+            ]
+          },
+          "operations_matched": 433,
+          "terminal_rejections_matched": 2,
+          "rounds": 17,
+          "outcome": {
+            "action": "game_finished",
+            "round": 17,
+            "winner": 1,
+            "win_by": "Ritual"
+          },
+          "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72",
+          "event_rows": 1616,
+          "peak_marchers": 66,
+          "orders": {
+            "Hunt": 11,
+            "Profane": 1,
+            "Siege": 10,
+            "Ward": 12
+          },
+          "event_coverage": {
+            "ARTILLERY_FIRED": 31,
+            "ARTILLERY_TARGET_ACQUIRED": 3,
+            "BASTION_SCREENED": 3,
+            "BREACH_CHANGED": 1,
+            "CASTLE_ACTION_SEALED": 31,
+            "CASTLE_ACTIVATED": 4,
+            "CASTLE_CEILING_CHANGED": 10,
+            "CASTLE_DESTROYED": 4,
+            "COMBAT_ORDER_REVEALED": 34,
+            "COMBAT_ORDER_SEALED": 34,
+            "FEAR_AURA": 1,
+            "FORGE_REPAIR": 24,
+            "FRACTURE_RESOLVED": 1,
+            "GUARDS_SEALED": 17,
+            "GUARD_DEFEATED": 29,
+            "GUARD_DEPLOYED": 34,
+            "GUARD_PAIR_DRAW": 5,
+            "GUARD_PAIR_FORMED": 17,
+            "GUARD_PAIR_SCREEN": 8,
+            "GUARD_PAIR_STRIKE": 5,
+            "HUNT_RESOLVED": 11,
+            "HUNT_STARTED": 11,
+            "KEEP_INTERPOSED": 6,
+            "LORD_BANISHED": 1,
+            "MARCHER_CLASH": 46,
+            "MARCHER_CONTACT": 51,
+            "MARCHER_DEFEATED": 141,
+            "MARCHER_DUEL_INTERRUPTED": 5,
+            "MARCHER_RANGED_ATTACK": 300,
+            "MARCHER_REGENERATED": 25,
+            "MARCHER_SPAWNED": 203,
+            "MARCHER_WAITING": 57,
+            "MARCHING_FINISHED": 17,
+            "MARCHING_STARTED": 17,
+            "MARKET_PASSED": 4,
+            "MARKET_REFRESHED": 16,
+            "MARKET_SWAPPED": 30,
+            "MATCH_FINISHED": 1,
+            "NEUTRAL_TEAR_CREATED": 8,
+            "PERSONAL_TEAR_CREATED": 1,
+            "PROFANE_RESOLVED": 1,
+            "ROUND_DRAW": 170,
+            "SIEGE_RESOLVED": 10,
+            "SIEGE_STARTED": 10,
+            "SIGIL_AGED": 21,
+            "SIGIL_CREATED": 12,
+            "STOCKPILE_DRAW": 54,
+            "STOCKPILE_SELECTED": 26,
+            "VACANT_THRONE_RESOLVED": 34,
+            "WORK_RESOLVED": 31
+          }
+        }
+      ],
+      "event_coverage": {
+        "ARTILLERY_FIRED": 47,
+        "ARTILLERY_TARGET_ACQUIRED": 7,
+        "BASTION_SCREENED": 6,
+        "BREACH_CHANGED": 2,
+        "CASTLE_ACTION_SEALED": 57,
+        "CASTLE_ACTIVATED": 8,
+        "CASTLE_CEILING_CHANGED": 10,
+        "CASTLE_DAMAGED": 9,
+        "CASTLE_DESTROYED": 8,
+        "COMBAT_ORDER_REVEALED": 60,
+        "COMBAT_ORDER_SEALED": 60,
+        "ENDURANCE_CHECKED": 13,
+        "FEAR_AURA": 1,
+        "FORGE_REPAIR": 24,
+        "FRACTURE_HIT": 4,
+        "FRACTURE_RESOLVED": 2,
+        "GUARDS_SEALED": 30,
+        "GUARD_DEFEATED": 51,
+        "GUARD_DEPLOYED": 60,
+        "GUARD_PAIR_DRAW": 14,
+        "GUARD_PAIR_FORMED": 30,
+        "GUARD_PAIR_SCREEN": 10,
+        "GUARD_PAIR_STRIKE": 11,
+        "HUNT_RESOLVED": 20,
+        "HUNT_STARTED": 20,
+        "KEEP_INTERPOSED": 7,
+        "LORD_BANISHED": 2,
+        "MARCHER_CLASH": 74,
+        "MARCHER_CONTACT": 84,
+        "MARCHER_DAMAGED": 3,
+        "MARCHER_DEFEATED": 226,
+        "MARCHER_DUEL_INTERRUPTED": 10,
+        "MARCHER_RANGED_ATTACK": 504,
+        "MARCHER_REGENERATED": 40,
+        "MARCHER_SPAWNED": 356,
+        "MARCHER_WAITING": 101,
+        "MARCHING_FINISHED": 30,
+        "MARCHING_STARTED": 30,
+        "MARKET_PASSED": 7,
+        "MARKET_REFRESHED": 28,
+        "MARKET_SWAPPED": 53,
+        "MATCH_FINISHED": 2,
+        "NEUTRAL_TEAR_CREATED": 23,
+        "PERSONAL_TEAR_CREATED": 1,
+        "PICKING_THE_BONES": 9,
+        "PROFANE_RESOLVED": 1,
+        "ROUND_DRAW": 300,
+        "SIEGE_RESOLVED": 17,
+        "SIEGE_STARTED": 17,
+        "SIFTING_THE_RUINS": 4,
+        "SIGIL_AGED": 38,
+        "SIGIL_CREATED": 22,
+        "STOCKPILE_DRAW": 102,
+        "STOCKPILE_SELECTED": 49,
+        "THE_STONES_FORGET": 1,
+        "VACANT_THRONE_RESOLVED": 60,
+        "WORK_RESOLVED": 57
+      },
+      "failures": 0,
+      "deliberate_mismatches_rejected": 13
+    },
+    "failures": 0
+  },
+  "matched_timing": {
+    "schema": "U13_FULL_MATCH_COPYING_TIMING_V1",
+    "source_revision": "96c72ad0ae1d606b22c9aea14a7a0726b52872ba",
+    "source_sha256": "e34ef7c6e3aeb39040ad413159feb6b2cef5e15e19adbe6accf777339613854f",
+    "baseline_revision": "d059b9560a95c32779597260d99829f9f1534f22",
+    "baseline_source_sha256": "b25bdf65d1f1689f7e0b5e35cee748e810bd1bf409f2084ee55b0b280ad7358e",
+    "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+    "reference_trace_sha256": "81318a197145163bbd0d282c16a2b1ccc19d92c8ad7f68b1c6c8ac3f2f697b72",
+    "native_sources": {
+      "files": 386,
+      "sha256": "94233ad6271203a05f324fc691ef098ab45397d4f6cbe12922caec90854bafac"
+    },
+    "shared_workload_sha256": {
+      "Scripts/Sim/u13_pysim/benchmark_full_match.py": "cb42c535f415423bb81ac9a85ca09a0bc4b2951ed42c87c053df3a4d86b367cb",
+      "Scripts/Sim/u13_pysim/full_match_inputs.json": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865"
+    },
+    "worker_sha256": "8597d4aa93914acfc3ffe4f7adf4d37f484317350fedda75f5e8210357fe6078",
+    "workers": 1,
+    "block_order": [
+      "baseline",
+      "candidate"
+    ],
+    "games_per_implementation": 4,
+    "same_python_executable": true,
+    "parity_prerequisite_passed": true,
+    "initial_games_included": true,
+    "blocks": [
+      {
+        "implementation": "baseline",
+        "source_revision": "d059b9560a95c32779597260d99829f9f1534f22",
+        "source_sha256": "b25bdf65d1f1689f7e0b5e35cee748e810bd1bf409f2084ee55b0b280ad7358e",
+        "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+        "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "python_implementation": "CPython",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+        "processor": "x86_64",
+        "logical_cpus": 9,
+        "gc_enabled": true,
+        "process_id": 9,
+        "one_process_for_all_games": true,
+        "unrecorded_warmup_games": 0,
+        "measured_games": 4,
+        "samples": [
+          {
+            "index": 0,
+            "name": "bones_endurance",
+            "rounds": 13,
+            "wall_ms": 9130.758304,
+            "cpu_ms": 9130.049272,
+            "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+          },
+          {
+            "index": 1,
+            "name": "spoils_rekindle",
+            "rounds": 17,
+            "wall_ms": 16098.715985,
+            "cpu_ms": 16096.659912,
+            "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+          },
+          {
+            "index": 2,
+            "name": "bones_endurance",
+            "rounds": 13,
+            "wall_ms": 9113.74216,
+            "cpu_ms": 9111.316086,
+            "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+          },
+          {
+            "index": 3,
+            "name": "spoils_rekindle",
+            "rounds": 17,
+            "wall_ms": 15920.362127,
+            "cpu_ms": 15917.44001,
+            "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+          }
+        ],
+        "cases": [
+          {
+            "name": "bones_endurance",
+            "rounds": 13,
+            "input_sha256": "0fd5f4737585bb16fb5836f3e68aabcf0dc84e109216513983ce9b56395a5c2f",
+            "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce",
+            "outcome": {
+              "action": "game_finished",
+              "round": 13,
+              "winner": 0,
+              "win_by": "Ritual"
+            },
+            "wall": {
+              "samples": 2,
+              "mean_ms": 9122.250232,
+              "median_ms": 9122.250232,
+              "p95_ms": 9130.758304,
+              "min_ms": 9113.74216,
+              "max_ms": 9130.758304
+            },
+            "cpu": {
+              "samples": 2,
+              "mean_ms": 9120.682679000001,
+              "median_ms": 9120.682679000001,
+              "p95_ms": 9130.049272,
+              "min_ms": 9111.316086,
+              "max_ms": 9130.049272
+            }
+          },
+          {
+            "name": "spoils_rekindle",
+            "rounds": 17,
+            "input_sha256": "c9d5e3e20d2bae6f21cc489f838ad1e37cf1dbcc36b1c6f0f3b7349d79876c3e",
+            "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72",
+            "outcome": {
+              "action": "game_finished",
+              "round": 17,
+              "winner": 1,
+              "win_by": "Ritual"
+            },
+            "wall": {
+              "samples": 2,
+              "mean_ms": 16009.539056000001,
+              "median_ms": 16009.539056000001,
+              "p95_ms": 16098.715985,
+              "min_ms": 15920.362127,
+              "max_ms": 16098.715985
+            },
+            "cpu": {
+              "samples": 2,
+              "mean_ms": 16007.049961,
+              "median_ms": 16007.049961,
+              "p95_ms": 16096.659912,
+              "min_ms": 15917.44001,
+              "max_ms": 16096.659912
+            }
+          }
+        ],
+        "mean_wall_ms": 12565.894644,
+        "mean_cpu_ms": 12563.866320000001,
+        "first_half_mean_wall_ms": 12614.7371445,
+        "last_half_mean_wall_ms": 12517.052143500001,
+        "initial_pair_mean_wall_ms": 12614.7371445,
+        "all_final_digests_matched": true,
+        "profiling_enabled": false,
+        "pypy_environment": {},
+        "interpreter_flags": "sys.flags(debug=0, inspect=0, interactive=0, optimize=0, dont_write_bytecode=0, no_user_site=0, no_site=0, ignore_environment=0, verbose=0, bytes_warning=0, quiet=0, hash_randomization=1, isolated=0, dev_mode=False, utf8_mode=0, warn_default_encoding=0, safe_path=False, int_max_str_digits=4300)",
+        "interpreter_xoptions": {},
+        "memory_measurement": null,
+        "failures": 0
+      },
+      {
+        "implementation": "candidate",
+        "source_revision": "96c72ad0ae1d606b22c9aea14a7a0726b52872ba",
+        "source_sha256": "e34ef7c6e3aeb39040ad413159feb6b2cef5e15e19adbe6accf777339613854f",
+        "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+        "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "python_implementation": "CPython",
+        "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+        "processor": "x86_64",
+        "logical_cpus": 9,
+        "gc_enabled": true,
+        "process_id": 11,
+        "one_process_for_all_games": true,
+        "unrecorded_warmup_games": 0,
+        "measured_games": 4,
+        "samples": [
+          {
+            "index": 0,
+            "name": "bones_endurance",
+            "rounds": 13,
+            "wall_ms": 2123.978437,
+            "cpu_ms": 2123.919749,
+            "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+          },
+          {
+            "index": 1,
+            "name": "spoils_rekindle",
+            "rounds": 17,
+            "wall_ms": 3492.661641,
+            "cpu_ms": 3491.874947,
+            "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+          },
+          {
+            "index": 2,
+            "name": "bones_endurance",
+            "rounds": 13,
+            "wall_ms": 2037.417514,
+            "cpu_ms": 2037.117808,
+            "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+          },
+          {
+            "index": 3,
+            "name": "spoils_rekindle",
+            "rounds": 17,
+            "wall_ms": 3350.75634,
+            "cpu_ms": 3350.339512,
+            "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+          }
+        ],
+        "cases": [
+          {
+            "name": "bones_endurance",
+            "rounds": 13,
+            "input_sha256": "0fd5f4737585bb16fb5836f3e68aabcf0dc84e109216513983ce9b56395a5c2f",
+            "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce",
+            "outcome": {
+              "action": "game_finished",
+              "round": 13,
+              "winner": 0,
+              "win_by": "Ritual"
+            },
+            "wall": {
+              "samples": 2,
+              "mean_ms": 2080.6979755,
+              "median_ms": 2080.6979755,
+              "p95_ms": 2123.978437,
+              "min_ms": 2037.417514,
+              "max_ms": 2123.978437
+            },
+            "cpu": {
+              "samples": 2,
+              "mean_ms": 2080.5187785,
+              "median_ms": 2080.5187785,
+              "p95_ms": 2123.919749,
+              "min_ms": 2037.117808,
+              "max_ms": 2123.919749
+            }
+          },
+          {
+            "name": "spoils_rekindle",
+            "rounds": 17,
+            "input_sha256": "c9d5e3e20d2bae6f21cc489f838ad1e37cf1dbcc36b1c6f0f3b7349d79876c3e",
+            "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72",
+            "outcome": {
+              "action": "game_finished",
+              "round": 17,
+              "winner": 1,
+              "win_by": "Ritual"
+            },
+            "wall": {
+              "samples": 2,
+              "mean_ms": 3421.7089905000003,
+              "median_ms": 3421.7089905000003,
+              "p95_ms": 3492.661641,
+              "min_ms": 3350.75634,
+              "max_ms": 3492.661641
+            },
+            "cpu": {
+              "samples": 2,
+              "mean_ms": 3421.1072295,
+              "median_ms": 3421.1072295,
+              "p95_ms": 3491.874947,
+              "min_ms": 3350.339512,
+              "max_ms": 3491.874947
+            }
+          }
+        ],
+        "mean_wall_ms": 2751.2034830000002,
+        "mean_cpu_ms": 2750.813004,
+        "first_half_mean_wall_ms": 2808.320039,
+        "last_half_mean_wall_ms": 2694.086927,
+        "initial_pair_mean_wall_ms": 2808.320039,
+        "all_final_digests_matched": true,
+        "profiling_enabled": false,
+        "pypy_environment": {},
+        "interpreter_flags": "sys.flags(debug=0, inspect=0, interactive=0, optimize=0, dont_write_bytecode=0, no_user_site=0, no_site=0, ignore_environment=0, verbose=0, bytes_warning=0, quiet=0, hash_randomization=1, isolated=0, dev_mode=False, utf8_mode=0, warn_default_encoding=0, safe_path=False, int_max_str_digits=4300)",
+        "interpreter_xoptions": {},
+        "memory_measurement": null,
+        "failures": 0
+      }
+    ],
+    "mean_wall_speedup": 4.567417394477033,
+    "mean_wall_reduction_percent": 78.1057890349761,
+    "included": "independent setup; explicit decisions; all 20 hooks; transactions; complete semantic history; victory",
+    "excluded": "process startup/imports; input loading; policy selection; comparison snapshots/digests; export; profiling",
+    "scope": "alternating repetitions of the two accepted ordinary games, not roster-complete doctrine throughput",
+    "warmup_caveat": "initial games and early/later halves are reported; no steady-state JIT or sustained campaign capacity is asserted",
+    "memory_measurement": null,
+    "full_match_50000_wall_seconds": null,
+    "failures": 0
+  },
+  "artifact_hashes": [
+    {
+      "path": "full-match-copying-tests.log",
+      "bytes": 10480,
+      "sha256": "1eabcaa1bb7fa136b2e474f36b1a415ab78d9ab78bf455124855b53623c23e16"
+    },
+    {
+      "path": "full-match-copying-parity.json",
+      "bytes": 9404,
+      "sha256": "f628e7f938be30c3bf3e1823fc8457a60e080125f49fd5dce3adb4a71c48e03d"
+    },
+    {
+      "path": "full-match-copying-parity.log",
+      "bytes": 221,
+      "sha256": "7d5936342603c60fb520d40d63f110cb1984b2787db54dd38f1411ea0bd63062"
+    },
+    {
+      "path": "full-match-copying-comparison.log",
+      "bytes": 583,
+      "sha256": "b5d7e80f8053b439eff0654ddd1f4de2df53bbe7f5c1c3a6f3e04bb252f16661"
+    },
+    {
+      "path": "full-match-copying-comparison/copying-comparison.json",
+      "bytes": 10903,
+      "sha256": "285443b3672cde155b34fb62aa06470ca8454c76587dd0f93af03a15b9b71ae2"
+    }
+  ],
+  "limitations": [
+    "Candidate source fingerprint includes uncommitted Python changes and the new harness; the base commit alone is not the tested implementation.",
+    "Local comparison uses four alternating matches per implementation, two observations per case, on Linux CPython 3.12.14.",
+    "The changed code has not yet been executed on Windows or under PyPy; their focused runner uses twenty matches per implementation/runtime.",
+    "No new Godot export was performed: the exact accepted Windows 4.7.2 stream is reused only with unchanged native sources and inputs.",
+    "All initial games are included; no steady-state JIT, memory, worker-scaling or roster-wide doctrine throughput result is asserted."
+  ]
+}

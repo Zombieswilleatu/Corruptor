@@ -15,6 +15,12 @@ remains unmet. Transaction and retained event-history copying still dominate
 the separate profiles. Preserve both runtime references while addressing that
 cost; earlier partial timings cannot establish the full-match budget.
 
+The [full-match rollback copying pass](U13_PYSIM_FULL_MATCH_COPYING_2026-09-15.md)
+now implements sharing for unchanged history/presentation with conservative
+fallback and live-state escape protection. All 63 local tests/exact replay pass;
+the matched Linux CPython diagnostic measured 4.57×. Windows CPython/PyPy
+acceptance and the sustained comparison remain pending.
+
 ## First complete-game profile and next optimization
 
 The [Windows CPython evidence](evidence/U13_PYSIM_FULL_MATCH_d059b95.json) supports the
@@ -40,13 +46,14 @@ contain aliases. `id()` itself occupies about 3% of either profile, so its call
 count does not establish that removing memoization will yield a several-fold
 speedup. Benchmark any copier specialization and preserve its ownership contract.
 
-The first optimization should reduce the amount copied: separate transaction
-rollback from full public snapshots, and avoid repeatedly traversing unchanged
-event history. Audit writes before choosing immutable internal history, an undo
-journal or copying only written subtrees. Preserve rollback after rejected and
-exceptional handlers, including nested world/presentation/history mutations, and
-keep returned snapshots and event views detached. Retain the accepted `d059b95`
-reference and compare identical inputs before and after on the same machine.
+The implemented first optimization reduces the amount copied: transaction
+rollback is separate from public snapshots, and audited hooks share unchanged
+history/presentation in their backups. Live-state access upgrades the active
+backup and keeps later transactions conservative; custom match handlers also
+use full copies. Preserve rollback after rejected and exceptional handlers,
+including nested world/presentation/history mutations, and keep returned
+snapshots and event views detached. Retain the accepted `d059b95` reference and
+complete the focused before/after comparison under both runtimes.
 
 Marching integration itself accounts for about 19–20% of these profiles; it is a
 secondary target that may matter more after copying is reduced. Adding cumulative

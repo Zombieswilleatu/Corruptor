@@ -378,7 +378,7 @@ class ResolutionMatch(DevelopmentMatch):
     def _hook(self):
         if self.clock.hook not in HOOKS:
             return super()._hook()
-        s = self.state
+        s = self._state
         if self.clock.round != 1 or s["pending"]["pending"] or s["persistent"]["active"] or s["cooldowns"]["locks"]:
             raise e.Unsupported("ResolutionMatch requires the supported fresh-game, power-free prefix")
         try:

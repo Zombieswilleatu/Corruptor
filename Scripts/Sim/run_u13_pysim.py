@@ -40,6 +40,14 @@ def main():
     full.add_argument("--iterations",type=int,default=3)
     full.add_argument("--verified-report",type=Path,required=True)
     full.add_argument("--report",type=Path)
+    full_copy_check = commands.add_parser("verify-full-match-copying")
+    full_copy_check.add_argument("trace",type=Path)
+    full_copy_check.add_argument("--report",type=Path)
+    full_copy = commands.add_parser("benchmark-full-match-copying")
+    full_copy.add_argument("--games",type=int,default=20,help="Alternating full matches per implementation, in one process")
+    full_copy.add_argument("--verified-report",type=Path,required=True)
+    full_copy.add_argument("--report",type=Path,required=True)
+    full_copy.add_argument("--reverse",action="store_true",help="Run candidate before baseline")
     for command in ("verify", "verify-planning", "verify-development", "verify-resolution", "verify-marching", "verify-full-match"):
         check = commands.add_parser(command)
         check.add_argument("trace", type=Path)
@@ -64,6 +72,34 @@ def main():
         print(revision)
         print(source_hash)
         return 0
+    if args.command == "verify-full-match-copying":
+        from u13_pysim.benchmark_full_match_copying import replay
+        try:
+            result = replay(root,args.trace)
+            if args.report: args.report.write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8")
+            exact = result["reference_verification"]
+            print(f"Copied-state replay: {exact['complete_games_matched']} complete games, {exact['game_operations_matched']} operations, {exact['deliberate_mismatches_rejected']} corruption rejections")
+            print("Accepted Windows Godot 4.7.2 reference reused; candidate source identity recorded separately")
+            print("U13 PySim full-match copying parity failures: 0")
+            return 0
+        except (ValueError,OSError,KeyError,TypeError,subprocess.SubprocessError) as error:
+            print(f"FAIL U13 PySim full-match copying parity: {error}",file=sys.stderr)
+            return 1
+    if args.command == "benchmark-full-match-copying":
+        from u13_pysim.benchmark_full_match_copying import run
+        try:
+            parity = json.loads(args.verified_report.read_text(encoding="utf-8"))
+            result = run(root,parity,args.games,args.reverse,args.report.parent)
+            args.report.write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8")
+            blocks = {r["implementation"]:r for r in result["blocks"]}
+            before,after = blocks["baseline"],blocks["candidate"]
+            print(f"Full-match copying: {before['mean_wall_ms']:.2f} -> {after['mean_wall_ms']:.2f} ms; {result['mean_wall_speedup']:.2f}x observed speedup")
+            print(f"Candidate first/later half means: {after['first_half_mean_wall_ms']:.2f} / {after['last_half_mean_wall_ms']:.2f} ms; initial games included")
+            print("U13 PySim full-match copying timing failures: 0")
+            return 0
+        except (ValueError,OSError,KeyError,TypeError,subprocess.SubprocessError) as error:
+            print(f"FAIL U13 PySim full-match copying timing: {error}",file=sys.stderr)
+            return 1
     if args.command == "benchmark-development":
         from u13_pysim.benchmark_development import run
         try:

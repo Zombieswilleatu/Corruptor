@@ -11,6 +11,10 @@ The subsequent [Windows PyPy 7.3.23 run](U13_PYSIM_PYPY_2026-09-15.md) matched
 the same complete verifier summary and measured 3.73 / 6.53 seconds at unchanged
 source/input fingerprints. This runtime result preserves the CPython baseline.
 
+The subsequent [rollback copying optimization](U13_PYSIM_FULL_MATCH_COPYING_2026-09-15.md)
+has local exact replay and 63 passing tests. Its Windows comparison under both
+CPython and PyPy is pending; the accepted evidence below remains at `d059b95`.
+
 This is the first independent Python setup-to-victory path, with a deliberately
 bounded rules domain. It is not complete nine-Lord parity or balance evidence.
 

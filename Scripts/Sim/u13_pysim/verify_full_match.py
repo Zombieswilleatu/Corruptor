@@ -59,8 +59,9 @@ def verify(path, revision, source_hash, diagnostic=False, record_filter=None):
             loc = path_name+f".operations[{index}].round={match.clock.round}.hook={match.clock.hook}"
             if index in spec["marching_probes"]:
                 probe = take("marching_probe")
-                ctx = dict(world=copy_data(match.state["world"]),round=match.clock.round,seed=match.state["seed"],
-                           hook=match.clock.hook,player_order=match.state["player_order"][:],persistent_effects=[])
+                # Internal observation is copied; do not expose live match state.
+                ctx = dict(world=copy_data(match._state["world"]),round=match.clock.round,seed=match._state["seed"],
+                           hook=match.clock.hook,player_order=match._state["player_order"][:],persistent_effects=[])
                 result = marching_game.resolve(ctx,RoundRules.march_reaction,capture_ticks=True)
                 same(True,result["action"] == "resolved",loc+".tick_probe.resolved")
                 ticks = [r for r in result["events"] if r["event"]["type"] == "MARCHING_TICK"]
@@ -92,7 +93,7 @@ def verify(path, revision, source_hash, diagnostic=False, record_filter=None):
             same(appended,row["events"],loc+".events")
             same(state,row["state"],loc+".state")
             same(match.outcome(),row["outcome"],loc+".outcome")
-            same(True,e.cards_valid(match.state["world"]),loc+".card_conservation")
+            same(True,e.cards_valid(match._state["world"]),loc+".card_conservation")
             same(True,match.clock.round <= manifest["round_cap"],loc+".round_cap")
             if not terminal_probe and index < len(spec["operations"])-1:
                 same(-1,match.outcome()["winner"],loc+".premature_finish")

@@ -1,6 +1,12 @@
 """Integration risks exposed by repeated rounds and full-world Marching."""
 
 import unittest
+from unittest.mock import patch
+import json
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
 
 from . import economy as e, opening, recruitment, marching, marching_game
 from .copying import copy_data
@@ -9,9 +15,147 @@ from .full_match import FullMatch
 from .full_match_inputs import load, next_operation
 from .lifecycle import RoundRules, settle
 from . import settlement_inputs
+from . import benchmark_full_match_copying as copying_gate
 
 
 class FullMatchTests(unittest.TestCase):
+    def test_reused_native_reference_rejects_source_changes_and_wrong_stream(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            native = root / "Scripts/Sim/Native.gd"
+            native.parent.mkdir(parents=True)
+            native.write_bytes(b"extends RefCounted\r\n")
+            baseline = {"Scripts/Sim/Native.gd": b"extends RefCounted\n"}
+            self.assertEqual(1,copying_gate.check_native_sources(root,baseline)["files"])
+            native.write_bytes(b"extends Node\n")
+            with self.assertRaisesRegex(ValueError,"native source changed"):
+                copying_gate.check_native_sources(root,baseline)
+            native.write_bytes(b"extends RefCounted\n")
+            (native.parent/"Added.gd").write_bytes(b"extends RefCounted\n")
+            with self.assertRaisesRegex(ValueError,"native_source_paths"):
+                copying_gate.check_native_sources(root,baseline)
+            with self.assertRaisesRegex(ValueError,"trace_sha256"):
+                copying_gate.check_trace(native)
+
+    def test_sustained_worker_rejects_wrong_final_digest_even_with_python_optimization(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            report = root/"samples.json"
+            config = dict(sim_path=str(Path(__file__).resolve().parents[1]), games=4,
+                          implementation="candidate", inputs_sha256=copying_gate.INPUTS_SHA256,
+                          expected_games=[dict(name=case["name"],final_state_sha256="wrong",outcome={})
+                                          for case in load()["cases"]], report_path=str(report))
+            path = root/"worker.json"
+            path.write_text(json.dumps(config),encoding="utf-8")
+            result = subprocess.run([sys.executable,"-O","-c",copying_gate.WORKER,str(path)],
+                                    capture_output=True,text=True,timeout=60)
+            self.assertNotEqual(0,result.returncode)
+            self.assertIn("worker.final_state[0]",result.stderr)
+            self.assertFalse(report.exists())
+
+    def before_lock(self, match_type=FullMatch):
+        spec = load()["cases"][0]
+        game = match_type(spec["setup"])
+        for operation in spec["operations"]:
+            if operation == dict(kind="step",hook="submission_lock"):
+                return game, operation
+            self.assertNotEqual("invalid",game.apply(operation)["action"])
+        self.fail("reference has no submission lock")
+
+    def test_owned_hook_failure_restores_appended_events_and_clock(self):
+        original = RoundRules.run
+        for failure in (e.Rejected, e.Unsupported, RuntimeError):
+            with self.subTest(failure=failure.__name__):
+                game, operation = self.before_lock()
+                before, clock, seen = game.snapshot(), game.clock.snapshot(), []
+                def fail(rules, orders):
+                    original(rules, orders)
+                    seen.append(any(e.zones(rules.w)["committed"]))
+                    rules.w["players"][0]["resources"]["souls"] += 1
+                    raise failure("after_native_lock")
+                with patch.object(RoundRules,"run",fail):
+                    if failure is e.Rejected:
+                        self.assertEqual("handler_rejected_hook",game.apply(operation)["reason"])
+                    else:
+                        with self.assertRaises(failure): game.apply(operation)
+                self.assertEqual([True],seen)
+                self.assertEqual(before,game.snapshot())
+                self.assertEqual(clock,game.clock.snapshot())
+                self.assertNotEqual("invalid",game.apply(operation)["action"])
+
+    def test_live_state_escape_during_hook_restores_old_history_and_presentation(self):
+        original = RoundRules.run
+        for failure in (e.Rejected, e.Unsupported, RuntimeError):
+            with self.subTest(failure=failure.__name__):
+                game, operation = self.before_lock()
+                before = game.snapshot()
+                def fail(rules, orders):
+                    original(rules,orders)
+                    live = game.state
+                    live["events"]["rows"][0]["event"]["data"].clear()
+                    live["presentation_world"]["data"]["card_zones"]["deck"].clear()
+                    live["persistent"]["used_ids"].append("escaped")
+                    raise failure("after_state_escape")
+                with patch.object(RoundRules,"run",fail):
+                    if failure is e.Rejected:
+                        self.assertEqual("handler_rejected_hook",game.apply(operation)["reason"])
+                    else:
+                        with self.assertRaises(failure): game.apply(operation)
+                self.assertEqual(before,game.snapshot())
+
+    def test_retained_live_reference_preserves_cross_branch_aliases_on_rollback(self):
+        game, operation = self.before_lock()
+        retained = game.state
+        retained["presentation_world"] = retained["world"]
+        resources = retained["world"]["players"][0]["resources"]
+        retained["events"]["rows"][0]["event"]["data"] = resources
+        before = game.snapshot()
+        def fail(rules,orders):
+            # This reference escaped before apply(), not through a hook read.
+            resources["souls"] += 17
+            retained["events"]["rows"].clear()
+            raise RuntimeError("retained_reference")
+        with patch.object(RoundRules,"run",fail):
+            with self.assertRaisesRegex(RuntimeError,"retained_reference"):
+                game.apply(operation)
+        after = game.snapshot()
+        self.assertEqual(before,after)
+        self.assertIs(after["world"],after["presentation_world"])
+        self.assertIs(after["world"]["players"][0]["resources"],after["events"]["rows"][0]["event"]["data"])
+
+    def test_custom_private_hooks_keep_complete_rollback(self):
+        class Extended(FullMatch):
+            pass
+        for match_type in (FullMatch,Extended):
+            with self.subTest(match_type=match_type.__name__):
+                game, operation = self.before_lock(match_type)
+                before = game.snapshot()
+                def fail():
+                    game._state["events"]["rows"][0]["event"]["data"].clear()
+                    game._state["presentation_world"]["players"].clear()
+                    raise RuntimeError("custom_private_hook")
+                game._hook = fail
+                with self.assertRaisesRegex(RuntimeError,"custom_private_hook"):
+                    game.apply(operation)
+                self.assertEqual(before,game.snapshot())
+
+    def test_successful_state_escape_commits_edits_without_mutating_public_snapshot(self):
+        game, operation = self.before_lock()
+        before, frozen = game.snapshot(), game.snapshot()
+        original = RoundRules.run
+        def edit(rules,orders):
+            result = original(rules,orders)
+            live = game.state
+            live["events"]["rows"][0]["event"]["data"]["directed_edit"] = True
+            live["presentation_world"]["data"]["directed_edit"] = True
+            return result
+        with patch.object(RoundRules,"run",edit):
+            self.assertNotEqual("invalid",game.apply(operation)["action"])
+        after = game.snapshot()
+        self.assertTrue(after["events"]["rows"][0]["event"]["data"]["directed_edit"])
+        self.assertTrue(after["presentation_world"]["data"]["directed_edit"])
+        self.assertEqual(frozen,before)
+
     def at(self, number, hook):
         spec = load()["cases"][0]
         game = FullMatch(spec["setup"])

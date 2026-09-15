@@ -13,6 +13,34 @@ def copy_data(value):
     return _clone(value, {})
 
 
+class RollbackSnapshot:
+    """Rollback storage, distinct from a fully detached public snapshot.
+
+    share_history is only for owned FullMatch dispatch: old event rows and the
+    presentation world are disjoint from mutable authority and never edited.
+    The history list itself is copied, so appends roll back normally. A live
+    state escape upgrades this backup before exposing either shared subtree.
+    """
+
+    def __init__(self, state, share_history=False):
+        self.shared = share_history
+        memo = {}
+        if share_history:
+            rows = state["events"]["rows"]
+            presentation = state["presentation_world"]
+            memo[id(rows)] = rows.copy()
+            memo[id(presentation)] = presentation
+        self.state = _clone(state, memo)
+
+    def detach(self):
+        if self.shared:
+            detached = copy_data(self.state)
+            # _apply already holds this dictionary as rollback_state.
+            self.state.clear()
+            self.state.update(detached)
+            self.shared = False
+
+
 def _clone(item, memo):
     # A module-level function avoids a recursive closure retaining each copied
     # graph until cyclic garbage collection runs.

@@ -192,10 +192,10 @@ class DevelopmentMatch(PlanningMatch):
     def _hook(self):
         if self.clock.hook != "development":
             return super()._hook()
-        w, number = self.state["world"], self.clock.round
+        w, number = self._state["world"], self.clock.round
         d = w["data"]
-        if (number != 1 or self.state["pending"]["pending"] or self.state["persistent"]["active"]
-                or self.state["cooldowns"]["locks"]):
+        if (number != 1 or self._state["pending"]["pending"] or self._state["persistent"]["active"]
+                or self._state["cooldowns"]["locks"]):
             raise e.Unsupported("DevelopmentMatch requires the supported fresh-game planning prefix")
         # Empty Rites -> empty Resummon -> construction clock -> deployed Guards
         # -> Work/pairs. The adapter has already rejected paid Rites and powers.
@@ -211,11 +211,11 @@ class DevelopmentMatch(PlanningMatch):
         d["summon_round"] = number
         d["construction_round"] = number
         try:
-            deployed_events = _deploy_owned(w, number, self.state["player_order"])
+            deployed_events = _deploy_owned(w, number, self._state["player_order"])
         except e.Rejected as error:
             # Match._apply_transform wraps the content rejection at this hook.
             raise e.Rejected("transform_contract_error") from error
-        rows = self.state["events"]["rows"]
+        rows = self._state["events"]["rows"]
         rows.extend(deployed_events)
-        rows.extend(work(self.state["world"], number, self.state["player_order"]))
-        self.state["world"]["data"]["vacant_throne"]["present"] = [True, True]
+        rows.extend(work(self._state["world"], number, self._state["player_order"]))
+        self._state["world"]["data"]["vacant_throne"]["present"] = [True, True]

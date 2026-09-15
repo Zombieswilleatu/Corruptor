@@ -29,7 +29,9 @@ def input_hash():
 
 def observation(match, pid):
     """Only own hand and public board; no deck, enemy hand or sealed orders."""
-    w = match.state["world"]
+    # Trusted adapter reads private storage; the policy receives only the
+    # detached projection below, never a live-state escape.
+    w = match._state["world"]
     hand = e.zones(w)["hands"][pid]
     return copy_data(dict(player_id=pid, round=match.clock.round,
         hand=[e.entity(w,key) for key in hand], players=w["players"],
@@ -96,7 +98,7 @@ def next_operation(match, policy=reference_plan, weights=None):
     """Public choice driver; injected policy only receives per-player views."""
     if match.clock.completed:
         return dict(kind="next_round")
-    w, hook = match.state["world"],match.clock.hook
+    w, hook = match._state["world"],match.clock.hook
     if hook == "present_public_state":
         pending = w["data"]["game_economy"]["stockpile_pending"]
         if pending:
@@ -112,7 +114,7 @@ def next_operation(match, policy=reference_plan, weights=None):
                 if e.entity(w,take)["attributes"]["value"] > e.entity(w,give)["attributes"]["value"]:
                     choice = dict(market="Swap",take_id=take,give_id=give)
             return dict(kind="market",player_id=pid,choice=choice)
-    if hook == "submission_lock" and match.state["submissions"] == [None,None]:
+    if hook == "submission_lock" and match._state["submissions"] == [None,None]:
         return dict(kind="submit",plans=[policy(observation(match,pid),**(weights or {})) for pid in (0,1)])
     return dict(kind="step",hook=hook)
 

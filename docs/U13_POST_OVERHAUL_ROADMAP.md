@@ -2,6 +2,15 @@
 
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
+**2026-09-15 full-match rollback optimization implemented; Windows comparison pending:**
+The [copying pass](U13_PYSIM_FULL_MATCH_COPYING_2026-09-15.md) shares unchanged
+history/presentation only within audited owned transactions, retaining detached
+snapshots and full rollback for live-state access/custom hooks. All 63 local
+tests and exact replay against the pinned Windows reference pass. A matched
+Linux CPython diagnostic measured 12.57 → 2.75 seconds (4.57×). The focused
+Windows runner checks both CPython/PyPy and 20 consecutive games per
+implementation/runtime against `d059b95`, reusing the existing native stream.
+
 **2026-09-15 first complete-game adapter accepted at clean `d059b95`:**
 `FullMatch` connects all 20 hooks, repeated rounds, Marching reactions, cleanup,
 Vacant Throne and victory for four Lords with explicit ordinary decisions. The

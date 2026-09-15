@@ -8,7 +8,7 @@ resolve those orders. No expected Godot state is loaded into this match.
 from copy import deepcopy
 
 from . import economy as e, opening
-from .copying import copy_data
+from .copying import copy_data, RollbackSnapshot
 from .primitives import normalize, instance_id, draw as roll
 from .timeline import Timeline
 
@@ -19,31 +19,57 @@ class PlanningMatch:
     HOOK_LIMIT = 5
 
     def __init__(self, setup):
-        self.state = opening.snapshot(setup["seed"], setup["lords"], setup["castles"])
+        self._state = opening.snapshot(setup["seed"], setup["lords"], setup["castles"])
+        self._state_exposed = False
+        self._transaction = None
         self.clock = Timeline()
         self.clock.begin(1)
 
+    @property
+    def state(self):
+        # Fixtures and extensions may retain and mutate this live dictionary.
+        # Detach a shared backup BEFORE returning it, then keep subsequent
+        # transactions conservative because escaped references can outlive us.
+        self._state_exposed = True
+        if self._transaction is not None:
+            self._transaction.detach()
+        return self._state
+
+    @state.setter
+    def state(self, value):
+        self._state_exposed = True
+        if self._transaction is not None:
+            self._transaction.detach()
+        self._state = value
+
     def snapshot(self):
-        return copy_data(self.state)
+        return copy_data(self._state)
+
+    def _rollback_snapshot(self):
+        return RollbackSnapshot(self._state)
 
     def outcome(self):
-        victory = self.state["world"]["data"]["victory"]
+        victory = self._state["world"]["data"]["victory"]
         return dict(action="game_finished" if victory["winner"] != -1 else "game_in_progress",
                     round=self.clock.round, winner=victory["winner"], win_by=victory["win_by"])
 
     def apply(self, operation):
         # Include clock, event rows and sealed slots in the transaction.
-        before, clock = self.snapshot(), deepcopy(self.clock)
+        backup, clock = self._rollback_snapshot(), deepcopy(self.clock)
+        before = backup.state
+        self._transaction = backup
         try:
             result = self._apply(operation, before)
-            self.state["runtime"] = self.clock.snapshot()
+            self._state["runtime"] = self.clock.snapshot()
             return result
         except e.Rejected as error:
-            self.state, self.clock = before, clock
+            self._state, self.clock = before, clock
             return {"action": "invalid", "reason": str(error)}
         except Exception:
-            self.state, self.clock = before, clock
+            self._state, self.clock = before, clock
             raise
+        finally:
+            self._transaction = None
 
     def _apply(self, operation, rollback_state):
         kind = operation.get("kind")
@@ -55,9 +81,9 @@ class PlanningMatch:
             try:
                 self._hook()
             except e.Rejected as error:
-                # Reuse the enclosing transaction's detached backup. The clock
+                # Reuse the enclosing transaction's rollback backup. The clock
                 # has not run yet; its rejection contract leaves it unchanged.
-                self.state = rollback_state
+                self._state = rollback_state
                 return self.clock.run(self.clock.hook, {"action": "invalid", "reason": str(error)})
             self.clock.run(self.clock.hook, {"action": "u13_dispatched"})
             return dict(action="u13_match_hook", next_hook=self.clock.hook, round=self.clock.round)
@@ -67,16 +93,16 @@ class PlanningMatch:
         if kind in ("market", "stockpile"):
             pid = operation["player_id"]
             e.require(type(pid) is int and pid in (0, 1), "match_choice_unavailable")
-            w = self.state["world"]
+            w = self._state["world"]
             if kind == "market":
                 e.require("market" in operation["choice"], "market_choice_invalid")
                 events = e.choose_market(w, pid, operation["choice"], self.clock.round, self.clock.hook)
             else:
                 events = e.choose_stockpile(w, pid, {"keep_id": operation["keep_id"]},
-                                            self.state["seed"], self.clock.round, self.clock.hook)
+                                            self._state["seed"], self.clock.round, self.clock.hook)
                 if not w["data"]["game_economy"]["stockpile_pending"]:
-                    events += e.market_begin(w, self.state["seed"], self.clock.round)
-            self.state["events"]["rows"].extend(events)
+                    events += e.market_begin(w, self._state["seed"], self.clock.round)
+            self._state["events"]["rows"].extend(events)
             return {"action": "match_choice_accepted"}
         if kind == "submit_one":
             self._submit_one(operation["player_id"], operation["plan"])
@@ -95,7 +121,7 @@ class PlanningMatch:
 
     def _submit_one(self, pid, plan):
         e.require(type(pid) is int and pid in (0, 1) and self.clock.hook == "submission_lock", "submission_window_closed")
-        e.require(self.state["submissions"][pid] is None, "submission_already_locked")
+        e.require(self._state["submissions"][pid] is None, "submission_already_locked")
         if plan["powers"]:
             raise e.Unsupported("Lord power declarations are outside planning V1")
         try:
@@ -103,9 +129,9 @@ class PlanningMatch:
         except ValueError as error:
             raise e.Rejected("submission_data_invalid") from error
         # A validation preview does not pay, reserve or append events to live state.
-        self._accept_order(self.state["world"], pid, order, reserve=False)
-        self.state["submissions"][pid] = []
-        self.state["combat_orders"][pid] = order
+        self._accept_order(self._state["world"], pid, order, reserve=False)
+        self._state["submissions"][pid] = []
+        self._state["combat_orders"][pid] = order
 
     def _accept_order(self, w, pid, order, reserve=True):
         d, z, number = w["data"], e.zones(w), self.clock.round
@@ -209,10 +235,10 @@ class PlanningMatch:
                 and len(set(ids)) == len(ids) and (bool(ids) or action not in ("Hunt", "Siege")))
 
     def _hook(self):
-        w, hook, number = self.state["world"], self.clock.hook, self.clock.round
-        d, rows = w["data"], self.state["events"]["rows"]
-        if (number != 1 or self.state["pending"]["pending"] or self.state["persistent"]["active"]
-                or self.state["cooldowns"]["locks"] or d["guard_work"]["pairs"]
+        w, hook, number = self._state["world"], self.clock.hook, self.clock.round
+        d, rows = w["data"], self._state["events"]["rows"]
+        if (number != 1 or self._state["pending"]["pending"] or self._state["persistent"]["active"]
+                or self._state["cooldowns"]["locks"] or d["guard_work"]["pairs"]
                 or any(r["kind"] == "marcher" or r["attributes"].get("role") == "guard"
                        for r in w["entities"]["entities"])):
             raise e.Unsupported("Planning V1 requires a fresh game without active powers or deployed units")
@@ -225,8 +251,8 @@ class PlanningMatch:
                     rows.append(e.event("KRONI_HUNGER_CHANGED", dict(player_id=pid, before=0, after=0,
                                         round=number, cause="Cannibal Hunger"), "Cannibal Hunger: Hunger 0 → 0."))
         elif hook == "persistent_advancement":
-            self.state["persistent"]["advanced_round"] = number
-            self.state["cooldowns"]["round"] = number
+            self._state["persistent"]["advanced_round"] = number
+            self._state["cooldowns"]["round"] = number
             d["scorch_guard_round"] = number
         elif hook == "round_start_automatic":
             d["sigil_lifecycle"]["aged_round"] = number
@@ -252,7 +278,7 @@ class PlanningMatch:
             for pid, player in enumerate(w["players"]):
                 if player["lord_id"] == "Kanifous":
                     identity = instance_id("wishmaster", str(pid), str(number))
-                    seed = self.state["seed"]
+                    seed = self._state["seed"]
                     target = dict(lane=("Lord", "Castle")[roll(seed, identity, "SMOKE_LANE", 0, 2)],
                                   field_position=dict(x_fp=600 + roll(seed, identity, "SMOKE_X", 0, 1201),
                                                       y_fp=180 + roll(seed, identity, "SMOKE_Y", 0, 241)))
@@ -260,19 +286,19 @@ class PlanningMatch:
                                  due_round=number + 1, target=target)
                     d["kanifous_objects"].append(smoke)
                     rows.append(e.event("WISHMASTER_SMOKE_CREATED", smoke, "Wishmaster Smoke Created"))
-            rows.extend(e.start_draw(w, self.state["seed"], number))
+            rows.extend(e.start_draw(w, self._state["seed"], number))
             d["guard_work"]["draw_round"] = number
             if not d["game_economy"]["stockpile_pending"]:
-                rows.extend(e.market_begin(w, self.state["seed"], number))
+                rows.extend(e.market_begin(w, self._state["seed"], number))
         elif hook == "present_public_state":
             # Match._dispatch routes the content rejection through _apply_transform,
             # which reports transform_contract_error before Runtime wraps it.
             e.require(not d["game_economy"]["stockpile_pending"] and d["game_market"]["seat"] == 2,
                       "transform_contract_error")
             d["guard_public_round"] = number
-            self.state["presentation_world"] = copy_data(w)
+            self._state["presentation_world"] = copy_data(w)
         elif hook == "submission_lock":
-            e.require(all(x is not None for x in self.state["submissions"]), "both_submissions_required")
-            for pid in self.state["player_order"]:
-                rows.extend(self._accept_order(w, pid, self.state["combat_orders"][pid]))
+            e.require(all(x is not None for x in self._state["submissions"]), "both_submissions_required")
+            for pid in self._state["player_order"]:
+                rows.extend(self._accept_order(w, pid, self._state["combat_orders"][pid]))
         d["vacant_throne"]["present"] = [True, True]
