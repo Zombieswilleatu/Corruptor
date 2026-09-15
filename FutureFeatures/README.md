@@ -6,6 +6,17 @@ Start here for project priorities. This distills FutureFeatures and the relevant
 
 **Immediate engineering path:** finish the U13 Python mirror → establish full-match parity and measured throughput → improve common and Lord doctrine → run meaningful balance campaigns. **UI redesign is a parallel presentation track**, now that the first Forecast is playable. Monster integration follows a trusted battle baseline; the campaign builds on that.
 
+## Release milestones — Steam Early Access, then 1.0
+
+**Confirmed direction, 2026-09-15:** the beta release goal is **Steam Early Access**. Final art assets and production polish will be developed during Early Access; completion of those assets is not a prerequisite for that first public release.
+
+Planning distinction:
+- **Before Early Access:** prioritize a stable, enjoyable and understandable playable offering, reliable saves, usable onboarding and readable provisional assets. The exact initial content roster and run/progression scope still need to be set; this clarification does not automatically require every roadmap feature at launch.
+- **During Early Access:** replace provisional art with final assets, refine animation/audio/UI, iterate on balance and progression using player feedback, and complete the agreed content scope.
+- **1.0:** the later finished-release milestone, with final production assets and the chosen feature scope complete.
+
+Earlier estimates for a fully polished release should not be treated as Early Access deadlines. Prototype art remains useful, provided it communicates gameplay clearly. The full authored prologue's Early Access timing remains a separate scope decision; players still need enough onboarding to play.
+
 ## 1. What already exists
 
 | Area | Current evidence and limits |
@@ -123,7 +134,7 @@ Prototype legal scenario states once the relevant battle/UI contracts are stable
 | The Read / tell system | Pattern-first, per-opponent learning, sample-size gating; tempo only with calibrated baselines | Proven-fun loop, competent distinct bosses and repeated-opponent data. Preserve useful policy diagnostics/profile seams; do not build glyphs now. |
 | Async multiplayer | Simultaneous orders, multiple active matches, replayable state; realtime as a possible companion | Retain as a product ambition. Launch inclusion, networking authority, hidden-information protection, reconnect/abandonment and version compatibility need a dedicated plan. The old commit-reveal sketch is not a complete networking design. |
 | Broader progression/lore | Mastered Breaches, rank ladder, world progression and campaign terminus | Revisit after the first run demonstrates its value; avoid committing to every old progression idea at once. |
-| Final production and release | Art/audio integration, accessible UI, settings, saves, onboarding, demo and outside playtests | Define the actual launch scope before scheduling beta or promising dates/budgets. Historical estimates are not current commitments. |
+| Early Access → 1.0 production | Final art replacement, animation/audio/UI refinement, content and balance iteration | Steam Early Access is the beta release target. Final production assets follow during Early Access; readable presentation, stability and usable onboarding remain first-release priorities. |
 | Ranked, additional Lords, 2v2, mobile | Preserve as expansion possibilities | No implementation priority or launch requirement assigned here. |
 
 Tell source: [The Read v0.1](corruptor_tell_system_design_v0.1.md). Multiplayer and older expansion concepts: [product roadmap v3](../corruptor_godot_roadmap_v3.md).
