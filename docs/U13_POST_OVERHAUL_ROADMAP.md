@@ -1,18 +1,22 @@
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
-**2026-09-15 Development implemented; Windows acceptance pending:** The independent
-Python mirror now extends through the sixth hook, Guard deployment and Work/pairs.
-Local diagnostic checks match 90 complete snapshots and 217 isolated lifecycle
-operations. See [implementation and focused runner](U13_PYSIM_DEVELOPMENT_2026-09-15.md).
+**2026-09-15 Development accepted at clean `108fc15`:** The Windows Godot 4.7.2
+gate passed: 497 Godot checks, 90 exact Python snapshots, 217 isolated lifecycle
+operations, 20 Python unit tests and 14 rejected evidence corruptions; no failures
+or script errors. The independent Python mirror extends through the sixth hook,
+Guard deployment and Work/pairs. See
+[implementation and accepted evidence](U13_PYSIM_DEVELOPMENT_2026-09-15.md).
 Artillery, combat, Marching and full rounds remain outside the Python adapter.
 
 **2026-09-15 policy and performance steering:** Keep doctrine swappable in the
 harness. Experimental Python policies/configurations do not need Godot ports;
 require decision parity for the selected shipping doctrine and exact rules parity
-for identical explicit inputs. The new partial timing probe measures 37.59 ms
-mean for opening through first Development on one local Python worker, excluding
-export/comparison and doctrine. It establishes no full-match speed. Profile the
-current hot path and bring an exact spatial performance spike forward before
+for identical explicit inputs. The accepted Windows partial timing probe measures
+31.35 ms mean, 26.65 ms median and 52.74 ms p95 for opening through first Development
+over 270 cycles on one worker, excluding export/comparison and doctrine. It
+establishes no full-match speed. Local profiling identified state copying as the
+first optimization candidate. Reduce measured overhead with unchanged exact
+parity and rollback checks, then bring a spatial performance spike forward before
 finishing Marching; measure the first supported complete-match path promptly.
 See [concrete contracts and gates](U13_PYSIM_POLICY_AND_PERFORMANCE_2026-09-15.md).
 
@@ -24,7 +28,7 @@ cases, 222 game operations (including 140 atomic rejections), 21 economy
 component transitions and 52 standalone cursor operations. Thirteen Python unit
 tests and eleven corruption probes also passed; zero failures or script errors.
 See [scope and accepted evidence](U13_PYSIM_PLANNING_2026-09-15.md).
-Development is now implemented as described above; its Windows gate is pending.
+Development is now accepted as described above.
 Full Python round resolution remains unimplemented; standalone cursor coverage
 does not certify the later hooks' game mechanics.
 
@@ -48,7 +52,7 @@ The campaign predates forecast/public-Guard changes and is not balance evidence.
 **PySim progression:** Round sequencing, submissions and opening-round economy
 now have the focused implementation above. The
 trace contract, exact deterministic primitives and opening-state parity are
-accepted. Complete Development acceptance, profile its implemented hot path,
+accepted through Development. Optimize the measured copying overhead,
 then extend ordinary resolution with the early spatial performance gate above;
 see [inventory and subsequent parity order](U13_PYSIM_PARITY_2026-09-15.md).
 Then Common Smart Core + separate Lord doctrines, serious balance, and roguelite

@@ -1,0 +1,745 @@
+{
+  "schema": "U13_PYSIM_DEVELOPMENT_ACCEPTANCE_V1",
+  "recorded_on": "2026-09-15",
+  "scope": "Exact Python fresh-game parity through Development and isolated Guard/Work/pair lifecycles; not full-round or full-match parity.",
+  "source_archive": "u13-pysim-development-VR6vYW-2026-09-14_23-35-02-zLQs81.zip",
+  "archive_sha256": "c5e254ce81212d2b3a0b97f1f7efd85b319e1e9d0bc7e55c2b3dae02b2dd4c18",
+  "source_revision": "108fc1579bb9cf71fc905e6be06a6db43754fde3",
+  "source_sha256": "73072edd9ea35c3d50edef2cdcc85adaafbf48490f9801a959bf973679c8d089",
+  "runtime_build": "4.7.2.stable.official.ed1daf0bf",
+  "platform": "Windows",
+  "python_version": "Python 3.14.7",
+  "working_diff_bytes": 0,
+  "run_status": {
+    "runner": "u13-pysim-development",
+    "exit_status": "0"
+  },
+  "gate_passed": true,
+  "godot_checks": 497,
+  "godot_failures": 0,
+  "script_errors": 0,
+  "godot_replayed_game_traces": 9,
+  "godot_replayed_components": 11,
+  "python_unit_tests": 20,
+  "python_summary": {
+    "python_mirror": "U13_PYSIM_DEVELOPMENT_V1",
+    "source_revision": "108fc1579bb9cf71fc905e6be06a6db43754fde3",
+    "source_sha256": "73072edd9ea35c3d50edef2cdcc85adaafbf48490f9801a959bf973679c8d089",
+    "runtime": "4.7.2-stable (official)",
+    "diagnostic_only": false,
+    "development_games_matched": 9,
+    "full_game_snapshots_matched": 90,
+    "game_operations_matched": 81,
+    "component_operations_matched": 217,
+    "component_fixture_operations": 106,
+    "rejected_component_operations_matched": 7,
+    "game_hooks_implemented": [
+      "round_start_scheduled",
+      "persistent_advancement",
+      "round_start_automatic",
+      "present_public_state",
+      "submission_lock",
+      "development"
+    ],
+    "python_full_round_parity": false,
+    "python_full_match_parity": false,
+    "failures": 0,
+    "deliberate_mismatches_rejected": 14
+  },
+  "trace_identity": {
+    "authority": "Godot U13",
+    "choice_policy": "explicit inputs; fixture selection is not doctrine",
+    "engine_version": "4.7.2",
+    "event_profile": "U13_BATCH_EVENTS_V1",
+    "excluded_visual_events": [
+      "MARCHING_TICK",
+      "KRONI_ACTOR_TICK"
+    ],
+    "platform": "Windows",
+    "policy_id": "U13_GUARD_WORK_V2:U13_VICTORY_V2_ROUND_PRESSURE:U13_PROFANE_PILLAGE_V1:U13_VULTURE_RANGED_V1:U13_VACANT_THRONE_V1:U13_DOMINION_RITES_V1:U13_FRACTURE_V1:U13_SIGIL_LIFECYCLE_V1:U13_BLOOD_CONDUIT_V1:U13_GAME_MARKET_V2:U13_CASTLE_DEFENSES_V1:U13_GAME_ECONOMY_V4:U13_KANIFOUS_V1:U13_VALAK_V1:U13_KRONI_WEIGHTED_ANGLES_V8:U13_ODRADEK_COMPLETE_V2:U13_ORIAS_MARK_BOARD_V4:U13_BATCH_EVENTS_V1",
+    "producer": "U13_PYSIM_DEVELOPMENT_EXPORT_V1",
+    "rng_version": "U13_SHA256_REJECTION_V1",
+    "rules_hash": "77bdef9e9cc0e83cd34a3cbd04a9d8492211aae2ccabe6e0c1172a474a10e3c4",
+    "runtime": "4.7.2-stable (official)",
+    "schema_version": "U13_MATCH_V1",
+    "source_revision": "108fc1579bb9cf71fc905e6be06a6db43754fde3",
+    "source_sha256": "73072edd9ea35c3d50edef2cdcc85adaafbf48490f9801a959bf973679c8d089",
+    "trace_schema": "U13_DEVELOPMENT_TRACE_V1"
+  },
+  "independent_uploaded_trace_verification": {
+    "passed": true,
+    "host_python": "3.12.14",
+    "diagnostic_override": false,
+    "summary_matches_uploaded_report": true,
+    "deliberate_mismatches_rejected": 14
+  },
+  "cases": [
+    {
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ],
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ]
+        ],
+        "lords": [
+          "Gremory",
+          "Deimos"
+        ],
+        "seed": "u13-python-development:\u00e9:0:0"
+      },
+      "operations": 9,
+      "final_hook": "post_repair_artillery",
+      "pairs": [
+        {
+          "player_id": 0,
+          "suit": "Butcher",
+          "lane": "Lord"
+        },
+        {
+          "player_id": 1,
+          "suit": "Wright",
+          "lane": "Castle"
+        }
+      ]
+    },
+    {
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ],
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ]
+        ],
+        "lords": [
+          "Deimos",
+          "Humbaba"
+        ],
+        "seed": "u13-python-development:\u00e9:1:0"
+      },
+      "operations": 9,
+      "final_hook": "post_repair_artillery",
+      "pairs": [
+        {
+          "player_id": 0,
+          "suit": "Penitent",
+          "lane": "Lord"
+        },
+        {
+          "player_id": 1,
+          "suit": "Vulture",
+          "lane": "Castle"
+        }
+      ]
+    },
+    {
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ],
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ]
+        ],
+        "lords": [
+          "Humbaba",
+          "Kalligan"
+        ],
+        "seed": "u13-python-development:\u00e9:2:0"
+      },
+      "operations": 9,
+      "final_hook": "post_repair_artillery",
+      "pairs": [
+        {
+          "player_id": 0,
+          "suit": "Wright",
+          "lane": "Lord"
+        },
+        {
+          "player_id": 1,
+          "suit": "Butcher",
+          "lane": "Castle"
+        }
+      ]
+    },
+    {
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ],
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ]
+        ],
+        "lords": [
+          "Kalligan",
+          "Orias"
+        ],
+        "seed": "u13-python-development:\u00e9:3:3"
+      },
+      "operations": 9,
+      "final_hook": "post_repair_artillery",
+      "pairs": [
+        {
+          "player_id": 0,
+          "suit": "Vulture",
+          "lane": "Lord"
+        },
+        {
+          "player_id": 1,
+          "suit": "Penitent",
+          "lane": "Castle"
+        }
+      ]
+    },
+    {
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ],
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ]
+        ],
+        "lords": [
+          "Orias",
+          "Odradek"
+        ],
+        "seed": "u13-python-development:\u00e9:4:2"
+      },
+      "operations": 9,
+      "final_hook": "post_repair_artillery",
+      "pairs": [
+        {
+          "player_id": 0,
+          "suit": "Butcher",
+          "lane": "Castle"
+        },
+        {
+          "player_id": 1,
+          "suit": "Wright",
+          "lane": "Lord"
+        }
+      ]
+    },
+    {
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ],
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ]
+        ],
+        "lords": [
+          "Odradek",
+          "Kroni"
+        ],
+        "seed": "u13-python-development:\u00e9:5:0"
+      },
+      "operations": 9,
+      "final_hook": "post_repair_artillery",
+      "pairs": [
+        {
+          "player_id": 0,
+          "suit": "Penitent",
+          "lane": "Castle"
+        },
+        {
+          "player_id": 1,
+          "suit": "Vulture",
+          "lane": "Lord"
+        }
+      ]
+    },
+    {
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ],
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ]
+        ],
+        "lords": [
+          "Kroni",
+          "Valak"
+        ],
+        "seed": "u13-python-development:\u00e9:6:0"
+      },
+      "operations": 9,
+      "final_hook": "post_repair_artillery",
+      "pairs": [
+        {
+          "player_id": 0,
+          "suit": "Wright",
+          "lane": "Castle"
+        },
+        {
+          "player_id": 1,
+          "suit": "Butcher",
+          "lane": "Lord"
+        }
+      ]
+    },
+    {
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ],
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ]
+        ],
+        "lords": [
+          "Valak",
+          "Kanifous"
+        ],
+        "seed": "u13-python-development:\u00e9:7:1"
+      },
+      "operations": 9,
+      "final_hook": "post_repair_artillery",
+      "pairs": [
+        {
+          "player_id": 0,
+          "suit": "Vulture",
+          "lane": "Castle"
+        },
+        {
+          "player_id": 1,
+          "suit": "Penitent",
+          "lane": "Lord"
+        }
+      ]
+    },
+    {
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ],
+          [
+            "Keep",
+            "Bastion",
+            "SummoningCircle",
+            "Stockpile",
+            "SiegeEngine"
+          ]
+        ],
+        "lords": [
+          "Kanifous",
+          "Gremory"
+        ],
+        "seed": "u13-python-development:\u00e9:8:0"
+      },
+      "operations": 9,
+      "final_hook": "post_repair_artillery",
+      "pairs": [
+        {
+          "player_id": 0,
+          "suit": "Butcher",
+          "lane": "Lord"
+        },
+        {
+          "player_id": 1,
+          "suit": "Wright",
+          "lane": "Castle"
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "name": "work_lifecycle",
+      "operations": 31,
+      "operation_counts": {
+        "fixture_give": 7,
+        "fixture_stage": 7,
+        "deploy": 7,
+        "work": 8,
+        "fixture_patch": 1,
+        "fixture_retire": 1
+      },
+      "rejected": 0
+    },
+    {
+      "name": "pair_Butcher_Lord",
+      "operations": 19,
+      "operation_counts": {
+        "fixture_give": 4,
+        "fixture_stage": 2,
+        "deploy": 2,
+        "work": 2,
+        "pair_draw": 4,
+        "fixture_patch": 2,
+        "reconcile": 2,
+        "fixture_retire": 1
+      },
+      "rejected": 0
+    },
+    {
+      "name": "pair_Butcher_Castle",
+      "operations": 19,
+      "operation_counts": {
+        "fixture_give": 4,
+        "fixture_stage": 2,
+        "deploy": 2,
+        "work": 2,
+        "pair_draw": 4,
+        "fixture_patch": 2,
+        "reconcile": 2,
+        "fixture_retire": 1
+      },
+      "rejected": 0
+    },
+    {
+      "name": "pair_Penitent_Lord",
+      "operations": 19,
+      "operation_counts": {
+        "fixture_give": 4,
+        "fixture_stage": 2,
+        "deploy": 2,
+        "work": 2,
+        "pair_draw": 4,
+        "fixture_patch": 2,
+        "reconcile": 2,
+        "fixture_retire": 1
+      },
+      "rejected": 0
+    },
+    {
+      "name": "pair_Penitent_Castle",
+      "operations": 19,
+      "operation_counts": {
+        "fixture_give": 4,
+        "fixture_stage": 2,
+        "deploy": 2,
+        "work": 2,
+        "pair_draw": 4,
+        "fixture_patch": 2,
+        "reconcile": 2,
+        "fixture_retire": 1
+      },
+      "rejected": 0
+    },
+    {
+      "name": "pair_Wright_Lord",
+      "operations": 19,
+      "operation_counts": {
+        "fixture_give": 4,
+        "fixture_stage": 2,
+        "deploy": 2,
+        "work": 2,
+        "pair_draw": 4,
+        "fixture_patch": 2,
+        "reconcile": 2,
+        "fixture_retire": 1
+      },
+      "rejected": 0
+    },
+    {
+      "name": "pair_Wright_Castle",
+      "operations": 19,
+      "operation_counts": {
+        "fixture_give": 4,
+        "fixture_stage": 2,
+        "deploy": 2,
+        "work": 2,
+        "pair_draw": 4,
+        "fixture_patch": 2,
+        "reconcile": 2,
+        "fixture_retire": 1
+      },
+      "rejected": 0
+    },
+    {
+      "name": "pair_Vulture_Lord",
+      "operations": 20,
+      "operation_counts": {
+        "fixture_give": 4,
+        "fixture_stage": 2,
+        "deploy": 2,
+        "work": 2,
+        "pair_draw": 4,
+        "fixture_exhaust_deck": 1,
+        "fixture_patch": 2,
+        "reconcile": 2,
+        "fixture_retire": 1
+      },
+      "rejected": 0
+    },
+    {
+      "name": "pair_Vulture_Castle",
+      "operations": 20,
+      "operation_counts": {
+        "fixture_give": 4,
+        "fixture_stage": 2,
+        "deploy": 2,
+        "work": 2,
+        "pair_draw": 4,
+        "fixture_exhaust_deck": 1,
+        "fixture_patch": 2,
+        "reconcile": 2,
+        "fixture_retire": 1
+      },
+      "rejected": 0
+    },
+    {
+      "name": "reconstruction",
+      "operations": 23,
+      "operation_counts": {
+        "fixture_patch": 8,
+        "validate_work": 7,
+        "fixture_give": 2,
+        "fixture_stage": 2,
+        "deploy": 2,
+        "work": 2
+      },
+      "rejected": 5
+    },
+    {
+      "name": "atomic_deployment",
+      "operations": 9,
+      "operation_counts": {
+        "fixture_give": 3,
+        "fixture_stage": 1,
+        "discard": 1,
+        "deploy": 3,
+        "work": 1
+      },
+      "rejected": 2
+    }
+  ],
+  "partial_timing": {
+    "schema": "U13_PYSIM_DEVELOPMENT_TIMING_V1",
+    "python_mirror": "U13_PYSIM_DEVELOPMENT_V1",
+    "source_revision": "108fc1579bb9cf71fc905e6be06a6db43754fde3",
+    "source_sha256": "73072edd9ea35c3d50edef2cdcc85adaafbf48490f9801a959bf973679c8d089",
+    "python": "3.14.7",
+    "python_implementation": "CPython",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+    "logical_cpus": 8,
+    "workers": 1,
+    "warmup_cycles": 9,
+    "measured_cycles": 270,
+    "iterations_per_setup": 30,
+    "scope": "fresh opening through first Development; six hooks; not a full round or match",
+    "includes": [
+      "opening RNG and setup",
+      "engine transaction copies",
+      "upkeep and Slaver passes",
+      "sealed submissions and lock",
+      "two deployed pairs and Work",
+      "engine events",
+      "small timing bookkeeping overhead"
+    ],
+    "excludes": [
+      "input selection and doctrine",
+      "Godot execution",
+      "trace encoding or decoding",
+      "external snapshots and exact comparisons",
+      "artillery and combat",
+      "Marching",
+      "later rounds and Lord effects",
+      "victory",
+      "worker scaling"
+    ],
+    "wall_cycle": {
+      "samples": 270,
+      "mean_ms": 31.34632851851852,
+      "median_ms": 26.6515,
+      "p95_ms": 52.7443,
+      "min_ms": 21.0997,
+      "max_ms": 62.3768
+    },
+    "cpu_cycle": {
+      "samples": 270,
+      "mean_ms": 30.84490740740741,
+      "median_ms": 31.25,
+      "p95_ms": 46.875,
+      "min_ms": 0.0,
+      "max_ms": 62.5
+    },
+    "phase_wall": {
+      "opening": {
+        "samples": 270,
+        "mean_ms": 2.9580148148148147,
+        "median_ms": 2.39715,
+        "p95_ms": 5.4747,
+        "min_ms": 1.9468,
+        "max_ms": 7.0191
+      },
+      "upkeep_and_choices": {
+        "samples": 270,
+        "mean_ms": 17.078184814814815,
+        "median_ms": 14.66155,
+        "p95_ms": 28.6892,
+        "min_ms": 11.5532,
+        "max_ms": 40.1576
+      },
+      "submission_and_lock": {
+        "samples": 270,
+        "mean_ms": 6.587035925925926,
+        "median_ms": 5.507099999999999,
+        "p95_ms": 11.652,
+        "min_ms": 4.0812,
+        "max_ms": 20.5813
+      },
+      "development": {
+        "samples": 270,
+        "mean_ms": 4.723092962962963,
+        "median_ms": 3.86965,
+        "p95_ms": 8.5271,
+        "min_ms": 2.8522,
+        "max_ms": 10.2783
+      }
+    },
+    "measured_wall_seconds": 8.4635087,
+    "measured_cpu_seconds": 8.328125,
+    "python_full_match_implemented": false,
+    "full_match_games_per_second": null,
+    "full_match_50000_wall_seconds": null
+  },
+  "archive_manifest": [
+    {
+      "name": "development.exact.json",
+      "bytes": 14736335,
+      "sha256": "125c54026d76f166cf5e2593ceccd49cdce9e64e0744db973592656a322e2ce3"
+    },
+    {
+      "name": "godot.log",
+      "bytes": 23422,
+      "sha256": "bae9c5e23a71f93dcb1ac20916d602371b4ea29104bb5234b773ccdd50dd5c86"
+    },
+    {
+      "name": "partial-timing.json",
+      "bytes": 2586,
+      "sha256": "b4754693b9ac13232019a4c308576715531dcee623148761f48306b1c29cfa67"
+    },
+    {
+      "name": "python-parity.log",
+      "bytes": 888,
+      "sha256": "eb006794d04b21253776a7cf1d42a8312458a410097e8e554624a5d9792ef0ee"
+    },
+    {
+      "name": "python-summary.json",
+      "bytes": 846,
+      "sha256": "04ef9ddddb513cce34b5ac6c0bd0e3034c1d18eb9d58a730d35e5d019f9e29c7"
+    },
+    {
+      "name": "python-tests.log",
+      "bytes": 3178,
+      "sha256": "a620b8b403c0e2abdbfd13eb9a4a78e124f88aad8515a1ba614b3133d22391b7"
+    },
+    {
+      "name": "python-timing.log",
+      "bytes": 2660,
+      "sha256": "e6f60f8c1ebccbefa429cf25604d385eead6eb9111adbe70240b26b154904f87"
+    },
+    {
+      "name": "python-version.log",
+      "bytes": 15,
+      "sha256": "9fc9968e3ae8d82284d7426a87e1426e07246027c7706b0803a1c8d9c60c7a4d"
+    },
+    {
+      "name": "run-status.txt",
+      "bytes": 43,
+      "sha256": "d43d3024cf7401f53537c08d4a0328e9881dc73c57dbcc8fdf683007081e9535"
+    },
+    {
+      "name": "source-identity.txt",
+      "bytes": 108,
+      "sha256": "81c9ab53e8f30122c2d14eded8c3ddfa6bc8f39af460bc1d5080c3af474713cc"
+    },
+    {
+      "name": "version.log",
+      "bytes": 33,
+      "sha256": "bf8803022b574250bb04dea65053a46b7c58570725316c1f7fe2aa6735706498"
+    },
+    {
+      "name": "worktree.diff",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

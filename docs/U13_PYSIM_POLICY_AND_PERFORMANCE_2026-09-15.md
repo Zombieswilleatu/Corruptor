@@ -46,8 +46,13 @@ not mechanics changes or a request for another campaign now.
 The [Development implementation](U13_PYSIM_DEVELOPMENT_2026-09-15.md) introduces
 a separate Python-only partial timing probe. It excludes input selection,
 export and parity comparisons, but retains actual engine copying and events.
-Its initial mean is 37.59 ms for opening through the first Development on one
-Linux worker. It cannot answer the cost of a complete round or match.
+The accepted Windows `108fc15` run measured 31.35 ms mean, 26.65 ms median and
+52.74 ms p95 for opening through the first Development, across 270 cycles on
+one CPython 3.14.7 worker. Its full report is retained in the
+[accepted evidence](evidence/U13_PYSIM_DEVELOPMENT_108fc15.json). The earlier local
+Linux mean was 37.59 ms; this comparison changes runtime and hardware, so it
+does not measure an optimization. Neither run answers the cost of a complete
+round or match.
 
 For scale, 50,000 matches in one hour requires 13.89 aggregate matches/second.
 On one worker that allows **72 ms per complete match**; twelve hours allows

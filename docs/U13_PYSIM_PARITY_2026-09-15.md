@@ -9,9 +9,11 @@ five game hooks, sealed submissions and opening-round economy. Windows Godot
 4.7.2 acceptance passed at clean `f318d6d`, including 222 exact game operations
 and eleven rejected evidence corruptions. The
 [Development slice](U13_PYSIM_DEVELOPMENT_2026-09-15.md) now extends through
-Guard deployment and Work/pairs, with local exact diagnostic checks passing;
-its Windows 4.7.2 acceptance is pending. Subsequent game resolution remains
-unimplemented in Python.
+Guard deployment and Work/pairs, with Windows 4.7.2 acceptance passed at clean
+`108fc15`: 90 exact match snapshots, 217 component operations and 14 rejected
+evidence corruptions. The separate Windows timing probe measured 31.35 ms mean
+per opening-through-Development cycle; it is not a full-match speed measurement.
+Subsequent game resolution remains unimplemented in Python.
 This document retains the initial inventory and subsequent implementation
 boundaries. The [accepted checkpoint](U13_ACCEPTED_CHECKPOINT_2026-09-15.md) clears
 the pending mechanics-validation bookmark.

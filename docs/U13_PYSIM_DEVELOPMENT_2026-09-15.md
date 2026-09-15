@@ -1,9 +1,19 @@
 # U13 PySim Development — Guard deployment, Work and stable pairs
 
-Implemented on top of `c00d20dd173debc137b1a319ffd3c7edcc90827d` on
-`u13-basic-doctrine`. Windows Godot 4.7.2 acceptance is **pending**. Local Godot
-4.5.1 results are diagnostic only. The previously accepted foundation and
-planning gates keep their original revisions and evidence.
+Windows Godot 4.7.2 acceptance **passed** at clean revision
+`108fc1579bb9cf71fc905e6be06a6db43754fde3` on `u13-basic-doctrine`, built on
+`c00d20dd173debc137b1a319ffd3c7edcc90827d`. Local Godot 4.5.1 results remain
+diagnostic only. The previously accepted foundation and planning gates keep
+their original revisions and evidence.
+
+Accepted archive:
+`u13-pysim-development-VR6vYW-2026-09-14_23-35-02-zLQs81.zip`.
+Its SHA-256 is `c5e254ce81212d2b3a0b97f1f7efd85b319e1e9d0bc7e55c2b3dae02b2dd4c18`.
+The archive reports Godot `4.7.2.stable.official.ed1daf0bf`, Python 3.14.7,
+an empty working diff, exit status zero and no script errors. All 12 members
+passed CRC checks. The full exact trace was independently replayed in Python,
+including all 14 deliberate evidence corruptions. See the
+[accepted evidence and timing report](evidence/U13_PYSIM_DEVELOPMENT_108fc15.json).
 
 ## Implemented boundary
 
@@ -55,7 +65,8 @@ The new Godot exporter is `U13PySimDevelopmentTestRunner.gd`, with
 `U13_PYSIM_DEVELOPMENT_EXPORT_V1`. The Python mirror is
 `U13_PYSIM_DEVELOPMENT_V1`.
 
-Local diagnostic results:
+Accepted Windows Godot 4.7.2 results (also previously green in local 4.5.1
+diagnostics):
 
 | Check | Result |
 | --- | --- |
@@ -69,8 +80,10 @@ Local diagnostic results:
 | Deliberately corrupted evidence rejected at the changed field | 14 |
 
 The [local diagnostic record](evidence/U13_PYSIM_DEVELOPMENT_LOCAL.json) pins
-the final source fingerprint and exact export SHA-256. Its base revision plus
-working-tree fingerprint distinguishes it from clean Windows acceptance.
+the pre-commit source fingerprint and local exact export SHA-256. It remains
+separate from the [clean Windows acceptance](evidence/U13_PYSIM_DEVELOPMENT_108fc15.json),
+whose source fingerprint is
+`73072edd9ea35c3d50edef2cdcc85adaafbf48490f9801a959bf973679c8d089`.
 
 Comparison includes all snapshot fields, ordered event payloads and player
 views, private piles, presentation baseline, exact number types, physical IDs,
@@ -89,6 +102,24 @@ RNG remain inside; Godot, trace export, external snapshot comparisons and
 doctrine selection are excluded. Phase timings separate opening, upkeep/choices,
 submission/lock and Development. This is a single-process measurement.
 
+The accepted Windows run at `108fc15` measured **31.35 ms mean, 26.65 ms median,
+52.74 ms p95** per partial cycle. Its 270 measured cycles took 8.4635 seconds
+of wall time. Runtime was CPython 3.14.7 on Windows 11, AMD64; the machine
+reported eight logical CPUs and the probe used one worker.
+
+| Timed phase | Mean wall time |
+| --- | --- |
+| Opening | 2.96 ms |
+| Upkeep and choices | 17.08 ms |
+| Submission and lock | 6.59 ms |
+| Development | 4.72 ms |
+
+The CPU-time summary includes a zero minimum and coarse percentile values;
+retain those reported statistics and use the wall-clock distribution for
+fine-grained comparisons. The [accepted evidence](evidence/U13_PYSIM_DEVELOPMENT_108fc15.json)
+retains the complete timing report and hardware/runtime identifiers. This is a
+baseline on the user's machine, not a measured optimization over the Linux run.
+
 The initial Linux x86_64 CPython 3.12.14 diagnostic measured **37.59 ms mean,
 35.63 ms median, 48.19 ms p95** per partial cycle. Mean phase times were 2.90 ms
 opening, 20.83 ms upkeep/choices, 8.19 ms submission/lock, and 5.67 ms Development.
@@ -98,13 +129,15 @@ measurement is retained in
 including the exact source fingerprint. It describes the pre-commit source
 based on `c00d20d`, not an accepted clean Windows revision.
 
-This number **does not estimate full-match throughput**. The report deliberately
-leaves full-match games/second and 50,000-match duration null. Windows acceptance
-will include its own separate timing report. See the
+These numbers **do not estimate full-match throughput**. Both reports deliberately
+leave full-match games/second and 50,000-match duration null. See the
 [policy and performance gates](U13_PYSIM_POLICY_AND_PERFORMANCE_2026-09-15.md)
 before extending the performance claims or starting doctrine sweeps.
 
 ## Windows acceptance command
+
+This gate has passed; no rerun is needed for the documentation update. Retain
+the command for later implementation changes requiring this focused gate.
 
 Run from Windows Git Bash, with Python 3.10+ installed; no pip dependencies:
 
