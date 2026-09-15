@@ -1,9 +1,14 @@
 # U13 PySim — first complete-game reference
 
-Status: local diagnostic parity passed; Windows Godot 4.7.2 acceptance
-is pending. This is the first independent Python setup-to-victory path, with a
-deliberately bounded rules domain. It is not complete nine-Lord parity or balance
-evidence.
+**Windows Godot 4.7.2 acceptance passed at clean `d059b95`.** Independent Python
+replay reproduced the complete uploaded summary: two complete games, 30 rounds,
+767 operations, eight settlement components and one 200-tick probe. All 8,586
+Godot checks, 56 Python tests and 13 corruption rejections passed. The
+[accepted record](evidence/U13_PYSIM_FULL_MATCH_d059b95.json) preserves the
+Windows evidence and measured 11.34 / 19.07 second match means.
+
+This is the first independent Python setup-to-victory path, with a deliberately
+bounded rules domain. It is not complete nine-Lord parity or balance evidence.
 
 ## Scope and authority
 
@@ -178,9 +183,57 @@ Two fixed games do not establish population throughput, worker scaling or the
 cost of shipping doctrine. The 50 ms suggestion is a target, not a passed gate.
 Do not extrapolate a 50,000-game schedule from the earlier partial/isolated timing.
 
-## Windows gate and next work
+## Windows acceptance at `d059b95`
 
-Run from the U13 performance checkout after updating `u13-basic-doctrine`:
+Accepted archive:
+`u13-pysim-full-match-5KQlDr-2026-09-15_09-51-19-3GTYb8.zip`.
+
+- Archive SHA-256: `abcca4a1474faf85501af9d7a7004021e1b7d48e25acaaa7d45e8f26123dae07`.
+- Revision: `d059b9560a95c32779597260d99829f9f1534f22`; empty working diff.
+- Source fingerprint: `b25bdf65d1f1689f7e0b5e35cee748e810bd1bf409f2084ee55b0b280ad7358e`.
+- Input fingerprint: `c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865`.
+- Runtime: `4.7.2.stable.official.ed1daf0bf`, Windows 11, CPython 3.14.7.
+- Exit status 0, 13 unique archive members, valid CRCs, zero failures/script errors.
+
+The Windows gate passed all counts listed above and independently replayed both
+native games. A separate Python replay of the uploaded exact stream reproduced
+the entire verifier summary without a diagnostic override, including all 13
+corruption rejections. Benchmark input hashes and final-state digests also match
+the accepted cases and replay results. This verification does not claim local
+execution of Windows Godot or remeasurement of the user's hardware.
+
+Windows timings use one worker, normal garbage collection, one warmup and three
+fresh measured games per input; profiling is a separate run. The included and
+excluded work is unchanged from the local timing contract above.
+
+| Reference game | Rounds | Mean wall time | Median | Observed range |
+| --- | ---: | ---: | ---: | ---: |
+| bones_endurance | 13 | 11.34 s | 11.23 s | 8.41–14.38 s |
+| spoils_rekindle | 17 | 19.07 s | 18.96 s | 18.59–19.67 s |
+
+The equal-weight mean is **15.21 seconds per complete reference game**. The first
+case varies substantially across three samples; this report does not establish
+the cause. Different hardware and Python versions prevent treating the difference
+from Linux as an optimization or regression. The 50 ms target remains unmet;
+these two inputs do not establish policy throughput or worker scaling.
+
+The separate Windows profiles place `copy_data` at 18.87 of 24.81 seconds and
+31.68 of 40.84 seconds (76% and 78% cumulative). Transaction `snapshot()` alone
+accounts for 18.47 and 31.01 profiled seconds. The native gate's 605 seconds
+include export, checks and replay; they are not a Godot pure-match timing.
+No matched Godot-versus-Python speedup has been measured. See the
+[audited optimization priorities](U13_PYSIM_POLICY_AND_PERFORMANCE_2026-09-15.md#first-complete-game-profile-and-next-optimization).
+
+The [acceptance record](evidence/U13_PYSIM_FULL_MATCH_d059b95.json) retains the
+complete Windows parity and timing reports, test names, source/runtime identity,
+independent replay result and all archive-member hashes. Earlier local evidence
+and the preserved first reference remain unchanged.
+
+## Reproduction and next work
+
+The command is retained for reproduction. Recording this accepted evidence does
+not require another run. Use the U13 performance checkout at the accepted source
+revision when reproducing its exact identity:
 
 ```bash
 bash Scripts/Sim/run_u13_pysim_full_match.sh "C:/Users/jerem/OneDrive/Documents/Godot_v4.7.2-stable_win64.exe/Godot_v4.7.2-stable_win64.exe"
@@ -192,7 +245,12 @@ measures matches and packages the reports in Downloads. The native gate runs two
 complete reference games twice, not a new 100-game campaign. Its bounded watchdogs
 are 40 minutes for native export/replay and 15 minutes per Python stage.
 
-Preserve this first complete reference while optimizing the measured bottleneck.
+Optimize transaction and retained event-history copying against this accepted
+reference, retaining exact event views, state ownership and rejection rollback.
+Measure the change on identical inputs and hardware, and collect a matched
+Godot/Python pure-match comparison before extending the port further.
+Evaluate the separate [PyPy runtime candidate](U13_PYSIM_POLICY_AND_PERFORMANCE_2026-09-15.md#pypy-runtime-candidate)
+against the unchanged accepted baseline so runtime and code gains remain distinct.
 Then extend explicit power/effect, Rites/Resummon and remaining Lord coverage;
 grow the reference corpus only when those dependencies justify it. Common Smart
 Core/Lord doctrines and serious balance sweeps follow trustworthy rules and a

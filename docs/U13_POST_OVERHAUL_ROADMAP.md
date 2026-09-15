@@ -2,13 +2,17 @@
 
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
-**2026-09-15 first complete-game adapter implemented; Windows gate pending:**
+**2026-09-15 first complete-game adapter accepted at clean `d059b95`:**
 `FullMatch` connects all 20 hooks, repeated rounds, Marching reactions, cleanup,
 Vacant Throne and victory for four Lords with explicit ordinary decisions. The
-new gate compares two complete games without fixture mutations and eight separate
-settlement components, then measures real matches. It retains a swappable
+Windows Godot 4.7.2 passed 8,586 checks; Python matched two complete games,
+30 rounds and 767 operations without fixture mutations, plus eight separate
+settlement components and one 200-tick probe. All 56 Python tests and 13 corruption
+rejections passed; independent replay reproduced the complete uploaded summary.
+Windows match means are 11.34 / 19.07 seconds, with transaction/history copying
+the measured next target before extending the port. It retains a swappable
 reference policy outside authority. Declared powers, paid Rites/Resummon and the
-other Lords remain unsupported. See [scope and current local evidence](U13_PYSIM_FULL_MATCH_2026-09-15.md).
+other Lords remain unsupported. See [scope and accepted evidence](U13_PYSIM_FULL_MATCH_2026-09-15.md).
 This supersedes the old full-round implementation boundary for this new adapter;
 earlier dated acceptance entries remain historical evidence at their exact scope.
 

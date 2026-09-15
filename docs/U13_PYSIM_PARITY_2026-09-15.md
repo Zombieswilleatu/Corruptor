@@ -4,7 +4,9 @@
 connects the accepted phases through all 20 hooks, subsequent rounds and victory
 for four Lords using ordinary decisions. Its two explicit games contain no fixture
 mutations; eight separately prepared settlement components cover ending/grace
-boundaries. Windows 4.7.2 acceptance is pending. Declared powers, paid Rites,
+boundaries. Windows 4.7.2 acceptance passed at clean `d059b95`: two complete games,
+30 rounds and 767 operations, with independent reproduction of the complete
+uploaded verifier summary. Declared powers, paid Rites,
 Resummon and the remaining Lords are still outside this adapter. The historical
 slice inventory below retains its original evidence and limits.
 

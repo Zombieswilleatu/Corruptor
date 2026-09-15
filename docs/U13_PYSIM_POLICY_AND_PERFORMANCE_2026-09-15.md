@@ -4,13 +4,88 @@
 now supplies a four-Lord ordinary setup-to-victory path and a real match timing
 harness. Its reference policy is injected separately and receives a detached own-hand/public-board
 observation. The full experimental legal-choice/RNG/counter/sweep interface below
-remains future work. Windows 4.7.2 acceptance is pending; the earlier partial and
+remains future work. Windows 4.7.2 acceptance passed at clean `d059b95`; the earlier partial and
 isolated timings below retain their dated scopes.
 
-The first local complete-game measurements are in seconds, well above the
-proposed 50 ms target. Transaction and retained event-history copying dominate
+The accepted Windows complete-game means are 11.34 and 19.07 seconds, well above
+the proposed 50 ms target. Transaction and retained event-history copying dominate
 those profiles. Preserve that exact reference while addressing the measured
 cost; the earlier partial timings cannot establish the full-match budget.
+
+## First complete-game profile and next optimization
+
+The [Windows evidence](evidence/U13_PYSIM_FULL_MATCH_d059b95.json) supports the
+central diagnosis in the user's supplied profile review: `PlanningMatch.apply()`
+calls `snapshot()` before every operation, copying the complete growing state and
+retained semantic event history even when little game work follows. The 13- and
+17-round cases make 334 and 433 operations; transaction snapshots account for
+18.47 / 24.81 and 31.01 / 40.84 profiled seconds. `copy_data` including its nested
+work accounts for 76% and 78%; `_clone` exclusive time is 62% and 63%.
+
+There are **20 production hooks per round**, not 24. The 25 timing buckets include
+setup, Stockpile, Slaver, submission and next-round operations as well as those
+hooks. These are instrumented per-match totals, not uninstrumented per-call
+timings. An empty power slot does not establish that a hook is mutation-free:
+the implementation still advances clocks/ledgers, reconciles Guard pairs, checks
+Kalligan's Defunct episodes, clears Sigils and records Lord presence. Do not skip
+transactions merely because a hook's main effect is absent.
+
+The copier is already a specialized plain-data copier. Its memo preserves
+**shared container identity** as well as cycles; accepted tests explicitly require
+that two aliases remain aliases inside a detached copy. Acyclic data can still
+contain aliases. `id()` itself occupies about 3% of either profile, so its call
+count does not establish that removing memoization will yield a several-fold
+speedup. Benchmark any copier specialization and preserve its ownership contract.
+
+The first optimization should reduce the amount copied: separate transaction
+rollback from full public snapshots, and avoid repeatedly traversing unchanged
+event history. Audit writes before choosing immutable internal history, an undo
+journal or copying only written subtrees. Preserve rollback after rejected and
+exceptional handlers, including nested world/presentation/history mutations, and
+keep returned snapshots and event views detached. Retain the accepted `d059b95`
+reference and compare identical inputs before and after on the same machine.
+
+Marching integration itself accounts for about 19–20% of these profiles; it is a
+secondary target that may matter more after copying is reduced. Adding cumulative
+times for nested functions double-counts work, while adding only their exclusive
+times misses callees. These profiles do not establish that Marching costs only 5%
+or that its final throughput is sufficient.
+
+The 15.21-second mean implies about 237 repetitions per hour on one worker by
+simple arithmetic. Multiplying that fixed-input mean into a 50,000-game duration
+is not a measured nine-Lord doctrine capacity estimate. A matched pure-match
+Godot/Python comparison must use the same explicit games, rules, hardware and
+event retention, with policy selection, replay, export and comparison outside
+both timers. Optimize and measure this supported path before extending the port;
+do not replace exact parity with approximations to meet a speculative budget.
+
+## PyPy runtime candidate
+
+The user also requested evaluation of PyPy. The official
+[download page](https://pypy.org/download.html) offers PyPy 3.11 for Windows
+64-bit. This U13 package uses the standard library and requires Python 3.10+;
+`run_u13_pysim_full_match.sh` already accepts an explicit Python executable as its
+second argument. Those facts make PyPy a plausible candidate, but do not establish
+that it passes this project's gates or runs faster.
+
+Evaluate the runtime change on the unchanged accepted source before combining it
+with copying changes. Run the ownership/rollback tests and exact replay of the
+accepted Windows stream, including corruption rejection, under PyPy first. Then
+measure CPython and PyPy sequentially on the same machine and explicit inputs,
+retaining transactions and semantic history and checking every final digest.
+
+Record cold-start and warmed measurements separately. Use repeated full games and
+enough warmup to observe stable samples; the current fixed one-warmup/three-sample
+probe is an initial observation, not evidence that PyPy has reached steady state.
+Keep profiling outside the comparison: PyPy's
+[performance guidance](https://pypy.org/performance.html) calls for JIT warmup and
+warns that `cProfile` can substantially distort results. Record exact interpreter
+versions, runtime/JIT options and memory usage before later worker-scaling claims.
+
+On this acceptance pass, neither `pypy3` nor `pypy` was installed locally and the
+official binary download timed out at the network proxy. No PyPy result or
+speedup is claimed, and the default interpreter is unchanged. Preserve the
+accepted CPython baseline while evaluating this independent runtime option.
 
 User steering on 2026-09-15: the simulator should shorten the experiment loop,
 including quickly identifying inert doctrine terms. Do not hard-code the
