@@ -6,6 +6,7 @@ Godot U13Marching.resolve is the authority for every output event and field.
 """
 
 import json
+from bisect import bisect_left
 
 from .copying import copy_data
 from .economy import Rejected, Unsupported
@@ -145,30 +146,44 @@ def duel_alive(s, duel):
     return distance(s.x_fp[i], s.y_fp[i], s.x_fp[j], s.y_fp[j]) <= CONTACT2
 
 
+def nearest_target(i, candidates, positions, xs, ys):
+    """Exact 2-D nearest, pruning only when horizontal distance proves exclusion.
+
+    Candidate slots are sorted by x; slots themselves retain immutable-ID order.
+    Equal distances must still visit both sides and select the smallest slot.
+    """
+    best, target = (1 << 63) - 1, None
+    right = bisect_left(positions, xs[i])
+    left, count = right - 1, len(candidates)
+    while left >= 0 or right < count:
+        lx = xs[i] - positions[left] if left >= 0 else (1 << 63) - 1
+        rx = positions[right] - xs[i] if right < count else (1 << 63) - 1
+        if lx <= rx:
+            dx, j = lx, candidates[left]
+            left -= 1
+        else:
+            dx, j = rx, candidates[right]
+            right += 1
+        if dx * dx > best:
+            break
+        gap = dx * dx + (ys[i] - ys[j]) ** 2
+        if gap < best or gap == best and (target is None or j < target):
+            best, target = gap, j
+    return best, target
+
+
 def move(s, duels, context, clock, modifiers, fields):
     indices = s.active()
     xs, ys = s.x_fp[:], s.y_fp[:]  # One target snapshot; accepted positions stay in columns.
     grouped = teams(s, indices)
-    grids = {lane: [grid(team, xs, ys, 8) for team in grouped[lane]] for lane in LANES}
+    ordered = {lane: [sorted(team, key=xs.__getitem__) for team in grouped[lane]] for lane in LANES}
+    positions = {lane: [[xs[j] for j in team] for team in ordered[lane]] for lane in LANES}
     busy, number = busy_ids(duels), context["round"]
     retreat = [value == number for value in s.rout_round]
-    seekers = {lane: [[], []] for lane in LANES}
-    seeking, nearest, gaps = [False] * len(s.ids), [None] * len(s.ids), [(1 << 63) - 1] * len(s.ids)
+    nearest, gaps = [None] * len(s.ids), [(1 << 63) - 1] * len(s.ids)
     for i in indices:
         lane, owner = s.lane[i], s.owner[i]
-        touching = any(distance(xs[i], ys[i], xs[j], ys[j]) <= CONTACT2 for j in near(xs[i], ys[i], grids[lane][1-owner], 8))
-        gaps[i] = 0 if touching else (1 << 63) - 1
-        seeking[i] = not touching and not s.waiting[i] and s.movement_ready_round[i] <= number and s.ids[i] not in busy and not retreat[i]
-        if seeking[i]:
-            seekers[lane][owner].append(i)
-    for lane in LANES:
-        for i in grouped[lane][0]:
-            for j in grouped[lane][1] if seeking[i] else seekers[lane][1]:
-                gap = distance(xs[i], ys[i], xs[j], ys[j])
-                if seeking[i] and gap < gaps[i]:
-                    gaps[i], nearest[i] = gap, j
-                if seeking[j] and gap < gaps[j]:
-                    gaps[j], nearest[j] = gap, i
+        gaps[i], nearest[i] = nearest_target(i, ordered[lane][1-owner], positions[lane][1-owner], xs, ys)
     accepted = {lane: [grid(team, xs, ys, 7) for team in grouped[lane]] for lane in LANES}
     data = context["world"]["data"]
     gate_queue = data.get("guard_work", {}).get("version") == "U13_GUARD_WORK_V2"
@@ -346,14 +361,16 @@ class Phase:
                     deaths.append(dict(attacker=shot["attacker"], victim=s.row(target), damage_dealt=dealt, hp_after=0))
             self.emit("MARCHER_RANGED_ATTACK", dict(round=self.number, tick=tick, lane=shot["attacker"]["attributes"]["lane"],
                       attacker=shot["attacker"], target=shot["target"], damage_dealt=dealt, hp_after=hp_after))
-        if self.reaction is not None and shots:
+        # Columns already own nonlethal damage/cooldowns. Publish and rebuild
+        # only when a death callback can change the registry outside them.
+        if self.reaction is not None and deaths:
             self.w["entities"] = s.snapshot()
         for death in deaths:
             death.update(event_id=instance_id("ranged_kill", str(clock), death["victim"]["id"]),
                          round=self.number, tick=tick, hook="marching", cause="combat")
             self.emit("MARCHER_DEFEATED", death)
             self.react(self.events[-1]["event"], "ranged_reaction_invalid")
-        if shots:
+        if deaths:
             self.restore_reactions("ranged_reaction_invalid")
 
     def run(self):

@@ -6,6 +6,11 @@ observer tests. The engine is the accepted `c228d85` source, unchanged by this
 observer. The profile identifies bounded candidates but does not establish
 another quick 2–3× whole-match improvement.
 
+The [focused Marching follow-up](U13_PYSIM_MARCHING_OPTIMIZATION_2026-09-15.md)
+implements two candidates and supplies a matched Windows comparison against
+`c228d85`. Its Windows acceptance is pending; this document retains the preceding
+unchanged-engine profile and its original timing scope.
+
 ## Run on Windows
 
 From the checkout containing this runner:

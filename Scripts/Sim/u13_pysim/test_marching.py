@@ -1,11 +1,13 @@
 """Ownership, phase atomicity, boundaries and deterministic spatial regressions."""
 
 import unittest
+import random
+from unittest.mock import patch
 
 from . import marching as m
 from . import marching_fixtures as f
 from .copying import copy_data
-from .economy import Unsupported
+from .economy import Rejected, Unsupported
 from .marching_columns import Columns
 from .marching_spatial import speed, swept
 
@@ -13,6 +15,85 @@ from .marching_spatial import speed, swept
 class MarchingTests(unittest.TestCase):
     def spec(self, name):
         return next(c for c in f.load()["cases"] if c["name"] == name)
+
+    def test_nearest_pruning_keeps_two_dimensional_and_equal_distance_ties(self):
+        # The first examined x coordinate need not contain the nearest point.
+        # A later point exactly on the pruning boundary can win the ID tie.
+        for xs, ys, expected in (([1000, 1400, 999], [0, 0, 600], (160000, 1)),
+                                 ([1000, 1400, 600], [0, 0, 0], (160000, 1)),
+                                 ([1000, 1000, 1000], [0, 0, 0], (0, 1)),
+                                 ([1000], [0], ((1 << 63)-1, None))):
+            candidates = sorted(range(1, len(xs)), key=xs.__getitem__)
+            self.assertEqual(expected, m.nearest_target(0, candidates, [xs[j] for j in candidates], xs, ys))
+
+    def test_nearest_pruning_matches_exhaustive_search_with_retired_slots(self):
+        rng = random.Random(41729)
+        for sample in range(120):
+            xs = [rng.randrange(2401) for _ in range(67)]
+            ys = [rng.randrange(601) for _ in xs]
+            if sample % 3 == 0:
+                xs = [1200] * len(xs)  # Vertical fronts cannot be pruned by x.
+            if sample % 5 == 0:
+                ys = [300] * len(xs)
+            # Sparse immutable slots model retired Marchers without recycling IDs.
+            live = [i for i in range(1, len(xs)) if rng.randrange(3)]
+            rng.shuffle(live)
+            candidates = sorted(live, key=xs.__getitem__)
+            for i in range(0, len(xs), 11):
+                eligible = [j for j in candidates if j != i]
+                expected = min((((xs[i]-xs[j])**2+(ys[i]-ys[j])**2, j) for j in eligible),
+                               default=((1 << 63)-1, None))
+                self.assertEqual(expected, m.nearest_target(i, eligible, [xs[j] for j in eligible], xs, ys))
+
+    def ranged_phase(self, reaction):
+        spec = self.spec("ordinary_mixed")
+        spec["units"] = [dict(origin="volley-boundary", ordinal=pid, owner=pid,
+            suit=suit, lane="Lord", attributes=dict(x_fp=500*pid, y_fp=300,
+            hp=3, max_hp=3, armor=0, attack=1, step_fp=0))
+            for pid, suit in ((0, "Vulture"), (1, "Wright"))]
+        spec["ranged"] = True
+        ctx = f.context(spec, f.initial(spec), 1)
+        return m.Phase(ctx, False, reaction), ctx
+
+    def test_nonlethal_volley_keeps_columns_until_callback_sees_accumulated_state(self):
+        callbacks = []
+        def react(world, fact, seed, order):
+            callbacks.append(copy_data(world))
+            # A real callback still gets validated and imported, including edits.
+            world["entities"]["entities"][0]["attributes"]["armor"] = 7
+            return dict(action="resolved", world=world, events=[])
+        phase, ctx = self.ranged_phase(react)
+        before = copy_data(ctx)
+        initial = phase.s.snapshot()
+        victim = next(i for i in phase.s.active() if phase.s.owner[i] == 1)
+        attacker_id = next(phase.s.ids[i] for i in phase.s.active() if phase.s.owner[i] == 0)
+        # The first two shots cannot require registry validation: no callback ran.
+        with patch.object(m, "Columns", side_effect=AssertionError("nonlethal registry rebuild")):
+            phase.volley({}, 0)
+            self.assertEqual(2, phase.s.hp[victim])
+            phase.volley({}, 32)
+            self.assertEqual(1, phase.s.hp[victim])
+        self.assertEqual([], callbacks)
+        retained_events = copy_data(phase.events)
+        phase.volley({}, 64)
+        self.assertEqual(1, len(callbacks))
+        self.assertEqual([attacker_id], [r["id"] for r in callbacks[0]["entities"]["entities"]])
+        self.assertEqual(296, callbacks[0]["entities"]["entities"][0]["attributes"]["ranged_next_tick"])
+        self.assertEqual(7, phase.s.armor[phase.s.live(attacker_id)])
+        self.assertEqual(retained_events, phase.events[:len(retained_events)])
+        self.assertEqual(before, ctx)
+        self.assertEqual([3, 3], [r["attributes"]["hp"] for r in initial["entities"]])
+
+    def test_lethal_volley_still_rejects_invalid_callback_registry(self):
+        def corrupt(world, fact, seed, order):
+            world["entities"]["entities"][0]["id"] = "invalid-id"
+            return dict(action="resolved", world=world, events=[])
+        phase, ctx = self.ranged_phase(corrupt)
+        phase.s.hp[next(i for i in phase.s.active() if phase.s.owner[i] == 1)] = 1
+        before = copy_data(ctx)
+        with self.assertRaisesRegex(Rejected, "ranged_entities_invalid"):
+            phase.volley({}, 0)
+        self.assertEqual(before, ctx)
 
     def test_columns_own_inputs_and_outputs_without_recycling_ids(self):
         world = f.initial(self.spec("keyed_ties"))
