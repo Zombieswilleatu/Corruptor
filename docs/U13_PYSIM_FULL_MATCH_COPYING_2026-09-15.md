@@ -182,8 +182,11 @@ the next optimization; the pre-change copying fractions cannot identify its new
 dominant cost. Preserve rollback, detached views and exact events. The 50 ms
 suggestion and full-roster doctrine throughput remain unpassed targets.
 
-The [focused optimized-profile runner](U13_PYSIM_OPTIMIZED_PROFILE_2026-09-15.md)
-is now available. It retains full function/caller data and separate unprofiled
-timing under both runtimes, using this accepted engine fingerprint. Its local
-diagnostic points to Marching and reaction-registry rebuilding; Windows/PyPy
-capture is pending before choosing another performance change.
+The [focused optimized-profile capture](U13_PYSIM_OPTIMIZED_PROFILE_2026-09-15.md)
+is accepted at clean `76e80fd`, retaining this engine fingerprint. All 64 repeated
+final digests matched. PyPy's new 20-game mean is 1.439 seconds (final ten 1.263),
+consistent with this comparison. CPython's mean rose to 5.566 seconds with the
+same timed worker; digesting remains excluded and the variation has no identified
+cause. Caller data identifies movement and unnecessary reaction-registry
+restoration as bounded candidates; normalization overlaps the latter. Another
+quick 2–3× is not established. See the capture record for scope and attribution.
