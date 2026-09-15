@@ -67,13 +67,17 @@ profile included fixture preparation and warmup; its instrumented duration is
 not a throughput measurement. It identifies copying as the first optimization
 candidate, with transaction rollback and exact snapshots retained as gates.
 
-The [copying pass](U13_PYSIM_COPYING_2026-09-15.md) implements that optimization.
-On the same local Python executable/hardware, sequential baseline/current/current/
-baseline blocks measured 36.02 ms versus 10.08 ms mean partial-cycle time, with
-identical exact results. Windows acceptance is pending. The comparison uses the
-unchanged timing/fixture source and records separate instrumented profiles;
-it remains a partial-engine measurement and does not satisfy the later full-match
-throughput gate.
+The [copying pass](U13_PYSIM_COPYING_2026-09-15.md) implements that optimization
+and passed Windows Godot 4.7.2 acceptance at clean `88ef438`. On the same Windows
+Python executable/hardware, sequential baseline/current/current/baseline blocks
+measured **20.31 ms versus 7.98 ms** mean partial-cycle time: **2.54× throughput,
+60.71% less wall time**, with identical exact results. This is the matched
+optimization comparison; the older 31.35 ms observation is not its denominator.
+The earlier local Linux diagnostic measured 36.02 ms versus 10.08 ms (3.57×).
+The comparison uses unchanged timing/fixture source and records separate
+instrumented profiles. It remains a partial-engine measurement and does not
+satisfy the later full-match throughput gate. Continue ordinary resolution and
+the early spatial spike; full-match speed remains unknown.
 
 Apply these gates before committing to the rest of the performance plan:
 

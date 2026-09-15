@@ -1,12 +1,14 @@
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
-**2026-09-15 Python copying optimization implemented; Windows acceptance pending:**
-The partial cycle measures 36.02 ms before and 10.08 ms after on the same local
-Python/runtime/hardware: 3.57× throughput with identical exact results. The pass
-removes duplicate transaction/preview/deployment copies and uses an exact
-plain-data copier. It preserves complete snapshots, event views and rollback.
-See [implementation, comparison and focused Windows gate](U13_PYSIM_COPYING_2026-09-15.md).
-This remains opening-through-Development timing, not full-match throughput.
+**2026-09-15 Python copying optimization accepted at clean `88ef438`:**
+The Windows Godot 4.7.2 gate passed: 926 Godot checks, 321 exact snapshots,
+27 Python tests and 25 rejected evidence corruptions, with zero failures or script
+errors. Independent replay reproduced both uploaded verifier summaries. The
+matched Windows partial comparison measured 20.31 ms before and 7.98 ms after:
+2.54× throughput / 60.71% less wall time, with identical exact results. The pass
+removes duplicate copies while preserving complete snapshots, event views and
+rollback. See [implementation and accepted evidence](U13_PYSIM_COPYING_2026-09-15.md).
+This remains opening-through-Development timing; full-match speed is unknown.
 
 **2026-09-15 Development accepted at clean `108fc15`:** The Windows Godot 4.7.2
 gate passed: 497 Godot checks, 90 exact Python snapshots, 217 isolated lifecycle
@@ -23,8 +25,8 @@ for identical explicit inputs. The accepted Windows partial timing probe measure
 31.35 ms mean, 26.65 ms median and 52.74 ms p95 for opening through first Development
 over 270 cycles on one worker, excluding export/comparison and doctrine. It
 establishes no full-match speed. Local profiling identified state copying as the
-first optimization candidate. Reduce measured overhead with unchanged exact
-parity and rollback checks, then bring a spatial performance spike forward before
+first optimization candidate; the copying pass is now accepted above. Continue
+ordinary resolution, then bring a spatial performance spike forward before
 finishing Marching; measure the first supported complete-match path promptly.
 See [concrete contracts and gates](U13_PYSIM_POLICY_AND_PERFORMANCE_2026-09-15.md).
 
@@ -60,8 +62,8 @@ The campaign predates forecast/public-Guard changes and is not balance evidence.
 **PySim progression:** Round sequencing, submissions and opening-round economy
 now have the focused implementation above. The
 trace contract, exact deterministic primitives and opening-state parity are
-accepted through Development. Complete the copying optimization's Windows gate,
-then extend ordinary resolution with the early spatial performance gate above;
+accepted through Development, with the copying optimization also Windows-accepted.
+Extend ordinary resolution with the early spatial performance gate above;
 see [inventory and subsequent parity order](U13_PYSIM_PARITY_2026-09-15.md).
 Then Common Smart Core + separate Lord doctrines, serious balance, and roguelite
 work. Preserve the accepted UI. No new broad campaign is needed for this

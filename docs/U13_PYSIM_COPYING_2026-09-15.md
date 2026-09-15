@@ -1,9 +1,15 @@
 # U13 PySim — reduce copying overhead without changing rules
 
+**Windows Godot 4.7.2 acceptance passed** at clean revision
+`88ef43870e736bd0a1ad5df5ee06d714367276c3`. The matched Windows comparison
+measured **20.31 ms before and 7.98 ms after**, or **2.54× throughput / 60.71%
+less wall time**, for opening through first Development. Full-match speed remains
+unknown. See the [accepted evidence](evidence/U13_PYSIM_COPYING_88ef438.json).
+
 Implemented after the accepted Development checkpoint, based on
-`1fc29d78b1650084f3d462883ffdfbd144c76de4`. Windows Godot 4.7.2 acceptance of
-this optimization is **pending**. The accepted Windows Development gate at
-`108fc15` and its 31.35 ms partial timing baseline keep their original identity.
+`1fc29d78b1650084f3d462883ffdfbd144c76de4`. The earlier Windows Development gate
+at `108fc15` and its 31.35 ms partial timing baseline keep their original identity;
+the optimization ratio uses the matched comparison, not that earlier run.
 
 ## What changed
 
@@ -61,7 +67,25 @@ measured intervals. All inputs and all 90 opening/operation results and snapshot
 produce identical exact hashes in both implementations. No policy is embedded
 in either engine.
 
-Local Linux x86_64, CPython 3.12.14, one worker:
+Accepted Windows 11 AMD64, CPython 3.14.7, one worker:
+
+| Phase | Accepted baseline mean | Optimized mean |
+| --- | --- | --- |
+| Opening | 1.92 ms | 1.66 ms |
+| Upkeep and choices | 11.10 ms | 4.39 ms |
+| Submission and lock | 4.26 ms | 1.19 ms |
+| Development | 3.03 ms | 0.74 ms |
+| Entire partial cycle | **20.31 ms** | **7.98 ms** |
+
+That is **2.54× the measured throughput, or 60.71% less wall time**. Each
+implementation ran 270 measured cycles and 18 warmups on the same Windows
+machine. All four timing workers and both separate profiling workers agreed on
+the exact inputs and results. Independent inspection verified the source hashes,
+unchanged timing/fixture sources, block counts and weighted aggregate arithmetic.
+The [accepted record](evidence/U13_PYSIM_COPYING_88ef438.json) retains every block
+and profile; the profile durations are excluded from the speed comparison.
+
+Earlier local Linux x86_64 diagnostic, CPython 3.12.14, one worker:
 
 | Phase | Accepted baseline mean | Optimized mean |
 | --- | --- | --- |
@@ -111,17 +135,39 @@ clock rollback after an exception, and snapshot/player-view independence after
 later mutations. These checks supplement complete differential snapshots;
 they do not substitute for Godot parity. Local 4.5.1 is diagnostic only.
 
-All checks above passed locally. The
+All checks above passed on Windows Godot 4.7.2 at clean `88ef438`, with zero
+failures or script errors. Independent Python replay of both uploaded exact
+exports reproduced the complete Windows verifier summaries, including all 25
+rejected evidence corruptions, without a diagnostic override. This replay uses
+the uploaded Windows reference; it does not claim a local Godot 4.7.2 run.
+
+The earlier local checks also passed. The
 [diagnostic parity record](evidence/U13_PYSIM_COPYING_PARITY_LOCAL.json) retains
 both complete verifier summaries and exact export hashes at the same optimized
 source fingerprint as the timing report. No Godot source or fixture was edited.
 
 ## Windows acceptance
 
+Accepted archive:
+`u13-pysim-copying-8WDQ0g-2026-09-15_00-05-58-kwtTlA.zip`.
+
+- SHA-256: `82a081475ea1e806f2aa60b91349cf6ee8bd62711d27e9ae7c3957dc7bcb6c3e`.
+- Source revision: `88ef43870e736bd0a1ad5df5ee06d714367276c3`.
+- Source fingerprint: `88547dc7c9c86c9265ca4a4a50007af1ab319c081492ef0186be7516e097b859`.
+- Runtime: `4.7.2.stable.official.ed1daf0bf`, Windows; Python 3.14.7.
+- Empty working diff, exit status 0, 16 unique archive members and valid CRCs.
+- 926 Godot checks, 27 Python tests, 321 complete snapshots and all 25 corruption
+  probes passed. Scope remains the existing planning and Development suites.
+
+The [acceptance record](evidence/U13_PYSIM_COPYING_88ef438.json) preserves both
+verifier summaries, trace identities, case coverage, independent replay result,
+full timing/profile report and the SHA-256/size of every archive member.
+
 The copying gate re-exports both existing short suites at the new source identity,
 then measures baseline and optimized code on the same Windows machine. The
 baseline is a pinned ancestor already available after pulling. No dependencies
-beyond Git, Python 3.10+ and the acceptance Godot runtime are needed.
+beyond Git, Python 3.10+ and the acceptance Godot runtime are needed. The command
+below is retained for reproduction; this documentation update needs no rerun.
 
 ```bash
 cd /c/Users/jerem/OneDrive/Documents/Corruptor-U13-Perf &&
@@ -136,7 +182,7 @@ contains both Godot exports, parity summaries, unit log, source/runtime identity
 working diff and `copying-comparison.json` with separate profiles. No 100-game
 campaign is part of this gate. Preserve the exact 4.7.2 acceptance requirement.
 
-After Windows acceptance, continue ordinary resolution with artillery/commitment/
+Next, continue ordinary resolution with artillery/commitment/
 combat interfaces, then run the early Marching performance spike before finishing
 the spatial/Lord-effect port. Common Smart Core, Lord doctrines, serious balance
 and roguelite work retain their later positions in the roadmap.

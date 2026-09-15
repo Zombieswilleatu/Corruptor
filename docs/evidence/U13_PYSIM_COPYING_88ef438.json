@@ -1,0 +1,1770 @@
+{
+  "schema": "U13_PYSIM_COPYING_ACCEPTANCE_V1",
+  "recorded_on": "2026-09-15",
+  "scope": "Exact planning/Development parity after copying optimization, with matched partial-cycle Windows timing; no full-round or full-match parity or throughput claim.",
+  "source_archive": "u13-pysim-copying-8WDQ0g-2026-09-15_00-05-58-kwtTlA.zip",
+  "archive_sha256": "82a081475ea1e806f2aa60b91349cf6ee8bd62711d27e9ae7c3957dc7bcb6c3e",
+  "source_revision": "88ef43870e736bd0a1ad5df5ee06d714367276c3",
+  "source_sha256": "88547dc7c9c86c9265ca4a4a50007af1ab319c081492ef0186be7516e097b859",
+  "runtime_build": "4.7.2.stable.official.ed1daf0bf",
+  "platform": "Windows",
+  "python_version": "Python 3.14.7",
+  "working_diff_bytes": 0,
+  "run_status": {
+    "runner": "u13-pysim-copying",
+    "exit_status": "0"
+  },
+  "archive_crc_passed": true,
+  "gate_passed": true,
+  "godot_checks": 926,
+  "godot_checks_by_suite": {
+    "planning": 429,
+    "development": 497
+  },
+  "godot_failures": 0,
+  "script_errors": 0,
+  "python_unit_tests": 27,
+  "python_test_names": [
+    "test_comparison_locates_real_changes",
+    "test_identity_unicode_uses_characters",
+    "test_known_rng_vectors_and_independence",
+    "test_opening_input_boundaries",
+    "test_retirement_restore_and_atomic_rejection",
+    "test_transport_boundaries_and_malformed_input",
+    "test_cursor_rejections_and_completed_round_reset",
+    "test_discard_rejects_duplicate_and_foreign_cards_atomically",
+    "test_exhausted_market_preserves_physical_ids",
+    "test_full_hand_recycles_before_limit_and_discard_draw_does_not",
+    "test_future_hooks_and_powers_fail_explicitly_without_mutation",
+    "test_second_plan_rejection_is_atomic_and_retryable",
+    "test_stockpile_discard_is_available_to_next_seat",
+    "test_bad_second_guard_rolls_back_first_and_ledger",
+    "test_every_identity_dimension_can_break_pair_permanently",
+    "test_match_stops_at_supported_boundary_and_detaches_inputs",
+    "test_reconstruction_exception_requires_live_owner_deimos",
+    "test_repeated_work_reconciles_broken_pair_before_clock_return",
+    "test_vulture_draw_is_once_per_later_round_and_private_identity",
+    "test_wright_and_guards_pay_once_passive_persists_until_clear",
+    "test_development_second_guard_failure_restores_first_and_all_hook_clocks",
+    "test_exception_after_clock_change_restores_clock_too",
+    "test_float_bits_types_and_aliases_are_preserved_without_sharing_input",
+    "test_hook_failure_restores_nested_world_presentation_and_existing_events",
+    "test_preview_validates_without_reserving_or_emitting",
+    "test_public_views_and_snapshots_are_detached_after_later_mutations",
+    "test_submission_lock_second_failure_restores_first_reservations"
+  ],
+  "python_summaries": {
+    "planning": {
+      "python_mirror": "U13_PYSIM_PLANNING_V1",
+      "source_revision": "88ef43870e736bd0a1ad5df5ee06d714367276c3",
+      "source_sha256": "88547dc7c9c86c9265ca4a4a50007af1ab319c081492ef0186be7516e097b859",
+      "runtime": "4.7.2-stable (official)",
+      "diagnostic_only": false,
+      "planning_games_matched": 9,
+      "full_game_snapshots_matched": 231,
+      "game_operations_matched": 222,
+      "rejected_operations_matched": 140,
+      "economy_component_operations_matched": 21,
+      "timeline_operations_matched": 52,
+      "game_hooks_implemented": [
+        "round_start_scheduled",
+        "persistent_advancement",
+        "round_start_automatic",
+        "present_public_state",
+        "submission_lock"
+      ],
+      "python_full_round_parity": false,
+      "failures": 0,
+      "deliberate_mismatches_rejected": 11
+    },
+    "development": {
+      "python_mirror": "U13_PYSIM_DEVELOPMENT_V1",
+      "source_revision": "88ef43870e736bd0a1ad5df5ee06d714367276c3",
+      "source_sha256": "88547dc7c9c86c9265ca4a4a50007af1ab319c081492ef0186be7516e097b859",
+      "runtime": "4.7.2-stable (official)",
+      "diagnostic_only": false,
+      "development_games_matched": 9,
+      "full_game_snapshots_matched": 90,
+      "game_operations_matched": 81,
+      "component_operations_matched": 217,
+      "component_fixture_operations": 106,
+      "rejected_component_operations_matched": 7,
+      "game_hooks_implemented": [
+        "round_start_scheduled",
+        "persistent_advancement",
+        "round_start_automatic",
+        "present_public_state",
+        "submission_lock",
+        "development"
+      ],
+      "python_full_round_parity": false,
+      "python_full_match_parity": false,
+      "failures": 0,
+      "deliberate_mismatches_rejected": 14
+    }
+  },
+  "trace_identities": {
+    "planning": {
+      "authority": "Godot U13",
+      "choice_policy": "explicit inputs; fixture selection is not doctrine",
+      "engine_version": "4.7.2",
+      "event_profile": "U13_BATCH_EVENTS_V1",
+      "excluded_visual_events": [
+        "MARCHING_TICK",
+        "KRONI_ACTOR_TICK"
+      ],
+      "platform": "Windows",
+      "policy_id": "U13_GUARD_WORK_V2:U13_VICTORY_V2_ROUND_PRESSURE:U13_PROFANE_PILLAGE_V1:U13_VULTURE_RANGED_V1:U13_VACANT_THRONE_V1:U13_DOMINION_RITES_V1:U13_FRACTURE_V1:U13_SIGIL_LIFECYCLE_V1:U13_BLOOD_CONDUIT_V1:U13_GAME_MARKET_V2:U13_CASTLE_DEFENSES_V1:U13_GAME_ECONOMY_V4:U13_KANIFOUS_V1:U13_VALAK_V1:U13_KRONI_WEIGHTED_ANGLES_V8:U13_ODRADEK_COMPLETE_V2:U13_ORIAS_MARK_BOARD_V4:U13_BATCH_EVENTS_V1",
+      "producer": "U13_PYSIM_PLANNING_EXPORT_V1",
+      "rng_version": "U13_SHA256_REJECTION_V1",
+      "rules_hash": "77bdef9e9cc0e83cd34a3cbd04a9d8492211aae2ccabe6e0c1172a474a10e3c4",
+      "runtime": "4.7.2-stable (official)",
+      "schema_version": "U13_MATCH_V1",
+      "source_revision": "88ef43870e736bd0a1ad5df5ee06d714367276c3",
+      "source_sha256": "88547dc7c9c86c9265ca4a4a50007af1ab319c081492ef0186be7516e097b859",
+      "trace_schema": "U13_PLANNING_TRACE_V1"
+    },
+    "development": {
+      "authority": "Godot U13",
+      "choice_policy": "explicit inputs; fixture selection is not doctrine",
+      "engine_version": "4.7.2",
+      "event_profile": "U13_BATCH_EVENTS_V1",
+      "excluded_visual_events": [
+        "MARCHING_TICK",
+        "KRONI_ACTOR_TICK"
+      ],
+      "platform": "Windows",
+      "policy_id": "U13_GUARD_WORK_V2:U13_VICTORY_V2_ROUND_PRESSURE:U13_PROFANE_PILLAGE_V1:U13_VULTURE_RANGED_V1:U13_VACANT_THRONE_V1:U13_DOMINION_RITES_V1:U13_FRACTURE_V1:U13_SIGIL_LIFECYCLE_V1:U13_BLOOD_CONDUIT_V1:U13_GAME_MARKET_V2:U13_CASTLE_DEFENSES_V1:U13_GAME_ECONOMY_V4:U13_KANIFOUS_V1:U13_VALAK_V1:U13_KRONI_WEIGHTED_ANGLES_V8:U13_ODRADEK_COMPLETE_V2:U13_ORIAS_MARK_BOARD_V4:U13_BATCH_EVENTS_V1",
+      "producer": "U13_PYSIM_DEVELOPMENT_EXPORT_V1",
+      "rng_version": "U13_SHA256_REJECTION_V1",
+      "rules_hash": "77bdef9e9cc0e83cd34a3cbd04a9d8492211aae2ccabe6e0c1172a474a10e3c4",
+      "runtime": "4.7.2-stable (official)",
+      "schema_version": "U13_MATCH_V1",
+      "source_revision": "88ef43870e736bd0a1ad5df5ee06d714367276c3",
+      "source_sha256": "88547dc7c9c86c9265ca4a4a50007af1ab319c081492ef0186be7516e097b859",
+      "trace_schema": "U13_DEVELOPMENT_TRACE_V1"
+    }
+  },
+  "independent_uploaded_trace_verification": {
+    "passed": true,
+    "host_python": "3.12.14",
+    "diagnostic_override": false,
+    "summaries_match_uploaded_reports": true,
+    "full_snapshots_matched": 321,
+    "game_operations_matched": 303,
+    "deliberate_mismatches_rejected": 25
+  },
+  "comparison_verification": {
+    "passed": true,
+    "block_order_verified": true,
+    "source_fingerprints_verified": true,
+    "shared_timing_and_fixture_sources_match_pinned_baseline": true,
+    "all_six_worker_input_and_result_hashes_match": true,
+    "input_and_result_hashes_match_prior_local_diagnostic": true,
+    "aggregates_recomputed": true,
+    "profiles_excluded_from_speed_comparison": true,
+    "full_match_speed_unmeasured": true
+  },
+  "cases": {
+    "planning": [
+      {
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "Bastion",
+              "SiegeEngine"
+            ],
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ]
+          ],
+          "lords": [
+            "Gremory",
+            "Deimos"
+          ],
+          "seed": "u13-python-planning:\u00e9:0"
+        },
+        "operations": 25
+      },
+      {
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ],
+            [
+              "Stockpile",
+              "Stockpile",
+              "SummoningCircle",
+              "Bastion",
+              "SiegeEngine"
+            ]
+          ],
+          "lords": [
+            "Deimos",
+            "Humbaba"
+          ],
+          "seed": "u13-python-planning:\u00e9:1"
+        },
+        "operations": 28
+      },
+      {
+        "setup": {
+          "castles": [
+            [
+              "Stockpile",
+              "Stockpile",
+              "SummoningCircle",
+              "Bastion",
+              "SiegeEngine"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "Bastion",
+              "SiegeEngine"
+            ]
+          ],
+          "lords": [
+            "Humbaba",
+            "Kalligan"
+          ],
+          "seed": "u13-python-planning:\u00e9:2"
+        },
+        "operations": 20
+      },
+      {
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "Bastion",
+              "SiegeEngine"
+            ],
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ]
+          ],
+          "lords": [
+            "Kalligan",
+            "Orias"
+          ],
+          "seed": "u13-python-planning:\u00e9:3"
+        },
+        "operations": 23
+      },
+      {
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ],
+            [
+              "Stockpile",
+              "Stockpile",
+              "SummoningCircle",
+              "Bastion",
+              "SiegeEngine"
+            ]
+          ],
+          "lords": [
+            "Orias",
+            "Odradek"
+          ],
+          "seed": "u13-python-planning:\u00e9:4"
+        },
+        "operations": 25
+      },
+      {
+        "setup": {
+          "castles": [
+            [
+              "Stockpile",
+              "Stockpile",
+              "SummoningCircle",
+              "Bastion",
+              "SiegeEngine"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "Bastion",
+              "SiegeEngine"
+            ]
+          ],
+          "lords": [
+            "Odradek",
+            "Kroni"
+          ],
+          "seed": "u13-python-planning:\u00e9:5"
+        },
+        "operations": 33
+      },
+      {
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "Bastion",
+              "SiegeEngine"
+            ],
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ]
+          ],
+          "lords": [
+            "Kroni",
+            "Valak"
+          ],
+          "seed": "u13-python-planning:\u00e9:6"
+        },
+        "operations": 25
+      },
+      {
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ],
+            [
+              "Stockpile",
+              "Stockpile",
+              "SummoningCircle",
+              "Bastion",
+              "SiegeEngine"
+            ]
+          ],
+          "lords": [
+            "Valak",
+            "Kanifous"
+          ],
+          "seed": "u13-python-planning:\u00e9:7"
+        },
+        "operations": 23
+      },
+      {
+        "setup": {
+          "castles": [
+            [
+              "Stockpile",
+              "Stockpile",
+              "SummoningCircle",
+              "Bastion",
+              "SiegeEngine"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "Bastion",
+              "SiegeEngine"
+            ]
+          ],
+          "lords": [
+            "Kanifous",
+            "Gremory"
+          ],
+          "seed": "u13-python-planning:\u00e9:8"
+        },
+        "operations": 20
+      }
+    ],
+    "development": [
+      {
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ],
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ]
+          ],
+          "lords": [
+            "Gremory",
+            "Deimos"
+          ],
+          "seed": "u13-python-development:\u00e9:0:0"
+        },
+        "operations": 9
+      },
+      {
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ],
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ]
+          ],
+          "lords": [
+            "Deimos",
+            "Humbaba"
+          ],
+          "seed": "u13-python-development:\u00e9:1:0"
+        },
+        "operations": 9
+      },
+      {
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ],
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ]
+          ],
+          "lords": [
+            "Humbaba",
+            "Kalligan"
+          ],
+          "seed": "u13-python-development:\u00e9:2:0"
+        },
+        "operations": 9
+      },
+      {
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ],
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ]
+          ],
+          "lords": [
+            "Kalligan",
+            "Orias"
+          ],
+          "seed": "u13-python-development:\u00e9:3:3"
+        },
+        "operations": 9
+      },
+      {
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ],
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ]
+          ],
+          "lords": [
+            "Orias",
+            "Odradek"
+          ],
+          "seed": "u13-python-development:\u00e9:4:2"
+        },
+        "operations": 9
+      },
+      {
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ],
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ]
+          ],
+          "lords": [
+            "Odradek",
+            "Kroni"
+          ],
+          "seed": "u13-python-development:\u00e9:5:0"
+        },
+        "operations": 9
+      },
+      {
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ],
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ]
+          ],
+          "lords": [
+            "Kroni",
+            "Valak"
+          ],
+          "seed": "u13-python-development:\u00e9:6:0"
+        },
+        "operations": 9
+      },
+      {
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ],
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ]
+          ],
+          "lords": [
+            "Valak",
+            "Kanifous"
+          ],
+          "seed": "u13-python-development:\u00e9:7:1"
+        },
+        "operations": 9
+      },
+      {
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ],
+            [
+              "Keep",
+              "Bastion",
+              "SummoningCircle",
+              "Stockpile",
+              "SiegeEngine"
+            ]
+          ],
+          "lords": [
+            "Kanifous",
+            "Gremory"
+          ],
+          "seed": "u13-python-development:\u00e9:8:0"
+        },
+        "operations": 9
+      }
+    ]
+  },
+  "components": {
+    "planning": [
+      {
+        "spec": {
+          "deck": 0,
+          "discard": 8,
+          "hand0": 10,
+          "hand1": 0,
+          "name": "recycle_full_hand",
+          "round": 1
+        },
+        "operations": 2
+      },
+      {
+        "spec": {
+          "deck": 0,
+          "discard": 1,
+          "hand0": 0,
+          "hand1": 0,
+          "name": "discard_only",
+          "round": 1
+        },
+        "operations": 2
+      },
+      {
+        "spec": {
+          "deck": 0,
+          "discard": 0,
+          "hand0": 0,
+          "hand1": 0,
+          "name": "empty_piles",
+          "round": 1
+        },
+        "operations": 2
+      },
+      {
+        "spec": {
+          "deck": 7,
+          "discard": 0,
+          "hand0": 0,
+          "hand1": 0,
+          "name": "stockpile_interseat",
+          "round": 1
+        },
+        "operations": 5
+      },
+      {
+        "spec": {
+          "deck": 18,
+          "discard": 0,
+          "hand0": 4,
+          "hand1": 0,
+          "name": "stockpile_one_offer",
+          "round": 1
+        },
+        "operations": 4
+      },
+      {
+        "spec": {
+          "deck": 0,
+          "discard": 0,
+          "hand0": 0,
+          "hand1": 0,
+          "name": "market_exhausted",
+          "round": 2
+        },
+        "operations": 3
+      },
+      {
+        "spec": {
+          "deck": 1,
+          "discard": 8,
+          "hand0": 0,
+          "hand1": 0,
+          "name": "market_recycle",
+          "round": 2
+        },
+        "operations": 3
+      }
+    ],
+    "development": [
+      {
+        "name": "work_lifecycle",
+        "operations": 31
+      },
+      {
+        "name": "pair_Butcher_Lord",
+        "operations": 19
+      },
+      {
+        "name": "pair_Butcher_Castle",
+        "operations": 19
+      },
+      {
+        "name": "pair_Penitent_Lord",
+        "operations": 19
+      },
+      {
+        "name": "pair_Penitent_Castle",
+        "operations": 19
+      },
+      {
+        "name": "pair_Wright_Lord",
+        "operations": 19
+      },
+      {
+        "name": "pair_Wright_Castle",
+        "operations": 19
+      },
+      {
+        "name": "pair_Vulture_Lord",
+        "operations": 20
+      },
+      {
+        "name": "pair_Vulture_Castle",
+        "operations": 20
+      },
+      {
+        "name": "reconstruction",
+        "operations": 23
+      },
+      {
+        "name": "atomic_deployment",
+        "operations": 9
+      }
+    ]
+  },
+  "copying_comparison": {
+    "schema": "U13_PYSIM_COPYING_BENCHMARK_V1",
+    "source_revision": "88ef43870e736bd0a1ad5df5ee06d714367276c3",
+    "source_sha256": "88547dc7c9c86c9265ca4a4a50007af1ab319c081492ef0186be7516e097b859",
+    "baseline_revision": "1fc29d78b1650084f3d462883ffdfbd144c76de4",
+    "baseline_source_sha256": "73072edd9ea35c3d50edef2cdcc85adaafbf48490f9801a959bf973679c8d089",
+    "scope": "opening through first Development; not full-round or full-match throughput",
+    "block_order": [
+      "baseline",
+      "current",
+      "current",
+      "baseline"
+    ],
+    "workers": 1,
+    "same_python_executable": true,
+    "shared_source_sha256": {
+      "Scripts/Sim/u13_pysim/benchmark_development.py": "12a744083c55416ad4584aab3ca670a70934a97b59b12d48e792eaa37eda9075",
+      "Scripts/Sim/u13_pysim/development_fixtures.py": "defa09f312b15788414f3c04b39c7fc6ac5810d7cf8ca829061627ba90153ca4"
+    },
+    "input_sha256": "d9eac2bfaa0f6b1edd7743f0f90162f31b09b3fcb8d6b8d52ef159a33918bc60",
+    "exact_result_sha256": "b4297d60573538ef0bb5e39f572ac4e774609bc6acb86f58e21036950cd9b74d",
+    "exact_results_match": true,
+    "summary": {
+      "baseline": {
+        "measured_cycles": 270,
+        "warmup_cycles": 18,
+        "mean_wall_ms": 20.30788925925926,
+        "measured_wall_seconds": 5.4831301,
+        "mean_cpu_ms": 20.19675925925926,
+        "measured_cpu_seconds": 5.453125,
+        "phase_mean_wall_ms": {
+          "opening": 1.918197407407407,
+          "upkeep_and_choices": 11.099421111111111,
+          "submission_and_lock": 4.255330370370371,
+          "development": 3.0349403703703706
+        }
+      },
+      "current": {
+        "measured_cycles": 270,
+        "warmup_cycles": 18,
+        "mean_wall_ms": 7.979674074074075,
+        "measured_wall_seconds": 2.154512,
+        "mean_cpu_ms": 8.101851851851851,
+        "measured_cpu_seconds": 2.1875,
+        "phase_mean_wall_ms": {
+          "opening": 1.6617151851851852,
+          "upkeep_and_choices": 4.390476296296297,
+          "submission_and_lock": 1.1891059259259258,
+          "development": 0.7383766666666666
+        }
+      }
+    },
+    "mean_wall_speedup": 2.544952221199046,
+    "mean_wall_reduction_percent": 60.706531475516144,
+    "blocks": [
+      {
+        "implementation": "baseline",
+        "report": {
+          "schema": "U13_PYSIM_DEVELOPMENT_TIMING_V1",
+          "python_mirror": "U13_PYSIM_DEVELOPMENT_V1",
+          "source_revision": "1fc29d78b1650084f3d462883ffdfbd144c76de4",
+          "source_sha256": "73072edd9ea35c3d50edef2cdcc85adaafbf48490f9801a959bf973679c8d089",
+          "python": "3.14.7",
+          "python_implementation": "CPython",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "machine": "AMD64",
+          "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+          "logical_cpus": 8,
+          "workers": 1,
+          "warmup_cycles": 9,
+          "measured_cycles": 135,
+          "iterations_per_setup": 15,
+          "scope": "fresh opening through first Development; six hooks; not a full round or match",
+          "includes": [
+            "opening RNG and setup",
+            "engine transaction copies",
+            "upkeep and Slaver passes",
+            "sealed submissions and lock",
+            "two deployed pairs and Work",
+            "engine events",
+            "small timing bookkeeping overhead"
+          ],
+          "excludes": [
+            "input selection and doctrine",
+            "Godot execution",
+            "trace encoding or decoding",
+            "external snapshots and exact comparisons",
+            "artillery and combat",
+            "Marching",
+            "later rounds and Lord effects",
+            "victory",
+            "worker scaling"
+          ],
+          "wall_cycle": {
+            "samples": 135,
+            "mean_ms": 21.51113925925926,
+            "median_ms": 20.7703,
+            "p95_ms": 28.1105,
+            "min_ms": 18.4001,
+            "max_ms": 38.1893
+          },
+          "cpu_cycle": {
+            "samples": 135,
+            "mean_ms": 21.180555555555557,
+            "median_ms": 15.625,
+            "p95_ms": 31.25,
+            "min_ms": 15.625,
+            "max_ms": 46.875
+          },
+          "phase_wall": {
+            "opening": {
+              "samples": 135,
+              "mean_ms": 2.020122222222222,
+              "median_ms": 1.9603,
+              "p95_ms": 2.4101,
+              "min_ms": 1.7561,
+              "max_ms": 3.5685
+            },
+            "upkeep_and_choices": {
+              "samples": 135,
+              "mean_ms": 11.769831111111111,
+              "median_ms": 11.3208,
+              "p95_ms": 14.8242,
+              "min_ms": 10.0716,
+              "max_ms": 22.631
+            },
+            "submission_and_lock": {
+              "samples": 135,
+              "mean_ms": 4.511401481481482,
+              "median_ms": 4.2609,
+              "p95_ms": 6.5526,
+              "min_ms": 3.8079,
+              "max_ms": 15.581
+            },
+            "development": {
+              "samples": 135,
+              "mean_ms": 3.2097844444444443,
+              "median_ms": 3.0931,
+              "p95_ms": 4.7067,
+              "min_ms": 2.7135,
+              "max_ms": 5.7721
+            }
+          },
+          "measured_wall_seconds": 2.9040038,
+          "measured_cpu_seconds": 2.859375,
+          "python_full_match_implemented": false,
+          "full_match_games_per_second": null,
+          "full_match_50000_wall_seconds": null,
+          "input_sha256": "d9eac2bfaa0f6b1edd7743f0f90162f31b09b3fcb8d6b8d52ef159a33918bc60",
+          "exact_result_sha256": "b4297d60573538ef0bb5e39f572ac4e774609bc6acb86f58e21036950cd9b74d"
+        }
+      },
+      {
+        "implementation": "current",
+        "report": {
+          "schema": "U13_PYSIM_DEVELOPMENT_TIMING_V1",
+          "python_mirror": "U13_PYSIM_DEVELOPMENT_V1",
+          "source_revision": "88ef43870e736bd0a1ad5df5ee06d714367276c3",
+          "source_sha256": "88547dc7c9c86c9265ca4a4a50007af1ab319c081492ef0186be7516e097b859",
+          "python": "3.14.7",
+          "python_implementation": "CPython",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "machine": "AMD64",
+          "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+          "logical_cpus": 8,
+          "workers": 1,
+          "warmup_cycles": 9,
+          "measured_cycles": 135,
+          "iterations_per_setup": 15,
+          "scope": "fresh opening through first Development; six hooks; not a full round or match",
+          "includes": [
+            "opening RNG and setup",
+            "engine transaction copies",
+            "upkeep and Slaver passes",
+            "sealed submissions and lock",
+            "two deployed pairs and Work",
+            "engine events",
+            "small timing bookkeeping overhead"
+          ],
+          "excludes": [
+            "input selection and doctrine",
+            "Godot execution",
+            "trace encoding or decoding",
+            "external snapshots and exact comparisons",
+            "artillery and combat",
+            "Marching",
+            "later rounds and Lord effects",
+            "victory",
+            "worker scaling"
+          ],
+          "wall_cycle": {
+            "samples": 135,
+            "mean_ms": 8.114746666666667,
+            "median_ms": 8.0025,
+            "p95_ms": 9.1694,
+            "min_ms": 7.4493,
+            "max_ms": 11.6606
+          },
+          "cpu_cycle": {
+            "samples": 135,
+            "mean_ms": 8.217592592592593,
+            "median_ms": 15.625,
+            "p95_ms": 15.625,
+            "min_ms": 0.0,
+            "max_ms": 15.625
+          },
+          "phase_wall": {
+            "opening": {
+              "samples": 135,
+              "mean_ms": 1.6800037037037037,
+              "median_ms": 1.6471,
+              "p95_ms": 1.943,
+              "min_ms": 1.5513,
+              "max_ms": 2.8458
+            },
+            "upkeep_and_choices": {
+              "samples": 135,
+              "mean_ms": 4.465497777777778,
+              "median_ms": 4.376,
+              "p95_ms": 5.0137,
+              "min_ms": 4.1033,
+              "max_ms": 6.7284
+            },
+            "submission_and_lock": {
+              "samples": 135,
+              "mean_ms": 1.2193155555555555,
+              "median_ms": 1.1895,
+              "p95_ms": 1.3925,
+              "min_ms": 1.1118,
+              "max_ms": 2.1054
+            },
+            "development": {
+              "samples": 135,
+              "mean_ms": 0.7499296296296296,
+              "median_ms": 0.7289,
+              "p95_ms": 0.9087,
+              "min_ms": 0.6741,
+              "max_ms": 1.3922
+            }
+          },
+          "measured_wall_seconds": 1.0954908,
+          "measured_cpu_seconds": 1.109375,
+          "python_full_match_implemented": false,
+          "full_match_games_per_second": null,
+          "full_match_50000_wall_seconds": null,
+          "input_sha256": "d9eac2bfaa0f6b1edd7743f0f90162f31b09b3fcb8d6b8d52ef159a33918bc60",
+          "exact_result_sha256": "b4297d60573538ef0bb5e39f572ac4e774609bc6acb86f58e21036950cd9b74d"
+        }
+      },
+      {
+        "implementation": "current",
+        "report": {
+          "schema": "U13_PYSIM_DEVELOPMENT_TIMING_V1",
+          "python_mirror": "U13_PYSIM_DEVELOPMENT_V1",
+          "source_revision": "88ef43870e736bd0a1ad5df5ee06d714367276c3",
+          "source_sha256": "88547dc7c9c86c9265ca4a4a50007af1ab319c081492ef0186be7516e097b859",
+          "python": "3.14.7",
+          "python_implementation": "CPython",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "machine": "AMD64",
+          "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+          "logical_cpus": 8,
+          "workers": 1,
+          "warmup_cycles": 9,
+          "measured_cycles": 135,
+          "iterations_per_setup": 15,
+          "scope": "fresh opening through first Development; six hooks; not a full round or match",
+          "includes": [
+            "opening RNG and setup",
+            "engine transaction copies",
+            "upkeep and Slaver passes",
+            "sealed submissions and lock",
+            "two deployed pairs and Work",
+            "engine events",
+            "small timing bookkeeping overhead"
+          ],
+          "excludes": [
+            "input selection and doctrine",
+            "Godot execution",
+            "trace encoding or decoding",
+            "external snapshots and exact comparisons",
+            "artillery and combat",
+            "Marching",
+            "later rounds and Lord effects",
+            "victory",
+            "worker scaling"
+          ],
+          "wall_cycle": {
+            "samples": 135,
+            "mean_ms": 7.844601481481481,
+            "median_ms": 7.6936,
+            "p95_ms": 9.0583,
+            "min_ms": 7.3104,
+            "max_ms": 9.677
+          },
+          "cpu_cycle": {
+            "samples": 135,
+            "mean_ms": 7.986111111111111,
+            "median_ms": 15.625,
+            "p95_ms": 15.625,
+            "min_ms": 0.0,
+            "max_ms": 15.625
+          },
+          "phase_wall": {
+            "opening": {
+              "samples": 135,
+              "mean_ms": 1.6434266666666666,
+              "median_ms": 1.5887,
+              "p95_ms": 2.0044,
+              "min_ms": 1.518,
+              "max_ms": 2.8918
+            },
+            "upkeep_and_choices": {
+              "samples": 135,
+              "mean_ms": 4.315454814814815,
+              "median_ms": 4.2297,
+              "p95_ms": 4.9315,
+              "min_ms": 4.0212,
+              "max_ms": 6.2442
+            },
+            "submission_and_lock": {
+              "samples": 135,
+              "mean_ms": 1.1588962962962963,
+              "median_ms": 1.1339,
+              "p95_ms": 1.2691,
+              "min_ms": 1.0801,
+              "max_ms": 1.9109
+            },
+            "development": {
+              "samples": 135,
+              "mean_ms": 0.7268237037037037,
+              "median_ms": 0.6983,
+              "p95_ms": 0.8903,
+              "min_ms": 0.6605,
+              "max_ms": 1.8095
+            }
+          },
+          "measured_wall_seconds": 1.0590211999999999,
+          "measured_cpu_seconds": 1.078125,
+          "python_full_match_implemented": false,
+          "full_match_games_per_second": null,
+          "full_match_50000_wall_seconds": null,
+          "input_sha256": "d9eac2bfaa0f6b1edd7743f0f90162f31b09b3fcb8d6b8d52ef159a33918bc60",
+          "exact_result_sha256": "b4297d60573538ef0bb5e39f572ac4e774609bc6acb86f58e21036950cd9b74d"
+        }
+      },
+      {
+        "implementation": "baseline",
+        "report": {
+          "schema": "U13_PYSIM_DEVELOPMENT_TIMING_V1",
+          "python_mirror": "U13_PYSIM_DEVELOPMENT_V1",
+          "source_revision": "1fc29d78b1650084f3d462883ffdfbd144c76de4",
+          "source_sha256": "73072edd9ea35c3d50edef2cdcc85adaafbf48490f9801a959bf973679c8d089",
+          "python": "3.14.7",
+          "python_implementation": "CPython",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "machine": "AMD64",
+          "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+          "logical_cpus": 8,
+          "workers": 1,
+          "warmup_cycles": 9,
+          "measured_cycles": 135,
+          "iterations_per_setup": 15,
+          "scope": "fresh opening through first Development; six hooks; not a full round or match",
+          "includes": [
+            "opening RNG and setup",
+            "engine transaction copies",
+            "upkeep and Slaver passes",
+            "sealed submissions and lock",
+            "two deployed pairs and Work",
+            "engine events",
+            "small timing bookkeeping overhead"
+          ],
+          "excludes": [
+            "input selection and doctrine",
+            "Godot execution",
+            "trace encoding or decoding",
+            "external snapshots and exact comparisons",
+            "artillery and combat",
+            "Marching",
+            "later rounds and Lord effects",
+            "victory",
+            "worker scaling"
+          ],
+          "wall_cycle": {
+            "samples": 135,
+            "mean_ms": 19.104639259259258,
+            "median_ms": 18.7886,
+            "p95_ms": 21.2551,
+            "min_ms": 17.7425,
+            "max_ms": 26.5032
+          },
+          "cpu_cycle": {
+            "samples": 135,
+            "mean_ms": 19.212962962962962,
+            "median_ms": 15.625,
+            "p95_ms": 31.25,
+            "min_ms": 15.625,
+            "max_ms": 31.25
+          },
+          "phase_wall": {
+            "opening": {
+              "samples": 135,
+              "mean_ms": 1.8162725925925927,
+              "median_ms": 1.7674,
+              "p95_ms": 2.219,
+              "min_ms": 1.6916,
+              "max_ms": 2.6815
+            },
+            "upkeep_and_choices": {
+              "samples": 135,
+              "mean_ms": 10.42901111111111,
+              "median_ms": 10.2047,
+              "p95_ms": 12.067,
+              "min_ms": 9.6174,
+              "max_ms": 17.1515
+            },
+            "submission_and_lock": {
+              "samples": 135,
+              "mean_ms": 3.9992592592592593,
+              "median_ms": 3.8903,
+              "p95_ms": 4.9749,
+              "min_ms": 3.686,
+              "max_ms": 6.3118
+            },
+            "development": {
+              "samples": 135,
+              "mean_ms": 2.8600962962962964,
+              "median_ms": 2.7706,
+              "p95_ms": 3.3778,
+              "min_ms": 2.6314,
+              "max_ms": 5.5115
+            }
+          },
+          "measured_wall_seconds": 2.5791263,
+          "measured_cpu_seconds": 2.59375,
+          "python_full_match_implemented": false,
+          "full_match_games_per_second": null,
+          "full_match_50000_wall_seconds": null,
+          "input_sha256": "d9eac2bfaa0f6b1edd7743f0f90162f31b09b3fcb8d6b8d52ef159a33918bc60",
+          "exact_result_sha256": "b4297d60573538ef0bb5e39f572ac4e774609bc6acb86f58e21036950cd9b74d"
+        }
+      }
+    ],
+    "separate_profiles": [
+      {
+        "implementation": "baseline",
+        "report": {
+          "schema": "U13_PYSIM_DEVELOPMENT_TIMING_V1",
+          "python_mirror": "U13_PYSIM_DEVELOPMENT_V1",
+          "source_revision": "1fc29d78b1650084f3d462883ffdfbd144c76de4",
+          "source_sha256": "73072edd9ea35c3d50edef2cdcc85adaafbf48490f9801a959bf973679c8d089",
+          "python": "3.14.7",
+          "python_implementation": "CPython",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "machine": "AMD64",
+          "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+          "logical_cpus": 8,
+          "workers": 1,
+          "warmup_cycles": 9,
+          "measured_cycles": 9,
+          "iterations_per_setup": 1,
+          "scope": "fresh opening through first Development; six hooks; not a full round or match",
+          "includes": [
+            "opening RNG and setup",
+            "engine transaction copies",
+            "upkeep and Slaver passes",
+            "sealed submissions and lock",
+            "two deployed pairs and Work",
+            "engine events",
+            "small timing bookkeeping overhead"
+          ],
+          "excludes": [
+            "input selection and doctrine",
+            "Godot execution",
+            "trace encoding or decoding",
+            "external snapshots and exact comparisons",
+            "artillery and combat",
+            "Marching",
+            "later rounds and Lord effects",
+            "victory",
+            "worker scaling"
+          ],
+          "wall_cycle": {
+            "samples": 9,
+            "mean_ms": 76.37157777777777,
+            "median_ms": 76.9875,
+            "p95_ms": 81.3191,
+            "min_ms": 72.6464,
+            "max_ms": 81.3191
+          },
+          "cpu_cycle": {
+            "samples": 9,
+            "mean_ms": 76.38888888888889,
+            "median_ms": 78.125,
+            "p95_ms": 78.125,
+            "min_ms": 62.5,
+            "max_ms": 78.125
+          },
+          "phase_wall": {
+            "opening": {
+              "samples": 9,
+              "mean_ms": 6.612533333333333,
+              "median_ms": 6.6206,
+              "p95_ms": 7.2356,
+              "min_ms": 6.3672,
+              "max_ms": 7.2356
+            },
+            "upkeep_and_choices": {
+              "samples": 9,
+              "mean_ms": 41.6419,
+              "median_ms": 42.052,
+              "p95_ms": 43.0313,
+              "min_ms": 39.5586,
+              "max_ms": 43.0313
+            },
+            "submission_and_lock": {
+              "samples": 9,
+              "mean_ms": 16.915366666666667,
+              "median_ms": 16.5156,
+              "p95_ms": 20.2243,
+              "min_ms": 15.612,
+              "max_ms": 20.2243
+            },
+            "development": {
+              "samples": 9,
+              "mean_ms": 11.201777777777778,
+              "median_ms": 11.1945,
+              "p95_ms": 11.5878,
+              "min_ms": 10.675,
+              "max_ms": 11.5878
+            }
+          },
+          "measured_wall_seconds": 0.6873442,
+          "measured_cpu_seconds": 0.6875,
+          "python_full_match_implemented": false,
+          "full_match_games_per_second": null,
+          "full_match_50000_wall_seconds": null,
+          "input_sha256": "d9eac2bfaa0f6b1edd7743f0f90162f31b09b3fcb8d6b8d52ef159a33918bc60",
+          "exact_result_sha256": "b4297d60573538ef0bb5e39f572ac4e774609bc6acb86f58e21036950cd9b74d",
+          "profile_scope": "instrumented run including input preparation and warmups; not throughput",
+          "profile_top": [
+            {
+              "file": "benchmark_development.py",
+              "line": 23,
+              "function": "run",
+              "primitive_calls": 1,
+              "total_calls": 1,
+              "exclusive_seconds": 0.000933,
+              "cumulative_seconds": 1.9192351
+            },
+            {
+              "file": "planning.py",
+              "line": 33,
+              "function": "apply",
+              "primitive_calls": 216,
+              "total_calls": 216,
+              "exclusive_seconds": 0.0037146,
+              "cumulative_seconds": 1.6185974
+            },
+            {
+              "file": "copy.py",
+              "line": 110,
+              "function": "deepcopy",
+              "primitive_calls": 6090,
+              "total_calls": 1893463,
+              "exclusive_seconds": 0.6065074,
+              "cumulative_seconds": 1.5791011000000001
+            },
+            {
+              "file": "copy.py",
+              "line": 198,
+              "function": "_deepcopy_dict",
+              "primitive_calls": 6648,
+              "total_calls": 179408,
+              "exclusive_seconds": 0.49542810000000004,
+              "cumulative_seconds": 1.5572876
+            },
+            {
+              "file": "benchmark_development.py",
+              "line": 33,
+              "function": "cycle",
+              "primitive_calls": 18,
+              "total_calls": 18,
+              "exclusive_seconds": 0.0041413000000000005,
+              "cumulative_seconds": 1.3686259
+            },
+            {
+              "file": "planning.py",
+              "line": 25,
+              "function": "snapshot",
+              "primitive_calls": 360,
+              "total_calls": 360,
+              "exclusive_seconds": 0.0023998,
+              "cumulative_seconds": 1.3071122000000002
+            },
+            {
+              "file": "copy.py",
+              "line": 172,
+              "function": "_deepcopy_list",
+              "primitive_calls": 40860,
+              "total_calls": 54371,
+              "exclusive_seconds": 0.1188362,
+              "cumulative_seconds": 1.2643743
+            },
+            {
+              "file": "planning.py",
+              "line": 47,
+              "function": "_apply",
+              "primitive_calls": 216,
+              "total_calls": 216,
+              "exclusive_seconds": 0.0015822000000000002,
+              "cumulative_seconds": 0.8010940000000001
+            },
+            {
+              "file": "development_fixtures.py",
+              "line": 33,
+              "function": "scripted_operations",
+              "primitive_calls": 9,
+              "total_calls": 9,
+              "exclusive_seconds": 0.00033640000000000005,
+              "cumulative_seconds": 0.4371007
+            },
+            {
+              "file": "development_fixtures.py",
+              "line": 37,
+              "function": "apply",
+              "primitive_calls": 54,
+              "total_calls": 54,
+              "exclusive_seconds": 0.0011383,
+              "cumulative_seconds": 0.37565170000000003
+            },
+            {
+              "file": "development.py",
+              "line": 168,
+              "function": "_hook",
+              "primitive_calls": 144,
+              "total_calls": 144,
+              "exclusive_seconds": 0.0006307,
+              "cumulative_seconds": 0.20645010000000003
+            },
+            {
+              "file": "planning.py",
+              "line": 20,
+              "function": "__init__",
+              "primitive_calls": 27,
+              "total_calls": 27,
+              "exclusive_seconds": 0.0001073,
+              "cumulative_seconds": 0.18052420000000002
+            },
+            {
+              "file": "opening.py",
+              "line": 174,
+              "function": "snapshot",
+              "primitive_calls": 27,
+              "total_calls": 27,
+              "exclusive_seconds": 0.0004738,
+              "cumulative_seconds": 0.1803346
+            },
+            {
+              "file": "copy.py",
+              "line": 212,
+              "function": "_keep_alive",
+              "primitive_calls": 233995,
+              "total_calls": 233995,
+              "exclusive_seconds": 0.1110618,
+              "cumulative_seconds": 0.17256100000000002
+            },
+            {
+              "file": "planning.py",
+              "line": 200,
+              "function": "_hook",
+              "primitive_calls": 126,
+              "total_calls": 126,
+              "exclusive_seconds": 0.0026304,
+              "cumulative_seconds": 0.1597368
+            }
+          ]
+        }
+      },
+      {
+        "implementation": "current",
+        "report": {
+          "schema": "U13_PYSIM_DEVELOPMENT_TIMING_V1",
+          "python_mirror": "U13_PYSIM_DEVELOPMENT_V1",
+          "source_revision": "88ef43870e736bd0a1ad5df5ee06d714367276c3",
+          "source_sha256": "88547dc7c9c86c9265ca4a4a50007af1ab319c081492ef0186be7516e097b859",
+          "python": "3.14.7",
+          "python_implementation": "CPython",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "machine": "AMD64",
+          "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+          "logical_cpus": 8,
+          "workers": 1,
+          "warmup_cycles": 9,
+          "measured_cycles": 9,
+          "iterations_per_setup": 1,
+          "scope": "fresh opening through first Development; six hooks; not a full round or match",
+          "includes": [
+            "opening RNG and setup",
+            "engine transaction copies",
+            "upkeep and Slaver passes",
+            "sealed submissions and lock",
+            "two deployed pairs and Work",
+            "engine events",
+            "small timing bookkeeping overhead"
+          ],
+          "excludes": [
+            "input selection and doctrine",
+            "Godot execution",
+            "trace encoding or decoding",
+            "external snapshots and exact comparisons",
+            "artillery and combat",
+            "Marching",
+            "later rounds and Lord effects",
+            "victory",
+            "worker scaling"
+          ],
+          "wall_cycle": {
+            "samples": 9,
+            "mean_ms": 23.35318888888889,
+            "median_ms": 23.4469,
+            "p95_ms": 24.2233,
+            "min_ms": 22.79,
+            "max_ms": 24.2233
+          },
+          "cpu_cycle": {
+            "samples": 9,
+            "mean_ms": 24.305555555555557,
+            "median_ms": 31.25,
+            "p95_ms": 31.25,
+            "min_ms": 15.625,
+            "max_ms": 31.25
+          },
+          "phase_wall": {
+            "opening": {
+              "samples": 9,
+              "mean_ms": 5.567522222222222,
+              "median_ms": 5.4448,
+              "p95_ms": 6.3185,
+              "min_ms": 5.277,
+              "max_ms": 6.3185
+            },
+            "upkeep_and_choices": {
+              "samples": 9,
+              "mean_ms": 12.206288888888889,
+              "median_ms": 12.1427,
+              "p95_ms": 13.4438,
+              "min_ms": 11.7716,
+              "max_ms": 13.4438
+            },
+            "submission_and_lock": {
+              "samples": 9,
+              "mean_ms": 3.5161555555555557,
+              "median_ms": 3.5394,
+              "p95_ms": 3.6462,
+              "min_ms": 3.4081,
+              "max_ms": 3.6462
+            },
+            "development": {
+              "samples": 9,
+              "mean_ms": 2.063222222222222,
+              "median_ms": 2.0461,
+              "p95_ms": 2.1679,
+              "min_ms": 1.9926,
+              "max_ms": 2.1679
+            }
+          },
+          "measured_wall_seconds": 0.2101787,
+          "measured_cpu_seconds": 0.21875,
+          "python_full_match_implemented": false,
+          "full_match_games_per_second": null,
+          "full_match_50000_wall_seconds": null,
+          "input_sha256": "d9eac2bfaa0f6b1edd7743f0f90162f31b09b3fcb8d6b8d52ef159a33918bc60",
+          "exact_result_sha256": "b4297d60573538ef0bb5e39f572ac4e774609bc6acb86f58e21036950cd9b74d",
+          "profile_scope": "instrumented run including input preparation and warmups; not throughput",
+          "profile_top": [
+            {
+              "file": "benchmark_development.py",
+              "line": 23,
+              "function": "run",
+              "primitive_calls": 1,
+              "total_calls": 1,
+              "exclusive_seconds": 0.0008157,
+              "cumulative_seconds": 0.6932549
+            },
+            {
+              "file": "planning.py",
+              "line": 34,
+              "function": "apply",
+              "primitive_calls": 216,
+              "total_calls": 216,
+              "exclusive_seconds": 0.0006104000000000001,
+              "cumulative_seconds": 0.42736690000000005
+            },
+            {
+              "file": "benchmark_development.py",
+              "line": 33,
+              "function": "cycle",
+              "primitive_calls": 18,
+              "total_calls": 18,
+              "exclusive_seconds": 0.0032981,
+              "cumulative_seconds": 0.41892470000000004
+            },
+            {
+              "file": "copying.py",
+              "line": 12,
+              "function": "copy_data",
+              "primitive_calls": 2868,
+              "total_calls": 2868,
+              "exclusive_seconds": 0.0023819,
+              "cumulative_seconds": 0.31942970000000004
+            },
+            {
+              "file": "copying.py",
+              "line": 16,
+              "function": "_clone",
+              "primitive_calls": 2868,
+              "total_calls": 135795,
+              "exclusive_seconds": 0.26185420000000004,
+              "cumulative_seconds": 0.31704780000000005
+            },
+            {
+              "file": "planning.py",
+              "line": 26,
+              "function": "snapshot",
+              "primitive_calls": 216,
+              "total_calls": 216,
+              "exclusive_seconds": 0.00011360000000000001,
+              "cumulative_seconds": 0.2762277
+            },
+            {
+              "file": "development_fixtures.py",
+              "line": 33,
+              "function": "scripted_operations",
+              "primitive_calls": 9,
+              "total_calls": 9,
+              "exclusive_seconds": 0.00028670000000000003,
+              "cumulative_seconds": 0.16419930000000002
+            },
+            {
+              "file": "planning.py",
+              "line": 21,
+              "function": "__init__",
+              "primitive_calls": 27,
+              "total_calls": 27,
+              "exclusive_seconds": 9.43e-05,
+              "cumulative_seconds": 0.15023160000000002
+            },
+            {
+              "file": "opening.py",
+              "line": 174,
+              "function": "snapshot",
+              "primitive_calls": 27,
+              "total_calls": 27,
+              "exclusive_seconds": 0.0004643,
+              "cumulative_seconds": 0.1500614
+            },
+            {
+              "file": "opening.py",
+              "line": 85,
+              "function": "world",
+              "primitive_calls": 27,
+              "total_calls": 27,
+              "exclusive_seconds": 0.0041592,
+              "cumulative_seconds": 0.1346265
+            },
+            {
+              "file": "planning.py",
+              "line": 48,
+              "function": "_apply",
+              "primitive_calls": 216,
+              "total_calls": 216,
+              "exclusive_seconds": 0.0010512,
+              "cumulative_seconds": 0.12689630000000002
+            },
+            {
+              "file": "development.py",
+              "line": 175,
+              "function": "_hook",
+              "primitive_calls": 144,
+              "total_calls": 144,
+              "exclusive_seconds": 0.0004512,
+              "cumulative_seconds": 0.1185236
+            },
+            {
+              "file": "development_fixtures.py",
+              "line": 37,
+              "function": "apply",
+              "primitive_calls": 54,
+              "total_calls": 54,
+              "exclusive_seconds": 0.0010961,
+              "cumulative_seconds": 0.11235850000000001
+            },
+            {
+              "file": "planning.py",
+              "line": 207,
+              "function": "_hook",
+              "primitive_calls": 126,
+              "total_calls": 126,
+              "exclusive_seconds": 0.0022368,
+              "cumulative_seconds": 0.1119802
+            },
+            {
+              "file": "platform.py",
+              "line": 1329,
+              "function": "platform",
+              "primitive_calls": 1,
+              "total_calls": 1,
+              "exclusive_seconds": 2.5900000000000003e-05,
+              "cumulative_seconds": 0.1077134
+            }
+          ]
+        }
+      }
+    ],
+    "full_match_games_per_second": null,
+    "full_match_50000_wall_seconds": null
+  },
+  "archive_members": [
+    {
+      "name": "copying-comparison.json",
+      "bytes": 31683,
+      "sha256": "9223ebb7c48e0907a7fc16dacddadf35c7e62d22a490ffb54ee4375ec3f4b267"
+    },
+    {
+      "name": "copying-comparison.log",
+      "bytes": 329,
+      "sha256": "4b8fd6940771fe21597a80456ce4427644f4272aedf43c2ccfa40072eeffde18"
+    },
+    {
+      "name": "development-godot.log",
+      "bytes": 23422,
+      "sha256": "bae9c5e23a71f93dcb1ac20916d602371b4ea29104bb5234b773ccdd50dd5c86"
+    },
+    {
+      "name": "development-python.log",
+      "bytes": 888,
+      "sha256": "d3f04612901b128a7b3a27dc80907d1cb8057bed3712c5269855ba088932ba3d"
+    },
+    {
+      "name": "development-summary.json",
+      "bytes": 846,
+      "sha256": "540a9ff1009805f6611dba9986edae24896e014f68fab23993dfc93be33c188b"
+    },
+    {
+      "name": "development.exact.json",
+      "bytes": 14736335,
+      "sha256": "d383df079940ee66a307fbf4e4d84b5d038382e124f2c06219110c575146adaa"
+    },
+    {
+      "name": "planning-godot.log",
+      "bytes": 14996,
+      "sha256": "f90f94caa65c87320229c73bcb7a719f4182b14e079a9935d1d91d27c6966184"
+    },
+    {
+      "name": "planning-python.log",
+      "bytes": 820,
+      "sha256": "5c932599e5294eb057cea6881800142668c4fc396ebce495d5c6fcd7cb327793"
+    },
+    {
+      "name": "planning-summary.json",
+      "bytes": 781,
+      "sha256": "87651359e07a99119d5ea425968732858bbd8740286d25148ed82457daae850c"
+    },
+    {
+      "name": "planning.exact.json",
+      "bytes": 18773917,
+      "sha256": "a5ab576cab40e34c2c5643e068a79b8529794193c6e40f5b77405122dda1c9cb"
+    },
+    {
+      "name": "python-tests.log",
+      "bytes": 4406,
+      "sha256": "29d35ccce6d353bdf77194100a6dace95ed401e6d16e388962b1ae3bc4521f0b"
+    },
+    {
+      "name": "python-version.log",
+      "bytes": 15,
+      "sha256": "9fc9968e3ae8d82284d7426a87e1426e07246027c7706b0803a1c8d9c60c7a4d"
+    },
+    {
+      "name": "run-status.txt",
+      "bytes": 39,
+      "sha256": "10b41e56770d089c5bbfa23feb0e6a4dbec3b2514a67dee8131affee88d680e7"
+    },
+    {
+      "name": "source-identity.txt",
+      "bytes": 108,
+      "sha256": "a6130c5b82f43d19c46aeffe33076cf1b096b857e77c5a00588e75a1eecb3b05"
+    },
+    {
+      "name": "version.log",
+      "bytes": 33,
+      "sha256": "bf8803022b574250bb04dea65053a46b7c58570725316c1f7fe2aa6735706498"
+    },
+    {
+      "name": "worktree.diff",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}
