@@ -1,0 +1,92 @@
+{
+  "schema": "U13_PYSIM_DEVELOPMENT_TIMING_V1",
+  "python_mirror": "U13_PYSIM_DEVELOPMENT_V1",
+  "source_revision": "c00d20dd173debc137b1a319ffd3c7edcc90827d",
+  "source_sha256": "38b4557b23ff2904491df22e74a63c6a9ca05c13988d0e9ae391021a06b677c4",
+  "python": "3.12.14",
+  "python_implementation": "CPython",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "processor": "x86_64",
+  "logical_cpus": 9,
+  "workers": 1,
+  "warmup_cycles": 9,
+  "measured_cycles": 270,
+  "iterations_per_setup": 30,
+  "scope": "fresh opening through first Development; six hooks; not a full round or match",
+  "includes": [
+    "opening RNG and setup",
+    "engine transaction copies",
+    "upkeep and Slaver passes",
+    "sealed submissions and lock",
+    "two deployed pairs and Work",
+    "engine events",
+    "small timing bookkeeping overhead"
+  ],
+  "excludes": [
+    "input selection and doctrine",
+    "Godot execution",
+    "trace encoding or decoding",
+    "external snapshots and exact comparisons",
+    "artillery and combat",
+    "Marching",
+    "later rounds and Lord effects",
+    "victory",
+    "worker scaling"
+  ],
+  "wall_cycle": {
+    "samples": 270,
+    "mean_ms": 37.5898655,
+    "median_ms": 35.63378,
+    "p95_ms": 48.194039,
+    "min_ms": 31.337257,
+    "max_ms": 65.494469
+  },
+  "cpu_cycle": {
+    "samples": 270,
+    "mean_ms": 37.591139596296294,
+    "median_ms": 35.644448499999996,
+    "p95_ms": 48.203498,
+    "min_ms": 31.344289,
+    "max_ms": 65.4971
+  },
+  "phase_wall": {
+    "opening": {
+      "samples": 270,
+      "mean_ms": 2.901940014814815,
+      "median_ms": 2.6375385,
+      "p95_ms": 4.705326,
+      "min_ms": 2.402564,
+      "max_ms": 8.792176
+    },
+    "upkeep_and_choices": {
+      "samples": 270,
+      "mean_ms": 20.83052424074074,
+      "median_ms": 19.3477775,
+      "p95_ms": 27.459583,
+      "min_ms": 17.243541,
+      "max_ms": 40.622277
+    },
+    "submission_and_lock": {
+      "samples": 270,
+      "mean_ms": 8.188675711111111,
+      "median_ms": 7.546288499999999,
+      "p95_ms": 11.893012,
+      "min_ms": 6.838346,
+      "max_ms": 17.027406
+    },
+    "development": {
+      "samples": 270,
+      "mean_ms": 5.668725533333333,
+      "median_ms": 5.180788,
+      "p95_ms": 8.772179,
+      "min_ms": 4.700116,
+      "max_ms": 13.096909
+    }
+  },
+  "measured_wall_seconds": 10.149263685,
+  "measured_cpu_seconds": 10.149607691,
+  "python_full_match_implemented": false,
+  "full_match_games_per_second": null,
+  "full_match_50000_wall_seconds": null
+}

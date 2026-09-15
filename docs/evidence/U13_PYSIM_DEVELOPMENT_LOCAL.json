@@ -1,0 +1,32 @@
+{
+  "python_mirror": "U13_PYSIM_DEVELOPMENT_V1",
+  "source_revision": "c00d20dd173debc137b1a319ffd3c7edcc90827d",
+  "source_sha256": "73072edd9ea35c3d50edef2cdcc85adaafbf48490f9801a959bf973679c8d089",
+  "runtime": "4.5.1-stable (official)",
+  "diagnostic_only": true,
+  "development_games_matched": 9,
+  "full_game_snapshots_matched": 90,
+  "game_operations_matched": 81,
+  "component_operations_matched": 217,
+  "component_fixture_operations": 106,
+  "rejected_component_operations_matched": 7,
+  "game_hooks_implemented": [
+    "round_start_scheduled",
+    "persistent_advancement",
+    "round_start_automatic",
+    "present_public_state",
+    "submission_lock",
+    "development"
+  ],
+  "python_full_round_parity": false,
+  "python_full_match_parity": false,
+  "failures": 0,
+  "deliberate_mismatches_rejected": 14,
+  "windows_acceptance": "pending",
+  "source_worktree": "pre-commit changes based on source_revision",
+  "godot_checks": 497,
+  "godot_failures": 0,
+  "python_unit_tests": 20,
+  "trace_sha256": "f782fd561d32577da2647d7700355789eefdd3f403438b8d8ffec05ce8f40c20",
+  "acceptance_runtime_rejection": "FAIL U13 PySim development: games[0].identity.runtime: '4.7.2-stable (official)' != '4.5.1-stable (official)'"
+}

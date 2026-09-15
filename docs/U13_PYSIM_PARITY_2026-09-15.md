@@ -7,8 +7,11 @@ operations, and ten rejected evidence corruptions. See
 The [planning slice](U13_PYSIM_PLANNING_2026-09-15.md) now implements the first
 five game hooks, sealed submissions and opening-round economy. Windows Godot
 4.7.2 acceptance passed at clean `f318d6d`, including 222 exact game operations
-and eleven rejected evidence corruptions. Development and subsequent
-game resolution remain unimplemented in Python.
+and eleven rejected evidence corruptions. The
+[Development slice](U13_PYSIM_DEVELOPMENT_2026-09-15.md) now extends through
+Guard deployment and Work/pairs, with local exact diagnostic checks passing;
+its Windows 4.7.2 acceptance is pending. Subsequent game resolution remains
+unimplemented in Python.
 This document retains the initial inventory and subsequent implementation
 boundaries. The [accepted checkpoint](U13_ACCEPTED_CHECKPOINT_2026-09-15.md) clears
 the pending mechanics-validation bookmark.
@@ -108,7 +111,13 @@ consumption, allegiance, same-hook ordering and deterministic retargeting.
 
 Only after these pass should the roadmap's approximately 50–100 deterministic
 reference games become a full cross-engine gate. Compare identical explicit
-inputs and state, not independently selected bot actions. Then measure PySim
-throughput and move into Common Smart Core + per-Lord doctrines. Serious balance
+inputs and state, not independently selected bot actions. Start performance
+measurement during the parity build, including a spatial spike before completing
+Marching and throughput measurement of the first supported full-match path.
+The current partial timing probe does not establish complete-match speed.
+Keep experimental Python policies swappable; only the shipping doctrine needs
+Godot decision parity. Follow the
+[policy and performance gates](U13_PYSIM_POLICY_AND_PERFORMANCE_2026-09-15.md),
+then move into Common Smart Core + per-Lord doctrines. Serious balance
 and roguelite progression remain later milestones; no balance edits accompany
 this inventory.

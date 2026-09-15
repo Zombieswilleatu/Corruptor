@@ -15,6 +15,8 @@ VERSION = "U13_PYSIM_PLANNING_V1"
 
 
 class PlanningMatch:
+    HOOK_LIMIT = 5
+
     def __init__(self, setup):
         self.state = opening.snapshot(setup["seed"], setup["lords"], setup["castles"])
         self.clock = Timeline()
@@ -47,7 +49,7 @@ class PlanningMatch:
         if kind == "step":
             e.require(set(operation) == {"kind", "hook"} and operation["hook"] == self.clock.hook,
                       "trace_operation_invalid")
-            if self.clock.index >= 5:
+            if self.clock.index >= self.HOOK_LIMIT:
                 raise e.Unsupported("Python planning stops before " + self.clock.hook)
             before = self.snapshot()
             try:

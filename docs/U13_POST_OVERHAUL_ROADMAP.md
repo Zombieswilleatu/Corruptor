@@ -1,5 +1,21 @@
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
+**2026-09-15 Development implemented; Windows acceptance pending:** The independent
+Python mirror now extends through the sixth hook, Guard deployment and Work/pairs.
+Local diagnostic checks match 90 complete snapshots and 217 isolated lifecycle
+operations. See [implementation and focused runner](U13_PYSIM_DEVELOPMENT_2026-09-15.md).
+Artillery, combat, Marching and full rounds remain outside the Python adapter.
+
+**2026-09-15 policy and performance steering:** Keep doctrine swappable in the
+harness. Experimental Python policies/configurations do not need Godot ports;
+require decision parity for the selected shipping doctrine and exact rules parity
+for identical explicit inputs. The new partial timing probe measures 37.59 ms
+mean for opening through first Development on one local Python worker, excluding
+export/comparison and doctrine. It establishes no full-match speed. Profile the
+current hot path and bring an exact spatial performance spike forward before
+finishing Marching; measure the first supported complete-match path promptly.
+See [concrete contracts and gates](U13_PYSIM_POLICY_AND_PERFORMANCE_2026-09-15.md).
+
 **2026-09-15 PySim planning slice accepted at `f318d6d`:** Python now matches the first
 five game hooks through submission lock, opening draws/Stockpile/Slaver and
 power-free sealed orders with Guard/Work reservations. The clean Windows 4.7.2
@@ -8,7 +24,7 @@ cases, 222 game operations (including 140 atomic rejections), 21 economy
 component transitions and 52 standalone cursor operations. Thirteen Python unit
 tests and eleven corruption probes also passed; zero failures or script errors.
 See [scope and accepted evidence](U13_PYSIM_PLANNING_2026-09-15.md).
-Next, extend through Guard deployment, Work and pairs at Development.
+Development is now implemented as described above; its Windows gate is pending.
 Full Python round resolution remains unimplemented; standalone cursor coverage
 does not certify the later hooks' game mechanics.
 
@@ -32,7 +48,8 @@ The campaign predates forecast/public-Guard changes and is not balance evidence.
 **PySim progression:** Round sequencing, submissions and opening-round economy
 now have the focused implementation above. The
 trace contract, exact deterministic primitives and opening-state parity are
-accepted. Continue the independent Python mirror through Development next;
+accepted. Complete Development acceptance, profile its implemented hot path,
+then extend ordinary resolution with the early spatial performance gate above;
 see [inventory and subsequent parity order](U13_PYSIM_PARITY_2026-09-15.md).
 Then Common Smart Core + separate Lord doctrines, serious balance, and roguelite
 work. Preserve the accepted UI. No new broad campaign is needed for this
@@ -371,6 +388,13 @@ Update PySim only after the U13 battle rules stop moving rapidly.
 > **PySim = fast behavioral mirror for large-scale testing.**
 
 PySim should mirror only outcome-relevant mechanics, not UI/presentation.
+
+Policies remain external to the rules engine. Experimental policies are loaded
+by the Python harness; only the selected shipping doctrine needs a matching
+Godot decision implementation. Measure rules, policy and export costs separately
+during the parity build, including an early Marching performance spike. Follow
+the [policy and performance gates](U13_PYSIM_POLICY_AND_PERFORMANCE_2026-09-15.md)
+before assuming tens-of-thousands-of-games throughput.
 
 ### Parity before balance
 
