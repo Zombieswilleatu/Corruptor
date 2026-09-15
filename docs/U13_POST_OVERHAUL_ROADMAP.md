@@ -2,11 +2,14 @@
 
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
-**2026-09-15 ordinary resolution implemented; Windows acceptance pending:**
-The new Python adapter extends through artillery, commitment reveal/recruitment
-and combat (the first nine fresh-game hooks), including required immediate Lord
+**2026-09-15 ordinary resolution accepted at clean `e51588d`:**
+The Windows Godot 4.7.2 gate passed: 1,632 Godot checks, 252 exact snapshots,
+241 isolated component operations, 36 Python tests and 16 corruption probes;
+zero failures or script errors. Independent Python replay reproduced the complete
+uploaded summary. The new adapter extends through artillery, commitment
+reveal/recruitment and combat (the first nine fresh-game hooks), including required immediate Lord
 reactions and exact event visibility. It stops before Post-Resolution/Marching.
-See [scope, directed corpus and Windows gate](U13_PYSIM_RESOLUTION_2026-09-15.md).
+See [scope, directed corpus and accepted evidence](U13_PYSIM_RESOLUTION_2026-09-15.md).
 No new full-match speed or balance claim follows from this slice. The next
 spatial spike will compare explicit contact ordering and candidate data layouts;
 preserve the first complete-game reference as soon as a supported path exists.
@@ -75,8 +78,8 @@ The campaign predates forecast/public-Guard changes and is not balance evidence.
 now have the focused implementation above. The
 trace contract, exact deterministic primitives and opening-state parity are
 accepted through Development, with the copying optimization also Windows-accepted.
-Ordinary resolution is implemented above and awaits its focused Windows gate.
-Then begin the early spatial performance gate;
+Ordinary resolution also has focused Windows acceptance as documented above.
+Begin the early spatial performance gate;
 see [inventory and subsequent parity order](U13_PYSIM_PARITY_2026-09-15.md).
 Then Common Smart Core + separate Lord doctrines, serious balance, and roguelite
 work. Preserve the accepted UI. No new broad campaign is needed for this

@@ -76,10 +76,11 @@ optimization comparison; the older 31.35 ms observation is not its denominator.
 The earlier local Linux diagnostic measured 36.02 ms versus 10.08 ms (3.57×).
 The comparison uses unchanged timing/fixture source and records separate
 instrumented profiles. It remains a partial-engine measurement and does not
-satisfy the later full-match throughput gate. Continue ordinary resolution and
-the early spatial spike; full-match speed remains unknown. Ordinary resolution
+satisfy the later full-match throughput gate. Full-match speed remains unknown.
+Ordinary resolution
 is now implemented in a separate [nine-hook adapter](U13_PYSIM_RESOLUTION_2026-09-15.md),
-with focused Windows acceptance pending and no new throughput claim.
+with focused Windows 4.7.2 acceptance passed at clean `e51588d` and no new
+throughput claim. Proceed to the early spatial spike.
 
 Additional user steering: consider parallel arrays before writing the tick loop,
 preserve Godot's explicit contact ordering, and establish the first complete-game

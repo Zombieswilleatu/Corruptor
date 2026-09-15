@@ -25,22 +25,21 @@ Earlier estimates for a fully polished release should not be treated as Early Ac
 | Playable human-versus-bot U13 | Accepted playable integration; shared action modal, Work/Guard planning, Aftermath ledger, save/load and victory flow exist. Preserve them while redesigning presentation. |
 | Public Guards and first Action Forecast | User accepted the Forecast at `dd9638c`; integrated with the sprite gallery. Deployed Guards and bonds are public; hands and sealed orders remain private. Forecast is a labeled current-board baseline, not a promised probability of success. |
 | Basic doctrine | A working common planner and Lord targeting already exist. The next doctrine milestone improves/restructures that baseline; it is not “build the first bot.” |
-| Python mirror | Foundation, planning and Development have Windows acceptance. The new resolution adapter reaches the ninth fresh-game hook through artillery, recruitment and ordinary combat; its Windows gate is pending. Local diagnostic parity covers 252 snapshots and 241 isolated component operations. It stops before Post-Resolution/Marching and does not certify complete rounds. |
+| Python mirror | Foundation, planning, Development and ordinary resolution have Windows acceptance. At clean `e51588d`, the resolution gate passed 1,632 Godot checks, 252 exact snapshots, 241 isolated component operations, 36 Python tests and 16 corruption probes. Independent replay reproduced the complete summary. Fresh-game progression reaches the ninth hook; Post-Resolution/Marching and complete rounds remain outside its scope. |
 | Python copying optimization | Accepted at `88ef438`: matched partial-cycle means 20.31 → 7.98 ms, 2.54× throughput. Full-round and full-match speed remain unknown. |
 | Animation previews | Subject/monster gallery integration exists. Preview artwork and animations do not establish gameplay implementation of the ten recipe monsters. |
 | Monster design | [Recipes v0.1](Corruptor-Monster-Recipes-v0.1.md) is the accepted starting recipe baseline, with combat values and open balance questions recorded. |
 
-Sources: [accepted checkpoint](../docs/U13_ACCEPTED_CHECKPOINT_2026-09-15.md), [action flow](../docs/U13_ACTION_FLOW_2026-09-14.md), [Forecast](../docs/U13_ACTION_FORECAST_2026-09-14.md), [Development](../docs/U13_PYSIM_DEVELOPMENT_2026-09-15.md), [copying pass](../docs/U13_PYSIM_COPYING_2026-09-15.md), [resolution implementation and pending Windows gate](../docs/U13_PYSIM_RESOLUTION_2026-09-15.md).
+Sources: [accepted checkpoint](../docs/U13_ACCEPTED_CHECKPOINT_2026-09-15.md), [action flow](../docs/U13_ACTION_FLOW_2026-09-14.md), [Forecast](../docs/U13_ACTION_FORECAST_2026-09-14.md), [Development](../docs/U13_PYSIM_DEVELOPMENT_2026-09-15.md), [copying pass](../docs/U13_PYSIM_COPYING_2026-09-15.md), [resolution acceptance](../docs/U13_PYSIM_RESOLUTION_2026-09-15.md).
 
 ## 2. Next — finish the fast, trustworthy experiment engine
 
 Extend the existing mirror in dependency order:
 
-1. Run the focused Windows 4.7.2 gate for the implemented ordinary-resolution slice: artillery, commitment/recruitment, combat, defenses and immediate reactions. Victory remains a later hook to port.
-2. Bring forward a bounded Marching performance spike on ordinary, dense/contact-heavy and spatial-actor fixtures. Establish exact field agreement and measure tick/round costs before completing the spatial port.
-3. Complete fixed-step Marching, persistent effects and Lord mechanics, including timing, cooldowns, allegiance, pair breakage, Supplicants, reconstruction and deterministic retargeting; finish the round loop, cleanup and victory.
-4. Preserve the first legitimate independent setup-to-victory reference as soon as its mechanics are supported, then grow to approximately 50–100 exact full reference games. Do not wait for every Lord effect before retaining that first complete reference.
-5. Measure complete matches on target hardware, separating rule execution, policy evaluation, event/export costs and worker scaling. Set the practical sweep budget from those results.
+1. Bring forward a bounded Marching performance spike on ordinary, dense/contact-heavy and spatial-actor fixtures. Establish exact field agreement and measure tick/round costs before completing the spatial port.
+2. Complete fixed-step Marching, persistent effects and Lord mechanics, including timing, cooldowns, allegiance, pair breakage, Supplicants, reconstruction and deterministic retargeting; finish the round loop, cleanup and victory.
+3. Preserve the first legitimate independent setup-to-victory reference as soon as its mechanics are supported, then grow to approximately 50–100 exact full reference games. Do not wait for every Lord effect before retaining that first complete reference.
+4. Measure complete matches on target hardware, separating rule execution, policy evaluation, event/export costs and worker scaling. Set the practical sweep budget from those results.
 
 **Done when:** identical explicit inputs produce matching Godot/Python states, ordered events and outcomes across the declared corpus, and complete-match throughput has a measured scope. Do not fill missing mechanics with fixture state or extrapolate 50,000-game speed from partial timings.
 
@@ -168,4 +167,4 @@ Review basis: branch tree `9cdfc095fce68dd5fdd46462ccf235cf7bc9f68b`, followed b
 
 Update the status table when a milestone is accepted; link its dated evidence instead of appending another competing roadmap. Keep proposals separate from accepted rules, and record why an item moved. Preserve U12 and legacy goldens as historical baselines.
 
-The next concrete engineering milestone is Windows acceptance of ordinary Python resolution, followed by the early Marching performance gate. The next major design/content milestone is the monster system; the next presentation milestone is the UI overhaul. Campaign, prologue completion and optional online scope build on those foundations.
+The next concrete engineering milestone is the early Marching performance gate; ordinary Python resolution has Windows acceptance at `e51588d`. The next major design/content milestone is the monster system; the next presentation milestone is the UI overhaul. Campaign, prologue completion and optional online scope build on those foundations.

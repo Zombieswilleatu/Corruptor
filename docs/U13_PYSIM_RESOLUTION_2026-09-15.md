@@ -1,8 +1,12 @@
 # U13 PySim — artillery, commitment and ordinary combat
 
-Implemented after the accepted copying checkpoint, based on documentation commit
-`9cdfc095fce68dd5fdd46462ccf235cf7bc9f68b`. **Windows Godot 4.7.2 acceptance is
-pending.** The copying optimization's clean `88ef438` acceptance and matched
+**Windows Godot 4.7.2 acceptance passed at clean `e51588d`.** Independent Python
+replay of the uploaded exact export reproduced the complete Windows summary,
+including all 16 corruption rejections, without a diagnostic override.
+
+Implemented at `a79f0df` after the accepted copying checkpoint, based on
+documentation commit `9cdfc095fce68dd5fdd46462ccf235cf7bc9f68b`.
+The copying optimization's clean `88ef438` acceptance and matched
 20.31 → 7.98 ms Windows partial timing retain their original scope and identity.
 
 ## Implemented boundary
@@ -34,10 +38,11 @@ artillery are currently covered as explicitly prepared isolated components.
 Supplicants in the fixtures are prepared inputs; no simulated prior Marching or
 Rites reservation is claimed. No fixture edit is a production match operation.
 
-The rules authority, UI, U12, legacy Python engine and shipping doctrine are
-unchanged. `economy.operational` counts active economic structures; the new
-structure-power predicate separately applies the 7-Integrity floor. No existing
-predicate was redefined to make these contracts agree artificially.
+The resolution implementation leaves the rules authority, UI, U12, legacy Python
+engine and shipping doctrine unchanged. `economy.operational` counts active
+economic structures; the new structure-power predicate separately applies the
+7-Integrity floor. No existing predicate was redefined to make these contracts
+agree artificially.
 
 ## Exact evidence contract
 
@@ -85,7 +90,34 @@ The final [diagnostic evidence](evidence/U13_PYSIM_RESOLUTION_LOCAL.json) retain
 the verifier summary, input fingerprint and output hashes. It cannot replace
 the exact Windows 4.7.2 acceptance gate.
 
-## Windows gate
+## Windows acceptance
+
+Accepted archive:
+`u13-pysim-resolution-w5oKob-2026-09-15_01-10-11-qqDWm5.zip`.
+
+- Archive SHA-256: `d60aadf36ed9d8fbf19aa443d3dcffbeb6b43332e9c7a6e45ee15a1c19201bfa`.
+- Source revision: `e51588d26fc5987aaf8098f311f24bb345f8bf83`.
+- Source fingerprint: `ce878bcecfb5c27ebb13070422be80f3b65f65704ce9d3673777fc71024e465a`.
+- Input fingerprint: `e31c18c755344c51fb019ddfc1466b22b764a2641e55298cb0cf3742b9aa0e53`.
+- Runtime: `4.7.2.stable.official.ed1daf0bf`, Windows; Python 3.14.7.
+- Empty working diff, exit status 0, ten unique archive members and valid CRCs.
+- 1,632 Godot checks, 252 exact snapshots, 241 component operations, 36 Python
+  unit tests and 16 corruption probes; zero failures or script errors.
+
+The tested revision includes the parallel playable-time change after `a79f0df`.
+The resolution engine, exporter, input manifest and verifier are unchanged;
+additional/updated Godot test scripts account for the broad source fingerprint
+change. This resolution gate does not independently accept the playtime feature.
+
+The [acceptance record](evidence/U13_PYSIM_RESOLUTION_e51588d.json) retains the
+complete verifier summary, trace identity, all game/component cases, Lord/seat
+exposure, independent replay result and every archive member's size and hash.
+Independent replay ran Python against the uploaded Windows reference; it does
+not claim a local Godot 4.7.2 run. Full rounds and full matches remain outside
+the adapter; no new throughput measurement accompanies this acceptance.
+
+The command below is retained for reproduction. This acceptance documentation
+update needs no rerun.
 
 ```bash
 cd /c/Users/jerem/OneDrive/Documents/Corruptor-U13-Perf &&

@@ -15,8 +15,11 @@ evidence corruptions. The separate Windows timing probe measured 31.35 ms mean
 per opening-through-Development cycle; it is not a full-match speed measurement.
 The subsequent [resolution slice](U13_PYSIM_RESOLUTION_2026-09-15.md) now extends
 through artillery, commitment and ordinary combat, including immediate reactions;
-its focused Windows acceptance is pending. It stops before Post-Resolution and
-Marching, and does not implement subsequent rounds or full matches.
+its focused Windows 4.7.2 acceptance passed at clean `e51588d`: 1,632 Godot
+checks, 252 exact snapshots, 241 component operations, 36 Python tests and 16
+rejected evidence corruptions. Independent Python replay reproduced the complete
+uploaded summary. It stops before Post-Resolution and Marching, and does not
+implement subsequent rounds or full matches.
 The [copying optimization](U13_PYSIM_COPYING_2026-09-15.md) passed its combined
 planning/Development Windows 4.7.2 gate at clean `88ef438`: 926 Godot checks,
 321 exact snapshots, 27 Python tests and 25 rejected evidence corruptions.
