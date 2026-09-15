@@ -84,6 +84,14 @@ func _sync_flow() -> void:
 	pass_button.text = "NO RITES · RESOLVE" if step == "Dominion Rites" else "SKIP " + step.to_upper()
 	pass_button.tooltip_text = "Skip this step. Other staged choices are retained."
 	if mandatory:
+		if step == "Slaver":
+			confirm.show()
+			confirm.text = "SWAP CARDS"
+			confirm.disabled = not slaver_swap.is_valid() or _job != null
+			pass_button.show()
+			pass_button.text = "PASS TRADE"
+			pass_button.disabled = _job != null
+			pass_button.tooltip_text = "Keep your hand and decline this trade."
 		phase_prompt.set_presenting(true)
 	phase_prompt.call_deferred("_sync_decision_bottom_actions_v12")
 
@@ -119,6 +127,9 @@ func reopen_decision() -> void:
 	_sync_flow()
 
 func _confirm_decision() -> void:
+	if _slaver_pending():
+		if slaver_swap.is_valid(): slaver_swap.call()
+		return
 	if _planning():
 		_advance_flow()
 	else:
@@ -155,7 +166,13 @@ func _flow_back() -> void:
 		while (prior == 1 and _human_alive()) or (prior == 4 and not _human_alive()): prior -= 1
 		_goto_flow(prior)
 
+func _slaver_pending() -> bool:
+	return session is PlaySession and not session.pending_choice.is_empty() and session.pending_choice.action != "game_draw_choice" and _job == null
+
 func pass_round() -> void:
+	if _slaver_pending():
+		_economy({"market": "Pass"})
+		return
 	if not _planning(): return
 	match flow_step:
 		0: castle_plan = Work.choice("")

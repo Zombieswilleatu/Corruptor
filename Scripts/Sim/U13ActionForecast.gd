@@ -71,6 +71,7 @@ static func evaluate(public_view: Dictionary, order: Dictionary) -> Dictionary:
 			break
 		remaining -= int(guard.attributes.value)
 		defeated += 1
+	result["visible_defense"] = pair_screen + c.guard_value(1 - c.pid, lane)
 	result["guards_defeated"] = defeated
 	result.lines.append("Visible defense: %d pair protection + %d Guard value." % [pair_screen, c.guard_value(1 - c.pid, lane)])
 	result.lines.append("Baseline: %d of %d Guards defeated." % [defeated, guards.size()])
@@ -81,12 +82,14 @@ static func evaluate(public_view: Dictionary, order: Dictionary) -> Dictionary:
 		return result
 	var sigil: String = c.w.get("sigils", [{}, {}])[1 - c.pid].get(lane, "")
 	var sigil_value: int = 2 if sigil == "fresh" else (1 if sigil == "flipped" else 0)
+	result.visible_defense += sigil_value
 	remaining = maxi(0, remaining - sigil_value)
 	if sigil_value > 0: result.lines.append("Sigil: %d additional protection." % sigil_value)
 	var screen_type: String = "Keep" if action == "Hunt" else "Bastion"
 	for castle in enemy_castles:
 		if castle.attributes.castle_type != screen_type or (action == "Siege" and castle.id == target.id): continue
 		var reduction: int = 3 if action == "Hunt" and Structures.operational(castle) else 0
+		result.visible_defense += reduction + int(castle.attributes.integrity)
 		remaining = maxi(0, remaining - reduction)
 		var absorbed: int = mini(remaining, int(castle.attributes.integrity))
 		remaining -= absorbed
@@ -95,14 +98,22 @@ static func evaluate(public_view: Dictionary, order: Dictionary) -> Dictionary:
 	if action == "Hunt":
 		var stat_world: Dictionary = {"entities": {"entities": c.w.entities}}
 		var defense: int = Stats.defense(stat_world, target)
+		result.visible_defense += defense
 		result["banished"] = remaining > defense
 		result.lines.append("Lord: %d strength reaches %d Defense — %s." % [remaining, defense, "banishment" if remaining > defense else "survives"])
 	else:
+		result.visible_defense += int(target.attributes.integrity)
 		var damage: int = mini(remaining, int(target.attributes.integrity))
 		result["damage"] = damage
 		result["destroyed"] = remaining > 0 and remaining >= int(target.attributes.integrity)
 		result.lines.append("%s: %d damage — %s." % [str(target.attributes.castle_type).capitalize(), damage, "ruined" if result.destroyed else "%d Integrity left" % (int(target.attributes.integrity) - damage)])
 	return result
+
+static func compact(result: Dictionary, action: String) -> String:
+	if not result.get("available", false): return ""
+	if action == "Ward": return "Visible defense: %d" % result.get("strength", 0)
+	if action not in ["Hunt", "Siege"]: return ""
+	return "Visible offense: %d\nVisible defense: %d" % [result.get("strength", 0), result.get("visible_defense", 0)]
 
 static func text(result: Dictionary) -> String:
 	if not result.get("available", false): return "FORECAST · Stage cards and choose a target to see the current-board baseline."

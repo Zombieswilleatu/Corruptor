@@ -633,16 +633,18 @@ func show_commission_buttons(enabled: bool, staged_id: String) -> void:
 		var control = target_controls[id]
 		if not control.has_meta("commission_eligible"):
 			continue
-		var button := Button.new()
+		var button: Button = commission_buttons.get(id)
+		if button == null:
+			button = Button.new()
+			control.add_child(button)
+			button.pressed.connect(_commission_clicked.bind(id))
 		button.text = "UNDO COMMISSION" if id == staged_id else "COMMISSION"
 		button.add_theme_font_size_override("font_size", 10)
 		button.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
 		button.offset_top = 4
 		button.offset_bottom = 28
 		button.tooltip_text = "Stage Commission for this round. This Castle becomes vulnerable at its current Integrity when orders resolve."
-		control.add_child(button)
 		button.disabled = not enabled
-		button.pressed.connect(_commission_clicked.bind(id))
 		commission_buttons[id] = button
 
 

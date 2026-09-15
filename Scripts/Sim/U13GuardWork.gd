@@ -59,13 +59,21 @@ static func eligible(world: Dictionary, pid: int, target: Dictionary) -> bool:
 
 static func validate_choice(world: Dictionary, pid: int, selected: Dictionary) -> Dictionary:
 	if selected.is_empty(): return {"action": "legal", "paid_value": 0, "reconstruction": false}
-	if selected.get("action") != "Work" or selected.get("card_ids") != [] or selected.get("use_repair_token") != false: return Data.invalid("choose_work_target_without_payment")
-	if selected.target_id.is_empty(): return {"action": "legal", "paid_value": 0, "reconstruction": false}
+	if selected.get("action") not in ["Work", "Activate"] or selected.get("card_ids") != [] or selected.get("use_repair_token") != false: return Data.invalid("choose_work_target_without_payment")
+	if selected.target_id.is_empty() and selected.action == "Work": return {"action": "legal", "paid_value": 0, "reconstruction": false}
 	var ids = Ids.new()
 	ids.restore(world.entities)
 	var target: Dictionary = ids.get_entity(selected.target_id)
+	if selected.action == "Activate":
+		if not commission_eligible(target, pid): return Data.invalid("castle_not_ready_to_activate")
+		return {"action": "legal", "paid_value": 0, "reconstruction": false}
 	if not eligible(world, pid, target): return Data.invalid("work_target_unavailable")
 	return {"action": "legal", "paid_value": 0, "reconstruction": target.attributes.status == "ruined"}
+
+static func commission_eligible(target: Dictionary, pid: int) -> bool:
+	if target.is_empty() or target.kind != "castle" or target.owner != pid: return false
+	var a: Dictionary = target.attributes
+	return a.status == "standing" and a.construction_state in ["building", "ready"] and a.integrity >= Structures.FLOOR
 
 static func intact(world: Dictionary, pair: Dictionary) -> bool:
 	if not pair.active: return false
@@ -105,7 +113,15 @@ static func develop(world: Dictionary, round_number: int, player_order: Array) -
 				var formed: Dictionary = Structures.public_event("GUARD_PAIR_FORMED", {"player_id": pid, "round": round_number, "lane": lane, "suit": suit, "card_ids": pair.ids})
 				events.append(formed)
 		var selected: Dictionary = world.data.castle_orders[pid].choice
-		if not selected.is_empty(): state.targets[pid] = selected.target_id
+		if not selected.is_empty() and selected.action == "Activate":
+			var commissioned: Dictionary = ids.get_entity(selected.target_id)
+			if commission_eligible(commissioned, pid):
+				commissioned.attributes.construction_state = "active"
+				ids.update(commissioned.id, pid, commissioned.attributes)
+				events.append(Structures.public_event("CASTLE_ACTIVATED", {"player_id": pid, "round": round_number, "castle_id": commissioned.id}))
+			else:
+				events.append(Structures.public_event("COMMISSION_FIZZLED", {"player_id": pid, "round": round_number, "castle_id": selected.target_id}))
+		elif not selected.is_empty(): state.targets[pid] = selected.target_id
 		if state.targets[pid].is_empty(): continue
 		var castle: Dictionary = ids.get_entity(state.targets[pid])
 		if not eligible(world, pid, castle):

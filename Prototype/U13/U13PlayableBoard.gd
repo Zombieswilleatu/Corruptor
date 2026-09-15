@@ -1,6 +1,7 @@
 extends "res://Prototype/U13/U13KanifousBoard.gd"
 
 const Work = preload("res://Scripts/Sim/U13GuardWork.gd")
+var slaver_swap: Callable
 var work_button: Button
 var choosing_work: bool = false
 const PlaySession = preload("res://Scripts/Sim/U13PlayableSession.gd")
@@ -104,7 +105,9 @@ func _refresh(presented: Dictionary = {}) -> void:
 	work_button.disabled = not _planning() or playing or _job != null
 	work_button.text = "CANCEL WORK" if choosing_work else "WORK TARGET"
 	castle_box.hide()
-	for row in sides: row.show_commission_buttons(false, "")
+	for row in sides:
+		row.show_commission_buttons(_planning() and not playing and _job == null, castle_plan.get("target_id", "") if castle_plan.get("action") == "Activate" else "")
+	_show_work_target()
 	if _planning():
 		plan_label.text += "\n" + _work_preview()
 		_show_pair_badges()
@@ -171,6 +174,7 @@ func _card_name(id: String) -> String:
 func _show_economy() -> void:
 	if not match_started or setup_open or _job != null or not session is PlaySession or session.pending_choice.is_empty():
 		return
+	slaver_swap = Callable()
 	phase_prompt.set_presenting(false)
 	var w: Dictionary = session.board_view().world
 	if session.pending_choice.action == "game_draw_choice":
@@ -184,8 +188,9 @@ func _show_economy() -> void:
 			var take = game_menu.option(w.market.map(_card_name))
 			game_menu.label("Give from your hand")
 			var give = game_menu.option(w.hand.map(_card_name))
-			game_menu.button("SWAP CARDS", func(): _economy({"market": "Swap", "take_id": w.market[take.selected], "give_id": w.hand[give.selected]}))
-		game_menu.button("PASS TRADE", _economy.bind({"market": "Pass"}))
+			slaver_swap = func(): _economy({"market": "Swap", "take_id": w.market[take.selected], "give_id": w.hand[give.selected]})
+			if not game_menu.embedded: game_menu.button("SWAP CARDS", slaver_swap)
+		if not game_menu.embedded: game_menu.button("PASS TRADE", _economy.bind({"market": "Pass"}))
 	game_menu.button("SAVE AND RETURN LATER", _save_game)
 	game_menu.message.text = choice_error
 
@@ -258,6 +263,17 @@ func _guide() -> String:
 	if _intent == "Siege" and _pillage_available():
 		return "PILLAGE · no targetable enemy Castles. Click hand cards or use ALL IN, then continue to powers."
 	return super._guide()
+
+func _hand_selection_changed(ids: Array) -> void:
+	if not _direct_binding and _planning() and not powers_step and _intent in ["Hunt", "Siege"] and _target.is_empty():
+		if _intent == "Siege" and _pillage_available():
+			_target = {"id": "", "kind": "zone", "owner": 1, "lane": "Castle"}
+		for entity in _visible_world.get("entities", []):
+			var candidate: Dictionary = _entity_target(entity.id)
+			if _target_allowed(candidate, _intent):
+				_target = candidate
+				break
+	super._hand_selection_changed(ids)
 
 func _apply_cards(ids: Array, append: bool) -> bool:
 	if _intent == "Siege" and _target.get("kind") == "zone" and _pillage_available():
@@ -444,7 +460,7 @@ func _load_game(path: String) -> void:
 
 func _work_preview() -> String:
 	if not _visible_world.has("guard_work"): return ""
-	var target_id: String = castle_plan.get("target_id", _visible_world.guard_work.target)
+	var target_id: String = castle_plan.get("target_id", "") if castle_plan.get("action") == "Work" else _visible_world.guard_work.target
 	if target_id.is_empty(): return "Work target: none · choose WORK TARGET"
 	var target: Dictionary = _entity(target_id)
 	if target.is_empty(): return "Work target unavailable"
@@ -458,6 +474,43 @@ func _work_preview() -> String:
 	var passive: int = 3 if a.construction_state != "active" or a.status == "ruined" else 0
 	var locked: bool = passive == 0 and int(a.get("repair_lock_until_round", 0)) >= session.round_number()
 	return "Work: %s · %d/%d · Guards/pairs +%d · passive +%d → %d%s" % [a.castle_type, a.integrity, a.max_integrity, work, passive, mini(a.max_integrity, a.integrity + (0 if locked else work + passive)), " · repair locked" if locked else ""]
+
+func _add_stack(stacks: Array, role: String, label: String, ids: Array, target: Dictionary) -> void:
+	var before: int = stacks.size()
+	super._add_stack(stacks, role, label, ids, target)
+	if role == "combat" and stacks.size() > before:
+		var forecast_script = preload("res://Scripts/Sim/U13ActionForecast.gd")
+		var forecast: Dictionary = forecast_script.evaluate({"world": _visible_world.merged({"viewer_id": 0})}, _order())
+		stacks.back()["forecast"] = forecast_script.compact(forecast, _draft_combat.get("action", ""))
+
+func _show_work_target() -> void:
+	var id: String = _visible_world.get("guard_work", {}).get("target", "")
+	if castle_plan.get("action") == "Work": id = castle_plan.get("target_id", "")
+	for side in sides:
+		var surface: Control = side.target_controls.get(id)
+		if surface == null: continue
+		var badge := Label.new()
+		badge.name = "WorkTargetBadge"
+		badge.text = "WORK TARGET"
+		badge.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+		badge.offset_top = -24
+		badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		badge.add_theme_font_size_override("font_size", 12)
+		badge.add_theme_color_override("font_color", Color("ffe39b"))
+		badge.add_theme_color_override("font_shadow_color", Color.BLACK)
+		badge.add_theme_constant_override("shadow_outline_size", 5)
+		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		surface.add_child(badge)
+
+func _commission(id: String) -> void:
+	if not _planning() or playing or _job != null: return
+	var prior: Dictionary = castle_plan
+	castle_plan = {} if castle_plan.get("action") == "Activate" and castle_plan.get("target_id") == id else {"action": "Activate", "target_id": id, "card_ids": [], "use_repair_token": false}
+	if _error(session.choose(queued, _order())):
+		castle_plan = prior
+		return
+	if powers_step: staged_order = _order()
+	_refresh()
 
 func _open_work_target() -> void:
 	if not _planning(): return

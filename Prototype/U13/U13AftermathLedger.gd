@@ -71,12 +71,32 @@ static func name_of(entity: Dictionary) -> String:
 static func describe(kind: String, d: Dictionary) -> String:
 	match kind:
 		"PILLAGE_RETARGETED": return "Pillage became Siege against " + str(d.get("castle_id", "Castle"))
+		"CASTLE_DEFUNCT": return "%s · %s is defunct (repairable)" % [d.get("cause", "Castle disabled"), d.get("castle_id", "Castle")]
+		"COMMISSION_FIZZLED": return "Commission failed · " + str(d.get("castle_id", "Castle"))
+		"KANIFOUS_WISH_RESOLVED":
+			var power: String = d.get("power", "")
+			var count: int = int(d.get("count", 0))
+			match power:
+				"WishDeath": return "Deathwish · %d Marchers killed" % count
+				"WishPower": return "Wish of Power · %d Marchers summoned" % count
+				"WishLongevity": return "Wish of Longevity · %d Castles restored" % count
+				"WishResurrection": return "Wish of Resurrection · %d Guards restored" % count
+				"WishWealth": return "Wish of Wealth · %d cards drawn" % count
+			return "Wish · no effect" if count == 0 else "Wish resolved"
 		"CASTLE_RUINED": return "Ruined " + str(d.get("castle_id", "Castle"))
 		"WORK_RESOLVED": return "Work · %s: %d → %d" % [d.get("castle_id", "Castle"), d.get("before", 0), d.get("after", 0)]
 		"GUARD_PAIR_DRAW": return "Vulture pair drew 1 card"
 		"GUARD_PAIR_STRIKE": return "Butcher pair destroyed an enemy Marcher"
 		"GUARD_PAIR_SCREEN": return "Penitent pair provided 5 protection"
 		"COMBAT_ORDER_REVEALED": return "Action: " + str(d.get("order", {}).get("action", "Pass"))
+		"MARCHER_SPAWNED":
+			return "Power summoned a " + str(d.get("attributes", {}).get("suit", "Marcher")) if d.get("attributes", {}).has("source_effect_id") else ""
+		"ROUT_APPLIED": return "Rout · %d Marchers routed in %s lane" % [d.get("affected_ids", []).size(), d.get("lane", "")]
+		"REDIRECT_RESOLVED": return "Redirect · %d Marchers redirected" % d.get("changes", []).size()
+		"RECONFIGURATION_RESOLVED": return "Reconfiguration · %d Marchers moved" % d.get("moved", 0)
+		"ALLEGIANCE_SHIFT_RESOLVED": return "Allegiance Shift · %d Marchers affected" % d.get("affected_ids", []).size()
+		"LANE_AURA_STARTED": return "%s · active in %s lane" % [str(d.get("power_id", "Power")).capitalize(), d.get("lane", "")]
+		"RAVENOUS_REWARDED": return "Ravenous · %d consumed; +%d Soul, +%d Hunger, +%d neutral Tear" % [d.get("consumed", 0), d.get("souls", 0), d.get("hunger", 0), d.get("neutral_tears", 0)]
 		"POWER_RESOLVED": return "Power: " + str(d.get("power_id", "")).capitalize()
 		"FIZZLE_INVALID_TARGET": return "Power: " + str(d.get("power_id", "")).capitalize() + " · fizzled"
 		"POWER_QUEUED": return "Power: %s · scheduled for round %d" % [str(d.get("power_id", "")).capitalize(), d.get("fire_round", 0)]

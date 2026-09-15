@@ -33,6 +33,8 @@ func compare(action: String, amount: int) -> void:
 	var view: Dictionary = public_view(w)
 	var before: Dictionary = view.duplicate(true)
 	var predicted: Dictionary = Forecast.evaluate(view, order)
+	var expected_defense: int = 3 + 2 + 7 + (3 + Forecast.Stats.defense(w, w.entities.entities.filter(func(e): return e.id == target)[0]) if action == "Hunt" else 8)
+	check(predicted.get("visible_defense", -1) == expected_defense, "compact defense includes Guards, Sigil, screening Castle and target")
 	var context: Dictionary = {"world": w, "round": 1, "hook": Game.Timeline.COMBAT_RESOLUTION, "combat_orders": [order, {}], "seed": "forecast", "player_order": [0, 1]}
 	var actual: Dictionary = Combat.on_hook(context, Callable(Game.Content.new(), "react"))
 	if not check(actual.action != "invalid", "forecast comparison combat resolves"): return

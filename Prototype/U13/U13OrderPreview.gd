@@ -47,6 +47,15 @@ func show_orders(
 		label.add_theme_constant_override("shadow_outline_size", 3)
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(label)
+		if not stack.get("forecast", "").is_empty():
+			var forecast := Label.new()
+			forecast.text = stack.forecast
+			forecast.position = origin + Vector2(-38, 72)
+			forecast.add_theme_font_size_override("font_size", 14)
+			forecast.add_theme_color_override("font_shadow_color", Color.BLACK)
+			forecast.add_theme_constant_override("shadow_outline_size", 6)
+			forecast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			add_child(forecast)
 		for index in range(stack.cards.size()):
 			var entity: Dictionary = stack.cards[index]
 			var button := Button.new()
