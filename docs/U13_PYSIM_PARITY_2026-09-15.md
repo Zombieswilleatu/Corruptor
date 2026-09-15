@@ -1,7 +1,10 @@
 # U13 PySim parity — inspected baseline and first milestone
 
-Status: inventory and implementation boundary, not an implemented Python U13
-mirror. The [accepted checkpoint](U13_ACCEPTED_CHECKPOINT_2026-09-15.md) clears
+Status update: the first foundation slice is implemented with green local
+diagnostics; Windows acceptance is pending. See
+[foundation implementation and runner](U13_PYSIM_FOUNDATION_2026-09-15.md).
+This document retains the initial inventory and subsequent implementation
+boundaries. The [accepted checkpoint](U13_ACCEPTED_CHECKPOINT_2026-09-15.md) clears
 the pending mechanics-validation bookmark.
 
 Reviewed the original `CORRUPTOR_U13_ASTRA_HANDOFF_2026-09-08.md` (authority
@@ -22,10 +25,10 @@ notes. Godot U13 is the authority; PySim is its behavioral mirror.
 | `U13GameConductor.gd` | Public start, step, setup choices, submit, finish-round, snapshot and restore boundaries | Source for a separate trace exporter; preserve the live conductor's authority. |
 | `U13Match.gd` | Versioned snapshot includes world, presentation baseline, sealed orders, timeline, pending/persistent effects, cooldowns, RNG identity and event history | Inventory every outcome-relevant field before choosing a comparison projection. |
 | `U13FullMatchBatch.gd` | Replay checks at planning/resolution, per-round plans and full-state hashes | Reuse chosen setups/plans as inputs; batch hashes alone do not expose the first differing field. |
-| `U13KeyedRng.gd`, `U13EntityIds.gd`, `U13EffectData.gd` | Explicit stable identity and SHA-256 keyed rejection RNG with UTF-8 byte-length framing | First exact Python primitives, checked against existing Godot vectors. Legacy sequential Python RNG is not equivalent. |
+| `U13KeyedRng.gd`, `U13EntityIds.gd`, `U13EffectData.gd` | Explicit stable identity and SHA-256 keyed rejection RNG; RNG framing counts UTF-8 bytes while entity/effect ID framing counts Unicode characters | First exact Python primitives, checked against existing Godot vectors. Legacy sequential Python RNG is not equivalent. |
 
-No U13 Python package, U13 trace schema or cross-engine U13 replay adapter was
-found in this checkout. Existing Python code has Marching, but its lane-step
+At initial inventory, no U13 Python package, U13 trace schema or cross-engine
+U13 replay adapter was found. Existing legacy Python code has Marching, but its lane-step
 representation does not implement the current fixed-step spatial U13 field,
 contacts, hazards, waiting queues or spatial Lord actors.
 
@@ -59,7 +62,7 @@ it must not claim full-match parity.
    exact integer/fixed-point values and an explicit lossless representation of
    remaining floats. Round-trip it on the acceptance runtime before relying on
    it. Do not round spatial values or introduce a tolerance to hide drift.
-5. **Port the shared primitives and opening.** Match byte-length-prefixed IDs,
+5. **Port the shared primitives and opening.** Match character-length-prefixed IDs,
    `U13_SHA256_REJECTION_V1` (including Unicode/retry/full-range vectors), deck
    physical IDs, keyed shuffle and initial loadout/opening state. Reuse current
    Godot fixtures as the source; no change to their rules.

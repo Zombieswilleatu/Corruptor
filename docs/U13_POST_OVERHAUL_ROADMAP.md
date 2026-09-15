@@ -1,5 +1,14 @@
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
+**2026-09-15 PySim foundation implemented:** Independent Python opening state,
+exact primitive/transport comparison and explicit Godot phase replay are now
+available. Local diagnostics match 14 full opening snapshots and replay 49
+operations; Windows 4.7.2 acceptance is pending the focused
+`run_u13_pysim_foundation.sh` gate. See
+[implementation and scope](U13_PYSIM_FOUNDATION_2026-09-15.md).
+Python round resolution is not implemented yet. The user confirmed the
+integrated 63d1372 playable build runs before this work began.
+
 **2026-09-15 current checkpoint — accepted and integrated:** The 357d793
 Windows Godot 4.7.2 campaign completed 100/100 replay-verified Random-Legal games,
 all 81 ordered Lord matchups, zero caps/failures/errors (52 Dominion / 48 Final
