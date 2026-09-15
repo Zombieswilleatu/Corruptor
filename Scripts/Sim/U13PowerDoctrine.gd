@@ -155,7 +155,7 @@ static func valak(c) -> Array:
 	for lane in ["Lord", "Castle"]:
 		for guard in c.guards(1 - c.pid, lane):
 			# Projection defeats one guard, not a zone's combined strength. For a
-			# hidden face, bank toward the fixed prior; success is never guaranteed.
+			# public face, use its actual value; new orders can still change the zone.
 			var spend: int = c.guard_strength(guard)
 			if essence >= spend:
 				add(result, c, "Projection", {"kind": "guard_zone", "player_id": 1 - c.pid, "zone": lane}, spend * 1.5, {}, {"spend": spend})

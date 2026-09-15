@@ -1,5 +1,30 @@
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
+**2026-09-15 current checkpoint — accepted and integrated:** The 357d793
+Windows Godot 4.7.2 campaign completed 100/100 replay-verified Random-Legal games,
+all 81 ordered Lord matchups, zero caps/failures/errors (52 Dominion / 48 Final
+Collapse; mean 20.07 rounds). The user separately accepted Action Forecast at
+dd9638c. Forecast/public Guards are integrated with the parallel 5c1fa48 sprite
+gallery change into `u13-basic-doctrine`. See
+[exact revisions and evidence](U13_ACCEPTED_CHECKPOINT_2026-09-15.md).
+The campaign predates forecast/public-Guard changes and is not balance evidence.
+
+**Next: PySim parity.** The existing Python simulator and golden harness were
+inspected. Begin with a U13 trace contract, exact deterministic primitives and
+opening-state parity; see [inventory and first milestone](U13_PYSIM_PARITY_2026-09-15.md).
+Then Common Smart Core + separate Lord doctrines, serious balance, and roguelite
+work. Preserve the accepted UI. No new broad campaign is needed for this
+documentation/integration checkpoint. The dated entries below are historical;
+their pending-campaign and hidden-Guard wording is superseded where noted above.
+
+**2026-09-14 parallel forecast checkpoint:** User accepted the playable build,
+started the 357d793 full-game campaign, and authorized Action Forecast in
+parallel plus public deployed Guard faces/values for both human and bot. Work
+is isolated on `u13-action-forecast`; see `U13_ACTION_FORECAST_2026-09-14.md`.
+The first forecast is a visible-board baseline, not a hidden-hand probability
+model. Preserve the running campaign's revision and do not mix bot versions.
+
+
 **2026-09-14 user-authorized mechanics checkpoint:** Guard deployment work,
 defensive suit bonds, a single Work Target and Ward 2:1 recruitment supersede
 the earlier paid-development rules. See `U13_GUARD_WORK_2026-09-14.md`.

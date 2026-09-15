@@ -34,6 +34,8 @@ func run() -> void:
 	board._select_direct_action("Ward")
 	board._choose_target(board._entity_target(board.session._owner.snapshot().world.players[0].lord_entity_id))
 	check(board._apply_cards([board._available_ids()[0]], false), "combat cards stage normally")
+	await process_frame
+	check(board.flow_support.visible and board.flow_support.text.contains("FORECAST") and board.flow_support.text.contains("Ward:"), "Combat modal shows the staged action forecast")
 	var staged: Dictionary = board._order().duplicate(true)
 	board._confirm_decision()
 	check(board.flow_step == 4 and board.powers_box.visible and not board.action_zone.action_box.visible, "Done Combat advances to Lord Powers")

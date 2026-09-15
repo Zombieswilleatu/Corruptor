@@ -5,7 +5,7 @@ const Common = preload("res://Scripts/Sim/U13CommonDoctrine.gd")
 const Powers = preload("res://Scripts/Sim/U13PowerDoctrine.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const BotPlanning = preload("res://Scripts/Sim/U13BotPlanning.gd")
-const VERSION: String = "U13_BASIC_DOCTRINE_V7"
+const VERSION: String = "U13_BASIC_DOCTRINE_V8_PUBLIC_GUARDS"
 const CANDIDATE_LIMIT: int = 32
 
 static func ranked(options: Array) -> Array:

@@ -103,7 +103,6 @@ static func develop(world: Dictionary, round_number: int, player_order: Array) -
 				state.pairs.append(pair)
 				if suit == "Wright": work += 5
 				var formed: Dictionary = Structures.public_event("GUARD_PAIR_FORMED", {"player_id": pid, "round": round_number, "lane": lane, "suit": suit, "card_ids": pair.ids})
-				formed.views[1 - pid] = null # Unrevealed Guard suits remain private.
 				events.append(formed)
 		var selected: Dictionary = world.data.castle_orders[pid].choice
 		if not selected.is_empty(): state.targets[pid] = selected.target_id

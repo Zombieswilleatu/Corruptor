@@ -168,9 +168,9 @@ func accept_order(context: Dictionary) -> Dictionary:
 func project(world: Dictionary, player_id: int) -> Dictionary:
 	var result: Dictionary = super.project(world, player_id)
 	result["guard_work"] = {"version": GuardWork.VERSION, "target": world.data.guard_work.targets[player_id], "pairs": []}
-	# Enemy pair identities stay hidden until the Guards themselves are public.
+	# Deployed Guard bonds are public alongside their cards.
 	for pair in world.data.guard_work.pairs:
-		if pair.player_id == player_id and GuardWork.intact(world, pair): result.guard_work.pairs.append(pair.duplicate(true))
+		if GuardWork.intact(world, pair): result.guard_work.pairs.append(pair.duplicate(true))
 	result["victory"] = world.data.victory.duplicate(true)
 	result["plunder"] = world.data.plunder.duplicate(true)
 	result["vacant_throne"] = world.data.vacant_throne.duplicate(true)
