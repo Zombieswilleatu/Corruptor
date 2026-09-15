@@ -1,3 +1,5 @@
+> **Current roadmap (2026-09-15):** See the [consolidated roadmap](../FutureFeatures/README.md) for current status, priorities and the disposition of older proposals. The document below is preserved as detailed source/history; its dated acceptance records retain their original scope.
+
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
 **2026-09-15 Python copying optimization accepted at clean `88ef438`:**
