@@ -1,5 +1,13 @@
 # U13 PySim parity — inspected baseline and first milestone
 
+**Current implementation:** [the first complete-game adapter](U13_PYSIM_FULL_MATCH_2026-09-15.md)
+connects the accepted phases through all 20 hooks, subsequent rounds and victory
+for four Lords using ordinary decisions. Its two explicit games contain no fixture
+mutations; eight separately prepared settlement components cover ending/grace
+boundaries. Windows 4.7.2 acceptance is pending. Declared powers, paid Rites,
+Resummon and the remaining Lords are still outside this adapter. The historical
+slice inventory below retains its original evidence and limits.
+
 Status update: the first foundation slice passed Windows Godot 4.7.2 acceptance
 at clean revision `4e485b1`: 14 exact Python opening snapshots, 49 Godot-replayed
 operations, and ten rejected evidence corruptions. See

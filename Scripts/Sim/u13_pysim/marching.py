@@ -14,7 +14,7 @@ from .marching_spatial import (LANES, CONTACT2, GAP2, RANGE2, RANGED, ROUT, WEB,
                                distance, scaled, ceil_sqrt, speed, compile_effects, gravity)
 from .primitives import entity_id, instance_id, draw
 
-VERSION = "U13_PYSIM_MARCHING_SPIKE_V1"
+VERSION = "U13_PYSIM_MARCHING_SPIKE_V2_RANGE_SENTINEL"
 MODEL = "U13_MARCHING_SPATIAL_V2"
 TICKS = 200
 INTEGER_FIELDS = ("hp", "max_hp", "attack", "armor", "regen", "step_fp", "birth_round",
@@ -274,10 +274,11 @@ def attack(s, i, amount, bypass):
 
 
 class Phase:
-    def __init__(self, context, capture_ticks, reaction):
+    def __init__(self, context, capture_ticks, reaction, *, keep_background=False):
         self.context = copy_data(context)
         self.w = self.context["world"]
-        self.s = Columns(self.w["entities"])
+        self.keep_background = keep_background
+        self.s = Columns(self.w["entities"], keep_background=keep_background)
         self.number = self.context["round"]
         self.events = []
         self.capture_ticks, self.reaction = capture_ticks, reaction
@@ -300,7 +301,7 @@ class Phase:
         if self.reaction is None:
             return
         try:
-            self.s = Columns(self.w["entities"])
+            self.s = Columns(self.w["entities"], keep_background=self.keep_background)
         except ValueError as error:
             raise Rejected("ranged_entities_invalid" if failure.startswith("ranged") else "marching_reaction_entities_invalid") from error
 
@@ -322,7 +323,9 @@ class Phase:
                 if s.owner[j] == s.owner[i] or s.lane[j] != s.lane[i]:
                     continue
                 gap = distance(s.x_fp[i], s.y_fp[i], s.x_fp[j], s.y_fp[j])
-                if gap < best:
+                # Native nearest() admits a tie with its initial RANGE2+1
+                # sentinel when no target exists yet. Keep that exact edge.
+                if gap < best or gap == best and (target is None or s.ids[j] < s.ids[target]):
                     best, target = gap, j
             if target is None or best <= CONTACT2:
                 continue

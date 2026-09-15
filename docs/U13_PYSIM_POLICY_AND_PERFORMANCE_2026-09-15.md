@@ -1,5 +1,12 @@
 # U13 PySim — swappable doctrine and early performance gates
 
+**Current implementation:** [the first complete-game gate](U13_PYSIM_FULL_MATCH_2026-09-15.md)
+now supplies a four-Lord ordinary setup-to-victory path and a real match timing
+harness. Its reference policy is injected separately and receives a detached own-hand/public-board
+observation. The full experimental legal-choice/RNG/counter/sweep interface below
+remains future work. Windows 4.7.2 acceptance is pending; the earlier partial and
+isolated timings below retain their dated scopes.
+
 User steering on 2026-09-15: the simulator should shorten the experiment loop,
 including quickly identifying inert doctrine terms. Do not hard-code the
 current BasicDoctrine into Python rules or require each experimental policy to

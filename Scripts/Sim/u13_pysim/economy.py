@@ -109,7 +109,7 @@ def sealed_event(kind, data, pid):
 
 def operational(row):
     return (row.get("kind") == "castle" and row["attributes"]["status"] == "standing"
-            and row["attributes"]["integrity"] > 0
+            and row["attributes"]["integrity"] >= 7
             and row["attributes"]["construction_state"] == "active")
 
 
