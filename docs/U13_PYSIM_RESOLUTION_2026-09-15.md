@@ -144,12 +144,14 @@ A proposed 50 ms whole-match budget is unmeasured. Do not subtract one partial
 opening from it and assign the remainder to Marching: matches contain many
 rounds, growing boards, reactions and policy work.
 
-Next, exercise a bounded Python Marching kernel before completing every spatial
-Lord effect. Godot's `U13MarchingBuffer` already separates phase working state
-from authoritative snapshots. Keep the same separation when evaluating parallel
-arrays for Python; the boundary entity dictionaries in `recruitment.py` do not
-commit the tick loop to dictionaries per Marcher. Measure layout/conversion cost
-before claiming an array or vectorized implementation wins.
+The subsequent [bounded Marching kernel](U13_PYSIM_MARCHING_2026-09-15.md) is now
+implemented with flat phase columns and local exact diagnostics; Windows
+acceptance is pending. It follows Godot's separation of phase working state from
+authoritative snapshots and measures import/publication costs against owned row
+dictionaries. It does not claim a row-versus-column tick-loop speedup. Its local
+30.22 ms ordinary and 106.19 ms dense 200-tick phase means are not complete-round
+or complete-game timings. This isolated subsystem does not change the accepted
+nine-hook adapter's boundary or certify its integration with later hooks.
 
 Contact ordering is a rule: current Godot uses immutable-ID candidate order,
 earliest contact arrival and keyed `CONTACT_TIE` selection. Spatial-grid iteration

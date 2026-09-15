@@ -27,23 +27,24 @@ Earlier estimates for a fully polished release should not be treated as Early Ac
 | Basic doctrine | A working common planner and Lord targeting already exist. The next doctrine milestone improves/restructures that baseline; it is not “build the first bot.” |
 | Python mirror | Foundation, planning, Development and ordinary resolution have Windows acceptance. At clean `e51588d`, the resolution gate passed 1,632 Godot checks, 252 exact snapshots, 241 isolated component operations, 36 Python tests and 16 corruption probes. Independent replay reproduced the complete summary. Fresh-game progression reaches the ninth hook; Post-Resolution/Marching and complete rounds remain outside its scope. |
 | Python copying optimization | Accepted at `88ef438`: matched partial-cycle means 20.31 → 7.98 ms, 2.54× throughput. Full-round and full-match speed remain unknown. |
+| Python Marching spike | Implemented as an isolated subsystem; Windows acceptance pending. Local diagnostics matched 28 phases / 5,600 tick frames, with 394 Godot checks, 46 Python tests and 14 corruption probes. Flat columns, explicit keyed contact ordering and prepared Web/aura/Rout/Gravity behavior are covered. The full-game adapter still stops after nine hooks. |
 | Animation previews | Subject/monster gallery integration exists. Preview artwork and animations do not establish gameplay implementation of the ten recipe monsters. |
 | Monster design | [Recipes v0.1](Corruptor-Monster-Recipes-v0.1.md) is the accepted starting recipe baseline, with combat values and open balance questions recorded. |
 
-Sources: [accepted checkpoint](../docs/U13_ACCEPTED_CHECKPOINT_2026-09-15.md), [action flow](../docs/U13_ACTION_FLOW_2026-09-14.md), [Forecast](../docs/U13_ACTION_FORECAST_2026-09-14.md), [Development](../docs/U13_PYSIM_DEVELOPMENT_2026-09-15.md), [copying pass](../docs/U13_PYSIM_COPYING_2026-09-15.md), [resolution acceptance](../docs/U13_PYSIM_RESOLUTION_2026-09-15.md).
+Sources: [accepted checkpoint](../docs/U13_ACCEPTED_CHECKPOINT_2026-09-15.md), [action flow](../docs/U13_ACTION_FLOW_2026-09-14.md), [Forecast](../docs/U13_ACTION_FORECAST_2026-09-14.md), [Development](../docs/U13_PYSIM_DEVELOPMENT_2026-09-15.md), [copying pass](../docs/U13_PYSIM_COPYING_2026-09-15.md), [resolution acceptance](../docs/U13_PYSIM_RESOLUTION_2026-09-15.md), [Marching spike and timings](../docs/U13_PYSIM_MARCHING_2026-09-15.md).
 
 ## 2. Next — finish the fast, trustworthy experiment engine
 
 Extend the existing mirror in dependency order:
 
-1. Bring forward a bounded Marching performance spike on ordinary, dense/contact-heavy and spatial-actor fixtures. Establish exact field agreement and measure tick/round costs before completing the spatial port.
+1. Accept the implemented bounded Marching spike on Windows 4.7.2. The local isolated-phase gate and ordinary/dense/Gravity timing probes passed; no complete round or match was measured.
 2. Complete fixed-step Marching, persistent effects and Lord mechanics, including timing, cooldowns, allegiance, pair breakage, Supplicants, reconstruction and deterministic retargeting; finish the round loop, cleanup and victory.
 3. Preserve the first legitimate independent setup-to-victory reference as soon as its mechanics are supported, then grow to approximately 50–100 exact full reference games. Do not wait for every Lord effect before retaining that first complete reference.
 4. Measure complete matches on target hardware, separating rule execution, policy evaluation, event/export costs and worker scaling. Set the practical sweep budget from those results.
 
 **Done when:** identical explicit inputs produce matching Godot/Python states, ordered events and outcomes across the declared corpus, and complete-match throughput has a measured scope. Do not fill missing mechanics with fixture state or extrapolate 50,000-game speed from partial timings.
 
-For the Marching spike, evaluate parallel arrays at the phase working-state boundary and measure conversion costs. Preserve Godot's explicit contact candidate order, earliest arrival and keyed tie selection; compare tick fields and ordered events to locate the first divergence. The 7.98 ms Windows and 10.08 ms Linux measurements cover the same Development-only slice on different machines, so they establish neither free additional hooks nor a demonstrated 50 ms full-match budget.
+The Marching spike uses parallel lists and separately measures validated import/publication against row dictionaries; it does not claim a row-versus-column tick-loop speedup. Local single-worker means per 200-tick phase were 30.22 ms ordinary, 106.19 ms dense and 6.80 ms Gravity (13 of 14 units consumed). Movement/nearby searches dominate the instrumented profile. Explicit contact order, earliest arrival and keyed ties match, including reversed registry order. The dense phase already exceeds the suggested 50 ms whole-match target locally; full-game speed remains unknown. The older 7.98 ms Windows and 10.08 ms Linux measurements cover the same Development-only slice on different machines.
 
 Keep experimental policies outside the rules engine. Their public observations, legal-choice inputs, versioned weights and deterministic policy RNG belong to the harness. Only the selected shipping doctrine needs a corresponding Godot decision implementation.
 
@@ -167,4 +168,4 @@ Review basis: branch tree `9cdfc095fce68dd5fdd46462ccf235cf7bc9f68b`, followed b
 
 Update the status table when a milestone is accepted; link its dated evidence instead of appending another competing roadmap. Keep proposals separate from accepted rules, and record why an item moved. Preserve U12 and legacy goldens as historical baselines.
 
-The next concrete engineering milestone is the early Marching performance gate; ordinary Python resolution has Windows acceptance at `e51588d`. The next major design/content milestone is the monster system; the next presentation milestone is the UI overhaul. Campaign, prologue completion and optional online scope build on those foundations.
+The next concrete engineering milestone is Windows acceptance of the implemented Marching spike, then integration of the remaining round lifecycle toward the first legitimate complete-game reference. Ordinary Python resolution has Windows acceptance at `e51588d`; complete-match speed is still unmeasured. The next major design/content milestone is the monster system; the next presentation milestone is the UI overhaul. Campaign, prologue completion and optional online scope build on those foundations.

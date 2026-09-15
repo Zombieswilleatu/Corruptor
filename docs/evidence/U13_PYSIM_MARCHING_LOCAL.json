@@ -1,0 +1,1798 @@
+{
+  "schema": "U13_PYSIM_MARCHING_LOCAL_DIAGNOSTIC_V1",
+  "recorded_on": "2026-09-15",
+  "scope": "Isolated Marcher-only phases and prepared fields/orbs; no full-round, full-match or complete Lord-effect integration.",
+  "diagnostic_only": true,
+  "windows_4_7_2_acceptance": "pending",
+  "source_revision": "6944a919744493d9d5d7844a055ce5209e55deaa",
+  "source_sha256": "6ce44971808ae9d45815da43e478978022f279259e083d38cc421e99c8898fc4",
+  "inputs_sha256": "5baaab5d5a70fbc0c89c633bf7bc043e328f0784f604f821f1a9dd96b539e4de",
+  "source_state": "Uncommitted implementation on the named base. Fingerprint covers Godot/Python source; input JSON is separately hashed. Documentation and the shell runner are outside that broad fingerprint; file hashes are also retained here.",
+  "runtime_build": "4.5.1.stable.official.f62fdbde1",
+  "platform": "Linux",
+  "python_version": "3.12.14",
+  "godot_checks": 394,
+  "godot_failures": 0,
+  "script_errors": 0,
+  "godot_stage": {
+    "exit_status": 0,
+    "wall_seconds": 24.934952481002256,
+    "diagnostic_only": true
+  },
+  "godot_stage_timing_scope": "Export, independent replay and transport checks; not Godot phase-throughput timing.",
+  "trace_identity": {
+    "authority": "Godot U13Marching.resolve",
+    "model": "U13_MARCHING_SPATIAL_V2",
+    "platform": "Linux",
+    "runtime": "4.5.1-stable (official)",
+    "scope": "isolated phases; explicit fields/actors; no Lord reactions",
+    "source_revision": "6944a919744493d9d5d7844a055ce5209e55deaa",
+    "source_sha256": "6ce44971808ae9d45815da43e478978022f279259e083d38cc421e99c8898fc4",
+    "tick_profile": "complete MARCHING_TICK attribute_delta_v1"
+  },
+  "python_unit_tests": 46,
+  "python_test_names": [
+    "test_comparison_locates_real_changes",
+    "test_identity_unicode_uses_characters",
+    "test_known_rng_vectors_and_independence",
+    "test_opening_input_boundaries",
+    "test_retirement_restore_and_atomic_rejection",
+    "test_transport_boundaries_and_malformed_input",
+    "test_cursor_rejections_and_completed_round_reset",
+    "test_discard_rejects_duplicate_and_foreign_cards_atomically",
+    "test_exhausted_market_preserves_physical_ids",
+    "test_full_hand_recycles_before_limit_and_discard_draw_does_not",
+    "test_future_hooks_and_powers_fail_explicitly_without_mutation",
+    "test_second_plan_rejection_is_atomic_and_retryable",
+    "test_stockpile_discard_is_available_to_next_seat",
+    "test_bad_second_guard_rolls_back_first_and_ledger",
+    "test_every_identity_dimension_can_break_pair_permanently",
+    "test_match_stops_at_supported_boundary_and_detaches_inputs",
+    "test_reconstruction_exception_requires_live_owner_deimos",
+    "test_repeated_work_reconciles_broken_pair_before_clock_return",
+    "test_vulture_draw_is_once_per_later_round_and_private_identity",
+    "test_wright_and_guards_pay_once_passive_persists_until_clear",
+    "test_development_second_guard_failure_restores_first_and_all_hook_clocks",
+    "test_exception_after_clock_change_restores_clock_too",
+    "test_float_bits_types_and_aliases_are_preserved_without_sharing_input",
+    "test_hook_failure_restores_nested_world_presentation_and_existing_events",
+    "test_preview_validates_without_reserving_or_emitting",
+    "test_public_views_and_snapshots_are_detached_after_later_mutations",
+    "test_submission_lock_second_failure_restores_first_reservations",
+    "test_engine_disabled_by_earlier_shot_does_not_fire",
+    "test_gem_dagger_draw_id_is_private_and_trigger_is_once_per_round",
+    "test_owned_match_failure_restores_world_events_and_cursor",
+    "test_post_resolution_boundary_fails_without_advancing",
+    "test_pure_result_and_event_views_do_not_alias_world_or_inputs",
+    "test_second_hunt_resolves_after_its_own_lord_is_banished",
+    "test_second_player_spawn_collision_rolls_back_sigils_and_first_army",
+    "test_spawn_positions_ignore_registry_order_without_rewriting_ids",
+    "test_strict_guard_threshold_survives_equality",
+    "test_batch_path_keeps_every_semantic_event_and_final_field",
+    "test_columns_own_inputs_and_outputs_without_recycling_ids",
+    "test_complete_games_and_unported_actors_fail_explicitly",
+    "test_earliest_contact_precedes_keyed_front_tie",
+    "test_exception_in_reaction_cannot_mutate_caller",
+    "test_flat_column_kernel_keeps_registry_permutations_equivalent",
+    "test_persistent_duel_resume_and_whole_phase_exchange_limit",
+    "test_ranged_reciprocal_lethal_shots_are_not_cancelled",
+    "test_rejected_reaction_rolls_back_all_prior_tick_work",
+    "test_spatial_rounding_and_swept_destruction_boundary"
+  ],
+  "python_summary": {
+    "python_mirror": "U13_PYSIM_MARCHING_SPIKE_V1",
+    "source_revision": "6944a919744493d9d5d7844a055ce5209e55deaa",
+    "source_sha256": "6ce44971808ae9d45815da43e478978022f279259e083d38cc421e99c8898fc4",
+    "inputs_sha256": "5baaab5d5a70fbc0c89c633bf7bc043e328f0784f604f821f1a9dd96b539e4de",
+    "runtime": "4.5.1-stable (official)",
+    "reference_platform": "Linux",
+    "diagnostic_only": true,
+    "isolated_cases_matched": 22,
+    "operations_matched": 41,
+    "fixture_operations": 3,
+    "rejected_operations": 5,
+    "marching_phases_matched": 28,
+    "tick_frames_matched": 5600,
+    "contact_probes_matched": 33,
+    "batch_projection_verified": true,
+    "event_coverage": {
+      "GRAVITY_ORB_CONSUMED": 19,
+      "MARCHER_CLASH": 35,
+      "MARCHER_CONTACT": 46,
+      "MARCHER_DEFEATED": 91,
+      "MARCHER_DUEL_INTERRUPTED": 10,
+      "MARCHER_RANGED_ATTACK": 130,
+      "MARCHER_REGENERATED": 14,
+      "MARCHER_WAITING": 3,
+      "MARCHING_FINISHED": 28,
+      "MARCHING_STARTED": 28,
+      "MARCHING_TICK": 5600
+    },
+    "python_full_round_parity": false,
+    "python_full_match_parity": false,
+    "full_match_games_per_second": null,
+    "full_match_50000_wall_seconds": null,
+    "failures": 0,
+    "deliberate_mismatches_rejected": 14
+  },
+  "cases": [
+    {
+      "name": "ordinary_mixed",
+      "initial_marchers": 12,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        },
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "regen",
+            "round": 2
+          },
+          "result_action": "resolved"
+        },
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 2
+          },
+          "result_action": "resolved"
+        },
+        {
+          "operation": {
+            "expected_action": "invalid",
+            "kind": "march",
+            "round": 2
+          },
+          "result_action": "invalid"
+        }
+      ],
+      "event_coverage": {
+        "MARCHER_CLASH": 2,
+        "MARCHER_CONTACT": 4,
+        "MARCHER_DEFEATED": 8,
+        "MARCHER_DUEL_INTERRUPTED": 2,
+        "MARCHER_RANGED_ATTACK": 32,
+        "MARCHER_REGENERATED": 8,
+        "MARCHING_FINISHED": 2,
+        "MARCHING_STARTED": 2,
+        "MARCHING_TICK": 400
+      }
+    },
+    {
+      "name": "dense_contacts_64",
+      "initial_marchers": 64,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        }
+      ],
+      "event_coverage": {
+        "MARCHER_CLASH": 20,
+        "MARCHER_CONTACT": 23,
+        "MARCHER_DEFEATED": 56,
+        "MARCHER_DUEL_INTERRUPTED": 3,
+        "MARCHER_RANGED_ATTACK": 84,
+        "MARCHING_FINISHED": 1,
+        "MARCHING_STARTED": 1,
+        "MARCHING_TICK": 200
+      }
+    },
+    {
+      "name": "keyed_ties",
+      "initial_marchers": 4,
+      "contact_probes": 16,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        }
+      ],
+      "event_coverage": {
+        "MARCHER_CLASH": 2,
+        "MARCHER_CONTACT": 2,
+        "MARCHER_DEFEATED": 4,
+        "MARCHING_FINISHED": 1,
+        "MARCHING_STARTED": 1,
+        "MARCHING_TICK": 200
+      }
+    },
+    {
+      "name": "keyed_ties_reversed",
+      "initial_marchers": 4,
+      "contact_probes": 16,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        }
+      ],
+      "event_coverage": {
+        "MARCHER_CLASH": 2,
+        "MARCHER_CONTACT": 2,
+        "MARCHER_DEFEATED": 4,
+        "MARCHING_FINISHED": 1,
+        "MARCHING_STARTED": 1,
+        "MARCHING_TICK": 200
+      }
+    },
+    {
+      "name": "earliest_contact_ticket",
+      "initial_marchers": 4,
+      "contact_probes": 1,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        }
+      ],
+      "event_coverage": {
+        "MARCHER_CLASH": 2,
+        "MARCHER_CONTACT": 2,
+        "MARCHER_DEFEATED": 4,
+        "MARCHING_FINISHED": 1,
+        "MARCHING_STARTED": 1,
+        "MARCHING_TICK": 200
+      }
+    },
+    {
+      "name": "reciprocal_volley_and_overkill",
+      "initial_marchers": 4,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        }
+      ],
+      "event_coverage": {
+        "MARCHER_DEFEATED": 2,
+        "MARCHER_RANGED_ATTACK": 4,
+        "MARCHING_FINISHED": 1,
+        "MARCHING_STARTED": 1,
+        "MARCHING_TICK": 200
+      }
+    },
+    {
+      "name": "range_edge_and_readiness",
+      "initial_marchers": 4,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        }
+      ],
+      "event_coverage": {
+        "MARCHER_DEFEATED": 1,
+        "MARCHER_RANGED_ATTACK": 10,
+        "MARCHING_FINISHED": 1,
+        "MARCHING_STARTED": 1,
+        "MARCHING_TICK": 200
+      }
+    },
+    {
+      "name": "melee_recovery_and_legacy_fallback",
+      "initial_marchers": 2,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        }
+      ],
+      "event_coverage": {
+        "MARCHER_CLASH": 1,
+        "MARCHER_CONTACT": 1,
+        "MARCHER_DEFEATED": 2,
+        "MARCHING_FINISHED": 1,
+        "MARCHING_STARTED": 1,
+        "MARCHING_TICK": 200
+      }
+    },
+    {
+      "name": "guard_work_gate_queue",
+      "initial_marchers": 2,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "regen",
+            "round": 1
+          },
+          "result_action": "resolved"
+        },
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        }
+      ],
+      "event_coverage": {
+        "MARCHER_WAITING": 1,
+        "MARCHING_FINISHED": 1,
+        "MARCHING_STARTED": 1,
+        "MARCHING_TICK": 200
+      }
+    },
+    {
+      "name": "hostile_gate_contact",
+      "initial_marchers": 2,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        }
+      ],
+      "event_coverage": {
+        "MARCHER_CLASH": 1,
+        "MARCHER_CONTACT": 1,
+        "MARCHER_DEFEATED": 1,
+        "MARCHER_WAITING": 1,
+        "MARCHING_FINISHED": 1,
+        "MARCHING_STARTED": 1,
+        "MARCHING_TICK": 200
+      }
+    },
+    {
+      "name": "duel_across_phase_boundary",
+      "initial_marchers": 2,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        },
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 2
+          },
+          "result_action": "resolved"
+        }
+      ],
+      "event_coverage": {
+        "MARCHER_CLASH": 1,
+        "MARCHER_CONTACT": 1,
+        "MARCHER_DEFEATED": 2,
+        "MARCHING_FINISHED": 2,
+        "MARCHING_STARTED": 2,
+        "MARCHING_TICK": 400
+      }
+    },
+    {
+      "name": "duel_participant_retired",
+      "initial_marchers": 2,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        },
+        {
+          "operation": {
+            "expected_action": "fixture_prepared",
+            "id": "u13_entity_marcher:9:long:left:1:0",
+            "kind": "fixture_retire"
+          },
+          "result_action": "fixture_prepared"
+        },
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 2
+          },
+          "result_action": "resolved"
+        }
+      ],
+      "event_coverage": {
+        "MARCHER_CONTACT": 1,
+        "MARCHER_DUEL_INTERRUPTED": 1,
+        "MARCHING_FINISHED": 2,
+        "MARCHING_STARTED": 2,
+        "MARCHING_TICK": 400
+      }
+    },
+    {
+      "name": "duel_participant_changes_owner",
+      "initial_marchers": 2,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        },
+        {
+          "operation": {
+            "expected_action": "fixture_prepared",
+            "id": "u13_entity_marcher:10:long:right:1:0",
+            "kind": "fixture_owner",
+            "owner": 0
+          },
+          "result_action": "fixture_prepared"
+        },
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 2
+          },
+          "result_action": "resolved"
+        }
+      ],
+      "event_coverage": {
+        "MARCHER_CONTACT": 1,
+        "MARCHER_DUEL_INTERRUPTED": 1,
+        "MARCHING_FINISHED": 2,
+        "MARCHING_STARTED": 2,
+        "MARCHING_TICK": 400
+      }
+    },
+    {
+      "name": "rout_retreat_and_recovery",
+      "initial_marchers": 2,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        },
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "regen",
+            "round": 2
+          },
+          "result_action": "resolved"
+        },
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 2
+          },
+          "result_action": "resolved"
+        }
+      ],
+      "event_coverage": {
+        "MARCHING_FINISHED": 2,
+        "MARCHING_STARTED": 2,
+        "MARCHING_TICK": 400
+      }
+    },
+    {
+      "name": "web_aura_lifetime_and_boundary",
+      "initial_marchers": 6,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "regen",
+            "round": 1
+          },
+          "result_action": "resolved"
+        },
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        },
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "regen",
+            "round": 2
+          },
+          "result_action": "resolved"
+        },
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 2
+          },
+          "result_action": "resolved"
+        },
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 3
+          },
+          "result_action": "resolved"
+        }
+      ],
+      "event_coverage": {
+        "MARCHER_CLASH": 3,
+        "MARCHER_CONTACT": 3,
+        "MARCHER_DEFEATED": 6,
+        "MARCHER_REGENERATED": 6,
+        "MARCHING_FINISHED": 3,
+        "MARCHING_STARTED": 3,
+        "MARCHING_TICK": 600
+      }
+    },
+    {
+      "name": "gravity_pull_consumption_and_sweep",
+      "initial_marchers": 14,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        }
+      ],
+      "event_coverage": {
+        "GRAVITY_ORB_CONSUMED": 13,
+        "MARCHER_CONTACT": 2,
+        "MARCHER_DUEL_INTERRUPTED": 2,
+        "MARCHING_FINISHED": 1,
+        "MARCHING_STARTED": 1,
+        "MARCHING_TICK": 200
+      }
+    },
+    {
+      "name": "gravity_ties_web_collapse_recovery",
+      "initial_marchers": 6,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 2
+          },
+          "result_action": "resolved"
+        }
+      ],
+      "event_coverage": {
+        "GRAVITY_ORB_CONSUMED": 6,
+        "MARCHER_CONTACT": 1,
+        "MARCHER_DUEL_INTERRUPTED": 1,
+        "MARCHING_FINISHED": 1,
+        "MARCHING_STARTED": 1,
+        "MARCHING_TICK": 200
+      }
+    },
+    {
+      "name": "frozen_subsystem_bypass",
+      "initial_marchers": 2,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        }
+      ],
+      "event_coverage": {
+        "MARCHER_CLASH": 1,
+        "MARCHER_CONTACT": 1,
+        "MARCHER_DEFEATED": 1,
+        "MARCHING_FINISHED": 1,
+        "MARCHING_STARTED": 1,
+        "MARCHING_TICK": 200
+      }
+    },
+    {
+      "name": "birth_hold_and_edges",
+      "initial_marchers": 2,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        }
+      ],
+      "event_coverage": {
+        "MARCHER_WAITING": 1,
+        "MARCHING_FINISHED": 1,
+        "MARCHING_STARTED": 1,
+        "MARCHING_TICK": 200
+      }
+    },
+    {
+      "name": "reaction_rejects_whole_phase",
+      "initial_marchers": 4,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "invalid",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "invalid"
+        }
+      ],
+      "event_coverage": {}
+    },
+    {
+      "name": "invalid_hook_and_hp",
+      "initial_marchers": 1,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "invalid",
+            "hook": "aftermath",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "invalid"
+        },
+        {
+          "operation": {
+            "attributes": {
+              "hp": 0
+            },
+            "expected_action": "fixture_prepared",
+            "id": "u13_entity_marcher:7:invalid:1:0",
+            "kind": "fixture_patch"
+          },
+          "result_action": "fixture_prepared"
+        },
+        {
+          "operation": {
+            "expected_action": "invalid",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "invalid"
+        }
+      ],
+      "event_coverage": {}
+    },
+    {
+      "name": "exchange_limit_is_atomic",
+      "initial_marchers": 2,
+      "contact_probes": 0,
+      "operations": [
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 1
+          },
+          "result_action": "resolved"
+        },
+        {
+          "operation": {
+            "expected_action": "resolved",
+            "kind": "march",
+            "round": 2
+          },
+          "result_action": "resolved"
+        },
+        {
+          "operation": {
+            "expected_action": "invalid",
+            "kind": "march",
+            "round": 3
+          },
+          "result_action": "invalid"
+        }
+      ],
+      "event_coverage": {
+        "MARCHER_CONTACT": 1,
+        "MARCHING_FINISHED": 2,
+        "MARCHING_STARTED": 2,
+        "MARCHING_TICK": 400
+      }
+    }
+  ],
+  "timing_report": {
+    "schema": "U13_PYSIM_MARCHING_TIMING_V1",
+    "source_revision": "6944a919744493d9d5d7844a055ce5209e55deaa",
+    "source_sha256": "6ce44971808ae9d45815da43e478978022f279259e083d38cc421e99c8898fc4",
+    "inputs_sha256": "5baaab5d5a70fbc0c89c633bf7bc043e328f0784f604f821f1a9dd96b539e4de",
+    "python_mirror": "U13_PYSIM_MARCHING_SPIKE_V1",
+    "diagnostic_only": true,
+    "reference_runtime": "4.5.1-stable (official)",
+    "python": "3.12.14",
+    "implementation": "CPython",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "processor": "x86_64",
+    "logical_cpus": 9,
+    "workers": 1,
+    "garbage_collection_enabled": true,
+    "iterations_per_case": 20,
+    "warmups_per_mode_per_case": 2,
+    "scope": "three isolated 200-tick phases; ordinary/dense/Gravity inputs; no full game or doctrine",
+    "phase_modes": {
+      "batch_phase": "public resolve; includes validation, import, all rule events and final publication; excludes MARCHING_TICK recording",
+      "trace_phase": "same public resolve plus all 200 exact tick frames",
+      "phase_prepare": "owned context copy and validated column import only",
+      "prepared_batch_work": "phase.run after preparation; includes tick work, rule events and final publication"
+    },
+    "layout_scope": "validated import and publication only; RowBoundary is not a competing optimized row-based tick kernel",
+    "memory_scope": "deduplicated reachable Python object bytes; neither process RSS nor incremental allocator usage",
+    "excludes": [
+      "fixture selection",
+      "exact comparisons and hashing",
+      "Godot execution",
+      "export/JSON I/O",
+      "policy decisions",
+      "unported Lord reactions and actors",
+      "remaining round hooks",
+      "victory",
+      "worker scaling"
+    ],
+    "cases": [
+      {
+        "name": "ordinary_mixed",
+        "seed": "u13-marching:\u00e9:ordinary_mixed",
+        "round": 1,
+        "ticks": 200,
+        "initial_marchers": 12,
+        "final_marchers": 12,
+        "event_counts": {
+          "MARCHING_STARTED": 1,
+          "MARCHER_RANGED_ATTACK": 8,
+          "MARCHING_FINISHED": 1
+        },
+        "input_sha256": "c7247783110705a214ccaadd05dc1a5f3c8baa3f4f298e3e6bef71da5613329e",
+        "batch_result_sha256": "89ac52503a4d88498dbabe6a035aa1665b7a60ea58e348e11060858ee8d1e727",
+        "trace_result_sha256": "bc515a63676c9be6bba169083495c47c1a1aa4aebe0097f57f70a1af4d264362",
+        "wall": {
+          "batch_phase": {
+            "samples": 20,
+            "mean_ms": 30.22242515,
+            "median_ms": 29.6754515,
+            "p95_ms": 34.382193,
+            "min_ms": 26.949466,
+            "max_ms": 35.098081
+          },
+          "trace_phase": {
+            "samples": 20,
+            "mean_ms": 68.8443397,
+            "median_ms": 69.06693250000001,
+            "p95_ms": 81.563589,
+            "min_ms": 56.053604,
+            "max_ms": 84.235167
+          },
+          "phase_prepare": {
+            "samples": 20,
+            "mean_ms": 0.43094575,
+            "median_ms": 0.38783500000000004,
+            "p95_ms": 0.681818,
+            "min_ms": 0.343919,
+            "max_ms": 0.705553
+          },
+          "prepared_batch_work": {
+            "samples": 20,
+            "mean_ms": 32.16528605,
+            "median_ms": 29.113146999999998,
+            "p95_ms": 40.63343,
+            "min_ms": 27.566231,
+            "max_ms": 41.349666
+          },
+          "row_import": {
+            "samples": 20,
+            "mean_ms": 0.27912245,
+            "median_ms": 0.2530395,
+            "p95_ms": 0.464554,
+            "min_ms": 0.206036,
+            "max_ms": 0.642876
+          },
+          "column_import": {
+            "samples": 20,
+            "mean_ms": 0.32873085,
+            "median_ms": 0.294501,
+            "p95_ms": 0.509958,
+            "min_ms": 0.25523,
+            "max_ms": 0.524156
+          },
+          "row_publish": {
+            "samples": 20,
+            "mean_ms": 0.055825,
+            "median_ms": 0.0441125,
+            "p95_ms": 0.10986,
+            "min_ms": 0.040606,
+            "max_ms": 0.144315
+          },
+          "column_publish": {
+            "samples": 20,
+            "mean_ms": 0.03536445,
+            "median_ms": 0.030621000000000002,
+            "p95_ms": 0.053887,
+            "min_ms": 0.029242,
+            "max_ms": 0.065925
+          }
+        },
+        "cpu": {
+          "batch_phase": {
+            "samples": 20,
+            "mean_ms": 30.2295694,
+            "median_ms": 29.683222,
+            "p95_ms": 34.388896,
+            "min_ms": 26.952973,
+            "max_ms": 35.108731
+          },
+          "trace_phase": {
+            "samples": 20,
+            "mean_ms": 68.84619585,
+            "median_ms": 69.0754005,
+            "p95_ms": 81.555874,
+            "min_ms": 56.060875,
+            "max_ms": 84.241192
+          },
+          "phase_prepare": {
+            "samples": 20,
+            "mean_ms": 0.4349995,
+            "median_ms": 0.391393,
+            "p95_ms": 0.688925,
+            "min_ms": 0.346112,
+            "max_ms": 0.712218
+          },
+          "prepared_batch_work": {
+            "samples": 20,
+            "mean_ms": 32.1852128,
+            "median_ms": 29.118851999999997,
+            "p95_ms": 40.640065,
+            "min_ms": 27.572534,
+            "max_ms": 41.358103
+          },
+          "row_import": {
+            "samples": 20,
+            "mean_ms": 0.2813252,
+            "median_ms": 0.254918,
+            "p95_ms": 0.468459,
+            "min_ms": 0.206695,
+            "max_ms": 0.648318
+          },
+          "column_import": {
+            "samples": 20,
+            "mean_ms": 0.33066635,
+            "median_ms": 0.296322,
+            "p95_ms": 0.511526,
+            "min_ms": 0.255956,
+            "max_ms": 0.526828
+          },
+          "row_publish": {
+            "samples": 20,
+            "mean_ms": 0.05662795,
+            "median_ms": 0.0446995,
+            "p95_ms": 0.112656,
+            "min_ms": 0.041179,
+            "max_ms": 0.145381
+          },
+          "column_publish": {
+            "samples": 20,
+            "mean_ms": 0.0360331,
+            "median_ms": 0.031252,
+            "p95_ms": 0.054739,
+            "min_ms": 0.029836,
+            "max_ms": 0.066795
+          }
+        },
+        "amortized_batch_us_per_tick": 151.11212575,
+        "reachable_python_object_bytes": {
+          "rows": 14136,
+          "columns": 11067
+        },
+        "separate_instrumented_profile": [
+          {
+            "file": "marching.py",
+            "line": 453,
+            "function": "resolve",
+            "primitive_calls": 1,
+            "total_calls": 1,
+            "exclusive_seconds": 7.939600000000001e-05,
+            "cumulative_seconds": 0.083358631
+          },
+          {
+            "file": "marching.py",
+            "line": 356,
+            "function": "run",
+            "primitive_calls": 1,
+            "total_calls": 1,
+            "exclusive_seconds": 0.0020411550000000002,
+            "cumulative_seconds": 0.08168362800000001
+          },
+          {
+            "file": "marching.py",
+            "line": 148,
+            "function": "move",
+            "primitive_calls": 200,
+            "total_calls": 200,
+            "exclusive_seconds": 0.018769846,
+            "cumulative_seconds": 0.062058737
+          },
+          {
+            "file": "marching.py",
+            "line": 130,
+            "function": "near",
+            "primitive_calls": 5780,
+            "total_calls": 5780,
+            "exclusive_seconds": 0.016624031,
+            "cumulative_seconds": 0.026096552000000002
+          },
+          {
+            "file": "marching.py",
+            "line": 206,
+            "function": "free",
+            "primitive_calls": 2180,
+            "total_calls": 2180,
+            "exclusive_seconds": 0.0019502190000000002,
+            "cumulative_seconds": 0.013085365000000002
+          },
+          {
+            "file": "marching.py",
+            "line": 237,
+            "function": "contact",
+            "primitive_calls": 400,
+            "total_calls": 400,
+            "exclusive_seconds": 0.002045784,
+            "cumulative_seconds": 0.012444439000000002
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'get' of 'dict' objects>",
+            "primitive_calls": 53677,
+            "total_calls": 53677,
+            "exclusive_seconds": 0.009802221,
+            "cumulative_seconds": 0.009802221
+          },
+          {
+            "file": "marching.py",
+            "line": 123,
+            "function": "grid",
+            "primitive_calls": 2000,
+            "total_calls": 2000,
+            "exclusive_seconds": 0.003601159,
+            "cumulative_seconds": 0.006110277000000001
+          },
+          {
+            "file": "marching.py",
+            "line": 116,
+            "function": "teams",
+            "primitive_calls": 600,
+            "total_calls": 600,
+            "exclusive_seconds": 0.004225628,
+            "cumulative_seconds": 0.005469217
+          },
+          {
+            "file": "marching.py",
+            "line": 313,
+            "function": "volley",
+            "primitive_calls": 200,
+            "total_calls": 200,
+            "exclusive_seconds": 0.001774799,
+            "cumulative_seconds": 0.003477013
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<built-in method builtins.any>",
+            "primitive_calls": 4840,
+            "total_calls": 4840,
+            "exclusive_seconds": 0.002264992,
+            "cumulative_seconds": 0.003238827
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'append' of 'list' objects>",
+            "primitive_calls": 15688,
+            "total_calls": 15688,
+            "exclusive_seconds": 0.0027339820000000003,
+            "cumulative_seconds": 0.0027339820000000003
+          },
+          {
+            "file": "marching_spatial.py",
+            "line": 19,
+            "function": "scaled",
+            "primitive_calls": 4360,
+            "total_calls": 4360,
+            "exclusive_seconds": 0.001997865,
+            "cumulative_seconds": 0.002647819
+          },
+          {
+            "file": "marching_spatial.py",
+            "line": 15,
+            "function": "distance",
+            "primitive_calls": 6766,
+            "total_calls": 6766,
+            "exclusive_seconds": 0.002076756,
+            "cumulative_seconds": 0.002076756
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<built-in method builtins.max>",
+            "primitive_calls": 6556,
+            "total_calls": 6556,
+            "exclusive_seconds": 0.0017258150000000001,
+            "cumulative_seconds": 0.0017258150000000001
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'setdefault' of 'dict' objects>",
+            "primitive_calls": 6070,
+            "total_calls": 6070,
+            "exclusive_seconds": 0.0015409800000000002,
+            "cumulative_seconds": 0.0015409800000000002
+          }
+        ]
+      },
+      {
+        "name": "dense_contacts_64",
+        "seed": "u13-marching:\u00e9:dense_contacts_64",
+        "round": 1,
+        "ticks": 200,
+        "initial_marchers": 64,
+        "final_marchers": 8,
+        "event_counts": {
+          "MARCHING_STARTED": 1,
+          "MARCHER_CONTACT": 23,
+          "MARCHER_RANGED_ATTACK": 84,
+          "MARCHER_DEFEATED": 56,
+          "MARCHER_CLASH": 20,
+          "MARCHER_DUEL_INTERRUPTED": 3,
+          "MARCHING_FINISHED": 1
+        },
+        "input_sha256": "4215d5ff3b3a853486fa406be4e220670eb45b66fa73d62740ce336fb8d6ed35",
+        "batch_result_sha256": "f70451be3e36833833cdf51f9472bff121b8a54b70f3b54c1b295fb01f60d4f7",
+        "trace_result_sha256": "0bc40d82f1a941780d1290c515d6e8f1e57c445044820c0c4ac6adaf8bc4c099",
+        "wall": {
+          "batch_phase": {
+            "samples": 20,
+            "mean_ms": 106.1910499,
+            "median_ms": 104.44479,
+            "p95_ms": 119.163788,
+            "min_ms": 96.637135,
+            "max_ms": 120.10282
+          },
+          "trace_phase": {
+            "samples": 20,
+            "mean_ms": 208.12276545,
+            "median_ms": 207.37226750000002,
+            "p95_ms": 241.257141,
+            "min_ms": 177.721876,
+            "max_ms": 245.042915
+          },
+          "phase_prepare": {
+            "samples": 20,
+            "mean_ms": 1.9491933000000001,
+            "median_ms": 1.6271404999999999,
+            "p95_ms": 3.630181,
+            "min_ms": 1.54403,
+            "max_ms": 4.501445
+          },
+          "prepared_batch_work": {
+            "samples": 20,
+            "mean_ms": 105.66224925,
+            "median_ms": 102.4904135,
+            "p95_ms": 132.065627,
+            "min_ms": 93.822414,
+            "max_ms": 134.040221
+          },
+          "row_import": {
+            "samples": 20,
+            "mean_ms": 1.11047125,
+            "median_ms": 1.1066985,
+            "p95_ms": 1.176722,
+            "min_ms": 1.040414,
+            "max_ms": 1.178661
+          },
+          "column_import": {
+            "samples": 20,
+            "mean_ms": 1.6435251,
+            "median_ms": 1.3641675,
+            "p95_ms": 3.544852,
+            "min_ms": 1.270159,
+            "max_ms": 4.391603
+          },
+          "row_publish": {
+            "samples": 20,
+            "mean_ms": 0.2131942,
+            "median_ms": 0.19963799999999998,
+            "p95_ms": 0.287107,
+            "min_ms": 0.191643,
+            "max_ms": 0.328834
+          },
+          "column_publish": {
+            "samples": 20,
+            "mean_ms": 0.25967025,
+            "median_ms": 0.139727,
+            "p95_ms": 0.228801,
+            "min_ms": 0.134198,
+            "max_ms": 2.347044
+          }
+        },
+        "cpu": {
+          "batch_phase": {
+            "samples": 20,
+            "mean_ms": 106.1943111,
+            "median_ms": 104.46083999999999,
+            "p95_ms": 119.171367,
+            "min_ms": 96.644437,
+            "max_ms": 120.077209
+          },
+          "trace_phase": {
+            "samples": 20,
+            "mean_ms": 208.09566355,
+            "median_ms": 207.36326100000002,
+            "p95_ms": 241.239851,
+            "min_ms": 177.72893,
+            "max_ms": 244.798277
+          },
+          "phase_prepare": {
+            "samples": 20,
+            "mean_ms": 1.9553977,
+            "median_ms": 1.6317854999999999,
+            "p95_ms": 3.640837,
+            "min_ms": 1.547832,
+            "max_ms": 4.513072
+          },
+          "prepared_batch_work": {
+            "samples": 20,
+            "mean_ms": 105.66720889999999,
+            "median_ms": 102.48854,
+            "p95_ms": 132.072116,
+            "min_ms": 93.830021,
+            "max_ms": 134.047036
+          },
+          "row_import": {
+            "samples": 20,
+            "mean_ms": 1.127443,
+            "median_ms": 1.1107535,
+            "p95_ms": 1.182083,
+            "min_ms": 1.041693,
+            "max_ms": 1.454236
+          },
+          "column_import": {
+            "samples": 20,
+            "mean_ms": 1.6478133,
+            "median_ms": 1.3687785,
+            "p95_ms": 3.551652,
+            "min_ms": 1.278747,
+            "max_ms": 4.395617
+          },
+          "row_publish": {
+            "samples": 20,
+            "mean_ms": 0.2139963,
+            "median_ms": 0.2003495,
+            "p95_ms": 0.288289,
+            "min_ms": 0.192211,
+            "max_ms": 0.330292
+          },
+          "column_publish": {
+            "samples": 20,
+            "mean_ms": 0.26057265,
+            "median_ms": 0.140381,
+            "p95_ms": 0.230016,
+            "min_ms": 0.134851,
+            "max_ms": 2.350315
+          }
+        },
+        "amortized_batch_us_per_tick": 530.9552495,
+        "reachable_python_object_bytes": {
+          "rows": 67572,
+          "columns": 38871
+        },
+        "separate_instrumented_profile": [
+          {
+            "file": "marching.py",
+            "line": 453,
+            "function": "resolve",
+            "primitive_calls": 1,
+            "total_calls": 1,
+            "exclusive_seconds": 8.1703e-05,
+            "cumulative_seconds": 0.267085059
+          },
+          {
+            "file": "marching.py",
+            "line": 356,
+            "function": "run",
+            "primitive_calls": 1,
+            "total_calls": 1,
+            "exclusive_seconds": 0.004688135,
+            "cumulative_seconds": 0.26030827700000003
+          },
+          {
+            "file": "marching.py",
+            "line": 148,
+            "function": "move",
+            "primitive_calls": 200,
+            "total_calls": 200,
+            "exclusive_seconds": 0.056114371,
+            "cumulative_seconds": 0.217625224
+          },
+          {
+            "file": "marching.py",
+            "line": 130,
+            "function": "near",
+            "primitive_calls": 13515,
+            "total_calls": 13515,
+            "exclusive_seconds": 0.044999908000000005,
+            "cumulative_seconds": 0.06871151
+          },
+          {
+            "file": "marching.py",
+            "line": 206,
+            "function": "free",
+            "primitive_calls": 5892,
+            "total_calls": 5892,
+            "exclusive_seconds": 0.013266892,
+            "cumulative_seconds": 0.051553402000000005
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<built-in method builtins.any>",
+            "primitive_calls": 14686,
+            "total_calls": 14686,
+            "exclusive_seconds": 0.010019872,
+            "cumulative_seconds": 0.031116812
+          },
+          {
+            "file": "marching_spatial.py",
+            "line": 15,
+            "function": "distance",
+            "primitive_calls": 92960,
+            "total_calls": 92960,
+            "exclusive_seconds": 0.02546104,
+            "cumulative_seconds": 0.02546104
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'get' of 'dict' objects>",
+            "primitive_calls": 126354,
+            "total_calls": 126354,
+            "exclusive_seconds": 0.024614691,
+            "cumulative_seconds": 0.024614691
+          },
+          {
+            "file": "marching.py",
+            "line": 159,
+            "function": "<genexpr>",
+            "primitive_calls": 32843,
+            "total_calls": 32843,
+            "exclusive_seconds": 0.012110094,
+            "cumulative_seconds": 0.018995434000000002
+          },
+          {
+            "file": "copying.py",
+            "line": 12,
+            "function": "copy_data",
+            "primitive_calls": 566,
+            "total_calls": 566,
+            "exclusive_seconds": 0.00035387300000000005,
+            "cumulative_seconds": 0.017885022
+          },
+          {
+            "file": "marching.py",
+            "line": 285,
+            "function": "emit",
+            "primitive_calls": 188,
+            "total_calls": 188,
+            "exclusive_seconds": 0.00042122400000000004,
+            "cumulative_seconds": 0.017744473
+          },
+          {
+            "file": "copying.py",
+            "line": 16,
+            "function": "_clone",
+            "primitive_calls": 566,
+            "total_calls": 4404,
+            "exclusive_seconds": 0.014796688,
+            "cumulative_seconds": 0.017531149000000003
+          },
+          {
+            "file": "marching.py",
+            "line": 123,
+            "function": "grid",
+            "primitive_calls": 1672,
+            "total_calls": 1672,
+            "exclusive_seconds": 0.008015557000000001,
+            "cumulative_seconds": 0.013750215000000001
+          },
+          {
+            "file": "marching.py",
+            "line": 313,
+            "function": "volley",
+            "primitive_calls": 200,
+            "total_calls": 200,
+            "exclusive_seconds": 0.00216498,
+            "cumulative_seconds": 0.012922819
+          },
+          {
+            "file": "marching.py",
+            "line": 237,
+            "function": "contact",
+            "primitive_calls": 72,
+            "total_calls": 72,
+            "exclusive_seconds": 0.001862761,
+            "cumulative_seconds": 0.007468748000000001
+          },
+          {
+            "file": "marching.py",
+            "line": 277,
+            "function": "__init__",
+            "primitive_calls": 1,
+            "total_calls": 1,
+            "exclusive_seconds": 1.6186e-05,
+            "cumulative_seconds": 0.005758208000000001
+          }
+        ]
+      },
+      {
+        "name": "gravity_pull_consumption_and_sweep",
+        "seed": "u13-marching:\u00e9:gravity_pull_consumption_and_sweep",
+        "round": 1,
+        "ticks": 200,
+        "initial_marchers": 14,
+        "final_marchers": 1,
+        "event_counts": {
+          "MARCHING_STARTED": 1,
+          "GRAVITY_ORB_CONSUMED": 13,
+          "MARCHER_CONTACT": 2,
+          "MARCHER_DUEL_INTERRUPTED": 2,
+          "MARCHING_FINISHED": 1
+        },
+        "input_sha256": "400b6da6e51184fa046d5c74c376b2d9b3b35445d5a79bb61daf7b91e05d7973",
+        "batch_result_sha256": "58d58280d5b073a3de840fd591e92d187b3a054e6297d1a692d1cf2579d6dd9a",
+        "trace_result_sha256": "0a4a4e3cab489638e6cab1ceea297836e0e5c500a54318966027a02471df038d",
+        "wall": {
+          "batch_phase": {
+            "samples": 20,
+            "mean_ms": 6.79742075,
+            "median_ms": 6.723769,
+            "p95_ms": 7.171712,
+            "min_ms": 6.535803,
+            "max_ms": 7.386912
+          },
+          "trace_phase": {
+            "samples": 20,
+            "mean_ms": 13.4578931,
+            "median_ms": 13.1044175,
+            "p95_ms": 15.544736,
+            "min_ms": 12.744738,
+            "max_ms": 16.334594
+          },
+          "phase_prepare": {
+            "samples": 20,
+            "mean_ms": 0.4023656,
+            "median_ms": 0.38643550000000004,
+            "p95_ms": 0.497471,
+            "min_ms": 0.370723,
+            "max_ms": 0.595316
+          },
+          "prepared_batch_work": {
+            "samples": 20,
+            "mean_ms": 6.3780391,
+            "median_ms": 6.330873,
+            "p95_ms": 6.985222,
+            "min_ms": 6.083719,
+            "max_ms": 7.021639
+          },
+          "row_import": {
+            "samples": 20,
+            "mean_ms": 0.26468665,
+            "median_ms": 0.25977700000000004,
+            "p95_ms": 0.331777,
+            "min_ms": 0.23407,
+            "max_ms": 0.333991
+          },
+          "column_import": {
+            "samples": 20,
+            "mean_ms": 0.31734249999999997,
+            "median_ms": 0.31069599999999997,
+            "p95_ms": 0.374519,
+            "min_ms": 0.290529,
+            "max_ms": 0.412267
+          },
+          "row_publish": {
+            "samples": 20,
+            "mean_ms": 0.04834485,
+            "median_ms": 0.04692,
+            "p95_ms": 0.061486,
+            "min_ms": 0.045243,
+            "max_ms": 0.062288
+          },
+          "column_publish": {
+            "samples": 20,
+            "mean_ms": 0.04876655,
+            "median_ms": 0.0339855,
+            "p95_ms": 0.075533,
+            "min_ms": 0.032288,
+            "max_ms": 0.253867
+          }
+        },
+        "cpu": {
+          "batch_phase": {
+            "samples": 20,
+            "mean_ms": 6.80096665,
+            "median_ms": 6.727536499999999,
+            "p95_ms": 7.176907,
+            "min_ms": 6.537284,
+            "max_ms": 7.391352
+          },
+          "trace_phase": {
+            "samples": 20,
+            "mean_ms": 13.45888275,
+            "median_ms": 13.1093315,
+            "p95_ms": 15.55164,
+            "min_ms": 12.747259,
+            "max_ms": 16.339358
+          },
+          "phase_prepare": {
+            "samples": 20,
+            "mean_ms": 0.40450525,
+            "median_ms": 0.3884035,
+            "p95_ms": 0.500705,
+            "min_ms": 0.372414,
+            "max_ms": 0.599794
+          },
+          "prepared_batch_work": {
+            "samples": 20,
+            "mean_ms": 6.3794975,
+            "median_ms": 6.334199,
+            "p95_ms": 6.988831,
+            "min_ms": 6.085421,
+            "max_ms": 7.024374
+          },
+          "row_import": {
+            "samples": 20,
+            "mean_ms": 0.26616915,
+            "median_ms": 0.26188,
+            "p95_ms": 0.334924,
+            "min_ms": 0.234752,
+            "max_ms": 0.335723
+          },
+          "column_import": {
+            "samples": 20,
+            "mean_ms": 0.3186488,
+            "median_ms": 0.3118635,
+            "p95_ms": 0.376268,
+            "min_ms": 0.291575,
+            "max_ms": 0.414457
+          },
+          "row_publish": {
+            "samples": 20,
+            "mean_ms": 0.04896615,
+            "median_ms": 0.0474875,
+            "p95_ms": 0.062124,
+            "min_ms": 0.045832,
+            "max_ms": 0.062996
+          },
+          "column_publish": {
+            "samples": 20,
+            "mean_ms": 0.04952475,
+            "median_ms": 0.03458,
+            "p95_ms": 0.076188,
+            "min_ms": 0.032941,
+            "max_ms": 0.256575
+          }
+        },
+        "amortized_batch_us_per_tick": 33.987103749999996,
+        "reachable_python_object_bytes": {
+          "rows": 16090,
+          "columns": 11669
+        },
+        "separate_instrumented_profile": [
+          {
+            "file": "marching.py",
+            "line": 453,
+            "function": "resolve",
+            "primitive_calls": 1,
+            "total_calls": 1,
+            "exclusive_seconds": 4.6036000000000004e-05,
+            "cumulative_seconds": 0.017970796
+          },
+          {
+            "file": "marching.py",
+            "line": 356,
+            "function": "run",
+            "primitive_calls": 1,
+            "total_calls": 1,
+            "exclusive_seconds": 0.001806869,
+            "cumulative_seconds": 0.016356039
+          },
+          {
+            "file": "marching.py",
+            "line": 148,
+            "function": "move",
+            "primitive_calls": 200,
+            "total_calls": 200,
+            "exclusive_seconds": 0.0026980180000000004,
+            "cumulative_seconds": 0.006707539
+          },
+          {
+            "file": "marching.py",
+            "line": 237,
+            "function": "contact",
+            "primitive_calls": 387,
+            "total_calls": 387,
+            "exclusive_seconds": 0.0010104830000000002,
+            "cumulative_seconds": 0.0027928000000000002
+          },
+          {
+            "file": "marching_spatial.py",
+            "line": 82,
+            "function": "gravity",
+            "primitive_calls": 200,
+            "total_calls": 200,
+            "exclusive_seconds": 0.0009444010000000001,
+            "cumulative_seconds": 0.0023507790000000003
+          },
+          {
+            "file": "marching.py",
+            "line": 130,
+            "function": "near",
+            "primitive_calls": 317,
+            "total_calls": 317,
+            "exclusive_seconds": 0.0010805740000000002,
+            "cumulative_seconds": 0.0015981090000000001
+          },
+          {
+            "file": "marching.py",
+            "line": 277,
+            "function": "__init__",
+            "primitive_calls": 1,
+            "total_calls": 1,
+            "exclusive_seconds": 9.38e-06,
+            "cumulative_seconds": 0.0013699740000000001
+          },
+          {
+            "file": "copying.py",
+            "line": 12,
+            "function": "copy_data",
+            "primitive_calls": 59,
+            "total_calls": 59,
+            "exclusive_seconds": 4.1056e-05,
+            "cumulative_seconds": 0.0013685820000000001
+          },
+          {
+            "file": "marching.py",
+            "line": 123,
+            "function": "grid",
+            "primitive_calls": 1987,
+            "total_calls": 1987,
+            "exclusive_seconds": 0.0009827870000000002,
+            "cumulative_seconds": 0.001343232
+          },
+          {
+            "file": "copying.py",
+            "line": 16,
+            "function": "_clone",
+            "primitive_calls": 59,
+            "total_calls": 343,
+            "exclusive_seconds": 0.001120567,
+            "cumulative_seconds": 0.001327526
+          },
+          {
+            "file": "marching.py",
+            "line": 285,
+            "function": "emit",
+            "primitive_calls": 19,
+            "total_calls": 19,
+            "exclusive_seconds": 4.4392000000000005e-05,
+            "cumulative_seconds": 0.0012413930000000001
+          },
+          {
+            "file": "marching_columns.py",
+            "line": 18,
+            "function": "__init__",
+            "primitive_calls": 1,
+            "total_calls": 1,
+            "exclusive_seconds": 0.00011526300000000001,
+            "cumulative_seconds": 0.001187677
+          },
+          {
+            "file": "primitives.py",
+            "line": 102,
+            "function": "restore",
+            "primitive_calls": 1,
+            "total_calls": 1,
+            "exclusive_seconds": 4.8617000000000006e-05,
+            "cumulative_seconds": 0.0010111080000000001
+          },
+          {
+            "file": "marching_columns.py",
+            "line": 35,
+            "function": "active",
+            "primitive_calls": 1192,
+            "total_calls": 1192,
+            "exclusive_seconds": 0.0009943,
+            "cumulative_seconds": 0.0009943
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<built-in method builtins.any>",
+            "primitive_calls": 649,
+            "total_calls": 649,
+            "exclusive_seconds": 0.00039434,
+            "cumulative_seconds": 0.000927686
+          },
+          {
+            "file": "primitives.py",
+            "line": 19,
+            "function": "normalize",
+            "primitive_calls": 1,
+            "total_calls": 354,
+            "exclusive_seconds": 0.000383587,
+            "cumulative_seconds": 0.00090702
+          }
+        ]
+      }
+    ],
+    "failures": 0,
+    "full_match_games_per_second": null,
+    "full_match_50000_wall_seconds": null
+  },
+  "artifacts": {
+    "source-identity.txt": {
+      "bytes": 106,
+      "sha256": "65c4231f3d71dbdd6bc2bbaf6214f3c3202df2fdbcf1737944d3b69b58f37d1c"
+    },
+    "godot.log": {
+      "bytes": 20616,
+      "sha256": "3b96b5a36652584b3efc2128ab8c3f850b4119a2ebeaa97d438d4fe9081e1574"
+    },
+    "godot-status.json": {
+      "bytes": 88,
+      "sha256": "686c68fb18c831ca24350b4229ef9dc42d3d3670a07056e7271999ee644a8740"
+    },
+    "marching.exact.json": {
+      "bytes": 17544986,
+      "sha256": "0faf630e53ee1d2f1e14caec5015d8e2cb6f68fa8732c2e97a11bc64cb3a99fd"
+    },
+    "python-tests.log": {
+      "bytes": 7457,
+      "sha256": "20b0adda541c3bd64f24589b0b5f55500e968bffc2110962477c102689e46957"
+    },
+    "python-parity.log": {
+      "bytes": 1238,
+      "sha256": "c2563bd8c5fa689b7a15d267f23bf4979507c70e5e4011bd18656b396e064f69"
+    },
+    "python-summary.json": {
+      "bytes": 1200,
+      "sha256": "083cfd6ac3ac0d320cd98758cba81e5a7a4330474b7e5e42d83e3fdaff737c8b"
+    },
+    "python-timing.log": {
+      "bytes": 335,
+      "sha256": "1165cc62cfc1b65babe96b9e6018476eb51d139e40eff7ca853bbd1c33803e50"
+    },
+    "marching-timing.json": {
+      "bytes": 28414,
+      "sha256": "80629977c9d82f2bb018260e5cc030f0000f18a9160db32d1c35d8247ddffe6d"
+    }
+  },
+  "implementation_files": {
+    "Scripts/Sim/run_u13_pysim.py": {
+      "bytes": 7276,
+      "sha256": "92eaea53879ad1453e14437cd7d820608cbed49d9da2d0fa5a8686beba06d59e"
+    },
+    "Scripts/Sim/U13PySimMarchingTestRunner.gd": {
+      "bytes": 8107,
+      "sha256": "9190e0466a987e9bb988f66863fca4b409dbd94a63816e49528e1ebe89c3e698"
+    },
+    "Scripts/Sim/run_u13_pysim_marching.sh": {
+      "bytes": 4353,
+      "sha256": "f3f70b959788971587fb61865c48e70816ff35ed89b7663b286c414104bd72b7"
+    },
+    "Scripts/Sim/u13_pysim/marching.py": {
+      "bytes": 25142,
+      "sha256": "4144da244c2535154c93372f82fe1c82ba0b090b12a15102701211abe4fc948b"
+    },
+    "Scripts/Sim/u13_pysim/marching_columns.py": {
+      "bytes": 3042,
+      "sha256": "3fa49503a835a481a5a378684c0ac5bc6059c17f3311b72f07a99387b8edd71f"
+    },
+    "Scripts/Sim/u13_pysim/marching_spatial.py": {
+      "bytes": 5293,
+      "sha256": "4095e53d1f41440b8c91630ff656951916e33850d12124bdeb192f805ee6a78a"
+    },
+    "Scripts/Sim/u13_pysim/marching_fixtures.py": {
+      "bytes": 2913,
+      "sha256": "771777bacb1e6e44a5c8ef78f45d806fbf2a0092a4b4be448bc5b7dc8a683650"
+    },
+    "Scripts/Sim/u13_pysim/marching_inputs.json": {
+      "bytes": 59041,
+      "sha256": "5baaab5d5a70fbc0c89c633bf7bc043e328f0784f604f821f1a9dd96b539e4de"
+    },
+    "Scripts/Sim/u13_pysim/verify_marching.py": {
+      "bytes": 7867,
+      "sha256": "119031e8cc6919555f8ec771c508179599cd4db94ead5c06e93ce2545a1652ff"
+    },
+    "Scripts/Sim/u13_pysim/test_marching.py": {
+      "bytes": 5225,
+      "sha256": "7d0ba797f4c761b2459b298d8897d8fb6bd5fad608321ad78b5994d03e812c35"
+    },
+    "Scripts/Sim/u13_pysim/benchmark_marching.py": {
+      "bytes": 8383,
+      "sha256": "eb168c173f751cb4a48edc6e0c1ec20d8691592f5b92e2142834925ff126931b"
+    }
+  },
+  "python_full_round_parity": false,
+  "python_full_match_parity": false,
+  "full_match_games_per_second": null,
+  "full_match_50000_wall_seconds": null
+}

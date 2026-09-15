@@ -1,0 +1,2651 @@
+{
+  "schema": "U13_MARCHING_INPUTS_V1",
+  "reaction_contract": "isolated Marchers; no Lord reactions",
+  "cases": [
+    {
+      "name": "ordinary_mixed",
+      "seed": "u13-marching:é:ordinary_mixed",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {},
+      "effects": [],
+      "units": [
+        {
+          "origin": "ordinary:Lord:0:0",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 220,
+            "y_fp": 100
+          }
+        },
+        {
+          "origin": "ordinary:Lord:0:1",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 220,
+            "y_fp": 300
+          }
+        },
+        {
+          "origin": "ordinary:Lord:0:2",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 220,
+            "y_fp": 500
+          }
+        },
+        {
+          "origin": "ordinary:Lord:1:0",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 2180,
+            "y_fp": 100
+          }
+        },
+        {
+          "origin": "ordinary:Lord:1:1",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 2180,
+            "y_fp": 300
+          }
+        },
+        {
+          "origin": "ordinary:Lord:1:2",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 2180,
+            "y_fp": 500
+          }
+        },
+        {
+          "origin": "ordinary:Castle:0:0",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 220,
+            "y_fp": 100
+          }
+        },
+        {
+          "origin": "ordinary:Castle:0:1",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 220,
+            "y_fp": 300
+          }
+        },
+        {
+          "origin": "ordinary:Castle:0:2",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 220,
+            "y_fp": 500
+          }
+        },
+        {
+          "origin": "ordinary:Castle:1:0",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Butcher",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 2180,
+            "y_fp": 100
+          }
+        },
+        {
+          "origin": "ordinary:Castle:1:1",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 2180,
+            "y_fp": 300
+          }
+        },
+        {
+          "origin": "ordinary:Castle:1:2",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Vulture",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 2180,
+            "y_fp": 500
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        },
+        {
+          "kind": "regen",
+          "round": 2,
+          "expected_action": "resolved"
+        },
+        {
+          "kind": "march",
+          "round": 2,
+          "expected_action": "resolved"
+        },
+        {
+          "kind": "march",
+          "round": 2,
+          "expected_action": "invalid"
+        }
+      ],
+      "contact_probes": []
+    },
+    {
+      "name": "dense_contacts_64",
+      "seed": "u13-marching:é:dense_contacts_64",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {},
+      "effects": [],
+      "units": [
+        {
+          "origin": "dense:Lord:0:00",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 90
+          }
+        },
+        {
+          "origin": "dense:Lord:0:01",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 230
+          }
+        },
+        {
+          "origin": "dense:Lord:0:02",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 370
+          }
+        },
+        {
+          "origin": "dense:Lord:0:03",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Wright",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 510
+          }
+        },
+        {
+          "origin": "dense:Lord:0:04",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 914,
+            "y_fp": 90
+          }
+        },
+        {
+          "origin": "dense:Lord:0:05",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 914,
+            "y_fp": 230
+          }
+        },
+        {
+          "origin": "dense:Lord:0:06",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 914,
+            "y_fp": 370
+          }
+        },
+        {
+          "origin": "dense:Lord:0:07",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Wright",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 914,
+            "y_fp": 510
+          }
+        },
+        {
+          "origin": "dense:Lord:0:08",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 828,
+            "y_fp": 90
+          }
+        },
+        {
+          "origin": "dense:Lord:0:09",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 828,
+            "y_fp": 230
+          }
+        },
+        {
+          "origin": "dense:Lord:0:10",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 828,
+            "y_fp": 370
+          }
+        },
+        {
+          "origin": "dense:Lord:0:11",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Wright",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 828,
+            "y_fp": 510
+          }
+        },
+        {
+          "origin": "dense:Lord:0:12",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 742,
+            "y_fp": 90
+          }
+        },
+        {
+          "origin": "dense:Lord:0:13",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 742,
+            "y_fp": 230
+          }
+        },
+        {
+          "origin": "dense:Lord:0:14",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 742,
+            "y_fp": 370
+          }
+        },
+        {
+          "origin": "dense:Lord:0:15",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Wright",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 742,
+            "y_fp": 510
+          }
+        },
+        {
+          "origin": "dense:Lord:1:00",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 90
+          }
+        },
+        {
+          "origin": "dense:Lord:1:01",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 230
+          }
+        },
+        {
+          "origin": "dense:Lord:1:02",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 370
+          }
+        },
+        {
+          "origin": "dense:Lord:1:03",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Wright",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 510
+          }
+        },
+        {
+          "origin": "dense:Lord:1:04",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1266,
+            "y_fp": 90
+          }
+        },
+        {
+          "origin": "dense:Lord:1:05",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1266,
+            "y_fp": 230
+          }
+        },
+        {
+          "origin": "dense:Lord:1:06",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1266,
+            "y_fp": 370
+          }
+        },
+        {
+          "origin": "dense:Lord:1:07",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Wright",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1266,
+            "y_fp": 510
+          }
+        },
+        {
+          "origin": "dense:Lord:1:08",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1352,
+            "y_fp": 90
+          }
+        },
+        {
+          "origin": "dense:Lord:1:09",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1352,
+            "y_fp": 230
+          }
+        },
+        {
+          "origin": "dense:Lord:1:10",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1352,
+            "y_fp": 370
+          }
+        },
+        {
+          "origin": "dense:Lord:1:11",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Wright",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1352,
+            "y_fp": 510
+          }
+        },
+        {
+          "origin": "dense:Lord:1:12",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1438,
+            "y_fp": 90
+          }
+        },
+        {
+          "origin": "dense:Lord:1:13",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1438,
+            "y_fp": 230
+          }
+        },
+        {
+          "origin": "dense:Lord:1:14",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1438,
+            "y_fp": 370
+          }
+        },
+        {
+          "origin": "dense:Lord:1:15",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Wright",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1438,
+            "y_fp": 510
+          }
+        },
+        {
+          "origin": "dense:Castle:0:00",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 90
+          }
+        },
+        {
+          "origin": "dense:Castle:0:01",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 230
+          }
+        },
+        {
+          "origin": "dense:Castle:0:02",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 370
+          }
+        },
+        {
+          "origin": "dense:Castle:0:03",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Wright",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 510
+          }
+        },
+        {
+          "origin": "dense:Castle:0:04",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 914,
+            "y_fp": 90
+          }
+        },
+        {
+          "origin": "dense:Castle:0:05",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 914,
+            "y_fp": 230
+          }
+        },
+        {
+          "origin": "dense:Castle:0:06",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 914,
+            "y_fp": 370
+          }
+        },
+        {
+          "origin": "dense:Castle:0:07",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Wright",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 914,
+            "y_fp": 510
+          }
+        },
+        {
+          "origin": "dense:Castle:0:08",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 828,
+            "y_fp": 90
+          }
+        },
+        {
+          "origin": "dense:Castle:0:09",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 828,
+            "y_fp": 230
+          }
+        },
+        {
+          "origin": "dense:Castle:0:10",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 828,
+            "y_fp": 370
+          }
+        },
+        {
+          "origin": "dense:Castle:0:11",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Wright",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 828,
+            "y_fp": 510
+          }
+        },
+        {
+          "origin": "dense:Castle:0:12",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 742,
+            "y_fp": 90
+          }
+        },
+        {
+          "origin": "dense:Castle:0:13",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 742,
+            "y_fp": 230
+          }
+        },
+        {
+          "origin": "dense:Castle:0:14",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 742,
+            "y_fp": 370
+          }
+        },
+        {
+          "origin": "dense:Castle:0:15",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Wright",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 742,
+            "y_fp": 510
+          }
+        },
+        {
+          "origin": "dense:Castle:1:00",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Butcher",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 90
+          }
+        },
+        {
+          "origin": "dense:Castle:1:01",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 230
+          }
+        },
+        {
+          "origin": "dense:Castle:1:02",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Vulture",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 370
+          }
+        },
+        {
+          "origin": "dense:Castle:1:03",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Wright",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 510
+          }
+        },
+        {
+          "origin": "dense:Castle:1:04",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Butcher",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1266,
+            "y_fp": 90
+          }
+        },
+        {
+          "origin": "dense:Castle:1:05",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1266,
+            "y_fp": 230
+          }
+        },
+        {
+          "origin": "dense:Castle:1:06",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Vulture",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1266,
+            "y_fp": 370
+          }
+        },
+        {
+          "origin": "dense:Castle:1:07",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Wright",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1266,
+            "y_fp": 510
+          }
+        },
+        {
+          "origin": "dense:Castle:1:08",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Butcher",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1352,
+            "y_fp": 90
+          }
+        },
+        {
+          "origin": "dense:Castle:1:09",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1352,
+            "y_fp": 230
+          }
+        },
+        {
+          "origin": "dense:Castle:1:10",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Vulture",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1352,
+            "y_fp": 370
+          }
+        },
+        {
+          "origin": "dense:Castle:1:11",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Wright",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1352,
+            "y_fp": 510
+          }
+        },
+        {
+          "origin": "dense:Castle:1:12",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Butcher",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1438,
+            "y_fp": 90
+          }
+        },
+        {
+          "origin": "dense:Castle:1:13",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1438,
+            "y_fp": 230
+          }
+        },
+        {
+          "origin": "dense:Castle:1:14",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Vulture",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1438,
+            "y_fp": 370
+          }
+        },
+        {
+          "origin": "dense:Castle:1:15",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Wright",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1438,
+            "y_fp": 510
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        }
+      ],
+      "contact_probes": []
+    },
+    {
+      "name": "keyed_ties",
+      "seed": "u13-marching:é:keyed_ties",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {},
+      "effects": [],
+      "units": [
+        {
+          "origin": "tie:0:0",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0,
+            "step_fp": 0
+          }
+        },
+        {
+          "origin": "tie:0:1",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0,
+            "step_fp": 0
+          }
+        },
+        {
+          "origin": "tie:1:0",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0,
+            "step_fp": 0
+          }
+        },
+        {
+          "origin": "tie:1:1",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0,
+            "step_fp": 0
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        }
+      ],
+      "contact_probes": [
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:0"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:1"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:2"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:3"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:4"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:5"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:6"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:7"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:8"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:9"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:10"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:11"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:12"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:13"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:14"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:15"
+        }
+      ]
+    },
+    {
+      "name": "keyed_ties_reversed",
+      "seed": "u13-marching:é:keyed_ties",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {},
+      "effects": [],
+      "units": [
+        {
+          "origin": "tie:0:0",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0,
+            "step_fp": 0
+          }
+        },
+        {
+          "origin": "tie:0:1",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0,
+            "step_fp": 0
+          }
+        },
+        {
+          "origin": "tie:1:0",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0,
+            "step_fp": 0
+          }
+        },
+        {
+          "origin": "tie:1:1",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0,
+            "step_fp": 0
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        }
+      ],
+      "contact_probes": [
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:0"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:1"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:2"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:3"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:4"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:5"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:6"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:7"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:8"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:9"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:10"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:11"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:12"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:13"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:14"
+        },
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "tie-probe:é:15"
+        }
+      ],
+      "reverse_registry": true
+    },
+    {
+      "name": "earliest_contact_ticket",
+      "seed": "u13-marching:é:earliest_contact_ticket",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {},
+      "effects": [],
+      "units": [
+        {
+          "origin": "tie:0:0",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0,
+            "step_fp": 0,
+            "contact_tick": 10
+          }
+        },
+        {
+          "origin": "tie:0:1",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0,
+            "step_fp": 0,
+            "contact_tick": 5
+          }
+        },
+        {
+          "origin": "tie:1:0",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0,
+            "step_fp": 0,
+            "contact_tick": 10
+          }
+        },
+        {
+          "origin": "tie:1:1",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0,
+            "step_fp": 0,
+            "contact_tick": 5
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        }
+      ],
+      "contact_probes": [
+        {
+          "clock": 200,
+          "lane": "Lord",
+          "seed": "u13-marching:é:earliest_contact_ticket"
+        }
+      ]
+    },
+    {
+      "name": "reciprocal_volley_and_overkill",
+      "seed": "u13-marching:é:reciprocal_volley_and_overkill",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {},
+      "effects": [],
+      "units": [
+        {
+          "origin": "volley:0",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0
+          }
+        },
+        {
+          "origin": "volley:1",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0
+          }
+        },
+        {
+          "origin": "volley:2",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0
+          }
+        },
+        {
+          "origin": "volley:3",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1500,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        }
+      ],
+      "contact_probes": []
+    },
+    {
+      "name": "range_edge_and_readiness",
+      "seed": "u13-marching:é:range_edge_and_readiness",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {},
+      "effects": [],
+      "units": [
+        {
+          "origin": "range:held",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 400,
+            "y_fp": 300,
+            "movement_ready_round": 3,
+            "ranged_next_tick": 232
+          }
+        },
+        {
+          "origin": "range:target",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Wright",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1200,
+            "y_fp": 300,
+            "step_fp": 0,
+            "hp": 30,
+            "max_hp": 30
+          }
+        },
+        {
+          "origin": "range:outside",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Vulture",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1201,
+            "y_fp": 300,
+            "step_fp": 0
+          }
+        },
+        {
+          "origin": "range:other",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Wright",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 400,
+            "y_fp": 300,
+            "step_fp": 0
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        }
+      ],
+      "contact_probes": []
+    },
+    {
+      "name": "melee_recovery_and_legacy_fallback",
+      "seed": "u13-marching:é:melee_recovery_and_legacy_fallback",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {},
+      "effects": [],
+      "units": [
+        {
+          "origin": "cooldown:left",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 300,
+            "ranged_next_tick": 240,
+            "melee_next_tick": 208
+          }
+        },
+        {
+          "origin": "cooldown:right",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 300,
+            "ranged_next_tick": 216
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        }
+      ],
+      "contact_probes": []
+    },
+    {
+      "name": "guard_work_gate_queue",
+      "seed": "u13-marching:é:guard_work_gate_queue",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {
+        "guard_work": {
+          "version": "U13_GUARD_WORK_V2"
+        }
+      },
+      "effects": [],
+      "units": [
+        {
+          "origin": "queue:waiter",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Wright",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 2400,
+            "y_fp": 300,
+            "waiting": true,
+            "waiting_since_round": 1,
+            "hp": 2
+          }
+        },
+        {
+          "origin": "queue:arriving",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 2290,
+            "y_fp": 300
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "regen",
+          "round": 1,
+          "expected_action": "resolved"
+        },
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        }
+      ],
+      "contact_probes": []
+    },
+    {
+      "name": "hostile_gate_contact",
+      "seed": "u13-marching:é:hostile_gate_contact",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {},
+      "effects": [],
+      "units": [
+        {
+          "origin": "gate:arrival",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 2400,
+            "y_fp": 300
+          }
+        },
+        {
+          "origin": "gate:defender",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Wright",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 2400,
+            "y_fp": 300,
+            "step_fp": 0,
+            "hp": 1,
+            "armor": 0
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        }
+      ],
+      "contact_probes": []
+    },
+    {
+      "name": "duel_across_phase_boundary",
+      "seed": "u13-marching:é:duel_across_phase_boundary",
+      "player_order": [
+        1,
+        0
+      ],
+      "ranged": true,
+      "data": {},
+      "effects": [],
+      "units": [
+        {
+          "origin": "long:left",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 300,
+            "hp": 35,
+            "max_hp": 35,
+            "step_fp": 0
+          }
+        },
+        {
+          "origin": "long:right",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 300,
+            "hp": 35,
+            "max_hp": 35,
+            "step_fp": 0
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        },
+        {
+          "kind": "march",
+          "round": 2,
+          "expected_action": "resolved"
+        }
+      ],
+      "contact_probes": []
+    },
+    {
+      "name": "duel_participant_retired",
+      "seed": "u13-marching:é:duel_participant_retired",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {},
+      "effects": [],
+      "units": [
+        {
+          "origin": "long:left",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 300,
+            "hp": 35,
+            "max_hp": 35,
+            "step_fp": 0
+          }
+        },
+        {
+          "origin": "long:right",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 300,
+            "hp": 35,
+            "max_hp": 35,
+            "step_fp": 0
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        },
+        {
+          "kind": "fixture_retire",
+          "id": "u13_entity_marcher:9:long:left:1:0",
+          "expected_action": "fixture_prepared"
+        },
+        {
+          "kind": "march",
+          "round": 2,
+          "expected_action": "resolved"
+        }
+      ],
+      "contact_probes": []
+    },
+    {
+      "name": "duel_participant_changes_owner",
+      "seed": "u13-marching:é:duel_participant_changes_owner",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {},
+      "effects": [],
+      "units": [
+        {
+          "origin": "long:left",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 300,
+            "hp": 35,
+            "max_hp": 35,
+            "step_fp": 0
+          }
+        },
+        {
+          "origin": "long:right",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 300,
+            "hp": 35,
+            "max_hp": 35,
+            "step_fp": 0
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        },
+        {
+          "kind": "fixture_owner",
+          "id": "u13_entity_marcher:10:long:right:1:0",
+          "owner": 0,
+          "expected_action": "fixture_prepared"
+        },
+        {
+          "kind": "march",
+          "round": 2,
+          "expected_action": "resolved"
+        }
+      ],
+      "contact_probes": []
+    },
+    {
+      "name": "rout_retreat_and_recovery",
+      "seed": "u13-marching:é:rout_retreat_and_recovery",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {
+        "rout_profile": "U13_ROUT_V1"
+      },
+      "effects": [],
+      "units": [
+        {
+          "origin": "rout:0",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 800,
+            "y_fp": 300,
+            "rout_round": 1,
+            "rout_effect_id": "fixture:rout"
+          }
+        },
+        {
+          "origin": "rout:1",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1600,
+            "y_fp": 300,
+            "rout_round": 1,
+            "rout_effect_id": "fixture:rout"
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        },
+        {
+          "kind": "regen",
+          "round": 2,
+          "expected_action": "resolved"
+        },
+        {
+          "kind": "march",
+          "round": 2,
+          "expected_action": "resolved"
+        }
+      ],
+      "contact_probes": []
+    },
+    {
+      "name": "web_aura_lifetime_and_boundary",
+      "seed": "u13-marching:é:web_aura_lifetime_and_boundary",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {
+        "spatial_field_profile": "U13_SPATIAL_WEB_FIELDS_V1",
+        "lane_aura_profile": "U13_LANE_AURAS_V1"
+      },
+      "effects": [
+        {
+          "declaration": {
+            "power_id": "Web",
+            "player_id": 1
+          },
+          "target": {
+            "lane": "Lord",
+            "field_position": {
+              "x_fp": 600,
+              "y_fp": 300
+            }
+          },
+          "payload": {
+            "spatial_field": {
+              "kind": "web",
+              "radius_fp": 300
+            }
+          },
+          "activated_round": 1,
+          "stages": [
+            1,
+            2
+          ]
+        },
+        {
+          "declaration": {
+            "power_id": "BreathOfLife",
+            "player_id": 0
+          },
+          "target": {
+            "lane": "Lord"
+          },
+          "payload": {
+            "lane_aura": {
+              "regen_bonus": 1,
+              "speed_percent": 25
+            }
+          },
+          "activated_round": 1,
+          "stages": [
+            1,
+            2
+          ]
+        }
+      ],
+      "units": [
+        {
+          "origin": "field:0",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 299,
+            "y_fp": 300,
+            "hp": 3
+          }
+        },
+        {
+          "origin": "field:1",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 300,
+            "y_fp": 300,
+            "hp": 3
+          }
+        },
+        {
+          "origin": "field:2",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 600,
+            "y_fp": 300,
+            "hp": 3
+          }
+        },
+        {
+          "origin": "field:3",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 900,
+            "y_fp": 300,
+            "hp": 3
+          }
+        },
+        {
+          "origin": "field:4",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 500,
+            "y_fp": 300,
+            "hp": 3
+          }
+        },
+        {
+          "origin": "field:5",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1800,
+            "y_fp": 300,
+            "hp": 3
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "regen",
+          "round": 1,
+          "expected_action": "resolved"
+        },
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        },
+        {
+          "kind": "regen",
+          "round": 2,
+          "expected_action": "resolved"
+        },
+        {
+          "kind": "march",
+          "round": 2,
+          "expected_action": "resolved"
+        },
+        {
+          "kind": "march",
+          "round": 3,
+          "expected_action": "resolved"
+        }
+      ],
+      "contact_probes": []
+    },
+    {
+      "name": "gravity_pull_consumption_and_sweep",
+      "seed": "u13-marching:é:gravity_pull_consumption_and_sweep",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {
+        "valak_orbs": [
+          {
+            "id": "u13_persistent:8:orb:lord:10:GravityOrb",
+            "owner": 0,
+            "target": {
+              "lane": "Lord",
+              "field_position": {
+                "x_fp": 1200,
+                "y_fp": 300
+              }
+            },
+            "round": 1,
+            "consumed": 0,
+            "rewarded": false
+          },
+          {
+            "id": "u13_persistent:10:orb:castle:10:GravityOrb",
+            "owner": 1,
+            "target": {
+              "lane": "Castle",
+              "field_position": {
+                "x_fp": 1200,
+                "y_fp": 300
+              }
+            },
+            "round": 1,
+            "consumed": 0,
+            "rewarded": false
+          }
+        ],
+        "neutral_tears": 0
+      },
+      "effects": [],
+      "units": [
+        {
+          "origin": "orb:near:0",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1025,
+            "y_fp": 255
+          }
+        },
+        {
+          "origin": "orb:near:1",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1060,
+            "y_fp": 300
+          }
+        },
+        {
+          "origin": "orb:near:2",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1095,
+            "y_fp": 345
+          }
+        },
+        {
+          "origin": "orb:near:3",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Wright",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1130,
+            "y_fp": 255
+          }
+        },
+        {
+          "origin": "orb:near:4",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1165,
+            "y_fp": 300
+          }
+        },
+        {
+          "origin": "orb:near:5",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1200,
+            "y_fp": 345
+          }
+        },
+        {
+          "origin": "orb:near:6",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1235,
+            "y_fp": 255
+          }
+        },
+        {
+          "origin": "orb:near:7",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Wright",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1270,
+            "y_fp": 300
+          }
+        },
+        {
+          "origin": "orb:near:8",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1305,
+            "y_fp": 345
+          }
+        },
+        {
+          "origin": "orb:near:9",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1340,
+            "y_fp": 255
+          }
+        },
+        {
+          "origin": "orb:near:10",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1375,
+            "y_fp": 300
+          }
+        },
+        {
+          "origin": "orb:near:11",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Wright",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1410,
+            "y_fp": 345
+          }
+        },
+        {
+          "origin": "orb:sweep",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 900,
+            "y_fp": 300,
+            "step_fp": 600
+          }
+        },
+        {
+          "origin": "orb:held",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Vulture",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 1350,
+            "y_fp": 400,
+            "movement_ready_round": 2
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        }
+      ],
+      "contact_probes": []
+    },
+    {
+      "name": "gravity_ties_web_collapse_recovery",
+      "seed": "u13-marching:é:gravity_ties_web_collapse_recovery",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {
+        "valak_orbs": [
+          {
+            "id": "u13_persistent:5:z-orb:10:GravityOrb",
+            "owner": 1,
+            "target": {
+              "lane": "Lord",
+              "field_position": {
+                "x_fp": 1400,
+                "y_fp": 300
+              }
+            },
+            "round": 1,
+            "consumed": 0,
+            "rewarded": false
+          },
+          {
+            "id": "u13_persistent:5:a-orb:10:GravityOrb",
+            "owner": 0,
+            "target": {
+              "lane": "Lord",
+              "field_position": {
+                "x_fp": 1000,
+                "y_fp": 300
+              }
+            },
+            "round": 1,
+            "consumed": 0,
+            "rewarded": false
+          }
+        ],
+        "neutral_tears": 0,
+        "breach_lord": "Valak",
+        "spatial_field_profile": "U13_SPATIAL_WEB_FIELDS_V1",
+        "lane_aura_profile": "U13_LANE_AURAS_V1",
+        "rout_profile": "U13_ROUT_V1"
+      },
+      "effects": [
+        {
+          "declaration": {
+            "power_id": "Web",
+            "player_id": 1
+          },
+          "target": {
+            "lane": "Lord",
+            "field_position": {
+              "x_fp": 1200,
+              "y_fp": 300
+            }
+          },
+          "payload": {
+            "spatial_field": {
+              "kind": "web",
+              "radius_fp": 600
+            }
+          },
+          "activated_round": 1,
+          "stages": [
+            1,
+            2
+          ]
+        },
+        {
+          "declaration": {
+            "power_id": "BreathOfLife",
+            "player_id": 0
+          },
+          "target": {
+            "lane": "Lord"
+          },
+          "payload": {
+            "lane_aura": {
+              "regen_bonus": 1,
+              "speed_percent": 25
+            }
+          },
+          "activated_round": 1,
+          "stages": [
+            1,
+            2
+          ]
+        }
+      ],
+      "units": [
+        {
+          "origin": "collapse:0",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1200,
+            "y_fp": 250,
+            "rout_round": 1,
+            "rout_effect_id": "fixture:rout"
+          }
+        },
+        {
+          "origin": "collapse:1",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1200,
+            "y_fp": 270,
+            "rout_round": 1,
+            "rout_effect_id": "fixture:rout"
+          }
+        },
+        {
+          "origin": "collapse:2",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1200,
+            "y_fp": 290,
+            "rout_round": 1,
+            "rout_effect_id": "fixture:rout"
+          }
+        },
+        {
+          "origin": "collapse:3",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1200,
+            "y_fp": 310,
+            "rout_round": 1,
+            "rout_effect_id": "fixture:rout"
+          }
+        },
+        {
+          "origin": "collapse:4",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1200,
+            "y_fp": 330,
+            "rout_round": 1,
+            "rout_effect_id": "fixture:rout"
+          }
+        },
+        {
+          "origin": "collapse:5",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1200,
+            "y_fp": 350,
+            "rout_round": 1,
+            "rout_effect_id": "fixture:rout"
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 2,
+          "expected_action": "resolved"
+        }
+      ],
+      "contact_probes": []
+    },
+    {
+      "name": "frozen_subsystem_bypass",
+      "seed": "u13-marching:é:frozen_subsystem_bypass",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": false,
+      "data": {},
+      "effects": [],
+      "units": [
+        {
+          "origin": "legacy:left",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Vulture",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 300
+          }
+        },
+        {
+          "origin": "legacy:right",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 300
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        }
+      ],
+      "contact_probes": []
+    },
+    {
+      "name": "birth_hold_and_edges",
+      "seed": "u13-marching:é:birth_hold_and_edges",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {},
+      "effects": [],
+      "units": [
+        {
+          "origin": "birth:held",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 50,
+            "y_fp": 0,
+            "birth_round": 1,
+            "movement_ready_round": 2
+          }
+        },
+        {
+          "origin": "edge:fast",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Castle",
+          "attributes": {
+            "x_fp": 500,
+            "y_fp": 600,
+            "step_fp": 2400
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        }
+      ],
+      "contact_probes": []
+    },
+    {
+      "name": "reaction_rejects_whole_phase",
+      "seed": "u13-marching:é:reaction_rejects_whole_phase",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {},
+      "effects": [],
+      "units": [
+        {
+          "origin": "tie:0:0",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0,
+            "step_fp": 0
+          }
+        },
+        {
+          "origin": "tie:0:1",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0,
+            "step_fp": 0
+          }
+        },
+        {
+          "origin": "tie:1:0",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0,
+            "step_fp": 0
+          }
+        },
+        {
+          "origin": "tie:1:1",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 300,
+            "hp": 1,
+            "armor": 0,
+            "step_fp": 0
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "invalid"
+        }
+      ],
+      "contact_probes": [],
+      "reaction": "reject"
+    },
+    {
+      "name": "invalid_hook_and_hp",
+      "seed": "u13-marching:é:invalid_hook_and_hp",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {},
+      "effects": [],
+      "units": [
+        {
+          "origin": "invalid",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Butcher",
+          "lane": "Lord",
+          "attributes": {}
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "hook": "aftermath",
+          "expected_action": "invalid"
+        },
+        {
+          "kind": "fixture_patch",
+          "id": "u13_entity_marcher:7:invalid:1:0",
+          "attributes": {
+            "hp": 0
+          },
+          "expected_action": "fixture_prepared"
+        },
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "invalid"
+        }
+      ],
+      "contact_probes": []
+    },
+    {
+      "name": "exchange_limit_is_atomic",
+      "seed": "u13-marching:é:exchange_limit_is_atomic",
+      "player_order": [
+        0,
+        1
+      ],
+      "ranged": true,
+      "data": {},
+      "effects": [],
+      "units": [
+        {
+          "origin": "limit:0",
+          "ordinal": 0,
+          "owner": 0,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1000,
+            "y_fp": 300,
+            "hp": 1000,
+            "max_hp": 1000,
+            "step_fp": 0
+          }
+        },
+        {
+          "origin": "limit:1",
+          "ordinal": 0,
+          "owner": 1,
+          "suit": "Penitent",
+          "lane": "Lord",
+          "attributes": {
+            "x_fp": 1180,
+            "y_fp": 300,
+            "hp": 1000,
+            "max_hp": 1000,
+            "step_fp": 0
+          }
+        }
+      ],
+      "operations": [
+        {
+          "kind": "march",
+          "round": 1,
+          "expected_action": "resolved"
+        },
+        {
+          "kind": "march",
+          "round": 2,
+          "expected_action": "resolved"
+        },
+        {
+          "kind": "march",
+          "round": 3,
+          "expected_action": "invalid"
+        }
+      ],
+      "contact_probes": []
+    }
+  ],
+  "benchmark_cases": [
+    "ordinary_mixed",
+    "dense_contacts_64",
+    "gravity_pull_consumption_and_sweep"
+  ]
+}

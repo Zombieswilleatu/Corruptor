@@ -2,6 +2,17 @@
 
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
+**2026-09-15 isolated Marching spike implemented; Windows acceptance pending:**
+Local Godot 4.5.1 diagnostics passed 394 checks; independent Python matched 28
+phases and 5,600 complete tick records, with 46 unit tests and 14 corruption
+rejections. Flat columns preserve explicit contact ordering, including registry
+permutations. Local batch phase means were 30.22 ms ordinary, 106.19 ms dense
+and 6.80 ms Gravity with 13 of 14 units consumed. These are isolated 200-tick
+phases; the nine-hook match adapter and full-game parity boundary are unchanged.
+See [scope, timings and focused Windows command](U13_PYSIM_MARCHING_2026-09-15.md).
+Continue the remaining round lifecycle after acceptance and preserve the first
+legitimate complete-game reference promptly. No full-match budget is established.
+
 **2026-09-15 ordinary resolution accepted at clean `e51588d`:**
 The Windows Godot 4.7.2 gate passed: 1,632 Godot checks, 252 exact snapshots,
 241 isolated component operations, 36 Python tests and 16 corruption probes;
@@ -10,8 +21,8 @@ uploaded summary. The new adapter extends through artillery, commitment
 reveal/recruitment and combat (the first nine fresh-game hooks), including required immediate Lord
 reactions and exact event visibility. It stops before Post-Resolution/Marching.
 See [scope, directed corpus and accepted evidence](U13_PYSIM_RESOLUTION_2026-09-15.md).
-No new full-match speed or balance claim follows from this slice. The next
-spatial spike will compare explicit contact ordering and candidate data layouts;
+No new full-match speed or balance claim follows from this slice. The subsequent
+spatial spike is implemented with local diagnostics as scoped above;
 preserve the first complete-game reference as soon as a supported path exists.
 
 **2026-09-15 Python copying optimization accepted at clean `88ef438`:**
@@ -31,7 +42,8 @@ or script errors. The independent Python mirror extends through the sixth hook,
 Guard deployment and Work/pairs. See
 [implementation and accepted evidence](U13_PYSIM_DEVELOPMENT_2026-09-15.md).
 That Development adapter stops before artillery; the new resolution adapter
-extends it as scoped above. Marching and full rounds remain unimplemented.
+extends it as scoped above. Full-round integration remains unimplemented;
+the subsequent isolated Marching kernel is scoped separately above.
 
 **2026-09-15 policy and performance steering:** Keep doctrine swappable in the
 harness. Experimental Python policies/configurations do not need Godot ports;
@@ -79,7 +91,7 @@ now have the focused implementation above. The
 trace contract, exact deterministic primitives and opening-state parity are
 accepted through Development, with the copying optimization also Windows-accepted.
 Ordinary resolution also has focused Windows acceptance as documented above.
-Begin the early spatial performance gate;
+The isolated spatial gate is implemented with Windows acceptance pending;
 see [inventory and subsequent parity order](U13_PYSIM_PARITY_2026-09-15.md).
 Then Common Smart Core + separate Lord doctrines, serious balance, and roguelite
 work. Preserve the accepted UI. No new broad campaign is needed for this

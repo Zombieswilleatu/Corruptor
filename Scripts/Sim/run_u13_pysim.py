@@ -21,6 +21,7 @@ def main():
     commands.add_parser("self-test-development")
     commands.add_parser("self-test-copying")
     commands.add_parser("self-test-resolution")
+    commands.add_parser("self-test-marching")
     benchmark = commands.add_parser("benchmark-development")
     benchmark.add_argument("--iterations", type=int, default=30, help="Measured cycles per setup; nine setups")
     benchmark.add_argument("--report", type=Path)
@@ -28,7 +29,11 @@ def main():
     copying.add_argument("--iterations", type=int, default=15, help="Cycles per setup per block; two blocks per implementation")
     copying.add_argument("--no-profiles", action="store_true")
     copying.add_argument("--report", type=Path)
-    for command in ("verify", "verify-planning", "verify-development", "verify-resolution"):
+    marching = commands.add_parser("benchmark-marching")
+    marching.add_argument("--iterations", type=int, default=20)
+    marching.add_argument("--verified-report", type=Path, required=True)
+    marching.add_argument("--report", type=Path)
+    for command in ("verify", "verify-planning", "verify-development", "verify-resolution", "verify-marching"):
         check = commands.add_parser(command)
         check.add_argument("trace", type=Path)
         check.add_argument("--diagnostic", action="store_true", help="Label local non-Windows/4.7.2 results diagnostic only")
@@ -37,14 +42,16 @@ def main():
     root = Path(__file__).resolve().parents[2]
     if args.command.startswith("self-test"):
         modules = ["u13_pysim.test_foundation"]
-        if args.command in ("self-test-planning", "self-test-development", "self-test-copying", "self-test-resolution"):
+        if args.command in ("self-test-planning", "self-test-development", "self-test-copying", "self-test-resolution", "self-test-marching"):
             modules.append("u13_pysim.test_planning")
-        if args.command in ("self-test-development", "self-test-copying", "self-test-resolution"):
+        if args.command in ("self-test-development", "self-test-copying", "self-test-resolution", "self-test-marching"):
             modules.append("u13_pysim.test_development")
-        if args.command in ("self-test-copying", "self-test-resolution"):
+        if args.command in ("self-test-copying", "self-test-resolution", "self-test-marching"):
             modules.append("u13_pysim.test_copying")
-        if args.command == "self-test-resolution":
+        if args.command in ("self-test-resolution", "self-test-marching"):
             modules.append("u13_pysim.test_resolution")
+        if args.command == "self-test-marching":
+            modules.append("u13_pysim.test_marching")
         tests = unittest.defaultTestLoader.loadTestsFromNames(modules)
         result = unittest.TextTestRunner(verbosity=2).run(tests)
         return 0 if result.wasSuccessful() else 1
@@ -82,7 +89,23 @@ def main():
             if isinstance(error, subprocess.CalledProcessError) and error.stderr:
                 print(error.stderr, file=sys.stderr)
             return 1
-    label = {"verify-planning": "planning", "verify-development": "development", "verify-resolution": "resolution"}.get(args.command, "foundation")
+    if args.command == "benchmark-marching":
+        from u13_pysim.benchmark_marching import run
+        try:
+            parity = json.loads(args.verified_report.read_text(encoding="utf-8"))
+            result = run(revision, source_hash, parity, args.iterations)
+            if args.report:
+                args.report.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+            for case in result["cases"]:
+                wall = case["wall"]
+                print(f"{case['name']}: {wall['batch_phase']['mean_ms']:.2f} ms per 200-tick batch phase; {wall['trace_phase']['mean_ms']:.2f} ms with tick recording")
+            print("Full-match speed remains unknown")
+            print("U13 PySim marching timing failures: 0")
+            return 0
+        except (ValueError, OSError, KeyError, TypeError) as error:
+            print(f"FAIL U13 PySim marching timing: {error}", file=sys.stderr)
+            return 1
+    label = {"verify-planning": "planning", "verify-development": "development", "verify-resolution": "resolution", "verify-marching": "marching"}.get(args.command, "foundation")
     compare, reject = verify, verify_rejections
     if label == "planning":
         from u13_pysim.verify_planning import verify as compare, verify_rejections as reject
@@ -90,6 +113,8 @@ def main():
         from u13_pysim.verify_development import verify as compare, verify_rejections as reject
     elif label == "resolution":
         from u13_pysim.verify_resolution import verify as compare, verify_rejections as reject
+    elif label == "marching":
+        from u13_pysim.verify_marching import verify as compare, verify_rejections as reject
     try:
         suite = codec.loads(args.trace.read_text(encoding="utf-8"))
         result = compare(suite, revision, source_hash, diagnostic=args.diagnostic)

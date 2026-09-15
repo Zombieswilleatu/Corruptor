@@ -80,7 +80,7 @@ satisfy the later full-match throughput gate. Full-match speed remains unknown.
 Ordinary resolution
 is now implemented in a separate [nine-hook adapter](U13_PYSIM_RESOLUTION_2026-09-15.md),
 with focused Windows 4.7.2 acceptance passed at clean `e51588d` and no new
-throughput claim. Proceed to the early spatial spike.
+throughput claim. The early spatial spike is now implemented as scoped below.
 
 Additional user steering: consider parallel arrays before writing the tick loop,
 preserve Godot's explicit contact ordering, and establish the first complete-game
@@ -89,6 +89,23 @@ measure candidate layouts, including conversion cost; flat Python arrays are not
 an assumed speedup. The current contact selector first uses stable ID order and
 earliest arrival, then keyed `CONTACT_TIE` selection. Match that sequence and
 capture tick/field/event differences, including registry-order permutations.
+
+The [isolated Marching spike](U13_PYSIM_MARCHING_2026-09-15.md) now uses flat
+parallel Python lists, with exact contact-order/registry-permutation coverage.
+Local diagnostics matched all 5,600 tick frames across 28 phases and the batch
+projection retaining every non-tick event and final field. Windows acceptance
+is pending. On one Linux CPython 3.12.14 worker, mean 200-tick batch phase times
+were **30.22 ms ordinary, 106.19 ms dense and 6.80 ms Gravity**. The Gravity case
+consumes 13 of 14 units; this is not a representative game workload distribution.
+Movement and nearby searches dominate the separate instrumented profile. Import
+and publication are measured against owned row dictionaries, but no competing
+row tick kernel exists, so no array-loop speedup is established. The exact trace
+path remains the reference for the mode that omits visual tick records.
+
+The dense phase alone exceeds the suggested 50 ms whole-match target locally.
+The nine-hook full-game adapter has not advanced, and full-game speed and
+50,000-game wall time remain unknown. Use this measured cost to guide algorithm
+work while completing the first legitimate full-game reference.
 
 The 7.98 ms Windows and 10.08 ms Linux figures measured the same six-hook slice
 on different runtime/hardware. They show neither free extra hooks nor 42 ms
@@ -104,12 +121,12 @@ Apply these gates before committing to the rest of the performance plan:
    Optimize measured costs with unchanged exact fixtures and rejection rollback.
    Do not copy the diagnostic export/comparison loop into the production batch
    loop. Avoid a speculative rewrite or removing correctness gates.
-2. **Bring the spatial performance spike forward.** After the necessary ordinary
-   resolution interfaces, exercise the first Python Marching kernel on Godot-owned
-   ordinary, dense/contact-heavy and spatial-actor inputs. Measure cost per tick
-   and round with exact field parity. Run this before completing the full Marching
-   and Lord-effect port; it is a decision gate for representation/algorithm work,
-   not evidence for complete matches or balance.
+2. **Accept the implemented spatial spike on Windows.** The isolated ordinary,
+   dense/contact-heavy and Gravity phase probes now have local exact evidence,
+   conversion costs and CPU/wall distributions. Run the focused Windows gate
+   before treating these as target-runtime results. This gate measures isolated
+   phases, not complete rounds, matches or balance; use its profiles to guide
+   representation/algorithm work while completing the remaining spatial port.
 3. **Measure the first supported complete-match path promptly.** Once a legitimate
    setup-to-victory Python path exists, measure fresh matches with recorded legal
    decisions and then include policy cost separately. Record rounds, unit/contact
