@@ -1,5 +1,16 @@
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
+**2026-09-15 PySim planning slice implemented:** Python now matches the first
+five game hooks through submission lock, opening draws/Stockpile/Slaver and
+power-free sealed orders with Guard/Work reservations. Local 4.5.1 diagnostics
+match 222 game operations (including 140 atomic rejections), 21 economy
+component transitions and 52 standalone cursor operations. Windows 4.7.2
+acceptance is pending `run_u13_pysim_planning.sh`; see
+[scope and focused runner](U13_PYSIM_PLANNING_2026-09-15.md).
+After acceptance, extend through Guard deployment, Work and pairs at Development.
+Full Python round resolution remains unimplemented; standalone cursor coverage
+does not certify the later hooks' game mechanics.
+
 **2026-09-15 PySim foundation accepted:** The focused Windows Godot 4.7.2 gate
 passed at clean revision `4e485b1`: 51 Godot checks, 14 exact Python opening
 snapshots, 49 Godot-replayed operations across two rounds, six Python unit tests
@@ -17,9 +28,10 @@ gallery change into `u13-basic-doctrine`. See
 [exact revisions and evidence](U13_ACCEPTED_CHECKPOINT_2026-09-15.md).
 The campaign predates forecast/public-Guard changes and is not balance evidence.
 
-**Next: PySim round sequencing, submissions and opening-round economy.** The
+**PySim progression:** Round sequencing, submissions and opening-round economy
+now have the focused implementation above. The
 trace contract, exact deterministic primitives and opening-state parity are
-accepted. Extend the independent Python mirror through those next transitions;
+accepted. Continue the independent Python mirror through Development next;
 see [inventory and subsequent parity order](U13_PYSIM_PARITY_2026-09-15.md).
 Then Common Smart Core + separate Lord doctrines, serious balance, and roguelite
 work. Preserve the accepted UI. No new broad campaign is needed for this

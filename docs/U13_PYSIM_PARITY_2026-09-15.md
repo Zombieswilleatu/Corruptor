@@ -4,8 +4,10 @@ Status update: the first foundation slice passed Windows Godot 4.7.2 acceptance
 at clean revision `4e485b1`: 14 exact Python opening snapshots, 49 Godot-replayed
 operations, and ten rejected evidence corruptions. See
 [foundation implementation and accepted evidence](U13_PYSIM_FOUNDATION_2026-09-15.md).
-Next is Python timeline/submission and opening-round economy parity;
-Python round resolution is not implemented yet.
+The [planning slice](U13_PYSIM_PLANNING_2026-09-15.md) now implements the first
+five game hooks, sealed submissions and opening-round economy with green local
+diagnostics; its Windows acceptance is pending. Development and subsequent
+game resolution remain unimplemented in Python.
 This document retains the initial inventory and subsequent implementation
 boundaries. The [accepted checkpoint](U13_ACCEPTED_CHECKPOINT_2026-09-15.md) clears
 the pending mechanics-validation bookmark.

@@ -55,11 +55,11 @@ def shape(value, keys, path):
         raise ValueError(f"{path}: missing/extra fields or wrong type")
 
 
-def trace_identity(trace, revision, source_hash, diagnostic, path):
+def trace_identity(trace, revision, source_hash, diagnostic, path, trace_schema=TRACE, producer=PRODUCER):
     shape(trace, {"identity", "setup", "opening", "records"}, path)
     identity = trace["identity"]
     shape(identity, IDENTITY_KEYS, path + ".identity")
-    required = {"trace_schema": TRACE, "producer": PRODUCER, "authority": "Godot U13",
+    required = {"trace_schema": trace_schema, "producer": producer, "authority": "Godot U13",
                 "source_revision": revision, "source_sha256": source_hash,
                 "event_profile": "U13_BATCH_EVENTS_V1", "rng_version": primitives.RNG_VERSION,
                 "excluded_visual_events": ["MARCHING_TICK", "KRONI_ACTOR_TICK"],
