@@ -1,3 +1,5 @@
+> **Current roadmap (2026-09-15):** See the [consolidated roadmap](FutureFeatures/README.md) for current status, priorities and the disposition of older proposals. The document below is preserved as detailed source/history; its dated acceptance records retain their original scope.
+
 # CORRUPTOR — Godot Development Roadmap v3.0
 **Supersedes v2.0 · Multiplayer-at-heart, async-backbone · Reflects current progress (round-loop port underway, golden harness green)**
 
