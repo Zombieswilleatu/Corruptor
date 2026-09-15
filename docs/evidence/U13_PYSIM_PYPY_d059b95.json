@@ -1,0 +1,1122 @@
+{
+  "schema": "U13_PYSIM_PYPY_ACCEPTANCE_V1",
+  "recorded_on": "2026-09-15",
+  "scope": "explicit ordinary decisions; no declared powers, paid Rites or Resummon; not roster-complete parity",
+  "source_archive": "u13-pysim-pypy-JgpMea-2026-09-15_10-23-19-S1kGlW.zip",
+  "archive_sha256": "56514ef6c15189de0e3330e8932e40a48a888af133edeb39bbbd70368dcc77c5",
+  "archive_bytes": 9784,
+  "archive_crc_passed": true,
+  "archive_members": [
+    {
+      "path": "full-match-timing.json",
+      "bytes": 21439,
+      "sha256": "d7d34388baf1b4c75ac314522132f4d1e0765961028e4c28cdc57f53386ebf5a"
+    },
+    {
+      "path": "python-parity.log",
+      "bytes": 8220,
+      "sha256": "db38fa3dc5d1c8b0f8818633a8ca6a9334cad0c0a96ddd6d39bb09830e6e7887"
+    },
+    {
+      "path": "python-summary.json",
+      "bytes": 8179,
+      "sha256": "7533fcf17f524225cf95de2f1e80b296953cd3911628ca894bd7a3ad7ee6cb76"
+    },
+    {
+      "path": "python-timing.log",
+      "bytes": 248,
+      "sha256": "476591fb243adfa1762be4db9f8b3562e2e7f44b6601a58391323475a608a61e"
+    },
+    {
+      "path": "python-version.log",
+      "bytes": 100,
+      "sha256": "4bcb278ac05b54a0242526c6cbbfd37cbddd8bb22ac36394ed4eb9854a1b356b"
+    },
+    {
+      "path": "run-status.txt",
+      "bytes": 14,
+      "sha256": "ed163d69a09ddc0ffcbdf126a42d5745a93449fa7a39354788e948b7ac795c04"
+    }
+  ],
+  "source_revision": "d059b9560a95c32779597260d99829f9f1534f22",
+  "source_sha256": "b25bdf65d1f1689f7e0b5e35cee748e810bd1bf409f2084ee55b0b280ad7358e",
+  "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+  "accepted_reference": {
+    "record": "U13_PYSIM_FULL_MATCH_d059b95.json",
+    "source_archive": "u13-pysim-full-match-5KQlDr-2026-09-15_09-51-19-3GTYb8.zip",
+    "archive_sha256": "abcca4a1474faf85501af9d7a7004021e1b7d48e25acaaa7d45e8f26123dae07",
+    "runtime_build": "4.7.2.stable.official.ed1daf0bf",
+    "new_godot_run": false
+  },
+  "python_version_log": "Python 3.11.15 (194f9f44b505, May 25 2026, 19:35:45)\r\n[PyPy 7.3.23 with MSC v.1941 64 bit (AMD64)]\r\n",
+  "run_status": "exit_status=0\n",
+  "runtime_replay_passed": true,
+  "python_summary": {
+    "python_mirror": "U13_PYSIM_FULL_MATCH_V1",
+    "source_revision": "d059b9560a95c32779597260d99829f9f1534f22",
+    "source_sha256": "b25bdf65d1f1689f7e0b5e35cee748e810bd1bf409f2084ee55b0b280ad7358e",
+    "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+    "runtime": "4.7.2-stable (official)",
+    "reference_platform": "Windows",
+    "diagnostic_only": false,
+    "complete_games_matched": 2,
+    "complete_rounds_matched": 30,
+    "game_operations_matched": 767,
+    "fixture_operations": 0,
+    "terminal_rejections_matched": 4,
+    "scope_lords": [
+      "Gremory",
+      "Deimos",
+      "Humbaba",
+      "Kalligan"
+    ],
+    "directed_settlement_components_matched": 8,
+    "scope": "explicit ordinary decisions; no declared powers, paid Rites or Resummon; not roster-complete parity",
+    "event_profile": "U13_BATCH_EVENTS_V1",
+    "full_world_tick_probes_matched": 1,
+    "tick_frames_compared": 200,
+    "all_semantic_rows_and_views_matched": true,
+    "games": [
+      {
+        "name": "bones_endurance",
+        "setup": {
+          "seed": "u13-full-match:bones_endurance",
+          "lords": [
+            "Gremory",
+            "Humbaba"
+          ],
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ]
+        },
+        "operations_matched": 334,
+        "terminal_rejections_matched": 2,
+        "rounds": 13,
+        "outcome": {
+          "action": "game_finished",
+          "round": 13,
+          "winner": 0,
+          "win_by": "Ritual"
+        },
+        "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce",
+        "event_rows": 1206,
+        "peak_marchers": 63,
+        "orders": {
+          "Hunt": 9,
+          "Siege": 7,
+          "Ward": 10
+        },
+        "event_coverage": {
+          "ARTILLERY_FIRED": 16,
+          "ARTILLERY_TARGET_ACQUIRED": 4,
+          "BASTION_SCREENED": 3,
+          "BREACH_CHANGED": 1,
+          "CASTLE_ACTION_SEALED": 26,
+          "CASTLE_ACTIVATED": 4,
+          "CASTLE_DAMAGED": 9,
+          "CASTLE_DESTROYED": 4,
+          "COMBAT_ORDER_REVEALED": 26,
+          "COMBAT_ORDER_SEALED": 26,
+          "ENDURANCE_CHECKED": 13,
+          "FRACTURE_HIT": 4,
+          "FRACTURE_RESOLVED": 1,
+          "GUARDS_SEALED": 13,
+          "GUARD_DEFEATED": 22,
+          "GUARD_DEPLOYED": 26,
+          "GUARD_PAIR_DRAW": 9,
+          "GUARD_PAIR_FORMED": 13,
+          "GUARD_PAIR_SCREEN": 2,
+          "GUARD_PAIR_STRIKE": 6,
+          "HUNT_RESOLVED": 9,
+          "HUNT_STARTED": 9,
+          "KEEP_INTERPOSED": 1,
+          "LORD_BANISHED": 1,
+          "MARCHER_CLASH": 28,
+          "MARCHER_CONTACT": 33,
+          "MARCHER_DAMAGED": 3,
+          "MARCHER_DEFEATED": 85,
+          "MARCHER_DUEL_INTERRUPTED": 5,
+          "MARCHER_RANGED_ATTACK": 204,
+          "MARCHER_REGENERATED": 15,
+          "MARCHER_SPAWNED": 153,
+          "MARCHER_WAITING": 44,
+          "MARCHING_FINISHED": 13,
+          "MARCHING_STARTED": 13,
+          "MARKET_PASSED": 3,
+          "MARKET_REFRESHED": 12,
+          "MARKET_SWAPPED": 23,
+          "MATCH_FINISHED": 1,
+          "NEUTRAL_TEAR_CREATED": 15,
+          "PICKING_THE_BONES": 9,
+          "ROUND_DRAW": 130,
+          "SIEGE_RESOLVED": 7,
+          "SIEGE_STARTED": 7,
+          "SIFTING_THE_RUINS": 4,
+          "SIGIL_AGED": 17,
+          "SIGIL_CREATED": 10,
+          "STOCKPILE_DRAW": 48,
+          "STOCKPILE_SELECTED": 23,
+          "THE_STONES_FORGET": 1,
+          "VACANT_THRONE_RESOLVED": 26,
+          "WORK_RESOLVED": 26
+        }
+      },
+      {
+        "name": "spoils_rekindle",
+        "setup": {
+          "seed": "u13-full-match:spoils_rekindle",
+          "lords": [
+            "Deimos",
+            "Kalligan"
+          ],
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ]
+        },
+        "operations_matched": 433,
+        "terminal_rejections_matched": 2,
+        "rounds": 17,
+        "outcome": {
+          "action": "game_finished",
+          "round": 17,
+          "winner": 1,
+          "win_by": "Ritual"
+        },
+        "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72",
+        "event_rows": 1616,
+        "peak_marchers": 66,
+        "orders": {
+          "Hunt": 11,
+          "Profane": 1,
+          "Siege": 10,
+          "Ward": 12
+        },
+        "event_coverage": {
+          "ARTILLERY_FIRED": 31,
+          "ARTILLERY_TARGET_ACQUIRED": 3,
+          "BASTION_SCREENED": 3,
+          "BREACH_CHANGED": 1,
+          "CASTLE_ACTION_SEALED": 31,
+          "CASTLE_ACTIVATED": 4,
+          "CASTLE_CEILING_CHANGED": 10,
+          "CASTLE_DESTROYED": 4,
+          "COMBAT_ORDER_REVEALED": 34,
+          "COMBAT_ORDER_SEALED": 34,
+          "FEAR_AURA": 1,
+          "FORGE_REPAIR": 24,
+          "FRACTURE_RESOLVED": 1,
+          "GUARDS_SEALED": 17,
+          "GUARD_DEFEATED": 29,
+          "GUARD_DEPLOYED": 34,
+          "GUARD_PAIR_DRAW": 5,
+          "GUARD_PAIR_FORMED": 17,
+          "GUARD_PAIR_SCREEN": 8,
+          "GUARD_PAIR_STRIKE": 5,
+          "HUNT_RESOLVED": 11,
+          "HUNT_STARTED": 11,
+          "KEEP_INTERPOSED": 6,
+          "LORD_BANISHED": 1,
+          "MARCHER_CLASH": 46,
+          "MARCHER_CONTACT": 51,
+          "MARCHER_DEFEATED": 141,
+          "MARCHER_DUEL_INTERRUPTED": 5,
+          "MARCHER_RANGED_ATTACK": 300,
+          "MARCHER_REGENERATED": 25,
+          "MARCHER_SPAWNED": 203,
+          "MARCHER_WAITING": 57,
+          "MARCHING_FINISHED": 17,
+          "MARCHING_STARTED": 17,
+          "MARKET_PASSED": 4,
+          "MARKET_REFRESHED": 16,
+          "MARKET_SWAPPED": 30,
+          "MATCH_FINISHED": 1,
+          "NEUTRAL_TEAR_CREATED": 8,
+          "PERSONAL_TEAR_CREATED": 1,
+          "PROFANE_RESOLVED": 1,
+          "ROUND_DRAW": 170,
+          "SIEGE_RESOLVED": 10,
+          "SIEGE_STARTED": 10,
+          "SIGIL_AGED": 21,
+          "SIGIL_CREATED": 12,
+          "STOCKPILE_DRAW": 54,
+          "STOCKPILE_SELECTED": 26,
+          "VACANT_THRONE_RESOLVED": 34,
+          "WORK_RESOLVED": 31
+        }
+      }
+    ],
+    "event_coverage": {
+      "ARTILLERY_FIRED": 47,
+      "ARTILLERY_TARGET_ACQUIRED": 7,
+      "BASTION_SCREENED": 6,
+      "BREACH_CHANGED": 2,
+      "CASTLE_ACTION_SEALED": 57,
+      "CASTLE_ACTIVATED": 8,
+      "CASTLE_CEILING_CHANGED": 10,
+      "CASTLE_DAMAGED": 9,
+      "CASTLE_DESTROYED": 8,
+      "COMBAT_ORDER_REVEALED": 60,
+      "COMBAT_ORDER_SEALED": 60,
+      "ENDURANCE_CHECKED": 13,
+      "FEAR_AURA": 1,
+      "FORGE_REPAIR": 24,
+      "FRACTURE_HIT": 4,
+      "FRACTURE_RESOLVED": 2,
+      "GUARDS_SEALED": 30,
+      "GUARD_DEFEATED": 51,
+      "GUARD_DEPLOYED": 60,
+      "GUARD_PAIR_DRAW": 14,
+      "GUARD_PAIR_FORMED": 30,
+      "GUARD_PAIR_SCREEN": 10,
+      "GUARD_PAIR_STRIKE": 11,
+      "HUNT_RESOLVED": 20,
+      "HUNT_STARTED": 20,
+      "KEEP_INTERPOSED": 7,
+      "LORD_BANISHED": 2,
+      "MARCHER_CLASH": 74,
+      "MARCHER_CONTACT": 84,
+      "MARCHER_DAMAGED": 3,
+      "MARCHER_DEFEATED": 226,
+      "MARCHER_DUEL_INTERRUPTED": 10,
+      "MARCHER_RANGED_ATTACK": 504,
+      "MARCHER_REGENERATED": 40,
+      "MARCHER_SPAWNED": 356,
+      "MARCHER_WAITING": 101,
+      "MARCHING_FINISHED": 30,
+      "MARCHING_STARTED": 30,
+      "MARKET_PASSED": 7,
+      "MARKET_REFRESHED": 28,
+      "MARKET_SWAPPED": 53,
+      "MATCH_FINISHED": 2,
+      "NEUTRAL_TEAR_CREATED": 23,
+      "PERSONAL_TEAR_CREATED": 1,
+      "PICKING_THE_BONES": 9,
+      "PROFANE_RESOLVED": 1,
+      "ROUND_DRAW": 300,
+      "SIEGE_RESOLVED": 17,
+      "SIEGE_STARTED": 17,
+      "SIFTING_THE_RUINS": 4,
+      "SIGIL_AGED": 38,
+      "SIGIL_CREATED": 22,
+      "STOCKPILE_DRAW": 102,
+      "STOCKPILE_SELECTED": 49,
+      "THE_STONES_FORGET": 1,
+      "VACANT_THRONE_RESOLVED": 60,
+      "WORK_RESOLVED": 57
+    },
+    "failures": 0,
+    "deliberate_mismatches_rejected": 13
+  },
+  "timing": {
+    "schema": "U13_FULL_MATCH_TIMING_V1",
+    "python_mirror": "U13_PYSIM_FULL_MATCH_V1",
+    "source_revision": "d059b9560a95c32779597260d99829f9f1534f22",
+    "source_sha256": "b25bdf65d1f1689f7e0b5e35cee748e810bd1bf409f2084ee55b0b280ad7358e",
+    "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+    "python": "3.11.15 (194f9f44b505, May 25 2026, 19:35:45)\n[PyPy 7.3.23 with MSC v.1941 64 bit (AMD64)]",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+    "logical_cpus": 8,
+    "gc_enabled": true,
+    "diagnostic_only": false,
+    "reference_runtime": "4.7.2-stable (official)",
+    "reference_platform": "Windows",
+    "iterations_per_game": 10,
+    "warmups_per_game": 1,
+    "timer": "perf_counter_ns + process_time_ns",
+    "event_profile": "U13_BATCH_EVENTS_V1",
+    "included": "independent setup; all decisions applied; 20 hooks per round; transactions; full semantic event history; victory",
+    "excluded": "policy selection; Godot; input loading; snapshots for comparison; digesting; export; profiling overhead",
+    "scope": "explicit ordinary decisions; no declared powers, paid Rites or Resummon; not roster-complete parity",
+    "games": [
+      {
+        "name": "bones_endurance",
+        "setup": {
+          "seed": "u13-full-match:bones_endurance",
+          "lords": [
+            "Gremory",
+            "Humbaba"
+          ],
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ]
+        },
+        "rounds": 13,
+        "outcome": {
+          "action": "game_finished",
+          "round": 13,
+          "winner": 0,
+          "win_by": "Ritual"
+        },
+        "input_sha256": "0fd5f4737585bb16fb5836f3e68aabcf0dc84e109216513983ce9b56395a5c2f",
+        "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce",
+        "operations": 334,
+        "peak_marchers": 63,
+        "event_rows": 1206,
+        "wall": {
+          "samples": 10,
+          "mean_ms": 3728.65601,
+          "median_ms": 3668.42915,
+          "p95_ms": 3999.735,
+          "min_ms": 3577.581,
+          "max_ms": 3999.735
+        },
+        "cpu": {
+          "samples": 10,
+          "mean_ms": 3721.875,
+          "median_ms": 3640.625,
+          "p95_ms": 4015.625,
+          "min_ms": 3578.125,
+          "max_ms": 4015.625
+        },
+        "wall_samples_ms": [
+          3999.735,
+          3950.2801,
+          3804.8478,
+          3766.0514,
+          3696.4626,
+          3601.7998,
+          3631.5055,
+          3640.3957,
+          3577.581,
+          3617.9012
+        ],
+        "cpu_samples_ms": [
+          4015.625,
+          3937.5,
+          3812.5,
+          3750.0,
+          3656.25,
+          3609.375,
+          3625.0,
+          3609.375,
+          3578.125,
+          3625.0
+        ],
+        "profiled_stage_wall_ms": {
+          "setup": 18.6776,
+          "round_start_scheduled": 210.3684,
+          "persistent_advancement": 147.0556,
+          "round_start_automatic": 265.4715,
+          "stockpile": 307.2532,
+          "market": 275.6467,
+          "present_public_state": 215.26579999999998,
+          "submit": 232.5739,
+          "submission_lock": 160.525,
+          "development": 168.50060000000002,
+          "post_repair_artillery": 220.8225,
+          "commitment_reveal": 294.877,
+          "combat_resolution": 186.19209999999998,
+          "post_resolution_spawns": 173.94,
+          "post_resolution_position": 289.6921,
+          "post_resolution_allegiance": 202.94120000000004,
+          "post_resolution_movement_state": 187.0798,
+          "post_resolution_hazards": 165.56050000000002,
+          "post_resolution_direct": 188.6497,
+          "post_resolution_special_actors": 186.03509999999997,
+          "marching_start": 153.55700000000002,
+          "marching": 2456.4503000000004,
+          "end_marching_checks": 219.15109999999999,
+          "aftermath": 238.5201,
+          "next_round": 177.04760000000002
+        },
+        "profile": [
+          {
+            "file": "benchmark_full_match.py",
+            "line": 22,
+            "function": "play",
+            "primitive_calls": 1,
+            "total_calls": 1,
+            "exclusive_seconds": 0.0035796910844834704,
+            "cumulative_seconds": 7.342846940816648
+          },
+          {
+            "file": "planning.py",
+            "line": 34,
+            "function": "apply",
+            "primitive_calls": 334,
+            "total_calls": 334,
+            "exclusive_seconds": 0.0031300543589539587,
+            "cumulative_seconds": 7.319174156826145
+          },
+          {
+            "file": "copying.py",
+            "line": 12,
+            "function": "copy_data",
+            "primitive_calls": 6360,
+            "total_calls": 6360,
+            "exclusive_seconds": 0.008125495290342564,
+            "cumulative_seconds": 4.36431997858892
+          },
+          {
+            "file": "copying.py",
+            "line": 16,
+            "function": "_clone",
+            "primitive_calls": 6360,
+            "total_calls": 3996368,
+            "exclusive_seconds": 3.648208278820156,
+            "cumulative_seconds": 4.356194483298578
+          },
+          {
+            "file": "planning.py",
+            "line": 26,
+            "function": "snapshot",
+            "primitive_calls": 334,
+            "total_calls": 334,
+            "exclusive_seconds": 0.0006048907587411677,
+            "cumulative_seconds": 4.242927775659362
+          },
+          {
+            "file": "full_match.py",
+            "line": 29,
+            "function": "_apply",
+            "primitive_calls": 334,
+            "total_calls": 334,
+            "exclusive_seconds": 0.0036183959773857803,
+            "cumulative_seconds": 2.815637442563808
+          },
+          {
+            "file": "planning.py",
+            "line": 48,
+            "function": "_apply",
+            "primitive_calls": 322,
+            "total_calls": 322,
+            "exclusive_seconds": 0.006134822190939135,
+            "cumulative_seconds": 2.7505751635802156
+          },
+          {
+            "file": "full_match.py",
+            "line": 46,
+            "function": "_hook",
+            "primitive_calls": 260,
+            "total_calls": 260,
+            "exclusive_seconds": 0.003127548535672369,
+            "cumulative_seconds": 2.664828688132073
+          },
+          {
+            "file": "lifecycle.py",
+            "line": 74,
+            "function": "run",
+            "primitive_calls": 260,
+            "total_calls": 260,
+            "exclusive_seconds": 0.006482052607090511,
+            "cumulative_seconds": 2.6090749355347853
+          },
+          {
+            "file": "marching_game.py",
+            "line": 30,
+            "function": "resolve",
+            "primitive_calls": 13,
+            "total_calls": 13,
+            "exclusive_seconds": 0.00015438689351093764,
+            "cumulative_seconds": 2.2646043243520015
+          },
+          {
+            "file": "marching.py",
+            "line": 359,
+            "function": "run",
+            "primitive_calls": 13,
+            "total_calls": 13,
+            "exclusive_seconds": 0.06810653716369204,
+            "cumulative_seconds": 2.1895601948137697
+          },
+          {
+            "file": "marching.py",
+            "line": 148,
+            "function": "move",
+            "primitive_calls": 2600,
+            "total_calls": 2600,
+            "exclusive_seconds": 0.6320033753471646,
+            "cumulative_seconds": 1.3479788774674855
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'copy' of 'dict' objects>",
+            "primitive_calls": 3560804,
+            "total_calls": 3560804,
+            "exclusive_seconds": 0.5956794451002583,
+            "cumulative_seconds": 0.5956794451002583
+          },
+          {
+            "file": "marching.py",
+            "line": 314,
+            "function": "volley",
+            "primitive_calls": 2600,
+            "total_calls": 2600,
+            "exclusive_seconds": 0.050386923329809,
+            "cumulative_seconds": 0.4747714146699129
+          },
+          {
+            "file": "marching_columns.py",
+            "line": 18,
+            "function": "__init__",
+            "primitive_calls": 207,
+            "total_calls": 207,
+            "exclusive_seconds": 0.019057509445758094,
+            "cumulative_seconds": 0.47308211381545406
+          },
+          {
+            "file": "primitives.py",
+            "line": 102,
+            "function": "restore",
+            "primitive_calls": 207,
+            "total_calls": 207,
+            "exclusive_seconds": 0.08301908816374703,
+            "cumulative_seconds": 0.38676589833447206
+          },
+          {
+            "file": "marching.py",
+            "line": 300,
+            "function": "restore_reactions",
+            "primitive_calls": 181,
+            "total_calls": 181,
+            "exclusive_seconds": 0.0007771052026849263,
+            "cumulative_seconds": 0.37341741445362897
+          },
+          {
+            "file": "marching.py",
+            "line": 206,
+            "function": "free",
+            "primitive_calls": 63451,
+            "total_calls": 63451,
+            "exclusive_seconds": 0.14088092550333745,
+            "cumulative_seconds": 0.36007166504129495
+          },
+          {
+            "file": "marching.py",
+            "line": 130,
+            "function": "near",
+            "primitive_calls": 236698,
+            "total_calls": 236698,
+            "exclusive_seconds": 0.03848102996269945,
+            "cumulative_seconds": 0.32892468721997176
+          },
+          {
+            "file": "marching.py",
+            "line": 132,
+            "function": "<listcomp>",
+            "primitive_calls": 236698,
+            "total_calls": 236698,
+            "exclusive_seconds": 0.1803650812916105,
+            "cumulative_seconds": 0.29044365725727234
+          },
+          {
+            "file": "copy.py",
+            "line": 128,
+            "function": "deepcopy",
+            "primitive_calls": 1260,
+            "total_calls": 82848,
+            "exclusive_seconds": 0.09084056056532928,
+            "cumulative_seconds": 0.272881937399392
+          },
+          {
+            "file": "primitives.py",
+            "line": 19,
+            "function": "normalize",
+            "primitive_calls": 331,
+            "total_calls": 379024,
+            "exclusive_seconds": 0.10278505466870083,
+            "cumulative_seconds": 0.2546671026150047
+          },
+          {
+            "file": "primitives.py",
+            "line": 33,
+            "function": "<dictcomp>",
+            "primitive_calls": 331,
+            "total_calls": 45435,
+            "exclusive_seconds": 0.07856843675603033,
+            "cumulative_seconds": 0.24598023691993381
+          },
+          {
+            "file": "primitives.py",
+            "line": 29,
+            "function": "<listcomp>",
+            "primitive_calls": 479,
+            "total_calls": 479,
+            "exclusive_seconds": 0.026517164507733126,
+            "cumulative_seconds": 0.2335618425876505
+          }
+        ]
+      },
+      {
+        "name": "spoils_rekindle",
+        "setup": {
+          "seed": "u13-full-match:spoils_rekindle",
+          "lords": [
+            "Deimos",
+            "Kalligan"
+          ],
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ]
+        },
+        "rounds": 17,
+        "outcome": {
+          "action": "game_finished",
+          "round": 17,
+          "winner": 1,
+          "win_by": "Ritual"
+        },
+        "input_sha256": "c9d5e3e20d2bae6f21cc489f838ad1e37cf1dbcc36b1c6f0f3b7349d79876c3e",
+        "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72",
+        "operations": 433,
+        "peak_marchers": 66,
+        "event_rows": 1616,
+        "wall": {
+          "samples": 10,
+          "mean_ms": 6529.71775,
+          "median_ms": 6513.10355,
+          "p95_ms": 6804.5065,
+          "min_ms": 6440.1079,
+          "max_ms": 6804.5065
+        },
+        "cpu": {
+          "samples": 10,
+          "mean_ms": 6506.25,
+          "median_ms": 6484.375,
+          "p95_ms": 6796.875,
+          "min_ms": 6437.5,
+          "max_ms": 6796.875
+        },
+        "wall_samples_ms": [
+          6804.5065,
+          6470.9935,
+          6504.001,
+          6538.7598,
+          6440.1079,
+          6459.4065,
+          6467.7109,
+          6559.8314,
+          6522.2061,
+          6529.6539
+        ],
+        "cpu_samples_ms": [
+          6796.875,
+          6453.125,
+          6484.375,
+          6515.625,
+          6437.5,
+          6437.5,
+          6453.125,
+          6484.375,
+          6484.375,
+          6515.625
+        ],
+        "profiled_stage_wall_ms": {
+          "setup": 37.8177,
+          "round_start_scheduled": 419.2827,
+          "persistent_advancement": 417.7432999999999,
+          "round_start_automatic": 525.3820999999999,
+          "stockpile": 402.9136,
+          "market": 524.8148,
+          "present_public_state": 322.72150000000005,
+          "submit": 260.3696,
+          "submission_lock": 297.6666,
+          "development": 414.4963,
+          "post_repair_artillery": 368.2011,
+          "commitment_reveal": 470.45029999999997,
+          "combat_resolution": 293.89,
+          "post_resolution_spawns": 326.40819999999997,
+          "post_resolution_position": 342.9022,
+          "post_resolution_allegiance": 326.89239999999995,
+          "post_resolution_movement_state": 309.63640000000004,
+          "post_resolution_hazards": 316.8336,
+          "post_resolution_direct": 374.8432,
+          "post_resolution_special_actors": 358.23629999999997,
+          "marching_start": 288.3019,
+          "marching": 2711.1265,
+          "end_marching_checks": 315.386,
+          "aftermath": 334.86310000000003,
+          "next_round": 298.17429999999996
+        },
+        "profile": [
+          {
+            "file": "benchmark_full_match.py",
+            "line": 22,
+            "function": "play",
+            "primitive_calls": 1,
+            "total_calls": 1,
+            "exclusive_seconds": 0.004563119744245209,
+            "cumulative_seconds": 11.061887677891967
+          },
+          {
+            "file": "planning.py",
+            "line": 34,
+            "function": "apply",
+            "primitive_calls": 433,
+            "total_calls": 433,
+            "exclusive_seconds": 0.004127757813780642,
+            "cumulative_seconds": 11.017519412193387
+          },
+          {
+            "file": "copying.py",
+            "line": 12,
+            "function": "copy_data",
+            "primitive_calls": 8491,
+            "total_calls": 8491,
+            "exclusive_seconds": 0.011253679163825097,
+            "cumulative_seconds": 7.855412899164253
+          },
+          {
+            "file": "copying.py",
+            "line": 16,
+            "function": "_clone",
+            "primitive_calls": 8491,
+            "total_calls": 7063518,
+            "exclusive_seconds": 6.566800227132261,
+            "cumulative_seconds": 7.844159220000428
+          },
+          {
+            "file": "planning.py",
+            "line": 26,
+            "function": "snapshot",
+            "primitive_calls": 433,
+            "total_calls": 433,
+            "exclusive_seconds": 0.001047715174919888,
+            "cumulative_seconds": 7.665981217506728
+          },
+          {
+            "file": "full_match.py",
+            "line": 29,
+            "function": "_apply",
+            "primitive_calls": 433,
+            "total_calls": 433,
+            "exclusive_seconds": 0.004791934729145101,
+            "cumulative_seconds": 3.1188040676843336
+          },
+          {
+            "file": "planning.py",
+            "line": 48,
+            "function": "_apply",
+            "primitive_calls": 417,
+            "total_calls": 417,
+            "exclusive_seconds": 0.008708668444306648,
+            "cumulative_seconds": 3.0302892384850164
+          },
+          {
+            "file": "full_match.py",
+            "line": 46,
+            "function": "_hook",
+            "primitive_calls": 340,
+            "total_calls": 340,
+            "exclusive_seconds": 0.0033883443926218957,
+            "cumulative_seconds": 2.936002107536166
+          },
+          {
+            "file": "lifecycle.py",
+            "line": 74,
+            "function": "run",
+            "primitive_calls": 340,
+            "total_calls": 340,
+            "exclusive_seconds": 0.007984336785899193,
+            "cumulative_seconds": 2.8515395567013107
+          },
+          {
+            "file": "marching_game.py",
+            "line": 30,
+            "function": "resolve",
+            "primitive_calls": 17,
+            "total_calls": 17,
+            "exclusive_seconds": 0.00021412813915507373,
+            "cumulative_seconds": 2.458236888541957
+          },
+          {
+            "file": "marching.py",
+            "line": 359,
+            "function": "run",
+            "primitive_calls": 17,
+            "total_calls": 17,
+            "exclusive_seconds": 0.08888485073759163,
+            "cumulative_seconds": 2.373430803791137
+          },
+          {
+            "file": "marching.py",
+            "line": 148,
+            "function": "move",
+            "primitive_calls": 3400,
+            "total_calls": 3400,
+            "exclusive_seconds": 0.6250514362048226,
+            "cumulative_seconds": 1.4029708062775432
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'copy' of 'dict' objects>",
+            "primitive_calls": 6327326,
+            "total_calls": 6327326,
+            "exclusive_seconds": 1.0905827427942922,
+            "cumulative_seconds": 1.0905827427942922
+          },
+          {
+            "file": "marching.py",
+            "line": 314,
+            "function": "volley",
+            "primitive_calls": 3400,
+            "total_calls": 3400,
+            "exclusive_seconds": 0.04566288641070055,
+            "cumulative_seconds": 0.5579357254703545
+          },
+          {
+            "file": "marching_columns.py",
+            "line": 18,
+            "function": "__init__",
+            "primitive_calls": 341,
+            "total_calls": 341,
+            "exclusive_seconds": 0.0253727787351662,
+            "cumulative_seconds": 0.5563800439257285
+          },
+          {
+            "file": "primitives.py",
+            "line": 102,
+            "function": "restore",
+            "primitive_calls": 341,
+            "total_calls": 341,
+            "exclusive_seconds": 0.07259658299746759,
+            "cumulative_seconds": 0.4400586584448235
+          },
+          {
+            "file": "marching.py",
+            "line": 300,
+            "function": "restore_reactions",
+            "primitive_calls": 307,
+            "total_calls": 307,
+            "exclusive_seconds": 0.001250010073691284,
+            "cumulative_seconds": 0.42221714430324064
+          },
+          {
+            "file": "marching.py",
+            "line": 206,
+            "function": "free",
+            "primitive_calls": 95668,
+            "total_calls": 95668,
+            "exclusive_seconds": 0.1528813724619665,
+            "cumulative_seconds": 0.4062307722421846
+          },
+          {
+            "file": "marching.py",
+            "line": 130,
+            "function": "near",
+            "primitive_calls": 292075,
+            "total_calls": 292075,
+            "exclusive_seconds": 0.03622941112329573,
+            "cumulative_seconds": 0.38885373258502326
+          },
+          {
+            "file": "marching.py",
+            "line": 132,
+            "function": "<listcomp>",
+            "primitive_calls": 292075,
+            "total_calls": 292075,
+            "exclusive_seconds": 0.22929629133932683,
+            "cumulative_seconds": 0.3526243214617275
+          },
+          {
+            "file": "primitives.py",
+            "line": 19,
+            "function": "normalize",
+            "primitive_calls": 473,
+            "total_calls": 727866,
+            "exclusive_seconds": 0.1376503553409051,
+            "cumulative_seconds": 0.3182389719110805
+          },
+          {
+            "file": "primitives.py",
+            "line": 33,
+            "function": "<dictcomp>",
+            "primitive_calls": 473,
+            "total_calls": 81638,
+            "exclusive_seconds": 0.08999011213418925,
+            "cumulative_seconds": 0.3053292637544966
+          },
+          {
+            "file": "primitives.py",
+            "line": 29,
+            "function": "<listcomp>",
+            "primitive_calls": 764,
+            "total_calls": 764,
+            "exclusive_seconds": 0.020485006531506998,
+            "cumulative_seconds": 0.2853380558113091
+          },
+          {
+            "file": "copy.py",
+            "line": 128,
+            "function": "deepcopy",
+            "primitive_calls": 1618,
+            "total_calls": 107632,
+            "exclusive_seconds": 0.11637066448785097,
+            "cumulative_seconds": 0.25984272152187915
+          }
+        ]
+      }
+    ],
+    "mean_full_match_wall_ms": 5129.18688,
+    "mean_games_per_second": 0.19496267603335987,
+    "target_50_ms_met": false,
+    "full_match_50000_wall_seconds": null,
+    "throughput_caveat": "two fixed games are a reference-path measurement, not a population or doctrine-throughput benchmark",
+    "failures": 0
+  },
+  "python_unit_tests": {
+    "evidence": "User-pasted Windows console output preceding this archive; not an archive member",
+    "command": "Scripts/Sim/run_u13_pysim.py self-test-full-match",
+    "tests": 56,
+    "elapsed_seconds": 1.804,
+    "status": "OK"
+  },
+  "validation": {
+    "summary_equals_accepted_cpython_summary": true,
+    "summary_equals_previously_independent_replay": true,
+    "parity_log_equals_summary": true,
+    "source_and_input_fingerprints_match_checkout": true,
+    "input_and_final_state_digests_match_accepted_reference": true,
+    "raw_timing_statistics_recomputed": true,
+    "local_pypy_executed": false,
+    "new_native_acceptance_run": false
+  },
+  "comparison": {
+    "baseline_python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+    "pypy_python": "3.11.15 (194f9f44b505, May 25 2026, 19:35:45)\n[PyPy 7.3.23 with MSC v.1941 64 bit (AMD64)]",
+    "baseline_platform": "Windows-11-10.0.26200-SP0",
+    "pypy_platform": "Windows-10-10.0.26200-SP0",
+    "same_reported_processor_and_logical_cpus": true,
+    "baseline_samples_per_game": 3,
+    "pypy_samples_per_game": 10,
+    "warmups_per_game": 1,
+    "interleaved_runtime_blocks": false,
+    "cpython_mean_full_match_wall_ms": 15207.434083333334,
+    "pypy_mean_full_match_wall_ms": 5129.18688,
+    "observed_mean_speedup": 2.964882044487592,
+    "wall_time_reduction_percent": 66.27184538895119,
+    "games": [
+      {
+        "name": "bones_endurance",
+        "rounds": 13,
+        "cpython_wall": {
+          "samples": 3,
+          "mean_ms": 11340.4907,
+          "median_ms": 11232.6262,
+          "p95_ms": 14379.8023,
+          "min_ms": 8409.0436,
+          "max_ms": 14379.8023
+        },
+        "cpython_wall_samples_ms": [
+          14379.8023,
+          11232.6262,
+          8409.0436
+        ],
+        "pypy_wall": {
+          "samples": 10,
+          "mean_ms": 3728.65601,
+          "median_ms": 3668.42915,
+          "p95_ms": 3999.735,
+          "min_ms": 3577.581,
+          "max_ms": 3999.735
+        },
+        "observed_mean_speedup": 3.0414419215893287,
+        "pypy_first_five_mean_ms": 3843.47538,
+        "pypy_last_five_mean_ms": 3613.83664,
+        "pypy_copy_data_profile_percent": 59.43634687969588,
+        "pypy_snapshot_profile_percent": 57.78314337555125
+      },
+      {
+        "name": "spoils_rekindle",
+        "rounds": 17,
+        "cpython_wall": {
+          "samples": 3,
+          "mean_ms": 19074.377466666665,
+          "median_ms": 18959.1911,
+          "p95_ms": 19673.2551,
+          "min_ms": 18590.6862,
+          "max_ms": 19673.2551
+        },
+        "cpython_wall_samples_ms": [
+          18959.1911,
+          19673.2551,
+          18590.6862
+        ],
+        "pypy_wall": {
+          "samples": 10,
+          "mean_ms": 6529.71775,
+          "median_ms": 6513.10355,
+          "p95_ms": 6804.5065,
+          "min_ms": 6440.1079,
+          "max_ms": 6804.5065
+        },
+        "observed_mean_speedup": 2.921164160069042,
+        "pypy_first_five_mean_ms": 6551.67374,
+        "pypy_last_five_mean_ms": 6507.76176,
+        "pypy_copy_data_profile_percent": 71.01331280793873,
+        "pypy_snapshot_profile_percent": 69.30084123732138
+      }
+    ]
+  },
+  "arithmetic_only": {
+    "scope": "Equal repetitions of the two accepted fixed inputs on one worker; not a population or doctrine-capacity measurement",
+    "games_per_hour": 701.8656337200956,
+    "wall_days_for_50000": 2.9682794444444442
+  },
+  "limitations": [
+    "Four-Lord ordinary rules scope unchanged; declared powers, paid Rites/Resummon and other Lords remain unsupported.",
+    "CPython and PyPy were separate runs with three versus ten samples per case, not an interleaved runtime comparison; the CPython short case has substantial variability.",
+    "The first PyPy case declines over early samples, consistent with warmup but not a causal measurement; all ten samples remain in the reported mean.",
+    "One explicit warmup does not establish steady-state JIT performance. Cold-start cost, memory use, JIT/environment options, sustained worker scaling and doctrine selection cost were not measured.",
+    "The runtimes report Windows-11 and Windows-10 respectively, both build 10.0.26200, with the same processor description and eight logical CPUs; retain the raw labels.",
+    "Profile times are separate instrumented runs and are not unprofiled elapsed-time fractions.",
+    "The new ZIP contains replay/benchmark reports but not the original Godot stream, a working diff or the previously pasted unit-test log.",
+    "PyPy remains an explicit runtime choice; no default interpreter, rules or performance code was changed."
+  ],
+  "next_milestone": "Reduce transaction and retained-history copying while preserving alias identity, detached public snapshots and failure rollback; compare the same explicit games under both accepted runtimes and retain exact Godot parity."
+}

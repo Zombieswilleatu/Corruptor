@@ -7,14 +7,17 @@ observation. The full experimental legal-choice/RNG/counter/sweep interface belo
 remains future work. Windows 4.7.2 acceptance passed at clean `d059b95`; the earlier partial and
 isolated timings below retain their dated scopes.
 
-The accepted Windows complete-game means are 11.34 and 19.07 seconds, well above
-the proposed 50 ms target. Transaction and retained event-history copying dominate
-those profiles. Preserve that exact reference while addressing the measured
-cost; the earlier partial timings cannot establish the full-match budget.
+The accepted Windows CPython complete-game means are 11.34 and 19.07 seconds.
+The subsequent [PyPy 7.3.23 replay and timing](U13_PYSIM_PYPY_2026-09-15.md)
+passed at the same `d059b95` source/input fingerprints and measured 3.73 / 6.53
+seconds, an observed 2.96× gain across the two means. The proposed 50 ms target
+remains unmet. Transaction and retained event-history copying still dominate
+the separate profiles. Preserve both runtime references while addressing that
+cost; earlier partial timings cannot establish the full-match budget.
 
 ## First complete-game profile and next optimization
 
-The [Windows evidence](evidence/U13_PYSIM_FULL_MATCH_d059b95.json) supports the
+The [Windows CPython evidence](evidence/U13_PYSIM_FULL_MATCH_d059b95.json) supports the
 central diagnosis in the user's supplied profile review: `PlanningMatch.apply()`
 calls `snapshot()` before every operation, copying the complete growing state and
 retained semantic event history even when little game work follows. The 13- and
@@ -61,31 +64,36 @@ do not replace exact parity with approximations to meet a speculative budget.
 
 ## PyPy runtime candidate
 
-The user also requested evaluation of PyPy. The official
-[download page](https://pypy.org/download.html) offers PyPy 3.11 for Windows
-64-bit. This U13 package uses the standard library and requires Python 3.10+;
-`run_u13_pysim_full_match.sh` already accepts an explicit Python executable as its
-second argument. Those facts make PyPy a plausible candidate, but do not establish
-that it passes this project's gates or runs faster.
+**Measured and replay-verified on Windows at `d059b95`.** The user supplied
+56 passing unit tests under PyPy 7.3.23 / Python 3.11.15, then the
+[runtime archive](evidence/U13_PYSIM_PYPY_d059b95.json). Its entire verifier
+summary matches the accepted CPython summary, including two complete games,
+30 rounds / 767 operations, all semantic rows/views and 13 corruption rejections.
+The existing Godot 4.7.2 stream was reused. Source/input fingerprints and final
+digests are unchanged; no code optimization is included in this comparison.
 
-Evaluate the runtime change on the unchanged accepted source before combining it
-with copying changes. Run the ownership/rollback tests and exact replay of the
-accepted Windows stream, including corruption rejection, under PyPy first. Then
-measure CPython and PyPy sequentially on the same machine and explicit inputs,
-retaining transactions and semantic history and checking every final digest.
+PyPy's ten samples per game average 3.73 / 6.53 seconds, versus CPython's earlier
+three-sample means of 11.34 / 19.07. The equal-weight mean falls 15.21 → 5.13
+seconds: an observed 2.96× gain and 66.27% less wall time. These separate runtime
+runs were not interleaved; the CPython short case has substantial variability.
+See the [complete comparison and raw-sample interpretation](U13_PYSIM_PYPY_2026-09-15.md).
 
-Record cold-start and warmed measurements separately. Use repeated full games and
-enough warmup to observe stable samples; the current fixed one-warmup/three-sample
-probe is an initial observation, not evidence that PyPy has reached steady state.
-Keep profiling outside the comparison: PyPy's
-[performance guidance](https://pypy.org/performance.html) calls for JIT warmup and
-warns that `cProfile` can substantially distort results. Record exact interpreter
-versions, runtime/JIT options and memory usage before later worker-scaling claims.
+The shorter PyPy case declines over early samples: first-five mean 3.84 seconds,
+last-five 3.61. The longer case's corresponding means are 6.55 / 6.51 seconds.
+This is consistent with warmup but does not isolate its cause. Retain all ten
+samples; one explicit warmup is not proof of steady state. Cold-start cost,
+memory use and runtime/JIT environment options were not recorded.
 
-On this acceptance pass, neither `pypy3` nor `pypy` was installed locally and the
-official binary download timed out at the network proxy. No PyPy result or
-speedup is claimed, and the default interpreter is unchanged. Preserve the
-accepted CPython baseline while evaluating this independent runtime option.
+Copying remains dominant in the separate PyPy profiles (59% / 71% cumulative
+for `copy_data`), supporting the existing transaction/history optimization
+priority. Those fractions are instrumented observations, not unprofiled timing
+fractions. Keep profiling outside comparisons: PyPy's
+[performance guidance](https://pypy.org/performance.html) warns about distortion.
+
+Preserve both accepted runtime results when measuring code changes. Record
+warmup/cold-start behavior and memory before later worker-scaling claims.
+PyPy is an explicit verified option for the supported path; the default
+interpreter and unsupported mechanics boundary are unchanged.
 
 User steering on 2026-09-15: the simulator should shorten the experiment loop,
 including quickly identifying inert doctrine terms. Do not hard-code the

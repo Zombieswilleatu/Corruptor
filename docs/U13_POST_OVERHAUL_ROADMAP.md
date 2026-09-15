@@ -9,8 +9,11 @@ Windows Godot 4.7.2 passed 8,586 checks; Python matched two complete games,
 30 rounds and 767 operations without fixture mutations, plus eight separate
 settlement components and one 200-tick probe. All 56 Python tests and 13 corruption
 rejections passed; independent replay reproduced the complete uploaded summary.
-Windows match means are 11.34 / 19.07 seconds, with transaction/history copying
-the measured next target before extending the port. It retains a swappable
+Windows CPython match means are 11.34 / 19.07 seconds. The subsequent
+[PyPy 7.3.23 run](U13_PYSIM_PYPY_2026-09-15.md) passed the same exact replay at
+unchanged source/input fingerprints and measured 3.73 / 6.53 seconds (2.96×
+observed gain). Transaction/history copying remains the measured next target
+before extending the port. It retains a swappable
 reference policy outside authority. Declared powers, paid Rites/Resummon and the
 other Lords remain unsupported. See [scope and accepted evidence](U13_PYSIM_FULL_MATCH_2026-09-15.md).
 This supersedes the old full-round implementation boundary for this new adapter;

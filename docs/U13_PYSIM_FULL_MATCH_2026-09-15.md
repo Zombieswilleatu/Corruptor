@@ -7,6 +7,10 @@ Godot checks, 56 Python tests and 13 corruption rejections passed. The
 [accepted record](evidence/U13_PYSIM_FULL_MATCH_d059b95.json) preserves the
 Windows evidence and measured 11.34 / 19.07 second match means.
 
+The subsequent [Windows PyPy 7.3.23 run](U13_PYSIM_PYPY_2026-09-15.md) matched
+the same complete verifier summary and measured 3.73 / 6.53 seconds at unchanged
+source/input fingerprints. This runtime result preserves the CPython baseline.
+
 This is the first independent Python setup-to-victory path, with a deliberately
 bounded rules domain. It is not complete nine-Lord parity or balance evidence.
 
@@ -249,8 +253,9 @@ Optimize transaction and retained event-history copying against this accepted
 reference, retaining exact event views, state ownership and rejection rollback.
 Measure the change on identical inputs and hardware, and collect a matched
 Godot/Python pure-match comparison before extending the port further.
-Evaluate the separate [PyPy runtime candidate](U13_PYSIM_POLICY_AND_PERFORMANCE_2026-09-15.md#pypy-runtime-candidate)
-against the unchanged accepted baseline so runtime and code gains remain distinct.
+Retain the separately [verified and measured PyPy runtime](U13_PYSIM_PYPY_2026-09-15.md)
+alongside the CPython baseline when comparing code changes, so runtime and code
+gains remain distinct.
 Then extend explicit power/effect, Rites/Resummon and remaining Lord coverage;
 grow the reference corpus only when those dependencies justify it. Common Smart
 Core/Lord doctrines and serious balance sweeps follow trustworthy rules and a
