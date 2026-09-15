@@ -15,6 +15,13 @@ var rites_plan: Dictionary = {}
 var fracture_choice: String = "infrastructure"
 var choice_error: String = ""
 var setup_load_button: Button
+const Playtime = preload("res://Prototype/U13/U13Playtime.gd")
+var playtime = Playtime.new()
+var playtime_label: Label
+var pause_button: Button
+var pause_dialog: AcceptDialog
+var _playtime_paused: bool = false
+var _playtime_focused: bool = true
 
 func _new_loadout_session():
 	return PlaySession.new()
@@ -38,6 +45,19 @@ func _build() -> void:
 	header.history_box.add_child(files)
 	save_button = _button(files, "SAVE", _save_game)
 	load_button = _button(files, "LOAD", _open_load)
+	pause_button = _button(files, "PAUSE", _pause_playtime)
+	playtime_label = _label(header.history_box, "PLAYTIME 00:00:00", 12)
+	pause_dialog = AcceptDialog.new()
+	pause_dialog.title = "Game paused"
+	pause_dialog.dialog_text = "Playtime is paused. Resume when you are ready."
+	pause_dialog.ok_button_text = "RESUME"
+	pause_dialog.process_mode = Node.PROCESS_MODE_ALWAYS
+	pause_dialog.exclusive = true
+	pause_dialog.confirmed.connect(_resume_playtime)
+	pause_dialog.canceled.connect(_resume_playtime)
+	add_child(pause_dialog)
+	get_window().focus_entered.connect(_playtime_focus.bind(true))
+	get_window().focus_exited.connect(_playtime_focus.bind(false))
 	load_dialog = FileDialog.new()
 	load_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	load_dialog.access = FileDialog.ACCESS_FILESYSTEM
@@ -186,6 +206,8 @@ func _open_game_menu() -> void:
 	if session.is_finished():
 		var outcome: Dictionary = session.outcome()
 		game_menu.present("YOU WIN" if outcome.winner == 0 else "OPPONENT WINS", "%s · round %d" % [outcome.win_by, outcome.round])
+		_sample_playtime()
+		game_menu.label("Playtime: " + playtime.summary())
 		game_menu.button("NEW GAME", func(): game_menu.hide(); open_setup())
 		game_menu.button("SAVE FINISHED GAME", _save_game)
 		return
@@ -361,7 +383,7 @@ func _save_game() -> void:
 		_busy_label.text = "Could not write the saved game."
 		game_menu.message.text = _busy_label.text
 		return
-	file.store_string(PlaySession.Game.encode_snapshot(session.checkpoint()))
+	file.store_string(_encode_playable_save())
 	file.close()
 	_busy_label.text = "Saved game: " + path
 	game_menu.message.text = _busy_label.text
@@ -393,6 +415,8 @@ func _load_game(path: String) -> void:
 	_ledger_before = {}
 	_ledger_round = candidate.round_number() # Loaded mid-round: show totals, never invent a baseline.
 	session = candidate
+	playtime = Playtime.new()
+	playtime.restore(envelope.get("playtime"))
 	setup_open = false
 	setup_picker.hide()
 	match_started = true
@@ -524,3 +548,91 @@ func _show_pair_badges() -> void:
 			card.add_child(badge)
 			var benefit: String = {"Butcher": "When attacked, destroy one random enemy Marcher in this lane.", "Penitent": "5 protection before Guards while intact.", "Wright": "+5 work once on placement.", "Vulture": "Draw 1 each following round while intact."}[pair.suit]
 			card.input_surface.tooltip_text += "\nBonded " + pair.suit + " pair. " + benefit + " Either card leaving breaks the bond; a replacement does not restore it."
+
+
+# Presentation telemetry lives beside the save payload, never inside match state.
+func _encode_playable_save() -> String:
+	_sample_playtime()
+	var envelope: Dictionary = JSON.parse_string(PlaySession.Game.encode_snapshot(session.checkpoint()))
+	envelope["playtime"] = playtime.snapshot()
+	return JSON.stringify(envelope)
+
+func _playtime_mode() -> String:
+	if _playtime_paused or not _playtime_focused or not match_started or setup_open:
+		return "excluded"
+	# A worker owns the session while running: do not read it from this thread.
+	if _job != null or playing:
+		return "resolution"
+	if not session is PlaySession or session.is_finished():
+		return "excluded"
+	return "decision"
+
+func _sample_playtime() -> void:
+	playtime.sample(Time.get_ticks_msec(), _playtime_mode())
+
+func _process(delta: float) -> void:
+	_sample_playtime()
+	super._process(delta)
+	_sample_playtime()
+	if playtime_label != null:
+		playtime_label.text = "PLAYTIME " + Playtime.duration(playtime.decision_ms + playtime.resolution_ms) + (" *" if not playtime.history_complete else "")
+		playtime_label.tooltip_text = playtime.summary() + "\nExcludes setup, pauses, unfocused time and time closed. Decision time includes reviewing the board/Aftermath. Resolution includes computation and playback." + ("\n* Earlier playtime is unknown; this is the recorded portion only." if not playtime.history_complete else "")
+		pause_button.disabled = not match_started or setup_open or _job != null or playing or session.is_finished()
+
+func _playtime_focus(focused: bool) -> void:
+	_sample_playtime()
+	_playtime_focused = focused
+	_sample_playtime()
+
+func _pause_playtime() -> void:
+	if not match_started or setup_open or _job != null or playing or session.is_finished(): return
+	_sample_playtime()
+	_playtime_paused = true
+	_sample_playtime()
+	get_tree().paused = true
+	pause_dialog.popup_centered(Vector2i(440, 160))
+
+func _resume_playtime() -> void:
+	pause_dialog.hide()
+	_playtime_paused = false
+	get_tree().paused = false
+	_sample_playtime()
+
+func start_loadout(lords: Array, castles: Array, quick: bool) -> void:
+	var previous = session
+	_sample_playtime()
+	super.start_loadout(lords, castles, quick)
+	if session != previous:
+		playtime = Playtime.new()
+	_sample_playtime()
+
+func _start_job(operation: String, powers: Array = [], order: Dictionary = {}) -> void:
+	_sample_playtime()
+	if _playtime_mode() != "excluded":
+		playtime.sample(Time.get_ticks_msec(), "resolution")
+	super._start_job(operation, powers, order)
+	_sample_playtime()
+
+func open_setup() -> void:
+	_sample_playtime()
+	super.open_setup()
+	_sample_playtime()
+
+func close_setup() -> void:
+	_sample_playtime()
+	super.close_setup()
+	_sample_playtime()
+
+func _exit_tree() -> void:
+	if _playtime_paused:
+		get_tree().paused = false
+	super._exit_tree()
+
+
+func restart() -> void:
+	var can_restart: bool = not setup_open and _job == null and _runtime_ok
+	_sample_playtime()
+	super.restart()
+	if can_restart:
+		playtime = Playtime.new()
+	_sample_playtime()

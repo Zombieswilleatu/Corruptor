@@ -31,6 +31,7 @@ func run() -> void:
 		finish(); return
 	await human_choices()
 	check(board._planning(), "human choices unlock the board's planning controls")
+	playtime_controls()
 	work_and_guard_controls()
 	check(board.action_zone.action_buttons["Siege"].text == "Siege", "active enemy castles keep the Siege action")
 	var enemy: Dictionary = board._visible_world.entities.filter(func(e): return e.kind == "lord" and e.owner == 1)[0]
@@ -61,6 +62,7 @@ func run() -> void:
 	file.close()
 	board._load_game(file_path)
 	check(board.session._owner.snapshot() == before and board._order() == saved.order, "load restores the board cart without changing authority")
+	check(not board.playtime.history_complete, "legacy save loads with partial timing")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(file_path))
 	board.enter_powers()
 	board.resolve_round()
@@ -267,3 +269,33 @@ func finish() -> void:
 	await process_frame
 	print("U13 playable board failures: %d" % failures)
 	quit(failures)
+
+
+func playtime_controls() -> void:
+	board._playtime_focus(true)
+	board.playtime.decision_ms = 12000
+	board.playtime.resolution_ms = 3000
+	var authority: Dictionary = board.session.checkpoint()
+	var encoded: String = board._encode_playable_save()
+	var envelope: Dictionary = JSON.parse_string(encoded)
+	check(envelope.playtime.total_ms >= 15000 and envelope.playtime.history_complete, "save envelope exposes readable playtime metadata")
+	check(bytes_to_var(Marshalls.base64_to_raw(envelope.payload)) == authority and board.session.checkpoint() == authority, "timing does not alter authoritative payload or staged decisions")
+	var file_path: String = "user://u13-playtime-test.json"
+	var file = FileAccess.open(file_path, FileAccess.WRITE)
+	file.store_string(encoded)
+	file.close()
+	board._load_game(file_path)
+	check(board.playtime.decision_ms == int(envelope.playtime.decision_ms) and board.playtime.resolution_ms == int(envelope.playtime.resolution_ms) and board.playtime.history_complete and board.session.checkpoint() == authority, "timed save restores counters and authority")
+	board._playtime_focus(true)
+	check(board._playtime_mode() == "decision", "planning counts as decision time")
+	board._playtime_focus(false)
+	check(board._playtime_mode() == "excluded", "unfocused window excluded")
+	board._playtime_focus(true)
+	board._pause_playtime()
+	check(paused and board.pause_dialog.visible and board._playtime_mode() == "excluded", "explicit pause blocks game and timing")
+	board._resume_playtime()
+	check(not paused and not board.pause_dialog.visible, "resume restores processing")
+	board.open_setup()
+	check(board._playtime_mode() == "excluded", "setup excluded without clearing existing time")
+	board.close_setup()
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(file_path))
