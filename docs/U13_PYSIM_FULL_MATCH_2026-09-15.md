@@ -12,8 +12,10 @@ the same complete verifier summary and measured 3.73 / 6.53 seconds at unchanged
 source/input fingerprints. This runtime result preserves the CPython baseline.
 
 The subsequent [rollback copying optimization](U13_PYSIM_FULL_MATCH_COPYING_2026-09-15.md)
-has local exact replay and 63 passing tests. Its Windows comparison under both
-CPython and PyPy is pending; the accepted evidence below remains at `d059b95`.
+passed Windows acceptance at clean `c228d85`: 63 tests and the full replay under
+both CPython and PyPy, including 13 corruption checks. Matched sustained means
+fell 12.92 → 2.71 seconds under CPython and 7.83 → 1.45 under PyPy. That later
+record is separate; the original accepted evidence below remains at `d059b95`.
 
 This is the first independent Python setup-to-victory path, with a deliberately
 bounded rules domain. It is not complete nine-Lord parity or balance evidence.
@@ -253,10 +255,11 @@ measures matches and packages the reports in Downloads. The native gate runs two
 complete reference games twice, not a new 100-game campaign. Its bounded watchdogs
 are 40 minutes for native export/replay and 15 minutes per Python stage.
 
-Optimize transaction and retained event-history copying against this accepted
-reference, retaining exact event views, state ownership and rejection rollback.
-Measure the change on identical inputs and hardware, and collect a matched
-Godot/Python pure-match comparison before extending the port further.
+The [copying pass](U13_PYSIM_FULL_MATCH_COPYING_2026-09-15.md) is now accepted
+against this reference with exact event views, state ownership and rejection
+rollback retained. Profile that optimized source to locate the remaining cost,
+and collect a matched Godot/Python pure-match comparison before extending the
+port further.
 Retain the separately [verified and measured PyPy runtime](U13_PYSIM_PYPY_2026-09-15.md)
 alongside the CPython baseline when comparing code changes, so runtime and code
 gains remain distinct.

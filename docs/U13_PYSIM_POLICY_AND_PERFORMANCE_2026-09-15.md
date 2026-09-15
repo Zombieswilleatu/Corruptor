@@ -7,25 +7,30 @@ observation. The full experimental legal-choice/RNG/counter/sweep interface belo
 remains future work. Windows 4.7.2 acceptance passed at clean `d059b95`; the earlier partial and
 isolated timings below retain their dated scopes.
 
-The accepted Windows CPython complete-game means are 11.34 and 19.07 seconds.
+The original accepted Windows CPython complete-game means were 11.34 and 19.07 seconds.
 The subsequent [PyPy 7.3.23 replay and timing](U13_PYSIM_PYPY_2026-09-15.md)
 passed at the same `d059b95` source/input fingerprints and measured 3.73 / 6.53
 seconds, an observed 2.96× gain across the two means. The proposed 50 ms target
-remains unmet. Transaction and retained event-history copying still dominate
-the separate profiles. Preserve both runtime references while addressing that
-cost; earlier partial timings cannot establish the full-match budget.
+remains unmet. Transaction and retained event-history copying dominated those
+pre-optimization profiles. Preserve both historical runtime references;
+earlier partial timings cannot establish the full-match budget.
 
 The [full-match rollback copying pass](U13_PYSIM_FULL_MATCH_COPYING_2026-09-15.md)
-now implements sharing for unchanged history/presentation with conservative
-fallback and live-state escape protection. All 63 local tests/exact replay pass;
-the matched Linux CPython diagnostic measured 4.57×. Windows CPython/PyPy
-acceptance and the sustained comparison remain pending.
+now has Windows acceptance at clean `c228d85`: 63 tests and exact full-game replay
+under each runtime, with all 13 corruption probes. It shares unchanged
+history/presentation with conservative fallback and live-state escape protection.
+Twenty consecutive games per implementation/runtime measured CPython
+12.92 → 2.71 seconds (4.78×) and PyPy 7.83 → 1.45 seconds (5.40×); all 80 final
+digests matched. PyPy's final ten averaged 1.23 seconds. These two-game controls
+give 8.92× combined observed gain from current CPython baseline to optimized
+PyPy. Profile the optimized source separately from timing to identify the next
+cost; old profile fractions are no longer a description of current runtime.
 
-## First complete-game profile and next optimization
+## Historical complete-game profile at `d059b95`
 
 The [Windows CPython evidence](evidence/U13_PYSIM_FULL_MATCH_d059b95.json) supports the
 central diagnosis in the user's supplied profile review: `PlanningMatch.apply()`
-calls `snapshot()` before every operation, copying the complete growing state and
+called `snapshot()` before every operation, copying the complete growing state and
 retained semantic event history even when little game work follows. The 13- and
 17-round cases make 334 and 433 operations; transaction snapshots account for
 18.47 / 24.81 and 31.01 / 40.84 profiled seconds. `copy_data` including its nested
@@ -52,8 +57,8 @@ history/presentation in their backups. Live-state access upgrades the active
 backup and keeps later transactions conservative; custom match handlers also
 use full copies. Preserve rollback after rejected and exceptional handlers,
 including nested world/presentation/history mutations, and keep returned
-snapshots and event views detached. Retain the accepted `d059b95` reference and
-complete the focused before/after comparison under both runtimes.
+snapshots and event views detached. The focused before/after comparison now
+passes under both runtimes; retain `d059b95` as the historical control.
 
 Marching integration itself accounts for about 19–20% of these profiles; it is a
 secondary target that may matter more after copying is reduced. Adding cumulative
@@ -69,7 +74,7 @@ event retention, with policy selection, replay, export and comparison outside
 both timers. Optimize and measure this supported path before extending the port;
 do not replace exact parity with approximations to meet a speculative budget.
 
-## PyPy runtime candidate
+## Historical PyPy runtime comparison at `d059b95`
 
 **Measured and replay-verified on Windows at `d059b95`.** The user supplied
 56 passing unit tests under PyPy 7.3.23 / Python 3.11.15, then the
@@ -91,9 +96,9 @@ This is consistent with warmup but does not isolate its cause. Retain all ten
 samples; one explicit warmup is not proof of steady state. Cold-start cost,
 memory use and runtime/JIT environment options were not recorded.
 
-Copying remains dominant in the separate PyPy profiles (59% / 71% cumulative
-for `copy_data`), supporting the existing transaction/history optimization
-priority. Those fractions are instrumented observations, not unprofiled timing
+Copying was dominant in the separate pre-optimization PyPy profiles (59% / 71%
+cumulative for `copy_data`), motivating the now-accepted transaction/history
+change. Those fractions are instrumented observations, not unprofiled timing
 fractions. Keep profiling outside comparisons: PyPy's
 [performance guidance](https://pypy.org/performance.html) warns about distortion.
 

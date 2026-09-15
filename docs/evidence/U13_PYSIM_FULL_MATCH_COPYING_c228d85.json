@@ -1,0 +1,1572 @@
+{
+  "schema": "U13_PYSIM_FULL_MATCH_COPYING_ACCEPTANCE_V1",
+  "recorded_on": "2026-09-15",
+  "source_archive": "u13-pysim-full-copying-RE3M9k-2026-09-15_11-34-28-lmRCI2.zip",
+  "archive_sha256": "9c168cf969652aaddddc630eb843fa06a26fdd73ae54d9127d553c09583cd4b7",
+  "archive_bytes": 26606,
+  "archive_crc_passed": true,
+  "archive_members": [
+    {
+      "path": "run-status.txt",
+      "bytes": 50,
+      "sha256": "11f05b8179603fff162424732c2bfdff9c553a3c9538084df7c2f64c159eed38"
+    },
+    {
+      "path": "stage-times.txt",
+      "bytes": 554,
+      "sha256": "63cf6a19e3f8d5625e5e5fc75efb2e802c8a8cd633f2248d2b53e28e8e678c0c"
+    },
+    {
+      "path": "worktree.diff",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "cpython/baseline-samples.json",
+      "bytes": 7958,
+      "sha256": "a5f03bf8570968e6d1e8265b9d678cf19a57b2ea136277d18e998493448c94d2"
+    },
+    {
+      "path": "cpython/candidate-samples.json",
+      "bytes": 7934,
+      "sha256": "1a28c6c64ef64eb594bd33b6645024b72835440e25362f97fccb682a39074638"
+    },
+    {
+      "path": "cpython/copying-comparison.json",
+      "bytes": 19865,
+      "sha256": "ce308719fc9b1fcf3e9f9c855169d2a881961cbe48f87cceafdf37d58c49fd3d"
+    },
+    {
+      "path": "cpython/copying-comparison.log",
+      "bytes": 1930,
+      "sha256": "f8cce59f4f4208eafdea8f0b084c6dd25b80299d8302ecf4eb8243bf8a1a1603"
+    },
+    {
+      "path": "cpython/python-parity.log",
+      "bytes": 224,
+      "sha256": "f35e3f412e335e5dfb9d1439a5078905ca33b8a3665aee14b9bbb0037f30b9e4"
+    },
+    {
+      "path": "cpython/python-summary.json",
+      "bytes": 9722,
+      "sha256": "23247f519e017c8ad608431bfbdfeeda8d65958ed36a7665cc6c10de1999e541"
+    },
+    {
+      "path": "cpython/python-tests.log",
+      "bytes": 10549,
+      "sha256": "4b6ffc4d2e5db29af4acf888d15a2530706923f4bee3527f1d637a6525713e13"
+    },
+    {
+      "path": "cpython/python-version.log",
+      "bytes": 15,
+      "sha256": "9fc9968e3ae8d82284d7426a87e1426e07246027c7706b0803a1c8d9c60c7a4d"
+    },
+    {
+      "path": "cpython/source-identity.txt",
+      "bytes": 108,
+      "sha256": "79b96a94dca582cf75a79f722bb19fbff1bbf440ae9c37eadccf5e60eb19d70e"
+    },
+    {
+      "path": "pypy/baseline-samples.json",
+      "bytes": 7946,
+      "sha256": "89261311924b017cfe87efba8514d8ae8e75d28ca9581c3e4163276f0f23aad0"
+    },
+    {
+      "path": "pypy/candidate-samples.json",
+      "bytes": 7936,
+      "sha256": "906fd6c027c5d06cc62fda94b46a55f4d777ce33d9b68dbf95df3aa2cc7ea99c"
+    },
+    {
+      "path": "pypy/copying-comparison.json",
+      "bytes": 19855,
+      "sha256": "fae2031274377625fc572b74d004c85fb1afca3e780f8bef31c2004c880b4311"
+    },
+    {
+      "path": "pypy/copying-comparison.log",
+      "bytes": 1921,
+      "sha256": "b04bba395599cd5adb61648c888e7cec52b23faa572d43d7b71914d9bb45398a"
+    },
+    {
+      "path": "pypy/python-parity.log",
+      "bytes": 224,
+      "sha256": "f35e3f412e335e5dfb9d1439a5078905ca33b8a3665aee14b9bbb0037f30b9e4"
+    },
+    {
+      "path": "pypy/python-summary.json",
+      "bytes": 9730,
+      "sha256": "138a1bb6ffcde65d72db396ea799cc1f16061b2eb3e14f9897553e8e5966214e"
+    },
+    {
+      "path": "pypy/python-tests.log",
+      "bytes": 10549,
+      "sha256": "a90c3168dc2f6f47e449abec6842b8ccec90a6b67a404e3670466a21395a3335"
+    },
+    {
+      "path": "pypy/python-version.log",
+      "bytes": 100,
+      "sha256": "4bcb278ac05b54a0242526c6cbbfd37cbddd8bb22ac36394ed4eb9854a1b356b"
+    },
+    {
+      "path": "pypy/source-identity.txt",
+      "bytes": 108,
+      "sha256": "79b96a94dca582cf75a79f722bb19fbff1bbf440ae9c37eadccf5e60eb19d70e"
+    }
+  ],
+  "source_revision": "c228d85d449b19cfb3cd929479b0255c7e49bfc1",
+  "source_sha256": "e34ef7c6e3aeb39040ad413159feb6b2cef5e15e19adbe6accf777339613854f",
+  "worktree_diff_empty": true,
+  "run_status": {
+    "runner": "u13-pysim-full-match-copying",
+    "exit_status": 0
+  },
+  "stage_times_log": "/c/Users/jerem/Downloads/u13-pysim-full-copying-RE3M9k/cpython/python-tests.log=12 seconds\n/c/Users/jerem/Downloads/u13-pysim-full-copying-RE3M9k/cpython/python-parity.log=129 seconds\n/c/Users/jerem/Downloads/u13-pysim-full-copying-RE3M9k/cpython/copying-comparison.log=337 seconds\n/c/Users/jerem/Downloads/u13-pysim-full-copying-RE3M9k/pypy/python-tests.log=12 seconds\n/c/Users/jerem/Downloads/u13-pysim-full-copying-RE3M9k/pypy/python-parity.log=80 seconds\n/c/Users/jerem/Downloads/u13-pysim-full-copying-RE3M9k/pypy/copying-comparison.log=210 seconds\n",
+  "accepted": true,
+  "accepted_reference_verification": {
+    "python_mirror": "U13_PYSIM_FULL_MATCH_V1",
+    "source_revision": "d059b9560a95c32779597260d99829f9f1534f22",
+    "source_sha256": "b25bdf65d1f1689f7e0b5e35cee748e810bd1bf409f2084ee55b0b280ad7358e",
+    "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+    "runtime": "4.7.2-stable (official)",
+    "reference_platform": "Windows",
+    "diagnostic_only": false,
+    "complete_games_matched": 2,
+    "complete_rounds_matched": 30,
+    "game_operations_matched": 767,
+    "fixture_operations": 0,
+    "terminal_rejections_matched": 4,
+    "scope_lords": [
+      "Gremory",
+      "Deimos",
+      "Humbaba",
+      "Kalligan"
+    ],
+    "directed_settlement_components_matched": 8,
+    "scope": "explicit ordinary decisions; no declared powers, paid Rites or Resummon; not roster-complete parity",
+    "event_profile": "U13_BATCH_EVENTS_V1",
+    "full_world_tick_probes_matched": 1,
+    "tick_frames_compared": 200,
+    "all_semantic_rows_and_views_matched": true,
+    "games": [
+      {
+        "name": "bones_endurance",
+        "setup": {
+          "seed": "u13-full-match:bones_endurance",
+          "lords": [
+            "Gremory",
+            "Humbaba"
+          ],
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ]
+        },
+        "operations_matched": 334,
+        "terminal_rejections_matched": 2,
+        "rounds": 13,
+        "outcome": {
+          "action": "game_finished",
+          "round": 13,
+          "winner": 0,
+          "win_by": "Ritual"
+        },
+        "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce",
+        "event_rows": 1206,
+        "peak_marchers": 63,
+        "orders": {
+          "Hunt": 9,
+          "Siege": 7,
+          "Ward": 10
+        },
+        "event_coverage": {
+          "ARTILLERY_FIRED": 16,
+          "ARTILLERY_TARGET_ACQUIRED": 4,
+          "BASTION_SCREENED": 3,
+          "BREACH_CHANGED": 1,
+          "CASTLE_ACTION_SEALED": 26,
+          "CASTLE_ACTIVATED": 4,
+          "CASTLE_DAMAGED": 9,
+          "CASTLE_DESTROYED": 4,
+          "COMBAT_ORDER_REVEALED": 26,
+          "COMBAT_ORDER_SEALED": 26,
+          "ENDURANCE_CHECKED": 13,
+          "FRACTURE_HIT": 4,
+          "FRACTURE_RESOLVED": 1,
+          "GUARDS_SEALED": 13,
+          "GUARD_DEFEATED": 22,
+          "GUARD_DEPLOYED": 26,
+          "GUARD_PAIR_DRAW": 9,
+          "GUARD_PAIR_FORMED": 13,
+          "GUARD_PAIR_SCREEN": 2,
+          "GUARD_PAIR_STRIKE": 6,
+          "HUNT_RESOLVED": 9,
+          "HUNT_STARTED": 9,
+          "KEEP_INTERPOSED": 1,
+          "LORD_BANISHED": 1,
+          "MARCHER_CLASH": 28,
+          "MARCHER_CONTACT": 33,
+          "MARCHER_DAMAGED": 3,
+          "MARCHER_DEFEATED": 85,
+          "MARCHER_DUEL_INTERRUPTED": 5,
+          "MARCHER_RANGED_ATTACK": 204,
+          "MARCHER_REGENERATED": 15,
+          "MARCHER_SPAWNED": 153,
+          "MARCHER_WAITING": 44,
+          "MARCHING_FINISHED": 13,
+          "MARCHING_STARTED": 13,
+          "MARKET_PASSED": 3,
+          "MARKET_REFRESHED": 12,
+          "MARKET_SWAPPED": 23,
+          "MATCH_FINISHED": 1,
+          "NEUTRAL_TEAR_CREATED": 15,
+          "PICKING_THE_BONES": 9,
+          "ROUND_DRAW": 130,
+          "SIEGE_RESOLVED": 7,
+          "SIEGE_STARTED": 7,
+          "SIFTING_THE_RUINS": 4,
+          "SIGIL_AGED": 17,
+          "SIGIL_CREATED": 10,
+          "STOCKPILE_DRAW": 48,
+          "STOCKPILE_SELECTED": 23,
+          "THE_STONES_FORGET": 1,
+          "VACANT_THRONE_RESOLVED": 26,
+          "WORK_RESOLVED": 26
+        }
+      },
+      {
+        "name": "spoils_rekindle",
+        "setup": {
+          "seed": "u13-full-match:spoils_rekindle",
+          "lords": [
+            "Deimos",
+            "Kalligan"
+          ],
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ]
+        },
+        "operations_matched": 433,
+        "terminal_rejections_matched": 2,
+        "rounds": 17,
+        "outcome": {
+          "action": "game_finished",
+          "round": 17,
+          "winner": 1,
+          "win_by": "Ritual"
+        },
+        "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72",
+        "event_rows": 1616,
+        "peak_marchers": 66,
+        "orders": {
+          "Hunt": 11,
+          "Profane": 1,
+          "Siege": 10,
+          "Ward": 12
+        },
+        "event_coverage": {
+          "ARTILLERY_FIRED": 31,
+          "ARTILLERY_TARGET_ACQUIRED": 3,
+          "BASTION_SCREENED": 3,
+          "BREACH_CHANGED": 1,
+          "CASTLE_ACTION_SEALED": 31,
+          "CASTLE_ACTIVATED": 4,
+          "CASTLE_CEILING_CHANGED": 10,
+          "CASTLE_DESTROYED": 4,
+          "COMBAT_ORDER_REVEALED": 34,
+          "COMBAT_ORDER_SEALED": 34,
+          "FEAR_AURA": 1,
+          "FORGE_REPAIR": 24,
+          "FRACTURE_RESOLVED": 1,
+          "GUARDS_SEALED": 17,
+          "GUARD_DEFEATED": 29,
+          "GUARD_DEPLOYED": 34,
+          "GUARD_PAIR_DRAW": 5,
+          "GUARD_PAIR_FORMED": 17,
+          "GUARD_PAIR_SCREEN": 8,
+          "GUARD_PAIR_STRIKE": 5,
+          "HUNT_RESOLVED": 11,
+          "HUNT_STARTED": 11,
+          "KEEP_INTERPOSED": 6,
+          "LORD_BANISHED": 1,
+          "MARCHER_CLASH": 46,
+          "MARCHER_CONTACT": 51,
+          "MARCHER_DEFEATED": 141,
+          "MARCHER_DUEL_INTERRUPTED": 5,
+          "MARCHER_RANGED_ATTACK": 300,
+          "MARCHER_REGENERATED": 25,
+          "MARCHER_SPAWNED": 203,
+          "MARCHER_WAITING": 57,
+          "MARCHING_FINISHED": 17,
+          "MARCHING_STARTED": 17,
+          "MARKET_PASSED": 4,
+          "MARKET_REFRESHED": 16,
+          "MARKET_SWAPPED": 30,
+          "MATCH_FINISHED": 1,
+          "NEUTRAL_TEAR_CREATED": 8,
+          "PERSONAL_TEAR_CREATED": 1,
+          "PROFANE_RESOLVED": 1,
+          "ROUND_DRAW": 170,
+          "SIEGE_RESOLVED": 10,
+          "SIEGE_STARTED": 10,
+          "SIGIL_AGED": 21,
+          "SIGIL_CREATED": 12,
+          "STOCKPILE_DRAW": 54,
+          "STOCKPILE_SELECTED": 26,
+          "VACANT_THRONE_RESOLVED": 34,
+          "WORK_RESOLVED": 31
+        }
+      }
+    ],
+    "event_coverage": {
+      "ARTILLERY_FIRED": 47,
+      "ARTILLERY_TARGET_ACQUIRED": 7,
+      "BASTION_SCREENED": 6,
+      "BREACH_CHANGED": 2,
+      "CASTLE_ACTION_SEALED": 57,
+      "CASTLE_ACTIVATED": 8,
+      "CASTLE_CEILING_CHANGED": 10,
+      "CASTLE_DAMAGED": 9,
+      "CASTLE_DESTROYED": 8,
+      "COMBAT_ORDER_REVEALED": 60,
+      "COMBAT_ORDER_SEALED": 60,
+      "ENDURANCE_CHECKED": 13,
+      "FEAR_AURA": 1,
+      "FORGE_REPAIR": 24,
+      "FRACTURE_HIT": 4,
+      "FRACTURE_RESOLVED": 2,
+      "GUARDS_SEALED": 30,
+      "GUARD_DEFEATED": 51,
+      "GUARD_DEPLOYED": 60,
+      "GUARD_PAIR_DRAW": 14,
+      "GUARD_PAIR_FORMED": 30,
+      "GUARD_PAIR_SCREEN": 10,
+      "GUARD_PAIR_STRIKE": 11,
+      "HUNT_RESOLVED": 20,
+      "HUNT_STARTED": 20,
+      "KEEP_INTERPOSED": 7,
+      "LORD_BANISHED": 2,
+      "MARCHER_CLASH": 74,
+      "MARCHER_CONTACT": 84,
+      "MARCHER_DAMAGED": 3,
+      "MARCHER_DEFEATED": 226,
+      "MARCHER_DUEL_INTERRUPTED": 10,
+      "MARCHER_RANGED_ATTACK": 504,
+      "MARCHER_REGENERATED": 40,
+      "MARCHER_SPAWNED": 356,
+      "MARCHER_WAITING": 101,
+      "MARCHING_FINISHED": 30,
+      "MARCHING_STARTED": 30,
+      "MARKET_PASSED": 7,
+      "MARKET_REFRESHED": 28,
+      "MARKET_SWAPPED": 53,
+      "MATCH_FINISHED": 2,
+      "NEUTRAL_TEAR_CREATED": 23,
+      "PERSONAL_TEAR_CREATED": 1,
+      "PICKING_THE_BONES": 9,
+      "PROFANE_RESOLVED": 1,
+      "ROUND_DRAW": 300,
+      "SIEGE_RESOLVED": 17,
+      "SIEGE_STARTED": 17,
+      "SIFTING_THE_RUINS": 4,
+      "SIGIL_AGED": 38,
+      "SIGIL_CREATED": 22,
+      "STOCKPILE_DRAW": 102,
+      "STOCKPILE_SELECTED": 49,
+      "THE_STONES_FORGET": 1,
+      "VACANT_THRONE_RESOLVED": 60,
+      "WORK_RESOLVED": 57
+    },
+    "failures": 0,
+    "deliberate_mismatches_rejected": 13
+  },
+  "runtimes": {
+    "cpython": {
+      "python_version_log": "Python 3.14.7\n",
+      "unit_tests": {
+        "passed": 63,
+        "failed": 0,
+        "seconds": 10.493,
+        "test_names_match_other_runtime": true
+      },
+      "parity_provenance": {
+        "schema": "U13_FULL_MATCH_COPYING_PARITY_V1",
+        "source_revision": "c228d85d449b19cfb3cd929479b0255c7e49bfc1",
+        "source_sha256": "e34ef7c6e3aeb39040ad413159feb6b2cef5e15e19adbe6accf777339613854f",
+        "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+        "python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+        "python_implementation": "CPython",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "reference_revision": "d059b9560a95c32779597260d99829f9f1534f22",
+        "reference_source_sha256": "b25bdf65d1f1689f7e0b5e35cee748e810bd1bf409f2084ee55b0b280ad7358e",
+        "reference_trace_sha256": "81318a197145163bbd0d282c16a2b1ccc19d92c8ad7f68b1c6c8ac3f2f697b72",
+        "native_sources": {
+          "files": 386,
+          "sha256": "94233ad6271203a05f324fc691ef098ab45397d4f6cbe12922caec90854bafac"
+        },
+        "native_sources_unchanged": true,
+        "new_godot_run": false,
+        "failures": 0
+      },
+      "reference_verification_matches_accepted_summary": true,
+      "timing": {
+        "schema": "U13_FULL_MATCH_COPYING_TIMING_V1",
+        "source_revision": "c228d85d449b19cfb3cd929479b0255c7e49bfc1",
+        "source_sha256": "e34ef7c6e3aeb39040ad413159feb6b2cef5e15e19adbe6accf777339613854f",
+        "baseline_revision": "d059b9560a95c32779597260d99829f9f1534f22",
+        "baseline_source_sha256": "b25bdf65d1f1689f7e0b5e35cee748e810bd1bf409f2084ee55b0b280ad7358e",
+        "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+        "reference_trace_sha256": "81318a197145163bbd0d282c16a2b1ccc19d92c8ad7f68b1c6c8ac3f2f697b72",
+        "native_sources": {
+          "files": 386,
+          "sha256": "94233ad6271203a05f324fc691ef098ab45397d4f6cbe12922caec90854bafac"
+        },
+        "shared_workload_sha256": {
+          "Scripts/Sim/u13_pysim/benchmark_full_match.py": "cb42c535f415423bb81ac9a85ca09a0bc4b2951ed42c87c053df3a4d86b367cb",
+          "Scripts/Sim/u13_pysim/full_match_inputs.json": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865"
+        },
+        "worker_sha256": "8597d4aa93914acfc3ffe4f7adf4d37f484317350fedda75f5e8210357fe6078",
+        "workers": 1,
+        "block_order": [
+          "baseline",
+          "candidate"
+        ],
+        "games_per_implementation": 20,
+        "same_python_executable": true,
+        "parity_prerequisite_passed": true,
+        "initial_games_included": true,
+        "blocks": [
+          {
+            "implementation": "baseline",
+            "source_revision": "d059b9560a95c32779597260d99829f9f1534f22",
+            "source_sha256": "b25bdf65d1f1689f7e0b5e35cee748e810bd1bf409f2084ee55b0b280ad7358e",
+            "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+            "python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+            "python_implementation": "CPython",
+            "executable": "C:\\Users\\jerem\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+            "platform": "Windows-11-10.0.26200-SP0",
+            "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+            "logical_cpus": 8,
+            "gc_enabled": true,
+            "process_id": 30144,
+            "one_process_for_all_games": true,
+            "unrecorded_warmup_games": 0,
+            "measured_games": 20,
+            "samples": [
+              {
+                "index": 0,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 8980.7041,
+                "cpu_ms": 8906.25,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 1,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 16477.1983,
+                "cpu_ms": 16390.625,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 2,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 9176.903,
+                "cpu_ms": 9140.625,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 3,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 16690.0089,
+                "cpu_ms": 16593.75,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 4,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 9214.3719,
+                "cpu_ms": 9125.0,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 5,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 16604.9248,
+                "cpu_ms": 16500.0,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 6,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 9135.4106,
+                "cpu_ms": 9078.125,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 7,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 16773.4662,
+                "cpu_ms": 16671.875,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 8,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 9185.8146,
+                "cpu_ms": 9140.625,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 9,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 16803.413,
+                "cpu_ms": 16656.25,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 10,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 9176.4969,
+                "cpu_ms": 9171.875,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 11,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 17848.0795,
+                "cpu_ms": 17750.0,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 12,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 9235.955,
+                "cpu_ms": 9203.125,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 13,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 16578.0174,
+                "cpu_ms": 16500.0,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 14,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 9365.9186,
+                "cpu_ms": 9250.0,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 15,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 16265.1024,
+                "cpu_ms": 16156.25,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 16,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 9177.8396,
+                "cpu_ms": 9078.125,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 17,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 16215.9038,
+                "cpu_ms": 16125.0,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 18,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 9072.342,
+                "cpu_ms": 9078.125,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 19,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 16479.998,
+                "cpu_ms": 16375.0,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              }
+            ],
+            "cases": [
+              {
+                "name": "bones_endurance",
+                "rounds": 13,
+                "input_sha256": "0fd5f4737585bb16fb5836f3e68aabcf0dc84e109216513983ce9b56395a5c2f",
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce",
+                "outcome": {
+                  "action": "game_finished",
+                  "round": 13,
+                  "winner": 0,
+                  "win_by": "Ritual"
+                },
+                "wall": {
+                  "samples": 10,
+                  "mean_ms": 9172.17563,
+                  "median_ms": 9177.371299999999,
+                  "p95_ms": 9365.9186,
+                  "min_ms": 8980.7041,
+                  "max_ms": 9365.9186
+                },
+                "cpu": {
+                  "samples": 10,
+                  "mean_ms": 9117.1875,
+                  "median_ms": 9132.8125,
+                  "p95_ms": 9250.0,
+                  "min_ms": 8906.25,
+                  "max_ms": 9250.0
+                }
+              },
+              {
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "input_sha256": "c9d5e3e20d2bae6f21cc489f838ad1e37cf1dbcc36b1c6f0f3b7349d79876c3e",
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72",
+                "outcome": {
+                  "action": "game_finished",
+                  "round": 17,
+                  "winner": 1,
+                  "win_by": "Ritual"
+                },
+                "wall": {
+                  "samples": 10,
+                  "mean_ms": 16673.61123,
+                  "median_ms": 16591.471100000002,
+                  "p95_ms": 17848.0795,
+                  "min_ms": 16215.9038,
+                  "max_ms": 17848.0795
+                },
+                "cpu": {
+                  "samples": 10,
+                  "mean_ms": 16571.875,
+                  "median_ms": 16500.0,
+                  "p95_ms": 17750.0,
+                  "min_ms": 16125.0,
+                  "max_ms": 17750.0
+                }
+              }
+            ],
+            "mean_wall_ms": 12922.89343,
+            "mean_cpu_ms": 12844.53125,
+            "first_half_mean_wall_ms": 12904.22154,
+            "last_half_mean_wall_ms": 12941.56532,
+            "initial_pair_mean_wall_ms": 12728.9512,
+            "all_final_digests_matched": true,
+            "profiling_enabled": false,
+            "pypy_environment": {},
+            "interpreter_flags": "sys.flags(debug=0, inspect=0, interactive=0, optimize=0, dont_write_bytecode=0, no_user_site=0, no_site=0, ignore_environment=0, verbose=0, bytes_warning=0, quiet=0, hash_randomization=1, isolated=0, dev_mode=False, utf8_mode=0, warn_default_encoding=0, safe_path=False, int_max_str_digits=4300)",
+            "interpreter_xoptions": {},
+            "memory_measurement": null,
+            "failures": 0
+          },
+          {
+            "implementation": "candidate",
+            "source_revision": "c228d85d449b19cfb3cd929479b0255c7e49bfc1",
+            "source_sha256": "e34ef7c6e3aeb39040ad413159feb6b2cef5e15e19adbe6accf777339613854f",
+            "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+            "python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+            "python_implementation": "CPython",
+            "executable": "C:\\Users\\jerem\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+            "platform": "Windows-11-10.0.26200-SP0",
+            "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+            "logical_cpus": 8,
+            "gc_enabled": true,
+            "process_id": 24308,
+            "one_process_for_all_games": true,
+            "unrecorded_warmup_games": 0,
+            "measured_games": 20,
+            "samples": [
+              {
+                "index": 0,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 2127.6235,
+                "cpu_ms": 2109.375,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 1,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 3296.1894,
+                "cpu_ms": 3296.875,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 2,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 2049.676,
+                "cpu_ms": 2031.25,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 3,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 3233.39,
+                "cpu_ms": 3218.75,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 4,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 2090.6441,
+                "cpu_ms": 2078.125,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 5,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 3223.5773,
+                "cpu_ms": 3234.375,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 6,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 2065.0675,
+                "cpu_ms": 2046.875,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 7,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 3213.0737,
+                "cpu_ms": 3187.5,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 8,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 2094.3917,
+                "cpu_ms": 2093.75,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 9,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 3265.8959,
+                "cpu_ms": 3265.625,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 10,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 2308.6991,
+                "cpu_ms": 2281.25,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 11,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 3226.5331,
+                "cpu_ms": 3203.125,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 12,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 2091.0208,
+                "cpu_ms": 2093.75,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 13,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 3321.9788,
+                "cpu_ms": 3312.5,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 14,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 2061.498,
+                "cpu_ms": 2046.875,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 15,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 3207.1662,
+                "cpu_ms": 3187.5,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 16,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 2042.0865,
+                "cpu_ms": 2015.625,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 17,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 3285.647,
+                "cpu_ms": 3265.625,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 18,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 2072.3998,
+                "cpu_ms": 2046.875,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 19,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 3844.1709,
+                "cpu_ms": 3828.125,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              }
+            ],
+            "cases": [
+              {
+                "name": "bones_endurance",
+                "rounds": 13,
+                "input_sha256": "0fd5f4737585bb16fb5836f3e68aabcf0dc84e109216513983ce9b56395a5c2f",
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce",
+                "outcome": {
+                  "action": "game_finished",
+                  "round": 13,
+                  "winner": 0,
+                  "win_by": "Ritual"
+                },
+                "wall": {
+                  "samples": 10,
+                  "mean_ms": 2100.3107,
+                  "median_ms": 2081.5219500000003,
+                  "p95_ms": 2308.6991,
+                  "min_ms": 2042.0865,
+                  "max_ms": 2308.6991
+                },
+                "cpu": {
+                  "samples": 10,
+                  "mean_ms": 2084.375,
+                  "median_ms": 2062.5,
+                  "p95_ms": 2281.25,
+                  "min_ms": 2015.625,
+                  "max_ms": 2281.25
+                }
+              },
+              {
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "input_sha256": "c9d5e3e20d2bae6f21cc489f838ad1e37cf1dbcc36b1c6f0f3b7349d79876c3e",
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72",
+                "outcome": {
+                  "action": "game_finished",
+                  "round": 17,
+                  "winner": 1,
+                  "win_by": "Ritual"
+                },
+                "wall": {
+                  "samples": 10,
+                  "mean_ms": 3311.76223,
+                  "median_ms": 3249.64295,
+                  "p95_ms": 3844.1709,
+                  "min_ms": 3207.1662,
+                  "max_ms": 3844.1709
+                },
+                "cpu": {
+                  "samples": 10,
+                  "mean_ms": 3300.0,
+                  "median_ms": 3250.0,
+                  "p95_ms": 3828.125,
+                  "min_ms": 3187.5,
+                  "max_ms": 3828.125
+                }
+              }
+            ],
+            "mean_wall_ms": 2706.036465,
+            "mean_cpu_ms": 2692.1875,
+            "first_half_mean_wall_ms": 2665.95291,
+            "last_half_mean_wall_ms": 2746.12002,
+            "initial_pair_mean_wall_ms": 2711.9064500000004,
+            "all_final_digests_matched": true,
+            "profiling_enabled": false,
+            "pypy_environment": {},
+            "interpreter_flags": "sys.flags(debug=0, inspect=0, interactive=0, optimize=0, dont_write_bytecode=0, no_user_site=0, no_site=0, ignore_environment=0, verbose=0, bytes_warning=0, quiet=0, hash_randomization=1, isolated=0, dev_mode=False, utf8_mode=0, warn_default_encoding=0, safe_path=False, int_max_str_digits=4300)",
+            "interpreter_xoptions": {},
+            "memory_measurement": null,
+            "failures": 0
+          }
+        ],
+        "mean_wall_speedup": 4.775579929223164,
+        "mean_wall_reduction_percent": 79.06013479366749,
+        "included": "independent setup; explicit decisions; all 20 hooks; transactions; complete semantic history; victory",
+        "excluded": "process startup/imports; input loading; policy selection; comparison snapshots/digests; export; profiling",
+        "scope": "alternating repetitions of the two accepted ordinary games, not roster-complete doctrine throughput",
+        "warmup_caveat": "initial games and early/later halves are reported; no steady-state JIT or sustained campaign capacity is asserted",
+        "memory_measurement": null,
+        "full_match_50000_wall_seconds": null,
+        "failures": 0
+      }
+    },
+    "pypy": {
+      "python_version_log": "Python 3.11.15 (194f9f44b505, May 25 2026, 19:35:45)\n[PyPy 7.3.23 with MSC v.1941 64 bit (AMD64)]\n",
+      "unit_tests": {
+        "passed": 63,
+        "failed": 0,
+        "seconds": 11.246,
+        "test_names_match_other_runtime": true
+      },
+      "parity_provenance": {
+        "schema": "U13_FULL_MATCH_COPYING_PARITY_V1",
+        "source_revision": "c228d85d449b19cfb3cd929479b0255c7e49bfc1",
+        "source_sha256": "e34ef7c6e3aeb39040ad413159feb6b2cef5e15e19adbe6accf777339613854f",
+        "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+        "python": "3.11.15 (194f9f44b505, May 25 2026, 19:35:45)\n[PyPy 7.3.23 with MSC v.1941 64 bit (AMD64)]",
+        "python_implementation": "PyPy",
+        "platform": "Windows-10-10.0.26200-SP0",
+        "reference_revision": "d059b9560a95c32779597260d99829f9f1534f22",
+        "reference_source_sha256": "b25bdf65d1f1689f7e0b5e35cee748e810bd1bf409f2084ee55b0b280ad7358e",
+        "reference_trace_sha256": "81318a197145163bbd0d282c16a2b1ccc19d92c8ad7f68b1c6c8ac3f2f697b72",
+        "native_sources": {
+          "files": 386,
+          "sha256": "94233ad6271203a05f324fc691ef098ab45397d4f6cbe12922caec90854bafac"
+        },
+        "native_sources_unchanged": true,
+        "new_godot_run": false,
+        "failures": 0
+      },
+      "reference_verification_matches_accepted_summary": true,
+      "timing": {
+        "schema": "U13_FULL_MATCH_COPYING_TIMING_V1",
+        "source_revision": "c228d85d449b19cfb3cd929479b0255c7e49bfc1",
+        "source_sha256": "e34ef7c6e3aeb39040ad413159feb6b2cef5e15e19adbe6accf777339613854f",
+        "baseline_revision": "d059b9560a95c32779597260d99829f9f1534f22",
+        "baseline_source_sha256": "b25bdf65d1f1689f7e0b5e35cee748e810bd1bf409f2084ee55b0b280ad7358e",
+        "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+        "reference_trace_sha256": "81318a197145163bbd0d282c16a2b1ccc19d92c8ad7f68b1c6c8ac3f2f697b72",
+        "native_sources": {
+          "files": 386,
+          "sha256": "94233ad6271203a05f324fc691ef098ab45397d4f6cbe12922caec90854bafac"
+        },
+        "shared_workload_sha256": {
+          "Scripts/Sim/u13_pysim/benchmark_full_match.py": "cb42c535f415423bb81ac9a85ca09a0bc4b2951ed42c87c053df3a4d86b367cb",
+          "Scripts/Sim/u13_pysim/full_match_inputs.json": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865"
+        },
+        "worker_sha256": "8597d4aa93914acfc3ffe4f7adf4d37f484317350fedda75f5e8210357fe6078",
+        "workers": 1,
+        "block_order": [
+          "candidate",
+          "baseline"
+        ],
+        "games_per_implementation": 20,
+        "same_python_executable": true,
+        "parity_prerequisite_passed": true,
+        "initial_games_included": true,
+        "blocks": [
+          {
+            "implementation": "candidate",
+            "source_revision": "c228d85d449b19cfb3cd929479b0255c7e49bfc1",
+            "source_sha256": "e34ef7c6e3aeb39040ad413159feb6b2cef5e15e19adbe6accf777339613854f",
+            "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+            "python": "3.11.15 (194f9f44b505, May 25 2026, 19:35:45)\n[PyPy 7.3.23 with MSC v.1941 64 bit (AMD64)]",
+            "python_implementation": "PyPy",
+            "executable": "C:\\Users\\jerem\\Downloads\\pypy3.11-v7.3.23-win64\\pypy3.11-v7.3.23-win64\\pypy3.exe",
+            "platform": "Windows-10-10.0.26200-SP0",
+            "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+            "logical_cpus": 8,
+            "gc_enabled": true,
+            "process_id": 31116,
+            "one_process_for_all_games": true,
+            "unrecorded_warmup_games": 0,
+            "measured_games": 20,
+            "samples": [
+              {
+                "index": 0,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 2965.4985,
+                "cpu_ms": 2906.25,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 1,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 2620.0108,
+                "cpu_ms": 2593.75,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 2,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 1329.2795,
+                "cpu_ms": 1328.125,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 3,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 1800.0807,
+                "cpu_ms": 1781.25,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 4,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 1049.832,
+                "cpu_ms": 1046.875,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 5,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 1708.8796,
+                "cpu_ms": 1687.5,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 6,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 1017.2532,
+                "cpu_ms": 1000.0,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 7,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 1514.0165,
+                "cpu_ms": 1484.375,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 8,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 978.4951,
+                "cpu_ms": 984.375,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 9,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 1639.4324,
+                "cpu_ms": 1625.0,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 10,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 958.4233,
+                "cpu_ms": 921.875,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 11,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 1582.9743,
+                "cpu_ms": 1546.875,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 12,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 956.9815,
+                "cpu_ms": 921.875,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 13,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 1490.5951,
+                "cpu_ms": 1468.75,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 14,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 982.2741,
+                "cpu_ms": 984.375,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 15,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 1482.4629,
+                "cpu_ms": 1484.375,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 16,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 960.3527,
+                "cpu_ms": 953.125,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 17,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 1494.7509,
+                "cpu_ms": 1500.0,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 18,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 974.4858,
+                "cpu_ms": 984.375,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 19,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 1466.6577,
+                "cpu_ms": 1437.5,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              }
+            ],
+            "cases": [
+              {
+                "name": "bones_endurance",
+                "rounds": 13,
+                "input_sha256": "0fd5f4737585bb16fb5836f3e68aabcf0dc84e109216513983ce9b56395a5c2f",
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce",
+                "outcome": {
+                  "action": "game_finished",
+                  "round": 13,
+                  "winner": 0,
+                  "win_by": "Ritual"
+                },
+                "wall": {
+                  "samples": 10,
+                  "mean_ms": 1217.28757,
+                  "median_ms": 980.3846,
+                  "p95_ms": 2965.4985,
+                  "min_ms": 956.9815,
+                  "max_ms": 2965.4985
+                },
+                "cpu": {
+                  "samples": 10,
+                  "mean_ms": 1203.125,
+                  "median_ms": 984.375,
+                  "p95_ms": 2906.25,
+                  "min_ms": 921.875,
+                  "max_ms": 2906.25
+                }
+              },
+              {
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "input_sha256": "c9d5e3e20d2bae6f21cc489f838ad1e37cf1dbcc36b1c6f0f3b7349d79876c3e",
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72",
+                "outcome": {
+                  "action": "game_finished",
+                  "round": 17,
+                  "winner": 1,
+                  "win_by": "Ritual"
+                },
+                "wall": {
+                  "samples": 10,
+                  "mean_ms": 1679.9860899999999,
+                  "median_ms": 1548.4954,
+                  "p95_ms": 2620.0108,
+                  "min_ms": 1466.6577,
+                  "max_ms": 2620.0108
+                },
+                "cpu": {
+                  "samples": 10,
+                  "mean_ms": 1660.9375,
+                  "median_ms": 1523.4375,
+                  "p95_ms": 2593.75,
+                  "min_ms": 1437.5,
+                  "max_ms": 2593.75
+                }
+              }
+            ],
+            "mean_wall_ms": 1448.63683,
+            "mean_cpu_ms": 1432.03125,
+            "first_half_mean_wall_ms": 1662.27783,
+            "last_half_mean_wall_ms": 1234.99583,
+            "initial_pair_mean_wall_ms": 2792.75465,
+            "all_final_digests_matched": true,
+            "profiling_enabled": false,
+            "pypy_environment": {},
+            "interpreter_flags": "sys.flags(debug=0, inspect=0, interactive=0, optimize=0, dont_write_bytecode=0, no_user_site=0, no_site=0, ignore_environment=0, verbose=0, bytes_warning=0, quiet=0, hash_randomization=0, isolated=0, dev_mode=False, utf8_mode=1, warn_default_encoding=0, int_max_str_digits=-1, safe_path=False)",
+            "interpreter_xoptions": {},
+            "memory_measurement": null,
+            "failures": 0
+          },
+          {
+            "implementation": "baseline",
+            "source_revision": "d059b9560a95c32779597260d99829f9f1534f22",
+            "source_sha256": "b25bdf65d1f1689f7e0b5e35cee748e810bd1bf409f2084ee55b0b280ad7358e",
+            "inputs_sha256": "c811aa29dd34c2e8c6cf7cc710693483340c067415aaae0b94c55cc8f8fb3865",
+            "python": "3.11.15 (194f9f44b505, May 25 2026, 19:35:45)\n[PyPy 7.3.23 with MSC v.1941 64 bit (AMD64)]",
+            "python_implementation": "PyPy",
+            "executable": "C:\\Users\\jerem\\Downloads\\pypy3.11-v7.3.23-win64\\pypy3.11-v7.3.23-win64\\pypy3.exe",
+            "platform": "Windows-10-10.0.26200-SP0",
+            "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+            "logical_cpus": 8,
+            "gc_enabled": true,
+            "process_id": 15740,
+            "one_process_for_all_games": true,
+            "unrecorded_warmup_games": 0,
+            "measured_games": 20,
+            "samples": [
+              {
+                "index": 0,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 7566.0589,
+                "cpu_ms": 7500.0,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 1,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 10837.4378,
+                "cpu_ms": 10765.625,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 2,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 5661.0059,
+                "cpu_ms": 5640.625,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 3,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 9892.227,
+                "cpu_ms": 9859.375,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 4,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 5516.4313,
+                "cpu_ms": 5468.75,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 5,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 9672.9065,
+                "cpu_ms": 9609.375,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 6,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 5476.4292,
+                "cpu_ms": 5437.5,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 7,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 9725.9537,
+                "cpu_ms": 9671.875,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 8,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 5778.2673,
+                "cpu_ms": 5734.375,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 9,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 9660.0967,
+                "cpu_ms": 9593.75,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 10,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 5558.5771,
+                "cpu_ms": 5484.375,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 11,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 9816.3657,
+                "cpu_ms": 9781.25,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 12,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 5621.3133,
+                "cpu_ms": 5546.875,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 13,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 9676.6497,
+                "cpu_ms": 9640.625,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 14,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 5496.3205,
+                "cpu_ms": 5468.75,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 15,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 10073.1441,
+                "cpu_ms": 10031.25,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 16,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 5628.402,
+                "cpu_ms": 5625.0,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 17,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 9632.4085,
+                "cpu_ms": 9562.5,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              },
+              {
+                "index": 18,
+                "name": "bones_endurance",
+                "rounds": 13,
+                "wall_ms": 5638.7412,
+                "cpu_ms": 5625.0,
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce"
+              },
+              {
+                "index": 19,
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "wall_ms": 9644.1821,
+                "cpu_ms": 9625.0,
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72"
+              }
+            ],
+            "cases": [
+              {
+                "name": "bones_endurance",
+                "rounds": 13,
+                "input_sha256": "0fd5f4737585bb16fb5836f3e68aabcf0dc84e109216513983ce9b56395a5c2f",
+                "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce",
+                "outcome": {
+                  "action": "game_finished",
+                  "round": 13,
+                  "winner": 0,
+                  "win_by": "Ritual"
+                },
+                "wall": {
+                  "samples": 10,
+                  "mean_ms": 5794.15467,
+                  "median_ms": 5624.85765,
+                  "p95_ms": 7566.0589,
+                  "min_ms": 5476.4292,
+                  "max_ms": 7566.0589
+                },
+                "cpu": {
+                  "samples": 10,
+                  "mean_ms": 5753.125,
+                  "median_ms": 5585.9375,
+                  "p95_ms": 7500.0,
+                  "min_ms": 5437.5,
+                  "max_ms": 7500.0
+                }
+              },
+              {
+                "name": "spoils_rekindle",
+                "rounds": 17,
+                "input_sha256": "c9d5e3e20d2bae6f21cc489f838ad1e37cf1dbcc36b1c6f0f3b7349d79876c3e",
+                "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72",
+                "outcome": {
+                  "action": "game_finished",
+                  "round": 17,
+                  "winner": 1,
+                  "win_by": "Ritual"
+                },
+                "wall": {
+                  "samples": 10,
+                  "mean_ms": 9863.13718,
+                  "median_ms": 9701.3017,
+                  "p95_ms": 10837.4378,
+                  "min_ms": 9632.4085,
+                  "max_ms": 10837.4378
+                },
+                "cpu": {
+                  "samples": 10,
+                  "mean_ms": 9814.0625,
+                  "median_ms": 9656.25,
+                  "p95_ms": 10765.625,
+                  "min_ms": 9562.5,
+                  "max_ms": 10765.625
+                }
+              }
+            ],
+            "mean_wall_ms": 7828.645925,
+            "mean_cpu_ms": 7783.59375,
+            "first_half_mean_wall_ms": 7978.68143,
+            "last_half_mean_wall_ms": 7678.61042,
+            "initial_pair_mean_wall_ms": 9201.74835,
+            "all_final_digests_matched": true,
+            "profiling_enabled": false,
+            "pypy_environment": {},
+            "interpreter_flags": "sys.flags(debug=0, inspect=0, interactive=0, optimize=0, dont_write_bytecode=0, no_user_site=0, no_site=0, ignore_environment=0, verbose=0, bytes_warning=0, quiet=0, hash_randomization=0, isolated=0, dev_mode=False, utf8_mode=1, warn_default_encoding=0, int_max_str_digits=-1, safe_path=False)",
+            "interpreter_xoptions": {},
+            "memory_measurement": null,
+            "failures": 0
+          }
+        ],
+        "mean_wall_speedup": 5.404146686647474,
+        "mean_wall_reduction_percent": 81.49569103165182,
+        "included": "independent setup; explicit decisions; all 20 hooks; transactions; complete semantic history; victory",
+        "excluded": "process startup/imports; input loading; policy selection; comparison snapshots/digests; export; profiling",
+        "scope": "alternating repetitions of the two accepted ordinary games, not roster-complete doctrine throughput",
+        "warmup_caveat": "initial games and early/later halves are reported; no steady-state JIT or sustained campaign capacity is asserted",
+        "memory_measurement": null,
+        "full_match_50000_wall_seconds": null,
+        "failures": 0
+      }
+    }
+  },
+  "validation": {
+    "all_21_archive_members_inspected": true,
+    "both_unit_test_logs_have_same_63_passing_tests": true,
+    "both_complete_parity_summaries_equal_accepted_d059b95_summary": true,
+    "all_80_timed_final_digests_checked": true,
+    "standalone_sample_files_equal_comparison_blocks": true,
+    "sample_order_counts_and_statistics_recomputed": true,
+    "candidate_source_native_inputs_trace_and_worker_hashes_verified_against_repository_and_prior_evidence": true,
+    "new_godot_run": false,
+    "new_local_match_run": false
+  },
+  "arithmetic_only": {
+    "same_upload_cpython_baseline_to_pypy_candidate_speedup": 8.92072682564615,
+    "pypy_candidate_all_20_mean_seconds": 1.4486368299999999,
+    "pypy_candidate_final_10_mean_seconds": 1.2349958300000001,
+    "pypy_candidate_final_10_per_case_seconds": {
+      "bones_endurance": 0.96650348,
+      "spoils_rekindle": 1.50348818
+    },
+    "fixed_workload_repetitions_per_hour_all_20": 2485.094901252787,
+    "fixed_workload_repetitions_per_hour_final_10": 2914.9895996005102,
+    "fixed_workload_50000_hours_all_20": 20.119955972222222,
+    "fixed_workload_50000_hours_final_10": 17.152719861111112
+  },
+  "limitations": [
+    "Eighty timed repetitions of two accepted ordinary games, not eighty distinct games or full-roster parity.",
+    "Includes setup, explicit decisions, all 20 hooks, transactions, complete semantic history and victory; excludes policy selection, replay/digest comparison, process startup/imports and profiling.",
+    "Final ten samples are a reported subset, not proof of steady-state JIT or measured campaign capacity.",
+    "Current baselines are from the same sustained comparison; historical 15.21-second CPython and 5.13-second PyPy results used a different sampling protocol and are not substituted as denominators.",
+    "PyPy baseline is slower than its earlier archive; the archive does not isolate the cause.",
+    "Workers run sequentially; CPU/OS timing, process order and JIT effects are not fully isolated. Memory use and worker scaling remain unmeasured.",
+    "Future native rule changes require a fresh Godot export; this accepts the optimized c228d85 source against the pinned d059b95 oracle only."
+  ],
+  "next_milestone": "Profile the accepted optimized full-match implementation separately from unprofiled timing, identify the remaining measured cost, and retain exact CPython/PyPy replay and rollback gates before further optimization or scope expansion."
+}

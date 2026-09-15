@@ -2,14 +2,19 @@
 
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
-**2026-09-15 full-match rollback optimization implemented; Windows comparison pending:**
+**2026-09-15 full-match rollback optimization accepted on Windows at clean `c228d85`:**
 The [copying pass](U13_PYSIM_FULL_MATCH_COPYING_2026-09-15.md) shares unchanged
 history/presentation only within audited owned transactions, retaining detached
-snapshots and full rollback for live-state access/custom hooks. All 63 local
-tests and exact replay against the pinned Windows reference pass. A matched
-Linux CPython diagnostic measured 12.57 → 2.75 seconds (4.57×). The focused
-Windows runner checks both CPython/PyPy and 20 consecutive games per
-implementation/runtime against `d059b95`, reusing the existing native stream.
+snapshots and full rollback for live-state access/custom hooks. CPython 3.14.7
+and PyPy 7.3.23 each passed all 63 tests and the exact two-game replay, including
+all 13 corruption rejections, against the pinned Windows Godot 4.7.2 stream.
+Twenty consecutive games per implementation/runtime measured CPython
+12.92 → 2.71 seconds (4.78×) and PyPy 7.83 → 1.45 seconds (5.40×), using
+`d059b95` as each runtime's control. All 80 final digests matched; PyPy's final
+ten games averaged 1.23 seconds. These are repetitions of two ordinary games;
+policy cost, full-roster throughput and worker scaling remain unmeasured. Profile
+the optimized implementation to choose the next change; the old copying profile
+does not describe the new distribution of cost.
 
 **2026-09-15 first complete-game adapter accepted at clean `d059b95`:**
 `FullMatch` connects all 20 hooks, repeated rounds, Marching reactions, cleanup,
@@ -21,8 +26,8 @@ rejections passed; independent replay reproduced the complete uploaded summary.
 Windows CPython match means are 11.34 / 19.07 seconds. The subsequent
 [PyPy 7.3.23 run](U13_PYSIM_PYPY_2026-09-15.md) passed the same exact replay at
 unchanged source/input fingerprints and measured 3.73 / 6.53 seconds (2.96×
-observed gain). Transaction/history copying remains the measured next target
-before extending the port. It retains a swappable
+observed gain). That pre-optimization profile motivated the copying pass now
+accepted above. It retains a swappable
 reference policy outside authority. Declared powers, paid Rites/Resummon and the
 other Lords remain unsupported. See [scope and accepted evidence](U13_PYSIM_FULL_MATCH_2026-09-15.md).
 This supersedes the old full-round implementation boundary for this new adapter;
