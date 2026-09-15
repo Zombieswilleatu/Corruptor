@@ -1,11 +1,10 @@
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
-**2026-09-15 PySim foundation implemented:** Independent Python opening state,
-exact primitive/transport comparison and explicit Godot phase replay are now
-available. Local diagnostics match 14 full opening snapshots and replay 49
-operations; Windows 4.7.2 acceptance is pending the focused
-`run_u13_pysim_foundation.sh` gate. See
-[implementation and scope](U13_PYSIM_FOUNDATION_2026-09-15.md).
+**2026-09-15 PySim foundation accepted:** The focused Windows Godot 4.7.2 gate
+passed at clean revision `4e485b1`: 51 Godot checks, 14 exact Python opening
+snapshots, 49 Godot-replayed operations across two rounds, six Python unit tests
+and ten rejected evidence corruptions; zero failures or script errors. See
+[implementation and accepted evidence](U13_PYSIM_FOUNDATION_2026-09-15.md).
 Python round resolution is not implemented yet. The user confirmed the
 integrated 63d1372 playable build runs before this work began.
 
@@ -18,9 +17,10 @@ gallery change into `u13-basic-doctrine`. See
 [exact revisions and evidence](U13_ACCEPTED_CHECKPOINT_2026-09-15.md).
 The campaign predates forecast/public-Guard changes and is not balance evidence.
 
-**Next: PySim parity.** The existing Python simulator and golden harness were
-inspected. Begin with a U13 trace contract, exact deterministic primitives and
-opening-state parity; see [inventory and first milestone](U13_PYSIM_PARITY_2026-09-15.md).
+**Next: PySim round sequencing, submissions and opening-round economy.** The
+trace contract, exact deterministic primitives and opening-state parity are
+accepted. Extend the independent Python mirror through those next transitions;
+see [inventory and subsequent parity order](U13_PYSIM_PARITY_2026-09-15.md).
 Then Common Smart Core + separate Lord doctrines, serious balance, and roguelite
 work. Preserve the accepted UI. No new broad campaign is needed for this
 documentation/integration checkpoint. The dated entries below are historical;

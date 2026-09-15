@@ -1,0 +1,109 @@
+{
+  "schema": "U13_PYSIM_FOUNDATION_ACCEPTANCE_V1",
+  "recorded_on": "2026-09-15",
+  "scope": "Exact Python opening-state parity and Godot-to-Godot replay of explicit two-round inputs; Python round-resolution parity is not implemented.",
+  "source_archive": "u13-pysim-foundation-Ejcx7N-2026-09-14_22-21-34-A16ver.zip",
+  "archive_sha256": "b2b068f4079ec1dafb1fac026858be343ebb6b1fa5517d4be141d0d80e1db808",
+  "source_revision": "4e485b10ca84f63789afd00d4c8c84601952f19e",
+  "source_sha256": "ae7808cbe19f77f05e592c353987317a961da08acb0786be3e857e4e0f4200da",
+  "runtime_build": "4.7.2.stable.official.ed1daf0bf",
+  "platform": "Windows",
+  "python_version": "Python 3.14.7",
+  "working_diff_bytes": 0,
+  "run_status": {
+    "runner": "u13-pysim-foundation",
+    "exit_status": "0"
+  },
+  "gate_passed": true,
+  "godot_checks": 51,
+  "godot_failures": 0,
+  "python_unit_tests": 6,
+  "python_summary": {
+    "python_mirror": "U13_PYSIM_OPENING_V1",
+    "checks": 19,
+    "failures": 0,
+    "opening_snapshots_matched": 14,
+    "python_round_resolution_parity": false,
+    "diagnostic_only": false,
+    "source_revision": "4e485b10ca84f63789afd00d4c8c84601952f19e",
+    "source_sha256": "ae7808cbe19f77f05e592c353987317a961da08acb0786be3e857e4e0f4200da",
+    "runtime": "4.7.2-stable (official)",
+    "deliberate_mismatches_rejected": 10
+  },
+  "trace_identity": {
+    "authority": "Godot U13",
+    "choice_policy": "explicit inputs; fixture selection is not doctrine",
+    "engine_version": "4.7.2",
+    "event_profile": "U13_BATCH_EVENTS_V1",
+    "excluded_visual_events": [
+      "MARCHING_TICK",
+      "KRONI_ACTOR_TICK"
+    ],
+    "platform": "Windows",
+    "policy_id": "U13_GUARD_WORK_V2:U13_VICTORY_V2_ROUND_PRESSURE:U13_PROFANE_PILLAGE_V1:U13_VULTURE_RANGED_V1:U13_VACANT_THRONE_V1:U13_DOMINION_RITES_V1:U13_FRACTURE_V1:U13_SIGIL_LIFECYCLE_V1:U13_BLOOD_CONDUIT_V1:U13_GAME_MARKET_V2:U13_CASTLE_DEFENSES_V1:U13_GAME_ECONOMY_V4:U13_KANIFOUS_V1:U13_VALAK_V1:U13_KRONI_WEIGHTED_ANGLES_V8:U13_ODRADEK_COMPLETE_V2:U13_ORIAS_MARK_BOARD_V4:U13_BATCH_EVENTS_V1",
+    "producer": "U13_PARITY_EXPORT_V1",
+    "rng_version": "U13_SHA256_REJECTION_V1",
+    "rules_hash": "77bdef9e9cc0e83cd34a3cbd04a9d8492211aae2ccabe6e0c1172a474a10e3c4",
+    "runtime": "4.7.2-stable (official)",
+    "schema_version": "U13_MATCH_V1",
+    "source_revision": "4e485b10ca84f63789afd00d4c8c84601952f19e",
+    "source_sha256": "ae7808cbe19f77f05e592c353987317a961da08acb0786be3e857e4e0f4200da",
+    "trace_schema": "U13_PARITY_TRACE_V1"
+  },
+  "godot_replayed_operations": 49,
+  "operation_counts": {
+    "step": 40,
+    "stockpile": 2,
+    "market": 4,
+    "submit": 2,
+    "next_round": 1
+  },
+  "rounds": [
+    1,
+    2
+  ],
+  "script_error_logs": [],
+  "evidence_review": "Decoded the attached exact export; independently reran all Python opening comparisons and ten rejection probes against the clean pinned source. Reviewed Windows Godot and Python logs, explicit completion footers, runtime, run status, identities and all archive member hashes. Godot replay results come from the supplied Windows run.",
+  "files": {
+    "foundation.exact.json": {
+      "bytes": 5350839,
+      "sha256": "233af1eb495d6a4c08ad75be83d14e113eafb0bb5203eb44a0d7577c0dceaa74"
+    },
+    "godot.log": {
+      "bytes": 2345,
+      "sha256": "e961d8acc0fbecc806665618d69389498537895bd68aa25dcca7368cb1733342"
+    },
+    "python-parity.log": {
+      "bytes": 470,
+      "sha256": "34cc50d98c7317098600a941b4f864e2bd8c339809e300e14eff94af7428affb"
+    },
+    "python-summary.json": {
+      "bytes": 429,
+      "sha256": "0a102d90d4e02049ca31f811cdc32e7d997edadb29a50a71dede6799bf0ddd7d"
+    },
+    "python-tests.log": {
+      "bytes": 887,
+      "sha256": "0a24e159073b137248e76713bf392a1bc4cdc6e50034d5d075137ea609294bde"
+    },
+    "python-version.log": {
+      "bytes": 15,
+      "sha256": "9fc9968e3ae8d82284d7426a87e1426e07246027c7706b0803a1c8d9c60c7a4d"
+    },
+    "run-status.txt": {
+      "bytes": 42,
+      "sha256": "ba773114cd6be7c8b64394922b95b5b29ea4e61e959811244077bbd489ec161f"
+    },
+    "source-identity.txt": {
+      "bytes": 108,
+      "sha256": "f9501fd82fe255d63d9e11de0785405932c1a59babcb93062823dd9bd1670d64"
+    },
+    "version.log": {
+      "bytes": 33,
+      "sha256": "bf8803022b574250bb04dea65053a46b7c58570725316c1f7fe2aa6735706498"
+    },
+    "worktree.diff": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

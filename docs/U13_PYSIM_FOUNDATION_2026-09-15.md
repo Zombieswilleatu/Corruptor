@@ -1,7 +1,7 @@
 # U13 PySim foundation — exact opening parity and portable traces
 
-Status: implemented; local diagnostics green. Windows Godot 4.7.2 acceptance
-is pending the focused command below. This builds the first slice defined in
+Status: **Windows Godot 4.7.2 acceptance passed at `4e485b1`**, with exact Python
+opening parity and Godot trace replay. This completes the first slice defined in
 [the parity inventory](U13_PYSIM_PARITY_2026-09-15.md).
 
 ## Implemented scope
@@ -105,6 +105,29 @@ engine errors and explicit completion footers (including CRLF output).
 
 ## Windows acceptance
 
+Accepted evidence, reviewed on 2026-09-15:
+
+- Archive: `u13-pysim-foundation-Ejcx7N-2026-09-14_22-21-34-A16ver.zip`.
+- Clean revision: `4e485b10ca84f63789afd00d4c8c84601952f19e`; packaged working
+  diff is empty. Simulation/tool source SHA-256:
+  `ae7808cbe19f77f05e592c353987317a961da08acb0786be3e857e4e0f4200da`.
+- Windows Godot `4.7.2.stable.official.ed1daf0bf`, Python `3.14.7`;
+  runner exit status zero, 51 Godot checks with zero failures or script errors,
+  and six Python unit tests passed.
+- All 14 complete opening snapshots match independently computed Python
+  states; 19 comparison groups pass with `diagnostic_only=false`. All ten
+  deliberate evidence corruptions reject.
+- Godot replayed all 49 explicit operations across two rounds. This certifies
+  the trace transport/replay boundary; Python round resolution remains absent.
+
+The attached exact export was decoded and its Python comparisons and rejection
+probes rerun against the pinned source. The results agree with the supplied
+Windows summary. Runtime, source identity, operation coverage and logs also
+agree. [Machine-readable evidence](evidence/U13_PYSIM_FOUNDATION_4e485b1.json)
+records the archive and individual member hashes. This closes the foundation
+gate; no repeat run is needed for this documentation update.
+
+The command below is retained for future reproduction of the focused gate.
 Requires Git Bash, Godot **4.7.2 stable on Windows**, and **Python 3.10+**.
 No pip packages are required. The wrapper discovers `python3`, `python` or `py`,
 or accepts an explicit Python executable as its second argument.
@@ -123,8 +146,8 @@ This is a short fixture gate, not another full-match campaign.
 
 ## Next slice
 
-After Windows acceptance, mirror the timeline/submission and opening-round
-economy transitions against these explicit inputs. Extend through Guard
+Next, mirror the timeline/submission and opening-round economy transitions
+against these explicit inputs. Extend through Guard
 deployment/Work/pairs, ordinary combat, then Marching and Lord effects in the
 existing roadmap order. Expand deterministic reference games only after the
 component boundaries agree. Common Smart Core/Lord doctrines and balance remain
