@@ -118,6 +118,7 @@ static func describe(kind: String, d: Dictionary) -> String:
 		"POWER_RESOLVED": return "Power: " + str(d.get("power_id", "")).capitalize()
 		"FIZZLE_INVALID_TARGET": return "Power: " + str(d.get("power_id", "")).capitalize() + " · fizzled"
 		"POWER_QUEUED": return "Power: %s · scheduled for round %d" % [str(d.get("power_id", "")).capitalize(), d.get("fire_round", 0)]
+		"ARTILLERY_FIRED": return "Siege Engine · %d damage%s" % [d.get("damage", 0), "; Castle destroyed · +%d Souls" % d.get("soul_gain", 0) if d.get("destroyed", false) else ""]
 		"CASTLE_DESTROYED": return "Destroyed " + name_of(d.get("castle", {}))
 		"LORD_BANISHED": return "Banished " + name_of(d.get("lord", {"kind": "lord"}))
 		"GUARD_DEFEATED": return "Guard defeated" if d.get("attack_kind", "") not in ["Hunt", "Siege"] else ""

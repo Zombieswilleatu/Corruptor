@@ -85,6 +85,7 @@ class Ordinary(Battle):
         if before <= 2:
             fact = self.fact(dict(command_id=instance_id("artillery", identity, "normal"), kind="ruin_castle",
                                   target_id=target["id"], player_id=engine["owner"], source_id=identity, cause="artillery"))
+            w["players"][engine["owner"]]["resources"]["souls"] += 2
             events.append(e.event(fact["type"], fact["data"]))
             events.extend(self.castle_tear())
             events.extend(self.react(fact))
@@ -92,7 +93,7 @@ class Ordinary(Battle):
             target["attributes"]["integrity"] -= damage
             note_loss(target, before, self.number)
         events.append(e.event("ARTILLERY_FIRED", dict(round=self.number, player_id=engine["owner"], engine_id=identity,
-            target_id=target["id"], shot="normal", damage=damage, destroyed=before<=2,
+            target_id=target["id"], shot="normal", damage=damage, destroyed=before<=2, soul_gain=2 if before<=2 else 0,
             target_before=target_before, target_after=target["attributes"])))
         return events
 

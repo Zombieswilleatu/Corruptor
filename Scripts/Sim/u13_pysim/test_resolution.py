@@ -92,6 +92,18 @@ class ResolutionTests(unittest.TestCase):
         self.assertEqual([r["player_id"] for r in hunts], [0, 1])
         self.assertTrue(all(r["banished"] for r in hunts))
 
+    def test_artillery_kill_awards_two_souls_to_engine_owner(self):
+        w, op = prepared("artillery_disables_later_engine")
+        target = next(c for c in w["entities"]["entities"] if c["kind"] == "castle" and c["owner"] == 1 and c["attributes"]["combat_profile"] == "siege_engine")
+        target["attributes"]["integrity"] = 2
+        before = [p["resources"]["souls"] for p in w["players"]]
+        result = component_apply(w, op)
+        shots = [r["event"]["data"] for r in result["result"]["events"] if r["event"]["type"] == "ARTILLERY_FIRED"]
+        self.assertEqual(shots[0]["soul_gain"], 2)
+        self.assertEqual(result["world"]["players"][0]["resources"]["souls"], before[0] + 2)
+        self.assertEqual(result["world"]["players"][1]["resources"]["souls"], before[1])
+        self.assertEqual(w["players"][0]["resources"]["souls"], before[0])
+
     def test_engine_disabled_by_earlier_shot_does_not_fire(self):
         w, op = prepared("artillery_disables_later_engine")
         result = component_apply(w, op)

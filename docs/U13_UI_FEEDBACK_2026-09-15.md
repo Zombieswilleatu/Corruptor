@@ -34,3 +34,9 @@ Launch with the existing `Scripts/Sim/run_u13_playable.sh` runner. No sprite fil
 The compact forecast belongs in the action modal, not beneath the board’s staged card stack. The board overlay has been removed. The central banner uses a dark backing, a large Veil total, a progress track toward Final Collapse, and explicit Dominion/Collapse thresholds. Personal Tears are shown alongside Souls in both corner Lord panels.
 
 A completed match now leads its Aftermath ledger and result display with the victory condition and actual totals. The second supplied save ends in round 14: Kroni wins by Dominion at Veil 13, with 5 Personal Tears versus Deimos’s 1. That save also confirms the round-4 artillery destruction produced a shared Neutral Tear and Deimos’s first Spoils of War Personal Tear. Artillery does not grant the Souls specific to a successful Siege action. No reward rules change in this follow-up.
+
+## Artillery finishing-blow reward correction
+
+Supersedes the reward behavior described above: a Siege Engine destroying an enemy Castle now grants its owner **2 Souls**, including War Machine shots and finishing a defunct Castle. Nonlethal damage grants none. The award is per Castle destroyed; it is independent of the once-per-round shared Neutral Tear cap. Existing Spoils of War and other destruction reactions remain. `ARTILLERY_FIRED.soul_gain` reports the award in Aftermath. The ordinary PySim artillery port mirrors the change. Previously saved outcomes and historical validation evidence are not rewritten.
+
+Focused validation: Deimos rules/replay suite and ten Python ordinary-resolution unit tests pass. The two-Soul award is checked for both owners, nonlethal shots, finishing shots and already-defunct Castles. Local Godot remains diagnostic 4.5.1; Windows 4.7.2 acceptance is separate.

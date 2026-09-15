@@ -284,6 +284,8 @@ static func fire(
 		if changed.action == "invalid":
 			return changed
 		world = changed.world
+		# The finishing blow earns the basic Castle-kill reward, including artillery.
+		world.players[engine.owner].resources.souls += 2
 		events.append(public_event(changed.event.type, changed.event.data))
 		if world.data.get("castle_tear_round", 0) != round_number:
 			world.data.neutral_tears += 1
@@ -320,6 +322,7 @@ static func fire(
 				"shot": shot,
 				"damage": damage,
 				"destroyed": before <= DAMAGE,
+				"soul_gain": 2 if before <= DAMAGE else 0,
 				"target_before": target_before,
 				"target_after": target_after
 			}

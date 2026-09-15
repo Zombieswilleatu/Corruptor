@@ -23,6 +23,7 @@ func _init() -> void:
 
 func _run() -> void:
 	for test in [
+		Callable(self, "_artillery_souls"),
 		Callable(self, "_artillery"),
 		Callable(self, "_spoils_and_identity"),
 		Callable(self, "_fear_and_breach"),
@@ -508,3 +509,21 @@ func _check(ok: bool, label: String) -> bool:
 	if not ok:
 		failures += 1
 	return ok
+
+func _artillery_souls() -> void:
+	var content = Deimos.new()
+	for pid in [0, 1]:
+		for integrity in [4, 2, 0]:
+			var world: Dictionary = _world()
+			var target: String = Opening._castle_id(1 - pid)
+			_patch_entity_attributes(world, target, {"integrity": integrity, "status": "defunct" if integrity == 0 else "standing"})
+			_patch_entity_attributes(world, _engine(pid), {"artillery_target": target})
+			var souls: int = world.players[pid].resources.souls
+			var result: Dictionary = Structures.fire(world, _engine(pid), "soul-reward", 1, "normal", Callable(content, "react"), [0, 1])
+			var gain: int = 2 if integrity <= 2 else 0
+			_check(result.world.players[pid].resources.souls == souls + gain, "artillery owner %d finishing %d Integrity gains %d Souls" % [pid, integrity, gain])
+			var shot: Dictionary = result.events.filter(func(row): return row.event.type == "ARTILLERY_FIRED")[0].event.data
+			_check(shot.soul_gain == gain, "artillery public event reports exact Soul award")
+			if integrity == 4:
+				var finish: Dictionary = Structures.fire(result.world, _engine(pid), "soul-reward", 1, "extra-shot", Callable(content, "react"), [0, 1])
+				_check(finish.world.players[pid].resources.souls == souls + 2, "follow-up shot earns Souls only on finishing blow")
