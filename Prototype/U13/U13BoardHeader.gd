@@ -1,5 +1,6 @@
 extends HBoxContainer
 
+const Victory = preload("res://Scripts/Sim/U13Victory.gd")
 const Art = preload("res://Prototype/U13/U13BoardTextures.gd")
 var round_label: Label
 var veil_label: Label
@@ -117,11 +118,12 @@ func bind_world(world: Dictionary, round_number: int) -> void:
 	veil_label.text = "NEUTRAL TEARS  %d" % world.neutral_tears
 	for pid in [0, 1]:
 		scores[pid].text = (
-			"%s · %s\nSouls  %d\nPersonal Tears  %d\nHand  %d"
+			"%s · %s\nSouls: %d / %d\nPersonal Tears  %d\nHand  %d"
 			% [
 				"YOU" if pid == 0 else "OPPONENT",
 				String(world.get("lord_ids", ["Gremory", "Gremory"])[pid]).to_upper(),
 				world.souls[pid],
+				Victory.RITUAL_SOULS,
 				world.get("personal_tears", [0, 0])[pid],
 				world.hand.size() if pid == 0 else world.opponent_hand_count
 			]
