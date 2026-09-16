@@ -203,19 +203,7 @@ func _refresh_mode() -> void:
 		var action_scroll_v13 := action_zone.get_node_or_null("ActionScroll") as ScrollContainer
 		if action_scroll_v13 != null:
 			action_scroll_v13.custom_minimum_size.y = (commitment_text_height_v13)
-	# UI2_SLAVER_VISIBLE_OFFERS_V2_4
-	# Use the existing dead space above the artwork buttons.
-	if stage_key == "MARKET" and show_details:
-		var slaver_detail_height_v2_4: float = 225.0
-		if content_host != null:
-			content_host.custom_minimum_size.y = (slaver_detail_height_v2_4)
-		if action_zone != null:
-			action_zone.custom_minimum_size.y = (slaver_detail_height_v2_4)
-			var slaver_scroll_v2_4 := (
-				action_zone.get_node_or_null("ActionScroll") as ScrollContainer
-			)
-			if slaver_scroll_v2_4 != null:
-				slaver_scroll_v2_4.custom_minimum_size.y = (slaver_detail_height_v2_4)
+	# The scroll area takes the space left by the copy and wrapped status.
 	intro_buttons.visible = not show_details and _has_buttons(stage_key)
 
 	# UI2_DECISION_PANEL_TRUE_FIXED_SIZE_V12
@@ -900,11 +888,11 @@ func show_ledger(text: String) -> void:
 	if ledger == null:
 		ledger = RichTextLabel.new()
 		ledger.name = "AftermathLedger"
-		ledger.position = Vector2(36, 150)
-		ledger.size = Vector2(328, 245)
+		ledger.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		ledger.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		ledger.add_theme_font_size_override("normal_font_size", 14)
 		ledger.selection_enabled = true
-		add_child(ledger)
+		content_host.add_child(ledger)
 	ledger.text = text
 	ledger.visible = not board_view_collapsed
 	copy_label.hide()

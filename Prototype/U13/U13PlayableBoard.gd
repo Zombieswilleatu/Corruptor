@@ -483,20 +483,8 @@ func _show_work_target() -> void:
 	var id: String = _visible_world.get("guard_work", {}).get("target", "")
 	if castle_plan.get("action") == "Work": id = castle_plan.get("target_id", "")
 	for side in sides:
-		var surface: Control = side.target_controls.get(id)
-		if surface == null: continue
-		var badge := Label.new()
-		badge.name = "WorkTargetBadge"
-		badge.text = "WORK TARGET"
-		badge.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-		badge.offset_top = -24
-		badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		badge.add_theme_font_size_override("font_size", 12)
-		badge.add_theme_color_override("font_color", Color("ffe39b"))
-		badge.add_theme_color_override("font_shadow_color", Color.BLACK)
-		badge.add_theme_constant_override("shadow_outline_size", 5)
-		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		surface.add_child(badge)
+		for card in side.castle_row.get_children():
+			card.set_work_target(not id.is_empty() and card.get_meta("castle_id", "") == id)
 
 func _commission(id: String) -> void:
 	if not _planning() or playing or _job != null: return

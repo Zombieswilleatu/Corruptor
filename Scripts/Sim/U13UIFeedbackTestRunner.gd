@@ -31,7 +31,7 @@ func run() -> void:
 	check(board._flow_title() == "Work Target", "modal Pass completes Slaver")
 	board._set_work_target(Slots.castle_id(0, 4))
 	await process_frame
-	check(board.sides[1].target_controls[Slots.castle_id(0, 4)].get_node_or_null("WorkTargetBadge") != null, "selected work target appears on its Castle")
+	check(board.sides[1].target_controls[Slots.castle_id(0, 4)].get_parent().get_parent().work_target_badge != null, "selected work target appears on its Castle")
 	board._goto_flow(3)
 	board._select_direct_action("Hunt")
 	var id: String = board._available_ids()[0]

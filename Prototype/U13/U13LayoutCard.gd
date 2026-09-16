@@ -13,6 +13,8 @@ var caption: Label
 var input_surface: Button
 var preview
 var castle_artwork
+var castle_footer: VBoxContainer
+var work_target_badge: Label
 
 
 func _ready() -> void:
@@ -62,6 +64,7 @@ func bind_suit(suit: String) -> void:
 
 
 func bind_castle_art(attributes: Dictionary, previous: Dictionary) -> void:
+	_ensure_castle_footer()
 	if castle_artwork == null:
 		castle_artwork = CastleArtwork.new()
 		art.add_child(castle_artwork)
@@ -79,6 +82,46 @@ func bind_castle_art(attributes: Dictionary, previous: Dictionary) -> void:
 		)
 	else:
 		input_surface.tooltip_text += "\nArtwork fills upward with construction progress."
+
+
+func _ensure_castle_footer() -> void:
+	if castle_footer != null:
+		return
+	var panel := PanelContainer.new()
+	panel.name = "CastleFooter"
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.025, 0.024, 0.022, 0.90)
+	style.set_content_margin_all(4)
+	panel.add_theme_stylebox_override("panel", style)
+	input_surface.get_parent().add_child(panel)
+	castle_footer = VBoxContainer.new()
+	castle_footer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	castle_footer.add_theme_constant_override("separation", 3)
+	panel.add_child(castle_footer)
+	caption.reparent(castle_footer)
+	caption.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	caption.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
+func set_work_target(selected: bool) -> void:
+	if selected and work_target_badge == null:
+		_ensure_castle_footer()
+		work_target_badge = Label.new()
+		work_target_badge.name = "WorkTargetBadge"
+		work_target_badge.text = "WORK TARGET"
+		work_target_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		work_target_badge.add_theme_font_size_override("font_size", 10)
+		work_target_badge.add_theme_color_override("font_color", Color("ffe39b"))
+		work_target_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		castle_footer.add_child(work_target_badge)
+		castle_footer.move_child(work_target_badge, 1)
+	if work_target_badge != null:
+		work_target_badge.visible = selected
 
 
 func bind_lord_stats(values: Dictionary) -> void:

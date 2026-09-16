@@ -59,18 +59,12 @@ func _ready() -> void:
 	_build_lord_group()
 	_build_lord_guards()
 
-	# UI2_PROMPT_CASTLE_GUTTER_V1
-	# Reserve a small visual lane for the floating decision prompt. Because the
-	# Castle group expands into the remaining width, this 64 px gutter moves the
-	# centered Castle spine only about half that distance instead of wasting a
-	# huge permanent column.
+	# The prompt occupies the space between Lord Guards and the Castle spine.
+	# Put surplus width here so the fixed Castle column clears the whole modal.
 	var prompt_castle_gutter := Control.new()
 	prompt_castle_gutter.name = "PromptCastleGutter"
-	# UI2_CASTLE_PREVIEW_INTERACTION_GUTTER_V2
-	# The 64 px gutter still let the floating prompt nick the first Castle.
-	# Give the prompt a real visual lane while retaining the same overall board.
 	prompt_castle_gutter.custom_minimum_size = Vector2(128, 0)
-	prompt_castle_gutter.size_flags_horizontal = Control.SIZE_FILL
+	prompt_castle_gutter.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	prompt_castle_gutter.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	prompt_castle_gutter.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(prompt_castle_gutter)
@@ -213,7 +207,7 @@ func _build_castle_group() -> void:
 	castle_group = PanelContainer.new()
 	castle_group.name = "CastleGroup"
 	castle_group.custom_minimum_size = Vector2(660, 0)
-	castle_group.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	castle_group.size_flags_horizontal = Control.SIZE_FILL
 	castle_group.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_child(castle_group)
 
@@ -636,13 +630,13 @@ func show_commission_buttons(enabled: bool, staged_id: String) -> void:
 		var button: Button = commission_buttons.get(id)
 		if button == null:
 			button = Button.new()
-			control.add_child(button)
+			var card = control.get_parent().get_parent()
+			card.castle_footer.add_child(button)
 			button.pressed.connect(_commission_clicked.bind(id))
 		button.text = "UNDO COMMISSION" if id == staged_id else "COMMISSION"
 		button.add_theme_font_size_override("font_size", 10)
-		button.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-		button.offset_top = 4
-		button.offset_bottom = 28
+		button.custom_minimum_size.y = 24
+		button.clip_text = true
 		button.tooltip_text = "Stage Commission for this round. This Castle becomes vulnerable at its current Integrity when orders resolve."
 		button.disabled = not enabled
 		commission_buttons[id] = button

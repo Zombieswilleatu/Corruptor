@@ -328,12 +328,11 @@ func _build() -> void:
 	plan_label = _label(powers, "", 15)
 	plan_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	status = action_zone.status_label
-	status.reparent(phase_prompt)
-	status.position = Vector2(36, 401)
-	status.size = Vector2(328, 49)
+	# Let wrapped status text reserve space above the painted action buttons.
+	status.reparent(phase_prompt.content_host.get_parent())
+	status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	status.add_theme_font_size_override("font_size", 12)
-	status.clip_contents = true
 	if dense_mode:
 		status.reparent(main)
 		status.custom_minimum_size.y = 30
@@ -708,6 +707,7 @@ func _complete_job() -> void:
 		return
 	# Publish only a complete successful transaction; failures leave session intact.
 	session = result.session
+	status.text = ""
 	gem_dagger_view.play_events(result.get("gem_dagger_events", []), sides)
 	_gem_final_view = result.presented.duplicate(true) if gem_dagger_view.active() else {}
 	_install_impacts(result.get("feedback", []))
