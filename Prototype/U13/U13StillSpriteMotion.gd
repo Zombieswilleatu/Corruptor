@@ -32,9 +32,9 @@ static func pose(motion: String, time: float, phase: float = 0.0, character: Str
 	# Creature-specific restraint: heavy bodies settle, flyers hover, small
 	# predators move quickly. These are still-image gestures, not limb rigs.
 	var heavy := character in ["Butcher", "BottleTree", "Lemek"]
-	var flying := character in ["Batboy", "Pixie"]
+	var flying := character == "Pixie"
 	var spectral := character in ["Sinodek", "Wraith"]
-	var predator := character in ["Dogger", "Ratton"]
+	var predator := character in ["Batboy", "Dogger", "Ratton"]
 	if motion in ["Idle", "March"]:
 		if heavy:
 			result.offset *= 0.45
@@ -46,8 +46,10 @@ static func pose(motion: String, time: float, phase: float = 0.0, character: Str
 			result.angle = wave * (0.006 if flying else 0.002)
 			result.height = 1.0
 		elif predator and motion == "March":
-			var step := fmod(time * (3.5 if character == "Ratton" else 2.4) + phase, 1.0)
-			result.offset = Vector2(sin(step * TAU) * 0.008, -sin(step * PI) * 0.005)
+			var rate := 3.2 if character == "Batboy" else (3.5 if character == "Ratton" else 2.4)
+			var step := fmod(time * rate + phase, 1.0)
+			var lift := 0.0 if character == "Batboy" else 0.005
+			result.offset = Vector2(sin(step * TAU) * 0.008, -sin(step * PI) * lift)
 			result.angle = sin(step * TAU) * 0.009
 		elif character == "Sooge":
 			result.offset = Vector2.ZERO

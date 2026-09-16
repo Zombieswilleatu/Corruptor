@@ -7,6 +7,7 @@ extends "res://Prototype/U13/U13VisualPreview.gd"
 const StillMotion = preload("res://Prototype/U13/U13StillSpriteMotion.gd")
 const StillFrame = preload("res://Prototype/U13/U13StillFrame.gd")
 var still_frames: Dictionary = {}
+var still_transform_frames: Array[Dictionary] = []
 
 const STILL_MODES = ["Lane cycle", "Idle", "March", "Attack", "Hit", "Death"]
 # Match U13BoardLanes' continuous battlefield crop and 38% darkening.
@@ -16,6 +17,9 @@ var domain_texture: Texture2D
 var show_domain: bool = true
 var show_lane_guides: bool = false
 var still_path: String = ""
+# Normalized to the dedicated still texture, independent of its resolution.
+var still_anchor_uv := Vector2(0.43, 1.0)
+var still_body_height_ratio: float = 1.0
 var still_texture: Texture2D
 var use_still: bool = false
 var still_mode: int = 0
@@ -107,7 +111,7 @@ func _select_character(index: int) -> void:
 		return
 	var config = load("res://Prototype/U13/U13%sLanePreview.gd" % selected).new()
 	config._configure_character()
-	for property in ["still_path", "row_sources", "permanent_row", "character_name", "frame_regions", "extra_animation_labels", "frame_polygons",
+	for property in ["still_path", "still_anchor_uv", "still_body_height_ratio", "row_sources", "permanent_row", "character_name", "frame_regions", "extra_animation_labels", "frame_polygons",
 		"has_redraw", "use_redraw", "redraw_path", "redraw_shader_path", "redraw_body_height", "redraw_anchors",
 		"source_dimensions", "source_body_height", "source_shader_path", "bundled_sheet_path"]:
 		set(property, config.get(property))
@@ -117,6 +121,7 @@ func _select_character(index: int) -> void:
 		child.queue_free()
 	still_texture = null
 	still_frames.clear()
+	still_transform_frames.clear()
 	still_mode = 0
 	still_mode_start = 0.0
 	row_textures.clear()
@@ -271,14 +276,8 @@ func _build_preview() -> void:
 	controls.add_child(count_picker)
 	_button(controls, "Try lane death", _start_death)
 	if permanent_row >= 0:
-		_button(controls, "Turret form", _start_transform)
-	_button(controls, "Restart", func():
-		clock = 0.0
-		still_mode_start = 0.0
-		death_time = -1.0
-		transform_time = -1.0
-		rooted_poses.clear()
-		_roll_facings())
+		_button(controls, "Transform to turret", _start_transform)
+	_button(controls, "Restart", _restart_preview)
 	_button(controls, "Close", func(): _close_preview())
 	var sizing := HBoxContainer.new()
 	panel.add_child(sizing)
@@ -382,10 +381,11 @@ func _build_preview() -> void:
 
 func _build_still_frames() -> void:
 	still_frames.clear()
+	still_transform_frames.clear()
 	if still_texture != null:
 		still_frames[0] = {"texture": still_texture,
-			"anchor": Vector2(still_texture.get_width() * 0.43, still_texture.get_height()),
-			"body": float(still_texture.get_height())}
+			"anchor": still_texture.get_size() * still_anchor_uv,
+			"body": float(still_texture.get_height()) * still_body_height_ratio}
 	else:
 		for row in [0, 1]:
 			if sheet == null or not frame_regions.has(row):
@@ -406,13 +406,26 @@ func _build_still_frames() -> void:
 			still_texture = still_frames[0].texture
 	if permanent_row >= 0 and row_textures.has(permanent_row):
 		var row: int = permanent_row
-		var entry: Array = frame_regions[row].back()
 		var config: Dictionary = row_sources[row]
-		var data := StillFrame.from_sheet(row_textures[row], config.dimensions,
-			config.body_height, entry[0], entry[1], PackedVector2Array(),
-			"black" if not source_shader_path.is_empty() else "")
-		if not data.is_empty():
-			still_frames[row] = data
+		# Reuse the authored transformation once, then keep its final still.
+		for frame in range(frame_regions[row].size()):
+			var entry: Array = frame_regions[row][frame]
+			var mask: PackedVector2Array = frame_polygons.get(row, {}).get(frame, PackedVector2Array())
+			var data := StillFrame.from_sheet(row_textures[row], config.dimensions,
+				config.body_height, entry[0], entry[1], mask,
+				"black" if not source_shader_path.is_empty() else "")
+			if not data.is_empty():
+				still_transform_frames.append(data)
+		if not still_transform_frames.is_empty():
+			still_frames[row] = still_transform_frames.back()
+
+func _still_transform_frame() -> Dictionary:
+	if transform_time < 0.0 or still_transform_frames.is_empty():
+		return {}
+	return still_transform_frames[mini(int(transform_time * 8.0), still_transform_frames.size() - 1)]
+
+func _transform_is_playing() -> bool:
+	return permanent_row >= 0 and transform_time >= 0.0 and transform_time < float(_frame_count(permanent_row)) / 8.0
 
 func _button(parent: Node, caption: String, action: Callable) -> void:
 	var button := Button.new()
@@ -445,14 +458,14 @@ func _process(delta: float) -> void:
 			if death_time > 2.0:
 				death_time = -1.0
 	status.text = "Walk → idle at contact → reset. Death stops in place. Inspect individual frames above."
-	if transform_time >= 0.0:
-		status.text = "Rooted permanently · Restart restores the mobile form."
 	if inspection_row >= 0:
 		status.text = "Inspection: %s · 8 FPS · scrub to hold a frame." % ("playing" if inspection_playing and not paused else "held")
 	if not still_path.is_empty() and still_texture == null:
 		status.text = "Still image could not load: %s" % still_path
 	if use_still:
 		status.text = "Still + Godot motion · %s · preview only · no skeletal animation" % STILL_MODES[still_mode]
+	if transform_time >= 0.0 and inspection_row < 0:
+		status.text = "Transforming to turret · 8 FPS · stays rooted afterward." if _transform_is_playing() else "Rooted permanently · Restart restores the mobile form."
 	if show_domain and domain_texture == null:
 		status.text += " · Domain1.png unavailable; showing plain background"
 	queue_redraw()
@@ -559,9 +572,11 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool, face_left:
 		var mirror := false
 		var rooted := transform_time >= 0.0 and still_frames.has(permanent_row)
 		if rooted:
-			frame_data = still_frames[permanent_row]
+			frame_data = _still_transform_frame()
 			mirror = face_left
-			if motion == "March":
+			if _transform_is_playing() and motion not in ["Hit", "Death"]:
+				motion = "Hold"
+			elif motion == "March":
 				motion = "Idle"
 		elif frame_data.is_empty():
 			frame_data = still_frames.get(0, {})
@@ -669,7 +684,16 @@ func _start_transform() -> void:
 	inspection_row = -1
 	inspection_playing = false
 	animation_picker.select(0)
+	death_time = -1.0
 	rooted_poses.clear()
 	for unit in displayed_units:
 		rooted_poses[unit.slot] = {"feet": unit.feet, "left": unit.left}
 	transform_time = 0.0
+
+func _restart_preview() -> void:
+	clock = 0.0
+	still_mode_start = 0.0
+	death_time = -1.0
+	transform_time = -1.0
+	rooted_poses.clear()
+	_roll_facings()

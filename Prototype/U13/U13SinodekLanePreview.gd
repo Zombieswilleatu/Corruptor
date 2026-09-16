@@ -2,6 +2,10 @@ extends "res://Prototype/U13/U13ButcherLanePreview.gd"
 
 func _configure_character() -> void:
 	character_name = "Sinodek"
+	still_path = "res://Prototype/U13/Assets/SinodekStill.png"
+	# Approved transparent pixel still: anchor beneath the body, not its train.
+	still_anchor_uv = Vector2(1088.0 / 1586.0, 884.0 / 992.0)
+	still_body_height_ratio = 777.0 / 992.0
 	bundled_sheet_path = "res://Prototype/U13/Assets/SinodekSprite.png"
 	source_dimensions = Vector2(2048, 995)
 	source_body_height = 125.0
