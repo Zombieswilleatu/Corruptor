@@ -6,6 +6,12 @@ extends "res://Prototype/U13/U13VisualPreview.gd"
 # for all frames: fitting individual crops would inflate the collapsing body.
 const StillMotion = preload("res://Prototype/U13/U13StillSpriteMotion.gd")
 const STILL_MODES = ["Lane cycle", "Idle", "March", "Attack", "Hit", "Death"]
+# Match U13BoardLanes' continuous battlefield crop and 38% darkening.
+const DOMAIN_PATH = "res://ConceptImages/Menus/Domain1.png"
+const DOMAIN_CROP = Rect2(0.36, 0.10, 0.24, 0.82)
+var domain_texture: Texture2D
+var show_domain: bool = true
+var show_lane_guides: bool = false
 var still_path: String = ""
 var still_texture: Texture2D
 var use_still: bool = false
@@ -128,6 +134,14 @@ func _select_character(index: int) -> void:
 	queue_redraw()
 
 func _build_preview() -> void:
+	if domain_texture == null:
+		# Same source-checkout strategy as U13BoardTextures: no editor import needed.
+		if FileAccess.file_exists(DOMAIN_PATH):
+			var image := Image.new()
+			if image.load_png_from_buffer(FileAccess.get_file_as_bytes(DOMAIN_PATH)) == OK:
+				domain_texture = ImageTexture.create_from_image(image)
+		elif ResourceLoader.exists(DOMAIN_PATH):
+			domain_texture = load(DOMAIN_PATH) as Texture2D
 	if not still_path.is_empty():
 		# Direct scene runners do not import newly pulled PNGs. Prefer the
 		# imported resource, but support the raw file on a fresh checkout.
@@ -224,6 +238,21 @@ func _build_preview() -> void:
 	title.text = "%s · VERTICAL LANE TRIAL" % character_name.to_upper()
 	title.add_theme_font_size_override("font_size", 24)
 	heading.add_child(title)
+	var backdrop_picker := OptionButton.new()
+	backdrop_picker.add_item("Domain lanes")
+	backdrop_picker.add_item("Plain background")
+	backdrop_picker.select(0 if show_domain else 1)
+	backdrop_picker.item_selected.connect(func(index: int):
+		show_domain = index == 0
+		queue_redraw())
+	heading.add_child(backdrop_picker)
+	var guides := CheckButton.new()
+	guides.text = "Guides"
+	guides.button_pressed = show_lane_guides
+	guides.toggled.connect(func(enabled: bool):
+		show_lane_guides = enabled
+		queue_redraw())
+	heading.add_child(guides)
 	var controls := HBoxContainer.new()
 	panel.add_child(controls)
 	_button(controls, "Pause / resume", func(): paused = not paused)
@@ -382,6 +411,8 @@ func _process(delta: float) -> void:
 		status.text = "Still image could not load: %s" % still_path
 	if use_still:
 		status.text = "Still + Godot motion · %s · preview only · no skeletal animation" % STILL_MODES[still_mode]
+	if show_domain and domain_texture == null:
+		status.text += " · Domain1.png unavailable; showing plain background"
 	queue_redraw()
 
 func _draw() -> void:
@@ -397,11 +428,21 @@ func _draw() -> void:
 	var bottom := maxf(top + 260.0, size.y - 55.0)
 	var middle := (top + bottom) * 0.5
 	var width := minf(290.0, size.x * 0.32)
+	var terrain_visible := show_domain and domain_texture != null
+	if terrain_visible:
+		var field := Rect2(size.x * 0.30 - width * 0.5, top,
+			size.x * 0.40 + width, bottom - top)
+		var dimensions := domain_texture.get_size()
+		draw_texture_rect_region(domain_texture, field,
+			Rect2(DOMAIN_CROP.position * dimensions, DOMAIN_CROP.size * dimensions))
+		draw_rect(field, Color(0, 0, 0, 0.38))
 	for lane in range(2):
 		var center := size.x * (0.30 if lane == 0 else 0.70)
-		draw_rect(Rect2(center - width * 0.5, top, width, bottom - top), Color("202833"))
-		draw_line(Vector2(center, top), Vector2(center, bottom), Color("384353"), 1.0)
-		draw_line(Vector2(center - width * 0.5, middle), Vector2(center + width * 0.5, middle), Color("576170"), 1.0)
+		if not terrain_visible:
+			draw_rect(Rect2(center - width * 0.5, top, width, bottom - top), Color("202833"))
+		if show_lane_guides:
+			draw_line(Vector2(center, top), Vector2(center, bottom), Color("7c827d"), 1.0)
+			draw_line(Vector2(center - width * 0.5, middle), Vector2(center + width * 0.5, middle), Color("7c827d"), 1.0)
 		draw_string(ThemeDB.fallback_font, Vector2(center - 55, top - 20), "LORD LANE" if lane == 0 else "CASTLE LANE", HORIZONTAL_ALIGNMENT_LEFT, -1, 18)
 	if sheet == null:
 		return

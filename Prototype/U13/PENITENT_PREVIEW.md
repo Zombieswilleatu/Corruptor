@@ -53,3 +53,15 @@ The prior V3 sheet and measured crops remain in U13PenitentLanePreview.gd:
 left/right walk, celebrate (third source row), shield attack (fourth), and death.
 The older PenitentWalkV2.png six-frame replacement and its key shader also remain
 in the repository for historical reference; they are not the current default.
+
+## Domain background comparison
+
+All characters in the shared sprite preview default to the current Domain1.png
+battlefield, using U13BoardLanes' normalized crop (0.36, 0.10, 0.24, 0.82) and
+38% black overlay. Preview geometry is wider than the game rail, so this compares
+color/contrast rather than reproducing the board's exact terrain scale.
+The top-row backdrop selector restores Plain background. Guides toggles the
+center/contact lines without covering the artwork with opaque lane rectangles.
+The background also spans the single-unit inspection position. Both selections
+persist while cycling characters. Source PNG decoding needs no editor import;
+missing art falls back to the plain view with a visible status message.
