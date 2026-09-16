@@ -152,7 +152,7 @@ No source files were deleted or moved. “Historical” below describes their ro
 
 | Source | How to use it now |
 |---|---|
-| [The Eroding World — Permanent Breaches](Corruptor-Veil-Permanent-Breaches-Proposal-v0.2.md) | Proposal only: permanent absent-Lord Breaches replace the older physical-rift direction; four individual arrivals, an unprotectable cascade at 21, and protection thresholds remain provisional. No rules implemented. |
+| [The Eroding World — Permanent Breaches](Corruptor-Veil-Permanent-Breaches-Proposal-v0.2.md) | Proposal only: permanent absent-Lord Breaches replace the older physical-rift direction; four individual arrivals, an unprotectable cascade requiring Veil 21+ and round 21+ (preferred; ungated alternative retained), and protection thresholds remain provisional. No rules implemented. |
 | [Final Blows and the Final Rite](Corruptor-Finals-Theoretical-v0.1.md) | Withdrawn in full by Permanent Breaches v0.2. Historical only: finishing Hunt, final rite and four-suit defensive payment are no longer pending proposals. |
 | [Monster Recipes v0.1](Corruptor-Monster-Recipes-v0.1.md) | Current starting recipe baseline; revise deliberately as balance evidence arrives. |
 | [UI_OVERHAUL](UI_OVERHAUL.md) | Retained presentation brief; first Forecast prerequisite now met at its documented scope. |

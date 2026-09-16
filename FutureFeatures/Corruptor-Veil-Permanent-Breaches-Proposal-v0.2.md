@@ -3,7 +3,7 @@
 Date: 2026-09-16
 Status: Design proposal only. No game rules are implemented by this document.
 
-Supersedes v0.1.
+Supersedes v0.1. Updated 2026-09-16 to prefer the cascade's combined Veil and round gate; the ungated version remains a test alternative.
 
 ## Substantive design change: the finale proposal is withdrawn
 
@@ -76,7 +76,7 @@ Veil 12. Both are retained as the initial frame.
 | 12 | *Existing Dominion eligibility* | — |
 | 13 | Third absent Lord enters | 3 |
 | 17 | Fourth absent Lord enters | 4 |
-| 21 | **Cascade — all remaining eligible Lords enter at once** | *not protectable* |
+| 21+ and round 21+ | **Cascade — all remaining eligible Lords enter at once** (preferred gated option) | *not protectable* |
 | 26 | *Existing Final Collapse* | — |
 
 Protection follows **arrival position, not Lord identity**. Two personal Tears
@@ -99,50 +99,81 @@ collapsing into each other.
 
 ## The cascade
 
-At Veil 21, every remaining eligible absent Lord enters simultaneously.
+Under the preferred rule, every remaining eligible absent Lord enters simultaneously once **both Veil 21+ and round 21+** are reached, provided the match is still ongoing.
 
 With nine Lords and two participating, seven are eligible; four arrive at the
 earlier thresholds, so the cascade is consistently **three at once** regardless
 of matchup.
 
 The escalation curve is therefore: one, one, one, one, **everything**. Four
-arrivals are the Veil tearing. The cascade is the Veil failing, and Final
-Collapse five points later is the consequence.
+arrivals are the Veil tearing. The cascade is the Veil failing in a battle that has run long. Final
+Collapse remains at Veil 26, independently of whether the cascade has fired.
 
-### Cascade duration: bounded late, open early
+### Cascade trigger: preferred gate and test alternative
 
-The automatic Neutral Tear schedule in `U13Victory.gd` puts a ceiling on the
-cascade, but only in the late game.
+Automatic Neutral Tears in `U13Victory.gd` provide the timing boundary:
 
 | Round | Automatic Neutral Tears |
-| ------------------------------ | ------------ |
+|---|---:|
 | 1–12 | 0 |
 | 13–20 | +1 per round |
 | 21 onward | +2 per round |
 
-**The distinction that matters is Veil 21 versus round 21.** The guaranteed duration differs depending on the current round.
+**Veil 21 and round 21 are different conditions.** Prefer Option B for the
+initial proposal; retain Option A for a controlled comparison if useful.
 
-**Cascade reached at round 21 or later.** The automatic +2 carries Veil 21 → 23
-→ 25 → 27, hitting Final Collapse within **three round-end checks**, regardless
-of what either player does. Player-generated Tears only shorten it. Here the
-cascade genuinely is a closing flourish.
+#### Option B — gated: Veil 21+ AND round 21+ (current preference)
 
-**Cascade reached early — around round 14–16.** At the +1 automatic rate,
-a five-point gap closes within **at most five round-end checks from automatic
-pressure alone**. Other Tears, or reaching the later +2 rate, shorten that
-window. A crossing before automatic pressure begins has a different bound.
+Both conditions must hold:
 
-An early cascade could last longer than a late one, but need not. The working
-hypothesis is that reaching Veil 21 early indicates rapid Tear generation, and
-those sources will often finish the game quickly too. Their continuation is
-not guaranteed. Test the duration rather than assuming a prolonged cascade
-or changing the thresholds in advance.
+- Reach Veil 21 before round 21: the first four Breaches remain active; the cascade waits.
+- Reach round 21 with Veil below 21: the cascade waits for the Veil threshold.
+- Meet both conditions while the game remains ongoing: all remaining absent Lords enter without protection.
 
-Heavier Breach Wish Prices push toward the early case by adding player Tear
-generation, so the two tentative proposals in this document interact here.
+The +2 automatic rate is active when the cascade begins. From Veil 21,
+automatic pressure alone advances 21 → 23 → 25 → 27: **at most three further
+round-end checks**, often fewer with other Tears, a higher starting Veil,
+or another victory route.
 
-**Measure both separately:** the round at which Veil 21 is crossed, and the
-number of round-end checks spent above it. A mean will hide the split.
+**Final Collapse stays at 26.** An early, high-Tear game can reach it without
+ever triggering the cascade. Accept that outcome; do not delay victory or
+force extra playable rounds to guarantee the spectacle. The cascade is an
+escalation for battles that run long, not a required ending for every match.
+
+The precise activation hook remains an implementation decision. It must
+respect existing victory timing and must not schedule new gameplay after a
+match has finished. In particular, a jump to Veil 26 must not create a
+mandatory extra cascade round.
+
+#### Option A — ungated: Veil 21+ only (comparison alternative)
+
+The cascade fires upon reaching Veil 21, at any round.
+
+At round 21+, it has the same three-check maximum from automatic pressure.
+Around rounds 14–16, the +1 rate closes the five-point gap in **at most five
+round-end checks from automatic pressure alone**. Other Tears, or reaching
+the later +2 rate, shorten that window. Before round-pressure generation
+begins, the bound differs; this is not an indefinitely unbounded system.
+
+An early cascade could last longer, but need not. The working hypothesis is
+that reaching Veil 21 early indicates rapid Tear generation, and those sources
+will often finish the game quickly too. Their continuation is not guaranteed.
+Test duration rather than assuming a prolonged cascade or compressing
+thresholds in advance.
+
+Heavier Breach Wish Prices can accelerate the Veil under either option.
+Under B, they may bring forward the time at which the Veil condition is met,
+but cannot bypass the round gate.
+
+#### What to measure
+
+Record the Veil-21 crossing round, actual cascade activation round, and time
+from activation to game end. Under B, time waiting above Veil 21 before
+round 21 is **not** cascade exposure. Track how often games end without a
+cascade; rarity alone is not a reason to change the gate.
+
+Compare typical durations and longest cases, split by early and late Veil
+crossings. Keep the existing proposed thresholds for the first tests.
 
 Earlier victories will experience fewer arrivals. A game ending in the Veil
 12–15 band sees **two or three**, since the third arrival enters at 13.
@@ -209,7 +240,8 @@ arrival three and I'm not. He's going to win if I don't act.*
 Show both players’ stamps using the existing public Personal Tear counts.
 
 After an arrival, show the Lord, its effect, and each player's protection
-status against it.
+status against it. Under Option B, label the cascade's two requirements
+clearly, including when Veil 21 has been reached but the round gate is pending.
 
 ---
 
@@ -384,9 +416,9 @@ world changes unevenly, and protection can turn shared relief into an advantage.
 
 | Question | Current direction / unresolved point |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Arrival count and timing | Test 5 / 9 / 13 / 17 with a cascade at 21; numbers provisional. |
+| Arrival count and timing | Test 5 / 9 / 13 / 17 with the cascade requiring Veil 21+ and round 21+ under preferred Option B; numbers provisional. |
 | Protection ladder | Test 1–4 by arrival order. Decide whether protection tracks *current* Tears or a permanently earned milestone if Tears can fall. |
-| Cascade duration | At round 21+, no more than three further round-end checks from automatic pressure alone. Earlier crossings may last longer but may also finish quickly. Measure crossing round and cascade duration separately. |
+| Cascade trigger and duration | Prefer B (Veil 21+ AND round 21+); retain A (Veil 21+ alone) for comparison. Under B, at most three further round-end checks from automatic pressure. Measure actual activation separately from Veil crossing; do not delay Final Collapse at 26. |
 | Cascade composition | Three simultaneous arrivals is an **untested multi-Breach state.** Author a test rather than discovering it in a campaign. Intended as a short closing stretch; measure actual duration. Some combinations (such as Kroni + Odradek + Valak) need explicit interaction coverage. |
 | Kalligan protection | Full enemy denial versus reducing enemy restoration from 2 to 1. |
 | Ordinary Breach protection | Do personal Tears protect only against permanent intruders, or also against participating Lords' ordinary Breaches? |
@@ -427,7 +459,9 @@ Then:
 - Does the Unbound Wishmaster read as an opportunity worth the risk, or do players simply decline every Breach Wish? If declined consistently, the Price weighting is too harsh or the Wishes are not attractive enough.
 - Are hidden arrivals exciting enough to justify the inability to prepare for a specific Lord?
 - Does accumulated recurring activity materially lengthen resolution time?
-- How often is Veil 21 crossed **before** round 21, and how long until game end? Measure the distribution and longest cases separately for early and late crossings. Does the cascade actually overstay its welcome?
+- How often is Veil 21 crossed **before** round 21? Under B, distinguish time waiting for the gate from actual cascade exposure. Under A, measure early exposure directly.
+- What fraction of games end without a cascade under B? A rare full collapse may be the right pacing; do not treat rarity alone as a defect.
+- From actual cascade activation, how long until game end? Measure typical and longest cases. Does the cascade actually overstay its welcome?
 - Are ordinary and permanent Breach combinations readable and reproducible?
 
 Record arrival identities and order, round and Veil at arrival, both players'
@@ -439,7 +473,9 @@ the cascade is active; retain the longest cases as well as typical durations.
 
 Start with small authored scenarios: single arrivals at each position, a
 protected versus unprotected player against the same arrival, Humbaba plus
-Deimos together, and the three-Lord cascade.
+Deimos together, and the three-Lord cascade. Include early Veil 21 with the
+gate closed, round 21 with insufficient Veil, activation once both conditions
+hold, and Final Collapse reached before the gate opens.
 
 ---
 
