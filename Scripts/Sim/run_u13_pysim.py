@@ -23,6 +23,9 @@ def main():
     commands.add_parser("self-test-resolution")
     commands.add_parser("self-test-marching")
     commands.add_parser("self-test-full-match")
+    commands.add_parser("self-test-paid-development")
+    paid_inputs = commands.add_parser("generate-paid-inputs")
+    paid_inputs.add_argument("--output",type=Path,required=True)
     inputs = commands.add_parser("generate-full-match-inputs")
     inputs.add_argument("--output",type=Path,required=True)
     benchmark = commands.add_parser("benchmark-development")
@@ -48,7 +51,7 @@ def main():
     full_copy.add_argument("--verified-report",type=Path,required=True)
     full_copy.add_argument("--report",type=Path,required=True)
     full_copy.add_argument("--reverse",action="store_true",help="Run candidate before baseline")
-    for command in ("verify", "verify-planning", "verify-development", "verify-resolution", "verify-marching", "verify-full-match"):
+    for command in ("verify", "verify-planning", "verify-development", "verify-resolution", "verify-marching", "verify-full-match", "verify-paid-development"):
         check = commands.add_parser(command)
         check.add_argument("trace", type=Path)
         check.add_argument("--diagnostic", action="store_true", help="Label local non-Windows/4.7.2 results diagnostic only")
@@ -56,14 +59,17 @@ def main():
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[2]
     if args.command.startswith("self-test"):
-        stages = ["foundation","planning","development","copying","resolution","marching","full_match"]
+        stages = ["foundation","planning","development","copying","resolution","marching","full_match","paid_development"]
         stage = "foundation" if args.command == "self-test" else args.command.removeprefix("self-test-").replace("-","_")
         modules = ["u13_pysim.test_"+name for name in stages[:stages.index(stage)+1]]
         tests = unittest.defaultTestLoader.loadTestsFromNames(modules)
         result = unittest.TextTestRunner(verbosity=2).run(tests)
         return 0 if result.wasSuccessful() else 1
-    if args.command == "generate-full-match-inputs":
-        from u13_pysim.full_match_inputs import generate
+    if args.command in ("generate-full-match-inputs","generate-paid-inputs"):
+        if args.command == "generate-paid-inputs":
+            from u13_pysim.paid_inputs import generate
+        else:
+            from u13_pysim.full_match_inputs import generate
         args.output.write_text(json.dumps(generate(),indent=2)+"\n",encoding="utf-8")
         print("Generated explicit complete-game inputs; Godot verification is required")
         return 0
@@ -159,17 +165,21 @@ def main():
         except (ValueError,OSError,KeyError,TypeError) as error:
             print(f"FAIL U13 PySim full-match timing: {error}",file=sys.stderr)
             return 1
-    if args.command == "verify-full-match":
-        from u13_pysim.verify_full_match import verify as compare, verify_rejections as reject
+    if args.command in ("verify-full-match","verify-paid-development"):
+        label = "paid-development" if args.command == "verify-paid-development" else "full-match"
+        if label == "paid-development":
+            from u13_pysim.verify_paid import verify as compare, verify_rejections as reject
+        else:
+            from u13_pysim.verify_full_match import verify as compare, verify_rejections as reject
         try:
             result = compare(args.trace,revision,source_hash,args.diagnostic)
             result["deliberate_mismatches_rejected"] = reject(args.trace,revision,source_hash,args.diagnostic)
             if args.report: args.report.write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8")
             print(json.dumps(result,indent=2))
-            print("U13 PySim full-match Python failures: 0")
+            print(f"U13 PySim {label} Python failures: 0")
             return 0
         except (ValueError,TypeError,KeyError,OSError,UnicodeError) as error:
-            print(f"FAIL U13 PySim full-match: {error}",file=sys.stderr)
+            print(f"FAIL U13 PySim {label}: {error}",file=sys.stderr)
             return 1
     label = {"verify-planning": "planning", "verify-development": "development", "verify-resolution": "resolution", "verify-marching": "marching"}.get(args.command, "foundation")
     compare, reject = verify, verify_rejections

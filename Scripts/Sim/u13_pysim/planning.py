@@ -64,7 +64,7 @@ class PlanningMatch:
             return result
         except e.Rejected as error:
             self._state, self.clock = before, clock
-            return {"action": "invalid", "reason": str(error)}
+            return copy_data(error.result)
         except Exception:
             self._state, self.clock = before, clock
             raise
@@ -84,7 +84,7 @@ class PlanningMatch:
                 # Reuse the enclosing transaction's rollback backup. The clock
                 # has not run yet; its rejection contract leaves it unchanged.
                 self._state = rollback_state
-                return self.clock.run(self.clock.hook, {"action": "invalid", "reason": str(error)})
+                return self.clock.run(self.clock.hook, error.result)
             self.clock.run(self.clock.hook, {"action": "u13_dispatched"})
             return dict(action="u13_match_hook", next_hook=self.clock.hook, round=self.clock.round)
         if kind == "next_round":

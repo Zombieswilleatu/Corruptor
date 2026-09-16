@@ -10,6 +10,11 @@ MARKET = "U13_GAME_MARKET_V2"
 class Rejected(ValueError):
     """A supported operation rejected by the rules; callers own transactions."""
 
+    def __init__(self, reason, result=None):
+        super().__init__(reason)
+        # Some native validators return a rejected quote, not just a reason.
+        self.result = (dict(action="invalid", reason=reason) if result is None else copy_data(result))
+
 
 class Unsupported(ValueError):
     """An unimplemented boundary, never represented as a Godot rules rejection."""

@@ -1,10 +1,10 @@
 """Remaining ordinary round hooks for the first independent full-game path.
 
-Authority is the complete U13GameContent wrapper order. Declared powers, paid
-Rites and Resummon remain unsupported choices, not silently skipped effects.
+Authority is the complete U13GameContent wrapper order. Declared powers remain
+unsupported; paid Rites and Resummon precede Guards and Work in Development.
 """
 
-from . import economy as e, marching_game
+from . import economy as e, marching_game, paid_development as paid
 from .battle import Battle, operational, targetable
 from .development import _deploy_owned, draw_pairs, reconcile, work
 from .resolution import HOOKS, Ordinary
@@ -134,11 +134,10 @@ class RoundRules(Ordinary):
             e.require(not d["game_economy"]["stockpile_pending"] and d["game_market"]["seat"] == 2, "development_choice_required")
             d["guard_public_round"], d["guard_public_limits"] = n, [6,6]
         elif hook == "development":
-            for ledger in (d["dominion_rites"]["orders"],d["summon_orders"]):
-                e.require(all(r and r["round"] == n and not r["choice"] for r in ledger), "empty_development_order_missing")
-            e.require(d["dominion_rites"]["resolved_round"] == n-1 and d["summon_round"] < n
-                      and d["construction_round"] < n, "development_clock_invalid")
-            d["dominion_rites"]["resolved_round"] = d["summon_round"] = d["construction_round"] = n
+            events.extend(paid.resolve_rites(self.w,n,self.order))
+            events.extend(paid.resolve_summon(self.w,n,self.order))
+            e.require(d["construction_round"] < n, "development_clock_invalid")
+            d["construction_round"] = n
             # Guards and Work follow Kalligan's inner wrapper, below.
         elif hook == "post_resolution_allegiance":
             e.require(d["paradox_round"] < n, "paradox_already_resolved")

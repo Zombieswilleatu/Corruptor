@@ -27,10 +27,11 @@ def report():
         lords=[dict(lord=lord, ordinary_full_match=lord in ORDINARY_FULL_MATCH_LORDS,
                     declared_powers=[dict(power=power, full_match="unsupported") for power in powers])
                for lord, powers in POWERS.items()],
-        paid_rites="unsupported", resummon="unsupported",
+        paid_rites="implemented; Windows acceptance pending", resummon="implemented; Windows acceptance pending",
+        paid_development_checkpoint="docs/U13_PYSIM_PAID_DEVELOPMENT_2026-09-16.md",
         gate="exact reference cases and full games exercising all nine Lords and their mechanics")
 
 
 def require_full_roster_tuning():
-    raise ValueError("Full-roster tuning is blocked: declared powers, paid Rites, Resummon "
-                     "and five Lord integrations lack full-match parity")
+    raise ValueError("Full-roster tuning is blocked: declared powers and five Lord integrations "
+                     "lack full-match parity; paid Rites/Resummon await Windows acceptance")

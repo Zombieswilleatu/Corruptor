@@ -43,9 +43,12 @@ work and move into the agreed doctrine sequence; do not claim a new PyPy gain.
 
 The four ordinary-play Lords are development coverage, not a training roster for
 the final shared evaluator. `coverage.py` lists all nine Lords and all 23
-declared powers. All declared powers, paid Rites and Resummon remain marked
-unsupported by the full-match adapter. `require_full_roster_tuning()` rejects
-that use explicitly. Isolated spatial tests do not upgrade this status.
+declared powers. At the accepted `a7544d6` checkpoint all declared powers, paid
+Rites and Resummon were unsupported by the full-match adapter. The subsequent
+[paid Development slice](U13_PYSIM_PAID_DEVELOPMENT_2026-09-16.md) implements
+Rites/Resummon and awaits Windows acceptance. Declared powers and five Lord
+integrations remain unsupported. `require_full_roster_tuning()` rejects that
+use explicitly. Isolated spatial tests do not upgrade this status.
 
 ## Candidate and validation work
 
@@ -117,6 +120,13 @@ alternative remain unknown. Stockpile/Slaver currently have event totals only.
 Future policy adapters must fill the full recorder contract directly; do not
 reverse-engineer imagined reasoning from a chosen action.
 
+The reference observer itself has no paid-choice adapter yet. Its Rites and
+Resummon rows therefore remain unmeasured/unsupported by that observer even
+after the rules engine implements them. Capability inventory and reason codes
+distinguish that observer boundary from rules support. The accepted report at
+`a7544d6` remains historical evidence; subsequent coverage metadata is versioned
+by its new harness fingerprint.
+
 After each accepted submission, record selected combat, Guard and Work choices.
 Read new semantic event rows once, extracting named numeric effects: Guard
 deployment, Work contribution/application, activation, Sigils, combat outcomes
@@ -159,13 +169,26 @@ clock advancement, passing into scheduled round pressure, Final Collapse soul
 comparison and the living-Lord Ritual gate. These are contracts for future
 planner tests, not a prediction algorithm or a newly installed playable veto.
 
-## Local verification and Windows command
+## Accepted Windows diagnostics checkpoint
+
+The uploaded `u13-doctrine-diagnostics-QpZyq9-2026-09-15_22-44-34-z5NK3K.zip`
+passed at clean `a7544d620376a0a4339825dd5ab85fcdf194dcec`. CPython 3.14.7 and
+PyPy 7.3.23 / Python 3.11.15 each passed all 20 tests. The complete deterministic
+reports matched across runtimes and the earlier local report: 30 rounds, 767
+unchanged operations and both accepted final state digests. Archive CRC, zero
+exit status, empty worktree diff and engine/harness/input identities were checked.
+See [accepted evidence](evidence/U13_DOCTRINE_DIAGNOSTICS_a7544d6.json).
+This accepts the diagnostic observer; it is not a new Godot export, performance
+result, new planner acceptance or full-roster parity.
+
+## Earlier local verification and reproducible command
 
 Local CPython diagnostics passed 20 tests and regenerated the two complete games:
 30 rounds, 767 identical operations, identical event totals and both accepted
 final state digests. The engine fingerprint remains
 `50d400eb3b9f11ceda9dd4648ef4117caadce8ba33f019b3fd2192e0dca58206`.
-Local Linux results do not establish Windows/PyPy acceptance of this new harness.
+These local Linux results alone did not establish Windows/PyPy acceptance;
+the subsequent Windows upload above supplies the dual-runtime check.
 See the compact [local evidence](evidence/U13_DOCTRINE_DIAGNOSTICS_LOCAL_2026-09-16.json).
 
 After updating to this checkpoint, run:

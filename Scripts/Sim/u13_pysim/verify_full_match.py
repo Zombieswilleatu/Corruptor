@@ -26,7 +26,8 @@ def records(path):
                 raise ValueError(f"stream line {number}: {error}") from error
 
 
-def verify(path, revision, source_hash, diagnostic=False, record_filter=None):
+def verify(path, revision, source_hash, diagnostic=False, record_filter=None, *,
+           input_manifest=None, inputs_hash=None, stream_schema=SCHEMA, trailer=None):
     stream = iter(records(path))
     def take(kind):
         try: row = next(stream)
@@ -36,12 +37,14 @@ def verify(path, revision, source_hash, diagnostic=False, record_filter=None):
         return row
     header = take("header")
     shape(header,{"kind","schema","identity","inputs_sha256","event_transport","scope_lords"},"header")
-    same(SCHEMA,header["schema"],"schema")
-    same(f.input_hash(),header["inputs_sha256"],"inputs_sha256")
+    same(stream_schema,header["schema"],"schema")
+    expected_hash = f.input_hash() if inputs_hash is None else inputs_hash
+    same(expected_hash,header["inputs_sha256"],"inputs_sha256")
     same(TRANSPORT,header["event_transport"],"event_transport")
     same(list(LORDS),header["scope_lords"],"scope_lords")
-    manifest = f.load()
-    same(f.SCHEMA,manifest["schema"],"input.schema")
+    manifest = f.load() if input_manifest is None else input_manifest
+    if input_manifest is None:
+        same(f.SCHEMA,manifest["schema"],"input.schema")
     games, total_counts, tick_probes, tick_frames = [],Counter(),0,0
     for spec in manifest["cases"]:
         path_name = "games["+spec["name"]+"]"
@@ -119,6 +122,7 @@ def verify(path, revision, source_hash, diagnostic=False, record_filter=None):
         initial = copy_data(world)
         events = settle(world,spec["round"])
         same(dict(kind="settlement",name=spec["name"],initial=initial,world=world,events=events),row,"settlements["+spec["name"]+"]")
+    extra = trailer(take) if trailer is not None else {}
     try: next(stream)
     except StopIteration: pass
     else: raise ValueError("stream has extra records")
@@ -126,7 +130,7 @@ def verify(path, revision, source_hash, diagnostic=False, record_filter=None):
                  "MARCHER_REGENERATED","GUARD_PAIR_FORMED","WORK_RESOLVED","CASTLE_ACTIVATED",
                  "LORD_BANISHED","VACANT_THRONE_RESOLVED","MATCH_FINISHED"):
         same(True,total_counts[kind] > 0,"coverage."+kind)
-    return dict(python_mirror=VERSION,source_revision=revision,source_sha256=source_hash,inputs_sha256=f.input_hash(),
+    return dict(python_mirror=VERSION,source_revision=revision,source_sha256=source_hash,inputs_sha256=expected_hash,
         runtime=header["identity"]["runtime"],reference_platform=header["identity"]["platform"],diagnostic_only=diagnostic,
         complete_games_matched=len(games),complete_rounds_matched=sum(g["rounds"] for g in games),
         game_operations_matched=sum(g["operations_matched"] for g in games),fixture_operations=0,
@@ -135,10 +139,10 @@ def verify(path, revision, source_hash, diagnostic=False, record_filter=None):
         scope="explicit ordinary decisions; no declared powers, paid Rites or Resummon; not roster-complete parity",
         event_profile="U13_BATCH_EVENTS_V1",full_world_tick_probes_matched=tick_probes,tick_frames_compared=tick_frames,
         all_semantic_rows_and_views_matched=True,
-        games=games,event_coverage=dict(sorted(total_counts.items())),failures=0)
+        games=games,event_coverage=dict(sorted(total_counts.items())),failures=0,**extra)
 
 
-def verify_rejections(path, revision, source_hash, diagnostic=False):
+def verify_rejections(path, revision, source_hash, diagnostic=False, **options):
     """Early corruptions keep this gate bounded while exercising real replay."""
     probes = [
         ("source_revision", lambda r:r["kind"] == "header", lambda r:r["identity"].update(source_revision="wrong")),
@@ -163,7 +167,7 @@ def verify_rejections(path, revision, source_hash, diagnostic=False):
             if not changed and predicate(row):
                 mutate(row); changed = True
             return row
-        try: verify(path,revision,source_hash,diagnostic,corrupt)
+        try: verify(path,revision,source_hash,diagnostic,corrupt,**options)
         except ValueError as error:
             if not changed or marker not in str(error):
                 raise ValueError(f"Wrong first-divergence path for {marker}: {error}") from error

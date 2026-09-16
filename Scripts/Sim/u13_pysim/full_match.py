@@ -1,16 +1,16 @@
 """Independent setup-to-victory adapter for explicitly scoped ordinary games.
 
-Four Lords; all 20 hooks; repeated rounds; no declared powers, paid Rites or
-Resummon yet. Those choices fail explicitly. Policies remain outside authority.
+Four Lords; all 20 hooks; repeated rounds, paid Rites and Resummon. Declared
+powers still fail explicitly. Policies remain outside authority.
 """
 
-from . import economy as e, marching_game
+from . import economy as e, marching_game, paid_development as paid
 from .copying import copy_data, RollbackSnapshot
 from .lifecycle import RoundRules
 from .planning import PlanningMatch
 from .timeline import HOOKS
 
-VERSION = "U13_PYSIM_FULL_MATCH_V1"
+VERSION = "U13_PYSIM_FULL_MATCH_V2_PAID_DEVELOPMENT"
 
 
 class FullMatch(PlanningMatch):
@@ -71,6 +71,24 @@ class FullMatch(PlanningMatch):
         s["events"]["rows"].extend(events)
         if hook == "present_public_state":
             s["presentation_world"] = copy_data(s["world"])
+
+    def _accept_order(self, world, pid, order, reserve=True):
+        paid.validate_rites(world, pid, order)
+        if not order.get("rites") and "summon" not in order:
+            return super()._accept_order(world, pid, order, reserve)
+        # Native admission stages Rite payments before Resummon and the other
+        # orders. Only a paid preview needs this extra world; ordinary decisions
+        # retain the existing validation path and immutable history optimization.
+        staged = world if reserve else copy_data(world)
+        paid.reserve_rites(staged, pid, order, self.clock.round)
+        paid.reserve_summon(staged, pid, order, self.clock.round)
+        d = staged["data"]
+        rites, summon = d["dominion_rites"]["orders"][pid], d["summon_orders"][pid]
+        ordinary = {k: v for k, v in order.items() if k not in ("rites", "summon")}
+        events = super()._accept_order(staged, pid, ordinary, reserve)
+        if reserve:
+            d["dominion_rites"]["orders"][pid], d["summon_orders"][pid] = rites, summon
+        return events
 
 
 # Captured functions make instance/class replacement conservative too. Helpers

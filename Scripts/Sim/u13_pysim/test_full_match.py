@@ -252,7 +252,7 @@ class FullMatchTests(unittest.TestCase):
     def test_new_full_match_boundary_rejects_unported_choices_atomically(self):
         game = self.at(2,"submission_lock")
         before = game.snapshot()
-        plans = [dict(powers=[],order={}),dict(powers=[],order=dict(summon={}))]
+        plans = [dict(powers=[],order={}),dict(powers=[dict(power_id="MusterTheFaithful")],order={})]
         with self.assertRaises(e.Unsupported): game.apply(dict(kind="submit",plans=plans))
         self.assertEqual(before,game.snapshot())
         setup = copy_data(load()["cases"][0]["setup"]);setup["lords"][0] = "Odradek"

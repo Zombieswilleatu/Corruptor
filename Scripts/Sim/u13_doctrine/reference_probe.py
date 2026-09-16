@@ -64,9 +64,9 @@ class ReferenceObserver:
                                      reason="full_match_power_unsupported")
             for term in ("Supplicants", "Invocation", "ProfaneRuins"):
                 self.recorder.assess(number, seat, "rites", term, supported=False,
-                                     reason="full_match_paid_rites_unsupported")
+                                     reason="reference_observer_paid_rites_unimplemented")
             self.recorder.assess(number, seat, "resummon", "Resummon", supported=False,
-                                 reason="full_match_resummon_unsupported")
+                                 reason="reference_observer_resummon_unimplemented")
 
     def _attach(self, identity, event_id, number, metrics=None, outcome="resolved"):
         if not identity:

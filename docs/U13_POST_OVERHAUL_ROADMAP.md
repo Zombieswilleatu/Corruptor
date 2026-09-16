@@ -2,6 +2,13 @@
 
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
+**2026-09-16 paid Development checkpoint:** The diagnostic observer passed its
+Windows CPython/PyPy gate at clean `a7544d6`: all 20 tests and both unchanged
+reference games matched. The next [parity slice](U13_PYSIM_PAID_DEVELOPMENT_2026-09-16.md)
+adds paid Rites and Resummon to Python FullMatch, with focused component and
+complete-game comparisons. Windows 4.7.2 acceptance of that new rules slice is
+pending. Declared powers and five Lord integrations still precede shared tuning.
+
 **2026-09-16 doctrine start:** The user authorized beginning the agreed rebuild
 with consultation for substantive forks. The [first checkpoint](U13_DOCTRINE_START_2026-09-16.md)
 supplies separate harness diagnostics, deterministic work budgets, explicit
@@ -9,8 +16,8 @@ missing-mechanics coverage and reconciled Veil behavior contracts. It retains
 the existing rules and bots. The sequence is diagnostics/contracts → missing
 full-roster rules parity → bounded common planner with nine separate Lord files
 → shared tuning → specialization. Four-Lord ordinary play is development
-coverage, not the final tuning roster. Local diagnostics are not Windows/PyPy
-acceptance of the new harness.
+coverage, not the final tuning roster. The uploaded dual-runtime diagnostics
+subsequently passed at `a7544d6`; that result does not broaden rules parity.
 
 **2026-09-16 final optional optimization checked:** Windows CPython and PyPy
 passed both exact replay gates and all 67 engine + 3 comparison tests at clean
