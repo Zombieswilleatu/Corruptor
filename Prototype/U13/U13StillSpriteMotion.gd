@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Glitch = preload("res://Prototype/U13/U13ParadoxTiming.gd")
+
 # Presentation only. Seconds in, grounded pose out. No gameplay side effects.
 # All movement is in units of body height, so inspection and board scale agree.
 static func pose(motion: String, time: float, phase: float = 0.0, character: String = "Penitent", rooted: bool = false) -> Dictionary:
@@ -82,7 +84,7 @@ static func pose(motion: String, time: float, phase: float = 0.0, character: Str
 static func paint(canvas: CanvasItem, texture: Texture2D, feet: Vector2, height: float,
 		face_left: bool, motion: String, time: float, phase: float,
 		ground: Vector2, body_height: float, mirror: bool,
-		character: String = "Penitent", rooted: bool = false) -> void:
+		character: String = "Penitent", rooted: bool = false, effects: Dictionary = {}) -> void:
 	var state := pose(motion, time, phase, character, rooted)
 	var direction := -1.0 if face_left else 1.0
 	var alpha: float = state.alpha
@@ -98,8 +100,10 @@ static func paint(canvas: CanvasItem, texture: Texture2D, feet: Vector2, height:
 	var factor := height / body_height
 	var dimensions := texture.get_size() * factor
 	var anchor := ground * factor
-	var light: float = 1.0 + state.flash * 1.8
-	canvas.draw_texture_rect(texture, Rect2(-anchor, dimensions), false, Color(light, light, light, alpha))
+	var light: float = 1.0 + maxf(state.flash, float(effects.get("flash", 0.0))) * 1.8
+	var glitch: Dictionary = effects.get("glitch", {})
+	Glitch.draw_slices(canvas, texture, Rect2(-anchor, dimensions), Rect2(Vector2.ZERO, texture.get_size()),
+		float(glitch.get("amount", 0.0)), int(glitch.get("tick", 0)), Color(light, light, light, alpha))
 	canvas.draw_set_transform(Vector2.ZERO)
 	if state.impact > 0.0:
 		var point := feet + Vector2(direction * height * 0.39, -height * 0.43)

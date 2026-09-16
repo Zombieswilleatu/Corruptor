@@ -41,8 +41,10 @@ func draw(board) -> void:
 		var a: Dictionary = unit.attributes
 		var lane: Rect2 = board.travel_rect(a.lane)
 		var center: Vector2 = lane.position + Vector2(float(a.get("visual_y", a.y_fp)) / 600.0, 1.0 - float(a.get("visual_x", a.x_fp)) / 2400.0) * lane.size
-		# Only the chit blinks/flashes. The ghost has its own uninterrupted clock.
-		if row.age < FLASH_DURATION and int(row.age / 0.05) % 2 == 0:
+		# The sprite falls/fades while the ghost keeps its uninterrupted clock.
+		if board.has_method("_draw_marcher_death"):
+			board._draw_marcher_death(unit, center, row.age)
+		elif row.age < FLASH_DURATION and int(row.age / 0.05) % 2 == 0:
 			board._draw_chit(unit, center, true)
 		if texture != null:
 			var cell: Vector2 = texture.get_size() / Vector2(6, 1)

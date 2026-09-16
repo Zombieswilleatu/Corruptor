@@ -2,8 +2,10 @@
 
 All 14 preview characters default to **Still + Godot motion**. The shared
 character picker, domain background, plain background, guides, size and count
-controls apply to both still and sheet modes. This changes presentation previews
-only; full animated sprites remain the eventual goal.
+controls apply to both still and sheet modes. The live marching lanes now share
+these poses and motion through `U13MarcherSpriteCatalog` and
+`U13MarcherSpriteVisuals`; see [MARCHER_SPRITES.md](MARCHER_SPRITES.md) for the
+rendering hooks. Full animated sprites remain the eventual goal.
 
 ## Sources and anchors
 

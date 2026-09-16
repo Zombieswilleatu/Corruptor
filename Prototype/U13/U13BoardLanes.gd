@@ -15,6 +15,9 @@ var breath_visuals = BreathVisuals.new()
 var domain: Texture2D
 var skin: Texture2D
 var chit_sheet: Texture2D
+const SpriteVisuals = preload("res://Prototype/U13/U13MarcherSpriteVisuals.gd")
+var sprite_visuals = SpriteVisuals.new()
+var sprite_height: float = 58.0
 var void_active: bool = false
 var active_auras: Array = []
 var active_scorches: Array = []
@@ -57,6 +60,7 @@ func _ready() -> void:
 	custom_minimum_size = Vector2(290, 600)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	clip_contents = true
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 
 func _scenery(rect: Rect2, crop: Rect2) -> void:
@@ -105,7 +109,7 @@ func _draw() -> void:
 		for unit in _units:
 			if unit.id not in _clash or deaths.seen.has(unit.id):
 				continue
-			_draw_chit(unit, Vector2(54 + (index % 4) * 56, 176))
+			_draw_chit(unit, Vector2(54 + (index % 4) * 56, 205))
 			index += 1
 	draw_string(font, Vector2(18, 250), action, HORIZONTAL_ALIGNMENT_CENTER, size.x - 36, 12, MUTED)
 	# One continuous battlefield surface; only the lane boundary divides it.
@@ -192,7 +196,12 @@ func _draw() -> void:
 				)
 		var top: float = rect.position.y + 65
 		var bottom: float = rect.end.y - 52
-		for unit in _units:
+		var ordered: Array = _units.duplicate()
+		ordered.sort_custom(func(a: Dictionary, b: Dictionary):
+			var ax := SpriteVisuals.position_of(a).x
+			var bx := SpriteVisuals.position_of(b).x
+			return ax > bx if ax != bx else String(a.id) < String(b.id))
+		for unit in ordered:
 			var a: Dictionary = unit.attributes
 			if a.lane != lane or deaths.seen.has(unit.id):
 				continue
@@ -209,7 +218,7 @@ func _draw() -> void:
 			if a.waiting or a.movement_ready_round > _round:
 				draw_string(
 					font,
-					center + Vector2(-17, -29),
+					center + Vector2(-17, -sprite_height - 5),
 					"SUPPLICANT" if a.waiting else "NEW",
 					HORIZONTAL_ALIGNMENT_LEFT,
 					45,
@@ -228,27 +237,48 @@ const ParadoxTiming = preload("res://Prototype/U13/U13ParadoxTiming.gd")
 func _draw_chit(unit: Dictionary, center: Vector2, flash: bool = false) -> void:
 	var attributes: Dictionary = unit.attributes
 	var tint: Color = BLUE if unit.owner == 0 else RED
-	if chit_sheet != null:
+	var glitch: Dictionary = paradox_glitches.get(unit.id, {})
+	var drawn := sprite_visuals.draw(self, unit, center, sprite_height, glitch, flash)
+	var fallback_character: String = "" if drawn else SpriteVisuals.Catalog.character_for(unit)
+	if not drawn and chit_sheet != null and fallback_character in ["Butcher", "Penitent", "Vulture", "Wright"]:
 		# UI2 atlas: Butcher/Penitent/Vulture/Wright columns, human/enemy rows.
 		var column: int = int(
-			{"Butcher": 0, "Penitent": 1, "Vulture": 2, "Wright": 3}.get(attributes.suit, 0)
+			{"Butcher": 0, "Penitent": 1, "Vulture": 2, "Wright": 3}.get(fallback_character, 0)
 		)
 		var cell: Vector2 = chit_sheet.get_size() / Vector2(4.0, 2.0)
 		var row: float = 0.0 if unit.owner == 0 else 1.0
-		var glitch: Dictionary = paradox_glitches.get(unit.id, {})
 		ParadoxTiming.draw_slices(self, chit_sheet,
 			Rect2(center - Vector2(22, 22), Vector2(44, 44)),
 			Rect2(Vector2(float(column), row) * cell, cell),
 			float(glitch.get("amount", 0.0)), int(glitch.get("tick", 0)))
 		if flash:
 			draw_texture_rect_region(chit_sheet, Rect2(center - Vector2(22, 22), Vector2(44, 44)), Rect2(Vector2(float(column), row) * cell, cell), Color(4, 4, 4, 1))
-	rout_visuals.draw_chit(self, String(unit.id), center)
+	elif not drawn:
+		# Unknown future types remain visible without being mislabeled Butchers.
+		draw_circle(center - Vector2(0, 12), 12, tint)
+		draw_string(ThemeDB.fallback_font, center + Vector2(-5, -7), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color.BLACK)
+	rout_visuals.draw_chit(self, String(unit.id), center - Vector2(0, sprite_height * 0.45 if drawn else 0.0))
 	var health: float = clampf(float(attributes.hp) / maxf(1.0, float(attributes.max_hp)), 0.0, 1.0)
 	if void_active and health > 0:
 		health = ceilf(health * 3.0) / 3.0
-	draw_arc(center, 23.0, 0.0, TAU, 48, Color("302e29"), 3.0, true)
-	if health > 0.0:
-		draw_arc(center, 23.0, -PI / 2.0, -PI / 2.0 + TAU * health, 48, tint, 3.0, true)
+	if drawn:
+		draw_set_transform(center, 0.0, Vector2(1.0, 0.3))
+		draw_arc(Vector2.ZERO, 16.0, 0.0, TAU, 32, tint, 2.0, true)
+		draw_set_transform(Vector2.ZERO)
+		draw_rect(Rect2(center + Vector2(-14, 6), Vector2(28, 4)), Color("302e29"))
+		if health > 0.0:
+			draw_rect(Rect2(center + Vector2(-14, 6), Vector2(28 * health, 4)), tint)
+	else:
+		draw_arc(center, 23.0, 0.0, TAU, 48, Color("302e29"), 3.0, true)
+		if health > 0.0:
+			draw_arc(center, 23.0, -PI / 2.0, -PI / 2.0 + TAU * health, 48, tint, 3.0, true)
+
+
+func _draw_marcher_death(unit: Dictionary, center: Vector2, age: float) -> void:
+	var blink: bool = age < deaths.FLASH_DURATION and int(age / 0.05) % 2 == 0
+	if not sprite_visuals.draw(self, unit, center, sprite_height,
+		paradox_glitches.get(unit.id, {}), blink, age) and blink:
+		_draw_chit(unit, center, true)
 
 
 signal lane_selected(lane: String)
@@ -293,6 +323,8 @@ func reset_effects() -> void:
 	projectiles = []
 	deaths.clear()
 	_units = []
+	_clash = []
+	sprite_visuals.clear()
 	rout_visuals.clear()
 	scorch_visuals.clear()
 	feedback.clear()
@@ -305,7 +337,8 @@ func reset_effects() -> void:
 
 func _effects_need_process() -> bool:
 	return (
-		not deaths.visible.is_empty()
+		not sprite_visuals.subjects.is_empty()
+		or not deaths.visible.is_empty()
 		or not active_webs.is_empty()
 		or breath_visuals.textures.size() < 5
 		or scorch_visuals.textures.size() < 3
@@ -317,6 +350,7 @@ func _effects_need_process() -> bool:
 
 
 func _process(delta: float) -> void:
+	sprite_visuals.advance(delta)
 	# Keep the initial warm-up at one asset per frame across both effects.
 	if breath_visuals.textures.size() < 5:
 		breath_visuals.warm_next()
@@ -337,6 +371,7 @@ func _process(delta: float) -> void:
 
 func show_feedback(rows: Array) -> void:
 	feedback.show_rows(rows)
+	sprite_visuals.hit(rows)
 	if not feedback.visible.is_empty():
 		set_process(true)
 		queue_redraw()
@@ -363,7 +398,7 @@ func _draw_feedback() -> void:
 		var stack: int = int(stacks.get(hit.id, 0))
 		stacks[hit.id] = stack + 1
 		center.x = clampf(center.x, left + 39.0, left + width - 39.0)
-		center.y -= 32.0 + float(hit.age) * 25.0 + float(stack) * 45.0
+		center.y -= sprite_height + 8.0 + float(hit.age) * 25.0 + float(stack) * 45.0
 		var alpha: float = clampf((Feedback.LIFETIME - float(hit.age)) / 0.35, 0.0, 1.0)
 		if hit.hp != 0:
 			_number_text(
@@ -420,7 +455,7 @@ func bind_webs(records: Array) -> void:
 	queue_redraw()
 
 
-# One geometry contract for the drawn chits and live spatial targeting.
+# One geometry contract for sprite feet, projectiles and live spatial targeting.
 func travel_rect(lane: String) -> Rect2:
 	var width: float = (size.x - 37) / 2.0
 	return Rect2(16 + (width + 5) * (1 if lane == "Castle" else 0), 344, width, maxf(1, size.y - 420))
@@ -430,12 +465,14 @@ func show_world(entities: Array, round_number: int) -> void:
 	projectiles = []
 	deaths.observe(_units, entities)
 	super.show_world(entities, round_number)
+	sprite_visuals.sync(_units, _clash, _round, false)
 	set_process(_effects_need_process())
 
 func show_frame(frame: Dictionary, round_number: int) -> void:
 	projectiles = frame.get("projectiles", [])
 	deaths.observe(_units, frame.units)
 	super.show_frame(frame, round_number)
+	sprite_visuals.sync(_units, _clash, _round, true)
 	set_process(_effects_need_process())
 
 func show_deaths(rows: Array) -> void:

@@ -5,7 +5,7 @@ extends "res://Prototype/U13/U13VisualPreview.gd"
 # Each entry is [crop rect, ground anchor in sheet coordinates]. Keep one scale
 # for all frames: fitting individual crops would inflate the collapsing body.
 const StillMotion = preload("res://Prototype/U13/U13StillSpriteMotion.gd")
-const StillFrame = preload("res://Prototype/U13/U13StillFrame.gd")
+const SpriteCatalog = preload("res://Prototype/U13/U13MarcherSpriteCatalog.gd")
 var still_frames: Dictionary = {}
 var still_transform_frames: Array[Dictionary] = []
 
@@ -380,44 +380,11 @@ func _build_preview() -> void:
 	set_process(sheet != null or still_texture != null)
 
 func _build_still_frames() -> void:
-	still_frames.clear()
-	still_transform_frames.clear()
-	if still_texture != null:
-		still_frames[0] = {"texture": still_texture,
-			"anchor": still_texture.get_size() * still_anchor_uv,
-			"body": float(still_texture.get_height()) * still_body_height_ratio}
-	else:
-		for row in [0, 1]:
-			if sheet == null or not frame_regions.has(row):
-				continue
-			var entry: Array = frame_regions[row][0]
-			var mask: PackedVector2Array = frame_polygons.get(row, {}).get(0, PackedVector2Array())
-			var data := StillFrame.from_sheet(sheet, source_dimensions, source_body_height,
-				entry[0], entry[1], mask, "black" if not source_shader_path.is_empty() else "")
-			if not data.is_empty():
-				still_frames[row] = data
-		# Butcher's approved bundled redraw is available without an external sheet.
-		if character_name == "Butcher" and redraw != null:
-			still_frames.clear()
-			still_frames[0] = StillFrame.from_sheet(redraw, Vector2(1536, 1024),
-				redraw_body_height, Rect2(0, 0, 512, 512), Vector2(300, 502),
-				PackedVector2Array(), "green")
-		if still_frames.has(0):
-			still_texture = still_frames[0].texture
-	if permanent_row >= 0 and row_textures.has(permanent_row):
-		var row: int = permanent_row
-		var config: Dictionary = row_sources[row]
-		# Reuse the authored transformation once, then keep its final still.
-		for frame in range(frame_regions[row].size()):
-			var entry: Array = frame_regions[row][frame]
-			var mask: PackedVector2Array = frame_polygons.get(row, {}).get(frame, PackedVector2Array())
-			var data := StillFrame.from_sheet(row_textures[row], config.dimensions,
-				config.body_height, entry[0], entry[1], mask,
-				"black" if not source_shader_path.is_empty() else "")
-			if not data.is_empty():
-				still_transform_frames.append(data)
-		if not still_transform_frames.is_empty():
-			still_frames[row] = still_transform_frames.back()
+	var data := SpriteCatalog.build_frames(self, sheet, redraw, still_texture, row_textures)
+	still_frames = data.frames
+	still_transform_frames = data.transform
+	if still_frames.has(0):
+		still_texture = still_frames[0].texture
 
 func _still_transform_frame() -> Dictionary:
 	if transform_time < 0.0 or still_transform_frames.is_empty():

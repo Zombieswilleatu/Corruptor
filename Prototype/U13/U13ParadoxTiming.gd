@@ -47,11 +47,11 @@ static func edge_glitch(progress: float) -> float:
 	return 1.0 if progress < 0.16 or progress > 0.82 else 0.0
 
 
-static func draw_slices(canvas: CanvasItem, texture: Texture2D, destination: Rect2, source: Rect2, amount: float, tick: int) -> void:
+static func draw_slices(canvas: CanvasItem, texture: Texture2D, destination: Rect2, source: Rect2, amount: float, tick: int, tint: Color = Color.WHITE) -> void:
 	if texture == null:
 		return
 	if amount <= 0.0:
-		canvas.draw_texture_rect_region(texture, destination, source)
+		canvas.draw_texture_rect_region(texture, destination, source, tint)
 		return
 	for strip in range(8):
 		if (strip + tick) % 5 == 0:
@@ -59,4 +59,4 @@ static func draw_slices(canvas: CanvasItem, texture: Texture2D, destination: Rec
 		var offset: float = float((strip * 7 + tick * 3) % 11 - 5) * amount * destination.size.x * 0.055
 		var target := Rect2(destination.position + Vector2(offset, destination.size.y * strip / 8.0), Vector2(destination.size.x, destination.size.y / 8.0))
 		var sample := Rect2(source.position + Vector2(0, source.size.y * strip / 8.0), Vector2(source.size.x, source.size.y / 8.0))
-		canvas.draw_texture_rect_region(texture, target, sample, Color(1, 1, 1, 0.65 if (strip + tick) % 3 == 0 else 1.0))
+		canvas.draw_texture_rect_region(texture, target, sample, tint * Color(1, 1, 1, 0.65 if (strip + tick) % 3 == 0 else 1.0))
