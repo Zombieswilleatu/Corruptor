@@ -3,10 +3,9 @@ set -euo pipefail
 u13_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 u13_godot=${1:?Pass the Godot executable as the first argument.}
 u13_sheet=${2:-"$u13_root/ConceptImages/Sprites/PenitentSprite.png"}
+# The preview bundles both the still and the comparison sheet.
 if [[ ! -f "$u13_sheet" ]]; then
-  echo "Sprite not found: $u13_sheet" >&2
-  echo 'Pass the PenitentSprite.png path as the second argument.' >&2
-  exit 1
+  u13_sheet="$u13_root/Prototype/U13/Assets/PenitentSpriteV3.png"
 fi
 # Explicit conversion also handles an asset in a different Windows worktree.
 if command -v cygpath >/dev/null 2>&1; then

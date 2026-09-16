@@ -4,6 +4,7 @@ extends "res://Prototype/U13/U13ButcherLanePreview.gd"
 # Source rows: left walk, right walk, celebrate, shield attack, death.
 func _configure_character() -> void:
 	character_name = "Penitent"
+	still_path = "res://Prototype/U13/Assets/PenitentStill.png"
 	bundled_sheet_path = "res://Prototype/U13/Assets/PenitentSpriteV3.png"
 	source_dimensions = Vector2(1374, 1145)
 	source_body_height = 205.0

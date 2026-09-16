@@ -4,6 +4,14 @@ extends "res://Prototype/U13/U13VisualPreview.gd"
 # Regions measured against the original 1374x1145 sheet, not an equal grid.
 # Each entry is [crop rect, ground anchor in sheet coordinates]. Keep one scale
 # for all frames: fitting individual crops would inflate the collapsing body.
+const StillMotion = preload("res://Prototype/U13/U13StillSpriteMotion.gd")
+const STILL_MODES = ["Lane cycle", "Idle", "March", "Attack", "Hit", "Death"]
+var still_path: String = ""
+var still_texture: Texture2D
+var use_still: bool = false
+var still_mode: int = 0
+var still_mode_start: float = 0.0
+
 const CHARACTERS = ["Butcher", "Penitent", "Vulture", "Wright", "Batboy", "BottleTree", "Dogger", "Kopita", "Lemek", "Pixie", "Ratton", "Sinodek", "Wraith", "Sooge"]
 const FRAMES = {
 	0: [
@@ -90,7 +98,7 @@ func _select_character(index: int) -> void:
 		return
 	var config = load("res://Prototype/U13/U13%sLanePreview.gd" % selected).new()
 	config._configure_character()
-	for property in ["row_sources", "permanent_row", "character_name", "frame_regions", "extra_animation_labels", "frame_polygons",
+	for property in ["still_path", "row_sources", "permanent_row", "character_name", "frame_regions", "extra_animation_labels", "frame_polygons",
 		"has_redraw", "use_redraw", "redraw_path", "redraw_shader_path", "redraw_body_height", "redraw_anchors",
 		"source_dimensions", "source_body_height", "source_shader_path", "bundled_sheet_path"]:
 		set(property, config.get(property))
@@ -98,6 +106,9 @@ func _select_character(index: int) -> void:
 	for child in get_children():
 		remove_child(child)
 		child.queue_free()
+	still_texture = null
+	still_mode = 0
+	still_mode_start = 0.0
 	row_textures.clear()
 	transform_time = -1.0
 	rooted_poses.clear()
@@ -117,6 +128,9 @@ func _select_character(index: int) -> void:
 	queue_redraw()
 
 func _build_preview() -> void:
+	if not still_path.is_empty():
+		still_texture = load(still_path) as Texture2D
+	use_still = still_texture != null
 	facing_rng.randomize()
 	_roll_facings()
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -218,6 +232,7 @@ func _build_preview() -> void:
 		_button(controls, "Turret form", _start_transform)
 	_button(controls, "Restart", func():
 		clock = 0.0
+		still_mode_start = 0.0
 		death_time = -1.0
 		transform_time = -1.0
 		rooted_poses.clear()
@@ -244,8 +259,24 @@ func _build_preview() -> void:
 	art_picker.item_selected.connect(func(index: int): use_redraw = index == 0)
 	art_picker.visible = has_redraw
 	sizing.add_child(art_picker)
+	var still_controls := HBoxContainer.new()
+	panel.add_child(still_controls)
+	still_controls.visible = use_still
+	var motion_label := Label.new()
+	motion_label.text = "Still motion:"
+	still_controls.add_child(motion_label)
+	var motion_picker := OptionButton.new()
+	for mode in STILL_MODES:
+		motion_picker.add_item(mode)
+	motion_picker.item_selected.connect(func(index: int):
+		still_mode = index
+		still_mode_start = clock
+		death_time = -1.0)
+	still_controls.add_child(motion_picker)
+	_button(still_controls, "Replay motion", func(): still_mode_start = clock)
 	var inspector := HBoxContainer.new()
 	panel.add_child(inspector)
+	inspector.visible = not use_still
 	var animation := OptionButton.new()
 	animation_picker = animation
 	var inspection_rows: Array[int] = [-1, 0, 1, 4]
@@ -281,6 +312,21 @@ func _build_preview() -> void:
 	_button(inspector, "Play / hold", func():
 		inspection_playing = not inspection_playing
 		inspection_elapsed = float(inspection_frame) / 8.0)
+	if still_texture != null:
+		var presentation := OptionButton.new()
+		presentation.add_item("Still + Godot motion")
+		presentation.add_item("Sprite sheet")
+		presentation.item_selected.connect(func(index: int):
+			use_still = index == 0
+			still_controls.visible = use_still
+			inspector.visible = not use_still
+			inspection_row = -1
+			inspection_playing = false
+			animation_picker.select(0)
+			death_time = -1.0
+			clock = 0.0
+			still_mode_start = 0.0)
+		sizing.add_child(presentation)
 	status = Label.new()
 	panel.add_child(status)
 	if sheet == null:
@@ -323,6 +369,8 @@ func _process(delta: float) -> void:
 		status.text = "Rooted permanently · Restart restores the mobile form."
 	if inspection_row >= 0:
 		status.text = "Inspection: %s · 8 FPS · scrub to hold a frame." % ("playing" if inspection_playing and not paused else "held")
+	if use_still:
+		status.text = "Still + Godot motion · %s · preview only · no skeletal animation" % STILL_MODES[still_mode]
 	queue_redraw()
 
 func _draw() -> void:
@@ -349,6 +397,8 @@ func _draw() -> void:
 	var phase := fmod(clock, 10.0)
 	var walking := phase < 7.0
 	var progress := minf(phase / 7.0, 1.0) if inspection_row < 0 else 0.0
+	if use_still and still_mode != 0:
+		progress = 0.0
 	# Depth sorting keeps feet and ownership markers legible through overlapping sprites.
 	var units: Array = []
 	for lane in range(2):
@@ -380,6 +430,8 @@ func _draw() -> void:
 	for unit in units:
 		_draw_unit(unit.feet, unit.owner, unit.index, walking, unit.left)
 	var caption := "Idle / engaged · attacks belong in the action window" if not walking else "Walking vertically · stable left/right facing"
+	if use_still:
+		caption = "Still art · %s · switch to Sprite sheet above to compare" % STILL_MODES[still_mode]
 	if inspection_row >= 0:
 		caption = "Animation inspection · movement held"
 	draw_string(ThemeDB.fallback_font, Vector2(24, size.y - 20), caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 18)
@@ -393,6 +445,24 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool, face_left:
 	if chits:
 		draw_circle(feet - Vector2(0, 13), 12, tint)
 		draw_string(ThemeDB.fallback_font, feet + Vector2(-5, -7), character_name.left(1), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color.BLACK)
+		return
+	if use_still and still_texture != null:
+		var motion: String = STILL_MODES[still_mode]
+		var motion_time := clock - still_mode_start
+		if still_mode == 0:
+			motion = "March" if walking else "Idle"
+			if not walking:
+				var contact_time := fmod(clock, 10.0) - 7.0 - float(index % 3) * 0.12
+				if contact_time >= 0.3 and contact_time < 1.3:
+					motion = "Attack"
+					motion_time = contact_time - 0.3
+		elif motion in ["Attack", "Hit", "Death"]:
+			motion_time = fmod(motion_time, 2.4 if motion == "Death" else 1.8)
+		if dying:
+			motion = "Death"
+			motion_time = death_time
+		StillMotion.paint(self, still_texture, feet, sprite_size, face_left,
+			motion, motion_time, float(index) * 0.17)
 		return
 	var row := 1 if face_left else 0
 	var frame := int(clock * 8.0 + index) % _frame_count(row) if walking else 0

@@ -1,27 +1,51 @@
-# Penitent preview checkpoint
+# Penitent preview
 
-The approved replacement walk is integrated into `U13PenitentLanePreview`.
-Branch: `u13-basic-doctrine`.
+## Still image trial (September 16, 2026)
 
-- Replacement asset: `Assets/PenitentWalkV2.png`, the six-frame image attached
-  to the September 13, 2026 "Patch animation preview" chat. Original bytes
-  preserved; 1536 x 1024, three columns and two rows, all facing right.
-- Playback order: top row left to right, then bottom row left to right, 8 FPS.
-- New walk is the default. The existing art selector restores Original walk.
-- Left walk mirrors the replacement. Ground anchors and one shared body scale
-  are configured in the Penitent script, independent of the Butcher defaults.
-- `U13PenitentKey.gdshader` hides the opaque pale checkerboard at runtime.
-  This brightness key may also soften very bright neutral artwork highlights.
-- Original celebrate, attack and death crops are retained. The third source
-  row is celebrate; the fourth is attack.
-- Preview only: no authoritative marching or combat changes.
+The Penitent now defaults to **Still + Godot motion** in the existing sprite
+preview, including the shared Subjects & Monsters gallery. **Sprite sheet**
+restores the prior V3 sheet and its frame inspector. Other characters retain
+their existing previews.
 
-Run `Scripts/Sim/run_u13_penitent_preview.sh` with the Godot executable as
-argument 1 and the existing original `PenitentSprite.png` as argument 2.
-The original sheet is local to the user's Windows worktree and is not bundled
-by this patch. The replacement asset is bundled in this repository.
+`Assets/PenitentStill.png` derives from the supplied bowed, wounded Penitent
+reference (`fd4f667e-22c1-42d0-baa5-9b6a1c7cdb67.png`). Python removed its white
+background and enclosed white gaps, cropped the transparent bounds, and resized
+with nearest-neighbor sampling to 384 pixels tall. No generative redraw.
+The ground anchor is 43% across the image, at its bottom edge.
 
-Validation: isolated Godot 4.6 import and headless preview launch passed;
-`git diff --check` passed. Interactive visual review on the user's Godot 4.7.2
-remains to be done. The existing runtime image loading emits an export warning;
-this check exercises the standalone source-project preview.
+`U13StillSpriteMotion.gd` provides purely cosmetic GDScript drawing transforms:
+
+- Lane cycle: march toward contact, one staggered attack, then idle and reset.
+- Idle: nearly imperceptible breathing, feet fixed.
+- March: small weight shift, no elastic squash.
+- Attack: anticipation, quick lunge, tiny impact tick, recovery.
+- Hit: short brightening and recoil.
+- Death: restrained lean, sink and fade. This is not a drawn collapse pose.
+
+Use Still motion to inspect each effect. Attack/Hit repeat every 1.8 seconds;
+Death repeats every 2.4 seconds. Replay motion restarts that demonstration.
+Pause freezes all timing. Try lane death keeps the existing captured positions.
+The sprite-size slider and 1/24/48-unit choices also apply. Inspect at 75px for
+board readability and enlarge for checking edges. The front-three-quarter
+pose is mirrored for facing; it does not acquire a true side-view walk cycle.
+Full sprite animation remains the eventual goal; this is a beta experiment.
+
+The standalone runner now works with only the Godot executable argument;
+it falls back to the bundled V3 comparison sheet if no external sheet exists.
+An optional second argument still loads an external comparison sheet.
+
+Validation: isolated Godot 4.5.1 import and headless exercise of all still modes,
+pause, Penitent -> Sooge -> Penitent cycling, and V3 inspection rows passed.
+The PNG was composited over a dark background for alpha-edge inspection.
+Interactive visual approval on the user's Godot 4.7.2 remains pending.
+Existing sheet loading uses Image.load_from_file and retains its export warning;
+the new still uses a normal imported Texture2D resource.
+
+No combat, authoritative movement, balance, PySim, or playable unit art changed.
+
+## Earlier assets
+
+The prior V3 sheet and measured crops remain in U13PenitentLanePreview.gd:
+left/right walk, celebrate (third source row), shield attack (fourth), and death.
+The older PenitentWalkV2.png six-frame replacement and its key shader also remain
+in the repository for historical reference; they are not the current default.
