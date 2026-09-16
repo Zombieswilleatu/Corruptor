@@ -71,7 +71,7 @@ func _scenery(rect: Rect2, crop: Rect2) -> void:
 		draw_texture_rect_region(
 			domain, rect, Rect2(crop.position * dimensions, crop.size * dimensions)
 		)
-		draw_rect(rect, Color(0, 0, 0, 0.38))
+		draw_rect(rect, Color(0, 0, 0, 0.50))
 
 
 func _draw() -> void:
@@ -215,19 +215,16 @@ func _draw() -> void:
 			var lateral: float = clampf(float(a.get("visual_y", a.y_fp)) / 600.0, 0, 1)
 			var center := Vector2(rect.position.x + rect.size.x * lateral, y)
 			_draw_chit(unit, center)
-			if unit.id in _clash:
-				draw_arc(center, 26.0, 0.0, TAU, 48, Color("f5d39a"), 2.0, true)
-			if a.waiting or a.movement_ready_round > _round:
+			if a.waiting:
 				draw_string(
 					font,
 					center + Vector2(-17, -sprite_height - 5),
-					"SUPPLICANT" if a.waiting else "NEW",
+					"SUPPLICANT",
 					HORIZONTAL_ALIGNMENT_LEFT,
 					45,
 					11
 				)
 
-	_draw_feedback()
 	projectile_visual.draw(self, projectiles)
 	deaths.draw(self)
 	draw_string(font, Vector2(size.x * 0.5 - 38, size.y - 7), "HP", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, HEALTH_RING_COLOR)
@@ -387,63 +384,6 @@ func show_feedback(rows: Array) -> void:
 func clear_feedback() -> void:
 	feedback.clear()
 	queue_redraw()
-
-
-func _draw_feedback() -> void:
-	var anchors: Dictionary = {}
-	for unit in _units:
-		anchors[unit.id] = Feedback.row(unit, 0, 0)
-	var stacks: Dictionary = {}
-	for hit in feedback.visible:
-		var anchor: Dictionary = anchors.get(hit.id, hit)
-		var width: float = (size.x - 37) / 2.0
-		var left: float = 16.0 + (width + 5.0) * (0.0 if anchor.lane == "Lord" else 1.0)
-		var center := Vector2(
-			left + width * clampf(float(anchor.y) / 600.0, 0.0, 1.0),
-			lerpf(size.y - 76.0, 344.0, clampf(float(anchor.x) / 2400.0, 0.0, 1.0))
-		)
-		var stack: int = int(stacks.get(hit.id, 0))
-		stacks[hit.id] = stack + 1
-		center.x = clampf(center.x, left + 39.0, left + width - 39.0)
-		center.y -= sprite_height + 8.0 + float(hit.age) * 25.0 + float(stack) * 45.0
-		var alpha: float = clampf((Feedback.LIFETIME - float(hit.age)) / 0.35, 0.0, 1.0)
-		if hit.hp != 0:
-			_number_text(
-				center,
-				"%+d" % int(hit.hp),
-				Color("8bffae") if hit.hp > 0 else Color("ff7771"),
-				alpha,
-				22
-			)
-			center.y += 16.0
-		if hit.armor != 0:
-			_number_text(center, "%+d ARM" % int(hit.armor), Color("87ceff"), alpha, 14)
-			center.y += 13.0
-		if not String(hit.source).is_empty():
-			_number_text(center, hit.source, Color("eadab9"), alpha, 10)
-
-
-func _number_text(
-	center: Vector2, label: String, tint: Color, alpha: float, font_size: int
-) -> void:
-	var font: Font = ThemeDB.fallback_font
-	var text_position: Vector2 = (
-		center
-		- Vector2(font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x * 0.5, 0)
-	)
-	draw_string_outline(
-		font,
-		text_position,
-		label,
-		HORIZONTAL_ALIGNMENT_LEFT,
-		-1,
-		font_size,
-		4,
-		Color(0, 0, 0, alpha)
-	)
-	draw_string(
-		font, text_position, label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color(tint, alpha)
-	)
 
 
 func flash_scorch(effect_id: String) -> void:

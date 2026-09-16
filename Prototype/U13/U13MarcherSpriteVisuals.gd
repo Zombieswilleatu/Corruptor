@@ -7,6 +7,7 @@ const Motion = preload("res://Prototype/U13/U13StillSpriteMotion.gd")
 const STALE_SECONDS: float = 0.18
 var subjects: Dictionary = {}
 var clock: float = 0.0
+var has_snapshot: bool = false
 
 static func position_of(unit: Dictionary) -> Vector2:
 	var a: Dictionary = unit.attributes
@@ -20,13 +21,15 @@ func sync(units: Array, clash: Array, round_number: int, playback: bool) -> void
 		var character := Catalog.character_for(unit)
 		var point := position_of(unit)
 		var a: Dictionary = unit.attributes
-		var fresh: bool = not subjects.has(id) or subjects[id].character != character
+		var new_unit: bool = not subjects.has(id)
+		var fresh: bool = new_unit or subjects[id].character != character
 		if fresh:
 			Catalog.assets(character) # Cache extraction outside drawing and per-frame motion.
 			var digest := id.sha256_buffer()
 			subjects[id] = {"character": character, "position": point, "lane": a.lane,
 				"face_left": unit.owner == 1, "facing_y": point.y,
 				"phase": float(digest[0]) / 256.0, "hit_age": 10.0,
+				"spawn_age": 0.0 if new_unit and has_snapshot else 10.0,
 				"attack_age": 10.0, "clashing": false, "moving": false,
 				"armor_capacity": maxf(float(a.get("armor", 0)), float(a.get("max_armor", 0))),
 				"ranged_tick": int(a.get("ranged_next_tick", 0)),
@@ -59,6 +62,8 @@ func sync(units: Array, clash: Array, round_number: int, playback: bool) -> void
 		state.lane = a.lane
 		state.synced = clock
 		state.present = true
+	# Opening a board/save is not a fresh spawn for every existing marcher.
+	has_snapshot = true
 
 func hit(rows: Array) -> void:
 	for row in rows:
@@ -71,6 +76,7 @@ func advance(delta: float) -> void:
 	for id in subjects.keys():
 		var state: Dictionary = subjects[id]
 		state.hit_age += delta
+		state.spawn_age += delta
 		state.attack_age += delta
 		if state.transform_age >= 0.0:
 			state.transform_age += delta
@@ -80,6 +86,7 @@ func advance(delta: float) -> void:
 func clear() -> void:
 	subjects.clear()
 	clock = 0.0
+	has_snapshot = false
 
 func health_segments(unit: Dictionary, obscured: bool = false) -> Dictionary:
 	var a: Dictionary = unit.attributes
@@ -119,10 +126,11 @@ func presentation(unit: Dictionary, death_age: float = -1.0) -> Dictionary:
 	if death_age >= 0.0:
 		motion = "Death"
 		time = death_age * 1.25 / 0.48 # Match the existing casualty/ghost lifetime.
+	var arrival_light := 0.35 * (1.0 - smoothstep(0.0, 0.8, float(state.get("spawn_age", 10.0))))
 	return {"frame": pose_data.frame, "mirror": pose_data.mirror, "character": character,
 		"face_left": face_left, "motion": motion, "time": time,
 		"phase": float(state.get("phase", 0.0)), "rooted": transform_age >= 0.0,
-		"flash": 1.0 - smoothstep(0.035, 0.13, float(state.get("hit_age", 10.0)))}
+		"flash": maxf(arrival_light, 1.0 - smoothstep(0.035, 0.13, float(state.get("hit_age", 10.0))))}
 
 func draw(canvas: CanvasItem, unit: Dictionary, feet: Vector2, height: float,
 		glitch: Dictionary = {}, flash: bool = false, death_age: float = -1.0) -> bool:

@@ -10,6 +10,13 @@ Armor, with a dark track showing depleted portions. HP and Armor occupy separate
 segments; losing one does not enlarge the other. Void still limits displayed
 HP precision. There is no separate rectangular sprite health bar.
 
+The field and clash-window terrain have a 50% dark overlay so unit silhouettes
+read above it. Floating HP/Armor amounts, their source labels, the `NEW` label
+and the extra clash outline are omitted. Damage uses the sprite's brief flash
+and recoil together with the changing inner ring. Newly arriving units brighten
+gently once over 0.8 seconds; opening a board/save does not flash existing units.
+The distinct `SUPPLICANT` waiting-state label remains.
+
 Armor has no authoritative maximum in the current unit contract. Its visual
 capacity remembers the highest observed value for that unit (or an optional
 future `max_armor`); a newly loaded save starts from its available Armor data.

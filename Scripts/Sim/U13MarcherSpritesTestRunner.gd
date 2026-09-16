@@ -40,6 +40,18 @@ func run_checks() -> void:
 	var units: Array = [actor, enemy]
 	var original := units.duplicate(true)
 	visual.sync(units, [], 1, false)
+	check(visual.presentation(actor).flash == 0.0, "existing units do not flash when opening the board")
+	var arrival := unit("arrival")
+	visual.sync(units + [arrival], [], 1, false)
+	var arrival_flash: float = visual.presentation(arrival).flash
+	check(arrival_flash > 0.0 and arrival_flash < 1.0, "new arrivals gently brighten without a damage reaction")
+	visual.advance(0.3)
+	visual.sync(units + [arrival], [], 1, false)
+	check(visual.presentation(arrival).flash < arrival_flash and visual.presentation(arrival).motion == "Idle", "snapshot refresh does not restart the spawn flash")
+	visual.advance(0.6)
+	check(visual.presentation(arrival).flash == 0.0, "spawn brightening settles back to normal")
+	visual.clear()
+	visual.sync(units, [], 1, false)
 	var full_meter := visual.health_segments(actor)
 	actor.attributes.armor = 0
 	visual.sync(units, [], 1, false)
