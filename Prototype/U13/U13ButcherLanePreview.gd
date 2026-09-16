@@ -129,7 +129,14 @@ func _select_character(index: int) -> void:
 
 func _build_preview() -> void:
 	if not still_path.is_empty():
-		still_texture = load(still_path) as Texture2D
+		# Direct scene runners do not import newly pulled PNGs. Prefer the
+		# imported resource, but support the raw file on a fresh checkout.
+		if FileAccess.file_exists(still_path + ".import"):
+			still_texture = load(still_path) as Texture2D
+		if still_texture == null and FileAccess.file_exists(still_path):
+			var still_image := Image.load_from_file(still_path)
+			if still_image != null and not still_image.is_empty():
+				still_texture = ImageTexture.create_from_image(still_image)
 	use_still = still_texture != null
 	facing_rng.randomize()
 	_roll_facings()
@@ -312,10 +319,12 @@ func _build_preview() -> void:
 	_button(inspector, "Play / hold", func():
 		inspection_playing = not inspection_playing
 		inspection_elapsed = float(inspection_frame) / 8.0)
-	if still_texture != null:
+	if not still_path.is_empty():
 		var presentation := OptionButton.new()
 		presentation.add_item("Still + Godot motion")
 		presentation.add_item("Sprite sheet")
+		presentation.set_item_disabled(0, still_texture == null)
+		presentation.select(0 if use_still else 1)
 		presentation.item_selected.connect(func(index: int):
 			use_still = index == 0
 			still_controls.visible = use_still
@@ -369,6 +378,8 @@ func _process(delta: float) -> void:
 		status.text = "Rooted permanently · Restart restores the mobile form."
 	if inspection_row >= 0:
 		status.text = "Inspection: %s · 8 FPS · scrub to hold a frame." % ("playing" if inspection_playing and not paused else "held")
+	if not still_path.is_empty() and still_texture == null:
+		status.text = "Still image could not load: %s" % still_path
 	if use_still:
 		status.text = "Still + Godot motion · %s · preview only · no skeletal animation" % STILL_MODES[still_mode]
 	queue_redraw()

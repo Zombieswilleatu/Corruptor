@@ -39,7 +39,11 @@ pause, Penitent -> Sooge -> Penitent cycling, and V3 inspection rows passed.
 The PNG was composited over a dark background for alpha-edge inspection.
 Interactive visual approval on the user's Godot 4.7.2 remains pending.
 Existing sheet loading uses Image.load_from_file and retains its export warning;
-the new still uses a normal imported Texture2D resource.
+the new still prefers an imported Texture2D resource, with direct PNG loading
+as a fallback for a fresh checkout launched without an editor import. Its
+selector remains visible with a load-error message if the asset is unavailable.
+The no-import startup regression was reproduced and the fallback checked with
+the PNG import sidecar absent.
 
 No combat, authoritative movement, balance, PySim, or playable unit art changed.
 
