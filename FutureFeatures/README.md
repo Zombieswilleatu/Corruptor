@@ -150,6 +150,7 @@ No source files were deleted or moved. “Historical” below describes their ro
 
 | Source | How to use it now |
 |---|---|
+| [Final Blows and the Final Rite](Corruptor-Finals-Theoretical-v0.1.md) | Theoretical Ritual/Dominion finale proposal: finishing Hunt, telegraphed rite and four-suit defensive payment. Not implemented; timing and balance questions remain open. |
 | [Monster Recipes v0.1](Corruptor-Monster-Recipes-v0.1.md) | Current starting recipe baseline; revise deliberately as balance evidence arrives. |
 | [UI_OVERHAUL](UI_OVERHAUL.md) | Retained presentation brief; first Forecast prerequisite now met at its documented scope. |
 | [Tutorialopen.docx](Tutorialopen.docx) | Detailed prologue/narrative reference; reconcile scenario setup with current mechanics at implementation. |
