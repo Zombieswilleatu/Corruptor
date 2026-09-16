@@ -2,6 +2,23 @@
 
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
+**2026-09-16 doctrine start:** The user authorized beginning the agreed rebuild
+with consultation for substantive forks. The [first checkpoint](U13_DOCTRINE_START_2026-09-16.md)
+supplies separate harness diagnostics, deterministic work budgets, explicit
+missing-mechanics coverage and reconciled Veil behavior contracts. It retains
+the existing rules and bots. The sequence is diagnostics/contracts → missing
+full-roster rules parity → bounded common planner with nine separate Lord files
+→ shared tuning → specialization. Four-Lord ordinary play is development
+coverage, not the final tuning roster. Local diagnostics are not Windows/PyPy
+acceptance of the new harness.
+
+**2026-09-16 final optional optimization checked:** Windows CPython and PyPy
+passed both exact replay gates and all 67 engine + 3 comparison tests at clean
+`ad30730`; all 160 timed final digests matched. CPython improved 1.333x, while
+PyPy's aggregate 0.970x and disagreeing paired comparisons establish no reliable
+gain. Retain the verified implementation and proceed to doctrine. See
+[measured results](U13_PYSIM_MARCHING_OPTIMIZATION_2026-09-15.md).
+
 **2026-09-15 full-match rollback optimization accepted on Windows at clean `c228d85`:**
 The [copying pass](U13_PYSIM_FULL_MATCH_COPYING_2026-09-15.md) shares unchanged
 history/presentation only within audited owned transactions, retaining detached

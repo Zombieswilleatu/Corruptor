@@ -1,0 +1,3002 @@
+{
+  "engine_source_sha256": "50d400eb3b9f11ceda9dd4648ef4117caadce8ba33f019b3fd2192e0dca58206",
+  "harness_source_sha256": "e36a4fe8d6abddf8660493400796174304c50751fe80e4fda00217667b6fcf48",
+  "local_platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "local_python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "log_sha256": "437a3731721b18a849e6de458dfaec11b0d6b3180c9d47cbb7e3ab5939ef1053",
+  "new_godot_acceptance": false,
+  "note": "New harness only. Two previously accepted ordinary reference games. Rules and old policy unchanged; remaining full-roster mechanics unsupported.",
+  "recorded_on": "2026-09-16",
+  "report_sha256": "27242f3a5d634839797f25cb6e934139bfc8dad3acb442b98b9546ad685a0851",
+  "schema": "U13_DOCTRINE_DIAGNOSTICS_LOCAL_EVIDENCE_V1",
+  "semantic": {
+    "all_operations_and_final_digests_matched": true,
+    "coverage": {
+      "evidence": "docs/U13_PYSIM_FULL_MATCH_2026-09-15.md",
+      "evidence_scope": "two ordinary games; no declared powers, paid Rites or Resummon",
+      "gate": "exact reference cases and full games exercising all nine Lords and their mechanics",
+      "lords": [
+        {
+          "declared_powers": [
+            {
+              "full_match": "unsupported",
+              "power": "PredatorOfRuin"
+            },
+            {
+              "full_match": "unsupported",
+              "power": "InevitableRuin"
+            }
+          ],
+          "lord": "Gremory",
+          "ordinary_full_match": true
+        },
+        {
+          "declared_powers": [
+            {
+              "full_match": "unsupported",
+              "power": "WarMachine"
+            },
+            {
+              "full_match": "unsupported",
+              "power": "Rout"
+            }
+          ],
+          "lord": "Deimos",
+          "ordinary_full_match": true
+        },
+        {
+          "declared_powers": [
+            {
+              "full_match": "unsupported",
+              "power": "MusterTheFaithful"
+            },
+            {
+              "full_match": "unsupported",
+              "power": "BreathOfLife"
+            }
+          ],
+          "lord": "Humbaba",
+          "ordinary_full_match": true
+        },
+        {
+          "declared_powers": [
+            {
+              "full_match": "unsupported",
+              "power": "Pyroclasm"
+            },
+            {
+              "full_match": "unsupported",
+              "power": "Inferno"
+            }
+          ],
+          "lord": "Kalligan",
+          "ordinary_full_match": true
+        },
+        {
+          "declared_powers": [
+            {
+              "full_match": "unsupported",
+              "power": "Web"
+            },
+            {
+              "full_match": "unsupported",
+              "power": "Snare"
+            }
+          ],
+          "lord": "Orias",
+          "ordinary_full_match": false
+        },
+        {
+          "declared_powers": [
+            {
+              "full_match": "unsupported",
+              "power": "AllegianceShift"
+            },
+            {
+              "full_match": "unsupported",
+              "power": "Redirect"
+            },
+            {
+              "full_match": "unsupported",
+              "power": "Inversion"
+            },
+            {
+              "full_match": "unsupported",
+              "power": "FalseOrders"
+            }
+          ],
+          "lord": "Odradek",
+          "ordinary_full_match": false
+        },
+        {
+          "declared_powers": [
+            {
+              "full_match": "unsupported",
+              "power": "Consume"
+            },
+            {
+              "full_match": "unsupported",
+              "power": "Ravenous"
+            }
+          ],
+          "lord": "Kroni",
+          "ordinary_full_match": false
+        },
+        {
+          "declared_powers": [
+            {
+              "full_match": "unsupported",
+              "power": "GravityOrb"
+            },
+            {
+              "full_match": "unsupported",
+              "power": "Projection"
+            }
+          ],
+          "lord": "Valak",
+          "ordinary_full_match": false
+        },
+        {
+          "declared_powers": [
+            {
+              "full_match": "unsupported",
+              "power": "WishLongevity"
+            },
+            {
+              "full_match": "unsupported",
+              "power": "WishDeath"
+            },
+            {
+              "full_match": "unsupported",
+              "power": "WishPower"
+            },
+            {
+              "full_match": "unsupported",
+              "power": "WishResurrection"
+            },
+            {
+              "full_match": "unsupported",
+              "power": "WishWealth"
+            }
+          ],
+          "lord": "Kanifous",
+          "ordinary_full_match": false
+        }
+      ],
+      "paid_rites": "unsupported",
+      "ready_for_full_roster_tuning": false,
+      "resummon": "unsupported"
+    },
+    "failures": 0,
+    "games": [
+      {
+        "alternative_search": "unobserved",
+        "assessment_count": 364,
+        "decisions_sha256": "7c492139e345510d14ef536e3219056fc39ad4fd622e8042e2c5d6803d64a359",
+        "event_counts": {
+          "ARTILLERY_FIRED": 16,
+          "ARTILLERY_TARGET_ACQUIRED": 4,
+          "BASTION_SCREENED": 3,
+          "BREACH_CHANGED": 1,
+          "CASTLE_ACTION_SEALED": 26,
+          "CASTLE_ACTIVATED": 4,
+          "CASTLE_DAMAGED": 9,
+          "CASTLE_DESTROYED": 4,
+          "COMBAT_ORDER_REVEALED": 26,
+          "COMBAT_ORDER_SEALED": 26,
+          "ENDURANCE_CHECKED": 13,
+          "FRACTURE_HIT": 4,
+          "FRACTURE_RESOLVED": 1,
+          "GUARDS_SEALED": 13,
+          "GUARD_DEFEATED": 22,
+          "GUARD_DEPLOYED": 26,
+          "GUARD_PAIR_DRAW": 9,
+          "GUARD_PAIR_FORMED": 13,
+          "GUARD_PAIR_SCREEN": 2,
+          "GUARD_PAIR_STRIKE": 6,
+          "HUNT_RESOLVED": 9,
+          "HUNT_STARTED": 9,
+          "KEEP_INTERPOSED": 1,
+          "LORD_BANISHED": 1,
+          "MARCHER_CLASH": 28,
+          "MARCHER_CONTACT": 33,
+          "MARCHER_DAMAGED": 3,
+          "MARCHER_DEFEATED": 85,
+          "MARCHER_DUEL_INTERRUPTED": 5,
+          "MARCHER_RANGED_ATTACK": 204,
+          "MARCHER_REGENERATED": 15,
+          "MARCHER_SPAWNED": 153,
+          "MARCHER_WAITING": 44,
+          "MARCHING_FINISHED": 13,
+          "MARCHING_STARTED": 13,
+          "MARKET_PASSED": 3,
+          "MARKET_REFRESHED": 12,
+          "MARKET_SWAPPED": 23,
+          "MATCH_FINISHED": 1,
+          "NEUTRAL_TEAR_CREATED": 15,
+          "PICKING_THE_BONES": 9,
+          "ROUND_DRAW": 130,
+          "SIEGE_RESOLVED": 7,
+          "SIEGE_STARTED": 7,
+          "SIFTING_THE_RUINS": 4,
+          "SIGIL_AGED": 17,
+          "SIGIL_CREATED": 10,
+          "STOCKPILE_DRAW": 48,
+          "STOCKPILE_SELECTED": 23,
+          "THE_STONES_FORGET": 1,
+          "VACANT_THRONE_RESOLVED": 26,
+          "WORK_RESOLVED": 26
+        },
+        "final_state_sha256": "532957dbebd29b3ad5c3dd234ee9058779c0e39c112337dd0d6d3279ee05a1ce",
+        "groups": [
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 13,
+            "effect_records": 4,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 4,
+                "unknown": 9
+              },
+              "legal": {
+                "false": 0,
+                "true": 4,
+                "unknown": 9
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "selected": {
+                "false": 9,
+                "true": 4,
+                "unknown": 0
+              }
+            },
+            "lord": "Gremory",
+            "metrics": {
+              "banished": 1,
+              "guards_defeated": 4,
+              "sigil_broken": 0
+            },
+            "nonzero_effect_records": 2,
+            "opponent": "Humbaba",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 4
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 9,
+              "reference_selected": 4
+            },
+            "seat": 0,
+            "support": "supported",
+            "term": "Hunt"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 13,
+            "effect_records": 0,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "legal": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "selected": {
+                "false": 13,
+                "true": 0,
+                "unknown": 0
+              }
+            },
+            "lord": "Gremory",
+            "metrics": {},
+            "nonzero_effect_records": 0,
+            "opponent": "Humbaba",
+            "outcome_unobserved": 0,
+            "outcomes": {},
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 13
+            },
+            "seat": 0,
+            "support": "supported",
+            "term": "Pass"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 13,
+            "effect_records": 0,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "legal": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "selected": {
+                "false": 13,
+                "true": 0,
+                "unknown": 0
+              }
+            },
+            "lord": "Gremory",
+            "metrics": {},
+            "nonzero_effect_records": 0,
+            "opponent": "Humbaba",
+            "outcome_unobserved": 0,
+            "outcomes": {},
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 13
+            },
+            "seat": 0,
+            "support": "supported",
+            "term": "Profane"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 13,
+            "effect_records": 4,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 4,
+                "unknown": 9
+              },
+              "legal": {
+                "false": 0,
+                "true": 4,
+                "unknown": 9
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "selected": {
+                "false": 9,
+                "true": 4,
+                "unknown": 0
+              }
+            },
+            "lord": "Gremory",
+            "metrics": {
+              "damage": 28,
+              "destroyed": 2,
+              "guards_defeated": 8,
+              "sigil_broken": 0
+            },
+            "nonzero_effect_records": 4,
+            "opponent": "Humbaba",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 4
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 9,
+              "reference_selected": 4
+            },
+            "seat": 0,
+            "support": "supported",
+            "term": "Siege"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 13,
+            "effect_records": 5,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 5,
+                "unknown": 8
+              },
+              "legal": {
+                "false": 0,
+                "true": 5,
+                "unknown": 8
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "selected": {
+                "false": 8,
+                "true": 5,
+                "unknown": 0
+              }
+            },
+            "lord": "Gremory",
+            "metrics": {
+              "sigils_created": 5
+            },
+            "nonzero_effect_records": 5,
+            "opponent": "Humbaba",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 5
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 8,
+              "reference_selected": 5
+            },
+            "seat": 0,
+            "support": "supported",
+            "term": "Ward"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "guards",
+            "decisions": 13,
+            "effect_records": 12,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 6,
+                "unknown": 7
+              },
+              "legal": {
+                "false": 0,
+                "true": 6,
+                "unknown": 7
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "selected": {
+                "false": 7,
+                "true": 6,
+                "unknown": 0
+              }
+            },
+            "lord": "Gremory",
+            "metrics": {
+              "guards_deployed": 12
+            },
+            "nonzero_effect_records": 12,
+            "opponent": "Humbaba",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 6
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 7,
+              "reference_selected": 6
+            },
+            "seat": 0,
+            "support": "supported",
+            "term": "Deploy"
+          },
+          {
+            "candidates": null,
+            "category": "powers",
+            "decisions": 13,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Gremory",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Humbaba",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_power_unsupported": 13
+            },
+            "seat": 0,
+            "support": "unsupported",
+            "term": "InevitableRuin"
+          },
+          {
+            "candidates": null,
+            "category": "powers",
+            "decisions": 13,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Gremory",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Humbaba",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_power_unsupported": 13
+            },
+            "seat": 0,
+            "support": "unsupported",
+            "term": "PredatorOfRuin"
+          },
+          {
+            "candidates": null,
+            "category": "resummon",
+            "decisions": 13,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Gremory",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Humbaba",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_resummon_unsupported": 13
+            },
+            "seat": 0,
+            "support": "unsupported",
+            "term": "Resummon"
+          },
+          {
+            "candidates": null,
+            "category": "rites",
+            "decisions": 13,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Gremory",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Humbaba",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_paid_rites_unsupported": 13
+            },
+            "seat": 0,
+            "support": "unsupported",
+            "term": "Invocation"
+          },
+          {
+            "candidates": null,
+            "category": "rites",
+            "decisions": 13,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Gremory",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Humbaba",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_paid_rites_unsupported": 13
+            },
+            "seat": 0,
+            "support": "unsupported",
+            "term": "ProfaneRuins"
+          },
+          {
+            "candidates": null,
+            "category": "rites",
+            "decisions": 13,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Gremory",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Humbaba",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_paid_rites_unsupported": 13
+            },
+            "seat": 0,
+            "support": "unsupported",
+            "term": "Supplicants"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "work",
+            "decisions": 13,
+            "effect_records": 2,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 2,
+                "unknown": 11
+              },
+              "legal": {
+                "false": 0,
+                "true": 2,
+                "unknown": 11
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "selected": {
+                "false": 11,
+                "true": 2,
+                "unknown": 0
+              }
+            },
+            "lord": "Gremory",
+            "metrics": {
+              "castles_activated": 2
+            },
+            "nonzero_effect_records": 2,
+            "opponent": "Humbaba",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 2
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 11,
+              "reference_selected": 2
+            },
+            "seat": 0,
+            "support": "supported",
+            "term": "Activate"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "work",
+            "decisions": 13,
+            "effect_records": 13,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 11,
+                "unknown": 2
+              },
+              "legal": {
+                "false": 0,
+                "true": 11,
+                "unknown": 2
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "selected": {
+                "false": 2,
+                "true": 11,
+                "unknown": 0
+              }
+            },
+            "lord": "Gremory",
+            "metrics": {
+              "applied_work": 34,
+              "passive_contributed": 12,
+              "work_contributed": 22
+            },
+            "nonzero_effect_records": 7,
+            "opponent": "Humbaba",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 11
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 2,
+              "reference_selected": 11
+            },
+            "seat": 0,
+            "support": "supported",
+            "term": "Work"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 13,
+            "effect_records": 5,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 5,
+                "unknown": 8
+              },
+              "legal": {
+                "false": 0,
+                "true": 5,
+                "unknown": 8
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "selected": {
+                "false": 8,
+                "true": 5,
+                "unknown": 0
+              }
+            },
+            "lord": "Humbaba",
+            "metrics": {
+              "banished": 0,
+              "guards_defeated": 4,
+              "sigil_broken": 0
+            },
+            "nonzero_effect_records": 4,
+            "opponent": "Gremory",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 5
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 8,
+              "reference_selected": 5
+            },
+            "seat": 1,
+            "support": "supported",
+            "term": "Hunt"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 13,
+            "effect_records": 0,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "legal": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "selected": {
+                "false": 13,
+                "true": 0,
+                "unknown": 0
+              }
+            },
+            "lord": "Humbaba",
+            "metrics": {},
+            "nonzero_effect_records": 0,
+            "opponent": "Gremory",
+            "outcome_unobserved": 0,
+            "outcomes": {},
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 13
+            },
+            "seat": 1,
+            "support": "supported",
+            "term": "Pass"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 13,
+            "effect_records": 0,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "legal": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "selected": {
+                "false": 13,
+                "true": 0,
+                "unknown": 0
+              }
+            },
+            "lord": "Humbaba",
+            "metrics": {},
+            "nonzero_effect_records": 0,
+            "opponent": "Gremory",
+            "outcome_unobserved": 0,
+            "outcomes": {},
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 13
+            },
+            "seat": 1,
+            "support": "supported",
+            "term": "Profane"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 13,
+            "effect_records": 3,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 3,
+                "unknown": 10
+              },
+              "legal": {
+                "false": 0,
+                "true": 3,
+                "unknown": 10
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "selected": {
+                "false": 10,
+                "true": 3,
+                "unknown": 0
+              }
+            },
+            "lord": "Humbaba",
+            "metrics": {
+              "damage": 9,
+              "destroyed": 0,
+              "guards_defeated": 6,
+              "sigil_broken": 3
+            },
+            "nonzero_effect_records": 3,
+            "opponent": "Gremory",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 3
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 10,
+              "reference_selected": 3
+            },
+            "seat": 1,
+            "support": "supported",
+            "term": "Siege"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 13,
+            "effect_records": 5,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 5,
+                "unknown": 8
+              },
+              "legal": {
+                "false": 0,
+                "true": 5,
+                "unknown": 8
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "selected": {
+                "false": 8,
+                "true": 5,
+                "unknown": 0
+              }
+            },
+            "lord": "Humbaba",
+            "metrics": {
+              "sigils_created": 5
+            },
+            "nonzero_effect_records": 5,
+            "opponent": "Gremory",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 5
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 8,
+              "reference_selected": 5
+            },
+            "seat": 1,
+            "support": "supported",
+            "term": "Ward"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "guards",
+            "decisions": 13,
+            "effect_records": 14,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 7,
+                "unknown": 6
+              },
+              "legal": {
+                "false": 0,
+                "true": 7,
+                "unknown": 6
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "selected": {
+                "false": 6,
+                "true": 7,
+                "unknown": 0
+              }
+            },
+            "lord": "Humbaba",
+            "metrics": {
+              "guards_deployed": 14
+            },
+            "nonzero_effect_records": 14,
+            "opponent": "Gremory",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 7
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 6,
+              "reference_selected": 7
+            },
+            "seat": 1,
+            "support": "supported",
+            "term": "Deploy"
+          },
+          {
+            "candidates": null,
+            "category": "powers",
+            "decisions": 13,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Humbaba",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Gremory",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_power_unsupported": 13
+            },
+            "seat": 1,
+            "support": "unsupported",
+            "term": "BreathOfLife"
+          },
+          {
+            "candidates": null,
+            "category": "powers",
+            "decisions": 13,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Humbaba",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Gremory",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_power_unsupported": 13
+            },
+            "seat": 1,
+            "support": "unsupported",
+            "term": "MusterTheFaithful"
+          },
+          {
+            "candidates": null,
+            "category": "resummon",
+            "decisions": 13,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Humbaba",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Gremory",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_resummon_unsupported": 13
+            },
+            "seat": 1,
+            "support": "unsupported",
+            "term": "Resummon"
+          },
+          {
+            "candidates": null,
+            "category": "rites",
+            "decisions": 13,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Humbaba",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Gremory",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_paid_rites_unsupported": 13
+            },
+            "seat": 1,
+            "support": "unsupported",
+            "term": "Invocation"
+          },
+          {
+            "candidates": null,
+            "category": "rites",
+            "decisions": 13,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Humbaba",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Gremory",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_paid_rites_unsupported": 13
+            },
+            "seat": 1,
+            "support": "unsupported",
+            "term": "ProfaneRuins"
+          },
+          {
+            "candidates": null,
+            "category": "rites",
+            "decisions": 13,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Humbaba",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Gremory",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_paid_rites_unsupported": 13
+            },
+            "seat": 1,
+            "support": "unsupported",
+            "term": "Supplicants"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "work",
+            "decisions": 13,
+            "effect_records": 2,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 2,
+                "unknown": 11
+              },
+              "legal": {
+                "false": 0,
+                "true": 2,
+                "unknown": 11
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "selected": {
+                "false": 11,
+                "true": 2,
+                "unknown": 0
+              }
+            },
+            "lord": "Humbaba",
+            "metrics": {
+              "castles_activated": 2
+            },
+            "nonzero_effect_records": 2,
+            "opponent": "Gremory",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 2
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 11,
+              "reference_selected": 2
+            },
+            "seat": 1,
+            "support": "supported",
+            "term": "Activate"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "work",
+            "decisions": 13,
+            "effect_records": 13,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 11,
+                "unknown": 2
+              },
+              "legal": {
+                "false": 0,
+                "true": 11,
+                "unknown": 2
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 13
+              },
+              "selected": {
+                "false": 2,
+                "true": 11,
+                "unknown": 0
+              }
+            },
+            "lord": "Humbaba",
+            "metrics": {
+              "applied_work": 27,
+              "passive_contributed": 15,
+              "work_contributed": 14
+            },
+            "nonzero_effect_records": 9,
+            "opponent": "Gremory",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 11
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 2,
+              "reference_selected": 11
+            },
+            "seat": 1,
+            "support": "supported",
+            "term": "Work"
+          }
+        ],
+        "match_id": "bones_endurance",
+        "mechanics_checks": {
+          "1:Endurance": {
+            "checks": 13,
+            "lord_alive": 8,
+            "threshold_met": 0,
+            "threshold_met_and_lord_alive": 0
+          }
+        },
+        "metric_semantics": "observed effects, not counterfactual benefit or scoring utility",
+        "operations_matched": 334,
+        "outcome": {
+          "action": "game_finished",
+          "round": 13,
+          "win_by": "Ritual",
+          "winner": 0
+        },
+        "power_measurements": "unsupported",
+        "rounds": 13,
+        "sample_limit": 12,
+        "samples": [
+          {
+            "affordable": null,
+            "category": "combat",
+            "generated": null,
+            "legal": null,
+            "opportunity": null,
+            "reason": "not_selected_alternatives_unobserved",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": false,
+            "selection_id": null,
+            "supported": true,
+            "term": "Pass"
+          },
+          {
+            "affordable": true,
+            "category": "combat",
+            "generated": null,
+            "legal": true,
+            "opportunity": null,
+            "reason": "reference_selected",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": true,
+            "selection_id": "d8a4d1404b9a851cdba299c4bd95ace122a6e6b856a42d00c67041fcd585cb1b",
+            "supported": true,
+            "term": "Ward"
+          },
+          {
+            "affordable": null,
+            "category": "combat",
+            "generated": null,
+            "legal": null,
+            "opportunity": null,
+            "reason": "not_selected_alternatives_unobserved",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": false,
+            "selection_id": null,
+            "supported": true,
+            "term": "Hunt"
+          },
+          {
+            "affordable": null,
+            "category": "combat",
+            "generated": null,
+            "legal": null,
+            "opportunity": null,
+            "reason": "not_selected_alternatives_unobserved",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": false,
+            "selection_id": null,
+            "supported": true,
+            "term": "Siege"
+          },
+          {
+            "affordable": null,
+            "category": "combat",
+            "generated": null,
+            "legal": null,
+            "opportunity": null,
+            "reason": "not_selected_alternatives_unobserved",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": false,
+            "selection_id": null,
+            "supported": true,
+            "term": "Profane"
+          },
+          {
+            "affordable": true,
+            "category": "guards",
+            "generated": null,
+            "legal": true,
+            "opportunity": null,
+            "reason": "reference_selected",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": true,
+            "selection_id": "825ff33beaaec6bfc6a3fede72ba0e76c8ce8e02e589cf4c86cea9853d360205",
+            "supported": true,
+            "term": "Deploy"
+          },
+          {
+            "affordable": true,
+            "category": "work",
+            "generated": null,
+            "legal": true,
+            "opportunity": null,
+            "reason": "reference_selected",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": true,
+            "selection_id": "389cbec6e17c860cb829b1eddcec5bbd98e7102e2dc2c957760857c8e73a7619",
+            "supported": true,
+            "term": "Work"
+          },
+          {
+            "affordable": null,
+            "category": "work",
+            "generated": null,
+            "legal": null,
+            "opportunity": null,
+            "reason": "not_selected_alternatives_unobserved",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": false,
+            "selection_id": null,
+            "supported": true,
+            "term": "Activate"
+          },
+          {
+            "affordable": null,
+            "category": "powers",
+            "generated": null,
+            "legal": null,
+            "opportunity": null,
+            "reason": "full_match_power_unsupported",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": null,
+            "selection_id": null,
+            "supported": false,
+            "term": "PredatorOfRuin"
+          },
+          {
+            "affordable": null,
+            "category": "powers",
+            "generated": null,
+            "legal": null,
+            "opportunity": null,
+            "reason": "full_match_power_unsupported",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": null,
+            "selection_id": null,
+            "supported": false,
+            "term": "InevitableRuin"
+          },
+          {
+            "affordable": null,
+            "category": "rites",
+            "generated": null,
+            "legal": null,
+            "opportunity": null,
+            "reason": "full_match_paid_rites_unsupported",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": null,
+            "selection_id": null,
+            "supported": false,
+            "term": "Supplicants"
+          },
+          {
+            "affordable": null,
+            "category": "rites",
+            "generated": null,
+            "legal": null,
+            "opportunity": null,
+            "reason": "full_match_paid_rites_unsupported",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": null,
+            "selection_id": null,
+            "supported": false,
+            "term": "Invocation"
+          }
+        ],
+        "schema": "U13_DOCTRINE_DIAGNOSTICS_V1",
+        "selected_count": 65,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Gremory",
+            "Humbaba"
+          ],
+          "seed": "u13-full-match:bones_endurance"
+        },
+        "stockpile_slaver": "semantic event totals only; decision diagnostics not yet adapted"
+      },
+      {
+        "alternative_search": "unobserved",
+        "assessment_count": 476,
+        "decisions_sha256": "80e04f86d0adf553f5a90d519f30d7b4aa2abfa8add0eed00b620aeda19468aa",
+        "event_counts": {
+          "ARTILLERY_FIRED": 31,
+          "ARTILLERY_TARGET_ACQUIRED": 3,
+          "BASTION_SCREENED": 3,
+          "BREACH_CHANGED": 1,
+          "CASTLE_ACTION_SEALED": 31,
+          "CASTLE_ACTIVATED": 4,
+          "CASTLE_CEILING_CHANGED": 10,
+          "CASTLE_DESTROYED": 4,
+          "COMBAT_ORDER_REVEALED": 34,
+          "COMBAT_ORDER_SEALED": 34,
+          "FEAR_AURA": 1,
+          "FORGE_REPAIR": 24,
+          "FRACTURE_RESOLVED": 1,
+          "GUARDS_SEALED": 17,
+          "GUARD_DEFEATED": 29,
+          "GUARD_DEPLOYED": 34,
+          "GUARD_PAIR_DRAW": 5,
+          "GUARD_PAIR_FORMED": 17,
+          "GUARD_PAIR_SCREEN": 8,
+          "GUARD_PAIR_STRIKE": 5,
+          "HUNT_RESOLVED": 11,
+          "HUNT_STARTED": 11,
+          "KEEP_INTERPOSED": 6,
+          "LORD_BANISHED": 1,
+          "MARCHER_CLASH": 46,
+          "MARCHER_CONTACT": 51,
+          "MARCHER_DEFEATED": 141,
+          "MARCHER_DUEL_INTERRUPTED": 5,
+          "MARCHER_RANGED_ATTACK": 300,
+          "MARCHER_REGENERATED": 25,
+          "MARCHER_SPAWNED": 203,
+          "MARCHER_WAITING": 57,
+          "MARCHING_FINISHED": 17,
+          "MARCHING_STARTED": 17,
+          "MARKET_PASSED": 4,
+          "MARKET_REFRESHED": 16,
+          "MARKET_SWAPPED": 30,
+          "MATCH_FINISHED": 1,
+          "NEUTRAL_TEAR_CREATED": 8,
+          "PERSONAL_TEAR_CREATED": 1,
+          "PROFANE_RESOLVED": 1,
+          "ROUND_DRAW": 170,
+          "SIEGE_RESOLVED": 10,
+          "SIEGE_STARTED": 10,
+          "SIGIL_AGED": 21,
+          "SIGIL_CREATED": 12,
+          "STOCKPILE_DRAW": 54,
+          "STOCKPILE_SELECTED": 26,
+          "VACANT_THRONE_RESOLVED": 34,
+          "WORK_RESOLVED": 31
+        },
+        "final_state_sha256": "6923abbd40d103d0dee298faad9d5ba7321de734a0a915b805b9728f09588f72",
+        "groups": [
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 17,
+            "effect_records": 8,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 8,
+                "unknown": 9
+              },
+              "legal": {
+                "false": 0,
+                "true": 8,
+                "unknown": 9
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "selected": {
+                "false": 9,
+                "true": 8,
+                "unknown": 0
+              }
+            },
+            "lord": "Deimos",
+            "metrics": {
+              "banished": 0,
+              "guards_defeated": 8,
+              "sigil_broken": 0
+            },
+            "nonzero_effect_records": 4,
+            "opponent": "Kalligan",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 8
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 9,
+              "reference_selected": 8
+            },
+            "seat": 0,
+            "support": "supported",
+            "term": "Hunt"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 17,
+            "effect_records": 0,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "legal": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "selected": {
+                "false": 17,
+                "true": 0,
+                "unknown": 0
+              }
+            },
+            "lord": "Deimos",
+            "metrics": {},
+            "nonzero_effect_records": 0,
+            "opponent": "Kalligan",
+            "outcome_unobserved": 0,
+            "outcomes": {},
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 17
+            },
+            "seat": 0,
+            "support": "supported",
+            "term": "Pass"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 17,
+            "effect_records": 0,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "legal": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "selected": {
+                "false": 17,
+                "true": 0,
+                "unknown": 0
+              }
+            },
+            "lord": "Deimos",
+            "metrics": {},
+            "nonzero_effect_records": 0,
+            "opponent": "Kalligan",
+            "outcome_unobserved": 0,
+            "outcomes": {},
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 17
+            },
+            "seat": 0,
+            "support": "supported",
+            "term": "Profane"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 17,
+            "effect_records": 3,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 3,
+                "unknown": 14
+              },
+              "legal": {
+                "false": 0,
+                "true": 3,
+                "unknown": 14
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "selected": {
+                "false": 14,
+                "true": 3,
+                "unknown": 0
+              }
+            },
+            "lord": "Deimos",
+            "metrics": {
+              "damage": 6,
+              "destroyed": 0,
+              "guards_defeated": 5,
+              "sigil_broken": 0
+            },
+            "nonzero_effect_records": 3,
+            "opponent": "Kalligan",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 3
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 14,
+              "reference_selected": 3
+            },
+            "seat": 0,
+            "support": "supported",
+            "term": "Siege"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 17,
+            "effect_records": 6,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 6,
+                "unknown": 11
+              },
+              "legal": {
+                "false": 0,
+                "true": 6,
+                "unknown": 11
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "selected": {
+                "false": 11,
+                "true": 6,
+                "unknown": 0
+              }
+            },
+            "lord": "Deimos",
+            "metrics": {
+              "sigils_created": 6
+            },
+            "nonzero_effect_records": 6,
+            "opponent": "Kalligan",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 6
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 11,
+              "reference_selected": 6
+            },
+            "seat": 0,
+            "support": "supported",
+            "term": "Ward"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "guards",
+            "decisions": 17,
+            "effect_records": 18,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 9,
+                "unknown": 8
+              },
+              "legal": {
+                "false": 0,
+                "true": 9,
+                "unknown": 8
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "selected": {
+                "false": 8,
+                "true": 9,
+                "unknown": 0
+              }
+            },
+            "lord": "Deimos",
+            "metrics": {
+              "guards_deployed": 18
+            },
+            "nonzero_effect_records": 18,
+            "opponent": "Kalligan",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 9
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 8,
+              "reference_selected": 9
+            },
+            "seat": 0,
+            "support": "supported",
+            "term": "Deploy"
+          },
+          {
+            "candidates": null,
+            "category": "powers",
+            "decisions": 17,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Deimos",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Kalligan",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_power_unsupported": 17
+            },
+            "seat": 0,
+            "support": "unsupported",
+            "term": "Rout"
+          },
+          {
+            "candidates": null,
+            "category": "powers",
+            "decisions": 17,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Deimos",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Kalligan",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_power_unsupported": 17
+            },
+            "seat": 0,
+            "support": "unsupported",
+            "term": "WarMachine"
+          },
+          {
+            "candidates": null,
+            "category": "resummon",
+            "decisions": 17,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Deimos",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Kalligan",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_resummon_unsupported": 17
+            },
+            "seat": 0,
+            "support": "unsupported",
+            "term": "Resummon"
+          },
+          {
+            "candidates": null,
+            "category": "rites",
+            "decisions": 17,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Deimos",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Kalligan",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_paid_rites_unsupported": 17
+            },
+            "seat": 0,
+            "support": "unsupported",
+            "term": "Invocation"
+          },
+          {
+            "candidates": null,
+            "category": "rites",
+            "decisions": 17,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Deimos",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Kalligan",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_paid_rites_unsupported": 17
+            },
+            "seat": 0,
+            "support": "unsupported",
+            "term": "ProfaneRuins"
+          },
+          {
+            "candidates": null,
+            "category": "rites",
+            "decisions": 17,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Deimos",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Kalligan",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_paid_rites_unsupported": 17
+            },
+            "seat": 0,
+            "support": "unsupported",
+            "term": "Supplicants"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "work",
+            "decisions": 17,
+            "effect_records": 2,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 2,
+                "unknown": 15
+              },
+              "legal": {
+                "false": 0,
+                "true": 2,
+                "unknown": 15
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "selected": {
+                "false": 15,
+                "true": 2,
+                "unknown": 0
+              }
+            },
+            "lord": "Deimos",
+            "metrics": {
+              "castles_activated": 2
+            },
+            "nonzero_effect_records": 2,
+            "opponent": "Kalligan",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 2
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 15,
+              "reference_selected": 2
+            },
+            "seat": 0,
+            "support": "supported",
+            "term": "Activate"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "work",
+            "decisions": 17,
+            "effect_records": 17,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 15,
+                "unknown": 2
+              },
+              "legal": {
+                "false": 0,
+                "true": 15,
+                "unknown": 2
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "selected": {
+                "false": 2,
+                "true": 15,
+                "unknown": 0
+              }
+            },
+            "lord": "Deimos",
+            "metrics": {
+              "applied_work": 33,
+              "passive_contributed": 12,
+              "work_contributed": 28
+            },
+            "nonzero_effect_records": 11,
+            "opponent": "Kalligan",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 15
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 2,
+              "reference_selected": 15
+            },
+            "seat": 0,
+            "support": "supported",
+            "term": "Work"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 17,
+            "effect_records": 3,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 3,
+                "unknown": 14
+              },
+              "legal": {
+                "false": 0,
+                "true": 3,
+                "unknown": 14
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "selected": {
+                "false": 14,
+                "true": 3,
+                "unknown": 0
+              }
+            },
+            "lord": "Kalligan",
+            "metrics": {
+              "banished": 1,
+              "guards_defeated": 6,
+              "sigil_broken": 0
+            },
+            "nonzero_effect_records": 3,
+            "opponent": "Deimos",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 3
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 14,
+              "reference_selected": 3
+            },
+            "seat": 1,
+            "support": "supported",
+            "term": "Hunt"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 17,
+            "effect_records": 0,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "legal": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "selected": {
+                "false": 17,
+                "true": 0,
+                "unknown": 0
+              }
+            },
+            "lord": "Kalligan",
+            "metrics": {},
+            "nonzero_effect_records": 0,
+            "opponent": "Deimos",
+            "outcome_unobserved": 0,
+            "outcomes": {},
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 17
+            },
+            "seat": 1,
+            "support": "supported",
+            "term": "Pass"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 17,
+            "effect_records": 1,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 1,
+                "unknown": 16
+              },
+              "legal": {
+                "false": 0,
+                "true": 1,
+                "unknown": 16
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "selected": {
+                "false": 16,
+                "true": 1,
+                "unknown": 0
+              }
+            },
+            "lord": "Kalligan",
+            "metrics": {
+              "profaned": 1
+            },
+            "nonzero_effect_records": 1,
+            "opponent": "Deimos",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 1
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 16,
+              "reference_selected": 1
+            },
+            "seat": 1,
+            "support": "supported",
+            "term": "Profane"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 17,
+            "effect_records": 7,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 7,
+                "unknown": 10
+              },
+              "legal": {
+                "false": 0,
+                "true": 7,
+                "unknown": 10
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "selected": {
+                "false": 10,
+                "true": 7,
+                "unknown": 0
+              }
+            },
+            "lord": "Kalligan",
+            "metrics": {
+              "damage": 20,
+              "destroyed": 1,
+              "guards_defeated": 10,
+              "sigil_broken": 3
+            },
+            "nonzero_effect_records": 5,
+            "opponent": "Deimos",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 7
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 10,
+              "reference_selected": 7
+            },
+            "seat": 1,
+            "support": "supported",
+            "term": "Siege"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "combat",
+            "decisions": 17,
+            "effect_records": 6,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 6,
+                "unknown": 11
+              },
+              "legal": {
+                "false": 0,
+                "true": 6,
+                "unknown": 11
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "selected": {
+                "false": 11,
+                "true": 6,
+                "unknown": 0
+              }
+            },
+            "lord": "Kalligan",
+            "metrics": {
+              "sigils_created": 6
+            },
+            "nonzero_effect_records": 6,
+            "opponent": "Deimos",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 6
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 11,
+              "reference_selected": 6
+            },
+            "seat": 1,
+            "support": "supported",
+            "term": "Ward"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "guards",
+            "decisions": 17,
+            "effect_records": 16,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 8,
+                "unknown": 9
+              },
+              "legal": {
+                "false": 0,
+                "true": 8,
+                "unknown": 9
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "selected": {
+                "false": 9,
+                "true": 8,
+                "unknown": 0
+              }
+            },
+            "lord": "Kalligan",
+            "metrics": {
+              "guards_deployed": 16
+            },
+            "nonzero_effect_records": 16,
+            "opponent": "Deimos",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 8
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 9,
+              "reference_selected": 8
+            },
+            "seat": 1,
+            "support": "supported",
+            "term": "Deploy"
+          },
+          {
+            "candidates": null,
+            "category": "powers",
+            "decisions": 17,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Kalligan",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Deimos",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_power_unsupported": 17
+            },
+            "seat": 1,
+            "support": "unsupported",
+            "term": "Inferno"
+          },
+          {
+            "candidates": null,
+            "category": "powers",
+            "decisions": 17,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Kalligan",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Deimos",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_power_unsupported": 17
+            },
+            "seat": 1,
+            "support": "unsupported",
+            "term": "Pyroclasm"
+          },
+          {
+            "candidates": null,
+            "category": "resummon",
+            "decisions": 17,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Kalligan",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Deimos",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_resummon_unsupported": 17
+            },
+            "seat": 1,
+            "support": "unsupported",
+            "term": "Resummon"
+          },
+          {
+            "candidates": null,
+            "category": "rites",
+            "decisions": 17,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Kalligan",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Deimos",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_paid_rites_unsupported": 17
+            },
+            "seat": 1,
+            "support": "unsupported",
+            "term": "Invocation"
+          },
+          {
+            "candidates": null,
+            "category": "rites",
+            "decisions": 17,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Kalligan",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Deimos",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_paid_rites_unsupported": 17
+            },
+            "seat": 1,
+            "support": "unsupported",
+            "term": "ProfaneRuins"
+          },
+          {
+            "candidates": null,
+            "category": "rites",
+            "decisions": 17,
+            "effect_records": null,
+            "flags": null,
+            "lord": "Kalligan",
+            "metrics": null,
+            "nonzero_effect_records": null,
+            "opponent": "Deimos",
+            "outcome_unobserved": null,
+            "outcomes": null,
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "full_match_paid_rites_unsupported": 17
+            },
+            "seat": 1,
+            "support": "unsupported",
+            "term": "Supplicants"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "work",
+            "decisions": 17,
+            "effect_records": 2,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 2,
+                "unknown": 15
+              },
+              "legal": {
+                "false": 0,
+                "true": 2,
+                "unknown": 15
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "selected": {
+                "false": 15,
+                "true": 2,
+                "unknown": 0
+              }
+            },
+            "lord": "Kalligan",
+            "metrics": {
+              "castles_activated": 2
+            },
+            "nonzero_effect_records": 2,
+            "opponent": "Deimos",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 2
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 15,
+              "reference_selected": 2
+            },
+            "seat": 1,
+            "support": "supported",
+            "term": "Activate"
+          },
+          {
+            "candidates": {
+              "generated": {
+                "measured_decisions": 0,
+                "total": 0
+              },
+              "retained": {
+                "measured_decisions": 0,
+                "total": 0
+              }
+            },
+            "category": "work",
+            "decisions": 17,
+            "effect_records": 14,
+            "flags": {
+              "affordable": {
+                "false": 0,
+                "true": 12,
+                "unknown": 5
+              },
+              "legal": {
+                "false": 0,
+                "true": 12,
+                "unknown": 5
+              },
+              "opportunity": {
+                "false": 0,
+                "true": 0,
+                "unknown": 17
+              },
+              "selected": {
+                "false": 5,
+                "true": 12,
+                "unknown": 0
+              }
+            },
+            "lord": "Kalligan",
+            "metrics": {
+              "applied_work": 39,
+              "passive_contributed": 15,
+              "work_contributed": 29
+            },
+            "nonzero_effect_records": 9,
+            "opponent": "Deimos",
+            "outcome_unobserved": 0,
+            "outcomes": {
+              "resolved": 12
+            },
+            "policy_id": "U13_REFERENCE_PAIR_WORK_V1",
+            "reasons": {
+              "not_selected_alternatives_unobserved": 5,
+              "reference_selected": 12
+            },
+            "seat": 1,
+            "support": "supported",
+            "term": "Work"
+          }
+        ],
+        "match_id": "spoils_rekindle",
+        "mechanics_checks": {},
+        "metric_semantics": "observed effects, not counterfactual benefit or scoring utility",
+        "operations_matched": 433,
+        "outcome": {
+          "action": "game_finished",
+          "round": 17,
+          "win_by": "Ritual",
+          "winner": 1
+        },
+        "power_measurements": "unsupported",
+        "rounds": 17,
+        "sample_limit": 12,
+        "samples": [
+          {
+            "affordable": null,
+            "category": "combat",
+            "generated": null,
+            "legal": null,
+            "opportunity": null,
+            "reason": "not_selected_alternatives_unobserved",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": false,
+            "selection_id": null,
+            "supported": true,
+            "term": "Pass"
+          },
+          {
+            "affordable": true,
+            "category": "combat",
+            "generated": null,
+            "legal": true,
+            "opportunity": null,
+            "reason": "reference_selected",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": true,
+            "selection_id": "dff1e43dfac9e9b225e26571c7b46a1481301b4192824ca95f7f9b6686876c64",
+            "supported": true,
+            "term": "Ward"
+          },
+          {
+            "affordable": null,
+            "category": "combat",
+            "generated": null,
+            "legal": null,
+            "opportunity": null,
+            "reason": "not_selected_alternatives_unobserved",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": false,
+            "selection_id": null,
+            "supported": true,
+            "term": "Hunt"
+          },
+          {
+            "affordable": null,
+            "category": "combat",
+            "generated": null,
+            "legal": null,
+            "opportunity": null,
+            "reason": "not_selected_alternatives_unobserved",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": false,
+            "selection_id": null,
+            "supported": true,
+            "term": "Siege"
+          },
+          {
+            "affordable": null,
+            "category": "combat",
+            "generated": null,
+            "legal": null,
+            "opportunity": null,
+            "reason": "not_selected_alternatives_unobserved",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": false,
+            "selection_id": null,
+            "supported": true,
+            "term": "Profane"
+          },
+          {
+            "affordable": true,
+            "category": "guards",
+            "generated": null,
+            "legal": true,
+            "opportunity": null,
+            "reason": "reference_selected",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": true,
+            "selection_id": "5822396169517e83acdfde6a568c3ac2e1e7a84d2c2c330a561585be2c704a74",
+            "supported": true,
+            "term": "Deploy"
+          },
+          {
+            "affordable": true,
+            "category": "work",
+            "generated": null,
+            "legal": true,
+            "opportunity": null,
+            "reason": "reference_selected",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": true,
+            "selection_id": "b814a43d43964cdddd562688d781d5b370735b3c626e4f699049c792d3d6c96d",
+            "supported": true,
+            "term": "Work"
+          },
+          {
+            "affordable": null,
+            "category": "work",
+            "generated": null,
+            "legal": null,
+            "opportunity": null,
+            "reason": "not_selected_alternatives_unobserved",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": false,
+            "selection_id": null,
+            "supported": true,
+            "term": "Activate"
+          },
+          {
+            "affordable": null,
+            "category": "powers",
+            "generated": null,
+            "legal": null,
+            "opportunity": null,
+            "reason": "full_match_power_unsupported",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": null,
+            "selection_id": null,
+            "supported": false,
+            "term": "WarMachine"
+          },
+          {
+            "affordable": null,
+            "category": "powers",
+            "generated": null,
+            "legal": null,
+            "opportunity": null,
+            "reason": "full_match_power_unsupported",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": null,
+            "selection_id": null,
+            "supported": false,
+            "term": "Rout"
+          },
+          {
+            "affordable": null,
+            "category": "rites",
+            "generated": null,
+            "legal": null,
+            "opportunity": null,
+            "reason": "full_match_paid_rites_unsupported",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": null,
+            "selection_id": null,
+            "supported": false,
+            "term": "Supplicants"
+          },
+          {
+            "affordable": null,
+            "category": "rites",
+            "generated": null,
+            "legal": null,
+            "opportunity": null,
+            "reason": "full_match_paid_rites_unsupported",
+            "retained": null,
+            "round": 1,
+            "seat": 0,
+            "selected": null,
+            "selection_id": null,
+            "supported": false,
+            "term": "Invocation"
+          }
+        ],
+        "schema": "U13_DOCTRINE_DIAGNOSTICS_V1",
+        "selected_count": 82,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Deimos",
+            "Kalligan"
+          ],
+          "seed": "u13-full-match:spoils_rekindle"
+        },
+        "stockpile_slaver": "semantic event totals only; decision diagnostics not yet adapted"
+      }
+    ],
+    "gate_scope": "diagnostic observer and reference-policy decisions; not nine-Lord doctrine acceptance",
+    "limits_enforced_on_reference_policy": false,
+    "policy": {
+      "code_sha256": "31036725bf5a1f888b637837cc65d5cdc98dbe5c2277fb4359848dcc07adfa7b",
+      "config": {
+        "guard_cards": 2,
+        "ward_period": 4
+      },
+      "config_sha256": "cf5a132670b535ab37faf23116e57520b54c7a05464da57b6e30fa18fda1aa5e",
+      "id": "U13_REFERENCE_PAIR_WORK_V1",
+      "policy_rng": "none; deterministic reference choices; engine RNG untouched"
+    },
+    "proposed_new_planner_limits": {
+      "complete_plans": 32,
+      "generated_per_category": 16,
+      "previews": 8,
+      "retained_per_category": 4
+    },
+    "schema": "U13_DOCTRINE_DIAGNOSTICS_V1"
+  },
+  "semantic_report_sha256": "8eb8a727206d7c258464055e056d594cc1e6d49a420f667f4987eb09a906a345",
+  "tested_parent_revision": "ad307300e5106176a1caf2a2c2ed27c84086e595",
+  "tests_passed": 20,
+  "uncommitted_checkpoint_identified_by_harness_hash": true,
+  "windows_pypy_acceptance": false
+}

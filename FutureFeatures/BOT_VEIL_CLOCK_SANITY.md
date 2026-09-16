@@ -1,29 +1,46 @@
 # Bot Doctrine — Veil Clock Sanity
 
-## Hard invariant
+**Reconciled for U13 on 2026-09-16.** This is a doctrine contract, not a rules
+change or an already installed safety heuristic.
 
-The bot must not voluntarily take any action that advances the Veil clock
-when the resulting state would award Dominion to the opponent.
+## Narrow exclusion
 
-This is a general doctrine rule, not a Cataclysmic Invocation special case.
+Exclude a voluntary complete plan only when it provably causes an avoidable
+opponent victory at the next actual victory check. Evaluate the full plan's
+known consequences and scheduled effects; a dangerous intermediate state is
+not necessarily the state at which the game awards victory.
 
-Before any voluntary action that can increase total Veil / Neutral Tears /
-otherwise advance Final Collapse, the bot must evaluate the resulting public
-Dominion state.
+Current U13 settles all sealed actions, Marching, Vacant Throne rewards and
+scheduled round pressure before the final victory check. That check gives
+Ritual precedence over Final Collapse, then Dominion. Use authority's actual
+winner and tie handling rather than comparing independent win flags.
 
-Reject the action when:
+The shared Veil includes both players' personal Tears and neutral Tears.
+Advancing it is an ordinary strategic tradeoff. **Remove the old prohibition
+on merely "materially advancing" a clock where the opponent currently leads.**
+Hunt remains available when its pressure, rewards or denial justify the risk.
+A possible future enemy Resummon is not an observed immediate loss.
 
-- the action advances the Veil;
-- that advancement reaches or materially advances toward a collapse state
-  where the opponent is currently ahead enough to win; and
-- the action does not itself change the resulting Dominion winner in the
-  bot's favor.
+## Certainty and alternatives
 
-The bot MAY advance the clock when doing so produces an immediate bot win,
-or when simultaneous effects caused by the action alter the Dominion result
-so that the opponent does not win.
+- A hard exclusion requires a known losing result and an available alternative
+  that avoids that proven loss. Keep legal last-chance plans when passing or
+  every known continuation already loses.
+- Unrevealed orders, unknown future choices and unresolved random effects are
+  uncertainty. One speculative opponent scenario cannot certify a hard veto.
+- Account for the whole plan: spending Souls may remove a Ritual win; other
+  same-round gains may create one; Lord presence matters for Ritual; scheduled
+  pressure can make Pass lose too.
+- Once a loss is proved avoidable, exclusion takes precedence over heuristic
+  score. A mere possible loss is scored as risk.
+- Reuse bounded public projections and the rules evaluator. The earlier
+  instruction to deep-copy a whole world for every candidate is retired.
 
-## Canonical regression
+## Historical regression
+
+The following legacy report preserves the intent, not current U13 terminology
+or payment rules. Reproduce the situation using current authority before using
+it as a live policy fixture.
 
 Observed playable match, seed 20260724:
 
@@ -43,15 +60,21 @@ Expected doctrine:
 Valak must reject Cataclysmic Invocation in that state because invoking
 immediately awards the opponent the game.
 
-## Future regression contract
+## Directed contract cases
 
-Given a voluntary candidate action A:
+1. A Tear contribution causes an otherwise avoidable enemy Dominion: exclude
+   only when that remains the provable result at the actual settlement point.
+2. Clock advancement produces our own victory: allow it.
+3. Productive Hunt advances the shared clock without proving an enemy win:
+   retain it for ordinary strategic evaluation.
+4. An intermediate enemy Dominion is superseded by our final Ritual: respect
+   the actual end-of-round result.
+5. Pass already loses to scheduled pressure: preserve legal attempts to change
+   the result instead of eliminating the entire candidate set.
+6. Final Collapse, equal Tears and the living-Lord Ritual condition use current
+   authority's precedence and ties.
 
-1. Clone the current state.
-2. Apply/evaluate A's clock-changing consequences.
-3. Check the resulting winner / Dominion state.
-4. If opponent wins and bot does not win, score A as forbidden.
-5. This veto must occur above ordinary heuristic utility scoring.
-
-Do not merely apply a large negative score. Immediate self-loss by voluntarily
-advancing the clock should be excluded from the candidate set.
+The first complete-information Python settlement fixtures live in
+`Scripts/Sim/u13_doctrine/test_diagnostics.py`. They establish the situations;
+they do not give a policy knowledge of hidden orders or implement a proof
+procedure. See [the doctrine start checkpoint](../docs/U13_DOCTRINE_START_2026-09-16.md).

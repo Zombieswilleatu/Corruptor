@@ -1,15 +1,48 @@
 # U13 PySim — focused Marching optimization
 
-Status: implemented; local CPython verification is recorded below. Windows
-CPython/PyPy acceptance and target-hardware timing are pending. This follows the
+Status: **Windows correctness accepted at clean `ad30730` on 2026-09-16**.
+Performance improved under CPython; PyPy showed no consistent gain. This follows the
 [accepted optimized profile](U13_PYSIM_OPTIMIZED_PROFILE_2026-09-15.md) and compares
 against the accepted `c228d85` engine, not the much slower original copying path.
 
 **User direction:** this is likely the last optional optimization pass before
-doctrine work. Finish the matched Windows comparison, then move the focus to
+doctrine work. The matched Windows comparison is complete; move the focus to
 CommonSmartCore and Lord doctrine. Do not automatically start another profiling
 cycle. The mirror's unsupported rules remain explicit; wider doctrine experiments
 still require corresponding rules parity, and these two games establish no balance.
+
+## Windows result — final optional optimization pass
+
+Inspected `u13-pysim-marching-optimization-7eMs7i-2026-09-15_22-22-42-Uvvke9.zip`:
+ZIP CRC, clean diff, successful run status, both complete test logs, both replay
+reports and all eight raw timing blocks. Each runtime passed 67 engine and three
+comparison tests. Exact replay preserved the two full games / 30 rounds / 767
+operations and all 13 corruption rejections, plus 22 isolated Marching cases /
+28 phases / 5,600 ticks / 33 contact probes and all 14 corruption rejections.
+Both pinned Windows Godot 4.7.2 streams were reused; no new native run was needed.
+All **160** timed final digests matched. Raw sample means and paired ratios were
+independently recomputed from the upload.
+
+| Runtime | Control mean | Candidate mean | Aggregate speedup | Two paired speedups |
+| --- | ---: | ---: | ---: | --- |
+| CPython 3.14.7 | 3.358 s | 2.518 s | 1.333x | 1.576x / 1.129x |
+| PyPy 7.3.23 | 1.453 s | 1.499 s | 0.970x | 1.078x / 0.881x |
+
+CPython improved in both orderings. PyPy's paired directions disagree, and its
+aggregate is slightly slower, so this run does **not** demonstrate a PyPy gain.
+The candidate's pooled later-half mean is 1.222 s versus control 1.319 s; this is
+descriptive, not a reason to discard the full-run result. Variation is visible
+within blocks; temperature, clock speed and GC causes were not measured.
+
+Retain the correctness-verified change and close optional optimization as the
+user requested. Use measured scope when discussing doctrine capacity: these are
+two ordinary games without policy selection, declared powers, paid Rites or
+Resummon. The prior extrapolation of roughly one second per PyPy game is not
+established by this comparison.
+
+The [acceptance evidence](evidence/U13_PYSIM_MARCHING_OPTIMIZATION_ad30730.json)
+retains archive/source identities, member hashes, both complete replay summaries,
+all raw timing samples and the interpretation above.
 
 ## Changes
 
