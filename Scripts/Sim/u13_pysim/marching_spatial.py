@@ -38,12 +38,12 @@ def speed(base, percent, recovering, clock, web=False, collapse=False):
     return ((phase + 1) * numerator) // denominator - (phase * numerator) // denominator
 
 
-def compile_effects(effects, number, data):
+def compile_effects(effects, number, data, *, full=False):
     modifiers = {lane: [dict(regen_bonus=0, speed_percent=0) for _ in (0, 1)] for lane in LANES}
     fields = {lane: [] for lane in LANES}
     for active in effects:
         payload = active["payload"]
-        if set(payload) - {"lane_aura", "spatial_field"}:
+        if not full and set(payload) - {"lane_aura", "spatial_field"}:
             raise Unsupported("Marching spike does not advance other persistent effects")
         if "spatial_field" in payload and data.get("spatial_field_profile") == WEB:
             target, spec = active["target"], payload["spatial_field"]

@@ -15,6 +15,10 @@ LORDS = ("Gremory", "Deimos", "Humbaba", "Kalligan")
 
 def supported(context):
     w = context["world"]
+    if context.get("full_roster"):
+        from .power_match import LORDS as all_lords
+        if any(p["lord_id"] not in all_lords for p in w["players"]): raise Unsupported("Unknown Lord")
+        return
     if (set(w) != {"players", "entities", "data"} or len(w["players"]) != 2
             or any(p["lord_id"] not in LORDS for p in w["players"])
             or w["data"].get("breach_lord", "") not in ("", *LORDS)):
@@ -50,12 +54,13 @@ def regenerate(context):
         return dict(action="invalid", reason="marching_regen_context_invalid")
     if world["data"].get("marching_regen_round", 0) >= number:
         return dict(action="invalid", reason="marching_regen_already_applied")
+    modifiers, _ = m.compile_effects(context.get("persistent_effects", []), number, world["data"], full=context.get("full_roster",False))
     s, events = Columns(world["entities"], keep_background=True), []
     for i in s.active():
         if s.waiting[i]:
             continue
         before = s.hp[i]
-        s.hp[i] = min(s.max_hp[i], before+s.regen[i])
+        s.hp[i] = min(s.max_hp[i], before+s.regen[i]+modifiers[s.lane[i]][s.owner[i]]["regen_bonus"])
         if s.hp[i] != before:
             fact = dict(type="MARCHER_REGENERATED", text="", data=dict(entity_id=s.ids[i], before=before,
                         after=s.hp[i], round=number, hook=context["hook"]))

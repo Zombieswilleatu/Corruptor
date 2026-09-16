@@ -9,6 +9,8 @@ import json
 from bisect import bisect_left
 
 from .copying import copy_data
+from . import wishmaster, kroni_actors
+from .marching_buffer import Buffer
 from .economy import Rejected, Unsupported
 from .marching_columns import Columns
 from .marching_spatial import (LANES, CONTACT2, GAP2, RANGE2, RANGED, ROUT, WEB, AURAS,
@@ -143,6 +145,7 @@ def duel_alive(s, duel):
         if i is None or s.owner[i] != row["owner"] or s.lane[i] != row["attributes"]["lane"]:
             return False
     i, j = indices
+    if wishmaster.ignored(s,i,j): return False
     return distance(s.x_fp[i], s.y_fp[i], s.x_fp[j], s.y_fp[j]) <= CONTACT2
 
 
@@ -172,7 +175,7 @@ def nearest_target(i, candidates, positions, xs, ys):
     return best, target
 
 
-def move(s, duels, context, clock, modifiers, fields):
+def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     indices = s.active()
     xs, ys = s.x_fp[:], s.y_fp[:]  # One target snapshot; accepted positions stay in columns.
     grouped = teams(s, indices)
@@ -181,14 +184,21 @@ def move(s, duels, context, clock, modifiers, fields):
     busy, number = busy_ids(duels), context["round"]
     retreat = [value == number for value in s.rout_round]
     nearest, gaps = [None] * len(s.ids), [(1 << 63) - 1] * len(s.ids)
+    ghosts = any((extra or {}).get("ghost_bypassed") for extra in s.extra)
     for i in indices:
         lane, owner = s.lane[i], s.owner[i]
-        gaps[i], nearest[i] = nearest_target(i, ordered[lane][1-owner], positions[lane][1-owner], xs, ys)
+        candidates = ordered[lane][1-owner]
+        if ghosts:
+            candidates = [j for j in candidates if not wishmaster.ignored(s,i,j)]
+            pos = [xs[j] for j in candidates]
+        else: pos = positions[lane][1-owner]
+        gaps[i], nearest[i] = nearest_target(i, candidates, pos, xs, ys)
     accepted = {lane: [grid(team, xs, ys, 7) for team in grouped[lane]] for lane in LANES}
     data = context["world"]["data"]
     gate_queue = data.get("guard_work", {}).get("version") == "U13_GUARD_WORK_V2"
     ranged, collapse = data.get("ranged_profile") == RANGED, data.get("breach_lord") == "Valak"
     for i in indices:
+        if s.ids[i] in fleeing: continue
         lane, owner, base = s.lane[i], s.owner[i], s.step_fp[i]
         recovery = s.rout_round[i] == number - 1
         step = (base >> 1) + (base & 1) * (clock & 1) if recovery else base
@@ -207,9 +217,14 @@ def move(s, duels, context, clock, modifiers, fields):
             continue
         dx, dy = s.direction[i] * step * (-1 if retreat[i] else 1), 0
         j = nearest[i]
-        if not retreat[i] and j is not None:
-            vx, vy = xs[j] - xs[i], ys[j] - ys[i]
-            length = max(1, ceil_sqrt(gaps[i]))
+        destination = dict(x_fp=xs[j],y_fp=ys[j]) if j is not None else None
+        gap = gaps[i]
+        if not retreat[i] and lamps:
+            point, lamp_gap = wishmaster.nearest_lamp(xs[i],ys[i],lane,lamps)
+            if point is not None: destination,gap=point,lamp_gap
+        if not retreat[i] and destination is not None:
+            vx, vy = destination["x_fp"] - xs[i], destination["y_fp"] - ys[i]
+            length = max(1, ceil_sqrt(gap))
             dx, dy = scaled(vx, step, length), scaled(vy, step, length)
             if dx == dy == 0 and step > 0:
                 if abs(vx) >= abs(vy):
@@ -257,6 +272,7 @@ def contact(s, lane, context, clock, diagnostic=False):
     for i in grouped[0]:
         # Indices are immutable-ID sorted, independently of spatial-grid traversal.
         for j in sorted(near(s.x_fp[i], s.y_fp[i], cells, 8)):
+            if wishmaster.ignored(s,i,j): continue
             if ranged and (not melee_ready(s, i, clock) or not melee_ready(s, j, clock)):
                 continue
             if distance(s.x_fp[i], s.y_fp[i], s.x_fp[j], s.y_fp[j]) > CONTACT2:
@@ -326,16 +342,16 @@ class Phase:
                 self.emit("MARCHER_DUEL_INTERRUPTED", dict(event_id=duels[lane]["id"], round=self.number, tick=tick))
                 del duels[lane]
 
-    def volley(self, duels, tick):
+    def volley(self, duels, tick, fleeing=()):
         s, clock, busy = self.s, self.number * 200 + tick, busy_ids(duels)
         rows, shots = s.active(), []
         for i in rows:
-            if (s.suit[i] != "Vulture" or s.ids[i] in busy or s.rout_round[i] == self.number
+            if (s.suit[i] != "Vulture" or s.ids[i] in busy or s.ids[i] in fleeing or s.rout_round[i] == self.number
                     or (s.ranged_next_tick[i] or 0) > clock):
                 continue
             best, target = RANGE2 + 1, None
             for j in rows:
-                if s.owner[j] == s.owner[i] or s.lane[j] != s.lane[i]:
+                if s.owner[j] == s.owner[i] or s.lane[j] != s.lane[i] or wishmaster.ignored(s,i,j):
                     continue
                 gap = distance(s.x_fp[i], s.y_fp[i], s.x_fp[j], s.y_fp[j])
                 # Native nearest() admits a tie with its initial RANGE2+1
@@ -345,9 +361,10 @@ class Phase:
             if target is None or best <= CONTACT2:
                 continue
             # One pre-volley snapshot, before any attack cooldown is written.
-            shots.append(dict(attacker=s.row(i), target=s.row(target), amount=s.attack[i], index=i))
+            shots.append(dict(attacker=s.row(i), target=s.row(target), amount=s.attack[i]*(2 if (s.extra[i] or {}).get("blood_wish",False) else 1), index=i))
         for shot in shots:
             i = shot.pop("index")
+            if s.extra[i]: s.extra[i].pop("blood_wish",None)
             s.ranged_next_tick[i], s.melee_next_tick[i] = clock + 32, clock + 8
         deaths = []
         for shot in shots:
@@ -386,19 +403,30 @@ class Phase:
             start["ranged_profile"] = RANGED
         self.emit("MARCHING_STARTED", start)
         bases = {row["id"]: row for row in s.rows()}
-        modifiers, fields = compile_effects(context.get("persistent_effects", []), self.number, data)
+        modifiers, fields = compile_effects(context.get("persistent_effects", []), self.number, data, full=context.get("full_roster",False))
         has_retreat = any(value == self.number for value in s.rout_round)
         orbs = data.get("valak_orbs", [])
         collapse = data.get("breach_lord") == "Valak"
+        actors = data.get("kroni_actors",[])
+        lamps = data.get("kanifous_objects",[])
+        has_wishes = "kanifous_profile" in data
+        buffer = Buffer(self)
+        if actors: self.emit("KRONI_ACTORS_STARTED",dict(round=self.number,actors=actors))
         for tick in range(200):
             s = self.s
+            lamp_before = s.rows() if lamps else []
+            if has_wishes: self.events.extend(wishmaster.bypass(buffer,self.number,tick))
             before = (s.x_fp[:], s.y_fp[:], s.active()) if orbs else None
+            if actors: self.events.extend(kroni_actors.step(actors,buffer,self.number,tick,collapse))
+            fleeing = {key for actor in actors for key in list(actor["fleeing"])+actor["fled_this_tick"]}
             clock = self.number * 200 + tick
             self.interrupt(duels, tick)
-            move(s, duels, context, clock, modifiers, fields)
+            move(s, duels, context, clock, modifiers, fields, fleeing, lamps)
             if orbs:
                 self.w["data"]["neutral_tears"] += gravity(s, orbs, before, self.number, tick, collapse, self.emit)
-            if has_retreat or orbs:
+            if lamps: self.events.extend(wishmaster.claim(lamps,buffer,lamp_before,context["seed"],self.number,tick))
+            if has_wishes: self.events.extend(wishmaster.bypass(buffer,self.number,tick))
+            if has_retreat or orbs or has_wishes:
                 self.interrupt(duels, tick)
             for lane in LANES:
                 s = self.s
@@ -413,7 +441,7 @@ class Phase:
                     continue
                 duel = duels[lane]
                 i, j = [s.live(row["id"]) for row in duel["units"]]
-                damages = [attack(s, i, s.attack[j], s.armor_bypass[j]), attack(s, j, s.attack[i], s.armor_bypass[i])]
+                damages = [attack(s, i, wishmaster.attack_amount(s,j), s.armor_bypass[j]), attack(s, j, wishmaster.attack_amount(s,i), s.armor_bypass[i])]
                 duel["exchanges"].append(dict(hp=[s.hp[i], s.hp[j]], armor=[s.armor[i], s.armor[j]]))
                 duel["next_tick"] = clock + 8
                 fallen = [s.hp[i] == 0, s.hp[j] == 0]
@@ -444,7 +472,7 @@ class Phase:
                     self.react(self.events[-1]["event"], "marching_reaction_invalid")
                 self.restore_reactions("marching_reaction_invalid")
             if ranged:
-                self.volley(duels, tick)
+                self.volley(duels, tick, fleeing)
                 self.interrupt(duels, tick)
             s = self.s
             indices, busy = s.active(), busy_ids(duels)
@@ -452,18 +480,21 @@ class Phase:
                 if (s.waiting[i] or has_retreat and s.rout_round[i] == self.number
                         or s.x_fp[i] != (2400 if s.owner[i] == 0 else 0) or s.ids[i] in busy):
                     continue
-                if any(s.owner[j] != s.owner[i] and s.lane[j] == s.lane[i]
+                if any(s.owner[j] != s.owner[i] and s.lane[j] == s.lane[i] and not wishmaster.ignored(s,i,j)
                        and distance(s.x_fp[i], s.y_fp[i], s.x_fp[j], s.y_fp[j]) <= CONTACT2 for j in indices):
                     continue
                 s.waiting[i], s.waiting_since_round[i] = True, self.number
                 self.emit("MARCHER_WAITING", dict(entity_id=s.ids[i], round=self.number, hook="marching", tick=tick,
                           lane=s.lane[i], x_fp=s.x_fp[i], y_fp=s.y_fp[i]))
             if self.capture_ticks:
+                if actors: self.emit("KRONI_ACTOR_TICK",dict(round=self.number,tick=tick,actors=actors))
                 active = [row["id"] for lane in LANES if lane in duels for row in duels[lane]["units"]]
                 self.emit("MARCHING_TICK", dict(round=self.number, tick=tick, unit_format="attribute_delta_v1",
                           units=s.delta_rows(bases), clash=active))
         if "valak_orbs" in self.w["data"]:
             self.w["data"]["valak_orbs"] = orbs
+        if "kroni_actors" in self.w["data"]: self.w["data"]["kroni_actors"] = actors
+        if "kanifous_objects" in self.w["data"]: self.w["data"]["kanifous_objects"] = lamps
         self.w["entities"] = self.s.snapshot()
         self.w["data"].update(marching_duels=duels, marching_round=self.number)
         self.emit("MARCHING_FINISHED", dict(round=self.number, hook="marching", ticks=200, units=self.s.rows()))

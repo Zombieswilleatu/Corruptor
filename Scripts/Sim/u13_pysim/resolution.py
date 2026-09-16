@@ -27,6 +27,7 @@ class Ordinary(Battle):
         w, d = self.w, self.w["data"]
         before_defunct = [c["id"] for c in w["entities"]["entities"] if targetable(c)
                           and c["attributes"]["status"] == "defunct" and w["players"][c["owner"]]["lord_id"] == "Kalligan"]
+        self.kroni_orders = [{k: v for k, v in order.items() if k not in ("rites", "guard_moves", "summon")} for order in orders]
         self.orders = [combat_order(order) for order in orders]
         if self.hook == HOOKS[0]: events = self.artillery()
         elif self.hook == HOOKS[1]: events = self.reveal()
@@ -63,7 +64,7 @@ class Ordinary(Battle):
         d["artillery_round"] = self.number
         return events
 
-    def fire(self, identity):
+    def fire(self, identity, shot="normal"):
         w, events = self.w, []
         engine = e.entity(w, identity)
         e.require(engine and engine["kind"] == "castle" and engine["attributes"]["combat_profile"] == "siege_engine", "artillery_engine_missing")
@@ -74,7 +75,7 @@ class Ordinary(Battle):
             targets = sorted(c["id"] for c in w["entities"]["entities"] if c["owner"] == 1-engine["owner"] and targetable(c))
             if not targets:
                 a["artillery_target"] = ""
-                return [e.event("ARTILLERY_NO_TARGET", dict(engine_id=identity, round=self.number, shot="normal"))]
+                return [e.event("ARTILLERY_NO_TARGET", dict(engine_id=identity, round=self.number, shot=shot))]
             target = e.entity(w, targets[draw(self.seed, identity, "ARTILLERY_TARGET", a["artillery_acquisitions"], len(targets))])
             a["artillery_target"] = target["id"]
             a["artillery_acquisitions"] += 1
@@ -83,7 +84,7 @@ class Ordinary(Battle):
         before = target_before["integrity"]
         damage = min(before, 2)
         if before <= 2:
-            fact = self.fact(dict(command_id=instance_id("artillery", identity, "normal"), kind="ruin_castle",
+            fact = self.fact(dict(command_id=instance_id("artillery", identity, shot), kind="ruin_castle",
                                   target_id=target["id"], player_id=engine["owner"], source_id=identity, cause="artillery"))
             w["players"][engine["owner"]]["resources"]["souls"] += 2
             events.append(e.event(fact["type"], fact["data"]))
@@ -93,7 +94,7 @@ class Ordinary(Battle):
             target["attributes"]["integrity"] -= damage
             note_loss(target, before, self.number)
         events.append(e.event("ARTILLERY_FIRED", dict(round=self.number, player_id=engine["owner"], engine_id=identity,
-            target_id=target["id"], shot="normal", damage=damage, destroyed=before<=2, soul_gain=2 if before<=2 else 0,
+            target_id=target["id"], shot=shot, damage=damage, destroyed=before<=2, soul_gain=2 if before<=2 else 0,
             target_before=target_before, target_after=target["attributes"])))
         return events
 
@@ -329,7 +330,7 @@ class Ordinary(Battle):
         e.require(d["kroni_action_round"] < self.number, "kroni_action_already_applied")
         d["kroni_action_round"] = self.number
         for pid in self.order:
-            order = self.orders[pid]
+            order = self.kroni_orders[pid]
             if self.active(pid, "Kroni") and (not order or order.get("action") == "Ward"):
                 a = self.lord(pid)["attributes"]
                 before, cause = a["hunger"], "Ward" if order else "Pass"

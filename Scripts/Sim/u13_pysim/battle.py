@@ -117,6 +117,25 @@ class Battle:
                 target["attributes"]["alive"] = False
                 details["lord_id"] = target["id"]
                 event_type = "LORD_BANISHED"
+        elif kind == "change_marcher_allegiance":
+            new = command.get("new_owner")
+            e.require(self.hook == "post_resolution_allegiance" and self.number >= 1, "allegiance_hook_invalid")
+            e.require(type(new) is int and new in (0,1), "allegiance_owner_invalid")
+            e.require(target and target["kind"] == "marcher" and target["attributes"]["hp"] > 0, "allegiance_marcher_missing")
+            e.require(target["owner"] != new, "allegiance_owner_unchanged")
+            before = copy_data(target); interrupted = []
+            duels = d.get("marching_duels", {})
+            for lane, duel in list(duels.items()):
+                if target["id"] not in [u["id"] for u in duel["units"]]: continue
+                interrupted.append(duel.get("id", ""))
+                for u in duel["units"]:
+                    live = e.entity(w,u["id"])
+                    if live: live["attributes"]["contact_tick"] = -1
+                del duels[lane]
+            target["owner"] = new
+            target["attributes"].update(direction=1 if new == 0 else -1, waiting=False, waiting_since_round=0, contact_tick=-1)
+            details.update(entity_id=target["id"],previous_owner=before["owner"],new_owner=new,before=before,after=copy_data(target),interrupted_duels=interrupted)
+            event_type = "MARCHER_ALLEGIANCE_CHANGED"
         elif kind == "set_breach":
             e.require(type(command.get("lord_id")) is str, "breach_lord_invalid")
             d["breach_lord"] = command["lord_id"]
@@ -178,7 +197,7 @@ class Battle:
             actor["attributes"]["threat"] = after
         return after, events
 
-    def react(self, fact):
+    def react(self, fact, *, inner=False):
         w, d, detail = self.w, self.w["data"], fact["data"]
         kind, events = fact["type"], []
         ledger = d.setdefault("gremory_triggers", {})
@@ -241,6 +260,8 @@ class Battle:
                     events.extend(self.breach_damage(identity, source["id"], key))
                 events.append(e.event("THE_STONES_FORGET", dict(source_id=source["id"], entry_id=key,
                                       round=self.number, castle_ids=targets, damage_per_castle=4)))
+        if inner:
+            return events
         if kind == "GUARD_DEFEATED" and "attacker" in detail:
             pid = detail["attacker"]["owner"]
             guard = detail["guard"]
@@ -283,6 +304,21 @@ class Battle:
                 before = w["players"][pid]["resources"]["reconfiguration"]
                 w["players"][pid]["resources"]["reconfiguration"] = 0
                 events.append(e.event("RECONFIGURATION_RESET", dict(player_id=pid, before=before, after=0, event_id=detail["event_id"])))
+        if kind == "MARCHER_DEFEATED" and detail.get("cause") == "combat" and detail.get("hook") == "marching":
+            victim, attacker = detail.get("victim",{}), detail.get("attacker",{})
+            pid = victim.get("owner",-1)
+            if (victim.get("kind") == "marcher" and attacker.get("kind") == "marcher" and pid in (0,1)
+                    and attacker.get("owner") == 1-pid and self.active(pid,"Odradek") and d["interlock_rounds"][pid] < self.number):
+                damage = detail.get("damage_dealt")
+                e.require(type(damage) is int and damage >= 1,"interlock_killing_damage_missing")
+                d["interlock_rounds"][pid] = self.number
+                target = e.entity(w,attacker["id"])
+                from .powers import odradek_event
+                events.append(odradek_event("PSYCHIC_INTERLOCK",dict(player_id=pid,round=self.number,hook=self.hook,trigger_id=detail["event_id"],target_id=attacker["id"],damage=damage,target_alive=bool(target))))
+                if target:
+                    absorbed = min(target["attributes"]["armor"],damage);target["attributes"]["armor"] -= absorbed
+                    hit = self.fact(dict(command_id=instance_id("interlock",detail["event_id"],str(pid)),kind="marcher_damage",target_id=target["id"],damage=damage-absorbed,cause="hazard"))
+                    events.append(e.event(hit["type"],hit["data"]));events.extend(self.react(hit,inner=True))
         if kind == "GUARD_DEFEATED" and not any(r["id"] == detail["guard"]["id"] for r in d["kanifous_losses"]):
             d["kanifous_losses"].append(copy_data(detail["guard"]))
         reconcile(w)

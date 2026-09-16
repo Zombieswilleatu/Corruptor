@@ -2,6 +2,17 @@
 
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
 
+**2026-09-16 remaining rules implementation:** The
+[nine-Lord checkpoint](U13_PYSIM_NINE_LORDS_2026-09-16.md) adds a `PowerMatch`
+adapter for all nine existing Lords, all 23 declared powers and their scheduled,
+persistent, cooldown and spatial lifecycles. Five complete games and separately
+labeled power/tick components have local diagnostic parity. Windows 4.7.2 with
+CPython and PyPy remains the acceptance gate. Then build the bounded common
+planner and nine separate Lord modules. Keep the larger exact reference corpus
+as a gate before serious balance claims. The permanent-Veil proposal and monster
+system are outside this existing-rules checkpoint; no Godot production rules,
+balance, playable UI, U12 or assets change.
+
 **2026-09-16 paid Development checkpoint:** The diagnostic observer passed its
 Windows CPython/PyPy gate at clean `a7544d6`: all 20 tests and both unchanged
 reference games matched. The next [parity slice](U13_PYSIM_PAID_DEVELOPMENT_2026-09-16.md)
@@ -9,7 +20,8 @@ adds paid Rites and Resummon to Python FullMatch. Its Windows 4.7.2 gate passed
 at clean `24792a6`: 17,904 native checks, 77 tests per Python runtime, four exact
 games / 57 rounds / 1,462 game operations, 258 paid component operations and
 20 corruption rejections. CPython/PyPy reports match; zero failures. Declared
-powers and five Lord integrations still precede shared tuning.
+powers and five Lord integrations were the next dependency; their implementation
+is now scoped in the nine-Lord checkpoint above.
 
 **2026-09-16 doctrine start:** The user authorized beginning the agreed rebuild
 with consultation for substantive forks. The [first checkpoint](U13_DOCTRINE_START_2026-09-16.md)

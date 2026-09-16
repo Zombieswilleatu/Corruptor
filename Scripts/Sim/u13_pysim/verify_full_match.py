@@ -27,7 +27,8 @@ def records(path):
 
 
 def verify(path, revision, source_hash, diagnostic=False, record_filter=None, *,
-           input_manifest=None, inputs_hash=None, stream_schema=SCHEMA, trailer=None):
+           input_manifest=None, inputs_hash=None, stream_schema=SCHEMA, trailer=None, match_factory=FullMatch, scope_lords=LORDS,
+           mirror_version=VERSION, scope_description=None):
     stream = iter(records(path))
     def take(kind):
         try: row = next(stream)
@@ -41,7 +42,7 @@ def verify(path, revision, source_hash, diagnostic=False, record_filter=None, *,
     expected_hash = f.input_hash() if inputs_hash is None else inputs_hash
     same(expected_hash,header["inputs_sha256"],"inputs_sha256")
     same(TRANSPORT,header["event_transport"],"event_transport")
-    same(list(LORDS),header["scope_lords"],"scope_lords")
+    same(list(scope_lords),header["scope_lords"],"scope_lords")
     manifest = f.load() if input_manifest is None else input_manifest
     if input_manifest is None:
         same(f.SCHEMA,manifest["schema"],"input.schema")
@@ -54,7 +55,7 @@ def verify(path, revision, source_hash, diagnostic=False, record_filter=None, *,
         same(spec["setup"],opening["setup"],path_name+".setup")
         trace_identity(dict(identity=header["identity"],setup=opening["setup"],opening=opening["state"],records=[]),
                        revision,source_hash,diagnostic,path_name)
-        match = FullMatch(spec["setup"])
+        match = match_factory(spec["setup"])
         same(match.snapshot(),opening["state"],path_name+".opening.state")
         prefix,history,counts,orders,peaks = 0,[],Counter(),Counter(),0
         operations = spec["operations"]+[dict(kind="next_round"),dict(kind="step",hook="")]
@@ -130,13 +131,13 @@ def verify(path, revision, source_hash, diagnostic=False, record_filter=None, *,
                  "MARCHER_REGENERATED","GUARD_PAIR_FORMED","WORK_RESOLVED","CASTLE_ACTIVATED",
                  "LORD_BANISHED","VACANT_THRONE_RESOLVED","MATCH_FINISHED"):
         same(True,total_counts[kind] > 0,"coverage."+kind)
-    return dict(python_mirror=VERSION,source_revision=revision,source_sha256=source_hash,inputs_sha256=expected_hash,
+    return dict(python_mirror=mirror_version,source_revision=revision,source_sha256=source_hash,inputs_sha256=expected_hash,
         runtime=header["identity"]["runtime"],reference_platform=header["identity"]["platform"],diagnostic_only=diagnostic,
         complete_games_matched=len(games),complete_rounds_matched=sum(g["rounds"] for g in games),
         game_operations_matched=sum(g["operations_matched"] for g in games),fixture_operations=0,
-        terminal_rejections_matched=2*len(games),scope_lords=list(LORDS),
+        terminal_rejections_matched=2*len(games),scope_lords=list(scope_lords),
         directed_settlement_components_matched=len(manifest["settlements"]),
-        scope="explicit ordinary decisions; no declared powers, paid Rites or Resummon; not roster-complete parity",
+        scope=scope_description or "explicit ordinary decisions; no declared powers, paid Rites or Resummon; not roster-complete parity",
         event_profile="U13_BATCH_EVENTS_V1",full_world_tick_probes_matched=tick_probes,tick_frames_compared=tick_frames,
         all_semantic_rows_and_views_matched=True,
         games=games,event_coverage=dict(sorted(total_counts.items())),failures=0,**extra)

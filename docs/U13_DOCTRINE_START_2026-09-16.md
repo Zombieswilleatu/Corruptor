@@ -47,9 +47,20 @@ declared powers. At the accepted `a7544d6` checkpoint all declared powers, paid
 Rites and Resummon were unsupported by the full-match adapter. The subsequent
 [paid Development slice](U13_PYSIM_PAID_DEVELOPMENT_2026-09-16.md) passed Windows
 4.7.2 with CPython and PyPy at clean `24792a6`: four exact games, 57 rounds,
-1,462 game operations and 258 paid component operations. Declared powers and
-five Lord integrations remain unsupported. `require_full_roster_tuning()` rejects that
-use explicitly. Isolated spatial tests do not upgrade this status.
+1,462 game operations and 258 paid component operations. The next
+[nine-Lord checkpoint](U13_PYSIM_NINE_LORDS_2026-09-16.md) adds `PowerMatch`, all
+23 powers and the remaining Lord lifecycles. Five complete local diagnostic
+games cover the roster, with separately labeled power and tick components.
+Windows 4.7.2 / CPython / PyPy acceptance is pending; the historical four-Lord
+`FullMatch` and reference observer retain their boundaries. The capability
+report distinguishes that observer from the new adapter.
+
+After the focused Windows gate, proceed to the bounded common planner and
+nine separate Lord modules. This is not another optional optimization cycle.
+`require_full_roster_tuning()` still blocks broad tuning: the first five games
+are an integration corpus, not the roadmap's expanded exact campaign or a
+measurement of policy competence. Keep the instrumentation and behavior
+contracts ahead of weight sweeps.
 
 ## Candidate and validation work
 

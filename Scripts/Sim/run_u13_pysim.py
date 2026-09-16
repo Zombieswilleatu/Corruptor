@@ -24,6 +24,9 @@ def main():
     commands.add_parser("self-test-marching")
     commands.add_parser("self-test-full-match")
     commands.add_parser("self-test-paid-development")
+    commands.add_parser("self-test-powers")
+    powers_inputs = commands.add_parser("generate-power-inputs")
+    powers_inputs.add_argument("--output",type=Path,required=True)
     paid_inputs = commands.add_parser("generate-paid-inputs")
     paid_inputs.add_argument("--output",type=Path,required=True)
     inputs = commands.add_parser("generate-full-match-inputs")
@@ -51,7 +54,7 @@ def main():
     full_copy.add_argument("--verified-report",type=Path,required=True)
     full_copy.add_argument("--report",type=Path,required=True)
     full_copy.add_argument("--reverse",action="store_true",help="Run candidate before baseline")
-    for command in ("verify", "verify-planning", "verify-development", "verify-resolution", "verify-marching", "verify-full-match", "verify-paid-development"):
+    for command in ("verify", "verify-planning", "verify-development", "verify-resolution", "verify-marching", "verify-full-match", "verify-paid-development", "verify-powers"):
         check = commands.add_parser(command)
         check.add_argument("trace", type=Path)
         check.add_argument("--diagnostic", action="store_true", help="Label local non-Windows/4.7.2 results diagnostic only")
@@ -59,14 +62,16 @@ def main():
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[2]
     if args.command.startswith("self-test"):
-        stages = ["foundation","planning","development","copying","resolution","marching","full_match","paid_development"]
+        stages = ["foundation","planning","development","copying","resolution","marching","full_match","paid_development","powers"]
         stage = "foundation" if args.command == "self-test" else args.command.removeprefix("self-test-").replace("-","_")
         modules = ["u13_pysim.test_"+name for name in stages[:stages.index(stage)+1]]
         tests = unittest.defaultTestLoader.loadTestsFromNames(modules)
         result = unittest.TextTestRunner(verbosity=2).run(tests)
         return 0 if result.wasSuccessful() else 1
-    if args.command in ("generate-full-match-inputs","generate-paid-inputs"):
-        if args.command == "generate-paid-inputs":
+    if args.command in ("generate-full-match-inputs","generate-paid-inputs","generate-power-inputs"):
+        if args.command == "generate-power-inputs":
+            from u13_pysim.power_inputs import generate
+        elif args.command == "generate-paid-inputs":
             from u13_pysim.paid_inputs import generate
         else:
             from u13_pysim.full_match_inputs import generate
@@ -165,9 +170,11 @@ def main():
         except (ValueError,OSError,KeyError,TypeError) as error:
             print(f"FAIL U13 PySim full-match timing: {error}",file=sys.stderr)
             return 1
-    if args.command in ("verify-full-match","verify-paid-development"):
-        label = "paid-development" if args.command == "verify-paid-development" else "full-match"
-        if label == "paid-development":
+    if args.command in ("verify-full-match","verify-paid-development","verify-powers"):
+        label = args.command.removeprefix("verify-")
+        if label == "powers":
+            from u13_pysim.verify_powers import verify as compare, verify_rejections as reject
+        elif label == "paid-development":
             from u13_pysim.verify_paid import verify as compare, verify_rejections as reject
         else:
             from u13_pysim.verify_full_match import verify as compare, verify_rejections as reject

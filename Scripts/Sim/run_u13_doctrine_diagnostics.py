@@ -53,7 +53,7 @@ def main():
         args.report.write_text(json.dumps(report, indent=2, sort_keys=True, allow_nan=False)+"\n", encoding="utf-8")
         for game in report["semantic"]["games"]:
             print(f"{game['match_id']}: {game['rounds']} rounds, {game['operations_matched']} unchanged operations; final digest matched")
-        print("Power coverage remains unsupported; reference-policy alternatives remain unmeasured.")
+        print("This reference observer does not measure power/paid-choice decisions or policy alternatives.")
         print("U13 doctrine diagnostics failures: 0")
         return 0
     except (ValueError, KeyError, TypeError, OSError) as error:

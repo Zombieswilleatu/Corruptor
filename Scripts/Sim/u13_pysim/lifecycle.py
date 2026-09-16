@@ -61,6 +61,9 @@ def settle(world, number):
 
 
 class RoundRules(Ordinary):
+    def extra(self):
+        return []
+
     def context(self):
         return dict(world=self.w, round=self.number, seed=self.seed, player_order=self.order,
                     hook=self.hook, persistent_effects=[])
@@ -73,7 +76,7 @@ class RoundRules(Ordinary):
 
     def run(self, orders):
         if self.hook in HOOKS:
-            return super().run(orders)
+            return super().run(orders) + self.extra()
         hook, n, d = self.hook, self.number, self.w["data"]
         before_defunct = [r["id"] for r in self.w["entities"]["entities"] if targetable(r)
                           and r["attributes"]["status"] == "defunct"
@@ -96,7 +99,8 @@ class RoundRules(Ordinary):
                 if ended:
                     del a["rout_round"], a["rout_effect_id"]
             e.require(d["scorch_guard_round"] < n, "scorch_pulse_already_applied")
-            d["scorch_guard_round"], d["valak_orbs"] = n, []
+            d["scorch_guard_round"] = n
+            if type(self) is RoundRules: d["valak_orbs"] = []
         elif hook == "round_start_automatic":
             e.require(d["sigil_lifecycle"]["aged_round"] == n-1, "sigil_age_clock_invalid")
             for pid in (0,1):
@@ -199,6 +203,7 @@ class RoundRules(Ordinary):
                     d["neutral_tears"] += 1
                     events.append(e.event("NEUTRAL_TEAR_CREATED", dict(source="Rekindle",amount=1,
                                           player_id=pid,castle_id=key,round=n)))
+        events.extend(self.extra())
         if hook == "development":
             events.extend(_deploy_owned(self.w,n,self.order))
             events.extend(work(self.w,n,self.order))
