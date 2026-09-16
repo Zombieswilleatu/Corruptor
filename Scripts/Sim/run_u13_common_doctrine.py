@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+"""Dual-runtime check of the experimental bounded U13 doctrine alpha."""
+import argparse
+import json
+from pathlib import Path
+import platform
+import sys
+import unittest
+
+from u13_doctrine.common import Weights
+from u13_doctrine.planner_probe import run, compare_reports
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    sub = parser.add_subparsers(dest='command', required=True)
+    check = sub.add_parser('check')
+    check.add_argument('--report', type=Path, required=True)
+    check.add_argument('--weights', type=Path)
+    compare = sub.add_parser('compare'); compare.add_argument('first', type=Path); compare.add_argument('second', type=Path)
+    args = parser.parse_args()
+    try:
+        if args.command == 'compare':
+            a, b = (json.loads(p.read_text()) for p in (args.first, args.second))
+            if {a['implementation'], b['implementation']} != {'CPython', 'PyPy'}: raise ValueError('Both CPython and PyPy required')
+            compare_reports(a, b)
+            print('All decisions, final states and diagnostic reports match across CPython and PyPy.')
+            print('U13 common doctrine comparison failures: 0'); return 0
+        tests = unittest.defaultTestLoader.loadTestsFromNames(['u13_doctrine.test_diagnostics', 'u13_doctrine.test_common'])
+        result = unittest.TextTestRunner(verbosity=2).run(tests)
+        if not result.wasSuccessful() or result.testsRun == 0: return 1
+        weights = Weights(**json.loads(args.weights.read_text())) if args.weights else None
+        args.report.parent.mkdir(parents=True, exist_ok=True)
+        report = run(Path(__file__).resolve().parents[2], weights, args.report.with_suffix('.inputs.json'))
+        report.update(implementation=platform.python_implementation(), python=sys.version, platform=platform.platform(),
+                      tests_passed=result.testsRun, new_godot_parity=False)
+        args.report.write_text(json.dumps(report, indent=2, sort_keys=True)+'\n', encoding='utf-8')
+        print('U13 common doctrine failures: 0'); return 0
+    except (ValueError, KeyError, TypeError, OSError) as error:
+        print('FAIL U13 common doctrine:', error, file=sys.stderr); return 1
+
+
+if __name__ == '__main__': raise SystemExit(main())

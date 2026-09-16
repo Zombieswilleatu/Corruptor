@@ -110,7 +110,18 @@ with an identical complete summary; the evidence records its source fingerprint
 separately from the original export's fingerprint. The Windows runner exports a
 fresh stream from the actual checkout. This is not a new timing comparison.
 
-Windows **4.7.2 stable**, CPython and PyPy acceptance remains pending.
+The Windows gate **passed at clean `5fb53e7160dda8789dd0aa2d3523528aab49ce9c`**.
+The uploaded `u13-pysim-powers-VtJw3E-2026-09-16_11-42-51-7t8CVD.zip`
+contains official Godot **4.7.2**, **31,752** native checks, **84** cumulative tests
+per interpreter and identical CPython 3.14.7 / PyPy 7.3.23 parity summaries.
+All five games / 81 rounds / 2,052 operations, 34 power components / 1,065
+operations, 2,400 directed tick frames and all 16 corruption rejections passed.
+Each of 23 powers resolved in the directed corpus. The complete semantic summary
+matches the local reference after accounting for runtime/source identity.
+Archive CRC/hashes, clean diff, source/input fingerprints and zero-error logs were
+checked. See [accepted evidence](evidence/U13_PYSIM_NINE_LORDS_5fb53e7.json).
+This closes the focused rules dependency for the common planner; the larger
+exact campaign remains required before serious balance claims.
 
 Run from the new checkout in Windows Git Bash:
 

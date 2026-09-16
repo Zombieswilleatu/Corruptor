@@ -1,3 +1,5 @@
+> **2026-09-16:** The focused nine-Lord Windows gate passed at `5fb53e7`. The [fresh common-planner alpha](U13_COMMON_DOCTRINE_ALPHA_2026-09-16.md) is now implemented with nine separate Lord modules, bounded proposals and measured decisions. Its own Windows dual-runtime check is next; broad tuning remains gated.
+
 > **Current roadmap (2026-09-15):** See the [consolidated roadmap](../FutureFeatures/README.md) for current status, priorities and the disposition of older proposals. The document below is preserved as detailed source/history; its dated acceptance records retain their original scope.
 
 # CORRUPTOR U13 — POST-LORD-OVERHAUL PROGRESSION PLAN
@@ -5,9 +7,9 @@
 **2026-09-16 remaining rules implementation:** The
 [nine-Lord checkpoint](U13_PYSIM_NINE_LORDS_2026-09-16.md) adds a `PowerMatch`
 adapter for all nine existing Lords, all 23 declared powers and their scheduled,
-persistent, cooldown and spatial lifecycles. Five complete games and separately
-labeled power/tick components have local diagnostic parity. Windows 4.7.2 with
-CPython and PyPy remains the acceptance gate. Then build the bounded common
+persistent, cooldown and spatial lifecycles. The focused Windows 4.7.2 / CPython / PyPy gate passed at clean `5fb53e7`:
+five complete games / 81 rounds, 34 power components, all 23 powers and 16
+corruption rejections. Build the bounded common
 planner and nine separate Lord modules. Keep the larger exact reference corpus
 as a gate before serious balance claims. The permanent-Veil proposal and monster
 system are outside this existing-rules checkpoint; no Godot production rules,

@@ -1,3 +1,5 @@
+> **2026-09-16:** The focused nine-Lord Windows gate passed at `5fb53e7`. The [fresh common-planner alpha](U13_COMMON_DOCTRINE_ALPHA_2026-09-16.md) is now implemented with nine separate Lord modules, bounded proposals and measured decisions. Its own Windows dual-runtime check is next; broad tuning remains gated.
+
 # U13 doctrine start: contracts and diagnostics before tuning
 
 ## User direction and first milestone
@@ -49,9 +51,9 @@ Rites and Resummon were unsupported by the full-match adapter. The subsequent
 4.7.2 with CPython and PyPy at clean `24792a6`: four exact games, 57 rounds,
 1,462 game operations and 258 paid component operations. The next
 [nine-Lord checkpoint](U13_PYSIM_NINE_LORDS_2026-09-16.md) adds `PowerMatch`, all
-23 powers and the remaining Lord lifecycles. Five complete local diagnostic
-games cover the roster, with separately labeled power and tick components.
-Windows 4.7.2 / CPython / PyPy acceptance is pending; the historical four-Lord
+23 powers and the remaining Lord lifecycles. Its focused Windows 4.7.2 / CPython / PyPy gate passed at clean `5fb53e7`:
+five complete games / 81 rounds, 34 directed power components, all 23 powers
+and 16 corruption rejections, with identical runtime reports. The historical four-Lord
 `FullMatch` and reference observer retain their boundaries. The capability
 report distinguishes that observer from the new adapter.
 
