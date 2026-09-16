@@ -42,7 +42,7 @@ FullMatch remains limited to **Gremory, Deimos, Humbaba and Kalligan** without
 declared powers. Earlier Planning/Development/Resolution adapters keep their
 original boundaries. Five Lord integrations, declaration/persistent-effect
 lifecycle and 23 powers still block full-roster tuning. The capability report
-distinguishes implemented-but-pending paid mechanics from unsupported powers.
+distinguishes accepted paid mechanics from unsupported powers.
 The original reference diagnostic observer does not yet measure paid decisions;
 its reason codes identify that observer limitation separately.
 
@@ -77,12 +77,37 @@ integration gate, not the future roster campaign. Profane Ruins and marked
 returns have directed component coverage; this is not a claim that every
 mechanic occurs in these four complete games.
 
-## Verification and acceptance boundary
+## Accepted Windows checkpoint
+
+The uploaded `u13-pysim-paid-development-4Dgehi-2026-09-16_00-08-43-PggzLW.zip`
+passed at clean **`24792a6e64dba0115166b5578faeec800189ee4c`** on official
+Windows **Godot 4.7.2**. The native export and independent replay passed
+**17,904 checks**, with zero failures or script errors. CPython 3.14.7 and
+PyPy 7.3.23 / Python 3.11.15 each passed **77 tests** and produced identical
+complete parity reports, including **20 rejected evidence corruptions**.
+
+The fresh combined reference matches **four games / 57 rounds / 1,462 game
+operations**, eight terminal rejections, eight settlement components, one
+200-tick full-world probe, and **18 paid components / 258 operations /
+93 expected rejections**. Both original final digests remain unchanged.
+The new complete games exercise five Resummons, four Invocations and six
+Supplicant spending entries across five submissions with Supplicant Rites.
+
+Archive CRC, clean diff, exit status, runtime/source/input identities and both
+runtime reports were checked. All 1,764 exact trace records decode; native
+completion records match the reports. The source fingerprint is
+`25665e2f2cfc50359d3ea226f1cf9620261f237b6a1b97968a99158da07316bc` and input
+fingerprint is `c2f3076a23b0c127367b42ced3341f66d29d05c9271940c31895001839084659`.
+See [accepted evidence](evidence/U13_PYSIM_PAID_DEVELOPMENT_24792a6.json).
+This accepts the scoped paid-development slice, not full-roster parity,
+doctrine strength, balance or a new throughput result.
+
+## Earlier local verification
 
 Local CPython passed 77 engine tests, including ten new payment/timing/rollback
 tests, and the 20 existing doctrine diagnostic tests. Local Godot is official
-Linux **4.5.1**, diagnostic only. Windows **4.7.2** acceptance with both CPython
-and PyPy remains pending. This checkpoint makes no new throughput claim.
+Linux **4.5.1**, diagnostic only. These earlier checks did not establish Windows
+acceptance; the uploaded **4.7.2** evidence above now supplies that gate.
 
 The final Python candidate matched four complete native games: **57 rounds,
 1,462 operations**, all states/events/views, eight terminal rejections, eight
@@ -114,7 +139,7 @@ their entire parity summaries. It packages one ZIP in Downloads. Its native
 stage has a 60-minute ceiling and progress messages; this is trace export and
 verification, not a match-speed measurement. Python stages have 15-minute limits.
 
-After Windows acceptance, continue the shared declaration/persistent-effect
+The remaining parity work is the shared declaration/persistent-effect
 machinery and missing Lord integrations. The first actual doctrine milestone
 still includes general power competence for all nine Lords, a bounded common
 planner and separate Lord modules; specialize and tune only after that coverage.

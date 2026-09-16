@@ -5,9 +5,11 @@
 **2026-09-16 paid Development checkpoint:** The diagnostic observer passed its
 Windows CPython/PyPy gate at clean `a7544d6`: all 20 tests and both unchanged
 reference games matched. The next [parity slice](U13_PYSIM_PAID_DEVELOPMENT_2026-09-16.md)
-adds paid Rites and Resummon to Python FullMatch, with focused component and
-complete-game comparisons. Windows 4.7.2 acceptance of that new rules slice is
-pending. Declared powers and five Lord integrations still precede shared tuning.
+adds paid Rites and Resummon to Python FullMatch. Its Windows 4.7.2 gate passed
+at clean `24792a6`: 17,904 native checks, 77 tests per Python runtime, four exact
+games / 57 rounds / 1,462 game operations, 258 paid component operations and
+20 corruption rejections. CPython/PyPy reports match; zero failures. Declared
+powers and five Lord integrations still precede shared tuning.
 
 **2026-09-16 doctrine start:** The user authorized beginning the agreed rebuild
 with consultation for substantive forks. The [first checkpoint](U13_DOCTRINE_START_2026-09-16.md)

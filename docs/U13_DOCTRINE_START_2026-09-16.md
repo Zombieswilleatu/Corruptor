@@ -45,9 +45,10 @@ The four ordinary-play Lords are development coverage, not a training roster for
 the final shared evaluator. `coverage.py` lists all nine Lords and all 23
 declared powers. At the accepted `a7544d6` checkpoint all declared powers, paid
 Rites and Resummon were unsupported by the full-match adapter. The subsequent
-[paid Development slice](U13_PYSIM_PAID_DEVELOPMENT_2026-09-16.md) implements
-Rites/Resummon and awaits Windows acceptance. Declared powers and five Lord
-integrations remain unsupported. `require_full_roster_tuning()` rejects that
+[paid Development slice](U13_PYSIM_PAID_DEVELOPMENT_2026-09-16.md) passed Windows
+4.7.2 with CPython and PyPy at clean `24792a6`: four exact games, 57 rounds,
+1,462 game operations and 258 paid component operations. Declared powers and
+five Lord integrations remain unsupported. `require_full_roster_tuning()` rejects that
 use explicitly. Isolated spatial tests do not upgrade this status.
 
 ## Candidate and validation work
