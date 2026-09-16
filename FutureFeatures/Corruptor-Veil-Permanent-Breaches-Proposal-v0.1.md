@@ -1,5 +1,7 @@
 # Corruptor — The Eroding World: Permanent Breach Proposal v0.1
 
+> **Superseded:** See [Permanent Breaches v0.2](Corruptor-Veil-Permanent-Breaches-Proposal-v0.2.md). This version is retained as design history; its five-arrival schedule and references to the separate finale proposal are no longer the current proposal.
+
 Date: 2026-09-16  
 Status: Design proposal only. No game rules are implemented by this document.
 

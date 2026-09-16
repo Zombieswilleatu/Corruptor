@@ -1,4 +1,6 @@
 # Corruptor — Final Blows and the Final Rite
+
+> **Withdrawn in full — 2026-09-16:** [Permanent Breaches v0.2](Corruptor-Veil-Permanent-Breaches-Proposal-v0.2.md) supersedes this proposal. The finishing-Hunt requirement, final rite, four-suit ritual circle and banishment/postponement sequence are no longer pending designs. The text below is retained as history only.
 **Theoretical design v0.1 · 2026-09-16**
 
 **Status: discussion proposal only. Not implemented or approved for balance.** This document records the proposed endings for Ritual and Dominion, including the latest four-suit defensive payment. It does not change the current rules, authorize implementation, or interrupt the existing PySim/doctrine work. “Final rite” and “ritual circle” are working descriptions; the final name is undecided.
