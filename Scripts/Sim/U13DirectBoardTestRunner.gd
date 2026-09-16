@@ -257,12 +257,10 @@ func _run() -> void:
 	await _settle()
 	board.war_button.pressed.emit()
 	await _settle()
-	_check(board.queued.is_empty(), "direct_war_machine_waits_for_engine_click")
-	board._choose_target(board._entity_target(Slots.castle_id(0, 0)))
-	await _settle()
 	_check(
-		board.queued.size() == 1 and board.queued[0].power_id == Deimos.WAR_MACHINE,
-		"direct_war_machine_clicks_specific_engine"
+		board.queued.size() == 1 and board.queued[0].power_id == Deimos.WAR_MACHINE
+		and board.queued[0].target.entity_id == Slots.castle_id(0, 0),
+		"direct_war_machine_uses_only_operational_engine"
 	)
 	_check(
 		board.war_state.text.contains("Only eligible enemy Castle now"),

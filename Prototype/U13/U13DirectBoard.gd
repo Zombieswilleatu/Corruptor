@@ -580,6 +580,8 @@ func queue_war_machine() -> void:
 		super.queue_war_machine()
 		return
 	_arm_power(Deimos.WAR_MACHINE)
+	if _intent == Deimos.WAR_MACHINE and engine_choice.item_count == 1:
+		_choose_target(_entity_target(String(engine_choice.get_item_metadata(0))))
 
 
 func queue_rout() -> void:
