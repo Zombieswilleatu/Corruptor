@@ -136,7 +136,7 @@ Prototype legal scenario states once the relevant battle/UI contracts are stable
 | Feature | What to retain | Gate / unresolved scope |
 |---|---|---|
 | Alternate round events | Potential variety alongside the Slaver | Deferred by the current design discussion. Slaver remains available every round. |
-| Veil threshold effects | A dedicated future design question | Current threshold penalties are disabled. Existing round-pressure Tears remain active; “drift off” in older notes is stale. |
+| Veil threshold effects | [Permanent Breach proposal](Corruptor-Veil-Permanent-Breaches-Proposal-v0.1.md): hidden absent-Lord arrivals, Personal Tear protection and ongoing Humbaba erosion | Current threshold penalties are disabled. Existing round-pressure Tears remain active; “drift off” in older notes is stale. |
 | The Read / tell system | Pattern-first, per-opponent learning, sample-size gating; tempo only with calibrated baselines | Proven-fun loop, competent distinct bosses and repeated-opponent data. Preserve useful policy diagnostics/profile seams; do not build glyphs now. |
 | Async multiplayer | Simultaneous orders, multiple active matches, replayable state; realtime as a possible companion | Retain as a product ambition. Launch inclusion, networking authority, hidden-information protection, reconnect/abandonment and version compatibility need a dedicated plan. The old commit-reveal sketch is not a complete networking design. |
 | Broader progression/lore | Mastered Breaches, rank ladder, world progression and campaign terminus | Revisit after the first run demonstrates its value; avoid committing to every old progression idea at once. |
@@ -151,6 +151,7 @@ No source files were deleted or moved. “Historical” below describes their ro
 
 | Source | How to use it now |
 |---|---|
+| [The Eroding World — Permanent Breaches](Corruptor-Veil-Permanent-Breaches-Proposal-v0.1.md) | Proposal only: permanent absent-Lord Breaches replace the older physical-rift direction; five arrivals and protection thresholds remain provisional. No rules implemented. |
 | [Final Blows and the Final Rite](Corruptor-Finals-Theoretical-v0.1.md) | Theoretical Ritual/Dominion finale proposal: finishing Hunt, telegraphed rite and four-suit defensive payment. Not implemented; timing and balance questions remain open. |
 | [Monster Recipes v0.1](Corruptor-Monster-Recipes-v0.1.md) | Current starting recipe baseline; revise deliberately as balance evidence arrives. |
 | [UI_OVERHAUL](UI_OVERHAUL.md) | Retained presentation brief; first Forecast prerequisite now met at its documented scope. |
