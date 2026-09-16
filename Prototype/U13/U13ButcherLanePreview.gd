@@ -5,6 +5,9 @@ extends "res://Prototype/U13/U13VisualPreview.gd"
 # Each entry is [crop rect, ground anchor in sheet coordinates]. Keep one scale
 # for all frames: fitting individual crops would inflate the collapsing body.
 const StillMotion = preload("res://Prototype/U13/U13StillSpriteMotion.gd")
+const StillFrame = preload("res://Prototype/U13/U13StillFrame.gd")
+var still_frames: Dictionary = {}
+
 const STILL_MODES = ["Lane cycle", "Idle", "March", "Attack", "Hit", "Death"]
 # Match U13BoardLanes' continuous battlefield crop and 38% darkening.
 const DOMAIN_PATH = "res://ConceptImages/Menus/Domain1.png"
@@ -113,6 +116,7 @@ func _select_character(index: int) -> void:
 		remove_child(child)
 		child.queue_free()
 	still_texture = null
+	still_frames.clear()
 	still_mode = 0
 	still_mode_start = 0.0
 	row_textures.clear()
@@ -206,6 +210,8 @@ func _build_preview() -> void:
 		var walk_image := Image.load_from_file(redraw_path)
 		if walk_image != null and not walk_image.is_empty():
 			redraw = ImageTexture.create_from_image(walk_image)
+	_build_still_frames()
+	use_still = still_texture != null
 	redraw_layer = Node2D.new()
 	redraw_layer.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	var key_material := ShaderMaterial.new()
@@ -293,7 +299,7 @@ func _build_preview() -> void:
 	art_picker.add_item("New walk")
 	art_picker.add_item("Original walk")
 	art_picker.item_selected.connect(func(index: int): use_redraw = index == 0)
-	art_picker.visible = has_redraw
+	art_picker.visible = has_redraw and not use_still
 	sizing.add_child(art_picker)
 	var still_controls := HBoxContainer.new()
 	panel.add_child(still_controls)
@@ -348,16 +354,18 @@ func _build_preview() -> void:
 	_button(inspector, "Play / hold", func():
 		inspection_playing = not inspection_playing
 		inspection_elapsed = float(inspection_frame) / 8.0)
-	if not still_path.is_empty():
+	if still_texture != null or not still_path.is_empty():
 		var presentation := OptionButton.new()
 		presentation.add_item("Still + Godot motion")
-		presentation.add_item("Sprite sheet")
+		presentation.add_item("Sprite sheet" if sheet != null else "Sprite sheet (external file needed)")
+		presentation.set_item_disabled(1, sheet == null)
 		presentation.set_item_disabled(0, still_texture == null)
 		presentation.select(0 if use_still else 1)
 		presentation.item_selected.connect(func(index: int):
 			use_still = index == 0
 			still_controls.visible = use_still
 			inspector.visible = not use_still
+			art_picker.visible = has_redraw and not use_still
 			inspection_row = -1
 			inspection_playing = false
 			animation_picker.select(0)
@@ -367,10 +375,44 @@ func _build_preview() -> void:
 		sizing.add_child(presentation)
 	status = Label.new()
 	panel.add_child(status)
-	if sheet == null:
+	if sheet == null and still_texture == null:
 		status.text = "Missing %sSprite.png. Pass its path as the runner's second argument." % character_name
 		push_error(character_name + " lane preview could not load sprite: " + path)
-	set_process(sheet != null)
+	set_process(sheet != null or still_texture != null)
+
+func _build_still_frames() -> void:
+	still_frames.clear()
+	if still_texture != null:
+		still_frames[0] = {"texture": still_texture,
+			"anchor": Vector2(still_texture.get_width() * 0.43, still_texture.get_height()),
+			"body": float(still_texture.get_height())}
+	else:
+		for row in [0, 1]:
+			if sheet == null or not frame_regions.has(row):
+				continue
+			var entry: Array = frame_regions[row][0]
+			var mask: PackedVector2Array = frame_polygons.get(row, {}).get(0, PackedVector2Array())
+			var data := StillFrame.from_sheet(sheet, source_dimensions, source_body_height,
+				entry[0], entry[1], mask, "black" if not source_shader_path.is_empty() else "")
+			if not data.is_empty():
+				still_frames[row] = data
+		# Butcher's approved bundled redraw is available without an external sheet.
+		if character_name == "Butcher" and redraw != null:
+			still_frames.clear()
+			still_frames[0] = StillFrame.from_sheet(redraw, Vector2(1536, 1024),
+				redraw_body_height, Rect2(0, 0, 512, 512), Vector2(300, 502),
+				PackedVector2Array(), "green")
+		if still_frames.has(0):
+			still_texture = still_frames[0].texture
+	if permanent_row >= 0 and row_textures.has(permanent_row):
+		var row: int = permanent_row
+		var entry: Array = frame_regions[row].back()
+		var config: Dictionary = row_sources[row]
+		var data := StillFrame.from_sheet(row_textures[row], config.dimensions,
+			config.body_height, entry[0], entry[1], PackedVector2Array(),
+			"black" if not source_shader_path.is_empty() else "")
+		if not data.is_empty():
+			still_frames[row] = data
 
 func _button(parent: Node, caption: String, action: Callable) -> void:
 	var button := Button.new()
@@ -444,7 +486,7 @@ func _draw() -> void:
 			draw_line(Vector2(center, top), Vector2(center, bottom), Color("7c827d"), 1.0)
 			draw_line(Vector2(center - width * 0.5, middle), Vector2(center + width * 0.5, middle), Color("7c827d"), 1.0)
 		draw_string(ThemeDB.fallback_font, Vector2(center - 55, top - 20), "LORD LANE" if lane == 0 else "CASTLE LANE", HORIZONTAL_ALIGNMENT_LEFT, -1, 18)
-	if sheet == null:
+	if sheet == null and not use_still:
 		return
 	var phase := fmod(clock, 10.0)
 	var walking := phase < 7.0
@@ -513,8 +555,21 @@ func _draw_unit(feet: Vector2, owner: int, index: int, walking: bool, face_left:
 		if dying:
 			motion = "Death"
 			motion_time = death_time
-		StillMotion.paint(self, still_texture, feet, sprite_size, face_left,
-			motion, motion_time, float(index) * 0.17)
+		var frame_data: Dictionary = still_frames.get(1 if face_left else 0, {})
+		var mirror := false
+		var rooted := transform_time >= 0.0 and still_frames.has(permanent_row)
+		if rooted:
+			frame_data = still_frames[permanent_row]
+			mirror = face_left
+			if motion == "March":
+				motion = "Idle"
+		elif frame_data.is_empty():
+			frame_data = still_frames.get(0, {})
+			mirror = face_left
+		if not frame_data.is_empty():
+			StillMotion.paint(self, frame_data.texture, feet, sprite_size, face_left,
+				motion, motion_time, float(index) * 0.17, frame_data.anchor,
+				frame_data.body, mirror, character_name, rooted)
 		return
 	var row := 1 if face_left else 0
 	var frame := int(clock * 8.0 + index) % _frame_count(row) if walking else 0

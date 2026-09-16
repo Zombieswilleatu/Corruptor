@@ -2,7 +2,7 @@ extends RefCounted
 
 # Presentation only. Seconds in, grounded pose out. No gameplay side effects.
 # All movement is in units of body height, so inspection and board scale agree.
-static func pose(motion: String, time: float, phase: float = 0.0) -> Dictionary:
+static func pose(motion: String, time: float, phase: float = 0.0, character: String = "Penitent", rooted: bool = false) -> Dictionary:
 	var result := {"offset": Vector2.ZERO, "angle": 0.0, "height": 1.0, "alpha": 1.0, "flash": 0.0, "impact": 0.0}
 	match motion:
 		"Idle":
@@ -29,11 +29,59 @@ static func pose(motion: String, time: float, phase: float = 0.0) -> Dictionary:
 			result.offset = Vector2(-0.03 * fall, 0.065 * fall)
 			result.angle = -0.22 * fall
 			result.alpha = 1.0 - smoothstep(0.55, 1.25, time)
+	# Creature-specific restraint: heavy bodies settle, flyers hover, small
+	# predators move quickly. These are still-image gestures, not limb rigs.
+	var heavy := character in ["Butcher", "BottleTree", "Lemek"]
+	var flying := character in ["Batboy", "Pixie"]
+	var spectral := character in ["Sinodek", "Wraith"]
+	var predator := character in ["Dogger", "Ratton"]
+	if motion in ["Idle", "March"]:
+		if heavy:
+			result.offset *= 0.45
+			result.angle *= 0.45
+			result.height = 1.0 + sin((time + phase) * TAU / 4.5) * 0.0015
+		elif flying or spectral:
+			var wave := sin((time + phase) * TAU / (2.8 if flying else 4.0))
+			result.offset = Vector2(0, wave * (0.016 if flying else 0.008))
+			result.angle = wave * (0.006 if flying else 0.002)
+			result.height = 1.0
+		elif predator and motion == "March":
+			var step := fmod(time * (3.5 if character == "Ratton" else 2.4) + phase, 1.0)
+			result.offset = Vector2(sin(step * TAU) * 0.008, -sin(step * PI) * 0.005)
+			result.angle = sin(step * TAU) * 0.009
+		elif character == "Sooge":
+			result.offset = Vector2.ZERO
+			result.angle = 0.0
+			result.height = 1.0 + sin((time + phase) * TAU / 2.6) * 0.008
+		elif character in ["Kopita", "Vulture"]:
+			result.offset *= 0.6
+			result.angle *= 0.5
+	if motion == "Attack":
+		if heavy:
+			result.offset *= 0.6
+			result.angle *= 0.6
+		elif predator:
+			result.offset *= 1.35
+		elif character in ["Vulture", "Kopita", "Sinodek", "Wraith", "Pixie"]:
+			result.offset *= 0.25
+			result.angle *= 0.35
+		elif character == "Wright":
+			result.angle *= 0.8
+	if motion == "Death" and (spectral or character == "Sooge"):
+		result.angle = 0.0
+		result.offset.x = 0.0
+	if rooted:
+		result.offset = Vector2.ZERO
+		result.angle = 0.0
+		if motion == "Attack":
+			result.height = 1.0 - result.impact * 0.025
 	return result
 
 static func paint(canvas: CanvasItem, texture: Texture2D, feet: Vector2, height: float,
-		face_left: bool, motion: String, time: float, phase: float) -> void:
-	var state := pose(motion, time, phase)
+		face_left: bool, motion: String, time: float, phase: float,
+		ground: Vector2, body_height: float, mirror: bool,
+		character: String = "Penitent", rooted: bool = false) -> void:
+	var state := pose(motion, time, phase, character, rooted)
 	var direction := -1.0 if face_left else 1.0
 	var alpha: float = state.alpha
 	if alpha <= 0.0:
@@ -44,9 +92,10 @@ static func paint(canvas: CanvasItem, texture: Texture2D, feet: Vector2, height:
 	var offset: Vector2 = state.offset * height
 	offset.x *= direction
 	canvas.draw_set_transform(feet + offset, state.angle * direction,
-		Vector2(direction, state.height))
-	var dimensions := texture.get_size() * (height / texture.get_height())
-	var anchor := Vector2(dimensions.x * 0.43, dimensions.y)
+		Vector2(-1.0 if mirror else 1.0, state.height))
+	var factor := height / body_height
+	var dimensions := texture.get_size() * factor
+	var anchor := ground * factor
 	var light: float = 1.0 + state.flash * 1.8
 	canvas.draw_texture_rect(texture, Rect2(-anchor, dimensions), false, Color(light, light, light, alpha))
 	canvas.draw_set_transform(Vector2.ZERO)
