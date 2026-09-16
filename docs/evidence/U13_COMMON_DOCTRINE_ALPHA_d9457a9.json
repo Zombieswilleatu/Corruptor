@@ -1,0 +1,827 @@
+{
+  "accepted_rules_parity_revision": "5fb53e7160dda8789dd0aa2d3523528aab49ce9c",
+  "archive": {
+    "bytes": 158190,
+    "crc_passed": true,
+    "name": "u13-common-doctrine-whEku6-2026-09-16_12-30-10-wGGDGo.zip",
+    "sha256": "04975ad63fd58fe30bcc30a0ca92275fc609dad1284b777766da484b3b6f4bbe"
+  },
+  "artifacts": [
+    {
+      "bytes": 127,
+      "path": "comparison.log",
+      "sha256": "1af6853bbba539ca9fd77564ccd680e287ea3a6c7a09c6066e6591e2542c0732"
+    },
+    {
+      "bytes": 399885,
+      "path": "cpython.inputs.json",
+      "sha256": "e344af4e13e1f8dccdae39fec3c72381cc60fd223fe5d21bd853857281da75f0"
+    },
+    {
+      "bytes": 750029,
+      "path": "cpython.json",
+      "sha256": "99d42733315081906efc66055c0683ad8c42c53b727daf00a0c94e2a214328be"
+    },
+    {
+      "bytes": 6787,
+      "path": "cpython.log",
+      "sha256": "70abc0254cd380b7376b62a421e6150b3a633afa5e1d82b1d72beb83b6964805"
+    },
+    {
+      "bytes": 399885,
+      "path": "pypy.inputs.json",
+      "sha256": "e344af4e13e1f8dccdae39fec3c72381cc60fd223fe5d21bd853857281da75f0"
+    },
+    {
+      "bytes": 750037,
+      "path": "pypy.json",
+      "sha256": "a89212ce0e858f40f423ca51974244f30e06002c9464486669122a1d4aa02423"
+    },
+    {
+      "bytes": 6787,
+      "path": "pypy.log",
+      "sha256": "b21e0ae932bc87d685018e56c4ef421f6b0ed9570f2bc622ae8c92b94e75d79b"
+    },
+    {
+      "bytes": 41,
+      "path": "run-status.txt",
+      "sha256": "2097c04a402cdafd7b2de5c11de0b4e93cbb1dde812d4676b750650e044bd6b0"
+    },
+    {
+      "bytes": 0,
+      "path": "worktree.diff",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "checkpoint": "U13 CommonSmartCore alpha",
+  "complete_games_per_runtime": 5,
+  "date": "2026-09-16",
+  "decisions_final_states_and_complete_diagnostics_match": true,
+  "engine_source_sha256": "14326c100cfa6f8c43f813f2859d44486300ab0598a13eceedaca316707bc70b",
+  "exit_status": 0,
+  "explicit_inputs_match": true,
+  "failures": 0,
+  "games": [
+    {
+      "decisions_sha256": "23262ab85c1d6b7136759e06ad47dcfcf21f24a6f72a2e304c52ebf68428277c",
+      "final_state_sha256": "19372ccb5e48662b39f1a6591993d6b25f74e2cdd5ed45ee4c72f0d81debea6e",
+      "maximum_work": {
+        "complete_plans": 18,
+        "generated:combat": 11,
+        "generated:guards": 11,
+        "generated:powers": 4,
+        "generated:resummon": 2,
+        "generated:rites": 4,
+        "generated:slaver": 4,
+        "generated:stockpile": 2,
+        "generated:work": 5,
+        "previews": 1,
+        "retained:combat": 4,
+        "retained:guards": 4,
+        "retained:powers": 3,
+        "retained:resummon": 1,
+        "retained:rites": 3,
+        "retained:slaver": 1,
+        "retained:stockpile": 1,
+        "retained:work": 4
+      },
+      "name": "gremory_humbaba",
+      "operations": 319,
+      "outcome": {
+        "action": "game_finished",
+        "round": 13,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "rejected_previews": 0,
+      "rounds": 13,
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Gremory",
+          "Humbaba"
+        ],
+        "seed": "u13-nine-lords:gremory_humbaba"
+      }
+    },
+    {
+      "decisions_sha256": "54deb9d55f354daca0ba2962fc13b2dc7b6cf5eb66a4cb5d297c9c124f67fdc9",
+      "final_state_sha256": "fa657ace97eee371177a49df56b05d32f6872032b8df9a9017f2aaf59bbfd1c8",
+      "maximum_work": {
+        "complete_plans": 18,
+        "generated:combat": 11,
+        "generated:guards": 9,
+        "generated:powers": 4,
+        "generated:resummon": 3,
+        "generated:rites": 3,
+        "generated:slaver": 4,
+        "generated:stockpile": 2,
+        "generated:work": 5,
+        "previews": 1,
+        "retained:combat": 4,
+        "retained:guards": 4,
+        "retained:powers": 3,
+        "retained:resummon": 2,
+        "retained:rites": 2,
+        "retained:slaver": 1,
+        "retained:stockpile": 1,
+        "retained:work": 4
+      },
+      "name": "deimos_kalligan",
+      "operations": 424,
+      "outcome": {
+        "action": "game_finished",
+        "round": 17,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "rejected_previews": 0,
+      "rounds": 17,
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Deimos",
+          "Kalligan"
+        ],
+        "seed": "u13-nine-lords:deimos_kalligan"
+      }
+    },
+    {
+      "decisions_sha256": "87947f44641b44c9002e91aa7bb87e9ab0057405db825eb9d20165e7aa3a6a54",
+      "final_state_sha256": "46aeeba612609204f9fc5331ec99809fa2595d981b5196583ee5a032aa502f73",
+      "maximum_work": {
+        "complete_plans": 21,
+        "generated:combat": 11,
+        "generated:guards": 9,
+        "generated:powers": 6,
+        "generated:resummon": 3,
+        "generated:rites": 3,
+        "generated:slaver": 4,
+        "generated:stockpile": 2,
+        "generated:work": 4,
+        "previews": 1,
+        "retained:combat": 4,
+        "retained:guards": 4,
+        "retained:powers": 4,
+        "retained:resummon": 2,
+        "retained:rites": 2,
+        "retained:slaver": 1,
+        "retained:stockpile": 1,
+        "retained:work": 3
+      },
+      "name": "orias_odradek",
+      "operations": 500,
+      "outcome": {
+        "action": "game_finished",
+        "round": 20,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "rejected_previews": 0,
+      "rounds": 20,
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Orias",
+          "Odradek"
+        ],
+        "seed": "u13-nine-lords:orias_odradek"
+      }
+    },
+    {
+      "decisions_sha256": "a2bfc512c25d44e3b03cdd3f1eb00f78697eeab06374be3c8ed15994883b4a61",
+      "final_state_sha256": "55c38eed8c7c863f0698fd6a1498884460d9338d59abf210e2315dbd7acd6cf7",
+      "maximum_work": {
+        "complete_plans": 21,
+        "generated:combat": 11,
+        "generated:guards": 9,
+        "generated:powers": 5,
+        "generated:resummon": 3,
+        "generated:rites": 3,
+        "generated:slaver": 4,
+        "generated:stockpile": 2,
+        "generated:work": 5,
+        "previews": 1,
+        "retained:combat": 4,
+        "retained:guards": 4,
+        "retained:powers": 4,
+        "retained:resummon": 2,
+        "retained:rites": 2,
+        "retained:slaver": 1,
+        "retained:stockpile": 1,
+        "retained:work": 4
+      },
+      "name": "kroni_valak",
+      "operations": 201,
+      "outcome": {
+        "action": "game_finished",
+        "round": 8,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "rejected_previews": 0,
+      "rounds": 8,
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Kroni",
+          "Valak"
+        ],
+        "seed": "u13-nine-lords:kroni_valak"
+      }
+    },
+    {
+      "decisions_sha256": "426721e2da913b309d2cddfa2fac8c96805471a6194ecb00d77d8514a0812250",
+      "final_state_sha256": "d9156032db69c6659e91d550840cd447d73f94c610825b884340a81cc521644d",
+      "maximum_work": {
+        "complete_plans": 21,
+        "generated:combat": 11,
+        "generated:guards": 9,
+        "generated:powers": 9,
+        "generated:resummon": 3,
+        "generated:rites": 4,
+        "generated:slaver": 4,
+        "generated:stockpile": 2,
+        "generated:work": 4,
+        "previews": 1,
+        "retained:combat": 4,
+        "retained:guards": 4,
+        "retained:powers": 4,
+        "retained:resummon": 2,
+        "retained:rites": 3,
+        "retained:slaver": 1,
+        "retained:stockpile": 1,
+        "retained:work": 3
+      },
+      "name": "kanifous_gremory",
+      "operations": 348,
+      "outcome": {
+        "action": "game_finished",
+        "round": 14,
+        "win_by": "FinalCollapse",
+        "winner": 1
+      },
+      "rejected_previews": 0,
+      "rounds": 14,
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Kanifous",
+          "Gremory"
+        ],
+        "seed": "u13-nine-lords:kanifous_gremory"
+      }
+    }
+  ],
+  "harness_source_sha256": "55993d15d9321ce48d70a201e80e80201c8bc5a5aa46a50ca130c353be5ccda7",
+  "limits": {
+    "complete_plans": 32,
+    "generated_per_category": 16,
+    "previews": 8,
+    "retained_per_category": 4
+  },
+  "limits_of_evidence": [
+    "Windows behavior and determinism acceptance for experimental Python alpha at d9457a9. Shipping Godot BasicDoctrine is unchanged.",
+    "These new planner inputs were not exported/replayed through Godot. Accepted existing-rules native parity remains pinned to 5fb53e7.",
+    "All 23 powers have favorable proposal fixtures; 19 were selected in five ordinary games. The four unused powers require directed follow-up, not balance conclusions.",
+    "Five setups include all nine Lords but do not establish strength, matchup balance, warmed campaign throughput, worker scaling or monster/new-Veil parity."
+  ],
+  "local_hashseed_semantic_report_matches": true,
+  "maximum_observed_work": {
+    "complete_plans": 21,
+    "generated:combat": 11,
+    "generated:guards": 11,
+    "generated:powers": 9,
+    "generated:resummon": 3,
+    "generated:rites": 4,
+    "generated:slaver": 4,
+    "generated:stockpile": 2,
+    "generated:work": 5,
+    "previews": 1,
+    "retained:combat": 4,
+    "retained:guards": 4,
+    "retained:powers": 4,
+    "retained:resummon": 2,
+    "retained:rites": 3,
+    "retained:slaver": 1,
+    "retained:stockpile": 1,
+    "retained:work": 4
+  },
+  "naturally_selected_powers": 19,
+  "new_godot_parity": false,
+  "next_checkpoint": [
+    "Preserve this acceptance while monster recipes and the new Veil system are implemented concurrently.",
+    "Inspect the completed authoritative changes, mirror them in PySim, and adapt recipe reservations, summoning choices and victory evaluation in the planner.",
+    "Establish focused parity for those additions before the larger native reference campaign, shared-weight tuning and balance work."
+  ],
+  "operations_per_runtime": 1792,
+  "policy": "U13_COMMON_SMART_CORE_ALPHA_V1",
+  "power_selections": 93,
+  "powers": {
+    "AllegianceShift": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 4,
+      "selected": 4
+    },
+    "BreathOfLife": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 2,
+      "selected": 2
+    },
+    "Consume": {
+      "cancelled": 0,
+      "fizzled": 1,
+      "outcome_unobserved": 1,
+      "resolved": 2,
+      "selected": 4
+    },
+    "FalseOrders": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 1,
+      "selected": 1
+    },
+    "GravityOrb": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 1,
+      "selected": 1
+    },
+    "InevitableRuin": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 8,
+      "selected": 8
+    },
+    "Inferno": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 4,
+      "selected": 4
+    },
+    "Inversion": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 0,
+      "selected": 0
+    },
+    "MusterTheFaithful": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 6,
+      "selected": 6
+    },
+    "PredatorOfRuin": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 14,
+      "selected": 14
+    },
+    "Projection": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 1,
+      "selected": 1
+    },
+    "Pyroclasm": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 5,
+      "selected": 5
+    },
+    "Ravenous": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 2,
+      "selected": 2
+    },
+    "Redirect": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 0,
+      "selected": 0
+    },
+    "Rout": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 4,
+      "selected": 4
+    },
+    "Snare": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 1,
+      "resolved": 6,
+      "selected": 7
+    },
+    "WarMachine": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 12,
+      "selected": 12
+    },
+    "Web": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 6,
+      "selected": 6
+    },
+    "WishDeath": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 3,
+      "selected": 3
+    },
+    "WishLongevity": {
+      "cancelled": 0,
+      "fizzled": 1,
+      "outcome_unobserved": 0,
+      "resolved": 1,
+      "selected": 2
+    },
+    "WishPower": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 7,
+      "selected": 7
+    },
+    "WishResurrection": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 0,
+      "selected": 0
+    },
+    "WishWealth": {
+      "cancelled": 0,
+      "fizzled": 0,
+      "outcome_unobserved": 0,
+      "resolved": 0,
+      "selected": 0
+    }
+  },
+  "rejected_final_submissions": 0,
+  "rejected_previews": 0,
+  "rounds_per_runtime": 72,
+  "runner": "u13-common-doctrine",
+  "runner_source_sha256": "7c88484182dc353aa8c2560853c4da16bd6ef2176085320c61a14bd26d37ebc7",
+  "runtimes": [
+    {
+      "implementation": "CPython",
+      "platform": "Windows-11-10.0.26200-SP0",
+      "python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+      "timings": [
+        {
+          "decision_ms": 575.2046,
+          "name": "gremory_humbaba",
+          "simulation_ms": 5488.3296
+        },
+        {
+          "decision_ms": 510.5904,
+          "name": "deimos_kalligan",
+          "simulation_ms": 5227.9187
+        },
+        {
+          "decision_ms": 551.2366,
+          "name": "orias_odradek",
+          "simulation_ms": 4512.1922
+        },
+        {
+          "decision_ms": 229.4919,
+          "name": "kroni_valak",
+          "simulation_ms": 2090.4089
+        },
+        {
+          "decision_ms": 517.8382,
+          "name": "kanifous_gremory",
+          "simulation_ms": 6189.7383
+        }
+      ]
+    },
+    {
+      "implementation": "PyPy",
+      "platform": "Windows-10-10.0.26200-SP0",
+      "python": "3.11.15 (194f9f44b505, May 25 2026, 19:35:45)\n[PyPy 7.3.23 with MSC v.1941 64 bit (AMD64)]",
+      "timings": [
+        {
+          "decision_ms": 840.0696,
+          "name": "gremory_humbaba",
+          "simulation_ms": 5323.7768
+        },
+        {
+          "decision_ms": 914.6912,
+          "name": "deimos_kalligan",
+          "simulation_ms": 4600.4246
+        },
+        {
+          "decision_ms": 913.4214,
+          "name": "orias_odradek",
+          "simulation_ms": 4029.5072
+        },
+        {
+          "decision_ms": 404.5293,
+          "name": "kroni_valak",
+          "simulation_ms": 2572.4969
+        },
+        {
+          "decision_ms": 874.4868,
+          "name": "kanifous_gremory",
+          "simulation_ms": 6199.1904
+        }
+      ]
+    }
+  ],
+  "semantic_sha256": "322c6d596f3b734b64500b67881f57e0cb041ddb55d3fcd6cbd93f7ee248e435",
+  "source_fingerprints_verified_against_exact_revision": true,
+  "source_revision": "d9457a90f1c0c3944b1c64e571c1a4704b9d970c",
+  "status": "accepted Windows CPython/PyPy behavior gate",
+  "tests_passed_per_runtime": 36,
+  "timing_scope": "One sample of each of five distinct games per runtime, after unit tests; decision and simulation work only; excludes observer, report and digest costs. No warmed campaign throughput or speedup claim.",
+  "unique_setups": 5,
+  "unselected_power_diagnostics": [
+    {
+      "candidates": {
+        "generated": {
+          "measured_decisions": 20,
+          "total": 18
+        },
+        "retained": {
+          "measured_decisions": 20,
+          "total": 0
+        }
+      },
+      "decisions": 20,
+      "flags": {
+        "affordable": {
+          "false": 12,
+          "true": 0,
+          "unknown": 8
+        },
+        "legal": {
+          "false": 0,
+          "true": 0,
+          "unknown": 20
+        },
+        "opportunity": {
+          "false": 6,
+          "true": 14,
+          "unknown": 0
+        },
+        "selected": {
+          "false": 20,
+          "true": 0,
+          "unknown": 0
+        }
+      },
+      "lord": "Odradek",
+      "match": "orias_odradek",
+      "reasons": {
+        "no_current_board_opportunity": 6,
+        "resource_shortfall": 12,
+        "source_banished": 2
+      },
+      "seat": 1,
+      "term": "Inversion"
+    },
+    {
+      "candidates": {
+        "generated": {
+          "measured_decisions": 20,
+          "total": 11
+        },
+        "retained": {
+          "measured_decisions": 20,
+          "total": 10
+        }
+      },
+      "decisions": 20,
+      "flags": {
+        "affordable": {
+          "false": 0,
+          "true": 0,
+          "unknown": 20
+        },
+        "legal": {
+          "false": 0,
+          "true": 0,
+          "unknown": 20
+        },
+        "opportunity": {
+          "false": 17,
+          "true": 3,
+          "unknown": 0
+        },
+        "selected": {
+          "false": 20,
+          "true": 0,
+          "unknown": 0
+        }
+      },
+      "lord": "Odradek",
+      "match": "orias_odradek",
+      "reasons": {
+        "no_current_board_opportunity": 9,
+        "save_reconfiguration_for_material_swing": 7,
+        "scoring_or_shared_budget": 3,
+        "source_banished": 1
+      },
+      "seat": 1,
+      "term": "Redirect"
+    },
+    {
+      "candidates": {
+        "generated": {
+          "measured_decisions": 14,
+          "total": 6
+        },
+        "retained": {
+          "measured_decisions": 14,
+          "total": 5
+        }
+      },
+      "decisions": 14,
+      "flags": {
+        "affordable": {
+          "false": 0,
+          "true": 0,
+          "unknown": 14
+        },
+        "legal": {
+          "false": 0,
+          "true": 0,
+          "unknown": 14
+        },
+        "opportunity": {
+          "false": 13,
+          "true": 1,
+          "unknown": 0
+        },
+        "selected": {
+          "false": 14,
+          "true": 0,
+          "unknown": 0
+        }
+      },
+      "lord": "Kanifous",
+      "match": "kanifous_gremory",
+      "reasons": {
+        "insure_exposed_guards_future_losses_uncertain": 4,
+        "no_current_board_opportunity": 8,
+        "scoring_or_shared_budget": 1,
+        "source_banished": 1
+      },
+      "seat": 0,
+      "term": "WishResurrection"
+    },
+    {
+      "candidates": {
+        "generated": {
+          "measured_decisions": 14,
+          "total": 1
+        },
+        "retained": {
+          "measured_decisions": 14,
+          "total": 1
+        }
+      },
+      "decisions": 14,
+      "flags": {
+        "affordable": {
+          "false": 0,
+          "true": 0,
+          "unknown": 14
+        },
+        "legal": {
+          "false": 0,
+          "true": 0,
+          "unknown": 14
+        },
+        "opportunity": {
+          "false": 13,
+          "true": 1,
+          "unknown": 0
+        },
+        "selected": {
+          "false": 14,
+          "true": 0,
+          "unknown": 0
+        }
+      },
+      "lord": "Kanifous",
+      "match": "kanifous_gremory",
+      "reasons": {
+        "no_current_board_opportunity": 13,
+        "scoring_or_shared_budget": 1
+      },
+      "seat": 0,
+      "term": "WishWealth"
+    }
+  ],
+  "weights": {
+    "banishment": 32,
+    "card_cost": 2,
+    "damage": 3,
+    "destruction": 30,
+    "enemy_settlement_risk": 90,
+    "guard": 5,
+    "recruit": 6,
+    "return_lord": 75,
+    "tear": 22
+  },
+  "worktree_diff_empty": true
+}

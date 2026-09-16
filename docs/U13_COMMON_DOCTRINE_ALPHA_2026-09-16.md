@@ -81,7 +81,38 @@ Local CPython passed **36 tests** and **five complete alpha games / 72
 rounds / 1792 operations**, with zero rejected submissions or previews.
 A different `PYTHONHASHSEED=173` reproduced every decision, final state and
 complete diagnostic report. See [local evidence](evidence/U13_COMMON_DOCTRINE_ALPHA_LOCAL_2026-09-16.json).
-Windows CPython/PyPy acceptance for the **new planner** is pending. Run:
+The **new planner passed Windows CPython/PyPy acceptance at clean
+`d9457a90f1c0c3944b1c64e571c1a4704b9d970c`**. Uploaded evidence:
+`u13-common-doctrine-whEku6-2026-09-16_12-30-10-wGGDGo.zip`, SHA-256
+`04975ad63fd58fe30bcc30a0ca92275fc609dad1284b777766da484b3b6f4bbe`.
+Archive CRC, empty worktree diff, successful status, both complete logs,
+report fingerprints and both explicit input files were checked. Engine,
+doctrine and runner fingerprints match the exact tested revision.
+
+CPython 3.14.7 and PyPy 7.3.23 / Python 3.11.15 each passed all **36 tests** and
+the same **five games / 72 rounds / 1,792 operations**. Every decision, final
+state and complete diagnostic report matched across runtimes and the earlier
+local hash-seed check. There were zero rejected submissions or previews. The
+largest decision assembled 21 of the allowed 32 plans and used one of eight
+available authoritative previews; all category caps held. See the compact
+[Windows evidence](evidence/U13_COMMON_DOCTRINE_ALPHA_d9457a9.json).
+
+The games selected **19 of 23 powers, 93 times in total**. The four unused
+powers have specific recorded reasons:
+
+| Power | Observed reason for follow-up |
+| --- | --- |
+| Inversion | Twelve resource-shortfall decisions, six without a current opportunity, two with the source banished. |
+| Redirect | Conservation, absent opportunities and one banished-source decision; three opportunities lost to scoring/shared resources. |
+| WishResurrection | One current opportunity lost to scoring/shared resources; other decisions included uncertain future-loss insurance and absent opportunities. |
+| WishWealth | Thirteen decisions without a current opportunity; one opportunity lost to scoring/shared resources. |
+
+These are five-game observations, not proof of bad powers or bad choices.
+Unchecked affordability/legality remains unknown. Directed useful/hold/timing
+examples are the next way to distinguish appropriate restraint from a policy
+gap, before changing weights.
+
+For reproducibility, the completed check used:
 
 ```bash
 bash Scripts/Sim/run_u13_common_doctrine.sh \
@@ -103,11 +134,20 @@ The parallel sprite work, U12, playable UI and balance are preserved.
 
 ## Next checkpoint
 
-Accept the dual-runtime planner report, inspect unused powers and actual reasons,
-and expand directed useful/hold/timing examples where this first alpha is weak.
-Then grow the exact native reference corpus around the planner's exercised
-choices toward the roadmap's 50–100-game gate. Compare matched seeds and crossed
-seats against frozen BasicDoctrine before shared-weight tuning and later Lord
-specialization. Five alpha games do not support matchup win-rate conclusions.
-Keep monsters, permanent Veil changes and another optional optimization campaign
-outside this checkpoint.
+**Updated user direction, 2026-09-16:** monster recipes and the new Veil system
+are being implemented concurrently. They are outside this accepted checkpoint,
+but now precede the larger native reference campaign and balance tuning.
+
+Preserve the accepted existing-rules baseline. Once the authoritative additions
+land, inspect their actual implementation, mirror them in PySim, and adapt
+recipe card reservations, summoning choices and victory evaluation in the
+planner. Establish focused parity for those additions before expanding the
+native corpus toward the roadmap's 50–100-game gate. Do not spend that campaign
+on the superseded rules while the replacement mechanics are in progress.
+
+Shared planner contracts, separate Lord modules and directed behavior examples
+can progress meanwhile. Keep their tested rules revisions explicit; do not
+infer new mechanics from proposals. After integration and parity, compare
+matched seeds and crossed seats against a compatible frozen baseline before
+shared-weight tuning and later Lord specialization. Five alpha games do not
+support matchup win-rate conclusions. Optional optimization remains closed.

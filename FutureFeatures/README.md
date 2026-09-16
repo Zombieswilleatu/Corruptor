@@ -4,7 +4,7 @@
 
 Start here for project priorities. This distills FutureFeatures and the relevant U13 planning/acceptance documents. It replaces their competing “next task” lists for navigation, while preserving original designs, implementation notes and evidence. It does not change game rules or start every item below.
 
-**Immediate engineering path:** finish the U13 Python mirror → establish full-match parity and measured throughput → improve common and Lord doctrine → run meaningful balance campaigns. **UI redesign is a parallel presentation track**, now that the first Forecast is playable. Monster integration follows a trusted battle baseline; the campaign builds on that.
+**Immediate engineering path:** preserve accepted nine-Lord parity and the common-doctrine alpha → integrate the monster recipes and new Veil currently being developed in parallel → establish parity for those additions → expand native coverage and improve doctrine → run meaningful balance campaigns. **UI redesign is a parallel presentation track**, now that the first Forecast is playable. The larger native reference campaign and weight tuning wait for the intended monster/Veil rules; shared planner contracts and Lord examples can progress meanwhile.
 
 ## Release milestones — Steam Early Access, then 1.0
 
@@ -27,6 +27,7 @@ Earlier estimates for a fully polished release should not be treated as Early Ac
 | Basic doctrine | A working common planner and Lord targeting already exist. The next doctrine milestone improves/restructures that baseline; it is not “build the first bot.” |
 | Python mirror | Foundation through ordinary resolution retains its dated Windows acceptance. The four-Lord [ordinary full-match gate](../docs/U13_PYSIM_FULL_MATCH_2026-09-15.md) passed at `d059b95`; [paid Development](../docs/U13_PYSIM_PAID_DEVELOPMENT_2026-09-16.md) passed at `24792a6`: four exact games / 57 rounds, 77 tests per Python runtime and 20 corruption rejections. The new [nine-Lord adapter](../docs/U13_PYSIM_NINE_LORDS_2026-09-16.md) implements all 23 powers and remaining Lord lifecycles. Its focused Windows 4.7.2 / CPython / PyPy gate passed at clean `5fb53e7`: five exact games / 81 rounds, 34 components, all 23 powers, 2,400 directed tick frames and 16 corruption rejections. |
 | Doctrine diagnostics | [Accepted on Windows CPython and PyPy at clean `a7544d6`](../docs/U13_DOCTRINE_START_2026-09-16.md): 20 tests per runtime, identical diagnostic records and all 767 original decisions/final states. This validates the observer and contracts, not a new planner. |
+| Fresh common doctrine alpha | [Accepted on Windows CPython and PyPy at clean `d9457a9`](../docs/U13_COMMON_DOCTRINE_ALPHA_2026-09-16.md): 36 tests per runtime, five games / 72 rounds / 1,792 operations, identical choices/final states/diagnostics, zero rejected plans and all candidate caps respected. Nine separate Lord modules; 19 of 23 powers selected naturally. These new choices have not been replayed through Godot and establish no strength result. |
 | Python copying optimization | Accepted at `88ef438`: matched partial-cycle means 20.31 → 7.98 ms, 2.54× throughput. These partial results do not establish the new full-match cost. |
 | Full-match rollback optimization | [Windows-accepted at clean `c228d85`](../docs/U13_PYSIM_FULL_MATCH_COPYING_2026-09-15.md). Both CPython and PyPy passed all 63 tests and exact full-game replay, including 13 corruption checks. Twenty consecutive games per implementation/runtime measured CPython 12.92 → 2.71 seconds (4.78×) and PyPy 7.83 → 1.45 (5.40×); all 80 final digests matched. PyPy's final ten averaged 1.23 seconds. These repeat two ordinary games; policy cost, memory and worker scaling remain unmeasured. |
 | Optimized full-match profile | [Windows capture accepted at clean `76e80fd`](../docs/U13_PYSIM_OPTIMIZED_PROFILE_2026-09-15.md), with unchanged `c228d85` engine source. All 64 repeated final digests matched; three observer tests passed per runtime. PyPy mean 1.439 seconds, final ten 1.263. Movement and registry restoration are bounded candidates; another quick 2–3× is unproven. CPython's 5.566-second mean has unresolved variability; the identical timed worker excludes digesting. |
@@ -34,7 +35,7 @@ Earlier estimates for a fully polished release should not be treated as Early Ac
 | PyPy runtime | [PyPy 7.3.23 passed](../docs/U13_PYSIM_PYPY_2026-09-15.md) the same full-match replay at `d059b95`, including 13 corruption rejections; the user also supplied 56 passing unit tests. Ten timing samples per game average 3.73 / 6.53 seconds versus CPython's earlier 11.34 / 19.07: an observed 2.96× gain with unchanged source/inputs. This remains a two-game reference, with early-sample warmup behavior and no worker-scaling or memory measurement. |
 | Python Marching spike | Windows 4.7.2 acceptance passed at clean `e8cc3f9`: 28 phases / 5,600 tick frames, 394 Godot checks, 46 Python tests and 14 corruption probes. Flat columns, explicit keyed contact ordering and prepared Web/aura/Rout/Gravity behavior are covered. The new full-world integration preserves this isolated API's boundary and evidence. |
 | Animation previews | Subject/monster gallery integration exists. Preview artwork and animations do not establish gameplay implementation of the ten recipe monsters. |
-| Monster design | [Recipes v0.1](Corruptor-Monster-Recipes-v0.1.md) is the accepted starting recipe baseline, with combat values and open balance questions recorded. |
+| Monster design | [Recipes v0.1](Corruptor-Monster-Recipes-v0.1.md) is the accepted starting recipe baseline, with combat values and open balance questions recorded. The user is implementing recipes concurrently; the accepted Python checkpoints do not yet cover them. |
 
 Sources: [accepted checkpoint](../docs/U13_ACCEPTED_CHECKPOINT_2026-09-15.md), [action flow](../docs/U13_ACTION_FLOW_2026-09-14.md), [Forecast](../docs/U13_ACTION_FORECAST_2026-09-14.md), [Development](../docs/U13_PYSIM_DEVELOPMENT_2026-09-15.md), [copying pass](../docs/U13_PYSIM_COPYING_2026-09-15.md), [resolution acceptance](../docs/U13_PYSIM_RESOLUTION_2026-09-15.md), [Marching spike and timings](../docs/U13_PYSIM_MARCHING_2026-09-15.md).
 
@@ -43,8 +44,9 @@ Sources: [accepted checkpoint](../docs/U13_ACCEPTED_CHECKPOINT_2026-09-15.md), [
 Extend the existing mirror in dependency order:
 
 1. The [focused Marching Windows comparison](../docs/U13_PYSIM_MARCHING_OPTIMIZATION_2026-09-15.md) is complete against `c228d85`. Preserve its mixed performance finding: CPython improved, PyPy did not show a consistent gain. **User direction: close optional optimization and begin doctrine; do not automatically open another performance cycle.** The first [doctrine diagnostic checkpoint](../docs/U13_DOCTRINE_START_2026-09-16.md) passed its Windows dual-runtime check. Keep remaining rules-parity and scoped-throughput gates visible; the ordinary games do not establish full-roster readiness. Collect a matched Godot/Python pure-match comparison before claiming a cross-engine speed ratio.
-2. Paid Rites/Resummon passed at `24792a6`. The [nine-Lord implementation](../docs/U13_PYSIM_NINE_LORDS_2026-09-16.md) now adds declared/persistent effects, timing, cooldowns, allegiance and spatial actors. Its focused Windows acceptance passed at `5fb53e7`; begin the bounded common planner and separate Lord modules. Grow the exact reference corpus to approximately 50–100 games before trusting balance sweeps; five roster integration games do not replace that later gate.
-3. Measure target-hardware policy cost and worker scaling separately from simulation and export. Set the practical sweep budget from those results before building large doctrine sweeps.
+2. Paid Rites/Resummon passed at `24792a6`. The [nine-Lord implementation](../docs/U13_PYSIM_NINE_LORDS_2026-09-16.md) adds declared/persistent effects, timing, cooldowns, allegiance and spatial actors. Its focused Windows acceptance passed at `5fb53e7`; the bounded common planner and separate Lord modules passed their Python dual-runtime behavior gate at `d9457a9`.
+3. The user is implementing monster recipes and the new Veil concurrently. Once those authoritative changes land, mirror them in PySim and adapt recipe card reservations, summoning choices and victory judgment in doctrine. Establish focused parity before growing the exact native reference corpus to approximately 50–100 games. Defer that expensive campaign until it covers the intended rules; neither five-game checkpoint replaces it.
+4. Measure target-hardware policy cost and worker scaling separately from simulation and export. Set the practical sweep budget from those results before building large doctrine sweeps.
 
 **Done when:** identical explicit inputs produce matching Godot/Python states, ordered events and outcomes across the declared corpus, and complete-match throughput has a measured scope. Do not fill missing mechanics with fixture state or extrapolate 50,000-game speed from partial timings.
 
@@ -56,7 +58,7 @@ Sources: [parity inventory](../docs/U13_PYSIM_PARITY_2026-09-15.md), [policy and
 
 ## 3. Next — competent opponents and useful balance evidence
 
-The [fresh CommonSmartCore alpha](../docs/U13_COMMON_DOCTRINE_ALPHA_2026-09-16.md) now implements the bounded Python planner and nine separate Lord modules. Its focused behavior/dual-runtime gate precedes expanded native decision parity and strength testing.
+The [fresh CommonSmartCore alpha](../docs/U13_COMMON_DOCTRINE_ALPHA_2026-09-16.md) implements the bounded Python planner and nine separate Lord modules. Its focused Windows behavior/dual-runtime gate passed at `d9457a9`. Continue directed useful/hold/timing examples while monster/Veil implementation proceeds; integrate and verify those mechanics before expanded native decision parity, shared-weight tuning and strength testing.
 
 - **2026-09-16 start:** [Diagnostic checkpoint and revised sequence](../docs/U13_DOCTRINE_START_2026-09-16.md). Build fresh common doctrine with basic competence for all nine Lords and separate Lord files. U12 supplies selected ideas and regression cases, not the new architecture. Counters precede the planner; full-roster rules parity precedes shared-weight tuning. The Windows/PyPy diagnostics passed at `a7544d6`; paid Rites/Resummon passed at `24792a6`. The remaining nine-Lord rules passed their focused Windows gate at `5fb53e7`. The existing reference observer still measures ordinary choices only.
 - Improve common decisions around defense, Work, attack commitment, Supplicant use, resummoning and Tear/Veil consequences.
@@ -85,7 +87,14 @@ The [UI overhaul brief](UI_OVERHAUL.md) explicitly follows a trustworthy playabl
 
 Sources: [UI brief](UI_OVERHAUL.md), [presentation plan](../docs/U13_POST_OVERHAUL_ROADMAP.md), [Castle visual follow-up](../docs/U13_CASTLE_DAMAGE_PRESENTATION_BACKLOG_2026-09-08.md). Forecast refinements must explicitly model additional dependencies before presenting calibrated odds.
 
-## 5. Then — monsters through commitment
+## 5. Parallel rules work — monsters through commitment and the new Veil
+
+**User direction, 2026-09-16:** monster recipes and the new Veil system are being
+implemented concurrently. This moves their integration ahead of the expanded
+native reference campaign and balance tuning. Their actual authoritative
+implementation governs the Python port; the sequence below remains design
+context, not permission to invent unresolved mechanics. Existing accepted
+rules and doctrine evidence predates both additions.
 
 Use [Monster Recipes v0.1](Corruptor-Monster-Recipes-v0.1.md) as the single recipe table. Keep the overlap with defensive pairs: reinforcement, saving and summoning should compete for useful cards.
 
@@ -154,7 +163,7 @@ No source files were deleted or moved. “Historical” below describes their ro
 
 | Source | How to use it now |
 |---|---|
-| [The Eroding World — Permanent Breaches](Corruptor-Veil-Permanent-Breaches-Proposal-v0.2.md) | Proposal only: permanent absent-Lord Breaches replace the older physical-rift direction; four individual arrivals, an unprotectable cascade requiring Veil 21+ and round 21+ (preferred; ungated alternative retained), and protection thresholds remain provisional. No rules implemented. |
+| [The Eroding World — Permanent Breaches](Corruptor-Veil-Permanent-Breaches-Proposal-v0.2.md) | Design source: permanent absent-Lord Breaches replace the older physical-rift direction; four individual arrivals, an unprotectable cascade requiring Veil 21+ and round 21+ (preferred; ungated alternative retained), and protection thresholds remain provisional here. The user is implementing the new Veil concurrently; inspect the final authority before porting. Existing Python parity does not cover it. |
 | [Final Blows and the Final Rite](Corruptor-Finals-Theoretical-v0.1.md) | Withdrawn in full by Permanent Breaches v0.2. Historical only: finishing Hunt, final rite and four-suit defensive payment are no longer pending proposals. |
 | [Monster Recipes v0.1](Corruptor-Monster-Recipes-v0.1.md) | Current starting recipe baseline; revise deliberately as balance evidence arrives. |
 | [UI_OVERHAUL](UI_OVERHAUL.md) | Retained presentation brief; first Forecast prerequisite now met at its documented scope. |
@@ -177,4 +186,4 @@ Review basis: branch tree `9cdfc095fce68dd5fdd46462ccf235cf7bc9f68b`, followed b
 
 Update the status table when a milestone is accepted; link its dated evidence instead of appending another competing roadmap. Keep proposals separate from accepted rules, and record why an item moved. Preserve U12 and legacy goldens as historical baselines.
 
-The Marching comparison is complete at `ad30730` with correctness accepted and mixed timing results. Doctrine diagnostics passed at `a7544d6`, and paid Rites/Resummon passed Windows dual-runtime parity at `24792a6`. Remaining declared powers and Lord integrations now have a nine-Lord implementation and local diagnostic corpus; finish Windows acceptance and proceed to the bounded common planner. Keep broader exact coverage ahead of balance claims. The first complete-game reference, dual-runtime copying comparison and unchanged-engine profile remain accepted at `d059b95`, `c228d85` and `76e80fd` respectively. Permanent-Veil and monster proposals are not part of this parity checkpoint. The next major design/content milestone is the monster system; the next presentation milestone is the UI overhaul. Campaign, prologue completion and optional online scope build on those foundations.
+The Marching comparison is complete at `ad30730` with correctness accepted and mixed timing results. Doctrine diagnostics passed at `a7544d6`, paid Rites/Resummon at `24792a6`, nine-Lord focused rules parity at `5fb53e7`, and the common planner's Windows dual-runtime behavior gate at `d9457a9`. Keep those exact scopes distinct. The first complete-game reference, dual-runtime copying comparison and unchanged-engine profile remain accepted at `d059b95`, `c228d85` and `76e80fd` respectively. The user is now implementing monster recipes and the new Veil in parallel: integrate them and establish focused parity before the larger native reference campaign or weight tuning. The UI overhaul remains a parallel presentation milestone. Campaign, prologue completion and optional online scope build on those foundations.

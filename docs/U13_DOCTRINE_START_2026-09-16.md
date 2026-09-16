@@ -1,4 +1,4 @@
-> **2026-09-16:** The focused nine-Lord Windows gate passed at `5fb53e7`. The [fresh common-planner alpha](U13_COMMON_DOCTRINE_ALPHA_2026-09-16.md) is now implemented with nine separate Lord modules, bounded proposals and measured decisions. Its own Windows dual-runtime check is next; broad tuning remains gated.
+> **2026-09-16 accepted:** The focused nine-Lord Windows rules gate passed at `5fb53e7`. The [fresh common-planner alpha](U13_COMMON_DOCTRINE_ALPHA_2026-09-16.md) passed Windows CPython/PyPy at clean `d9457a9`: 36 tests per runtime and identical decisions, final states and diagnostics for five games / 72 rounds / 1,792 operations. Monster recipes and the new Veil are now being implemented concurrently; integrate and establish parity for them before the larger native campaign and tuning.
 
 # U13 doctrine start: contracts and diagnostics before tuning
 
@@ -39,7 +39,12 @@ work and move into the agreed doctrine sequence; do not claim a new PyPy gain.
 3. Build the bounded common planner and nine separate Lord decision modules.
    Designs and directed examples can develop during parity work. Shared-weight
    tuning and full-roster strength claims require the missing rules coverage.
-4. Use matched seeds and crossed seats against frozen BasicDoctrine, then the
+4. Incorporate the concurrently developed monster recipes and new Veil rules
+   after their authoritative implementation lands. Mirror their actual semantics
+   in PySim, adapt recipe reservations/summoning/victory judgment in doctrine,
+   and establish focused parity. Defer the expanded native campaign until it
+   covers these intended rules. Existing accepted checkpoints keep their scope.
+5. Use matched seeds and crossed seats against a compatible frozen BasicDoctrine, then the
    full matchup matrix, ablations and held-out seeds. Tune shared judgment before
    individual styles. No balance changes follow from an inert policy branch.
 
@@ -57,12 +62,13 @@ and 16 corruption rejections, with identical runtime reports. The historical fou
 `FullMatch` and reference observer retain their boundaries. The capability
 report distinguishes that observer from the new adapter.
 
-After the focused Windows gate, proceed to the bounded common planner and
-nine separate Lord modules. This is not another optional optimization cycle.
-`require_full_roster_tuning()` still blocks broad tuning: the first five games
-are an integration corpus, not the roadmap's expanded exact campaign or a
-measurement of policy competence. Keep the instrumentation and behavior
-contracts ahead of weight sweeps.
+The bounded common planner and nine separate Lord modules subsequently passed
+their Windows dual-runtime behavior gate at `d9457a9`. Those new decisions have
+not been replayed through Godot. `require_full_roster_tuning()` still blocks
+broad tuning: the five alpha games are behavior evidence, not the roadmap's
+expanded exact campaign or a strength result. Keep instrumentation and behavior
+contracts ahead of weight sweeps. The user's parallel monster/Veil work now
+comes before that expanded campaign; optional optimization remains closed.
 
 ## Candidate and validation work
 
