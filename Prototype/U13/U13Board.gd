@@ -263,6 +263,8 @@ func _build() -> void:
 	lanes.name = "MarchingBattlefield"
 	lanes.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_child(lanes)
+	# Give the live battlefield 50% more width now that marchers use sprites.
+	lanes.custom_minimum_size.x = 435.0
 	action_zone = ActionZone.new()
 	add_child(action_zone)
 	action_zone.configure_u13()

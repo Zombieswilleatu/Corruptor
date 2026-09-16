@@ -40,6 +40,22 @@ func run_checks() -> void:
 	var units: Array = [actor, enemy]
 	var original := units.duplicate(true)
 	visual.sync(units, [], 1, false)
+	var full_meter := visual.health_segments(actor)
+	actor.attributes.armor = 0
+	visual.sync(units, [], 1, false)
+	var unarmored := visual.health_segments(actor)
+	check(unarmored.armor == 0.0 and unarmored.hp == full_meter.hp, "losing Armor depletes its segment without inflating HP")
+	actor.attributes.hp = 2
+	var hurt_meter := visual.health_segments(actor)
+	check(hurt_meter.hp < unarmored.hp and hurt_meter.armor_start == unarmored.armor_start, "HP loss does not move the Armor segment")
+	check(visual.health_segments(actor, true).hp > hurt_meter.hp, "Void still obscures exact HP in the ring")
+	actor.attributes.armor = 4
+	visual.sync(units, [], 1, false)
+	var fortified := visual.health_segments(actor)
+	check(fortified.armor > 0.0 and fortified.hp + fortified.armor <= 1.0, "Armor grants fit inside the combined ring")
+	actor.attributes = original[0].attributes.duplicate(true)
+	visual.clear()
+	visual.sync(units, [], 1, false)
 	check(visual.presentation(actor).motion == "Idle", "world snapshot idles")
 	check(not visual.presentation(actor).face_left and visual.presentation(enemy).face_left, "default facing separates owners")
 	visual.advance(0.05)

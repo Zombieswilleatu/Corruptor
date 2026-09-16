@@ -3,8 +3,17 @@
 The playable U13 board draws Butcher, Penitent, Vulture and Wright using the
 approved still poses and Godot motion from the animation gallery. The clash
 window uses the same art. Sprite feet remain at the recorded world position;
-depth sorting does not repack or move units. Ownership is marked by a colored
-foot ring and health bar. Void still limits the displayed health precision.
+depth sorting does not repack or move units. The live battlefield is 435 layout
+pixels wide, 50% wider than the original 290 px sidebar. A thin outer foot ring
+always shows ownership. The inner ring uses green for HP and pale steel for
+Armor, with a dark track showing depleted portions. HP and Armor occupy separate
+segments; losing one does not enlarge the other. Void still limits displayed
+HP precision. There is no separate rectangular sprite health bar.
+
+Armor has no authoritative maximum in the current unit contract. Its visual
+capacity remembers the highest observed value for that unit (or an optional
+future `max_armor`); a newly loaded save starts from its available Armor data.
+This cosmetic capacity is never written into saves or game entities.
 
 `U13MarcherSpriteCatalog` shares the preview's measured crops, anchors, masks
 and body scale through `build_frames`. The game uses bundled assets, including

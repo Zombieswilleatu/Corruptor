@@ -28,9 +28,13 @@ func sync(units: Array, clash: Array, round_number: int, playback: bool) -> void
 				"face_left": unit.owner == 1, "facing_y": point.y,
 				"phase": float(digest[0]) / 256.0, "hit_age": 10.0,
 				"attack_age": 10.0, "clashing": false, "moving": false,
+				"armor_capacity": maxf(float(a.get("armor", 0)), float(a.get("max_armor", 0))),
 				"ranged_tick": int(a.get("ranged_next_tick", 0)),
 				"transform_age": 10.0 if character == "Sooge" and a.get("sprite_form", "") == "turret" else -1.0}
 		var state: Dictionary = subjects[id]
+		# Retain the meter's capacity so losing Armor empties its segment instead
+		# of enlarging the HP segment. Armor grants can expand this cosmetic cap.
+		state.armor_capacity = maxf(state.armor_capacity, maxf(float(a.get("armor", 0)), float(a.get("max_armor", 0))))
 		var same_lane: bool = state.lane == a.lane
 		var ready: bool = not a.get("waiting", false) and int(a.get("movement_ready_round", 0)) <= round_number
 		state.moving = playback and not fresh and same_lane and ready and point.distance_squared_to(state.position) > 0.0001
@@ -76,6 +80,18 @@ func advance(delta: float) -> void:
 func clear() -> void:
 	subjects.clear()
 	clock = 0.0
+
+func health_segments(unit: Dictionary, obscured: bool = false) -> Dictionary:
+	var a: Dictionary = unit.attributes
+	var max_hp := maxf(1.0, float(a.get("max_hp", 1)))
+	var hp := clampf(float(a.get("hp", 0)) / max_hp, 0.0, 1.0)
+	if obscured and hp > 0.0:
+		hp = ceilf(hp * 3.0) / 3.0
+	var armor := maxf(0.0, float(a.get("armor", 0)))
+	var capacity := maxf(armor, maxf(float(a.get("max_armor", 0)),
+		float(subjects.get(unit.id, {}).get("armor_capacity", 0.0))))
+	var total := max_hp + capacity
+	return {"hp": hp * max_hp / total, "armor_start": max_hp / total, "armor": armor / total}
 
 func presentation(unit: Dictionary, death_age: float = -1.0) -> Dictionary:
 	var state: Dictionary = subjects.get(unit.id, {})

@@ -18,6 +18,8 @@ var chit_sheet: Texture2D
 const SpriteVisuals = preload("res://Prototype/U13/U13MarcherSpriteVisuals.gd")
 var sprite_visuals = SpriteVisuals.new()
 var sprite_height: float = 58.0
+const HEALTH_RING_COLOR = Color("a8cb86")
+const ARMOR_RING_COLOR = Color("d3ddec")
 var void_active: bool = false
 var active_auras: Array = []
 var active_scorches: Array = []
@@ -228,6 +230,8 @@ func _draw() -> void:
 	_draw_feedback()
 	projectile_visual.draw(self, projectiles)
 	deaths.draw(self)
+	draw_string(font, Vector2(size.x * 0.5 - 38, size.y - 7), "HP", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, HEALTH_RING_COLOR)
+	draw_string(font, Vector2(size.x * 0.5 + 4, size.y - 7), "ARMOR", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, ARMOR_RING_COLOR)
 
 
 var paradox_glitches: Dictionary = {}
@@ -258,20 +262,23 @@ func _draw_chit(unit: Dictionary, center: Vector2, flash: bool = false) -> void:
 		draw_circle(center - Vector2(0, 12), 12, tint)
 		draw_string(ThemeDB.fallback_font, center + Vector2(-5, -7), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color.BLACK)
 	rout_visuals.draw_chit(self, String(unit.id), center - Vector2(0, sprite_height * 0.45 if drawn else 0.0))
-	var health: float = clampf(float(attributes.hp) / maxf(1.0, float(attributes.max_hp)), 0.0, 1.0)
-	if void_active and health > 0:
-		health = ceilf(health * 3.0) / 3.0
-	if drawn:
-		draw_set_transform(center, 0.0, Vector2(1.0, 0.3))
-		draw_arc(Vector2.ZERO, 16.0, 0.0, TAU, 32, tint, 2.0, true)
-		draw_set_transform(Vector2.ZERO)
-		draw_rect(Rect2(center + Vector2(-14, 6), Vector2(28, 4)), Color("302e29"))
-		if health > 0.0:
-			draw_rect(Rect2(center + Vector2(-14, 6), Vector2(28 * health, 4)), tint)
-	else:
-		draw_arc(center, 23.0, 0.0, TAU, 48, Color("302e29"), 3.0, true)
-		if health > 0.0:
-			draw_arc(center, 23.0, -PI / 2.0, -PI / 2.0 + TAU * health, 48, tint, 3.0, true)
+	_draw_unit_rings(unit, center, tint, drawn)
+
+
+func _draw_unit_rings(unit: Dictionary, center: Vector2, owner_color: Color, sprite: bool) -> void:
+	var segments := sprite_visuals.health_segments(unit, void_active)
+	var outer_radius := 20.0 if sprite else 27.0
+	var inner_radius := 15.0 if sprite else 22.0
+	draw_set_transform(center, 0.0, Vector2(1.0, 0.45 if sprite else 1.0))
+	# Ownership stays readable even when both defensive pools are nearly empty.
+	draw_arc(Vector2.ZERO, outer_radius, 0.0, TAU, 48, owner_color, 1.5, true)
+	draw_arc(Vector2.ZERO, inner_radius, 0.0, TAU, 48, Color("302e29"), 3.0, true)
+	if segments.hp > 0.0:
+		draw_arc(Vector2.ZERO, inner_radius, -PI / 2.0, -PI / 2.0 + TAU * segments.hp, 48, HEALTH_RING_COLOR, 3.0, true)
+	if segments.armor > 0.0:
+		var start: float = -PI / 2.0 + TAU * segments.armor_start
+		draw_arc(Vector2.ZERO, inner_radius, start, start + TAU * segments.armor, 48, ARMOR_RING_COLOR, 3.0, true)
+	draw_set_transform(Vector2.ZERO)
 
 
 func _draw_marcher_death(unit: Dictionary, center: Vector2, age: float) -> void:
