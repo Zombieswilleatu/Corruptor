@@ -106,6 +106,10 @@ class CommonTests(unittest.TestCase):
                         w = game._state['world']
                         economy.discard(w, 0, w['data']['card_zones']['hands'][0][3:])
                         game._state['presentation_world'] = copy_data(w)
+                    if name.removeprefix('Breach') == 'WishLongevity':
+                        # One missing HP is legal but not worth a Wish's Price.
+                        source = next(s for plan in op['plans'] for s in plan['powers'] if s['power_id'] == name)
+                        power_components.prepare(game, [dict(kind='fixture_patch', entity_id=source['target']['entity_id'], attributes=dict(integrity=3))])
                     view = observe(game, 0)
                     proposals = [p for p in lords.proposals(Facts(view)) if p.term == name]
                     self.assertTrue(proposals, name)

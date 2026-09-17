@@ -13,9 +13,9 @@ var failures: int = 0
 
 func _initialize() -> void:
 	var cases: Array = []
-	for spec in [[12, false, false, false], [12, false, true, false], [12, true, false, false], [12, true, true, false], [14, true, false, false], [14, true, true, false], [12, false, false, true], [16, false, false, true], [16, false, true, true], [17, false, true, true]]:
+	for spec in [[12, false, false, false], [12, false, true, false], [12, true, false, false], [12, true, true, false], [14, true, false, false], [14, true, true, false], [12, false, false, true], [14, false, false, true], [15, false, true, true], [16, false, false, true], [16, false, true, true], [17, false, true, true]]:
 		cases.append(probe(spec[0], spec[1], spec[2], spec[3]))
-	var expected: Array = [4, 4, 7, 0, 3, 4, 0, 5, 6, 4]
+	var expected: Array = [4, 4, 7, 0, 3, 4, 13, 5, 4, 3, 3, 3]
 	for i in range(cases.size()):
 		var ok: bool = cases[i].destroyed_round == expected[i]
 		if not ok: failures += 1
@@ -35,7 +35,7 @@ func probe(strength: int, wrights: bool, forge: bool, penitents: bool) -> Dictio
 	var health: Array = []
 	var repairs: Array = []
 	var destroyed_round: int = 0
-	for number in range(1, 13):
+	for number in range(1, 16):
 		var context: Dictionary = {"round": number, "seed": "castle-pressure", "hook": "combat_resolution", "player_order": [0, 1], "combat_orders": [{}, {}]}
 		var before: int = row(world, target).attributes.integrity
 		context.world = world
@@ -46,7 +46,11 @@ func probe(strength: int, wrights: bool, forge: bool, penitents: bool) -> Dictio
 			var guard: Dictionary = ids.create("card", "pressure_guard:" + str(number), slot, 1, {"suit": "Penitent" if penitents else ("Wright" if wrights else ("Butcher" if slot == 0 else "Vulture")), "value": 3, "role": "guard", "lane": "Castle", "slot": slot}).entity
 			moves.append({"card_id": guard.id, "lane": "Castle", "slot": slot})
 		var cards: Array = []
-		var values: Array = [4, 4, 4] if strength == 12 else ([5, 5, 4] if strength == 14 else [5, 5, 5, strength - 15])
+		var values: Array = []
+		var remaining: int = strength
+		while remaining > 0:
+			var value: int = mini(5, remaining)
+			values.append(value); remaining -= value
 		for index in range(values.size()):
 			var card: Dictionary = ids.create("card", "pressure_attack:" + str(number), index, 0, {"suit": "Butcher", "value": values[index]}).entity
 			world.data.card_zones.hands[0].append(card.id)

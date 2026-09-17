@@ -6,8 +6,10 @@ const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
 const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const Battle = preload("res://Scripts/Sim/U13BattleEvents.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
-const VERSION: String = "U13_GUARD_WORK_V3"
+const VERSION: String = "U13_GUARD_WORK_V4"
 const WRIGHT_PAIR_WORK: int = 3
+const PENITENT_PAIR_SCREEN: int = 3
+const BUTCHER_PAIR_KILLS: int = 2
 
 static func enabled(world: Dictionary) -> bool:
 	var state = world.data.get("guard_work")
@@ -171,24 +173,29 @@ static func defend(world: Dictionary, pid: int, lane: String, context: Dictionar
 	for pair in world.data.guard_work.pairs:
 		if not pair.active or pair.player_id != pid or pair.lane != lane: continue
 		if pair.suit == "Penitent":
-			screen += 5
-			events.append(Structures.public_event("GUARD_PAIR_SCREEN", {"player_id": pid, "round": context.round, "lane": lane, "amount": 5}))
+			screen += PENITENT_PAIR_SCREEN
+			events.append(Structures.public_event("GUARD_PAIR_SCREEN", {"player_id": pid, "round": context.round, "lane": lane, "amount": PENITENT_PAIR_SCREEN}))
 		elif pair.suit == "Butcher":
-			var targets: Array = []
-			for entity in world.entities.entities:
-				if entity.kind == "marcher" and entity.owner == 1 - pid and entity.attributes.lane == lane: targets.append(entity)
-			targets.sort_custom(func(a, b): return a.id < b.id)
-			if targets.is_empty(): continue
 			var key: String = Data.instance_id("butcher_guard", str(context.round) + lane, JSON.stringify(pair.ids))
-			var roll: Dictionary = Rng.draw(context.seed, key, "victim", 0, targets.size())
-			var target: Dictionary = targets[roll.value]
-			var killed: Dictionary = Battle.apply(world, {"kind": "marcher_damage", "command_id": key, "target_id": target.id, "damage": target.attributes.hp, "cause": "hazard"}, context.round, context.hook)
-			if killed.action == "invalid": return killed
-			world = killed.world
-			events.append(Structures.public_event("GUARD_PAIR_STRIKE", {"player_id": pid, "round": context.round, "lane": lane, "target_id": target.id}))
-			events.append({"event": killed.event, "views": [killed.event, killed.event]})
-			var reacted: Dictionary = reaction.call(world, killed.event, context.seed, context.player_order)
-			if reacted.action == "invalid": return reacted
-			world = reacted.world
-			events.append_array(reacted.events)
+			var struck: Array = []
+			for strike in range(BUTCHER_PAIR_KILLS):
+				# Death reactions can replace the world; choose from its surviving foes.
+				var targets: Array = []
+				for entity in world.entities.entities:
+					if entity.kind == "marcher" and entity.owner == 1 - pid and entity.attributes.lane == lane and entity.id not in struck: targets.append(entity)
+				targets.sort_custom(func(a, b): return a.id < b.id)
+				if targets.is_empty(): break
+				var roll: Dictionary = Rng.draw(context.seed, key, "victim", strike, targets.size())
+				var target: Dictionary = targets[roll.value]
+				struck.append(target.id)
+				var command: String = Data.instance_id("butcher_guard_strike", key, str(strike))
+				var killed: Dictionary = Battle.apply(world, {"kind": "marcher_damage", "command_id": command, "target_id": target.id, "damage": target.attributes.hp, "cause": "hazard"}, context.round, context.hook)
+				if killed.action == "invalid": return killed
+				world = killed.world
+				events.append(Structures.public_event("GUARD_PAIR_STRIKE", {"player_id": pid, "round": context.round, "lane": lane, "target_id": target.id}))
+				events.append({"event": killed.event, "views": [killed.event, killed.event]})
+				var reacted: Dictionary = reaction.call(world, killed.event, context.seed, context.player_order)
+				if reacted.action == "invalid": return reacted
+				world = reacted.world
+				events.append_array(reacted.events)
 	return {"action": "resolved", "world": world, "events": events, "screen": screen}

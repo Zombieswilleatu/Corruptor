@@ -11,6 +11,8 @@ func _initialize() -> void:
 	var saved: Array = events.duplicate(true)
 	var text: String = Ledger.render(world, events, 2, {"souls": [2, 3], "personal_tears": [0, 0], "neutral_tears": 2})
 	var ok: bool = text.contains("(+2 net)") and text.contains("(-1 net)") and not text.contains("99") and text.find("Banished") < text.find("OPPONENT") and text.find("Destroyed") > text.find("SHARED") and not text.contains("Raised") and events == saved
+	for amount in [3, 5]:
+		ok = ok and Ledger.describe("GUARD_PAIR_SCREEN", {"amount": amount}) == "Penitent pair provided %d protection" % amount
 	var siege: Dictionary = {"type": "SIEGE_RESOLVED", "data": {"round": 2, "player_id": 0, "target_id": "keep", "damage": 0}}
 	var hits: Array = [
 		{"type": "BASTION_SCREENED", "data": {"round": 2, "player_id": 1, "target_id": "keep", "damage": 4}},

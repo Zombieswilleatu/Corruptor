@@ -636,7 +636,7 @@ func _show_pair_badges() -> void:
 			badge.modulate = Color("e6cc75")
 			badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			card.add_child(badge)
-			var benefit: String = {"Butcher": "When attacked, destroy one random enemy Marcher in this lane.", "Penitent": "5 protection before Guards while intact.", "Wright": "+3 work once on placement.", "Vulture": "Draw 1 each following round while intact."}[pair.suit]
+			var benefit: String = {"Butcher": "When attacked, destroy up to 2 random enemy Marchers in this lane.", "Penitent": "3 protection before Guards while intact.", "Wright": "+3 work once on placement.", "Vulture": "Draw 1 each following round while intact."}[pair.suit]
 			card.input_surface.tooltip_text += "\nBonded " + pair.suit + " pair. " + benefit + " Either card leaving breaks the bond; a replacement does not restore it."
 
 

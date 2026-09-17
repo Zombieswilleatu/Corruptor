@@ -9,6 +9,7 @@ import json
 from . import economy as e, recruitment as recruits
 from .battle import Battle, targetable, operational, note_loss, threat, defense
 from .copying import copy_data
+from .castle_balance import PENITENT_PAIR_SCREEN, BUTCHER_PAIR_KILLS
 from .development import DevelopmentMatch, reconcile
 from .primitives import draw, instance_id
 
@@ -167,18 +168,22 @@ class Ordinary(Battle):
         for pair in copy_data(self.w["data"]["guard_work"]["pairs"]):
             if not pair["active"] or pair["player_id"] != pid or pair["lane"] != lane: continue
             if pair["suit"] == "Penitent":
-                screen += 5
-                events.append(e.event("GUARD_PAIR_SCREEN", dict(player_id=pid, round=self.number, lane=lane, amount=5)))
+                screen += PENITENT_PAIR_SCREEN
+                events.append(e.event("GUARD_PAIR_SCREEN", dict(player_id=pid, round=self.number, lane=lane, amount=PENITENT_PAIR_SCREEN)))
             elif pair["suit"] == "Butcher":
-                targets = sorted((r for r in self.w["entities"]["entities"] if r["kind"] == "marcher" and r["owner"] == 1-pid
-                                  and r["attributes"]["lane"] == lane), key=lambda r: r["id"])
-                if not targets: continue
                 key = instance_id("butcher_guard", str(self.number)+lane, json.dumps(pair["ids"], ensure_ascii=False, separators=(",", ":")))
-                target = targets[draw(self.seed, key, "victim", 0, len(targets))]
-                fact = self.fact(dict(kind="marcher_damage", command_id=key, target_id=target["id"], damage=target["attributes"]["hp"], cause="hazard"))
-                events.append(e.event("GUARD_PAIR_STRIKE", dict(player_id=pid, round=self.number, lane=lane, target_id=target["id"])))
-                events.append(e.event(fact["type"], fact["data"]))
-                events.extend(self.react(fact))
+                struck = set()
+                for strike in range(BUTCHER_PAIR_KILLS):
+                    targets = sorted((r for r in self.w["entities"]["entities"] if r["kind"] == "marcher" and r["owner"] == 1-pid
+                                      and r["attributes"]["lane"] == lane and r["id"] not in struck), key=lambda r: r["id"])
+                    if not targets: break
+                    target = targets[draw(self.seed, key, "victim", strike, len(targets))]
+                    struck.add(target["id"])
+                    command = instance_id("butcher_guard_strike", key, str(strike))
+                    fact = self.fact(dict(kind="marcher_damage", command_id=command, target_id=target["id"], damage=target["attributes"]["hp"], cause="hazard"))
+                    events.append(e.event("GUARD_PAIR_STRIKE", dict(player_id=pid, round=self.number, lane=lane, target_id=target["id"])))
+                    events.append(e.event(fact["type"], fact["data"]))
+                    events.extend(self.react(fact))
         return screen, events
 
     def attack_layers(self, pid, order, target_id, pursuit=0):

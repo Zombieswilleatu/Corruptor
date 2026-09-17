@@ -110,7 +110,7 @@ static func describe(kind: String, d: Dictionary) -> String:
 		"WORK_RESOLVED": return "Work · %s: %d → %d" % [d.get("castle_id", "Castle"), d.get("before", 0), d.get("after", 0)]
 		"GUARD_PAIR_DRAW": return "Vulture pair drew 1 card"
 		"GUARD_PAIR_STRIKE": return "Butcher pair destroyed an enemy Marcher"
-		"GUARD_PAIR_SCREEN": return "Penitent pair provided 5 protection"
+		"GUARD_PAIR_SCREEN": return "Penitent pair provided %d protection" % d.get("amount", 0)
 		"COMBAT_ORDER_REVEALED": return "Action: " + str(d.get("order", {}).get("action", "Pass"))
 		"MARCHER_SPAWNED":
 			return "Power summoned a " + str(d.get("attributes", {}).get("suit", "Marcher")) if d.get("attributes", {}).has("source_effect_id") else ""

@@ -3,6 +3,7 @@ from collections import Counter
 from dataclasses import dataclass
 
 from u13_pysim.battle import defense, operational, targetable
+from u13_pysim.castle_balance import PENITENT_PAIR_SCREEN
 from u13_pysim.development import intact
 from u13_pysim.power_rules import RULES
 
@@ -123,7 +124,7 @@ class Facts:
         remaining, lost, damage, banished, destroyed = strength, 0, 0, False, False
         for pair in self.v['data']['guard_work']['pairs']:
             if pair['player_id'] == self.enemy and pair['lane'] == lane and pair['suit'] == 'Penitent' and intact(self.world, pair):
-                remaining = max(0, remaining-5)
+                remaining = max(0, remaining-PENITENT_PAIR_SCREEN)
         if lane == 'Lord' and self.lord[self.enemy]['attributes']['lord_id'] == 'Valak' and self.lord[self.enemy]['attributes']['alive']:
             remaining = max(0, remaining-self.v['players'][self.enemy]['resources']['life_essence'])
         for guard in sorted(self.guards(self.enemy, lane), key=lambda r: (-r['attributes']['value'], r['attributes']['slot'])):

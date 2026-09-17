@@ -6,9 +6,11 @@ const Bot = preload("res://Scripts/Sim/U13BasicDoctrine.gd")
 const Combat = preload("res://Scripts/Sim/U13Combat.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Marching = preload("res://Scripts/Sim/U13Marching.gd")
+const Codec = preload("res://Scripts/Sim/U13ExactData.gd")
 const Slots = Game.Slots
 var failures: int = 0
 var serial: int = 0
+var pair_traces: Array = []
 
 func check(ok: bool, label: String) -> bool:
 	if not ok: failures += 1
@@ -18,9 +20,16 @@ func check(ok: bool, label: String) -> bool:
 func _initialize() -> void:
 	work_rules()
 	pair_rules()
+	pair_combat_cases()
 	scheduled_consume_pairs()
 	conversion()
 	conductor()
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	if not args.is_empty():
+		var encoded: Dictionary = Codec.encode({"policy": Work.VERSION, "cases": pair_traces})
+		if check(encoded.action == "encoded", "pair cases encode for independent Python replay"):
+			var file = FileAccess.open(args[0], FileAccess.WRITE)
+			file.store_string(encoded.text + "\n")
 	print("U13 Guard work failures: ", failures)
 	quit(0 if failures == 0 else 1)
 
@@ -92,7 +101,7 @@ func pair_rules() -> void:
 		check(Work.intact(w, pair), suit + " fresh pair bonded")
 		var context: Dictionary = {"round": 1, "hook": Game.Timeline.COMBAT_RESOLUTION, "seed": "pair-test", "player_order": [0, 1]}
 		if suit == "Penitent":
-			check(Work.defend(w, 0, "Lord", context, Callable()).screen == 5 and Work.defend(w, 0, "Castle", context, Callable()).screen == 0, "Penitent protects only its zone")
+			check(Work.defend(w, 0, "Lord", context, Callable()).screen == 3 and Work.defend(w, 0, "Castle", context, Callable()).screen == 0, "Penitent protects only its zone")
 		elif suit == "Butcher":
 			check(Work.defend(w, 0, "Lord", context, Callable()).events.is_empty(), "Butcher with no enemy Marcher does nothing")
 			var ids = Ids.new(); ids.restore(w.entities)
@@ -116,6 +125,40 @@ func pair_rules() -> void:
 
 func no_reaction(w: Dictionary, _event: Dictionary, _seed: String, _order: Array) -> Dictionary:
 	return {"action": "resolved", "world": w, "events": []}
+
+func pair_combat_cases() -> void:
+	var content = Game.Content.new()
+	for suit in ["Butcher", "Penitent"]:
+		for lane in ["Lord", "Castle"]:
+			for count in ([0, 1, 2, 3] if suit == "Butcher" else [0]):
+				var w: Dictionary = world()
+				guard(w, suit, lane, 0); guard(w, suit, lane, 1)
+				Work.develop(w, 1, [0, 1])
+				var ids = Ids.new(); ids.restore(w.entities)
+				var enemies: Array = []
+				for index in range(count):
+					enemies.append(ids.create("marcher", "pair-enemy", index, 1, Marching.profile("Penitent", lane, 1, 0, 0, true)).entity.id)
+				var other_lane: String = "Castle" if lane == "Lord" else "Lord"
+				var protected_ids: Array = [ids.create("marcher", "pair-friendly", 0, 0, Marching.profile("Penitent", lane, 0, 0, 0, true)).entity.id,
+					ids.create("marcher", "pair-other-lane", 0, 1, Marching.profile("Penitent", other_lane, 1, 0, 0, true)).entity.id]
+				w.entities = ids.snapshot()
+				var context: Dictionary = {"round": 1, "hook": Game.Timeline.COMBAT_RESOLUTION, "seed": "pair-combat:é", "player_order": [0, 1]}
+				var result: Dictionary = Work.defend(w.duplicate(true), 0, lane, context, Callable(content, "react"))
+				var label: String = "%s %s pair with %d enemies" % [suit, lane, count]
+				if not check(result.action == "resolved", label + " resolves"): continue
+				var strikes: Array = result.events.filter(func(row): return row.event.type == "GUARD_PAIR_STRIKE")
+				var dead: Array = result.events.filter(func(row): return row.event.type == "MARCHER_DEFEATED")
+				if suit == "Butcher":
+					check(strikes.size() == mini(2, count) and dead.size() == strikes.size(), label + " kills up to two with normal death events")
+					var targets: Array = strikes.map(func(row): return row.event.data.target_id)
+					check(targets.all(func(id): return id in enemies and entity(result.world, id).is_empty()) and (targets.size() < 2 or targets[0] != targets[1]), label + " chooses distinct eligible victims")
+					check(enemies.filter(func(id): return not entity(result.world, id).is_empty()).size() == maxi(0, count - 2), label + " respects the two-kill cap")
+				else:
+					check(result.screen == 3 and result.events[0].event.data.amount == 3, label + " reports three protection")
+				check(protected_ids.all(func(id): return not entity(result.world, id).is_empty()), label + " preserves friendlies and the other lane")
+				var replay: Dictionary = Work.defend(w.duplicate(true), 0, lane, context, Callable(content, "react"))
+				check(Codec.difference(result, replay).is_empty(), label + " replays exactly")
+				pair_traces.append({"suit": suit, "lane": lane, "count": count, "initial": w, "context": context, "result": result})
 
 func conversion() -> void:
 	for action in ["Ward", "Siege", "Hunt"]:

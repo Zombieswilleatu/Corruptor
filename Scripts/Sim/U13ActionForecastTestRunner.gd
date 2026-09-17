@@ -82,6 +82,7 @@ func pair_visibility() -> void:
 	patch(w, card, {"suit": "Butcher", "value": 5})
 	var order: Dictionary = {"action": "Siege", "lane": "Castle", "target_id": Slots.castle_id(1, 0), "card_ids": [card]}
 	var forecast: Dictionary = Forecast.evaluate(public_view(w), order)
+	check(Forecast.View.new(public_view(w)).pair_screen(1, "Castle") == 3, "public forecast uses three Penitent-pair protection")
 	check(forecast.guards_defeated == 0 and forecast.damage == 0, "public Penitent pair stops strength before the Guard layer")
 	patch(w, guards[0], {"role": "hand"})
 	Game.Content.GuardWork.reconcile(w)

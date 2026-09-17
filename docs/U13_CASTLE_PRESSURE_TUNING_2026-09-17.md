@@ -2,6 +2,8 @@
 
 Goal: sustained, sufficiently strong pressure should break one castle in roughly 3–5 rounds. Guard placement should compete with offensive commitment without also restoring so much integrity that attacks make no lasting progress.
 
+**Follow-up:** Penitent-pair protection was subsequently reduced to +3 and Butcher pairs increased to two kills. The tables below preserve this initial tuning pass; current pair rules and updated pressure results are in [Guard work](U13_GUARD_WORK_2026-09-14.md#september-17-pair-balance-validation).
+
 ## Playtest rules
 
 | Rule | Previous | This pass |

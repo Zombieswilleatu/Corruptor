@@ -1,0 +1,324 @@
+{
+  "policy": "U13_GUARD_WORK_V4",
+  "base_commit": "5e53046f54324f636e173c75db7ce78f8b8953e7",
+  "values": {
+    "penitent_pair_screen": 3,
+    "butcher_pair_kills": 2,
+    "castle_max_integrity": 17,
+    "wright_pair_work": 3,
+    "forge_repair": 1
+  },
+  "native_runtime": "Godot 4.5.1 diagnostic; Windows 4.7.2 interactive review pending",
+  "native_suites": {
+    "U13GuardWorkTestRunner": {
+      "passed": true,
+      "checks": 218
+    },
+    "U13CastlePressureTestRunner": {
+      "passed": true,
+      "checks": 12
+    },
+    "U13ActionForecastTestRunner": {
+      "passed": true,
+      "checks": 96
+    },
+    "U13AftermathLedgerTestRunner": {
+      "passed": true,
+      "checks": 0
+    },
+    "U13PlayableBoardTestRunner": {
+      "passed": true,
+      "checks": 72
+    }
+  },
+  "python_unit_tests_passed": 36,
+  "exact_pair_replay": {
+    "cases": 10,
+    "matched": [
+      "world",
+      "events",
+      "screen",
+      "action"
+    ],
+    "coverage": [
+      "Lord and Castle lanes",
+      "0, 1, 2, 3 eligible Butcher victims",
+      "distinct targets and two-kill cap",
+      "friendly and other-lane survival",
+      "Penitent protection 3",
+      "normal death reactions"
+    ]
+  },
+  "pressure_cases": [
+    {
+      "attack": 12,
+      "destroyed_round": 4,
+      "forge": false,
+      "health_after_siege": [
+        11,
+        7,
+        3,
+        0
+      ],
+      "penitent_pair": false,
+      "repair_before_siege": [
+        0,
+        2,
+        2,
+        0
+      ],
+      "wright_pair": false
+    },
+    {
+      "attack": 12,
+      "destroyed_round": 4,
+      "forge": true,
+      "health_after_siege": [
+        11,
+        8,
+        5,
+        0
+      ],
+      "penitent_pair": false,
+      "repair_before_siege": [
+        0,
+        3,
+        3,
+        1
+      ],
+      "wright_pair": false
+    },
+    {
+      "attack": 12,
+      "destroyed_round": 7,
+      "forge": false,
+      "health_after_siege": [
+        11,
+        10,
+        9,
+        8,
+        7,
+        6,
+        0
+      ],
+      "penitent_pair": false,
+      "repair_before_siege": [
+        0,
+        5,
+        5,
+        5,
+        5,
+        5,
+        0
+      ],
+      "wright_pair": true
+    },
+    {
+      "attack": 12,
+      "destroyed_round": 0,
+      "forge": true,
+      "health_after_siege": [
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11
+      ],
+      "penitent_pair": false,
+      "repair_before_siege": [
+        0,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "wright_pair": true
+    },
+    {
+      "attack": 14,
+      "destroyed_round": 3,
+      "forge": false,
+      "health_after_siege": [
+        9,
+        6,
+        0
+      ],
+      "penitent_pair": false,
+      "repair_before_siege": [
+        0,
+        5,
+        0
+      ],
+      "wright_pair": true
+    },
+    {
+      "attack": 14,
+      "destroyed_round": 4,
+      "forge": true,
+      "health_after_siege": [
+        9,
+        7,
+        5,
+        0
+      ],
+      "penitent_pair": false,
+      "repair_before_siege": [
+        0,
+        6,
+        6,
+        1
+      ],
+      "wright_pair": true
+    },
+    {
+      "attack": 12,
+      "destroyed_round": 13,
+      "forge": false,
+      "health_after_siege": [
+        14,
+        13,
+        12,
+        11,
+        10,
+        9,
+        8,
+        7,
+        6,
+        3,
+        2,
+        1,
+        0
+      ],
+      "penitent_pair": true,
+      "repair_before_siege": [
+        0,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        0,
+        2,
+        2,
+        2
+      ],
+      "wright_pair": false
+    },
+    {
+      "attack": 14,
+      "destroyed_round": 5,
+      "forge": false,
+      "health_after_siege": [
+        12,
+        9,
+        6,
+        1,
+        0
+      ],
+      "penitent_pair": true,
+      "repair_before_siege": [
+        0,
+        2,
+        2,
+        0,
+        2
+      ],
+      "wright_pair": false
+    },
+    {
+      "attack": 15,
+      "destroyed_round": 4,
+      "forge": true,
+      "health_after_siege": [
+        11,
+        8,
+        5,
+        0
+      ],
+      "penitent_pair": true,
+      "repair_before_siege": [
+        0,
+        3,
+        3,
+        1
+      ],
+      "wright_pair": false
+    },
+    {
+      "attack": 16,
+      "destroyed_round": 3,
+      "forge": false,
+      "health_after_siege": [
+        10,
+        5,
+        0
+      ],
+      "penitent_pair": true,
+      "repair_before_siege": [
+        0,
+        2,
+        0
+      ],
+      "wright_pair": false
+    },
+    {
+      "attack": 16,
+      "destroyed_round": 3,
+      "forge": true,
+      "health_after_siege": [
+        10,
+        6,
+        0
+      ],
+      "penitent_pair": true,
+      "repair_before_siege": [
+        0,
+        3,
+        1
+      ],
+      "wright_pair": false
+    },
+    {
+      "attack": 17,
+      "destroyed_round": 3,
+      "forge": true,
+      "health_after_siege": [
+        9,
+        4,
+        0
+      ],
+      "penitent_pair": true,
+      "repair_before_siege": [
+        0,
+        3,
+        1
+      ],
+      "wright_pair": false
+    }
+  ],
+  "pressure_scope": "Fixed attack each round and two fresh rank-3 Guards; full-health Bastion attacked directly. Real draws, Ward, Sigils, artillery and marching are excluded. A zero destruction round means it survived the 15-round probe.",
+  "integration_validation": "Python tests and all 10 exact pair replays passed after rebasing onto the concurrent Breach Wish and Sooge fixes. Native rules exercised here were unchanged by that upstream commit."
+}

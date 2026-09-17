@@ -4,6 +4,7 @@ extends RefCounted
 # opponent hand, sealed orders, seed forecasts, or presentation nodes live here.
 const Development = preload("res://Scripts/Sim/U13GameDevelopment.gd")
 const Structures = preload("res://Scripts/Sim/U13Structures.gd")
+const GuardWork = preload("res://Scripts/Sim/U13GuardWork.gd")
 var view: Dictionary
 var w: Dictionary
 var pid: int
@@ -99,7 +100,7 @@ func tear_value(gain: int = 1) -> float:
 func pair_screen(owner_id: int, lane: String) -> int:
 	var result: int = 0
 	for pair in w.get("guard_work", {}).get("pairs", []):
-		if pair.player_id == owner_id and pair.lane == lane and pair.suit == "Penitent": result += 5
+		if pair.player_id == owner_id and pair.lane == lane and pair.suit == "Penitent": result += GuardWork.PENITENT_PAIR_SCREEN
 	return result
 
 func screen(lane: String) -> int:
