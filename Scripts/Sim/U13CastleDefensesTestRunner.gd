@@ -39,13 +39,17 @@ func fixture(
 	if strength <= 5:
 		values = [strength]
 	else:
-		var remaining: int = strength - 1 # same-suit pair bonus
+		var remaining: int = strength # Guard/Work rules do not add a combat pair bonus.
 		while remaining > 0:
 			var amount: int = mini(5, remaining)
 			if values.is_empty() and amount == remaining:
 				amount -= 1
 			values.append(amount)
 			remaining -= amount
+	world.entities = ids.snapshot()
+	while world.data.card_zones.hands[0].size() < values.size():
+		Game.Economy.Cards.draw(world, 0, "castle-defenses", "fixture-refill")
+	ids.restore(world.entities)
 	var cards: Array = world.data.card_zones.hands[0].slice(0, values.size())
 	for index in range(cards.size()):
 		ids.update(cards[index], 0, {"suit": "Butcher", "value": values[index]})
@@ -101,7 +105,7 @@ func run() -> void:
 	var bombardment: Dictionary = fixture("Bastion", 7, "active", 5)
 	ids.restore(bombardment.world.entities)
 	var engine: Dictionary = ids.get_entity(Slots.castle_id(0, 4))
-	engine.attributes.integrity = 21
+	engine.attributes.integrity = 17
 	engine.attributes.status = "standing"
 	engine.attributes.construction_state = "active"
 	engine.attributes.artillery_target = Slots.castle_id(1, 0)

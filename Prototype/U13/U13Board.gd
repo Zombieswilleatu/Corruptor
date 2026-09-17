@@ -947,7 +947,7 @@ func _update_power_controls() -> void:
 			label.text += "\nArmed · fires at start of round %d" % state.fire_round
 		if power == Gremory.RUIN:
 			label.text += (
-				"\nDiscard 2 · enemy Castle above 14 health\nReduces it to 14 next round (%d). Fizzles if already at 14 or below."
+				"\nDiscard 2 · enemy Castle above 8 health\nReduces it to 8 next round (%d). Fizzles if already at 8 or below."
 				% (session.round_number() + 1)
 			)
 			if ruin_target.item_count == 0:
@@ -1031,7 +1031,7 @@ func _friendly_error(result: Dictionary) -> String:
 	if reason == "castle_not_enemy":
 		return "Inevitable Ruin must target an enemy Castle."
 	if reason == "castle_at_or_below_ruin_health":
-		return "Inevitable Ruin requires an enemy Castle above 14 health."
+		return "Inevitable Ruin requires an enemy Castle above 8 health."
 	if reason == "power_not_ready" or reason.contains("cooldown"):
 		return "That power is still cooling down. Choose another power or pass."
 	if reason in ["combat_order_invalid", "combat_order_shape_invalid"]:
@@ -1254,7 +1254,7 @@ func _refresh_castle_targets(world: Dictionary) -> void:
 	_fill_castles(ruin_target, damaged)
 	_fill_castles(castle_target, own)
 	_fill_castles(engine_choice, engines)
-	ruin_target.tooltip_text = "Inevitable Ruin reduces a commissioned enemy Castle above 14 health to 14 at the start of next round."
+	ruin_target.tooltip_text = "Inevitable Ruin reduces a commissioned enemy Castle above 8 health to 8 at the start of next round."
 
 
 func _fill_castles(option: OptionButton, entities: Array) -> void:

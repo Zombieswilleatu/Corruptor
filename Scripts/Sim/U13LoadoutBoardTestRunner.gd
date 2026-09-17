@@ -55,7 +55,7 @@ func _run() -> void:
 		"loadout_board_copy_ids_distinct"
 	)
 	_check(
-		first.caption.text.contains("12/21") and second.caption.text.contains("7/21"),
+		first.caption.text.contains("12/17") and second.caption.text.contains("7/17"),
 		"loadout_board_copy_integrity_visible"
 	)
 	_check(

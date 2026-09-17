@@ -24,8 +24,8 @@ class PowerTests(unittest.TestCase):
                     self.assertEqual(count,len({r['id'] for r in bodies}))
                     self.assertTrue(all(r['attributes']['suit']==suit and r['attributes']['lane']==lane for r in bodies))
 
-    def test_inevitable_ruin_targets_only_castles_above_fourteen(self):
-        for health in (0, 7, 13, 14, 15, 20, 21):
+    def test_inevitable_ruin_targets_only_castles_above_eight(self):
+        for health in (0, 6, 7, 8, 9, 16, 17):
             with self.subTest(health=health):
                 g=self.before_lock('Gremory');w=g._state['world']
                 castle=next(r for r in w['entities']['entities'] if r['kind']=='castle' and r['owner']==1 and r['attributes']['castle_type']=='Keep')
@@ -33,14 +33,14 @@ class PowerTests(unittest.TestCase):
                 g._state['presentation_world']=copy_data(w)
                 source=declaration(0,1,'InevitableRuin',dict(entity_id=castle['id']),discard_ids=e.zones(w)['hands'][0][:2])
                 before=g.snapshot();result=self.submit(g,[source])
-                self.assertEqual(health<=14,result['action']=='invalid')
-                if health<=14:
+                self.assertEqual(health<=8,result['action']=='invalid')
+                if health<=8:
                     self.assertEqual('castle_at_or_below_ruin_health',powers.validate(source,w,'declaration',[]))
                     self.assertEqual(before,g.snapshot())
 
     def test_scheduled_ruin_rechecks_damage_without_healing_or_refunding(self):
         case=next(c for c in power_components.generate() if c['name']=='power_InevitableRuin')
-        for health in (0, 13, 14, 15, 21):
+        for health in (0, 7, 8, 9, 17):
             with self.subTest(health=health):
                 g=PowerMatch(case['setup'])
                 for entry in case['operations'][:-1]:
@@ -51,15 +51,15 @@ class PowerTests(unittest.TestCase):
                 discard=copy_data(e.zones(w)['discard']);resources=copy_data(w['players'])
                 event_count=len(g._state['events']['rows'])
                 self.assertNotEqual('invalid',g.apply(case['operations'][-1]['operation'])['action'])
-                self.assertEqual(min(health,14),e.entity(g._state['world'],castle['id'])['attributes']['integrity'])
+                self.assertEqual(min(health,8),e.entity(g._state['world'],castle['id'])['attributes']['integrity'])
                 self.assertEqual(discard,e.zones(g._state['world'])['discard'])
                 self.assertEqual(resources,g._state['world']['players'])
                 facts=[r['event'] for r in g._state['events']['rows'][event_count:]]
-                self.assertEqual(health<=14,any(r['type']=='FIZZLE_INVALID_TARGET' for r in facts))
+                self.assertEqual(health<=8,any(r['type']=='FIZZLE_INVALID_TARGET' for r in facts))
                 damage=[r for r in facts if r['type']=='CASTLE_DAMAGED' and r['data'].get('source')=='InevitableRuin']
-                self.assertEqual(health>14,bool(damage))
+                self.assertEqual(health>8,bool(damage))
                 if damage:
-                    self.assertEqual(health-14,damage[0]['data']['damage'])
+                    self.assertEqual(health-8,damage[0]['data']['damage'])
                     self.assertFalse(damage[0]['data']['destroyed'])
 
     def test_casualty_reader_accepts_power_facts_and_hook_envelopes(self):

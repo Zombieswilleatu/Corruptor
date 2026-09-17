@@ -8,6 +8,7 @@ resolve those orders. No expected Godot state is loaded into this match.
 from copy import deepcopy
 
 from . import economy as e, opening
+from .castle_balance import FORGE_REPAIR
 from .copying import copy_data, RollbackSnapshot
 from .primitives import normalize, instance_id, draw as roll
 from .timeline import Timeline
@@ -270,7 +271,7 @@ class PlanningMatch:
                         and castle["attributes"]["integrity"] < castle["attributes"]["max_integrity"]):
                     a = castle["attributes"]
                     before = a["integrity"]
-                    a["integrity"] = min(a["max_integrity"], before + 2)
+                    a["integrity"] = min(a["max_integrity"], before + FORGE_REPAIR)
                     rows.append(e.event("FORGE_REPAIR", dict(player_id=castle["owner"], castle_id=castle["id"],
                                         before=before, after=a["integrity"], round=number)))
             for pid, player in enumerate(w["players"]):

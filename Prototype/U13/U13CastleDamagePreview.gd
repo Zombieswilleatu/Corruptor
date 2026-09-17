@@ -7,8 +7,8 @@ const Artwork = preload("res://Prototype/U13/U13CastleArtwork.gd")
 const Textures = preload("res://Prototype/U13/U13BoardTextures.gd")
 const Castles = preload("res://Prototype/UI2/CastleArtCatalog.gd")
 const TYPES: Array[String] = ["Keep", "Bastion", "SummoningCircle", "Stockpile", "SiegeEngine"]
-const STEPS: Array[int] = [21, 17, 14, 11, 7, 4, 1, 4, 7, 11, 14, 17]
-const MAXIMUM: int = 21
+const STEPS: Array[int] = [17, 14, 11, 8, 7, 4, 1, 4, 7, 8, 11, 14]
+const MAXIMUM: int = 17
 
 var _large
 var _board_size
@@ -84,7 +84,7 @@ func _ready() -> void:
 	var reference_row := HBoxContainer.new()
 	reference_row.add_theme_constant_override("separation", 20)
 	comparisons.add_child(reference_row)
-	for title in ["Undamaged · 21/21", "Some damage · 11/21", "Heavy damage · 4/21"]:
+	for title in ["Undamaged · 17/17", "Some damage · 11/17", "Heavy damage · 4/17"]:
 		var column := VBoxContainer.new()
 		reference_row.add_child(column)
 		_label(column, title)
@@ -146,7 +146,7 @@ func _choose_castle(index: int) -> void:
 		_close_preview(1)
 		return
 	for sample in range(_references.size()):
-		_bind(_references[sample], [21, 11, 4][sample])
+		_bind(_references[sample], [17, 11, 4][sample])
 	_show(_integrity, false)
 
 

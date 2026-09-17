@@ -52,7 +52,7 @@ func run() -> void:
 			castle_opening = castle_opening and (
 				castle.attributes.construction_state == ("active" if slot < 3 else "unbuilt")
 				and castle.attributes.integrity == (
-					18 if slot == 2 else (21 if slot < 3 else 0)
+					14 if slot == 2 else (17 if slot < 3 else 0)
 				)
 			)
 	check(castle_opening, "first three loadout slots stand; final two remain blueprints")

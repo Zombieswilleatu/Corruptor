@@ -5,6 +5,7 @@ unsupported; paid Rites and Resummon precede Guards and Work in Development.
 """
 
 from . import veil
+from .castle_balance import FORGE_REPAIR, RAPID_CONSTRUCTION_REPAIR
 from . import economy as e, marching_game, paid_development as paid
 from .battle import Battle, operational, targetable
 from .development import _deploy_owned, draw_pairs, reconcile, work
@@ -129,7 +130,7 @@ class RoundRules(Ordinary):
                 if not breach and not self.active(r["owner"], "Kalligan"):
                     continue
                 before = a["integrity"]
-                a.update(integrity=min(a["max_integrity"], before+2), status="standing")
+                a.update(integrity=min(a["max_integrity"], before+(RAPID_CONSTRUCTION_REPAIR if breach else FORGE_REPAIR)), status="standing")
                 events.append(e.event("RAPID_CONSTRUCTION" if breach else "FORGE_REPAIR", dict(
                     player_id=r["owner"], castle_id=r["id"], before=before, after=a["integrity"], round=n)))
             d["kalligan_upkeep_round"] = n

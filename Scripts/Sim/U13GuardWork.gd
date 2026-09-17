@@ -6,7 +6,8 @@ const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
 const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const Battle = preload("res://Scripts/Sim/U13BattleEvents.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
-const VERSION: String = "U13_GUARD_WORK_V2"
+const VERSION: String = "U13_GUARD_WORK_V3"
+const WRIGHT_PAIR_WORK: int = 3
 
 static func enabled(world: Dictionary) -> bool:
 	var state = world.data.get("guard_work")
@@ -109,7 +110,7 @@ static func develop(world: Dictionary, round_number: int, player_order: Array) -
 				if fresh.size() < 2: continue
 				var pair: Dictionary = {"player_id": pid, "lane": lane, "suit": suit, "ids": [fresh[0].card_id, fresh[1].card_id], "slots": [fresh[0].slot, fresh[1].slot], "round": round_number, "active": true}
 				state.pairs.append(pair)
-				if suit == "Wright": work += 5
+				if suit == "Wright": work += WRIGHT_PAIR_WORK
 				var formed: Dictionary = Structures.public_event("GUARD_PAIR_FORMED", {"player_id": pid, "round": round_number, "lane": lane, "suit": suit, "card_ids": pair.ids})
 				events.append(formed)
 		var selected: Dictionary = world.data.castle_orders[pid].choice

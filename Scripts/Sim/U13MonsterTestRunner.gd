@@ -191,17 +191,17 @@ func run() -> void:
 	var pools: Array = facts(consumed, "MONSTER_FIELD_CREATED")
 	check(not bites.is_empty() and pools.size() == 1 and pools[0].get("tick", -1) == bites[0].tick, "devoured Lemek creates its pool on the death tick")
 	# Longevity is tested at both admission and firing, including reduced maxima.
-	for maximum in [10, 21]:
-		for health in [0, 7, 13, 14, 15, 21]:
+	for maximum in [6, 17]:
+		for health in [0, 6, 7, 8, 9, 17]:
 			if health > maximum: continue
 			w = fixture()
 			var castle: Dictionary = w.entities.entities.filter(func(r): return r.kind == "castle" and r.owner == 0)[0]
 			castle.attributes.merge({"integrity": health, "max_integrity": maximum, "status": "standing" if health else "defunct", "construction_state": "active"}, true)
 			var source: Dictionary = {"power_id": "WishLongevity", "player_id": 0, "target": {"entity_id": castle.id}, "parameters": {}, "declaration_id": "longevity-check"}
-			var eligible: bool = health < mini(14, maximum)
+			var eligible: bool = health < mini(8, maximum)
 			check(content.validate(source, w, "declaration").legal == eligible and content.validate(source, w, "firing").legal == eligible, "Longevity eligibility %d/%d" % [health, maximum])
 			var result: Dictionary = content.resolve({"declaration": source}, {"world": w, "round": 1, "seed": "longevity"})
-			check(Kanifous._entity(result.world, castle.id).attributes.integrity == (mini(14, maximum) if eligible else health), "Longevity never harms or exceeds ceiling")
+			check(Kanifous._entity(result.world, castle.id).attributes.integrity == (mini(8, maximum) if eligible else health), "Longevity never harms or exceeds ceiling")
 			check(result.world.data.kanifous_prices.size() == (1 if eligible else 0), "only actual healing creates a Price")
 	special_checks()
 	if phase_output != null: phase_output.close()

@@ -400,7 +400,7 @@ func _activation_lifecycle() -> void:
 func _completion_and_repair() -> void:
 	var world: Dictionary = Core.construction_world()
 	_patch_attributes(
-		world, _engine(0), {"status": "standing", "integrity": 20, "construction_state": "building"}
+		world, _engine(0), {"status": "standing", "integrity": 16, "construction_state": "building"}
 	)
 	world.data.construction_targets[0] = _engine(0)
 	var built: Dictionary = _develop(world, [_choice("Construct", _engine(0)), {}])
@@ -408,10 +408,10 @@ func _completion_and_repair() -> void:
 		return
 	_check(
 		(
-			_entity(built.world, _engine(0)).attributes.integrity == 21
+			_entity(built.world, _engine(0)).attributes.integrity == 17
 			and _entity(built.world, _engine(0)).attributes.construction_state == "active"
 		),
-		"completion_caps_at_twenty_one"
+		"completion_caps_at_seventeen"
 	)
 	_check(
 		built.world.data.construction_targets[0] == "",
@@ -490,7 +490,7 @@ func _completion_and_repair() -> void:
 		{"discard_ids": world.data.card_zones.hands[1].slice(0, 2)}
 	)
 	var content = Deimos.new(true)
-	_patch_attributes(world, Opening._castle_id(0), {"integrity": 18, "status": "standing"})
+	_patch_attributes(world, Opening._castle_id(0), {"integrity": 14, "status": "standing"})
 	var doomed: Dictionary = content.resolve(
 		Data.make_record("pending", source, "main", {}, {}), {"world": world, "round": 2}
 	)
@@ -502,11 +502,11 @@ func _completion_and_repair() -> void:
 				)
 				== 0
 			),
-			"ruin_to_fourteen_does_not_create_repair_lock"
+			"ruin_to_eight_does_not_create_repair_lock"
 		)
 	world = Core.construction_world()
 	_patch_attributes(
-		world, _engine(0), {"status": "standing", "integrity": 20, "construction_state": "building"}
+		world, _engine(0), {"status": "standing", "integrity": 16, "construction_state": "building"}
 	)
 	world.data.construction_targets[0] = _engine(0)
 	world.data.breach_lord = "Deimos"
@@ -602,7 +602,7 @@ func _atomic_plans() -> void:
 
 func _screen_equivalence() -> void:
 	var world: Dictionary = Core.construction_world()
-	_patch_attributes(world, Opening._castle_id(0), {"integrity": 18, "status": "standing"})
+	_patch_attributes(world, Opening._castle_id(0), {"integrity": 14, "status": "standing"})
 	var owner = _ready_owner(world)
 	if owner == null:
 		return

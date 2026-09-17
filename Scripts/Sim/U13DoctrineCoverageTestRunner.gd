@@ -45,7 +45,7 @@ func place_guards(world: Dictionary, pid: int, lane: String, count: int, hidden_
 
 func opportunity(power: String, hidden_value: int):
 	var odradek: bool = power == "Inversion"
-	var world: Dictionary = fixture("Odradek" if odradek else "Kanifous", 21)
+	var world: Dictionary = fixture("Odradek" if odradek else "Kanifous", 17)
 	if odradek:
 		world.players[0].resources.reconfiguration = 3
 		place_guards(world, 1, "Castle", 3, hidden_value)

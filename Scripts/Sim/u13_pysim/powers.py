@@ -5,7 +5,7 @@ from .copying import copy_data
 from .primitives import instance_id
 from .battle import Battle, targetable, operational, note_loss
 from .resolution import Ordinary
-from .power_rules import RULES, RUIN_INTEGRITY
+from .power_rules import RULES, RUIN_INTEGRITY, LONGEVITY_INTEGRITY
 
 LANES = ('Lord','Castle')
 WISHES = ('WishPower','WishLongevity','WishResurrection','WishDeath','WishWealth')
@@ -88,7 +88,7 @@ def validate(s,w,phase,active):
         power=power.removeprefix('Breach')
         legal=not p
         if power=='WishPower': legal=legal and set(t)=={'lane'} and t['lane'] in LANES
-        elif power=='WishLongevity': legal=legal and set(t)=={'entity_id'} and targetable(r) and r['owner']==pid and r['attributes']['integrity']<min(14,r['attributes']['max_integrity'])
+        elif power=='WishLongevity': legal=legal and set(t)=={'entity_id'} and targetable(r) and r['owner']==pid and r['attributes']['integrity']<min(LONGEVITY_INTEGRITY,r['attributes']['max_integrity'])
         elif power=='WishResurrection': legal=legal and set(t)=={'lane'} and t['lane'] in LANES
         elif power=='WishDeath': legal=legal and spatial(t)
         else: legal=legal and not t

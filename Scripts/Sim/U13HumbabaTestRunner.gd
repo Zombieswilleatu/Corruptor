@@ -83,7 +83,7 @@ func _stats() -> void:
 	_entity(world, Slots.castle_id(0, 1)).attributes.castle_type = "Keep"
 	_check(Stats.defense(world, lord) == 4, "woven_duplicate_types_count_as_two_instances")
 	var protected: Dictionary = _entity(world, Slots.castle_id(0, 2))
-	protected.attributes.integrity = 21
+	protected.attributes.integrity = 17
 	protected.attributes.status = "standing"
 	protected.attributes.construction_state = "ready"
 	_check(Stats.defense(world, lord) == 4, "woven_excludes_full_uncommissioned_build")
@@ -244,7 +244,7 @@ func _breach() -> void:
 	var world: Dictionary = Scenario.world()
 	for pid in [0, 1]:
 		var protected: Dictionary = _entity(world, Slots.castle_id(pid, 2))
-		protected.attributes.integrity = 21
+		protected.attributes.integrity = 17
 		protected.attributes.status = "standing"
 		protected.attributes.construction_state = "ready"
 		var building: Dictionary = _entity(world, Slots.castle_id(pid, 3))
@@ -270,7 +270,7 @@ func _breach() -> void:
 			"stones_keeps_ruined_instance_identity_" + str(pid)
 		)
 		_check(
-			_entity(result.world, Slots.castle_id(pid, 2)).attributes.integrity == 21,
+			_entity(result.world, Slots.castle_id(pid, 2)).attributes.integrity == 17,
 			"stones_protected_ready_castle_" + str(pid)
 		)
 		_check(

@@ -227,7 +227,7 @@ func _upkeep(context: Dictionary, result: Dictionary) -> Dictionary:
 		if not breach and (player.lord_id != "Kalligan" or not lord.attributes.alive):
 			continue
 		var before: int = castle.attributes.integrity
-		castle.attributes.integrity = mini(int(castle.attributes.max_integrity), before + 2)
+		castle.attributes.integrity = mini(int(castle.attributes.max_integrity), before + (2 if breach else 1))
 		castle.attributes.status = "standing"
 		ids.update(castle.id, castle.owner, castle.attributes)
 		result.events.append(

@@ -46,7 +46,7 @@ func public_values() -> void:
 	var target: Dictionary = c.select("lord", 1)[0]
 	var hunt: Dictionary = {"action": "Hunt", "lane": "Lord", "target_id": target.id, "card_ids": []}
 	var keep: Dictionary = c.castles(1).filter(func(e): return e.attributes.castle_type == "Keep")[0]
-	keep.attributes.integrity = 21
+	keep.attributes.integrity = 17
 	var small: float = Bot.Common.HuntWard.hunt(c, hunt, 2)
 	var useful: float = Bot.Common.HuntWard.hunt(c, hunt, 10)
 	check(useful > small + 5, "Hunt values real Keep damage without a banishment")

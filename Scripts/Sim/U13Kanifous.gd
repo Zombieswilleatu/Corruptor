@@ -8,7 +8,7 @@ const BREACH_WISHES: Array = ["BreachWishPower", "BreachWishLongevity", "BreachW
 # Same outcomes, doubled weight for Stone and above: 40% vs 25% when all are legal.
 const BREACH_PRICE_MULTIPLIER: int = 2
 const PRICE_WEIGHTS: Dictionary = {"Cards": 30, "Blood": 30, "Guards": 15, "Stone": 15, "Soul": 5, "Ruin": 4, "Wishmaster": 1}
-const LONGEVITY_INTEGRITY: int = 14
+const LONGEVITY_INTEGRITY: int = 8
 
 func create_combat_match():
 	var validators: Dictionary = {}

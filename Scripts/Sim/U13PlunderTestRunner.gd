@@ -184,11 +184,11 @@ func development_edges() -> void:
 	# A locked zone attack becomes Siege when a Castle activates after planning.
 	world = prepared()
 	var attack: Dictionary = siege(world, 0, Plunder.zone_id(1))
-	patch(world, Slots.castle_id(1, 0), {"status": "standing", "integrity": 21})
+	patch(world, Slots.castle_id(1, 0), {"status": "standing", "integrity": 17})
 	result = resolve_combat(world, [attack, {}])
 	check(result.world.players[0].resources.souls == 0 and facts(result, "COMBAT_ORDER_FIZZLED").is_empty() and facts(result, "SIEGE_RESOLVED")[0].target_id == Slots.castle_id(1, 0), "planned Pillage becomes Siege against newly active Castle")
 	check(facts(result, "PILLAGE_RETARGETED").size() == 1, "retargeting has an explicit Aftermath result")
-	patch(world, Slots.castle_id(1, 3), {"status": "standing", "integrity": 21})
+	patch(world, Slots.castle_id(1, 3), {"status": "standing", "integrity": 17})
 	world.entities.entities.reverse()
 	result = resolve_combat(world, [attack, {}])
 	check(facts(result, "SIEGE_RESOLVED")[0].target_id == Slots.castle_id(1, 0), "multiple active Castles use slot order despite reversed entity storage")

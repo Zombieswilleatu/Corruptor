@@ -251,7 +251,7 @@ func _guide() -> String:
 		return "INFERNO · click enemy LORD GUARDS, shared CASTLE GUARDS, or either Marching lane. Fires next round; lane fire hits both sides."
 	if _intent == Gremory.RUIN:
 		return (
-			"INEVITABLE RUIN · select payment %d/2, then click an enemy Castle above 14 health. Reduces it to 14 next round."
+			"INEVITABLE RUIN · select payment %d/2, then click an enemy Castle above 8 health. Reduces it to 8 next round."
 			% _power_cost.size()
 		)
 	if _is_lane_power(_intent):

@@ -51,14 +51,14 @@ class DevelopmentTests(unittest.TestCase):
     def test_wright_and_guards_pay_once_passive_persists_until_clear(self):
         target = opening.castle_id(0, 3)
         self.make_pair(target=target)
-        self.assertEqual(10, e.entity(self.world, target)["attributes"]["integrity"])
+        self.assertEqual(8, e.entity(self.world, target)["attributes"]["integrity"])
         self.stage(2)
         self.settle(2)
-        self.assertEqual(13, e.entity(self.world, target)["attributes"]["integrity"])
+        self.assertEqual(11, e.entity(self.world, target)["attributes"]["integrity"])
         self.assertEqual([], d.work(self.world, 2, [0, 1]))
         self.stage(3, selected=choice(""))
         self.settle(3)
-        self.assertEqual(13, e.entity(self.world, target)["attributes"]["integrity"])
+        self.assertEqual(11, e.entity(self.world, target)["attributes"]["integrity"])
 
     def test_every_identity_dimension_can_break_pair_permanently(self):
         self.make_pair()

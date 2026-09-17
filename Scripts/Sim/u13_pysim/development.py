@@ -3,6 +3,7 @@
 import json
 
 from . import economy as e
+from .castle_balance import WRIGHT_PAIR_WORK
 from .planning import PlanningMatch
 from .copying import copy_data
 from .primitives import instance_id
@@ -122,7 +123,7 @@ def work(world, number, player_order):
                             slots=[m["slot"] for m in fresh[:2]], round=number, active=True)
                 state["pairs"].append(pair)
                 if suit == "Wright":
-                    amount += 5
+                    amount += WRIGHT_PAIR_WORK
                 events.append(e.event("GUARD_PAIR_FORMED", dict(player_id=pid, round=number,
                                       lane=lane, suit=suit, card_ids=pair["ids"])))
         selected = world["data"]["castle_orders"][pid]["choice"]

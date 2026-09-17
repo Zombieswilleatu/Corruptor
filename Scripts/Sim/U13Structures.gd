@@ -10,15 +10,16 @@ const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const PROFILE: String = "U13_CORE_ARTILLERY_COMBAT_V1"
 const FLOOR: int = 7
 const DAMAGE: int = 2
+const MAX_INTEGRITY: int = 17
 
 
-static func attributes(engine: bool, integrity: int = 21) -> Dictionary:
+static func attributes(engine: bool, integrity: int = MAX_INTEGRITY) -> Dictionary:
 	return {
 		"combat_profile": "siege_engine" if engine else "plain_integrity",
 		"status": "standing" if integrity > 0 else "defunct",
 		"integrity": integrity,
-		"max_integrity": 21,
-		"base_max_integrity": 21,
+		"max_integrity": MAX_INTEGRITY,
+		"base_max_integrity": MAX_INTEGRITY,
 		"artillery_target": "",
 		"artillery_acquisitions": 0
 	}

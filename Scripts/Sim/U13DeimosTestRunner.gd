@@ -99,12 +99,12 @@ func _artillery() -> void:
 		"artillery_persistent_target"
 	)
 	world = fired.world
-	_patch_entity_attributes(world, target, {"integrity": 21})
+	_patch_entity_attributes(world, target, {"integrity": 17})
 	fired = Structures.fire(
 		world, _engine(0), "artillery", 2, "normal", Callable(content, "react"), [0, 1]
 	)
 	_check(
-		_entity(fired.world, target).attributes.integrity == 19,
+		_entity(fired.world, target).attributes.integrity == 15,
 		"artillery_full_repair_does_not_retarget"
 	)
 	world = fired.world
@@ -120,7 +120,7 @@ func _artillery() -> void:
 	fired = Structures.fire(
 		world, _engine(0), "artillery", 3, "normal", Callable(content, "react"), [0, 1]
 	)
-	_check(_entity(fired.world, target).attributes.integrity == 17, "artillery_floor_seven_fires")
+	_check(_entity(fired.world, target).attributes.integrity == 13, "artillery_floor_seven_fires")
 	_patch_entity_attributes(world, target, {"integrity": 0, "status": "ruined"})
 	fired = Structures.fire(
 		world, _engine(0), "artillery", 4, "normal", Callable(content, "react"), [0, 1]
@@ -265,7 +265,7 @@ func _fear_and_breach() -> void:
 		"fear_duplicate_fact_does_not_return_more_guards"
 	)
 	world = _world()
-	_patch_entity_attributes(world, Opening._castle_id(0), {"integrity": 21})
+	_patch_entity_attributes(world, Opening._castle_id(0), {"integrity": 17})
 	var transition: Dictionary = Battle.apply(
 		world,
 		{"kind": "set_breach", "command_id": "enter-breach", "lord_id": "Deimos"},
@@ -275,7 +275,7 @@ func _fear_and_breach() -> void:
 	var entered: Dictionary = content.react(transition.world, transition.event, "breach", [0, 1])
 	_check(
 		(
-			_entity(entered.world, Opening._castle_id(0)).attributes.integrity == 16
+			_entity(entered.world, Opening._castle_id(0)).attributes.integrity == 12
 			and _entity(entered.world, _engine(0)).attributes.integrity == 12
 		),
 		"cracked_foundations_caps_all_castles_without_extra_damage"
@@ -290,8 +290,8 @@ func _fear_and_breach() -> void:
 	var left: Dictionary = content.react(transition.world, transition.event, "breach", [0, 1])
 	_check(
 		(
-			_entity(left.world, Opening._castle_id(0)).attributes.max_integrity == 21
-			and _entity(left.world, Opening._castle_id(0)).attributes.integrity == 16
+			_entity(left.world, Opening._castle_id(0)).attributes.max_integrity == 17
+			and _entity(left.world, Opening._castle_id(0)).attributes.integrity == 12
 		),
 		"ending_breach_restores_ceiling_without_healing"
 	)

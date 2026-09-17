@@ -315,7 +315,7 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 			)
 			if trials[0].roster_mode in ["humbaba", "kalligan"]
 			else (
-				"Loadout fixture: two commissioned Engines at 21/21 and three unbuilt Castles per side; one shared Castle Guard zone per side; starting economy is an exercise fixture"
+				"Loadout fixture: two commissioned Engines at 17/17 and three unbuilt Castles per side; one shared Castle Guard zone per side; starting economy is an exercise fixture"
 				if trials[0].roster_mode == "loadout"
 				else (
 					"U13SmokeSession opening: four cards and two Wright guards per player; damaged plain Integrity Castles"
@@ -326,7 +326,7 @@ static func report(trials: Array, round_limit: int) -> Dictionary:
 							trials[0].roster_mode
 							in ["construction", "loadout", "humbaba", "kalligan"]
 						)
-						else "U13CoreScenario: same cards/guards; one plain Castle at 8/21 and one prebuilt Siege Engine at 12/21 per player; empty Breach"
+						else "U13CoreScenario: same cards/guards; one plain Castle at 8/17 and one prebuilt Siege Engine at 12/17 per player; empty Breach"
 					)
 				)
 			)

@@ -24,6 +24,7 @@ func _run() -> void:
 		var damaged: Dictionary = board._visible_world.entities.filter(func(e): return e.kind == "castle" and e.owner == 0)[0]
 		damaged.attributes.construction_state = "active"
 		damaged.attributes.status = "standing"
+		damaged.attributes.integrity = 7
 		board._update_direct_ui()
 		_check(board.wish_target.item_count == 1 and board.wish_target.get_item_metadata(0) == damaged.id and not board.wish_button.disabled, "Longevity offers damaged active castle")
 		damaged.attributes.integrity = damaged.attributes.max_integrity

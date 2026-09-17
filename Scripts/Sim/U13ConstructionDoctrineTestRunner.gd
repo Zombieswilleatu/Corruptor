@@ -50,7 +50,7 @@ func construction_focus() -> void:
 		check(next.get("action") == "Construct" and next.target_id != projects[pid], "starts another project after commissioning")
 
 func development_fixture(integrity: int, damage: bool = false):
-	var world: Dictionary = fixture("Gremory", 21)
+	var world: Dictionary = fixture("Gremory", 17)
 	var project: String = Slots.castle_id(0, 3)
 	patch(world, project, {"construction_state": "building", "status": "standing", "integrity": integrity})
 	world.data.construction_targets[0] = project
@@ -74,7 +74,7 @@ func acceleration_and_repair() -> void:
 				var order: Dictionary = finishes[0].payload
 				check(game._owner.preview_submission(0, [], order).action != "invalid", "completion payment passes authoritative admission")
 				if check(game.submit([{"powers": [], "order": order}, {"powers": [], "order": {}}]).action != "invalid" and game.finish_round().action != "invalid", "paid completion resolves"):
-					check(row(game.snapshot().world, Slots.castle_id(0, 3)).attributes.integrity == 21, "paid acceleration actually completes the castle")
+					check(row(game.snapshot().world, Slots.castle_id(0, 3)).attributes.integrity == 17, "paid acceleration actually completes the castle")
 	var game = development_fixture(3, true)
 	if game == null: return
 	var order: Dictionary = select_castle(game, 0)

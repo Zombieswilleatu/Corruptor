@@ -97,7 +97,7 @@ func _upkeep_and_rekindle() -> void:
 	)
 	world.data.construction_targets[0] = Slots.castle_id(0, 2)
 	var original: Dictionary = world.duplicate(true)
-	for round_number in range(1, 5):
+	for round_number in range(1, 8):
 		var context: Dictionary = _context(world, round_number, Timeline.ROUND_START_AUTOMATIC)
 		var result: Dictionary = content._upkeep(
 			context, {"action": "resolved", "world": world.duplicate(true), "events": []}
@@ -107,11 +107,11 @@ func _upkeep_and_rekindle() -> void:
 			return
 		world = result.world
 		_check(
-			_entity(world, Slots.castle_id(0, 0)).attributes.integrity == round_number * 2,
-			"forge_two_integrity"
+			_entity(world, Slots.castle_id(0, 0)).attributes.integrity == round_number,
+			"forge_one_integrity"
 		)
 		_check(
-			world.data.neutral_tears == (1 if round_number == 4 else 0),
+			world.data.neutral_tears == (1 if round_number == 7 else 0),
 			"rekindle_waits_for_operational_and_caps_two_revivals"
 		)
 	_check(world.data.rekindle_defunct_ids.is_empty(), "rekindle_consumes_both_revival_episodes")
@@ -126,20 +126,20 @@ func _upkeep_and_rekindle() -> void:
 	_check(
 		_entity(original, Slots.castle_id(0, 0)).attributes.integrity == 0, "upkeep_input_isolated"
 	)
-	_put(world, Slots.castle_id(0, 0), {"integrity": 20})
+	_put(world, Slots.castle_id(0, 0), {"integrity": 16})
 	var capped: Dictionary = content._upkeep(
-		_context(world, 5, Timeline.ROUND_START_AUTOMATIC),
+		_context(world, 8, Timeline.ROUND_START_AUTOMATIC),
 		{"action": "resolved", "world": world.duplicate(true), "events": []}
 	)
 	_check(
-		_entity(capped.world, Slots.castle_id(0, 0)).attributes.integrity == 21,
+		_entity(capped.world, Slots.castle_id(0, 0)).attributes.integrity == 17,
 		"forge_caps_at_current_maximum"
 	)
 	_check(
 		(
 			(
 				content
-				. _upkeep(_context(capped.world, 5, Timeline.ROUND_START_AUTOMATIC), capped)
+				. _upkeep(_context(capped.world, 8, Timeline.ROUND_START_AUTOMATIC), capped)
 				. action
 			)
 			== "invalid"

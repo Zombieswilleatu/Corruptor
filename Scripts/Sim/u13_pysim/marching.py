@@ -201,7 +201,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     # One immutable target snapshot per tick, shared across all movers.
     targets=[s.row(k) for k in indices] if needs_targets else []
     targets_by_id={r['id']:r for r in targets}
-    gate_queue = data.get("guard_work", {}).get("version") == "U13_GUARD_WORK_V2"
+    gate_queue = data.get("guard_work", {}).get("version") == "U13_GUARD_WORK_V3"
     ranged = data.get("ranged_profile") == RANGED
     collapse_players = veil.affected_players(context["world"],"Valak")
     for i in indices:

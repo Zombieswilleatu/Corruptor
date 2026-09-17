@@ -264,7 +264,7 @@ func _ruin() -> void:
 	owner.begin_next_round([0, 1])
 	_check(owner.run_next_hook().action != "invalid", "ruin_fires_before_step_two")
 	_check(
-		_entity(owner.snapshot().world, castle_id).attributes.status == "standing" and _entity(owner.snapshot().world, castle_id).attributes.integrity == 14,
+		_entity(owner.snapshot().world, castle_id).attributes.status == "standing" and _entity(owner.snapshot().world, castle_id).attributes.integrity == 8,
 		"repair_and_banishment_do_not_cancel_doom"
 	)
 	_check(

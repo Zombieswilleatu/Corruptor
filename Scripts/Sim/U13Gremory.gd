@@ -15,7 +15,7 @@ const POLICY: String = "U13_GREMORY_SLICE_V1"
 const PREDATOR: String = "PredatorOfRuin"
 const PREDATOR_COUNT: int = 2
 const RUIN: String = "InevitableRuin"
-const RUIN_INTEGRITY: int = 14
+const RUIN_INTEGRITY: int = 8
 var _driver: Callable
 var _combat_enabled: bool = false
 
@@ -146,7 +146,7 @@ func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionar
 	var attributes: Dictionary = castle.attributes
 	if not Data.is_integer(attributes.get("integrity")):
 		return {"legal": false, "reason": "castle_integrity_invalid"}
-	# Recheck at firing: intervening damage must never be healed back up to 14.
+	# Recheck at firing: intervening damage must never be healed back up to the target.
 	return {"legal": attributes.integrity > RUIN_INTEGRITY, "reason": "castle_at_or_below_ruin_health"}
 
 

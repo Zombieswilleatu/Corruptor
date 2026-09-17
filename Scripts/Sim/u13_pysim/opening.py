@@ -6,6 +6,7 @@ Godot state, legacy simulator, generated snapshot or GDScript parser is used.
 
 from collections import Counter
 from . import veil, monsters
+from .castle_balance import MAX_INTEGRITY
 from .primitives import Entities, draw, entity_id
 
 LORDS = ["Gremory", "Deimos", "Humbaba", "Kalligan", "Orias", "Odradek", "Kroni", "Valak", "Kanifous"]
@@ -18,10 +19,10 @@ ECONOMY = "U13_GAME_ECONOMY_V4"
 MARKET = "U13_GAME_MARKET_V2"
 # Pin the accepted authority's complete roster identity. Matching this hash
 # does not assert that the Python mirror implements those powers yet.
-RULES_HASH = "e098bf4d4858a6ce2cea41ffeb7e13a0ef8873c05b8575593508b7ec9573c3c0"
+RULES_HASH = "42a89676dbc8f311be0b6cf679dc1e6b772f1b480c04a6706c36835b6183b8f4"
 POLICY = ":".join([
     "U13_PERMANENT_BREACHES_V1",
-    "U13_GUARD_WORK_V2", "U13_VICTORY_V2_ROUND_PRESSURE", "U13_PROFANE_PILLAGE_V1",
+    "U13_GUARD_WORK_V3", "U13_VICTORY_V2_ROUND_PRESSURE", "U13_PROFANE_PILLAGE_V1",
     "U13_VULTURE_RANGED_V3", "U13_VACANT_THRONE_V1", "U13_DOMINION_RITES_V1",
     "U13_FRACTURE_V1", "U13_SIGIL_LIFECYCLE_V1", "U13_BLOOD_CONDUIT_V1", MARKET,
     "U13_CASTLE_DEFENSES_V1", ECONOMY, "U13_KANIFOUS_V1", "U13_VALAK_V1",
@@ -79,7 +80,7 @@ def _initial_data(loadouts):
                           "prior_counts": [0, 0], "counts": [0, 0], "present": [False, False]},
         "plunder": {"version": "U13_PROFANE_PILLAGE_V1", "resolved_round": 0, "results": [None, None]},
         "victory": {"version": "U13_VICTORY_V2_ROUND_PRESSURE", "checked_round": 0, "winner": -1, "win_by": ""},
-        "guard_work": {"version": "U13_GUARD_WORK_V2", "targets": ["", ""], "pairs": [],
+        "guard_work": {"version": "U13_GUARD_WORK_V3", "targets": ["", ""], "pairs": [],
                        "developed_round": 0, "draw_round": 0},
     }
 
@@ -111,8 +112,8 @@ def world(seed, lords, loadouts):
             starting = slot < 3
             castle = ids.create("castle", f"loadout:castle:{pid}", slot, pid, {
                 "combat_profile": "siege_engine" if kind == "SiegeEngine" else "plain_integrity",
-                "status": "standing" if starting else "defunct", "integrity": 21 if starting else 0,
-                "max_integrity": 21, "base_max_integrity": 21, "artillery_target": "",
+                "status": "standing" if starting else "defunct", "integrity": MAX_INTEGRITY if starting else 0,
+                "max_integrity": MAX_INTEGRITY, "base_max_integrity": MAX_INTEGRITY, "artillery_target": "",
                 "artillery_acquisitions": 0, "construction_state": "active" if starting else "unbuilt",
                 "castle_type": kind, "castle_slot": slot})
             if starting:

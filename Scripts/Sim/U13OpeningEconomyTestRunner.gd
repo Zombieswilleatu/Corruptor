@@ -60,8 +60,8 @@ func production_opening() -> void:
 		"only the first operational Circle makes one opening Blood Offering"
 	)
 	check(
-		entity(world, Slots.castle_id(1, 0)).attributes.integrity == 18
-		and entity(world, Slots.castle_id(1, 2)).attributes.integrity == 21,
+		entity(world, Slots.castle_id(1, 0)).attributes.integrity == 14
+		and entity(world, Slots.castle_id(1, 2)).attributes.integrity == 17,
 		"duplicate starting Circles do not stack opening Blood Offering"
 	)
 	var paid_ids: Array = []
@@ -235,9 +235,9 @@ func opening_integrity(pid: int, slot: int) -> int:
 	if slot >= Economy.STARTING_CASTLES:
 		return 0
 	return (
-		18
+		14
 		if pid == 1 and slot == 0
-		else 21
+		else 17
 	)
 
 

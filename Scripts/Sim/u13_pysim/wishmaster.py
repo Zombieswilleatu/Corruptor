@@ -2,6 +2,7 @@
 import math
 import struct
 from . import veil
+from .power_rules import LONGEVITY_INTEGRITY
 from . import economy as e, recruitment as recruit
 from .copying import copy_data
 from .primitives import draw, instance_id
@@ -36,7 +37,7 @@ def wish(b,s):
             suit=recruit.SUITS[draw(b.seed,key,'WISH_SUIT',i,4)];a=recruit.profile(suit,t['lane'],pid,n,n)
             r=recruit.create(w,key,i,pid,a);recruit.place_spawn(w,r,b.seed);count+=1
     elif power=='WishLongevity':
-        r=e.entity(w,t['entity_id']); ceiling=min(14,r['attributes']['max_integrity'])
+        r=e.entity(w,t['entity_id']); ceiling=min(LONGEVITY_INTEGRITY,r['attributes']['max_integrity'])
         if r['attributes']['integrity'] < ceiling:
             r['attributes'].update(integrity=ceiling,status='standing',construction_state='active')
             if w['data']['construction_targets'][pid]==r['id']:w['data']['construction_targets'][pid]=''

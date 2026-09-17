@@ -153,7 +153,7 @@ func _artillery_and_commission() -> void:
 			counts[event.data.engine_id] += 1
 	_check(counts[a] == 1 and counts[b] == 2, "two_normal_shots_plus_one_selected_extra")
 	_check(
-		_entity(owner.snapshot().world, target).attributes.integrity == 15,
+		_entity(owner.snapshot().world, target).attributes.integrity == 11,
 		"double_engine_plus_war_machine_six_damage"
 	)
 	# Protection and construction are per copy, even beside a live same-type Engine.
@@ -190,7 +190,7 @@ func _artillery_and_commission() -> void:
 		"war_foundry_reconstructs_selected_duplicate"
 	)
 	_check(
-		_entity(world, a).attributes.integrity == 21,
+		_entity(world, a).attributes.integrity == 17,
 		"sibling_engine_survives_reconstruction_choice"
 	)
 
@@ -219,7 +219,7 @@ func _guard_zones() -> void:
 		_patch(
 			world,
 			Slots.castle_id(1, slot),
-			{"integrity": 21, "status": "standing", "construction_state": "active"}
+			{"integrity": 17, "status": "standing", "construction_state": "active"}
 		)
 	for target in [first, second]:
 		var order: Dictionary = {
@@ -244,7 +244,7 @@ func _guard_zones() -> void:
 		_check(
 			(
 				result.action == "resolved"
-				and _entity(result.world, target).attributes.integrity == 21
+				and _entity(result.world, target).attributes.integrity == 17
 			),
 			"shared_guards_screen_castle_" + target
 		)

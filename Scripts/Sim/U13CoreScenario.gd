@@ -127,7 +127,7 @@ static func duplicate_world() -> Dictionary:
 	for player_id in [0, 1]:
 		for slot in [0, 1]:
 			var castle: Dictionary = entities.get_entity(Slots.castle_id(player_id, slot))
-			castle.attributes.integrity = 21
+			castle.attributes.integrity = Structures.MAX_INTEGRITY
 			castle.attributes.status = "standing"
 			castle.attributes.construction_state = "active"
 			entities.update(castle.id, castle.owner, castle.attributes)

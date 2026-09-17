@@ -2,7 +2,8 @@
 from .copying import copy_data
 from .primitives import instance_id
 
-RUIN_INTEGRITY = 14
+RUIN_INTEGRITY = 8
+LONGEVITY_INTEGRITY = 8
 
 
 def rule(lord, hook, cooldown=0, delay=0, stages=None, **extra):
@@ -41,7 +42,7 @@ for _cost,_name in enumerate(('Redirect','FalseOrders','AllegianceShift','Invers
 for _name in ('WishPower','WishLongevity','WishResurrection','WishDeath','WishWealth'):
     RULES[_name] = rule('Kanifous','post_resolution_spawns' if _name=='WishPower' else 'post_resolution_direct')
 RULES['WishResurrection']['fire_hook'] = 'end_marching_checks'
-RULES['WishLongevity']['heal_integrity'] = 14
+RULES['WishLongevity']['heal_integrity'] = LONGEVITY_INTEGRITY
 for _name in ('WishPower','WishLongevity','WishResurrection','WishDeath','WishWealth'):
     RULES['Breach'+_name] = dict(copy_data(RULES[_name]),breach_wish=True)
 

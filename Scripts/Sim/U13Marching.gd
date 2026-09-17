@@ -694,7 +694,7 @@ static func _touches_enemy(unit: Dictionary, rows: Array) -> bool:
 static func _move(
 	entities, duels: Dictionary, context: Dictionary, clock: int, has_rout: bool = false, fleeing_ids: Dictionary = {}
 ) -> void:
-	var gate_queue: bool = context.get("world", {}).get("data", {}).get("guard_work", {}).get("version") == "U13_GUARD_WORK_V2"
+	var gate_queue: bool = context.get("world", {}).get("data", {}).get("guard_work", {}).get("version") == "U13_GUARD_WORK_V3"
 	var rows: Array = _units(entities)
 	var has_taunt: bool = rows.any(func(r): return r.attributes.get("monster_id") == "Kurchin")
 	var lane_modifiers: Dictionary = context.get("lane_modifiers", {})

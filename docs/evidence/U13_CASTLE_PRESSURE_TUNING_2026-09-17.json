@@ -1,0 +1,270 @@
+{
+  "runtime": "Godot 4.5.1 diagnostic",
+  "production_runtime": "Godot 4.7.2 stable; interactive review pending",
+  "rules_hash": "42a89676dbc8f311be0b6cf679dc1e6b772f1b480c04a6706c36835b6183b8f4",
+  "guard_work_policy": "U13_GUARD_WORK_V3",
+  "scope": "Controlled Siege/Work/Forge, full Bastion, two fresh rank-3 Guards per round; no Ward, Sigil, artillery, marching or declared powers; guaranteed resources.",
+  "cases": [
+    {
+      "attack": 12,
+      "destroyed_round": 4,
+      "forge": false,
+      "health_after_siege": [
+        11,
+        7,
+        3,
+        0
+      ],
+      "penitent_pair": false,
+      "repair_before_siege": [
+        0,
+        2,
+        2,
+        0
+      ],
+      "wright_pair": false
+    },
+    {
+      "attack": 12,
+      "destroyed_round": 4,
+      "forge": true,
+      "health_after_siege": [
+        11,
+        8,
+        5,
+        0
+      ],
+      "penitent_pair": false,
+      "repair_before_siege": [
+        0,
+        3,
+        3,
+        1
+      ],
+      "wright_pair": false
+    },
+    {
+      "attack": 12,
+      "destroyed_round": 7,
+      "forge": false,
+      "health_after_siege": [
+        11,
+        10,
+        9,
+        8,
+        7,
+        6,
+        0
+      ],
+      "penitent_pair": false,
+      "repair_before_siege": [
+        0,
+        5,
+        5,
+        5,
+        5,
+        5,
+        0
+      ],
+      "wright_pair": true
+    },
+    {
+      "attack": 12,
+      "destroyed_round": 0,
+      "forge": true,
+      "health_after_siege": [
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11
+      ],
+      "penitent_pair": false,
+      "repair_before_siege": [
+        0,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "wright_pair": true
+    },
+    {
+      "attack": 14,
+      "destroyed_round": 3,
+      "forge": false,
+      "health_after_siege": [
+        9,
+        6,
+        0
+      ],
+      "penitent_pair": false,
+      "repair_before_siege": [
+        0,
+        5,
+        0
+      ],
+      "wright_pair": true
+    },
+    {
+      "attack": 14,
+      "destroyed_round": 4,
+      "forge": true,
+      "health_after_siege": [
+        9,
+        7,
+        5,
+        0
+      ],
+      "penitent_pair": false,
+      "repair_before_siege": [
+        0,
+        6,
+        6,
+        1
+      ],
+      "wright_pair": true
+    },
+    {
+      "attack": 12,
+      "destroyed_round": 0,
+      "forge": false,
+      "health_after_siege": [
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16
+      ],
+      "penitent_pair": true,
+      "repair_before_siege": [
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "wright_pair": false
+    },
+    {
+      "attack": 16,
+      "destroyed_round": 5,
+      "forge": false,
+      "health_after_siege": [
+        12,
+        9,
+        6,
+        1,
+        0
+      ],
+      "penitent_pair": true,
+      "repair_before_siege": [
+        0,
+        2,
+        2,
+        0,
+        2
+      ],
+      "wright_pair": false
+    },
+    {
+      "attack": 16,
+      "destroyed_round": 6,
+      "forge": true,
+      "health_after_siege": [
+        12,
+        10,
+        8,
+        6,
+        2,
+        0
+      ],
+      "penitent_pair": true,
+      "repair_before_siege": [
+        0,
+        3,
+        3,
+        3,
+        1,
+        1
+      ],
+      "wright_pair": false
+    },
+    {
+      "attack": 17,
+      "destroyed_round": 4,
+      "forge": true,
+      "health_after_siege": [
+        11,
+        8,
+        5,
+        0
+      ],
+      "penitent_pair": true,
+      "repair_before_siege": [
+        0,
+        3,
+        3,
+        1
+      ],
+      "wright_pair": false
+    }
+  ],
+  "native_checks": {
+    "U13GuardWorkTestRunner": 161,
+    "U13KalliganTestRunner": 33,
+    "U13GremoryTestRunner": 225,
+    "U13KanifousTestRunner": 460,
+    "U13InevitableRuinTestRunner": 38,
+    "U13MonsterTestRunner": 191,
+    "U13GameEconomyTestRunner": 16,
+    "U13OpeningEconomyTestRunner": 36,
+    "U13CastleDefensesTestRunner": 66,
+    "U13CastleLoadoutTestRunner": 44,
+    "U13ConstructionTestRunner": 125,
+    "U13DeimosTestRunner": 97,
+    "U13HumbabaTestRunner": 68,
+    "U13KanifousBoardTestRunner": 26,
+    "U13PlayableBoardTestRunner": 72,
+    "U13CastlePressureTestRunner": 10
+  },
+  "python_tests": 27,
+  "exact_full_engine_parity": {
+    "games": 9,
+    "components": 11,
+    "boundaries": 298
+  },
+  "limitations": [
+    "Guaranteed resources do not model deck availability.",
+    "Repeated strong pairs can still stall smaller attacks.",
+    "Legacy loadout scene test requires production runtime."
+  ]
+}
