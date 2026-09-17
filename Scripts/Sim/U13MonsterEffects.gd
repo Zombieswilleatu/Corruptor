@@ -252,6 +252,6 @@ static func steer(unit: Dictionary, destination: Dictionary, rows: Array, fields
 		if (int(obstacle.x_fp) - int(a.x_fp)) * (int(destination.x_fp) - int(a.x_fp)) < 0 or absi(int(obstacle.y_fp) - int(a.y_fp)) >= int(obstacle.radius): continue
 		var side: int = -1 if a.y_fp <= obstacle.y_fp else 1
 		var y: int = clampi(int(obstacle.y_fp) + side * int(obstacle.radius), 30, 570)
-		if absi(y - int(obstacle.y_fp)) < int(obstacle.radius) / 2: y = clampi(int(obstacle.y_fp) - side * int(obstacle.radius), 30, 570)
+		if absi(y - int(obstacle.y_fp)) < (int(obstacle.radius) >> 1): y = clampi(int(obstacle.y_fp) - side * int(obstacle.radius), 30, 570)
 		return {"x_fp": obstacle.x_fp, "y_fp": y}
 	return destination
