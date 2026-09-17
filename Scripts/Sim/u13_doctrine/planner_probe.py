@@ -75,7 +75,8 @@ class PlannerObserver(ReferenceObserver):
             identity = self.selected.get((number, seat, 'resummon', 'Resummon'))
             if identity: self._attach(identity, event_id, number, dict(lords_returned=1, return_threat=d['return_threat']))
         elif kind == 'KANIFOUS_WISH_RESOLVED':
-            identity = self.selected.get((number, seat, 'powers', d['power']))
+            term = ('Breach' if d.get('breach', False) else '') + d['power']
+            identity = self.selected.get((number, seat, 'powers', term))
             metrics = dict(wish_effect_count=d['count'], wish_success=int(d['success']))
         elif kind in ('KANIFOUS_PRICE_RESOLVED', 'KANIFOUS_PRICE_DEFERRED'):
             identity = self.prices.get(d['id'])

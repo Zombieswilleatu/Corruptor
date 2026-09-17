@@ -1,0 +1,319 @@
+{
+  "date": "2026-09-17",
+  "status": "passed focused local diagnostic; Windows Godot 4.7.2 and PyPy check pending",
+  "base_revision": "a419014a257de45e6eed8659c300491629d4a81b",
+  "local_candidate_revision": "4f5fa936c6fd8dc8fad035a10c9653606ef6fbe2",
+  "candidate_worktree_code_changes": [
+    "Scripts/Sim/u13_doctrine/test_common.py"
+  ],
+  "engine_source_sha256": "36fbfa7a28bb6df8085acaec22488623ffe4c3193074c43a68fd3add177ecbb5",
+  "doctrine_source_sha256": "22c5d40548183fb830c604493754a6bb5b1b297ec529144e26dcf8033413dbfe",
+  "policy": "U13_COMMON_SMART_CORE_ALPHA_V2_BREACH_WISHES",
+  "runtime": {
+    "godot": "4.5.1.stable.official.f62fdbde1 Linux diagnostic",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "implementation": "CPython",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "required_windows_godot": "4.7.2 stable",
+    "pypy_tested": false
+  },
+  "production_godot_rules_changed": false,
+  "balance_changed_by_this_patch": false,
+  "native": [
+    {
+      "suite": "U13VeilBreaches",
+      "exit_status": 0,
+      "checks": 78,
+      "errors": [],
+      "seconds": 5.13
+    },
+    {
+      "suite": "U13Monster",
+      "exit_status": 0,
+      "checks": 191,
+      "errors": [],
+      "seconds": 8.94
+    },
+    {
+      "suite": "U13MonsterResurrection",
+      "exit_status": 0,
+      "checks": 56,
+      "errors": [],
+      "seconds": 1.87
+    }
+  ],
+  "python": {
+    "tests": 67,
+    "failures": 0
+  },
+  "exact_comparisons": {
+    "veil": {
+      "arrival_checks": 5,
+      "effect_checks": 14
+    },
+    "monsters": {
+      "phases": 19,
+      "events": 4185,
+      "ticks": 3800,
+      "event_types": {
+        "KRONI_ACTORS_STARTED": 1,
+        "KRONI_ACTOR_FINISHED": 1,
+        "KRONI_ACTOR_TICK": 200,
+        "KRONI_FLEE_STARTED": 1,
+        "MARCHER_CLASH": 12,
+        "MARCHER_CONTACT": 16,
+        "MARCHER_DEFEATED": 16,
+        "MARCHER_DEVOURED": 1,
+        "MARCHER_DUEL_INTERRUPTED": 4,
+        "MARCHER_RANGED_ATTACK": 26,
+        "MARCHER_WAITING": 1,
+        "MARCHING_FINISHED": 19,
+        "MARCHING_STARTED": 19,
+        "MARCHING_TICK": 3800,
+        "MONSTER_ATTACK": 36,
+        "MONSTER_BANISHED": 1,
+        "MONSTER_BEAM_FIRED": 17,
+        "MONSTER_CHARMED": 3,
+        "MONSTER_CONCEALMENT": 1,
+        "MONSTER_FIELD_CREATED": 3,
+        "MONSTER_POISONED": 1,
+        "MONSTER_PULSE": 1,
+        "MONSTER_ROOTED": 1,
+        "NEUTRAL_TEAR_CREATED": 2,
+        "PICKING_THE_BONES": 2
+      }
+    },
+    "resurrections": {
+      "resurrection_checks": 8,
+      "complete_world_and_events_match": true
+    }
+  },
+  "fixes": [
+    {
+      "area": "experimental doctrine",
+      "problem": "Breach Wish selection absent from assessment terms crashed PlannerObserver; result events also used base Wish names.",
+      "resolution": "Record all five Breach Wish terms for every Lord and attribute resolution/Prices to their Breach selection; enforce the shared one-Wish limit during assembly."
+    },
+    {
+      "area": "Python resurrection",
+      "problem": "Sooge rooting-field loop overwrote the declaration identity, changing revived entity IDs and Price IDs/timing.",
+      "resolution": "Preserve the declaration identity. Eight exact native fixtures cover both forms, both Wish origins and consecutive resurrections."
+    },
+    {
+      "area": "doctrine favorable fixtures",
+      "problem": "Stored pre-tuning Longevity fixtures targeted castles above the new eight-Integrity healing cap.",
+      "resolution": "Build the directed favorable components from the current rules; retain all-power proposal and legality assertions."
+    }
+  ],
+  "initial_revision": "dc0a0803315b60e5a6cb97201213ebd27cddbb05",
+  "initial_checks": {
+    "python_tests": 44,
+    "native_suites": [
+      {
+        "suite": "U13VeilWheel",
+        "exit_status": 0,
+        "pass_lines": 17,
+        "seconds": 0.67,
+        "errors": []
+      },
+      {
+        "suite": "U13Monster",
+        "exit_status": 0,
+        "pass_lines": 191,
+        "seconds": 10.5,
+        "errors": [],
+        "phase_export_unchanged": true
+      },
+      {
+        "suite": "U13BreachWishUI",
+        "exit_status": 0,
+        "pass_lines": 9,
+        "seconds": 4.54,
+        "errors": []
+      },
+      {
+        "suite": "U13SupplicantCashInBoard",
+        "exit_status": 0,
+        "pass_lines": 13,
+        "seconds": 8.65,
+        "errors": []
+      },
+      {
+        "suite": "U13MarchingBalance",
+        "exit_status": 0,
+        "pass_lines": 61,
+        "seconds": 0.92,
+        "errors": []
+      },
+      {
+        "suite": "U13BasicDoctrine",
+        "exit_status": 0,
+        "pass_lines": 232,
+        "seconds": 64.03,
+        "errors": []
+      }
+    ],
+    "recipe_admissions": {
+      "source_revision": "dc0a0803315b60e5a6cb97201213ebd27cddbb05",
+      "source_sha256": "1316e0d6121bd32b3d14d74d4ff7b6bf03162dbe197ebed5fc8e425152d515e1",
+      "exit_status": 0,
+      "seconds": 77.15,
+      "pass_lines": 20,
+      "errors": []
+    },
+    "exact_recipe_admissions": {
+      "cases": 10,
+      "transitions": 594
+    },
+    "native_admission_checks": 4414
+  },
+  "reproduced_failures": {
+    "breach_observer": {
+      "selected": [
+        "BreachWishLongevity"
+      ],
+      "selected_assessments": [],
+      "authority": {
+        "action": "game_submitted"
+      },
+      "observer_error": {
+        "type": "KeyError",
+        "detail": "(1, 0, 'powers', 'BreachWishLongevity')"
+      }
+    },
+    "sooge_native_comparison": {
+      "rejected": true,
+      "detail": "WishResurrection_mobile_0['events'][0]['event']['data']['unit']['id']: 'u13_entity_marcher:38:resurrection:WishResurrection_mobile_0:1:0' != 'u13_entity_marcher:16:sooge_root_round:1:0'"
+    }
+  },
+  "code_artifacts": [
+    {
+      "path": "Scripts/Sim/U13MonsterResurrectionTestRunner.gd",
+      "bytes": 3250,
+      "sha256": "e6bb1d53d0ccd1b689c4faf0ee317db870d7852af032b8691c07c4e40cef7a76"
+    },
+    {
+      "path": "Scripts/Sim/run_u13_new_rules_quick.sh",
+      "bytes": 4347,
+      "sha256": "03c0741cfb1a560428321855f7e2fb68533cabcb488c3f5e330d47bc8408abf8"
+    },
+    {
+      "path": "Scripts/Sim/u13_doctrine/common.py",
+      "bytes": 22243,
+      "sha256": "66f7de6addcb9b63f16240d2bd58d5c7719867f18596bff750aeaaa596b14c24"
+    },
+    {
+      "path": "Scripts/Sim/u13_doctrine/planner_probe.py",
+      "bytes": 13105,
+      "sha256": "5d5dd85c5bbabbb00003fb3b098d22ba4e048fdc8d5a5bbfa3621e86931ac2ba"
+    },
+    {
+      "path": "Scripts/Sim/u13_doctrine/test_common.py",
+      "bytes": 19165,
+      "sha256": "e76897b1b04587e21616fc0e300c293d893f4a46672417276d4bf6e33948cd79"
+    },
+    {
+      "path": "Scripts/Sim/u13_pysim/test_powers.py",
+      "bytes": 14914,
+      "sha256": "514d9b7adea9e13bb1ce5f801408a4745c780e9201c4866d2b71cfd49ad17d57"
+    },
+    {
+      "path": "Scripts/Sim/u13_pysim/verify_monsters.py",
+      "bytes": 2701,
+      "sha256": "f925afee1eadf05c51feed9d521a7577bc271880dc5a8c405b7e4caacc150772"
+    },
+    {
+      "path": "Scripts/Sim/u13_pysim/wishmaster.py",
+      "bytes": 13195,
+      "sha256": "b83058144207ebaa05ce6b61caf67c1ebab0a1c27abc4a3d51169579e718d046"
+    }
+  ],
+  "report_artifacts": [
+    {
+      "path": "verification/new-rules-final/U13Monster.log",
+      "bytes": 8346,
+      "sha256": "55f3ada75da839d2a3bb0c38793ba80881a081ad4bafccf366802648aa7daec6"
+    },
+    {
+      "path": "verification/new-rules-final/U13MonsterResurrection.log",
+      "bytes": 3430,
+      "sha256": "521b9b56275617ed16c36b836c08e192a4c059c6e6df44d3463a2d19b978caa8"
+    },
+    {
+      "path": "verification/new-rules-final/U13VeilBreaches.log",
+      "bytes": 3087,
+      "sha256": "bb0735e21d2d883931e7baf5e77d798dd1a861c544d02d1c87427de2f03fa76e"
+    },
+    {
+      "path": "verification/new-rules-final/comparisons.json",
+      "bytes": 1034,
+      "sha256": "b69365000ff50bfa1191068b17513ec31058a396fdcf7e3d033b58837371e6b7"
+    },
+    {
+      "path": "verification/new-rules-final/monsters.jsonl",
+      "bytes": 10042728,
+      "sha256": "e3ef09fa696ef63a7863b833060a46152661bae64451fc7fd068f64bf7a8c9b0"
+    },
+    {
+      "path": "verification/new-rules-final/native.json",
+      "bytes": 363,
+      "sha256": "c234190db0d373f9052f014cc037772d1feb8f4e543e20cad44d9995ffc442cd"
+    },
+    {
+      "path": "verification/new-rules-final/python-final-captured.log",
+      "bytes": 166,
+      "sha256": "88850de1a2ab5cb04aa7b58332edc4bd1921b89e06dc20ef97e42757021f9ee0"
+    },
+    {
+      "path": "verification/new-rules-final/resurrections.jsonl",
+      "bytes": 630304,
+      "sha256": "355d41e2f791d2cb6837bf25ff866fa983ee50fa9ed083d4d4621d935821423a"
+    },
+    {
+      "path": "verification/new-rules-final/veil.json",
+      "bytes": 1031803,
+      "sha256": "5babd758dcab47622adbb72d97273f81e9881fdc6879e90550d837d2a8aa77d8"
+    },
+    {
+      "path": "verification/quick-new-rules/regressions-before.log",
+      "bytes": 10220,
+      "sha256": "48bade72d1aaf6188c32929f32669369e0f0b34b002f65d325b49adcc8c7a719"
+    },
+    {
+      "path": "verification/quick-new-rules/breach-observer-reproduction.json",
+      "bytes": 240,
+      "sha256": "71c66ad21bf13fc6a1228dcfad3ad85ac3de9d8e6d4b5c0d82a46c41226d4bba"
+    },
+    {
+      "path": "verification/quick-new-rules/resurrection-python.json",
+      "bytes": 370,
+      "sha256": "7e38926a3c02a502e9f19b749739ba1e4a15e157a7c85cb585bd19b8e2d90a2b"
+    },
+    {
+      "path": "verification/quick-new-rules/monster-admissions.json",
+      "bytes": 129617,
+      "sha256": "7255532e5bd0882b170455b4885cd375113f06e8d9993f10559e077b04bcec16"
+    },
+    {
+      "path": "verification/quick-new-rules/monster-admissions.exact.jsonl",
+      "bytes": 46218442,
+      "sha256": "7465420316b97791c2b984de51d87a574ede44425660d026919e7d3ccd5c33e5"
+    },
+    {
+      "path": "verification/quick-new-rules/monster-admissions-native.log",
+      "bytes": 646,
+      "sha256": "4ed232ad968e03a923f23e60ccb17f6a286ec47859ccaec80f52ffac5a67c551"
+    },
+    {
+      "path": "verification/quick-new-rules/monster-admissions-python.json",
+      "bytes": 34,
+      "sha256": "47adc0f94211733074fb3c45fef753f237a2c031af2c4b2369f5bd2bd9f74046"
+    }
+  ],
+  "limits": [
+    "Exact native/Python fixtures validate the named cases; no new complete-game campaign, strength or balance measurement was performed.",
+    "Initial admission/UI checks belong to dc0a080; the three named native suites and all 67 Python tests were rerun with the fixes on top of a419014 castle tuning.",
+    "Native and experimental bots currently add an eligible monster to existing commitments; strategic recipe saving and comparative monster valuation remain future doctrine work.",
+    "Headless UI checks do not establish interactive visual acceptance. Previous accepted Windows checkpoints retain their exact revisions/scopes."
+  ]
+}

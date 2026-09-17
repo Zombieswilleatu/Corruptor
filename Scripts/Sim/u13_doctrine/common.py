@@ -11,6 +11,7 @@ from u13_pysim.copying import copy_data
 from u13_pysim.development import eligible, commission_eligible
 from u13_pysim.opening import COSTS
 from u13_pysim.power_rules import RULES, declaration
+from u13_pysim.powers import WISHES
 from u13_pysim.lifecycle import evaluate
 from . import lords
 from .budget import Budget, Limits
@@ -18,7 +19,8 @@ from .coverage import POWERS
 from .diagnostics import fingerprint
 from .facts import Facts, Proposal, LANES
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V1'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V2_BREACH_WISHES'
+BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
 @dataclass(frozen=True)
@@ -215,7 +217,7 @@ class CommonSmartCore:
                 if cards.intersection(p.cards): return False
                 if p.category == 'powers':
                     if p.term in [x.term for x in selected if x.category == 'powers']: return False
-                    if p.term.startswith('Wish') and plan['powers']: return False
+                    if p.term in WISHES and any(s['power_id'] in WISHES for s in plan['powers']): return False
                     if any(resource_spend[k]+v > f.resources.get(k, 0) for k, v in RULES[p.term]['cost'].items()): return False
                     index = len(plan['powers'])
                     source = declaration(f.pid, view['round'], p.term, p.payload['target'], index=index,
@@ -267,7 +269,7 @@ class CommonSmartCore:
                 if p.value > 0: assemble([p], priorities)
         for p in retained['combat']:
             assemble([p], ('resummon', 'powers', 'work', 'guards', 'rites'))
-        positive = [p for p in retained['powers'] if p.value > 0 and not p.term.startswith('Wish')]
+        positive = [p for p in retained['powers'] if p.value > 0 and p.term not in WISHES]
         if len(positive) > 1: assemble(positive[:2], base)
         ranked = sorted({fingerprint(c['plan']): c for c in complete}.values(),
                         key=lambda c: (-c['score'], sum(len(p.cards) for p in c['selected']), fingerprint(c['plan'])))
@@ -280,7 +282,7 @@ class CommonSmartCore:
         if chosen is None:
             raise ValueError('No admitted plan within preview budget: '+repr(rejected))
         picked = {(p.category, p.term) for p in chosen['selected']}
-        terms = [('powers', p) for p in POWERS[f.kind]]
+        terms = [('powers', p) for p in (*POWERS[f.kind], *BREACH_WISHES)]
         terms += [(c, t) for c, ts in dict(resummon=('Resummon',), rites=('Supplicants', 'Invocation', 'ProfaneRuins'),
                  guards=('Deploy',), work=('Work', 'Activate'), combat=('Pass', 'Ward', 'Hunt', 'Siege', 'Profane')).items() for t in ts]
         assessments = []

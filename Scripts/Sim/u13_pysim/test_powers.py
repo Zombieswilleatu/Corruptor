@@ -103,6 +103,7 @@ class PowerTests(unittest.TestCase):
     def test_sooge_resurrection_preserves_rooting_progress_and_permanent_form(self):
         from types import SimpleNamespace
         from . import monsters, recruitment, wishmaster
+        from .primitives import entity_id, instance_id
         for turret in (False, True):
             with self.subTest(turret=turret):
                 g=self.before_lock('Kanifous');w=g._state['world']
@@ -115,6 +116,8 @@ class PowerTests(unittest.TestCase):
                 wishmaster.wish(SimpleNamespace(w=w,number=1,seed='sooge-resurrection'),source)
                 bodies=[r for r in w['entities']['entities'] if r['attributes'].get('monster_id')=='Sooge']
                 self.assertEqual(1,len(bodies))
+                self.assertEqual(entity_id('marcher',source['declaration_id'],0),bodies[0]['id'])
+                self.assertEqual(instance_id('price',source['declaration_id'],'main'),w['data']['kanifous_prices'][-1]['id'])
                 revived=bodies[0]['attributes']
                 self.assertEqual(('turret' if turret else 'mobile',4,1,2,6 if turret else 2),
                                  tuple(revived[k] for k in ('sprite_form','sooge_root_attempts','sooge_root_round','movement_ready_round','armor')))

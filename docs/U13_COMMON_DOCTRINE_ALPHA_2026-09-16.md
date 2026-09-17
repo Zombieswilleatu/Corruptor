@@ -1,5 +1,11 @@
 # U13 CommonSmartCore alpha
 
+> **2026-09-17 continuation:** Veil and monster rules now exist in both engines.
+> The [focused review](U13_NEW_RULES_QUICK_CHECK_2026-09-17.md) fixes Breach Wish
+> diagnostics and Python Sooge resurrection parity on top of the current castle
+> tuning. Its local diagnostic evidence is separate from the Windows acceptance
+> below; strategic recipe planning remains ahead.
+
 The existing nine-Lord rules passed the focused Windows Godot 4.7.2 / CPython /
 PyPy gate at `5fb53e7`. See [accepted rules evidence](evidence/U13_PYSIM_NINE_LORDS_5fb53e7.json).
 This checkpoint begins the fresh Python doctrine. It does not replace the

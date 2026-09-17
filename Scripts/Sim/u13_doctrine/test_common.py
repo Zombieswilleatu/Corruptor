@@ -87,7 +87,9 @@ class CommonTests(unittest.TestCase):
 
     def test_all_powers_have_bounded_legal_proposals_in_favorable_components(self):
         seen = set()
-        for case in json.loads(power_inputs.PATH.read_text())['components']:
+        # Favorable fixtures follow current tuning; historical replay inputs
+        # can contain healing targets above a subsequently lowered ceiling.
+        for case in power_components.generate():
             if not case['name'].startswith('power_'): continue
             name = case['name'][6:]; game = PowerMatch(case['setup'])
             for entry in case['operations']:
@@ -220,6 +222,76 @@ class CommonTests(unittest.TestCase):
         group = next(g for g in observer.report()['groups'] if g['category'] == 'powers' and g['term'] == source['power_id'])
         self.assertEqual(1, group['outcomes']['resolved'])
         self.assertEqual(0, group['effect_records'])
+
+    def breach_planning(self):
+        game = planning('Deimos')
+        world = game._state['world']
+        world['data']['neutral_tears'] = 5
+        world['data']['veil_breaches'].update(checked_round=1, arrivals=[
+            dict(lord_id='Kanifous', threshold=5, protection=1, round=1, veil=5)])
+        castle = next(r for r in world['entities']['entities']
+                      if r['kind'] == 'castle' and r['owner'] == 0
+                      and r['attributes']['castle_type'] == 'Keep')
+        castle['attributes']['integrity'] = 1
+        game._state['presentation_world'] = copy_data(world)
+        return game, castle['id']
+
+    def test_breach_wish_records_selection_resolution_and_heavier_price(self):
+        game, _ = self.breach_planning()
+        decision = CommonSmartCore().decide(observe(game, 0), Preview(game, 0))
+        self.assertEqual(['BreachWishLongevity'], [p['power_id'] for p in decision['plan']['powers']])
+        result = game.apply(dict(kind='submit', plans=[decision['plan'], dict(powers=[], order={})]))
+        self.assertNotEqual('invalid', result['action'])
+        observer = PlannerObserver(dict(name='breach-diagnostics', setup=dict(lords=['Deimos', 'Gremory'])))
+        observer.accepted(1, 0, decision)
+        cursor = len(game._state['events']['rows'])
+        while game.clock.hook != 'post_resolution_direct':
+            self.assertNotEqual('invalid', game.apply(dict(kind='step', hook=game.clock.hook))['action'])
+        self.assertNotEqual('invalid', game.apply(dict(kind='step', hook=game.clock.hook))['action'])
+        for i, row in enumerate(game._state['events']['rows'][cursor:], cursor):
+            observer.event(i, row['event'], 1)
+        source = decision['plan']['powers'][0]
+        price = next(p for p in game._state['world']['data']['kanifous_prices'] if p['owner'] == 0)
+        self.assertTrue(price['breach'])
+        self.assertEqual(observer.declarations[source['declaration_id']], observer.prices[price['id']])
+        # Collection can occur later; it must retain the original Breach selection.
+        observer.event(100000, dict(type='KANIFOUS_PRICE_RESOLVED',
+            data=dict(id=price['id'], outcome='Cards', round=price['due_round'])), price['due_round'])
+        group = next(g for g in observer.report()['groups'] if g['term'] == 'BreachWishLongevity')
+        self.assertEqual(1, group['flags']['selected']['true'])
+        self.assertEqual(1, group['outcomes']['resolved'])
+        self.assertEqual(1, group['metrics']['wish_success'])
+        self.assertEqual(1, group['metrics']['price_cards'])
+
+    def test_breach_wish_limit_is_enforced_before_authoritative_preview(self):
+        game, castle = self.breach_planning()
+        previews = []
+        authority = Preview(game, 0)
+        def preview(plan):
+            previews.append(copy_data(plan))
+            return authority(plan)
+        def proposals(_facts):
+            yield power('BreachWishLongevity', dict(entity_id=castle), 100, 'directed_healing')
+            yield power('BreachWishPower', dict(lane='Lord'), 90, 'directed_recruitment')
+        with patch('u13_doctrine.common.lords.proposals', proposals):
+            decision = CommonSmartCore().decide(observe(game, 0), preview)
+        self.assertTrue(previews)
+        self.assertTrue(all(len(p['powers']) <= 1 for p in previews))
+        self.assertEqual([], decision['rejected_previews'])
+
+    def test_breach_assessments_cover_all_lords_and_protection(self):
+        for lord in lords.MODULES:
+            with self.subTest(lord=lord):
+                game = planning(lord)
+                decision = CommonSmartCore().decide(observe(game, 0), Preview(game, 0))
+                terms = {a['term'] for a in decision['assessments'] if a['category'] == 'powers'}
+                self.assertEqual({p for p, rules in RULES.items() if rules.get('breach_wish')},
+                                 {p for p in terms if p.startswith('BreachWish')})
+        game, _ = self.breach_planning()
+        game._state['world']['players'][1]['resources']['personal_tears'] = 1
+        game._state['presentation_world'] = copy_data(game._state['world'])
+        decision = CommonSmartCore().decide(observe(game, 0), Preview(game, 0))
+        self.assertFalse(any(p['power_id'].startswith('BreachWish') for p in decision['plan']['powers']))
 
     def test_cross_runtime_comparison_rejects_rehashed_changed_decisions(self):
         semantic = dict(failures=0, choices=['Hunt'])

@@ -34,6 +34,26 @@ def verify_games(inputs,path):
     return results
 
 
+def verify_resurrections(path):
+    from types import SimpleNamespace
+    from .copying import copy_data
+    from .wishmaster import wish
+    checks = 0
+    with open(path, encoding='utf-8') as stream:
+        for line in stream:
+            record = codec.loads(line)
+            c = record['context']
+            world = copy_data(c['world'])
+            events = wish(SimpleNamespace(w=world, number=c['round'], seed=c['seed']), record['source'])
+            same(record['result'], dict(action='resolved', world=world, events=events), record['name'])
+            checks += 1
+    if checks != 8:
+        raise ValueError('Expected eight normal/Breach mobile/turret resurrection records')
+    return dict(resurrection_checks=checks, complete_world_and_events_match=True)
+
+
 if __name__=='__main__':
-    result=verify_games(sys.argv[2],sys.argv[3]) if sys.argv[1]=='--games' else verify(sys.argv[1])
+    if sys.argv[1]=='--games': result=verify_games(sys.argv[2],sys.argv[3])
+    elif sys.argv[1]=='--resurrections': result=verify_resurrections(sys.argv[2])
+    else: result=verify(sys.argv[1])
     print(json.dumps(result,indent=2))
