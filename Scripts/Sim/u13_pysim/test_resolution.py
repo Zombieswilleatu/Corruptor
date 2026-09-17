@@ -4,6 +4,7 @@ import unittest
 from unittest.mock import patch
 
 from . import codec, economy as e, recruitment
+from .full_match_inputs import next_operation
 from .copying import copy_data
 from .resolution import ResolutionMatch, Ordinary
 from .resolution_fixtures import inputs, component_initial, component_apply
@@ -33,9 +34,8 @@ class ResolutionTests(unittest.TestCase):
     def test_owned_match_failure_restores_world_events_and_cursor(self):
         spec = inputs()["games"][0]
         game = ResolutionMatch(spec["setup"])
-        for op in spec["operations"]:
-            if op.get("hook") == "commitment_reveal": break
-            game.apply(op)
+        while game.clock.hook != "commitment_reveal":
+            self.assertNotEqual("invalid", game.apply(next_operation(game))["action"])
         before = game.snapshot()
         original = Ordinary.reveal
         def fail_after_recruitment(owner):
@@ -51,7 +51,8 @@ class ResolutionTests(unittest.TestCase):
     def test_post_resolution_boundary_fails_without_advancing(self):
         spec = inputs()["games"][0]
         game = ResolutionMatch(spec["setup"])
-        for op in spec["operations"]: game.apply(op)
+        while game.clock.hook != "post_resolution_spawns":
+            self.assertNotEqual("invalid", game.apply(next_operation(game))["action"])
         before = game.snapshot()
         with self.assertRaises(e.Unsupported): game.apply(dict(kind="step", hook="post_resolution_spawns"))
         self.same(before, game.snapshot())

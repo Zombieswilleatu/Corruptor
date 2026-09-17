@@ -76,12 +76,12 @@ func run() -> void:
 		var repeated: Dictionary = Trace.replay(session.trace, revision, source_hash)
 		check(repeated.action == "trace_replayed", "opening repeats exactly %d" % index)
 	var shortfall: Dictionary = Trace.begin({"seed": "u13-python-shortfall:23", "lords": ["Odradek", "Humbaba"], "castles": [modes[1], modes[1]]}, revision, source_hash)
-	if check(shortfall.action != "invalid", "opening payment shortfall fixture starts"):
+	if check(shortfall.action != "invalid", "free opening without a starting Circle starts"):
 		suite.openings.append(shortfall.trace)
 		var w: Dictionary = shortfall.trace.opening.world
-		check(w.data.game_economy.opening.summons[0].shortfall == 1 and w.data.card_zones.hands[0].is_empty(), "opening shortfall exhausts the hand without inventing payment")
+		check(w.data.game_economy.opening.summons[0].shortfall == 0 and w.data.card_zones.hands[0].is_empty(), "free opening has no setup cards or payment shortfall")
 		var actor: Dictionary = Trace.Game.Content.Resummon.lord(w, 0)
-		check(actor.attributes.alive and actor.attributes.threat == 0 and w.data.neutral_tears == 0, "forced first summon grants no shortfall Threat or Tear")
+		check(actor.attributes.alive and actor.attributes.threat == 0 and w.data.neutral_tears == 0, "free first summon grants no Threat or Tear")
 	var trace_setup: Dictionary = {"seed": "u13-python-explicit-choices", "lords": ["Gremory", "Valak"],
 		"castles": [["Keep", "Stockpile", "SummoningCircle", "Bastion", "SiegeEngine"], ["Keep", "Stockpile", "SummoningCircle", "Bastion", "SiegeEngine"]]}
 	var session: Dictionary = Trace.begin(trace_setup, revision, source_hash)

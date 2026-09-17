@@ -7,7 +7,7 @@ const Guards = preload("res://Scripts/Sim/U13GuardDeployment.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
 const SUITS: Array = ["Butcher", "Penitent", "Wright", "Vulture"]
-const ATTEMPTS: Array = [0, 0, 0, 3, 2, 0, 0, 1, 0]
+const ATTEMPTS: Array = [2, 0, 1, 7, 10, 9, 0, 3, 6]
 var checks: int = 0
 var failures: int = 0
 var revision: String

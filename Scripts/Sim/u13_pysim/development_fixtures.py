@@ -10,7 +10,7 @@ from . import economy as e, opening, development as d
 from .primitives import Entities
 from .timeline import HOOKS
 
-ATTEMPTS = (0, 0, 0, 3, 2, 0, 0, 1, 0)
+ATTEMPTS = (2, 0, 1, 7, 10, 9, 0, 3, 6)
 COMPONENT_SEED = "u13-development-components:é"
 COMPONENT_NAMES = ["work_lifecycle", *[f"pair_{suit}_{lane}" for suit in d.SUITS for lane in d.LANES],
                    "reconstruction", "atomic_deployment"]

@@ -1,5 +1,7 @@
 # U13 production opening economy
 
+> Superseded for new matches on 2026-09-17 by the [free initial Lord and ordinary first draw](U13_FREE_OPENING_2026-09-17.md). The dated rules and acceptance record below describe the earlier paid opening; they are retained as history.
+
 The user reported this checkpoint's 12/12 gate green. The following Fracture
 checkpoint expands the gate to 13/13; see `U13_FRACTURE_2026-09-11.md`.
 

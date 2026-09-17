@@ -1,5 +1,7 @@
 # U13 opening comparison — 2026-09-17
 
+> Subsequent decision: the user approved [production adoption](U13_FREE_OPENING_2026-09-17.md). This report preserves the original experiment and its exact scope. Reproduce its paid-opening control at `ad53086`; the current production setup is now the free-opening arm.
+
 The normal-draw/free-Lord opening reduced games with a round-one castle loss
 from **91/162 (56.2%) to 28/162 (17.3%)**, with almost unchanged match length:
 **17.76 to 18.02 rounds**. This supports adopting the proposed opening and

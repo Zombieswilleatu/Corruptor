@@ -1,0 +1,93 @@
+{
+  "schema": "U13_FREE_OPENING_LOCAL_V1",
+  "date": "2026-09-17",
+  "source_base_revision": "ad53086c5f286f2c35541990b24366e7d900c8b1",
+  "source_worktree_modified": true,
+  "source_sha256": "7e2f5fb6612abd49b598c51fbcc2c9468651c1ddf3fbcc0862148f6645dc41bf",
+  "opening_policy": "U13_GAME_ECONOMY_V5_FREE_OPENING",
+  "shuffle_namespace": "U13_GAME_ECONOMY_V4",
+  "godot_version": "4.5.1.stable.official.f62fdbde1",
+  "platform": "Linux",
+  "diagnostic_only": true,
+  "python": {
+    "implementation": "CPython",
+    "version": "3.12.14",
+    "rules_tests": 93,
+    "opening_and_common_tests": 22,
+    "failures": 0
+  },
+  "native_checks": [
+    {
+      "suite": "economy",
+      "passes": 16,
+      "failures": 0,
+      "log_sha256": "e2511ca05a46f7f307f5ae444b3211ea769ae512f2aa2c01137ce37bde98c872"
+    },
+    {
+      "suite": "conductor",
+      "passes": 164,
+      "failures": 0,
+      "log_sha256": "3eb7a70fddc59663a71df98171f18610b789fb6e368a6498ccb382618303daab"
+    },
+    {
+      "suite": "opening_export",
+      "passes": 138,
+      "failures": 0,
+      "log_sha256": "6459f2a658c4060b4b9cdc61d9ddab318511ebba403c403b81124624ecac11bb"
+    }
+  ],
+  "exact_opening_parity": {
+    "schema": "U13_FREE_OPENING_SUITE_V1",
+    "opening_version": "U13_GAME_ECONOMY_V5_FREE_OPENING",
+    "source_revision": "ad53086c5f286f2c35541990b24366e7d900c8b1",
+    "source_sha256": "7e2f5fb6612abd49b598c51fbcc2c9468651c1ddf3fbcc0862148f6645dc41bf",
+    "diagnostic_only": true,
+    "complete_openings_matched": 9,
+    "snapshots_matched": 72,
+    "operations_matched": 63,
+    "failures": 0,
+    "runtime": "4.5.1-stable (official)",
+    "scope": "exact opening, first draws, Stockpile/Slaver, event privacy and planning boundary; no full-game parity claim",
+    "deliberate_mismatches_rejected": 6
+  },
+  "exact_trace_sha256": "ba96f8378f56eccce84e6c71fa19aa9c94f26dee4cb2654ca825e9797a472dfa",
+  "experimental_replays": {
+    "scope": "Three saved experimental trajectories replayed under production adoption. Only policy_id, rules_hash, and game_economy.version relabeled for comparison; no gameplay fields excluded. Python regression, not native full-game parity.",
+    "games": [
+      {
+        "name": "gremory_gremory_00",
+        "operations": 319,
+        "rounds": 13,
+        "all_inputs_accepted": true,
+        "final_state_matches_except_opening_identity": true,
+        "castle_metrics_matched": true,
+        "experimental_final_state_sha256": "475d841f7c079fa67bce0d143674f4d7588761ccd77c54bb79793ebc1ac66444"
+      },
+      {
+        "name": "odradek_orias_00",
+        "operations": 324,
+        "rounds": 13,
+        "all_inputs_accepted": true,
+        "final_state_matches_except_opening_identity": true,
+        "castle_metrics_matched": true,
+        "experimental_final_state_sha256": "af09c51238a11069d5b59e997c054ccff71101e20f45ea043bdbe9114b6317dd"
+      },
+      {
+        "name": "kanifous_valak_00",
+        "operations": 428,
+        "rounds": 17,
+        "all_inputs_accepted": true,
+        "final_state_matches_except_opening_identity": true,
+        "castle_metrics_matched": true,
+        "experimental_final_state_sha256": "9379570563505044ad746aa50f36a50a831dba63c110ea32fa6e457fce364633"
+      }
+    ]
+  },
+  "windows_godot_4_7_2_and_pypy_acceptance": "pending",
+  "historical_evidence": "Existing accepted native inputs and evidence retained at their exact revisions; not broadened by this local gate.",
+  "next_doctrine_targets": [
+    "Invocation plan admission before complete-plan evaluation",
+    "Power timing and conflicts inside assembled plans",
+    "Odradek resource saving horizon"
+  ]
+}

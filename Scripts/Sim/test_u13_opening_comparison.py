@@ -5,10 +5,12 @@ from compare_u13_openings import make_match, undealt_deck, EXPERIMENT
 from u13_doctrine.common import CommonSmartCore
 from u13_doctrine.observation import observe
 from u13_doctrine.survey import cases
-from u13_pysim import economy, full_match_inputs
+from u13_pysim import economy, full_match_inputs, opening
 from u13_pysim.power_match import PowerMatch
 
 
+@unittest.skipUnless(opening.ECONOMY == "U13_GAME_ECONOMY_V4",
+    "Historical A/B requires ad53086; current setup is covered by test_opening.")
 class OpeningComparisonTests(unittest.TestCase):
     def test_control_is_unchanged_and_experiment_is_detached(self):
         setup = next(cases(1))['setup']

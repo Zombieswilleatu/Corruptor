@@ -15,7 +15,9 @@ SUITS = ["Butcher", "Penitent", "Vulture", "Wright"]
 COUNTS = [4, 4, 4, 3, 3]
 COSTS = {"Orias": 6, "Deimos": 7, "Gremory": 6, "Humbaba": 6, "Kalligan": 4,
          "Odradek": 8, "Kroni": 5, "Valak": 6, "Kanifous": 4}
-ECONOMY = "U13_GAME_ECONOMY_V4"
+ECONOMY = "U13_GAME_ECONOMY_V5_FREE_OPENING"
+# Opening-rule versioning must not reshuffle the deck used in the accepted A/B.
+SHUFFLE_VERSION = "U13_GAME_ECONOMY_V4"
 MARKET = "U13_GAME_MARKET_V2"
 # Pin the accepted authority's complete roster identity. Matching this hash
 # does not assert that the Python mirror implements those powers yet.
@@ -36,7 +38,7 @@ def castle_id(player, slot):
 
 def shuffle(cards, seed, purpose):
     for index in range(len(cards) - 1, 0, -1):
-        pick = draw(seed, ECONOMY, purpose, index, index + 1)
+        pick = draw(seed, SHUFFLE_VERSION, purpose, index, index + 1)
         cards[index], cards[pick] = cards[pick], cards[index]
 
 
@@ -139,38 +141,13 @@ def world(seed, lords, loadouts):
     data["game_economy"] = {"version": ECONOMY, "opening_dealt": True, "draw_round": 0,
                             "draw_player": 2, "stockpile_pending": {},
                             "opening": {"active_castle_count": 3, "active_castle_ids": active, "summons": []}}
-    for pid in range(2):
-        for _ in range(5):
-            card = deck.pop()
-            zones["hands"][pid].append(card)
-            ids.update(card, pid, ids.rows[card]["attributes"])
+    # First summons are free. The ordinary first-round draw creates the hand;
+    # paid_development retains the Lord costs and Blood Offering for returns.
     for pid, lord in enumerate(lords):
-        circles = [castle_id(pid, slot) for slot in range(3) if loadouts[pid][slot] == "SummoningCircle"]
-        circle = circles[0] if circles else ""
-        cost = COSTS[lord]
-        if circle:
-            ids.rows[circle]["attributes"]["integrity"] -= 3
-            cost = max(0, cost - 3)
-        available = list(zones["hands"][pid])
-        selected, values, paid = [], [], 0
-        while paid < cost and available:
-            # Python min, like the authority's strict less-than scan, keeps the
-            # first card in hand order when values tie.
-            card = min(available, key=lambda key: ids.rows[key]["attributes"]["value"])
-            available.remove(card)
-            selected.append(card)
-            value = ids.rows[card]["attributes"]["value"]
-            values.append(value)
-            paid += value
-        for card in selected:
-            zones["hands"][pid].remove(card)
-            zones["discard"].append(card)
-            ids.update(card, -1, ids.rows[card]["attributes"])
         data["game_economy"]["opening"]["summons"].append({
             "player_id": pid, "lord_id": lord, "lord_entity_id": players[pid]["lord_entity_id"],
-            "cost": cost, "paid_value": paid, "shortfall": max(0, cost - paid),
-            "card_ids": selected, "card_values": values, "circle_id": circle,
-            "circle_exerted": 3 if circle else 0})
+            "cost": 0, "paid_value": 0, "shortfall": 0,
+            "card_ids": [], "card_values": [], "circle_id": "", "circle_exerted": 0})
     world = {"players": players, "entities": ids.snapshot(), "data": data}
     monsters.configure(world)
     veil.configure(world)

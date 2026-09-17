@@ -3,6 +3,7 @@
 import unittest
 from unittest.mock import patch
 import json
+import hashlib
 from pathlib import Path
 import subprocess
 import sys
@@ -41,13 +42,23 @@ class FullMatchTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             report = root/"samples.json"
-            config = dict(sim_path=str(Path(__file__).resolve().parents[1]), games=4,
-                          implementation="candidate", inputs_sha256=input_hash(),
+            # Exercise the worker's digest rejection on legal current inputs,
+            # keeping the accepted old native stream untouched on disk.
+            from .full_match_inputs import generate
+            generated = generate()
+            stream = root/"current-inputs.json"
+            stream.write_text(json.dumps(generated),encoding="utf-8")
+            sim = str(Path(__file__).resolve().parents[1])
+            config = dict(sim_path=sim, games=4,
+                          implementation="candidate", inputs_sha256=hashlib.sha256(stream.read_bytes()).hexdigest(),
                           expected_games=[dict(name=case["name"],final_state_sha256="wrong",outcome={})
-                                          for case in load()["cases"]], report_path=str(report))
+                                          for case in generated["cases"]], report_path=str(report))
+            bootstrap = ("import sys; from pathlib import Path; sys.path.insert(0,"+repr(sim)+"); "
+                         "from u13_pysim import full_match_inputs as unit_inputs; "
+                         "unit_inputs.PATH=Path("+repr(str(stream))+")\n")
             path = root/"worker.json"
             path.write_text(json.dumps(config),encoding="utf-8")
-            result = subprocess.run([sys.executable,"-O","-c",copying_gate.WORKER,str(path)],
+            result = subprocess.run([sys.executable,"-O","-c",bootstrap+copying_gate.WORKER,str(path)],
                                     capture_output=True,text=True,timeout=60)
             self.assertNotEqual(0,result.returncode)
             self.assertIn("worker.final_state[0]",result.stderr)
@@ -56,11 +67,12 @@ class FullMatchTests(unittest.TestCase):
     def before_lock(self, match_type=FullMatch):
         spec = load()["cases"][0]
         game = match_type(spec["setup"])
-        for operation in spec["operations"]:
+        for _ in range(30):
+            operation = next_operation(game)
             if operation == dict(kind="step",hook="submission_lock"):
                 return game, operation
             self.assertNotEqual("invalid",game.apply(operation)["action"])
-        self.fail("reference has no submission lock")
+        self.fail("current opening has no submission lock")
 
     def test_owned_hook_failure_restores_appended_events_and_clock(self):
         original = RoundRules.run
@@ -159,10 +171,10 @@ class FullMatchTests(unittest.TestCase):
     def at(self, number, hook):
         spec = load()["cases"][0]
         game = FullMatch(spec["setup"])
-        for op in spec["operations"]:
+        for _ in range(100):
             if game.clock.round == number and game.clock.hook == hook: return game
-            self.assertNotEqual("invalid",game.apply(op)["action"])
-        self.fail("requested prefix unavailable")
+            self.assertNotEqual("invalid",game.apply(next_operation(game))["action"])
+        self.fail("requested current-game prefix unavailable")
 
     def test_cleanup_and_next_round_preserve_cards_and_reset_only_sealed_inputs(self):
         game = self.at(1,"aftermath")

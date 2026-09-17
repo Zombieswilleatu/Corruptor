@@ -24,15 +24,12 @@ func run() -> void:
 	var world: Dictionary = opening.world
 	check(Game.Content.new().valid_world(world), "opening valid under all-Lord content")
 	var opening_state: Dictionary = world.data.game_economy.opening
-	var paid_cards: int = 0
-	for pid in [0, 1]:
-		paid_cards += opening_state.summons[pid].card_ids.size()
 	check(
-		world.data.card_zones.hands[0].size() == 5 - opening_state.summons[0].card_ids.size()
-		and world.data.card_zones.hands[1].size() == 5 - opening_state.summons[1].card_ids.size()
-		and world.data.card_zones.deck.size() == 47
-		and world.data.card_zones.discard.size() == paid_cards,
-		"market dealt, opening hands paid their Lord summons"
+		world.data.card_zones.hands == [[], []]
+		and world.data.card_zones.deck.size() == 57
+		and world.data.card_zones.discard.is_empty()
+		and opening_state.summons.all(func(record): return record.cost == 0 and record.card_ids.is_empty()),
+		"market dealt; free Lords wait for the ordinary first draw"
 	)
 	var counts: Dictionary = {}
 	var high: bool = false
@@ -52,7 +49,7 @@ func run() -> void:
 			castle_opening = castle_opening and (
 				castle.attributes.construction_state == ("active" if slot < 3 else "unbuilt")
 				and castle.attributes.integrity == (
-					14 if slot == 2 else (17 if slot < 3 else 0)
+					17 if slot < 3 else 0
 				)
 			)
 	check(castle_opening, "first three loadout slots stand; final two remain blueprints")
@@ -63,10 +60,10 @@ func run() -> void:
 	check(
 		first.world.data.card_zones.hands[0].size() == world.data.card_zones.hands[0].size() + 5
 		and first.world.data.card_zones.hands[1].size() == world.data.card_zones.hands[1].size() + 5,
-		"round one draws five after paid opening summons"
+		"round one draws the ordinary five cards"
 	)
 	check(
-		world.data.card_zones.hands[0].size() == 5 - opening_state.summons[0].card_ids.size()
+		world.data.card_zones.hands[0].is_empty()
 		and world.data.game_economy.draw_round == 0,
 		"draw transform does not mutate input"
 	)
