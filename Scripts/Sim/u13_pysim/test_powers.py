@@ -10,6 +10,20 @@ from .timeline import HOOKS
 
 
 class PowerTests(unittest.TestCase):
+    def test_predator_reduction_leaves_humbaba_muster_at_three(self):
+        for lord,power,suit,count in (('Gremory','PredatorOfRuin','Vulture',2),
+                                      ('Humbaba','MusterTheFaithful','Penitent',3)):
+            for lane in ('Lord','Castle'):
+                with self.subTest(lord=lord,lane=lane):
+                    g=self.before_lock(lord)
+                    self.assertNotEqual('invalid',self.submit(g,[declaration(0,1,power,dict(lane=lane))])['action'])
+                    self.drive(g,'post_resolution_spawns',1)
+                    self.assertNotEqual('invalid',g.apply(dict(kind='step',hook='post_resolution_spawns'))['action'])
+                    bodies=[r for r in g._state['world']['entities']['entities'] if r['kind']=='marcher' and r['owner']==0]
+                    self.assertEqual(count,len(bodies))
+                    self.assertEqual(count,len({r['id'] for r in bodies}))
+                    self.assertTrue(all(r['attributes']['suit']==suit and r['attributes']['lane']==lane for r in bodies))
+
     def test_inevitable_ruin_targets_only_castles_above_fourteen(self):
         for health in (0, 7, 13, 14, 15, 20, 21):
             with self.subTest(health=health):
@@ -146,7 +160,7 @@ class PowerTests(unittest.TestCase):
             self.assertEqual('invalid',g.apply(dict(kind='step',hook='post_resolution_spawns'))['action'])
         self.assertEqual(before,g.snapshot())
         self.assertNotEqual('invalid',g.apply(dict(kind='step',hook='post_resolution_spawns'))['action'])
-        self.assertEqual(3,sum(r['kind']=='marcher' for r in g._state['world']['entities']['entities']))
+        self.assertEqual(2,sum(r['kind']=='marcher' for r in g._state['world']['entities']['entities']))
 
     def test_expiration_bound_clock_and_relocation_keep_original_lifetime(self):
         g=self.before_lock('Kalligan');s=declaration(0,1,'Inferno',dict(kind='lane',lane='Lord'))

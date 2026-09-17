@@ -149,7 +149,7 @@ func _predator() -> void:
 	_check(_marchers(owner.snapshot().world).is_empty(), "no_predator_spawn_before_step_10a")
 	_check(owner.run_next_hook().action != "invalid", "predator_fires_step_10a")
 	var marchers: Array = _marchers(owner.snapshot().world)
-	_check(marchers.size() == 3, "predator_spawns_exactly_three")
+	_check(marchers.size() == 2, "predator_spawns_exactly_two")
 	for row in marchers:
 		_check(
 			(

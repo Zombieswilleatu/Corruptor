@@ -125,7 +125,7 @@ func _replay_and_checkpoint() -> void:
 	var playback = Playback.new()
 	if not _check(playback.build(tape), "smoke_playback_builds_from_public_events"):
 		return
-	_check(playback.sample(0.0).units.size() == 6, "smoke_playback_starts_with_six_predators")
+	_check(playback.sample(0.0).units.size() == 4, "smoke_playback_starts_with_four_predators")
 	var recorded_final: Array = []
 	var recorded_middle: Dictionary = {}
 	for event in tape:
@@ -169,6 +169,10 @@ func _replay_and_checkpoint() -> void:
 func _scene_controls() -> void:
 	var scene = SmokeScene.instantiate()
 	root.add_child(scene)
+	# Exercise widgets with the diagnostic engine, as the playable-board tests do.
+	# The production scene and launcher still require Godot 4.7.2 stable.
+	scene._runtime_ok = true
+	scene.start_scenario(0)
 	await process_frame
 	if not _check(
 		scene.session.next_hook() == Timeline.SUBMISSION_LOCK, "smoke_scene_boots_at_planning"

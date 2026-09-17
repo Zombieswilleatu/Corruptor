@@ -13,7 +13,7 @@ LORD = 'Gremory'
 
 def proposals(f):
     for lane in LANES:
-        yield power('PredatorOfRuin', dict(lane=lane), 27+6*f.lane_need(lane), 'three_vultures_lane_pressure')
+        yield power('PredatorOfRuin', dict(lane=lane), 27+6*f.lane_need(lane), 'two_vultures_lane_pressure')
     if len(f.hand) >= 2:
         targets = sorted((r for r in f.castles(f.enemy) if targetable(r) and r['attributes']['integrity'] > RUIN_INTEGRITY),
                          key=lambda r: (-r['attributes']['integrity'], r['id']))[:2]

@@ -13,6 +13,7 @@ const MatchOwner = preload("res://Scripts/Sim/U13Match.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const POLICY: String = "U13_GREMORY_SLICE_V1"
 const PREDATOR: String = "PredatorOfRuin"
+const PREDATOR_COUNT: int = 2
 const RUIN: String = "InevitableRuin"
 const RUIN_INTEGRITY: int = 14
 var _driver: Callable
@@ -122,6 +123,7 @@ static func rules() -> Dictionary:
 	prepared.target_kind = "castle"
 	prepared["discard_count"] = 2
 	prepared["target_integrity"] = RUIN_INTEGRITY
+	base["spawn_count"] = PREDATOR_COUNT
 	return {PREDATOR: base, RUIN: prepared}
 
 
@@ -155,7 +157,7 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 	var source: Dictionary = record.declaration
 	var events: Array = []
 	if source.power_id == PREDATOR:
-		for ordinal in range(3):
+		for ordinal in range(PREDATOR_COUNT):
 			# Lord spawns move in this round's upcoming Step 12. Commitments
 			# separately retain the audited birth-round movement hold.
 			var attributes: Dictionary = Marching.profile(

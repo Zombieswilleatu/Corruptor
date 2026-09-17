@@ -37,7 +37,7 @@ uses the compatibility renderer and a 1440 × 960 window; it does not edit
 ## Quick tour
 
 1. Start with **Predator clash**, optionally choose Lord or Castle lane, then press
-   **Run to Marching**. Both players declare three Vultures. They move, meet, exchange
+   **Run to Marching**. Both players declare two Vultures. They move, meet, exchange
    attacks and die. Each Gremory receives Bones once.
 2. Use **Pause**, the time slider, **0.5x / 1x / 2x**, or **Replay battle** to inspect
    captured HP/Armor changes. **Show result** skips the animation. These controls

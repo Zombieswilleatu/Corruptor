@@ -289,7 +289,7 @@ func _plan_text() -> String:
 	match session.scenario():
 		0:
 			description = (
-				"PREDATOR CLASH\nBoth Gremories summon three Vultures into the selected lane "
+				"PREDATOR CLASH\nBoth Gremories summon two Vultures into the selected lane "
 				+ "on odd rounds. Even rounds let the cooldown finish. Watch simultaneous "
 				+ "kills trigger Picking the Bones."
 			)
@@ -303,7 +303,7 @@ func _plan_text() -> String:
 		2:
 			description = (
 				"PREPARED RUIN\nRound 1: discard your first two cards to mark the enemy "
-				+ "Castle, and summon three Vultures. Finish the round, then choose "
+				+ "Castle, and summon two Vultures. Finish the round, then choose "
 				+ "Next round: Ruin sets that Castle Defunct before new plans. Later plans pass."
 			)
 	return (

@@ -10,7 +10,7 @@ The separate Stage buttons remain for combining exchanges and other rites. Both 
 
 The supplied round-18 save records seven player-owned Castle Supplicants at the end of round 12. Round 13 contains a Siege order with no `waiter_spends`. `SIEGE_STARTED` consumes all seven for +7 strength, giving 11 total; `SIEGE_RESOLVED` records an 11-point Ward screen, zero castle damage and zero guards defeated. There is no accepted Supplicant cash-in anywhere in this match. The save does not record unstaged UI selections, so the exact missing click cannot be reconstructed.
 
-The game ended at Final Collapse in round 18, Veil 27, with Kalligan winning 2–0 Souls and trailing 1–2 Personal Tears. Of 24 neutral tears, 14 came from Gremory's Picking the Bones, six from round pressure, two from castle destruction, one from banishment and one from resummoning. Ten of the player's thirteen Sieges dealt no castle damage. These are balance-review observations, not a broad balance change in this patch.
+The game ended at Final Collapse in round 18, Veil 27, with Kalligan winning 2–0 Souls and trailing 1–2 Personal Tears. Of 24 neutral tears, 14 came from Gremory's Picking the Bones, six from round pressure, two from castle destruction, one from banishment and one from resummoning. Ten of the player's thirteen Sieges dealt no damage to the selected castle, but three of those damaged the protecting Bastion instead (6, 3 and 9 damage). Seven Sieges dealt no damage to any castle. These are balance-review observations, not a broad balance change in this patch.
 
 ## Verification
 

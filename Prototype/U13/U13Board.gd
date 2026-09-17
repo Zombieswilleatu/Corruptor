@@ -300,7 +300,7 @@ func _build() -> void:
 	predator_section.add_theme_constant_override("separation", 6)
 	gremory_box.add_child(predator_section)
 	_label(predator_section, "PREDATOR OF RUIN", 17)
-	_label(predator_section, "Summon 3 Vultures", 13)
+	_label(predator_section, "Summon %d Vultures" % Gremory.PREDATOR_COUNT, 13)
 	predator_state = _label(predator_section, "", 13)
 	predator_state.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_label(predator_section, "Spawn lane", 12)

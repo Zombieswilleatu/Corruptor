@@ -461,7 +461,7 @@ func _predator_and_replay() -> void:
 	if not _drive(owner, Timeline.MARCHING):
 		return
 	_check(
-		_events(owner.snapshot().events.rows, "MARCHER_SPAWNED").size() == 6,
+		_events(owner.snapshot().events.rows, "MARCHER_SPAWNED").size() == 4,
 		"both_predator_queues_spawn_before_marching"
 	)
 	var resumed = _new_match()
@@ -475,7 +475,7 @@ func _predator_and_replay() -> void:
 	var rows: Array = owner.snapshot().events.rows
 	var kills: Array = _events(rows, "MARCHER_DEFEATED")
 	var finished: Array = _events(rows, "MARCHING_FINISHED")
-	_check(kills.size() + finished[0].data.units.size() == 6, "all_six_predators_accounted_for")
+	_check(kills.size() + finished[0].data.units.size() == 4, "all_four_predators_accounted_for")
 	var contacts: Array = _events(rows, "MARCHER_CONTACT")
 	_check(not contacts.is_empty(), "lord_spawns_reach_real_contact_in_current_phase")
 	_check(
@@ -647,11 +647,19 @@ func _fractional_positions() -> void:
 
 func _real_ruin_fizzle() -> void:
 	var world: Dictionary = _world()
+	var castle_id: String = Ids.identity("castle", "castle:1")
+	var hand: Array = world.data.card_zones.hands[0]
+	# This isolated combat fixture must admit Ruin under its current >14 rule.
+	# An exact lethal hit removes that identity before the delayed power fires.
+	_edit(world, castle_id, {"integrity": 15, "max_integrity": 21})
+	_edit(world, hand[2], {"value": 6})
+	_edit(world, hand[3], {"value": 6})
+	for index in range(2):
+		var waiter: String = _spawn(world, "ruin_support:" + str(index), 0, "Vulture", 2400)
+		_edit(world, waiter, {"waiting": true, "waiting_since_round": 1})
 	var owner = _fixture(world)
 	if owner == null:
 		return
-	var castle_id: String = Ids.identity("castle", "castle:1")
-	var hand: Array = world.data.card_zones.hands[0]
 	var ruin: Dictionary = Decl.create(
 		MatchOwner.declaration_id(0, 1, 0),
 		0,
@@ -667,7 +675,7 @@ func _real_ruin_fizzle() -> void:
 		{}
 	)
 	var siege: Dictionary = _order(world, 0, 0)
-	siege.card_ids = hand.slice(2, 3)
+	siege.card_ids = hand.slice(2, 4)
 	_check(
 		owner.submit(0, [ruin], siege).action != "invalid", "ruin_and_siege_use_distinct_paid_cards"
 	)

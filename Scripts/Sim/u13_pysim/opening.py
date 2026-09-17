@@ -18,7 +18,7 @@ ECONOMY = "U13_GAME_ECONOMY_V4"
 MARKET = "U13_GAME_MARKET_V2"
 # Pin the accepted authority's complete roster identity. Matching this hash
 # does not assert that the Python mirror implements those powers yet.
-RULES_HASH = "8279c82cbd2cd6acb69babcaeb3fc5172d86b6593d2de1563a515dae5003f46d"
+RULES_HASH = "e098bf4d4858a6ce2cea41ffeb7e13a0ef8873c05b8575593508b7ec9573c3c0"
 POLICY = ":".join([
     "U13_PERMANENT_BREACHES_V1",
     "U13_GUARD_WORK_V2", "U13_VICTORY_V2_ROUND_PRESSURE", "U13_PROFANE_PILLAGE_V1",

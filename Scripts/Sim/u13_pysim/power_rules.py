@@ -13,7 +13,7 @@ def rule(lord, hook, cooldown=0, delay=0, stages=None, **extra):
 
 
 RULES = {
-    'PredatorOfRuin': rule('Gremory','post_resolution_spawns',1),
+    'PredatorOfRuin': rule('Gremory','post_resolution_spawns',1,spawn_count=2),
     'InevitableRuin': rule('Gremory','round_start_scheduled',delay=1,discard_count=2,target_integrity=RUIN_INTEGRITY),
     'WarMachine': rule('Deimos','post_repair_artillery'),
     'Rout': rule('Deimos','post_resolution_movement_state',2,stages=[dict(movement='retreat'),dict(movement='half_speed')]),

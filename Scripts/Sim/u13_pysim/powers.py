@@ -151,7 +151,7 @@ def resolve(rec,state,n):
     s=rec['declaration'];power=s['power_id'];pid=s['player_id'];t=s['target'];identity=s['declaration_id']
     w=state['world'];b=Ordinary(w,n,state['seed'],state['player_order'],rec['fire_hook']);events=[];payload={}
     if power in ('PredatorOfRuin','MusterTheFaithful'):
-        for ordinal in range(3):
+        for ordinal in range(RULES[power].get('spawn_count',3)):
             a=recruit.profile('Vulture' if power=='PredatorOfRuin' else 'Penitent',t['lane'],pid,n,n);a['source_effect_id']=rec['effect_id']
             r=recruit.create(w,rec['effect_id'],ordinal,pid,a);recruit.place_spawn(w,r,state['seed'])
             events.append(e.event('MARCHER_SPAWNED',r))

@@ -1,0 +1,2182 @@
+{
+  "scope": "41 resolved castle Sieges in three available saved games; one Pillage excluded. Both players; older policies differ.",
+  "method": {
+    "strength": "SIEGE_STARTED.strength",
+    "supplicants": "len(SIEGE_STARTED.waiters_consumed); +1 each",
+    "cards": "COMBAT_ORDER_SEALED.order.card_ids count; card strength is total strength minus Supplicants",
+    "castle_damage": "SIEGE_RESOLVED.damage + BASTION_SCREENED.damage matched by round and attacking player",
+    "repairs": "Positive before/after gains from WORK_RESOLVED with passive=0 and reconstruction=false, plus FORGE_REPAIR/RAPID_CONSTRUCTION; construction excluded."
+  },
+  "pooled": {
+    "sieges": 41,
+    "cards": {
+      "total": 184,
+      "mean": 4.488
+    },
+    "card_strength": {
+      "total": 501,
+      "mean": 12.22
+    },
+    "supplicants": {
+      "total": 9,
+      "mean": 0.22
+    },
+    "strength": {
+      "total": 510,
+      "mean": 12.439
+    },
+    "ward": {
+      "total": 46,
+      "mean": 1.122
+    },
+    "guards": {
+      "total": 67,
+      "mean": 1.634
+    },
+    "target_damage": {
+      "total": 131,
+      "mean": 3.195
+    },
+    "bastion_damage": {
+      "total": 60,
+      "mean": 1.463
+    },
+    "castle_damage": {
+      "total": 191,
+      "mean": 4.659
+    },
+    "destroyed": {
+      "total": 5,
+      "mean": 0.122
+    },
+    "no_castle_damage": 14,
+    "damaging_sieges": 27,
+    "mean_damaging_hit": 7.074
+  },
+  "saves": [
+    {
+      "file": "u13-playable-2026-09-15T11-19-05-r18-1600177635.json",
+      "lords": [
+        "Kalligan",
+        "Valak"
+      ],
+      "policy": "U13_GUARD_WORK_V2:U13_VICTORY_V2_ROUND_PRESSURE:U13_PROFANE_PILLAGE_V1:U13_VULTURE_RANGED_V1:U13_VACANT_THRONE_V1:U13_DOMINION_RITES_V1:U13_FRACTURE_V1:U13_SIGIL_LIFECYCLE_V1:U13_BLOOD_CONDUIT_V1:U13_GAME_MARKET_V2:U13_CASTLE_DEFENSES_V1:U13_GAME_ECONOMY_V4:U13_KANIFOUS_V1:U13_VALAK_V1:U13_KRONI_WEIGHTED_ANGLES_V8:U13_ODRADEK_COMPLETE_V2:U13_ORIAS_MARK_BOARD_V4",
+      "victory": {
+        "checked_round": 18,
+        "version": "U13_VICTORY_V2_ROUND_PRESSURE",
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "statistics": {
+        "sieges": 14,
+        "cards": {
+          "total": 73,
+          "mean": 5.214
+        },
+        "card_strength": {
+          "total": 198,
+          "mean": 14.143
+        },
+        "supplicants": {
+          "total": 0,
+          "mean": 0
+        },
+        "strength": {
+          "total": 198,
+          "mean": 14.143
+        },
+        "ward": {
+          "total": 11,
+          "mean": 0.786
+        },
+        "guards": {
+          "total": 27,
+          "mean": 1.929
+        },
+        "target_damage": {
+          "total": 69,
+          "mean": 4.929
+        },
+        "bastion_damage": {
+          "total": 21,
+          "mean": 1.5
+        },
+        "castle_damage": {
+          "total": 90,
+          "mean": 6.429
+        },
+        "destroyed": {
+          "total": 3,
+          "mean": 0.214
+        },
+        "no_castle_damage": 2,
+        "damaging_sieges": 12,
+        "mean_damaging_hit": 7.5
+      },
+      "by_player": {
+        "0": {
+          "sieges": 10,
+          "cards": {
+            "total": 58,
+            "mean": 5.8
+          },
+          "card_strength": {
+            "total": 148,
+            "mean": 14.8
+          },
+          "supplicants": {
+            "total": 0,
+            "mean": 0
+          },
+          "strength": {
+            "total": 148,
+            "mean": 14.8
+          },
+          "ward": {
+            "total": 6,
+            "mean": 0.6
+          },
+          "guards": {
+            "total": 22,
+            "mean": 2.2
+          },
+          "target_damage": {
+            "total": 52,
+            "mean": 5.2
+          },
+          "bastion_damage": {
+            "total": 21,
+            "mean": 2.1
+          },
+          "castle_damage": {
+            "total": 73,
+            "mean": 7.3
+          },
+          "destroyed": {
+            "total": 3,
+            "mean": 0.3
+          },
+          "no_castle_damage": 0,
+          "damaging_sieges": 10,
+          "mean_damaging_hit": 7.3
+        },
+        "1": {
+          "sieges": 4,
+          "cards": {
+            "total": 15,
+            "mean": 3.75
+          },
+          "card_strength": {
+            "total": 50,
+            "mean": 12.5
+          },
+          "supplicants": {
+            "total": 0,
+            "mean": 0
+          },
+          "strength": {
+            "total": 50,
+            "mean": 12.5
+          },
+          "ward": {
+            "total": 5,
+            "mean": 1.25
+          },
+          "guards": {
+            "total": 5,
+            "mean": 1.25
+          },
+          "target_damage": {
+            "total": 17,
+            "mean": 4.25
+          },
+          "bastion_damage": {
+            "total": 0,
+            "mean": 0
+          },
+          "castle_damage": {
+            "total": 17,
+            "mean": 4.25
+          },
+          "destroyed": {
+            "total": 0,
+            "mean": 0
+          },
+          "no_castle_damage": 2,
+          "damaging_sieges": 2,
+          "mean_damaging_hit": 8.5
+        }
+      },
+      "siege_rows": [
+        {
+          "round": 1,
+          "player": 0,
+          "cards": 5,
+          "card_strength": 9,
+          "supplicants": 0,
+          "strength": 9,
+          "ward": 0,
+          "guards": 1,
+          "target_damage": 0,
+          "bastion_damage": 7,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 7
+        },
+        {
+          "round": 1,
+          "player": 1,
+          "cards": 5,
+          "card_strength": 16,
+          "supplicants": 0,
+          "strength": 16,
+          "ward": 0,
+          "guards": 2,
+          "target_damage": 7,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "castle_damage": 7
+        },
+        {
+          "round": 2,
+          "player": 1,
+          "cards": 3,
+          "card_strength": 14,
+          "supplicants": 0,
+          "strength": 14,
+          "ward": 2,
+          "guards": 1,
+          "target_damage": 0,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "castle_damage": 0
+        },
+        {
+          "round": 6,
+          "player": 0,
+          "cards": 5,
+          "card_strength": 11,
+          "supplicants": 0,
+          "strength": 11,
+          "ward": 0,
+          "guards": 2,
+          "target_damage": 0,
+          "bastion_damage": 4,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 4
+        },
+        {
+          "round": 8,
+          "player": 0,
+          "cards": 7,
+          "card_strength": 23,
+          "supplicants": 0,
+          "strength": 23,
+          "ward": 0,
+          "guards": 3,
+          "target_damage": 8,
+          "bastion_damage": 10,
+          "destroyed": 1,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 18
+        },
+        {
+          "round": 8,
+          "player": 1,
+          "cards": 4,
+          "card_strength": 13,
+          "supplicants": 0,
+          "strength": 13,
+          "ward": 0,
+          "guards": 1,
+          "target_damage": 10,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "castle_damage": 10
+        },
+        {
+          "round": 9,
+          "player": 1,
+          "cards": 3,
+          "card_strength": 7,
+          "supplicants": 0,
+          "strength": 7,
+          "ward": 3,
+          "guards": 1,
+          "target_damage": 0,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "castle_damage": 0
+        },
+        {
+          "round": 10,
+          "player": 0,
+          "cards": 5,
+          "card_strength": 16,
+          "supplicants": 0,
+          "strength": 16,
+          "ward": 0,
+          "guards": 3,
+          "target_damage": 6,
+          "bastion_damage": 0,
+          "destroyed": 1,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:2",
+          "castle_damage": 6
+        },
+        {
+          "round": 11,
+          "player": 0,
+          "cards": 6,
+          "card_strength": 18,
+          "supplicants": 0,
+          "strength": 18,
+          "ward": 0,
+          "guards": 2,
+          "target_damage": 12,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 12
+        },
+        {
+          "round": 13,
+          "player": 0,
+          "cards": 6,
+          "card_strength": 9,
+          "supplicants": 0,
+          "strength": 9,
+          "ward": 0,
+          "guards": 1,
+          "target_damage": 4,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:4",
+          "castle_damage": 4
+        },
+        {
+          "round": 15,
+          "player": 0,
+          "cards": 6,
+          "card_strength": 15,
+          "supplicants": 0,
+          "strength": 15,
+          "ward": 3,
+          "guards": 2,
+          "target_damage": 2,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:4",
+          "castle_damage": 2
+        },
+        {
+          "round": 16,
+          "player": 0,
+          "cards": 6,
+          "card_strength": 15,
+          "supplicants": 0,
+          "strength": 15,
+          "ward": 2,
+          "guards": 3,
+          "target_damage": 10,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:4",
+          "castle_damage": 10
+        },
+        {
+          "round": 17,
+          "player": 0,
+          "cards": 6,
+          "card_strength": 13,
+          "supplicants": 0,
+          "strength": 13,
+          "ward": 0,
+          "guards": 2,
+          "target_damage": 7,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:4",
+          "castle_damage": 7
+        },
+        {
+          "round": 18,
+          "player": 0,
+          "cards": 6,
+          "card_strength": 19,
+          "supplicants": 0,
+          "strength": 19,
+          "ward": 1,
+          "guards": 3,
+          "target_damage": 3,
+          "bastion_damage": 0,
+          "destroyed": 1,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:4",
+          "castle_damage": 3
+        }
+      ],
+      "repairs": [
+        {
+          "round": 1,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 18,
+          "after": 20
+        },
+        {
+          "round": 2,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 14,
+          "after": 16
+        },
+        {
+          "round": 2,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 1,
+          "before": 20,
+          "after": 21
+        },
+        {
+          "round": 3,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 16,
+          "after": 18
+        },
+        {
+          "round": 4,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 18,
+          "after": 20
+        },
+        {
+          "round": 5,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 12,
+          "after": 14
+        },
+        {
+          "round": 5,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 1,
+          "before": 20,
+          "after": 21
+        },
+        {
+          "round": 6,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 14,
+          "after": 16
+        },
+        {
+          "round": 7,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 16,
+          "after": 18
+        },
+        {
+          "round": 7,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "WORK_RESOLVED",
+          "amount": 2,
+          "before": 18,
+          "after": 20
+        },
+        {
+          "round": 8,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 1,
+          "before": 20,
+          "after": 21
+        },
+        {
+          "round": 8,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:2",
+          "source": "WORK_RESOLVED",
+          "amount": 1,
+          "before": 8,
+          "after": 9
+        },
+        {
+          "round": 9,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 11,
+          "after": 13
+        },
+        {
+          "round": 9,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "WORK_RESOLVED",
+          "amount": 3,
+          "before": 13,
+          "after": 16
+        },
+        {
+          "round": 9,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:2",
+          "source": "WORK_RESOLVED",
+          "amount": 2,
+          "before": 7,
+          "after": 9
+        },
+        {
+          "round": 10,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 16,
+          "after": 18
+        },
+        {
+          "round": 10,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "WORK_RESOLVED",
+          "amount": 2,
+          "before": 18,
+          "after": 20
+        },
+        {
+          "round": 10,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:2",
+          "source": "WORK_RESOLVED",
+          "amount": 1,
+          "before": 7,
+          "after": 8
+        },
+        {
+          "round": 11,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 1,
+          "before": 20,
+          "after": 21
+        },
+        {
+          "round": 11,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "source": "WORK_RESOLVED",
+          "amount": 2,
+          "before": 13,
+          "after": 15
+        },
+        {
+          "round": 12,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 11,
+          "after": 13
+        },
+        {
+          "round": 12,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "WORK_RESOLVED",
+          "amount": 8,
+          "before": 13,
+          "after": 21
+        },
+        {
+          "round": 12,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "source": "WORK_RESOLVED",
+          "amount": 0,
+          "before": 1,
+          "after": 1
+        },
+        {
+          "round": 14,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 19,
+          "after": 21
+        },
+        {
+          "round": 14,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:4",
+          "source": "WORK_RESOLVED",
+          "amount": 6,
+          "before": 15,
+          "after": 21
+        },
+        {
+          "round": 15,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 18,
+          "after": 20
+        },
+        {
+          "round": 15,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 19,
+          "after": 21
+        },
+        {
+          "round": 15,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:4",
+          "source": "WORK_RESOLVED",
+          "amount": 3,
+          "before": 17,
+          "after": 20
+        },
+        {
+          "round": 16,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 1,
+          "before": 20,
+          "after": 21
+        },
+        {
+          "round": 16,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 19,
+          "after": 21
+        },
+        {
+          "round": 16,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:4",
+          "source": "WORK_RESOLVED",
+          "amount": 3,
+          "before": 16,
+          "after": 19
+        },
+        {
+          "round": 17,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 19,
+          "after": 21
+        },
+        {
+          "round": 17,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:4",
+          "source": "WORK_RESOLVED",
+          "amount": 7,
+          "before": 7,
+          "after": 14
+        },
+        {
+          "round": 18,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 13,
+          "after": 15
+        },
+        {
+          "round": 18,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 19,
+          "after": 21
+        },
+        {
+          "round": 18,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "WORK_RESOLVED",
+          "amount": 0,
+          "before": 15,
+          "after": 15
+        },
+        {
+          "round": 18,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:4",
+          "source": "WORK_RESOLVED",
+          "amount": 0,
+          "before": 5,
+          "after": 5
+        }
+      ]
+    },
+    {
+      "file": "u13-playable-2026-09-16T23-19-15-r12-981085500.json",
+      "lords": [
+        "Kanifous",
+        "Valak"
+      ],
+      "policy": "U13_GUARD_WORK_V2:U13_VICTORY_V2_ROUND_PRESSURE:U13_PROFANE_PILLAGE_V1:U13_VULTURE_RANGED_V1:U13_VACANT_THRONE_V1:U13_DOMINION_RITES_V1:U13_FRACTURE_V1:U13_SIGIL_LIFECYCLE_V1:U13_BLOOD_CONDUIT_V1:U13_GAME_MARKET_V2:U13_CASTLE_DEFENSES_V1:U13_GAME_ECONOMY_V4:U13_KANIFOUS_V1:U13_VALAK_V1:U13_KRONI_WEIGHTED_ANGLES_V8:U13_ODRADEK_COMPLETE_V2:U13_ORIAS_MARK_BOARD_V4",
+      "victory": {
+        "checked_round": 12,
+        "version": "U13_VICTORY_V2_ROUND_PRESSURE",
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "statistics": {
+        "sieges": 13,
+        "cards": {
+          "total": 55,
+          "mean": 4.231
+        },
+        "card_strength": {
+          "total": 151,
+          "mean": 11.615
+        },
+        "supplicants": {
+          "total": 2,
+          "mean": 0.154
+        },
+        "strength": {
+          "total": 153,
+          "mean": 11.769
+        },
+        "ward": {
+          "total": 6,
+          "mean": 0.462
+        },
+        "guards": {
+          "total": 19,
+          "mean": 1.462
+        },
+        "target_damage": {
+          "total": 46,
+          "mean": 3.538
+        },
+        "bastion_damage": {
+          "total": 21,
+          "mean": 1.615
+        },
+        "castle_damage": {
+          "total": 67,
+          "mean": 5.154
+        },
+        "destroyed": {
+          "total": 1,
+          "mean": 0.077
+        },
+        "no_castle_damage": 4,
+        "damaging_sieges": 9,
+        "mean_damaging_hit": 7.444
+      },
+      "by_player": {
+        "0": {
+          "sieges": 7,
+          "cards": {
+            "total": 34,
+            "mean": 4.857
+          },
+          "card_strength": {
+            "total": 83,
+            "mean": 11.857
+          },
+          "supplicants": {
+            "total": 0,
+            "mean": 0
+          },
+          "strength": {
+            "total": 83,
+            "mean": 11.857
+          },
+          "ward": {
+            "total": 3,
+            "mean": 0.429
+          },
+          "guards": {
+            "total": 13,
+            "mean": 1.857
+          },
+          "target_damage": {
+            "total": 17,
+            "mean": 2.429
+          },
+          "bastion_damage": {
+            "total": 21,
+            "mean": 3
+          },
+          "castle_damage": {
+            "total": 38,
+            "mean": 5.429
+          },
+          "destroyed": {
+            "total": 1,
+            "mean": 0.143
+          },
+          "no_castle_damage": 2,
+          "damaging_sieges": 5,
+          "mean_damaging_hit": 7.6
+        },
+        "1": {
+          "sieges": 6,
+          "cards": {
+            "total": 21,
+            "mean": 3.5
+          },
+          "card_strength": {
+            "total": 68,
+            "mean": 11.333
+          },
+          "supplicants": {
+            "total": 2,
+            "mean": 0.333
+          },
+          "strength": {
+            "total": 70,
+            "mean": 11.667
+          },
+          "ward": {
+            "total": 3,
+            "mean": 0.5
+          },
+          "guards": {
+            "total": 6,
+            "mean": 1
+          },
+          "target_damage": {
+            "total": 29,
+            "mean": 4.833
+          },
+          "bastion_damage": {
+            "total": 0,
+            "mean": 0
+          },
+          "castle_damage": {
+            "total": 29,
+            "mean": 4.833
+          },
+          "destroyed": {
+            "total": 0,
+            "mean": 0
+          },
+          "no_castle_damage": 2,
+          "damaging_sieges": 4,
+          "mean_damaging_hit": 7.25
+        }
+      },
+      "siege_rows": [
+        {
+          "round": 1,
+          "player": 1,
+          "cards": 5,
+          "card_strength": 17,
+          "supplicants": 0,
+          "strength": 17,
+          "ward": 3,
+          "guards": 2,
+          "target_damage": 2,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "castle_damage": 2
+        },
+        {
+          "round": 2,
+          "player": 0,
+          "cards": 5,
+          "card_strength": 18,
+          "supplicants": 0,
+          "strength": 18,
+          "ward": 0,
+          "guards": 2,
+          "target_damage": 0,
+          "bastion_damage": 13,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 13
+        },
+        {
+          "round": 2,
+          "player": 1,
+          "cards": 3,
+          "card_strength": 8,
+          "supplicants": 0,
+          "strength": 8,
+          "ward": 0,
+          "guards": 0,
+          "target_damage": 0,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "castle_damage": 0
+        },
+        {
+          "round": 4,
+          "player": 0,
+          "cards": 4,
+          "card_strength": 11,
+          "supplicants": 0,
+          "strength": 11,
+          "ward": 3,
+          "guards": 3,
+          "target_damage": 0,
+          "bastion_damage": 1,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 1
+        },
+        {
+          "round": 5,
+          "player": 0,
+          "cards": 7,
+          "card_strength": 16,
+          "supplicants": 0,
+          "strength": 16,
+          "ward": 0,
+          "guards": 1,
+          "target_damage": 5,
+          "bastion_damage": 7,
+          "destroyed": 1,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 12
+        },
+        {
+          "round": 7,
+          "player": 0,
+          "cards": 5,
+          "card_strength": 14,
+          "supplicants": 0,
+          "strength": 14,
+          "ward": 0,
+          "guards": 2,
+          "target_damage": 9,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:3",
+          "castle_damage": 9
+        },
+        {
+          "round": 8,
+          "player": 0,
+          "cards": 5,
+          "card_strength": 7,
+          "supplicants": 0,
+          "strength": 7,
+          "ward": 0,
+          "guards": 2,
+          "target_damage": 3,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:3",
+          "castle_damage": 3
+        },
+        {
+          "round": 8,
+          "player": 1,
+          "cards": 4,
+          "card_strength": 14,
+          "supplicants": 2,
+          "strength": 16,
+          "ward": 0,
+          "guards": 2,
+          "target_damage": 13,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "castle_damage": 13
+        },
+        {
+          "round": 10,
+          "player": 0,
+          "cards": 4,
+          "card_strength": 13,
+          "supplicants": 0,
+          "strength": 13,
+          "ward": 0,
+          "guards": 2,
+          "target_damage": 0,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:3",
+          "castle_damage": 0
+        },
+        {
+          "round": 10,
+          "player": 1,
+          "cards": 4,
+          "card_strength": 15,
+          "supplicants": 0,
+          "strength": 15,
+          "ward": 0,
+          "guards": 2,
+          "target_damage": 6,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "castle_damage": 6
+        },
+        {
+          "round": 11,
+          "player": 0,
+          "cards": 4,
+          "card_strength": 4,
+          "supplicants": 0,
+          "strength": 4,
+          "ward": 0,
+          "guards": 1,
+          "target_damage": 0,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:3",
+          "castle_damage": 0
+        },
+        {
+          "round": 11,
+          "player": 1,
+          "cards": 3,
+          "card_strength": 8,
+          "supplicants": 0,
+          "strength": 8,
+          "ward": 0,
+          "guards": 0,
+          "target_damage": 8,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "castle_damage": 8
+        },
+        {
+          "round": 12,
+          "player": 1,
+          "cards": 2,
+          "card_strength": 6,
+          "supplicants": 0,
+          "strength": 6,
+          "ward": 0,
+          "guards": 0,
+          "target_damage": 0,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "castle_damage": 0
+        }
+      ],
+      "repairs": [
+        {
+          "round": 4,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:3",
+          "source": "WORK_RESOLVED",
+          "amount": 2,
+          "before": 8,
+          "after": 10
+        },
+        {
+          "round": 5,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:3",
+          "source": "WORK_RESOLVED",
+          "amount": 0,
+          "before": 10,
+          "after": 10
+        },
+        {
+          "round": 5,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "source": "WORK_RESOLVED",
+          "amount": 2,
+          "before": 9,
+          "after": 11
+        },
+        {
+          "round": 6,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:3",
+          "source": "WORK_RESOLVED",
+          "amount": 7,
+          "before": 10,
+          "after": 17
+        },
+        {
+          "round": 6,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "source": "WORK_RESOLVED",
+          "amount": 0,
+          "before": 2,
+          "after": 2
+        },
+        {
+          "round": 7,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "WORK_RESOLVED",
+          "amount": 7,
+          "before": 14,
+          "after": 21
+        },
+        {
+          "round": 8,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:4",
+          "source": "WORK_RESOLVED",
+          "amount": 7,
+          "before": 12,
+          "after": 19
+        },
+        {
+          "round": 9,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "WORK_RESOLVED",
+          "amount": 0,
+          "before": 6,
+          "after": 6
+        },
+        {
+          "round": 10,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "WORK_RESOLVED",
+          "amount": 7,
+          "before": 6,
+          "after": 13
+        },
+        {
+          "round": 11,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "WORK_RESOLVED",
+          "amount": 7,
+          "before": 7,
+          "after": 14
+        },
+        {
+          "round": 11,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:3",
+          "source": "WORK_RESOLVED",
+          "amount": 0,
+          "before": 5,
+          "after": 5
+        },
+        {
+          "round": 12,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:3",
+          "source": "WORK_RESOLVED",
+          "amount": 1,
+          "before": 1,
+          "after": 2
+        }
+      ]
+    },
+    {
+      "file": "u13-playable-2026-09-17T10-48-20-r18-1812816809.json",
+      "lords": [
+        "Kalligan",
+        "Gremory"
+      ],
+      "policy": "U13_PERMANENT_BREACHES_V1:U13_GUARD_WORK_V2:U13_VICTORY_V2_ROUND_PRESSURE:U13_PROFANE_PILLAGE_V1:U13_VULTURE_RANGED_V3:U13_VACANT_THRONE_V1:U13_DOMINION_RITES_V1:U13_FRACTURE_V1:U13_SIGIL_LIFECYCLE_V1:U13_BLOOD_CONDUIT_V1:U13_GAME_MARKET_V2:U13_CASTLE_DEFENSES_V1:U13_GAME_ECONOMY_V4:U13_KANIFOUS_V1:U13_VALAK_V1:U13_KRONI_WEIGHTED_ANGLES_V8:U13_ODRADEK_COMPLETE_V2:U13_ORIAS_MARK_BOARD_V4:U13_MONSTERS_V1",
+      "victory": {
+        "checked_round": 18,
+        "version": "U13_VICTORY_V2_ROUND_PRESSURE",
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "statistics": {
+        "sieges": 14,
+        "cards": {
+          "total": 56,
+          "mean": 4
+        },
+        "card_strength": {
+          "total": 152,
+          "mean": 10.857
+        },
+        "supplicants": {
+          "total": 7,
+          "mean": 0.5
+        },
+        "strength": {
+          "total": 159,
+          "mean": 11.357
+        },
+        "ward": {
+          "total": 29,
+          "mean": 2.071
+        },
+        "guards": {
+          "total": 21,
+          "mean": 1.5
+        },
+        "target_damage": {
+          "total": 16,
+          "mean": 1.143
+        },
+        "bastion_damage": {
+          "total": 18,
+          "mean": 1.286
+        },
+        "castle_damage": {
+          "total": 34,
+          "mean": 2.429
+        },
+        "destroyed": {
+          "total": 1,
+          "mean": 0.071
+        },
+        "no_castle_damage": 8,
+        "damaging_sieges": 6,
+        "mean_damaging_hit": 5.667
+      },
+      "by_player": {
+        "0": {
+          "sieges": 13,
+          "cards": {
+            "total": 54,
+            "mean": 4.154
+          },
+          "card_strength": {
+            "total": 144,
+            "mean": 11.077
+          },
+          "supplicants": {
+            "total": 7,
+            "mean": 0.538
+          },
+          "strength": {
+            "total": 151,
+            "mean": 11.615
+          },
+          "ward": {
+            "total": 29,
+            "mean": 2.231
+          },
+          "guards": {
+            "total": 21,
+            "mean": 1.615
+          },
+          "target_damage": {
+            "total": 16,
+            "mean": 1.231
+          },
+          "bastion_damage": {
+            "total": 18,
+            "mean": 1.385
+          },
+          "castle_damage": {
+            "total": 34,
+            "mean": 2.615
+          },
+          "destroyed": {
+            "total": 1,
+            "mean": 0.077
+          },
+          "no_castle_damage": 7,
+          "damaging_sieges": 6,
+          "mean_damaging_hit": 5.667
+        },
+        "1": {
+          "sieges": 1,
+          "cards": {
+            "total": 2,
+            "mean": 2
+          },
+          "card_strength": {
+            "total": 8,
+            "mean": 8
+          },
+          "supplicants": {
+            "total": 0,
+            "mean": 0
+          },
+          "strength": {
+            "total": 8,
+            "mean": 8
+          },
+          "ward": {
+            "total": 0,
+            "mean": 0
+          },
+          "guards": {
+            "total": 0,
+            "mean": 0
+          },
+          "target_damage": {
+            "total": 0,
+            "mean": 0
+          },
+          "bastion_damage": {
+            "total": 0,
+            "mean": 0
+          },
+          "castle_damage": {
+            "total": 0,
+            "mean": 0
+          },
+          "destroyed": {
+            "total": 0,
+            "mean": 0
+          },
+          "no_castle_damage": 1,
+          "damaging_sieges": 0,
+          "mean_damaging_hit": 0
+        }
+      },
+      "siege_rows": [
+        {
+          "round": 1,
+          "player": 0,
+          "cards": 2,
+          "card_strength": 8,
+          "supplicants": 0,
+          "strength": 8,
+          "ward": 0,
+          "guards": 1,
+          "target_damage": 0,
+          "bastion_damage": 6,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 6
+        },
+        {
+          "round": 1,
+          "player": 1,
+          "cards": 2,
+          "card_strength": 8,
+          "supplicants": 0,
+          "strength": 8,
+          "ward": 0,
+          "guards": 0,
+          "target_damage": 0,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "castle_damage": 0
+        },
+        {
+          "round": 2,
+          "player": 0,
+          "cards": 5,
+          "card_strength": 14,
+          "supplicants": 0,
+          "strength": 14,
+          "ward": 3,
+          "guards": 1,
+          "target_damage": 0,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 0
+        },
+        {
+          "round": 3,
+          "player": 0,
+          "cards": 5,
+          "card_strength": 16,
+          "supplicants": 0,
+          "strength": 16,
+          "ward": 2,
+          "guards": 3,
+          "target_damage": 0,
+          "bastion_damage": 3,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 3
+        },
+        {
+          "round": 4,
+          "player": 0,
+          "cards": 5,
+          "card_strength": 7,
+          "supplicants": 0,
+          "strength": 7,
+          "ward": 3,
+          "guards": 0,
+          "target_damage": 0,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 0
+        },
+        {
+          "round": 5,
+          "player": 0,
+          "cards": 2,
+          "card_strength": 3,
+          "supplicants": 0,
+          "strength": 3,
+          "ward": 0,
+          "guards": 0,
+          "target_damage": 0,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 0
+        },
+        {
+          "round": 7,
+          "player": 0,
+          "cards": 4,
+          "card_strength": 10,
+          "supplicants": 0,
+          "strength": 10,
+          "ward": 10,
+          "guards": 0,
+          "target_damage": 0,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 0
+        },
+        {
+          "round": 9,
+          "player": 0,
+          "cards": 3,
+          "card_strength": 11,
+          "supplicants": 0,
+          "strength": 11,
+          "ward": 0,
+          "guards": 2,
+          "target_damage": 0,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 0
+        },
+        {
+          "round": 11,
+          "player": 0,
+          "cards": 8,
+          "card_strength": 18,
+          "supplicants": 0,
+          "strength": 18,
+          "ward": 0,
+          "guards": 3,
+          "target_damage": 0,
+          "bastion_damage": 9,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 9
+        },
+        {
+          "round": 13,
+          "player": 0,
+          "cards": 3,
+          "card_strength": 4,
+          "supplicants": 7,
+          "strength": 11,
+          "ward": 11,
+          "guards": 0,
+          "target_damage": 0,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 0
+        },
+        {
+          "round": 14,
+          "player": 0,
+          "cards": 5,
+          "card_strength": 12,
+          "supplicants": 0,
+          "strength": 12,
+          "ward": 0,
+          "guards": 3,
+          "target_damage": 4,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 4
+        },
+        {
+          "round": 15,
+          "player": 0,
+          "cards": 4,
+          "card_strength": 16,
+          "supplicants": 0,
+          "strength": 16,
+          "ward": 0,
+          "guards": 3,
+          "target_damage": 8,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:3",
+          "castle_damage": 8
+        },
+        {
+          "round": 16,
+          "player": 0,
+          "cards": 3,
+          "card_strength": 7,
+          "supplicants": 0,
+          "strength": 7,
+          "ward": 0,
+          "guards": 2,
+          "target_damage": 0,
+          "bastion_damage": 0,
+          "destroyed": 0,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 0
+        },
+        {
+          "round": 17,
+          "player": 0,
+          "cards": 5,
+          "card_strength": 18,
+          "supplicants": 0,
+          "strength": 18,
+          "ward": 0,
+          "guards": 3,
+          "target_damage": 4,
+          "bastion_damage": 0,
+          "destroyed": 1,
+          "target": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "castle_damage": 4
+        }
+      ],
+      "repairs": [
+        {
+          "round": 2,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 14,
+          "after": 16
+        },
+        {
+          "round": 3,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 16,
+          "after": 18
+        },
+        {
+          "round": 3,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 14,
+          "after": 16
+        },
+        {
+          "round": 4,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 18,
+          "after": 20
+        },
+        {
+          "round": 4,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 16,
+          "after": 18
+        },
+        {
+          "round": 4,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 14,
+          "after": 16
+        },
+        {
+          "round": 5,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 1,
+          "before": 20,
+          "after": 21
+        },
+        {
+          "round": 5,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 18,
+          "after": 20
+        },
+        {
+          "round": 5,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 16,
+          "after": 18
+        },
+        {
+          "round": 5,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:2",
+          "source": "WORK_RESOLVED",
+          "amount": 0,
+          "before": 10,
+          "after": 10
+        },
+        {
+          "round": 6,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 14,
+          "after": 16
+        },
+        {
+          "round": 6,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 1,
+          "before": 20,
+          "after": 21
+        },
+        {
+          "round": 6,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 18,
+          "after": 20
+        },
+        {
+          "round": 6,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "WORK_RESOLVED",
+          "amount": 2,
+          "before": 16,
+          "after": 18
+        },
+        {
+          "round": 6,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:2",
+          "source": "WORK_RESOLVED",
+          "amount": 0,
+          "before": 8,
+          "after": 8
+        },
+        {
+          "round": 7,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 15,
+          "after": 17
+        },
+        {
+          "round": 7,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 1,
+          "before": 20,
+          "after": 21
+        },
+        {
+          "round": 7,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "WORK_RESOLVED",
+          "amount": 2,
+          "before": 17,
+          "after": 19
+        },
+        {
+          "round": 7,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:2",
+          "source": "WORK_RESOLVED",
+          "amount": 0,
+          "before": 6,
+          "after": 6
+        },
+        {
+          "round": 8,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 19,
+          "after": 21
+        },
+        {
+          "round": 8,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 14,
+          "after": 16
+        },
+        {
+          "round": 8,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:2",
+          "source": "WORK_RESOLVED",
+          "amount": 1,
+          "before": 4,
+          "after": 5
+        },
+        {
+          "round": 9,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 13,
+          "after": 15
+        },
+        {
+          "round": 9,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 16,
+          "after": 18
+        },
+        {
+          "round": 9,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:2",
+          "source": "WORK_RESOLVED",
+          "amount": 2,
+          "before": 3,
+          "after": 5
+        },
+        {
+          "round": 10,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 15,
+          "after": 17
+        },
+        {
+          "round": 10,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 18,
+          "after": 20
+        },
+        {
+          "round": 10,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 14,
+          "after": 16
+        },
+        {
+          "round": 10,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:2",
+          "source": "WORK_RESOLVED",
+          "amount": 2,
+          "before": 3,
+          "after": 5
+        },
+        {
+          "round": 11,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 10,
+          "after": 12
+        },
+        {
+          "round": 11,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 1,
+          "before": 20,
+          "after": 21
+        },
+        {
+          "round": 11,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 16,
+          "after": 18
+        },
+        {
+          "round": 11,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:2",
+          "source": "WORK_RESOLVED",
+          "amount": 1,
+          "before": 3,
+          "after": 4
+        },
+        {
+          "round": 12,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 8,
+          "after": 10
+        },
+        {
+          "round": 12,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 17,
+          "after": 19
+        },
+        {
+          "round": 12,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 14,
+          "after": 16
+        },
+        {
+          "round": 12,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "WORK_RESOLVED",
+          "amount": 7,
+          "before": 10,
+          "after": 17
+        },
+        {
+          "round": 12,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "source": "WORK_RESOLVED",
+          "amount": 3,
+          "before": 11,
+          "after": 14
+        },
+        {
+          "round": 13,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 13,
+          "after": 15
+        },
+        {
+          "round": 13,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 13,
+          "after": 15
+        },
+        {
+          "round": 13,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 15,
+          "after": 17
+        },
+        {
+          "round": 13,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "WORK_RESOLVED",
+          "amount": 2,
+          "before": 15,
+          "after": 17
+        },
+        {
+          "round": 13,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "source": "WORK_RESOLVED",
+          "amount": 2,
+          "before": 11,
+          "after": 13
+        },
+        {
+          "round": 14,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 16,
+          "after": 18
+        },
+        {
+          "round": 14,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 14,
+          "after": 16
+        },
+        {
+          "round": 14,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 16,
+          "after": 18
+        },
+        {
+          "round": 14,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "WORK_RESOLVED",
+          "amount": 0,
+          "before": 16,
+          "after": 16
+        },
+        {
+          "round": 14,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "source": "WORK_RESOLVED",
+          "amount": 1,
+          "before": 10,
+          "after": 11
+        },
+        {
+          "round": 15,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:0",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 4,
+          "after": 6
+        },
+        {
+          "round": 15,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 15,
+          "after": 17
+        },
+        {
+          "round": 15,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 17,
+          "after": 19
+        },
+        {
+          "round": 15,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "WORK_RESOLVED",
+          "amount": 1,
+          "before": 17,
+          "after": 18
+        },
+        {
+          "round": 15,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "source": "WORK_RESOLVED",
+          "amount": 0,
+          "before": 4,
+          "after": 4
+        },
+        {
+          "round": 16,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 17,
+          "after": 19
+        },
+        {
+          "round": 16,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 18,
+          "after": 20
+        },
+        {
+          "round": 16,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "WORK_RESOLVED",
+          "amount": 2,
+          "before": 19,
+          "after": 21
+        },
+        {
+          "round": 16,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "source": "WORK_RESOLVED",
+          "amount": 8,
+          "before": 1,
+          "after": 9
+        },
+        {
+          "round": 17,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "FORGE_REPAIR",
+          "amount": 1,
+          "before": 20,
+          "after": 21
+        },
+        {
+          "round": 17,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "FORGE_REPAIR",
+          "amount": 2,
+          "before": 13,
+          "after": 15
+        },
+        {
+          "round": 17,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "WORK_RESOLVED",
+          "amount": 0,
+          "before": 15,
+          "after": 15
+        },
+        {
+          "round": 17,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:0",
+          "source": "WORK_RESOLVED",
+          "amount": 0,
+          "before": 6,
+          "after": 6
+        },
+        {
+          "round": 18,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:1",
+          "source": "RAPID_CONSTRUCTION",
+          "amount": 1,
+          "before": 20,
+          "after": 21
+        },
+        {
+          "round": 18,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "RAPID_CONSTRUCTION",
+          "amount": 2,
+          "before": 14,
+          "after": 16
+        },
+        {
+          "round": 18,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:3",
+          "source": "RAPID_CONSTRUCTION",
+          "amount": 2,
+          "before": 3,
+          "after": 5
+        },
+        {
+          "round": 18,
+          "player": 0,
+          "castle": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "source": "WORK_RESOLVED",
+          "amount": 1,
+          "before": 16,
+          "after": 17
+        },
+        {
+          "round": 18,
+          "player": 1,
+          "castle": "u13_entity_castle:16:loadout:castle:1:1:3",
+          "source": "WORK_RESOLVED",
+          "amount": 2,
+          "before": 5,
+          "after": 7
+        }
+      ]
+    }
+  ]
+}
