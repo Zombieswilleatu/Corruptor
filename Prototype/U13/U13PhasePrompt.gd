@@ -385,6 +385,8 @@ func _install_decision_panel_layout_v4() -> void:
 	if view_board_button.get_parent() != overlay:
 		view_board_button.get_parent().remove_child(view_board_button)
 		overlay.add_child(view_board_button)
+	# The header is drawn on the artwork; its old row must not reserve body space.
+	header_row.hide()
 
 	title_label.z_index = 2
 	title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -536,11 +538,10 @@ func _sync_decision_panel_layout_v4() -> void:
 	var prompt_rect: Rect2 = get_global_rect()
 
 	# UI2_DECISION_HEADER_GLOBAL_RECT_V16_1
-	# Keep the original eyebrow alive for state/layout, but render the
+	# Keep the original eyebrow alive as a text source, but render the
 	# phase name in the artwork's dedicated cutout instead.
 	# UI2_DECISION_PHASE_DUPLICATE_CLEANUP_V17_2
-	# Preserve the legacy eyebrow's layout footprint/text source,
-	# but make its glyphs impossible to render in the content VBox.
+	# The hidden legacy header supplies text without occupying the content VBox.
 	if eyebrow_label != null:
 		eyebrow_label.modulate = Color(1.0, 1.0, 1.0, 0.0)
 		eyebrow_label.self_modulate = Color(1.0, 1.0, 1.0, 0.0)
@@ -797,6 +798,22 @@ func _sync_decision_bottom_actions_v12() -> void:
 	_layout_decision_action_pair_v12(yes_button, no_button, wide_slot, left_slot, right_slot)
 
 	_layout_decision_action_pair_v12(confirm_button, pass_button, wide_slot, left_slot, right_slot)
+	_fit_content_above_actions(confirm_button if show_details else yes_button,
+		pass_button if show_details else no_button)
+
+
+func _fit_content_above_actions(primary: Button, secondary: Button) -> void:
+	if content_host == null:
+		return
+	var button_count := int(primary != null and primary.visible) + int(secondary != null and secondary.visible)
+	var bottom := size.y - 20.0
+	if button_count > 0:
+		bottom = size.y * (0.900 if button_count == 2 else 0.785) - 12.0
+	var contents := content_host.get_parent() as Control
+	contents.position = Vector2(size.x * 0.09, 102.0)
+	contents.size = Vector2(size.x * 0.82, maxf(0.0, bottom - contents.position.y))
+	if action_zone != null and is_ancestor_of(action_zone.status_label):
+		action_zone.status_label.visible = not action_zone.status_label.text.strip_edges().is_empty()
 
 
 func _layout_decision_action_pair_v12(

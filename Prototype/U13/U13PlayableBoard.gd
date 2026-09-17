@@ -196,7 +196,7 @@ func _show_economy() -> void:
 			if not game_menu.embedded: game_menu.button("SWAP CARDS", slaver_swap)
 		if not game_menu.embedded: game_menu.button("PASS TRADE", _economy.bind({"market": "Pass"}))
 	game_menu.button("SAVE AND RETURN LATER", _save_game)
-	game_menu.message.text = choice_error
+	game_menu.set_message(choice_error)
 
 func _economy(choice: Dictionary) -> void:
 	if _job != null:
@@ -297,7 +297,7 @@ func _stage_profane(id: String) -> void:
 		order["castle_action"] = castle_plan.duplicate(true)
 	var result: Dictionary = session.choose(queued, order)
 	if result.action == "invalid":
-		game_menu.message.text = _friendly_error(result)
+		game_menu.set_message(_friendly_error(result))
 		return
 	_draft_combat = combat
 	_intent = ""
@@ -348,7 +348,7 @@ func _stage_rite(key: String, value) -> void:
 	order["rites"] = proposed
 	var result: Dictionary = session.choose(queued, order)
 	if result.action == "invalid":
-		game_menu.message.text = _friendly_error(result)
+		game_menu.set_message(_friendly_error(result))
 		return
 	rites_plan = proposed
 	_refresh()
@@ -389,24 +389,24 @@ func _save_game() -> void:
 	if _planning():
 		var checked: Dictionary = session.choose(queued, _order())
 		if checked.action == "invalid":
-			game_menu.message.text = "Finish or clear the incomplete order before saving."
+			game_menu.set_message("Finish or clear the incomplete order before saving.")
 			return
 	var folder: String = _save_folder()
 	if DirAccess.make_dir_recursive_absolute(folder) != OK:
 		_busy_label.text = "Could not create the saved-games folder: " + folder
-		game_menu.message.text = _busy_label.text
+		game_menu.set_message(_busy_label.text)
 		return
 	var stamp: String = Time.get_datetime_string_from_system().replace(":", "-")
 	var path: String = folder.path_join("u13-playable-%s-r%d-%d.json" % [stamp, session.round_number(), Time.get_ticks_usec()])
 	var file = FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		_busy_label.text = "Could not write the saved game."
-		game_menu.message.text = _busy_label.text
+		game_menu.set_message(_busy_label.text)
 		return
 	file.store_string(_encode_playable_save())
 	file.close()
 	_busy_label.text = "Saved game: " + path
-	game_menu.message.text = _busy_label.text
+	game_menu.set_message(_busy_label.text)
 	print("U13 saved game: " + path)
 
 func _open_load() -> void:

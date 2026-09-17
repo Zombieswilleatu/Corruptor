@@ -53,12 +53,16 @@ func present(title: String, description: String, dismissible: bool = true) -> vo
 	for child in column.get_children():
 		column.remove_child(child)
 		child.queue_free()
-	message.text = ""
+	set_message("")
 	if not embedded: label(title, 24)
 	label(description, 16)
 	close_button.visible = dismissible
 	if embedded: close_button.text = "BACK"
 	show()
+
+func set_message(value: String) -> void:
+	message.text = value
+	message.visible = not embedded or not value.strip_edges().is_empty()
 
 func label(value: String, size_value: int = 16) -> Label:
 	var result := Label.new()
@@ -105,6 +109,8 @@ func embed_in(host: Control) -> void:
 	add_child(contents)
 	column.reparent(contents)
 	message.reparent(contents)
+	message.custom_minimum_size.y = 0
+	set_message(message.text)
 	close_button.reparent(contents)
 	for child in get_children():
 		if child != contents:

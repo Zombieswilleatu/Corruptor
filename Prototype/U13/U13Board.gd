@@ -1055,6 +1055,7 @@ func _error(result: Dictionary) -> bool:
 	if result.action != "invalid":
 		return false
 	status.text = _friendly_error(result)
+	status.show()
 	reopen_decision()
 	return true
 
