@@ -29,6 +29,8 @@ const LANES: Array = Space.LANES
 const SUITS: Array = ["Butcher", "Penitent", "Vulture", "Wright"]
 # Frozen subsystem profile extracted from MarchingEngine.STANDARD_STATS.
 # Current all-Lord/full-game worlds enable Ranged.VERSION and use the override below.
+const MonsterEffects = preload("res://Scripts/Sim/U13MonsterEffects.gd")
+const Monsters = preload("res://Scripts/Sim/U13MonsterRules.gd")
 const STATS: Dictionary = {
 	"Butcher": {"attack": 3, "armor": 1, "regen": 1, "step_fp": 4, "armor_bypass": false},
 	"Penitent": {"attack": 1, "armor": 3, "regen": 2, "step_fp": 3, "armor_bypass": false},
@@ -77,7 +79,7 @@ static func valid(world: Dictionary) -> bool:
 			return false
 		if a.has("melee_next_tick") and (not Data.is_integer(a.melee_next_tick) or a.melee_next_tick < 0):
 			return false
-		if entity.owner not in [0, 1] or a.get("suit") not in SUITS or a.get("lane") not in LANES:
+		if entity.owner not in [0, 1] or (a.get("suit") not in SUITS and a.get("suit") != "Monster") or not Monsters.valid_unit(a) or a.get("lane") not in LANES:
 			return false
 		for field in [
 			"hp",
@@ -207,6 +209,8 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			}
 		)
 	]
+	if Monsters.enabled(world):
+		events[0].event.data["monster_fields"] = world.data.monsters.fields.filter(func(f): return f.expires_round >= context.round).duplicate(true)
 	if has_ranged:
 		events[0].event.data["ranged_profile"] = Ranged.VERSION
 	var has_retreat: bool = false
@@ -240,7 +244,9 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 	var kroni_actors: Array = world.data.get("kroni_actors", [])
 	if not kroni_actors.is_empty():
 		events.append(public_event("KRONI_ACTORS_STARTED", {"round": context.round, "actors": kroni_actors.duplicate(true)}))
+	var has_monsters: bool = Monsters.enabled(world) and (not world.data.monsters.fields.is_empty() or _units(entities).any(func(u): return u.attributes.has("monster_id") or u.attributes.has("poison_until_round")))
 	for tick in range(TICKS):
+		var tick_events_start: int = events.size()
 		var lamp_before: Array = _units(entities) if not lamp_objects.is_empty() else []
 		if has_wishes:
 			events.append_array(Wishmaster.bypass(entities, context.round, tick))
@@ -264,6 +270,17 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 				fleeing_ids[identity] = true
 			for identity in actor.fleeing:
 				fleeing_ids[identity] = true
+		if has_monsters:
+			var monster_tick: Dictionary = MonsterEffects.step(world, entities, context, tick, reaction)
+			if monster_tick.action == "invalid": return monster_tick
+			world = monster_tick.world
+			events.append_array(monster_tick.events)
+			fleeing_ids.merge(monster_tick.fleeing)
+			motion_context["monster_fields"] = world.data.monsters.fields
+			for lane in duels.keys():
+				if not _duel_alive(duels[lane], entities):
+					events.append(public_event("MARCHER_DUEL_INTERRUPTED", {"event_id": duels[lane].id, "round": context.round, "tick": tick}))
+					duels.erase(lane)
 		_move(entities, duels, motion_context, clock, has_rout, fleeing_ids)
 		if not gravity_orbs.is_empty():
 			var gravity_events: Array = Gravity.step(gravity_orbs, entities, gravity_before, context.round, tick, collapse)
@@ -317,10 +334,10 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			var left: Dictionary = entities.get_entity(duel.units[0].id)
 			var right: Dictionary = entities.get_entity(duel.units[1].id)
 			var damage_to_left: int = _attack(
-				left.attributes, Wishmaster.attack_amount(right.attributes), right.attributes.armor_bypass
+				left.attributes, 0 if right.attributes.get("sprite_form") == "turret" else Wishmaster.attack_amount(right.attributes), right.attributes.armor_bypass
 			)
 			var damage_to_right: int = _attack(
-				right.attributes, Wishmaster.attack_amount(left.attributes), left.attributes.armor_bypass
+				right.attributes, 0 if left.attributes.get("sprite_form") == "turret" else Wishmaster.attack_amount(left.attributes), left.attributes.armor_bypass
 			)
 			duel.exchanges.append(
 				{
@@ -338,6 +355,9 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 				else:
 					unit.attributes.movement_ready_round = mini(int(unit.attributes.movement_ready_round), int(context.round))
 					entities.update(unit.id, unit.owner, unit.attributes)
+			if has_monsters:
+				events.append_array(MonsterEffects.on_hit(entities, left, right.id, damage_to_right, context, tick))
+				events.append_array(MonsterEffects.on_hit(entities, right, left.id, damage_to_left, context, tick))
 			if left.attributes.hp > 0 and right.attributes.hp > 0:
 				if duel.exchanges.size() >= 64:
 					return Data.invalid("marching_exchange_limit")
@@ -446,6 +466,11 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 						}
 					)
 				)
+		if has_monsters:
+			# Consumed bodies bypass combat reactions; their death pools still
+			# start this tick, rather than waiting until the whole phase ends.
+			Wishmaster.record_losses(world, events.slice(tick_events_start))
+			events.append_array(MonsterEffects.deaths(world, context.round, tick))
 		if not kroni_actors.is_empty():
 			events.append(public_event("KRONI_ACTOR_TICK", {"round": context.round, "tick": tick, "actors": kroni_actors.duplicate(true)}))
 		var active: Array = []
@@ -670,6 +695,7 @@ static func _move(
 ) -> void:
 	var gate_queue: bool = context.get("world", {}).get("data", {}).get("guard_work", {}).get("version") == "U13_GUARD_WORK_V2"
 	var rows: Array = _units(entities)
+	var has_taunt: bool = rows.any(func(r): return r.attributes.get("monster_id") == "Kurchin")
 	var lane_modifiers: Dictionary = context.get("lane_modifiers", {})
 	var spatial_fields: Dictionary = context.get("spatial_fields", {})
 	var neighbors: Dictionary = _movement_neighbors(rows, duels, int(context.round), has_rout)
@@ -683,7 +709,7 @@ static func _move(
 	var accepted_grids: Dictionary = _team_grids(accepted, 7)
 	# Read targets from one tick snapshot; resolve personal-space conflicts in ID order.
 	for unit in rows:
-		if fleeing_ids.has(unit.id):
+		if fleeing_ids.has(unit.id) or unit.attributes.get("hidden", false) or unit.attributes.get("sprite_form") == "turret":
 			continue
 		var a: Dictionary = unit.attributes
 		var nearby: Dictionary = neighbors[unit.id]
@@ -707,6 +733,8 @@ static func _move(
 		if Veil.applies_to(context.get("gravitational_collapse", false), unit.owner):
 			var percent: int = 0 if lane_modifiers.is_empty() else int(lane_modifiers[a.lane][unit.owner].speed_percent)
 			step = LaneAuras.speed(int(a.step_fp), percent, has_rout and Rout.recovering(a, int(context.round)), clock, not spatial_fields.is_empty() and SpatialFields.slowed(spatial_fields, unit.owner, a), true)
+		if MonsterEffects.slowed(a, context.get("monster_fields", [])):
+			step = (step >> 1) + (step & 1) * (clock & 1)
 		if not retreat and int(nearby.distance) <= CONTACT_FP * CONTACT_FP:
 			if previous_ticket < 0:
 				a.contact_tick = clock
@@ -726,15 +754,20 @@ static func _move(
 				entities.update(unit.id, unit.owner, a)
 			continue
 		var nearest: Dictionary = nearby.unit
-		var best: int = int(nearby.distance)
+		var preferred: Dictionary = MonsterEffects.preferred(unit, rows) if has_taunt or a.get("monster_id") == "Tumler" else {}
+		if not preferred.is_empty(): nearest = preferred
+		var best: int = int(nearby.distance) if preferred.is_empty() else _distance(a, preferred.attributes)
 		var dx: int = int(a.direction) * step * (-1 if retreat else 1)
 		var dy: int = 0
 		var destination: Dictionary = nearest.attributes if not nearest.is_empty() else {}
-		if not retreat and not context.get("wishmaster_lamps", []).is_empty():
+		if not a.has("monster_id") and not retreat and not context.get("wishmaster_lamps", []).is_empty():
 			var lamp: Dictionary = Wishmaster.nearby_lamp(a, context.wishmaster_lamps)
 			if not lamp.is_empty():
 				destination = lamp.target.field_position
 				best = Wishmaster.distance(a, destination)
+		if not retreat and a.get("monster_id") == "Tumler":
+			destination = MonsterEffects.steer(unit, destination, rows, context.get("monster_fields", []))
+			if not destination.is_empty(): best = _distance(a, destination)
 		if not retreat and not destination.is_empty():
 			var vx: int = int(destination.x_fp) - int(a.x_fp)
 			var vy: int = int(destination.y_fp) - int(a.y_fp)
@@ -949,7 +982,7 @@ static func _valid_duels(world: Dictionary) -> bool:
 
 
 static func _attack(target: Dictionary, amount: int, bypass: bool) -> int:
-	var remaining: int = maxi(1, amount)
+	var remaining: int = maxi(0, amount)
 	if not bypass:
 		var absorbed: int = mini(int(target.armor), remaining)
 		target.armor -= absorbed
@@ -975,4 +1008,3 @@ static func place_near_spawn(entities, id: String, origin: Dictionary) -> void:
 			entities.update(id, unit.owner, a)
 			return
 	# Fully packed neighborhoods retain the valid origin; normal movement separates them.
-

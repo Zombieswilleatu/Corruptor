@@ -300,6 +300,11 @@ class CommonSmartCore:
             assessments.append(dict(category=category, term=term, opportunity=opportunity,
                 legal=True if selected else None, affordable=True if selected else False if reason == 'resource_shortfall' else None,
                 generated=count, retained=kept, selected=selected, reason=reason))
+        from u13_pysim import monsters
+        monster_state = f.v['data'].get('monsters', {})
+        if monster_state:
+            names = monsters.available(f.v['board']+f.v['hand'], chosen['plan']['order'].get('card_ids', []), f.pid, monster_state['unlocked'][f.pid])
+            if names: chosen['plan']['order']['monster_choice'] = names[-1]
         return dict(policy=VERSION, plan=copy_data(chosen['plan']), score=chosen['score'],
                     chosen_reasons=[p.reason for p in chosen['selected']], assessments=assessments,
                     retained_candidates=[dict(category=p.category, term=p.term, score=p.value, reason=p.reason,

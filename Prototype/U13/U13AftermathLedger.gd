@@ -88,6 +88,10 @@ static func name_of(entity: Dictionary) -> String:
 
 static func describe(kind: String, d: Dictionary) -> String:
 	match kind:
+		"MONSTER_SUMMONED": return "%s summoned · %d %s lane bodies" % [d.monster_id, d.unit_ids.size(), d.lane]
+		"MONSTER_ROOTED": return "Sooge rooted permanently into turret form"
+		"MONSTER_BANISHED": return "%s banished by Sinodek" % d.unit.attributes.get("monster_id", d.unit.attributes.get("suit", "Marcher"))
+		"MONSTER_CHARMED": return "Fyra charmed an enemy for the remainder of the round"
 		"PILLAGE_RETARGETED": return "Pillage became Siege against " + str(d.get("castle_id", "Castle"))
 		"CASTLE_DEFUNCT": return "%s · %s is defunct (repairable)" % [d.get("cause", "Castle disabled"), d.get("castle_id", "Castle")]
 		"CASTLE_DAMAGED": return "%s · %d damage · Castle health %d" % [d.get("cause", d.get("source", "Castle damage")), d.get("damage", 0), d.get("integrity", 0)]

@@ -1,0 +1,170 @@
+{
+  "date": "2026-09-17",
+  "base_commit": "8ce7b52be8ed07c7485d48bc0f0be185178ad887",
+  "source_sha256_at_packaging": "4dbf96a76622602ef3bc68c8911ff93e22f4cdd2dccfcca9c02f967a300590c4",
+  "rules_hash": "8279c82cbd2cd6acb69babcaeb3fc5172d86b6593d2de1563a515dae5003f46d",
+  "monster_policy": "U13_MONSTERS_V1",
+  "runtime": {
+    "tested": "Godot 4.5.1 stable Linux diagnostic",
+    "required": "Godot 4.7.2 stable",
+    "production_guard_unchanged": true,
+    "windows_visual_acceptance": false
+  },
+  "directed_native": {
+    "monsters_and_ui": {
+      "passed": 129,
+      "failures": 0
+    },
+    "inevitable_ruin": {
+      "passed": 38,
+      "failures": 0
+    },
+    "kanifous": {
+      "passed": 460,
+      "failures": 0
+    },
+    "sprites": {
+      "passed": 55,
+      "failures": 0
+    },
+    "native_doctrine": {
+      "passed": 232,
+      "failures": 0
+    }
+  },
+  "python_unit_tests": {
+    "passed": 27,
+    "failures": 0
+  },
+  "exact_marching_comparison": {
+    "phases": 12,
+    "events": 2724,
+    "ticks": 2400,
+    "event_types": {
+      "KRONI_ACTORS_STARTED": 1,
+      "KRONI_ACTOR_FINISHED": 1,
+      "KRONI_ACTOR_TICK": 200,
+      "KRONI_FLEE_STARTED": 1,
+      "MARCHER_CLASH": 7,
+      "MARCHER_CONTACT": 13,
+      "MARCHER_DEFEATED": 14,
+      "MARCHER_DEVOURED": 1,
+      "MARCHER_DUEL_INTERRUPTED": 6,
+      "MARCHER_RANGED_ATTACK": 22,
+      "MARCHING_FINISHED": 12,
+      "MARCHING_STARTED": 12,
+      "MARCHING_TICK": 2400,
+      "MONSTER_ATTACK": 14,
+      "MONSTER_BANISHED": 1,
+      "MONSTER_CHARMED": 3,
+      "MONSTER_CONCEALMENT": 1,
+      "MONSTER_FIELD_CREATED": 3,
+      "MONSTER_POISONED": 1,
+      "MONSTER_PULSE": 1,
+      "NEUTRAL_TEAR_CREATED": 5,
+      "PICKING_THE_BONES": 5
+    }
+  },
+  "admission_and_continuation": {
+    "cases": 10,
+    "transitions": 594,
+    "native_checks": 4414,
+    "failures": 0,
+    "includes_atomic_rejections_and_saved_round_restoration": true
+  },
+  "complete_games": {
+    "exact_final_state_and_event_history": true,
+    "final_native_saves_restored": 3,
+    "operations": 1223,
+    "monster_coverage": [
+      "Dotra",
+      "Fyra",
+      "Kopita",
+      "Kurchin",
+      "Lemek",
+      "Muno",
+      "Sinodek",
+      "Sooge",
+      "Tumler",
+      "Varn"
+    ],
+    "games": [
+      {
+        "name": "monsters_Kanifous_Gremory",
+        "round": 14,
+        "outcome": {
+          "action": "game_finished",
+          "round": 14,
+          "winner": 1,
+          "win_by": "FinalCollapse"
+        },
+        "summons": {
+          "Dotra": 2,
+          "Lemek": 3,
+          "Tumler": 2,
+          "Varn": 3,
+          "Kopita": 1,
+          "Kurchin": 1,
+          "Sinodek": 1,
+          "Muno": 2
+        },
+        "operations": 361
+      },
+      {
+        "name": "monsters_Odradek_Deimos",
+        "round": 15,
+        "outcome": {
+          "action": "game_finished",
+          "round": 15,
+          "winner": 1,
+          "win_by": "Dominion"
+        },
+        "summons": {
+          "Varn": 5,
+          "Muno": 2,
+          "Lemek": 5,
+          "Kopita": 3,
+          "Tumler": 1,
+          "Fyra": 2,
+          "Kurchin": 1,
+          "Sinodek": 1
+        },
+        "operations": 386
+      },
+      {
+        "name": "monsters_Kroni_Valak",
+        "round": 19,
+        "outcome": {
+          "action": "game_finished",
+          "round": 19,
+          "winner": 0,
+          "win_by": "Ritual"
+        },
+        "summons": {
+          "Tumler": 4,
+          "Sinodek": 2,
+          "Lemek": 8,
+          "Kurchin": 2,
+          "Muno": 1,
+          "Varn": 4,
+          "Kopita": 2,
+          "Sooge": 1
+        },
+        "operations": 476
+      }
+    ]
+  },
+  "limits": [
+    "Initial numerical monster tuning is provisional; these are correctness checks, not a balance study.",
+    "Standalone prototype unlocks all ten recipes; campaign unlock progression is not implemented.",
+    "Complete game inputs use the existing coverage planner plus a qualifying summon, not optimized recipe-saving play.",
+    "Earlier rules/policy saves are intentionally incompatible; start a new game."
+  ],
+  "reproduction": {
+    "native_directed": "godot --headless --path PROJECT --script res://Scripts/Sim/U13MonsterTestRunner.gd -- monster-phases.jsonl",
+    "python_directed": "PYTHONPATH=Scripts/Sim python -m u13_pysim.verify_monsters monster-phases.jsonl",
+    "game_inputs": "PYTHONPATH=Scripts/Sim python -m u13_pysim.monster_inputs monster-fullgame-inputs.json --games",
+    "native_games": "godot --headless --path PROJECT --script res://Scripts/Sim/U13VeilGameParityRunner.gd -- monster-fullgame-inputs.json monster-fullgames.jsonl",
+    "python_games": "PYTHONPATH=Scripts/Sim python -m u13_pysim.verify_monsters --games monster-fullgame-inputs.json monster-fullgames.jsonl"
+  }
+}

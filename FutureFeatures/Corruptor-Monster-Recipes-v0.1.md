@@ -2,6 +2,8 @@
 
 Established September 15, 2026 as the starting design baseline. This records the current recipe proposal accepted for iteration; it does not implement monsters in the game. Tier labels describe intended accessibility, not guaranteed summon frequencies.
 
+**Implementation update — September 17, 2026:** this baseline is now wired into the standalone U13 prototype with all ten recipes unlocked. See [implementation and provisional tuning](../docs/U13_MONSTERS_2026-09-17.md). The original proposal below remains the design record; unspecified values now have explicit playtest defaults.
+
 ## Recipes
 
 Recipes count subjects, irrespective of printed card value. Every named subject is required; there are no wildcard ingredients in this baseline.

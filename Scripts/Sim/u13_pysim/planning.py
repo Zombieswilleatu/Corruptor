@@ -192,6 +192,8 @@ class PlanningMatch:
                 e.require(target and target["owner"] == pid and e.operational(target)
                           and target["attributes"]["integrity"] == target["attributes"]["max_integrity"],
                           "profane_target_not_full_active_own_castle")
+            from .monsters import validate_choice
+            validate_choice(w,pid,combat)
             e.require(e.selection(z["hands"][pid], combat["card_ids"]) and not z["committed"][pid], "combat_cards_unavailable")
         # Preview and lock share all validation above. Only lock reserves cards,
         # writes ledgers and emits events, so a preview needs no throwaway world.
@@ -221,6 +223,10 @@ class PlanningMatch:
         expected = {"action", "lane", "card_ids"}
         if action not in ("Hunt", "Siege", "Ward", "Profane"):
             return False
+        if "monster_choice" in order:
+            from .monsters import NAMES
+            if order["monster_choice"] not in NAMES:return False
+            expected.add("monster_choice")
         if "fracture_target" in order:
             if action != "Hunt" or order["fracture_target"] not in ("subjects", "infrastructure"):
                 return False

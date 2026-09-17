@@ -48,6 +48,7 @@ static func compile(effects: Array, round_number: int) -> Dictionary:
 
 
 static func slowed(lanes: Dictionary, owner: int, attributes: Dictionary) -> bool:
+	if attributes.get("flying", false): return false
 	for field in lanes.get(attributes.lane, []):
 		if field.owner != owner and Space._contains(field.region, attributes):
 			return true

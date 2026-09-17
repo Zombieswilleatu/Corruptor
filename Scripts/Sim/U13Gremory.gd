@@ -96,7 +96,7 @@ func valid_world(world: Dictionary) -> bool:
 				not Data.is_integer(attributes.get("hp"))
 				or attributes.hp < 1
 				or attributes.get("lane") not in ["Lord", "Castle"]
-				or attributes.get("suit") not in ["Butcher", "Vulture", "Wright", "Penitent"]
+				or (attributes.get("suit") not in ["Butcher", "Vulture", "Wright", "Penitent", "Monster"] or not preload("res://Scripts/Sim/U13MonsterRules.gd").valid_unit(attributes))
 			):
 				return false
 	return true

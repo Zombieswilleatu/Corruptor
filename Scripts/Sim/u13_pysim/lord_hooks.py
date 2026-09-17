@@ -18,9 +18,11 @@ class LordRoundRules(RoundRules):
     def run(self, orders):
         events = veil.begin_effects(self) if self.hook == "round_start_scheduled" else []
         events.extend(super().run(orders))
+        wishmaster.record_losses(self.w, events)
+        from .monster_effects import deaths
+        events.extend(deaths(self.w,self.number))
         events.extend(self.sync_breach())
         veil.observe(self.w,self.number)
-        wishmaster.record_losses(self.w, events)
         return events
 
     def extra(self):

@@ -40,6 +40,7 @@ static func pulse(
 			target.kind == "lane"
 			and entity.kind == "marcher"
 			and entity.attributes.lane == target.lane
+			and not entity.attributes.get("flying", false)
 		):
 			ids.append(entity.id)
 		elif (

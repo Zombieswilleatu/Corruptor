@@ -72,6 +72,7 @@ static func initialize(raw: Dictionary, seed_value: String) -> Dictionary:
 			"summons": []
 		}
 	}
+	preload("res://Scripts/Sim/U13MonsterRules.gd").configure(world)
 	preload("res://Scripts/Sim/U13Sigils.gd").configure(world)
 	preload("res://Scripts/Sim/U13Fracture.gd").configure(world)
 	preload("res://Scripts/Sim/U13DominionRites.gd").configure(world)

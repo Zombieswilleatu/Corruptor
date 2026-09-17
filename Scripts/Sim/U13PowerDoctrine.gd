@@ -204,7 +204,7 @@ static func kanifous(c, order: Dictionary = {}) -> Array:
 	var debts: int = c.w.get("wish_prices", []).filter(func(p): return p.owner == c.pid).size()
 	var risk: float = 3.0 + mini(debts, 6) * 1.25
 	for row in c.castles(c.pid):
-		var missing: int = row.attributes.max_integrity - row.attributes.integrity
+		var missing: int = mini(14, int(row.attributes.max_integrity)) - row.attributes.integrity
 		var repair: Dictionary = order.get("castle_action", {})
 		if repair.get("action") == "Repair" and repair.get("target_id") == row.id:
 			var cards: Array = repair.card_ids

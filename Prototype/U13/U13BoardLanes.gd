@@ -8,6 +8,9 @@ var scorch_visuals = ScorchVisuals.new()
 const Feedback = preload("res://Prototype/U13/U13MarcherFeedback.gd")
 var feedback = Feedback.new()
 var projectiles: Array = []
+var monster_fields: Array = []
+var monster_attacks: Array = []
+var quiet_removal_ids: Array = []
 var projectile_visual = preload("res://Prototype/U13/U13VultureProjectile.gd").new()
 var deaths = preload("res://Prototype/U13/U13MarcherDeathVisual.gd").new()
 const BreathVisuals = preload("res://Prototype/U13/U13BreathVisuals.gd")
@@ -196,6 +199,7 @@ func _draw() -> void:
 					travel_rect,
 					_round > int(web.activated_round)
 				)
+		_draw_monster_fields(lane)
 		var top: float = rect.position.y + 65
 		var bottom: float = rect.end.y - 52
 		var ordered: Array = _units.duplicate()
@@ -225,6 +229,7 @@ func _draw() -> void:
 					11
 				)
 
+	_draw_monster_attacks()
 	projectile_visual.draw(self, projectiles)
 	deaths.draw(self)
 	draw_string(font, Vector2(size.x * 0.5 - 38, size.y - 7), "HP", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, HEALTH_RING_COLOR)
@@ -238,6 +243,9 @@ const ParadoxTiming = preload("res://Prototype/U13/U13ParadoxTiming.gd")
 func _draw_chit(unit: Dictionary, center: Vector2, flash: bool = false) -> void:
 	var attributes: Dictionary = unit.attributes
 	var tint: Color = BLUE if unit.owner == 0 else RED
+	if attributes.get("hidden", false):
+		if unit.owner == 0: draw_arc(center, 9, 0, TAU, 24, Color(tint, 0.35), 1.0)
+		return
 	var glitch: Dictionary = paradox_glitches.get(unit.id, {})
 	var drawn := sprite_visuals.draw(self, unit, center, sprite_height, glitch, flash)
 	var fallback_character: String = "" if drawn else SpriteVisuals.Catalog.character_for(unit)
@@ -325,6 +333,9 @@ func pulse_lanes(selected_lane: String = "") -> void:
 
 func reset_effects() -> void:
 	projectiles = []
+	monster_fields = []
+	monster_attacks = []
+	quiet_removal_ids = []
 	deaths.clear()
 	_units = []
 	_clash = []
@@ -410,14 +421,18 @@ func travel_rect(lane: String) -> Rect2:
 
 func show_world(entities: Array, round_number: int) -> void:
 	projectiles = []
-	deaths.observe(_units, entities)
+	deaths.observe(_units.filter(func(u): return u.id not in quiet_removal_ids), entities)
 	super.show_world(entities, round_number)
 	sprite_visuals.sync(_units, _clash, _round, false)
 	set_process(_effects_need_process())
 
 func show_frame(frame: Dictionary, round_number: int) -> void:
 	projectiles = frame.get("projectiles", [])
-	deaths.observe(_units, frame.units)
+	monster_fields = frame.get("monster_fields", [])
+	monster_attacks = frame.get("monster_attacks", [])
+	for id in frame.get("banished_ids", []):
+		if id not in quiet_removal_ids: quiet_removal_ids.append(id)
+	deaths.observe(_units.filter(func(u): return u.id not in quiet_removal_ids), frame.units)
 	super.show_frame(frame, round_number)
 	sprite_visuals.sync(_units, _clash, _round, true)
 	set_process(_effects_need_process())
@@ -426,3 +441,38 @@ func show_deaths(rows: Array) -> void:
 	for row in rows:
 		deaths.add(row.unit)
 	set_process(_effects_need_process())
+
+func _monster_point(a: Dictionary) -> Vector2:
+	var rect: Rect2 = travel_rect(a.lane)
+	return rect.position + Vector2(float(a.y_fp) / 600.0, 1.0 - float(a.x_fp) / 2400.0) * rect.size
+
+func _draw_monster_fields(lane: String) -> void:
+	var rect: Rect2 = travel_rect(lane)
+	for field in monster_fields:
+		if field.lane != lane: continue
+		var center: Vector2 = _monster_point(field)
+		var radius: float = 100.0 if field.kind == "portal" else 200.0
+		var points := PackedVector2Array()
+		for i in range(49):
+			var angle: float = TAU * float(i) / 48.0
+			points.append(center + Vector2(cos(angle) * radius / 600.0 * rect.size.x, sin(angle) * radius / 2400.0 * rect.size.y))
+		if field.kind == "pool":
+			draw_colored_polygon(points, Color(0.20, 0.30, 0.09, 0.42))
+			draw_polyline(points, Color(0.48, 0.56, 0.21, 0.55), 1.2, true)
+		else:
+			draw_colored_polygon(points, Color(0.035, 0.01, 0.075, 0.95))
+			draw_polyline(points, Color(0.52, 0.28, 0.85, 0.70), 4.0, true)
+			draw_polyline(points, Color(0.45, 0.70, 1.0, 0.9), 1.0, true)
+
+func _draw_monster_attacks() -> void:
+	for attack in monster_attacks:
+		var a: Vector2 = _monster_point(attack.source) - Vector2(0, sprite_height * 0.5)
+		var b: Vector2 = _monster_point(attack.target) - Vector2(0, sprite_height * 0.5)
+		if attack.ability == "Beam":
+			draw_line(a, b, Color(0.76, 0.16, 0.28, 0.35), 7.0, true)
+			draw_line(a, b, Color(1.0, 0.64, 0.58, 0.85), 2.0, true)
+		elif attack.ability == "Muno":
+			draw_line(a, b, Color(0.55, 0.84, 0.95, 0.55), 1.5, true)
+			draw_line(b + Vector2(-8, 9), b + Vector2(8, -9), Color(0.83, 0.94, 1.0, 0.85), 2.0, true)
+		elif attack.ability == "Ambush":
+			for i in range(3): draw_line(b + Vector2(-8 + i * 5, 8), b + Vector2(-3 + i * 5, -9), Color(0.9, 0.63, 0.42, 0.8), 1.5, true)

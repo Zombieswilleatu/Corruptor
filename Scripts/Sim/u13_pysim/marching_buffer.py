@@ -7,6 +7,8 @@ from .recruitment import create
 class Buffer:
     def __init__(self,phase):self.phase=phase
     def rows(self):return self.phase.s.rows()
+    def snapshot(self):return self.phase.s.snapshot()
+    def restore(self,raw):self.phase.s=Columns(raw,keep_background=self.phase.keep_background)
     def has_ghost_wishes(self):
         s=self.phase.s
         return any(alive and extra and extra.get('ghost_wishes',0)!=0

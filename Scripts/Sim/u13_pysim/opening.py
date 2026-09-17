@@ -5,7 +5,7 @@ Godot state, legacy simulator, generated snapshot or GDScript parser is used.
 """
 
 from collections import Counter
-from . import veil
+from . import veil, monsters
 from .primitives import Entities, draw, entity_id
 
 LORDS = ["Gremory", "Deimos", "Humbaba", "Kalligan", "Orias", "Odradek", "Kroni", "Valak", "Kanifous"]
@@ -18,7 +18,7 @@ ECONOMY = "U13_GAME_ECONOMY_V4"
 MARKET = "U13_GAME_MARKET_V2"
 # Pin the accepted authority's complete roster identity. Matching this hash
 # does not assert that the Python mirror implements those powers yet.
-RULES_HASH = "89cd56e07273c3a39e5dd7af211d983511178b19beb585dbaf5a98639b520951"
+RULES_HASH = "8279c82cbd2cd6acb69babcaeb3fc5172d86b6593d2de1563a515dae5003f46d"
 POLICY = ":".join([
     "U13_PERMANENT_BREACHES_V1",
     "U13_GUARD_WORK_V2", "U13_VICTORY_V2_ROUND_PRESSURE", "U13_PROFANE_PILLAGE_V1",
@@ -26,7 +26,7 @@ POLICY = ":".join([
     "U13_FRACTURE_V1", "U13_SIGIL_LIFECYCLE_V1", "U13_BLOOD_CONDUIT_V1", MARKET,
     "U13_CASTLE_DEFENSES_V1", ECONOMY, "U13_KANIFOUS_V1", "U13_VALAK_V1",
     "U13_KRONI_WEIGHTED_ANGLES_V8", "U13_ODRADEK_COMPLETE_V2", "U13_ORIAS_MARK_BOARD_V4",
-    "U13_BATCH_EVENTS_V1"])
+    monsters.VERSION, "U13_BATCH_EVENTS_V1"])
 
 
 def castle_id(player, slot):
@@ -171,6 +171,7 @@ def world(seed, lords, loadouts):
             "card_ids": selected, "card_values": values, "circle_id": circle,
             "circle_exerted": 3 if circle else 0})
     world = {"players": players, "entities": ids.snapshot(), "data": data}
+    monsters.configure(world)
     veil.configure(world)
     return world
 

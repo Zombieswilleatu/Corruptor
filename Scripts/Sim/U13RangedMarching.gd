@@ -29,6 +29,8 @@ static func distance(a: Dictionary, b: Dictionary) -> int:
 
 
 static func nearest(unit: Dictionary, rows: Array) -> Dictionary:
+	var preferred: Dictionary = preload("res://Scripts/Sim/U13MonsterEffects.gd").preferred(unit, rows)
+	if not preferred.is_empty() and distance(unit.attributes, preferred.attributes) <= RANGE_FP * RANGE_FP: return preferred
 	var best: Dictionary = {}
 	var best_distance: int = RANGE_FP * RANGE_FP + 1
 	for other in rows:

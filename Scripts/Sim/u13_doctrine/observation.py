@@ -10,12 +10,13 @@ def observe(match, seat):
     s, w = match._state, match._state['world']
     d, z = w['data'], w['data']['card_zones']
     rows = w['entities']['entities']
-    public = [r for r in rows if r['kind'] != 'card' or r['attributes'].get('role') == 'guard']
+    public = [r for r in rows if (r['kind'] != 'card' or r['attributes'].get('role') == 'guard') and (r['owner']==seat or not r['attributes'].get('hidden',False))]
     # Explicit allowlist: no deck/discard order, opponent hand, sealed orders,
     # simulation seed, event history, RNG or future random outcomes.
     data = {k: d[k] for k in ('neutral_tears', 'breach_lord', 'sigils', 'guard_public_limits',
                               'orias_marks', 'kanifous_prices', 'kanifous_losses')}
     data['veil_breaches'] = d.get('veil_breaches', {})
+    data['monsters'] = d.get('monsters', {})
     data['guard_work'] = {k: d['guard_work'][k] for k in ('targets', 'pairs')}
     data['invocation_rounds'] = d['dominion_rites']['invocation_rounds']
     data['vacant_counts'] = d['vacant_throne']['counts']

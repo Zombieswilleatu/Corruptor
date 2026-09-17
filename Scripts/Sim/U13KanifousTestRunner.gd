@@ -328,7 +328,7 @@ func longevity_targets() -> void:
 					var result: Dictionary = content.resolve({"declaration": source}, {"world": world, "round": 1, "seed": "longevity"})
 					if expected:
 						var restored: Dictionary = Content._entity(result.world, castle.id)
-						check(restored.attributes.integrity == restored.attributes.max_integrity and restored.attributes.status == "standing" and result.world.data.kanifous_prices.size() == 1, "Longevity repairs and charges " + label)
+						check(restored.attributes.integrity == mini(14, int(restored.attributes.max_integrity)) and restored.attributes.status == "standing" and result.world.data.kanifous_prices.size() == 1, "Longevity repairs and charges " + label)
 					else:
 						check(result.world == world and not result.events.back().event.data.success, "Longevity rechecks target without mutation or Price " + label)
 

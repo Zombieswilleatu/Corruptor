@@ -13,6 +13,11 @@ var save_button: Button
 var load_button: Button
 var load_dialog: FileDialog
 var rites_plan: Dictionary = {}
+const MonsterRules = preload("res://Scripts/Sim/U13MonsterRules.gd")
+var monster_choice: String = ""
+var monster_picker: OptionButton
+var monster_note: Label
+var recipe_menu
 var fracture_choice: String = "infrastructure"
 var choice_error: String = ""
 var setup_load_button: Button
@@ -40,6 +45,14 @@ func _build() -> void:
 	game_menu = GameMenu.new()
 	add_child(game_menu)
 	game_menu.closed.connect(reopen_decision)
+	recipe_menu = GameMenu.new()
+	add_child(recipe_menu)
+	_button(header.tools_box, "RECIPES", _open_recipes)
+	monster_picker = _option(action_zone.action_box, ["No monster summon"])
+	monster_picker.name = "MonsterSummonChoice"
+	monster_picker.item_selected.connect(func(index): monster_choice = str(monster_picker.get_item_metadata(index)); _refresh())
+	monster_note = _label(action_zone.action_box, "", 13)
+	monster_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	work_button = _button(header.history_box, "WORK TARGET", _open_work_target)
 	work_button.tooltip_text = "Click, then select a pulsing Castle. Each newly placed Guard gives 1 work; a fresh Wright pair adds 5. Unbuilt targets also gain 3 per round. No card payment."
 	action_zone.action_buttons["Ward"].tooltip_text = "Defend a lane and recruit one Marcher per 2 printed suit value. Hunt and Siege recruit at 3:1."
@@ -82,6 +95,9 @@ func _with_development(order: Dictionary) -> Dictionary:
 		result["rites"] = rites_plan.duplicate(true)
 	if result.get("action") == "Hunt":
 		result["fracture_target"] = fracture_choice
+	result.erase("monster_choice")
+	if not monster_choice.is_empty() and monster_choice in _available_monsters(result.get("card_ids", [])):
+		result["monster_choice"] = monster_choice
 	return result
 
 func _hand_reserved(id: String) -> bool:
@@ -90,17 +106,26 @@ func _hand_reserved(id: String) -> bool:
 func _reset_direct() -> void:
 	choosing_work = false
 	rites_plan = {}
+	monster_choice = ""
 	fracture_choice = "infrastructure"
 	choice_error = ""
 	if game_menu != null:
 		game_menu.hide()
+	if recipe_menu != null: recipe_menu.hide()
 	super._reset_direct()
 
 func _refresh(presented: Dictionary = {}) -> void:
-	super._refresh(presented)
+	var view: Dictionary = session.board_view() if presented.is_empty() else presented
+	if session is PlaySession and not playing:
+		# Set before show_world observes disappearing bodies. Concealment
+		# is not death, and a reappearing body must be observable again.
+		lanes.quiet_removal_ids = view.world.get("concealed_ids", []).duplicate()
+	super._refresh(view)
 	if not session is PlaySession:
 		return
 	var w: Dictionary = _visible_world
+	_sync_monsters()
+	lanes.monster_fields = w.get("monsters", {}).get("fields", []).filter(func(f): return f.expires_round >= session.round_number())
 	header.bind_playable_veil(w, session.round_number())
 	work_button.disabled = not _planning() or playing or _job != null
 	work_button.text = "CANCEL WORK" if choosing_work else "WORK TARGET"
@@ -443,6 +468,7 @@ func _load_game(path: String) -> void:
 	guard_plan = order.get("guard_moves", []).duplicate(true)
 	summon_plan = order.get("summon", {}).duplicate(true)
 	rites_plan = order.get("rites", {}).duplicate(true)
+	monster_choice = order.get("monster_choice", "")
 	fracture_choice = order.get("fracture_target", "infrastructure")
 	_draft_combat = order.duplicate(true)
 	for key in ["castle_action", "guard_moves", "summon", "rites"]: _draft_combat.erase(key)
@@ -697,3 +723,46 @@ func restart() -> void:
 		playtime = Playtime.new()
 		header.veil_wheel.follow_current()
 	_sample_playtime()
+
+func _available_monsters(cards: Array) -> Array:
+	var state: Dictionary = _visible_world.get("monsters", {})
+	if state.is_empty(): return []
+	return MonsterRules.available(_visible_world.get("entities", []), cards, 0, state.unlocked[0])
+
+func _sync_monsters() -> void:
+	if monster_picker == null: return
+	var available: Array = _available_monsters(_draft_combat.get("card_ids", []))
+	if monster_choice not in available: monster_choice = ""
+	monster_picker.clear()
+	monster_picker.add_item("No monster summon")
+	monster_picker.set_item_metadata(0, "")
+	for name in available:
+		monster_picker.add_item("Summon " + name)
+		monster_picker.set_item_metadata(monster_picker.item_count - 1, name)
+		if name == monster_choice: monster_picker.select(monster_picker.item_count - 1)
+	monster_picker.disabled = not _planning() or available.is_empty()
+	monster_note.text = "Commit a recipe's cards to unlock a summon. RECIPES shows the full list." if available.is_empty() else "Choose one monster alongside your normal marchers. Printed card values do not affect recipes."
+	if not monster_choice.is_empty(): monster_note.text = MonsterRules.recipe_text(monster_choice) + " → " + monster_choice
+	monster_picker.tooltip_text = MonsterRules.ROSTER[monster_choice].ability if not monster_choice.is_empty() else "Choose one qualifying recipe, or keep No monster summon."
+
+func _open_recipes() -> void:
+	if recipe_menu == null: return
+	recipe_menu.present("MONSTER RECIPES", "Commit the named subjects together in Hunt, Siege or Ward, then choose a summon in the Combat step. One recipe per round, alongside normal marchers. Saved cards and cards spent on Guards, work, powers or rites do not count. All ten recipes are unlocked for this prototype.")
+	var available: Array = _available_monsters(_draft_combat.get("card_ids", []))
+	for name in MonsterRules.NAMES:
+		var r: Dictionary = MonsterRules.ROSTER[name]
+		var panel := PanelContainer.new()
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color("242019")
+		style.set_content_margin_all(14)
+		panel.add_theme_stylebox_override("panel", style)
+		recipe_menu.column.add_child(panel)
+		var text := Label.new()
+		text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		text.add_theme_font_size_override("font_size", 16)
+		var eligibility: String = "\nReady with your committed cards." if name in available else ""
+		if MonsterRules.limited(name) and MonsterRules.living(_visible_world.get("entities", []), 0, name): eligibility = "\nAlready alive: summon another after it leaves play."
+		text.text = "%s · %s\n%s\nAttack %d · Armor %d · Speed %d · HP %d\n%s%s" % [name, r.tier, MonsterRules.recipe_text(name), r.attack, r.armor, r.speed, r.hp, r.ability, eligibility]
+		panel.add_child(text)
+	recipe_menu.label("Initial playtest values: Sinodek's stats, HP, chances and ability ranges are provisional. Varn is 3–5 bodies per summon. Sooge and Sinodek each allow one living copy per player, with no fixed cooldown.", 14)

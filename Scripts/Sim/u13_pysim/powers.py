@@ -88,7 +88,7 @@ def validate(s,w,phase,active):
         power=power.removeprefix('Breach')
         legal=not p
         if power=='WishPower': legal=legal and set(t)=={'lane'} and t['lane'] in LANES
-        elif power=='WishLongevity': legal=legal and set(t)=={'entity_id'} and targetable(r) and r['owner']==pid and r['attributes']['integrity']<r['attributes']['max_integrity']
+        elif power=='WishLongevity': legal=legal and set(t)=={'entity_id'} and targetable(r) and r['owner']==pid and r['attributes']['integrity']<min(14,r['attributes']['max_integrity'])
         elif power=='WishResurrection': legal=legal and set(t)=={'lane'} and t['lane'] in LANES
         elif power=='WishDeath': legal=legal and spatial(t)
         else: legal=legal and not t
@@ -115,19 +115,23 @@ def odradek_event(kind,d):
 
 
 def shift(b,target,new,identity):
+    from . import monsters
     ids=members(b.w,target,180,1-new if new in (0,1) else -2);events=[]
     if new == -1:ids=[key for key in ids if veil.affects(b.w,'Odradek',e.entity(b.w,key)['owner'])]
+    affected=[]
     for key in ids:
         r=e.entity(b.w,key)
+        after=new if new in (0,1) else 1-r['owner'];name=r['attributes'].get('monster_id','')
+        if monsters.limited(name) and monsters.living(b.w['entities']['entities'],after,name,key):continue
         fact=b.fact(dict(command_id=instance_id('allegiance',identity,key),kind='change_marcher_allegiance',target_id=key,new_owner=new if new in (0,1) else 1-r['owner']))
-        events.append(e.event(fact['type'],fact['data']))
-    events.append(odradek_event('ALLEGIANCE_SHIFT_RESOLVED',dict(declaration_id=identity,player_id=new,target=target,radius_fp=180,affected_ids=ids,round=b.number,hook='post_resolution_allegiance')))
+        events.append(e.event(fact['type'],fact['data']));affected.append(key)
+    events.append(odradek_event('ALLEGIANCE_SHIFT_RESOLVED',dict(declaration_id=identity,player_id=new,target=target,radius_fp=180,affected_ids=affected,round=b.number,hook='post_resolution_allegiance')))
     return events
 
 
 def pulse(b,active,pulse_id,inner=False):
     target=active['target'];intensity=active['stages'][active['stage_index']]['intensity']
-    ids=sorted(r['id'] for r in b.w['entities']['entities'] if (r['kind']=='marcher' and r['attributes']['lane']==target['lane'] if target['kind']=='lane'
+    ids=sorted(r['id'] for r in b.w['entities']['entities'] if (r['kind']=='marcher' and not r['attributes'].get('flying',False) and r['attributes']['lane']==target['lane'] if target['kind']=='lane'
                else r in guards(b.w) and r['owner']==target['player_id'] and r['attributes']['lane']==target['lane'] and r['attributes']['value']<=intensity))
     events=[]
     for key in ids:
@@ -229,6 +233,8 @@ def resolve(rec,state,n):
     from .development import reconcile
     from .wishmaster import record_losses
     record_losses(w, events)
+    from .monster_effects import deaths
+    events.extend(deaths(w,n))
     reconcile(w)
     events.extend(b.sync_breach())
     return dict(events=events,persistent_payload=payload)

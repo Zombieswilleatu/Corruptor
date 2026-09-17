@@ -323,6 +323,8 @@ class Battle:
                     events.append(e.event(hit["type"],hit["data"]));events.extend(self.react(hit,inner=True))
         from .wishmaster import record_losses
         record_losses(w, [dict(event=fact)])
+        from .monster_effects import deaths
+        events.extend(deaths(w, self.number))
         reconcile(w)
         events.extend(self.sync_breach())
         if kind == "LORD_BANISHED":

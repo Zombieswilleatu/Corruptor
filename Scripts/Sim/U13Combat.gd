@@ -7,6 +7,7 @@ const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
 const Battle = preload("res://Scripts/Sim/U13BattleEvents.gd")
+const Monsters = preload("res://Scripts/Sim/U13MonsterRules.gd")
 const Marching = preload("res://Scripts/Sim/U13Marching.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Structures = preload("res://Scripts/Sim/U13Structures.gd")
@@ -118,6 +119,9 @@ static func order_shape(order: Dictionary) -> bool:
 	if not Data.is_data(order) or order.get("action") not in ["Siege", "Hunt", "Ward", "Profane"]:
 		return false
 	var expected: Array = ["action", "lane", "card_ids"]
+	if order.has("monster_choice"):
+		if order.monster_choice not in Monsters.NAMES: return false
+		expected.append("monster_choice")
 	if order.has("fracture_target"):
 		if order.action != "Hunt" or order.fracture_target not in ["subjects", "infrastructure"]:
 			return false
@@ -222,6 +226,8 @@ static func validate_commit(
 			or not target.attributes.alive
 		):
 			return Data.invalid("hunt_target_invalid")
+	var monster_check: Dictionary = Monsters.validate_choice(world, player_id, order)
+	if monster_check.action == "invalid": return monster_check
 	if not Cards.can_discard_from_hand(hand, order.card_ids, order.card_ids.size()):
 		return Data.invalid("combat_cards_unavailable")
 	if not world.data.card_zones.get("committed", [[], []])[player_id].is_empty():
@@ -319,6 +325,19 @@ static func _reveal(context: Dictionary) -> Dictionary:
 				if placed.action == "invalid":
 					return placed
 				events.append(Marching.public_event("MARCHER_SPAWNED", placed.entity))
+		if order.has("monster_choice"):
+			var name: String = order.monster_choice
+			var origin: String = Data.instance_id("monster", "%d:%d" % [context.round, player_id], name)
+			var count: int = 3 + preload("res://Scripts/Sim/U13Wishmaster.gd").draw(context.seed, origin, "SWARM_COUNT", 3) if name == "Varn" else 1
+			var bodies: Array = []
+			for ordinal in range(count):
+				var created: Dictionary = entities.create("marcher", origin, ordinal, player_id, Monsters.profile(name, order.lane, player_id, context.round, context.round + 1))
+				if created.action == "invalid": return created
+				var placed: Dictionary = Marching.place_spawn(entities, created.entity.id, context.seed)
+				if placed.action == "invalid": return placed
+				bodies.append(placed.entity.id)
+				events.append(Marching.public_event("MARCHER_SPAWNED", placed.entity))
+			events.append(Marching.public_event("MONSTER_SUMMONED", {"monster_id": name, "player_id": player_id, "round": context.round, "lane": order.lane, "unit_ids": bodies}))
 	world.entities = entities.snapshot()
 	world.data["combat_reveal_round"] = context.round
 	return {"action": "resolved", "world": world, "events": events}
@@ -619,6 +638,11 @@ static func _snapshot_order(context: Dictionary) -> Dictionary:
 	var phase: int = context.next_hook_index
 	var player_id: int = context.player_id
 	var selected: Array = order.get("card_ids", [])
+	if order.has("monster_choice"):
+		if not Monsters.enabled(world) or not Monsters.qualifies(world.entities.entities, selected, order.monster_choice):
+			return Data.invalid("monster_recipe_snapshot_invalid")
+		if phase <= Timeline.hook_rank(Timeline.COMMITMENT_REVEAL) and Monsters.validate_choice(world, player_id, order).action == "invalid":
+			return Data.invalid("monster_recipe_snapshot_invalid")
 	var entities = Ids.new()
 	entities.restore(world.entities)
 	for card_id in selected:
@@ -884,4 +908,3 @@ static func _hunt(
 	if world.data.get("orias_profile") == LordStats.ORIAS_WEB_PROFILE:
 		events.back().event.data["relentless_pursuit"] = pursuit
 	return {"action": "resolved", "world": world, "events": events}
-

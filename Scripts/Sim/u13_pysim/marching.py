@@ -8,7 +8,7 @@ Godot U13Marching.resolve is the authority for every output event and field.
 import json
 from bisect import bisect_left
 
-from . import veil
+from . import veil, monsters, monster_effects
 from .copying import copy_data
 from . import wishmaster, kroni_actors
 from .marching_buffer import Buffer
@@ -44,7 +44,7 @@ def valid(world, check_duels=True):
             if row["kind"] != "marcher":
                 continue
             a = row["attributes"]
-            if row["owner"] not in (0, 1) or a.get("suit") not in ("Butcher", "Penitent", "Vulture", "Wright") or a.get("lane") not in LANES:
+            if row["owner"] not in (0, 1) or (a.get("suit") not in ("Butcher", "Penitent", "Vulture", "Wright", "Monster") or not monsters.valid_unit(a)) or a.get("lane") not in LANES:
                 return False
             if any(type(a.get(field)) is not int for field in INTEGER_FIELDS):
                 return False
@@ -185,7 +185,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     busy, number = busy_ids(duels), context["round"]
     retreat = [value == number for value in s.rout_round]
     nearest, gaps = [None] * len(s.ids), [(1 << 63) - 1] * len(s.ids)
-    ghosts = any((extra or {}).get("ghost_bypassed") for extra in s.extra)
+    ghosts = any((extra or {}).get("ghost_bypassed") or (extra or {}).get("hidden",False) for extra in s.extra)
     for i in indices:
         lane, owner = s.lane[i], s.owner[i]
         candidates = ordered[lane][1-owner]
@@ -196,19 +196,26 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
         gaps[i], nearest[i] = nearest_target(i, candidates, pos, xs, ys)
     accepted = {lane: [grid(team, xs, ys, 7) for team in grouped[lane]] for lane in LANES}
     data = context["world"]["data"]
+    has_taunt=any((s.extra[k] or {}).get('monster_id')=='Kurchin' for k in indices)
+    needs_targets=has_taunt or any((s.extra[k] or {}).get('monster_id')=='Tumler' for k in indices)
+    # One immutable target snapshot per tick, shared across all movers.
+    targets=[s.row(k) for k in indices] if needs_targets else []
+    targets_by_id={r['id']:r for r in targets}
     gate_queue = data.get("guard_work", {}).get("version") == "U13_GUARD_WORK_V2"
     ranged = data.get("ranged_profile") == RANGED
     collapse_players = veil.affected_players(context["world"],"Valak")
     for i in indices:
-        if s.ids[i] in fleeing: continue
+        if s.ids[i] in fleeing or (s.extra[i] or {}).get("hidden",False) or (s.extra[i] or {}).get("sprite_form")=="turret": continue
         lane, owner, base = s.lane[i], s.owner[i], s.step_fp[i]
         collapse = collapse_players[owner]
         recovery = s.rout_round[i] == number - 1
         step = (base >> 1) + (base & 1) * (clock & 1) if recovery else base
         percent = modifiers[lane][owner]["speed_percent"]
-        web = any(who != owner and distance(xs[i], ys[i], wx, wy) <= radius for who, wx, wy, radius in fields[lane])
+        web = not (s.extra[i] or {}).get("flying",False) and any(who != owner and distance(xs[i], ys[i], wx, wy) <= radius for who, wx, wy, radius in fields[lane])
         if percent or web or collapse:
             step = speed(base, percent, recovery, clock, web, collapse)
+        if monster_effects.slowed(dict(x_fp=xs[i],y_fp=ys[i],lane=lane,flying=(s.extra[i] or {}).get('flying',False)),data.get('monsters',{}).get('fields',[])):
+            step=(step>>1)+(step&1)*(clock&1)
         if not retreat[i] and gaps[i] <= CONTACT2:
             if s.contact_tick[i] < 0:
                 s.contact_tick[i] = clock
@@ -222,9 +229,16 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
         j = nearest[i]
         destination = dict(x_fp=xs[j],y_fp=ys[j]) if j is not None else None
         gap = gaps[i]
-        if not retreat[i] and lamps:
+        if has_taunt or (s.extra[i] or {}).get('monster_id')=='Tumler':
+            current=targets_by_id[s.ids[i]]
+            chosen=monster_effects.preferred(current,targets)
+            if chosen:destination=chosen['attributes'];gap=distance(xs[i],ys[i],destination['x_fp'],destination['y_fp'])
+        if not (s.extra[i] or {}).get('monster_id') and not retreat[i] and lamps:
             point, lamp_gap = wishmaster.nearest_lamp(xs[i],ys[i],lane,lamps)
             if point is not None: destination,gap=point,lamp_gap
+        if not retreat[i] and (s.extra[i] or {}).get('monster_id')=='Tumler':
+            destination=monster_effects.steer(current,destination,targets,data.get('monsters',{}).get('fields',[]))
+            if destination:gap=distance(xs[i],ys[i],destination['x_fp'],destination['y_fp'])
         if not retreat[i] and destination is not None:
             vx, vy = destination["x_fp"] - xs[i], destination["y_fp"] - ys[i]
             length = max(1, ceil_sqrt(gap))
@@ -298,7 +312,7 @@ def contact(s, lane, context, clock, diagnostic=False):
 
 
 def attack(s, i, amount, bypass):
-    remaining = max(1, amount)
+    remaining = max(0, amount)
     if not bypass:
         absorbed = min(s.armor[i], remaining)
         s.armor[i] -= absorbed
@@ -348,6 +362,7 @@ class Phase:
     def volley(self, duels, tick, fleeing=()):
         s, clock, busy = self.s, self.number * 200 + tick, busy_ids(duels)
         rows, shots = s.active(), []
+        taunt_targets=s.rows() if any((s.extra[k] or {}).get('monster_id')=='Kurchin' for k in rows) else []
         for i in rows:
             if (s.suit[i] != "Vulture" or s.ids[i] in busy or s.ids[i] in fleeing or s.rout_round[i] == self.number
                     or (s.ranged_next_tick[i] or 0) > clock):
@@ -361,6 +376,10 @@ class Phase:
                 # sentinel when no target exists yet. Keep that exact edge.
                 if gap < best or gap == best and (target is None or s.ids[j] < s.ids[target]):
                     best, target = gap, j
+            if taunt_targets:
+                preferred=monster_effects.preferred(s.row(i),taunt_targets)
+                if preferred and distance(s.x_fp[i],s.y_fp[i],preferred['attributes']['x_fp'],preferred['attributes']['y_fp'])<=RANGE2:
+                    target=s.live(preferred['id']);best=distance(s.x_fp[i],s.y_fp[i],s.x_fp[target],s.y_fp[target])
             if target is None or best <= CONTACT2:
                 continue
             # One pre-volley snapshot, before any attack cooldown is written.
@@ -406,6 +425,7 @@ class Phase:
         start = dict(round=self.number, hook="marching", ticks=200, model=MODEL, units=s.rows())
         if ranged:
             start["ranged_profile"] = RANGED
+        if monsters.enabled(self.w):start["monster_fields"]=[copy_data(f) for f in data["monsters"]["fields"] if f["expires_round"]>=self.number]
         self.emit("MARCHING_STARTED", start)
         bases = {row["id"]: row for row in s.rows()}
         modifiers, fields = compile_effects(context.get("persistent_effects", []), self.number, data, full=context.get("full_roster",False))
@@ -417,7 +437,9 @@ class Phase:
         has_wishes = "kanifous_profile" in data
         buffer = Buffer(self)
         if actors: self.emit("KRONI_ACTORS_STARTED",dict(round=self.number,actors=actors))
+        has_monsters=monsters.enabled(self.w) and (bool(data['monsters']['fields']) or any(extra and ('monster_id' in extra or 'poison_until_round' in extra) for extra in s.extra))
         for tick in range(200):
+            tick_events_start=len(self.events)
             s = self.s
             lamp_before = s.rows() if lamps else []
             if has_wishes: self.events.extend(wishmaster.bypass(buffer,self.number,tick))
@@ -426,6 +448,12 @@ class Phase:
             fleeing = {key for actor in actors for key in list(actor["fleeing"])+actor["fled_this_tick"]}
             clock = self.number * 200 + tick
             self.interrupt(duels, tick)
+            if has_monsters:
+                result=monster_effects.step(self.w,buffer,context,tick,self.reaction)
+                if result['action']=='invalid':return result
+                self.w=result['world'];self.events.extend(result['events']);fleeing.update(result['fleeing'])
+                context['world']['data']['monsters']=self.w['data']['monsters']
+                s=self.s;self.interrupt(duels,tick)
             move(s, duels, context, clock, modifiers, fields, fleeing, lamps)
             if orbs:
                 self.w["data"]["neutral_tears"] += gravity(s, orbs, before, self.number, tick, collapse, self.emit)
@@ -446,7 +474,7 @@ class Phase:
                     continue
                 duel = duels[lane]
                 i, j = [s.live(row["id"]) for row in duel["units"]]
-                damages = [attack(s, i, wishmaster.attack_amount(s,j), s.armor_bypass[j]), attack(s, j, wishmaster.attack_amount(s,i), s.armor_bypass[i])]
+                damages = [attack(s, i, 0 if (s.extra[j] or {}).get("sprite_form")=="turret" else wishmaster.attack_amount(s,j), s.armor_bypass[j]), attack(s, j, 0 if (s.extra[i] or {}).get("sprite_form")=="turret" else wishmaster.attack_amount(s,i), s.armor_bypass[i])]
                 duel["exchanges"].append(dict(hp=[s.hp[i], s.hp[j]], armor=[s.armor[i], s.armor[j]]))
                 duel["next_tick"] = clock + 8
                 fallen = [s.hp[i] == 0, s.hp[j] == 0]
@@ -458,6 +486,10 @@ class Phase:
                         s.retire(index)
                     else:
                         s.movement_ready_round[index] = min(s.movement_ready_round[index], self.number)
+                if has_monsters:
+                    sources = [s.row(i), s.row(j)]
+                    self.events.extend(monster_effects.on_hit(buffer,sources[0],s.ids[j],damages[1],context,tick))
+                    self.events.extend(monster_effects.on_hit(buffer,sources[1],s.ids[i],damages[0],context,tick))
                 if not any(fallen):
                     if len(duel["exchanges"]) >= 64:
                         raise Rejected("marching_exchange_limit")
@@ -493,6 +525,9 @@ class Phase:
                 s.waiting[i], s.waiting_since_round[i] = True, self.number
                 self.emit("MARCHER_WAITING", dict(entity_id=s.ids[i], round=self.number, hook="marching", tick=tick,
                           lane=s.lane[i], x_fp=s.x_fp[i], y_fp=s.y_fp[i]))
+            if has_monsters:
+                wishmaster.record_losses(self.w,self.events[tick_events_start:])
+                self.events.extend(monster_effects.deaths(self.w,self.number,tick))
             if self.capture_ticks:
                 if actors: self.emit("KRONI_ACTOR_TICK",dict(round=self.number,tick=tick,actors=actors))
                 active = [row["id"] for lane in LANES if lane in duels for row in duels[lane]["units"]]

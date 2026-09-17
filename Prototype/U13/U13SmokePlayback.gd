@@ -9,6 +9,9 @@ const FLIGHT_SECONDS: float = 0.18
 var projectile_rows: Array = []
 var feedback_rows: Array = []
 var death_rows: Array = []
+var _banished_ids: Dictionary = {}
+var _monster_fields: Array = []
+var _monster_attacks: Array = []
 var _death_ids: Dictionary = {}
 var _previous_units: Dictionary = {}
 var _terminal: Dictionary = {}
@@ -26,6 +29,9 @@ func build(events: Array) -> bool:
 	projectile_rows = []
 	feedback_rows = []
 	death_rows = []
+	_banished_ids = {}
+	_monster_fields = []
+	_monster_attacks = []
 	_death_ids = {}
 	_previous_units = {}
 	_terminal = {}
@@ -35,6 +41,7 @@ func build(events: Array) -> bool:
 	var started: Dictionary = {}
 	var finished: Dictionary = {}
 	for event in events:
+		if event.type == "MONSTER_BANISHED": _banished_ids[event.data.unit.id] = true
 		if event.type == "MARCHER_DEFEATED" and event.data.has("hp_after"):
 			_terminal[event.data.victim.id] = int(event.data.victim.attributes.armor)
 		if event.type == "MARCHER_CLASH" and not event.data.exchanges.is_empty():
@@ -131,7 +138,9 @@ func sample(seconds: float) -> Dictionary:
 			var picture: Dictionary = shot.duplicate(true)
 			picture["weight"] = (at - shot.start) / FLIGHT_SECONDS
 			projectiles.append(picture)
-	return {"units": result, "caption": left.caption, "clash": left.clash.duplicate(), "projectiles": projectiles}
+	var fields: Array = _monster_fields.filter(func(f): return at >= f.at).map(func(f): return f.field.duplicate(true))
+	var attacks: Array = _monster_attacks.filter(func(a): return at >= a.start and at < a.end).map(func(a): return a.duplicate(true))
+	return {"units": result, "caption": left.caption, "clash": left.clash.duplicate(), "projectiles": projectiles, "monster_fields": fields, "monster_attacks": attacks, "banished_ids": _banished_ids.keys()}
 
 
 func final_units() -> Array:
@@ -142,6 +151,7 @@ func _append(units: Dictionary, caption: String, clash: Array) -> void:
 	for entity_id in _previous_units:
 		var before: Dictionary = _previous_units[entity_id]
 		var after: Dictionary = units.get(entity_id, {})
+		if _banished_ids.has(entity_id) and after.is_empty(): continue
 		if (after.is_empty() or int(after.attributes.hp) <= 0) and not _death_ids.has(entity_id):
 			_death_ids[entity_id] = true
 			death_rows.append({"at": duration, "unit": (before if after.is_empty() else after).duplicate(true)})
@@ -193,6 +203,19 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 		if event.type == "MARCHER_RANGED_ATTACK":
 			var impact: float = lead + MOVE_SECONDS * float(int(event.data.tick) + 1) / float(started.ticks)
 			projectile_rows.append({"start": impact - FLIGHT_SECONDS, "end": impact, "lane": event.data.lane, "source": event.data.attacker.attributes.duplicate(true), "target": event.data.target.attributes.duplicate(true)})
+	for field in started.get("monster_fields", []): _monster_fields.append({"at": 0.0, "field": field})
+	var death_ticks: Dictionary = {}
+	for event in events:
+		var d: Dictionary = event.data
+		if event.type == "MARCHER_DEFEATED": death_ticks[d.victim.id + ":pool"] = int(d.get("tick", 0))
+	for event in events:
+		var d: Dictionary = event.data
+		if event.type == "MONSTER_FIELD_CREATED" and not _monster_fields.any(func(f): return f.field.id == d.field.id):
+			var tick: int = int(d.get("tick", death_ticks.get(d.field.id, 0)))
+			_monster_fields.append({"at": lead + MOVE_SECONDS * float(tick + 1) / float(started.ticks), "field": d.field})
+		elif event.type == "MONSTER_ATTACK":
+			var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
+			_monster_attacks.append({"start": at, "end": at + 0.14, "source": d.attacker.attributes, "target": d.target.attributes, "ability": d.ability})
 	var expected_tick: int = 0
 	for event in events:
 		if event.type != "MARCHING_TICK":

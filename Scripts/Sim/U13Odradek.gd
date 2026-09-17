@@ -443,10 +443,15 @@ func _shift(
 		return members
 	if new_owner == -1:
 		members.ids = members.ids.filter(func(id): return result.world.entities.entities.any(func(unit): return unit.id == id and Veil.affects(result.world, "Odradek", unit.owner)))
+	var affected: Array = []
 	for id in members.ids:
 		var entities = Ids.new()
 		entities.restore(result.world.entities)
 		var unit: Dictionary = entities.get_entity(id)
+		var owner_after: int = new_owner if new_owner in [0, 1] else 1 - int(unit.owner)
+		var monsters = preload("res://Scripts/Sim/U13MonsterRules.gd")
+		var name: String = unit.attributes.get("monster_id", "")
+		if monsters.limited(name) and monsters.living(result.world.entities.entities, owner_after, name, id): continue
 		var moved: Dictionary = Battle.apply(
 			result.world,
 			{
@@ -461,6 +466,7 @@ func _shift(
 		if moved.action == "invalid":
 			return moved
 		result.world = moved.world
+		affected.append(id)
 		result.events.append({"event": moved.event, "views": [moved.event, moved.event]})
 	result.events.append(
 		_odradek_event(
@@ -470,7 +476,7 @@ func _shift(
 				"player_id": new_owner,
 				"target": target,
 				"radius_fp": SHIFT_RADIUS_FP,
-				"affected_ids": members.ids,
+				"affected_ids": affected,
 				"round": round_number,
 				"hook": Timeline.POST_RESOLUTION_ALLEGIANCE
 			}

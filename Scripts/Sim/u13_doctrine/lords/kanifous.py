@@ -14,7 +14,7 @@ def proposals(f):
     debt = sum(r['owner'] == f.pid for r in f.v['data']['kanifous_prices'])
     price = 14+10*debt
     for row in sorted(f.castles(f.pid), key=lambda r: (r['attributes']['integrity'], r['id'])):
-        missing = row['attributes']['max_integrity']-row['attributes']['integrity']
+        missing = min(14,row['attributes']['max_integrity'])-row['attributes']['integrity']
         if targetable(row) and missing > 0:
             yield power('WishLongevity', dict(entity_id=row['id']), 5*missing-price, 'repair_benefit_less_delayed_price')
     for lane in LANES:

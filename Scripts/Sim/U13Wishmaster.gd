@@ -85,7 +85,7 @@ static func claim(rows: Array, entities, before: Array, seed_value: String, roun
 			continue
 		for old in before:
 			var unit: Dictionary = entities.get_entity(old.id)
-			if unit.is_empty() or unit.attributes.lane != row.target.lane:
+			if unit.is_empty() or unit.attributes.has("monster_id") or unit.attributes.lane != row.target.lane:
 				continue
 			var at: float = contact_time(old.attributes, unit.attributes, row.target.field_position)
 			if at >= 0:
@@ -131,7 +131,7 @@ static func claim(rows: Array, entities, before: Array, seed_value: String, roun
 	return events
 
 static func ignored(a: Dictionary, b: Dictionary) -> bool:
-	return b.id in a.attributes.get("ghost_bypassed", []) or a.id in b.attributes.get("ghost_bypassed", [])
+	return a.attributes.get("hidden", false) or b.attributes.get("hidden", false) or b.id in a.attributes.get("ghost_bypassed", []) or a.id in b.attributes.get("ghost_bypassed", [])
 
 static func bypass(entities, round_number: int, tick: int) -> Array:
 	var events: Array = []
@@ -200,7 +200,7 @@ static func valid(world: Dictionary) -> bool:
 		if typeof(loss) != TYPE_DICTIONARY or loss.get("kind") not in ["card", "marcher"] or loss.get("owner") not in [0, 1] or loss.get("id") not in world.entities.used_ids or typeof(loss.get("attributes")) != TYPE_DICTIONARY:
 			return false
 		if loss.kind == "marcher":
-			if loss.attributes.get("suit") not in ["Butcher", "Penitent", "Vulture", "Wright"] or loss.attributes.get("lane") not in ["Lord", "Castle"]:
+			if (loss.attributes.get("suit") not in ["Butcher", "Penitent", "Vulture", "Wright", "Monster"] or not preload("res://Scripts/Sim/U13MonsterRules.gd").valid_unit(loss.attributes)) or loss.attributes.get("lane") not in ["Lord", "Castle"]:
 				return false
 			for axis in ["x_fp", "y_fp"]:
 				if not Data.is_integer(loss.attributes.get(axis)) or loss.attributes[axis] < 0 or loss.attributes[axis] > (2400 if axis == "x_fp" else 600):

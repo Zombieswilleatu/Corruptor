@@ -36,13 +36,18 @@ def wish(b,s):
             suit=recruit.SUITS[draw(b.seed,key,'WISH_SUIT',i,4)];a=recruit.profile(suit,t['lane'],pid,n,n)
             r=recruit.create(w,key,i,pid,a);recruit.place_spawn(w,r,b.seed);count+=1
     elif power=='WishLongevity':
-        r=e.entity(w,t['entity_id']);r['attributes'].update(integrity=r['attributes']['max_integrity'],status='standing',construction_state='active')
-        if w['data']['construction_targets'][pid]==r['id']:w['data']['construction_targets'][pid]=''
-        count=1
+        r=e.entity(w,t['entity_id']); ceiling=min(14,r['attributes']['max_integrity'])
+        if r['attributes']['integrity'] < ceiling:
+            r['attributes'].update(integrity=ceiling,status='standing',construction_state='active')
+            if w['data']['construction_targets'][pid]==r['id']:w['data']['construction_targets'][pid]=''
+            count=1
     elif power=='WishResurrection':
         for lost in w['data']['kanifous_losses']:
             if w['data']['kanifous_loss_round'] != n or lost['kind'] != 'marcher' or lost['owner'] != pid or lost['attributes']['lane'] != t['lane']: continue
-            old = lost['attributes']; a = recruit.profile(old['suit'], t['lane'], pid, n, n+1)
+            from . import monsters
+            old = lost['attributes'];name=old.get('monster_id','')
+            if monsters.limited(name) and monsters.living(w['entities']['entities'],pid,name):continue
+            a=monsters.profile(name,t['lane'],pid,n,n+1,old.get('sprite_form')=='turret') if name else recruit.profile(old['suit'],t['lane'],pid,n,n+1)
             a.update(x_fp=old['x_fp'], y_fp=old['y_fp'])
             r = recruit.create(w, key, count, pid, a)
             recruit.place_near_spawn(w, r, a)
@@ -140,7 +145,7 @@ def advance(b):
 
 
 def ignored(s,i,j):
-    return s.ids[j] in (s.extra[i] or {}).get('ghost_bypassed',[]) or s.ids[i] in (s.extra[j] or {}).get('ghost_bypassed',[])
+    return (s.extra[i] or {}).get('hidden',False) or (s.extra[j] or {}).get('hidden',False) or s.ids[j] in (s.extra[i] or {}).get('ghost_bypassed',[]) or s.ids[i] in (s.extra[j] or {}).get('ghost_bypassed',[])
 
 
 def bypass(buffer,n,tick):
@@ -193,7 +198,7 @@ def claim(rows,buffer,before,seed,n,tick):
         if lamp['phase']!='lamp':continue
         for old in before:
             unit=buffer.get(old['id'])
-            if not unit or unit['attributes']['lane']!=lamp['target']['lane']:continue
+            if not unit or unit['attributes'].get('monster_id') or unit['attributes']['lane']!=lamp['target']['lane']:continue
             at=contact_time(old['attributes'],unit['attributes'],lamp['target']['field_position'])
             if at>=0:candidates.append((at,unit['id'],lamp['id'],lamp))
     candidates.sort(key=lambda r:r[:3]);used=set()

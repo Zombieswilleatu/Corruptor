@@ -14,6 +14,8 @@ const Victory = preload("res://Scripts/Sim/U13Victory.gd")
 const Plunder = preload("res://Scripts/Sim/U13Plunder.gd")
 const Throne = preload("res://Scripts/Sim/U13VacantThrone.gd")
 
+const MonsterEffects = preload("res://Scripts/Sim/U13MonsterEffects.gd")
+const Monsters = preload("res://Scripts/Sim/U13MonsterRules.gd")
 const Rites = preload("res://Scripts/Sim/U13DominionRites.gd")
 
 const Fracture = preload("res://Scripts/Sim/U13Fracture.gd")
@@ -31,14 +33,14 @@ func create_combat_match(compact_events: bool = false):
 	for power in rules():
 		validators[power] = Callable(self, "validate")
 		resolvers[power] = Callable(self, "resolve")
-	var owner = MatchOwner.new(Veil.VERSION + ":" + GuardWork.VERSION + ":" + Victory.VERSION + ":" + Plunder.VERSION + ":" + Marching.Ranged.VERSION + ":" + Throne.VERSION + ":" + Rites.VERSION + ":" + Fracture.VERSION + ":" + Sigils.VERSION + ":" + Conduit.VERSION + ":" + Market.VERSION + ":" + CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY + (":" + BATCH_EVENTS_VERSION if batch_events else ""), rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Rites, "legal_orders"))
+	var owner = MatchOwner.new(Veil.VERSION + ":" + GuardWork.VERSION + ":" + Victory.VERSION + ":" + Plunder.VERSION + ":" + Marching.Ranged.VERSION + ":" + Throne.VERSION + ":" + Rites.VERSION + ":" + Fracture.VERSION + ":" + Sigils.VERSION + ":" + Conduit.VERSION + ":" + Market.VERSION + ":" + CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY + ":" + Monsters.VERSION + (":" + BATCH_EVENTS_VERSION if batch_events else ""), rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Rites, "legal_orders"))
 	# valid_world is a pure function of this world and fixed content rules.
 	owner._cache_world_validation = true
 	return owner
 
 
 func valid_world(world: Dictionary) -> bool:
-	return Veil.valid(world) and GuardWork.valid(world) and super.valid_world(world) and Victory.valid(world) and Plunder.valid(world) and Throne.valid(world) and Rites.valid(world) and Fracture.valid(world) and Economy.valid(world) and Market.valid(world) and Sigils.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
+	return Monsters.valid(world) and Veil.valid(world) and GuardWork.valid(world) and super.valid_world(world) and Victory.valid(world) and Plunder.valid(world) and Throne.valid(world) and Rites.valid(world) and Fracture.valid(world) and Economy.valid(world) and Market.valid(world) and Sigils.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
 
 
 # Direct/scheduled powers can remove or relocate Guards without a battle
@@ -48,12 +50,15 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 	var result: Dictionary = VeilEffects.reconcile(super.resolve(record, context))
 	if result.action != "invalid" and result.has("world"):
 		GuardWork.reconcile(result.world)
+		result.events.append_array(MonsterEffects.deaths(result.world, context.round))
 	return result
 
 
 func react(raw: Dictionary, fact: Dictionary, seed_value: String, player_order: Array) -> Dictionary:
 	var result: Dictionary = VeilEffects.reconcile(super.react(raw, fact, seed_value, player_order))
-	if result.action != "invalid": GuardWork.reconcile(result.world)
+	if result.action != "invalid":
+		GuardWork.reconcile(result.world)
+		result.events.append_array(MonsterEffects.deaths(result.world, int(fact.data.get("round", result.world.data.get("kanifous_loss_round", 0)))))
 	if result.action == "invalid" or fact.type != "LORD_BANISHED":
 		return result
 	if not Throne.note_banishment(result.world, fact):
@@ -99,7 +104,9 @@ func on_hook(context: Dictionary) -> Dictionary:
 		result.events = rite_events + sigils.events + result.events
 		result.events.append_array(Plunder.clear_castle_sigils(result.world, context.round))
 		Throne.observe(result.world)
+		result.events.append_array(MonsterEffects.deaths(result.world, context.round))
 		if context.hook == Timeline.AFTERMATH:
+			result.events.append_array(MonsterEffects.end_round(result.world, context.round))
 			result.world.data.dominion_rites.orders = [null, null]
 			var settled: Dictionary = Throne.finish(result.world, context.round)
 			if settled.action == "invalid":
@@ -180,6 +187,9 @@ func accept_order(context: Dictionary) -> Dictionary:
 
 func project(world: Dictionary, player_id: int) -> Dictionary:
 	var result: Dictionary = super.project(world, player_id)
+	result["monsters"] = world.data.monsters.duplicate(true)
+	result["concealed_ids"] = result.entities.filter(func(r): return r.owner != player_id and r.attributes.get("hidden", false)).map(func(r): return r.id)
+	result.entities = result.entities.filter(func(r): return r.owner == player_id or not r.attributes.get("hidden", false))
 	result["guard_work"] = {"version": GuardWork.VERSION, "target": world.data.guard_work.targets[player_id], "pairs": []}
 	# Deployed Guard bonds are public alongside their cards.
 	for pair in world.data.guard_work.pairs:

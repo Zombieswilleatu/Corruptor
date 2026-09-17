@@ -143,6 +143,16 @@ class Ordinary(Battle):
                     row = recruits.create(w, origin, ordinal, pid, recruits.profile(suit, order["lane"], pid, self.number, self.number+1))
                     recruits.place_spawn(w, row, self.seed)
                     events.append(e.event("MARCHER_SPAWNED", row))
+            if 'monster_choice' in order:
+                from . import monsters
+                from .primitives import draw
+                name=order['monster_choice'];origin=instance_id('monster',f'{self.number}:{pid}',name)
+                count=3+draw(self.seed,origin,'SWARM_COUNT',0,3) if name=='Varn' else 1
+                bodies=[]
+                for ordinal in range(count):
+                    row=recruits.create(w,origin,ordinal,pid,monsters.profile(name,order['lane'],pid,self.number,self.number+1))
+                    recruits.place_spawn(w,row,self.seed);bodies.append(row['id']);events.append(e.event('MARCHER_SPAWNED',row))
+                events.append(e.event('MONSTER_SUMMONED',dict(monster_id=name,player_id=pid,round=self.number,lane=order['lane'],unit_ids=bodies)))
         d["combat_reveal_round"] = self.number
         return events
 

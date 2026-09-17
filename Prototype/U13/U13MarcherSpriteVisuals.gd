@@ -32,7 +32,7 @@ func sync(units: Array, clash: Array, round_number: int, playback: bool) -> void
 				"spawn_age": 0.0 if new_unit and has_snapshot else 10.0,
 				"attack_age": 10.0, "clashing": false, "moving": false,
 				"armor_capacity": maxf(float(a.get("armor", 0)), float(a.get("max_armor", 0))),
-				"ranged_tick": int(a.get("ranged_next_tick", 0)),
+				"ranged_tick": maxi(int(a.get("ranged_next_tick", 0)), int(a.get("beam_next_tick", 0))),
 				"transform_age": 10.0 if character == "Sooge" and a.get("sprite_form", "") == "turret" else -1.0}
 		var state: Dictionary = subjects[id]
 		# Retain the meter's capacity so losing Armor empties its segment instead
@@ -49,14 +49,14 @@ func sync(units: Array, clash: Array, round_number: int, playback: bool) -> void
 		elif not same_lane:
 			state.facing_y = point.y
 		var clashing: bool = playback and id in clash
-		var shot: bool = playback and not fresh and int(a.get("ranged_next_tick", 0)) > int(state.ranged_tick)
+		var shot: bool = playback and not fresh and maxi(int(a.get("ranged_next_tick", 0)), int(a.get("beam_next_tick", 0))) > int(state.ranged_tick)
 		if (clashing and not state.clashing) or shot:
 			state.attack_age = 0.0
 		if not playback:
 			state.attack_age = 10.0
 		if character == "Sooge" and a.get("sprite_form", "") == "turret" and state.transform_age < 0.0:
 			state.transform_age = 0.0
-		state.ranged_tick = int(a.get("ranged_next_tick", 0))
+		state.ranged_tick = maxi(int(a.get("ranged_next_tick", 0)), int(a.get("beam_next_tick", 0)))
 		state.clashing = clashing
 		state.position = point
 		state.lane = a.lane

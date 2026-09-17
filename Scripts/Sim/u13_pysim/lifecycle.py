@@ -212,7 +212,10 @@ class RoundRules(Ordinary):
         events.extend(self.clear_sigils())
         for pid in (0,1):
             d["vacant_throne"]["present"][pid] |= alive(self.w,pid)
+        from .monster_effects import deaths, end_round
+        events.extend(deaths(self.w,n))
         if hook == "aftermath":
+            events.extend(end_round(self.w,n))
             d["dominion_rites"]["orders"] = [None,None]
             events.extend(settle(self.w,n))
             veil.finish(self.w,n)

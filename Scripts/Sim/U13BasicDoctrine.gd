@@ -73,6 +73,9 @@ static func plan(owner, pid: int, reuse_validation: bool = true) -> Dictionary:
 		order = next
 	if late_wish:
 		powers = choose_power(owner, pid, c, order)
+	if c.w.has("monsters"):
+		var names: Array = preload("res://Scripts/Sim/U13MonsterRules.gd").available(c.w.entities, order.get("card_ids", []), pid, c.w.monsters.unlocked[pid])
+		if not names.is_empty(): order["monster_choice"] = names.back()
 	var checked: Dictionary = owner.preview_submission(pid, powers, order)
 	if checked.action == "invalid":
 		return checked

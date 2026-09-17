@@ -8,6 +8,7 @@ const BREACH_WISHES: Array = ["BreachWishPower", "BreachWishLongevity", "BreachW
 # Same outcomes, doubled weight for Stone and above: 40% vs 25% when all are legal.
 const BREACH_PRICE_MULTIPLIER: int = 2
 const PRICE_WEIGHTS: Dictionary = {"Cards": 30, "Blood": 30, "Guards": 15, "Stone": 15, "Soul": 5, "Ruin": 4, "Wishmaster": 1}
+const LONGEVITY_INTEGRITY: int = 14
 
 func create_combat_match():
 	var validators: Dictionary = {}
@@ -22,6 +23,7 @@ static func rules() -> Dictionary:
 	for power in Wishes:
 		result[power] = {"lord_id": "Kanifous", "fire_hook": Timeline.POST_RESOLUTION_SPAWNS if power == "WishPower" else Timeline.POST_RESOLUTION_DIRECT, "cooldown_on": "activation", "cooldown_rounds": 0, "delay_rounds": 0, "cost": {}, "stages": [], "target_kind": "", "target_relation": "any", "visibility": "public"}
 	result.WishResurrection.fire_hook = Timeline.END_MARCHING_CHECKS
+	result.WishLongevity["heal_integrity"] = LONGEVITY_INTEGRITY
 	for power in Wishes:
 		result["Breach" + power] = result[power].duplicate(true)
 		result["Breach" + power]["breach_wish"] = true
@@ -53,7 +55,7 @@ static func longevity_target(castle: Dictionary, player_id: int) -> bool:
 	return (
 		preload("res://Scripts/Sim/U13Structures.gd").targetable(castle)
 		and castle.owner == player_id
-		and castle.attributes.integrity < castle.attributes.max_integrity
+		and castle.attributes.integrity < mini(LONGEVITY_INTEGRITY, int(castle.attributes.max_integrity))
 	)
 
 static func _entity(world: Dictionary, id: String) -> Dictionary:
@@ -86,7 +88,7 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 		"WishLongevity":
 			var castle: Dictionary = ids.get_entity(source.target.entity_id)
 			if longevity_target(castle, pid):
-				castle.attributes.integrity = castle.attributes.max_integrity
+				castle.attributes.integrity = mini(LONGEVITY_INTEGRITY, int(castle.attributes.max_integrity))
 				castle.attributes.status = "standing"
 				castle.attributes.construction_state = "active"
 				ids.update(castle.id, pid, castle.attributes)
@@ -97,7 +99,10 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 			for lost in world.data.kanifous_losses:
 				if world.data.kanifous_loss_round != context.round or lost.kind != "marcher" or lost.owner != pid or lost.attributes.lane != source.target.lane:
 					continue
-				var a: Dictionary = Marching.profile(lost.attributes.suit, source.target.lane, pid, context.round, int(context.round) + 1, Marching.Ranged.enabled(world))
+				var name: String = lost.attributes.get("monster_id", "")
+				var roster = preload("res://Scripts/Sim/U13MonsterRules.gd")
+				if roster.limited(name) and roster.living(ids.snapshot().entities, pid, name): continue
+				var a: Dictionary = roster.profile(name, source.target.lane, pid, context.round, int(context.round) + 1, lost.attributes.get("sprite_form") == "turret") if not name.is_empty() else Marching.profile(lost.attributes.suit, source.target.lane, pid, context.round, int(context.round) + 1, Marching.Ranged.enabled(world))
 				a.x_fp = lost.attributes.x_fp
 				a.y_fp = lost.attributes.y_fp
 				var revived: Dictionary = ids.create("marcher", source.declaration_id, count, pid, a).entity
