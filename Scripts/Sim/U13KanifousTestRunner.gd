@@ -124,19 +124,26 @@ func mechanics() -> void:
 		var result: Dictionary = content.resolve({"declaration": source, "fire_hook": Content.rules()[power].fire_hook}, context)
 		check(result.action != "invalid" and content.valid_world(result.world), power + " valid result")
 		check(result.world.data.kanifous_prices.size() == 1, power + " schedules Price")
-	var guard: Dictionary = {}
-	for row in fixture.entities.entities:
-		if row.kind == "card" and row.owner == 0 and row.attributes.get("role") == "guard":
-			guard = row
-			break
-	if not guard.is_empty():
-		var hit: Dictionary = Content.Battle.apply(fixture, {"command_id": "resurrection", "kind": "defeat_guard", "target_id": guard.id}, 1, Timeline.COMBAT_RESOLUTION)
-		var reacted: Dictionary = content.react(hit.world, hit.event, "wishes", [0, 1])
-		context.world = reacted.world
-		var source: Dictionary = Scenario.source(0, 1, {"kind": "guard_zone", "zone": guard.attributes.lane}, 0, "WishResurrection")
-		var result: Dictionary = content.resolve({"declaration": source}, context)
-		check(result.action != "invalid" and content.valid_world(result.world) and Content._entity(result.world, guard.id).owner == 0, "Resurrection restores defeated guard")
-		context.world = fixture
+	var victim: Dictionary = fixture.entities.entities.filter(func(row): return row.kind == "marcher" and row.owner == 0)[0]
+	var hit: Dictionary = Content.Battle.apply(fixture, {"command_id": "resurrection", "kind": "marcher_damage", "target_id": victim.id, "damage": 5, "cause": "hazard"}, 1, Timeline.MARCHING)
+	var reacted: Dictionary = content.react(hit.world, hit.event, "wishes", [0, 1])
+	context.world = reacted.world
+	context.world.data.kanifous_loss_round = 1
+	var source: Dictionary = Scenario.source(0, 1, {"lane": "Lord"}, 0, "WishResurrection")
+	var restored: Dictionary = content.resolve({"declaration": source}, context)
+	check(restored.action != "invalid" and content.valid_world(restored.world) and restored.events.any(func(row): return row.event.type == "MARCHER_RESURRECTED"), "Resurrection restores a defeated Marcher with a fresh identity")
+	check(Content._entity(restored.world, victim.id).is_empty() and victim.id in restored.world.entities.used_ids, "Resurrection preserves the retired identity ledger")
+	var reborn: Array = restored.events.filter(func(row): return row.event.type == "MARCHER_RESURRECTED")
+	check(reborn.size() == 1 and reborn[0].event.data.unit.attributes.hp == 5 and reborn[0].event.data.unit.attributes.armor == 1 and reborn[0].event.data.unit.attributes.movement_ready_round == 2, "revived Marcher returns at full printed HP/Armor and advances next round")
+	source.target.lane = "Castle"
+	var empty: Dictionary = content.resolve({"declaration": source}, context)
+	check(empty.world.data.kanifous_prices.is_empty() and empty.events.back().event.data.count == 0, "other-lane losses cannot revive or charge a Price")
+	source.target.lane = "Lord"
+	context.round = 2
+	var stale: Dictionary = content.resolve({"declaration": source}, context)
+	check(stale.world.data.kanifous_prices.is_empty() and stale.events.back().event.data.count == 0, "previous-round losses cannot revive")
+	context.round = 1
+	context.world = fixture
 	# Select every weighted Price through keyed RNG, then validate effects.
 	var seen: Dictionary = {}
 	for i in range(300):

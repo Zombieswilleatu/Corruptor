@@ -38,6 +38,7 @@ for _cost,_name in enumerate(('Redirect','FalseOrders','AllegianceShift','Invers
     RULES[_name]['cost'] = dict(reconfiguration=_cost)
 for _name in ('WishPower','WishLongevity','WishResurrection','WishDeath','WishWealth'):
     RULES[_name] = rule('Kanifous','post_resolution_spawns' if _name=='WishPower' else 'post_resolution_direct')
+RULES['WishResurrection']['fire_hook'] = 'end_marching_checks'
 
 
 def declaration(pid, number, power, target=None, *, index=0, discard_ids=None, parameters=None):

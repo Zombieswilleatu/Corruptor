@@ -14,6 +14,11 @@ class LordRoundRules(RoundRules):
         return dict(world=self.w,round=self.number,seed=self.seed,player_order=self.order,
                     hook=self.hook,persistent_effects=self.effects,full_roster=True)
 
+    def run(self, orders):
+        events = super().run(orders)
+        wishmaster.record_losses(self.w, events)
+        return events
+
     def extra(self):
         w,n,d,hook=self.w,self.number,self.w['data'],self.hook;events=[]
         if hook in ('persistent_advancement','marching_start'):

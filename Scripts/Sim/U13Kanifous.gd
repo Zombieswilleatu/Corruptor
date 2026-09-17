@@ -18,6 +18,7 @@ static func rules() -> Dictionary:
 	var result: Dictionary = preload("res://Scripts/Sim/U13Valak.gd").rules()
 	for power in Wishes:
 		result[power] = {"lord_id": "Kanifous", "fire_hook": Timeline.POST_RESOLUTION_SPAWNS if power == "WishPower" else Timeline.POST_RESOLUTION_DIRECT, "cooldown_on": "activation", "cooldown_rounds": 0, "delay_rounds": 0, "cost": {}, "stages": [], "target_kind": "", "target_relation": "any", "visibility": "public"}
+	result.WishResurrection.fire_hook = Timeline.END_MARCHING_CHECKS
 	return result
 
 func valid_world(world: Dictionary) -> bool:
@@ -35,7 +36,7 @@ func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionar
 			var castle: Dictionary = _entity(world, t.get("entity_id", ""))
 			legal = legal and t.size() == 1 and longevity_target(castle, source.player_id)
 		"WishResurrection":
-			legal = legal and t.size() == 2 and t.get("kind") == "guard_zone" and t.get("zone") in ["Lord", "Castle"]
+			legal = legal and t.size() == 1 and t.get("lane") in ["Lord", "Castle"]
 		"WishDeath":
 			legal = legal and Fields.target_valid(t)
 		"WishWealth":
@@ -58,7 +59,10 @@ static func _entity(world: Dictionary, id: String) -> Dictionary:
 func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 	var source: Dictionary = record.declaration
 	if source.power_id not in Wishes:
-		return super.resolve(record, context)
+		var result: Dictionary = super.resolve(record, context)
+		if result.action != "invalid":
+			Lamp.record_losses(result.world, result.events)
+		return result
 	var world: Dictionary = context.world.duplicate(true)
 	var ids = Ids.new()
 	ids.restore(world.entities)
@@ -84,16 +88,15 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 					world.data.construction_targets[pid] = ""
 				count = 1
 		"WishResurrection":
-			var occupied: Array = []
-			for row in world.entities.entities:
-				if row.kind == "card" and row.owner == pid and row.attributes.get("role") == "guard" and row.attributes.lane == source.target.zone:
-					occupied.append(row.attributes.slot)
 			for lost in world.data.kanifous_losses:
-				if lost.owner != pid or lost.attributes.lane != source.target.zone or lost.id not in world.data.card_zones.discard or lost.attributes.slot in occupied:
+				if world.data.kanifous_loss_round != context.round or lost.kind != "marcher" or lost.owner != pid or lost.attributes.lane != source.target.lane:
 					continue
-				ids.update(lost.id, pid, lost.attributes)
-				world.data.card_zones.discard.erase(lost.id)
-				occupied.append(lost.attributes.slot)
+				var a: Dictionary = Marching.profile(lost.attributes.suit, source.target.lane, pid, context.round, int(context.round) + 1, Marching.Ranged.enabled(world))
+				a.x_fp = lost.attributes.x_fp
+				a.y_fp = lost.attributes.y_fp
+				var revived: Dictionary = ids.create("marcher", source.declaration_id, count, pid, a).entity
+				Marching.place_near_spawn(ids, revived.id, a)
+				events.append(Lamp.event("MARCHER_RESURRECTED", {"player_id": pid, "before": lost, "unit": ids.get_entity(revived.id), "round": context.round, "hook": Timeline.END_MARCHING_CHECKS}))
 				count += 1
 		"WishDeath":
 			for row in world.entities.entities:
@@ -115,13 +118,13 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 		world.data.kanifous_prices.append(price)
 		events.append(Lamp.event("KANIFOUS_PRICE_SCHEDULED", price))
 	events.append(Lamp.event("KANIFOUS_WISH_RESOLVED", {"player_id": pid, "power": source.power_id, "target": source.target, "count": count, "success": success, "round": context.round, "victims": death_victims}))
+	Lamp.record_losses(world, events)
 	return {"action": "resolved", "world": world, "events": events}
 
 func react(world: Dictionary, fact: Dictionary, seed_value: String, order: Array) -> Dictionary:
 	var result: Dictionary = super.react(world, fact, seed_value, order)
-	if result.action != "invalid" and fact.type == "GUARD_DEFEATED":
-		if not result.world.data.kanifous_losses.any(func(row: Dictionary) -> bool: return row.id == fact.data.guard.id):
-			result.world.data.kanifous_losses.append(fact.data.guard.duplicate(true))
+	if result.action != "invalid":
+		Lamp.record_losses(result.world, [{"event": fact}])
 	return result
 
 func on_hook(context: Dictionary) -> Dictionary:
@@ -129,6 +132,7 @@ func on_hook(context: Dictionary) -> Dictionary:
 	if result.action == "invalid":
 		return result
 	result.events.append_array(Lamp.advance(result.world, context.hook, context.round, context.seed))
+	Lamp.record_losses(result.world, result.events)
 	if context.hook == Timeline.ROUND_START_AUTOMATIC:
 		var due: Array = result.world.data.kanifous_prices.duplicate(true)
 		for price in due:
@@ -199,6 +203,7 @@ func _price(raw: Dictionary, price: Dictionary, context: Dictionary) -> Dictiona
 			ids.restore(world.entities)
 		"Blood":
 			for id in chosen:
+				Lamp.record_loss(world, ids.get_entity(id))
 				ids.retire(id)
 		"Soul":
 			world.players[pid].resources.souls -= 1

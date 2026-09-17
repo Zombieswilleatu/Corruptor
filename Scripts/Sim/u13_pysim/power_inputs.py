@@ -31,7 +31,7 @@ def candidates(game,pid,power,index,hand):
     elif power=='Consume':targets=[dict(entity_id=r['id']) for r in powers.guards(w) if r['owner']==1-pid]
     elif power=='Ravenous':targets=[dict(lane=lane,field_position=dict(x_fp=0 if pid==0 else 2400,y_fp=300))]
     elif power=='Projection':targets=[dict(kind='guard_zone',zone=lane,player_id=1-pid)];parameters=dict(spend=max(1,w['players'][pid]['resources']['life_essence']))
-    elif power=='WishResurrection':targets=[dict(kind='guard_zone',zone=lane)]
+    elif power=='WishResurrection':targets=[dict(lane=lane)]
     return [declaration(pid,n,power,t,index=index,discard_ids=discard,parameters=parameters) for t in targets]
 
 

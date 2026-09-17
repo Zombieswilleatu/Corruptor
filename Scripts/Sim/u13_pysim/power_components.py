@@ -80,11 +80,8 @@ def generate():
         elif power=='Ravenous':target=dict(lane='Lord',field_position=dict(x_fp=0,y_fp=300))
         elif power=='Projection':target=dict(kind='guard_zone',zone='Lord',player_id=1);params=dict(spend=3)
         elif power=='WishResurrection':
-            target=dict(kind='guard_zone',zone='Lord')
-            victim=copy_data(e.entity(w,cards[0]['id']))
-            # A separately labeled casualty fixture; it is not a full game.
-            zones=copy_data(e.zones(w));zones['discard'].append(victim['id'])
-            record(dict(kind='fixture_prepare',changes=[dict(kind='fixture_patch',entity_id=victim['id'],owner=-1,attributes=dict(role='card')),dict(kind='fixture_data',data=dict(card_zones=zones,kanifous_losses=[victim]))]))
+            target=dict(lane='Lord')
+            # The existing opposing Marchers fight during the upcoming phase.
         if power=='Pyroclasm':
             record(dict(kind='submit',plans=[dict(powers=[declaration(0,1,'Inferno',dict(kind='guard',lane='Lord',player_id=1))],order={}),dict(powers=[],order={})]))
             until('submission_lock',2)

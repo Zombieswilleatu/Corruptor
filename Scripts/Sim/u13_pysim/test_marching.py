@@ -16,6 +16,29 @@ class MarchingTests(unittest.TestCase):
     def spec(self, name):
         return next(c for c in f.load()["cases"] if c["name"] == name)
 
+    def test_attacked_recruit_closes_distance_while_untouched_recruit_holds(self):
+        for pid in (0, 1):
+            spec = self.spec("ordinary_mixed")
+            start = 100 if pid == 0 else 2300
+            spec['ranged'] = True
+            spec['units'] = [
+                dict(origin='defender', ordinal=0, owner=pid, suit='Penitent', lane='Castle', birth=1, ready=2, attributes=dict(x_fp=start)),
+                dict(origin='untouched', ordinal=0, owner=pid, suit='Penitent', lane='Castle', birth=1, ready=2, attributes=dict(x_fp=0 if pid == 0 else 2400, y_fp=0)),
+                dict(origin='attacker', ordinal=0, owner=1-pid, suit='Vulture', lane='Castle', attributes=dict(x_fp=start+(300 if pid == 0 else -300), hp=1, armor=0)),
+            ]
+            context = f.context(spec, f.initial(spec), 1)
+            result = m.resolve(context)
+            self.assertEqual('resolved', result['action'])
+            rows = {r['origin']: r['attributes'] for r in result['world']['entities']['entities']}
+            self.assertNotEqual(start, rows['defender']['x_fp'])
+            self.assertEqual(1, rows['defender']['movement_ready_round'])
+            self.assertEqual(2, rows['untouched']['movement_ready_round'])
+            self.assertEqual(0 if pid == 0 else 2400, rows['untouched']['x_fp'])
+            shots = [r['event'] for r in result['events'] if r['event']['type'] == 'MARCHER_RANGED_ATTACK']
+            self.assertEqual(0, shots[0]['data']['damage_dealt'])
+            self.assertTrue(any(r['event']['type'] == 'MARCHER_CLASH' for r in result['events']))
+            self.assertEqual(result, m.resolve(context))
+
     def test_nearest_pruning_keeps_two_dimensional_and_equal_distance_ties(self):
         # The first examined x coordinate need not contain the nearest point.
         # A later point exactly on the pruning boundary can win the ID tie.

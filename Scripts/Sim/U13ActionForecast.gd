@@ -33,7 +33,7 @@ static func evaluate(public_view: Dictionary, order: Dictionary) -> Dictionary:
 		result["strength"] = strength
 		result.lines.append("Ward: %d protection in %s; %d in the other lane." % [strength, lane, (strength >> 1)])
 		result.lines.append("Recruits: %d Marchers in %s." % [total_recruits, lane])
-		result.assumptions = "Protection applies this round. Recruitment is counted per suit; new Marchers begin moving next round."
+		result.assumptions = "Protection applies this round. Recruitment is counted per suit; new Marchers hold until next round unless attacked."
 		return result
 	if action == "Profane":
 		var castle: Dictionary = c.rows.get(order.get("target_id", ""), {})

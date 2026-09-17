@@ -21,8 +21,6 @@ func run() -> void:
 		var replay = Game.new()
 		if not check(replay.restore_json(low.snapshot_json()).action != "invalid", power + " opportunity saves exactly"): continue
 		var opponent: Dictionary = {}
-		if power == "WishResurrection":
-			opponent = {"action": "Hunt", "lane": "Lord", "target_id": before.world.players[0].lord_entity_id, "card_ids": low._owner.player_view(1, 0).world.hand}
 		var plans: Array = [plan, {"powers": [], "order": opponent}]
 		if not check(low.submit(plans).action != "invalid" and replay.submit(plans).action != "invalid" and low.finish_round().action != "invalid" and replay.finish_round().action != "invalid" and low.snapshot() == replay.snapshot(), power + " accepted round replays exactly"): continue
 		if power == "Inversion":
@@ -35,7 +33,7 @@ func run() -> void:
 		if power == "Inversion":
 			check(events.filter(func(e): return e.type == "GUARD_RECONFIGURED" and e.data.get("power") == power).size() == 3, "Inversion moves the entire three-guard source into the empty receiving zone")
 		elif power == "WishResurrection":
-			check(events.any(func(e): return e.type == "KANIFOUS_WISH_RESOLVED" and e.data.power == power and e.data.count == 3), "Resurrection actually restores the three guards lost to the opposing Hunt")
+			check(events.any(func(e): return e.type == "KANIFOUS_WISH_RESOLVED" and e.data.power == power and e.data.count == 3), "Resurrection actually restores the three Marchers lost during Marching")
 	print("U13 doctrine coverage failures: %d" % failures)
 	quit(1 if failures else 0)
 
@@ -58,6 +56,9 @@ func opportunity(power: String, hidden_value: int):
 		for index in range(3):
 			var a: Dictionary = Marching.profile("Penitent", "Lord", 1, 0, 1, true)
 			a.x_fp = 300 + index * 500; a.y_fp = 300
+			var fresh: Dictionary = Marching.profile("Butcher", "Lord", 0, 0, 1, true)
+			fresh.x_fp = a.x_fp + 50; fresh.y_fp = 300; fresh.hp = 1; fresh.armor = 0
+			ids.create("marcher", "coverage-own", index, 0, fresh)
 			ids.create("marcher", "coverage-enemy", index, 1, a)
 		world.entities = ids.snapshot()
 	var game = Game.new()

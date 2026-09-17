@@ -49,7 +49,7 @@ static func enumerate(owner, pid: int) -> Dictionary:
 	result.powers = [source(pid, owner.round_number(), {})]
 	for lane in ["Lord", "Castle"]:
 		result.powers.append(source(pid, owner.round_number(), {"lane": lane}, 0, "WishPower"))
-		result.powers.append(source(pid, owner.round_number(), {"kind": "guard_zone", "zone": lane}, 0, "WishResurrection"))
+		result.powers.append(source(pid, owner.round_number(), {"lane": lane}, 0, "WishResurrection"))
 		for x in [600, 1200, 1800]:
 			result.powers.append(source(pid, owner.round_number(), {"lane": lane, "field_position": {"x_fp": x, "y_fp": 300}}, 0, "WishDeath"))
 	for row in view.world.entities:

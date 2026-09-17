@@ -1,5 +1,7 @@
 # Kanifous — U13 implementation
 
+**2026-09-17 amendment:** Resurrection now targets a marching lane and revives this round’s friendly Marcher deaths at End-Marching Checks. This supersedes the Guard restoration description below. See [current Resurrection rules](U13_KANIFOUS_POWERS.md#wish--resurrection).
+
 Implements the accepted Wishmaster Lamp amendment, the five active Wishes,
 delayed Prices and a first Void presentation. Kanifous is the ninth selectable
 Lord. U12 is unchanged.

@@ -86,7 +86,7 @@ def validate(s,w,phase,active):
         legal=not p
         if power=='WishPower': legal=legal and set(t)=={'lane'} and t['lane'] in LANES
         elif power=='WishLongevity': legal=legal and set(t)=={'entity_id'} and targetable(r) and r['owner']==pid and r['attributes']['integrity']<r['attributes']['max_integrity']
-        elif power=='WishResurrection': legal=legal and set(t)=={'kind','zone'} and t['kind']=='guard_zone' and t['zone'] in LANES
+        elif power=='WishResurrection': legal=legal and set(t)=={'lane'} and t['lane'] in LANES
         elif power=='WishDeath': legal=legal and spatial(t)
         else: legal=legal and not t
         return '' if legal else 'wish_target_invalid'
@@ -220,5 +220,7 @@ def resolve(rec,state,n):
         events.extend(wish(b,s))
     else: raise e.Unsupported('Unimplemented declared power '+power)
     from .development import reconcile
+    from .wishmaster import record_losses
+    record_losses(w, events)
     reconcile(w)
     return dict(events=events,persistent_payload=payload)

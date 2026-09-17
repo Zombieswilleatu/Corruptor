@@ -21,19 +21,16 @@ def proposals(f):
         target, net = f.cluster(lane, 100)
         if target and net > 0:
             yield power('WishDeath', target, 22*net-price, 'death_net_victims_less_delayed_price')
-        losses = [r for r in f.v['data']['kanifous_losses'] if r['owner'] == f.pid and r['attributes']['lane'] == lane
-                  and r['attributes']['slot'] in f.free(f.pid, lane)]
+        losses = [r for r in f.v['data']['kanifous_losses'] if r['kind'] == 'marcher' and r['owner'] == f.pid and r['attributes']['lane'] == lane]
         if losses:
-            yield power('WishResurrection', dict(kind='guard_zone', zone=lane),
-                        sum(5*r['attributes']['value'] for r in losses)-price, 'restore_recorded_losses_less_price')
-        elif f.guards(f.pid, lane) and f.units(f.enemy, lane):
-            # Losses from the upcoming combat have not happened at planning.
-            # This is explicitly insurance against exposed Guards, not a claim
-            # that the policy can see the opponent's simultaneous attack.
-            exposed = [r for r in f.guards(f.pid, lane) if r['attributes']['value'] <= 3]
+            yield power('WishResurrection', dict(lane=lane),
+                        18*len(losses)-price, 'restore_recorded_losses_less_price')
+        elif f.units(f.pid, lane) and f.units(f.enemy, lane):
+            # Public health estimates exposure; future combat is still unknown.
+            exposed = [r for r in f.units(f.pid, lane) if r['attributes']['hp'] <= 3]
             if exposed:
-                yield power('WishResurrection', dict(kind='guard_zone', zone=lane),
-                            sum(5*r['attributes']['value'] for r in exposed)-price, 'insure_exposed_guards_future_losses_uncertain')
+                yield power('WishResurrection', dict(lane=lane),
+                            18*len(exposed)-price, 'insure_exposed_marchers_future_losses_uncertain')
         yield power('WishPower', dict(lane=lane), 18+8*f.lane_need(lane)-price, 'recruitment_need_less_delayed_price')
     if len(f.hand) <= 5:
         yield power('WishWealth', {}, 25+3*(5-len(f.hand))-price, 'refill_available_hand_space_less_price')

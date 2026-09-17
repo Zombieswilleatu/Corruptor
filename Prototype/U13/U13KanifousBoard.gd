@@ -9,6 +9,7 @@ var wish_remove: Button
 var wish_note: Label
 var price_note: Label
 var wish_placement
+var resurrection_placement
 var wish_visual
 var price_visual
 var death_wish_visual
@@ -34,6 +35,11 @@ func _build() -> void:
 	wish_placement.battlefield = lanes
 	wish_placement.confirmed.connect(_confirm_wish_death)
 	wish_placement.cancelled.connect(func(): wish_placement.close(); _refresh(); reopen_decision())
+	resurrection_placement = preload("res://Prototype/U13/U13ResurrectionPlacement.gd").new()
+	add_child(resurrection_placement)
+	resurrection_placement.battlefield = lanes
+	resurrection_placement.confirmed.connect(_confirm_resurrection)
+	resurrection_placement.cancelled.connect(func(): resurrection_placement.close(); _refresh(); reopen_decision())
 	wish_visual = preload("res://Prototype/U13/U13WishmasterVisual.gd").new()
 	add_child(wish_visual)
 	wish_visual.battlefield = lanes
@@ -59,9 +65,9 @@ func _wish_targets() -> void:
 	var previous_index: int = wish_target.selected
 	wish_target.clear()
 	var power: String = Kanifous.Wishes[wish_choice.selected]
-	if power in ["WishPower", "WishResurrection"]:
-		wish_target.add_item("Lord lane" if power == "WishPower" else "Lord guards")
-		wish_target.add_item("Castle lane" if power == "WishPower" else "Castle guards")
+	if power == "WishPower":
+		wish_target.add_item("Lord lane")
+		wish_target.add_item("Castle lane")
 	elif power == "WishLongevity":
 		for row in _visible_world.get("entities", []):
 			if Kanifous.longevity_target(row, 0):
@@ -73,8 +79,8 @@ func _wish_targets() -> void:
 				wish_target.select(index)
 	elif previous_index >= 0 and previous_index < wish_target.item_count:
 		wish_target.select(previous_index)
-	wish_target.visible = power not in ["WishDeath", "WishWealth"]
-	wish_note.text = ["Spawn 1–3 random-suit Marchers: 70% one, 25% two, 5% three.", "Restore a damaged, active Castle to full Integrity. Protected construction and Ruined/Profaned Castles cannot be targeted.", "Restore your Guards defeated this round in the selected zone.", "Choose a small circle on the field. Destroy every Marcher inside, friend or enemy.", "Draw 1–3 cards: 20% one, 50% two, 30% three."][wish_choice.selected] + "\nSuccess creates a hidden Price due in 1–3 rounds."
+	wish_target.visible = power not in ["WishDeath", "WishWealth", "WishResurrection"]
+	wish_note.text = ["Spawn 1–3 random-suit Marchers: 70% one, 25% two, 5% three.", "Restore a damaged, active Castle to full Integrity. Protected construction and Ruined/Profaned Castles cannot be targeted.", "Choose a battlefield lane. After Marching, revive your Marchers killed there this round at full HP and Armor near where they fell. They advance next round. Guard cards and prior-round losses are excluded.", "Choose a small circle on the field. Destroy every Marcher inside, friend or enemy.", "Draw 1–3 cards: 20% one, 50% two, 30% three."][wish_choice.selected] + "\nSuccess creates a hidden Price due in 1–3 rounds."
 
 func _update_direct_ui() -> void:
 	super._update_direct_ui()
@@ -91,7 +97,7 @@ func _update_direct_ui() -> void:
 	price_note.text = ""
 	for price in _visible_world.get("wish_prices", []):
 		price_note.text += "%s Price: %s\n" % ["Your" if price.owner == 0 else "Enemy", "Overdue · still owed" if price.due_round < session.round_number() else "Round %d" % price.due_round]
-	if wish_placement.visible:
+	if wish_placement.visible or resurrection_placement.visible:
 		confirm.disabled = true
 		pass_button.disabled = true
 		phase_prompt.set_presenting(false)
@@ -105,10 +111,12 @@ func _queue_wish() -> void:
 		wish_placement.open()
 		_refresh()
 		return
+	if power == "WishResurrection":
+		resurrection_placement.open()
+		_refresh()
+		return
 	if power == "WishPower":
 		target = {"lane": "Lord" if wish_target.selected == 0 else "Castle"}
-	elif power == "WishResurrection":
-		target = {"kind": "guard_zone", "zone": "Lord" if wish_target.selected == 0 else "Castle"}
 	elif power == "WishLongevity":
 		if wish_target.selected < 0:
 			return
@@ -121,6 +129,12 @@ func _confirm_wish_death(target: Dictionary) -> void:
 		_refresh()
 		reopen_decision()
 
+func _confirm_resurrection(target: Dictionary) -> void:
+	if _queue_valak(session.declaration("WishResurrection", queued.size(), target)):
+		resurrection_placement.close()
+		_refresh()
+		reopen_decision()
+
 func _remove_wish() -> void:
 	for index in range(queued.size()):
 		if queued[index].power_id in Kanifous.Wishes:
@@ -128,7 +142,7 @@ func _remove_wish() -> void:
 			return
 
 func _planning() -> bool:
-	return (wish_placement == null or not wish_placement.visible) and super._planning()
+	return (wish_placement == null or not wish_placement.visible) and (resurrection_placement == null or not resurrection_placement.visible) and super._planning()
 
 
 func _complete_job() -> void:

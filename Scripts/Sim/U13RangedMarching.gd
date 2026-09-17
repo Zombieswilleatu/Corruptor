@@ -89,6 +89,8 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 				entities.retire(target.id)
 				deaths.append({"attacker": shot.attacker, "victim": target.duplicate(true), "damage_dealt": dealt, "hp_after": 0})
 			else:
+				# Birth-round holding ends when the unit is attacked, even through Armor.
+				target.attributes.movement_ready_round = mini(int(target.attributes.movement_ready_round), int(context.round))
 				entities.update(target.id, target.owner, target.attributes)
 		var details: Dictionary = {"round": context.round, "tick": tick, "lane": shot.attacker.attributes.lane, "attacker": shot.attacker, "target": shot.target, "damage_dealt": dealt, "hp_after": 0 if target.is_empty() else target.attributes.hp}
 		events.append(event("MARCHER_RANGED_ATTACK", details))

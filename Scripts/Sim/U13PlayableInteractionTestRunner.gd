@@ -9,6 +9,7 @@ func run() -> void:
 	cache_consistency()
 	for banished in [false, true]: consume_presence(banished)
 	ranged_cadence()
+	birth_hold_retaliation()
 	print("U13 playable interaction failures: %d" % failures)
 	quit(failures)
 
@@ -144,3 +145,31 @@ func ranged_cadence() -> void:
 		check(not clashes.is_empty() and clashes[0].event.data.end_tick == 80 and clashes[0].event.data.exchanges.size() == 2, "melee exchanges retain their original eight-tick cadence")
 		var replay: Dictionary = Marching.resolve(bytes_to_var(var_to_bytes(context)), react)
 		check(replay == battle, "separate attack clocks replay the whole phase exactly")
+
+func birth_hold_retaliation() -> void:
+	for owner in [0, 1]:
+		var ids = Marching.Ids.new()
+		var origin: int = 100 if owner == 0 else 2300
+		var a: Dictionary = Marching.profile("Penitent", "Castle", owner, 1, 2, true)
+		a.x_fp = origin
+		var defender: String = ids.create("marcher", "held-defender", owner, owner, a).entity.id
+		var waiting: Dictionary = Marching.profile("Penitent", "Castle", owner, 1, 2, true)
+		waiting.y_fp = 0
+		var untouched: String = ids.create("marcher", "held-neighbor", owner, owner, waiting).entity.id
+		var enemy: Dictionary = Marching.profile("Vulture", "Castle", 1 - owner, 0, 1, true)
+		enemy.x_fp = origin + int(a.direction) * 300
+		enemy.hp = 1; enemy.armor = 0
+		ids.create("marcher", "ranged-attacker", owner, 1 - owner, enemy)
+		var world: Dictionary = {"entities": ids.snapshot(), "data": {"ranged_profile": Ranged.VERSION}}
+		var context: Dictionary = {"world": world, "round": 1, "hook": Game.Timeline.MARCHING, "seed": "retaliation", "player_order": [0, 1]}
+		var react: Callable = func(w, _event, _seed, _order): return {"action": "resolved", "world": w, "events": []}
+		var result: Dictionary = Marching.resolve(context, react)
+		if not check(result.action == "resolved", "held defender resolves for seat %d" % owner): continue
+		ids.restore(result.world.entities)
+		var shots: Array = result.events.filter(func(e): return e.event.type == "MARCHER_RANGED_ATTACK")
+		check(not shots.is_empty() and shots[0].event.data.target.id == defender and shots[0].event.data.damage_dealt == 0, "Armor-only hit triggers retaliation")
+		var survivor: Dictionary = ids.get_entity(defender)
+		check(not survivor.is_empty() and survivor.attributes.movement_ready_round == 1 and survivor.attributes.x_fp != origin, "attacked recruit closes distance during its birth round")
+		check(result.events.any(func(e): return e.event.type == "MARCHER_CLASH"), "attacked recruit reaches melee and fights back")
+		check(ids.get_entity(untouched).attributes == waiting, "unattacked neighboring recruit holds its spawn position")
+		check(Marching.resolve(bytes_to_var(var_to_bytes(context)), react) == result, "retaliation replays deterministically")

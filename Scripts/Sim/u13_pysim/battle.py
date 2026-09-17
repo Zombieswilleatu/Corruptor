@@ -319,8 +319,8 @@ class Battle:
                     absorbed = min(target["attributes"]["armor"],damage);target["attributes"]["armor"] -= absorbed
                     hit = self.fact(dict(command_id=instance_id("interlock",detail["event_id"],str(pid)),kind="marcher_damage",target_id=target["id"],damage=damage-absorbed,cause="hazard"))
                     events.append(e.event(hit["type"],hit["data"]));events.extend(self.react(hit,inner=True))
-        if kind == "GUARD_DEFEATED" and not any(r["id"] == detail["guard"]["id"] for r in d["kanifous_losses"]):
-            d["kanifous_losses"].append(copy_data(detail["guard"]))
+        from .wishmaster import record_losses
+        record_losses(w, [dict(event=fact)])
         reconcile(w)
         if kind == "LORD_BANISHED":
             throne = d["vacant_throne"]

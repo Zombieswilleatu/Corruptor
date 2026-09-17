@@ -12,7 +12,7 @@ func run() -> void:
 	var enemies: Array = c.select("marcher", 1)
 	enemies[1].attributes.x_fp = 550
 	check(Bot.Powers.kanifous(c).any(func(x): return x.payload.power_id == "WishDeath"), "Death values a cluster inside its actual radius")
-	check(not Bot.Powers.kanifous(c).any(func(x): return x.payload.power_id == "WishResurrection"), "Resurrection never invents guards in a bare zone")
+	check(not Bot.Powers.kanifous(c).any(func(x): return x.payload.power_id == "WishResurrection"), "Resurrection never invents Marchers in an empty lane")
 	c.w.hand = c.w.hand.slice(0, 1)
 	c.w.souls[0] = 12
 	check(Bot.Powers.kanifous(c).any(func(x): return x.payload.power_id == "WishWealth"), "Wealth replenishes depleted cards even with plentiful souls")

@@ -10,6 +10,21 @@ def event(kind,data):
     return e.event(kind,data,kind.replace('_',' ').title())
 
 
+def record_loss(w, unit):
+    if unit.get('kind') == 'marcher' and not any(row['id'] == unit['id'] for row in w['data']['kanifous_losses']):
+        w['data']['kanifous_losses'].append(copy_data(unit))
+
+
+def record_losses(w, events):
+    for row in events:
+        fact = row['event']; d = fact['data']; kind = fact['type']
+        key = {'MARCHER_DEFEATED': 'victim', 'MARCHER_DEVOURED': 'before',
+               'GRAVITY_ORB_CONSUMED': 'unit', 'WISHMASTER_REJECTED': 'unit'}.get(kind)
+        if key: record_loss(w, d.get(key, {}))
+        elif kind == 'KANIFOUS_WISH_RESOLVED' and d['power'] == 'WishDeath':
+            for unit in d['victims']: record_loss(w, unit)
+
+
 def wish(b,s):
     from .powers import members
     w,n,pid,t,power,key=b.w,b.number,s['player_id'],s['target'],s['power_id'],s['declaration_id'];count=0;victims=[];events=[]
@@ -23,10 +38,14 @@ def wish(b,s):
         if w['data']['construction_targets'][pid]==r['id']:w['data']['construction_targets'][pid]=''
         count=1
     elif power=='WishResurrection':
-        occupied=[r['attributes']['slot'] for r in w['entities']['entities'] if r['kind']=='card' and r['owner']==pid and r['attributes'].get('role')=='guard' and r['attributes']['lane']==t['zone']]
         for lost in w['data']['kanifous_losses']:
-            if lost['owner']!=pid or lost['attributes']['lane']!=t['zone'] or lost['id'] not in e.zones(w)['discard'] or lost['attributes']['slot'] in occupied:continue
-            r=e.entity(w,lost['id']);r['owner']=pid;r['attributes']=copy_data(lost['attributes']);e.zones(w)['discard'].remove(r['id']);occupied.append(r['attributes']['slot']);count+=1
+            if w['data']['kanifous_loss_round'] != n or lost['kind'] != 'marcher' or lost['owner'] != pid or lost['attributes']['lane'] != t['lane']: continue
+            old = lost['attributes']; a = recruit.profile(old['suit'], t['lane'], pid, n, n+1)
+            a.update(x_fp=old['x_fp'], y_fp=old['y_fp'])
+            r = recruit.create(w, key, count, pid, a)
+            recruit.place_near_spawn(w, r, a)
+            events.append(event('MARCHER_RESURRECTED', dict(player_id=pid, before=lost, unit=r, round=n, hook='end_marching_checks')))
+            count += 1
     elif power=='WishDeath':
         for key2 in members(w,t,100):victims.append(copy_data(e.entity(w,key2)));recruit.retire(w,key2);count+=1
     elif power=='WishWealth':
@@ -36,6 +55,7 @@ def wish(b,s):
         price=dict(id=instance_id('price',key,'main'),owner=pid,created_round=n,due_round=n+1+draw(b.seed,key,'PRICE_DELAY',0,3))
         w['data']['kanifous_prices'].append(price);events.append(event('KANIFOUS_PRICE_SCHEDULED',price))
     events.append(event('KANIFOUS_WISH_RESOLVED',dict(player_id=pid,power=power,target=t,count=count,success=count>0,round=n,victims=victims)))
+    record_losses(w, events)
     return events
 
 
@@ -66,7 +86,8 @@ def price(b,debt):
     if outcome=='Cards':
         for key in chosen:e.zones(w)['hands'][pid].remove(key);e.zones(w)['discard'].append(key);e.entity(w,key)['owner']=-1
     elif outcome=='Blood':
-        for key in chosen:recruit.retire(w,key)
+        for key in chosen:
+            record_loss(w, e.entity(w,key)); recruit.retire(w,key)
     elif outcome=='Soul':w['players'][pid]['resources']['souls']-=1
     elif outcome in ('Stone','Ruin'):
         r=e.entity(w,chosen[0]);a=r['attributes'];a['integrity']=max(0,a['integrity']-5) if outcome=='Stone' else 0;a['status']='standing' if a['integrity'] else 'defunct'

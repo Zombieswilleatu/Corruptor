@@ -41,6 +41,20 @@ def retire(world, identity):
     rows.remove(target)  # Identity remains in used_ids forever.
 
 
+def place_near_spawn(world, row, origin):
+    a = row['attributes']
+    for dx, dy in ((0,84),(0,-84),(84,0),(-84,0),(84,84),(-84,-84)):
+        nx, ny = max(0,min(2400,origin['x_fp']+dx)), max(0,min(600,origin['y_fp']+dy))
+        free = True
+        for other in world['entities']['entities']:
+            if other['kind'] != 'marcher' or other['id'] == row['id'] or other['owner'] != row['owner'] or other['attributes']['lane'] != a['lane']: continue
+            b = other['attributes']; gap = (nx-b['x_fp'])**2+(ny-b['y_fp'])**2
+            if gap < 84*84 and gap < (a['x_fp']-b['x_fp'])**2+(a['y_fp']-b['y_fp'])**2:
+                free = False; break
+        if free:
+            a.update(x_fp=nx,y_fp=ny); break
+
+
 def place_spawn(world, row, seed):
     a, best, clearance = row["attributes"], copy_data(row["attributes"]), -1
     for attempt in range(64):

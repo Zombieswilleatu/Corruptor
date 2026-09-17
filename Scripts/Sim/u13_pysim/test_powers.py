@@ -10,6 +10,32 @@ from .timeline import HOOKS
 
 
 class PowerTests(unittest.TestCase):
+    def test_resurrection_waits_for_marching_and_restores_only_the_selected_lane(self):
+        from . import recruitment
+        g = self.before_lock('Kanifous')
+        world = g._state['world']
+        lost_ids = []
+        for lane in ('Lord', 'Castle'):
+            for pid, suit in ((0, 'Butcher'), (1, 'Penitent')):
+                a = recruitment.profile(suit, lane, pid, 0, 1)
+                a.update(x_fp=600+pid*50, y_fp=300)
+                if pid == 0: a.update(hp=1, armor=0)
+                row = recruitment.create(world, 'resurrection:'+lane, pid, pid, a)
+                if pid == 0: lost_ids.append(row['id'])
+        source = declaration(0, 1, 'WishResurrection', dict(lane='Lord'))
+        self.assertNotEqual('invalid', self.submit(g, [source])['action'])
+        self.drive(g, 'end_marching_checks', 1)
+        self.assertTrue(all(not e.entity(g._state['world'], key) for key in lost_ids))
+        self.assertEqual(2, len(g._state['world']['data']['kanifous_losses']))
+        self.assertEqual([], g._state['world']['data']['kanifous_prices'])
+        op = dict(kind='step', hook='end_marching_checks')
+        self.assertNotEqual('invalid', g.apply(op)['action'])
+        revived = [r for r in g._state['world']['entities']['entities'] if r['kind']=='marcher' and r['owner']==0]
+        self.assertEqual(1, len(revived))
+        self.assertEqual(('Lord', 5, 1, 2), tuple(revived[0]['attributes'][k] for k in ('lane', 'hp', 'armor', 'movement_ready_round')))
+        self.assertNotIn(revived[0]['id'], lost_ids)
+        self.assertEqual(1, len(g._state['world']['data']['kanifous_prices']))
+
     def before_lock(self,lord):
         g=PowerMatch(paid_inputs.setup('power-test:'+lord,(lord,'Gremory')))
         while g.clock.hook!='submission_lock':

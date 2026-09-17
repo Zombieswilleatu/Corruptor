@@ -60,16 +60,21 @@ If target becomes Ruined/Profaned before fire: Wish fails, no Price.
 
 ### WISH — RESURRECTION
 
-**DECLARE:** choose Lord Guard zone or Castle Guard zone.  
-**FIRES:** Step 10F after combat.
+**Updated:** 2026-09-17. Replaces the former Guard-card version.
 
-Restore every Guard from selected zone Defeated **this round**.
+**DECLARE:** click either marching lane on the battlefield, then confirm.
+**FIRES:** End-Marching Checks, after the complete Marching phase.
 
-Normal printed values/ownership.
+Revive your Marchers killed in that lane during this round, with full printed
+HP and Armor, near where they fell. Restored Marchers advance next round.
+Each receives a fresh instance ID; retired IDs remain retired.
 
-No previous-round losses.
+Guard cards, enemy losses, prior-round casualties and Marchers spent as
+Hunt/Siege support are excluded. Killing hazards, Deathwish, devouring, gravity
+and Lamp rejection count as deaths; future banishment must remain distinct.
 
-If no eligible Guards: Wish fails, no Price.
+If no eligible Marchers died: no revival and no Price. Otherwise schedule the
+usual one hidden Price, due in 1–3 rounds, regardless of how many return.
 
 ### WISH — DEATH
 

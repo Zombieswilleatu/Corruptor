@@ -98,7 +98,7 @@ static func describe(kind: String, d: Dictionary) -> String:
 				"WishDeath": return "Deathwish · %d Marchers killed" % count
 				"WishPower": return "Wish of Power · %d Marchers summoned" % count
 				"WishLongevity": return "Wish of Longevity · %d Castles restored" % count
-				"WishResurrection": return "Wish of Resurrection · %d Guards restored" % count
+				"WishResurrection": return "Wish of Resurrection · %d Marchers revived in %s lane" % [count, d.target.lane]
 				"WishWealth": return "Wish of Wealth · %d cards drawn" % count
 			return "Wish · no effect" if count == 0 else "Wish resolved"
 		"CASTLE_RUINED": return "Ruined " + str(d.get("castle_id", "Castle"))

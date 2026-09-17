@@ -160,6 +160,24 @@ static func attack_amount(a: Dictionary) -> int:
 	a.erase("blood_wish")
 	return int(a.attack) * multiplier
 
+static func record_loss(world: Dictionary, unit: Dictionary) -> void:
+	if unit.get("kind") == "marcher" and not world.data.kanifous_losses.any(func(row): return row.id == unit.id):
+		world.data.kanifous_losses.append(unit.duplicate(true))
+
+static func record_losses(world: Dictionary, events: Array) -> void:
+	# Explicit death events exclude spent siege/hunt support and future banishment.
+	for row in events:
+		var fact: Dictionary = row.event
+		var d: Dictionary = fact.data
+		match fact.type:
+			"MARCHER_DEFEATED": record_loss(world, d.get("victim", {}))
+			"MARCHER_DEVOURED": record_loss(world, d.get("before", {}))
+			"GRAVITY_ORB_CONSUMED": record_loss(world, d.get("unit", {}))
+			"WISHMASTER_REJECTED": record_loss(world, d.get("unit", {}))
+			"KANIFOUS_WISH_RESOLVED":
+				if d.power == "WishDeath":
+					for victim in d.victims: record_loss(world, victim)
+
 static func valid(world: Dictionary) -> bool:
 	if world.data.get("kanifous_profile") != VERSION:
 		return false
@@ -178,8 +196,15 @@ static func valid(world: Dictionary) -> bool:
 			return false
 		ids.append(row.id)
 	for loss in world.data.kanifous_losses:
-		if typeof(loss) != TYPE_DICTIONARY or loss.get("kind") != "card" or loss.get("owner") not in [0, 1] or loss.get("id") not in world.entities.used_ids or typeof(loss.get("attributes")) != TYPE_DICTIONARY:
+		if typeof(loss) != TYPE_DICTIONARY or loss.get("kind") not in ["card", "marcher"] or loss.get("owner") not in [0, 1] or loss.get("id") not in world.entities.used_ids or typeof(loss.get("attributes")) != TYPE_DICTIONARY:
 			return false
+		if loss.kind == "marcher":
+			if loss.attributes.get("suit") not in ["Butcher", "Penitent", "Vulture", "Wright"] or loss.attributes.get("lane") not in ["Lord", "Castle"]:
+				return false
+			for axis in ["x_fp", "y_fp"]:
+				if not Data.is_integer(loss.attributes.get(axis)) or loss.attributes[axis] < 0 or loss.attributes[axis] > (2400 if axis == "x_fp" else 600):
+					return false
+			continue
 		if loss.attributes.get("role") != "guard" or loss.attributes.get("lane") not in ["Lord", "Castle"] or not Data.is_integer(loss.attributes.get("slot")) or not Data.is_integer(loss.attributes.get("value")):
 			return false
 	for unit in world.entities.entities:

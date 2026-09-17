@@ -376,6 +376,8 @@ class Phase:
                 if not hp_after:
                     s.retire(target)
                     deaths.append(dict(attacker=shot["attacker"], victim=s.row(target), damage_dealt=dealt, hp_after=0))
+                else:
+                    s.movement_ready_round[target] = min(s.movement_ready_round[target], self.number)
             self.emit("MARCHER_RANGED_ATTACK", dict(round=self.number, tick=tick, lane=shot["attacker"]["attributes"]["lane"],
                       attacker=shot["attacker"], target=shot["target"], damage_dealt=dealt, hp_after=hp_after))
         # Columns already own nonlethal damage/cooldowns. Publish and rebuild
@@ -451,6 +453,8 @@ class Phase:
                         s.ranged_next_tick[index] = max(s.ranged_next_tick[index] or 0, clock + 8)
                     if not s.hp[index]:
                         s.retire(index)
+                    else:
+                        s.movement_ready_round[index] = min(s.movement_ready_round[index], self.number)
                 if not any(fallen):
                     if len(duel["exchanges"]) >= 64:
                         raise Rejected("marching_exchange_limit")

@@ -334,6 +334,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 				if unit.attributes.hp == 0:
 					entities.retire(unit.id)
 				else:
+					unit.attributes.movement_ready_round = mini(int(unit.attributes.movement_ready_round), int(context.round))
 					entities.update(unit.id, unit.owner, unit.attributes)
 			if left.attributes.hp > 0 and right.attributes.hp > 0:
 				if duel.exchanges.size() >= 64:
