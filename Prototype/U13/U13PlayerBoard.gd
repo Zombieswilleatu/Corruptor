@@ -6,6 +6,7 @@ var scorch_visuals = ScorchVisuals.new()
 var scorch_front: Node2D
 const Textures = preload("res://Prototype/U13/U13BoardTextures.gd")
 const Card = preload("res://Prototype/U13/U13LayoutCard.gd")
+const LORD_CARD_SIZE := Vector2(202, 303)
 const Castles = preload("res://Prototype/UI2/CastleArtCatalog.gd")
 const UI2_SHARED_DOMAIN_ALPHA: float = 1.0
 const UI2_SHARED_DOMAIN_ENEMY_TOP: float = 0.0
@@ -127,7 +128,7 @@ func _apply_castle_vertical_order() -> void:
 func _build_lord_group() -> void:
 	lord_group = PanelContainer.new()
 	lord_group.name = "LordGroup"
-	lord_group.custom_minimum_size = Vector2(180, 0)
+	lord_group.custom_minimum_size = Vector2(LORD_CARD_SIZE.x, 0)
 	lord_group.size_flags_horizontal = Control.SIZE_FILL
 	lord_group.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_child(lord_group)
@@ -137,10 +138,8 @@ func _build_lord_group() -> void:
 	column.add_theme_constant_override("separation", 6)
 	lord_group.add_child(column)
 
-	column.add_child(_header_label("LORD"))
-
 	lord_card = Card.new()
-	lord_card.custom_minimum_size = Vector2(180, 270)
+	lord_card.custom_minimum_size = LORD_CARD_SIZE
 	lord_card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	lord_card.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	column.add_child(lord_card)
@@ -148,7 +147,7 @@ func _build_lord_group() -> void:
 	lord_absent_label = Label.new()
 	lord_absent_label.text = "IN THE BREACH"
 	lord_absent_label.visible = false
-	lord_absent_label.custom_minimum_size = Vector2(180, 270)
+	lord_absent_label.custom_minimum_size = LORD_CARD_SIZE
 	lord_absent_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lord_absent_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	lord_absent_label.add_theme_font_size_override("font_size", 14)

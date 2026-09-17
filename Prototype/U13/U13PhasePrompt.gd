@@ -50,8 +50,8 @@ func _ready() -> void:
 	# Board state is part of the decision interface. Nudge the prompt slightly
 	# right so it clears Lord Guards, while the PlayerBoard reserves a matching
 	# gutter before the Castle spine.
-	anchor_left = 0.258
-	anchor_right = 0.258
+	anchor_left = 0.270
+	anchor_right = 0.270
 	anchor_top = 0.5
 	anchor_bottom = 0.5
 	# UI2_DECISION_PANEL_FIXED_SIZE_V11
