@@ -4,6 +4,7 @@ const Rules = preload("res://Scripts/Sim/U13MonsterRules.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Lamp = preload("res://Scripts/Sim/U13Wishmaster.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
+const LaneAuras = preload("res://Scripts/Sim/U13LaneAuras.gd")
 
 static func event(kind: String, data: Dictionary) -> Dictionary:
 	var fact: Dictionary = {"type": kind, "text": "", "data": data.duplicate(true)}
@@ -98,7 +99,7 @@ static func on_hit(entities, source: Dictionary, target_id: String, damage: int,
 		return [event("MONSTER_CHARMED", {"unit_id": target.id, "source_id": source.id, "owner": source.owner, "round": context.round, "tick": tick})]
 	return []
 
-static func step(world: Dictionary, entities, context: Dictionary, tick: int, reaction: Callable) -> Dictionary:
+static func step(world: Dictionary, entities, context: Dictionary, tick: int, reaction: Callable, movement_percent: int = 100) -> Dictionary:
 	var events: Array = []
 	if not Rules.enabled(world): return {"action": "resolved", "world": world, "events": events, "fleeing": {}}
 	var state: Dictionary = world.data.monsters
@@ -204,8 +205,9 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 			elif gap <= Rules.TUNING.portal_fear_radius ** 2 and a.step_fp > 0 and a.movement_ready_round <= n:
 				var dx: int = int(a.x_fp) - int(f.x_fp)
 				var dy: int = int(a.y_fp) - int(f.y_fp)
-				if absi(dx) >= absi(dy): a.x_fp = clampi(int(a.x_fp) + (1 if dx >= 0 else -1) * int(a.step_fp), 0, 2400)
-				else: a.y_fp = clampi(int(a.y_fp) + (1 if dy >= 0 else -1) * int(a.step_fp), 0, 600)
+				var flee_step: int = LaneAuras.speed(int(a.step_fp), 0, false, clock, false, false, movement_percent)
+				if absi(dx) >= absi(dy): a.x_fp = clampi(int(a.x_fp) + (1 if dx >= 0 else -1) * flee_step, 0, 2400)
+				else: a.y_fp = clampi(int(a.y_fp) + (1 if dy >= 0 else -1) * flee_step, 0, 600)
 				a.contact_tick = -1
 				entities.update(unit.id, unit.owner, a)
 				fleeing[unit.id] = true

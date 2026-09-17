@@ -7,7 +7,8 @@ from .economy import Rejected, Unsupported
 
 LANES = ("Lord", "Castle")
 CONTACT2, GAP2, RANGE2 = 180 ** 2, 84 ** 2, 800 ** 2
-RANGED = "U13_VULTURE_RANGED_V1"
+RANGED = "U13_VULTURE_RANGED_V2"
+MOVEMENT_PERCENT = 75
 ROUT = "U13_ROUT_V1"
 WEB = "U13_SPATIAL_WEB_FIELDS_V1"
 AURAS = "U13_LANE_AURAS_V1"
@@ -32,9 +33,12 @@ def half_away(value):
     return math.floor(value + 0.5) if value >= 0 else math.ceil(value - 0.5)
 
 
-def speed(base, percent, recovering, clock, web=False, collapse=False):
-    denominator = (200 if recovering else 100) * (2 if web else 1) * (2 if collapse else 1)
+def speed(base, percent, recovering, clock, web=False, collapse=False, movement_percent=100, pool=False):
+    denominator = (200 if recovering else 100) * (2 if web else 1) * (2 if collapse else 1) * (2 if pool else 1)
     numerator = base * (100 + percent)
+    if movement_percent != 100:
+        numerator *= movement_percent
+        denominator *= 100
     phase = clock % denominator
     return ((phase + 1) * numerator) // denominator - (phase * numerator) // denominator
 

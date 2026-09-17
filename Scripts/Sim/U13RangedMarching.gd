@@ -3,7 +3,10 @@ extends RefCounted
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Wishmaster = preload("res://Scripts/Sim/U13Wishmaster.gd")
 const Rout = preload("res://Scripts/Sim/U13Rout.gd")
-const VERSION: String = "U13_VULTURE_RANGED_V1"
+const VERSION: String = "U13_VULTURE_RANGED_V2"
+const ATTACK: int = 1
+# Current full-game balance; frozen subsystem worlds retain their old pace.
+const MOVEMENT_PERCENT: int = 75
 const RANGE_FP: int = 800 # Four units at 200 fixed-point units per unit.
 const CONTACT_FP: int = 180
 const EXCHANGE_TICKS: int = 8
@@ -18,6 +21,7 @@ static func configure(world: Dictionary) -> void:
 	world.data["ranged_profile"] = VERSION
 	for unit in world.entities.entities:
 		if unit.kind == "marcher" and unit.attributes.suit == "Vulture":
+			unit.attributes.attack = ATTACK
 			unit.attributes.step_fp = 4
 			unit.attributes.armor_bypass = false
 
@@ -114,4 +118,3 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 static func event(kind: String, details: Dictionary) -> Dictionary:
 	var fact: Dictionary = {"type": kind, "text": "", "data": details}
 	return {"event": fact, "views": [fact, fact]}
-

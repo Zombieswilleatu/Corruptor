@@ -79,7 +79,7 @@ def create(identity,pid,n,hunger,breach=False,seed='kroni-actor-fixture',start=N
     return actor
 
 
-def flee_slice(actor,buffer,ms,collapse):
+def flee_slice(actor,buffer,ms,collapse,movement_percent=100):
     changes=[]
     for identity in list(actor['fleeing']):
         unit=buffer.get(identity)
@@ -90,6 +90,7 @@ def flee_slice(actor,buffer,ms,collapse):
         duration=min(ms,state['remaining_ms'])
         if dx==dy==0:dx,dy=[[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]][draw(actor['id'],unit['id'],'FLEE_OVERLAP',0,8)]
         length=math.sqrt(float(dx*dx+dy*dy));distance=float(a['step_fp']*30*duration)/float(100*30)
+        distance*=float(movement_percent)/100.0
         if veil.applies_to(collapse,unit['owner']):distance*=0.5
         mx=float(dx)/length*distance+float(state['carry_x']);my=float(dy)/length*distance+float(state['carry_y'])
         sx,sy=half_away(mx),half_away(my);state['carry_x'],state['carry_y']=mx-sx,my-sy
@@ -101,11 +102,11 @@ def flee_slice(actor,buffer,ms,collapse):
     return changes
 
 
-def flee(actor,buffer,ms,collapse):
+def flee(actor,buffer,ms,collapse,movement_percent=100):
     merged={};remaining=ms
     while remaining>0 and actor['fleeing']:
         step=min(30,remaining)
-        for change in flee_slice(actor,buffer,step,collapse):
+        for change in flee_slice(actor,buffer,step,collapse,movement_percent):
             key=change['before']['id']
             if key not in merged:merged[key]=change
             else:merged[key]['after']=change['after'];merged[key]['duration_ms']+=change['duration_ms']
@@ -126,10 +127,10 @@ def notice(actor,buffer,immune=(False,False)):
     return started
 
 
-def step(actors,buffer,n,tick,collapse,immune=(False,False)):
+def step(actors,buffer,n,tick,collapse,immune=(False,False),movement_percent=100):
     events=[]
     for actor in actors:
-        actor['fled_this_tick']=list(actor['fleeing']);flee(actor,buffer,30,collapse)
+        actor['fled_this_tick']=list(actor['fleeing']);flee(actor,buffer,30,collapse,movement_percent)
         if not actor['active']:continue
         ax,ay=actor['x_fp'],actor['y_fp'];bx=max(0,min(2400,ax+actor['vx_fp']));by,segments,bounce=path(ax,ay,bx,ay+actor['vy_fp'])
         if bounce:actor['vy_fp']=-actor['vy_fp'];events.append(e.event('KRONI_WALL_BOUNCE',dict(actor_id=actor['id'],round=n,tick=tick)))
@@ -141,7 +142,7 @@ def step(actors,buffer,n,tick,collapse,immune=(False,False)):
             a=unit['attributes'];lateral=a['y_fp']+(600 if a['lane']=='Castle' else 0)
             if any(touches(*s,a['x_fp'],lateral,actor['radius_fp']) for s in segments):
                 buffer.retire_id(unit['id']);actor['consumed']+=1;actor['fleeing'].pop(unit['id'],None);bite=copy_data(actor)
-                fled=flee(actor,buffer,550,collapse)
+                fled=flee(actor,buffer,550,collapse,movement_percent)
                 events.append(e.event('MARCHER_DEVOURED',dict(actor_id=actor['id'],actor=bite,before=unit,round=n,tick=tick,breach=actor['breach'],flee=fled,chomp_ms=550),'Insatiable Hunger devours a Marcher.' if actor['breach'] else 'Ravenous devours a Marcher.'));break
         if actor['breach']:
             if bx in (0,2400):actor['vx_fp']=-actor['vx_fp']

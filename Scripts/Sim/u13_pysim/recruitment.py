@@ -9,7 +9,7 @@ from .copying import copy_data
 from .primitives import draw, entity_id
 
 SUITS = ("Butcher", "Penitent", "Vulture", "Wright")
-STATS = ((3, 1, 1, 4), (1, 3, 2, 3), (2, 1, 1, 4), (2, 2, 1, 4))
+STATS = ((3, 1, 1, 4), (1, 3, 2, 3), (1, 1, 1, 4), (2, 2, 1, 4))
 
 
 def profile(suit, lane, pid, birth, ready):

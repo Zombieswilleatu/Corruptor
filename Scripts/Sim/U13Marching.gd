@@ -44,6 +44,7 @@ static func profile(
 ) -> Dictionary:
 	var attributes: Dictionary = STATS[suit].duplicate(true)
 	if ranged and suit == "Vulture":
+		attributes.attack = Ranged.ATTACK
 		attributes.step_fp = 4
 		attributes.armor_bypass = false
 	attributes["suit"] = suit
@@ -190,6 +191,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 	if entities.restore(world.entities).action == "invalid":
 		return Data.invalid("marching_entities_invalid")
 	var has_ranged: bool = Ranged.enabled(world)
+	var movement_percent: int = Ranged.MOVEMENT_PERCENT if has_ranged else 100
 	if has_ranged:
 		for unit in entities.marchers():
 			if unit.attributes.suit == "Vulture":
@@ -252,7 +254,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			events.append_array(Wishmaster.bypass(entities, context.round, tick))
 		var gravity_before: Array = _units(entities) if not gravity_orbs.is_empty() else []
 		if not kroni_actors.is_empty():
-			events.append_array(KroniActors.step(kroni_actors, entities, int(context.round), tick, collapse, [not Veil.affects(world, "Kroni", 0), not Veil.affects(world, "Kroni", 1)]))
+			events.append_array(KroniActors.step(kroni_actors, entities, int(context.round), tick, collapse, [not Veil.affects(world, "Kroni", 0), not Veil.affects(world, "Kroni", 1)], movement_percent))
 		var clock: int = int(context.round) * TICKS + tick
 		# A prior hook may consume a waiting participant or retire an entity.
 		for lane in duels.keys():
@@ -271,7 +273,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			for identity in actor.fleeing:
 				fleeing_ids[identity] = true
 		if has_monsters:
-			var monster_tick: Dictionary = MonsterEffects.step(world, entities, context, tick, reaction)
+			var monster_tick: Dictionary = MonsterEffects.step(world, entities, context, tick, reaction, movement_percent)
 			if monster_tick.action == "invalid": return monster_tick
 			world = monster_tick.world
 			events.append_array(monster_tick.events)
@@ -716,24 +718,15 @@ static func _move(
 		var allies: Dictionary = accepted_grids[a.lane][unit.owner]
 		var previous_ticket: int = int(a.contact_tick)
 		var retreat: bool = has_rout and Rout.retreating(a, int(context.round))
-		var step: int = Rout.speed(a, int(context.round), clock) if has_rout else int(a.step_fp)
-		if not lane_modifiers.is_empty():
-			var percent: int = int(lane_modifiers[a.lane][unit.owner].speed_percent)
-			# Keep the historical rounding path exactly when there is no bonus.
-			if percent != 0:
-				step = LaneAuras.speed(
-					int(a.step_fp),
-					percent,
-					has_rout and Rout.recovering(a, int(context.round)),
-					clock
-				)
-		if not spatial_fields.is_empty() and SpatialFields.slowed(spatial_fields, unit.owner, a):
-			var web_percent: int = 0 if lane_modifiers.is_empty() else int(lane_modifiers[a.lane][unit.owner].speed_percent)
-			step = LaneAuras.speed(int(a.step_fp), web_percent, has_rout and Rout.recovering(a, int(context.round)), clock, true)
-		if Veil.applies_to(context.get("gravitational_collapse", false), unit.owner):
-			var percent: int = 0 if lane_modifiers.is_empty() else int(lane_modifiers[a.lane][unit.owner].speed_percent)
-			step = LaneAuras.speed(int(a.step_fp), percent, has_rout and Rout.recovering(a, int(context.round)), clock, not spatial_fields.is_empty() and SpatialFields.slowed(spatial_fields, unit.owner, a), true)
-		if MonsterEffects.slowed(a, context.get("monster_fields", [])):
+		var percent: int = 0 if lane_modifiers.is_empty() else int(lane_modifiers[a.lane][unit.owner].speed_percent)
+		var recovery: bool = has_rout and Rout.recovering(a, int(context.round))
+		var web: bool = not spatial_fields.is_empty() and SpatialFields.slowed(spatial_fields, unit.owner, a)
+		var collapse: bool = Veil.applies_to(context.get("gravitational_collapse", false), unit.owner)
+		var pool: bool = MonsterEffects.slowed(a, context.get("monster_fields", []))
+		var current_pace: bool = context.get("ranged_enabled", false)
+		var step: int = LaneAuras.speed(int(a.step_fp), percent, recovery, clock, web, collapse, Ranged.MOVEMENT_PERCENT if current_pace else 100, pool and current_pace)
+		if pool and not current_pace:
+			# Preserve the frozen subsystem's rounding path.
 			step = (step >> 1) + (step & 1) * (clock & 1)
 		if not retreat and int(nearby.distance) <= CONTACT_FP * CONTACT_FP:
 			if previous_ticket < 0:

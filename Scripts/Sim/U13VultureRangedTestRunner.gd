@@ -48,7 +48,7 @@ func _run_suite() -> void:
 	current.data.erase("ranged_profile")
 	_check(not content.valid_world(current), "current world cannot remove ranged policy")
 	var a: Dictionary = Marching.profile("Vulture", "Castle", 0, 0, 1, true)
-	_check(a.attack == 2 and a.armor == 1 and a.step_fp == 4 and not a.armor_bypass, "Vulture 2 attack / 1 defense / 2 speed, no piercing")
+	_check(a.attack == 1 and a.armor == 1 and a.step_fp == 4 and not a.armor_bypass, "Vulture 1 attack / 1 defense / 2 base speed, no piercing")
 	var world: Dictionary = _world()
 	_add(world, "bird", 0, "Vulture", 500)
 	_add(world, "guard", 1, "Penitent", 1400, {"step_fp": 0, "hp": 100, "max_hp": 100})
@@ -62,13 +62,13 @@ func _run_suite() -> void:
 	_check(not shots.is_empty(), "Vulture advances and fires at range")
 	var first: Dictionary = shots[0]
 	_check(Marching.Ranged.distance(first.attacker.attributes, first.target.attributes) <= 800 * 800 and first.attacker.attributes.x_fp >= 600, "four-unit firing range")
-	_check(first.damage_dealt == 0 and shots[1].damage_dealt == 1, "ranged attacks strip armor before health")
+	_check(shots.size() >= 4 and first.damage_dealt == 0 and shots[1].damage_dealt == 0 and shots[2].damage_dealt == 0 and shots[3].damage_dealt == 1, "one-damage shots strip three armor before health")
 	_check(_facts(result, "MARCHER_CLASH").is_empty(), "Vulture holds range against stationary target")
 	_check(shots[0].attacker.attributes.x_fp == shots.back().attacker.attributes.x_fp, "Vulture stops while firing")
 	var cadence: bool = true
 	for i in range(1, shots.size()):
-		cadence = cadence and shots[i].tick - shots[i - 1].tick == 8
-	_check(cadence, "one attack per eight ticks")
+		cadence = cadence and shots[i].tick - shots[i - 1].tick == 32
+	_check(cadence, "ranged cadence remains one attack per 32 ticks")
 	_check(result == _run(world), "identical ranged tape and final state on replay")
 	var restored: Dictionary = Marching.Data.copy_data(JSON.parse_string(JSON.stringify(result.world)))
 	_check(Marching.valid(restored) and _run(restored, 2) == _run(result.world, 2), "ranged cooldown survives JSON round boundary")
@@ -97,10 +97,10 @@ func _run_suite() -> void:
 	result = _run(world)
 	var clashes: Array = _facts(result, "MARCHER_CLASH")
 	_check(not clashes.is_empty() and _facts(result, "MARCHER_RANGED_ATTACK").is_empty(), "Vulture still fights in melee")
-	_check(clashes[0].exchanges[0].hp[1] == 5 and clashes[0].exchanges[0].armor[1] == 1, "melee also respects armor")
+	_check(clashes[0].exchanges[0].hp[1] == 5 and clashes[0].exchanges[0].armor[1] == 2, "melee also deals one damage to armor")
 	world = _world()
-	_add(world, "left", 0, "Vulture", 800, {"hp": 2, "armor": 0})
-	_add(world, "right", 1, "Vulture", 1400, {"hp": 2, "armor": 0})
+	_add(world, "left", 0, "Vulture", 800, {"hp": 1, "armor": 0})
+	_add(world, "right", 1, "Vulture", 1400, {"hp": 1, "armor": 0})
 	result = _run(world)
 	_check(_facts(result, "MARCHER_RANGED_ATTACK").size() == 2 and _facts(result, "MARCHER_DEFEATED").size() == 2 and result.world.entities.entities.is_empty(), "reciprocal lethal volley kills both exactly once")
 	world = _world()
