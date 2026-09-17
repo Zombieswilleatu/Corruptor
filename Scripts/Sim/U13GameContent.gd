@@ -1,9 +1,9 @@
 extends "res://Scripts/Sim/U13Kanifous.gd"
 
-# Veil threshold penalties stay off. End-of-round neutral pressure is live:
-# +1 in rounds 13-20, +2 from round 21, before the victory check.
-# These report the current profile; no Veil effect resolver is installed.
-const VEIL_EFFECTS_ENABLED: bool = false
+# Permanent absent Lords replace legacy Veil penalties. Neutral pressure remains
+# +1 in rounds 13-20 and +2 from round 21, before the unchanged victory check.
+const VEIL_EFFECTS_ENABLED: bool = true
+const VeilEffects = preload("res://Scripts/Sim/U13VeilEffects.gd")
 const VEIL_DRIFT_ENABLED: bool = true
 const BATCH_EVENTS_VERSION: String = "U13_BATCH_EVENTS_V1"
 const BATCH_SAMPLE_EVENTS: Array = ["MARCHING_TICK", "KRONI_ACTOR_TICK"]
@@ -31,28 +31,28 @@ func create_combat_match(compact_events: bool = false):
 	for power in rules():
 		validators[power] = Callable(self, "validate")
 		resolvers[power] = Callable(self, "resolve")
-	var owner = MatchOwner.new(GuardWork.VERSION + ":" + Victory.VERSION + ":" + Plunder.VERSION + ":" + Marching.Ranged.VERSION + ":" + Throne.VERSION + ":" + Rites.VERSION + ":" + Fracture.VERSION + ":" + Sigils.VERSION + ":" + Conduit.VERSION + ":" + Market.VERSION + ":" + CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY + (":" + BATCH_EVENTS_VERSION if batch_events else ""), rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Rites, "legal_orders"))
+	var owner = MatchOwner.new(Veil.VERSION + ":" + GuardWork.VERSION + ":" + Victory.VERSION + ":" + Plunder.VERSION + ":" + Marching.Ranged.VERSION + ":" + Throne.VERSION + ":" + Rites.VERSION + ":" + Fracture.VERSION + ":" + Sigils.VERSION + ":" + Conduit.VERSION + ":" + Market.VERSION + ":" + CastleDefenses.VERSION + ":" + Economy.VERSION + ":" + Lamp.VERSION + ":" + Essence.VERSION + ":" + KRONI_POLICY + ":" + ODRADEK_POLICY + ":" + POLICY + (":" + BATCH_EVENTS_VERSION if batch_events else ""), rules(), validators, resolvers, Callable(self, "project"), Callable(), Callable(self, "on_hook"), self, Callable(self, "valid_world"), Callable(self, "accept_order"), Callable(), Callable(Rites, "legal_orders"))
 	# valid_world is a pure function of this world and fixed content rules.
 	owner._cache_world_validation = true
 	return owner
 
 
 func valid_world(world: Dictionary) -> bool:
-	return GuardWork.valid(world) and super.valid_world(world) and Victory.valid(world) and Plunder.valid(world) and Throne.valid(world) and Rites.valid(world) and Fracture.valid(world) and Economy.valid(world) and Market.valid(world) and Sigils.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
+	return Veil.valid(world) and GuardWork.valid(world) and super.valid_world(world) and Victory.valid(world) and Plunder.valid(world) and Throne.valid(world) and Rites.valid(world) and Fracture.valid(world) and Economy.valid(world) and Market.valid(world) and Sigils.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
 
 
 # Direct/scheduled powers can remove or relocate Guards without a battle
 # reaction (e.g. Kroni Consume). Reconcile before the owner validates the
 # transformed world, just as hook and reaction transforms already do.
 func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
-	var result: Dictionary = super.resolve(record, context)
+	var result: Dictionary = VeilEffects.reconcile(super.resolve(record, context))
 	if result.action != "invalid" and result.has("world"):
 		GuardWork.reconcile(result.world)
 	return result
 
 
 func react(raw: Dictionary, fact: Dictionary, seed_value: String, player_order: Array) -> Dictionary:
-	var result: Dictionary = super.react(raw, fact, seed_value, player_order)
+	var result: Dictionary = VeilEffects.reconcile(super.react(raw, fact, seed_value, player_order))
 	if result.action != "invalid": GuardWork.reconcile(result.world)
 	if result.action == "invalid" or fact.type != "LORD_BANISHED":
 		return result
@@ -74,6 +74,12 @@ func on_hook(context: Dictionary) -> Dictionary:
 		return Data.invalid("vacant_throne_round_clock_invalid")
 	ordinary_context.combat_orders = [Rites.strip(context.combat_orders[0]), Rites.strip(context.combat_orders[1])]
 	var rite_events: Array = []
+	if context.hook == Timeline.ROUND_START_SCHEDULED:
+		var breaches: Dictionary = VeilEffects.begin(ordinary_context, Callable(self, "react"))
+		if breaches.action == "invalid":
+			return breaches
+		ordinary_context.world = breaches.world
+		rite_events = breaches.events
 	if context.hook == Timeline.DEVELOPMENT:
 		var rites: Dictionary = Rites.resolve(context)
 		if rites.action == "invalid":
@@ -103,6 +109,10 @@ func on_hook(context: Dictionary) -> Dictionary:
 			if victory.action == "invalid":
 				return victory
 			result.events.append_array(victory.events)
+			Veil.finish(result.world, context.round)
+	result = VeilEffects.reconcile(result)
+	if result.action != "invalid":
+		Veil.observe(result.world, context.round)
 	if batch_events and result.action != "invalid":
 		result.events = result.events.filter(func(row): return row.event.type not in BATCH_SAMPLE_EVENTS)
 	if result.action == "invalid" or context.hook != Timeline.ROUND_START_AUTOMATIC:
@@ -124,6 +134,9 @@ func on_hook(context: Dictionary) -> Dictionary:
 
 func accept_order(context: Dictionary) -> Dictionary:
 	if context.phase == "snapshot":
+		var veil_state: Dictionary = context.world.data.veil_breaches
+		if veil_state.checked_round != context.round - (1 if context.next_hook_index == 0 else 0) or veil_state.round_history.size() != context.world.data.victory.checked_round or veil_state.veil_21_round > context.round:
+			return Data.invalid("veil_snapshot_clock_invalid")
 		for entry in [["developed_round", Timeline.DEVELOPMENT], ["draw_round", Timeline.ROUND_START_AUTOMATIC]]:
 			var expected_work: int = context.round - (1 if context.next_hook_index <= Timeline.hook_rank(entry[1]) else 0)
 			if context.world.data.guard_work[entry[0]] != expected_work:
@@ -176,6 +189,7 @@ func project(world: Dictionary, player_id: int) -> Dictionary:
 	result["vacant_throne"] = world.data.vacant_throne.duplicate(true)
 	result["dominion_rites"] = {"version": Rites.VERSION, "invocation_rounds": world.data.dominion_rites.invocation_rounds.duplicate(), "resolved_round": world.data.dominion_rites.resolved_round}
 	result["veil_total"] = Rites.veil(world)
+	result["veil_breaches"] = world.data.veil_breaches.duplicate(true)
 	result["veil_effects_enabled"] = VEIL_EFFECTS_ENABLED
 	result["veil_drift_enabled"] = VEIL_DRIFT_ENABLED
 	result["game_economy"] = world.data.game_economy.duplicate(true)

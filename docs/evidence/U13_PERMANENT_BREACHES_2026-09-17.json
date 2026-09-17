@@ -1,0 +1,129 @@
+{
+  "feature": "U13_PERMANENT_BREACHES_V1",
+  "date": "2026-09-17",
+  "base_commit": "2e17d63aa6c30c72d6ac4966aff489f14fa69920",
+  "rules_hash": "1b5b13ca2a0588c6318744795714b97d674e79efdef80a97a77e5ad4bfe0e7ce",
+  "diagnostic_runtime": "Godot 4.5.1 stable Linux headless",
+  "production_runtime": "Godot 4.7.2 stable (unchanged)",
+  "native": {
+    "veil_rules_failures": 0,
+    "breach_wish_ui_failures": 0,
+    "veil_wheel_failures": 0,
+    "playable_board_failures": 0,
+    "wish_checks": 1401,
+    "wish_failures": 0
+  },
+  "python_unit_tests": {
+    "tests": 56,
+    "failures": 0
+  },
+  "exact_python_parity": {
+    "arrival_checks": 5,
+    "effect_checks": 14,
+    "wish_cases": 6,
+    "wish_transitions": 153,
+    "complete_games": [
+      {
+        "name": "gremory_humbaba",
+        "round": 13,
+        "arrivals": 4,
+        "victory": {
+          "checked_round": 13,
+          "version": "U13_VICTORY_V2_ROUND_PRESSURE",
+          "win_by": "Ritual",
+          "winner": 0
+        },
+        "events_and_final_state_match": true,
+        "native_final_save_restores_exactly": true
+      },
+      {
+        "name": "deimos_kalligan",
+        "round": 15,
+        "arrivals": 3,
+        "victory": {
+          "checked_round": 15,
+          "version": "U13_VICTORY_V2_ROUND_PRESSURE",
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "events_and_final_state_match": true,
+        "native_final_save_restores_exactly": true
+      },
+      {
+        "name": "orias_odradek",
+        "round": 19,
+        "arrivals": 4,
+        "victory": {
+          "checked_round": 19,
+          "version": "U13_VICTORY_V2_ROUND_PRESSURE",
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "events_and_final_state_match": true,
+        "native_final_save_restores_exactly": true
+      },
+      {
+        "name": "kroni_valak",
+        "round": 19,
+        "arrivals": 4,
+        "victory": {
+          "checked_round": 19,
+          "version": "U13_VICTORY_V2_ROUND_PRESSURE",
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "events_and_final_state_match": true,
+        "native_final_save_restores_exactly": true
+      },
+      {
+        "name": "kanifous_gremory",
+        "round": 15,
+        "arrivals": 4,
+        "victory": {
+          "checked_round": 15,
+          "version": "U13_VICTORY_V2_ROUND_PRESSURE",
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "events_and_final_state_match": true,
+        "native_final_save_restores_exactly": true
+      },
+      {
+        "name": "bones_endurance",
+        "round": 17,
+        "arrivals": 4,
+        "victory": {
+          "checked_round": 17,
+          "version": "U13_VICTORY_V2_ROUND_PRESSURE",
+          "win_by": "Ritual",
+          "winner": 0
+        },
+        "events_and_final_state_match": true,
+        "native_final_save_restores_exactly": true
+      },
+      {
+        "name": "spoils_rekindle",
+        "round": 17,
+        "arrivals": 1,
+        "victory": {
+          "checked_round": 17,
+          "version": "U13_VICTORY_V2_ROUND_PRESSURE",
+          "win_by": "Ritual",
+          "winner": 1
+        },
+        "events_and_final_state_match": true,
+        "native_final_save_restores_exactly": true
+      }
+    ]
+  },
+  "source_input_sha256": {
+    "power_inputs.json": "1cade073a0869ee47912ec73cc6d3aca8d87eaec04afe0a589252f2696eaa8f5",
+    "full_match_inputs.json": "92edabe0e383fedb3605bfabadfae0693b94699aadc8563b288c50dcdcbd6dbb"
+  },
+  "limitations": [
+    "Windows Godot 4.7.2 visual review remains.",
+    "These are directed correctness replays, not a balance or pacing experiment.",
+    "The cascade gate is exercised by focused fixtures; all seven complete games ended before round 21."
+  ],
+  "git_diff_check": "passed"
+}

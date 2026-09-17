@@ -4,6 +4,7 @@ The match owns the transaction. No doctrine, native state or reference result
 is consulted here. Registry lists remain sorted exactly as native snapshots.
 """
 import json
+from . import veil
 from . import economy as e
 from .copying import copy_data
 from .primitives import normalize, instance_id
@@ -100,7 +101,10 @@ def accept(state, pid, declarations, number, validator):
             cost['discard_ids']=ids
         e.require(s['visibility']==r['visibility'] and s['cost']==cost,'declaration_terms_invalid')
         lord=e.entity(w,present['players'][pid]['lord_entity_id'])
-        e.require(present['players'][pid]['lord_id']==s['lord_id'] and lord and lord['owner']==pid and lord['attributes']['alive'],'source_unavailable')
+        if r.get('breach_wish',False):
+            e.require(veil.affects(present,'Kanifous',pid),'breach_wish_unavailable')
+        else:
+            e.require(present['players'][pid]['lord_id']==s['lord_id'] and lord and lord['owner']==pid and lord['attributes']['alive'],'source_unavailable')
         clock=clock_for(state,s);relocating=False
         if r.get('persistent_relocatable'):
             relocating=bool(active and clock and clock['phase']=='awaiting_expiration' and clock['persistent_effect_id']==active['effect_id']

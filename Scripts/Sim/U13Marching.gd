@@ -1,6 +1,8 @@
 class_name U13Marching
 extends RefCounted
 
+const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
+
 const Ranged = preload("res://Scripts/Sim/U13RangedMarching.gd")
 const KroniActors = preload("res://Scripts/Sim/U13KroniActors.gd")
 const SpatialFields = preload("res://Scripts/Sim/U13SpatialFields.gd")
@@ -230,7 +232,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 	var lamp_objects: Array = world.data.get("kanifous_objects", [])
 	var has_wishes: bool = world.data.has("kanifous_profile")
 	var gravity_orbs: Array = world.data.get("valak_orbs", [])
-	var collapse: bool = world.data.get("breach_lord") == "Valak"
+	var collapse: Array = Veil.affected_players(world, "Valak")
 	motion_context = motion_context.duplicate()
 	motion_context["gravitational_collapse"] = collapse
 	motion_context["ranged_enabled"] = has_ranged
@@ -244,7 +246,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			events.append_array(Wishmaster.bypass(entities, context.round, tick))
 		var gravity_before: Array = _units(entities) if not gravity_orbs.is_empty() else []
 		if not kroni_actors.is_empty():
-			events.append_array(KroniActors.step(kroni_actors, entities, int(context.round), tick, collapse))
+			events.append_array(KroniActors.step(kroni_actors, entities, int(context.round), tick, collapse, [not Veil.affects(world, "Kroni", 0), not Veil.affects(world, "Kroni", 1)]))
 		var clock: int = int(context.round) * TICKS + tick
 		# A prior hook may consume a waiting participant or retire an entity.
 		for lane in duels.keys():
@@ -702,7 +704,7 @@ static func _move(
 		if not spatial_fields.is_empty() and SpatialFields.slowed(spatial_fields, unit.owner, a):
 			var web_percent: int = 0 if lane_modifiers.is_empty() else int(lane_modifiers[a.lane][unit.owner].speed_percent)
 			step = LaneAuras.speed(int(a.step_fp), web_percent, has_rout and Rout.recovering(a, int(context.round)), clock, true)
-		if context.get("gravitational_collapse", false):
+		if Veil.applies_to(context.get("gravitational_collapse", false), unit.owner):
 			var percent: int = 0 if lane_modifiers.is_empty() else int(lane_modifiers[a.lane][unit.owner].speed_percent)
 			step = LaneAuras.speed(int(a.step_fp), percent, has_rout and Rout.recovering(a, int(context.round)), clock, not spatial_fields.is_empty() and SpatialFields.slowed(spatial_fields, unit.owner, a), true)
 		if not retreat and int(nearby.distance) <= CONTACT_FP * CONTACT_FP:

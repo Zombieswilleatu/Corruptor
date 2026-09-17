@@ -193,7 +193,7 @@ static func valid(world: Dictionary) -> bool:
 			return false
 		ids.append(row.id)
 	for row in world.data.kanifous_prices:
-		if typeof(row) != TYPE_DICTIONARY or row.size() != 4 or typeof(row.get("id")) != TYPE_STRING or row.id in ids or row.get("owner") not in [0, 1] or not Data.is_integer(row.get("created_round")) or not Data.is_integer(row.get("due_round")) or row.due_round < row.created_round + 1 or row.due_round > row.created_round + 3:
+		if typeof(row) != TYPE_DICTIONARY or row.size() != (5 if row.get("breach", false) else 4) or (row.has("breach") and row.breach != true) or typeof(row.get("id")) != TYPE_STRING or row.id in ids or row.get("owner") not in [0, 1] or not Data.is_integer(row.get("created_round")) or not Data.is_integer(row.get("due_round")) or row.due_round < row.created_round + 1 or row.due_round > row.created_round + 3:
 			return false
 		ids.append(row.id)
 	for loss in world.data.kanifous_losses:

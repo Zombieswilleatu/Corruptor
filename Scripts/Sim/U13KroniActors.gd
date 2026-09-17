@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
+
 const State = preload("res://Scripts/Sim/U13KroniState.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
@@ -131,7 +133,7 @@ static func touches(ax: int, ay: int, bx: int, by: int, px: int, py: int, r: int
 
 # Ordered actors and stable entity IDs define simultaneous consumption ties.
 # This changes the Marching buffer, never damage, armor, kill reactions or RNG.
-static func step(actors: Array, entities, round_number: int, tick: int, collapse: bool = false) -> Array:
+static func step(actors: Array, entities, round_number: int, tick: int, collapse = false, immune: Array = [false, false]) -> Array:
 	var events: Array = []
 	for actor in actors:
 		actor.fled_this_tick = actor.fleeing.keys()
@@ -154,10 +156,12 @@ static func step(actors: Array, entities, round_number: int, tick: int, collapse
 		actor.x_fp = bx
 		actor.y_fp = by
 		actor.age += 1
-		var started: Array = notice(actor, entities)
+		var started: Array = notice(actor, entities, immune)
 		if not started.is_empty():
 			events.append(State.event("KRONI_FLEE_STARTED", {"actor_id": actor.id, "units": started, "round": round_number, "tick": tick, "duration_ms": FLEE_MS}))
 		for unit in entities.marchers():
+			if actor.breach and immune[unit.owner]:
+				continue
 			var a: Dictionary = unit.attributes
 			var lateral: int = int(a.y_fp) + (600 if a.lane == "Castle" else 0)
 			var hit: bool = false
@@ -184,11 +188,13 @@ static func step(actors: Array, entities, round_number: int, tick: int, collapse
 
 
 # Proximity refreshes the panic timer. Refreshes do not replay audio.
-static func notice(actor: Dictionary, entities) -> Array:
+static func notice(actor: Dictionary, entities, immune: Array = [false, false]) -> Array:
 	var nearby: Array = []
 	var started: Array = []
 	var reach: int = int(actor.radius_fp) * FLEE_RADIUS_SCALE
 	for unit in entities.marchers():
+		if actor.breach and immune[unit.owner]:
+			continue
 		var a: Dictionary = unit.attributes
 		var lateral: int = int(a.y_fp) + (600 if a.lane == "Castle" else 0)
 		var dx: int = int(a.x_fp) - int(actor.x_fp)
@@ -207,7 +213,7 @@ static func notice(actor: Dictionary, entities) -> Array:
 
 # Both normal field ticks and the bite pause spend the same panic timer.
 # Publish the bite's before/after positions for presentation interpolation.
-static func flee(actor: Dictionary, entities, elapsed_ms: int = CHOMP_MS, collapse: bool = false) -> Array:
+static func flee(actor: Dictionary, entities, elapsed_ms: int = CHOMP_MS, collapse = false) -> Array:
 	var merged: Dictionary = {}
 	var remaining: int = elapsed_ms
 	while remaining > 0 and not actor.fleeing.is_empty():
@@ -223,7 +229,7 @@ static func flee(actor: Dictionary, entities, elapsed_ms: int = CHOMP_MS, collap
 	return merged.values()
 
 
-static func _flee_slice(actor: Dictionary, entities, elapsed_ms: int, collapse: bool = false) -> Array:
+static func _flee_slice(actor: Dictionary, entities, elapsed_ms: int, collapse = false) -> Array:
 	var changes: Array = []
 	for identity in actor.fleeing.keys():
 		var unit: Dictionary = entities.get_entity(identity)
@@ -246,7 +252,7 @@ static func _flee_slice(actor: Dictionary, entities, elapsed_ms: int, collapse: 
 			dy = direction[1]
 		var length: float = sqrt(float(dx * dx + dy * dy))
 		var distance: float = float(int(a.step_fp) * FLEE_PERCENT * duration) / float(100 * TICK_MS)
-		if collapse:
+		if Veil.applies_to(collapse, unit.owner):
 			distance *= 0.5
 		var move_x: float = float(dx) / length * distance + float(state.carry_x)
 		var move_y: float = float(dy) / length * distance + float(state.carry_y)

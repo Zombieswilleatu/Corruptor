@@ -12,7 +12,7 @@ from . import economy as e, opening, recruitment, marching, marching_game
 from .copying import copy_data
 from .development import validate_choice, work
 from .full_match import FullMatch
-from .full_match_inputs import load, next_operation
+from .full_match_inputs import input_hash, load, next_operation
 from .lifecycle import RoundRules, settle
 from . import settlement_inputs
 from . import benchmark_full_match_copying as copying_gate
@@ -42,7 +42,7 @@ class FullMatchTests(unittest.TestCase):
             root = Path(temporary)
             report = root/"samples.json"
             config = dict(sim_path=str(Path(__file__).resolve().parents[1]), games=4,
-                          implementation="candidate", inputs_sha256=copying_gate.INPUTS_SHA256,
+                          implementation="candidate", inputs_sha256=input_hash(),
                           expected_games=[dict(name=case["name"],final_state_sha256="wrong",outcome={})
                                           for case in load()["cases"]], report_path=str(report))
             path = root/"worker.json"

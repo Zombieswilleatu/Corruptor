@@ -1,5 +1,7 @@
 extends "res://Scripts/Sim/U13Orias.gd"
 
+const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
+
 const ODRADEK_POLICY: String = Stats.ODRADEK_PROFILE
 const REDIRECT: String = "Redirect"
 const Transfers = preload("res://Scripts/Sim/U13GuardTransfers.gd")
@@ -439,6 +441,8 @@ func _shift(
 	var members: Dictionary = query.members(area, 1 - new_owner if new_owner in [0, 1] else -2)
 	if members.action == "invalid":
 		return members
+	if new_owner == -1:
+		members.ids = members.ids.filter(func(id): return result.world.entities.entities.any(func(unit): return unit.id == id and Veil.affects(result.world, "Odradek", unit.owner)))
 	for id in members.ids:
 		var entities = Ids.new()
 		entities.restore(result.world.entities)
@@ -559,19 +563,20 @@ func _paradox(context: Dictionary, result: Dictionary) -> Dictionary:
 	if result.world.data.paradox_round >= context.round:
 		return Data.invalid("paradox_already_resolved")
 	result.world.data.paradox_round = context.round
-	if result.world.data.breach_lord != "Odradek":
+	if not Veil.active(result.world, "Odradek"):
 		return result
 	var pools: Dictionary = {}
 	for lane in Guards.LANES:
 		var candidates: Array = []
 		for pid in [0, 1]:
-			candidates.append_array(Transfers.eligible(result.world, pid, lane, 1 - pid))
+			if Veil.affects(result.world, "Odradek", pid):
+				candidates.append_array(Transfers.eligible(result.world, pid, lane, 1 - pid))
 		candidates.sort()
 		if not candidates.is_empty():
 			pools[lane] = candidates
 	var bodies: Array = []
 	for row in result.world.entities.entities:
-		if row.kind == "marcher":
+		if row.kind == "marcher" and Veil.affects(result.world, "Odradek", row.owner):
 			bodies.append(row.id)
 	bodies.sort()
 	if not bodies.is_empty():

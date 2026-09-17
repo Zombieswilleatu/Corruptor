@@ -6,6 +6,7 @@ active power resolver or expected Godot snapshot is used here.
 
 import math
 
+from . import veil
 from . import economy as e
 from .copying import copy_data
 from .development import reconcile
@@ -75,8 +76,8 @@ class Battle:
             if hazard:
                 source = e.entity(w, command.get("source_id", ""))
                 fracture = kind == "ruin_castle_fracture"
-                e.require(source and source["kind"] == "lord" and not source["attributes"]["alive"]
-                          and (source["owner"] == target["owner"] if fracture else source["attributes"]["lord_id"] == d["breach_lord"])
+                e.require(((not fracture and veil.source_valid(w, command.get("source_id", ""))) or (source and source["kind"] == "lord" and not source["attributes"]["alive"]
+                          and (source["owner"] == target["owner"] if fracture else source["attributes"]["lord_id"] == d["breach_lord"])))
                           and command.get("cause") == ("fracture" if fracture else "breach")
                           and "player_id" not in command, "castle_hazard_source_invalid")
             else:
@@ -206,8 +207,9 @@ class Battle:
                 return False
             ledger[key] = self.number
             return True
-        if kind == "GUARD_DEFEATED" and d["breach_lord"] == "Gremory" and take("GemDagger"):
+        if kind == "GUARD_DEFEATED" and veil.active(w, "Gremory") and take("GemDagger"):
             for pid in self.order:
+                if not veil.affects(w,"Gremory",pid):continue
                 drawn = e.draw(w, pid, self.seed, detail["event_id"] + ":gem:" + str(pid))
                 events.append(e.event("GEM_DAGGER", drawn, private=pid, redact=("card_id",)))
         for pid in self.order:
@@ -322,6 +324,7 @@ class Battle:
         from .wishmaster import record_losses
         record_losses(w, [dict(event=fact)])
         reconcile(w)
+        events.extend(self.sync_breach())
         if kind == "LORD_BANISHED":
             throne = d["vacant_throne"]
             e.require(throne["round"] == self.number and throne["completed_round"] == self.number-1, "vacant_throne_banishment_clock_invalid")
@@ -335,7 +338,7 @@ class Battle:
         for row in w["entities"]["entities"]:
             if row["kind"] != "castle": continue
             a = row["attributes"]
-            ceiling = a["base_max_integrity"] - (5 if w["data"]["breach_lord"] == "Deimos" else 0)
+            ceiling = a["base_max_integrity"] - (5 if veil.affects(w, "Deimos", row["owner"]) else 0)
             if a["max_integrity"] == ceiling: continue
             a["max_integrity"], a["integrity"] = ceiling, min(a["integrity"], ceiling)
             if a["construction_state"] == "building" and a["integrity"] == ceiling:
@@ -347,11 +350,11 @@ class Battle:
             events.append(e.event("CASTLE_CEILING_CHANGED", dict(castle_id=row["id"], max_integrity=ceiling, integrity=a["integrity"])))
         return events
 
-    def breach_damage(self, identity, source, entry):
+    def breach_damage(self, identity, source, entry, damage=4):
         row, events = e.entity(self.w, identity), []
         if not targetable(row) or row["attributes"]["integrity"] <= 0: return events
         before = row["attributes"]["integrity"]
-        dealt = min(before, 4)
+        dealt = min(before, damage)
         if dealt == before:
             fact = self.fact(dict(command_id=instance_id("breach_damage", entry, identity), kind="ruin_castle_hazard",
                                   target_id=identity, source_id=source, cause="breach"))

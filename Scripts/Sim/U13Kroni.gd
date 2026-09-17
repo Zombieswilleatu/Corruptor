@@ -109,7 +109,7 @@ func on_hook(context: Dictionary) -> Dictionary:
 		if world.data.kroni_breach_round >= context.round:
 			return Data.invalid("kroni_breach_already_applied")
 		world.data.kroni_breach_round = context.round
-		if world.data.breach_lord == "Kroni":
+		if Veil.active(world, "Kroni"):
 			var identity: String = Data.instance_id("insatiable", str(context.round), "breach")
 			var actor: Dictionary = Actors.create(identity, -1, context.round, 0, true, context.seed)
 			world.data.kroni_actors.append(actor)

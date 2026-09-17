@@ -87,7 +87,7 @@ func _sync_flow() -> void:
 	flow_fracture.get_child(1).select(0 if fracture_choice == "infrastructure" else 1)
 	flow_back.visible = not mandatory and flow_step > 0
 	var previous: int = flow_step - 1
-	while (previous == 1 and _human_alive()) or (previous == 4 and not _human_alive()): previous -= 1
+	while (previous == 1 and _human_alive()) or (previous == 4 and not _powers_available()): previous -= 1
 	flow_back.text = "BACK · " + str(STEPS[maxi(0, previous)])
 	if not mandatory and step != "Dominion Rites": game_menu.hide()
 	phase_prompt.bind_decision("FLOW_" + step, step.to_upper(), _flow_copy(step), "ROUND %d" % session.round_number())
@@ -168,7 +168,7 @@ func _goto_flow(index: int, skip_unavailable: bool = false) -> void:
 	_sample_playtime()
 	flow_step = clampi(index, 0, STEPS.size() - 1)
 	if skip_unavailable:
-		while (flow_step == 1 and _human_alive()) or (flow_step == 2 and not _guards_available()) or (flow_step == 4 and not _human_alive()):
+		while (flow_step == 1 and _human_alive()) or (flow_step == 2 and not _guards_available()) or (flow_step == 4 and not _powers_available()):
 			flow_step += 1
 	powers_step = flow_step >= 4
 	staged_order = _order().duplicate(true) if powers_step else {}
@@ -186,7 +186,7 @@ func _goto_flow(index: int, skip_unavailable: bool = false) -> void:
 func _flow_back() -> void:
 	if _planning() and flow_step > 0:
 		var prior: int = flow_step - 1
-		while (prior == 1 and _human_alive()) or (prior == 4 and not _human_alive()): prior -= 1
+		while (prior == 1 and _human_alive()) or (prior == 4 and not _powers_available()): prior -= 1
 		_goto_flow(prior)
 
 func _slaver_pending() -> bool:
@@ -286,3 +286,6 @@ func _guards_available() -> bool:
 		for slot in range(3):
 			if _target_allowed({"kind": "zone", "owner": 0, "lane": lane, "slot": slot}, "Guard"): return true
 	return false
+
+func _powers_available() -> bool:
+	return _human_alive() or _visible_world.get("breach_wish_access", [false, false])[0]

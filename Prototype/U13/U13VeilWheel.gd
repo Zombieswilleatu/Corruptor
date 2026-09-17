@@ -1,8 +1,7 @@
 extends Control
 
 # A public, presentation-only view. Browsing never writes to the match or reveals
-# an absent Lord. Breach positions come from the accepted v0.2 proposal; their
-# mechanics are not enabled yet, so they remain visibly marked as planned.
+# future identities. Only arrived Lords appear on the public rim.
 const Victory = preload("res://Scripts/Sim/U13Victory.gd")
 const Rites = preload("res://Scripts/Sim/U13DominionRites.gd")
 const LIMIT: int = Victory.FINAL_COLLAPSE_VEIL
@@ -18,6 +17,8 @@ var selected_value: int = 0
 var round_number: int = 1
 var personal_tears: Array = [0, 0]
 var neutral_tears: int = 0
+var arrivals: Array = []
+const LordRules = preload("res://Prototype/U13/U13LordRules.gd")
 var following_current: bool = true
 var current_button: Button
 var previous_button: Button
@@ -110,6 +111,7 @@ func bind_world(world: Dictionary, round_now: int) -> void:
 	round_number = round_now
 	personal_tears = world.get("personal_tears", [0, 0]).duplicate()
 	neutral_tears = int(world.get("neutral_tears", 0))
+	arrivals = world.get("veil_breaches", {}).get("arrivals", []).duplicate(true)
 	if reset:
 		following_current = true
 	if following_current:
@@ -164,9 +166,14 @@ func stamp_owners(value: int) -> Array:
 func milestone(value: int) -> Dictionary:
 	var tier: int = ARRIVALS.find(value)
 	if tier >= 0:
-		return {"label": "BREACH " + ["I", "II", "III", "IV"][tier], "planned": true,
-			"detail": "Breach %s · %d Personal Tear%s for protection · planned" % [["I", "II", "III", "IV"][tier], tier + 1, "" if tier == 0 else "s"],
-			"tooltip": "Planned: an absent Lord enters permanently at Veil %d. Identity stays hidden until arrival. %d Personal Tear%s will protect against this arrival. Breach effects and protection are not enabled yet." % [value, tier + 1, "" if tier == 0 else "s"]}
+		var arrived: Array = arrivals.filter(func(row): return row.threshold == value)
+		if not arrived.is_empty():
+			var lord: String = arrived[0].lord_id
+			var status: String = "You: %s · Enemy: %s" % ["protected" if 0 in stamp_owners(value) else "exposed", "protected" if 1 in stamp_owners(value) else "exposed"]
+			return {"label": lord.to_upper(), "planned": false, "detail": "%s · %s" % [lord, status], "tooltip": _arrival_tooltip(arrived[0]) + "\n" + status}
+		return {"label": "BREACH " + ["I", "II", "III", "IV"][tier], "planned": false,
+			"detail": "Unknown Lord · %d Personal Tear%s for protection" % [tier + 1, "" if tier == 0 else "s"],
+			"tooltip": "An absent Lord enters permanently at the next round start after Veil %d. Identity stays hidden until arrival. %d Personal Tear%s protect against this arrival." % [value, tier + 1, "" if tier == 0 else "s"]}
 	if value == Rites.INVOCATION_GATE:
 		return {"label": "INVOKE", "planned": false, "detail": "Invocation · once per game · commit value %d" % Rites.INVOCATION_COST,
 			"tooltip": "Invocation unlocks at Veil %d. Once per game, pay uncommitted cards totaling at least %d printed value." % [Rites.INVOCATION_GATE, Rites.INVOCATION_COST]}
@@ -174,8 +181,12 @@ func milestone(value: int) -> Dictionary:
 		return {"label": "DOMINION", "planned": false, "detail": "Dominion · %d+ Personal Tears and a strict Tear lead" % Victory.DOMINION_TEARS,
 			"tooltip": "Dominion becomes eligible at Veil %d: at least %d Personal Tears and strictly more than the opponent, subject to round-end victory checks. A fifth Tear earns the Dominion stamp, not extra Breach protection." % [Victory.DOMINION_VEIL, Victory.DOMINION_TEARS]}
 	if value == 21:
-		return {"label": "CASCADE", "planned": true, "detail": "Cascade · Veil 21 AND round 21 · no protection · planned",
-			"tooltip": "Planned: all remaining absent Lords enter once BOTH Veil 21 and round 21 are reached. No Personal Tear protection. %s Breach effects are not enabled yet." % ("Round gate reached." if round_number >= 21 else "Round gate pending: round %d / 21." % round_number)}
+		var cascade: Array = arrivals.filter(func(row): return row.threshold == 21)
+		var names: String = ", ".join(cascade.map(func(row): return row.lord_id))
+		var tooltip: String = "All remaining absent Lords enter at round start once BOTH Veil 21 and round 21 are reached. No Personal Tear protection. %s" % ("Round gate reached." if round_number >= 21 else "Round gate pending: round %d / 21." % round_number)
+		for row in cascade:
+			tooltip += "\n\n" + _arrival_tooltip(row)
+		return {"label": "CASCADE", "planned": false, "detail": (names if not names.is_empty() else "Cascade · Veil 21 AND round 21") + " · no protection", "tooltip": tooltip}
 	if value == LIMIT:
 		return {"label": "COLLAPSE", "planned": false, "detail": "Final Collapse · higher Souls wins · round-end check",
 			"tooltip": "At Veil %d, Final Collapse ends the match at the round-end victory check if Ritual has not already won. Higher Souls wins; a Soul tie favors you." % LIMIT}
@@ -359,3 +370,8 @@ func _draw() -> void:
 			_seal(position + Vector2(9, 12), 1, 1 in owners)
 	if has_focus():
 		draw_line(Vector2(28, size.y - 1), Vector2(size.x - 28, size.y - 1), Color(GOLD, 0.5), 1)
+
+func _arrival_tooltip(row: Dictionary) -> String:
+	var text: String = LordRules.RULES.get(row.lord_id, {}).get("breach", "")
+	var protection: String = {"Gremory": "Protection denies the enemy bonus card; your own draw remains.", "Kalligan": "Protection denies the enemy restoration; your own restoration remains.", "Kanifous": "Protection denies the enemy Breach Wish access; your own access remains."}.get(row.lord_id, "Protection makes your side immune to this permanent Breach.")
+	return "%s · arrived round %d\n%s\n\n%s" % [row.lord_id, row.round, text, protection if row.protection > 0 else "Cascade: neither player can protect against this arrival."]

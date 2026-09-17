@@ -1,3 +1,5 @@
+> Update 2026-09-17: The Void is replaced by **The Unbound Wishmaster**. Both players can take one optional Breach Wish each round, with heavier delayed Prices. Permanent-arrival protection denies the opponent access. See [current rules](U13_PERMANENT_BREACHES_2026-09-17.md). Older Void notes below are historical.
+
 # Kanifous — U13 power list
 
 **Status:** Implemented U13 rules; sprite integration pending. See [implementation notes](U13_KANIFOUS_IMPLEMENTATION_2026-09-10.md).

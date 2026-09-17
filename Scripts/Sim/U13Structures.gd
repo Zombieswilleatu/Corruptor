@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
+
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
@@ -46,7 +48,7 @@ static func valid(world: Dictionary) -> bool:
 		if a.base_max_integrity < FLOOR or a.base_max_integrity > 1000000:
 			return false
 		var ceiling: int = (
-			int(a.base_max_integrity) - (5 if world.data.breach_lord == "Deimos" else 0)
+			int(a.base_max_integrity) - (5 if Veil.affects(world, "Deimos", castle.owner) else 0)
 		)
 		if a.max_integrity != ceiling or a.integrity > ceiling:
 			return false
@@ -113,7 +115,7 @@ static func sync_breach(raw: Dictionary) -> Dictionary:
 			continue
 		var a: Dictionary = castle.attributes
 		var ceiling: int = (
-			int(a.base_max_integrity) - (5 if world.data.breach_lord == "Deimos" else 0)
+			int(a.base_max_integrity) - (5 if Veil.affects(world, "Deimos", castle.owner) else 0)
 		)
 		if a.max_integrity == ceiling:
 			continue
@@ -350,7 +352,7 @@ static func breach_damage(
 	entities.restore(world.entities)
 	var castle: Dictionary = entities.get_entity(castle_id)
 	var source: Dictionary = entities.get_entity(source_id)
-	if (
+	if not Veil.source_valid(world, source_id) and (
 		source.is_empty()
 		or source.kind != "lord"
 		or source.attributes.get("alive", true)

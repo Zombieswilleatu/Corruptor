@@ -78,6 +78,7 @@ static func initialize(raw: Dictionary, seed_value: String) -> Dictionary:
 	preload("res://Scripts/Sim/U13VacantThrone.gd").configure(world)
 	preload("res://Scripts/Sim/U13Plunder.gd").configure(world)
 	preload("res://Scripts/Sim/U13Victory.gd").configure(world)
+	preload("res://Scripts/Sim/U13VeilBreaches.gd").configure(world)
 	preload("res://Scripts/Sim/U13GuardWork.gd").configure(world)
 	Market.initialize(world, seed_value)
 	# Setup draws are already represented in the initial saved state. Private

@@ -8,6 +8,7 @@ Godot U13Marching.resolve is the authority for every output event and field.
 import json
 from bisect import bisect_left
 
+from . import veil
 from .copying import copy_data
 from . import wishmaster, kroni_actors
 from .marching_buffer import Buffer
@@ -196,10 +197,12 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     accepted = {lane: [grid(team, xs, ys, 7) for team in grouped[lane]] for lane in LANES}
     data = context["world"]["data"]
     gate_queue = data.get("guard_work", {}).get("version") == "U13_GUARD_WORK_V2"
-    ranged, collapse = data.get("ranged_profile") == RANGED, data.get("breach_lord") == "Valak"
+    ranged = data.get("ranged_profile") == RANGED
+    collapse_players = veil.affected_players(context["world"],"Valak")
     for i in indices:
         if s.ids[i] in fleeing: continue
         lane, owner, base = s.lane[i], s.owner[i], s.step_fp[i]
+        collapse = collapse_players[owner]
         recovery = s.rout_round[i] == number - 1
         step = (base >> 1) + (base & 1) * (clock & 1) if recovery else base
         percent = modifiers[lane][owner]["speed_percent"]
@@ -408,7 +411,7 @@ class Phase:
         modifiers, fields = compile_effects(context.get("persistent_effects", []), self.number, data, full=context.get("full_roster",False))
         has_retreat = any(value == self.number for value in s.rout_round)
         orbs = data.get("valak_orbs", [])
-        collapse = data.get("breach_lord") == "Valak"
+        collapse = veil.affected_players(self.w,"Valak")
         actors = data.get("kroni_actors",[])
         lamps = data.get("kanifous_objects",[])
         has_wishes = "kanifous_profile" in data
@@ -419,7 +422,7 @@ class Phase:
             lamp_before = s.rows() if lamps else []
             if has_wishes: self.events.extend(wishmaster.bypass(buffer,self.number,tick))
             before = (s.x_fp[:], s.y_fp[:], s.active()) if orbs else None
-            if actors: self.events.extend(kroni_actors.step(actors,buffer,self.number,tick,collapse))
+            if actors: self.events.extend(kroni_actors.step(actors,buffer,self.number,tick,collapse,[not veil.affects(self.w,"Kroni",pid) for pid in (0,1)]))
             fleeing = {key for actor in actors for key in list(actor["fleeing"])+actor["fled_this_tick"]}
             clock = self.number * 200 + tick
             self.interrupt(duels, tick)

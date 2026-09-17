@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
+
 const Resummon = preload("res://Scripts/Sim/U13Resummoning.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
@@ -115,7 +117,7 @@ static func limit_for(world: Dictionary, pid: int, round_number: int) -> int:
 	var cap: int = 2 * SLOTS_PER_ZONE
 	if world.data.snare_rounds[pid] == round_number:
 		cap = 1
-	if world.data.breach_lord == "Orias":
+	if Veil.affects(world, "Orias", pid):
 		for entity in world.entities.entities:
 			if entity.id == world.players[pid].lord_entity_id and Stats.threat_at_least(entity, 2):
 				cap = mini(cap, 2)

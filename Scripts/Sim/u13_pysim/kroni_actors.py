@@ -1,5 +1,6 @@
 """Kroni's owned Hunger state and integer swept actors, separate from doctrine."""
 import math
+from . import veil
 from . import economy as e
 from .copying import copy_data
 from .primitives import draw, instance_id
@@ -89,7 +90,7 @@ def flee_slice(actor,buffer,ms,collapse):
         duration=min(ms,state['remaining_ms'])
         if dx==dy==0:dx,dy=[[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]][draw(actor['id'],unit['id'],'FLEE_OVERLAP',0,8)]
         length=math.sqrt(float(dx*dx+dy*dy));distance=float(a['step_fp']*30*duration)/float(100*30)
-        if collapse:distance*=0.5
+        if veil.applies_to(collapse,unit['owner']):distance*=0.5
         mx=float(dx)/length*distance+float(state['carry_x']);my=float(dy)/length*distance+float(state['carry_y'])
         sx,sy=half_away(mx),half_away(my);state['carry_x'],state['carry_y']=mx-sx,my-sy
         a['x_fp']=max(0,min(2400,a['x_fp']+sx));a['y_fp']=max(origin,min(origin+600,lateral+sy))-origin;a['contact_tick']=-1
@@ -112,9 +113,10 @@ def flee(actor,buffer,ms,collapse):
     return list(merged.values())
 
 
-def notice(actor,buffer):
+def notice(actor,buffer,immune=(False,False)):
     nearby=[];started=[];reach=actor['radius_fp']*2
     for u in buffer.rows():
+        if actor["breach"] and immune[u["owner"]]:continue
         a=u['attributes'];dy=a['y_fp']+(600 if a['lane']=='Castle' else 0)-actor['y_fp'];dx=a['x_fp']-actor['x_fp']
         if dx*dx+dy*dy>reach*reach or a['step_fp']==0:continue
         key=u['id'];nearby.append(key)
@@ -124,7 +126,7 @@ def notice(actor,buffer):
     return started
 
 
-def step(actors,buffer,n,tick,collapse):
+def step(actors,buffer,n,tick,collapse,immune=(False,False)):
     events=[]
     for actor in actors:
         actor['fled_this_tick']=list(actor['fleeing']);flee(actor,buffer,30,collapse)
@@ -132,9 +134,10 @@ def step(actors,buffer,n,tick,collapse):
         ax,ay=actor['x_fp'],actor['y_fp'];bx=max(0,min(2400,ax+actor['vx_fp']));by,segments,bounce=path(ax,ay,bx,ay+actor['vy_fp'])
         if bounce:actor['vy_fp']=-actor['vy_fp'];events.append(e.event('KRONI_WALL_BOUNCE',dict(actor_id=actor['id'],round=n,tick=tick)))
         actor['x_fp'],actor['y_fp']=bx,by;actor['age']+=1
-        started=notice(actor,buffer)
+        started=notice(actor,buffer,immune)
         if started:events.append(e.event('KRONI_FLEE_STARTED',dict(actor_id=actor['id'],units=started,round=n,tick=tick,duration_ms=1100)))
         for unit in buffer.rows():
+            if actor['breach'] and immune[unit['owner']]:continue
             a=unit['attributes'];lateral=a['y_fp']+(600 if a['lane']=='Castle' else 0)
             if any(touches(*s,a['x_fp'],lateral,actor['radius_fp']) for s in segments):
                 buffer.retire_id(unit['id']);actor['consumed']+=1;actor['fleeing'].pop(unit['id'],None);bite=copy_data(actor)

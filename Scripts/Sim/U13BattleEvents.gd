@@ -1,6 +1,8 @@
 class_name U13BattleEvents
 extends RefCounted
 
+const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
+
 const Allegiance = preload("res://Scripts/Sim/U13MarcherAllegiance.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
@@ -74,7 +76,10 @@ static func apply(
 			var hazard: bool = command.kind == "ruin_castle_hazard" or fracture
 			if hazard:
 				var source: Dictionary = entities.get_entity(String(command.get("source_id", "")))
-				if (
+				if (not fracture and Veil.source_valid(world, command.get("source_id", ""))):
+					if command.get("cause") != "breach" or command.has("player_id"):
+						return Data.invalid("castle_hazard_source_invalid")
+				elif (
 					source.is_empty()
 					or source.kind != "lord"
 					or source.attributes.get("alive", true)

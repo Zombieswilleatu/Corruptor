@@ -53,6 +53,9 @@ class Facts:
         return [i for i in range(3) if i not in occupied]
 
     def available(self, name):
+        from u13_pysim import veil
+        if RULES[name].get('breach_wish',False):
+            return (True, 'breach_wish_ready') if veil.affects(self.world, 'Kanifous', self.pid) else (False, 'breach_wish_unavailable')
         if not self.lord[self.pid]['attributes']['alive']:
             return False, 'source_banished'
         clock = next((r for r in self.v['cooldowns'] if r['declaration']['player_id'] == self.pid

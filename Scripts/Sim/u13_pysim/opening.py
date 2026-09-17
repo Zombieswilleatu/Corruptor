@@ -5,6 +5,7 @@ Godot state, legacy simulator, generated snapshot or GDScript parser is used.
 """
 
 from collections import Counter
+from . import veil
 from .primitives import Entities, draw, entity_id
 
 LORDS = ["Gremory", "Deimos", "Humbaba", "Kalligan", "Orias", "Odradek", "Kroni", "Valak", "Kanifous"]
@@ -17,8 +18,9 @@ ECONOMY = "U13_GAME_ECONOMY_V4"
 MARKET = "U13_GAME_MARKET_V2"
 # Pin the accepted authority's complete roster identity. Matching this hash
 # does not assert that the Python mirror implements those powers yet.
-RULES_HASH = "44e28bf58abb4850578a68a6330f70e92a599639b768e98e5d11099f995880b5"
+RULES_HASH = "1b5b13ca2a0588c6318744795714b97d674e79efdef80a97a77e5ad4bfe0e7ce"
 POLICY = ":".join([
+    "U13_PERMANENT_BREACHES_V1",
     "U13_GUARD_WORK_V2", "U13_VICTORY_V2_ROUND_PRESSURE", "U13_PROFANE_PILLAGE_V1",
     "U13_VULTURE_RANGED_V1", "U13_VACANT_THRONE_V1", "U13_DOMINION_RITES_V1",
     "U13_FRACTURE_V1", "U13_SIGIL_LIFECYCLE_V1", "U13_BLOOD_CONDUIT_V1", MARKET,
@@ -168,7 +170,9 @@ def world(seed, lords, loadouts):
             "cost": cost, "paid_value": paid, "shortfall": max(0, cost - paid),
             "card_ids": selected, "card_values": values, "circle_id": circle,
             "circle_exerted": 3 if circle else 0})
-    return {"players": players, "entities": ids.snapshot(), "data": data}
+    world = {"players": players, "entities": ids.snapshot(), "data": data}
+    veil.configure(world)
+    return world
 
 
 def snapshot(seed, lords, loadouts):

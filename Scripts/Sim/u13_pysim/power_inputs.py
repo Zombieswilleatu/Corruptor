@@ -1,7 +1,7 @@
 """Bounded explicit-input coverage policy. This is not the new doctrine."""
 import json
 from pathlib import Path
-from . import economy as e, effects, powers, paid_inputs, full_match_inputs as ordinary
+from . import economy as e, effects, powers, paid_inputs, full_match_inputs as ordinary, veil
 from .copying import copy_data
 from .power_rules import RULES, declaration
 from .power_match import PowerMatch
@@ -15,6 +15,7 @@ def candidates(game,pid,power,index,hand):
     enemies=[r for r in rows if r['kind']=='marcher' and r['owner']==1-pid]
     point=next((r for r in enemies if r['attributes']['lane']==lane),None)
     area=dict(lane=lane,field_position=dict(x_fp=point['attributes']['x_fp'] if point else 1200,y_fp=point['attributes']['y_fp'] if point else 300))
+    declared_power=power;power=power.removeprefix('Breach')
     targets=[];parameters={};discard=None
     if power in ('PredatorOfRuin','Rout','MusterTheFaithful','BreathOfLife','WishPower'):targets=[dict(lane=lane)]
     elif power in ('InevitableRuin','WarMachine','WishLongevity'):
@@ -32,15 +33,17 @@ def candidates(game,pid,power,index,hand):
     elif power=='Ravenous':targets=[dict(lane=lane,field_position=dict(x_fp=0 if pid==0 else 2400,y_fp=300))]
     elif power=='Projection':targets=[dict(kind='guard_zone',zone=lane,player_id=1-pid)];parameters=dict(spend=max(1,w['players'][pid]['resources']['life_essence']))
     elif power=='WishResurrection':targets=[dict(lane=lane)]
-    return [declaration(pid,n,power,t,index=index,discard_ids=discard,parameters=parameters) for t in targets]
+    return [declaration(pid,n,declared_power,t,index=index,discard_ids=discard,parameters=parameters) for t in targets]
 
 
 def coverage_plan(game,pid):
     w=game._state['world'];view=ordinary.observation(game,pid);d=w['data'];kind=w['players'][pid]['lord_id'];hand=view['hand'][:]
     view.update(veil_total=paid_inputs.paid.veil(w),breach_lord=d['breach_lord'],invocation_rounds=d['dominion_rites']['invocation_rounds'][:])
-    selected=[];names=[k for k,r in RULES.items() if r['lord_id']==kind]
+    selected=[];names=[k for k,r in RULES.items() if r['lord_id']==kind and not r.get('breach_wish')]
+    if veil.affects(w,'Kanifous',pid):names.extend(k for k,r in RULES.items() if r.get('breach_wish'))
     if kind=='Kanifous':names=names[(game.clock.round-1)%len(names):]+names[:(game.clock.round-1)%len(names)]
     for power in names:
+        if power in powers.WISHES and any(s['power_id'] in powers.WISHES for s in selected):continue
         if kind=='Kanifous' and selected:break
         for s in candidates(game,pid,power,len(selected),hand):
             staged=copy_data({k:v for k,v in game._state.items() if k!='events'});staged['events']=dict(rows=[])

@@ -85,7 +85,7 @@ class CommonTests(unittest.TestCase):
             CommonSmartCore().decide(observe(planning(), 0), invalid)
         self.assertTrue(0 < len(calls) <= 8)
 
-    def test_all_23_powers_have_bounded_legal_proposals_in_favorable_components(self):
+    def test_all_powers_have_bounded_legal_proposals_in_favorable_components(self):
         seen = set()
         for case in json.loads(power_inputs.PATH.read_text())['components']:
             if not case['name'].startswith('power_'): continue
@@ -97,9 +97,9 @@ class CommonTests(unittest.TestCase):
                     # Favorable field preparation is explicit and separate from
                     # complete games. Remove allied exposure to area attacks.
                     own = [r['id'] for r in game._state['world']['entities']['entities'] if r['kind'] == 'marcher' and r['owner'] == 0]
-                    if own and name in ('Inferno', 'Pyroclasm', 'Redirect', 'GravityOrb', 'Ravenous', 'WishDeath'):
+                    if own and name.removeprefix('Breach') in ('Inferno', 'Pyroclasm', 'Redirect', 'GravityOrb', 'Ravenous', 'WishDeath'):
                         power_components.prepare(game, [dict(kind='fixture_retire', entity_id=k) for k in own])
-                    if name == 'WishWealth':
+                    if name.removeprefix('Breach') == 'WishWealth':
                         # A draw wish is useful with actual hand space.
                         w = game._state['world']
                         economy.discard(w, 0, w['data']['card_zones']['hands'][0][3:])

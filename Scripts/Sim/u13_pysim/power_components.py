@@ -39,7 +39,7 @@ def apply(game,op):
 def generate():
     cases=[]
     for power,rules in RULES.items():
-        setup=dict(seed='u13-power-component:'+power,lords=[rules['lord_id'],'Gremory'],castles=[['Keep','Stockpile','SummoningCircle','SiegeEngine','Bastion']]*2)
+        setup=dict(seed='u13-power-component:'+power,lords=['Deimos' if rules.get('breach_wish') else rules['lord_id'],'Gremory'],castles=[['Keep','Stockpile','SummoningCircle','SiegeEngine','Bastion']]*2)
         g=PowerMatch(setup);ops=[]
         def record(op,rejected=False):
             before=g.snapshot();result=apply(g,op)
@@ -53,6 +53,10 @@ def generate():
                 record(op)
         until('submission_lock')
         w=g._state['world'];changes=[]
+        if rules.get('breach_wish'):
+            state=copy_data(w['data']['veil_breaches'])
+            state['arrivals']=[dict(lord_id='Kanifous',threshold=5,protection=1,round=1,veil=5)]
+            changes.append(dict(kind='fixture_data',data=dict(veil_breaches=state,neutral_tears=5)))
         castles=[r for r in w['entities']['entities'] if r['kind']=='castle']
         for c in castles:
             changes.append(dict(kind='fixture_patch',entity_id=c['id'],attributes=dict(construction_state='active',status='standing',integrity=10)))
@@ -66,20 +70,21 @@ def generate():
                 changes.append(dict(kind='fixture_marcher',origin='power-component:'+str(pid),ordinal=i,player_id=pid,lane='Lord',suit='Butcher',attributes=dict(x_fp=1100+100*pid,y_fp=210+60*i,armor=0,hp=2)))
         record(dict(kind='fixture_prepare',changes=changes))
         w=g._state['world'];target={};params={};discard=None
-        if power in ('PredatorOfRuin','Rout','MusterTheFaithful','BreathOfLife','WishPower'):target=dict(lane='Lord')
-        elif power in ('InevitableRuin','WarMachine','WishLongevity'):
-            r=next(c for c in w['entities']['entities'] if c['kind']=='castle' and c['owner']==(1 if power=='InevitableRuin' else 0) and (power!='WarMachine' or c['attributes']['combat_profile']=='siege_engine'))
+        base_power=power.removeprefix('Breach')
+        if base_power in ('PredatorOfRuin','Rout','MusterTheFaithful','BreathOfLife','WishPower'):target=dict(lane='Lord')
+        elif base_power in ('InevitableRuin','WarMachine','WishLongevity'):
+            r=next(c for c in w['entities']['entities'] if c['kind']=='castle' and c['owner']==(1 if base_power=='InevitableRuin' else 0) and (base_power!='WarMachine' or c['attributes']['combat_profile']=='siege_engine'))
             target=dict(entity_id=r['id'])
-            if power=='InevitableRuin':discard=e.zones(w)['hands'][0][:2]
-        elif power=='Inferno':target=dict(kind='lane',lane='Lord')
-        elif power=='Snare':target=dict(player_id=1)
-        elif power in ('Web','Redirect','AllegianceShift','GravityOrb','WishDeath'):target=dict(lane='Lord',field_position=dict(x_fp=1150,y_fp=300))
-        elif power=='FalseOrders':target=dict(entity_id=cards[2]['id'],owner_id=1,lane='Castle')
-        elif power=='Inversion':target=dict(owner_id=1,lane='Lord')
-        elif power=='Consume':target=dict(entity_id=cards[2]['id'])
-        elif power=='Ravenous':target=dict(lane='Lord',field_position=dict(x_fp=0,y_fp=300))
-        elif power=='Projection':target=dict(kind='guard_zone',zone='Lord',player_id=1);params=dict(spend=3)
-        elif power=='WishResurrection':
+            if base_power=='InevitableRuin':discard=e.zones(w)['hands'][0][:2]
+        elif base_power=='Inferno':target=dict(kind='lane',lane='Lord')
+        elif base_power=='Snare':target=dict(player_id=1)
+        elif base_power in ('Web','Redirect','AllegianceShift','GravityOrb','WishDeath'):target=dict(lane='Lord',field_position=dict(x_fp=1150,y_fp=300))
+        elif base_power=='FalseOrders':target=dict(entity_id=cards[2]['id'],owner_id=1,lane='Castle')
+        elif base_power=='Inversion':target=dict(owner_id=1,lane='Lord')
+        elif base_power=='Consume':target=dict(entity_id=cards[2]['id'])
+        elif base_power=='Ravenous':target=dict(lane='Lord',field_position=dict(x_fp=0,y_fp=300))
+        elif base_power=='Projection':target=dict(kind='guard_zone',zone='Lord',player_id=1);params=dict(spend=3)
+        elif base_power=='WishResurrection':
             target=dict(lane='Lord')
             # The existing opposing Marchers fight during the upcoming phase.
         if power=='Pyroclasm':

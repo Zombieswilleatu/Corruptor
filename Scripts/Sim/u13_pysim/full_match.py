@@ -6,7 +6,7 @@ powers still fail explicitly. Policies remain outside authority.
 
 from . import economy as e, marching_game, paid_development as paid
 from .copying import copy_data, RollbackSnapshot
-from .lifecycle import RoundRules
+from .lord_hooks import LordRoundRules
 from .planning import PlanningMatch
 from .timeline import HOOKS
 
@@ -31,7 +31,7 @@ class FullMatch(PlanningMatch):
 
     def _supported(self):
         s = self._state
-        marching_game.supported(dict(world=s["world"],persistent_effects=s["persistent"]["active"]))
+        marching_game.supported(dict(world=s["world"],persistent_effects=s["persistent"]["active"],permanent_breaches=True))
         if s["pending"]["pending"] or s["cooldowns"]["locks"]:
             raise e.Unsupported("Pending powers and cooldowns are outside FullMatch V1")
 
@@ -62,7 +62,7 @@ class FullMatch(PlanningMatch):
         if hook == "persistent_advancement":
             s["persistent"]["advanced_round"] = n
             s["cooldowns"]["round"] = n
-        rules = RoundRules(s["world"],n,s["seed"],s["player_order"],hook)
+        rules = LordRoundRules(s["world"],n,s["seed"],s["player_order"],hook,[])
         try:
             events = rules.run(s["combat_orders"])
         except e.Rejected as error:

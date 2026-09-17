@@ -1,6 +1,8 @@
 class_name U13Gremory
 extends RefCounted
 
+const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
+
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
@@ -238,9 +240,11 @@ static func react(
 	var ledger: Dictionary = world.data.get("gremory_triggers", {}).duplicate(true)
 	var entities = Ids.new()
 	entities.restore(world.entities)
-	if fact.type == "GUARD_DEFEATED" and world.data.get("breach_lord", "") == "Gremory":
+	if fact.type == "GUARD_DEFEATED" and Veil.active(world, "Gremory"):
 		if _take_trigger(ledger, "GemDagger", round_number):
 			for player_id in player_order:
+				if not Veil.affects(world, "Gremory", player_id):
+					continue
 				var drawn: Dictionary = Cards.draw(
 					world, player_id, seed_value, details.event_id + ":gem:" + str(player_id)
 				)

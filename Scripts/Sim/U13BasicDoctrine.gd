@@ -47,7 +47,7 @@ static func plan(owner, pid: int, reuse_validation: bool = true) -> Dictionary:
 	order = choose(owner, pid, [], order, Common.summon(c, [], order))
 	# Wishes fire after combat. Score them against our actual committed cards,
 	# guards and Repair, without simulating the opponent's sealed order.
-	var late_wish: bool = c.w.lord_ids[pid] == "Kanifous"
+	var late_wish: bool = c.w.lord_ids[pid] == "Kanifous" or c.w.get("breach_wish_access", [false, false])[pid]
 	var powers: Array = [] if late_wish else choose_power(owner, pid, c, order)
 	order = choose(owner, pid, powers, order, Common.castles(c, powers, order))
 	if c.w.has("guard_work"):

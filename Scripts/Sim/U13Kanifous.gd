@@ -4,6 +4,9 @@ const Marching = preload("res://Scripts/Sim/U13Marching.gd")
 const Lamp = preload("res://Scripts/Sim/U13Wishmaster.gd")
 const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
 const Wishes: Array = ["WishPower", "WishLongevity", "WishResurrection", "WishDeath", "WishWealth"]
+const BREACH_WISHES: Array = ["BreachWishPower", "BreachWishLongevity", "BreachWishResurrection", "BreachWishDeath", "BreachWishWealth"]
+# Same outcomes, doubled weight for Stone and above: 40% vs 25% when all are legal.
+const BREACH_PRICE_MULTIPLIER: int = 2
 const PRICE_WEIGHTS: Dictionary = {"Cards": 30, "Blood": 30, "Guards": 15, "Stone": 15, "Soul": 5, "Ruin": 4, "Wishmaster": 1}
 
 func create_combat_match():
@@ -19,17 +22,20 @@ static func rules() -> Dictionary:
 	for power in Wishes:
 		result[power] = {"lord_id": "Kanifous", "fire_hook": Timeline.POST_RESOLUTION_SPAWNS if power == "WishPower" else Timeline.POST_RESOLUTION_DIRECT, "cooldown_on": "activation", "cooldown_rounds": 0, "delay_rounds": 0, "cost": {}, "stages": [], "target_kind": "", "target_relation": "any", "visibility": "public"}
 	result.WishResurrection.fire_hook = Timeline.END_MARCHING_CHECKS
+	for power in Wishes:
+		result["Breach" + power] = result[power].duplicate(true)
+		result["Breach" + power]["breach_wish"] = true
 	return result
 
 func valid_world(world: Dictionary) -> bool:
 	return super.valid_world(world) and Lamp.valid(world) and Marching.Ranged.enabled(world)
 
 func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionary:
-	if source.power_id not in Wishes:
+	if not is_wish(source.power_id):
 		return super.validate(source, world, phase)
 	var t: Dictionary = source.target
 	var legal: bool = source.parameters.is_empty()
-	match source.power_id:
+	match base_wish(source.power_id):
 		"WishPower":
 			legal = legal and t.size() == 1 and t.get("lane") in ["Lord", "Castle"]
 		"WishLongevity":
@@ -58,7 +64,7 @@ static func _entity(world: Dictionary, id: String) -> Dictionary:
 
 func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 	var source: Dictionary = record.declaration
-	if source.power_id not in Wishes:
+	if not is_wish(source.power_id):
 		var result: Dictionary = super.resolve(record, context)
 		if result.action != "invalid":
 			Lamp.record_losses(result.world, result.events)
@@ -70,7 +76,7 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 	var count: int = 0
 	var death_victims: Array = []
 	var pid: int = source.player_id
-	match source.power_id:
+	match base_wish(source.power_id):
 		"WishPower":
 			for index in range(Lamp.power_count(context.seed, source.declaration_id)):
 				var suit: String = Marching.SUITS[Lamp.draw(context.seed, source.declaration_id, "WISH_SUIT", 4, index)]
@@ -115,9 +121,11 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 	var success: bool = count > 0
 	if success:
 		var price: Dictionary = {"id": Data.instance_id("price", source.declaration_id, "main"), "owner": pid, "created_round": context.round, "due_round": int(context.round) + 1 + Lamp.draw(context.seed, source.declaration_id, "PRICE_DELAY", 3)}
+		if source.power_id in BREACH_WISHES:
+			price["breach"] = true
 		world.data.kanifous_prices.append(price)
 		events.append(Lamp.event("KANIFOUS_PRICE_SCHEDULED", price))
-	events.append(Lamp.event("KANIFOUS_WISH_RESOLVED", {"player_id": pid, "power": source.power_id, "target": source.target, "count": count, "success": success, "round": context.round, "victims": death_victims}))
+	events.append(Lamp.event("KANIFOUS_WISH_RESOLVED", {"player_id": pid, "power": base_wish(source.power_id), "breach": source.power_id in BREACH_WISHES, "target": source.target, "count": count, "success": success, "round": context.round, "victims": death_victims}))
 	Lamp.record_losses(world, events)
 	return {"action": "resolved", "world": world, "events": events}
 
@@ -161,14 +169,14 @@ func _price(raw: Dictionary, price: Dictionary, context: Dictionary) -> Dictiona
 		elif row.kind == "castle" and row.attributes.status == "standing" and row.attributes.construction_state == "active":
 			groups.Stone.append(row.id)
 			groups.Ruin.append(row.id)
-		elif row.kind == "lord" and row.attributes.alive and row.attributes.lord_id == "Kanifous":
+		elif row.kind == "lord" and row.attributes.alive and (row.attributes.lord_id == "Kanifous" or price.get("breach", false)):
 			groups.Wishmaster.append(row.id)
 	if world.players[pid].resources.souls > 0:
 		groups.Soul.append(pid)
 	var pool: Array = []
 	for outcome in PRICE_WEIGHTS:
 		if not groups[outcome].is_empty():
-			for index in range(PRICE_WEIGHTS[outcome]):
+			for index in range(PRICE_WEIGHTS[outcome] * (BREACH_PRICE_MULTIPLIER if price.get("breach", false) and outcome in ["Stone", "Soul", "Ruin", "Wishmaster"] else 1)):
 				pool.append(outcome)
 	var events: Array = []
 	if pool.is_empty():
@@ -226,11 +234,15 @@ func _price(raw: Dictionary, price: Dictionary, context: Dictionary) -> Dictiona
 				return reacted
 			world = reacted.world
 			if outcome == "Wishmaster":
-				var breach: Dictionary = Battle.apply(world, {"command_id": price.id + ":breach", "kind": "set_breach", "lord_id": "Kanifous", "source_id": chosen[0]}, context.round, context.hook)
+				var breach: Dictionary = Battle.apply(world, {"command_id": price.id + ":breach", "kind": "set_breach", "lord_id": world.players[pid].lord_id, "source_id": chosen[0]}, context.round, context.hook)
 				if breach.action == "invalid":
 					return breach
-				world = breach.world
+				var entered: Dictionary = react(breach.world, breach.event, context.seed, context.player_order)
+				if entered.action == "invalid":
+					return entered
+				world = entered.world
 				events.append({"event": breach.event, "views": [breach.event, breach.event]})
+				events.append_array(entered.events)
 			events.append({"event": hit.event, "views": [hit.event, hit.event]})
 			events.append_array(reacted.events)
 			ids.restore(world.entities)
@@ -244,7 +256,8 @@ func project(world: Dictionary, player_id: int) -> Dictionary:
 	var result: Dictionary = super.project(world, player_id)
 	result["wishmaster_objects"] = world.data.kanifous_objects.duplicate(true)
 	result["wish_prices"] = world.data.kanifous_prices.duplicate(true)
-	result["void_active"] = world.data.breach_lord == "Kanifous"
+	result["void_active"] = false
+	result["breach_wish_access"] = Veil.affected_players(world, "Kanifous")
 	return result
 
 func accept_order(context: Dictionary) -> Dictionary:
@@ -253,13 +266,13 @@ func accept_order(context: Dictionary) -> Dictionary:
 		return result
 	var count: int = 0
 	for source in context.declarations:
-		if source.power_id in Wishes:
+		if is_wish(source.power_id):
 			count += 1
 	if count > 1:
 		return Data.invalid("one_wish_per_round")
 	if context.phase == "snapshot":
 		for pending in context.pending_effects:
-			if pending.declaration.power_id in Wishes and (not pending.payload.is_empty() or pending.effect_key != "main"):
+			if is_wish(pending.declaration.power_id) and (not pending.payload.is_empty() or pending.effect_key != "main"):
 				return Data.invalid("wish_pending_invalid")
 		for row in context.world.data.kanifous_objects:
 			if row.id != Data.instance_id("wishmaster", str(row.owner), str(row.created_round)) or row.created_round > context.round or row.due_round < context.round:
@@ -268,3 +281,9 @@ func accept_order(context: Dictionary) -> Dictionary:
 			if price.created_round > context.round:
 				return Data.invalid("price_clock_invalid")
 	return result
+
+static func is_wish(power: String) -> bool:
+	return power in Wishes or power in BREACH_WISHES
+
+static func base_wish(power: String) -> String:
+	return power.trim_prefix("Breach") if power in BREACH_WISHES else power

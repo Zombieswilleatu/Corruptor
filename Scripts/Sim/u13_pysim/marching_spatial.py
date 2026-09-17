@@ -2,6 +2,7 @@
 
 import math
 
+from . import veil
 from .economy import Rejected, Unsupported
 
 LANES = ("Lord", "Castle")
@@ -97,7 +98,7 @@ def gravity(s, orbs, before, number, tick, collapse, emit):
         if chosen is not None and s.movement_ready_round[i] <= number:
             point = chosen["target"]["field_position"]
             length = max(1, ceil_sqrt(best))
-            pull = (7 + tick % 2) >> 1 if collapse else 7
+            pull = (7 + tick % 2) >> 1 if veil.applies_to(collapse,s.owner[i]) else 7
             s.x_fp[i] = ax + half_away(float(point["x_fp"] - ax) * pull / length)
             s.y_fp[i] = ay + half_away(float(point["y_fp"] - ay) * pull / length)
             s.waiting[i], s.contact_tick[i] = False, -1

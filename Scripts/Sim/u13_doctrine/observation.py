@@ -15,6 +15,7 @@ def observe(match, seat):
     # simulation seed, event history, RNG or future random outcomes.
     data = {k: d[k] for k in ('neutral_tears', 'breach_lord', 'sigils', 'guard_public_limits',
                               'orias_marks', 'kanifous_prices', 'kanifous_losses')}
+    data['veil_breaches'] = d.get('veil_breaches', {})
     data['guard_work'] = {k: d['guard_work'][k] for k in ('targets', 'pairs')}
     data['invocation_rounds'] = d['dominion_rites']['invocation_rounds']
     data['vacant_counts'] = d['vacant_throne']['counts']

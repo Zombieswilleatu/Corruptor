@@ -63,7 +63,7 @@ static func description(row: Dictionary) -> String:
 		"Stone": detail = "A Castle lost up to 5 Integrity."
 		"Soul": detail = "1 Soul taken."
 		"Ruin": detail = "A Castle was reduced to 0 Integrity."
-		"Wishmaster": detail = "Kanifous was banished. The Breach is active."
+		"Wishmaster": detail = "The owing Lord was banished. Their Breach is active."
 	if row.outcome in ["Stone", "Soul", "Ruin", "Wishmaster"]:
 		detail += "\n+1 neutral Tear."
 	if not row.get("taken", []).is_empty():

@@ -1,6 +1,7 @@
 """Kanifous wishes, delayed Prices and neutral lamps. All choices are keyed."""
 import math
 import struct
+from . import veil
 from . import economy as e, recruitment as recruit
 from .copying import copy_data
 from .primitives import draw, instance_id
@@ -27,7 +28,8 @@ def record_losses(w, events):
 
 def wish(b,s):
     from .powers import members
-    w,n,pid,t,power,key=b.w,b.number,s['player_id'],s['target'],s['power_id'],s['declaration_id'];count=0;victims=[];events=[]
+    w,n,pid,t,power,key=b.w,b.number,s['player_id'],s['target'],s['power_id'].removeprefix('Breach'),s['declaration_id'];count=0;victims=[];events=[]
+    breach=s['power_id'].startswith('Breach')
     if power=='WishPower':
         roll=draw(b.seed,key,'WISH_COUNT',0,100)
         for i in range(1 if roll<70 else 2 if roll<95 else 3):
@@ -53,14 +55,18 @@ def wish(b,s):
         for i in range(1 if roll<20 else 2 if roll<70 else 3):count+=int(e.draw(w,pid,b.seed,key+':'+str(i))['drawn'])
     if count:
         price=dict(id=instance_id('price',key,'main'),owner=pid,created_round=n,due_round=n+1+draw(b.seed,key,'PRICE_DELAY',0,3))
+        if breach:price['breach']=True
         w['data']['kanifous_prices'].append(price);events.append(event('KANIFOUS_PRICE_SCHEDULED',price))
-    events.append(event('KANIFOUS_WISH_RESOLVED',dict(player_id=pid,power=power,target=t,count=count,success=count>0,round=n,victims=victims)))
+    events.append(event('KANIFOUS_WISH_RESOLVED',dict(player_id=pid,power=power,breach=breach,target=t,count=count,success=count>0,round=n,victims=victims)))
     record_losses(w, events)
     return events
 
 
 def price(b,debt):
-    w,n,pid=b.w,b.number,debt['owner'];weights=dict(Cards=30,Blood=30,Guards=15,Stone=15,Soul=5,Ruin=4,Wishmaster=1);groups={k:[] for k in weights}
+    w,n,pid=b.w,b.number,debt['owner'];weights=dict(Cards=30,Blood=30,Guards=15,Stone=15,Soul=5,Ruin=4,Wishmaster=1)
+    if debt.get('breach',False):
+        for kind in ('Stone','Soul','Ruin','Wishmaster'):weights[kind]*=2
+    groups={k:[] for k in weights}
     for r in w['entities']['entities']:
         if r['owner']!=pid:continue
         a=r['attributes']
@@ -69,7 +75,7 @@ def price(b,debt):
             elif a.get('role')=='guard':groups['Guards'].append(r['id'])
         elif r['kind']=='marcher':groups['Blood'].append(r['id'])
         elif r['kind']=='castle' and a['status']=='standing' and a.get('construction_state','active')=='active':groups['Stone'].append(r['id']);groups['Ruin'].append(r['id'])
-        elif r['kind']=='lord' and a['alive'] and a['lord_id']=='Kanifous':groups['Wishmaster'].append(r['id'])
+        elif r['kind']=='lord' and a['alive'] and (a['lord_id']=='Kanifous' or debt.get('breach',False)):groups['Wishmaster'].append(r['id'])
     if w['players'][pid]['resources']['souls']>0:groups['Soul'].append(pid)
     pool=[k for k,weight in weights.items() if groups[k] for _ in range(weight)]
     if not pool:return True,[event('KANIFOUS_PRICE_DEFERRED',dict(id=debt['id'],outcome='Deferred',player_id=pid,round=n,due_round=n+1))]
@@ -96,7 +102,7 @@ def price(b,debt):
     else:
         fact=b.fact(dict(command_id=debt['id'],kind='defeat_guard' if outcome=='Guards' else 'banish_lord',target_id=chosen[0]));reactions=b.react(fact)
         if outcome=='Wishmaster':
-            breach=b.fact(dict(command_id=debt['id']+':breach',kind='set_breach',lord_id='Kanifous',source_id=chosen[0]));events.append(e.event(breach['type'],breach['data']))
+            breach=b.fact(dict(command_id=debt['id']+':breach',kind='set_breach',lord_id=w['players'][pid]['lord_id'],source_id=chosen[0]));events.append(e.event(breach['type'],breach['data']));events.extend(b.react(breach))
         events.append(e.event(fact['type'],fact['data']));events.extend(reactions)
     if outcome in ('Stone','Soul','Ruin','Wishmaster'):w['data']['neutral_tears']+=1
     events.append(event('KANIFOUS_PRICE_RESOLVED',dict(id=debt['id'],outcome=outcome,targets=chosen,taken=taken,player_id=pid,round=n)))

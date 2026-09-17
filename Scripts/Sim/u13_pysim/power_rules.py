@@ -39,6 +39,8 @@ for _cost,_name in enumerate(('Redirect','FalseOrders','AllegianceShift','Invers
 for _name in ('WishPower','WishLongevity','WishResurrection','WishDeath','WishWealth'):
     RULES[_name] = rule('Kanifous','post_resolution_spawns' if _name=='WishPower' else 'post_resolution_direct')
 RULES['WishResurrection']['fire_hook'] = 'end_marching_checks'
+for _name in ('WishPower','WishLongevity','WishResurrection','WishDeath','WishWealth'):
+    RULES['Breach'+_name] = dict(copy_data(RULES[_name]),breach_wish=True)
 
 
 def declaration(pid, number, power, target=None, *, index=0, discard_ids=None, parameters=None):

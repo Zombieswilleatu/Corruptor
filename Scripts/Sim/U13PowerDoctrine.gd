@@ -10,6 +10,15 @@ const Wishmaster = preload("res://Scripts/Sim/U13Wishmaster.gd")
 const Economy = preload("res://Scripts/Sim/U13GameEconomy.gd")
 
 static func options(c, order: Dictionary) -> Array:
+	var result: Array = _ordinary_options(c, order)
+	if c.w.get("breach_wish_access", [false, false])[c.pid]:
+		for option in kanifous(c, order):
+			option.payload.power_id = "Breach" + option.payload.power_id
+			option.score -= 1.5
+			result.append(option)
+	return result
+
+static func _ordinary_options(c, order: Dictionary) -> Array:
 	match c.w.lord_ids[c.pid]:
 		"Gremory": return gremory(c, order)
 		"Deimos": return deimos(c)

@@ -1,4 +1,5 @@
 """Owned declared-power transforms for the existing nine-Lord authority."""
+from . import veil
 from . import economy as e, recruitment as recruit
 from .copying import copy_data
 from .primitives import instance_id
@@ -8,6 +9,7 @@ from .power_rules import RULES
 
 LANES = ('Lord','Castle')
 WISHES = ('WishPower','WishLongevity','WishResurrection','WishDeath','WishWealth')
+WISHES += tuple('Breach'+power for power in WISHES)
 RECONFIG = ('Redirect','FalseOrders','AllegianceShift','Inversion')
 
 
@@ -83,6 +85,7 @@ def validate(s,w,phase,active):
         if phase=='declaration': legal=legal and p['spend']<=w['players'][pid]['resources']['life_essence']
         return '' if legal else 'projection_zone_or_essence_invalid'
     if power in WISHES:
+        power=power.removeprefix('Breach')
         legal=not p
         if power=='WishPower': legal=legal and set(t)=={'lane'} and t['lane'] in LANES
         elif power=='WishLongevity': legal=legal and set(t)=={'entity_id'} and targetable(r) and r['owner']==pid and r['attributes']['integrity']<r['attributes']['max_integrity']
@@ -113,6 +116,7 @@ def odradek_event(kind,d):
 
 def shift(b,target,new,identity):
     ids=members(b.w,target,180,1-new if new in (0,1) else -2);events=[]
+    if new == -1:ids=[key for key in ids if veil.affects(b.w,'Odradek',e.entity(b.w,key)['owner'])]
     for key in ids:
         r=e.entity(b.w,key)
         fact=b.fact(dict(command_id=instance_id('allegiance',identity,key),kind='change_marcher_allegiance',target_id=key,new_owner=new if new in (0,1) else 1-r['owner']))
@@ -216,6 +220,7 @@ def resolve(rec,state,n):
         if victim: events.extend(b.apply_fact(dict(command_id=instance_id('projection',identity,victim['id']),kind='defeat_guard',target_id=victim['id'])))
         events.append(e.event('VALAK_PROJECTION_RESOLVED',dict(player_id=pid,target=t,spend=spend,before=before,after=resources['life_essence'],victim=victim,whiff=not bool(victim),round=n)))
     elif power in WISHES:
+        power=power.removeprefix('Breach')
         from .wishmaster import wish
         events.extend(wish(b,s))
     else: raise e.Unsupported('Unimplemented declared power '+power)
@@ -223,4 +228,5 @@ def resolve(rec,state,n):
     from .wishmaster import record_losses
     record_losses(w, events)
     reconcile(w)
+    events.extend(b.sync_breach())
     return dict(events=events,persistent_payload=payload)

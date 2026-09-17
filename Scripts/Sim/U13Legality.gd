@@ -1,6 +1,8 @@
 class_name U13Legality
 extends RefCounted
 
+const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
+
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 
@@ -109,7 +111,10 @@ static func declaration(
 		return Data.invalid("declaration_terms_invalid")
 	var player: Dictionary = world.players[source.player_id]
 	var lord: Dictionary = entities.get_entity(player.lord_entity_id)
-	if (
+	if rule.get("breach_wish", false):
+		if not Veil.affects(world, "Kanifous", source.player_id):
+			return Data.invalid("breach_wish_unavailable")
+	elif (
 		player.lord_id != source.lord_id
 		or lord.is_empty()
 		or lord.owner != source.player_id

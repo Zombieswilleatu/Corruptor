@@ -132,6 +132,6 @@ def generate():
             if result["action"] == "invalid": raise ValueError(f"{name} round {match.clock.round} {op}: {result}")
             operations.append(op)
         cases.append(dict(name=name,setup=setup,operations=operations,
-                          marching_probes=[73] if name == "spoils_rekindle" else []))
+                          marching_probes=[next(i for i,op in enumerate(operations) if i > 60 and op.get("hook") == "marching")] if name == "spoils_rekindle" else []))
     return dict(schema=SCHEMA,policy=dict(id=POLICY,guard_cards=2,ward_period=4),round_cap=40,
                 cases=cases,settlements=settlement_inputs.cases())

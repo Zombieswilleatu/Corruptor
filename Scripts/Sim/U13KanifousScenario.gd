@@ -44,8 +44,9 @@ static func source(pid: int, round_number: int, target: Dictionary, index: int =
 static func enumerate(owner, pid: int) -> Dictionary:
 	var result: Dictionary = Base.enumerate(owner, pid)
 	var view: Dictionary = owner.player_view(pid, 0)
-	if result.action == "invalid" or view.world.lord_ids[pid] != "Kanifous":
+	if result.action == "invalid" or (view.world.lord_ids[pid] != "Kanifous" and not view.world.get("breach_wish_access", [false, false])[pid]):
 		return result
+	var ordinary: Array = result.powers.duplicate(true) if view.world.lord_ids[pid] != "Kanifous" else []
 	result.powers = [source(pid, owner.round_number(), {})]
 	for lane in ["Lord", "Castle"]:
 		result.powers.append(source(pid, owner.round_number(), {"lane": lane}, 0, "WishPower"))
@@ -55,9 +56,14 @@ static func enumerate(owner, pid: int) -> Dictionary:
 	for row in view.world.entities:
 		if Content.longevity_target(row, pid):
 			result.powers.append(source(pid, owner.round_number(), {"entity_id": row.id}, 0, "WishLongevity"))
+	if view.world.get("breach_wish_access", [false, false])[pid]:
+		for wish in result.powers:
+			wish.power_id = "Breach" + wish.power_id
+	result.powers = ordinary + result.powers
 	return result
 
 static func plan(owner, pid: int) -> Dictionary:
-	if owner.player_view(pid, 0).world.lord_ids[pid] != "Kanifous":
+	var view: Dictionary = owner.player_view(pid, 0).world
+	if view.lord_ids[pid] != "Kanifous" and not view.get("breach_wish_access", [false, false])[pid]:
 		return Base.plan(owner, pid)
 	return preload("res://Scripts/Sim/U13RandomLegal.gd").plan(owner, pid, Callable(preload("res://Scripts/Sim/U13KanifousScenario.gd"), "enumerate"))

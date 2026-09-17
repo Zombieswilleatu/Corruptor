@@ -5,7 +5,7 @@ This first match path admits four Lords and no declared powers/active actors.
 The isolated API keeps its original boundary and never silently admits a game.
 """
 
-from . import marching as m
+from . import marching as m, veil
 from .copying import copy_data
 from .economy import Rejected, Unsupported
 from .marching_columns import Columns
@@ -23,8 +23,10 @@ def supported(context):
             or any(p["lord_id"] not in LORDS for p in w["players"])
             or w["data"].get("breach_lord", "") not in ("", *LORDS)):
         raise Unsupported("Full Marching integration currently supports Gremory, Deimos, Humbaba and Kalligan")
-    if context.get("persistent_effects") or any(w["data"].get(k) for k in
-            ("kroni_actors", "valak_orbs", "kanifous_objects", "kanifous_prices")):
+    actors = w["data"].get("kroni_actors", [])
+    permanent_actors = context.get("permanent_breaches") and veil.active(w,"Kroni") and all(a.get("breach") for a in actors)
+    if context.get("persistent_effects") or (actors and not permanent_actors) or any(w["data"].get(k) for k in
+            ("valak_orbs", "kanifous_objects", "kanifous_prices")):
         raise Unsupported("Declared spatial effects and actors are outside the first full-match path")
     if any(set(row["attributes"]) & {"blood_wish", "ghost_wishes", "ghost_bypassed"}
            for row in w["entities"]["entities"]):

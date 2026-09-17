@@ -268,3 +268,7 @@ func restore_checkpoint(raw: Dictionary) -> Dictionary:
 
 func retire_completed_visual_samples() -> int:
 	return _owner._retire_completed_visual_samples()
+
+# Permanent Breaches can grant a power from outside the participating Lords.
+func _power_rule(power: String) -> Dictionary:
+	return Game.Content.rules().get(power, {})

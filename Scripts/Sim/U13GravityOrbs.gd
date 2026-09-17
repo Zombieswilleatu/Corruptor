@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
+
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Space = preload("res://Scripts/Sim/U13SpatialSpace.gd")
 const Events = preload("res://Scripts/Sim/U13ValakState.gd")
@@ -48,7 +50,7 @@ static func _touches(a: Dictionary, b: Dictionary, point: Dictionary) -> bool:
 	return cross * cross <= DESTRUCTION_FP * DESTRUCTION_FP * length_sq
 
 
-static func step(orbs: Array, entities, before: Array, round_number: int, tick: int, collapse: bool = false, pull_fp: int = PULL_FP, radius_fp: int = ATTRACTION_FP) -> Array:
+static func step(orbs: Array, entities, before: Array, round_number: int, tick: int, collapse = false, pull_fp: int = PULL_FP, radius_fp: int = ATTRACTION_FP) -> Array:
 	var events: Array = []
 	for old in before:
 		var unit: Dictionary = entities.get_entity(old.id)
@@ -69,7 +71,7 @@ static func step(orbs: Array, entities, before: Array, round_number: int, tick: 
 		if pull_fp > 0 and not chosen.is_empty() and a.movement_ready_round <= round_number:
 			var point: Dictionary = chosen.target.field_position
 			var distance: int = maxi(1, ceili(sqrt(float(best))))
-			var speed: int = ((pull_fp + tick % 2) >> 1) if collapse else pull_fp
+			var speed: int = ((pull_fp + tick % 2) >> 1) if Veil.applies_to(collapse, unit.owner) else pull_fp
 			var next: Dictionary = unit.attributes.duplicate(true)
 			next.x_fp = int(a.x_fp) + roundi(float(int(point.x_fp) - int(a.x_fp)) * speed / distance)
 			next.y_fp = int(a.y_fp) + roundi(float(int(point.y_fp) - int(a.y_fp)) * speed / distance)

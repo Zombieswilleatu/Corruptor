@@ -61,7 +61,7 @@ func run() -> void:
 	key.pressed = true
 	wheel._gui_input(key)
 	check(wheel.selected_value == 10 and wheel.following_current, "Enter returns keyboard navigation to the current Veil")
-	check(wheel.milestone(5).planned and wheel.milestone(21).tooltip.contains("BOTH") and wheel.milestone(21).tooltip.contains("pending") and not wheel.milestone(12).planned, "proposed Breaches and round gate are distinct from live victory rules")
+	check(not wheel.milestone(5).planned and wheel.milestone(21).tooltip.contains("BOTH") and wheel.milestone(21).tooltip.contains("pending") and not wheel.milestone(12).planned, "live Breaches disclose thresholds and gate, not future identities")
 	wheel.bind_world(world, 21)
 	check(wheel.milestone(21).tooltip.contains("Round gate reached"), "cascade tooltip reflects the public round gate")
 	for width in [460, 800, 1100]:

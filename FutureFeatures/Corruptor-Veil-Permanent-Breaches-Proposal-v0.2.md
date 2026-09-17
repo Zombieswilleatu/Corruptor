@@ -1,7 +1,9 @@
 # Corruptor — The Eroding World: Permanent Breach Proposal v0.2
 
 Date: 2026-09-16
-Status: Design proposal only. No game rules are implemented by this document.
+Status: Initial mechanical implementation added 2026-09-17. This document remains
+the design record; see [implemented defaults and validation](../docs/U13_PERMANENT_BREACHES_2026-09-17.md).
+The victory-outro art direction remains a later presentation pass.
 
 Supersedes v0.1. Updated 2026-09-16 to prefer the cascade's combined Veil and round gate; the ungated version remains a test alternative.
 

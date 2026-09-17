@@ -94,7 +94,7 @@ func reset(_scenario_index: int = 0) -> Dictionary:
 func declaration(
 	power: String, index: int, target: Dictionary, cost: Dictionary = {}
 ) -> Dictionary:
-	var rule: Dictionary = _content(setup_lords, hunt_enabled).rules().get(power, {})
+	var rule: Dictionary = _power_rule(power)
 	if rule.is_empty():
 		return Data.invalid("power_unknown")
 	if cost.is_empty():
@@ -103,7 +103,7 @@ func declaration(
 	return Decl.create(
 		MatchOwner.declaration_id(0, current, index),
 		0,
-		setup_lords[0],
+		rule.lord_id,
 		power,
 		current,
 		rule.fire_hook,
@@ -356,3 +356,6 @@ func _capture_odradek_visuals(before: Array, events: Array) -> void:
 				if working[index].id == change.after.id:
 					working[index] = change.after.duplicate(true)
 		odradek_visuals.append({"type": event.type, "data": data.duplicate(true), "before": start, "after": working.duplicate(true), "round": round_number()})
+
+func _power_rule(power: String) -> Dictionary:
+	return _content(setup_lords, hunt_enabled).rules().get(power, {})

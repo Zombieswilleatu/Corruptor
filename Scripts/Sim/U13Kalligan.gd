@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
+
 const Humbaba = preload("res://Scripts/Sim/U13Humbaba.gd")
 const Hazards = preload("res://Scripts/Sim/U13Hazards.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
@@ -213,13 +215,13 @@ func _upkeep(context: Dictionary, result: Dictionary) -> Dictionary:
 		return Data.invalid("kalligan_upkeep_already_applied")
 	var ids = Ids.new()
 	ids.restore(world.entities)
-	var breach: bool = world.data.breach_lord == "Kalligan"
 	for castle in world.entities.entities:
 		if (
 			not Structures.targetable(castle)
 			or castle.attributes.integrity >= castle.attributes.max_integrity
 		):
 			continue
+		var breach: bool = Veil.affects(world, "Kalligan", castle.owner)
 		var player: Dictionary = world.players[castle.owner]
 		var lord: Dictionary = ids.get_entity(player.lord_entity_id)
 		if not breach and (player.lord_id != "Kalligan" or not lord.attributes.alive):

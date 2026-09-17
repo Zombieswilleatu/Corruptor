@@ -4,6 +4,7 @@ Authority is the complete U13GameContent wrapper order. Declared powers remain
 unsupported; paid Rites and Resummon precede Guards and Work in Development.
 """
 
+from . import veil
 from . import economy as e, marching_game, paid_development as paid
 from .battle import Battle, operational, targetable
 from .development import _deploy_owned, draw_pairs, reconcile, work
@@ -120,11 +121,11 @@ class RoundRules(Ordinary):
             d = self.w["data"]
             events.extend(result["events"])
             e.require(d["kalligan_upkeep_round"] < n, "kalligan_upkeep_already_applied")
-            breach = d["breach_lord"] == "Kalligan"
             for r in self.w["entities"]["entities"]:
                 a = r["attributes"]
                 if not targetable(r) or a["integrity"] >= a["max_integrity"]:
                     continue
+                breach = veil.affects(self.w,"Kalligan",r["owner"])
                 if not breach and not self.active(r["owner"], "Kalligan"):
                     continue
                 before = a["integrity"]
@@ -214,6 +215,7 @@ class RoundRules(Ordinary):
         if hook == "aftermath":
             d["dominion_rites"]["orders"] = [None,None]
             events.extend(settle(self.w,n))
+            veil.finish(self.w,n)
         if hook == "round_start_automatic":
             events.extend(e.start_draw(self.w,self.seed,n))
             events.extend(draw_pairs(self.w,n,self.seed))

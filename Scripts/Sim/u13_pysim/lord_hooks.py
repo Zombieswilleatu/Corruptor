@@ -1,4 +1,5 @@
 """Remaining Lord wrapper hooks, in the native content inheritance order."""
+from . import veil
 from . import economy as e, powers, kroni_actors as kroni, wishmaster
 from .copying import copy_data
 from .primitives import instance_id, draw
@@ -15,7 +16,10 @@ class LordRoundRules(RoundRules):
                     hook=self.hook,persistent_effects=self.effects,full_roster=True)
 
     def run(self, orders):
-        events = super().run(orders)
+        events = veil.begin_effects(self) if self.hook == "round_start_scheduled" else []
+        events.extend(super().run(orders))
+        events.extend(self.sync_breach())
+        veil.observe(self.w,self.number)
         wishmaster.record_losses(self.w, events)
         return events
 
@@ -31,12 +35,12 @@ class LordRoundRules(RoundRules):
                 if self.active(pid,'Odradek'):
                     r=w['players'][pid]['resources'];before=r['reconfiguration'];r['reconfiguration']=min(4,before+1)
                     events.append(powers.odradek_event('RECONFIGURATION_GAINED',dict(player_id=pid,before=before,after=r['reconfiguration'],round=n)))
-        if hook=='post_resolution_allegiance' and d['breach_lord']=='Odradek':
+        if hook=='post_resolution_allegiance' and veil.active(w,'Odradek'):
             pools={}
             for lane in powers.LANES:
-                candidates=sorted(powers.eligible(w,0,lane,1)+powers.eligible(w,1,lane,0))
+                candidates=sorted(key for pid in (0,1) if veil.affects(w,'Odradek',pid) for key in powers.eligible(w,pid,lane,1-pid))
                 if candidates:pools[lane]=candidates
-            bodies=sorted(r['id'] for r in w['entities']['entities'] if r['kind']=='marcher')
+            bodies=sorted(r['id'] for r in w['entities']['entities'] if r['kind']=='marcher' and veil.affects(w,'Odradek',r['owner']))
             if bodies:pools['Marcher']=bodies
             identity=instance_id('paradox',str(n),'breach');kinds=sorted(pools)
             if not kinds:events.append(powers.odradek_event('PARADOX_GEOMETRY',dict(event_id=identity,round=n,kind='none',reason='no_valid_targets')))
@@ -56,7 +60,7 @@ class LordRoundRules(RoundRules):
                 candidates=sorted((r for r in powers.guards(w) if r['owner']==pid),key=lambda r:(r['attributes']['value'],r['id']))
                 if candidates:events.append(kroni.devour_guard(w,candidates[0],pid,n,'Cannibal Hunger'))
                 else:events.extend(kroni.feed(w,pid,-1,n,'Cannibal Hunger'))
-        elif hook=='marching_start' and d['breach_lord']=='Kroni':
+        elif hook=='marching_start' and veil.active(w,'Kroni'):
             actor=kroni.create(instance_id('insatiable',str(n),'breach'),-1,n,0,True,self.seed)
             d['kroni_actors'].append(actor);events.append(e.event('INSATIABLE_HUNGER_MANIFESTED',dict(actor=actor,round=n),'Insatiable Hunger manifests in the field.'))
         elif hook=='marching':
@@ -70,5 +74,5 @@ class LordRoundRules(RoundRules):
             d['valak_orbs']=[r for r in d['valak_orbs'] if r['id'] in ids]
         events.extend(wishmaster.advance(self))
         if hook=='present_public_state':
-            d['guard_public_limits']=[min(1 if d['snare_rounds'][pid]==n else 6,2 if d['breach_lord']=='Orias' and self.lord(pid)['attributes'].get('threat',0)>=2 else 6) for pid in (0,1)]
+            d['guard_public_limits']=[min(1 if d['snare_rounds'][pid]==n else 6,2 if veil.affects(w,'Orias',pid) and self.lord(pid)['attributes'].get('threat',0)>=2 else 6) for pid in (0,1)]
         return events

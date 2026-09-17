@@ -87,16 +87,21 @@ func _update_direct_ui() -> void:
 	if wish_box == null:
 		return
 	_wish_targets()
-	wish_box.visible = _human_lord() == "Kanifous"
+	wish_box.visible = _human_lord() == "Kanifous" or _visible_world.get("breach_wish_access", [false, false])[0]
+	wish_button.text = "QUEUE BREACH WISH" if _using_breach_wish() else "QUEUE WISH"
+	if _using_breach_wish():
+		if not _human_alive():
+			status.text = "Your Lord is banished. An optional Breach Wish remains available."
+		wish_note.text += "\nBREACH WISH — HEAVIER PRICE\nStone, Soul, Ruin and Lord banishment have double their normal draw weight. Due in 1–3 rounds; ineligible outcomes are excluded."
 	lanes.void_active = _visible_world.get("void_active", false)
 	void_overlay.visible = _visible_world.get("void_active", false)
 	wish_visual.bind_world(_visible_world)
-	var has_wish: bool = queued.any(func(row: Dictionary) -> bool: return row.power_id in Kanifous.Wishes)
-	wish_button.disabled = not _planning() or not powers_step or not _human_alive() or has_wish or (Kanifous.Wishes[wish_choice.selected] == "WishLongevity" and wish_target.item_count == 0)
+	var has_wish: bool = queued.any(func(row: Dictionary) -> bool: return Kanifous.is_wish(row.power_id))
+	wish_button.disabled = not _planning() or not powers_step or (not _human_alive() and not _using_breach_wish()) or has_wish or (Kanifous.Wishes[wish_choice.selected] == "WishLongevity" and wish_target.item_count == 0)
 	wish_remove.visible = has_wish
 	price_note.text = ""
 	for price in _visible_world.get("wish_prices", []):
-		price_note.text += "%s Price: %s\n" % ["Your" if price.owner == 0 else "Enemy", "Overdue · still owed" if price.due_round < session.round_number() else "Round %d" % price.due_round]
+		price_note.text += "%s%s Price: %s\n" % ["Your" if price.owner == 0 else "Enemy", " Breach" if price.get("breach", false) else "", "Overdue · still owed" if price.due_round < session.round_number() else "Round %d" % price.due_round]
 	if wish_placement.visible or resurrection_placement.visible:
 		confirm.disabled = true
 		pass_button.disabled = true
@@ -121,23 +126,23 @@ func _queue_wish() -> void:
 		if wish_target.selected < 0:
 			return
 		target = {"entity_id": wish_target.get_item_metadata(wish_target.selected)}
-	_queue_valak(session.declaration(power, queued.size(), target))
+	_queue_valak(session.declaration(_wish_power(power), queued.size(), target))
 
 func _confirm_wish_death(target: Dictionary) -> void:
-	if _queue_valak(session.declaration("WishDeath", queued.size(), target)):
+	if _queue_valak(session.declaration(_wish_power("WishDeath"), queued.size(), target)):
 		wish_placement.close()
 		_refresh()
 		reopen_decision()
 
 func _confirm_resurrection(target: Dictionary) -> void:
-	if _queue_valak(session.declaration("WishResurrection", queued.size(), target)):
+	if _queue_valak(session.declaration(_wish_power("WishResurrection"), queued.size(), target)):
 		resurrection_placement.close()
 		_refresh()
 		reopen_decision()
 
 func _remove_wish() -> void:
 	for index in range(queued.size()):
-		if queued[index].power_id in Kanifous.Wishes:
+		if Kanifous.is_wish(queued[index].power_id):
 			_remove_valak(index)
 			return
 
@@ -194,3 +199,9 @@ func _death_wish_impact(details: Dictionary) -> void:
 		rows.append({"unit": victim})
 	lanes.show_deaths(rows)
 	lanes.queue_redraw()
+
+func _using_breach_wish() -> bool:
+	return _visible_world.get("breach_wish_access", [false, false])[0] and not (_human_lord() == "Kanifous" and _human_alive())
+
+func _wish_power(power: String) -> String:
+	return "Breach" + power if _using_breach_wish() else power
