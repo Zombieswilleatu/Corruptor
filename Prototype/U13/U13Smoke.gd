@@ -438,8 +438,8 @@ static func _event_text(events: Array) -> String:
 				)
 			"CASTLE_DESTROYED":
 				lines.append("Castle destroyed: Sifting can trigger")
-			"CASTLE_DEFUNCT":
-				lines.append("Inevitable Ruin: marked Castle is now Defunct")
+			"CASTLE_DAMAGED":
+				lines.append("%s: Castle health is now %d" % [d.get("cause", "Damage"), d.get("integrity", 0)])
 			"GEM_DAGGER", "SIFTING_THE_RUINS", "PICKING_THE_BONES":
 				lines.append(
 					(

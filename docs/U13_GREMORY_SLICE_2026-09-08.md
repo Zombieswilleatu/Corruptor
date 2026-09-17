@@ -1,5 +1,7 @@
 # Gremory: first U13 headless Lord slice
 
+Current playtest rule: [Inevitable Ruin reduces Castles above 14 health to 14](U13_INEVITABLE_RUIN_2026-09-17.md). The zero-Integrity rule below is historical.
+
 ## Gate and scope
 
 The user confirmed `U13 foundation runners passed: 9/9` on Godot 4.7.2 at

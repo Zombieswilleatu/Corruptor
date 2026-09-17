@@ -47,7 +47,7 @@ func _world() -> Dictionary:
 			"castle:" + str(player_id),
 			0,
 			player_id,
-			{"status": "standing", "integrity": 3, "max_integrity": 6}
+			{"status": "standing", "integrity": 18, "max_integrity": 21}
 		)
 		entities.create(
 			"card",
@@ -258,17 +258,17 @@ func _ruin() -> void:
 	if not _drive(owner):
 		return
 	_check(
-		_entity(owner.snapshot().world, castle_id).attributes.integrity == 6,
+		_entity(owner.snapshot().world, castle_id).attributes.integrity == 21,
 		"target_repaired_after_declaration"
 	)
 	owner.begin_next_round([0, 1])
 	_check(owner.run_next_hook().action != "invalid", "ruin_fires_before_step_two")
 	_check(
-		_entity(owner.snapshot().world, castle_id).attributes.status == "defunct",
+		_entity(owner.snapshot().world, castle_id).attributes.status == "standing" and _entity(owner.snapshot().world, castle_id).attributes.integrity == 14,
 		"repair_and_banishment_do_not_cancel_doom"
 	)
 	_check(
-		owner.snapshot().world.data.neutral_tears == 0, "defunct_is_not_destruction_or_tear_reward"
+		owner.snapshot().world.data.neutral_tears == 0, "ruin_damage_is_not_destruction_or_tear_reward"
 	)
 	world = _world()
 	_command(

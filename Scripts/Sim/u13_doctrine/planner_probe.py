@@ -85,6 +85,8 @@ class PlannerObserver(ReferenceObserver):
             metrics = dict(essence_spent=d['spend'], guards_removed=int(bool(d['victim'])), whiffs=int(d['whiff']))
         elif kind in ('WEB_HIT', 'GUARD_RECONFIGURED', 'CASTLE_DEFUNCT') and identity:
             metrics = {dict(WEB_HIT='web_hits', GUARD_RECONFIGURED='guards_moved', CASTLE_DEFUNCT='castles_disabled')[kind]: 1}
+        elif kind == 'CASTLE_DAMAGED' and identity:
+            metrics = dict(castle_damage=d['damage'])
         elif kind in ('ROUT_APPLIED', 'ALLEGIANCE_SHIFT_RESOLVED') and identity:
             metrics = dict(affected_marchers=len(d['affected_ids']))
         elif kind == 'REDIRECT_RESOLVED' and identity:

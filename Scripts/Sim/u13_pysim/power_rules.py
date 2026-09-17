@@ -2,6 +2,8 @@
 from .copying import copy_data
 from .primitives import instance_id
 
+RUIN_INTEGRITY = 14
+
 
 def rule(lord, hook, cooldown=0, delay=0, stages=None, **extra):
     stages = [] if stages is None else stages
@@ -12,7 +14,7 @@ def rule(lord, hook, cooldown=0, delay=0, stages=None, **extra):
 
 RULES = {
     'PredatorOfRuin': rule('Gremory','post_resolution_spawns',1),
-    'InevitableRuin': rule('Gremory','round_start_scheduled',delay=1,discard_count=2),
+    'InevitableRuin': rule('Gremory','round_start_scheduled',delay=1,discard_count=2,target_integrity=RUIN_INTEGRITY),
     'WarMachine': rule('Deimos','post_repair_artillery'),
     'Rout': rule('Deimos','post_resolution_movement_state',2,stages=[dict(movement='retreat'),dict(movement='half_speed')]),
     'MusterTheFaithful': rule('Humbaba','post_resolution_spawns',1),

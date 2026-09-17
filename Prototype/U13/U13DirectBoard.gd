@@ -251,7 +251,7 @@ func _guide() -> String:
 		return "INFERNO · click enemy LORD GUARDS, shared CASTLE GUARDS, or either Marching lane. Fires next round; lane fire hits both sides."
 	if _intent == Gremory.RUIN:
 		return (
-			"INEVITABLE RUIN · select payment %d/2, then click a damaged enemy Castle."
+			"INEVITABLE RUIN · select payment %d/2, then click an enemy Castle above 14 health. Reduces it to 14 next round."
 			% _power_cost.size()
 		)
 	if _is_lane_power(_intent):
@@ -378,8 +378,7 @@ func _target_allowed(target: Dictionary, intent: String) -> bool:
 				and target.kind == "castle"
 				and Structures.targetable(entity)
 				and entity.attributes.status == "standing"
-				and entity.attributes.integrity > 0
-				and entity.attributes.integrity < entity.attributes.max_integrity
+				and entity.attributes.integrity > Gremory.RUIN_INTEGRITY
 			)
 		Deimos.WAR_MACHINE:
 			return (

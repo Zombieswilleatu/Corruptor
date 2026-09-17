@@ -14,6 +14,7 @@ const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const POLICY: String = "U13_GREMORY_SLICE_V1"
 const PREDATOR: String = "PredatorOfRuin"
 const RUIN: String = "InevitableRuin"
+const RUIN_INTEGRITY: int = 14
 var _driver: Callable
 var _combat_enabled: bool = false
 
@@ -120,6 +121,7 @@ static func rules() -> Dictionary:
 	prepared.cooldown_rounds = 0
 	prepared.target_kind = "castle"
 	prepared["discard_count"] = 2
+	prepared["target_integrity"] = RUIN_INTEGRITY
 	return {PREDATOR: base, RUIN: prepared}
 
 
@@ -139,18 +141,11 @@ func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionar
 		return {"legal": false, "reason": "castle_not_standing"}
 	if castle.owner != 1 - int(source.player_id):
 		return {"legal": false, "reason": "castle_not_enemy"}
-	if phase == "declaration":
-		var attributes: Dictionary = castle.attributes
-		if (
-			not Data.is_integer(attributes.get("integrity"))
-			or not Data.is_integer(attributes.get("max_integrity"))
-		):
-			return {"legal": false, "reason": "castle_integrity_invalid"}
-		return {
-			"legal": attributes.integrity < attributes.max_integrity, "reason": "castle_not_damaged"
-		}
-	# Repair between declaration and firing does not cancel the original doom.
-	return {"legal": true, "reason": ""}
+	var attributes: Dictionary = castle.attributes
+	if not Data.is_integer(attributes.get("integrity")):
+		return {"legal": false, "reason": "castle_integrity_invalid"}
+	# Recheck at firing: intervening damage must never be healed back up to 14.
+	return {"legal": attributes.integrity > RUIN_INTEGRITY, "reason": "castle_at_or_below_ruin_health"}
 
 
 func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
@@ -177,20 +172,23 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 				return placed
 			events.append({"type": "MARCHER_SPAWNED", "text": "", "data": placed.entity})
 	else:
+		var legal: Dictionary = validate(source, world, "firing")
+		if not legal.legal:
+			return Data.invalid(legal.reason)
 		var castle: Dictionary = entities.get_entity(source.target.entity_id)
-		castle.attributes["integrity"] = 0
-		castle.attributes["status"] = "defunct"
-		if world.data.has("guard_work"): castle.attributes["artillery_target"] = ""
+		var before: int = castle.attributes.integrity
+		castle.attributes["integrity"] = RUIN_INTEGRITY
 		entities.update(castle.id, castle.owner, castle.attributes)
 		events.append(
 			{
-				"type": "CASTLE_DEFUNCT",
+				"type": "CASTLE_DAMAGED",
 				"text": "",
-				"data": {"castle_id": castle.id, "declaration_id": source.declaration_id}
+				"data": {"castle_id": castle.id, "declaration_id": source.declaration_id,
+					"player_id": source.player_id, "round": context.round,
+					"source": RUIN, "cause": "Inevitable Ruin", "damage": before - RUIN_INTEGRITY,
+					"integrity": RUIN_INTEGRITY, "destroyed": false}
 			}
 		)
-	if world.data.has("guard_work") and source.power_id != PREDATOR:
-		events.back().data.merge({"player_id": source.player_id, "round": context.round, "cause": "Inevitable Ruin"})
 	world.entities = entities.snapshot()
 	return {"action": "resolved", "world": world, "events": events}
 

@@ -20,7 +20,7 @@ const RULES: Dictionary = {
 		"breach": "ENTANGLEMENT\nPlayers at Threat 2+ may deploy no more than 2 Guards total during Development. Applies when this Breach is active before submission."
 	},
 	"Gremory": {
-		"passive": "PICKING THE BONES\nOnce per round, when your Vulture Marcher kills an enemy Marcher in combat, draw 1 card and place 1 Neutral Tear.\n\nSIFTING THE RUINS\nAfter the first Castle is destroyed each round, take the top discard into your Hand.",
+		"passive": "PICKING THE BONES\nOnce per round, when your Vulture Marcher kills an enemy Marcher in combat, draw 1 card and place 1 Neutral Tear.\n\nSIFTING THE RUINS\nAfter the first Castle is destroyed each round, take the top discard into your Hand.\n\nINEVITABLE RUIN\nDiscard 2 cards to reduce a commissioned enemy Castle above 14 health to exactly 14 at the start of next round. If it has fallen to 14 or below when the power fires, the power fizzles. The Castle remains operational.",
 		"breach": "GEM DAGGER\nThe first Guard defeated each round makes both players draw 1 card."
 	},
 	"Deimos": {

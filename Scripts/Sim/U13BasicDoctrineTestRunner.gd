@@ -172,6 +172,7 @@ func coordinated_powers() -> void:
 	check(Bot.Powers.redundant(c, ruin, strong), "Ruin avoids a castle our own Siege is expected to destroy")
 	var weak: Dictionary = strong.duplicate(true)
 	weak.card_ids = []
+	castle.attributes.integrity = 18
 	check(not Bot.Powers.redundant(c, ruin, weak), "Ruin remains useful with a nonlethal Siege")
 	ruin.target.entity_id = c.castles(1)[0].id
 	check(not Bot.Powers.redundant(c, ruin, strong), "Siege leaves other Ruin targets available")

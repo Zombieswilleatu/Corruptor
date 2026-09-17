@@ -21,7 +21,13 @@ func reset(scenario: int = 0) -> Dictionary:
 		return Data.invalid("smoke_scenario_invalid")
 	var content = Gremory.new()
 	var candidate = content.create_combat_match()
-	var started: Dictionary = candidate.start(SEED, _initial_world(), [0, 1])
+	var world: Dictionary = _initial_world()
+	if scenario == 2:
+		var entities = Ids.new(); entities.restore(world.entities)
+		var castle: Dictionary = entities.get_entity(_castle_id(1))
+		castle.attributes.integrity = 18; castle.attributes.max_integrity = 21
+		entities.update(castle.id, castle.owner, castle.attributes); world.entities = entities.snapshot()
+	var started: Dictionary = candidate.start(SEED, world, [0, 1])
 	if started.action == "invalid":
 		return started
 	_owner = candidate

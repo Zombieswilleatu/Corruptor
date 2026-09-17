@@ -1,0 +1,67 @@
+{
+  "change": "Inevitable Ruin reduces eligible enemy Castles above 14 Integrity to 14",
+  "base_commit": "1e6401154221dedb975b4205472d975c03045ec5",
+  "verified_at_utc": "2026-09-17T05:18:19.273291+00:00",
+  "rules_hash": "89cd56e07273c3a39e5dd7af211d983511178b19beb585dbaf5a98639b520951",
+  "runtime": "Godot 4.5.1 stable Linux headless (diagnostic); production remains 4.7.2 stable",
+  "native_suites": {
+    "Inevitable Ruin rules and modal": {
+      "failures": 0,
+      "script_errors": 0
+    },
+    "Gremory": {
+      "failures": 0,
+      "script_errors": 0
+    },
+    "Basic doctrine": {
+      "failures": 0,
+      "script_errors": 0
+    },
+    "Construction": {
+      "failures": 0,
+      "script_errors": 0
+    }
+  },
+  "python_unit_tests": {
+    "tests": 27,
+    "failures": 0
+  },
+  "exact_power_parity": {
+    "cases": 6,
+    "transitions": 203,
+    "native_replay_checks": 1761,
+    "failures": 0
+  },
+  "complete_game_parity": {
+    "games": [
+      "gremory_humbaba",
+      "kanifous_gremory"
+    ],
+    "compared": "All semantic events and final state; native final save restored exactly"
+  },
+  "power_inputs_sha256": "904fdcc461d17037ac79b6c1fb0555258dcc7d077ad1d6d46f76b40c679a1878",
+  "boundaries": [
+    0,
+    7,
+    13,
+    14,
+    15,
+    20,
+    21
+  ],
+  "checks": [
+    "At or below 14 rejected without spending",
+    "Healthy and damaged targets above 14 accepted",
+    "Firing below threshold fizzles without healing, refund or retarget",
+    "Repair above threshold does not cancel",
+    "Castle remains operational and retains artillery target",
+    "No destruction rewards or new repair lock",
+    "UI list, highlights and description agree",
+    "Bots score actual damage"
+  ],
+  "limitations": [
+    "Windows Godot 4.7.2 visual review remains.",
+    "Legacy Smoke scenarios and replay passed; its scene-start check is blocked by the existing exact-4.7.2 runtime guard on diagnostic 4.5.1."
+  ],
+  "git_diff_check": "passed"
+}

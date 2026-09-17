@@ -96,6 +96,6 @@ func prices() -> void:
 
 	var gremory = preload("res://Scripts/Sim/U13Gremory.gd").new()
 	var target: String = Game.Slots.castle_id(0, 1)
+	var before: Dictionary = w.duplicate(true)
 	var doomed: Dictionary = gremory.resolve({"declaration": {"power_id": "InevitableRuin", "player_id": 1, "target": {"entity_id": target}, "declaration_id": "doom-fixture"}}, {"world": w, "round": 2})
-	ids.restore(doomed.world.entities)
-	check(ids.get_entity(target).attributes.status == "ruined" and doomed.events[0].type == "CASTLE_RUINED", "Inevitable Ruin also creates a real ruin")
+	check(doomed.action == "invalid" and w == before, "Inevitable Ruin cannot finish a Castle already below 14")

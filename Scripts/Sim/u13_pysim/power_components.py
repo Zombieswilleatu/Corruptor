@@ -59,7 +59,7 @@ def generate():
             changes.append(dict(kind='fixture_data',data=dict(veil_breaches=state,neutral_tears=5)))
         castles=[r for r in w['entities']['entities'] if r['kind']=='castle']
         for c in castles:
-            changes.append(dict(kind='fixture_patch',entity_id=c['id'],attributes=dict(construction_state='active',status='standing',integrity=10)))
+            changes.append(dict(kind='fixture_patch',entity_id=c['id'],attributes=dict(construction_state='active',status='standing',integrity=18 if power=='InevitableRuin' else 10)))
         if rules['lord_id']=='Odradek':changes.append(dict(kind='fixture_resources',player_id=0,resources=dict(reconfiguration=4)))
         if rules['lord_id']=='Valak':changes.append(dict(kind='fixture_resources',player_id=0,resources=dict(life_essence=5)))
         cards=[r for r in w['entities']['entities'] if r['kind']=='card' and r['attributes']['value']==2]

@@ -490,6 +490,7 @@ func _completion_and_repair() -> void:
 		{"discard_ids": world.data.card_zones.hands[1].slice(0, 2)}
 	)
 	var content = Deimos.new(true)
+	_patch_attributes(world, Opening._castle_id(0), {"integrity": 18, "status": "standing"})
 	var doomed: Dictionary = content.resolve(
 		Data.make_record("pending", source, "main", {}, {}), {"world": world, "round": 2}
 	)
@@ -499,9 +500,9 @@ func _completion_and_repair() -> void:
 				_entity(doomed.world, Opening._castle_id(0)).attributes.get(
 					"repair_lock_until_round", 0
 				)
-				== 3
+				== 0
 			),
-			"ruin_retains_following_round_repair_lock"
+			"ruin_to_fourteen_does_not_create_repair_lock"
 		)
 	world = Core.construction_world()
 	_patch_attributes(
@@ -601,6 +602,7 @@ func _atomic_plans() -> void:
 
 func _screen_equivalence() -> void:
 	var world: Dictionary = Core.construction_world()
+	_patch_attributes(world, Opening._castle_id(0), {"integrity": 18, "status": "standing"})
 	var owner = _ready_owner(world)
 	if owner == null:
 		return

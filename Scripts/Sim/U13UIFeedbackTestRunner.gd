@@ -99,13 +99,16 @@ func mechanics() -> void:
 	Work.develop(w, 1, [0, 1]); ids.restore(w.entities)
 	check(ids.get_entity(id).attributes.construction_state == "active" and ids.get_entity(id).attributes.integrity == 9, "Commission exposes Castle at existing Integrity without free repair")
 	var source: Dictionary = {"power_id": Gremory.RUIN, "player_id": 1, "target": {"entity_id": id}, "declaration_id": "ui-ruin"}
+	castle = ids.get_entity(id)
+	castle.attributes.integrity = 18
+	ids.update(id, 0, castle.attributes); w.entities = ids.snapshot()
 	var content = Deimos.new(true, true, true)
 	var result: Dictionary = content.resolve({"declaration": source}, {"world": w, "round": 2})
 	ids.restore(result.world.entities)
 	var ruined: Dictionary = ids.get_entity(id)
-	check(ruined.attributes.status == "defunct" and ruined.attributes.integrity == 0, "Inevitable Ruin leaves a defunct Castle")
+	check(ruined.attributes.status == "standing" and ruined.attributes.integrity == 14, "Inevitable Ruin leaves a standing Castle at 14")
 	check(Work.eligible(result.world, 0, ruined), "Ruin target remains repairable")
-	check(ruined.attributes.get("repair_lock_until_round", 0) == 3, "Ruin retains following-round repair lock")
+	check(ruined.attributes.get("repair_lock_until_round", 0) == 0, "Ruin does not create a repair lock above the operational floor")
 func job_done() -> void:
 	while board._job != null: await process_frame
 	await process_frame

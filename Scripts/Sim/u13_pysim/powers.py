@@ -5,7 +5,7 @@ from .copying import copy_data
 from .primitives import instance_id
 from .battle import Battle, targetable, operational, note_loss
 from .resolution import Ordinary
-from .power_rules import RULES
+from .power_rules import RULES, RUIN_INTEGRITY
 
 LANES = ('Lord','Castle')
 WISHES = ('WishPower','WishLongevity','WishResurrection','WishDeath','WishWealth')
@@ -54,7 +54,7 @@ def validate(s,w,phase,active):
     if power=='InevitableRuin':
         if not targetable(r): return 'castle_not_targetable'
         if r['owner']!=1-pid: return 'castle_not_enemy'
-        return 'castle_not_damaged' if phase=='declaration' and r['attributes']['integrity']>=r['attributes']['max_integrity'] else ''
+        return 'castle_at_or_below_ruin_health' if r['attributes']['integrity']<=RUIN_INTEGRITY else ''
     if power=='WarMachine': return '' if r and r['owner']==pid and r['attributes'].get('combat_profile')=='siege_engine' and operational(r) else 'siege_engine_not_operational'
     if power in ('Rout','MusterTheFaithful','BreathOfLife'):
         return '' if set(t)=={'lane'} and t['lane'] in LANES and not p else 'rout_lane_invalid' if power=='Rout' else 'humbaba_lane_invalid'
@@ -152,8 +152,10 @@ def resolve(rec,state,n):
             r=recruit.create(w,rec['effect_id'],ordinal,pid,a);recruit.place_spawn(w,r,state['seed'])
             events.append(e.event('MARCHER_SPAWNED',r))
     elif power=='InevitableRuin':
-        r=e.entity(w,t['entity_id']);before=r['attributes']['integrity'];r['attributes'].update(integrity=0,status='defunct',artillery_target='');note_loss(r,before,n)
-        events.append(e.event('CASTLE_DEFUNCT',dict(castle_id=r['id'],declaration_id=identity,player_id=pid,round=n,cause='Inevitable Ruin')))
+        reason=validate(s,w,'firing',[])
+        if reason: raise e.Rejected(reason)
+        r=e.entity(w,t['entity_id']);before=r['attributes']['integrity'];r['attributes']['integrity']=RUIN_INTEGRITY;note_loss(r,before,n)
+        events.append(e.event('CASTLE_DAMAGED',dict(castle_id=r['id'],declaration_id=identity,player_id=pid,round=n,source=power,cause='Inevitable Ruin',damage=before-RUIN_INTEGRITY,integrity=RUIN_INTEGRITY,destroyed=False)))
     elif power=='WarMachine': events.extend(b.fire(t['entity_id'],rec['effect_id']))
     elif power=='Rout':
         ids=[];key=instance_id('persistent',identity,power)

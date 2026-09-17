@@ -90,6 +90,7 @@ static func describe(kind: String, d: Dictionary) -> String:
 	match kind:
 		"PILLAGE_RETARGETED": return "Pillage became Siege against " + str(d.get("castle_id", "Castle"))
 		"CASTLE_DEFUNCT": return "%s · %s is defunct (repairable)" % [d.get("cause", "Castle disabled"), d.get("castle_id", "Castle")]
+		"CASTLE_DAMAGED": return "%s · %d damage · Castle health %d" % [d.get("cause", d.get("source", "Castle damage")), d.get("damage", 0), d.get("integrity", 0)]
 		"COMMISSION_FIZZLED": return "Commission failed · " + str(d.get("castle_id", "Castle"))
 		"KANIFOUS_WISH_RESOLVED":
 			var power: String = d.get("power", "")

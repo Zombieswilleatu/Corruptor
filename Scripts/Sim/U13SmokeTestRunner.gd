@@ -69,7 +69,7 @@ func _scenarios() -> void:
 			_check(session.view().world.souls == [3, 0], "smoke_public_soul_rewards")
 		if scenario == 2:
 			_check(session.view().pending.size() == 1, "smoke_ruin_waits_for_next_round")
-			_check(_count(events, "CASTLE_DEFUNCT") == 0, "smoke_ruin_does_not_fire_early")
+			_check(_count(events, "CASTLE_DAMAGED") == 0, "smoke_ruin_does_not_fire_early")
 		if not _finish_round(session):
 			return
 		if not _check(
@@ -82,12 +82,12 @@ func _scenarios() -> void:
 		)
 		if scenario == 2:
 			_check(
-				_count(session.view().events, "CASTLE_DEFUNCT") == 1,
+				_count(session.view().events, "CASTLE_DAMAGED") == 1,
 				"smoke_prepared_ruin_fires_before_planning"
 			)
 			_check(
 				_count(session.view().events, "CASTLE_DESTROYED") == 0,
-				"smoke_defunct_does_not_fake_destruction"
+				"smoke_ruin_damage_does_not_fake_destruction"
 			)
 		if not _check(session.run_to_marching().action != "invalid", "smoke_second_round_runs"):
 			return

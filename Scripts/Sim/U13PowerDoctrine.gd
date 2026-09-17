@@ -7,6 +7,7 @@ const Decl = preload("res://Scripts/Sim/U13LordPowerDeclaration.gd")
 const Owner = preload("res://Scripts/Sim/U13Match.gd")
 const Common = preload("res://Scripts/Sim/U13CommonDoctrine.gd")
 const Wishmaster = preload("res://Scripts/Sim/U13Wishmaster.gd")
+const Gremory = preload("res://Scripts/Sim/U13Gremory.gd")
 const Economy = preload("res://Scripts/Sim/U13GameEconomy.gd")
 
 static func options(c, order: Dictionary) -> Array:
@@ -75,8 +76,9 @@ static func gremory(c, order: Dictionary) -> Array:
 	cards.sort_custom(func(a, b): return a < b if c.card_score(a) == c.card_score(b) else c.card_score(a) < c.card_score(b))
 	if cards.size() >= 2:
 		for row in c.castles(1 - c.pid):
-			if row.attributes.integrity > 0 and row.attributes.integrity < row.attributes.max_integrity:
-				add(result, c, "InevitableRuin", {"entity_id": row.id}, 9.0 + c.castle_value(row) - c.printed(cards.slice(0, 2)) * 0.6, {"discard_ids": cards.slice(0, 2)})
+			var damage: int = row.attributes.integrity - Gremory.RUIN_INTEGRITY
+			if damage > 0:
+				add(result, c, "InevitableRuin", {"entity_id": row.id}, damage * 1.5 - c.printed(cards.slice(0, 2)) * 0.6, {"discard_ids": cards.slice(0, 2)})
 	return result
 
 static func deimos(c) -> Array:
@@ -193,7 +195,7 @@ static func redundant(c, source: Dictionary, order: Dictionary) -> bool:
 			if castle.attributes.castle_type == "Bastion":
 				remaining = maxi(0, remaining - int(castle.attributes.integrity))
 				break
-	return remaining >= int(row.attributes.integrity)
+	return int(row.attributes.integrity) - remaining <= Gremory.RUIN_INTEGRITY
 
 static func kanifous(c, order: Dictionary = {}) -> Array:
 	var result: Array = []
