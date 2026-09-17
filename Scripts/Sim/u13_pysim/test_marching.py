@@ -9,12 +9,38 @@ from . import marching_fixtures as f
 from .copying import copy_data
 from .economy import Rejected, Unsupported
 from .marching_columns import Columns
-from .marching_spatial import speed, swept
+from .marching_spatial import gravity, speed, swept
 
 
 class MarchingTests(unittest.TestCase):
     def spec(self, name):
         return next(c for c in f.load()["cases"] if c["name"] == name)
+
+    def test_gravity_tracks_ids_after_death_callback_compacts_columns(self):
+        s = Columns(f.initial(self.spec('keyed_ties'))['entities'])
+        for i in s.active(): s.x_fp[i], s.y_fp[i], s.movement_ready_round[i] = 1200, 300, 1
+        before = [(s.ids[i], s.x_fp[i], s.y_fp[i], s.lane[i], s.movement_ready_round[i]) for i in s.active()]
+        victim = s.ids[0]; survivors = s.ids[1:]
+        s.retire(0)
+        s = Columns(s.snapshot())  # A real reaction rebuild removes the dead slot.
+        events = []
+        orbs = [dict(id=lane, owner=0, target=dict(lane=lane, field_position=dict(x_fp=1200, y_fp=300)),
+                     consumed=0, rewarded=False) for lane in ('Lord', 'Castle')]
+        gravity(s, orbs, before, 1, 0, False, lambda kind, data: events.append(data))
+        self.assertEqual(survivors, [r['unit']['id'] for r in events])
+        self.assertNotIn(victim, [r['unit']['id'] for r in events])
+        self.assertEqual([], s.active())
+
+    def test_gravity_uses_pre_tick_readiness_after_monster_wakes_recruit(self):
+        s = Columns(f.initial(self.spec('keyed_ties'))['entities'])
+        i = 0; s.x_fp[i], s.y_fp[i] = 1000, 300
+        before = [(s.ids[i], 1000, 300, s.lane[i], 2)]
+        s.movement_ready_round[i] = 1
+        orb = dict(id='orb', owner=0, target=dict(lane=s.lane[i], field_position=dict(x_fp=1200, y_fp=300)), consumed=0, rewarded=False)
+        gravity(s, [orb], before, 1, 0, False, lambda *args: self.fail('unexpected consumption'))
+        self.assertEqual(1000, s.x_fp[i])
+        gravity(s, [orb], [(s.ids[i], 1000, 300, s.lane[i], 1)], 1, 1, False, lambda *args: self.fail('unexpected consumption'))
+        self.assertEqual(1007, s.x_fp[i])
 
     def test_attacked_recruit_closes_distance_while_untouched_recruit_holds(self):
         for pid in (0, 1):

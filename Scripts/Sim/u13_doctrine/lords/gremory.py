@@ -1,7 +1,7 @@
-"""Gremory: reinforce pressure; pay two low cards to reduce healthy Castles to 14.
+"""Gremory: reinforce pressure; pay two cards to reduce healthy Castle Integrity.
 
 Passives: Guard defense supports Gem Dagger; no assumed future draw is scored.
-Timing: Inevitable Ruin fires next round; damage down to 14 or lower makes it fizzle.
+Timing: Inevitable Ruin fires next round; reaching the current cap makes it fizzle.
 Resources: its two discard cards compete with this round's entire plan.
 """
 from u13_pysim.battle import targetable
@@ -19,4 +19,4 @@ def proposals(f):
                          key=lambda r: (-r['attributes']['integrity'], r['id']))[:2]
         for row in targets:
             yield power('InevitableRuin', dict(entity_id=row['id']), 5*(row['attributes']['integrity']-RUIN_INTEGRITY),
-                        'delayed_damage_to_14', [r['id'] for r in f.hand[:2]])
+                        'delayed_damage_to_ruin_cap', [r['id'] for r in f.hand[:2]])

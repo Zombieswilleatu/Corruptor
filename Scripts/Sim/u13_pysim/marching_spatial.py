@@ -82,20 +82,20 @@ def swept(ax, ay, bx, by, px, py):
 
 def gravity(s, orbs, before, number, tick, collapse, emit):
     """Pull uses pre-movement positions; consumption tests the swept segment."""
-    old_x, old_y, indices = before
     tears = 0
-    for i in indices:
-        if not s.alive[i]:
+    for identity, ax, ay, lane, ready in before:
+        i = s.live(identity)
+        if i is None:
             continue
-        ax, ay, chosen, best = old_x[i], old_y[i], None, (1 << 63) - 1
+        chosen, best = None, (1 << 63) - 1
         for orb in orbs:
-            if orb["target"]["lane"] != s.lane[i]:
+            if orb["target"]["lane"] != lane:
                 continue
             point = orb["target"]["field_position"]
             gap = distance(ax, ay, point["x_fp"], point["y_fp"])
             if gap <= 248 ** 2 and (gap < best or gap == best and (chosen is None or orb["id"] < chosen["id"])):
                 chosen, best = orb, gap
-        if chosen is not None and s.movement_ready_round[i] <= number:
+        if chosen is not None and ready <= number:
             point = chosen["target"]["field_position"]
             length = max(1, ceil_sqrt(best))
             pull = (7 + tick % 2) >> 1 if veil.applies_to(collapse,s.owner[i]) else 7
@@ -104,7 +104,7 @@ def gravity(s, orbs, before, number, tick, collapse, emit):
             s.waiting[i], s.contact_tick[i] = False, -1
         for orb in orbs:
             point = orb["target"]["field_position"]
-            if orb["target"]["lane"] != s.lane[i] or not swept(ax, ay, s.x_fp[i], s.y_fp[i], point["x_fp"], point["y_fp"]):
+            if orb["target"]["lane"] != lane or not swept(ax, ay, s.x_fp[i], s.y_fp[i], point["x_fp"], point["y_fp"]):
                 continue
             s.retire(i)
             orb["consumed"] += 1

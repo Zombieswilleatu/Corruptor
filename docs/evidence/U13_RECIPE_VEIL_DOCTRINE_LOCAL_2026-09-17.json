@@ -1,0 +1,506 @@
+{
+  "artifacts": {
+    "verification/doctrine-native-final/U13ActionForecast.log": {
+      "bytes": 4885,
+      "sha256": "aed0ee5227289bc12aace7075e646de474b5c190fb9e8a45fb93f45dfa224bb7"
+    },
+    "verification/doctrine-native-final/U13GuardWork.log": {
+      "bytes": 10843,
+      "sha256": "53b7859fa219887a2488a52058d106579cfb4f23f30c8bbf8f2727745e308454"
+    },
+    "verification/doctrine-native-final/U13Monster.exact": {
+      "bytes": 10042728,
+      "sha256": "c7d96e98a8c42a5acd8e77d744d90a53334104f8c92eaab7203588f597202712"
+    },
+    "verification/doctrine-native-final/U13Monster.log": {
+      "bytes": 8346,
+      "sha256": "55f3ada75da839d2a3bb0c38793ba80881a081ad4bafccf366802648aa7daec6"
+    },
+    "verification/doctrine-native-final/U13MonsterGravity.exact": {
+      "bytes": 1187652,
+      "sha256": "648871f3a81c1c834cb0c223c269cea5d834194cad7beac7c72fc2faec6aa1e1"
+    },
+    "verification/doctrine-native-final/U13MonsterGravity.log": {
+      "bytes": 1241,
+      "sha256": "92405336aeaf3d66f7e64bf6162ed52c7347bd0ee3be5b9566f4b04ee16b81f9"
+    },
+    "verification/doctrine-native-final/U13MonsterResurrection.exact": {
+      "bytes": 630304,
+      "sha256": "f0746a7e69487ffc7eb5c2f1ae01ab8e5e7064bfc63021a47ee9351c886ded98"
+    },
+    "verification/doctrine-native-final/U13MonsterResurrection.log": {
+      "bytes": 3430,
+      "sha256": "521b9b56275617ed16c36b836c08e192a4c059c6e6df44d3463a2d19b978caa8"
+    },
+    "verification/doctrine-native-final/U13VeilBreaches.exact": {
+      "bytes": 1031803,
+      "sha256": "29b78fe1fbbb95756d0bab0d61ac1f4ebdafa019240ce5f7f4d66ea4bc274f05"
+    },
+    "verification/doctrine-native-final/U13VeilBreaches.log": {
+      "bytes": 3087,
+      "sha256": "bb0735e21d2d883931e7baf5e77d798dd1a861c544d02d1c87427de2f03fa76e"
+    },
+    "verification/doctrine-native-final/comparison.log": {
+      "bytes": 1039,
+      "sha256": "0a428d77f137c30c4107eda5f1f83aef52c142fad87cdb0fa4dd5818820e12ca"
+    },
+    "verification/doctrine-native-final/cpython-native-comparison.json": {
+      "bytes": 1311,
+      "sha256": "b8970346fe561090c9deb4909e09a8d6bd31d8d6ff5279c7b526638169df8901"
+    },
+    "verification/doctrine-native-final/native.json": {
+      "bytes": 566,
+      "sha256": "54c8d3f9ecf254af195df7291793dd3443d82460a6e9ae46bbcdf7dfe52e1e35"
+    },
+    "verification/doctrine-native-final/original-crash.json": {
+      "bytes": 92,
+      "sha256": "d7beb7bf72abf6175ae8592de4f224d5136e9b35830317babcc6715038e839f6"
+    },
+    "verification/doctrine-validation-final/cpython.inputs.json": {
+      "bytes": 562598,
+      "sha256": "8f5fb4d24cd2c78c369f7aeb397862d26b2c71ca7663c9c7ee5cdb1ad0e2d478"
+    },
+    "verification/doctrine-validation-final/cpython.json": {
+      "bytes": 1248443,
+      "sha256": "a2eee52cb8ac9a5c8b24d4a54be6f050be9c28dee5a0307aa6cf83313f11a520"
+    },
+    "verification/doctrine-validation-final/cpython.log": {
+      "bytes": 12422,
+      "sha256": "5f875606a38aa1d73f7d0aa2a3fcc8cfdf6ef4d4a2303f8199c4f8a774eb44b1"
+    }
+  },
+  "base_revision": "cfee89ae33e7d88eaae865b6d5101ad57bde0361",
+  "changed_code_sha256": {
+    "Scripts/Sim/U13MonsterGravityTestRunner.gd": "032750d15a78188d5d697e7b1c51b831c01da9c65299d06c3976cd2789f19211",
+    "Scripts/Sim/U13MonsterResurrectionTestRunner.gd": "2d9944852681c25a226d3e2681aa89e5998500de69c0f68e4453aa4f01cbb84b",
+    "Scripts/Sim/run_u13_common_doctrine.py": "6c7d007608f1b6bfa32d5e6d1363b05aeaa9aa41c7114f123404782a2bebc0fc",
+    "Scripts/Sim/run_u13_common_doctrine.sh": "3c36f56035562a8f15c988bcfdf13e1ddac8afeab2d1148d96388c7a083708a5",
+    "Scripts/Sim/u13_doctrine/budget.py": "6e98f1b4cc5852ef173f4c64466c7dbb5ae9b7ef95c1c96edb9926cf57068591",
+    "Scripts/Sim/u13_doctrine/common.py": "be7db8e4efe12c16960222ca20da71e7ff89d314f0d30beb4e056cbc72b3b2d3",
+    "Scripts/Sim/u13_doctrine/facts.py": "03cc64a025e42217a77cc24d1980033c131e25b6224fcc69f518d4debc0ecab3",
+    "Scripts/Sim/u13_doctrine/lords/gremory.py": "24da2dec94f8788638c8cd2aec532b25806c71590c580bd1782aa8242ea23496",
+    "Scripts/Sim/u13_doctrine/lords/kalligan.py": "804956060c8d59eb9ea1c7911798954e11b5d933c784531aff846e69c2f726f8",
+    "Scripts/Sim/u13_doctrine/planner_probe.py": "8d0bee56a3cdc87cbd1b7d892196ad410c4585ed1e8a570de1140c7d7fd232a2",
+    "Scripts/Sim/u13_doctrine/recipes.py": "ddb4e0072006093218d8a4707beb248d7fe92067f57864d02588ab86df9a1c2e",
+    "Scripts/Sim/u13_doctrine/test_recipes_veil.py": "b1948ea569cf7b304756b70e4e2a99d479228cca4514a826fdb556434d5b456e",
+    "Scripts/Sim/u13_doctrine/veil_judgment.py": "f92f3a5ca62d8ead00f38b7b5a1d4945645032e05e048305ec114bbb66d64131",
+    "Scripts/Sim/u13_pysim/marching.py": "386bc12fbf050a14e32ff68ce58aeed7b7594a8384b7703a115a9de108d330ab",
+    "Scripts/Sim/u13_pysim/marching_spatial.py": "f5a04a7025e0af57e2b3f5d362a2e78a397f527235c1671748f4f2e264ff8c1d",
+    "Scripts/Sim/u13_pysim/test_marching.py": "f24f9f2b4b53b45efdb132cff8f71ebd72f28a268a234b721c77f16616555325"
+  },
+  "current_engine_source_sha256": "ae410d34ed0e1803f72575a1589e0df9f853a00001cd1b2eb9be9166a437e326",
+  "doctrine_source_sha256": "5f000198775d7e9a06b15b0b26d0609beaf8009af48d9aa443966656ed8ec489",
+  "limits": [
+    "No Windows 4.7.2 or PyPy acceptance yet.",
+    "Five doctrine games are Python behavior probes, not new Godot full-game replay.",
+    "No tuned strength, matchup balance, speed ratio or causal ability-value claim.",
+    "Native production rules, U12, assets and playable policy are unchanged."
+  ],
+  "native": {
+    "acceptance_runtime": false,
+    "exact_comparisons": {
+      "gravity": {
+        "event_types": {
+          "GRAVITY_ORB_CONSUMED": 10,
+          "MARCHER_DEFEATED": 2,
+          "MARCHING_FINISHED": 4,
+          "MARCHING_STARTED": 4,
+          "MARCHING_TICK": 800,
+          "MONSTER_ATTACK": 4
+        },
+        "events": 824,
+        "phases": 4,
+        "ticks": 800
+      },
+      "monsters": {
+        "event_types": {
+          "KRONI_ACTORS_STARTED": 1,
+          "KRONI_ACTOR_FINISHED": 1,
+          "KRONI_ACTOR_TICK": 200,
+          "KRONI_FLEE_STARTED": 1,
+          "MARCHER_CLASH": 12,
+          "MARCHER_CONTACT": 16,
+          "MARCHER_DEFEATED": 16,
+          "MARCHER_DEVOURED": 1,
+          "MARCHER_DUEL_INTERRUPTED": 4,
+          "MARCHER_RANGED_ATTACK": 26,
+          "MARCHER_WAITING": 1,
+          "MARCHING_FINISHED": 19,
+          "MARCHING_STARTED": 19,
+          "MARCHING_TICK": 3800,
+          "MONSTER_ATTACK": 36,
+          "MONSTER_BANISHED": 1,
+          "MONSTER_BEAM_FIRED": 17,
+          "MONSTER_CHARMED": 3,
+          "MONSTER_CONCEALMENT": 1,
+          "MONSTER_FIELD_CREATED": 3,
+          "MONSTER_POISONED": 1,
+          "MONSTER_PULSE": 1,
+          "MONSTER_ROOTED": 1,
+          "NEUTRAL_TEAR_CREATED": 2,
+          "PICKING_THE_BONES": 2
+        },
+        "events": 4185,
+        "phases": 19,
+        "ticks": 3800
+      },
+      "resurrections": {
+        "complete_world_and_events_match": true,
+        "resurrection_checks": 8
+      },
+      "veil": {
+        "arrival_checks": 5,
+        "effect_checks": 14
+      }
+    },
+    "regression": {
+      "error": "list index out of range",
+      "fixed_exact_phases": 4,
+      "source_revision": "cfee89a"
+    },
+    "runtime": "4.5.1.stable.official.f62fdbde1",
+    "suites": [
+      {
+        "errors": [],
+        "passed": 217,
+        "status": 0,
+        "suite": "U13GuardWork"
+      },
+      {
+        "errors": [],
+        "passed": 96,
+        "status": 0,
+        "suite": "U13ActionForecast"
+      },
+      {
+        "errors": [],
+        "passed": 78,
+        "status": 0,
+        "suite": "U13VeilBreaches"
+      },
+      {
+        "errors": [],
+        "passed": 191,
+        "status": 0,
+        "suite": "U13Monster"
+      },
+      {
+        "errors": [],
+        "passed": 56,
+        "status": 0,
+        "suite": "U13MonsterResurrection"
+      },
+      {
+        "errors": [],
+        "passed": 19,
+        "status": 0,
+        "suite": "U13MonsterGravity"
+      }
+    ],
+    "total_pass_checks": 657
+  },
+  "policy": "U13_COMMON_SMART_CORE_ALPHA_V3_RECIPES_VEIL",
+  "python": {
+    "games": [
+      {
+        "decisions_sha256": "9ffd9fa06e2828ca293df9d6898faa8d44db0ee79fc686d6ce93c8d966e88bca",
+        "final_state_sha256": "6e55cf1b190baa1bc077456c50235535ccdcf4185a0572752ba6c54756c1e242",
+        "name": "gremory_humbaba",
+        "operations": 375,
+        "outcome": {
+          "action": "game_finished",
+          "round": 15,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "rounds": 15,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Gremory",
+            "Humbaba"
+          ],
+          "seed": "u13-nine-lords:gremory_humbaba"
+        }
+      },
+      {
+        "decisions_sha256": "c9a6a002c2033e74eda90c6c664d04f016bc4b67dacfe93727da67b6e6ee82ed",
+        "final_state_sha256": "9cc6f56ea2e39c23d4a23f68667348094d5383f6e9ef5037ed29242651c82f85",
+        "name": "deimos_kalligan",
+        "operations": 527,
+        "outcome": {
+          "action": "game_finished",
+          "round": 21,
+          "win_by": "Ritual",
+          "winner": 0
+        },
+        "rounds": 21,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Deimos",
+            "Kalligan"
+          ],
+          "seed": "u13-nine-lords:deimos_kalligan"
+        }
+      },
+      {
+        "decisions_sha256": "ce0cef04d3dc758947fcf5c4ce1e32f62d8650d91d268e5efc7a8c990fc345c9",
+        "final_state_sha256": "b9d5030480dc43bf975f54ad55a8ffe73258d4295c4025540f086dc5a0250073",
+        "name": "orias_odradek",
+        "operations": 612,
+        "outcome": {
+          "action": "game_finished",
+          "round": 24,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 24,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Orias",
+            "Odradek"
+          ],
+          "seed": "u13-nine-lords:orias_odradek"
+        }
+      },
+      {
+        "decisions_sha256": "47866a03a09af1a7429c4464b311ba7f6c4b8ec9a69815bf9904d79ad199487e",
+        "final_state_sha256": "4ada55467f893b8bf46031e7d7867cd62a1dd5eb0ce93b4f8551c49e5bac8576",
+        "name": "kroni_valak",
+        "operations": 458,
+        "outcome": {
+          "action": "game_finished",
+          "round": 18,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "rounds": 18,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Kroni",
+            "Valak"
+          ],
+          "seed": "u13-nine-lords:kroni_valak"
+        }
+      },
+      {
+        "decisions_sha256": "9daeb971f7923a64b61399a06ae7a3690f17a59d685b165dd1deb000d62fe85a",
+        "final_state_sha256": "00e2bc90c0e5da52da135827b574a9fa0fb1b4760d5ccd2976a2346351b7413a",
+        "name": "kanifous_gremory",
+        "operations": 501,
+        "outcome": {
+          "action": "game_finished",
+          "round": 20,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 20,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Kanifous",
+            "Gremory"
+          ],
+          "seed": "u13-nine-lords:kanifous_gremory"
+        }
+      }
+    ],
+    "implementation": "CPython",
+    "maximum_work": {
+      "complete_plans": 26,
+      "generated:combat": 11,
+      "generated:guards": 11,
+      "generated:monsters": 9,
+      "generated:powers": 14,
+      "generated:resummon": 3,
+      "generated:rites": 3,
+      "generated:slaver": 4,
+      "generated:stockpile": 2,
+      "generated:work": 6,
+      "previews": 1,
+      "retained:combat": 4,
+      "retained:guards": 4,
+      "retained:monsters": 4,
+      "retained:powers": 4,
+      "retained:resummon": 2,
+      "retained:rites": 2,
+      "retained:slaver": 1,
+      "retained:stockpile": 1,
+      "retained:work": 4
+    },
+    "monster_selections": {
+      "Dotra": 8,
+      "Fyra": 35,
+      "Kopita": 1,
+      "Kurchin": 34,
+      "Lemek": 20,
+      "Muno": 26,
+      "Sinodek": 7,
+      "Sooge": 16,
+      "Tumler": 28,
+      "Varn": 17
+    },
+    "operations": 2473,
+    "power_selections": {
+      "AllegianceShift": 5,
+      "BreachWishDeath": 4,
+      "BreachWishLongevity": 1,
+      "BreachWishPower": 5,
+      "BreachWishResurrection": 1,
+      "BreachWishWealth": 1,
+      "BreathOfLife": 4,
+      "Consume": 14,
+      "FalseOrders": 4,
+      "GravityOrb": 4,
+      "InevitableRuin": 1,
+      "Inferno": 6,
+      "Inversion": 0,
+      "MusterTheFaithful": 7,
+      "PredatorOfRuin": 17,
+      "Projection": 3,
+      "Pyroclasm": 2,
+      "Ravenous": 6,
+      "Redirect": 0,
+      "Rout": 5,
+      "Snare": 9,
+      "WarMachine": 17,
+      "Web": 8,
+      "WishDeath": 16,
+      "WishLongevity": 0,
+      "WishPower": 3,
+      "WishResurrection": 1,
+      "WishWealth": 0
+    },
+    "protection_scenarios": {
+      "deny_enemy_benefit:Kanifous": 2,
+      "protect_own_side:Deimos": 2,
+      "protect_own_side:Humbaba": 2,
+      "protect_own_side:Kroni": 1,
+      "protect_own_side:Odradek": 4,
+      "protect_own_side:Orias": 2,
+      "protect_own_side:Valak": 2
+    },
+    "recipe_decisions": {
+      "ready_recipe:Dotra": 1,
+      "ready_recipe:Fyra": 4,
+      "ready_recipe:Lemek": 18,
+      "ready_recipe:Tumler": 2,
+      "ready_recipe:Varn": 19,
+      "save_one_missing_subject:Dotra": 4,
+      "save_one_missing_subject:Fyra": 3,
+      "save_one_missing_subject:Lemek": 16,
+      "save_one_missing_subject:Muno": 1,
+      "save_one_missing_subject:Tumler": 2,
+      "save_one_missing_subject:Varn": 14,
+      "spent_recipe_ingredients": 178
+    },
+    "recorded_engine_source_sha256": "943556d033ead7fd345891ce2750e4bd4610d6d47186e1a782f8b1adf067613b",
+    "recorded_runner_source_sha256": "cedd8f116a7096a166af30cefaf2386f18fce76e9fd07e26e41c1eb46074f9f0",
+    "rejected_plans": 0,
+    "rejected_previews": 0,
+    "rounds": 98,
+    "semantic_sha256": "bbf8d99de5930513472d4a0aa56e8075bd46dc1c471f49fcf871254b555669b9",
+    "tests_passed": 68,
+    "version": "3.12.14",
+    "weights": {
+      "banishment": 32,
+      "card_cost": 2,
+      "damage": 3,
+      "destruction": 30,
+      "enemy_settlement_risk": 90,
+      "guard": 5,
+      "monster": 2,
+      "recipe_save": 1,
+      "recruit": 6,
+      "return_lord": 75,
+      "tear": 22,
+      "veil_protection": 8
+    }
+  },
+  "reproducibility": {
+    "first_runner_source_sha256": "5cc42201cbc0abe01d3f92a88d45f7e0bc0c44fd588063a45bca6d2356e35c91",
+    "identical_decisions_final_states_complete_diagnostics": true,
+    "identical_doctrine_source": true,
+    "note": "Runner gained verify-rules CLI between probes; their policy and engine hashes match. After both probes the native resurrection exporter gained a flush; production rules and policy are unchanged.",
+    "second_python_hash_seed": 173
+  },
+  "status": "local_diagnostic_pass_windows_pending"
+}

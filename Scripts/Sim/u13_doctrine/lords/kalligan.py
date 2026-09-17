@@ -12,7 +12,8 @@ def exposure(f, target):
     lane = target['lane']
     if target['kind'] == 'guard':
         return sum(r['attributes']['value'] <= 2 for r in f.guards(f.enemy, lane))*12
-    return 7*(len(f.units(f.enemy, lane))-len(f.units(f.pid, lane)))
+    return 7*(sum(not r['attributes'].get('flying', False) for r in f.units(f.enemy, lane))
+              -sum(not r['attributes'].get('flying', False) for r in f.units(f.pid, lane)))
 
 
 def proposals(f):

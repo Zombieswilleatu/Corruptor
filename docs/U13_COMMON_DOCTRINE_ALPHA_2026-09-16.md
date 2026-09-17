@@ -1,3 +1,5 @@
+> **2026-09-17 doctrine resumed:** The user paused balance at `cfee89a`. The [recipe and Veil doctrine pass](U13_RECIPE_VEIL_DOCTRINE_2026-09-17.md) adds deliberate recipe commitments/saving, public protection judgment and a Gravity/monster interaction fix. This is a Python experiment; local checks and pending Windows acceptance are recorded separately from historical gates.
+
 # U13 CommonSmartCore alpha
 
 > **2026-09-17 continuation:** Veil and monster rules now exist in both engines.

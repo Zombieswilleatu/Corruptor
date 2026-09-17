@@ -63,6 +63,8 @@ class Facts:
                       and r['declaration']['power_id'] == name), None)
         active = self.active(name)
         if name == 'Inferno' and active and clock and clock['phase'] == 'awaiting_expiration':
+            if self.v['round']+RULES[name]['delay_rounds'] >= active['activated_round']+len(active['stages']):
+                return False, 'relocation_would_fire_after_expiration'
             return True, 'relocation_available'
         if clock or active:
             return False, 'cooldown_or_active'

@@ -443,7 +443,10 @@ class Phase:
             s = self.s
             lamp_before = s.rows() if lamps else []
             if has_wishes: self.events.extend(wishmaster.bypass(buffer,self.number,tick))
-            before = (s.x_fp[:], s.y_fp[:], s.active()) if orbs else None
+            # Monster death reactions can compact/rebuild the columns before
+            # Gravity runs. Preserve pre-tick facts by entity ID, not slot.
+            before = [(s.ids[i], s.x_fp[i], s.y_fp[i], s.lane[i], s.movement_ready_round[i])
+                      for i in s.active()] if orbs else None
             if actors: self.events.extend(kroni_actors.step(actors,buffer,self.number,tick,collapse,[not veil.affects(self.w,"Kroni",pid) for pid in (0,1)]))
             fleeing = {key for actor in actors for key in list(actor["fleeing"])+actor["fled_this_tick"]}
             clock = self.number * 200 + tick

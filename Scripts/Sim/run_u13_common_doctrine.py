@@ -18,15 +18,28 @@ def main():
     check.add_argument('--report', type=Path, required=True)
     check.add_argument('--weights', type=Path)
     compare = sub.add_parser('compare'); compare.add_argument('first', type=Path); compare.add_argument('second', type=Path)
+    rules = sub.add_parser('verify-rules'); rules.add_argument('directory', type=Path)
     args = parser.parse_args()
     try:
+        if args.command == 'verify-rules':
+            from u13_pysim.verify import same
+            from u13_pysim.verify_veil import verify as veil
+            from u13_pysim.verify_monsters import verify as monsters, verify_resurrections
+            p = args.directory
+            report = dict(veil=veil(p/'U13VeilBreaches.exact'), monsters=monsters(p/'U13Monster.exact'),
+                resurrections=verify_resurrections(p/'U13MonsterResurrection.exact'), gravity=monsters(p/'U13MonsterGravity.exact'))
+            same(19, report['monsters']['phases'], 'monster phase count')
+            same(4, report['gravity']['phases'], 'gravity regression count')
+            (p/(platform.python_implementation().lower()+'-native-comparison.json')).write_text(json.dumps(report, indent=2, sort_keys=True)+'\n')
+            print(json.dumps(report, sort_keys=True)); return 0
         if args.command == 'compare':
             a, b = (json.loads(p.read_text()) for p in (args.first, args.second))
             if {a['implementation'], b['implementation']} != {'CPython', 'PyPy'}: raise ValueError('Both CPython and PyPy required')
             compare_reports(a, b)
             print('All decisions, final states and diagnostic reports match across CPython and PyPy.')
             print('U13 common doctrine comparison failures: 0'); return 0
-        tests = unittest.defaultTestLoader.loadTestsFromNames(['u13_doctrine.test_diagnostics', 'u13_doctrine.test_common'])
+        tests = unittest.defaultTestLoader.loadTestsFromNames(['u13_doctrine.test_diagnostics', 'u13_doctrine.test_common',
+            'u13_doctrine.test_recipes_veil', 'u13_pysim.test_marching'])
         result = unittest.TextTestRunner(verbosity=2).run(tests)
         if not result.wasSuccessful() or result.testsRun == 0: return 1
         weights = Weights(**json.loads(args.weights.read_text())) if args.weights else None

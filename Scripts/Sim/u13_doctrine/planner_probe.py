@@ -27,6 +27,7 @@ class PlannerObserver(ReferenceObserver):
         self.max_work = Counter()
         self.rejected_previews = []
         self.decision_examples = []
+        self.recipe_decisions, self.protection_scenarios = Counter(), Counter()
 
     def accepted(self, number, seat, decision):
         for a in decision['assessments']:
@@ -47,10 +48,17 @@ class PlannerObserver(ReferenceObserver):
             self.activation_targets[(number, seat)] = work['target_id']
         for key, value in decision['budget']['used'].items(): self.max_work[key] = max(self.max_work[key], value)
         self.rejected_previews.extend(decision['rejected_previews'])
+        recipe = decision['recipes']
+        goal = recipe['retained_goal']
+        if goal['monster']:
+            self.recipe_decisions[goal['reason']+':'+goal['monster']] += 1
+        if recipe['saving_score_delta'] < 0: self.recipe_decisions['spent_recipe_ingredients'] += 1
+        for change in decision['veil']['protection']['changes']:
+            self.protection_scenarios[change['direction']+':'+change['lord']] += 1
         if len(self.decision_examples) < 12:
             self.decision_examples.append(dict(round=number, seat=seat, score=decision['score'],
                 plan=plan, reasons=decision['chosen_reasons'], retained_candidates=decision['retained_candidates'],
-                budget=decision['budget'], veil=decision['veil']))
+                budget=decision['budget'], veil=decision['veil'], recipes=decision['recipes']))
 
     def card_choice(self, number, seat, decision):
         identity = self.recorder.assess(number, seat, **decision['assessment'])
@@ -67,6 +75,9 @@ class PlannerObserver(ReferenceObserver):
         if kind == 'MARCHER_SPAWNED':
             identity = self.effects.get(d.get('attributes', {}).get('source_effect_id'))
             if identity: metrics = dict(marchers_spawned=1)
+        elif kind == 'MONSTER_SUMMONED':
+            identity = self.selected.get((number, seat, 'monsters', d['monster_id']))
+            if identity: self._attach(identity, event_id, number, dict(summons=1, bodies_spawned=len(d['unit_ids'])))
         elif kind == 'PERSONAL_TEAR_CREATED' and d.get('source') in ('waiters', 'invocation', 'profane_ruins'):
             term = dict(waiters='Supplicants', invocation='Invocation', profane_ruins='ProfaneRuins')[d['source']]
             identity = self.selected.get((number, seat, 'rites', term))
@@ -128,6 +139,9 @@ class PlannerObserver(ReferenceObserver):
         result.update(alternative_search='bounded candidates and assembled plans',
             power_measurements='measured choices, terminal status and named effects; unobserved spatial benefit remains unknown',
             stockpile_slaver='accepted bounded card choices', maximum_work=dict(sorted(self.max_work.items())),
+            recipe_decisions=dict(sorted(self.recipe_decisions.items())),
+            protection_scenarios=dict(sorted(self.protection_scenarios.items())),
+            monster_measurements='recipe opportunities, choices and actual spawned bodies; later ability benefit is unmeasured',
             rejected_previews=self.rejected_previews, decision_examples=self.decision_examples)
         return result
 
@@ -182,7 +196,7 @@ def run(root, weights=None, output_inputs=None):
     revision, engine = source_identity(root)
     semantic = dict(policy=VERSION, weights=asdict(policy.weights), limits=asdict(policy.limits),
         parity_evidence_revision=evidence['exact_comparison']['source_revision'],
-        scope='five alpha behavior games on accepted rules; not new native decision parity, strength, balance or throughput evidence',
+        scope='five alpha behavior games on current rules; historical native prerequisite predates monsters/Veil/tuning; not new native decision parity, strength, balance or throughput evidence',
         games=games, failures=0)
     runner_hash = fingerprint({name: hashlib.sha256((root/'Scripts/Sim'/name).read_bytes().replace(b'\r\n', b'\n')).hexdigest()
                               for name in ('run_u13_common_doctrine.py', 'run_u13_common_doctrine.sh')})

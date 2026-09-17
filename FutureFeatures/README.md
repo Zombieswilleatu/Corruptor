@@ -1,3 +1,5 @@
+> **2026-09-17 doctrine resumed:** The user paused balance at `cfee89a`. The [recipe and Veil doctrine pass](../docs/U13_RECIPE_VEIL_DOCTRINE_2026-09-17.md) adds deliberate recipe commitments/saving, public protection judgment and a Gravity/monster interaction fix. This is a Python experiment; local checks and pending Windows acceptance are recorded separately from historical gates.
+
 # Corruptor — consolidated roadmap
 
 **Updated 2026-09-16 · planning baseline · branch: `u13-basic-doctrine`**

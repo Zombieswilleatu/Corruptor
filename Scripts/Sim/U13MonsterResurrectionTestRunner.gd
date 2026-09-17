@@ -47,7 +47,9 @@ func run() -> void:
 				if output != null:
 					var encoded: Dictionary = Codec.encode({"name": name, "source": source, "context": c, "result": result})
 					check(encoded.has("text"), name + " exports exact data")
-					if encoded.has("text"): output.store_line(encoded.text)
+					if encoded.has("text"):
+						output.store_line(encoded.text)
+						output.flush()
 				world = result.world
 	if output != null: output.close()
 	print("U13 monster resurrection failures: ", failures)

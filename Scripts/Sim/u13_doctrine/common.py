@@ -12,14 +12,15 @@ from u13_pysim.development import eligible, commission_eligible
 from u13_pysim.opening import COSTS
 from u13_pysim.power_rules import RULES, declaration
 from u13_pysim.powers import WISHES
-from u13_pysim.lifecycle import evaluate
 from . import lords
 from .budget import Budget, Limits
 from .coverage import POWERS
 from .diagnostics import fingerprint
 from .facts import Facts, Proposal, LANES
+from .recipes import Recipes
+from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V2_BREACH_WISHES'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V3_RECIPES_VEIL'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -34,6 +35,9 @@ class Weights:
     tear: int = 22
     return_lord: int = 75
     enemy_settlement_risk: int = 90
+    monster: int = 2
+    recipe_save: int = 1
+    veil_protection: int = 8
 
     def __post_init__(self):
         if any(type(v) is not int or v < 0 for v in asdict(self).values()):
@@ -42,29 +46,6 @@ class Weights:
 
 def key(p):
     return fingerprint([p.category, p.term, p.payload, p.cards])
-
-
-def settlement_projection(f, plan):
-    """Static end-of-round resource scenario, not proof of a future outcome.
-
-    Use actual Ritual / Final Collapse / Dominion precedence, known pressure,
-    and explicit paid choices. Spatial combat, reactions, random Prices and
-    enemy orders remain unknown, so this function cannot justify a hard veto.
-    Only two player records and two Lords are copied, not the simulation world.
-    """
-    players = copy_data(f.v['players']); actors = copy_data(f.lord)
-    order = plan['order']; rites = order.get('rites', {})
-    gain = len(rites.get('waiter_spends', []))+int('invocation' in rites)+int('profane_ruins' in rites)
-    gain += int(order.get('action') == 'Profane')
-    players[f.pid]['resources']['personal_tears'] += gain
-    players[f.pid]['resources']['souls'] -= 2*int('profane_ruins' in rites)
-    neutral = f.v['data']['neutral_tears']+(2 if f.v['round'] > 20 else 1 if f.v['round'] > 12 else 0)
-    if 'summon' in order:
-        actors[f.pid]['attributes']['alive'] = True; neutral += 1
-    # Inversion's Tear is conditional on a successful transfer and so remains
-    # outside this paid-choice scenario, as do uncertain combat gains.
-    state = dict(players=players, data=dict(neutral_tears=neutral), entities=dict(entities=actors))
-    return evaluate(state)
 
 
 def ordinary(f, category, weights):
@@ -168,11 +149,13 @@ class CommonSmartCore:
 
     def decide(self, view, preview):
         f, budget = Facts(view), Budget(self.limits)
-        categories = ('powers', 'resummon', 'rites', 'guards', 'work', 'combat')
+        recipes = Recipes(f, self.weights)
+        initial_goal = recipes.goal(f.hand)
+        categories = ('powers', 'resummon', 'rites', 'guards', 'work', 'combat', 'monsters')
         generated, retained, reasons, opportunities, exhausted = {}, {}, {}, {}, {}
         counts = Counter()
         for category in categories:
-            source = lords.proposals(f) if category == 'powers' and self.lord_modules else iter(()) if category == 'powers' else ordinary(f, category, self.weights)
+            source = (lords.proposals(f) if self.lord_modules else iter(())) if category == 'powers' else recipes.proposals() if category == 'monsters' else ordinary(f, category, self.weights)
             proposals = []
             exhausted[category] = False
             while budget.take('generated', category):
@@ -180,8 +163,9 @@ class CommonSmartCore:
                 except StopIteration:
                     exhausted[category] = True
                     break
-                counts[(category, p.term)] += 1
-                opportunities[(category, p.term)] = opportunities.get((category, p.term), False) or p.value > 0
+                if p.category == 'combat': recipes.attach(p)
+                counts[(p.category, p.term)] += 1
+                opportunities[(p.category, p.term)] = opportunities.get((p.category, p.term), False) or p.value > 0
                 if category == 'powers':
                     available, reason = f.available(p.term)
                     if not available:
@@ -192,7 +176,7 @@ class CommonSmartCore:
                     cost += 3*sum(RULES[p.term]['cost'].values())
                 p.value -= cost
                 if p.value <= 0:
-                    reasons.setdefault((category, p.term), p.reason)
+                    reasons.setdefault((p.category, p.term), p.reason)
                 proposals.append(p)
             generated[category] = proposals
             # Keep best distinct terms first, then fill remaining target slots.
@@ -201,20 +185,21 @@ class CommonSmartCore:
             if category == 'combat':
                 choices = [next(p for p in ranked if p.term == 'Pass')]; terms.add('Pass')
             for p in ranked:
-                if p.term not in terms and len(choices) < self.limits.retained_per_category:
-                    choices.append(p); terms.add(p.term)
+                term = p.payload['monster_choice'] if category == 'monsters' else p.term
+                if term not in terms and len(choices) < self.limits.retained_per_category:
+                    choices.append(p); terms.add(term)
             for p in ranked:
                 if p not in choices and len(choices) < self.limits.retained_per_category: choices.append(p)
             retained[category] = [p for p in choices if budget.take('retained', category)]
 
         complete = []
-        def assemble(anchors, priorities):
+        def assemble(anchors, priorities, reserve=()):
             if not budget.take('complete_plans'): return
             selected, cards, used, resource_spend = [], set(), set(), Counter()
             plan = dict(powers=[], order={})
             def add(p):
                 if p.category != 'powers' and p.category in used: return False
-                if cards.intersection(p.cards): return False
+                if cards.intersection(p.cards) or set(reserve).intersection(p.cards): return False
                 if p.category == 'powers':
                     if p.term in [x.term for x in selected if x.category == 'powers']: return False
                     if p.term in WISHES and any(s['power_id'] in WISHES for s in plan['powers']): return False
@@ -248,6 +233,12 @@ class CommonSmartCore:
             risk = projected['winner'] == f.enemy
             if risk: score -= self.weights.enemy_settlement_risk
             if projected['winner'] == f.pid: score += 70
+            protection = protection_projection(f, plan, self.weights.veil_protection)
+            # No next-round protection credit after this scenario settles.
+            if projected['winner'] == -1: score += protection['score']
+            remaining_goal = recipes.goal([r for r in f.hand if r['id'] not in cards], plan['order'].get('monster_choice', ''))
+            saving_delta = remaining_goal['score']-initial_goal['score']
+            if projected['winner'] == -1: score += saving_delta
             excluded = [k for spend in plan['order'].get('rites', {}).get('waiter_spends', []) for k in spend['marcher_ids']]
             combat = next(p for p in selected if p.category == 'combat')
             if excluded and combat.term in ('Hunt', 'Siege'):
@@ -257,18 +248,21 @@ class CommonSmartCore:
                           +12*(adjusted['guards']-baseline['guards'])
                           +self.weights.banishment*(adjusted['banished']-baseline['banished'])
                           +self.weights.destruction*(adjusted['destroyed']-baseline['destroyed']))
-            complete.append(dict(plan=plan, score=score, selected=selected, veil_risk=risk, projected=projected))
+            complete.append(dict(plan=plan, score=score, selected=selected, veil_risk=risk, projected=projected,
+                                 protection=protection, remaining_goal=remaining_goal, saving_delta=saving_delta))
 
-        base = ('resummon', 'rites', 'work', 'guards', 'combat')
+        base = ('resummon', 'rites', 'work', 'guards', 'monsters', 'combat')
         # Explicit conservation plan and fixed assembly priorities preserve
         # alternatives without enumerating products of category candidates.
         assemble([], ())
-        for priorities in (base, ('resummon', 'combat', 'work', 'guards', 'rites'), ('work', 'guards', 'combat', 'resummon', 'rites')):
+        for priorities in (base, ('resummon', 'combat', 'work', 'guards', 'rites'), ('work', 'monsters', 'guards', 'combat', 'resummon', 'rites')):
             assemble([], priorities)
             for p in retained['powers']:
                 if p.value > 0: assemble([p], priorities)
-        for p in retained['combat']:
+        for p in retained['combat']+retained['monsters']:
             assemble([p], ('resummon', 'powers', 'work', 'guards', 'rites'))
+        if initial_goal['card_ids']:
+            assemble([], ('resummon', 'powers', 'work', 'guards', 'combat', 'rites'), reserve=initial_goal['card_ids'])
         positive = [p for p in retained['powers'] if p.value > 0 and p.term not in WISHES]
         if len(positive) > 1: assemble(positive[:2], base)
         ranked = sorted({fingerprint(c['plan']): c for c in complete}.values(),
@@ -289,7 +283,8 @@ class CommonSmartCore:
         for category, term in terms:
             selected = (category, term) in picked
             count = counts[(category, term)]
-            kept = sum(p.term == term for p in retained[category])
+            alternatives = retained[category]+(retained['monsters'] if category == 'combat' else [])
+            kept = sum(p.term == term for p in alternatives)
             if selected: reason = 'selected'
             elif (category, term) in reasons: reason = reasons[(category, term)]
             elif kept: reason = 'scoring_or_shared_budget'
@@ -302,27 +297,28 @@ class CommonSmartCore:
             assessments.append(dict(category=category, term=term, opportunity=opportunity,
                 legal=True if selected else None, affordable=True if selected else False if reason == 'resource_shortfall' else None,
                 generated=count, retained=kept, selected=selected, reason=reason))
-        from u13_pysim import monsters
-        monster_state = f.v['data'].get('monsters', {})
-        if monster_state:
-            names = monsters.available(f.v['board']+f.v['hand'], chosen['plan']['order'].get('card_ids', []), f.pid, monster_state['unlocked'][f.pid])
-            if names: chosen['plan']['order']['monster_choice'] = names[-1]
+        assessments.extend(recipes.assessments(generated['combat']+generated['monsters'],
+            retained['combat']+retained['monsters'], chosen['plan'], exhausted['monsters'] and exhausted['combat']))
         return dict(policy=VERSION, plan=copy_data(chosen['plan']), score=chosen['score'],
                     chosen_reasons=[p.reason for p in chosen['selected']], assessments=assessments,
                     retained_candidates=[dict(category=p.category, term=p.term, score=p.value, reason=p.reason,
+                                              source_category=category, monster=p.payload.get('monster_choice', ''),
                                               candidate_sha256=key(p)) for category in categories for p in retained[category]],
                     budget=budget.report(), rejected_previews=rejected,
                     assumptions='current public board; new Guards, Ward, Work, simultaneous powers and spatial/random reactions are uncertain',
                     veil=dict(current_board_risk=chosen['veil_risk'], paid_choice_scenario=chosen['projected'],
-                              hard_veto=False, reason='hidden_orders_prevent_proof'))
+                              protection=chosen['protection'], hard_veto=False, reason='hidden_orders_prevent_proof'),
+                    recipes=dict(initial_goal=initial_goal, retained_goal=chosen['remaining_goal'],
+                                 saving_score_delta=chosen['saving_delta'], selected=chosen['plan']['order'].get('monster_choice', '')))
 
     def choose_card(self, view, category):
         """Stockpile/Slaver decisions use the same bounded, private-hand boundary."""
         f, budget = Facts(view), Budget(self.limits)
+        recipes = Recipes(f, self.weights)
         if category not in ('stockpile', 'slaver'): raise ValueError('unknown card choice')
         def utility(cards):
             suits = Counter(r['attributes']['suit'] for r in cards)
-            return 3*sum(r['attributes']['value'] for r in cards)+4*sum(n//2 for n in suits.values())
+            return 3*sum(r['attributes']['value'] for r in cards)+4*sum(n//2 for n in suits.values())+recipes.goal(cards)['score']
         options = []
         if category == 'stockpile':
             pending = {r['id'] for r in view['stockpile']}
@@ -346,4 +342,4 @@ class CommonSmartCore:
         term = 'Keep' if category == 'stockpile' else operation['choice']['market']
         return dict(operation=operation, budget=budget.report(), assessment=dict(category=category, term=term,
             opportunity=value > 0, legal=True, affordable=True, generated=len(options), retained=1, selected=True,
-            reason='face_value_and_pair_preservation' if value > 0 else 'conserve_current_hand'))
+            reason='face_value_pairs_and_recipe_progress' if value > 0 else 'conserve_current_hand'))
