@@ -115,6 +115,12 @@ func _flow_title() -> String:
 		return "Stockpile" if session.pending_choice.action == "game_draw_choice" else "Slaver"
 	return STEPS[flow_step]
 
+func _playtime_surface() -> String:
+	var shared: String = super._playtime_surface()
+	if shared in ["history", "aftermath", "stockpile", "slaver", "board_review", "game_menu"]:
+		return shared
+	return ["work_target", "resummon", "guards", "combat_commitment", "lord_powers", "dominion_rites"][flow_step]
+
 func _flow_copy(step: String) -> String:
 	match step:
 		"Stockpile": return "Choose the card to keep. Then visit the Slaver."
@@ -159,6 +165,7 @@ func _advance_flow() -> void:
 	_goto_flow(flow_step + 1, true)
 
 func _goto_flow(index: int, skip_unavailable: bool = false) -> void:
+	_sample_playtime()
 	flow_step = clampi(index, 0, STEPS.size() - 1)
 	if skip_unavailable:
 		while (flow_step == 1 and _human_alive()) or (flow_step == 2 and not _guards_available()) or (flow_step == 4 and not _human_alive()):
@@ -174,6 +181,7 @@ func _goto_flow(index: int, skip_unavailable: bool = false) -> void:
 		_open_game_menu()
 	else:
 		reopen_decision()
+	_sample_playtime()
 
 func _flow_back() -> void:
 	if _planning() and flow_step > 0:
@@ -252,10 +260,15 @@ func _drop(at_position: Vector2, data, target: Dictionary) -> void:
 	super._drop(at_position, data, target)
 
 func _load_game(path: String) -> void:
+	_sample_playtime()
+	_playtime_loading = true
+	_sample_playtime()
 	var prior_session = session
 	super._load_game(path)
 	# A loaded cart resumes at Work; all staged choices stay available for review.
 	if session != prior_session and _planning(): _goto_flow(0)
+	_playtime_loading = false
+	_sample_playtime()
 
 func _apply_cards(ids: Array, append: bool) -> bool:
 	var placing: bool = flow_step == 2 and _intent == "Guard"

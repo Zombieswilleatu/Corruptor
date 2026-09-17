@@ -33,6 +33,44 @@ func _initialize() -> void:
 	var inconsistent: Dictionary = saved.duplicate(true)
 	inconsistent.total_ms = 1
 	check(not restored.restore(inconsistent), "inconsistent total rejected")
+	breakdown_checks()
 	check(Playtime.duration(3661000) == "01:01:01", "duration renders hours minutes seconds")
 	print("U13 playtime failures: ", failures)
 	quit(1 if failures else 0)
+
+func breakdown_checks() -> void:
+	var timer = Playtime.new()
+	timer.sample(0, "decision", 1, "slaver")
+	timer.sample(5000, "decision", 1, "work_target")
+	timer.sample(17000, "decision", 1, "combat_commitment")
+	timer.sample(27000, "decision", 1, "work_target")
+	timer.sample(30000, "resolution", 1)
+	timer.sample(33000, "decision", 1, "aftermath")
+	timer.sample(35000, "excluded", 1)
+	timer.sample(95000, "resolution", 2)
+	timer.sample(96000, "decision", 2, "slaver")
+	timer.sample(99000, "excluded", 2)
+	var saved: Dictionary = JSON.parse_string(JSON.stringify(timer.snapshot()))
+	check(saved.breakdown_complete and saved.total_ms == 39000 and saved.rounds.size() == 2, "round breakdown excludes a minute paused and partitions total time")
+	check(saved.rounds[0].decision_ms == 32000 and saved.rounds[0].resolution_ms == 3000 and saved.rounds[1].decision_ms == 3000 and saved.rounds[1].resolution_ms == 1000, "round transitions attribute the preceding interval to the preceding round")
+	check(saved.rounds[0].decision_surfaces_ms == {"slaver": 5000.0, "work_target": 15000.0, "combat_commitment": 10000.0, "aftermath": 2000.0}, "revisiting Work Target accumulates separately from combat and Aftermath")
+	var loaded = Playtime.new()
+	check(loaded.restore(saved) and loaded.snapshot() == timer.snapshot(), "round and screen breakdown round-trips through JSON exactly")
+	loaded.sample(900000, "decision", 2, "slaver")
+	loaded.sample(902000, "excluded", 2)
+	check(loaded.snapshot().rounds[1].decision_surfaces_ms.slaver == 5000 and loaded.snapshot().total_ms == 41000, "resuming a partial round adds to that screen without counting offline time")
+	var legacy: Dictionary = {"version": 1, "decision_ms": 10000, "resolution_ms": 2000, "total_ms": 12000, "history_complete": true}
+	check(loaded.restore(legacy) and loaded.history_complete and not loaded.snapshot().breakdown_complete, "version-one totals remain valid with explicitly incomplete breakdown")
+	loaded.sample(0, "decision", 9, "combat_commitment")
+	loaded.sample(4000, "excluded", 9)
+	var migrated: Dictionary = loaded.snapshot()
+	check(migrated.unattributed == {"decision_ms": 10000, "resolution_ms": 2000} and migrated.rounds.size() == 1 and migrated.rounds[0].round == 9 and migrated.rounds[0].decision_ms == 4000, "old totals are unattributed; no invented earlier-round measurements")
+	for bad in ["duplicate_round", "negative_surface", "surface_mismatch", "round_mismatch", "bad_unattributed"]:
+		var corrupt: Dictionary = saved.duplicate(true)
+		match bad:
+			"duplicate_round": corrupt.rounds.append(corrupt.rounds[0].duplicate(true))
+			"negative_surface": corrupt.rounds[0].decision_surfaces_ms.slaver = -1
+			"surface_mismatch": corrupt.rounds[0].decision_surfaces_ms.slaver = 1
+			"round_mismatch": corrupt.rounds[0].total_ms = 1
+			"bad_unattributed": corrupt.unattributed.resolution_ms = 9999
+		check(not loaded.restore(corrupt) and loaded.snapshot().total_ms == 0 and loaded.snapshot().rounds.is_empty(), "corrupt breakdown rejects atomically: " + bad)

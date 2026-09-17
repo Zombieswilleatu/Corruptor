@@ -27,6 +27,13 @@ match snapshots, not a bot input or a public multiplayer projection.
 
 ## Playing
 
+- The Veil wheel shows seven positions. Drag, scroll, or use its arrows to
+  browse; click **VEIL** to return to now. Blue/red seals show each player's
+  Personal Tear stamps. Breach markers marked with an asterisk are planned;
+  permanent Breach mechanics are not enabled yet.
+- Saved JSON now records timing by round and decision screen, alongside the
+  existing totals. See [wheel and timing notes](U13_VEIL_WHEEL_AND_TIMING_2026-09-17.md)
+  for fields and compatibility with older timing records.
 - Choose both Lords and five Castle slots. Slots 1–3 begin active; 4–5 are
   blueprints. The full conductor handles the real deck and paid opening summons.
 - Handle your Stockpile draw and Slaver trade when prompted. The bot handles

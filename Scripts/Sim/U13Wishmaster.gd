@@ -167,7 +167,8 @@ static func record_loss(world: Dictionary, unit: Dictionary) -> void:
 static func record_losses(world: Dictionary, events: Array) -> void:
 	# Explicit death events exclude spent siege/hunt support and future banishment.
 	for row in events:
-		var fact: Dictionary = row.event
+		# Power resolvers can return bare facts; hook reactions carry player views.
+		var fact: Dictionary = row.get("event", row)
 		var d: Dictionary = fact.data
 		match fact.type:
 			"MARCHER_DEFEATED": record_loss(world, d.get("victim", {}))

@@ -2,6 +2,7 @@ extends HBoxContainer
 
 const Victory = preload("res://Scripts/Sim/U13Victory.gd")
 const Art = preload("res://Prototype/U13/U13BoardTextures.gd")
+const VeilWheel = preload("res://Prototype/U13/U13VeilWheel.gd")
 var round_label: Label
 var veil_label: Label
 var scores: Dictionary = {}
@@ -11,7 +12,7 @@ const LordPreview = preload("res://Prototype/U13/U13LordCardPreview.gd")
 var breach_preview
 var breach_art: TextureRect
 var scope: Label
-var veil_track: ProgressBar
+var veil_wheel
 
 
 func _ready() -> void:
@@ -42,19 +43,9 @@ func _ready() -> void:
 	banner.add_child(text)
 	round_label = _label(text, "", 14)
 	veil_label = _label(text, "", 22)
-	veil_track = ProgressBar.new()
-	veil_track.max_value = 26
-	veil_track.show_percentage = false
-	veil_track.custom_minimum_size.y = 8
-	veil_track.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var track := StyleBoxFlat.new()
-	track.bg_color = Color("302c37")
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = Color("bea3e3")
-	veil_track.add_theme_stylebox_override("background", track)
-	veil_track.add_theme_stylebox_override("fill", fill)
-	veil_track.hide()
-	text.add_child(veil_track)
+	veil_wheel = VeilWheel.new()
+	veil_wheel.hide()
+	text.add_child(veil_wheel)
 	scope = _label(text, "U13 · Gremory combat", 13)
 	scope.tooltip_text = "Siege, Ward and Lord powers are playable. Development, Hunt, normal draws, named Castle powers and victory are not connected yet."
 	var breach := VBoxContainer.new()
@@ -143,3 +134,11 @@ func bind_world(world: Dictionary, round_number: int) -> void:
 
 	if world.has("hunt_profile"):
 		scope.tooltip_text = "Hunt, Siege, Ward, Castle development and Lord powers are connected. Named Castle powers other than artillery, Fracture, resummoning, ordinary draws and victory are pending."
+
+
+func bind_playable_veil(world: Dictionary, round_number: int) -> void:
+	round_label.hide()
+	veil_label.hide()
+	scope.hide()
+	veil_wheel.show()
+	veil_wheel.bind_world(world, round_number)

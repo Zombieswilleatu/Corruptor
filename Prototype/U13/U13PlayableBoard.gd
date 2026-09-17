@@ -23,6 +23,8 @@ var pause_button: Button
 var pause_dialog: AcceptDialog
 var _playtime_paused: bool = false
 var _playtime_focused: bool = true
+var _playtime_loading: bool = false
+var _playtime_round: int = 0
 
 func _new_loadout_session():
 	return PlaySession.new()
@@ -99,12 +101,7 @@ func _refresh(presented: Dictionary = {}) -> void:
 	if not session is PlaySession:
 		return
 	var w: Dictionary = _visible_world
-	header.scope.text = "Dominion %s · 5+ Personal Tears and the lead\nFinal Collapse: 26 · Neutral Tears: %d" % ["OPEN" if int(w.veil_total) >= 12 else "at Veil 12", w.neutral_tears]
-	header.veil_track.show()
-	header.veil_track.value = w.veil_total
-	header.scope.tooltip_text = "Full game · Dominion, Ritual or Final Collapse. Neutral Tears: +1 each round 13-20, +2 from round 21. Final Collapse at 26 total Tears. Veil threshold penalties are disabled."
-	header.veil_label.text = "VEIL  %d / 26" % w.veil_total
-	header.veil_label.tooltip_text = "Total Veil = both players’ Personal Tears + shared Neutral Tears."
+	header.bind_playable_veil(w, session.round_number())
 	work_button.disabled = not _planning() or playing or _job != null
 	work_button.text = "CANCEL WORK" if choosing_work else "WORK TARGET"
 	castle_box.hide()
@@ -458,6 +455,7 @@ func _load_game(path: String) -> void:
 	_install_impacts([])
 	lanes.reset_effects()
 	_refresh()
+	header.veil_wheel.follow_current()
 	if session.is_finished(): _open_game_menu()
 	else: reopen_decision()
 
@@ -595,7 +593,7 @@ func _encode_playable_save() -> String:
 	return JSON.stringify(envelope)
 
 func _playtime_mode() -> String:
-	if _playtime_paused or not _playtime_focused or not match_started or setup_open:
+	if _playtime_paused or _playtime_loading or not _playtime_focused or not match_started or setup_open:
 		return "excluded"
 	# A worker owns the session while running: do not read it from this thread.
 	if _job != null or playing:
@@ -605,7 +603,29 @@ func _playtime_mode() -> String:
 	return "decision"
 
 func _sample_playtime() -> void:
-	playtime.sample(Time.get_ticks_msec(), _playtime_mode())
+	var mode: String = _playtime_mode()
+	# Cache the round before starting a worker. Never read its mutable session.
+	if _job == null and match_started and session is PlaySession:
+		_playtime_round = session.round_number()
+	playtime.sample(Time.get_ticks_msec(), mode, _playtime_round, _playtime_surface() if mode == "decision" else "")
+
+func _playtime_surface() -> String:
+	# Called only while idle, focused, and actively in a match.
+	if history_panel != null and history_panel.visible:
+		return "history"
+	if session.next_hook().is_empty():
+		return "aftermath"
+	if not session.pending_choice.is_empty():
+		return "stockpile" if session.pending_choice.action == "game_draw_choice" else "slaver"
+	if choosing_work:
+		return "work_target"
+	if _intent == "Guard":
+		return "guards"
+	if phase_prompt != null and phase_prompt.board_view_collapsed and _intent.is_empty():
+		return "board_review"
+	if game_menu != null and game_menu.visible and not game_menu.embedded:
+		return "game_menu"
+	return "lord_powers" if powers_step else "combat_commitment"
 
 func _process(delta: float) -> void:
 	_sample_playtime()
@@ -613,7 +633,7 @@ func _process(delta: float) -> void:
 	_sample_playtime()
 	if playtime_label != null:
 		playtime_label.text = "PLAYTIME " + Playtime.duration(playtime.decision_ms + playtime.resolution_ms) + (" *" if not playtime.history_complete else "")
-		playtime_label.tooltip_text = playtime.summary() + "\nExcludes setup, pauses, unfocused time and time closed. Decision time includes reviewing the board/Aftermath. Resolution includes computation and playback." + ("\n* Earlier playtime is unknown; this is the recorded portion only." if not playtime.history_complete else "")
+		playtime_label.tooltip_text = playtime.summary() + "\nExcludes setup, pauses, unfocused time and time closed. Decision time includes reviewing the board/Aftermath. Resolution includes computation and playback. Saves include timing by round and decision screen." + ("\n* Earlier playtime is unknown; this is the recorded portion only." if not playtime.history_complete else "")
 		pause_button.disabled = not match_started or setup_open or _job != null or playing or session.is_finished()
 
 func _playtime_focus(focused: bool) -> void:
@@ -641,12 +661,15 @@ func start_loadout(lords: Array, castles: Array, quick: bool) -> void:
 	super.start_loadout(lords, castles, quick)
 	if session != previous:
 		playtime = Playtime.new()
+		header.veil_wheel.follow_current()
 	_sample_playtime()
 
 func _start_job(operation: String, powers: Array = [], order: Dictionary = {}) -> void:
 	_sample_playtime()
+	if _job == null and session is PlaySession:
+		_playtime_round = session.round_number() + (1 if operation == "next_round" else 0)
 	if _playtime_mode() != "excluded":
-		playtime.sample(Time.get_ticks_msec(), "resolution")
+		playtime.sample(Time.get_ticks_msec(), "resolution", _playtime_round)
 	super._start_job(operation, powers, order)
 	_sample_playtime()
 
@@ -672,4 +695,5 @@ func restart() -> void:
 	super.restart()
 	if can_restart:
 		playtime = Playtime.new()
+		header.veil_wheel.follow_current()
 	_sample_playtime()

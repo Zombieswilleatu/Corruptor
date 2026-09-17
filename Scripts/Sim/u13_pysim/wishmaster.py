@@ -17,7 +17,7 @@ def record_loss(w, unit):
 
 def record_losses(w, events):
     for row in events:
-        fact = row['event']; d = fact['data']; kind = fact['type']
+        fact = row.get('event', row); d = fact['data']; kind = fact['type']
         key = {'MARCHER_DEFEATED': 'victim', 'MARCHER_DEVOURED': 'before',
                'GRAVITY_ORB_CONSUMED': 'unit', 'WISHMASTER_REJECTED': 'unit'}.get(kind)
         if key: record_loss(w, d.get(key, {}))

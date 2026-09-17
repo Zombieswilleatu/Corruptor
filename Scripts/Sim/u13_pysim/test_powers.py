@@ -10,6 +10,18 @@ from .timeline import HOOKS
 
 
 class PowerTests(unittest.TestCase):
+    def test_casualty_reader_accepts_power_facts_and_hook_envelopes(self):
+        from .wishmaster import record_losses
+        world = dict(data=dict(kanifous_losses=[]))
+        first = dict(id='first', kind='marcher', owner=0, attributes=dict(suit='Butcher', lane='Lord'))
+        second = dict(id='second', kind='marcher', owner=0, attributes=dict(suit='Wright', lane='Castle'))
+        fact = dict(type='MARCHER_DEFEATED', data=dict(victim=first))
+        wrapped = dict(event=dict(type='GRAVITY_ORB_CONSUMED', data=dict(unit=second)))
+        record_losses(world, [dict(type='MARCHER_SPAWNED', data=first), fact, wrapped, dict(event=fact)])
+        self.assertEqual([first, second], world['data']['kanifous_losses'])
+        first['attributes']['suit'] = 'Vulture'
+        self.assertEqual('Butcher', world['data']['kanifous_losses'][0]['attributes']['suit'])
+
     def test_resurrection_waits_for_marching_and_restores_only_the_selected_lane(self):
         from . import recruitment
         g = self.before_lock('Kanifous')

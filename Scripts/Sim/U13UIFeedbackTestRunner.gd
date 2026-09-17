@@ -25,14 +25,17 @@ func run() -> void:
 	board.start_loadout(["Deimos", "Gremory"], [Slots.TYPES, Slots.TYPES], false)
 	await process_frame
 	check(board._slaver_pending() and board.confirm.visible and board.pass_button.visible, "Slaver exposes both modal action slots")
+	check(board._playtime_surface() == "slaver", "Slaver decision time has its own surface")
 	check(board.confirm.text == "SWAP CARDS" and board.pass_button.text == "PASS TRADE", "Slaver action slots are labelled correctly")
 	board.pass_round()
 	await job_done()
 	check(board._flow_title() == "Work Target", "modal Pass completes Slaver")
+	check(board._playtime_surface() == "work_target", "Work Target decision time is separate from Slaver")
 	board._set_work_target(Slots.castle_id(0, 4))
 	await process_frame
 	check(board.sides[1].target_controls[Slots.castle_id(0, 4)].get_parent().get_parent().work_target_badge != null, "selected work target appears on its Castle")
 	board._goto_flow(3)
+	check(board._playtime_surface() == "combat_commitment", "Combat decision time has its own surface")
 	board._select_direct_action("Hunt")
 	var id: String = board._available_ids()[0]
 	board._hand_selection_changed([id])
@@ -40,7 +43,7 @@ func run() -> void:
 	check(id in board._draft_combat.get("card_ids", []) and board._draft_combat.get("action") == "Hunt", "clicking a hand card stages Hunt without a separate target click")
 	check(board.flow_forecast.visible and board.flow_forecast.get_parent() == board.action_zone.action_box and board.flow_forecast.get_index() == board.action_zone.action_buttons["Hunt"].get_index() + 1 and board.flow_forecast.text.contains("Visible offense:") and board.flow_forecast.text.contains("Visible defense:"), "compact forecast is directly below selected Hunt in modal")
 	check(not board._order_preview.get_children().any(func(c): return c is Label and c.text.contains("Visible offense:")), "forecast no longer overlays board cards")
-	check(board.header.scores[0].text.contains("Personal Tears") and board.header.scores[1].text.contains("Personal Tears") and board.header.veil_track.visible, "corner resources include Personal Tears and banner shows Veil track")
+	check(board.header.scores[0].text.contains("Personal Tears") and board.header.scores[1].text.contains("Personal Tears") and board.header.veil_wheel.visible, "corner resources include Personal Tears and banner shows Veil wheel")
 	var final_view: Dictionary = {"lord_ids": ["Deimos", "Kroni"], "souls": [2, 3], "personal_tears": [1, 5], "neutral_tears": 7, "veil_total": 13, "victory": {"winner": 1, "win_by": "Dominion", "checked_round": 14}}
 	var ledger: String = Ledger.render(final_view, [], 14)
 	check(ledger.begins_with("DEFEAT · Dominion") and ledger.contains("Kroni won with 5 Personal Tears to 1") and ledger.contains("Veil reached 13"), "Aftermath leads with exact loss condition and totals")
@@ -65,6 +68,7 @@ func run() -> void:
 	await process_frame
 	board.pass_round(); await job_done()
 	board._goto_flow(4)
+	check(board._playtime_surface() == "lord_powers", "power decisions retain a separate timing bucket")
 	var button: Button = board.sides[1].commission_buttons[project]
 	check(not button.disabled, "Commission stays enabled during Lord Powers")
 	button.pressed.emit()
