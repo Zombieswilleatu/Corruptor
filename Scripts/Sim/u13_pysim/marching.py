@@ -15,7 +15,7 @@ from .marching_buffer import Buffer
 from .economy import Rejected, Unsupported
 from .marching_columns import Columns
 from .marching_spatial import (LANES, CONTACT2, GAP2, RANGE2, RANGED, ROUT, WEB, AURAS,
-                               MOVEMENT_PERCENT, distance, scaled, ceil_sqrt, speed, compile_effects, gravity)
+                               distance, scaled, ceil_sqrt, speed, compile_effects, gravity)
 from .primitives import entity_id, instance_id, draw
 
 VERSION = "U13_PYSIM_MARCHING_SPIKE_V2_RANGE_SENTINEL"
@@ -209,11 +209,12 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
         lane, owner, base = s.lane[i], s.owner[i], s.step_fp[i]
         collapse = collapse_players[owner]
         recovery = s.rout_round[i] == number - 1
+        step = (base >> 1) + (base & 1) * (clock & 1) if recovery else base
         percent = modifiers[lane][owner]["speed_percent"]
         web = not (s.extra[i] or {}).get("flying",False) and any(who != owner and distance(xs[i], ys[i], wx, wy) <= radius for who, wx, wy, radius in fields[lane])
-        pool = monster_effects.slowed(dict(x_fp=xs[i],y_fp=ys[i],lane=lane,flying=(s.extra[i] or {}).get('flying',False)),data.get('monsters',{}).get('fields',[]))
-        step = speed(base, percent, recovery, clock, web, collapse, MOVEMENT_PERCENT if ranged else 100, pool and ranged)
-        if pool and not ranged:
+        if percent or web or collapse:
+            step = speed(base, percent, recovery, clock, web, collapse)
+        if monster_effects.slowed(dict(x_fp=xs[i],y_fp=ys[i],lane=lane,flying=(s.extra[i] or {}).get('flying',False)),data.get('monsters',{}).get('fields',[])):
             step=(step>>1)+(step&1)*(clock&1)
         if not retreat[i] and gaps[i] <= CONTACT2:
             if s.contact_tick[i] < 0:
@@ -416,7 +417,6 @@ class Phase:
     def run(self):
         s, data, context = self.s, self.w["data"], self.context
         ranged = data.get("ranged_profile") == RANGED
-        movement_percent = MOVEMENT_PERCENT if ranged else 100
         if ranged:
             for i in s.active():
                 if s.suit[i] == "Vulture":
@@ -444,12 +444,12 @@ class Phase:
             lamp_before = s.rows() if lamps else []
             if has_wishes: self.events.extend(wishmaster.bypass(buffer,self.number,tick))
             before = (s.x_fp[:], s.y_fp[:], s.active()) if orbs else None
-            if actors: self.events.extend(kroni_actors.step(actors,buffer,self.number,tick,collapse,[not veil.affects(self.w,"Kroni",pid) for pid in (0,1)],movement_percent))
+            if actors: self.events.extend(kroni_actors.step(actors,buffer,self.number,tick,collapse,[not veil.affects(self.w,"Kroni",pid) for pid in (0,1)]))
             fleeing = {key for actor in actors for key in list(actor["fleeing"])+actor["fled_this_tick"]}
             clock = self.number * 200 + tick
             self.interrupt(duels, tick)
             if has_monsters:
-                result=monster_effects.step(self.w,buffer,context,tick,self.reaction,movement_percent)
+                result=monster_effects.step(self.w,buffer,context,tick,self.reaction)
                 if result['action']=='invalid':return result
                 self.w=result['world'];self.events.extend(result['events']);fleeing.update(result['fleeing'])
                 context['world']['data']['monsters']=self.w['data']['monsters']

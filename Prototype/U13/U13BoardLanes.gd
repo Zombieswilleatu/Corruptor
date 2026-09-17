@@ -21,6 +21,12 @@ var chit_sheet: Texture2D
 const SpriteVisuals = preload("res://Prototype/U13/U13MarcherSpriteVisuals.gd")
 var sprite_visuals = SpriteVisuals.new()
 var sprite_height: float = 58.0
+const CHIT_DIAMETER: float = 28.0
+var regular_sprites: bool = false
+var monster_sprites: bool = true
+var display_settings_path: String = "user://u13_battlefield_display.cfg"
+var regular_display_button: Button
+var monster_display_button: Button
 const HEALTH_RING_COLOR = Color("a8cb86")
 const ARMOR_RING_COLOR = Color("d3ddec")
 var void_active: bool = false
@@ -63,9 +69,81 @@ func _ready() -> void:
 	domain = Art.texture("res://ConceptImages/Menus/Domain1.png")
 	skin = Art.texture("res://ConceptImages/Menus/Battlefield.png")
 	custom_minimum_size = Vector2(290, 600)
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mouse_filter = Control.MOUSE_FILTER_PASS
 	clip_contents = true
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_build_display_controls()
+
+
+func _build_display_controls() -> void:
+	var config := ConfigFile.new()
+	if not display_settings_path.is_empty() and config.load(display_settings_path) == OK:
+		regular_sprites = config.get_value("display", "regular_sprites", false) == true
+		monster_sprites = config.get_value("display", "monster_sprites", true) == true
+	var controls := HBoxContainer.new()
+	controls.name = "UnitDisplayControls"
+	controls.anchor_right = 1.0
+	controls.offset_left = 22.0
+	controls.offset_right = -22.0
+	controls.offset_top = 123.0
+	controls.offset_bottom = 151.0
+	controls.add_theme_constant_override("separation", 6)
+	add_child(controls)
+	regular_display_button = Button.new()
+	monster_display_button = Button.new()
+	for button in [regular_display_button, monster_display_button]:
+		button.toggle_mode = true
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.add_theme_font_size_override("font_size", 12)
+		controls.add_child(button)
+	regular_display_button.tooltip_text = "Switch ordinary marchers between the original chits and animated sprites."
+	monster_display_button.tooltip_text = "Switch monsters between animated sprites and compact named tokens."
+	regular_display_button.toggled.connect(func(enabled: bool): set_display_modes(enabled, monster_sprites, true))
+	monster_display_button.toggled.connect(func(enabled: bool): set_display_modes(regular_sprites, enabled, true))
+	set_display_modes(regular_sprites, monster_sprites)
+
+
+func set_display_modes(regular: bool, monsters: bool, persist: bool = false) -> void:
+	regular_sprites = regular
+	monster_sprites = monsters
+	if regular_display_button != null:
+		regular_display_button.set_pressed_no_signal(regular)
+		regular_display_button.text = "Units: " + ("Sprites" if regular else "Chits")
+	if monster_display_button != null:
+		monster_display_button.set_pressed_no_signal(monsters)
+		monster_display_button.text = "Monsters: " + ("Sprites" if monsters else "Chits")
+	if persist and not display_settings_path.is_empty():
+		var config := ConfigFile.new()
+		config.set_value("display", "regular_sprites", regular)
+		config.set_value("display", "monster_sprites", monsters)
+		config.save(display_settings_path)
+	queue_redraw()
+
+
+func uses_sprite(unit: Dictionary) -> bool:
+	var a: Dictionary = unit.attributes
+	return monster_sprites if a.has("monster_id") or a.get("suit") == "Monster" else regular_sprites
+
+
+func unit_sprite_height(unit: Dictionary) -> float:
+	var frame: Dictionary = sprite_visuals.presentation(unit).frame
+	if frame.is_empty(): return sprite_height
+	# Broad monsters must not span several neighboring bodies. Preserve aspect.
+	var max_width: float = clampf(travel_rect(unit.attributes.lane).size.x * 0.28, 40.0, 58.0)
+	return minf(sprite_height, max_width * float(frame.body) / float(frame.texture.get_width()))
+
+
+func _get_tooltip(at: Vector2) -> String:
+	for unit in _units:
+		if unit.attributes.get("hidden", false) or deaths.seen.has(unit.id): continue
+		var center: Vector2 = _monster_point(unit.attributes)
+		var height: float = unit_sprite_height(unit) if uses_sprite(unit) else CHIT_DIAMETER
+		var area := Rect2(center - Vector2(24, height if uses_sprite(unit) else height * 0.5), Vector2(48, height + 12))
+		if area.has_point(at):
+			var unit_name: String = unit.attributes.get("monster_id", unit.attributes.suit)
+			var hp: String = "Obscured" if void_active else "%d/%d" % [unit.attributes.hp, unit.attributes.max_hp]
+			return "%s · %s\nHP %s · Armor %d" % [unit_name, "Yours" if unit.owner == 0 else "Enemy", hp, unit.attributes.armor]
+	return ""
 
 
 func _scenery(rect: Rect2, crop: Rect2) -> void:
@@ -110,11 +188,10 @@ func _draw() -> void:
 	var action: String = "Marching clashes appear here"
 	if not _clash.is_empty():
 		action = "CLASH"
+		var fighters: Array = _units.filter(func(unit): return unit.id in _clash and not deaths.seen.has(unit.id))
 		var index: int = 0
-		for unit in _units:
-			if unit.id not in _clash or deaths.seen.has(unit.id):
-				continue
-			_draw_chit(unit, Vector2(54 + (index % 4) * 56, 205))
+		for unit in fighters:
+			_draw_chit(unit, Vector2(22 + (size.x - 44) * (float(index) + 0.5) / maxf(1, fighters.size()), 221), false, true)
 			index += 1
 	draw_string(font, Vector2(18, 250), action, HORIZONTAL_ALIGNMENT_CENTER, size.x - 36, 12, MUTED)
 	# One continuous battlefield surface; only the lane boundary divides it.
@@ -222,7 +299,7 @@ func _draw() -> void:
 			if a.waiting:
 				draw_string(
 					font,
-					center + Vector2(-17, -sprite_height - 5),
+					center + Vector2(-17, -unit_sprite_height(unit) - 5 if uses_sprite(unit) else -22),
 					"SUPPLICANT",
 					HORIZONTAL_ALIGNMENT_LEFT,
 					45,
@@ -240,15 +317,19 @@ var paradox_glitches: Dictionary = {}
 const ParadoxTiming = preload("res://Prototype/U13/U13ParadoxTiming.gd")
 
 
-func _draw_chit(unit: Dictionary, center: Vector2, flash: bool = false) -> void:
+func _draw_chit(unit: Dictionary, center: Vector2, flash: bool = false, close_up: bool = false) -> void:
 	var attributes: Dictionary = unit.attributes
 	var tint: Color = BLUE if unit.owner == 0 else RED
 	if attributes.get("hidden", false):
 		if unit.owner == 0: draw_arc(center, 9, 0, TAU, 24, Color(tint, 0.35), 1.0)
 		return
 	var glitch: Dictionary = paradox_glitches.get(unit.id, {})
-	var drawn := sprite_visuals.draw(self, unit, center, sprite_height, glitch, flash)
+	var height: float = 64.0 if close_up else unit_sprite_height(unit)
+	var drawn: bool = (close_up or uses_sprite(unit)) and sprite_visuals.draw(self, unit, center, height, glitch, flash)
 	var fallback_character: String = "" if drawn else SpriteVisuals.Catalog.character_for(unit)
+	var diameter: float = 36.0 if close_up else CHIT_DIAMETER
+	var chit_rect := Rect2(center - Vector2.ONE * diameter * 0.5, Vector2.ONE * diameter)
+	var brightness: float = maxf(float(sprite_visuals.presentation(unit).flash), 1.0 if flash else 0.0)
 	if not drawn and chit_sheet != null and fallback_character in ["Butcher", "Penitent", "Vulture", "Wright"]:
 		# UI2 atlas: Butcher/Penitent/Vulture/Wright columns, human/enemy rows.
 		var column: int = int(
@@ -257,23 +338,24 @@ func _draw_chit(unit: Dictionary, center: Vector2, flash: bool = false) -> void:
 		var cell: Vector2 = chit_sheet.get_size() / Vector2(4.0, 2.0)
 		var row: float = 0.0 if unit.owner == 0 else 1.0
 		ParadoxTiming.draw_slices(self, chit_sheet,
-			Rect2(center - Vector2(22, 22), Vector2(44, 44)),
+			chit_rect,
 			Rect2(Vector2(float(column), row) * cell, cell),
 			float(glitch.get("amount", 0.0)), int(glitch.get("tick", 0)))
-		if flash:
-			draw_texture_rect_region(chit_sheet, Rect2(center - Vector2(22, 22), Vector2(44, 44)), Rect2(Vector2(float(column), row) * cell, cell), Color(4, 4, 4, 1))
+		if brightness > 0.0:
+			draw_texture_rect_region(chit_sheet, chit_rect, Rect2(Vector2(float(column), row) * cell, cell), Color(1 + brightness * 3, 1 + brightness * 3, 1 + brightness * 3, 1))
 	elif not drawn:
-		# Unknown future types remain visible without being mislabeled Butchers.
-		draw_circle(center - Vector2(0, 12), 12, tint)
-		draw_string(ThemeDB.fallback_font, center + Vector2(-5, -7), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color.BLACK)
-	rout_visuals.draw_chit(self, String(unit.id), center - Vector2(0, sprite_height * 0.45 if drawn else 0.0))
+		# Monster chits have distinct two-letter names; hover gives the full name.
+		var unit_name: String = attributes.get("monster_id", "?")
+		draw_circle(center, diameter * 0.5, Color("302b25").lerp(Color.WHITE, brightness * 0.5))
+		draw_string(ThemeDB.fallback_font, center + Vector2(-diameter * 0.5, 4), unit_name.left(2).to_upper(), HORIZONTAL_ALIGNMENT_CENTER, diameter, 11, Color("eed8ad"))
+	rout_visuals.draw_chit(self, String(unit.id), center - Vector2(0, height * 0.45 if drawn else 0.0))
 	_draw_unit_rings(unit, center, tint, drawn)
 
 
 func _draw_unit_rings(unit: Dictionary, center: Vector2, owner_color: Color, sprite: bool) -> void:
 	var segments := sprite_visuals.health_segments(unit, void_active)
-	var outer_radius := 20.0 if sprite else 27.0
-	var inner_radius := 15.0 if sprite else 22.0
+	var outer_radius := 20.0 if sprite else 18.0
+	var inner_radius := 15.0
 	draw_set_transform(center, 0.0, Vector2(1.0, 0.45 if sprite else 1.0))
 	# Ownership stays readable even when both defensive pools are nearly empty.
 	draw_arc(Vector2.ZERO, outer_radius, 0.0, TAU, 48, owner_color, 1.5, true)
@@ -288,8 +370,9 @@ func _draw_unit_rings(unit: Dictionary, center: Vector2, owner_color: Color, spr
 
 func _draw_marcher_death(unit: Dictionary, center: Vector2, age: float) -> void:
 	var blink: bool = age < deaths.FLASH_DURATION and int(age / 0.05) % 2 == 0
-	if not sprite_visuals.draw(self, unit, center, sprite_height,
-		paradox_glitches.get(unit.id, {}), blink, age) and blink:
+	if uses_sprite(unit):
+		if sprite_visuals.draw(self, unit, center, unit_sprite_height(unit), paradox_glitches.get(unit.id, {}), blink, age): return
+	if blink:
 		_draw_chit(unit, center, true)
 
 
@@ -421,6 +504,7 @@ func travel_rect(lane: String) -> Rect2:
 
 func show_world(entities: Array, round_number: int) -> void:
 	projectiles = []
+	monster_attacks = []
 	deaths.observe(_units.filter(func(u): return u.id not in quiet_removal_ids), entities)
 	super.show_world(entities, round_number)
 	sprite_visuals.sync(_units, _clash, _round, false)
@@ -444,7 +528,7 @@ func show_deaths(rows: Array) -> void:
 
 func _monster_point(a: Dictionary) -> Vector2:
 	var rect: Rect2 = travel_rect(a.lane)
-	return rect.position + Vector2(float(a.y_fp) / 600.0, 1.0 - float(a.x_fp) / 2400.0) * rect.size
+	return rect.position + Vector2(float(a.get("visual_y", a.y_fp)) / 600.0, 1.0 - float(a.get("visual_x", a.x_fp)) / 2400.0) * rect.size
 
 func _draw_monster_fields(lane: String) -> void:
 	var rect: Rect2 = travel_rect(lane)
@@ -464,13 +548,48 @@ func _draw_monster_fields(lane: String) -> void:
 			draw_polyline(points, Color(0.52, 0.28, 0.85, 0.70), 4.0, true)
 			draw_polyline(points, Color(0.45, 0.70, 1.0, 0.9), 1.0, true)
 
+func _attack_point(attributes: Dictionary, identity: String, owner: int) -> Vector2:
+	var unit: Dictionary = {"id": identity, "owner": owner, "attributes": attributes}
+	var height: float = unit_sprite_height(unit) * 0.55 if uses_sprite(unit) else 0.0
+	return _monster_point(attributes) - Vector2(0, height)
+
+
+func beam_points(attack: Dictionary) -> PackedVector2Array:
+	var origin := _attack_point(attack.source, attack.get("source_id", ""), attack.get("source_owner", 0))
+	var target := _attack_point(attack.target, attack.get("target_id", ""), attack.get("target_owner", 1))
+	var reach: float = float(attack.get("range_fp", 0))
+	if reach > 0.0:
+		var delta := Vector2(float(attack.target.x_fp) - float(attack.source.x_fp), float(attack.target.y_fp) - float(attack.source.y_fp))
+		target = origin + (target - origin) * reach / maxf(1.0, delta.length())
+	# Clip the visible ray at its own lane's edge, without changing game positions.
+	var lane: Rect2 = travel_rect(attack.source.lane)
+	var bounds := Rect2(lane.position.x, 310, lane.size.x, size.y - 334)
+	var ray := target - origin
+	var fraction: float = 1.0
+	if ray.x > 0: fraction = minf(fraction, (bounds.end.x - origin.x) / ray.x)
+	elif ray.x < 0: fraction = minf(fraction, (bounds.position.x - origin.x) / ray.x)
+	if ray.y > 0: fraction = minf(fraction, (bounds.end.y - origin.y) / ray.y)
+	elif ray.y < 0: fraction = minf(fraction, (bounds.position.y - origin.y) / ray.y)
+	return PackedVector2Array([origin, origin + ray * clampf(fraction, 0.0, 1.0)])
+
+
 func _draw_monster_attacks() -> void:
 	for attack in monster_attacks:
-		var a: Vector2 = _monster_point(attack.source) - Vector2(0, sprite_height * 0.5)
-		var b: Vector2 = _monster_point(attack.target) - Vector2(0, sprite_height * 0.5)
+		var a := _attack_point(attack.source, attack.get("source_id", ""), attack.get("source_owner", 0))
+		var b := _attack_point(attack.target, attack.get("target_id", ""), attack.get("target_owner", 1))
 		if attack.ability == "Beam":
-			draw_line(a, b, Color(0.76, 0.16, 0.28, 0.35), 7.0, true)
-			draw_line(a, b, Color(1.0, 0.64, 0.58, 0.85), 2.0, true)
+			var points := beam_points(attack)
+			var pulse: float = 1.0 - smoothstep(0.30, 1.0, float(attack.get("weight", 0.0)))
+			draw_line(points[0], points[1], Color(1.0, 0.01, 0.025, 0.30 * pulse), 14.0, true)
+			draw_line(points[0], points[1], Color(1.0, 0.035, 0.055, 0.95 * pulse), 5.0, true)
+			draw_line(points[0], points[1], Color(1.0, 0.82, 0.77, pulse), 1.5, true)
+			draw_circle(a, 8.0, Color(1.0, 0.03, 0.06, 0.45 * pulse))
+			draw_circle(a, 3.5, Color(1.0, 0.84, 0.80, pulse))
+			for hit in attack.get("impacts", []):
+				if hit.attributes.get("hidden", false) and hit.owner == 1: continue
+				var impact := _attack_point(hit.attributes, hit.id, hit.owner)
+				draw_circle(impact, 6.0, Color(1.0, 0.05, 0.03, 0.40 * pulse))
+				draw_arc(impact, 8.0, 0, TAU, 24, Color(1.0, 0.37, 0.24, pulse), 1.5, true)
 		elif attack.ability == "Muno":
 			draw_line(a, b, Color(0.55, 0.84, 0.95, 0.55), 1.5, true)
 			draw_line(b + Vector2(-8, 9), b + Vector2(8, -9), Color(0.83, 0.94, 1.0, 0.85), 2.0, true)

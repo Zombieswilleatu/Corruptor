@@ -2,7 +2,6 @@
 from . import monsters as rules
 from .copying import copy_data
 from .primitives import draw, instance_id
-from .marching_spatial import speed
 
 T = rules.TUNING
 
@@ -82,7 +81,7 @@ def on_hit(buffer,source,target_id,damage,c,tick):
     return []
 
 
-def step(w,buffer,c,tick,reaction,movement_percent=100):
+def step(w,buffer,c,tick,reaction):
     events=[]
     if not rules.enabled(w):return dict(action='resolved',world=w,events=events,fleeing={})
     state=w['data']['monsters'];n=c['round'];clock=n*200+tick;hits=[];fleeing={}
@@ -143,6 +142,7 @@ def step(w,buffer,c,tick,reaction,movement_percent=100):
             if target:
                 vx=target['attributes']['x_fp']-a['x_fp'];vy=target['attributes']['y_fp']-a['y_fp'];length2=max(1,vx*vx+vy*vy)
                 a['beam_next_tick']=clock+8
+                events.append(event('MONSTER_BEAM_FIRED',dict(attacker=unit,target=target,range_fp=T['beam_range'],round=n,tick=tick)))
                 for other in rows:
                     b=other['attributes']
                     if other['id']==unit['id'] or b['lane']!=a['lane']:continue
@@ -165,9 +165,8 @@ def step(w,buffer,c,tick,reaction,movement_percent=100):
                 buffer.retire_id(unit['id']);events.append(event('MONSTER_BANISHED',dict(unit=unit,portal_id=f['id'],round=n,tick=tick)))
             elif gap<=T['portal_fear_radius']**2 and a['step_fp']>0 and a['movement_ready_round']<=n:
                 dx=a['x_fp']-f['x_fp'];dy=a['y_fp']-f['y_fp']
-                flee_step=speed(a['step_fp'],0,False,clock,movement_percent=movement_percent)
-                if abs(dx)>=abs(dy):a['x_fp']=max(0,min(2400,a['x_fp']+(1 if dx>=0 else -1)*flee_step))
-                else:a['y_fp']=max(0,min(600,a['y_fp']+(1 if dy>=0 else -1)*flee_step))
+                if abs(dx)>=abs(dy):a['x_fp']=max(0,min(2400,a['x_fp']+(1 if dx>=0 else -1)*a['step_fp']))
+                else:a['y_fp']=max(0,min(600,a['y_fp']+(1 if dy>=0 else -1)*a['step_fp']))
                 a['contact_tick']=-1;buffer.update(unit['id'],unit['owner'],a);fleeing[unit['id']]=True
     w['entities']=buffer.snapshot();events.extend(deaths(w,n))
     return dict(action='resolved',world=w,events=events,fleeing=fleeing)

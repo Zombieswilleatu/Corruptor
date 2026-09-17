@@ -197,7 +197,7 @@ func _update_direct_ui() -> void:
 		_planning() and powers_step and (_is_lane_power(_intent) or _intent == Kalligan.INFERNO)
 	)
 	lanes.mouse_filter = (
-		Control.MOUSE_FILTER_STOP if lanes.target_lane_enabled else Control.MOUSE_FILTER_IGNORE
+		Control.MOUSE_FILTER_STOP if lanes.target_lane_enabled else Control.MOUSE_FILTER_PASS
 	)
 	if _planning():
 		var guide: String = _guide() if _interaction_error.is_empty() else _interaction_error

@@ -132,9 +132,32 @@ func run_checks() -> void:
 	visual.sync([sooge], [], 2, false)
 	check(visual.presentation(sooge).frame.texture == final_pose.frame.texture, "loading an existing turret does not replay its transformation")
 	var lanes := Lanes.new()
+	lanes.display_settings_path = ""
 	lanes.size = Vector2(360, 900)
 	root.add_child(lanes)
 	lanes.show_world(original, 1)
+	check(not lanes.uses_sprite(actor) and lanes.uses_sprite(sooge), "default battlefield uses regular chits and monster sprites")
+	check(lanes.regular_display_button.text == "Units: Chits" and lanes.monster_display_button.text == "Monsters: Sprites", "both display controls expose the current mode")
+	var saved_units: Array = lanes._units.duplicate(true)
+	lanes.regular_display_button.button_pressed = true
+	check(lanes.uses_sprite(actor) and lanes.uses_sprite(sooge), "regular toggle leaves monster preference intact")
+	lanes.monster_display_button.button_pressed = false
+	check(lanes.uses_sprite(actor) and not lanes.uses_sprite(sooge), "monster toggle leaves regular preference intact")
+	lanes.regular_display_button.button_pressed = false
+	check(not lanes.uses_sprite(actor) and not lanes.uses_sprite(sooge) and lanes._units == saved_units, "all-chit mode keeps exact identities and positions")
+	lanes.set_display_modes(false, true)
+	var eye: Dictionary = sooge.duplicate(true)
+	eye.attributes.x_fp = 600
+	var target: Dictionary = actor.duplicate(true)
+	target.attributes.x_fp = 900
+	var ray: Dictionary = {"source": eye.attributes, "source_id": eye.id, "source_owner": 0, "target": target.attributes, "target_id": target.id, "target_owner": 1, "range_fp": 600, "ability": "Beam", "impacts": [], "weight": 0.1}
+	var segment: PackedVector2Array = lanes.beam_points(ray)
+	check(segment[1].distance_to(segment[0]) > lanes._attack_point(target.attributes, target.id, 1).distance_to(segment[0]), "visible laser extends past its nearest target")
+	lanes.monster_attacks = [ray]
+	await process_frame
+	await process_frame
+	lanes.show_world(original, 1)
+	check(lanes.monster_attacks.is_empty(), "returning to the board clears completed laser pulses")
 	check(lanes.sprite_visuals.subjects.size() == 2 and lanes.is_processing(), "live board enables sprite animation")
 	var board_input := original.duplicate(true)
 	board_input[0].attributes.visual_x = 500
@@ -150,6 +173,7 @@ func run_checks() -> void:
 	await process_frame
 	check(lanes.deaths.visible.size() == 1 and lanes.deaths.seen.has("human"), "sprite casualty and ghost play once")
 	lanes.reset_effects()
+	check(not lanes.regular_sprites and lanes.monster_sprites, "round/reset cleanup preserves independent display choices")
 	check(lanes.sprite_visuals.subjects.is_empty() and lanes._clash.is_empty() and lanes.deaths.visible.is_empty(), "restart clears sprite, combat and death state")
 	var dense: Array = []
 	for i in range(48):

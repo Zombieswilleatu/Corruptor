@@ -133,11 +133,11 @@ static func touches(ax: int, ay: int, bx: int, by: int, px: int, py: int, r: int
 
 # Ordered actors and stable entity IDs define simultaneous consumption ties.
 # This changes the Marching buffer, never damage, armor, kill reactions or RNG.
-static func step(actors: Array, entities, round_number: int, tick: int, collapse = false, immune: Array = [false, false], movement_percent: int = 100) -> Array:
+static func step(actors: Array, entities, round_number: int, tick: int, collapse = false, immune: Array = [false, false]) -> Array:
 	var events: Array = []
 	for actor in actors:
 		actor.fled_this_tick = actor.fleeing.keys()
-		flee(actor, entities, TICK_MS, collapse, movement_percent)
+		flee(actor, entities, TICK_MS, collapse)
 		if not actor.active:
 			continue
 		var ax: int = actor.x_fp
@@ -172,7 +172,7 @@ static func step(actors: Array, entities, round_number: int, tick: int, collapse
 				actor.consumed += 1
 				actor.fleeing.erase(unit.id)
 				var bite_actor: Dictionary = actor.duplicate(true)
-				var fleeing: Array = flee(actor, entities, CHOMP_MS, collapse, movement_percent)
+				var fleeing: Array = flee(actor, entities, CHOMP_MS, collapse)
 				events.append(State.event("MARCHER_DEVOURED", {"actor_id": actor.id, "actor": bite_actor, "before": unit, "round": round_number, "tick": tick, "breach": actor.breach, "flee": fleeing, "chomp_ms": CHOMP_MS}, "Insatiable Hunger devours a Marcher." if actor.breach else "Ravenous devours a Marcher."))
 				# One victim per chomp; survivors have time to flee before the next bite.
 				break
@@ -213,12 +213,12 @@ static func notice(actor: Dictionary, entities, immune: Array = [false, false]) 
 
 # Both normal field ticks and the bite pause spend the same panic timer.
 # Publish the bite's before/after positions for presentation interpolation.
-static func flee(actor: Dictionary, entities, elapsed_ms: int = CHOMP_MS, collapse = false, movement_percent: int = 100) -> Array:
+static func flee(actor: Dictionary, entities, elapsed_ms: int = CHOMP_MS, collapse = false) -> Array:
 	var merged: Dictionary = {}
 	var remaining: int = elapsed_ms
 	while remaining > 0 and not actor.fleeing.is_empty():
 		var slice_ms: int = mini(TICK_MS, remaining)
-		for change in _flee_slice(actor, entities, slice_ms, collapse, movement_percent):
+		for change in _flee_slice(actor, entities, slice_ms, collapse):
 			var identity: String = change.before.id
 			if not merged.has(identity):
 				merged[identity] = change
@@ -229,7 +229,7 @@ static func flee(actor: Dictionary, entities, elapsed_ms: int = CHOMP_MS, collap
 	return merged.values()
 
 
-static func _flee_slice(actor: Dictionary, entities, elapsed_ms: int, collapse = false, movement_percent: int = 100) -> Array:
+static func _flee_slice(actor: Dictionary, entities, elapsed_ms: int, collapse = false) -> Array:
 	var changes: Array = []
 	for identity in actor.fleeing.keys():
 		var unit: Dictionary = entities.get_entity(identity)
@@ -252,7 +252,6 @@ static func _flee_slice(actor: Dictionary, entities, elapsed_ms: int, collapse =
 			dy = direction[1]
 		var length: float = sqrt(float(dx * dx + dy * dy))
 		var distance: float = float(int(a.step_fp) * FLEE_PERCENT * duration) / float(100 * TICK_MS)
-		distance *= float(movement_percent) / 100.0
 		if Veil.applies_to(collapse, unit.owner):
 			distance *= 0.5
 		var move_x: float = float(dx) / length * distance + float(state.carry_x)

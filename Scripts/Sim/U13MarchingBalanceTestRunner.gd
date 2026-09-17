@@ -32,16 +32,16 @@ func run() -> void:
 			var a: Dictionary = Marching.profile(name, "Castle", pid, 0, 1, true) if name in Marching.SUITS else Monsters.profile(name, "Castle", pid, 0, 1)
 			var before: int = int(a.x_fp)
 			var moved: Dictionary = march(a, pid)
-			check(not moved.is_empty() and absi(int(moved.x_fp) - before) == int(a.step_fp) * 150, "%s owner %d travels 75%% over 200 ticks" % [name, pid])
+			check(not moved.is_empty() and absi(int(moved.x_fp) - before) == int(a.step_fp) * 200, "%s owner %d retains original speed over 200 ticks" % [name, pid])
 	var penitent: Dictionary = Marching.profile("Penitent", "Lord", 0, 0, 1, true)
 	penitent.merge({"x_fp": 1200, "rout_round": 1, "rout_effect_id": "balance_rout"}, true)
-	check(march(penitent, 0, {"rout_profile": Marching.Rout.VERSION}).x_fp == 750, "retreat also moves 450 instead of 600")
+	check(march(penitent, 0, {"rout_profile": Marching.Rout.VERSION}).x_fp == 600, "retreat retains original speed")
 	var rooted: Dictionary = Monsters.profile("Sooge", "Castle", 0, 0, 1, true)
 	check(march(rooted, 0).x_fp == 0, "rooted Sooge remains stationary")
 	# Odd base speed and several simultaneous modifiers must not truncate per tick.
 	var distance: int = 0
 	for clock in range(800):
-		distance += Marching.LaneAuras.speed(3, 25, true, clock, true, false, 75, true)
-	check(distance == 281, "3 speed, 25% bonus, recovery, Web and pool retain fractional movement")
+		distance += Marching.LaneAuras.speed(3, 25, true, clock, true, false)
+	check(distance == 750, "3 speed, 25% bonus, recovery and Web retain fractional movement")
 	print("U13 marching balance failures: %d" % failures)
 	quit(0 if failures == 0 else 1)

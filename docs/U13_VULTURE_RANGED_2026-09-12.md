@@ -28,21 +28,18 @@ and disappears on impact. It never plays the coin or reward sequence. The board
 clears projectiles on world/reset changes; visual interpolation does not modify
 match state or saves.
 
-`U13_VULTURE_RANGED_V2` versions current all-Lord and full-game policies. Production,
+`U13_VULTURE_RANGED_V3` versions current all-Lord and full-game policies. Production,
 Predator, Wish Power and debug spawns use this profile. Earlier isolated subsystem
 fixtures and the U12 baseline retain their frozen rules for regression comparisons.
 Start a new current-profile match; older policy saves are not silently reinterpreted.
 
-The September 17 balance change reduces Vulture attack from 2 to 1 in both modes
-and sets all current-game Marcher and monster movement to **75% of its previous
-speed**. Printed base speed, attack cadence, range, HP, armor and regeneration are
-unchanged. Movement composes the global reduction with lane bonuses, Rout
-recovery, Web, gravitational collapse and Lemek's pool before distributing
-fractional steps across ticks. Retreat and panic movement use the same global
-reduction. Rooted Sooge remains stationary; teleports, projectiles and Lord-power
-hazard motion retain their existing behavior. Python mirrors the same rules.
-Slower approaches give ranged units more firing time, so the two changes need
-playtesting together; this is a tuning starting point, not a measured balance claim.
+The September 17 Vulture attack reduction from 2 to 1 remains in both modes.
+The accompanying 25% movement reduction was reverted after playtesting showed
+excessive bunching. All Marchers and monsters use their original movement speeds,
+including retreat and panic movement. Existing lane bonuses and slow effects
+retain their original calculations. Rooted Sooge remains stationary. Python
+mirrors the same rules; Vulture range, cadence, HP, armor and regeneration are
+unchanged.
 
 The focused `U13VultureRangedTestRunner` checks range, movement, both armor paths,
 cadence, switching to melee, reciprocal kills, lane isolation, retreat, deterministic
@@ -51,9 +48,9 @@ board/reset integration. The game gate now expects **16/16** including Vacant Th
 and the existing Sigil board check. Local simulation checks use Godot 4.5.1;
 the complete board gate requires the pinned Windows Godot 4.7.2 runtime.
 
-September 17 validation: 26 ranged checks, 61 movement checks in
-`U13MarchingBalanceTestRunner`, and 129 monster checks passed with integer-division
+Movement rollback validation: 26 ranged checks, 61 movement checks in
+`U13MarchingBalanceTestRunner`, and 135 monster checks passed with integer-division
 warnings treated as errors. Python passed 26 focused tests and matched native
-events/state across 28 isolated Marching phases and 12 monster phases (8,000
-complete tick frames). These are local Godot 4.5.1 diagnostics; the Windows 4.7.2
-playtest remains the production-runtime check.
+events/state across 12 monster phases (2,400 complete tick frames), including
+Sooge's explicit beam-firing events. These are local Godot 4.5.1 diagnostics;
+the Windows 4.7.2 playtest remains the production-runtime check.

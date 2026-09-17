@@ -6,6 +6,7 @@ extends RefCounted
 # captured endpoints is visual interpolation, independent of frame rate.
 const Feedback = preload("res://Prototype/U13/U13MarcherFeedback.gd")
 const FLIGHT_SECONDS: float = 0.18
+const BEAM_SECONDS: float = 0.22
 var projectile_rows: Array = []
 var feedback_rows: Array = []
 var death_rows: Array = []
@@ -140,6 +141,8 @@ func sample(seconds: float) -> Dictionary:
 			projectiles.append(picture)
 	var fields: Array = _monster_fields.filter(func(f): return at >= f.at).map(func(f): return f.field.duplicate(true))
 	var attacks: Array = _monster_attacks.filter(func(a): return at >= a.start and at < a.end).map(func(a): return a.duplicate(true))
+	for attack in attacks:
+		attack["weight"] = clampf((at - float(attack.start)) / maxf(0.001, float(attack.end) - float(attack.start)), 0.0, 1.0)
 	return {"units": result, "caption": left.caption, "clash": left.clash.duplicate(), "projectiles": projectiles, "monster_fields": fields, "monster_attacks": attacks, "banished_ids": _banished_ids.keys()}
 
 
@@ -205,9 +208,16 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 			projectile_rows.append({"start": impact - FLIGHT_SECONDS, "end": impact, "lane": event.data.lane, "source": event.data.attacker.attributes.duplicate(true), "target": event.data.target.attributes.duplicate(true)})
 	for field in started.get("monster_fields", []): _monster_fields.append({"at": 0.0, "field": field})
 	var death_ticks: Dictionary = {}
+	var beams: Dictionary = {}
 	for event in events:
 		var d: Dictionary = event.data
 		if event.type == "MARCHER_DEFEATED": death_ticks[d.victim.id + ":pool"] = int(d.get("tick", 0))
+		if event.type == "MONSTER_BEAM_FIRED":
+			var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
+			var key: String = "%s:%d" % [d.attacker.id, d.tick]
+			var beam: Dictionary = {"start": at, "end": at + BEAM_SECONDS, "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "range_fp": d.range_fp, "ability": "Beam", "impacts": []}
+			beams[key] = beam
+			_monster_attacks.append(beam)
 	for event in events:
 		var d: Dictionary = event.data
 		if event.type == "MONSTER_FIELD_CREATED" and not _monster_fields.any(func(f): return f.field.id == d.field.id):
@@ -215,7 +225,13 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 			_monster_fields.append({"at": lead + MOVE_SECONDS * float(tick + 1) / float(started.ticks), "field": d.field})
 		elif event.type == "MONSTER_ATTACK":
 			var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
-			_monster_attacks.append({"start": at, "end": at + 0.14, "source": d.attacker.attributes, "target": d.target.attributes, "ability": d.ability})
+			var key: String = "%s:%d" % [d.attacker.id, d.tick]
+			if d.ability == "Beam" and beams.has(key):
+				# Collateral lights up the struck bodies; it never redirects the beam.
+				beams[key].impacts.append({"attributes": d.target.attributes, "id": d.target.id, "owner": d.target.owner})
+			else:
+				# Older tapes contain hit records only and can still show their shots.
+				_monster_attacks.append({"start": at, "end": at + (BEAM_SECONDS if d.ability == "Beam" else 0.14), "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "ability": d.ability})
 	var expected_tick: int = 0
 	for event in events:
 		if event.type != "MARCHING_TICK":
@@ -246,6 +262,9 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 	units = {}
 	for unit in finished.units:
 		units[unit.id] = unit.duplicate(true)
+	# Let the last recorded pulse finish instead of sticking on the final frame.
+	for attack in _monster_attacks:
+		duration = maxf(duration, float(attack.end))
 	_append(units, "Marching complete", [])
 	return true
 
