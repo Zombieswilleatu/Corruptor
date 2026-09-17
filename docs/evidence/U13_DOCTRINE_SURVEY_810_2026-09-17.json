@@ -1,0 +1,3328 @@
+{
+  "audit": {
+    "decisions": {
+      "planning_decisions": 28868,
+      "selected_enemy_win_scenario": 366
+    },
+    "invocation": {
+      "alternative_wins_current_board_scenario_chosen_does_not": 536,
+      "games_with_missed_scenario": 296,
+      "generated": 13776,
+      "initial_score_nonpositive": 13776,
+      "scenario_Dominion": 349,
+      "scenario_FinalCollapse": 187
+    },
+    "invocation_replays": [
+      {
+        "alternate_final_sha256": "355e27f02c76207c0a49cc4670e5f02a05e0d7f0bbb86ada3ba24f76f95282fa",
+        "alternate_round_outcome": {
+          "action": "game_finished",
+          "round": 9,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:16",
+                  "u13_entity_card:16:game:deck:Wright:2:12",
+                  "u13_entity_card:16:game:deck:Wright:2:13"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_deimos_04",
+        "interpretation": "One changed own plan against the same recorded simultaneous opponent order; not a guaranteed win against other orders",
+        "observed_planning_input_matched": true,
+        "original_game_outcome": {
+          "action": "game_finished",
+          "round": 12,
+          "win_by": "Ritual",
+          "winner": 1
+        },
+        "original_plan_scenario": {
+          "win_by": "",
+          "winner": -1
+        },
+        "predicted_scenario": {
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "preview": {
+          "action": "legal"
+        },
+        "round": 9,
+        "seat": 0
+      },
+      {
+        "alternate_final_sha256": "0b65cb7a41adf56352153c23ece9dd0964a552f498d7dd87c0dbd28ea0480e8b",
+        "alternate_round_outcome": {
+          "action": "game_finished",
+          "round": 15,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:18:game:deck:Penitent:2:13",
+                  "u13_entity_card:17:game:deck:Vulture:1:9",
+                  "u13_entity_card:18:game:deck:Penitent:1:4",
+                  "u13_entity_card:16:game:deck:Wright:1:0",
+                  "u13_entity_card:18:game:deck:Penitent:1:0"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_deimos_06",
+        "interpretation": "One changed own plan against the same recorded simultaneous opponent order; not a guaranteed win against other orders",
+        "observed_planning_input_matched": true,
+        "original_game_outcome": {
+          "action": "game_finished",
+          "round": 16,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "original_plan_scenario": {
+          "win_by": "",
+          "winner": -1
+        },
+        "predicted_scenario": {
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "preview": {
+          "action": "legal"
+        },
+        "round": 15,
+        "seat": 1
+      },
+      {
+        "alternate_final_sha256": "802038e7a600bf28a2a20f60f9d85016c4113f1b29b430ebda53e3b53d4588a6",
+        "alternate_round_outcome": {
+          "action": "game_finished",
+          "round": 12,
+          "win_by": "Ritual",
+          "winner": 1
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:16:game:deck:Wright:2:17",
+                  "u13_entity_card:17:game:deck:Vulture:2:16",
+                  "u13_entity_card:17:game:deck:Butcher:2:14"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_deimos_07",
+        "interpretation": "One changed own plan against the same recorded simultaneous opponent order; not a guaranteed win against other orders",
+        "observed_planning_input_matched": true,
+        "original_game_outcome": {
+          "action": "game_finished",
+          "round": 13,
+          "win_by": "Ritual",
+          "winner": 1
+        },
+        "original_plan_scenario": {
+          "win_by": "",
+          "winner": -1
+        },
+        "predicted_scenario": {
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "preview": {
+          "action": "legal"
+        },
+        "round": 12,
+        "seat": 0
+      },
+      {
+        "alternate_final_sha256": "cb771e5f67557d4215b53db3942e5085a8d117a9573403ab8ecbe05fc94ed8b6",
+        "alternate_round_outcome": {
+          "action": "game_finished",
+          "round": 12,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:16:game:deck:Wright:2:17",
+                  "u13_entity_card:17:game:deck:Vulture:1:9",
+                  "u13_entity_card:18:game:deck:Penitent:1:5",
+                  "u13_entity_card:17:game:deck:Vulture:1:2"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_gremory_01",
+        "interpretation": "One changed own plan against the same recorded simultaneous opponent order; not a guaranteed win against other orders",
+        "observed_planning_input_matched": true,
+        "original_game_outcome": {
+          "action": "game_finished",
+          "round": 13,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "original_plan_scenario": {
+          "win_by": "",
+          "winner": -1
+        },
+        "predicted_scenario": {
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "preview": {
+          "action": "legal"
+        },
+        "round": 12,
+        "seat": 0
+      },
+      {
+        "alternate_final_sha256": "a2bc0919e9835d92d371d8b7757ba8f5c6a6af1fde2283be109e992438486bc1",
+        "alternate_round_outcome": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:12",
+                  "u13_entity_card:17:game:deck:Butcher:2:13",
+                  "u13_entity_card:17:game:deck:Vulture:2:13"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_gremory_06",
+        "interpretation": "One changed own plan against the same recorded simultaneous opponent order; not a guaranteed win against other orders",
+        "observed_planning_input_matched": true,
+        "original_game_outcome": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "original_plan_scenario": {
+          "win_by": "",
+          "winner": -1
+        },
+        "predicted_scenario": {
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "preview": {
+          "action": "legal"
+        },
+        "round": 14,
+        "seat": 1
+      },
+      {
+        "alternate_final_sha256": "5677f0c75b0902d386de0599260e148251a250d12802d5ffa0b892c2f8919e6c",
+        "alternate_round_outcome": {
+          "action": "game_finished",
+          "round": 20,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Vulture:2:16",
+                  "u13_entity_card:18:game:deck:Penitent:2:15",
+                  "u13_entity_card:16:game:deck:Wright:2:12"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_kalligan_07",
+        "interpretation": "One changed own plan against the same recorded simultaneous opponent order; not a guaranteed win against other orders",
+        "observed_planning_input_matched": true,
+        "original_game_outcome": {
+          "action": "game_finished",
+          "round": 21,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "original_plan_scenario": {
+          "win_by": "",
+          "winner": -1
+        },
+        "predicted_scenario": {
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "preview": {
+          "action": "legal"
+        },
+        "round": 20,
+        "seat": 0
+      }
+    ],
+    "limitations": [
+      "Current-board scenarios omit future simultaneous orders and reactions.",
+      "Guard-clear forecasts omit new enemy Guards/Ward; they identify risk, not guaranteed whiffs.",
+      "Same-lane Ravenous recruitment alone does not prove harmful net value.",
+      "Selected replay counterfactuals demonstrate cases, not a win-rate estimate."
+    ],
+    "manifest_sha256": "47b7d26d581cff19e2a119ba3eaf4bc5092aace26fa30a58fce79318c46f085a",
+    "missed_invocation_examples": [
+      {
+        "alternative": {
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:16",
+                  "u13_entity_card:16:game:deck:Wright:2:12",
+                  "u13_entity_card:16:game:deck:Wright:2:13"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_deimos_04",
+        "initial_score": -4,
+        "lord": "Deimos",
+        "original_loser": true,
+        "payment": 13,
+        "round": 9,
+        "seat": 0
+      },
+      {
+        "alternative": {
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:18:game:deck:Penitent:2:13",
+                  "u13_entity_card:17:game:deck:Vulture:1:9",
+                  "u13_entity_card:18:game:deck:Penitent:1:4",
+                  "u13_entity_card:16:game:deck:Wright:1:0",
+                  "u13_entity_card:18:game:deck:Penitent:1:0"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_deimos_06",
+        "initial_score": 0,
+        "lord": "Deimos",
+        "original_loser": true,
+        "payment": 11,
+        "round": 15,
+        "seat": 1
+      },
+      {
+        "alternative": {
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:16:game:deck:Wright:2:17",
+                  "u13_entity_card:17:game:deck:Vulture:2:16",
+                  "u13_entity_card:17:game:deck:Butcher:2:14"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_deimos_07",
+        "initial_score": -6,
+        "lord": "Deimos",
+        "original_loser": true,
+        "payment": 14,
+        "round": 12,
+        "seat": 0
+      },
+      {
+        "alternative": {
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:16:game:deck:Wright:2:17",
+                  "u13_entity_card:17:game:deck:Vulture:1:9",
+                  "u13_entity_card:18:game:deck:Penitent:1:5",
+                  "u13_entity_card:17:game:deck:Vulture:1:2"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_gremory_01",
+        "initial_score": 0,
+        "lord": "Deimos",
+        "original_loser": true,
+        "payment": 11,
+        "round": 12,
+        "seat": 0
+      },
+      {
+        "alternative": {
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:12",
+                  "u13_entity_card:17:game:deck:Butcher:2:13",
+                  "u13_entity_card:17:game:deck:Vulture:2:13"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_gremory_06",
+        "initial_score": -2,
+        "lord": "Gremory",
+        "original_loser": true,
+        "payment": 12,
+        "round": 14,
+        "seat": 1
+      },
+      {
+        "alternative": {
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Vulture:2:16",
+                  "u13_entity_card:18:game:deck:Penitent:2:15",
+                  "u13_entity_card:16:game:deck:Wright:2:12"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_kalligan_07",
+        "initial_score": -6,
+        "lord": "Deimos",
+        "original_loser": true,
+        "payment": 14,
+        "round": 20,
+        "seat": 0
+      },
+      {
+        "alternative": {
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Vulture:2:16",
+                  "u13_entity_card:16:game:deck:Wright:2:12",
+                  "u13_entity_card:17:game:deck:Butcher:2:12"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_kanifous_01",
+        "initial_score": -4,
+        "lord": "Kanifous",
+        "original_loser": true,
+        "payment": 13,
+        "round": 17,
+        "seat": 1
+      },
+      {
+        "alternative": {
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Vulture:2:13",
+                  "u13_entity_card:17:game:deck:Vulture:2:14",
+                  "u13_entity_card:16:game:deck:Wright:1:9"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_kroni_04",
+        "initial_score": 0,
+        "lord": "Deimos",
+        "original_loser": true,
+        "payment": 11,
+        "round": 18,
+        "seat": 0
+      },
+      {
+        "alternative": {
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:1:8",
+                  "u13_entity_card:17:game:deck:Vulture:2:11",
+                  "u13_entity_card:16:game:deck:Wright:1:6",
+                  "u13_entity_card:16:game:deck:Wright:1:7",
+                  "u13_entity_card:18:game:deck:Penitent:1:4"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_kroni_05",
+        "initial_score": -2,
+        "lord": "Kroni",
+        "original_loser": true,
+        "payment": 12,
+        "round": 16,
+        "seat": 1
+      },
+      {
+        "alternative": {
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:16:game:deck:Wright:2:14",
+                  "u13_entity_card:16:game:deck:Wright:2:10",
+                  "u13_entity_card:17:game:deck:Butcher:1:9",
+                  "u13_entity_card:17:game:deck:Butcher:1:4"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_kroni_06",
+        "initial_score": -2,
+        "lord": "Kroni",
+        "original_loser": true,
+        "payment": 12,
+        "round": 18,
+        "seat": 1
+      },
+      {
+        "alternative": {
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:16:game:deck:Wright:2:14",
+                  "u13_entity_card:16:game:deck:Wright:2:11",
+                  "u13_entity_card:17:game:deck:Vulture:2:11",
+                  "u13_entity_card:16:game:deck:Wright:1:7"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_odradek_06",
+        "initial_score": -2,
+        "lord": "Odradek",
+        "original_loser": true,
+        "payment": 12,
+        "round": 19,
+        "seat": 1
+      },
+      {
+        "alternative": {
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:16",
+                  "u13_entity_card:16:game:deck:Wright:2:14",
+                  "u13_entity_card:18:game:deck:Penitent:2:12"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_orias_01",
+        "initial_score": -4,
+        "lord": "Orias",
+        "original_loser": true,
+        "payment": 13,
+        "round": 18,
+        "seat": 1
+      },
+      {
+        "alternative": {
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:16:game:deck:Wright:2:12",
+                  "u13_entity_card:17:game:deck:Vulture:2:13",
+                  "u13_entity_card:17:game:deck:Butcher:2:10"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_orias_05",
+        "initial_score": 0,
+        "lord": "Orias",
+        "original_loser": true,
+        "payment": 11,
+        "round": 19,
+        "seat": 1
+      },
+      {
+        "alternative": {
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Vulture:2:15",
+                  "u13_entity_card:18:game:deck:Penitent:2:17",
+                  "u13_entity_card:16:game:deck:Wright:2:14"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_valak_00",
+        "initial_score": -6,
+        "lord": "Valak",
+        "original_loser": true,
+        "payment": 14,
+        "round": 17,
+        "seat": 1
+      },
+      {
+        "alternative": {
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:16:game:deck:Wright:2:15",
+                  "u13_entity_card:17:game:deck:Butcher:2:15",
+                  "u13_entity_card:18:game:deck:Penitent:2:16"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "deimos_valak_01",
+        "initial_score": -8,
+        "lord": "Deimos",
+        "original_loser": true,
+        "payment": 15,
+        "round": 13,
+        "seat": 0
+      },
+      {
+        "alternative": {
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Vulture:2:17",
+                  "u13_entity_card:17:game:deck:Vulture:2:13",
+                  "u13_entity_card:16:game:deck:Wright:1:8"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "gremory_valak_05",
+        "initial_score": -2,
+        "lord": "Gremory",
+        "original_loser": true,
+        "payment": 12,
+        "round": 18,
+        "seat": 0
+      },
+      {
+        "alternative": {
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:18:game:deck:Penitent:2:15",
+                  "u13_entity_card:17:game:deck:Butcher:2:10",
+                  "u13_entity_card:18:game:deck:Penitent:1:8"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "humbaba_deimos_00",
+        "initial_score": 0,
+        "lord": "Humbaba",
+        "original_loser": true,
+        "payment": 11,
+        "round": 18,
+        "seat": 0
+      },
+      {
+        "alternative": {
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Vulture:2:16",
+                  "u13_entity_card:17:game:deck:Vulture:2:12",
+                  "u13_entity_card:18:game:deck:Penitent:2:13"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "humbaba_deimos_01",
+        "initial_score": -4,
+        "lord": "Humbaba",
+        "original_loser": true,
+        "payment": 13,
+        "round": 11,
+        "seat": 0
+      },
+      {
+        "alternative": {
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:16:game:deck:Wright:2:13",
+                  "u13_entity_card:16:game:deck:Wright:2:14",
+                  "u13_entity_card:17:game:deck:Vulture:2:13"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "humbaba_deimos_08",
+        "initial_score": -2,
+        "lord": "Deimos",
+        "original_loser": true,
+        "payment": 12,
+        "round": 16,
+        "seat": 1
+      },
+      {
+        "alternative": {
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "alternative_plan": {
+          "order": {
+            "rites": {
+              "invocation": {
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:15",
+                  "u13_entity_card:17:game:deck:Vulture:2:15",
+                  "u13_entity_card:18:game:deck:Penitent:1:9"
+                ]
+              }
+            }
+          },
+          "powers": []
+        },
+        "game": "humbaba_deimos_09",
+        "initial_score": -4,
+        "lord": "Deimos",
+        "original_loser": true,
+        "payment": 13,
+        "round": 11,
+        "seat": 1
+      }
+    ],
+    "power_conflicts": {
+      "Consume:own_attack_removes_all_visible_guards": 480,
+      "Consume:selected": 1950,
+      "Projection:own_attack_removes_all_visible_guards": 201,
+      "Projection:selected": 779,
+      "Ravenous:same_lane_recruitment": 559,
+      "Ravenous:selected": 689
+    },
+    "power_examples": {
+      "Consume": [
+        {
+          "forecast": {
+            "banished": false,
+            "damage": 10,
+            "destroyed": true,
+            "guards": 2,
+            "pillage": false,
+            "strength": 20
+          },
+          "game": "gremory_kroni_00",
+          "order": {
+            "action": "Siege",
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:16",
+              "u13_entity_card:17:game:deck:Butcher:2:10",
+              "u13_entity_card:17:game:deck:Vulture:2:13",
+              "u13_entity_card:18:game:deck:Penitent:2:12",
+              "u13_entity_card:17:game:deck:Vulture:1:8",
+              "u13_entity_card:17:game:deck:Vulture:2:11",
+              "u13_entity_card:16:game:deck:Wright:1:2",
+              "u13_entity_card:17:game:deck:Butcher:1:2",
+              "u13_entity_card:18:game:deck:Penitent:1:6"
+            ],
+            "castle_action": {
+              "action": "Work",
+              "card_ids": [],
+              "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
+              "use_repair_token": false
+            },
+            "lane": "Castle",
+            "monster_choice": "Tumler",
+            "rites": {
+              "profane_ruins": {
+                "castle_id": "u13_entity_castle:16:loadout:castle:1:1:2"
+              }
+            },
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:3"
+          },
+          "power": {
+            "cost": {},
+            "declaration_id": "u13_declaration:3:1:6:1:0",
+            "declared_round": 6,
+            "fire_hook": "round_start_scheduled",
+            "fire_round": 7,
+            "lord_id": "Kroni",
+            "parameters": {},
+            "player_id": 1,
+            "power_id": "Consume",
+            "queue_index": 0,
+            "schema_version": "U13_LORD_DECLARATION_V1",
+            "target": {
+              "entity_id": "u13_entity_card:17:game:deck:Vulture:2:14"
+            },
+            "visibility": "public"
+          },
+          "round": 6,
+          "seat": 1
+        },
+        {
+          "forecast": {
+            "banished": false,
+            "damage": 2,
+            "destroyed": true,
+            "guards": 2,
+            "pillage": false,
+            "strength": 16
+          },
+          "game": "gremory_kroni_00",
+          "order": {
+            "action": "Siege",
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:10",
+              "u13_entity_card:16:game:deck:Wright:2:11",
+              "u13_entity_card:17:game:deck:Butcher:1:4",
+              "u13_entity_card:17:game:deck:Vulture:2:10",
+              "u13_entity_card:17:game:deck:Vulture:2:11",
+              "u13_entity_card:16:game:deck:Wright:1:4",
+              "u13_entity_card:17:game:deck:Vulture:1:0",
+              "u13_entity_card:17:game:deck:Vulture:1:4"
+            ],
+            "castle_action": {
+              "action": "Work",
+              "card_ids": [],
+              "target_id": "u13_entity_castle:16:loadout:castle:1:1:1",
+              "use_repair_token": false
+            },
+            "lane": "Castle",
+            "monster_choice": "Muno",
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:4"
+          },
+          "power": {
+            "cost": {},
+            "declaration_id": "u13_declaration:4:1:10:1:0",
+            "declared_round": 10,
+            "fire_hook": "round_start_scheduled",
+            "fire_round": 11,
+            "lord_id": "Kroni",
+            "parameters": {},
+            "player_id": 1,
+            "power_id": "Consume",
+            "queue_index": 0,
+            "schema_version": "U13_LORD_DECLARATION_V1",
+            "target": {
+              "entity_id": "u13_entity_card:17:game:deck:Butcher:2:12"
+            },
+            "visibility": "public"
+          },
+          "round": 10,
+          "seat": 1
+        },
+        {
+          "forecast": {
+            "banished": false,
+            "damage": 3,
+            "destroyed": true,
+            "guards": 1,
+            "pillage": false,
+            "strength": 21
+          },
+          "game": "gremory_kroni_00",
+          "order": {
+            "action": "Siege",
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:15",
+              "u13_entity_card:18:game:deck:Penitent:2:15",
+              "u13_entity_card:18:game:deck:Penitent:2:16",
+              "u13_entity_card:18:game:deck:Penitent:2:17",
+              "u13_entity_card:17:game:deck:Vulture:1:9",
+              "u13_entity_card:16:game:deck:Wright:1:7"
+            ],
+            "castle_action": {
+              "action": "Work",
+              "card_ids": [],
+              "target_id": "u13_entity_castle:16:loadout:castle:1:1:1",
+              "use_repair_token": false
+            },
+            "lane": "Castle",
+            "monster_choice": "Kurchin",
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:4"
+          },
+          "power": {
+            "cost": {},
+            "declaration_id": "u13_declaration:4:1:11:1:0",
+            "declared_round": 11,
+            "fire_hook": "round_start_scheduled",
+            "fire_round": 12,
+            "lord_id": "Kroni",
+            "parameters": {},
+            "player_id": 1,
+            "power_id": "Consume",
+            "queue_index": 0,
+            "schema_version": "U13_LORD_DECLARATION_V1",
+            "target": {
+              "entity_id": "u13_entity_card:17:game:deck:Butcher:2:10"
+            },
+            "visibility": "public"
+          },
+          "round": 11,
+          "seat": 1
+        },
+        {
+          "forecast": {
+            "banished": false,
+            "damage": 9,
+            "destroyed": false,
+            "guards": 2,
+            "pillage": false,
+            "strength": 17
+          },
+          "game": "deimos_kroni_00",
+          "order": {
+            "action": "Siege",
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:15",
+              "u13_entity_card:17:game:deck:Vulture:2:17",
+              "u13_entity_card:16:game:deck:Wright:2:14",
+              "u13_entity_card:18:game:deck:Penitent:2:10",
+              "u13_entity_card:16:game:deck:Wright:1:3",
+              "u13_entity_card:16:game:deck:Wright:1:6",
+              "u13_entity_card:17:game:deck:Vulture:1:1",
+              "u13_entity_card:18:game:deck:Penitent:1:3"
+            ],
+            "castle_action": {
+              "action": "Activate",
+              "card_ids": [],
+              "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+              "use_repair_token": false
+            },
+            "lane": "Castle",
+            "monster_choice": "Muno",
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:2"
+          },
+          "power": {
+            "cost": {},
+            "declaration_id": "u13_declaration:3:1:4:1:0",
+            "declared_round": 4,
+            "fire_hook": "round_start_scheduled",
+            "fire_round": 5,
+            "lord_id": "Kroni",
+            "parameters": {},
+            "player_id": 1,
+            "power_id": "Consume",
+            "queue_index": 0,
+            "schema_version": "U13_LORD_DECLARATION_V1",
+            "target": {
+              "entity_id": "u13_entity_card:17:game:deck:Vulture:2:12"
+            },
+            "visibility": "public"
+          },
+          "round": 4,
+          "seat": 1
+        }
+      ],
+      "Projection": [
+        {
+          "forecast": {
+            "banished": false,
+            "damage": 5,
+            "destroyed": true,
+            "guards": 2,
+            "pillage": false,
+            "strength": 20
+          },
+          "game": "deimos_valak_00",
+          "order": {
+            "action": "Siege",
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:2:16",
+              "u13_entity_card:16:game:deck:Wright:2:12",
+              "u13_entity_card:16:game:deck:Wright:2:14",
+              "u13_entity_card:17:game:deck:Butcher:2:10",
+              "u13_entity_card:17:game:deck:Vulture:2:14",
+              "u13_entity_card:16:game:deck:Wright:1:4",
+              "u13_entity_card:17:game:deck:Vulture:1:2",
+              "u13_entity_card:17:game:deck:Vulture:1:6"
+            ],
+            "castle_action": {
+              "action": "Work",
+              "card_ids": [],
+              "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
+              "use_repair_token": false
+            },
+            "lane": "Castle",
+            "monster_choice": "Muno",
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:0"
+          },
+          "power": {
+            "cost": {},
+            "declaration_id": "u13_declaration:3:1:4:1:0",
+            "declared_round": 4,
+            "fire_hook": "post_resolution_direct",
+            "fire_round": 4,
+            "lord_id": "Valak",
+            "parameters": {
+              "spend": 3
+            },
+            "player_id": 1,
+            "power_id": "Projection",
+            "queue_index": 0,
+            "schema_version": "U13_LORD_DECLARATION_V1",
+            "target": {
+              "kind": "guard_zone",
+              "player_id": 0,
+              "zone": "Castle"
+            },
+            "visibility": "public"
+          },
+          "round": 4,
+          "seat": 1
+        },
+        {
+          "forecast": {
+            "banished": true,
+            "damage": 0,
+            "destroyed": false,
+            "guards": 3,
+            "pillage": false,
+            "strength": 18
+          },
+          "game": "deimos_valak_00",
+          "order": {
+            "action": "Hunt",
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Vulture:2:17",
+              "u13_entity_card:18:game:deck:Penitent:2:13",
+              "u13_entity_card:16:game:deck:Wright:1:9",
+              "u13_entity_card:17:game:deck:Vulture:1:3",
+              "u13_entity_card:17:game:deck:Vulture:1:5",
+              "u13_entity_card:17:game:deck:Vulture:1:6",
+              "u13_entity_card:18:game:deck:Penitent:1:2",
+              "u13_entity_card:18:game:deck:Penitent:1:6"
+            ],
+            "castle_action": {
+              "action": "Work",
+              "card_ids": [],
+              "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+              "use_repair_token": false
+            },
+            "lane": "Lord",
+            "monster_choice": "Kurchin",
+            "target_id": "u13_entity_lord:12:smoke:lord:0:1:0"
+          },
+          "power": {
+            "cost": {},
+            "declaration_id": "u13_declaration:3:1:9:1:0",
+            "declared_round": 9,
+            "fire_hook": "post_resolution_direct",
+            "fire_round": 9,
+            "lord_id": "Valak",
+            "parameters": {
+              "spend": 5
+            },
+            "player_id": 1,
+            "power_id": "Projection",
+            "queue_index": 0,
+            "schema_version": "U13_LORD_DECLARATION_V1",
+            "target": {
+              "kind": "guard_zone",
+              "player_id": 0,
+              "zone": "Lord"
+            },
+            "visibility": "public"
+          },
+          "round": 9,
+          "seat": 1
+        },
+        {
+          "forecast": {
+            "banished": false,
+            "damage": 7,
+            "destroyed": true,
+            "guards": 2,
+            "pillage": false,
+            "strength": 25
+          },
+          "game": "deimos_valak_00",
+          "order": {
+            "action": "Siege",
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:2:15",
+              "u13_entity_card:17:game:deck:Butcher:2:16",
+              "u13_entity_card:17:game:deck:Vulture:2:17",
+              "u13_entity_card:17:game:deck:Vulture:2:14",
+              "u13_entity_card:18:game:deck:Penitent:2:14",
+              "u13_entity_card:16:game:deck:Wright:1:9",
+              "u13_entity_card:18:game:deck:Penitent:2:10",
+              "u13_entity_card:16:game:deck:Wright:1:7"
+            ],
+            "castle_action": {
+              "action": "Work",
+              "card_ids": [],
+              "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+              "use_repair_token": false
+            },
+            "lane": "Castle",
+            "monster_choice": "Fyra",
+            "rites": {
+              "profane_ruins": {
+                "castle_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+              }
+            },
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:2"
+          },
+          "power": {
+            "cost": {},
+            "declaration_id": "u13_declaration:4:1:12:1:0",
+            "declared_round": 12,
+            "fire_hook": "post_resolution_direct",
+            "fire_round": 12,
+            "lord_id": "Valak",
+            "parameters": {
+              "spend": 5
+            },
+            "player_id": 1,
+            "power_id": "Projection",
+            "queue_index": 0,
+            "schema_version": "U13_LORD_DECLARATION_V1",
+            "target": {
+              "kind": "guard_zone",
+              "player_id": 0,
+              "zone": "Castle"
+            },
+            "visibility": "public"
+          },
+          "round": 12,
+          "seat": 1
+        },
+        {
+          "forecast": {
+            "banished": true,
+            "damage": 0,
+            "destroyed": false,
+            "guards": 1,
+            "pillage": false,
+            "strength": 14
+          },
+          "game": "deimos_valak_00",
+          "order": {
+            "action": "Hunt",
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:1:9",
+              "u13_entity_card:17:game:deck:Butcher:1:2",
+              "u13_entity_card:17:game:deck:Butcher:1:3",
+              "u13_entity_card:17:game:deck:Vulture:1:3",
+              "u13_entity_card:17:game:deck:Vulture:1:4",
+              "u13_entity_card:18:game:deck:Penitent:1:2",
+              "u13_entity_card:18:game:deck:Penitent:1:3",
+              "u13_entity_card:18:game:deck:Penitent:1:5"
+            ],
+            "castle_action": {
+              "action": "Work",
+              "card_ids": [],
+              "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+              "use_repair_token": false
+            },
+            "lane": "Lord",
+            "monster_choice": "Kurchin",
+            "rites": {
+              "waiter_spends": [
+                {
+                  "lane": "Lord",
+                  "marcher_ids": [
+                    "u13_entity_marcher:27:u13_monster:3:9:1:7:Kurchin:1:0",
+                    "u13_entity_marcher:30:u13_commitment:3:9:1:7:Vulture:1:1",
+                    "u13_entity_marcher:30:u13_commitment:3:9:1:7:Vulture:1:2",
+                    "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:0",
+                    "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:1"
+                  ]
+                }
+              ]
+            },
+            "target_id": "u13_entity_lord:12:smoke:lord:0:1:0"
+          },
+          "power": {
+            "cost": {},
+            "declaration_id": "u13_declaration:4:1:16:1:0",
+            "declared_round": 16,
+            "fire_hook": "post_resolution_direct",
+            "fire_round": 16,
+            "lord_id": "Valak",
+            "parameters": {
+              "spend": 2
+            },
+            "player_id": 1,
+            "power_id": "Projection",
+            "queue_index": 0,
+            "schema_version": "U13_LORD_DECLARATION_V1",
+            "target": {
+              "kind": "guard_zone",
+              "player_id": 0,
+              "zone": "Lord"
+            },
+            "visibility": "public"
+          },
+          "round": 16,
+          "seat": 1
+        }
+      ]
+    },
+    "summary_sha256": "bdefdd293c9ebf67d28d76bdc03c87497625aec7cc4a05f2e572f79dfddeff90"
+  },
+  "card_use": {
+    "combat_cards": 147457,
+    "guard_cards": 25430,
+    "hand_cards": 217648,
+    "invocation_cards": 0,
+    "planning_decisions": 28868,
+    "power_cards": 936,
+    "resummon_cards": 1265
+  },
+  "castle_pace": {
+    "limitations": "Timing counts game rounds, not rounds of sustained pressure. Wish Prices are separate; rebuilds may create repeat losses. No pre-change control.",
+    "report_sha256": "26e97e8f7a78989a809fd2c0d9b362e9a821341ffe99039114bbe45472efb2c7",
+    "sample": "repeat 00: one exact replay per ordered matchup",
+    "summary": {
+      "all_final_digests_matched": true,
+      "cause_counts": {
+        "Wish Price": 20,
+        "artillery": 114,
+        "breach": 52,
+        "hunt": 70,
+        "siege": 255
+      },
+      "final_commissioned_survivors_histogram": {
+        "1": 7,
+        "10": 1,
+        "2": 18,
+        "3": 14,
+        "4": 17,
+        "5": 14,
+        "6": 5,
+        "7": 3,
+        "8": 1,
+        "9": 1
+      },
+      "final_commissioned_survivors_mean": 3.7160493827160495,
+      "final_construction_mean": 0.024691358024691357,
+      "final_operational_mean": 3,
+      "final_profaned_mean": 3,
+      "final_ruined_mean": 3.259259259259259,
+      "first_loss_mean": 2.9625,
+      "first_loss_median": 1.0,
+      "first_loss_range": [
+        1,
+        17
+      ],
+      "games": 81,
+      "games_with_a_seat_all_five_lost": 31,
+      "games_with_first_loss_in_round_one": 52,
+      "games_without_loss": 1,
+      "loss_round_histogram": {
+        "1": 89,
+        "10": 30,
+        "11": 20,
+        "12": 32,
+        "13": 33,
+        "14": 20,
+        "15": 19,
+        "16": 19,
+        "17": 8,
+        "18": 10,
+        "19": 11,
+        "2": 7,
+        "20": 3,
+        "21": 8,
+        "22": 7,
+        "23": 2,
+        "24": 3,
+        "3": 20,
+        "4": 14,
+        "5": 23,
+        "6": 27,
+        "7": 39,
+        "8": 29,
+        "9": 38
+      },
+      "losses": 511,
+      "siege_attempts": 723,
+      "unique_castles_lost": 510
+    }
+  },
+  "censored_games": 0,
+  "combat_by_round_band": {
+    "1-5": {
+      "Hunt": 722,
+      "Pass": 133,
+      "Siege": 2061,
+      "Ward": 5184
+    },
+    "11+": {
+      "Hunt": 1203,
+      "Pass": 289,
+      "Profane": 10,
+      "Siege": 3547,
+      "Ward": 7645
+    },
+    "6-10": {
+      "Hunt": 557,
+      "Pass": 101,
+      "Siege": 2074,
+      "Ward": 5342
+    }
+  },
+  "event_counts": {
+    "ACCELERATE": 174,
+    "ALLEGIANCE_SHIFT_RESOLVED": 2069,
+    "ARTILLERY_FIRED": 16998,
+    "ARTILLERY_NO_TARGET": 507,
+    "ARTILLERY_TARGET_ACQUIRED": 3287,
+    "BASTION_SCREENED": 1178,
+    "BLOOD_CONDUIT": 243,
+    "BREACH_CHANGED": 1001,
+    "CARDS_DISCARDED": 468,
+    "CASTLE_ACTION_SEALED": 26021,
+    "CASTLE_ACTIVATED": 3266,
+    "CASTLE_CEILING_CHANGED": 5555,
+    "CASTLE_DAMAGED": 8196,
+    "CASTLE_DESTROYED": 4656,
+    "CASTLE_RUINED": 350,
+    "COMBAT_ORDER_FIZZLED": 250,
+    "COMBAT_ORDER_REVEALED": 28345,
+    "COMBAT_ORDER_SEALED": 28345,
+    "COOLDOWN_ARMED": 4087,
+    "COOLDOWN_READY": 17482,
+    "COOLDOWN_STARTED": 19016,
+    "ENDURANCE_CHECKED": 3376,
+    "FEAR_AURA": 434,
+    "FIZZLE_INVALID_TARGET": 459,
+    "FORGE_REPAIR": 4457,
+    "FRACTURE_HIT": 2516,
+    "FRACTURE_RESOLVED": 1001,
+    "GEM_DAGGER": 1750,
+    "GRAVITY_ORB_CONSUMED": 11974,
+    "GRAVITY_ORB_STARTED": 785,
+    "GUARDS_SEALED": 15837,
+    "GUARD_DEFEATED": 16341,
+    "GUARD_DEPLOYED": 25430,
+    "GUARD_DEVOURED": 2421,
+    "GUARD_PAIR_DRAW": 4402,
+    "GUARD_PAIR_FORMED": 9593,
+    "GUARD_PAIR_SCREEN": 2204,
+    "GUARD_PAIR_STRIKE": 3978,
+    "GUARD_RECONFIGURED": 1066,
+    "HAZARD_HIT": 84814,
+    "HAZARD_PULSED": 2949,
+    "HUNT_RESOLVED": 2482,
+    "HUNT_STARTED": 2482,
+    "INSATIABLE_HUNGER_MANIFESTED": 3104,
+    "KANIFOUS_PRICE_RESOLVED": 4075,
+    "KANIFOUS_PRICE_SCHEDULED": 5004,
+    "KANIFOUS_WISH_RESOLVED": 5049,
+    "KEEP_INTERPOSED": 1029,
+    "KRONI_ACTORS_STARTED": 3573,
+    "KRONI_ACTOR_FINISHED": 3793,
+    "KRONI_FLEE_STARTED": 24280,
+    "KRONI_HUNGER_CHANGED": 4176,
+    "KRONI_HUNGER_MILESTONE": 160,
+    "KRONI_WALL_BOUNCE": 2820,
+    "LANE_AURA_STARTED": 789,
+    "LORD_BANISHED": 1001,
+    "LORD_RESUMMONED": 866,
+    "MARCHER_ALLEGIANCE_CHANGED": 14907,
+    "MARCHER_CLASH": 45628,
+    "MARCHER_CONTACT": 52094,
+    "MARCHER_DAMAGED": 100013,
+    "MARCHER_DEFEATED": 117676,
+    "MARCHER_DEVOURED": 20049,
+    "MARCHER_DUEL_INTERRUPTED": 6362,
+    "MARCHER_RANGED_ATTACK": 364627,
+    "MARCHER_REGENERATED": 53617,
+    "MARCHER_RESURRECTED": 3650,
+    "MARCHER_SPAWNED": 206428,
+    "MARCHER_WAITING": 13373,
+    "MARCHING_FINISHED": 14434,
+    "MARCHING_STARTED": 14434,
+    "MARKET_PASSED": 2155,
+    "MARKET_REFRESHED": 13624,
+    "MARKET_SWAPPED": 26713,
+    "MATCH_FINISHED": 810,
+    "MONSTER_ATTACK": 16542,
+    "MONSTER_BANISHED": 172,
+    "MONSTER_BEAM_FIRED": 6442,
+    "MONSTER_CHARMED": 501,
+    "MONSTER_CHARM_ENDED": 105,
+    "MONSTER_CONCEALMENT": 3237,
+    "MONSTER_FIELD_CREATED": 3137,
+    "MONSTER_POISONED": 197,
+    "MONSTER_PULSE": 1054,
+    "MONSTER_ROOTED": 859,
+    "MONSTER_SUMMONED": 28050,
+    "NEUTRAL_TEAR_CREATED": 12277,
+    "ORIAS_MARKED": 12,
+    "PARADOX_GEOMETRY": 3011,
+    "PERSISTENT_EFFECT_ADVANCED": 4474,
+    "PERSISTENT_EFFECT_EXPIRED": 3687,
+    "PERSISTENT_EFFECT_RELOCATED": 407,
+    "PERSISTENT_EFFECT_STARTED": 4069,
+    "PERSONAL_TEAR_CREATED": 3644,
+    "PICKING_THE_BONES": 1927,
+    "POWER_DECLARED": 20822,
+    "POWER_RESOLVED": 20177,
+    "PROFANE_RESOLVED": 10,
+    "PSYCHIC_INTERLOCK": 2491,
+    "RAPID_CONSTRUCTION": 7331,
+    "RAVENOUS_ARMED": 689,
+    "RAVENOUS_REWARDED": 670,
+    "RECONFIGURATION_GAINED": 3000,
+    "RECONFIGURATION_RESET": 77,
+    "RECONFIGURATION_RESOLVED": 105,
+    "REDIRECT_RESOLVED": 9,
+    "ROUND_DRAW": 144340,
+    "ROUT_APPLIED": 745,
+    "ROUT_ENDED": 16142,
+    "ROUT_RECOVERING": 19081,
+    "SIEGE_RESOLVED": 7432,
+    "SIEGE_STARTED": 7432,
+    "SIFTING_THE_RUINS": 680,
+    "SIGIL_AGED": 22796,
+    "SIGIL_CREATED": 17888,
+    "SIGIL_REMOVED": 71,
+    "SNARE_ACTIVE": 1077,
+    "SNARE_ARMED": 1090,
+    "STOCKPILE_DRAW": 45828,
+    "STOCKPILE_SELECTED": 18364,
+    "THE_STONES_FORGET": 2725,
+    "VACANT_THRONE_RESOLVED": 28868,
+    "VALAK_ESSENCE_GAINED": 2315,
+    "VALAK_ESSENCE_REINFORCED": 18,
+    "VALAK_PROJECTION_RESOLVED": 779,
+    "VEIL_LORD_ARRIVED": 3671,
+    "WEB_HIT": 16533,
+    "WEB_STARTED": 1107,
+    "WISHMASTER_LAMP_CLAIMED": 1494,
+    "WISHMASTER_LAMP_EXPIRED": 1446,
+    "WISHMASTER_LAMP_SPAWNED": 2940,
+    "WISHMASTER_REJECTED": 126,
+    "WISHMASTER_SMOKE_CREATED": 3108,
+    "WISHMASTER_VULTURE_BYPASS": 151,
+    "WISHMASTER_WISH_GRANTED": 1368,
+    "WISHMASTER_WRIGHT_CREATED": 414,
+    "WORK_RESOLVED": 26554
+  },
+  "failures": 0,
+  "games": 810,
+  "games_per_ordered_matchup": 10,
+  "harness_note": "New survey and tests were a local overlay on the pinned revision; hashes identify the exact code. Production engine and policy unchanged.",
+  "lord_power_selections": {
+    "Deimos": {
+      "Rout": 745,
+      "WarMachine": 1375
+    },
+    "Gremory": {
+      "InevitableRuin": 468,
+      "PredatorOfRuin": 1213
+    },
+    "Humbaba": {
+      "BreathOfLife": 789,
+      "MusterTheFaithful": 1585
+    },
+    "Kalligan": {
+      "Inferno": 1079,
+      "Pyroclasm": 1105
+    },
+    "Kanifous": {
+      "WishDeath": 1806,
+      "WishLongevity": 40,
+      "WishPower": 653,
+      "WishResurrection": 385,
+      "WishWealth": 33
+    },
+    "Kroni": {
+      "Consume": 1950,
+      "Ravenous": 689
+    },
+    "Odradek": {
+      "AllegianceShift": 772,
+      "FalseOrders": 201,
+      "Inversion": 6,
+      "Redirect": 9
+    },
+    "Orias": {
+      "Snare": 1090,
+      "Web": 1107
+    },
+    "Valak": {
+      "GravityOrb": 785,
+      "Projection": 779
+    }
+  },
+  "manifest": {
+    "engine_source_sha256": "ae410d34ed0e1803f72575a1589e0df9f853a00001cd1b2eb9be9166a437e326",
+    "harness_source_sha256": "7cd4d3c81655b1b63c748dae4729ae8a8926e8035b47027d227b4a574fd75e6c",
+    "implementation": "CPython",
+    "loadout": [
+      "Keep",
+      "Stockpile",
+      "SummoningCircle",
+      "SiegeEngine",
+      "Bastion"
+    ],
+    "lords": [
+      "Gremory",
+      "Deimos",
+      "Humbaba",
+      "Kalligan",
+      "Orias",
+      "Odradek",
+      "Kroni",
+      "Valak",
+      "Kanifous"
+    ],
+    "namespace": "u13-common-v3-survey-2026-09-17",
+    "policy": "U13_COMMON_SMART_CORE_ALPHA_V3_RECIPES_VEIL",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "round_cap": 40,
+    "runner_sha256": "744e1ad288e04ce91be20e089d1cf09e4b6f417c9e27e95db6b7cea8e3028b3a",
+    "schema": "U13_DOCTRINE_SURVEY_V1",
+    "scope": "Python self-play behavior survey; no weight tuning, policy comparison, balance claim or new native parity",
+    "source_revision": "c716b5514e4de743ce5fcfe575c0c50a12f4011e",
+    "weights": {
+      "banishment": 32,
+      "card_cost": 2,
+      "damage": 3,
+      "destruction": 30,
+      "enemy_settlement_risk": 90,
+      "guard": 5,
+      "monster": 2,
+      "recipe_save": 1,
+      "recruit": 6,
+      "return_lord": 75,
+      "tear": 22,
+      "veil_protection": 8
+    }
+  },
+  "maximum_work": {
+    "complete_plans": 26,
+    "generated:combat": 11,
+    "generated:guards": 11,
+    "generated:monsters": 10,
+    "generated:powers": 16,
+    "generated:resummon": 3,
+    "generated:rites": 5,
+    "generated:slaver": 4,
+    "generated:stockpile": 2,
+    "generated:work": 6,
+    "previews": 1,
+    "retained:combat": 4,
+    "retained:guards": 4,
+    "retained:monsters": 4,
+    "retained:powers": 4,
+    "retained:resummon": 2,
+    "retained:rites": 4,
+    "retained:slaver": 1,
+    "retained:stockpile": 1,
+    "retained:work": 4
+  },
+  "monster_selections": {
+    "Dotra": 1224,
+    "Fyra": 3873,
+    "Kopita": 523,
+    "Kurchin": 4378,
+    "Lemek": 3392,
+    "Muno": 3306,
+    "Sinodek": 1057,
+    "Sooge": 2557,
+    "Tumler": 4953,
+    "Varn": 2787
+  },
+  "new_godot_parity": false,
+  "operations": 363970,
+  "ordered_matchups": 81,
+  "outcome_counts": {
+    "Dominion": 160,
+    "FinalCollapse": 506,
+    "Ritual": 144
+  },
+  "planning_decisions": 28868,
+  "rejected_previews": 0,
+  "round_statistics": {
+    "maximum": 28,
+    "mean": 17.81975308641975,
+    "median": 18.0,
+    "minimum": 8
+  },
+  "rounds": 14434,
+  "schema": "U13_DOCTRINE_SURVEY_EVIDENCE_V1",
+  "selected_original_replays": [
+    {
+      "final_digest_matched": true,
+      "final_state_sha256": "ef9763a0af8a9f07f4dbcc98892eb69717671f8a4f52c4d623a14968b0980caa",
+      "game": "gremory_kroni_00",
+      "ravenous": {
+        "2": {
+          "enemy": 6,
+          "friendly": 10
+        },
+        "5": {
+          "enemy": 9,
+          "friendly": 6
+        }
+      }
+    },
+    {
+      "final_digest_matched": true,
+      "final_state_sha256": "c28223df69301642507da64cec812ef694057b8848d1c3085c90bfb7ae6e3695",
+      "game": "deimos_valak_00",
+      "ravenous": {}
+    },
+    {
+      "final_digest_matched": true,
+      "final_state_sha256": "9f413b57294c6fbd093c09ac574aa3396cf492b5bf304504870fa94491f8a067",
+      "game": "kroni_kroni_00",
+      "ravenous": {
+        "12": {
+          "enemy": 4,
+          "friendly": 4
+        },
+        "15": {
+          "enemy": 8,
+          "friendly": 10
+        },
+        "18": {
+          "enemy": 11,
+          "friendly": 10
+        },
+        "2": {
+          "enemy": 5,
+          "friendly": 9
+        },
+        "5": {
+          "enemy": 4,
+          "friendly": 6
+        },
+        "8": {
+          "enemy": 3,
+          "friendly": 5
+        }
+      }
+    }
+  ],
+  "source_files_sha256": {
+    "Scripts/Sim/audit_u13_castle_pace.py": "de243e0dd3dd7025bed42e8e2f7a27ab2c11338045fa9ed52074edbd1355640c",
+    "Scripts/Sim/audit_u13_doctrine_survey.py": "0f9286c29be7d39476ce77876087fa51ba7358515a8fb26af85dde31a12ae154",
+    "Scripts/Sim/run_u13_doctrine_survey.py": "744e1ad288e04ce91be20e089d1cf09e4b6f417c9e27e95db6b7cea8e3028b3a",
+    "Scripts/Sim/u13_doctrine/survey.py": "4ef849355910d662bb887fd53ae50b5574efc5f10fdc752610e5bfb81f2a059a",
+    "Scripts/Sim/u13_doctrine/test_survey.py": "926deb9d20611b42b8a5f2e970bff6c4e4b357c1afe8d12cd263c26749a05880"
+  },
+  "status": "behavior_diagnostic",
+  "summary_sha256": "bdefdd293c9ebf67d28d76bdc03c87497625aec7cc4a05f2e572f79dfddeff90",
+  "supplementary_invocation_replays": [
+    {
+      "alternate_final_sha256": "b0151a70294e27d6872143f035592888f770aae4ab759386f202891ce4cd3cde",
+      "alternate_round_outcome": {
+        "action": "game_finished",
+        "round": 10,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "alternative_plan": {
+        "order": {
+          "rites": {
+            "invocation": {
+              "card_ids": [
+                "u13_entity_card:16:game:deck:Wright:2:10",
+                "u13_entity_card:16:game:deck:Wright:2:11",
+                "u13_entity_card:17:game:deck:Vulture:2:10",
+                "u13_entity_card:17:game:deck:Vulture:2:11"
+              ]
+            }
+          }
+        },
+        "powers": []
+      },
+      "game": "gremory_kroni_00",
+      "opponent_order": "identical recorded simultaneous order; hindsight diagnostic, not information supplied to policy",
+      "original_game_outcome": {
+        "action": "game_finished",
+        "round": 11,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "original_plan_scenario": {
+        "win_by": "",
+        "winner": -1
+      },
+      "predicted": {
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "preview": {
+        "action": "legal"
+      },
+      "round": 10,
+      "seat": 1
+    },
+    {
+      "alternate_final_sha256": "1f87193141249c34da0a57aed5b3457b40b1019a7f4dd007f35a309b5c425654",
+      "alternate_round_outcome": {
+        "action": "game_finished",
+        "round": 16,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "alternative_plan": {
+        "order": {
+          "rites": {
+            "invocation": {
+              "card_ids": [
+                "u13_entity_card:17:game:deck:Butcher:2:15",
+                "u13_entity_card:18:game:deck:Penitent:2:17",
+                "u13_entity_card:17:game:deck:Butcher:2:14"
+              ]
+            }
+          }
+        },
+        "powers": []
+      },
+      "game": "gremory_valak_00",
+      "opponent_order": "identical recorded simultaneous order; hindsight diagnostic, not information supplied to policy",
+      "original_game_outcome": {
+        "action": "game_finished",
+        "round": 16,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "original_plan_scenario": {
+        "win_by": "",
+        "winner": -1
+      },
+      "predicted": {
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "preview": {
+        "action": "legal"
+      },
+      "round": 16,
+      "seat": 0
+    },
+    {
+      "alternate_final_sha256": "14c5cb321c539aa4ae1f8a211b22a6eb131886d05b8b783269e29e3380679788",
+      "alternate_round_outcome": {
+        "action": "game_finished",
+        "round": 22,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "alternative_plan": {
+        "order": {
+          "rites": {
+            "invocation": {
+              "card_ids": [
+                "u13_entity_card:17:game:deck:Vulture:2:17",
+                "u13_entity_card:17:game:deck:Vulture:2:13",
+                "u13_entity_card:17:game:deck:Vulture:2:14"
+              ]
+            }
+          }
+        },
+        "powers": []
+      },
+      "game": "deimos_kalligan_00",
+      "opponent_order": "identical recorded simultaneous order; hindsight diagnostic, not information supplied to policy",
+      "original_game_outcome": {
+        "action": "game_finished",
+        "round": 23,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "original_plan_scenario": {
+        "win_by": "",
+        "winner": -1
+      },
+      "predicted": {
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "preview": {
+        "action": "legal"
+      },
+      "round": 22,
+      "seat": 0
+    },
+    {
+      "alternate_final_sha256": "1f906c39c70de2b5af91632f6c28becb4f61d64946ee1c12a9d94b19c4796313",
+      "alternate_round_outcome": {
+        "action": "game_finished",
+        "round": 18,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "alternative_plan": {
+        "order": {
+          "rites": {
+            "invocation": {
+              "card_ids": [
+                "u13_entity_card:17:game:deck:Vulture:2:15",
+                "u13_entity_card:16:game:deck:Wright:2:14",
+                "u13_entity_card:17:game:deck:Vulture:2:14"
+              ]
+            }
+          }
+        },
+        "powers": []
+      },
+      "game": "deimos_kroni_00",
+      "opponent_order": "identical recorded simultaneous order; hindsight diagnostic, not information supplied to policy",
+      "original_game_outcome": {
+        "action": "game_finished",
+        "round": 19,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "original_plan_scenario": {
+        "win_by": "",
+        "winner": -1
+      },
+      "predicted": {
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "preview": {
+        "action": "legal"
+      },
+      "round": 18,
+      "seat": 0
+    },
+    {
+      "alternate_final_sha256": "5018427c1b5c7312b7a93598c0aa8fe1a55434168fd937c97487e386e79ff421",
+      "alternate_round_outcome": {
+        "action": "game_finished",
+        "round": 17,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "alternative_plan": {
+        "order": {
+          "rites": {
+            "invocation": {
+              "card_ids": [
+                "u13_entity_card:17:game:deck:Vulture:2:15",
+                "u13_entity_card:18:game:deck:Penitent:2:17",
+                "u13_entity_card:16:game:deck:Wright:2:14"
+              ]
+            }
+          }
+        },
+        "powers": []
+      },
+      "game": "deimos_valak_00",
+      "opponent_order": "identical recorded simultaneous order; hindsight diagnostic, not information supplied to policy",
+      "original_game_outcome": {
+        "action": "game_finished",
+        "round": 19,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "original_plan_scenario": {
+        "win_by": "",
+        "winner": -1
+      },
+      "predicted": {
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "preview": {
+        "action": "legal"
+      },
+      "round": 17,
+      "seat": 1
+    },
+    {
+      "alternate_final_sha256": "192c068d93342b5f17006dfdab4261ecf6615ad22d0111d915dcf673b5a0ef8e",
+      "alternate_round_outcome": {
+        "action": "game_finished",
+        "round": 18,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "alternative_plan": {
+        "order": {
+          "rites": {
+            "invocation": {
+              "card_ids": [
+                "u13_entity_card:16:game:deck:Wright:2:15",
+                "u13_entity_card:17:game:deck:Butcher:2:16",
+                "u13_entity_card:17:game:deck:Vulture:2:17"
+              ]
+            }
+          }
+        },
+        "powers": []
+      },
+      "game": "deimos_valak_00",
+      "opponent_order": "identical recorded simultaneous order; hindsight diagnostic, not information supplied to policy",
+      "original_game_outcome": {
+        "action": "game_finished",
+        "round": 19,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "original_plan_scenario": {
+        "win_by": "",
+        "winner": -1
+      },
+      "predicted": {
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "preview": {
+        "action": "legal"
+      },
+      "round": 18,
+      "seat": 1
+    }
+  ],
+  "terms": {
+    "combat:Hunt": {
+      "decisions": 28868,
+      "metrics": {
+        "banished": 943,
+        "guards_defeated": 3847,
+        "sigil_broken": 407
+      },
+      "opportunity": {
+        "false": 1081,
+        "true": 27787,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 2482
+      },
+      "reasons": {
+        "current_board_attack_unknown_enemy_orders": 77,
+        "no_current_board_opportunity": 1081,
+        "scoring_or_shared_budget": 25228,
+        "selected": 2482
+      },
+      "selected": 2482
+    },
+    "combat:Pass": {
+      "decisions": 28868,
+      "metrics": {},
+      "opportunity": {
+        "false": 28868,
+        "true": 0,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 523
+      },
+      "reasons": {
+        "retain_hand_for_next_round": 28345,
+        "selected": 523
+      },
+      "selected": 523
+    },
+    "combat:Profane": {
+      "decisions": 28868,
+      "metrics": {
+        "profaned": 8
+      },
+      "opportunity": {
+        "false": 28868,
+        "true": 0,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 10
+      },
+      "reasons": {
+        "no_current_board_opportunity": 11474,
+        "sacrifice_full_castle_for_personal_tear": 17384,
+        "selected": 10
+      },
+      "selected": 10
+    },
+    "combat:Siege": {
+      "decisions": 28868,
+      "metrics": {
+        "damage": 24376,
+        "destroyed": 1894,
+        "guards_defeated": 11029,
+        "pillage_success": 46,
+        "sigil_broken": 2823
+      },
+      "opportunity": {
+        "false": 0,
+        "true": 28868,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "fizzled": 250,
+        "resolved": 7432
+      },
+      "reasons": {
+        "current_board_attack_unknown_enemy_orders": 26,
+        "scoring_or_shared_budget": 21160,
+        "selected": 7682
+      },
+      "selected": 7682
+    },
+    "combat:Ward": {
+      "decisions": 28868,
+      "metrics": {
+        "sigils_created": 17888
+      },
+      "opportunity": {
+        "false": 0,
+        "true": 28868,
+        "unknown": 0
+      },
+      "outcome_unobserved": 283,
+      "outcomes": {
+        "resolved": 17888
+      },
+      "reasons": {
+        "recruit_two_to_one_and_screen_lane": 132,
+        "scoring_or_shared_budget": 10565,
+        "selected": 18171
+      },
+      "selected": 18171
+    },
+    "guards:Deploy": {
+      "decisions": 28868,
+      "metrics": {
+        "guards_deployed": 25430
+      },
+      "opportunity": {
+        "false": 4886,
+        "true": 23982,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 15837
+      },
+      "reasons": {
+        "no_current_board_opportunity": 4886,
+        "scoring_or_shared_budget": 8145,
+        "selected": 15837
+      },
+      "selected": 15837
+    },
+    "monsters:Dotra": {
+      "decisions": 28868,
+      "metrics": {
+        "bodies_spawned": 1224,
+        "summons": 1224
+      },
+      "opportunity": {
+        "false": 22855,
+        "true": 6013,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 1224
+      },
+      "reasons": {
+        "missing_subjects": 22855,
+        "retention_budget": 718,
+        "scoring_or_shared_cards": 4071,
+        "selected": 1224
+      },
+      "selected": 1224
+    },
+    "monsters:Fyra": {
+      "decisions": 28868,
+      "metrics": {
+        "bodies_spawned": 3873,
+        "summons": 3873
+      },
+      "opportunity": {
+        "false": 17356,
+        "true": 11512,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 3873
+      },
+      "reasons": {
+        "missing_subjects": 17356,
+        "retention_budget": 461,
+        "scoring_or_shared_cards": 7178,
+        "selected": 3873
+      },
+      "selected": 3873
+    },
+    "monsters:Kopita": {
+      "decisions": 28868,
+      "metrics": {
+        "bodies_spawned": 523,
+        "summons": 523
+      },
+      "opportunity": {
+        "false": 17898,
+        "true": 10970,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 523
+      },
+      "reasons": {
+        "missing_subjects": 17898,
+        "retention_budget": 2850,
+        "scoring_or_shared_cards": 7597,
+        "selected": 523
+      },
+      "selected": 523
+    },
+    "monsters:Kurchin": {
+      "decisions": 28868,
+      "metrics": {
+        "bodies_spawned": 4378,
+        "summons": 4378
+      },
+      "opportunity": {
+        "false": 22055,
+        "true": 6813,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 4378
+      },
+      "reasons": {
+        "missing_subjects": 22055,
+        "retention_budget": 123,
+        "scoring_or_shared_cards": 2312,
+        "selected": 4378
+      },
+      "selected": 4378
+    },
+    "monsters:Lemek": {
+      "decisions": 28868,
+      "metrics": {
+        "bodies_spawned": 3392,
+        "summons": 3392
+      },
+      "opportunity": {
+        "false": 11366,
+        "true": 17502,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 3392
+      },
+      "reasons": {
+        "missing_subjects": 11366,
+        "retention_budget": 3089,
+        "scoring_or_shared_cards": 11021,
+        "selected": 3392
+      },
+      "selected": 3392
+    },
+    "monsters:Muno": {
+      "decisions": 28868,
+      "metrics": {
+        "bodies_spawned": 3306,
+        "summons": 3306
+      },
+      "opportunity": {
+        "false": 22323,
+        "true": 6545,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 3306
+      },
+      "reasons": {
+        "missing_subjects": 22323,
+        "retention_budget": 87,
+        "scoring_or_shared_cards": 3152,
+        "selected": 3306
+      },
+      "selected": 3306
+    },
+    "monsters:Sinodek": {
+      "decisions": 28868,
+      "metrics": {
+        "bodies_spawned": 1057,
+        "summons": 1057
+      },
+      "opportunity": {
+        "false": 24324,
+        "true": 4544,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 1057
+      },
+      "reasons": {
+        "living_copy_limit": 1899,
+        "missing_subjects": 22425,
+        "retention_budget": 552,
+        "scoring_or_shared_cards": 2935,
+        "selected": 1057
+      },
+      "selected": 1057
+    },
+    "monsters:Sooge": {
+      "decisions": 28868,
+      "metrics": {
+        "bodies_spawned": 2557,
+        "summons": 2557
+      },
+      "opportunity": {
+        "false": 24884,
+        "true": 3984,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 2557
+      },
+      "reasons": {
+        "living_copy_limit": 7844,
+        "missing_subjects": 17040,
+        "retention_budget": 136,
+        "scoring_or_shared_cards": 1291,
+        "selected": 2557
+      },
+      "selected": 2557
+    },
+    "monsters:Tumler": {
+      "decisions": 28868,
+      "metrics": {
+        "bodies_spawned": 4953,
+        "summons": 4953
+      },
+      "opportunity": {
+        "false": 15967,
+        "true": 12901,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 4953
+      },
+      "reasons": {
+        "missing_subjects": 15967,
+        "retention_budget": 1002,
+        "scoring_or_shared_cards": 6946,
+        "selected": 4953
+      },
+      "selected": 4953
+    },
+    "monsters:Varn": {
+      "decisions": 28868,
+      "metrics": {
+        "bodies_spawned": 11245,
+        "summons": 2787
+      },
+      "opportunity": {
+        "false": 9138,
+        "true": 19730,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 2787
+      },
+      "reasons": {
+        "missing_subjects": 9138,
+        "retention_budget": 4518,
+        "scoring_or_shared_cards": 12425,
+        "selected": 2787
+      },
+      "selected": 2787
+    },
+    "powers:AllegianceShift": {
+      "decisions": 3111,
+      "metrics": {
+        "affected_marchers": 6967
+      },
+      "opportunity": {
+        "false": 744,
+        "true": 2367,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 772
+      },
+      "reasons": {
+        "no_current_board_opportunity": 744,
+        "resource_shortfall": 1490,
+        "scoring_or_shared_budget": 5,
+        "selected": 772,
+        "source_banished": 100
+      },
+      "selected": 772
+    },
+    "powers:BreachWishDeath": {
+      "decisions": 28868,
+      "metrics": {
+        "price_blood": 233,
+        "price_cards": 138,
+        "price_guards": 129,
+        "price_ruin": 62,
+        "price_soul": 77,
+        "price_stone": 259,
+        "price_wishmaster": 16,
+        "wish_effect_count": 6935,
+        "wish_success": 1253
+      },
+      "opportunity": {
+        "false": 25697,
+        "true": 3170,
+        "unknown": 1
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 1255
+      },
+      "reasons": {
+        "death_net_victims_less_delayed_price": 328,
+        "generation_budget_unmeasured": 1,
+        "no_current_board_opportunity": 25597,
+        "retention_budget": 13,
+        "scoring_or_shared_budget": 1674,
+        "selected": 1255
+      },
+      "selected": 1255
+    },
+    "powers:BreachWishLongevity": {
+      "decisions": 28868,
+      "metrics": {
+        "price_blood": 3,
+        "price_cards": 2,
+        "price_guards": 1,
+        "price_ruin": 1,
+        "price_stone": 5,
+        "wish_effect_count": 22,
+        "wish_success": 22
+      },
+      "opportunity": {
+        "false": 28261,
+        "true": 607,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "fizzled": 11,
+        "resolved": 22
+      },
+      "reasons": {
+        "no_current_board_opportunity": 27168,
+        "repair_benefit_less_delayed_price": 1270,
+        "retention_budget": 120,
+        "scoring_or_shared_budget": 277,
+        "selected": 33
+      },
+      "selected": 33
+    },
+    "powers:BreachWishPower": {
+      "decisions": 28868,
+      "metrics": {
+        "price_blood": 107,
+        "price_cards": 84,
+        "price_guards": 67,
+        "price_ruin": 27,
+        "price_soul": 34,
+        "price_stone": 101,
+        "price_wishmaster": 3,
+        "wish_effect_count": 886,
+        "wish_success": 648
+      },
+      "opportunity": {
+        "false": 26764,
+        "true": 2104,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 648
+      },
+      "reasons": {
+        "no_current_board_opportunity": 25316,
+        "recruitment_need_less_delayed_price": 2428,
+        "retention_budget": 4,
+        "scoring_or_shared_budget": 472,
+        "selected": 648
+      },
+      "selected": 648
+    },
+    "powers:BreachWishResurrection": {
+      "decisions": 28868,
+      "metrics": {
+        "price_blood": 32,
+        "price_cards": 17,
+        "price_guards": 22,
+        "price_ruin": 11,
+        "price_soul": 11,
+        "price_stone": 32,
+        "price_wishmaster": 4,
+        "wish_effect_count": 1374,
+        "wish_success": 194
+      },
+      "opportunity": {
+        "false": 27826,
+        "true": 1039,
+        "unknown": 3
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 209
+      },
+      "reasons": {
+        "generation_budget_unmeasured": 3,
+        "insure_exposed_marchers_future_losses_uncertain": 721,
+        "no_current_board_opportunity": 27045,
+        "restore_recorded_losses_less_price": 151,
+        "retention_budget": 109,
+        "scoring_or_shared_budget": 630,
+        "selected": 209
+      },
+      "selected": 209
+    },
+    "powers:BreachWishWealth": {
+      "decisions": 28868,
+      "metrics": {
+        "price_blood": 4,
+        "price_cards": 1,
+        "price_guards": 1,
+        "price_stone": 1,
+        "wish_effect_count": 29,
+        "wish_success": 13
+      },
+      "opportunity": {
+        "false": 28592,
+        "true": 257,
+        "unknown": 19
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 13
+      },
+      "reasons": {
+        "generation_budget_unmeasured": 19,
+        "no_current_board_opportunity": 28360,
+        "refill_available_hand_space_less_price": 232,
+        "retention_budget": 78,
+        "scoring_or_shared_budget": 166,
+        "selected": 13
+      },
+      "selected": 13
+    },
+    "powers:BreathOfLife": {
+      "decisions": 3376,
+      "metrics": {},
+      "opportunity": {
+        "false": 412,
+        "true": 2964,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 789
+      },
+      "reasons": {
+        "cooldown_or_active": 1974,
+        "no_current_board_opportunity": 412,
+        "retention_budget": 1,
+        "scoring_or_shared_budget": 44,
+        "selected": 789,
+        "source_banished": 156
+      },
+      "selected": 789
+    },
+    "powers:Consume": {
+      "decisions": 3029,
+      "metrics": {
+        "guard_value": 5614,
+        "guards_consumed": 1490
+      },
+      "opportunity": {
+        "false": 750,
+        "true": 2279,
+        "unknown": 0
+      },
+      "outcome_unobserved": 108,
+      "outcomes": {
+        "fizzled": 352,
+        "resolved": 1490
+      },
+      "reasons": {
+        "no_current_board_opportunity": 750,
+        "retention_budget": 6,
+        "scoring_or_shared_budget": 292,
+        "selected": 1950,
+        "source_banished": 31
+      },
+      "selected": 1950
+    },
+    "powers:FalseOrders": {
+      "decisions": 3111,
+      "metrics": {
+        "guard_changes": 100,
+        "guards_moved": 100
+      },
+      "opportunity": {
+        "false": 2219,
+        "true": 892,
+        "unknown": 0
+      },
+      "outcome_unobserved": 24,
+      "outcomes": {
+        "fizzled": 77,
+        "resolved": 100
+      },
+      "reasons": {
+        "no_current_board_opportunity": 1238,
+        "resource_shortfall": 598,
+        "retention_budget": 7,
+        "save_reconfiguration_for_material_swing": 516,
+        "scoring_or_shared_budget": 488,
+        "selected": 201,
+        "source_banished": 63
+      },
+      "selected": 201
+    },
+    "powers:GravityOrb": {
+      "decisions": 3344,
+      "metrics": {
+        "enemy_units_consumed": 10830,
+        "friendly_units_consumed": 1144
+      },
+      "opportunity": {
+        "false": 571,
+        "true": 2773,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 785
+      },
+      "reasons": {
+        "cooldown_or_active": 1896,
+        "no_current_board_opportunity": 571,
+        "scoring_or_shared_budget": 34,
+        "selected": 785,
+        "source_banished": 58
+      },
+      "selected": 785
+    },
+    "powers:InevitableRuin": {
+      "decisions": 2612,
+      "metrics": {
+        "castle_damage": 3543
+      },
+      "opportunity": {
+        "false": 408,
+        "true": 2204,
+        "unknown": 0
+      },
+      "outcome_unobserved": 12,
+      "outcomes": {
+        "fizzled": 1,
+        "resolved": 455
+      },
+      "reasons": {
+        "delayed_damage_to_ruin_cap": 175,
+        "no_current_board_opportunity": 408,
+        "retention_budget": 13,
+        "scoring_or_shared_budget": 1465,
+        "selected": 468,
+        "source_banished": 83
+      },
+      "selected": 468
+    },
+    "powers:Inferno": {
+      "decisions": 3640,
+      "metrics": {
+        "hazard_affected_entities": 48502
+      },
+      "opportunity": {
+        "false": 1590,
+        "true": 2050,
+        "unknown": 0
+      },
+      "outcome_unobserved": 29,
+      "outcomes": {
+        "resolved": 1050
+      },
+      "reasons": {
+        "cooldown_or_active": 472,
+        "no_current_board_opportunity": 1590,
+        "relocation_would_fire_after_expiration": 220,
+        "scoring_or_shared_budget": 179,
+        "selected": 1079,
+        "source_banished": 100
+      },
+      "selected": 1079
+    },
+    "powers:Inversion": {
+      "decisions": 3111,
+      "metrics": {
+        "guard_changes": 8,
+        "guards_moved": 8
+      },
+      "opportunity": {
+        "false": 1379,
+        "true": 1732,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "fizzled": 1,
+        "resolved": 5
+      },
+      "reasons": {
+        "no_current_board_opportunity": 1379,
+        "resource_shortfall": 1645,
+        "retention_budget": 2,
+        "scoring_or_shared_budget": 13,
+        "selected": 6,
+        "source_banished": 66
+      },
+      "selected": 6
+    },
+    "powers:MusterTheFaithful": {
+      "decisions": 3376,
+      "metrics": {
+        "marchers_spawned": 4755
+      },
+      "opportunity": {
+        "false": 0,
+        "true": 3376,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 1585
+      },
+      "reasons": {
+        "cooldown_or_active": 1448,
+        "scoring_or_shared_budget": 170,
+        "selected": 1585,
+        "source_banished": 173
+      },
+      "selected": 1585
+    },
+    "powers:PredatorOfRuin": {
+      "decisions": 2612,
+      "metrics": {
+        "marchers_spawned": 2426
+      },
+      "opportunity": {
+        "false": 0,
+        "true": 2612,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 1213
+      },
+      "reasons": {
+        "cooldown_or_active": 1083,
+        "scoring_or_shared_budget": 220,
+        "selected": 1213,
+        "source_banished": 96
+      },
+      "selected": 1213
+    },
+    "powers:Projection": {
+      "decisions": 3344,
+      "metrics": {
+        "essence_spent": 2581,
+        "guards_removed": 668,
+        "whiffs": 111
+      },
+      "opportunity": {
+        "false": 2348,
+        "true": 996,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 779
+      },
+      "reasons": {
+        "no_current_board_opportunity": 2348,
+        "retention_budget": 4,
+        "scoring_or_shared_budget": 213,
+        "selected": 779
+      },
+      "selected": 779
+    },
+    "powers:Pyroclasm": {
+      "decisions": 3640,
+      "metrics": {
+        "hazard_affected_entities": 36312
+      },
+      "opportunity": {
+        "false": 2394,
+        "true": 1246,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 1105
+      },
+      "reasons": {
+        "no_current_board_opportunity": 2394,
+        "retention_budget": 1,
+        "scoring_or_shared_budget": 97,
+        "selected": 1105,
+        "source_banished": 43
+      },
+      "selected": 1105
+    },
+    "powers:Ravenous": {
+      "decisions": 3029,
+      "metrics": {
+        "enemy_units_consumed": 7356,
+        "friendly_units_consumed": 4809
+      },
+      "opportunity": {
+        "false": 1067,
+        "true": 1962,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 689
+      },
+      "reasons": {
+        "cooldown_or_active": 1042,
+        "no_current_board_opportunity": 1067,
+        "scoring_or_shared_budget": 146,
+        "selected": 689,
+        "source_banished": 85
+      },
+      "selected": 689
+    },
+    "powers:Redirect": {
+      "decisions": 3111,
+      "metrics": {
+        "redirected_marchers": 38
+      },
+      "opportunity": {
+        "false": 2752,
+        "true": 359,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 9
+      },
+      "reasons": {
+        "no_current_board_opportunity": 2055,
+        "save_reconfiguration_for_material_swing": 622,
+        "scoring_or_shared_budget": 350,
+        "selected": 9,
+        "source_banished": 75
+      },
+      "selected": 9
+    },
+    "powers:Rout": {
+      "decisions": 3058,
+      "metrics": {
+        "affected_marchers": 21957
+      },
+      "opportunity": {
+        "false": 209,
+        "true": 2849,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 745
+      },
+      "reasons": {
+        "cooldown_or_active": 1923,
+        "no_current_board_opportunity": 209,
+        "scoring_or_shared_budget": 16,
+        "selected": 745,
+        "source_banished": 165
+      },
+      "selected": 745
+    },
+    "powers:Snare": {
+      "decisions": 3500,
+      "metrics": {
+        "public_guard_limit": 1077
+      },
+      "opportunity": {
+        "false": 2119,
+        "true": 1381,
+        "unknown": 0
+      },
+      "outcome_unobserved": 13,
+      "outcomes": {
+        "resolved": 1077
+      },
+      "reasons": {
+        "next_round_reinforcement_cap_costs_threat": 92,
+        "no_current_board_opportunity": 2027,
+        "retention_budget": 3,
+        "scoring_or_shared_budget": 205,
+        "selected": 1090,
+        "source_banished": 83
+      },
+      "selected": 1090
+    },
+    "powers:WarMachine": {
+      "decisions": 3058,
+      "metrics": {
+        "artillery_damage": 2502,
+        "castles_destroyed": 126
+      },
+      "opportunity": {
+        "false": 1362,
+        "true": 1696,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "fizzled": 2,
+        "resolved": 1373
+      },
+      "reasons": {
+        "no_current_board_opportunity": 1362,
+        "retention_budget": 5,
+        "scoring_or_shared_budget": 242,
+        "selected": 1375,
+        "source_banished": 74
+      },
+      "selected": 1375
+    },
+    "powers:Web": {
+      "decisions": 3500,
+      "metrics": {
+        "web_hits": 16533
+      },
+      "opportunity": {
+        "false": 219,
+        "true": 3281,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 1107
+      },
+      "reasons": {
+        "cooldown_or_active": 2013,
+        "no_current_board_opportunity": 219,
+        "scoring_or_shared_budget": 57,
+        "selected": 1107,
+        "source_banished": 104
+      },
+      "selected": 1107
+    },
+    "powers:WishDeath": {
+      "decisions": 3198,
+      "metrics": {
+        "price_blood": 686,
+        "price_cards": 253,
+        "price_guards": 298,
+        "price_ruin": 67,
+        "price_soul": 70,
+        "price_stone": 285,
+        "price_wishmaster": 21,
+        "wish_effect_count": 9060,
+        "wish_success": 1804
+      },
+      "opportunity": {
+        "false": 565,
+        "true": 2633,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 1806
+      },
+      "reasons": {
+        "death_net_victims_less_delayed_price": 246,
+        "no_current_board_opportunity": 414,
+        "retention_budget": 1,
+        "scoring_or_shared_budget": 610,
+        "selected": 1806,
+        "source_banished": 121
+      },
+      "selected": 1806
+    },
+    "powers:WishLongevity": {
+      "decisions": 3198,
+      "metrics": {
+        "price_blood": 11,
+        "price_cards": 2,
+        "price_guards": 4,
+        "price_ruin": 2,
+        "price_stone": 3,
+        "wish_effect_count": 25,
+        "wish_success": 25
+      },
+      "opportunity": {
+        "false": 2616,
+        "true": 582,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "fizzled": 15,
+        "resolved": 25
+      },
+      "reasons": {
+        "no_current_board_opportunity": 1783,
+        "repair_benefit_less_delayed_price": 958,
+        "retention_budget": 58,
+        "scoring_or_shared_budget": 314,
+        "selected": 40,
+        "source_banished": 45
+      },
+      "selected": 40
+    },
+    "powers:WishPower": {
+      "decisions": 3198,
+      "metrics": {
+        "price_blood": 184,
+        "price_cards": 129,
+        "price_guards": 100,
+        "price_ruin": 28,
+        "price_soul": 33,
+        "price_stone": 85,
+        "price_wishmaster": 7,
+        "wish_effect_count": 916,
+        "wish_success": 653
+      },
+      "opportunity": {
+        "false": 1264,
+        "true": 1934,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 653
+      },
+      "reasons": {
+        "recruitment_need_less_delayed_price": 1714,
+        "retention_budget": 53,
+        "scoring_or_shared_budget": 653,
+        "selected": 653,
+        "source_banished": 125
+      },
+      "selected": 653
+    },
+    "powers:WishResurrection": {
+      "decisions": 3198,
+      "metrics": {
+        "price_blood": 120,
+        "price_cards": 44,
+        "price_guards": 44,
+        "price_ruin": 17,
+        "price_soul": 13,
+        "price_stone": 58,
+        "price_wishmaster": 7,
+        "wish_effect_count": 2276,
+        "wish_success": 359
+      },
+      "opportunity": {
+        "false": 1846,
+        "true": 1350,
+        "unknown": 2
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 385
+      },
+      "reasons": {
+        "generation_budget_unmeasured": 2,
+        "insure_exposed_marchers_future_losses_uncertain": 287,
+        "no_current_board_opportunity": 1457,
+        "restore_recorded_losses_less_price": 130,
+        "retention_budget": 91,
+        "scoring_or_shared_budget": 789,
+        "selected": 385,
+        "source_banished": 57
+      },
+      "selected": 385
+    },
+    "powers:WishWealth": {
+      "decisions": 3198,
+      "metrics": {
+        "price_blood": 7,
+        "price_cards": 3,
+        "price_guards": 3,
+        "price_ruin": 1,
+        "price_stone": 5,
+        "wish_effect_count": 68,
+        "wish_success": 33
+      },
+      "opportunity": {
+        "false": 2828,
+        "true": 356,
+        "unknown": 14
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 33
+      },
+      "reasons": {
+        "generation_budget_unmeasured": 14,
+        "no_current_board_opportunity": 2757,
+        "refill_available_hand_space_less_price": 69,
+        "retention_budget": 74,
+        "scoring_or_shared_budget": 223,
+        "selected": 33,
+        "source_banished": 28
+      },
+      "selected": 33
+    },
+    "resummon:Resummon": {
+      "decisions": 28868,
+      "metrics": {
+        "lords_returned": 866,
+        "return_threat": 761
+      },
+      "opportunity": {
+        "false": 27789,
+        "true": 1079,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 866
+      },
+      "reasons": {
+        "no_current_board_opportunity": 27789,
+        "scoring_or_shared_budget": 213,
+        "selected": 866
+      },
+      "selected": 866
+    },
+    "rites:Invocation": {
+      "decisions": 28868,
+      "metrics": {},
+      "opportunity": {
+        "false": 15092,
+        "true": 13776,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {},
+      "reasons": {
+        "no_current_board_opportunity": 15092,
+        "once_per_game_tear_with_card_payment": 13776
+      },
+      "selected": 0
+    },
+    "rites:ProfaneRuins": {
+      "decisions": 28868,
+      "metrics": {
+        "personal_tears": 2381
+      },
+      "opportunity": {
+        "false": 26344,
+        "true": 2524,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 2381
+      },
+      "reasons": {
+        "no_current_board_opportunity": 26344,
+        "scoring_or_shared_budget": 143,
+        "selected": 2381
+      },
+      "selected": 2381
+    },
+    "rites:Supplicants": {
+      "decisions": 28868,
+      "metrics": {
+        "personal_tears": 1078
+      },
+      "opportunity": {
+        "false": 27788,
+        "true": 1080,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 1078
+      },
+      "reasons": {
+        "no_current_board_opportunity": 27788,
+        "scoring_or_shared_budget": 2,
+        "selected": 1078
+      },
+      "selected": 1078
+    },
+    "slaver:Pass": {
+      "decisions": 2155,
+      "metrics": {},
+      "opportunity": {
+        "false": 2155,
+        "true": 0,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 2155
+      },
+      "reasons": {
+        "conserve_current_hand": 2155
+      },
+      "selected": 2155
+    },
+    "slaver:Swap": {
+      "decisions": 26713,
+      "metrics": {},
+      "opportunity": {
+        "false": 846,
+        "true": 25867,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 26713
+      },
+      "reasons": {
+        "conserve_current_hand": 846,
+        "face_value_pairs_and_recipe_progress": 25867
+      },
+      "selected": 26713
+    },
+    "stockpile:Keep": {
+      "decisions": 18364,
+      "metrics": {},
+      "opportunity": {
+        "false": 0,
+        "true": 18364,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 18364
+      },
+      "reasons": {
+        "face_value_pairs_and_recipe_progress": 18364
+      },
+      "selected": 18364
+    },
+    "work:Activate": {
+      "decisions": 28868,
+      "metrics": {
+        "castles_activated": 3257
+      },
+      "opportunity": {
+        "false": 25611,
+        "true": 3257,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 3257
+      },
+      "reasons": {
+        "no_current_board_opportunity": 25611,
+        "selected": 3257
+      },
+      "selected": 3257
+    },
+    "work:Work": {
+      "decisions": 28868,
+      "metrics": {
+        "applied_work": 46598,
+        "passive_contributed": 20694,
+        "work_contributed": 27355
+      },
+      "opportunity": {
+        "false": 2971,
+        "true": 25897,
+        "unknown": 0
+      },
+      "outcome_unobserved": 0,
+      "outcomes": {
+        "resolved": 22764
+      },
+      "reasons": {
+        "no_current_board_opportunity": 2122,
+        "scoring_or_shared_budget": 2851,
+        "select_work_with_new_guard_contribution": 1131,
+        "selected": 22764
+      },
+      "selected": 22764
+    }
+  },
+  "timing": {
+    "extension_seconds": 1022.818956829,
+    "note": "Includes policy, diagnostics, persistence and summaries. Extra analysis/replay processes overlapped the extension; not a throughput benchmark.",
+    "pilot_seconds": 202.75619846900008,
+    "workers": 8
+  },
+  "verification": {
+    "additional_original_replays_matched": 3,
+    "castle_replay_final_digests_matched": 81,
+    "full_roster_and_unique_indices_verified": true,
+    "survey_tests": 3
+  }
+}
