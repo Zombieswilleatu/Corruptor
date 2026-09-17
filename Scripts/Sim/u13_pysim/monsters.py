@@ -1,7 +1,7 @@
 """Monster recipes and explicit playtest tuning; independent Python rules."""
 from . import economy as e
 from .copying import copy_data
-VERSION = "U13_MONSTERS_V1"
+VERSION = "U13_MONSTERS_V2"
 ROSTER = {'Lemek': {'tier': 'Easy',
            'recipe': {'Penitent': 2},
            'attack': 3,
@@ -73,7 +73,8 @@ ROSTER = {'Lemek': {'tier': 'Easy',
            'armor': 2,
            'speed': 2,
            'hp': 5,
-           'ability': '25% chance each active round to root permanently: 3 Attack / 6 Armor / 0 Speed. Fires '
+           'ability': 'Root chance starts at 25%, rising by 15 percentage points each active round it stays mobile, '
+                      'up to 100%. Permanently becomes a turret: 3 Attack / 6 Armor / 0 Speed. Fires '
                       'a piercing beam up to 600: 3 damage to enemies and 1 to allies in its path. One '
                       'living copy per player.'},
  'Sinodek': {'tier': 'Very hard',
@@ -95,14 +96,21 @@ def enabled(w):
 
 def profile(name,lane,pid,birth,ready,turret=False):
     r=ROSTER[name]
-    return dict(suit='Monster',monster_id=name,attack=3 if turret else r['attack'],armor=6 if turret else r['armor'],
+    a=dict(suit='Monster',monster_id=name,attack=3 if turret else r['attack'],armor=6 if turret else r['armor'],
                 max_armor=6 if turret else r['armor'],step_fp=0 if turret else r['speed']*2,hp=r['hp'],max_hp=r['hp'],regen=1,
                 armor_bypass=False,lane=lane,birth_round=birth,movement_ready_round=ready,x_fp=0 if pid==0 else 2400,
                 y_fp=300,contact_tick=-1,direction=1 if pid==0 else -1,waiting=False,waiting_since_round=0,
                 sprite_form='turret' if turret else 'mobile',flying=name=='Fyra')
+    if name=='Sooge':a.update(sooge_root_attempts=0,sooge_root_round=0)
+    return a
+
+def root_chance(a):
+    return min(100,TUNING['sooge_root_chance']+a.get('sooge_root_attempts',0)*TUNING['sooge_root_increase'])
 
 def valid_unit(a):
     if 'monster_id' not in a:return a.get('suit')!='Monster'
+    for key in ('sooge_root_attempts','sooge_root_round'):
+        if key in a and (type(a[key]) is not int or not 0<=a[key]<=9007199254740991):return False
     return (a.get('suit')=='Monster' and a['monster_id'] in NAMES and a.get('sprite_form') in ('mobile','turret')
             and (a['sprite_form']!='turret' or a['monster_id']=='Sooge') and type(a.get('flying')) is bool)
 
@@ -135,6 +143,7 @@ TUNING = {'varn_poison_chance': 10,
  'dotra_hide_chance': 25,
  'dotra_ambush_radius': 240,
  'sooge_root_chance': 25,
+ 'sooge_root_increase': 15,
  'beam_range': 600,
  'beam_half_width': 70,
  'sinodek_portal_chance': 25,

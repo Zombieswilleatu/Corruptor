@@ -5,6 +5,8 @@ var embedded: bool = false
 var column: VBoxContainer
 var message: Label
 var close_button: Button
+# An open picker can reserve its checked choices before the round is submitted.
+var pending_selection: Callable
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -50,6 +52,7 @@ func _ready() -> void:
 	hide()
 
 func present(title: String, description: String, dismissible: bool = true) -> void:
+	pending_selection = Callable()
 	for child in column.get_children():
 		column.remove_child(child)
 		child.queue_free()

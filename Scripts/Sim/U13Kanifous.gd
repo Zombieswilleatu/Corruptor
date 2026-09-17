@@ -103,6 +103,8 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 				var roster = preload("res://Scripts/Sim/U13MonsterRules.gd")
 				if roster.limited(name) and roster.living(ids.snapshot().entities, pid, name): continue
 				var a: Dictionary = roster.profile(name, source.target.lane, pid, context.round, int(context.round) + 1, lost.attributes.get("sprite_form") == "turret") if not name.is_empty() else Marching.profile(lost.attributes.suit, source.target.lane, pid, context.round, int(context.round) + 1, Marching.Ranged.enabled(world))
+				if name == "Sooge":
+					for key in ["sooge_root_attempts", "sooge_root_round"]: a[key] = lost.attributes.get(key, 0)
 				a.x_fp = lost.attributes.x_fp
 				a.y_fp = lost.attributes.y_fp
 				var revived: Dictionary = ids.create("marcher", source.declaration_id, count, pid, a).entity

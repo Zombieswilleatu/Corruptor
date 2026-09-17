@@ -124,9 +124,14 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 					a["hidden"] = Lamp.draw(context.seed, key, "HIDE", 100) < (50 if a.get("hidden", false) else Rules.TUNING.dotra_hide_chance)
 					events.append(event("MONSTER_CONCEALMENT", {"unit_id": unit.id, "hidden": a.hidden, "round": n, "tick": tick}))
 				"Sooge":
-					if a.sprite_form != "turret" and Lamp.draw(context.seed, key, "ROOT", 100) < Rules.TUNING.sooge_root_chance:
-						a.merge({"sprite_form": "turret", "attack": 3, "armor": 6, "max_armor": 6, "step_fp": 0}, true)
-						events.append(event("MONSTER_ROOTED", {"unit_id": unit.id, "round": n, "tick": tick}))
+					if a.sprite_form != "turret" and int(a.get("sooge_root_round", 0)) < n:
+						var chance: int = Rules.root_chance(a)
+						# Count eligible rolls, not global rounds or simulation ticks.
+						a["sooge_root_attempts"] = int(a.get("sooge_root_attempts", 0)) + 1
+						a["sooge_root_round"] = n
+						if Lamp.draw(context.seed, key, "ROOT", 100) < chance:
+							a.merge({"sprite_form": "turret", "attack": 3, "armor": 6, "max_armor": 6, "step_fp": 0}, true)
+							events.append(event("MONSTER_ROOTED", {"unit_id": unit.id, "round": n, "tick": tick}))
 				"Sinodek":
 					if Lamp.draw(context.seed, key, "PORTAL", 100) < Rules.TUNING.sinodek_portal_chance:
 						var f: Dictionary = {"kind": "portal", "id": key + ":portal", "owner": unit.owner, "lane": a.lane, "x_fp": clampi(int(a.x_fp) + int(a.direction) * int(Rules.TUNING.portal_ahead), 0, 2400), "y_fp": a.y_fp, "expires_round": n}

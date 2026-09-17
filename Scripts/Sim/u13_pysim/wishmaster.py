@@ -48,6 +48,8 @@ def wish(b,s):
             old = lost['attributes'];name=old.get('monster_id','')
             if monsters.limited(name) and monsters.living(w['entities']['entities'],pid,name):continue
             a=monsters.profile(name,t['lane'],pid,n,n+1,old.get('sprite_form')=='turret') if name else recruit.profile(old['suit'],t['lane'],pid,n,n+1)
+            if name=='Sooge':
+                for key in ('sooge_root_attempts','sooge_root_round'):a[key]=old.get(key,0)
             a.update(x_fp=old['x_fp'], y_fp=old['y_fp'])
             r = recruit.create(w, key, count, pid, a)
             recruit.place_near_spawn(w, r, a)

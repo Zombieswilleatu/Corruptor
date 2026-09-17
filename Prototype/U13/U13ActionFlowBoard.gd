@@ -203,7 +203,9 @@ func pass_round() -> void:
 		2: guard_plan = []
 		3: _draft_combat = {}; action_choice.select(0)
 		4: queued = []; _power_cost = []; payment = []
-		5: rites_plan = {}
+		5:
+			rites_plan = {}
+			game_menu.pending_selection = Callable()
 	_advance_flow()
 
 func enter_powers() -> void:
@@ -226,10 +228,11 @@ func _open_game_menu() -> void:
 		game_menu.button("PROFANE CASTLE", _choose_profane)
 		game_menu.label("Sacrifice a full Castle for a Tear. Replaces this round's combat.", 13)
 		game_menu.button("SPEND FIVE SUPPLICANTS", _choose_waiters)
+		game_menu.label("Gain 1 Personal Tear per group of five in the same lane.", 13)
 		game_menu.button("INVOCATION", _choose_invocation)
 		game_menu.button("PROFANE RUINS", _choose_ruins)
 		game_menu.button("CLEAR RITES", func(): rites_plan = {}; _refresh(); _open_game_menu())
-		if not rites_plan.is_empty(): game_menu.label("Staged: " + ", ".join(rites_plan.keys()), 13)
+		if not rites_plan.is_empty(): game_menu.label("Staged: " + _rites_summary(), 13)
 		_sync_flow()
 		phase_prompt.set_presenting(true)
 		return

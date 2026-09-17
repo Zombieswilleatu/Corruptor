@@ -33,8 +33,9 @@ func selected_seed(id: String, purpose: String, chance: int) -> String:
 		if MonsterFX.Lamp.draw(seed_value, id + ":2", purpose, 100) < chance: return seed_value
 	return "missing"
 
-func phase(name: String, world: Dictionary, seed_value: String = "monster-check") -> Dictionary:
+func phase(name: String, world: Dictionary, seed_value: String = "monster-check", round_number: int = 2) -> Dictionary:
 	var c: Dictionary = context(world, seed_value)
+	c.round = round_number
 	var content = Game.Content.new()
 	var result: Dictionary = Marching.resolve(c, Callable(content, "react"))
 	check(result.action == "resolved", name + " resolves")
@@ -52,12 +53,64 @@ func phase(name: String, world: Dictionary, seed_value: String = "monster-check"
 		phase_output.flush()
 	return result
 
+func sooge_ramp_checks() -> void:
+	var world: Dictionary = phase_world()
+	var unit: Dictionary = put(world, "Sooge", 0, 700, {"birth_round": 2, "movement_ready_round": 3})
+	var chances: Array = [25, 40, 55, 70, 85, 100]
+	# One fixed game seed misses the first five rolls, then needs the 100% cap.
+	var seed_value: String = ""
+	for i in range(10000):
+		var candidate: String = "sooge-ramp:" + str(i)
+		var misses: bool = true
+		for attempt in range(6):
+			if MonsterFX.Lamp.draw(candidate, "%s:%d" % [unit.id, attempt + 3], "ROOT", 100) < mini(85, chances[attempt]):
+				misses = false
+				break
+		if misses: seed_value = candidate; break
+	check(not seed_value.is_empty(), "Sooge ramp has a deterministic high-roll fixture")
+	world = phase("sooge_birth_hold", world, seed_value).world
+	var a: Dictionary = Kanifous._entity(world, unit.id).attributes
+	check(a.sprite_form == "mobile" and a.sooge_root_attempts == 0 and a.sooge_root_round == 0, "birth hold neither rolls nor increases Sooge chance")
+	for attempt in range(6):
+		var n: int = attempt + 3
+		a = Kanifous._entity(world, unit.id).attributes
+		check(Monsters.root_chance(a) == chances[attempt], "Sooge eligible roll %d has %d%% chance" % [attempt + 1, chances[attempt]])
+		var result: Dictionary = phase("sooge_ramp_%d" % [attempt + 1], world, seed_value, n)
+		world = result.world
+		a = Kanifous._entity(world, unit.id).attributes
+		check(a.sooge_root_attempts == attempt + 1 and a.sooge_root_round == n, "Sooge counts once per active round")
+		check(a.sprite_form == ("turret" if attempt == 5 else "mobile"), "Sooge high rolls miss until guaranteed sixth eligible round")
+		if attempt == 0:
+			var buffer = Marching.Buffer.new(); buffer.restore(world.entities)
+			var c: Dictionary = context(world, seed_value); c.round = n
+			MonsterFX.step(world, buffer, c, 0, Callable(Game.Content.new(), "react"))
+			check(buffer.get_entity(unit.id).attributes.sooge_root_attempts == 1 and buffer.get_entity(unit.id).attributes.sprite_form == "mobile", "same-round replay cannot advance or reroll rooting")
+		if attempt == 2:
+			var envelope: Dictionary = JSON.parse_string(Game.encode_snapshot(world))
+			var loaded: Dictionary = bytes_to_var(Marshalls.base64_to_raw(envelope.payload))
+			check(loaded == world and Marching.valid(loaded), "save JSON transport preserves Sooge chance and round state")
+			world = loaded
+	check(Monsters.root_chance(a) == 100, "Sooge chance caps at 100%")
+	for key in ["sooge_root_attempts", "sooge_root_round"]:
+		for value in [-1, 0.5, "1", true, null]:
+			var forged: Dictionary = a.duplicate(true); forged[key] = value
+			check(not Monsters.valid_unit(forged), "invalid Sooge counter rejected: " + key)
+	# A newly summoned Sooge does not inherit the global round's accumulated odds.
+	world = phase_world()
+	unit = put(world, "Sooge", 0, 700, {"birth_round": 7, "movement_ready_round": 8})
+	var buffer = Marching.Buffer.new(); buffer.restore(world.entities)
+	var late: Dictionary = context(world, seed_value); late.round = 8
+	MonsterFX.step(world, buffer, late, 0, Callable(Game.Content.new(), "react"))
+	a = buffer.get_entity(unit.id).attributes
+	check(a.sprite_form == "mobile" and a.sooge_root_attempts == 1 and Monsters.root_chance(a) == 40, "late summon starts at 25%, independent of global round")
+
 func facts(result: Dictionary, kind: String) -> Array:
 	return result.get("events", []).filter(func(r): return r.event.type == kind).map(func(r): return r.event.data)
 
 func run() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	if not args.is_empty(): phase_output = FileAccess.open(args[0], FileAccess.WRITE)
+	sooge_ramp_checks()
 	var rows: Array = []
 	for suit in ["Penitent", "Butcher", "Vulture", "Wright"]:
 		for i in range(3): rows.append({"id": suit + str(i), "kind": "card", "attributes": {"suit": suit, "value": 1}})
@@ -185,6 +238,13 @@ func special_checks() -> void:
 	source.declaration_id = "second-resurrection"
 	var again: Dictionary = content.resolve({"declaration": source}, {"world": revived.world, "round": 2, "seed": "monster-resurrection"})
 	check(again.events.back().event.data.count == 0 and again.world.data.kanifous_prices.size() == 1, "resurrection cannot duplicate a living Very hard monster or create a no-op Price")
+	world = phase_world()
+	dead = put(world, "Sooge", 0, 900, {"sooge_root_attempts": 4, "sooge_root_round": 2})
+	ids.restore(world.entities); ids.retire(dead.id); world.entities = ids.snapshot()
+	world.data.kanifous_losses = [dead]
+	revived = content.resolve({"declaration": source}, {"world": world, "round": 2, "seed": "monster-resurrection"})
+	bodies = revived.world.entities.entities.filter(func(r): return r.attributes.get("monster_id") == "Sooge")
+	check(bodies.size() == 1 and bodies[0].attributes.sprite_form == "mobile" and Monsters.root_chance(bodies[0].attributes) == 85 and bodies[0].attributes.sooge_root_round == 2 and bodies[0].attributes.movement_ready_round == 3, "mobile Sooge resurrection preserves earned rooting chance and birth hold")
 	world = phase_world()
 	put(world, "Sooge", 0, 800)
 	var enemy_turret: Dictionary = put(world, "Sooge", 1, 850)

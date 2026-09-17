@@ -100,9 +100,12 @@ def step(w,buffer,c,tick,reaction):
                 a['hidden']=draw(c['seed'],key,'HIDE',0,100)<(50 if a.get('hidden',False) else T['dotra_hide_chance'])
                 events.append(event('MONSTER_CONCEALMENT',dict(unit_id=unit['id'],hidden=a['hidden'],round=n,tick=tick)))
             elif a['monster_id']=='Sooge':
-                if a['sprite_form']!='turret' and draw(c['seed'],key,'ROOT',0,100)<T['sooge_root_chance']:
-                    a.update(sprite_form='turret',attack=3,armor=6,max_armor=6,step_fp=0)
-                    events.append(event('MONSTER_ROOTED',dict(unit_id=unit['id'],round=n,tick=tick)))
+                if a['sprite_form']!='turret' and a.get('sooge_root_round',0)<n:
+                    chance=rules.root_chance(a)
+                    a.update(sooge_root_attempts=a.get('sooge_root_attempts',0)+1,sooge_root_round=n)
+                    if draw(c['seed'],key,'ROOT',0,100)<chance:
+                        a.update(sprite_form='turret',attack=3,armor=6,max_armor=6,step_fp=0)
+                        events.append(event('MONSTER_ROOTED',dict(unit_id=unit['id'],round=n,tick=tick)))
             elif a['monster_id']=='Sinodek':
                 if draw(c['seed'],key,'PORTAL',0,100)<T['sinodek_portal_chance']:
                     f=dict(kind='portal',id=key+':portal',owner=unit['owner'],lane=a['lane'],x_fp=max(0,min(2400,a['x_fp']+a['direction']*T['portal_ahead'])),y_fp=a['y_fp'],expires_round=n)

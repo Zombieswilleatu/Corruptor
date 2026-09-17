@@ -3,7 +3,7 @@ extends RefCounted
 # Standalone playtest roster. Named suits count cards, never printed values.
 # Unsettled numerical abilities are deliberately explicit tuning values.
 # Bump VERSION in both engines when changing recipes, profiles or tuning.
-const VERSION: String = "U13_MONSTERS_V1"
+const VERSION: String = "U13_MONSTERS_V2"
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const NAMES: Array = ["Lemek", "Varn", "Fyra", "Kopita", "Tumler", "Kurchin", "Muno", "Dotra", "Sooge", "Sinodek"]
 const ROSTER: Dictionary = {
@@ -15,10 +15,10 @@ const ROSTER: Dictionary = {
 	"Kurchin": {"tier": "Hard", "recipe": {"Penitent": 3, "Wright": 1}, "attack": 1, "armor": 6, "speed": 1, "hp": 5, "ability": "Taunts enemies within 360, drawing their movement and ranged attacks when reachable."},
 	"Muno": {"tier": "Hard", "recipe": {"Wright": 3, "Vulture": 1}, "attack": 3, "armor": 1, "speed": 2, "hp": 5, "ability": "Once per active round, strikes an enemy within 480 for one free attack, then returns to its position before moving normally."},
 	"Dotra": {"tier": "Hard", "recipe": {"Butcher": 3, "Vulture": 1}, "attack": 2, "armor": 2, "speed": 2, "hp": 5, "ability": "25% chance to hide each active round. A nearby enemy triggers a 5-damage ambush. Otherwise, next round it has a 50% chance to emerge. Hidden units cannot be selected for ordinary attacks."},
-	"Sooge": {"tier": "Very hard", "recipe": {"Butcher": 3, "Wright": 2}, "attack": 1, "armor": 2, "speed": 2, "hp": 5, "ability": "25% chance each active round to root permanently: 3 Attack / 6 Armor / 0 Speed. Fires a piercing beam up to 600: 3 damage to enemies and 1 to allies in its path. One living copy per player."},
+	"Sooge": {"tier": "Very hard", "recipe": {"Butcher": 3, "Wright": 2}, "attack": 1, "armor": 2, "speed": 2, "hp": 5, "ability": "Root chance starts at 25%, rising by 15 percentage points each active round it stays mobile, up to 100%. Permanently becomes a turret: 3 Attack / 6 Armor / 0 Speed. Fires a piercing beam up to 600: 3 damage to enemies and 1 to allies in its path. One living copy per player."},
 	"Sinodek": {"tier": "Very hard", "recipe": {"Wright": 3, "Vulture": 2}, "attack": 1, "armor": 3, "speed": 1, "hp": 5, "ability": "25% chance each active round to open a portal ahead for that Marching phase. Nearby units flee; entering units are banished, without death triggers or resurrection. One living copy per player."}
 }
-const TUNING: Dictionary = {"varn_poison_chance": 10, "fyra_charm_chance": 15, "kopita_radius": 360, "taunt_radius": 360, "muno_radius": 480, "dotra_hide_chance": 25, "dotra_ambush_radius": 240, "sooge_root_chance": 25, "beam_range": 600, "beam_half_width": 70, "sinodek_portal_chance": 25, "portal_ahead": 350, "portal_radius": 100, "portal_fear_radius": 300, "pool_radius": 200}
+const TUNING: Dictionary = {"varn_poison_chance": 10, "fyra_charm_chance": 15, "kopita_radius": 360, "taunt_radius": 360, "muno_radius": 480, "dotra_hide_chance": 25, "dotra_ambush_radius": 240, "sooge_root_chance": 25, "sooge_root_increase": 15, "beam_range": 600, "beam_half_width": 70, "sinodek_portal_chance": 25, "portal_ahead": 350, "portal_radius": 100, "portal_fear_radius": 300, "pool_radius": 200}
 
 static func configure(world: Dictionary) -> void:
 	world.data["monsters"] = {"version": VERSION, "unlocked": [NAMES.duplicate(), NAMES.duplicate()], "fields": [], "death_ids": [], "phase_round": 0}
@@ -28,11 +28,18 @@ static func enabled(world: Dictionary) -> bool:
 
 static func profile(name: String, lane: String, pid: int, birth: int, ready: int, turret: bool = false) -> Dictionary:
 	var r: Dictionary = ROSTER[name]
-	return {"suit": "Monster", "monster_id": name, "attack": 3 if turret else r.attack, "armor": 6 if turret else r.armor, "max_armor": 6 if turret else r.armor, "step_fp": 0 if turret else r.speed * 2, "hp": r.hp, "max_hp": r.hp, "regen": 1, "armor_bypass": false, "lane": lane, "birth_round": birth, "movement_ready_round": ready, "x_fp": 0 if pid == 0 else 2400, "y_fp": 300, "contact_tick": -1, "direction": 1 if pid == 0 else -1, "waiting": false, "waiting_since_round": 0, "sprite_form": "turret" if turret else "mobile", "flying": name == "Fyra"}
+	var a: Dictionary = {"suit": "Monster", "monster_id": name, "attack": 3 if turret else r.attack, "armor": 6 if turret else r.armor, "max_armor": 6 if turret else r.armor, "step_fp": 0 if turret else r.speed * 2, "hp": r.hp, "max_hp": r.hp, "regen": 1, "armor_bypass": false, "lane": lane, "birth_round": birth, "movement_ready_round": ready, "x_fp": 0 if pid == 0 else 2400, "y_fp": 300, "contact_tick": -1, "direction": 1 if pid == 0 else -1, "waiting": false, "waiting_since_round": 0, "sprite_form": "turret" if turret else "mobile", "flying": name == "Fyra"}
+	if name == "Sooge": a.merge({"sooge_root_attempts": 0, "sooge_root_round": 0})
+	return a
+
+static func root_chance(a: Dictionary) -> int:
+	return mini(100, int(TUNING.sooge_root_chance) + int(a.get("sooge_root_attempts", 0)) * int(TUNING.sooge_root_increase))
 
 static func valid_unit(a: Dictionary) -> bool:
 	if not a.has("monster_id"):
 		return a.get("suit") != "Monster"
+	for key in ["sooge_root_attempts", "sooge_root_round"]:
+		if a.has(key) and (not Data.is_integer(a[key]) or a[key] < 0): return false
 	return a.get("suit") == "Monster" and a.monster_id in NAMES and a.get("sprite_form") in ["mobile", "turret"] and (a.sprite_form != "turret" or a.monster_id == "Sooge") and typeof(a.get("flying")) == TYPE_BOOL
 
 static func limited(name: String) -> bool:

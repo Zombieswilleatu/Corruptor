@@ -110,6 +110,7 @@ func _reset_direct() -> void:
 	fracture_choice = "infrastructure"
 	choice_error = ""
 	if game_menu != null:
+		game_menu.pending_selection = Callable()
 		game_menu.hide()
 	if recipe_menu != null: recipe_menu.hide()
 	super._reset_direct()
@@ -251,12 +252,13 @@ func _open_game_menu() -> void:
 	fracture.select(0 if fracture_choice == "infrastructure" else 1)
 	fracture.item_selected.connect(func(index): fracture_choice = "infrastructure" if index == 0 else "subjects"; _refresh())
 	game_menu.button("PROFANE A FULL CASTLE · gain a Tear", _choose_profane)
-	game_menu.button("SPEND FIVE SUPPLICANTS · gain a Tear", _choose_waiters)
+	game_menu.button("SPEND FIVE SUPPLICANTS", _choose_waiters)
+	game_menu.label("Gain 1 Personal Tear per group of five in the same lane.", 13)
 	game_menu.button("INVOCATION · once per game · value 11 at Veil 7+", _choose_invocation)
 	game_menu.button("PROFANE RUINS · pay 2 Souls with two ruins", _choose_ruins)
 	game_menu.button("CLEAR TEAR RITES · return reserved cards / Supplicants", func(): rites_plan = {}; _refresh(); _open_game_menu())
 	if not rites_plan.is_empty():
-		game_menu.label("Staged: " + ", ".join(rites_plan.keys()))
+		game_menu.label("Staged: " + _rites_summary())
 
 func _pillage_available() -> bool:
 	return not _visible_world.get("entities", []).is_empty() and not _visible_world.entities.any(func(e): return e.owner == 1 and Structures.targetable(e))
@@ -339,14 +341,16 @@ func _choose_invocation() -> void:
 		_stage_rite("invocation", {"card_ids": selected}))
 
 func _choose_waiters() -> void:
-	game_menu.present("SPEND SUPPLICANTS", "Choose exactly five Supplicants in one lane. Each selected group creates one Personal Tear.")
+	game_menu.present("SPEND SUPPLICANTS", "Select five Supplicants in one lane, then Resolve Round to gain 1 Personal Tear. Stage the group first if you want to add other rites. Unreserved Supplicants are automatically spent on your Hunt or Siege.")
+	var selections: Array = []
 	for lane in ["Lord", "Castle"]:
 		var rows: Array = _visible_world.entities.filter(func(e): return e.kind == "marcher" and e.owner == 0 and e.attributes.lane == lane and e.attributes.waiting)
 		game_menu.label(lane + " lane")
 		var used: Array = []
 		for spend in rites_plan.get("waiter_spends", []): used.append_array(spend.marcher_ids)
 		rows = rows.filter(func(e): return e.id not in used)
-		var boxes: Array = game_menu.checks(rows.map(func(e): return "%s · %s" % [str(e.attributes.get("suit", "Marcher")), str(e.id).get_slice(":", str(e.id).get_slice_count(":") - 1)]))
+		var boxes: Array = game_menu.checks(rows.map(func(e): return "%s · %s" % [str(e.attributes.get("monster_id", e.attributes.get("suit", "Marcher"))), str(e.id).get_slice(":", str(e.id).get_slice_count(":") - 1)]))
+		selections.append({"lane": lane, "rows": rows, "boxes": boxes})
 		game_menu.button("STAGE FIVE FROM " + lane.to_upper(), func():
 			var selected: Array = []
 			for index in range(rows.size()):
@@ -354,6 +358,30 @@ func _choose_waiters() -> void:
 			var spends: Array = rites_plan.get("waiter_spends", []).duplicate(true)
 			spends.append({"lane": lane, "marcher_ids": selected})
 			_stage_rite("waiter_spends", spends))
+	game_menu.pending_selection = func() -> bool:
+		var spends: Array = rites_plan.get("waiter_spends", []).duplicate(true)
+		var added: bool = false
+		for selection in selections:
+			var selected: Array = []
+			for index in range(selection.rows.size()):
+				if selection.boxes[index].button_pressed: selected.append(selection.rows[index].id)
+			if not selected.is_empty():
+				spends.append({"lane": selection.lane, "marcher_ids": selected})
+				added = true
+		return _stage_rite("waiter_spends", spends) if added else true
+
+func resolve_round() -> void:
+	if not _planning(): return
+	if game_menu.pending_selection.is_valid() and not game_menu.pending_selection.call(): return
+	super.resolve_round()
+
+func _rites_summary() -> String:
+	var parts: PackedStringArray = []
+	for spend in rites_plan.get("waiter_spends", []):
+		parts.append("5 %s Supplicants → 1 Personal Tear" % spend.lane)
+	if rites_plan.has("invocation"): parts.append("Invocation → 1 Personal Tear")
+	if rites_plan.has("profane_ruins"): parts.append("Profane Ruins → 1 Personal Tear")
+	return "; ".join(parts)
 
 func _choose_ruins() -> void:
 	game_menu.present("PROFANE RUINS", "With at least two ruined Castles, pay 2 Souls to profane one ruin and gain a Personal Tear.")
@@ -361,9 +389,9 @@ func _choose_ruins() -> void:
 		if row.kind == "castle" and row.owner == 0 and row.attributes.status == "ruined":
 			game_menu.button(_castle_name(row), _stage_rite.bind("profane_ruins", {"castle_id": row.id}))
 
-func _stage_rite(key: String, value) -> void:
+func _stage_rite(key: String, value) -> bool:
 	if not _planning():
-		return
+		return false
 	var proposed: Dictionary = rites_plan.duplicate(true)
 	proposed[key] = value
 	var order: Dictionary = _order()
@@ -371,10 +399,11 @@ func _stage_rite(key: String, value) -> void:
 	var result: Dictionary = session.choose(queued, order)
 	if result.action == "invalid":
 		game_menu.set_message(_friendly_error(result))
-		return
+		return false
 	rites_plan = proposed
 	_refresh()
 	_open_game_menu()
+	return true
 
 func _can_save() -> bool:
 	return match_started and not setup_open and _job == null and not playing and session is PlaySession and (session.next_hook() == Timeline.SUBMISSION_LOCK or not session.pending_choice.is_empty() or session.next_hook().is_empty())

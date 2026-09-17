@@ -86,6 +86,27 @@ class PowerTests(unittest.TestCase):
         self.assertNotIn(revived[0]['id'], lost_ids)
         self.assertEqual(1, len(g._state['world']['data']['kanifous_prices']))
 
+    def test_sooge_resurrection_preserves_rooting_progress_and_permanent_form(self):
+        from types import SimpleNamespace
+        from . import monsters, recruitment, wishmaster
+        for turret in (False, True):
+            with self.subTest(turret=turret):
+                g=self.before_lock('Kanifous');w=g._state['world']
+                a=monsters.profile('Sooge','Lord',0,0,1,turret)
+                a.update(x_fp=900,sooge_root_attempts=4,sooge_root_round=1,armor=0)
+                lost=recruitment.create(w,'sooge-resurrection',0,0,a)
+                recruitment.retire(w,lost['id'])
+                w['data'].update(kanifous_losses=[lost],kanifous_loss_round=1)
+                source=declaration(0,1,'WishResurrection',dict(lane='Lord'))
+                wishmaster.wish(SimpleNamespace(w=w,number=1,seed='sooge-resurrection'),source)
+                bodies=[r for r in w['entities']['entities'] if r['attributes'].get('monster_id')=='Sooge']
+                self.assertEqual(1,len(bodies))
+                revived=bodies[0]['attributes']
+                self.assertEqual(('turret' if turret else 'mobile',4,1,2,6 if turret else 2),
+                                 tuple(revived[k] for k in ('sprite_form','sooge_root_attempts','sooge_root_round','movement_ready_round','armor')))
+                self.assertEqual(85,monsters.root_chance(revived))
+                self.assertTrue(monsters.valid_unit(revived))
+
     def before_lock(self,lord):
         g=PowerMatch(paid_inputs.setup('power-test:'+lord,(lord,'Gremory')))
         while g.clock.hook!='submission_lock':
