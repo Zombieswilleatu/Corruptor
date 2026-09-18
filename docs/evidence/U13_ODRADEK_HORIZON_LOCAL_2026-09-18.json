@@ -1,0 +1,4435 @@
+{
+  "attribution": "Both pilots precede 66ea09e and share 435cbf4 rules plus the tower reaction fix; final pilot reuses development seeds. Native policy is unchanged. No strength/balance or new native parity claim.",
+  "final_pilot": {
+    "behavior": {
+      "powers": [
+        {
+          "affected_marchers": 690,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+          "power": "AllegianceShift",
+          "resolved": 74,
+          "selected": 74,
+          "unobserved": 0
+        },
+        {
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+          "power": "BreachWishDeath",
+          "price_blood": 2,
+          "price_cards": 1,
+          "price_ruin": 1,
+          "price_stone": 3,
+          "resolved": 9,
+          "selected": 9,
+          "unobserved": 0,
+          "wish_effect_count": 35,
+          "wish_success": 9
+        },
+        {
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+          "power": "BreachWishLongevity",
+          "resolved": 1,
+          "selected": 1,
+          "unobserved": 0,
+          "wish_effect_count": 1,
+          "wish_success": 1
+        },
+        {
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+          "power": "BreachWishPower",
+          "price_stone": 1,
+          "resolved": 1,
+          "selected": 1,
+          "unobserved": 0,
+          "wish_effect_count": 1,
+          "wish_success": 1
+        },
+        {
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+          "power": "BreachWishResurrection",
+          "price_guards": 1,
+          "resolved": 3,
+          "selected": 3,
+          "unobserved": 0,
+          "wish_effect_count": 12,
+          "wish_success": 3
+        },
+        {
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+          "power": "BreachWishWealth",
+          "resolved": 1,
+          "selected": 1,
+          "unobserved": 0,
+          "wish_effect_count": 2,
+          "wish_success": 1
+        },
+        {
+          "fizzled": 8,
+          "guard_changes": 10,
+          "guards_moved": 10,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+          "power": "FalseOrders",
+          "resolved": 10,
+          "selected": 20,
+          "unobserved": 2
+        },
+        {
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+          "power": "Inversion",
+          "selected": 0,
+          "unobserved": 0
+        },
+        {
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+          "power": "Redirect",
+          "redirected_marchers": 2,
+          "resolved": 1,
+          "selected": 1,
+          "unobserved": 0
+        },
+        {
+          "affected_marchers": 696,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+          "power": "AllegianceShift",
+          "resolved": 73,
+          "selected": 73,
+          "unobserved": 0
+        },
+        {
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+          "power": "BreachWishDeath",
+          "price_blood": 2,
+          "price_guards": 1,
+          "price_ruin": 1,
+          "price_soul": 1,
+          "price_stone": 3,
+          "resolved": 11,
+          "selected": 11,
+          "unobserved": 0,
+          "wish_effect_count": 50,
+          "wish_success": 11
+        },
+        {
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+          "power": "BreachWishLongevity",
+          "price_cards": 1,
+          "resolved": 1,
+          "selected": 1,
+          "unobserved": 0,
+          "wish_effect_count": 1,
+          "wish_success": 1
+        },
+        {
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+          "power": "BreachWishPower",
+          "selected": 0,
+          "unobserved": 0
+        },
+        {
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+          "power": "BreachWishResurrection",
+          "price_blood": 1,
+          "price_guards": 1,
+          "resolved": 2,
+          "selected": 2,
+          "unobserved": 0,
+          "wish_effect_count": 13,
+          "wish_success": 2
+        },
+        {
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+          "power": "BreachWishWealth",
+          "selected": 0,
+          "unobserved": 0
+        },
+        {
+          "fizzled": 2,
+          "guard_changes": 13,
+          "guards_moved": 13,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+          "power": "FalseOrders",
+          "resolved": 13,
+          "selected": 19,
+          "unobserved": 4
+        },
+        {
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+          "power": "Inversion",
+          "selected": 0,
+          "unobserved": 0
+        },
+        {
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+          "power": "Redirect",
+          "redirected_marchers": 46,
+          "resolved": 6,
+          "selected": 6,
+          "unobserved": 0
+        }
+      ],
+      "saving_counts": {
+        "next_decision_affords_goal:AllegianceShift": 75,
+        "next_decision_casts_goal:AllegianceShift": 66,
+        "next_decision_observed:AllegianceShift": 127,
+        "saved_at:1:AllegianceShift": 52,
+        "saved_at:2:AllegianceShift": 72,
+        "saved_at:2:Inversion": 1,
+        "saved_at:3:AllegianceShift": 4,
+        "saved_at:4:AllegianceShift": 2,
+        "saved_for:AllegianceShift": 130,
+        "saved_for:Inversion": 1
+      },
+      "saving_examples": [
+        {
+          "game": "gremory_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 2,
+          "score": 51,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:1:0:4:Fyra:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:1:0:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:0:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:0:7:Vulture:1:0"
+          ]
+        },
+        {
+          "game": "gremory_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 4,
+          "score": 48,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:3:3:0:6:Tumler:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:1",
+            "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:3:0:7:Vulture:1:0"
+          ]
+        },
+        {
+          "game": "gremory_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 5,
+          "score": 107,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:4:0:4:Varn:1:0",
+            "u13_entity_marcher:24:u13_monster:3:4:0:4:Varn:1:2",
+            "u13_entity_marcher:24:u13_monster:3:4:0:4:Varn:1:3",
+            "u13_entity_marcher:24:u13_monster:3:4:0:4:Varn:1:4",
+            "u13_entity_marcher:30:u13_commitment:3:4:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:4:0:7:Vulture:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:4:0:7:Vulture:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:4:0:7:Vulture:1:3"
+          ]
+        },
+        {
+          "game": "gremory_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 7,
+          "score": 48,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:4:0:4:Varn:1:2",
+            "u13_entity_marcher:24:u13_monster:3:4:0:4:Varn:1:4",
+            "u13_entity_marcher:30:u13_commitment:3:4:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:4:0:7:Vulture:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:4:0:7:Vulture:1:2"
+          ]
+        },
+        {
+          "game": "gremory_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 8,
+          "score": 121,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:1",
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:3",
+            "u13_entity_marcher:29:u13_commitment:3:7:0:6:Wright:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:7:0:6:Wright:1:1",
+            "u13_entity_marcher:29:u13_commitment:3:7:0:6:Wright:1:3",
+            "u13_entity_marcher:30:u13_commitment:3:6:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:7:0:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:7:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:7:0:7:Vulture:1:1"
+          ]
+        },
+        {
+          "game": "gremory_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [
+            "BreachWishDeath"
+          ],
+          "points": 1,
+          "round": 10,
+          "score": 101,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:9:0:4:Fyra:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Butcher:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Butcher:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Butcher:1:3",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Vulture:1:1",
+            "u13_entity_marcher:31:u13_commitment:3:8:0:8:Penitent:1:1",
+            "u13_entity_marcher:31:u13_commitment:3:8:0:8:Penitent:1:2",
+            "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:0:9:1:0:4:main:1:1"
+          ]
+        },
+        {
+          "game": "gremory_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "BreachWishDeath"
+          ],
+          "points": 2,
+          "round": 11,
+          "score": 177,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:27:u13_monster:4:10:0:6:Tumler:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:10:0:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:10:0:6:Wright:1:1",
+            "u13_entity_marcher:30:u13_commitment:4:10:0:6:Wright:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:10:0:7:Vulture:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:10:0:7:Vulture:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:10:0:7:Vulture:1:3",
+            "u13_entity_marcher:31:u13_commitment:4:10:0:7:Vulture:1:4",
+            "u13_entity_marcher:31:u13_commitment:4:10:0:7:Vulture:1:6",
+            "u13_entity_marcher:31:u13_commitment:4:10:0:7:Vulture:1:7",
+            "u13_entity_marcher:32:u13_commitment:4:10:0:8:Penitent:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:10:0:8:Penitent:1:1",
+            "u13_entity_marcher:32:u13_commitment:4:10:0:8:Penitent:1:2"
+          ]
+        },
+        {
+          "game": "gremory_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 4,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 3,
+          "round": 12,
+          "score": 105,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:27:u13_monster:4:10:0:6:Tumler:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:11:0:6:Wright:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:10:0:7:Vulture:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:10:0:7:Vulture:1:6",
+            "u13_entity_marcher:32:u13_commitment:4:10:0:8:Penitent:1:1",
+            "u13_entity_marcher:32:u13_commitment:4:11:0:8:Penitent:1:0"
+          ]
+        },
+        {
+          "game": "gremory_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 14,
+          "score": 37,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:27:u13_monster:4:13:0:6:Tumler:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:13:0:7:Vulture:1:0",
+            "u13_entity_marcher:48:u13_pending:26:u13_declaration:4:0:13:1:0:4:main:1:0"
+          ]
+        },
+        {
+          "game": "deimos_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 2,
+          "score": 79,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:29:u13_commitment:3:1:0:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:0:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:0:7:Butcher:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:1:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:0:7:Vulture:1:1",
+            "u13_entity_marcher:31:u13_commitment:3:1:0:8:Penitent:1:0"
+          ]
+        },
+        {
+          "game": "deimos_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 0,
+          "next_powers": [],
+          "points": 1,
+          "round": 4,
+          "score": 6,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:29:u13_commitment:3:1:0:6:Wright:1:0"
+          ]
+        },
+        {
+          "game": "deimos_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 6,
+          "score": 48,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_declaration:3:0:5:1:0:1:1",
+            "u13_entity_marcher:25:u13_declaration:3:0:5:1:0:1:2",
+            "u13_entity_marcher:25:u13_declaration:3:0:5:1:0:1:4",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:4:1:7:Vulture:1:0"
+          ]
+        },
+        {
+          "game": "deimos_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 7,
+          "score": 37,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:31:u13_commitment:3:6:0:8:Penitent:1:0",
+            "u13_entity_marcher:31:u13_commitment:3:6:0:8:Penitent:1:1",
+            "u13_entity_marcher:31:u13_commitment:3:6:0:8:Penitent:1:2"
+          ]
+        },
+        {
+          "game": "deimos_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 9,
+          "score": 27,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:31:u13_commitment:3:6:0:8:Penitent:1:0",
+            "u13_entity_marcher:31:u13_commitment:3:6:0:8:Penitent:1:1",
+            "u13_entity_marcher:31:u13_commitment:3:6:0:8:Penitent:1:2"
+          ]
+        },
+        {
+          "game": "deimos_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 10,
+          "score": 37,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:31:u13_commitment:3:6:0:8:Penitent:1:0",
+            "u13_entity_marcher:31:u13_commitment:3:6:0:8:Penitent:1:1",
+            "u13_entity_marcher:31:u13_commitment:3:6:0:8:Penitent:1:2"
+          ]
+        },
+        {
+          "game": "deimos_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 12,
+          "score": 101,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_monster:4:11:0:4:Fyra:1:0",
+            "u13_entity_marcher:28:u13_monster:4:10:0:7:Kurchin:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:10:0:6:Wright:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:11:0:7:Butcher:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:11:0:7:Butcher:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:11:0:7:Butcher:1:3",
+            "u13_entity_marcher:32:u13_commitment:4:10:0:8:Penitent:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:10:0:8:Penitent:1:1",
+            "u13_entity_marcher:32:u13_commitment:4:11:0:8:Penitent:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:11:0:8:Penitent:1:1"
+          ]
+        },
+        {
+          "game": "deimos_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 13,
+          "score": 9,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:27:u13_monster:3:9:0:7:Sinodek:1:0"
+          ]
+        },
+        {
+          "game": "deimos_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 15,
+          "score": 27,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:7:1:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:7:1:7:Vulture:1:2"
+          ]
+        },
+        {
+          "game": "deimos_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 16,
+          "score": 37,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:27:u13_monster:3:9:0:7:Sinodek:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:13:0:6:Wright:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:12:0:7:Vulture:1:0"
+          ]
+        },
+        {
+          "game": "deimos_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 18,
+          "score": 48,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:4:17:0:5:Sooge:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:17:0:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:17:0:6:Wright:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:17:0:7:Butcher:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:17:0:7:Butcher:1:3"
+          ]
+        },
+        {
+          "game": "deimos_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": null,
+          "next_powers": null,
+          "points": 2,
+          "round": 19,
+          "score": 65,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:4:17:0:5:Sooge:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:17:0:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:17:0:6:Wright:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:17:0:7:Butcher:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:17:0:7:Butcher:1:3"
+          ]
+        },
+        {
+          "game": "humbaba_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 2,
+          "score": 51,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:1:0:4:Muno:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:1:0:6:Wright:1:1",
+            "u13_entity_marcher:29:u13_commitment:3:1:0:6:Wright:1:2",
+            "u13_entity_marcher:29:u13_commitment:3:1:0:6:Wright:1:3"
+          ]
+        },
+        {
+          "game": "humbaba_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 4,
+          "score": 27,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:0:3:1:0:4:main:1:0",
+            "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:0:3:1:0:4:main:1:1",
+            "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:0:3:1:0:4:main:1:2"
+          ]
+        },
+        {
+          "game": "humbaba_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 5,
+          "score": 37,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:0:3:1:0:4:main:1:0",
+            "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:0:3:1:0:4:main:1:1",
+            "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:0:3:1:0:4:main:1:2"
+          ]
+        },
+        {
+          "game": "humbaba_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 9,
+          "score": 17,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:27:u13_monster:3:8:0:7:Sinodek:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:8:0:7:Vulture:1:0"
+          ]
+        },
+        {
+          "game": "humbaba_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 10,
+          "score": 79,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:3:9:0:6:Tumler:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:8:0:6:Wright:1:1",
+            "u13_entity_marcher:29:u13_commitment:3:9:0:6:Wright:1:1",
+            "u13_entity_marcher:29:u13_commitment:3:9:0:6:Wright:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Vulture:1:0",
+            "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:0:9:1:0:4:main:1:1"
+          ]
+        },
+        {
+          "game": "humbaba_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 12,
+          "score": 80,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:31:u13_commitment:4:11:0:7:Butcher:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:11:0:7:Butcher:1:1",
+            "u13_entity_marcher:32:u13_commitment:4:11:0:8:Penitent:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:11:0:8:Penitent:1:1",
+            "u13_entity_marcher:32:u13_commitment:4:11:0:8:Penitent:1:3",
+            "u13_entity_marcher:32:u13_commitment:4:11:0:8:Penitent:1:4",
+            "u13_entity_marcher:48:u13_pending:26:u13_declaration:4:0:11:1:0:4:main:1:0",
+            "u13_entity_marcher:48:u13_pending:26:u13_declaration:4:0:11:1:0:4:main:1:2"
+          ]
+        },
+        {
+          "game": "humbaba_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 13,
+          "score": 149,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:27:u13_monster:4:11:0:6:Tumler:1:0",
+            "u13_entity_marcher:28:u13_monster:4:12:0:7:Kurchin:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:11:0:7:Butcher:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:11:0:8:Penitent:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:11:0:8:Penitent:1:4",
+            "u13_entity_marcher:32:u13_commitment:4:12:0:8:Penitent:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:12:0:8:Penitent:1:1",
+            "u13_entity_marcher:32:u13_commitment:4:12:0:8:Penitent:1:2",
+            "u13_entity_marcher:32:u13_commitment:4:12:0:8:Penitent:1:3",
+            "u13_entity_marcher:32:u13_commitment:4:12:0:8:Penitent:1:5",
+            "u13_entity_marcher:48:u13_pending:26:u13_declaration:4:0:11:1:0:4:main:1:0"
+          ]
+        },
+        {
+          "game": "humbaba_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 15,
+          "score": 27,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:27:u13_monster:4:13:0:6:Tumler:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:13:0:6:Wright:1:0",
+            "u13_entity_marcher:48:u13_pending:26:u13_declaration:4:0:13:1:0:4:main:1:2"
+          ]
+        },
+        {
+          "game": "humbaba_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 16,
+          "score": 149,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:4:15:0:5:Sooge:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:14:0:6:Wright:1:2",
+            "u13_entity_marcher:30:u13_commitment:4:15:0:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:15:0:6:Wright:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:14:0:7:Vulture:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:15:0:7:Butcher:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:15:0:7:Butcher:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:15:0:7:Butcher:1:3",
+            "u13_entity_marcher:48:u13_pending:26:u13_declaration:4:0:15:1:0:4:main:1:0",
+            "u13_entity_marcher:48:u13_pending:26:u13_declaration:4:0:15:1:0:4:main:1:1",
+            "u13_entity_marcher:48:u13_pending:26:u13_declaration:4:0:15:1:0:4:main:1:2"
+          ]
+        },
+        {
+          "game": "humbaba_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 20,
+          "score": 17,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:4:19:0:5:Sooge:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:19:0:6:Wright:1:0"
+          ]
+        },
+        {
+          "game": "humbaba_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "BreachWishDeath"
+          ],
+          "points": 2,
+          "round": 21,
+          "score": 177,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:4:19:0:5:Sooge:1:0",
+            "u13_entity_marcher:27:u13_monster:4:20:0:6:Tumler:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:19:0:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:20:0:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:20:0:6:Wright:1:2",
+            "u13_entity_marcher:30:u13_commitment:4:20:0:6:Wright:1:4",
+            "u13_entity_marcher:30:u13_commitment:4:20:0:6:Wright:1:5",
+            "u13_entity_marcher:31:u13_commitment:4:20:0:7:Butcher:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:20:0:7:Vulture:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:20:0:7:Vulture:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:20:0:7:Vulture:1:3",
+            "u13_entity_marcher:31:u13_commitment:4:20:0:7:Vulture:1:4",
+            "u13_entity_marcher:31:u13_commitment:4:20:0:7:Vulture:1:6"
+          ]
+        },
+        {
+          "game": "humbaba_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 4,
+          "next_powers": [
+            "BreachWishResurrection"
+          ],
+          "points": 3,
+          "round": 22,
+          "score": 255,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:4:19:0:5:Sooge:1:0",
+            "u13_entity_marcher:27:u13_monster:4:21:0:6:Tumler:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:20:0:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:20:0:6:Wright:1:2",
+            "u13_entity_marcher:30:u13_commitment:4:20:0:6:Wright:1:4",
+            "u13_entity_marcher:30:u13_commitment:4:20:0:6:Wright:1:5",
+            "u13_entity_marcher:31:u13_commitment:4:20:0:7:Butcher:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:20:0:7:Vulture:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:20:0:7:Vulture:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:20:0:7:Vulture:1:4",
+            "u13_entity_marcher:31:u13_commitment:4:20:0:7:Vulture:1:6",
+            "u13_entity_marcher:31:u13_commitment:4:21:0:7:Vulture:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:21:0:7:Vulture:1:1",
+            "u13_entity_marcher:48:u13_pending:26:u13_declaration:4:0:21:1:0:4:main:1:1"
+          ]
+        },
+        {
+          "game": "humbaba_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 4,
+          "next_powers": [
+            "BreachWishDeath"
+          ],
+          "points": 4,
+          "round": 23,
+          "score": 49,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:4:19:0:5:Sooge:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:19:0:6:Wright:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:20:0:7:Vulture:1:2"
+          ]
+        },
+        {
+          "game": "humbaba_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 4,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 4,
+          "round": 24,
+          "score": 162,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:4:19:0:5:Sooge:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:23:0:6:Wright:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:20:0:7:Vulture:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:23:0:7:Butcher:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:23:0:7:Butcher:1:3",
+            "u13_entity_marcher:31:u13_commitment:4:23:0:7:Vulture:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:23:0:7:Vulture:1:2",
+            "u13_entity_marcher:32:u13_commitment:4:23:0:8:Penitent:1:2",
+            "u13_entity_marcher:48:u13_pending:26:u13_declaration:4:0:23:1:0:4:main:1:0"
+          ]
+        },
+        {
+          "game": "kalligan_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 2,
+          "score": 37,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:1:0:4:Varn:1:0",
+            "u13_entity_marcher:24:u13_monster:3:1:0:4:Varn:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:1:0:7:Vulture:1:0"
+          ]
+        },
+        {
+          "game": "kalligan_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 4,
+          "score": 70,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:3:0:4:Fyra:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:3:0:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:3:0:7:Butcher:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:3:0:7:Butcher:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:3:0:7:Butcher:1:3",
+            "u13_entity_marcher:30:u13_commitment:3:3:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:3:0:7:Vulture:1:2"
+          ]
+        },
+        {
+          "game": "kalligan_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 5,
+          "score": 79,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:30:u13_commitment:3:3:0:7:Butcher:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:3:0:7:Butcher:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:3:0:7:Butcher:1:3",
+            "u13_entity_marcher:30:u13_commitment:3:3:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:3:0:7:Vulture:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:3:0:7:Vulture:1:2"
+          ]
+        },
+        {
+          "game": "kalligan_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 7,
+          "score": 101,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:3:6:0:6:Kopita:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:6:0:7:Butcher:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:6:0:7:Butcher:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:6:0:7:Butcher:1:3",
+            "u13_entity_marcher:30:u13_commitment:3:6:0:7:Butcher:1:4",
+            "u13_entity_marcher:30:u13_commitment:3:6:0:7:Vulture:1:1",
+            "u13_entity_marcher:31:u13_commitment:3:6:0:8:Penitent:1:0",
+            "u13_entity_marcher:31:u13_commitment:3:6:0:8:Penitent:1:1"
+          ]
+        },
+        {
+          "game": "kalligan_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 8,
+          "score": 93,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:6:0:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:6:0:7:Butcher:1:3",
+            "u13_entity_marcher:30:u13_commitment:3:6:0:7:Butcher:1:4",
+            "u13_entity_marcher:30:u13_commitment:3:6:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:6:0:7:Vulture:1:1"
+          ]
+        },
+        {
+          "game": "kalligan_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 12,
+          "score": 91,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:28:u13_monster:4:11:0:7:Sinodek:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:11:0:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:11:0:6:Wright:1:1",
+            "u13_entity_marcher:30:u13_commitment:4:11:0:6:Wright:1:2",
+            "u13_entity_marcher:30:u13_commitment:4:11:0:6:Wright:1:3",
+            "u13_entity_marcher:30:u13_commitment:4:11:0:6:Wright:1:4",
+            "u13_entity_marcher:31:u13_commitment:4:11:0:7:Vulture:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:11:0:7:Vulture:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:11:0:7:Vulture:1:2"
+          ]
+        },
+        {
+          "game": "kalligan_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 13,
+          "score": 107,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:4:12:0:5:Lemek:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:11:0:6:Wright:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:11:0:7:Vulture:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:11:0:7:Vulture:1:2",
+            "u13_entity_marcher:32:u13_commitment:4:12:0:8:Penitent:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:12:0:8:Penitent:1:1",
+            "u13_entity_marcher:32:u13_commitment:4:12:0:8:Penitent:1:2",
+            "u13_entity_marcher:32:u13_commitment:4:12:0:8:Penitent:1:3"
+          ]
+        },
+        {
+          "game": "kalligan_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 15,
+          "score": 17,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:30:u13_commitment:4:14:0:6:Wright:1:2",
+            "u13_entity_marcher:32:u13_commitment:4:14:0:8:Penitent:1:0"
+          ]
+        },
+        {
+          "game": "kalligan_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": null,
+          "next_powers": null,
+          "points": 2,
+          "round": 16,
+          "score": 37,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:4:15:0:5:Sooge:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:15:0:6:Wright:1:1",
+            "u13_entity_marcher:32:u13_commitment:4:15:0:8:Penitent:1:0"
+          ]
+        },
+        {
+          "game": "orias_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 2,
+          "score": 65,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:29:u13_commitment:3:1:0:6:Wright:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:1:0:6:Wright:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:1:0:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:0:7:Butcher:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:1:0:7:Butcher:1:2"
+          ]
+        },
+        {
+          "game": "odradek_gremory_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 2,
+          "score": 9,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:1:1:1:1:4:main:1:0"
+          ]
+        },
+        {
+          "game": "odradek_gremory_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 5,
+          "score": 6,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:1:3:1:0:4:main:1:0"
+          ]
+        },
+        {
+          "game": "odradek_gremory_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 6,
+          "score": 23,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:30:u13_commitment:3:5:1:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:5:1:7:Vulture:1:0"
+          ]
+        },
+        {
+          "game": "odradek_gremory_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 9,
+          "score": 9,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_monster:3:8:1:5:Sooge:1:0"
+          ]
+        },
+        {
+          "game": "odradek_gremory_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "FalseOrders"
+          ],
+          "points": 2,
+          "round": 12,
+          "score": 9,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:31:u13_commitment:4:11:1:7:Vulture:1:2"
+          ]
+        },
+        {
+          "game": "odradek_deimos_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 2,
+          "score": 79,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:1:1:4:Fyra:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Butcher:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:2"
+          ]
+        },
+        {
+          "game": "odradek_deimos_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 4,
+          "score": 17,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:2"
+          ]
+        },
+        {
+          "game": "odradek_deimos_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 5,
+          "score": 37,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:29:u13_commitment:3:4:1:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:2"
+          ]
+        },
+        {
+          "game": "odradek_deimos_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 7,
+          "score": 48,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_monster:3:6:1:5:Sooge:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:6:1:6:Wright:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:6:1:6:Wright:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:6:1:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:6:1:7:Butcher:1:1"
+          ]
+        },
+        {
+          "game": "odradek_deimos_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 8,
+          "score": 37,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:29:u13_commitment:3:6:1:6:Wright:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:6:1:7:Butcher:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:6:1:7:Butcher:1:2"
+          ]
+        },
+        {
+          "game": "odradek_humbaba_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 2,
+          "score": 79,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_monster:3:1:1:5:Sooge:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:1:1:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Butcher:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Butcher:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:0"
+          ]
+        },
+        {
+          "game": "odradek_humbaba_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 5,
+          "score": 17,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:29:u13_commitment:3:3:1:6:Wright:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:3:1:7:Butcher:1:3"
+          ]
+        },
+        {
+          "game": "odradek_humbaba_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 6,
+          "score": 135,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_monster:3:5:1:5:Sooge:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:5:1:6:Wright:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:5:1:6:Wright:1:1",
+            "u13_entity_marcher:29:u13_commitment:3:5:1:6:Wright:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:5:1:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:5:1:7:Butcher:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:5:1:7:Butcher:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:5:1:7:Butcher:1:3",
+            "u13_entity_marcher:30:u13_commitment:3:5:1:7:Butcher:1:4",
+            "u13_entity_marcher:30:u13_commitment:3:5:1:7:Butcher:1:5"
+          ]
+        },
+        {
+          "game": "odradek_humbaba_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 9,
+          "score": 27,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:30:u13_commitment:3:7:1:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:7:1:7:Vulture:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:7:1:7:Vulture:1:3"
+          ]
+        },
+        {
+          "game": "odradek_humbaba_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 10,
+          "score": 121,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_monster:3:9:1:5:Sooge:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:9:1:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:7:1:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:7:1:7:Vulture:1:3",
+            "u13_entity_marcher:30:u13_commitment:3:9:1:7:Butcher:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:9:1:7:Butcher:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:9:1:7:Butcher:1:4",
+            "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:1:9:1:0:4:main:1:0",
+            "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:1:9:1:0:4:main:1:1"
+          ]
+        },
+        {
+          "game": "odradek_humbaba_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 14,
+          "score": 38,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:30:u13_commitment:4:13:1:6:Wright:1:2",
+            "u13_entity_marcher:30:u13_commitment:4:13:1:6:Wright:1:3",
+            "u13_entity_marcher:31:u13_commitment:4:13:1:7:Butcher:1:1",
+            "u13_entity_marcher:48:u13_pending:26:u13_declaration:4:1:13:1:0:4:main:1:2"
+          ]
+        },
+        {
+          "game": "odradek_humbaba_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "BreachWishDeath"
+          ],
+          "points": 2,
+          "round": 15,
+          "score": 65,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:4:14:1:5:Lemek:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:13:1:6:Wright:1:1",
+            "u13_entity_marcher:32:u13_commitment:4:14:1:8:Penitent:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:14:1:8:Penitent:1:1",
+            "u13_entity_marcher:32:u13_commitment:4:14:1:8:Penitent:1:2"
+          ]
+        },
+        {
+          "game": "odradek_humbaba_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 4,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 3,
+          "round": 16,
+          "score": 105,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:30:u13_commitment:4:13:1:6:Wright:1:1",
+            "u13_entity_marcher:32:u13_commitment:4:14:1:8:Penitent:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:14:1:8:Penitent:1:1",
+            "u13_entity_marcher:48:u13_pending:26:u13_declaration:4:1:15:1:0:4:main:1:0",
+            "u13_entity_marcher:48:u13_pending:26:u13_declaration:4:1:15:1:0:4:main:1:1",
+            "u13_entity_marcher:48:u13_pending:26:u13_declaration:4:1:15:1:0:4:main:1:2"
+          ]
+        },
+        {
+          "game": "odradek_kalligan_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 2,
+          "score": 65,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:1:1:4:Fyra:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:1",
+            "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0"
+          ]
+        },
+        {
+          "game": "odradek_kalligan_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 8,
+          "score": 23,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:30:u13_commitment:3:7:1:7:Vulture:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:7:1:7:Vulture:1:2"
+          ]
+        },
+        {
+          "game": "odradek_kalligan_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 11,
+          "score": 51,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:30:u13_commitment:4:10:1:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:10:1:6:Wright:1:2",
+            "u13_entity_marcher:32:u13_commitment:4:10:1:8:Penitent:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:10:1:8:Penitent:1:1"
+          ]
+        },
+        {
+          "game": "odradek_kalligan_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 13,
+          "score": 17,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:31:u13_commitment:4:12:1:7:Butcher:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:12:1:7:Butcher:1:1"
+          ]
+        },
+        {
+          "game": "odradek_kalligan_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 14,
+          "score": 23,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:4:13:1:5:Sooge:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:13:1:6:Wright:1:1"
+          ]
+        },
+        {
+          "game": "odradek_kalligan_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 16,
+          "score": 6,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:4:13:1:5:Sooge:1:0"
+          ]
+        },
+        {
+          "game": "odradek_kalligan_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 17,
+          "score": 37,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:30:u13_commitment:4:16:1:6:Wright:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:16:1:7:Vulture:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:16:1:7:Vulture:1:1"
+          ]
+        },
+        {
+          "game": "odradek_kalligan_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 22,
+          "score": 17,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:32:u13_commitment:4:21:1:8:Penitent:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:21:1:8:Penitent:1:2"
+          ]
+        },
+        {
+          "game": "odradek_kalligan_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "BreachWishDeath"
+          ],
+          "points": 2,
+          "round": 23,
+          "score": 79,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:28:u13_monster:4:22:1:7:Sinodek:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:22:1:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:22:1:6:Wright:1:3",
+            "u13_entity_marcher:31:u13_commitment:4:22:1:7:Vulture:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:22:1:7:Vulture:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:22:1:7:Vulture:1:2"
+          ]
+        },
+        {
+          "game": "odradek_kalligan_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 4,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 3,
+          "round": 24,
+          "score": 87,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:28:u13_monster:4:22:1:7:Sinodek:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:22:1:6:Wright:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:22:1:7:Vulture:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:22:1:7:Vulture:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:22:1:7:Vulture:1:2"
+          ]
+        },
+        {
+          "game": "odradek_orias_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 2,
+          "score": 79,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_monster:3:1:1:5:Lemek:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Butcher:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:0",
+            "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0",
+            "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:2"
+          ]
+        },
+        {
+          "game": "odradek_orias_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 6,
+          "score": 17,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_monster:3:5:1:5:Sooge:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:5:1:7:Butcher:1:0"
+          ]
+        },
+        {
+          "game": "odradek_orias_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 7,
+          "score": 51,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:29:u13_commitment:3:6:1:6:Wright:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:6:1:6:Wright:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:5:1:7:Butcher:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:6:1:7:Vulture:1:0"
+          ]
+        },
+        {
+          "game": "odradek_orias_00__candidate_p0",
+          "goal": "Inversion",
+          "next_points": null,
+          "next_powers": null,
+          "points": 2,
+          "round": 10,
+          "score": 3,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_card:17:game:deck:Butcher:1:9"
+          ]
+        },
+        {
+          "game": "odradek_odradek_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 2,
+          "score": 37,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0",
+            "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:1",
+            "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:2"
+          ]
+        },
+        {
+          "game": "odradek_odradek_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [
+            "FalseOrders"
+          ],
+          "points": 1,
+          "round": 4,
+          "score": 59,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:1:0:4:Fyra:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:3:0:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:3:0:7:Butcher:1:2",
+            "u13_entity_marcher:31:u13_commitment:3:2:0:8:Penitent:1:3"
+          ]
+        },
+        {
+          "game": "odradek_odradek_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 6,
+          "score": 17,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:31:u13_commitment:3:5:1:8:Penitent:1:1",
+            "u13_entity_marcher:31:u13_commitment:3:5:1:8:Penitent:1:2"
+          ]
+        },
+        {
+          "game": "odradek_odradek_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 7,
+          "score": 121,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:27:u13_monster:3:6:1:7:Kurchin:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:6:1:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:6:1:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:6:1:7:Vulture:1:0",
+            "u13_entity_marcher:31:u13_commitment:3:5:1:8:Penitent:1:1",
+            "u13_entity_marcher:31:u13_commitment:3:5:1:8:Penitent:1:3",
+            "u13_entity_marcher:31:u13_commitment:3:6:1:8:Penitent:1:0",
+            "u13_entity_marcher:31:u13_commitment:3:6:1:8:Penitent:1:1",
+            "u13_entity_marcher:31:u13_commitment:3:6:1:8:Penitent:1:2"
+          ]
+        },
+        {
+          "game": "odradek_odradek_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 11,
+          "score": 48,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:27:u13_monster:4:10:1:6:Tumler:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:10:1:6:Wright:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:10:1:7:Vulture:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:10:1:7:Vulture:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:10:1:7:Vulture:1:3"
+          ]
+        },
+        {
+          "game": "odradek_odradek_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 12,
+          "score": 135,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_monster:4:11:1:4:Varn:1:0",
+            "u13_entity_marcher:25:u13_monster:4:11:1:4:Varn:1:1",
+            "u13_entity_marcher:25:u13_monster:4:11:1:4:Varn:1:2",
+            "u13_entity_marcher:25:u13_monster:4:11:1:4:Varn:1:3",
+            "u13_entity_marcher:30:u13_commitment:4:11:1:6:Wright:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:10:1:7:Vulture:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:11:1:7:Butcher:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:11:1:7:Vulture:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:11:1:8:Penitent:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:11:1:8:Penitent:1:1"
+          ]
+        },
+        {
+          "game": "odradek_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 2,
+          "score": 51,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:1:0:4:Fyra:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:0:7:Butcher:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:1:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:0:7:Vulture:1:1"
+          ]
+        },
+        {
+          "game": "odradek_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [
+            "Redirect"
+          ],
+          "points": 1,
+          "round": 4,
+          "score": 101,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:3:2:1:6:Tumler:1:0",
+            "u13_entity_marcher:27:u13_monster:3:3:1:7:Kurchin:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:2:1:6:Wright:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:2:1:6:Wright:1:1",
+            "u13_entity_marcher:29:u13_commitment:3:2:1:6:Wright:1:3",
+            "u13_entity_marcher:30:u13_commitment:3:2:1:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:2:1:7:Vulture:1:1",
+            "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0",
+            "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:1",
+            "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:2"
+          ]
+        },
+        {
+          "game": "odradek_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 6,
+          "score": 93,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:5:0:4:Muno:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:5:0:6:Wright:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:5:0:6:Wright:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:4:0:7:Vulture:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:5:0:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:5:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:5:0:7:Vulture:1:2"
+          ]
+        },
+        {
+          "game": "odradek_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 8,
+          "score": 59,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:5:0:4:Muno:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:4:0:7:Vulture:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:5:0:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:5:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:5:0:7:Vulture:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:5:0:7:Vulture:1:2"
+          ]
+        },
+        {
+          "game": "odradek_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 9,
+          "score": 205,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:3:8:1:6:Tumler:1:0",
+            "u13_entity_marcher:27:u13_monster:3:7:1:7:Kurchin:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:1",
+            "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:2",
+            "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:3",
+            "u13_entity_marcher:30:u13_commitment:3:5:0:7:Vulture:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:6:1:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:8:1:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:8:1:7:Vulture:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:8:1:7:Vulture:1:3",
+            "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:3"
+          ]
+        },
+        {
+          "game": "odradek_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 11,
+          "score": 48,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Butcher:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Vulture:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Vulture:1:2"
+          ]
+        },
+        {
+          "game": "odradek_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 12,
+          "score": 79,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:4:11:0:5:Lemek:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:11:0:7:Butcher:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:11:0:7:Butcher:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:11:0:7:Butcher:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:11:0:7:Butcher:1:3",
+            "u13_entity_marcher:32:u13_commitment:4:11:0:8:Penitent:1:0"
+          ]
+        },
+        {
+          "game": "odradek_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 14,
+          "score": 70,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:4:11:1:5:Sooge:1:0",
+            "u13_entity_marcher:28:u13_monster:4:13:1:7:Kurchin:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:11:1:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:11:1:6:Wright:1:2",
+            "u13_entity_marcher:30:u13_commitment:4:13:1:6:Wright:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:11:1:7:Butcher:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:13:1:8:Penitent:1:2"
+          ]
+        },
+        {
+          "game": "odradek_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 15,
+          "score": 65,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Vulture:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Vulture:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:12:1:7:Vulture:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:12:1:7:Vulture:1:2"
+          ]
+        },
+        {
+          "game": "odradek_kroni_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 2,
+          "score": 65,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_monster:3:1:1:5:Sooge:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:1:1:6:Wright:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:1:1:6:Wright:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Butcher:1:1"
+          ]
+        },
+        {
+          "game": "odradek_kroni_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [
+            "FalseOrders"
+          ],
+          "points": 1,
+          "round": 4,
+          "score": 6,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:29:u13_commitment:3:1:1:6:Wright:1:0"
+          ]
+        },
+        {
+          "game": "odradek_kroni_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 6,
+          "score": 6,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:29:u13_commitment:3:5:1:6:Wright:1:1"
+          ]
+        },
+        {
+          "game": "odradek_kroni_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 7,
+          "score": 93,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_monster:3:6:1:5:Sooge:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:6:1:6:Wright:1:1",
+            "u13_entity_marcher:29:u13_commitment:3:6:1:6:Wright:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:6:1:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:6:1:7:Butcher:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:6:1:7:Butcher:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:6:1:7:Butcher:1:3"
+          ]
+        },
+        {
+          "game": "odradek_kroni_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 9,
+          "score": 80,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:8:1:4:Muno:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:1",
+            "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:8:1:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:8:1:7:Butcher:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:8:1:7:Butcher:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:8:1:7:Vulture:1:0",
+            "u13_entity_marcher:31:u13_commitment:3:8:1:8:Penitent:1:0"
+          ]
+        },
+        {
+          "game": "odradek_kroni_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": null,
+          "next_powers": null,
+          "points": 2,
+          "round": 10,
+          "score": 93,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:8:1:4:Muno:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:1",
+            "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:8:1:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:8:1:7:Butcher:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:8:1:7:Vulture:1:0",
+            "u13_entity_marcher:31:u13_commitment:3:8:1:8:Penitent:1:0"
+          ]
+        },
+        {
+          "game": "odradek_valak_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 2,
+          "score": 121,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:1:1:4:Varn:1:1",
+            "u13_entity_marcher:24:u13_monster:3:1:1:4:Varn:1:2",
+            "u13_entity_marcher:24:u13_monster:3:1:1:4:Varn:1:3",
+            "u13_entity_marcher:24:u13_monster:3:1:1:4:Varn:1:4",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:2",
+            "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0",
+            "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:1"
+          ]
+        },
+        {
+          "game": "odradek_valak_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 10,
+          "score": 9,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_monster:3:9:1:5:Lemek:1:0"
+          ]
+        },
+        {
+          "game": "odradek_kanifous_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 2,
+          "score": 65,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:1:1:4:Varn:1:1",
+            "u13_entity_marcher:24:u13_monster:3:1:1:4:Varn:1:2",
+            "u13_entity_marcher:24:u13_monster:3:1:1:4:Varn:1:3",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:1"
+          ]
+        },
+        {
+          "game": "odradek_kanifous_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 4,
+          "score": 38,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_declaration:3:1:3:1:0:1:1",
+            "u13_entity_marcher:25:u13_declaration:3:1:3:1:0:1:3",
+            "u13_entity_marcher:25:u13_declaration:3:1:3:1:0:1:4",
+            "u13_entity_marcher:25:u13_declaration:3:1:3:1:0:1:5"
+          ]
+        },
+        {
+          "game": "odradek_kanifous_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 5,
+          "score": 9,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_declaration:3:1:4:1:0:1:0"
+          ]
+        },
+        {
+          "game": "odradek_kanifous_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [
+            "FalseOrders"
+          ],
+          "points": 1,
+          "round": 9,
+          "score": 17,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:3",
+            "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:5"
+          ]
+        },
+        {
+          "game": "odradek_kanifous_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [
+            "FalseOrders"
+          ],
+          "points": 1,
+          "round": 11,
+          "score": 6,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:31:u13_commitment:4:10:1:7:Vulture:1:0"
+          ]
+        },
+        {
+          "game": "odradek_kanifous_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [
+            "BreachWishResurrection"
+          ],
+          "points": 1,
+          "round": 13,
+          "score": 38,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:31:u13_commitment:4:12:1:7:Butcher:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:12:1:7:Butcher:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:12:1:7:Butcher:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:12:1:7:Butcher:1:3"
+          ]
+        },
+        {
+          "game": "odradek_kanifous_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 14,
+          "score": 9,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:4:13:1:5:Sooge:1:0"
+          ]
+        },
+        {
+          "game": "odradek_kanifous_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [
+            "BreachWishDeath"
+          ],
+          "points": 1,
+          "round": 16,
+          "score": 6,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:32:u13_commitment:4:15:1:8:Penitent:1:0"
+          ]
+        },
+        {
+          "game": "odradek_kanifous_00__candidate_p0",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [],
+          "points": 2,
+          "round": 17,
+          "score": 23,
+          "seat": 0,
+          "target_ids": [
+            "u13_entity_marcher:30:u13_commitment:4:16:1:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:16:1:6:Wright:1:2"
+          ]
+        },
+        {
+          "game": "kroni_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 2,
+          "score": 51,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_monster:3:1:0:5:Sooge:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:1:0:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:0:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:0:7:Butcher:1:1"
+          ]
+        },
+        {
+          "game": "kroni_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 4,
+          "score": 48,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:1",
+            "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:2",
+            "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:3",
+            "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:4",
+            "u13_entity_marcher:30:u13_commitment:3:3:0:7:Vulture:1:0"
+          ]
+        },
+        {
+          "game": "kroni_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 5,
+          "score": 65,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:3:0:4:Muno:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:2",
+            "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:3",
+            "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:4",
+            "u13_entity_marcher:30:u13_commitment:3:3:0:7:Vulture:1:0"
+          ]
+        },
+        {
+          "game": "kroni_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [
+            "Redirect"
+          ],
+          "points": 1,
+          "round": 7,
+          "score": 70,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:27:u13_monster:3:6:0:7:Sinodek:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:1",
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:2",
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:3",
+            "u13_entity_marcher:30:u13_commitment:3:6:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:6:0:7:Vulture:1:1"
+          ]
+        },
+        {
+          "game": "kroni_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 9,
+          "score": 107,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:27:u13_monster:3:6:0:7:Sinodek:1:0",
+            "u13_entity_marcher:27:u13_monster:3:8:0:7:Kurchin:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:7:0:7:Butcher:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:7:0:7:Vulture:1:0",
+            "u13_entity_marcher:31:u13_commitment:3:7:0:8:Penitent:1:1",
+            "u13_entity_marcher:31:u13_commitment:3:8:0:8:Penitent:1:0",
+            "u13_entity_marcher:31:u13_commitment:3:8:0:8:Penitent:1:1"
+          ]
+        },
+        {
+          "game": "kroni_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 11,
+          "score": 48,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:27:u13_monster:3:8:0:7:Kurchin:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:7:0:7:Butcher:1:2",
+            "u13_entity_marcher:31:u13_commitment:3:7:0:8:Penitent:1:1",
+            "u13_entity_marcher:31:u13_commitment:3:8:0:8:Penitent:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:10:0:7:Butcher:1:0"
+          ]
+        },
+        {
+          "game": "kroni_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 12,
+          "score": 107,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:30:u13_commitment:3:7:0:7:Butcher:1:2",
+            "u13_entity_marcher:31:u13_commitment:3:7:0:8:Penitent:1:1",
+            "u13_entity_marcher:31:u13_commitment:3:8:0:8:Penitent:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:10:0:7:Butcher:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:10:0:7:Butcher:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:10:0:7:Vulture:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:11:0:8:Penitent:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:11:0:8:Penitent:1:2"
+          ]
+        },
+        {
+          "game": "valak_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 2,
+          "score": 79,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_monster:3:1:0:5:Lemek:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:1:0:6:Wright:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:1:0:6:Wright:1:1",
+            "u13_entity_marcher:29:u13_commitment:3:1:0:6:Wright:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:1:0:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:1:0:7:Butcher:1:1"
+          ]
+        },
+        {
+          "game": "valak_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 4,
+          "score": 6,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:29:u13_commitment:3:1:0:6:Wright:1:2"
+          ]
+        },
+        {
+          "game": "valak_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 5,
+          "score": 9,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:29:u13_commitment:3:4:0:6:Wright:1:0"
+          ]
+        },
+        {
+          "game": "valak_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 7,
+          "score": 80,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:27:u13_monster:3:6:0:7:Sinodek:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:2",
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:3",
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:4",
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:5",
+            "u13_entity_marcher:30:u13_commitment:3:6:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:6:0:7:Vulture:1:1"
+          ]
+        },
+        {
+          "game": "valak_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 8,
+          "score": 93,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:2",
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:3",
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:4",
+            "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:5",
+            "u13_entity_marcher:30:u13_commitment:3:6:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:6:0:7:Vulture:1:1"
+          ]
+        },
+        {
+          "game": "valak_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 10,
+          "score": 101,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:9:0:4:Muno:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:9:0:6:Wright:1:1",
+            "u13_entity_marcher:29:u13_commitment:3:9:0:6:Wright:1:2",
+            "u13_entity_marcher:29:u13_commitment:3:9:0:6:Wright:1:3",
+            "u13_entity_marcher:29:u13_commitment:3:9:0:6:Wright:1:4",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Butcher:1:1",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Butcher:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Vulture:1:1"
+          ]
+        },
+        {
+          "game": "valak_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 11,
+          "score": 177,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:9:0:4:Muno:1:0",
+            "u13_entity_marcher:28:u13_monster:4:10:0:7:Kurchin:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:9:0:6:Wright:1:1",
+            "u13_entity_marcher:29:u13_commitment:3:9:0:6:Wright:1:2",
+            "u13_entity_marcher:29:u13_commitment:3:9:0:6:Wright:1:3",
+            "u13_entity_marcher:29:u13_commitment:3:9:0:6:Wright:1:4",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Butcher:1:2",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Vulture:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:10:0:6:Wright:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:10:0:7:Butcher:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:10:0:8:Penitent:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:10:0:8:Penitent:1:1"
+          ]
+        },
+        {
+          "game": "valak_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 14,
+          "score": 91,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:30:u13_commitment:4:11:0:6:Wright:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:11:0:7:Butcher:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:12:0:7:Butcher:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:12:0:7:Vulture:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:12:0:7:Vulture:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:12:0:7:Vulture:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:12:0:7:Vulture:1:3",
+            "u13_entity_marcher:32:u13_commitment:4:12:0:8:Penitent:1:0",
+            "u13_entity_marcher:32:u13_commitment:4:12:0:8:Penitent:1:1"
+          ]
+        },
+        {
+          "game": "valak_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 15,
+          "score": 149,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:26:u13_monster:4:14:0:5:Sooge:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:14:0:6:Wright:1:0",
+            "u13_entity_marcher:30:u13_commitment:4:14:0:6:Wright:1:1",
+            "u13_entity_marcher:30:u13_commitment:4:14:0:6:Wright:1:2",
+            "u13_entity_marcher:30:u13_commitment:4:14:0:6:Wright:1:3",
+            "u13_entity_marcher:30:u13_commitment:4:14:0:6:Wright:1:4",
+            "u13_entity_marcher:30:u13_commitment:4:14:0:6:Wright:1:5",
+            "u13_entity_marcher:31:u13_commitment:4:14:0:7:Butcher:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:14:0:7:Butcher:1:1",
+            "u13_entity_marcher:31:u13_commitment:4:14:0:7:Butcher:1:3",
+            "u13_entity_marcher:31:u13_commitment:4:14:0:7:Butcher:1:4"
+          ]
+        },
+        {
+          "game": "valak_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [
+            "FalseOrders"
+          ],
+          "points": 1,
+          "round": 17,
+          "score": 38,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:31:u13_commitment:4:11:0:7:Butcher:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:12:0:7:Butcher:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:12:0:7:Vulture:1:2",
+            "u13_entity_marcher:32:u13_commitment:4:12:0:8:Penitent:1:1"
+          ]
+        },
+        {
+          "game": "kanifous_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 2,
+          "score": 37,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_monster:3:1:0:5:Lemek:1:0",
+            "u13_entity_marcher:31:u13_commitment:3:1:0:8:Penitent:1:0",
+            "u13_entity_marcher:31:u13_commitment:3:1:0:8:Penitent:1:2"
+          ]
+        },
+        {
+          "game": "kanifous_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 5,
+          "score": 51,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:25:u13_declaration:3:0:4:1:0:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:4:0:6:Wright:1:0",
+            "u13_entity_marcher:29:u13_commitment:3:4:0:6:Wright:1:1",
+            "u13_entity_marcher:31:u13_commitment:3:4:0:8:Penitent:1:1"
+          ]
+        },
+        {
+          "game": "kanifous_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 2,
+          "next_powers": [],
+          "points": 1,
+          "round": 9,
+          "score": 27,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:8:0:4:Fyra:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:8:0:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:8:0:7:Vulture:1:1"
+          ]
+        },
+        {
+          "game": "kanifous_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "AllegianceShift"
+          ],
+          "points": 2,
+          "round": 10,
+          "score": 37,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:24:u13_monster:3:8:0:4:Fyra:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:8:0:7:Butcher:1:0",
+            "u13_entity_marcher:30:u13_commitment:3:9:0:7:Vulture:1:2"
+          ]
+        },
+        {
+          "game": "kanifous_odradek_00__candidate_p1",
+          "goal": "AllegianceShift",
+          "next_points": 3,
+          "next_powers": [
+            "FalseOrders"
+          ],
+          "points": 2,
+          "round": 13,
+          "score": 51,
+          "seat": 1,
+          "target_ids": [
+            "u13_entity_marcher:31:u13_commitment:4:12:0:7:Butcher:1:0",
+            "u13_entity_marcher:31:u13_commitment:4:12:0:7:Butcher:1:2",
+            "u13_entity_marcher:31:u13_commitment:4:12:0:7:Butcher:1:4",
+            "u13_entity_marcher:32:u13_commitment:4:12:0:8:Penitent:1:0"
+          ]
+        }
+      ],
+      "scope": "Observed behavior, not causal benefit or a strength/balance result. A saved goal is conditional; the next decision may be absent or use a changed board."
+    },
+    "manifest": {
+      "baseline": {
+        "files": {
+          "__init__.py": "227c8876cf5699a5538e3493e65d8ab8e7ecf03c65eb0781306d8d22461c3b8f",
+          "budget.py": "6e98f1b4cc5852ef173f4c64466c7dbb5ae9b7ef95c1c96edb9926cf57068591",
+          "closing.py": "137079c225ecedb9e1fb4a689c7817ec512ab4a215fb0624ee62e961d058579d",
+          "common.py": "a05ef5ad3bd59a5de2567e224e91785d45c21ae4d14e40daed0543947183aa65",
+          "comparison.py": "f8949c04b4c836dd8f1c12f8a99ab5cf57f288281589b9ef27d12ec36e14667b",
+          "coordination.py": "cf1e733571847729eee96957ef6c8e842ff5dc4436e3d160b756ee0fb9540b25",
+          "coverage.py": "228c23b18653b89647570939fb944d7063f676a45a28ca980ef1838b669b7c71",
+          "diagnostics.py": "5cf40e9a6ab3984653737e7b8e20b373a923f932a0205803cafea3fb48fa9769",
+          "facts.py": "03cc64a025e42217a77cc24d1980033c131e25b6224fcc69f518d4debc0ecab3",
+          "lords/__init__.py": "411ef93b19ce21fbd9e93608633810c3002599c5dd9be1b679e70a7414263488",
+          "lords/deimos.py": "3db80f87a3a700099bb5a35141e87731885dc99844d36dea7a11f26eda2f5750",
+          "lords/gremory.py": "24da2dec94f8788638c8cd2aec532b25806c71590c580bd1782aa8242ea23496",
+          "lords/humbaba.py": "f4da1815459a72d5bf42bdfa14d16cd01cd88afbe43848531b42df944c5ef9a5",
+          "lords/kalligan.py": "804956060c8d59eb9ea1c7911798954e11b5d933c784531aff846e69c2f726f8",
+          "lords/kanifous.py": "f8088280111c21cb09368970b88f8593a6742f46d9048c05e0da9fec6b4aa26d",
+          "lords/kroni.py": "7079c646913e8f557861728376794be727a4d258139b56ae1c7e05e0d8bd00db",
+          "lords/odradek.py": "22f59d5e758be9d7c2bb24c37c137e4b5f45a676411e6932fcc510b2e019c181",
+          "lords/orias.py": "ff5432388bfc98d4b48bbc873c985317e6b7c4b14d21aff5c5b5d15940eb5e20",
+          "lords/valak.py": "3959d4d1366d406b90c82f420729c0d15c1cc6000b3b677e0f68a738b0df7331",
+          "observation.py": "4114c44ae86f5dd4d109f6de85ba351c3b6d4bed8e1a4af5b08b4b86349d05f0",
+          "planner_probe.py": "cc92cde5cb5bb29637e466936b268a5a57ae8fb2dd38b5b47e8e85a1822d776f",
+          "recipes.py": "ddb4e0072006093218d8a4707beb248d7fe92067f57864d02588ab86df9a1c2e",
+          "reference_probe.py": "cd5d3433e0b99082c24fb4599a9464c18b60bca021fb559f59f2c307bbbd0f98",
+          "rite_cases.py": "2cf12a6be0f6598cdeb330f76bd0efcb8c680fbcf2410b1d6461099d61d4a70e",
+          "selection.py": "a160b99b525a1590b34a8ba43fef6f5f63d70c083886f0f151111f7bb5b3894f",
+          "survey.py": "4ef849355910d662bb887fd53ae50b5574efc5f10fdc752610e5bfb81f2a059a",
+          "test_closing.py": "b0eeab4ac9b4292f57dc35760f507252d7bfb6dbc96f6367661cf140c2ff9b37",
+          "test_common.py": "830080b6f7233d5699bc1c8d473820e28d1e3c5490ab3f2d2a0f3b531c59c5a4",
+          "test_comparison.py": "5be20dc7fa3fe38efc9cbeeb8dd3cd2bc9f8bdaa139cb29b974169addd84c9e9",
+          "test_coordination.py": "763dceb8ef83ae9795aaec3603c62815a1bc5a50a2ed90432831dc8f2fec70af",
+          "test_diagnostics.py": "d8362c599d2f83ae3864c6b0c32e734ac5136030e7f3194ac3fe10afda6881ff",
+          "test_recipes_veil.py": "b1948ea569cf7b304756b70e4e2a99d479228cca4514a826fdb556434d5b456e",
+          "test_rites.py": "4049d7d09741161cae1392c3f0dcb9c3735108c50492dead8c7e36883ab240c8",
+          "test_selection.py": "b2ae4fa066634e423479552398f05d1fa2d06bbb5c978be564978763e02a94bf",
+          "test_survey.py": "926deb9d20611b42b8a5f2e970bff6c4e4b357c1afe8d12cd263c26749a05880",
+          "veil_judgment.py": "f92f3a5ca62d8ead00f38b7b5a1d4945645032e05e048305ec114bbb66d64131"
+        },
+        "package_sha256": "af0660c74183ca28917f6d61ac24ded218c892e88084715c994e3b2cfedce857",
+        "revision": "435cbf443919d6ffdedd94d57b6752d21ec9da72"
+      },
+      "baseline_policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+      "candidate_policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+      "engine_source_sha256": "681ff8ced1d2d58797036a6c26782df093a5ac1a7e4a293e88378104f09df2c7",
+      "focused_lord": "Odradek",
+      "harness_source_sha256": "27049fd017ffd7c309eff749d189d6053174e25e985c496f80ba9ec86ffcb8ca",
+      "implementation": "CPython",
+      "namespace": "u13-odradek-v7-2026-09-18",
+      "opening_policy": "U13_GAME_ECONOMY_V5_FREE_OPENING",
+      "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+      "repeats": 1,
+      "schema": "U13_MATCHED_DOCTRINE_COMPARISON_V1",
+      "scope": "Both policies share current engine, fixed ordinary loadout and seed; swap policy seats for each ordered matchup. Python policy comparison, not native parity or Lord balance.",
+      "source_revision": "435cbf443919d6ffdedd94d57b6752d21ec9da72",
+      "weights": {
+        "banishment": 32,
+        "card_cost": 2,
+        "damage": 3,
+        "destruction": 30,
+        "enemy_settlement_risk": 90,
+        "guard": 5,
+        "monster": 2,
+        "recipe_save": 1,
+        "recruit": 6,
+        "return_lord": 75,
+        "tear": 22,
+        "veil_protection": 8
+      }
+    },
+    "summary": {
+      "candidate_policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+      "completed": 34,
+      "decisions": {
+        "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION": 556,
+        "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON": 556
+      },
+      "failed": 0,
+      "games": [
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Gremory",
+            "Odradek"
+          ],
+          "name": "gremory_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 15,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 15,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Gremory",
+            "Odradek"
+          ],
+          "name": "gremory_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 15,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 15,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Deimos",
+            "Odradek"
+          ],
+          "name": "deimos_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 19,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 19,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Deimos",
+            "Odradek"
+          ],
+          "name": "deimos_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 19,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 19,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Humbaba",
+            "Odradek"
+          ],
+          "name": "humbaba_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 24,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 24,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Humbaba",
+            "Odradek"
+          ],
+          "name": "humbaba_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 25,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 25,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Kalligan",
+            "Odradek"
+          ],
+          "name": "kalligan_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 16,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 16,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Kalligan",
+            "Odradek"
+          ],
+          "name": "kalligan_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 16,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 16,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Orias",
+            "Odradek"
+          ],
+          "name": "orias_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 17,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 17,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Orias",
+            "Odradek"
+          ],
+          "name": "orias_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 13,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 13,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Gremory"
+          ],
+          "name": "odradek_gremory_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 13,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 13,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Gremory"
+          ],
+          "name": "odradek_gremory_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 13,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 13,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Deimos"
+          ],
+          "name": "odradek_deimos_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 12,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 12,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Deimos"
+          ],
+          "name": "odradek_deimos_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 12,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 12,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Humbaba"
+          ],
+          "name": "odradek_humbaba_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 19,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 19,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Humbaba"
+          ],
+          "name": "odradek_humbaba_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 16,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 16,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Kalligan"
+          ],
+          "name": "odradek_kalligan_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 25,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 25,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Kalligan"
+          ],
+          "name": "odradek_kalligan_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 25,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 25,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Orias"
+          ],
+          "name": "odradek_orias_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 10,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 10,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Orias"
+          ],
+          "name": "odradek_orias_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 15,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 15,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Odradek"
+          ],
+          "name": "odradek_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 13,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 13,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Odradek"
+          ],
+          "name": "odradek_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 16,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 16,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Kroni"
+          ],
+          "name": "odradek_kroni_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 10,
+            "win_by": "Ritual",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 10,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Kroni"
+          ],
+          "name": "odradek_kroni_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 17,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 17,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Valak"
+          ],
+          "name": "odradek_valak_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 15,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 15,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Valak"
+          ],
+          "name": "odradek_valak_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 19,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 19,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Kanifous"
+          ],
+          "name": "odradek_kanifous_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 18,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 18,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Kanifous"
+          ],
+          "name": "odradek_kanifous_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 20,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 20,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Odradek"
+          ],
+          "name": "kroni_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 15,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 15,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Odradek"
+          ],
+          "name": "kroni_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 13,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 13,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Odradek"
+          ],
+          "name": "valak_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 15,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 15,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Odradek"
+          ],
+          "name": "valak_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 18,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 18,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Kanifous",
+            "Odradek"
+          ],
+          "name": "kanifous_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 14,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 14,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Kanifous",
+            "Odradek"
+          ],
+          "name": "kanifous_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 14,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 14,
+          "status": "complete"
+        }
+      ],
+      "maximum_work": {
+        "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION": {
+          "complete_plans": 30,
+          "generated:combat": 11,
+          "generated:guards": 11,
+          "generated:monsters": 9,
+          "generated:powers": 13,
+          "generated:resummon": 3,
+          "generated:rites": 4,
+          "generated:work": 6,
+          "previews": 1,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 4,
+          "retained:resummon": 2,
+          "retained:rites": 3,
+          "retained:work": 4
+        },
+        "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON": {
+          "complete_plans": 32,
+          "generated:combat": 11,
+          "generated:guards": 11,
+          "generated:monsters": 9,
+          "generated:powers": 13,
+          "generated:resummon": 3,
+          "generated:rites": 4,
+          "generated:work": 5,
+          "previews": 1,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 4,
+          "retained:resummon": 2,
+          "retained:rites": 3,
+          "retained:work": 4
+        }
+      },
+      "mean_rounds": 16.352941176470587,
+      "paired_results": {
+        "baseline_wins_both": 1,
+        "candidate_wins_both": 1,
+        "incomplete": 0,
+        "split": 15
+      },
+      "rejected_previews": 0,
+      "requested": 34,
+      "rite_measurements": [
+        {
+          "current_board_losses": 12,
+          "current_board_wins": 26,
+          "generated": 204,
+          "outcomes_unobserved": 0,
+          "personal_tears": 9,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+          "resolved": 9,
+          "retained": 204,
+          "scored_measured_decisions": 556,
+          "scored_plans": 408,
+          "selected": 9,
+          "term": "Invocation"
+        },
+        {
+          "current_board_losses": 16,
+          "current_board_wins": 17,
+          "generated": 47,
+          "outcomes_unobserved": 0,
+          "personal_tears": 45,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+          "resolved": 45,
+          "retained": 47,
+          "scored_measured_decisions": 556,
+          "scored_plans": 717,
+          "selected": 45,
+          "term": "ProfaneRuins"
+        },
+        {
+          "current_board_losses": 0,
+          "current_board_wins": 43,
+          "generated": 44,
+          "outcomes_unobserved": 0,
+          "personal_tears": 44,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+          "resolved": 44,
+          "retained": 44,
+          "scored_measured_decisions": 556,
+          "scored_plans": 603,
+          "selected": 44,
+          "term": "Supplicants"
+        },
+        {
+          "current_board_losses": 6,
+          "current_board_wins": 34,
+          "generated": 202,
+          "outcomes_unobserved": 0,
+          "personal_tears": 7,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+          "resolved": 7,
+          "retained": 202,
+          "scored_measured_decisions": 556,
+          "scored_plans": 408,
+          "selected": 7,
+          "term": "Invocation"
+        },
+        {
+          "current_board_losses": 25,
+          "current_board_wins": 68,
+          "generated": 49,
+          "outcomes_unobserved": 0,
+          "personal_tears": 41,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+          "resolved": 41,
+          "retained": 49,
+          "scored_measured_decisions": 556,
+          "scored_plans": 756,
+          "selected": 41,
+          "term": "ProfaneRuins"
+        },
+        {
+          "current_board_losses": 0,
+          "current_board_wins": 50,
+          "generated": 41,
+          "outcomes_unobserved": 0,
+          "personal_tears": 40,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+          "resolved": 40,
+          "retained": 41,
+          "scored_measured_decisions": 556,
+          "scored_plans": 645,
+          "selected": 40,
+          "term": "Supplicants"
+        }
+      ],
+      "rounds": 556,
+      "total_decision_ms": 23717.506874999995,
+      "total_simulation_ms": 900964.8442860001,
+      "victory_routes": {
+        "Dominion": 19,
+        "FinalCollapse": 8,
+        "Ritual": 7
+      },
+      "wins": {
+        "baseline": 17,
+        "candidate": 17
+      }
+    }
+  },
+  "first_pilot": {
+    "manifest": {
+      "baseline": {
+        "files": {
+          "__init__.py": "227c8876cf5699a5538e3493e65d8ab8e7ecf03c65eb0781306d8d22461c3b8f",
+          "budget.py": "6e98f1b4cc5852ef173f4c64466c7dbb5ae9b7ef95c1c96edb9926cf57068591",
+          "closing.py": "137079c225ecedb9e1fb4a689c7817ec512ab4a215fb0624ee62e961d058579d",
+          "common.py": "a05ef5ad3bd59a5de2567e224e91785d45c21ae4d14e40daed0543947183aa65",
+          "comparison.py": "f8949c04b4c836dd8f1c12f8a99ab5cf57f288281589b9ef27d12ec36e14667b",
+          "coordination.py": "cf1e733571847729eee96957ef6c8e842ff5dc4436e3d160b756ee0fb9540b25",
+          "coverage.py": "228c23b18653b89647570939fb944d7063f676a45a28ca980ef1838b669b7c71",
+          "diagnostics.py": "5cf40e9a6ab3984653737e7b8e20b373a923f932a0205803cafea3fb48fa9769",
+          "facts.py": "03cc64a025e42217a77cc24d1980033c131e25b6224fcc69f518d4debc0ecab3",
+          "lords/__init__.py": "411ef93b19ce21fbd9e93608633810c3002599c5dd9be1b679e70a7414263488",
+          "lords/deimos.py": "3db80f87a3a700099bb5a35141e87731885dc99844d36dea7a11f26eda2f5750",
+          "lords/gremory.py": "24da2dec94f8788638c8cd2aec532b25806c71590c580bd1782aa8242ea23496",
+          "lords/humbaba.py": "f4da1815459a72d5bf42bdfa14d16cd01cd88afbe43848531b42df944c5ef9a5",
+          "lords/kalligan.py": "804956060c8d59eb9ea1c7911798954e11b5d933c784531aff846e69c2f726f8",
+          "lords/kanifous.py": "f8088280111c21cb09368970b88f8593a6742f46d9048c05e0da9fec6b4aa26d",
+          "lords/kroni.py": "7079c646913e8f557861728376794be727a4d258139b56ae1c7e05e0d8bd00db",
+          "lords/odradek.py": "22f59d5e758be9d7c2bb24c37c137e4b5f45a676411e6932fcc510b2e019c181",
+          "lords/orias.py": "ff5432388bfc98d4b48bbc873c985317e6b7c4b14d21aff5c5b5d15940eb5e20",
+          "lords/valak.py": "3959d4d1366d406b90c82f420729c0d15c1cc6000b3b677e0f68a738b0df7331",
+          "observation.py": "4114c44ae86f5dd4d109f6de85ba351c3b6d4bed8e1a4af5b08b4b86349d05f0",
+          "planner_probe.py": "cc92cde5cb5bb29637e466936b268a5a57ae8fb2dd38b5b47e8e85a1822d776f",
+          "recipes.py": "ddb4e0072006093218d8a4707beb248d7fe92067f57864d02588ab86df9a1c2e",
+          "reference_probe.py": "cd5d3433e0b99082c24fb4599a9464c18b60bca021fb559f59f2c307bbbd0f98",
+          "rite_cases.py": "2cf12a6be0f6598cdeb330f76bd0efcb8c680fbcf2410b1d6461099d61d4a70e",
+          "selection.py": "a160b99b525a1590b34a8ba43fef6f5f63d70c083886f0f151111f7bb5b3894f",
+          "survey.py": "4ef849355910d662bb887fd53ae50b5574efc5f10fdc752610e5bfb81f2a059a",
+          "test_closing.py": "b0eeab4ac9b4292f57dc35760f507252d7bfb6dbc96f6367661cf140c2ff9b37",
+          "test_common.py": "830080b6f7233d5699bc1c8d473820e28d1e3c5490ab3f2d2a0f3b531c59c5a4",
+          "test_comparison.py": "5be20dc7fa3fe38efc9cbeeb8dd3cd2bc9f8bdaa139cb29b974169addd84c9e9",
+          "test_coordination.py": "763dceb8ef83ae9795aaec3603c62815a1bc5a50a2ed90432831dc8f2fec70af",
+          "test_diagnostics.py": "d8362c599d2f83ae3864c6b0c32e734ac5136030e7f3194ac3fe10afda6881ff",
+          "test_recipes_veil.py": "b1948ea569cf7b304756b70e4e2a99d479228cca4514a826fdb556434d5b456e",
+          "test_rites.py": "4049d7d09741161cae1392c3f0dcb9c3735108c50492dead8c7e36883ab240c8",
+          "test_selection.py": "b2ae4fa066634e423479552398f05d1fa2d06bbb5c978be564978763e02a94bf",
+          "test_survey.py": "926deb9d20611b42b8a5f2e970bff6c4e4b357c1afe8d12cd263c26749a05880",
+          "veil_judgment.py": "f92f3a5ca62d8ead00f38b7b5a1d4945645032e05e048305ec114bbb66d64131"
+        },
+        "package_sha256": "af0660c74183ca28917f6d61ac24ded218c892e88084715c994e3b2cfedce857",
+        "revision": "435cbf443919d6ffdedd94d57b6752d21ec9da72"
+      },
+      "baseline_policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+      "candidate_policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+      "engine_source_sha256": "681ff8ced1d2d58797036a6c26782df093a5ac1a7e4a293e88378104f09df2c7",
+      "focused_lord": "Odradek",
+      "harness_source_sha256": "389202e819fc0a4168fe66c95994af195813490d07f784f7a693d913f0646cb5",
+      "implementation": "CPython",
+      "namespace": "u13-odradek-v7-2026-09-18",
+      "opening_policy": "U13_GAME_ECONOMY_V5_FREE_OPENING",
+      "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+      "repeats": 1,
+      "schema": "U13_MATCHED_DOCTRINE_COMPARISON_V1",
+      "scope": "Both policies share current engine, fixed ordinary loadout and seed; swap policy seats for each ordered matchup. Python policy comparison, not native parity or Lord balance.",
+      "source_revision": "435cbf443919d6ffdedd94d57b6752d21ec9da72",
+      "weights": {
+        "banishment": 32,
+        "card_cost": 2,
+        "damage": 3,
+        "destruction": 30,
+        "enemy_settlement_risk": 90,
+        "guard": 5,
+        "monster": 2,
+        "recipe_save": 1,
+        "recruit": 6,
+        "return_lord": 75,
+        "tear": 22,
+        "veil_protection": 8
+      }
+    },
+    "summary": {
+      "candidate_policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+      "completed": 34,
+      "decisions": {
+        "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION": 555,
+        "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON": 555
+      },
+      "failed": 0,
+      "games": [
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Gremory",
+            "Odradek"
+          ],
+          "name": "gremory_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 15,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 15,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Gremory",
+            "Odradek"
+          ],
+          "name": "gremory_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 16,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 16,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Deimos",
+            "Odradek"
+          ],
+          "name": "deimos_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 19,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 19,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Deimos",
+            "Odradek"
+          ],
+          "name": "deimos_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 8,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 8,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Humbaba",
+            "Odradek"
+          ],
+          "name": "humbaba_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 24,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 24,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Humbaba",
+            "Odradek"
+          ],
+          "name": "humbaba_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 23,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 23,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Kalligan",
+            "Odradek"
+          ],
+          "name": "kalligan_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 16,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 16,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Kalligan",
+            "Odradek"
+          ],
+          "name": "kalligan_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 16,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 16,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Orias",
+            "Odradek"
+          ],
+          "name": "orias_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 17,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 17,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Orias",
+            "Odradek"
+          ],
+          "name": "orias_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 13,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 13,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Gremory"
+          ],
+          "name": "odradek_gremory_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 13,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 13,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Gremory"
+          ],
+          "name": "odradek_gremory_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 13,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 13,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Deimos"
+          ],
+          "name": "odradek_deimos_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 12,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 12,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Deimos"
+          ],
+          "name": "odradek_deimos_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 12,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 12,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Humbaba"
+          ],
+          "name": "odradek_humbaba_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 19,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 19,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Humbaba"
+          ],
+          "name": "odradek_humbaba_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 16,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 16,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Kalligan"
+          ],
+          "name": "odradek_kalligan_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 25,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 25,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Kalligan"
+          ],
+          "name": "odradek_kalligan_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 25,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 25,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Orias"
+          ],
+          "name": "odradek_orias_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 10,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 10,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Orias"
+          ],
+          "name": "odradek_orias_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 15,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 15,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Odradek"
+          ],
+          "name": "odradek_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 13,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 13,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Odradek"
+          ],
+          "name": "odradek_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 21,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 21,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Kroni"
+          ],
+          "name": "odradek_kroni_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 10,
+            "win_by": "Ritual",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 10,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Kroni"
+          ],
+          "name": "odradek_kroni_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 17,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 17,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Valak"
+          ],
+          "name": "odradek_valak_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 15,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 15,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Valak"
+          ],
+          "name": "odradek_valak_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 19,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 19,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Kanifous"
+          ],
+          "name": "odradek_kanifous_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 18,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 18,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Odradek",
+            "Kanifous"
+          ],
+          "name": "odradek_kanifous_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 20,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 20,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Odradek"
+          ],
+          "name": "kroni_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 15,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 15,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Odradek"
+          ],
+          "name": "kroni_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 15,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 15,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Odradek"
+          ],
+          "name": "valak_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 15,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 15,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Odradek"
+          ],
+          "name": "valak_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 22,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 22,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Kanifous",
+            "Odradek"
+          ],
+          "name": "kanifous_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 14,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 14,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Kanifous",
+            "Odradek"
+          ],
+          "name": "kanifous_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 14,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 14,
+          "status": "complete"
+        }
+      ],
+      "maximum_work": {
+        "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION": {
+          "complete_plans": 30,
+          "generated:combat": 11,
+          "generated:guards": 11,
+          "generated:monsters": 9,
+          "generated:powers": 13,
+          "generated:resummon": 3,
+          "generated:rites": 4,
+          "generated:work": 6,
+          "previews": 1,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 4,
+          "retained:resummon": 2,
+          "retained:rites": 3,
+          "retained:work": 4
+        },
+        "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON": {
+          "complete_plans": 32,
+          "generated:combat": 11,
+          "generated:guards": 11,
+          "generated:monsters": 9,
+          "generated:powers": 13,
+          "generated:resummon": 3,
+          "generated:rites": 4,
+          "generated:work": 5,
+          "previews": 1,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 4,
+          "retained:resummon": 2,
+          "retained:rites": 3,
+          "retained:work": 4
+        }
+      },
+      "mean_rounds": 16.323529411764707,
+      "paired_results": {
+        "baseline_wins_both": 3,
+        "candidate_wins_both": 1,
+        "incomplete": 0,
+        "split": 13
+      },
+      "rejected_previews": 0,
+      "requested": 34,
+      "rite_measurements": [
+        {
+          "current_board_losses": 12,
+          "current_board_wins": 30,
+          "generated": 209,
+          "outcomes_unobserved": 0,
+          "personal_tears": 9,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+          "resolved": 9,
+          "retained": 209,
+          "scored_measured_decisions": 555,
+          "scored_plans": 418,
+          "selected": 9,
+          "term": "Invocation"
+        },
+        {
+          "current_board_losses": 16,
+          "current_board_wins": 17,
+          "generated": 47,
+          "outcomes_unobserved": 0,
+          "personal_tears": 45,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+          "resolved": 45,
+          "retained": 47,
+          "scored_measured_decisions": 555,
+          "scored_plans": 733,
+          "selected": 45,
+          "term": "ProfaneRuins"
+        },
+        {
+          "current_board_losses": 0,
+          "current_board_wins": 56,
+          "generated": 46,
+          "outcomes_unobserved": 0,
+          "personal_tears": 46,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+          "resolved": 46,
+          "retained": 46,
+          "scored_measured_decisions": 555,
+          "scored_plans": 632,
+          "selected": 46,
+          "term": "Supplicants"
+        },
+        {
+          "current_board_losses": 8,
+          "current_board_wins": 27,
+          "generated": 204,
+          "outcomes_unobserved": 0,
+          "personal_tears": 6,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+          "resolved": 6,
+          "retained": 204,
+          "scored_measured_decisions": 555,
+          "scored_plans": 413,
+          "selected": 6,
+          "term": "Invocation"
+        },
+        {
+          "current_board_losses": 25,
+          "current_board_wins": 66,
+          "generated": 48,
+          "outcomes_unobserved": 0,
+          "personal_tears": 43,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+          "resolved": 43,
+          "retained": 48,
+          "scored_measured_decisions": 555,
+          "scored_plans": 804,
+          "selected": 43,
+          "term": "ProfaneRuins"
+        },
+        {
+          "current_board_losses": 0,
+          "current_board_wins": 3,
+          "generated": 31,
+          "outcomes_unobserved": 0,
+          "personal_tears": 30,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+          "resolved": 30,
+          "retained": 31,
+          "scored_measured_decisions": 555,
+          "scored_plans": 471,
+          "selected": 30,
+          "term": "Supplicants"
+        }
+      ],
+      "rounds": 555,
+      "total_decision_ms": 20810.763883999996,
+      "total_simulation_ms": 790241.782828,
+      "victory_routes": {
+        "Dominion": 18,
+        "FinalCollapse": 9,
+        "Ritual": 7
+      },
+      "wins": {
+        "baseline": 19,
+        "candidate": 15
+      }
+    }
+  },
+  "games": [
+    {
+      "decisions_sha256": "3268252e301b6551cef440405271e091714df3f699cd453d8530845b922f61de",
+      "final_state_sha256": "1fef4446bfc01578da9104916e3eeb846322a6b95351c185a6445dea261185c0",
+      "name": "gremory_humbaba",
+      "operations": 380,
+      "outcome": {
+        "action": "game_finished",
+        "round": 15,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "rounds": 15
+    },
+    {
+      "decisions_sha256": "6c7409be18f6911cf60886af54d305ac2049e250b1d9d76578e36b0fe95675f4",
+      "final_state_sha256": "10da8e22af847946e37c0fc1af373933f05bb240d2af70e6adcfda89cd98e67b",
+      "name": "deimos_kalligan",
+      "operations": 590,
+      "outcome": {
+        "action": "game_finished",
+        "round": 23,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "rounds": 23
+    },
+    {
+      "decisions_sha256": "a02583fb7c3a2626e29037a89351de13827180594ebc859a8d1f916474184a5a",
+      "final_state_sha256": "ffb4714867bade93607cb67d9188629f2aeb724b80cbb15e8e5e6c59fda246d8",
+      "name": "orias_odradek",
+      "operations": 387,
+      "outcome": {
+        "action": "game_finished",
+        "round": 15,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "rounds": 15
+    },
+    {
+      "decisions_sha256": "5dedb126d4ddac2214a9946a465fe26805b03a944b4fcad99ab2d7edf524b80e",
+      "final_state_sha256": "05ba6b7aaf6a6b13184d7966565cf69701673b4ce423611aac21cef12fb5c3ce",
+      "name": "kroni_valak",
+      "operations": 426,
+      "outcome": {
+        "action": "game_finished",
+        "round": 17,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "rounds": 17
+    },
+    {
+      "decisions_sha256": "ca6e08aed21146d68309e1d1250e51f32a156e8753c03c9bf81cf58d2d6afac5",
+      "final_state_sha256": "58e689918c69e8315b5bd9f1e9e0e9d098a50d2c738dd4d2480ff5c7b086eee4",
+      "name": "kanifous_gremory",
+      "operations": 437,
+      "outcome": {
+        "action": "game_finished",
+        "round": 18,
+        "win_by": "FinalCollapse",
+        "winner": 1
+      },
+      "rounds": 18
+    }
+  ],
+  "implementation_revision": "78719b9ade4ffa94163e09211445cd2c93a09036",
+  "integrated_check": {
+    "engine_source_sha256": "03111ff4c323227f9a4f4db626880bddb105b5e9848fc11f0987265dc54d5a15",
+    "harness_source_sha256": "27049fd017ffd7c309eff749d189d6053174e25e985c496f80ba9ec86ffcb8ca",
+    "implementation": "CPython",
+    "new_godot_parity": false,
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "runner_source_sha256": "909de6d7fbbde90d45826d31dd6ce3df76ea7aabd362c6b213eaa16684a21e15",
+    "semantic_sha256": "a07c747c07b306d012a3e00783cb04778c8bb39a17d88a4a91a500bb7c89fd65",
+    "source_revision": "78719b9ade4ffa94163e09211445cd2c93a09036",
+    "tests_passed": 120
+  },
+  "integrated_operations": 2220,
+  "integrated_parent": "66ea09e",
+  "integrated_rounds": 88,
+  "publication_note": "Published through authenticated GitHub app; commit metadata differs from local tested 78719b9, but complete Git trees match exactly. Reports retain the original tested revision.",
+  "published_implementation_revision": "21dcc2bfa1d94700716848e9a2144f407dba79fc",
+  "raw_archive": {
+    "filename": "u13-odradek-horizon-34-2026-09-18.zip",
+    "library_file_id": "libfile_adfdb44ff6488191bb7c50b9f210e29d",
+    "sha256": "5212bada85d7e5dc9d5e44ba9dfd861f6c397bdc96f83cd8cda60f91a153d413",
+    "size_bytes": 11262107
+  },
+  "schema": "U13_ODRADEK_HORIZON_LOCAL_V1",
+  "status": "local CPython verified; Windows/PyPy pending",
+  "verified_implementation_tree": "6f753ffa5d7c9aa3b7e02bace2f4d55da6e26207"
+}
