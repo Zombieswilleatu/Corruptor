@@ -1,0 +1,340 @@
+{
+  "date": "2026-09-18",
+  "change": "Productive sandbox auto-spawn openings, fresh random arenas, and symmetric Tumler detour arrival",
+  "base_commit": "39631e7eb77a8f50ee2f55619063e8c02b1922dd",
+  "reproduction": {
+    "seed": "lane-balance-1",
+    "opening_before": [
+      {
+        "cards": [
+          {
+            "attributes": {
+              "suit": "Penitent",
+              "value": 1
+            },
+            "id": "Penitent:0:3",
+            "kind": "card"
+          }
+        ],
+        "monster": "",
+        "saved": 2,
+        "spawned": 0,
+        "summary": "Penitent 1\n0 bodies \u00b7 no monster recipe \u00b7 2 cards saved"
+      },
+      {
+        "cards": [
+          {
+            "attributes": {
+              "suit": "Wright",
+              "value": 5
+            },
+            "id": "Wright:4:1",
+            "kind": "card"
+          },
+          {
+            "attributes": {
+              "suit": "Penitent",
+              "value": 3
+            },
+            "id": "Penitent:2:2",
+            "kind": "card"
+          },
+          {
+            "attributes": {
+              "suit": "Wright",
+              "value": 4
+            },
+            "id": "Wright:3:1",
+            "kind": "card"
+          }
+        ],
+        "monster": "",
+        "saved": 2,
+        "spawned": 4,
+        "summary": "Wright 5, Penitent 3, Wright 4\n4 bodies \u00b7 no monster recipe \u00b7 2 cards saved"
+      }
+    ],
+    "baseline_round_12": {
+      "living": [
+        [
+          "Lemek",
+          "Kopita",
+          "Vulture",
+          "Vulture",
+          "Vulture",
+          "Vulture",
+          "Vulture",
+          "Vulture",
+          "Vulture",
+          "Vulture",
+          "Wright",
+          "Wright",
+          "Wright",
+          "Wright",
+          "Penitent",
+          "Penitent"
+        ],
+        [
+          "Varn",
+          "Varn",
+          "Varn",
+          "Vulture",
+          "Vulture"
+        ]
+      ],
+      "totals": [
+        {
+          "banished": 0,
+          "defeated": 29,
+          "escaped": 0,
+          "spawned": 46
+        },
+        {
+          "banished": 0,
+          "defeated": 47,
+          "escaped": 0,
+          "spawned": 51
+        }
+      ]
+    },
+    "baseline_owner_reflection": {
+      "rounds": 12,
+      "mismatched_rounds": [
+        5
+      ],
+      "cause": "At an exact clamped detour waypoint, the zero-length heading selected a leftward minimum step for both owners."
+    },
+    "opening_after": [
+      {
+        "cards": [
+          {
+            "attributes": {
+              "suit": "Wright",
+              "value": 5
+            },
+            "id": "Wright:4:0",
+            "kind": "card"
+          },
+          {
+            "attributes": {
+              "suit": "Penitent",
+              "value": 1
+            },
+            "id": "Penitent:0:3",
+            "kind": "card"
+          }
+        ],
+        "monster": "",
+        "saved": 1,
+        "spawned": 1,
+        "summary": "Wright 5, Penitent 1\n1 body \u00b7 no monster recipe \u00b7 1 cards saved"
+      },
+      {
+        "cards": [
+          {
+            "attributes": {
+              "suit": "Wright",
+              "value": 5
+            },
+            "id": "Wright:4:1",
+            "kind": "card"
+          },
+          {
+            "attributes": {
+              "suit": "Penitent",
+              "value": 3
+            },
+            "id": "Penitent:2:2",
+            "kind": "card"
+          },
+          {
+            "attributes": {
+              "suit": "Wright",
+              "value": 4
+            },
+            "id": "Wright:3:1",
+            "kind": "card"
+          }
+        ],
+        "monster": "",
+        "saved": 2,
+        "spawned": 4,
+        "summary": "Wright 5, Penitent 3, Wright 4\n4 bodies \u00b7 no monster recipe \u00b7 2 cards saved"
+      }
+    ]
+  },
+  "changes": [
+    "Defense cannot consume the last possible legal body or monster; empty planned commitments use available same-suit value, releasing saved recipe cards only when needed.",
+    "Five-card draws, the 50% defensive-spending roll, at most two saved cards, legal monster recipes, independent decks, capacity limits, and normal next-round movement readiness remain.",
+    "Truly insufficient hands still produce no free units or extra draws and report why no body appeared.",
+    "The menu starts with a fresh displayed seed; New Random Arena reseeds, while Replay / Apply Seed repeats the entered seed. Reset actions preserve toggles and are disabled during worker preparation.",
+    "Tumler resumes his hunt after reaching a clamped detour waypoint. The native and Python monster rules both use U13_MONSTERS_V8_HUNT_WAYPOINT."
+  ],
+  "validation": {
+    "runtime": "Godot 4.5.1.stable.official.f62fdbde1 Linux headless diagnostic project; integer-division warnings treated as errors",
+    "native": {
+      "sandbox": {
+        "checks_passed": 225,
+        "failures": 0,
+        "script_errors": 0
+      },
+      "support_hunt": {
+        "checks_passed": 234,
+        "failures": 0,
+        "script_errors": 0
+      }
+    },
+    "card_sweep": {
+      "owners": 2,
+      "seeds_per_owner": 32,
+      "waves_per_seed": 12,
+      "total_waves": 768,
+      "cards_conserved": 60
+    },
+    "side_reflection": {
+      "rounds": 12,
+      "compared": "Complete world, events and per-tick positions after swapping owners and reflecting forward coordinates, preserving immutable entity identities and keyed random rolls.",
+      "mismatches": 0
+    },
+    "support_hunt_python_parity": {
+      "phases": 32,
+      "events": 6930,
+      "ticks": 6400,
+      "event_types": {
+        "MARCHER_MELEE_ATTACK": 426,
+        "MARCHER_RANGED_ATTACK": 24,
+        "MARCHING_FINISHED": 32,
+        "MARCHING_STARTED": 32,
+        "MARCHING_TICK": 6400,
+        "MONSTER_HUNT_RETARGETED": 2,
+        "MONSTER_PULSE": 14
+      }
+    },
+    "python_marching_unit_tests": {
+      "passed": 19,
+      "failures": 0
+    },
+    "fresh_seed_examples": [
+      {
+        "intervals": 10,
+        "living": [
+          3,
+          21
+        ],
+        "seed": "arena-balance-2",
+        "totals": [
+          {
+            "banished": 0,
+            "defeated": 38,
+            "escaped": 0,
+            "spawned": 41
+          },
+          {
+            "banished": 0,
+            "defeated": 23,
+            "escaped": 0,
+            "spawned": 44
+          }
+        ]
+      },
+      {
+        "intervals": 10,
+        "living": [
+          16,
+          9
+        ],
+        "seed": "arena-balance-3",
+        "totals": [
+          {
+            "banished": 0,
+            "defeated": 22,
+            "escaped": 0,
+            "spawned": 39
+          },
+          {
+            "banished": 0,
+            "defeated": 28,
+            "escaped": 0,
+            "spawned": 36
+          }
+        ]
+      },
+      {
+        "intervals": 10,
+        "living": [
+          7,
+          15
+        ],
+        "seed": "arena-balance-4",
+        "totals": [
+          {
+            "banished": 0,
+            "defeated": 37,
+            "escaped": 0,
+            "spawned": 44
+          },
+          {
+            "banished": 0,
+            "defeated": 30,
+            "escaped": 0,
+            "spawned": 45
+          }
+        ]
+      },
+      {
+        "intervals": 10,
+        "living": [
+          18,
+          1
+        ],
+        "seed": "arena-balance-5",
+        "totals": [
+          {
+            "banished": 0,
+            "defeated": 24,
+            "escaped": 0,
+            "spawned": 42
+          },
+          {
+            "banished": 0,
+            "defeated": 29,
+            "escaped": 0,
+            "spawned": 30
+          }
+        ]
+      }
+    ],
+    "wave_distribution": {
+      "intervals": 80,
+      "monster_summons": {
+        "Dotra": 6,
+        "Fyra": 5,
+        "Kopita": 2,
+        "Lemek": 16,
+        "Muno": 2,
+        "Sooge": 3,
+        "Tumler": 6,
+        "Varn": 17
+      },
+      "regular_bodies": 205,
+      "seed": "wave-test"
+    }
+  },
+  "source_sha256": {
+    "Prototype/U13/U13LaneSandbox.gd": "bc0e82d2f59e69a18c283fe6a70065afe11fc1dbdb99cad61aa208139cd7b66f",
+    "Scripts/Sim/U13LaneSandbox.gd": "9178a4dbb01a536cf4a3bf3ef2f3559691d4e414536d5b34d5861fb47ebb8aaf",
+    "Scripts/Sim/U13LaneSandboxTestRunner.gd": "6855c20a2560348cbc459215c8d4f528d7e98ac374e0dfb63f3e921e5b7247db",
+    "Scripts/Sim/U13MonsterEffects.gd": "7b84cccd63394aa272206344853d0090c433116af35fe98d72bee9e032f6ff14",
+    "Scripts/Sim/U13MonsterRules.gd": "5dde856c1ce167a9aa52a7988731187289eb2c719d1ec0bf30e3be9553ac9cae",
+    "Scripts/Sim/U13SandboxEnemy.gd": "3e5f814958b766c9d749fa9709df3613cb26130fd87e49ed84e39e69c2b31a57",
+    "Scripts/Sim/U13SupportHuntTestRunner.gd": "d73b07e147b7eb5454bb6e3e8487141fa7e61c2af772abbf51253841bb2d489e",
+    "Scripts/Sim/u13_pysim/monster_effects.py": "7b67031b5afc56f2fd6a796d39b1e9f15bafd45dc265b652c80194b1597bd45b",
+    "Scripts/Sim/u13_pysim/monsters.py": "b0e63f856285a56371d9b82b2e2eec54b419b283a5951ebcfccc9b09f2ef2306",
+    "docs/U13_LANE_BALANCE_SANDBOX.md": "770ec4bfde8c143aeeac5c6614267e72b6ac05b0119a362991133ea6276130da"
+  },
+  "limits": [
+    "Windows Godot 4.7.2 interactive visual review was not run in this Linux environment.",
+    "The sandbox has no victory condition. Fresh-seed samples compare survivors after ten rounds, not full-game wins, and do not establish a population balance rate.",
+    "Owner-reflection tests preserve entity identities and their ordering to isolate ownership and geometry. They are not a statistical test of identity-order or random-hand distributions."
+  ]
+}

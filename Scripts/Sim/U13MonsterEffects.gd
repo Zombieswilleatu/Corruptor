@@ -347,5 +347,8 @@ static func steer(unit: Dictionary, destination: Dictionary, rows: Array, fields
 		var side: int = -1 if a.y_fp <= obstacle.y_fp else 1
 		var y: int = clampi(int(obstacle.y_fp) + side * int(obstacle.radius), 30, 570)
 		if absi(y - int(obstacle.y_fp)) < (int(obstacle.radius) >> 1): y = clampi(int(obstacle.y_fp) - side * int(obstacle.radius), 30, 570)
+		# At a clamped detour point, resume the hunt. A zero-length heading
+		# otherwise falls into movement's minimum-step tie and drifts left.
+		if int(a.x_fp) == int(obstacle.x_fp) and int(a.y_fp) == y: continue
 		return {"x_fp": obstacle.x_fp, "y_fp": y}
 	return destination

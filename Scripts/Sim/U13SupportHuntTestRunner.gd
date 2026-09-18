@@ -68,6 +68,18 @@ func pacing_checks() -> void:
 
 func hunting_checks() -> void:
 	for pid in [0, 1]:
+		# Reaching a detour at the lane edge must resume toward the prey,
+		# rather than take the same leftward minimum step for both owners.
+		var edge_world: Dictionary = phase_world()
+		var edge_dog: Dictionary = put(edge_world, "Tumler", pid, at(1000, pid), {"y_fp": 30, "hp": 100, "max_hp": 100, "armor": 100})
+		var edge_prey: Dictionary = put(edge_world, "Kopita", 1 - pid, at(1900, pid), {"y_fp": 30, "step_fp": 0, "hp": 100, "max_hp": 100, "armor": 100})
+		put(edge_world, "Butcher", 1 - pid, at(1000, pid), {"y_fp": 130, "step_fp": 0})
+		set_target(edge_world, edge_dog, edge_prey)
+		var heading: Dictionary = MonsterFX.steer(edge_dog, edge_prey.attributes, edge_world.entities.entities.filter(func(u): return u.kind == "marcher"), [])
+		check(heading.x_fp == edge_prey.attributes.x_fp and heading.y_fp == 30, "Tumler resumes hunting after reaching a clamped detour on side " + str(pid))
+		var edge_result: Dictionary = phase("hunt_detour_arrived_%d" % pid, edge_world)
+		var edge_after: Dictionary = Kanifous._entity(edge_result.world, edge_dog.id)
+		check(not edge_after.is_empty() and (int(edge_after.attributes.x_fp) - int(edge_dog.attributes.x_fp)) * int(edge_dog.attributes.direction) > 0, "Tumler advances toward the target after completing the detour")
 		for roll in [49, 50]:
 			var w: Dictionary = phase_world()
 			var dog: Dictionary = put(w, "Tumler", pid, at(900, pid), {"hp": 100, "max_hp": 100, "armor": 100})

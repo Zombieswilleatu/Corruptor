@@ -92,6 +92,8 @@ func run() -> void:
 	for suit in Sim.Marching.SUITS:
 		check(sim.units().filter(func(u): return u.attributes.suit == suit).size() == floori(float(expected.get(suit, 0)) / 3.0), "enemy %s count matches committed printed values" % suit)
 	random_sides_checks()
+	opening_checks()
+	side_symmetry_checks()
 	# An escaping unit is counted and removed, never killed or resurrected.
 	sim = Sim.new("escape")
 	sim.spawn("Butcher", 0)
@@ -105,6 +107,83 @@ func run() -> void:
 	await ui_checks()
 	print("U13 lane sandbox: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+
+func body_count(cards: Array) -> int:
+	var totals_by_suit: Dictionary = {}
+	for card in cards:
+		totals_by_suit[card.attributes.suit] = totals_by_suit.get(card.attributes.suit, 0) + int(card.attributes.value)
+	var count: int = 0
+	for total in totals_by_suit.values(): count += floori(float(total) / 3.0)
+	return count
+
+func fixed_hand(values: Array):
+	var generator = Sim.Enemy.new("opening-floor")
+	generator.goal = "Sooge"
+	generator.deck = []
+	for entry in values + [["Vulture", 1], ["Vulture", 1], ["Vulture", 1]]:
+		generator.deck.append({"id": "fixture:%d" % generator.deck.size(), "kind": "card", "attributes": {"suit": entry[0], "value": entry[1]}})
+	generator.deck.reverse()
+	return generator
+
+func opening_checks() -> void:
+	var sim = Sim.new("lane-balance-1")
+	check(sim.random_waves([0, 1]).action == "spawned" and sim.totals.all(func(t): return t.spawned > 0), "reported default opening now spawns bodies for both sides in interval one")
+	check(sim.units().all(func(u): return u.attributes.birth_round == 1 and u.attributes.movement_ready_round == 2), "both opening waves share the same normal deployment timing")
+	for pid in [0, 1]:
+		var single = Sim.new("lane-balance-1")
+		single.random_waves([pid])
+		check(single.last_waves[pid] == sim.last_waves[pid], "enabling the other side cannot change side %d's opening" % pid)
+	var generator = fixed_hand([["Butcher", 3], ["Wright", 1], ["Vulture", 1], ["Wright", 1], ["Butcher", 1]])
+	var wave: Dictionary = generator.next_wave(1, [])
+	check(wave.monster.is_empty() and body_count(wave.cards) > 0 and wave.saved == 1, "an otherwise empty commitment releases a saved card to field a legal marcher")
+	check((generator.deck + generator.discard + generator.saved).size() == 8 and wave.cards.size() <= 5, "opening floor conserves the drawn cards and normal commitment limit")
+	generator = fixed_hand([["Penitent", 1], ["Penitent", 1], ["Vulture", 1], ["Wright", 1], ["Butcher", 1]])
+	for i in range(100):
+		generator.seed_value = "defense-floor-%d" % i
+		if generator.pick(1, "defense:Penitent", 2) == 0: break
+	wave = generator.next_wave(1, [])
+	check(generator.pick(1, "defense:Penitent", 2) == 0 and wave.monster == "Lemek" and Sim.Monsters.qualifies(wave.cards, wave.cards.map(func(c): return c.id), "Lemek"), "defensive spending cannot consume the only legal monster when no ordinary body is possible")
+	generator = fixed_hand([["Butcher", 1], ["Wright", 1], ["Vulture", 1], ["Penitent", 1], ["Butcher", 1]])
+	wave = generator.next_wave(1, [])
+	check(body_count(wave.cards) == 0 and wave.monster.is_empty() and (generator.deck + generator.discard + generator.saved).size() == 8, "a genuinely insufficient hand never creates a free unit or draws extra cards")
+	# The fallback also stays legal across independent hands and reshuffles.
+	for pid in [0, 1]:
+		var all_valid: bool = true
+		for i in range(32):
+			generator = Sim.Enemy.new("opening-probe-%d" % i, pid)
+			for n in range(1, 13):
+				wave = generator.next_wave(n, [])
+				var cards: Array = generator.deck + generator.discard + generator.saved
+				var unique: Dictionary = {}
+				for card in cards: unique[card.id] = true
+				all_valid = all_valid and cards.size() == 60 and unique.size() == 60 and wave.cards.size() <= 5 and wave.saved <= 2
+				if not wave.monster.is_empty(): all_valid = all_valid and Sim.Monsters.qualifies(wave.cards, wave.cards.map(func(c): return c.id), wave.monster)
+		check(all_valid, "side %d conserves cards and legal recipes across 384 waves" % pid)
+	print("OPENING SAMPLE ", JSON.stringify(sim.last_waves))
+
+func mirror(value: Variant) -> Variant:
+	if value is Array: return value.map(mirror)
+	if value is Dictionary:
+		var result: Dictionary = {}
+		for key in value:
+			if key in ["owner", "charm_owner", "wright_owner", "player_id"] and value[key] in [0, 1]: result[key] = 1 - int(value[key])
+			elif key == "x_fp": result[key] = Sim.Marching.LANE_FP - int(value[key])
+			elif key == "direction": result[key] = -int(value[key])
+			else: result[key] = mirror(value[key])
+		return result
+	return value
+
+func side_symmetry_checks() -> void:
+	# Keep immutable identities and RNG rolls; exchange owners and reflect the
+	# complete field, including builders, structures, charm and ability sources.
+	var sim = Sim.new("lane-balance-1")
+	for n in range(1, 13):
+		sim.random_waves([0, 1])
+		var original: Dictionary = Sim.resolve_round(sim.world, sim.seed_value, n)
+		var swapped: Dictionary = Sim.resolve_round(mirror(sim.world), sim.seed_value, n)
+		check(original.action == "resolved" and swapped.action == "resolved" and mirror(original) == swapped, "interval %d has identical events and outcomes with ownership and field positions swapped" % n)
+		sim.finish(original)
+	print("SIDE AUDIT ", JSON.stringify({"seed": sim.seed_value, "intervals": 12, "totals": sim.totals}))
 
 func random_sides_checks() -> void:
 	var sim = Sim.new("two-sided-waves")
@@ -157,11 +236,20 @@ func ui_checks() -> void:
 	await process_frame
 	var arena = picker.lane_sandbox
 	check(is_instance_valid(arena) and not picker._loadout_content.visible, "main menu opens the isolated lane sandbox")
+	check(not arena.seed_entry.text.is_empty() and arena.seed_entry.text == arena.sim.seed_value, "a new arena displays the fresh seed used by its simulation")
+	var fresh: String = arena.sim.seed_value
+	arena.new_arena_button.pressed.emit()
+	check(arena.sim.seed_value != fresh and arena.seed_entry.text == arena.sim.seed_value, "new random arena changes the seed and both draw streams")
+	arena.seed_entry.text = "lane-balance-1"
+	arena.reset_button.pressed.emit()
+	var opening_decks: Array = [arena.sim.spawners[0].deck.duplicate(true), arena.sim.spawners[1].deck.duplicate(true)]
+	arena.reset_button.pressed.emit()
+	check(arena.sim.seed_value == "lane-balance-1" and opening_decks == [arena.sim.spawners[0].deck, arena.sim.spawners[1].deck], "replay applies the entered seed and restores both exact decks")
 	check(arena.monster_choice.item_count == 10 and arena.spawn_buttons.size() == 4, "all ten monsters and four regular spawn buttons are available")
 	check(not arena.home_toggle.button_pressed and not arena.enemy_toggle.button_pressed, "home and enemy random spawning are independent opt-in toggles")
 	await process_frame
 	var bounds: Rect2 = Rect2(Vector2.ZERO, arena.size)
-	check(bounds.encloses(arena.field.get_global_rect()) and bounds.encloses(arena.run_button.get_global_rect()) and bounds.encloses(arena.counts.get_global_rect()), "arena, controls and report fit the menu viewport")
+	check(bounds.encloses(arena.field.get_global_rect()) and bounds.encloses(arena.run_button.get_global_rect()) and bounds.encloses(arena.new_arena_button.get_global_rect()) and bounds.encloses(arena.reset_button.get_global_rect()) and bounds.encloses(arena.counts.get_global_rect()), "arena, controls and report fit the menu viewport")
 	var source: Dictionary = Sim.Monsters.profile("Sooge", "Lord", 0, 0, 1, true)
 	source.x_fp = 1700
 	var target: Dictionary = source.duplicate(true); target.x_fp = 2000
@@ -190,6 +278,7 @@ func ui_checks() -> void:
 	arena.home_toggle.button_pressed = true
 	arena.start()
 	check(arena.pending.is_empty() and arena.job != null and arena.sim.last_waves[0].has("cards") and arena.sim.last_waves[1].has("cards"), "continuous mode drains manual requests and prepares both automatic waves")
+	check(arena.new_arena_button.disabled and arena.reset_button.disabled, "both reset actions are disabled while the worker is preparing a round")
 	check(arena.home_wave_note.text == arena.sim.last_waves[0].summary and arena.wave_note.text == arena.sim.last_waves[1].summary, "report shows each side's own commitment")
 	deadline = Time.get_ticks_msec() + 15000
 	while arena.job != null and Time.get_ticks_msec() < deadline: await process_frame
@@ -206,7 +295,7 @@ func ui_checks() -> void:
 	deadline = Time.get_ticks_msec() + 15000
 	while arena.job != null and Time.get_ticks_msec() < deadline: await process_frame
 	arena._process(15)
-	check(arena.running and arena.job != null and arena.sim.round_number == 2, "continuous home spawning advances even when the first draw produces no bodies")
+	check(arena.running and arena.job != null and arena.sim.round_number == 2, "continuous home spawning advances to the next interval")
 	deadline = Time.get_ticks_msec() + 15000
 	while arena.job != null and Time.get_ticks_msec() < deadline: await process_frame
 	arena.reset()

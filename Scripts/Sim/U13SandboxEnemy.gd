@@ -44,6 +44,24 @@ func ingredients(hand: Array, name: String) -> Array:
 		chosen.append_array(matches.slice(0, Monsters.ROSTER[name].recipe[suit]))
 	return chosen
 
+# Smallest same-suit packet worth a body. Only selects cards already drawn.
+func marcher_cards(hand: Array) -> Array:
+	var best: Array = []
+	for suit in Economy.SUITS:
+		var matches: Array = hand.filter(func(c): return c.attributes.suit == suit)
+		matches.sort_custom(func(a, b): return int(a.attributes.value) > int(b.attributes.value))
+		var packet: Array = []
+		var value: int = 0
+		for card in matches:
+			packet.append(card)
+			value += int(card.attributes.value)
+			if value >= 3: break
+		if value >= 3 and (best.is_empty() or packet.size() < best.size()): best = packet
+	return best
+
+func can_field(hand: Array, living: Array) -> bool:
+	return not marcher_cards(hand).is_empty() or not Monsters.available(hand + living, hand.map(func(c): return c.id), owner).is_empty()
+
 func next_wave(round_number: int, living: Array) -> Dictionary:
 	if goal.is_empty() or (Monsters.limited(goal) and Monsters.living(living, owner, goal)):
 		var roll: int = pick(round_number, "goal-tier", 100)
@@ -74,6 +92,8 @@ func next_wave(round_number: int, living: Array) -> Dictionary:
 	for suit in Economy.SUITS:
 		var pair: Array = hand.filter(func(c): return c.attributes.suit == suit and c not in keep)
 		if pair.size() >= 2 and pick(round_number, "defense:" + suit, 2) == 0:
+			# Auto-spawn must not spend away its only possible field presence.
+			if not can_field(hand.filter(func(c): return c not in pair.slice(0, 2)), living): continue
 			for card in pair.slice(0, 2): hand.erase(card); discard.append(card)
 	var choices: Array = Monsters.available(hand + living, hand.map(func(c): return c.id), owner)
 	var monster: String = ""
@@ -93,6 +113,15 @@ func next_wave(round_number: int, living: Array) -> Dictionary:
 	var rest: Array = hand.filter(func(c): return c not in committed and c not in saved)
 	Economy._shuffle(rest, seed_value, "sandbox:commit:%d" % round_number)
 	committed.append_array(rest.slice(0, maxi(0, budget - committed.size())))
+	if monster.is_empty() and marcher_cards(committed).is_empty():
+		# Prefer spare cards; release recipe savings only if otherwise no body
+		# could deploy. Keep normal draw limits and never invent a free unit.
+		var packet: Array = marcher_cards(hand.filter(func(c): return c not in saved))
+		if packet.is_empty(): packet = marcher_cards(hand)
+		if not packet.is_empty():
+			for card in packet: saved.erase(card)
+			committed = packet
+			committed.append_array(rest.filter(func(c): return c not in committed).slice(0, maxi(0, budget - committed.size())))
 	for card in hand:
 		if card not in saved: discard.append(card)
 	return {"cards": committed.duplicate(true), "monster": monster, "saved": saved.size()}

@@ -103,7 +103,8 @@ func random_waves(owners: Array) -> Dictionary:
 		var labels: PackedStringArray = []
 		for card in wave.cards: labels.append("%s %d" % [card.attributes.suit, card.attributes.value])
 		wave["spawned"] = count
-		wave["summary"] = "%s\n%d bodies · %s · %d cards saved" % [", ".join(labels), count, wave.monster if not wave.monster.is_empty() else "no monster recipe", wave.saved]
+		wave["summary"] = "%s\n%d %s · %s · %d cards saved" % [", ".join(labels), count, "body" if count == 1 else "bodies", wave.monster if not wave.monster.is_empty() else "no monster recipe", wave.saved]
+		if count == 0: wave.summary += "\nNo suit total reaches 3 this interval."
 	return {"action": "spawned", "spawned": spawned.size()}
 
 static func reaction(raw: Dictionary, _fact: Dictionary, _seed: String, _order: Array) -> Dictionary:

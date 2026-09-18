@@ -290,5 +290,7 @@ def steer(unit,destination,rows,fields):
         side=-1 if a['y_fp']<=obstacle['y_fp'] else 1
         y=max(30,min(570,obstacle['y_fp']+side*obstacle['radius']))
         if abs(y-obstacle['y_fp'])<obstacle['radius']//2:y=max(30,min(570,obstacle['y_fp']-side*obstacle['radius']))
+        # Resume the hunt after reaching a clamped detour point.
+        if a['x_fp']==obstacle['x_fp'] and a['y_fp']==y:continue
         return dict(x_fp=obstacle['x_fp'],y_fp=y)
     return destination

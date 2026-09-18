@@ -32,12 +32,14 @@ var totals_note: Label
 var run_button: Button
 var pause_button: Button
 var reset_button: Button
+var new_arena_button: Button
 var spawn_buttons: Dictionary = {}
 var monster_button: Button
 var spawn_status: Label
 var feedback_cursor: int = 0
 
 func _ready() -> void:
+	sim = Sim.new(fresh_seed())
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	z_index = 110
 	var bg := ColorRect.new()
@@ -103,15 +105,15 @@ func _ready() -> void:
 	enemy_toggle = CheckBox.new()
 	enemy_toggle.text = "Enemy spawns each interval"
 	choices.add_child(enemy_toggle)
-	label(choices, "Each side uses its own five-card draws, one Slaver trade, spare defensive pairs and up to two saved cards. Enable both and choose Continuous to watch hands-free.", 14)
+	label(choices, "Each side uses its own five-card draws, one Slaver trade, spare defensive pairs and up to two saved cards. A legal field unit takes priority over an empty wave. Enable both and choose Continuous to watch hands-free.", 14)
 	label(choices, "PLAYBACK", 19)
 	mode = option(choices, ["15-second rounds · pause between", "Continuous · repeat rounds"])
 	mode.item_selected.connect(func(_i): _sync_controls())
 	speed = option(choices, ["0.5× speed", "1× speed", "2× speed"])
 	speed.select(1)
-	label(choices, "Seed · applied on Reset", 14)
+	label(choices, "Seed · same seed repeats the same fight", 14)
 	seed_entry = LineEdit.new()
-	seed_entry.text = "lane-balance-1"
+	seed_entry.text = sim.seed_value
 	choices.add_child(seed_entry)
 	label(choices, "Manual spawns are ready to move. Random commitments deploy next interval, as in the game. Spawns clicked during playback join the next interval.", 14)
 	var actions := HBoxContainer.new()
@@ -119,7 +121,8 @@ func _ready() -> void:
 	run_button = button(actions, "RUN 15s", start)
 	run_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	pause_button = button(actions, "PAUSE", pause)
-	reset_button = button(controls, "RESET ARENA", reset)
+	new_arena_button = button(controls, "NEW RANDOM ARENA", new_random_arena)
+	reset_button = button(controls, "REPLAY / APPLY SEED", reset)
 	field = Lane.new()
 	field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	field.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -281,6 +284,7 @@ func _sync_controls() -> void:
 	run_button.text = "RESUME" if active else ("START" if mode.selected == 1 else "RUN 15s")
 	pause_button.disabled = not running
 	reset_button.disabled = job != null
+	new_arena_button.disabled = job != null
 
 func _show_idle() -> void:
 	field.show_world(sim.units(), sim.round_number, sim.world.data.get("field_structures", []))
@@ -312,6 +316,14 @@ func _report(rows: Array) -> void:
 	counts.text = "\n".join(lines)
 	totals_note.text = "\n\n".join(total_lines)
 
+static func fresh_seed() -> String:
+	return "lane-%08x-%08x" % [randi(), randi()]
+
+func new_random_arena() -> void:
+	if job != null: return
+	seed_entry.text = fresh_seed()
+	reset()
+
 func reset() -> void:
 	if job != null: return
 	running = false
@@ -320,6 +332,7 @@ func reset() -> void:
 	pending.clear()
 	result = {}
 	sim = Sim.new(seed_entry.text)
+	seed_entry.text = sim.seed_value
 	playback = Playback.new()
 	field.reset_effects()
 	_update_wave_notes()
