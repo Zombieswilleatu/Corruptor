@@ -246,6 +246,9 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 				_monster_attacks.append(_beam_picture(d, at + span, minf(lead + MOVE_SECONDS, until), "BeamTrail"))
 	for event in events:
 		var d: Dictionary = event.data
+		if d.get("blocked", false) and event.type in ["MARCHER_RANGED_ATTACK", "MONSTER_ATTACK"]:
+			var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
+			_monster_attacks.append({"start": at, "end": at + 0.20, "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "ability": "RangedBlock"})
 		if event.type == "MONSTER_FIELD_CREATED" and not _monster_fields.any(func(f): return f.field.id == d.field.id):
 			var tick: int = int(d.get("tick", death_ticks.get(d.field.id, 0)))
 			_monster_fields.append({"at": lead + MOVE_SECONDS * float(tick + 1) / float(started.ticks), "field": d.field})
@@ -254,7 +257,7 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 			var key: String = "%s:%d" % [d.attacker.id, d.tick]
 			if d.ability == "Beam" and beams.has(key):
 				# Collateral lights up the struck bodies; it never redirects the beam.
-				beams[key].impacts.append({"attributes": d.target.attributes, "id": d.target.id, "owner": d.target.owner})
+				beams[key].impacts.append({"attributes": d.target.attributes, "id": d.target.id, "owner": d.target.owner, "blocked": d.get("blocked", false)})
 			else:
 				# Older tapes contain hit records only and can still show their shots.
 				_monster_attacks.append({"start": at, "end": at + (BEAM_SECONDS if d.ability == "Beam" else 0.14), "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "ability": d.ability})

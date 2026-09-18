@@ -3,7 +3,7 @@ extends RefCounted
 # Standalone playtest roster. Named suits count cards, never printed values.
 # Unsettled numerical abilities are deliberately explicit tuning values.
 # Bump VERSION in both engines when changing recipes, profiles or tuning.
-const VERSION: String = "U13_MONSTERS_V3"
+const VERSION: String = "U13_MONSTERS_V4"
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const NAMES: Array = ["Lemek", "Varn", "Fyra", "Kopita", "Tumler", "Kurchin", "Muno", "Dotra", "Sooge", "Sinodek"]
 const ROSTER: Dictionary = {

@@ -4,6 +4,7 @@ const Rules = preload("res://Scripts/Sim/U13MonsterRules.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Lamp = preload("res://Scripts/Sim/U13Wishmaster.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
+const Defense = preload("res://Scripts/Sim/U13PenitentDefense.gd")
 
 static func event(kind: String, data: Dictionary) -> Dictionary:
 	var fact: Dictionary = {"type": kind, "text": "", "data": data.duplicate(true)}
@@ -250,14 +251,16 @@ static func damage(world: Dictionary, entities, hit: Dictionary, context: Dictio
 	var target: Dictionary = entities.get_entity(hit.target)
 	if target.is_empty(): return {"action": "resolved", "world": world, "events": events}
 	var before: Dictionary = target.duplicate(true)
-	var absorbed: int = 0 if hit.bypass else mini(int(target.attributes.armor), int(hit.amount))
-	var dealt: int = int(hit.amount) - absorbed
+	var blocked: bool = hit.ability == "Beam" and Defense.blocks(target, hit.source.id, context.seed, context.round, tick, "Beam")
+	var amount: int = 0 if blocked else int(hit.amount)
+	var absorbed: int = 0 if hit.bypass else mini(int(target.attributes.armor), amount)
+	var dealt: int = amount - absorbed
 	target.attributes.armor -= absorbed
 	target.attributes.hp = maxi(0, int(target.attributes.hp) - dealt)
 	target.attributes.movement_ready_round = mini(int(target.attributes.movement_ready_round), int(context.round))
 	if target.attributes.hp == 0: entities.retire(target.id)
 	else: entities.update(target.id, target.owner, target.attributes)
-	events.append(event("MONSTER_ATTACK", {"attacker": hit.source, "target": before, "ability": hit.ability, "damage_dealt": dealt, "hp_after": target.attributes.hp, "round": context.round, "tick": tick}))
+	events.append(event("MONSTER_ATTACK", {"attacker": hit.source, "target": before, "ability": hit.ability, "blocked": blocked, "damage_dealt": dealt, "hp_after": target.attributes.hp, "round": context.round, "tick": tick}))
 	world.entities = entities.snapshot()
 	if target.attributes.hp == 0:
 		var fact: Dictionary = event("MARCHER_DEFEATED", {"event_id": Data.instance_id("monster_kill", "%d:%d:%s" % [context.round, tick, hit.source.id], target.id), "round": context.round, "hook": "marching", "tick": tick, "victim": before, "attacker": hit.source, "cause": "combat", "damage_dealt": dealt}).event

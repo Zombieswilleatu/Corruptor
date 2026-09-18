@@ -1,0 +1,77 @@
+{
+  "date": "2026-09-18",
+  "parent_commit": "b56c83a42e2fc1970d7badf261888e09db875c61",
+  "changed_files_sha256": "32e3522a3ae0ff117f3c7f72c8a6749b3637c68aa08aaa09ff2125541d360574",
+  "runtime": "Godot 4.5.1 Linux diagnostic; production 4.7.2 gate unchanged",
+  "rule": {
+    "unit": "Penitent marcher",
+    "chance_percent": 50,
+    "per": "incoming attacker/target/round/tick/attack-kind",
+    "covers": [
+      "Vulture ranged projectile",
+      "Sooge beam detonation including friendly collateral"
+    ],
+    "blocked_damage": {
+      "hp": 0,
+      "armor": 0
+    },
+    "wakes_recruit": true,
+    "spends_attacker_cooldown": true,
+    "melee_and_nonranged_abilities_unchanged": true
+  },
+  "presentation": "Shield glint for recorded blocks; battlefield and sandbox spawn tooltips",
+  "native_checks": {
+    "penitent-block": {
+      "passed": 321,
+      "failures": 0
+    },
+    "penitent-ranged": {
+      "passed": 30,
+      "failures": 0
+    }
+  },
+  "python_tests": {
+    "passed": 21,
+    "failures": 0
+  },
+  "native_python_exact_parity": {
+    "phases": 41,
+    "events": 8631,
+    "ticks": 8200,
+    "event_types": {
+      "KRONI_ACTORS_STARTED": 1,
+      "KRONI_ACTOR_FINISHED": 1,
+      "KRONI_ACTOR_TICK": 200,
+      "KRONI_FLEE_STARTED": 1,
+      "MARCHER_CLASH": 17,
+      "MARCHER_CONTACT": 20,
+      "MARCHER_DEFEATED": 20,
+      "MARCHER_DEVOURED": 1,
+      "MARCHER_DUEL_INTERRUPTED": 3,
+      "MARCHER_RANGED_ATTACK": 37,
+      "MARCHER_WAITING": 1,
+      "MARCHING_FINISHED": 41,
+      "MARCHING_STARTED": 41,
+      "MARCHING_TICK": 8200,
+      "MONSTER_ATTACK": 13,
+      "MONSTER_BANISHED": 1,
+      "MONSTER_BEAM_DETONATED": 9,
+      "MONSTER_BEAM_FIRED": 8,
+      "MONSTER_CHARMED": 3,
+      "MONSTER_CONCEALMENT": 1,
+      "MONSTER_FIELD_CREATED": 3,
+      "MONSTER_POISONED": 1,
+      "MONSTER_PULSE": 1,
+      "MONSTER_ROOTED": 1,
+      "NEUTRAL_TEAR_CREATED": 3,
+      "PICKING_THE_BONES": 3
+    }
+  },
+  "git_diff_check": "passed",
+  "visual_review": "Presentation sampling tested headlessly; Windows visual review remains",
+  "rules_profiles": {
+    "ranged": "U13_VULTURE_RANGED_V5",
+    "monsters": "U13_MONSTERS_V4"
+  },
+  "save_compatibility": "Fresh game required after rules update"
+}

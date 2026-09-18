@@ -107,6 +107,64 @@ func sooge_ramp_checks() -> void:
 func facts(result: Dictionary, kind: String) -> Array:
 	return result.get("events", []).filter(func(r): return r.event.type == kind).map(func(r): return r.event.data)
 
+func block_seed(target: Dictionary, attacker: Dictionary, kind: String, tick: int, wanted: bool) -> String:
+	for i in range(1000):
+		var seed_value: String = "penitent-block:" + str(i)
+		if Marching.Ranged.Defense.blocks(target, attacker.id, seed_value, 2, tick, kind) == wanted: return seed_value
+	return "missing"
+
+func penitent_block_checks() -> void:
+	for pid in [0, 1]:
+		for wanted in [true, false]:
+			var w: Dictionary = phase_world()
+			var target: Dictionary = put(w, "Penitent", pid, 1200, {"birth_round": 2, "movement_ready_round": 3})
+			var shooter: Dictionary = put(w, "Vulture", 1 - pid, 1200 + (300 if pid == 0 else -300))
+			var seed_value: String = block_seed(target, shooter, "Vulture", 0, wanted)
+			var buffer = Marching.Buffer.new(); buffer.restore(w.entities)
+			var result: Dictionary = Marching.Ranged.volley(w.duplicate(true), buffer, context(w, seed_value), {}, 0, {}, Callable(Game.Content.new(), "react"))
+			var after: Dictionary = buffer.get_entity(target.id).attributes
+			check(facts(result, "MARCHER_RANGED_ATTACK")[0].blocked == wanted and after.hp == target.attributes.hp and after.armor == (3 if wanted else 2), "Penitent owner %d %s preserves HP and only blocked shots preserve Armor" % [pid, "block" if wanted else "failed block"])
+			check(after.movement_ready_round == 2 and buffer.get_entity(shooter.id).attributes.ranged_next_tick == 432, "blocked or absorbed hit wakes a recruit and spends the shooter's attack")
+			var played: Dictionary = phase("penitent_%d_block_%s" % [pid, str(wanted)], w, seed_value)
+			var playback = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
+			check(playback.build(played.events.map(func(r): return r.event)) and playback.sample(0.22).monster_attacks.any(func(a): return a.ability == "RangedBlock") == wanted, "shield glint appears only for an actual block")
+	# One volley can contain a blocked shot and a damaging shot on the same body.
+	var w: Dictionary = phase_world()
+	var target: Dictionary = put(w, "Penitent", 0, 1200, {"armor": 0, "hp": 100, "max_hp": 100})
+	var first: Dictionary = put(w, "Vulture", 1, 1500, {"y_fp": 200})
+	var second: Dictionary = put(w, "Vulture", 1, 1500, {"y_fp": 400}, 1)
+	var seed_value: String = ""
+	for i in range(1000):
+		var candidate: String = "independent-block:" + str(i)
+		if Marching.Ranged.Defense.blocks(target, first.id, candidate, 2, 0, "Vulture") != Marching.Ranged.Defense.blocks(target, second.id, candidate, 2, 0, "Vulture"):
+			seed_value = candidate; break
+	var buffer = Marching.Buffer.new(); buffer.restore(w.entities)
+	var volley: Dictionary = Marching.Ranged.volley(w.duplicate(true), buffer, context(w, seed_value), {}, 0, {}, Callable(Game.Content.new(), "react"))
+	var shots: Array = facts(volley, "MARCHER_RANGED_ATTACK")
+	check(shots.size() == 2 and shots.filter(func(d): return d.blocked).size() == 1 and buffer.get_entity(target.id).attributes.hp == 99, "each incoming shot gets its own block roll")
+	phase("independent_penitent_volley", w, seed_value)
+	for pid in [0, 1]:
+		for wanted in [true, false]:
+			w = phase_world()
+			target = put(w, "Penitent", pid, 1200, {"armor": 0, "step_fp": 0})
+			var source: Dictionary = put(w, "Sooge", 1 - pid, 300 if pid == 1 else 2100, {"sprite_form": "turret", "step_fp": 0})
+			seed_value = block_seed(target, source, "Beam", 40, wanted)
+			var beam: Dictionary = phase("penitent_%d_beam_%s" % [pid, str(wanted)], w, seed_value)
+			var hit: Dictionary = facts(beam, "MONSTER_ATTACK").filter(func(d): return d.ability == "Beam")[0]
+			check(hit.blocked == wanted and hit.damage_dealt == (0 if wanted else 3), "Penitent can block Sooge damage at detonation")
+	# An otherwise successful ranged-block roll does not stop non-ranged damage.
+	for ability in ["Poison", "Kopita", "Muno", "Ambush"]:
+		w = phase_world()
+		target = put(w, "Penitent", 0, 1200, {"armor": 0})
+		var source: Dictionary = put(w, "Sooge", 1, 1500)
+		seed_value = block_seed(target, source, "Beam", 0, true)
+		buffer.restore(w.entities)
+		var result: Dictionary = MonsterFX.damage(w, buffer, {"source": source, "target": target.id, "amount": 3, "bypass": ability == "Poison", "ability": ability}, context(w, seed_value), 0, Callable(Game.Content.new(), "react"))
+		check(not facts(result, "MONSTER_ATTACK")[0].blocked and buffer.get_entity(target.id).attributes.hp == 2, ability + " does not trigger ranged blocks")
+	for name in ["Butcher", "Vulture", "Wright", "Lemek"]:
+		w = phase_world(); target = put(w, name, 0, 1200)
+		check(not Marching.Ranged.Defense.blocks(target, "attacker", "shield", 2, 0, "Vulture"), name + " does not gain the Penitent boon")
+
 func pool_checks() -> void:
 	for pid in [0, 1]:
 		var base: Dictionary = phase_world()
@@ -181,6 +239,7 @@ func beam_boundary_checks() -> void:
 func run() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	if not args.is_empty(): phase_output = FileAccess.open(args[0], FileAccess.WRITE)
+	penitent_block_checks()
 	sooge_ramp_checks()
 	pool_checks()
 	beam_boundary_checks()
@@ -234,7 +293,7 @@ func run() -> void:
 	var trace: Dictionary = beam_playback.sample(1.2)
 	check(trace.monster_attacks.size() == 1 and trace.monster_attacks[0].ability == "Beam" and trace.units.any(func(u): return u.id == primary.id and u.attributes.armor == primary.attributes.armor), "fast laser traces the ground before damage")
 	check(beam_playback.sample(1.32).monster_attacks[0].ability == "BeamTrail", "ground scar warns of the following detonation")
-	var pulses: Array = beam_playback.sample(1.44).monster_attacks
+	var pulses: Array = beam_playback.sample(1.44).monster_attacks.filter(func(a): return a.ability == "BeamBlast")
 	check(pulses.size() == 1 and pulses[0].ability == "BeamBlast" and pulses[0].target_id == primary.id and pulses[0].impacts.size() == first_hits.size(), "one delayed explosion retains the laser path and marks all collateral hits")
 	check(beam_playback.sample(beam_playback.duration).monster_attacks.is_empty(), "last laser pulse ends before final playback state")
 	check(beam.world.entities.entities.any(func(u): return u.id == attacker.id and u.attributes.x_fp == 300 and u.attributes.sprite_form == "turret"), "turret remains rooted throughout Marching")

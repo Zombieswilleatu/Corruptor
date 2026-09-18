@@ -142,7 +142,9 @@ func _get_tooltip(at: Vector2) -> String:
 		if area.has_point(at):
 			var unit_name: String = unit.attributes.get("monster_id", unit.attributes.suit)
 			var hp: String = "Obscured" if void_active else "%d/%d" % [unit.attributes.hp, unit.attributes.max_hp]
-			return "%s · %s\nHP %s · Armor %d" % [unit_name, "Yours" if unit.owner == 0 else "Enemy", hp, unit.attributes.armor]
+			var description: String = "%s · %s\nHP %s · Armor %d" % [unit_name, "Yours" if unit.owner == 0 else "Enemy", hp, unit.attributes.armor]
+			if unit_name == "Penitent": description += "\n" + preload("res://Scripts/Sim/U13PenitentDefense.gd").DESCRIPTION
+			return description
 	return ""
 
 
@@ -584,7 +586,14 @@ func _draw_monster_attacks() -> void:
 	for attack in monster_attacks:
 		var a := _attack_point(attack.source, attack.get("source_id", ""), attack.get("source_owner", 0))
 		var b := _attack_point(attack.target, attack.get("target_id", ""), attack.get("target_owner", 1))
-		if attack.ability == "BeamCharge":
+		if attack.ability == "RangedBlock":
+			# A brief shield glint works for both chits and sprites, without labels.
+			var fade: float = 1.0 - float(attack.get("weight", 0.0))
+			var shield := PackedVector2Array([b + Vector2(-9, -8), b + Vector2(0, -11), b + Vector2(9, -8), b + Vector2(7, 3), b + Vector2(0, 10), b + Vector2(-7, 3), b + Vector2(-9, -8)])
+			draw_colored_polygon(shield, Color(0.75, 0.84, 1.0, 0.25 * fade))
+			draw_polyline(shield, Color(0.93, 0.96, 1.0, fade), 2.0, true)
+			draw_line(b + Vector2(-4, -1), b + Vector2(4, -1), Color(1.0, 0.90, 0.65, fade), 2.0, true)
+		elif attack.ability == "BeamCharge":
 			var charge: float = float(attack.weight)
 			var radius: float = lerpf(3.0, 10.0, charge)
 			draw_circle(a, radius * 1.8, Color(0.08, 0.38, 1.0, 0.10 + 0.18 * charge))
@@ -639,6 +648,7 @@ func _draw_beam_blast(attack: Dictionary) -> void:
 			draw_line(p, tip, Color(0.45, 0.80, 1.0, 0.7 * fade), 4.0 * fade + 0.5, true)
 			draw_line(p, tip, Color(0.90, 0.99, 1.0, fade), 1.0, true)
 	for hit in attack.get("impacts", []):
+		if hit.get("blocked", false): continue
 		if hit.attributes.get("hidden", false) and hit.owner == 1: continue
 		var impact := _monster_point(hit.attributes)
 		var flash: float = 1.0 - smoothstep(0.0, 0.55, weight)

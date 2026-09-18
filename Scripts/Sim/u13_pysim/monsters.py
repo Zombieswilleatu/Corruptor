@@ -1,7 +1,7 @@
 """Monster recipes and explicit playtest tuning; independent Python rules."""
 from . import economy as e
 from .copying import copy_data
-VERSION = "U13_MONSTERS_V3"
+VERSION = "U13_MONSTERS_V4"
 ROSTER = {'Lemek': {'tier': 'Easy',
            'recipe': {'Penitent': 2},
            'attack': 3,

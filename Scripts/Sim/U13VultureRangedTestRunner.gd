@@ -51,7 +51,7 @@ func _run_suite() -> void:
 	_check(a.attack == 1 and a.armor == 1 and a.step_fp == 4 and not a.armor_bypass, "Vulture 1 attack / 1 defense / 2 base speed, no piercing")
 	var world: Dictionary = _world()
 	_add(world, "bird", 0, "Vulture", 500)
-	_add(world, "guard", 1, "Penitent", 1000, {"step_fp": 0, "hp": 100, "max_hp": 100})
+	_add(world, "guard", 1, "Wright", 1000, {"step_fp": 0, "hp": 100, "max_hp": 100, "armor": 3})
 	var result: Dictionary = _run(world)
 	_check(result.action == "resolved", "ranged Marching resolves")
 	if result.action != "resolved":

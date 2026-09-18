@@ -10,7 +10,7 @@ from bisect import bisect_left
 
 from . import veil, monsters, monster_effects
 from .copying import copy_data
-from . import wishmaster, kroni_actors
+from . import wishmaster, kroni_actors, penitent_defense
 from .marching_buffer import Buffer
 from .economy import Rejected, Unsupported
 from .marching_columns import Columns
@@ -392,8 +392,10 @@ class Phase:
         for shot in shots:
             target = s.live(shot["target"]["id"])
             dealt, hp_after = 0, 0
+            blocked = False
             if target is not None:
-                dealt = attack(s, target, shot["amount"], False)
+                blocked = penitent_defense.blocks(s.row(target), shot['attacker']['id'], self.context['seed'], self.number, tick, 'Vulture')
+                dealt = attack(s, target, 0 if blocked else shot["amount"], False)
                 hp_after = s.hp[target]
                 if not hp_after:
                     s.retire(target)
@@ -401,7 +403,7 @@ class Phase:
                 else:
                     s.movement_ready_round[target] = min(s.movement_ready_round[target], self.number)
             self.emit("MARCHER_RANGED_ATTACK", dict(round=self.number, tick=tick, lane=shot["attacker"]["attributes"]["lane"],
-                      attacker=shot["attacker"], target=shot["target"], damage_dealt=dealt, hp_after=hp_after))
+                      attacker=shot["attacker"], target=shot["target"], blocked=blocked, damage_dealt=dealt, hp_after=hp_after))
         # Columns already own nonlethal damage/cooldowns. Publish and rebuild
         # only when a death callback can change the registry outside them.
         if self.reaction is not None and deaths:

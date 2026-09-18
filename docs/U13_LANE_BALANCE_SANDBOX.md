@@ -49,7 +49,15 @@ round boundaries and saves. Continuous mode uses the same timing. Playback
 speed changes scale the visible timing; the regular game's shorter playback
 still represents one complete round.
 
-These changes use `U13_VULTURE_RANGED_V4` and `U13_MONSTERS_V3`.
+Penitents now have a **50% block chance per incoming ranged hit**. This applies
+to Vulture projectiles and Sooge's delayed beam damage, including collateral.
+A successful block prevents both HP and Armor loss; failed blocks use normal
+damage rules. Each attacker/target/hit has its own seeded roll. Blocks still
+wake a newly deployed defender and spend the attacker's shot. A brief shield
+glint marks the block on both chits and sprites; tooltips describe the boon.
+Melee, poison, Kopita pulses, Muno strikes and ambushes do not trigger it.
+
+Current tuning uses `U13_VULTURE_RANGED_V5` and `U13_MONSTERS_V4`.
 Start a fresh game after updating; older rules fingerprints remain incompatible.
 
 There are no Lords, cards on the battlefield, castles, passives, Veil effects

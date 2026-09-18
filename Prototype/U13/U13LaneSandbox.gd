@@ -81,6 +81,7 @@ func _ready() -> void:
 		spawn_buttons[name].size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var profile: Dictionary = Sim.Marching.profile(name, "Lord", 0, 0, 1, true)
 		spawn_buttons[name].tooltip_text = "%d HP · %d Attack · %d Armor" % [profile.max_hp, profile.attack, profile.armor]
+		if name == "Penitent": spawn_buttons[name].tooltip_text += "\n" + preload("res://Scripts/Sim/U13PenitentDefense.gd").DESCRIPTION
 	label(choices, "MONSTERS", 19)
 	monster_choice = option(choices, Sim.Monsters.NAMES)
 	monster_choice.item_selected.connect(func(_i): _monster_changed())

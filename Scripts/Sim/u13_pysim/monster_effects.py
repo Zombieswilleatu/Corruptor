@@ -2,6 +2,7 @@
 from . import monsters as rules
 from .copying import copy_data
 from .primitives import draw, instance_id
+from . import penitent_defense
 
 T = rules.TUNING
 
@@ -191,11 +192,13 @@ def step(w,buffer,c,tick,reaction):
 def damage(w,buffer,hit,c,tick,reaction):
     events=[];target=buffer.get(hit['target'])
     if not target:return dict(action='resolved',world=w,events=events)
-    before=copy_data(target);a=target['attributes'];absorbed=0 if hit['bypass'] else min(a['armor'],hit['amount']);dealt=hit['amount']-absorbed
+    before=copy_data(target);a=target['attributes']
+    blocked=hit['ability']=='Beam' and penitent_defense.blocks(target,hit['source']['id'],c['seed'],c['round'],tick,'Beam')
+    amount=0 if blocked else hit['amount'];absorbed=0 if hit['bypass'] else min(a['armor'],amount);dealt=amount-absorbed
     a['armor']-=absorbed;a['hp']=max(0,a['hp']-dealt);a['movement_ready_round']=min(a['movement_ready_round'],c['round'])
     if a['hp']==0:buffer.retire_id(target['id'])
     else:buffer.update(target['id'],target['owner'],a)
-    events.append(event('MONSTER_ATTACK',dict(attacker=hit['source'],target=before,ability=hit['ability'],damage_dealt=dealt,hp_after=a['hp'],round=c['round'],tick=tick)))
+    events.append(event('MONSTER_ATTACK',dict(attacker=hit['source'],target=before,ability=hit['ability'],blocked=blocked,damage_dealt=dealt,hp_after=a['hp'],round=c['round'],tick=tick)))
     w['entities']=buffer.snapshot()
     if a['hp']==0:
         fact=event('MARCHER_DEFEATED',dict(event_id=instance_id('monster_kill',f"{c['round']}:{tick}:{hit['source']['id']}",target['id']),round=c['round'],hook='marching',tick=tick,victim=before,attacker=hit['source'],cause='combat',damage_dealt=dealt))['event']

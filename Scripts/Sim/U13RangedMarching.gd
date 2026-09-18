@@ -3,7 +3,8 @@ extends RefCounted
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Wishmaster = preload("res://Scripts/Sim/U13Wishmaster.gd")
 const Rout = preload("res://Scripts/Sim/U13Rout.gd")
-const VERSION: String = "U13_VULTURE_RANGED_V4"
+const Defense = preload("res://Scripts/Sim/U13PenitentDefense.gd")
+const VERSION: String = "U13_VULTURE_RANGED_V5"
 const ATTACK: int = 1
 const RANGE_FP: int = 400 # Two units at 200 fixed-point units per unit.
 const CONTACT_FP: int = 180
@@ -84,10 +85,13 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 		# A shot already in the volley still exists after reciprocal lethal fire;
 		# an overkilled target does not generate a second death or refund the shot.
 		var dealt: int = 0
+		var blocked: bool = false
 		if not target.is_empty():
-			var absorbed: int = mini(int(target.attributes.armor), int(shot.amount))
+			blocked = Defense.blocks(target, shot.attacker.id, context.seed, context.round, tick, "Vulture")
+			var amount: int = 0 if blocked else int(shot.amount)
+			var absorbed: int = mini(int(target.attributes.armor), amount)
 			target.attributes.armor -= absorbed
-			dealt = int(shot.amount) - absorbed
+			dealt = amount - absorbed
 			target.attributes.hp = maxi(0, int(target.attributes.hp) - dealt)
 			if target.attributes.hp == 0:
 				entities.retire(target.id)
@@ -96,7 +100,7 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 				# Birth-round holding ends when the unit is attacked, even through Armor.
 				target.attributes.movement_ready_round = mini(int(target.attributes.movement_ready_round), int(context.round))
 				entities.update(target.id, target.owner, target.attributes)
-		var details: Dictionary = {"round": context.round, "tick": tick, "lane": shot.attacker.attributes.lane, "attacker": shot.attacker, "target": shot.target, "damage_dealt": dealt, "hp_after": 0 if target.is_empty() else target.attributes.hp}
+		var details: Dictionary = {"round": context.round, "tick": tick, "lane": shot.attacker.attributes.lane, "attacker": shot.attacker, "target": shot.target, "blocked": blocked, "damage_dealt": dealt, "hp_after": 0 if target.is_empty() else target.attributes.hp}
 		events.append(event("MARCHER_RANGED_ATTACK", details))
 	world.entities = entities.snapshot()
 	for death in deaths:
