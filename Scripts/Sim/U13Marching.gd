@@ -728,6 +728,8 @@ static func _move(
 		for unit in rows:
 			var target: Dictionary = FieldMelee.nearest(unit, targets, Fort.CONTACT, true)
 			if target.is_empty(): target = FieldMelee.nearest(unit, targets)
+			if unit.attributes.get("monster_id") == "Dotra" and unit.attributes.get("hidden", false):
+				target = MonsterEffects.nearest(unit, rows)
 			neighbors[unit.id] = {"unit": target, "distance": 9223372036854775807 if target.is_empty() else Fort.gap(unit, target)}
 	var accepted: Array = []
 	var accepted_by_id: Dictionary = {}
@@ -740,7 +742,7 @@ static func _move(
 	# Read targets from one tick snapshot. Current units can pass through allies;
 	# only the frozen legacy profile resolves friendly space in ID order.
 	for unit in rows:
-		if fleeing_ids.has(unit.id) or unit.attributes.get("hidden", false) or unit.attributes.get("sprite_form") == "turret":
+		if fleeing_ids.has(unit.id) or (unit.attributes.get("hidden", false) and unit.attributes.get("monster_id") != "Dotra") or unit.attributes.get("sprite_form") == "turret":
 			continue
 		var a: Dictionary = unit.attributes
 		var nearby: Dictionary = neighbors[unit.id]
@@ -765,6 +767,8 @@ static func _move(
 			var percent: int = 0 if lane_modifiers.is_empty() else int(lane_modifiers[a.lane][unit.owner].speed_percent)
 			step = LaneAuras.speed(int(a.step_fp), percent, has_rout and Rout.recovering(a, int(context.round)), clock, not spatial_fields.is_empty() and SpatialFields.slowed(spatial_fields, unit.owner, a), true)
 		if MonsterEffects.slowed(a, context.get("monster_fields", [])):
+			step = (step >> 1) + (step & 1) * (clock & 1)
+		if a.get("monster_id") == "Dotra" and a.get("hidden", false):
 			step = (step >> 1) + (step & 1) * (clock & 1)
 		if not retreat and (Fort.in_melee(unit, nearby.unit) if modern else int(nearby.distance) <= CONTACT_FP * CONTACT_FP):
 			if previous_ticket < 0:

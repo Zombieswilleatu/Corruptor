@@ -212,10 +212,13 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     field_nearest = {i: (field_combat.nearest(s.row(i), target_rows+structures, fort.CONTACT, True) or field_combat.nearest(s.row(i), target_rows+structures)) for i in indices} if ranged else {}
     if ranged:
         for i in indices:
+            if (s.extra[i] or {}).get('monster_id')=='Dotra' and (s.extra[i] or {}).get('hidden',False):
+                field_nearest[i]=monster_effects.nearest(s.row(i),target_rows)
             gaps[i] = fort.gap(s.row(i), field_nearest[i]) if field_nearest[i] else (1 << 63)-1
     collapse_players = veil.affected_players(context["world"],"Valak")
     for i in indices:
-        if s.ids[i] in fleeing or (s.extra[i] or {}).get("hidden",False) or (s.extra[i] or {}).get("sprite_form")=="turret": continue
+        extra=s.extra[i] or {}
+        if s.ids[i] in fleeing or (extra.get("hidden",False) and extra.get('monster_id')!='Dotra') or extra.get("sprite_form")=="turret": continue
         lane, owner, base = s.lane[i], s.owner[i], s.step_fp[i]
         collapse = collapse_players[owner]
         recovery = s.rout_round[i] == number - 1
@@ -225,6 +228,8 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
         if percent or web or collapse:
             step = speed(base, percent, recovery, clock, web, collapse)
         if monster_effects.slowed(dict(x_fp=xs[i],y_fp=ys[i],lane=lane,flying=(s.extra[i] or {}).get('flying',False),monster_id=(s.extra[i] or {}).get('monster_id')),data.get('monsters',{}).get('fields',[])):
+            step=(step>>1)+(step&1)*(clock&1)
+        if extra.get('monster_id')=='Dotra' and extra.get('hidden',False):
             step=(step>>1)+(step&1)*(clock&1)
         if not retreat[i] and (fort.in_melee(s.row(i), field_nearest[i]) if ranged else gaps[i] <= reach2):
             if s.contact_tick[i] < 0:

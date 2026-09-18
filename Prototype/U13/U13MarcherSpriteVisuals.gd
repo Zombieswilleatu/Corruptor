@@ -105,6 +105,7 @@ func presentation(unit: Dictionary, death_age: float = -1.0) -> Dictionary:
 	var state: Dictionary = subjects.get(unit.id, {})
 	var character: String = state.get("character", Catalog.character_for(unit))
 	var face_left: bool = state.get("face_left", unit.owner == 1)
+	if unit.attributes.has("visual_muno_face_left"): face_left = unit.attributes.visual_muno_face_left
 	var transform_age: float = state.get("transform_age", 10.0 if character == "Sooge" and unit.attributes.get("sprite_form", "") == "turret" else -1.0)
 	var pose_data := Catalog.pose_frame(character, face_left, transform_age)
 	var motion := "Idle"
@@ -127,6 +128,9 @@ func presentation(unit: Dictionary, death_age: float = -1.0) -> Dictionary:
 	if death_age >= 0.0:
 		motion = "Death"
 		time = death_age * 1.25 / 0.48 # Match the existing casualty/ghost lifetime.
+	elif unit.attributes.has("visual_muno_weight"):
+		motion = "Attack"
+		time = float(unit.attributes.visual_muno_weight) * 0.6
 	var arrival_light := 0.35 * (1.0 - smoothstep(0.0, 0.8, float(state.get("spawn_age", 10.0))))
 	return {"frame": pose_data.frame, "mirror": pose_data.mirror, "character": character,
 		"face_left": face_left, "motion": motion, "time": time,
@@ -141,4 +145,13 @@ func draw(canvas: CanvasItem, unit: Dictionary, feet: Vector2, height: float,
 	Motion.paint(canvas, p.frame.texture, feet, height, p.face_left, p.motion, p.time,
 		p.phase, p.frame.anchor, p.frame.body, p.mirror, p.character, p.rooted,
 		{"glitch": glitch, "flash": maxf(float(p.flash), 1.0 if flash else 0.0)})
+	return true
+
+
+func draw_afterimage(canvas: CanvasItem, unit: Dictionary, feet: Vector2, height: float, tint: Color) -> bool:
+	var p := presentation(unit)
+	if p.frame.is_empty(): return false
+	Motion.paint(canvas, p.frame.texture, feet, height, p.face_left, "Hold", 0.0,
+		p.phase, p.frame.anchor, p.frame.body, p.mirror, p.character, p.rooted,
+		{"tint": tint, "shadow": false})
 	return true

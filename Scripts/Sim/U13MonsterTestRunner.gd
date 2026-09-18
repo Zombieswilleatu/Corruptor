@@ -236,9 +236,194 @@ func beam_boundary_checks() -> void:
 	var playback = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
 	check(playback.build(killed.events.map(func(r): return r.event)) and playback.sample(0.5).monster_attacks.is_empty(), "dead Sooge does not leave a charging glow")
 
+func dotra_stalking_checks() -> void:
+	for pid in [0, 1]:
+		var w: Dictionary = phase_world()
+		var start: int = 0 if pid == 0 else 2400
+		var actor: Dictionary = put(w, "Dotra", pid, start)
+		var seed_value: String = selected_seed(actor.id, "HIDE", 25)
+		var creeping: Dictionary = phase("dotra_%d_half_speed" % pid, w, seed_value)
+		var after: Dictionary = Kanifous._entity(creeping.world, actor.id).attributes
+		check(after.hidden and absi(int(after.x_fp) - start) == 400 and after.step_fp == 4, "hidden Dotra moves at half speed without permanently lowering its base speed")
+		check(after.dotra_hidden_rounds == 0 and Monsters.emerge_chance(after) == 15, "initial hide does not spend the first emergence roll")
+		w = phase_world()
+		actor = put(w, "Dotra", pid, start, {"hp": 100, "max_hp": 100})
+		var prey: Dictionary = put(w, "Vulture", 1 - pid, 400 if pid == 0 else 2000, {"y_fp": 350, "step_fp": 0, "hp": 100, "max_hp": 100})
+		var hunt: Dictionary = phase("dotra_%d_moving_ambush" % pid, w, seed_value)
+		var ambushes: Array = facts(hunt, "MONSTER_ATTACK").filter(func(d): return d.ability == "Ambush")
+		check(ambushes.size() == 1 and ambushes[0].tick > 0 and ambushes[0].target.id == prey.id and ambushes[0].attacker.attributes.x_fp != start, "concealed Dotra closes distance and triggers one surprise attack")
+		if ambushes.is_empty(): continue
+		var tick: int = ambushes[0].tick
+		check(not facts(hunt, "MARCHER_RANGED_ATTACK").any(func(d): return d.target.id == actor.id and d.tick < tick), "ordinary ranged attacks cannot select the stalking Dotra")
+		after = Kanifous._entity(hunt.world, actor.id).attributes
+		check(not after.hidden and after.dotra_hidden_rounds == 0, "ambush reveals Dotra and resets the emergence ramp")
+	var w: Dictionary = phase_world()
+	var actor: Dictionary = put(w, "Dotra", 0, 800, {"hidden": true, "step_fp": 0})
+	var chances: Array = [15, 30, 45, 60, 75, 90, 100]
+	var seed_value: String = ""
+	for i in range(10000):
+		var candidate: String = "dotra-ramp:" + str(i)
+		var stays: bool = true
+		for index in range(6):
+			if MonsterFX.Lamp.draw(candidate, "%s:%d" % [actor.id, index + 2], "EMERGE", 100) < chances[index]:
+				stays = false; break
+		if stays: seed_value = candidate; break
+	check(not seed_value.is_empty(), "Dotra fixture remains hidden through six emergence rolls")
+	for index in range(7):
+		var n: int = index + 2
+		check(Monsters.emerge_chance(Kanifous._entity(w, actor.id).attributes) == chances[index], "Dotra emergence ramp %d%%" % chances[index])
+		var result: Dictionary = phase("dotra_emerge_%d" % chances[index], w, seed_value, n)
+		var after: Dictionary = Kanifous._entity(result.world, actor.id).attributes
+		check(facts(result, "MONSTER_CONCEALMENT").size() == 1 and facts(result, "MONSTER_CONCEALMENT")[0].emerge_chance == chances[index] and after.hidden == (index < 6), "Dotra rolls once per active round and must emerge at 100%")
+		w = result.world
+		if index == 2:
+			var saved: Dictionary = JSON.parse_string(Game.encode_snapshot(w))
+			var restored: Dictionary = bytes_to_var(Marshalls.base64_to_raw(saved.payload))
+			check(restored == w and Monsters.emerge_chance(Kanifous._entity(restored, actor.id).attributes) == 60, "save round-trip retains Dotra's accumulated emergence chance")
+			w = restored
+			var buffer = Marching.Buffer.new(); buffer.restore(w.entities)
+			var c: Dictionary = context(w, seed_value); c.round = n
+			var duplicate: Dictionary = MonsterFX.step(w, buffer, c, 0, Callable(Game.Content.new(), "react"))
+			check(facts(duplicate, "MONSTER_CONCEALMENT").is_empty() and buffer.get_entity(actor.id).attributes.dotra_hidden_rounds == 3, "repeating the same round cannot reroll or advance emergence")
+	check(Monsters.emerge_chance(Kanifous._entity(w, actor.id).attributes) == 15, "emerging resets the next concealment's chance")
+	w = phase_world()
+	actor = put(w, "Dotra", 0, 800, {"hidden": true, "dotra_hidden_rounds": 6, "step_fp": 0})
+	put(w, "Butcher", 1, 1040, {"step_fp": 0, "hp": 100, "max_hp": 100})
+	var immediate: Dictionary = phase("dotra_ambush_before_emerge", w)
+	check(facts(immediate, "MONSTER_ATTACK").any(func(d): return d.ability == "Ambush" and d.tick == 0), "prey already in range gets ambushed even when voluntary emergence would be guaranteed")
+	w = phase_world()
+	actor = put(w, "Dotra", 0, 0, {"birth_round": 2, "movement_ready_round": 3})
+	var held: Dictionary = phase("dotra_birth_hold", w)
+	check(facts(held, "MONSTER_CONCEALMENT").is_empty() and Kanifous._entity(held.world, actor.id).attributes.x_fp == 0, "new Dotra retains its birth hold")
+	for key in ["dotra_hidden_rounds", "dotra_concealment_round"]:
+		for value in [-1, 0.5, true, "1"]:
+			var forged: Dictionary = actor.attributes.duplicate(true); forged[key] = value
+			check(not Monsters.valid_unit(forged), "invalid Dotra counter is rejected: " + key)
+
+
+func muno_dash_checks() -> void:
+	var playback = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
+	var view = preload("res://Prototype/U13/U13SandboxLaneView.gd").new()
+	view.display_settings_path = ""
+	root.add_child(view)
+	view.size = Vector2(420, 900)
+	for pid in [0, 1]:
+		var w: Dictionary = phase_world()
+		var source: Dictionary = put(w, "Muno", pid, 1000, {"y_fp": 150, "step_fp": 0})
+		var target: Dictionary = put(w, "Butcher", 1 - pid, 1360, {"y_fp": 420, "step_fp": 0, "hp": 20, "max_hp": 20, "armor": 0})
+		var resolved: Dictionary = phase("muno_dash_%d" % pid, w)
+		check(facts(resolved, "MONSTER_ATTACK").filter(func(d): return d.ability == "Muno").size() == 1, "Muno still makes one free strike per round")
+		check(Kanifous._entity(resolved.world, source.id).attributes.x_fp == 1000 and Kanifous._entity(resolved.world, source.id).attributes.y_fp == 150, "Muno animation never moves its simulation anchor")
+		check(playback.build(resolved.events.map(func(r): return r.event)), "Muno dash playback builds")
+		var before: Dictionary = playback.sample(0.04)
+		var outward: Dictionary = playback.sample(0.12)
+		var contact: Dictionary = playback.sample(0.22)
+		var retreat: Dictionary = playback.sample(0.40)
+		var returned: Dictionary = playback.sample(0.55)
+		var a: Dictionary = outward.units.filter(func(u): return u.id == source.id)[0].attributes
+		var b: Dictionary = contact.units.filter(func(u): return u.id == source.id)[0].attributes
+		var c: Dictionary = retreat.units.filter(func(u): return u.id == source.id)[0].attributes
+		var d: Dictionary = returned.units.filter(func(u): return u.id == source.id)[0].attributes
+		check(a.visual_x > 1000 and a.visual_x < b.visual_x and c.visual_x < b.visual_x and c.visual_x > d.visual_x and is_equal_approx(d.visual_x, 1000), "visible Muno moves out, strikes, and returns instead of firing a projectile")
+		var delta := Vector2(float(b.visual_x) - float(target.attributes.x_fp), float(b.visual_y) - float(target.attributes.y_fp)) / Vector2(90.0, 42.0)
+		check(delta.length() < 1.0 and delta.length() > 0.5, "Muno's strike reaches melee distance without overlapping the victim")
+		check(before.units.filter(func(u): return u.id == target.id)[0].attributes.hp == 20 and contact.units.filter(func(u): return u.id == target.id)[0].attributes.hp == 17, "visible dash arrives exactly when the recorded damage lands")
+		check(retreat.monster_attacks[0].ability == "MunoDash" and returned.monster_attacks.size() == 1 and playback.sample(0.8).monster_attacks.is_empty(), "retreat afterimages linger briefly then disappear")
+		check(playback.sample(0.40) == retreat, "Muno dash and trail respect paused playback")
+		for sprites in [false, true]:
+			view.set_display_modes(sprites, sprites)
+			for frame in [outward, contact, retreat, returned]:
+				view.show_frame(frame, 2)
+				await process_frame
+	view.queue_free()
+	await process_frame
+
+
+func kopita_pulse_checks() -> void:
+	var playback = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
+	var pictures: Array = []
+	for pid in [0, 1]:
+		var w: Dictionary = phase_world()
+		var caster: Dictionary = put(w, "Kopita", pid, 1200, {"hp": 3, "step_fp": 0})
+		var wounded: Dictionary = put(w, "Butcher", pid, 1440, {"hp": 4, "step_fp": 0})
+		var full: Dictionary = put(w, "Penitent", pid, 960, {"step_fp": 0})
+		var distant: Dictionary = put(w, "Penitent", pid, 1561, {"hp": 2, "step_fp": 0}, 1)
+		var other_lane: Dictionary = put(w, "Butcher", pid, 1200, {"lane": "Castle", "hp": 2, "step_fp": 0}, 1)
+		var enemy: Dictionary = put(w, "Butcher", 1 - pid, 1200, {"y_fp": 530, "hp": 4, "armor": 0, "step_fp": 0})
+		var armored: Dictionary = put(w, "Penitent", 1 - pid, 840, {"step_fp": 0})
+		var healed: Dictionary = phase("kopita_%d_heal" % pid, w)
+		var pulses: Array = facts(healed, "MONSTER_PULSE")
+		check(pulses.size() == 1 and pulses[0].healing and pulses[0].tick == 0 and pulses[0].radius_fp == 360, "Kopita casts one heal at the start of the active round")
+		check(pulses[0].source.id == caster.id and pulses[0].healed.size() == 2 and pulses[0].healed.all(func(h): return h.id in [caster.id, wounded.id] and h.amount == 1), "healing tape records only actual HP recovery, including self-healing")
+		check(Kanifous._entity(healed.world, caster.id).attributes.hp == 4 and Kanifous._entity(healed.world, wounded.id).attributes.hp == 5, "pulse heals wounded allies up to their maximum")
+		for unchanged in [full, distant, other_lane, enemy]:
+			check(Kanifous._entity(healed.world, unchanged.id).attributes.hp == unchanged.attributes.hp, "full-health, distant, other-lane and enemy bodies receive no healing")
+		check(playback.build(healed.events.map(func(r): return r.event)), "healing pulse playback builds")
+		var frame: Dictionary = playback.sample(0.4)
+		pictures.append(frame)
+		check(frame.monster_attacks.size() == 1 and frame.monster_attacks[0].healing and frame.monster_attacks[0].impacts.size() == 2, "one green cast highlights the two healed bodies")
+		check(playback.sample(0.1).monster_attacks.is_empty() and playback.sample(0.9).monster_attacks.is_empty(), "Kopita feedback appears at the pulse and expires")
+		check(playback.sample(0.4) == frame, "paused playback retains the same pulse and recipient positions")
+		var old_tape: Array = healed.events.map(func(r): return r.event.duplicate(true))
+		for entry in old_tape:
+			if entry.type == "MONSTER_PULSE":
+				for key in ["source", "radius_fp", "healed"]: entry.data.erase(key)
+		check(playback.build(old_tape) and playback.sample(0.4).monster_attacks.size() == 1 and playback.sample(0.4).monster_attacks[0].impacts.is_empty(), "older heal tapes show a cast without inventing recipients")
+		var harmed: Dictionary = phase("kopita_%d_harm" % pid, healed.world, "monster-check", 3)
+		pulses = facts(harmed, "MONSTER_PULSE")
+		var hits: Array = facts(harmed, "MONSTER_ATTACK").filter(func(d): return d.ability == "Kopita")
+		check(pulses.size() == 1 and not pulses[0].healing and hits.size() == 2, "following active round alternates to one harm pulse")
+		check(hits.all(func(h): return h.target.id in [enemy.id, armored.id] and h.tick == 0) and hits.any(func(h): return h.target.id == enemy.id and h.damage_dealt == 1) and hits.any(func(h): return h.target.id == armored.id and h.damage_dealt == 0), "harm records nearby enemy hits, including the radius boundary and armor absorption")
+		check(playback.build(harmed.events.map(func(r): return r.event)), "harm pulse playback builds")
+		frame = playback.sample(0.4)
+		pictures.append(frame)
+		check(frame.monster_attacks.size() == 1 and not frame.monster_attacks[0].healing and frame.monster_attacks[0].impacts.size() == 2, "one violet cast highlights all actual damage recipients")
+	var w: Dictionary = phase_world()
+	put(w, "Kopita", 0, 800, {"birth_round": 2, "movement_ready_round": 3})
+	var held: Dictionary = phase("kopita_birth_hold", w)
+	check(facts(held, "MONSTER_PULSE").is_empty(), "Kopita does not claim to cast during birth hold")
+	var empty: Dictionary = phase("kopita_empty_heal", phase_world_with_kopita())
+	check(playback.build(empty.events.map(func(r): return r.event)) and playback.sample(0.4).monster_attacks.size() == 1 and playback.sample(0.4).monster_attacks[0].impacts.is_empty(), "a pulse with no wounded allies still visibly casts")
+	# Exercise the same effect on both renderers, with chits and with sprites.
+	for view in [preload("res://Prototype/U13/U13BoardLanes.gd").new(), preload("res://Prototype/U13/U13SandboxLaneView.gd").new()]:
+		view.display_settings_path = ""
+		root.add_child(view)
+		view.size = Vector2(420, 900)
+		for sprites in [false, true]:
+			view.regular_sprites = sprites; view.monster_sprites = sprites
+			for frame in pictures:
+				view.show_frame(frame, 2)
+				# Independent fixtures reuse IDs; they are not sequential casualties.
+				view.deaths.clear()
+				await process_frame
+				var pulse: Dictionary = frame.monster_attacks[0]
+				var bounds: Rect2 = view.travel_rect("Lord")
+				var outline: PackedVector2Array = view.kopita_pulse_outline(pulse)
+				check(outline.size() > 3 and Array(outline).all(func(p): return bounds.grow(0.01).has_point(p)), "Kopita footprint remains inside its lane in both displays")
+				var center: Vector2 = view._monster_point(pulse.source)
+				var nearest_y: float = INF
+				for point in outline: nearest_y = minf(nearest_y, point.y)
+				check(absf(center.y - nearest_y - bounds.size.y * 360.0 / 2400.0) < 0.02, "pulse uses the true 360-unit simulation radius")
+				var isolated: Dictionary = frame.duplicate(true)
+				isolated.units = frame.units.filter(func(u): return u.id == pulse.source_id)
+				view.show_frame(isolated, 2)
+				check(view._get_tooltip(view._monster_point(isolated.units[0].attributes)).contains("Next pulse:"), "Kopita hover explains the alternating cycle")
+		view.queue_free()
+	await process_frame
+
+
+func phase_world_with_kopita() -> Dictionary:
+	var w: Dictionary = phase_world()
+	put(w, "Kopita", 0, 800, {"step_fp": 0})
+	return w
+
+
 func run() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	if not args.is_empty(): phase_output = FileAccess.open(args[0], FileAccess.WRITE)
+	await kopita_pulse_checks()
+	await muno_dash_checks()
+	dotra_stalking_checks()
 	penitent_block_checks()
 	sooge_ramp_checks()
 	pool_checks()

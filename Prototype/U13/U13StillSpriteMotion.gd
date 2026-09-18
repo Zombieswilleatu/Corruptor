@@ -91,8 +91,9 @@ static func paint(canvas: CanvasItem, texture: Texture2D, feet: Vector2, height:
 	if alpha <= 0.0:
 		return
 	# Ground shadow stays fixed while the body leans about its feet.
-	canvas.draw_set_transform(feet, 0.0, Vector2(height * 0.24, height * 0.045))
-	canvas.draw_circle(Vector2.ZERO, 1.0, Color(0, 0, 0, 0.28 * alpha))
+	if effects.get("shadow", true):
+		canvas.draw_set_transform(feet, 0.0, Vector2(height * 0.24, height * 0.045))
+		canvas.draw_circle(Vector2.ZERO, 1.0, Color(0, 0, 0, 0.28 * alpha))
 	var offset: Vector2 = state.offset * height
 	offset.x *= direction
 	canvas.draw_set_transform(feet + offset, state.angle * direction,
@@ -103,7 +104,7 @@ static func paint(canvas: CanvasItem, texture: Texture2D, feet: Vector2, height:
 	var light: float = 1.0 + maxf(state.flash, float(effects.get("flash", 0.0))) * 1.8
 	var glitch: Dictionary = effects.get("glitch", {})
 	Glitch.draw_slices(canvas, texture, Rect2(-anchor, dimensions), Rect2(Vector2.ZERO, texture.get_size()),
-		float(glitch.get("amount", 0.0)), int(glitch.get("tick", 0)), Color(light, light, light, alpha))
+		float(glitch.get("amount", 0.0)), int(glitch.get("tick", 0)), Color(light, light, light, alpha) * effects.get("tint", Color.WHITE))
 	canvas.draw_set_transform(Vector2.ZERO)
 	if state.impact > 0.0:
 		var point := feet + Vector2(direction * height * 0.39, -height * 0.43)

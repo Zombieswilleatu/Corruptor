@@ -9,6 +9,11 @@ const FLIGHT_SECONDS: float = 0.18
 const BEAM_SECONDS: float = 0.22
 const GROUND_BEAM_SECONDS: float = 0.10
 const BEAM_BLAST_SECONDS: float = 0.30
+const KOPITA_PULSE_SECONDS: float = 0.60
+const MUNO_DASH_OUT: float = 0.16
+const MUNO_STRIKE_HOLD: float = 0.06
+const MUNO_DASH_BACK: float = 0.24
+const MUNO_TRAIL_SECONDS: float = 0.16
 var projectile_rows: Array = []
 var feedback_rows: Array = []
 var death_rows: Array = []
@@ -150,6 +155,19 @@ func sample(seconds: float) -> Dictionary:
 	var attacks: Array = _monster_attacks.filter(func(a): return at >= a.start and at < a.end).map(func(a): return a.duplicate(true))
 	for attack in attacks:
 		attack["weight"] = clampf((at - float(attack.start)) / maxf(0.001, float(attack.end) - float(attack.start)), 0.0, 1.0)
+		if attack.ability == "MunoDash":
+			attack["elapsed"] = at
+			for unit in result:
+				if unit.id != attack.source_id: continue
+				var home := Vector2(float(unit.attributes.visual_x), float(unit.attributes.visual_y))
+				attack["return_point"] = home
+				var dash := muno_position(attack, at, home)
+				unit.attributes["visual_x"] = dash.x
+				unit.attributes["visual_y"] = dash.y
+				if at < float(attack.return_at):
+					unit.attributes["visual_muno_weight"] = (at - float(attack.start)) / (float(attack.return_at) - float(attack.start))
+					unit.attributes["visual_muno_face_left"] = float(attack.target.y_fp) < float(attack.source.y_fp) if attack.target.y_fp != attack.source.y_fp else unit.owner == 1
+				break
 	# Charging is recorded unit state, so death, loss of targets, pause, and
 	# cross-round continuation all follow the same authoritative timeline.
 	if _spatial and at < duration:
@@ -229,12 +247,22 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 	for field in started.get("monster_fields", []): _monster_fields.append({"at": 0.0, "field": field})
 	var death_ticks: Dictionary = {}
 	var beams: Dictionary = {}
+	var pulses: Dictionary = {}
 	for pending in started.get("monster_beams", []):
 		var until: float = lead + MOVE_SECONDS * float(int(pending.detonate_tick) - round_number * _spatial_ticks + 1) / float(_spatial_ticks)
 		_monster_attacks.append(_beam_picture(pending, 0.0, minf(lead + MOVE_SECONDS, until), "BeamTrail"))
 	for event in events:
 		var d: Dictionary = event.data
 		if event.type == "MARCHER_DEFEATED": death_ticks[d.victim.id + ":pool"] = int(d.get("tick", 0))
+		if event.type == "MONSTER_PULSE":
+			# Old tapes retain the caster ID, but do not identify healed bodies.
+			# Show the cast without inventing successful heals in those replays.
+			var source: Dictionary = d.get("source", bases.get(d.unit_id, {}))
+			if not source.is_empty():
+				var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
+				var pulse: Dictionary = _kopita_picture(d, source, at)
+				pulses["%s:%d" % [d.unit_id, d.tick]] = pulse
+				_monster_attacks.append(pulse)
 		if event.type in ["MONSTER_BEAM_FIRED", "MONSTER_BEAM_DETONATED"]:
 			var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
 			var key: String = "%s:%d" % [d.attacker.id, d.tick]
@@ -260,6 +288,16 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 			if d.ability == "Beam" and beams.has(key):
 				# Collateral lights up the struck bodies; it never redirects the beam.
 				beams[key].impacts.append({"attributes": d.target.attributes, "id": d.target.id, "owner": d.target.owner, "blocked": d.get("blocked", false)})
+			elif d.ability == "Kopita":
+				if not pulses.has(key):
+					pulses[key] = _kopita_picture({"healing": false}, d.attacker, at)
+					_monster_attacks.append(pulses[key])
+				# Armor absorbs this damage normally; it still receives a hit flash.
+				pulses[key].impacts.append({"attributes": d.target.attributes, "id": d.target.id, "owner": d.target.owner})
+			elif d.ability == "Muno":
+				# Arrive when the recorded hit lands, then retreat. Simulation
+				# coordinates remain untouched by this short cosmetic excursion.
+				_monster_attacks.append({"start": maxf(0.0, at - MUNO_DASH_OUT), "impact_at": at, "return_at": at + MUNO_STRIKE_HOLD + MUNO_DASH_BACK, "end": at + MUNO_STRIKE_HOLD + MUNO_DASH_BACK + MUNO_TRAIL_SECONDS, "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "ability": "MunoDash"})
 			else:
 				# Older tapes contain hit records only and can still show their shots.
 				_monster_attacks.append({"start": at, "end": at + (BEAM_SECONDS if d.ability == "Beam" else 0.14), "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "ability": d.ability})
@@ -304,6 +342,23 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 
 static func _beam_picture(d: Dictionary, at: float, until: float, ability: String) -> Dictionary:
 	return {"start": at, "end": until, "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "range_fp": d.range_fp, "ground": d.has("detonate_tick"), "ability": ability, "impacts": []}
+
+
+static func _kopita_picture(d: Dictionary, source: Dictionary, at: float) -> Dictionary:
+	return {"start": at, "end": at + KOPITA_PULSE_SECONDS, "source": source.attributes, "source_id": source.id, "source_owner": source.owner, "range_fp": d.get("radius_fp", 360), "ability": "KopitaPulse", "healing": d.healing, "impacts": d.get("healed", []).duplicate(true)}
+
+
+static func muno_position(attack: Dictionary, at: float, home: Vector2) -> Vector2:
+	var origin := Vector2(attack.source.x_fp, attack.source.y_fp)
+	var target := Vector2(attack.target.x_fp, attack.target.y_fp)
+	var delta := target - origin
+	# Stop inside the melee footprint instead of overlapping the victim.
+	var reach: float = (delta / Vector2(90.0, 42.0)).length()
+	var strike: Vector2 = origin + delta * maxf(0.0, 1.0 - 0.75 / maxf(0.001, reach))
+	if at < float(attack.impact_at):
+		return origin.lerp(strike, smoothstep(float(attack.start), float(attack.impact_at), at))
+	if at < float(attack.impact_at) + MUNO_STRIKE_HOLD: return strike
+	return strike.lerp(home, smoothstep(float(attack.impact_at) + MUNO_STRIKE_HOLD, float(attack.return_at), at))
 
 
 func feedback_through(seconds: float, cursor: int) -> Dictionary:

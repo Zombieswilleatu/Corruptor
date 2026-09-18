@@ -1,0 +1,71 @@
+{
+  "date": "2026-09-18",
+  "change": "Readable Kopita pulses, Muno dash-and-return afterimages, and stalking Dotra",
+  "monster_profile": "U13_MONSTERS_V5_STALKING_DOTRA",
+  "integrated_remote_parent": "f6f63be5a3a23711b5cdfd84b02548dc911ef2fa",
+  "behavior": {
+    "Kopita": "One green healing or violet harm wave per cast, with accurate recipient markers and radius. Full-health allies are not marked as healed. Cadence, range and damage unchanged.",
+    "Muno": "Unit visually dashes into melee reach at the recorded hit, then retreats with violet afterimages. No projectile. Simulation anchors and free-strike rules unchanged.",
+    "Dotra": "Hidden movement at half speed toward enemies. Starting the next round, emerge chance is 15%, 30%, 45%, 60%, 75%, 90%, 100%; reset after reveal. Nearby prey triggers ambush before voluntary emergence. Original 25% hide chance and 5-damage ambush retained."
+  },
+  "native": {
+    "runtime": "Godot 4.5.1.stable.official.f62fdbde1 / Linux headless (diagnostic only)",
+    "runner": "Scripts/Sim/U13MonsterTestRunner.gd",
+    "checks_passed": 520,
+    "failures": 0,
+    "script_errors": 0
+  },
+  "python_exact_phase_replays": {
+    "phases": 62,
+    "events": 13123,
+    "ticks": 12400,
+    "event_types": {
+      "KRONI_ACTORS_STARTED": 1,
+      "KRONI_ACTOR_FINISHED": 1,
+      "KRONI_ACTOR_TICK": 200,
+      "KRONI_FLEE_STARTED": 1,
+      "MARCHER_DEFEATED": 10,
+      "MARCHER_DEVOURED": 1,
+      "MARCHER_MELEE_ATTACK": 252,
+      "MARCHER_RANGED_ATTACK": 52,
+      "MARCHER_WAITING": 3,
+      "MARCHING_FINISHED": 62,
+      "MARCHING_STARTED": 62,
+      "MARCHING_TICK": 12400,
+      "MONSTER_ATTACK": 22,
+      "MONSTER_BANISHED": 1,
+      "MONSTER_BEAM_DETONATED": 9,
+      "MONSTER_BEAM_FIRED": 8,
+      "MONSTER_CHARMED": 3,
+      "MONSTER_CONCEALMENT": 13,
+      "MONSTER_FIELD_CREATED": 3,
+      "MONSTER_POISONED": 1,
+      "MONSTER_PULSE": 6,
+      "MONSTER_ROOTED": 1,
+      "WRIGHT_BUILD_ASSIGNED": 11
+    }
+  },
+  "coverage": [
+    "Kopita heals and harms for both owners; full HP, other lane and outside radius unaffected; older event playback; clipped range footprint; both sprite and token modes",
+    "Muno outbound/strike/return positions, melee distance, damage timing, pause and trail expiry",
+    "Dotra moves 400 of 2400 field units per full hidden phase at base speed 4; approaches prey and ambushes while untargetable by ordinary ranged fire",
+    "Full emergence ramp, one roll per round, saved counter persistence, reset, ambush priority and birth hold"
+  ],
+  "source_sha256": {
+    "Prototype/U13/U13BoardLanes.gd": "9cb464fdf35585ad2bd7ef0daeb10f443e9fe7ceed54ac6c6b24dede9f912358",
+    "Prototype/U13/U13MarcherSpriteVisuals.gd": "0902c2fab06ee0f6f17415b165028ba5fffdab92616e3e516261ce1d6ed4d7de",
+    "Prototype/U13/U13SmokePlayback.gd": "a1eafaf899acc9c869ada95593bc6964256fdfe54eab98efe4d6c9d389b720f8",
+    "Prototype/U13/U13StillSpriteMotion.gd": "204f37c20cc1d2542c76f092645ac63bddf1e662384ed607c641c90693a2e5fa",
+    "Scripts/Sim/U13Marching.gd": "397c8c66f52372b1de6a2a183fd634a5660fedfd825ab7dfa6a93ebdce0b3b51",
+    "Scripts/Sim/U13MonsterEffects.gd": "8e4d3e423c34e28ea9f5e9aefaa52268c1130d32f1c469075ba383b9ded53b9f",
+    "Scripts/Sim/U13MonsterRules.gd": "c0959a93e2d31e49bef31e81f53c0032c6b489990acae702e43cbe739b7287d0",
+    "Scripts/Sim/U13MonsterTestRunner.gd": "343278e88d845e7785a0f1d7f0f6fade602db3f08365aa7989b03141b71db0b4",
+    "Scripts/Sim/u13_pysim/marching.py": "52c86cb07e541a2d15ebd010286df552b8f127215a9d3fe87756c4363772d5e6",
+    "Scripts/Sim/u13_pysim/monster_effects.py": "dffbda849118ef6191c27661422bc5e8fe22d2b3ace205d9f723bc6444f58535",
+    "Scripts/Sim/u13_pysim/monsters.py": "af3aaf9aecb7ec2e898f272d22671258a9a370195e35966aa1ed5767b5db48be"
+  },
+  "limits": [
+    "Headless checks do not establish visual quality. Interactive review on Windows Godot 4.7.2 remains.",
+    "Monster rules version advanced; start a fresh match or reset the balance arena for the new rules."
+  ]
+}

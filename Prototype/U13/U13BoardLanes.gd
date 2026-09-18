@@ -137,7 +137,7 @@ func unit_sprite_height(unit: Dictionary) -> float:
 
 func _get_tooltip(at: Vector2) -> String:
 	for unit in _units:
-		if unit.attributes.get("hidden", false) or deaths.seen.has(unit.id): continue
+		if (unit.attributes.get("hidden", false) and unit.owner == 1) or deaths.seen.has(unit.id): continue
 		var center: Vector2 = _monster_point(unit.attributes)
 		var height: float = unit_sprite_height(unit) if uses_sprite(unit) else CHIT_DIAMETER
 		var area := Rect2(center - Vector2(24, height if uses_sprite(unit) else height * 0.5), Vector2(48, height + 12))
@@ -146,6 +146,13 @@ func _get_tooltip(at: Vector2) -> String:
 			var hp: String = "Obscured" if void_active else "%d/%d" % [unit.attributes.hp, unit.attributes.max_hp]
 			var description: String = "%s · %s\nHP %s · Armor %d" % [unit_name, "Yours" if unit.owner == 0 else "Enemy", hp, unit.attributes.armor]
 			if unit_name == "Penitent": description += "\n" + preload("res://Scripts/Sim/U13PenitentDefense.gd").DESCRIPTION
+			if unit_name == "Kopita":
+				description += "\nAt the start of each active round: green heals allies 1 HP; violet damages enemies 1. Alternates; radius 360."
+				description += "\nNext pulse: " + ("Heal" if int(unit.attributes.get("kopita_pulses", 0)) % 2 == 0 else "Harm")
+			if unit_name == "Dotra":
+				description += "\nHidden: stalks at half speed; an enemy within 240 triggers a 5-damage ambush."
+				if unit.attributes.get("hidden", false):
+					description += "\nHidden now · %d%% chance to emerge next round" % preload("res://Scripts/Sim/U13MonsterRules.gd").emerge_chance(unit.attributes)
 			if unit_name == "Wright":
 				description += "\n" + preload("res://Scripts/Sim/U13FieldFortifications.gd").DESCRIPTION
 				if unit.attributes.has("wright_site"):
@@ -326,7 +333,9 @@ func _draw_chit(unit: Dictionary, center: Vector2, flash: bool = false, close_up
 	var attributes: Dictionary = unit.attributes
 	var tint: Color = BLUE if unit.owner == 0 else RED
 	if attributes.get("hidden", false):
-		if unit.owner == 0: draw_arc(center, 9, 0, TAU, 24, Color(tint, 0.35), 1.0)
+		if unit.owner == 0:
+			if uses_sprite(unit): sprite_visuals.draw_afterimage(self, unit, center, unit_sprite_height(unit), Color(0.65, 0.75, 0.85, 0.24))
+			draw_arc(center, 9, 0, TAU, 24, Color(tint, 0.35), 1.0)
 		return
 	var glitch: Dictionary = paradox_glitches.get(unit.id, {})
 	var height: float = 64.0 if close_up else unit_sprite_height(unit)
@@ -590,6 +599,9 @@ func beam_points(attack: Dictionary) -> PackedVector2Array:
 
 func _draw_monster_attacks() -> void:
 	for attack in monster_attacks:
+		if attack.ability == "KopitaPulse":
+			_draw_kopita_pulse(attack)
+			continue
 		var a := _attack_point(attack.source, attack.get("source_id", ""), attack.get("source_owner", 0))
 		var b := _attack_point(attack.target, attack.get("target_id", ""), attack.get("target_owner", 1))
 		if attack.ability == "RangedBlock":
@@ -626,11 +638,91 @@ func _draw_monster_attacks() -> void:
 			draw_line(points[0], points[1], Color(0.28, 0.69, 1.0, 0.45), 1.2, true)
 		elif attack.ability == "BeamBlast":
 			_draw_beam_blast(attack)
-		elif attack.ability == "Muno":
-			draw_line(a, b, Color(0.55, 0.84, 0.95, 0.55), 1.5, true)
-			draw_line(b + Vector2(-8, 9), b + Vector2(8, -9), Color(0.83, 0.94, 1.0, 0.85), 2.0, true)
+		elif attack.ability == "MunoDash":
+			_draw_muno_dash(attack, b)
 		elif attack.ability == "Ambush":
 			for i in range(3): draw_line(b + Vector2(-8 + i * 5, 8), b + Vector2(-3 + i * 5, -9), Color(0.9, 0.63, 0.42, 0.8), 1.5, true)
+
+
+func _draw_muno_dash(attack: Dictionary, target: Vector2) -> void:
+	var elapsed: float = attack.elapsed
+	var impact_age: float = elapsed - float(attack.impact_at)
+	if impact_age >= 0.0 and impact_age < 0.12:
+		var flash: float = 1.0 - impact_age / 0.12
+		draw_line(target + Vector2(-8, 9), target + Vector2(8, -9), Color(0.85, 0.91, 1.0, flash), 2.5, true)
+	var playback_script = preload("res://Prototype/U13/U13SmokePlayback.gd")
+	var retreat_start: float = float(attack.impact_at) + playback_script.MUNO_STRIKE_HOLD
+	var home: Vector2 = attack.get("return_point", Vector2(attack.source.x_fp, attack.source.y_fp))
+	var unit: Dictionary = {"id": attack.source_id, "owner": attack.source_owner, "attributes": attack.source.duplicate(true)}
+	unit.attributes["visual_muno_face_left"] = attack.target.y_fp < attack.source.y_fp if attack.target.y_fp != attack.source.y_fp else attack.source_owner == 1
+	for i in range(5, 0, -1):
+		var age: float = float(i) * 0.032
+		var trail_time: float = elapsed - age
+		if trail_time < retreat_start or trail_time > float(attack.return_at): continue
+		var point: Vector2 = playback_script.muno_position(attack, trail_time, home)
+		unit.attributes["visual_x"] = point.x
+		unit.attributes["visual_y"] = point.y
+		var feet: Vector2 = _monster_point(unit.attributes)
+		var tint := Color(0.62, 0.40, 1.0, 0.46 * (1.0 - age / 0.19))
+		if uses_sprite(unit) and sprite_visuals.draw_afterimage(self, unit, feet, unit_sprite_height(unit), tint): continue
+		# Token mode keeps the same dash, with quiet token-shaped echoes.
+		draw_circle(feet, CHIT_DIAMETER * 0.5, tint)
+
+
+func kopita_pulse_outline(attack: Dictionary, fraction: float = 1.0) -> PackedVector2Array:
+	var bounds: Rect2 = travel_rect(attack.source.lane)
+	var center: Vector2 = _monster_point(attack.source)
+	var radius: Vector2 = bounds.size * Vector2(1.0 / 600.0, 1.0 / 2400.0) * float(attack.range_fp) * fraction
+	var points := PackedVector2Array()
+	for i in range(64):
+		var angle: float = TAU * float(i) / 64.0
+		points.append(center + Vector2(cos(angle), sin(angle)) * radius)
+	# The simulation is circular in field coordinates, elliptical on screen.
+	# Clip its footprint so a wide pulse never spills into the other lane.
+	var border := PackedVector2Array([bounds.position, Vector2(bounds.end.x, bounds.position.y), bounds.end, Vector2(bounds.position.x, bounds.end.y)])
+	var clipped: Array[PackedVector2Array] = Geometry2D.intersect_polygons(points, border)
+	if clipped.is_empty(): return PackedVector2Array()
+	var outline: PackedVector2Array = clipped[0]
+	outline.append(outline[0])
+	return outline
+
+
+func _draw_kopita_glyph(point: Vector2, healing: bool, color: Color, radius: float) -> void:
+	draw_circle(point, radius * 1.8, Color(color, color.a * 0.15))
+	if healing:
+		draw_line(point - Vector2(radius, 0), point + Vector2(radius, 0), color, 2.5, true)
+		draw_line(point - Vector2(0, radius), point + Vector2(0, radius), color, 2.5, true)
+	else:
+		for i in range(6):
+			var angle: float = TAU * float(i) / 6.0
+			var ray := Vector2(cos(angle), sin(angle))
+			draw_line(point + ray * radius * 0.3, point + ray * radius, color, 2.0, true)
+
+
+func _draw_kopita_pulse(attack: Dictionary) -> void:
+	var weight: float = float(attack.get("weight", 0.0))
+	var fade: float = 1.0 - smoothstep(0.35, 1.0, weight)
+	var color := Color("a8ee88") if attack.healing else Color("d292ff")
+	var outline: PackedVector2Array = kopita_pulse_outline(attack)
+	if outline.size() >= 4:
+		draw_colored_polygon(outline, Color(color, 0.07 * fade))
+		draw_polyline(outline, Color(color, 0.30 * fade), 1.0, true)
+	var wave: PackedVector2Array = kopita_pulse_outline(attack, lerpf(0.06, 1.0, minf(1.0, weight / 0.80)))
+	if wave.size() >= 4:
+		draw_polyline(wave, Color(color, 0.16 * fade), 7.0, true)
+		draw_polyline(wave, Color(color, 0.95 * fade), 2.0, true)
+	var caster := _attack_point(attack.source, attack.source_id, attack.source_owner)
+	_draw_kopita_glyph(caster, attack.healing, Color(color, fade), 8.0)
+	for hit in attack.impacts:
+		var attributes: Dictionary = hit.attributes
+		# The pulse stays where it was cast; recipient glints follow live units.
+		for unit in _units:
+			if unit.id == hit.id:
+				attributes = unit.attributes
+				break
+		if attributes.get("hidden", false) and hit.owner == 1: continue
+		var point := _attack_point(attributes, hit.id, hit.owner)
+		_draw_kopita_glyph(point - Vector2(0, 10.0 * weight), attack.healing, Color(color, fade), 5.0)
 
 
 func _draw_beam_blast(attack: Dictionary) -> void:

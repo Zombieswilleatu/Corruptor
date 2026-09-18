@@ -99,8 +99,16 @@ def step(w,buffer,c,tick,reaction):
                 buffer.update(unit['id'],unit['owner'],a);continue
             key=f"{unit['id']}:{n}"
             if a['monster_id']=='Dotra':
-                a['hidden']=draw(c['seed'],key,'HIDE',0,100)<(50 if a.get('hidden',False) else T['dotra_hide_chance'])
-                events.append(event('MONSTER_CONCEALMENT',dict(unit_id=unit['id'],hidden=a['hidden'],round=n,tick=tick)))
+                if a.get('dotra_concealment_round',0)<n:
+                    a['dotra_concealment_round']=n;chance=0
+                    if a.get('hidden',False):
+                        if not nearest(unit,buffer.rows(),T['dotra_ambush_radius']):
+                            chance=rules.emerge_chance(a)
+                            a['hidden']=draw(c['seed'],key,'EMERGE',0,100)>=chance
+                            a['dotra_hidden_rounds']=a.get('dotra_hidden_rounds',0)+1 if a['hidden'] else 0
+                    else:
+                        a['hidden']=draw(c['seed'],key,'HIDE',0,100)<T['dotra_hide_chance'];a['dotra_hidden_rounds']=0
+                    events.append(event('MONSTER_CONCEALMENT',dict(unit_id=unit['id'],hidden=a['hidden'],emerge_chance=chance,round=n,tick=tick)))
             elif a['monster_id']=='Sooge':
                 if a['sprite_form']!='turret' and a.get('sooge_root_round',0)<n:
                     chance=rules.root_chance(a)
@@ -124,16 +132,19 @@ def step(w,buffer,c,tick,reaction):
                 a['hunt_target']=nearest(unit,supports or choices).get('id','')
         elif name=='Kopita' and tick==0:
             healing=a.get('kopita_pulses',0)%2==0;a['kopita_pulses']=a.get('kopita_pulses',0)+1
+            healed=[]
             for other in rows:
                 b=other['attributes']
                 if b['lane']!=a['lane'] or distance(a,b)>T['kopita_radius']**2:continue
                 if healing and other['owner']==unit['owner']:
+                    before=b['hp']
                     b['hp']=min(b['max_hp'],b['hp']+1)
                     if other['id']==unit['id']:a['hp']=b['hp']
                     buffer.update(other['id'],other['owner'],b)
+                    if b['hp']>before:healed.append(dict(id=other['id'],owner=other['owner'],attributes=copy_data(b),amount=b['hp']-before))
                 elif not healing and other['owner']!=unit['owner']:
                     hits.append(dict(source=unit,target=other['id'],amount=1,bypass=False,ability='Kopita'))
-            events.append(event('MONSTER_PULSE',dict(unit_id=unit['id'],healing=healing,round=n,tick=tick)))
+            events.append(event('MONSTER_PULSE',dict(unit_id=unit['id'],source=unit,radius_fp=T['kopita_radius'],healing=healing,healed=healed,round=n,tick=tick)))
         elif name=='Muno' and a.get('muno_round',0)!=n:
             target=nearest(unit,rows,T['muno_radius'])
             if target:
@@ -141,7 +152,7 @@ def step(w,buffer,c,tick,reaction):
         elif name=='Dotra' and a.get('hidden',False):
             target=nearest(unit,rows,T['dotra_ambush_radius'])
             if target:
-                a['hidden']=False;hits.append(dict(source=unit,target=target['id'],amount=5,bypass=False,ability='Ambush'))
+                a['hidden']=False;a['dotra_hidden_rounds']=0;hits.append(dict(source=unit,target=target['id'],amount=5,bypass=False,ability='Ambush'))
         elif name=='Sooge' and a['sprite_form']=='turret' and a.get('beam_next_tick',0)-T['beam_charge_ticks']<=clock:
             target=nearest(unit,rows+fort.rows(w),T['beam_range'])
             if not target:

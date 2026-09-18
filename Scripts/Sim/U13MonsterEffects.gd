@@ -123,8 +123,20 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 			var key: String = "%s:%d" % [unit.id, n]
 			match a.monster_id:
 				"Dotra":
-					a["hidden"] = Lamp.draw(context.seed, key, "HIDE", 100) < (50 if a.get("hidden", false) else Rules.TUNING.dotra_hide_chance)
-					events.append(event("MONSTER_CONCEALMENT", {"unit_id": unit.id, "hidden": a.hidden, "round": n, "tick": tick}))
+					if int(a.get("dotra_concealment_round", 0)) < n:
+						a["dotra_concealment_round"] = n
+						var chance: int = 0
+						if a.get("hidden", false):
+							# A victim already in ambush range takes priority over
+							# simply emerging. The attack below ends concealment.
+							if nearest(unit, entities.marchers(), Rules.TUNING.dotra_ambush_radius).is_empty():
+								chance = Rules.emerge_chance(a)
+								a["hidden"] = Lamp.draw(context.seed, key, "EMERGE", 100) >= chance
+								a["dotra_hidden_rounds"] = int(a.get("dotra_hidden_rounds", 0)) + 1 if a.hidden else 0
+						else:
+							a["hidden"] = Lamp.draw(context.seed, key, "HIDE", 100) < Rules.TUNING.dotra_hide_chance
+							a["dotra_hidden_rounds"] = 0
+						events.append(event("MONSTER_CONCEALMENT", {"unit_id": unit.id, "hidden": a.hidden, "emerge_chance": chance, "round": n, "tick": tick}))
 				"Sooge":
 					if a.sprite_form != "turret" and int(a.get("sooge_root_round", 0)) < n:
 						var chance: int = Rules.root_chance(a)
@@ -156,15 +168,19 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 			"Kopita":
 				if tick == 0:
 					var healing: bool = int(a.get("kopita_pulses", 0)) % 2 == 0
+					var healed: Array = []
 					a["kopita_pulses"] = int(a.get("kopita_pulses", 0)) + 1
 					for other in rows:
 						if other.attributes.lane != a.lane or distance(a, other.attributes) > Rules.TUNING.kopita_radius ** 2: continue
 						if healing and other.owner == unit.owner:
+							var before: int = int(other.attributes.hp)
 							other.attributes.hp = mini(int(other.attributes.max_hp), int(other.attributes.hp) + 1)
 							if other.id == unit.id: a.hp = other.attributes.hp
 							entities.update(other.id, other.owner, other.attributes)
+							if int(other.attributes.hp) > before:
+								healed.append({"id": other.id, "owner": other.owner, "attributes": other.attributes.duplicate(true), "amount": int(other.attributes.hp) - before})
 						elif not healing and other.owner != unit.owner: hits.append({"source": unit, "target": other.id, "amount": 1, "bypass": false, "ability": "Kopita"})
-					events.append(event("MONSTER_PULSE", {"unit_id": unit.id, "healing": healing, "round": n, "tick": tick}))
+					events.append(event("MONSTER_PULSE", {"unit_id": unit.id, "source": unit, "radius_fp": Rules.TUNING.kopita_radius, "healing": healing, "healed": healed, "round": n, "tick": tick}))
 			"Muno":
 				if int(a.get("muno_round", 0)) != n:
 					var target: Dictionary = nearest(unit, rows, Rules.TUNING.muno_radius)
@@ -176,6 +192,7 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 					var target: Dictionary = nearest(unit, rows, Rules.TUNING.dotra_ambush_radius)
 					if not target.is_empty():
 						a.hidden = false
+						a["dotra_hidden_rounds"] = 0
 						hits.append({"source": unit, "target": target.id, "amount": 5, "bypass": false, "ability": "Ambush"})
 			"Sooge":
 				if a.sprite_form == "turret" and int(a.get("beam_next_tick", 0)) - int(Rules.TUNING.beam_charge_ticks) <= clock:
