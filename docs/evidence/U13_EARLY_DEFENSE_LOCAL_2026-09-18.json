@@ -1,0 +1,1990 @@
+{
+  "archive": {
+    "bytes": 37003455,
+    "filename": "u13-early-defense-162-2026-09-18.zip",
+    "sha256": "9eb967bb24e11098cdfe6fd41aa28e1015552c8b3f303d2d331c9b5588092a30"
+  },
+  "comparison": {
+    "behavior": {
+      "baseline": {
+        "action:Hunt": 244,
+        "action:Pass": 80,
+        "action:Profane": 2,
+        "action:Siege": 919,
+        "action:Ward": 1791,
+        "decisions": 3036,
+        "guard_cards": 2402,
+        "monster_choices": 2927,
+        "selected_existing_active_work_targets": 1789,
+        "unlocked_existing_active_work_with_guards": 793
+      },
+      "candidate": {
+        "action:Hunt": 139,
+        "action:Pass": 73,
+        "action:Siege": 588,
+        "action:Ward": 2236,
+        "decisions": 3036,
+        "guard_cards": 3019,
+        "monster_choices": 2943,
+        "selected_existing_active_work_targets": 1909,
+        "unlocked_existing_active_work_with_guards": 1020
+      }
+    },
+    "candidate_results_by_lord": {
+      "Deimos": {
+        "candidate_wins": 11,
+        "games": 18
+      },
+      "Gremory": {
+        "candidate_wins": 8,
+        "games": 18
+      },
+      "Humbaba": {
+        "candidate_wins": 6,
+        "games": 18
+      },
+      "Kalligan": {
+        "candidate_wins": 11,
+        "games": 18
+      },
+      "Kanifous": {
+        "candidate_wins": 12,
+        "games": 18
+      },
+      "Kroni": {
+        "candidate_wins": 7,
+        "games": 18
+      },
+      "Odradek": {
+        "candidate_wins": 13,
+        "games": 18
+      },
+      "Orias": {
+        "candidate_wins": 4,
+        "games": 18
+      },
+      "Valak": {
+        "candidate_wins": 9,
+        "games": 18
+      }
+    },
+    "manifest": {
+      "baseline": {
+        "files": {
+          "__init__.py": "227c8876cf5699a5538e3493e65d8ab8e7ecf03c65eb0781306d8d22461c3b8f",
+          "budget.py": "6e98f1b4cc5852ef173f4c64466c7dbb5ae9b7ef95c1c96edb9926cf57068591",
+          "closing.py": "137079c225ecedb9e1fb4a689c7817ec512ab4a215fb0624ee62e961d058579d",
+          "common.py": "b363b682c3d82bbd679f8a9dd95aeb0159aa7135a335cc18f1f48da577dc6fba",
+          "comparison.py": "59c57b7053af14a033241768bc69c61eba36848804a0a7b6cc725ecdfb7f23bc",
+          "coordination.py": "76646f791bf9cc421d33b82efa7d17740d780388fe6cb8665a5aea1878161f10",
+          "coverage.py": "228c23b18653b89647570939fb944d7063f676a45a28ca980ef1838b669b7c71",
+          "diagnostics.py": "5cf40e9a6ab3984653737e7b8e20b373a923f932a0205803cafea3fb48fa9769",
+          "facts.py": "03cc64a025e42217a77cc24d1980033c131e25b6224fcc69f518d4debc0ecab3",
+          "lords/__init__.py": "411ef93b19ce21fbd9e93608633810c3002599c5dd9be1b679e70a7414263488",
+          "lords/deimos.py": "3db80f87a3a700099bb5a35141e87731885dc99844d36dea7a11f26eda2f5750",
+          "lords/gremory.py": "24da2dec94f8788638c8cd2aec532b25806c71590c580bd1782aa8242ea23496",
+          "lords/humbaba.py": "f4da1815459a72d5bf42bdfa14d16cd01cd88afbe43848531b42df944c5ef9a5",
+          "lords/kalligan.py": "804956060c8d59eb9ea1c7911798954e11b5d933c784531aff846e69c2f726f8",
+          "lords/kanifous.py": "f8088280111c21cb09368970b88f8593a6742f46d9048c05e0da9fec6b4aa26d",
+          "lords/kroni.py": "7079c646913e8f557861728376794be727a4d258139b56ae1c7e05e0d8bd00db",
+          "lords/odradek.py": "4a3eed0613374ad6c7172d3ccfc9c661290034a136e54abec867482e471bafb4",
+          "lords/orias.py": "ff5432388bfc98d4b48bbc873c985317e6b7c4b14d21aff5c5b5d15940eb5e20",
+          "lords/valak.py": "3959d4d1366d406b90c82f420729c0d15c1cc6000b3b677e0f68a738b0df7331",
+          "observation.py": "4114c44ae86f5dd4d109f6de85ba351c3b6d4bed8e1a4af5b08b4b86349d05f0",
+          "planner_probe.py": "b746c7d4ed5eab7d2b3e97f8f674826bd1792fbed0f6b779df734109fe2e0d6b",
+          "recipes.py": "ddb4e0072006093218d8a4707beb248d7fe92067f57864d02588ab86df9a1c2e",
+          "reference_probe.py": "cd5d3433e0b99082c24fb4599a9464c18b60bca021fb559f59f2c307bbbd0f98",
+          "rite_cases.py": "2cf12a6be0f6598cdeb330f76bd0efcb8c680fbcf2410b1d6461099d61d4a70e",
+          "selection.py": "a160b99b525a1590b34a8ba43fef6f5f63d70c083886f0f151111f7bb5b3894f",
+          "survey.py": "4ef849355910d662bb887fd53ae50b5574efc5f10fdc752610e5bfb81f2a059a",
+          "test_closing.py": "b0eeab4ac9b4292f57dc35760f507252d7bfb6dbc96f6367661cf140c2ff9b37",
+          "test_common.py": "070239fc10171c518c3a53077bc3ec427fddaa9a81331ae1d38481047e794d84",
+          "test_comparison.py": "59211969deccbdb0ac2c042abcbf4ddc707c28216408515c83dbdcc48362507d",
+          "test_coordination.py": "763dceb8ef83ae9795aaec3603c62815a1bc5a50a2ed90432831dc8f2fec70af",
+          "test_diagnostics.py": "d8362c599d2f83ae3864c6b0c32e734ac5136030e7f3194ac3fe10afda6881ff",
+          "test_odradek.py": "0078b8a8d5f534ecebdefa47e0c921e3b7b642eaae985b8ad5adb178a1044023",
+          "test_recipes_veil.py": "b1948ea569cf7b304756b70e4e2a99d479228cca4514a826fdb556434d5b456e",
+          "test_rites.py": "4049d7d09741161cae1392c3f0dcb9c3735108c50492dead8c7e36883ab240c8",
+          "test_selection.py": "b2ae4fa066634e423479552398f05d1fa2d06bbb5c978be564978763e02a94bf",
+          "test_survey.py": "926deb9d20611b42b8a5f2e970bff6c4e4b357c1afe8d12cd263c26749a05880",
+          "veil_judgment.py": "f92f3a5ca62d8ead00f38b7b5a1d4945645032e05e048305ec114bbb66d64131"
+        },
+        "package_sha256": "a379cd1cc2d9306a0804df918806a2b3576c2943fddb12170170b65a303cfa62",
+        "revision": "eed8e2d39358e584e43afe43ff70fafbe8423220"
+      },
+      "baseline_policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+      "candidate_policy": "U13_COMMON_SMART_CORE_ALPHA_V8_DEFENSIVE_PLANS",
+      "engine_source_sha256": "234dfd00355f8a6a403eac5bd1bf7fa384183e16a7e65cfb1e61aa5128000f7e",
+      "harness_source_sha256": "efb3ef845a1fdce6292fb778c2d876f6cc8c0b490afe983a6a550e7afe82ac67",
+      "implementation": "CPython",
+      "namespace": "u13-defense-v8-comparison-2026-09-18",
+      "opening_policy": "U13_GAME_ECONOMY_V5_FREE_OPENING",
+      "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+      "repeats": 1,
+      "schema": "U13_MATCHED_DOCTRINE_COMPARISON_V1",
+      "scope": "Both policies share current engine, fixed ordinary loadout and seed; swap policy seats for each ordered matchup. Python policy comparison, not native parity or Lord balance.",
+      "source_revision": "eed8e2d39358e584e43afe43ff70fafbe8423220",
+      "weights": {
+        "banishment": 32,
+        "card_cost": 2,
+        "damage": 3,
+        "destruction": 30,
+        "enemy_settlement_risk": 90,
+        "guard": 5,
+        "monster": 2,
+        "recipe_save": 1,
+        "recruit": 6,
+        "return_lord": 75,
+        "tear": 22,
+        "veil_protection": 8
+      }
+    },
+    "records": [
+      {
+        "decisions_sha256": "49f5553700ad21db391a7e0f9d101cf06adcffc64f0d81d29e2d948f8db73fd9",
+        "file_sha256": "5d12d1f7ba3952cc838d4371740889db3841873565e0da7ef7cd29f889049f03",
+        "final_state_sha256": "a2b87a0574111279a465dd416d972ed38d5398193a443b71bd415c543a460222",
+        "name": "deimos_deimos_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "76ab2a7ac2fb6e0964f1950a65bcd671bd48b0bedd75bc90da0c115babf6c927",
+        "file_sha256": "aa99f0130fd02a044be03d1189b9e8149e373b0c52df4feee3ad125cb24e41d5",
+        "final_state_sha256": "46e25a0d6e6680bd45167217a8fbcc75f9a647c6425994dc570a35cf93345f36",
+        "name": "deimos_deimos_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "b9b43df289ff163dfeecee0a4f39a6447eeb83d40a7db673e09dd4c348bba745",
+        "file_sha256": "7d25e253b506fe50b423991715c05c7cb9d6519d62e6ca760816da428af6a02d",
+        "final_state_sha256": "b1f6d442f52e5d125c5bc4f60bffe209a12c3e6ca6f8be0d2908bca5bb01e99f",
+        "name": "deimos_gremory_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "bb374c259da3063067f94ebbc012d5be05f889a8330ae68923477a9c1000bc6f",
+        "file_sha256": "d9ade18eff5f1368e942f311779e6511eabc80fd04d051d1764ae009688e6475",
+        "final_state_sha256": "96c942946a5255ba73319f498111218bfcc6069597b9181d23dd0e046a7c755d",
+        "name": "deimos_gremory_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "7cf784cb5f1bd63b9d041e47f106d246cb38e0445eac2387011597e7b8398695",
+        "file_sha256": "f795717f69ca9aebb4fb8b9695b6073eefbe6cf9c19d9e8941efc40b8fae5d60",
+        "final_state_sha256": "7c80e5fdfae661a1174301d74164c79cd50ca432cc77c96cb69a66b9d9397bb5",
+        "name": "deimos_humbaba_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "d98f7e4a34fc2ccfe02cd8ece0f45905488a570639bccfb5aad154c1838a7774",
+        "file_sha256": "03788719df2b8da09254c712df4afb76a96cd94fec12d7c8e248e655537c5d18",
+        "final_state_sha256": "4e769db92bcc469af7821a3c4f86af951eeaa0183c14c3e4dd7e18abab348f1b",
+        "name": "deimos_humbaba_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "cd57b917f1c6548c38b8aebe74a6496db812bea852d2059ba9f11e103bec7758",
+        "file_sha256": "d22e1ac3f6c7243c3663c8cdf561641dc214f1085ba4630ddb610a0180587af0",
+        "final_state_sha256": "4532110e4a2a633a715accfd5d8099d77fd8b0c2fd74e2403a507f8fdbc7e695",
+        "name": "deimos_kalligan_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "b0528f8be699690f2b64aa8c2de2797ed9d0a1dad3e94b0b7715dfc646b191c5",
+        "file_sha256": "ea265736903aa4f19d6269154a1b00c2cc563e3b138e295227f555ae7c67f532",
+        "final_state_sha256": "4c140f90be1c21608596872576f23bfc49c8acd5345906ca945c35c6ccc50cd0",
+        "name": "deimos_kalligan_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "06f043d8fac0d08fd4e442dba5ade63577beda2cfb68133db0cafdb86df6fa1e",
+        "file_sha256": "2b49fb28fc6e8a6a7f74d1add084bee6a93fa28feb547afd30684aba20f9f009",
+        "final_state_sha256": "b870dee4d9ce0ea3ee0336591059b2090b9515b4a49ca09feab535edbb89a2b3",
+        "name": "deimos_kanifous_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "d0227552d661a01aeee0da8681ffc9c5f121852546cdb8af190ff2ad0eae62d7",
+        "file_sha256": "53fa58d3b87efbf067f278f3b50263ddb7c5c99262c6cb138a1e02de939350ab",
+        "final_state_sha256": "b584661c0cc5ede164f4963eba71b5ad29fa7b4f10186550c7d3c6cc4685d496",
+        "name": "deimos_kanifous_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "e2b78ad155c30eab014b5dd8d61dae2f743a49e67fde769fee0f8246e0541b2a",
+        "file_sha256": "47f0293cf9f950226bc78fa4d72b715eeb6357929a350b0e6156dcd9a5eddecd",
+        "final_state_sha256": "fc8f02eae223390f3c3d4d7ffe1756658079e2a1d103de6cf13be5471e3838b7",
+        "name": "deimos_kroni_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "76d14fed0585b44e2550519f34ba7d6e6535e48d71be2ae902be15df93408b4b",
+        "file_sha256": "ad71c230faf5ac4eadb6da8b1a69877870f07ccbdd5ecb4a9b85905f74d7dd15",
+        "final_state_sha256": "24d117795630ba2029524591ba94ce699aef5186e85a0d9f8bcab6bc4052e581",
+        "name": "deimos_kroni_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "6216df9f39487866c641b06f1f478ec9c8333f97d191072eec0f82de78499621",
+        "file_sha256": "4b60c588f50e04710a4a60e27223b088d0dbf0cfd6dd40717e13fa819bc62aac",
+        "final_state_sha256": "ad0835d28996583323a25fc7b53aa70e74aab2dd6918098639c5e98de33c8e29",
+        "name": "deimos_odradek_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "9282de02f1a4d2f1ea923bc64201bb091d2fabdd79bd2fa2e4b3199dd56ac77e",
+        "file_sha256": "64b28291f0d4ea5627c3b781b43cef1405c118f0054aea0dbdd93c8ee052929c",
+        "final_state_sha256": "f0d77bf4d6cac6a43378473180e4d4014259eb77b84a1837010ca3b879f897b2",
+        "name": "deimos_odradek_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "0c80599a23be8f8e4cd91c3d92457e7e33ab094a3b808f411d920cbd9ff4589d",
+        "file_sha256": "1b3e1aa307685a25adb2bbc2061f5fcd531de190531b0ad5217b61cb2cf150cf",
+        "final_state_sha256": "b77575ed591c48666e4bce4fd508b1de88892e61c021d5c2529fbfe088790711",
+        "name": "deimos_orias_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "e028d59edf2b4918b3468eecd2079b47c7433277f8ca40f120bbb8965fdd61ed",
+        "file_sha256": "c44343a4ec804ca19c8df2ac2d562754e7ac6930bb45b5d2c0d6061b4e516529",
+        "final_state_sha256": "677ccd30bd2c1b8d5aca3b5b82688a925474f03c5eecebd3fc14842329122135",
+        "name": "deimos_orias_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "1d0b0930fc6b6db53fad17560998cbda33f1306dfbe2375ebf962a2d8aa9c1e9",
+        "file_sha256": "5b2094ea90775a62a470426d4a901838e1c9637add2512151e2d3c70f553c394",
+        "final_state_sha256": "14bee8196fb4cd4821c594a251c593d52720c9ae0036415e7e8c8695b55f0374",
+        "name": "deimos_valak_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "4523177a36f46771e60394fa340a0448e5652fbd034f44f96f5cb4435d7363b4",
+        "file_sha256": "748a6dd62d1d2bd96e2b3c8fb91b5fdde888fb71f1acc29e7d9523aaa7e16e4f",
+        "final_state_sha256": "b7d68404ff9535ff5b276c1448e21b1bf3d5bc1a3e39e7303e8d5b69ef715c10",
+        "name": "deimos_valak_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "4a4343a8b010ec5ca2e9d8d9e098b8378a253ec19c995a83b3da593b6b2924e6",
+        "file_sha256": "f6b30f1176b7d0af3238a42782cc95815bc9668523a215138a31ceb1a4cb692b",
+        "final_state_sha256": "3bd6f14fe03c253b1f8d7a89797ac15d818368054754e07e4e89158bd39ef84c",
+        "name": "gremory_deimos_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "353bb27336f552f28ec10124f5db8d0ede939a41b7920f49658526825e54033f",
+        "file_sha256": "aa17425164f265fa680d817bb199f13dab75b971ce9e13f19e11f9a0fae73a17",
+        "final_state_sha256": "6c2f4dbc0c3fdac61eb5f7800ee72c023f7997a175d4367ec61f4ba22473ac7f",
+        "name": "gremory_deimos_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "0d9d7d4d1c7b815cbda72bfff9a8e1339983ed1f299cd082b4fe062436b986a9",
+        "file_sha256": "c4583cc873b898013a386fbbd7e4776b3f37f88ad3410071c24510362a538cb8",
+        "final_state_sha256": "049c3efa04fe62e4210f6f4a74c42b46b23595d7d2b05eb710491cf5857026e2",
+        "name": "gremory_gremory_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "128dd623afffa79e243bc2d62c65610ab94606d1c4e644f0743272e3e69efe66",
+        "file_sha256": "b733bf458fa13fc3122931ec17e8e158f22e5f46b890dbaa5fa31a035cd6c7a6",
+        "final_state_sha256": "1d05f9d2cebe07f9d9b6179be1d0dd91dcfc9b71b040005a90d8a66665ee8220",
+        "name": "gremory_gremory_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "091fdb7d382f6d179c0ddee3d2ed3d665d3e17a3e7d2e8bbbaf54c7964a52467",
+        "file_sha256": "3c94226f95bc598acdc299ee9be465ac30c5f2e6ad104ee9e26e101cb0f87bc5",
+        "final_state_sha256": "67348f95d92300668ddd5c0f29f0e4f096da0ac6e79dc308384349fda6a3685f",
+        "name": "gremory_humbaba_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "0ea32465e13c773650dbeea93818dc4265410e1e26dd6a62ffca5acc0311029e",
+        "file_sha256": "516e3cb23cd426f5ef694f93ccb9e093b804086c7eb9f4902e5e36baf79dde26",
+        "final_state_sha256": "1a49465184eea6f74103514f058d689e215eb5826ec231ebcd9fdb9f3aed288b",
+        "name": "gremory_humbaba_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "e07ce6648d8965b4f365d824e6524cbeed12ade56919ebf8740cd21e7404b55f",
+        "file_sha256": "025a35315351a7bde35b12e6bc5cee57b2a4a4136347122ea462cca4dde87d46",
+        "final_state_sha256": "6a85b7c865e52a5e4e201a95f5f1d5b8386fae97666d9d3140e4bf4d831e2c1d",
+        "name": "gremory_kalligan_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "ef7289011b4e991acb1cf373fa098f312a6cb479bc6a6239dae3577745c1b060",
+        "file_sha256": "49dc1a85d77c4d65eb9c11b78693953a09699225d582521a96eae65bc5539c96",
+        "final_state_sha256": "6d52bafa8c09a2416189445f91f5680484593b718a88acb8cb39d4d3af5d1165",
+        "name": "gremory_kalligan_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "d46436b0da7adc42157a5870bfa280e8aba98d9df0d1cf44ac79d20cbec9b370",
+        "file_sha256": "96e1ed7d4ff8f1480bbc25c2285222b5233bd11e80ef3ff7564c619f44c21cef",
+        "final_state_sha256": "59c90a8dd9f07c299a88512fbc80eeef9e8fc542538e68a36a96e16d052ccccb",
+        "name": "gremory_kanifous_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "24dee2dca3e138d305e3f1fc213f3af2641f55bfe13aee87f689985f08526886",
+        "file_sha256": "fbfde0004e8615aa33bba7d45d72401ddfbf82fbf205d0ea9e03e09d3bc08140",
+        "final_state_sha256": "ad5803b74a4e15da439790d57ae826eac99ded85d65ad0d12320bdfff5fbc180",
+        "name": "gremory_kanifous_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "af25489c3cdd8b70932f47884c11efe63932d0d212ed509b8eefdcf1c4521ba6",
+        "file_sha256": "717fa6fbf8ce16d737b12fb39b5754102cb1ff872538c2b0fa5639a7ccca0780",
+        "final_state_sha256": "1c66640c75221dc5f7c06e4a15ef58ea5b03b8448ea51b2411a503fe7887a39b",
+        "name": "gremory_kroni_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "55c6f572488c0d08a20b1b1fcfec6138e95e8e9553c5e2b54272baaf24833381",
+        "file_sha256": "e3dcb782c1ccd3400974ef47bd280f2467ab9d83692c3495a68590fe6ec6bf44",
+        "final_state_sha256": "468d3729b26d1271ca0dc517061134e48e8addb18c35f2cd31b9b52eb8182c6b",
+        "name": "gremory_kroni_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "b2875f167186a69aa8aea9c8b4f9d81e21bbf850f7f2d2366fe6d4408222fcdf",
+        "file_sha256": "621eb7ff7f315c39c8275cd494c077c4700f28f18443943ffb631ff80946778f",
+        "final_state_sha256": "b433bccd794f4404a1baf32f3d0635d05258f208f532fd97c02317683961dd83",
+        "name": "gremory_odradek_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "fa4052a9bd3b867fb9bf615303035147533b33823d8cea2083181e2d5b4c4670",
+        "file_sha256": "63e5835beb615c0353322477cd343453d3bfa61164c78b4025e53fe415b8cbe4",
+        "final_state_sha256": "495218328d3c6ead483fa35266baa2a31c8d5c993fab4f4b430875de8241f6e2",
+        "name": "gremory_odradek_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "7b936ba397336062fd6a4e83de2604eb80547e7d12af9720e195e4e70609210c",
+        "file_sha256": "cd849bb111c9a17072347411c9114f71854224883bf8372272d52c03c2ebf4d5",
+        "final_state_sha256": "7c490623a1d841aaa59283b13e809c1fb8aef33bfd4190b386c2444d12030131",
+        "name": "gremory_orias_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "dca3be5564e980dfc454a4503ab961f47a2da43916b639f2a44aae1cd5633b06",
+        "file_sha256": "dbd0e56332039ff34d5bff7e599dde104837b6edc7a024231605a1623ac86f95",
+        "final_state_sha256": "be56d20ea0dcc1ac414d81bd6a797f2434dcb169d65266b33488c19e5743335b",
+        "name": "gremory_orias_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "63c20ee089939e46ccf37e86a222087ab69ca2be660bb21d2fa3ba1df9cfcfd8",
+        "file_sha256": "cb80391fcd08e760f4ed3da11c966bd1e9c639eafbba1572ce2d2e08eaa0331a",
+        "final_state_sha256": "6febaa722705d480c59c2c663821067f3a4759ac5070011dbfbdcc10c11fb0e5",
+        "name": "gremory_valak_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "034ab36615685941560ea27bac0c1ca618af1c475f91c6149f394449dadf46ab",
+        "file_sha256": "cee938d645fa517a2cb8ecc48f5a550a862156cd920e9be7bef719e9b2b48449",
+        "final_state_sha256": "3f4fd03d8b4ded703730cecbd9ee11e3de73190052f3390235265d63a4aedd41",
+        "name": "gremory_valak_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "c0fd352a4e0fca1c3d60a75634e3ee86da48959f87a8ce87a0953f142a997894",
+        "file_sha256": "69077b9820abda44a8ed311fd27a2d8ebc410447f6638448b8047dbb2a8007e7",
+        "final_state_sha256": "f6338ff38028a22a7191aa2c8132df05b8d4900d92426e2534525eacde5dfdfa",
+        "name": "humbaba_deimos_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "5237b0aea624d154fa27737b0025ab46f4f84d0d0e720c9aa7ae341036c7d582",
+        "file_sha256": "bb46db6818d68af7d1c85c52945666e1b3aa05e2b3e5b0b4d5a47aa764f84529",
+        "final_state_sha256": "dda9f99724a1e1fe4df97a7c4d5ad1b3d4b3ca8e5aa90b736b34bad977225ffd",
+        "name": "humbaba_deimos_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "eba894459b91aa9c7410c5a5024b380d2bce0e3aa4e6fd741715a5a60b6dfaa7",
+        "file_sha256": "ba7c7982a43104768cd4a31da45f3d72424a8ba1cd8627e2a4244abf9532247b",
+        "final_state_sha256": "8e28a3985f4dc8fb25234198a4dd5d33ff4bf24a132ff4749083776ae6944e6b",
+        "name": "humbaba_gremory_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "24db61a11662d31b7dee6dcc506b3625277a9a3084207328ffc842948b7aec5a",
+        "file_sha256": "fd2e5d1d895604209118e21df98d3fd68865f59ef90f71786ca4dc5fa333b5ef",
+        "final_state_sha256": "6ca9fcef67f325262968dd015c93756bb8561b0e0314c3b57f9a8bbb0a3948f4",
+        "name": "humbaba_gremory_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "7903df96f60e004713b30fa6f3e73439581a6c531d7c369b302ef75472f907db",
+        "file_sha256": "733d9db77d9ba846bcafccd2491e848274d0e0e4287ddc1107950b02a75d7b0c",
+        "final_state_sha256": "53404012d1ae3f060cae4aa370c6faeb16a02468d400adcdde511a5a2e02fec0",
+        "name": "humbaba_humbaba_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "d7934408ac7537414abfebe9a8cc8774021b67ea0fa60914751a7143e355b444",
+        "file_sha256": "7a72111959de5fe12aff90cb38034c034ab48936761ef9dc42a84f5555465236",
+        "final_state_sha256": "b9fd4302d70fef105374f5fce9ae85070d697cf4c7d8bbbf97b19c255a2a0532",
+        "name": "humbaba_humbaba_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "74787b573f1c2ecb034e68d60a8f8ff05ccbafcccb126659122fdf9fae2ca32f",
+        "file_sha256": "0ee76303aa76667a7e2e11f1917b0067ed43f94d4cd90f901f629e5f597714af",
+        "final_state_sha256": "6eb365483e93c24fd64d859cc03165c3ef37419fb0df6c9798d4c5b2a204505d",
+        "name": "humbaba_kalligan_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "fd7b1f6bc3565d693324aca509dc9cb65a92b8802a4f23118b8a4b9f908d5c41",
+        "file_sha256": "d1cd1e0e7b52636fc26015fe69c1cc37ed7d30b573c5171c15dc30b0df053c63",
+        "final_state_sha256": "15c6d58dfb1bdc043af028afd9694b73fe39a7ef1327dba0bf7461527740bd1a",
+        "name": "humbaba_kalligan_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "c343dfe81e45fe650be1960ba781445d23cbe55551b3b11cd5781c683dcac47c",
+        "file_sha256": "7a64414346226a5ada2aacf35f180b079db8f6b0def9a33a97d278096a8baac8",
+        "final_state_sha256": "d0090aaee43f66435a48bdfbc085fb8164c6dda88ea422db2601a1c87e1d0b92",
+        "name": "humbaba_kanifous_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "0a3caff1f1d68246a600dccd53a3a6597a02e27f4eb3b7cd03352ea4cf38a2fe",
+        "file_sha256": "64e91b706456741036fd91e8f375309480fc11385854b099adb72f574890f244",
+        "final_state_sha256": "b3a6d51dccd784d8a73178e6911c5d41fc52f8ecb68957f0428333dd1a73db7e",
+        "name": "humbaba_kanifous_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "2cf6e4bc8f88d1d9a5b8b63c2c6aa0da3b1c2852d1ac9bd94521e7042fb37e60",
+        "file_sha256": "884164fa626e8644c483927a8f2c7f9462cbf620618737ca03fd5df1acd6a808",
+        "final_state_sha256": "86c139dc442fa6b5790523e307defc9ddedc4a6944006ac2787ece2aeaac48fc",
+        "name": "humbaba_kroni_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "1648ee956c801b5df800651a87664535de3b10bc201660d305547e75647f21d8",
+        "file_sha256": "29dfdd66b541f392a76b732f550b6374a40f35fc45392d77da96ea5079db9bb4",
+        "final_state_sha256": "98c95575073963f97ba468ab5e78105621aea35f9383167a799faa316676fbf5",
+        "name": "humbaba_kroni_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "893bf8e50e7f48c9e97dfb5898ed161a8371e0f5106a32e79090cc423c99cf3f",
+        "file_sha256": "c1e394495f9ece472015264b934846d057a1c2b186cf74284317b46ea5fdd0b1",
+        "final_state_sha256": "eae413d1324c8d9c26449ea50244fe0f9ba4c10867043c6417b7e924a38e0e4a",
+        "name": "humbaba_odradek_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "4416b9a0e781d4c4bcd3857fb55f6f4d6306aa853f5d9389f50f3ba643f108c1",
+        "file_sha256": "ffcd6d0e4f5cf8b1333564414cc6ef2b94b0bce0ba28788837412390d67d6cc5",
+        "final_state_sha256": "6d9ad8c6d818cefafba0feb9cd5a6e8032525f882d40f12841650045c232cad9",
+        "name": "humbaba_odradek_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "afe9aace16555279f0b00d5a05bfe1a74d8adc7140a347493f9340eb1c5bd66c",
+        "file_sha256": "024854724f584e2702208ba8aa09529086b1089e373d42a15e0a2a8e37de3c46",
+        "final_state_sha256": "a4255f37a387d0981d3f6644a263cbaa81aad9290f8285ce68333ba725ad5600",
+        "name": "humbaba_orias_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "951df11bfc2d52e2f4a8b92d951cbe99bc0d18c5391a820b31897b8b4a0f393b",
+        "file_sha256": "6a78ba610a0403c6a6094c82d897514f0c32899ce38b905d0b88ecd5cf7c4563",
+        "final_state_sha256": "b66b83e496e24e3489583c3352de05aaee1d039ab6280777160c07a0c24cc3b9",
+        "name": "humbaba_orias_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "e5b64bced12705123f7adb6fabd211591bdf9c807b79821dceb042dcba3a3acd",
+        "file_sha256": "09017e94a378c0a63c8f6d71317ed57d8de033cce29baa3b658f604d9996940e",
+        "final_state_sha256": "9e81a97fb685d6550c9044741b9d0adc7349076374f1444359d62ea218ae2cc0",
+        "name": "humbaba_valak_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "dc623e51fb5bbe01e39f450a435d46a0559cb8d54c6bba57fdb8b4a0008739b2",
+        "file_sha256": "5f0ea228492a630dbf0961c72effb04b535d8d91472b171e8dbce734e2879b4a",
+        "final_state_sha256": "afc770a52f17fe111897d3cc9ee717fd0ec7b3b119eeefa2ddbd28dbddb1ca71",
+        "name": "humbaba_valak_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "ad6a115e6ac9ecf4fecec23bcb109ea4a84a85c82a2ec6ddec5c3439eda94b62",
+        "file_sha256": "229507f5ee7fb00f30b1316e49da5b2c3b84eb2224b915b80fc300bacca837c0",
+        "final_state_sha256": "3bbeb47d8a9093e2f745a97d92b6f829c7ea95a152323f0db6fd691e21296492",
+        "name": "kalligan_deimos_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "99944e1bcb047fb60193690b9a9aaefdb3771129fcfdeb47f983a9bad368236c",
+        "file_sha256": "ee35c5d4e4d82d0985b87b5eade3eaa2ba6d1439f88b4221558e44a6cdf4971a",
+        "final_state_sha256": "ac7efc0295498c97a2f0e7a049e0bd15db08f3c2cfee29f8062b31e0c53dc751",
+        "name": "kalligan_deimos_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "b72bf665ee9fa504f2514db769a3c7fcfd94e847b375730b47bfeb05f90a1943",
+        "file_sha256": "ec89f62e1f36dd89185985d8078e2e208be37b77225d1c8f5dba41eb9c09767a",
+        "final_state_sha256": "c64992e4d88782048247f8dd1f996f4faa327cf4ee8538229d188862ba087807",
+        "name": "kalligan_gremory_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "2dac488ee02635031bf7b03d2982a6e32f20607af2b83204fc5d5d5d39561d7f",
+        "file_sha256": "0272d521c38ca50772ddc89bff410c3ddb8718e186306540a75c8e1eacc9e218",
+        "final_state_sha256": "3fc1c76780c2c78b3d36c93d5c9c1cbe1279f3a033def6d4b95492376f4235a1",
+        "name": "kalligan_gremory_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "3c66ce93c54165a824d5b6c2db2cf8867a6d4a7c57d5c735873a5096d1d7b388",
+        "file_sha256": "c046ba423b4378153107469e5d5a81f9e7e2de6c5c9b5df066693cb3424cd327",
+        "final_state_sha256": "359daec643dd103f0e97189ac50bd86a023ca6069dc1aa11d3b91094a4421e71",
+        "name": "kalligan_humbaba_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "e8d8ce18b4f77347e031552c853f917a12cb622509e7921eea87eca977f59f73",
+        "file_sha256": "a9c3bee1ac3086023215785879586b56e5314ef3613505849e3b0da7f5170b5e",
+        "final_state_sha256": "22fd22ffe067b6d0f1624185627cf78dcff0bdc7a6b72dd041d1b18ace455f8a",
+        "name": "kalligan_humbaba_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "6ff888aba442c2c26ea68c1faa3b17561e8ae75a3951291a291084388e296746",
+        "file_sha256": "5d9bb575fc2b3179414c9282298f9edadf11f6a18427dcda396f263230acd670",
+        "final_state_sha256": "3326d8df6fa490919270739ebde7428401e4361cb0690e1ed37f572b16e479db",
+        "name": "kalligan_kalligan_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "dac607fee368ad14560591d365a6b865a2a6c834d84bbe72ac3cf21236e1978e",
+        "file_sha256": "f8f968afa0ce1addfa68947ed9a947e43dd2d8d2d1556fc210b351783f8400dd",
+        "final_state_sha256": "afb74711e4a140c296d019f1b40e7235eea60075858b7d864e4ddba6d3f4ca4c",
+        "name": "kalligan_kalligan_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "3dbec6ed0e78d0ad39be9d4e76372168b556dff3631333b500fceb6fd9cc7969",
+        "file_sha256": "f4ca373d26c55450474490af7c6fabf918874300d04eb1cec9b900f6cfe4b7e1",
+        "final_state_sha256": "8409a8ba01b1b17b8cc39882d0eb3b52795c5d60a81cfc7164b2329e3060089c",
+        "name": "kalligan_kanifous_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "4f6aec1dee286c4f523e0dc6bfeb91fd048582aac6ea29b35e6be28e518428e3",
+        "file_sha256": "173d63a663d6b6ecb954d5b97e442cd9f2a3de5fa5e565ebfe267009b73cc846",
+        "final_state_sha256": "3a1c0a561e53be503410d5c63aacc8ce9011589fe7b95fb7918d352375727245",
+        "name": "kalligan_kanifous_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "fb1b984ba00e283ad140411fc6e18563a479aea408021fd6566cb331e757a22d",
+        "file_sha256": "35da88fb347aaf904f017c6f1c59b3cccb9766247ad2ea8b954a743a6d63321c",
+        "final_state_sha256": "7942889d4fbea6ba66a387406a8c0569dc72660040328ec4d3fbe3ad53df8c2e",
+        "name": "kalligan_kroni_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "72f3f614f987ca3085f6e890920d71c812296002ad18c84edd1425e6c07e2367",
+        "file_sha256": "babb30d6de4b60d42c6e510f367d1b195cc9eae451c3cb15225a96b80d524739",
+        "final_state_sha256": "3cb120dac9cc13aa28fbd5bf33e49448adf6e06cb9533fdcdf083fc00a65ea34",
+        "name": "kalligan_kroni_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "fb9db6e1075b7e555fe2e8b99c159ac0af44d5a1868e051a351cc975c2bb71e9",
+        "file_sha256": "5fb94a5ac0259c04b1ee0e981ada53bab1ad9f530f031068df939debf2987579",
+        "final_state_sha256": "7f158477e5db241aaa3fd1db471f11d2338ca790aa9bd1c8524aa3581f9bbc4f",
+        "name": "kalligan_odradek_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "ef2ed981c1e249fff0447991162ff4e58b875f49e5f32d4c762b8adf250451e0",
+        "file_sha256": "d2702b55e6fc94db632228c85c96cfcbe438c03b0542106d39233c8ab62a4e25",
+        "final_state_sha256": "fde2e6238cc889932f32a6e690b9231c6f1503ab42ab8351ebd027ba2825de27",
+        "name": "kalligan_odradek_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "36d3f4797eb798de2d420d9fd1ec71ecd1468fbdc0b41070a4e62f02bdeee3be",
+        "file_sha256": "869d60e14b8568140a93d1c92f9489b0e79b6b8dcb405708c3a23ea8eba44590",
+        "final_state_sha256": "0281061b329f52e4bdf00ecad205d10b557760593d82aaac9d07bf8fe4ee03db",
+        "name": "kalligan_orias_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "6bee2fdfd1c1dc42e4b1ea62ccf095a13776a938b70429520a7e63e8f8564353",
+        "file_sha256": "3702aa44be4084684f85735633af011fe987e0e2dd77099de943325c45390e7c",
+        "final_state_sha256": "a8e50f547060f9c51dc26e99e1181ee8172a2a73fc82ef5344cbcb4f72f260a1",
+        "name": "kalligan_orias_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "3adfefbd4255e0fc2fc4140aa8a6f98f877e8458ddd9dbb026b0033c9a4c965c",
+        "file_sha256": "ee9e6580c5a161f4d9ee4b8d0c16d6f2acb7908f22d1a97eb8021bd0cfede980",
+        "final_state_sha256": "8b91841d06212d70b7998080bc84ff508fa614b9bdabe3b1bb2d9c6db061a353",
+        "name": "kalligan_valak_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "1b3c5ff2f30db174f018030c6f242a42bf848f11cb84349e5bd38cf0cb8a2f3b",
+        "file_sha256": "0cc8b4ed0ffaf5c9250c86d9b15fa6a995cbcef2357377b19da86903de6d6695",
+        "final_state_sha256": "58769280986cf6d3fc632c4c9c420c7350eba00b0b1316d440f03802eb697c31",
+        "name": "kalligan_valak_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "57367aaf976b0dac6015c37a282d91dd697a4577c421522e9394945decc46666",
+        "file_sha256": "0f4d3d443294c88c4e409a3776ac17a84d87b3248451ad5162ddf23ff4c43da6",
+        "final_state_sha256": "fb7c7d3f995bfed304b2aee1368f65b9bbe3c245d6786999ea365a84a9d4781b",
+        "name": "kanifous_deimos_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "962b619dbd84c3c8d84976481b1a6fca96af6d2bc7f35d319e09eae6e3868853",
+        "file_sha256": "06fdcddc0d773d56240dfb79cb3cfc002c02c032bdc2add3d6306a753385f1b8",
+        "final_state_sha256": "ed87a12100cea470b62d67ad03066772cdc57983bde3ee707ee2328485396b81",
+        "name": "kanifous_deimos_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "1b77bad4d59baaf5f30c049730d26a6b3dc001982e51366dbbdebd15d9ba92cc",
+        "file_sha256": "eef3e686217e9a8fd6e18ece0fed40b1ff709e75cbe310aec2ae35fc93087f52",
+        "final_state_sha256": "4647e5a71569f20c4970487297f7a8ea34bb0241127c4497cd3bb2bcb41d9fb7",
+        "name": "kanifous_gremory_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "0b596ca0719c11d566a9b693a597264894c1418dad08fdceb2e5097a0b503d1d",
+        "file_sha256": "6fa5ece87d4a4c0f02077e4927f08c31ad8e1d2e44e1ddffcc6a592f62e398ae",
+        "final_state_sha256": "1671000dd62fb6de5345ef27c9b414aba2b15a75191173a7cb05d21598c837c2",
+        "name": "kanifous_gremory_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "14c57f0fdf9625748beed117cb37f9413d92b46da16339a8f1db96e8ed782e9b",
+        "file_sha256": "20c056ca1cda4e576d0e24a81d24e38e40e30b09a8a6f60ced37d2476e8805eb",
+        "final_state_sha256": "d60f07169d0b9e4e5d56ec93a53f85400f3372e0c250488ad27ea3c59a166af1",
+        "name": "kanifous_humbaba_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "f5d378be8a40f298bed81cb59b02a7ba421f3089e7ea72a03acd21d3ff4bfec2",
+        "file_sha256": "341948c994141bc21592c4994f454cd551404bf3afad8f422bfc8e8a6f8de181",
+        "final_state_sha256": "e4c6fa27248163354b7ecb5b40734cf18d56585458736525a63878f96ac69c27",
+        "name": "kanifous_humbaba_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "d659fa84c824fccf1293bcbbadb37313335a7c89e3489fa867826e873fe37d46",
+        "file_sha256": "4984cf0039e58927c73931c2fd06bec6dede38c62f3f00af60d26c7e17429bc6",
+        "final_state_sha256": "b6fe78f0330715a0d0eb1fd4009ab0af8280cce7f0aa4441a8e85ebb6240cec0",
+        "name": "kanifous_kalligan_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "2e01c7d197f53a53468ae49a8f239fede759595f45543ab65ebe121d2fa77cf9",
+        "file_sha256": "c2528f01c4561e284e7f10bd58390384481ead1c00bec90fb9528a307c206662",
+        "final_state_sha256": "c52a63468d0eac0f94d117d9f06051ad5fa4b5fc60bb579bab7d3b58d7a4f8db",
+        "name": "kanifous_kalligan_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "ff5212a91f960f7af3f4dd4849b3a2a1f8701eb3ec590cb031b2219ee0d94f6a",
+        "file_sha256": "51e7df8f914d2d39729af2902de41041e49f84363dc023ae842b1277e0305aa6",
+        "final_state_sha256": "af513c5d257b1992660e528f79c416c8556b9bee363ddc1e39a1ccd192ffdf5e",
+        "name": "kanifous_kanifous_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "7b0a8309b1eefa18ad8590af401594909c48df086d77c63f2ca72441258f8e74",
+        "file_sha256": "fc0972f94f74a95751b798fd4bc4736b1414483f4420447f5b95e5a011c55fe9",
+        "final_state_sha256": "d15b55fcf87c710f711cfab10b2de2392b559a50a22c0f97760f341626ee4095",
+        "name": "kanifous_kanifous_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "316569fcfef7d2edc1d43fd4e0daafd6272165c2f2ad84e8b60da0ef9261fa9b",
+        "file_sha256": "d3624a366efd4d9ef2341164cc8ec13cfc50b9e2c8bb86f8af831768226bd1ff",
+        "final_state_sha256": "2646caa76724bbc5c821c78bde239114deb72142d43f4d2381a8cc4b26e5b92d",
+        "name": "kanifous_kroni_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "f80f47570b2672187f54ff07f3b77c1eab62dc8b42484e6b8f74b7375b5589da",
+        "file_sha256": "3b0d484fb80fa5d52f9959b7207ff9ad129052cf5aba5165f5049e3948ce6825",
+        "final_state_sha256": "49169aa966774f02edaf630da56b807d10a5d1b12c5bcfa2940b8c5a798f72fb",
+        "name": "kanifous_kroni_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "ca061eae304948eb711107cd325007542e500a5da81f03e247514af530a372d5",
+        "file_sha256": "2a9e14791fd3456fe8d07350bdd28799f85865e0abec99a37b8dce7b7c13ced6",
+        "final_state_sha256": "f6584f3dbcf999e9cfc14ecba4750d9dd2a958e0ec7a955e1ecb9763dfc2343d",
+        "name": "kanifous_odradek_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "af2efbfc837edce47576a871ce74495aee7db9efa6c638442d852a847a259aad",
+        "file_sha256": "bab0b3cb52da48d0a0c822590808d509ea2fd5d3f5ee62d7d5225417ce13362b",
+        "final_state_sha256": "87398d22cca78f6073eb3222c8ff081317592e934712725f49a6ab1877fe2dda",
+        "name": "kanifous_odradek_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "8075734de3923bc4742e2031ba170dacb3df442d9d21f1f529d50f10e9f85ebe",
+        "file_sha256": "361692355efbd5894b5fc5b59fce94c3bb3b844cc66555618ce9c4e6dae1559e",
+        "final_state_sha256": "895400e3e7dabf199503e51c3422bfb99682cd3602e8f7e47b79af24e2fa504b",
+        "name": "kanifous_orias_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "1ef3564bffd147e74a76a59fd2726cb12dab4a3dc762af7c82b543a629cd593d",
+        "file_sha256": "85ca2f8f18d47cd24107a3d0f41da779841ff6a94f68d6ee8bb1c215c103bdb9",
+        "final_state_sha256": "b52412c80baec31580e64101a73bac04edf06465b5f7097d5d4b45eb86ac492a",
+        "name": "kanifous_orias_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "a0d76c9897a94c445db8ab888125c20c632752095c8180a687bc502c4ba7f572",
+        "file_sha256": "655314517dc51dd6ab28f4ec2d20b8c8bb3d1074d310ab64ead38a32a91c6176",
+        "final_state_sha256": "75538e5a7d49f6b2e25d61fe84bbd5ce5c1a4fee3184992ef3e47df9d6e32f85",
+        "name": "kanifous_valak_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "3678c4161ca77f9149ed851ec8244dabab798f1d0c72884ed471b453499ae242",
+        "file_sha256": "b33d28f0f03d95ed932c2d9f56ec965dcfd1b2e0e5022821f1330d5601408180",
+        "final_state_sha256": "067d4d792610355064d411368b1ad594f6dc39a9927603f8dbcdcbf24db98b27",
+        "name": "kanifous_valak_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "8df763dbcedc53f6fb536b87020319354aa732e76bd64cab9051682f022de04f",
+        "file_sha256": "46168cbe356a827937efacfa1d246d615d3e9d1449feefa1a491b4acd41af07b",
+        "final_state_sha256": "f60e40de613804c567d073c947be0e97e4879d635ef435e2c72aae70c39aaff1",
+        "name": "kroni_deimos_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "bd2ef6a4dc1b21c66154b2544699d9401832d31a64b6b6a39e5e0610db70a733",
+        "file_sha256": "67ede52b9d2be5860c801e027da5012bdadfe752d7f14074ec8ccc58690b6848",
+        "final_state_sha256": "ef158d16cdef7c5b4b080a32efe689f438f82e2038e8a23aa7cd21d286c793cb",
+        "name": "kroni_deimos_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "2d395960263ed444db612a3356f849dd2e82deb49139760736092f275390e932",
+        "file_sha256": "f36649936328671a4eae485cb20eb873f9a1d52e9f14e02ce25a15d8d0a440ae",
+        "final_state_sha256": "acddb321225fe963c5cbdd93d12bd7f4a3f43a6b234611e4f374222b0e6d10b8",
+        "name": "kroni_gremory_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "2778e84ed7aa65e63074bec7b1311296c3e3776d051a67099d466b48294664c5",
+        "file_sha256": "70a11dd1d8d9136ee13ad1d4d0804c267d61efaa2042761a25ae8c8fa70f4416",
+        "final_state_sha256": "194b6eee03e171f6c2501d5494b9884019ba28ca1794d533a252c624d20591f6",
+        "name": "kroni_gremory_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "e1a7da00aaeb957a4649e1cfc614d59e2e8a8c43593275d9a068404a6886bd4a",
+        "file_sha256": "5c280271b10a92e70d93eb2b6f431c626062f92f11df134528a122558ec8b626",
+        "final_state_sha256": "ef3c5d1b10a1188e0c25588f9b0ee3a0794ae08981b4f019d24de25aa8537f4b",
+        "name": "kroni_humbaba_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "1bd77e3447b5202fc02c0595743683118f978a3888a536df08db7926e49b0c40",
+        "file_sha256": "f98fd6ab5137605a6cff43bc98b9145f4dbe8bdd33f4126d15d722ad3db1c282",
+        "final_state_sha256": "c9ce19304050209a0519a90cb83fb63d3ba5cc25ed576d75d022c6a681a854e4",
+        "name": "kroni_humbaba_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "eaf7ff919feaf49da8f573cd32aae44f96b6fa1c36517d74f08a96d8db79f597",
+        "file_sha256": "6722da7491cec9b33449cc782f832f02e90f502290f27628bbacdd82a0eb08f6",
+        "final_state_sha256": "27590f57f8b5974611055c1474e3552bf230dd7983f0ff1233c89ef5d5ec54ed",
+        "name": "kroni_kalligan_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "86e4ea5abe78c3e55860371974f78d11380d6689d06958163aa44d63955ffe99",
+        "file_sha256": "09ff7be07fb2a65b6153d1755c9537599d4f412b5a055fb39feb3a1bee96cf86",
+        "final_state_sha256": "8943b3921372417ee5fa6e80e5294ad923df5d05915210c502a41207e17cc420",
+        "name": "kroni_kalligan_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "48d72eac90cad03bd41b68e68dfb3ac967d41c8eb0f4c87de22cfb0e91fc620a",
+        "file_sha256": "16bbb52e5f0d94888a47f1c356924abaf65a9ea65d296236456d2d7401146a72",
+        "final_state_sha256": "64d85f1eaa1bd8f21814df80227e9666a3fcb956cf3419edc88523057479b0a5",
+        "name": "kroni_kanifous_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "3e17e43086ab8d6935a8af6986841e9f83f5dc1f0afaf72d84b0ba1664c7b681",
+        "file_sha256": "8e3a29c78e3fec423a5cbabc2bd55a31591abf77dee386abf08e2136eecf9a52",
+        "final_state_sha256": "fb5d7f3d33bd4b6abc650513acc70afca7cfb0045bd787038e822882825716b9",
+        "name": "kroni_kanifous_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "dbf4e61ee28d8db2f2d39c93fa55d868d4958d111502e55ee4ca0ef75721c0b4",
+        "file_sha256": "90ef29ffa84c5cb3a3ffd2ba3247c91ec165d6230fa627cad293389ee6ba3182",
+        "final_state_sha256": "7ce87ed60590e85bf39db876c654503f18fc68e5bf9f8e0c52a85ef93107cd2d",
+        "name": "kroni_kroni_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "39f14af7d2a79d540130fdb906bcb76e83ef4cd7bb70e6d2740f19786da2b2af",
+        "file_sha256": "32048c6d589a9d4417edf0d757eeed97d9ee6db9677dd4af60bdbc43c5d15f2f",
+        "final_state_sha256": "1f4e277f61bfa7264e60bf8a8ef3465168f79ffeccb8d2891bb2c19daef9b8b7",
+        "name": "kroni_kroni_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "3e313d60b3f9b45aa207477f636f91abcf49e712471543a16cc8cd144a100ce3",
+        "file_sha256": "0ecf67c10a6e94909808ffa52536e09c93d274433a9e6cd4a258a683e1af729b",
+        "final_state_sha256": "46365f13c2f4f94bc5a57be3a70376451de43d800bd361e5292da59413f97795",
+        "name": "kroni_odradek_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "c55cd192664072fe2f5b593d132131f2c64e16d007a166792b4d33c7ea210a08",
+        "file_sha256": "10380f2328206d90938e836587be5eb573caa7ddc6edea9fb45d3fee84d0435d",
+        "final_state_sha256": "882c89047cabf7f119599d1d5554bbf7c99e24ad23cff49f646a183ad7a20939",
+        "name": "kroni_odradek_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "3c633c65a41ff7cdc25ace9f88acc807c6846e6985093a56a6281d65f92b27d4",
+        "file_sha256": "0b879cc122df817e32935c8a2b1e14f36f299dbfa682bdb54505fc5cf1071d9e",
+        "final_state_sha256": "7f32335ecb7e7de391edd4439f137e516e57ee7f7ddf3438bf7269ec34e67ed3",
+        "name": "kroni_orias_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "2d466e3e91fd3abb5107f310f7ea969a8f5dac96344ad15a3f19412a8adf2e39",
+        "file_sha256": "52733a69139a17b58e9a96d97d5ed80d97b58307fff2152f528548b0ed2200d5",
+        "final_state_sha256": "22ccc7faf1981a2adc88e271afa88ff77236183509ac3aff065876bc1c1bd7f2",
+        "name": "kroni_orias_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "67c103447034280f8c2c0e7fa34cddb0e9f2fd17529eee45cf7bb9a295853d3e",
+        "file_sha256": "b5a628042c45ad193b49caf5923c2020194f85ec0b13598cc9224e6e52bd9027",
+        "final_state_sha256": "62986b5387ada388348d10d2e330a835ac5f2db3c8b4f1c8eb54f403063c6653",
+        "name": "kroni_valak_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "07b138948d8c140479890908fdc3730c3d34f4d15141db34d09ce78baa5c8628",
+        "file_sha256": "22339b520afc6e7029787b61d9833d781b55d8513d00a8f1cf47d71f5dccc6fd",
+        "final_state_sha256": "339f7f28b3126da27db1e9cc5cd678e2cfb6d091eab2c88bee4849c27651e585",
+        "name": "kroni_valak_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "c956f0b7323c8a2e9b39e8158f07e63fb982e936eb1997963bc6dab17fab7247",
+        "file_sha256": "54dc7b3c54d3204ff8f5bc12fc3e28b22bd988019153775fcca9d3742411736c",
+        "final_state_sha256": "c9e29b49dfb10eacc643469459e197d1118486e86a891e8a5cc2808be5f65034",
+        "name": "odradek_deimos_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "1b4daafaaad3e73d5c6834d2e8278d6c2f9dc214f605f480d362e15720574ffd",
+        "file_sha256": "bbecf6fed5fd061cb9f05aea579128add3a319615747f2a3b3b8036c4248358e",
+        "final_state_sha256": "ed4c06a6dbd5d078dbaf822871c8b471c7a5047d26985cd7752e617596778fa9",
+        "name": "odradek_deimos_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "1b5dae00f71c0cd9441ca77f8dd503cb77f6a741da6cb2bfcc47162d6ee37537",
+        "file_sha256": "ad8f6d84f8df9944806903a6f2301e99f746f9264dc8e1505f58d69905d7110b",
+        "final_state_sha256": "baeeb951a30e168f373bb6f2c3109329cafe16d4d5f0fa2a76d9be4d276953da",
+        "name": "odradek_gremory_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "dc0f1d809b426853e07fb77cb784eeadebc147cea66ab1098bad502e4dec3c5f",
+        "file_sha256": "dccbc650caf3a02ca2c35cd640aae225d78dd90b85e45769a65595210b755b51",
+        "final_state_sha256": "2582fac03bf06149f55aad8fda5e75812ce4303a402e1f11976e29fda9a09161",
+        "name": "odradek_gremory_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "3e0c51708515a83e6be9a8c19af2bbf13567a91ff2431e36d99058eed652ea79",
+        "file_sha256": "915a49c843aa11ed33a240c84b80482a8e8633a906915ef48bdb2943607e6340",
+        "final_state_sha256": "6e90da39f9d7409446ef4f48e32312759c373944224249c1c7189c6e3e6c277a",
+        "name": "odradek_humbaba_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "1b0a4510ce5359fa66dd44afe1097dc8245243936342a6a2fb307baf14ac79a7",
+        "file_sha256": "38bf8f217b4967ef8e1605424b80189212e929b6f03bae1112625948fd3818af",
+        "final_state_sha256": "6410569a9c9fddb51ed6b37cf6948c71dfed32b41d19722dd30f18d524bd1536",
+        "name": "odradek_humbaba_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "12aeda3faa9c2442ecee71029ccc99778b1747cc8185e38739eb15948dccf4d9",
+        "file_sha256": "1e17a2675b17e6677ca08efe42374ea1bd6e20b92a951eb3baaf4ea9ff6847a0",
+        "final_state_sha256": "59432caa085ef41e9aacd8b6e3a73c9a0096b8792f8df58509876528af7c4163",
+        "name": "odradek_kalligan_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "06a358b02d88195efe6996532a0a04a78d17ff5fb5acf0d46dd05e6a69f1c1b7",
+        "file_sha256": "1f7c9334a72cb0a2408cf5c321276339d71c9ea8100ed98a32dddc91144e0273",
+        "final_state_sha256": "e51d2475f2dac75f1e4eee90d90b21771675178f9e39aff8109f7f4077238c1c",
+        "name": "odradek_kalligan_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "e2331434542ba7bbf49615daa4d35b5666068b8a88438fd07d33944f61140aa7",
+        "file_sha256": "372010eb2af2222045a14850e5a7507f1450c4fb4bf1dcbb7fd21b54097583ab",
+        "final_state_sha256": "401c00f959e8082bf70eae4f285bfdd61c6b13b61e8cf2bad3ba29eab45c73ae",
+        "name": "odradek_kanifous_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "e7b5d883e035ee846f4f131acd84869c9163f630285f4f7896d587aec8198f91",
+        "file_sha256": "91aaace7aa01d82f846a8c93a0eca77bf1cd1619bc03722d12b688e28da15f40",
+        "final_state_sha256": "d22690fc95df4a86f8a9e5d43640697d2bc3ee96d220a44025ef353b060a3a67",
+        "name": "odradek_kanifous_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "486ae714328a5d5d041909fad703031d4c58c0de737cdbf542be5fae85ce862a",
+        "file_sha256": "60277ecb01628c615718810d075d5b35c8cf38003b1bb90b83f5d3a046cdf4e9",
+        "final_state_sha256": "224bc18371ea5bae95b96293db844f7e41c4fd21907c1d812786f45c4bc62d7f",
+        "name": "odradek_kroni_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "ccea5eedb7882336677241d34ff75f31b9231f3703a74f982205e6a1518dd24b",
+        "file_sha256": "5854f8694d981daca3c87410deded94278fc3aaaa05a5e2c6ef39f600cbb7d92",
+        "final_state_sha256": "24129c92fb945d322c32015a53514678f2374d27273b0aa191e3b10c3a71e5e5",
+        "name": "odradek_kroni_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "1f657830fc015a976cd51892ea39c5c9fe698cd1020407bcf1dc361d6d86cfea",
+        "file_sha256": "c782b9c1f0cf42bbfe6afc608dde96b28917f414fffd9d81874bc5c8469abe94",
+        "final_state_sha256": "90b33c1b82c6515ded43e90823995868537ed17eb306c64749f48dcb52d9bce0",
+        "name": "odradek_odradek_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "347f08180a73b64b9a68c2fcae055f05baf9e8312fd7a942bec45948542e34ec",
+        "file_sha256": "648740bb01ec3ea5ad0fb9bbf47b72535a927888989818ba9c5899f154ed87f4",
+        "final_state_sha256": "52001dbad66d957b8e2cc69eb6c9611ea558df26ef3f8354d4ff3be63d11567a",
+        "name": "odradek_odradek_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "126ddd3acfb3a32b497984530b48823f552afd21e572c5742298af51a674dcb9",
+        "file_sha256": "10a5a6eb335d2ccf87ae462e97a2d8ced3bb405c2da5ca965c4e3a9096cf033e",
+        "final_state_sha256": "fc456bf24b0d22e7b9fa43d5f84fc51256f6a7e216621a7b5c4d8460406d0cbd",
+        "name": "odradek_orias_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "66bbccd29a609e3747833b48909039d4d1480f56a1f5477c595c3fdf3f6573a6",
+        "file_sha256": "0367639a5ede99d1e5585b108c96f6dfc3d3f98c85ab4b53c07ebc343c2b114a",
+        "final_state_sha256": "9a25d284137f1d3222fafd5f3858d92e221429dea64ae02d5a51113a96fe3169",
+        "name": "odradek_orias_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "cfde5f6b682b6f8e9cbb0df2d708a9c03348d25087e5f4ca2c5a77cb1aa6204f",
+        "file_sha256": "b509a70e55626813f527a475d332c2ac26bba40aaf2688bae1d163e199e61952",
+        "final_state_sha256": "2cdaee2aa23c1fad194da63ca8cc546fbbd94918a12b77a5178a38c418918006",
+        "name": "odradek_valak_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "7256e35d4c4641653f668f9760d59433efe1c1f1e98043e4a01bf3552a874d0f",
+        "file_sha256": "6a461237bf6084cb7cd28e8e57f3247c783e8b523d7a5b753c386bd56ca29699",
+        "final_state_sha256": "c16c1fa452a7bd4d16e0a5f0bcd3c88a555a7a1b0b43d868252b2729802109bd",
+        "name": "odradek_valak_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "65f1c3c3a3adb52209cad855554456dc5926ccb93f86a3bbf27a52569bddeae1",
+        "file_sha256": "5a50506a5f415baaa83de0b4059350d335ed18506714e588b2efc5b3a85e0ecd",
+        "final_state_sha256": "ed9a2992925e891fed6d37c4efe6f9c69d7c2eedfecd9da78358eb8a2c8924a2",
+        "name": "orias_deimos_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "23720cc9f6d6268f855b9322697233a3a1dde78193e6ec8fadef7d433e3ce314",
+        "file_sha256": "9eb436b9488f1e766eee5b2c9271f48cc6424452a542ecc8f5525f40e43ebf6c",
+        "final_state_sha256": "1bc674f17b7b6009e76ac9ee23817325ed53b7cda6208ee01d930f338b3020be",
+        "name": "orias_deimos_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "89db938b6d902fefb1a039c38457d561f913f3778a9f2f1b056a2c3724674ef3",
+        "file_sha256": "ff747bdc0c0b633d7a8be38413cabc3fd4a40a7870be58c89fa207091fa9982d",
+        "final_state_sha256": "3075249764eef561c8683e0386122f734431575e729219017ee216626820a1d6",
+        "name": "orias_gremory_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "3f4e7d120545710fbb1ec3c082a15fe26398db8472feaad1fd9a6017cb314ad4",
+        "file_sha256": "d3a855e4e43c301ea074db7727471bf3a5947ab4664d38e8a84e73369e2a9311",
+        "final_state_sha256": "5584f7c6716069efe1656bfb8835aac37b389696e87536a8981c12cf3c7cb5ab",
+        "name": "orias_gremory_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "0dd0be61d4cb9ead358d8774e553fc70d17da3edbcedb8f9497aade75a56a00e",
+        "file_sha256": "ace7c41e915b6e8337c22dd764074c4fb5faefb9467eb332b2051da75d431f8d",
+        "final_state_sha256": "50a8c4deac5e22f183a5e4667d746a061c081ad6ec29c6d47cf2b178174d94e4",
+        "name": "orias_humbaba_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "cfb010963ba13d09c4964f1c6d953d8c129ea5671350ecd58aa2a5e5911c5a96",
+        "file_sha256": "da1119ca2c2213547f8582551f4ba4b0df2985600b61f27123d12ea7a3b8c21f",
+        "final_state_sha256": "934257a6b917a21ded7e1f7df3d5f08ffae602495be1cf590f9336343892d2aa",
+        "name": "orias_humbaba_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "e60f99f20f6c9eab4e81e9e0825e4db8502bbbf6e41ed2fda0d8691b1b84e14f",
+        "file_sha256": "a503f6d70ad4e31ff915233582aa694549ddfe5ff1b59cdef05345a21ed07f80",
+        "final_state_sha256": "dc57fb9164c8bc695737b01be07aacac742f6478b4e41e1c8f993b90aa7aac69",
+        "name": "orias_kalligan_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "df68a6a3a8eeb6e9b93281cb5803ab029105975af782b760887ba176cf0874b4",
+        "file_sha256": "533c621f085f1b77174625423d8a72609eb35428cbf9983ca0a7fddb2fd2355d",
+        "final_state_sha256": "800408729a91ff8bfde48cc2a7d2e13ecd94ad52bfdd261e9b4eedf8a7bfb123",
+        "name": "orias_kalligan_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "b49735c4baae7b674dab46126d46a0bf49edfc7275c9c4283b8aacc9c78ad016",
+        "file_sha256": "16c144f9357f1efe5fe320c51076b9c6420cf3fb1fbf34c4054136c608ac80bb",
+        "final_state_sha256": "76c90ae9b1dc047e15fed5c3873c8a3d6f2f57c8c15a9fa93e23b3a3434acd00",
+        "name": "orias_kanifous_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "b37c60baa1de6abdf316576ddd96777179dd5c8be93c226b080454aae3906dc0",
+        "file_sha256": "08074123a7b08d7f1a913e103956140255709180be257d9cb377c986d708dacf",
+        "final_state_sha256": "86e856ac2f71be5e1cd8b981097af4b2781b5511ecb936c885aa3d8596170e8b",
+        "name": "orias_kanifous_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "7125fd29af3f9244fee945d4899344be6ed17d0841a9897649efe9b8694bf2c8",
+        "file_sha256": "94b1d3c757b00cb1cedce47c8eb3bea6a9ec996500a080424eccd370b8d71d01",
+        "final_state_sha256": "e5d9cccfeab38a6afbc98a5319f08727ebfea9ab71a247582fd291fd5efe10b9",
+        "name": "orias_kroni_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "aa0b7afcacd5afe8965255f566ecaaff4aeb11f3eec1634181305114ebf5b243",
+        "file_sha256": "12b565a6f3a5036d2825eab5c3457f54c775d7deecf4aaf4ed6efb8212edf195",
+        "final_state_sha256": "2a53c98e80d09090bbbeb9a1f230ba8391db3516c96b3f84dcd346687e1765d2",
+        "name": "orias_kroni_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "68971a9f6881c884dc600fd97bb70cd77f2b3dd09901c9b9dad62d717a193cf6",
+        "file_sha256": "a3aef10bfd1f2734f1d78e136b1b8373a898429f29204224abcc837c7d0b0fb1",
+        "final_state_sha256": "f0456cf8e6a4b02a78169617ab34ca495937b61ada1926e04df6d2c1ba505ca0",
+        "name": "orias_odradek_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "847d727198f03da5275f5d954524ef812601d0bcabd399f4b37b2625ceeee853",
+        "file_sha256": "26f64253cb01a5968cae44fc3f1c45e89eb5097526e0ac84bff84ac35f0a1ca6",
+        "final_state_sha256": "dceb21fef10cdaf71996a35ad19ca24b30e267e483f103b74e452265a9510a13",
+        "name": "orias_odradek_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "e51065079fe8febf773776bdc1bb716261fc8e3a42850b9154a3b1c52da0d4e6",
+        "file_sha256": "0563649570b470f354eb446f6a7f9921592e358738c16be5aebeea51eb40b49c",
+        "final_state_sha256": "90f1ca501bb966f5f4710e993049d076dd431e8abfd6051e1c1a069473154406",
+        "name": "orias_orias_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "ce5851074b0275deb483a71d62a75718b7f1be7ca12ea50eedd24f5930c3111c",
+        "file_sha256": "5c29e112c5fccf695ae884fb5eace7604b489d2782b63705ebc36df8de8b441a",
+        "final_state_sha256": "8253e952df787613e2268f21529d736f8c92fe9c9fea9a2aa78e0bb3718e3a25",
+        "name": "orias_orias_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "8eb2d7fb40087cf3357d335315bf723c41a0128eeafb2b745fc87d003c88c954",
+        "file_sha256": "7c25fc01b955b7e9f720c8f10a4566bae7cc1b68f90eb5e68b4fc3f019f0f84d",
+        "final_state_sha256": "80e09f728e15a16278f12f065ad842d79a7302f3fb3567a39cbd72dee78fb7e4",
+        "name": "orias_valak_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "36d851de55ed832f2bf8a8523c2c8170a530b650919807ef9f6060ae9151662b",
+        "file_sha256": "42ca636f051df40320177e987f26a4fa085c3e2342a920173c19956c80b45367",
+        "final_state_sha256": "e591d245a79a6cf327c2ee29cece9eb696828ad76b9bd0b10b78b8753142bf40",
+        "name": "orias_valak_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "b421f5b6fb55637a8f45dde81502526b31c61482bb76c7da897c6ae95e476e86",
+        "file_sha256": "4b8784487e217643ea5bab1974a98aab15074ead8ef11eaf2131a61c7255147b",
+        "final_state_sha256": "c2b0627586d86c1e20de4c789cb62d39413ef39345ad1e9126c88c1ad84fbd0a",
+        "name": "valak_deimos_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "a80e873446deecfeb0875e077fb9f350af3d49aafe9b833e421d0671a096505b",
+        "file_sha256": "68c077308f65f49eb8299296f3410129115e2eccf487870fc708cf39bfd38156",
+        "final_state_sha256": "17a1f9a0cc897f530099bd7505d46f533ac0c3d35bed21a80957683974e6043a",
+        "name": "valak_deimos_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "dd16e433eeec19b298ad9e93d12358b7bd4f3b693af2a23b55fba5a0c3b97c95",
+        "file_sha256": "9faf3af44abc039439b3f4c44fb3baba0147e160c4b1a59817f41c0742fa4cfd",
+        "final_state_sha256": "2d0b8b03ed76bf43a2723dfd7a794b9d5bd12e79d740a9a0fc94a0a6d9bb47a9",
+        "name": "valak_gremory_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "61b56ebfee42d9ec9ecbaf37527edc2fc4bc47a8b212c9834145bb4925255f57",
+        "file_sha256": "482dcf731e88077768204a176d478d89bea0ba6e53fd9185997fedcaf707db1e",
+        "final_state_sha256": "2b4869af88fcbabf0b962b0b6ffbe33a7705dc40ebf2c26cc0456388fa6290bb",
+        "name": "valak_gremory_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "9285a01f32db2d27d9f57462f388018ace99172a72739d54fcda17913e66a217",
+        "file_sha256": "65bf89962de10ba81f8f9fdcde4e76c4502ae4a4aec2f7675fca791b7e9aab37",
+        "final_state_sha256": "0215e24898c70a3cbe3ce435100d7a2cf4dbddb219fcf1c079ccad651e510a8a",
+        "name": "valak_humbaba_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "f3f8405c2dd4c8168d2484d96efe62b9c806f393db7e6901a34f01253df91c2d",
+        "file_sha256": "dc58e018f2ae413da48b0c898dbc1365ec6793579aa4e41726c47d60e1b3a7c0",
+        "final_state_sha256": "3b25c9a0f485613c7d8b9380fe0fc4136ebd7f80b9c32c922f8dc39d26fe644a",
+        "name": "valak_humbaba_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "69b68f2c070bc3078cab31fa8c6bcb9f2661e9a78f5c44f3518fefd03ed0b31a",
+        "file_sha256": "2499c6e9e1a39f360fc5dbc40c8d9d1c3df5c4d855fe68e02921008c3b164f63",
+        "final_state_sha256": "42d2123cc12c0da28015e205518671bf060828040f17eaa97fcc3230ca0a72c8",
+        "name": "valak_kalligan_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "d2b1c5062895554cb98fc3a9c224ba2af607675611dd1cf27e0ce29b4e1cb6ca",
+        "file_sha256": "ca3641ff63d0f8926aa7d3e3f0bf50f640ab4f3384232bdf2ade35ca5f39b2db",
+        "final_state_sha256": "df4460e1a33572a5b92a0bb53b1816b1f5f777bfb93723cb9bd5d4993b15bf98",
+        "name": "valak_kalligan_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "83e0888de4f37d888e1b7b417f3efcb30525b315124e37dd21118211572d0cfe",
+        "file_sha256": "1827dd6a6f4e67a839442abeee709a2b3d5fb9b70e2c0f0a9149b93c014d9375",
+        "final_state_sha256": "aec1975cda3313913b1dd24d64e21263e84ac30cfd0b42ccd5ed27c5c99061e0",
+        "name": "valak_kanifous_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "2cff52c1f2590ff980e0522cbefde1e73218fd01de286896b19b8d0238d2ddbe",
+        "file_sha256": "b4a664bf27b87cac99f0a78b5aa682268a1557a15d22890fd2da1df00d4a255a",
+        "final_state_sha256": "4becf83774701a75a9e6cef68472917c32cec2f91d3add960ae4dddc3637abc7",
+        "name": "valak_kanifous_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "c10436537a16ef043bbbe92484061f6cf9c7334b0ce41471f60f9495b8388262",
+        "file_sha256": "eac28f71af22cd5f2f4dafbf7045f3e3abbaba12f88cd53ad8c6f1b17ccaeb86",
+        "final_state_sha256": "feb5c0e2631a98bcd803cffc931752f3be225f7f938b1fa334fc0acecd3a15b2",
+        "name": "valak_kroni_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "e0e70c6ef9dd696ca250f14a12cd34657ae609f94253357bcf6d75f70d87f138",
+        "file_sha256": "bc4b22a8ec89f9c6ab50da7ecf6ab82f78a08f604a646f69430e644bcbb29705",
+        "final_state_sha256": "c4f37d08bf7ec321afc5833b973a4ddff9100d876b7c3d901d7bd596729e0e29",
+        "name": "valak_kroni_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "bdbef4e020afcc26574c2a7af571662d6d2118bd76cd20cfe932897d10d336f2",
+        "file_sha256": "d43acc074b5b304695febc8762a672c00e748031d1eb0516be2c576d3ac8ab8d",
+        "final_state_sha256": "3058083c075b334dc8726c1b30dd21f9706af280107b96246cd3ad3a38ebb510",
+        "name": "valak_odradek_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "56d2cc40a060a6fdf45818218b8e33afc75a51df3aa7448d38a31bc598cfc935",
+        "file_sha256": "1a8aadb92abee58cda18ee7f88e4b66b8c4655b01de728490898542cb0b8aa5c",
+        "final_state_sha256": "58f6d1ed0c2182b94771be28f67beef22036fdb30b7e913dcec424440cfad9f3",
+        "name": "valak_odradek_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "2c6fb5ec6cc9bb7dae1bf90e265eb6d9faf5931167e74def0c2e488dfbb31d8c",
+        "file_sha256": "a4699eabeca19f10f05cd42d943653e4b4fdbbf9f48ad320a936633f69157f03",
+        "final_state_sha256": "360d711afa04da85dda8db9da8a00fce871ebfa5db3c4684025054baf1239957",
+        "name": "valak_orias_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "ba69c51205f471e5cd1e56907e229470edebf7d79d0dd9367478d66914b9ab28",
+        "file_sha256": "6e3d6a32944c0208f58cb30c1fbaa1323364598c87643c220a08919a2e5d542e",
+        "final_state_sha256": "3d597c6f4d452c2ea04430381fba207aab923b90ceb43e4e77ced1227255eb1e",
+        "name": "valak_orias_00__candidate_p1"
+      },
+      {
+        "decisions_sha256": "7385993ff56b1c7a3f0ed167efaaceb6fd3f9ddf545e242a2be4c964e208d648",
+        "file_sha256": "931376e775cd6d8f9ebe234765546edf791f46613dd1551855b4c75c947f937d",
+        "final_state_sha256": "3e9e516abab917bb096d68c3d27856137d3457806ba719a4672b2efdcd27ddc6",
+        "name": "valak_valak_00__candidate_p0"
+      },
+      {
+        "decisions_sha256": "ba93bb612fa427c178b3fbb687c84527eeec1ef471a511aea0d89193b1ae91fb",
+        "file_sha256": "1bf6383fff928d857feb28936cd6f036ce3459a9da0321f721747fc13605f79e",
+        "final_state_sha256": "33610d384a26814efe9a275d112177e4d0a722867a565179df273665e24b613c",
+        "name": "valak_valak_00__candidate_p1"
+      }
+    ],
+    "source_guard_note": "The original post-run source guard rejected test/fixture additions. The normal runner subsequently verified all 162 cached records in a checkout exactly matching the initial engine and package fingerprints. No game inputs, manifests or guards were changed.",
+    "summary": {
+      "candidate_policy": "U13_COMMON_SMART_CORE_ALPHA_V8_DEFENSIVE_PLANS",
+      "completed": 162,
+      "decisions": {
+        "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON": 3036,
+        "U13_COMMON_SMART_CORE_ALPHA_V8_DEFENSIVE_PLANS": 3036
+      },
+      "failed": 0,
+      "maximum_work": {
+        "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON": {
+          "complete_plans": 32,
+          "generated:combat": 11,
+          "generated:guards": 11,
+          "generated:monsters": 10,
+          "generated:powers": 16,
+          "generated:resummon": 3,
+          "generated:rites": 4,
+          "generated:work": 6,
+          "previews": 1,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 4,
+          "retained:resummon": 2,
+          "retained:rites": 3,
+          "retained:work": 4
+        },
+        "U13_COMMON_SMART_CORE_ALPHA_V8_DEFENSIVE_PLANS": {
+          "complete_plans": 32,
+          "generated:combat": 11,
+          "generated:guards": 11,
+          "generated:monsters": 10,
+          "generated:powers": 16,
+          "generated:resummon": 3,
+          "generated:rites": 5,
+          "generated:work": 6,
+          "previews": 1,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 4,
+          "retained:resummon": 2,
+          "retained:rites": 4,
+          "retained:work": 4
+        }
+      },
+      "mean_rounds": 18.74074074074074,
+      "paired_results": {
+        "baseline_wins_both": 21,
+        "candidate_wins_both": 21,
+        "incomplete": 0,
+        "split": 39
+      },
+      "rejected_previews": 0,
+      "requested": 162,
+      "rite_measurements": [
+        {
+          "current_board_losses": 78,
+          "current_board_wins": 130,
+          "generated": 1228,
+          "outcomes_unobserved": 0,
+          "personal_tears": 26,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+          "resolved": 26,
+          "retained": 1228,
+          "scored_measured_decisions": 3036,
+          "scored_plans": 2458,
+          "selected": 26,
+          "term": "Invocation"
+        },
+        {
+          "current_board_losses": 155,
+          "current_board_wins": 105,
+          "generated": 209,
+          "outcomes_unobserved": 0,
+          "personal_tears": 183,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+          "resolved": 183,
+          "retained": 209,
+          "scored_measured_decisions": 3036,
+          "scored_plans": 3455,
+          "selected": 183,
+          "term": "ProfaneRuins"
+        },
+        {
+          "current_board_losses": 48,
+          "current_board_wins": 216,
+          "generated": 155,
+          "outcomes_unobserved": 0,
+          "personal_tears": 142,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+          "resolved": 142,
+          "retained": 155,
+          "scored_measured_decisions": 3036,
+          "scored_plans": 2381,
+          "selected": 142,
+          "term": "Supplicants"
+        },
+        {
+          "current_board_losses": 82,
+          "current_board_wins": 136,
+          "generated": 1233,
+          "outcomes_unobserved": 0,
+          "personal_tears": 26,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V8_DEFENSIVE_PLANS",
+          "resolved": 26,
+          "retained": 1233,
+          "scored_measured_decisions": 3036,
+          "scored_plans": 2471,
+          "selected": 26,
+          "term": "Invocation"
+        },
+        {
+          "current_board_losses": 111,
+          "current_board_wins": 85,
+          "generated": 209,
+          "outcomes_unobserved": 0,
+          "personal_tears": 196,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V8_DEFENSIVE_PLANS",
+          "resolved": 196,
+          "retained": 209,
+          "scored_measured_decisions": 3036,
+          "scored_plans": 3683,
+          "selected": 196,
+          "term": "ProfaneRuins"
+        },
+        {
+          "current_board_losses": 39,
+          "current_board_wins": 312,
+          "generated": 156,
+          "outcomes_unobserved": 0,
+          "personal_tears": 140,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V8_DEFENSIVE_PLANS",
+          "resolved": 140,
+          "retained": 156,
+          "scored_measured_decisions": 3036,
+          "scored_plans": 2648,
+          "selected": 140,
+          "term": "Supplicants"
+        }
+      ],
+      "rounds": 3036,
+      "total_decision_ms": 165620.50138300002,
+      "total_simulation_ms": 5112233.970822999,
+      "victory_routes": {
+        "Dominion": 47,
+        "FinalCollapse": 96,
+        "Ritual": 19
+      },
+      "wins": {
+        "baseline": 81,
+        "candidate": 81
+      }
+    },
+    "summary_sha256": "64f1e62b886076c70b8748167e1bc1a0a24fd53d619ee38bbf9d50c631b43689"
+  },
+  "date": "2026-09-18",
+  "directed_same_position_results": [
+    {
+      "game": "kalligan_orias_00",
+      "new_losses": [],
+      "round": 1,
+      "saved": [],
+      "seat": 0
+    },
+    {
+      "game": "kroni_kalligan_00",
+      "new_losses": [],
+      "round": 1,
+      "saved": [],
+      "seat": 1
+    },
+    {
+      "game": "kroni_odradek_00",
+      "new_losses": [],
+      "round": 2,
+      "saved": [
+        "u13_entity_castle:16:loadout:castle:0:1:0"
+      ],
+      "seat": 0
+    },
+    {
+      "game": "kroni_valak_00",
+      "new_losses": [],
+      "round": 3,
+      "saved": [
+        "u13_entity_castle:16:loadout:castle:1:1:0"
+      ],
+      "seat": 1
+    },
+    {
+      "game": "orias_kalligan_00",
+      "new_losses": [],
+      "round": 1,
+      "saved": [],
+      "seat": 0
+    },
+    {
+      "game": "orias_orias_00",
+      "new_losses": [],
+      "round": 3,
+      "saved": [],
+      "seat": 1
+    },
+    {
+      "game": "valak_humbaba_00",
+      "new_losses": [],
+      "round": 3,
+      "saved": [],
+      "seat": 1
+    },
+    {
+      "game": "valak_kroni_00",
+      "new_losses": [],
+      "round": 3,
+      "saved": [],
+      "seat": 1
+    },
+    {
+      "game": "valak_odradek_00",
+      "new_losses": [],
+      "round": 3,
+      "saved": [],
+      "seat": 1
+    }
+  ],
+  "integrated_check": {
+    "games": [
+      {
+        "decisions_sha256": "80c5bf25c758c266351bbdd731d91b178a98931e8d15616724249135dcc1ee10",
+        "final_state_sha256": "ed2c28ad30a00908b5fb5fbb4be8629c258301f084e8024f1ee3d2f0c3fcfe1f",
+        "name": "gremory_humbaba",
+        "operations": 423,
+        "outcome": {
+          "action": "game_finished",
+          "round": 17,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 17,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Gremory",
+            "Humbaba"
+          ],
+          "seed": "u13-nine-lords:gremory_humbaba"
+        }
+      },
+      {
+        "decisions_sha256": "2ca23151c5f686482da36b9fcf6eca326cf693b82921f2f0a9e36584e354cc7b",
+        "final_state_sha256": "f9d73a193c46b9bbdc0cd526fbca8e61cd7fc52018969a204d4f56cf7a860e7e",
+        "name": "deimos_kalligan",
+        "operations": 600,
+        "outcome": {
+          "action": "game_finished",
+          "round": 24,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "rounds": 24,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Deimos",
+            "Kalligan"
+          ],
+          "seed": "u13-nine-lords:deimos_kalligan"
+        }
+      },
+      {
+        "decisions_sha256": "25f04e8f6c4131b9765c30dad92fd85dc2fa59d95f8d32970782c6e5cabf5c10",
+        "final_state_sha256": "52d0ca1729f36c248b028512bfbcc7ecaedd1740f5f6a1ec5e78eb48e3802c9d",
+        "name": "orias_odradek",
+        "operations": 410,
+        "outcome": {
+          "action": "game_finished",
+          "round": 16,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "rounds": 16,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Orias",
+            "Odradek"
+          ],
+          "seed": "u13-nine-lords:orias_odradek"
+        }
+      },
+      {
+        "decisions_sha256": "5d5716ca643861a4d40b944001cd9488c2cb4a4364beb5bad9a5878f02e172f1",
+        "final_state_sha256": "57a4faf8901aca18ea82be047ca21b6461961d34ed9dd546560afa9f599c8d66",
+        "name": "kroni_valak",
+        "operations": 485,
+        "outcome": {
+          "action": "game_finished",
+          "round": 19,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "rounds": 19,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Kroni",
+            "Valak"
+          ],
+          "seed": "u13-nine-lords:kroni_valak"
+        }
+      },
+      {
+        "decisions_sha256": "ff385a6fcaeaba01de74899e71ca57df822cb11e23b684b1f10cb28a36fc384b",
+        "final_state_sha256": "878c245a8aa726b40072c16d48805b2c88e80c4fa889e1f71bbe7a36210e1ae8",
+        "name": "kanifous_gremory",
+        "operations": 415,
+        "outcome": {
+          "action": "game_finished",
+          "round": 17,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 17,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Kanifous",
+            "Gremory"
+          ],
+          "seed": "u13-nine-lords:kanifous_gremory"
+        }
+      }
+    ],
+    "identity": {
+      "engine_source_sha256": "48c08d2473f9e711edb30dbeb3d43da899c88b7d64bca66a22853e33f50bfee9",
+      "harness_source_sha256": "b8569c0c103d3d47bcd930a636a4de4011e1b17163647f657f89a8ff8595cf33",
+      "implementation": "CPython",
+      "new_godot_parity": false,
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+      "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+      "runner_source_sha256": "34e7b828c13a16fa2c4d0c66277f3d5817f307ae3e226f924fedb60f9fddb6b7",
+      "semantic_sha256": "8b3d492a6b96b70ff53d15e009eec7335fb557881e436b2bc3636f4999a45584",
+      "source_revision": "fd3b906ebbbdfc55610faa33d4fb163f6f94d123",
+      "tests_passed": 129
+    },
+    "inputs_sha256": "24612373c3a435e9a47b135c8bbb37e92a1d7cf215d1e99e7ea1c6cb6b057ad8",
+    "operations": 2333,
+    "report_sha256": "91369a5403d69acf4c04fd194ffac2f8a7eeed9ae43acefabf5dfd154957c9b9",
+    "rounds": 93
+  },
+  "local_check": {
+    "games": [
+      {
+        "decisions_sha256": "80c5bf25c758c266351bbdd731d91b178a98931e8d15616724249135dcc1ee10",
+        "final_state_sha256": "c7b2e3640b1c3f1e7a0b8e9812630401764c88559cc3f4ae27ce763531d05834",
+        "name": "gremory_humbaba",
+        "operations": 423,
+        "outcome": {
+          "action": "game_finished",
+          "round": 17,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 17,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Gremory",
+            "Humbaba"
+          ],
+          "seed": "u13-nine-lords:gremory_humbaba"
+        }
+      },
+      {
+        "decisions_sha256": "2ca23151c5f686482da36b9fcf6eca326cf693b82921f2f0a9e36584e354cc7b",
+        "final_state_sha256": "60e3a10ad39890c93ebac298b677bf242549bd65994773ae7de80692dbcf9a50",
+        "name": "deimos_kalligan",
+        "operations": 600,
+        "outcome": {
+          "action": "game_finished",
+          "round": 24,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "rounds": 24,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Deimos",
+            "Kalligan"
+          ],
+          "seed": "u13-nine-lords:deimos_kalligan"
+        }
+      },
+      {
+        "decisions_sha256": "25f04e8f6c4131b9765c30dad92fd85dc2fa59d95f8d32970782c6e5cabf5c10",
+        "final_state_sha256": "dfeec624757c6fa278a8ed516f19d1cb2220d60b60e2000f1814112916ce6d9f",
+        "name": "orias_odradek",
+        "operations": 410,
+        "outcome": {
+          "action": "game_finished",
+          "round": 16,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "rounds": 16,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Orias",
+            "Odradek"
+          ],
+          "seed": "u13-nine-lords:orias_odradek"
+        }
+      },
+      {
+        "decisions_sha256": "5d5716ca643861a4d40b944001cd9488c2cb4a4364beb5bad9a5878f02e172f1",
+        "final_state_sha256": "ac2d65b533e392c8359d1aa281aefd075fa2b62370dd18ad341c8c16d64f457e",
+        "name": "kroni_valak",
+        "operations": 485,
+        "outcome": {
+          "action": "game_finished",
+          "round": 19,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "rounds": 19,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Kroni",
+            "Valak"
+          ],
+          "seed": "u13-nine-lords:kroni_valak"
+        }
+      },
+      {
+        "decisions_sha256": "ff385a6fcaeaba01de74899e71ca57df822cb11e23b684b1f10cb28a36fc384b",
+        "final_state_sha256": "15242b9be00ee777c62136b850b4e7296763913a434b8fc77c28c3b2c0f2d666",
+        "name": "kanifous_gremory",
+        "operations": 415,
+        "outcome": {
+          "action": "game_finished",
+          "round": 17,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 17,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Kanifous",
+            "Gremory"
+          ],
+          "seed": "u13-nine-lords:kanifous_gremory"
+        }
+      }
+    ],
+    "identity": {
+      "engine_source_sha256": "234dfd00355f8a6a403eac5bd1bf7fa384183e16a7e65cfb1e61aa5128000f7e",
+      "harness_source_sha256": "163a8029549c1419f1e78e31a265aec42371499afe73e07075c7e557cd5a9606",
+      "implementation": "CPython",
+      "new_godot_parity": false,
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+      "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+      "runner_source_sha256": "34e7b828c13a16fa2c4d0c66277f3d5817f307ae3e226f924fedb60f9fddb6b7",
+      "semantic_sha256": "e7ef77357b2b161906f70becc6078a27317abd1a68dfcbb87de718ae141190cf",
+      "source_revision": "f83f51575962196b5a412a27bf41a9229de4f79c",
+      "tests_passed": 129
+    },
+    "inputs_sha256": "24612373c3a435e9a47b135c8bbb37e92a1d7cf215d1e99e7ea1c6cb6b057ad8",
+    "operations": 2333,
+    "report_sha256": "4b8e5c4f3fe6978da9ed836631d9bc96253dac108115cf92b3772c926947e13c",
+    "rounds": 93
+  },
+  "local_publication_revision": "3dd82ee690d9db6521e781e0de576baff6a1d44d",
+  "prefixes": {
+    "baseline": {
+      "choices_and_actual_repairs": {
+        "action:Hunt": 17,
+        "action:Pass": 8,
+        "action:Siege": 179,
+        "action:Ward": 282,
+        "guard_cards": 527,
+        "monster_choices": 476
+      },
+      "losses_by_round_cause_castle": {
+        "round_1:siege:Keep": 31,
+        "round_2:hunt:Keep": 7,
+        "round_2:siege:Bastion": 2,
+        "round_2:siege:Keep": 11,
+        "round_2:siege:Stockpile": 8,
+        "round_3:artillery:Keep": 1,
+        "round_3:hunt:Keep": 4,
+        "round_3:siege:Bastion": 7,
+        "round_3:siege:Keep": 2,
+        "round_3:siege:SiegeEngine": 3,
+        "round_3:siege:Stockpile": 1,
+        "round_3:siege:SummoningCircle": 1
+      },
+      "manifest": {
+        "engine_source_sha256": "234dfd00355f8a6a403eac5bd1bf7fa384183e16a7e65cfb1e61aa5128000f7e",
+        "harness_source_sha256": "27049fd017ffd7c309eff749d189d6053174e25e985c496f80ba9ec86ffcb8ca",
+        "implementation": "CPython",
+        "loadout": [
+          "Keep",
+          "Stockpile",
+          "SummoningCircle",
+          "SiegeEngine",
+          "Bastion"
+        ],
+        "lords": [
+          "Gremory",
+          "Deimos",
+          "Humbaba",
+          "Kalligan",
+          "Orias",
+          "Odradek",
+          "Kroni",
+          "Valak",
+          "Kanifous"
+        ],
+        "namespace": "u13-defense-v8-2026-09-18",
+        "policy": "U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON",
+        "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "round_cap": 40,
+        "runner_sha256": "744e1ad288e04ce91be20e089d1cf09e4b6f417c9e27e95db6b7cea8e3028b3a",
+        "schema": "U13_DOCTRINE_SURVEY_V1",
+        "scope": "Python self-play behavior survey; no weight tuning, policy comparison, balance claim or new native parity",
+        "source_revision": "eed8e2d39358e584e43afe43ff70fafbe8423220",
+        "weights": {
+          "banishment": 32,
+          "card_cost": 2,
+          "damage": 3,
+          "destruction": 30,
+          "enemy_settlement_risk": 90,
+          "guard": 5,
+          "monster": 2,
+          "recipe_save": 1,
+          "recruit": 6,
+          "return_lord": 75,
+          "tear": 22,
+          "veil_protection": 8
+        }
+      },
+      "maximum_work": {
+        "complete_plans": 30,
+        "generated:combat": 11,
+        "generated:guards": 11,
+        "generated:monsters": 8,
+        "generated:powers": 11,
+        "generated:resummon": 3,
+        "generated:rites": 2,
+        "generated:work": 5,
+        "previews": 1,
+        "retained:combat": 4,
+        "retained:guards": 4,
+        "retained:monsters": 4,
+        "retained:powers": 4,
+        "retained:resummon": 2,
+        "retained:rites": 1,
+        "retained:work": 4
+      },
+      "raw_records_verified": 81,
+      "summary_sha256": "a32adc712bc2212b919583b8ac7829757a17fa7f815199da1075a1b7c72c822e",
+      "totals": {
+        "decisions": 486,
+        "games": 81,
+        "games_with_losses": 40,
+        "games_with_round_one_loss": 20,
+        "losses": 78
+      }
+    },
+    "candidate": {
+      "choices_and_actual_repairs": {
+        "action:Hunt": 4,
+        "action:Pass": 5,
+        "action:Siege": 113,
+        "action:Ward": 364,
+        "actual_existing_castle_integrity_restored": 4,
+        "actual_existing_castle_repairs": 2,
+        "guard_cards": 656,
+        "monster_choices": 481
+      },
+      "losses_by_round_cause_castle": {
+        "round_1:siege:Keep": 17,
+        "round_2:hunt:Keep": 1,
+        "round_2:siege:Bastion": 3,
+        "round_2:siege:Keep": 4,
+        "round_2:siege:Stockpile": 2,
+        "round_3:siege:Bastion": 1,
+        "round_3:siege:Keep": 1,
+        "round_3:siege:SiegeEngine": 2
+      },
+      "manifest": {
+        "engine_source_sha256": "234dfd00355f8a6a403eac5bd1bf7fa384183e16a7e65cfb1e61aa5128000f7e",
+        "harness_source_sha256": "efb3ef845a1fdce6292fb778c2d876f6cc8c0b490afe983a6a550e7afe82ac67",
+        "implementation": "CPython",
+        "loadout": [
+          "Keep",
+          "Stockpile",
+          "SummoningCircle",
+          "SiegeEngine",
+          "Bastion"
+        ],
+        "lords": [
+          "Gremory",
+          "Deimos",
+          "Humbaba",
+          "Kalligan",
+          "Orias",
+          "Odradek",
+          "Kroni",
+          "Valak",
+          "Kanifous"
+        ],
+        "namespace": "u13-defense-v8-2026-09-18",
+        "policy": "U13_COMMON_SMART_CORE_ALPHA_V8_DEFENSIVE_PLANS",
+        "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "round_cap": 40,
+        "runner_sha256": "744e1ad288e04ce91be20e089d1cf09e4b6f417c9e27e95db6b7cea8e3028b3a",
+        "schema": "U13_DOCTRINE_SURVEY_V1",
+        "scope": "Python self-play behavior survey; no weight tuning, policy comparison, balance claim or new native parity",
+        "source_revision": "eed8e2d39358e584e43afe43ff70fafbe8423220",
+        "weights": {
+          "banishment": 32,
+          "card_cost": 2,
+          "damage": 3,
+          "destruction": 30,
+          "enemy_settlement_risk": 90,
+          "guard": 5,
+          "monster": 2,
+          "recipe_save": 1,
+          "recruit": 6,
+          "return_lord": 75,
+          "tear": 22,
+          "veil_protection": 8
+        }
+      },
+      "maximum_work": {
+        "complete_plans": 31,
+        "generated:combat": 11,
+        "generated:guards": 11,
+        "generated:monsters": 9,
+        "generated:powers": 7,
+        "generated:resummon": 3,
+        "generated:rites": 2,
+        "generated:work": 5,
+        "previews": 1,
+        "retained:combat": 4,
+        "retained:guards": 4,
+        "retained:monsters": 4,
+        "retained:powers": 4,
+        "retained:resummon": 1,
+        "retained:rites": 1,
+        "retained:work": 4
+      },
+      "raw_records_verified": 81,
+      "summary_sha256": "8f7b9ef21ee999fe848b3e79a3b710b81c2d92dd256596b6ce0ab664231922b9",
+      "totals": {
+        "decisions": 486,
+        "games": 81,
+        "games_with_losses": 18,
+        "games_with_round_one_loss": 10,
+        "losses": 31
+      }
+    }
+  },
+  "publication_matches_tested_python_engine_policy_runner_and_inputs": true,
+  "publication_parent": "8c0fafd66c32fe89b8dd2db655389aaeccb54d12",
+  "publication_tree": "b28bd8187d03618be66f2af656d639625c2f6547",
+  "published_implementation_revision": "249f54f5d20bd8d40bce7898425f736d24d4b43b",
+  "schema": "U13_EARLY_DEFENSE_LOCAL_V1",
+  "scope": "Opening and matched-policy comparisons use the eed8e2d engine. Integrated tests include b61bc9e; publication also preserves the later independent lane-sandbox update. No new native parity, established policy strength, equivalence or Lord-balance claim.",
+  "source_reconstruction": {
+    "files": {
+      "Scripts/Sim/run_u13_doctrine_diagnostics.py": "8f2f61bac73903dc590143771b8a5ca14ee04b822c6005ecbf6ff7f4bb0a8e2e",
+      "Scripts/Sim/run_u13_doctrine_diagnostics.sh": "eabc60a0d98164b18a0239a040861f6950f84118abd7ca675bbcffa7f00edf6b",
+      "Scripts/Sim/u13_doctrine/__init__.py": "227c8876cf5699a5538e3493e65d8ab8e7ecf03c65eb0781306d8d22461c3b8f",
+      "Scripts/Sim/u13_doctrine/budget.py": "6e98f1b4cc5852ef173f4c64466c7dbb5ae9b7ef95c1c96edb9926cf57068591",
+      "Scripts/Sim/u13_doctrine/closing.py": "137079c225ecedb9e1fb4a689c7817ec512ab4a215fb0624ee62e961d058579d",
+      "Scripts/Sim/u13_doctrine/common.py": "3a065327d3e2b78b4ca4f1ce68940735c26845ef4cd6f67029eb5a57587ce86e",
+      "Scripts/Sim/u13_doctrine/comparison.py": "59c57b7053af14a033241768bc69c61eba36848804a0a7b6cc725ecdfb7f23bc",
+      "Scripts/Sim/u13_doctrine/coordination.py": "76646f791bf9cc421d33b82efa7d17740d780388fe6cb8665a5aea1878161f10",
+      "Scripts/Sim/u13_doctrine/coverage.py": "228c23b18653b89647570939fb944d7063f676a45a28ca980ef1838b669b7c71",
+      "Scripts/Sim/u13_doctrine/defensive_plans.py": "251161512ac9529f6c97d40f9578a2d16e46c26325cbe7be3b50a06dec1472b9",
+      "Scripts/Sim/u13_doctrine/diagnostics.py": "5cf40e9a6ab3984653737e7b8e20b373a923f932a0205803cafea3fb48fa9769",
+      "Scripts/Sim/u13_doctrine/facts.py": "03cc64a025e42217a77cc24d1980033c131e25b6224fcc69f518d4debc0ecab3",
+      "Scripts/Sim/u13_doctrine/lords/__init__.py": "411ef93b19ce21fbd9e93608633810c3002599c5dd9be1b679e70a7414263488",
+      "Scripts/Sim/u13_doctrine/lords/deimos.py": "3db80f87a3a700099bb5a35141e87731885dc99844d36dea7a11f26eda2f5750",
+      "Scripts/Sim/u13_doctrine/lords/gremory.py": "24da2dec94f8788638c8cd2aec532b25806c71590c580bd1782aa8242ea23496",
+      "Scripts/Sim/u13_doctrine/lords/humbaba.py": "f4da1815459a72d5bf42bdfa14d16cd01cd88afbe43848531b42df944c5ef9a5",
+      "Scripts/Sim/u13_doctrine/lords/kalligan.py": "804956060c8d59eb9ea1c7911798954e11b5d933c784531aff846e69c2f726f8",
+      "Scripts/Sim/u13_doctrine/lords/kanifous.py": "f8088280111c21cb09368970b88f8593a6742f46d9048c05e0da9fec6b4aa26d",
+      "Scripts/Sim/u13_doctrine/lords/kroni.py": "7079c646913e8f557861728376794be727a4d258139b56ae1c7e05e0d8bd00db",
+      "Scripts/Sim/u13_doctrine/lords/odradek.py": "4a3eed0613374ad6c7172d3ccfc9c661290034a136e54abec867482e471bafb4",
+      "Scripts/Sim/u13_doctrine/lords/orias.py": "ff5432388bfc98d4b48bbc873c985317e6b7c4b14d21aff5c5b5d15940eb5e20",
+      "Scripts/Sim/u13_doctrine/lords/valak.py": "3959d4d1366d406b90c82f420729c0d15c1cc6000b3b677e0f68a738b0df7331",
+      "Scripts/Sim/u13_doctrine/observation.py": "4114c44ae86f5dd4d109f6de85ba351c3b6d4bed8e1a4af5b08b4b86349d05f0",
+      "Scripts/Sim/u13_doctrine/planner_probe.py": "09b2437aa8de7548989dbf6dbd15af98dae9500dd82f126ece0460f200e790b0",
+      "Scripts/Sim/u13_doctrine/recipes.py": "ddb4e0072006093218d8a4707beb248d7fe92067f57864d02588ab86df9a1c2e",
+      "Scripts/Sim/u13_doctrine/reference_probe.py": "cd5d3433e0b99082c24fb4599a9464c18b60bca021fb559f59f2c307bbbd0f98",
+      "Scripts/Sim/u13_doctrine/rite_cases.py": "2cf12a6be0f6598cdeb330f76bd0efcb8c680fbcf2410b1d6461099d61d4a70e",
+      "Scripts/Sim/u13_doctrine/selection.py": "a160b99b525a1590b34a8ba43fef6f5f63d70c083886f0f151111f7bb5b3894f",
+      "Scripts/Sim/u13_doctrine/survey.py": "4ef849355910d662bb887fd53ae50b5574efc5f10fdc752610e5bfb81f2a059a",
+      "Scripts/Sim/u13_doctrine/test_closing.py": "b0eeab4ac9b4292f57dc35760f507252d7bfb6dbc96f6367661cf140c2ff9b37",
+      "Scripts/Sim/u13_doctrine/test_common.py": "070239fc10171c518c3a53077bc3ec427fddaa9a81331ae1d38481047e794d84",
+      "Scripts/Sim/u13_doctrine/test_comparison.py": "59211969deccbdb0ac2c042abcbf4ddc707c28216408515c83dbdcc48362507d",
+      "Scripts/Sim/u13_doctrine/test_coordination.py": "763dceb8ef83ae9795aaec3603c62815a1bc5a50a2ed90432831dc8f2fec70af",
+      "Scripts/Sim/u13_doctrine/test_diagnostics.py": "d8362c599d2f83ae3864c6b0c32e734ac5136030e7f3194ac3fe10afda6881ff",
+      "Scripts/Sim/u13_doctrine/test_odradek.py": "0078b8a8d5f534ecebdefa47e0c921e3b7b642eaae985b8ad5adb178a1044023",
+      "Scripts/Sim/u13_doctrine/test_recipes_veil.py": "b1948ea569cf7b304756b70e4e2a99d479228cca4514a826fdb556434d5b456e",
+      "Scripts/Sim/u13_doctrine/test_rites.py": "4049d7d09741161cae1392c3f0dcb9c3735108c50492dead8c7e36883ab240c8",
+      "Scripts/Sim/u13_doctrine/test_selection.py": "b2ae4fa066634e423479552398f05d1fa2d06bbb5c978be564978763e02a94bf",
+      "Scripts/Sim/u13_doctrine/test_survey.py": "926deb9d20611b42b8a5f2e970bff6c4e4b357c1afe8d12cd263c26749a05880",
+      "Scripts/Sim/u13_doctrine/veil_judgment.py": "f92f3a5ca62d8ead00f38b7b5a1d4945645032e05e048305ec114bbb66d64131"
+    },
+    "note": "Pilot started before the implementation commit and before adding test_defensive_plans.py, early_defense_cases.json and fixture hashing in reference_probe.py. Production planner and observer sources are identical to the implementation commit.",
+    "pilot_harness_sha256": "efb3ef845a1fdce6292fb778c2d876f6cc8c0b490afe983a6a550e7afe82ac67",
+    "tested_implementation_revision": "f83f51575962196b5a412a27bf41a9229de4f79c"
+  },
+  "status": "local validation complete; Windows CPython/PyPy pending"
+}
