@@ -1,5 +1,7 @@
 # U13 common doctrine V5: bounded closing preference
 
+> **Windows accepted at clean `725be5e`:** [Uploaded evidence](evidence/U13_CLOSING_WINDOWS_2026-09-18.json) passed 92 tests each under CPython 3.14.7 and PyPy 7.3.23. Complete semantic reports and explicit inputs match for five games / 85 rounds / 2,142 operations, and agree with the independent local check. This accepts the default greedy policy on the combined Penitent/range/monster revision; it does not broaden native Godot parity or the earlier campaign scope.
+
 The experimental Python policy is `U13_COMMON_SMART_CORE_ALPHA_V5_CLOSING`.
 It gives selected closing plans priority over ordinary material scores, while
 retaining the existing credit for uncertain closing chances. Softmax stays off
@@ -57,8 +59,7 @@ regressions to measure, rather than being relabeled as guarantees.
 
 On the comparison authority at `b56c83a`, the local CPython 3.12.14 check passed **92 tests**, plus six separate
 comparison/evidence tests. Five bounded games completed **84 rounds / 2,123
-operations**, with no invalid operations or rejected previews. Windows CPython /
-PyPy acceptance for this revision remains pending.
+operations**, with no invalid operations or rejected previews. The later Windows acceptance covers the published combination described below.
 
 The final comparison completed **162/162 games**, covering all 81 ordered Lord
 matchups with each policy assigned to each seat once. It used one fixed loadout,
@@ -137,8 +138,10 @@ the doctrine harness fingerprint remains
 This checks compatibility on the published combination. The 162-game comparison
 above predates the Penitent block; its win totals are not a measurement of that
 later ruleset. The archive includes both bounded checks, and the existing Windows
-wrapper will test the combined revision. Native/Windows acceptance is still
-scoped separately.
+wrapper subsequently accepted the combined revision at clean `725be5e`: all
+92 tests per runtime passed, and the complete semantic reports and inputs matched both
+each other and this independent local check. This remains separate from native
+Godot parity acceptance.
 
 ## Reproduction
 
