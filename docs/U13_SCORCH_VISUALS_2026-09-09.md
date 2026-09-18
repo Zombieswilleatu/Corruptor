@@ -1,3 +1,5 @@
+> **2026-09-18:** Castle fire now binds to one selected Castle card; Guard-zone fire was removed. Lane animation and pulse flashes are preserved. See [current rules](U13_KALLIGAN_CASTLE_FIRE_2026-09-18.md). The original visual acceptance below remains historical.
+
 # Scorch sprite presentation
 
 Uses the three original PNG blobs from main commit

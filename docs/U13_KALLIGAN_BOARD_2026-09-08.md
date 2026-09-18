@@ -1,5 +1,7 @@
 # Kalligan board and Breath of Life art
 
+**Current targeting, 2026-09-18:** [Castle fire update](U13_KALLIGAN_CASTLE_FIRE_2026-09-18.md). Historical test counts below retain their original scope.
+
 The user reported the Kalligan rules gate green on Godot 4.7.2 after commit
 `12b9652`. This pass connects that accepted content to the existing U13 board.
 
@@ -8,10 +10,9 @@ The user reported the Kalligan rules gate green on Godot 4.7.2 after commit
 - Kalligan is selectable on either side, including mirrors and Kalligan/Humbaba.
   Existing Castle loadouts, shared Guards, Hunt, worker forks and checkpoint
   restoration use the correct composed content owner.
-- In the separate powers prompt, choose **Inferno**, then click an enemy Lord
-  Guard slot/area, an enemy shared Castle Guard slot/area, or either Marching
-  lane. Valid areas pulse; the chosen target flashes again. Enemy Castle cards
-  themselves are not Inferno targets: this targets their shared Guard zone.
+- In the separate powers prompt, choose **Inferno**, then click one exposed enemy Castle
+  card or either Marching lane. Valid targets pulse; the chosen target flashes
+  again. Lord and Guard zones are not Inferno targets.
 - The prompt stays open. Main board targeting uses clicks, with no target
   dropdown. Combat/development commitments remain locked during powers.
 - Inferno's readiness uses an authoritative whole-plan preview. An existing
@@ -19,18 +20,19 @@ The user reported the Kalligan rules gate green on Godot 4.7.2 after commit
   round correctly disables preparing a move into expiration.
 - **Pyroclasm** queues one extra pulse at the current Scorch. There is no second
   target to choose. Its selected-target flash uses the current location even
-  when a future Inferno relocation is queued elsewhere.
+  when a future Inferno relocation is queued elsewhere. Casting blocks Pyroclasm
+  for the following round.
 - Repeated button clicks cannot double-queue either power. Neither selecting a
   power nor changing prompts advances state or consumes a cooldown.
 - The prompt reports intensity, remaining active rounds, location, queued
-  next-round target and cooldown. Lane tint and Guard headings show active fire;
+  next-round target and cooldown. Lane fire and a badge/flames on the selected Castle show active fire;
   prepared fire is visibly marked for its firing round. All values come from
   the public persistent/pending registries, not a separate gameplay timer.
 
 The existing U12-style layout, card outlines, committed stacks, Castle fracture,
 construction meter, artillery and responsive worker/playback remain in place.
-Scorch is currently a readable tint/badge presentation; bespoke fire sprites
-are not part of this pass.
+The later Scorch sprite renderer now binds Castle fire to its exact instance,
+with the same animated lane renderer. Expiration clears flames and badges.
 
 ## Breath of Life sprites
 
