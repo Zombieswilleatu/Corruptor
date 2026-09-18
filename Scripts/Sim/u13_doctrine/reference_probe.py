@@ -183,6 +183,7 @@ def run_case(spec, expected):
 def harness_hash(root):
     sim = Path(root) / "Scripts/Sim"
     paths = list((sim / "u13_doctrine").rglob("*.py"))
+    paths += list((sim / "u13_doctrine").rglob("*.json"))
     paths += [sim / "run_u13_doctrine_diagnostics.py", sim / "run_u13_doctrine_diagnostics.sh"]
     return fingerprint({p.relative_to(root).as_posix(): hashlib.sha256(
         p.read_bytes().replace(b"\r\n", b"\n")).hexdigest() for p in sorted(paths)})

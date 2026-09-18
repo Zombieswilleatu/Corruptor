@@ -34,8 +34,21 @@ class PlannerObserver(ReferenceObserver):
         self.closing_counts = Counter()
         self.coordination_counts = Counter()
         self.resource_horizon_counts = Counter()
+        self.defense_counts = Counter()
 
     def accepted(self, number, seat, decision):
+        defensive = decision.get('defense')
+        if defensive:
+            self.defense_counts['measured_decisions'] += 1
+            self.defense_counts['evaluated_plans'] += defensive['evaluated_plans']
+            for kind, count in defensive['alternative_plans'].items():
+                self.defense_counts['alternatives:'+kind] += count
+            selected = defensive['selected']
+            self.defense_counts['selected_enabled'] += selected['enabled']
+            if selected['work']:
+                self.defense_counts['selected_work_gain'] += selected['work']['gain']
+                if selected['work']['gain'] and not selected['work']['building']:
+                    self.defense_counts['selected_repairs'] += 1
         resource = decision.get('resource_horizon')
         if resource and resource['enabled']:
             self.resource_horizon_counts['measured_decisions'] += 1
@@ -197,6 +210,7 @@ class PlannerObserver(ReferenceObserver):
             closing_judgment=dict(sorted(self.closing_counts.items())),
             power_coordination=dict(sorted(self.coordination_counts.items())),
             resource_horizon=dict(sorted(self.resource_horizon_counts.items())),
+            defense=dict(sorted(self.defense_counts.items())),
             plan_selection=dict(counts=dict(sorted(self.selection_counts.items())),
                                 max_score_gap=self.selection_max_gap if self.selection_counts else None),
             monster_measurements='recipe opportunities, choices and actual spawned bodies; later ability benefit is unmeasured',

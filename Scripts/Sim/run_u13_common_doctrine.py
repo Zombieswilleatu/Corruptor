@@ -43,6 +43,7 @@ def main():
         tests = unittest.defaultTestLoader.loadTestsFromNames(['u13_doctrine.test_diagnostics', 'u13_doctrine.test_common',
             'u13_doctrine.test_recipes_veil', 'u13_doctrine.test_rites', 'u13_doctrine.test_closing',
             'u13_doctrine.test_selection', 'u13_doctrine.test_coordination', 'u13_doctrine.test_odradek',
+            'u13_doctrine.test_defensive_plans',
             'u13_doctrine.test_comparison', 'u13_pysim.test_marching'])
         result = unittest.TextTestRunner(verbosity=2).run(tests)
         if not result.wasSuccessful() or result.testsRun == 0: return 1
