@@ -731,19 +731,20 @@ static func _move(
 			neighbors[unit.id] = {"unit": target, "distance": 9223372036854775807 if target.is_empty() else Fort.gap(unit, target)}
 	var accepted: Array = []
 	var accepted_by_id: Dictionary = {}
-	for row in rows:
+	for row in ([] if modern else rows):
 		# Shallow row copies are enough: attributes are read-only until replaced.
 		var copy: Dictionary = row.duplicate()
 		accepted.append(copy)
 		accepted_by_id[row.id] = copy
 	var accepted_grids: Dictionary = _team_grids(accepted, 7)
-	# Read targets from one tick snapshot; resolve personal-space conflicts in ID order.
+	# Read targets from one tick snapshot. Current units can pass through allies;
+	# only the frozen legacy profile resolves friendly space in ID order.
 	for unit in rows:
 		if fleeing_ids.has(unit.id) or unit.attributes.get("hidden", false) or unit.attributes.get("sprite_form") == "turret":
 			continue
 		var a: Dictionary = unit.attributes
 		var nearby: Dictionary = neighbors[unit.id]
-		var allies: Dictionary = accepted_grids[a.lane][unit.owner]
+		var allies: Dictionary = {} if modern else accepted_grids[a.lane][unit.owner]
 		var previous_ticket: int = int(a.contact_tick)
 		var retreat: bool = has_rout and Rout.retreating(a, int(context.round))
 		var step: int = Rout.speed(a, int(context.round), clock) if has_rout else int(a.step_fp)
@@ -823,19 +824,22 @@ static func _move(
 		var proposed: Dictionary = a.duplicate(true)
 		proposed.x_fp = clampi(int(a.x_fp) + dx, 0, LANE_FP)
 		proposed.y_fp = clampi(int(a.y_fp) + dy, 0, WIDTH_FP)
-		if not _space_free(unit, proposed, _near_rows(proposed, allies, 7), gate_queue) or (modern and Fort.blocked_step(unit, proposed, structures)):
-			# Detour across the intended travel direction. Builders sometimes
-			# cross the lane to swap posts; another lateral step would trap them.
+		if modern:
+			# A friendly guard must not become an impassable traffic obstacle.
+			# Enemy walls remain solid; combat contact was handled above.
+			if Fort.blocked_step(unit, proposed, structures): proposed = a
+			entities.update(unit.id, unit.owner, proposed)
+			continue
+		if not _space_free(unit, proposed, _near_rows(proposed, allies, 7), gate_queue):
+			# Preserve historical spacing for frozen non-ranged fixtures.
 			var side: int = (
 				1 if (String(unit.id).unicode_at(String(unit.id).length() - 1) % 2) == 0 else -1
 			)
-			var detour_axis: String = "x_fp" if modern and absi(dy) > absi(dx) else "y_fp"
-			var detour_limit: int = LANE_FP if detour_axis == "x_fp" else WIDTH_FP
 			proposed = a.duplicate(true)
-			proposed[detour_axis] = clampi(int(a[detour_axis]) + side * step, 0, detour_limit)
-			if not _space_free(unit, proposed, _near_rows(proposed, allies, 7), gate_queue) or (modern and Fort.blocked_step(unit, proposed, structures)):
-				proposed[detour_axis] = clampi(int(a[detour_axis]) - side * step, 0, detour_limit)
-				if not _space_free(unit, proposed, _near_rows(proposed, allies, 7), gate_queue) or (modern and Fort.blocked_step(unit, proposed, structures)):
+			proposed.y_fp = clampi(int(a.y_fp) + side * step, 0, WIDTH_FP)
+			if not _space_free(unit, proposed, _near_rows(proposed, allies, 7), gate_queue):
+				proposed.y_fp = clampi(int(a.y_fp) - side * step, 0, WIDTH_FP)
+				if not _space_free(unit, proposed, _near_rows(proposed, allies, 7), gate_queue):
 					proposed = a
 		entities.update(unit.id, unit.owner, proposed)
 		var accepted_row: Dictionary = accepted_by_id[unit.id]

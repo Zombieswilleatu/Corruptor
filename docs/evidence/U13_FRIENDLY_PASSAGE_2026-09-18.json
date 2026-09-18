@@ -1,0 +1,111 @@
+{
+  "date": "2026-09-18",
+  "change": "Friendly units pass through one another without collision sidesteps",
+  "profile": "U13_VULTURE_RANGED_V7_FRIENDLY_PASSAGE",
+  "reproduced_before": {
+    "guard": [
+      560,
+      450
+    ],
+    "marcher_start": [
+      450,
+      450
+    ],
+    "enemy": [
+      900,
+      0
+    ],
+    "oscillation": [
+      [
+        480,
+        424
+      ],
+      [
+        480,
+        420
+      ]
+    ],
+    "native_regression_failures": 2
+  },
+  "behavior": [
+    "Regular marchers and monsters may overlap friendly units while advancing",
+    "Guarding Wrights retain their posts",
+    "Enemy walls remain solid for ground units",
+    "Existing melee footprint and ranged stopping distances remain",
+    "Initial spawn positions remain spread out"
+  ],
+  "native_checks": {
+    "passage-field": {
+      "checks_passed": 182,
+      "failures": 0
+    },
+    "passage-monsters": {
+      "checks_passed": 321,
+      "failures": 0
+    }
+  },
+  "python_exact_phase_replays": {
+    "passage-field": {
+      "phases": 38,
+      "events": 8193,
+      "ticks": 7600,
+      "event_types": {
+        "MARCHER_DEFEATED": 5,
+        "MARCHER_MELEE_ATTACK": 423,
+        "MARCHER_RANGED_ATTACK": 52,
+        "MARCHER_WAITING": 2,
+        "MARCHING_FINISHED": 38,
+        "MARCHING_STARTED": 38,
+        "MARCHING_TICK": 7600,
+        "MONSTER_ATTACK": 1,
+        "MONSTER_BEAM_DETONATED": 1,
+        "MONSTER_BEAM_FIRED": 1,
+        "WRIGHT_BUILD_ASSIGNED": 13,
+        "WRIGHT_STRUCTURE_BUILT": 13,
+        "WRIGHT_STRUCTURE_DESTROYED": 6
+      }
+    },
+    "passage-monsters": {
+      "phases": 41,
+      "events": 8783,
+      "ticks": 8200,
+      "event_types": {
+        "KRONI_ACTORS_STARTED": 1,
+        "KRONI_ACTOR_FINISHED": 1,
+        "KRONI_ACTOR_TICK": 200,
+        "KRONI_FLEE_STARTED": 1,
+        "MARCHER_DEFEATED": 10,
+        "MARCHER_DEVOURED": 1,
+        "MARCHER_MELEE_ATTACK": 184,
+        "MARCHER_RANGED_ATTACK": 48,
+        "MARCHER_WAITING": 3,
+        "MARCHING_FINISHED": 41,
+        "MARCHING_STARTED": 41,
+        "MARCHING_TICK": 8200,
+        "MONSTER_ATTACK": 13,
+        "MONSTER_BANISHED": 1,
+        "MONSTER_BEAM_DETONATED": 9,
+        "MONSTER_BEAM_FIRED": 8,
+        "MONSTER_CHARMED": 3,
+        "MONSTER_CONCEALMENT": 1,
+        "MONSTER_FIELD_CREATED": 3,
+        "MONSTER_POISONED": 1,
+        "MONSTER_PULSE": 1,
+        "MONSTER_ROOTED": 1,
+        "WRIGHT_BUILD_ASSIGNED": 11
+      }
+    }
+  },
+  "python_unit_tests": 21,
+  "runtime": "Godot 4.5.1.stable.official.f62fdbde1 / Linux headless",
+  "diagnostic_only": true,
+  "production_runtime": "Godot 4.7.2 Windows; interactive check remains",
+  "source_sha256": {
+    "Scripts/Sim/U13FieldCombatTestRunner.gd": "74ee2c4c3379c0a2ef56553253e9ea11b97cfc2241fbbb97ad7e1d850bd9fc83",
+    "Scripts/Sim/U13Marching.gd": "7eb19d0e796b5ed975871605cdd4915bad2c7755527067c93fb75dda16f4ded2",
+    "Scripts/Sim/U13RangedMarching.gd": "dc0107780da720ef5e2b1f829d3b8a9d37693649af2bf6c234ce6e7821a8a535",
+    "Scripts/Sim/u13_pysim/marching.py": "38a7b38f366c279fa5a1525477b899edc2c27e710756cfb9e910ad0deeb19279",
+    "Scripts/Sim/u13_pysim/marching_spatial.py": "e68862152c58353452d9a692ad5fd91cdc99ada46863979d2fa0863bec0ad2de",
+    "Scripts/Sim/u13_pysim/opening.py": "91dc4f3a1d1a6551a7c8da40ef5f0e962727dcd7c8a10a3aca2f5657abf6b407"
+  }
+}

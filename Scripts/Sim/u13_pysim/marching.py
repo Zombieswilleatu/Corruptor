@@ -197,7 +197,6 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
             pos = [xs[j] for j in candidates]
         else: pos = positions[lane][1-owner]
         gaps[i], nearest[i] = nearest_target(i, candidates, pos, xs, ys)
-    accepted = {lane: [grid(team, xs, ys, 7) for team in grouped[lane]] for lane in LANES}
     data = context["world"]["data"]
     has_taunt=any((s.extra[k] or {}).get('monster_id')=='Kurchin' for k in indices)
     needs_targets=has_taunt or any((s.extra[k] or {}).get('monster_id')=='Tumler' for k in indices)
@@ -206,6 +205,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     targets_by_id={r['id']:r for r in targets}
     gate_queue = data.get("guard_work", {}).get("version") == "U13_GUARD_WORK_V4"
     ranged = data.get("ranged_profile") == RANGED
+    accepted = {} if ranged else {lane: [grid(team, xs, ys, 7) for team in grouped[lane]] for lane in LANES}
     structures = fort.rows(context['world']) if ranged else []
     reach2 = fort.CONTACT**2 if ranged else CONTACT2
     target_rows = s.rows() if ranged else []
@@ -272,9 +272,15 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
                 else:
                     dy = 1 if vy > 0 else -1
         nx, ny = max(0, min(2400, xs[i] + dx)), max(0, min(600, ys[i] + dy))
+        if ranged:
+            # Friendly units yield their space, including stationary guards.
+            # Enemy walls remain solid; combat contact was handled above.
+            if fort.blocked_step(s.row(i), dict(x_fp=nx, y_fp=ny), structures):
+                nx, ny = xs[i], ys[i]
+            s.x_fp[i], s.y_fp[i] = nx, ny
+            continue
         allies = accepted[lane][owner]
         def free(px, py):
-            if ranged and fort.blocked_step(s.row(i), dict(x_fp=px,y_fp=py), structures): return False
             for other in near(px, py, allies, 7):
                 if other == i:
                     continue
@@ -286,10 +292,9 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
             return True
         if not free(nx, ny):
             side = 1 if ord(s.ids[i][-1]) % 2 == 0 else -1
-            across_x = ranged and abs(dy) > abs(dx)
-            nx, ny = (max(0, min(2400, xs[i] + side * step)), ys[i]) if across_x else (xs[i], max(0, min(600, ys[i] + side * step)))
+            nx, ny = xs[i], max(0, min(600, ys[i] + side * step))
             if not free(nx, ny):
-                nx, ny = (max(0, min(2400, xs[i] - side * step)), ys[i]) if across_x else (xs[i], max(0, min(600, ys[i] - side * step)))
+                ny = max(0, min(600, ys[i] - side * step))
                 if not free(nx, ny):
                     nx, ny = xs[i], ys[i]
         old_cell, new_cell = (xs[i] >> 7, ys[i] >> 7), (nx >> 7, ny >> 7)

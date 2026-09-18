@@ -132,6 +132,26 @@ func run() -> void:
 	var position: Dictionary = {"x_fp": 1200, "y_fp": 300, "lane": "Lord"}
 	check(display._monster_point(position) == display.projectile_visual.point(display.travel_rect("Lord"), position), "unit feet and projectile impacts use identical screen coordinates")
 	display.free()
+	friendly_passage_checks()
 	if phase_output != null: phase_output.close()
 	print("U13 field combat failures: %d" % failures)
 	quit(1 if failures else 0)
+
+func friendly_passage_checks() -> void:
+	for pid in [0, 1]:
+		var w: Dictionary = phase_world()
+		var guard: Dictionary = put(w, "Wright", pid, 560 if pid == 0 else 1840, {"y_fp":450,"wright_site":1,"wright_owner":pid,"wright_progress":32,"wright_built":true,"wright_guard_until":999})
+		w.data["field_structures"] = [{"id": Work.Data.instance_id("wright_structure",guard.id,"1"),"kind":"fortification","owner":pid,"attributes":{"site":1,"lane":"Lord","structure":"Wall","x_fp":640 if pid == 0 else 1760,"y_fp":450,"hp":6,"max_hp":6,"armor":2,"max_armor":2,"attack":0,"ranged_next_tick":0,"builder_id":guard.id}}]
+		var passers: Array = []
+		for i in range(2): passers.append(put(w,"Vulture",pid,450 if pid == 0 else 1950,{"y_fp":450 + i*90},i))
+		put(w,"Butcher",1-pid,900 if pid == 0 else 1500,{"y_fp":0,"step_fp":0,"hp":100,"max_hp":100})
+		var r: Dictionary = phase("diagonal_guard_passage_%d" % pid,w)
+		for passer in passers:
+			check(facts(r,"MARCHER_RANGED_ATTACK").any(func(f): return f.attacker.id == passer.id), "both marchers push past stationary guard and reach firing range")
+		var after_guard: Dictionary = Kanifous._entity(r.world,guard.id)
+		check(after_guard.attributes.x_fp == guard.attributes.x_fp and after_guard.attributes.y_fp == 450, "defending Wright keeps its post while allies pass")
+		var crossed: bool = false
+		for frame in facts(r,"MARCHING_TICK"):
+			for unit in frame.units:
+				if unit.id == passers[0].id: crossed = crossed or Fort.distance(unit.attributes,guard.attributes) < 84*84
+		check(crossed,"friendly spacing yields instead of repeatedly sidestepping")

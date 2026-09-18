@@ -63,6 +63,12 @@ same footprint controls stopping, contact feedback and damage. Each attacker
 has its own eight-tick cooldown, and reciprocal lethal attacks still land.
 Unit feet, projectiles and structures share one screen-coordinate mapping.
 
+Friendly marchers and monsters can pass through one another, including a
+Wright holding a construction post or a Vulture standing at firing range.
+Their initial spawn positions remain spread out, but friendly spacing never
+stops movement or triggers sidesteps. Temporary overlap is allowed. Enemy
+walls still block ground movement, and enemies still engage at melee range.
+
 Wrights now deal **1 melee damage**, down from 2. Each builds one structure at
 an available site, defends it for one complete round, then marches onward:
 
@@ -80,7 +86,7 @@ count as marchers, reach gates, resurrect or award unit-death rewards.
 Foundation marks appear only after a Wright claims a site. Both the main board
 and sandbox display construction progress and completed structures.
 
-Current tuning uses `U13_VULTURE_RANGED_V6_FIELD_COMBAT` and `U13_MONSTERS_V4`.
+Current tuning uses `U13_VULTURE_RANGED_V7_FRIENDLY_PASSAGE` and `U13_MONSTERS_V4`.
 Start a fresh game after updating; older rules fingerprints remain incompatible.
 
 There are no Lords, cards on the battlefield, castles, passives, Veil effects
