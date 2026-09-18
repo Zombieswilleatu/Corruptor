@@ -18,6 +18,7 @@ from .coverage import POWERS
 from .diagnostics import fingerprint
 from .facts import Facts, Proposal, LANES
 from .recipes import Recipes
+from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
 VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V4_RITE_PLANS'
@@ -143,9 +144,14 @@ def ordinary(f, category, weights):
 
 
 class CommonSmartCore:
-    def __init__(self, weights=None, limits=None, lord_modules=True):
+    def __init__(self, weights=None, limits=None, lord_modules=True, selector=None):
         self.weights, self.limits = weights or Weights(), limits or Limits()
         self.lord_modules = lord_modules
+        self.selector = selector if selector is not None else PlanSelector()
+
+    @property
+    def policy_id(self):
+        return VERSION+self.selector.policy_suffix
 
     def decide(self, view, preview):
         f, budget = Facts(view), Budget(self.limits)
@@ -278,14 +284,8 @@ class CommonSmartCore:
         if len(positive) > 1: assemble(positive[:2], base)
         ranked = sorted({fingerprint(c['plan']): c for c in complete}.values(),
                         key=lambda c: (-c['score'], sum(len(p.cards) for p in c['selected']), fingerprint(c['plan'])))
-        rejected, chosen = [], None
-        for c in ranked:
-            if not budget.take('previews'): break
-            result = preview(copy_data(c['plan']))
-            if result.get('action') == 'legal': chosen = c; break
-            rejected.append(dict(plan_sha256=fingerprint(c['plan']), result=result))
-        if chosen is None:
-            raise ValueError('No admitted plan within preview budget: '+repr(rejected))
+        chosen, rejected, selection = self.selector.select(ranked, preview, budget,
+            round_number=view['round'], seat=f.pid)
         picked = {(p.category, p.term) for p in chosen['selected']}
         rite_plans = {}
         for term in ('Supplicants', 'Invocation', 'ProfaneRuins'):
@@ -305,7 +305,7 @@ class CommonSmartCore:
             kept = sum(p.term == term for p in alternatives)
             if selected: reason = 'selected'
             elif category == 'rites' and kept:
-                reason = 'complete_plan_score' if rite_plans[term]['scored_plans'] else 'complete_plan_budget'
+                reason = ('complete_plan_score' if selection['mode'] == 'greedy' else 'complete_plan_selection') if rite_plans[term]['scored_plans'] else 'complete_plan_budget'
             elif (category, term) in reasons: reason = reasons[(category, term)]
             elif kept: reason = 'scoring_or_shared_budget'
             elif count: reason = 'retention_budget'
@@ -319,7 +319,7 @@ class CommonSmartCore:
                 generated=count, retained=kept, selected=selected, reason=reason))
         assessments.extend(recipes.assessments(generated['combat']+generated['monsters'],
             retained['combat']+retained['monsters'], chosen['plan'], exhausted['monsters'] and exhausted['combat']))
-        return dict(policy=VERSION, plan=copy_data(chosen['plan']), score=chosen['score'],
+        return dict(policy=self.policy_id, plan=copy_data(chosen['plan']), score=chosen['score'], selection=selection,
                     chosen_reasons=[p.reason for p in chosen['selected']], assessments=assessments,
                     retained_candidates=[dict(category=p.category, term=p.term, score=p.value, reason=p.reason,
                                               source_category=category, monster=p.payload.get('monster_choice', ''),

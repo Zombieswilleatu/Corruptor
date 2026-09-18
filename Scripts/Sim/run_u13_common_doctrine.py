@@ -9,6 +9,7 @@ import unittest
 
 from u13_doctrine.common import Weights
 from u13_doctrine.planner_probe import run, compare_reports
+from u13_doctrine.selection import PlanSelector, SelectionSettings
 
 
 def main():
@@ -17,6 +18,7 @@ def main():
     check = sub.add_parser('check')
     check.add_argument('--report', type=Path, required=True)
     check.add_argument('--weights', type=Path)
+    check.add_argument('--selection', type=Path, help='Optional selector JSON; defaults to deterministic best-plan selection')
     compare = sub.add_parser('compare'); compare.add_argument('first', type=Path); compare.add_argument('second', type=Path)
     rules = sub.add_parser('verify-rules'); rules.add_argument('directory', type=Path)
     args = parser.parse_args()
@@ -39,12 +41,13 @@ def main():
             print('All decisions, final states and diagnostic reports match across CPython and PyPy.')
             print('U13 common doctrine comparison failures: 0'); return 0
         tests = unittest.defaultTestLoader.loadTestsFromNames(['u13_doctrine.test_diagnostics', 'u13_doctrine.test_common',
-            'u13_doctrine.test_recipes_veil', 'u13_doctrine.test_rites', 'u13_pysim.test_marching'])
+            'u13_doctrine.test_recipes_veil', 'u13_doctrine.test_rites', 'u13_doctrine.test_selection', 'u13_pysim.test_marching'])
         result = unittest.TextTestRunner(verbosity=2).run(tests)
         if not result.wasSuccessful() or result.testsRun == 0: return 1
         weights = Weights(**json.loads(args.weights.read_text())) if args.weights else None
+        selector = PlanSelector(SelectionSettings(**json.loads(args.selection.read_text()))) if args.selection else None
         args.report.parent.mkdir(parents=True, exist_ok=True)
-        report = run(Path(__file__).resolve().parents[2], weights, args.report.with_suffix('.inputs.json'))
+        report = run(Path(__file__).resolve().parents[2], weights, args.report.with_suffix('.inputs.json'), selector)
         report.update(implementation=platform.python_implementation(), python=sys.version, platform=platform.platform(),
                       tests_passed=result.testsRun, new_godot_parity=False)
         args.report.write_text(json.dumps(report, indent=2, sort_keys=True)+'\n', encoding='utf-8')

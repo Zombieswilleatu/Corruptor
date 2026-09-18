@@ -29,8 +29,19 @@ class PlannerObserver(ReferenceObserver):
         self.decision_examples = []
         self.recipe_decisions, self.protection_scenarios = Counter(), Counter()
         self.rite_planning = Counter()
+        self.selection_counts = Counter()
+        self.selection_max_gap = 0
 
     def accepted(self, number, seat, decision):
+        selection = decision.get('selection')
+        if selection:
+            self.selection_counts['measured_decisions'] += 1
+            self.selection_counts['mode:'+selection['mode']] += 1
+            self.selection_counts['rank:'+str(selection['chosen_rank'])] += 1
+            self.selection_counts['below_best_legal_score'] += selection['score_gap'] > 0
+            self.selection_counts['pool_truncated'] += selection['pool_truncated']
+            self.selection_counts['random_draws'] += selection['draw_uint53'] is not None
+            self.selection_max_gap = max(self.selection_max_gap, selection['score_gap'])
         for term, stats in decision.get('rite_plans', {}).items():
             self.rite_planning[term+':measured_decisions'] += 1
             for key, value in stats.items(): self.rite_planning[term+':'+key] += value
@@ -63,6 +74,7 @@ class PlannerObserver(ReferenceObserver):
             self.decision_examples.append(dict(round=number, seat=seat, score=decision['score'],
                 plan=plan, reasons=decision['chosen_reasons'], retained_candidates=decision['retained_candidates'],
                 budget=decision['budget'], veil=decision['veil'], recipes=decision['recipes']))
+            if selection: self.decision_examples[-1]['selection'] = selection
 
     def card_choice(self, number, seat, decision):
         identity = self.recorder.assess(number, seat, **decision['assessment'])
@@ -146,12 +158,15 @@ class PlannerObserver(ReferenceObserver):
             recipe_decisions=dict(sorted(self.recipe_decisions.items())),
             protection_scenarios=dict(sorted(self.protection_scenarios.items())),
             rite_planning=dict(sorted(self.rite_planning.items())),
+            plan_selection=dict(counts=dict(sorted(self.selection_counts.items())),
+                                max_score_gap=self.selection_max_gap if self.selection_counts else None),
             monster_measurements='recipe opportunities, choices and actual spawned bodies; later ability benefit is unmeasured',
             rejected_previews=self.rejected_previews, decision_examples=self.decision_examples)
         return result
 
 
 def run_case(spec, policy, policy_ids=None):
+    if policy_ids is None: policy_ids = [getattr(policy, 'policy_id', VERSION)]*2
     match, observer = PowerMatch(spec['setup']), PlannerObserver(spec, policy_ids)
     cursor, operations, decisions_ns, simulation_ns = 0, [], 0, 0
     while match.outcome()['winner'] == -1:
@@ -186,8 +201,8 @@ def run_case(spec, policy, policy_ids=None):
     return semantic, dict(name=spec['name'], decision_ms=decisions_ns/1e6, simulation_ms=simulation_ns/1e6), operations
 
 
-def run(root, weights=None, output_inputs=None):
-    root = Path(root); policy = CommonSmartCore(weights)
+def run(root, weights=None, output_inputs=None, selector=None):
+    root = Path(root); policy = CommonSmartCore(weights, selector=selector)
     evidence = json.loads((root/EVIDENCE).read_text())
     same('accepted Windows focused parity gate', evidence['status'], 'parity_prerequisite')
     games, times, inputs = [], [], []
@@ -197,9 +212,11 @@ def run(root, weights=None, output_inputs=None):
         inputs.append(dict(name=spec['name'], setup=spec['setup'], operations=operations))
         print(f"PASS planner {spec['name']}: {semantic['rounds']} rounds; {semantic['operations']} operations", flush=True)
     if output_inputs:
-        Path(output_inputs).write_text(json.dumps(dict(policy=VERSION, scope='new alpha decisions, not native-accepted', cases=inputs), indent=2)+'\n')
+        Path(output_inputs).write_text(json.dumps(dict(policy=policy.policy_id, selection=asdict(policy.selector.settings),
+            scope='new alpha decisions, not native-accepted', cases=inputs), indent=2)+'\n')
     revision, engine = source_identity(root)
-    semantic = dict(policy=VERSION, weights=asdict(policy.weights), limits=asdict(policy.limits),
+    semantic = dict(policy=policy.policy_id, weights=asdict(policy.weights), limits=asdict(policy.limits),
+        selection=asdict(policy.selector.settings),
         parity_evidence_revision=evidence['exact_comparison']['source_revision'],
         scope='five alpha behavior games on current rules; historical native prerequisite predates monsters/Veil/tuning; not new native decision parity, strength, balance or throughput evidence',
         games=games, failures=0)

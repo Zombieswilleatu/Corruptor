@@ -1,0 +1,853 @@
+{
+  "date": "2026-09-18",
+  "default_gate": {
+    "engine_source_sha256": "2b235e1b6107cb15ac3ff4c2c93d5ade7c3ab4de0e695171e6bf501d5e11ff9c",
+    "games": [
+      {
+        "decisions_sha256": "1996b1f46811a94ed5f87e00de484602e71b6234c7689d0d9d4669fbbea37749",
+        "final_state_sha256": "d1702250a4e69d4334fc08a04a48c0725b4120cb002c955093f0b08ff136962e",
+        "maximum_work": {
+          "complete_plans": 30,
+          "generated:combat": 11,
+          "generated:guards": 9,
+          "generated:monsters": 8,
+          "generated:powers": 10,
+          "generated:resummon": 2,
+          "generated:rites": 3,
+          "generated:slaver": 4,
+          "generated:stockpile": 2,
+          "generated:work": 5,
+          "previews": 1,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 4,
+          "retained:resummon": 1,
+          "retained:rites": 2,
+          "retained:slaver": 1,
+          "retained:stockpile": 1,
+          "retained:work": 4
+        },
+        "name": "gremory_humbaba",
+        "operations": 380,
+        "outcome": {
+          "action": "game_finished",
+          "round": 15,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "rejected_previews": 0,
+        "rounds": 15,
+        "selection": {
+          "counts": {
+            "below_best_legal_score": 0,
+            "measured_decisions": 30,
+            "mode:greedy": 30,
+            "pool_truncated": 0,
+            "random_draws": 0,
+            "rank:1": 30
+          },
+          "max_score_gap": 0
+        },
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Gremory",
+            "Humbaba"
+          ],
+          "seed": "u13-nine-lords:gremory_humbaba"
+        }
+      },
+      {
+        "decisions_sha256": "500bea45a7c9395cdfc9f38f6f10a47f48c615da770d23cd785ea5da9bfea022",
+        "final_state_sha256": "b8af8c99ef87607cf9c195adfef12d382eb4376119bddf73dc7740dd5a620e61",
+        "maximum_work": {
+          "complete_plans": 25,
+          "generated:combat": 11,
+          "generated:guards": 9,
+          "generated:monsters": 9,
+          "generated:powers": 10,
+          "generated:resummon": 1,
+          "generated:rites": 3,
+          "generated:slaver": 4,
+          "generated:stockpile": 2,
+          "generated:work": 5,
+          "previews": 1,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 4,
+          "retained:rites": 2,
+          "retained:slaver": 1,
+          "retained:stockpile": 1,
+          "retained:work": 4
+        },
+        "name": "deimos_kalligan",
+        "operations": 558,
+        "outcome": {
+          "action": "game_finished",
+          "round": 22,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "rejected_previews": 0,
+        "rounds": 22,
+        "selection": {
+          "counts": {
+            "below_best_legal_score": 0,
+            "measured_decisions": 44,
+            "mode:greedy": 44,
+            "pool_truncated": 0,
+            "random_draws": 0,
+            "rank:1": 44
+          },
+          "max_score_gap": 0
+        },
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Deimos",
+            "Kalligan"
+          ],
+          "seed": "u13-nine-lords:deimos_kalligan"
+        }
+      },
+      {
+        "decisions_sha256": "e18020be6033a3b878d4610a9eb9aafa7e5abb23e83906225deec8917ce00cd5",
+        "final_state_sha256": "d1c7c27e0d3630bb407b7ebce8e8c73ae01cfe0be2f9673cdb39fe15c2762b51",
+        "maximum_work": {
+          "complete_plans": 23,
+          "generated:combat": 11,
+          "generated:guards": 11,
+          "generated:monsters": 8,
+          "generated:powers": 7,
+          "generated:resummon": 1,
+          "generated:rites": 4,
+          "generated:slaver": 4,
+          "generated:stockpile": 2,
+          "generated:work": 5,
+          "previews": 1,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 4,
+          "retained:rites": 3,
+          "retained:slaver": 1,
+          "retained:stockpile": 1,
+          "retained:work": 4
+        },
+        "name": "orias_odradek",
+        "operations": 538,
+        "outcome": {
+          "action": "game_finished",
+          "round": 21,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "rejected_previews": 0,
+        "rounds": 21,
+        "selection": {
+          "counts": {
+            "below_best_legal_score": 0,
+            "measured_decisions": 42,
+            "mode:greedy": 42,
+            "pool_truncated": 0,
+            "random_draws": 0,
+            "rank:1": 42
+          },
+          "max_score_gap": 0
+        },
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Orias",
+            "Odradek"
+          ],
+          "seed": "u13-nine-lords:orias_odradek"
+        }
+      },
+      {
+        "decisions_sha256": "906f620fbd284f88f59111a257a2b0d614a1b3d531c03a9a9e73c0b8e5ff8013",
+        "final_state_sha256": "70e7ea5413a87a2062456dad3313a309795b2b017bd3a1df468a1d388c83d101",
+        "maximum_work": {
+          "complete_plans": 27,
+          "generated:combat": 11,
+          "generated:guards": 9,
+          "generated:monsters": 7,
+          "generated:powers": 12,
+          "generated:resummon": 1,
+          "generated:rites": 3,
+          "generated:slaver": 4,
+          "generated:stockpile": 2,
+          "generated:work": 5,
+          "previews": 1,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 4,
+          "retained:rites": 2,
+          "retained:slaver": 1,
+          "retained:stockpile": 1,
+          "retained:work": 4
+        },
+        "name": "kroni_valak",
+        "operations": 424,
+        "outcome": {
+          "action": "game_finished",
+          "round": 17,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "rejected_previews": 0,
+        "rounds": 17,
+        "selection": {
+          "counts": {
+            "below_best_legal_score": 0,
+            "measured_decisions": 34,
+            "mode:greedy": 34,
+            "pool_truncated": 0,
+            "random_draws": 0,
+            "rank:1": 34
+          },
+          "max_score_gap": 0
+        },
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Kroni",
+            "Valak"
+          ],
+          "seed": "u13-nine-lords:kroni_valak"
+        }
+      },
+      {
+        "decisions_sha256": "fa0a73fe8fbc752e03ec89f3bf7a2b3b9a34cf4111a36e6cff479000b0600921",
+        "final_state_sha256": "394fd09864ef4ca5f1cb632f7abb6d59b7182a898df2b4070adf89f1c8420935",
+        "maximum_work": {
+          "complete_plans": 28,
+          "generated:combat": 11,
+          "generated:guards": 9,
+          "generated:monsters": 8,
+          "generated:powers": 10,
+          "generated:resummon": 1,
+          "generated:rites": 3,
+          "generated:slaver": 4,
+          "generated:stockpile": 2,
+          "generated:work": 6,
+          "previews": 1,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 4,
+          "retained:rites": 2,
+          "retained:slaver": 1,
+          "retained:stockpile": 1,
+          "retained:work": 4
+        },
+        "name": "kanifous_gremory",
+        "operations": 461,
+        "outcome": {
+          "action": "game_finished",
+          "round": 19,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rejected_previews": 0,
+        "rounds": 19,
+        "selection": {
+          "counts": {
+            "below_best_legal_score": 0,
+            "measured_decisions": 38,
+            "mode:greedy": 38,
+            "pool_truncated": 0,
+            "random_draws": 0,
+            "rank:1": 38
+          },
+          "max_score_gap": 0
+        },
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Kanifous",
+            "Gremory"
+          ],
+          "seed": "u13-nine-lords:kanifous_gremory"
+        }
+      }
+    ],
+    "harness_source_sha256": "a94e0716449f5605bd619492b857e6b5d0d6ee84601bea6c0d35ab1571596bac",
+    "implementation": "CPython",
+    "new_godot_parity": false,
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "runner_source_sha256": "b0e63489370c9d28edf9a85a0833693724b15e88aff30b68ae3ff0f28b0ffadc",
+    "semantic": {
+      "failures": 0,
+      "limits": {
+        "complete_plans": 32,
+        "generated_per_category": 16,
+        "previews": 8,
+        "retained_per_category": 4
+      },
+      "parity_evidence_revision": "5fb53e7160dda8789dd0aa2d3523528aab49ce9c",
+      "policy": "U13_COMMON_SMART_CORE_ALPHA_V4_RITE_PLANS",
+      "scope": "five alpha behavior games on current rules; historical native prerequisite predates monsters/Veil/tuning; not new native decision parity, strength, balance or throughput evidence",
+      "selection": {
+        "max_score_gap": 0.0,
+        "policy_seed": "",
+        "temperature": 0.0
+      },
+      "weights": {
+        "banishment": 32,
+        "card_cost": 2,
+        "damage": 3,
+        "destruction": 30,
+        "enemy_settlement_risk": 90,
+        "guard": 5,
+        "monster": 2,
+        "recipe_save": 1,
+        "recruit": 6,
+        "return_lord": 75,
+        "tear": 22,
+        "veil_protection": 8
+      }
+    },
+    "semantic_sha256": "2c5de89352e0964a5c888d4b6cf1322c050e8a33f721eb61d0f23f31f633d5c8",
+    "source_revision": "5e93ce0b8285677219458b12cdeaa1f8ae1fb4f7",
+    "tests_passed": 83
+  },
+  "default_semantics_equal_accepted_v4_after_removing_only_new_selection_metadata": true,
+  "engine_source_sha256": "2b235e1b6107cb15ac3ff4c2c93d5ade7c3ab4de0e695171e6bf501d5e11ff9c",
+  "harness_source_sha256": "a94e0716449f5605bd619492b857e6b5d0d6ee84601bea6c0d35ab1571596bac",
+  "integration": {
+    "changed_paths": {
+      "Prototype/U13/U13LaneSandbox.gd": "A",
+      "Prototype/U13/U13LoadoutPicker.gd": "M",
+      "Prototype/U13/U13SandboxLaneView.gd": "A",
+      "Scripts/Sim/U13LaneSandbox.gd": "A",
+      "Scripts/Sim/U13LaneSandboxTestRunner.gd": "A",
+      "Scripts/Sim/U13SandboxEnemy.gd": "A",
+      "docs/U13_LANE_BALANCE_SANDBOX.md": "A",
+      "docs/evidence/U13_LANE_SANDBOX_2026-09-18.json": "A"
+    },
+    "engine_fingerprint_added_paths": [
+      "Scripts/Sim/U13LaneSandbox.gd",
+      "Scripts/Sim/U13LaneSandboxTestRunner.gd",
+      "Scripts/Sim/U13SandboxEnemy.gd"
+    ],
+    "explanation": "The parallel lane sandbox adds three GDScript files included by the broad source fingerprint. Excluding only these additions exactly reproduces the tested fingerprint; no existing rules or doctrine source changed.",
+    "harness_source_sha256": "a94e0716449f5605bd619492b857e6b5d0d6ee84601bea6c0d35ab1571596bac",
+    "integrated_engine_source_sha256": "c1b7d0c67b26e5ff156fa732f2bf3ea1be8e57681ec06ec6a24c6905cc489edb",
+    "integrated_parent": "a591f76db2131218098ca0a1ed08a77d86ecb5ab",
+    "tested_engine_source_sha256": "2b235e1b6107cb15ac3ff4c2c93d5ade7c3ab4de0e695171e6bf501d5e11ff9c",
+    "unchanged_existing_native_rules": true,
+    "unchanged_python_authority_and_doctrine": true
+  },
+  "maximum_selected_score_gap": 5,
+  "no_difficulty_calibration": true,
+  "raw_report_sha256": {
+    "default-check.json": "bb3fe0d13a6233fd34f506c87f3f5fecef2d8465a62272072dea03ddc4b0143d",
+    "softmax-check.json": "7803b1557df03afec878ab6d54e78387977a16e71f1b5d21d4472d295796ca73"
+  },
+  "saved_decisions": {
+    "baseline_archive": "u13-rite-plans-162-a58b0fc-2026-09-18.zip",
+    "baseline_library_file_id": "libfile_415d7f7ca64c819187025601f5309812",
+    "baseline_policy": "U13_COMMON_SMART_CORE_ALPHA_V4_RITE_PLANS",
+    "cases_sha256": "f9ef9c0332a8dcb59ebe332bab80422e29360986a098e95dfb4b63d45399b2d6",
+    "decisions": 2916,
+    "elapsed_seconds": 15.914987533993553,
+    "engine_source_sha256": "2b235e1b6107cb15ac3ff4c2c93d5ade7c3ab4de0e695171e6bf501d5e11ff9c",
+    "games": 162,
+    "harness_source_sha256": "a94e0716449f5605bd619492b857e6b5d0d6ee84601bea6c0d35ab1571596bac",
+    "scope": "Every saved V4 public-observation decision is exactly unchanged after removing only the new selection diagnostic. All recorded first previews were legal and reproduced with a stub; this pointwise check does not remeasure authority legality.",
+    "source_revision": "5e93ce0b8285677219458b12cdeaa1f8ae1fb4f7",
+    "status": "passed"
+  },
+  "schema": "U13_PLAN_SELECTION_SCAFFOLD_LOCAL_V1",
+  "scope": "Experimental optional final-plan selection only; default plans and rules unchanged. Linux CPython checks are local diagnostics, not Windows/PyPy or native acceptance.",
+  "softmax_selection_totals": {
+    "below_best_legal_score": 11,
+    "measured_decisions": 166,
+    "mode:softmax": 166,
+    "pool_truncated": 0,
+    "random_draws": 116,
+    "rank:1": 146,
+    "rank:2": 19,
+    "rank:4": 1
+  },
+  "softmax_smoke": {
+    "engine_source_sha256": "2b235e1b6107cb15ac3ff4c2c93d5ade7c3ab4de0e695171e6bf501d5e11ff9c",
+    "games": [
+      {
+        "decisions_sha256": "78f308f5c2c2c06cb53f547bdf9a71b824729955d46357539639c26f40e74276",
+        "final_state_sha256": "109c5dfad22ac61f56f274db9933b5410de3405a96e59062adc05be522ad056d",
+        "maximum_work": {
+          "complete_plans": 25,
+          "generated:combat": 11,
+          "generated:guards": 9,
+          "generated:monsters": 10,
+          "generated:powers": 12,
+          "generated:resummon": 2,
+          "generated:rites": 3,
+          "generated:slaver": 4,
+          "generated:stockpile": 2,
+          "generated:work": 5,
+          "previews": 5,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 4,
+          "retained:resummon": 1,
+          "retained:rites": 2,
+          "retained:slaver": 1,
+          "retained:stockpile": 1,
+          "retained:work": 4
+        },
+        "name": "gremory_humbaba",
+        "operations": 329,
+        "outcome": {
+          "action": "game_finished",
+          "round": 13,
+          "win_by": "Ritual",
+          "winner": 0
+        },
+        "rejected_previews": 0,
+        "rounds": 13,
+        "selection": {
+          "counts": {
+            "below_best_legal_score": 3,
+            "measured_decisions": 26,
+            "mode:softmax": 26,
+            "pool_truncated": 0,
+            "random_draws": 19,
+            "rank:1": 20,
+            "rank:2": 6
+          },
+          "max_score_gap": 3
+        },
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Gremory",
+            "Humbaba"
+          ],
+          "seed": "u13-nine-lords:gremory_humbaba"
+        }
+      },
+      {
+        "decisions_sha256": "d4c7f85f813de2731bac6d835c42724d80f1d8b769a71c8ec371fca51c434e94",
+        "final_state_sha256": "86d4a9611842606d7360dd98efe82aff3e07e647b636bc0898f36516bb5f1b10",
+        "maximum_work": {
+          "complete_plans": 26,
+          "generated:combat": 11,
+          "generated:guards": 9,
+          "generated:monsters": 7,
+          "generated:powers": 4,
+          "generated:resummon": 3,
+          "generated:rites": 3,
+          "generated:slaver": 4,
+          "generated:stockpile": 2,
+          "generated:work": 4,
+          "previews": 5,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 3,
+          "retained:resummon": 2,
+          "retained:rites": 2,
+          "retained:slaver": 1,
+          "retained:stockpile": 1,
+          "retained:work": 3
+        },
+        "name": "deimos_kalligan",
+        "operations": 503,
+        "outcome": {
+          "action": "game_finished",
+          "round": 20,
+          "win_by": "Ritual",
+          "winner": 0
+        },
+        "rejected_previews": 0,
+        "rounds": 20,
+        "selection": {
+          "counts": {
+            "below_best_legal_score": 1,
+            "measured_decisions": 40,
+            "mode:softmax": 40,
+            "pool_truncated": 0,
+            "random_draws": 29,
+            "rank:1": 37,
+            "rank:2": 3
+          },
+          "max_score_gap": 4
+        },
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Deimos",
+            "Kalligan"
+          ],
+          "seed": "u13-nine-lords:deimos_kalligan"
+        }
+      },
+      {
+        "decisions_sha256": "1505ee833be27371c218a954f4a4702c251129c52da767f2966aa76fbd6b543e",
+        "final_state_sha256": "90930cfb97bf1622a3dc798471f70729ac2bd175005b01fb861f498935a9c907",
+        "maximum_work": {
+          "complete_plans": 25,
+          "generated:combat": 11,
+          "generated:guards": 11,
+          "generated:monsters": 10,
+          "generated:powers": 5,
+          "generated:resummon": 1,
+          "generated:rites": 4,
+          "generated:slaver": 4,
+          "generated:stockpile": 2,
+          "generated:work": 5,
+          "previews": 5,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 2,
+          "retained:rites": 3,
+          "retained:slaver": 1,
+          "retained:stockpile": 1,
+          "retained:work": 4
+        },
+        "name": "orias_odradek",
+        "operations": 386,
+        "outcome": {
+          "action": "game_finished",
+          "round": 15,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "rejected_previews": 0,
+        "rounds": 15,
+        "selection": {
+          "counts": {
+            "below_best_legal_score": 0,
+            "measured_decisions": 30,
+            "mode:softmax": 30,
+            "pool_truncated": 0,
+            "random_draws": 15,
+            "rank:1": 29,
+            "rank:2": 1
+          },
+          "max_score_gap": 0
+        },
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Orias",
+            "Odradek"
+          ],
+          "seed": "u13-nine-lords:orias_odradek"
+        }
+      },
+      {
+        "decisions_sha256": "d780fb9fc1d600a55bcfd17ccbb03abe380f5e06c1f9353846b6afe687d874bc",
+        "final_state_sha256": "38a4e0ae59db1ca52713311c0b8b920072dd004634f17e648dfa22b31c88296c",
+        "maximum_work": {
+          "complete_plans": 27,
+          "generated:combat": 11,
+          "generated:guards": 11,
+          "generated:monsters": 8,
+          "generated:powers": 11,
+          "generated:resummon": 1,
+          "generated:rites": 3,
+          "generated:slaver": 4,
+          "generated:stockpile": 2,
+          "generated:work": 5,
+          "previews": 4,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 4,
+          "retained:rites": 2,
+          "retained:slaver": 1,
+          "retained:stockpile": 1,
+          "retained:work": 4
+        },
+        "name": "kroni_valak",
+        "operations": 475,
+        "outcome": {
+          "action": "game_finished",
+          "round": 19,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "rejected_previews": 0,
+        "rounds": 19,
+        "selection": {
+          "counts": {
+            "below_best_legal_score": 4,
+            "measured_decisions": 38,
+            "mode:softmax": 38,
+            "pool_truncated": 0,
+            "random_draws": 28,
+            "rank:1": 32,
+            "rank:2": 5,
+            "rank:4": 1
+          },
+          "max_score_gap": 5
+        },
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Kroni",
+            "Valak"
+          ],
+          "seed": "u13-nine-lords:kroni_valak"
+        }
+      },
+      {
+        "decisions_sha256": "564926f51e6b9c44b686994515d974ef6fc7976e5297d09994f44816262305e1",
+        "final_state_sha256": "b0d54d4ab290db8aec399a88b7c25082408c3cd054b9968028cf6f57eb976b57",
+        "maximum_work": {
+          "complete_plans": 26,
+          "generated:combat": 11,
+          "generated:guards": 9,
+          "generated:monsters": 9,
+          "generated:powers": 10,
+          "generated:resummon": 1,
+          "generated:rites": 3,
+          "generated:slaver": 4,
+          "generated:stockpile": 2,
+          "generated:work": 6,
+          "previews": 4,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 4,
+          "retained:rites": 2,
+          "retained:slaver": 1,
+          "retained:stockpile": 1,
+          "retained:work": 4
+        },
+        "name": "kanifous_gremory",
+        "operations": 389,
+        "outcome": {
+          "action": "game_finished",
+          "round": 16,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rejected_previews": 0,
+        "rounds": 16,
+        "selection": {
+          "counts": {
+            "below_best_legal_score": 3,
+            "measured_decisions": 32,
+            "mode:softmax": 32,
+            "pool_truncated": 0,
+            "random_draws": 25,
+            "rank:1": 28,
+            "rank:2": 4
+          },
+          "max_score_gap": 4
+        },
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Kanifous",
+            "Gremory"
+          ],
+          "seed": "u13-nine-lords:kanifous_gremory"
+        }
+      }
+    ],
+    "harness_source_sha256": "a94e0716449f5605bd619492b857e6b5d0d6ee84601bea6c0d35ab1571596bac",
+    "implementation": "CPython",
+    "new_godot_parity": false,
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "runner_source_sha256": "b0e63489370c9d28edf9a85a0833693724b15e88aff30b68ae3ff0f28b0ffadc",
+    "semantic": {
+      "failures": 0,
+      "limits": {
+        "complete_plans": 32,
+        "generated_per_category": 16,
+        "previews": 8,
+        "retained_per_category": 4
+      },
+      "parity_evidence_revision": "5fb53e7160dda8789dd0aa2d3523528aab49ce9c",
+      "policy": "U13_COMMON_SMART_CORE_ALPHA_V4_RITE_PLANS/U13_PLAN_SELECTOR_V1:83be491218c03c2851c11d324ed451066b3207b4f68ab108a0d3f0c235e1fc5c",
+      "scope": "five alpha behavior games on current rules; historical native prerequisite predates monsters/Veil/tuning; not new native decision parity, strength, balance or throughput evidence",
+      "selection": {
+        "max_score_gap": 10.0,
+        "policy_seed": "selector-smoke-2026-09-18",
+        "temperature": 2.0
+      },
+      "weights": {
+        "banishment": 32,
+        "card_cost": 2,
+        "damage": 3,
+        "destruction": 30,
+        "enemy_settlement_risk": 90,
+        "guard": 5,
+        "monster": 2,
+        "recipe_save": 1,
+        "recruit": 6,
+        "return_lord": 75,
+        "tear": 22,
+        "veil_protection": 8
+      }
+    },
+    "semantic_sha256": "a040e3bef9cae4830eb2d2accdf505b7a950b247387aedceb7ed089c221d0745",
+    "source_revision": "5e93ce0b8285677219458b12cdeaa1f8ae1fb4f7",
+    "tests_passed": 83
+  },
+  "tested_worktree_base": "5e93ce0b8285677219458b12cdeaa1f8ae1fb4f7",
+  "windows_selector_acceptance": "pending; previous 74-test V4 gate is separately accepted"
+}

@@ -1,4 +1,4 @@
-"""Trusted projection/legality boundary. Policies never receive a match or seed."""
+"""Trusted observation boundary. Policies never receive a match or simulation seed."""
 from copy import copy
 
 from u13_pysim import economy as e
