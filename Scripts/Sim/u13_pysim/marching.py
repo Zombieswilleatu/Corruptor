@@ -180,6 +180,7 @@ def nearest_target(i, candidates, positions, xs, ys):
 
 
 def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
+    from . import support_pacing
     indices = s.active()
     xs, ys = s.x_fp[:], s.y_fp[:]  # One target snapshot; accepted positions stay in columns.
     grouped = teams(s, indices)
@@ -214,6 +215,8 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
         for i in indices:
             if (s.extra[i] or {}).get('monster_id')=='Dotra' and (s.extra[i] or {}).get('hidden',False):
                 field_nearest[i]=monster_effects.nearest(s.row(i),target_rows)
+            if (s.extra[i] or {}).get('monster_id')=='Tumler':
+                field_nearest[i]=monster_effects.preferred(s.row(i),target_rows) or field_nearest[i]
             gaps[i] = fort.gap(s.row(i), field_nearest[i]) if field_nearest[i] else (1 << 63)-1
     collapse_players = veil.affected_players(context["world"],"Valak")
     for i in indices:
@@ -240,6 +243,8 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
             continue
         if not retreat[i] and ranged and s.suit[i] == "Vulture" and gaps[i] <= RANGE2:
             continue
+        if ranged and not retreat[i]:
+            step = support_pacing.speed(s.row(i), target_rows, step, clock, number, fleeing)
         dx, dy = s.direction[i] * step * (-1 if retreat[i] else 1), 0
         j = nearest[i]
         destination = dict(x_fp=xs[j],y_fp=ys[j]) if j is not None else None

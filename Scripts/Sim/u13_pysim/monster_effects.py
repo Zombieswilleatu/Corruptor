@@ -39,6 +39,47 @@ def slowed(a,fields):
     return not a.get('flying',False) and a.get('monster_id')!='Lemek' and any(f['kind']=='pool' and f['lane']==a['lane'] and distance(a,f)<=T['pool_radius']**2 for f in fields)
 
 
+def hunting(unit, rows, number, structures=()):
+    a = unit['attributes']
+    if (a.get('monster_id') != 'Tumler' or a['step_fp'] <= 0 or a['waiting']
+            or a['movement_ready_round'] > number or a.get('rout_round', -1) == number or a.get('hidden', False)):
+        return False
+    target = preferred(unit, rows)
+    if not target or fort.in_melee(unit, target):
+        return False
+    wall = fort.blocker(unit, target['attributes'], structures)
+    return not wall or not fort.in_melee(unit, wall)
+
+
+def evades(unit, source, rows, c, tick, kind, structures=(), fleeing=()):
+    if kind == 'Poison' or unit['id'] in fleeing or not hunting(unit, rows, c['round'], structures):
+        return False
+    key = f"{c['round']}:{tick}:{kind}:{source['id']}:{unit['id']}"
+    return draw(c['seed'], key, 'TUMLER_HUNT_EVASION', 0, 100) < T['tumler_evasion_chance']
+
+
+def intercept(unit, source, rows, c, tick, structures=()):
+    if source['owner'] == unit['owner'] or not hunting(unit, rows, c['round'], structures):
+        return []
+    if not any(r['id'] == source['id'] and r['owner'] == source['owner'] and not r['attributes'].get('hidden', False) for r in rows):
+        return []
+    old = unit['attributes'].get('hunt_target', '')
+    unit['attributes']['hunt_target'] = source['id']
+    return [event('MONSTER_HUNT_RETARGETED', dict(unit_id=unit['id'], previous_target_id=old,
+                 target_id=source['id'], round=c['round'], tick=tick))]
+
+
+def hunt_fleeing(unit, world):
+    if unit['attributes'].get('monster_id') != 'Tumler':
+        return False
+    for actor in world['data'].get('kroni_actors', []):
+        if unit['id'] in actor.get('fleeing', {}) or unit['id'] in actor.get('fled_this_tick', []):
+            return True
+    return any(f['kind'] == 'portal' and f['lane'] == unit['attributes']['lane']
+               and distance(unit['attributes'], f) <= T['portal_fear_radius']**2
+               for f in world['data'].get('monsters', {}).get('fields', []))
+
+
 def deaths(w,n,tick=-1):
     if not rules.enabled(w):return []
     state=w['data']['monsters'];events=[]
@@ -217,11 +258,16 @@ def damage(w,buffer,hit,c,tick,reaction):
         buffer.update(ambusher['id'],ambusher['owner'],ambusher['attributes'])
         hit['source']=ambusher
     blocked=hit['ability']=='Beam' and penitent_defense.blocks(target,hit['source']['id'],c['seed'],c['round'],tick,'Beam')
-    amount=0 if blocked else hit['amount'];absorbed=0 if hit['bypass'] else min(a['armor'],amount);dealt=amount-absorbed
+    live_rows=buffer.rows() if a.get('monster_id')=='Tumler' else []
+    fleeing=hunt_fleeing(target,w)
+    evaded=not fleeing and evades(target,hit['source'],live_rows,c,tick,hit['ability'],fort.rows(w))
+    if not evaded and not fleeing and hit['ability'] in ('Muno','Ambush'):
+        events.extend(intercept(target,hit['source'],live_rows,c,tick,fort.rows(w)))
+    amount=0 if blocked or evaded else hit['amount'];absorbed=0 if hit['bypass'] else min(a['armor'],amount);dealt=amount-absorbed
     a['armor']-=absorbed;a['hp']=max(0,a['hp']-dealt);a['movement_ready_round']=min(a['movement_ready_round'],c['round'])
     if a['hp']==0:buffer.retire_id(target['id'])
     else:buffer.update(target['id'],target['owner'],a)
-    events.append(event('MONSTER_ATTACK',dict(attacker=hit['source'],target=before,ability=hit['ability'],blocked=blocked,damage_dealt=dealt,hp_after=a['hp'],round=c['round'],tick=tick)))
+    events.append(event('MONSTER_ATTACK',dict(attacker=hit['source'],target=before,ability=hit['ability'],blocked=blocked,evaded=evaded,damage_dealt=dealt,hp_after=a['hp'],round=c['round'],tick=tick)))
     w['entities']=buffer.snapshot()
     if a['hp']==0:
         fact=event('MARCHER_DEFEATED',dict(event_id=instance_id('monster_kill',f"{c['round']}:{tick}:{hit['source']['id']}",target['id']),round=c['round'],hook='marching',tick=tick,victim=before,attacker=hit['source'],cause='combat',damage_dealt=dealt))['event']

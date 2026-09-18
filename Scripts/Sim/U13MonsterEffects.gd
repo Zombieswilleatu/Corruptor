@@ -39,6 +39,36 @@ static func slowed(a: Dictionary, fields: Array) -> bool:
 	if a.get("flying", false) or a.get("monster_id") == "Lemek": return false
 	return fields.any(func(f): return f.kind == "pool" and f.lane == a.lane and distance(a, f) <= Rules.TUNING.pool_radius ** 2)
 
+# Evasion exists only while closing on a live target. Contact with a different
+# marcher does not end the hunt; contact with the target or a blocking wall does.
+static func hunting(unit: Dictionary, rows: Array, number: int, structures: Array = []) -> bool:
+	var a: Dictionary = unit.attributes
+	if a.get("monster_id") != "Tumler" or a.step_fp <= 0 or a.waiting or a.movement_ready_round > number or a.get("rout_round", -1) == number or a.get("hidden", false): return false
+	var target: Dictionary = preferred(unit, rows)
+	if target.is_empty() or Fort.in_melee(unit, target): return false
+	var wall: Dictionary = Fort.blocker(unit, target.attributes, structures)
+	return wall.is_empty() or not Fort.in_melee(unit, wall)
+
+static func evades(unit: Dictionary, source: Dictionary, rows: Array, context: Dictionary, tick: int, kind: String, structures: Array = [], fleeing: Dictionary = {}) -> bool:
+	if kind == "Poison" or fleeing.has(unit.id) or not hunting(unit, rows, context.round, structures): return false
+	var key: String = "%d:%d:%s:%s:%s" % [context.round, tick, kind, source.id, unit.id]
+	return Lamp.draw(context.seed, key, "TUMLER_HUNT_EVASION", 100) < Rules.TUNING.tumler_evasion_chance
+
+static func intercept(unit: Dictionary, source: Dictionary, rows: Array, context: Dictionary, tick: int, structures: Array = []) -> Array:
+	if source.owner == unit.owner or not hunting(unit, rows, context.round, structures): return []
+	if not rows.any(func(r): return r.id == source.id and r.owner == source.owner and not r.attributes.get("hidden", false)): return []
+	var old: String = unit.attributes.get("hunt_target", "")
+	unit.attributes["hunt_target"] = source.id
+	return [event("MONSTER_HUNT_RETARGETED", {"unit_id": unit.id, "previous_target_id": old, "target_id": source.id, "round": context.round, "tick": tick})]
+
+static func hunt_fleeing(unit: Dictionary, world: Dictionary) -> bool:
+	if unit.attributes.get("monster_id") != "Tumler": return false
+	for actor in world.data.get("kroni_actors", []):
+		if unit.id in actor.get("fleeing", {}) or unit.id in actor.get("fled_this_tick", []): return true
+	for field in world.data.get("monsters", {}).get("fields", []):
+		if field.kind == "portal" and field.lane == unit.attributes.lane and distance(unit.attributes, field) <= Rules.TUNING.portal_fear_radius ** 2: return true
+	return false
+
 # Death ledgers are also written by direct powers and Prices. Banishment and
 # spent siege/hunt support never enter this ledger and cannot leave a pool.
 static func deaths(world: Dictionary, round_number: int, tick: int = -1) -> Array:
@@ -277,7 +307,11 @@ static func damage(world: Dictionary, entities, hit: Dictionary, context: Dictio
 		entities.update(ambusher.id, ambusher.owner, ambusher.attributes)
 		hit["source"] = ambusher
 	var blocked: bool = hit.ability == "Beam" and Defense.blocks(target, hit.source.id, context.seed, context.round, tick, "Beam")
-	var amount: int = 0 if blocked else int(hit.amount)
+	var live_rows: Array = entities.marchers() if target.attributes.get("monster_id") == "Tumler" else []
+	var fleeing: bool = hunt_fleeing(target, world)
+	var evaded: bool = not fleeing and evades(target, hit.source, live_rows, context, tick, hit.ability, Fort.rows(world))
+	if not evaded and not fleeing and hit.ability in ["Muno", "Ambush"]: events.append_array(intercept(target, hit.source, live_rows, context, tick, Fort.rows(world)))
+	var amount: int = 0 if blocked or evaded else int(hit.amount)
 	var absorbed: int = 0 if hit.bypass else mini(int(target.attributes.armor), amount)
 	var dealt: int = amount - absorbed
 	target.attributes.armor -= absorbed
@@ -285,7 +319,7 @@ static func damage(world: Dictionary, entities, hit: Dictionary, context: Dictio
 	target.attributes.movement_ready_round = mini(int(target.attributes.movement_ready_round), int(context.round))
 	if target.attributes.hp == 0: entities.retire(target.id)
 	else: entities.update(target.id, target.owner, target.attributes)
-	events.append(event("MONSTER_ATTACK", {"attacker": hit.source, "target": before, "ability": hit.ability, "blocked": blocked, "damage_dealt": dealt, "hp_after": target.attributes.hp, "round": context.round, "tick": tick}))
+	events.append(event("MONSTER_ATTACK", {"attacker": hit.source, "target": before, "ability": hit.ability, "blocked": blocked, "evaded": evaded, "damage_dealt": dealt, "hp_after": target.attributes.hp, "round": context.round, "tick": tick}))
 	world.entities = entities.snapshot()
 	if target.attributes.hp == 0:
 		var fact: Dictionary = event("MARCHER_DEFEATED", {"event_id": Data.instance_id("monster_kill", "%d:%d:%s" % [context.round, tick, hit.source.id], target.id), "round": context.round, "hook": "marching", "tick": tick, "victim": before, "attacker": hit.source, "cause": "combat", "damage_dealt": dealt}).event

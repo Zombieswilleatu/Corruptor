@@ -74,6 +74,25 @@ Their initial spawn positions remain spread out, but friendly spacing never
 stops movement or triggers sidesteps. Temporary overlap is allowed. Enemy
 walls still block ground movement, and enemies still engage at melee range.
 
+Vultures, Kopita, Sinodek and mobile Sooge now pace behind nearby allied
+Butchers, Penitents, Lemeks and Kurchins. Within 420 distance and 180 sideways,
+they slow to quarter speed while the frontliner takes the lead, then maintain
+180 forward separation. They stop creeping when that screen engages in melee.
+Supports do not slow one another, and they return to normal speed when no
+eligible ally is nearby. Retreating, fleeing, waiting and undeployed allies do
+not serve as screens. This changes local movement, never the saved Speed stat.
+
+Tumler keeps pursuing his chosen enemy instead of stopping to fight every
+bystander. While moving toward a live target he has **50% evasion per incoming
+attack**, preventing both HP and Armor loss. Reaching his target's melee
+footprint ends evasion; a blocking wall, deployment hold or retreat also stops
+it. A landed melee hit immediately redirects his hunt to that attacker, even
+when Armor absorbs all damage. Ranged hits leave his target unchanged. Muno's
+dash and Dotra's ambush count as melee; beams and Kopita pulses do not redirect
+him. Existing poison is ongoing damage and cannot be dodged. Missed attacks
+spend their normal cooldown and cannot apply on-hit poison or charm. Three
+brief pale streaks mark a dodge in the shared board/sandbox playback.
+
 Wrights now deal **1 melee damage**, down from 2. Each builds one structure at
 an available site, defends it for one complete round, then marches onward:
 
@@ -91,7 +110,7 @@ count as marchers, reach gates, resurrect or award unit-death rewards.
 Foundation marks appear only after a Wright claims a site. Both the main board
 and sandbox display construction progress and completed structures.
 
-Current tuning uses `U13_VULTURE_RANGED_V7_FRIENDLY_PASSAGE` and `U13_MONSTERS_V6_AMBUSH_REVEAL`.
+Current tuning uses `U13_VULTURE_RANGED_V8_SUPPORT_PACING` and `U13_MONSTERS_V7_HUNT_EVASION`.
 Start a fresh game after updating; older rules fingerprints remain incompatible.
 
 There are no Lords, cards on the battlefield, castles, passives, Veil effects
@@ -152,3 +171,10 @@ passage, tower range, builder death and charm, replacement, save transport and
 shared playback geometry. Native phase exports are replayed independently by
 the Python simulator, comparing every event and tick. Historical duel-specific
 fixtures explicitly retain their frozen non-ranged rules profile.
+
+`U13SupportHuntTestRunner.gd` covers both owners, all four support types,
+screen loss and engaged screens, support-only groups, deterministic evasion
+boundaries, melee interception through Armor, ranged target retention, target
+arrival and unavailable targets, ability damage categories and dodge playback.
+Its exported phases are also checked by `u13_pysim.verify_monsters`; the focused
+`run_u13_new_rules_quick.sh` includes both stages.

@@ -276,6 +276,9 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 				_monster_attacks.append(_beam_picture(d, at + span, minf(lead + MOVE_SECONDS, until), "BeamTrail"))
 	for event in events:
 		var d: Dictionary = event.data
+		if d.get("evaded", false) and event.type in ["MARCHER_MELEE_ATTACK", "MARCHER_RANGED_ATTACK", "MONSTER_ATTACK"]:
+			var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
+			_monster_attacks.append({"start": at, "end": at + 0.20, "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "ability": "HuntDodge"})
 		if d.get("blocked", false) and event.type in ["MARCHER_RANGED_ATTACK", "MONSTER_ATTACK"]:
 			var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
 			_monster_attacks.append({"start": at, "end": at + 0.20, "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "ability": "RangedBlock"})
@@ -287,13 +290,13 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 			var key: String = "%s:%d" % [d.attacker.id, d.tick]
 			if d.ability == "Beam" and beams.has(key):
 				# Collateral lights up the struck bodies; it never redirects the beam.
-				beams[key].impacts.append({"attributes": d.target.attributes, "id": d.target.id, "owner": d.target.owner, "blocked": d.get("blocked", false)})
+				if not d.get("evaded", false): beams[key].impacts.append({"attributes": d.target.attributes, "id": d.target.id, "owner": d.target.owner, "blocked": d.get("blocked", false)})
 			elif d.ability == "Kopita":
 				if not pulses.has(key):
 					pulses[key] = _kopita_picture({"healing": false}, d.attacker, at)
 					_monster_attacks.append(pulses[key])
 				# Armor absorbs this damage normally; it still receives a hit flash.
-				pulses[key].impacts.append({"attributes": d.target.attributes, "id": d.target.id, "owner": d.target.owner})
+				if not d.get("evaded", false): pulses[key].impacts.append({"attributes": d.target.attributes, "id": d.target.id, "owner": d.target.owner})
 			elif d.ability == "Muno":
 				# Arrive when the recorded hit lands, then retreat. Simulation
 				# coordinates remain untouched by this short cosmetic excursion.

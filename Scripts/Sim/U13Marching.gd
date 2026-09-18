@@ -5,6 +5,7 @@ const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
 
 const Ranged = preload("res://Scripts/Sim/U13RangedMarching.gd")
 const Fort = preload("res://Scripts/Sim/U13FieldFortifications.gd")
+const SupportPacing = preload("res://Scripts/Sim/U13SupportPacing.gd")
 const FieldMelee = preload("res://Scripts/Sim/U13FieldMelee.gd")
 const KroniActors = preload("res://Scripts/Sim/U13KroniActors.gd")
 const SpatialFields = preload("res://Scripts/Sim/U13SpatialFields.gd")
@@ -730,6 +731,9 @@ static func _move(
 			if target.is_empty(): target = FieldMelee.nearest(unit, targets)
 			if unit.attributes.get("monster_id") == "Dotra" and unit.attributes.get("hidden", false):
 				target = MonsterEffects.nearest(unit, rows)
+			if unit.attributes.get("monster_id") == "Tumler":
+				var hunted: Dictionary = MonsterEffects.preferred(unit, rows)
+				if not hunted.is_empty(): target = hunted
 			neighbors[unit.id] = {"unit": target, "distance": 9223372036854775807 if target.is_empty() else Fort.gap(unit, target)}
 	var accepted: Array = []
 	var accepted_by_id: Dictionary = {}
@@ -788,6 +792,8 @@ static func _move(
 			if previous_ticket != -1:
 				entities.update(unit.id, unit.owner, a)
 			continue
+		if modern and not retreat:
+			step = SupportPacing.speed(unit, rows, step, clock, context.round, fleeing_ids)
 		var nearest: Dictionary = nearby.unit
 		var preferred: Dictionary = MonsterEffects.preferred(unit, rows) if has_taunt or a.get("monster_id") == "Tumler" else {}
 		if not preferred.is_empty(): nearest = preferred

@@ -4,8 +4,9 @@ const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Wishmaster = preload("res://Scripts/Sim/U13Wishmaster.gd")
 const Rout = preload("res://Scripts/Sim/U13Rout.gd")
 const Defense = preload("res://Scripts/Sim/U13PenitentDefense.gd")
+const MonsterEffects = preload("res://Scripts/Sim/U13MonsterEffects.gd")
 const Fort = preload("res://Scripts/Sim/U13FieldFortifications.gd")
-const VERSION: String = "U13_VULTURE_RANGED_V7_FRIENDLY_PASSAGE"
+const VERSION: String = "U13_VULTURE_RANGED_V8_SUPPORT_PACING"
 const ATTACK: int = 1
 const RANGE_FP: int = 400 # Two units at 200 fixed-point units per unit.
 const CONTACT_FP: int = Fort.CONTACT
@@ -103,6 +104,7 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 		# an overkilled target does not generate a second death or refund the shot.
 		var dealt: int = 0
 		var blocked: bool = false
+		var evaded: bool = false
 		var hp_after: int = 0
 		if shot.target.kind == "fortification":
 			var hit: Dictionary = Fort.damage(world, shot.target.id, shot.attacker, shot.amount, false, context.round, tick)
@@ -110,7 +112,8 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 			events.append_array(hit.events)
 		elif not target.is_empty():
 			blocked = Defense.blocks(target, shot.attacker.id, context.seed, context.round, tick, "Tower" if shot.attacker.kind == "fortification" else "Vulture")
-			var amount: int = 0 if blocked else int(shot.amount)
+			evaded = MonsterEffects.evades(target, shot.attacker, entities.marchers() if target.attributes.get("monster_id") == "Tumler" else [], context, tick, "Tower" if shot.attacker.kind == "fortification" else "Vulture", Fort.rows(world), fleeing)
+			var amount: int = 0 if blocked or evaded else int(shot.amount)
 			var absorbed: int = mini(int(target.attributes.armor), amount)
 			target.attributes.armor -= absorbed
 			dealt = amount - absorbed
@@ -123,7 +126,7 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 				# Birth-round holding ends when the unit is attacked, even through Armor.
 				target.attributes.movement_ready_round = mini(int(target.attributes.movement_ready_round), int(context.round))
 				entities.update(target.id, target.owner, target.attributes)
-		var details: Dictionary = {"round": context.round, "tick": tick, "lane": shot.attacker.attributes.lane, "attacker": shot.attacker, "target": shot.target, "blocked": blocked, "damage_dealt": dealt, "hp_after": hp_after}
+		var details: Dictionary = {"round": context.round, "tick": tick, "lane": shot.attacker.attributes.lane, "attacker": shot.attacker, "target": shot.target, "blocked": blocked, "evaded": evaded, "damage_dealt": dealt, "hp_after": hp_after}
 		events.append(event("MARCHER_RANGED_ATTACK", details))
 	world.entities = entities.snapshot()
 	for death in deaths:

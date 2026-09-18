@@ -146,6 +146,10 @@ func _get_tooltip(at: Vector2) -> String:
 			var hp: String = "Obscured" if void_active else "%d/%d" % [unit.attributes.hp, unit.attributes.max_hp]
 			var description: String = "%s · %s\nHP %s · Armor %d" % [unit_name, "Yours" if unit.owner == 0 else "Enemy", hp, unit.attributes.armor]
 			if unit_name == "Penitent": description += "\n" + preload("res://Scripts/Sim/U13PenitentDefense.gd").DESCRIPTION
+			if unit_name in ["Vulture", "Kopita", "Sinodek", "Sooge"] and unit.attributes.get("sprite_form") != "turret":
+				description += "\nSlows near allied front-line fighters to stay behind them."
+			if unit_name == "Tumler":
+				description += "\n50% evasion while hunting; ends at target contact. Landed melee hits change his target; ranged hits do not."
 			if unit_name == "Kopita":
 				description += "\nAt the start of each active round: green heals allies 1 HP; violet damages enemies 1. Alternates; radius 360."
 				description += "\nNext pulse: " + ("Heal" if int(unit.attributes.get("kopita_pulses", 0)) % 2 == 0 else "Harm")
@@ -604,7 +608,12 @@ func _draw_monster_attacks() -> void:
 			continue
 		var a := _attack_point(attack.source, attack.get("source_id", ""), attack.get("source_owner", 0))
 		var b := _attack_point(attack.target, attack.get("target_id", ""), attack.get("target_owner", 1))
-		if attack.ability == "RangedBlock":
+		if attack.ability == "HuntDodge":
+			var fade: float = 1.0 - float(attack.get("weight", 0.0))
+			for i in range(3):
+				var offset := Vector2(-12.0 - i * 3.0, -5.0 + i * 5.0)
+				draw_line(b + offset, b + offset + Vector2(8.0, -3.0), Color(0.65, 0.88, 1.0, fade), 2.0, true)
+		elif attack.ability == "RangedBlock":
 			# A brief shield glint works for both chits and sprites, without labels.
 			var fade: float = 1.0 - float(attack.get("weight", 0.0))
 			var shield := PackedVector2Array([b + Vector2(-9, -8), b + Vector2(0, -11), b + Vector2(9, -8), b + Vector2(7, 3), b + Vector2(0, 10), b + Vector2(-7, 3), b + Vector2(-9, -8)])

@@ -39,6 +39,9 @@ static func resolve(world: Dictionary, entities, context: Dictionary, tick: int,
 		var a: Dictionary = unit.attributes
 		if int(a.get("melee_next_tick", 0)) > clock or fleeing.has(unit.id) or Rout.retreating(a, context.round) or a.get("hidden", false) or a.get("sprite_form") == "turret": continue
 		var target: Dictionary = nearest(unit, targets, Fort.CONTACT, true)
+		if a.get("monster_id") == "Tumler":
+			var hunted: Dictionary = Effects.preferred(unit, units)
+			if not hunted.is_empty(): target = hunted
 		if target.is_empty(): continue
 		var obstruction: Dictionary = Fort.blocker(unit, Fort.point(a, target), Fort.rows(world))
 		if not obstruction.is_empty(): target = obstruction
@@ -53,6 +56,7 @@ static func resolve(world: Dictionary, entities, context: Dictionary, tick: int,
 	for shot in shots:
 		var dealt: int = 0
 		var hp_after: int = 0
+		var evaded: bool = false
 		if shot.target.kind == "fortification":
 			var hit: Dictionary = Fort.damage(world, shot.target.id, shot.attacker, shot.amount, shot.attacker.attributes.armor_bypass, context.round, tick)
 			dealt = hit.damage_dealt; hp_after = hit.hp_after
@@ -61,9 +65,13 @@ static func resolve(world: Dictionary, entities, context: Dictionary, tick: int,
 			var target: Dictionary = entities.get_entity(shot.target.id)
 			if not target.is_empty():
 				var a: Dictionary = target.attributes
-				var absorbed: int = 0 if shot.attacker.attributes.armor_bypass else mini(int(a.armor), int(shot.amount))
+				var live_rows: Array = entities.marchers() if a.get("monster_id") == "Tumler" else []
+				evaded = Effects.evades(target, shot.attacker, live_rows, context, tick, "Melee", Fort.rows(world), fleeing)
+				var amount: int = 0 if evaded else int(shot.amount)
+				if not evaded and not fleeing.has(target.id): events.append_array(Effects.intercept(target, shot.attacker, live_rows, context, tick, Fort.rows(world)))
+				var absorbed: int = 0 if shot.attacker.attributes.armor_bypass else mini(int(a.armor), amount)
 				a.armor -= absorbed
-				dealt = int(shot.amount) - absorbed
+				dealt = amount - absorbed
 				a.hp = maxi(0, int(a.hp) - dealt)
 				hp_after = a.hp
 				a.movement_ready_round = mini(int(a.movement_ready_round), int(context.round))
@@ -71,8 +79,8 @@ static func resolve(world: Dictionary, entities, context: Dictionary, tick: int,
 					entities.retire(target.id)
 					deaths.append({"victim": target.duplicate(true), "attacker": shot.attacker, "damage_dealt": dealt, "hp_after": 0})
 				else: entities.update(target.id, target.owner, a)
-				events.append_array(Effects.on_hit(entities, shot.attacker, target.id, dealt, context, tick))
-		events.append(Fort.event("MARCHER_MELEE_ATTACK", {"attacker": shot.attacker, "target": shot.target, "damage_dealt": dealt, "hp_after": hp_after, "round": context.round, "tick": tick, "lane": shot.attacker.attributes.lane}))
+				if not evaded: events.append_array(Effects.on_hit(entities, shot.attacker, target.id, dealt, context, tick))
+		events.append(Fort.event("MARCHER_MELEE_ATTACK", {"attacker": shot.attacker, "target": shot.target, "damage_dealt": dealt, "evaded": evaded, "hp_after": hp_after, "round": context.round, "tick": tick, "lane": shot.attacker.attributes.lane}))
 	world.entities = entities.snapshot()
 	for death in deaths:
 		death.merge({"event_id": Data.instance_id("field_melee_kill", str(clock), death.victim.id), "round": context.round, "tick": tick, "hook": context.hook, "cause": "combat"})

@@ -1,0 +1,162 @@
+{
+  "date": "2026-09-18",
+  "change": "Support units pace behind front-line allies; Tumler evades while closing on prey and switches targets after landed melee hits.",
+  "parent": "acfdcdb5dd746a33efe30c2969d623912e896992",
+  "profiles": {
+    "ranged": "U13_VULTURE_RANGED_V8_SUPPORT_PACING",
+    "monsters": "U13_MONSTERS_V7_HUNT_EVASION"
+  },
+  "tuning": {
+    "supports": [
+      "Vulture",
+      "Kopita",
+      "Sinodek",
+      "mobile Sooge"
+    ],
+    "screens": [
+      "Butcher",
+      "Penitent",
+      "Lemek",
+      "Kurchin"
+    ],
+    "support_radius_fp": 420,
+    "support_lateral_fp": 180,
+    "trailing_distance_fp": 180,
+    "yield_speed_fraction": 0.25,
+    "tumler_evasion_percent": 50
+  },
+  "native_runtime": "Godot 4.5.1.stable.official.f62fdbde1 / Linux headless diagnostics",
+  "native": {
+    "support-hunt": {
+      "passed": 224,
+      "failures": 0,
+      "script_errors": 0
+    },
+    "monsters": {
+      "passed": 595,
+      "failures": 0,
+      "script_errors": 0
+    },
+    "field-combat": {
+      "passed": 182,
+      "failures": 0,
+      "script_errors": 0
+    },
+    "sandbox": {
+      "passed": 199,
+      "failures": 0,
+      "script_errors": 0
+    }
+  },
+  "native_passed_total": 1200,
+  "python_marching_unittests": {
+    "passed": 19,
+    "failures": 0
+  },
+  "exact_native_python_replays": {
+    "support-hunt": {
+      "phases": 30,
+      "events": 6488,
+      "ticks": 6000,
+      "event_types": {
+        "MARCHER_MELEE_ATTACK": 390,
+        "MARCHER_RANGED_ATTACK": 24,
+        "MARCHING_FINISHED": 30,
+        "MARCHING_STARTED": 30,
+        "MARCHING_TICK": 6000,
+        "MONSTER_HUNT_RETARGETED": 2,
+        "MONSTER_PULSE": 12
+      }
+    },
+    "monsters": {
+      "phases": 74,
+      "events": 15702,
+      "ticks": 14800,
+      "event_types": {
+        "KRONI_ACTORS_STARTED": 1,
+        "KRONI_ACTOR_FINISHED": 1,
+        "KRONI_ACTOR_TICK": 200,
+        "KRONI_FLEE_STARTED": 1,
+        "MARCHER_DEFEATED": 13,
+        "MARCHER_DEVOURED": 1,
+        "MARCHER_MELEE_ATTACK": 360,
+        "MARCHER_RANGED_ATTACK": 72,
+        "MARCHER_WAITING": 5,
+        "MARCHING_FINISHED": 74,
+        "MARCHING_STARTED": 74,
+        "MARCHING_TICK": 14800,
+        "MONSTER_ATTACK": 31,
+        "MONSTER_BANISHED": 1,
+        "MONSTER_BEAM_DETONATED": 9,
+        "MONSTER_BEAM_FIRED": 8,
+        "MONSTER_CHARMED": 3,
+        "MONSTER_CONCEALMENT": 24,
+        "MONSTER_FIELD_CREATED": 3,
+        "MONSTER_POISONED": 1,
+        "MONSTER_PULSE": 6,
+        "MONSTER_ROOTED": 1,
+        "NEUTRAL_TEAR_CREATED": 1,
+        "PICKING_THE_BONES": 1,
+        "WRIGHT_BUILD_ASSIGNED": 11
+      }
+    },
+    "field-combat": {
+      "phases": 38,
+      "events": 8193,
+      "ticks": 7600,
+      "event_types": {
+        "MARCHER_DEFEATED": 5,
+        "MARCHER_MELEE_ATTACK": 423,
+        "MARCHER_RANGED_ATTACK": 52,
+        "MARCHER_WAITING": 2,
+        "MARCHING_FINISHED": 38,
+        "MARCHING_STARTED": 38,
+        "MARCHING_TICK": 7600,
+        "MONSTER_ATTACK": 1,
+        "MONSTER_BEAM_DETONATED": 1,
+        "MONSTER_BEAM_FIRED": 1,
+        "WRIGHT_BUILD_ASSIGNED": 13,
+        "WRIGHT_STRUCTURE_BUILT": 13,
+        "WRIGHT_STRUCTURE_DESTROYED": 6
+      }
+    }
+  },
+  "phase_total": 142,
+  "tick_total": 28400,
+  "behavior": [
+    "Support pacing uses a same-tick snapshot, remains local to the same lane and owner, and never changes the saved Speed stat.",
+    "Supports advance at normal speed when unaccompanied and do not slow each other; deployment holds, fleeing and retreat do not count as protective screens.",
+    "Tumler does not stop or swing at incidental enemies while hunting. Existing Kurchin taunts and hostile walls remain effective.",
+    "Evasion is seeded independently per attacker, target, tick and attack kind. Successful dodges prevent HP/Armor loss and on-hit effects.",
+    "Target contact, an unavailable target, immobility, birth hold, waiting, retreat and forced fleeing disable hunting evasion.",
+    "A landed melee hit changes the persistent hunt target even if Armor absorbs it. Ranged attacks leave the hunt target unchanged.",
+    "Muno strikes and Dotra ambushes can intercept. Beams and Kopita pulses can be evaded without interception. Existing poison cannot be evaded.",
+    "A brief dodge streak is derived from authoritative attack events; evaded beam/pulse damage does not display a successful hit flash."
+  ],
+  "source_sha256": {
+    "Prototype/U13/U13BoardLanes.gd": "9d71a87d264c366cfb05591e772f2182d7ea28a1645108c43260fb85bdcfbaf0",
+    "Prototype/U13/U13SmokePlayback.gd": "b10ab733b210e97635b24b0c55157214108b407973a8ae371980c504086ee1ec",
+    "Scripts/Sim/U13FieldMelee.gd": "42e7e76b9b5833672c0b3b4ffdc189aac38403bbf3d547ddce085e8dd83c2ede",
+    "Scripts/Sim/U13Marching.gd": "67d76cea573ab5bdba0d64d3c57bd4d44e0ce87a01993bd17f6be0b25a2e979e",
+    "Scripts/Sim/U13MonsterEffects.gd": "7faf983bdd64553dea1ad59ccae5af9fecd196be5c8e5a7d7153541bfbc85c7d",
+    "Scripts/Sim/U13MonsterRules.gd": "b838d819d9e79b576c7e6df552638ede8b49722323d28b9b835b917cf97971a6",
+    "Scripts/Sim/U13RangedMarching.gd": "4ae400633a3b1224a7c974e5214bdb5555dd9b3232cdadc508b72014d5af6c8a",
+    "Scripts/Sim/U13SupportHuntTestRunner.gd": "8321f89cb42663597a247f6cd669603b1bef7c5f2d975d8e67ce7f53ff3a3b95",
+    "Scripts/Sim/U13SupportPacing.gd": "21fb5f06f9f5f0cb6e749b525197d924621567554ff91ffbb14c98eff0fe244a",
+    "Scripts/Sim/run_u13_foundation_tests.sh": "f367e028976f2d2b22725788e478171210c9c323fb8aa05dffaf539481c872c4",
+    "Scripts/Sim/run_u13_new_rules_quick.sh": "f3787409e2f0d6bd1716953912f2f6661229723389b7735f826b5c3ece720561",
+    "Scripts/Sim/u13_pysim/field_combat.py": "c1d0221068787553cc81372cefd78294295537982a44f9738b15e55c9287ab84",
+    "Scripts/Sim/u13_pysim/marching.py": "89a3c29247b0df21f5b5d6472f7e95621d80afe1cc73c84a5cc65c1ddf0c3577",
+    "Scripts/Sim/u13_pysim/marching_spatial.py": "5aa2507880685f6962ba6567f8bd50ccd3fbff5381e3611d0ada3dcb1e32e0aa",
+    "Scripts/Sim/u13_pysim/monster_effects.py": "e2199d1adeebe07773875c2a3af8298116867371e2fb767819ad1ac7515e15b6",
+    "Scripts/Sim/u13_pysim/monsters.py": "21c0142fac76f4a215c88910b9faeccb385d4b28eb61eea610e1338829c40339",
+    "Scripts/Sim/u13_pysim/opening.py": "97197ff532b740d66ec16f11830de065531078c6f5b2d29d8ccbef335a863faf",
+    "Scripts/Sim/u13_pysim/support_pacing.py": "aff4adecc894b14bcbfae0f1453d1a7d8d7c5038c346d6a35322ada4ce1efeb7",
+    "docs/U13_LANE_BALANCE_SANDBOX.md": "ae89e60d000b0f559b96c3053e5f00b9649a80bb022b15e9bcceb8b8f14f180f"
+  },
+  "limits": [
+    "Windows Godot 4.7.2 interactive acceptance remains.",
+    "Fresh game or reset sandbox required after the profile version changes.",
+    "No full-game balance sweep was requested or performed."
+  ]
+}
