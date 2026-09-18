@@ -31,8 +31,17 @@ class PlannerObserver(ReferenceObserver):
         self.rite_planning = Counter()
         self.selection_counts = Counter()
         self.selection_max_gap = 0
+        self.closing_counts = Counter()
 
     def accepted(self, number, seat, decision):
+        closing = decision.get('closing')
+        if closing:
+            self.closing_counts['measured_decisions'] += 1
+            for key in ('plans', 'projected_wins', 'resilient_plans', 'fragile_plans', 'checks'):
+                self.closing_counts[key] += closing[key]
+            self.closing_counts['selected:'+closing['selected']['status']] += 1
+            for reason in closing['selected']['adverse']:
+                self.closing_counts['selected_adverse:'+reason] += 1
         selection = decision.get('selection')
         if selection:
             self.selection_counts['measured_decisions'] += 1
@@ -75,6 +84,7 @@ class PlannerObserver(ReferenceObserver):
                 plan=plan, reasons=decision['chosen_reasons'], retained_candidates=decision['retained_candidates'],
                 budget=decision['budget'], veil=decision['veil'], recipes=decision['recipes']))
             if selection: self.decision_examples[-1]['selection'] = selection
+            if closing: self.decision_examples[-1]['closing'] = closing
 
     def card_choice(self, number, seat, decision):
         identity = self.recorder.assess(number, seat, **decision['assessment'])
@@ -158,6 +168,7 @@ class PlannerObserver(ReferenceObserver):
             recipe_decisions=dict(sorted(self.recipe_decisions.items())),
             protection_scenarios=dict(sorted(self.protection_scenarios.items())),
             rite_planning=dict(sorted(self.rite_planning.items())),
+            closing_judgment=dict(sorted(self.closing_counts.items())),
             plan_selection=dict(counts=dict(sorted(self.selection_counts.items())),
                                 max_score_gap=self.selection_max_gap if self.selection_counts else None),
             monster_measurements='recipe opportunities, choices and actual spawned bodies; later ability benefit is unmeasured',

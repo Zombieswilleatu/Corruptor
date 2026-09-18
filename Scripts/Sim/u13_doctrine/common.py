@@ -14,6 +14,7 @@ from u13_pysim.power_rules import RULES, declaration
 from u13_pysim.powers import WISHES
 from . import lords
 from .budget import Budget, Limits
+from . import closing
 from .coverage import POWERS
 from .diagnostics import fingerprint
 from .facts import Facts, Proposal, LANES
@@ -21,7 +22,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V4_RITE_PLANS'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V5_CLOSING'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -241,7 +242,6 @@ class CommonSmartCore:
             projected = settlement_projection(f, plan)
             risk = projected['winner'] == f.enemy
             if risk: score -= self.weights.enemy_settlement_risk
-            if projected['winner'] == f.pid: score += 70
             protection = protection_projection(f, plan, self.weights.veil_protection)
             # No next-round protection credit after this scenario settles.
             if projected['winner'] == -1: score += protection['score']
@@ -282,7 +282,9 @@ class CommonSmartCore:
             assemble([], ('resummon', 'powers', 'work', 'guards', 'combat', 'rites'), reserve=initial_goal['card_ids'])
         positive = [p for p in retained['powers'] if p.value > 0 and p.term not in WISHES]
         if len(positive) > 1: assemble(positive[:2], base)
-        ranked = sorted({fingerprint(c['plan']): c for c in complete}.values(),
+        unique = list({fingerprint(c['plan']): c for c in complete}.values())
+        closing.prioritize(f, unique)
+        ranked = sorted(unique,
                         key=lambda c: (-c['score'], sum(len(p.cards) for p in c['selected']), fingerprint(c['plan'])))
         chosen, rejected, selection = self.selector.select(ranked, preview, budget,
             round_number=view['round'], seat=f.pid)
@@ -325,6 +327,7 @@ class CommonSmartCore:
                                               source_category=category, monster=p.payload.get('monster_choice', ''),
                                               candidate_sha256=key(p)) for category in categories for p in retained[category]],
                     budget=budget.report(), rejected_previews=rejected, rite_plans=rite_plans,
+                    closing=closing.report(unique, chosen),
                     assumptions='current public board; new Guards, Ward, Work, simultaneous powers and spatial/random reactions are uncertain',
                     veil=dict(current_board_risk=chosen['veil_risk'], paid_choice_scenario=chosen['projected'],
                               protection=chosen['protection'], hard_veto=False, reason='hidden_orders_prevent_proof'),

@@ -1,0 +1,1228 @@
+{
+  "archive": {
+    "bytes": 35093207,
+    "file_id": "file_00000000ff2c81f9ba46cb90c7402319",
+    "filename": "u13-closing-162-b56c83a-2026-09-18.zip",
+    "files": 211,
+    "library_file_id": "libfile_abe95e2602d08191a1c510c75412b9b1",
+    "sha256": "21ff7d3c6c51c9ab7ff00e44d6b2adbad6e33fcfc513a896341eac60466ab5cc",
+    "version": 1
+  },
+  "baseline": {
+    "files": {
+      "__init__.py": "227c8876cf5699a5538e3493e65d8ab8e7ecf03c65eb0781306d8d22461c3b8f",
+      "budget.py": "6e98f1b4cc5852ef173f4c64466c7dbb5ae9b7ef95c1c96edb9926cf57068591",
+      "common.py": "f55177873d9cea83a34fda0da81511b305b5d1b8f17a7b8fe5339278874327ac",
+      "comparison.py": "f8949c04b4c836dd8f1c12f8a99ab5cf57f288281589b9ef27d12ec36e14667b",
+      "coverage.py": "228c23b18653b89647570939fb944d7063f676a45a28ca980ef1838b669b7c71",
+      "diagnostics.py": "5cf40e9a6ab3984653737e7b8e20b373a923f932a0205803cafea3fb48fa9769",
+      "facts.py": "03cc64a025e42217a77cc24d1980033c131e25b6224fcc69f518d4debc0ecab3",
+      "lords/__init__.py": "411ef93b19ce21fbd9e93608633810c3002599c5dd9be1b679e70a7414263488",
+      "lords/deimos.py": "3db80f87a3a700099bb5a35141e87731885dc99844d36dea7a11f26eda2f5750",
+      "lords/gremory.py": "24da2dec94f8788638c8cd2aec532b25806c71590c580bd1782aa8242ea23496",
+      "lords/humbaba.py": "f4da1815459a72d5bf42bdfa14d16cd01cd88afbe43848531b42df944c5ef9a5",
+      "lords/kalligan.py": "804956060c8d59eb9ea1c7911798954e11b5d933c784531aff846e69c2f726f8",
+      "lords/kanifous.py": "f8088280111c21cb09368970b88f8593a6742f46d9048c05e0da9fec6b4aa26d",
+      "lords/kroni.py": "71e36ebdf5db505cedb8a7d853b10a5f182437baebe551e25772e52439c8a712",
+      "lords/odradek.py": "22f59d5e758be9d7c2bb24c37c137e4b5f45a676411e6932fcc510b2e019c181",
+      "lords/orias.py": "ff5432388bfc98d4b48bbc873c985317e6b7c4b14d21aff5c5b5d15940eb5e20",
+      "lords/valak.py": "73400303a46bca3c4a102165fb8d9e27ad0b3fd0e194454411408bfa9a9d44b5",
+      "observation.py": "4114c44ae86f5dd4d109f6de85ba351c3b6d4bed8e1a4af5b08b4b86349d05f0",
+      "planner_probe.py": "e8786ce279bc22c10ea77eba7212434c7eac5a1b3c3a94c73da9d499d2dd647e",
+      "recipes.py": "ddb4e0072006093218d8a4707beb248d7fe92067f57864d02588ab86df9a1c2e",
+      "reference_probe.py": "cd5d3433e0b99082c24fb4599a9464c18b60bca021fb559f59f2c307bbbd0f98",
+      "rite_cases.py": "2cf12a6be0f6598cdeb330f76bd0efcb8c680fbcf2410b1d6461099d61d4a70e",
+      "selection.py": "a160b99b525a1590b34a8ba43fef6f5f63d70c083886f0f151111f7bb5b3894f",
+      "survey.py": "4ef849355910d662bb887fd53ae50b5574efc5f10fdc752610e5bfb81f2a059a",
+      "test_common.py": "830080b6f7233d5699bc1c8d473820e28d1e3c5490ab3f2d2a0f3b531c59c5a4",
+      "test_comparison.py": "5be20dc7fa3fe38efc9cbeeb8dd3cd2bc9f8bdaa139cb29b974169addd84c9e9",
+      "test_diagnostics.py": "d8362c599d2f83ae3864c6b0c32e734ac5136030e7f3194ac3fe10afda6881ff",
+      "test_recipes_veil.py": "b1948ea569cf7b304756b70e4e2a99d479228cca4514a826fdb556434d5b456e",
+      "test_rites.py": "4049d7d09741161cae1392c3f0dcb9c3735108c50492dead8c7e36883ab240c8",
+      "test_selection.py": "b2ae4fa066634e423479552398f05d1fa2d06bbb5c978be564978763e02a94bf",
+      "test_survey.py": "926deb9d20611b42b8a5f2e970bff6c4e4b357c1afe8d12cd263c26749a05880",
+      "veil_judgment.py": "f92f3a5ca62d8ead00f38b7b5a1d4945645032e05e048305ec114bbb66d64131"
+    },
+    "package_sha256": "ceaa360f44d184ffce73575f008f66149a3fbb0b7059e19c4132f381de2690be",
+    "revision": "773615f81c99a46a3acd17574e2480c8b7d22431"
+  },
+  "comparison": {
+    "completed": 162,
+    "counts": {
+      "candidate_decisions": 2926,
+      "decisions_with_resilient_plan": 37,
+      "public_win_available_but_not_selected": 6,
+      "resilient_available_but_not_selected": 0
+    },
+    "decisions": {
+      "U13_COMMON_SMART_CORE_ALPHA_V4_RITE_PLANS": 2926,
+      "U13_COMMON_SMART_CORE_ALPHA_V5_CLOSING": 2926
+    },
+    "elapsed_seconds": 240.3485945900029,
+    "failed": 0,
+    "manifest": {
+      "baseline": {
+        "files": {
+          "__init__.py": "227c8876cf5699a5538e3493e65d8ab8e7ecf03c65eb0781306d8d22461c3b8f",
+          "budget.py": "6e98f1b4cc5852ef173f4c64466c7dbb5ae9b7ef95c1c96edb9926cf57068591",
+          "common.py": "f55177873d9cea83a34fda0da81511b305b5d1b8f17a7b8fe5339278874327ac",
+          "comparison.py": "f8949c04b4c836dd8f1c12f8a99ab5cf57f288281589b9ef27d12ec36e14667b",
+          "coverage.py": "228c23b18653b89647570939fb944d7063f676a45a28ca980ef1838b669b7c71",
+          "diagnostics.py": "5cf40e9a6ab3984653737e7b8e20b373a923f932a0205803cafea3fb48fa9769",
+          "facts.py": "03cc64a025e42217a77cc24d1980033c131e25b6224fcc69f518d4debc0ecab3",
+          "lords/__init__.py": "411ef93b19ce21fbd9e93608633810c3002599c5dd9be1b679e70a7414263488",
+          "lords/deimos.py": "3db80f87a3a700099bb5a35141e87731885dc99844d36dea7a11f26eda2f5750",
+          "lords/gremory.py": "24da2dec94f8788638c8cd2aec532b25806c71590c580bd1782aa8242ea23496",
+          "lords/humbaba.py": "f4da1815459a72d5bf42bdfa14d16cd01cd88afbe43848531b42df944c5ef9a5",
+          "lords/kalligan.py": "804956060c8d59eb9ea1c7911798954e11b5d933c784531aff846e69c2f726f8",
+          "lords/kanifous.py": "f8088280111c21cb09368970b88f8593a6742f46d9048c05e0da9fec6b4aa26d",
+          "lords/kroni.py": "71e36ebdf5db505cedb8a7d853b10a5f182437baebe551e25772e52439c8a712",
+          "lords/odradek.py": "22f59d5e758be9d7c2bb24c37c137e4b5f45a676411e6932fcc510b2e019c181",
+          "lords/orias.py": "ff5432388bfc98d4b48bbc873c985317e6b7c4b14d21aff5c5b5d15940eb5e20",
+          "lords/valak.py": "73400303a46bca3c4a102165fb8d9e27ad0b3fd0e194454411408bfa9a9d44b5",
+          "observation.py": "4114c44ae86f5dd4d109f6de85ba351c3b6d4bed8e1a4af5b08b4b86349d05f0",
+          "planner_probe.py": "e8786ce279bc22c10ea77eba7212434c7eac5a1b3c3a94c73da9d499d2dd647e",
+          "recipes.py": "ddb4e0072006093218d8a4707beb248d7fe92067f57864d02588ab86df9a1c2e",
+          "reference_probe.py": "cd5d3433e0b99082c24fb4599a9464c18b60bca021fb559f59f2c307bbbd0f98",
+          "rite_cases.py": "2cf12a6be0f6598cdeb330f76bd0efcb8c680fbcf2410b1d6461099d61d4a70e",
+          "selection.py": "a160b99b525a1590b34a8ba43fef6f5f63d70c083886f0f151111f7bb5b3894f",
+          "survey.py": "4ef849355910d662bb887fd53ae50b5574efc5f10fdc752610e5bfb81f2a059a",
+          "test_common.py": "830080b6f7233d5699bc1c8d473820e28d1e3c5490ab3f2d2a0f3b531c59c5a4",
+          "test_comparison.py": "5be20dc7fa3fe38efc9cbeeb8dd3cd2bc9f8bdaa139cb29b974169addd84c9e9",
+          "test_diagnostics.py": "d8362c599d2f83ae3864c6b0c32e734ac5136030e7f3194ac3fe10afda6881ff",
+          "test_recipes_veil.py": "b1948ea569cf7b304756b70e4e2a99d479228cca4514a826fdb556434d5b456e",
+          "test_rites.py": "4049d7d09741161cae1392c3f0dcb9c3735108c50492dead8c7e36883ab240c8",
+          "test_selection.py": "b2ae4fa066634e423479552398f05d1fa2d06bbb5c978be564978763e02a94bf",
+          "test_survey.py": "926deb9d20611b42b8a5f2e970bff6c4e4b357c1afe8d12cd263c26749a05880",
+          "veil_judgment.py": "f92f3a5ca62d8ead00f38b7b5a1d4945645032e05e048305ec114bbb66d64131"
+        },
+        "package_sha256": "ceaa360f44d184ffce73575f008f66149a3fbb0b7059e19c4132f381de2690be",
+        "revision": "773615f81c99a46a3acd17574e2480c8b7d22431"
+      },
+      "baseline_policy": "U13_COMMON_SMART_CORE_ALPHA_V4_RITE_PLANS",
+      "candidate_policy": "U13_COMMON_SMART_CORE_ALPHA_V5_CLOSING",
+      "engine_source_sha256": "706a0a05326633cc05353bb742cc22e93bfeec19244f43ec65e0b1f6091ae4d8",
+      "harness_source_sha256": "681c20309055be8e1568630a951776d0788ec1be69b0e1bb846f38d17a020fd8",
+      "implementation": "CPython",
+      "namespace": "u13-closing-v5-2026-09-18",
+      "opening_policy": "U13_GAME_ECONOMY_V5_FREE_OPENING",
+      "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+      "repeats": 1,
+      "schema": "U13_MATCHED_DOCTRINE_COMPARISON_V1",
+      "scope": "Both policies share current engine, fixed ordinary loadout and seed; swap policy seats for each ordered matchup. Python policy comparison, not native parity or Lord balance.",
+      "source_revision": "b56c83a42e2fc1970d7badf261888e09db875c61",
+      "weights": {
+        "banishment": 32,
+        "card_cost": 2,
+        "damage": 3,
+        "destruction": 30,
+        "enemy_settlement_risk": 90,
+        "guard": 5,
+        "monster": 2,
+        "recipe_save": 1,
+        "recruit": 6,
+        "return_lord": 75,
+        "tear": 22,
+        "veil_protection": 8
+      }
+    },
+    "maximum_work": {
+      "U13_COMMON_SMART_CORE_ALPHA_V4_RITE_PLANS": {
+        "complete_plans": 30,
+        "generated:combat": 11,
+        "generated:guards": 11,
+        "generated:monsters": 10,
+        "generated:powers": 16,
+        "generated:resummon": 3,
+        "generated:rites": 4,
+        "generated:work": 6,
+        "previews": 1,
+        "retained:combat": 4,
+        "retained:guards": 4,
+        "retained:monsters": 4,
+        "retained:powers": 4,
+        "retained:resummon": 2,
+        "retained:rites": 3,
+        "retained:work": 4
+      },
+      "U13_COMMON_SMART_CORE_ALPHA_V5_CLOSING": {
+        "complete_plans": 30,
+        "generated:combat": 11,
+        "generated:guards": 11,
+        "generated:monsters": 10,
+        "generated:powers": 16,
+        "generated:resummon": 3,
+        "generated:rites": 4,
+        "generated:work": 6,
+        "previews": 1,
+        "retained:combat": 4,
+        "retained:guards": 4,
+        "retained:monsters": 4,
+        "retained:powers": 4,
+        "retained:resummon": 2,
+        "retained:rites": 3,
+        "retained:work": 4
+      }
+    },
+    "mean_rounds": 18.061728395061728,
+    "paired_results": {
+      "baseline_wins_both": 0,
+      "candidate_wins_both": 1,
+      "incomplete": 0,
+      "split": 80
+    },
+    "rejected_previews": 0,
+    "requested": 162,
+    "rite_measurements": [
+      {
+        "current_board_losses": 68,
+        "current_board_wins": 120,
+        "generated": 1261,
+        "outcomes_unobserved": 0,
+        "personal_tears": 14,
+        "policy": "U13_COMMON_SMART_CORE_ALPHA_V4_RITE_PLANS",
+        "resolved": 14,
+        "retained": 1261,
+        "scored_measured_decisions": 2926,
+        "scored_plans": 2522,
+        "selected": 14,
+        "term": "Invocation"
+      },
+      {
+        "current_board_losses": 77,
+        "current_board_wins": 146,
+        "generated": 216,
+        "outcomes_unobserved": 0,
+        "personal_tears": 202,
+        "policy": "U13_COMMON_SMART_CORE_ALPHA_V4_RITE_PLANS",
+        "resolved": 202,
+        "retained": 216,
+        "scored_measured_decisions": 2926,
+        "scored_plans": 3627,
+        "selected": 202,
+        "term": "ProfaneRuins"
+      },
+      {
+        "current_board_losses": 29,
+        "current_board_wins": 91,
+        "generated": 95,
+        "outcomes_unobserved": 0,
+        "personal_tears": 91,
+        "policy": "U13_COMMON_SMART_CORE_ALPHA_V4_RITE_PLANS",
+        "resolved": 91,
+        "retained": 95,
+        "scored_measured_decisions": 2926,
+        "scored_plans": 1437,
+        "selected": 91,
+        "term": "Supplicants"
+      },
+      {
+        "current_board_losses": 74,
+        "current_board_wins": 110,
+        "generated": 1262,
+        "outcomes_unobserved": 0,
+        "personal_tears": 21,
+        "policy": "U13_COMMON_SMART_CORE_ALPHA_V5_CLOSING",
+        "resolved": 21,
+        "retained": 1262,
+        "scored_measured_decisions": 2926,
+        "scored_plans": 2524,
+        "selected": 21,
+        "term": "Invocation"
+      },
+      {
+        "current_board_losses": 77,
+        "current_board_wins": 146,
+        "generated": 216,
+        "outcomes_unobserved": 0,
+        "personal_tears": 201,
+        "policy": "U13_COMMON_SMART_CORE_ALPHA_V5_CLOSING",
+        "resolved": 201,
+        "retained": 216,
+        "scored_measured_decisions": 2926,
+        "scored_plans": 3627,
+        "selected": 201,
+        "term": "ProfaneRuins"
+      },
+      {
+        "current_board_losses": 29,
+        "current_board_wins": 91,
+        "generated": 95,
+        "outcomes_unobserved": 0,
+        "personal_tears": 91,
+        "policy": "U13_COMMON_SMART_CORE_ALPHA_V5_CLOSING",
+        "resolved": 91,
+        "retained": 95,
+        "scored_measured_decisions": 2926,
+        "scored_plans": 1437,
+        "selected": 91,
+        "term": "Supplicants"
+      }
+    ],
+    "rounds": 2926,
+    "selected_outcomes": {
+      "fragile": {
+        "enemy_win": 4,
+        "own_win": 13
+      },
+      "resilient": {
+        "own_win": 37
+      }
+    },
+    "summary_sha256": "06be00e572d20d795da3fdadd638600a81daaf65af813b2609fa7430245a4a0e",
+    "swept_pairs": {
+      "baseline": [],
+      "candidate": [
+        "gremory_kanifous_00"
+      ]
+    },
+    "victory_routes": {
+      "Dominion": 31,
+      "FinalCollapse": 97,
+      "Ritual": 34
+    },
+    "wins": {
+      "baseline": 80,
+      "candidate": 82
+    }
+  },
+  "date": "2026-09-18",
+  "directed_previous_rules": {
+    "cases": [
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 22,
+          "win_by": "",
+          "winner": -1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 22,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "candidate": {
+          "action": "game_in_progress",
+          "round": 22,
+          "win_by": "",
+          "winner": -1
+        },
+        "candidate_closing_status": "not_projected_win",
+        "game": "deimos_humbaba_00__candidate_p1",
+        "lords": [
+          "Deimos",
+          "Humbaba"
+        ],
+        "original_final_digest_matched": true,
+        "round": 22,
+        "seat": 1
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 14,
+          "win_by": "",
+          "winner": -1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "candidate": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "candidate_closing_status": "resilient",
+        "game": "deimos_orias_00__candidate_p1",
+        "lords": [
+          "Deimos",
+          "Orias"
+        ],
+        "original_final_digest_matched": true,
+        "round": 14,
+        "seat": 1
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 14,
+          "win_by": "",
+          "winner": -1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "candidate": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "candidate_closing_status": "resilient",
+        "game": "gremory_kalligan_00__candidate_p0",
+        "lords": [
+          "Gremory",
+          "Kalligan"
+        ],
+        "original_final_digest_matched": true,
+        "round": 14,
+        "seat": 0
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 14,
+          "win_by": "",
+          "winner": -1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "candidate": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "candidate_closing_status": "resilient",
+        "game": "gremory_odradek_00__candidate_p1",
+        "lords": [
+          "Gremory",
+          "Odradek"
+        ],
+        "original_final_digest_matched": true,
+        "round": 14,
+        "seat": 1
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 15,
+          "win_by": "",
+          "winner": -1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 15,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "candidate": {
+          "action": "game_finished",
+          "round": 15,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "candidate_closing_status": "resilient",
+        "game": "gremory_odradek_00__candidate_p1",
+        "lords": [
+          "Gremory",
+          "Odradek"
+        ],
+        "original_final_digest_matched": true,
+        "round": 15,
+        "seat": 1
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 26,
+          "win_by": "",
+          "winner": -1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 26,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "candidate": {
+          "action": "game_in_progress",
+          "round": 26,
+          "win_by": "",
+          "winner": -1
+        },
+        "candidate_closing_status": "not_projected_win",
+        "game": "kalligan_kalligan_00__candidate_p0",
+        "lords": [
+          "Kalligan",
+          "Kalligan"
+        ],
+        "original_final_digest_matched": true,
+        "round": 26,
+        "seat": 0
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 19,
+          "win_by": "",
+          "winner": -1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 19,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "candidate": {
+          "action": "game_finished",
+          "round": 19,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "candidate_closing_status": "resilient",
+        "game": "kroni_kanifous_00__candidate_p0",
+        "lords": [
+          "Kroni",
+          "Kanifous"
+        ],
+        "original_final_digest_matched": true,
+        "round": 19,
+        "seat": 0
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 17,
+          "win_by": "",
+          "winner": -1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 17,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "candidate": {
+          "action": "game_in_progress",
+          "round": 17,
+          "win_by": "",
+          "winner": -1
+        },
+        "candidate_closing_status": "not_projected_win",
+        "game": "odradek_kanifous_00__candidate_p0",
+        "lords": [
+          "Odradek",
+          "Kanifous"
+        ],
+        "original_final_digest_matched": true,
+        "round": 17,
+        "seat": 0
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 17,
+          "win_by": "",
+          "winner": -1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 17,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "candidate": {
+          "action": "game_in_progress",
+          "round": 17,
+          "win_by": "",
+          "winner": -1
+        },
+        "candidate_closing_status": "not_projected_win",
+        "game": "odradek_kanifous_00__candidate_p1",
+        "lords": [
+          "Odradek",
+          "Kanifous"
+        ],
+        "original_final_digest_matched": true,
+        "round": 17,
+        "seat": 1
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 18,
+          "win_by": "",
+          "winner": -1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 18,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "candidate": {
+          "action": "game_in_progress",
+          "round": 18,
+          "win_by": "",
+          "winner": -1
+        },
+        "candidate_closing_status": "not_projected_win",
+        "game": "odradek_kanifous_00__candidate_p1",
+        "lords": [
+          "Odradek",
+          "Kanifous"
+        ],
+        "original_final_digest_matched": true,
+        "round": 18,
+        "seat": 1
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 19,
+          "win_by": "",
+          "winner": -1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 19,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "candidate": {
+          "action": "game_in_progress",
+          "round": 19,
+          "win_by": "",
+          "winner": -1
+        },
+        "candidate_closing_status": "not_projected_win",
+        "game": "odradek_kanifous_00__candidate_p1",
+        "lords": [
+          "Odradek",
+          "Kanifous"
+        ],
+        "original_final_digest_matched": true,
+        "round": 19,
+        "seat": 1
+      },
+      {
+        "baseline": {
+          "action": "game_finished",
+          "round": 20,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 20,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "candidate": {
+          "action": "game_finished",
+          "round": 20,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "candidate_closing_status": "not_projected_win",
+        "game": "odradek_kanifous_00__candidate_p1",
+        "lords": [
+          "Odradek",
+          "Kanifous"
+        ],
+        "original_final_digest_matched": true,
+        "round": 20,
+        "seat": 1
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 14,
+          "win_by": "",
+          "winner": -1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "candidate": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "candidate_closing_status": "resilient",
+        "game": "odradek_orias_00__candidate_p0",
+        "lords": [
+          "Odradek",
+          "Orias"
+        ],
+        "original_final_digest_matched": true,
+        "round": 14,
+        "seat": 0
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 15,
+          "win_by": "",
+          "winner": -1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 15,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "candidate": {
+          "action": "game_finished",
+          "round": 15,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "candidate_closing_status": "resilient",
+        "game": "odradek_valak_00__candidate_p0",
+        "lords": [
+          "Odradek",
+          "Valak"
+        ],
+        "original_final_digest_matched": true,
+        "round": 15,
+        "seat": 0
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 16,
+          "win_by": "",
+          "winner": -1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 16,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "candidate": {
+          "action": "game_finished",
+          "round": 16,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "candidate_closing_status": "resilient",
+        "game": "odradek_valak_00__candidate_p0",
+        "lords": [
+          "Odradek",
+          "Valak"
+        ],
+        "original_final_digest_matched": true,
+        "round": 16,
+        "seat": 0
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 18,
+          "win_by": "",
+          "winner": -1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 18,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "candidate": {
+          "action": "game_in_progress",
+          "round": 18,
+          "win_by": "",
+          "winner": -1
+        },
+        "candidate_closing_status": "not_projected_win",
+        "game": "orias_deimos_00__candidate_p0",
+        "lords": [
+          "Orias",
+          "Deimos"
+        ],
+        "original_final_digest_matched": true,
+        "round": 18,
+        "seat": 0
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 20,
+          "win_by": "",
+          "winner": -1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 20,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "candidate": {
+          "action": "game_finished",
+          "round": 20,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "candidate_closing_status": "resilient",
+        "game": "orias_deimos_00__candidate_p1",
+        "lords": [
+          "Orias",
+          "Deimos"
+        ],
+        "original_final_digest_matched": true,
+        "round": 20,
+        "seat": 1
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 26,
+          "win_by": "",
+          "winner": -1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 26,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "candidate": {
+          "action": "game_finished",
+          "round": 26,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "candidate_closing_status": "resilient",
+        "game": "orias_kalligan_00__candidate_p1",
+        "lords": [
+          "Orias",
+          "Kalligan"
+        ],
+        "original_final_digest_matched": true,
+        "round": 26,
+        "seat": 1
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 14,
+          "win_by": "",
+          "winner": -1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "candidate": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "candidate_closing_status": "resilient",
+        "game": "orias_odradek_00__candidate_p1",
+        "lords": [
+          "Orias",
+          "Odradek"
+        ],
+        "original_final_digest_matched": true,
+        "round": 14,
+        "seat": 1
+      },
+      {
+        "baseline": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "candidate": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "candidate_closing_status": "resilient",
+        "game": "valak_gremory_00__candidate_p1",
+        "lords": [
+          "Valak",
+          "Gremory"
+        ],
+        "original_final_digest_matched": true,
+        "round": 14,
+        "seat": 1
+      },
+      {
+        "baseline": {
+          "action": "game_finished",
+          "round": 19,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "best_old_projected_plan": {
+          "action": "game_finished",
+          "round": 19,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "candidate": {
+          "action": "game_finished",
+          "round": 19,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "candidate_closing_status": "not_projected_win",
+        "game": "valak_orias_00__candidate_p1",
+        "lords": [
+          "Valak",
+          "Orias"
+        ],
+        "original_final_digest_matched": true,
+        "round": 19,
+        "seat": 1
+      }
+    ],
+    "historical_opening_revision": "ad53086c5f286f2c35541990b24366e7d900c8b1",
+    "historical_paid_opening_cases": [
+      {
+        "baseline": {
+          "action": "game_finished",
+          "round": 9,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "baseline_invocation": true,
+        "candidate": {
+          "action": "game_finished",
+          "round": 9,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "candidate_invocation": true,
+        "game": "deimos_deimos_04",
+        "original_final_digest_matched": true,
+        "round": 9,
+        "seat": 0
+      },
+      {
+        "baseline": {
+          "action": "game_finished",
+          "round": 15,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "baseline_invocation": true,
+        "candidate": {
+          "action": "game_finished",
+          "round": 15,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "candidate_invocation": true,
+        "game": "deimos_deimos_06",
+        "original_final_digest_matched": true,
+        "round": 15,
+        "seat": 1
+      },
+      {
+        "baseline": {
+          "action": "game_finished",
+          "round": 12,
+          "win_by": "Ritual",
+          "winner": 1
+        },
+        "baseline_invocation": true,
+        "candidate": {
+          "action": "game_finished",
+          "round": 12,
+          "win_by": "Ritual",
+          "winner": 1
+        },
+        "candidate_invocation": true,
+        "game": "deimos_deimos_07",
+        "original_final_digest_matched": true,
+        "round": 12,
+        "seat": 0
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 12,
+          "win_by": "",
+          "winner": -1
+        },
+        "baseline_invocation": false,
+        "candidate": {
+          "action": "game_in_progress",
+          "round": 12,
+          "win_by": "",
+          "winner": -1
+        },
+        "candidate_invocation": false,
+        "game": "deimos_gremory_01",
+        "original_final_digest_matched": true,
+        "round": 12,
+        "seat": 0
+      },
+      {
+        "baseline": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "baseline_invocation": true,
+        "candidate": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "candidate_invocation": true,
+        "game": "deimos_gremory_06",
+        "original_final_digest_matched": true,
+        "round": 14,
+        "seat": 1
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 20,
+          "win_by": "",
+          "winner": -1
+        },
+        "baseline_invocation": false,
+        "candidate": {
+          "action": "game_in_progress",
+          "round": 20,
+          "win_by": "",
+          "winner": -1
+        },
+        "candidate_invocation": false,
+        "game": "deimos_kalligan_07",
+        "original_final_digest_matched": true,
+        "round": 20,
+        "seat": 0
+      },
+      {
+        "baseline": {
+          "action": "game_in_progress",
+          "round": 17,
+          "win_by": "",
+          "winner": -1
+        },
+        "baseline_invocation": false,
+        "candidate": {
+          "action": "game_in_progress",
+          "round": 17,
+          "win_by": "",
+          "winner": -1
+        },
+        "candidate_invocation": false,
+        "game": "deimos_valak_00",
+        "original_final_digest_matched": true,
+        "round": 17,
+        "seat": 1
+      }
+    ],
+    "scope": "Exact original replay before counterfactuals; one seat changed after choosing from public observation. Recorded opposing orders enter replay only. Correlated planning positions, not independent games.",
+    "source_revision": "773615f81c99a46a3acd17574e2480c8b7d22431"
+  },
+  "integration_after_penitent": {
+    "engine_sha256": "132b2742ffa6d273e1eb98ce94b1972dda2d35d25309c1a0fa4c19645dd4d40e",
+    "games": [
+      {
+        "final_state_sha256": "a9731fdb591020fe11da8cf8fab265564c734941169a4f819697beeefa8622fa",
+        "name": "gremory_humbaba",
+        "operations": 357,
+        "outcome": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 14
+      },
+      {
+        "final_state_sha256": "06edfcd48a053748e049b2355a893429658e1a492f02d89fda6c9705ebd6e431",
+        "name": "deimos_kalligan",
+        "operations": 557,
+        "outcome": {
+          "action": "game_finished",
+          "round": 22,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "rounds": 22
+      },
+      {
+        "final_state_sha256": "c368c111b12cc4ffc16efb67a420df8ee1f7acdf3822ab30aeee7c567c1947ce",
+        "name": "orias_odradek",
+        "operations": 388,
+        "outcome": {
+          "action": "game_finished",
+          "round": 15,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "rounds": 15
+      },
+      {
+        "final_state_sha256": "1b2a748435a818e25956a014a6781cf5ef265bc5f7d50c031fc4f7a11bfbb318",
+        "name": "kroni_valak",
+        "operations": 400,
+        "outcome": {
+          "action": "game_finished",
+          "round": 16,
+          "win_by": "Ritual",
+          "winner": 0
+        },
+        "rounds": 16
+      },
+      {
+        "final_state_sha256": "af85c585b30ce7321590f37606e23e8718422971d9d41cff17f770319349a38f",
+        "name": "kanifous_gremory",
+        "operations": 440,
+        "outcome": {
+          "action": "game_finished",
+          "round": 18,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 18
+      }
+    ],
+    "harness_sha256": "681c20309055be8e1568630a951776d0788ec1be69b0e1bb846f38d17a020fd8",
+    "local_test_revision": "93d8f190fce1c383b57704ac8d810577156c16c6",
+    "new_godot_parity": false,
+    "operations": 2142,
+    "parent_revision": "55d34fd99ab09583083dc06f7ba329f8d0b29359",
+    "rounds": 85,
+    "scope": "Rebased unchanged doctrine on the later Penitent ranged-block update; bounded compatibility gate only. The 162-game comparison remains tied to b56c83a and does not test this later mechanic.",
+    "semantic_sha256": "51439064712e7eb2fc560bb1c96539b3cfecdf70590dba7abcc8cef779c7f433",
+    "tests": 92,
+    "windows_pypy_acceptance": false
+  },
+  "limitations": "One loadout, one seed repetition, 81 policy-seat pairs / 45 shared seed clusters; no strength, Lord balance, throughput or Windows/native acceptance conclusion.",
+  "local_gate": {
+    "additional_comparison_tests": 6,
+    "games": [
+      {
+        "final_state_sha256": "ccfb72dbb9de449d537a166f7cd9eff7594f0955fb3a4608addb1666a74e68cf",
+        "name": "gremory_humbaba",
+        "operations": 381,
+        "outcome": {
+          "action": "game_finished",
+          "round": 15,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "rounds": 15
+      },
+      {
+        "final_state_sha256": "8687ec03cd3a8251e8e53133289f0c7d2a0cbf2ca858315c216d6b97742eb639",
+        "name": "deimos_kalligan",
+        "operations": 566,
+        "outcome": {
+          "action": "game_finished",
+          "round": 22,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "rounds": 22
+      },
+      {
+        "final_state_sha256": "621d868eb2d8d7524f66efe326341d3a25849ab8c5a9d79653513aa9b39a6f2c",
+        "name": "orias_odradek",
+        "operations": 359,
+        "outcome": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "rounds": 14
+      },
+      {
+        "final_state_sha256": "684d3c81818176231da92412d80912c5c88ed84beb907db491854d42ebe98327",
+        "name": "kroni_valak",
+        "operations": 376,
+        "outcome": {
+          "action": "game_finished",
+          "round": 15,
+          "win_by": "Ritual",
+          "winner": 0
+        },
+        "rounds": 15
+      },
+      {
+        "final_state_sha256": "7b69d94b43e8eaa223c751425d53a1ae9542ca5094a8ecf65c4a358d36405c18",
+        "name": "kanifous_gremory",
+        "operations": 441,
+        "outcome": {
+          "action": "game_finished",
+          "round": 18,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 18
+      }
+    ],
+    "implementation": "CPython",
+    "new_godot_parity": false,
+    "operations": 2123,
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "rounds": 84,
+    "semantic_sha256": "8db1f1bc63cfc563d4abad572fbdd6d4052cd4f60f3e05c3ba4ebc6ac16b7df8",
+    "tests": 92,
+    "windows_pypy_acceptance": false
+  },
+  "next_targets": [
+    "power/plan coordination",
+    "Odradek resource horizon"
+  ],
+  "policy": "U13_COMMON_SMART_CORE_ALPHA_V5_CLOSING",
+  "rejected_prototype": {
+    "change": "Removed the old 70-point credit from public winning scenarios with any adverse hypothetical shock.",
+    "decision": "Discard this extra penalty. Preserve the old credit for every fragile closing chance; retain new bounded priority and diagnostics.",
+    "regression": "kanifous_valak_00: at round 22 seat 1 declined the narrow Collapse Invocation and lost round 23. Restoring the original credit restores the winning round-22 choice.",
+    "summary_sha256": "ba7ae43b7fef3c0ce68af08c9d2f3df687eb599f8b8ff0415d2bb17010496210",
+    "wins": {
+      "baseline": 81,
+      "candidate": 81
+    }
+  },
+  "schema": "U13_CLOSING_DOCTRINE_LOCAL_V1",
+  "selection": "greedy; temperature zero; no simulation RNG changes",
+  "source": {
+    "base_revision": "b56c83a42e2fc1970d7badf261888e09db875c61",
+    "changed_code_sha256": {
+      "Scripts/Sim/run_u13_common_doctrine.py": "8a81c6d13cb433531d663e8019a57a45a4002b3f7e33f4b3d7e7c109e7958988",
+      "Scripts/Sim/u13_doctrine/closing.py": "137079c225ecedb9e1fb4a689c7817ec512ab4a215fb0624ee62e961d058579d",
+      "Scripts/Sim/u13_doctrine/common.py": "53f545fb6b2dddfcee43b9b4794d17574c6a6b1054f731700efc04f410b366d9",
+      "Scripts/Sim/u13_doctrine/planner_probe.py": "46a3df89d1cf5a76131881d9c184f81c786a75b19a5a5c1cc248b1fb4bad74ae",
+      "Scripts/Sim/u13_doctrine/test_closing.py": "b0eeab4ac9b4292f57dc35760f507252d7bfb6dbc96f6367661cf140c2ff9b37"
+    },
+    "engine_sha256": "706a0a05326633cc05353bb742cc22e93bfeec19244f43ec65e0b1f6091ae4d8",
+    "harness_sha256": "681c20309055be8e1568630a951776d0788ec1be69b0e1bb846f38d17a020fd8",
+    "runner_sha256": "c5d53802d9dcfb37615332e42d2875c020d1cbf745ea0e3468cf52a4c1153f2f"
+  },
+  "status": "local_python_behavior_passed_windows_pending"
+}
