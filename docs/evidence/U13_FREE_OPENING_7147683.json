@@ -1,0 +1,152 @@
+{
+  "schema": "U13_FREE_OPENING_ACCEPTANCE_V1",
+  "reviewed_on": "2026-09-18",
+  "archive": {
+    "name": "u13-free-opening-7pisHg-2026-09-17_21-50-01-2lfvm1.zip",
+    "sha256": "1fd3946613714d7bceda8a2eec8abb28b87d275eee03fc42fa12d9fb75293371",
+    "bytes": 483722,
+    "library_file_id": "libfile_d99329518884819193cdea7026106ff7",
+    "entries": 19,
+    "crc_check": "passed"
+  },
+  "source_revision": "714768397f2b21a24930c1bc978299802cf58897",
+  "source_sha256": "7e2f5fb6612abd49b598c51fbcc2c9468651c1ddf3fbcc0862148f6645dc41bf",
+  "worktree_diff_bytes": 0,
+  "exit_status": 0,
+  "versions": {
+    "godot-version.txt": "4.7.2.stable.official.ed1daf0bf",
+    "python-version.txt": "Python 3.14.7",
+    "pypy-version.txt": "Python 3.11.15 (194f9f44b505, May 25 2026, 19:35:45)\r\n[PyPy 7.3.23 with MSC v.1941 64 bit (AMD64)]"
+  },
+  "acceptance": {
+    "schema": "U13_FREE_OPENING_SUITE_V1",
+    "opening_version": "U13_GAME_ECONOMY_V5_FREE_OPENING",
+    "source_revision": "714768397f2b21a24930c1bc978299802cf58897",
+    "source_sha256": "7e2f5fb6612abd49b598c51fbcc2c9468651c1ddf3fbcc0862148f6645dc41bf",
+    "diagnostic_only": false,
+    "complete_openings_matched": 9,
+    "snapshots_matched": 72,
+    "operations_matched": 63,
+    "failures": 0,
+    "runtime": "4.7.2-stable (official)",
+    "scope": "exact opening, first draws, Stockpile/Slaver, event privacy and planning boundary; no full-game parity claim",
+    "deliberate_mismatches_rejected": 6
+  },
+  "cpython_pypy_reports_identical": true,
+  "independent_review": {
+    "python": "3.12.14",
+    "native_trace_replay_exact": true,
+    "corruption_checks_reproduced": 6,
+    "complete_report_reproduced": true
+  },
+  "trace_sha256": "a5bf9554f9d2a441b9246d09e458122ad0977d049b6755909d99001328bd768e",
+  "logs": {
+    "conductor.log": {
+      "pass_lines": 164,
+      "errors": [],
+      "tests": null,
+      "seconds": null,
+      "sha256": "283219107f3b2009cd2485fcf601bd2279e4df9f67b12f9e99558aa66e7d595f",
+      "last_lines": [
+        "PASS same state and events after aftermath",
+        "PASS stale draw clock rejected without replacing live game",
+        "U13 game conductor failures: 0"
+      ]
+    },
+    "economy.log": {
+      "pass_lines": 16,
+      "errors": [],
+      "tests": null,
+      "seconds": null,
+      "sha256": "e12c0025408dc222db56ebc6ad21f7a1b9f59fd886505200cba8161f12af75c9",
+      "last_lines": [
+        "PASS normal draws recycle exhausted deck without lost cards",
+        "PASS recycling and draws replay exactly",
+        "U13 game economy failures: 0"
+      ]
+    },
+    "opening.log": {
+      "pass_lines": 138,
+      "errors": [],
+      "tests": null,
+      "seconds": null,
+      "sha256": "968f843479a10efb9138675b5e5caa8f837b359a6cb8a71a6efa49912eec6761",
+      "last_lines": [
+        "PASS opening suite encodes",
+        "PASS opening export opens",
+        "U13 opening economy failures: 0"
+      ]
+    },
+    "pypy-opening.log": {
+      "pass_lines": 0,
+      "errors": [],
+      "tests": 22,
+      "seconds": 4.943,
+      "sha256": "85784d098f34d3ceafd8512835cfc3f6047efcebf184152e323f0ae9f8d969a7",
+      "last_lines": [
+        "Ran 22 tests in 4.943s",
+        "",
+        "OK"
+      ]
+    },
+    "pypy-parity.log": {
+      "pass_lines": 0,
+      "errors": [],
+      "tests": null,
+      "seconds": null,
+      "sha256": "1be74c484abfa0ee91a3f9a0a5545edd8db61f383f1d8f42b429770e04619e72",
+      "last_lines": [
+        "{\"complete_openings_matched\": 9, \"deliberate_mismatches_rejected\": 6, \"diagnostic_only\": false, \"failures\": 0, \"opening_version\": \"U13_GAME_ECONOMY_V5_FREE_OPENING\", \"operations_matched\": 63, \"runtime\": \"4.7.2-stable (official)\", \"schema\": \"U13_FREE_OPENING_SUITE_V1\", \"scope\": \"exact opening, first draws, Stockpile/Slaver, event privacy and planning boundary; no full-game parity claim\", \"snapshots_matched\": 72, \"source_revision\": \"714768397f2b21a24930c1bc978299802cf58897\", \"source_sha256\": \"7e2f5fb6612abd49b598c51fbcc2c9468651c1ddf3fbcc0862148f6645dc41bf\"}",
+        "U13 free opening Python failures: 0"
+      ]
+    },
+    "pypy-rules.log": {
+      "pass_lines": 0,
+      "errors": [],
+      "tests": 93,
+      "seconds": 19.77,
+      "sha256": "f74d21320f7c9641991b4b87b1670a6c8b7368f88f6982023b4cfef17d7fc067",
+      "last_lines": [
+        "Ran 93 tests in 19.770s",
+        "",
+        "OK"
+      ]
+    },
+    "python-opening.log": {
+      "pass_lines": 0,
+      "errors": [],
+      "tests": 22,
+      "seconds": 7.136,
+      "sha256": "652e4a979a71d9b350eb15a8a484b899bf8f831750692d6193c3bfa200bede16",
+      "last_lines": [
+        "Ran 22 tests in 7.136s",
+        "",
+        "OK"
+      ]
+    },
+    "python-parity.log": {
+      "pass_lines": 0,
+      "errors": [],
+      "tests": null,
+      "seconds": null,
+      "sha256": "1be74c484abfa0ee91a3f9a0a5545edd8db61f383f1d8f42b429770e04619e72",
+      "last_lines": [
+        "{\"complete_openings_matched\": 9, \"deliberate_mismatches_rejected\": 6, \"diagnostic_only\": false, \"failures\": 0, \"opening_version\": \"U13_GAME_ECONOMY_V5_FREE_OPENING\", \"operations_matched\": 63, \"runtime\": \"4.7.2-stable (official)\", \"schema\": \"U13_FREE_OPENING_SUITE_V1\", \"scope\": \"exact opening, first draws, Stockpile/Slaver, event privacy and planning boundary; no full-game parity claim\", \"snapshots_matched\": 72, \"source_revision\": \"714768397f2b21a24930c1bc978299802cf58897\", \"source_sha256\": \"7e2f5fb6612abd49b598c51fbcc2c9468651c1ddf3fbcc0862148f6645dc41bf\"}",
+        "U13 free opening Python failures: 0"
+      ]
+    },
+    "python-rules.log": {
+      "pass_lines": 0,
+      "errors": [],
+      "tests": 93,
+      "seconds": 38.8,
+      "sha256": "315214ad087bda1d1bd18efcb5e18a0c9312f24fad10cddfac6de30a5bc052be",
+      "last_lines": [
+        "Ran 93 tests in 38.800s",
+        "",
+        "OK"
+      ]
+    }
+  },
+  "scope": "Focused Windows 4.7.2 opening acceptance only. Nine exact openings through planning; does not broaden full-game parity, doctrine strength or balance claims."
+}

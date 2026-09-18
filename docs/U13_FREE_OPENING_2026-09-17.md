@@ -1,5 +1,12 @@
 # U13 free opening adopted — 2026-09-17
 
+> **Windows acceptance confirmed 2026-09-18:** The uploaded gate passed at clean
+> `714768397f2b21a24930c1bc978299802cf58897` on Godot 4.7.2 stable, CPython 3.14.7
+> and PyPy 7.3.23. Both Python runtimes passed 115 tests and produced identical
+> reports for nine openings / 72 snapshots / 63 operations, including all six
+> deliberate corruption rejections. Independent replay of the uploaded native
+> trace reproduced the entire report. See the [accepted evidence](evidence/U13_FREE_OPENING_7147683.json).
+
 The user accepted the normal-draw/free-initial-Lord package after the
 [162-pair comparison](U13_OPENING_COMPARISON_2026-09-17.md). It is now implemented
 in the Godot game economy and the Python opening authority. The comparison's
@@ -51,11 +58,20 @@ precise scope, runtimes and replay digests.
   after relabeling only the policy ID, rules hash and economy-version metadata.
   No gameplay state or event field is excluded from that comparison.
 
-Godot 4.7.2 Windows and PyPy acceptance for this change is **pending**. Run the
-bounded gate below, which enforces that exact native runtime, compares every
-opening snapshot, runs the Python checks under both supplied runtimes, and
-packages reports. Each stage has a three-minute watchdog and progress output.
-It does not launch a full-game campaign.
+The subsequent Windows upload passed the exact Godot 4.7.2 acceptance gate at
+clean `7147683`, with the same source hash above. Native checks were 16 economy,
+164 conductor and 138 opening/export checks: 318 passes, no failures or script
+errors. CPython 3.14.7 and PyPy 7.3.23 each passed 93 rules tests plus 22
+opening/common-doctrine tests. Their complete parity reports match, and an
+independent local replay reproduced all nine openings and six corruption checks.
+The archive's CRC, clean diff, revision, source identity and every log were
+inspected; exit status is zero. This accepts the focused opening scope, not a
+new full-game parity or balance gate.
+
+No repeat run is needed for this accepted revision. The bounded command below
+is retained for reproduction: it enforces the native runtime, compares every
+opening snapshot, runs both supplied Python runtimes and packages reports. Each
+stage has a three-minute watchdog; it does not launch a full-game campaign.
 
 ```bash
 bash Scripts/Sim/run_u13_opening_adoption.sh \
