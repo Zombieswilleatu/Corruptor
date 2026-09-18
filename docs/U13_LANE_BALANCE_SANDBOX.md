@@ -91,7 +91,8 @@ eligible ally is nearby. Retreating, fleeing, waiting and undeployed allies do
 not serve as screens. This changes local movement, never the saved Speed stat.
 
 Tumler keeps pursuing his chosen enemy instead of stopping to fight every
-bystander. While moving toward a live target he has **50% evasion per incoming
+bystander. He now commits through enemy clusters instead of circling nearby
+enemy bodies, while retaining slowing-pool detours. While moving toward a live target he has **50% evasion per incoming
 attack**, preventing both HP and Armor loss. Reaching his target's melee
 footprint ends evasion; a blocking wall, deployment hold or retreat also stops
 it. A landed melee hit immediately redirects his hunt to that attacker, even
@@ -104,7 +105,10 @@ At an exact detour point along the lane edge, Tumler resumes toward his target;
 he no longer takes a leftward minimum step regardless of which side he is on.
 
 Wrights now deal **1 melee damage**, down from 2. Each builds one structure at
-an available site, defends it for one complete round, then marches onward:
+an available site, defends it for at least one complete round, and repairs
+1 HP at the start of each Marching round. It stays while its structure is
+damaged and marches onward once the structure has full HP and that initial
+guard period has elapsed:
 
 | Structure | Availability | HP | Armor | Attack | Range |
 | --- | --- | ---: | ---: | ---: | ---: |
@@ -114,13 +118,15 @@ an available site, defends it for one complete round, then marches onward:
 Construction takes 32 ticks at the site and pauses during melee. Ground enemies
 must break walls in their path; allies pass through and flying monsters pass
 over them. A later Wright can replace a destroyed wall. Walls and towers retain
-damage without automatic repair. Towers fire every 32 ticks and respect the
+damage until their assigned Wright repairs them. Repairs restore HP only,
+never Armor, and stop after the Wright leaves or its structure is destroyed.
+Towers fire every 32 ticks and respect the
 Penitent ranged block; Sooge's beam can damage structures. Structures do not
 count as marchers, reach gates, resurrect or award unit-death rewards.
 Foundation marks appear only after a Wright claims a site. Both the main board
 and sandbox display construction progress and completed structures.
 
-Current tuning uses `U13_VULTURE_RANGED_V8_SUPPORT_PACING` and `U13_MONSTERS_V8_HUNT_WAYPOINT`.
+Current tuning uses `U13_VULTURE_RANGED_V9_WRIGHT_REPAIR` and `U13_MONSTERS_V9_CLUSTER_PURSUIT`.
 Start a fresh game after updating; older rules fingerprints remain incompatible.
 
 There are no Lords, cards on the battlefield, castles, passives, Veil effects

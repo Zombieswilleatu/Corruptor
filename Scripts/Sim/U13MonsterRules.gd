@@ -3,7 +3,7 @@ extends RefCounted
 # Standalone playtest roster. Named suits count cards, never printed values.
 # Unsettled numerical abilities are deliberately explicit tuning values.
 # Bump VERSION in both engines when changing recipes, profiles or tuning.
-const VERSION: String = "U13_MONSTERS_V8_HUNT_WAYPOINT"
+const VERSION: String = "U13_MONSTERS_V9_CLUSTER_PURSUIT"
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const NAMES: Array = ["Lemek", "Varn", "Fyra", "Kopita", "Tumler", "Kurchin", "Muno", "Dotra", "Sooge", "Sinodek"]
 const ROSTER: Dictionary = {
@@ -11,7 +11,7 @@ const ROSTER: Dictionary = {
 	"Varn": {"tier": "Easy", "recipe": {"Vulture": 2}, "attack": 1, "armor": 0, "speed": 2, "hp": 2, "ability": "Summons 3–5 bodies. Each damaging hit has a 10% chance to poison: 1 HP at the start of each of the next two Marching phases. Refreshes; does not stack."},
 	"Fyra": {"tier": "Moderate", "recipe": {"Butcher": 2, "Vulture": 2}, "attack": 2, "armor": 1, "speed": 4, "hp": 5, "ability": "Flies over ground hazards. Each hit has a 15% chance to charm its target for the rest of this round. Ownership returns before the next round."},
 	"Kopita": {"tier": "Moderate", "recipe": {"Wright": 2, "Penitent": 2}, "attack": 2, "armor": 1, "speed": 2, "hp": 5, "ability": "Pulses at the start of each active round, alternating green healing (allies recover 1 HP) and violet harm (enemies take 1 damage). Starts with healing; radius 360. Slows near allied front-line fighters to stay behind them."},
-	"Tumler": {"tier": "Moderate", "recipe": {"Vulture": 2, "Wright": 2}, "attack": 2, "armor": 1, "speed": 3, "hp": 5, "ability": "Pursues a chosen enemy, preferring ordinary Vultures and support monsters. Skirts other enemies and slowing pools. Has 50% evasion while closing on a target, ending at melee contact. A landed melee hit switches his hunt to the attacker, even if Armor absorbs it; ranged hits do not."},
+	"Tumler": {"tier": "Moderate", "recipe": {"Vulture": 2, "Wright": 2}, "attack": 2, "armor": 1, "speed": 3, "hp": 5, "ability": "Pursues a chosen enemy, preferring ordinary Vultures and support monsters. Pursues through enemy clusters while avoiding slowing pools. Has 50% evasion while closing on a target, ending at melee contact. A landed melee hit switches his hunt to the attacker, even if Armor absorbs it; ranged hits do not."},
 	"Kurchin": {"tier": "Hard", "recipe": {"Penitent": 3, "Wright": 1}, "attack": 1, "armor": 6, "speed": 1, "hp": 5, "ability": "Taunts enemies within 360, drawing their movement and ranged attacks when reachable."},
 	"Muno": {"tier": "Hard", "recipe": {"Wright": 3, "Vulture": 1}, "attack": 3, "armor": 1, "speed": 2, "hp": 5, "ability": "Once per active round, dashes to an enemy within 480 for one free melee strike, then dashes back with a fading afterimage before moving normally."},
 	"Dotra": {"tier": "Hard", "recipe": {"Butcher": 3, "Vulture": 1}, "attack": 2, "armor": 2, "speed": 2, "hp": 5, "ability": "25% chance to hide each active round. Stalks enemies at half speed while hidden and stays hidden until delivering a 5-damage ambush against an enemy within 240. No timed reveal. Hidden units cannot be selected for ordinary attacks."},

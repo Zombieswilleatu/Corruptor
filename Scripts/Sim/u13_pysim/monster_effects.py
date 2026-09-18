@@ -281,10 +281,9 @@ def damage(w,buffer,hit,c,tick,reaction):
 def steer(unit,destination,rows,fields):
     a=unit['attributes']
     if a.get('monster_id')!='Tumler' or not destination:return destination
-    obstacles=[dict(x_fp=r['attributes']['x_fp'],y_fp=r['attributes']['y_fp'],radius=180) for r in enemies(unit,rows,340)
-               if r['id']!=a.get('hunt_target','') and distance(r['attributes'],destination)!=0]
-    obstacles.extend(dict(x_fp=f['x_fp'],y_fp=f['y_fp'],radius=240) for f in fields
-                     if f['kind']=='pool' and f['lane']==a['lane'] and distance(a,f)<=400*400)
+    # Commit through enemy clusters; landed melee still intercepts the hunt.
+    obstacles=[dict(x_fp=f['x_fp'],y_fp=f['y_fp'],radius=240) for f in fields
+               if f['kind']=='pool' and f['lane']==a['lane'] and distance(a,f)<=400*400]
     for obstacle in obstacles:
         if (obstacle['x_fp']-a['x_fp'])*(destination['x_fp']-a['x_fp'])<0 or abs(obstacle['y_fp']-a['y_fp'])>=obstacle['radius']:continue
         side=-1 if a['y_fp']<=obstacle['y_fp'] else 1

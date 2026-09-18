@@ -331,14 +331,13 @@ static func damage(world: Dictionary, entities, hit: Dictionary, context: Dictio
 		if entities.restore(world.entities).action == "invalid": return Data.invalid("monster_entities_invalid")
 	return {"action": "resolved", "world": world, "events": events}
 
-# Local detours only: Tumler can still be intercepted or cornered.
+# Commit to the prey through enemy clusters. Dodging every nearby body makes
+# Tumler circle the fight instead of reaching it; landed melee still intercepts.
+# Slowing pools remain hazards worth routing around.
 static func steer(unit: Dictionary, destination: Dictionary, rows: Array, fields: Array) -> Dictionary:
 	if unit.attributes.get("monster_id") != "Tumler" or destination.is_empty(): return destination
 	var a: Dictionary = unit.attributes
 	var obstacles: Array = []
-	for other in enemies(unit, rows, 340):
-		if other.id != a.get("hunt_target", "") and distance(other.attributes, destination) != 0:
-			obstacles.append({"x_fp": other.attributes.x_fp, "y_fp": other.attributes.y_fp, "radius": 180})
 	for field in fields:
 		if field.kind == "pool" and field.lane == a.lane and distance(a, field) <= 400 * 400:
 			obstacles.append({"x_fp": field.x_fp, "y_fp": field.y_fp, "radius": 240})
