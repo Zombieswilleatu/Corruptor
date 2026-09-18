@@ -1,0 +1,209 @@
+{
+  "balance_claim": false,
+  "baseline_audit": {
+    "completed": 17,
+    "counts": {
+      "BreachWishDeath": 12,
+      "BreachWishPower": 2,
+      "Rout": 84,
+      "WarMachine": 198,
+      "deimos_plans": 333,
+      "no_current_castles": 3
+    },
+    "engine_source_sha256": "0b06a638604431444fc44a1a2c625d882a61e87070ec9fb5ee2489a72c54efe6",
+    "equivalent_published_revision": "61e1a47403cc90d2341bede8ddde19bfaefca01a",
+    "failed": 0,
+    "harness_source_sha256": "226cd714f5b96a30a54645d2400df1a96526f45ff591f6e4bce7d3c4d3aab5d1",
+    "namespace": "u13-deimos-tactics-2026-09-18",
+    "operations": 7867,
+    "own_artillery_siege_signals": [
+      {
+        "game": "deimos_deimos_00",
+        "integrity": 2,
+        "round": 11,
+        "seat": 1,
+        "target_id": "u13_entity_castle:16:loadout:castle:0:1:1"
+      },
+      {
+        "game": "deimos_humbaba_00",
+        "integrity": 1,
+        "round": 16,
+        "seat": 0,
+        "target_id": "u13_entity_castle:16:loadout:castle:1:1:2"
+      },
+      {
+        "game": "deimos_kanifous_00",
+        "integrity": 2,
+        "round": 9,
+        "seat": 0,
+        "target_id": "u13_entity_castle:16:loadout:castle:1:1:4"
+      },
+      {
+        "game": "deimos_odradek_00",
+        "integrity": 3,
+        "round": 7,
+        "seat": 0,
+        "target_id": "u13_entity_castle:16:loadout:castle:1:1:2"
+      },
+      {
+        "game": "kanifous_deimos_00",
+        "integrity": 1,
+        "round": 7,
+        "seat": 1,
+        "target_id": "u13_entity_castle:16:loadout:castle:0:1:1"
+      },
+      {
+        "game": "kanifous_deimos_00",
+        "integrity": 3,
+        "round": 8,
+        "seat": 1,
+        "target_id": "u13_entity_castle:16:loadout:castle:0:1:4"
+      },
+      {
+        "game": "odradek_deimos_00",
+        "integrity": 3,
+        "round": 15,
+        "seat": 1,
+        "target_id": "u13_entity_castle:16:loadout:castle:0:1:4"
+      },
+      {
+        "game": "orias_deimos_00",
+        "integrity": 3,
+        "round": 12,
+        "seat": 1,
+        "target_id": "u13_entity_castle:16:loadout:castle:0:1:3"
+      }
+    ],
+    "rejected_previews": 0,
+    "rounds": 313,
+    "source_revision": "0a1c2aadcfaafb91599eef634939b3c7b0f3a92e"
+  },
+  "behavior": {
+    "failures": 0,
+    "games": 5,
+    "operations": 2321,
+    "rejected_previews": 0,
+    "rounds": 92
+  },
+  "engine_source_sha256": "0b06a638604431444fc44a1a2c625d882a61e87070ec9fb5ee2489a72c54efe6",
+  "engine_unchanged_from_accepted_scorch": true,
+  "equivalent_git_tree": "59bde349f4a02539b13d37335f918fca2bfb2bc6",
+  "equivalent_published_revision": "7685deb4b0b975acce9897806ff2c6ab0c54d805",
+  "files": {
+    "common-cpython.inputs.json": {
+      "bytes": 537200,
+      "sha256": "958f2f50fde3da92e753065ce9b6ba9d05d1c7c0403b33f09f1d0fab59449fbc"
+    },
+    "common-cpython.json": {
+      "bytes": 1436156,
+      "sha256": "157f054fd7239b83971658c6d7730cdd3ad129d7e30a22a862433825c74cdb24"
+    },
+    "common-cpython.log": {
+      "bytes": 26776,
+      "sha256": "0556ac2733639c7553e9670c335c5f5631e3c3ae2d10b648fa8ab09d54fa7636"
+    },
+    "deimos-focused-tests.log": {
+      "bytes": 1641,
+      "sha256": "a6c1d4d9d271c9a70b6a13f1dbb4299704831f4708a68ebf916d623809ac9b02"
+    }
+  },
+  "focused_tests_passed": 9,
+  "games": [
+    {
+      "decisions_sha256": "555e85ad19a1255c0336cc46a9824065cade1e1015adcfddf9a498ba2ad74290",
+      "final_state_sha256": "ec4afdcde2ef690b397c6db93f09c38b0fd90da176a5fde7f24523d3c5030509",
+      "name": "gremory_humbaba",
+      "operations": 326,
+      "outcome": {
+        "action": "game_finished",
+        "round": 13,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "rounds": 13
+    },
+    {
+      "decisions_sha256": "ca8bf9506e093f296a26ea0d5664024c73d0de67dde21b29c0bfd80d1462490e",
+      "final_state_sha256": "692abae1d7166fe67ce2321acab0d2233bf87311420bb5ee93ba475679477b3b",
+      "name": "deimos_kalligan",
+      "operations": 534,
+      "outcome": {
+        "action": "game_finished",
+        "round": 21,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "rounds": 21
+    },
+    {
+      "decisions_sha256": "d937061aa1aca390402c600509ea17581780d81d1297d0626051c0856fa6df79",
+      "final_state_sha256": "01cd2d9f7356957caf7c18c572f5e9a767c7eacbcef40f5618726a405ac0e376",
+      "name": "orias_odradek",
+      "operations": 486,
+      "outcome": {
+        "action": "game_finished",
+        "round": 19,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "rounds": 19
+    },
+    {
+      "decisions_sha256": "370639e1aa75b3db3ad408216ab2535c22a1a97e43b6b095f8e55a6da46ac553",
+      "final_state_sha256": "ed93be38a1cce18386446a3ebed9cbc6773fab5b97831689ef50454daf888429",
+      "name": "kroni_valak",
+      "operations": 536,
+      "outcome": {
+        "action": "game_finished",
+        "round": 21,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "rounds": 21
+    },
+    {
+      "decisions_sha256": "ad9ae90e097de5613470948c08f814da54cbd21de20cc9456877c6c3fac14f0c",
+      "final_state_sha256": "07d6db403788d9fb3cc42ba33f1ca3682a07faaea19a2bae4de62e8f120a4407",
+      "name": "kanifous_gremory",
+      "operations": 439,
+      "outcome": {
+        "action": "game_finished",
+        "round": 18,
+        "win_by": "FinalCollapse",
+        "winner": 1
+      },
+      "rounds": 18
+    }
+  ],
+  "harness_source_sha256": "5a8d07a9bc01e9a3e0005dc67c99c19d57d6d607e070266719cdab765e43bc09",
+  "native_decision_parity_claim": false,
+  "natural_cases": [
+    {
+      "name": "deimos_humbaba_00",
+      "original_siege_fizzled": true,
+      "replacement_siege_dealt_damage": true,
+      "round": 16,
+      "seat": 0
+    },
+    {
+      "name": "deimos_deimos_00",
+      "original_siege_fizzled": true,
+      "replacement_siege_dealt_damage": true,
+      "round": 11,
+      "seat": 1
+    }
+  ],
+  "python": {
+    "implementation": "CPython",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "semantic_sha256": "f7c1a770170cfd2c653995468f6e4f4040642f84d4e98e0cdf7bce46c50f8f3f",
+    "tests_passed": 148
+  },
+  "runner_source_sha256": "d7a2f820b528a20d97858c0e8807ecdf49f47ff1c21e222416e74144f246d85a",
+  "schema": "U13_DEIMOS_ARTILLERY_LOCAL_V1",
+  "shared_weights_changed": false,
+  "status": "local CPython passed; Windows CPython/PyPy pending",
+  "tested_local_revision": "55c17c9391f51f85057206627dd6a912366e3660",
+  "windows_pypy_acceptance": "pending"
+}
