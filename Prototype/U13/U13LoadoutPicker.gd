@@ -20,6 +20,8 @@ var tutorial_popup
 var show_tutorials: Button
 var animation_previews
 var animation_button: Button
+var sandbox_button: Button
+var lane_sandbox
 var _loadout_content: Control
 var _accepted_castles: Array = [[], []]
 var full_game: bool = false
@@ -90,6 +92,11 @@ func _ready() -> void:
 	animation_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	extras.add_child(animation_button)
 	animation_button.pressed.connect(_open_animation_previews)
+	sandbox_button = Button.new()
+	sandbox_button.text = "LANE BALANCE SANDBOX"
+	sandbox_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	extras.add_child(sandbox_button)
+	sandbox_button.pressed.connect(_open_lane_sandbox)
 	_label(column, "FULL GAME OPENING" if full_game else "TEST OPENING", 16)
 	opening = _option(
 		column,
@@ -134,6 +141,7 @@ func _ready() -> void:
 
 
 func present(lords: Array, castles: Array, quick: bool, can_cancel: bool) -> void:
+	if is_instance_valid(lane_sandbox): lane_sandbox.dismiss()
 	if animation_previews != null and animation_previews.visible:
 		animation_previews.dismiss()
 	tutorial_popup.hide()
@@ -251,6 +259,17 @@ func _open_animation_previews() -> void:
 func _animation_previews_closed() -> void:
 	_loadout_content.show()
 	animation_button.grab_focus()
+
+
+func _open_lane_sandbox() -> void:
+	if tutorial_popup.visible or is_instance_valid(lane_sandbox): return
+	lane_sandbox = load("res://Prototype/U13/U13LaneSandbox.gd").new()
+	add_child(lane_sandbox)
+	lane_sandbox.closed.connect(func():
+		lane_sandbox = null
+		_loadout_content.show()
+		sandbox_button.grab_focus())
+	_loadout_content.hide()
 
 
 static func quickstart_selection(seed_value: String) -> Dictionary:

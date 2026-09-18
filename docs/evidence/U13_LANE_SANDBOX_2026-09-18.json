@@ -1,0 +1,34 @@
+{
+  "date": "2026-09-18",
+  "base_commit": "da9db55413f902ce5f934f50bdf6a87799d294fa",
+  "runtime": "Godot 4.5.1 stable Linux headless diagnostic project; integer-division warnings treated as errors",
+  "production_runtime": "Godot 4.7.2 gate unchanged; Windows visual check remains",
+  "tests": [
+    {
+      "suite": "sandbox",
+      "checks_passed": 149,
+      "summary": "U13 lane sandbox: 149 checks, 0 failures"
+    },
+    {
+      "suite": "sandbox-playable",
+      "checks_passed": 72,
+      "summary": "U13 playable board failures: 0"
+    }
+  ],
+  "total_checks_passed": 221,
+  "wave_sample": {
+    "intervals": 80,
+    "monster_summons": {
+      "Dotra": 3,
+      "Fyra": 9,
+      "Kopita": 3,
+      "Lemek": 14,
+      "Muno": 4,
+      "Sooge": 1,
+      "Tumler": 6,
+      "Varn": 13
+    },
+    "regular_bodies": 196,
+    "seed": "wave-test"
+  }
+}
