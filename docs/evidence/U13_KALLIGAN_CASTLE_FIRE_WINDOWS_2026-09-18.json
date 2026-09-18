@@ -1,0 +1,278 @@
+{
+  "balance_claim": false,
+  "clean_worktree": true,
+  "engine_source_sha256": "0b06a638604431444fc44a1a2c625d882a61e87070ec9fb5ee2489a72c54efe6",
+  "files": {
+    "U13Hazards.log": {
+      "bytes": 1051,
+      "sha256": "cfa4484fd8768e6bbd2ee52e9f306f893a76e3e193c5da0434f8353859c7c3bf"
+    },
+    "U13KalliganBoard.log": {
+      "bytes": 2279,
+      "sha256": "87df65304b97d11a75120a0566139d345dc0a7eaa8e60bfcfe3021271999b09d"
+    },
+    "U13KalliganIntegration.log": {
+      "bytes": 15808,
+      "sha256": "6f1a4ef45180aaec2fd9943d9f5d402640f92d2bbe4141094b16fb886dec4056"
+    },
+    "U13ScorchVisuals.log": {
+      "bytes": 1842,
+      "sha256": "934ba7c2b086c4e84dd20892abcc11a18f71dea8080dcf944cd7b81003a49482"
+    },
+    "comparison.log": {
+      "bytes": 127,
+      "sha256": "1af6853bbba539ca9fd77564ccd680e287ea3a6c7a09c6066e6591e2542c0732"
+    },
+    "cpython-scorch-comparison.log": {
+      "bytes": 1492,
+      "sha256": "63b2575bfe908582da155d3e6b0d9f06cabaa66e77641629737c11b0aeb8b51a"
+    },
+    "cpython.inputs.json": {
+      "bytes": 531085,
+      "sha256": "a0b4aca07bf29c26c07de71434cd28d666187ac0afcaec6cf89f55dde1de1286"
+    },
+    "cpython.json": {
+      "bytes": 1467804,
+      "sha256": "f04dd18ecf7d1442f57d599ffac63b35d6360211d5916108635ec78c9a9ebed5"
+    },
+    "cpython.log": {
+      "bytes": 25384,
+      "sha256": "0630fed96f69194d0bc4a5e98bf5e62f29166f2fb90e610fd5f3bf60264d7d45"
+    },
+    "kalligan-godot-version.txt": {
+      "bytes": 32,
+      "sha256": "edff16c1721dd4ae989cadf29a01f574ae8d51b118221f664725bd6980bbba5d"
+    },
+    "pypy-scorch-comparison.log": {
+      "bytes": 1500,
+      "sha256": "634b97a028ab278eacf45f82870b8ab075cd1b69869fafd06018809453bd7499"
+    },
+    "pypy.inputs.json": {
+      "bytes": 531085,
+      "sha256": "a0b4aca07bf29c26c07de71434cd28d666187ac0afcaec6cf89f55dde1de1286"
+    },
+    "pypy.json": {
+      "bytes": 1467811,
+      "sha256": "2fdef99e6931a2ac642c3f2dd56136d164982f440df8c3e0ad8799383c6ac5a2"
+    },
+    "pypy.log": {
+      "bytes": 25384,
+      "sha256": "4b27a238bb3707bd9628c9b1a381e8a69e0dda43fc6c1603a032032edf69bc3a"
+    },
+    "revision.txt": {
+      "bytes": 41,
+      "sha256": "ea51b07dcd83c6919a2fa9e83d84ba18770488c081e33f34f3881a736b951d94"
+    },
+    "run-status.txt": {
+      "bytes": 41,
+      "sha256": "2097c04a402cdafd7b2de5c11de0b4e93cbb1dde812d4676b750650e044bd6b0"
+    },
+    "scorch-inputs.json": {
+      "bytes": 294119,
+      "sha256": "4cba1ba1be89eac7565a7e53fb44af442cb280cc5954132e9173723b44f6923c"
+    },
+    "scorch-inputs.log": {
+      "bytes": 53,
+      "sha256": "37cfe598907f101ad1bb6c711873e9df63b25706a2310f586801c3031b05a3d2"
+    },
+    "scorch-native.log": {
+      "bytes": 536,
+      "sha256": "fe7ef8d7c3cbb4a43fb71b054c92fb40aa7ea7a254fda82a183a42a54a62b659"
+    },
+    "scorch.cpython.json": {
+      "bytes": 1722,
+      "sha256": "fe0eb9b33be84c41c720e33506a536337d1276b60b4bc7cae59d603281f7a0b8"
+    },
+    "scorch.exact": {
+      "bytes": 75680192,
+      "sha256": "e7b3125d5400c28267bbb33a8f7b36093634f324fbce5a15a6a4cb72567b5ea7"
+    },
+    "scorch.pypy.json": {
+      "bytes": 1730,
+      "sha256": "101a137cbe365cb2dcd9f5334d2c4d30960c2dc8a7b03e949197ea37a1471744"
+    },
+    "worktree.diff": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "full_game_native_parity_claim": false,
+  "games": [
+    {
+      "decisions_sha256": "555e85ad19a1255c0336cc46a9824065cade1e1015adcfddf9a498ba2ad74290",
+      "final_state_sha256": "ec4afdcde2ef690b397c6db93f09c38b0fd90da176a5fde7f24523d3c5030509",
+      "name": "gremory_humbaba",
+      "operations": 326,
+      "outcome": {
+        "action": "game_finished",
+        "round": 13,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "rounds": 13
+    },
+    {
+      "decisions_sha256": "5bdf3e202bec0ee58aac902b984880702a5d438f8e9684f123c3ec068c6d2df2",
+      "final_state_sha256": "92e1446aa851fc59c07efbe337e174823b04551a06f500f135442b52326a2517",
+      "name": "deimos_kalligan",
+      "operations": 434,
+      "outcome": {
+        "action": "game_finished",
+        "round": 17,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "rounds": 17
+    },
+    {
+      "decisions_sha256": "d937061aa1aca390402c600509ea17581780d81d1297d0626051c0856fa6df79",
+      "final_state_sha256": "01cd2d9f7356957caf7c18c572f5e9a767c7eacbcef40f5618726a405ac0e376",
+      "name": "orias_odradek",
+      "operations": 486,
+      "outcome": {
+        "action": "game_finished",
+        "round": 19,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "rounds": 19
+    },
+    {
+      "decisions_sha256": "370639e1aa75b3db3ad408216ab2535c22a1a97e43b6b095f8e55a6da46ac553",
+      "final_state_sha256": "ed93be38a1cce18386446a3ebed9cbc6773fab5b97831689ef50454daf888429",
+      "name": "kroni_valak",
+      "operations": 536,
+      "outcome": {
+        "action": "game_finished",
+        "round": 21,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "rounds": 21
+    },
+    {
+      "decisions_sha256": "ad9ae90e097de5613470948c08f814da54cbd21de20cc9456877c6c3fac14f0c",
+      "final_state_sha256": "07d6db403788d9fb3cc42ba33f1ca3682a07faaea19a2bae4de62e8f120a4407",
+      "name": "kanifous_gremory",
+      "operations": 439,
+      "outcome": {
+        "action": "game_finished",
+        "round": 18,
+        "win_by": "FinalCollapse",
+        "winner": 1
+      },
+      "rounds": 18
+    }
+  ],
+  "harness_source_sha256": "226cd714f5b96a30a54645d2400df1a96526f45ff591f6e4bce7d3c4d3aab5d1",
+  "independent_local_replay": {
+    "implementation": "CPython",
+    "matched_complete_uploaded_summary": true,
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]"
+  },
+  "native_exact": {
+    "cases": 7,
+    "checks": 7322,
+    "failures": 0,
+    "implementation": "CPython",
+    "independent_native_replay": true,
+    "inputs_sha256": "775dd112feafd6ac9ffca8459f2dff55609cfc4c844a756a45a450c4f5484bee",
+    "native_platform": "Windows",
+    "native_runtime": "4.7.2-stable (official)",
+    "operations": 1001,
+    "python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+    "records": 1009,
+    "source_revision": "0d0983c78e4543a41e93aac11cd2fa5690ec70d7",
+    "source_sha256": "0b06a638604431444fc44a1a2c625d882a61e87070ec9fb5ee2489a72c54efe6",
+    "states": [
+      {
+        "final_state_sha256": "1b5d2f8d9d45e71c2d34edb4fae33f3b2dcef689b8d666d9878d119bba2197f1",
+        "name": "base_cycle",
+        "operations": 142
+      },
+      {
+        "final_state_sha256": "fde3a7267ba5715a5265dbbef27ea6e7f3d298e274f54a081360c75e18632497",
+        "name": "endpoint_pyro",
+        "operations": 143
+      },
+      {
+        "final_state_sha256": "df18922b2ebce9c0871caac0a8f9fdd916436e7fda46150bf385c685eb60008f",
+        "name": "peak_pyro",
+        "operations": 143
+      },
+      {
+        "final_state_sha256": "f2185ff67b0400343f46a2acbda1b6697ebf94fea94eeeb6aacd96657587b739",
+        "name": "switching",
+        "operations": 142
+      },
+      {
+        "final_state_sha256": "7b9a667d9cefa4d13905cf1272e283dad96a038feb7d43ba738f5dec06f97cb9",
+        "name": "lethal_and_empty",
+        "operations": 143
+      },
+      {
+        "final_state_sha256": "e33c622d705859a15d2ff80d062c41476b32262e29f3b2578c943b9ee6e4ee07",
+        "name": "lost_before_activation",
+        "operations": 143
+      },
+      {
+        "final_state_sha256": "ed6a85c24f01065f1812819bd8fd58a43b4bcacb79f19b32bcf08eef4b9158f2",
+        "name": "armed_banishment",
+        "operations": 145
+      }
+    ]
+  },
+  "native_suites": {
+    "U13Hazards": {
+      "failures": 0,
+      "passed": 22
+    },
+    "U13KalliganBoard": {
+      "failures": 0,
+      "passed": 27
+    },
+    "U13KalliganIntegration": {
+      "failures": 0,
+      "passed": 342
+    },
+    "U13ScorchVisuals": {
+      "failures": 0,
+      "passed": 40
+    }
+  },
+  "python": {
+    "failures": 0,
+    "games": 5,
+    "identical_runtime_inputs": true,
+    "identical_runtime_reports": true,
+    "matched_saved_local_semantic_and_inputs": true,
+    "operations": 2221,
+    "policy": "U13_COMMON_SMART_CORE_ALPHA_V9_KALLIGAN_CASTLE_FIRE",
+    "rejected_previews": 0,
+    "rounds": 88,
+    "semantic_sha256": "edb89bebd743ee4e3a520b3a075a9343c059ec22660d05712ce871b39f1b832c"
+  },
+  "runner_source_sha256": "4182857dd39c527f0d3c5b36ede1b1c72fa6db17ca1a2cfa174784439f6389b1",
+  "runtimes": [
+    {
+      "implementation": "CPython",
+      "platform": "Windows-11-10.0.26200-SP0",
+      "python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+      "tests_passed": 139
+    },
+    {
+      "implementation": "PyPy",
+      "platform": "Windows-10-10.0.26200-SP0",
+      "python": "3.11.15 (194f9f44b505, May 25 2026, 19:35:45)\n[PyPy 7.3.23 with MSC v.1941 64 bit (AMD64)]",
+      "tests_passed": 139
+    }
+  ],
+  "schema": "U13_KALLIGAN_CASTLE_FIRE_WINDOWS_V1",
+  "source_revision": "0d0983c78e4543a41e93aac11cd2fa5690ec70d7",
+  "status": "accepted Windows Castle Scorch and dual-runtime doctrine gate",
+  "upload": {
+    "library_file_id": "libfile_0e4dd9a384d08191baf8e8fc9516a105",
+    "name": "u13-common-doctrine-QXLCj7-2026-09-18_12-40-17-gs96xH.zip",
+    "sha256": "7efd662e3eeb389a260f14f0d7291a7b9c6e84ae30beb4f491d2e8ea2bc4e952"
+  }
+}

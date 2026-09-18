@@ -30,7 +30,13 @@ Both native and Python bots generate individual Castle targets. The Python commo
 
 Actual pulse diagnostics now distinguish Castle Integrity damage/destruction from Marcher HP/Armor damage and kills. Extra Pyro effects are attributed separately from automatic Inferno pulses. The abandoned temporary-Guard experiment is not included.
 
-## Verification and checkpoint scope
+## Windows acceptance
+
+Accepted at clean `0d0983c78e4543a41e93aac11cd2fa5690ec70d7`: Windows Godot **4.7.2** passed all **431** hazard/integration/board/visual assertions and **7,322** exact checks, including its independent replay. CPython **3.14.7** and PyPy **7.3.23 / Python 3.11.15** each matched all **1,001 operations / 1,009 records** across seven Castle Scorch cases. An independent local replay at that exact revision reproduced the uploaded summary.
+
+Both Windows Python runtimes also passed **139 tests** and produced identical five-game decisions, diagnostics, states and input files: **88 rounds / 2,221 operations**, zero failures or rejected previews. The complete semantic report and explicit inputs also match the saved local run. [Accepted source identities and evidence](evidence/U13_KALLIGAN_CASTLE_FIRE_WINDOWS_2026-09-18.json) preserve the uploaded files and hashes. Native parity is scoped to the focused Scorch corpus; the common-doctrine games remain Python behavior evidence.
+
+## Earlier local verification and checkpoint scope
 
 The focused Castle corpus independently executes seven scenarios in Godot and Python, comparing every operation result, full state and semantic event/view. Godot also independently replays the entire corpus. Explicit assertions cover both six-damage schedules, no-Pyro four-damage fire, Castle → lane → another Castle switching, expiry/readiness, illegal targets and atomic rejection, lethal/empty targets, loss before activation, unchanged Guards, and armed fire after source banishment.
 
@@ -53,4 +59,4 @@ bash Scripts/Sim/run_u13_common_doctrine.sh \
   --kalligan-godot "/c/Users/jerem/OneDrive/Documents/Godot_v4.7.2-stable_win64.exe/Godot_v4.7.2-stable_win64.exe"
 ```
 
-The runner creates a ZIP in Downloads on success or failure. Windows CPython/PyPy and Godot 4.7.2 acceptance remains pending until that ZIP is reviewed.
+The runner creates a ZIP in Downloads on success or failure. The uploaded run at `0d0983c` has been reviewed and accepted as recorded above.
