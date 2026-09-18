@@ -83,13 +83,15 @@ func run() -> void:
 	check(monster_waves > 0 and monster_waves < 80, "random waves include ordinary commitments and natural monster recipes")
 	print("WAVE SAMPLE ", JSON.stringify({"seed": "wave-test", "intervals": 80, "regular_bodies": regular_bodies, "monster_summons": distribution}))
 	sim = Sim.new("actual-commit")
-	var wave: Dictionary = sim.enemy_wave()
+	check(sim.random_waves([1]).action == "spawned", "enemy-only commitment reveals successfully")
+	var wave: Dictionary = sim.last_waves[1]
 	check(not wave.get("cards", []).is_empty() and Sim.Marching.valid(sim.world), "enemy spawns through actual commitment reveal")
 	check(sim.units().all(func(u): return u.attributes.movement_ready_round == 2), "enemy commitments retain the normal birth hold")
 	var expected: Dictionary = {}
 	for card in wave.cards: expected[card.attributes.suit] = expected.get(card.attributes.suit, 0) + card.attributes.value
 	for suit in Sim.Marching.SUITS:
 		check(sim.units().filter(func(u): return u.attributes.suit == suit).size() == floori(float(expected.get(suit, 0)) / 3.0), "enemy %s count matches committed printed values" % suit)
+	random_sides_checks()
 	# An escaping unit is counted and removed, never killed or resurrected.
 	sim = Sim.new("escape")
 	sim.spawn("Butcher", 0)
@@ -104,6 +106,45 @@ func run() -> void:
 	print("U13 lane sandbox: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
 
+func random_sides_checks() -> void:
+	var sim = Sim.new("two-sided-waves")
+	var streams: Array = [Sim.Enemy.new(sim.seed_value, 0), Sim.Enemy.new(sim.seed_value, 1)]
+	check(sim.spawners[0].deck != sim.spawners[1].deck, "home and enemy have independent shuffled decks")
+	for n in range(1, 5):
+		var expected: Array = [streams[0].next_wave(n, sim.units()), streams[1].next_wave(n, sim.units())]
+		var spawned_before: int = sim.totals[0].spawned + sim.totals[1].spawned
+		var wave: Dictionary = sim.random_waves([0, 1])
+		check(wave.action == "spawned" and sim.units().size() <= Sim.LIMIT and Sim.Marching.valid(sim.world), "both sides reveal together into a valid bounded arena")
+		for pid in [0, 1]:
+			var actual: Dictionary = sim.last_waves[pid]
+			check(actual.cards == expected[pid].cards and actual.monster == expected[pid].monster and actual.saved == expected[pid].saved, "side %d keeps independent draws and recipe choices at interval %d" % [pid, n])
+			var created: Array = sim.units().filter(func(u): return u.owner == pid and u.attributes.birth_round == n)
+			check(created.size() == actual.spawned and created.all(func(u): return u.attributes.movement_ready_round == n + 1), "side %d has correct ownership, counts and next-round deployment" % pid)
+			var cards: Array = sim.spawners[pid].deck + sim.spawners[pid].discard + sim.spawners[pid].saved
+			var unique: Dictionary = {}
+			for card in cards: unique[card.id] = true
+			check(cards.size() == 60 and unique.size() == 60, "each side conserves its own sixty-card deck")
+		check(sim.totals[0].spawned + sim.totals[1].spawned == spawned_before + wave.spawned and sim.world.entities.entities.all(func(u): return u.kind == "marcher"), "paired waves retire temporary cards and count both armies")
+		var result: Dictionary = Sim.resolve_round(sim.world, sim.seed_value, n)
+		check(result.action == "resolved", "two automatic armies play a full interval")
+		sim.finish(result)
+	for pid in [0, 1]:
+		for live_owner in [pid, 1 - pid]:
+			var generator = Sim.Enemy.new("living-limit", pid)
+			generator.goal = "Sooge"
+			generator.saved = generator.ingredients(generator.deck, "Sooge")
+			for card in generator.saved: generator.deck.erase(card)
+			var live: Dictionary = {"id": "existing-sooge", "kind": "marcher", "owner": live_owner, "attributes": Sim.Monsters.profile("Sooge", "Lord", live_owner, 0, 1)}
+			var wave: Dictionary = generator.next_wave(1, [live])
+			check((wave.monster != "Sooge") if live_owner == pid else (wave.monster == "Sooge"), "side %d applies living-copy limits to its own monsters only" % pid)
+	# Near capacity, only one side can reserve room; retry priority rotates.
+	sim = Sim.new("capacity")
+	for i in range(40): sim.spawn("Butcher", i % 2)
+	var blocked_deck: Array = sim.spawners[0].deck.duplicate(true)
+	check(sim.random_waves([0, 1]).action == "spawned" and sim.units().size() <= Sim.LIMIT and sim.spawners[0].deck == blocked_deck and sim.last_waves[0].summary.contains("capacity"), "capacity waiting leaves the skipped side's cards untouched")
+	var before: Dictionary = sim.world.duplicate(true)
+	check(sim.random_waves([0, 1]).action == "invalid" and sim.world == before, "repeated wave request cannot redeploy the same interval")
+
 func ui_checks() -> void:
 	# Match the playable board's logical canvas; headless Window defaults to 64px.
 	root.size = Vector2i(1920, 1080)
@@ -117,6 +158,7 @@ func ui_checks() -> void:
 	var arena = picker.lane_sandbox
 	check(is_instance_valid(arena) and not picker._loadout_content.visible, "main menu opens the isolated lane sandbox")
 	check(arena.monster_choice.item_count == 10 and arena.spawn_buttons.size() == 4, "all ten monsters and four regular spawn buttons are available")
+	check(not arena.home_toggle.button_pressed and not arena.enemy_toggle.button_pressed, "home and enemy random spawning are independent opt-in toggles")
 	await process_frame
 	var bounds: Rect2 = Rect2(Vector2.ZERO, arena.size)
 	check(bounds.encloses(arena.field.get_global_rect()) and bounds.encloses(arena.run_button.get_global_rect()) and bounds.encloses(arena.counts.get_global_rect()), "arena, controls and report fit the menu viewport")
@@ -145,8 +187,10 @@ func ui_checks() -> void:
 	check(not arena.active and not arena.running and arena.sim.round_number == 2, "15-second mode stops at the round boundary")
 	arena.mode.select(1)
 	arena.enemy_toggle.button_pressed = true
+	arena.home_toggle.button_pressed = true
 	arena.start()
-	check(arena.pending.is_empty() and arena.job != null, "continuous mode drains manual requests and prepares an enemy wave")
+	check(arena.pending.is_empty() and arena.job != null and arena.sim.last_waves[0].has("cards") and arena.sim.last_waves[1].has("cards"), "continuous mode drains manual requests and prepares both automatic waves")
+	check(arena.home_wave_note.text == arena.sim.last_waves[0].summary and arena.wave_note.text == arena.sim.last_waves[1].summary, "report shows each side's own commitment")
 	deadline = Time.get_ticks_msec() + 15000
 	while arena.job != null and Time.get_ticks_msec() < deadline: await process_frame
 	arena._process(15)
@@ -155,6 +199,17 @@ func ui_checks() -> void:
 	while arena.job != null and Time.get_ticks_msec() < deadline: await process_frame
 	arena.reset()
 	check(arena.sim.units().is_empty() and arena.sim.round_number == 1 and not arena.running and arena.pending.is_empty(), "reset clears the arena, queue and playback")
+	check(arena.home_toggle.button_pressed and arena.enemy_toggle.button_pressed and arena.sim.last_waves == [{}, {}], "reset preserves random-spawn toggles and clears both commitment reports")
+	arena.enemy_toggle.button_pressed = false
+	arena.start()
+	check(arena.running and arena.job != null and arena.sim.last_waves[0].has("cards") and arena.sim.totals[1].spawned == 0, "home-only random spawning starts from an empty arena without manual input")
+	deadline = Time.get_ticks_msec() + 15000
+	while arena.job != null and Time.get_ticks_msec() < deadline: await process_frame
+	arena._process(15)
+	check(arena.running and arena.job != null and arena.sim.round_number == 2, "continuous home spawning advances even when the first draw produces no bodies")
+	deadline = Time.get_ticks_msec() + 15000
+	while arena.job != null and Time.get_ticks_msec() < deadline: await process_frame
+	arena.reset()
 	arena.dismiss()
 	await process_frame
 	check(picker.lane_sandbox == null and picker._loadout_content.visible and picker.selection() == selection, "returning to main menu preserves the selected Lords and Castles")

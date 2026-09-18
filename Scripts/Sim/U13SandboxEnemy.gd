@@ -1,19 +1,22 @@
 extends RefCounted
 
-# A bounded card-driven opponent, not a second combat implementation.
+# A bounded card-driven spawner, not a second combat implementation.
 const Economy = preload("res://Scripts/Sim/U13GameEconomy.gd")
 const Monsters = preload("res://Scripts/Sim/U13MonsterRules.gd")
 const Market = preload("res://Scripts/Sim/U13GameMarket.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
 var seed_value: String
+var owner: int = 1
 var deck: Array = []
 var discard: Array = []
 var saved: Array = []
 var goal: String = ""
 var shuffle_number: int = 0
 
-func _init(seed_text: String = "lane-balance-1") -> void:
-	seed_value = seed_text
+func _init(seed_text: String = "lane-balance-1", player_id: int = 1) -> void:
+	owner = player_id
+	# Preserve the existing enemy stream; home has its own deck and choices.
+	seed_value = seed_text if owner == 1 else seed_text + ":home"
 	for suit in Economy.SUITS:
 		var cards: Array = []
 		for value in range(Economy.COUNTS.size()):
@@ -42,10 +45,10 @@ func ingredients(hand: Array, name: String) -> Array:
 	return chosen
 
 func next_wave(round_number: int, living: Array) -> Dictionary:
-	if goal.is_empty() or (Monsters.limited(goal) and Monsters.living(living, 1, goal)):
+	if goal.is_empty() or (Monsters.limited(goal) and Monsters.living(living, owner, goal)):
 		var roll: int = pick(round_number, "goal-tier", 100)
 		var tier: String = "Easy" if roll < 45 else ("Moderate" if roll < 75 else ("Hard" if roll < 95 else "Very hard"))
-		var options: Array = Monsters.NAMES.filter(func(n): return Monsters.ROSTER[n].tier == tier and (not Monsters.limited(n) or not Monsters.living(living, 1, n)))
+		var options: Array = Monsters.NAMES.filter(func(n): return Monsters.ROSTER[n].tier == tier and (not Monsters.limited(n) or not Monsters.living(living, owner, n)))
 		goal = "Lemek" if options.is_empty() else options[pick(round_number, "goal", options.size())]
 	var hand: Array = saved.duplicate(true)
 	saved = []
@@ -72,7 +75,7 @@ func next_wave(round_number: int, living: Array) -> Dictionary:
 		var pair: Array = hand.filter(func(c): return c.attributes.suit == suit and c not in keep)
 		if pair.size() >= 2 and pick(round_number, "defense:" + suit, 2) == 0:
 			for card in pair.slice(0, 2): hand.erase(card); discard.append(card)
-	var choices: Array = Monsters.available(hand + living, hand.map(func(c): return c.id), 1)
+	var choices: Array = Monsters.available(hand + living, hand.map(func(c): return c.id), owner)
 	var monster: String = ""
 	if goal in choices:
 		monster = goal

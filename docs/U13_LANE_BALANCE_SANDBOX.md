@@ -14,12 +14,17 @@ selected Lords and Castles and discards the sandbox session.
 - Run one 15-second interval, or choose Continuous to repeat automatically.
   Pause/Resume and 0.5×/1×/2× playback are available; speed changes presentation,
   not movement or damage rules. Space pauses/resumes; Escape returns to the menu.
+- Under **Random Spawns**, enable **Your side spawns each interval** and/or
+  **Enemy spawns each interval**. For unattended fights, enable both, choose
+  **Continuous · repeat rounds**, then click **Start**. Changes apply to the
+  next interval; existing units keep fighting when automatic spawning is off.
 - Manual units are already deployed and move in the next played interval.
   Requests made during an active interval queue for the following interval.
 - Reset clears units, hazards, results and queued spawns and applies the seed.
-  The same seed and inputs reproduce the same simulation and enemy choices.
+  The same seed and inputs reproduce the same simulation and both sides' choices.
+  Reset preserves the spawn toggles and playback selections.
 - The report shows live unit counts, cumulative spawns, deaths, banishments and
-  escapes, plus the enemy's actual cards and monster recipe for the last wave.
+  escapes, plus each side's actual cards and monster recipe for its last wave.
 
 The single field reuses the game's unit art, health/armor rings, ranged
 projectiles, monster fields, hit feedback, death visuals and Sooge laser.
@@ -86,31 +91,40 @@ count as marchers, reach gates, resurrect or award unit-death rewards.
 Foundation marks appear only after a Wright claims a site. Both the main board
 and sandbox display construction progress and completed structures.
 
-Current tuning uses `U13_VULTURE_RANGED_V7_FRIENDLY_PASSAGE` and `U13_MONSTERS_V4`.
+Current tuning uses `U13_VULTURE_RANGED_V7_FRIENDLY_PASSAGE` and `U13_MONSTERS_V6_AMBUSH_REVEAL`.
 Start a fresh game after updating; older rules fingerprints remain incompatible.
 
 There are no Lords, cards on the battlefield, castles, passives, Veil effects
 or victory conditions. At the end of an interval, surviving units waiting at
 the far gate score an escape and leave without death effects. This prevents
 indefinite gate congestion in a field with no Siege/Hunt phase. The arena is
-capped at 64 active units; the random enemy waits when another wave could
-exceed the cap. A worker resolves each interval without touching live UI state.
+capped at 64 active units; either generator waits when another wave could
+exceed the cap, without consuming its cards. Priority alternates by interval
+when there is only room for one wave. A worker resolves each interval without
+touching live UI state.
 
-## Random enemy baseline
+## Random spawn baseline
 
 This is a card-driven pressure generator, not the full doctrine opponent.
+Home and enemy each have an independent deck, discard pile, saved cards and
+recipe goal, with separate deterministic random streams. Both use the same
+generation rules; enabling one never draws from the other side's cards.
 It uses the current deck's value counts and three-card trim per suit (60 cards),
 draws five per interval, makes at most one recipe-improving Slaver trade from
 three offers, may spend spare defensive pairs (50%), and saves up to two cards.
-It commits 2–5 available cards, or the full qualifying recipe, and spends the
+It aims to commit 2–5 cards, or the full qualifying recipe, and spends the
 remaining unsaved cards elsewhere. No cards are duplicated or manufactured.
+Saving and defensive spending can leave fewer cards, and a weak commitment
+can produce no bodies. Continuous mode still advances to the next interval.
 
 Recipe goals are weighted Easy 45%, Moderate 30%, Hard 20%, Very hard 5%.
-These are goal weights, not guaranteed spawn rates. The opponent must actually
+These are goal weights, not guaranteed spawn rates. Each side must actually
 draw the ingredients. It selects at most one qualifying monster per wave,
 respecting living-copy limits. Regular bodies and Varn swarm size are produced
 by the game's `U13Combat._reveal`, alongside that monster; ordinary printed
-suit totals are divided by three. AI units retain normal next-round deployment.
+suit totals are divided by three. Both commitments reveal together, with unique
+card identities and normal next-round deployment. Living-copy limits are
+checked against the summoning side, including charmed copies.
 All monster recipes are unlocked. Stockpiles, Ward's extra bodies, Lord powers,
 campaign unlocks and full defensive/Work decisions are intentionally absent.
 
@@ -125,9 +139,10 @@ estimate.
 
 `Scripts/Sim/U13LaneSandboxTestRunner.gd` covers all profiles, direct equality
 with the real Marching engine, deterministic replay, multi-round abilities,
-card/recipe legality and conservation across 80 waves, actual commitment
-counts/deployment, escapes, menu integration, viewport bounds, both play modes,
-pause, queued spawns, reset and returning to the selected loadout. The existing
+card/recipe legality and conservation across 80 waves, independent home/enemy
+draws and living-copy limits, paired commitment counts/deployment, capacity
+waiting, escapes, menu integration, viewport bounds, both play modes, home-only
+automatic starts, pause, queued spawns, reset and returning to the selected loadout. The existing
 playable-board regression also passes. Results and runtime limits are recorded
 in `docs/evidence/U13_LANE_SANDBOX_2026-09-18.json`.
 

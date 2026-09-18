@@ -1,0 +1,38 @@
+{
+  "date": "2026-09-18",
+  "change": "Independent random home and enemy waves in the lane balance sandbox",
+  "base_commit": "b61bc9ed65ffcdeec127971bb7a7216e80481dd9",
+  "behavior": [
+    "Separate opt-in home and enemy spawn toggles; both plus Continuous playback run without manual spawns.",
+    "Both sides use the existing realistic card generator with independent seeded decks, discards, saved cards and recipe goals.",
+    "A single production commitment reveal deploys both armies with unique card identities and normal next-round readiness.",
+    "Living-copy limits use the summoning owner. Capacity checks reserve room for both waves and alternate priority when only one fits.",
+    "Each side has its own last-commitment report. Reset preserves toggles while rewinding both decks and clearing reports.",
+    "Empty draws do not stop continuous playback. Disabling a toggle stops subsequent waves and keeps living units on the field."
+  ],
+  "validation": {
+    "runtime": "Godot 4.5.1 stable Linux headless diagnostic project; integer-division warnings treated as errors",
+    "runner": "Scripts/Sim/U13LaneSandboxTestRunner.gd",
+    "checks_passed": 199,
+    "failures": 0,
+    "script_errors": 0,
+    "coverage": [
+      "Existing 80-wave enemy legality, card conservation and deterministic distribution remained unchanged.",
+      "Four intervals with independent home/enemy streams, valid combined worlds, no card leaks, correct ownership, spawn totals and birth holds.",
+      "Both owners respect their own living Sooge limit without reserving the opposing player slot.",
+      "Capacity waiting preserves the skipped deck; repeated reveal attempts do not redeploy.",
+      "UI exposes both toggles and reports, repeats both waves, starts home-only from an empty arena, keeps running through a zero-body first draw, and preserves selections on reset.",
+      "Existing manual spawns, all monster profiles, real-engine equality, deterministic combat, menu layout, pause, queued spawns, escapes and reset checks passed."
+    ]
+  },
+  "source_sha256": {
+    "Prototype/U13/U13LaneSandbox.gd": "0665c9ee4dd63b57ad9129bfe57a5ebd0edbe2d103a23aca1a4854cc583294f2",
+    "Scripts/Sim/U13LaneSandbox.gd": "a44de9dc0e8b8d21c7ff3e2a1c272b55e86aab9ea992eaf2fb5ec957396b4bb5",
+    "Scripts/Sim/U13LaneSandboxTestRunner.gd": "2f2e736c3efe21908aa30cd67f76b2577ec003ec1cc76c50797efa32f450cc58",
+    "Scripts/Sim/U13SandboxEnemy.gd": "bf32649df99e36098621b2a669a70fad2d3c94f6f0b591299442255f202ae540",
+    "docs/U13_LANE_BALANCE_SANDBOX.md": "f3530930720581d99d92fb017400d5bf7e027aaa9bb084692cd97ab5463a72fd"
+  },
+  "limits": [
+    "Windows Godot 4.7.2 interactive visual review remains. This changes the sandbox controls and generators; the live match rules are unchanged."
+  ]
+}

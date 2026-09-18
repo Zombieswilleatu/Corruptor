@@ -11,8 +11,8 @@ var world: Dictionary
 var seed_value: String
 var round_number: int = 1
 var serial: int = 0
-var enemy
-var last_wave: Dictionary = {}
+var spawners: Array = []
+var last_waves: Array = [{}, {}]
 var totals: Array = []
 
 func _init(seed_text: String = "lane-balance-1") -> void:
@@ -20,8 +20,9 @@ func _init(seed_text: String = "lane-balance-1") -> void:
 	world = {"entities": Ids.new().snapshot(), "data": {"kanifous_losses": [], "kanifous_loss_round": 1}}
 	Marching.Ranged.configure(world)
 	Monsters.configure(world)
-	enemy = Enemy.new(seed_value)
-	for pid in [0, 1]: totals.append({"spawned": 0, "defeated": 0, "banished": 0, "escaped": 0})
+	for pid in [0, 1]:
+		spawners.append(Enemy.new(seed_value, pid))
+		totals.append({"spawned": 0, "defeated": 0, "banished": 0, "escaped": 0})
 
 func units() -> Array:
 	return world.entities.entities.filter(func(r): return r.kind == "marcher")
@@ -52,36 +53,58 @@ func spawn(name: String, pid: int, near_center: bool = false, turret: bool = fal
 	totals[pid].spawned += count
 	return {"action": "spawned", "count": count, "ids": created}
 
-func enemy_wave() -> Dictionary:
-	# Leave enough room for five value-five cards plus a Varn swarm.
-	if units().size() > LIMIT - 13:
-		last_wave = {"summary": "Enemy waits: arena is near capacity."}
-		return last_wave
-	var wave: Dictionary = enemy.next_wave(round_number, units())
+func random_waves(owners: Array) -> Dictionary:
+	if owners.is_empty(): return {"action": "spawned", "spawned": 0}
+	if owners.any(func(pid): return pid not in [0, 1]):
+		return {"action": "invalid", "reason": "Unknown random-spawn side."}
+	if world.data.get("combat_reveal_round", 0) >= round_number:
+		return {"action": "invalid", "reason": "Random commitments already deployed this interval."}
 	var ids = Ids.new(); ids.restore(world.entities)
-	var cards: Array = []
-	var labels: PackedStringArray = []
-	for i in range(wave.cards.size()):
-		var card: Dictionary = wave.cards[i]
-		var made: Dictionary = ids.create("card", "sandbox:commit:%d" % round_number, i, 1, card.attributes)
-		cards.append(made.entity.id)
-		labels.append("%s %d" % [card.attributes.suit, card.attributes.value])
-	world.entities = ids.snapshot()
-	if cards.is_empty():
-		last_wave = {"summary": "Enemy saves cards; no commitment this interval."}
-		return last_wave
-	var order: Dictionary = {"action": "Hunt", "lane": "Lord", "card_ids": cards}
-	if not wave.monster.is_empty(): order.monster_choice = wave.monster
-	var result: Dictionary = Combat._reveal({"world": world, "round": round_number, "seed": seed_value, "player_order": [1], "combat_orders": {1: order}})
+	var orders: Dictionary = {}
+	var cards_to_retire: Array = []
+	var available_space: int = LIMIT - units().size()
+	# Reserve five value-five cards plus a Varn swarm per side. Alternate
+	# priority when the field only has room for one new commitment.
+	for pid in [round_number % 2, 1 - round_number % 2]:
+		if pid not in owners: continue
+		var side: String = "Your side" if pid == 0 else "Enemy"
+		if available_space < 13:
+			last_waves[pid] = {"summary": side + " waits: arena is near capacity."}
+			continue
+		var wave: Dictionary = spawners[pid].next_wave(round_number, units())
+		last_waves[pid] = wave.duplicate(true)
+		if wave.cards.is_empty():
+			last_waves[pid]["summary"] = side + " saves cards; no commitment this interval."
+			continue
+		var cards: Array = []
+		for i in range(wave.cards.size()):
+			var made: Dictionary = ids.create("card", "sandbox:commit:%d:%d" % [round_number, pid], i, pid, wave.cards[i].attributes)
+			if made.action == "invalid": return made
+			cards.append(made.entity.id)
+		cards_to_retire.append_array(cards)
+		orders[pid] = {"action": "Hunt", "lane": "Lord", "card_ids": cards}
+		if not wave.monster.is_empty(): orders[pid]["monster_choice"] = wave.monster
+		available_space -= 13
+	if orders.is_empty(): return {"action": "spawned", "spawned": 0}
+	var staged: Dictionary = world.duplicate(true)
+	staged.entities = ids.snapshot()
+	# Reveal both sides together: the production engine seals the whole round.
+	var result: Dictionary = Combat._reveal({"world": staged, "round": round_number, "seed": seed_value, "player_order": [0, 1].filter(func(pid): return orders.has(pid)), "combat_orders": orders})
 	if result.action == "invalid": return result
 	world = result.world
 	ids.restore(world.entities)
-	for id in cards: ids.retire(id)
+	for id in cards_to_retire: ids.retire(id)
 	world.entities = ids.snapshot()
 	var spawned: Array = result.events.filter(func(r): return r.event.type == "MARCHER_SPAWNED")
-	totals[1].spawned += spawned.size()
-	last_wave = {"cards": wave.cards, "monster": wave.monster, "spawned": spawned.size(), "saved": wave.saved, "summary": "%s\n%d bodies · %s · %d cards saved" % [", ".join(labels), spawned.size(), wave.monster if not wave.monster.is_empty() else "no monster recipe", wave.saved]}
-	return last_wave
+	for pid in orders:
+		var wave: Dictionary = last_waves[pid]
+		var count: int = spawned.filter(func(r): return r.event.data.owner == pid).size()
+		totals[pid].spawned += count
+		var labels: PackedStringArray = []
+		for card in wave.cards: labels.append("%s %d" % [card.attributes.suit, card.attributes.value])
+		wave["spawned"] = count
+		wave["summary"] = "%s\n%d bodies · %s · %d cards saved" % [", ".join(labels), count, wave.monster if not wave.monster.is_empty() else "no monster recipe", wave.saved]
+	return {"action": "spawned", "spawned": spawned.size()}
 
 static func reaction(raw: Dictionary, _fact: Dictionary, _seed: String, _order: Array) -> Dictionary:
 	# No Lord passives, rewards, castles or Veil in this arena. Marching itself

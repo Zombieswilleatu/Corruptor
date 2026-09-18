@@ -20,12 +20,14 @@ var monster_choice: OptionButton
 var turret: CheckBox
 var monster_note: Label
 var enemy_toggle: CheckBox
+var home_toggle: CheckBox
 var mode: OptionButton
 var speed: OptionButton
 var seed_entry: LineEdit
 var status: Label
 var counts: Label
 var wave_note: Label
+var home_wave_note: Label
 var totals_note: Label
 var run_button: Button
 var pause_button: Button
@@ -94,11 +96,14 @@ func _ready() -> void:
 	monster_note = label(choices, "", 14)
 	spawn_status = label(choices, "Choose a side and add units.", 14)
 	_monster_changed()
-	label(choices, "RANDOM ENEMY", 19)
+	label(choices, "RANDOM SPAWNS", 19)
+	home_toggle = CheckBox.new()
+	home_toggle.text = "Your side spawns each interval"
+	choices.add_child(home_toggle)
 	enemy_toggle = CheckBox.new()
 	enemy_toggle.text = "Enemy spawns each interval"
 	choices.add_child(enemy_toggle)
-	label(choices, "Five-card draws, one Slaver trade, spare defensive pairs and up to two saved cards. Actual commitment values and unlocked recipes determine the wave.", 14)
+	label(choices, "Each side uses its own five-card draws, one Slaver trade, spare defensive pairs and up to two saved cards. Enable both and choose Continuous to watch hands-free.", 14)
 	label(choices, "PLAYBACK", 19)
 	mode = option(choices, ["15-second rounds · pause between", "Continuous · repeat rounds"])
 	mode.item_selected.connect(func(_i): _sync_controls())
@@ -108,7 +113,7 @@ func _ready() -> void:
 	seed_entry = LineEdit.new()
 	seed_entry.text = "lane-balance-1"
 	choices.add_child(seed_entry)
-	label(choices, "Manual spawns are ready to move. Enemy commitments deploy next interval, as in the game. Spawns clicked during playback join the next interval.", 14)
+	label(choices, "Manual spawns are ready to move. Random commitments deploy next interval, as in the game. Spawns clicked during playback join the next interval.", 14)
 	var actions := HBoxContainer.new()
 	controls.add_child(actions)
 	run_button = button(actions, "RUN 15s", start)
@@ -133,6 +138,10 @@ func _ready() -> void:
 	totals_note = label(report, "", 15)
 	label(report, "LAST ENEMY COMMITMENT", 19)
 	wave_note = label(report, "Enemy spawning is off.", 15)
+	label(report, "LAST HOME COMMITMENT", 19)
+	home_wave_note = label(report, "Your side's random spawning is off.", 15)
+	home_toggle.toggled.connect(func(_enabled): _update_wave_notes())
+	enemy_toggle.toggled.connect(func(_enabled): _update_wave_notes())
 	label(report, "Hover a unit for HP and Armor. Units reaching the far gate count as escapes and leave after the interval.\n\nCombat uses the live game's movement, damage, regeneration and monster abilities. No Lords, castles, Veil or victory conditions.", 14)
 	_show_idle()
 	_sync_controls()
@@ -198,12 +207,19 @@ func pause() -> void:
 func _begin_interval() -> void:
 	for request in pending: _spawn(request)
 	pending.clear()
-	if enemy_toggle.button_pressed:
-		sim.enemy_wave()
-		wave_note.text = sim.last_wave.get("summary", "No enemy commitment.")
-	if sim.units().is_empty() and not enemy_toggle.button_pressed:
+	var random_sides: Array = []
+	if home_toggle.button_pressed: random_sides.append(0)
+	if enemy_toggle.button_pressed: random_sides.append(1)
+	var wave: Dictionary = sim.random_waves(random_sides)
+	_update_wave_notes()
+	if wave.action == "invalid":
 		running = false
-		status.text = "Spawn units or enable the random enemy first."
+		status.text = "Simulation stopped: " + str(wave.get("reason", "random commitment unavailable"))
+		_sync_controls()
+		return
+	if sim.units().is_empty() and random_sides.is_empty():
+		running = false
+		status.text = "Spawn units or enable random spawns for either side first."
 		_sync_controls()
 		return
 	field.show_world(sim.units(), sim.round_number, sim.world.data.get("field_structures", []))
@@ -271,6 +287,13 @@ func _show_idle() -> void:
 	field.monster_fields = sim.world.data.monsters.fields.duplicate(true)
 	_report(sim.units())
 
+func _update_wave_notes() -> void:
+	for pid in [0, 1]:
+		var toggle: CheckBox = home_toggle if pid == 0 else enemy_toggle
+		var note: Label = home_wave_note if pid == 0 else wave_note
+		var side: String = "Your side" if pid == 0 else "Enemy"
+		note.text = sim.last_waves[pid].get("summary", side + " draws on the next interval.") if toggle.button_pressed else side + " random spawning is off."
+
 func _report(rows: Array) -> void:
 	var lines: PackedStringArray = []
 	var total_lines: PackedStringArray = []
@@ -299,7 +322,7 @@ func reset() -> void:
 	sim = Sim.new(seed_entry.text)
 	playback = Playback.new()
 	field.reset_effects()
-	wave_note.text = "Enemy draws on the next interval." if enemy_toggle.button_pressed else "Enemy spawning is off."
+	_update_wave_notes()
 	status.text = "Arena reset. Spawn both sides, then run the lane."
 	spawn_status.text = "Choose a side and add units."
 	_show_idle()
