@@ -35,6 +35,8 @@ class PlannerObserver(ReferenceObserver):
         self.coordination_counts = Counter()
         self.resource_horizon_counts = Counter()
         self.defense_counts = Counter()
+        self.hazard_facts, self.hazard_hits = {}, {}
+        self.hazard_hook = None
 
     def accepted(self, number, seat, decision):
         defensive = decision.get('defense')
@@ -133,6 +135,27 @@ class PlannerObserver(ReferenceObserver):
     def event(self, index, event, current_round):
         kind, d = event['type'], event['data']
         number, seat = d.get('round', current_round), d.get('player_id')
+        # Associate each pulse with its actual battle facts by command identity.
+        # Ownership, HP loss and armor absorption remain distinct measurements;
+        # extra Pyroclasm pulses must not be attributed to automatic Inferno.
+        hook = (number, d.get('hook'))
+        if d.get('hook') and hook != self.hazard_hook:
+            self.hazard_facts.clear()
+            self.hazard_hook = hook
+        if kind == 'GUARD_DEFEATED' or (kind in ('MARCHER_DAMAGED', 'MARCHER_DEFEATED') and d.get('cause') == 'hazard'):
+            self.hazard_facts[d['event_id']] = (kind, d)
+        if kind == 'HAZARD_HIT':
+            if 'castle_damage' in d:
+                self.hazard_hits.setdefault(d['pulse_id'], []).append((d['owner'], dict(
+                    hazard_castles_hit=1, hazard_castle_damage=d['castle_damage'], hazard_castles_destroyed=int(d['destroyed']))))
+            else:
+                key = instance_id('battle', str(number), instance_id('hazard_hit', d['pulse_id'], d['entity_id']))
+                fact_kind, fact = self.hazard_facts.pop(key)
+                victim = fact['guard'] if fact_kind == 'GUARD_DEFEATED' else fact['victim']
+                values = dict(hazard_guards_removed=1) if fact_kind == 'GUARD_DEFEATED' else dict(
+                    hazard_marchers_hit=1, hazard_hp_damage=fact['hp_before']-fact['hp_after'],
+                    hazard_armor_damage=d['armor_absorbed'], hazard_marcher_kills=int(fact_kind == 'MARCHER_DEFEATED'))
+                self.hazard_hits.setdefault(d['pulse_id'], []).append((victim['owner'], values))
         identity = self.declarations.get(d.get('declaration_id')) or self.effects.get(d.get('effect_id'))
         event_id, metrics = 'semantic-row:'+str(index), {}
         if kind in ('POWER_RESOLVED', 'FIZZLE_INVALID_TARGET') and identity:
@@ -176,7 +199,14 @@ class PlannerObserver(ReferenceObserver):
                 metrics = dict(artillery_damage=d['damage'], castles_destroyed=int(d['destroyed'])) if kind == 'ARTILLERY_FIRED' else dict(artillery_damage=0)
         elif kind == 'HAZARD_PULSED':
             identity = self.effects.get(d['pulse_id']) or identity
-            if identity: metrics = dict(hazard_affected_entities=len(d['affected_ids']))
+            hits = self.hazard_hits.pop(d['pulse_id'], [])
+            if len(hits) != len(d['affected_ids']): raise ValueError('Pulse impact count mismatch')
+            if identity:
+                metrics = Counter(hazard_pulses=1, hazard_affected_entities=len(d['affected_ids']))
+                for owner, values in hits:
+                    prefix = 'friendly_' if owner == seat else 'enemy_'
+                    metrics.update({prefix+key: value for key, value in values.items()})
+                metrics = dict(metrics)
         elif kind == 'GRAVITY_ORB_CONSUMED' and identity:
             metrics = dict(enemy_units_consumed=int(d['unit']['owner'] != seat), friendly_units_consumed=int(d['unit']['owner'] == seat))
         elif kind == 'RAVENOUS_ARMED':

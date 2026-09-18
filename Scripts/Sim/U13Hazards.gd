@@ -3,21 +3,22 @@ extends RefCounted
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Battle = preload("res://Scripts/Sim/U13BattleEvents.gd")
+const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const Marching = preload("res://Scripts/Sim/U13Marching.gd")
-const VERSION: String = "U13_DISCRETE_HAZARDS_V1"
+const VERSION: String = "U13_DISCRETE_HAZARDS_V2_CASTLE"
 
 
-static func target_valid(target: Dictionary, owner: int) -> bool:
-	if target.get("lane") not in Marching.LANES:
-		return false
+static func target_valid(target: Dictionary, owner: int, world: Dictionary = {}) -> bool:
 	if target.get("kind") == "lane":
-		return target.size() == 2
-	return (
-		target.size() == 3
-		and target.get("kind") == "guard"
-		and Data.is_integer(target.get("player_id"))
-		and target.player_id == 1 - owner
-	)
+		return target.size() == 2 and target.get("lane") in Marching.LANES
+	if target.get("kind") != "castle" or target.size() != 2 or typeof(target.get("entity_id")) != TYPE_STRING or target.entity_id.is_empty():
+		return false
+	if world.is_empty():
+		return true
+	for entity in world.entities.entities:
+		if entity.id == target.entity_id:
+			return entity.kind == "castle" and entity.owner == 1 - owner
+	return false
 
 
 # One discrete pulse; lifetime, scheduling and repetition belong to the match
@@ -29,7 +30,7 @@ static func pulse(
 	var target: Dictionary = active.target
 	var intensity: int = int(active.stages[active.stage_index].intensity)
 	if (
-		not target_valid(target, active.declaration.player_id)
+		not target_valid(target, active.declaration.player_id, world)
 		or intensity < 1
 		or not reaction.is_valid()
 	):
@@ -43,14 +44,7 @@ static func pulse(
 			and not entity.attributes.get("flying", false)
 		):
 			ids.append(entity.id)
-		elif (
-			target.kind == "guard"
-			and entity.kind == "card"
-			and entity.owner == target.player_id
-			and entity.attributes.get("role") == "guard"
-			and entity.attributes.get("lane") == target.lane
-			and entity.attributes.value <= intensity
-		):
+		elif target.kind == "castle" and entity.id == target.entity_id and Structures.targetable(entity) and entity.attributes.integrity > 0:
 			ids.append(entity.id)
 	ids.sort()
 	var events: Array = []
@@ -58,32 +52,39 @@ static func pulse(
 		var entities = Ids.new()
 		entities.restore(world.entities)
 		var entity: Dictionary = entities.get_entity(entity_id)
-		var command: Dictionary = {
-			"command_id": Data.instance_id("hazard_hit", pulse_id, entity_id),
-			"target_id": entity_id,
-			"kind": "defeat_guard"
-		}
 		var absorbed: int = 0
-		if target.kind == "lane":
+		var hit: Dictionary = {}
+		if target.kind == "castle":
+			var command_id: String = Data.instance_id("hazard_hit", pulse_id, entity_id)
+			var event_id: String = Data.instance_id("battle", str(context.round), command_id)
+			if world.data.get("battle_commands", {}).has(event_id):
+				return Data.invalid("battle_command_already_applied")
+			var dealt: int = mini(int(entity.attributes.integrity), intensity)
+			hit = {"castle_damage": dealt, "destroyed": dealt == entity.attributes.integrity, "owner": entity.owner}
+			var damaged: Dictionary = Structures.breach_damage(world, entity_id, world.players[active.declaration.player_id].lord_entity_id, intensity, pulse_id, context, reaction, "scorch")
+			if damaged.action == "invalid":
+				return damaged
+			world = damaged.world
+			var commands: Dictionary = world.data.get("battle_commands", {})
+			commands[event_id] = true
+			world.data["battle_commands"] = commands
+			events.append_array(damaged.events)
+		else:
 			absorbed = mini(int(entity.attributes.armor), intensity)
 			entity.attributes.armor -= absorbed
 			entities.update(entity.id, entity.owner, entity.attributes)
 			world.entities = entities.snapshot()
-			command.merge(
-				{"kind": "marcher_damage", "damage": intensity - absorbed, "cause": "hazard"}, true
-			)
-		var applied: Dictionary = Battle.apply(world, command, context.round, context.hook)
-		if applied.action == "invalid":
-			return applied
-		world = applied.world
-		events.append({"event": applied.event, "views": [applied.event, applied.event]})
-		var reacted: Dictionary = reaction.call(
-			world, applied.event, context.seed, context.player_order
-		)
-		if reacted.action == "invalid":
-			return reacted
-		world = reacted.world
-		events.append_array(reacted.events)
+			var command: Dictionary = {"command_id": Data.instance_id("hazard_hit", pulse_id, entity_id), "target_id": entity_id, "kind": "marcher_damage", "damage": intensity - absorbed, "cause": "hazard"}
+			var applied: Dictionary = Battle.apply(world, command, context.round, context.hook)
+			if applied.action == "invalid":
+				return applied
+			world = applied.world
+			events.append({"event": applied.event, "views": [applied.event, applied.event]})
+			var reacted: Dictionary = reaction.call(world, applied.event, context.seed, context.player_order)
+			if reacted.action == "invalid":
+				return reacted
+			world = reacted.world
+			events.append_array(reacted.events)
 		events.append(
 			Marching.public_event(
 				"HAZARD_HIT",
@@ -95,7 +96,7 @@ static func pulse(
 					"armor_absorbed": absorbed,
 					"round": context.round,
 					"hook": context.hook
-				}
+				}.merged(hit)
 			)
 		)
 	events.append(

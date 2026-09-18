@@ -21,7 +21,7 @@ RULES = {
     'MusterTheFaithful': rule('Humbaba','post_resolution_spawns',1),
     'BreathOfLife': rule('Humbaba','post_resolution_movement_state',2,stages=[dict(active=True),dict(active=True)],lane_aura=dict(regen_bonus=1,speed_percent=25)),
     'Inferno': rule('Kalligan','persistent_advancement',1,1,[dict(intensity=1),dict(intensity=2),dict(intensity=1)],persistent_relocatable=True,persistent_context=True),
-    'Pyroclasm': rule('Kalligan','post_resolution_direct',persistent_context=True),
+    'Pyroclasm': rule('Kalligan','post_resolution_direct',1,persistent_context=True),
     'Web': rule('Orias','post_resolution_hazards',1,stages=[dict(fresh=True),dict(fresh=False)],spatial_field=dict(kind='web',radius_fp=270)),
     'Snare': rule('Orias','round_start_scheduled',delay=1,threat_gain=1),
     'Redirect': rule('Odradek','post_resolution_position',repeatable=True),

@@ -33,14 +33,13 @@ static func records(active: Array, pending: Array, round_number: int) -> Array:
 	return result
 
 
-static func target_name(target: Dictionary) -> String:
+static func target_name(target: Dictionary, entities: Array = []) -> String:
 	if target.get("kind") == "lane":
 		return String(target.lane) + " lane · both sides"
-	return (
-		("Your " if target.get("player_id") == 0 else "Enemy ")
-		+ String(target.get("lane", ""))
-		+ " Guards"
-	)
+	for entity in entities:
+		if entity.id == target.get("entity_id"):
+			return ("Your" if entity.owner == 0 else "Enemy") + " Castle %d · %s" % [int(entity.attributes.castle_slot) + 1, entity.attributes.castle_type]
+	return "Selected Castle"
 
 
 static func active_for(rows: Array, owner: int) -> Dictionary:

@@ -124,6 +124,7 @@ class Facts:
             strength += 1 + int(self.lord[self.enemy]['attributes'].get('threat', 0) >= 2)
         strength += sum(r['attributes']['waiting'] and r['id'] not in excluded_waiters for r in self.units(self.pid, lane))
         remaining, lost, damage, banished, destroyed = strength, 0, 0, False, False
+        castle_hits = {}
         for pair in self.v['data']['guard_work']['pairs']:
             if pair['player_id'] == self.enemy and pair['lane'] == lane and pair['suit'] == 'Penitent' and intact(self.world, pair):
                 remaining = max(0, remaining-PENITENT_PAIR_SCREEN)
@@ -143,13 +144,16 @@ class Facts:
             if keep and remaining:
                 remaining = max(0, remaining-(3 if operational(keep) else 0))
                 damage = min(remaining, keep['attributes']['integrity']); remaining -= damage
+                castle_hits[keep['id']] = damage
             banished = remaining > defense(self.world, self.lord[self.enemy])
         elif not pillage:
             victim = self.by_id[target]
             bastion = next((c for c in castles if c['attributes']['castle_type'] == 'Bastion'), None)
             if bastion and victim['attributes']['castle_type'] != 'Bastion':
                 hit = min(remaining, bastion['attributes']['integrity']); damage += hit; remaining -= hit
+                castle_hits[bastion['id']] = hit
             hit = min(remaining, victim['attributes']['integrity']); damage += hit
+            castle_hits[victim['id']] = hit
             destroyed = remaining > 0 and hit == victim['attributes']['integrity']
         return dict(strength=strength, guards=lost, damage=damage, banished=banished,
-                    destroyed=destroyed, pillage=pillage and remaining > 0)
+                    destroyed=destroyed, pillage=pillage and remaining > 0, castle_hits=castle_hits)

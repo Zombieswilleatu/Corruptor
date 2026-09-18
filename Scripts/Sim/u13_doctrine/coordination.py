@@ -9,18 +9,19 @@ from collections import Counter
 from u13_pysim.copying import copy_data
 from . import lords
 
-VERSION = 'U13_POWER_COORDINATION_V2'
-TERMS = frozenset(('Projection', 'Consume', 'Ravenous', 'Redirect', 'FalseOrders', 'AllegianceShift', 'Inversion'))
+VERSION = 'U13_POWER_COORDINATION_V3'
+TERMS = frozenset(('Projection', 'Consume', 'Ravenous', 'Redirect', 'FalseOrders', 'AllegianceShift', 'Inversion', 'Pyroclasm'))
 
 
 def context(f, plan):
     order = plan['order']
     action, lane = order.get('action'), order.get('lane')
-    lost, consumed = [], set()
+    lost, consumed, castle_hits = [], set(), {}
     for spend in order.get('rites', {}).get('waiter_spends', []):
         consumed.update(spend['marcher_ids'])
     if action in ('Hunt', 'Siege'):
         result = f.attack(action, order['target_id'], order['card_ids'], consumed)
+        castle_hits = result['castle_hits']
         guards = sorted(f.guards(f.enemy, lane),
                         key=lambda r: (-r['attributes']['value'], r['attributes']['slot'], r['id']))
         lost = [r['id'] for r in guards[:result['guards']]]
@@ -35,7 +36,7 @@ def context(f, plan):
         if name in ('WishPower', 'PredatorOfRuin', 'MusterTheFaithful'):
             spawn_powers[source['target']['lane']] += dict(WishPower=1, PredatorOfRuin=2, MusterTheFaithful=3)[name]
     return dict(attack_lane=lane if action in ('Hunt', 'Siege') else '',
-                guard_losses=lost, consumed_supplicants=sorted(consumed),
+                guard_losses=lost, castle_hits=castle_hits, consumed_supplicants=sorted(consumed),
                 recruit_lane=lane, recruits=recruits, monster_bodies_minimum=monsters,
                 monster=monster, unknown_extra_varn_bodies=monster == 'Varn',
                 power_bodies_minimum=dict(sorted(spawn_powers.items())))

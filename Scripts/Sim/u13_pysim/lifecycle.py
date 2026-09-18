@@ -100,8 +100,8 @@ class RoundRules(Ordinary):
                                       dict(entity_id=r["id"], round=n, effect_id=a["rout_effect_id"])))
                 if ended:
                     del a["rout_round"], a["rout_effect_id"]
-            e.require(d["scorch_guard_round"] < n, "scorch_pulse_already_applied")
-            d["scorch_guard_round"] = n
+            e.require(d["scorch_castle_round"] < n, "scorch_pulse_already_applied")
+            d["scorch_castle_round"] = n
             if type(self) is RoundRules: d["valak_orbs"] = []
         elif hook == "round_start_automatic":
             e.require(d["sigil_lifecycle"]["aged_round"] == n-1, "sigil_age_clock_invalid")

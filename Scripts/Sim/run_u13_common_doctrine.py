@@ -21,8 +21,19 @@ def main():
     check.add_argument('--selection', type=Path, help='Optional selector JSON; defaults to deterministic best-plan selection')
     compare = sub.add_parser('compare'); compare.add_argument('first', type=Path); compare.add_argument('second', type=Path)
     rules = sub.add_parser('verify-rules'); rules.add_argument('directory', type=Path)
+    scorch = sub.add_parser('scorch-inputs'); scorch.add_argument('path', type=Path)
+    exact = sub.add_parser('verify-scorch'); exact.add_argument('path', type=Path); exact.add_argument('inputs', type=Path)
     args = parser.parse_args()
     try:
+        if args.command == 'scorch-inputs':
+            from u13_pysim.verify_scorch import export_inputs
+            export_inputs(args.path); print('Scorch Castle directed inputs and assertions passed'); return 0
+        if args.command == 'verify-scorch':
+            from u13_pysim.verify_scorch import verify
+            report = verify(args.path,args.inputs,Path(__file__).resolve().parents[2])
+            report.update(implementation=platform.python_implementation(),python=sys.version)
+            args.path.with_suffix('.'+platform.python_implementation().lower()+'.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
+            print(json.dumps(report,sort_keys=True)); print('U13 Scorch Castle comparison failures: 0'); return 0
         if args.command == 'verify-rules':
             from u13_pysim.verify import same
             from u13_pysim.verify_veil import verify as veil
@@ -44,6 +55,8 @@ def main():
             'u13_doctrine.test_recipes_veil', 'u13_doctrine.test_rites', 'u13_doctrine.test_closing',
             'u13_doctrine.test_selection', 'u13_doctrine.test_coordination', 'u13_doctrine.test_odradek',
             'u13_doctrine.test_defensive_plans',
+            'u13_doctrine.test_kalligan', 'u13_pysim.test_scorch_castles',
+            'u13_pysim.test_powers.PowerTests.test_pyroclasm_blocks_one_round_then_reopens_without_extending_scorch',
             'u13_doctrine.test_comparison', 'u13_pysim.test_marching'])
         result = unittest.TextTestRunner(verbosity=2).run(tests)
         if not result.wasSuccessful() or result.testsRun == 0: return 1

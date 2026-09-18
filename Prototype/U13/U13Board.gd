@@ -1528,23 +1528,15 @@ func _build_kalligan_controls(parent: Node) -> void:
 	for power in [Kalligan.INFERNO, Kalligan.PYROCLASM]:
 		_label(kalligan_box, _power_name(power).to_upper(), 17)
 		var description: String = (
-			"Prepare fire for next round. Choose enemy Guards or either lane. Lane fire hits both sides. Moving preserves its 1 → 2 → 1 lifetime."
+			"Prepare fire for next round. Choose one enemy Castle or either lane. Lane fire hits both sides. Moving preserves its 1 → 2 → 1 lifetime."
 			if power == Kalligan.INFERNO
-			else "Pulse your current Scorch once more this round. Uses its current location and intensity; normal fire still occurs."
+			else "Pulse your current Scorch once more this round. Uses its current location and intensity; normal fire still occurs. Unavailable the following round."
 		)
 		_label(kalligan_box, description, 13).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		kalligan_states[power] = _label(kalligan_box, "", 13)
 		kalligan_states[power].autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		if power == Kalligan.INFERNO:
-			inferno_target = _option(
-				kalligan_box,
-				[
-					"Enemy Lord Guards",
-					"Enemy Castle Guards",
-					"Lord lane · both sides",
-					"Castle lane · both sides"
-				]
-			)
+			inferno_target = _option(kalligan_box, ["Lord lane · both sides", "Castle lane · both sides"])
 		kalligan_buttons[power] = _button(
 			kalligan_box,
 			"CHOOSE INFERNO" if power == Kalligan.INFERNO else "QUEUE PYROCLASM",
@@ -1573,12 +1565,7 @@ func _kalligan_can_choose(power: String) -> bool:
 func queue_inferno() -> void:
 	if not _kalligan_can_choose(Kalligan.INFERNO):
 		return
-	var index: int = inferno_target.selected
-	var target: Dictionary = (
-		{"kind": "guard", "lane": "Lord" if index == 0 else "Castle", "player_id": 1}
-		if index < 2
-		else {"kind": "lane", "lane": "Lord" if index == 2 else "Castle"}
-	)
+	var target: Dictionary = inferno_target.get_item_metadata(inferno_target.selected)
 	_queue_kalligan(Kalligan.INFERNO, target)
 
 
@@ -1601,13 +1588,26 @@ func _update_kalligan_controls() -> void:
 	if _human_lord() != "Kalligan":
 		return
 	var active: Dictionary = ScorchView.active_for(_scorch_rows, 0)
+	var selected_target = inferno_target.get_item_metadata(inferno_target.selected) if inferno_target.selected >= 0 else null
+	inferno_target.clear()
+	var choices: Array = [{"kind": "lane", "lane": "Lord"}, {"kind": "lane", "lane": "Castle"}]
+	var entities: Array = session.board_view().world.entities
+	for entity in entities:
+		if entity.owner == 1 and Kalligan.Structures.targetable(entity) and entity.attributes.integrity > 0:
+			choices.append({"kind": "castle", "entity_id": entity.id})
+	for target in choices:
+		var index: int = inferno_target.item_count
+		inferno_target.add_item(ScorchView.target_name(target, entities))
+		inferno_target.set_item_metadata(index, target)
+		if target == selected_target:
+			inferno_target.select(index)
 	for power in [Kalligan.INFERNO, Kalligan.PYROCLASM]:
 		var clock_state: Dictionary = session.power_status(power)
 		var text: String = "Ready · cooldown 0"
 		if not active.is_empty():
 			text = (
 				"Intensity %d · %d active rounds left\n%s"
-				% [active.intensity, active.remaining, ScorchView.target_name(active.target)]
+				% [active.intensity, active.remaining, ScorchView.target_name(active.target, entities)]
 			)
 		if power == Kalligan.INFERNO:
 			if not active.is_empty():
@@ -1630,8 +1630,8 @@ func _update_kalligan_controls() -> void:
 			if active.is_empty():
 				text = "Requires active Scorch"
 			elif clock_state.remaining > 0:
-				text += "\nUsed this round · ready round %d" % clock_state.ready_round
-			text += "\nFree · once per round · no extra cooldown"
+				text += "\nCooling down · ready round %d" % clock_state.ready_round
+			text += "\nFree · every other round"
 		if _queued_power(power):
 			var queued_note: String = "Queued · not spent yet"
 			if power == Kalligan.INFERNO:
@@ -1639,7 +1639,7 @@ func _update_kalligan_controls() -> void:
 					if source.power_id == power:
 						queued_note += (
 							"\nRound %d → %s"
-							% [source.fire_round, ScorchView.target_name(source.target)]
+							% [source.fire_round, ScorchView.target_name(source.target, entities)]
 						)
 			text = queued_note + "\n" + text
 		kalligan_states[power].text = text

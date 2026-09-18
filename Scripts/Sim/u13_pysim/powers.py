@@ -61,7 +61,9 @@ def validate(s,w,phase,active):
     if power in ('Inferno','Pyroclasm'):
         if p: return 'kalligan_parameters_invalid'
         if power=='Pyroclasm': return '' if not t and any(a['declaration']['power_id']=='Inferno' and a['declaration']['player_id']==pid for a in active) else 'pyroclasm_requires_active_scorch'
-        return '' if t.get('lane') in LANES and (set(t)=={'kind','lane'} and t['kind']=='lane' or set(t)=={'kind','lane','player_id'} and t['kind']=='guard' and type(t['player_id']) is int and t['player_id']==1-pid) else 'scorch_target_invalid'
+        return '' if ((set(t)=={'kind','lane'} and t.get('kind')=='lane' and t.get('lane') in LANES) or
+                      (set(t)=={'kind','entity_id'} and t.get('kind')=='castle' and r and r['kind']=='castle' and r['owner']==1-pid
+                       and (phase!='declaration' or targetable(r) and r['attributes']['integrity']>0))) else 'scorch_target_invalid'
     if power=='Web': return '' if spatial(t) and not p else 'web_position_invalid'
     if power=='Snare':
         legal=set(t)=={'player_id'} and type(t['player_id']) is int and t['player_id']==1-pid and not p
@@ -131,18 +133,25 @@ def shift(b,target,new,identity):
 
 def pulse(b,active,pulse_id,inner=False):
     target=active['target'];intensity=active['stages'][active['stage_index']]['intensity']
-    ids=sorted(r['id'] for r in b.w['entities']['entities'] if (r['kind']=='marcher' and not r['attributes'].get('flying',False) and r['attributes']['lane']==target['lane'] if target['kind']=='lane'
-               else r in guards(b.w) and r['owner']==target['player_id'] and r['attributes']['lane']==target['lane'] and r['attributes']['value']<=intensity))
+    ids=sorted(r['id'] for r in b.w['entities']['entities'] if
+               (r['kind']=='marcher' and not r['attributes'].get('flying',False) and r['attributes']['lane']==target['lane'] if target['kind']=='lane'
+                else r['id']==target['entity_id'] and targetable(r) and r['attributes']['integrity']>0))
     events=[]
     for key in ids:
-        r=e.entity(b.w,key);absorbed=0
+        r=e.entity(b.w,key);absorbed=0;hit={}
         command=dict(command_id=instance_id('hazard_hit',pulse_id,key),target_id=key)
         if target['kind']=='lane':
             absorbed=min(r['attributes']['armor'],intensity);r['attributes']['armor']-=absorbed
             command.update(kind='marcher_damage',damage=intensity-absorbed,cause='hazard')
-        else: command['kind']='defeat_guard'
-        fact=b.fact(command);events.append(e.event(fact['type'],fact['data']));events.extend(b.react(fact,inner=inner))
-        events.append(e.event('HAZARD_HIT',dict(effect_id=active['effect_id'],pulse_id=pulse_id,entity_id=key,intensity=intensity,armor_absorbed=absorbed,round=b.number,hook=b.hook)))
+            fact=b.fact(command);events.append(e.event(fact['type'],fact['data']));events.extend(b.react(fact,inner=inner))
+        else:
+            event_id=instance_id('battle',str(b.number),command['command_id'])
+            e.require(event_id not in b.w['data'].get('battle_commands',{}),'battle_command_already_applied')
+            dealt=min(r['attributes']['integrity'],intensity)
+            hit=dict(castle_damage=dealt,destroyed=dealt==r['attributes']['integrity'],owner=r['owner'])
+            events.extend(b.breach_damage(key,b.w['players'][active['declaration']['player_id']]['lord_entity_id'],pulse_id,intensity,cause='scorch',inner=inner))
+            b.w['data'].setdefault('battle_commands',{})[event_id]=True
+        events.append(e.event('HAZARD_HIT',dict(effect_id=active['effect_id'],pulse_id=pulse_id,entity_id=key,intensity=intensity,armor_absorbed=absorbed,round=b.number,hook=b.hook,**hit)))
     events.append(e.event('HAZARD_PULSED',dict(effect_id=active['effect_id'],power_id=active['declaration']['power_id'],player_id=active['declaration']['player_id'],target=target,intensity=intensity,pulse_id=pulse_id,affected_ids=ids,round=b.number,hook=b.hook)))
     return events
 

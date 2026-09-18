@@ -254,7 +254,7 @@ func _update_direct_ui() -> void:
 
 func _guide() -> String:
 	if _intent == Kalligan.INFERNO:
-		return "INFERNO · click enemy LORD GUARDS, shared CASTLE GUARDS, or either Marching lane. Fires next round; lane fire hits both sides."
+		return "INFERNO · click one enemy Castle or either Marching lane. Fires next round; lane fire hits both sides."
 	if _intent == Gremory.RUIN:
 		return (
 			"INEVITABLE RUIN · select payment %d/2, then click an enemy Castle above 8 health. Reduces it to 8 next round."
@@ -376,7 +376,7 @@ func _target_allowed(target: Dictionary, intent: String) -> bool:
 				and int(a.get("repair_lock_until_round", 0)) < session.round_number()
 			)
 		Kalligan.INFERNO:
-			return target.kind == "zone" and target.owner == 1 and target.lane in ["Lord", "Castle"]
+			return target.kind == "castle" and target.owner == 1 and Structures.targetable(entity) and entity.attributes.integrity > 0
 		Gremory.RUIN:
 			return (
 				_power_cost.size() == 2
@@ -624,7 +624,7 @@ func _submit_power(target: Dictionary) -> void:
 		payload = (
 			{"kind": "lane", "lane": target.lane}
 			if not target.has("id")
-			else {"kind": "guard", "lane": target.lane, "player_id": target.owner}
+			else {"kind": "castle", "entity_id": target.id}
 		)
 	elif _is_lane_power(_intent):
 		payload = {"lane": target.lane}
@@ -829,8 +829,9 @@ func _reveal_targets() -> void:
 func _pulse_targets() -> void:
 	if _intent == Kalligan.INFERNO:
 		lanes.pulse_lanes()
-		_flash_control(sides[0].lord_guard_box, Color(1.5, 1.25, 0.6))
-		_flash_control(sides[0].castle_guard_box, Color(1.5, 1.25, 0.6))
+		for id in sides[0].target_controls:
+			if _target_allowed(_entity_target(id), _intent):
+				_flash_control(sides[0].target_controls[id].get_parent().get_parent(), Color(1.5, 1.25, 0.6))
 	elif _is_lane_power(_intent):
 		lanes.pulse_lanes()
 	else:
@@ -1040,9 +1041,7 @@ func queue_pyroclasm() -> void:
 	_selected_pulse = (
 		{"lane": active.target.lane}
 		if active.target.kind == "lane"
-		else {
-			"id": "", "kind": "zone", "owner": active.target.player_id, "lane": active.target.lane
-		}
+		else _entity_target(active.target.entity_id)
 	)
 	_schedule_refresh()
 	reopen_decision()

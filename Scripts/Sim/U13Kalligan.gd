@@ -61,7 +61,7 @@ static func rules() -> Dictionary:
 		"fire_hook": Timeline.POST_RESOLUTION_DIRECT,
 		"delay_rounds": 0,
 		"cooldown_on": "activation",
-		"cooldown_rounds": 0,
+		"cooldown_rounds": 1,
 		"cost": {},
 		"stages": [],
 		"target_kind": "",
@@ -81,7 +81,7 @@ func valid_world(world: Dictionary, allow_orias: bool = false) -> bool:
 		or not _humbaba.valid_world(world, true)
 	):
 		return false
-	for name in ["kalligan_upkeep_round", "scorch_guard_round", "scorch_lane_round"]:
+	for name in ["kalligan_upkeep_round", "scorch_castle_round", "scorch_lane_round"]:
 		if not Data.is_integer(world.data.get(name)) or world.data[name] < 0:
 			return false
 	var used = world.data.get("rekindle_rounds")
@@ -124,7 +124,7 @@ func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionar
 		return {"legal": false, "reason": "kalligan_parameters_invalid"}
 	if source.power_id == INFERNO:
 		return {
-			"legal": Hazards.target_valid(source.target, source.player_id),
+			"legal": Hazards.target_valid(source.target, source.player_id, world) and (source.target.kind == "lane" or phase != "declaration" or _castle_targetable(world, source.target.entity_id)),
 			"reason": "scorch_target_invalid"
 		}
 	var scorch: Dictionary = _scorch(source.player_id, world.get("persistent_effects", []))
@@ -132,6 +132,13 @@ func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionar
 		"legal": source.target.is_empty() and not scorch.is_empty(),
 		"reason": "pyroclasm_requires_active_scorch"
 	}
+
+
+static func _castle_targetable(world: Dictionary, entity_id: String) -> bool:
+	for entity in world.entities.entities:
+		if entity.id == entity_id:
+			return Structures.targetable(entity) and entity.attributes.integrity > 0
+	return false
 
 
 static func _scorch(player_id: int, effects: Array) -> Dictionary:
@@ -169,7 +176,7 @@ func on_hook(context: Dictionary, reaction: Callable = Callable()) -> Dictionary
 		result = _upkeep(context, result)
 	if context.hook in [Timeline.PERSISTENT_ADVANCEMENT, Timeline.MARCHING_START]:
 		var field: String = (
-			"scorch_guard_round"
+			"scorch_castle_round"
 			if context.hook == Timeline.PERSISTENT_ADVANCEMENT
 			else "scorch_lane_round"
 		)
@@ -187,7 +194,7 @@ func on_hook(context: Dictionary, reaction: Callable = Callable()) -> Dictionary
 				active.effect_key != INFERNO
 				or (
 					active.target.kind
-					!= ("guard" if context.hook == Timeline.PERSISTENT_ADVANCEMENT else "lane")
+					!= ("castle" if context.hook == Timeline.PERSISTENT_ADVANCEMENT else "lane")
 				)
 			):
 				continue
@@ -300,7 +307,7 @@ func accept_order(context: Dictionary) -> Dictionary:
 		return ordinary
 	for entry in [
 		["kalligan_upkeep_round", Timeline.ROUND_START_AUTOMATIC],
-		["scorch_guard_round", Timeline.PERSISTENT_ADVANCEMENT],
+		["scorch_castle_round", Timeline.PERSISTENT_ADVANCEMENT],
 		["scorch_lane_round", Timeline.MARCHING_START]
 	]:
 		var expected: int = (
@@ -337,7 +344,7 @@ func accept_order(context: Dictionary) -> Dictionary:
 			if not pending.payload.is_empty() or not source.target.is_empty():
 				return Data.invalid("pyroclasm_pending_invalid")
 		elif (
-			not Hazards.target_valid(source.target, source.player_id)
+			not Hazards.target_valid(source.target, source.player_id, context.world)
 			or (not pending.payload.is_empty() and not pending.payload.has("relocate_effect_id"))
 		):
 			return Data.invalid("inferno_pending_invalid")
@@ -359,8 +366,8 @@ static func _valid_scorch(active: Dictionary, context: Dictionary) -> bool:
 		or original.lord_id != "Kalligan"
 		or active.stages != rules()[INFERNO].stages
 		or active.payload.get("hazard") != "scorch"
-		or not Hazards.target_valid(active.target, original.player_id)
-		or not Hazards.target_valid(original.target, original.player_id)
+		or not Hazards.target_valid(active.target, original.player_id, context.world)
+		or not Hazards.target_valid(original.target, original.player_id, context.world)
 		or not original.parameters.is_empty()
 		or active.activated_round != original.fire_round
 	):

@@ -105,11 +105,11 @@ func _lifecycle_replay() -> void:
 		while not owner.next_hook().is_empty():
 			var hook: String = owner.next_hook()
 			if hook == Timeline.SUBMISSION_LOCK:
-				var target: Dictionary = {"kind": "guard", "lane": "Castle", "player_id": 1}
+				var target: Dictionary = {"kind": "castle", "entity_id": Slots.castle_id(1, 0)}
 				if round_number == 2:
 					target = {"kind": "lane", "lane": "Lord"}
 				elif round_number == 3:
-					target = {"kind": "guard", "lane": "Lord", "player_id": 1}
+					target = {"kind": "castle", "entity_id": Slots.castle_id(1, 1)}
 				var inferno: Dictionary = Candidates.source(
 					0, round_number, Content.INFERNO, target
 				)
@@ -124,12 +124,16 @@ func _lifecycle_replay() -> void:
 				_check(
 					(
 						(owner.preview_submission(0, [pyro], {}).action != "invalid")
-						== (round_number in [2, 3, 4])
+						== (round_number in [2, 4])
 					),
-					"pyroclasm_active_only_" + str(round_number)
+					"pyroclasm_active_and_every_other_round_" + str(round_number)
 				)
+				if round_number == 3:
+					var before_cooldown_rejection: Dictionary = owner.snapshot()
+					_check(owner.submit(0, [pyro], {}).action == "invalid", "pyroclasm_cooldown_rejects_real_submission")
+					_check(owner.snapshot() == before_cooldown_rejection, "pyroclasm_cooldown_rejection_is_atomic")
 				var powers: Array = [inferno] if round_number <= 3 else []
-				if round_number in [2, 3]:
+				if round_number == 2:
 					powers.append(Candidates.source(0, round_number, Content.PYROCLASM, {}, 1))
 				elif round_number == 4:
 					powers.append(pyro)
@@ -188,12 +192,12 @@ func _lifecycle_replay() -> void:
 						"scorch_one_two_one"
 					)
 					var expected: Dictionary = (
-						{"kind": "guard", "lane": "Castle", "player_id": 1}
+						{"kind": "castle", "entity_id": Slots.castle_id(1, 0)}
 						if round_number == 2
 						else (
 							{"kind": "lane", "lane": "Lord"}
 							if round_number == 3
-							else {"kind": "guard", "lane": "Lord", "player_id": 1}
+							else {"kind": "castle", "entity_id": Slots.castle_id(1, 1)}
 						)
 					)
 					_check(

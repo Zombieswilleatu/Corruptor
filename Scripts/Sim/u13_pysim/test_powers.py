@@ -169,7 +169,7 @@ class PowerTests(unittest.TestCase):
         g=self.before_lock('Kalligan');s=declaration(0,1,'Inferno',dict(kind='lane',lane='Lord'))
         self.submit(g,[s]);self.drive(g,'submission_lock',2)
         active=copy_data(g._state['persistent']['active'][0]);old_clock=copy_data(g._state['cooldowns']['locks'][0])
-        relocated=declaration(0,2,'Inferno',dict(kind='guard',lane='Castle',player_id=1))
+        relocated=declaration(0,2,'Inferno',dict(kind='castle',entity_id=next(r['id'] for r in g._state['world']['entities']['entities'] if r['kind']=='castle' and r['owner']==1 and r['attributes']['construction_state']=='active')))
         self.assertEqual('game_submitted',self.submit(g,[relocated])['action'])
         self.drive(g,'round_start_automatic',3)
         now=g._state['persistent']['active'][0]
@@ -181,6 +181,24 @@ class PowerTests(unittest.TestCase):
         self.assertEqual(6,g._state['cooldowns']['locks'][0]['ready_round'])
         self.drive(g,'submission_lock',6)
         self.assertEqual([],g._state['cooldowns']['locks'])
+
+    def test_pyroclasm_blocks_one_round_then_reopens_without_extending_scorch(self):
+        g=self.before_lock('Kalligan')
+        self.assertNotEqual('invalid',self.submit(g,[declaration(0,1,'Inferno',dict(kind='lane',lane='Lord'))])['action'])
+        self.drive(g,'submission_lock',2)
+        self.assertNotEqual('invalid',self.submit(g,[declaration(0,2,'Pyroclasm')])['action'])
+        self.drive(g,'post_resolution_direct',2)
+        clock=next(c for c in g._state['cooldowns']['locks'] if c['declaration']['power_id']=='Pyroclasm')
+        self.assertEqual((1,3,4),(clock['cooldown_rounds'],clock['first_blocked_round'],clock['ready_round']))
+        self.drive(g,'submission_lock',3)
+        before=g.snapshot()
+        self.assertEqual('invalid',self.submit(g,[declaration(0,3,'Pyroclasm')])['action'])
+        self.assertEqual(before,g.snapshot())
+        self.drive(g,'submission_lock',4)
+        self.assertNotEqual('invalid',self.submit(g,[declaration(0,4,'Pyroclasm')])['action'])
+        self.drive(g,'submission_lock',5)
+        self.assertEqual([],g._state['persistent']['active'])
+        self.assertEqual('invalid',self.submit(g,[declaration(0,5,'Pyroclasm')])['action'])
 
     def test_repeatable_queue_spends_shared_budget_and_rejects_overspending_atomically(self):
         g=self.before_lock('Odradek');w=g._state['world'];w['players'][0]['resources']['reconfiguration']=4;g._state['presentation_world']=copy_data(w)

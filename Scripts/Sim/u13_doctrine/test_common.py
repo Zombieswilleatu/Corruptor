@@ -138,7 +138,11 @@ class CommonTests(unittest.TestCase):
     def test_empty_area_powers_are_not_generated_and_debt_reduces_wish_value(self):
         for lord in ('Valak', 'Kroni', 'Odradek', 'Kalligan'):
             game = planning(lord)
-            self.assertFalse(list(lords.proposals(Facts(observe(game, 0)))), lord)
+            view = observe(game,0)
+            if lord == 'Kalligan':
+                # Empty lanes still leave exposed Castles as useful targets.
+                view['board'] = [r for r in view['board'] if r['kind'] != 'castle' or r['owner'] == 0]
+            self.assertFalse(list(lords.proposals(Facts(view))), lord)
         view = observe(planning('Kanifous'), 0)
         initial = {fingerprint(p.payload): p.value for p in lords.proposals(Facts(view)) if p.term == 'WishPower'}
         view['data']['kanifous_prices'].append(dict(owner=0))

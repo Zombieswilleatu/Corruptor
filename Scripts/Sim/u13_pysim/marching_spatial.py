@@ -59,6 +59,8 @@ def compile_effects(effects, number, data, *, full=False):
                 raise Rejected("spatial_field_payload_invalid")
         if not active["activated_round"] <= number < active["activated_round"] + len(active["stages"]):
             continue
+        if not ("lane_aura" in payload or "spatial_field" in payload):
+            continue
         lane, owner = active["target"]["lane"], active["declaration"]["player_id"]
         if "lane_aura" in payload and data.get("lane_aura_profile") == AURAS:
             for key in ("regen_bonus", "speed_percent"):
