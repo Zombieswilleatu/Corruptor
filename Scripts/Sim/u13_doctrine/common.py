@@ -14,7 +14,7 @@ from u13_pysim.power_rules import RULES, declaration
 from u13_pysim.powers import WISHES
 from . import lords
 from .budget import Budget, Limits
-from . import closing
+from . import closing, coordination
 from .coverage import POWERS
 from .diagnostics import fingerprint
 from .facts import Facts, Proposal, LANES
@@ -22,7 +22,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V5_CLOSING'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -200,7 +200,11 @@ class CommonSmartCore:
             retained[category] = [p for p in choices if budget.take('retained', category)]
 
         complete = []
-        def assemble(anchors, priorities, reserve=()):
+        omission_reserve = (min(4, self.limits.complete_plans//4)
+            if any(p.term in coordination.TERMS for p in retained['powers']) else 0)
+        assembly_limit = self.limits.complete_plans-omission_reserve
+        def assemble(anchors, priorities, reserve=(), omitted=()):
+            if not omitted and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
             if not budget.take('complete_plans'): return
             selected, cards, used, resource_spend = [], set(), set(), Counter()
             plan = dict(powers=[], order={})
@@ -257,8 +261,11 @@ class CommonSmartCore:
                           +12*(adjusted['guards']-baseline['guards'])
                           +self.weights.banishment*(adjusted['banished']-baseline['banished'])
                           +self.weights.destruction*(adjusted['destroyed']-baseline['destroyed']))
+            coordinated = coordination.evaluate(f, plan)
+            score += coordinated['score_delta']
             complete.append(dict(plan=plan, score=score, selected=selected, veil_risk=risk, projected=projected,
-                                 protection=protection, remaining_goal=remaining_goal, saving_delta=saving_delta))
+                                 protection=protection, remaining_goal=remaining_goal, saving_delta=saving_delta,
+                                 coordination=coordinated, omitted_powers=list(omitted)))
 
         base = ('resummon', 'rites', 'work', 'guards', 'monsters', 'combat')
         # Explicit conservation plan and fixed assembly priorities preserve
@@ -282,10 +289,28 @@ class CommonSmartCore:
             assemble([], ('resummon', 'powers', 'work', 'guards', 'combat', 'rites'), reserve=initial_goal['card_ids'])
         positive = [p for p in retained['powers'] if p.value > 0 and p.term not in WISHES]
         if len(positive) > 1: assemble(positive[:2], base)
+        # Reserve up to four complete-plan slots for a controlled comparison:
+        # same own choices, without powers whose standalone credit is reduced.
+        # Reassemble to recompute payments, recipes, declaration IDs and Veil.
+        # No products of alternative targets/payments or extra previews.
+        omissions, omission_keys = 0, set()
+        for candidate in sorted(complete, key=lambda c: (
+                -int(c['projected']['winner'] == f.pid), -c['score'], fingerprint(c['plan']))):
+            if omissions >= omission_reserve: break
+            omit = sorted(r['power'] for r in candidate['coordination']['powers'] if r['score_delta'] < 0)
+            if not omit: continue
+            anchors = [p for p in candidate['selected'] if not (p.category == 'powers' and p.term in omit)]
+            identity = tuple(key(p) for p in anchors)
+            if identity in omission_keys: continue
+            omission_keys.add(identity)
+            before = len(complete)
+            assemble(anchors, (), omitted=omit)
+            omissions += len(complete)-before
         unique = list({fingerprint(c['plan']): c for c in complete}.values())
         closing.prioritize(f, unique)
         ranked = sorted(unique,
-                        key=lambda c: (-c['score'], sum(len(p.cards) for p in c['selected']), fingerprint(c['plan'])))
+                        key=lambda c: (-c['score'], sum(len(p.cards) for p in c['selected']),
+                                       len(c['plan']['powers']), fingerprint(c['plan'])))
         chosen, rejected, selection = self.selector.select(ranked, preview, budget,
             round_number=view['round'], seat=f.pid)
         picked = {(p.category, p.term) for p in chosen['selected']}
@@ -328,6 +353,7 @@ class CommonSmartCore:
                                               candidate_sha256=key(p)) for category in categories for p in retained[category]],
                     budget=budget.report(), rejected_previews=rejected, rite_plans=rite_plans,
                     closing=closing.report(unique, chosen),
+                    coordination=coordination.report(unique, chosen, omissions),
                     assumptions='current public board; new Guards, Ward, Work, simultaneous powers and spatial/random reactions are uncertain',
                     veil=dict(current_board_risk=chosen['veil_risk'], paid_choice_scenario=chosen['projected'],
                               protection=chosen['protection'], hard_veto=False, reason='hidden_orders_prevent_proof'),

@@ -1,0 +1,1945 @@
+{
+  "archive": {
+    "bytes": 6036999,
+    "entries": 49,
+    "file_id": "file_000000007ec881f9971a549a350baa8e",
+    "library_file_id": "libfile_163b4a2afa9c81919eca45cde7063ced",
+    "sha256": "4ae5a5d3916a63a8162a66959d4b672a9bd5b6a8a8f89bb308e373a4d58a8a92",
+    "version": 0
+  },
+  "baseline": {
+    "files": {
+      "__init__.py": "227c8876cf5699a5538e3493e65d8ab8e7ecf03c65eb0781306d8d22461c3b8f",
+      "budget.py": "6e98f1b4cc5852ef173f4c64466c7dbb5ae9b7ef95c1c96edb9926cf57068591",
+      "closing.py": "137079c225ecedb9e1fb4a689c7817ec512ab4a215fb0624ee62e961d058579d",
+      "common.py": "53f545fb6b2dddfcee43b9b4794d17574c6a6b1054f731700efc04f410b366d9",
+      "comparison.py": "f8949c04b4c836dd8f1c12f8a99ab5cf57f288281589b9ef27d12ec36e14667b",
+      "coverage.py": "228c23b18653b89647570939fb944d7063f676a45a28ca980ef1838b669b7c71",
+      "diagnostics.py": "5cf40e9a6ab3984653737e7b8e20b373a923f932a0205803cafea3fb48fa9769",
+      "facts.py": "03cc64a025e42217a77cc24d1980033c131e25b6224fcc69f518d4debc0ecab3",
+      "lords/__init__.py": "411ef93b19ce21fbd9e93608633810c3002599c5dd9be1b679e70a7414263488",
+      "lords/deimos.py": "3db80f87a3a700099bb5a35141e87731885dc99844d36dea7a11f26eda2f5750",
+      "lords/gremory.py": "24da2dec94f8788638c8cd2aec532b25806c71590c580bd1782aa8242ea23496",
+      "lords/humbaba.py": "f4da1815459a72d5bf42bdfa14d16cd01cd88afbe43848531b42df944c5ef9a5",
+      "lords/kalligan.py": "804956060c8d59eb9ea1c7911798954e11b5d933c784531aff846e69c2f726f8",
+      "lords/kanifous.py": "f8088280111c21cb09368970b88f8593a6742f46d9048c05e0da9fec6b4aa26d",
+      "lords/kroni.py": "71e36ebdf5db505cedb8a7d853b10a5f182437baebe551e25772e52439c8a712",
+      "lords/odradek.py": "22f59d5e758be9d7c2bb24c37c137e4b5f45a676411e6932fcc510b2e019c181",
+      "lords/orias.py": "ff5432388bfc98d4b48bbc873c985317e6b7c4b14d21aff5c5b5d15940eb5e20",
+      "lords/valak.py": "73400303a46bca3c4a102165fb8d9e27ad0b3fd0e194454411408bfa9a9d44b5",
+      "observation.py": "4114c44ae86f5dd4d109f6de85ba351c3b6d4bed8e1a4af5b08b4b86349d05f0",
+      "planner_probe.py": "46a3df89d1cf5a76131881d9c184f81c786a75b19a5a5c1cc248b1fb4bad74ae",
+      "recipes.py": "ddb4e0072006093218d8a4707beb248d7fe92067f57864d02588ab86df9a1c2e",
+      "reference_probe.py": "cd5d3433e0b99082c24fb4599a9464c18b60bca021fb559f59f2c307bbbd0f98",
+      "rite_cases.py": "2cf12a6be0f6598cdeb330f76bd0efcb8c680fbcf2410b1d6461099d61d4a70e",
+      "selection.py": "a160b99b525a1590b34a8ba43fef6f5f63d70c083886f0f151111f7bb5b3894f",
+      "survey.py": "4ef849355910d662bb887fd53ae50b5574efc5f10fdc752610e5bfb81f2a059a",
+      "test_closing.py": "b0eeab4ac9b4292f57dc35760f507252d7bfb6dbc96f6367661cf140c2ff9b37",
+      "test_common.py": "830080b6f7233d5699bc1c8d473820e28d1e3c5490ab3f2d2a0f3b531c59c5a4",
+      "test_comparison.py": "5be20dc7fa3fe38efc9cbeeb8dd3cd2bc9f8bdaa139cb29b974169addd84c9e9",
+      "test_diagnostics.py": "d8362c599d2f83ae3864c6b0c32e734ac5136030e7f3194ac3fe10afda6881ff",
+      "test_recipes_veil.py": "b1948ea569cf7b304756b70e4e2a99d479228cca4514a826fdb556434d5b456e",
+      "test_rites.py": "4049d7d09741161cae1392c3f0dcb9c3735108c50492dead8c7e36883ab240c8",
+      "test_selection.py": "b2ae4fa066634e423479552398f05d1fa2d06bbb5c978be564978763e02a94bf",
+      "test_survey.py": "926deb9d20611b42b8a5f2e970bff6c4e4b357c1afe8d12cd263c26749a05880",
+      "veil_judgment.py": "f92f3a5ca62d8ead00f38b7b5a1d4945645032e05e048305ec114bbb66d64131"
+    },
+    "package_sha256": "b3ec7fbd77182e5f5e9188d1e5708a2c9b8549e38086ecb8817320ef9a64ddf4",
+    "revision": "0353ffeba822cbaf05f2d683a9221d0aa9eb8c4e"
+  },
+  "behavior_check": {
+    "games": [
+      {
+        "decisions_sha256": "3078e545de9c091a3da733ff54f9668c168a426b072426ff1b5fe2c2c3f4f951",
+        "final_state_sha256": "a9731fdb591020fe11da8cf8fab265564c734941169a4f819697beeefa8622fa",
+        "name": "gremory_humbaba",
+        "operations": 357,
+        "outcome": {
+          "action": "game_finished",
+          "round": 14,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 14
+      },
+      {
+        "decisions_sha256": "0bb5b4038592511b44f4362f56ea55ab01d9cbbc5c643c2b05f8c6c018657d9c",
+        "final_state_sha256": "06edfcd48a053748e049b2355a893429658e1a492f02d89fda6c9705ebd6e431",
+        "name": "deimos_kalligan",
+        "operations": 557,
+        "outcome": {
+          "action": "game_finished",
+          "round": 22,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "rounds": 22
+      },
+      {
+        "decisions_sha256": "dce238027e67a9d7afbfbcfcb7526291b5c98e3e738e6a80078e86a0cc34cdf1",
+        "final_state_sha256": "c368c111b12cc4ffc16efb67a420df8ee1f7acdf3822ab30aeee7c567c1947ce",
+        "name": "orias_odradek",
+        "operations": 388,
+        "outcome": {
+          "action": "game_finished",
+          "round": 15,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "rounds": 15
+      },
+      {
+        "decisions_sha256": "6ebe6880dce13341a4eacb8613df2e60556f9eb90cf7bf1c84b91378e43fd58d",
+        "final_state_sha256": "bf612750815642d49e916c72b0ecf53fa5c4c0bd8899f4a56fb9f50c2577b15d",
+        "name": "kroni_valak",
+        "operations": 426,
+        "outcome": {
+          "action": "game_finished",
+          "round": 17,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "rounds": 17
+      },
+      {
+        "decisions_sha256": "0a5fc27ac4df8025968d80a489653c47d48868024d85e5a8efe497691ecaa049",
+        "final_state_sha256": "af85c585b30ce7321590f37606e23e8718422971d9d41cff17f770319349a38f",
+        "name": "kanifous_gremory",
+        "operations": 440,
+        "outcome": {
+          "action": "game_finished",
+          "round": 18,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 18
+      }
+    ],
+    "implementation": "CPython",
+    "operations": 2168,
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "rounds": 86,
+    "semantic_sha256": "387161c6b04fe043af9ee4fde26392c174ad6341f67ab000dde351e9d971c419",
+    "tests": 103
+  },
+  "candidate_was_uncommitted": true,
+  "date": "2026-09-18",
+  "engine_source_sha256": "132b2742ffa6d273e1eb98ce94b1972dda2d35d25309c1a0fa4c19645dd4d40e",
+  "harness_source_sha256": "02bb49ad871a72430c1c7ad1544cfc3e67f63108aa0cc35fd47de98c76788e32",
+  "limits": {
+    "complete_plans": 32,
+    "generated_per_category": 16,
+    "previews": 8,
+    "retained_per_category": 4
+  },
+  "local_parent_revision": "0353ffeba822cbaf05f2d683a9221d0aa9eb8c4e",
+  "pilot": {
+    "manifest_sha256": "87f20c07081076520100760da33aa11a3c523ec535c7d301749f140e3aaabe0a",
+    "powers": {
+      "U13_COMMON_SMART_CORE_ALPHA_V5_CLOSING/Consume": {
+        "decisions": 189,
+        "guard_value": 330,
+        "guards_consumed": 89,
+        "opportunity": 138,
+        "outcome:fizzled": 25,
+        "outcome:resolved": 89,
+        "selected": 119,
+        "selected:attack_removes_consume_target": 21,
+        "selected:consume_target_remains": 98,
+        "selected_adjusted": 21,
+        "unobserved": 5
+      },
+      "U13_COMMON_SMART_CORE_ALPHA_V5_CLOSING/Projection": {
+        "decisions": 209,
+        "essence_spent": 162,
+        "guards_removed": 44,
+        "opportunity": 76,
+        "outcome:resolved": 51,
+        "selected": 51,
+        "selected:attack_removes_projection_targets": 13,
+        "selected:projection_target_remains": 38,
+        "selected_adjusted": 13,
+        "unobserved": 0,
+        "whiffs": 7
+      },
+      "U13_COMMON_SMART_CORE_ALPHA_V5_CLOSING/Ravenous": {
+        "decisions": 189,
+        "enemy_units_consumed": 435,
+        "friendly_units_consumed": 306,
+        "opportunity": 115,
+        "outcome:resolved": 45,
+        "selected": 45,
+        "selected:ravenous_exposure_unchanged": 6,
+        "selected:ravenous_new_friendly_exposure": 39,
+        "selected_adjusted": 39,
+        "unobserved": 0
+      },
+      "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION/Consume": {
+        "decisions": 187,
+        "guard_value": 387,
+        "guards_consumed": 107,
+        "opportunity": 137,
+        "outcome:fizzled": 1,
+        "outcome:resolved": 107,
+        "selected": 113,
+        "selected:consume_target_remains": 113,
+        "selected_adjusted": 0,
+        "unobserved": 5
+      },
+      "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION/Projection": {
+        "decisions": 200,
+        "essence_spent": 147,
+        "guards_removed": 42,
+        "opportunity": 65,
+        "outcome:resolved": 42,
+        "selected": 42,
+        "selected:projection_target_remains": 42,
+        "selected_adjusted": 0,
+        "unobserved": 0,
+        "whiffs": 0
+      },
+      "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION/Ravenous": {
+        "decisions": 187,
+        "enemy_units_consumed": 391,
+        "friendly_units_consumed": 239,
+        "opportunity": 123,
+        "outcome:resolved": 37,
+        "selected": 37,
+        "selected:ravenous_exposure_unchanged": 20,
+        "selected:ravenous_new_friendly_exposure": 17,
+        "selected_adjusted": 17,
+        "unobserved": 0
+      }
+    },
+    "scope": "Kroni and Valak in seat 0 versus all nine Lords; swap policy seats on each fixed setup. 18 policy pairs, 17 unordered seed clusters, one fixed loadout. Targeted behavior pilot, not strength, balance, native parity or full Lord-seat coverage.",
+    "summary": {
+      "candidate_policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+      "completed": 36,
+      "decisions": {
+        "U13_COMMON_SMART_CORE_ALPHA_V5_CLOSING": 643,
+        "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION": 643
+      },
+      "failed": 0,
+      "games": [
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Gremory"
+          ],
+          "name": "kroni_gremory_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 16,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 16,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Gremory"
+          ],
+          "name": "kroni_gremory_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 16,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 16,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Deimos"
+          ],
+          "name": "kroni_deimos_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 14,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 14,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Deimos"
+          ],
+          "name": "kroni_deimos_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 16,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 16,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Humbaba"
+          ],
+          "name": "kroni_humbaba_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 22,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 22,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Humbaba"
+          ],
+          "name": "kroni_humbaba_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 21,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 21,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Kalligan"
+          ],
+          "name": "kroni_kalligan_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 16,
+            "win_by": "Ritual",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 16,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Kalligan"
+          ],
+          "name": "kroni_kalligan_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 21,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 21,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Orias"
+          ],
+          "name": "kroni_orias_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 17,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 17,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Orias"
+          ],
+          "name": "kroni_orias_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 11,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 11,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Odradek"
+          ],
+          "name": "kroni_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 12,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 12,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Odradek"
+          ],
+          "name": "kroni_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 18,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 18,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Kroni"
+          ],
+          "name": "kroni_kroni_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 15,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 15,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Kroni"
+          ],
+          "name": "kroni_kroni_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 21,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 21,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Valak"
+          ],
+          "name": "kroni_valak_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 17,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 17,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Valak"
+          ],
+          "name": "kroni_valak_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 18,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 18,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Kanifous"
+          ],
+          "name": "kroni_kanifous_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 17,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 17,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Kroni",
+            "Kanifous"
+          ],
+          "name": "kroni_kanifous_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 19,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 19,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Gremory"
+          ],
+          "name": "valak_gremory_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 16,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 16,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Gremory"
+          ],
+          "name": "valak_gremory_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 21,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 21,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Deimos"
+          ],
+          "name": "valak_deimos_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 17,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 17,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Deimos"
+          ],
+          "name": "valak_deimos_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 17,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 17,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Humbaba"
+          ],
+          "name": "valak_humbaba_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 19,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 19,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Humbaba"
+          ],
+          "name": "valak_humbaba_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 21,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 21,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Kalligan"
+          ],
+          "name": "valak_kalligan_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 21,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 21,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Kalligan"
+          ],
+          "name": "valak_kalligan_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 21,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 21,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Orias"
+          ],
+          "name": "valak_orias_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 20,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 20,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Orias"
+          ],
+          "name": "valak_orias_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 19,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 19,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Odradek"
+          ],
+          "name": "valak_odradek_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 17,
+            "win_by": "Ritual",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 17,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Odradek"
+          ],
+          "name": "valak_odradek_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 17,
+            "win_by": "Ritual",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 17,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Kroni"
+          ],
+          "name": "valak_kroni_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 13,
+            "win_by": "Ritual",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 13,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Kroni"
+          ],
+          "name": "valak_kroni_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 20,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "rejected_previews": 0,
+          "rounds": 20,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Valak"
+          ],
+          "name": "valak_valak_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 19,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 19,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Valak"
+          ],
+          "name": "valak_valak_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 19,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 19,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 0,
+          "candidate_won": true,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Kanifous"
+          ],
+          "name": "valak_kanifous_00__candidate_p0",
+          "outcome": {
+            "action": "game_finished",
+            "round": 21,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 21,
+          "status": "complete"
+        },
+        {
+          "candidate_seat": 1,
+          "candidate_won": false,
+          "error": null,
+          "lords": [
+            "Valak",
+            "Kanifous"
+          ],
+          "name": "valak_kanifous_00__candidate_p1",
+          "outcome": {
+            "action": "game_finished",
+            "round": 18,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "rejected_previews": 0,
+          "rounds": 18,
+          "status": "complete"
+        }
+      ],
+      "maximum_work": {
+        "U13_COMMON_SMART_CORE_ALPHA_V5_CLOSING": {
+          "complete_plans": 30,
+          "generated:combat": 11,
+          "generated:guards": 11,
+          "generated:monsters": 10,
+          "generated:powers": 12,
+          "generated:resummon": 3,
+          "generated:rites": 4,
+          "generated:work": 6,
+          "previews": 1,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 4,
+          "retained:resummon": 2,
+          "retained:rites": 3,
+          "retained:work": 4
+        },
+        "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION": {
+          "complete_plans": 32,
+          "generated:combat": 11,
+          "generated:guards": 11,
+          "generated:monsters": 10,
+          "generated:powers": 15,
+          "generated:resummon": 3,
+          "generated:rites": 4,
+          "generated:work": 6,
+          "previews": 1,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 4,
+          "retained:resummon": 2,
+          "retained:rites": 3,
+          "retained:work": 4
+        }
+      },
+      "mean_rounds": 17.86111111111111,
+      "paired_results": {
+        "baseline_wins_both": 3,
+        "candidate_wins_both": 3,
+        "incomplete": 0,
+        "split": 12
+      },
+      "rejected_previews": 0,
+      "requested": 36,
+      "rite_measurements": [
+        {
+          "current_board_losses": 18,
+          "current_board_wins": 28,
+          "generated": 311,
+          "outcomes_unobserved": 0,
+          "personal_tears": 3,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V5_CLOSING",
+          "resolved": 3,
+          "retained": 311,
+          "scored_measured_decisions": 643,
+          "scored_plans": 622,
+          "selected": 3,
+          "term": "Invocation"
+        },
+        {
+          "current_board_losses": 33,
+          "current_board_wins": 2,
+          "generated": 55,
+          "outcomes_unobserved": 0,
+          "personal_tears": 53,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V5_CLOSING",
+          "resolved": 53,
+          "retained": 55,
+          "scored_measured_decisions": 643,
+          "scored_plans": 957,
+          "selected": 53,
+          "term": "ProfaneRuins"
+        },
+        {
+          "current_board_losses": 0,
+          "current_board_wins": 30,
+          "generated": 17,
+          "outcomes_unobserved": 0,
+          "personal_tears": 16,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V5_CLOSING",
+          "resolved": 16,
+          "retained": 17,
+          "scored_measured_decisions": 643,
+          "scored_plans": 252,
+          "selected": 16,
+          "term": "Supplicants"
+        },
+        {
+          "current_board_losses": 22,
+          "current_board_wins": 24,
+          "generated": 315,
+          "outcomes_unobserved": 0,
+          "personal_tears": 4,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+          "resolved": 4,
+          "retained": 315,
+          "scored_measured_decisions": 643,
+          "scored_plans": 630,
+          "selected": 4,
+          "term": "Invocation"
+        },
+        {
+          "current_board_losses": 0,
+          "current_board_wins": 0,
+          "generated": 48,
+          "outcomes_unobserved": 0,
+          "personal_tears": 47,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+          "resolved": 47,
+          "retained": 48,
+          "scored_measured_decisions": 643,
+          "scored_plans": 821,
+          "selected": 47,
+          "term": "ProfaneRuins"
+        },
+        {
+          "current_board_losses": 0,
+          "current_board_wins": 35,
+          "generated": 11,
+          "outcomes_unobserved": 0,
+          "personal_tears": 11,
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+          "resolved": 11,
+          "retained": 11,
+          "scored_measured_decisions": 643,
+          "scored_plans": 186,
+          "selected": 11,
+          "term": "Supplicants"
+        }
+      ],
+      "rounds": 643,
+      "total_decision_ms": 10939.273189000001,
+      "total_simulation_ms": 188236.75528400007,
+      "victory_routes": {
+        "Dominion": 3,
+        "FinalCollapse": 21,
+        "Ritual": 12
+      },
+      "wins": {
+        "baseline": 18,
+        "candidate": 18
+      }
+    },
+    "summary_sha256": "98c3541e009bbe8e86255068a6a0a3b8537a03ca9c5b5565aa959c46af761759"
+  },
+  "policy": "U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION",
+  "replays": {
+    "cases": [
+      {
+        "baseline_decision_matched": true,
+        "example": {
+          "assessment": {
+            "certainty": "current_board_scenario",
+            "eligible_after": [],
+            "eligible_before": [
+              "u13_entity_card:17:game:deck:Butcher:1:0",
+              "u13_entity_card:17:game:deck:Butcher:1:4"
+            ],
+            "power": "Projection",
+            "reason": "attack_removes_projection_targets",
+            "score_delta": -18,
+            "spend": 2,
+            "target_value_after": 0,
+            "target_value_before": 2,
+            "timing": "post_resolution_direct"
+          },
+          "game": "valak_gremory_00__candidate_p1",
+          "plan_sha256": "3bfe7aff7005aab0b97314678b7d5ba3038b6386287c4b97619b1a1c9e750cd6",
+          "power": "Projection",
+          "round": 5,
+          "seat": 0,
+          "view_sha256": "30eb98e34b9c4f1ee59d52f13f64ef61246436d079e872b292a567f988e4ff03"
+        },
+        "observed_input_matched": true,
+        "results": {
+          "baseline": {
+            "final_state_sha256": "645062b20a710a80c5eedd296663b7ab5c1cfa4b6999ba211f458d5a5e5b9d8d",
+            "metrics": {
+              "POWER_RESOLVED": 1,
+              "essence_spent": 2,
+              "guards_removed": 0,
+              "whiffs": 1
+            },
+            "outcome": {
+              "action": "game_in_progress",
+              "round": 6,
+              "win_by": "",
+              "winner": -1
+            },
+            "plan": {
+              "order": {
+                "action": "Siege",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:13",
+                  "u13_entity_card:17:game:deck:Vulture:2:15",
+                  "u13_entity_card:18:game:deck:Penitent:2:16",
+                  "u13_entity_card:18:game:deck:Penitent:2:17",
+                  "u13_entity_card:17:game:deck:Vulture:2:12",
+                  "u13_entity_card:18:game:deck:Penitent:2:14",
+                  "u13_entity_card:17:game:deck:Vulture:2:10",
+                  "u13_entity_card:16:game:deck:Wright:1:5"
+                ],
+                "castle_action": {
+                  "action": "Activate",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "use_repair_token": false
+                },
+                "lane": "Castle",
+                "monster_choice": "Kurchin",
+                "target_id": "u13_entity_castle:16:loadout:castle:1:1:4"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:5:1:0",
+                  "declared_round": 5,
+                  "fire_hook": "post_resolution_direct",
+                  "fire_round": 5,
+                  "lord_id": "Valak",
+                  "parameters": {
+                    "spend": 2
+                  },
+                  "player_id": 0,
+                  "power_id": "Projection",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "kind": "guard_zone",
+                    "player_id": 1,
+                    "zone": "Castle"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            }
+          },
+          "candidate": {
+            "final_state_sha256": "bd78314e5df4b40c5c33c7221bc76a3d433bc4efc6d42b7bbdab47885d955f12",
+            "metrics": {
+              "POWER_RESOLVED": 1,
+              "essence_spent": 2,
+              "guards_removed": 1,
+              "whiffs": 0
+            },
+            "outcome": {
+              "action": "game_in_progress",
+              "round": 6,
+              "win_by": "",
+              "winner": -1
+            },
+            "plan": {
+              "order": {
+                "action": "Hunt",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:13",
+                  "u13_entity_card:17:game:deck:Vulture:2:15",
+                  "u13_entity_card:18:game:deck:Penitent:2:16",
+                  "u13_entity_card:18:game:deck:Penitent:2:17",
+                  "u13_entity_card:17:game:deck:Vulture:2:12",
+                  "u13_entity_card:18:game:deck:Penitent:2:14",
+                  "u13_entity_card:17:game:deck:Vulture:2:10",
+                  "u13_entity_card:16:game:deck:Wright:1:5"
+                ],
+                "castle_action": {
+                  "action": "Activate",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "use_repair_token": false
+                },
+                "lane": "Lord",
+                "monster_choice": "Varn",
+                "target_id": "u13_entity_lord:12:smoke:lord:1:1:0"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:5:1:0",
+                  "declared_round": 5,
+                  "fire_hook": "post_resolution_direct",
+                  "fire_round": 5,
+                  "lord_id": "Valak",
+                  "parameters": {
+                    "spend": 2
+                  },
+                  "player_id": 0,
+                  "power_id": "Projection",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "kind": "guard_zone",
+                    "player_id": 1,
+                    "zone": "Castle"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "baseline_decision_matched": true,
+        "example": {
+          "assessment": {
+            "certainty": "current_board_scenario",
+            "eligible_after": [],
+            "eligible_before": [
+              "u13_entity_card:17:game:deck:Vulture:1:2",
+              "u13_entity_card:17:game:deck:Vulture:1:9"
+            ],
+            "power": "Projection",
+            "reason": "attack_removes_projection_targets",
+            "score_delta": -22,
+            "spend": 3,
+            "target_value_after": 0,
+            "target_value_before": 3,
+            "timing": "post_resolution_direct"
+          },
+          "game": "valak_gremory_00__candidate_p1",
+          "plan_sha256": "00cfb95953ce87c384f59fa9458c2bf97903ca80d1f3ab59dcf0607dc669bb34",
+          "power": "Projection",
+          "round": 7,
+          "seat": 0,
+          "view_sha256": "218817ae49f38ea410cb7c204925e09859ef27c912b584e3c1c2ea87713cdec9"
+        },
+        "observed_input_matched": true,
+        "results": {
+          "baseline": {
+            "final_state_sha256": "6468e77478dd83936f3316d37344154259b8675cbed29873eb1bacb49372cecc",
+            "metrics": {
+              "POWER_RESOLVED": 1,
+              "essence_spent": 3,
+              "guards_removed": 1,
+              "whiffs": 0
+            },
+            "outcome": {
+              "action": "game_in_progress",
+              "round": 8,
+              "win_by": "",
+              "winner": -1
+            },
+            "plan": {
+              "order": {
+                "action": "Siege",
+                "card_ids": [
+                  "u13_entity_card:16:game:deck:Wright:2:16",
+                  "u13_entity_card:17:game:deck:Vulture:2:14",
+                  "u13_entity_card:18:game:deck:Penitent:2:12",
+                  "u13_entity_card:18:game:deck:Penitent:2:11",
+                  "u13_entity_card:17:game:deck:Vulture:1:4",
+                  "u13_entity_card:18:game:deck:Penitent:1:5"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:0",
+                  "use_repair_token": false
+                },
+                "lane": "Castle",
+                "monster_choice": "Kurchin",
+                "target_id": "u13_entity_castle:16:loadout:castle:1:1:2"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:7:1:0",
+                  "declared_round": 7,
+                  "fire_hook": "post_resolution_direct",
+                  "fire_round": 7,
+                  "lord_id": "Valak",
+                  "parameters": {
+                    "spend": 3
+                  },
+                  "player_id": 0,
+                  "power_id": "Projection",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "kind": "guard_zone",
+                    "player_id": 1,
+                    "zone": "Castle"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            }
+          },
+          "candidate": {
+            "final_state_sha256": "b0f1c44fb8c3346db79378885c40c7f8b574a7b80a8e410da36684ba78299cb1",
+            "metrics": {},
+            "outcome": {
+              "action": "game_in_progress",
+              "round": 8,
+              "win_by": "",
+              "winner": -1
+            },
+            "plan": {
+              "order": {
+                "action": "Siege",
+                "card_ids": [
+                  "u13_entity_card:16:game:deck:Wright:2:16",
+                  "u13_entity_card:17:game:deck:Vulture:2:14",
+                  "u13_entity_card:18:game:deck:Penitent:2:12",
+                  "u13_entity_card:18:game:deck:Penitent:2:11",
+                  "u13_entity_card:17:game:deck:Vulture:1:4",
+                  "u13_entity_card:18:game:deck:Penitent:1:5"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:0",
+                  "use_repair_token": false
+                },
+                "lane": "Castle",
+                "monster_choice": "Kurchin",
+                "target_id": "u13_entity_castle:16:loadout:castle:1:1:2"
+              },
+              "powers": []
+            }
+          }
+        }
+      },
+      {
+        "baseline_decision_matched": true,
+        "example": {
+          "assessment": {
+            "certainty": "current_board_scenario",
+            "power": "Consume",
+            "reason": "attack_removes_consume_target",
+            "score_delta": -32,
+            "target_id": "u13_entity_card:18:game:deck:Penitent:2:13",
+            "timing": "next_round_start"
+          },
+          "game": "kroni_gremory_00__candidate_p1",
+          "plan_sha256": "6aab9fa9514e0317c7334c13a95a5f1eb860767778969e0f943160d2384a3562",
+          "power": "Consume",
+          "round": 6,
+          "seat": 0,
+          "view_sha256": "07a7dcdaf289a517a398f4363cdec84a087d3f86de05accb8898f30c29af4cd6"
+        },
+        "observed_input_matched": true,
+        "results": {
+          "baseline": {
+            "final_state_sha256": "7953cf225d207a5237e08bbf5484c1295d3c88d93c72357779e573b33e90712b",
+            "metrics": {
+              "FIZZLE_INVALID_TARGET": 1
+            },
+            "outcome": {
+              "action": "game_in_progress",
+              "round": 7,
+              "win_by": "",
+              "winner": -1
+            },
+            "plan": {
+              "order": {
+                "action": "Siege",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:16",
+                  "u13_entity_card:17:game:deck:Butcher:2:12",
+                  "u13_entity_card:18:game:deck:Penitent:2:16",
+                  "u13_entity_card:17:game:deck:Butcher:1:9",
+                  "u13_entity_card:18:game:deck:Penitent:2:14",
+                  "u13_entity_card:17:game:deck:Butcher:1:4"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "use_repair_token": false
+                },
+                "lane": "Castle",
+                "monster_choice": "Lemek",
+                "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:6:1:0",
+                  "declared_round": 6,
+                  "fire_hook": "round_start_scheduled",
+                  "fire_round": 7,
+                  "lord_id": "Kroni",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "Consume",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "entity_id": "u13_entity_card:18:game:deck:Penitent:2:13"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            }
+          },
+          "candidate": {
+            "final_state_sha256": "3dadeec29498b0ea0b077de134566dd2a427ba692ce42c3a6958077a53a5a58f",
+            "metrics": {
+              "POWER_RESOLVED": 1
+            },
+            "outcome": {
+              "action": "game_in_progress",
+              "round": 7,
+              "win_by": "",
+              "winner": -1
+            },
+            "plan": {
+              "order": {
+                "action": "Hunt",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:16",
+                  "u13_entity_card:17:game:deck:Butcher:2:12",
+                  "u13_entity_card:18:game:deck:Penitent:2:16",
+                  "u13_entity_card:17:game:deck:Butcher:1:9",
+                  "u13_entity_card:18:game:deck:Penitent:2:14",
+                  "u13_entity_card:17:game:deck:Butcher:1:4"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "use_repair_token": false
+                },
+                "lane": "Lord",
+                "monster_choice": "Lemek",
+                "target_id": "u13_entity_lord:12:smoke:lord:1:1:0"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:6:1:0",
+                  "declared_round": 6,
+                  "fire_hook": "round_start_scheduled",
+                  "fire_round": 7,
+                  "lord_id": "Kroni",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "Consume",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "entity_id": "u13_entity_card:18:game:deck:Penitent:2:13"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "baseline_decision_matched": true,
+        "example": {
+          "assessment": {
+            "certainty": "current_board_scenario",
+            "power": "Consume",
+            "reason": "attack_removes_consume_target",
+            "score_delta": -28,
+            "target_id": "u13_entity_card:17:game:deck:Vulture:2:11",
+            "timing": "next_round_start"
+          },
+          "game": "kroni_gremory_00__candidate_p1",
+          "plan_sha256": "4243894607a3aedf371a3779ae3aa528260f925a6865756eac5458c937da8f50",
+          "power": "Consume",
+          "round": 7,
+          "seat": 0,
+          "view_sha256": "ef55680e614a1fe2ce44d1cfa402abaaba24c3476a70a1cf01acf9b93d0c95bc"
+        },
+        "observed_input_matched": true,
+        "results": {
+          "baseline": {
+            "final_state_sha256": "2ed49c513976717f24d5917f1959f18ab69034bdad76861e030cddcb8a96b788",
+            "metrics": {
+              "FIZZLE_INVALID_TARGET": 1
+            },
+            "outcome": {
+              "action": "game_in_progress",
+              "round": 8,
+              "win_by": "",
+              "winner": -1
+            },
+            "plan": {
+              "order": {
+                "action": "Hunt",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:15",
+                  "u13_entity_card:16:game:deck:Wright:2:13",
+                  "u13_entity_card:17:game:deck:Butcher:2:10",
+                  "u13_entity_card:16:game:deck:Wright:1:7",
+                  "u13_entity_card:18:game:deck:Penitent:1:3",
+                  "u13_entity_card:18:game:deck:Penitent:1:6"
+                ],
+                "castle_action": {
+                  "action": "Activate",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "use_repair_token": false
+                },
+                "lane": "Lord",
+                "monster_choice": "Lemek",
+                "target_id": "u13_entity_lord:12:smoke:lord:1:1:0"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:7:1:0",
+                  "declared_round": 7,
+                  "fire_hook": "round_start_scheduled",
+                  "fire_round": 8,
+                  "lord_id": "Kroni",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "Consume",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "entity_id": "u13_entity_card:17:game:deck:Vulture:2:11"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            }
+          },
+          "candidate": {
+            "final_state_sha256": "b16d1556efe5fb54b87a59897c77a76a67d89f48e86de4225dff81cbfc1e1cf7",
+            "metrics": {
+              "POWER_RESOLVED": 1
+            },
+            "outcome": {
+              "action": "game_in_progress",
+              "round": 8,
+              "win_by": "",
+              "winner": -1
+            },
+            "plan": {
+              "order": {
+                "action": "Siege",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:15",
+                  "u13_entity_card:16:game:deck:Wright:2:13",
+                  "u13_entity_card:17:game:deck:Butcher:2:10",
+                  "u13_entity_card:16:game:deck:Wright:1:7",
+                  "u13_entity_card:18:game:deck:Penitent:1:3",
+                  "u13_entity_card:18:game:deck:Penitent:1:6"
+                ],
+                "castle_action": {
+                  "action": "Activate",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "use_repair_token": false
+                },
+                "lane": "Castle",
+                "monster_choice": "Lemek",
+                "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:7:1:0",
+                  "declared_round": 7,
+                  "fire_hook": "round_start_scheduled",
+                  "fire_round": 8,
+                  "lord_id": "Kroni",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "Consume",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "entity_id": "u13_entity_card:17:game:deck:Vulture:2:11"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "baseline_decision_matched": true,
+        "example": {
+          "assessment": {
+            "certainty": "lane_exposure_only_not_predicted_casualties",
+            "consumed_supplicants": 0,
+            "lane": "Lord",
+            "monster_bodies_minimum": 1,
+            "ordinary_recruits": 5,
+            "power": "Ravenous",
+            "power_bodies_minimum": 0,
+            "reason": "ravenous_new_friendly_exposure",
+            "score_delta": -54,
+            "timing": "post_resolution_special_actors"
+          },
+          "game": "kroni_gremory_00__candidate_p1",
+          "plan_sha256": "79d099c58d7c9ea08018eb3c02708eb08ad8c0af27c8f77cbc735b68d84dd3cb",
+          "power": "Ravenous",
+          "round": 5,
+          "seat": 0,
+          "view_sha256": "34f2b1589713019fcafb922b857a0f9169a862cd7e29d27921fb365c8701795e"
+        },
+        "observed_input_matched": true,
+        "results": {
+          "baseline": {
+            "final_state_sha256": "d48301324aa1f1066d999a9d0600eb5d5647e7ef12b0afa22320eade2c973007",
+            "metrics": {
+              "POWER_RESOLVED": 1,
+              "enemy_consumed": 11,
+              "friendly_consumed": 9
+            },
+            "outcome": {
+              "action": "game_in_progress",
+              "round": 6,
+              "win_by": "",
+              "winner": -1
+            },
+            "plan": {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:16:game:deck:Wright:1:2",
+                  "u13_entity_card:16:game:deck:Wright:2:12",
+                  "u13_entity_card:16:game:deck:Wright:2:17",
+                  "u13_entity_card:17:game:deck:Vulture:1:0"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:1:6",
+                    "lane": "Lord",
+                    "slot": 0
+                  },
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:2:17",
+                    "lane": "Lord",
+                    "slot": 2
+                  }
+                ],
+                "lane": "Lord",
+                "monster_choice": "Muno"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:5:1:0",
+                  "declared_round": 5,
+                  "fire_hook": "round_start_scheduled",
+                  "fire_round": 6,
+                  "lord_id": "Kroni",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "Consume",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "entity_id": "u13_entity_card:17:game:deck:Vulture:2:16"
+                  },
+                  "visibility": "public"
+                },
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:5:1:1",
+                  "declared_round": 5,
+                  "fire_hook": "post_resolution_special_actors",
+                  "fire_round": 5,
+                  "lord_id": "Kroni",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "Ravenous",
+                  "queue_index": 1,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "field_position": {
+                      "x_fp": 0,
+                      "y_fp": 300
+                    },
+                    "lane": "Lord"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            }
+          },
+          "candidate": {
+            "final_state_sha256": "05acf8e4e100d8df1db2a4683cc7c4e6a14f00169613dc32c72975c23ac6bbb4",
+            "metrics": {},
+            "outcome": {
+              "action": "game_in_progress",
+              "round": 6,
+              "win_by": "",
+              "winner": -1
+            },
+            "plan": {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:16:game:deck:Wright:1:2",
+                  "u13_entity_card:16:game:deck:Wright:2:12",
+                  "u13_entity_card:16:game:deck:Wright:2:17",
+                  "u13_entity_card:17:game:deck:Vulture:1:0"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:1:6",
+                    "lane": "Lord",
+                    "slot": 0
+                  },
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:2:17",
+                    "lane": "Lord",
+                    "slot": 2
+                  }
+                ],
+                "lane": "Lord",
+                "monster_choice": "Muno"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:5:1:0",
+                  "declared_round": 5,
+                  "fire_hook": "round_start_scheduled",
+                  "fire_round": 6,
+                  "lord_id": "Kroni",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "Consume",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "entity_id": "u13_entity_card:17:game:deck:Vulture:2:16"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "baseline_decision_matched": true,
+        "example": {
+          "assessment": {
+            "certainty": "lane_exposure_only_not_predicted_casualties",
+            "consumed_supplicants": 0,
+            "lane": "Castle",
+            "monster_bodies_minimum": 1,
+            "ordinary_recruits": 4,
+            "power": "Ravenous",
+            "power_bodies_minimum": 0,
+            "reason": "ravenous_new_friendly_exposure",
+            "score_delta": -45,
+            "timing": "post_resolution_special_actors"
+          },
+          "game": "kroni_gremory_00__candidate_p1",
+          "plan_sha256": "cb9b1f0ff6443fdb5bd402f5c8b529292c6ea51c2f254a05701ff221eddf13bc",
+          "power": "Ravenous",
+          "round": 13,
+          "seat": 0,
+          "view_sha256": "95c8db157dd98cab6bdb353669cd1bf7b04ad7f3f998235f5955560886ba9363"
+        },
+        "observed_input_matched": true,
+        "results": {
+          "baseline": {
+            "final_state_sha256": "9c27ed969303badb6a744405bbc0860ead7ed902333fd385d55125d8282c623e",
+            "metrics": {
+              "POWER_RESOLVED": 1,
+              "enemy_consumed": 14,
+              "friendly_consumed": 10
+            },
+            "outcome": {
+              "action": "game_in_progress",
+              "round": 14,
+              "win_by": "",
+              "winner": -1
+            },
+            "plan": {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Vulture:1:2",
+                  "u13_entity_card:17:game:deck:Vulture:1:9",
+                  "u13_entity_card:16:game:deck:Wright:1:4",
+                  "u13_entity_card:16:game:deck:Wright:2:10"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:2",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:1:2",
+                    "lane": "Castle",
+                    "slot": 0
+                  },
+                  {
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:2:17",
+                    "lane": "Castle",
+                    "slot": 1
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Tumler"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:4:0:13:1:0",
+                  "declared_round": 13,
+                  "fire_hook": "post_resolution_special_actors",
+                  "fire_round": 13,
+                  "lord_id": "Kroni",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "Ravenous",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "field_position": {
+                      "x_fp": 0,
+                      "y_fp": 300
+                    },
+                    "lane": "Castle"
+                  },
+                  "visibility": "public"
+                },
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:4:0:13:1:1",
+                  "declared_round": 13,
+                  "fire_hook": "round_start_scheduled",
+                  "fire_round": 14,
+                  "lord_id": "Kroni",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "Consume",
+                  "queue_index": 1,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "entity_id": "u13_entity_card:18:game:deck:Penitent:2:11"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            }
+          },
+          "candidate": {
+            "final_state_sha256": "a7f9b4f16da676e401f15fdca0b52a3f0e4602cb0f41b6ba87cd4c26903082d9",
+            "metrics": {},
+            "outcome": {
+              "action": "game_in_progress",
+              "round": 14,
+              "win_by": "",
+              "winner": -1
+            },
+            "plan": {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Vulture:1:2",
+                  "u13_entity_card:17:game:deck:Vulture:1:9",
+                  "u13_entity_card:16:game:deck:Wright:1:4",
+                  "u13_entity_card:16:game:deck:Wright:2:10"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:2",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:1:2",
+                    "lane": "Castle",
+                    "slot": 0
+                  },
+                  {
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:2:17",
+                    "lane": "Castle",
+                    "slot": 1
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Tumler"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:4:0:13:1:0",
+                  "declared_round": 13,
+                  "fire_hook": "round_start_scheduled",
+                  "fire_round": 14,
+                  "lord_id": "Kroni",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "Consume",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "entity_id": "u13_entity_card:18:game:deck:Penitent:2:11"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "scope": "Six correlated directed positions from two pilot games. Policy sees only own permitted observation and legality; replay then holds the recorded opposing order fixed. Not six independent wins or a guarantee against other orders."
+  },
+  "runner_source_sha256": "d2361a1b06ba1ba19e33467caf8764fef8428c5e4eefebf8f15de1c3b123987a",
+  "schema": "U13_POWER_COORDINATION_LOCAL_V1",
+  "scope": "Python experimental common doctrine only. Rules and shipping native policy unchanged. No new Godot parity, Windows acceptance, general strength or Lord-balance conclusion. Odradek resource horizon and other power interactions remain future work.",
+  "selection": {
+    "max_score_gap": 0.0,
+    "policy_seed": "",
+    "temperature": 0.0
+  },
+  "status": "local CPython passed; Windows CPython/PyPy pending"
+}
