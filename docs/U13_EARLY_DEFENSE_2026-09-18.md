@@ -156,5 +156,24 @@ bash Scripts/Sim/run_u13_common_doctrine.sh \
   "C:/Users/jerem/Downloads/pypy3.11-v7.3.23-win64/pypy3.11-v7.3.23-win64/pypy3.exe"
 ```
 
-Windows acceptance remains pending. This is a Python doctrine checkpoint,
-without a new native Godot parity or Lord-balance claim.
+## Windows acceptance
+
+Accepted at clean `36722adec8171b498faf2b1c92447aee3d0d15f1` from
+`u13-common-doctrine-kYCGuR-2026-09-18_10-34-05-xeiA0a.zip`:
+
+- CPython 3.14.7 and PyPy 7.3.23 each passed all 129 tests.
+- Both completed the same five games / 93 rounds / 2,333 operations, with zero
+  failures or rejected previews and all candidate/preview limits respected.
+- Decisions, final states, diagnostic reports and input files match across
+  runtimes. Source fingerprints match the published checkout; the tracked
+  worktree diff is empty and the runner exited successfully.
+- The complete semantic report and inputs also match the saved local run at
+  `fd3b906`. No games were rerun to establish that match. Python engine, doctrine,
+  runner and directed inputs are identical; the broad engine hash differs because
+  the later lane-sandbox update also falls within its file inventory.
+
+See [Windows acceptance evidence](evidence/U13_EARLY_DEFENSE_WINDOWS_2026-09-18.json)
+for archive/member hashes, runtime identities, game digests and verification.
+This accepts the Python doctrine checkpoint without adding native Godot parity
+or a Lord-balance claim. The 162-game comparison retains its earlier engine
+scope. Next: inspect remaining Lord-specific tactical gaps.
