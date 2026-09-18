@@ -28,7 +28,7 @@ class LordRoundRules(RoundRules):
     def extra(self):
         w,n,d,hook=self.w,self.number,self.w['data'],self.hook;events=[]
         if hook in ('persistent_advancement','marching_start'):
-            kind='guard' if hook=='persistent_advancement' else 'lane'
+            kind='castle' if hook=='persistent_advancement' else 'lane'
             for active in sorted(self.effects,key=lambda a:(self.order.index(a['declaration']['player_id']),a['effect_id'])):
                 if active['declaration']['power_id']=='Inferno' and active['target']['kind']==kind:
                     events.extend(powers.pulse(self,active,instance_id('normal_pulse',active['effect_id'],str(n)+hook)))

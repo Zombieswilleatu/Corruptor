@@ -7,6 +7,9 @@ const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 func _run() -> void:
 	var board = Scene.instantiate()
 	root.add_child(board)
+	# Diagnostic widget checks also run under the local engine; production keeps its runtime gate.
+	board._runtime_ok = true
+	board.open_setup()
 	await _settle()
 	var picker = board.setup_picker
 	picker.lord_choices[0].select(picker.LORDS.find("Kalligan"))
@@ -49,14 +52,14 @@ func _run() -> void:
 			and board.lanes.target_lane_enabled
 			and board.lanes._lane_pulses.size() == 2
 		),
-		"inferno_highlights_lanes_and_guard_regions"
+		"inferno_highlights_lanes_and_castles"
 	)
 	_check(
 		(
-			board.sides[0].lord_guard_box.has_meta("u13_target_flash")
-			and board.sides[0].castle_guard_box.has_meta("u13_target_flash")
+			not board.sides[0].lord_guard_box.has_meta("u13_target_flash")
+			and not board.sides[0].castle_guard_box.has_meta("u13_target_flash")
 		),
-		"inferno_enemy_guard_regions_flash"
+		"inferno_guard_regions_do_not_flash"
 	)
 	_check(
 		not board.phase_prompt.board_view_collapsed and not board.inferno_target.visible,
@@ -64,14 +67,14 @@ func _run() -> void:
 	)
 	board._guard_selected({"id": "", "kind": "zone", "owner": 0, "lane": "Castle"})
 	_check(board.queued.is_empty(), "inferno_rejects_own_guard_zone")
-	board.sides[0].castle_guard_box.get_child(0).input_surface.pressed.emit()
+	board.sides[0].target_controls[preload("res://Scripts/Sim/U13CastleSlots.gd").castle_id(1, 0)].pressed.emit()
 	await _settle()
 	_check(
 		(
 			board.queued.size() == 1
-			and board.queued[0].target == {"kind": "guard", "lane": "Castle", "player_id": 1}
+			and board.queued[0].target == {"kind": "castle", "entity_id": preload("res://Scripts/Sim/U13CastleSlots.gd").castle_id(1, 0)}
 		),
-		"guard_card_click_selects_shared_enemy_zone"
+		"castle_click_selects_one_enemy_instance"
 	)
 	board.kalligan_buttons[Kalligan.INFERNO].pressed.emit()
 	_check(
@@ -135,14 +138,14 @@ func _active_controls(board) -> void:
 	var before: Dictionary = board.session.checkpoint()
 	board.kalligan_buttons[Kalligan.INFERNO].pressed.emit()
 	await _settle()
-	board.sides[0].lord_guard_box.get_child(0).input_surface.pressed.emit()
+	board.sides[0].target_controls[preload("res://Scripts/Sim/U13CastleSlots.gd").castle_id(1, 0)].pressed.emit()
 	await _settle()
 	_check(
 		(
 			board.queued.size() == 1
-			and board.queued[0].target == {"kind": "guard", "lane": "Lord", "player_id": 1}
+			and board.queued[0].target == {"kind": "castle", "entity_id": preload("res://Scripts/Sim/U13CastleSlots.gd").castle_id(1, 0)}
 		),
-		"inferno_relocation_uses_enemy_lord_guard_click"
+		"inferno_relocation_uses_enemy_castle_click"
 	)
 	board.kalligan_buttons[Kalligan.PYROCLASM].pressed.emit()
 	await _settle()
@@ -164,30 +167,14 @@ func _active_controls(board) -> void:
 		"pyroclasm_repeat_click_locked"
 	)
 	_check(board.session.checkpoint() == before, "active_scorch_choices_do_not_reset_lifetime")
-	# Presentation cleanup without simulating several redundant empty rounds.
-	board.sides[0].bind_scorch(
-		[
-			{
-				"target": {"kind": "guard", "player_id": 1, "lane": "Castle"},
-				"fire_round": 0,
-				"intensity": 2,
-				"remaining": 2
-			}
-		],
-		1
-	)
-	_check(
-		board.sides[0].scorch_titles.Castle.text.contains("SCORCH 2"), "guard_scorch_badge_visible"
-	)
+	# Expiration removes only the bound Castle's presentation.
+	var key: String = preload("res://Scripts/Sim/U13CastleSlots.gd").castle_id(1, 0)
+	board.sides[0].bind_scorch([{"id": "castle-visual", "owner": 0, "target": {"kind": "castle", "entity_id": key}, "fire_round": 0, "intensity": 2, "remaining": 2}], 1)
+	var card = board.sides[0].target_controls[key].get_parent().get_parent()
+	_check(card.get_node("ScorchBadge").text.contains("SCORCH 2"), "single_castle_scorch_badge_visible")
 	board.sides[0].bind_scorch([], 1)
 	board.lanes.bind_scorch([])
-	_check(
-		(
-			board.sides[0].scorch_titles.Castle.text == "CASTLE GUARDS"
-			and board.lanes.active_scorches.is_empty()
-		),
-		"expired_scorch_presentation_clears"
-	)
+	_check(not card.get_node("ScorchBadge").visible and board.sides[0].scorch_visuals.groups.is_empty() and board.lanes.active_scorches.is_empty(), "expired_scorch_presentation_clears")
 
 
 func _wait_job(board) -> bool:

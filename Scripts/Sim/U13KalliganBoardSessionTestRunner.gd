@@ -95,7 +95,7 @@ func _mirror(session) -> void:
 		"powers":
 		[
 			Candidates.source(
-				1, 1, Kalligan.INFERNO, {"kind": "guard", "lane": "Castle", "player_id": 0}
+				1, 1, Kalligan.INFERNO, {"kind": "castle", "entity_id": Slots.castle_id(0, 0)}
 			)
 		],
 		"order": {}
@@ -121,7 +121,7 @@ func _mirror(session) -> void:
 		(
 			rows.size() == 2
 			and Scorch.active_for(rows, 0).target.kind == "lane"
-			and Scorch.active_for(rows, 1).target.player_id == 0
+			and Scorch.active_for(rows, 1).target.entity_id == Slots.castle_id(0, 0)
 		),
 		"mirror_scorch_locations_and_owners"
 	)

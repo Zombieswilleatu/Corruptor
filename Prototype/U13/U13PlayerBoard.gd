@@ -78,10 +78,10 @@ func _ready() -> void:
 	# Node2D avoids participating in the HBox layout or intercepting card input.
 	# Ground stays below cards; translucent flames can lick over their faces.
 	scorch_front = Node2D.new()
-	scorch_front.name = "GuardFireForeground"
+	scorch_front.name = "CastleFireForeground"
 	scorch_front.z_index = 1
 	add_child(scorch_front)
-	scorch_front.draw.connect(_draw_guard_flames)
+	scorch_front.draw.connect(_draw_castle_flames)
 	_apply_castle_vertical_order()
 	_apply_domain1_clear_section_backgrounds_v1()
 
@@ -325,26 +325,23 @@ func _draw() -> void:
 		true
 	)
 
-	for lane in ["Lord", "Castle"]:
-		var box = lord_guard_box if lane == "Lord" else castle_guard_box
-		scorch_visuals.draw_area(
-			self, Rect2(box.global_position - global_position, box.size), lane, true, false
-		)
+	_draw_castle_fire(self, true, false)
 	if scorch_front != null:
 		scorch_front.queue_redraw()
 
 
-func _draw_guard_flames() -> void:
-	for lane in ["Lord", "Castle"]:
-		var box = lord_guard_box if lane == "Lord" else castle_guard_box
-		scorch_visuals.draw_area(
-			scorch_front,
-			Rect2(box.global_position - global_position, box.size),
-			lane,
-			false,
-			true,
-			0.8
-		)
+func _draw_castle_fire(canvas: CanvasItem, ground: bool, flames: bool) -> void:
+	for id in target_controls:
+		var surface = target_controls[id]
+		if not is_instance_valid(surface):
+			continue
+		var card = surface.get_parent().get_parent()
+		if card.has_meta("castle_id"):
+			scorch_visuals.draw_area(canvas, Rect2(card.global_position - global_position, card.size), id, ground, flames, 0.8)
+
+
+func _draw_castle_flames() -> void:
+	_draw_castle_fire(scorch_front, false, true)
 
 
 func _apply_domain1_clear_section_backgrounds_v1() -> void:
@@ -646,28 +643,26 @@ func _commission_clicked(id: String) -> void:
 
 
 func bind_scorch(records: Array, player_id: int) -> void:
-	scorch_visuals.sync(records, "guard", player_id)
+	scorch_visuals.sync(records, "castle", player_id)
 	set_process(not scorch_visuals.groups.is_empty())
 	queue_redraw()
-	for lane in ["Lord", "Castle"]:
-		var title: Label = scorch_titles[lane]
-		title.text = "LORD\nGUARDS" if lane == "Lord" else "CASTLE GUARDS"
-		title.remove_theme_color_override("font_color")
+	for id in target_controls:
+		var card = target_controls[id].get_parent().get_parent()
+		if not card.has_meta("castle_id"):
+			continue
+		var badge = card.get_node_or_null("ScorchBadge")
+		if badge == null:
+			badge = Label.new()
+			badge.name = "ScorchBadge"
+			badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			badge.add_theme_color_override("font_color", Color("ffb26e"))
+			badge.add_theme_font_size_override("font_size", 11)
+			card.add_child(badge)
+		badge.text = ""
 		for row in records:
-			if (
-				row.target.kind == "guard"
-				and row.target.player_id == player_id
-				and row.target.lane == lane
-			):
-				title.text += (
-					"\n"
-					+ (
-						"FIRE R%d" % row.fire_round
-						if row.fire_round > 0
-						else "SCORCH %d · %dr" % [row.intensity, row.remaining]
-					)
-				)
-				title.add_theme_color_override("font_color", Color("ffb26e"))
+			if row.target.kind == "castle" and row.target.entity_id == id:
+				badge.text += ("FIRE R%d" % row.fire_round if row.fire_round > 0 else "SCORCH %d · %dr" % [row.intensity, row.remaining]) + "\n"
+		badge.visible = not badge.text.is_empty()
 
 
 func _process(delta: float) -> void:

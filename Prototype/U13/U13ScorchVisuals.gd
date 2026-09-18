@@ -26,7 +26,7 @@ func sync(records: Array, kind: String, player_id: int = -1) -> void:
 			or not record.has("id")
 		):
 			continue
-		if record.target.kind != kind or (kind == "guard" and record.target.player_id != player_id):
+		if record.target.kind != kind or (kind == "castle" and record.owner != 1 - player_id):
 			continue
 		seen[record.id] = true
 		if not groups.has(record.id):
@@ -133,7 +133,7 @@ func draw_area(
 	if textures.size() < 3 or not bounds.has_area():
 		return
 	for group in groups.values():
-		if group.target.lane != lane:
+		if group.target.get("lane", group.target.get("entity_id", "")) != lane:
 			continue
 		var heat: Dictionary = strength(group)
 		if ground and (group.ground == null or group.ground_size != bounds.size):

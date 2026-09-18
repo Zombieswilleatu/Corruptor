@@ -15,14 +15,9 @@ static func enumerate(owner, player_id: int) -> Dictionary:
 		result.powers.append(
 			source(player_id, view.round, Content.INFERNO, {"kind": "lane", "lane": lane})
 		)
-		result.powers.append(
-			source(
-				player_id,
-				view.round,
-				Content.INFERNO,
-				{"kind": "guard", "lane": lane, "player_id": 1 - player_id}
-			)
-		)
+	for entity in view.world.entities:
+		if entity.owner == 1 - player_id and Content.Structures.targetable(entity) and entity.attributes.integrity > 0:
+			result.powers.append(source(player_id, view.round, Content.INFERNO, {"kind": "castle", "entity_id": entity.id}))
 	return result
 
 

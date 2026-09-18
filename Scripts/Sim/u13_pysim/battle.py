@@ -76,9 +76,11 @@ class Battle:
             if hazard:
                 source = e.entity(w, command.get("source_id", ""))
                 fracture = kind == "ruin_castle_fracture"
-                e.require(((not fracture and veil.source_valid(w, command.get("source_id", ""))) or (source and source["kind"] == "lord" and not source["attributes"]["alive"]
+                scorch = not fracture and command.get("cause") == "scorch"
+                e.require((source and source["kind"] == "lord" and source["attributes"]["lord_id"] == "Kalligan" and source["owner"] == 1-target["owner"] if scorch else
+                           ((not fracture and veil.source_valid(w, command.get("source_id", ""))) or (source and source["kind"] == "lord" and not source["attributes"]["alive"]
                           and (source["owner"] == target["owner"] if fracture else source["attributes"]["lord_id"] == d["breach_lord"])))
-                          and command.get("cause") == ("fracture" if fracture else "breach")
+                          and command.get("cause") == ("fracture" if fracture else "breach"))
                           and "player_id" not in command, "castle_hazard_source_invalid")
             else:
                 e.require(type(command.get("player_id")) is int and command["player_id"] in (0, 1)
@@ -352,22 +354,22 @@ class Battle:
             events.append(e.event("CASTLE_CEILING_CHANGED", dict(castle_id=row["id"], max_integrity=ceiling, integrity=a["integrity"])))
         return events
 
-    def breach_damage(self, identity, source, entry, damage=4):
+    def breach_damage(self, identity, source, entry, damage=4, cause="breach", inner=False):
         row, events = e.entity(self.w, identity), []
         if not targetable(row) or row["attributes"]["integrity"] <= 0: return events
         before = row["attributes"]["integrity"]
         dealt = min(before, damage)
         if dealt == before:
-            fact = self.fact(dict(command_id=instance_id("breach_damage", entry, identity), kind="ruin_castle_hazard",
-                                  target_id=identity, source_id=source, cause="breach"))
+            fact = self.fact(dict(command_id=instance_id(cause+"_damage", entry, identity), kind="ruin_castle_hazard",
+                                  target_id=identity, source_id=source, cause=cause))
             events.append(e.event(fact["type"], fact["data"]))
             events.extend(self.castle_tear())
-            events.extend(self.react(fact))
+            events.extend(self.react(fact, inner=inner))
         else:
             row["attributes"]["integrity"] -= dealt
             note_loss(row, before, self.number)
-        events.append(e.event("CASTLE_DAMAGED", dict(castle_id=identity, source_id=source, source="TheStonesForget",
-                              cause="breach", round=self.number, damage=dealt, integrity=before-dealt, destroyed=dealt==before)))
+        events.append(e.event("CASTLE_DAMAGED", dict(castle_id=identity, source_id=source, source="Scorch" if cause=="scorch" else "TheStonesForget",
+                              cause=cause, round=self.number, damage=dealt, integrity=before-dealt, destroyed=dealt==before)))
         return events
 
     def fracture_groups(self, pid):

@@ -5,7 +5,7 @@ const Registry = preload("res://Scripts/Sim/U13PersistentEffects.gd")
 
 func _run() -> void:
 	_lane_pulse()
-	_guard_pulse()
+	_castle_pulse()
 	print("U13 hazards failures: %d" % failures)
 	quit(0 if failures == 0 else 1)
 
@@ -89,51 +89,29 @@ func _lane_pulse() -> void:
 	)
 
 
-func _guard_pulse() -> void:
+func _castle_pulse() -> void:
 	var content = Content.new()
 	var world: Dictionary = Scenario.world()
-	var guard_ids: Array = []
-	var ids = Ids.new()
-	ids.restore(world.entities)
-	for slot in range(3):
-		var card_id: String = world.data.card_zones.hands[1].pop_back()
-		var card: Dictionary = ids.get_entity(card_id)
-		card.attributes.merge(
-			{"role": "guard", "lane": "Castle", "slot": slot, "value": slot + 1}, true
-		)
-		ids.update(card_id, 1, card.attributes)
-		guard_ids.append(card_id)
-	world.entities = ids.snapshot()
-	var active: Dictionary = _active({"kind": "guard", "lane": "Castle", "player_id": 1}, 2)
-	var result: Dictionary = Content.Hazards.pulse(
-		_context(world, 2, Timeline.PERSISTENT_ADVANCEMENT),
-		active,
-		"guard-fixture",
-		Callable(content._humbaba, "react")
-	)
-	_check(result.action != "invalid", "guard_hazard_resolves")
-	if result.action == "invalid":
+	var castle_id: String = Slots.castle_id(1, 0)
+	_put(world, castle_id, {"integrity": 8})
+	var guards: Array = world.entities.entities.filter(func(e): return e.kind == "card" and e.attributes.get("role") == "guard")
+	var untouched: Dictionary = _entity(world, Slots.castle_id(1, 1)).duplicate(true)
+	var active: Dictionary = _active({"kind": "castle", "entity_id": castle_id}, 2)
+	var result: Dictionary = Content.Hazards.pulse(_context(world, 2, Timeline.PERSISTENT_ADVANCEMENT), active, "castle-fixture", Callable(content._humbaba, "react"))
+	if not _check(result.action != "invalid", "castle_hazard_resolves"):
 		return
-	_check(
-		(
-			_entity(result.world, guard_ids[0]).owner == -1
-			and _entity(result.world, guard_ids[1]).owner == -1
-			and _entity(result.world, guard_ids[2]).owner == 1
-		),
-		"guard_intensity_defeats_all_at_or_below_value"
-	)
-	_check(
-		(
-			guard_ids[0] in result.world.data.card_zones.discard
-			and guard_ids[1] in result.world.data.card_zones.discard
-		),
-		"guard_defeat_preserves_card_zone_ownership"
-	)
-	_check(
-		not Content.Hazards.target_valid({"kind": "guard", "lane": "Castle", "player_id": 0}, 0),
-		"own_guard_zone_rejected"
-	)
-	_check(
-		not Content.Hazards.target_valid({"kind": "lane", "lane": "Lord", "player_id": 1}, 0),
-		"one_sided_lane_fire_rejected"
-	)
+	var victim: Dictionary = _entity(result.world, castle_id)
+	_check(victim.attributes.integrity == 6 and not Content.Structures.operational(victim), "castle_fire_crosses_operational_floor")
+	_check(victim.attributes.repair_lock_until_round == 3, "castle_fire_sets_normal_repair_lock")
+	_check(_entity(result.world, untouched.id) == untouched, "castle_fire_only_hits_selected_instance")
+	_check(result.world.entities.entities.filter(func(e): return e.kind == "card" and e.attributes.get("role") == "guard") == guards, "castle_fire_never_changes_guards")
+	_check(Content.Hazards.pulse(_context(result.world, 2, Timeline.PERSISTENT_ADVANCEMENT), active, "castle-fixture", Callable(content._humbaba, "react")).action == "invalid", "duplicate_castle_hit_rejected")
+	_put(result.world, castle_id, {"integrity": 1})
+	var souls: int = result.world.players[0].resources.souls
+	var lethal: Dictionary = Content.Hazards.pulse(_context(result.world, 2, Timeline.POST_RESOLUTION_DIRECT), active, "castle-finisher", Callable(content._humbaba, "react"))
+	_check(lethal.action != "invalid" and _entity(lethal.world, castle_id).attributes.status == "ruined", "castle_fire_can_ruin_selected_castle")
+	_check(lethal.world.data.neutral_tears == 1 and lethal.world.players[0].resources.souls == souls, "environmental_castle_ruin_normal_tear_without_siege_souls")
+	var empty: Dictionary = Content.Hazards.pulse(_context(lethal.world, 3, Timeline.PERSISTENT_ADVANCEMENT), active, "castle-empty", Callable(content._humbaba, "react"))
+	_check(empty.action != "invalid" and empty.events[-1].event.data.affected_ids.is_empty(), "destroyed_castle_stays_bound_without_spill_or_retarget")
+	for target in [{"kind": "guard", "lane": "Castle", "player_id": 1}, {"kind": "guard", "lane": "Lord", "player_id": 1}, {"kind": "castle", "entity_id": Slots.castle_id(0, 0)}, {"kind": "lane", "lane": "Lord", "player_id": 1}, {"kind": "castle", "entity_id": world.players[1].lord_entity_id}]:
+		_check(not Content.Hazards.target_valid(target, 0, world), "non_castle_or_lane_target_rejected")

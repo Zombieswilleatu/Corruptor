@@ -30,7 +30,7 @@ static func _configure(result: Dictionary, lords: Array) -> Dictionary:
 	result.data["kalligan_profile"] = Kalligan.POLICY
 	result.data["hazard_profile"] = Kalligan.Hazards.VERSION
 	result.data["kalligan_upkeep_round"] = 0
-	result.data["scorch_guard_round"] = 0
+	result.data["scorch_castle_round"] = 0
 	result.data["scorch_lane_round"] = 0
 	result.data["rekindle_rounds"] = [0, 0]
 	result.data["rekindle_defunct_ids"] = []

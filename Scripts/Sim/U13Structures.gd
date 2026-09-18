@@ -344,7 +344,8 @@ static func breach_damage(
 	damage: int,
 	entry_id: String,
 	context: Dictionary,
-	reaction: Callable
+	reaction: Callable,
+	cause: String = "breach"
 ) -> Dictionary:
 	if damage < 0:
 		return Data.invalid("castle_damage_invalid")
@@ -353,7 +354,12 @@ static func breach_damage(
 	entities.restore(world.entities)
 	var castle: Dictionary = entities.get_entity(castle_id)
 	var source: Dictionary = entities.get_entity(source_id)
-	if not Veil.source_valid(world, source_id) and (
+	if cause == "scorch":
+		if source.is_empty() or source.kind != "lord" or source.attributes.get("lord_id") != "Kalligan" or castle.is_empty() or castle.owner != 1 - source.owner:
+			return Data.invalid("castle_hazard_source_invalid")
+	elif cause != "breach":
+		return Data.invalid("castle_hazard_source_invalid")
+	elif not Veil.source_valid(world, source_id) and (
 		source.is_empty()
 		or source.kind != "lord"
 		or source.attributes.get("alive", true)
@@ -369,11 +375,11 @@ static func breach_damage(
 		var changed: Dictionary = Battle.apply(
 			world,
 			{
-				"command_id": Data.instance_id("breach_damage", entry_id, castle_id),
+				"command_id": Data.instance_id(cause + "_damage", entry_id, castle_id),
 				"kind": "ruin_castle_hazard",
 				"target_id": castle_id,
 				"source_id": source_id,
-				"cause": "breach"
+				"cause": cause
 			},
 			context.round,
 			context.hook
@@ -409,8 +415,8 @@ static func breach_damage(
 			{
 				"castle_id": castle_id,
 				"source_id": source_id,
-				"source": "TheStonesForget",
-				"cause": "breach",
+				"source": "Scorch" if cause == "scorch" else "TheStonesForget",
+				"cause": cause,
 				"round": context.round,
 				"damage": dealt,
 				"integrity": before - dealt,

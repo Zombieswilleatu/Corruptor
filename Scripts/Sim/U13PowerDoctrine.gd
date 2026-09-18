@@ -97,13 +97,36 @@ static func humbaba(c) -> Array:
 		add(result, c, "BreathOfLife", {"lane": lane}, c.select("marcher", c.pid, lane).size() * 1.5)
 	return result
 
+static func kalligan_exposure(c, target: Dictionary, intensity: int) -> float:
+	if target.kind == "castle":
+		var row: Dictionary = c.rows.get(target.entity_id, {})
+		if row.is_empty() or not preload("res://Scripts/Sim/U13Structures.gd").targetable(row):
+			return 0.0
+		var hp: int = int(row.attributes.integrity)
+		return mini(hp, intensity) * 2.0 + (5.0 if hp > 0 and hp <= intensity else 0.0) + (3.0 if hp >= 7 and hp - intensity < 7 else 0.0)
+	var value: float = 0.0
+	for row in c.select("marcher", 0, target.lane) + c.select("marcher", 1, target.lane):
+		if not row.attributes.get("flying", false):
+			value += 2.0 if row.owner != c.pid else -2.0
+	return value
+
+
 static func kalligan(c) -> Array:
 	var result: Array = []
-	var net: int = c.select("marcher", 1 - c.pid).size() - c.select("marcher", c.pid).size()
-	add(result, c, "Pyroclasm", {}, net * 2.0)
-	for lane in ["Lord", "Castle"]:
-		add(result, c, "Inferno", {"kind": "lane", "lane": lane}, c.select("marcher", 1 - c.pid, lane).size() * 2.0)
-		add(result, c, "Inferno", {"kind": "guard", "lane": lane, "player_id": 1 - c.pid}, c.guard_value(1 - c.pid, lane) * 1.0)
+	var active: Dictionary = {}
+	for row in c.view.get("persistent", []):
+		if row.declaration.player_id == c.pid and row.declaration.power_id == "Inferno":
+			active = row
+	if not active.is_empty():
+		add(result, c, "Pyroclasm", {}, kalligan_exposure(c, active.target, active.stages[active.stage_index].intensity))
+	var targets: Array = [{"kind": "lane", "lane": "Lord"}, {"kind": "lane", "lane": "Castle"}]
+	for row in c.castles(1 - c.pid):
+		targets.append({"kind": "castle", "entity_id": row.id})
+	for target in targets:
+		var score: float = kalligan_exposure(c, target, 2)
+		if not active.is_empty():
+			score -= kalligan_exposure(c, active.target, 2)
+		add(result, c, "Inferno", target, score)
 	return result
 
 static func orias(c) -> Array:

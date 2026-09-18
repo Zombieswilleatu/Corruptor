@@ -107,12 +107,12 @@ func _run() -> void:
 	visuals.sync([record], "lane")
 	_check(visuals.groups.is_empty(), "prepared_inferno_does_not_show_active_flames")
 	record.fire_round = 0
-	record.target = {"kind": "guard", "lane": "Lord", "player_id": 1}
-	visuals.sync([record], "guard", 0)
-	_check(visuals.groups.is_empty(), "guard_fire_respects_target_player")
-	visuals.sync([record], "guard", 1)
-	_check(visuals.groups.size() == 1, "guard_fire_uses_same_renderer")
-	visuals.sync([], "guard", 1)
+	record.target = {"kind": "castle", "entity_id": "visual-castle"}
+	visuals.sync([record], "castle", 0)
+	_check(visuals.groups.is_empty(), "castle_fire_respects_target_player")
+	visuals.sync([record], "castle", 1)
+	_check(visuals.groups.size() == 1, "castle_fire_uses_same_renderer")
+	visuals.sync([], "castle", 1)
 	_check(visuals.groups.is_empty(), "expired_fire_clears_cached_groups")
 	for extent in [Vector2(160, 560), Vector2(650, 70), Vector2(90, 240)]:
 		var mesh: ArrayMesh = Visuals.ground_mesh(extent, "ground-test")
@@ -168,24 +168,28 @@ func _run() -> void:
 	var board = PlayerBoard.new()
 	root.add_child(board)
 	board.size = Vector2(1400, 320)
-	record.target = {"kind": "guard", "lane": "Castle", "player_id": 1}
+	record.target = {"kind": "castle", "entity_id": "visual-castle"}
+	var card = preload("res://Prototype/U13/U13LayoutCard.gd").new()
+	card.set_meta("castle_id", "visual-castle")
+	board.castle_row.add_child(card)
+	board.target_controls["visual-castle"] = card.input_surface
 	board.bind_scorch([record], 1)
 	for _frame in range(8):
 		await process_frame
 	_check(
 		board.scorch_front is Node2D and board.scorch_front.z_index == 1,
-		"guard_flames_above_cards_without_a_layout_or_input_control"
+		"castle_flames_above_cards_without_a_layout_or_input_control"
 	)
 	_check(
 		(
 			board.scorch_visuals.groups.size() == 1
 			and board.scorch_visuals.groups[record.id].ground != null
 		),
-		"guard_ground_and_foreground_share_one_cached_effect"
+		"castle_ground_and_foreground_share_one_cached_effect"
 	)
 	board.bind_scorch([], 1)
 	await process_frame
-	_check(board.scorch_visuals.groups.is_empty(), "guard_foreground_clears_on_expiration")
+	_check(board.scorch_visuals.groups.is_empty(), "castle_foreground_clears_on_expiration")
 	board.queue_free()
 	preview.queue_free()
 	await process_frame

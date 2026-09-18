@@ -88,7 +88,7 @@ def generate():
             target=dict(lane='Lord')
             # The existing opposing Marchers fight during the upcoming phase.
         if power=='Pyroclasm':
-            record(dict(kind='submit',plans=[dict(powers=[declaration(0,1,'Inferno',dict(kind='guard',lane='Lord',player_id=1))],order={}),dict(powers=[],order={})]))
+            record(dict(kind='submit',plans=[dict(powers=[declaration(0,1,'Inferno',dict(kind='castle',entity_id=next(c['id'] for c in w['entities']['entities'] if c['kind']=='castle' and c['owner']==1 and c['attributes']['castle_type']=='Keep')))],order={}),dict(powers=[],order={})]))
             until('submission_lock',2)
         n=g.clock.round;s=declaration(0,n,power,target,discard_ids=discard,parameters=params)
         for field,value in (('declaration_id','wrong'),('queue_index',2),('lord_id','WrongLord'),('visibility','hidden'),('declared_round',n+1)):

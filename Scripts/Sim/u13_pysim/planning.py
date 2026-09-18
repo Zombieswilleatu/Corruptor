@@ -260,7 +260,7 @@ class PlanningMatch:
         elif hook == "persistent_advancement":
             self._state["persistent"]["advanced_round"] = number
             self._state["cooldowns"]["round"] = number
-            d["scorch_guard_round"] = number
+            d["scorch_castle_round"] = number
         elif hook == "round_start_automatic":
             d["sigil_lifecycle"]["aged_round"] = number
             d["marching_regen_round"] = number

@@ -2,17 +2,21 @@
 # Bounded doctrine alpha: five Python games; optional focused native rules gate.
 set -euo pipefail
 if [[ $# -lt 1 || ! -x "$1" ]]; then
-  printf 'Usage: bash %s /path/to/pypy3.exe [cpython_executable] [--godot /path/to/godot]\n' "$0" >&2
+  printf 'Usage: bash %s /path/to/pypy3.exe [cpython_executable] [--godot /path/to/godot] [--kalligan-godot /path/to/godot]\n' "$0" >&2
   exit 2
 fi
 u13_common_pypy=$1
 u13_common_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 u13_common_cpython=""
 u13_common_godot=""
+u13_common_kalligan_godot=""
 shift
 while [[ $# -gt 0 ]]; do
   if [[ "$1" == --godot && $# -ge 2 && -z "$u13_common_godot" ]]; then
     u13_common_godot=$2
+    shift 2
+  elif [[ "$1" == --kalligan-godot && $# -ge 2 && -z "$u13_common_kalligan_godot" ]]; then
+    u13_common_kalligan_godot=$2
     shift 2
   elif [[ "$1" != --* && -z "$u13_common_cpython" ]]; then
     u13_common_cpython=$1
@@ -35,6 +39,13 @@ if [[ -n "$u13_common_godot" ]]; then
   u13_common_godot_version=$("$u13_common_godot" --version)
   if [[ "$u13_common_godot_version" != 4.7.2.stable.* ]]; then
     printf 'Windows acceptance requires Godot 4.7.2 stable; found %s\n' "$u13_common_godot_version" >&2
+    exit 2
+  fi
+fi
+if [[ -n "$u13_common_kalligan_godot" ]]; then
+  u13_common_kalligan_version=$("$u13_common_kalligan_godot" --version)
+  if [[ "$u13_common_kalligan_version" != 4.7.2.stable.* ]]; then
+    printf 'Windows acceptance requires Godot 4.7.2 stable; found %s\n' "$u13_common_kalligan_version" >&2
     exit 2
   fi
 fi
@@ -120,6 +131,23 @@ if [[ -n "$u13_common_godot" ]]; then
       "$u13_common_root/Scripts/Sim/run_u13_common_doctrine.py" verify-rules "$u13_common_reports"
   done
 fi
+if [[ -n "$u13_common_kalligan_godot" ]]; then
+  printf '%s\n' "$u13_common_kalligan_version" >"$u13_common_reports/kalligan-godot-version.txt"
+  for u13_common_suite in U13Hazards U13KalliganIntegration U13KalliganBoard U13ScorchVisuals; do
+    run_logged "$u13_common_reports/$u13_common_suite.log" "$u13_common_kalligan_godot" --headless --path "$u13_common_root" \
+      --script "res://Scripts/Sim/${u13_common_suite}TestRunner.gd"
+  done
+  run_logged "$u13_common_reports/scorch-inputs.log" "$u13_common_cpython" Scripts/Sim/run_u13_common_doctrine.py scorch-inputs "$u13_common_reports/scorch-inputs.json"
+  u13_common_identity=$("$u13_common_cpython" -c 'from pathlib import Path; from u13_pysim.verify import source_identity; print(" ".join(source_identity(Path.cwd())))')
+  read -r u13_common_revision u13_common_source_hash <<<"$u13_common_identity"
+  run_logged "$u13_common_reports/scorch-native.log" "$u13_common_kalligan_godot" --headless --path "$u13_common_root" \
+    --script res://Scripts/Sim/U13ScorchCastleTestRunner.gd -- "$u13_common_reports/scorch.exact" "$u13_common_reports/scorch-inputs.json" "$u13_common_revision" "$u13_common_source_hash"
+  for u13_common_runtime in "$u13_common_cpython" "$u13_common_pypy"; do
+    u13_common_runtime_name=$("$u13_common_runtime" -c 'import platform; print(platform.python_implementation().lower())')
+    run_logged "$u13_common_reports/$u13_common_runtime_name-scorch-comparison.log" "$u13_common_runtime" \
+      Scripts/Sim/run_u13_common_doctrine.py verify-scorch "$u13_common_reports/scorch.exact" "$u13_common_reports/scorch-inputs.json"
+  done
+fi
 run_logged "$u13_common_reports/cpython.log" "$u13_common_cpython" \
   "$u13_common_root/Scripts/Sim/run_u13_common_doctrine.py" check --report "$u13_common_reports/cpython.json"
 run_logged "$u13_common_reports/pypy.log" "$u13_common_pypy" \
@@ -127,4 +155,4 @@ run_logged "$u13_common_reports/pypy.log" "$u13_common_pypy" \
 run_logged "$u13_common_reports/comparison.log" "$u13_common_cpython" \
   "$u13_common_root/Scripts/Sim/run_u13_common_doctrine.py" compare \
   "$u13_common_reports/cpython.json" "$u13_common_reports/pypy.json"
-printf 'Common doctrine alpha passed under both runtimes. Focused native checks run when --godot is supplied; expanded game parity and tuning remain ahead.\n'
+printf 'Common doctrine alpha passed under both runtimes. Native checks run with --godot or --kalligan-godot; expanded game parity and tuning remain ahead.\n'
