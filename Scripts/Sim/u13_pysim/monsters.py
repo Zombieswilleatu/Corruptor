@@ -1,7 +1,7 @@
 """Monster recipes and explicit playtest tuning; independent Python rules."""
 from . import economy as e
 from .copying import copy_data
-VERSION = "U13_MONSTERS_V5_STALKING_DOTRA"
+VERSION = "U13_MONSTERS_V6_AMBUSH_REVEAL"
 ROSTER = {'Lemek': {'tier': 'Easy',
            'recipe': {'Penitent': 2},
            'attack': 3,
@@ -64,10 +64,9 @@ ROSTER = {'Lemek': {'tier': 'Easy',
            'armor': 2,
            'speed': 2,
            'hp': 5,
-           'ability': '25% chance to hide each active round. Stalks enemies at half speed while hidden; '
-                      'an enemy within 240 triggers a 5-damage ambush. Otherwise, chance to emerge starts '
-                      'at 15% next round, increasing by 15 percentage points each round hidden, capped '
-                      'at 100%. Resets after emerging. Hidden units cannot be selected for ordinary attacks.'},
+           'ability': '25% chance to hide each active round. Stalks enemies at half speed while hidden '
+                      'and stays hidden until delivering a 5-damage ambush against an enemy within 240. '
+                      'No timed reveal. Hidden units cannot be selected for ordinary attacks.'},
  'Sooge': {'tier': 'Very hard',
            'recipe': {'Butcher': 3, 'Wright': 2},
            'attack': 1,
@@ -109,12 +108,9 @@ def profile(name,lane,pid,birth,ready,turret=False):
 def root_chance(a):
     return min(100,TUNING['sooge_root_chance']+a.get('sooge_root_attempts',0)*TUNING['sooge_root_increase'])
 
-def emerge_chance(a):
-    return min(100,15*(a.get('dotra_hidden_rounds',0)+1))
-
 def valid_unit(a):
     if 'monster_id' not in a:return a.get('suit')!='Monster'
-    for key in ('sooge_root_attempts','sooge_root_round','beam_next_tick','beam_charge_tick','beam_ready_tick','dotra_hidden_rounds','dotra_concealment_round'):
+    for key in ('sooge_root_attempts','sooge_root_round','beam_next_tick','beam_charge_tick','beam_ready_tick','dotra_concealment_round'):
         if key in a and (type(a[key]) is not int or not 0<=a[key]<=9007199254740991):return False
     return (a.get('suit')=='Monster' and a['monster_id'] in NAMES and a.get('sprite_form') in ('mobile','turret')
             and (a['sprite_form']!='turret' or a['monster_id']=='Sooge') and type(a.get('flying')) is bool)

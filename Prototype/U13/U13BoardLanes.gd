@@ -152,7 +152,7 @@ func _get_tooltip(at: Vector2) -> String:
 			if unit_name == "Dotra":
 				description += "\nHidden: stalks at half speed; an enemy within 240 triggers a 5-damage ambush."
 				if unit.attributes.get("hidden", false):
-					description += "\nHidden now · %d%% chance to emerge next round" % preload("res://Scripts/Sim/U13MonsterRules.gd").emerge_chance(unit.attributes)
+					description += "\nHidden now · reveals only when the ambush lands"
 			if unit_name == "Wright":
 				description += "\n" + preload("res://Scripts/Sim/U13FieldFortifications.gd").DESCRIPTION
 				if unit.attributes.has("wright_site"):

@@ -125,18 +125,9 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 				"Dotra":
 					if int(a.get("dotra_concealment_round", 0)) < n:
 						a["dotra_concealment_round"] = n
-						var chance: int = 0
-						if a.get("hidden", false):
-							# A victim already in ambush range takes priority over
-							# simply emerging. The attack below ends concealment.
-							if nearest(unit, entities.marchers(), Rules.TUNING.dotra_ambush_radius).is_empty():
-								chance = Rules.emerge_chance(a)
-								a["hidden"] = Lamp.draw(context.seed, key, "EMERGE", 100) >= chance
-								a["dotra_hidden_rounds"] = int(a.get("dotra_hidden_rounds", 0)) + 1 if a.hidden else 0
-						else:
+						if not a.get("hidden", false):
 							a["hidden"] = Lamp.draw(context.seed, key, "HIDE", 100) < Rules.TUNING.dotra_hide_chance
-							a["dotra_hidden_rounds"] = 0
-						events.append(event("MONSTER_CONCEALMENT", {"unit_id": unit.id, "hidden": a.hidden, "emerge_chance": chance, "round": n, "tick": tick}))
+						events.append(event("MONSTER_CONCEALMENT", {"unit_id": unit.id, "hidden": a.hidden, "round": n, "tick": tick}))
 				"Sooge":
 					if a.sprite_form != "turret" and int(a.get("sooge_root_round", 0)) < n:
 						var chance: int = Rules.root_chance(a)
@@ -191,8 +182,6 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 				if a.get("hidden", false):
 					var target: Dictionary = nearest(unit, rows, Rules.TUNING.dotra_ambush_radius)
 					if not target.is_empty():
-						a.hidden = false
-						a["dotra_hidden_rounds"] = 0
 						hits.append({"source": unit, "target": target.id, "amount": 5, "bypass": false, "ability": "Ambush"})
 			"Sooge":
 				if a.sprite_form == "turret" and int(a.get("beam_next_tick", 0)) - int(Rules.TUNING.beam_charge_ticks) <= clock:
@@ -279,6 +268,14 @@ static func damage(world: Dictionary, entities, hit: Dictionary, context: Dictio
 			break
 		return {"action": "resolved", "world": world, "events": events}
 	var before: Dictionary = target.duplicate(true)
+	if hit.ability == "Ambush":
+		var ambusher: Dictionary = entities.get_entity(hit.source.id)
+		if ambusher.is_empty(): return {"action": "resolved", "world": world, "events": events}
+		# Reveal only when a live victim will actually receive the ambush.
+		# An earlier queued hit may have removed the chosen victim already.
+		ambusher.attributes["hidden"] = false
+		entities.update(ambusher.id, ambusher.owner, ambusher.attributes)
+		hit["source"] = ambusher
 	var blocked: bool = hit.ability == "Beam" and Defense.blocks(target, hit.source.id, context.seed, context.round, tick, "Beam")
 	var amount: int = 0 if blocked else int(hit.amount)
 	var absorbed: int = 0 if hit.bypass else mini(int(target.attributes.armor), amount)

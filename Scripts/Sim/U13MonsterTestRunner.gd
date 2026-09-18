@@ -236,6 +236,69 @@ func beam_boundary_checks() -> void:
 	var playback = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
 	check(playback.build(killed.events.map(func(r): return r.event)) and playback.sample(0.5).monster_attacks.is_empty(), "dead Sooge does not leave a charging glow")
 
+func dotra_visibility_checks() -> void:
+	var playback = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
+	for pid in [0, 1]:
+		var isolated: Dictionary = phase_world()
+		var hidden: Dictionary = put(isolated, "Dotra", pid, 1200, {"hidden": true})
+		for kind in ["Butcher", "Vulture", "Muno", "Tumler", "Sooge"]:
+			var enemy: Dictionary = put(isolated, kind, 1 - pid, 1260)
+			check(Marching.FieldMelee.nearest(enemy, [hidden]).is_empty() and Marching.Ranged.nearest(enemy, [hidden]).is_empty() and MonsterFX.nearest(enemy, [hidden]).is_empty(), kind + " cannot select hidden Dotra")
+			var visible: Dictionary = hidden.duplicate(true); visible.attributes.hidden = false
+			check(Marching.FieldMelee.nearest(enemy, [visible]).id == hidden.id and Marching.Ranged.nearest(enemy, [visible]).id == hidden.id and MonsterFX.nearest(enemy, [visible]).id == hidden.id, kind + " can select Dotra after reveal")
+		for attacker in ["Vulture", "Muno"]:
+			var w: Dictionary = phase_world()
+			var source: Dictionary = put(w, "Dotra", pid, 0 if pid == 0 else 2400, {"hp": 100, "max_hp": 100})
+			put(w, attacker, 1 - pid, 400 if pid == 0 else 2000, {"y_fp": 350, "step_fp": 0, "hp": 100, "max_hp": 100})
+			var resolved: Dictionary = phase("dotra_%d_visible_to_%s" % [pid, attacker], w, selected_seed(source.id, "HIDE", 25))
+			var incoming: Array = resolved.events.filter(func(r): return r.event.type in ["MARCHER_RANGED_ATTACK", "MARCHER_MELEE_ATTACK", "MONSTER_ATTACK"] and r.event.data.target.id == source.id)
+			check(not incoming.is_empty() and incoming.all(func(r): return not r.event.data.target.attributes.get("hidden", false)), "actual targeted hits only select revealed Dotra")
+			check(playback.build(resolved.events.map(func(r): return r.event)), "Dotra reveal replay builds")
+			var first_at: float = 0.18 + 6.0 * float(int(incoming[0].event.data.tick) + 1) / 200.0
+			var before: Dictionary = playback.sample(first_at - 0.09)
+			check(before.units.any(func(u): return u.id == source.id and u.attributes.get("hidden", false)), "regression sample is still visibly hidden before the reveal")
+			var revealed: Dictionary = playback.sample(first_at)
+			check(revealed.units.any(func(u): return u.id == source.id and not u.attributes.get("hidden", false)), "Dotra is visible when the recorded attack lands")
+			if attacker == "Vulture":
+				check(before.projectiles.is_empty(), "knives cannot visually seek a still-hidden Dotra")
+				check(not revealed.projectiles.is_empty(), "reveal-tick knife hit still gets visible impact feedback")
+			else:
+				check(not before.monster_attacks.any(func(a): return a.ability == "MunoDash"), "Muno cannot begin its visible lunge at a still-hidden Dotra")
+				check(revealed.monster_attacks.any(func(a): return a.ability == "MunoDash"), "Muno strike appears after Dotra reveals")
+		# A reveal followed by a lethal counterattack leaves no visible living
+		# unit frame. It still must not show an arrow seeking hidden Dotra.
+		var lethal_world: Dictionary = phase_world()
+		var victim: Dictionary = put(lethal_world, "Dotra", pid, 0 if pid == 0 else 2400, {"hp": 1, "armor": 0})
+		put(lethal_world, "Vulture", 1 - pid, 400 if pid == 0 else 2000, {"y_fp": 350, "step_fp": 0, "attack": 100, "hp": 100, "max_hp": 100})
+		var lethal: Dictionary = phase("dotra_%d_lethal_reveal_counter" % pid, lethal_world, selected_seed(victim.id, "HIDE", 25))
+		var shot: Dictionary = facts(lethal, "MARCHER_RANGED_ATTACK")[0]
+		var impact_at: float = 0.18 + 6.0 * float(int(shot.tick) + 1) / 200.0
+		check(Kanifous._entity(lethal.world, victim.id).is_empty() and not shot.target.attributes.hidden, "lethal counterattack waits for the ambush reveal")
+		check(playback.build(lethal.events.map(func(r): return r.event)) and playback.sample(impact_at - 0.09).projectiles.is_empty() and not playback.sample(impact_at).projectiles.is_empty(), "lethal reveal still suppresses early knife flight and shows the impact")
+		# Towers use a separate target-selection loop from ordinary Vultures.
+		var w: Dictionary = phase_world()
+		var owner: int = 1 - pid
+		var p: Dictionary = Marching.Fort.site_point(owner, 2)
+		var builder: Dictionary = put(w, "Wright", owner, p.x_fp)
+		var ids = Work.Ids.new(); ids.restore(w.entities); ids.retire(builder.id); w.entities = ids.snapshot()
+		w.data["field_structures"] = [{"id": Marching.Fort.Data.instance_id("wright_structure", builder.id, "2"), "kind": "fortification", "owner": owner, "attributes": {"structure": "Tower", "site": 2, "lane": "Lord", "x_fp": p.x_fp, "y_fp": p.y_fp, "hp": 6, "max_hp": 6, "armor": 4, "max_armor": 4, "attack": 1, "ranged_next_tick": 0, "builder_id": builder.id}}]
+		var stalker: Dictionary = put(w, "Dotra", pid, int(p.x_fp) + (300 if owner == 0 else -300), {"hidden": true, "step_fp": 0, "hp": 100, "max_hp": 100})
+		var concealed: Dictionary = phase("dotra_%d_tower_ignores_hidden" % pid, w)
+		check(facts(concealed, "MARCHER_RANGED_ATTACK").is_empty() and Kanifous._entity(concealed.world, stalker.id).attributes.hidden, "tower cannot acquire or damage concealed Dotra")
+		w = concealed.world
+		var exposed: Dictionary = Kanifous._entity(w, stalker.id)
+		exposed.attributes.hidden = false; exposed.attributes["dotra_concealment_round"] = 3
+		ids.restore(w.entities); ids.update(exposed.id, exposed.owner, exposed.attributes); w.entities = ids.snapshot()
+		var revealed: Dictionary = phase("dotra_%d_tower_targets_revealed" % pid, w, "monster-check", 3)
+		check(not facts(revealed, "MARCHER_RANGED_ATTACK").is_empty(), "tower resumes attacks on visible Dotra")
+	var w: Dictionary = phase_world()
+	put(w, "Dotra", 0, 800, {"hidden": true, "step_fp": 0})
+	put(w, "Dotra", 0, 820, {"hidden": true, "step_fp": 0}, 1)
+	put(w, "Butcher", 1, 1040, {"hp": 1, "armor": 0, "step_fp": 0})
+	var competed: Dictionary = phase("dotra_lost_victim_stays_hidden", w)
+	check(facts(competed, "MONSTER_ATTACK").filter(func(d): return d.ability == "Ambush").size() == 1 and competed.world.entities.entities.filter(func(u): return u.attributes.get("monster_id") == "Dotra" and u.attributes.hidden).size() == 1, "a queued ambush whose victim already died leaves its Dotra hidden")
+
+
 func dotra_stalking_checks() -> void:
 	for pid in [0, 1]:
 		var w: Dictionary = phase_world()
@@ -245,7 +308,6 @@ func dotra_stalking_checks() -> void:
 		var creeping: Dictionary = phase("dotra_%d_half_speed" % pid, w, seed_value)
 		var after: Dictionary = Kanifous._entity(creeping.world, actor.id).attributes
 		check(after.hidden and absi(int(after.x_fp) - start) == 400 and after.step_fp == 4, "hidden Dotra moves at half speed without permanently lowering its base speed")
-		check(after.dotra_hidden_rounds == 0 and Monsters.emerge_chance(after) == 15, "initial hide does not spend the first emergence roll")
 		w = phase_world()
 		actor = put(w, "Dotra", pid, start, {"hp": 100, "max_hp": 100})
 		var prey: Dictionary = put(w, "Vulture", 1 - pid, 400 if pid == 0 else 2000, {"y_fp": 350, "step_fp": 0, "hp": 100, "max_hp": 100})
@@ -256,46 +318,30 @@ func dotra_stalking_checks() -> void:
 		var tick: int = ambushes[0].tick
 		check(not facts(hunt, "MARCHER_RANGED_ATTACK").any(func(d): return d.target.id == actor.id and d.tick < tick), "ordinary ranged attacks cannot select the stalking Dotra")
 		after = Kanifous._entity(hunt.world, actor.id).attributes
-		check(not after.hidden and after.dotra_hidden_rounds == 0, "ambush reveals Dotra and resets the emergence ramp")
+		check(not after.hidden, "ambush reveals Dotra when the bonus strike lands")
 	var w: Dictionary = phase_world()
 	var actor: Dictionary = put(w, "Dotra", 0, 800, {"hidden": true, "step_fp": 0})
-	var chances: Array = [15, 30, 45, 60, 75, 90, 100]
-	var seed_value: String = ""
-	for i in range(10000):
-		var candidate: String = "dotra-ramp:" + str(i)
-		var stays: bool = true
-		for index in range(6):
-			if MonsterFX.Lamp.draw(candidate, "%s:%d" % [actor.id, index + 2], "EMERGE", 100) < chances[index]:
-				stays = false; break
-		if stays: seed_value = candidate; break
-	check(not seed_value.is_empty(), "Dotra fixture remains hidden through six emergence rolls")
-	for index in range(7):
-		var n: int = index + 2
-		check(Monsters.emerge_chance(Kanifous._entity(w, actor.id).attributes) == chances[index], "Dotra emergence ramp %d%%" % chances[index])
-		var result: Dictionary = phase("dotra_emerge_%d" % chances[index], w, seed_value, n)
-		var after: Dictionary = Kanifous._entity(result.world, actor.id).attributes
-		check(facts(result, "MONSTER_CONCEALMENT").size() == 1 and facts(result, "MONSTER_CONCEALMENT")[0].emerge_chance == chances[index] and after.hidden == (index < 6), "Dotra rolls once per active round and must emerge at 100%")
+	for n in range(2, 10):
+		var result: Dictionary = phase("dotra_stays_hidden_%d" % n, w, "monster-check", n)
+		check(Kanifous._entity(result.world, actor.id).attributes.hidden, "Dotra stays concealed across rounds until it can ambush")
 		w = result.world
-		if index == 2:
+		if n == 4:
 			var saved: Dictionary = JSON.parse_string(Game.encode_snapshot(w))
 			var restored: Dictionary = bytes_to_var(Marshalls.base64_to_raw(saved.payload))
-			check(restored == w and Monsters.emerge_chance(Kanifous._entity(restored, actor.id).attributes) == 60, "save round-trip retains Dotra's accumulated emergence chance")
+			check(restored == w and Kanifous._entity(restored, actor.id).attributes.hidden, "save round-trip retains concealment")
 			w = restored
 			var buffer = Marching.Buffer.new(); buffer.restore(w.entities)
-			var c: Dictionary = context(w, seed_value); c.round = n
+			var c: Dictionary = context(w); c.round = n
 			var duplicate: Dictionary = MonsterFX.step(w, buffer, c, 0, Callable(Game.Content.new(), "react"))
-			check(facts(duplicate, "MONSTER_CONCEALMENT").is_empty() and buffer.get_entity(actor.id).attributes.dotra_hidden_rounds == 3, "repeating the same round cannot reroll or advance emergence")
-	check(Monsters.emerge_chance(Kanifous._entity(w, actor.id).attributes) == 15, "emerging resets the next concealment's chance")
-	w = phase_world()
-	actor = put(w, "Dotra", 0, 800, {"hidden": true, "dotra_hidden_rounds": 6, "step_fp": 0})
-	put(w, "Butcher", 1, 1040, {"step_fp": 0, "hp": 100, "max_hp": 100})
-	var immediate: Dictionary = phase("dotra_ambush_before_emerge", w)
-	check(facts(immediate, "MONSTER_ATTACK").any(func(d): return d.ability == "Ambush" and d.tick == 0), "prey already in range gets ambushed even when voluntary emergence would be guaranteed")
+			check(facts(duplicate, "MONSTER_CONCEALMENT").is_empty() and buffer.get_entity(actor.id).attributes.hidden, "repeating the same round cannot reroll concealment")
+	var prey: Dictionary = put(w, "Butcher", 1, 1040, {"step_fp": 0, "hp": 100, "max_hp": 100})
+	var immediate: Dictionary = phase("dotra_reveals_with_ambush", w, "monster-check", 10)
+	check(facts(immediate, "MONSTER_ATTACK").any(func(d): return d.ability == "Ambush" and d.tick == 0 and d.target.id == prey.id and not d.attacker.attributes.hidden), "Dotra reveals and delivers its bonus strike when prey reaches ambush range")
 	w = phase_world()
 	actor = put(w, "Dotra", 0, 0, {"birth_round": 2, "movement_ready_round": 3})
 	var held: Dictionary = phase("dotra_birth_hold", w)
 	check(facts(held, "MONSTER_CONCEALMENT").is_empty() and Kanifous._entity(held.world, actor.id).attributes.x_fp == 0, "new Dotra retains its birth hold")
-	for key in ["dotra_hidden_rounds", "dotra_concealment_round"]:
+	for key in ["dotra_concealment_round"]:
 		for value in [-1, 0.5, true, "1"]:
 			var forged: Dictionary = actor.attributes.duplicate(true); forged[key] = value
 			check(not Monsters.valid_unit(forged), "invalid Dotra counter is rejected: " + key)
@@ -424,6 +470,7 @@ func run() -> void:
 	await kopita_pulse_checks()
 	await muno_dash_checks()
 	dotra_stalking_checks()
+	dotra_visibility_checks()
 	penitent_block_checks()
 	sooge_ramp_checks()
 	pool_checks()

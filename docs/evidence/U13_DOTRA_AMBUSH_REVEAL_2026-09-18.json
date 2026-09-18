@@ -1,0 +1,82 @@
+{
+  "date": "2026-09-18",
+  "change": "Keep Dotra hidden until the bonus ambush lands; align incoming attack visuals with the reveal",
+  "monster_profile": "U13_MONSTERS_V6_AMBUSH_REVEAL",
+  "integrated_remote_parent": "eed8e2d39358e584e43afe43ff70fafbe8423220",
+  "behavior": {
+    "concealment": "Once hidden, Dotra stays hidden across rounds and saves until delivering its bonus ambush. The timed emergence roll has been removed at user request.",
+    "unchanged_tuning": {
+      "hide_chance_percent": 25,
+      "hidden_speed_multiplier": 0.5,
+      "ambush_damage": 5,
+      "ambush_radius": 240
+    },
+    "lost_victim": "If an earlier queued attack removes the intended victim, Dotra stays hidden and keeps stalking.",
+    "targeting": "Ordinary melee, Vulture, tower and monster target selection continue to ignore hidden Dotra. No blanket immunity to collateral or area damage was added.",
+    "playback": "Ranged projectile flight and Muno anticipation cannot begin before the visible reveal. An instantaneous reveal-tick ranged hit uses a brief impact visual, including lethal counters."
+  },
+  "regression_reproduction": {
+    "failing_checks_before_fix": 6,
+    "description": "Both owners reproduced early knife flight, missing reveal-tick impact, and Muno anticipation toward visibly hidden Dotra."
+  },
+  "native": {
+    "runtime": "Godot 4.5.1.stable.official.f62fdbde1 / Linux headless (diagnostic only)",
+    "runner": "Scripts/Sim/U13MonsterTestRunner.gd",
+    "checks_passed": 595,
+    "failures": 0,
+    "script_errors": 0
+  },
+  "python_exact_phase_replays": {
+    "phases": 74,
+    "events": 15702,
+    "ticks": 14800,
+    "event_types": {
+      "KRONI_ACTORS_STARTED": 1,
+      "KRONI_ACTOR_FINISHED": 1,
+      "KRONI_ACTOR_TICK": 200,
+      "KRONI_FLEE_STARTED": 1,
+      "MARCHER_DEFEATED": 13,
+      "MARCHER_DEVOURED": 1,
+      "MARCHER_MELEE_ATTACK": 360,
+      "MARCHER_RANGED_ATTACK": 72,
+      "MARCHER_WAITING": 5,
+      "MARCHING_FINISHED": 74,
+      "MARCHING_STARTED": 74,
+      "MARCHING_TICK": 14800,
+      "MONSTER_ATTACK": 31,
+      "MONSTER_BANISHED": 1,
+      "MONSTER_BEAM_DETONATED": 9,
+      "MONSTER_BEAM_FIRED": 8,
+      "MONSTER_CHARMED": 3,
+      "MONSTER_CONCEALMENT": 24,
+      "MONSTER_FIELD_CREATED": 3,
+      "MONSTER_POISONED": 1,
+      "MONSTER_PULSE": 6,
+      "MONSTER_ROOTED": 1,
+      "NEUTRAL_TEAR_CREATED": 1,
+      "PICKING_THE_BONES": 1,
+      "WRIGHT_BUILD_ASSIGNED": 11
+    }
+  },
+  "coverage": [
+    "Both owners: ordinary melee, Vulture, Muno, Tumler and Sooge selectors ignore hidden Dotra and reacquire it after reveal.",
+    "Both owners: tower firing excludes hidden Dotra; firing resumes when exposed.",
+    "Eight consecutive rounds without a target preserve concealment; save round-trip and repeated same-round evaluation preserve concealment.",
+    "Half-speed stalking, birth hold, bonus strike range, delayed prey arrival and two ambushers competing for one dying victim.",
+    "Playback before reveal and on impact, including same-tick lethal counters without a surviving visible unit frame."
+  ],
+  "source_sha256": {
+    "Prototype/U13/U13BoardLanes.gd": "cfaf71dab73351d7efaecada391e97d078de52ca10820d8651ccbc67108ea9b8",
+    "Prototype/U13/U13SmokePlayback.gd": "02f0d61ba8edff7fee44b6b6c195c4d1d04c69429bd3391d3518fb1277d934cd",
+    "Prototype/U13/U13VultureProjectile.gd": "9dfb141d1546e205fd08d03d75f7f636a6081991a426675586923b5e5bd1ad46",
+    "Scripts/Sim/U13MonsterEffects.gd": "0414740fb70c8ec14a1a37963b5dd8ab43c02f801757708bed7b4729c8653917",
+    "Scripts/Sim/U13MonsterRules.gd": "e4c6cfc6d8d84d1ca3f642372f241241e827b308c1b10d7b96bb7a66df075057",
+    "Scripts/Sim/U13MonsterTestRunner.gd": "5479c15e5ad996ff7b8b68b3e8095636ef228db2e81bab407312622bbd9b9f09",
+    "Scripts/Sim/u13_pysim/monster_effects.py": "a3fe7098b120b3a918fe29c068d7142a5f898afa3680e3e0dfc18e7537aa53ac",
+    "Scripts/Sim/u13_pysim/monsters.py": "d6d2593b96d2213e4f72c37efa514c84da525a24c55669e83f282af2fff6be58"
+  },
+  "limits": [
+    "Interactive visual review on Windows Godot 4.7.2 remains.",
+    "Monster rules version advanced; restart the game and start a fresh match or reset the balance arena for the new rules."
+  ]
+}

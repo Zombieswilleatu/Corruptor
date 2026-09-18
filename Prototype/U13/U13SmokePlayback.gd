@@ -149,7 +149,7 @@ func sample(seconds: float) -> Dictionary:
 	for shot in projectile_rows:
 		if at >= shot.start and at < shot.end:
 			var picture: Dictionary = shot.duplicate(true)
-			picture["weight"] = (at - shot.start) / FLIGHT_SECONDS
+			picture["weight"] = (at - shot.start) / maxf(0.001, float(shot.end) - float(shot.start))
 			projectiles.append(picture)
 	var fields: Array = _monster_fields.filter(func(f): return at >= f.at).map(func(f): return f.field.duplicate(true))
 	var attacks: Array = _monster_attacks.filter(func(a): return at >= a.start and at < a.end).map(func(a): return a.duplicate(true))
@@ -243,7 +243,7 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 	for event in events:
 		if event.type == "MARCHER_RANGED_ATTACK":
 			var impact: float = lead + MOVE_SECONDS * float(int(event.data.tick) + 1) / float(started.ticks)
-			projectile_rows.append({"start": impact - FLIGHT_SECONDS, "end": impact, "lane": event.data.lane, "source": event.data.attacker.attributes.duplicate(true), "target": event.data.target.attributes.duplicate(true)})
+			projectile_rows.append({"start": impact - FLIGHT_SECONDS, "end": impact, "lane": event.data.lane, "source_id": event.data.attacker.id, "target_id": event.data.target.id, "source": event.data.attacker.attributes.duplicate(true), "target": event.data.target.attributes.duplicate(true)})
 	for field in started.get("monster_fields", []): _monster_fields.append({"at": 0.0, "field": field})
 	var death_ticks: Dictionary = {}
 	var beams: Dictionary = {}
@@ -332,12 +332,53 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 	units = {}
 	for unit in finished.units:
 		units[unit.id] = unit.duplicate(true)
+	_align_attack_reveals(events)
 	# Let the last recorded pulse finish instead of sticking on the final frame.
 	for attack in _monster_attacks:
 		duration = maxf(duration, float(attack.end))
+	for shot in projectile_rows:
+		duration = maxf(duration, float(shot.end))
 	_append(units, "Marching complete", [])
 	_frames.back()["field_structures"] = finished.get("field_structures", []).duplicate(true)
 	return true
+
+
+func _align_attack_reveals(events: Array) -> void:
+	var concealed: Dictionary = {}
+	var reveals: Dictionary = {}
+	for frame in _frames:
+		for unit in frame.units:
+			var hidden: bool = unit.attributes.get("hidden", false)
+			if concealed.get(unit.id, false) and not hidden:
+				if not reveals.has(unit.id): reveals[unit.id] = []
+				reveals[unit.id].append(float(frame.at))
+			concealed[unit.id] = hidden
+	for event in events:
+		if event.type == "MONSTER_ATTACK" and event.data.ability == "Ambush":
+			# A lethal counterattack can remove Dotra before the next unit frame.
+			# Its recorded ambush still establishes the exact reveal instant.
+			var identity: String = event.data.attacker.id
+			if not reveals.has(identity): reveals[identity] = []
+			reveals[identity].append(_spatial_lead + MOVE_SECONDS * float(int(event.data.tick) + 1) / float(_spatial_ticks))
+	for shot in projectile_rows:
+		var visible_at: float = _latest_reveal(reveals, shot.source_id, shot.target_id, shot.end)
+		shot.start = maxf(float(shot.start), visible_at)
+		if float(shot.end) - float(shot.start) < 0.001:
+			# The simulation hit is instantaneous on the reveal tick. Show its
+			# impact there, without inventing a flight aimed at an invisible unit.
+			shot["impact_only"] = true
+			shot.end = float(shot.start) + 0.08
+	for attack in _monster_attacks:
+		if attack.ability == "MunoDash":
+			attack.start = maxf(float(attack.start), _latest_reveal(reveals, attack.source_id, attack.target_id, attack.impact_at))
+
+
+static func _latest_reveal(reveals: Dictionary, source: String, target: String, at: float) -> float:
+	var latest: float = 0.0
+	for identity in [source, target]:
+		for revealed_at in reveals.get(identity, []):
+			if float(revealed_at) <= at + 0.000001: latest = maxf(latest, float(revealed_at))
+	return latest
 
 
 static func _beam_picture(d: Dictionary, at: float, until: float, ability: String) -> Dictionary:

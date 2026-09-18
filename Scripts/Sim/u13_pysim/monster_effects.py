@@ -100,15 +100,10 @@ def step(w,buffer,c,tick,reaction):
             key=f"{unit['id']}:{n}"
             if a['monster_id']=='Dotra':
                 if a.get('dotra_concealment_round',0)<n:
-                    a['dotra_concealment_round']=n;chance=0
-                    if a.get('hidden',False):
-                        if not nearest(unit,buffer.rows(),T['dotra_ambush_radius']):
-                            chance=rules.emerge_chance(a)
-                            a['hidden']=draw(c['seed'],key,'EMERGE',0,100)>=chance
-                            a['dotra_hidden_rounds']=a.get('dotra_hidden_rounds',0)+1 if a['hidden'] else 0
-                    else:
-                        a['hidden']=draw(c['seed'],key,'HIDE',0,100)<T['dotra_hide_chance'];a['dotra_hidden_rounds']=0
-                    events.append(event('MONSTER_CONCEALMENT',dict(unit_id=unit['id'],hidden=a['hidden'],emerge_chance=chance,round=n,tick=tick)))
+                    a['dotra_concealment_round']=n
+                    if not a.get('hidden',False):
+                        a['hidden']=draw(c['seed'],key,'HIDE',0,100)<T['dotra_hide_chance']
+                    events.append(event('MONSTER_CONCEALMENT',dict(unit_id=unit['id'],hidden=a['hidden'],round=n,tick=tick)))
             elif a['monster_id']=='Sooge':
                 if a['sprite_form']!='turret' and a.get('sooge_root_round',0)<n:
                     chance=rules.root_chance(a)
@@ -152,7 +147,7 @@ def step(w,buffer,c,tick,reaction):
         elif name=='Dotra' and a.get('hidden',False):
             target=nearest(unit,rows,T['dotra_ambush_radius'])
             if target:
-                a['hidden']=False;a['dotra_hidden_rounds']=0;hits.append(dict(source=unit,target=target['id'],amount=5,bypass=False,ability='Ambush'))
+                hits.append(dict(source=unit,target=target['id'],amount=5,bypass=False,ability='Ambush'))
         elif name=='Sooge' and a['sprite_form']=='turret' and a.get('beam_next_tick',0)-T['beam_charge_ticks']<=clock:
             target=nearest(unit,rows+fort.rows(w),T['beam_range'])
             if not target:
@@ -215,6 +210,12 @@ def damage(w,buffer,hit,c,tick,reaction):
             break
         return dict(action='resolved',world=w,events=events)
     before=copy_data(target);a=target['attributes']
+    if hit['ability']=='Ambush':
+        ambusher=buffer.get(hit['source']['id'])
+        if not ambusher:return dict(action='resolved',world=w,events=events)
+        ambusher['attributes']['hidden']=False
+        buffer.update(ambusher['id'],ambusher['owner'],ambusher['attributes'])
+        hit['source']=ambusher
     blocked=hit['ability']=='Beam' and penitent_defense.blocks(target,hit['source']['id'],c['seed'],c['round'],tick,'Beam')
     amount=0 if blocked else hit['amount'];absorbed=0 if hit['bypass'] else min(a['armor'],amount);dealt=amount-absorbed
     a['armor']-=absorbed;a['hp']=max(0,a['hp']-dealt);a['movement_ready_round']=min(a['movement_ready_round'],c['round'])
