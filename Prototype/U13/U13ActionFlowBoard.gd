@@ -109,6 +109,8 @@ func _sync_flow() -> void:
 			pass_button.tooltip_text = "Keep your hand and decline this trade."
 		phase_prompt.set_presenting(true)
 	phase_prompt.call_deferred("_sync_decision_bottom_actions_v12")
+	# bind_decision shows the modal again; targeting must win after that binding.
+	_sync_power_targeting()
 
 func _flow_title() -> String:
 	if not session.pending_choice.is_empty():

@@ -1,19 +1,12 @@
 extends "res://Prototype/U13/U13WebPlacement.gd"
 
 const Orbs = preload("res://Scripts/Sim/U13GravityOrbs.gd")
-var battlefield: Control
 
 
 func _ready() -> void:
 	super._ready()
 	radius_fp = Orbs.ATTRACTION_FP
 	confirm_button.text = "PLACE GRAVITY ORB"
-
-
-func lane_rect(lane: String) -> Rect2:
-	if battlefield == null:
-		return super.lane_rect(lane)
-	return get_global_transform().affine_inverse() * battlefield.get_global_transform() * battlefield.travel_rect(lane)
 
 
 func _process(_delta: float) -> void:

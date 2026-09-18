@@ -3,7 +3,7 @@ const Kanifous = preload("res://Scripts/Sim/U13Kanifous.gd")
 var void_overlay: ColorRect
 var wish_box: VBoxContainer
 var wish_choice: OptionButton
-var wish_target: OptionButton
+var wish_castles: Array = []
 var wish_button: Button
 var wish_remove: Button
 var wish_note: Label
@@ -23,7 +23,6 @@ func _build() -> void:
 	_label(wish_box, "WISH · ONE PER ROUND", 18)
 	wish_choice = _option(wish_box, ["Power", "Longevity", "Resurrection", "Death", "Wealth"])
 	wish_choice.item_selected.connect(func(_index): _update_direct_ui())
-	wish_target = _option(wish_box, [])
 	wish_note = _label(wish_box, "", 13)
 	wish_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	wish_button = _button(wish_box, "QUEUE WISH", _queue_wish)
@@ -61,25 +60,7 @@ func _build() -> void:
 	_wish_targets()
 
 func _wish_targets() -> void:
-	var previous_target = wish_target.get_item_metadata(wish_target.selected) if wish_target.selected >= 0 else null
-	var previous_index: int = wish_target.selected
-	wish_target.clear()
-	var power: String = Kanifous.Wishes[wish_choice.selected]
-	if power == "WishPower":
-		wish_target.add_item("Lord lane")
-		wish_target.add_item("Castle lane")
-	elif power == "WishLongevity":
-		for row in _visible_world.get("entities", []):
-			if Kanifous.longevity_target(row, 0):
-				wish_target.add_item("%s · slot %d" % [row.attributes.get("castle_type", "Castle"), int(row.attributes.get("castle_slot", 0)) + 1])
-				wish_target.set_item_metadata(wish_target.item_count - 1, row.id)
-	if power == "WishLongevity":
-		for index in range(wish_target.item_count):
-			if wish_target.get_item_metadata(index) == previous_target:
-				wish_target.select(index)
-	elif previous_index >= 0 and previous_index < wish_target.item_count:
-		wish_target.select(previous_index)
-	wish_target.visible = power not in ["WishDeath", "WishWealth", "WishResurrection"]
+	wish_castles = _visible_world.get("entities", []).filter(func(row): return Kanifous.longevity_target(row, 0))
 	wish_note.text = ["Spawn 1–3 random-suit Marchers: 70% one, 25% two, 5% three.", "Repair an active Castle up to 8 Integrity (or its maximum if lower). Castles already at or above that cannot be targeted. Protected construction and Ruined/Profaned Castles cannot be targeted.", "Choose a battlefield lane. After Marching, revive your Marchers killed there this round at full HP and Armor near where they fell. They advance next round. Guard cards and prior-round losses are excluded.", "Choose a small circle on the field. Destroy every Marcher inside, friend or enemy.", "Draw 1–3 cards: 20% one, 50% two, 30% three."][wish_choice.selected] + "\nSuccess creates a hidden Price due in 1–3 rounds."
 
 func _update_direct_ui() -> void:
@@ -88,7 +69,7 @@ func _update_direct_ui() -> void:
 		return
 	_wish_targets()
 	wish_box.visible = _human_lord() == "Kanifous" or _visible_world.get("breach_wish_access", [false, false])[0]
-	wish_button.text = "QUEUE BREACH WISH" if _using_breach_wish() else "QUEUE WISH"
+	wish_button.text = ("QUEUE " if wish_choice.selected == 4 else "CHOOSE TARGET · ") + ("BREACH WISH" if _using_breach_wish() else "WISH")
 	if _using_breach_wish():
 		if not _human_alive():
 			status.text = "Your Lord is banished. An optional Breach Wish remains available."
@@ -97,7 +78,7 @@ func _update_direct_ui() -> void:
 	void_overlay.visible = _visible_world.get("void_active", false)
 	wish_visual.bind_world(_visible_world)
 	var has_wish: bool = queued.any(func(row: Dictionary) -> bool: return Kanifous.is_wish(row.power_id))
-	wish_button.disabled = not _planning() or not powers_step or (not _human_alive() and not _using_breach_wish()) or has_wish or (Kanifous.Wishes[wish_choice.selected] == "WishLongevity" and wish_target.item_count == 0)
+	wish_button.disabled = not _planning() or not powers_step or (not _human_alive() and not _using_breach_wish()) or has_wish or (Kanifous.Wishes[wish_choice.selected] == "WishLongevity" and wish_castles.is_empty())
 	wish_remove.visible = has_wish
 	price_note.text = ""
 	for price in _visible_world.get("wish_prices", []):
@@ -120,13 +101,46 @@ func _queue_wish() -> void:
 		resurrection_placement.open()
 		_refresh()
 		return
-	if power == "WishPower":
-		target = {"lane": "Lord" if wish_target.selected == 0 else "Castle"}
-	elif power == "WishLongevity":
-		if wish_target.selected < 0:
-			return
-		target = {"entity_id": wish_target.get_item_metadata(wish_target.selected)}
+	if power in ["WishPower", "WishLongevity"]:
+		_intent = power
+		_target = {}
+		_interaction_error = ""
+		_refresh()
+		_reveal_targets()
+		return
 	_queue_valak(session.declaration(_wish_power(power), queued.size(), target))
+
+func _is_lane_power(power: String) -> bool:
+	return power == "WishPower" or super._is_lane_power(power)
+
+func _board_power_targeting() -> bool:
+	return _intent == "WishLongevity" or super._board_power_targeting()
+
+func _target_allowed(target: Dictionary, intent: String) -> bool:
+	if intent == "WishLongevity":
+		return _planning() and powers_step and (_human_alive() or _using_breach_wish()) and target.get("kind") == "castle" and Kanifous.longevity_target(_entity(str(target.get("id", ""))), 0)
+	return super._target_allowed(target, intent)
+
+func _guide() -> String:
+	if _intent == "WishPower":
+		return "WISH OF POWER · click the Lord or Castle marching lane on the battlefield to choose where your Marchers appear."
+	if _intent == "WishLongevity":
+		return "WISH OF LONGEVITY · click one of your highlighted Castles on the board. Repair it up to %d Integrity." % Kanifous.LONGEVITY_INTEGRITY
+	return super._guide()
+
+func _submit_power(target: Dictionary) -> void:
+	if _intent not in ["WishPower", "WishLongevity"]:
+		super._submit_power(target)
+		return
+	if not _planning() or not powers_step or (not _human_alive() and not _using_breach_wish()): return
+	var payload: Dictionary
+	if _intent == "WishPower":
+		if target.get("lane") not in ["Lord", "Castle"]: return
+		payload = {"lane": target.lane}
+	else:
+		if not _target_allowed(target, _intent): return
+		payload = {"entity_id": target.id}
+	_queue_valak(session.declaration(_wish_power(_intent), queued.size(), payload))
 
 func _confirm_wish_death(target: Dictionary) -> void:
 	if _queue_valak(session.declaration(_wish_power("WishDeath"), queued.size(), target)):
@@ -189,6 +203,8 @@ func _reset_direct() -> void:
 		death_wish_visual.clear()
 	if wish_placement != null:
 		wish_placement.close()
+	if resurrection_placement != null:
+		resurrection_placement.close()
 	super._reset_direct()
 
 

@@ -12,6 +12,9 @@ var cancel_button: Button
 var placed: bool = false
 var dragging: bool = false
 var drag_offset: Vector2 = Vector2.ZERO
+var battlefield: Control
+var board_help: PanelContainer
+var board_help_text: Label
 
 
 func _ready() -> void:
@@ -60,9 +63,43 @@ func close() -> void:
 
 
 func lane_rect(lane: String) -> Rect2:
+	if is_instance_valid(battlefield):
+		return get_global_transform_with_canvas().affine_inverse() * battlefield.get_global_transform_with_canvas() * battlefield.travel_rect(lane)
 	var height: float = maxf(200.0, size.y - 210.0)
 	var width: float = height / 4.0
 	return Rect2(size.x * 0.5 - width + (width if lane == "Castle" else 0.0), 110, width, height)
+
+
+func bind_battlefield(field: Control) -> void:
+	battlefield = field
+	board_help = PanelContainer.new()
+	preload("res://Prototype/U13/U13ReconfigurationStyle.gd").apply(board_help)
+	add_child(board_help)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 12)
+	board_help.add_child(column)
+	var title := Label.new()
+	title.text = "WEB · CHOOSE ITS REACH"
+	title.add_theme_font_size_override("font_size", 20)
+	column.add_child(title)
+	board_help_text = Label.new()
+	board_help_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	column.add_child(board_help_text)
+	var actions: Control = confirm_button.get_parent()
+	actions.reparent(column)
+	actions.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	confirm_button.custom_minimum_size.x = 200
+	cancel_button.custom_minimum_size.x = 100
+	_sync_board_help()
+
+
+func _sync_board_help() -> void:
+	if board_help == null: return
+	var field: Rect2 = lane_rect("Lord")
+	board_help.size.x = 380
+	board_help.position = Vector2(maxf(12, field.position.x - 400), maxf(100, field.position.y))
+	board_help_text.text = "Click either marching lane to place the web. Drag it to adjust, then Set the Snare.\n\nEnemy Marchers inside take 1 damage and move at half speed."
+	if placed: board_help_text.text += "\n\nSelected: %s lane." % target.lane
 
 
 func _confirm() -> void:
@@ -122,12 +159,21 @@ func _input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	_sync_board_help()
 	visuals.warm_next()
 	visuals.advance(delta)
 	queue_redraw()
 
 
 func _draw() -> void:
+	if is_instance_valid(battlefield):
+		# Selection uses the live lane rectangles; the board remains visible.
+		for lane in ["Lord", "Castle"]:
+			draw_rect(lane_rect(lane), Color("b8c89a"), false, 2)
+		if placed:
+			var selected: Rect2 = lane_rect(target.lane)
+			visuals.draw_area(self, Visuals.region_rect(selected, target.field_position, radius_fp), selected)
+		return
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.035, 0.045, 0.04, 0.97))
 	var font: Font = ThemeDB.fallback_font
 	draw_string(

@@ -21,7 +21,7 @@ func run() -> void:
 	board._refresh()
 	board._goto_flow(4)
 	await process_frame
-	check(board.wish_box.is_visible_in_tree() and board.wish_button.text == "QUEUE BREACH WISH", "Deimos sees the Breach Wish controls in the modal")
+	check(board.wish_box.is_visible_in_tree() and board.wish_button.text == "CHOOSE TARGET · BREACH WISH", "Deimos sees the Breach Wish controls in the modal")
 	check(board.wish_note.text.contains("HEAVIER PRICE") and board.wish_note.text.contains("double their normal draw weight"), "increased Price is explained before committing")
 	board.wish_choice.select(4)
 	board._update_direct_ui()

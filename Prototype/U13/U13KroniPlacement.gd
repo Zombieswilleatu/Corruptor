@@ -1,18 +1,11 @@
 extends "res://Prototype/U13/U13WebPlacement.gd"
 
-var battlefield: Control
 var owner_id: int = 0
 
 
 func _ready() -> void:
 	super._ready()
 	confirm_button.text = "PLACE KRONI"
-
-
-func lane_rect(lane: String) -> Rect2:
-	if battlefield == null:
-		return super.lane_rect(lane)
-	return get_global_transform().affine_inverse() * battlefield.get_global_transform() * battlefield.travel_rect(lane)
 
 
 func _process(_delta: float) -> void:

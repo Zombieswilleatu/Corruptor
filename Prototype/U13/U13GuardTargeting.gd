@@ -2,11 +2,9 @@ extends Control
 
 signal confirmed
 signal cancelled
-signal zone_selected(owner: int, lane: String)
 var panel: VBoxContainer
 var note: Label
 var confirm_button: Button
-var choices: GridContainer
 var frame: PanelContainer
 var heading: Label
 var markers: Array = []
@@ -32,11 +30,6 @@ func _ready() -> void:
 	note.custom_minimum_size.x = 0
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	panel.add_child(note)
-	choices = GridContainer.new()
-	choices.columns = 2
-	choices.add_theme_constant_override("h_separation", 8)
-	choices.add_theme_constant_override("v_separation", 8)
-	panel.add_child(choices)
 	confirm_button = Button.new()
 	confirm_button.text = "QUEUE ORDER"
 	confirm_button.pressed.connect(func() -> void: confirmed.emit())
@@ -47,21 +40,17 @@ func _ready() -> void:
 	panel.add_child(cancel)
 	hide()
 
-func display(message: String, ready: bool, zones: Array, outlines: Array) -> void:
+func display(message: String, ready: bool, _zones: Array, outlines: Array) -> void:
 	note.text = message
 	confirm_button.disabled = not ready
 	markers = outlines
-	for child in choices.get_children():
-		choices.remove_child(child)
-		child.queue_free()
-	for zone in zones:
-		var button := Button.new()
-		button.text = ("ENEMY" if zone.owner == 1 else "YOUR") + "\n" + zone.lane.to_upper() + " GUARDS"
-		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		button.pressed.connect(func() -> void: zone_selected.emit(zone.owner, zone.lane))
-		choices.add_child(button)
 	show()
 	queue_redraw()
+
+func _input(event: InputEvent) -> void:
+	if is_visible_in_tree() and event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		get_viewport().set_input_as_handled()
+		cancelled.emit()
 
 func _process(_delta: float) -> void:
 	if visible:

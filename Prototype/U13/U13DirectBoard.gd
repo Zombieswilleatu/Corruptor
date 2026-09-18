@@ -14,6 +14,7 @@ var _selected_pulse: Dictionary = {}
 var _visible_world: Dictionary = {}
 var _order_preview
 var _direct_castle_buttons: Array = []
+var power_targeting
 
 
 func _direct() -> bool:
@@ -57,6 +58,10 @@ func _build() -> void:
 	castle_token.toggled.connect(_repair_token_changed)
 	_order_preview = OrderPreview.new()
 	add_child(_order_preview)
+	power_targeting = preload("res://Prototype/U13/U13GuardTargeting.gd").new()
+	add_child(power_targeting)
+	power_targeting.confirm_button.hide()
+	power_targeting.cancelled.connect(_cancel_power_targeting)
 
 
 func _hand_reserved(id: String) -> bool:
@@ -244,6 +249,7 @@ func _update_direct_ui() -> void:
 		else:
 			phase_prompt.copy_label.text = "Choose action → click target → click hand cards. Or drag a card directly to a target. Double-click the hand after staging one card for ALL IN."
 		pass_button.disabled = false
+	_sync_power_targeting()
 
 
 func _guide() -> String:
@@ -735,6 +741,42 @@ func open_setup() -> void:
 		_show_stacks()
 
 
+func _board_power_targeting() -> bool:
+	return _is_lane_power(_intent) or _intent in [Gremory.RUIN, Deimos.WAR_MACHINE, Kalligan.INFERNO]
+
+
+func _sync_power_targeting() -> void:
+	if power_targeting == null: return
+	if not _planning() or not powers_step or not _board_power_targeting():
+		power_targeting.hide()
+		return
+	var markers: Array = []
+	for row in sides:
+		for id in row.target_controls:
+			if _target_allowed(_entity_target(id), _intent):
+				markers.append({"control": row.target_controls[id].get_parent().get_parent(), "selected": false})
+		for lane in ["Lord", "Castle"]:
+			var zone: Dictionary = {"id": "", "kind": "zone", "owner": 0 if row == sides[1] else 1, "lane": lane}
+			if _target_allowed(zone, _intent):
+				markers.append({"control": row.lord_guard_box if lane == "Lord" else row.castle_guard_box, "selected": false})
+	power_targeting.heading.text = _power_name(_intent).to_upper()
+	power_targeting.display(_guide(), false, [], markers)
+	var rect: Rect2 = power_targeting.get_global_transform_with_canvas().affine_inverse() * phase_prompt.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, phase_prompt.size)
+	power_targeting.frame.position = rect.position
+	power_targeting.frame.custom_minimum_size.x = rect.size.x
+	power_targeting.frame.size = Vector2(rect.size.x, 0)
+	phase_prompt.set_presenting(false)
+
+
+func _cancel_power_targeting() -> void:
+	_intent = ""
+	_target = {}
+	_power_cost = []
+	_interaction_error = ""
+	_refresh()
+	reopen_decision()
+
+
 func start_loadout(lords: Array, castles: Array, quick: bool) -> void:
 	if not setup_open or _job != null:
 		return
@@ -1007,7 +1049,7 @@ func queue_pyroclasm() -> void:
 
 
 func _guard_selected(target: Dictionary) -> void:
-	if _intent == Kalligan.INFERNO or (_intent == "Ward" and target.owner == 0):
+	if (powers_step and _target_allowed(target, _intent)) or (_intent == "Ward" and target.owner == 0):
 		_choose_target(target)
 
 
@@ -1018,9 +1060,10 @@ func _guard_input(event: InputEvent, owner_id: int, lane: String, control: Contr
 		and event.pressed
 		and _planning()
 	):
-		if _intent == Kalligan.INFERNO or (_intent == "Ward" and owner_id == 0):
+		var target: Dictionary = {"id": "", "kind": "zone", "owner": owner_id, "lane": lane}
+		if (powers_step and _target_allowed(target, _intent)) or (_intent == "Ward" and owner_id == 0):
 			control.accept_event()
-			_guard_selected({"id": "", "kind": "zone", "owner": owner_id, "lane": lane})
+			_guard_selected(target)
 
 
 func _with_development(order: Dictionary) -> Dictionary:

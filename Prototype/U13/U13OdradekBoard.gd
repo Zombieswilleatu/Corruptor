@@ -29,7 +29,6 @@ func _build() -> void:
 	add_child(guard_targeting)
 	guard_targeting.confirmed.connect(_confirm_guard_power)
 	guard_targeting.cancelled.connect(_cancel_guard_power)
-	guard_targeting.zone_selected.connect(func(pid: int, lane: String) -> void: _guard_selected({"kind": "zone", "owner": pid, "lane": lane}))
 	odradek_effects = preload("res://Prototype/U13/U13OdradekEffects.gd").new()
 	add_child(odradek_effects)
 	debug_panel = preload("res://Prototype/U13/U13DebugPanel.gd").new()

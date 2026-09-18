@@ -3,7 +3,6 @@ extends "res://Prototype/U13/U13WebPlacement.gd"
 const Content = preload("res://Scripts/Sim/U13Odradek.gd")
 var marchers: Array = []
 var allegiance_mode: bool = false
-var battlefield: Control
 var instruction_panel: PanelContainer
 var heading: Label
 var description: Label
@@ -46,13 +45,6 @@ func _label(parent: Node, font_size: int) -> Label:
 	result.add_theme_color_override("font_color", Color("e2d4f2"))
 	parent.add_child(result)
 	return result
-
-
-func lane_rect(lane: String) -> Rect2:
-	if battlefield == null:
-		return super.lane_rect(lane)
-	var transform: Transform2D = get_global_transform().affine_inverse() * battlefield.get_global_transform()
-	return transform * battlefield.travel_rect(lane)
 
 
 func _process(_delta: float) -> void:

@@ -24,9 +24,11 @@ func _run() -> void:
 	var fixture: Dictionary = board.session.checkpoint()
 	board._refresh()
 	await _settle()
-	board.projection_zone.select(1)
 	board.projection_spend.value = 3
 	board.projection_button.pressed.emit()
+	await _settle()
+	_check(board.queued.is_empty() and not board.phase_prompt.visible, "Projection waits for an actual board target")
+	board.sides[0].castle_guard_box.get_child(0).input_surface.pressed.emit()
 	await _settle()
 	_check(board.queued.size() == 1 and board.queued[0].target == {"kind": "guard_zone", "player_id": 1, "zone": "Castle"} and board.queued[0].parameters.spend == 3, "Projection declares enemy Castle guard zone and exact spend")
 	_check(board.session.checkpoint() == fixture, "queueing spends no authoritative Essence")

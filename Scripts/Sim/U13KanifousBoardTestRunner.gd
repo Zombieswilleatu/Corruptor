@@ -20,29 +20,31 @@ func _run() -> void:
 				row.attributes.construction_state = "building"
 				row.attributes.integrity = 7
 		board._update_direct_ui()
-		_check(board.wish_target.item_count == 0 and board.wish_button.disabled, "Longevity excludes protected castles and disables empty selection")
+		_check(board.wish_castles.is_empty() and board.wish_button.disabled, "Longevity excludes protected castles and disables empty selection")
 		var damaged: Dictionary = board._visible_world.entities.filter(func(e): return e.kind == "castle" and e.owner == 0)[0]
 		damaged.attributes.construction_state = "active"
 		damaged.attributes.status = "standing"
 		damaged.attributes.integrity = 7
 		board._update_direct_ui()
-		_check(board.wish_target.item_count == 1 and board.wish_target.get_item_metadata(0) == damaged.id and not board.wish_button.disabled, "Longevity offers damaged active castle")
+		_check(board.wish_castles.size() == 1 and board.wish_castles[0].id == damaged.id and not board.wish_button.disabled, "Longevity offers damaged active castle")
 		damaged.attributes.integrity = damaged.attributes.max_integrity
 		board._update_direct_ui()
-		_check(board.wish_target.item_count == 0 and board.wish_button.disabled, "Longevity removes fully repaired target on refresh")
+		_check(board.wish_castles.is_empty() and board.wish_button.disabled, "Longevity removes fully repaired target on refresh")
 		board._visible_world = actual_view
 		board.wish_choice.select(0)
 		board._update_direct_ui()
 
 		board._wish_targets()
 		board._queue_wish()
-		_check(board.queued.size() == 1 and board.queued[0].power_id == "WishPower", "Power queues")
+		_check(board.queued.is_empty() and board.lanes.target_lane_enabled and not board.phase_prompt.visible, "Power waits for a battlefield lane")
+		board.lanes.lane_selected.emit("Lord")
+		_check(board.queued.size() == 1 and board.queued[0].power_id == "WishPower", "Power queues from the selected lane")
 		_check(board.wish_button.disabled, "one Wish UI limit")
 		board._remove_wish()
 		board.wish_choice.select(2)
 		board._wish_targets()
 		board._queue_wish()
-		_check(board.resurrection_placement.visible and not board.wish_target.visible, "Resurrection opens battlefield targeting without Guard slots")
+		_check(board.resurrection_placement.visible, "Resurrection opens battlefield targeting without Guard slots")
 		board.resurrection_placement._place_at(board.resurrection_placement.lane_rect("Castle").get_center())
 		board.resurrection_placement._confirm()
 		_check(board.queued.size() == 1 and board.queued[0].power_id == "WishResurrection" and board.queued[0].target == {"lane": "Castle"} and not board.resurrection_placement.visible, "Resurrection queues the clicked battlefield lane and closes")

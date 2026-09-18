@@ -1,0 +1,41 @@
+{
+  "date": "2026-09-18",
+  "base_commit": "714768397f2b21a24930c1bc978299802cf58897",
+  "runtime": "Godot 4.5.1 stable, Linux headless diagnostic project",
+  "production_runtime": "Godot 4.7.2 gate unchanged; Windows visual verification pending",
+  "tests": [
+    {
+      "suite": "targeting",
+      "checks_passed": 47,
+      "summary": "U13 board targeting failures: 0"
+    },
+    {
+      "suite": "playable",
+      "checks_passed": 72,
+      "summary": "U13 playable board failures: 0"
+    },
+    {
+      "suite": "valak",
+      "checks_passed": 14,
+      "summary": "U13 Valak board failures: 0"
+    },
+    {
+      "suite": "kanifous",
+      "checks_passed": 27,
+      "summary": "U13 Kanifous board failures: 0"
+    },
+    {
+      "suite": "breach",
+      "checks_passed": 9,
+      "summary": "U13 Breach Wish UI failures: 0"
+    }
+  ],
+  "total_checks_passed": 169,
+  "additional_check": {
+    "suite": "U13ActionFlowBoardTestRunner",
+    "completed": false,
+    "checks_passed": 27,
+    "note": "Exited after the Stockpile/absent-Lord fixture was validated, without a suite completion marker; not counted as a pass."
+  },
+  "scope": "Board presentation and targeting only; no combat rules or targeting payload changes."
+}

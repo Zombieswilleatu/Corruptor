@@ -3,8 +3,8 @@ extends "res://Prototype/U13/U13KroniBoard.gd"
 const Valak = preload("res://Scripts/Sim/U13Valak.gd")
 var valak_box: VBoxContainer
 var essence_note: Label
-var projection_zone: OptionButton
 var projection_spend: SpinBox
+var projection_pending_spend: int = 0
 var projection_button: Button
 var gravity_button: Button
 var valak_queue: VBoxContainer
@@ -27,7 +27,6 @@ func _build() -> void:
 	essence_note = _label(valak_box, "", 15)
 	essence_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_label(valak_box, "PROJECTION · GUARD ZONE", 18)
-	projection_zone = _option(valak_box, ["Enemy Lord guards", "Enemy Castle guards"])
 	projection_spend = SpinBox.new()
 	projection_spend.min_value = 1
 	projection_spend.max_value = 5
@@ -35,7 +34,7 @@ func _build() -> void:
 	projection_spend.value = 1
 	projection_spend.prefix = "Essence to spend: "
 	valak_box.add_child(projection_spend)
-	projection_button = _button(valak_box, "QUEUE PROJECTION", _queue_projection)
+	projection_button = _button(valak_box, "CHOOSE PROJECTION TARGET", _queue_projection)
 	var note: Label = _label(valak_box, "After combat: defeat the highest-value Guard at or below your chosen spend. An empty zone or miss still spends the Essence. No refund from Projection kills.", 13)
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	gravity_button = _button(valak_box, "GRAVITY ORB", _begin_gravity)
@@ -74,7 +73,7 @@ func _update_direct_ui() -> void:
 		var button: Button = projection_button if power == Valak.PROJECTION else gravity_button
 		var state: Dictionary = session.power_status(power)
 		button.disabled = not _planning() or not powers_step or not _human_alive() or _queued_power(power) or int(state.remaining) > 0 or int(state.fire_round) > 0 or (power == Valak.PROJECTION and amount == 0) or state.awaiting_expiration
-		button.text = ("QUEUE PROJECTION" if power == Valak.PROJECTION else "GRAVITY ORB") + (" · QUEUED" if _queued_power(power) else (" · ACTIVE" if state.awaiting_expiration else (" · READY ROUND %d" % state.ready_round if int(state.remaining) > 0 else "")))
+		button.text = ("CHOOSE PROJECTION TARGET" if power == Valak.PROJECTION else "GRAVITY ORB") + (" · QUEUED" if _queued_power(power) else (" · ACTIVE" if state.awaiting_expiration else (" · READY ROUND %d" % state.ready_round if int(state.remaining) > 0 else "")))
 	for child in valak_queue.get_children():
 		valak_queue.remove_child(child)
 		child.queue_free()
@@ -90,8 +89,37 @@ func _update_direct_ui() -> void:
 func _queue_projection() -> void:
 	if projection_button.disabled:
 		return
-	var source: Dictionary = session.declaration(Valak.PROJECTION, queued.size(), {"kind": "guard_zone", "player_id": 1, "zone": "Lord" if projection_zone.selected == 0 else "Castle"})
-	source.parameters = {"spend": int(projection_spend.value)}
+	projection_pending_spend = int(projection_spend.value)
+	_intent = Valak.PROJECTION
+	_target = {}
+	_interaction_error = ""
+	_refresh()
+	_reveal_targets()
+
+
+func _board_power_targeting() -> bool:
+	return _intent == Valak.PROJECTION or super._board_power_targeting()
+
+
+func _target_allowed(target: Dictionary, intent: String) -> bool:
+	if intent == Valak.PROJECTION:
+		return _planning() and powers_step and _human_alive() and target.get("owner") == 1 and target.get("kind") in ["zone", "card"] and target.get("lane") in ["Lord", "Castle"]
+	return super._target_allowed(target, intent)
+
+
+func _guide() -> String:
+	if _intent == Valak.PROJECTION:
+		return "PROJECTION · click the enemy Lord or Castle Guard zone on the board. Spend %d Essence after combat to defeat its highest-value eligible Guard." % projection_pending_spend
+	return super._guide()
+
+
+func _submit_power(target: Dictionary) -> void:
+	if _intent != Valak.PROJECTION:
+		super._submit_power(target)
+		return
+	if not _target_allowed(target, _intent): return
+	var source: Dictionary = session.declaration(Valak.PROJECTION, queued.size(), {"kind": "guard_zone", "player_id": 1, "zone": target.lane})
+	source.parameters = {"spend": projection_pending_spend}
 	_queue_valak(source)
 
 
@@ -101,6 +129,8 @@ func _queue_valak(source: Dictionary) -> bool:
 	if _error(session.choose(draft, _order())):
 		return false
 	queued = draft
+	_intent = ""
+	_target = {}
 	_refresh()
 	reopen_decision()
 	return true

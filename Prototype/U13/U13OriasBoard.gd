@@ -44,6 +44,7 @@ func _build() -> void:
 	_button(development_box, "Cancel resummon · return cards", _clear_summon)
 	placement = WebPlacement.new()
 	add_child(placement)
+	placement.bind_battlefield(lanes)
 	placement.confirmed.connect(_confirm_web)
 	placement.cancelled.connect(_cancel_web)
 	snare_overlay = Node2D.new()
