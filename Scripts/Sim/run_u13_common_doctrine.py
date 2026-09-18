@@ -39,7 +39,7 @@ def main():
             print('All decisions, final states and diagnostic reports match across CPython and PyPy.')
             print('U13 common doctrine comparison failures: 0'); return 0
         tests = unittest.defaultTestLoader.loadTestsFromNames(['u13_doctrine.test_diagnostics', 'u13_doctrine.test_common',
-            'u13_doctrine.test_recipes_veil', 'u13_pysim.test_marching'])
+            'u13_doctrine.test_recipes_veil', 'u13_doctrine.test_rites', 'u13_pysim.test_marching'])
         result = unittest.TextTestRunner(verbosity=2).run(tests)
         if not result.wasSuccessful() or result.testsRun == 0: return 1
         weights = Weights(**json.loads(args.weights.read_text())) if args.weights else None

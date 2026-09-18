@@ -20,7 +20,7 @@ from .facts import Facts, Proposal, LANES
 from .recipes import Recipes
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V3_RECIPES_VEIL'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V4_RITE_PLANS'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -215,6 +215,9 @@ class CommonSmartCore:
                     work = p.payload.get('castle_action', {}).get('target_id')
                     if ruin and ruin == order.get('castle_action', {}).get('target_id'): return False
                     if work and work == order.get('rites', {}).get('profane_ruins', {}).get('castle_id'): return False
+                    if ruin:
+                        if resource_spend['souls']+2 > f.resources['souls']: return False
+                        resource_spend['souls'] += 2
                     order.update(copy_data(p.payload)); used.add(p.category)
                 cards.update(p.cards); selected.append(p)
                 return True
@@ -255,6 +258,14 @@ class CommonSmartCore:
         # Explicit conservation plan and fixed assembly priorities preserve
         # alternatives without enumerating products of category candidates.
         assemble([], ())
+        # Paid Rites can have zero/negative immediate material value while
+        # changing settlement or revealed Veil protection. Reserve their small
+        # set of anchored plans before ordinary bundles consume the plan budget.
+        # Keep both a conservation plan and one compatible bundle: adding a
+        # power can spend Souls needed for the Rite's settlement scenario.
+        for p in retained['rites']:
+            assemble([p], ())
+            assemble([p], ('resummon', 'powers', 'work', 'guards', 'combat'))
         for priorities in (base, ('resummon', 'combat', 'work', 'guards', 'rites'), ('work', 'monsters', 'guards', 'combat', 'resummon', 'rites')):
             assemble([], priorities)
             for p in retained['powers']:
@@ -276,6 +287,13 @@ class CommonSmartCore:
         if chosen is None:
             raise ValueError('No admitted plan within preview budget: '+repr(rejected))
         picked = {(p.category, p.term) for p in chosen['selected']}
+        rite_plans = {}
+        for term in ('Supplicants', 'Invocation', 'ProfaneRuins'):
+            scored = [c for c in complete if any(p.category == 'rites' and p.term == term for p in c['selected'])]
+            rite_plans[term] = dict(scored_plans=len(scored),
+                current_board_wins=sum(c['projected']['winner'] == f.pid for c in scored),
+                current_board_losses=sum(c['projected']['winner'] == f.enemy for c in scored),
+                selected=('rites', term) in picked)
         terms = [('powers', p) for p in (*POWERS[f.kind], *BREACH_WISHES)]
         terms += [(c, t) for c, ts in dict(resummon=('Resummon',), rites=('Supplicants', 'Invocation', 'ProfaneRuins'),
                  guards=('Deploy',), work=('Work', 'Activate'), combat=('Pass', 'Ward', 'Hunt', 'Siege', 'Profane')).items() for t in ts]
@@ -286,6 +304,8 @@ class CommonSmartCore:
             alternatives = retained[category]+(retained['monsters'] if category == 'combat' else [])
             kept = sum(p.term == term for p in alternatives)
             if selected: reason = 'selected'
+            elif category == 'rites' and kept:
+                reason = 'complete_plan_score' if rite_plans[term]['scored_plans'] else 'complete_plan_budget'
             elif (category, term) in reasons: reason = reasons[(category, term)]
             elif kept: reason = 'scoring_or_shared_budget'
             elif count: reason = 'retention_budget'
@@ -304,7 +324,7 @@ class CommonSmartCore:
                     retained_candidates=[dict(category=p.category, term=p.term, score=p.value, reason=p.reason,
                                               source_category=category, monster=p.payload.get('monster_choice', ''),
                                               candidate_sha256=key(p)) for category in categories for p in retained[category]],
-                    budget=budget.report(), rejected_previews=rejected,
+                    budget=budget.report(), rejected_previews=rejected, rite_plans=rite_plans,
                     assumptions='current public board; new Guards, Ward, Work, simultaneous powers and spatial/random reactions are uncertain',
                     veil=dict(current_board_risk=chosen['veil_risk'], paid_choice_scenario=chosen['projected'],
                               protection=chosen['protection'], hard_veto=False, reason='hidden_orders_prevent_proof'),

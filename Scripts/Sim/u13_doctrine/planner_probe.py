@@ -20,16 +20,20 @@ EVIDENCE = 'docs/evidence/U13_PYSIM_NINE_LORDS_5fb53e7.json'
 
 
 class PlannerObserver(ReferenceObserver):
-    def __init__(self, spec):
+    def __init__(self, spec, policy_ids=None):
         super().__init__(spec)
-        self.recorder = Recorder(spec['name'], spec['setup']['lords'], [VERSION]*2)
+        self.recorder = Recorder(spec['name'], spec['setup']['lords'], policy_ids or [VERSION]*2)
         self.declarations, self.effects, self.prices, self.firing, self.actors = {}, {}, {}, {}, {}
         self.max_work = Counter()
         self.rejected_previews = []
         self.decision_examples = []
         self.recipe_decisions, self.protection_scenarios = Counter(), Counter()
+        self.rite_planning = Counter()
 
     def accepted(self, number, seat, decision):
+        for term, stats in decision.get('rite_plans', {}).items():
+            self.rite_planning[term+':measured_decisions'] += 1
+            for key, value in stats.items(): self.rite_planning[term+':'+key] += value
         for a in decision['assessments']:
             identity = self.recorder.assess(number, seat, **a)
             if identity: self.selected[(number, seat, a['category'], a['term'])] = identity
@@ -141,13 +145,14 @@ class PlannerObserver(ReferenceObserver):
             stockpile_slaver='accepted bounded card choices', maximum_work=dict(sorted(self.max_work.items())),
             recipe_decisions=dict(sorted(self.recipe_decisions.items())),
             protection_scenarios=dict(sorted(self.protection_scenarios.items())),
+            rite_planning=dict(sorted(self.rite_planning.items())),
             monster_measurements='recipe opportunities, choices and actual spawned bodies; later ability benefit is unmeasured',
             rejected_previews=self.rejected_previews, decision_examples=self.decision_examples)
         return result
 
 
-def run_case(spec, policy):
-    match, observer = PowerMatch(spec['setup']), PlannerObserver(spec)
+def run_case(spec, policy, policy_ids=None):
+    match, observer = PowerMatch(spec['setup']), PlannerObserver(spec, policy_ids)
     cursor, operations, decisions_ns, simulation_ns = 0, [], 0, 0
     while match.outcome()['winner'] == -1:
         if match.clock.round > 40: raise ValueError('censored policy probe: '+spec['name'])
