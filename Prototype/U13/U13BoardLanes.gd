@@ -10,6 +10,8 @@ var feedback = Feedback.new()
 var projectiles: Array = []
 var monster_fields: Array = []
 var monster_attacks: Array = []
+var field_structures: Array = []
+var fortification_visual = preload("res://Prototype/U13/U13FortificationVisuals.gd").new()
 var quiet_removal_ids: Array = []
 var projectile_visual = preload("res://Prototype/U13/U13VultureProjectile.gd").new()
 var deaths = preload("res://Prototype/U13/U13MarcherDeathVisual.gd").new()
@@ -144,7 +146,14 @@ func _get_tooltip(at: Vector2) -> String:
 			var hp: String = "Obscured" if void_active else "%d/%d" % [unit.attributes.hp, unit.attributes.max_hp]
 			var description: String = "%s · %s\nHP %s · Armor %d" % [unit_name, "Yours" if unit.owner == 0 else "Enemy", hp, unit.attributes.armor]
 			if unit_name == "Penitent": description += "\n" + preload("res://Scripts/Sim/U13PenitentDefense.gd").DESCRIPTION
+			if unit_name == "Wright":
+				description += "\n" + preload("res://Scripts/Sim/U13FieldFortifications.gd").DESCRIPTION
+				if unit.attributes.has("wright_site"):
+					description += "\n" + ("Defending / deployment complete" if unit.attributes.get("wright_built", false) else "Building %s · %d/32" % ["tower" if unit.attributes.wright_site == 2 else "wall", unit.attributes.wright_progress])
 			return description
+	for row in field_structures:
+		if fortification_visual.footprint(self, row).has_point(at):
+			return "%s · %s\nHP %d/%d · Armor %d%s" % [row.attributes.structure, "Yours" if row.owner == 0 else "Enemy", row.attributes.hp, row.attributes.max_hp, row.attributes.armor, "\n1 attack · range 600 · fires every 32 ticks" if row.attributes.structure == "Tower" else "\nBlocks enemies; allies can pass."]
 	return ""
 
 
@@ -279,8 +288,7 @@ func _draw() -> void:
 					_round > int(web.activated_round)
 				)
 		_draw_monster_fields(lane)
-		var top: float = rect.position.y + 65
-		var bottom: float = rect.end.y - 52
+		fortification_visual.draw(self, lane, field_structures, _units)
 		var ordered: Array = _units.duplicate()
 		ordered.sort_custom(func(a: Dictionary, b: Dictionary):
 			var ax := SpriteVisuals.position_of(a).x
@@ -290,13 +298,8 @@ func _draw() -> void:
 			var a: Dictionary = unit.attributes
 			if a.lane != lane or deaths.seen.has(unit.id):
 				continue
-			# Global x=0 is the human end (bottom), x=2400 the enemy end (top).
-			var y: float = lerpf(
-				bottom, top, clampf(float(a.get("visual_x", a.x_fp)) / 2400.0, 0, 1)
-			)
-			# Both axes are recorded game positions; no per-frame scatter or packing.
-			var lateral: float = clampf(float(a.get("visual_y", a.y_fp)) / 600.0, 0, 1)
-			var center := Vector2(rect.position.x + rect.size.x * lateral, y)
+			# One mapping for bodies, hit positions, structures and projectiles.
+			var center: Vector2 = _monster_point(a)
 			_draw_chit(unit, center)
 			if a.waiting:
 				draw_string(
@@ -417,6 +420,7 @@ func pulse_lanes(selected_lane: String = "") -> void:
 
 
 func reset_effects() -> void:
+	field_structures = []
 	projectiles = []
 	monster_fields = []
 	monster_attacks = []
@@ -504,7 +508,8 @@ func travel_rect(lane: String) -> Rect2:
 	return Rect2(16 + (width + 5) * (1 if lane == "Castle" else 0), 344, width, maxf(1, size.y - 420))
 
 
-func show_world(entities: Array, round_number: int) -> void:
+func show_world(entities: Array, round_number: int, structures: Array = []) -> void:
+	field_structures = structures.duplicate(true)
 	projectiles = []
 	monster_attacks = []
 	deaths.observe(_units.filter(func(u): return u.id not in quiet_removal_ids), entities)
@@ -513,6 +518,7 @@ func show_world(entities: Array, round_number: int) -> void:
 	set_process(_effects_need_process())
 
 func show_frame(frame: Dictionary, round_number: int) -> void:
+	field_structures = frame.get("field_structures", []).duplicate(true)
 	projectiles = frame.get("projectiles", [])
 	monster_fields = frame.get("monster_fields", [])
 	monster_attacks = frame.get("monster_attacks", [])

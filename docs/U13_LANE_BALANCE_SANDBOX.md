@@ -31,7 +31,8 @@ the sandbox and do not change the main game's saved display preferences.
 `Scripts/Sim/U13LaneSandbox.gd` runs the existing `U13Marching.resolve`, with
 the current ranged profile and monster rules. Regeneration, poison, charm
 expiry, Sooge's increasing root odds and other active-round abilities retain
-their normal round boundaries in both playback modes. Ongoing duels persist.
+their normal round boundaries in both playback modes. Every nearby unit fights
+independently; the current rules no longer queue one exclusive duel per lane.
 The 200 simulation ticks are displayed over 15 seconds at 1× playback.
 
 September 18 range/cadence tuning is shared with the game and Python simulator:
@@ -57,7 +58,29 @@ wake a newly deployed defender and spend the attacker's shot. A brief shield
 glint marks the block on both chits and sprites; tooltips describe the boon.
 Melee, poison, Kopita pulses, Muno strikes and ambushes do not trigger it.
 
-Current tuning uses `U13_VULTURE_RANGED_V5` and `U13_MONSTERS_V4`.
+Melee uses a narrow elliptical footprint: 90 units forward, 42 sideways. The
+same footprint controls stopping, contact feedback and damage. Each attacker
+has its own eight-tick cooldown, and reciprocal lethal attacks still land.
+Unit feet, projectiles and structures share one screen-coordinate mapping.
+
+Wrights now deal **1 melee damage**, down from 2. Each builds one structure at
+an available site, defends it for one complete round, then marches onward:
+
+| Structure | Availability | HP | Armor | Attack | Range |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Wall | Two sites per side per lane | 6 | 2 | 0 | — |
+| Tower | One central site behind two standing walls | 6 | 4 | 1 | 600 |
+
+Construction takes 32 ticks at the site and pauses during melee. Ground enemies
+must break walls in their path; allies pass through and flying monsters pass
+over them. A later Wright can replace a destroyed wall. Walls and towers retain
+damage without automatic repair. Towers fire every 32 ticks and respect the
+Penitent ranged block; Sooge's beam can damage structures. Structures do not
+count as marchers, reach gates, resurrect or award unit-death rewards.
+Foundation marks appear only after a Wright claims a site. Both the main board
+and sandbox display construction progress and completed structures.
+
+Current tuning uses `U13_VULTURE_RANGED_V6_FIELD_COMBAT` and `U13_MONSTERS_V4`.
 Start a fresh game after updating; older rules fingerprints remain incompatible.
 
 There are no Lords, cards on the battlefield, castles, passives, Veil effects
@@ -101,3 +124,10 @@ counts/deployment, escapes, menu integration, viewport bounds, both play modes,
 pause, queued spawns, reset and returning to the selected loadout. The existing
 playable-board regression also passes. Results and runtime limits are recorded
 in `docs/evidence/U13_LANE_SANDBOX_2026-09-18.json`.
+
+`U13FieldCombatTestRunner.gd` covers independent and many-to-one melee, forward
+and sideways reach boundaries, construction, wall collision, friendly/flying
+passage, tower range, builder death and charm, replacement, save transport and
+shared playback geometry. Native phase exports are replayed independently by
+the Python simulator, comparing every event and tick. Historical duel-specific
+fixtures explicitly retain their frozen non-ranged rules profile.

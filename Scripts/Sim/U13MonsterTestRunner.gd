@@ -230,7 +230,7 @@ func beam_boundary_checks() -> void:
 	check(facts(released, "MONSTER_BEAM_FIRED")[0].target.id == closer.id, "release aims at the currently nearest enemy, not the original charge target")
 	w = phase_world()
 	put(w, "Sooge", 0, 300, {"sprite_form": "turret", "step_fp": 0, "hp": 1, "armor": 0})
-	put(w, "Butcher", 1, 480, {"attack": 100, "step_fp": 0})
+	put(w, "Butcher", 1, 380, {"attack": 100, "step_fp": 0})
 	var killed: Dictionary = phase("beam_killed_during_charge", w)
 	check(facts(killed, "MONSTER_BEAM_FIRED").is_empty(), "killing Sooge during charge prevents the shot")
 	var playback = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
@@ -312,6 +312,7 @@ func run() -> void:
 		var unit: Dictionary = put(w, name, 0, 800, {"hp": 20, "max_hp": 20})
 		put(w, "Wright", 1, 1030, {"hp": 25, "max_hp": 25})
 		put(w, "Vulture", 1, 1250, {"hp": 20, "max_hp": 20, "y_fp": 480})
+		if name == "Lemek": put(w, "Butcher", 1, 880, {"attack": 100, "step_fp": 0})
 		var seed_value: String = selected_seed(unit.id, "HIDE", 25) if name == "Dotra" else "monster-check"
 		var result: Dictionary = phase(name, w, seed_value)
 		if name == "Muno": check(facts(result, "MONSTER_ATTACK").filter(func(d): return d.ability == "Muno").size() == 1, "Muno free strike is once per active round")

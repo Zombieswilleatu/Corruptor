@@ -5,6 +5,7 @@ const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Lamp = preload("res://Scripts/Sim/U13Wishmaster.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Defense = preload("res://Scripts/Sim/U13PenitentDefense.gd")
+const Fort = preload("res://Scripts/Sim/U13FieldFortifications.gd")
 
 static func event(kind: String, data: Dictionary) -> Dictionary:
 	var fact: Dictionary = {"type": kind, "text": "", "data": data.duplicate(true)}
@@ -14,13 +15,13 @@ static func distance(a: Dictionary, b: Dictionary) -> int:
 	return (int(a.x_fp) - int(b.x_fp)) ** 2 + (int(a.y_fp) - int(b.y_fp)) ** 2
 
 static func enemies(unit: Dictionary, rows: Array, radius: int = 4000) -> Array:
-	return rows.filter(func(r): return r.owner != unit.owner and r.attributes.lane == unit.attributes.lane and not r.attributes.get("hidden", false) and distance(unit.attributes, r.attributes) <= radius * radius)
+	return rows.filter(func(r): return r.owner != unit.owner and r.attributes.lane == unit.attributes.lane and not r.attributes.get("hidden", false) and Fort.gap(unit, r) <= radius * radius)
 
 static func nearest(unit: Dictionary, rows: Array, radius: int = 4000) -> Dictionary:
 	var result: Dictionary = {}
 	var best: int = radius * radius + 1
 	for row in enemies(unit, rows, radius):
-		var d: int = distance(unit.attributes, row.attributes)
+		var d: int = Fort.gap(unit, row)
 		if d < best: result = row; best = d
 	return result
 
@@ -178,7 +179,7 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 						hits.append({"source": unit, "target": target.id, "amount": 5, "bypass": false, "ability": "Ambush"})
 			"Sooge":
 				if a.sprite_form == "turret" and int(a.get("beam_next_tick", 0)) - int(Rules.TUNING.beam_charge_ticks) <= clock:
-					var target: Dictionary = nearest(unit, rows, Rules.TUNING.beam_range)
+					var target: Dictionary = nearest(unit, rows + Fort.rows(world), Rules.TUNING.beam_range)
 					if target.is_empty():
 						# Losing all targets cancels the wind-up without spending a shot.
 						a["beam_charge_tick"] = 0
@@ -218,6 +219,9 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 			var cross: int = dx * vy - dy * vx
 			if dx * vx + dy * vy >= 0 and dx * dx + dy * dy <= int(beam.range_fp) ** 2 and cross * cross <= Rules.TUNING.beam_half_width ** 2 * length2:
 				hits.append({"source": source, "target": other.id, "amount": 1 if other.owner == source.owner else 3, "bypass": false, "ability": "Beam"})
+		for structure in Fort.rows(world):
+			if structure.attributes.lane == a.lane and Fort.beam_hit(a, beam.target.attributes, structure, beam.range_fp, Rules.TUNING.beam_half_width):
+				hits.append({"source": source, "target": structure.id, "amount": 1 if structure.owner == source.owner else 3, "bypass": false, "ability": "Beam"})
 	state.pending_beams = pending
 	for hit in hits:
 		var result: Dictionary = damage(world, entities, hit, context, tick, reaction)
@@ -249,7 +253,14 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 static func damage(world: Dictionary, entities, hit: Dictionary, context: Dictionary, tick: int, reaction: Callable) -> Dictionary:
 	var events: Array = []
 	var target: Dictionary = entities.get_entity(hit.target)
-	if target.is_empty(): return {"action": "resolved", "world": world, "events": events}
+	if target.is_empty():
+		for structure in Fort.rows(world).duplicate(true):
+			if structure.id != hit.target: continue
+			var result: Dictionary = Fort.damage(world, hit.target, hit.source, hit.amount, hit.bypass, context.round, tick)
+			events.append_array(result.events)
+			events.append(event("MONSTER_ATTACK", {"attacker": hit.source, "target": structure, "ability": hit.ability, "blocked": false, "damage_dealt": result.damage_dealt, "hp_after": result.hp_after, "round": context.round, "tick": tick}))
+			break
+		return {"action": "resolved", "world": world, "events": events}
 	var before: Dictionary = target.duplicate(true)
 	var blocked: bool = hit.ability == "Beam" and Defense.blocks(target, hit.source.id, context.seed, context.round, tick, "Beam")
 	var amount: int = 0 if blocked else int(hit.amount)

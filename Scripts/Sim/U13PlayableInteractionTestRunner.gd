@@ -73,6 +73,7 @@ func consume_presence(banished: bool) -> void:
 	var world: Dictionary = fixture("Kroni", 7)
 	patch(world, Slots.castle_id(0, 0), {"integrity": 1})
 	world.data.sigils[0].Lord = ""
+	Cards.draw(world, 1, "consume-fixture", "guard")
 	var guard: String = world.data.card_zones.hands[1][0]
 	world.data.card_zones.hands[1].erase(guard)
 	patch(world, guard, {"role": "guard", "lane": "Lord", "slot": 0})
@@ -102,16 +103,16 @@ func ranged_cadence() -> void:
 	var registry = Game.Content.Ids.new()
 	registry.restore(world.entities)
 	var a: Dictionary = Marching.profile("Vulture", "Castle", 0, 0, 1, true)
-	a.x_fp = 600; a.y_fp = 300
+	a.x_fp = 600; a.y_fp = 300; a.hp = 100; a.max_hp = 100
 	var vulture: String = registry.create("marcher", "cadence", 0, 0, a).entity.id
 	var b: Dictionary = Marching.profile("Butcher", "Castle", 1, 0, 1, true)
-	b.x_fp = 1200; b.y_fp = 300; b.hp = 100; b.max_hp = 100
+	b.x_fp = 960; b.y_fp = 300; b.hp = 100; b.max_hp = 100
 	registry.create("marcher", "cadence", 1, 1, b)
 	world.entities = registry.snapshot()
 	var ids = Marching.Buffer.new()
 	ids.restore(world.entities)
 	var ticks: Array = []
-	var context: Dictionary = {"round": 1, "hook": Game.Timeline.MARCHING}
+	var context: Dictionary = {"round": 1, "hook": Game.Timeline.MARCHING, "seed": "melee-cadence", "player_order": [0, 1]}
 	var react: Callable = func(w, _event, _seed, _order): return {"action": "resolved", "world": w, "events": []}
 	for tick in range(65):
 		var result: Dictionary = Ranged.volley(world, ids, context, {}, tick, {}, react)
@@ -139,10 +140,9 @@ func ranged_cadence() -> void:
 	context.merge({"world": world, "seed": "melee-cadence", "player_order": [0, 1], "persistent_effects": []})
 	var battle: Dictionary = Marching.resolve(context, react)
 	if check(battle.action != "invalid", "ranged-to-melee transition runs the full Marching phase"):
-		var contacts: Array = battle.events.filter(func(e): return e.event.type == "MARCHER_CONTACT")
-		var clashes: Array = battle.events.filter(func(e): return e.event.type == "MARCHER_CLASH")
+		var contacts: Array = battle.events.filter(func(e): return e.event.type == "MARCHER_MELEE_ATTACK" and e.event.data.attacker.id == vulture)
 		check(not contacts.is_empty() and contacts[0].event.data.tick == 72, "melee starts after eight-tick recovery, before ranged reload ends")
-		check(not clashes.is_empty() and clashes[0].event.data.end_tick == 80 and clashes[0].event.data.exchanges.size() == 2, "melee exchanges retain their original eight-tick cadence")
+		check(contacts.size() > 1 and contacts[1].event.data.tick - contacts[0].event.data.tick == 8, "independent melee strikes retain their eight-tick cadence")
 		var replay: Dictionary = Marching.resolve(bytes_to_var(var_to_bytes(context)), react)
 		check(replay == battle, "separate attack clocks replay the whole phase exactly")
 
@@ -170,6 +170,6 @@ func birth_hold_retaliation() -> void:
 		check(not shots.is_empty() and shots[0].event.data.target.id == defender and shots[0].event.data.damage_dealt == 0, "Armor-only hit triggers retaliation")
 		var survivor: Dictionary = ids.get_entity(defender)
 		check(not survivor.is_empty() and survivor.attributes.movement_ready_round == 1 and survivor.attributes.x_fp != origin, "attacked recruit closes distance during its birth round")
-		check(result.events.any(func(e): return e.event.type == "MARCHER_CLASH"), "attacked recruit reaches melee and fights back")
+		check(result.events.any(func(e): return e.event.type == "MARCHER_MELEE_ATTACK"), "attacked recruit reaches melee and fights back")
 		check(ids.get_entity(untouched).attributes == waiting, "unattacked neighboring recruit holds its spawn position")
 		check(Marching.resolve(bytes_to_var(var_to_bytes(context)), react) == result, "retaliation replays deterministically")

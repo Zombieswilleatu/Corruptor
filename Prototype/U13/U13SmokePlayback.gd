@@ -111,6 +111,7 @@ func build(events: Array) -> bool:
 	for unit in finished.units:
 		units[unit.id] = unit.duplicate(true)
 	_append(units, "Marching complete", [])
+	_frames.back()["field_structures"] = finished.get("field_structures", []).duplicate(true)
 	return true
 
 
@@ -159,7 +160,7 @@ func sample(seconds: float) -> Dictionary:
 			var start: int = int(a.get("beam_charge_tick", 0))
 			if ready <= start or int(a.hp) <= 0: continue
 			attacks.append({"ability": "BeamCharge", "source": a, "target": a, "source_id": unit.id, "source_owner": unit.owner, "weight": clampf((clock - float(start)) / float(ready - start), 0.0, 1.0)})
-	return {"units": result, "caption": left.caption, "clash": left.clash.duplicate(), "projectiles": projectiles, "monster_fields": fields, "monster_attacks": attacks, "banished_ids": _banished_ids.keys()}
+	return {"units": result, "caption": left.caption, "clash": left.clash.duplicate(), "projectiles": projectiles, "monster_fields": fields, "monster_attacks": attacks, "banished_ids": _banished_ids.keys(), "field_structures": left.get("field_structures", []).duplicate(true)}
 
 
 func final_units() -> Array:
@@ -217,6 +218,7 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 		units[unit.id] = unit.duplicate(true)
 	var bases: Dictionary = units.duplicate(true)
 	_append(units, "Marching begins", [])
+	_frames.back()["field_structures"] = started.get("field_structures", []).duplicate(true)
 	var lead: float = FLIGHT_SECONDS if started.has("ranged_profile") else 0.0
 	_spatial_ticks = int(started.ticks)
 	_spatial_lead = lead
@@ -282,9 +284,10 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 				units[unit.id] = unit.duplicate(true)
 		_append(
 			units,
-			"Contact queue — duel in progress" if not details.clash.is_empty() else "Marching",
+			"Melee in progress" if not details.clash.is_empty() else "Marching",
 			details.clash
 		)
+		_frames.back()["field_structures"] = details.get("field_structures", []).duplicate(true)
 	if expected_tick != int(started.ticks):
 		_frames = []
 		return false
@@ -295,6 +298,7 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 	for attack in _monster_attacks:
 		duration = maxf(duration, float(attack.end))
 	_append(units, "Marching complete", [])
+	_frames.back()["field_structures"] = finished.get("field_structures", []).duplicate(true)
 	return true
 
 

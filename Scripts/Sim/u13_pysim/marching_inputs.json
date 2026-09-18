@@ -902,7 +902,7 @@
         0,
         1
       ],
-      "ranged": true,
+      "ranged": false,
       "data": {},
       "effects": [],
       "units": [
@@ -1060,7 +1060,7 @@
         0,
         1
       ],
-      "ranged": true,
+      "ranged": false,
       "data": {},
       "effects": [],
       "units": [
@@ -1598,7 +1598,7 @@
         1,
         0
       ],
-      "ranged": true,
+      "ranged": false,
       "data": {},
       "effects": [],
       "units": [
@@ -1652,7 +1652,7 @@
         0,
         1
       ],
-      "ranged": true,
+      "ranged": false,
       "data": {},
       "effects": [],
       "units": [
@@ -1711,7 +1711,7 @@
         0,
         1
       ],
-      "ranged": true,
+      "ranged": false,
       "data": {},
       "effects": [],
       "units": [
@@ -2469,7 +2469,7 @@
         0,
         1
       ],
-      "ranged": true,
+      "ranged": false,
       "data": {},
       "effects": [],
       "units": [
@@ -2590,7 +2590,7 @@
         0,
         1
       ],
-      "ranged": true,
+      "ranged": false,
       "data": {},
       "effects": [],
       "units": [

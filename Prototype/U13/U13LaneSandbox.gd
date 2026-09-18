@@ -82,6 +82,7 @@ func _ready() -> void:
 		var profile: Dictionary = Sim.Marching.profile(name, "Lord", 0, 0, 1, true)
 		spawn_buttons[name].tooltip_text = "%d HP · %d Attack · %d Armor" % [profile.max_hp, profile.attack, profile.armor]
 		if name == "Penitent": spawn_buttons[name].tooltip_text += "\n" + preload("res://Scripts/Sim/U13PenitentDefense.gd").DESCRIPTION
+		if name == "Wright": spawn_buttons[name].tooltip_text += "\n" + preload("res://Scripts/Sim/U13FieldFortifications.gd").DESCRIPTION
 	label(choices, "MONSTERS", 19)
 	monster_choice = option(choices, Sim.Monsters.NAMES)
 	monster_choice.item_selected.connect(func(_i): _monster_changed())
@@ -205,7 +206,7 @@ func _begin_interval() -> void:
 		status.text = "Spawn units or enable the random enemy first."
 		_sync_controls()
 		return
-	field.show_world(sim.units(), sim.round_number)
+	field.show_world(sim.units(), sim.round_number, sim.world.data.get("field_structures", []))
 	elapsed = 0
 	feedback_cursor = 0
 	job = Thread.new()
@@ -266,7 +267,7 @@ func _sync_controls() -> void:
 	reset_button.disabled = job != null
 
 func _show_idle() -> void:
-	field.show_world(sim.units(), sim.round_number)
+	field.show_world(sim.units(), sim.round_number, sim.world.data.get("field_structures", []))
 	field.monster_fields = sim.world.data.monsters.fields.duplicate(true)
 	_report(sim.units())
 

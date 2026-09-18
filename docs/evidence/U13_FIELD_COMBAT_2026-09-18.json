@@ -1,0 +1,214 @@
+{
+  "date": "2026-09-18",
+  "feature": "Independent melee and Wright field fortifications",
+  "profile": "U13_VULTURE_RANGED_V6_FIELD_COMBAT",
+  "runtime": "Godot 4.5.1.stable.official.f62fdbde1 / Linux headless",
+  "diagnostic_only": true,
+  "native_checks": {
+    "field-combat": {
+      "checks_passed": 168,
+      "failures": 0,
+      "completion": "U13 field combat failures: 0"
+    },
+    "field-monsters": {
+      "checks_passed": 321,
+      "failures": 0,
+      "completion": "U13 monster checks failures: 0"
+    },
+    "field-ranged": {
+      "checks_passed": 30,
+      "failures": 0,
+      "completion": "U13 Vulture ranged failures: 0"
+    },
+    "field-sandbox-initial": {
+      "checks_passed": 150,
+      "failures": 0,
+      "completion": "U13 lane sandbox: 150 checks, 0 failures"
+    },
+    "field-playable": {
+      "checks_passed": 58,
+      "failures": 0,
+      "completion": "U13 playable interaction failures: 0"
+    },
+    "field-game": {
+      "checks_passed": 24,
+      "failures": 0,
+      "completion": "U13 game random failures: 0"
+    },
+    "field-marching": {
+      "checks_passed": 394,
+      "failures": 0,
+      "completion": "U13 PySim marching Godot failures: 0"
+    }
+  },
+  "python_exact_phase_replay": {
+    "field-combat-parity": {
+      "phases": 36,
+      "events": 7771,
+      "ticks": 7200,
+      "event_types": {
+        "MARCHER_DEFEATED": 5,
+        "MARCHER_MELEE_ATTACK": 423,
+        "MARCHER_RANGED_ATTACK": 34,
+        "MARCHER_WAITING": 2,
+        "MARCHING_FINISHED": 36,
+        "MARCHING_STARTED": 36,
+        "MARCHING_TICK": 7200,
+        "MONSTER_ATTACK": 1,
+        "MONSTER_BEAM_DETONATED": 1,
+        "MONSTER_BEAM_FIRED": 1,
+        "WRIGHT_BUILD_ASSIGNED": 13,
+        "WRIGHT_STRUCTURE_BUILT": 13,
+        "WRIGHT_STRUCTURE_DESTROYED": 6
+      }
+    },
+    "field-monster-parity": {
+      "phases": 41,
+      "events": 8778,
+      "ticks": 8200,
+      "event_types": {
+        "KRONI_ACTORS_STARTED": 1,
+        "KRONI_ACTOR_FINISHED": 1,
+        "KRONI_ACTOR_TICK": 200,
+        "KRONI_FLEE_STARTED": 1,
+        "MARCHER_DEFEATED": 10,
+        "MARCHER_DEVOURED": 1,
+        "MARCHER_MELEE_ATTACK": 180,
+        "MARCHER_RANGED_ATTACK": 48,
+        "MARCHER_WAITING": 2,
+        "MARCHING_FINISHED": 41,
+        "MARCHING_STARTED": 41,
+        "MARCHING_TICK": 8200,
+        "MONSTER_ATTACK": 13,
+        "MONSTER_BANISHED": 1,
+        "MONSTER_BEAM_DETONATED": 9,
+        "MONSTER_BEAM_FIRED": 8,
+        "MONSTER_CHARMED": 3,
+        "MONSTER_CONCEALMENT": 1,
+        "MONSTER_FIELD_CREATED": 3,
+        "MONSTER_POISONED": 1,
+        "MONSTER_PULSE": 1,
+        "MONSTER_ROOTED": 1,
+        "WRIGHT_BUILD_ASSIGNED": 11
+      }
+    },
+    "field-marching-parity": {
+      "python_mirror": "U13_PYSIM_MARCHING_SPIKE_V2_RANGE_SENTINEL",
+      "source_revision": "diagnostic-field",
+      "source_sha256": "diagnostic-field",
+      "inputs_sha256": "a6080eea80e81538e9a4357bbee928d9d748cc83bc13bec89873b1253f059c0a",
+      "runtime": "4.5.1-stable (official)",
+      "reference_platform": "Linux",
+      "diagnostic_only": true,
+      "isolated_cases_matched": 22,
+      "operations_matched": 41,
+      "fixture_operations": 3,
+      "rejected_operations": 5,
+      "marching_phases_matched": 28,
+      "tick_frames_matched": 5600,
+      "contact_probes_matched": 33,
+      "batch_projection_verified": true,
+      "event_coverage": {
+        "GRAVITY_ORB_CONSUMED": 17,
+        "MARCHER_CLASH": 6,
+        "MARCHER_CONTACT": 9,
+        "MARCHER_DEFEATED": 67,
+        "MARCHER_DUEL_INTERRUPTED": 2,
+        "MARCHER_MELEE_ATTACK": 236,
+        "MARCHER_RANGED_ATTACK": 139,
+        "MARCHER_REGENERATED": 6,
+        "MARCHER_WAITING": 3,
+        "MARCHING_FINISHED": 28,
+        "MARCHING_STARTED": 28,
+        "MARCHING_TICK": 5600,
+        "WRIGHT_BUILD_ASSIGNED": 14
+      },
+      "python_full_round_parity": false,
+      "python_full_match_parity": false,
+      "full_match_games_per_second": null,
+      "full_match_50000_wall_seconds": null,
+      "failures": 0
+    }
+  },
+  "python_unit_tests": {
+    "modules": [
+      "test_marching",
+      "test_opening"
+    ],
+    "passed": 21
+  },
+  "native_phase_benchmark": {
+    "scope": "One 200-tick phase with mixed high-HP regular units; includes capture of playback events; container timing, not Windows frame performance",
+    "results": [
+      {
+        "action": "resolved",
+        "milliseconds": 675.065,
+        "units": 16,
+        "valid": true
+      },
+      {
+        "action": "resolved",
+        "milliseconds": 6348.319,
+        "units": 64,
+        "valid": true
+      }
+    ]
+  },
+  "source_sha256": {
+    "Prototype/U13/U13Board.gd": "797128d76a18f525aee4f3aa97b1a265383b3369d0bb4a66c5dcd53d12bea040",
+    "Prototype/U13/U13BoardLanes.gd": "d09e469609b821c11cbe8382f0ba64a6779b5610a26ffb127070727b3dc89e37",
+    "Prototype/U13/U13FortificationVisuals.gd": "c2461f4a6df5fa3cec7b1cd322fea2492f8fd82a22e93a54df4cd643ec1dcc8a",
+    "Prototype/U13/U13LaneSandbox.gd": "27b6965ea7db1af8e9cfd627d51e2cdfdd7cfe588ebb2e595d108c952d6ed0f9",
+    "Prototype/U13/U13SandboxLaneView.gd": "a0f550fdf5d0d27b6429651f74935804546f8cf5309e371c40413fc215216c2f",
+    "Prototype/U13/U13SmokePlayback.gd": "406dc2e5ef7b94a2988f252b655181070577b50698a1703a54cb250dd4603912",
+    "Scripts/Sim/U13FieldCombatTestRunner.gd": "88027e522ae954a6438d639b966cca45d1dd8f60fcf5fc7ded2a732eec0ce160",
+    "Scripts/Sim/U13FieldFortifications.gd": "f7229c2b9d450c64585021c5fc33b7a91be22fb1afe75bf817e14e7f74043691",
+    "Scripts/Sim/U13FieldMelee.gd": "9855482b7f28fe08387e8523f5d385600cd6020ab9d2ec036f06887360e65279",
+    "Scripts/Sim/U13GameContent.gd": "b37d4921ee16e2572fe2c9b57804a31e04d5de5b88ee30e9b8b647009ac4c295",
+    "Scripts/Sim/U13Marching.gd": "bbcb1870a8a40e77985dcf13f9a1ee002ae8421e6caf62d8981a00498e00bd4c",
+    "Scripts/Sim/U13MonsterEffects.gd": "45a9a9f649c4b0dc9423ac8d90eb7e7932f5f8965001023d68b3836cadf366cf",
+    "Scripts/Sim/U13MonsterTestRunner.gd": "5ebae8cb7da774fe421666ae6d8ddfb8c1f421edd5be504cd01c4a23b40b5b71",
+    "Scripts/Sim/U13PlayableInteractionTestRunner.gd": "89641b5b4296a57ee1454ad785634c16e9ad78e2bdd028fdf951640f467f4238",
+    "Scripts/Sim/U13RangedMarching.gd": "9990a297b55fc2378ce526f14ca358b9a4417517427667f8cbd1e1d428236717",
+    "Scripts/Sim/U13VultureRangedTestRunner.gd": "784b941ddfb560b7e4fd1ba9e68f50362c265f6bdba8aa05e882d92cd0c70294",
+    "Scripts/Sim/run_u13_foundation_tests.sh": "2f2b75ef06d74df538c7b1484a563fd4acc7cbfd227ee07fb4a59f6e8c22decf",
+    "Scripts/Sim/u13_pysim/field_combat.py": "21bcb81196eeec3c8d9596a2055adbc5b8a9fadb36d0e17b4e8982795f48dce4",
+    "Scripts/Sim/u13_pysim/field_fortifications.py": "2e6bc60e7ff07d8d960c66c784d07c539920bafa67cf44fc462efe8dce334b36",
+    "Scripts/Sim/u13_pysim/marching.py": "3b20e1dfc6131752ba2a11157d724b4fc21644935666c43092ffad16e0176d1a",
+    "Scripts/Sim/u13_pysim/marching_fixtures.py": "3dda30cdc4a96c9c9e1265abc4447c2939d64b08f3e2b9e6fd3589d4f86581a9",
+    "Scripts/Sim/u13_pysim/marching_inputs.json": "a6080eea80e81538e9a4357bbee928d9d748cc83bc13bec89873b1253f059c0a",
+    "Scripts/Sim/u13_pysim/marching_spatial.py": "7d8e11bc98ca2eb60fcb6e853568ca1c9838e585ff757b9ba4efae90d39a4dfd",
+    "Scripts/Sim/u13_pysim/monster_effects.py": "0825cf8c31fb92692a251fdbf826467acb1e5067549d784c94f2d92b482dfea9",
+    "Scripts/Sim/u13_pysim/opening.py": "8451bb8946877653518cfd9a4d87705adf128d92e1dae1ca83c8fdd4ad24c963",
+    "Scripts/Sim/u13_pysim/recruitment.py": "635ffd788044e906d8d17f7bdad6bd0c3f28a50af07fa7e540778630b5510573",
+    "Scripts/Sim/u13_pysim/test_marching.py": "39735c27bbe0346c4fa8ce149c1c11465d9e8ec16f7d6f77a6ffb32ffe17e4e3"
+  },
+  "checks": [
+    "git diff --check",
+    "bash -n Scripts/Sim/run_u13_foundation_tests.sh",
+    "25 foundation runner groups retain matching completion markers"
+  ],
+  "limits": [
+    "Godot 4.7.2 Windows production gates unchanged; not run in this container",
+    "Interactive Windows visual review remains",
+    "Balance tuning is provisional; start a fresh game or reset the sandbox"
+  ],
+  "behavior": {
+    "melee_forward_reach": 90,
+    "melee_lateral_reach": 42,
+    "melee_footprint": "ellipse",
+    "melee_interval_ticks": 8,
+    "wright_attack": 1,
+    "wall_sites_per_owner_per_lane": 2,
+    "tower_sites_per_owner_per_lane": 1,
+    "construction_ticks": 32,
+    "guard_ticks_after_completion": 200,
+    "wall_hp": 6,
+    "wall_armor": 2,
+    "tower_hp": 6,
+    "tower_armor": 4,
+    "tower_attack": 1,
+    "tower_range": 600,
+    "tower_interval_ticks": 32
+  }
+}

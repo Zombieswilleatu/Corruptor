@@ -1,4 +1,5 @@
 """Deterministic monster abilities; mirror of the native rules, not animation time."""
+from . import field_fortifications as fort
 from . import monsters as rules
 from .copying import copy_data
 from .primitives import draw, instance_id
@@ -18,11 +19,11 @@ def distance(a, b):
 
 def enemies(unit, rows, radius=4000):
     return [r for r in rows if r['owner']!=unit['owner'] and r['attributes']['lane']==unit['attributes']['lane']
-            and not r['attributes'].get('hidden',False) and distance(unit['attributes'],r['attributes'])<=radius**2]
+            and not r['attributes'].get('hidden',False) and fort.gap(unit,r)<=radius**2]
 
 
 def nearest(unit, rows, radius=4000):
-    return min(enemies(unit,rows,radius),key=lambda r:distance(unit['attributes'],r['attributes']),default={})
+    return min(enemies(unit,rows,radius),key=lambda r:fort.gap(unit,r),default={})
 
 
 def preferred(unit, rows):
@@ -142,7 +143,7 @@ def step(w,buffer,c,tick,reaction):
             if target:
                 a['hidden']=False;hits.append(dict(source=unit,target=target['id'],amount=5,bypass=False,ability='Ambush'))
         elif name=='Sooge' and a['sprite_form']=='turret' and a.get('beam_next_tick',0)-T['beam_charge_ticks']<=clock:
-            target=nearest(unit,rows,T['beam_range'])
+            target=nearest(unit,rows+fort.rows(w),T['beam_range'])
             if not target:
                 a.update(beam_charge_tick=0,beam_ready_tick=0)
             elif a.get('beam_ready_tick',0)==0:
@@ -166,6 +167,9 @@ def step(w,buffer,c,tick,reaction):
             dx=b['x_fp']-a['x_fp'];dy=b['y_fp']-a['y_fp'];cross=dx*vy-dy*vx
             if dx*vx+dy*vy>=0 and dx*dx+dy*dy<=beam['range_fp']**2 and cross*cross<=T['beam_half_width']**2*length2:
                 hits.append(dict(source=source,target=other['id'],amount=1 if other['owner']==source['owner'] else 3,bypass=False,ability='Beam'))
+        for structure in fort.rows(w):
+            if structure['attributes']['lane']==a['lane'] and fort.beam_hit(a,beam['target']['attributes'],structure,beam['range_fp'],T['beam_half_width']):
+                hits.append(dict(source=source,target=structure['id'],amount=1 if structure['owner']==source['owner'] else 3,bypass=False,ability='Beam'))
     state['pending_beams']=pending
     for hit in hits:
         result=damage(w,buffer,hit,c,tick,reaction)
@@ -191,7 +195,14 @@ def step(w,buffer,c,tick,reaction):
 
 def damage(w,buffer,hit,c,tick,reaction):
     events=[];target=buffer.get(hit['target'])
-    if not target:return dict(action='resolved',world=w,events=events)
+    if not target:
+        for structure in copy_data(fort.rows(w)):
+            if structure['id']!=hit['target']:continue
+            result=fort.damage(w,hit['target'],hit['source'],hit['amount'],hit['bypass'],c['round'],tick)
+            events.extend(result['events'])
+            events.append(event('MONSTER_ATTACK',dict(attacker=hit['source'],target=structure,ability=hit['ability'],blocked=False,damage_dealt=result['damage_dealt'],hp_after=result['hp_after'],round=c['round'],tick=tick)))
+            break
+        return dict(action='resolved',world=w,events=events)
     before=copy_data(target);a=target['attributes']
     blocked=hit['ability']=='Beam' and penitent_defense.blocks(target,hit['source']['id'],c['seed'],c['round'],tick,'Beam')
     amount=0 if blocked else hit['amount'];absorbed=0 if hit['bypass'] else min(a['armor'],amount);dealt=amount-absorbed

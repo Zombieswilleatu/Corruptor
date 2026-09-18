@@ -4,6 +4,8 @@ extends RefCounted
 const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
 
 const Ranged = preload("res://Scripts/Sim/U13RangedMarching.gd")
+const Fort = preload("res://Scripts/Sim/U13FieldFortifications.gd")
+const FieldMelee = preload("res://Scripts/Sim/U13FieldMelee.gd")
 const KroniActors = preload("res://Scripts/Sim/U13KroniActors.gd")
 const SpatialFields = preload("res://Scripts/Sim/U13SpatialFields.gd")
 const Space = preload("res://Scripts/Sim/U13SpatialSpace.gd")
@@ -47,6 +49,7 @@ static func profile(
 		attributes.attack = Ranged.ATTACK
 		attributes.step_fp = 4
 		attributes.armor_bypass = false
+	if ranged and suit == "Wright": attributes.attack = 1
 	attributes["suit"] = suit
 	attributes["lane"] = lane
 	attributes["hp"] = 5
@@ -63,6 +66,7 @@ static func profile(
 
 
 static func valid(world: Dictionary) -> bool:
+	if not Fort.valid(world): return false
 	if world.data.has("ranged_profile") and not Ranged.enabled(world):
 		return false
 	if world.data.has("spatial_field_profile") and world.data.spatial_field_profile != SpatialFields.VERSION:
@@ -76,6 +80,7 @@ static func valid(world: Dictionary) -> bool:
 		if entity.kind != "marcher":
 			continue
 		var a: Dictionary = entity.attributes
+		if not Fort.valid_unit(a): return false
 		if a.has("ranged_next_tick") and (not Data.is_integer(a.ranged_next_tick) or a.ranged_next_tick < 0):
 			return false
 		if a.has("melee_next_tick") and (not Data.is_integer(a.melee_next_tick) or a.melee_next_tick < 0):
@@ -198,6 +203,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 				unit.attributes.armor_bypass = false
 				entities.update(unit.id, unit.owner, unit.attributes)
 	var duels: Dictionary = world.data.get("marching_duels", {}).duplicate(true)
+	if has_ranged: duels = {}
 	var events: Array = [
 		public_event(
 			"MARCHING_STARTED",
@@ -215,6 +221,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 		events[0].event.data["monster_beams"] = world.data.monsters.pending_beams.duplicate(true)
 	if has_ranged:
 		events[0].event.data["ranged_profile"] = Ranged.VERSION
+		events[0].event.data["field_structures"] = Fort.rows(world).duplicate(true)
 	var has_retreat: bool = false
 	var has_rout: bool = false
 	for unit in _units(entities):
@@ -283,6 +290,9 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 				if not _duel_alive(duels[lane], entities):
 					events.append(public_event("MARCHER_DUEL_INTERRUPTED", {"event_id": duels[lane].id, "round": context.round, "tick": tick}))
 					duels.erase(lane)
+		if has_ranged:
+			events.append_array(Fort.step(world, entities, context.round, tick))
+			motion_context["field_structures"] = Fort.rows(world)
 		_move(entities, duels, motion_context, clock, has_rout, fleeing_ids)
 		if not gravity_orbs.is_empty():
 			var gravity_events: Array = Gravity.step(gravity_orbs, entities, gravity_before, context.round, tick, collapse)
@@ -303,7 +313,12 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 						)
 					)
 					duels.erase(lane)
-		for lane in LANES:
+		if has_ranged:
+			var melee: Dictionary = FieldMelee.resolve(world, entities, context, tick, fleeing_ids, reaction)
+			if melee.action == "invalid": return melee
+			world = melee.world
+			events.append_array(melee.events)
+		for lane in ([] if has_ranged else LANES):
 			if not duels.has(lane):
 				var pair: Array = _contact_pair(entities, lane, context, clock)
 				if not pair.is_empty():
@@ -446,7 +461,8 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 				or _busy(unit.id, duels)
 				or _touches_enemy(
 					unit,
-					_near_rows(attributes, arrival_grids[attributes.lane][1 - int(unit.owner)], 8)
+					_near_rows(attributes, arrival_grids[attributes.lane][1 - int(unit.owner)], 8),
+					Fort.CONTACT if has_ranged else CONTACT_FP
 				)
 			):
 				continue
@@ -480,6 +496,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			if duels.has(lane):
 				for unit in duels[lane].units:
 					active.append(unit.id)
+		if has_ranged: active = FieldMelee.touching(entities, Fort.rows(world))
 		events.append(
 			public_event(
 				"MARCHING_TICK",
@@ -492,6 +509,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 				}
 			)
 		)
+		if has_ranged: events.back().event.data["field_structures"] = Fort.rows(world).duplicate(true)
 	if has_wishes:
 		world.data.kanifous_objects = lamp_objects
 	if world.data.has("valak_orbs"):
@@ -512,6 +530,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			}
 		)
 	)
+	if has_ranged: events.back().event.data["field_structures"] = Fort.rows(world).duplicate(true)
 	return {"action": "resolved", "world": world, "events": events}
 
 
@@ -680,13 +699,13 @@ static func _duel_alive(duel: Dictionary, entities) -> bool:
 	)
 
 
-static func _touches_enemy(unit: Dictionary, rows: Array) -> bool:
+static func _touches_enemy(unit: Dictionary, rows: Array, reach: int = CONTACT_FP) -> bool:
 	for other in rows:
 		if (
 			other.owner != unit.owner
 			and not Wishmaster.ignored(unit, other)
 			and other.attributes.lane == unit.attributes.lane
-			and _distance(unit.attributes, other.attributes) <= CONTACT_FP * CONTACT_FP
+			and (Fort.in_melee(unit, other) if reach == Fort.CONTACT else _distance(unit.attributes, other.attributes) <= reach * reach)
 		):
 			return true
 	return false
@@ -700,7 +719,16 @@ static func _move(
 	var has_taunt: bool = rows.any(func(r): return r.attributes.get("monster_id") == "Kurchin")
 	var lane_modifiers: Dictionary = context.get("lane_modifiers", {})
 	var spatial_fields: Dictionary = context.get("spatial_fields", {})
-	var neighbors: Dictionary = _movement_neighbors(rows, duels, int(context.round), has_rout)
+	var neighbors: Dictionary = {} if context.get("ranged_enabled", false) else _movement_neighbors(rows, duels, int(context.round), has_rout)
+	var modern: bool = context.get("ranged_enabled", false)
+	var structures: Array = context.get("field_structures", [])
+	if modern:
+		neighbors = {}
+		var targets: Array = rows + structures
+		for unit in rows:
+			var target: Dictionary = FieldMelee.nearest(unit, targets, Fort.CONTACT, true)
+			if target.is_empty(): target = FieldMelee.nearest(unit, targets)
+			neighbors[unit.id] = {"unit": target, "distance": 9223372036854775807 if target.is_empty() else Fort.gap(unit, target)}
 	var accepted: Array = []
 	var accepted_by_id: Dictionary = {}
 	for row in rows:
@@ -737,7 +765,7 @@ static func _move(
 			step = LaneAuras.speed(int(a.step_fp), percent, has_rout and Rout.recovering(a, int(context.round)), clock, not spatial_fields.is_empty() and SpatialFields.slowed(spatial_fields, unit.owner, a), true)
 		if MonsterEffects.slowed(a, context.get("monster_fields", [])):
 			step = (step >> 1) + (step & 1) * (clock & 1)
-		if not retreat and int(nearby.distance) <= CONTACT_FP * CONTACT_FP:
+		if not retreat and (Fort.in_melee(unit, nearby.unit) if modern else int(nearby.distance) <= CONTACT_FP * CONTACT_FP):
 			if previous_ticket < 0:
 				a.contact_tick = clock
 				entities.update(unit.id, unit.owner, a)
@@ -761,7 +789,7 @@ static func _move(
 		var best: int = int(nearby.distance) if preferred.is_empty() else _distance(a, preferred.attributes)
 		var dx: int = int(a.direction) * step * (-1 if retreat else 1)
 		var dy: int = 0
-		var destination: Dictionary = nearest.attributes if not nearest.is_empty() else {}
+		var destination: Dictionary = (Fort.point(a, nearest) if modern else nearest.attributes) if not nearest.is_empty() else {}
 		if not a.has("monster_id") and not retreat and not context.get("wishmaster_lamps", []).is_empty():
 			var lamp: Dictionary = Wishmaster.nearby_lamp(a, context.wishmaster_lamps)
 			if not lamp.is_empty():
@@ -770,6 +798,17 @@ static func _move(
 		if not retreat and a.get("monster_id") == "Tumler":
 			destination = MonsterEffects.steer(unit, destination, rows, context.get("monster_fields", []))
 			if not destination.is_empty(): best = _distance(a, destination)
+		if modern and not retreat:
+			var build_goal: Dictionary = Fort.goal(unit, structures, clock, nearest)
+			if not build_goal.is_empty():
+				destination = build_goal
+				best = _distance(a, destination)
+				if best <= 16 * 16: continue
+			var wall: Dictionary = Fort.blocker(unit, destination, structures)
+			if not wall.is_empty():
+				destination = Fort.point(a, wall)
+				best = _distance(a, destination)
+				if Fort.in_melee(unit, wall): continue
 		if not retreat and not destination.is_empty():
 			var vx: int = int(destination.x_fp) - int(a.x_fp)
 			var vy: int = int(destination.y_fp) - int(a.y_fp)
@@ -784,16 +823,19 @@ static func _move(
 		var proposed: Dictionary = a.duplicate(true)
 		proposed.x_fp = clampi(int(a.x_fp) + dx, 0, LANE_FP)
 		proposed.y_fp = clampi(int(a.y_fp) + dy, 0, WIDTH_FP)
-		if not _space_free(unit, proposed, _near_rows(proposed, allies, 7), gate_queue):
-			# A deterministic lateral detour avoids permanent single-file blockage.
+		if not _space_free(unit, proposed, _near_rows(proposed, allies, 7), gate_queue) or (modern and Fort.blocked_step(unit, proposed, structures)):
+			# Detour across the intended travel direction. Builders sometimes
+			# cross the lane to swap posts; another lateral step would trap them.
 			var side: int = (
 				1 if (String(unit.id).unicode_at(String(unit.id).length() - 1) % 2) == 0 else -1
 			)
+			var detour_axis: String = "x_fp" if modern and absi(dy) > absi(dx) else "y_fp"
+			var detour_limit: int = LANE_FP if detour_axis == "x_fp" else WIDTH_FP
 			proposed = a.duplicate(true)
-			proposed.y_fp = clampi(int(a.y_fp) + side * step, 0, WIDTH_FP)
-			if not _space_free(unit, proposed, _near_rows(proposed, allies, 7), gate_queue):
-				proposed.y_fp = clampi(int(a.y_fp) - side * step, 0, WIDTH_FP)
-				if not _space_free(unit, proposed, _near_rows(proposed, allies, 7), gate_queue):
+			proposed[detour_axis] = clampi(int(a[detour_axis]) + side * step, 0, detour_limit)
+			if not _space_free(unit, proposed, _near_rows(proposed, allies, 7), gate_queue) or (modern and Fort.blocked_step(unit, proposed, structures)):
+				proposed[detour_axis] = clampi(int(a[detour_axis]) - side * step, 0, detour_limit)
+				if not _space_free(unit, proposed, _near_rows(proposed, allies, 7), gate_queue) or (modern and Fort.blocked_step(unit, proposed, structures)):
 					proposed = a
 		entities.update(unit.id, unit.owner, proposed)
 		var accepted_row: Dictionary = accepted_by_id[unit.id]

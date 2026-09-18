@@ -32,6 +32,7 @@ func _draw() -> void:
 	for y in [field.position.y, field.end.y]:
 		draw_line(Vector2(field.position.x, y), Vector2(field.end.x, y), Color("a19066"), 2)
 	_draw_monster_fields("Lord")
+	fortification_visual.draw(self, "Lord", field_structures, _units)
 	var ordered: Array = _units.duplicate()
 	ordered.sort_custom(func(a, b): return float(a.attributes.get("visual_x", a.attributes.x_fp)) > float(b.attributes.get("visual_x", b.attributes.x_fp)))
 	for unit in ordered:

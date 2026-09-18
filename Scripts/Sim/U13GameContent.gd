@@ -188,6 +188,7 @@ func accept_order(context: Dictionary) -> Dictionary:
 func project(world: Dictionary, player_id: int) -> Dictionary:
 	var result: Dictionary = super.project(world, player_id)
 	result["monsters"] = world.data.monsters.duplicate(true)
+	result["field_structures"] = world.data.get("field_structures", []).duplicate(true)
 	result["concealed_ids"] = result.entities.filter(func(r): return r.owner != player_id and r.attributes.get("hidden", false)).map(func(r): return r.id)
 	result.entities = result.entities.filter(func(r): return r.owner == player_id or not r.attributes.get("hidden", false))
 	result["guard_work"] = {"version": GuardWork.VERSION, "target": world.data.guard_work.targets[player_id], "pairs": []}
@@ -233,4 +234,3 @@ func _begin_market(result: Dictionary, seed_value: String, round_number: int) ->
 
 func is_finished(world: Dictionary) -> bool:
 	return world.data.victory.winner != -1
-

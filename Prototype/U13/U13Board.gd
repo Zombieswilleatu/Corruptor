@@ -391,7 +391,7 @@ func _refresh(presented: Dictionary = {}) -> void:
 	sides[0].bind_scorch(_scorch_rows, 1)
 	sides[1].bind_scorch(_scorch_rows, 0)
 	if not playing:
-		lanes.show_world(world.entities, session.round_number())
+		lanes.show_world(world.entities, session.round_number(), world.get("field_structures", []))
 	var cards: Array = []
 	for id in world.hand:
 		if _hand_reserved(id):

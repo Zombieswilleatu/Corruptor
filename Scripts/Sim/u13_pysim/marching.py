@@ -8,7 +8,8 @@ Godot U13Marching.resolve is the authority for every output event and field.
 import json
 from bisect import bisect_left
 
-from . import veil, monsters, monster_effects
+from . import veil, monsters, monster_effects, field_combat
+from . import field_fortifications as fort
 from .copying import copy_data
 from . import wishmaster, kroni_actors, penitent_defense
 from .marching_buffer import Buffer
@@ -32,6 +33,7 @@ def compact(value):
 def valid(world, check_duels=True):
     try:
         data = world["data"]
+        if not fort.valid(world): return False
         for field, expected in (("ranged_profile", RANGED), ("rout_profile", ROUT),
                                 ("spatial_field_profile", WEB), ("lane_aura_profile", AURAS)):
             # Rout profile itself is only checked when a Marcher carries a Rout tag.
@@ -44,6 +46,7 @@ def valid(world, check_duels=True):
             if row["kind"] != "marcher":
                 continue
             a = row["attributes"]
+            if not fort.valid_unit(a): return False
             if row["owner"] not in (0, 1) or (a.get("suit") not in ("Butcher", "Penitent", "Vulture", "Wright", "Monster") or not monsters.valid_unit(a)) or a.get("lane") not in LANES:
                 return False
             if any(type(a.get(field)) is not int for field in INTEGER_FIELDS):
@@ -203,6 +206,13 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     targets_by_id={r['id']:r for r in targets}
     gate_queue = data.get("guard_work", {}).get("version") == "U13_GUARD_WORK_V4"
     ranged = data.get("ranged_profile") == RANGED
+    structures = fort.rows(context['world']) if ranged else []
+    reach2 = fort.CONTACT**2 if ranged else CONTACT2
+    target_rows = s.rows() if ranged else []
+    field_nearest = {i: (field_combat.nearest(s.row(i), target_rows+structures, fort.CONTACT, True) or field_combat.nearest(s.row(i), target_rows+structures)) for i in indices} if ranged else {}
+    if ranged:
+        for i in indices:
+            gaps[i] = fort.gap(s.row(i), field_nearest[i]) if field_nearest[i] else (1 << 63)-1
     collapse_players = veil.affected_players(context["world"],"Valak")
     for i in indices:
         if s.ids[i] in fleeing or (s.extra[i] or {}).get("hidden",False) or (s.extra[i] or {}).get("sprite_form")=="turret": continue
@@ -216,7 +226,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
             step = speed(base, percent, recovery, clock, web, collapse)
         if monster_effects.slowed(dict(x_fp=xs[i],y_fp=ys[i],lane=lane,flying=(s.extra[i] or {}).get('flying',False),monster_id=(s.extra[i] or {}).get('monster_id')),data.get('monsters',{}).get('fields',[])):
             step=(step>>1)+(step&1)*(clock&1)
-        if not retreat[i] and gaps[i] <= CONTACT2:
+        if not retreat[i] and (fort.in_melee(s.row(i), field_nearest[i]) if ranged else gaps[i] <= reach2):
             if s.contact_tick[i] < 0:
                 s.contact_tick[i] = clock
             continue
@@ -228,6 +238,8 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
         dx, dy = s.direction[i] * step * (-1 if retreat[i] else 1), 0
         j = nearest[i]
         destination = dict(x_fp=xs[j],y_fp=ys[j]) if j is not None else None
+        if ranged:
+            destination = fort.point(s.row(i)['attributes'], field_nearest[i]) if field_nearest[i] else None
         gap = gaps[i]
         if has_taunt or (s.extra[i] or {}).get('monster_id')=='Tumler':
             current=targets_by_id[s.ids[i]]
@@ -239,6 +251,17 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
         if not retreat[i] and (s.extra[i] or {}).get('monster_id')=='Tumler':
             destination=monster_effects.steer(current,destination,targets,data.get('monsters',{}).get('fields',[]))
             if destination:gap=distance(xs[i],ys[i],destination['x_fp'],destination['y_fp'])
+        if ranged and not retreat[i]:
+            unit = s.row(i)
+            build_goal = fort.goal(unit, structures, clock, field_nearest[i])
+            if build_goal:
+                destination, gap = build_goal, fort.distance(unit['attributes'], build_goal)
+                if gap <= 16**2: continue
+            wall = fort.blocker(unit, destination, structures)
+            if wall:
+                destination = fort.point(unit['attributes'], wall)
+                gap = fort.distance(unit['attributes'], destination)
+                if fort.in_melee(unit, wall): continue
         if not retreat[i] and destination is not None:
             vx, vy = destination["x_fp"] - xs[i], destination["y_fp"] - ys[i]
             length = max(1, ceil_sqrt(gap))
@@ -251,6 +274,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
         nx, ny = max(0, min(2400, xs[i] + dx)), max(0, min(600, ys[i] + dy))
         allies = accepted[lane][owner]
         def free(px, py):
+            if ranged and fort.blocked_step(s.row(i), dict(x_fp=px,y_fp=py), structures): return False
             for other in near(px, py, allies, 7):
                 if other == i:
                     continue
@@ -262,9 +286,10 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
             return True
         if not free(nx, ny):
             side = 1 if ord(s.ids[i][-1]) % 2 == 0 else -1
-            nx, ny = xs[i], max(0, min(600, ys[i] + side * step))
+            across_x = ranged and abs(dy) > abs(dx)
+            nx, ny = (max(0, min(2400, xs[i] + side * step)), ys[i]) if across_x else (xs[i], max(0, min(600, ys[i] + side * step)))
             if not free(nx, ny):
-                ny = max(0, min(600, ys[i] - side * step))
+                nx, ny = (max(0, min(2400, xs[i] - side * step)), ys[i]) if across_x else (xs[i], max(0, min(600, ys[i] - side * step)))
                 if not free(nx, ny):
                     nx, ny = xs[i], ys[i]
         old_cell, new_cell = (xs[i] >> 7, ys[i] >> 7), (nx >> 7, ny >> 7)
@@ -360,61 +385,7 @@ class Phase:
                 del duels[lane]
 
     def volley(self, duels, tick, fleeing=()):
-        s, clock, busy = self.s, self.number * 200 + tick, busy_ids(duels)
-        rows, shots = s.active(), []
-        taunt_targets=s.rows() if any((s.extra[k] or {}).get('monster_id')=='Kurchin' for k in rows) else []
-        for i in rows:
-            if (s.suit[i] != "Vulture" or s.ids[i] in busy or s.ids[i] in fleeing or s.rout_round[i] == self.number
-                    or (s.ranged_next_tick[i] or 0) > clock):
-                continue
-            best, target = RANGE2 + 1, None
-            for j in rows:
-                if s.owner[j] == s.owner[i] or s.lane[j] != s.lane[i] or wishmaster.ignored(s,i,j):
-                    continue
-                gap = distance(s.x_fp[i], s.y_fp[i], s.x_fp[j], s.y_fp[j])
-                # Native nearest() admits a tie with its initial RANGE2+1
-                # sentinel when no target exists yet. Keep that exact edge.
-                if gap < best or gap == best and (target is None or s.ids[j] < s.ids[target]):
-                    best, target = gap, j
-            if taunt_targets:
-                preferred=monster_effects.preferred(s.row(i),taunt_targets)
-                if preferred and distance(s.x_fp[i],s.y_fp[i],preferred['attributes']['x_fp'],preferred['attributes']['y_fp'])<=RANGE2:
-                    target=s.live(preferred['id']);best=distance(s.x_fp[i],s.y_fp[i],s.x_fp[target],s.y_fp[target])
-            if target is None or best <= CONTACT2:
-                continue
-            # One pre-volley snapshot, before any attack cooldown is written.
-            shots.append(dict(attacker=s.row(i), target=s.row(target), amount=s.attack[i]*(2 if (s.extra[i] or {}).get("blood_wish",False) else 1), index=i))
-        for shot in shots:
-            i = shot.pop("index")
-            if s.extra[i]: s.extra[i].pop("blood_wish",None)
-            s.ranged_next_tick[i], s.melee_next_tick[i] = clock + 32, clock + 8
-        deaths = []
-        for shot in shots:
-            target = s.live(shot["target"]["id"])
-            dealt, hp_after = 0, 0
-            blocked = False
-            if target is not None:
-                blocked = penitent_defense.blocks(s.row(target), shot['attacker']['id'], self.context['seed'], self.number, tick, 'Vulture')
-                dealt = attack(s, target, 0 if blocked else shot["amount"], False)
-                hp_after = s.hp[target]
-                if not hp_after:
-                    s.retire(target)
-                    deaths.append(dict(attacker=shot["attacker"], victim=s.row(target), damage_dealt=dealt, hp_after=0))
-                else:
-                    s.movement_ready_round[target] = min(s.movement_ready_round[target], self.number)
-            self.emit("MARCHER_RANGED_ATTACK", dict(round=self.number, tick=tick, lane=shot["attacker"]["attributes"]["lane"],
-                      attacker=shot["attacker"], target=shot["target"], blocked=blocked, damage_dealt=dealt, hp_after=hp_after))
-        # Columns already own nonlethal damage/cooldowns. Publish and rebuild
-        # only when a death callback can change the registry outside them.
-        if self.reaction is not None and deaths:
-            self.w["entities"] = s.snapshot()
-        for death in deaths:
-            death.update(event_id=instance_id("ranged_kill", str(clock), death["victim"]["id"]),
-                         round=self.number, tick=tick, hook="marching", cause="combat")
-            self.emit("MARCHER_DEFEATED", death)
-            self.react(self.events[-1]["event"], "ranged_reaction_invalid")
-        if deaths:
-            self.restore_reactions("ranged_reaction_invalid")
+        field_combat.volley(self, duels, tick, fleeing)
 
     def run(self):
         s, data, context = self.s, self.w["data"], self.context
@@ -423,10 +394,11 @@ class Phase:
             for i in s.active():
                 if s.suit[i] == "Vulture":
                     s.step_fp[i], s.armor_bypass[i] = 4, False
-        duels = copy_data(data.get("marching_duels", {}))
+        duels = {} if ranged else copy_data(data.get("marching_duels", {}))
         start = dict(round=self.number, hook="marching", ticks=200, model=MODEL, units=s.rows())
         if ranged:
             start["ranged_profile"] = RANGED
+            start["field_structures"] = copy_data(fort.rows(self.w))
         if monsters.enabled(self.w):
             start["monster_fields"]=[copy_data(f) for f in data["monsters"]["fields"] if f["expires_round"]>=self.number]
             start["monster_beams"]=copy_data(data['monsters']['pending_beams'])
@@ -461,6 +433,10 @@ class Phase:
                 self.w=result['world'];self.events.extend(result['events']);fleeing.update(result['fleeing'])
                 context['world']['data']['monsters']=self.w['data']['monsters']
                 s=self.s;self.interrupt(duels,tick)
+            if ranged:
+                self.events.extend(fort.step(self.w, buffer, self.number, tick))
+                context['world']['data']['field_structures'] = fort.rows(self.w)
+                s = self.s
             move(s, duels, context, clock, modifiers, fields, fleeing, lamps)
             if orbs:
                 self.w["data"]["neutral_tears"] += gravity(s, orbs, before, self.number, tick, collapse, self.emit)
@@ -468,7 +444,9 @@ class Phase:
             if has_wishes: self.events.extend(wishmaster.bypass(buffer,self.number,tick))
             if has_retreat or orbs or has_wishes:
                 self.interrupt(duels, tick)
-            for lane in LANES:
+            if ranged:
+                field_combat.melee(self, tick, fleeing)
+            for lane in (() if ranged else LANES):
                 s = self.s
                 if lane not in duels:
                     pair = contact(s, lane, context, clock)
@@ -527,7 +505,7 @@ class Phase:
                         or s.x_fp[i] != (2400 if s.owner[i] == 0 else 0) or s.ids[i] in busy):
                     continue
                 if any(s.owner[j] != s.owner[i] and s.lane[j] == s.lane[i] and not wishmaster.ignored(s,i,j)
-                       and distance(s.x_fp[i], s.y_fp[i], s.x_fp[j], s.y_fp[j]) <= CONTACT2 for j in indices):
+                       and (fort.in_melee(s.row(i), s.row(j)) if ranged else distance(s.x_fp[i], s.y_fp[i], s.x_fp[j], s.y_fp[j]) <= CONTACT2) for j in indices):
                     continue
                 s.waiting[i], s.waiting_since_round[i] = True, self.number
                 self.emit("MARCHER_WAITING", dict(entity_id=s.ids[i], round=self.number, hook="marching", tick=tick,
@@ -538,15 +516,16 @@ class Phase:
             if self.capture_ticks:
                 if actors: self.emit("KRONI_ACTOR_TICK",dict(round=self.number,tick=tick,actors=actors))
                 active = [row["id"] for lane in LANES if lane in duels for row in duels[lane]["units"]]
+                if ranged: active = field_combat.touching(s.rows(), fort.rows(self.w))
                 self.emit("MARCHING_TICK", dict(round=self.number, tick=tick, unit_format="attribute_delta_v1",
-                          units=s.delta_rows(bases), clash=active))
+                          units=s.delta_rows(bases), clash=active, **(dict(field_structures=fort.rows(self.w)) if ranged else {})))
         if "valak_orbs" in self.w["data"]:
             self.w["data"]["valak_orbs"] = orbs
         if "kroni_actors" in self.w["data"]: self.w["data"]["kroni_actors"] = actors
         if "kanifous_objects" in self.w["data"]: self.w["data"]["kanifous_objects"] = lamps
         self.w["entities"] = self.s.snapshot()
         self.w["data"].update(marching_duels=duels, marching_round=self.number)
-        self.emit("MARCHING_FINISHED", dict(round=self.number, hook="marching", ticks=200, units=self.s.rows()))
+        self.emit("MARCHING_FINISHED", dict(round=self.number, hook="marching", ticks=200, units=self.s.rows(), **(dict(field_structures=fort.rows(self.w)) if ranged else {})))
         return dict(action="resolved", world=self.w, events=self.events)
 
 

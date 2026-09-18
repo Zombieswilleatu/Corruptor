@@ -62,7 +62,7 @@ class MarchingTests(unittest.TestCase):
             self.assertEqual(0 if pid == 0 else 2400, rows['untouched']['x_fp'])
             shots = [r['event'] for r in result['events'] if r['event']['type'] == 'MARCHER_RANGED_ATTACK']
             self.assertEqual(0, shots[0]['data']['damage_dealt'])
-            self.assertTrue(any(r['event']['type'] == 'MARCHER_CLASH' for r in result['events']))
+            self.assertTrue(any(r['event']['type'] == 'MARCHER_MELEE_ATTACK' for r in result['events']))
             self.assertEqual(result, m.resolve(context))
 
     def test_nearest_pruning_keeps_two_dimensional_and_equal_distance_ties(self):

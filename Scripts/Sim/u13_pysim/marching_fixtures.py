@@ -26,6 +26,8 @@ def initial(spec):
         a = profile(unit["suit"], unit["lane"], unit["owner"], unit.get("birth", 0), unit.get("ready", 1))
         if unit["suit"] == "Vulture" and not spec["ranged"]:
             a.update(attack=2, step_fp=6, armor_bypass=True)
+        if unit["suit"] == "Wright" and not spec["ranged"]:
+            a["attack"] = 2
         a.update(copy_data(unit["attributes"]))
         registry.create("marcher", unit["origin"], unit["ordinal"], unit["owner"], a)
     state = registry.snapshot()
