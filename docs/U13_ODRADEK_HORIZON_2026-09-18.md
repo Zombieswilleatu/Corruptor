@@ -121,9 +121,27 @@ links the final checkpoint to the raw report archive.
 
 ## Windows acceptance
 
-Windows CPython/PyPy acceptance of this checkpoint remains pending. The usual
-bounded command tests both runtimes and five ordinary behavior games; it does
-not repeat the policy comparison or export a new Godot parity corpus:
+**Accepted at clean `f6f63be` on 2026-09-18.** The uploaded
+`u13-common-doctrine-TtaoIX-2026-09-18_09-31-43-Zq3PUJ.zip` contains
+**120 passing tests per runtime**, Windows CPython 3.14.7 and PyPy 7.3.23
+(Python 3.11.15). Each completed the same five games, **88 rounds / 2,220
+operations**, with zero failures or rejected previews. All decisions, final
+states, diagnostics and complete input streams match; the runner exited zero
+and its tracked worktree diff is empty.
+
+An independent check recomputed report integrity and the engine, doctrine and
+runner source fingerprints against the published checkout, checked the logs
+and work limits, and matched the complete semantics and inputs to the saved
+local CPython run at `78719b9`. No games needed to be rerun for this evidence
+review. See [Windows acceptance evidence](evidence/U13_ODRADEK_HORIZON_WINDOWS_2026-09-18.json)
+for the archive hash, runtime identities and per-game results.
+
+This accepts the experimental Python doctrine on the integrated movement
+rules. Greedy remains the default. The earlier 34-game pilot still predates
+`66ea09e`; this check adds no native Godot parity or policy-strength/balance
+claim. The later Kopita/Muno/Dotra update at `4651b01` postdates this ZIP and
+is outside this acceptance. The bounded Windows gate at `f6f63be` is complete.
+The command below is retained for reproduction:
 
 ```bash
 git pull --ff-only origin u13-basic-doctrine
@@ -140,5 +158,6 @@ python Scripts/Sim/compare_u13_doctrines.py \
   --namespace u13-odradek-v7-2026-09-18 --output odradek-comparison
 ```
 
-The next decision should use the recorded behavior and directed cases, rather
-than force Inversion frequency or infer balance from this small pilot.
+The next step is to review the recorded behavior and directed cases before
+choosing further doctrine changes. Inversion frequency is not itself a tuning
+target, and the small pilot does not establish balance.
