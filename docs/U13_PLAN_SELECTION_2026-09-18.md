@@ -1,5 +1,7 @@
 # Optional doctrine plan selection
 
+> Windows accepted at clean `ba35bd6`: [uploaded evidence](evidence/U13_PLAN_SELECTION_WINDOWS_2026-09-18.json) passed all 83 tests under CPython 3.14.7 and PyPy 7.3.23, including the fixed softmax vectors. Both runtimes produced identical reports and inputs for five default games / 94 rounds / 2,361 operations. Complete semantics also match the independent local report. No repeat of this gate is needed.
+
 `PlanSelector` adds a replaceable final selection step to the experimental Python
 common doctrine. Temperature zero retains existing best-legal-plan behavior,
 including tie order and the first-legal preview fast path. Softmax is opt-in.
@@ -81,12 +83,21 @@ only those additions reproduces the tested fingerprint exactly. Existing native
 rules, Python authority and the tested selector harness are unchanged; the compact
 evidence records the full path list and identity reconciliation.
 
-Windows CPython/PyPy acceptance of this new selector is pending. The uploaded
+Windows CPython/PyPy accepted the selector scaffold and default behavior at clean
+`ba35bd6`, as recorded above. The complete games used temperature zero; full-game
+positive-temperature Windows acceptance remains unmeasured. Fixed positive-
+temperature unit vectors passed on both runtimes. The earlier uploaded
 [V4 Windows gate](evidence/U13_RITE_PLANS_WINDOWS_2026-09-18.json) passed separately
 at clean `5e93ce0`: 74 tests per runtime, five games / 94 rounds / 2,361 operations,
 identical complete semantic reports and inputs, and zero failures. Its semantics
 also exactly match the independently generated local V4 report. That upload is
 the Python doctrine gate and does not claim another native Godot parity run.
+
+The latest five-game validation pass measured 218.73 seconds for CPython and
+162.09 seconds for PyPy in planning plus simulation: 1.35x observed throughput,
+approximately 26% less time. These exclude other runner overhead and are not a
+controlled warmed campaign benchmark. Variation from the earlier pass does not
+establish a performance regression or a cost attributable to the selector.
 
 ## Use
 

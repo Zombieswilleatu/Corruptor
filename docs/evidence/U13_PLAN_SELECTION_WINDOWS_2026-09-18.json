@@ -1,0 +1,306 @@
+{
+  "accepted_on": "2026-09-18",
+  "archive": {
+    "filename": "u13-common-doctrine-eT88lb-2026-09-17_22-59-18-dzeLeh.zip",
+    "library_file_id": "libfile_9b00016eaf38819180db7dedf8e36644",
+    "sha256": "c659bbc63b83e00871b0a3e1add743dba53abddc47e136bbeb39516721422358"
+  },
+  "clean_worktree": true,
+  "full_match_positive_temperature_windows_acceptance": false,
+  "games": [
+    {
+      "decisions_sha256": "1996b1f46811a94ed5f87e00de484602e71b6234c7689d0d9d4669fbbea37749",
+      "final_state_sha256": "d1702250a4e69d4334fc08a04a48c0725b4120cb002c955093f0b08ff136962e",
+      "name": "gremory_humbaba",
+      "operations": 380,
+      "outcome": {
+        "action": "game_finished",
+        "round": 15,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "rejected_previews": 0,
+      "rounds": 15,
+      "selection": {
+        "counts": {
+          "below_best_legal_score": 0,
+          "measured_decisions": 30,
+          "mode:greedy": 30,
+          "pool_truncated": 0,
+          "random_draws": 0,
+          "rank:1": 30
+        },
+        "max_score_gap": 0
+      },
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Gremory",
+          "Humbaba"
+        ],
+        "seed": "u13-nine-lords:gremory_humbaba"
+      }
+    },
+    {
+      "decisions_sha256": "500bea45a7c9395cdfc9f38f6f10a47f48c615da770d23cd785ea5da9bfea022",
+      "final_state_sha256": "b8af8c99ef87607cf9c195adfef12d382eb4376119bddf73dc7740dd5a620e61",
+      "name": "deimos_kalligan",
+      "operations": 558,
+      "outcome": {
+        "action": "game_finished",
+        "round": 22,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "rejected_previews": 0,
+      "rounds": 22,
+      "selection": {
+        "counts": {
+          "below_best_legal_score": 0,
+          "measured_decisions": 44,
+          "mode:greedy": 44,
+          "pool_truncated": 0,
+          "random_draws": 0,
+          "rank:1": 44
+        },
+        "max_score_gap": 0
+      },
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Deimos",
+          "Kalligan"
+        ],
+        "seed": "u13-nine-lords:deimos_kalligan"
+      }
+    },
+    {
+      "decisions_sha256": "e18020be6033a3b878d4610a9eb9aafa7e5abb23e83906225deec8917ce00cd5",
+      "final_state_sha256": "d1c7c27e0d3630bb407b7ebce8e8c73ae01cfe0be2f9673cdb39fe15c2762b51",
+      "name": "orias_odradek",
+      "operations": 538,
+      "outcome": {
+        "action": "game_finished",
+        "round": 21,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "rejected_previews": 0,
+      "rounds": 21,
+      "selection": {
+        "counts": {
+          "below_best_legal_score": 0,
+          "measured_decisions": 42,
+          "mode:greedy": 42,
+          "pool_truncated": 0,
+          "random_draws": 0,
+          "rank:1": 42
+        },
+        "max_score_gap": 0
+      },
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Orias",
+          "Odradek"
+        ],
+        "seed": "u13-nine-lords:orias_odradek"
+      }
+    },
+    {
+      "decisions_sha256": "906f620fbd284f88f59111a257a2b0d614a1b3d531c03a9a9e73c0b8e5ff8013",
+      "final_state_sha256": "70e7ea5413a87a2062456dad3313a309795b2b017bd3a1df468a1d388c83d101",
+      "name": "kroni_valak",
+      "operations": 424,
+      "outcome": {
+        "action": "game_finished",
+        "round": 17,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "rejected_previews": 0,
+      "rounds": 17,
+      "selection": {
+        "counts": {
+          "below_best_legal_score": 0,
+          "measured_decisions": 34,
+          "mode:greedy": 34,
+          "pool_truncated": 0,
+          "random_draws": 0,
+          "rank:1": 34
+        },
+        "max_score_gap": 0
+      },
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Kroni",
+          "Valak"
+        ],
+        "seed": "u13-nine-lords:kroni_valak"
+      }
+    },
+    {
+      "decisions_sha256": "fa0a73fe8fbc752e03ec89f3bf7a2b3b9a34cf4111a36e6cff479000b0600921",
+      "final_state_sha256": "394fd09864ef4ca5f1cb632f7abb6d59b7182a898df2b4070adf89f1c8420935",
+      "name": "kanifous_gremory",
+      "operations": 461,
+      "outcome": {
+        "action": "game_finished",
+        "round": 19,
+        "win_by": "FinalCollapse",
+        "winner": 1
+      },
+      "rejected_previews": 0,
+      "rounds": 19,
+      "selection": {
+        "counts": {
+          "below_best_legal_score": 0,
+          "measured_decisions": 38,
+          "mode:greedy": 38,
+          "pool_truncated": 0,
+          "random_draws": 0,
+          "rank:1": 38
+        },
+        "max_score_gap": 0
+      },
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Kanifous",
+          "Gremory"
+        ],
+        "seed": "u13-nine-lords:kanifous_gremory"
+      }
+    }
+  ],
+  "independent_checks": [
+    "ZIP CRC; successful status; clean revision",
+    "full reports and semantic hashes match across runtimes",
+    "all source fingerprints match exact local ba35bd6",
+    "identical explicit inputs reproduce per-game operation hashes",
+    "complete semantics match independently generated Linux report",
+    "all runner logs inspected; zero failures or script errors"
+  ],
+  "new_godot_parity": false,
+  "runtimes": [
+    {
+      "implementation": "CPython",
+      "platform": "Windows-11-10.0.26200-SP0",
+      "python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]"
+    },
+    {
+      "implementation": "PyPy",
+      "platform": "Windows-10-10.0.26200-SP0",
+      "python": "3.11.15 (194f9f44b505, May 25 2026, 19:35:45)\n[PyPy 7.3.23 with MSC v.1941 64 bit (AMD64)]"
+    }
+  ],
+  "scope": "Accepts 83 tests including fixed positive-temperature selector vectors, plus five complete greedy games. Does not accept full-match positive-temperature behavior or broaden native Godot parity. Later rules revisions need their own evidence.",
+  "selection": {
+    "max_score_gap": 0.0,
+    "policy_seed": "",
+    "temperature": 0.0
+  },
+  "semantic_sha256": "2c5de89352e0964a5c888d4b6cf1322c050e8a33f721eb61d0f23f31f633d5c8",
+  "source": {
+    "engine_source_sha256": "c1b7d0c67b26e5ff156fa732f2bf3ea1be8e57681ec06ec6a24c6905cc489edb",
+    "harness_source_sha256": "a94e0716449f5605bd619492b857e6b5d0d6ee84601bea6c0d35ab1571596bac",
+    "runner_source_sha256": "b0e63489370c9d28edf9a85a0833693724b15e88aff30b68ae3ff0f28b0ffadc"
+  },
+  "source_revision": "ba35bd6083927274158af3b02f240afc57fadf9b",
+  "status": "accepted Windows selector scaffold and default-doctrine gate",
+  "tests_per_runtime": 83,
+  "timing": {
+    "note": "One five-game validation pass per runtime; timed planning plus simulation only, not total runner wall time or controlled warmed campaign throughput.",
+    "pypy_observed_speedup": 1.3494528603637177,
+    "totals": {
+      "CPython": {
+        "planning_seconds": 7.8839856,
+        "simulation_seconds": 210.8486469,
+        "total_seconds": 218.7326325
+      },
+      "PyPy": {
+        "planning_seconds": 13.5999506,
+        "simulation_seconds": 148.4899148,
+        "total_seconds": 162.0898654
+      }
+    }
+  },
+  "total_operations": 2361,
+  "total_rounds": 94
+}
