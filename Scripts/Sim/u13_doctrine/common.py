@@ -13,6 +13,7 @@ from u13_pysim.opening import COSTS
 from u13_pysim.power_rules import RULES, declaration
 from u13_pysim.powers import WISHES
 from . import lords
+from .lords.odradek import ResourceHorizon, RECONFIGURATION, SAVING_GOALS
 from .budget import Budget, Limits
 from . import closing, coordination
 from .coverage import POWERS
@@ -22,7 +23,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V6_COORDINATION'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V7_ODRADEK_HORIZON'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -161,6 +162,7 @@ class CommonSmartCore:
         categories = ('powers', 'resummon', 'rites', 'guards', 'work', 'combat', 'monsters')
         generated, retained, reasons, opportunities, exhausted = {}, {}, {}, {}, {}
         counts = Counter()
+        resource_options = []
         for category in categories:
             source = (lords.proposals(f) if self.lord_modules else iter(())) if category == 'powers' else recipes.proposals() if category == 'monsters' else ordinary(f, category, self.weights)
             proposals = []
@@ -174,6 +176,8 @@ class CommonSmartCore:
                 counts[(p.category, p.term)] += 1
                 opportunities[(p.category, p.term)] = opportunities.get((p.category, p.term), False) or p.value > 0
                 if category == 'powers':
+                    if f.kind == 'Odradek' and p.term in SAVING_GOALS:
+                        resource_options.append(dict(power=p.term, target=copy_data(p.payload['target'])))
                     available, reason = f.available(p.term)
                     if not available:
                         reasons[(category, p.term)] = reason
@@ -199,6 +203,7 @@ class CommonSmartCore:
                 if p not in choices and len(choices) < self.limits.retained_per_category: choices.append(p)
             retained[category] = [p for p in choices if budget.take('retained', category)]
 
+        horizon = ResourceHorizon(f, resource_options)
         complete = []
         omission_reserve = (min(4, self.limits.complete_plans//4)
             if any(p.term in coordination.TERMS for p in retained['powers']) else 0)
@@ -263,9 +268,12 @@ class CommonSmartCore:
                           +self.weights.destruction*(adjusted['destroyed']-baseline['destroyed']))
             coordinated = coordination.evaluate(f, plan)
             score += coordinated['score_delta']
+            resource = horizon.evaluate(plan, coordinated['context'] or
+                (coordination.context(f, plan) if horizon.options else None), projected)
+            score += resource['score']
             complete.append(dict(plan=plan, score=score, selected=selected, veil_risk=risk, projected=projected,
                                  protection=protection, remaining_goal=remaining_goal, saving_delta=saving_delta,
-                                 coordination=coordinated, omitted_powers=list(omitted)))
+                                 coordination=coordinated, resource_horizon=resource, omitted_powers=list(omitted)))
 
         base = ('resummon', 'rites', 'work', 'guards', 'monsters', 'combat')
         # Explicit conservation plan and fixed assembly priorities preserve
@@ -293,11 +301,14 @@ class CommonSmartCore:
         # same own choices, without powers whose standalone credit is reduced.
         # Reassemble to recompute payments, recipes, declaration IDs and Veil.
         # No products of alternative targets/payments or extra previews.
-        omissions, omission_keys = 0, set()
+        omissions, resource_omissions, omission_keys = 0, 0, set()
         for candidate in sorted(complete, key=lambda c: (
                 -int(c['projected']['winner'] == f.pid), -c['score'], fingerprint(c['plan']))):
             if omissions >= omission_reserve: break
             omit = sorted(r['power'] for r in candidate['coordination']['powers'] if r['score_delta'] < 0)
+            conserving = bool(horizon.options and candidate['resource_horizon']['spent'])
+            if conserving:
+                omit = sorted(set(omit) | {p['power_id'] for p in candidate['plan']['powers'] if p['power_id'] in RECONFIGURATION})
             if not omit: continue
             anchors = [p for p in candidate['selected'] if not (p.category == 'powers' and p.term in omit)]
             identity = tuple(key(p) for p in anchors)
@@ -306,6 +317,7 @@ class CommonSmartCore:
             before = len(complete)
             assemble(anchors, (), omitted=omit)
             omissions += len(complete)-before
+            if conserving: resource_omissions += len(complete)-before
         unique = list({fingerprint(c['plan']): c for c in complete}.values())
         closing.prioritize(f, unique)
         ranked = sorted(unique,
@@ -354,6 +366,7 @@ class CommonSmartCore:
                     budget=budget.report(), rejected_previews=rejected, rite_plans=rite_plans,
                     closing=closing.report(unique, chosen),
                     coordination=coordination.report(unique, chosen, omissions),
+                    resource_horizon=horizon.report(unique, chosen, resource_omissions),
                     assumptions='current public board; new Guards, Ward, Work, simultaneous powers and spatial/random reactions are uncertain',
                     veil=dict(current_board_risk=chosen['veil_risk'], paid_choice_scenario=chosen['projected'],
                               protection=chosen['protection'], hard_veto=False, reason='hidden_orders_prevent_proof'),

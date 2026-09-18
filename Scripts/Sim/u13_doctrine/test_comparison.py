@@ -4,6 +4,17 @@ from .comparison import aggregate, paired_cases
 
 
 class ComparisonTests(unittest.TestCase):
+    def test_focused_lord_keeps_both_lord_seats_and_policy_assignments(self):
+        specs = list(paired_cases(1, 'focused-test', 'Odradek'))
+        self.assertEqual(34, len(specs))
+        self.assertEqual(17, len({tuple(s['setup']['lords']) for s in specs}))
+        self.assertEqual(9, len({s['setup']['seed'] for s in specs}))
+        for first, second in zip(specs[::2], specs[1::2]):
+            self.assertIn('Odradek', first['setup']['lords'])
+            self.assertEqual(first['setup'], second['setup'])
+            self.assertEqual((0, 1), (first['candidate_seat'], second['candidate_seat']))
+        with self.assertRaises(ValueError): list(paired_cases(1, 'focused-test', 'missing'))
+
     def test_every_matchup_has_both_policy_assignments_on_the_same_setup(self):
         specs = list(paired_cases(1, 'comparison-test'))
         self.assertEqual(162, len(specs))

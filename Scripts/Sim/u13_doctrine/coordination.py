@@ -9,8 +9,8 @@ from collections import Counter
 from u13_pysim.copying import copy_data
 from . import lords
 
-VERSION = 'U13_POWER_COORDINATION_V1'
-TERMS = frozenset(('Projection', 'Consume', 'Ravenous'))
+VERSION = 'U13_POWER_COORDINATION_V2'
+TERMS = frozenset(('Projection', 'Consume', 'Ravenous', 'Redirect', 'FalseOrders', 'AllegianceShift', 'Inversion'))
 
 
 def context(f, plan):
@@ -60,5 +60,5 @@ def report(candidates, chosen, omission_count):
                 adjusted_plans=dict(sorted(affected.items())), omission_plans=omission_count,
                 selected=copy_data(chosen['coordination']),
                 selected_omitted_powers=chosen.get('omitted_powers', []),
-                scope='own attack on public Guards; own recruitment and spent Supplicants; enemy orders, reactions and spatial outcomes uncertain',
+                scope='own attack, Guard deployments, recruitment, Supplicant spends and Redirect/Shift order; enemy orders, reactions and spatial outcomes uncertain',
                 hard_veto=False)

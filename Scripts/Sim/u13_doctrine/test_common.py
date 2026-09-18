@@ -154,10 +154,11 @@ class CommonTests(unittest.TestCase):
         power_components.prepare(game, changes)
         candidates = list(lords.proposals(Facts(observe(game, 0))))
         redirect = next(p for p in candidates if p.term == 'Redirect')
-        self.assertEqual(0, redirect.value)
-        self.assertEqual('save_reconfiguration_for_material_swing', redirect.reason)
+        self.assertGreater(redirect.value, 0)
+        self.assertEqual('move_pressure_to_stronger_defended_lane', redirect.reason)
         result = CommonSmartCore().decide(observe(game, 0), Preview(game, 0))
         self.assertEqual([], result['plan']['powers'])
+        self.assertEqual('AllegianceShift', result['resource_horizon']['selected']['goal']['power'])
         game._state['world']['players'][0]['resources']['reconfiguration'] = 3
         game._state['presentation_world'] = copy_data(game._state['world'])
         result = CommonSmartCore().decide(observe(game, 0), Preview(game, 0))

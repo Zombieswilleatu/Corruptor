@@ -24,13 +24,16 @@ from .diagnostics import fingerprint
 from .planner_probe import run_case
 from .reference_probe import harness_hash
 from .survey import atomic_json, cases, read_record
+from u13_pysim.opening import LORDS
 
 SCHEMA = 'U13_MATCHED_DOCTRINE_COMPARISON_V1'
 BASELINE = 'a58b0fc2dbb1dabbec53d8f4d9bc534962a99f52'
 
 
-def paired_cases(repeats, namespace):
+def paired_cases(repeats, namespace, lord=None):
+    if lord is not None and lord not in LORDS: raise ValueError('Unknown focused Lord')
     for case in cases(repeats, namespace):
+        if lord is not None and lord not in case['setup']['lords']: continue
         for seat in (0, 1):
             yield dict(case, name=case['name']+'__candidate_p'+str(seat), pair_id=case['name'], candidate_seat=seat)
 
@@ -163,10 +166,10 @@ def aggregate(records, candidate_id):
         total_decision_ms=timing['decision_ms'], total_simulation_ms=timing['simulation_ms'])
 
 
-def run(root, directory, repeats=1, workers=8, namespace='u13-rite-v4-2026-09-18', baseline=BASELINE):
+def run(root, directory, repeats=1, workers=8, namespace='u13-rite-v4-2026-09-18', baseline=BASELINE, lord=None):
     root, directory = Path(root), Path(directory)
     if workers < 1: raise ValueError('Workers must be positive')
-    specs = list(paired_cases(repeats, namespace))
+    specs = list(paired_cases(repeats, namespace, lord))
     (directory/'games').mkdir(parents=True, exist_ok=True)
     frozen = freeze_baseline(root, baseline, directory/'baseline')
     base = load_baseline(directory/'baseline')
@@ -176,6 +179,7 @@ def run(root, directory, repeats=1, workers=8, namespace='u13-rite-v4-2026-09-18
         candidate_policy=VERSION, baseline_policy=base.VERSION, weights=asdict(Weights()),
         namespace=namespace, repeats=repeats, implementation=platform.python_implementation(), python=sys.version,
         scope='Both policies share current engine, fixed ordinary loadout and seed; swap policy seats for each ordered matchup. Python policy comparison, not native parity or Lord balance.')
+    if lord is not None: manifest['focused_lord'] = lord
     path = directory/'manifest.json'
     if path.exists() and json.loads(path.read_text()) != manifest: raise ValueError('Different comparison identity')
     atomic_json(path, manifest)

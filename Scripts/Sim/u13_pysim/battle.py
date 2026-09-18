@@ -219,7 +219,7 @@ class Battle:
             if (self.active(pid, "Gremory") and kind == "MARCHER_DEFEATED"
                     and detail.get("cause") == "combat" and detail.get("hook") == "marching"
                     and detail["attacker"]["owner"] == pid
-                    and detail["attacker"]["attributes"]["suit"] == "Vulture"
+                    and detail["attacker"]["attributes"].get("suit") == "Vulture"
                     and detail["victim"]["owner"] == 1-pid and take("Bones:" + str(pid))):
                 drawn = e.draw(w, pid, self.seed, detail["event_id"] + ":bones:" + str(pid))
                 d["neutral_tears"] += 1

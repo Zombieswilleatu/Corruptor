@@ -13,6 +13,29 @@ from .marching_spatial import gravity, speed, swept
 
 
 class MarchingTests(unittest.TestCase):
+    def test_gremory_tower_kill_does_not_trigger_or_consume_vulture_reward(self):
+        from . import full_match_inputs
+        from .power_match import PowerMatch
+        from .battle import Battle
+        setup = dict(full_match_inputs.load()['cases'][0]['setup'], lords=['Gremory', 'Gremory'])
+        game = PowerMatch(setup)
+        while game.clock.hook != 'submission_lock':
+            game.apply(full_match_inputs.next_operation(game))
+        world = game._state['world']
+        fact = dict(type='MARCHER_DEFEATED', data=dict(event_id='tower-kill', round=1,
+            cause='combat', hook='marching', attacker=dict(id='tower', kind='fortification', owner=0,
+            attributes=dict(structure='Tower')), victim=dict(id='victim', kind='marcher', owner=1,
+            attributes=dict(suit='Butcher', hp=0))))
+        before = world['data']['neutral_tears']
+        result = Battle(world, 1, setup['seed'], [0, 1], 'marching').react(fact)
+        self.assertFalse(any(e['event']['type'] == 'PICKING_THE_BONES' for e in result))
+        self.assertEqual(before, world['data']['neutral_tears'])
+        fact['data']['attacker'] = dict(id='vulture', kind='marcher', owner=0, attributes=dict(suit='Vulture'))
+        fact['data']['event_id'] = 'vulture-kill'
+        result = Battle(world, 1, setup['seed'], [0, 1], 'marching').react(fact)
+        self.assertEqual(1, sum(e['event']['type'] == 'PICKING_THE_BONES' for e in result))
+        self.assertEqual(before+1, world['data']['neutral_tears'])
+
     def spec(self, name):
         return next(c for c in f.load()["cases"] if c["name"] == name)
 
