@@ -7,6 +7,8 @@ extends RefCounted
 const Feedback = preload("res://Prototype/U13/U13MarcherFeedback.gd")
 const FLIGHT_SECONDS: float = 0.18
 const BEAM_SECONDS: float = 0.22
+const GROUND_BEAM_SECONDS: float = 0.10
+const BEAM_BLAST_SECONDS: float = 0.30
 var projectile_rows: Array = []
 var feedback_rows: Array = []
 var death_rows: Array = []
@@ -23,6 +25,8 @@ var duration: float = 0.0
 var round_number: int = 0
 var _frames: Array = []
 var _spatial: bool = false
+var _spatial_ticks: int = 200
+var _spatial_lead: float = 0.0
 
 
 func build(events: Array) -> bool:
@@ -37,6 +41,8 @@ func build(events: Array) -> bool:
 	_previous_units = {}
 	_terminal = {}
 	_spatial = false
+	_spatial_ticks = 200
+	_spatial_lead = 0.0
 	duration = 0.0
 	round_number = 0
 	var started: Dictionary = {}
@@ -143,6 +149,16 @@ func sample(seconds: float) -> Dictionary:
 	var attacks: Array = _monster_attacks.filter(func(a): return at >= a.start and at < a.end).map(func(a): return a.duplicate(true))
 	for attack in attacks:
 		attack["weight"] = clampf((at - float(attack.start)) / maxf(0.001, float(attack.end) - float(attack.start)), 0.0, 1.0)
+	# Charging is recorded unit state, so death, loss of targets, pause, and
+	# cross-round continuation all follow the same authoritative timeline.
+	if _spatial and at < duration:
+		var clock: float = float(round_number * _spatial_ticks) + clampf((at - _spatial_lead) * float(_spatial_ticks) / MOVE_SECONDS - 1.0, 0.0, float(_spatial_ticks - 1))
+		for unit in result:
+			var a: Dictionary = unit.attributes
+			var ready: int = int(a.get("beam_ready_tick", 0))
+			var start: int = int(a.get("beam_charge_tick", 0))
+			if ready <= start or int(a.hp) <= 0: continue
+			attacks.append({"ability": "BeamCharge", "source": a, "target": a, "source_id": unit.id, "source_owner": unit.owner, "weight": clampf((clock - float(start)) / float(ready - start), 0.0, 1.0)})
 	return {"units": result, "caption": left.caption, "clash": left.clash.duplicate(), "projectiles": projectiles, "monster_fields": fields, "monster_attacks": attacks, "banished_ids": _banished_ids.keys()}
 
 
@@ -202,6 +218,8 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 	var bases: Dictionary = units.duplicate(true)
 	_append(units, "Marching begins", [])
 	var lead: float = FLIGHT_SECONDS if started.has("ranged_profile") else 0.0
+	_spatial_ticks = int(started.ticks)
+	_spatial_lead = lead
 	for event in events:
 		if event.type == "MARCHER_RANGED_ATTACK":
 			var impact: float = lead + MOVE_SECONDS * float(int(event.data.tick) + 1) / float(started.ticks)
@@ -209,15 +227,23 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 	for field in started.get("monster_fields", []): _monster_fields.append({"at": 0.0, "field": field})
 	var death_ticks: Dictionary = {}
 	var beams: Dictionary = {}
+	for pending in started.get("monster_beams", []):
+		var until: float = lead + MOVE_SECONDS * float(int(pending.detonate_tick) - round_number * _spatial_ticks + 1) / float(_spatial_ticks)
+		_monster_attacks.append(_beam_picture(pending, 0.0, minf(lead + MOVE_SECONDS, until), "BeamTrail"))
 	for event in events:
 		var d: Dictionary = event.data
 		if event.type == "MARCHER_DEFEATED": death_ticks[d.victim.id + ":pool"] = int(d.get("tick", 0))
-		if event.type == "MONSTER_BEAM_FIRED":
+		if event.type in ["MONSTER_BEAM_FIRED", "MONSTER_BEAM_DETONATED"]:
 			var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
 			var key: String = "%s:%d" % [d.attacker.id, d.tick]
-			var beam: Dictionary = {"start": at, "end": at + BEAM_SECONDS, "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "range_fp": d.range_fp, "ability": "Beam", "impacts": []}
+			var blast: bool = event.type == "MONSTER_BEAM_DETONATED"
+			var span: float = BEAM_BLAST_SECONDS if blast else (GROUND_BEAM_SECONDS if d.has("detonate_tick") else BEAM_SECONDS)
+			var beam: Dictionary = _beam_picture(d, at, at + span, "BeamBlast" if blast else "Beam")
 			beams[key] = beam
 			_monster_attacks.append(beam)
+			if not blast and d.has("detonate_tick"):
+				var until: float = lead + MOVE_SECONDS * float(int(d.detonate_tick) - round_number * _spatial_ticks + 1) / float(_spatial_ticks)
+				_monster_attacks.append(_beam_picture(d, at + span, minf(lead + MOVE_SECONDS, until), "BeamTrail"))
 	for event in events:
 		var d: Dictionary = event.data
 		if event.type == "MONSTER_FIELD_CREATED" and not _monster_fields.any(func(f): return f.field.id == d.field.id):
@@ -267,6 +293,10 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 		duration = maxf(duration, float(attack.end))
 	_append(units, "Marching complete", [])
 	return true
+
+
+static func _beam_picture(d: Dictionary, at: float, until: float, ability: String) -> Dictionary:
+	return {"start": at, "end": until, "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "range_fp": d.range_fp, "ground": d.has("detonate_tick"), "ability": ability, "impacts": []}
 
 
 func feedback_through(seconds: float, cursor: int) -> Dictionary:

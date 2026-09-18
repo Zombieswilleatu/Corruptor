@@ -212,6 +212,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 	]
 	if Monsters.enabled(world):
 		events[0].event.data["monster_fields"] = world.data.monsters.fields.filter(func(f): return f.expires_round >= context.round).duplicate(true)
+		events[0].event.data["monster_beams"] = world.data.monsters.pending_beams.duplicate(true)
 	if has_ranged:
 		events[0].event.data["ranged_profile"] = Ranged.VERSION
 	var has_retreat: bool = false
@@ -245,7 +246,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 	var kroni_actors: Array = world.data.get("kroni_actors", [])
 	if not kroni_actors.is_empty():
 		events.append(public_event("KRONI_ACTORS_STARTED", {"round": context.round, "actors": kroni_actors.duplicate(true)}))
-	var has_monsters: bool = Monsters.enabled(world) and (not world.data.monsters.fields.is_empty() or _units(entities).any(func(u): return u.attributes.has("monster_id") or u.attributes.has("poison_until_round")))
+	var has_monsters: bool = Monsters.enabled(world) and (not world.data.monsters.fields.is_empty() or not world.data.monsters.pending_beams.is_empty() or _units(entities).any(func(u): return u.attributes.has("monster_id") or u.attributes.has("poison_until_round")))
 	for tick in range(TICKS):
 		var tick_events_start: int = events.size()
 		var lamp_before: Array = _units(entities) if not lamp_objects.is_empty() else []

@@ -554,16 +554,23 @@ func _attack_point(attributes: Dictionary, identity: String, owner: int) -> Vect
 	return _monster_point(attributes) - Vector2(0, height)
 
 
+func beam_bounds(lane: String) -> Rect2:
+	var rect: Rect2 = travel_rect(lane)
+	return Rect2(rect.position.x, 310, rect.size.x, size.y - 334)
+
+
 func beam_points(attack: Dictionary) -> PackedVector2Array:
 	var origin := _attack_point(attack.source, attack.get("source_id", ""), attack.get("source_owner", 0))
 	var target := _attack_point(attack.target, attack.get("target_id", ""), attack.get("target_owner", 1))
+	if attack.get("ground", false):
+		origin = _monster_point(attack.source)
+		target = _monster_point(attack.target)
 	var reach: float = float(attack.get("range_fp", 0))
 	if reach > 0.0:
 		var delta := Vector2(float(attack.target.x_fp) - float(attack.source.x_fp), float(attack.target.y_fp) - float(attack.source.y_fp))
 		target = origin + (target - origin) * reach / maxf(1.0, delta.length())
 	# Clip the visible ray at its own lane's edge, without changing game positions.
-	var lane: Rect2 = travel_rect(attack.source.lane)
-	var bounds := Rect2(lane.position.x, 310, lane.size.x, size.y - 334)
+	var bounds: Rect2 = beam_bounds(attack.source.lane)
 	var ray := target - origin
 	var fraction: float = 1.0
 	if ray.x > 0: fraction = minf(fraction, (bounds.end.x - origin.x) / ray.x)
@@ -577,21 +584,62 @@ func _draw_monster_attacks() -> void:
 	for attack in monster_attacks:
 		var a := _attack_point(attack.source, attack.get("source_id", ""), attack.get("source_owner", 0))
 		var b := _attack_point(attack.target, attack.get("target_id", ""), attack.get("target_owner", 1))
-		if attack.ability == "Beam":
+		if attack.ability == "BeamCharge":
+			var charge: float = float(attack.weight)
+			var radius: float = lerpf(3.0, 10.0, charge)
+			draw_circle(a, radius * 1.8, Color(0.08, 0.38, 1.0, 0.10 + 0.18 * charge))
+			draw_circle(a, radius, Color(0.20, 0.64, 1.0, 0.35 + 0.45 * charge))
+			draw_circle(a, radius * 0.4, Color(0.90, 0.98, 1.0, charge))
+			# Tightening sparks gather into the eye; the laser appears on release.
+			for i in range(6):
+				var angle: float = TAU * float(i) / 6.0 + charge * 1.5
+				var direction := Vector2(cos(angle), sin(angle))
+				var reach: float = lerpf(23.0, 11.0, charge)
+				draw_line(a + direction * reach, a + direction * (reach - 4.0), Color(0.35, 0.76, 1.0, 0.3 + charge * 0.6), 1.5, true)
+		elif attack.ability == "Beam":
 			var points := beam_points(attack)
-			var pulse: float = 1.0 - smoothstep(0.30, 1.0, float(attack.get("weight", 0.0)))
-			draw_line(points[0], points[1], Color(1.0, 0.01, 0.025, 0.30 * pulse), 14.0, true)
-			draw_line(points[0], points[1], Color(1.0, 0.035, 0.055, 0.95 * pulse), 5.0, true)
-			draw_line(points[0], points[1], Color(1.0, 0.82, 0.77, pulse), 1.5, true)
-			draw_circle(a, 8.0, Color(1.0, 0.03, 0.06, 0.45 * pulse))
-			draw_circle(a, 3.5, Color(1.0, 0.84, 0.80, pulse))
-			for hit in attack.get("impacts", []):
-				if hit.attributes.get("hidden", false) and hit.owner == 1: continue
-				var impact := _attack_point(hit.attributes, hit.id, hit.owner)
-				draw_circle(impact, 6.0, Color(1.0, 0.05, 0.03, 0.40 * pulse))
-				draw_arc(impact, 8.0, 0, TAU, 24, Color(1.0, 0.37, 0.24, pulse), 1.5, true)
+			var weight: float = float(attack.get("weight", 0.0))
+			var pulse: float = 1.0 - smoothstep(0.45, 1.0, weight)
+			var head: Vector2 = points[0].lerp(points[1], clampf(weight / 0.35, 0.0, 1.0))
+			draw_line(a, head, Color(0.07, 0.35, 1.0, 0.28 * pulse), 10.0, true)
+			draw_line(a, head, Color(0.35, 0.78, 1.0, 0.95 * pulse), 3.5, true)
+			draw_line(a, head, Color(0.95, 1.0, 1.0, pulse), 1.3, true)
+			draw_circle(head, 5.0, Color(0.78, 0.94, 1.0, pulse))
+		elif attack.ability == "BeamTrail":
+			var points := beam_points(attack)
+			draw_line(points[0], points[1], Color(0.03, 0.10, 0.18, 0.65), 5.0, true)
+			draw_line(points[0], points[1], Color(0.28, 0.69, 1.0, 0.45), 1.2, true)
+		elif attack.ability == "BeamBlast":
+			_draw_beam_blast(attack)
 		elif attack.ability == "Muno":
 			draw_line(a, b, Color(0.55, 0.84, 0.95, 0.55), 1.5, true)
 			draw_line(b + Vector2(-8, 9), b + Vector2(8, -9), Color(0.83, 0.94, 1.0, 0.85), 2.0, true)
 		elif attack.ability == "Ambush":
 			for i in range(3): draw_line(b + Vector2(-8 + i * 5, 8), b + Vector2(-3 + i * 5, -9), Color(0.9, 0.63, 0.42, 0.8), 1.5, true)
+
+
+func _draw_beam_blast(attack: Dictionary) -> void:
+	var points := beam_points(attack)
+	var weight: float = float(attack.get("weight", 0.0))
+	var count: int = clampi(ceili(points[0].distance_to(points[1]) / 38.0), 3, 18)
+	# Small eruptions follow the locked ground scar. Damage flashes on the
+	# recorded casualties at detonation; the smoke and plumes dissipate after.
+	draw_line(points[0], points[1], Color(0.05, 0.15, 0.23, 0.7 * (1.0 - weight)), 6.0, true)
+	for i in range(1, count + 1):
+		var along: float = float(i) / float(count)
+		var age: float = (weight - along * 0.18) / 0.82
+		if age < 0.0: continue
+		var p: Vector2 = points[0].lerp(points[1], along)
+		var fade: float = 1.0 - clampf(age, 0.0, 1.0)
+		var radius: float = 5.0 + minf(age * 2.0, 1.0) * 15.0
+		draw_circle(p - Vector2(0, age * 15.0), radius, Color(0.04, 0.29, 0.92, 0.32 * fade))
+		draw_arc(p, radius, PI, TAU, 18, Color(0.31, 0.80, 1.0, fade), 2.2, true)
+		for spark in range(3):
+			var tip := p + Vector2(float(spark - 1) * radius * 0.4, -radius * (1.2 + float((i + spark) % 3) * 0.3))
+			draw_line(p, tip, Color(0.45, 0.80, 1.0, 0.7 * fade), 4.0 * fade + 0.5, true)
+			draw_line(p, tip, Color(0.90, 0.99, 1.0, fade), 1.0, true)
+	for hit in attack.get("impacts", []):
+		if hit.attributes.get("hidden", false) and hit.owner == 1: continue
+		var impact := _monster_point(hit.attributes)
+		var flash: float = 1.0 - smoothstep(0.0, 0.55, weight)
+		draw_circle(impact, 9.0, Color(0.72, 0.94, 1.0, 0.8 * flash))

@@ -97,12 +97,26 @@ class MarchingTests(unittest.TestCase):
     def ranged_phase(self, reaction):
         spec = self.spec("ordinary_mixed")
         spec["units"] = [dict(origin="volley-boundary", ordinal=pid, owner=pid,
-            suit=suit, lane="Lord", attributes=dict(x_fp=500*pid, y_fp=300,
+            suit=suit, lane="Lord", attributes=dict(x_fp=400*pid, y_fp=300,
             hp=3, max_hp=3, armor=0, attack=1, step_fp=0))
             for pid, suit in ((0, "Vulture"), (1, "Wright"))]
         spec["ranged"] = True
         ctx = f.context(spec, f.initial(spec), 1)
         return m.Phase(ctx, False, reaction), ctx
+
+    def test_vulture_range_is_400_for_both_sides(self):
+        for pid in (0, 1):
+            for gap in (400, 401):
+                spec = self.spec("ordinary_mixed")
+                spec['ranged'] = True
+                spec['units'] = [
+                    dict(origin='bird', ordinal=0, owner=pid, suit='Vulture', lane='Lord', attributes=dict(x_fp=1200,step_fp=0)),
+                    dict(origin='target', ordinal=0, owner=1-pid, suit='Penitent', lane='Lord', attributes=dict(x_fp=1200+gap*(1 if pid==0 else -1),step_fp=0,hp=100,max_hp=100)),
+                ]
+                phase = m.Phase(f.context(spec, f.initial(spec), 1), False, None)
+                phase.volley({}, 0)
+                shots = [r for r in phase.events if r['event']['type']=='MARCHER_RANGED_ATTACK']
+                self.assertEqual(bool(shots), gap == 400)
 
     def test_nonlethal_volley_keeps_columns_until_callback_sees_accumulated_state(self):
         callbacks = []

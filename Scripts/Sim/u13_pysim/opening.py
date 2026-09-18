@@ -25,7 +25,7 @@ RULES_HASH = "42a89676dbc8f311be0b6cf679dc1e6b772f1b480c04a6706c36835b6183b8f4"
 POLICY = ":".join([
     "U13_PERMANENT_BREACHES_V1",
     "U13_GUARD_WORK_V4", "U13_VICTORY_V2_ROUND_PRESSURE", "U13_PROFANE_PILLAGE_V1",
-    "U13_VULTURE_RANGED_V3", "U13_VACANT_THRONE_V1", "U13_DOMINION_RITES_V1",
+    "U13_VULTURE_RANGED_V4", "U13_VACANT_THRONE_V1", "U13_DOMINION_RITES_V1",
     "U13_FRACTURE_V1", "U13_SIGIL_LIFECYCLE_V1", "U13_BLOOD_CONDUIT_V1", MARKET,
     "U13_CASTLE_DEFENSES_V1", ECONOMY, "U13_KANIFOUS_V1", "U13_VALAK_V1",
     "U13_KRONI_WEIGHTED_ANGLES_V8", "U13_ODRADEK_COMPLETE_V2", "U13_ORIAS_MARK_BOARD_V4",
@@ -72,7 +72,7 @@ def _initial_data(loadouts):
         "valak_profile": "U13_VALAK_V1", "valak_reserved": [0, 0], "valak_orbs": [],
         "kanifous_profile": "U13_KANIFOUS_V1", "kanifous_objects": [],
         "kanifous_prices": [], "kanifous_losses": [], "kanifous_loss_round": 0,
-        "ranged_profile": "U13_VULTURE_RANGED_V3",
+        "ranged_profile": "U13_VULTURE_RANGED_V4",
         "blood_conduit_profile": "U13_BLOOD_CONDUIT_V1", "castle_defense_profile": "U13_CASTLE_DEFENSES_V1",
         "sigil_lifecycle": {"version": "U13_SIGIL_LIFECYCLE_V1", "aged_round": 0, "created_round": 0},
         "fracture_profile": "U13_FRACTURE_V1", "fracture_events": {},

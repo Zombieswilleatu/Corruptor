@@ -120,6 +120,12 @@ func ui_checks() -> void:
 	await process_frame
 	var bounds: Rect2 = Rect2(Vector2.ZERO, arena.size)
 	check(bounds.encloses(arena.field.get_global_rect()) and bounds.encloses(arena.run_button.get_global_rect()) and bounds.encloses(arena.counts.get_global_rect()), "arena, controls and report fit the menu viewport")
+	var source: Dictionary = Sim.Monsters.profile("Sooge", "Lord", 0, 0, 1, true)
+	source.x_fp = 1700
+	var target: Dictionary = source.duplicate(true); target.x_fp = 2000
+	var beam: Dictionary = {"source": source, "target": target, "source_id": "eye", "target_id": "target", "source_owner": 0, "target_owner": 1, "range_fp": 1800}
+	var ray: PackedVector2Array = arena.field.beam_points(beam)
+	check(ray[0].distance_to(ray[1]) > 100 and is_equal_approx(ray[1].y, arena.field.travel_rect("Lord").position.y), "long laser clips at the sandbox gate, not the main-board header")
 	arena.spawn_point.select(1)
 	arena.spawn_buttons.Butcher.pressed.emit()
 	arena.owner_choice.select(1)

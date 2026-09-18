@@ -3,9 +3,9 @@ extends RefCounted
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Wishmaster = preload("res://Scripts/Sim/U13Wishmaster.gd")
 const Rout = preload("res://Scripts/Sim/U13Rout.gd")
-const VERSION: String = "U13_VULTURE_RANGED_V3"
+const VERSION: String = "U13_VULTURE_RANGED_V4"
 const ATTACK: int = 1
-const RANGE_FP: int = 800 # Four units at 200 fixed-point units per unit.
+const RANGE_FP: int = 400 # Two units at 200 fixed-point units per unit.
 const CONTACT_FP: int = 180
 const EXCHANGE_TICKS: int = 8
 const RANGED_INTERVAL_TICKS: int = 32

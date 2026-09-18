@@ -51,7 +51,7 @@ func _run_suite() -> void:
 	_check(a.attack == 1 and a.armor == 1 and a.step_fp == 4 and not a.armor_bypass, "Vulture 1 attack / 1 defense / 2 base speed, no piercing")
 	var world: Dictionary = _world()
 	_add(world, "bird", 0, "Vulture", 500)
-	_add(world, "guard", 1, "Penitent", 1400, {"step_fp": 0, "hp": 100, "max_hp": 100})
+	_add(world, "guard", 1, "Penitent", 1000, {"step_fp": 0, "hp": 100, "max_hp": 100})
 	var result: Dictionary = _run(world)
 	_check(result.action == "resolved", "ranged Marching resolves")
 	if result.action != "resolved":
@@ -61,7 +61,7 @@ func _run_suite() -> void:
 	var shots: Array = _facts(result, "MARCHER_RANGED_ATTACK")
 	_check(not shots.is_empty(), "Vulture advances and fires at range")
 	var first: Dictionary = shots[0]
-	_check(Marching.Ranged.distance(first.attacker.attributes, first.target.attributes) <= 800 * 800 and first.attacker.attributes.x_fp >= 600, "four-unit firing range")
+	_check(Marching.Ranged.distance(first.attacker.attributes, first.target.attributes) <= 400 * 400 and first.attacker.attributes.x_fp >= 600, "Vulture advances to its halved two-unit firing range")
 	_check(shots.size() >= 4 and first.damage_dealt == 0 and shots[1].damage_dealt == 0 and shots[2].damage_dealt == 0 and shots[3].damage_dealt == 1, "one-damage shots strip three armor before health")
 	_check(_facts(result, "MARCHER_CLASH").is_empty(), "Vulture holds range against stationary target")
 	_check(shots[0].attacker.attributes.x_fp == shots.back().attacker.attributes.x_fp, "Vulture stops while firing")
@@ -70,6 +70,13 @@ func _run_suite() -> void:
 		cadence = cadence and shots[i].tick - shots[i - 1].tick == 32
 	_check(cadence, "ranged cadence remains one attack per 32 ticks")
 	_check(result == _run(world), "identical ranged tape and final state on replay")
+	for pid in [0, 1]:
+		for reach in [400, 401]:
+			var source: Dictionary = {"id": "bird", "owner": pid, "attributes": Marching.profile("Vulture", "Castle", pid, 0, 1, true)}
+			source.attributes.x_fp = 1200
+			var target: Dictionary = {"id": "guard", "owner": 1 - pid, "attributes": Marching.profile("Penitent", "Castle", 1 - pid, 0, 1, true)}
+			target.attributes.x_fp = 1200 + reach * (1 if pid == 0 else -1)
+			_check(not Marching.Ranged.nearest(source, [target]).is_empty() if reach == 400 else Marching.Ranged.nearest(source, [target]).is_empty(), "owner %d range boundary %d" % [pid, reach])
 	var restored: Dictionary = Marching.Data.copy_data(JSON.parse_string(JSON.stringify(result.world)))
 	_check(Marching.valid(restored) and _run(restored, 2) == _run(result.world, 2), "ranged cooldown survives JSON round boundary")
 	var playback = Playback.new()

@@ -1,0 +1,84 @@
+{
+  "date": "2026-09-18",
+  "parent_commit": "773615f81c99a46a3acd17574e2480c8b7d22431",
+  "runtime": "Godot 4.5.1 Linux diagnostic; production 4.7.2 gate unchanged",
+  "changed_files_sha256": "1b441356a83ae3f1fe445cff175c156fa642bc867a81c6733ed779f6e9f3e384",
+  "changes": {
+    "vulture_range": [
+      800,
+      400
+    ],
+    "lemek_pool_immunity": "All Lemeks, both owners; other ground units still slowed",
+    "sooge_range": [
+      600,
+      1800
+    ],
+    "sooge_interval_ticks": [
+      8,
+      200
+    ],
+    "sooge_charge_ticks": 32,
+    "sooge_blast_delay_ticks": 8,
+    "beam_visual": "blue-white ground trace, lit scar, delayed blue eruptions",
+    "damage": "3 enemy / 1 ally on locked path at detonation",
+    "pending_blast_survives_caster": true
+  },
+  "native_checks": {
+    "range-monsters": {
+      "passed": 269,
+      "failures": 0
+    },
+    "range-vultures": {
+      "passed": 30,
+      "failures": 0
+    },
+    "range-sandbox": {
+      "passed": 150,
+      "failures": 0
+    },
+    "range-sprites": {
+      "passed": 63,
+      "failures": 0
+    }
+  },
+  "python_tests": {
+    "passed": 21,
+    "failures": 0
+  },
+  "native_python_exact_parity": {
+    "phases": 32,
+    "events": 6768,
+    "ticks": 6400,
+    "event_types": {
+      "KRONI_ACTORS_STARTED": 1,
+      "KRONI_ACTOR_FINISHED": 1,
+      "KRONI_ACTOR_TICK": 200,
+      "KRONI_FLEE_STARTED": 1,
+      "MARCHER_CLASH": 11,
+      "MARCHER_CONTACT": 14,
+      "MARCHER_DEFEATED": 13,
+      "MARCHER_DEVOURED": 1,
+      "MARCHER_DUEL_INTERRUPTED": 3,
+      "MARCHER_RANGED_ATTACK": 23,
+      "MARCHER_WAITING": 1,
+      "MARCHING_FINISHED": 32,
+      "MARCHING_STARTED": 32,
+      "MARCHING_TICK": 6400,
+      "MONSTER_ATTACK": 9,
+      "MONSTER_BANISHED": 1,
+      "MONSTER_BEAM_DETONATED": 5,
+      "MONSTER_BEAM_FIRED": 4,
+      "MONSTER_CHARMED": 3,
+      "MONSTER_CONCEALMENT": 1,
+      "MONSTER_FIELD_CREATED": 3,
+      "MONSTER_POISONED": 1,
+      "MONSTER_PULSE": 1,
+      "MONSTER_ROOTED": 1,
+      "NEUTRAL_TEAR_CREATED": 3,
+      "PICKING_THE_BONES": 3
+    }
+  },
+  "git_diff_check": "passed",
+  "visual_review": "Presentation state/geometry tested headlessly; Windows visual review remains",
+  "save_compatibility": "New game required: ranged V4 / monsters V3 fingerprints"
+}

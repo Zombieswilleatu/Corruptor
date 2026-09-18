@@ -214,7 +214,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
         web = not (s.extra[i] or {}).get("flying",False) and any(who != owner and distance(xs[i], ys[i], wx, wy) <= radius for who, wx, wy, radius in fields[lane])
         if percent or web or collapse:
             step = speed(base, percent, recovery, clock, web, collapse)
-        if monster_effects.slowed(dict(x_fp=xs[i],y_fp=ys[i],lane=lane,flying=(s.extra[i] or {}).get('flying',False)),data.get('monsters',{}).get('fields',[])):
+        if monster_effects.slowed(dict(x_fp=xs[i],y_fp=ys[i],lane=lane,flying=(s.extra[i] or {}).get('flying',False),monster_id=(s.extra[i] or {}).get('monster_id')),data.get('monsters',{}).get('fields',[])):
             step=(step>>1)+(step&1)*(clock&1)
         if not retreat[i] and gaps[i] <= CONTACT2:
             if s.contact_tick[i] < 0:
@@ -425,7 +425,9 @@ class Phase:
         start = dict(round=self.number, hook="marching", ticks=200, model=MODEL, units=s.rows())
         if ranged:
             start["ranged_profile"] = RANGED
-        if monsters.enabled(self.w):start["monster_fields"]=[copy_data(f) for f in data["monsters"]["fields"] if f["expires_round"]>=self.number]
+        if monsters.enabled(self.w):
+            start["monster_fields"]=[copy_data(f) for f in data["monsters"]["fields"] if f["expires_round"]>=self.number]
+            start["monster_beams"]=copy_data(data['monsters']['pending_beams'])
         self.emit("MARCHING_STARTED", start)
         bases = {row["id"]: row for row in s.rows()}
         modifiers, fields = compile_effects(context.get("persistent_effects", []), self.number, data, full=context.get("full_roster",False))
@@ -437,7 +439,7 @@ class Phase:
         has_wishes = "kanifous_profile" in data
         buffer = Buffer(self)
         if actors: self.emit("KRONI_ACTORS_STARTED",dict(round=self.number,actors=actors))
-        has_monsters=monsters.enabled(self.w) and (bool(data['monsters']['fields']) or any(extra and ('monster_id' in extra or 'poison_until_round' in extra) for extra in s.extra))
+        has_monsters=monsters.enabled(self.w) and (bool(data['monsters']['fields']) or bool(data['monsters']['pending_beams']) or any(extra and ('monster_id' in extra or 'poison_until_round' in extra) for extra in s.extra))
         for tick in range(200):
             tick_events_start=len(self.events)
             s = self.s

@@ -34,7 +34,7 @@ def preferred(unit, rows):
 
 
 def slowed(a,fields):
-    return not a.get('flying',False) and any(f['kind']=='pool' and f['lane']==a['lane'] and distance(a,f)<=T['pool_radius']**2 for f in fields)
+    return not a.get('flying',False) and a.get('monster_id')!='Lemek' and any(f['kind']=='pool' and f['lane']==a['lane'] and distance(a,f)<=T['pool_radius']**2 for f in fields)
 
 
 def deaths(w,n,tick=-1):
@@ -140,19 +140,32 @@ def step(w,buffer,c,tick,reaction):
             target=nearest(unit,rows,T['dotra_ambush_radius'])
             if target:
                 a['hidden']=False;hits.append(dict(source=unit,target=target['id'],amount=5,bypass=False,ability='Ambush'))
-        elif name=='Sooge' and a['sprite_form']=='turret' and a.get('beam_next_tick',0)<=clock:
+        elif name=='Sooge' and a['sprite_form']=='turret' and a.get('beam_next_tick',0)-T['beam_charge_ticks']<=clock:
             target=nearest(unit,rows,T['beam_range'])
-            if target:
-                vx=target['attributes']['x_fp']-a['x_fp'];vy=target['attributes']['y_fp']-a['y_fp'];length2=max(1,vx*vx+vy*vy)
-                a['beam_next_tick']=clock+8
-                events.append(event('MONSTER_BEAM_FIRED',dict(attacker=unit,target=target,range_fp=T['beam_range'],round=n,tick=tick)))
-                for other in rows:
-                    b=other['attributes']
-                    if other['id']==unit['id'] or b['lane']!=a['lane']:continue
-                    dx=b['x_fp']-a['x_fp'];dy=b['y_fp']-a['y_fp'];cross=dx*vy-dy*vx
-                    if dx*vx+dy*vy>=0 and dx*dx+dy*dy<=T['beam_range']**2 and cross*cross<=T['beam_half_width']**2*length2:
-                        hits.append(dict(source=unit,target=other['id'],amount=1 if other['owner']==unit['owner'] else 3,bypass=False,ability='Beam'))
+            if not target:
+                a.update(beam_charge_tick=0,beam_ready_tick=0)
+            elif a.get('beam_ready_tick',0)==0:
+                a.update(beam_charge_tick=clock,beam_ready_tick=clock+T['beam_charge_ticks'])
+            elif clock>=a['beam_ready_tick']:
+                a.update(beam_next_tick=clock+T['beam_interval_ticks'],beam_charge_tick=0,beam_ready_tick=0)
+                beam=dict(attacker=copy_data(unit),target=copy_data(target),range_fp=T['beam_range'],detonate_tick=clock+T['beam_blast_delay_ticks'])
+                state['pending_beams'].append(beam)
+                events.append(event('MONSTER_BEAM_FIRED',dict(beam,round=n,tick=tick)))
         buffer.update(unit['id'],unit['owner'],a)
+    pending=[]
+    for beam in state['pending_beams']:
+        if beam['detonate_tick']>clock:
+            pending.append(beam);continue
+        events.append(event('MONSTER_BEAM_DETONATED',dict(beam,round=n,tick=tick)))
+        source=beam['attacker'];a=source['attributes']
+        vx=beam['target']['attributes']['x_fp']-a['x_fp'];vy=beam['target']['attributes']['y_fp']-a['y_fp'];length2=max(1,vx*vx+vy*vy)
+        for other in buffer.rows():
+            b=other['attributes']
+            if other['id']==source['id'] or b['lane']!=a['lane']:continue
+            dx=b['x_fp']-a['x_fp'];dy=b['y_fp']-a['y_fp'];cross=dx*vy-dy*vx
+            if dx*vx+dy*vy>=0 and dx*dx+dy*dy<=beam['range_fp']**2 and cross*cross<=T['beam_half_width']**2*length2:
+                hits.append(dict(source=source,target=other['id'],amount=1 if other['owner']==source['owner'] else 3,bypass=False,ability='Beam'))
+    state['pending_beams']=pending
     for hit in hits:
         result=damage(w,buffer,hit,c,tick,reaction)
         if result['action']=='invalid':return result

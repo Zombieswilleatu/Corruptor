@@ -49,6 +49,7 @@ func sync(units: Array, clash: Array, round_number: int, playback: bool) -> void
 		elif not same_lane:
 			state.facing_y = point.y
 		var clashing: bool = playback and id in clash
+		if character == "Sooge" and a.get("sprite_form", "") == "turret": clashing = false
 		var shot: bool = playback and not fresh and maxi(int(a.get("ranged_next_tick", 0)), int(a.get("beam_next_tick", 0))) > int(state.ranged_tick)
 		if (clashing and not state.clashing) or shot:
 			state.attack_age = 0.0

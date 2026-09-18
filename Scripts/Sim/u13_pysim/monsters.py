@@ -1,7 +1,7 @@
 """Monster recipes and explicit playtest tuning; independent Python rules."""
 from . import economy as e
 from .copying import copy_data
-VERSION = "U13_MONSTERS_V2"
+VERSION = "U13_MONSTERS_V3"
 ROSTER = {'Lemek': {'tier': 'Easy',
            'recipe': {'Penitent': 2},
            'attack': 3,
@@ -9,7 +9,7 @@ ROSTER = {'Lemek': {'tier': 'Easy',
            'speed': 2,
            'hp': 5,
            'ability': 'On death, leaves a slowing pool through the following round. Ground units inside move '
-                      'at half speed.'},
+                      'at half speed. All Lemeks are immune, regardless of side.'},
  'Varn': {'tier': 'Easy',
           'recipe': {'Vulture': 2},
           'attack': 1,
@@ -74,8 +74,9 @@ ROSTER = {'Lemek': {'tier': 'Easy',
            'speed': 2,
            'hp': 5,
            'ability': 'Root chance starts at 25%, rising by 15 percentage points each active round it stays mobile, '
-                      'up to 100%. Permanently becomes a turret: 3 Attack / 6 Armor / 0 Speed. Fires '
-                      'a piercing beam up to 600: 3 damage to enemies and 1 to allies in its path. One '
+                      'up to 100%. Permanently becomes a turret: 3 Attack / 6 Armor / 0 Speed. Charges before '
+                      'firing once per round at the nearest enemy. The blue-white beam traces the ground to range 1800, then detonates shortly afterward: '
+                      '3 damage to enemies and 1 to allies in its path. One '
                       'living copy per player.'},
  'Sinodek': {'tier': 'Very hard',
              'recipe': {'Wright': 3, 'Vulture': 2},
@@ -89,7 +90,7 @@ ROSTER = {'Lemek': {'tier': 'Easy',
 NAMES = tuple(ROSTER)
 
 def configure(w):
-    w['data']['monsters'] = dict(version=VERSION, unlocked=[list(NAMES),list(NAMES)], fields=[], death_ids=[], phase_round=0)
+    w['data']['monsters'] = dict(version=VERSION, unlocked=[list(NAMES),list(NAMES)], fields=[], pending_beams=[], death_ids=[], phase_round=0)
 
 def enabled(w):
     return w.get('data',{}).get('monsters',{}).get('version') == VERSION
@@ -109,7 +110,7 @@ def root_chance(a):
 
 def valid_unit(a):
     if 'monster_id' not in a:return a.get('suit')!='Monster'
-    for key in ('sooge_root_attempts','sooge_root_round'):
+    for key in ('sooge_root_attempts','sooge_root_round','beam_next_tick','beam_charge_tick','beam_ready_tick'):
         if key in a and (type(a[key]) is not int or not 0<=a[key]<=9007199254740991):return False
     return (a.get('suit')=='Monster' and a['monster_id'] in NAMES and a.get('sprite_form') in ('mobile','turret')
             and (a['sprite_form']!='turret' or a['monster_id']=='Sooge') and type(a.get('flying')) is bool)
@@ -144,8 +145,11 @@ TUNING = {'varn_poison_chance': 10,
  'dotra_ambush_radius': 240,
  'sooge_root_chance': 25,
  'sooge_root_increase': 15,
- 'beam_range': 600,
+ 'beam_range': 1800,
  'beam_half_width': 70,
+ 'beam_interval_ticks': 200,
+ 'beam_charge_ticks': 32,
+ 'beam_blast_delay_ticks': 8,
  'sinodek_portal_chance': 25,
  'portal_ahead': 350,
  'portal_radius': 100,

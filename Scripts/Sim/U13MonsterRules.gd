@@ -3,11 +3,11 @@ extends RefCounted
 # Standalone playtest roster. Named suits count cards, never printed values.
 # Unsettled numerical abilities are deliberately explicit tuning values.
 # Bump VERSION in both engines when changing recipes, profiles or tuning.
-const VERSION: String = "U13_MONSTERS_V2"
+const VERSION: String = "U13_MONSTERS_V3"
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const NAMES: Array = ["Lemek", "Varn", "Fyra", "Kopita", "Tumler", "Kurchin", "Muno", "Dotra", "Sooge", "Sinodek"]
 const ROSTER: Dictionary = {
-	"Lemek": {"tier": "Easy", "recipe": {"Penitent": 2}, "attack": 3, "armor": 4, "speed": 2, "hp": 5, "ability": "On death, leaves a slowing pool through the following round. Ground units inside move at half speed."},
+	"Lemek": {"tier": "Easy", "recipe": {"Penitent": 2}, "attack": 3, "armor": 4, "speed": 2, "hp": 5, "ability": "On death, leaves a slowing pool through the following round. Ground units inside move at half speed. All Lemeks are immune, regardless of side."},
 	"Varn": {"tier": "Easy", "recipe": {"Vulture": 2}, "attack": 1, "armor": 0, "speed": 2, "hp": 2, "ability": "Summons 3–5 bodies. Each damaging hit has a 10% chance to poison: 1 HP at the start of each of the next two Marching phases. Refreshes; does not stack."},
 	"Fyra": {"tier": "Moderate", "recipe": {"Butcher": 2, "Vulture": 2}, "attack": 2, "armor": 1, "speed": 4, "hp": 5, "ability": "Flies over ground hazards. Each hit has a 15% chance to charm its target for the rest of this round. Ownership returns before the next round."},
 	"Kopita": {"tier": "Moderate", "recipe": {"Wright": 2, "Penitent": 2}, "attack": 2, "armor": 1, "speed": 2, "hp": 5, "ability": "Alternates once per active round: heal nearby allies 1 HP, then deal 1 damage to nearby enemies. Starts with healing; radius 360."},
@@ -15,13 +15,13 @@ const ROSTER: Dictionary = {
 	"Kurchin": {"tier": "Hard", "recipe": {"Penitent": 3, "Wright": 1}, "attack": 1, "armor": 6, "speed": 1, "hp": 5, "ability": "Taunts enemies within 360, drawing their movement and ranged attacks when reachable."},
 	"Muno": {"tier": "Hard", "recipe": {"Wright": 3, "Vulture": 1}, "attack": 3, "armor": 1, "speed": 2, "hp": 5, "ability": "Once per active round, strikes an enemy within 480 for one free attack, then returns to its position before moving normally."},
 	"Dotra": {"tier": "Hard", "recipe": {"Butcher": 3, "Vulture": 1}, "attack": 2, "armor": 2, "speed": 2, "hp": 5, "ability": "25% chance to hide each active round. A nearby enemy triggers a 5-damage ambush. Otherwise, next round it has a 50% chance to emerge. Hidden units cannot be selected for ordinary attacks."},
-	"Sooge": {"tier": "Very hard", "recipe": {"Butcher": 3, "Wright": 2}, "attack": 1, "armor": 2, "speed": 2, "hp": 5, "ability": "Root chance starts at 25%, rising by 15 percentage points each active round it stays mobile, up to 100%. Permanently becomes a turret: 3 Attack / 6 Armor / 0 Speed. Fires a piercing beam up to 600: 3 damage to enemies and 1 to allies in its path. One living copy per player."},
+	"Sooge": {"tier": "Very hard", "recipe": {"Butcher": 3, "Wright": 2}, "attack": 1, "armor": 2, "speed": 2, "hp": 5, "ability": "Root chance starts at 25%, rising by 15 percentage points each active round it stays mobile, up to 100%. Permanently becomes a turret: 3 Attack / 6 Armor / 0 Speed. Charges before firing once per round at the nearest enemy. The blue-white beam traces the ground to range 1800, then detonates shortly afterward: 3 damage to enemies and 1 to allies in its path. One living copy per player."},
 	"Sinodek": {"tier": "Very hard", "recipe": {"Wright": 3, "Vulture": 2}, "attack": 1, "armor": 3, "speed": 1, "hp": 5, "ability": "25% chance each active round to open a portal ahead for that Marching phase. Nearby units flee; entering units are banished, without death triggers or resurrection. One living copy per player."}
 }
-const TUNING: Dictionary = {"varn_poison_chance": 10, "fyra_charm_chance": 15, "kopita_radius": 360, "taunt_radius": 360, "muno_radius": 480, "dotra_hide_chance": 25, "dotra_ambush_radius": 240, "sooge_root_chance": 25, "sooge_root_increase": 15, "beam_range": 600, "beam_half_width": 70, "sinodek_portal_chance": 25, "portal_ahead": 350, "portal_radius": 100, "portal_fear_radius": 300, "pool_radius": 200}
+const TUNING: Dictionary = {"varn_poison_chance": 10, "fyra_charm_chance": 15, "kopita_radius": 360, "taunt_radius": 360, "muno_radius": 480, "dotra_hide_chance": 25, "dotra_ambush_radius": 240, "sooge_root_chance": 25, "sooge_root_increase": 15, "beam_range": 1800, "beam_half_width": 70, "beam_interval_ticks": 200, "beam_charge_ticks": 32, "beam_blast_delay_ticks": 8, "sinodek_portal_chance": 25, "portal_ahead": 350, "portal_radius": 100, "portal_fear_radius": 300, "pool_radius": 200}
 
 static func configure(world: Dictionary) -> void:
-	world.data["monsters"] = {"version": VERSION, "unlocked": [NAMES.duplicate(), NAMES.duplicate()], "fields": [], "death_ids": [], "phase_round": 0}
+	world.data["monsters"] = {"version": VERSION, "unlocked": [NAMES.duplicate(), NAMES.duplicate()], "fields": [], "pending_beams": [], "death_ids": [], "phase_round": 0}
 
 static func enabled(world: Dictionary) -> bool:
 	return world.get("data", {}).get("monsters", {}).get("version") == VERSION
@@ -38,7 +38,7 @@ static func root_chance(a: Dictionary) -> int:
 static func valid_unit(a: Dictionary) -> bool:
 	if not a.has("monster_id"):
 		return a.get("suit") != "Monster"
-	for key in ["sooge_root_attempts", "sooge_root_round"]:
+	for key in ["sooge_root_attempts", "sooge_root_round", "beam_next_tick", "beam_charge_tick", "beam_ready_tick"]:
 		if a.has(key) and (not Data.is_integer(a[key]) or a[key] < 0): return false
 	return a.get("suit") == "Monster" and a.monster_id in NAMES and a.get("sprite_form") in ["mobile", "turret"] and (a.sprite_form != "turret" or a.monster_id == "Sooge") and typeof(a.get("flying")) == TYPE_BOOL
 
@@ -82,7 +82,7 @@ static func validate_choice(world: Dictionary, pid: int, order: Dictionary) -> D
 static func valid(world: Dictionary) -> bool:
 	if not enabled(world): return false
 	var s: Dictionary = world.data.monsters
-	if typeof(s.get("unlocked")) != TYPE_ARRAY or s.unlocked.size() != 2 or typeof(s.get("fields")) != TYPE_ARRAY or typeof(s.get("death_ids")) != TYPE_ARRAY or not Data.is_integer(s.get("phase_round")) or s.phase_round < 0: return false
+	if typeof(s.get("unlocked")) != TYPE_ARRAY or s.unlocked.size() != 2 or typeof(s.get("fields")) != TYPE_ARRAY or typeof(s.get("pending_beams")) != TYPE_ARRAY or typeof(s.get("death_ids")) != TYPE_ARRAY or not Data.is_integer(s.get("phase_round")) or s.phase_round < 0: return false
 	for names in s.unlocked:
 		if typeof(names) != TYPE_ARRAY: return false
 		for name in names:

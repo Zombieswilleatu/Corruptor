@@ -91,7 +91,7 @@ func sooge_ramp_checks() -> void:
 			check(loaded == world and Marching.valid(loaded), "save JSON transport preserves Sooge chance and round state")
 			world = loaded
 	check(Monsters.root_chance(a) == 100, "Sooge chance caps at 100%")
-	for key in ["sooge_root_attempts", "sooge_root_round"]:
+	for key in ["sooge_root_attempts", "sooge_root_round", "beam_next_tick", "beam_charge_tick", "beam_ready_tick"]:
 		for value in [-1, 0.5, "1", true, null]:
 			var forged: Dictionary = a.duplicate(true); forged[key] = value
 			check(not Monsters.valid_unit(forged), "invalid Sooge counter rejected: " + key)
@@ -107,10 +107,83 @@ func sooge_ramp_checks() -> void:
 func facts(result: Dictionary, kind: String) -> Array:
 	return result.get("events", []).filter(func(r): return r.event.type == kind).map(func(r): return r.event.data)
 
+func pool_checks() -> void:
+	for pid in [0, 1]:
+		var base: Dictionary = phase_world()
+		var start: int = 600 if pid == 0 else 1800
+		var lemek: Dictionary = put(base, "Lemek", pid, start)
+		var regular: Dictionary = put(base, "Penitent", pid, start, {"lane": "Castle"})
+		var clear: Dictionary = phase("pool_control_%d" % pid, base)
+		for pool_owner in [0, 1]:
+			var w: Dictionary = base.duplicate(true)
+			for lane in ["Lord", "Castle"]:
+				w.data.monsters.fields.append({"id": "pool:" + lane, "kind": "pool", "owner": pool_owner, "lane": lane, "x_fp": start, "y_fp": 300, "expires_round": 3})
+			var result: Dictionary = phase("pool_owner_%d_unit_%d" % [pool_owner, pid], w)
+			check(Kanifous._entity(result.world, lemek.id).attributes.x_fp == Kanifous._entity(clear.world, lemek.id).attributes.x_fp, "Lemek owner %d ignores owner %d pool throughout Marching" % [pid, pool_owner])
+			check(absi(int(Kanifous._entity(result.world, regular.id).attributes.x_fp) - start) < absi(int(Kanifous._entity(clear.world, regular.id).attributes.x_fp) - start), "pool still slows ordinary units of either side")
+
+func beam_boundary_checks() -> void:
+	var w: Dictionary = phase_world()
+	var unit: Dictionary = put(w, "Sooge", 0, 300, {"sprite_form": "turret", "attack": 3, "armor": 6, "max_armor": 6, "step_fp": 0, "beam_next_tick": 615})
+	put(w, "Penitent", 1, 1500, {"hp": 100, "max_hp": 100, "step_fp": 0})
+	var pending: Dictionary = phase("beam_charge_across_boundary", w)
+	check(facts(pending, "MONSTER_BEAM_FIRED").is_empty() and Kanifous._entity(pending.world, unit.id).attributes.beam_ready_tick == 615, "late charge carries into next round without firing early")
+	var saved: Dictionary = JSON.parse_string(Game.encode_snapshot(pending.world))
+	var restored: Dictionary = bytes_to_var(Marshalls.base64_to_raw(saved.payload))
+	var first: Dictionary = phase("beam_release_after_restore", restored, "monster-check", 3)
+	var shots: Array = facts(first, "MONSTER_BEAM_FIRED")
+	check(shots.size() == 1 and shots[0].tick == 15, "saved charge releases exactly once at its recorded deadline")
+	var second: Dictionary = phase("beam_full_round_cooldown", first.world, "monster-check", 4)
+	shots = facts(second, "MONSTER_BEAM_FIRED")
+	check(shots.size() == 1 and shots[0].tick == 15, "successive beams are 200 ticks apart across round boundaries")
+	w = phase_world()
+	unit = put(w, "Sooge", 0, 300, {"sprite_form": "turret", "step_fp": 0, "beam_next_tick": 596})
+	var victim: Dictionary = put(w, "Penitent", 1, 1500, {"hp": 100, "max_hp": 100, "step_fp": 0})
+	var fired: Dictionary = phase("beam_delayed_across_boundary", w)
+	check(facts(fired, "MONSTER_BEAM_FIRED").size() == 1 and facts(fired, "MONSTER_ATTACK").is_empty() and fired.world.data.monsters.pending_beams.size() == 1, "late laser records a pending blast without dealing immediate damage")
+	# A released ground scar survives its caster; only units still in it are hit.
+	var ids = Work.Ids.new(); ids.restore(fired.world.entities); ids.retire(unit.id)
+	fired.world.entities = ids.snapshot()
+	var blasted: Dictionary = phase("beam_detonates_without_caster", fired.world, "monster-check", 3)
+	var hits: Array = facts(blasted, "MONSTER_ATTACK")
+	check(hits.size() == 1 and hits[0].tick == 4 and hits[0].target.id == victim.id and blasted.world.data.monsters.pending_beams.is_empty(), "pending blast detonates once after the caster dies, in the next round")
+	var escaped: Dictionary = ids.get_entity(victim.id); escaped.attributes.y_fp = 500
+	ids.update(escaped.id, escaped.owner, escaped.attributes)
+	var dodged: Dictionary = fired.world.duplicate(true); dodged.entities = ids.snapshot()
+	var missed: Dictionary = phase("beam_dodged_ground_scar", dodged, "monster-check", 3)
+	check(facts(missed, "MONSTER_BEAM_DETONATED").size() == 1 and facts(missed, "MONSTER_ATTACK").is_empty(), "ground path stays locked and units outside it at detonation escape damage")
+	var boundary_playback = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
+	check(boundary_playback.build(blasted.events.map(func(r): return r.event)) and boundary_playback.sample(0.1).monster_attacks.any(func(a): return a.ability == "BeamTrail"), "pending ground scar stays visible across round boundaries")
+	# No targets means no stored instant shot when a new enemy arrives.
+	w = phase_world()
+	unit = put(w, "Sooge", 0, 300, {"sprite_form": "turret", "step_fp": 0, "beam_charge_tick": 400, "beam_ready_tick": 432})
+	var buffer = Marching.Buffer.new(); buffer.restore(w.entities)
+	MonsterFX.step(w, buffer, context(w), 10, Callable(Game.Content.new(), "react"))
+	check(buffer.get_entity(unit.id).attributes.beam_ready_tick == 0, "losing every target cancels the charge")
+	w = phase_world()
+	unit = put(w, "Sooge", 0, 300, {"sprite_form": "turret", "step_fp": 0})
+	put(w, "Penitent", 1, 1500, {"hp": 100, "max_hp": 100, "step_fp": 0})
+	buffer.restore(w.entities)
+	var charged: Dictionary = MonsterFX.step(w, buffer, context(w), 0, Callable(Game.Content.new(), "react"))
+	w = charged.world
+	var closer: Dictionary = put(w, "Butcher", 1, 900, {"hp": 100, "max_hp": 100, "step_fp": 0})
+	buffer.restore(w.entities)
+	var released: Dictionary = MonsterFX.step(w, buffer, context(w), 32, Callable(Game.Content.new(), "react"))
+	check(facts(released, "MONSTER_BEAM_FIRED")[0].target.id == closer.id, "release aims at the currently nearest enemy, not the original charge target")
+	w = phase_world()
+	put(w, "Sooge", 0, 300, {"sprite_form": "turret", "step_fp": 0, "hp": 1, "armor": 0})
+	put(w, "Butcher", 1, 480, {"attack": 100, "step_fp": 0})
+	var killed: Dictionary = phase("beam_killed_during_charge", w)
+	check(facts(killed, "MONSTER_BEAM_FIRED").is_empty(), "killing Sooge during charge prevents the shot")
+	var playback = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
+	check(playback.build(killed.events.map(func(r): return r.event)) and playback.sample(0.5).monster_attacks.is_empty(), "dead Sooge does not leave a charging glow")
+
 func run() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	if not args.is_empty(): phase_output = FileAccess.open(args[0], FileAccess.WRITE)
 	sooge_ramp_checks()
+	pool_checks()
+	beam_boundary_checks()
 	var rows: Array = []
 	for suit in ["Penitent", "Butcher", "Vulture", "Wright"]:
 		for i in range(3): rows.append({"id": suit + str(i), "kind": "card", "attributes": {"suit": suit, "value": 1}})
@@ -138,25 +211,33 @@ func run() -> void:
 	MonsterFX.step(first.world, buffer, future, 0, Callable(content, "react"))
 	check(buffer.get_entity(sooge.id).attributes.sprite_form == "turret" and buffer.get_entity(sooge.id).attributes.armor == 2, "turret persists without refreshing armor each round")
 	w = phase_world()
-	var attacker: Dictionary = put(w, "Sooge", 0, 600, {"sprite_form": "turret", "attack": 3, "armor": 6, "max_armor": 6, "step_fp": 0})
-	put(w, "Butcher", 0, 820, {"hp": 30, "max_hp": 30, "movement_ready_round": 9})
-	var primary: Dictionary = put(w, "Penitent", 1, 1020, {"hp": 30, "max_hp": 30, "movement_ready_round": 9})
-	var behind_target: Dictionary = put(w, "Wright", 1, 1140, {"hp": 30, "max_hp": 30, "movement_ready_round": 9})
-	var beyond_range: Dictionary = put(w, "Penitent", 1, 1240, {"hp": 30, "max_hp": 30, "movement_ready_round": 9}, 1)
-	var off_axis: Dictionary = put(w, "Butcher", 1, 1100, {"hp": 30, "max_hp": 30, "y_fp": 500, "movement_ready_round": 9})
+	var attacker: Dictionary = put(w, "Sooge", 0, 300, {"sprite_form": "turret", "attack": 3, "armor": 6, "max_armor": 6, "step_fp": 0})
+	put(w, "Butcher", 0, 520, {"hp": 100, "max_hp": 100, "step_fp": 0})
+	var primary: Dictionary = put(w, "Penitent", 1, 720, {"hp": 100, "max_hp": 100, "step_fp": 0})
+	var behind_target: Dictionary = put(w, "Wright", 1, 1500, {"hp": 100, "max_hp": 100, "step_fp": 0})
+	var edge: Dictionary = put(w, "Wright", 1, 2100, {"hp": 100, "max_hp": 100, "step_fp": 0}, 1)
+	var beyond_range: Dictionary = put(w, "Penitent", 1, 2200, {"hp": 100, "max_hp": 100, "step_fp": 0}, 1)
+	var off_axis: Dictionary = put(w, "Butcher", 1, 800, {"hp": 100, "max_hp": 100, "y_fp": 500, "step_fp": 0})
 	var beam: Dictionary = phase("turret_piercing", w)
 	var first_beam: Dictionary = facts(beam, "MONSTER_BEAM_FIRED")[0]
-	var first_hits: Array = facts(beam, "MONSTER_ATTACK").filter(func(d): return d.ability == "Beam" and d.tick == 0)
-	check(first_beam.target.id == primary.id and first_beam.range_fp == 600, "Sooge aims at nearest enemy and records full range")
+	var first_hits: Array = facts(beam, "MONSTER_ATTACK").filter(func(d): return d.ability == "Beam" and d.tick == first_beam.tick + 8)
+	check(facts(beam, "MONSTER_BEAM_FIRED").size() == 1 and first_beam.tick == 32, "Sooge charges for 32 ticks then fires only once per round")
+	check(first_beam.target.id == primary.id and first_beam.range_fp == 1800, "Sooge aims at nearest enemy and records tripled range")
 	check(first_hits.any(func(d): return d.target.id == behind_target.id), "Sooge beam passes through the first enemy into enemies behind it")
+	check(first_hits.any(func(d): return d.target.id == edge.id), "Sooge beam reaches the inclusive 1800 range boundary")
 	check(not first_hits.any(func(d): return d.target.id in [beyond_range.id, off_axis.id]), "Sooge beam respects maximum range and beam width")
 	check(facts(beam, "MONSTER_ATTACK").any(func(d): return d.ability == "Beam" and d.target.owner == 0), "turret beam also damages allies in its path")
 	var beam_playback = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
 	check(beam_playback.build(beam.events.map(func(r): return r.event)), "Sooge beam builds from the authoritative tape")
-	var pulses: Array = beam_playback.sample(0.22).monster_attacks
-	check(pulses.size() == 1 and pulses[0].target_id == primary.id and pulses[0].impacts.size() == first_hits.size(), "one laser retains real aim and marks all collateral hits")
+	var charge: Array = beam_playback.sample(0.69).monster_attacks
+	check(charge.size() == 1 and charge[0].ability == "BeamCharge" and charge[0].weight > 0.4 and charge[0].weight < 0.6, "recorded charge builds visibly before damage or laser")
+	var trace: Dictionary = beam_playback.sample(1.2)
+	check(trace.monster_attacks.size() == 1 and trace.monster_attacks[0].ability == "Beam" and trace.units.any(func(u): return u.id == primary.id and u.attributes.armor == primary.attributes.armor), "fast laser traces the ground before damage")
+	check(beam_playback.sample(1.32).monster_attacks[0].ability == "BeamTrail", "ground scar warns of the following detonation")
+	var pulses: Array = beam_playback.sample(1.44).monster_attacks
+	check(pulses.size() == 1 and pulses[0].ability == "BeamBlast" and pulses[0].target_id == primary.id and pulses[0].impacts.size() == first_hits.size(), "one delayed explosion retains the laser path and marks all collateral hits")
 	check(beam_playback.sample(beam_playback.duration).monster_attacks.is_empty(), "last laser pulse ends before final playback state")
-	check(beam.world.entities.entities.any(func(u): return u.id == attacker.id and u.attributes.x_fp == 600 and u.attributes.sprite_form == "turret"), "turret remains rooted throughout Marching")
+	check(beam.world.entities.entities.any(func(u): return u.id == attacker.id and u.attributes.x_fp == 300 and u.attributes.sprite_form == "turret"), "turret remains rooted throughout Marching")
 	w = phase_world()
 	var portal_source: Dictionary = put(w, "Sinodek", 0, 600)
 	var lost: Dictionary = put(w, "Lemek", 1, 950)

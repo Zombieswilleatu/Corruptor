@@ -6,8 +6,8 @@ from . import veil
 from .economy import Rejected, Unsupported
 
 LANES = ("Lord", "Castle")
-CONTACT2, GAP2, RANGE2 = 180 ** 2, 84 ** 2, 800 ** 2
-RANGED = "U13_VULTURE_RANGED_V3"
+CONTACT2, GAP2, RANGE2 = 180 ** 2, 84 ** 2, 400 ** 2
+RANGED = "U13_VULTURE_RANGED_V4"
 ROUT = "U13_ROUT_V1"
 WEB = "U13_SPATIAL_WEB_FIELDS_V1"
 AURAS = "U13_LANE_AURAS_V1"

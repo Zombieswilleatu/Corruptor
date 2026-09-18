@@ -34,7 +34,7 @@ static func preferred(unit: Dictionary, rows: Array) -> Dictionary:
 	return {}
 
 static func slowed(a: Dictionary, fields: Array) -> bool:
-	if a.get("flying", false): return false
+	if a.get("flying", false) or a.get("monster_id") == "Lemek": return false
 	return fields.any(func(f): return f.kind == "pool" and f.lane == a.lane and distance(a, f) <= Rules.TUNING.pool_radius ** 2)
 
 # Death ledgers are also written by direct powers and Prices. Banishment and
@@ -176,23 +176,48 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 						a.hidden = false
 						hits.append({"source": unit, "target": target.id, "amount": 5, "bypass": false, "ability": "Ambush"})
 			"Sooge":
-				if a.sprite_form == "turret" and int(a.get("beam_next_tick", 0)) <= clock:
+				if a.sprite_form == "turret" and int(a.get("beam_next_tick", 0)) - int(Rules.TUNING.beam_charge_ticks) <= clock:
 					var target: Dictionary = nearest(unit, rows, Rules.TUNING.beam_range)
-					if not target.is_empty():
-						var vx: int = int(target.attributes.x_fp) - int(a.x_fp)
-						var vy: int = int(target.attributes.y_fp) - int(a.y_fp)
-						var length2: int = maxi(1, vx * vx + vy * vy)
-						a["beam_next_tick"] = clock + 8
-						# One firing event records the real aim, independently of collateral hits.
-						events.append(event("MONSTER_BEAM_FIRED", {"attacker": unit, "target": target, "range_fp": Rules.TUNING.beam_range, "round": n, "tick": tick}))
-						for other in rows:
-							if other.id == unit.id or other.attributes.lane != a.lane: continue
-							var dx: int = int(other.attributes.x_fp) - int(a.x_fp)
-							var dy: int = int(other.attributes.y_fp) - int(a.y_fp)
-							var cross: int = dx * vy - dy * vx
-							if dx * vx + dy * vy >= 0 and dx * dx + dy * dy <= Rules.TUNING.beam_range ** 2 and cross * cross <= Rules.TUNING.beam_half_width ** 2 * length2:
-								hits.append({"source": unit, "target": other.id, "amount": 1 if other.owner == unit.owner else 3, "bypass": false, "ability": "Beam"})
+					if target.is_empty():
+						# Losing all targets cancels the wind-up without spending a shot.
+						a["beam_charge_tick"] = 0
+						a["beam_ready_tick"] = 0
+					elif int(a.get("beam_ready_tick", 0)) == 0:
+						a["beam_charge_tick"] = clock
+						a["beam_ready_tick"] = clock + int(Rules.TUNING.beam_charge_ticks)
+					elif clock >= int(a.beam_ready_tick):
+						# Reacquire at release: the closest live enemy sets the ray.
+						a["beam_next_tick"] = clock + int(Rules.TUNING.beam_interval_ticks)
+						a["beam_charge_tick"] = 0
+						a["beam_ready_tick"] = 0
+						# Lock the ground path at release. Its explosion survives the caster.
+						var beam: Dictionary = {"attacker": unit.duplicate(true), "target": target.duplicate(true), "range_fp": Rules.TUNING.beam_range, "detonate_tick": clock + int(Rules.TUNING.beam_blast_delay_ticks)}
+						state.pending_beams.append(beam)
+						var details: Dictionary = beam.duplicate(true)
+						details.merge({"round": n, "tick": tick})
+						events.append(event("MONSTER_BEAM_FIRED", details))
 		entities.update(unit.id, unit.owner, a)
+	var pending: Array = []
+	for beam in state.pending_beams:
+		if int(beam.detonate_tick) > clock:
+			pending.append(beam)
+			continue
+		var details: Dictionary = beam.duplicate(true)
+		details.merge({"round": n, "tick": tick})
+		events.append(event("MONSTER_BEAM_DETONATED", details))
+		var source: Dictionary = beam.attacker
+		var a: Dictionary = source.attributes
+		var vx: int = int(beam.target.attributes.x_fp) - int(a.x_fp)
+		var vy: int = int(beam.target.attributes.y_fp) - int(a.y_fp)
+		var length2: int = maxi(1, vx * vx + vy * vy)
+		for other in entities.marchers():
+			if other.id == source.id or other.attributes.lane != a.lane: continue
+			var dx: int = int(other.attributes.x_fp) - int(a.x_fp)
+			var dy: int = int(other.attributes.y_fp) - int(a.y_fp)
+			var cross: int = dx * vy - dy * vx
+			if dx * vx + dy * vy >= 0 and dx * dx + dy * dy <= int(beam.range_fp) ** 2 and cross * cross <= Rules.TUNING.beam_half_width ** 2 * length2:
+				hits.append({"source": source, "target": other.id, "amount": 1 if other.owner == source.owner else 3, "bypass": false, "ability": "Beam"})
+	state.pending_beams = pending
 	for hit in hits:
 		var result: Dictionary = damage(world, entities, hit, context, tick, reaction)
 		if result.action == "invalid": return result

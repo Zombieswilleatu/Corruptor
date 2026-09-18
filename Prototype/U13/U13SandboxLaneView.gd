@@ -15,6 +15,9 @@ func travel_rect(_lane: String) -> Rect2:
 	var width: float = minf(500, maxf(240, size.x - 96))
 	return Rect2((size.x - width) * 0.5, 108, width, maxf(240, size.y - 200))
 
+func beam_bounds(lane: String) -> Rect2:
+	return travel_rect(lane)
+
 func _process(delta: float) -> void:
 	if not animation_paused: super._process(delta)
 

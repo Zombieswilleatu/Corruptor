@@ -34,6 +34,24 @@ expiry, Sooge's increasing root odds and other active-round abilities retain
 their normal round boundaries in both playback modes. Ongoing duels persist.
 The 200 simulation ticks are displayed over 15 seconds at 1× playback.
 
+September 18 range/cadence tuning is shared with the game and Python simulator:
+Vulture range is **400** (previously 800); every Lemek ignores every Lemek
+death pool, including enemy pools. Sooge's rooted beam reaches **1800**
+(previously 600) and fires at most once per round, at least 200 ticks apart.
+It charges for 32 ticks (about 2.3 seconds in this preview) with a gathering
+blue-white glow, then aims at the nearest living enemy. A fast beam traces the
+ground through that target to maximum range, leaving a lit scar. Eight ticks
+later (about 0.6 seconds), blue eruptions detonate along the locked line,
+dealing 3 damage to enemies and 1 to allies still in its path. Losing all
+targets cancels the charge; death prevents release. Once fired, the pending
+explosion survives Sooge's death. Charge, cooldown and pending blasts survive
+round boundaries and saves. Continuous mode uses the same timing. Playback
+speed changes scale the visible timing; the regular game's shorter playback
+still represents one complete round.
+
+These changes use `U13_VULTURE_RANGED_V4` and `U13_MONSTERS_V3`.
+Start a fresh game after updating; older rules fingerprints remain incompatible.
+
 There are no Lords, cards on the battlefield, castles, passives, Veil effects
 or victory conditions. At the end of an interval, surviving units waiting at
 the far gate score an escape and leave without death effects. This prevents
