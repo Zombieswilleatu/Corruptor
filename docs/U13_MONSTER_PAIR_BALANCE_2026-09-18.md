@@ -1,18 +1,45 @@
 # Monster power and Penitent formation experiments — 2026-09-18
 
-Try the closer Penitent-led approach before another general Vulture nerf. Keep the current 50% ranged block and Vulture firing interval for that playtest. Permanent Tumler evasion helps, but he needs damage and durability as well to meet the requested one-monster-versus-two-marchers target. A universal +3 Armor does not meet that target.
+Doubling monster HP is a better starting durability buff than doubling Armor for this roster. Keep current Armor and try the closer Penitent-led approach before another general Vulture nerf. For Tumler, 10 HP plus permanent 50% evasion is a strong candidate with his current Attack 2. For Lemek, 10 HP plus Attack 4 meets the requested ahead-or-nearly-even benchmark against two Butchers. Sooge and Sinodek should keep their power-focused roles. Judge Kurchin by time spent tanking and protecting allies, not by solo kills; his 10-HP damage-reduction candidate improves survival but remains fragile against three Butchers.
 
 These are isolated experiments, not applied gameplay balance changes. The baseline includes the previously tested Tumler cluster-pursuit fix: he pursues through enemy bodies while still avoiding slowing pools. That fix and the preceding audit were recovered from the prior saved Git tree.
 
 ## Scope and definitions
 
-Completed **22,464 trials**, covering **21,184 distinct fixtures**. Repeated baseline fixtures connect the focused comparisons; they are not additional independent evidence. Each matchup/variant uses 32 deterministic seeds in both seats (64 trials), with the same identities and deployment across variants. These are lane combat fixtures with no Lords, Castle attacks, economy, reinforcements or bot decisions.
+Completed **38,848 trials**, covering **37,312 distinct fixtures**: 22,464 in the original formation/pair pass, 12,800 in the HP follow-up, and 3,584 in the Kurchin tank follow-up. Repeated baseline fixtures connect the focused comparisons; they are not additional independent evidence. Each matchup/variant uses 32 deterministic seeds in both seats (64 trials), with the same identities and deployment across variants. These are lane combat fixtures with no Lords, Castle attacks, economy, reinforcements or bot decisions.
 
 A combat win means the opposing original marcher force is gone while at least one original friendly body remains. Both gone is a mutual kill. Portals count as removal; a charmed original unit reaching the opposing side's goal is counted as lost to its original team. Stop after the first decisive 200-tick phase, or ten phases. Surviving fortifications are not followed through after the last original marcher dies, so especially Wright matchups are marcher-elimination results, not full-game victories. Unresolved fights remain unresolved.
 
 “Near even” is a separate, deliberately strict loss category: exactly one enemy remains with at most 2 combined HP and Armor. Varn is one summon of 3–5 bodies. Armor is consumed when hit; +3 Armor is three additional points of absorption, not three damage reduction per attack.
 
 Goal arrivals in the raw records stop at the combat cutoff and should not be compared as final goal rates. The preceding [unit audit](U13_UNIT_BALANCE_2026-09-18.md) contains the full-phase goal, damage absorption, kill and support-value analysis.
+
+## HP follow-up: doubling HP versus doubling Armor
+
+The additional 12,800 trials compare the same deployments against the preceding baseline. HP doubling means 5 → 10 HP for every monster except Varn, whose bodies go from 2 → 4. Starting and maximum HP both change; Attack, Armor, regeneration and abilities remain unchanged unless a variant says otherwise. Armor doubling doubles starting and maximum Armor, including Sooge's turret Armor from 6 → 12. Varn stays at zero Armor under that proposal.
+
+These are not equal-budget buffs: doubling HP adds 5 HP to most monsters, whereas doubling Armor adds their existing Armor value. Both pools absorb damage point for point against ordinary attacks; HP can also be recovered by normal healing/regeneration. The comparison tests the proposed packages, not a claim that one point of HP inherently absorbs more damage than one point of Armor.
+
+Outright win rates against two basics; 256 trials per cell, equally split among the four basic types. Tumler in this table retains hunt-only evasion.
+
+| Monster | Current | +3 Armor | Doubled Armor | Doubled HP |
+| --- | --- | --- | --- | --- |
+| Lemek | 39.8% | 75.0% | 94.1% | 94.1% |
+| Varn | 8.2% | 70.7% | 8.2% | 63.7% |
+| Fyra | 4.3% | 32.4% | 5.5% | 46.1% |
+| Kopita | 0.0% | 32.0% | 0.0% | 34.0% |
+| Tumler | 0.8% | 50.4% | 1.2% | 72.7% |
+| Kurchin | 0.0% | 0.0% | 1.2% | 1.2% |
+| Muno | 46.1% | 50.0% | 47.7% | 99.2% |
+| Dotra | 29.3% | 53.9% | 53.1% | 54.7% |
+| Sooge | 1.6% | 3.1% | 3.1% | 3.1% |
+| Sinodek | 4.7% | 4.7% | 4.7% | 4.7% |
+
+HP doubling is a substantial improvement for most low-Armor monsters. It lets Lemek, Varn, Kopita, Tumler, Muno and Dotra win every single-basic matchup in the sample. Fyra has 76 unresolved pair outcomes with doubled HP because charm/escape can leave both original forces alive; those are not losses or wins.
+
+The subsequent role clarification changes how to interpret these cells: Sooge and Sinodek are expected to earn kills through their powers, and Kurchin is expected to tank three opponents. Their poor solo-duel win rates do not establish that they need damage buffs. Leave Sooge and Sinodek unchanged for the next playtest. The earlier squad audit recorded Sooge averaging 7.99 enemy HP damage and 0.72 kills per summon, and Sinodek averaging 0.31 enemy banishments (with 0.22 friendly banishments). These figures describe conditional ability value, not a guarantee of balance. Kopita still wins only 87 of 256 doubled-HP pair fights.
+
+Prefer targeted HP changes for the combat monsters over a flat Armor increase across every monster. Preserve Sooge and Sinodek for now; use the separate tank experiment for Kurchin. The Tumler and Lemek comparisons below identify accompanying changes.
 
 ## Penitents leading the approach
 
@@ -58,24 +85,30 @@ Permanent means all direct attack rolls, including contact, hold, retreat and fe
 | Permanent evasion; Attack 2, Armor 4 | 87.5% | 26.6% | 4.7% |
 | Permanent evasion; Attack 3, Armor 1 | 76.6% | 35.9% | 1.6% |
 | Permanent evasion; Attack 3, Armor 4 | 100.0% | 65.6% | 6.2% |
+| Permanent evasion; Attack 2, Armor 1, HP 10 | 100.0% | 62.5% | 4.7% |
+| Permanent evasion; Attack 3, Armor 1, HP 10 | 100.0% | 98.4% | 1.6% |
 
-The strongest tested candidate is **Attack 3, Armor 4, HP 5, constant 50% evasion**: all 64 single-Butcher fights won; 42 wins and 4 mutual kills against two. Constant evasion by itself is useful but still too unreliable for the stronger monster benchmark. At Attack 2/Armor 4 it wins 63 of 64 against two Vultures, so raising damage is particularly about handling hard-hitting melee opposition.
+Rows without an HP label retain HP 5. After the HP follow-up, prefer **Attack 2, Armor 1, HP 10, constant 50% evasion** as the first playtest candidate: all 64 single-Butcher fights won; 40 wins and 3 mutual kills against two. Another 10 losses leave one Butcher at at most 2 HP. That is 53 of 64 ahead, mutual or near-even results. Raising Attack to 3 as well gives 63 wins and one mutual kill against two Butchers, so it is a substantially stronger option that need not be stacked immediately. The earlier Attack 3/Armor 4/HP 5 candidate produced 42 wins and 4 mutual kills.
 
 In the balanced 5-vs-5 squad, permanent evasion plus Attack 3/Armor 4 increases Tumler's mean HP damage from 0.97 to 7.23 and kills from 0 to 1.30 per summon. Squad wins rise from 0 to 39 of 64, with 3 mutual results. These are complete formation outcomes, not solo Tumler wins.
 
 ## Lemek against two Butchers
 
-| Lemek stats (HP stays 5) | Spawn: wins / mutual / near losses | Tight: wins / mutual / near losses |
+The earlier Armor candidates and the new HP candidates are shown together.
+
+| Lemek stats (HP 5 unless labeled) | Spawn: wins / mutual / near losses | Tight: wins / mutual / near losses |
 | --- | --- | --- |
 | Attack 3 / Armor 4 | 0 / 0 / 0 | 0 / 0 / 0 |
 | Attack 3 / Armor 7 | 0 / 7 / 0 | 0 / 0 / 0 |
 | Attack 4 / Armor 7 | 0 / 7 / 43 | 0 / 0 / 0 |
 | Attack 3 / Armor 10 | 49 / 0 / 0 | 0 / 0 / 0 |
 | Attack 4 / Armor 9 | 49 / 0 / 15 | 0 / 0 / 64 |
+| Attack 3 / Armor 4 / HP 10 | 49 / 0 / 0 | 0 / 0 / 0 |
+| Attack 4 / Armor 4 / HP 10 | 49 / 0 / 15 | 0 / 0 / 64 |
 
 Each cell contains 64 trials; all remaining outcomes are ordinary losses. Tight deployment puts the two Butchers alongside each other so both can pressure Lemek together.
 
-**Attack 4 / Armor 9** is the best tested fit for “ahead, or nearly even”: 49 wins in the normal deployment; the other 15 leave one Butcher at 2 HP. Tight deployment still produces no outright wins, but all 64 losses leave exactly one Butcher at 2 HP. It meets the near-even benchmark, not a guarantee of beating two coordinated Butchers. A simple +3 Armor produces no wins in either layout.
+Prefer **Attack 4 / Armor 4 / HP 10** for “ahead, or nearly even”: 49 wins in the normal deployment; the other 15 leave one Butcher at 2 HP. Tight deployment still produces no outright wins, but all 64 losses leave exactly one Butcher at 2 HP. This matches the tested Attack 4/Armor 9/HP 5 package while preserving Lemek's original Armor. It meets the near-even benchmark, not a guarantee of beating two coordinated Butchers. A simple +3 Armor produces no wins in either layout.
 
 ## All monsters under the stronger benchmark
 
@@ -111,13 +144,37 @@ For two-basic baseline fights, mean contribution per monster summon:
 | Sooge | 3.51 | 5.12 | 4.60 | 0.18 |
 | Sinodek | 1.34 | 5.00 | 2.95 | 0.04 |
 
-The user's stronger target changes the prior recommendation. “Useful in a squad” is not enough if every summon must comfortably beat a basic and trade against two. Kopita, Kurchin, Sooge and Sinodek remain especially far away. Kurchin wins zero of 256 pair fights even with +3 Armor. Sooge's turret loses ordinary melee and fires once per round; extra Armor does not fix the long gap between attacks. Sinodek relies on a conditional portal rather than reliable damage. These need targeted changes to damage, durability or ability reliability.
+Apply the one/two-basic benchmark primarily to combat monsters. Under the user’s updated roles, low solo kills are acceptable for Kurchin, and Sooge/Sinodek should be evaluated through beam and portal outcomes. This report no longer recommends damage buffs for those three merely to lift their duel win rates. Kopita remains a candidate for further ability-aware testing.
 
 Do not treat Varn's +3 as the same-sized buff: it gives 9–15 extra Armor across one swarm. The prior squad audit also found a large kill/goal increase from that change. The current 1-vs-2 benchmark supports stronger monsters, but not an identical per-body adjustment across the entire roster.
 
+## Kurchin: tanking three opponents
+
+Tested seven candidates across eight scenarios, 64 paired trials each: three Butchers, one Butcher/Penitent/Vulture, and three Vultures, each in normal deployment and with all three already in melee; plus Kurchin escorting two Vultures or two Butchers against three Butchers. Attack stays 1. Armor stays 6 except the explicit +3-Armor control.
+
+The proposed candidate is **HP 10, Armor 6, incoming attack damage −1, floor 1**. Reduction applies before consumable Armor, including Armor-bypassing attacks. Zero damage, blocks and evasion remain zero. One-damage attacks, including ordinary Vulture fire and poison, remain one. Banishment is unchanged. Prevented damage is tracked separately from Armor consumed.
+
+| Candidate | Survival ticks, three Butchers already in melee | Mean survival ticks, normal approach | Mean Kurchin kills, contact |
+| --- | --- | --- | --- |
+| Current: HP 5 / Armor 6 | 8 | 12.56 | 0 |
+| HP 5 / Armor 9 | 8 | 15.73 | 0 |
+| HP 10 / Armor 6 | 8 | 18.61 | 0 |
+| **HP 10 / Armor 6 / −1 damage** | **16** | **23.91** | **0** |
+| HP 20 / Armor 6 | 16 | 26.61 | 0 |
+| HP 30 / Armor 6 | 24 | 35.38 | 0 |
+| HP 40 / Armor 6 | 40 | 45.61 | 1 |
+
+All these solo three-Butcher trials end in Kurchin's death. Duration is measured from the first landed hostile attack through death, not from spawning. The mitigation candidate survives into the third coordinated attack volley instead of the second, consumes 10 HP plus 6 Armor and prevents a further 8 damage. It improves tanking without raising Attack, but 16 simulation ticks is still brief. It is a useful targeted candidate, not yet evidence that the desired sustained 3-vs-1 role is met.
+
+Against the mixed trio in normal deployment, mean survival rises from 48.86 ticks at HP 10 alone to 82.59 with mitigation; Kurchin averages one kill. Against three Vultures it is identical to HP 10 alone: 163.47 mean ticks in normal deployment, because all incoming shots deal one damage.
+
+Ally protection is more limited. With two Vultures behind him, HP 10 plus mitigation produces 63 team losses and one mutual kill; all 128 allied Vultures die. HP 30 produces 33 team wins, 29 losses and two mutual kills, with 94 allied Vulture deaths. With two Butchers, the mitigation candidate improves team wins from 6/64 at HP 10 alone to 26/64, but 127/128 allied Butchers still die. They advance ahead of him, and ordinary melee chooses the nearest target. Extra tank durability does not automatically redirect those attacks. These results argue against calling any survival buff a general ally-protection fix.
+
+Keep the HP-10 mitigation candidate available for playtesting. The HP-30 and HP-40 experiments show a stronger survival/escort effect, but they are substantially larger buffs and are not selected automatically. Sooge and Sinodek remain unchanged in the recommendation.
+
 ## Verification and reproduction
 
-Native Godot 4.5.1 Linux and the independent Python simulation matched **285 full phases / 57,000 ticks**, including complete worlds and nonvisual combat events. There were 256 permanent-evasion boundary checks and 44 formation checks, all passing. 351 saved trial records reproduced exactly using the final experimental implementation. Godot 4.7.2 Windows acceptance has not been run.
+Native Godot 4.5.1 Linux and the independent Python simulation matched **360 full phases / 72,000 ticks** across the two passes, including complete worlds and nonvisual combat events. There were 256 permanent-evasion boundary checks and 44 formation checks, all passing. Exact saved-record replays passed for 351 records in the first pass and 200 in the HP follow-up. Godot 4.7.2 Windows acceptance has not been run.
 
 The final evasion override also removes the separate ability-damage fear gate. Explicit native/Python fixtures verify a dodged Muno strike while feared, undodgeable poison, and Sooge's guaranteed-root Armor replacement. The ordinary-marcher benchmark results reproduce unchanged after that completion.
 
@@ -129,8 +186,16 @@ python -m u13_pysim.monster_pair_balance --suite tumler --samples 32 --workers 6
 python -m u13_pysim.monster_pair_balance --suite tumler --samples 32 --workers 6 --variants always50_attack3 always50_attack3_armor3 --output /tmp/pair-tumler-damage
 python -m u13_pysim.monster_pair_balance --suite lemek --samples 32 --workers 6 --layouts spawn tight --output /tmp/pair-lemek
 python -m u13_pysim.monster_pair_balance --suite vultures --samples 32 --workers 6 --output /tmp/pair-vultures
+python -m u13_pysim.monster_pair_balance --suite monsters --samples 32 --workers 6 --variants hp2 armor2x --output /tmp/pair-hp-armor
+python -m u13_pysim.monster_pair_balance --suite tumler --samples 32 --workers 6 --variants always50_hp2 always50_attack3_hp2 --output /tmp/pair-tumler-hp
+python -m u13_pysim.monster_pair_balance --suite lemek --samples 32 --workers 6 --layouts spawn tight --variants hp2 armor2x lem_attack4_hp2 --output /tmp/pair-lemek-hp
+python -m u13_pysim.monster_pair_balance --suite kurchin --samples 32 --workers 6 --output /tmp/pair-kurchin
 ```
 
 Native projects are created by `python -m u13_pysim.verify_monster_pair_balance project NEW_DIRECTORY VARIANT`; use its `export` and `compare` commands with `U13UnitBalanceParityRunner.gd` for exact phase replay. Run `U13PairExperimentTestRunner.gd -- always` in the permanent-evasion project or `-- leader` in a Penitent-lead project for the boundary checks. Production rule files are not modified by these helpers.
 
 Evidence: [machine-readable summaries](evidence/U13_MONSTER_PAIR_BALANCE_2026-09-18.json), [all raw trials](evidence/U13_MONSTER_PAIR_BALANCE_2026-09-18.jsonl.gz). Raw archive SHA-256: `6b188d5cbde59ef7382c2090729b415b3b1bff7a21159993e2e90eb74ab6ab7f`. Manifests retain the batch source hashes, fixture counts and revision; the report records final source hashes and native verification.
+
+HP follow-up evidence: [summaries and comparisons](evidence/U13_MONSTER_HP_BALANCE_2026-09-18.json), [all additional raw trials](evidence/U13_MONSTER_HP_BALANCE_2026-09-18.jsonl.gz). Archive SHA-256: `05acb3bfe18b4311f6c7211ff5c19e0db2fc62d12b375af4d1006062927373a4`.
+
+Kurchin follow-up: **203 native full phases / 40,600 ticks** matched, plus 24 direct ability records (48 native assertions) covering damage floors, prevention accounting and Armor bypass. All 224 sampled saved tank records replayed exactly. Evidence: [tank summaries and verification](evidence/U13_KURCHIN_TANK_BALANCE_2026-09-18.json), [all 3,584 tank trials](evidence/U13_KURCHIN_TANK_BALANCE_2026-09-18.jsonl.gz). Raw archive SHA-256: `da61bf6c1459bbb5aefbf68c364c92e72ba95c524cd927963b887ea0b382e1b5`. Run `U13KurchinMitigationTestRunner.gd` only in the isolated mitigation project.

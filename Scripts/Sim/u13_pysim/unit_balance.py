@@ -192,7 +192,7 @@ class Metrics:
                            'Poison': 1, 'Kopita': 1, 'Ambush': 5}.get(ability, raw)
                 elif source['attributes'].get('blood_wish'): raw *= 2
                 blocked, evaded = d.get('blocked', False), d.get('evaded', False)
-                absorbed = 0 if blocked or evaded else raw-d['damage_dealt']
+                absorbed = 0 if blocked or evaded else raw-d['damage_dealt']-d.get('damage_reduced', 0)
                 if absorbed < 0: raise ValueError(('negative absorption', event))
                 lost = before-d['hp_after']
                 if not 0 <= lost <= before: raise ValueError(('HP accounting mismatch', before, event))

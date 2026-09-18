@@ -52,6 +52,10 @@ def native_project(destination, variant):
                'if kind == "Poison" or fleeing.has(unit.id) or not hunting(unit, rows, context.round, structures): return false',
                'if kind == "Poison" or unit.attributes.get("monster_id") != "Tumler": return false')
         change('U13MonsterEffects.gd', 'var evaded: bool = not fleeing and evades(', 'var evaded: bool = evades(')
+    if 'root_armor' in tuning:
+        value = tuning['root_armor']
+        change('U13MonsterEffects.gd', '"sprite_form": "turret", "attack": 3, "armor": 6, "max_armor": 6, "step_fp": 0',
+               f'"sprite_form": "turret", "attack": 3, "armor": {value}, "max_armor": {value}, "step_fp": 0')
     if 'block' in tuning:
         change('U13PenitentDefense.gd', 'const CHANCE: int = 50', f"const CHANCE: int = {tuning['block']}")
     if 'vulture_interval' in tuning:
@@ -61,6 +65,8 @@ def native_project(destination, variant):
         change('U13SupportPacing.gd', 'static func speed(', 'static func support_speed(')
         file = sim/'U13SupportPacing.gd'
         file.write_text(file.read_text()+PACING_GD.replace('FOLLOW_DISTANCE', str(tuning['penitent_lead'])))
+    if tuning.get('mitigation'):
+        pairs.damage_reduction_experiment.native(change, tuning['mitigation'])
     return str(destination)
 
 

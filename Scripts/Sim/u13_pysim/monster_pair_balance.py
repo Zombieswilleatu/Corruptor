@@ -17,19 +17,25 @@ from pathlib import Path
 from . import unit_balance as audit, monster_effects as fx, field_combat, penitent_defense, support_pacing
 from .copying import copy_data
 from .primitives import draw
+from . import damage_reduction_experiment
 
 BASE_EVADE = fx.evades
 BASE_VOLLEY = field_combat.volley
 BASE_BLOCK = penitent_defense.CHANCE
 BASE_PACING = support_pacing.speed
 BASE_DAMAGE = fx.damage
+BASE_MELEE = field_combat.melee
 TUNING = {
     'current': {},
     'armor3': {'armor': 3},
+    'hp2': {'hp_multiplier': 2},
+    'armor2x': {'armor_multiplier': 2, 'root_armor': 12},
     'always50': {'always': True},
     'always50_armor3': {'always': True, 'armor': 3},
     'always50_attack3': {'always': True, 'tumler_attack': 3},
     'always50_attack3_armor3': {'always': True, 'tumler_attack': 3, 'armor': 3},
+    'always50_hp2': {'always': True, 'hp_multiplier': 2},
+    'always50_attack3_hp2': {'always': True, 'tumler_attack': 3, 'hp_multiplier': 2},
     'penitent0': {'block': 0},
     'penitent75': {'block': 75},
     'vulture40': {'vulture_interval': 40},
@@ -39,6 +45,11 @@ TUNING = {
     'lem_attack4_armor3': {'armor': 3, 'lemek_attack': 4},
     'lem_attack4_armor5': {'armor': 5, 'lemek_attack': 4},
     'lem_attack3_armor6': {'armor': 6},
+    'lem_attack4_hp2': {'hp_multiplier': 2, 'lemek_attack': 4},
+    'kurchin20': {'kurchin_hp': 20},
+    'kurchin30': {'kurchin_hp': 30},
+    'kurchin40': {'kurchin_hp': 40},
+    'kurchin10_mitigation1': {'kurchin_hp': 10, 'mitigation': 1},
 }
 for key, tuning in TUNING.items():
     audit.VARIANTS[key] = dict(armor=tuning.get('armor', 0), pursuit='current')
@@ -88,6 +99,7 @@ def install(name):
         exec(compile(source.replace(old, 'evaded=evades('), '<pair-audit:permanent-evasion>', 'exec'), namespace)
         fx.damage = namespace['damage']
     penitent_defense.CHANCE = tuning.get('block', BASE_BLOCK)
+    field_combat.melee = BASE_MELEE
     field_combat.volley = BASE_VOLLEY
     support_pacing.speed = BASE_PACING
     if tuning.get('penitent_lead'):
@@ -100,9 +112,19 @@ def install(name):
         namespace = field_combat.__dict__.copy()
         exec(compile(source, '<pair-audit:vulture-interval>', 'exec'), namespace)
         field_combat.volley = namespace['volley']
+    if tuning.get('mitigation'):
+        damage_reduction_experiment.install(tuning['mitigation'])
     # Armor experiments copy step's globals. Install hit handling first so that
     # the copied function cannot inherit the previous case's ability override.
     audit.install_variant(name)
+    if 'root_armor' in tuning:
+        source = inspect.getsource(audit.BASE_STEP)
+        old = "a.update(sprite_form='turret',attack=3,armor=6,max_armor=6,step_fp=0)"
+        assert source.count(old) == 1, 'Review doubled turret Armor override'
+        value = tuning['root_armor']
+        namespace = fx.__dict__.copy()
+        exec(compile(source.replace(old, old.replace('armor=6,max_armor=6', f'armor={value},max_armor={value}')), '<pair-audit:double-armor>', 'exec'), namespace)
+        fx.step = namespace['step']
 
 
 class DetailedMetrics(audit.Metrics):
@@ -110,6 +132,10 @@ class DetailedMetrics(audit.Metrics):
         super().__init__(world, metadata)
         self.ranged = Counter()
         self.first_melee = {}
+        self.first_incoming = {}
+        self.last_incoming = {}
+        self.death_ticks = {}
+        self.prevented = Counter()
 
     def events(self, events):
         for wrapped in events:
@@ -124,6 +150,14 @@ class DetailedMetrics(audit.Metrics):
                     if d.get('blocked'): self.ranged[f"group{target_meta['group']}_blocked_at_{name}"] += 1
             if e['type'] == 'MARCHER_MELEE_ATTACK':
                 self.first_melee.setdefault(d['attacker']['id'], (d['round']-1)*200+d['tick'])
+            if e['type'] in ('MARCHER_MELEE_ATTACK', 'MARCHER_RANGED_ATTACK', 'MONSTER_ATTACK'):
+                self.prevented[d['target']['id']] += d.get('damage_reduced', 0)
+                if d['attacker']['owner'] != d['target']['owner'] and not d.get('blocked') and not d.get('evaded'):
+                    tick = (d['round']-1)*200+d['tick']
+                    self.first_incoming.setdefault(d['target']['id'], tick)
+                    self.last_incoming[d['target']['id']] = tick
+            if e['type'] == 'MARCHER_DEFEATED':
+                self.death_ticks.setdefault(d['victim']['id'], (d['round']-1)*200+d['tick'])
         super().events(events)
 
 
@@ -132,8 +166,13 @@ def initial(spec):
     tuning = TUNING[spec['variant']]
     for row in world['entities']['entities']:
         name = meta[row['id']]['name']
+        if name in audit.monsters.NAMES:
+            for field in ('hp', 'max_hp'): row['attributes'][field] *= tuning.get('hp_multiplier', 1)
+            for field in ('armor', 'max_armor'): row['attributes'][field] *= tuning.get('armor_multiplier', 1)
         if name == 'Tumler' and 'tumler_attack' in tuning: row['attributes']['attack'] = tuning['tumler_attack']
         if name == 'Lemek' and 'lemek_attack' in tuning: row['attributes']['attack'] = tuning['lemek_attack']
+        if name == 'Kurchin' and 'kurchin_hp' in tuning:
+            row['attributes'].update(hp=tuning['kurchin_hp'], max_hp=tuning['kurchin_hp'])
     if spec.get('layout') == 'tight':
         for group in (0, 1):
             rows = [r for r in world['entities']['entities'] if meta[r['id']]['group'] == group]
@@ -142,6 +181,13 @@ def initial(spec):
                 x = (900 if group == 0 else 1500)
                 row['attributes']['x_fp'] = x if spec['seat'] == 0 else 2400-x
                 row['attributes']['y_fp'] = 300 + shift + 90*i-45*(len(rows)-1)
+    if spec.get('layout') == 'contact':
+        for group in (0, 1):
+            rows = [r for r in world['entities']['entities'] if meta[r['id']]['group'] == group]
+            for i, row in enumerate(rows):
+                x = 1200 if group == 0 else 1260
+                row['attributes']['x_fp'] = x if spec['seat'] == 0 else 2400-x
+                row['attributes']['y_fp'] = 300 + 30*i-15*(len(rows)-1)
     return world, meta, seed
 
 
@@ -180,10 +226,22 @@ def run(spec, export=None):
     # As with ordinary audit records, survivors here mean active field bodies;
     # goal arrivals and the fight outcome are separate metrics.
     world['entities']['entities'] = [r for r in world['entities']['entities'] if not r['attributes']['waiting']]
-    return dict(spec=spec, seed=seed, rounds=number, outcome=outcome, near_even=near,
+    record = dict(spec=spec, seed=seed, rounds=number, outcome=outcome, near_even=near,
                 remaining_hp=hp, remaining_armor=armor, remaining_bodies=[len(x) for x in left],
                 units=stats.finish(world), team_goals=[stats.goal_owners[i] for i in (0, 1)],
                 converted_goal_bodies=len(converted), ranged=dict(stats.ranged), first_melee=stats.first_melee)
+    if spec['mode'] in ('tank', 'escort'):
+        key = next(key for key, m in meta.items() if m['group'] == 0 and m['name'] == 'Kurchin')
+        first, death = stats.first_incoming.get(key), stats.death_ticks.get(key)
+        allies = [u for u in record['units'] if u['group'] == 0 and u['name'] != 'Kurchin']
+        record['tank'] = dict(first_incoming_tick=first, death_tick=death,
+            ticks_to_death=None if first is None or death is None else death-first,
+            last_incoming_tick=stats.last_incoming.get(key), alive=key not in lost,
+            ally_deaths=sum(u['deaths'] for u in allies), ally_kills=sum(u['kills'] for u in allies),
+            ally_hp_taken=sum(u['hp_taken'] for u in allies), ally_hp_damage=sum(u['hp_damage'] for u in allies))
+        if TUNING[spec['variant']].get('mitigation'):
+            record['tank']['damage_prevented'] = stats.prevented[key]
+    return record
 
 
 def tasks(suite, samples, layouts, selected_variants=None):
@@ -238,6 +296,13 @@ def tasks(suite, samples, layouts, selected_variants=None):
             for layout in layouts:
                 add('benchmark', 'Lemek', f'{count}xButcher:{layout}', [['Lemek'], ['Butcher']*count],
                     ['current', 'armor3', 'lem_attack4_armor3', 'lem_attack4_armor5', 'lem_attack3_armor6'], layout)
+    elif suite == 'kurchin':
+        variants = ['current', 'armor3', 'hp2', 'kurchin20', 'kurchin30', 'kurchin40', 'kurchin10_mitigation1']
+        for label, opponents in [('three_butchers', ['Butcher']*3), ('mixed_three', ['Butcher', 'Penitent', 'Vulture']), ('three_vultures', ['Vulture']*3)]:
+            for layout in ('spawn', 'contact'):
+                add('tank', 'Kurchin', f'{label}:{layout}', [['Kurchin'], opponents], variants, layout)
+        for label, allies in [('vulture_escort', ['Vulture', 'Vulture', 'Kurchin']), ('butcher_escort', ['Butcher', 'Butcher', 'Kurchin'])]:
+            add('escort', 'Kurchin', label, [allies, ['Butcher']*3], variants)
     return result
 
 
@@ -266,7 +331,7 @@ def summarize(rows):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output', required=True, type=Path)
-    p.add_argument('--suite', choices=['monsters', 'tumler', 'vultures', 'lemek'], required=True)
+    p.add_argument('--suite', choices=['monsters', 'tumler', 'vultures', 'lemek', 'kurchin'], required=True)
     p.add_argument('--samples', type=int, default=32)
     p.add_argument('--workers', type=int, default=6)
     p.add_argument('--layouts', nargs='+', choices=['spawn', 'tight'], default=['spawn'])
