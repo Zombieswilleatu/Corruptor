@@ -14,6 +14,11 @@ selected Lords and Castles and discards the sandbox session.
 - Run one 15-second interval, or choose Continuous to repeat automatically.
   Pause/Resume and 0.5×/1×/2× playback are available; speed changes presentation,
   not movement or damage rules. Space pauses/resumes; Escape returns to the menu.
+- The persistent scoreboard shows **Round N** and **Your side / Enemy: reached
+  the goal**. Round 1 starts the session; finishing a round advances the counter
+  to the next round. Each side scores when its units reach the far gate.
+  These running totals include monster bodies, update with playback, survive
+  round transitions, and clear with either arena reset action.
 - Under **Random Spawns**, enable **Your side spawns each interval** and/or
   **Enemy spawns each interval**. For unattended fights, enable both, choose
   **Continuous · repeat rounds**, then click **Start**. Changes apply to the
@@ -27,7 +32,7 @@ selected Lords and Castles and discards the sandbox session.
   including both sides' choices. Both reset actions preserve spawn toggles and
   playback selections and wait until the round-preparation worker finishes.
 - The report shows live unit counts, cumulative spawns, deaths, banishments and
-  escapes, plus each side's actual cards and monster recipe for its last wave.
+  goals, plus each side's actual cards and monster recipe for its last wave.
 
 The single field reuses the game's unit art, health/armor rings, ranged
 projectiles, monster fields, hit feedback, death visuals and Sooge laser.
@@ -127,6 +132,12 @@ exceed the cap, without consuming its cards. Priority alternates by interval
 when there is only room for one wave. A worker resolves each interval without
 touching live UI state.
 
+Goal totals count recorded arrivals, even when a unit dies or is removed before
+the round ends. Each body can score once for each side; the gate reached
+determines credit if charm changed its allegiance. Playback uses the recorded
+arrival tick, so pausing cannot reveal future goals and skipping display frames
+cannot lose one. Waiting at a gate and ending the round do not score it again.
+
 ## Random spawn baseline
 
 This is a card-driven pressure generator, not the full doctrine opponent.
@@ -186,6 +197,12 @@ and random rolls, comparing the complete result and every event. Fresh-seed
 and exact-replay controls are exercised through the menu. This is a targeted
 side-symmetry check, not a population win-rate estimate. Current evidence is in
 `docs/evidence/U13_SANDBOX_OPENING_FAIRNESS_2026-09-18.json`.
+
+The scoreboard check exercises real arrivals from both ends, playback timing,
+pause/resume, faster playback, persistent round and goal totals, duplicate
+arrival events, removal after arrival, reset, and viewport bounds. It also runs
+the existing sandbox menu and worker-flow checks. The focused result is in
+`docs/evidence/U13_SANDBOX_SCOREBOARD_2026-09-18.json`.
 
 `U13FieldCombatTestRunner.gd` covers independent and many-to-one melee, forward
 and sideways reach boundaries, construction, wall collision, friendly/flying

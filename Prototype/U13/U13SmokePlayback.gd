@@ -181,6 +181,10 @@ func sample(seconds: float) -> Dictionary:
 	return {"units": result, "caption": left.caption, "clash": left.clash.duplicate(), "projectiles": projectiles, "monster_fields": fields, "monster_attacks": attacks, "banished_ids": _banished_ids.keys(), "field_structures": left.get("field_structures", []).duplicate(true)}
 
 
+func tick_time(tick: int) -> float:
+	return _spatial_lead + MOVE_SECONDS * float(tick + 1) / float(_spatial_ticks)
+
+
 func final_units() -> Array:
 	return [] if _frames.is_empty() else _frames.back().units.duplicate(true)
 

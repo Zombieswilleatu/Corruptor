@@ -1,0 +1,38 @@
+{
+  "date": "2026-09-18",
+  "change": "Persistent sandbox round and goal counters for both sides",
+  "base_commit": "628c4fa0bc5f57897948f77e4973305795364489",
+  "behavior": [
+    "Always-visible Round N, Your side goals, and Enemy goals above the battlefield.",
+    "Goals increment on recorded far-gate arrival during playback and accumulate across rounds. Both arena reset actions return to round one and zero goals.",
+    "Counts all marcher bodies, including monsters. Arrival credit uses the gate reached, preserving correct allegiance at arrival.",
+    "Duplicate arrival events and waiting pictures cannot score twice; later death or removal cannot erase an arrival.",
+    "The existing surviving-unit retirement and combat simulation are unchanged."
+  ],
+  "validation": {
+    "runtime": "Godot 4.5.1.stable.official.f62fdbde1 Linux headless diagnostic project; integer-division warnings treated as errors",
+    "runner": "U13LaneSandboxTestRunner.gd: ui_checks and goal_counter_checks",
+    "checks_passed": 42,
+    "failures": 0,
+    "script_errors": 0,
+    "coverage": [
+      "Existing menu, manual spawning, auto-spawn toggles, seed replay, pause, worker preparation, continuous rounds, resets, and viewport checks.",
+      "Both owners reach their actual far gate; the other side gains no goal.",
+      "No future goal is exposed before the recorded arrival or while paused.",
+      "Waiting units count once; fast playback and the round boundary retain the total and advance Round N.",
+      "A body removed after arrival retains its goal; duplicate events cannot score it again later.",
+      "Both reset actions clear the round, goals, and pending playback arrivals."
+    ]
+  },
+  "source_sha256": {
+    "Prototype/U13/U13LaneSandbox.gd": "0c9628f493c1f25464ac257f96ddd91c1228ca8420ecc75de5e4e0b443d90222",
+    "Prototype/U13/U13SmokePlayback.gd": "24587429bd54722c6b6127ce2193f562919b2305957938da7c5e778daab6b1cb",
+    "Scripts/Sim/U13LaneSandbox.gd": "e78d4179e07d9f661420bb2792d11cfe07571e580921b10b46c0e5cb8b6dae48",
+    "Scripts/Sim/U13LaneSandboxTestRunner.gd": "542655b697877e7fdad4e3be4729a40cd2e7a7d0937941f87b47faa3001649bd",
+    "docs/U13_LANE_BALANCE_SANDBOX.md": "89343712a0ca20a085880a409c4b6dce825f918d2eb291e5efb020d33f598c21"
+  },
+  "limits": [
+    "Windows Godot 4.7.2 interactive visual review was not run here.",
+    "Focused sandbox checks only; no combat rules changed and no balance sweep was repeated."
+  ]
+}

@@ -25,6 +25,9 @@ var mode: OptionButton
 var speed: OptionButton
 var seed_entry: LineEdit
 var status: Label
+var round_note: Label
+var home_goal_note: Label
+var enemy_goal_note: Label
 var counts: Label
 var wave_note: Label
 var home_wave_note: Label
@@ -37,6 +40,9 @@ var spawn_buttons: Dictionary = {}
 var monster_button: Button
 var spawn_status: Label
 var feedback_cursor: int = 0
+var goal_rows: Array = []
+var goal_cursor: int = 0
+var round_goals: Array = [0, 0]
 
 func _ready() -> void:
 	sim = Sim.new(fresh_seed())
@@ -58,6 +64,19 @@ func _ready() -> void:
 	var title := label(top, "MARCHER & MONSTER BALANCE", 25)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button(top, "MAIN MENU", dismiss)
+	var scoreboard := HBoxContainer.new()
+	scoreboard.add_theme_constant_override("separation", 32)
+	column.add_child(scoreboard)
+	round_note = label(scoreboard, "ROUND 1", 26)
+	round_note.custom_minimum_size.x = 180
+	home_goal_note = label(scoreboard, "", 22)
+	home_goal_note.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	home_goal_note.add_theme_color_override("font_color", Color("8fc4ff"))
+	enemy_goal_note = label(scoreboard, "", 22)
+	enemy_goal_note.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	enemy_goal_note.add_theme_color_override("font_color", Color("f29b98"))
+	for note in [home_goal_note, enemy_goal_note]:
+		note.tooltip_text = "Total units reaching the far gate, including monsters. Each body counts once per side, even if it dies after arrival. Resets with the arena."
 	status = label(column, "Spawn both sides, then run the lane.", 17)
 	var row := HBoxContainer.new()
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -208,6 +227,7 @@ func pause() -> void:
 	_sync_controls()
 
 func _begin_interval() -> void:
+	_clear_goal_playback()
 	for request in pending: _spawn(request)
 	pending.clear()
 	var random_sides: Array = []
@@ -248,12 +268,19 @@ func _process(delta: float) -> void:
 			_sync_controls()
 			return
 		active = true
+		goal_rows = sim.goal_arrivals(result.events)
 		field.show_frame(playback.sample(0), sim.round_number)
 		if not running: status.text = "Interval %d ready. Resume to play." % sim.round_number
 		_sync_controls()
 	if not active or not running: return
 	elapsed = minf(INTERVAL, elapsed + delta * [0.5, 1.0, 2.0][speed.selected])
-	var frame: Dictionary = playback.sample(playback.duration * elapsed / INTERVAL)
+	var playback_time: float = playback.duration * elapsed / INTERVAL
+	var frame: Dictionary = playback.sample(playback_time)
+	# Drain the tape rather than sampled pictures, so skipped display frames
+	# and casualties after arrival cannot lose a point or count it twice.
+	while goal_cursor < goal_rows.size() and playback.tick_time(goal_rows[goal_cursor].tick) <= playback_time:
+		round_goals[goal_rows[goal_cursor].owner] += 1
+		goal_cursor += 1
 	field.show_frame(frame, sim.round_number)
 	var hits: Array = []
 	while feedback_cursor < playback.feedback_rows.size() and float(playback.feedback_rows[feedback_cursor].at) <= playback.duration * elapsed / INTERVAL:
@@ -264,6 +291,7 @@ func _process(delta: float) -> void:
 	status.text = "Interval %d · %.1f / 15s · %d queued spawns" % [sim.round_number, elapsed, pending.size()]
 	if elapsed >= INTERVAL:
 		sim.finish(result)
+		_clear_goal_playback()
 		result = {}
 		active = false
 		playback = Playback.new()
@@ -299,6 +327,9 @@ func _update_wave_notes() -> void:
 		note.text = sim.last_waves[pid].get("summary", side + " draws on the next interval.") if toggle.button_pressed else side + " random spawning is off."
 
 func _report(rows: Array) -> void:
+	round_note.text = "ROUND %d" % sim.round_number
+	home_goal_note.text = "YOUR SIDE · %d reached the goal" % (sim.totals[0].reached_goal + round_goals[0])
+	enemy_goal_note.text = "ENEMY · %d reached the goal" % (sim.totals[1].reached_goal + round_goals[1])
 	var lines: PackedStringArray = []
 	var total_lines: PackedStringArray = []
 	for pid in [1, 0]:
@@ -312,12 +343,17 @@ func _report(rows: Array) -> void:
 		for name in names: lines.append("%s × %d" % [name, names[name]])
 		lines.append("")
 		var t: Dictionary = sim.totals[pid]
-		total_lines.append("%s\nSpawned %d · Lost %d\nBanished %d · Escaped %d" % ["ENEMY" if pid == 1 else "YOUR SIDE", t.spawned, t.defeated, t.banished, t.escaped])
+		total_lines.append("%s\nSpawned %d · Lost %d\nBanished %d · Goals %d" % ["ENEMY" if pid == 1 else "YOUR SIDE", t.spawned, t.defeated, t.banished, t.reached_goal + round_goals[pid]])
 	counts.text = "\n".join(lines)
 	totals_note.text = "\n\n".join(total_lines)
 
 static func fresh_seed() -> String:
 	return "lane-%08x-%08x" % [randi(), randi()]
+
+func _clear_goal_playback() -> void:
+	goal_rows = []
+	goal_cursor = 0
+	round_goals = [0, 0]
 
 func new_random_arena() -> void:
 	if job != null: return
@@ -331,6 +367,7 @@ func reset() -> void:
 	elapsed = 0
 	pending.clear()
 	result = {}
+	_clear_goal_playback()
 	sim = Sim.new(seed_entry.text)
 	seed_entry.text = sim.seed_value
 	playback = Playback.new()

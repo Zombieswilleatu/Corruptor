@@ -14,6 +14,7 @@ var serial: int = 0
 var spawners: Array = []
 var last_waves: Array = [{}, {}]
 var totals: Array = []
+var goal_ids: Array = [{}, {}]
 
 func _init(seed_text: String = "lane-balance-1") -> void:
 	seed_value = seed_text if not seed_text.strip_edges().is_empty() else "lane-balance-1"
@@ -22,7 +23,7 @@ func _init(seed_text: String = "lane-balance-1") -> void:
 	Monsters.configure(world)
 	for pid in [0, 1]:
 		spawners.append(Enemy.new(seed_value, pid))
-		totals.append({"spawned": 0, "defeated": 0, "banished": 0, "escaped": 0})
+		totals.append({"spawned": 0, "defeated": 0, "banished": 0, "escaped": 0, "reached_goal": 0})
 
 func units() -> Array:
 	return world.entities.entities.filter(func(r): return r.kind == "marcher")
@@ -123,7 +124,23 @@ static func resolve_round(raw: Dictionary, seed_text: String, number: int) -> Di
 	context.hook = Marching.Timeline.MARCHING
 	return Marching.resolve(context, Callable(reaction))
 
+func goal_arrivals(events: Array) -> Array:
+	var arrivals: Array = []
+	var seen: Array = goal_ids.duplicate(true)
+	for row in events:
+		if row.event.type != "MARCHER_WAITING": continue
+		var data: Dictionary = row.event.data
+		# Use the gate actually reached, including a temporarily charmed unit.
+		var pid: int = 0 if int(data.x_fp) == Marching.LANE_FP else 1
+		if seen[pid].has(data.entity_id): continue
+		seen[pid][data.entity_id] = true
+		arrivals.append({"id": data.entity_id, "owner": pid, "tick": int(data.tick)})
+	return arrivals
+
 func finish(result: Dictionary) -> void:
+	for arrival in goal_arrivals(result.events):
+		goal_ids[arrival.owner][arrival.id] = true
+		totals[arrival.owner].reached_goal += 1
 	world = result.world
 	var seen: Dictionary = {}
 	for row in result.events:

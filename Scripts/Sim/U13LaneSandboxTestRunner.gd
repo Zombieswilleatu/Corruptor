@@ -105,6 +105,7 @@ func run() -> void:
 	sim.finish(result)
 	check(sim.units().is_empty() and sim.totals[0].escaped == 1 and sim.totals[0].defeated == 0, "gate arrival is a clean escape rather than a death")
 	await ui_checks()
+	await goal_counter_checks()
 	print("U13 lane sandbox: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
 
@@ -303,3 +304,56 @@ func ui_checks() -> void:
 	await process_frame
 	check(picker.lane_sandbox == null and picker._loadout_content.visible and picker.selection() == selection, "returning to main menu preserves the selected Lords and Castles")
 	picker.free()
+
+func goal_counter_checks() -> void:
+	var arena = UI.new()
+	root.add_child(arena)
+	await process_frame
+	arena.set_process(false)
+	for pid in [0, 1]:
+		arena.sim = Sim.new("goal-counter:%d" % pid)
+		arena.sim.spawn("Butcher", pid)
+		var ids = Sim.Ids.new(); ids.restore(arena.sim.world.entities)
+		var unit: Dictionary = arena.sim.units()[0]
+		unit.attributes.x_fp = 2398 if pid == 0 else 2
+		ids.update(unit.id, pid, unit.attributes)
+		arena.sim.world.entities = ids.snapshot()
+		arena._show_idle()
+		check(arena.round_note.text == "ROUND 1" and arena.home_goal_note.text.contains("0 reached") and arena.enemy_goal_note.text.contains("0 reached"), "round and both goal counters start at zero goals in round one")
+		arena.start(); arena.pause()
+		var deadline: int = Time.get_ticks_msec() + 15000
+		while arena.job != null and Time.get_ticks_msec() < deadline:
+			await process_frame
+			arena._process(0)
+		check(arena.active and arena.goal_rows.size() == 1 and arena.goal_rows[0].owner == pid, "actual gate arrival is credited to the side moving toward that goal")
+		if not arena.active or arena.goal_rows.size() != 1: arena.free(); return
+		var note: Label = arena.home_goal_note if pid == 0 else arena.enemy_goal_note
+		var other_note: Label = arena.enemy_goal_note if pid == 0 else arena.home_goal_note
+		var arrival_seconds: float = arena.playback.tick_time(arena.goal_rows[0].tick) / arena.playback.duration * UI.INTERVAL
+		arena.start(); arena._process(arrival_seconds * 0.9)
+		check(note.text.contains("0 reached"), "goal counter does not reveal an arrival ahead of its playback")
+		arena.pause(); arena._process(5)
+		check(note.text.contains("0 reached"), "paused playback cannot advance a goal counter")
+		arena.start(); arena._process(arrival_seconds * 0.2)
+		check(note.text.contains("1 reached") and other_note.text.contains("0 reached"), "goal counter advances as the marcher reaches the gate")
+		arena._process(3)
+		check(note.text.contains("1 reached"), "a marcher waiting at the goal never scores twice")
+		var finished: Dictionary = arena.result.duplicate(true)
+		var counted = Sim.new("casualty-after-goal")
+		var gone = Sim.Ids.new(); gone.restore(finished.world.entities); gone.retire(unit.id)
+		finished.world.entities = gone.snapshot()
+		# An arrival remains a goal even if that body is gone at round end.
+		finished.events.append(finished.events.filter(func(e): return e.event.type == "MARCHER_WAITING")[0])
+		counted.finish(finished)
+		check(counted.totals[pid].reached_goal == 1 and counted.totals[pid].escaped == 0 and counted.goal_arrivals(finished.events).is_empty(), "arrival accounting survives removal and deduplicates repeated events across rounds")
+		arena.speed.select(2)
+		arena._process(15)
+		check(arena.round_note.text == "ROUND 2" and note.text.contains("1 reached") and arena.sim.totals[pid].reached_goal == 1 and arena.round_goals == [0, 0], "fast playback and the round boundary preserve exactly one cumulative goal")
+		arena.speed.select(1)
+		await process_frame
+		var bounds: Rect2 = Rect2(Vector2.ZERO, arena.size)
+		check([arena.round_note, arena.home_goal_note, arena.enemy_goal_note, arena.field, arena.run_button].all(func(control): return bounds.encloses(control.get_global_rect())), "persistent scoreboard and arena fit the menu viewport")
+		if pid == 0: arena.reset_button.pressed.emit()
+		else: arena.new_arena_button.pressed.emit()
+		check(arena.round_note.text == "ROUND 1" and arena.home_goal_note.text.contains("0 reached") and arena.enemy_goal_note.text.contains("0 reached") and arena.goal_rows.is_empty(), "reset clears the round, cumulative goals and pending playback arrivals")
+	arena.free()
