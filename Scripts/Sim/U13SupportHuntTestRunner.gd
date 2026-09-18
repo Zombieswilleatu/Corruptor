@@ -160,11 +160,41 @@ func hunting_checks() -> void:
 			var result: Dictionary = MonsterFX.damage(w, buffer, {"source": caster, "target": dog.id, "amount": 1, "bypass": false, "ability": "Muno"}, context(w, hunt_seed(caster, dog, "Muno", 49)), 0, Callable(Game.Content.new(), "react"))
 			check(not facts(result, "MONSTER_ATTACK")[0].evaded and facts(result, "MONSTER_HUNT_RETARGETED").is_empty(), fear + " fleeing does not count as pursuing prey")
 
+func cluster_checks() -> void:
+	for pid in [0, 1]:
+		var w: Dictionary = phase_world()
+		var durable: Dictionary = {"hp": 100, "max_hp": 100}
+		put(w, "Butcher", pid, at(500, pid), dict_with_y(durable, 270))
+		put(w, "Penitent", pid, at(500, pid), dict_with_y(durable, 330))
+		var dog: Dictionary = put(w, "Tumler", pid, at(500, pid), durable)
+		put(w, "Butcher", 1 - pid, at(880, pid), dict_with_y(durable, 270))
+		put(w, "Penitent", 1 - pid, at(880, pid), dict_with_y(durable, 330))
+		var prey: Dictionary = put(w, "Vulture", 1 - pid, at(1000, pid), dict_with_y(durable, 270))
+		put(w, "Vulture", 1 - pid, at(1000, pid), dict_with_y(durable, 330), 1)
+		set_target(w, dog, prey)
+		var approaching: Dictionary = dog.duplicate(true)
+		approaching.attributes.x_fp = at(750, pid)
+		var rows: Array = w.entities.entities.filter(func(u): return u.kind == "marcher")
+		var heading: Dictionary = MonsterFX.steer(approaching, prey.attributes, rows, [])
+		check(heading == prey.attributes, "nearby enemy bodies cannot divert a hunt from clustered prey")
+		var pool: Dictionary = {"kind": "pool", "lane": "Lord", "x_fp": at(880, pid), "y_fp": 300}
+		heading = MonsterFX.steer(approaching, prey.attributes, rows, [pool])
+		check(heading != prey.attributes, "direct pursuit still avoids a slowing pool")
+		var r: Dictionary = phase("hunt_cluster_%d" % pid, w, "cluster-regression")
+		var hits: Array = facts(r, "MARCHER_MELEE_ATTACK").filter(func(d): return d.attacker.id == dog.id)
+		check(not hits.is_empty() and hits[0].tick < 80, "Tumler enters the clustered fight promptly on side " + str(pid))
+
+func dict_with_y(base: Dictionary, y: int) -> Dictionary:
+	var result: Dictionary = base.duplicate(true)
+	result["y_fp"] = y
+	return result
+
 func run() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	if not args.is_empty(): phase_output = FileAccess.open(args[0], FileAccess.WRITE)
 	pacing_checks()
 	hunting_checks()
+	cluster_checks()
 	if phase_output != null: phase_output.close()
 	print("U13 Support/Hunt failures: ", failures)
 	quit(0 if failures == 0 else 1)

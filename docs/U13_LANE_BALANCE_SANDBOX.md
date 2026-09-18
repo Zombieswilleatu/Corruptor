@@ -91,7 +91,8 @@ eligible ally is nearby. Retreating, fleeing, waiting and undeployed allies do
 not serve as screens. This changes local movement, never the saved Speed stat.
 
 Tumler keeps pursuing his chosen enemy instead of stopping to fight every
-bystander. While moving toward a live target he has **50% evasion per incoming
+bystander. He now commits through enemy clusters instead of circling nearby
+enemy bodies, while retaining slowing-pool detours. While moving toward a live target he has **50% evasion per incoming
 attack**, preventing both HP and Armor loss. Reaching his target's melee
 footprint ends evasion; a blocking wall, deployment hold or retreat also stops
 it. A landed melee hit immediately redirects his hunt to that attacker, even
@@ -120,7 +121,7 @@ count as marchers, reach gates, resurrect or award unit-death rewards.
 Foundation marks appear only after a Wright claims a site. Both the main board
 and sandbox display construction progress and completed structures.
 
-Current tuning uses `U13_VULTURE_RANGED_V8_SUPPORT_PACING` and `U13_MONSTERS_V8_HUNT_WAYPOINT`.
+Current tuning uses `U13_VULTURE_RANGED_V8_SUPPORT_PACING` and `U13_MONSTERS_V9_CLUSTER_PURSUIT`.
 Start a fresh game after updating; older rules fingerprints remain incompatible.
 
 There are no Lords, cards on the battlefield, castles, passives, Veil effects

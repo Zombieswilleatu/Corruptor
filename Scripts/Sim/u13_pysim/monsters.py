@@ -1,7 +1,7 @@
 """Monster recipes and explicit playtest tuning; independent Python rules."""
 from . import economy as e
 from .copying import copy_data
-VERSION = "U13_MONSTERS_V8_HUNT_WAYPOINT"
+VERSION = "U13_MONSTERS_V9_CLUSTER_PURSUIT"
 ROSTER = {'Lemek': {'tier': 'Easy',
            'recipe': {'Penitent': 2},
            'attack': 3,
@@ -42,7 +42,7 @@ ROSTER = {'Lemek': {'tier': 'Easy',
             'speed': 3,
             'hp': 5,
             'ability': 'Pursues a chosen enemy, preferring ordinary Vultures and support monsters. '
-                       'Skirts other enemies and slowing pools. Has 50% evasion while closing on a '
+                       'Pursues through enemy clusters while avoiding slowing pools. Has 50% evasion while closing on a '
                        'target, ending at melee contact. A landed melee hit switches his hunt to the '
                        'attacker, even if Armor absorbs it; ranged hits do not.'},
  'Kurchin': {'tier': 'Hard',
