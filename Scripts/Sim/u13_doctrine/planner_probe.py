@@ -35,10 +35,19 @@ class PlannerObserver(ReferenceObserver):
         self.coordination_counts = Counter()
         self.resource_horizon_counts = Counter()
         self.defense_counts = Counter()
+        self.artillery_counts = Counter()
         self.hazard_facts, self.hazard_hits = {}, {}
         self.hazard_hook = None
 
     def accepted(self, number, seat, decision):
+        artillery = decision.get('artillery')
+        if artillery and artillery['enabled']:
+            self.artillery_counts['measured_decisions'] += 1
+            for key in ('assessed_plans', 'target_loss_plans', 'alternatives'):
+                self.artillery_counts[key] += artillery[key]
+            self.artillery_counts['selected_retargets'] += artillery['selected_retarget']
+            self.artillery_counts['selected_target_loss_scenarios'] += artillery['selected']['siege_target_lost']
+            self.artillery_counts['selected_unknown_shots'] += artillery['selected']['unknown_shots']
         defensive = decision.get('defense')
         if defensive:
             self.defense_counts['measured_decisions'] += 1
@@ -126,6 +135,7 @@ class PlannerObserver(ReferenceObserver):
             if closing: self.decision_examples[-1]['closing'] = closing
             if coordination: self.decision_examples[-1]['coordination'] = coordination
             if resource: self.decision_examples[-1]['resource_horizon'] = resource
+            if artillery and artillery['enabled']: self.decision_examples[-1]['artillery'] = artillery
 
     def card_choice(self, number, seat, decision):
         identity = self.recorder.assess(number, seat, **decision['assessment'])
@@ -241,6 +251,7 @@ class PlannerObserver(ReferenceObserver):
             power_coordination=dict(sorted(self.coordination_counts.items())),
             resource_horizon=dict(sorted(self.resource_horizon_counts.items())),
             defense=dict(sorted(self.defense_counts.items())),
+            artillery_planning=dict(sorted(self.artillery_counts.items())),
             plan_selection=dict(counts=dict(sorted(self.selection_counts.items())),
                                 max_score_gap=self.selection_max_gap if self.selection_counts else None),
             monster_measurements='recipe opportunities, choices and actual spawned bodies; later ability benefit is unmeasured',

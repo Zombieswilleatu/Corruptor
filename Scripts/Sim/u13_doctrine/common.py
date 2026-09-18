@@ -14,6 +14,7 @@ from u13_pysim.power_rules import RULES, declaration
 from u13_pysim.powers import WISHES
 from . import lords
 from .lords.odradek import ResourceHorizon, RECONFIGURATION, SAVING_GOALS
+from .lords.deimos import ArtilleryPlans
 from .budget import Budget, Limits
 from . import closing, coordination, defensive_plans
 from .coverage import POWERS
@@ -23,7 +24,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V9_KALLIGAN_CASTLE_FIRE'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V10_DEIMOS_ARTILLERY'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -212,13 +213,15 @@ class CommonSmartCore:
 
         horizon = ResourceHorizon(f, resource_options)
         defense = defensive_plans.Defense(f, self.weights)
+        artillery = ArtilleryPlans(f, self.weights)
         complete = []
         omission_reserve = (min(4, self.limits.complete_plans//4)
             if any(p.term in coordination.TERMS for p in retained['powers']) else 0)
         defense_reserve = min(4, self.limits.complete_plans//4) if retained['guards'] or len(retained['work']) > 1 else 0
-        assembly_limit = self.limits.complete_plans-omission_reserve-defense_reserve
-        def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant=''):
-            if not omitted and not defense_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
+        artillery_reserve = min(4, self.limits.complete_plans//4) if artillery.needs_alternatives else 0
+        assembly_limit = self.limits.complete_plans-omission_reserve-defense_reserve-artillery_reserve
+        def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant='', artillery_variant=False):
+            if not omitted and not defense_variant and not artillery_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
             if not budget.take('complete_plans'): return
             selected, cards, used, resource_spend = [], set(), set(), Counter()
             plan = dict(powers=[], order={})
@@ -282,10 +285,13 @@ class CommonSmartCore:
             score += resource['score']
             defensive = defense.evaluate(plan, selected, projected)
             score += defensive['score_delta']
+            artillery_score = artillery.evaluate(plan)
+            score += artillery_score['score_delta']
             complete.append(dict(plan=plan, score=score, selected=selected, veil_risk=risk, projected=projected,
                                  protection=protection, remaining_goal=remaining_goal, saving_delta=saving_delta,
                                  coordination=coordinated, resource_horizon=resource, omitted_powers=list(omitted),
-                                 defense=defensive, defense_variant=defense_variant))
+                                 defense=defensive, defense_variant=defense_variant,
+                                 artillery=artillery_score, artillery_variant=artillery_variant))
 
         base = ('resummon', 'rites', 'work', 'guards', 'monsters', 'combat')
         # Explicit conservation plan and fixed assembly priorities preserve
@@ -317,6 +323,14 @@ class CommonSmartCore:
             before = len(complete)
             assemble(anchors, (), defense_variant=reason)
             if len(complete) > before: defensive_variants.append(reason)
+        artillery_alternatives = 0
+        variants = artillery.alternatives(complete, budget)
+        for _ in range(artillery_reserve):
+            try: anchors = next(variants)
+            except StopIteration: break
+            before = len(complete)
+            assemble(anchors, (), artillery_variant=True)
+            artillery_alternatives += len(complete)-before
         # Reserve up to four complete-plan slots for a controlled comparison:
         # same own choices, without powers whose standalone credit is reduced.
         # Reassemble to recompute payments, recipes, declaration IDs and Veil.
@@ -388,6 +402,7 @@ class CommonSmartCore:
                     coordination=coordination.report(unique, chosen, omissions),
                     resource_horizon=horizon.report(unique, chosen, resource_omissions),
                     defense=defensive_plans.report(unique, chosen, defensive_variants),
+                    artillery=artillery.report(unique, chosen, artillery_alternatives),
                     assumptions='current public board; new Guards, Ward, Work, simultaneous powers and spatial/random reactions are uncertain',
                     veil=dict(current_board_risk=chosen['veil_risk'], paid_choice_scenario=chosen['projected'],
                               protection=chosen['protection'], hard_veto=False, reason='hidden_orders_prevent_proof'),

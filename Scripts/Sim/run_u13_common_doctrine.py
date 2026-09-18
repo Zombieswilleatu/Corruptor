@@ -54,7 +54,7 @@ def main():
         tests = unittest.defaultTestLoader.loadTestsFromNames(['u13_doctrine.test_diagnostics', 'u13_doctrine.test_common',
             'u13_doctrine.test_recipes_veil', 'u13_doctrine.test_rites', 'u13_doctrine.test_closing',
             'u13_doctrine.test_selection', 'u13_doctrine.test_coordination', 'u13_doctrine.test_odradek',
-            'u13_doctrine.test_defensive_plans',
+            'u13_doctrine.test_defensive_plans', 'u13_doctrine.test_deimos',
             'u13_doctrine.test_kalligan', 'u13_pysim.test_scorch_castles',
             'u13_pysim.test_powers.PowerTests.test_pyroclasm_blocks_one_round_then_reopens_without_extending_scorch',
             'u13_doctrine.test_comparison', 'u13_pysim.test_marching'])
