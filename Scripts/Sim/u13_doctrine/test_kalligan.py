@@ -131,7 +131,9 @@ class KalliganTests(unittest.TestCase):
         self.assertEqual('Kopita',choice['plan']['order']['monster_choice'])
 
     def test_natural_useful_pulse_survives_with_less_friendly_exposure(self):
-        case, game = load_case(1); choice = CommonSmartCore().decide(observe(game,0),Preview(game,0))
+        case, game = load_case(1); view = observe(game,0)
+        self.assertEqual(case['view_sha256'],fingerprint(view))
+        choice = CommonSmartCore().decide(view,Preview(game,0))
         self.assertIn('Pyroclasm',[s['power_id'] for s in choice['plan']['powers']])
         exposures = []
         for plan in (case['original_plans'][0],choice['plan']):

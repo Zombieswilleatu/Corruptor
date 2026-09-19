@@ -571,7 +571,14 @@
       },
       "source_record": "kalligan_gremory_00__candidate_p0.json.gz",
       "source_record_sha256": "ec89f62e1f36dd89185985d8078e2e208be37b77225d1c8f5dba41eb9c09767a",
-      "view_sha256": "3ffe1b559c0e09ed70da3f7344b4f4a3c24265f2d09a8cc91fd4bae20dcd96fc"
+      "view_sha256": "0c1d2ed7d08412b1752ee55569e1d0f27beede72d111ec3ff3461653b4acb0af",
+      "view_sha256_history": [
+        {
+          "replay_revision": "349b7cfb096deb46910fb2c5014dcf57d2314932",
+          "engine_source_sha256": "0b06a638604431444fc44a1a2c625d882a61e87070ec9fb5ee2489a72c54efe6",
+          "view_sha256": "3ffe1b559c0e09ed70da3f7344b4f4a3c24265f2d09a8cc91fd4bae20dcd96fc"
+        }
+      ]
     },
     {
       "historical_view_sha256": "00ee570e0228b3cf3e27796771b80fc292ca9e068a23afcc999c75a29514442a",
@@ -1103,12 +1110,24 @@
       },
       "source_record": "kalligan_deimos_00__candidate_p0.json.gz",
       "source_record_sha256": "229507f5ee7fb00f30b1316e49da5b2c3b84eb2224b915b80fc300bacca837c0",
-      "view_sha256": "4efd0749c97067f1bedcbc764b357ff7dfb6fec5c7e42792e025bee793d9bb6a"
+      "view_sha256": "55c5efe404b3f9677010c591d582f4ad6102ffefd78a0704497a0a6a095eac9c",
+      "view_sha256_history": [
+        {
+          "replay_revision": "349b7cfb096deb46910fb2c5014dcf57d2314932",
+          "engine_source_sha256": "0b06a638604431444fc44a1a2c625d882a61e87070ec9fb5ee2489a72c54efe6",
+          "view_sha256": "4efd0749c97067f1bedcbc764b357ff7dfb6fec5c7e42792e025bee793d9bb6a"
+        }
+      ]
     }
   ],
   "castle_rules_note": "Original operations and plans retained. Current observation pins include Castle fire profile/ledger, every-other-round Pyro cooldown and current support-pacing rules. Historical fingerprints remain separate. Integrated monster waypoint profile V8; original operations and outcome assertions remain unchanged.",
   "historical_engine_revision": "eed8e2d39358e584e43afe43ff70fafbe8423220",
-  "replay_engine_revision": "acfdcdb5dd746a33efe30c2969d623912e896992",
+  "replay_engine_revision": "8591fae49ce13b216f50554d92e9b1506589131e",
   "schema": "U13_KALLIGAN_PULSE_CASES_V1",
-  "scope": "Exact natural input prefixes; only public monster version differs from historical observations. Opposing orders are used after policy choice for retrospective resolution, never supplied to policy."
+  "scope": "Original natural input prefixes replayed on the identified current engine; earlier observation fingerprints are retained. Opposing orders enter retrospective resolution only after policy choice, never policy observation.",
+  "previous_replay_engine_revisions": [
+    "acfdcdb5dd746a33efe30c2969d623912e896992"
+  ],
+  "replay_engine_source_sha256": "5c839429708d142c8046c765467c7a34fd9587c5146110880dc2378108c8ea0e",
+  "current_replay_note": "2026-09-19 integration: original setup, operation prefixes and opposing plans are unchanged. Expected observations now include Wright repair/release state and Tumler cluster pursuit at 8591fae. The two longer Deimos prefixes also produce changed Marching positions, survivors and (against Humbaba) Veil history; these are reviewed rule effects, not merely metadata changes. All six selected plans match the earlier engine. Earlier observation fingerprints remain in view_sha256_history."
 }

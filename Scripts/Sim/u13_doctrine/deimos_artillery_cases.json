@@ -3014,7 +3014,14 @@
         ],
         "seed": "u13-deimos-tactics-2026-09-18:Deimos:Humbaba:00"
       },
-      "view_sha256": "4bfd18f0545cdc60ddd21cc1e0570cb436d8a30fe04ddc5427ef9875bcc53161"
+      "view_sha256": "ba518164629e790e92d35c6e37aa722819f3ed7e7bd11d5194248d8093aa470a",
+      "view_sha256_history": [
+        {
+          "replay_revision": "349b7cfb096deb46910fb2c5014dcf57d2314932",
+          "engine_source_sha256": "0b06a638604431444fc44a1a2c625d882a61e87070ec9fb5ee2489a72c54efe6",
+          "view_sha256": "4bfd18f0545cdc60ddd21cc1e0570cb436d8a30fe04ddc5427ef9875bcc53161"
+        }
+      ]
     },
     {
       "name": "deimos_deimos_00",
@@ -5153,12 +5160,22 @@
         ],
         "seed": "u13-deimos-tactics-2026-09-18:Deimos:Deimos:00"
       },
-      "view_sha256": "abbf06659d16c75ff5721477bf4e7b6fa2ccddc35b8d0221401f0111ff136cc5"
+      "view_sha256": "44005bd525f5682e3617103d564f5dacb52c8ae67fe9d41fa8a5442199978dfe",
+      "view_sha256_history": [
+        {
+          "replay_revision": "349b7cfb096deb46910fb2c5014dcf57d2314932",
+          "engine_source_sha256": "0b06a638604431444fc44a1a2c625d882a61e87070ec9fb5ee2489a72c54efe6",
+          "view_sha256": "abbf06659d16c75ff5721477bf4e7b6fa2ccddc35b8d0221401f0111ff136cc5"
+        }
+      ]
     }
   ],
   "engine_source_sha256": "0b06a638604431444fc44a1a2c625d882a61e87070ec9fb5ee2489a72c54efe6",
   "equivalent_published_revision": "61e1a47403cc90d2341bede8ddde19bfaefca01a",
   "schema": "U13_DEIMOS_ARTILLERY_NATURAL_V1",
   "scope": "Original unmodified V9 operations; change only the selected seat at the named planning boundary.",
-  "source_revision": "0a1c2aadcfaafb91599eef634939b3c7b0f3a92e"
+  "source_revision": "0a1c2aadcfaafb91599eef634939b3c7b0f3a92e",
+  "replay_engine_revision": "8591fae49ce13b216f50554d92e9b1506589131e",
+  "replay_engine_source_sha256": "5c839429708d142c8046c765467c7a34fd9587c5146110880dc2378108c8ea0e",
+  "current_replay_note": "2026-09-19 integration: original setup, operation prefixes and opposing plans are unchanged. Expected observations now include Wright repair/release state and Tumler cluster pursuit at 8591fae. The two longer Deimos prefixes also produce changed Marching positions, survivors and (against Humbaba) Veil history; these are reviewed rule effects, not merely metadata changes. All six selected plans match the earlier engine. Earlier observation fingerprints remain in view_sha256_history."
 }

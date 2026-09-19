@@ -302,9 +302,16 @@
         }
       ],
       "protected_castle": "u13_entity_castle:16:loadout:castle:0:1:0",
-      "view_sha256": "2a51be92543c53fe19d22f0be15de4a849b590dfb0594de0f6719df375ee289b",
+      "view_sha256": "609477e3283c1ede5805c21b4a28ea2773204dde03dfee13fe429c7a179b166a",
       "historical_view_sha256": "56b76beded4bf769b7684a7f9e918c5d3dab9b94bcb9ad76eba789b43bae970f",
-      "pre_castle_rules_view_sha256": "bf778c4e99e4d7388e8a861da517dbe297e32c959bc9a018c206e98e8b4da581"
+      "pre_castle_rules_view_sha256": "bf778c4e99e4d7388e8a861da517dbe297e32c959bc9a018c206e98e8b4da581",
+      "view_sha256_history": [
+        {
+          "replay_revision": "349b7cfb096deb46910fb2c5014dcf57d2314932",
+          "engine_source_sha256": "0b06a638604431444fc44a1a2c625d882a61e87070ec9fb5ee2489a72c54efe6",
+          "view_sha256": "2a51be92543c53fe19d22f0be15de4a849b590dfb0594de0f6719df375ee289b"
+        }
+      ]
     },
     {
       "name": "kroni_valak_00",
@@ -812,12 +819,24 @@
         }
       ],
       "protected_castle": "u13_entity_castle:16:loadout:castle:1:1:0",
-      "view_sha256": "c4260071dea74c1dcc0a1ea1318cb3f9025afa9013ffd0145201df39381e9f2f",
+      "view_sha256": "be212a858b6761c1130decc20f13d9dd94cda7610809adae36b44215b6d5946b",
       "historical_view_sha256": "0fba84c7f2dca0eaa99a25e379ec4a975ed593b84b625712e676e409228c01e3",
-      "pre_castle_rules_view_sha256": "9f8ecb7010c989715e2bdbd7ce549942e8c50f4ad0904ccf6e468d6f83b7bf84"
+      "pre_castle_rules_view_sha256": "9f8ecb7010c989715e2bdbd7ce549942e8c50f4ad0904ccf6e468d6f83b7bf84",
+      "view_sha256_history": [
+        {
+          "replay_revision": "349b7cfb096deb46910fb2c5014dcf57d2314932",
+          "engine_source_sha256": "0b06a638604431444fc44a1a2c625d882a61e87070ec9fb5ee2489a72c54efe6",
+          "view_sha256": "c4260071dea74c1dcc0a1ea1318cb3f9025afa9013ffd0145201df39381e9f2f"
+        }
+      ]
     }
   ],
-  "replay_engine_revision": "b61bc9e",
+  "replay_engine_revision": "8591fae49ce13b216f50554d92e9b1506589131e",
   "integration_note": "The recorded inputs are unchanged. At b61bc9e each planning observation differs only in data.monsters.version, V5 to V6; historical hashes are preserved alongside the integrated expected hashes.",
-  "castle_rules_note": "Operations and historical fingerprints retained; current observation pins include Castle Scorch ledger/profile and support-pacing rule metadata. Defense outcome assertions remain unchanged. Integrated monster waypoint profile V8; original operations and outcome assertions remain unchanged."
+  "castle_rules_note": "Operations and historical fingerprints retained; current observation pins include Castle Scorch ledger/profile and support-pacing rule metadata. Defense outcome assertions remain unchanged. Integrated monster waypoint profile V8; original operations and outcome assertions remain unchanged.",
+  "previous_replay_engine_revisions": [
+    "b61bc9e"
+  ],
+  "replay_engine_source_sha256": "5c839429708d142c8046c765467c7a34fd9587c5146110880dc2378108c8ea0e",
+  "current_replay_note": "2026-09-19 integration: original setup, operation prefixes and opposing plans are unchanged. Expected observations now include Wright repair/release state and Tumler cluster pursuit at 8591fae. The two longer Deimos prefixes also produce changed Marching positions, survivors and (against Humbaba) Veil history; these are reviewed rule effects, not merely metadata changes. All six selected plans match the earlier engine. Earlier observation fingerprints remain in view_sha256_history."
 }
