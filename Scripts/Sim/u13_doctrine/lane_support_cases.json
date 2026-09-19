@@ -2228,6 +2228,15 @@
       ],
       "record_operations_sha256": "1b06d85a64926d4ee82e21cdd57498a50c013de675d8a7d8e236775d53a8b2c6",
       "revised_plan_sha256": "1ba8f242968d80e833ffe336e92941c457e958c012b03c386abf6a6408656919",
+      "current_replay_plan_sha256": "398035d04b1a4a7833b0282452e348a2bae244a1710547f5458def8a2da28dd3",
+      "expected_rout_lane": "Lord",
+      "rout_answer_review": {
+        "candidate_revision": "fd13b3f",
+        "previous_policy": "V12",
+        "previous_rout_lane": "Castle",
+        "engine_source_sha256": "e093e1fd92bd619129cc56a7483056335b951d837d91fa4bc5e61014d892bd61",
+        "note": "V13 prioritizes the outmatched Lord lane over a larger Castle wave with stronger defenders. Four legal three-round continuations compare V12, V13, only the Rout lane change, and holding. V13 and the Rout-only intervention have identical checkpoints. At round 10, V12 preserves one extra Castle ally and five HP; at round 11, V13 preserves six additional Lord-lane HP. Castle integrity is identical through round 12. This is a measured tradeoff, not a proven superior fixture outcome; no continuation has finished by round 13. Historical fingerprints and original opposing orders are retained."
+      },
       "round": 10,
       "seat": 0,
       "setup": {

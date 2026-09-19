@@ -240,7 +240,7 @@ class LaneSupportTests(unittest.TestCase):
                 self.assertEqual(before,game.snapshot());self.assertEqual([],choice['rejected_previews'])
                 powers={s['power_id']:s for s in choice['plan']['powers']}
                 if case['kind']=='hold':self.assertNotIn('Rout',powers)
-                elif case['kind']=='retarget':self.assertEqual('Castle',powers['Rout']['target']['lane'])
+                elif case['kind']=='retarget':self.assertEqual(case.get('expected_rout_lane','Castle'),powers['Rout']['target']['lane'])
                 elif case['kind']=='pair':
                     self.assertIn(MUSTER,powers);self.assertNotIn(BREATH,powers)
                 elif case['kind'] in ('recruit_support','existing_support'):
@@ -266,4 +266,4 @@ class LaneSupportTests(unittest.TestCase):
                             self.assertEqual(case.get('expected_healing',2) if case['kind']=='heal' else 0,pulses[0]['healing'])
                         elif case['kind']=='retarget':
                             rout=next(e['data'] for e in events if e['type']=='ROUT_APPLIED' and e['data']['player_id']==seat)
-                            self.assertEqual('Castle',rout['lane']);self.assertGreater(len(rout['affected_ids']),0)
+                            self.assertEqual(case.get('expected_rout_lane','Castle'),rout['lane']);self.assertGreater(len(rout['affected_ids']),0)
