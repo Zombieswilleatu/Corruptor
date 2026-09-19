@@ -1,0 +1,1870 @@
+{
+  "baseline": {
+    "counts": {
+      "BreathOfLife_selected": 87,
+      "MusterTheFaithful_selected": 170,
+      "Rout_selected": 84,
+      "breath_visible_units_at_planning": 1707,
+      "breath_waiting_at_planning": 24,
+      "breath_wounded_eligible_at_planning": 122,
+      "posthoc_rout_hold": 13,
+      "posthoc_rout_retarget": 3,
+      "posthoc_rout_same_lane": 68
+    },
+    "manifest": {
+      "audit_runner_sha256": "ae8ecdbcc4e706f22a6c531bc9d4051a248876eefc7312da4b5096ac6865989a",
+      "engine_source_sha256": "9748bdbbc1b497af58159b985abe7e25a08b086eb9821a91a2ae41894eeec799",
+      "harness_source_sha256": "6755048b290337e2a943a777463a86bfe5592b397ff1fb94d207211c48775da7",
+      "implementation": "CPython",
+      "loadout": [
+        "Keep",
+        "Stockpile",
+        "SummoningCircle",
+        "SiegeEngine",
+        "Bastion"
+      ],
+      "lords": [
+        "Gremory",
+        "Deimos",
+        "Humbaba",
+        "Kalligan",
+        "Orias",
+        "Odradek",
+        "Kroni",
+        "Valak",
+        "Kanifous"
+      ],
+      "namespace": "u13-rout-humbaba-2026-09-19",
+      "policy": "U13_COMMON_SMART_CORE_ALPHA_V10_DEIMOS_ARTILLERY",
+      "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+      "round_cap": 40,
+      "runner_sha256": "744e1ad288e04ce91be20e089d1cf09e4b6f417c9e27e95db6b7cea8e3028b3a",
+      "schema": "U13_DOCTRINE_SURVEY_V1",
+      "scope": "Current-rule V10 behavior for every ordered matchup involving Deimos or Humbaba; no strength or balance claim.",
+      "source_revision": "156e48e65ce7ffc14b6261150f860f56ab5cb877",
+      "weights": {
+        "banishment": 32,
+        "card_cost": 2,
+        "damage": 3,
+        "destruction": 30,
+        "enemy_settlement_risk": 90,
+        "guard": 5,
+        "monster": 2,
+        "recipe_save": 1,
+        "recruit": 6,
+        "return_lord": 75,
+        "tear": 22,
+        "veil_protection": 8
+      }
+    },
+    "scope": "V10 observations before Breath pulse and Sinodek immunity; posthoc Rout categories are public heuristic opportunities, not actual benefit or a policy strength comparison",
+    "summary_sha256": "5b7e2e6b3e779970f0415695517c7f770f47ad9a81fb31affc537a3bd628720b",
+    "totals": {
+      "completed": 32,
+      "failed": 0,
+      "operations": 15356,
+      "rejected_previews": 0,
+      "rounds": 613
+    }
+  },
+  "controlled_power_effects": {
+    "cases": [
+      {
+        "kind": "hold",
+        "name": "deimos_deimos_00_r2_s0",
+        "results": [
+          {
+            "events_sha256": "af0cd620e7eacc3db8029030a6f19c78fda4a676f3b937287de23da4d55995f3",
+            "muster_positions": {},
+            "own_hp": 90,
+            "own_marchers": 16,
+            "powers": [
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:3:0:2:1:0",
+                "declared_round": 2,
+                "fire_hook": "post_resolution_movement_state",
+                "fire_round": 2,
+                "lord_id": "Deimos",
+                "parameters": {},
+                "player_id": 0,
+                "power_id": "Rout",
+                "queue_index": 0,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "lane": "Castle"
+                },
+                "visibility": "public"
+              }
+            ],
+            "routed": [
+              {
+                "affected_ids": [
+                  "u13_entity_marcher:25:u13_monster:3:1:1:5:Lemek:1:0",
+                  "u13_entity_marcher:27:u13_monster:3:2:1:7:Kurchin:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:2:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:2:1:6:Wright:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:2"
+                ],
+                "effect_id": "u13_persistent:25:u13_declaration:3:0:2:1:0:4:Rout",
+                "lane": "Castle",
+                "player_id": 0,
+                "recovery_round": 3,
+                "round": 2
+              }
+            ],
+            "state_sha256": "dc6b67aa4ce1677498a8effadb3b9ad33bf635a75fb801701740267137c11de0",
+            "variant": "original"
+          },
+          {
+            "events_sha256": "e5cb2556f0a9d199a0e69c1b5419a2d57a51d6b7807ccaa22881b8f841ebbe9a",
+            "muster_positions": {},
+            "own_hp": 90,
+            "own_marchers": 16,
+            "powers": [],
+            "routed": [],
+            "state_sha256": "77ec6a0d57e9a551a808b4ab0f784ec8b031b9eb5f52791c95ceecbafa5f7758",
+            "variant": "alternative"
+          }
+        ],
+        "scope": "same current engine, seed, original opponent and own order; only named power changes"
+      },
+      {
+        "kind": "retarget",
+        "name": "deimos_deimos_00_r10_s0",
+        "results": [
+          {
+            "events_sha256": "ff1d1df537eec4c03bb4a226675a295fa2ef5add650b40c639a58d3af806b1a8",
+            "muster_positions": {},
+            "own_hp": 213,
+            "own_marchers": 39,
+            "powers": [
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:4:0:10:1:0",
+                "declared_round": 10,
+                "fire_hook": "post_resolution_movement_state",
+                "fire_round": 10,
+                "lord_id": "Deimos",
+                "parameters": {},
+                "player_id": 0,
+                "power_id": "Rout",
+                "queue_index": 0,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "lane": "Lord"
+                },
+                "visibility": "public"
+              }
+            ],
+            "routed": [
+              {
+                "affected_ids": [
+                  "u13_entity_marcher:27:u13_monster:3:7:1:7:Kurchin:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:6:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:1",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:2",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:3",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:4",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:5",
+                  "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:0",
+                  "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:1",
+                  "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:2",
+                  "u13_entity_marcher:30:u13_commitment:3:7:1:7:Vulture:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:6:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:6:1:8:Penitent:1:2",
+                  "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:2",
+                  "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:3"
+                ],
+                "effect_id": "u13_persistent:26:u13_declaration:4:0:10:1:0:4:Rout",
+                "lane": "Lord",
+                "player_id": 0,
+                "recovery_round": 11,
+                "round": 10
+              }
+            ],
+            "state_sha256": "cabd2e9caf884237e3d00761142b18fe08e5a0604824cdc1c2b7626986b7b257",
+            "variant": "original"
+          },
+          {
+            "events_sha256": "6b6088a6363799dced40ca5575dc8dec37ff8d572a2f650414ee0ffea109c19e",
+            "muster_positions": {},
+            "own_hp": 241,
+            "own_marchers": 40,
+            "powers": [
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:4:0:10:1:0",
+                "declared_round": 10,
+                "fire_hook": "post_resolution_movement_state",
+                "fire_round": 10,
+                "lord_id": "Deimos",
+                "parameters": {},
+                "player_id": 0,
+                "power_id": "Rout",
+                "queue_index": 0,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "lane": "Castle"
+                },
+                "visibility": "public"
+              }
+            ],
+            "routed": [
+              {
+                "affected_ids": [
+                  "u13_entity_marcher:25:u13_monster:3:9:1:5:Lemek:1:0",
+                  "u13_entity_marcher:26:u13_monster:3:8:1:6:Tumler:1:0",
+                  "u13_entity_marcher:28:u13_monster:4:10:1:7:Kurchin:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:2:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:3:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:4:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:4:1:6:Wright:1:1",
+                  "u13_entity_marcher:29:u13_commitment:3:4:1:6:Wright:1:2",
+                  "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:1",
+                  "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:2",
+                  "u13_entity_marcher:30:u13_commitment:3:8:1:7:Vulture:1:0",
+                  "u13_entity_marcher:30:u13_commitment:3:8:1:7:Vulture:1:1",
+                  "u13_entity_marcher:30:u13_commitment:4:10:1:6:Wright:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:2",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:3",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:4",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:5",
+                  "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:2",
+                  "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:3",
+                  "u13_entity_marcher:32:u13_commitment:4:10:1:8:Penitent:1:0",
+                  "u13_entity_marcher:32:u13_commitment:4:10:1:8:Penitent:1:1",
+                  "u13_entity_marcher:32:u13_commitment:4:10:1:8:Penitent:1:2",
+                  "u13_entity_marcher:32:u13_commitment:4:10:1:8:Penitent:1:3"
+                ],
+                "effect_id": "u13_persistent:26:u13_declaration:4:0:10:1:0:4:Rout",
+                "lane": "Castle",
+                "player_id": 0,
+                "recovery_round": 11,
+                "round": 10
+              }
+            ],
+            "state_sha256": "3baf47d2dc388b1080e81dfb111abb9a455178e3732e22bc9bc61fe98a68e949",
+            "variant": "alternative"
+          }
+        ],
+        "scope": "same current engine, seed, original opponent and own order; only named power changes"
+      },
+      {
+        "kind": "pair",
+        "muster_forward_gain": {
+          "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:0:1:1:0:4:main:1:0": 150,
+          "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:0:1:1:0:4:main:1:1": 150,
+          "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:0:1:1:0:4:main:1:2": 150
+        },
+        "name": "humbaba_gremory_00_r1_s0",
+        "results": [
+          {
+            "events_sha256": "6b385a3831f232ae1c58f4c73af82eb8516080191413383ceac0050e7cfda033",
+            "muster_positions": {
+              "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:0:1:1:0:4:main:1:0": {
+                "x_fp": 814,
+                "y_fp": 312
+              },
+              "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:0:1:1:0:4:main:1:1": {
+                "x_fp": 767,
+                "y_fp": 390
+              },
+              "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:0:1:1:0:4:main:1:2": {
+                "x_fp": 851,
+                "y_fp": 202
+              }
+            },
+            "own_hp": 30,
+            "own_marchers": 5,
+            "powers": [
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:3:0:1:1:0",
+                "declared_round": 1,
+                "fire_hook": "post_resolution_spawns",
+                "fire_round": 1,
+                "lord_id": "Humbaba",
+                "parameters": {},
+                "player_id": 0,
+                "power_id": "MusterTheFaithful",
+                "queue_index": 0,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "lane": "Castle"
+                },
+                "visibility": "public"
+              },
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:3:0:1:1:1",
+                "declared_round": 1,
+                "fire_hook": "post_resolution_movement_state",
+                "fire_round": 1,
+                "lord_id": "Humbaba",
+                "parameters": {},
+                "player_id": 0,
+                "power_id": "BreathOfLife",
+                "queue_index": 1,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "lane": "Castle"
+                },
+                "visibility": "public"
+              }
+            ],
+            "routed": [],
+            "state_sha256": "77a2f2285f02fb6cf1b5eac84d84f32a7490c820769cd1ee99799d9bf3306d5d",
+            "variant": "original"
+          },
+          {
+            "events_sha256": "0690b99f087b8959b605787e9ff45800d9a45399014a629a464a43f1bf5dc55f",
+            "muster_positions": {
+              "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:0:1:1:0:4:main:1:0": {
+                "x_fp": 664,
+                "y_fp": 312
+              },
+              "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:0:1:1:0:4:main:1:1": {
+                "x_fp": 617,
+                "y_fp": 433
+              },
+              "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:0:1:1:0:4:main:1:2": {
+                "x_fp": 701,
+                "y_fp": 202
+              }
+            },
+            "own_hp": 30,
+            "own_marchers": 5,
+            "powers": [
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:3:0:1:1:0",
+                "declared_round": 1,
+                "fire_hook": "post_resolution_spawns",
+                "fire_round": 1,
+                "lord_id": "Humbaba",
+                "parameters": {},
+                "player_id": 0,
+                "power_id": "MusterTheFaithful",
+                "queue_index": 0,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "lane": "Castle"
+                },
+                "visibility": "public"
+              }
+            ],
+            "routed": [],
+            "state_sha256": "cc13d57656f7067d83bd757745b41af207d2dc64c3281af428f4a5a3f608e517",
+            "variant": "alternative"
+          }
+        ],
+        "scope": "same current engine, seed, original opponent and own order; only named power changes"
+      },
+      {
+        "kind": "pair",
+        "muster_forward_gain": {
+          "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:1:1:1:0:4:main:1:0": 150,
+          "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:1:1:1:0:4:main:1:1": 150,
+          "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:1:1:1:0:4:main:1:2": 150
+        },
+        "name": "gremory_humbaba_00_r1_s1",
+        "results": [
+          {
+            "events_sha256": "23ae62ffd0b1bf8446d66bb8580eed6f32332bc7ed69e144d8e50f8cdbc23104",
+            "muster_positions": {
+              "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:1:1:1:0:4:main:1:0": {
+                "x_fp": 1545,
+                "y_fp": 500
+              },
+              "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:1:1:1:0:4:main:1:1": {
+                "x_fp": 1643,
+                "y_fp": 277
+              },
+              "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:1:1:1:0:4:main:1:2": {
+                "x_fp": 1544,
+                "y_fp": 337
+              }
+            },
+            "own_hp": 45,
+            "own_marchers": 10,
+            "powers": [
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:3:1:1:1:0",
+                "declared_round": 1,
+                "fire_hook": "post_resolution_spawns",
+                "fire_round": 1,
+                "lord_id": "Humbaba",
+                "parameters": {},
+                "player_id": 1,
+                "power_id": "MusterTheFaithful",
+                "queue_index": 0,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "lane": "Castle"
+                },
+                "visibility": "public"
+              },
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:3:1:1:1:1",
+                "declared_round": 1,
+                "fire_hook": "post_resolution_movement_state",
+                "fire_round": 1,
+                "lord_id": "Humbaba",
+                "parameters": {},
+                "player_id": 1,
+                "power_id": "BreathOfLife",
+                "queue_index": 1,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "lane": "Castle"
+                },
+                "visibility": "public"
+              }
+            ],
+            "routed": [],
+            "state_sha256": "069485eddc5611da9e58e23a246afebd4addb1d2594115c5025f1f97deee9a0f",
+            "variant": "original"
+          },
+          {
+            "events_sha256": "ef506e59eb978a23c1bc29d7848dd6114dc8fc737e40195b3255c8e1fc56afcd",
+            "muster_positions": {
+              "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:1:1:1:0:4:main:1:0": {
+                "x_fp": 1695,
+                "y_fp": 500
+              },
+              "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:1:1:1:0:4:main:1:1": {
+                "x_fp": 1793,
+                "y_fp": 277
+              },
+              "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:1:1:1:0:4:main:1:2": {
+                "x_fp": 1694,
+                "y_fp": 337
+              }
+            },
+            "own_hp": 45,
+            "own_marchers": 10,
+            "powers": [
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:3:1:1:1:0",
+                "declared_round": 1,
+                "fire_hook": "post_resolution_spawns",
+                "fire_round": 1,
+                "lord_id": "Humbaba",
+                "parameters": {},
+                "player_id": 1,
+                "power_id": "MusterTheFaithful",
+                "queue_index": 0,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "lane": "Castle"
+                },
+                "visibility": "public"
+              }
+            ],
+            "routed": [],
+            "state_sha256": "6575336347b4d0b1260ffb77377d94a0f9e469420762721075c327032784a180",
+            "variant": "alternative"
+          }
+        ],
+        "scope": "same current engine, seed, original opponent and own order; only named power changes"
+      }
+    ],
+    "engine_source_sha256": "00dd00f2192f5c5913494b0cb7cea11fc58b04080ab1d8b9216c7760fc6c9c11",
+    "source_revision": "c0b2a76fdc1ae33239194a18f9477bbc58fc3d80"
+  },
+  "engine_source_sha256": "00dd00f2192f5c5913494b0cb7cea11fc58b04080ab1d8b9216c7760fc6c9c11",
+  "harness_source_sha256": "873fda69fedfe5c3725607ed4f25d67f912f7454b81ff8d30e49e1087d2ce511",
+  "implementation_tree": "dbcd21ec2099c2ed62acea73846db217318c0791",
+  "integrated_parent": "c0b2a76fdc1ae33239194a18f9477bbc58fc3d80",
+  "limitations": [
+    "No measured win-rate improvement or general balance conclusion.",
+    "No prediction of opposing hidden orders or future random placement.",
+    "Movement and later healing scores are conditional; Endurance can change after healing.",
+    "Linux Godot 4.5.1 diagnostics do not replace Windows Godot 4.7.2 acceptance.",
+    "Windows CPython/PyPy full reports and focused Breath parity are pending.",
+    "New native full-game doctrine parity is not established."
+  ],
+  "local_doctrine": {
+    "failures": 0,
+    "games": [
+      {
+        "decisions_sha256": "ab94824ac8735e7bfe60a10a89ba22dadb50076a2b5ed8b628b8770cdd06a902",
+        "final_state_sha256": "b93d815d64fbcfef96840e3f45aec20f95ce697b584485223ddd8343d4e22efa",
+        "name": "gremory_humbaba",
+        "operations": 469,
+        "outcome": {
+          "action": "game_finished",
+          "round": 19,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 19
+      },
+      {
+        "decisions_sha256": "5856c8891ba1903ef8824ead70357e3ded41de6859c92aa8b92f768a68581bc3",
+        "final_state_sha256": "90de2b4e6677575bd946bf0600db622ff2fc8edf2135fb473bc59f80085d0f3a",
+        "name": "deimos_kalligan",
+        "operations": 535,
+        "outcome": {
+          "action": "game_finished",
+          "round": 21,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "rounds": 21
+      },
+      {
+        "decisions_sha256": "dd3d9dc68f231a6d92e6da7b71aa20d79bc9ca3afcab4444d98c67795fcb5d90",
+        "final_state_sha256": "57b7c7250a90227a3aed2f16cbe195cb15013b390beeeaa906c9d57ba59d9f7c",
+        "name": "orias_odradek",
+        "operations": 381,
+        "outcome": {
+          "action": "game_finished",
+          "round": 15,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "rounds": 15
+      },
+      {
+        "decisions_sha256": "9eac17e9b45b71a6e2906866c697ec06f07416bb0abd277696b1e729527ddcd7",
+        "final_state_sha256": "5f83f5f0e4a9f7500acc7169a662ff0e2c9c83de3a0daa6d48a878eb15ff62fe",
+        "name": "kroni_valak",
+        "operations": 507,
+        "outcome": {
+          "action": "game_finished",
+          "round": 20,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 20
+      },
+      {
+        "decisions_sha256": "ccea0814c1280ae25413d975b8ba1d8205c87969c145e89e1b47f29e0315caac",
+        "final_state_sha256": "e00655112b84429d186d92b9f0375765800c6f15724529dce7b58b281a7c810f",
+        "name": "kanifous_gremory",
+        "operations": 295,
+        "outcome": {
+          "action": "game_finished",
+          "round": 12,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "rounds": 12
+      }
+    ],
+    "implementation": "CPython",
+    "operations": 2187,
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "rejected_previews": 0,
+    "rounds": 87,
+    "semantic_sha256": "422fb627ca24538087738e039a5bad0d08fab2d36c6f3dd62d35ca1cb9d4d1da",
+    "tests": 164
+  },
+  "native_additional": {
+    "Breath_checks": 63,
+    "Humbaba_integration_checks": 191,
+    "failures": 0,
+    "platform": "Linux",
+    "runtime": "4.5.1-stable (official)"
+  },
+  "native_breath": {
+    "cases": 4,
+    "checks": 3322,
+    "failures": 0,
+    "inputs_sha256": "3ff6b97f08830c618ba480f40797154b91d9443d8cb2e9940e2529151e8c9ad3",
+    "native_platform": "Linux",
+    "native_runtime": "4.5.1-stable (official)",
+    "operations": 456,
+    "records": 461,
+    "source_revision": "bffb5ac1ba8fcedb33b2ad4545c76e3198d5c5ad",
+    "source_sha256": "00dd00f2192f5c5913494b0cb7cea11fc58b04080ab1d8b9216c7760fc6c9c11",
+    "states": [
+      {
+        "final_state_sha256": "11ea762205046010babd1e847f5391e3ae789e2b7d7e9eb43cac6bebcd6e342d",
+        "name": "pulse_seat0",
+        "operations": 116
+      },
+      {
+        "final_state_sha256": "30fc5384f7e295faa1a6d5dcce60aaa9ae2498182388adb17998fdc01570a3a7",
+        "name": "pulse_seat1",
+        "operations": 116
+      },
+      {
+        "final_state_sha256": "9defa2dca09a9fb2a0bd32df9bd6d8e48fc5d10f11b3d79ad9637dc030e47b1c",
+        "name": "lane_reentry",
+        "operations": 118
+      },
+      {
+        "final_state_sha256": "70e12adb3e65a95340f163e73a9fede15d6d6f3f854afc9e99039dcfbce7b653",
+        "name": "armed_banishment",
+        "operations": 106
+      }
+    ]
+  },
+  "natural_replays": {
+    "cases": [
+      {
+        "coordination": {
+          "context": null,
+          "powers": [],
+          "score_delta": 0
+        },
+        "kind": "hold",
+        "name": "deimos_deimos_00",
+        "outcomes": [
+          {
+            "events_sha256": "af0cd620e7eacc3db8029030a6f19c78fda4a676f3b937287de23da4d55995f3",
+            "label": "original",
+            "plan": {
+              "order": {
+                "action": "Siege",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:15",
+                  "u13_entity_card:17:game:deck:Butcher:2:16",
+                  "u13_entity_card:17:game:deck:Vulture:2:15",
+                  "u13_entity_card:16:game:deck:Wright:2:12",
+                  "u13_entity_card:17:game:deck:Butcher:2:10",
+                  "u13_entity_card:16:game:deck:Wright:1:8",
+                  "u13_entity_card:16:game:deck:Wright:2:11",
+                  "u13_entity_card:16:game:deck:Wright:1:5",
+                  "u13_entity_card:17:game:deck:Vulture:1:3"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "use_repair_token": false
+                },
+                "lane": "Castle",
+                "monster_choice": "Muno",
+                "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:2:1:0",
+                  "declared_round": 2,
+                  "fire_hook": "post_resolution_movement_state",
+                  "fire_round": 2,
+                  "lord_id": "Deimos",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "Rout",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Castle"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            },
+            "pulses": [],
+            "routed": [
+              {
+                "affected_ids": [
+                  "u13_entity_marcher:25:u13_monster:3:1:1:5:Lemek:1:0",
+                  "u13_entity_marcher:27:u13_monster:3:2:1:7:Kurchin:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:2:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:2:1:6:Wright:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:2"
+                ],
+                "effect_id": "u13_persistent:25:u13_declaration:3:0:2:1:0:4:Rout",
+                "lane": "Castle",
+                "player_id": 0,
+                "recovery_round": 3,
+                "round": 2
+              }
+            ],
+            "state_sha256": "dc6b67aa4ce1677498a8effadb3b9ad33bf635a75fb801701740267137c11de0"
+          },
+          {
+            "events_sha256": "e5cb2556f0a9d199a0e69c1b5419a2d57a51d6b7807ccaa22881b8f841ebbe9a",
+            "label": "revised",
+            "plan": {
+              "order": {
+                "action": "Siege",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:15",
+                  "u13_entity_card:17:game:deck:Butcher:2:16",
+                  "u13_entity_card:17:game:deck:Vulture:2:15",
+                  "u13_entity_card:16:game:deck:Wright:2:12",
+                  "u13_entity_card:17:game:deck:Butcher:2:10",
+                  "u13_entity_card:16:game:deck:Wright:1:8",
+                  "u13_entity_card:16:game:deck:Wright:2:11",
+                  "u13_entity_card:16:game:deck:Wright:1:5",
+                  "u13_entity_card:17:game:deck:Vulture:1:3"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "use_repair_token": false
+                },
+                "lane": "Castle",
+                "monster_choice": "Muno",
+                "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+              },
+              "powers": []
+            },
+            "pulses": [],
+            "routed": [],
+            "state_sha256": "77ec6a0d57e9a551a808b4ab0f784ec8b031b9eb5f52791c95ceecbafa5f7758"
+          }
+        ],
+        "powers": [],
+        "round": 2,
+        "rout_values": {
+          "Castle": {
+            "distant": [
+              "u13_entity_marcher:25:u13_monster:3:1:1:5:Lemek:1:0",
+              "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0"
+            ],
+            "gate_threats": [],
+            "score": 0,
+            "threats": []
+          },
+          "Lord": {
+            "distant": [],
+            "gate_threats": [],
+            "score": 0,
+            "threats": []
+          }
+        },
+        "seat": 0,
+        "support": {
+          "alternatives": 0,
+          "enabled": false,
+          "scope": "own pulse eligibility, capped healing, recruit readiness and paired Muster; future damage and movement uncertain",
+          "selected": false
+        }
+      },
+      {
+        "coordination": {
+          "context": null,
+          "powers": [],
+          "score_delta": 0
+        },
+        "kind": "retarget",
+        "name": "deimos_deimos_00",
+        "outcomes": [
+          {
+            "events_sha256": "ff1d1df537eec4c03bb4a226675a295fa2ef5add650b40c639a58d3af806b1a8",
+            "label": "original",
+            "plan": {
+              "order": {
+                "action": "Siege",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:17",
+                  "u13_entity_card:17:game:deck:Butcher:2:13",
+                  "u13_entity_card:16:game:deck:Wright:2:14",
+                  "u13_entity_card:16:game:deck:Wright:2:11",
+                  "u13_entity_card:17:game:deck:Vulture:2:10",
+                  "u13_entity_card:16:game:deck:Wright:1:2",
+                  "u13_entity_card:17:game:deck:Vulture:1:5"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "use_repair_token": false
+                },
+                "lane": "Castle",
+                "monster_choice": "Muno",
+                "target_id": "u13_entity_castle:16:loadout:castle:1:1:2"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:4:0:10:1:0",
+                  "declared_round": 10,
+                  "fire_hook": "post_resolution_movement_state",
+                  "fire_round": 10,
+                  "lord_id": "Deimos",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "Rout",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Lord"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            },
+            "pulses": [],
+            "routed": [
+              {
+                "affected_ids": [
+                  "u13_entity_marcher:27:u13_monster:3:7:1:7:Kurchin:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:6:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:1",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:2",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:3",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:4",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:5",
+                  "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:0",
+                  "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:1",
+                  "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:2",
+                  "u13_entity_marcher:30:u13_commitment:3:7:1:7:Vulture:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:6:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:6:1:8:Penitent:1:2",
+                  "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:2",
+                  "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:3"
+                ],
+                "effect_id": "u13_persistent:26:u13_declaration:4:0:10:1:0:4:Rout",
+                "lane": "Lord",
+                "player_id": 0,
+                "recovery_round": 11,
+                "round": 10
+              }
+            ],
+            "state_sha256": "cabd2e9caf884237e3d00761142b18fe08e5a0604824cdc1c2b7626986b7b257"
+          },
+          {
+            "events_sha256": "0c21b4ea03dc1ddd8c3a036f939491015fa54f8b50d00da8627126e1fa9746b3",
+            "label": "revised",
+            "plan": {
+              "order": {
+                "action": "Siege",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:17",
+                  "u13_entity_card:17:game:deck:Butcher:2:13",
+                  "u13_entity_card:16:game:deck:Wright:2:14",
+                  "u13_entity_card:16:game:deck:Wright:2:11",
+                  "u13_entity_card:17:game:deck:Vulture:2:10",
+                  "u13_entity_card:16:game:deck:Wright:1:2",
+                  "u13_entity_card:17:game:deck:Vulture:1:5"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                  "use_repair_token": false
+                },
+                "lane": "Castle",
+                "monster_choice": "Muno",
+                "target_id": "u13_entity_castle:16:loadout:castle:1:1:2"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:4:0:10:1:0",
+                  "declared_round": 10,
+                  "fire_hook": "post_resolution_movement_state",
+                  "fire_round": 10,
+                  "lord_id": "Deimos",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "Rout",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Castle"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            },
+            "pulses": [],
+            "routed": [
+              {
+                "affected_ids": [
+                  "u13_entity_marcher:25:u13_monster:3:9:1:5:Lemek:1:0",
+                  "u13_entity_marcher:26:u13_monster:3:8:1:6:Tumler:1:0",
+                  "u13_entity_marcher:28:u13_monster:4:10:1:7:Kurchin:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:2:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:3:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:4:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:4:1:6:Wright:1:1",
+                  "u13_entity_marcher:29:u13_commitment:3:4:1:6:Wright:1:2",
+                  "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:1",
+                  "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:2",
+                  "u13_entity_marcher:30:u13_commitment:3:8:1:7:Vulture:1:0",
+                  "u13_entity_marcher:30:u13_commitment:3:8:1:7:Vulture:1:1",
+                  "u13_entity_marcher:30:u13_commitment:4:10:1:6:Wright:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:2",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:3",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:4",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:5",
+                  "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:2",
+                  "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:3",
+                  "u13_entity_marcher:32:u13_commitment:4:10:1:8:Penitent:1:0",
+                  "u13_entity_marcher:32:u13_commitment:4:10:1:8:Penitent:1:1",
+                  "u13_entity_marcher:32:u13_commitment:4:10:1:8:Penitent:1:2",
+                  "u13_entity_marcher:32:u13_commitment:4:10:1:8:Penitent:1:3"
+                ],
+                "effect_id": "u13_persistent:26:u13_declaration:4:0:10:1:0:4:Rout",
+                "lane": "Castle",
+                "player_id": 0,
+                "recovery_round": 11,
+                "round": 10
+              }
+            ],
+            "state_sha256": "3969bf3979f001619409279d39f8cc79ea418e060c3131ce2162b3b1de72d556"
+          }
+        ],
+        "powers": [
+          [
+            "Rout",
+            {
+              "lane": "Castle"
+            }
+          ]
+        ],
+        "round": 10,
+        "rout_values": {
+          "Castle": {
+            "distant": [],
+            "gate_threats": [
+              "u13_entity_marcher:26:u13_monster:3:8:1:6:Tumler:1:0"
+            ],
+            "score": 198,
+            "threats": [
+              "u13_entity_marcher:25:u13_monster:3:9:1:5:Lemek:1:0",
+              "u13_entity_marcher:26:u13_monster:3:8:1:6:Tumler:1:0",
+              "u13_entity_marcher:29:u13_commitment:3:2:1:6:Wright:1:0",
+              "u13_entity_marcher:29:u13_commitment:3:3:1:6:Wright:1:0",
+              "u13_entity_marcher:29:u13_commitment:3:4:1:6:Wright:1:0",
+              "u13_entity_marcher:29:u13_commitment:3:4:1:6:Wright:1:1",
+              "u13_entity_marcher:29:u13_commitment:3:4:1:6:Wright:1:2",
+              "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:0",
+              "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:1",
+              "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:2",
+              "u13_entity_marcher:30:u13_commitment:3:8:1:7:Vulture:1:0",
+              "u13_entity_marcher:30:u13_commitment:3:8:1:7:Vulture:1:1",
+              "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0",
+              "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:0",
+              "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:0",
+              "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:1",
+              "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:2",
+              "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:3",
+              "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:4",
+              "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:5",
+              "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:0",
+              "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:1",
+              "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:2",
+              "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:3"
+            ]
+          },
+          "Lord": {
+            "distant": [
+              "u13_entity_marcher:27:u13_monster:3:7:1:7:Kurchin:1:0",
+              "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:2"
+            ],
+            "gate_threats": [],
+            "score": 128,
+            "threats": [
+              "u13_entity_marcher:29:u13_commitment:3:6:1:6:Wright:1:0",
+              "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:0",
+              "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:1",
+              "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:3",
+              "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:4",
+              "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:5",
+              "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:0",
+              "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:1",
+              "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:2",
+              "u13_entity_marcher:30:u13_commitment:3:7:1:7:Vulture:1:0",
+              "u13_entity_marcher:31:u13_commitment:3:6:1:8:Penitent:1:1",
+              "u13_entity_marcher:31:u13_commitment:3:6:1:8:Penitent:1:2",
+              "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:0",
+              "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:1",
+              "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:2",
+              "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:3"
+            ]
+          }
+        },
+        "seat": 0,
+        "support": {
+          "alternatives": 0,
+          "enabled": false,
+          "scope": "own pulse eligibility, capped healing, recruit readiness and paired Muster; future damage and movement uncertain",
+          "selected": false
+        }
+      },
+      {
+        "coordination": {
+          "context": {
+            "attack_lane": "",
+            "castle_hits": {},
+            "consumed_supplicants": [],
+            "guard_losses": [],
+            "monster": "Lemek",
+            "monster_bodies_minimum": 1,
+            "muster_bodies": {
+              "Castle": 3
+            },
+            "power_bodies_minimum": {
+              "Castle": 3
+            },
+            "recruit_lane": "Castle",
+            "recruits": 1,
+            "unknown_extra_varn_bodies": false
+          },
+          "powers": [
+            {
+              "consumed_excluded": 0,
+              "immediate_healing": 0,
+              "lane": "Castle",
+              "movement_windows": 7,
+              "muster_recruits": 3,
+              "next_regen_bonus": 0,
+              "ordinary_recruits": 1,
+              "power": "BreathOfLife",
+              "reason": "own_plan_pulse_and_spawn_support",
+              "score": 21,
+              "score_delta": 21,
+              "waiting_excluded": 0
+            }
+          ],
+          "score_delta": 21
+        },
+        "kind": "pair",
+        "name": "humbaba_gremory_00",
+        "outcomes": [
+          {
+            "events_sha256": "40a96ed22606359e1b58ed33e2b0ce8716ee1f2e91ab5d987d9e10cab11758a6",
+            "label": "original",
+            "plan": {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:18:game:deck:Penitent:1:0",
+                  "u13_entity_card:18:game:deck:Penitent:1:4"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:2:14",
+                    "lane": "Castle",
+                    "slot": 0
+                  },
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:2:15",
+                    "lane": "Castle",
+                    "slot": 1
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Lemek"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:1:1:0",
+                  "declared_round": 1,
+                  "fire_hook": "post_resolution_spawns",
+                  "fire_round": 1,
+                  "lord_id": "Humbaba",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "MusterTheFaithful",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Lord"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            },
+            "pulses": [],
+            "routed": [],
+            "state_sha256": "cde6efc4cb4f0b0b5502d39fb056a7802f0222dcc7714987d68cbcc4b57d169f"
+          },
+          {
+            "events_sha256": "6b385a3831f232ae1c58f4c73af82eb8516080191413383ceac0050e7cfda033",
+            "label": "revised",
+            "plan": {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:18:game:deck:Penitent:1:0",
+                  "u13_entity_card:18:game:deck:Penitent:1:4"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:2:14",
+                    "lane": "Lord",
+                    "slot": 0
+                  },
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:2:15",
+                    "lane": "Lord",
+                    "slot": 1
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Lemek"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:1:1:0",
+                  "declared_round": 1,
+                  "fire_hook": "post_resolution_spawns",
+                  "fire_round": 1,
+                  "lord_id": "Humbaba",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "MusterTheFaithful",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Castle"
+                  },
+                  "visibility": "public"
+                },
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:1:1:1",
+                  "declared_round": 1,
+                  "fire_hook": "post_resolution_movement_state",
+                  "fire_round": 1,
+                  "lord_id": "Humbaba",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "BreathOfLife",
+                  "queue_index": 1,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Castle"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            },
+            "pulses": [
+              {
+                "effect_id": "u13_persistent:25:u13_declaration:3:0:1:1:1:12:BreathOfLife",
+                "healed_ids": [],
+                "healing": 0,
+                "hook": "post_resolution_movement_state",
+                "lane": "Castle",
+                "player_id": 0,
+                "power_id": "BreathOfLife",
+                "round": 1
+              }
+            ],
+            "routed": [],
+            "state_sha256": "77a2f2285f02fb6cf1b5eac84d84f32a7490c820769cd1ee99799d9bf3306d5d"
+          }
+        ],
+        "powers": [
+          [
+            "MusterTheFaithful",
+            {
+              "lane": "Castle"
+            }
+          ],
+          [
+            "BreathOfLife",
+            {
+              "lane": "Castle"
+            }
+          ]
+        ],
+        "round": 1,
+        "seat": 0,
+        "support": {
+          "alternatives": 4,
+          "enabled": true,
+          "scope": "own pulse eligibility, capped healing, recruit readiness and paired Muster; future damage and movement uncertain",
+          "selected": true
+        }
+      },
+      {
+        "coordination": {
+          "context": {
+            "attack_lane": "",
+            "castle_hits": {},
+            "consumed_supplicants": [],
+            "guard_losses": [],
+            "monster": "Varn",
+            "monster_bodies_minimum": 3,
+            "muster_bodies": {
+              "Castle": 3
+            },
+            "power_bodies_minimum": {
+              "Castle": 3
+            },
+            "recruit_lane": "Castle",
+            "recruits": 2,
+            "unknown_extra_varn_bodies": true
+          },
+          "powers": [
+            {
+              "consumed_excluded": 0,
+              "immediate_healing": 0,
+              "lane": "Castle",
+              "movement_windows": 8,
+              "muster_recruits": 3,
+              "next_regen_bonus": 0,
+              "ordinary_recruits": 2,
+              "power": "BreathOfLife",
+              "reason": "own_plan_pulse_and_spawn_support",
+              "score": 24,
+              "score_delta": 24,
+              "waiting_excluded": 0
+            }
+          ],
+          "score_delta": 24
+        },
+        "kind": "pair",
+        "name": "gremory_humbaba_00",
+        "outcomes": [
+          {
+            "events_sha256": "70301c9825fefdebd249d419cab754e69b0d250b44b4981993ff90188867fe8b",
+            "label": "original",
+            "plan": {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Vulture:1:7",
+                  "u13_entity_card:17:game:deck:Vulture:2:10"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:1:6",
+                    "lane": "Lord",
+                    "slot": 0
+                  },
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:1:7",
+                    "lane": "Lord",
+                    "slot": 1
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Varn"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:1:1:1:0",
+                  "declared_round": 1,
+                  "fire_hook": "post_resolution_spawns",
+                  "fire_round": 1,
+                  "lord_id": "Humbaba",
+                  "parameters": {},
+                  "player_id": 1,
+                  "power_id": "MusterTheFaithful",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Lord"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            },
+            "pulses": [],
+            "routed": [],
+            "state_sha256": "a18de7fc93745bff575af0665a39e367dda30adaa789e8b20823f08941bfeca9"
+          },
+          {
+            "events_sha256": "23ae62ffd0b1bf8446d66bb8580eed6f32332bc7ed69e144d8e50f8cdbc23104",
+            "label": "revised",
+            "plan": {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Vulture:1:7",
+                  "u13_entity_card:17:game:deck:Vulture:2:10"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:1:6",
+                    "lane": "Lord",
+                    "slot": 0
+                  },
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:1:7",
+                    "lane": "Lord",
+                    "slot": 1
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Varn"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:1:1:1:0",
+                  "declared_round": 1,
+                  "fire_hook": "post_resolution_spawns",
+                  "fire_round": 1,
+                  "lord_id": "Humbaba",
+                  "parameters": {},
+                  "player_id": 1,
+                  "power_id": "MusterTheFaithful",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Castle"
+                  },
+                  "visibility": "public"
+                },
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:1:1:1:1",
+                  "declared_round": 1,
+                  "fire_hook": "post_resolution_movement_state",
+                  "fire_round": 1,
+                  "lord_id": "Humbaba",
+                  "parameters": {},
+                  "player_id": 1,
+                  "power_id": "BreathOfLife",
+                  "queue_index": 1,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Castle"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            },
+            "pulses": [
+              {
+                "effect_id": "u13_persistent:25:u13_declaration:3:1:1:1:1:12:BreathOfLife",
+                "healed_ids": [],
+                "healing": 0,
+                "hook": "post_resolution_movement_state",
+                "lane": "Castle",
+                "player_id": 1,
+                "power_id": "BreathOfLife",
+                "round": 1
+              }
+            ],
+            "routed": [],
+            "state_sha256": "069485eddc5611da9e58e23a246afebd4addb1d2594115c5025f1f97deee9a0f"
+          }
+        ],
+        "powers": [
+          [
+            "MusterTheFaithful",
+            {
+              "lane": "Castle"
+            }
+          ],
+          [
+            "BreathOfLife",
+            {
+              "lane": "Castle"
+            }
+          ]
+        ],
+        "round": 1,
+        "seat": 1,
+        "support": {
+          "alternatives": 4,
+          "enabled": true,
+          "scope": "own pulse eligibility, capped healing, recruit readiness and paired Muster; future damage and movement uncertain",
+          "selected": true
+        }
+      },
+      {
+        "coordination": {
+          "context": {
+            "attack_lane": "",
+            "castle_hits": {},
+            "consumed_supplicants": [],
+            "guard_losses": [],
+            "monster": "Kurchin",
+            "monster_bodies_minimum": 1,
+            "muster_bodies": {},
+            "power_bodies_minimum": {},
+            "recruit_lane": "Lord",
+            "recruits": 14,
+            "unknown_extra_varn_bodies": false
+          },
+          "powers": [
+            {
+              "consumed_excluded": 0,
+              "immediate_healing": 0,
+              "lane": "Lord",
+              "movement_windows": 36,
+              "muster_recruits": 0,
+              "next_regen_bonus": 0,
+              "ordinary_recruits": 14,
+              "power": "BreathOfLife",
+              "reason": "own_plan_pulse_and_spawn_support",
+              "score": 108,
+              "score_delta": 42,
+              "waiting_excluded": 0
+            }
+          ],
+          "score_delta": 42
+        },
+        "kind": "recruit_support",
+        "name": "humbaba_valak_00",
+        "outcomes": [
+          {
+            "events_sha256": "d309a7c1f34e40bf9eedcde3686bdb17c2efdb910e8f85a2f78f6f297cd3369f",
+            "label": "original",
+            "plan": {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:16:game:deck:Wright:1:6",
+                  "u13_entity_card:16:game:deck:Wright:2:10",
+                  "u13_entity_card:16:game:deck:Wright:2:15",
+                  "u13_entity_card:17:game:deck:Vulture:1:6"
+                ],
+                "castle_action": {
+                  "action": "Activate",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:1:5",
+                    "lane": "Castle",
+                    "slot": 1
+                  },
+                  {
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:1:6",
+                    "lane": "Castle",
+                    "slot": 2
+                  }
+                ],
+                "lane": "Lord",
+                "monster_choice": "Muno"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:6:1:0",
+                  "declared_round": 6,
+                  "fire_hook": "post_resolution_movement_state",
+                  "fire_round": 6,
+                  "lord_id": "Humbaba",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "BreathOfLife",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Castle"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            },
+            "pulses": [
+              {
+                "effect_id": "u13_persistent:25:u13_declaration:3:0:6:1:0:12:BreathOfLife",
+                "healed_ids": [
+                  "u13_entity_marcher:29:u13_commitment:3:4:0:6:Wright:1:0",
+                  "u13_entity_marcher:30:u13_commitment:3:4:0:7:Butcher:1:1"
+                ],
+                "healing": 2,
+                "hook": "post_resolution_movement_state",
+                "lane": "Castle",
+                "player_id": 0,
+                "power_id": "BreathOfLife",
+                "round": 6
+              }
+            ],
+            "routed": [],
+            "state_sha256": "329fb04e3fe20bd68e104f7600c5dbbff2d217b0ce9e0a3184ec562da76ae281"
+          },
+          {
+            "events_sha256": "d32f9db19a950ffe073a98f3b6e7442a3dc5b6d4c5c6e86cfb8f03bb91f1f045",
+            "label": "revised",
+            "plan": {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:16:game:deck:Wright:2:15",
+                  "u13_entity_card:16:game:deck:Wright:2:17",
+                  "u13_entity_card:17:game:deck:Butcher:2:16",
+                  "u13_entity_card:16:game:deck:Wright:2:10",
+                  "u13_entity_card:18:game:deck:Penitent:1:9",
+                  "u13_entity_card:16:game:deck:Wright:1:6",
+                  "u13_entity_card:17:game:deck:Vulture:1:6",
+                  "u13_entity_card:18:game:deck:Penitent:1:5",
+                  "u13_entity_card:18:game:deck:Penitent:1:6",
+                  "u13_entity_card:18:game:deck:Penitent:1:7"
+                ],
+                "castle_action": {
+                  "action": "Activate",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "use_repair_token": false
+                },
+                "lane": "Lord",
+                "monster_choice": "Kurchin"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:6:1:0",
+                  "declared_round": 6,
+                  "fire_hook": "post_resolution_movement_state",
+                  "fire_round": 6,
+                  "lord_id": "Humbaba",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "BreathOfLife",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Lord"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            },
+            "pulses": [
+              {
+                "effect_id": "u13_persistent:25:u13_declaration:3:0:6:1:0:12:BreathOfLife",
+                "healed_ids": [],
+                "healing": 0,
+                "hook": "post_resolution_movement_state",
+                "lane": "Lord",
+                "player_id": 0,
+                "power_id": "BreathOfLife",
+                "round": 6
+              }
+            ],
+            "routed": [],
+            "state_sha256": "2cc0eb5b9d18448795e24f3758f61e5586d09a2bdcfe8cc6bd69976a345051e6"
+          }
+        ],
+        "powers": [
+          [
+            "BreathOfLife",
+            {
+              "lane": "Lord"
+            }
+          ]
+        ],
+        "round": 6,
+        "seat": 0,
+        "support": {
+          "alternatives": 1,
+          "enabled": true,
+          "scope": "own pulse eligibility, capped healing, recruit readiness and paired Muster; future damage and movement uncertain",
+          "selected": true
+        }
+      },
+      {
+        "coordination": {
+          "context": {
+            "attack_lane": "",
+            "castle_hits": {},
+            "consumed_supplicants": [],
+            "guard_losses": [],
+            "monster": "Fyra",
+            "monster_bodies_minimum": 1,
+            "muster_bodies": {},
+            "power_bodies_minimum": {},
+            "recruit_lane": "Castle",
+            "recruits": 5,
+            "unknown_extra_varn_bodies": false
+          },
+          "powers": [
+            {
+              "consumed_excluded": 0,
+              "immediate_healing": 2,
+              "lane": "Castle",
+              "movement_windows": 13,
+              "muster_recruits": 0,
+              "next_regen_bonus": 0,
+              "ordinary_recruits": 5,
+              "power": "BreathOfLife",
+              "reason": "own_plan_pulse_and_spawn_support",
+              "score": 47,
+              "score_delta": 15,
+              "waiting_excluded": 0
+            }
+          ],
+          "score_delta": 15
+        },
+        "kind": "heal",
+        "name": "valak_humbaba_00",
+        "outcomes": [
+          {
+            "events_sha256": "a6c4e152a308d8bef22d17ae5c734fdbe91e4cb8b57ecf60552bd2f5d096102b",
+            "label": "original",
+            "plan": {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:1:6",
+                  "u13_entity_card:17:game:deck:Butcher:2:10",
+                  "u13_entity_card:17:game:deck:Vulture:1:8",
+                  "u13_entity_card:17:game:deck:Vulture:2:14"
+                ],
+                "castle_action": {
+                  "action": "Activate",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:1:0",
+                    "lane": "Castle",
+                    "slot": 1
+                  },
+                  {
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:1:4",
+                    "lane": "Castle",
+                    "slot": 2
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Fyra"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:1:6:1:0",
+                  "declared_round": 6,
+                  "fire_hook": "post_resolution_movement_state",
+                  "fire_round": 6,
+                  "lord_id": "Humbaba",
+                  "parameters": {},
+                  "player_id": 1,
+                  "power_id": "BreathOfLife",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Castle"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            },
+            "pulses": [
+              {
+                "effect_id": "u13_persistent:25:u13_declaration:3:1:6:1:0:12:BreathOfLife",
+                "healed_ids": [
+                  "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:1:5:1:0:4:main:1:0",
+                  "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:1:5:1:0:4:main:1:1"
+                ],
+                "healing": 2,
+                "hook": "post_resolution_movement_state",
+                "lane": "Castle",
+                "player_id": 1,
+                "power_id": "BreathOfLife",
+                "round": 6
+              }
+            ],
+            "routed": [],
+            "state_sha256": "69362f68315919c48e2bfaccd1ebd01e5a6065c6feaf13534c09272d61e007bf"
+          },
+          {
+            "events_sha256": "a6c4e152a308d8bef22d17ae5c734fdbe91e4cb8b57ecf60552bd2f5d096102b",
+            "label": "revised",
+            "plan": {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:1:6",
+                  "u13_entity_card:17:game:deck:Butcher:2:10",
+                  "u13_entity_card:17:game:deck:Vulture:1:8",
+                  "u13_entity_card:17:game:deck:Vulture:2:14"
+                ],
+                "castle_action": {
+                  "action": "Activate",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:1:0",
+                    "lane": "Castle",
+                    "slot": 1
+                  },
+                  {
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:1:4",
+                    "lane": "Castle",
+                    "slot": 2
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Fyra"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:1:6:1:0",
+                  "declared_round": 6,
+                  "fire_hook": "post_resolution_movement_state",
+                  "fire_round": 6,
+                  "lord_id": "Humbaba",
+                  "parameters": {},
+                  "player_id": 1,
+                  "power_id": "BreathOfLife",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Castle"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            },
+            "pulses": [
+              {
+                "effect_id": "u13_persistent:25:u13_declaration:3:1:6:1:0:12:BreathOfLife",
+                "healed_ids": [
+                  "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:1:5:1:0:4:main:1:0",
+                  "u13_entity_marcher:47:u13_pending:25:u13_declaration:3:1:5:1:0:4:main:1:1"
+                ],
+                "healing": 2,
+                "hook": "post_resolution_movement_state",
+                "lane": "Castle",
+                "player_id": 1,
+                "power_id": "BreathOfLife",
+                "round": 6
+              }
+            ],
+            "routed": [],
+            "state_sha256": "69362f68315919c48e2bfaccd1ebd01e5a6065c6feaf13534c09272d61e007bf"
+          }
+        ],
+        "powers": [
+          [
+            "BreathOfLife",
+            {
+              "lane": "Castle"
+            }
+          ]
+        ],
+        "round": 6,
+        "seat": 1,
+        "support": {
+          "alternatives": 0,
+          "enabled": true,
+          "scope": "own pulse eligibility, capped healing, recruit readiness and paired Muster; future damage and movement uncertain",
+          "selected": false
+        }
+      }
+    ],
+    "engine_source_sha256": "00dd00f2192f5c5913494b0cb7cea11fc58b04080ab1d8b9216c7760fc6c9c11",
+    "source_revision": "c0b2a76fdc1ae33239194a18f9477bbc58fc3d80"
+  },
+  "older_replay_review": [
+    {
+      "file": "early_defense_cases.json",
+      "name": "kroni_odradek_00",
+      "new_view_sha256": "b77a0de25b861f631ee9795ef8cbe953ee20a7e67b8c1025cd70b6c3baa826b4",
+      "observation_unchanged": true,
+      "old_view_sha256": "b77a0de25b861f631ee9795ef8cbe953ee20a7e67b8c1025cd70b6c3baa826b4",
+      "operations_sha256": "89e2c77c840da1739aee270580bf2ce989dbf2c9b8671b2994b09fb9fc286d23",
+      "recorded_plans_sha256": "30f7e53d04134a34892cc80d433de34aae072ca08bc290b9324b03bc74fdc2cc"
+    },
+    {
+      "file": "early_defense_cases.json",
+      "name": "kroni_valak_00",
+      "new_view_sha256": "72eec68aa07854696ed01582bd591c83109b7f0c2137cb1714008668b6e6d9d2",
+      "observation_unchanged": true,
+      "old_view_sha256": "72eec68aa07854696ed01582bd591c83109b7f0c2137cb1714008668b6e6d9d2",
+      "operations_sha256": "ab432afb48c000b08dc4ecd317c69a8695663dab3f7f9c0911989fded1d887ca",
+      "recorded_plans_sha256": "bcb1e26f8fd5c5f66f8667dfc199be036ab15d47739ecaf2e73c46e188e83083"
+    },
+    {
+      "file": "deimos_artillery_cases.json",
+      "name": "deimos_humbaba_00",
+      "new_view_sha256": "dd3ff99f4688785ab92579bd62655aa9ff7b9c5b96d6cf3e08f8f5b9fa2ac23b",
+      "observation_unchanged": false,
+      "old_view_sha256": "2dea41825946140c12ab68959f16dd3d018e076211c91781074c512fde0f6715",
+      "operations_sha256": "4bd3ffdac58a0971fcf98b676e17bb499752356bb11e09fc91d96cc2c6216957",
+      "recorded_plans_sha256": "817febebde4035a1b50f62ccc920e8e464ece985ef398dcab62c3fd75dff56c1"
+    },
+    {
+      "file": "deimos_artillery_cases.json",
+      "name": "deimos_deimos_00",
+      "new_view_sha256": "f7f8daa62cc9425081c7b1d04a36fd9eadabe47f6b7c8f5066dfbc21341d34cb",
+      "observation_unchanged": true,
+      "old_view_sha256": "f7f8daa62cc9425081c7b1d04a36fd9eadabe47f6b7c8f5066dfbc21341d34cb",
+      "operations_sha256": "8910174cf407255e5c232ca204f8b69e16814608450e45fb5067af171fc7c8ad",
+      "recorded_plans_sha256": "9a19ed19721f2c7bab13a56f12dca53eb051c4245cc28094c7b9e6188c39f20a"
+    },
+    {
+      "file": "kalligan_pulse_cases.json",
+      "name": "kalligan_gremory_00_round3",
+      "new_view_sha256": "8978eaabc63559e8ecc4922726b66ed00e766ae41af9919b05a646b38e259d5d",
+      "observation_unchanged": true,
+      "old_view_sha256": "8978eaabc63559e8ecc4922726b66ed00e766ae41af9919b05a646b38e259d5d",
+      "operations_sha256": "7e8974e7d7c0f18d6aaf8468146b316e8d0d6a2a15daeaf68689d8322adfb17d",
+      "recorded_plans_sha256": "8d129f291e743ed11f87798c62c7daead65b03a48dc22bcdc4822bec910feb4f"
+    },
+    {
+      "file": "kalligan_pulse_cases.json",
+      "name": "kalligan_deimos_00_round3",
+      "new_view_sha256": "4824ecc241b4d7a08998caabcbf66fb1ec44a22c44e58ef2eb8f7aa6641006d7",
+      "observation_unchanged": true,
+      "old_view_sha256": "4824ecc241b4d7a08998caabcbf66fb1ec44a22c44e58ef2eb8f7aa6641006d7",
+      "operations_sha256": "cd1479ecadf191843d7bf447e759fdc3e807ba86f887979f071efe939a1d6a07",
+      "recorded_plans_sha256": "8f3098a1f6d727762c629b804096694b1c599bbb64b824aed9d9c1ca12d67d44"
+    }
+  ],
+  "published_implementation_revision": "197f0dbf0eaa6db26cd0c7341a2cfaef552383dc",
+  "runner_source_sha256": "53df039a59d2069dfb1155c1a7393effe1a29c92330984d55940c2f5216bfc2e",
+  "schema": "U13_ROUT_HUMBABA_CHECKPOINT_V1",
+  "status": "local verification complete; Windows acceptance pending",
+  "tested_local_revision": "bffb5ac1ba8fcedb33b2ad4545c76e3198d5c5ad",
+  "tree_equivalence_verified": true
+}
