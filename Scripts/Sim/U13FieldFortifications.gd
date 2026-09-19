@@ -8,7 +8,7 @@ const LATERAL_CONTACT: int = 42
 const BUILD_TICKS: int = 32
 const GUARD_TICKS: int = 200
 const TOWER_RANGE: int = 600
-const DESCRIPTION: String = "Builds one wall, or a tower when both walls stand. Defends it for one round, then marches."
+const DESCRIPTION: String = "Builds one wall, or a tower when both walls stand. Guards for at least one round and repairs 1 HP each round. Marches onward once its structure has full HP."
 
 static func rows(world: Dictionary) -> Array:
 	return world.data.get("field_structures", [])
@@ -75,17 +75,25 @@ static func blocked_step(unit: Dictionary, proposed: Dictionary, structures: Arr
 		if after < 42 * 42 and after < gap(unit, row): return true
 	return false
 
+static func assigned_structure(unit: Dictionary, structures: Array) -> Dictionary:
+	var a: Dictionary = unit.attributes
+	if not a.has("wright_site") or a.get("wright_owner", -1) != unit.owner: return {}
+	var structure: Dictionary = find(structures, unit.owner, a.lane, a.wright_site)
+	return structure if not structure.is_empty() and structure.attributes.builder_id == unit.id else {}
+
 static func goal(unit: Dictionary, structures: Array, clock: int, enemy: Dictionary) -> Dictionary:
 	var a: Dictionary = unit.attributes
 	if not a.has("wright_site"): return {}
 	var home: Dictionary = anchor(unit.owner, int(a.wright_site))
 	if not a.get("wright_built", false): return home
-	if clock >= int(a.get("wright_guard_until", 0)) or find(structures, unit.owner, a.lane, a.wright_site).is_empty(): return {}
+	var structure: Dictionary = assigned_structure(unit, structures)
+	if a.get("wright_released", false) or structure.is_empty(): return {}
+	if clock >= int(a.get("wright_guard_until", 0)) and structure.attributes.hp == structure.attributes.max_hp: return {}
 	if not enemy.is_empty() and distance(home, point(home, enemy)) <= 240 * 240:
 		return point(a, enemy)
 	return home
 
-static func step(world: Dictionary, entities, number: int, tick: int) -> Array:
+static func step(world: Dictionary, entities, number: int, tick: int, fleeing: Dictionary = {}) -> Array:
 	if not world.data.has("field_structures"): world.data["field_structures"] = []
 	var structures: Array = rows(world)
 	var units: Array = entities.marchers()
@@ -105,6 +113,23 @@ static func step(world: Dictionary, entities, number: int, tick: int) -> Array:
 	for original in units:
 		var unit: Dictionary = entities.get_entity(original.id)
 		var a: Dictionary = unit.attributes
+		if a.get("suit") == "Wright" and not a.has("monster_id") and a.get("wright_built", false):
+			if a.get("wright_released", false): continue
+			var structure: Dictionary = assigned_structure(unit, structures)
+			if structure.is_empty():
+				a["wright_released"] = true
+			elif not a.waiting and a.movement_ready_round <= number and a.get("rout_round", -1) != number and not a.get("hidden", false) and not fleeing.has(unit.id):
+				# A round-start repair is spent once, even when HP is already full.
+				if tick == 0 and int(a.get("wright_repair_round", 0)) < number:
+					a["wright_repair_round"] = number
+					var before: int = int(structure.attributes.hp)
+					if before < int(structure.attributes.max_hp):
+						structure.attributes.hp = before + 1
+						events.append(event("WRIGHT_STRUCTURE_REPAIRED", {"unit_id": unit.id, "structure": structure, "owner": unit.owner, "lane": a.lane, "hp_before": before, "hp_after": structure.attributes.hp, "round": number, "tick": tick}))
+				if clock >= int(a.wright_guard_until) and structure.attributes.hp == structure.attributes.max_hp:
+					a["wright_released"] = true
+			entities.update(unit.id, unit.owner, a)
+			continue
 		if a.suit != "Wright" or a.has("monster_id") or a.get("wright_built", false) or a.waiting or int(a.movement_ready_round) > number or int(a.get("rout_round", -1)) == number or a.get("hidden", false): continue
 		if not a.has("wright_site"):
 			var choices: Array = [0, 1]
@@ -130,6 +155,8 @@ static func step(world: Dictionary, entities, number: int, tick: int) -> Array:
 				structures.sort_custom(func(x, y): return x.id < y.id)
 				a["wright_built"] = true
 				a["wright_guard_until"] = clock + GUARD_TICKS
+				a["wright_repair_round"] = number
+				a["wright_released"] = false
 				events.append(event("WRIGHT_STRUCTURE_BUILT", {"unit_id": unit.id, "structure": built, "round": number, "tick": tick}))
 		entities.update(unit.id, unit.owner, a)
 	return events
@@ -162,9 +189,11 @@ static func beam_hit(source: Dictionary, aim: Dictionary, row: Dictionary, radiu
 	return dx * vx + dy * vy >= 0 and dx * dx + dy * dy <= radius * radius and cross * cross <= half_width * half_width * maxi(1, vx * vx + vy * vy)
 
 static func valid_unit(a: Dictionary) -> bool:
-	for key in ["wright_site", "wright_progress", "wright_owner", "wright_guard_until"]:
+	for key in ["wright_site", "wright_progress", "wright_owner", "wright_guard_until", "wright_repair_round"]:
 		if a.has(key) and (a.get("suit") != "Wright" or a.has("monster_id") or not Data.is_integer(a[key]) or int(a[key]) < 0): return false
-	if a.has("wright_built") and (a.get("suit") != "Wright" or typeof(a.wright_built) != TYPE_BOOL): return false
+	for key in ["wright_built", "wright_released"]:
+		if a.has(key) and (a.get("suit") != "Wright" or a.has("monster_id") or typeof(a[key]) != TYPE_BOOL): return false
+	if (a.has("wright_repair_round") or a.has("wright_released")) and not a.get("wright_built", false): return false
 	if a.has("wright_site") and (int(a.wright_site) > 2 or not a.has("wright_progress") or int(a.wright_progress) > BUILD_TICKS or a.get("wright_owner", -1) not in [0, 1]): return false
 	if a.get("wright_built", false) and (not a.has("wright_site") or not a.has("wright_guard_until")): return false
 	return true

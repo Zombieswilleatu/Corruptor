@@ -292,7 +292,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 					events.append(public_event("MARCHER_DUEL_INTERRUPTED", {"event_id": duels[lane].id, "round": context.round, "tick": tick}))
 					duels.erase(lane)
 		if has_ranged:
-			events.append_array(Fort.step(world, entities, context.round, tick))
+			events.append_array(Fort.step(world, entities, context.round, tick, fleeing_ids))
 			motion_context["field_structures"] = Fort.rows(world)
 		_move(entities, duels, motion_context, clock, has_rout, fleeing_ids)
 		if not gravity_orbs.is_empty():

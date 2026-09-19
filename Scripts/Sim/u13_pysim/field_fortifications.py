@@ -90,6 +90,13 @@ def blocked_step(unit, proposed, structures):
     return False
 
 
+def assigned_structure(unit, structures):
+    a = unit['attributes']
+    if 'wright_site' not in a or a.get('wright_owner', -1) != unit['owner']: return {}
+    structure = find(structures, unit['owner'], a['lane'], a['wright_site'])
+    return structure if structure and structure['attributes']['builder_id'] == unit['id'] else {}
+
+
 def goal(unit, structures, clock, enemy):
     a = unit['attributes']
     if 'wright_site' not in a:
@@ -97,14 +104,17 @@ def goal(unit, structures, clock, enemy):
     home = anchor(unit['owner'], a['wright_site'])
     if not a.get('wright_built', False):
         return home
-    if clock >= a.get('wright_guard_until', 0) or not find(structures, unit['owner'], a['lane'], a['wright_site']):
+    structure = assigned_structure(unit, structures)
+    if a.get('wright_released', False) or not structure:
+        return {}
+    if clock >= a.get('wright_guard_until', 0) and structure['attributes']['hp'] == structure['attributes']['max_hp']:
         return {}
     if enemy and distance(home, point(home, enemy)) <= 240**2:
         return point(a, enemy)
     return home
 
 
-def step(world, entities, number, tick):
+def step(world, entities, number, tick, fleeing=()):
     structures = world['data'].setdefault('field_structures', [])
     units, clock, events, reserved = entities.rows(), number*200+tick, [], {}
     for unit in units:
@@ -122,6 +132,24 @@ def step(world, entities, number, tick):
                 reserved[(unit['owner'], a['lane'], site)] = unit['id']
     for original in units:
         unit = entities.get(original['id']); a = unit['attributes']
+        if a.get('suit') == 'Wright' and 'monster_id' not in a and a.get('wright_built', False):
+            if a.get('wright_released', False): continue
+            structure = assigned_structure(unit, structures)
+            if not structure:
+                a['wright_released'] = True
+            elif (not a['waiting'] and a['movement_ready_round'] <= number and a.get('rout_round', -1) != number
+                  and not a.get('hidden', False) and unit['id'] not in fleeing):
+                if tick == 0 and a.get('wright_repair_round', 0) < number:
+                    a['wright_repair_round'] = number
+                    before = structure['attributes']['hp']
+                    if before < structure['attributes']['max_hp']:
+                        structure['attributes']['hp'] = before + 1
+                        events.append(event('WRIGHT_STRUCTURE_REPAIRED', dict(unit_id=unit['id'], structure=structure,
+                            owner=unit['owner'], lane=a['lane'], hp_before=before, hp_after=structure['attributes']['hp'], round=number, tick=tick)))
+                if clock >= a['wright_guard_until'] and structure['attributes']['hp'] == structure['attributes']['max_hp']:
+                    a['wright_released'] = True
+            entities.update(unit['id'], unit['owner'], a)
+            continue
         if (a['suit'] != 'Wright' or 'monster_id' in a or a.get('wright_built', False) or a['waiting']
                 or a['movement_ready_round'] > number or a.get('rout_round', -1) == number or a.get('hidden', False)):
             continue
@@ -150,7 +178,7 @@ def step(world, entities, number, tick):
                                              hp=6, max_hp=6, armor=4 if tower else 2, max_armor=4 if tower else 2,
                                              attack=1 if tower else 0, ranged_next_tick=clock+1, builder_id=unit['id']))
                 structures.append(built); structures.sort(key=lambda r: r['id'])
-                a.update(wright_built=True, wright_guard_until=clock+GUARD_TICKS)
+                a.update(wright_built=True, wright_guard_until=clock+GUARD_TICKS, wright_repair_round=number, wright_released=False)
                 events.append(event('WRIGHT_STRUCTURE_BUILT', dict(unit_id=unit['id'], structure=built, round=number, tick=tick)))
         entities.update(unit['id'], unit['owner'], a)
     return events
@@ -182,10 +210,12 @@ def beam_hit(source, aim, row, radius, half_width):
 
 
 def valid_unit(a):
-    for key in ('wright_site', 'wright_progress', 'wright_owner', 'wright_guard_until'):
+    for key in ('wright_site', 'wright_progress', 'wright_owner', 'wright_guard_until', 'wright_repair_round'):
         if key in a and (a.get('suit') != 'Wright' or 'monster_id' in a or type(a[key]) is not int or a[key] < 0):
             return False
-    if 'wright_built' in a and (a.get('suit') != 'Wright' or type(a['wright_built']) is not bool):
+    for key in ('wright_built', 'wright_released'):
+        if key in a and (a.get('suit') != 'Wright' or 'monster_id' in a or type(a[key]) is not bool): return False
+    if ('wright_repair_round' in a or 'wright_released' in a) and not a.get('wright_built', False):
         return False
     if 'wright_site' in a and (a['wright_site'] > 2 or 'wright_progress' not in a or a['wright_progress'] > BUILD_TICKS or a.get('wright_owner', -1) not in (0, 1)):
         return False

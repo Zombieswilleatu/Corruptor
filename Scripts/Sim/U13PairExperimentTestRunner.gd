@@ -30,7 +30,7 @@ func leader_checks() -> void:
 	for pid in [0, 1]:
 		for name in ["Butcher", "Wright"]:
 			var w: Dictionary = phase_world()
-			var follower: Dictionary = put(w, name, pid, at(700, pid), {"wright_built": true, "wright_guard_until": 0})
+			var follower: Dictionary = put(w, name, pid, at(700, pid), {"wright_built": true, "wright_guard_until": 0, "wright_released": true})
 			var leader: Dictionary = put(w, "Penitent", pid, at(700, pid))
 			check(Pacing.speed(follower, [follower, leader], 4, 400, 2) == 1, "follower slows to let Penitent pass")
 			check(Pacing.speed(follower, [follower], 4, 400, 2) == 4, "no Penitent means full speed")
@@ -43,10 +43,13 @@ func leader_checks() -> void:
 			check(Pacing.speed(follower, [follower, leader], 4, 400, 2, {leader.id: true}) == 4, "fleeing Penitent cannot slow follower")
 			if name == "Wright":
 				follower.attributes.wright_built = false
+				follower.attributes.wright_released = false
 				check(Pacing.speed(follower, [follower, leader], 4, 400, 2) == 4, "building keeps normal speed")
 				follower.attributes.wright_built = true
 				follower.attributes.wright_guard_until = 500
 				check(Pacing.speed(follower, [follower, leader], 4, 400, 2) == 4, "guarding keeps normal speed")
+				follower.attributes.wright_guard_until = 300
+				check(Pacing.speed(follower, [follower, leader], 4, 400, 2) == 4, "repairing beyond the minimum guard timer keeps normal speed")
 
 func run() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()

@@ -449,7 +449,7 @@ class Phase:
                 context['world']['data']['monsters']=self.w['data']['monsters']
                 s=self.s;self.interrupt(duels,tick)
             if ranged:
-                self.events.extend(fort.step(self.w, buffer, self.number, tick))
+                self.events.extend(fort.step(self.w, buffer, self.number, tick, fleeing))
                 context['world']['data']['field_structures'] = fort.rows(self.w)
                 s = self.s
             move(s, duels, context, clock, modifiers, fields, fleeing, lamps)

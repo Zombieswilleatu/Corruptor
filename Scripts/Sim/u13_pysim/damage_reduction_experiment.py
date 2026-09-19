@@ -19,7 +19,8 @@ def replace_once(source, old, new):
 
 def install(reduction):
     for module, name in ((field_combat, 'melee'), (field_combat, 'volley'), (monster_effects, 'damage')):
-        source = inspect.getsource(getattr(module, name))
+        function = getattr(module, name)
+        source = getattr(function, '_audit_source', None) or inspect.getsource(function)
         if name == 'melee':
             source = replace_once(source, 'dealt, hp_after, evaded = 0, 0, False', 'dealt, hp_after, evaded, reduced = 0, 0, False, 0')
             old = "amount = 0 if evaded else shot['amount']"
@@ -38,6 +39,7 @@ def install(reduction):
         namespace = module.__dict__.copy()
         namespace['mitigate'] = lambda target, raw: amount(target, raw, reduction)
         exec(compile(source, '<pair-audit:kurchin-mitigation>', 'exec'), namespace)
+        namespace[name]._audit_source = source
         setattr(module, name, namespace[name])
 
 

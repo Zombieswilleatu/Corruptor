@@ -239,6 +239,8 @@ class Metrics:
             elif kind == 'WRIGHT_STRUCTURE_BUILT':
                 self.units[d['unit_id']]['structures_built'] += 1
                 self.hp[d['structure']['id']] = d['structure']['attributes']['hp']
+            elif kind == 'WRIGHT_STRUCTURE_REPAIRED':
+                self.hp[d['structure']['id']] = d['hp_after']
             elif kind == 'MONSTER_HUNT_RETARGETED': self.units[d['unit_id']]['retargets'] += 1
             elif kind == 'MARCHING_TICK':
                 for unit in d['units']:

@@ -1,0 +1,54 @@
+{
+  "schema": "U13_WRIGHT_REPAIR_VERIFICATION_V1",
+  "native_runtime": "Godot 4.5.1 stable official Linux (diagnostic)",
+  "windows_4_7_2_acceptance": false,
+  "rules_profile": "U13_VULTURE_RANGED_V9_WRIGHT_REPAIR",
+  "checks": {
+    "wright_assertions": 176,
+    "field_combat_assertions": 182
+  },
+  "repair_parity": {
+    "phases": 24,
+    "events": 4860,
+    "ticks": 4800,
+    "event_types": {
+      "MARCHING_FINISHED": 24,
+      "MARCHING_STARTED": 24,
+      "MARCHING_TICK": 4800,
+      "WRIGHT_STRUCTURE_REPAIRED": 12
+    }
+  },
+  "field_combat_parity": {
+    "phases": 38,
+    "events": 8193,
+    "ticks": 7600,
+    "event_types": {
+      "MARCHER_DEFEATED": 5,
+      "MARCHER_MELEE_ATTACK": 423,
+      "MARCHER_RANGED_ATTACK": 52,
+      "MARCHER_WAITING": 2,
+      "MARCHING_FINISHED": 38,
+      "MARCHING_STARTED": 38,
+      "MARCHING_TICK": 7600,
+      "MONSTER_ATTACK": 1,
+      "MONSTER_BEAM_DETONATED": 1,
+      "MONSTER_BEAM_FIRED": 1,
+      "WRIGHT_BUILD_ASSIGNED": 13,
+      "WRIGHT_STRUCTURE_BUILT": 13,
+      "WRIGHT_STRUCTURE_DESTROYED": 6
+    }
+  },
+  "python_marching_tests": 19,
+  "all_passed": true,
+  "source_sha256": {
+    "Prototype/U13/U13AftermathLedger.gd": "e651b1a208eaa21b65553d69ff983c914490e92fe1475c949c54eed8606da399",
+    "Scripts/Sim/U13FieldFortifications.gd": "791ab7553deb1dd44d381a227169c3f4edfe768449be7b907671e27959cab141",
+    "Scripts/Sim/U13Marching.gd": "02c6458417518b208d8e075a6f8bcf65711799a60797c327aefc1070ee389692",
+    "Scripts/Sim/U13RangedMarching.gd": "cad90d94bf68b296f21b7c6335067cc3277cebc92b816d4f0b2ad7822a20426e",
+    "Scripts/Sim/U13WrightRepairTestRunner.gd": "eb14ca55018aa91765727317276b63953eb8b24fe0fd8fc651d70a71b6d958cf",
+    "Scripts/Sim/u13_pysim/field_fortifications.py": "e2f791f17b542cf5befb0a46a29ad930418e88412a3a29a88bc1ba009e937271",
+    "Scripts/Sim/u13_pysim/marching.py": "6c8faa76b31813d7852ccadab869074037694630cf32c62dd12dc6a0f98bda95",
+    "Scripts/Sim/u13_pysim/marching_spatial.py": "3d00faad9464121c9840c720e24f1fb81ebabcb1d371c86a48bf24a142d2eacc",
+    "Scripts/Sim/u13_pysim/opening.py": "19b10632c62e5c42c65bf52a3f01da44c2cd10cd4ead63d6f4065efa6841eb8c"
+  }
+}

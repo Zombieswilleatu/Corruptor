@@ -17,7 +17,7 @@ from pathlib import Path
 from . import unit_balance as audit, monster_effects as fx, field_combat, penitent_defense, support_pacing
 from .copying import copy_data
 from .primitives import draw
-from . import damage_reduction_experiment
+from . import damage_reduction_experiment, cadence_overrides
 
 BASE_EVADE = fx.evades
 BASE_VOLLEY = field_combat.volley
@@ -68,7 +68,7 @@ def penitent_pacing(unit, rows, step, clock, number, fleeing, trail):
     if a.get('monster_id') or a.get('suit') not in ('Butcher', 'Wright'):
         return BASE_PACING(unit, rows, step, clock, number, fleeing)
     # Building and guarding remain independent of the advance formation.
-    if a.get('suit') == 'Wright' and (not a.get('wright_built', False) or clock < a.get('wright_guard_until', 0)):
+    if a.get('suit') == 'Wright' and not a.get('wright_released', False):
         return step
     screen, lead = None, -421
     for other in rows:
@@ -98,6 +98,7 @@ def install(name):
         namespace = fx.__dict__.copy()
         exec(compile(source.replace(old, 'evaded=evades('), '<pair-audit:permanent-evasion>', 'exec'), namespace)
         fx.damage = namespace['damage']
+        fx.damage._audit_source = source.replace(old, 'evaded=evades(')
     penitent_defense.CHANCE = tuning.get('block', BASE_BLOCK)
     field_combat.melee = BASE_MELEE
     field_combat.volley = BASE_VOLLEY
@@ -114,6 +115,8 @@ def install(name):
         field_combat.volley = namespace['volley']
     if tuning.get('mitigation'):
         damage_reduction_experiment.install(tuning['mitigation'])
+    if 'melee_interval' in tuning:
+        cadence_overrides.install(tuning['melee_interval'], tuning['ranged_interval'])
     # Armor experiments copy step's globals. Install hit handling first so that
     # the copied function cannot inherit the previous case's ability override.
     audit.install_variant(name)
@@ -136,6 +139,9 @@ class DetailedMetrics(audit.Metrics):
         self.last_incoming = {}
         self.death_ticks = {}
         self.prevented = Counter()
+        self.first_attack_tick = None
+        self.death_timeline = []
+        self.first_engaged = {}
 
     def events(self, events):
         for wrapped in events:
@@ -151,6 +157,12 @@ class DetailedMetrics(audit.Metrics):
             if e['type'] == 'MARCHER_MELEE_ATTACK':
                 self.first_melee.setdefault(d['attacker']['id'], (d['round']-1)*200+d['tick'])
             if e['type'] in ('MARCHER_MELEE_ATTACK', 'MARCHER_RANGED_ATTACK', 'MONSTER_ATTACK'):
+                if d['attacker']['owner'] != d['target']['owner']:
+                    for unit in (d['attacker'], d['target']):
+                        if unit['id'] in self.meta:
+                            self.first_engaged.setdefault(unit['id'], (d['round']-1)*200+d['tick'])
+                if self.first_attack_tick is None:
+                    self.first_attack_tick = (d['round']-1)*200+d['tick']
                 self.prevented[d['target']['id']] += d.get('damage_reduced', 0)
                 if d['attacker']['owner'] != d['target']['owner'] and not d.get('blocked') and not d.get('evaded'):
                     tick = (d['round']-1)*200+d['tick']
@@ -158,6 +170,7 @@ class DetailedMetrics(audit.Metrics):
                     self.last_incoming[d['target']['id']] = tick
             if e['type'] == 'MARCHER_DEFEATED':
                 self.death_ticks.setdefault(d['victim']['id'], (d['round']-1)*200+d['tick'])
+                self.death_timeline.append(dict(id=d['victim']['id'], tick=(d['round']-1)*200+d['tick']))
         super().events(events)
 
 
@@ -173,6 +186,8 @@ def initial(spec):
         if name == 'Lemek' and 'lemek_attack' in tuning: row['attributes']['attack'] = tuning['lemek_attack']
         if name == 'Kurchin' and 'kurchin_hp' in tuning:
             row['attributes'].update(hp=tuning['kurchin_hp'], max_hp=tuning['kurchin_hp'])
+        if name == 'Butcher' and 'butcher_attack' in tuning:
+            row['attributes']['attack'] = tuning['butcher_attack']
     if spec.get('layout') == 'tight':
         for group in (0, 1):
             rows = [r for r in world['entities']['entities'] if meta[r['id']]['group'] == group]
@@ -230,6 +245,12 @@ def run(spec, export=None):
                 remaining_hp=hp, remaining_armor=armor, remaining_bodies=[len(x) for x in left],
                 units=stats.finish(world), team_goals=[stats.goal_owners[i] for i in (0, 1)],
                 converted_goal_bodies=len(converted), ranged=dict(stats.ranged), first_melee=stats.first_melee)
+    if spec.get('cadence_metrics'):
+        record['combat_timing'] = dict(first_attack_tick=stats.first_attack_tick,
+            deaths=stats.death_timeline,
+            first_engaged=stats.first_engaged,
+            field_bodies_remaining=len(world['entities']['entities']),
+            goal_bodies=len(escaped))
     if spec['mode'] in ('tank', 'escort'):
         key = next(key for key, m in meta.items() if m['group'] == 0 and m['name'] == 'Kurchin')
         first, death = stats.first_incoming.get(key), stats.death_ticks.get(key)

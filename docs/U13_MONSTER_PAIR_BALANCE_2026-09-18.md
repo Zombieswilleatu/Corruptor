@@ -1,5 +1,7 @@
 # Monster power and Penitent formation experiments — 2026-09-18
 
+Historical rules checkpoint: reproduce this report from commit `7c26052041bc0a9a8212bd10f07dcaad2c9717cd`, before Wright repair. Later cadence experiments use the newer live rules and have a separate report.
+
 Doubling monster HP is a better starting durability buff than doubling Armor for this roster. Keep current Armor and try the closer Penitent-led approach before another general Vulture nerf. For Tumler, 10 HP plus permanent 50% evasion is a strong candidate with his current Attack 2. For Lemek, 10 HP plus Attack 4 meets the requested ahead-or-nearly-even benchmark against two Butchers. Sooge and Sinodek should keep their power-focused roles. Judge Kurchin by time spent tanking and protecting allies, not by solo kills; his 10-HP damage-reduction candidate improves survival but remains fragile against three Butchers.
 
 These are isolated experiments, not applied gameplay balance changes. The baseline includes the previously tested Tumler cluster-pursuit fix: he pursues through enemy bodies while still avoiding slowing pools. That fix and the preceding audit were recovered from the prior saved Git tree.

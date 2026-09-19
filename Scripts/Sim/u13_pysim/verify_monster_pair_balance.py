@@ -14,7 +14,7 @@ static func speed(unit: Dictionary, rows: Array, step: int, clock: int, number: 
 	var a: Dictionary = unit.attributes
 	if a.get("monster_id") or a.get("suit") not in ["Butcher", "Wright"]:
 		return support_speed(unit, rows, step, clock, number, fleeing)
-	if a.get("suit") == "Wright" and (not a.get("wright_built", false) or clock < a.get("wright_guard_until", 0)):
+	if a.get("suit") == "Wright" and not a.get("wright_released", false):
 		return step
 	var screen: Dictionary = {}
 	var lead: int = -421
@@ -67,6 +67,8 @@ def native_project(destination, variant):
         file.write_text(file.read_text()+PACING_GD.replace('FOLLOW_DISTANCE', str(tuning['penitent_lead'])))
     if tuning.get('mitigation'):
         pairs.damage_reduction_experiment.native(change, tuning['mitigation'])
+    if 'melee_interval' in tuning:
+        pairs.cadence_overrides.native(change, tuning['melee_interval'], tuning['ranged_interval'])
     return str(destination)
 
 
