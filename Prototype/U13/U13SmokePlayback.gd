@@ -137,13 +137,15 @@ func sample(seconds: float) -> Dictionary:
 	var result: Array = left.units.duplicate(true)
 	for unit in result:
 		var ending: Dictionary = right_units.get(unit.id, unit)
+		# A burrow jump is a discontinuity, never a surface slide toward a future exit.
+		var motion_weight: float = 0.0 if ending.attributes.get("dotra_emerged_tick", 0) != unit.attributes.get("dotra_emerged_tick", 0) else weight
 		# Keep fractional visual positions out of the simulation's *_fp fields.
 		if _spatial:
 			unit.attributes["visual_y"] = lerpf(
-				float(unit.attributes.y_fp), float(ending.attributes.y_fp), weight
+				float(unit.attributes.y_fp), float(ending.attributes.y_fp), motion_weight
 			)
 		unit.attributes["visual_x"] = lerpf(
-			float(unit.attributes.x_fp), float(ending.attributes.x_fp), weight
+			float(unit.attributes.x_fp), float(ending.attributes.x_fp), motion_weight
 		)
 	var projectiles: Array = []
 	for shot in projectile_rows:
@@ -258,6 +260,9 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 	for event in events:
 		var d: Dictionary = event.data
 		if event.type == "MARCHER_DEFEATED": death_ticks[d.victim.id + ":pool"] = int(d.get("tick", 0))
+		if event.type == "MONSTER_BURROW_EMERGED":
+			var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
+			_monster_attacks.append({"start": at, "end": at + 0.30, "source": d.source.attributes, "source_id": d.source.id, "source_owner": d.source.owner, "ability": "DotraEmerge"})
 		if event.type == "MONSTER_PULSE":
 			# Old tapes retain the caster ID, but do not identify healed bodies.
 			# Show the cast without inventing successful heals in those replays.
@@ -361,7 +366,11 @@ func _align_attack_reveals(events: Array) -> void:
 				reveals[unit.id].append(float(frame.at))
 			concealed[unit.id] = hidden
 	for event in events:
-		if event.type == "MONSTER_ATTACK" and event.data.ability == "Ambush":
+		if event.type == "MONSTER_BURROW_EMERGED":
+			var identity: String = event.data.source.id
+			if not reveals.has(identity): reveals[identity] = []
+			reveals[identity].append(tick_time(int(event.data.tick)))
+		if event.type == "MONSTER_ATTACK" and event.data.ability == "Ambush" and not event.data.attacker.attributes.has("dotra_emerged_tick"):
 			# A lethal counterattack can remove Dotra before the next unit frame.
 			# Its recorded ambush still establishes the exact reveal instant.
 			var identity: String = event.data.attacker.id

@@ -3,7 +3,7 @@ from . import field_fortifications as fort
 from . import monsters as rules
 from .copying import copy_data
 from .primitives import draw, instance_id
-from . import penitent_defense
+from . import penitent_defense, dotra_burrows as burrows
 
 T = rules.TUNING
 
@@ -32,6 +32,8 @@ def preferred(unit, rows):
     a=unit['attributes']
     if a.get('monster_id')=='Tumler':
         return next((r for r in enemies(unit,rows) if r['id']==a.get('hunt_target','')), {})
+    if a.get('monster_id') == 'Dotra' and a.get('dotra_ambush_ready', False):
+        return next((r for r in enemies(unit, rows) if r['id'] == a.get('dotra_ambush_target', '')), {})
     return {}
 
 
@@ -205,10 +207,28 @@ def step(w,buffer,c,tick,reaction):
             target=nearest(unit,rows,T['muno_radius'])
             if target:
                 a['muno_round']=n;hits.append(dict(source=unit,target=target['id'],amount=a['attack'],bypass=False,ability='Muno'))
-        elif name=='Dotra' and a.get('hidden',False):
-            target=nearest(unit,rows,T['dotra_ambush_radius'])
-            if target:
-                hits.append(dict(source=unit,target=target['id'],amount=5,bypass=False,ability='Ambush'))
+        elif name == 'Dotra':
+            if a.get('hidden', False):
+                if not a.get('dotra_holes', []):
+                    burrows.begin(a, clock)
+                    events.append(event('MONSTER_BURROW_CREATED', dict(unit_id=unit['id'], owner=unit['owner'], lane=a['lane'], holes=a['dotra_holes'], round=n, tick=tick)))
+                if clock >= a['dotra_burrow_ready_tick']:
+                    points = burrows.exits(unit, rows, fort.rows(w))
+                    target = burrows.isolated(unit, rows, points)
+                    exit_index = burrows.choose_exit(unit, points, target)
+                    if exit_index >= 0:
+                        hole = copy_data(a['dotra_holes'][exit_index])
+                        a.update(points[exit_index])
+                        a.update(hidden=False, dotra_holes=[], dotra_ambush_ready=True,
+                                 dotra_ambush_target=target.get('id', ''), dotra_emerged_tick=clock, contact_tick=-1)
+                        a.pop('navigation', None)
+                        events.append(event('MONSTER_BURROW_EMERGED', dict(source=unit, hole=hole, hole_index=exit_index, target_id=target.get('id', ''), round=n, tick=tick)))
+            if not a.get('hidden', False) and a.get('dotra_ambush_ready', False):
+                target = burrows.prepared_target(unit, rows, clock)
+                a['dotra_ambush_target'] = target.get('id', '')
+                target = preferred(unit, rows) or target
+                if target and distance(a, target['attributes']) <= T['dotra_ambush_radius']**2 and not fort.blocker(unit, target['attributes'], fort.rows(w)):
+                    hits.append(dict(source=unit, target=target['id'], amount=5, bypass=False, ability='Ambush'))
         elif name=='Sooge' and a['sprite_form']=='turret' and a.get('beam_next_tick',0)-T['beam_charge_ticks']<=clock:
             target=nearest(unit,rows+fort.rows(w),T['beam_range'])
             if not target:
@@ -276,7 +296,7 @@ def damage(w,buffer,hit,c,tick,reaction):
     if hit['ability']=='Ambush':
         ambusher=buffer.get(hit['source']['id'])
         if not ambusher:return dict(action='resolved',world=w,events=events)
-        ambusher['attributes']['hidden']=False
+        ambusher['attributes'].update(hidden=False, dotra_ambush_ready=False, dotra_ambush_target='')
         buffer.update(ambusher['id'],ambusher['owner'],ambusher['attributes'])
         hit['source']=ambusher
     blocked=hit['ability']=='Beam' and penitent_defense.blocks(target,hit['source']['id'],c['seed'],c['round'],tick,'Beam')

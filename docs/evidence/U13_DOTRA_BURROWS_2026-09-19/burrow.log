@@ -1,0 +1,107 @@
+Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org
+
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS dotra_isolated_exit_0 resolves
+PASS dotra_isolated_exit_0 keeps valid unit and field state
+PASS dotra_isolated_exit_0 deterministic replay
+PASS Dotra bypasses the closer cluster to emerge beside the isolated enemy
+PASS one existing five-damage ambush follows emergence within reach
+PASS burrow events replay successfully
+PASS replay holds the hidden origin instead of sliding toward the future exit
+PASS exit dust and exposed body appear at the recorded emergence tick
+PASS both lane views show all three exits for either seat
+PASS exit markers clear on emergence
+PASS a dead burrower leaves no exit markers
+PASS resetting the arena clears all burrow markers
+PASS both lane views show all three exits for either seat
+PASS exit markers clear on emergence
+PASS a dead burrower leaves no exit markers
+PASS resetting the arena clears all burrow markers
+PASS the chosen live victim remains stable while closing
+PASS a dead victim is replaced
+PASS a charmed victim is replaced
+PASS a hidden victim is replaced without tracking it
+PASS an unreachable victim is replaced during navigation cooldown
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS three valid exits remain inside the field, including at lane edges
+PASS holes remain spread apart even beside a goal
+PASS dotra_isolated_exit_1 resolves
+PASS dotra_isolated_exit_1 keeps valid unit and field state
+PASS dotra_isolated_exit_1 deterministic replay
+PASS Dotra bypasses the closer cluster to emerge beside the isolated enemy
+PASS one existing five-damage ambush follows emergence within reach
+PASS burrow events replay successfully
+PASS replay holds the hidden origin instead of sliding toward the future exit
+PASS exit dust and exposed body appear at the recorded emergence tick
+PASS both lane views show all three exits for either seat
+PASS exit markers clear on emergence
+PASS a dead burrower leaves no exit markers
+PASS resetting the arena clears all burrow markers
+PASS both lane views show all three exits for either seat
+PASS exit markers clear on emergence
+PASS a dead burrower leaves no exit markers
+PASS resetting the arena clears all burrow markers
+PASS the chosen live victim remains stable while closing
+PASS a dead victim is replaced
+PASS a charmed victim is replaced
+PASS a hidden victim is replaced without tracking it
+PASS an unreachable victim is replaced during navigation cooldown
+PASS occupied exit uses a nearby free footprint, never exact superimposition
+PASS a completely crowded hole is skipped in favor of another usable exit
+PASS emergence clears the whole wall footprint
+PASS cross-round wind-up retains the same holes and deadline
+PASS cross-round emergence does not fire a tick early
+PASS cross-round emergence uses absolute simulation time
+PASS enemy movement never relocates the already visible holes
+PASS emergence reevaluates isolation after the enemies reposition
+PASS fully obstructed exits do not force an illegal emergence
+PASS burrow retries promptly when an exit becomes usable
+PASS malformed burrow data is rejected
+PASS malformed burrow data is rejected
+PASS malformed burrow data is rejected
+PASS malformed burrow data is rejected
+U13 Dotra burrow check failures: 0

@@ -1,0 +1,16 @@
+{
+  "phases": 2,
+  "events": 434,
+  "ticks": 400,
+  "event_types": {
+    "MARCHER_MELEE_ATTACK": 20,
+    "MARCHER_RANGED_ATTACK": 2,
+    "MARCHING_FINISHED": 2,
+    "MARCHING_STARTED": 2,
+    "MARCHING_TICK": 400,
+    "MONSTER_ATTACK": 2,
+    "MONSTER_BURROW_CREATED": 2,
+    "MONSTER_BURROW_EMERGED": 2,
+    "MONSTER_CONCEALMENT": 2
+  }
+}

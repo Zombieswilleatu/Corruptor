@@ -736,10 +736,8 @@ static func _move(
 			var target: Dictionary = FieldMelee.nearest(unit, reachable, Fort.CONTACT, true)
 			if target.is_empty(): target = Navigation.retained(unit, reachable)
 			if target.is_empty(): target = FieldMelee.nearest(unit, reachable)
-			if unit.attributes.get("monster_id") == "Dotra" and unit.attributes.get("hidden", false):
-				target = MonsterEffects.nearest(unit, reachable.filter(func(r): return r.kind == "marcher"))
 			var taunted: bool = false
-			if has_taunt or unit.attributes.get("monster_id") == "Tumler":
+			if has_taunt or unit.attributes.get("monster_id") in ["Tumler", "Dotra"]:
 				var hunted: Dictionary = MonsterEffects.preferred(unit, rows)
 				if not hunted.is_empty() and (hunted.attributes.get("monster_id") == "Kurchin" or not Navigation.avoided(unit, hunted, clock)):
 					target = hunted
@@ -756,7 +754,7 @@ static func _move(
 	# Targets use one snapshot. Reserve each accepted small footprint in stable
 	# identity order so two units cannot step into the same space this tick.
 	for unit in rows:
-		if fleeing_ids.has(unit.id) or (unit.attributes.get("hidden", false) and unit.attributes.get("monster_id") != "Dotra") or unit.attributes.get("sprite_form") == "turret":
+		if fleeing_ids.has(unit.id) or unit.attributes.get("hidden", false) or unit.attributes.get("sprite_form") == "turret":
 			continue
 		var a: Dictionary = unit.attributes
 		var nearby: Dictionary = neighbors[unit.id]
@@ -808,7 +806,7 @@ static func _move(
 		if modern and not retreat and not taunted and not gate_advancing:
 			step = SupportPacing.speed(unit, rows, step, clock, context.round, fleeing_ids)
 		var nearest: Dictionary = nearby.unit
-		var preferred: Dictionary = MonsterEffects.preferred(unit, rows) if has_taunt or a.get("monster_id") == "Tumler" else {}
+		var preferred: Dictionary = MonsterEffects.preferred(unit, rows) if has_taunt or a.get("monster_id") in ["Tumler", "Dotra"] else {}
 		if modern and not taunted and Navigation.avoided(unit, preferred, clock): preferred = {}
 		if not preferred.is_empty(): nearest = preferred
 		var best: int = int(nearby.distance) if preferred.is_empty() else _distance(a, preferred.attributes)

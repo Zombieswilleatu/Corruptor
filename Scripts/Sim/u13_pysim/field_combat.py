@@ -48,7 +48,7 @@ def melee(phase, tick, fleeing):
                 or a.get('hidden', False) or a.get('sprite_form') == 'turret'):
             continue
         target = nearest(unit, targets, fort.CONTACT, True)
-        if has_taunt or a.get('monster_id') == 'Tumler':
+        if has_taunt or a.get('monster_id') in ('Tumler', 'Dotra'):
             target = monster_effects.preferred(unit, units) or target
         if not target:
             continue

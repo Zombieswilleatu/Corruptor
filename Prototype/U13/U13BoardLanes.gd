@@ -358,6 +358,7 @@ func _draw_chit(unit: Dictionary, center: Vector2, flash: bool = false, close_up
 	var attributes: Dictionary = unit.attributes
 	var tint: Color = BLUE if unit.owner == 0 else RED
 	if attributes.get("hidden", false):
+		if not attributes.get("dotra_holes", []).is_empty(): return
 		if unit.owner == 0:
 			if uses_sprite(unit): sprite_visuals.draw_afterimage(self, unit, center, unit_sprite_height(unit), Color(0.65, 0.75, 0.85, 0.24))
 			draw_arc(center, 9, 0, TAU, 24, Color(tint, 0.35), 1.0)
@@ -583,8 +584,27 @@ func _monster_point(a: Dictionary) -> Vector2:
 	var rect: Rect2 = travel_rect(a.lane)
 	return rect.position + Vector2(float(a.get("visual_y", a.y_fp)) / 600.0, 1.0 - float(a.get("visual_x", a.x_fp)) / 2400.0) * rect.size
 
+func burrow_markers(lane: String) -> Array:
+	var result: Array = []
+	for unit in _units:
+		if unit.attributes.lane != lane or not unit.attributes.get("hidden", false) or deaths.seen.has(unit.id): continue
+		for hole in unit.attributes.get("dotra_holes", []):
+			var point: Dictionary = hole.duplicate(true)
+			point["lane"] = lane
+			result.append({"center": _monster_point(point), "owner": unit.owner})
+	return result
+
 func _draw_monster_fields(lane: String) -> void:
 	var rect: Rect2 = travel_rect(lane)
+	for marker in burrow_markers(lane):
+		var radius: float = clampf(rect.size.x * 0.035, 9.0, 18.0)
+		var tint: Color = BLUE if marker.owner == 0 else RED
+		draw_set_transform(marker.center, 0.0, Vector2(1.0, 0.45))
+		draw_circle(Vector2.ZERO, radius + 3.0, Color("493c2c"))
+		draw_circle(Vector2.ZERO, radius, Color("100d09"))
+		draw_arc(Vector2.ZERO, radius + 1.0, 0.0, TAU, 32, Color("9a7950"), 2.0, true)
+		draw_arc(Vector2.ZERO, radius + 4.0, 0.15, PI - 0.15, 16, Color(tint, 0.85), 1.5, true)
+		draw_set_transform(Vector2.ZERO)
 	for field in monster_fields:
 		if field.lane != lane: continue
 		var center: Vector2 = _monster_point(field)
@@ -637,6 +657,14 @@ func _draw_monster_attacks() -> void:
 	for attack in monster_attacks:
 		if attack.ability == "KopitaPulse":
 			_draw_kopita_pulse(attack)
+			continue
+		if attack.ability == "DotraEmerge":
+			var center: Vector2 = _monster_point(attack.source)
+			var progress: float = float(attack.get("weight", 0.0))
+			for i in range(8):
+				var angle: float = TAU * float(i) / 8.0
+				var offset := Vector2(cos(angle), sin(angle) * 0.45) * (8.0 + progress * 22.0)
+				draw_circle(center + offset, 3.0 * (1.0 - progress) + 1.0, Color(0.65, 0.48, 0.28, 1.0 - progress))
 			continue
 		var a := _attack_point(attack.source, attack.get("source_id", ""), attack.get("source_owner", 0))
 		var b := _attack_point(attack.target, attack.get("target_id", ""), attack.get("target_owner", 1))

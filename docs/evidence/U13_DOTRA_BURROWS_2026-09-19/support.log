@@ -1,0 +1,237 @@
+Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org
+
+PASS paced_Vulture_0 resolves
+PASS paced_Vulture_0 keeps valid unit and field state
+PASS paced_Vulture_0 deterministic replay
+PASS Vulture lets a slower frontliner take the lead on side 0
+PASS Vulture keeps advancing with its screen
+PASS pacing never changes the saved movement stat
+PASS alone_Vulture_0 resolves
+PASS alone_Vulture_0 keeps valid unit and field state
+PASS alone_Vulture_0 deterministic replay
+PASS Vulture resumes full movement when its screen is gone
+PASS paced_Kopita_0 resolves
+PASS paced_Kopita_0 keeps valid unit and field state
+PASS paced_Kopita_0 deterministic replay
+PASS Kopita lets a slower frontliner take the lead on side 0
+PASS Kopita keeps advancing with its screen
+PASS pacing never changes the saved movement stat
+PASS alone_Kopita_0 resolves
+PASS alone_Kopita_0 keeps valid unit and field state
+PASS alone_Kopita_0 deterministic replay
+PASS Kopita resumes full movement when its screen is gone
+PASS paced_Sinodek_0 resolves
+PASS paced_Sinodek_0 keeps valid unit and field state
+PASS paced_Sinodek_0 deterministic replay
+PASS Sinodek lets a slower frontliner take the lead on side 0
+PASS Sinodek keeps advancing with its screen
+PASS pacing never changes the saved movement stat
+PASS alone_Sinodek_0 resolves
+PASS alone_Sinodek_0 keeps valid unit and field state
+PASS alone_Sinodek_0 deterministic replay
+PASS Sinodek resumes full movement when its screen is gone
+PASS paced_Sooge_0 resolves
+PASS paced_Sooge_0 keeps valid unit and field state
+PASS paced_Sooge_0 deterministic replay
+PASS Sooge lets a slower frontliner take the lead on side 0
+PASS Sooge keeps advancing with its screen
+PASS pacing never changes the saved movement stat
+PASS alone_Sooge_0 resolves
+PASS alone_Sooge_0 keeps valid unit and field state
+PASS alone_Sooge_0 deterministic replay
+PASS Sooge resumes full movement when its screen is gone
+PASS support_only_0 resolves
+PASS support_only_0 keeps valid unit and field state
+PASS support_only_0 deterministic replay
+PASS supports and another lane cannot create a traffic queue
+PASS screen_in_combat_0 resolves
+PASS screen_in_combat_0 keeps valid unit and field state
+PASS screen_in_combat_0 deterministic replay
+PASS Kopita stays behind its engaged screen
+PASS screened support does not creep into enemy melee
+PASS retreating frontliners do not slow supports
+PASS fleeing frontliners do not slow supports
+PASS paced_Vulture_1 resolves
+PASS paced_Vulture_1 keeps valid unit and field state
+PASS paced_Vulture_1 deterministic replay
+PASS Vulture lets a slower frontliner take the lead on side 1
+PASS Vulture keeps advancing with its screen
+PASS pacing never changes the saved movement stat
+PASS alone_Vulture_1 resolves
+PASS alone_Vulture_1 keeps valid unit and field state
+PASS alone_Vulture_1 deterministic replay
+PASS Vulture resumes full movement when its screen is gone
+PASS paced_Kopita_1 resolves
+PASS paced_Kopita_1 keeps valid unit and field state
+PASS paced_Kopita_1 deterministic replay
+PASS Kopita lets a slower frontliner take the lead on side 1
+PASS Kopita keeps advancing with its screen
+PASS pacing never changes the saved movement stat
+PASS alone_Kopita_1 resolves
+PASS alone_Kopita_1 keeps valid unit and field state
+PASS alone_Kopita_1 deterministic replay
+PASS Kopita resumes full movement when its screen is gone
+PASS paced_Sinodek_1 resolves
+PASS paced_Sinodek_1 keeps valid unit and field state
+PASS paced_Sinodek_1 deterministic replay
+PASS Sinodek lets a slower frontliner take the lead on side 1
+PASS Sinodek keeps advancing with its screen
+PASS pacing never changes the saved movement stat
+PASS alone_Sinodek_1 resolves
+PASS alone_Sinodek_1 keeps valid unit and field state
+PASS alone_Sinodek_1 deterministic replay
+PASS Sinodek resumes full movement when its screen is gone
+PASS paced_Sooge_1 resolves
+PASS paced_Sooge_1 keeps valid unit and field state
+PASS paced_Sooge_1 deterministic replay
+PASS Sooge lets a slower frontliner take the lead on side 1
+PASS Sooge keeps advancing with its screen
+PASS pacing never changes the saved movement stat
+PASS alone_Sooge_1 resolves
+PASS alone_Sooge_1 keeps valid unit and field state
+PASS alone_Sooge_1 deterministic replay
+PASS Sooge resumes full movement when its screen is gone
+PASS support_only_1 resolves
+PASS support_only_1 keeps valid unit and field state
+PASS support_only_1 deterministic replay
+PASS supports and another lane cannot create a traffic queue
+PASS screen_in_combat_1 resolves
+PASS screen_in_combat_1 keeps valid unit and field state
+PASS screen_in_combat_1 deterministic replay
+PASS Kopita stays behind its engaged screen
+PASS screened support does not creep into enemy melee
+PASS retreating frontliners do not slow supports
+PASS fleeing frontliners do not slow supports
+PASS Tumler resumes hunting after reaching a clamped detour on side 0
+PASS hunt_detour_arrived_0 resolves
+PASS hunt_detour_arrived_0 keeps valid unit and field state
+PASS hunt_detour_arrived_0 deterministic replay
+PASS Tumler advances toward the target after completing the detour
+PASS hunt_melee_0_49 resolves
+PASS hunt_melee_0_49 keeps valid unit and field state
+PASS hunt_melee_0_49 deterministic replay
+PASS exact 50% boundary: 49 dodges, 50 connects
+PASS Tumler does not attack a bystander before interception
+PASS only a landed melee hit immediately changes the hunt
+PASS dodging hunt builds an authoritative playback
+PASS a successful dodge has visible feedback
+PASS hunt_melee_0_50 resolves
+PASS hunt_melee_0_50 keeps valid unit and field state
+PASS hunt_melee_0_50 deterministic replay
+PASS exact 50% boundary: 49 dodges, 50 connects
+PASS Tumler does not attack a bystander before interception
+PASS only a landed melee hit immediately changes the hunt
+PASS Armor-only contact still intercepts the hunt
+PASS interception persists instead of reverting to support preference
+PASS intercepted Tumler fights the attacker
+PASS melee contact retains constant evasion
+PASS hunt_ranged_0_49 resolves
+PASS hunt_ranged_0_49 keeps valid unit and field state
+PASS hunt_ranged_0_49 deterministic replay
+PASS ranged hits roll evasion before applying damage
+PASS ranged damage never redirects the hunt
+PASS hunt_ranged_0_50 resolves
+PASS hunt_ranged_0_50 keeps valid unit and field state
+PASS hunt_ranged_0_50 deterministic replay
+PASS ranged hits roll evasion before applying damage
+PASS ranged damage never redirects the hunt
+PASS hunt_arrived_0 resolves
+PASS hunt_arrived_0 keeps valid unit and field state
+PASS hunt_arrived_0 deterministic replay
+PASS reaching the target retains the successful dodge roll
+PASS fighting at the destination is no longer hunting
+PASS valid distant prey enables hunting
+PASS being pinned at a hostile wall ends hunting but preserves evasion
+PASS save transport retains the chosen hunt target
+PASS no active hunt while waiting
+PASS no active hunt while movement_ready_round
+PASS no active hunt while step_fp
+PASS no active hunt while rout_round
+PASS a dead or missing target ends hunting
+PASS a hidden target ends hunting
+PASS existing poison cannot be dodged
+PASS Muno dodge preserves both HP and Armor
+PASS Muno uses the correct interception category
+PASS Muno dodge preserves both HP and Armor
+PASS Muno uses the correct interception category
+PASS Ambush dodge preserves both HP and Armor
+PASS Ambush uses the correct interception category
+PASS Ambush dodge preserves both HP and Armor
+PASS Ambush uses the correct interception category
+PASS Beam dodge preserves both HP and Armor
+PASS Beam uses the correct interception category
+PASS Beam dodge preserves both HP and Armor
+PASS Beam uses the correct interception category
+PASS Kopita dodge preserves both HP and Armor
+PASS Kopita uses the correct interception category
+PASS Kopita dodge preserves both HP and Armor
+PASS Kopita uses the correct interception category
+PASS Kroni keeps evasion without enabling hunt interception
+PASS Portal keeps evasion without enabling hunt interception
+PASS Tumler resumes hunting after reaching a clamped detour on side 1
+PASS hunt_detour_arrived_1 resolves
+PASS hunt_detour_arrived_1 keeps valid unit and field state
+PASS hunt_detour_arrived_1 deterministic replay
+PASS Tumler advances toward the target after completing the detour
+PASS hunt_melee_1_49 resolves
+PASS hunt_melee_1_49 keeps valid unit and field state
+PASS hunt_melee_1_49 deterministic replay
+PASS exact 50% boundary: 49 dodges, 50 connects
+PASS Tumler does not attack a bystander before interception
+PASS only a landed melee hit immediately changes the hunt
+PASS dodging hunt builds an authoritative playback
+PASS a successful dodge has visible feedback
+PASS hunt_melee_1_50 resolves
+PASS hunt_melee_1_50 keeps valid unit and field state
+PASS hunt_melee_1_50 deterministic replay
+PASS exact 50% boundary: 49 dodges, 50 connects
+PASS Tumler does not attack a bystander before interception
+PASS only a landed melee hit immediately changes the hunt
+PASS Armor-only contact still intercepts the hunt
+PASS interception persists instead of reverting to support preference
+PASS intercepted Tumler fights the attacker
+PASS melee contact retains constant evasion
+PASS hunt_ranged_1_49 resolves
+PASS hunt_ranged_1_49 keeps valid unit and field state
+PASS hunt_ranged_1_49 deterministic replay
+PASS ranged hits roll evasion before applying damage
+PASS ranged damage never redirects the hunt
+PASS hunt_ranged_1_50 resolves
+PASS hunt_ranged_1_50 keeps valid unit and field state
+PASS hunt_ranged_1_50 deterministic replay
+PASS ranged hits roll evasion before applying damage
+PASS ranged damage never redirects the hunt
+PASS hunt_arrived_1 resolves
+PASS hunt_arrived_1 keeps valid unit and field state
+PASS hunt_arrived_1 deterministic replay
+PASS reaching the target retains the successful dodge roll
+PASS fighting at the destination is no longer hunting
+PASS valid distant prey enables hunting
+PASS being pinned at a hostile wall ends hunting but preserves evasion
+PASS save transport retains the chosen hunt target
+PASS no active hunt while waiting
+PASS no active hunt while movement_ready_round
+PASS no active hunt while step_fp
+PASS no active hunt while rout_round
+PASS a dead or missing target ends hunting
+PASS a hidden target ends hunting
+PASS existing poison cannot be dodged
+PASS Muno dodge preserves both HP and Armor
+PASS Muno uses the correct interception category
+PASS Muno dodge preserves both HP and Armor
+PASS Muno uses the correct interception category
+PASS Ambush dodge preserves both HP and Armor
+PASS Ambush uses the correct interception category
+PASS Ambush dodge preserves both HP and Armor
+PASS Ambush uses the correct interception category
+PASS Beam dodge preserves both HP and Armor
+PASS Beam uses the correct interception category
+PASS Beam dodge preserves both HP and Armor
+PASS Beam uses the correct interception category
+PASS Kopita dodge preserves both HP and Armor
+PASS Kopita uses the correct interception category
+PASS Kopita dodge preserves both HP and Armor
+PASS Kopita uses the correct interception category
+PASS Kroni keeps evasion without enabling hunt interception
+PASS Portal keeps evasion without enabling hunt interception
+U13 Support/Hunt failures: 0

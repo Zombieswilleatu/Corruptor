@@ -5,6 +5,7 @@ const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Lamp = preload("res://Scripts/Sim/U13Wishmaster.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Defense = preload("res://Scripts/Sim/U13PenitentDefense.gd")
+const Burrows = preload("res://Scripts/Sim/U13DotraBurrows.gd")
 const Fort = preload("res://Scripts/Sim/U13FieldFortifications.gd")
 
 static func event(kind: String, data: Dictionary) -> Dictionary:
@@ -33,6 +34,9 @@ static func preferred(unit: Dictionary, rows: Array) -> Dictionary:
 	if unit.attributes.get("monster_id") == "Tumler":
 		for row in enemies(unit, rows):
 			if row.id == id: return row
+	if unit.attributes.get("monster_id") == "Dotra" and unit.attributes.get("dotra_ambush_ready", false):
+		for row in enemies(unit, rows):
+			if row.id == unit.attributes.get("dotra_ambush_target", ""): return row
 	return {}
 
 static func hunt_bonus(source: Dictionary, target: Dictionary) -> int:
@@ -226,8 +230,30 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 						hits.append({"source": unit, "target": target.id, "amount": a.attack, "bypass": false, "ability": "Muno"})
 			"Dotra":
 				if a.get("hidden", false):
-					var target: Dictionary = nearest(unit, rows, Rules.TUNING.dotra_ambush_radius)
-					if not target.is_empty():
+					if a.get("dotra_holes", []).is_empty():
+						Burrows.begin(a, clock)
+						events.append(event("MONSTER_BURROW_CREATED", {"unit_id": unit.id, "owner": unit.owner, "lane": a.lane, "holes": a.dotra_holes, "round": n, "tick": tick}))
+					if clock >= int(a.dotra_burrow_ready_tick):
+						var points: Array = Burrows.exits(unit, rows, Fort.rows(world))
+						var target: Dictionary = Burrows.isolated(unit, rows, points)
+						var exit_index: int = Burrows.choose_exit(unit, points, target)
+						if exit_index >= 0:
+							var hole: Dictionary = a.dotra_holes[exit_index].duplicate(true)
+							a.merge(points[exit_index], true)
+							a["hidden"] = false
+							a["dotra_holes"] = []
+							a["dotra_ambush_ready"] = true
+							a["dotra_ambush_target"] = target.get("id", "")
+							a["dotra_emerged_tick"] = clock
+							a.contact_tick = -1
+							a.erase("navigation")
+							events.append(event("MONSTER_BURROW_EMERGED", {"source": unit, "hole": hole, "hole_index": exit_index, "target_id": target.get("id", ""), "round": n, "tick": tick}))
+				if not a.get("hidden", false) and a.get("dotra_ambush_ready", false):
+					var target: Dictionary = Burrows.prepared_target(unit, rows, clock)
+					a["dotra_ambush_target"] = target.get("id", "")
+					var taunt: Dictionary = preferred(unit, rows)
+					if not taunt.is_empty(): target = taunt
+					if not target.is_empty() and distance(a, target.attributes) <= int(Rules.TUNING.dotra_ambush_radius) ** 2 and Fort.blocker(unit, target.attributes, Fort.rows(world)).is_empty():
 						hits.append({"source": unit, "target": target.id, "amount": 5, "bypass": false, "ability": "Ambush"})
 			"Sooge":
 				if a.sprite_form == "turret" and int(a.get("beam_next_tick", 0)) - int(Rules.TUNING.beam_charge_ticks) <= clock:
@@ -319,9 +345,10 @@ static func damage(world: Dictionary, entities, hit: Dictionary, context: Dictio
 	if hit.ability == "Ambush":
 		var ambusher: Dictionary = entities.get_entity(hit.source.id)
 		if ambusher.is_empty(): return {"action": "resolved", "world": world, "events": events}
-		# Reveal only when a live victim will actually receive the ambush.
-		# An earlier queued hit may have removed the chosen victim already.
+		# Spend the prepared strike only when a live victim receives it.
 		ambusher.attributes["hidden"] = false
+		ambusher.attributes["dotra_ambush_ready"] = false
+		ambusher.attributes["dotra_ambush_target"] = ""
 		entities.update(ambusher.id, ambusher.owner, ambusher.attributes)
 		hit["source"] = ambusher
 	var blocked: bool = hit.ability == "Beam" and Defense.blocks(target, hit.source.id, context.seed, context.round, tick, "Beam")

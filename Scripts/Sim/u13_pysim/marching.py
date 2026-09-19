@@ -205,7 +205,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
         gaps[i], nearest[i] = nearest_target(i, candidates, pos, xs, ys)
     data = context["world"]["data"]
     has_taunt=any((s.extra[k] or {}).get('monster_id')=='Kurchin' for k in indices)
-    needs_targets=has_taunt or any((s.extra[k] or {}).get('monster_id')=='Tumler' for k in indices)
+    needs_targets=has_taunt or any((s.extra[k] or {}).get('monster_id') in ('Tumler', 'Dotra') for k in indices)
     # One immutable target snapshot per tick, shared across all movers.
     targets=[s.row(k) for k in indices] if needs_targets else []
     targets_by_id={r['id']:r for r in targets}
@@ -225,9 +225,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     taunted = set()
     if ranged:
         for i in indices:
-            if (s.extra[i] or {}).get('monster_id')=='Dotra' and (s.extra[i] or {}).get('hidden',False):
-                field_nearest[i]=monster_effects.nearest(s.row(i),[r for r in reachable[i] if r['kind']=='marcher'])
-            if has_taunt or (s.extra[i] or {}).get('monster_id')=='Tumler':
+            if has_taunt or (s.extra[i] or {}).get('monster_id') in ('Tumler', 'Dotra'):
                 chosen = monster_effects.preferred(s.row(i), target_rows)
                 if chosen and (chosen['attributes'].get('monster_id') == 'Kurchin' or not navigation.avoided(s.row(i), chosen, clock)):
                     field_nearest[i] = chosen
@@ -236,7 +234,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     collapse_players = veil.affected_players(context["world"],"Valak")
     for i in indices:
         extra=s.extra[i] or {}
-        if s.ids[i] in fleeing or (extra.get("hidden",False) and extra.get('monster_id')!='Dotra') or extra.get("sprite_form")=="turret": continue
+        if s.ids[i] in fleeing or extra.get("hidden",False) or extra.get("sprite_form")=="turret": continue
         lane, owner, base = s.lane[i], s.owner[i], s.step_fp[i]
         collapse = collapse_players[owner]
         recovery = s.rout_round[i] == number - 1
@@ -272,7 +270,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
             destination = fort.point(s.row(i)['attributes'], field_nearest[i]) if field_nearest[i] else None
         movement_target = (field_nearest[i] or {}).get('id', '') if ranged else ''
         gap = gaps[i]
-        if has_taunt or (s.extra[i] or {}).get('monster_id')=='Tumler':
+        if has_taunt or (s.extra[i] or {}).get('monster_id') in ('Tumler', 'Dotra'):
             current=targets_by_id[s.ids[i]]
             chosen=monster_effects.preferred(current,targets)
             if ranged and i not in taunted and navigation.avoided(current, chosen, clock): chosen = None

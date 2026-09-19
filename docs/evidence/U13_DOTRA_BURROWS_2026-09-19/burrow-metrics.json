@@ -1,0 +1,47 @@
+{
+  "before_dotras": {
+    "bodies_seen": 18,
+    "staged_body_rounds": 22,
+    "summons": 18,
+    "active_body_rounds": 60,
+    "concealment_rounds": 60,
+    "hidden_rounds": 16,
+    "incoming_attacks": 150,
+    "attacks": 100,
+    "recorded_hp_damage": 190,
+    "landed_hits": 100,
+    "damaging_hits": 86,
+    "deaths": 16,
+    "Ambush:hits": 10,
+    "Ambush:hp_damage": 46,
+    "Ambush:enemy_hits": 10,
+    "kills": 30,
+    "hidden_at_round_start": 6
+  },
+  "after_dotras": {
+    "bodies_seen": 18,
+    "staged_body_rounds": 22,
+    "summons": 18,
+    "active_body_rounds": 42,
+    "concealment_rounds": 42,
+    "hidden_rounds": 10,
+    "incoming_attacks": 124,
+    "attacks": 60,
+    "recorded_hp_damage": 90,
+    "landed_hits": 60,
+    "damaging_hits": 44,
+    "deaths": 14,
+    "kills": 12,
+    "Ambush:hits": 6,
+    "Ambush:hp_damage": 16,
+    "Ambush:enemy_hits": 6
+  },
+  "events": {
+    "MONSTER_BURROW_CREATED": 10,
+    "MONSTER_BURROW_EMERGED": 10
+  },
+  "exit_counts": {
+    "2": 8,
+    "1": 2
+  }
+}

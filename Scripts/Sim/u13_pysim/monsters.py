@@ -1,7 +1,7 @@
 """Monster recipes and explicit playtest tuning; independent Python rules."""
 from . import economy as e
 from .copying import copy_data
-VERSION = "U13_MONSTERS_V13_RESPONSIVE_SUPPORT"
+VERSION = "U13_MONSTERS_V14_DOTRA_BURROWS"
 ROSTER = {'Lemek': {'tier': 'Easy',
            'recipe': {'Penitent': 2},
            'attack': 4,
@@ -75,10 +75,7 @@ ROSTER = {'Lemek': {'tier': 'Easy',
            'armor': 2,
            'speed': 2,
            'hp': 10,
-           'ability': '25% chance to hide each active round. Stalks enemies at full speed while '
-                      'hidden and stays hidden until delivering a 5-damage ambush against an enemy '
-                      'within 240. No timed reveal. Hidden units cannot be selected for ordinary '
-                      'attacks.'},
+           'ability': '25% chance to hide each active round, opening three spread-out burrow holes. After a short wind-up, emerges from the usable exit nearest the most isolated visible enemy (fewest allies within 400). Closes at full speed for one 5-damage ambush within 240. With no enemy, takes the forward exit. Hidden units cannot be selected for ordinary attacks.'},
  'Sooge': {'tier': 'Very hard',
            'recipe': {'Butcher': 3, 'Wright': 2},
            'attack': 1,
@@ -129,8 +126,16 @@ def root_chance(a):
 
 def valid_unit(a):
     if 'monster_id' not in a:return a.get('suit')!='Monster'
-    for key in ('sooge_root_attempts','sooge_root_round','beam_next_tick','beam_charge_tick','beam_ready_tick','dotra_concealment_round','sinodek_portal_round','kopita_pulses','kopita_last_pulse_tick'):
+    for key in ('sooge_root_attempts','sooge_root_round','beam_next_tick','beam_charge_tick','beam_ready_tick','dotra_concealment_round','dotra_burrow_ready_tick','dotra_emerged_tick','sinodek_portal_round','kopita_pulses','kopita_last_pulse_tick'):
         if key in a and (type(a[key]) is not int or not 0<=a[key]<=9007199254740991):return False
+    if 'dotra_ambush_ready' in a and type(a['dotra_ambush_ready']) is not bool: return False
+    if 'dotra_ambush_target' in a and type(a['dotra_ambush_target']) is not str: return False
+    if 'dotra_holes' in a:
+        holes = a['dotra_holes']
+        if type(holes) is not list or len(holes) not in (0, 3): return False
+        for hole in holes:
+            if type(hole) is not dict or type(hole.get('x_fp')) is not int or type(hole.get('y_fp')) is not int: return False
+            if not (30 <= hole['x_fp'] <= 2370 and 30 <= hole['y_fp'] <= 570): return False
     return (a.get('suit')=='Monster' and a['monster_id'] in NAMES and a.get('sprite_form') in ('mobile','turret')
             and (a['sprite_form']!='turret' or a['monster_id']=='Sooge') and type(a.get('flying')) is bool)
 
@@ -163,7 +168,7 @@ TUNING = {'tumler_evasion_chance': 50, 'tumler_hunt_bonus': 1,
  'taunt_radius': 360,
  'muno_radius': 480,
  'dotra_hide_chance': 25,
- 'dotra_ambush_radius': 240,
+ 'dotra_ambush_radius': 240, 'dotra_burrow_ticks': 24, 'dotra_isolation_radius': 400,
  'sooge_root_chance': 25,
  'sooge_root_increase': 15,
  'beam_range': 1800,

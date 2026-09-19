@@ -1,0 +1,624 @@
+Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org
+
+PASS kopita_0_heal resolves
+PASS kopita_0_heal keeps valid unit and field state
+PASS kopita_0_heal deterministic replay
+PASS Kopita heals at the start and around ten seconds while allies remain wounded
+PASS healing tape records only actual HP recovery, including self-healing
+PASS both pulses heal wounded allies without exceeding their maximum
+PASS full-health, distant, other-lane and enemy bodies receive no healing
+PASS full-health, distant, other-lane and enemy bodies receive no healing
+PASS full-health, distant, other-lane and enemy bodies receive no healing
+PASS full-health, distant, other-lane and enemy bodies receive no healing
+PASS healing pulse playback builds
+PASS one green cast highlights the two healed bodies
+PASS Kopita feedback appears at the pulse and expires
+PASS paused playback retains the same pulse and recipient positions
+PASS older heal tapes show a cast without inventing recipients
+PASS kopita_0_harm resolves
+PASS kopita_0_harm keeps valid unit and field state
+PASS kopita_0_harm deterministic replay
+PASS healthy nearby allies select harm at both pulses despite distant or other-lane wounds
+PASS both harm pulses obey range, lane and Armor
+PASS harm pulse playback builds
+PASS one violet cast highlights all actual damage recipients
+PASS kopita_1_heal resolves
+PASS kopita_1_heal keeps valid unit and field state
+PASS kopita_1_heal deterministic replay
+PASS Kopita heals at the start and around ten seconds while allies remain wounded
+PASS healing tape records only actual HP recovery, including self-healing
+PASS both pulses heal wounded allies without exceeding their maximum
+PASS full-health, distant, other-lane and enemy bodies receive no healing
+PASS full-health, distant, other-lane and enemy bodies receive no healing
+PASS full-health, distant, other-lane and enemy bodies receive no healing
+PASS full-health, distant, other-lane and enemy bodies receive no healing
+PASS healing pulse playback builds
+PASS one green cast highlights the two healed bodies
+PASS Kopita feedback appears at the pulse and expires
+PASS paused playback retains the same pulse and recipient positions
+PASS older heal tapes show a cast without inventing recipients
+PASS kopita_1_harm resolves
+PASS kopita_1_harm keeps valid unit and field state
+PASS kopita_1_harm deterministic replay
+PASS healthy nearby allies select harm at both pulses despite distant or other-lane wounds
+PASS both harm pulses obey range, lane and Armor
+PASS harm pulse playback builds
+PASS one violet cast highlights all actual damage recipients
+PASS kopita_birth_hold resolves
+PASS kopita_birth_hold keeps valid unit and field state
+PASS kopita_birth_hold deterministic replay
+PASS Kopita does not claim to cast during birth hold
+PASS kopita_empty_harm resolves
+PASS kopita_empty_harm keeps valid unit and field state
+PASS kopita_empty_harm deterministic replay
+PASS Kopita never wastes an empty healing pulse
+PASS an empty lane shows a harmless damage pulse
+PASS Kopita footprint remains inside its lane in both displays
+PASS pulse uses the true 360-unit simulation radius
+PASS Kopita hover explains conditional healing
+PASS Kopita footprint remains inside its lane in both displays
+PASS pulse uses the true 360-unit simulation radius
+PASS Kopita hover explains conditional healing
+PASS Kopita footprint remains inside its lane in both displays
+PASS pulse uses the true 360-unit simulation radius
+PASS Kopita hover explains conditional healing
+PASS Kopita footprint remains inside its lane in both displays
+PASS pulse uses the true 360-unit simulation radius
+PASS Kopita hover explains conditional healing
+PASS Kopita footprint remains inside its lane in both displays
+PASS pulse uses the true 360-unit simulation radius
+PASS Kopita hover explains conditional healing
+PASS Kopita footprint remains inside its lane in both displays
+PASS pulse uses the true 360-unit simulation radius
+PASS Kopita hover explains conditional healing
+PASS Kopita footprint remains inside its lane in both displays
+PASS pulse uses the true 360-unit simulation radius
+PASS Kopita hover explains conditional healing
+PASS Kopita footprint remains inside its lane in both displays
+PASS pulse uses the true 360-unit simulation radius
+PASS Kopita hover explains conditional healing
+PASS Kopita footprint remains inside its lane in both displays
+PASS pulse uses the true 360-unit simulation radius
+PASS Kopita hover explains conditional healing
+PASS Kopita footprint remains inside its lane in both displays
+PASS pulse uses the true 360-unit simulation radius
+PASS Kopita hover explains conditional healing
+PASS Kopita footprint remains inside its lane in both displays
+PASS pulse uses the true 360-unit simulation radius
+PASS Kopita hover explains conditional healing
+PASS Kopita footprint remains inside its lane in both displays
+PASS pulse uses the true 360-unit simulation radius
+PASS Kopita hover explains conditional healing
+PASS Kopita footprint remains inside its lane in both displays
+PASS pulse uses the true 360-unit simulation radius
+PASS Kopita hover explains conditional healing
+PASS Kopita footprint remains inside its lane in both displays
+PASS pulse uses the true 360-unit simulation radius
+PASS Kopita hover explains conditional healing
+PASS Kopita footprint remains inside its lane in both displays
+PASS pulse uses the true 360-unit simulation radius
+PASS Kopita hover explains conditional healing
+PASS Kopita footprint remains inside its lane in both displays
+PASS pulse uses the true 360-unit simulation radius
+PASS Kopita hover explains conditional healing
+PASS muno_dash_0 resolves
+PASS muno_dash_0 keeps valid unit and field state
+PASS muno_dash_0 deterministic replay
+PASS Muno still makes one free strike per round
+PASS Muno animation never moves its simulation anchor
+PASS Muno dash playback builds
+PASS visible Muno moves out, strikes, and returns instead of firing a projectile
+PASS Muno's strike reaches melee distance without overlapping the victim
+PASS visible dash arrives exactly when the recorded damage lands
+PASS retreat afterimages linger briefly then disappear
+PASS Muno dash and trail respect paused playback
+PASS muno_dash_1 resolves
+PASS muno_dash_1 keeps valid unit and field state
+PASS muno_dash_1 deterministic replay
+PASS Muno still makes one free strike per round
+PASS Muno animation never moves its simulation anchor
+PASS Muno dash playback builds
+PASS visible Muno moves out, strikes, and returns instead of firing a projectile
+PASS Muno's strike reaches melee distance without overlapping the victim
+PASS visible dash arrives exactly when the recorded damage lands
+PASS retreat afterimages linger briefly then disappear
+PASS Muno dash and trail respect paused playback
+PASS dotra_0_empty_burrow resolves
+PASS dotra_0_empty_burrow keeps valid unit and field state
+PASS dotra_0_empty_burrow deterministic replay
+PASS empty lane takes forward exit after the burrow wind-up
+PASS emerged Dotra keeps full base movement speed and a prepared ambush
+PASS Dotra moves at full speed after emergence, without an idle extra round
+PASS dotra_0_moving_ambush resolves
+PASS dotra_0_moving_ambush keeps valid unit and field state
+PASS dotra_0_moving_ambush deterministic replay
+PASS burrowed Dotra closes and triggers exactly one surprise attack
+PASS ordinary ranged attacks cannot select underground Dotra
+PASS Dotra is exposed after leaving the burrow
+PASS dotra_1_empty_burrow resolves
+PASS dotra_1_empty_burrow keeps valid unit and field state
+PASS dotra_1_empty_burrow deterministic replay
+PASS empty lane takes forward exit after the burrow wind-up
+PASS emerged Dotra keeps full base movement speed and a prepared ambush
+PASS Dotra moves at full speed after emergence, without an idle extra round
+PASS dotra_1_moving_ambush resolves
+PASS dotra_1_moving_ambush keeps valid unit and field state
+PASS dotra_1_moving_ambush deterministic replay
+PASS burrowed Dotra closes and triggers exactly one surprise attack
+PASS ordinary ranged attacks cannot select underground Dotra
+PASS Dotra is exposed after leaving the burrow
+PASS save transport retains fixed burrow holes and emergence clock
+PASS repeating the same tick cannot recreate or reroll holes
+PASS Dotra remains underground throughout the wind-up
+PASS saved burrow emerges at its original deadline
+PASS emergence cannot repeat after reload
+PASS dotra_birth_hold resolves
+PASS dotra_birth_hold keeps valid unit and field state
+PASS dotra_birth_hold deterministic replay
+PASS new Dotra retains its birth hold
+PASS invalid Dotra counter is rejected: dotra_concealment_round
+PASS invalid Dotra counter is rejected: dotra_concealment_round
+PASS invalid Dotra counter is rejected: dotra_concealment_round
+PASS invalid Dotra counter is rejected: dotra_concealment_round
+PASS invalid Dotra counter is rejected: dotra_burrow_ready_tick
+PASS invalid Dotra counter is rejected: dotra_burrow_ready_tick
+PASS invalid Dotra counter is rejected: dotra_burrow_ready_tick
+PASS invalid Dotra counter is rejected: dotra_burrow_ready_tick
+PASS invalid Dotra counter is rejected: dotra_emerged_tick
+PASS invalid Dotra counter is rejected: dotra_emerged_tick
+PASS invalid Dotra counter is rejected: dotra_emerged_tick
+PASS invalid Dotra counter is rejected: dotra_emerged_tick
+PASS Butcher cannot select hidden Dotra
+PASS Butcher can select Dotra after reveal
+PASS Vulture cannot select hidden Dotra
+PASS Vulture can select Dotra after reveal
+PASS Muno cannot select hidden Dotra
+PASS Muno can select Dotra after reveal
+PASS Tumler cannot select hidden Dotra
+PASS Tumler can select Dotra after reveal
+PASS Sooge cannot select hidden Dotra
+PASS Sooge can select Dotra after reveal
+PASS dotra_0_visible_to_Vulture resolves
+PASS dotra_0_visible_to_Vulture keeps valid unit and field state
+PASS dotra_0_visible_to_Vulture deterministic replay
+PASS actual targeted hits only select revealed Dotra
+PASS Dotra reveal replay builds
+PASS regression sample is still visibly hidden before the reveal
+PASS Dotra is visible when the recorded attack lands
+PASS knives cannot visually seek a still-hidden Dotra
+PASS reveal-tick knife hit still gets visible impact feedback
+PASS dotra_0_visible_to_Muno resolves
+PASS dotra_0_visible_to_Muno keeps valid unit and field state
+PASS dotra_0_visible_to_Muno deterministic replay
+PASS actual targeted hits only select revealed Dotra
+PASS Dotra reveal replay builds
+PASS regression sample is still visibly hidden before the reveal
+PASS Dotra is visible when the recorded attack lands
+PASS Muno cannot begin its visible lunge at a still-hidden Dotra
+PASS Muno strike appears after Dotra reveals
+PASS dotra_0_lethal_reveal_counter resolves
+PASS dotra_0_lethal_reveal_counter keeps valid unit and field state
+PASS dotra_0_lethal_reveal_counter deterministic replay
+PASS lethal counterattack waits for the ambush reveal
+PASS lethal reveal still suppresses early knife flight and shows the impact
+PASS dotra_0_tower_ignores_hidden resolves
+PASS dotra_0_tower_ignores_hidden keeps valid unit and field state
+PASS dotra_0_tower_ignores_hidden deterministic replay
+PASS tower cannot acquire burrowing Dotra before emergence
+PASS dotra_0_tower_targets_revealed resolves
+PASS dotra_0_tower_targets_revealed keeps valid unit and field state
+PASS dotra_0_tower_targets_revealed deterministic replay
+PASS tower resumes attacks on visible Dotra
+PASS Butcher cannot select hidden Dotra
+PASS Butcher can select Dotra after reveal
+PASS Vulture cannot select hidden Dotra
+PASS Vulture can select Dotra after reveal
+PASS Muno cannot select hidden Dotra
+PASS Muno can select Dotra after reveal
+PASS Tumler cannot select hidden Dotra
+PASS Tumler can select Dotra after reveal
+PASS Sooge cannot select hidden Dotra
+PASS Sooge can select Dotra after reveal
+PASS dotra_1_visible_to_Vulture resolves
+PASS dotra_1_visible_to_Vulture keeps valid unit and field state
+PASS dotra_1_visible_to_Vulture deterministic replay
+PASS actual targeted hits only select revealed Dotra
+PASS Dotra reveal replay builds
+PASS regression sample is still visibly hidden before the reveal
+PASS Dotra is visible when the recorded attack lands
+PASS knives cannot visually seek a still-hidden Dotra
+PASS reveal-tick knife hit still gets visible impact feedback
+PASS dotra_1_visible_to_Muno resolves
+PASS dotra_1_visible_to_Muno keeps valid unit and field state
+PASS dotra_1_visible_to_Muno deterministic replay
+PASS actual targeted hits only select revealed Dotra
+PASS Dotra reveal replay builds
+PASS regression sample is still visibly hidden before the reveal
+PASS Dotra is visible when the recorded attack lands
+PASS Muno cannot begin its visible lunge at a still-hidden Dotra
+PASS Muno strike appears after Dotra reveals
+PASS dotra_1_lethal_reveal_counter resolves
+PASS dotra_1_lethal_reveal_counter keeps valid unit and field state
+PASS dotra_1_lethal_reveal_counter deterministic replay
+PASS lethal counterattack waits for the ambush reveal
+PASS lethal reveal still suppresses early knife flight and shows the impact
+PASS dotra_1_tower_ignores_hidden resolves
+PASS dotra_1_tower_ignores_hidden keeps valid unit and field state
+PASS dotra_1_tower_ignores_hidden deterministic replay
+PASS tower cannot acquire burrowing Dotra before emergence
+PASS dotra_1_tower_targets_revealed resolves
+PASS dotra_1_tower_targets_revealed keeps valid unit and field state
+PASS dotra_1_tower_targets_revealed deterministic replay
+PASS tower resumes attacks on visible Dotra
+PASS dotra_lost_victim_keeps_ambush resolves
+PASS dotra_lost_victim_keeps_ambush keeps valid unit and field state
+PASS dotra_lost_victim_keeps_ambush deterministic replay
+PASS a queued ambush whose victim already died retains its prepared strike
+PASS Penitent owner 0 block preserves HP and only blocked shots preserve Armor
+PASS blocked or absorbed hit wakes a recruit and spends the shooter's attack
+PASS penitent_0_block_true resolves
+PASS penitent_0_block_true keeps valid unit and field state
+PASS penitent_0_block_true deterministic replay
+PASS shield glint appears only for an actual block
+PASS Penitent owner 0 failed block preserves HP and only blocked shots preserve Armor
+PASS blocked or absorbed hit wakes a recruit and spends the shooter's attack
+PASS penitent_0_block_false resolves
+PASS penitent_0_block_false keeps valid unit and field state
+PASS penitent_0_block_false deterministic replay
+PASS shield glint appears only for an actual block
+PASS Penitent owner 1 block preserves HP and only blocked shots preserve Armor
+PASS blocked or absorbed hit wakes a recruit and spends the shooter's attack
+PASS penitent_1_block_true resolves
+PASS penitent_1_block_true keeps valid unit and field state
+PASS penitent_1_block_true deterministic replay
+PASS shield glint appears only for an actual block
+PASS Penitent owner 1 failed block preserves HP and only blocked shots preserve Armor
+PASS blocked or absorbed hit wakes a recruit and spends the shooter's attack
+PASS penitent_1_block_false resolves
+PASS penitent_1_block_false keeps valid unit and field state
+PASS penitent_1_block_false deterministic replay
+PASS shield glint appears only for an actual block
+PASS each incoming shot gets its own block roll
+PASS independent_penitent_volley resolves
+PASS independent_penitent_volley keeps valid unit and field state
+PASS independent_penitent_volley deterministic replay
+PASS penitent_0_beam_true resolves
+PASS penitent_0_beam_true keeps valid unit and field state
+PASS penitent_0_beam_true deterministic replay
+PASS Penitent can block Sooge damage at detonation
+PASS penitent_0_beam_false resolves
+PASS penitent_0_beam_false keeps valid unit and field state
+PASS penitent_0_beam_false deterministic replay
+PASS Penitent can block Sooge damage at detonation
+PASS penitent_1_beam_true resolves
+PASS penitent_1_beam_true keeps valid unit and field state
+PASS penitent_1_beam_true deterministic replay
+PASS Penitent can block Sooge damage at detonation
+PASS penitent_1_beam_false resolves
+PASS penitent_1_beam_false keeps valid unit and field state
+PASS penitent_1_beam_false deterministic replay
+PASS Penitent can block Sooge damage at detonation
+PASS Poison does not trigger ranged blocks
+PASS Kopita does not trigger ranged blocks
+PASS Muno does not trigger ranged blocks
+PASS Ambush does not trigger ranged blocks
+PASS Butcher does not gain the Penitent boon
+PASS Vulture does not gain the Penitent boon
+PASS Wright does not gain the Penitent boon
+PASS Lemek does not gain the Penitent boon
+PASS Sooge ramp has a deterministic high-roll fixture
+PASS sooge_birth_hold resolves
+PASS sooge_birth_hold keeps valid unit and field state
+PASS sooge_birth_hold deterministic replay
+PASS birth hold neither rolls nor increases Sooge chance
+PASS Sooge eligible roll 1 has 25% chance
+PASS sooge_ramp_1 resolves
+PASS sooge_ramp_1 keeps valid unit and field state
+PASS sooge_ramp_1 deterministic replay
+PASS Sooge counts once per active round
+PASS Sooge high rolls miss until guaranteed sixth eligible round
+PASS same-round replay cannot advance or reroll rooting
+PASS Sooge eligible roll 2 has 40% chance
+PASS sooge_ramp_2 resolves
+PASS sooge_ramp_2 keeps valid unit and field state
+PASS sooge_ramp_2 deterministic replay
+PASS Sooge counts once per active round
+PASS Sooge high rolls miss until guaranteed sixth eligible round
+PASS Sooge eligible roll 3 has 55% chance
+PASS sooge_ramp_3 resolves
+PASS sooge_ramp_3 keeps valid unit and field state
+PASS sooge_ramp_3 deterministic replay
+PASS Sooge counts once per active round
+PASS Sooge high rolls miss until guaranteed sixth eligible round
+PASS save JSON transport preserves Sooge chance and round state
+PASS Sooge eligible roll 4 has 70% chance
+PASS sooge_ramp_4 resolves
+PASS sooge_ramp_4 keeps valid unit and field state
+PASS sooge_ramp_4 deterministic replay
+PASS Sooge counts once per active round
+PASS Sooge high rolls miss until guaranteed sixth eligible round
+PASS Sooge eligible roll 5 has 85% chance
+PASS sooge_ramp_5 resolves
+PASS sooge_ramp_5 keeps valid unit and field state
+PASS sooge_ramp_5 deterministic replay
+PASS Sooge counts once per active round
+PASS Sooge high rolls miss until guaranteed sixth eligible round
+PASS Sooge eligible roll 6 has 100% chance
+PASS sooge_ramp_6 resolves
+PASS sooge_ramp_6 keeps valid unit and field state
+PASS sooge_ramp_6 deterministic replay
+PASS Sooge counts once per active round
+PASS Sooge high rolls miss until guaranteed sixth eligible round
+PASS Sooge chance caps at 100%
+PASS invalid Sooge counter rejected: sooge_root_attempts
+PASS invalid Sooge counter rejected: sooge_root_attempts
+PASS invalid Sooge counter rejected: sooge_root_attempts
+PASS invalid Sooge counter rejected: sooge_root_attempts
+PASS invalid Sooge counter rejected: sooge_root_attempts
+PASS invalid Sooge counter rejected: sooge_root_round
+PASS invalid Sooge counter rejected: sooge_root_round
+PASS invalid Sooge counter rejected: sooge_root_round
+PASS invalid Sooge counter rejected: sooge_root_round
+PASS invalid Sooge counter rejected: sooge_root_round
+PASS invalid Sooge counter rejected: beam_next_tick
+PASS invalid Sooge counter rejected: beam_next_tick
+PASS invalid Sooge counter rejected: beam_next_tick
+PASS invalid Sooge counter rejected: beam_next_tick
+PASS invalid Sooge counter rejected: beam_next_tick
+PASS invalid Sooge counter rejected: beam_charge_tick
+PASS invalid Sooge counter rejected: beam_charge_tick
+PASS invalid Sooge counter rejected: beam_charge_tick
+PASS invalid Sooge counter rejected: beam_charge_tick
+PASS invalid Sooge counter rejected: beam_charge_tick
+PASS invalid Sooge counter rejected: beam_ready_tick
+PASS invalid Sooge counter rejected: beam_ready_tick
+PASS invalid Sooge counter rejected: beam_ready_tick
+PASS invalid Sooge counter rejected: beam_ready_tick
+PASS invalid Sooge counter rejected: beam_ready_tick
+PASS late summon starts at 25%, independent of global round
+PASS pool_control_0 resolves
+PASS pool_control_0 keeps valid unit and field state
+PASS pool_control_0 deterministic replay
+PASS pool_owner_0_unit_0 resolves
+PASS pool_owner_0_unit_0 keeps valid unit and field state
+PASS pool_owner_0_unit_0 deterministic replay
+PASS Lemek owner 0 ignores owner 0 pool throughout Marching
+PASS pool still slows ordinary units of either side
+PASS pool_owner_1_unit_0 resolves
+PASS pool_owner_1_unit_0 keeps valid unit and field state
+PASS pool_owner_1_unit_0 deterministic replay
+PASS Lemek owner 0 ignores owner 1 pool throughout Marching
+PASS pool still slows ordinary units of either side
+PASS pool_control_1 resolves
+PASS pool_control_1 keeps valid unit and field state
+PASS pool_control_1 deterministic replay
+PASS pool_owner_0_unit_1 resolves
+PASS pool_owner_0_unit_1 keeps valid unit and field state
+PASS pool_owner_0_unit_1 deterministic replay
+PASS Lemek owner 1 ignores owner 0 pool throughout Marching
+PASS pool still slows ordinary units of either side
+PASS pool_owner_1_unit_1 resolves
+PASS pool_owner_1_unit_1 keeps valid unit and field state
+PASS pool_owner_1_unit_1 deterministic replay
+PASS Lemek owner 1 ignores owner 1 pool throughout Marching
+PASS pool still slows ordinary units of either side
+PASS beam_charge_across_boundary resolves
+PASS beam_charge_across_boundary keeps valid unit and field state
+PASS beam_charge_across_boundary deterministic replay
+PASS late charge carries into next round without firing early
+PASS beam_release_after_restore resolves
+PASS beam_release_after_restore keeps valid unit and field state
+PASS beam_release_after_restore deterministic replay
+PASS saved charge releases exactly once at its recorded deadline
+PASS beam_full_round_cooldown resolves
+PASS beam_full_round_cooldown keeps valid unit and field state
+PASS beam_full_round_cooldown deterministic replay
+PASS successive beams are 200 ticks apart across round boundaries
+PASS beam_delayed_across_boundary resolves
+PASS beam_delayed_across_boundary keeps valid unit and field state
+PASS beam_delayed_across_boundary deterministic replay
+PASS late laser records a pending blast without dealing immediate damage
+PASS beam_detonates_without_caster resolves
+PASS beam_detonates_without_caster keeps valid unit and field state
+PASS beam_detonates_without_caster deterministic replay
+PASS pending blast detonates once after the caster dies, in the next round
+PASS beam_dodged_ground_scar resolves
+PASS beam_dodged_ground_scar keeps valid unit and field state
+PASS beam_dodged_ground_scar deterministic replay
+PASS ground path stays locked and units outside it at detonation escape damage
+PASS pending ground scar stays visible across round boundaries
+PASS losing every target cancels the charge
+PASS release aims at the currently nearest enemy, not the original charge target
+PASS beam_killed_during_charge resolves
+PASS beam_killed_during_charge keeps valid unit and field state
+PASS beam_killed_during_charge deterministic replay
+PASS killing Sooge during charge prevents the shot
+PASS dead Sooge does not leave a charging glow
+PASS sinodek_birth_hold_0 resolves
+PASS sinodek_birth_hold_0 keeps valid unit and field state
+PASS sinodek_birth_hold_0 deterministic replay
+PASS Sinodek cannot cast during his existing birth-round hold
+PASS sinodek_cross_own_void_0 resolves
+PASS sinodek_cross_own_void_0 keeps valid unit and field state
+PASS sinodek_cross_own_void_0 deterministic replay
+PASS portal records the exact Sinodek who created it
+PASS Sinodek crosses his own fear zone and void unharmed on his first active round
+PASS Sinodek's own void banishes its enemy target and never its creator
+PASS sinodek_clamped_void_0 resolves
+PASS sinodek_clamped_void_0 keeps valid unit and field state
+PASS sinodek_clamped_void_0 deterministic replay
+PASS Sinodek survives a targeted void overlapping him at the far gate and reaches the goal
+PASS sinodek_creator_only_0 resolves
+PASS sinodek_creator_only_0 keeps valid unit and field state
+PASS sinodek_creator_only_0 deterministic replay
+PASS only the creator is immune; allies, enemies and another Sinodek can still be banished
+PASS sinodek_charmed_creator_0 resolves
+PASS sinodek_charmed_creator_0 keeps valid unit and field state
+PASS sinodek_charmed_creator_0 deterministic replay
+PASS creator immunity follows identity even after charm changes ownership
+PASS save transport preserves portal creator identity
+PASS sinodek_birth_hold_1 resolves
+PASS sinodek_birth_hold_1 keeps valid unit and field state
+PASS sinodek_birth_hold_1 deterministic replay
+PASS Sinodek cannot cast during his existing birth-round hold
+PASS sinodek_cross_own_void_1 resolves
+PASS sinodek_cross_own_void_1 keeps valid unit and field state
+PASS sinodek_cross_own_void_1 deterministic replay
+PASS portal records the exact Sinodek who created it
+PASS Sinodek crosses his own fear zone and void unharmed on his first active round
+PASS Sinodek's own void banishes its enemy target and never its creator
+PASS sinodek_clamped_void_1 resolves
+PASS sinodek_clamped_void_1 keeps valid unit and field state
+PASS sinodek_clamped_void_1 deterministic replay
+PASS Sinodek survives a targeted void overlapping him at the far gate and reaches the goal
+PASS sinodek_creator_only_1 resolves
+PASS sinodek_creator_only_1 keeps valid unit and field state
+PASS sinodek_creator_only_1 deterministic replay
+PASS only the creator is immune; allies, enemies and another Sinodek can still be banished
+PASS sinodek_charmed_creator_1 resolves
+PASS sinodek_charmed_creator_1 keeps valid unit and field state
+PASS sinodek_charmed_creator_1 deterministic replay
+PASS creator immunity follows identity even after charm changes ownership
+PASS save transport preserves portal creator identity
+PASS Lemek exact recipe accepts value-one cards
+PASS Lemek rejects missing ingredient
+PASS Lemek rejects repeated card identity
+PASS Lemek has a valid profile
+PASS Varn exact recipe accepts value-one cards
+PASS Varn rejects missing ingredient
+PASS Varn rejects repeated card identity
+PASS Varn has a valid profile
+PASS Fyra exact recipe accepts value-one cards
+PASS Fyra rejects missing ingredient
+PASS Fyra rejects repeated card identity
+PASS Fyra has a valid profile
+PASS Kopita exact recipe accepts value-one cards
+PASS Kopita rejects missing ingredient
+PASS Kopita rejects repeated card identity
+PASS Kopita has a valid profile
+PASS Tumler exact recipe accepts value-one cards
+PASS Tumler rejects missing ingredient
+PASS Tumler rejects repeated card identity
+PASS Tumler has a valid profile
+PASS Kurchin exact recipe accepts value-one cards
+PASS Kurchin rejects missing ingredient
+PASS Kurchin rejects repeated card identity
+PASS Kurchin has a valid profile
+PASS Muno exact recipe accepts value-one cards
+PASS Muno rejects missing ingredient
+PASS Muno rejects repeated card identity
+PASS Muno has a valid profile
+PASS Dotra exact recipe accepts value-one cards
+PASS Dotra rejects missing ingredient
+PASS Dotra rejects repeated card identity
+PASS Dotra has a valid profile
+PASS Sooge exact recipe accepts value-one cards
+PASS Sooge rejects missing ingredient
+PASS Sooge rejects repeated card identity
+PASS Sooge has a valid profile
+PASS Sinodek exact recipe accepts value-one cards
+PASS Sinodek rejects missing ingredient
+PASS Sinodek rejects repeated card identity
+PASS Sinodek has a valid profile
+PASS overlapping recipes offer a choice, not multiple summons
+PASS Very hard living caps are separate
+PASS Sooge roots into turret stats
+PASS turret persists without refreshing armor each round
+PASS turret_piercing resolves
+PASS turret_piercing keeps valid unit and field state
+PASS turret_piercing deterministic replay
+PASS Sooge charges for 32 ticks then fires only once per round
+PASS Sooge aims at nearest enemy and records tripled range
+PASS Sooge beam passes through the first enemy into enemies behind it
+PASS Sooge beam reaches the inclusive 1800 range boundary
+PASS Sooge beam respects maximum range and beam width
+PASS turret beam also damages allies in its path
+PASS Sooge beam builds from the authoritative tape
+PASS recorded charge builds visibly before damage or laser
+PASS fast laser traces the ground before damage
+PASS ground scar warns of the following detonation
+PASS one delayed explosion retains the laser path and marks all collateral hits
+PASS last laser pulse ends before final playback state
+PASS turret remains rooted throughout Marching
+PASS portal_banishes resolves
+PASS portal_banishes keeps valid unit and field state
+PASS portal_banishes deterministic replay
+PASS portal banishes a body caught inside
+PASS banishment cannot resurrect or leave a Lemek death pool
+PASS monster playback consumes spatial events
+PASS portal playback omits the death animation
+PASS portal is visible during playback
+PASS Lemek resolves
+PASS Lemek keeps valid unit and field state
+PASS Lemek deterministic replay
+PASS Lemek death creates a pool
+PASS Fyra resolves
+PASS Fyra keeps valid unit and field state
+PASS Fyra deterministic replay
+PASS Varn resolves
+PASS Varn keeps valid unit and field state
+PASS Varn deterministic replay
+PASS Kopita resolves
+PASS Kopita keeps valid unit and field state
+PASS Kopita deterministic replay
+PASS Tumler resolves
+PASS Tumler keeps valid unit and field state
+PASS Tumler deterministic replay
+PASS Kurchin resolves
+PASS Kurchin keeps valid unit and field state
+PASS Kurchin deterministic replay
+PASS Muno resolves
+PASS Muno keeps valid unit and field state
+PASS Muno deterministic replay
+PASS Muno free strike is once per active round
+PASS Dotra resolves
+PASS Dotra keeps valid unit and field state
+PASS Dotra deterministic replay
+PASS hidden Dotra delivers the ambush
+PASS reciprocal_charm resolves
+PASS reciprocal_charm keeps valid unit and field state
+PASS reciprocal_charm deterministic replay
+PASS consumed_lemek resolves
+PASS consumed_lemek keeps valid unit and field state
+PASS consumed_lemek deterministic replay
+PASS devoured Lemek creates its pool on the death tick
+PASS Longevity eligibility 0/6
+PASS Longevity never harms or exceeds ceiling
+PASS only actual healing creates a Price
+PASS Longevity eligibility 6/6
+PASS Longevity never harms or exceeds ceiling
+PASS only actual healing creates a Price
+PASS Longevity eligibility 0/17
+PASS Longevity never harms or exceeds ceiling
+PASS only actual healing creates a Price
+PASS Longevity eligibility 6/17
+PASS Longevity never harms or exceeds ceiling
+PASS only actual healing creates a Price
+PASS Longevity eligibility 7/17
+PASS Longevity never harms or exceeds ceiling
+PASS only actual healing creates a Price
+PASS Longevity eligibility 8/17
+PASS Longevity never harms or exceeds ceiling
+PASS only actual healing creates a Price
+PASS Longevity eligibility 9/17
+PASS Longevity never harms or exceeds ceiling
+PASS only actual healing creates a Price
+PASS Longevity eligibility 17/17
+PASS Longevity never harms or exceeds ceiling
+PASS only actual healing creates a Price
+PASS resurrection preserves turret form and restores monster stats
+PASS monster corpses and resurrection remain valid save data
+PASS resurrection cannot duplicate a living Very hard monster or create a no-op Price
+PASS mobile Sooge resurrection preserves earned rooting chance and birth hold
+PASS allegiance powers cannot exceed the living monster cap
+PASS charm reserves the original owner's living slot
+PASS Fyra charm changes allegiance
+PASS charm restores ownership before the next round
+PASS Varn applies poison after a damaging hit
+PASS poison damages HP through armor next round
+PASS poison lasts a second round
+PASS poison expires without stacking
+PASS Fyra ignores ground pools
+PASS RECIPES opens all ten monster entries
+PASS summon chooser belongs to the Combat modal
+U13 monster checks failures: 0

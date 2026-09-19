@@ -41,7 +41,7 @@ static func resolve(world: Dictionary, entities, context: Dictionary, tick: int,
 		var a: Dictionary = unit.attributes
 		if int(a.get("melee_next_tick", 0)) > clock or fleeing.has(unit.id) or Rout.retreating(a, context.round) or a.get("hidden", false) or a.get("sprite_form") == "turret": continue
 		var target: Dictionary = nearest(unit, targets, Fort.CONTACT, true)
-		if has_taunt or a.get("monster_id") == "Tumler":
+		if has_taunt or a.get("monster_id") in ["Tumler", "Dotra"]:
 			var hunted: Dictionary = Effects.preferred(unit, units)
 			if not hunted.is_empty(): target = hunted
 		if target.is_empty(): continue
