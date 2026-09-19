@@ -463,6 +463,51 @@ func phase_world_with_kopita() -> Dictionary:
 	put(w, "Kopita", 0, 800, {"step_fp": 0})
 	return w
 
+func sinodek_portal_checks() -> void:
+	for pid in [0, 1]:
+		var direction: int = 1 if pid == 0 else -1
+		var spawn_x: int = 0 if pid == 0 else 2400
+		var w: Dictionary = phase_world()
+		var source: Dictionary = put(w, "Sinodek", pid, spawn_x)
+		var seed_value: String = selected_seed(source.id, "PORTAL", 25)
+		var held: Dictionary = w.duplicate(true)
+		var held_source: Dictionary = Kanifous._entity(held, source.id)
+		held_source.attributes.merge({"birth_round": 2, "movement_ready_round": 3}, true)
+		var hold: Dictionary = phase("sinodek_birth_hold_%d" % pid, held, seed_value)
+		check(facts(hold, "MONSTER_FIELD_CREATED").is_empty(), "Sinodek cannot cast during his existing birth-round hold")
+		var crossing: Dictionary = phase("sinodek_cross_own_void_%d" % pid, w, seed_value)
+		var fields: Array = facts(crossing, "MONSTER_FIELD_CREATED")
+		check(fields.size() == 1 and fields[0].field.get("source_id") == source.id, "portal records the exact Sinodek who created it")
+		var survivor: Dictionary = Kanifous._entity(crossing.world, source.id)
+		check(not survivor.is_empty() and survivor.attributes.x_fp == spawn_x + direction * 400 and survivor.attributes.hp == source.attributes.hp, "Sinodek crosses his own fear zone and void unharmed on his first active round")
+		check(facts(crossing, "MONSTER_BANISHED").is_empty(), "Sinodek's own void never records him as banished")
+		w = phase_world()
+		source = put(w, "Sinodek", pid, 2400 - spawn_x - direction * 50)
+		var clamped: Dictionary = phase("sinodek_clamped_void_%d" % pid, w, seed_value)
+		survivor = Kanifous._entity(clamped.world, source.id)
+		check(not survivor.is_empty() and survivor.attributes.waiting and survivor.attributes.x_fp == 2400 - spawn_x, "Sinodek survives a void clamped onto him at the far gate and reaches the goal")
+		w = phase_world()
+		source = put(w, "Sinodek", pid, 1200, {"step_fp": 0, "movement_ready_round": 3})
+		var other: Dictionary = put(w, "Sinodek", 1 - pid, 1200, {"movement_ready_round": 3})
+		var ally: Dictionary = put(w, "Butcher", pid, 1200, {"y_fp": 270, "movement_ready_round": 3})
+		var foe: Dictionary = put(w, "Butcher", 1 - pid, 1200, {"y_fp": 330, "movement_ready_round": 3})
+		w.data.monsters.fields = [{"kind": "portal", "id": source.id + ":2:portal", "source_id": source.id, "owner": pid, "lane": "Lord", "x_fp": 1200, "y_fp": 300, "expires_round": 2}]
+		var collateral: Dictionary = phase("sinodek_creator_only_%d" % pid, w, seed_value)
+		var banished: Array = facts(collateral, "MONSTER_BANISHED").map(func(d): return d.unit.id)
+		check(banished.size() == 3 and banished.has(other.id) and banished.has(ally.id) and banished.has(foe.id) and not Kanifous._entity(collateral.world, source.id).is_empty(), "only the creator is immune; allies, enemies and another Sinodek can still be banished")
+		w = phase_world()
+		source = put(w, "Sinodek", pid, 1200, {"step_fp": 0, "movement_ready_round": 3})
+		w.data.monsters.fields = [{"kind": "portal", "id": source.id + ":2:portal", "source_id": source.id, "owner": pid, "lane": "Lord", "x_fp": 1200, "y_fp": 300, "expires_round": 2}]
+		var ids = Work.Ids.new(); ids.restore(w.entities)
+		source.attributes["charm_owner"] = pid
+		source.attributes.direction = -direction
+		ids.update(source.id, 1 - pid, source.attributes); w.entities = ids.snapshot()
+		var charmed: Dictionary = phase("sinodek_charmed_creator_%d" % pid, w, seed_value)
+		check(not Kanifous._entity(charmed.world, source.id).is_empty() and facts(charmed, "MONSTER_BANISHED").is_empty(), "creator immunity follows identity even after charm changes ownership")
+		var envelope: Dictionary = JSON.parse_string(Game.encode_snapshot(charmed.world))
+		var loaded: Dictionary = bytes_to_var(Marshalls.base64_to_raw(envelope.payload))
+		check(loaded == charmed.world and Monsters.valid(loaded), "save transport preserves portal creator identity")
+
 
 func run() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
@@ -475,6 +520,7 @@ func run() -> void:
 	sooge_ramp_checks()
 	pool_checks()
 	beam_boundary_checks()
+	sinodek_portal_checks()
 	var rows: Array = []
 	for suit in ["Penitent", "Butcher", "Vulture", "Wright"]:
 		for i in range(3): rows.append({"id": suit + str(i), "kind": "card", "attributes": {"suit": suit, "value": 1}})

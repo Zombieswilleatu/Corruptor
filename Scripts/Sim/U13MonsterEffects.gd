@@ -173,7 +173,7 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 							events.append(event("MONSTER_ROOTED", {"unit_id": unit.id, "round": n, "tick": tick}))
 				"Sinodek":
 					if Lamp.draw(context.seed, key, "PORTAL", 100) < Rules.TUNING.sinodek_portal_chance:
-						var f: Dictionary = {"kind": "portal", "id": key + ":portal", "owner": unit.owner, "lane": a.lane, "x_fp": clampi(int(a.x_fp) + int(a.direction) * int(Rules.TUNING.portal_ahead), 0, 2400), "y_fp": a.y_fp, "expires_round": n}
+						var f: Dictionary = {"kind": "portal", "id": key + ":portal", "source_id": unit.id, "owner": unit.owner, "lane": a.lane, "x_fp": clampi(int(a.x_fp) + int(a.direction) * int(Rules.TUNING.portal_ahead), 0, 2400), "y_fp": a.y_fp, "expires_round": n}
 						state.fields.append(f)
 						events.append(event("MONSTER_FIELD_CREATED", {"field": f, "round": n}))
 			entities.update(unit.id, unit.owner, a)
@@ -272,6 +272,8 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 	for f in state.fields:
 		if f.kind != "portal": continue
 		for unit in entities.marchers():
+			# The creator ignores both banishment and fear, even after a charm.
+			if unit.id == f.get("source_id", ""): continue
 			var a: Dictionary = unit.attributes
 			if a.lane != f.lane: continue
 			var gap: int = distance(a, f)

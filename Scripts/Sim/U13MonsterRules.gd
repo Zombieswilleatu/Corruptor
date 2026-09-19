@@ -3,7 +3,7 @@ extends RefCounted
 # Standalone playtest roster. Named suits count cards, never printed values.
 # Unsettled numerical abilities are deliberately explicit tuning values.
 # Bump VERSION in both engines when changing recipes, profiles or tuning.
-const VERSION: String = "U13_MONSTERS_V10_ARMORED_TAUNT"
+const VERSION: String = "U13_MONSTERS_V11_VOID_CREATOR_IMMUNITY"
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const NAMES: Array = ["Lemek", "Varn", "Fyra", "Kopita", "Tumler", "Kurchin", "Muno", "Dotra", "Sooge", "Sinodek"]
 const ROSTER: Dictionary = {
@@ -16,7 +16,7 @@ const ROSTER: Dictionary = {
 	"Muno": {"tier": "Hard", "recipe": {"Wright": 3, "Vulture": 1}, "attack": 3, "armor": 1, "speed": 2, "hp": 10, "ability": "Once per active round, dashes to an enemy within 480 for one free melee strike, then dashes back with a fading afterimage before moving normally."},
 	"Dotra": {"tier": "Hard", "recipe": {"Butcher": 3, "Vulture": 1}, "attack": 2, "armor": 2, "speed": 2, "hp": 10, "ability": "25% chance to hide each active round. Stalks enemies at half speed while hidden and stays hidden until delivering a 5-damage ambush against an enemy within 240. No timed reveal. Hidden units cannot be selected for ordinary attacks."},
 	"Sooge": {"tier": "Very hard", "recipe": {"Butcher": 3, "Wright": 2}, "attack": 1, "armor": 2, "speed": 2, "hp": 5, "ability": "Stays behind nearby allied front-line fighters while mobile. Root chance starts at 25%, rising by 15 percentage points each active round it stays mobile, up to 100%. Permanently becomes a turret: 3 Attack / 6 Armor / 0 Speed. Charges before firing once per round at the nearest enemy. The blue-white beam traces the ground to range 1800, then detonates shortly afterward: 3 damage to enemies and 1 to allies in its path. One living copy per player."},
-	"Sinodek": {"tier": "Very hard", "recipe": {"Wright": 3, "Vulture": 2}, "attack": 1, "armor": 3, "speed": 1, "hp": 5, "ability": "Stays behind nearby allied front-line fighters. 25% chance each active round to open a portal ahead for that Marching phase. Nearby units flee; entering units are banished, without death triggers or resurrection. One living copy per player."}
+	"Sinodek": {"tier": "Very hard", "recipe": {"Wright": 3, "Vulture": 2}, "attack": 1, "armor": 3, "speed": 1, "hp": 5, "ability": "Stays behind nearby allied front-line fighters. 25% chance each active round to open a portal ahead for that Marching phase. Nearby units flee; entering units are banished, without death triggers or resurrection. Immune to his own portal's fear and banishment. One living copy per player."}
 }
 const TUNING: Dictionary = {"tumler_evasion_chance": 50, "kurchin_deflection_chance": 75, "varn_poison_chance": 10, "fyra_charm_chance": 15, "kopita_radius": 360, "taunt_radius": 360, "muno_radius": 480, "dotra_hide_chance": 25, "dotra_ambush_radius": 240, "sooge_root_chance": 25, "sooge_root_increase": 15, "beam_range": 1800, "beam_half_width": 70, "beam_interval_ticks": 200, "beam_charge_ticks": 32, "beam_blast_delay_ticks": 8, "sinodek_portal_chance": 25, "portal_ahead": 350, "portal_radius": 100, "portal_fear_radius": 300, "pool_radius": 200}
 

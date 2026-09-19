@@ -1,0 +1,166 @@
+{
+  "date": "2026-09-19",
+  "base_revision": "156e48e65ce7ffc14b6261150f860f56ab5cb877",
+  "engine_source_sha256": "9020a0f71ed9b1cccd950b503599112f0bc094e5a2a94e905875e471ec0837a7",
+  "rules_version": "U13_MONSTERS_V11_VOID_CREATOR_IMMUNITY",
+  "behavior": {
+    "creator_immune_to": [
+      "banishment",
+      "fear"
+    ],
+    "immunity_uses": "stable source_id, independent of current owner",
+    "other_units_still_affected": true,
+    "cast_chance_percent": 25,
+    "cast_timing": "First active round, after the existing summon-round hold"
+  },
+  "native": {
+    "runtime": "Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org",
+    "runner": "Scripts/Sim/U13MonsterTestRunner.gd",
+    "before_fix_failed_assertions": 10,
+    "after_fix_passed_assertions": 641,
+    "after_fix_failures": 0,
+    "sinodek_phase_cases": [
+      "sinodek_birth_hold_0",
+      "sinodek_cross_own_void_0",
+      "sinodek_clamped_void_0",
+      "sinodek_creator_only_0",
+      "sinodek_charmed_creator_0",
+      "sinodek_birth_hold_1",
+      "sinodek_cross_own_void_1",
+      "sinodek_clamped_void_1",
+      "sinodek_creator_only_1",
+      "sinodek_charmed_creator_1"
+    ]
+  },
+  "parity": {
+    "phases": 84,
+    "events": 17473,
+    "ticks": 16800,
+    "event_types": {
+      "KRONI_ACTORS_STARTED": 1,
+      "KRONI_ACTOR_FINISHED": 1,
+      "KRONI_ACTOR_TICK": 200,
+      "KRONI_FLEE_STARTED": 1,
+      "MARCHER_DEFEATED": 5,
+      "MARCHER_DEVOURED": 1,
+      "MARCHER_MELEE_ATTACK": 133,
+      "MARCHER_RANGED_ATTACK": 47,
+      "MARCHER_WAITING": 7,
+      "MARCHING_FINISHED": 84,
+      "MARCHING_STARTED": 84,
+      "MARCHING_TICK": 16800,
+      "MONSTER_ATTACK": 31,
+      "MONSTER_BANISHED": 7,
+      "MONSTER_BEAM_DETONATED": 9,
+      "MONSTER_BEAM_FIRED": 8,
+      "MONSTER_CHARMED": 3,
+      "MONSTER_CONCEALMENT": 24,
+      "MONSTER_FIELD_CREATED": 7,
+      "MONSTER_PULSE": 6,
+      "MONSTER_ROOTED": 1,
+      "NEUTRAL_TEAR_CREATED": 1,
+      "PICKING_THE_BONES": 1,
+      "WRIGHT_BUILD_ASSIGNED": 11
+    }
+  },
+  "native_tape_sha256": "08b2915c8ec5a8d9944fb470c6833466d231771f13db41c416287b988f7fbc79",
+  "python_tests": {
+    "python-unit": {
+      "modules": [
+        "u13_pysim.test_marching",
+        "u13_pysim.test_powers"
+      ],
+      "passed": 33
+    },
+    "doctrine": {
+      "modules": [
+        "u13_doctrine.test_defensive_plans",
+        "u13_doctrine.test_deimos",
+        "u13_doctrine.test_kalligan"
+      ],
+      "passed": 27
+    }
+  },
+  "replay_changes": [
+    {
+      "file": "early_defense_cases.json",
+      "name": "kroni_odradek_00",
+      "before_sha256": "3221b64c682932f6a75bac4601c85416208dfbc1820b170eec0260d93eb691dd",
+      "after_sha256": "b77a0de25b861f631ee9795ef8cbe953ee20a7e67b8c1025cd70b6c3baa826b4",
+      "differences": [
+        [
+          "/data/monsters/version",
+          "U13_MONSTERS_V10_ARMORED_TAUNT",
+          "U13_MONSTERS_V11_VOID_CREATOR_IMMUNITY"
+        ]
+      ]
+    },
+    {
+      "file": "early_defense_cases.json",
+      "name": "kroni_valak_00",
+      "before_sha256": "d95d84b74c3e8bfd7faf40aeeb6e40390206d4aa4b7cb9ddebd1868d3d78b1a0",
+      "after_sha256": "72eec68aa07854696ed01582bd591c83109b7f0c2137cb1714008668b6e6d9d2",
+      "differences": [
+        [
+          "/data/monsters/version",
+          "U13_MONSTERS_V10_ARMORED_TAUNT",
+          "U13_MONSTERS_V11_VOID_CREATOR_IMMUNITY"
+        ]
+      ]
+    },
+    {
+      "file": "deimos_artillery_cases.json",
+      "name": "deimos_humbaba_00",
+      "before_sha256": "7d271e25bccb9d2cc67e41e91405d1d0550eec7ce13a78296a2767acc1c43568",
+      "after_sha256": "2dea41825946140c12ab68959f16dd3d018e076211c91781074c512fde0f6715",
+      "differences": [
+        [
+          "/data/monsters/version",
+          "U13_MONSTERS_V10_ARMORED_TAUNT",
+          "U13_MONSTERS_V11_VOID_CREATOR_IMMUNITY"
+        ]
+      ]
+    },
+    {
+      "file": "deimos_artillery_cases.json",
+      "name": "deimos_deimos_00",
+      "before_sha256": "d2220b813367bd2c8722d742219f49905b9f6df84ca1140286f10a6def3d4a33",
+      "after_sha256": "f7f8daa62cc9425081c7b1d04a36fd9eadabe47f6b7c8f5066dfbc21341d34cb",
+      "differences": [
+        [
+          "/data/monsters/version",
+          "U13_MONSTERS_V10_ARMORED_TAUNT",
+          "U13_MONSTERS_V11_VOID_CREATOR_IMMUNITY"
+        ]
+      ]
+    },
+    {
+      "file": "kalligan_pulse_cases.json",
+      "name": "kalligan_gremory_00_round3",
+      "before_sha256": "bb118d576be219aa6005468300af583487e1d5d5c92f22a99d5e01a4fad5f303",
+      "after_sha256": "8978eaabc63559e8ecc4922726b66ed00e766ae41af9919b05a646b38e259d5d",
+      "differences": [
+        [
+          "/data/monsters/version",
+          "U13_MONSTERS_V10_ARMORED_TAUNT",
+          "U13_MONSTERS_V11_VOID_CREATOR_IMMUNITY"
+        ]
+      ]
+    },
+    {
+      "file": "kalligan_pulse_cases.json",
+      "name": "kalligan_deimos_00_round3",
+      "before_sha256": "740a158d9d8658624b7f44197df38b9f9daec81e3e407c77023b49aeae4936fd",
+      "after_sha256": "4824ecc241b4d7a08998caabcbf66fb1ec44a22c44e58ef2eb8f7aa6641006d7",
+      "differences": [
+        [
+          "/data/monsters/version",
+          "U13_MONSTERS_V10_ARMORED_TAUNT",
+          "U13_MONSTERS_V11_VOID_CREATOR_IMMUNITY"
+        ]
+      ]
+    }
+  ],
+  "replay_review": "Every recorded operation prefix is unchanged. The only public observation difference in all six cases is data.monsters.version. No tactical expectation or policy was changed.",
+  "runtime_scope": "Godot 4.5.1 Linux diagnostic verification; this fix has not been rerun on Godot 4.7.2 Windows."
+}

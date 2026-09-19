@@ -302,7 +302,7 @@
         }
       ],
       "protected_castle": "u13_entity_castle:16:loadout:castle:0:1:0",
-      "view_sha256": "3221b64c682932f6a75bac4601c85416208dfbc1820b170eec0260d93eb691dd",
+      "view_sha256": "b77a0de25b861f631ee9795ef8cbe953ee20a7e67b8c1025cd70b6c3baa826b4",
       "historical_view_sha256": "56b76beded4bf769b7684a7f9e918c5d3dab9b94bcb9ad76eba789b43bae970f",
       "pre_castle_rules_view_sha256": "bf778c4e99e4d7388e8a861da517dbe297e32c959bc9a018c206e98e8b4da581",
       "view_sha256_history": [
@@ -315,6 +315,11 @@
           "replay_revision": "89a8c8cba83d88676f4aa8e6da034a82a2e170fe",
           "engine_source_sha256": "5c839429708d142c8046c765467c7a34fd9587c5146110880dc2378108c8ea0e",
           "view_sha256": "609477e3283c1ede5805c21b4a28ea2773204dde03dfee13fe429c7a179b166a"
+        },
+        {
+          "replay_revision": "5dec395d701902b68c22bda109ccc30399848ab2",
+          "engine_source_sha256": "9748bdbbc1b497af58159b985abe7e25a08b086eb9821a91a2ae41894eeec799",
+          "view_sha256": "3221b64c682932f6a75bac4601c85416208dfbc1820b170eec0260d93eb691dd"
         }
       ]
     },
@@ -824,7 +829,7 @@
         }
       ],
       "protected_castle": "u13_entity_castle:16:loadout:castle:1:1:0",
-      "view_sha256": "d95d84b74c3e8bfd7faf40aeeb6e40390206d4aa4b7cb9ddebd1868d3d78b1a0",
+      "view_sha256": "72eec68aa07854696ed01582bd591c83109b7f0c2137cb1714008668b6e6d9d2",
       "historical_view_sha256": "0fba84c7f2dca0eaa99a25e379ec4a975ed593b84b625712e676e409228c01e3",
       "pre_castle_rules_view_sha256": "9f8ecb7010c989715e2bdbd7ce549942e8c50f4ad0904ccf6e468d6f83b7bf84",
       "view_sha256_history": [
@@ -837,16 +842,21 @@
           "replay_revision": "89a8c8cba83d88676f4aa8e6da034a82a2e170fe",
           "engine_source_sha256": "5c839429708d142c8046c765467c7a34fd9587c5146110880dc2378108c8ea0e",
           "view_sha256": "be212a858b6761c1130decc20f13d9dd94cda7610809adae36b44215b6d5946b"
+        },
+        {
+          "replay_revision": "5dec395d701902b68c22bda109ccc30399848ab2",
+          "engine_source_sha256": "9748bdbbc1b497af58159b985abe7e25a08b086eb9821a91a2ae41894eeec799",
+          "view_sha256": "d95d84b74c3e8bfd7faf40aeeb6e40390206d4aa4b7cb9ddebd1868d3d78b1a0"
         }
       ]
     }
   ],
-  "replay_engine_revision": "5dec395d701902b68c22bda109ccc30399848ab2",
   "integration_note": "The recorded inputs are unchanged. At b61bc9e each planning observation differs only in data.monsters.version, V5 to V6; historical hashes are preserved alongside the integrated expected hashes.",
   "castle_rules_note": "Operations and historical fingerprints retained; current observation pins include Castle Scorch ledger/profile and support-pacing rule metadata. Defense outcome assertions remain unchanged. Integrated monster waypoint profile V8; original operations and outcome assertions remain unchanged.",
   "previous_replay_engine_revisions": [
     "b61bc9e"
   ],
-  "replay_engine_source_sha256": "9748bdbbc1b497af58159b985abe7e25a08b086eb9821a91a2ae41894eeec799",
-  "current_replay_note": "2026-09-19 lane balance adoption: unchanged setups, recorded prefixes and opposing plans replay under 6/4 cadence, combat-monster HP, permanent Tumler evasion, Penitent formation, and Kurchin armored taunt. Fingerprints include reviewed gameplay-state changes. Prior fingerprints remain in view_sha256_history. Tactical checks are rechecked in the adoption evidence. The Deimos mirror now selects Varn rather than Fyra, and the Kalligan/Deimos replay omits Pyroclasm with the changed survivor distribution; a separate controlled positive-pulse check preserves that coverage."
+  "replay_engine_source_sha256": "9020a0f71ed9b1cccd950b503599112f0bc094e5a2a94e905875e471ec0837a7",
+  "current_replay_note": "2026-09-19 Sinodek own-void immunity: exact engine source is pinned by replay_engine_source_sha256, based on replay_base_revision plus this fix. All six unchanged recorded prefixes differ only at data.monsters.version (V10 to V11); unit state, recorded plans and tactical expectations are unchanged. Previous fingerprints remain in view_sha256_history.",
+  "replay_base_revision": "156e48e65ce7ffc14b6261150f860f56ab5cb877"
 }

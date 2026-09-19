@@ -157,7 +157,7 @@ def step(w,buffer,c,tick,reaction):
                         events.append(event('MONSTER_ROOTED',dict(unit_id=unit['id'],round=n,tick=tick)))
             elif a['monster_id']=='Sinodek':
                 if draw(c['seed'],key,'PORTAL',0,100)<T['sinodek_portal_chance']:
-                    f=dict(kind='portal',id=key+':portal',owner=unit['owner'],lane=a['lane'],x_fp=max(0,min(2400,a['x_fp']+a['direction']*T['portal_ahead'])),y_fp=a['y_fp'],expires_round=n)
+                    f=dict(kind='portal',id=key+':portal',source_id=unit['id'],owner=unit['owner'],lane=a['lane'],x_fp=max(0,min(2400,a['x_fp']+a['direction']*T['portal_ahead'])),y_fp=a['y_fp'],expires_round=n)
                     state['fields'].append(f);events.append(event('MONSTER_FIELD_CREATED',dict(field=f,round=n)))
             buffer.update(unit['id'],unit['owner'],a)
     for original in buffer.rows():
@@ -229,6 +229,8 @@ def step(w,buffer,c,tick,reaction):
     for f in state['fields']:
         if f['kind']!='portal':continue
         for unit in buffer.rows():
+            # Creator immunity includes fear and survives ownership changes.
+            if unit['id']==f.get('source_id',''):continue
             a=unit['attributes']
             if a['lane']!=f['lane']:continue
             gap=distance(a,f)

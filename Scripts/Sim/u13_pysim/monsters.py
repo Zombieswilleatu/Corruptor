@@ -1,7 +1,7 @@
 """Monster recipes and explicit playtest tuning; independent Python rules."""
 from . import economy as e
 from .copying import copy_data
-VERSION = "U13_MONSTERS_V10_ARMORED_TAUNT"
+VERSION = "U13_MONSTERS_V11_VOID_CREATOR_IMMUNITY"
 ROSTER = {'Lemek': {'tier': 'Easy',
            'recipe': {'Penitent': 2},
            'attack': 4,
@@ -98,8 +98,8 @@ ROSTER = {'Lemek': {'tier': 'Easy',
              'hp': 5,
              'ability': 'Stays behind nearby allied front-line fighters. 25% chance each active '
                         'round to open a portal ahead for that Marching phase. Nearby units flee; '
-                        'entering units are banished, without death triggers or resurrection. One '
-                        'living copy per player.'}}
+                        'entering units are banished, without death triggers or resurrection. '
+                        "Immune to his own portal's fear and banishment. One living copy per player."}}
 NAMES = tuple(ROSTER)
 
 def configure(w):

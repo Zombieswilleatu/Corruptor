@@ -3014,7 +3014,7 @@
         ],
         "seed": "u13-deimos-tactics-2026-09-18:Deimos:Humbaba:00"
       },
-      "view_sha256": "7d271e25bccb9d2cc67e41e91405d1d0550eec7ce13a78296a2767acc1c43568",
+      "view_sha256": "2dea41825946140c12ab68959f16dd3d018e076211c91781074c512fde0f6715",
       "view_sha256_history": [
         {
           "replay_revision": "349b7cfb096deb46910fb2c5014dcf57d2314932",
@@ -3025,6 +3025,11 @@
           "replay_revision": "89a8c8cba83d88676f4aa8e6da034a82a2e170fe",
           "engine_source_sha256": "5c839429708d142c8046c765467c7a34fd9587c5146110880dc2378108c8ea0e",
           "view_sha256": "ba518164629e790e92d35c6e37aa722819f3ed7e7bd11d5194248d8093aa470a"
+        },
+        {
+          "replay_revision": "5dec395d701902b68c22bda109ccc30399848ab2",
+          "engine_source_sha256": "9748bdbbc1b497af58159b985abe7e25a08b086eb9821a91a2ae41894eeec799",
+          "view_sha256": "7d271e25bccb9d2cc67e41e91405d1d0550eec7ce13a78296a2767acc1c43568"
         }
       ]
     },
@@ -5165,7 +5170,7 @@
         ],
         "seed": "u13-deimos-tactics-2026-09-18:Deimos:Deimos:00"
       },
-      "view_sha256": "d2220b813367bd2c8722d742219f49905b9f6df84ca1140286f10a6def3d4a33",
+      "view_sha256": "f7f8daa62cc9425081c7b1d04a36fd9eadabe47f6b7c8f5066dfbc21341d34cb",
       "view_sha256_history": [
         {
           "replay_revision": "349b7cfb096deb46910fb2c5014dcf57d2314932",
@@ -5176,6 +5181,11 @@
           "replay_revision": "89a8c8cba83d88676f4aa8e6da034a82a2e170fe",
           "engine_source_sha256": "5c839429708d142c8046c765467c7a34fd9587c5146110880dc2378108c8ea0e",
           "view_sha256": "44005bd525f5682e3617103d564f5dacb52c8ae67fe9d41fa8a5442199978dfe"
+        },
+        {
+          "replay_revision": "5dec395d701902b68c22bda109ccc30399848ab2",
+          "engine_source_sha256": "9748bdbbc1b497af58159b985abe7e25a08b086eb9821a91a2ae41894eeec799",
+          "view_sha256": "d2220b813367bd2c8722d742219f49905b9f6df84ca1140286f10a6def3d4a33"
         }
       ],
       "expected_monster_choice": "Varn",
@@ -5187,7 +5197,7 @@
   "schema": "U13_DEIMOS_ARTILLERY_NATURAL_V1",
   "scope": "Original unmodified V9 operations; change only the selected seat at the named planning boundary.",
   "source_revision": "0a1c2aadcfaafb91599eef634939b3c7b0f3a92e",
-  "replay_engine_revision": "5dec395d701902b68c22bda109ccc30399848ab2",
-  "replay_engine_source_sha256": "9748bdbbc1b497af58159b985abe7e25a08b086eb9821a91a2ae41894eeec799",
-  "current_replay_note": "2026-09-19 lane balance adoption: unchanged setups, recorded prefixes and opposing plans replay under 6/4 cadence, combat-monster HP, permanent Tumler evasion, Penitent formation, and Kurchin armored taunt. Fingerprints include reviewed gameplay-state changes. Prior fingerprints remain in view_sha256_history. Tactical checks are rechecked in the adoption evidence. The Deimos mirror now selects Varn rather than Fyra, and the Kalligan/Deimos replay omits Pyroclasm with the changed survivor distribution; a separate controlled positive-pulse check preserves that coverage."
+  "replay_engine_source_sha256": "9020a0f71ed9b1cccd950b503599112f0bc094e5a2a94e905875e471ec0837a7",
+  "current_replay_note": "2026-09-19 Sinodek own-void immunity: exact engine source is pinned by replay_engine_source_sha256, based on replay_base_revision plus this fix. All six unchanged recorded prefixes differ only at data.monsters.version (V10 to V11); unit state, recorded plans and tactical expectations are unchanged. Previous fingerprints remain in view_sha256_history.",
+  "replay_base_revision": "156e48e65ce7ffc14b6261150f860f56ab5cb877"
 }

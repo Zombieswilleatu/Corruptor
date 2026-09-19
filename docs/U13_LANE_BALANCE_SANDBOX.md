@@ -148,7 +148,17 @@ count as marchers, reach gates, resurrect or award unit-death rewards.
 Foundation marks appear only after a Wright claims a site. Both the main board
 and sandbox display construction progress and completed structures.
 
-Current tuning uses `U13_VULTURE_RANGED_V10_LANE_BALANCE` and `U13_MONSTERS_V10_ARMORED_TAUNT`.
+Sinodek is immune to the fear and banishment from his own void. The portal
+remembers its creator even if charm changes his side. Other units, including
+allies and the opposing Sinodek, remain vulnerable. His 25% cast chance starts
+on his first active round, after the existing summon-round hold.
+
+The own-void fix passed 641 native monster assertions, including ten directed
+Sinodek phases across both sides. Godot 4.5.1 Linux and Python matched all
+84 exported monster phases (16,800 ticks), including complete worlds and
+events. See the [fix evidence](evidence/U13_SINODEK_VOID_FIX_2026-09-19.json).
+
+Current tuning uses `U13_VULTURE_RANGED_V10_LANE_BALANCE` and `U13_MONSTERS_V11_VOID_CREATOR_IMMUNITY`.
 Start a fresh game after updating; older rules fingerprints remain incompatible.
 
 There are no Lords, cards on the battlefield, castles, passives, Veil effects

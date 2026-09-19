@@ -571,7 +571,7 @@
       },
       "source_record": "kalligan_gremory_00__candidate_p0.json.gz",
       "source_record_sha256": "ec89f62e1f36dd89185985d8078e2e208be37b77225d1c8f5dba41eb9c09767a",
-      "view_sha256": "bb118d576be219aa6005468300af583487e1d5d5c92f22a99d5e01a4fad5f303",
+      "view_sha256": "8978eaabc63559e8ecc4922726b66ed00e766ae41af9919b05a646b38e259d5d",
       "view_sha256_history": [
         {
           "replay_revision": "349b7cfb096deb46910fb2c5014dcf57d2314932",
@@ -582,6 +582,11 @@
           "replay_revision": "89a8c8cba83d88676f4aa8e6da034a82a2e170fe",
           "engine_source_sha256": "5c839429708d142c8046c765467c7a34fd9587c5146110880dc2378108c8ea0e",
           "view_sha256": "0c1d2ed7d08412b1752ee55569e1d0f27beede72d111ec3ff3461653b4acb0af"
+        },
+        {
+          "replay_revision": "5dec395d701902b68c22bda109ccc30399848ab2",
+          "engine_source_sha256": "9748bdbbc1b497af58159b985abe7e25a08b086eb9821a91a2ae41894eeec799",
+          "view_sha256": "bb118d576be219aa6005468300af583487e1d5d5c92f22a99d5e01a4fad5f303"
         }
       ]
     },
@@ -1115,7 +1120,7 @@
       },
       "source_record": "kalligan_deimos_00__candidate_p0.json.gz",
       "source_record_sha256": "229507f5ee7fb00f30b1316e49da5b2c3b84eb2224b915b80fc300bacca837c0",
-      "view_sha256": "740a158d9d8658624b7f44197df38b9f9daec81e3e407c77023b49aeae4936fd",
+      "view_sha256": "4824ecc241b4d7a08998caabcbf66fb1ec44a22c44e58ef2eb8f7aa6641006d7",
       "view_sha256_history": [
         {
           "replay_revision": "349b7cfb096deb46910fb2c5014dcf57d2314932",
@@ -1126,18 +1131,23 @@
           "replay_revision": "89a8c8cba83d88676f4aa8e6da034a82a2e170fe",
           "engine_source_sha256": "5c839429708d142c8046c765467c7a34fd9587c5146110880dc2378108c8ea0e",
           "view_sha256": "55c5efe404b3f9677010c591d582f4ad6102ffefd78a0704497a0a6a095eac9c"
+        },
+        {
+          "replay_revision": "5dec395d701902b68c22bda109ccc30399848ab2",
+          "engine_source_sha256": "9748bdbbc1b497af58159b985abe7e25a08b086eb9821a91a2ae41894eeec799",
+          "view_sha256": "740a158d9d8658624b7f44197df38b9f9daec81e3e407c77023b49aeae4936fd"
         }
       ]
     }
   ],
   "castle_rules_note": "Original operations and plans retained. Current observation pins include Castle fire profile/ledger, every-other-round Pyro cooldown and current support-pacing rules. Historical fingerprints remain separate. Integrated monster waypoint profile V8; original operations and outcome assertions remain unchanged.",
   "historical_engine_revision": "eed8e2d39358e584e43afe43ff70fafbe8423220",
-  "replay_engine_revision": "5dec395d701902b68c22bda109ccc30399848ab2",
   "schema": "U13_KALLIGAN_PULSE_CASES_V1",
   "scope": "Original natural input prefixes replayed on the identified current engine; earlier observation fingerprints are retained. Opposing orders enter retrospective resolution only after policy choice, never policy observation.",
   "previous_replay_engine_revisions": [
     "acfdcdb5dd746a33efe30c2969d623912e896992"
   ],
-  "replay_engine_source_sha256": "9748bdbbc1b497af58159b985abe7e25a08b086eb9821a91a2ae41894eeec799",
-  "current_replay_note": "2026-09-19 lane balance adoption: unchanged setups, recorded prefixes and opposing plans replay under 6/4 cadence, combat-monster HP, permanent Tumler evasion, Penitent formation, and Kurchin armored taunt. Fingerprints include reviewed gameplay-state changes. Prior fingerprints remain in view_sha256_history. Tactical checks are rechecked in the adoption evidence. The Deimos mirror now selects Varn rather than Fyra, and the Kalligan/Deimos replay omits Pyroclasm with the changed survivor distribution; a separate controlled positive-pulse check preserves that coverage."
+  "replay_engine_source_sha256": "9020a0f71ed9b1cccd950b503599112f0bc094e5a2a94e905875e471ec0837a7",
+  "current_replay_note": "2026-09-19 Sinodek own-void immunity: exact engine source is pinned by replay_engine_source_sha256, based on replay_base_revision plus this fix. All six unchanged recorded prefixes differ only at data.monsters.version (V10 to V11); unit state, recorded plans and tactical expectations are unchanged. Previous fingerprints remain in view_sha256_history.",
+  "replay_base_revision": "156e48e65ce7ffc14b6261150f860f56ab5cb877"
 }
