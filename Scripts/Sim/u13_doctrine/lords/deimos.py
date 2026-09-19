@@ -9,6 +9,7 @@ from ..defensive_plans import development
 from ..diagnostics import fingerprint
 from ..facts import Facts, LANES, Proposal, power
 from ..lane_support import mobile, travel
+from .. import rout_answers
 
 LORD = 'Deimos'
 
@@ -51,6 +52,20 @@ def rout_value(f, lane):
             if gate: gates.append(enemy['id'])
         else: distant.append(enemy['id'])
     return dict(score=8*len(threats)+6*len(gates), threats=threats, gate_threats=gates, distant=distant)
+
+
+def coordinate(f, plan, ctx):
+    if not hasattr(f, '_rout_answer_cache'): f._rout_answer_cache = {}
+    for source in plan['powers']:
+        if source['power_id'] != 'Rout': continue
+        lane = source['target']['lane']
+        key = fingerprint([lane, ctx['consumed_supplicants'], ctx['recruit_lane'],
+                           ctx['recruit_suits'], ctx['monster']])
+        if key not in f._rout_answer_cache:
+            f._rout_answer_cache[key] = rout_answers.evaluate(f, lane, ctx, rout_value(f, lane))
+        value = f._rout_answer_cache[key]
+        yield dict(power='Rout', lane=lane, reason='available_plan_answer_to_public_wave',
+                   score_delta=value['score']-value['baseline_score'], **value)
 
 
 def attack_value(result, weights):

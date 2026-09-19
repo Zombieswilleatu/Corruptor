@@ -25,7 +25,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V12_HUMBABA_PRESSURE'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V13_ROUT_ANSWER_EXPERIMENT'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 

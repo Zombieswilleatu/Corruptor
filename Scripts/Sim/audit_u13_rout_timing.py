@@ -275,6 +275,7 @@ def main():
     parser.add_argument('phase',choices=('collect','replay','pressure'))
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--workers',type=int,default=4)
+    parser.add_argument('--baseline',default=BASELINE,help='Git policy to freeze for a fresh collection; both seats use the current engine')
     parser.add_argument('--resume',action='store_true',help='Reuse complete continuations with matching manifest and position; rerun only absent/failed records')
     args = parser.parse_args()
     if args.workers<1: parser.error('Workers must be positive')
@@ -288,7 +289,7 @@ def main():
         assert len(specs)==9
         manifest = dict(schema='U13_ROUT_TIMING_DIAGNOSTICS_V1',source_revision=revision,
             engine_source_sha256=engine,weights=asdict(Weights()),namespace=NAMESPACE,
-            policy=freeze_baseline(root,BASELINE,args.output/'policy'),specs=specs,
+            policy=freeze_baseline(root,args.baseline,args.output/'policy'),specs=specs,
             selection='Earliest eligible held and fired Rout per game; choose at most six of each by stable source/seat/round hash, without outcomes.',
             scope='Diagnostic single-submission interventions; fixed ordinary and opposing orders at intervention, frozen V12 thereafter. Not a policy strength comparison.')
         if (args.output/'manifest.json').exists(): raise ValueError('Use a fresh collection directory')
