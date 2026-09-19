@@ -1,25 +1,59 @@
 # Deimos Rout: the answer available in the current plan
 
-The V13 candidate finished **19–15 against frozen V12** in 34 matched games
-on the rules at `3360d6c`: 644 rounds and 16,220 operations, with no failures,
-round caps or rejected previews. Four policy pairs favored V13 twice, two
-favored V12 twice, and eleven split. This is a focused pilot with one seed per
-ordered matchup, not an established strength or Lord-balance result.
+**V12 remains the default.** The available-plan Rout candidate was initially
+promising, but the fresh comparison after merging the parallel monster-control
+fixes does not support adoption. Commit `2b99c7f` restores the exact V12 policy
+implementation and keeps reviewed replay expectations for the combined engine.
 
-Excluding the mirror, the same sixteen Deimos/opponent/seat setups produced
-nine Deimos wins under V13 and six under V12: four gained, one lost, eleven
-unchanged. **V12 won both Deimos-mirror policy assignments.** Preserve that
-counterexample when evaluating later changes.
+| Same-engine experiment | Candidate revision | Runtime | Games / rounds / operations | V13–V12 |
+| --- | --- | --- | --- | --- |
+| Rules through `3360d6c` | `fd13b3f` | CPython 3.12.14 | 34 / 644 / 16,220 | 19–15 |
+| Rules through `bcf1fad` | `8263515` | PyPy 7.3.20 | 34 / 644 / 16,240 | 15–19 |
 
-Local candidate implementation: `fd13b3f`. Diagnostic tools: `2e1353d`.
-Reviewed replay expectations: `82000ee`. The default Python policy identifies
-itself as `U13_COMMON_SMART_CORE_ALPHA_V13_ROUT_ANSWER_EXPERIMENT`.
-Local CPython 3.12.14 passed **175 tests and five games / 93 rounds / 2,338
-operations**, with no rejected previews. Windows CPython/PyPy acceptance is
-still pending. The candidate is retained on this scoped evidence; its name
-continues to identify it as an alpha experiment.
+Both cohorts use the same seeds and policy-seat assignments, with one seed per
+ordered matchup. Each comparison freezes V12 on the same engine as V13; they
+are separate, correlated experiments and should not be pooled into a strength
+claim. All games complete with zero caps, failures or rejected previews and
+within the unchanged budgets. The V12 package digest is identical in both.
 
-## What changes
+On the combined engine, none of the sixteen non-mirror Deimos setups improves:
+seven wins under V13 versus eight under V12, one lost setup and fifteen unchanged.
+The lost setup is Gremory/Deimos with Deimos in seat 1. **V12 wins both mirror
+policy assignments in both cohorts.** The new paired results are zero V13
+sweeps, two V12 sweeps and fifteen splits. This is enough to reject promotion,
+not to establish general Lord balance or a precise strength difference.
+
+The experiment and its seven directed tests remain in Git at `fd13b3f` and
+`8263515`. The active policy is `U13_COMMON_SMART_CORE_ALPHA_V12_HUMBABA_PRESSURE`;
+the candidate scoring module and tests are removed from the active package.
+Diagnostic tools remain and default to the frozen candidate revision explicitly.
+Windows acceptance of the combined revision remains pending.
+
+## Combined-engine replay review
+
+The parallel `bcf1fad` change repairs taunted movement and the Python contact
+snapshot update. The original prefixes and opposing orders of all thirteen
+saved doctrine replay cases are retained. Two observations change:
+
+- `deimos_deimos_current_r16_s0`: changed marcher survivors and positions;
+  the artillery retarget, original fizzle, preserved commitment and positive
+  revised Siege-damage assertions remain intact.
+- `deimos_deimos_00_r10_s0`: both V12 and V13 now select the same Castle plan.
+  V13 scores Castle 160 and Lord 96 after considering the changed survivors.
+  Three legal continuations compare Castle, Lord and holding, with the recorded
+  opposing order and frozen V12 afterward. Castle saves two allied Castle bodies
+  and seven HP immediately. After round 12, its Keep has eight Integrity versus
+  four when routing Lord; holding also leaves eight. No branch finishes by
+  round 13, so this establishes a local tradeoff rather than a full-game win.
+
+Fixture histories preserve the prior views and the earlier V13 Lord-lane plan.
+The current expectation is Castle. No tactical assertion was removed to refresh
+a fingerprint. The initial diagnostic capture deliberately records digest
+mismatches and a lane mismatch; it is not a passing acceptance gate.
+Corpus-level source fields retain their historical collection identity; each
+changed case's `monster_control_review` pins the newer engine and review.
+
+## Candidate mechanics (historical experiment)
 
 The standalone Rout proposal retains V12's reachable-fight/gate estimate.
 Complete-plan scoring now discounts that credit when the proposed answer has
@@ -55,14 +89,15 @@ same-choice omission alternatives are reserved inside the existing limits:
 eight previews. Greedy remains default. The complete-policy comparison includes
 this bounded assembly change; it is not a pure cast-frequency experiment.
 
-No game rules, movement engine, Lord powers, balance weights, native bots or
-lane-sandbox behavior change. Rout still retreats its snapshot cohort this
-round, halves its speed next round, and becomes ready in round N+4. Monster
-specials are not silenced. Existing own-artillery coordination remains active.
+The candidate itself changes no game rules, movement engine, Lord powers,
+balance weights, native bots or lane-sandbox behavior. The parallel changes
+merged at `8263515` are preserved separately. Rout still retreats its snapshot
+cohort this round, halves its speed next round, and becomes ready in round N+4.
+Monster specials are not silenced. Existing own-artillery coordination remains.
 
-## Same observations and full-game behavior
+## First-engine observations and full-game behavior
 
-Nine fresh frozen-V12 source games use the current navigation engine and the
+Nine fresh frozen-V12 source games use the `3360d6c` navigation engine and the
 historical Rout diagnostic namespace. On their 69 Deimos decisions with Rout
 ready, V12 casts 46 times and V13 would cast 35: eleven casts become holds and
 no hold becomes a cast. Other choices are identical in 59 of the 69 positions.
@@ -81,7 +116,11 @@ Game lengths and opportunities diverge. Neither fewer casts nor more holds is
 itself a success criterion. Matched outcomes, controlled preservation, attack
 timing and later availability are assessed separately.
 
-## Controlled hold/cast results
+On the later combined-engine cohort, V12 makes 344 Deimos decisions, with Rout
+ready 116 times, cast 84 and held 32. V13 makes 342 decisions, ready 126 times,
+cast 75 and held 51. More conservation accompanies worse matched results.
+
+## First-engine controlled hold/cast results
 
 The nine source games completed 179 rounds and 4,503 operations. Six selected
 positions produced twelve complete continuations: 218 rounds and 5,467
@@ -124,7 +163,7 @@ their original source and engine scope. Monster specials are excluded from
 the ordinary-attack timing metric. Later HP/body differences also include
 diverging recruits and actions; displacement compares only shared survivors.
 
-## Reviewed historical lane choice
+## First-engine historical lane-choice review
 
 One of the 25 initial lane-support/artillery tests changed its plan fingerprint:
 `deimos_deimos_00_r10_s0`. V12 routes Castle; V13 routes Lord because the smaller
@@ -146,7 +185,7 @@ Breath healing/recruit support and Kalligan's friendly-fire assertions remain.
 
 ## Source and reproduction
 
-Both policies share source identity
+The first experiment's policies share source identity
 `e093e1fd92bd619129cc56a7483056335b951d837d91fa4bc5e61014d892bd61`.
 This differs from the earlier integration digest because source identity also
 includes Godot scripts, including the sandbox lookahead additions at `3360d6c`.
@@ -161,8 +200,9 @@ python Scripts/Sim/compare_u13_doctrines.py --baseline 3360d6c \
   --lord Deimos --repeats 1 --workers 6
 ```
 
-Use the current diagnostic tools and fresh output directories for the controlled
-experiment. Collection freezes V12 even though the checkout contains V13:
+Use the diagnostic tools at `2e1353d`, which still has that engine, and fresh
+output directories for the original controlled experiment. Collection freezes
+V12 even though that checkout contains V13:
 
 ```bash
 python Scripts/Sim/audit_u13_rout_timing.py collect --baseline 3360d6c \
@@ -187,17 +227,54 @@ bash Scripts/Sim/run_u13_common_doctrine.sh \
   "C:/Users/jerem/Downloads/pypy3.11-v7.3.23-win64/pypy3.11-v7.3.23-win64/pypy3.exe"
 ```
 
-No additional native gate is requested for this doctrine-only change. Local
-execution uses CPython 3.12.14; no local PyPy result is claimed.
+No additional native gate is requested by this doctrine experiment. The
+parallel monster-control change has its own native evidence in
+[the monster audit](U13_MONSTER_BALANCE_AUDIT_2026-09-19.md).
 
-The local gate at `82000ee` has semantic SHA-256
-`e30e7a46cae47cfaf615899faa06d4b3b6622dae362ca6f2108fa4fb359b092c`;
-its inputs are checked against every recorded decision digest. Later additions
-in this checkpoint are documentation/evidence only. See the
-[compact evidence](evidence/U13_ROUT_ANSWER_2026-09-19.json) and delivered
-`Corruptor-Rout-Answer-Evidence-2026-09-19.zip` for raw records and reports.
+To reproduce the combined-engine candidate comparison, use a separate checkout
+of `8263515`, which contains V13 and the `bcf1fad` engine:
 
-Next: accept the combined revision under Windows CPython/PyPy. A further Rout
-pass should investigate the mirror weakness, actual contact timing and the
-outmatched-wave loss before changing the material margin or adding an
-emergency-only rule. Shared navigation/playback and unit balance remain separate.
+```bash
+python Scripts/Sim/compare_u13_doctrines.py --baseline bcf1fad \
+  --output rout-v13-monster-comparison --namespace u13-rout-answer-2026-09-19 \
+  --lord Deimos --repeats 1 --workers 6
+```
+
+That engine identity is
+`168615d04ff50b7ba9cb4111a749508eebe451d41d0535b98d0fd3efea9c44cf`.
+Running the same comparison at the final restored-V12 checkout would compare
+V12 against V12; the historical candidate revision is required.
+
+## Local validation and next step
+
+The historical V13 gate at `82000ee` passed 175 CPython tests and five games /
+93 rounds / 2,338 operations, with semantic SHA-256
+`e30e7a46cae47cfaf615899faa06d4b3b6622dae362ca6f2108fa4fb359b092c`.
+This is evidence for the first engine only.
+
+At `2b99c7f`, restored V12 passes **168 tests per runtime** under local Linux
+CPython 3.12.14 and PyPy 7.3.20 / Python 3.11.13. Both complete the same five
+games: **85 rounds / 2,144 operations**, zero failures or rejected previews.
+The strict report comparison matches every decision, final state and diagnostic;
+recorded input files are byte-identical and each operation digest is verified.
+All thirteen fixture prefixes and recorded opposing plans match the shared
+baseline. Policy implementation files match V12 byte-for-byte.
+
+The combined gate's semantic SHA-256 is
+`00051204261597a4ff0489de8bf3f2e463c083438d1a2db61a081b9df88b727c`;
+input-file SHA-256 is
+`32ac308c89533bf4bc0bc0b45ec8a0fe1b71698eefe4c098faf82d84e9cce66b`.
+Both reports also match engine, harness and runner identities. Subsequent
+checkpoint changes are documentation and evidence only. This local acceptance
+does not substitute for the user's Windows gate or the separate native evidence.
+
+See the [compact evidence](evidence/U13_ROUT_ANSWER_2026-09-19.json) and delivered
+`Corruptor-Rout-Answer-Evidence-2026-09-19.zip` for both engine cohorts, controls,
+reviewed replay data and runtime reports.
+
+Next: accept the combined V12 revision under Windows CPython/PyPy. A further
+Rout pass should investigate the mirror losses and lost Gremory setup, actual
+contact timing and special-heavy fights before proposing another heuristic.
+The initial outmatched-wave loss remains scoped to its original engine.
+Do not tune merely to cast less or impose an emergency-only rule. Shared
+navigation/playback and unit balance remain separate work.

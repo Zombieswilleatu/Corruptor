@@ -1,1067 +1,3021 @@
 {
-  "baseline_revision": "3360d6c9a593b39977e6b85cdb75b1134b5a1479",
-  "candidate_revision": "fd13b3f",
-  "comparison": {
-    "behavior": {
-      "V12": {
-        "cast": 81,
-        "decisions": 334,
-        "held_when_ready": 33,
-        "ready": 114
+  "combined_engine": {
+    "baseline_revision": "bcf1fad8f2cf58d6b5560b886b2f9e98b6405b6e",
+    "behavior_audit": {
+      "behavior": {
+        "V12": {
+          "cast": 84,
+          "decisions": 344,
+          "held_when_ready": 32,
+          "ready": 116
+        },
+        "candidate": {
+          "cast": 75,
+          "decisions": 342,
+          "held_when_ready": 51,
+          "ready": 126
+        }
       },
-      "candidate": {
-        "cast": 79,
-        "decisions": 352,
-        "held_when_ready": 59,
-        "ready": 138
+      "budgets_checked": true,
+      "deimos_nonmirror": {
+        "candidate_wins": 7,
+        "gained": 0,
+        "lost": 1,
+        "setups": 16,
+        "unchanged": 15,
+        "v12_wins": 8
+      },
+      "operations": 16240,
+      "record_integrity_checked": true,
+      "setups": {
+        "deimos_gremory_00": {
+          "V12": false,
+          "candidate": false
+        },
+        "deimos_humbaba_00": {
+          "V12": false,
+          "candidate": false
+        },
+        "deimos_kalligan_00": {
+          "V12": true,
+          "candidate": true
+        },
+        "deimos_kanifous_00": {
+          "V12": true,
+          "candidate": true
+        },
+        "deimos_kroni_00": {
+          "V12": true,
+          "candidate": true
+        },
+        "deimos_odradek_00": {
+          "V12": true,
+          "candidate": true
+        },
+        "deimos_orias_00": {
+          "V12": true,
+          "candidate": true
+        },
+        "deimos_valak_00": {
+          "V12": false,
+          "candidate": false
+        },
+        "gremory_deimos_00": {
+          "V12": true,
+          "candidate": false
+        },
+        "humbaba_deimos_00": {
+          "V12": false,
+          "candidate": false
+        },
+        "kalligan_deimos_00": {
+          "V12": false,
+          "candidate": false
+        },
+        "kanifous_deimos_00": {
+          "V12": false,
+          "candidate": false
+        },
+        "kroni_deimos_00": {
+          "V12": false,
+          "candidate": false
+        },
+        "odradek_deimos_00": {
+          "V12": false,
+          "candidate": false
+        },
+        "orias_deimos_00": {
+          "V12": true,
+          "candidate": true
+        },
+        "valak_deimos_00": {
+          "V12": true,
+          "candidate": true
+        }
       }
     },
-    "completed": 34,
-    "deimos_nonmirror": {
-      "candidate_wins": 9,
-      "gained": 4,
-      "lost": 1,
-      "setups": 16,
-      "unchanged": 11,
-      "v12_wins": 6
+    "candidate_revision": "826351565f9508c3b85b7a76c95abfb1574f6802",
+    "comparison": {
+      "elapsed_seconds": 535.7983433590016,
+      "manifest": {
+        "baseline": {
+          "files": {
+            "__init__.py": "227c8876cf5699a5538e3493e65d8ab8e7ecf03c65eb0781306d8d22461c3b8f",
+            "budget.py": "661597d55074af49b72d994b03cae7e7a9e0fb1d3d68c7a3b6df62c3a64f21cb",
+            "closing.py": "137079c225ecedb9e1fb4a689c7817ec512ab4a215fb0624ee62e961d058579d",
+            "common.py": "4eac66421ba8268628a6a90d60bfc2627d7275896d71109093c7d7d958159c92",
+            "comparison.py": "59c57b7053af14a033241768bc69c61eba36848804a0a7b6cc725ecdfb7f23bc",
+            "coordination.py": "e0e9295056a8fd0537308006ea149183d71fd5b706c88c102f7856967359bc0c",
+            "coverage.py": "228c23b18653b89647570939fb944d7063f676a45a28ca980ef1838b669b7c71",
+            "defensive_plans.py": "251161512ac9529f6c97d40f9578a2d16e46c26325cbe7be3b50a06dec1472b9",
+            "diagnostics.py": "5cf40e9a6ab3984653737e7b8e20b373a923f932a0205803cafea3fb48fa9769",
+            "facts.py": "d13fb7b47648176ae1dde05f9baf7e3fa5b63c09de11f921292fbd271c9edbfa",
+            "lane_support.py": "5433a4b918bde19a6652eb1fc6aedc034666b98a10db3959b0725dddcee9ca3a",
+            "lords/__init__.py": "411ef93b19ce21fbd9e93608633810c3002599c5dd9be1b679e70a7414263488",
+            "lords/deimos.py": "074b493fd3f5e6cb57e3a36bfd158fc33f1f06ed8c84923692b99889d253ee1f",
+            "lords/gremory.py": "24da2dec94f8788638c8cd2aec532b25806c71590c580bd1782aa8242ea23496",
+            "lords/humbaba.py": "c624d95ecce185c6fb305cb277d626bf702ab227ab3c24c87107310f2bbaf80e",
+            "lords/kalligan.py": "16da56cbfa1e1fb2add48447165bde9cc7a23ae42f90882f9a342e5d16a9ce99",
+            "lords/kanifous.py": "f8088280111c21cb09368970b88f8593a6742f46d9048c05e0da9fec6b4aa26d",
+            "lords/kroni.py": "7079c646913e8f557861728376794be727a4d258139b56ae1c7e05e0d8bd00db",
+            "lords/odradek.py": "4a3eed0613374ad6c7172d3ccfc9c661290034a136e54abec867482e471bafb4",
+            "lords/orias.py": "ff5432388bfc98d4b48bbc873c985317e6b7c4b14d21aff5c5b5d15940eb5e20",
+            "lords/valak.py": "3959d4d1366d406b90c82f420729c0d15c1cc6000b3b677e0f68a738b0df7331",
+            "observation.py": "4114c44ae86f5dd4d109f6de85ba351c3b6d4bed8e1a4af5b08b4b86349d05f0",
+            "planner_probe.py": "3ccd7de5661d9615a7ef75304eec14dbac6415992d8d643c82fd6a7a9fd71b05",
+            "recipes.py": "ddb4e0072006093218d8a4707beb248d7fe92067f57864d02588ab86df9a1c2e",
+            "reference_probe.py": "d93d5acd37581083f512fa87057bef80e8de4bd867ce49fab6ef1d2950434cbf",
+            "rite_cases.py": "2cf12a6be0f6598cdeb330f76bd0efcb8c680fbcf2410b1d6461099d61d4a70e",
+            "selection.py": "a160b99b525a1590b34a8ba43fef6f5f63d70c083886f0f151111f7bb5b3894f",
+            "survey.py": "4ef849355910d662bb887fd53ae50b5574efc5f10fdc752610e5bfb81f2a059a",
+            "test_closing.py": "b0eeab4ac9b4292f57dc35760f507252d7bfb6dbc96f6367661cf140c2ff9b37",
+            "test_common.py": "922aaacace8bd0595e4dd1de158499ee7cbb562ac0f8f2952449d1d82f4d87e8",
+            "test_comparison.py": "59211969deccbdb0ac2c042abcbf4ddc707c28216408515c83dbdcc48362507d",
+            "test_coordination.py": "763dceb8ef83ae9795aaec3603c62815a1bc5a50a2ed90432831dc8f2fec70af",
+            "test_defensive_plans.py": "6beb177ff35048f191e01be666bbdeb6530e1f7ca9820a6cf4287974a182ef4b",
+            "test_deimos.py": "06d82fb61846e96d1676931e5969f7c32563a869aef1dae99aed6c1b78454271",
+            "test_diagnostics.py": "d8362c599d2f83ae3864c6b0c32e734ac5136030e7f3194ac3fe10afda6881ff",
+            "test_kalligan.py": "dc54dcc0e5fc193e3f0030955986c9969913712eb3f0535614bf2330b0db62c6",
+            "test_lane_support.py": "94574196dd23bb109a599fc7689e68b29ab4c5bd8abc8caa59457d876bd14e7b",
+            "test_odradek.py": "0078b8a8d5f534ecebdefa47e0c921e3b7b642eaae985b8ad5adb178a1044023",
+            "test_recipes_veil.py": "b1948ea569cf7b304756b70e4e2a99d479228cca4514a826fdb556434d5b456e",
+            "test_rites.py": "4049d7d09741161cae1392c3f0dcb9c3735108c50492dead8c7e36883ab240c8",
+            "test_selection.py": "b2ae4fa066634e423479552398f05d1fa2d06bbb5c978be564978763e02a94bf",
+            "test_survey.py": "926deb9d20611b42b8a5f2e970bff6c4e4b357c1afe8d12cd263c26749a05880",
+            "veil_judgment.py": "f92f3a5ca62d8ead00f38b7b5a1d4945645032e05e048305ec114bbb66d64131"
+          },
+          "package_sha256": "6cc2f2e1472ad299dc7840a370dadba4db5caffd1404fe56f5b74d79082d279d",
+          "revision": "bcf1fad8f2cf58d6b5560b886b2f9e98b6405b6e"
+        },
+        "baseline_policy": "U13_COMMON_SMART_CORE_ALPHA_V12_HUMBABA_PRESSURE",
+        "candidate_policy": "U13_COMMON_SMART_CORE_ALPHA_V13_ROUT_ANSWER_EXPERIMENT",
+        "engine_source_sha256": "168615d04ff50b7ba9cb4111a749508eebe451d41d0535b98d0fd3efea9c44cf",
+        "focused_lord": "Deimos",
+        "harness_source_sha256": "a23b1408a1f262c8cabf0a300caeabff75793355ec496672d9ee56cdb9e5e425",
+        "implementation": "PyPy",
+        "namespace": "u13-rout-answer-2026-09-19",
+        "opening_policy": "U13_GAME_ECONOMY_V5_FREE_OPENING",
+        "python": "3.11.13 (413c9b7f57f5, Jul 03 2025, 18:03:56)\n[PyPy 7.3.20 with GCC 10.2.1 20210130 (Red Hat 10.2.1-11)]",
+        "repeats": 1,
+        "schema": "U13_MATCHED_DOCTRINE_COMPARISON_V1",
+        "scope": "Both policies share current engine, fixed ordinary loadout and seed; swap policy seats for each ordered matchup. Python policy comparison, not native parity or Lord balance.",
+        "source_revision": "826351565f9508c3b85b7a76c95abfb1574f6802",
+        "weights": {
+          "banishment": 32,
+          "card_cost": 2,
+          "damage": 3,
+          "destruction": 30,
+          "enemy_settlement_risk": 90,
+          "guard": 5,
+          "monster": 2,
+          "recipe_save": 1,
+          "recruit": 6,
+          "return_lord": 75,
+          "tear": 22,
+          "veil_protection": 8
+        }
+      },
+      "summary": {
+        "candidate_policy": "U13_COMMON_SMART_CORE_ALPHA_V13_ROUT_ANSWER_EXPERIMENT",
+        "completed": 34,
+        "decisions": {
+          "U13_COMMON_SMART_CORE_ALPHA_V12_HUMBABA_PRESSURE": 644,
+          "U13_COMMON_SMART_CORE_ALPHA_V13_ROUT_ANSWER_EXPERIMENT": 644
+        },
+        "failed": 0,
+        "games": [
+          {
+            "candidate_seat": 0,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Gremory",
+              "Deimos"
+            ],
+            "name": "gremory_deimos_00__candidate_p0",
+            "outcome": {
+              "action": "game_finished",
+              "round": 19,
+              "win_by": "FinalCollapse",
+              "winner": 1
+            },
+            "rejected_previews": 0,
+            "rounds": 19,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 1,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Gremory",
+              "Deimos"
+            ],
+            "name": "gremory_deimos_00__candidate_p1",
+            "outcome": {
+              "action": "game_finished",
+              "round": 17,
+              "win_by": "FinalCollapse",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 17,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 0,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Deimos",
+              "Gremory"
+            ],
+            "name": "deimos_gremory_00__candidate_p0",
+            "outcome": {
+              "action": "game_finished",
+              "round": 17,
+              "win_by": "FinalCollapse",
+              "winner": 1
+            },
+            "rejected_previews": 0,
+            "rounds": 17,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 1,
+            "candidate_won": true,
+            "error": null,
+            "lords": [
+              "Deimos",
+              "Gremory"
+            ],
+            "name": "deimos_gremory_00__candidate_p1",
+            "outcome": {
+              "action": "game_finished",
+              "round": 17,
+              "win_by": "FinalCollapse",
+              "winner": 1
+            },
+            "rejected_previews": 0,
+            "rounds": 17,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 0,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Deimos",
+              "Deimos"
+            ],
+            "name": "deimos_deimos_00__candidate_p0",
+            "outcome": {
+              "action": "game_finished",
+              "round": 21,
+              "win_by": "FinalCollapse",
+              "winner": 1
+            },
+            "rejected_previews": 0,
+            "rounds": 21,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 1,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Deimos",
+              "Deimos"
+            ],
+            "name": "deimos_deimos_00__candidate_p1",
+            "outcome": {
+              "action": "game_finished",
+              "round": 21,
+              "win_by": "FinalCollapse",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 21,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 0,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Deimos",
+              "Humbaba"
+            ],
+            "name": "deimos_humbaba_00__candidate_p0",
+            "outcome": {
+              "action": "game_finished",
+              "round": 21,
+              "win_by": "FinalCollapse",
+              "winner": 1
+            },
+            "rejected_previews": 0,
+            "rounds": 21,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 1,
+            "candidate_won": true,
+            "error": null,
+            "lords": [
+              "Deimos",
+              "Humbaba"
+            ],
+            "name": "deimos_humbaba_00__candidate_p1",
+            "outcome": {
+              "action": "game_finished",
+              "round": 22,
+              "win_by": "FinalCollapse",
+              "winner": 1
+            },
+            "rejected_previews": 0,
+            "rounds": 22,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 0,
+            "candidate_won": true,
+            "error": null,
+            "lords": [
+              "Deimos",
+              "Kalligan"
+            ],
+            "name": "deimos_kalligan_00__candidate_p0",
+            "outcome": {
+              "action": "game_finished",
+              "round": 20,
+              "win_by": "Dominion",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 20,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 1,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Deimos",
+              "Kalligan"
+            ],
+            "name": "deimos_kalligan_00__candidate_p1",
+            "outcome": {
+              "action": "game_finished",
+              "round": 19,
+              "win_by": "Dominion",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 19,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 0,
+            "candidate_won": true,
+            "error": null,
+            "lords": [
+              "Deimos",
+              "Orias"
+            ],
+            "name": "deimos_orias_00__candidate_p0",
+            "outcome": {
+              "action": "game_finished",
+              "round": 21,
+              "win_by": "FinalCollapse",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 21,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 1,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Deimos",
+              "Orias"
+            ],
+            "name": "deimos_orias_00__candidate_p1",
+            "outcome": {
+              "action": "game_finished",
+              "round": 20,
+              "win_by": "FinalCollapse",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 20,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 0,
+            "candidate_won": true,
+            "error": null,
+            "lords": [
+              "Deimos",
+              "Odradek"
+            ],
+            "name": "deimos_odradek_00__candidate_p0",
+            "outcome": {
+              "action": "game_finished",
+              "round": 12,
+              "win_by": "Ritual",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 12,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 1,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Deimos",
+              "Odradek"
+            ],
+            "name": "deimos_odradek_00__candidate_p1",
+            "outcome": {
+              "action": "game_finished",
+              "round": 14,
+              "win_by": "Ritual",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 14,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 0,
+            "candidate_won": true,
+            "error": null,
+            "lords": [
+              "Deimos",
+              "Kroni"
+            ],
+            "name": "deimos_kroni_00__candidate_p0",
+            "outcome": {
+              "action": "game_finished",
+              "round": 22,
+              "win_by": "FinalCollapse",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 22,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 1,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Deimos",
+              "Kroni"
+            ],
+            "name": "deimos_kroni_00__candidate_p1",
+            "outcome": {
+              "action": "game_finished",
+              "round": 24,
+              "win_by": "FinalCollapse",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 24,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 0,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Deimos",
+              "Valak"
+            ],
+            "name": "deimos_valak_00__candidate_p0",
+            "outcome": {
+              "action": "game_finished",
+              "round": 21,
+              "win_by": "FinalCollapse",
+              "winner": 1
+            },
+            "rejected_previews": 0,
+            "rounds": 21,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 1,
+            "candidate_won": true,
+            "error": null,
+            "lords": [
+              "Deimos",
+              "Valak"
+            ],
+            "name": "deimos_valak_00__candidate_p1",
+            "outcome": {
+              "action": "game_finished",
+              "round": 19,
+              "win_by": "FinalCollapse",
+              "winner": 1
+            },
+            "rejected_previews": 0,
+            "rounds": 19,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 0,
+            "candidate_won": true,
+            "error": null,
+            "lords": [
+              "Deimos",
+              "Kanifous"
+            ],
+            "name": "deimos_kanifous_00__candidate_p0",
+            "outcome": {
+              "action": "game_finished",
+              "round": 18,
+              "win_by": "Ritual",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 18,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 1,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Deimos",
+              "Kanifous"
+            ],
+            "name": "deimos_kanifous_00__candidate_p1",
+            "outcome": {
+              "action": "game_finished",
+              "round": 18,
+              "win_by": "Ritual",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 18,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 0,
+            "candidate_won": true,
+            "error": null,
+            "lords": [
+              "Humbaba",
+              "Deimos"
+            ],
+            "name": "humbaba_deimos_00__candidate_p0",
+            "outcome": {
+              "action": "game_finished",
+              "round": 18,
+              "win_by": "Dominion",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 18,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 1,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Humbaba",
+              "Deimos"
+            ],
+            "name": "humbaba_deimos_00__candidate_p1",
+            "outcome": {
+              "action": "game_finished",
+              "round": 16,
+              "win_by": "Dominion",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 16,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 0,
+            "candidate_won": true,
+            "error": null,
+            "lords": [
+              "Kalligan",
+              "Deimos"
+            ],
+            "name": "kalligan_deimos_00__candidate_p0",
+            "outcome": {
+              "action": "game_finished",
+              "round": 16,
+              "win_by": "Ritual",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 16,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 1,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Kalligan",
+              "Deimos"
+            ],
+            "name": "kalligan_deimos_00__candidate_p1",
+            "outcome": {
+              "action": "game_finished",
+              "round": 16,
+              "win_by": "Ritual",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 16,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 0,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Orias",
+              "Deimos"
+            ],
+            "name": "orias_deimos_00__candidate_p0",
+            "outcome": {
+              "action": "game_finished",
+              "round": 21,
+              "win_by": "Ritual",
+              "winner": 1
+            },
+            "rejected_previews": 0,
+            "rounds": 21,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 1,
+            "candidate_won": true,
+            "error": null,
+            "lords": [
+              "Orias",
+              "Deimos"
+            ],
+            "name": "orias_deimos_00__candidate_p1",
+            "outcome": {
+              "action": "game_finished",
+              "round": 21,
+              "win_by": "Ritual",
+              "winner": 1
+            },
+            "rejected_previews": 0,
+            "rounds": 21,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 0,
+            "candidate_won": true,
+            "error": null,
+            "lords": [
+              "Odradek",
+              "Deimos"
+            ],
+            "name": "odradek_deimos_00__candidate_p0",
+            "outcome": {
+              "action": "game_finished",
+              "round": 19,
+              "win_by": "Dominion",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 19,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 1,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Odradek",
+              "Deimos"
+            ],
+            "name": "odradek_deimos_00__candidate_p1",
+            "outcome": {
+              "action": "game_finished",
+              "round": 18,
+              "win_by": "Dominion",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 18,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 0,
+            "candidate_won": true,
+            "error": null,
+            "lords": [
+              "Kroni",
+              "Deimos"
+            ],
+            "name": "kroni_deimos_00__candidate_p0",
+            "outcome": {
+              "action": "game_finished",
+              "round": 24,
+              "win_by": "FinalCollapse",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 24,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 1,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Kroni",
+              "Deimos"
+            ],
+            "name": "kroni_deimos_00__candidate_p1",
+            "outcome": {
+              "action": "game_finished",
+              "round": 24,
+              "win_by": "FinalCollapse",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 24,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 0,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Valak",
+              "Deimos"
+            ],
+            "name": "valak_deimos_00__candidate_p0",
+            "outcome": {
+              "action": "game_finished",
+              "round": 18,
+              "win_by": "FinalCollapse",
+              "winner": 1
+            },
+            "rejected_previews": 0,
+            "rounds": 18,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 1,
+            "candidate_won": true,
+            "error": null,
+            "lords": [
+              "Valak",
+              "Deimos"
+            ],
+            "name": "valak_deimos_00__candidate_p1",
+            "outcome": {
+              "action": "game_finished",
+              "round": 18,
+              "win_by": "FinalCollapse",
+              "winner": 1
+            },
+            "rejected_previews": 0,
+            "rounds": 18,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 0,
+            "candidate_won": true,
+            "error": null,
+            "lords": [
+              "Kanifous",
+              "Deimos"
+            ],
+            "name": "kanifous_deimos_00__candidate_p0",
+            "outcome": {
+              "action": "game_finished",
+              "round": 14,
+              "win_by": "Dominion",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 14,
+            "status": "complete"
+          },
+          {
+            "candidate_seat": 1,
+            "candidate_won": false,
+            "error": null,
+            "lords": [
+              "Kanifous",
+              "Deimos"
+            ],
+            "name": "kanifous_deimos_00__candidate_p1",
+            "outcome": {
+              "action": "game_finished",
+              "round": 18,
+              "win_by": "Dominion",
+              "winner": 0
+            },
+            "rejected_previews": 0,
+            "rounds": 18,
+            "status": "complete"
+          }
+        ],
+        "maximum_work": {
+          "U13_COMMON_SMART_CORE_ALPHA_V12_HUMBABA_PRESSURE": {
+            "complete_plans": 32,
+            "generated:artillery": 15,
+            "generated:combat": 11,
+            "generated:guards": 11,
+            "generated:monsters": 10,
+            "generated:powers": 12,
+            "generated:resummon": 3,
+            "generated:rites": 5,
+            "generated:support": 16,
+            "generated:work": 6,
+            "previews": 1,
+            "retained:artillery": 4,
+            "retained:combat": 4,
+            "retained:guards": 4,
+            "retained:monsters": 4,
+            "retained:powers": 4,
+            "retained:resummon": 2,
+            "retained:rites": 4,
+            "retained:support": 4,
+            "retained:work": 4
+          },
+          "U13_COMMON_SMART_CORE_ALPHA_V13_ROUT_ANSWER_EXPERIMENT": {
+            "complete_plans": 32,
+            "generated:artillery": 15,
+            "generated:combat": 11,
+            "generated:guards": 11,
+            "generated:monsters": 10,
+            "generated:powers": 12,
+            "generated:resummon": 3,
+            "generated:rites": 4,
+            "generated:support": 16,
+            "generated:work": 6,
+            "previews": 1,
+            "retained:artillery": 4,
+            "retained:combat": 4,
+            "retained:guards": 4,
+            "retained:monsters": 4,
+            "retained:powers": 4,
+            "retained:resummon": 2,
+            "retained:rites": 3,
+            "retained:support": 4,
+            "retained:work": 4
+          }
+        },
+        "mean_rounds": 18.941176470588236,
+        "paired_results": {
+          "baseline_wins_both": 2,
+          "candidate_wins_both": 0,
+          "incomplete": 0,
+          "split": 15
+        },
+        "rejected_previews": 0,
+        "requested": 34,
+        "rite_measurements": [
+          {
+            "current_board_losses": 12,
+            "current_board_wins": 26,
+            "generated": 251,
+            "outcomes_unobserved": 0,
+            "personal_tears": 6,
+            "policy": "U13_COMMON_SMART_CORE_ALPHA_V12_HUMBABA_PRESSURE",
+            "resolved": 6,
+            "retained": 251,
+            "scored_measured_decisions": 644,
+            "scored_plans": 502,
+            "selected": 6,
+            "term": "Invocation"
+          },
+          {
+            "current_board_losses": 34,
+            "current_board_wins": 34,
+            "generated": 43,
+            "outcomes_unobserved": 0,
+            "personal_tears": 37,
+            "policy": "U13_COMMON_SMART_CORE_ALPHA_V12_HUMBABA_PRESSURE",
+            "resolved": 37,
+            "retained": 43,
+            "scored_measured_decisions": 644,
+            "scored_plans": 752,
+            "selected": 37,
+            "term": "ProfaneRuins"
+          },
+          {
+            "current_board_losses": 19,
+            "current_board_wins": 17,
+            "generated": 14,
+            "outcomes_unobserved": 0,
+            "personal_tears": 10,
+            "policy": "U13_COMMON_SMART_CORE_ALPHA_V12_HUMBABA_PRESSURE",
+            "resolved": 10,
+            "retained": 14,
+            "scored_measured_decisions": 644,
+            "scored_plans": 199,
+            "selected": 10,
+            "term": "Supplicants"
+          },
+          {
+            "current_board_losses": 18,
+            "current_board_wins": 22,
+            "generated": 251,
+            "outcomes_unobserved": 0,
+            "personal_tears": 4,
+            "policy": "U13_COMMON_SMART_CORE_ALPHA_V13_ROUT_ANSWER_EXPERIMENT",
+            "resolved": 4,
+            "retained": 251,
+            "scored_measured_decisions": 644,
+            "scored_plans": 502,
+            "selected": 4,
+            "term": "Invocation"
+          },
+          {
+            "current_board_losses": 20,
+            "current_board_wins": 13,
+            "generated": 41,
+            "outcomes_unobserved": 0,
+            "personal_tears": 39,
+            "policy": "U13_COMMON_SMART_CORE_ALPHA_V13_ROUT_ANSWER_EXPERIMENT",
+            "resolved": 39,
+            "retained": 41,
+            "scored_measured_decisions": 644,
+            "scored_plans": 715,
+            "selected": 39,
+            "term": "ProfaneRuins"
+          },
+          {
+            "current_board_losses": 0,
+            "current_board_wins": 59,
+            "generated": 16,
+            "outcomes_unobserved": 0,
+            "personal_tears": 15,
+            "policy": "U13_COMMON_SMART_CORE_ALPHA_V13_ROUT_ANSWER_EXPERIMENT",
+            "resolved": 15,
+            "retained": 16,
+            "scored_measured_decisions": 644,
+            "scored_plans": 296,
+            "selected": 15,
+            "term": "Supplicants"
+          }
+        ],
+        "rounds": 644,
+        "total_decision_ms": 69124.71951300002,
+        "total_simulation_ms": 2694377.4256599997,
+        "victory_routes": {
+          "Dominion": 8,
+          "FinalCollapse": 18,
+          "Ritual": 8
+        },
+        "wins": {
+          "baseline": 19,
+          "candidate": 15
+        }
+      },
+      "summary_sha256": "d9b4f7c07ba851ebe64a5f2cf0308970eb6d737fdd7c3334db3720694d8a1078"
     },
-    "manifest": {
-      "baseline": {
-        "files": {
-          "__init__.py": "227c8876cf5699a5538e3493e65d8ab8e7ecf03c65eb0781306d8d22461c3b8f",
-          "budget.py": "661597d55074af49b72d994b03cae7e7a9e0fb1d3d68c7a3b6df62c3a64f21cb",
-          "closing.py": "137079c225ecedb9e1fb4a689c7817ec512ab4a215fb0624ee62e961d058579d",
-          "common.py": "4eac66421ba8268628a6a90d60bfc2627d7275896d71109093c7d7d958159c92",
-          "comparison.py": "59c57b7053af14a033241768bc69c61eba36848804a0a7b6cc725ecdfb7f23bc",
-          "coordination.py": "e0e9295056a8fd0537308006ea149183d71fd5b706c88c102f7856967359bc0c",
-          "coverage.py": "228c23b18653b89647570939fb944d7063f676a45a28ca980ef1838b669b7c71",
-          "defensive_plans.py": "251161512ac9529f6c97d40f9578a2d16e46c26325cbe7be3b50a06dec1472b9",
-          "diagnostics.py": "5cf40e9a6ab3984653737e7b8e20b373a923f932a0205803cafea3fb48fa9769",
-          "facts.py": "d13fb7b47648176ae1dde05f9baf7e3fa5b63c09de11f921292fbd271c9edbfa",
-          "lane_support.py": "5433a4b918bde19a6652eb1fc6aedc034666b98a10db3959b0725dddcee9ca3a",
-          "lords/__init__.py": "411ef93b19ce21fbd9e93608633810c3002599c5dd9be1b679e70a7414263488",
-          "lords/deimos.py": "074b493fd3f5e6cb57e3a36bfd158fc33f1f06ed8c84923692b99889d253ee1f",
-          "lords/gremory.py": "24da2dec94f8788638c8cd2aec532b25806c71590c580bd1782aa8242ea23496",
-          "lords/humbaba.py": "c624d95ecce185c6fb305cb277d626bf702ab227ab3c24c87107310f2bbaf80e",
-          "lords/kalligan.py": "16da56cbfa1e1fb2add48447165bde9cc7a23ae42f90882f9a342e5d16a9ce99",
-          "lords/kanifous.py": "f8088280111c21cb09368970b88f8593a6742f46d9048c05e0da9fec6b4aa26d",
-          "lords/kroni.py": "7079c646913e8f557861728376794be727a4d258139b56ae1c7e05e0d8bd00db",
-          "lords/odradek.py": "4a3eed0613374ad6c7172d3ccfc9c661290034a136e54abec867482e471bafb4",
-          "lords/orias.py": "ff5432388bfc98d4b48bbc873c985317e6b7c4b14d21aff5c5b5d15940eb5e20",
-          "lords/valak.py": "3959d4d1366d406b90c82f420729c0d15c1cc6000b3b677e0f68a738b0df7331",
-          "observation.py": "4114c44ae86f5dd4d109f6de85ba351c3b6d4bed8e1a4af5b08b4b86349d05f0",
-          "planner_probe.py": "3ccd7de5661d9615a7ef75304eec14dbac6415992d8d643c82fd6a7a9fd71b05",
-          "recipes.py": "ddb4e0072006093218d8a4707beb248d7fe92067f57864d02588ab86df9a1c2e",
-          "reference_probe.py": "d93d5acd37581083f512fa87057bef80e8de4bd867ce49fab6ef1d2950434cbf",
-          "rite_cases.py": "2cf12a6be0f6598cdeb330f76bd0efcb8c680fbcf2410b1d6461099d61d4a70e",
-          "selection.py": "a160b99b525a1590b34a8ba43fef6f5f63d70c083886f0f151111f7bb5b3894f",
-          "survey.py": "4ef849355910d662bb887fd53ae50b5574efc5f10fdc752610e5bfb81f2a059a",
-          "test_closing.py": "b0eeab4ac9b4292f57dc35760f507252d7bfb6dbc96f6367661cf140c2ff9b37",
-          "test_common.py": "922aaacace8bd0595e4dd1de158499ee7cbb562ac0f8f2952449d1d82f4d87e8",
-          "test_comparison.py": "59211969deccbdb0ac2c042abcbf4ddc707c28216408515c83dbdcc48362507d",
-          "test_coordination.py": "763dceb8ef83ae9795aaec3603c62815a1bc5a50a2ed90432831dc8f2fec70af",
-          "test_defensive_plans.py": "6beb177ff35048f191e01be666bbdeb6530e1f7ca9820a6cf4287974a182ef4b",
-          "test_deimos.py": "06d82fb61846e96d1676931e5969f7c32563a869aef1dae99aed6c1b78454271",
-          "test_diagnostics.py": "d8362c599d2f83ae3864c6b0c32e734ac5136030e7f3194ac3fe10afda6881ff",
-          "test_kalligan.py": "dc54dcc0e5fc193e3f0030955986c9969913712eb3f0535614bf2330b0db62c6",
-          "test_lane_support.py": "94574196dd23bb109a599fc7689e68b29ab4c5bd8abc8caa59457d876bd14e7b",
-          "test_odradek.py": "0078b8a8d5f534ecebdefa47e0c921e3b7b642eaae985b8ad5adb178a1044023",
-          "test_recipes_veil.py": "b1948ea569cf7b304756b70e4e2a99d479228cca4514a826fdb556434d5b456e",
-          "test_rites.py": "4049d7d09741161cae1392c3f0dcb9c3735108c50492dead8c7e36883ab240c8",
-          "test_selection.py": "b2ae4fa066634e423479552398f05d1fa2d06bbb5c978be564978763e02a94bf",
-          "test_survey.py": "926deb9d20611b42b8a5f2e970bff6c4e4b357c1afe8d12cd263c26749a05880",
-          "veil_judgment.py": "f92f3a5ca62d8ead00f38b7b5a1d4945645032e05e048305ec114bbb66d64131"
+    "diagnostic_capture": {
+      "checksum_changes": [
+        {
+          "actual": "b04bb07ceb6975c9d89f4549e4611c93cefb47c1601c456aae1e1b7d59ece081",
+          "case": {
+            "case": "deimos_deimos_current_r16_s0"
+          },
+          "changed": true,
+          "expected": "e59c92739a2f4a421693e3d67ce720af70da0ce34fad6f2d5e95365bf18fa3e7",
+          "kind": "view",
+          "test": "u13_doctrine.test_deimos.DeimosTests.test_natural_retargets_resolve_against_the_recorded_opponent"
         },
-        "package_sha256": "6cc2f2e1472ad299dc7840a370dadba4db5caffd1404fe56f5b74d79082d279d",
-        "revision": "3360d6c9a593b39977e6b85cdb75b1134b5a1479"
-      },
-      "baseline_policy": "U13_COMMON_SMART_CORE_ALPHA_V12_HUMBABA_PRESSURE",
-      "candidate_policy": "U13_COMMON_SMART_CORE_ALPHA_V13_ROUT_ANSWER_EXPERIMENT",
-      "engine_source_sha256": "e093e1fd92bd619129cc56a7483056335b951d837d91fa4bc5e61014d892bd61",
-      "focused_lord": "Deimos",
-      "harness_source_sha256": "987fc47e3489b3cfa8df90258a3c22dbcd2b66c51542f3f6fdfbb9b83168871a",
-      "implementation": "CPython",
-      "namespace": "u13-rout-answer-2026-09-19",
-      "opening_policy": "U13_GAME_ECONOMY_V5_FREE_OPENING",
-      "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
-      "repeats": 1,
-      "schema": "U13_MATCHED_DOCTRINE_COMPARISON_V1",
-      "scope": "Both policies share current engine, fixed ordinary loadout and seed; swap policy seats for each ordered matchup. Python policy comparison, not native parity or Lord balance.",
-      "source_revision": "fd13b3fd3643264d38276224833e731723077faa",
-      "weights": {
-        "banishment": 32,
-        "card_cost": 2,
-        "damage": 3,
-        "destruction": 30,
-        "enemy_settlement_risk": 90,
-        "guard": 5,
-        "monster": 2,
-        "recipe_save": 1,
-        "recruit": 6,
-        "return_lord": 75,
-        "tear": 22,
-        "veil_protection": 8
-      }
+        {
+          "actual": "bbe7e30279b2ae749b648fe7d4bb8ee4084c6adbe0ded51672ca5b5ceaaafca3",
+          "case": {
+            "case": "deimos_deimos_00_r10_s0"
+          },
+          "changed": true,
+          "expected": "1ddb49104abbdc0715369658911a354eb667f12e98973eb9b6c23c98b0db6543",
+          "kind": "view",
+          "test": "u13_doctrine.test_lane_support.LaneSupportTests.test_natural_holds_retargets_pairings_and_heal_against_recorded_opponents"
+        },
+        {
+          "actual": "1ba8f242968d80e833ffe336e92941c457e958c012b03c386abf6a6408656919",
+          "case": {
+            "case": "deimos_deimos_00_r10_s0"
+          },
+          "changed": true,
+          "expected": "398035d04b1a4a7833b0282452e348a2bae244a1710547f5458def8a2da28dd3",
+          "kind": "plan",
+          "test": "u13_doctrine.test_lane_support.LaneSupportTests.test_natural_holds_retargets_pairings_and_heal_against_recorded_opponents"
+        }
+      ],
+      "scope": "Diagnostic capture of changed view/plan digests. Only digest equality is recorded rather than asserted; all legal-prefix and tactical assertions run unmodified. This is not a passing acceptance gate.",
+      "tactical_failures": [
+        {
+          "test": "test_natural_holds_retargets_pairings_and_heal_against_recorded_opponents (u13_doctrine.test_lane_support.LaneSupportTests.test_natural_holds_retargets_pairings_and_heal_against_recorded_opponents) (case='deimos_deimos_00_r10_s0')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/1d3908d03f5d/Corruptor-rout-answer/Scripts/Sim/u13_doctrine/test_lane_support.py\", line 243, in test_natural_holds_retargets_pairings_and_heal_against_recorded_opponents\n    elif case['kind']=='retarget':self.assertEqual(case.get('expected_rout_lane','Castle'),powers['Rout']['target']['lane'])\n                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/1d3908d03f5d/review_monster_doctrine_replays.py\", line 43, in compare\n    return original(self,expected,actual,*args,**kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'Lord' != 'Castle'\n- Lord\n+ Castle\n\n"
+        }
+      ]
     },
-    "maximum_work": {
-      "U13_COMMON_SMART_CORE_ALPHA_V12_HUMBABA_PRESSURE": {
-        "complete_plans": 32,
-        "generated:artillery": 15,
-        "generated:combat": 11,
-        "generated:guards": 11,
-        "generated:monsters": 10,
-        "generated:powers": 11,
-        "generated:resummon": 3,
-        "generated:rites": 5,
-        "generated:support": 16,
-        "generated:work": 6,
-        "previews": 1,
-        "retained:artillery": 4,
-        "retained:combat": 4,
-        "retained:guards": 4,
-        "retained:monsters": 4,
-        "retained:powers": 4,
-        "retained:resummon": 2,
-        "retained:rites": 4,
-        "retained:support": 4,
-        "retained:work": 4
-      },
-      "U13_COMMON_SMART_CORE_ALPHA_V13_ROUT_ANSWER_EXPERIMENT": {
-        "complete_plans": 30,
-        "generated:artillery": 15,
-        "generated:combat": 11,
-        "generated:guards": 11,
-        "generated:monsters": 10,
-        "generated:powers": 11,
-        "generated:resummon": 3,
-        "generated:rites": 5,
-        "generated:support": 16,
-        "generated:work": 6,
-        "previews": 1,
-        "retained:artillery": 4,
-        "retained:combat": 4,
-        "retained:guards": 4,
-        "retained:monsters": 4,
-        "retained:powers": 4,
-        "retained:resummon": 2,
-        "retained:rites": 4,
-        "retained:support": 4,
-        "retained:work": 4
-      }
+    "engine_source_sha256": "168615d04ff50b7ba9cb4111a749508eebe451d41d0535b98d0fd3efea9c44cf",
+    "gate": {
+      "default_policy_identical_to_baseline": true,
+      "engine_source_sha256": "168615d04ff50b7ba9cb4111a749508eebe451d41d0535b98d0fd3efea9c44cf",
+      "games": [
+        {
+          "decisions_sha256": "691d59a46633ddf76d1ec628d8704c4655c6750fa466429ac34b01d59b9083d2",
+          "final_state_sha256": "0e1303126a291dbcebfee685f15fb39860dd0dec324fd48d7ecae75291082ed0",
+          "name": "gremory_humbaba",
+          "operations": 376,
+          "outcome": {
+            "action": "game_finished",
+            "round": 15,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "rounds": 15
+        },
+        {
+          "decisions_sha256": "bc7811ff81e473c203b5efcb2b65d525630a35b52727c35be4f9c629ef05bd08",
+          "final_state_sha256": "741ae937ac62ec529d83a02d5829f20a49707461a2e25b720f0047223c1b2905",
+          "name": "deimos_kalligan",
+          "operations": 509,
+          "outcome": {
+            "action": "game_finished",
+            "round": 20,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rounds": 20
+        },
+        {
+          "decisions_sha256": "b3e7e0e6cefd8f97947ef23f17286f45a471579d514f7ff695425885f637b2d0",
+          "final_state_sha256": "402b62f180af3088521e63cefab54596117516ceb69345f37b0d9289c4dc0f28",
+          "name": "orias_odradek",
+          "operations": 431,
+          "outcome": {
+            "action": "game_finished",
+            "round": 17,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "rounds": 17
+        },
+        {
+          "decisions_sha256": "1dfb9668c499051de0d3ceca732b944eba5ac635f0f18bad6fba6d202c038c4c",
+          "final_state_sha256": "a9cbec26ec59ca4342cacf7ea2c7a5b35778abb939798d13faa97d6b47c0f061",
+          "name": "kroni_valak",
+          "operations": 484,
+          "outcome": {
+            "action": "game_finished",
+            "round": 19,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "rounds": 19
+        },
+        {
+          "decisions_sha256": "31c63ca5d0bf8215e4f3fab8a72524a614027d4b22bb2a3bcdf8362367897d3d",
+          "final_state_sha256": "e4737a624453eb9b86cff72aff380468e7e92af062f22dd3f900c8ad357cb25b",
+          "name": "kanifous_gremory",
+          "operations": 344,
+          "outcome": {
+            "action": "game_finished",
+            "round": 14,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "rounds": 14
+        }
+      ],
+      "harness_source_sha256": "e8cf6bd8e6497dfa3d9f1924a324419b760ffe66fca41680e02768faa3fc76b3",
+      "inputs_identical_bytes": true,
+      "inputs_sha256": "32ac308c89533bf4bc0bc0b45ec8a0fe1b71698eefe4c098faf82d84e9cce66b",
+      "operations": 2144,
+      "passed": true,
+      "preserved_fixture_inputs": [
+        "deimos_deimos_current_r16_s0",
+        "deimos_deimos_00",
+        "deimos_deimos_00_r2_s0",
+        "deimos_deimos_00_r10_s0",
+        "humbaba_gremory_00_r1_s0",
+        "gremory_humbaba_00_r1_s1",
+        "humbaba_valak_00_r6_s0",
+        "valak_humbaba_00_r6_s1",
+        "deimos_humbaba_current_r2_s1",
+        "kroni_odradek_00",
+        "kroni_valak_00",
+        "kalligan_gremory_00_round3",
+        "kalligan_deimos_00_round3"
+      ],
+      "rejected_previews": 0,
+      "rounds": 85,
+      "runner_source_sha256": "b84b77ef705cc4e64da3b13f83c88b65631c049c56d06e9067958056835da7d3",
+      "runtimes": [
+        {
+          "implementation": "CPython",
+          "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]"
+        },
+        {
+          "implementation": "PyPy",
+          "python": "3.11.13 (413c9b7f57f5, Jul 03 2025, 18:03:56)\n[PyPy 7.3.20 with GCC 10.2.1 20210130 (Red Hat 10.2.1-11)]"
+        }
+      ],
+      "scope": "Local Linux CPython/PyPy gate on restored V12 and the bcf1fad engine. Windows acceptance and native parity are separate.",
+      "semantic_sha256": "00051204261597a4ff0489de8bf3f2e463c083438d1a2db61a081b9df88b727c",
+      "source_revision": "2b99c7f2e52b3ba498dfbabd8fa75331fdcc8904",
+      "tests_passed": 168
     },
-    "operations": 16220,
-    "paired_results": {
-      "baseline_wins_both": 2,
-      "candidate_wins_both": 4,
-      "incomplete": 0,
-      "split": 11
-    },
-    "rejected_previews": 0,
-    "rounds": 644,
-    "summary_sha256": "176ad03bf74833fe957f0a5aa3fc7a64e1e410cf61d6192b038e4ab50db8fb50",
-    "wins": {
-      "baseline": 15,
-      "candidate": 19
-    }
-  },
-  "controlled": {
-    "independent_source_games_used": 3,
-    "positions": [
+    "gate_status": "passed local Linux CPython and PyPy",
+    "replay_view_changes": [
       {
-        "cast_outcome": {
-          "action": "game_finished",
-          "round": 18,
-          "win_by": "FinalCollapse",
-          "winner": 1
+        "added": 5,
+        "case": "deimos_deimos_current_r16_s0",
+        "changed": 98,
+        "changed_attribute_counts": {
+          "armor": 32,
+          "hp": 8,
+          "melee_next_tick": 36,
+          "movement_ready_round": 7,
+          "navigation": 96,
+          "ranged_next_tick": 27,
+          "wright_built": 2,
+          "wright_guard_until": 3,
+          "wright_owner": 1,
+          "wright_progress": 3,
+          "wright_released": 3,
+          "wright_repair_round": 3,
+          "wright_site": 2,
+          "x_fp": 92,
+          "y_fp": 96
         },
-        "effects": [
-          {
-            "cast_cohort_survivors": 8,
-            "cast_enemy": {
-              "bodies": 8,
-              "castle_integrity": 64,
-              "hp": 50,
-              "waiting": 0
-            },
-            "cast_own": {
-              "bodies": 11,
-              "castle_integrity": 61,
-              "hp": 57,
-              "waiting": 0
-            },
-            "castle_integrity_delta": 0,
-            "hold_cohort_survivors": 8,
-            "hold_enemy": {
-              "bodies": 8,
-              "castle_integrity": 64,
-              "hp": 50,
-              "waiting": 0
-            },
-            "hold_own": {
-              "bodies": 11,
-              "castle_integrity": 61,
-              "hp": 57,
-              "waiting": 0
-            },
-            "mean_shared_survivor_delay_fp": 609.0,
-            "offset": 0,
-            "own_bodies_delta": 0,
-            "own_hp_delta": 0,
-            "round": 2,
-            "shared_cohort_survivors": 8,
-            "shared_survivor_delay_fp": 4872
-          },
-          {
-            "cast_cohort_survivors": 8,
-            "cast_enemy": {
-              "bodies": 14,
-              "castle_integrity": 46,
-              "hp": 85,
-              "waiting": 0
-            },
-            "cast_own": {
-              "bodies": 21,
-              "castle_integrity": 44,
-              "hp": 112,
-              "waiting": 0
-            },
-            "castle_integrity_delta": 0,
-            "hold_cohort_survivors": 8,
-            "hold_enemy": {
-              "bodies": 14,
-              "castle_integrity": 46,
-              "hp": 85,
-              "waiting": 0
-            },
-            "hold_own": {
-              "bodies": 21,
-              "castle_integrity": 44,
-              "hp": 112,
-              "waiting": 0
-            },
-            "mean_shared_survivor_delay_fp": -46.0,
-            "offset": 1,
-            "own_bodies_delta": 0,
-            "own_hp_delta": 0,
-            "round": 3,
-            "shared_cohort_survivors": 8,
-            "shared_survivor_delay_fp": -368
-          },
-          {
-            "cast_cohort_survivors": 8,
-            "cast_enemy": {
-              "bodies": 19,
-              "castle_integrity": 50,
-              "hp": 110,
-              "waiting": 0
-            },
-            "cast_own": {
-              "bodies": 26,
-              "castle_integrity": 47,
-              "hp": 133,
-              "waiting": 0
-            },
-            "castle_integrity_delta": 0,
-            "hold_cohort_survivors": 6,
-            "hold_enemy": {
-              "bodies": 17,
-              "castle_integrity": 50,
-              "hp": 110,
-              "waiting": 0
-            },
-            "hold_own": {
-              "bodies": 28,
-              "castle_integrity": 47,
-              "hp": 143,
-              "waiting": 0
-            },
-            "mean_shared_survivor_delay_fp": -367.6666666666667,
-            "offset": 2,
-            "own_bodies_delta": -2,
-            "own_hp_delta": -10,
-            "round": 4,
-            "shared_cohort_survivors": 6,
-            "shared_survivor_delay_fp": -2206
-          }
+        "new_board": 151,
+        "new_view_sha256": "b04bb07ceb6975c9d89f4549e4611c93cefb47c1601c456aae1e1b7d59ece081",
+        "old_board": 170,
+        "old_view_sha256": "e59c92739a2f4a421693e3d67ce720af70da0ce34fad6f2d5e95365bf18fa3e7",
+        "other_view_fields": [
+          "data"
         ],
-        "first_ordinary_attack_tick": {
-          "cast": 435,
-          "hold": 147,
-          "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
-        },
-        "group": "conserve_existing_answer",
-        "held_outcome": {
-          "action": "game_finished",
-          "round": 13,
-          "win_by": "Dominion",
-          "winner": 0
-        },
-        "lane": "Castle",
-        "name": "deimos_gremory_00__answer_r2_p0",
-        "result": "cast_lost_win",
-        "round": 2,
-        "seat": 0,
-        "source": "deimos_gremory_00"
+        "removed": 24
       },
       {
-        "cast_outcome": {
-          "action": "game_finished",
-          "round": 22,
-          "win_by": "FinalCollapse",
-          "winner": 0
+        "added": 2,
+        "case": "deimos_deimos_00_r10_s0",
+        "changed": 74,
+        "changed_attribute_counts": {
+          "armor": 15,
+          "contact_tick": 3,
+          "hp": 3,
+          "melee_next_tick": 38,
+          "navigation": 74,
+          "ranged_next_tick": 7,
+          "wright_built": 1,
+          "wright_guard_until": 4,
+          "wright_progress": 1,
+          "wright_released": 2,
+          "wright_repair_round": 1,
+          "x_fp": 71,
+          "y_fp": 73
         },
-        "effects": [
-          {
-            "cast_cohort_survivors": 17,
-            "cast_enemy": {
-              "bodies": 17,
-              "castle_integrity": 67,
-              "hp": 100,
-              "waiting": 0
-            },
-            "cast_own": {
-              "bodies": 16,
-              "castle_integrity": 61,
-              "hp": 100,
-              "waiting": 0
-            },
-            "castle_integrity_delta": 0,
-            "hold_cohort_survivors": 17,
-            "hold_enemy": {
-              "bodies": 17,
-              "castle_integrity": 67,
-              "hp": 100,
-              "waiting": 0
-            },
-            "hold_own": {
-              "bodies": 16,
-              "castle_integrity": 61,
-              "hp": 100,
-              "waiting": 0
-            },
-            "mean_shared_survivor_delay_fp": 670.0588235294117,
-            "offset": 0,
-            "own_bodies_delta": 0,
-            "own_hp_delta": 0,
-            "round": 3,
-            "shared_cohort_survivors": 17,
-            "shared_survivor_delay_fp": 11391
-          },
-          {
-            "cast_cohort_survivors": 17,
-            "cast_enemy": {
-              "bodies": 29,
-              "castle_integrity": 67,
-              "hp": 170,
-              "waiting": 0
-            },
-            "cast_own": {
-              "bodies": 20,
-              "castle_integrity": 59,
-              "hp": 117,
-              "waiting": 0
-            },
-            "castle_integrity_delta": 0,
-            "hold_cohort_survivors": 17,
-            "hold_enemy": {
-              "bodies": 29,
-              "castle_integrity": 67,
-              "hp": 170,
-              "waiting": 0
-            },
-            "hold_own": {
-              "bodies": 20,
-              "castle_integrity": 59,
-              "hp": 117,
-              "waiting": 0
-            },
-            "mean_shared_survivor_delay_fp": 103.41176470588235,
-            "offset": 1,
-            "own_bodies_delta": 0,
-            "own_hp_delta": 0,
-            "round": 4,
-            "shared_cohort_survivors": 17,
-            "shared_survivor_delay_fp": 1758
-          },
-          {
-            "cast_cohort_survivors": 17,
-            "cast_enemy": {
-              "bodies": 29,
-              "castle_integrity": 69,
-              "hp": 168,
-              "waiting": 0
-            },
-            "cast_own": {
-              "bodies": 27,
-              "castle_integrity": 57,
-              "hp": 150,
-              "waiting": 0
-            },
-            "castle_integrity_delta": 0,
-            "hold_cohort_survivors": 15,
-            "hold_enemy": {
-              "bodies": 27,
-              "castle_integrity": 69,
-              "hp": 160,
-              "waiting": 0
-            },
-            "hold_own": {
-              "bodies": 27,
-              "castle_integrity": 57,
-              "hp": 148,
-              "waiting": 0
-            },
-            "mean_shared_survivor_delay_fp": -226.33333333333334,
-            "offset": 2,
-            "own_bodies_delta": 0,
-            "own_hp_delta": 2,
-            "round": 5,
-            "shared_cohort_survivors": 15,
-            "shared_survivor_delay_fp": -3395
-          }
+        "new_board": 107,
+        "new_view_sha256": "bbe7e30279b2ae749b648fe7d4bb8ee4084c6adbe0ded51672ca5b5ceaaafca3",
+        "old_board": 114,
+        "old_view_sha256": "1ddb49104abbdc0715369658911a354eb667f12e98973eb9b6c23c98b0db6543",
+        "other_view_fields": [
+          "data"
         ],
-        "first_ordinary_attack_tick": {
-          "cast": 591,
-          "hold": 563,
-          "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
-        },
-        "group": "conserve_existing_answer",
-        "held_outcome": {
-          "action": "game_finished",
-          "round": 22,
-          "win_by": "FinalCollapse",
-          "winner": 0
-        },
-        "lane": "Castle",
-        "name": "deimos_deimos_00__answer_r3_p1",
-        "result": "same_winner",
-        "round": 3,
-        "seat": 1,
-        "source": "deimos_deimos_00"
-      },
-      {
-        "cast_outcome": {
-          "action": "game_finished",
-          "round": 18,
-          "win_by": "FinalCollapse",
-          "winner": 1
-        },
-        "effects": [
-          {
-            "cast_cohort_survivors": 28,
-            "cast_enemy": {
-              "bodies": 28,
-              "castle_integrity": 54,
-              "hp": 156,
-              "waiting": 0
-            },
-            "cast_own": {
-              "bodies": 28,
-              "castle_integrity": 42,
-              "hp": 147,
-              "waiting": 0
-            },
-            "castle_integrity_delta": 0,
-            "hold_cohort_survivors": 26,
-            "hold_enemy": {
-              "bodies": 26,
-              "castle_integrity": 54,
-              "hp": 145,
-              "waiting": 0
-            },
-            "hold_own": {
-              "bodies": 21,
-              "castle_integrity": 42,
-              "hp": 111,
-              "waiting": 0
-            },
-            "mean_shared_survivor_delay_fp": 534.5384615384615,
-            "offset": 0,
-            "own_bodies_delta": 7,
-            "own_hp_delta": 36,
-            "round": 6,
-            "shared_cohort_survivors": 26,
-            "shared_survivor_delay_fp": 13898
-          },
-          {
-            "cast_cohort_survivors": 22,
-            "cast_enemy": {
-              "bodies": 33,
-              "castle_integrity": 50,
-              "hp": 177,
-              "waiting": 0
-            },
-            "cast_own": {
-              "bodies": 27,
-              "castle_integrity": 39,
-              "hp": 145,
-              "waiting": 0
-            },
-            "castle_integrity_delta": 0,
-            "hold_cohort_survivors": 23,
-            "hold_enemy": {
-              "bodies": 30,
-              "castle_integrity": 50,
-              "hp": 170,
-              "waiting": 0
-            },
-            "hold_own": {
-              "bodies": 25,
-              "castle_integrity": 39,
-              "hp": 136,
-              "waiting": 0
-            },
-            "mean_shared_survivor_delay_fp": 31.8,
-            "offset": 1,
-            "own_bodies_delta": 2,
-            "own_hp_delta": 9,
-            "round": 7,
-            "shared_cohort_survivors": 20,
-            "shared_survivor_delay_fp": 636
-          },
-          {
-            "cast_cohort_survivors": 19,
-            "cast_enemy": {
-              "bodies": 35,
-              "castle_integrity": 46,
-              "hp": 177,
-              "waiting": 0
-            },
-            "cast_own": {
-              "bodies": 31,
-              "castle_integrity": 39,
-              "hp": 174,
-              "waiting": 0
-            },
-            "castle_integrity_delta": 0,
-            "hold_cohort_survivors": 21,
-            "hold_enemy": {
-              "bodies": 36,
-              "castle_integrity": 47,
-              "hp": 194,
-              "waiting": 0
-            },
-            "hold_own": {
-              "bodies": 25,
-              "castle_integrity": 39,
-              "hp": 144,
-              "waiting": 0
-            },
-            "mean_shared_survivor_delay_fp": -11.0,
-            "offset": 2,
-            "own_bodies_delta": 6,
-            "own_hp_delta": 30,
-            "round": 8,
-            "shared_cohort_survivors": 17,
-            "shared_survivor_delay_fp": -187
-          }
-        ],
-        "first_ordinary_attack_tick": {
-          "cast": 200,
-          "hold": 6,
-          "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
-        },
-        "group": "delay_unanswered_wave",
-        "held_outcome": {
-          "action": "game_finished",
-          "round": 15,
-          "win_by": "Dominion",
-          "winner": 0
-        },
-        "lane": "Castle",
-        "name": "deimos_gremory_00__answer_r6_p0",
-        "result": "cast_lost_win",
-        "round": 6,
-        "seat": 0,
-        "source": "deimos_gremory_00"
-      },
-      {
-        "cast_outcome": {
-          "action": "game_finished",
-          "round": 15,
-          "win_by": "Dominion",
-          "winner": 1
-        },
-        "effects": [
-          {
-            "cast_cohort_survivors": 39,
-            "cast_enemy": {
-              "bodies": 39,
-              "castle_integrity": 55,
-              "hp": 216,
-              "waiting": 0
-            },
-            "cast_own": {
-              "bodies": 29,
-              "castle_integrity": 44,
-              "hp": 175,
-              "waiting": 0
-            },
-            "castle_integrity_delta": 0,
-            "hold_cohort_survivors": 37,
-            "hold_enemy": {
-              "bodies": 37,
-              "castle_integrity": 55,
-              "hp": 195,
-              "waiting": 0
-            },
-            "hold_own": {
-              "bodies": 22,
-              "castle_integrity": 44,
-              "hp": 135,
-              "waiting": 0
-            },
-            "mean_shared_survivor_delay_fp": 587.2432432432432,
-            "offset": 0,
-            "own_bodies_delta": 7,
-            "own_hp_delta": 40,
-            "round": 6,
-            "shared_cohort_survivors": 37,
-            "shared_survivor_delay_fp": 21728
-          },
-          {
-            "cast_cohort_survivors": 37,
-            "cast_enemy": {
-              "bodies": 46,
-              "castle_integrity": 52,
-              "hp": 243,
-              "waiting": 0
-            },
-            "cast_own": {
-              "bodies": 28,
-              "castle_integrity": 44,
-              "hp": 167,
-              "waiting": 0
-            },
-            "castle_integrity_delta": -3,
-            "hold_cohort_survivors": 37,
-            "hold_enemy": {
-              "bodies": 46,
-              "castle_integrity": 53,
-              "hp": 239,
-              "waiting": 0
-            },
-            "hold_own": {
-              "bodies": 27,
-              "castle_integrity": 47,
-              "hp": 168,
-              "waiting": 0
-            },
-            "mean_shared_survivor_delay_fp": 22.314285714285713,
-            "offset": 1,
-            "own_bodies_delta": 1,
-            "own_hp_delta": -1,
-            "round": 7,
-            "shared_cohort_survivors": 35,
-            "shared_survivor_delay_fp": 781
-          },
-          {
-            "cast_cohort_survivors": 33,
-            "cast_enemy": {
-              "bodies": 48,
-              "castle_integrity": 50,
-              "hp": 263,
-              "waiting": 0
-            },
-            "cast_own": {
-              "bodies": 28,
-              "castle_integrity": 34,
-              "hp": 171,
-              "waiting": 0
-            },
-            "castle_integrity_delta": -3,
-            "hold_cohort_survivors": 34,
-            "hold_enemy": {
-              "bodies": 49,
-              "castle_integrity": 52,
-              "hp": 255,
-              "waiting": 0
-            },
-            "hold_own": {
-              "bodies": 25,
-              "castle_integrity": 37,
-              "hp": 158,
-              "waiting": 0
-            },
-            "mean_shared_survivor_delay_fp": 29.366666666666667,
-            "offset": 2,
-            "own_bodies_delta": 3,
-            "own_hp_delta": 13,
-            "round": 8,
-            "shared_cohort_survivors": 30,
-            "shared_survivor_delay_fp": 881
-          }
-        ],
-        "first_ordinary_attack_tick": {
-          "cast": 256,
-          "hold": 7,
-          "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
-        },
-        "group": "delay_unanswered_wave",
-        "held_outcome": {
-          "action": "game_finished",
-          "round": 17,
-          "win_by": "FinalCollapse",
-          "winner": 1
-        },
-        "lane": "Castle",
-        "name": "gremory_deimos_00__answer_r6_p1",
-        "result": "same_winner",
-        "round": 6,
-        "seat": 1,
-        "source": "gremory_deimos_00"
-      },
-      {
-        "cast_outcome": {
-          "action": "game_finished",
-          "round": 18,
-          "win_by": "FinalCollapse",
-          "winner": 0
-        },
-        "effects": [
-          {
-            "cast_cohort_survivors": 12,
-            "cast_enemy": {
-              "bodies": 12,
-              "castle_integrity": 60,
-              "hp": 70,
-              "waiting": 0
-            },
-            "cast_own": {
-              "bodies": 14,
-              "castle_integrity": 59,
-              "hp": 80,
-              "waiting": 0
-            },
-            "castle_integrity_delta": 0,
-            "hold_cohort_survivors": 12,
-            "hold_enemy": {
-              "bodies": 12,
-              "castle_integrity": 60,
-              "hp": 70,
-              "waiting": 0
-            },
-            "hold_own": {
-              "bodies": 14,
-              "castle_integrity": 59,
-              "hp": 80,
-              "waiting": 0
-            },
-            "mean_shared_survivor_delay_fp": 280.8333333333333,
-            "offset": 0,
-            "own_bodies_delta": 0,
-            "own_hp_delta": 0,
-            "round": 2,
-            "shared_cohort_survivors": 12,
-            "shared_survivor_delay_fp": 3370
-          },
-          {
-            "cast_cohort_survivors": 12,
-            "cast_enemy": {
-              "bodies": 16,
-              "castle_integrity": 61,
-              "hp": 100,
-              "waiting": 0
-            },
-            "cast_own": {
-              "bodies": 17,
-              "castle_integrity": 67,
-              "hp": 100,
-              "waiting": 0
-            },
-            "castle_integrity_delta": 0,
-            "hold_cohort_survivors": 12,
-            "hold_enemy": {
-              "bodies": 16,
-              "castle_integrity": 61,
-              "hp": 100,
-              "waiting": 0
-            },
-            "hold_own": {
-              "bodies": 17,
-              "castle_integrity": 67,
-              "hp": 100,
-              "waiting": 0
-            },
-            "mean_shared_survivor_delay_fp": -209.75,
-            "offset": 1,
-            "own_bodies_delta": 0,
-            "own_hp_delta": 0,
-            "round": 3,
-            "shared_cohort_survivors": 12,
-            "shared_survivor_delay_fp": -2517
-          },
-          {
-            "cast_cohort_survivors": 12,
-            "cast_enemy": {
-              "bodies": 20,
-              "castle_integrity": 59,
-              "hp": 116,
-              "waiting": 0
-            },
-            "cast_own": {
-              "bodies": 29,
-              "castle_integrity": 67,
-              "hp": 170,
-              "waiting": 0
-            },
-            "castle_integrity_delta": 0,
-            "hold_cohort_survivors": 12,
-            "hold_enemy": {
-              "bodies": 20,
-              "castle_integrity": 59,
-              "hp": 117,
-              "waiting": 0
-            },
-            "hold_own": {
-              "bodies": 29,
-              "castle_integrity": 67,
-              "hp": 170,
-              "waiting": 0
-            },
-            "mean_shared_survivor_delay_fp": -659.6666666666666,
-            "offset": 2,
-            "own_bodies_delta": 0,
-            "own_hp_delta": 0,
-            "round": 4,
-            "shared_cohort_survivors": 12,
-            "shared_survivor_delay_fp": -7916
-          }
-        ],
-        "first_ordinary_attack_tick": {
-          "cast": null,
-          "hold": null,
-          "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
-        },
-        "group": "preserve_early_hold",
-        "held_outcome": {
-          "action": "game_finished",
-          "round": 22,
-          "win_by": "FinalCollapse",
-          "winner": 0
-        },
-        "lane": "Castle",
-        "name": "deimos_deimos_00__answer_r2_p0",
-        "result": "same_winner",
-        "round": 2,
-        "seat": 0,
-        "source": "deimos_deimos_00"
-      },
-      {
-        "cast_outcome": {
-          "action": "game_finished",
-          "round": 16,
-          "win_by": "Ritual",
-          "winner": 0
-        },
-        "effects": [
-          {
-            "cast_cohort_survivors": 14,
-            "cast_enemy": {
-              "bodies": 14,
-              "castle_integrity": 59,
-              "hp": 80,
-              "waiting": 0
-            },
-            "cast_own": {
-              "bodies": 12,
-              "castle_integrity": 60,
-              "hp": 70,
-              "waiting": 0
-            },
-            "castle_integrity_delta": 0,
-            "hold_cohort_survivors": 14,
-            "hold_enemy": {
-              "bodies": 14,
-              "castle_integrity": 59,
-              "hp": 80,
-              "waiting": 0
-            },
-            "hold_own": {
-              "bodies": 12,
-              "castle_integrity": 60,
-              "hp": 70,
-              "waiting": 0
-            },
-            "mean_shared_survivor_delay_fp": 368.85714285714283,
-            "offset": 0,
-            "own_bodies_delta": 0,
-            "own_hp_delta": 0,
-            "round": 2,
-            "shared_cohort_survivors": 14,
-            "shared_survivor_delay_fp": 5164
-          },
-          {
-            "cast_cohort_survivors": 14,
-            "cast_enemy": {
-              "bodies": 17,
-              "castle_integrity": 67,
-              "hp": 100,
-              "waiting": 0
-            },
-            "cast_own": {
-              "bodies": 16,
-              "castle_integrity": 61,
-              "hp": 100,
-              "waiting": 0
-            },
-            "castle_integrity_delta": 0,
-            "hold_cohort_survivors": 14,
-            "hold_enemy": {
-              "bodies": 17,
-              "castle_integrity": 67,
-              "hp": 100,
-              "waiting": 0
-            },
-            "hold_own": {
-              "bodies": 16,
-              "castle_integrity": 61,
-              "hp": 100,
-              "waiting": 0
-            },
-            "mean_shared_survivor_delay_fp": -217.78571428571428,
-            "offset": 1,
-            "own_bodies_delta": 0,
-            "own_hp_delta": 0,
-            "round": 3,
-            "shared_cohort_survivors": 14,
-            "shared_survivor_delay_fp": -3049
-          },
-          {
-            "cast_cohort_survivors": 14,
-            "cast_enemy": {
-              "bodies": 29,
-              "castle_integrity": 67,
-              "hp": 170,
-              "waiting": 0
-            },
-            "cast_own": {
-              "bodies": 20,
-              "castle_integrity": 59,
-              "hp": 117,
-              "waiting": 0
-            },
-            "castle_integrity_delta": 0,
-            "hold_cohort_survivors": 14,
-            "hold_enemy": {
-              "bodies": 29,
-              "castle_integrity": 67,
-              "hp": 170,
-              "waiting": 0
-            },
-            "hold_own": {
-              "bodies": 20,
-              "castle_integrity": 59,
-              "hp": 117,
-              "waiting": 0
-            },
-            "mean_shared_survivor_delay_fp": -630.5714285714286,
-            "offset": 2,
-            "own_bodies_delta": 0,
-            "own_hp_delta": 0,
-            "round": 4,
-            "shared_cohort_survivors": 14,
-            "shared_survivor_delay_fp": -8828
-          }
-        ],
-        "first_ordinary_attack_tick": {
-          "cast": null,
-          "hold": null,
-          "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
-        },
-        "group": "preserve_early_hold",
-        "held_outcome": {
-          "action": "game_finished",
-          "round": 22,
-          "win_by": "FinalCollapse",
-          "winner": 0
-        },
-        "lane": "Castle",
-        "name": "deimos_deimos_00__answer_r2_p1",
-        "result": "same_winner",
-        "round": 2,
-        "seat": 1,
-        "source": "deimos_deimos_00"
+        "removed": 9
       }
     ],
-    "scope": "Selected diagnostics, not independent win-rate evidence. Later policies react normally; HP, reinforcement and castle differences after divergence are conditional outcomes. Positional delay compares only cohort members alive in both branches, with survivor counts reported separately. A changed win alone does not justify earlier Rout.",
-    "totals": {
-      "cast_lost_win": 2,
-      "continuation_operations": 5467,
-      "continuation_rounds": 218,
-      "continuations": 12,
-      "exact_controls": 6,
-      "fired_cast_lost_win": 2,
-      "fired_positions": 4,
-      "fired_same_winner": 2,
-      "held_positions": 2,
-      "held_same_winner": 2,
-      "original_control_losses": 4,
-      "original_control_wins": 2,
-      "same_winner": 4,
-      "source_games": 9,
-      "source_operations": 4503,
-      "source_rounds": 179
+    "retarget_review": {
+      "case": "deimos_deimos_00_r10_s0",
+      "engine_source_sha256": "168615d04ff50b7ba9cb4111a749508eebe451d41d0535b98d0fd3efea9c44cf",
+      "lane_scores": {
+        "candidate_castle": {
+          "context": {
+            "attack_lane": "Castle",
+            "castle_hits": {
+              "u13_entity_castle:16:loadout:castle:1:1:2": 7,
+              "u13_entity_castle:16:loadout:castle:1:1:4": 7
+            },
+            "consumed_supplicants": [],
+            "guard_losses": [
+              "u13_entity_card:17:game:deck:Butcher:1:0",
+              "u13_entity_card:17:game:deck:Butcher:1:3"
+            ],
+            "monster": "Muno",
+            "monster_bodies_minimum": 1,
+            "muster_bodies": {},
+            "power_bodies_minimum": {},
+            "recruit_lane": "Castle",
+            "recruit_suits": {
+              "Butcher": 3,
+              "Vulture": 1,
+              "Wright": 2
+            },
+            "recruits": 6,
+            "unknown_extra_varn_bodies": false
+          },
+          "powers": [
+            {
+              "answer": "partial_edge",
+              "baseline_score": 240,
+              "consumed_excluded": 0,
+              "defenders_now": 32,
+              "enemy_force": 2376852,
+              "lane": "Castle",
+              "own_force": 3162192,
+              "planned_bodies": 7,
+              "planned_in_reach": 1,
+              "power": "Rout",
+              "reason": "available_plan_answer_to_public_wave",
+              "reserves_next_round": 6,
+              "scope": "nominal contact and ordinary material; no random placement, future draw, enemy recruits, specials or terrain prediction",
+              "score": 160,
+              "score_delta": -80,
+              "threat_bodies": 30,
+              "unmodeled_monster_specials": [
+                "Kurchin",
+                "Lemek",
+                "Muno",
+                "Tumler"
+              ]
+            }
+          ],
+          "score_delta": -80
+        },
+        "hold": {
+          "context": null,
+          "powers": [],
+          "score_delta": 0
+        },
+        "lord": {
+          "context": {
+            "attack_lane": "Castle",
+            "castle_hits": {
+              "u13_entity_castle:16:loadout:castle:1:1:2": 7,
+              "u13_entity_castle:16:loadout:castle:1:1:4": 7
+            },
+            "consumed_supplicants": [],
+            "guard_losses": [
+              "u13_entity_card:17:game:deck:Butcher:1:0",
+              "u13_entity_card:17:game:deck:Butcher:1:3"
+            ],
+            "monster": "Muno",
+            "monster_bodies_minimum": 1,
+            "muster_bodies": {},
+            "power_bodies_minimum": {},
+            "recruit_lane": "Castle",
+            "recruit_suits": {
+              "Butcher": 3,
+              "Vulture": 1,
+              "Wright": 2
+            },
+            "recruits": 6,
+            "unknown_extra_varn_bodies": false
+          },
+          "powers": [
+            {
+              "answer": "unanswered_or_uncertain",
+              "baseline_score": 96,
+              "consumed_excluded": 0,
+              "defenders_now": 5,
+              "enemy_force": 425898,
+              "lane": "Lord",
+              "own_force": 89964,
+              "planned_bodies": 0,
+              "planned_in_reach": 0,
+              "power": "Rout",
+              "reason": "available_plan_answer_to_public_wave",
+              "reserves_next_round": 1,
+              "scope": "nominal contact and ordinary material; no random placement, future draw, enemy recruits, specials or terrain prediction",
+              "score": 96,
+              "score_delta": 0,
+              "threat_bodies": 12,
+              "unmodeled_monster_specials": []
+            }
+          ],
+          "score_delta": 0
+        }
+      },
+      "original_plans_sha256": "10302fa3026a7bfd49fdd3070679f6e866071607f65f9a29fe065021859e860f",
+      "prefix_sha256": "f16e756d7a351c1015ab3cd3adf6c2fb032354d5985d5b7576214b1b068d5ec7",
+      "same_v12_v13_plan": true,
+      "source_revision": "826351565f9508c3b85b7a76c95abfb1574f6802",
+      "variants": {
+        "candidate_castle": {
+          "checkpoints": [
+            {
+              "castles": [
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:0",
+                  "integrity": 12,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:1",
+                  "integrity": 0,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:2",
+                  "integrity": 12,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                  "integrity": 0,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "integrity": 8,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:0",
+                  "integrity": 0,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:1",
+                  "integrity": 0,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:2",
+                  "integrity": 7,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:3",
+                  "integrity": 11,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "integrity": 8,
+                  "owner": 1
+                }
+              ],
+              "own": {
+                "Castle": {
+                  "bodies": 38,
+                  "hp": 230
+                },
+                "Lord": {
+                  "bodies": 6,
+                  "hp": 40
+                }
+              },
+              "round": 10
+            },
+            {
+              "castles": [
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:0",
+                  "integrity": 8,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:1",
+                  "integrity": 0,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:2",
+                  "integrity": 8,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                  "integrity": 3,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "integrity": 0,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:0",
+                  "integrity": 0,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:1",
+                  "integrity": 0,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:2",
+                  "integrity": 7,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:3",
+                  "integrity": 11,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "integrity": 3,
+                  "owner": 1
+                }
+              ],
+              "own": {
+                "Castle": {
+                  "bodies": 47,
+                  "hp": 271
+                },
+                "Lord": {
+                  "bodies": 5,
+                  "hp": 31
+                }
+              },
+              "round": 11
+            },
+            {
+              "castles": [
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:0",
+                  "integrity": 8,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:1",
+                  "integrity": 0,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:2",
+                  "integrity": 4,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                  "integrity": 6,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "integrity": 0,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:0",
+                  "integrity": 0,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:1",
+                  "integrity": 0,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:2",
+                  "integrity": 9,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:3",
+                  "integrity": 11,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "integrity": 3,
+                  "owner": 1
+                }
+              ],
+              "own": {
+                "Castle": {
+                  "bodies": 45,
+                  "hp": 264
+                },
+                "Lord": {
+                  "bodies": 9,
+                  "hp": 50
+                }
+              },
+              "round": 12
+            }
+          ],
+          "operations": 66,
+          "outcome": {
+            "action": "game_in_progress",
+            "round": 13,
+            "win_by": "",
+            "winner": -1
+          },
+          "plan_sha256": "1ba8f242968d80e833ffe336e92941c457e958c012b03c386abf6a6408656919"
+        },
+        "hold": {
+          "checkpoints": [
+            {
+              "castles": [
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:0",
+                  "integrity": 12,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:1",
+                  "integrity": 0,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:2",
+                  "integrity": 12,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                  "integrity": 0,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "integrity": 8,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:0",
+                  "integrity": 0,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:1",
+                  "integrity": 0,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:2",
+                  "integrity": 7,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:3",
+                  "integrity": 11,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "integrity": 8,
+                  "owner": 1
+                }
+              ],
+              "own": {
+                "Castle": {
+                  "bodies": 36,
+                  "hp": 223
+                },
+                "Lord": {
+                  "bodies": 6,
+                  "hp": 40
+                }
+              },
+              "round": 10
+            },
+            {
+              "castles": [
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:0",
+                  "integrity": 8,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:1",
+                  "integrity": 0,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:2",
+                  "integrity": 8,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                  "integrity": 3,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "integrity": 0,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:0",
+                  "integrity": 0,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:1",
+                  "integrity": 0,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:2",
+                  "integrity": 7,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:3",
+                  "integrity": 11,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "integrity": 3,
+                  "owner": 1
+                }
+              ],
+              "own": {
+                "Castle": {
+                  "bodies": 45,
+                  "hp": 262
+                },
+                "Lord": {
+                  "bodies": 5,
+                  "hp": 31
+                }
+              },
+              "round": 11
+            },
+            {
+              "castles": [
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:0",
+                  "integrity": 8,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:1",
+                  "integrity": 0,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:2",
+                  "integrity": 4,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                  "integrity": 6,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "integrity": 0,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:0",
+                  "integrity": 0,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:1",
+                  "integrity": 0,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:2",
+                  "integrity": 9,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:3",
+                  "integrity": 11,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "integrity": 3,
+                  "owner": 1
+                }
+              ],
+              "own": {
+                "Castle": {
+                  "bodies": 45,
+                  "hp": 251
+                },
+                "Lord": {
+                  "bodies": 9,
+                  "hp": 50
+                }
+              },
+              "round": 12
+            }
+          ],
+          "operations": 66,
+          "outcome": {
+            "action": "game_in_progress",
+            "round": 13,
+            "win_by": "",
+            "winner": -1
+          },
+          "plan_sha256": "b65af4e0d300b900201920a64d2a14b883aa8f9b34653dee3894953076c05149"
+        },
+        "lord": {
+          "checkpoints": [
+            {
+              "castles": [
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:0",
+                  "integrity": 12,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:1",
+                  "integrity": 0,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:2",
+                  "integrity": 12,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                  "integrity": 0,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "integrity": 8,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:0",
+                  "integrity": 0,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:1",
+                  "integrity": 0,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:2",
+                  "integrity": 7,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:3",
+                  "integrity": 11,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "integrity": 8,
+                  "owner": 1
+                }
+              ],
+              "own": {
+                "Castle": {
+                  "bodies": 36,
+                  "hp": 223
+                },
+                "Lord": {
+                  "bodies": 6,
+                  "hp": 40
+                }
+              },
+              "round": 10
+            },
+            {
+              "castles": [
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:0",
+                  "integrity": 8,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:1",
+                  "integrity": 0,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:2",
+                  "integrity": 8,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                  "integrity": 3,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "integrity": 0,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:0",
+                  "integrity": 0,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:1",
+                  "integrity": 0,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:2",
+                  "integrity": 7,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:3",
+                  "integrity": 11,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "integrity": 3,
+                  "owner": 1
+                }
+              ],
+              "own": {
+                "Castle": {
+                  "bodies": 40,
+                  "hp": 225
+                },
+                "Lord": {
+                  "bodies": 6,
+                  "hp": 36
+                }
+              },
+              "round": 11
+            },
+            {
+              "castles": [
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:0",
+                  "integrity": 4,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:1",
+                  "integrity": 0,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:2",
+                  "integrity": 4,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                  "integrity": 6,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "integrity": 0,
+                  "owner": 0
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:0",
+                  "integrity": 0,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:1",
+                  "integrity": 0,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:2",
+                  "integrity": 7,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:3",
+                  "integrity": 11,
+                  "owner": 1
+                },
+                {
+                  "id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "integrity": 3,
+                  "owner": 1
+                }
+              ],
+              "own": {
+                "Castle": {
+                  "bodies": 40,
+                  "hp": 218
+                },
+                "Lord": {
+                  "bodies": 10,
+                  "hp": 65
+                }
+              },
+              "round": 12
+            }
+          ],
+          "operations": 66,
+          "outcome": {
+            "action": "game_in_progress",
+            "round": 13,
+            "win_by": "",
+            "winner": -1
+          },
+          "plan_sha256": "a1b1a5d2a06c74b7c5861d438f902776cf520ccc064b14cc0d234457eff84413"
+        }
+      },
+      "view_sha256": "bbe7e30279b2ae749b648fe7d4bb8ee4084c6adbe0ded51672ca5b5ceaaafca3"
     }
   },
-  "current_source_screen": {
-    "candidate_casts": 35,
-    "casts_changed_to_holds": 11,
-    "holds_changed_to_casts": 0,
-    "other_lords": {
-      "changed_plans": [],
-      "public_observations_compared": 157,
-      "scope": "Same saved public views; permissive admission used only to compare proposal/scoring behavior, not claim engine legality."
-    },
-    "ready_decisions": 69,
-    "unchanged_other_choices": 59,
-    "v12_casts": 46
-  },
-  "decision": "Retain bounded V13 preference after focused same-engine pilot and local gate; Windows CPython/PyPy acceptance pending.",
-  "diagnostic_revision": "2e1353d",
-  "engine_source_sha256": "e093e1fd92bd619129cc56a7483056335b951d837d91fa4bc5e61014d892bd61",
+  "decision": "Retain V12: V13 loses the same-engine comparison after integrating parallel monster-control fixes. Do not adopt the candidate.",
+  "default_policy": "U13_COMMON_SMART_CORE_ALPHA_V12_HUMBABA_PRESSURE",
   "evidence_archive": "Corruptor-Rout-Answer-Evidence-2026-09-19.zip",
-  "gate": {
-    "games": 5,
-    "harness_source_sha256": "a23b1408a1f262c8cabf0a300caeabff75793355ec496672d9ee56cdb9e5e425",
-    "implementation": "CPython",
-    "input_digests_checked": true,
-    "new_godot_parity": false,
-    "operations": 2338,
-    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
-    "rejected_previews": 0,
-    "rounds": 93,
-    "runner_source_sha256": "343284e02669bd43b2d1fa905b543759c7bc677607d9bb821abc8a50f307d50d",
-    "semantic_sha256": "e30e7a46cae47cfaf615899faa06d4b3b6622dae362ca6f2108fa4fb359b092c",
-    "tests": 175,
-    "windows_acceptance": "pending"
-  },
-  "gate_revision": "82000eeaab527c57a3065f93407b17bbca05547a",
-  "limitations": [
-    "One seed per ordered matchup; not general strength or Lord balance.",
-    "V12 won both mirror policy assignments.",
-    "Six intervention positions reuse three source games.",
-    "One outmatched-wave cast saves 36 HP and seven bodies immediately but loses where holding wins; V13 retains this V12 miss.",
-    "No known future draw, opposing sealed order, hidden enemy or simulation randomness informs decisions.",
-    "Nominal geometry and ordinary material omit contact timing, terrain, monster specials and future enemy reinforcements.",
-    "Historical early-cast losses at 2099326 are not treated as current-engine outcomes."
-  ],
-  "policy": "U13_COMMON_SMART_CORE_ALPHA_V13_ROUT_ANSWER_EXPERIMENT",
-  "replay_review": {
-    "candidate_and_rout_only_checkpoints_identical": true,
-    "case": "deimos_deimos_00_r10_s0",
-    "castle_rows_identical_across_choices": true,
-    "legal_continuations": 4,
-    "new_lane": "Lord",
-    "new_plan_sha256": "398035d04b1a4a7833b0282452e348a2bae244a1710547f5458def8a2da28dd3",
-    "observed_rounds": [
-      10,
-      11,
-      12
+  "initial_engine": {
+    "baseline_revision": "3360d6c9a593b39977e6b85cdb75b1134b5a1479",
+    "candidate_revision": "fd13b3f",
+    "comparison": {
+      "behavior": {
+        "V12": {
+          "cast": 81,
+          "decisions": 334,
+          "held_when_ready": 33,
+          "ready": 114
+        },
+        "candidate": {
+          "cast": 79,
+          "decisions": 352,
+          "held_when_ready": 59,
+          "ready": 138
+        }
+      },
+      "completed": 34,
+      "deimos_nonmirror": {
+        "candidate_wins": 9,
+        "gained": 4,
+        "lost": 1,
+        "setups": 16,
+        "unchanged": 11,
+        "v12_wins": 6
+      },
+      "manifest": {
+        "baseline": {
+          "files": {
+            "__init__.py": "227c8876cf5699a5538e3493e65d8ab8e7ecf03c65eb0781306d8d22461c3b8f",
+            "budget.py": "661597d55074af49b72d994b03cae7e7a9e0fb1d3d68c7a3b6df62c3a64f21cb",
+            "closing.py": "137079c225ecedb9e1fb4a689c7817ec512ab4a215fb0624ee62e961d058579d",
+            "common.py": "4eac66421ba8268628a6a90d60bfc2627d7275896d71109093c7d7d958159c92",
+            "comparison.py": "59c57b7053af14a033241768bc69c61eba36848804a0a7b6cc725ecdfb7f23bc",
+            "coordination.py": "e0e9295056a8fd0537308006ea149183d71fd5b706c88c102f7856967359bc0c",
+            "coverage.py": "228c23b18653b89647570939fb944d7063f676a45a28ca980ef1838b669b7c71",
+            "defensive_plans.py": "251161512ac9529f6c97d40f9578a2d16e46c26325cbe7be3b50a06dec1472b9",
+            "diagnostics.py": "5cf40e9a6ab3984653737e7b8e20b373a923f932a0205803cafea3fb48fa9769",
+            "facts.py": "d13fb7b47648176ae1dde05f9baf7e3fa5b63c09de11f921292fbd271c9edbfa",
+            "lane_support.py": "5433a4b918bde19a6652eb1fc6aedc034666b98a10db3959b0725dddcee9ca3a",
+            "lords/__init__.py": "411ef93b19ce21fbd9e93608633810c3002599c5dd9be1b679e70a7414263488",
+            "lords/deimos.py": "074b493fd3f5e6cb57e3a36bfd158fc33f1f06ed8c84923692b99889d253ee1f",
+            "lords/gremory.py": "24da2dec94f8788638c8cd2aec532b25806c71590c580bd1782aa8242ea23496",
+            "lords/humbaba.py": "c624d95ecce185c6fb305cb277d626bf702ab227ab3c24c87107310f2bbaf80e",
+            "lords/kalligan.py": "16da56cbfa1e1fb2add48447165bde9cc7a23ae42f90882f9a342e5d16a9ce99",
+            "lords/kanifous.py": "f8088280111c21cb09368970b88f8593a6742f46d9048c05e0da9fec6b4aa26d",
+            "lords/kroni.py": "7079c646913e8f557861728376794be727a4d258139b56ae1c7e05e0d8bd00db",
+            "lords/odradek.py": "4a3eed0613374ad6c7172d3ccfc9c661290034a136e54abec867482e471bafb4",
+            "lords/orias.py": "ff5432388bfc98d4b48bbc873c985317e6b7c4b14d21aff5c5b5d15940eb5e20",
+            "lords/valak.py": "3959d4d1366d406b90c82f420729c0d15c1cc6000b3b677e0f68a738b0df7331",
+            "observation.py": "4114c44ae86f5dd4d109f6de85ba351c3b6d4bed8e1a4af5b08b4b86349d05f0",
+            "planner_probe.py": "3ccd7de5661d9615a7ef75304eec14dbac6415992d8d643c82fd6a7a9fd71b05",
+            "recipes.py": "ddb4e0072006093218d8a4707beb248d7fe92067f57864d02588ab86df9a1c2e",
+            "reference_probe.py": "d93d5acd37581083f512fa87057bef80e8de4bd867ce49fab6ef1d2950434cbf",
+            "rite_cases.py": "2cf12a6be0f6598cdeb330f76bd0efcb8c680fbcf2410b1d6461099d61d4a70e",
+            "selection.py": "a160b99b525a1590b34a8ba43fef6f5f63d70c083886f0f151111f7bb5b3894f",
+            "survey.py": "4ef849355910d662bb887fd53ae50b5574efc5f10fdc752610e5bfb81f2a059a",
+            "test_closing.py": "b0eeab4ac9b4292f57dc35760f507252d7bfb6dbc96f6367661cf140c2ff9b37",
+            "test_common.py": "922aaacace8bd0595e4dd1de158499ee7cbb562ac0f8f2952449d1d82f4d87e8",
+            "test_comparison.py": "59211969deccbdb0ac2c042abcbf4ddc707c28216408515c83dbdcc48362507d",
+            "test_coordination.py": "763dceb8ef83ae9795aaec3603c62815a1bc5a50a2ed90432831dc8f2fec70af",
+            "test_defensive_plans.py": "6beb177ff35048f191e01be666bbdeb6530e1f7ca9820a6cf4287974a182ef4b",
+            "test_deimos.py": "06d82fb61846e96d1676931e5969f7c32563a869aef1dae99aed6c1b78454271",
+            "test_diagnostics.py": "d8362c599d2f83ae3864c6b0c32e734ac5136030e7f3194ac3fe10afda6881ff",
+            "test_kalligan.py": "dc54dcc0e5fc193e3f0030955986c9969913712eb3f0535614bf2330b0db62c6",
+            "test_lane_support.py": "94574196dd23bb109a599fc7689e68b29ab4c5bd8abc8caa59457d876bd14e7b",
+            "test_odradek.py": "0078b8a8d5f534ecebdefa47e0c921e3b7b642eaae985b8ad5adb178a1044023",
+            "test_recipes_veil.py": "b1948ea569cf7b304756b70e4e2a99d479228cca4514a826fdb556434d5b456e",
+            "test_rites.py": "4049d7d09741161cae1392c3f0dcb9c3735108c50492dead8c7e36883ab240c8",
+            "test_selection.py": "b2ae4fa066634e423479552398f05d1fa2d06bbb5c978be564978763e02a94bf",
+            "test_survey.py": "926deb9d20611b42b8a5f2e970bff6c4e4b357c1afe8d12cd263c26749a05880",
+            "veil_judgment.py": "f92f3a5ca62d8ead00f38b7b5a1d4945645032e05e048305ec114bbb66d64131"
+          },
+          "package_sha256": "6cc2f2e1472ad299dc7840a370dadba4db5caffd1404fe56f5b74d79082d279d",
+          "revision": "3360d6c9a593b39977e6b85cdb75b1134b5a1479"
+        },
+        "baseline_policy": "U13_COMMON_SMART_CORE_ALPHA_V12_HUMBABA_PRESSURE",
+        "candidate_policy": "U13_COMMON_SMART_CORE_ALPHA_V13_ROUT_ANSWER_EXPERIMENT",
+        "engine_source_sha256": "e093e1fd92bd619129cc56a7483056335b951d837d91fa4bc5e61014d892bd61",
+        "focused_lord": "Deimos",
+        "harness_source_sha256": "987fc47e3489b3cfa8df90258a3c22dbcd2b66c51542f3f6fdfbb9b83168871a",
+        "implementation": "CPython",
+        "namespace": "u13-rout-answer-2026-09-19",
+        "opening_policy": "U13_GAME_ECONOMY_V5_FREE_OPENING",
+        "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "repeats": 1,
+        "schema": "U13_MATCHED_DOCTRINE_COMPARISON_V1",
+        "scope": "Both policies share current engine, fixed ordinary loadout and seed; swap policy seats for each ordered matchup. Python policy comparison, not native parity or Lord balance.",
+        "source_revision": "fd13b3fd3643264d38276224833e731723077faa",
+        "weights": {
+          "banishment": 32,
+          "card_cost": 2,
+          "damage": 3,
+          "destruction": 30,
+          "enemy_settlement_risk": 90,
+          "guard": 5,
+          "monster": 2,
+          "recipe_save": 1,
+          "recruit": 6,
+          "return_lord": 75,
+          "tear": 22,
+          "veil_protection": 8
+        }
+      },
+      "maximum_work": {
+        "U13_COMMON_SMART_CORE_ALPHA_V12_HUMBABA_PRESSURE": {
+          "complete_plans": 32,
+          "generated:artillery": 15,
+          "generated:combat": 11,
+          "generated:guards": 11,
+          "generated:monsters": 10,
+          "generated:powers": 11,
+          "generated:resummon": 3,
+          "generated:rites": 5,
+          "generated:support": 16,
+          "generated:work": 6,
+          "previews": 1,
+          "retained:artillery": 4,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 4,
+          "retained:resummon": 2,
+          "retained:rites": 4,
+          "retained:support": 4,
+          "retained:work": 4
+        },
+        "U13_COMMON_SMART_CORE_ALPHA_V13_ROUT_ANSWER_EXPERIMENT": {
+          "complete_plans": 30,
+          "generated:artillery": 15,
+          "generated:combat": 11,
+          "generated:guards": 11,
+          "generated:monsters": 10,
+          "generated:powers": 11,
+          "generated:resummon": 3,
+          "generated:rites": 5,
+          "generated:support": 16,
+          "generated:work": 6,
+          "previews": 1,
+          "retained:artillery": 4,
+          "retained:combat": 4,
+          "retained:guards": 4,
+          "retained:monsters": 4,
+          "retained:powers": 4,
+          "retained:resummon": 2,
+          "retained:rites": 4,
+          "retained:support": 4,
+          "retained:work": 4
+        }
+      },
+      "operations": 16220,
+      "paired_results": {
+        "baseline_wins_both": 2,
+        "candidate_wins_both": 4,
+        "incomplete": 0,
+        "split": 11
+      },
+      "rejected_previews": 0,
+      "rounds": 644,
+      "summary_sha256": "176ad03bf74833fe957f0a5aa3fc7a64e1e410cf61d6192b038e4ab50db8fb50",
+      "wins": {
+        "baseline": 15,
+        "candidate": 19
+      }
+    },
+    "controlled": {
+      "independent_source_games_used": 3,
+      "positions": [
+        {
+          "cast_outcome": {
+            "action": "game_finished",
+            "round": 18,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "effects": [
+            {
+              "cast_cohort_survivors": 8,
+              "cast_enemy": {
+                "bodies": 8,
+                "castle_integrity": 64,
+                "hp": 50,
+                "waiting": 0
+              },
+              "cast_own": {
+                "bodies": 11,
+                "castle_integrity": 61,
+                "hp": 57,
+                "waiting": 0
+              },
+              "castle_integrity_delta": 0,
+              "hold_cohort_survivors": 8,
+              "hold_enemy": {
+                "bodies": 8,
+                "castle_integrity": 64,
+                "hp": 50,
+                "waiting": 0
+              },
+              "hold_own": {
+                "bodies": 11,
+                "castle_integrity": 61,
+                "hp": 57,
+                "waiting": 0
+              },
+              "mean_shared_survivor_delay_fp": 609.0,
+              "offset": 0,
+              "own_bodies_delta": 0,
+              "own_hp_delta": 0,
+              "round": 2,
+              "shared_cohort_survivors": 8,
+              "shared_survivor_delay_fp": 4872
+            },
+            {
+              "cast_cohort_survivors": 8,
+              "cast_enemy": {
+                "bodies": 14,
+                "castle_integrity": 46,
+                "hp": 85,
+                "waiting": 0
+              },
+              "cast_own": {
+                "bodies": 21,
+                "castle_integrity": 44,
+                "hp": 112,
+                "waiting": 0
+              },
+              "castle_integrity_delta": 0,
+              "hold_cohort_survivors": 8,
+              "hold_enemy": {
+                "bodies": 14,
+                "castle_integrity": 46,
+                "hp": 85,
+                "waiting": 0
+              },
+              "hold_own": {
+                "bodies": 21,
+                "castle_integrity": 44,
+                "hp": 112,
+                "waiting": 0
+              },
+              "mean_shared_survivor_delay_fp": -46.0,
+              "offset": 1,
+              "own_bodies_delta": 0,
+              "own_hp_delta": 0,
+              "round": 3,
+              "shared_cohort_survivors": 8,
+              "shared_survivor_delay_fp": -368
+            },
+            {
+              "cast_cohort_survivors": 8,
+              "cast_enemy": {
+                "bodies": 19,
+                "castle_integrity": 50,
+                "hp": 110,
+                "waiting": 0
+              },
+              "cast_own": {
+                "bodies": 26,
+                "castle_integrity": 47,
+                "hp": 133,
+                "waiting": 0
+              },
+              "castle_integrity_delta": 0,
+              "hold_cohort_survivors": 6,
+              "hold_enemy": {
+                "bodies": 17,
+                "castle_integrity": 50,
+                "hp": 110,
+                "waiting": 0
+              },
+              "hold_own": {
+                "bodies": 28,
+                "castle_integrity": 47,
+                "hp": 143,
+                "waiting": 0
+              },
+              "mean_shared_survivor_delay_fp": -367.6666666666667,
+              "offset": 2,
+              "own_bodies_delta": -2,
+              "own_hp_delta": -10,
+              "round": 4,
+              "shared_cohort_survivors": 6,
+              "shared_survivor_delay_fp": -2206
+            }
+          ],
+          "first_ordinary_attack_tick": {
+            "cast": 435,
+            "hold": 147,
+            "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+          },
+          "group": "conserve_existing_answer",
+          "held_outcome": {
+            "action": "game_finished",
+            "round": 13,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "lane": "Castle",
+          "name": "deimos_gremory_00__answer_r2_p0",
+          "result": "cast_lost_win",
+          "round": 2,
+          "seat": 0,
+          "source": "deimos_gremory_00"
+        },
+        {
+          "cast_outcome": {
+            "action": "game_finished",
+            "round": 22,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "effects": [
+            {
+              "cast_cohort_survivors": 17,
+              "cast_enemy": {
+                "bodies": 17,
+                "castle_integrity": 67,
+                "hp": 100,
+                "waiting": 0
+              },
+              "cast_own": {
+                "bodies": 16,
+                "castle_integrity": 61,
+                "hp": 100,
+                "waiting": 0
+              },
+              "castle_integrity_delta": 0,
+              "hold_cohort_survivors": 17,
+              "hold_enemy": {
+                "bodies": 17,
+                "castle_integrity": 67,
+                "hp": 100,
+                "waiting": 0
+              },
+              "hold_own": {
+                "bodies": 16,
+                "castle_integrity": 61,
+                "hp": 100,
+                "waiting": 0
+              },
+              "mean_shared_survivor_delay_fp": 670.0588235294117,
+              "offset": 0,
+              "own_bodies_delta": 0,
+              "own_hp_delta": 0,
+              "round": 3,
+              "shared_cohort_survivors": 17,
+              "shared_survivor_delay_fp": 11391
+            },
+            {
+              "cast_cohort_survivors": 17,
+              "cast_enemy": {
+                "bodies": 29,
+                "castle_integrity": 67,
+                "hp": 170,
+                "waiting": 0
+              },
+              "cast_own": {
+                "bodies": 20,
+                "castle_integrity": 59,
+                "hp": 117,
+                "waiting": 0
+              },
+              "castle_integrity_delta": 0,
+              "hold_cohort_survivors": 17,
+              "hold_enemy": {
+                "bodies": 29,
+                "castle_integrity": 67,
+                "hp": 170,
+                "waiting": 0
+              },
+              "hold_own": {
+                "bodies": 20,
+                "castle_integrity": 59,
+                "hp": 117,
+                "waiting": 0
+              },
+              "mean_shared_survivor_delay_fp": 103.41176470588235,
+              "offset": 1,
+              "own_bodies_delta": 0,
+              "own_hp_delta": 0,
+              "round": 4,
+              "shared_cohort_survivors": 17,
+              "shared_survivor_delay_fp": 1758
+            },
+            {
+              "cast_cohort_survivors": 17,
+              "cast_enemy": {
+                "bodies": 29,
+                "castle_integrity": 69,
+                "hp": 168,
+                "waiting": 0
+              },
+              "cast_own": {
+                "bodies": 27,
+                "castle_integrity": 57,
+                "hp": 150,
+                "waiting": 0
+              },
+              "castle_integrity_delta": 0,
+              "hold_cohort_survivors": 15,
+              "hold_enemy": {
+                "bodies": 27,
+                "castle_integrity": 69,
+                "hp": 160,
+                "waiting": 0
+              },
+              "hold_own": {
+                "bodies": 27,
+                "castle_integrity": 57,
+                "hp": 148,
+                "waiting": 0
+              },
+              "mean_shared_survivor_delay_fp": -226.33333333333334,
+              "offset": 2,
+              "own_bodies_delta": 0,
+              "own_hp_delta": 2,
+              "round": 5,
+              "shared_cohort_survivors": 15,
+              "shared_survivor_delay_fp": -3395
+            }
+          ],
+          "first_ordinary_attack_tick": {
+            "cast": 591,
+            "hold": 563,
+            "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+          },
+          "group": "conserve_existing_answer",
+          "held_outcome": {
+            "action": "game_finished",
+            "round": 22,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "lane": "Castle",
+          "name": "deimos_deimos_00__answer_r3_p1",
+          "result": "same_winner",
+          "round": 3,
+          "seat": 1,
+          "source": "deimos_deimos_00"
+        },
+        {
+          "cast_outcome": {
+            "action": "game_finished",
+            "round": 18,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "effects": [
+            {
+              "cast_cohort_survivors": 28,
+              "cast_enemy": {
+                "bodies": 28,
+                "castle_integrity": 54,
+                "hp": 156,
+                "waiting": 0
+              },
+              "cast_own": {
+                "bodies": 28,
+                "castle_integrity": 42,
+                "hp": 147,
+                "waiting": 0
+              },
+              "castle_integrity_delta": 0,
+              "hold_cohort_survivors": 26,
+              "hold_enemy": {
+                "bodies": 26,
+                "castle_integrity": 54,
+                "hp": 145,
+                "waiting": 0
+              },
+              "hold_own": {
+                "bodies": 21,
+                "castle_integrity": 42,
+                "hp": 111,
+                "waiting": 0
+              },
+              "mean_shared_survivor_delay_fp": 534.5384615384615,
+              "offset": 0,
+              "own_bodies_delta": 7,
+              "own_hp_delta": 36,
+              "round": 6,
+              "shared_cohort_survivors": 26,
+              "shared_survivor_delay_fp": 13898
+            },
+            {
+              "cast_cohort_survivors": 22,
+              "cast_enemy": {
+                "bodies": 33,
+                "castle_integrity": 50,
+                "hp": 177,
+                "waiting": 0
+              },
+              "cast_own": {
+                "bodies": 27,
+                "castle_integrity": 39,
+                "hp": 145,
+                "waiting": 0
+              },
+              "castle_integrity_delta": 0,
+              "hold_cohort_survivors": 23,
+              "hold_enemy": {
+                "bodies": 30,
+                "castle_integrity": 50,
+                "hp": 170,
+                "waiting": 0
+              },
+              "hold_own": {
+                "bodies": 25,
+                "castle_integrity": 39,
+                "hp": 136,
+                "waiting": 0
+              },
+              "mean_shared_survivor_delay_fp": 31.8,
+              "offset": 1,
+              "own_bodies_delta": 2,
+              "own_hp_delta": 9,
+              "round": 7,
+              "shared_cohort_survivors": 20,
+              "shared_survivor_delay_fp": 636
+            },
+            {
+              "cast_cohort_survivors": 19,
+              "cast_enemy": {
+                "bodies": 35,
+                "castle_integrity": 46,
+                "hp": 177,
+                "waiting": 0
+              },
+              "cast_own": {
+                "bodies": 31,
+                "castle_integrity": 39,
+                "hp": 174,
+                "waiting": 0
+              },
+              "castle_integrity_delta": 0,
+              "hold_cohort_survivors": 21,
+              "hold_enemy": {
+                "bodies": 36,
+                "castle_integrity": 47,
+                "hp": 194,
+                "waiting": 0
+              },
+              "hold_own": {
+                "bodies": 25,
+                "castle_integrity": 39,
+                "hp": 144,
+                "waiting": 0
+              },
+              "mean_shared_survivor_delay_fp": -11.0,
+              "offset": 2,
+              "own_bodies_delta": 6,
+              "own_hp_delta": 30,
+              "round": 8,
+              "shared_cohort_survivors": 17,
+              "shared_survivor_delay_fp": -187
+            }
+          ],
+          "first_ordinary_attack_tick": {
+            "cast": 200,
+            "hold": 6,
+            "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+          },
+          "group": "delay_unanswered_wave",
+          "held_outcome": {
+            "action": "game_finished",
+            "round": 15,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "lane": "Castle",
+          "name": "deimos_gremory_00__answer_r6_p0",
+          "result": "cast_lost_win",
+          "round": 6,
+          "seat": 0,
+          "source": "deimos_gremory_00"
+        },
+        {
+          "cast_outcome": {
+            "action": "game_finished",
+            "round": 15,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "effects": [
+            {
+              "cast_cohort_survivors": 39,
+              "cast_enemy": {
+                "bodies": 39,
+                "castle_integrity": 55,
+                "hp": 216,
+                "waiting": 0
+              },
+              "cast_own": {
+                "bodies": 29,
+                "castle_integrity": 44,
+                "hp": 175,
+                "waiting": 0
+              },
+              "castle_integrity_delta": 0,
+              "hold_cohort_survivors": 37,
+              "hold_enemy": {
+                "bodies": 37,
+                "castle_integrity": 55,
+                "hp": 195,
+                "waiting": 0
+              },
+              "hold_own": {
+                "bodies": 22,
+                "castle_integrity": 44,
+                "hp": 135,
+                "waiting": 0
+              },
+              "mean_shared_survivor_delay_fp": 587.2432432432432,
+              "offset": 0,
+              "own_bodies_delta": 7,
+              "own_hp_delta": 40,
+              "round": 6,
+              "shared_cohort_survivors": 37,
+              "shared_survivor_delay_fp": 21728
+            },
+            {
+              "cast_cohort_survivors": 37,
+              "cast_enemy": {
+                "bodies": 46,
+                "castle_integrity": 52,
+                "hp": 243,
+                "waiting": 0
+              },
+              "cast_own": {
+                "bodies": 28,
+                "castle_integrity": 44,
+                "hp": 167,
+                "waiting": 0
+              },
+              "castle_integrity_delta": -3,
+              "hold_cohort_survivors": 37,
+              "hold_enemy": {
+                "bodies": 46,
+                "castle_integrity": 53,
+                "hp": 239,
+                "waiting": 0
+              },
+              "hold_own": {
+                "bodies": 27,
+                "castle_integrity": 47,
+                "hp": 168,
+                "waiting": 0
+              },
+              "mean_shared_survivor_delay_fp": 22.314285714285713,
+              "offset": 1,
+              "own_bodies_delta": 1,
+              "own_hp_delta": -1,
+              "round": 7,
+              "shared_cohort_survivors": 35,
+              "shared_survivor_delay_fp": 781
+            },
+            {
+              "cast_cohort_survivors": 33,
+              "cast_enemy": {
+                "bodies": 48,
+                "castle_integrity": 50,
+                "hp": 263,
+                "waiting": 0
+              },
+              "cast_own": {
+                "bodies": 28,
+                "castle_integrity": 34,
+                "hp": 171,
+                "waiting": 0
+              },
+              "castle_integrity_delta": -3,
+              "hold_cohort_survivors": 34,
+              "hold_enemy": {
+                "bodies": 49,
+                "castle_integrity": 52,
+                "hp": 255,
+                "waiting": 0
+              },
+              "hold_own": {
+                "bodies": 25,
+                "castle_integrity": 37,
+                "hp": 158,
+                "waiting": 0
+              },
+              "mean_shared_survivor_delay_fp": 29.366666666666667,
+              "offset": 2,
+              "own_bodies_delta": 3,
+              "own_hp_delta": 13,
+              "round": 8,
+              "shared_cohort_survivors": 30,
+              "shared_survivor_delay_fp": 881
+            }
+          ],
+          "first_ordinary_attack_tick": {
+            "cast": 256,
+            "hold": 7,
+            "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+          },
+          "group": "delay_unanswered_wave",
+          "held_outcome": {
+            "action": "game_finished",
+            "round": 17,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "lane": "Castle",
+          "name": "gremory_deimos_00__answer_r6_p1",
+          "result": "same_winner",
+          "round": 6,
+          "seat": 1,
+          "source": "gremory_deimos_00"
+        },
+        {
+          "cast_outcome": {
+            "action": "game_finished",
+            "round": 18,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "effects": [
+            {
+              "cast_cohort_survivors": 12,
+              "cast_enemy": {
+                "bodies": 12,
+                "castle_integrity": 60,
+                "hp": 70,
+                "waiting": 0
+              },
+              "cast_own": {
+                "bodies": 14,
+                "castle_integrity": 59,
+                "hp": 80,
+                "waiting": 0
+              },
+              "castle_integrity_delta": 0,
+              "hold_cohort_survivors": 12,
+              "hold_enemy": {
+                "bodies": 12,
+                "castle_integrity": 60,
+                "hp": 70,
+                "waiting": 0
+              },
+              "hold_own": {
+                "bodies": 14,
+                "castle_integrity": 59,
+                "hp": 80,
+                "waiting": 0
+              },
+              "mean_shared_survivor_delay_fp": 280.8333333333333,
+              "offset": 0,
+              "own_bodies_delta": 0,
+              "own_hp_delta": 0,
+              "round": 2,
+              "shared_cohort_survivors": 12,
+              "shared_survivor_delay_fp": 3370
+            },
+            {
+              "cast_cohort_survivors": 12,
+              "cast_enemy": {
+                "bodies": 16,
+                "castle_integrity": 61,
+                "hp": 100,
+                "waiting": 0
+              },
+              "cast_own": {
+                "bodies": 17,
+                "castle_integrity": 67,
+                "hp": 100,
+                "waiting": 0
+              },
+              "castle_integrity_delta": 0,
+              "hold_cohort_survivors": 12,
+              "hold_enemy": {
+                "bodies": 16,
+                "castle_integrity": 61,
+                "hp": 100,
+                "waiting": 0
+              },
+              "hold_own": {
+                "bodies": 17,
+                "castle_integrity": 67,
+                "hp": 100,
+                "waiting": 0
+              },
+              "mean_shared_survivor_delay_fp": -209.75,
+              "offset": 1,
+              "own_bodies_delta": 0,
+              "own_hp_delta": 0,
+              "round": 3,
+              "shared_cohort_survivors": 12,
+              "shared_survivor_delay_fp": -2517
+            },
+            {
+              "cast_cohort_survivors": 12,
+              "cast_enemy": {
+                "bodies": 20,
+                "castle_integrity": 59,
+                "hp": 116,
+                "waiting": 0
+              },
+              "cast_own": {
+                "bodies": 29,
+                "castle_integrity": 67,
+                "hp": 170,
+                "waiting": 0
+              },
+              "castle_integrity_delta": 0,
+              "hold_cohort_survivors": 12,
+              "hold_enemy": {
+                "bodies": 20,
+                "castle_integrity": 59,
+                "hp": 117,
+                "waiting": 0
+              },
+              "hold_own": {
+                "bodies": 29,
+                "castle_integrity": 67,
+                "hp": 170,
+                "waiting": 0
+              },
+              "mean_shared_survivor_delay_fp": -659.6666666666666,
+              "offset": 2,
+              "own_bodies_delta": 0,
+              "own_hp_delta": 0,
+              "round": 4,
+              "shared_cohort_survivors": 12,
+              "shared_survivor_delay_fp": -7916
+            }
+          ],
+          "first_ordinary_attack_tick": {
+            "cast": null,
+            "hold": null,
+            "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+          },
+          "group": "preserve_early_hold",
+          "held_outcome": {
+            "action": "game_finished",
+            "round": 22,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "lane": "Castle",
+          "name": "deimos_deimos_00__answer_r2_p0",
+          "result": "same_winner",
+          "round": 2,
+          "seat": 0,
+          "source": "deimos_deimos_00"
+        },
+        {
+          "cast_outcome": {
+            "action": "game_finished",
+            "round": 16,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "effects": [
+            {
+              "cast_cohort_survivors": 14,
+              "cast_enemy": {
+                "bodies": 14,
+                "castle_integrity": 59,
+                "hp": 80,
+                "waiting": 0
+              },
+              "cast_own": {
+                "bodies": 12,
+                "castle_integrity": 60,
+                "hp": 70,
+                "waiting": 0
+              },
+              "castle_integrity_delta": 0,
+              "hold_cohort_survivors": 14,
+              "hold_enemy": {
+                "bodies": 14,
+                "castle_integrity": 59,
+                "hp": 80,
+                "waiting": 0
+              },
+              "hold_own": {
+                "bodies": 12,
+                "castle_integrity": 60,
+                "hp": 70,
+                "waiting": 0
+              },
+              "mean_shared_survivor_delay_fp": 368.85714285714283,
+              "offset": 0,
+              "own_bodies_delta": 0,
+              "own_hp_delta": 0,
+              "round": 2,
+              "shared_cohort_survivors": 14,
+              "shared_survivor_delay_fp": 5164
+            },
+            {
+              "cast_cohort_survivors": 14,
+              "cast_enemy": {
+                "bodies": 17,
+                "castle_integrity": 67,
+                "hp": 100,
+                "waiting": 0
+              },
+              "cast_own": {
+                "bodies": 16,
+                "castle_integrity": 61,
+                "hp": 100,
+                "waiting": 0
+              },
+              "castle_integrity_delta": 0,
+              "hold_cohort_survivors": 14,
+              "hold_enemy": {
+                "bodies": 17,
+                "castle_integrity": 67,
+                "hp": 100,
+                "waiting": 0
+              },
+              "hold_own": {
+                "bodies": 16,
+                "castle_integrity": 61,
+                "hp": 100,
+                "waiting": 0
+              },
+              "mean_shared_survivor_delay_fp": -217.78571428571428,
+              "offset": 1,
+              "own_bodies_delta": 0,
+              "own_hp_delta": 0,
+              "round": 3,
+              "shared_cohort_survivors": 14,
+              "shared_survivor_delay_fp": -3049
+            },
+            {
+              "cast_cohort_survivors": 14,
+              "cast_enemy": {
+                "bodies": 29,
+                "castle_integrity": 67,
+                "hp": 170,
+                "waiting": 0
+              },
+              "cast_own": {
+                "bodies": 20,
+                "castle_integrity": 59,
+                "hp": 117,
+                "waiting": 0
+              },
+              "castle_integrity_delta": 0,
+              "hold_cohort_survivors": 14,
+              "hold_enemy": {
+                "bodies": 29,
+                "castle_integrity": 67,
+                "hp": 170,
+                "waiting": 0
+              },
+              "hold_own": {
+                "bodies": 20,
+                "castle_integrity": 59,
+                "hp": 117,
+                "waiting": 0
+              },
+              "mean_shared_survivor_delay_fp": -630.5714285714286,
+              "offset": 2,
+              "own_bodies_delta": 0,
+              "own_hp_delta": 0,
+              "round": 4,
+              "shared_cohort_survivors": 14,
+              "shared_survivor_delay_fp": -8828
+            }
+          ],
+          "first_ordinary_attack_tick": {
+            "cast": null,
+            "hold": null,
+            "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+          },
+          "group": "preserve_early_hold",
+          "held_outcome": {
+            "action": "game_finished",
+            "round": 22,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "lane": "Castle",
+          "name": "deimos_deimos_00__answer_r2_p1",
+          "result": "same_winner",
+          "round": 2,
+          "seat": 1,
+          "source": "deimos_deimos_00"
+        }
+      ],
+      "scope": "Selected diagnostics, not independent win-rate evidence. Later policies react normally; HP, reinforcement and castle differences after divergence are conditional outcomes. Positional delay compares only cohort members alive in both branches, with survivor counts reported separately. A changed win alone does not justify earlier Rout.",
+      "totals": {
+        "cast_lost_win": 2,
+        "continuation_operations": 5467,
+        "continuation_rounds": 218,
+        "continuations": 12,
+        "exact_controls": 6,
+        "fired_cast_lost_win": 2,
+        "fired_positions": 4,
+        "fired_same_winner": 2,
+        "held_positions": 2,
+        "held_same_winner": 2,
+        "original_control_losses": 4,
+        "original_control_wins": 2,
+        "same_winner": 4,
+        "source_games": 9,
+        "source_operations": 4503,
+        "source_rounds": 179
+      }
+    },
+    "current_source_screen": {
+      "candidate_casts": 35,
+      "casts_changed_to_holds": 11,
+      "holds_changed_to_casts": 0,
+      "other_lords": {
+        "changed_plans": [],
+        "public_observations_compared": 157,
+        "scope": "Same saved public views; permissive admission used only to compare proposal/scoring behavior, not claim engine legality."
+      },
+      "ready_decisions": 69,
+      "unchanged_other_choices": 59,
+      "v12_casts": 46
+    },
+    "decision": "Initial tentative retention at 63fca58, superseded after the combined-engine comparison; historical scope only.",
+    "diagnostic_revision": "2e1353d",
+    "engine_source_sha256": "e093e1fd92bd619129cc56a7483056335b951d837d91fa4bc5e61014d892bd61",
+    "evidence_archive": "Corruptor-Rout-Answer-Evidence-2026-09-19.zip",
+    "gate": {
+      "games": 5,
+      "harness_source_sha256": "a23b1408a1f262c8cabf0a300caeabff75793355ec496672d9ee56cdb9e5e425",
+      "implementation": "CPython",
+      "input_digests_checked": true,
+      "new_godot_parity": false,
+      "operations": 2338,
+      "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+      "rejected_previews": 0,
+      "rounds": 93,
+      "runner_source_sha256": "343284e02669bd43b2d1fa905b543759c7bc677607d9bb821abc8a50f307d50d",
+      "semantic_sha256": "e30e7a46cae47cfaf615899faa06d4b3b6622dae362ca6f2108fa4fb359b092c",
+      "tests": 175,
+      "windows_acceptance": "pending"
+    },
+    "gate_revision": "82000eeaab527c57a3065f93407b17bbca05547a",
+    "limitations": [
+      "One seed per ordered matchup; not general strength or Lord balance.",
+      "V12 won both mirror policy assignments.",
+      "Six intervention positions reuse three source games.",
+      "One outmatched-wave cast saves 36 HP and seven bodies immediately but loses where holding wins; V13 retains this V12 miss.",
+      "No known future draw, opposing sealed order, hidden enemy or simulation randomness informs decisions.",
+      "Nominal geometry and ordinary material omit contact timing, terrain, monster specials and future enemy reinforcements.",
+      "Historical early-cast losses at 2099326 are not treated as current-engine outcomes."
     ],
-    "old_lane": "Castle",
-    "old_plan_sha256": "1ba8f242968d80e833ffe336e92941c457e958c012b03c386abf6a6408656919",
-    "scope": "Measured lane tradeoff; no game finished by round 13, no claimed fixture win improvement."
+    "policy": "U13_COMMON_SMART_CORE_ALPHA_V13_ROUT_ANSWER_EXPERIMENT",
+    "replay_review": {
+      "candidate_and_rout_only_checkpoints_identical": true,
+      "case": "deimos_deimos_00_r10_s0",
+      "castle_rows_identical_across_choices": true,
+      "legal_continuations": 4,
+      "new_lane": "Lord",
+      "new_plan_sha256": "398035d04b1a4a7833b0282452e348a2bae244a1710547f5458def8a2da28dd3",
+      "observed_rounds": [
+        10,
+        11,
+        12
+      ],
+      "old_lane": "Castle",
+      "old_plan_sha256": "1ba8f242968d80e833ffe336e92941c457e958c012b03c386abf6a6408656919",
+      "scope": "Measured lane tradeoff; no game finished by round 13, no claimed fixture win improvement."
+    },
+    "schema": "U13_ROUT_ANSWER_CHECKPOINT_V1"
   },
-  "schema": "U13_ROUT_ANSWER_CHECKPOINT_V1"
+  "integration_revision": "2b99c7f2e52b3ba498dfbabd8fa75331fdcc8904",
+  "limitations": [
+    "One seed per ordered matchup; same seed namespace across the two engine cohorts. Do not pool them as independent games.",
+    "Both mirror assignments favor V12 in both cohorts. Combined engine has zero gained and one lost non-mirror Deimos setup.",
+    "Earlier source observations and twelve controlled continuations remain tied to the first engine; they are not new-engine controls.",
+    "Three combined-engine lane continuations stop at round 13 without a winner.",
+    "Windows CPython/PyPy acceptance remains pending; native evidence for parallel engine changes is separate."
+  ],
+  "schema": "U13_ROUT_ANSWER_CHECKPOINT_V2"
 }
