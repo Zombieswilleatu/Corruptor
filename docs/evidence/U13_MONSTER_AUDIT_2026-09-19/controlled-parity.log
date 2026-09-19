@@ -1,0 +1,21 @@
+PARITY recipe_supported:Lemek:monster-audit:0:2
+PARITY recipe_supported:Lemek:monster-audit:0:9
+PARITY recipe_supported:Varn:monster-audit:0:2
+PARITY recipe_supported:Varn:monster-audit:0:6
+PARITY recipe_supported:Fyra:monster-audit:0:2
+PARITY recipe_supported:Fyra:monster-audit:0:5
+PARITY recipe_supported:Kopita:monster-audit:0:2
+PARITY recipe_supported:Kopita:monster-audit:0:6
+PARITY recipe_supported:Tumler:monster-audit:0:2
+PARITY recipe_supported:Tumler:monster-audit:0:6
+PARITY recipe_supported:Kurchin:monster-audit:0:2
+PARITY recipe_supported:Kurchin:monster-audit:0:6
+PARITY recipe_supported:Muno:monster-audit:0:2
+PARITY recipe_supported:Muno:monster-audit:0:7
+PARITY recipe_supported:Dotra:monster-audit:0:2
+PARITY recipe_supported:Dotra:monster-audit:0:6
+PARITY recipe_supported:Sooge:monster-audit:0:2
+PARITY recipe_supported:Sooge:monster-audit:0:6
+PARITY recipe_supported:Sinodek:monster-audit:0:2
+PARITY recipe_supported:Sinodek:monster-audit:0:5
+{"phases": 20, "ticks": 4000, "complete_world_and_events_match": true}

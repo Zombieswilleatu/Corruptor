@@ -1,0 +1,112 @@
+{
+  "schema": "U13_MONSTER_AUDIT_VERIFICATION_V1",
+  "base_revision": "3360d6c9a593b39977e6b85cdb75b1134b5a1479",
+  "date": "2026-09-19",
+  "native_runtime": "Godot 4.5.1 stable Linux headless",
+  "native_checks": {
+    "monster-checks.log": {
+      "checks": 641,
+      "failures": 0
+    },
+    "lane-fixed.log": {
+      "checks": 177,
+      "failures": 0
+    },
+    "charm-feedback.log": {
+      "checks": 100,
+      "failures": 0
+    },
+    "staging.log": {
+      "checks": 60,
+      "failures": 0
+    },
+    "lookahead.log": {
+      "checks": 117,
+      "failures": 0
+    }
+  },
+  "native_check_total": 1095,
+  "python_unit_tests": 19,
+  "parity": {
+    "controlled-parity.log": {
+      "phases": 20,
+      "ticks": 4000,
+      "complete_world_and_events_match": true
+    },
+    "waves-parity.log": {
+      "phases": 32,
+      "ticks": 6400,
+      "complete_world_and_events_match": true
+    },
+    "monster-phases.jsonl": {
+      "phases": 84,
+      "events": 17481,
+      "ticks": 16800,
+      "event_types": {
+        "KRONI_ACTORS_STARTED": 1,
+        "KRONI_ACTOR_FINISHED": 1,
+        "KRONI_ACTOR_TICK": 200,
+        "KRONI_FLEE_STARTED": 1,
+        "MARCHER_DEFEATED": 5,
+        "MARCHER_DEVOURED": 1,
+        "MARCHER_MELEE_ATTACK": 140,
+        "MARCHER_RANGED_ATTACK": 50,
+        "MARCHER_WAITING": 6,
+        "MARCHING_FINISHED": 84,
+        "MARCHING_STARTED": 84,
+        "MARCHING_TICK": 16800,
+        "MONSTER_ATTACK": 31,
+        "MONSTER_BANISHED": 7,
+        "MONSTER_BEAM_DETONATED": 9,
+        "MONSTER_BEAM_FIRED": 8,
+        "MONSTER_CHARMED": 2,
+        "MONSTER_CONCEALMENT": 24,
+        "MONSTER_FIELD_CREATED": 7,
+        "MONSTER_PULSE": 6,
+        "MONSTER_ROOTED": 1,
+        "NEUTRAL_TEAR_CREATED": 1,
+        "PICKING_THE_BONES": 1,
+        "WRIGHT_BUILD_ASSIGNED": 11
+      }
+    },
+    "lane-phases-fixed.jsonl": {
+      "phases": 26,
+      "events": 5556,
+      "ticks": 5200,
+      "event_types": {
+        "MARCHER_MELEE_ATTACK": 288,
+        "MARCHER_RANGED_ATTACK": 16,
+        "MARCHING_FINISHED": 26,
+        "MARCHING_STARTED": 26,
+        "MARCHING_TICK": 5200
+      }
+    },
+    "navigation": {
+      "phases": 90,
+      "ticks": 18000,
+      "failures": 0
+    }
+  },
+  "parity_phases": 252,
+  "parity_ticks": 50400,
+  "initial_deployments_sha256": "ee01c979fd00752cebb618fe53bf6880ea8e6a50201dea76f99257ebe9f62ead",
+  "code_patch_sha256": {
+    "Prototype/U13/U13BoardLanes.gd": "7d1ff2b4bb0b51c0d971e19cb0190d5047c0dd406efcb350e44819f5024f5f14",
+    "Prototype/U13/U13SandboxLaneView.gd": "bb7e5abcc3921df0d19f7df0dbe21005355ed8e55970d76e68a9848d05c42630",
+    "Scripts/Sim/U13LaneSandbox.gd": "a3bf3ae32914609f53d59566d4dd182848cd3e072fa6f3716ce1a93da37a5794",
+    "Scripts/Sim/U13MarcherNavigation.gd": "609bb1a4e44df21ffce84e1988d6e0dd971b917301a4da5a3c1b06df60c9f314",
+    "Scripts/Sim/run_u13_vulture_balance.sh": "68425906b5283cd93c96fede9bb6c8b550f9434fd97a177b475d34e960e2473b",
+    "Scripts/Sim/u13_pysim/marcher_navigation.py": "2fc1210e2db3b16683d5a3a5068121553cb2f21425af454de127d9a27ea5934f",
+    "Scripts/Sim/u13_pysim/marching.py": "74d4dce859e7d3660d82b0b1a777205be262f3133ae20f2dabf01630d4393e6b",
+    "Scripts/Sim/verify_u13_vulture_preview.py": "e6dcb6999c619248edb131769870104260d7774eb109dfaba9d8c5f45a81ee16",
+    "Prototype/U13/U13CharmVisuals.gd": "153e6ee99f5a289c9f15b517b69153e68d8eebcc51c336234dec11cb7f2446ba",
+    "Scripts/Sim/U13CharmVisualTestRunner.gd": "9122c6ade7975e970ca572ca0a6305aa79bada12b360c99c7e47c359a9ef20b4",
+    "Scripts/Sim/U13MonsterAuditRunner.gd": "f2aec2a6abb1572515380051b884fe2c3c6d3cd337b86f7e4c3d392232bc5827",
+    "Scripts/Sim/audit_u13_monsters.py": "0dc3164eee2cf8a78c43ea6c23762e3f363b93cc89f946fa567c9fafb9fb1489"
+  },
+  "limitations": [
+    "Lane outcomes do not include full-game Lord powers or economic victory.",
+    "Seat-reflected games are paired checks, not independent seeds.",
+    "Native 4.7.2 Windows visual acceptance was not run."
+  ]
+}

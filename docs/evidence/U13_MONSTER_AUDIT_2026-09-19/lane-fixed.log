@@ -1,0 +1,180 @@
+Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org
+
+PASS Lemek has the adopted starting and maximum HP
+PASS Varn has the adopted starting and maximum HP
+PASS Fyra has the adopted starting and maximum HP
+PASS Kopita has the adopted starting and maximum HP
+PASS Tumler has the adopted starting and maximum HP
+PASS Kurchin has the adopted starting and maximum HP
+PASS Muno has the adopted starting and maximum HP
+PASS Dotra has the adopted starting and maximum HP
+PASS Sooge has the adopted starting and maximum HP
+PASS Sinodek has the adopted starting and maximum HP
+PASS adopted offense and Armor retain the selected roles
+PASS taunt_engaged_0_0 resolves
+PASS taunt_engaged_0_0 keeps valid unit and field state
+PASS taunt_engaged_0_0 deterministic replay
+PASS all engaged enemies leave their old target to attack Kurchin, even without Armor
+PASS taunted enemy closes on Kurchin instead of remaining at the old contact
+PASS taunted enemy closes on Kurchin instead of remaining at the old contact
+PASS taunted enemy closes on Kurchin instead of remaining at the old contact
+PASS taunt_removed_0_0 resolves
+PASS taunt_removed_0_0 keeps valid unit and field state
+PASS taunt_removed_0_0 deterministic replay
+PASS removing Kurchin immediately restores ordinary melee targeting
+PASS taunt_engaged_0_6 resolves
+PASS taunt_engaged_0_6 keeps valid unit and field state
+PASS taunt_engaged_0_6 deterministic replay
+PASS all engaged enemies leave their old target to attack Kurchin, even without Armor
+PASS taunted enemy closes on Kurchin instead of remaining at the old contact
+PASS taunted enemy closes on Kurchin instead of remaining at the old contact
+PASS taunted enemy closes on Kurchin instead of remaining at the old contact
+PASS taunt_removed_0_6 resolves
+PASS taunt_removed_0_6 keeps valid unit and field state
+PASS taunt_removed_0_6 deterministic replay
+PASS removing Kurchin immediately restores ordinary melee targeting
+PASS taunt radius includes 360 and excludes 361
+PASS taunt never crosses lanes
+PASS hidden Kurchin cannot draw attacks
+PASS taunt radius includes 360 and excludes 361
+PASS taunt never crosses lanes
+PASS hidden Kurchin cannot draw attacks
+PASS taunt_wall_0 resolves
+PASS taunt_wall_0 keeps valid unit and field state
+PASS taunt_wall_0 deterministic replay
+PASS taunted ground enemy attacks the blocking wall first
+PASS taunt cannot cross the intact wall
+PASS taunt_retreat_0 resolves
+PASS taunt_retreat_0 keeps valid unit and field state
+PASS taunt_retreat_0 deterministic replay
+PASS retreat still takes priority over taunt
+PASS taunt_engaged_1_0 resolves
+PASS taunt_engaged_1_0 keeps valid unit and field state
+PASS taunt_engaged_1_0 deterministic replay
+PASS all engaged enemies leave their old target to attack Kurchin, even without Armor
+PASS taunted enemy closes on Kurchin instead of remaining at the old contact
+PASS taunted enemy closes on Kurchin instead of remaining at the old contact
+PASS taunted enemy closes on Kurchin instead of remaining at the old contact
+PASS taunt_removed_1_0 resolves
+PASS taunt_removed_1_0 keeps valid unit and field state
+PASS taunt_removed_1_0 deterministic replay
+PASS removing Kurchin immediately restores ordinary melee targeting
+PASS taunt_engaged_1_6 resolves
+PASS taunt_engaged_1_6 keeps valid unit and field state
+PASS taunt_engaged_1_6 deterministic replay
+PASS all engaged enemies leave their old target to attack Kurchin, even without Armor
+PASS taunted enemy closes on Kurchin instead of remaining at the old contact
+PASS taunted enemy closes on Kurchin instead of remaining at the old contact
+PASS taunted enemy closes on Kurchin instead of remaining at the old contact
+PASS taunt_removed_1_6 resolves
+PASS taunt_removed_1_6 keeps valid unit and field state
+PASS taunt_removed_1_6 deterministic replay
+PASS removing Kurchin immediately restores ordinary melee targeting
+PASS taunt radius includes 360 and excludes 361
+PASS taunt never crosses lanes
+PASS hidden Kurchin cannot draw attacks
+PASS taunt radius includes 360 and excludes 361
+PASS taunt never crosses lanes
+PASS hidden Kurchin cannot draw attacks
+PASS taunt_wall_1 resolves
+PASS taunt_wall_1 keeps valid unit and field state
+PASS taunt_wall_1 deterministic replay
+PASS taunted ground enemy attacks the blocking wall first
+PASS taunt cannot cross the intact wall
+PASS taunt_retreat_1 resolves
+PASS taunt_retreat_1 keeps valid unit and field state
+PASS taunt_retreat_1 deterministic replay
+PASS retreat still takes priority over taunt
+PASS armor_boundary_0_Melee_74 resolves
+PASS armor_boundary_0_Melee_74 keeps valid unit and field state
+PASS armor_boundary_0_Melee_74 deterministic replay
+PASS 75% boundary deflects 74; 75 lands, spends Armor, and spills to HP
+PASS deflected hit consumes neither Armor nor HP
+PASS successful deflection has shield feedback in lane playback
+PASS armor_boundary_0_Melee_75 resolves
+PASS armor_boundary_0_Melee_75 keeps valid unit and field state
+PASS armor_boundary_0_Melee_75 deterministic replay
+PASS 75% boundary deflects 74; 75 lands, spends Armor, and spills to HP
+PASS deflected hit consumes neither Armor nor HP
+PASS armor_boundary_0_Vulture_74 resolves
+PASS armor_boundary_0_Vulture_74 keeps valid unit and field state
+PASS armor_boundary_0_Vulture_74 deterministic replay
+PASS 75% boundary deflects 74; 75 lands, spends Armor, and spills to HP
+PASS deflected hit consumes neither Armor nor HP
+PASS successful deflection has shield feedback in lane playback
+PASS armor_boundary_0_Vulture_75 resolves
+PASS armor_boundary_0_Vulture_75 keeps valid unit and field state
+PASS armor_boundary_0_Vulture_75 deterministic replay
+PASS 75% boundary deflects 74; 75 lands, spends Armor, and spills to HP
+PASS deflected hit consumes neither Armor nor HP
+PASS find landed-then-deflected depletion fixture
+PASS armor_same_tick_depletion_0 resolves
+PASS armor_same_tick_depletion_0 keeps valid unit and field state
+PASS armor_same_tick_depletion_0 deterministic replay
+PASS Armor depletion disables deflection immediately within one volley
+PASS Kurchin defends during hold/retreat/fear but cannot evade ongoing poison
+PASS Kurchin defends during hold/retreat/fear but cannot evade ongoing poison
+PASS Kurchin defends during hold/retreat/fear but cannot evade ongoing poison
+PASS Tumler defends during hold/retreat/fear but cannot evade ongoing poison
+PASS Tumler defends during hold/retreat/fear but cannot evade ongoing poison
+PASS Tumler defends during hold/retreat/fear but cannot evade ongoing poison
+PASS armor_boundary_1_Melee_74 resolves
+PASS armor_boundary_1_Melee_74 keeps valid unit and field state
+PASS armor_boundary_1_Melee_74 deterministic replay
+PASS 75% boundary deflects 74; 75 lands, spends Armor, and spills to HP
+PASS deflected hit consumes neither Armor nor HP
+PASS successful deflection has shield feedback in lane playback
+PASS armor_boundary_1_Melee_75 resolves
+PASS armor_boundary_1_Melee_75 keeps valid unit and field state
+PASS armor_boundary_1_Melee_75 deterministic replay
+PASS 75% boundary deflects 74; 75 lands, spends Armor, and spills to HP
+PASS deflected hit consumes neither Armor nor HP
+PASS armor_boundary_1_Vulture_74 resolves
+PASS armor_boundary_1_Vulture_74 keeps valid unit and field state
+PASS armor_boundary_1_Vulture_74 deterministic replay
+PASS 75% boundary deflects 74; 75 lands, spends Armor, and spills to HP
+PASS deflected hit consumes neither Armor nor HP
+PASS successful deflection has shield feedback in lane playback
+PASS armor_boundary_1_Vulture_75 resolves
+PASS armor_boundary_1_Vulture_75 keeps valid unit and field state
+PASS armor_boundary_1_Vulture_75 deterministic replay
+PASS 75% boundary deflects 74; 75 lands, spends Armor, and spills to HP
+PASS deflected hit consumes neither Armor nor HP
+PASS find landed-then-deflected depletion fixture
+PASS armor_same_tick_depletion_1 resolves
+PASS armor_same_tick_depletion_1 keeps valid unit and field state
+PASS armor_same_tick_depletion_1 deterministic replay
+PASS Armor depletion disables deflection immediately within one volley
+PASS Kurchin defends during hold/retreat/fear but cannot evade ongoing poison
+PASS Kurchin defends during hold/retreat/fear but cannot evade ongoing poison
+PASS Kurchin defends during hold/retreat/fear but cannot evade ongoing poison
+PASS Tumler defends during hold/retreat/fear but cannot evade ongoing poison
+PASS Tumler defends during hold/retreat/fear but cannot evade ongoing poison
+PASS Tumler defends during hold/retreat/fear but cannot evade ongoing poison
+PASS penitent_leads_Butcher_0 resolves
+PASS penitent_leads_Butcher_0 keeps valid unit and field state
+PASS penitent_leads_Butcher_0 deterministic replay
+PASS Butcher gives the Penitent a 90-unit lead
+PASS Butcher joins the fight at full speed once the leader engages
+PASS fleeing leader cannot hold back followers
+PASS penitent_leads_Wright_0 resolves
+PASS penitent_leads_Wright_0 keeps valid unit and field state
+PASS penitent_leads_Wright_0 deterministic replay
+PASS Wright gives the Penitent a 90-unit lead
+PASS Wright joins the fight at full speed once the leader engages
+PASS fleeing leader cannot hold back followers
+PASS building and extended repair duty are exempt from approach pacing
+PASS penitent_leads_Butcher_1 resolves
+PASS penitent_leads_Butcher_1 keeps valid unit and field state
+PASS penitent_leads_Butcher_1 deterministic replay
+PASS Butcher gives the Penitent a 90-unit lead
+PASS Butcher joins the fight at full speed once the leader engages
+PASS fleeing leader cannot hold back followers
+PASS penitent_leads_Wright_1 resolves
+PASS penitent_leads_Wright_1 keeps valid unit and field state
+PASS penitent_leads_Wright_1 deterministic replay
+PASS Wright gives the Penitent a 90-unit lead
+PASS Wright joins the fight at full speed once the leader engages
+PASS fleeing leader cannot hold back followers
+PASS building and extended repair duty are exempt from approach pacing
+U13 lane balance failures: 0

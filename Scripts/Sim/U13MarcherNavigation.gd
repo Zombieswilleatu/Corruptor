@@ -52,8 +52,10 @@ static func route(unit: Dictionary, destination: Dictionary, rows: Array, struct
 	return []
 
 static func steer(unit: Dictionary, proposed: Dictionary, destination: Dictionary, target: String, rows: Array, structures: Array, step: int, clock: int, protected_target: bool = false, retreat: bool = false) -> Dictionary:
-	if retreat or step <= 0: return Spacing.slide(unit, proposed, rows, structures, step, not retreat)
-	if rows.any(func(other): return other.owner != unit.owner and Spacing.collides(unit, other) and Fort.in_melee(unit, other)): return unit.attributes
+	if retreat or step <= 0: return Spacing.slide(unit, proposed, rows, structures, step, not retreat and not protected_target)
+	# Taunt changes the contact target before movement. An old opponent must
+	# not pin the fighter in place while its attacks now aim at Kurchin.
+	if not protected_target and rows.any(func(other): return other.owner != unit.owner and Spacing.collides(unit, other) and Fort.in_melee(unit, other)): return unit.attributes
 	var a: Dictionary = unit.attributes
 	var goal: Dictionary = destination if not destination.is_empty() else {"x_fp": 2400 if unit.owner == 0 else 0, "y_fp": int(a.y_fp)}
 	var nav: Dictionary = a.get("navigation", {}).duplicate(true)
@@ -86,9 +88,9 @@ static func steer(unit: Dictionary, proposed: Dictionary, destination: Dictionar
 		else:
 			nav.path = []
 			nav.progress = clock - STALL_TICKS
-			moved = Spacing.slide(unit, proposed, rows, structures, step)
+			moved = Spacing.slide(unit, proposed, rows, structures, step, not protected_target)
 	else:
-		moved = Spacing.slide(unit, proposed, rows, structures, step)
+		moved = Spacing.slide(unit, proposed, rows, structures, step, not protected_target)
 	# slide may return a read-only snapshot; always own the navigation update.
 	moved = moved.duplicate(true)
 	moved["navigation"] = nav

@@ -90,6 +90,7 @@ func _draw() -> void:
 	_draw_monster_attacks()
 	projectile_visual.draw(self, projectiles)
 	deaths.draw(self)
+	_draw_charm_markers()
 	if staging_capacity == 0:
 		draw_string(font, Vector2(field.position.x, size.y - 14), "HP", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, HEALTH_RING_COLOR)
 		draw_string(font, Vector2(field.position.x + 35, size.y - 14), "ARMOR · outer ring = side", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, ARMOR_RING_COLOR)

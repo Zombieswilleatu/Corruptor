@@ -1,0 +1,63 @@
+Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org
+
+PASS new production exists only in protected reserves
+PASS staged limited monster reserves its living-copy slot
+PASS even explicit March cannot release newborns
+PASS staged world resolves through production Marching
+PASS staged HP, rooting, building and all ability counters remain frozen
+PASS reserves do not attack, build or fire abilities
+PASS whole eligible group marches; current-round production stays protected
+PASS released group is immediately ready in its release round
+PASS release cannot happen twice within the same interval
+PASS deployment keeps immutable IDs and a valid engine snapshot
+PASS bot banks a small force against obvious losing pressure
+PASS manual early release remains available
+PASS bot can release a small ready force when pressure clears
+PASS staged world resolves through production Marching
+PASS enemy at the gate and a portal cannot damage, banish or wake reserves
+PASS staged world resolves through production Marching
+PASS holding an eligible group keeps regeneration and ability clocks frozen
+PASS full field defers the whole release safely without dropping or splitting bodies
+PASS capacity deferral preserves a valid entity registry
+PASS capacity 12: newborn overflow cannot bypass birth hold
+PASS staged world resolves through production Marching
+PASS capacity 12: complete oldest overflow cohort deploys without losing units
+PASS capacity 12: forced release contains only old units
+PASS capacity 15: newborn overflow cannot bypass birth hold
+PASS staged world resolves through production Marching
+PASS capacity 15: complete oldest overflow cohort deploys without losing units
+PASS capacity 15: forced release contains only old units
+PASS round 1: seat swap mirrors reserve identities, releases and formations
+PASS staged world resolves through production Marching
+PASS staged world resolves through production Marching
+PASS round 1: actual swapped combat remains mirrored
+PASS round 2: seat swap mirrors reserve identities, releases and formations
+PASS staged world resolves through production Marching
+PASS staged world resolves through production Marching
+PASS round 2: actual swapped combat remains mirrored
+PASS round 3: seat swap mirrors reserve identities, releases and formations
+PASS staged world resolves through production Marching
+PASS staged world resolves through production Marching
+PASS round 3: actual swapped combat remains mirrored
+PASS round 4: seat swap mirrors reserve identities, releases and formations
+PASS staged world resolves through production Marching
+PASS staged world resolves through production Marching
+PASS round 4: actual swapped combat remains mirrored
+PASS round 5: seat swap mirrors reserve identities, releases and formations
+PASS staged world resolves through production Marching
+PASS staged world resolves through production Marching
+PASS round 5: actual swapped combat remains mirrored
+PASS round 6: seat swap mirrors reserve identities, releases and formations
+PASS staged world resolves through production Marching
+PASS staged world resolves through production Marching
+PASS round 6: actual swapped combat remains mirrored
+PASS runner defaults to 15 protected slots
+PASS playback offers 3x and 5x
+PASS manual production is visibly staged
+PASS both staging trays fit inside the runner
+PASS staging trays stay visibly outside the battlefield
+PASS far-gate monster sprites have clearance below the enemy reserve tray
+PASS a reserves-only interval still starts playback
+PASS 5x finishes exactly one interval without releasing fresh units early
+PASS queued March releases the group at the next boundary
+U13 lane staging: 60 checks, 0 failures

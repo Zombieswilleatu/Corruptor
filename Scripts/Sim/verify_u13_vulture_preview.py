@@ -68,6 +68,11 @@ def contexts():
     yield from counter_contexts()
     yield from spacing_contexts()
     yield from navigation_contexts()
+    captured = json.loads(gzip.decompress((ROOT/'docs/evidence/U13_CONTACT_RELEASE_FIXTURE_2026-09-19.json.gz').read_bytes()))
+    for reflected in (False, True):
+        yield dict(name=f'contact_release:{int(reflected)}', case='contact_release', source=captured['source'], owner=1-int(reflected),
+                   context=dict(world=reflect_world(captured['world']) if reflected else captured['world'], seed=captured['seed'],
+                                round=captured['round'], hook='marching', player_order=[0, 1], persistent_effects=[], full_roster=True))
 
 
 def navigation_contexts():
@@ -181,6 +186,13 @@ def check(record, result):
     events = [r['event'] for r in result['events']]
     shots = [e['data'] for e in events if e['type'] == 'MARCHER_RANGED_ATTACK']
     case = record['case']
+    if case == 'contact_release':
+        destroyed = next(e['data']['tick'] for e in events if e['type'] == 'WRIGHT_STRUCTURE_DESTROYED')
+        positions = {e['data']['tick']: u['attributes']['x_fp'] for e in events if e['type'] == 'MARCHING_TICK'
+                     for u in e['data']['units'] if u['id'] == record['source']}
+        advance = (positions[destroyed+1]-positions[destroyed]) * (1 if record['owner'] == 0 else -1)
+        assert advance == 1, (record['name'], advance, 'Wright must see the Penitent leave contact this tick')
+        return
     if case == 'navigation_retarget':
         states = [u['attributes'].get('navigation', {}) for e in events if e['type'] == 'MARCHING_TICK'
                   for u in e['data']['units'] if u['id'] == record['source']]
