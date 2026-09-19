@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Incoming = preload("res://Scripts/Sim/U13IncomingDamage.gd")
+
 const Conduit = preload("res://Scripts/Sim/U13BloodConduit.gd")
 
 const Resummon = preload("res://Scripts/Sim/U13Resummoning.gd")
@@ -166,7 +168,8 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 		var entity: Dictionary = entities.get_entity(entity_id)
 		if entity.is_empty():
 			continue
-		var absorbed: int = mini(1, int(entity.attributes.armor))
+		var amount: int = Incoming.amount(entity.attributes, 1, Incoming.phase_clock(world, int(context.round)))
+		var absorbed: int = mini(amount, int(entity.attributes.armor))
 		entity.attributes.armor -= absorbed
 		entities.update(entity.id, entity.owner, entity.attributes)
 		world.entities = entities.snapshot()
@@ -176,7 +179,7 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 				"command_id": Data.instance_id("web_hit", effect_id, entity_id),
 				"kind": "marcher_damage",
 				"target_id": entity_id,
-				"damage": 1 - absorbed,
+				"damage": amount - absorbed,
 				"cause": "hazard"
 			},
 			context.round,

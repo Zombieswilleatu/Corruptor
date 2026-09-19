@@ -1,0 +1,29 @@
+Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org
+
+PASS  web_damage_fixture_schedules
+PASS  web_damage_fixture_has_firing_metadata
+PASS  web_fires_at_10e
+PASS  web_activation_leaves_input_untouched
+PASS  web_single_damage_pulse
+PASS  web_uses_standard_armor_first_damage
+PASS  web_includes_radius_boundary
+PASS  web_excludes_allies_outside_and_other_lane
+PASS  web_lethal_hit_retires_stable_identity
+PASS  web_damage_not_a_per_tick_call
+PASS  web_damage_command_cannot_repeat
+PASS  web_damage_order_is_stable_id
+PASS  orias_web_owner_starts
+PASS  web_opening_hook
+PASS  web_opening_hook
+PASS  web_opening_hook
+PASS  web_opening_hook
+PASS  web_shared_legality_accepts_position
+PASS  web_rejects_fractional
+PASS  web_rejects_outside
+PASS  web_rejects_radius
+PASS  web_rejects_duplicate
+PASS  web_random_legal_path_declares
+PASS  web_random_plan_replays
+PASS  web_planning_is_pure
+PASS  old_policy_rejects_partial_orias
+U13 Orias Web failures: 0

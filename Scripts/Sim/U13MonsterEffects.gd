@@ -1,11 +1,12 @@
 extends RefCounted
 
+const Incoming = preload("res://Scripts/Sim/U13IncomingDamage.gd")
+
 const Rules = preload("res://Scripts/Sim/U13MonsterRules.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Lamp = preload("res://Scripts/Sim/U13Wishmaster.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Defense = preload("res://Scripts/Sim/U13PenitentDefense.gd")
-const Burrows = preload("res://Scripts/Sim/U13DotraBurrows.gd")
 const Fort = preload("res://Scripts/Sim/U13FieldFortifications.gd")
 
 static func event(kind: String, data: Dictionary) -> Dictionary:
@@ -34,9 +35,6 @@ static func preferred(unit: Dictionary, rows: Array) -> Dictionary:
 	if unit.attributes.get("monster_id") == "Tumler":
 		for row in enemies(unit, rows):
 			if row.id == id: return row
-	if unit.attributes.get("monster_id") == "Dotra" and unit.attributes.get("dotra_ambush_ready", false):
-		for row in enemies(unit, rows):
-			if row.id == unit.attributes.get("dotra_ambush_target", ""): return row
 	return {}
 
 static func hunt_bonus(source: Dictionary, target: Dictionary) -> int:
@@ -149,6 +147,12 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 	var clock: int = n * 200 + tick
 	var hits: Array = []
 	var fleeing: Dictionary = {}
+	for unit in entities.marchers():
+		var a: Dictionary = unit.attributes
+		if int(a.get("dotra_exposed_until_tick", 0)) > 0 and int(a.dotra_exposed_until_tick) <= clock:
+			a["dotra_exposed_from_tick"] = 0
+			a["dotra_exposed_until_tick"] = 0
+			entities.update(unit.id, unit.owner, a)
 	if tick == 0:
 		state.phase_round = n
 		state.fields = state.fields.filter(func(f): return f.expires_round >= n)
@@ -230,30 +234,8 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 						hits.append({"source": unit, "target": target.id, "amount": a.attack, "bypass": false, "ability": "Muno"})
 			"Dotra":
 				if a.get("hidden", false):
-					if a.get("dotra_holes", []).is_empty():
-						Burrows.begin(a, clock)
-						events.append(event("MONSTER_BURROW_CREATED", {"unit_id": unit.id, "owner": unit.owner, "lane": a.lane, "holes": a.dotra_holes, "round": n, "tick": tick}))
-					if clock >= int(a.dotra_burrow_ready_tick):
-						var points: Array = Burrows.exits(unit, rows, Fort.rows(world))
-						var target: Dictionary = Burrows.isolated(unit, rows, points)
-						var exit_index: int = Burrows.choose_exit(unit, points, target)
-						if exit_index >= 0:
-							var hole: Dictionary = a.dotra_holes[exit_index].duplicate(true)
-							a.merge(points[exit_index], true)
-							a["hidden"] = false
-							a["dotra_holes"] = []
-							a["dotra_ambush_ready"] = true
-							a["dotra_ambush_target"] = target.get("id", "")
-							a["dotra_emerged_tick"] = clock
-							a.contact_tick = -1
-							a.erase("navigation")
-							events.append(event("MONSTER_BURROW_EMERGED", {"source": unit, "hole": hole, "hole_index": exit_index, "target_id": target.get("id", ""), "round": n, "tick": tick}))
-				if not a.get("hidden", false) and a.get("dotra_ambush_ready", false):
-					var target: Dictionary = Burrows.prepared_target(unit, rows, clock)
-					a["dotra_ambush_target"] = target.get("id", "")
-					var taunt: Dictionary = preferred(unit, rows)
-					if not taunt.is_empty(): target = taunt
-					if not target.is_empty() and distance(a, target.attributes) <= int(Rules.TUNING.dotra_ambush_radius) ** 2 and Fort.blocker(unit, target.attributes, Fort.rows(world)).is_empty():
+					var target: Dictionary = nearest(unit, rows, Rules.TUNING.dotra_ambush_radius)
+					if not target.is_empty():
 						hits.append({"source": unit, "target": target.id, "amount": 5, "bypass": false, "ability": "Ambush"})
 			"Sooge":
 				if a.sprite_form == "turret" and int(a.get("beam_next_tick", 0)) - int(Rules.TUNING.beam_charge_ticks) <= clock:
@@ -345,10 +327,9 @@ static func damage(world: Dictionary, entities, hit: Dictionary, context: Dictio
 	if hit.ability == "Ambush":
 		var ambusher: Dictionary = entities.get_entity(hit.source.id)
 		if ambusher.is_empty(): return {"action": "resolved", "world": world, "events": events}
-		# Spend the prepared strike only when a live victim receives it.
+		# Reveal only when a live victim will actually receive the ambush.
+		# An earlier queued hit may have removed the chosen victim already.
 		ambusher.attributes["hidden"] = false
-		ambusher.attributes["dotra_ambush_ready"] = false
-		ambusher.attributes["dotra_ambush_target"] = ""
 		entities.update(ambusher.id, ambusher.owner, ambusher.attributes)
 		hit["source"] = ambusher
 	var blocked: bool = hit.ability == "Beam" and Defense.blocks(target, hit.source.id, context.seed, context.round, tick, "Beam")
@@ -356,7 +337,7 @@ static func damage(world: Dictionary, entities, hit: Dictionary, context: Dictio
 	var fleeing: bool = hunt_fleeing(target, world)
 	var evaded: bool = evades(target, hit.source, live_rows, context, tick, hit.ability, Fort.rows(world))
 	if not evaded and not fleeing and hit.ability in ["Muno", "Ambush"]: events.append_array(intercept(target, hit.source, live_rows, context, tick, Fort.rows(world)))
-	var amount: int = 0 if blocked or evaded else int(hit.amount)
+	var amount: int = 0 if blocked or evaded else Incoming.amount(target.attributes, int(hit.amount), int(context.round) * 200 + tick)
 	var absorbed: int = 0 if hit.bypass else mini(int(target.attributes.armor), amount)
 	var dealt: int = amount - absorbed
 	target.attributes.armor -= absorbed
@@ -365,6 +346,7 @@ static func damage(world: Dictionary, entities, hit: Dictionary, context: Dictio
 	if target.attributes.hp == 0: entities.retire(target.id)
 	else: entities.update(target.id, target.owner, target.attributes)
 	events.append(event("MONSTER_ATTACK", {"attacker": hit.source, "target": before, "ability": hit.ability, "blocked": blocked, "evaded": evaded, "damage_dealt": dealt, "hp_after": target.attributes.hp, "round": context.round, "tick": tick}))
+	if hit.ability == "Ambush": events.append(expose(entities, hit.source, int(context.round), tick))
 	world.entities = entities.snapshot()
 	if target.attributes.hp == 0:
 		var fact: Dictionary = event("MARCHER_DEFEATED", {"event_id": Data.instance_id("monster_kill", "%d:%d:%s" % [context.round, tick, hit.source.id], target.id), "round": context.round, "hook": "marching", "tick": tick, "victim": before, "attacker": hit.source, "cause": "combat", "damage_dealt": dealt}).event
@@ -375,6 +357,20 @@ static func damage(world: Dictionary, entities, hit: Dictionary, context: Dictio
 		events.append_array(reacted.events)
 		if entities.restore(world.entities).action == "invalid": return Data.invalid("monster_entities_invalid")
 	return {"action": "resolved", "world": world, "events": events}
+
+# The emergence pulse follows the opening hit, so it does not increase its own
+# five-damage ambush. It still happens when that hit is evaded or kills the victim.
+static func expose(entities, source: Dictionary, number: int, tick: int) -> Dictionary:
+	var clock: int = number * 200 + tick
+	var affected: Array = []
+	for target in entities.marchers():
+		if target.owner == source.owner or target.attributes.lane != source.attributes.lane or distance(source.attributes, target.attributes) > int(Rules.TUNING.dotra_expose_radius) ** 2: continue
+		var a: Dictionary = target.attributes
+		a["dotra_exposed_from_tick"] = mini(int(a.get("dotra_exposed_from_tick", clock)), clock) if Incoming.active(a, clock) else clock
+		a["dotra_exposed_until_tick"] = maxi(int(a.get("dotra_exposed_until_tick", 0)), clock + int(Rules.TUNING.dotra_expose_ticks))
+		entities.update(target.id, target.owner, a)
+		affected.append(target.duplicate(true))
+	return event("MONSTER_EXPOSURE_PULSE", {"source": source, "radius_fp": Rules.TUNING.dotra_expose_radius, "affected": affected, "until_tick": clock + int(Rules.TUNING.dotra_expose_ticks), "round": number, "tick": tick})
 
 # Commit to the prey through enemy clusters. Dodging every nearby body makes
 # Tumler circle the fight instead of reaching it; landed melee still intercepts.

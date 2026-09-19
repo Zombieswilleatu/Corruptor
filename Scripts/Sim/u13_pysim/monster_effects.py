@@ -1,9 +1,10 @@
 """Deterministic monster abilities; mirror of the native rules, not animation time."""
+from . import incoming_damage as incoming
 from . import field_fortifications as fort
 from . import monsters as rules
 from .copying import copy_data
 from .primitives import draw, instance_id
-from . import penitent_defense, dotra_burrows as burrows
+from . import penitent_defense
 
 T = rules.TUNING
 
@@ -32,8 +33,6 @@ def preferred(unit, rows):
     a=unit['attributes']
     if a.get('monster_id')=='Tumler':
         return next((r for r in enemies(unit,rows) if r['id']==a.get('hunt_target','')), {})
-    if a.get('monster_id') == 'Dotra' and a.get('dotra_ambush_ready', False):
-        return next((r for r in enemies(unit, rows) if r['id'] == a.get('dotra_ambush_target', '')), {})
     return {}
 
 
@@ -139,6 +138,11 @@ def step(w,buffer,c,tick,reaction):
     events=[]
     if not rules.enabled(w):return dict(action='resolved',world=w,events=events,fleeing={})
     state=w['data']['monsters'];n=c['round'];clock=n*200+tick;hits=[];fleeing={}
+    for unit in buffer.rows():
+        a = unit['attributes']
+        if 0 < a.get('dotra_exposed_until_tick', 0) <= clock:
+            a.update(dotra_exposed_from_tick=0, dotra_exposed_until_tick=0)
+            buffer.update(unit['id'], unit['owner'], a)
     if tick==0:
         state['phase_round']=n;state['fields']=[f for f in state['fields'] if f['expires_round']>=n]
         for unit in buffer.rows():
@@ -207,28 +211,10 @@ def step(w,buffer,c,tick,reaction):
             target=nearest(unit,rows,T['muno_radius'])
             if target:
                 a['muno_round']=n;hits.append(dict(source=unit,target=target['id'],amount=a['attack'],bypass=False,ability='Muno'))
-        elif name == 'Dotra':
-            if a.get('hidden', False):
-                if not a.get('dotra_holes', []):
-                    burrows.begin(a, clock)
-                    events.append(event('MONSTER_BURROW_CREATED', dict(unit_id=unit['id'], owner=unit['owner'], lane=a['lane'], holes=a['dotra_holes'], round=n, tick=tick)))
-                if clock >= a['dotra_burrow_ready_tick']:
-                    points = burrows.exits(unit, rows, fort.rows(w))
-                    target = burrows.isolated(unit, rows, points)
-                    exit_index = burrows.choose_exit(unit, points, target)
-                    if exit_index >= 0:
-                        hole = copy_data(a['dotra_holes'][exit_index])
-                        a.update(points[exit_index])
-                        a.update(hidden=False, dotra_holes=[], dotra_ambush_ready=True,
-                                 dotra_ambush_target=target.get('id', ''), dotra_emerged_tick=clock, contact_tick=-1)
-                        a.pop('navigation', None)
-                        events.append(event('MONSTER_BURROW_EMERGED', dict(source=unit, hole=hole, hole_index=exit_index, target_id=target.get('id', ''), round=n, tick=tick)))
-            if not a.get('hidden', False) and a.get('dotra_ambush_ready', False):
-                target = burrows.prepared_target(unit, rows, clock)
-                a['dotra_ambush_target'] = target.get('id', '')
-                target = preferred(unit, rows) or target
-                if target and distance(a, target['attributes']) <= T['dotra_ambush_radius']**2 and not fort.blocker(unit, target['attributes'], fort.rows(w)):
-                    hits.append(dict(source=unit, target=target['id'], amount=5, bypass=False, ability='Ambush'))
+        elif name=='Dotra' and a.get('hidden',False):
+            target=nearest(unit,rows,T['dotra_ambush_radius'])
+            if target:
+                hits.append(dict(source=unit,target=target['id'],amount=5,bypass=False,ability='Ambush'))
         elif name=='Sooge' and a['sprite_form']=='turret' and a.get('beam_next_tick',0)-T['beam_charge_ticks']<=clock:
             target=nearest(unit,rows+fort.rows(w),T['beam_range'])
             if not target:
@@ -296,7 +282,7 @@ def damage(w,buffer,hit,c,tick,reaction):
     if hit['ability']=='Ambush':
         ambusher=buffer.get(hit['source']['id'])
         if not ambusher:return dict(action='resolved',world=w,events=events)
-        ambusher['attributes'].update(hidden=False, dotra_ambush_ready=False, dotra_ambush_target='')
+        ambusher['attributes']['hidden']=False
         buffer.update(ambusher['id'],ambusher['owner'],ambusher['attributes'])
         hit['source']=ambusher
     blocked=hit['ability']=='Beam' and penitent_defense.blocks(target,hit['source']['id'],c['seed'],c['round'],tick,'Beam')
@@ -305,11 +291,12 @@ def damage(w,buffer,hit,c,tick,reaction):
     evaded=evades(target,hit['source'],live_rows,c,tick,hit['ability'],fort.rows(w))
     if not evaded and not fleeing and hit['ability'] in ('Muno','Ambush'):
         events.extend(intercept(target,hit['source'],live_rows,c,tick,fort.rows(w)))
-    amount=0 if blocked or evaded else hit['amount'];absorbed=0 if hit['bypass'] else min(a['armor'],amount);dealt=amount-absorbed
+    amount=0 if blocked or evaded else incoming.amount(a, hit['amount'], c['round']*200+tick);absorbed=0 if hit['bypass'] else min(a['armor'],amount);dealt=amount-absorbed
     a['armor']-=absorbed;a['hp']=max(0,a['hp']-dealt);a['movement_ready_round']=min(a['movement_ready_round'],c['round'])
     if a['hp']==0:buffer.retire_id(target['id'])
     else:buffer.update(target['id'],target['owner'],a)
     events.append(event('MONSTER_ATTACK',dict(attacker=hit['source'],target=before,ability=hit['ability'],blocked=blocked,evaded=evaded,damage_dealt=dealt,hp_after=a['hp'],round=c['round'],tick=tick)))
+    if hit['ability'] == 'Ambush': events.append(expose(buffer, hit['source'], c['round'], tick))
     w['entities']=buffer.snapshot()
     if a['hp']==0:
         fact=event('MARCHER_DEFEATED',dict(event_id=instance_id('monster_kill',f"{c['round']}:{tick}:{hit['source']['id']}",target['id']),round=c['round'],hook='marching',tick=tick,victim=before,attacker=hit['source'],cause='combat',damage_dealt=dealt))['event']
@@ -318,6 +305,19 @@ def damage(w,buffer,hit,c,tick,reaction):
         if result.get('action')!='resolved':return dict(action='invalid',reason='monster_reaction_invalid')
         w=result['world'];events.extend(result['events']);buffer.restore(w['entities'])
     return dict(action='resolved',world=w,events=events)
+
+
+def expose(buffer, source, number, tick):
+    clock = number * 200 + tick
+    affected = []
+    for target in buffer.rows():
+        a = target['attributes']
+        if target['owner'] == source['owner'] or a['lane'] != source['attributes']['lane'] or distance(source['attributes'], a) > T['dotra_expose_radius']**2: continue
+        a['dotra_exposed_from_tick'] = min(a.get('dotra_exposed_from_tick', clock), clock) if incoming.active(a, clock) else clock
+        a['dotra_exposed_until_tick'] = max(a.get('dotra_exposed_until_tick', 0), clock + T['dotra_expose_ticks'])
+        buffer.update(target['id'], target['owner'], a)
+        affected.append(copy_data(target))
+    return event('MONSTER_EXPOSURE_PULSE', dict(source=source, radius_fp=T['dotra_expose_radius'], affected=affected, until_tick=clock+T['dotra_expose_ticks'], round=number, tick=tick))
 
 
 def steer(unit,destination,rows,fields):

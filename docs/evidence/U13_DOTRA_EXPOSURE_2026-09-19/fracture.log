@@ -1,0 +1,73 @@
+Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org
+
+PASS Gremory Fracture leaves valid state
+PASS Gremory printed Fracture count
+PASS Deimos Fracture leaves valid state
+PASS Deimos printed Fracture count
+PASS Humbaba Fracture leaves valid state
+PASS Humbaba printed Fracture count
+PASS Kalligan Fracture leaves valid state
+PASS Kalligan printed Fracture count
+PASS Orias Fracture leaves valid state
+PASS Orias printed Fracture count
+PASS Odradek Fracture leaves valid state
+PASS Odradek printed Fracture count
+PASS Kroni Fracture leaves valid state
+PASS Kroni printed Fracture count
+PASS Valak Fracture leaves valid state
+PASS Valak printed Fracture count
+PASS Kanifous Fracture leaves valid state
+PASS Kanifous printed Fracture count
+PASS each point can revisit one Guard but stops at value one
+PASS Fracture leaves Hand/discard untouched
+PASS Guard erosion creates no defeat reward
+PASS same seed and state repeat exactly
+PASS registry insertion order cannot change Fracture
+PASS same banishment cannot fracture twice
+PASS already absent Lord cannot be banished again
+PASS one Marcher bucket hits exactly three distinct bodies
+PASS direct HP bypasses Armor without consuming it
+PASS lethal Fracture uses shared Marcher death facts
+PASS hazard deaths award no combat Souls
+PASS shared deaths retain a valid world
+PASS transferred Marcher follows current ownership
+PASS former owner's Fracture spares transferred body
+PASS former owner's Fracture spares transferred body
+PASS former owner's Fracture spares transferred body
+PASS former owner's Fracture spares transferred body
+PASS former owner's Fracture spares transferred body
+PASS former owner's Fracture spares transferred body
+PASS former owner's Fracture spares transferred body
+PASS former owner's Fracture spares transferred body
+PASS former owner's Fracture spares transferred body
+PASS former owner's Fracture spares transferred body
+PASS former owner's Fracture spares transferred body
+PASS former owner's Fracture spares transferred body
+PASS keyed selection reaches all three live Subject groups
+PASS equal-Integrity hits spread by physical slot
+PASS Fracture applies Repair lock and protects blueprints
+PASS Fracture ruination preserves identity and earns no Siege Souls
+PASS empty Infrastructure stops remaining points
+PASS default category uses available capacity
+PASS category score ties prefer Subjects
+PASS subjects real Hunt fixture starts
+PASS invalid category rejects atomically
+PASS category seals with Hunt
+PASS sealed category survives JSON
+PASS Hunt Fracture and full-round replay agree
+PASS one banishment clears Threat and resolves one Fracture
+PASS post-Fracture ledger survives exact JSON restoration
+PASS forged printed value restore rejects atomically
+PASS restored category must match sealed Hunt
+PASS resolved banishment cannot lose its Fracture ledger
+PASS infrastructure real Hunt fixture starts
+PASS invalid category rejects atomically
+PASS category seals with Hunt
+PASS sealed category survives JSON
+PASS Hunt Fracture and full-round replay agree
+PASS one banishment clears Threat and resolves one Fracture
+PASS post-Fracture ledger survives exact JSON restoration
+PASS forged printed value restore rejects atomically
+PASS restored category must match sealed Hunt
+PASS resolved banishment cannot lose its Fracture ledger
+U13 Fracture failures: 0

@@ -1,0 +1,30 @@
+{
+  "continuous": {
+    "bodies_seen": 18,
+    "staged_body_rounds": 22,
+    "summons": 18,
+    "active_body_rounds": 56,
+    "concealment_rounds": 56,
+    "hidden_rounds": 18,
+    "incoming_attacks": 126,
+    "attacks": 84,
+    "recorded_hp_damage": 164,
+    "landed_hits": 84,
+    "damaging_hits": 70,
+    "deaths": 14,
+    "Ambush:hits": 8,
+    "Ambush:hp_damage": 36,
+    "Ambush:enemy_hits": 8,
+    "exposure_pulses": 8,
+    "enemies_exposed": 44,
+    "kills": 26,
+    "hidden_at_round_start": 8,
+    "times_charmed": 2
+  },
+  "pulses": {
+    "pulses": 8,
+    "affected_total": 44,
+    "multi_target_pulses": 6
+  },
+  "distinct_casters": 8
+}

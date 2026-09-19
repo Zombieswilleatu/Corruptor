@@ -1,5 +1,7 @@
 # Dotra's three-hole burrow — V14
 
+Historical experiment, replaced by [V15's emergence vulnerability](U13_DOTRA_EXPOSURE_2026-09-19.md). The complete V14 implementation remains at commit `174680c`.
+
 Dotra now creates three visible, fixed exits when he hides, then emerges from the usable exit nearest the most isolated visible enemy. The behavior works in both simulation engines and both lane views. This first pass **does not fix his weak army matchups**: some results improve, others worsen.
 
 ## Behavior

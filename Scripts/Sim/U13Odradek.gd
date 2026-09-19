@@ -538,7 +538,8 @@ func _interlock(
 	# the attacker to apply reflection. Hazard attribution prevents recursion.
 	if target.is_empty():
 		return result
-	var absorbed: int = mini(int(target.attributes.armor), int(d.damage_dealt))
+	var amount: int = Incoming.amount(target.attributes, int(d.damage_dealt), int(d.round) * 200 + int(d.get("tick", 0)))
+	var absorbed: int = mini(int(target.attributes.armor), amount)
 	target.attributes.armor -= absorbed
 	entities.update(target.id, target.owner, target.attributes)
 	result.world.entities = entities.snapshot()
@@ -548,7 +549,7 @@ func _interlock(
 			"command_id": Data.instance_id("interlock", d.event_id, str(pid)),
 			"kind": "marcher_damage",
 			"target_id": target.id,
-			"damage": int(d.damage_dealt) - absorbed,
+			"damage": amount - absorbed,
 			"cause": "hazard"
 		},
 		d.round,

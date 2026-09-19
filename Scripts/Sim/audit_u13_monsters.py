@@ -136,6 +136,9 @@ class Metrics:
             elif kind == 'MONSTER_CONCEALMENT':
                 self.metrics['Dotra']['concealment_rounds'] += 1
                 self.metrics['Dotra']['hidden_rounds'] += bool(d['hidden'])
+            elif kind == 'MONSTER_EXPOSURE_PULSE':
+                self.metrics['Dotra']['exposure_pulses'] += 1
+                self.metrics['Dotra']['enemies_exposed'] += len(d['affected'])
             elif kind == 'MONSTER_PULSE':
                 metric = self.metrics['Kopita']
                 metric['heal_pulses' if d['healing'] else 'harm_pulses'] += 1

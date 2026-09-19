@@ -1,6 +1,8 @@
 class_name U13Marching
 extends RefCounted
 
+const Incoming = preload("res://Scripts/Sim/U13IncomingDamage.gd")
+
 const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
 
 const Ranged = preload("res://Scripts/Sim/U13RangedMarching.gd")
@@ -83,7 +85,7 @@ static func valid(world: Dictionary) -> bool:
 		if entity.kind != "marcher":
 			continue
 		var a: Dictionary = entity.attributes
-		if not Fort.valid_unit(a): return false
+		if not Fort.valid_unit(a) or not Incoming.valid(a): return false
 		if a.has("ranged_next_tick") and (not Data.is_integer(a.ranged_next_tick) or a.ranged_next_tick < 0):
 			return false
 		if a.has("melee_next_tick") and (not Data.is_integer(a.melee_next_tick) or a.melee_next_tick < 0):
@@ -354,10 +356,10 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			var left: Dictionary = entities.get_entity(duel.units[0].id)
 			var right: Dictionary = entities.get_entity(duel.units[1].id)
 			var damage_to_left: int = _attack(
-				left.attributes, 0 if right.attributes.get("sprite_form") == "turret" else Wishmaster.attack_amount(right.attributes), right.attributes.armor_bypass
+				left.attributes, 0 if right.attributes.get("sprite_form") == "turret" else Wishmaster.attack_amount(right.attributes), right.attributes.armor_bypass, clock
 			)
 			var damage_to_right: int = _attack(
-				right.attributes, 0 if left.attributes.get("sprite_form") == "turret" else Wishmaster.attack_amount(left.attributes), left.attributes.armor_bypass
+				right.attributes, 0 if left.attributes.get("sprite_form") == "turret" else Wishmaster.attack_amount(left.attributes), left.attributes.armor_bypass, clock
 			)
 			duel.exchanges.append(
 				{
@@ -736,8 +738,10 @@ static func _move(
 			var target: Dictionary = FieldMelee.nearest(unit, reachable, Fort.CONTACT, true)
 			if target.is_empty(): target = Navigation.retained(unit, reachable)
 			if target.is_empty(): target = FieldMelee.nearest(unit, reachable)
+			if unit.attributes.get("monster_id") == "Dotra" and unit.attributes.get("hidden", false):
+				target = MonsterEffects.nearest(unit, reachable.filter(func(r): return r.kind == "marcher"))
 			var taunted: bool = false
-			if has_taunt or unit.attributes.get("monster_id") in ["Tumler", "Dotra"]:
+			if has_taunt or unit.attributes.get("monster_id") == "Tumler":
 				var hunted: Dictionary = MonsterEffects.preferred(unit, rows)
 				if not hunted.is_empty() and (hunted.attributes.get("monster_id") == "Kurchin" or not Navigation.avoided(unit, hunted, clock)):
 					target = hunted
@@ -754,7 +758,7 @@ static func _move(
 	# Targets use one snapshot. Reserve each accepted small footprint in stable
 	# identity order so two units cannot step into the same space this tick.
 	for unit in rows:
-		if fleeing_ids.has(unit.id) or unit.attributes.get("hidden", false) or unit.attributes.get("sprite_form") == "turret":
+		if fleeing_ids.has(unit.id) or (unit.attributes.get("hidden", false) and unit.attributes.get("monster_id") != "Dotra") or unit.attributes.get("sprite_form") == "turret":
 			continue
 		var a: Dictionary = unit.attributes
 		var nearby: Dictionary = neighbors[unit.id]
@@ -806,7 +810,7 @@ static func _move(
 		if modern and not retreat and not taunted and not gate_advancing:
 			step = SupportPacing.speed(unit, rows, step, clock, context.round, fleeing_ids)
 		var nearest: Dictionary = nearby.unit
-		var preferred: Dictionary = MonsterEffects.preferred(unit, rows) if has_taunt or a.get("monster_id") in ["Tumler", "Dotra"] else {}
+		var preferred: Dictionary = MonsterEffects.preferred(unit, rows) if has_taunt or a.get("monster_id") == "Tumler" else {}
 		if modern and not taunted and Navigation.avoided(unit, preferred, clock): preferred = {}
 		if not preferred.is_empty(): nearest = preferred
 		var best: int = int(nearby.distance) if preferred.is_empty() else _distance(a, preferred.attributes)
@@ -1059,8 +1063,8 @@ static func _valid_duels(world: Dictionary) -> bool:
 	return true
 
 
-static func _attack(target: Dictionary, amount: int, bypass: bool) -> int:
-	var remaining: int = maxi(0, amount)
+static func _attack(target: Dictionary, amount: int, bypass: bool, clock: int = 0) -> int:
+	var remaining: int = Incoming.amount(target, amount, clock)
 	if not bypass:
 		var absorbed: int = mini(int(target.armor), remaining)
 		target.armor -= absorbed

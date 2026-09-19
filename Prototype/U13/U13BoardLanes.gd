@@ -40,6 +40,7 @@ var active_scorches: Array = []
 const WebVisuals = preload("res://Prototype/U13/U13WebVisuals.gd")
 var web_visuals = WebVisuals.new()
 var active_webs: Array = []
+const ExposureVisuals = preload("res://Prototype/U13/U13ExposureVisuals.gd")
 const CharmVisuals = preload("res://Prototype/U13/U13CharmVisuals.gd")
 var charm_visuals = CharmVisuals.new()
 
@@ -150,6 +151,8 @@ func _get_tooltip(at: Vector2) -> String:
 			var unit_name: String = unit.attributes.get("monster_id", unit.attributes.suit)
 			var hp: String = "Obscured" if void_active else "%d/%d" % [unit.attributes.hp, unit.attributes.max_hp]
 			var description: String = "%s · %s\nHP %s · Armor %d" % [unit_name, "Yours" if unit.owner == 0 else "Enemy", hp, unit.attributes.armor]
+			if ExposureVisuals.active(unit):
+				description += "\nEXPOSED · takes +1 damage per hit before Armor. Refreshes; does not stack."
 			if CharmVisuals.active(unit):
 				description += "\nCHARMED · fighting for %s until this round ends. Returns to %s next round." % ["you" if unit.owner == 0 else "the enemy", "you" if int(unit.attributes.charm_owner) == 0 else "the enemy"]
 			if unit_name == "Penitent": description += "\n" + preload("res://Scripts/Sim/U13PenitentDefense.gd").DESCRIPTION
@@ -358,7 +361,6 @@ func _draw_chit(unit: Dictionary, center: Vector2, flash: bool = false, close_up
 	var attributes: Dictionary = unit.attributes
 	var tint: Color = BLUE if unit.owner == 0 else RED
 	if attributes.get("hidden", false):
-		if not attributes.get("dotra_holes", []).is_empty(): return
 		if unit.owner == 0:
 			if uses_sprite(unit): sprite_visuals.draw_afterimage(self, unit, center, unit_sprite_height(unit), Color(0.65, 0.75, 0.85, 0.24))
 			draw_arc(center, 9, 0, TAU, 24, Color(tint, 0.35), 1.0)
@@ -409,11 +411,12 @@ func _draw_unit_rings(unit: Dictionary, center: Vector2, owner_color: Color, spr
 
 func _draw_charm_markers() -> void:
 	for unit in _units:
-		if deaths.seen.has(unit.id) or not CharmVisuals.active(unit): continue
+		if deaths.seen.has(unit.id): continue
 		var height: float = unit_sprite_height(unit) if uses_sprite(unit) else CHIT_DIAMETER * 0.5
 		# Keep hearts clear of the protected enemy tray at the upper gate.
 		var ceiling: float = travel_rect(unit.attributes.lane).position.y - sprite_height + 8.0
 		charm_visuals.draw(self, unit, _monster_point(unit.attributes), height, ceiling)
+		ExposureVisuals.draw(self, unit, _monster_point(unit.attributes), height, ceiling)
 
 
 func _draw_marcher_death(unit: Dictionary, center: Vector2, age: float) -> void:
@@ -584,27 +587,8 @@ func _monster_point(a: Dictionary) -> Vector2:
 	var rect: Rect2 = travel_rect(a.lane)
 	return rect.position + Vector2(float(a.get("visual_y", a.y_fp)) / 600.0, 1.0 - float(a.get("visual_x", a.x_fp)) / 2400.0) * rect.size
 
-func burrow_markers(lane: String) -> Array:
-	var result: Array = []
-	for unit in _units:
-		if unit.attributes.lane != lane or not unit.attributes.get("hidden", false) or deaths.seen.has(unit.id): continue
-		for hole in unit.attributes.get("dotra_holes", []):
-			var point: Dictionary = hole.duplicate(true)
-			point["lane"] = lane
-			result.append({"center": _monster_point(point), "owner": unit.owner})
-	return result
-
 func _draw_monster_fields(lane: String) -> void:
 	var rect: Rect2 = travel_rect(lane)
-	for marker in burrow_markers(lane):
-		var radius: float = clampf(rect.size.x * 0.035, 9.0, 18.0)
-		var tint: Color = BLUE if marker.owner == 0 else RED
-		draw_set_transform(marker.center, 0.0, Vector2(1.0, 0.45))
-		draw_circle(Vector2.ZERO, radius + 3.0, Color("493c2c"))
-		draw_circle(Vector2.ZERO, radius, Color("100d09"))
-		draw_arc(Vector2.ZERO, radius + 1.0, 0.0, TAU, 32, Color("9a7950"), 2.0, true)
-		draw_arc(Vector2.ZERO, radius + 4.0, 0.15, PI - 0.15, 16, Color(tint, 0.85), 1.5, true)
-		draw_set_transform(Vector2.ZERO)
 	for field in monster_fields:
 		if field.lane != lane: continue
 		var center: Vector2 = _monster_point(field)
@@ -658,13 +642,17 @@ func _draw_monster_attacks() -> void:
 		if attack.ability == "KopitaPulse":
 			_draw_kopita_pulse(attack)
 			continue
-		if attack.ability == "DotraEmerge":
+		if attack.ability == "DotraExpose":
 			var center: Vector2 = _monster_point(attack.source)
+			var rect: Rect2 = travel_rect(attack.source.lane)
 			var progress: float = float(attack.get("weight", 0.0))
-			for i in range(8):
-				var angle: float = TAU * float(i) / 8.0
-				var offset := Vector2(cos(angle), sin(angle) * 0.45) * (8.0 + progress * 22.0)
-				draw_circle(center + offset, 3.0 * (1.0 - progress) + 1.0, Color(0.65, 0.48, 0.28, 1.0 - progress))
+			var radius: float = float(attack.range_fp) * (0.15 + progress * 0.85)
+			var points := PackedVector2Array()
+			for i in range(49):
+				var angle: float = TAU * float(i) / 48.0
+				points.append(center + Vector2(cos(angle) * radius / 600.0 * rect.size.x, sin(angle) * radius / 2400.0 * rect.size.y))
+			draw_colored_polygon(points, Color(0.60, 0.24, 0.15, 0.16 * (1.0 - progress)))
+			draw_polyline(points, Color(ExposureVisuals.COLOR, 1.0 - progress), 2.2, true)
 			continue
 		var a := _attack_point(attack.source, attack.get("source_id", ""), attack.get("source_owner", 0))
 		var b := _attack_point(attack.target, attack.get("target_id", ""), attack.get("target_owner", 1))

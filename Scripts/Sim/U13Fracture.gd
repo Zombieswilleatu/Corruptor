@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Incoming = preload("res://Scripts/Sim/U13IncomingDamage.gd")
+
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
@@ -85,7 +87,9 @@ static func resolve(raw: Dictionary, fact: Dictionary, seed: String, player_orde
 			var after: int = maxi(0 if group in ["Marcher", "infrastructure"] else 1, before - (1 if group == "Marcher" else 2))
 			var command: Dictionary = {"command_id": "%s:fracture:%d:%s" % [event_id, point, victim.id], "target_id": victim.id}
 			if group == "Marcher":
-				command.merge({"kind": "marcher_damage", "damage": 1, "cause": "hazard"})
+				var amount: int = Incoming.amount(victim.attributes, 1, Incoming.phase_clock(world, int(detail.round)))
+				after = maxi(0, before - amount)
+				command.merge({"kind": "marcher_damage", "damage": amount, "cause": "hazard"})
 			elif group == "infrastructure" and after == 0:
 				command.merge({"kind": "ruin_castle_fracture", "source_id": lord.id, "cause": "fracture"})
 			else:

@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Incoming = preload("res://Scripts/Sim/U13IncomingDamage.gd")
+
 const Fort = preload("res://Scripts/Sim/U13FieldFortifications.gd")
 const Effects = preload("res://Scripts/Sim/U13MonsterEffects.gd")
 const Wish = preload("res://Scripts/Sim/U13Wishmaster.gd")
@@ -41,7 +43,7 @@ static func resolve(world: Dictionary, entities, context: Dictionary, tick: int,
 		var a: Dictionary = unit.attributes
 		if int(a.get("melee_next_tick", 0)) > clock or fleeing.has(unit.id) or Rout.retreating(a, context.round) or a.get("hidden", false) or a.get("sprite_form") == "turret": continue
 		var target: Dictionary = nearest(unit, targets, Fort.CONTACT, true)
-		if has_taunt or a.get("monster_id") in ["Tumler", "Dotra"]:
+		if has_taunt or a.get("monster_id") == "Tumler":
 			var hunted: Dictionary = Effects.preferred(unit, units)
 			if not hunted.is_empty(): target = hunted
 		if target.is_empty(): continue
@@ -69,7 +71,7 @@ static func resolve(world: Dictionary, entities, context: Dictionary, tick: int,
 				var a: Dictionary = target.attributes
 				var live_rows: Array = entities.marchers() if a.get("monster_id") == "Tumler" else []
 				evaded = Effects.evades(target, shot.attacker, live_rows, context, tick, "Melee", Fort.rows(world), fleeing)
-				var amount: int = 0 if evaded else int(shot.amount)
+				var amount: int = 0 if evaded else Incoming.amount(a, int(shot.amount), clock)
 				if not evaded and not fleeing.has(target.id): events.append_array(Effects.intercept(target, shot.attacker, live_rows, context, tick, Fort.rows(world)))
 				var absorbed: int = 0 if shot.attacker.attributes.armor_bypass else mini(int(a.armor), amount)
 				a.armor -= absorbed

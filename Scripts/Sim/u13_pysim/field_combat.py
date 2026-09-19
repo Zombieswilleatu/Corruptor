@@ -1,4 +1,5 @@
 """Independent simultaneous melee and fortification-aware ranged attacks."""
+from . import incoming_damage as incoming
 from . import field_fortifications as fort, monster_effects, penitent_defense, marching_spatial
 from .copying import copy_data
 from .marching_buffer import Buffer
@@ -48,7 +49,7 @@ def melee(phase, tick, fleeing):
                 or a.get('hidden', False) or a.get('sprite_form') == 'turret'):
             continue
         target = nearest(unit, targets, fort.CONTACT, True)
-        if has_taunt or a.get('monster_id') in ('Tumler', 'Dotra'):
+        if has_taunt or a.get('monster_id') == 'Tumler':
             target = monster_effects.preferred(unit, units) or target
         if not target:
             continue
@@ -76,7 +77,7 @@ def melee(phase, tick, fleeing):
                 a = target['attributes']
                 live_rows = buffer.rows() if a.get('monster_id') == 'Tumler' else []
                 evaded = monster_effects.evades(target, shot['attacker'], live_rows, ctx, tick, 'Melee', fort.rows(phase.w), fleeing)
-                amount = 0 if evaded else shot['amount']
+                amount = 0 if evaded else incoming.amount(a, shot['amount'], clock)
                 if not evaded and target['id'] not in fleeing:
                     phase.events.extend(monster_effects.intercept(target, shot['attacker'], live_rows, ctx, tick, fort.rows(phase.w)))
                 absorbed = 0 if shot['attacker']['attributes']['armor_bypass'] else min(a['armor'], amount)
@@ -149,7 +150,7 @@ def volley(phase, duels, tick, fleeing):
             if target:
                 blocked = penitent_defense.blocks(target, shot['attacker']['id'], phase.context['seed'], number, tick, 'Tower' if shot['attacker']['kind'] == 'fortification' else 'Vulture')
                 evaded = monster_effects.evades(target, shot['attacker'], buffer.rows() if target['attributes'].get('monster_id') == 'Tumler' else [], phase.context, tick, 'Tower' if shot['attacker']['kind'] == 'fortification' else 'Vulture', fort.rows(phase.w), fleeing)
-                a = target['attributes']; amount = 0 if blocked or evaded else shot['amount']; absorbed = min(a['armor'], amount)
+                a = target['attributes']; amount = 0 if blocked or evaded else incoming.amount(a, shot['amount'], clock); absorbed = min(a['armor'], amount)
                 a['armor'] -= absorbed; dealt = amount-absorbed
                 a['hp'] = max(0, a['hp']-dealt); hp_after = a['hp']
                 if not a['hp']:

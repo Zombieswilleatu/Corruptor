@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Incoming = preload("res://Scripts/Sim/U13IncomingDamage.gd")
+
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Battle = preload("res://Scripts/Sim/U13BattleEvents.gd")
@@ -70,11 +72,12 @@ static func pulse(
 			world.data["battle_commands"] = commands
 			events.append_array(damaged.events)
 		else:
-			absorbed = mini(int(entity.attributes.armor), intensity)
+			var amount: int = Incoming.amount(entity.attributes, intensity, Incoming.phase_clock(world, int(context.round)))
+			absorbed = mini(int(entity.attributes.armor), amount)
 			entity.attributes.armor -= absorbed
 			entities.update(entity.id, entity.owner, entity.attributes)
 			world.entities = entities.snapshot()
-			var command: Dictionary = {"command_id": Data.instance_id("hazard_hit", pulse_id, entity_id), "target_id": entity_id, "kind": "marcher_damage", "damage": intensity - absorbed, "cause": "hazard"}
+			var command: Dictionary = {"command_id": Data.instance_id("hazard_hit", pulse_id, entity_id), "target_id": entity_id, "kind": "marcher_damage", "damage": amount - absorbed, "cause": "hazard"}
 			var applied: Dictionary = Battle.apply(world, command, context.round, context.hook)
 			if applied.action == "invalid":
 				return applied

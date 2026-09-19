@@ -1,0 +1,246 @@
+{
+  "seeds": 16,
+  "cases": [
+    {
+      "name": "single:Penitent:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Penitent"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Butcher:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Butcher"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Vulture:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Vulture"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Wright:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Wright"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Lemek:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Lemek"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Varn:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Varn"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Fyra:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Fyra"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Kopita:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Kopita"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Tumler:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Tumler"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Kurchin:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Kurchin"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Muno:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Muno"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Dotra:Sooge",
+      "group": "single",
+      "teams": [
+        [
+          "Dotra"
+        ],
+        [
+          "Sooge"
+        ]
+      ]
+    },
+    {
+      "name": "single:Dotra:Sinodek",
+      "group": "single",
+      "teams": [
+        [
+          "Dotra"
+        ],
+        [
+          "Sinodek"
+        ]
+      ]
+    },
+    {
+      "name": "recipe:Dotra",
+      "group": "recipe",
+      "recipe": "Dotra",
+      "core": [],
+      "focus": "Dotra"
+    },
+    {
+      "name": "recipe_supported:Dotra",
+      "group": "recipe_supported",
+      "recipe": "Dotra",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "focus": "Dotra"
+    },
+    {
+      "name": "supported:Dotra:shock",
+      "group": "supported",
+      "focus": "Dotra",
+      "teams": [
+        [
+          "Penitent",
+          "Butcher",
+          "Vulture",
+          "Wright",
+          "Dotra"
+        ],
+        [
+          "Butcher",
+          "Butcher",
+          "Butcher",
+          "Butcher",
+          "Butcher",
+          "Butcher"
+        ]
+      ]
+    },
+    {
+      "name": "supported:Dotra:screen",
+      "group": "supported",
+      "focus": "Dotra",
+      "teams": [
+        [
+          "Penitent",
+          "Butcher",
+          "Vulture",
+          "Wright",
+          "Dotra"
+        ],
+        [
+          "Penitent",
+          "Penitent",
+          "Penitent",
+          "Vulture",
+          "Vulture",
+          "Vulture"
+        ]
+      ]
+    },
+    {
+      "name": "supported:Dotra:mixed",
+      "group": "supported",
+      "focus": "Dotra",
+      "teams": [
+        [
+          "Penitent",
+          "Butcher",
+          "Vulture",
+          "Wright",
+          "Dotra"
+        ],
+        [
+          "Penitent",
+          "Butcher",
+          "Vulture",
+          "Wright",
+          "Butcher",
+          "Butcher"
+        ]
+      ]
+    }
+  ]
+}

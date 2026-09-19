@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Incoming = preload("res://Scripts/Sim/U13IncomingDamage.gd")
+
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Wishmaster = preload("res://Scripts/Sim/U13Wishmaster.gd")
 const Rout = preload("res://Scripts/Sim/U13Rout.gd")
@@ -132,7 +134,7 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 		elif not target.is_empty():
 			blocked = Defense.blocks(target, shot.attacker.id, context.seed, context.round, tick, "Tower" if shot.attacker.kind == "fortification" else "Vulture")
 			evaded = MonsterEffects.evades(target, shot.attacker, entities.marchers() if target.attributes.get("monster_id") == "Tumler" else [], context, tick, "Tower" if shot.attacker.kind == "fortification" else "Vulture", Fort.rows(world), fleeing)
-			var amount: int = 0 if blocked or evaded else int(shot.amount)
+			var amount: int = 0 if blocked or evaded else Incoming.amount(target.attributes, int(shot.amount), clock)
 			var absorbed: int = mini(int(target.attributes.armor), amount)
 			target.attributes.armor -= absorbed
 			dealt = amount - absorbed

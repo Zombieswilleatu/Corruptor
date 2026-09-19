@@ -79,7 +79,7 @@ func _ready() -> void:
 	margin.add_child(column)
 	var top := HBoxContainer.new()
 	column.add_child(top)
-	var title := label(top, "MARCHER BALANCE · burrows V14 · range 400 · tower 600" if balance_preview else "MARCHER & MONSTER BALANCE · burrows V14", 25)
+	var title := label(top, "MARCHER BALANCE · exposure V15 · range 400 · tower 600" if balance_preview else "MARCHER & MONSTER BALANCE · exposure V15", 25)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button(top, "EXIT PREVIEW" if standalone else "MAIN MENU", dismiss)
 	var scoreboard := HBoxContainer.new()

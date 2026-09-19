@@ -1,4 +1,5 @@
 """Owned declared-power transforms for the existing nine-Lord authority."""
+from . import incoming_damage as incoming
 from . import veil
 from . import economy as e, recruitment as recruit
 from .copying import copy_data
@@ -141,8 +142,9 @@ def pulse(b,active,pulse_id,inner=False):
         r=e.entity(b.w,key);absorbed=0;hit={}
         command=dict(command_id=instance_id('hazard_hit',pulse_id,key),target_id=key)
         if target['kind']=='lane':
-            absorbed=min(r['attributes']['armor'],intensity);r['attributes']['armor']-=absorbed
-            command.update(kind='marcher_damage',damage=intensity-absorbed,cause='hazard')
+            amount=incoming.amount(r['attributes'],intensity,incoming.phase_clock(b.w,b.number))
+            absorbed=min(r['attributes']['armor'],amount);r['attributes']['armor']-=absorbed
+            command.update(kind='marcher_damage',damage=amount-absorbed,cause='hazard')
             fact=b.fact(command);events.append(e.event(fact['type'],fact['data']));events.extend(b.react(fact,inner=inner))
         else:
             event_id=instance_id('battle',str(b.number),command['command_id'])
@@ -200,8 +202,8 @@ def resolve(rec,state,n):
     elif power=='Web':
         key=instance_id('persistent',identity,power);ids=members(w,t,270,1-pid)
         for uid in ids:
-            r=e.entity(w,uid);absorbed=min(r['attributes']['armor'],1);r['attributes']['armor']-=absorbed
-            fact=b.fact(dict(command_id=instance_id('web_hit',key,uid),kind='marcher_damage',target_id=uid,damage=1-absorbed,cause='hazard'))
+            r=e.entity(w,uid);amount=incoming.amount(r['attributes'],1,incoming.phase_clock(w,n));absorbed=min(r['attributes']['armor'],amount);r['attributes']['armor']-=absorbed
+            fact=b.fact(dict(command_id=instance_id('web_hit',key,uid),kind='marcher_damage',target_id=uid,damage=amount-absorbed,cause='hazard'))
             events.append(e.event(fact['type'],fact['data']));events.extend(b.react(fact,inner=True))
             events.append(e.event('WEB_HIT',dict(effect_id=key,entity_id=uid,armor_absorbed=absorbed,intensity=1,round=n,hook=rec['fire_hook'])))
         events.append(e.event('WEB_STARTED',dict(effect_id=key,player_id=pid,target=t,radius_fp=270,affected_ids=ids,round=n,hook=rec['fire_hook'])))

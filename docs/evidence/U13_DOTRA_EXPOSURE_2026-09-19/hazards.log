@@ -1,0 +1,25 @@
+Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org
+
+PASS  hazard_pulse_resolves
+PASS  hazard_armor_absorbs_first
+PASS  hazard_hits_both_owners_and_waiters
+PASS  hazard_other_lane_untouched
+PASS  hazard_input_isolated
+PASS  extra_then_normal_pulse_consumes_remaining_armor_and_hp
+PASS  hazard_kill_does_not_award_vulture_combat_reward
+PASS  duplicate_hit_identity_rejected
+PASS  castle_hazard_resolves
+PASS  castle_fire_crosses_operational_floor
+PASS  castle_fire_sets_normal_repair_lock
+PASS  castle_fire_only_hits_selected_instance
+PASS  castle_fire_never_changes_guards
+PASS  duplicate_castle_hit_rejected
+PASS  castle_fire_can_ruin_selected_castle
+PASS  environmental_castle_ruin_normal_tear_without_siege_souls
+PASS  destroyed_castle_stays_bound_without_spill_or_retarget
+PASS  non_castle_or_lane_target_rejected
+PASS  non_castle_or_lane_target_rejected
+PASS  non_castle_or_lane_target_rejected
+PASS  non_castle_or_lane_target_rejected
+PASS  non_castle_or_lane_target_rejected
+U13 hazards failures: 0
