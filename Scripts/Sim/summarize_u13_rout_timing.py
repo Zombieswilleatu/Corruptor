@@ -35,10 +35,10 @@ def first_attack(record, identities, number):
     return min(ticks) if ticks else None
 
 
-def run(directory, pressure=False):
+def run(directory, pressure=False, selection_name=None, output_name=None):
     manifest = json.loads((directory/'manifest.json').read_text())
-    selection = json.loads((directory/('positions-pressure.json' if pressure else 'positions.json')).read_text())
-    if pressure:
+    selection = json.loads((directory/(selection_name or ('positions-pressure.json' if pressure else 'positions.json'))).read_text())
+    if pressure or selection_name:
         assert selection['parent_manifest_sha256']==fingerprint(manifest)
     positions = selection['selected']
     bases = {s['name']:read_record(directory/'games'/(s['name']+'.json.gz'),manifest,s) for s in manifest['specs']}
@@ -137,7 +137,7 @@ def run(directory, pressure=False):
     assert totals_count['exact_controls']==len(positions)
     report = dict(manifest=manifest,selection=selection,totals=totals_count,positions=rows,records=inventory,
         interpretation='Selected diagnostics, not independent win-rate evidence. Later policies react normally; HP, reinforcement and castle differences after divergence are conditional outcomes. Positional delay compares only cohort members alive in both branches, with survivor counts reported separately. A changed win alone does not justify earlier Rout.')
-    atomic_json(directory/('analysis-pressure.json' if pressure else 'analysis.json'),report)
+    atomic_json(directory/(output_name or ('analysis-pressure.json' if pressure else 'analysis.json')),report)
     print(json.dumps(totals_count,sort_keys=True))
     for row in rows:
         print(row['position']['name'],row['position']['original'],row['position']['lane'],row['result'],
