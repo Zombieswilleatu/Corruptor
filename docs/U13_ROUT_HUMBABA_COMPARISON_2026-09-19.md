@@ -1,5 +1,7 @@
 # U13 V10 / V11 comparison on the accepted Breath rules
 
+> **Follow-up completed:** [Controlled replays and Humbaba V12](U13_HUMBABA_PRESSURE_2026-09-19.md) retain this original result and report a separate fresh 37–31 comparison. The original campaign below remains unchanged evidence.
+
 **Completed: V11 90 wins, V10 102 wins in 192 primary games.**
 All 200 games completed: 3,846 rounds / 96,734 operations,
 zero failures, caps or rejected previews. All four control pairs have identical
