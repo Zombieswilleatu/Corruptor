@@ -571,7 +571,7 @@
       },
       "source_record": "kalligan_gremory_00__candidate_p0.json.gz",
       "source_record_sha256": "ec89f62e1f36dd89185985d8078e2e208be37b77225d1c8f5dba41eb9c09767a",
-      "view_sha256": "8978eaabc63559e8ecc4922726b66ed00e766ae41af9919b05a646b38e259d5d",
+      "view_sha256": "37c6e37a4f22799764d696b728b79928f722c2447d4b0878c47723e7bfff3c56",
       "view_sha256_history": [
         {
           "replay_revision": "349b7cfb096deb46910fb2c5014dcf57d2314932",
@@ -587,6 +587,12 @@
           "replay_revision": "5dec395d701902b68c22bda109ccc30399848ab2",
           "engine_source_sha256": "9748bdbbc1b497af58159b985abe7e25a08b086eb9821a91a2ae41894eeec799",
           "view_sha256": "bb118d576be219aa6005468300af583487e1d5d5c92f22a99d5e01a4fad5f303"
+        },
+        {
+          "replay_revision": "77ff66132104d213284c25e5e6feb869d5c1453d",
+          "engine_source_sha256": "6849abebda04d0c7f55f02f1310ef48debb734a5bc287363124b232102ba6259",
+          "view_sha256": "8978eaabc63559e8ecc4922726b66ed00e766ae41af9919b05a646b38e259d5d",
+          "note": "Before marcher spacing and Vulture versus Butcher damage; original inputs preserved."
         }
       ]
     },
@@ -1120,7 +1126,7 @@
       },
       "source_record": "kalligan_deimos_00__candidate_p0.json.gz",
       "source_record_sha256": "229507f5ee7fb00f30b1316e49da5b2c3b84eb2224b915b80fc300bacca837c0",
-      "view_sha256": "4824ecc241b4d7a08998caabcbf66fb1ec44a22c44e58ef2eb8f7aa6641006d7",
+      "view_sha256": "2218d350128e185af39654b4bbf9cdba9787379e2cf7e7e1a9bc37b58abdc866",
       "view_sha256_history": [
         {
           "replay_revision": "349b7cfb096deb46910fb2c5014dcf57d2314932",
@@ -1136,6 +1142,12 @@
           "replay_revision": "5dec395d701902b68c22bda109ccc30399848ab2",
           "engine_source_sha256": "9748bdbbc1b497af58159b985abe7e25a08b086eb9821a91a2ae41894eeec799",
           "view_sha256": "740a158d9d8658624b7f44197df38b9f9daec81e3e407c77023b49aeae4936fd"
+        },
+        {
+          "replay_revision": "77ff66132104d213284c25e5e6feb869d5c1453d",
+          "engine_source_sha256": "6849abebda04d0c7f55f02f1310ef48debb734a5bc287363124b232102ba6259",
+          "view_sha256": "4824ecc241b4d7a08998caabcbf66fb1ec44a22c44e58ef2eb8f7aa6641006d7",
+          "note": "Before marcher spacing and Vulture versus Butcher damage; original inputs preserved."
         }
       ]
     }
@@ -1147,7 +1159,7 @@
   "previous_replay_engine_revisions": [
     "acfdcdb5dd746a33efe30c2969d623912e896992"
   ],
-  "replay_engine_source_sha256": "00dd00f2192f5c5913494b0cb7cea11fc58b04080ab1d8b9216c7760fc6c9c11",
-  "current_replay_note": "2026-09-19 Breath immediate pulse, layered on Sinodek immunity: all recorded inputs, opposing plans and tactical outcome assertions are unchanged. Five planning observations are identical; Deimos/Humbaba round 16 has a changed living board and one fewer Neutral Tear after earlier healing. Historical fingerprints remain recorded. See U13_ROUT_HUMBABA_2026-09-19.md for the reviewed comparison.",
-  "replay_base_revision": "c0b2a76fdc1ae33239194a18f9477bbc58fc3d80"
+  "replay_engine_source_sha256": "12958849e54a868540dd793dc0321bef50676b065f3e9f7ddad83d3218ca93c7",
+  "current_replay_note": "Reviewed against the marcher spacing/counter revision. Original prefixes and opposing plans are preserved for retained cases; changed expected observations and the retired artillery case have explicit before/after evidence.",
+  "replay_base_revision": "2cf3bbb0f8405f8ff82f2c2e14abf6a8da15b2d9"
 }

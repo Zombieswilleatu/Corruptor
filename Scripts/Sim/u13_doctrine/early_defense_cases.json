@@ -829,7 +829,7 @@
         }
       ],
       "protected_castle": "u13_entity_castle:16:loadout:castle:1:1:0",
-      "view_sha256": "72eec68aa07854696ed01582bd591c83109b7f0c2137cb1714008668b6e6d9d2",
+      "view_sha256": "94057d9470cf2103e164443cd53cafe73adb1cea5582210478fb7d7b189e256b",
       "historical_view_sha256": "0fba84c7f2dca0eaa99a25e379ec4a975ed593b84b625712e676e409228c01e3",
       "pre_castle_rules_view_sha256": "9f8ecb7010c989715e2bdbd7ce549942e8c50f4ad0904ccf6e468d6f83b7bf84",
       "view_sha256_history": [
@@ -847,6 +847,12 @@
           "replay_revision": "5dec395d701902b68c22bda109ccc30399848ab2",
           "engine_source_sha256": "9748bdbbc1b497af58159b985abe7e25a08b086eb9821a91a2ae41894eeec799",
           "view_sha256": "d95d84b74c3e8bfd7faf40aeeb6e40390206d4aa4b7cb9ddebd1868d3d78b1a0"
+        },
+        {
+          "replay_revision": "77ff66132104d213284c25e5e6feb869d5c1453d",
+          "engine_source_sha256": "6849abebda04d0c7f55f02f1310ef48debb734a5bc287363124b232102ba6259",
+          "view_sha256": "72eec68aa07854696ed01582bd591c83109b7f0c2137cb1714008668b6e6d9d2",
+          "note": "Before marcher spacing and Vulture versus Butcher damage; original inputs preserved."
         }
       ]
     }
@@ -856,7 +862,7 @@
   "previous_replay_engine_revisions": [
     "b61bc9e"
   ],
-  "replay_engine_source_sha256": "00dd00f2192f5c5913494b0cb7cea11fc58b04080ab1d8b9216c7760fc6c9c11",
-  "current_replay_note": "2026-09-19 Breath immediate pulse, layered on Sinodek immunity: all recorded inputs, opposing plans and tactical outcome assertions are unchanged. Five planning observations are identical; Deimos/Humbaba round 16 has a changed living board and one fewer Neutral Tear after earlier healing. Historical fingerprints remain recorded. See U13_ROUT_HUMBABA_2026-09-19.md for the reviewed comparison.",
-  "replay_base_revision": "c0b2a76fdc1ae33239194a18f9477bbc58fc3d80"
+  "replay_engine_source_sha256": "12958849e54a868540dd793dc0321bef50676b065f3e9f7ddad83d3218ca93c7",
+  "current_replay_note": "Reviewed against the marcher spacing/counter revision. Original prefixes and opposing plans are preserved for retained cases; changed expected observations and the retired artillery case have explicit before/after evidence.",
+  "replay_base_revision": "2cf3bbb0f8405f8ff82f2c2e14abf6a8da15b2d9"
 }

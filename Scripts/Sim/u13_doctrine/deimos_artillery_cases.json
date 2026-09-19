@@ -1,19 +1,24 @@
 {
   "cases": [
     {
-      "name": "deimos_humbaba_00",
+      "counterfactual_note": "Fresh recorded current-rule V12 decision; original_plans changes only its Siege target back to the public castle destroyed by its own artillery. Opposing plan, powers, cards and recipe remain exactly recorded.",
+      "expected_monster_choice": "Lemek",
+      "name": "deimos_deimos_current_r16_s0",
       "original_plans": [
         {
           "order": {
             "action": "Siege",
             "card_ids": [
-              "u13_entity_card:16:game:deck:Wright:2:17",
+              "u13_entity_card:17:game:deck:Butcher:2:16",
+              "u13_entity_card:17:game:deck:Butcher:2:12",
+              "u13_entity_card:18:game:deck:Penitent:2:17",
               "u13_entity_card:16:game:deck:Wright:2:13",
-              "u13_entity_card:17:game:deck:Butcher:1:4",
-              "u13_entity_card:17:game:deck:Butcher:1:6",
-              "u13_entity_card:17:game:deck:Butcher:1:1",
-              "u13_entity_card:17:game:deck:Vulture:1:3",
-              "u13_entity_card:17:game:deck:Vulture:1:5"
+              "u13_entity_card:17:game:deck:Butcher:1:8",
+              "u13_entity_card:17:game:deck:Butcher:2:11",
+              "u13_entity_card:18:game:deck:Penitent:2:12",
+              "u13_entity_card:16:game:deck:Wright:2:11",
+              "u13_entity_card:17:game:deck:Butcher:1:5",
+              "u13_entity_card:17:game:deck:Vulture:2:10"
             ],
             "castle_action": {
               "action": "Work",
@@ -22,7 +27,7 @@
               "use_repair_token": false
             },
             "lane": "Castle",
-            "monster_choice": "Tumler",
+            "monster_choice": "Lemek",
             "target_id": "u13_entity_castle:16:loadout:castle:1:1:2"
           },
           "powers": [
@@ -47,26 +52,48 @@
         },
         {
           "order": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:1:2",
+              "u13_entity_card:16:game:deck:Wright:1:8",
+              "u13_entity_card:18:game:deck:Penitent:1:8",
+              "u13_entity_card:18:game:deck:Penitent:2:11"
+            ],
             "castle_action": {
               "action": "Work",
               "card_ids": [],
-              "target_id": "u13_entity_castle:16:loadout:castle:1:1:2",
+              "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
               "use_repair_token": false
             },
             "guard_moves": [
               {
-                "card_id": "u13_entity_card:17:game:deck:Butcher:2:13",
-                "lane": "Castle",
-                "slot": 0
-              },
-              {
-                "card_id": "u13_entity_card:17:game:deck:Butcher:2:17",
-                "lane": "Castle",
-                "slot": 1
+                "card_id": "u13_entity_card:18:game:deck:Penitent:2:15",
+                "lane": "Lord",
+                "slot": 2
               }
-            ]
+            ],
+            "lane": "Castle",
+            "monster_choice": "Kopita"
           },
-          "powers": []
+          "powers": [
+            {
+              "cost": {},
+              "declaration_id": "u13_declaration:4:1:16:1:0",
+              "declared_round": 16,
+              "fire_hook": "post_repair_artillery",
+              "fire_round": 16,
+              "lord_id": "Deimos",
+              "parameters": {},
+              "player_id": 1,
+              "power_id": "WarMachine",
+              "queue_index": 0,
+              "schema_version": "U13_LORD_DECLARATION_V1",
+              "target": {
+                "entity_id": "u13_entity_castle:16:loadout:castle:1:1:3"
+              },
+              "visibility": "public"
+            }
+          ]
         }
       ],
       "original_target": "u13_entity_castle:16:loadout:castle:1:1:2",
@@ -84,27 +111,564 @@
           "kind": "step"
         },
         {
-          "keep_id": "u13_entity_card:17:game:deck:Vulture:2:11",
+          "keep_id": "u13_entity_card:17:game:deck:Butcher:2:15",
           "kind": "stockpile",
           "player_id": 0
         },
         {
-          "keep_id": "u13_entity_card:17:game:deck:Butcher:2:14",
+          "keep_id": "u13_entity_card:18:game:deck:Penitent:1:9",
           "kind": "stockpile",
           "player_id": 1
         },
         {
           "choice": {
-            "give_id": "u13_entity_card:17:game:deck:Vulture:1:3",
-            "market": "Swap",
-            "take_id": "u13_entity_card:17:game:deck:Butcher:2:10"
+            "market": "Pass"
           },
           "kind": "market",
           "player_id": 1
         },
         {
           "choice": {
-            "give_id": "u13_entity_card:17:game:deck:Vulture:1:6",
+            "give_id": "u13_entity_card:17:game:deck:Vulture:1:0",
+            "market": "Swap",
+            "take_id": "u13_entity_card:17:game:deck:Butcher:1:3"
+          },
+          "kind": "market",
+          "player_id": 0
+        },
+        {
+          "hook": "present_public_state",
+          "kind": "step"
+        },
+        {
+          "kind": "submit",
+          "plans": [
+            {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:1:3",
+                  "u13_entity_card:17:game:deck:Butcher:1:9",
+                  "u13_entity_card:17:game:deck:Butcher:2:15",
+                  "u13_entity_card:16:game:deck:Wright:2:10",
+                  "u13_entity_card:16:game:deck:Wright:2:11"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "use_repair_token": false
+                },
+                "lane": "Castle",
+                "monster_choice": "Sooge"
+              },
+              "powers": []
+            },
+            {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:18:game:deck:Penitent:1:9",
+                  "u13_entity_card:18:game:deck:Penitent:2:16"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Vulture:1:8",
+                    "lane": "Castle",
+                    "slot": 0
+                  },
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Vulture:1:9",
+                    "lane": "Castle",
+                    "slot": 1
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Lemek"
+              },
+              "powers": []
+            }
+          ]
+        },
+        {
+          "hook": "submission_lock",
+          "kind": "step"
+        },
+        {
+          "hook": "development",
+          "kind": "step"
+        },
+        {
+          "hook": "post_repair_artillery",
+          "kind": "step"
+        },
+        {
+          "hook": "commitment_reveal",
+          "kind": "step"
+        },
+        {
+          "hook": "combat_resolution",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_spawns",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_position",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_allegiance",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_movement_state",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_hazards",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_direct",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_special_actors",
+          "kind": "step"
+        },
+        {
+          "hook": "marching_start",
+          "kind": "step"
+        },
+        {
+          "hook": "marching",
+          "kind": "step"
+        },
+        {
+          "hook": "end_marching_checks",
+          "kind": "step"
+        },
+        {
+          "hook": "aftermath",
+          "kind": "step"
+        },
+        {
+          "kind": "next_round"
+        },
+        {
+          "hook": "round_start_scheduled",
+          "kind": "step"
+        },
+        {
+          "hook": "persistent_advancement",
+          "kind": "step"
+        },
+        {
+          "hook": "round_start_automatic",
+          "kind": "step"
+        },
+        {
+          "keep_id": "u13_entity_card:17:game:deck:Butcher:2:16",
+          "kind": "stockpile",
+          "player_id": 0
+        },
+        {
+          "keep_id": "u13_entity_card:16:game:deck:Wright:1:5",
+          "kind": "stockpile",
+          "player_id": 1
+        },
+        {
+          "choice": {
+            "give_id": "u13_entity_card:17:game:deck:Vulture:1:1",
+            "market": "Swap",
+            "take_id": "u13_entity_card:18:game:deck:Penitent:1:0"
+          },
+          "kind": "market",
+          "player_id": 1
+        },
+        {
+          "choice": {
+            "market": "Pass"
+          },
+          "kind": "market",
+          "player_id": 0
+        },
+        {
+          "hook": "present_public_state",
+          "kind": "step"
+        },
+        {
+          "kind": "submit",
+          "plans": [
+            {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:18:game:deck:Penitent:1:3",
+                  "u13_entity_card:18:game:deck:Penitent:2:12",
+                  "u13_entity_card:18:game:deck:Penitent:2:14",
+                  "u13_entity_card:16:game:deck:Wright:1:6"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:2:11",
+                    "lane": "Castle",
+                    "slot": 0
+                  },
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:2:16",
+                    "lane": "Castle",
+                    "slot": 1
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Kurchin"
+              },
+              "powers": []
+            },
+            {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:1:7",
+                  "u13_entity_card:17:game:deck:Butcher:1:8",
+                  "u13_entity_card:17:game:deck:Butcher:2:10",
+                  "u13_entity_card:17:game:deck:Vulture:2:13"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Vulture:2:16",
+                    "lane": "Castle",
+                    "slot": 2
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Dotra"
+              },
+              "powers": []
+            }
+          ]
+        },
+        {
+          "hook": "submission_lock",
+          "kind": "step"
+        },
+        {
+          "hook": "development",
+          "kind": "step"
+        },
+        {
+          "hook": "post_repair_artillery",
+          "kind": "step"
+        },
+        {
+          "hook": "commitment_reveal",
+          "kind": "step"
+        },
+        {
+          "hook": "combat_resolution",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_spawns",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_position",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_allegiance",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_movement_state",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_hazards",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_direct",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_special_actors",
+          "kind": "step"
+        },
+        {
+          "hook": "marching_start",
+          "kind": "step"
+        },
+        {
+          "hook": "marching",
+          "kind": "step"
+        },
+        {
+          "hook": "end_marching_checks",
+          "kind": "step"
+        },
+        {
+          "hook": "aftermath",
+          "kind": "step"
+        },
+        {
+          "kind": "next_round"
+        },
+        {
+          "hook": "round_start_scheduled",
+          "kind": "step"
+        },
+        {
+          "hook": "persistent_advancement",
+          "kind": "step"
+        },
+        {
+          "hook": "round_start_automatic",
+          "kind": "step"
+        },
+        {
+          "keep_id": "u13_entity_card:18:game:deck:Penitent:1:6",
+          "kind": "stockpile",
+          "player_id": 0
+        },
+        {
+          "choice": {
+            "give_id": "u13_entity_card:16:game:deck:Wright:1:0",
+            "market": "Swap",
+            "take_id": "u13_entity_card:16:game:deck:Wright:2:13"
+          },
+          "kind": "market",
+          "player_id": 1
+        },
+        {
+          "choice": {
+            "give_id": "u13_entity_card:16:game:deck:Wright:1:9",
+            "market": "Swap",
+            "take_id": "u13_entity_card:18:game:deck:Penitent:1:7"
+          },
+          "kind": "market",
+          "player_id": 0
+        },
+        {
+          "hook": "present_public_state",
+          "kind": "step"
+        },
+        {
+          "kind": "submit",
+          "plans": [
+            {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:18:game:deck:Penitent:1:6",
+                  "u13_entity_card:18:game:deck:Penitent:1:7"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:16:game:deck:Wright:2:15",
+                    "lane": "Lord",
+                    "slot": 0
+                  },
+                  {
+                    "card_id": "u13_entity_card:16:game:deck:Wright:2:16",
+                    "lane": "Lord",
+                    "slot": 1
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Lemek"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:3:1:0",
+                  "declared_round": 3,
+                  "fire_hook": "post_resolution_movement_state",
+                  "fire_round": 3,
+                  "lord_id": "Deimos",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "Rout",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Castle"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            },
+            {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:18:game:deck:Penitent:1:0",
+                  "u13_entity_card:18:game:deck:Penitent:1:1",
+                  "u13_entity_card:18:game:deck:Penitent:1:5",
+                  "u13_entity_card:16:game:deck:Wright:1:4"
+                ],
+                "castle_action": {
+                  "action": "Activate",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:2:12",
+                    "lane": "Lord",
+                    "slot": 0
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Kurchin"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:1:3:1:0",
+                  "declared_round": 3,
+                  "fire_hook": "post_resolution_movement_state",
+                  "fire_round": 3,
+                  "lord_id": "Deimos",
+                  "parameters": {},
+                  "player_id": 1,
+                  "power_id": "Rout",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Castle"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "hook": "submission_lock",
+          "kind": "step"
+        },
+        {
+          "hook": "development",
+          "kind": "step"
+        },
+        {
+          "hook": "post_repair_artillery",
+          "kind": "step"
+        },
+        {
+          "hook": "commitment_reveal",
+          "kind": "step"
+        },
+        {
+          "hook": "combat_resolution",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_spawns",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_position",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_allegiance",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_movement_state",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_hazards",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_direct",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_special_actors",
+          "kind": "step"
+        },
+        {
+          "hook": "marching_start",
+          "kind": "step"
+        },
+        {
+          "hook": "marching",
+          "kind": "step"
+        },
+        {
+          "hook": "end_marching_checks",
+          "kind": "step"
+        },
+        {
+          "hook": "aftermath",
+          "kind": "step"
+        },
+        {
+          "kind": "next_round"
+        },
+        {
+          "hook": "round_start_scheduled",
+          "kind": "step"
+        },
+        {
+          "hook": "persistent_advancement",
+          "kind": "step"
+        },
+        {
+          "hook": "round_start_automatic",
+          "kind": "step"
+        },
+        {
+          "keep_id": "u13_entity_card:16:game:deck:Wright:2:17",
+          "kind": "stockpile",
+          "player_id": 0
+        },
+        {
+          "choice": {
+            "give_id": "u13_entity_card:17:game:deck:Butcher:1:0",
+            "market": "Swap",
+            "take_id": "u13_entity_card:17:game:deck:Butcher:1:6"
+          },
+          "kind": "market",
+          "player_id": 1
+        },
+        {
+          "choice": {
+            "give_id": "u13_entity_card:17:game:deck:Vulture:1:3",
             "market": "Swap",
             "take_id": "u13_entity_card:17:game:deck:Butcher:1:5"
           },
@@ -120,632 +684,36 @@
           "plans": [
             {
               "order": {
-                "action": "Ward",
-                "card_ids": [
-                  "u13_entity_card:17:game:deck:Vulture:2:11",
-                  "u13_entity_card:17:game:deck:Vulture:2:13"
-                ],
-                "castle_action": {
-                  "action": "Work",
-                  "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
-                  "use_repair_token": false
-                },
-                "guard_moves": [
-                  {
-                    "card_id": "u13_entity_card:17:game:deck:Butcher:1:5",
-                    "lane": "Lord",
-                    "slot": 0
-                  },
-                  {
-                    "card_id": "u13_entity_card:17:game:deck:Butcher:2:16",
-                    "lane": "Lord",
-                    "slot": 1
-                  }
-                ],
-                "lane": "Castle",
-                "monster_choice": "Varn"
-              },
-              "powers": []
-            },
-            {
-              "order": {
                 "action": "Siege",
                 "card_ids": [
+                  "u13_entity_card:16:game:deck:Wright:2:17",
                   "u13_entity_card:17:game:deck:Butcher:2:14",
-                  "u13_entity_card:18:game:deck:Penitent:2:16",
-                  "u13_entity_card:17:game:deck:Butcher:1:8",
-                  "u13_entity_card:17:game:deck:Butcher:2:10",
-                  "u13_entity_card:18:game:deck:Penitent:2:12",
+                  "u13_entity_card:17:game:deck:Vulture:2:15",
+                  "u13_entity_card:18:game:deck:Penitent:2:15",
+                  "u13_entity_card:18:game:deck:Penitent:2:17",
+                  "u13_entity_card:17:game:deck:Vulture:2:14",
+                  "u13_entity_card:17:game:deck:Butcher:1:5",
+                  "u13_entity_card:17:game:deck:Vulture:2:11",
                   "u13_entity_card:18:game:deck:Penitent:2:10"
                 ],
                 "castle_action": {
-                  "action": "Work",
-                  "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
-                  "use_repair_token": false
-                },
-                "lane": "Castle",
-                "monster_choice": "Lemek",
-                "target_id": "u13_entity_castle:16:loadout:castle:0:1:0"
-              },
-              "powers": [
-                {
-                  "cost": {},
-                  "declaration_id": "u13_declaration:3:1:1:1:0",
-                  "declared_round": 1,
-                  "fire_hook": "post_resolution_spawns",
-                  "fire_round": 1,
-                  "lord_id": "Humbaba",
-                  "parameters": {},
-                  "player_id": 1,
-                  "power_id": "MusterTheFaithful",
-                  "queue_index": 0,
-                  "schema_version": "U13_LORD_DECLARATION_V1",
-                  "target": {
-                    "lane": "Castle"
-                  },
-                  "visibility": "public"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "hook": "submission_lock",
-          "kind": "step"
-        },
-        {
-          "hook": "development",
-          "kind": "step"
-        },
-        {
-          "hook": "post_repair_artillery",
-          "kind": "step"
-        },
-        {
-          "hook": "commitment_reveal",
-          "kind": "step"
-        },
-        {
-          "hook": "combat_resolution",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_spawns",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_position",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_allegiance",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_movement_state",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_hazards",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_direct",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_special_actors",
-          "kind": "step"
-        },
-        {
-          "hook": "marching_start",
-          "kind": "step"
-        },
-        {
-          "hook": "marching",
-          "kind": "step"
-        },
-        {
-          "hook": "end_marching_checks",
-          "kind": "step"
-        },
-        {
-          "hook": "aftermath",
-          "kind": "step"
-        },
-        {
-          "kind": "next_round"
-        },
-        {
-          "hook": "round_start_scheduled",
-          "kind": "step"
-        },
-        {
-          "hook": "persistent_advancement",
-          "kind": "step"
-        },
-        {
-          "hook": "round_start_automatic",
-          "kind": "step"
-        },
-        {
-          "keep_id": "u13_entity_card:17:game:deck:Butcher:1:4",
-          "kind": "stockpile",
-          "player_id": 0
-        },
-        {
-          "keep_id": "u13_entity_card:16:game:deck:Wright:2:14",
-          "kind": "stockpile",
-          "player_id": 1
-        },
-        {
-          "choice": {
-            "give_id": "u13_entity_card:18:game:deck:Penitent:1:1",
-            "market": "Swap",
-            "take_id": "u13_entity_card:16:game:deck:Wright:2:15"
-          },
-          "kind": "market",
-          "player_id": 1
-        },
-        {
-          "choice": {
-            "give_id": "u13_entity_card:16:game:deck:Wright:1:2",
-            "market": "Swap",
-            "take_id": "u13_entity_card:18:game:deck:Penitent:2:17"
-          },
-          "kind": "market",
-          "player_id": 0
-        },
-        {
-          "hook": "present_public_state",
-          "kind": "step"
-        },
-        {
-          "kind": "submit",
-          "plans": [
-            {
-              "order": {
-                "action": "Ward",
-                "card_ids": [
-                  "u13_entity_card:18:game:deck:Penitent:1:2",
-                  "u13_entity_card:18:game:deck:Penitent:1:9",
-                  "u13_entity_card:18:game:deck:Penitent:2:17",
-                  "u13_entity_card:16:game:deck:Wright:1:5"
-                ],
-                "castle_action": {
-                  "action": "Work",
-                  "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
-                  "use_repair_token": false
-                },
-                "guard_moves": [
-                  {
-                    "card_id": "u13_entity_card:17:game:deck:Butcher:1:4",
-                    "lane": "Castle",
-                    "slot": 0
-                  },
-                  {
-                    "card_id": "u13_entity_card:17:game:deck:Butcher:2:13",
-                    "lane": "Castle",
-                    "slot": 1
-                  }
-                ],
-                "lane": "Castle",
-                "monster_choice": "Kurchin"
-              },
-              "powers": [
-                {
-                  "cost": {},
-                  "declaration_id": "u13_declaration:3:0:2:1:0",
-                  "declared_round": 2,
-                  "fire_hook": "post_resolution_movement_state",
-                  "fire_round": 2,
-                  "lord_id": "Deimos",
-                  "parameters": {},
-                  "player_id": 0,
-                  "power_id": "Rout",
-                  "queue_index": 0,
-                  "schema_version": "U13_LORD_DECLARATION_V1",
-                  "target": {
-                    "lane": "Castle"
-                  },
-                  "visibility": "public"
-                }
-              ]
-            },
-            {
-              "order": {
-                "action": "Ward",
-                "card_ids": [
-                  "u13_entity_card:17:game:deck:Vulture:1:5",
-                  "u13_entity_card:17:game:deck:Vulture:2:10"
-                ],
-                "castle_action": {
-                  "action": "Work",
-                  "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
-                  "use_repair_token": false
-                },
-                "guard_moves": [
-                  {
-                    "card_id": "u13_entity_card:16:game:deck:Wright:2:14",
-                    "lane": "Castle",
-                    "slot": 0
-                  },
-                  {
-                    "card_id": "u13_entity_card:16:game:deck:Wright:2:15",
-                    "lane": "Castle",
-                    "slot": 1
-                  }
-                ],
-                "lane": "Castle",
-                "monster_choice": "Varn"
-              },
-              "powers": [
-                {
-                  "cost": {},
-                  "declaration_id": "u13_declaration:3:1:2:1:0",
-                  "declared_round": 2,
-                  "fire_hook": "post_resolution_movement_state",
-                  "fire_round": 2,
-                  "lord_id": "Humbaba",
-                  "parameters": {},
-                  "player_id": 1,
-                  "power_id": "BreathOfLife",
-                  "queue_index": 0,
-                  "schema_version": "U13_LORD_DECLARATION_V1",
-                  "target": {
-                    "lane": "Castle"
-                  },
-                  "visibility": "public"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "hook": "submission_lock",
-          "kind": "step"
-        },
-        {
-          "hook": "development",
-          "kind": "step"
-        },
-        {
-          "hook": "post_repair_artillery",
-          "kind": "step"
-        },
-        {
-          "hook": "commitment_reveal",
-          "kind": "step"
-        },
-        {
-          "hook": "combat_resolution",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_spawns",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_position",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_allegiance",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_movement_state",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_hazards",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_direct",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_special_actors",
-          "kind": "step"
-        },
-        {
-          "hook": "marching_start",
-          "kind": "step"
-        },
-        {
-          "hook": "marching",
-          "kind": "step"
-        },
-        {
-          "hook": "end_marching_checks",
-          "kind": "step"
-        },
-        {
-          "hook": "aftermath",
-          "kind": "step"
-        },
-        {
-          "kind": "next_round"
-        },
-        {
-          "hook": "round_start_scheduled",
-          "kind": "step"
-        },
-        {
-          "hook": "persistent_advancement",
-          "kind": "step"
-        },
-        {
-          "hook": "round_start_automatic",
-          "kind": "step"
-        },
-        {
-          "keep_id": "u13_entity_card:17:game:deck:Vulture:1:9",
-          "kind": "stockpile",
-          "player_id": 0
-        },
-        {
-          "keep_id": "u13_entity_card:17:game:deck:Butcher:1:7",
-          "kind": "stockpile",
-          "player_id": 1
-        },
-        {
-          "choice": {
-            "give_id": "u13_entity_card:17:game:deck:Butcher:1:1",
-            "market": "Swap",
-            "take_id": "u13_entity_card:16:game:deck:Wright:1:8"
-          },
-          "kind": "market",
-          "player_id": 1
-        },
-        {
-          "choice": {
-            "give_id": "u13_entity_card:17:game:deck:Vulture:1:7",
-            "market": "Swap",
-            "take_id": "u13_entity_card:17:game:deck:Butcher:2:12"
-          },
-          "kind": "market",
-          "player_id": 0
-        },
-        {
-          "hook": "present_public_state",
-          "kind": "step"
-        },
-        {
-          "kind": "submit",
-          "plans": [
-            {
-              "order": {
-                "action": "Ward",
-                "card_ids": [
-                  "u13_entity_card:17:game:deck:Butcher:1:6",
-                  "u13_entity_card:17:game:deck:Butcher:2:12",
-                  "u13_entity_card:17:game:deck:Butcher:2:17",
-                  "u13_entity_card:16:game:deck:Wright:2:11",
-                  "u13_entity_card:16:game:deck:Wright:2:13"
-                ],
-                "castle_action": {
                   "action": "Activate",
                   "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
                   "use_repair_token": false
                 },
-                "guard_moves": [
-                  {
-                    "card_id": "u13_entity_card:18:game:deck:Penitent:2:15",
-                    "lane": "Castle",
-                    "slot": 2
-                  }
-                ],
-                "lane": "Lord",
-                "monster_choice": "Sooge"
+                "lane": "Castle",
+                "monster_choice": "Kurchin",
+                "target_id": "u13_entity_castle:16:loadout:castle:1:1:4"
               },
               "powers": []
             },
-            {
-              "order": {
-                "action": "Ward",
-                "card_ids": [
-                  "u13_entity_card:17:game:deck:Butcher:1:2",
-                  "u13_entity_card:17:game:deck:Butcher:1:7",
-                  "u13_entity_card:17:game:deck:Vulture:1:4",
-                  "u13_entity_card:17:game:deck:Vulture:1:8"
-                ],
-                "castle_action": {
-                  "action": "Activate",
-                  "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
-                  "use_repair_token": false
-                },
-                "guard_moves": [
-                  {
-                    "card_id": "u13_entity_card:16:game:deck:Wright:1:8",
-                    "lane": "Lord",
-                    "slot": 0
-                  },
-                  {
-                    "card_id": "u13_entity_card:16:game:deck:Wright:2:16",
-                    "lane": "Lord",
-                    "slot": 1
-                  }
-                ],
-                "lane": "Castle",
-                "monster_choice": "Fyra"
-              },
-              "powers": [
-                {
-                  "cost": {},
-                  "declaration_id": "u13_declaration:3:1:3:1:0",
-                  "declared_round": 3,
-                  "fire_hook": "post_resolution_spawns",
-                  "fire_round": 3,
-                  "lord_id": "Humbaba",
-                  "parameters": {},
-                  "player_id": 1,
-                  "power_id": "MusterTheFaithful",
-                  "queue_index": 0,
-                  "schema_version": "U13_LORD_DECLARATION_V1",
-                  "target": {
-                    "lane": "Castle"
-                  },
-                  "visibility": "public"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "hook": "submission_lock",
-          "kind": "step"
-        },
-        {
-          "hook": "development",
-          "kind": "step"
-        },
-        {
-          "hook": "post_repair_artillery",
-          "kind": "step"
-        },
-        {
-          "hook": "commitment_reveal",
-          "kind": "step"
-        },
-        {
-          "hook": "combat_resolution",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_spawns",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_position",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_allegiance",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_movement_state",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_hazards",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_direct",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_special_actors",
-          "kind": "step"
-        },
-        {
-          "hook": "marching_start",
-          "kind": "step"
-        },
-        {
-          "hook": "marching",
-          "kind": "step"
-        },
-        {
-          "hook": "end_marching_checks",
-          "kind": "step"
-        },
-        {
-          "hook": "aftermath",
-          "kind": "step"
-        },
-        {
-          "kind": "next_round"
-        },
-        {
-          "hook": "round_start_scheduled",
-          "kind": "step"
-        },
-        {
-          "hook": "persistent_advancement",
-          "kind": "step"
-        },
-        {
-          "hook": "round_start_automatic",
-          "kind": "step"
-        },
-        {
-          "keep_id": "u13_entity_card:17:game:deck:Vulture:2:14",
-          "kind": "stockpile",
-          "player_id": 0
-        },
-        {
-          "keep_id": "u13_entity_card:16:game:deck:Wright:2:12",
-          "kind": "stockpile",
-          "player_id": 1
-        },
-        {
-          "choice": {
-            "give_id": "u13_entity_card:18:game:deck:Penitent:1:4",
-            "market": "Swap",
-            "take_id": "u13_entity_card:17:game:deck:Vulture:2:11"
-          },
-          "kind": "market",
-          "player_id": 1
-        },
-        {
-          "choice": {
-            "market": "Pass"
-          },
-          "kind": "market",
-          "player_id": 0
-        },
-        {
-          "hook": "present_public_state",
-          "kind": "step"
-        },
-        {
-          "kind": "submit",
-          "plans": [
             {
               "order": {
                 "action": "Ward",
                 "card_ids": [
                   "u13_entity_card:17:game:deck:Vulture:1:0",
-                  "u13_entity_card:17:game:deck:Vulture:1:9",
-                  "u13_entity_card:16:game:deck:Wright:1:3",
-                  "u13_entity_card:16:game:deck:Wright:2:17"
-                ],
-                "castle_action": {
-                  "action": "Work",
-                  "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
-                  "use_repair_token": false
-                },
-                "guard_moves": [
-                  {
-                    "card_id": "u13_entity_card:17:game:deck:Vulture:2:16",
-                    "lane": "Lord",
-                    "slot": 2
-                  }
-                ],
-                "lane": "Castle",
-                "monster_choice": "Tumler"
-              },
-              "powers": []
-            },
-            {
-              "order": {
-                "action": "Ward",
-                "card_ids": [
-                  "u13_entity_card:17:game:deck:Vulture:1:1",
-                  "u13_entity_card:17:game:deck:Vulture:1:3",
-                  "u13_entity_card:16:game:deck:Wright:2:10",
-                  "u13_entity_card:16:game:deck:Wright:2:12"
+                  "u13_entity_card:17:game:deck:Vulture:1:6"
                 ],
                 "castle_action": {
                   "action": "Work",
@@ -755,405 +723,20 @@
                 },
                 "guard_moves": [
                   {
-                    "card_id": "u13_entity_card:17:game:deck:Vulture:2:17",
-                    "lane": "Lord",
-                    "slot": 2
-                  }
-                ],
-                "lane": "Lord",
-                "monster_choice": "Tumler"
-              },
-              "powers": []
-            }
-          ]
-        },
-        {
-          "hook": "submission_lock",
-          "kind": "step"
-        },
-        {
-          "hook": "development",
-          "kind": "step"
-        },
-        {
-          "hook": "post_repair_artillery",
-          "kind": "step"
-        },
-        {
-          "hook": "commitment_reveal",
-          "kind": "step"
-        },
-        {
-          "hook": "combat_resolution",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_spawns",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_position",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_allegiance",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_movement_state",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_hazards",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_direct",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_special_actors",
-          "kind": "step"
-        },
-        {
-          "hook": "marching_start",
-          "kind": "step"
-        },
-        {
-          "hook": "marching",
-          "kind": "step"
-        },
-        {
-          "hook": "end_marching_checks",
-          "kind": "step"
-        },
-        {
-          "hook": "aftermath",
-          "kind": "step"
-        },
-        {
-          "kind": "next_round"
-        },
-        {
-          "hook": "round_start_scheduled",
-          "kind": "step"
-        },
-        {
-          "hook": "persistent_advancement",
-          "kind": "step"
-        },
-        {
-          "hook": "round_start_automatic",
-          "kind": "step"
-        },
-        {
-          "keep_id": "u13_entity_card:17:game:deck:Butcher:2:12",
-          "kind": "stockpile",
-          "player_id": 0
-        },
-        {
-          "keep_id": "u13_entity_card:18:game:deck:Penitent:2:17",
-          "kind": "stockpile",
-          "player_id": 1
-        },
-        {
-          "choice": {
-            "give_id": "u13_entity_card:17:game:deck:Vulture:1:6",
-            "market": "Swap",
-            "take_id": "u13_entity_card:16:game:deck:Wright:2:11"
-          },
-          "kind": "market",
-          "player_id": 1
-        },
-        {
-          "choice": {
-            "give_id": "u13_entity_card:17:game:deck:Butcher:1:2",
-            "market": "Swap",
-            "take_id": "u13_entity_card:18:game:deck:Penitent:2:11"
-          },
-          "kind": "market",
-          "player_id": 0
-        },
-        {
-          "hook": "present_public_state",
-          "kind": "step"
-        },
-        {
-          "kind": "submit",
-          "plans": [
-            {
-              "order": {
-                "action": "Ward",
-                "card_ids": [
-                  "u13_entity_card:17:game:deck:Butcher:2:12",
-                  "u13_entity_card:17:game:deck:Vulture:2:14",
-                  "u13_entity_card:18:game:deck:Penitent:2:14",
-                  "u13_entity_card:18:game:deck:Penitent:1:9",
-                  "u13_entity_card:18:game:deck:Penitent:2:10",
-                  "u13_entity_card:18:game:deck:Penitent:2:11",
-                  "u13_entity_card:17:game:deck:Butcher:1:7",
-                  "u13_entity_card:18:game:deck:Penitent:1:1",
-                  "u13_entity_card:18:game:deck:Penitent:1:3"
-                ],
-                "castle_action": {
-                  "action": "Work",
-                  "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
-                  "use_repair_token": false
-                },
-                "lane": "Castle",
-                "monster_choice": "Lemek"
-              },
-              "powers": []
-            },
-            {
-              "order": {
-                "action": "Hunt",
-                "card_ids": [
-                  "u13_entity_card:18:game:deck:Penitent:2:17",
-                  "u13_entity_card:16:game:deck:Wright:2:13",
-                  "u13_entity_card:17:game:deck:Butcher:1:9",
-                  "u13_entity_card:18:game:deck:Penitent:2:12",
-                  "u13_entity_card:16:game:deck:Wright:2:11",
-                  "u13_entity_card:17:game:deck:Butcher:1:6",
-                  "u13_entity_card:17:game:deck:Vulture:1:8",
-                  "u13_entity_card:17:game:deck:Vulture:2:11",
-                  "u13_entity_card:18:game:deck:Penitent:1:2"
-                ],
-                "castle_action": {
-                  "action": "Activate",
-                  "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
-                  "use_repair_token": false
-                },
-                "lane": "Lord",
-                "monster_choice": "Kurchin",
-                "target_id": "u13_entity_lord:12:smoke:lord:0:1:0"
-              },
-              "powers": [
-                {
-                  "cost": {},
-                  "declaration_id": "u13_declaration:3:1:5:1:0",
-                  "declared_round": 5,
-                  "fire_hook": "post_resolution_spawns",
-                  "fire_round": 5,
-                  "lord_id": "Humbaba",
-                  "parameters": {},
-                  "player_id": 1,
-                  "power_id": "MusterTheFaithful",
-                  "queue_index": 0,
-                  "schema_version": "U13_LORD_DECLARATION_V1",
-                  "target": {
-                    "lane": "Lord"
-                  },
-                  "visibility": "public"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "hook": "submission_lock",
-          "kind": "step"
-        },
-        {
-          "hook": "development",
-          "kind": "step"
-        },
-        {
-          "hook": "post_repair_artillery",
-          "kind": "step"
-        },
-        {
-          "hook": "commitment_reveal",
-          "kind": "step"
-        },
-        {
-          "hook": "combat_resolution",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_spawns",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_position",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_allegiance",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_movement_state",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_hazards",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_direct",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_special_actors",
-          "kind": "step"
-        },
-        {
-          "hook": "marching_start",
-          "kind": "step"
-        },
-        {
-          "hook": "marching",
-          "kind": "step"
-        },
-        {
-          "hook": "end_marching_checks",
-          "kind": "step"
-        },
-        {
-          "hook": "aftermath",
-          "kind": "step"
-        },
-        {
-          "kind": "next_round"
-        },
-        {
-          "hook": "round_start_scheduled",
-          "kind": "step"
-        },
-        {
-          "hook": "persistent_advancement",
-          "kind": "step"
-        },
-        {
-          "hook": "round_start_automatic",
-          "kind": "step"
-        },
-        {
-          "keep_id": "u13_entity_card:16:game:deck:Wright:1:5",
-          "kind": "stockpile",
-          "player_id": 0
-        },
-        {
-          "keep_id": "u13_entity_card:16:game:deck:Wright:1:9",
-          "kind": "stockpile",
-          "player_id": 1
-        },
-        {
-          "choice": {
-            "market": "Pass"
-          },
-          "kind": "market",
-          "player_id": 1
-        },
-        {
-          "choice": {
-            "give_id": "u13_entity_card:16:game:deck:Wright:1:5",
-            "market": "Swap",
-            "take_id": "u13_entity_card:17:game:deck:Butcher:1:0"
-          },
-          "kind": "market",
-          "player_id": 0
-        },
-        {
-          "hook": "present_public_state",
-          "kind": "step"
-        },
-        {
-          "kind": "submit",
-          "plans": [
-            {
-              "order": {
-                "action": "Ward",
-                "card_ids": [
-                  "u13_entity_card:17:game:deck:Butcher:1:0",
-                  "u13_entity_card:17:game:deck:Butcher:1:8",
-                  "u13_entity_card:17:game:deck:Vulture:1:5",
-                  "u13_entity_card:17:game:deck:Vulture:2:13"
-                ],
-                "castle_action": {
-                  "action": "Activate",
-                  "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
-                  "use_repair_token": false
-                },
-                "guard_moves": [
-                  {
-                    "card_id": "u13_entity_card:18:game:deck:Penitent:1:5",
+                    "card_id": "u13_entity_card:16:game:deck:Wright:1:2",
                     "lane": "Lord",
                     "slot": 1
                   },
                   {
-                    "card_id": "u13_entity_card:18:game:deck:Penitent:2:13",
+                    "card_id": "u13_entity_card:16:game:deck:Wright:1:5",
                     "lane": "Lord",
                     "slot": 2
                   }
                 ],
-                "lane": "Lord",
-                "monster_choice": "Fyra"
+                "lane": "Castle",
+                "monster_choice": "Varn"
               },
-              "powers": [
-                {
-                  "cost": {},
-                  "declaration_id": "u13_declaration:3:0:6:1:0",
-                  "declared_round": 6,
-                  "fire_hook": "post_resolution_movement_state",
-                  "fire_round": 6,
-                  "lord_id": "Deimos",
-                  "parameters": {},
-                  "player_id": 0,
-                  "power_id": "Rout",
-                  "queue_index": 0,
-                  "schema_version": "U13_LORD_DECLARATION_V1",
-                  "target": {
-                    "lane": "Castle"
-                  },
-                  "visibility": "public"
-                }
-              ]
-            },
-            {
-              "order": {
-                "action": "Hunt",
-                "card_ids": [
-                  "u13_entity_card:17:game:deck:Butcher:2:17",
-                  "u13_entity_card:18:game:deck:Penitent:2:16",
-                  "u13_entity_card:17:game:deck:Butcher:2:10",
-                  "u13_entity_card:16:game:deck:Wright:1:9",
-                  "u13_entity_card:17:game:deck:Vulture:2:10",
-                  "u13_entity_card:17:game:deck:Vulture:1:4"
-                ],
-                "castle_action": {
-                  "action": "Work",
-                  "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
-                  "use_repair_token": false
-                },
-                "lane": "Lord",
-                "monster_choice": "Fyra",
-                "target_id": "u13_entity_lord:12:smoke:lord:0:1:0"
-              },
-              "powers": [
-                {
-                  "cost": {},
-                  "declaration_id": "u13_declaration:3:1:6:1:0",
-                  "declared_round": 6,
-                  "fire_hook": "post_resolution_movement_state",
-                  "fire_round": 6,
-                  "lord_id": "Humbaba",
-                  "parameters": {},
-                  "player_id": 1,
-                  "power_id": "BreathOfLife",
-                  "queue_index": 0,
-                  "schema_version": "U13_LORD_DECLARATION_V1",
-                  "target": {
-                    "lane": "Castle"
-                  },
-                  "visibility": "public"
-                }
-              ]
+              "powers": []
             }
           ]
         },
@@ -1237,29 +820,24 @@
           "kind": "step"
         },
         {
-          "keep_id": "u13_entity_card:17:game:deck:Vulture:2:11",
+          "keep_id": "u13_entity_card:18:game:deck:Penitent:1:3",
           "kind": "stockpile",
           "player_id": 0
         },
         {
-          "keep_id": "u13_entity_card:17:game:deck:Butcher:2:16",
-          "kind": "stockpile",
-          "player_id": 1
-        },
-        {
           "choice": {
-            "give_id": "u13_entity_card:18:game:deck:Penitent:2:13",
+            "give_id": "u13_entity_card:17:game:deck:Butcher:1:5",
             "market": "Swap",
-            "take_id": "u13_entity_card:17:game:deck:Butcher:2:17"
+            "take_id": "u13_entity_card:17:game:deck:Vulture:2:15"
           },
           "kind": "market",
           "player_id": 1
         },
         {
           "choice": {
-            "give_id": "u13_entity_card:16:game:deck:Wright:1:3",
+            "give_id": "u13_entity_card:16:game:deck:Wright:1:0",
             "market": "Swap",
-            "take_id": "u13_entity_card:18:game:deck:Penitent:2:13"
+            "take_id": "u13_entity_card:16:game:deck:Wright:1:6"
           },
           "kind": "market",
           "player_id": 0
@@ -1273,39 +851,27 @@
           "plans": [
             {
               "order": {
-                "action": "Ward",
-                "card_ids": [
-                  "u13_entity_card:17:game:deck:Vulture:1:6",
-                  "u13_entity_card:17:game:deck:Vulture:2:11"
-                ],
                 "castle_action": {
                   "action": "Work",
                   "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:0",
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
                   "use_repair_token": false
                 },
                 "guard_moves": [
                   {
-                    "card_id": "u13_entity_card:18:game:deck:Penitent:1:0",
-                    "lane": "Lord",
-                    "slot": 0
-                  },
-                  {
-                    "card_id": "u13_entity_card:18:game:deck:Penitent:1:4",
-                    "lane": "Lord",
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:1:9",
+                    "lane": "Castle",
                     "slot": 2
                   }
-                ],
-                "lane": "Lord",
-                "monster_choice": "Varn"
+                ]
               },
               "powers": [
                 {
                   "cost": {},
-                  "declaration_id": "u13_declaration:3:0:7:1:0",
-                  "declared_round": 7,
+                  "declaration_id": "u13_declaration:3:0:5:1:0",
+                  "declared_round": 5,
                   "fire_hook": "post_repair_artillery",
-                  "fire_round": 7,
+                  "fire_round": 5,
                   "lord_id": "Deimos",
                   "parameters": {},
                   "player_id": 0,
@@ -1321,36 +887,419 @@
             },
             {
               "order": {
-                "action": "Siege",
+                "action": "Ward",
                 "card_ids": [
-                  "u13_entity_card:17:game:deck:Butcher:2:16",
-                  "u13_entity_card:17:game:deck:Butcher:2:17",
-                  "u13_entity_card:16:game:deck:Wright:2:17",
-                  "u13_entity_card:17:game:deck:Butcher:2:14",
-                  "u13_entity_card:16:game:deck:Wright:2:12",
-                  "u13_entity_card:17:game:deck:Vulture:2:13"
+                  "u13_entity_card:17:game:deck:Vulture:1:8",
+                  "u13_entity_card:17:game:deck:Vulture:1:9",
+                  "u13_entity_card:16:game:deck:Wright:1:8",
+                  "u13_entity_card:16:game:deck:Wright:2:13"
+                ],
+                "castle_action": {
+                  "action": "Activate",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:1:8",
+                    "lane": "Castle",
+                    "slot": 0
+                  },
+                  {
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:2:11",
+                    "lane": "Castle",
+                    "slot": 1
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Tumler"
+              },
+              "powers": []
+            }
+          ]
+        },
+        {
+          "hook": "submission_lock",
+          "kind": "step"
+        },
+        {
+          "hook": "development",
+          "kind": "step"
+        },
+        {
+          "hook": "post_repair_artillery",
+          "kind": "step"
+        },
+        {
+          "hook": "commitment_reveal",
+          "kind": "step"
+        },
+        {
+          "hook": "combat_resolution",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_spawns",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_position",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_allegiance",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_movement_state",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_hazards",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_direct",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_special_actors",
+          "kind": "step"
+        },
+        {
+          "hook": "marching_start",
+          "kind": "step"
+        },
+        {
+          "hook": "marching",
+          "kind": "step"
+        },
+        {
+          "hook": "end_marching_checks",
+          "kind": "step"
+        },
+        {
+          "hook": "aftermath",
+          "kind": "step"
+        },
+        {
+          "kind": "next_round"
+        },
+        {
+          "hook": "round_start_scheduled",
+          "kind": "step"
+        },
+        {
+          "hook": "persistent_advancement",
+          "kind": "step"
+        },
+        {
+          "hook": "round_start_automatic",
+          "kind": "step"
+        },
+        {
+          "choice": {
+            "give_id": "u13_entity_card:17:game:deck:Vulture:1:4",
+            "market": "Swap",
+            "take_id": "u13_entity_card:16:game:deck:Wright:2:10"
+          },
+          "kind": "market",
+          "player_id": 1
+        },
+        {
+          "choice": {
+            "give_id": "u13_entity_card:17:game:deck:Vulture:1:0",
+            "market": "Swap",
+            "take_id": "u13_entity_card:18:game:deck:Penitent:2:14"
+          },
+          "kind": "market",
+          "player_id": 0
+        },
+        {
+          "hook": "present_public_state",
+          "kind": "step"
+        },
+        {
+          "kind": "submit",
+          "plans": [
+            {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Vulture:1:5",
+                  "u13_entity_card:17:game:deck:Vulture:2:14",
+                  "u13_entity_card:16:game:deck:Wright:1:4",
+                  "u13_entity_card:16:game:deck:Wright:1:6"
+                ],
+                "castle_action": {
+                  "action": "Activate",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:2:14",
+                    "lane": "Lord",
+                    "slot": 2
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Tumler"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:6:1:0",
+                  "declared_round": 6,
+                  "fire_hook": "post_repair_artillery",
+                  "fire_round": 6,
+                  "lord_id": "Deimos",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "WarMachine",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "entity_id": "u13_entity_castle:16:loadout:castle:0:1:3"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            },
+            {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:18:game:deck:Penitent:1:7",
+                  "u13_entity_card:18:game:deck:Penitent:1:9",
+                  "u13_entity_card:18:game:deck:Penitent:2:10",
+                  "u13_entity_card:16:game:deck:Wright:2:10"
                 ],
                 "castle_action": {
                   "action": "Work",
                   "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Vulture:2:15",
+                    "lane": "Castle",
+                    "slot": 2
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Kurchin"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:1:6:1:0",
+                  "declared_round": 6,
+                  "fire_hook": "post_repair_artillery",
+                  "fire_round": 6,
+                  "lord_id": "Deimos",
+                  "parameters": {},
+                  "player_id": 1,
+                  "power_id": "WarMachine",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "entity_id": "u13_entity_castle:16:loadout:castle:1:1:3"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "hook": "submission_lock",
+          "kind": "step"
+        },
+        {
+          "hook": "development",
+          "kind": "step"
+        },
+        {
+          "hook": "post_repair_artillery",
+          "kind": "step"
+        },
+        {
+          "hook": "commitment_reveal",
+          "kind": "step"
+        },
+        {
+          "hook": "combat_resolution",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_spawns",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_position",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_allegiance",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_movement_state",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_hazards",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_direct",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_special_actors",
+          "kind": "step"
+        },
+        {
+          "hook": "marching_start",
+          "kind": "step"
+        },
+        {
+          "hook": "marching",
+          "kind": "step"
+        },
+        {
+          "hook": "end_marching_checks",
+          "kind": "step"
+        },
+        {
+          "hook": "aftermath",
+          "kind": "step"
+        },
+        {
+          "kind": "next_round"
+        },
+        {
+          "hook": "round_start_scheduled",
+          "kind": "step"
+        },
+        {
+          "hook": "persistent_advancement",
+          "kind": "step"
+        },
+        {
+          "hook": "round_start_automatic",
+          "kind": "step"
+        },
+        {
+          "choice": {
+            "give_id": "u13_entity_card:17:game:deck:Butcher:1:1",
+            "market": "Swap",
+            "take_id": "u13_entity_card:18:game:deck:Penitent:2:15"
+          },
+          "kind": "market",
+          "player_id": 1
+        },
+        {
+          "choice": {
+            "give_id": "u13_entity_card:17:game:deck:Vulture:2:11",
+            "market": "Swap",
+            "take_id": "u13_entity_card:18:game:deck:Penitent:2:16"
+          },
+          "kind": "market",
+          "player_id": 0
+        },
+        {
+          "hook": "present_public_state",
+          "kind": "step"
+        },
+        {
+          "kind": "submit",
+          "plans": [
+            {
+              "order": {
+                "action": "Siege",
+                "card_ids": [
+                  "u13_entity_card:18:game:deck:Penitent:2:16",
+                  "u13_entity_card:17:game:deck:Butcher:1:8",
+                  "u13_entity_card:17:game:deck:Butcher:2:10",
+                  "u13_entity_card:18:game:deck:Penitent:2:12",
+                  "u13_entity_card:16:game:deck:Wright:1:9",
+                  "u13_entity_card:16:game:deck:Wright:2:11",
+                  "u13_entity_card:17:game:deck:Butcher:1:4",
+                  "u13_entity_card:17:game:deck:Butcher:1:7",
+                  "u13_entity_card:18:game:deck:Penitent:1:3",
+                  "u13_entity_card:18:game:deck:Penitent:1:6"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
                   "use_repair_token": false
                 },
                 "lane": "Castle",
-                "monster_choice": "Dotra",
-                "target_id": "u13_entity_castle:16:loadout:castle:0:1:0"
+                "monster_choice": "Kurchin",
+                "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:0:7:1:0",
+                  "declared_round": 7,
+                  "fire_hook": "post_resolution_movement_state",
+                  "fire_round": 7,
+                  "lord_id": "Deimos",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "Rout",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Castle"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            },
+            {
+              "order": {
+                "action": "Siege",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:15",
+                  "u13_entity_card:18:game:deck:Penitent:2:15",
+                  "u13_entity_card:18:game:deck:Penitent:2:17",
+                  "u13_entity_card:17:game:deck:Vulture:2:12",
+                  "u13_entity_card:17:game:deck:Vulture:2:13",
+                  "u13_entity_card:17:game:deck:Butcher:1:6",
+                  "u13_entity_card:17:game:deck:Vulture:2:10",
+                  "u13_entity_card:16:game:deck:Wright:1:7",
+                  "u13_entity_card:17:game:deck:Vulture:1:6",
+                  "u13_entity_card:18:game:deck:Penitent:1:0"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:0",
+                  "use_repair_token": false
+                },
+                "lane": "Castle",
+                "monster_choice": "Kurchin",
+                "target_id": "u13_entity_castle:16:loadout:castle:0:1:4"
               },
               "powers": [
                 {
                   "cost": {},
                   "declaration_id": "u13_declaration:3:1:7:1:0",
                   "declared_round": 7,
-                  "fire_hook": "post_resolution_spawns",
+                  "fire_hook": "post_resolution_movement_state",
                   "fire_round": 7,
-                  "lord_id": "Humbaba",
+                  "lord_id": "Deimos",
                   "parameters": {},
                   "player_id": 1,
-                  "power_id": "MusterTheFaithful",
+                  "power_id": "Rout",
                   "queue_index": 0,
                   "schema_version": "U13_LORD_DECLARATION_V1",
                   "target": {
@@ -1442,29 +1391,29 @@
           "kind": "step"
         },
         {
-          "keep_id": "u13_entity_card:17:game:deck:Butcher:1:5",
+          "keep_id": "u13_entity_card:16:game:deck:Wright:1:3",
           "kind": "stockpile",
           "player_id": 0
         },
         {
-          "keep_id": "u13_entity_card:18:game:deck:Penitent:2:16",
+          "keep_id": "u13_entity_card:17:game:deck:Butcher:2:16",
           "kind": "stockpile",
           "player_id": 1
         },
         {
           "choice": {
-            "give_id": "u13_entity_card:16:game:deck:Wright:1:1",
+            "give_id": "u13_entity_card:16:game:deck:Wright:1:0",
             "market": "Swap",
-            "take_id": "u13_entity_card:18:game:deck:Penitent:1:9"
+            "take_id": "u13_entity_card:18:game:deck:Penitent:2:12"
           },
           "kind": "market",
           "player_id": 1
         },
         {
           "choice": {
-            "give_id": "u13_entity_card:17:game:deck:Butcher:1:2",
+            "give_id": "u13_entity_card:18:game:deck:Penitent:1:5",
             "market": "Swap",
-            "take_id": "u13_entity_card:17:game:deck:Butcher:1:7"
+            "take_id": "u13_entity_card:16:game:deck:Wright:2:10"
           },
           "kind": "market",
           "player_id": 0
@@ -1480,29 +1429,29 @@
               "order": {
                 "action": "Ward",
                 "card_ids": [
-                  "u13_entity_card:18:game:deck:Penitent:2:10",
-                  "u13_entity_card:18:game:deck:Penitent:2:11"
+                  "u13_entity_card:17:game:deck:Vulture:1:1",
+                  "u13_entity_card:17:game:deck:Vulture:2:16"
                 ],
                 "castle_action": {
                   "action": "Work",
                   "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:2",
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
                   "use_repair_token": false
                 },
                 "guard_moves": [
                   {
-                    "card_id": "u13_entity_card:17:game:deck:Butcher:1:5",
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:1:0",
                     "lane": "Castle",
                     "slot": 0
                   },
                   {
-                    "card_id": "u13_entity_card:17:game:deck:Butcher:1:7",
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:1:9",
                     "lane": "Castle",
                     "slot": 1
                   }
                 ],
                 "lane": "Castle",
-                "monster_choice": "Lemek"
+                "monster_choice": "Varn"
               },
               "powers": [
                 {
@@ -1528,10 +1477,10 @@
               "order": {
                 "action": "Ward",
                 "card_ids": [
-                  "u13_entity_card:17:game:deck:Butcher:1:9",
-                  "u13_entity_card:17:game:deck:Butcher:2:12",
-                  "u13_entity_card:17:game:deck:Vulture:1:9",
-                  "u13_entity_card:17:game:deck:Vulture:2:14"
+                  "u13_entity_card:17:game:deck:Butcher:1:3",
+                  "u13_entity_card:17:game:deck:Butcher:1:5",
+                  "u13_entity_card:17:game:deck:Butcher:2:16",
+                  "u13_entity_card:17:game:deck:Vulture:1:0"
                 ],
                 "castle_action": {
                   "action": "Work",
@@ -1541,15 +1490,43 @@
                 },
                 "guard_moves": [
                   {
-                    "card_id": "u13_entity_card:18:game:deck:Penitent:2:16",
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:1:8",
                     "lane": "Castle",
-                    "slot": 2
+                    "slot": 0
+                  },
+                  {
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:2:12",
+                    "lane": "Castle",
+                    "slot": 1
                   }
                 ],
-                "lane": "Lord",
-                "monster_choice": "Fyra"
+                "lane": "Castle",
+                "monster_choice": "Dotra",
+                "rites": {
+                  "profane_ruins": {
+                    "castle_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+                  }
+                }
               },
-              "powers": []
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:1:8:1:0",
+                  "declared_round": 8,
+                  "fire_hook": "post_repair_artillery",
+                  "fire_round": 8,
+                  "lord_id": "Deimos",
+                  "parameters": {},
+                  "player_id": 1,
+                  "power_id": "WarMachine",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "entity_id": "u13_entity_castle:16:loadout:castle:1:1:3"
+                  },
+                  "visibility": "public"
+                }
+              ]
             }
           ]
         },
@@ -1633,24 +1610,29 @@
           "kind": "step"
         },
         {
-          "keep_id": "u13_entity_card:18:game:deck:Penitent:2:14",
+          "keep_id": "u13_entity_card:18:game:deck:Penitent:2:17",
+          "kind": "stockpile",
+          "player_id": 0
+        },
+        {
+          "keep_id": "u13_entity_card:16:game:deck:Wright:2:13",
           "kind": "stockpile",
           "player_id": 1
         },
         {
           "choice": {
-            "give_id": "u13_entity_card:17:game:deck:Butcher:1:0",
+            "give_id": "u13_entity_card:18:game:deck:Penitent:1:6",
             "market": "Swap",
-            "take_id": "u13_entity_card:17:game:deck:Vulture:2:16"
+            "take_id": "u13_entity_card:17:game:deck:Vulture:2:12"
           },
           "kind": "market",
           "player_id": 1
         },
         {
           "choice": {
-            "give_id": "u13_entity_card:17:game:deck:Butcher:1:6",
+            "give_id": "u13_entity_card:17:game:deck:Butcher:1:4",
             "market": "Swap",
-            "take_id": "u13_entity_card:17:game:deck:Vulture:1:7"
+            "take_id": "u13_entity_card:18:game:deck:Penitent:2:10"
           },
           "kind": "market",
           "player_id": 0
@@ -1666,15 +1648,15 @@
               "order": {
                 "action": "Ward",
                 "card_ids": [
-                  "u13_entity_card:18:game:deck:Penitent:1:2",
-                  "u13_entity_card:18:game:deck:Penitent:2:12",
-                  "u13_entity_card:18:game:deck:Penitent:2:13",
-                  "u13_entity_card:16:game:deck:Wright:1:9"
+                  "u13_entity_card:16:game:deck:Wright:1:3",
+                  "u13_entity_card:16:game:deck:Wright:1:7",
+                  "u13_entity_card:16:game:deck:Wright:2:10",
+                  "u13_entity_card:17:game:deck:Vulture:1:5"
                 ],
                 "castle_action": {
                   "action": "Work",
                   "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:0",
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
                   "use_repair_token": false
                 },
                 "guard_moves": [
@@ -1685,7 +1667,7 @@
                   }
                 ],
                 "lane": "Castle",
-                "monster_choice": "Kurchin"
+                "monster_choice": "Muno"
               },
               "powers": [
                 {
@@ -1709,41 +1691,44 @@
             },
             {
               "order": {
-                "action": "Siege",
+                "action": "Ward",
                 "card_ids": [
-                  "u13_entity_card:17:game:deck:Vulture:2:16",
-                  "u13_entity_card:16:game:deck:Wright:2:13",
-                  "u13_entity_card:18:game:deck:Penitent:2:14",
-                  "u13_entity_card:17:game:deck:Vulture:2:10",
-                  "u13_entity_card:18:game:deck:Penitent:1:9",
-                  "u13_entity_card:17:game:deck:Vulture:1:0",
-                  "u13_entity_card:17:game:deck:Vulture:1:3"
+                  "u13_entity_card:17:game:deck:Vulture:1:4",
+                  "u13_entity_card:17:game:deck:Vulture:1:6",
+                  "u13_entity_card:16:game:deck:Wright:2:11",
+                  "u13_entity_card:16:game:deck:Wright:2:13"
                 ],
                 "castle_action": {
                   "action": "Work",
                   "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
                   "use_repair_token": false
                 },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Vulture:2:13",
+                    "lane": "Castle",
+                    "slot": 2
+                  }
+                ],
                 "lane": "Castle",
-                "monster_choice": "Varn",
-                "target_id": "u13_entity_castle:16:loadout:castle:0:1:0"
+                "monster_choice": "Tumler"
               },
               "powers": [
                 {
                   "cost": {},
                   "declaration_id": "u13_declaration:3:1:9:1:0",
                   "declared_round": 9,
-                  "fire_hook": "post_resolution_spawns",
+                  "fire_hook": "post_repair_artillery",
                   "fire_round": 9,
-                  "lord_id": "Humbaba",
+                  "lord_id": "Deimos",
                   "parameters": {},
                   "player_id": 1,
-                  "power_id": "MusterTheFaithful",
+                  "power_id": "WarMachine",
                   "queue_index": 0,
                   "schema_version": "U13_LORD_DECLARATION_V1",
                   "target": {
-                    "lane": "Lord"
+                    "entity_id": "u13_entity_castle:16:loadout:castle:1:1:3"
                   },
                   "visibility": "public"
                 }
@@ -1831,8 +1816,13 @@
           "kind": "step"
         },
         {
+          "keep_id": "u13_entity_card:18:game:deck:Penitent:2:16",
+          "kind": "stockpile",
+          "player_id": 1
+        },
+        {
           "choice": {
-            "give_id": "u13_entity_card:17:game:deck:Butcher:1:2",
+            "give_id": "u13_entity_card:17:game:deck:Vulture:1:8",
             "market": "Swap",
             "take_id": "u13_entity_card:18:game:deck:Penitent:2:15"
           },
@@ -1841,9 +1831,9 @@
         },
         {
           "choice": {
-            "give_id": "u13_entity_card:17:game:deck:Butcher:1:1",
+            "give_id": "u13_entity_card:17:game:deck:Butcher:1:7",
             "market": "Swap",
-            "take_id": "u13_entity_card:16:game:deck:Wright:1:9"
+            "take_id": "u13_entity_card:18:game:deck:Penitent:1:9"
           },
           "kind": "market",
           "player_id": 0
@@ -1857,207 +1847,18 @@
           "plans": [
             {
               "order": {
-                "action": "Ward",
+                "action": "Siege",
                 "card_ids": [
-                  "u13_entity_card:16:game:deck:Wright:1:9",
-                  "u13_entity_card:16:game:deck:Wright:2:10",
-                  "u13_entity_card:16:game:deck:Wright:2:11",
-                  "u13_entity_card:17:game:deck:Butcher:1:8",
-                  "u13_entity_card:17:game:deck:Butcher:2:10",
-                  "u13_entity_card:17:game:deck:Vulture:1:8",
-                  "u13_entity_card:16:game:deck:Wright:1:5",
-                  "u13_entity_card:17:game:deck:Vulture:1:7",
-                  "u13_entity_card:16:game:deck:Wright:1:3",
-                  "u13_entity_card:17:game:deck:Vulture:1:1"
-                ],
-                "castle_action": {
-                  "action": "Work",
-                  "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:2",
-                  "use_repair_token": false
-                },
-                "lane": "Castle",
-                "monster_choice": "Tumler"
-              },
-              "powers": [
-                {
-                  "cost": {},
-                  "declaration_id": "u13_declaration:4:0:10:1:0",
-                  "declared_round": 10,
-                  "fire_hook": "post_resolution_movement_state",
-                  "fire_round": 10,
-                  "lord_id": "Deimos",
-                  "parameters": {},
-                  "player_id": 0,
-                  "power_id": "Rout",
-                  "queue_index": 0,
-                  "schema_version": "U13_LORD_DECLARATION_V1",
-                  "target": {
-                    "lane": "Castle"
-                  },
-                  "visibility": "public"
-                }
-              ]
-            },
-            {
-              "order": {
-                "action": "Hunt",
-                "card_ids": [
-                  "u13_entity_card:18:game:deck:Penitent:2:15",
-                  "u13_entity_card:16:game:deck:Wright:1:1",
-                  "u13_entity_card:16:game:deck:Wright:1:4",
-                  "u13_entity_card:17:game:deck:Vulture:1:3",
-                  "u13_entity_card:17:game:deck:Vulture:1:6"
-                ],
-                "castle_action": {
-                  "action": "Work",
-                  "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
-                  "use_repair_token": false
-                },
-                "lane": "Lord",
-                "monster_choice": "Tumler",
-                "target_id": "u13_entity_lord:12:smoke:lord:0:1:0"
-              },
-              "powers": [
-                {
-                  "cost": {},
-                  "declaration_id": "u13_declaration:4:1:10:1:0",
-                  "declared_round": 10,
-                  "fire_hook": "post_resolution_movement_state",
-                  "fire_round": 10,
-                  "lord_id": "Humbaba",
-                  "parameters": {},
-                  "player_id": 1,
-                  "power_id": "BreathOfLife",
-                  "queue_index": 0,
-                  "schema_version": "U13_LORD_DECLARATION_V1",
-                  "target": {
-                    "lane": "Castle"
-                  },
-                  "visibility": "public"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "hook": "submission_lock",
-          "kind": "step"
-        },
-        {
-          "hook": "development",
-          "kind": "step"
-        },
-        {
-          "hook": "post_repair_artillery",
-          "kind": "step"
-        },
-        {
-          "hook": "commitment_reveal",
-          "kind": "step"
-        },
-        {
-          "hook": "combat_resolution",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_spawns",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_position",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_allegiance",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_movement_state",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_hazards",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_direct",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_special_actors",
-          "kind": "step"
-        },
-        {
-          "hook": "marching_start",
-          "kind": "step"
-        },
-        {
-          "hook": "marching",
-          "kind": "step"
-        },
-        {
-          "hook": "end_marching_checks",
-          "kind": "step"
-        },
-        {
-          "hook": "aftermath",
-          "kind": "step"
-        },
-        {
-          "kind": "next_round"
-        },
-        {
-          "hook": "round_start_scheduled",
-          "kind": "step"
-        },
-        {
-          "hook": "persistent_advancement",
-          "kind": "step"
-        },
-        {
-          "hook": "round_start_automatic",
-          "kind": "step"
-        },
-        {
-          "keep_id": "u13_entity_card:18:game:deck:Penitent:1:9",
-          "kind": "stockpile",
-          "player_id": 0
-        },
-        {
-          "choice": {
-            "give_id": "u13_entity_card:18:game:deck:Penitent:1:2",
-            "market": "Swap",
-            "take_id": "u13_entity_card:18:game:deck:Penitent:2:12"
-          },
-          "kind": "market",
-          "player_id": 1
-        },
-        {
-          "choice": {
-            "market": "Pass"
-          },
-          "kind": "market",
-          "player_id": 0
-        },
-        {
-          "hook": "present_public_state",
-          "kind": "step"
-        },
-        {
-          "kind": "submit",
-          "plans": [
-            {
-              "order": {
-                "action": "Ward",
-                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:15",
                   "u13_entity_card:16:game:deck:Wright:2:17",
-                  "u13_entity_card:17:game:deck:Butcher:2:12",
-                  "u13_entity_card:17:game:deck:Butcher:2:14",
+                  "u13_entity_card:17:game:deck:Butcher:2:10",
+                  "u13_entity_card:17:game:deck:Butcher:2:11",
                   "u13_entity_card:17:game:deck:Vulture:2:14",
-                  "u13_entity_card:18:game:deck:Penitent:2:13",
-                  "u13_entity_card:18:game:deck:Penitent:1:9"
+                  "u13_entity_card:16:game:deck:Wright:1:8",
+                  "u13_entity_card:18:game:deck:Penitent:1:9",
+                  "u13_entity_card:18:game:deck:Penitent:2:10",
+                  "u13_entity_card:18:game:deck:Penitent:1:0",
+                  "u13_entity_card:18:game:deck:Penitent:1:1"
                 ],
                 "castle_action": {
                   "action": "Work",
@@ -2065,16 +1866,17 @@
                   "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
                   "use_repair_token": false
                 },
-                "lane": "Lord",
-                "monster_choice": "Lemek"
+                "lane": "Castle",
+                "monster_choice": "Kurchin",
+                "target_id": "u13_entity_castle:16:loadout:castle:1:1:3"
               },
               "powers": [
                 {
                   "cost": {},
-                  "declaration_id": "u13_declaration:4:0:11:1:0",
-                  "declared_round": 11,
+                  "declaration_id": "u13_declaration:4:0:10:1:0",
+                  "declared_round": 10,
                   "fire_hook": "post_repair_artillery",
-                  "fire_round": 11,
+                  "fire_round": 10,
                   "lord_id": "Deimos",
                   "parameters": {},
                   "player_id": 0,
@@ -2088,214 +1890,21 @@
                 }
               ]
             },
-            {
-              "order": {
-                "action": "Siege",
-                "card_ids": [
-                  "u13_entity_card:17:game:deck:Vulture:2:16",
-                  "u13_entity_card:16:game:deck:Wright:2:12",
-                  "u13_entity_card:17:game:deck:Vulture:2:13",
-                  "u13_entity_card:18:game:deck:Penitent:2:12",
-                  "u13_entity_card:18:game:deck:Penitent:2:11"
-                ],
-                "castle_action": {
-                  "action": "Work",
-                  "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
-                  "use_repair_token": false
-                },
-                "lane": "Castle",
-                "monster_choice": "Varn",
-                "target_id": "u13_entity_castle:16:loadout:castle:0:1:0"
-              },
-              "powers": [
-                {
-                  "cost": {},
-                  "declaration_id": "u13_declaration:4:1:11:1:0",
-                  "declared_round": 11,
-                  "fire_hook": "post_resolution_spawns",
-                  "fire_round": 11,
-                  "lord_id": "Humbaba",
-                  "parameters": {},
-                  "player_id": 1,
-                  "power_id": "MusterTheFaithful",
-                  "queue_index": 0,
-                  "schema_version": "U13_LORD_DECLARATION_V1",
-                  "target": {
-                    "lane": "Castle"
-                  },
-                  "visibility": "public"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "hook": "submission_lock",
-          "kind": "step"
-        },
-        {
-          "hook": "development",
-          "kind": "step"
-        },
-        {
-          "hook": "post_repair_artillery",
-          "kind": "step"
-        },
-        {
-          "hook": "commitment_reveal",
-          "kind": "step"
-        },
-        {
-          "hook": "combat_resolution",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_spawns",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_position",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_allegiance",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_movement_state",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_hazards",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_direct",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_special_actors",
-          "kind": "step"
-        },
-        {
-          "hook": "marching_start",
-          "kind": "step"
-        },
-        {
-          "hook": "marching",
-          "kind": "step"
-        },
-        {
-          "hook": "end_marching_checks",
-          "kind": "step"
-        },
-        {
-          "hook": "aftermath",
-          "kind": "step"
-        },
-        {
-          "kind": "next_round"
-        },
-        {
-          "hook": "round_start_scheduled",
-          "kind": "step"
-        },
-        {
-          "hook": "persistent_advancement",
-          "kind": "step"
-        },
-        {
-          "hook": "round_start_automatic",
-          "kind": "step"
-        },
-        {
-          "keep_id": "u13_entity_card:18:game:deck:Penitent:2:14",
-          "kind": "stockpile",
-          "player_id": 0
-        },
-        {
-          "choice": {
-            "market": "Pass"
-          },
-          "kind": "market",
-          "player_id": 1
-        },
-        {
-          "choice": {
-            "give_id": "u13_entity_card:17:game:deck:Vulture:1:5",
-            "market": "Swap",
-            "take_id": "u13_entity_card:16:game:deck:Wright:1:2"
-          },
-          "kind": "market",
-          "player_id": 0
-        },
-        {
-          "hook": "present_public_state",
-          "kind": "step"
-        },
-        {
-          "kind": "submit",
-          "plans": [
             {
               "order": {
                 "action": "Ward",
                 "card_ids": [
-                  "u13_entity_card:16:game:deck:Wright:2:13",
-                  "u13_entity_card:18:game:deck:Penitent:2:14",
-                  "u13_entity_card:17:game:deck:Vulture:2:10",
-                  "u13_entity_card:17:game:deck:Vulture:2:11",
-                  "u13_entity_card:18:game:deck:Penitent:2:10",
-                  "u13_entity_card:16:game:deck:Wright:1:2"
-                ],
-                "castle_action": {
-                  "action": "Work",
-                  "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:2",
-                  "use_repair_token": false
-                },
-                "lane": "Castle",
-                "monster_choice": "Tumler"
-              },
-              "powers": [
-                {
-                  "cost": {},
-                  "declaration_id": "u13_declaration:4:0:12:1:0",
-                  "declared_round": 12,
-                  "fire_hook": "post_repair_artillery",
-                  "fire_round": 12,
-                  "lord_id": "Deimos",
-                  "parameters": {},
-                  "player_id": 0,
-                  "power_id": "WarMachine",
-                  "queue_index": 0,
-                  "schema_version": "U13_LORD_DECLARATION_V1",
-                  "target": {
-                    "entity_id": "u13_entity_castle:16:loadout:castle:0:1:3"
-                  },
-                  "visibility": "public"
-                }
-              ]
-            },
-            {
-              "order": {
-                "action": "Siege",
-                "card_ids": [
-                  "u13_entity_card:17:game:deck:Butcher:2:16",
-                  "u13_entity_card:17:game:deck:Butcher:2:13",
+                  "u13_entity_card:18:game:deck:Penitent:2:15",
+                  "u13_entity_card:18:game:deck:Penitent:2:16",
+                  "u13_entity_card:17:game:deck:Vulture:2:12",
                   "u13_entity_card:17:game:deck:Vulture:1:9",
-                  "u13_entity_card:18:game:deck:Penitent:1:1",
-                  "u13_entity_card:18:game:deck:Penitent:1:3"
+                  "u13_entity_card:17:game:deck:Vulture:2:10",
+                  "u13_entity_card:18:game:deck:Penitent:2:11",
+                  "u13_entity_card:16:game:deck:Wright:1:6",
+                  "u13_entity_card:18:game:deck:Penitent:1:7"
                 ],
-                "castle_action": {
-                  "action": "Work",
-                  "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:2",
-                  "use_repair_token": false
-                },
                 "lane": "Castle",
-                "monster_choice": "Lemek",
-                "target_id": "u13_entity_castle:16:loadout:castle:0:1:2"
+                "monster_choice": "Kurchin"
               },
               "powers": []
             }
@@ -2381,15 +1990,20 @@
           "kind": "step"
         },
         {
-          "keep_id": "u13_entity_card:17:game:deck:Vulture:1:6",
+          "keep_id": "u13_entity_card:16:game:deck:Wright:1:4",
           "kind": "stockpile",
           "player_id": 0
+        },
+        {
+          "keep_id": "u13_entity_card:16:game:deck:Wright:1:8",
+          "kind": "stockpile",
+          "player_id": 1
         },
         {
           "choice": {
             "give_id": "u13_entity_card:17:game:deck:Butcher:1:4",
             "market": "Swap",
-            "take_id": "u13_entity_card:17:game:deck:Butcher:1:8"
+            "take_id": "u13_entity_card:18:game:deck:Penitent:2:16"
           },
           "kind": "market",
           "player_id": 1
@@ -2398,7 +2012,209 @@
           "choice": {
             "give_id": "u13_entity_card:17:game:deck:Butcher:1:1",
             "market": "Swap",
-            "take_id": "u13_entity_card:17:game:deck:Vulture:1:7"
+            "take_id": "u13_entity_card:17:game:deck:Butcher:2:15"
+          },
+          "kind": "market",
+          "player_id": 0
+        },
+        {
+          "hook": "present_public_state",
+          "kind": "step"
+        },
+        {
+          "kind": "submit",
+          "plans": [
+            {
+              "order": {
+                "action": "Hunt",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Butcher:2:15",
+                  "u13_entity_card:17:game:deck:Butcher:2:14",
+                  "u13_entity_card:16:game:deck:Wright:1:9",
+                  "u13_entity_card:17:game:deck:Vulture:2:11",
+                  "u13_entity_card:16:game:deck:Wright:1:0",
+                  "u13_entity_card:16:game:deck:Wright:1:4"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:2",
+                  "use_repair_token": false
+                },
+                "lane": "Lord",
+                "monster_choice": "Muno",
+                "target_id": "u13_entity_lord:12:smoke:lord:1:1:0"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:4:0:11:1:0",
+                  "declared_round": 11,
+                  "fire_hook": "post_resolution_movement_state",
+                  "fire_round": 11,
+                  "lord_id": "Deimos",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "Rout",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Castle"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            },
+            {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:18:game:deck:Penitent:1:6",
+                  "u13_entity_card:18:game:deck:Penitent:1:7",
+                  "u13_entity_card:18:game:deck:Penitent:1:8",
+                  "u13_entity_card:16:game:deck:Wright:1:8"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:2:16",
+                    "lane": "Castle",
+                    "slot": 0
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Kurchin"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:4:1:11:1:0",
+                  "declared_round": 11,
+                  "fire_hook": "post_resolution_movement_state",
+                  "fire_round": 11,
+                  "lord_id": "Deimos",
+                  "parameters": {},
+                  "player_id": 1,
+                  "power_id": "Rout",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Castle"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "hook": "submission_lock",
+          "kind": "step"
+        },
+        {
+          "hook": "development",
+          "kind": "step"
+        },
+        {
+          "hook": "post_repair_artillery",
+          "kind": "step"
+        },
+        {
+          "hook": "commitment_reveal",
+          "kind": "step"
+        },
+        {
+          "hook": "combat_resolution",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_spawns",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_position",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_allegiance",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_movement_state",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_hazards",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_direct",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_special_actors",
+          "kind": "step"
+        },
+        {
+          "hook": "marching_start",
+          "kind": "step"
+        },
+        {
+          "hook": "marching",
+          "kind": "step"
+        },
+        {
+          "hook": "end_marching_checks",
+          "kind": "step"
+        },
+        {
+          "hook": "aftermath",
+          "kind": "step"
+        },
+        {
+          "kind": "next_round"
+        },
+        {
+          "hook": "round_start_scheduled",
+          "kind": "step"
+        },
+        {
+          "hook": "persistent_advancement",
+          "kind": "step"
+        },
+        {
+          "hook": "round_start_automatic",
+          "kind": "step"
+        },
+        {
+          "keep_id": "u13_entity_card:17:game:deck:Vulture:2:10",
+          "kind": "stockpile",
+          "player_id": 0
+        },
+        {
+          "keep_id": "u13_entity_card:17:game:deck:Vulture:2:12",
+          "kind": "stockpile",
+          "player_id": 1
+        },
+        {
+          "choice": {
+            "give_id": "u13_entity_card:17:game:deck:Vulture:1:3",
+            "market": "Swap",
+            "take_id": "u13_entity_card:17:game:deck:Vulture:2:15"
+          },
+          "kind": "market",
+          "player_id": 1
+        },
+        {
+          "choice": {
+            "give_id": "u13_entity_card:17:game:deck:Vulture:1:0",
+            "market": "Swap",
+            "take_id": "u13_entity_card:18:game:deck:Penitent:1:3"
           },
           "kind": "market",
           "player_id": 0
@@ -2414,10 +2230,195 @@
               "order": {
                 "action": "Ward",
                 "card_ids": [
-                  "u13_entity_card:17:game:deck:Butcher:1:2",
-                  "u13_entity_card:17:game:deck:Butcher:1:9",
-                  "u13_entity_card:17:game:deck:Vulture:1:0",
-                  "u13_entity_card:17:game:deck:Vulture:1:4"
+                  "u13_entity_card:18:game:deck:Penitent:1:3",
+                  "u13_entity_card:18:game:deck:Penitent:2:11"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:2",
+                  "use_repair_token": false
+                },
+                "lane": "Castle",
+                "monster_choice": "Lemek"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:4:0:12:1:0",
+                  "declared_round": 12,
+                  "fire_hook": "post_repair_artillery",
+                  "fire_round": 12,
+                  "lord_id": "Deimos",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "WarMachine",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "entity_id": "u13_entity_castle:16:loadout:castle:0:1:3"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            },
+            {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Vulture:1:9",
+                  "u13_entity_card:17:game:deck:Vulture:2:12",
+                  "u13_entity_card:16:game:deck:Wright:1:3",
+                  "u13_entity_card:16:game:deck:Wright:2:17"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:1:1",
+                    "lane": "Lord",
+                    "slot": 0
+                  },
+                  {
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:2:10",
+                    "lane": "Lord",
+                    "slot": 1
+                  }
+                ],
+                "lane": "Lord",
+                "monster_choice": "Tumler"
+              },
+              "powers": []
+            }
+          ]
+        },
+        {
+          "hook": "submission_lock",
+          "kind": "step"
+        },
+        {
+          "hook": "development",
+          "kind": "step"
+        },
+        {
+          "hook": "post_repair_artillery",
+          "kind": "step"
+        },
+        {
+          "hook": "commitment_reveal",
+          "kind": "step"
+        },
+        {
+          "hook": "combat_resolution",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_spawns",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_position",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_allegiance",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_movement_state",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_hazards",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_direct",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_special_actors",
+          "kind": "step"
+        },
+        {
+          "hook": "marching_start",
+          "kind": "step"
+        },
+        {
+          "hook": "marching",
+          "kind": "step"
+        },
+        {
+          "hook": "end_marching_checks",
+          "kind": "step"
+        },
+        {
+          "hook": "aftermath",
+          "kind": "step"
+        },
+        {
+          "kind": "next_round"
+        },
+        {
+          "hook": "round_start_scheduled",
+          "kind": "step"
+        },
+        {
+          "hook": "persistent_advancement",
+          "kind": "step"
+        },
+        {
+          "hook": "round_start_automatic",
+          "kind": "step"
+        },
+        {
+          "keep_id": "u13_entity_card:17:game:deck:Butcher:1:6",
+          "kind": "stockpile",
+          "player_id": 1
+        },
+        {
+          "choice": {
+            "give_id": "u13_entity_card:17:game:deck:Vulture:1:1",
+            "market": "Swap",
+            "take_id": "u13_entity_card:18:game:deck:Penitent:2:15"
+          },
+          "kind": "market",
+          "player_id": 1
+        },
+        {
+          "choice": {
+            "give_id": "u13_entity_card:17:game:deck:Vulture:1:6",
+            "market": "Swap",
+            "take_id": "u13_entity_card:17:game:deck:Vulture:1:8"
+          },
+          "kind": "market",
+          "player_id": 0
+        },
+        {
+          "hook": "present_public_state",
+          "kind": "step"
+        },
+        {
+          "kind": "submit",
+          "plans": [
+            {
+              "order": {
+                "action": "Siege",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Vulture:2:16",
+                  "u13_entity_card:16:game:deck:Wright:2:13",
+                  "u13_entity_card:17:game:deck:Butcher:1:8",
+                  "u13_entity_card:17:game:deck:Butcher:2:11",
+                  "u13_entity_card:17:game:deck:Vulture:2:14",
+                  "u13_entity_card:17:game:deck:Vulture:1:8",
+                  "u13_entity_card:17:game:deck:Vulture:2:10",
+                  "u13_entity_card:18:game:deck:Penitent:1:9",
+                  "u13_entity_card:18:game:deck:Penitent:1:0",
+                  "u13_entity_card:18:game:deck:Penitent:1:5"
                 ],
                 "castle_action": {
                   "action": "Work",
@@ -2426,7 +2427,8 @@
                   "use_repair_token": false
                 },
                 "lane": "Castle",
-                "monster_choice": "Fyra"
+                "monster_choice": "Kurchin",
+                "target_id": "u13_entity_castle:16:loadout:castle:1:1:1"
               },
               "powers": [
                 {
@@ -2452,41 +2454,26 @@
               "order": {
                 "action": "Siege",
                 "card_ids": [
-                  "u13_entity_card:17:game:deck:Vulture:2:16",
-                  "u13_entity_card:17:game:deck:Butcher:1:8",
-                  "u13_entity_card:17:game:deck:Vulture:2:10",
-                  "u13_entity_card:18:game:deck:Penitent:2:10",
-                  "u13_entity_card:18:game:deck:Penitent:2:11"
+                  "u13_entity_card:17:game:deck:Butcher:2:16",
+                  "u13_entity_card:17:game:deck:Vulture:2:15",
+                  "u13_entity_card:18:game:deck:Penitent:2:15",
+                  "u13_entity_card:17:game:deck:Butcher:2:10",
+                  "u13_entity_card:16:game:deck:Wright:2:11",
+                  "u13_entity_card:17:game:deck:Butcher:1:5",
+                  "u13_entity_card:17:game:deck:Butcher:1:6",
+                  "u13_entity_card:17:game:deck:Vulture:1:5"
                 ],
                 "castle_action": {
                   "action": "Work",
                   "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
                   "use_repair_token": false
                 },
                 "lane": "Castle",
                 "monster_choice": "Varn",
                 "target_id": "u13_entity_castle:16:loadout:castle:0:1:2"
               },
-              "powers": [
-                {
-                  "cost": {},
-                  "declaration_id": "u13_declaration:4:1:13:1:0",
-                  "declared_round": 13,
-                  "fire_hook": "post_resolution_spawns",
-                  "fire_round": 13,
-                  "lord_id": "Humbaba",
-                  "parameters": {},
-                  "player_id": 1,
-                  "power_id": "MusterTheFaithful",
-                  "queue_index": 0,
-                  "schema_version": "U13_LORD_DECLARATION_V1",
-                  "target": {
-                    "lane": "Lord"
-                  },
-                  "visibility": "public"
-                }
-              ]
+              "powers": []
             }
           ]
         },
@@ -2570,22 +2557,24 @@
           "kind": "step"
         },
         {
-          "keep_id": "u13_entity_card:17:game:deck:Butcher:2:16",
+          "keep_id": "u13_entity_card:18:game:deck:Penitent:2:16",
           "kind": "stockpile",
           "player_id": 0
         },
         {
           "choice": {
-            "give_id": "u13_entity_card:16:game:deck:Wright:1:1",
+            "give_id": "u13_entity_card:17:game:deck:Butcher:1:3",
             "market": "Swap",
-            "take_id": "u13_entity_card:17:game:deck:Butcher:2:13"
+            "take_id": "u13_entity_card:17:game:deck:Butcher:2:14"
           },
           "kind": "market",
           "player_id": 1
         },
         {
           "choice": {
-            "market": "Pass"
+            "give_id": "u13_entity_card:17:game:deck:Butcher:1:0",
+            "market": "Swap",
+            "take_id": "u13_entity_card:17:game:deck:Butcher:1:9"
           },
           "kind": "market",
           "player_id": 0
@@ -2601,228 +2590,39 @@
               "order": {
                 "action": "Ward",
                 "card_ids": [
-                  "u13_entity_card:17:game:deck:Vulture:1:6",
-                  "u13_entity_card:17:game:deck:Vulture:1:7"
+                  "u13_entity_card:17:game:deck:Butcher:1:1",
+                  "u13_entity_card:17:game:deck:Butcher:1:4",
+                  "u13_entity_card:17:game:deck:Butcher:1:9",
+                  "u13_entity_card:17:game:deck:Vulture:1:0"
                 ],
                 "castle_action": {
                   "action": "Work",
                   "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:0",
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
                   "use_repair_token": false
                 },
                 "guard_moves": [
                   {
-                    "card_id": "u13_entity_card:16:game:deck:Wright:1:3",
+                    "card_id": "u13_entity_card:18:game:deck:Penitent:2:16",
                     "lane": "Castle",
                     "slot": 0
-                  },
-                  {
-                    "card_id": "u13_entity_card:16:game:deck:Wright:2:10",
-                    "lane": "Castle",
-                    "slot": 2
                   }
                 ],
                 "lane": "Castle",
-                "monster_choice": "Varn"
+                "monster_choice": "Dotra",
+                "rites": {
+                  "profane_ruins": {
+                    "castle_id": "u13_entity_castle:16:loadout:castle:0:1:2"
+                  }
+                }
               },
               "powers": [
                 {
                   "cost": {},
                   "declaration_id": "u13_declaration:4:0:14:1:0",
                   "declared_round": 14,
-                  "fire_hook": "post_resolution_movement_state",
-                  "fire_round": 14,
-                  "lord_id": "Deimos",
-                  "parameters": {},
-                  "player_id": 0,
-                  "power_id": "Rout",
-                  "queue_index": 0,
-                  "schema_version": "U13_LORD_DECLARATION_V1",
-                  "target": {
-                    "lane": "Castle"
-                  },
-                  "visibility": "public"
-                }
-              ]
-            },
-            {
-              "order": {
-                "action": "Siege",
-                "card_ids": [
-                  "u13_entity_card:17:game:deck:Butcher:2:13"
-                ],
-                "castle_action": {
-                  "action": "Work",
-                  "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:2",
-                  "use_repair_token": false
-                },
-                "lane": "Castle",
-                "target_id": "u13_entity_castle:16:loadout:castle:0:1:2"
-              },
-              "powers": [
-                {
-                  "cost": {},
-                  "declaration_id": "u13_declaration:4:1:14:1:0",
-                  "declared_round": 14,
-                  "fire_hook": "post_resolution_movement_state",
-                  "fire_round": 14,
-                  "lord_id": "Humbaba",
-                  "parameters": {},
-                  "player_id": 1,
-                  "power_id": "BreathOfLife",
-                  "queue_index": 0,
-                  "schema_version": "U13_LORD_DECLARATION_V1",
-                  "target": {
-                    "lane": "Castle"
-                  },
-                  "visibility": "public"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "hook": "submission_lock",
-          "kind": "step"
-        },
-        {
-          "hook": "development",
-          "kind": "step"
-        },
-        {
-          "hook": "post_repair_artillery",
-          "kind": "step"
-        },
-        {
-          "hook": "commitment_reveal",
-          "kind": "step"
-        },
-        {
-          "hook": "combat_resolution",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_spawns",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_position",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_allegiance",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_movement_state",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_hazards",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_direct",
-          "kind": "step"
-        },
-        {
-          "hook": "post_resolution_special_actors",
-          "kind": "step"
-        },
-        {
-          "hook": "marching_start",
-          "kind": "step"
-        },
-        {
-          "hook": "marching",
-          "kind": "step"
-        },
-        {
-          "hook": "end_marching_checks",
-          "kind": "step"
-        },
-        {
-          "hook": "aftermath",
-          "kind": "step"
-        },
-        {
-          "kind": "next_round"
-        },
-        {
-          "hook": "round_start_scheduled",
-          "kind": "step"
-        },
-        {
-          "hook": "persistent_advancement",
-          "kind": "step"
-        },
-        {
-          "hook": "round_start_automatic",
-          "kind": "step"
-        },
-        {
-          "choice": {
-            "give_id": "u13_entity_card:16:game:deck:Wright:1:2",
-            "market": "Swap",
-            "take_id": "u13_entity_card:17:game:deck:Butcher:2:10"
-          },
-          "kind": "market",
-          "player_id": 1
-        },
-        {
-          "choice": {
-            "give_id": "u13_entity_card:17:game:deck:Vulture:1:1",
-            "market": "Swap",
-            "take_id": "u13_entity_card:16:game:deck:Wright:2:12"
-          },
-          "kind": "market",
-          "player_id": 0
-        },
-        {
-          "hook": "present_public_state",
-          "kind": "step"
-        },
-        {
-          "kind": "submit",
-          "plans": [
-            {
-              "order": {
-                "action": "Siege",
-                "card_ids": [
-                  "u13_entity_card:17:game:deck:Butcher:2:16",
-                  "u13_entity_card:17:game:deck:Butcher:2:14",
-                  "u13_entity_card:16:game:deck:Wright:2:12",
-                  "u13_entity_card:16:game:deck:Wright:2:13",
-                  "u13_entity_card:17:game:deck:Vulture:2:14",
-                  "u13_entity_card:18:game:deck:Penitent:2:13",
-                  "u13_entity_card:18:game:deck:Penitent:2:14",
-                  "u13_entity_card:17:game:deck:Vulture:1:8",
-                  "u13_entity_card:17:game:deck:Vulture:2:11",
-                  "u13_entity_card:18:game:deck:Penitent:1:9"
-                ],
-                "castle_action": {
-                  "action": "Work",
-                  "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:0",
-                  "use_repair_token": false
-                },
-                "lane": "Castle",
-                "monster_choice": "Kurchin",
-                "rites": {
-                  "profane_ruins": {
-                    "castle_id": "u13_entity_castle:16:loadout:castle:0:1:2"
-                  }
-                },
-                "target_id": "u13_entity_castle:16:loadout:castle:1:1:2"
-              },
-              "powers": [
-                {
-                  "cost": {},
-                  "declaration_id": "u13_declaration:4:0:15:1:0",
-                  "declared_round": 15,
                   "fire_hook": "post_repair_artillery",
-                  "fire_round": 15,
+                  "fire_round": 14,
                   "lord_id": "Deimos",
                   "parameters": {},
                   "player_id": 0,
@@ -2840,40 +2640,236 @@
               "order": {
                 "action": "Ward",
                 "card_ids": [
-                  "u13_entity_card:17:game:deck:Butcher:2:17",
-                  "u13_entity_card:18:game:deck:Penitent:2:15",
-                  "u13_entity_card:17:game:deck:Butcher:2:12",
-                  "u13_entity_card:18:game:deck:Penitent:2:12",
-                  "u13_entity_card:16:game:deck:Wright:1:9",
-                  "u13_entity_card:16:game:deck:Wright:2:11",
-                  "u13_entity_card:17:game:deck:Butcher:2:10",
-                  "u13_entity_card:16:game:deck:Wright:1:4",
-                  "u13_entity_card:16:game:deck:Wright:1:5"
+                  "u13_entity_card:18:game:deck:Penitent:1:7",
+                  "u13_entity_card:18:game:deck:Penitent:1:9"
                 ],
                 "castle_action": {
                   "action": "Work",
                   "card_ids": [],
-                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
                   "use_repair_token": false
                 },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Vulture:1:9",
+                    "lane": "Castle",
+                    "slot": 0
+                  },
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Vulture:2:11",
+                    "lane": "Castle",
+                    "slot": 1
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Lemek"
+              },
+              "powers": []
+            }
+          ]
+        },
+        {
+          "hook": "submission_lock",
+          "kind": "step"
+        },
+        {
+          "hook": "development",
+          "kind": "step"
+        },
+        {
+          "hook": "post_repair_artillery",
+          "kind": "step"
+        },
+        {
+          "hook": "commitment_reveal",
+          "kind": "step"
+        },
+        {
+          "hook": "combat_resolution",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_spawns",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_position",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_allegiance",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_movement_state",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_hazards",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_direct",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_special_actors",
+          "kind": "step"
+        },
+        {
+          "hook": "marching_start",
+          "kind": "step"
+        },
+        {
+          "hook": "marching",
+          "kind": "step"
+        },
+        {
+          "hook": "end_marching_checks",
+          "kind": "step"
+        },
+        {
+          "hook": "aftermath",
+          "kind": "step"
+        },
+        {
+          "kind": "next_round"
+        },
+        {
+          "hook": "round_start_scheduled",
+          "kind": "step"
+        },
+        {
+          "hook": "persistent_advancement",
+          "kind": "step"
+        },
+        {
+          "hook": "round_start_automatic",
+          "kind": "step"
+        },
+        {
+          "keep_id": "u13_entity_card:17:game:deck:Butcher:2:11",
+          "kind": "stockpile",
+          "player_id": 0
+        },
+        {
+          "choice": {
+            "give_id": "u13_entity_card:18:game:deck:Penitent:1:6",
+            "market": "Swap",
+            "take_id": "u13_entity_card:17:game:deck:Vulture:2:12"
+          },
+          "kind": "market",
+          "player_id": 1
+        },
+        {
+          "choice": {
+            "give_id": "u13_entity_card:18:game:deck:Penitent:1:0",
+            "market": "Swap",
+            "take_id": "u13_entity_card:18:game:deck:Penitent:2:12"
+          },
+          "kind": "market",
+          "player_id": 0
+        },
+        {
+          "hook": "present_public_state",
+          "kind": "step"
+        },
+        {
+          "kind": "submit",
+          "plans": [
+            {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Vulture:1:3",
+                  "u13_entity_card:17:game:deck:Vulture:2:15"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:16:game:deck:Wright:1:5",
+                    "lane": "Castle",
+                    "slot": 1
+                  },
+                  {
+                    "card_id": "u13_entity_card:16:game:deck:Wright:1:7",
+                    "lane": "Castle",
+                    "slot": 2
+                  }
+                ],
                 "lane": "Lord",
-                "monster_choice": "Sooge"
+                "monster_choice": "Varn"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:4:0:15:1:0",
+                  "declared_round": 15,
+                  "fire_hook": "post_resolution_movement_state",
+                  "fire_round": 15,
+                  "lord_id": "Deimos",
+                  "parameters": {},
+                  "player_id": 0,
+                  "power_id": "Rout",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Castle"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            },
+            {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Vulture:2:12",
+                  "u13_entity_card:17:game:deck:Vulture:2:13",
+                  "u13_entity_card:16:game:deck:Wright:1:9",
+                  "u13_entity_card:16:game:deck:Wright:2:17"
+                ],
+                "castle_action": {
+                  "action": "Activate",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:2:15",
+                    "lane": "Castle",
+                    "slot": 2
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Tumler",
+                "rites": {
+                  "profane_ruins": {
+                    "castle_id": "u13_entity_castle:16:loadout:castle:1:1:1"
+                  }
+                }
               },
               "powers": [
                 {
                   "cost": {},
                   "declaration_id": "u13_declaration:4:1:15:1:0",
                   "declared_round": 15,
-                  "fire_hook": "post_resolution_spawns",
+                  "fire_hook": "post_resolution_movement_state",
                   "fire_round": 15,
-                  "lord_id": "Humbaba",
+                  "lord_id": "Deimos",
                   "parameters": {},
                   "player_id": 1,
-                  "power_id": "MusterTheFaithful",
+                  "power_id": "Rout",
                   "queue_index": 0,
                   "schema_version": "U13_LORD_DECLARATION_V1",
                   "target": {
-                    "lane": "Lord"
+                    "lane": "Castle"
                   },
                   "visibility": "public"
                 }
@@ -2961,24 +2957,19 @@
           "kind": "step"
         },
         {
-          "keep_id": "u13_entity_card:17:game:deck:Butcher:1:1",
-          "kind": "stockpile",
-          "player_id": 0
-        },
-        {
           "choice": {
-            "give_id": "u13_entity_card:18:game:deck:Penitent:1:1",
+            "give_id": "u13_entity_card:16:game:deck:Wright:1:0",
             "market": "Swap",
-            "take_id": "u13_entity_card:17:game:deck:Butcher:2:17"
+            "take_id": "u13_entity_card:16:game:deck:Wright:1:8"
           },
           "kind": "market",
           "player_id": 1
         },
         {
           "choice": {
-            "give_id": "u13_entity_card:17:game:deck:Butcher:1:0",
+            "give_id": "u13_entity_card:16:game:deck:Wright:1:4",
             "market": "Swap",
-            "take_id": "u13_entity_card:16:game:deck:Wright:2:13"
+            "take_id": "u13_entity_card:17:game:deck:Butcher:2:12"
           },
           "kind": "market",
           "player_id": 0
@@ -2988,7 +2979,99 @@
           "kind": "step"
         }
       ],
-      "record_operations_sha256": "7745cd71d99dc8c8eb7a332948ee7cfde4afd934a5bdc7958bb9e1f52b238029",
+      "record_operations_sha256": "2e00fbe222acf8ea364ceb201a7b44e33d4ffd82a18f35a85ef18d1ce0c9aebe",
+      "recorded_plans": [
+        {
+          "order": {
+            "action": "Siege",
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:2:16",
+              "u13_entity_card:17:game:deck:Butcher:2:12",
+              "u13_entity_card:18:game:deck:Penitent:2:17",
+              "u13_entity_card:16:game:deck:Wright:2:13",
+              "u13_entity_card:17:game:deck:Butcher:1:8",
+              "u13_entity_card:17:game:deck:Butcher:2:11",
+              "u13_entity_card:18:game:deck:Penitent:2:12",
+              "u13_entity_card:16:game:deck:Wright:2:11",
+              "u13_entity_card:17:game:deck:Butcher:1:5",
+              "u13_entity_card:17:game:deck:Vulture:2:10"
+            ],
+            "castle_action": {
+              "action": "Work",
+              "card_ids": [],
+              "target_id": "u13_entity_castle:16:loadout:castle:0:1:0",
+              "use_repair_token": false
+            },
+            "lane": "Castle",
+            "monster_choice": "Lemek",
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:3"
+          },
+          "powers": [
+            {
+              "cost": {},
+              "declaration_id": "u13_declaration:4:0:16:1:0",
+              "declared_round": 16,
+              "fire_hook": "post_repair_artillery",
+              "fire_round": 16,
+              "lord_id": "Deimos",
+              "parameters": {},
+              "player_id": 0,
+              "power_id": "WarMachine",
+              "queue_index": 0,
+              "schema_version": "U13_LORD_DECLARATION_V1",
+              "target": {
+                "entity_id": "u13_entity_castle:16:loadout:castle:0:1:3"
+              },
+              "visibility": "public"
+            }
+          ]
+        },
+        {
+          "order": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:1:2",
+              "u13_entity_card:16:game:deck:Wright:1:8",
+              "u13_entity_card:18:game:deck:Penitent:1:8",
+              "u13_entity_card:18:game:deck:Penitent:2:11"
+            ],
+            "castle_action": {
+              "action": "Work",
+              "card_ids": [],
+              "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
+              "use_repair_token": false
+            },
+            "guard_moves": [
+              {
+                "card_id": "u13_entity_card:18:game:deck:Penitent:2:15",
+                "lane": "Lord",
+                "slot": 2
+              }
+            ],
+            "lane": "Castle",
+            "monster_choice": "Kopita"
+          },
+          "powers": [
+            {
+              "cost": {},
+              "declaration_id": "u13_declaration:4:1:16:1:0",
+              "declared_round": 16,
+              "fire_hook": "post_repair_artillery",
+              "fire_round": 16,
+              "lord_id": "Deimos",
+              "parameters": {},
+              "player_id": 1,
+              "power_id": "WarMachine",
+              "queue_index": 0,
+              "schema_version": "U13_LORD_DECLARATION_V1",
+              "target": {
+                "entity_id": "u13_entity_castle:16:loadout:castle:1:1:3"
+              },
+              "visibility": "public"
+            }
+          ]
+        }
+      ],
       "round": 16,
       "seat": 0,
       "setup": {
@@ -3010,33 +3093,12 @@
         ],
         "lords": [
           "Deimos",
-          "Humbaba"
+          "Deimos"
         ],
-        "seed": "u13-deimos-tactics-2026-09-18:Deimos:Humbaba:00"
+        "seed": "u13-rout-current-rule-diagnostics-2026-09-19:Deimos:Deimos:00"
       },
-      "view_sha256": "dd3ff99f4688785ab92579bd62655aa9ff7b9c5b96d6cf3e08f8f5b9fa2ac23b",
-      "view_sha256_history": [
-        {
-          "replay_revision": "349b7cfb096deb46910fb2c5014dcf57d2314932",
-          "engine_source_sha256": "0b06a638604431444fc44a1a2c625d882a61e87070ec9fb5ee2489a72c54efe6",
-          "view_sha256": "4bfd18f0545cdc60ddd21cc1e0570cb436d8a30fe04ddc5427ef9875bcc53161"
-        },
-        {
-          "replay_revision": "89a8c8cba83d88676f4aa8e6da034a82a2e170fe",
-          "engine_source_sha256": "5c839429708d142c8046c765467c7a34fd9587c5146110880dc2378108c8ea0e",
-          "view_sha256": "ba518164629e790e92d35c6e37aa722819f3ed7e7bd11d5194248d8093aa470a"
-        },
-        {
-          "replay_revision": "5dec395d701902b68c22bda109ccc30399848ab2",
-          "engine_source_sha256": "9748bdbbc1b497af58159b985abe7e25a08b086eb9821a91a2ae41894eeec799",
-          "view_sha256": "7d271e25bccb9d2cc67e41e91405d1d0550eec7ce13a78296a2767acc1c43568"
-        },
-        {
-          "note": "Before Breath immediate pulse; original operations and tactical assertions retained.",
-          "source_revision": "c0b2a76fdc1ae33239194a18f9477bbc58fc3d80",
-          "view_sha256": "2dea41825946140c12ab68959f16dd3d018e076211c91781074c512fde0f6715"
-        }
-      ]
+      "source_record": "rout-current-diagnostics/games/deimos_deimos_00.json.gz",
+      "view_sha256": "e823d4bc915d4af22f71471af446840c638cb6da0397be271860ce0b94713395"
     },
     {
       "name": "deimos_deimos_00",
@@ -5175,7 +5237,7 @@
         ],
         "seed": "u13-deimos-tactics-2026-09-18:Deimos:Deimos:00"
       },
-      "view_sha256": "f7f8daa62cc9425081c7b1d04a36fd9eadabe47f6b7c8f5066dfbc21341d34cb",
+      "view_sha256": "c0b5c47340a0eb2bf8c71925a17e132a5c1eabae6285a099644764e1c359293f",
       "view_sha256_history": [
         {
           "replay_revision": "349b7cfb096deb46910fb2c5014dcf57d2314932",
@@ -5191,6 +5253,12 @@
           "replay_revision": "5dec395d701902b68c22bda109ccc30399848ab2",
           "engine_source_sha256": "9748bdbbc1b497af58159b985abe7e25a08b086eb9821a91a2ae41894eeec799",
           "view_sha256": "d2220b813367bd2c8722d742219f49905b9f6df84ca1140286f10a6def3d4a33"
+        },
+        {
+          "replay_revision": "77ff66132104d213284c25e5e6feb869d5c1453d",
+          "engine_source_sha256": "6849abebda04d0c7f55f02f1310ef48debb734a5bc287363124b232102ba6259",
+          "view_sha256": "f7f8daa62cc9425081c7b1d04a36fd9eadabe47f6b7c8f5066dfbc21341d34cb",
+          "note": "Before marcher spacing and Vulture versus Butcher damage; original inputs preserved."
         }
       ],
       "expected_monster_choice": "Varn",
@@ -5200,9 +5268,19 @@
   "engine_source_sha256": "0b06a638604431444fc44a1a2c625d882a61e87070ec9fb5ee2489a72c54efe6",
   "equivalent_published_revision": "61e1a47403cc90d2341bede8ddde19bfaefca01a",
   "schema": "U13_DEIMOS_ARTILLERY_NATURAL_V1",
-  "scope": "Original unmodified V9 operations; change only the selected seat at the named planning boundary.",
+  "scope": "Current-rule artillery retarget checks: one unchanged historical operation prefix and one fresh V12 recorded position with an explicit unretargeted Siege-target counterfactual. Opposing plans enter execution only after selection.",
   "source_revision": "0a1c2aadcfaafb91599eef634939b3c7b0f3a92e",
-  "replay_engine_source_sha256": "00dd00f2192f5c5913494b0cb7cea11fc58b04080ab1d8b9216c7760fc6c9c11",
-  "current_replay_note": "2026-09-19 Breath immediate pulse, layered on Sinodek immunity: all recorded inputs, opposing plans and tactical outcome assertions are unchanged. Five planning observations are identical; Deimos/Humbaba round 16 has a changed living board and one fewer Neutral Tear after earlier healing. Historical fingerprints remain recorded. See U13_ROUT_HUMBABA_2026-09-19.md for the reviewed comparison.",
-  "replay_base_revision": "c0b2a76fdc1ae33239194a18f9477bbc58fc3d80"
+  "replay_engine_source_sha256": "12958849e54a868540dd793dc0321bef50676b065f3e9f7ddad83d3218ca93c7",
+  "current_replay_note": "Reviewed against the marcher spacing/counter revision. Original prefixes and opposing plans are preserved for retained cases; changed expected observations and the retired artillery case have explicit before/after evidence.",
+  "replay_base_revision": "2cf3bbb0f8405f8ff82f2c2e14abf6a8da15b2d9",
+  "retired_cases": [
+    {
+      "name": "deimos_humbaba_00",
+      "source_revision": "77ff66132104d213284c25e5e6feb869d5c1453d",
+      "source_file": "Scripts/Sim/u13_doctrine/deimos_artillery_cases.json",
+      "prefix_sha256": "4bd3ffdac58a0971fcf98b676e17bb499752356bb11e09fc91d96cc2c6216957",
+      "original_plans_sha256": "817febebde4035a1b50f62ccc920e8e464ece985ef398dcab62c3fd75dff56c1",
+      "reason": "At the same round-16 prefix under the spacing/counter rules, the saved Siege target is already invalid and the recorded opposing Work target is unavailable. It no longer exercises an artillery retarget. Original case remains at the pinned Git revision."
+    }
+  ]
 }
