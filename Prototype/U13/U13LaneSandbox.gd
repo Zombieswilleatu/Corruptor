@@ -8,6 +8,9 @@ const INTERVAL: float = 15.0
 @export var balance_preview: bool = false
 @export var standalone: bool = false
 var goal_advance_toggle: CheckBox
+var swap_seats_button: Button
+var seats_swapped: bool = false
+var manual_opening: Array = []
 var sim = Sim.new()
 var playback = Playback.new()
 var field
@@ -64,7 +67,7 @@ func _ready() -> void:
 	margin.add_child(column)
 	var top := HBoxContainer.new()
 	column.add_child(top)
-	var title := label(top, "VULTURE PREVIEW · range 900 · tower 1125" if balance_preview else "MARCHER & MONSTER BALANCE", 25)
+	var title := label(top, "MARCHER BALANCE · range 400 · tower 600" if balance_preview else "MARCHER & MONSTER BALANCE", 25)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button(top, "EXIT PREVIEW" if standalone else "MAIN MENU", dismiss)
 	var scoreboard := HBoxContainer.new()
@@ -101,7 +104,7 @@ func _ready() -> void:
 		goal_advance_toggle.text = "Advance when GOAL is within range"
 		goal_advance_toggle.button_pressed = true
 		choices.add_child(goal_advance_toggle)
-		label(choices, "Inside the final 900 distance: Vultures advance toward the goal while firing. Melee, walls and taunts still apply. Changing this option resets the arena with the same seed.", 14)
+		label(choices, "Vultures: +1 damage against Butchers only. Inside the final 400 distance: advance toward the goal while firing. Melee, walls and taunts still apply. Changing this option resets the arena with the same seed.", 14)
 		goal_advance_toggle.toggled.connect(func(_enabled): reset())
 	label(choices, "SPAWN UNITS", 19)
 	owner_choice = option(choices, ["Your side · blue", "Enemy side · red"])
@@ -116,7 +119,7 @@ func _ready() -> void:
 		spawn_buttons[name].tooltip_text = "%d HP · %d Attack · %d Armor" % [profile.max_hp, profile.attack, profile.armor]
 		if name == "Penitent": spawn_buttons[name].tooltip_text += "\n" + preload("res://Scripts/Sim/U13PenitentDefense.gd").DESCRIPTION
 		if name == "Wright": spawn_buttons[name].tooltip_text += "\n" + preload("res://Scripts/Sim/U13FieldFortifications.gd").DESCRIPTION
-		if name == "Vulture": spawn_buttons[name].tooltip_text += "\nShooting range: %d" % Sim.Marching.Ranged.vulture_range(sim.world)
+		if name == "Vulture": spawn_buttons[name].tooltip_text += "\nShooting range: %d\n+1 damage against Butchers only (before Armor)." % Sim.Marching.Ranged.vulture_range(sim.world)
 	label(choices, "MONSTERS", 19)
 	monster_choice = option(choices, Sim.Monsters.NAMES)
 	monster_choice.item_selected.connect(func(_i): _monster_changed())
@@ -153,6 +156,8 @@ func _ready() -> void:
 	pause_button = button(actions, "PAUSE", pause)
 	new_arena_button = button(controls, "NEW RANDOM ARENA", new_random_arena)
 	reset_button = button(controls, "REPLAY / APPLY SEED", reset)
+	swap_seats_button = button(controls, "SWAP SEATS · SAME SEED", swap_seats)
+	swap_seats_button.tooltip_text = "Restart this seed with the original armies, draw streams and manual opening in opposite seats. Click again to restore the original seats."
 	field = Lane.new()
 	field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	field.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -224,6 +229,10 @@ func request_spawn(name: String) -> void:
 
 func _spawn(request: Dictionary) -> void:
 	var outcome: Dictionary = sim.spawn(request.name, request.owner, request.center, request.turret)
+	if outcome.action == "spawned" and sim.round_number == 1:
+		var opening: Dictionary = request.duplicate(true)
+		opening.owner = 1 - int(request.owner) if seats_swapped else int(request.owner)
+		manual_opening.append(opening)
 	spawn_status.text = outcome.get("reason", "%s spawned." % request.name)
 
 func start() -> void:
@@ -324,6 +333,8 @@ func _sync_controls() -> void:
 	pause_button.disabled = not running
 	reset_button.disabled = job != null
 	new_arena_button.disabled = job != null
+	swap_seats_button.disabled = job != null
+	swap_seats_button.text = "RESTORE SEATS · SAME SEED" if seats_swapped else "SWAP SEATS · SAME SEED"
 	if goal_advance_toggle != null: goal_advance_toggle.disabled = job != null
 
 func _show_idle() -> void:
@@ -373,15 +384,35 @@ func new_random_arena() -> void:
 	seed_entry.text = fresh_seed()
 	reset()
 
+func swap_seats() -> void:
+	if job != null: return
+	var resume_after: bool = running
+	var opening: Array = manual_opening.duplicate(true)
+	seed_entry.text = sim.seed_value
+	seats_swapped = not seats_swapped
+	var home_random: bool = home_toggle.button_pressed
+	home_toggle.set_pressed_no_signal(enemy_toggle.button_pressed)
+	enemy_toggle.set_pressed_no_signal(home_random)
+	owner_choice.select(1 - owner_choice.selected)
+	reset()
+	for original in opening:
+		var request: Dictionary = original.duplicate(true)
+		request.owner = 1 - int(original.owner) if seats_swapped else int(original.owner)
+		_spawn(request)
+	_show_idle()
+	status.text = "Seats swapped · same seed and opening." if seats_swapped else "Original seats restored · same seed and opening."
+	if resume_after: start()
+
 func reset() -> void:
 	if job != null: return
 	running = false
 	active = false
 	elapsed = 0
 	pending.clear()
+	manual_opening.clear()
 	result = {}
 	_clear_goal_playback()
-	sim = Sim.new(seed_entry.text, balance_preview, goal_advance_toggle.button_pressed if goal_advance_toggle != null else false)
+	sim = Sim.new(seed_entry.text, balance_preview, goal_advance_toggle.button_pressed if goal_advance_toggle != null else false, seats_swapped)
 	seed_entry.text = sim.seed_value
 	playback = Playback.new()
 	field.reset_effects()

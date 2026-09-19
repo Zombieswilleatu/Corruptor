@@ -6,6 +6,7 @@ const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
 const Ranged = preload("res://Scripts/Sim/U13RangedMarching.gd")
 const Fort = preload("res://Scripts/Sim/U13FieldFortifications.gd")
 const SupportPacing = preload("res://Scripts/Sim/U13SupportPacing.gd")
+const Spacing = preload("res://Scripts/Sim/U13MarcherSpacing.gd")
 const FieldMelee = preload("res://Scripts/Sim/U13FieldMelee.gd")
 const KroniActors = preload("res://Scripts/Sim/U13KroniActors.gd")
 const SpatialFields = preload("res://Scripts/Sim/U13SpatialFields.gd")
@@ -716,12 +717,13 @@ static func _move(
 	entities, duels: Dictionary, context: Dictionary, clock: int, has_rout: bool = false, fleeing_ids: Dictionary = {}
 ) -> void:
 	var gate_queue: bool = context.get("world", {}).get("data", {}).get("guard_work", {}).get("version") == "U13_GUARD_WORK_V4"
+	var modern: bool = context.get("ranged_enabled", false)
+	if modern: Spacing.separate(entities, context.get("field_structures", []), int(context.round))
 	var rows: Array = _units(entities)
 	var has_taunt: bool = rows.any(func(r): return r.attributes.get("monster_id") == "Kurchin")
 	var lane_modifiers: Dictionary = context.get("lane_modifiers", {})
 	var spatial_fields: Dictionary = context.get("spatial_fields", {})
 	var neighbors: Dictionary = {} if context.get("ranged_enabled", false) else _movement_neighbors(rows, duels, int(context.round), has_rout)
-	var modern: bool = context.get("ranged_enabled", false)
 	var vulture_reach: int = Ranged.vulture_range(context.get("world", {}))
 	var advance_near_goal: bool = Ranged.goal_advance_enabled(context.get("world", {}))
 	var structures: Array = context.get("field_structures", [])
@@ -742,14 +744,14 @@ static func _move(
 			neighbors[unit.id] = {"unit": target, "taunted": taunted, "distance": 9223372036854775807 if target.is_empty() else Fort.gap(unit, target)}
 	var accepted: Array = []
 	var accepted_by_id: Dictionary = {}
-	for row in ([] if modern else rows):
+	for row in rows:
 		# Shallow row copies are enough: attributes are read-only until replaced.
 		var copy: Dictionary = row.duplicate()
 		accepted.append(copy)
 		accepted_by_id[row.id] = copy
 	var accepted_grids: Dictionary = _team_grids(accepted, 7)
-	# Read targets from one tick snapshot. Current units can pass through allies;
-	# only the frozen legacy profile resolves friendly space in ID order.
+	# Targets use one snapshot. Reserve each accepted small footprint in stable
+	# identity order so two units cannot step into the same space this tick.
 	for unit in rows:
 		if fleeing_ids.has(unit.id) or (unit.attributes.get("hidden", false) and unit.attributes.get("monster_id") != "Dotra") or unit.attributes.get("sprite_form") == "turret":
 			continue
@@ -850,10 +852,9 @@ static func _move(
 		proposed.x_fp = clampi(int(a.x_fp) + dx, 0, LANE_FP)
 		proposed.y_fp = clampi(int(a.y_fp) + dy, 0, WIDTH_FP)
 		if modern:
-			# A friendly guard must not become an impassable traffic obstacle.
-			# Enemy walls remain solid; combat contact was handled above.
-			if Fort.blocked_step(unit, proposed, structures): proposed = a
+			proposed = Spacing.slide(unit, proposed, accepted, structures, step, not retreat)
 			entities.update(unit.id, unit.owner, proposed)
+			accepted_by_id[unit.id].attributes = proposed
 			continue
 		if not _space_free(unit, proposed, _near_rows(proposed, allies, 7), gate_queue):
 			# Preserve historical spacing for frozen non-ranged fixtures.

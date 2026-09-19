@@ -8,6 +8,11 @@ MELEE_INTERVAL = 34
 RANGED_INTERVAL = 50
 
 
+def matchup_bonus(attacker, target):
+    return int(attacker.get('kind') == 'marcher' and attacker['attributes'].get('suit') == 'Vulture'
+               and target.get('kind') == 'marcher' and target['attributes'].get('suit') == 'Butcher')
+
+
 def ignored(a, b):
     aa, bb = a['attributes'], b['attributes']
     return aa.get('hidden', False) or bb.get('hidden', False) or b['id'] in aa.get('ghost_bypassed', []) or a['id'] in bb.get('ghost_bypassed', [])
@@ -53,7 +58,7 @@ def melee(phase, tick, fleeing):
         if not fort.in_melee(unit, target):
             continue
         source = buffer.get(unit['id']); sa = source['attributes']
-        amount = sa['attack'] * (2 if sa.pop('blood_wish', False) else 1)
+        amount = sa['attack'] * (2 if sa.pop('blood_wish', False) else 1) + matchup_bonus(source, target)
         sa['melee_next_tick'] = clock+MELEE_INTERVAL
         if a['suit'] == 'Vulture':
             sa['ranged_next_tick'] = max(a.get('ranged_next_tick', 0), clock+MELEE_INTERVAL)
@@ -130,7 +135,7 @@ def volley(phase, duels, tick, fleeing):
             fort.find(fort.rows(phase.w), unit['owner'], a['lane'], 2)['attributes']['ranged_next_tick'] = clock+RANGED_INTERVAL
         else:
             attacker = buffer.get(unit['id']); aa = attacker['attributes']
-            amount = aa['attack'] * (2 if aa.pop('blood_wish', False) else 1)
+            amount = aa['attack'] * (2 if aa.pop('blood_wish', False) else 1) + matchup_bonus(attacker, target)
             aa.update(ranged_next_tick=clock+RANGED_INTERVAL, melee_next_tick=clock+MELEE_INTERVAL)
             buffer.update(attacker['id'], attacker['owner'], aa)
         shots.append(dict(attacker=unit, target=target, amount=amount))

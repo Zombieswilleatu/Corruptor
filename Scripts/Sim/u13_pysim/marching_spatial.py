@@ -9,9 +9,7 @@ LANES = ("Lord", "Castle")
 VULTURE_RANGE = 400
 CONTACT2, GAP2, RANGE2 = 180 ** 2, 84 ** 2, VULTURE_RANGE ** 2
 RANGED = "U13_VULTURE_RANGED_V10_LANE_BALANCE"
-PREVIEW_VERSION = "U13_LANE_BALANCE_PREVIEW_V1"
-PREVIEW_VULTURE_RANGE = 900
-PREVIEW_TOWER_RANGE = 1125
+PREVIEW_VERSION = "U13_LANE_BALANCE_PREVIEW_V2_BUTCHER_COUNTER"
 ROUT = "U13_ROUT_V1"
 WEB = "U13_SPATIAL_WEB_FIELDS_V1"
 AURAS = "U13_LANE_AURAS_V1"
@@ -22,12 +20,12 @@ def preview_enabled(world):
 
 
 def vulture_range(world):
-    return PREVIEW_VULTURE_RANGE if preview_enabled(world) else VULTURE_RANGE
+    return VULTURE_RANGE
 
 
 def tower_range(world):
     from . import field_fortifications
-    return PREVIEW_TOWER_RANGE if preview_enabled(world) else field_fortifications.TOWER_RANGE
+    return field_fortifications.TOWER_RANGE
 
 
 def goal_advance_enabled(world):

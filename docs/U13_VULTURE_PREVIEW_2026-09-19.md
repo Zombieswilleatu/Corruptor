@@ -1,5 +1,11 @@
 # Vulture range and goal-advance preview
 
+**Superseded:** the range increase was withdrawn after playtesting. The same
+runner now uses 400/600 ranges, +1 Vulture damage against Butchers, small marcher
+footprints and a same-seed seat swap. See
+[the current marcher balance notes](U13_MARCHER_COUNTER_SPACING_2026-09-19.md).
+The remainder of this document records the earlier 900/1,125 experiment.
+
 The earlier range-review push added comparison tools and evidence, while the
 ordinary game and sandbox still used Vulture range 400 and tower range 600.
 This runner opens a separate, visibly labeled playable experiment directly.

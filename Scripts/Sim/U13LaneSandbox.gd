@@ -15,8 +15,10 @@ var spawners: Array = []
 var last_waves: Array = [{}, {}]
 var totals: Array = []
 var goal_ids: Array = [{}, {}]
+var seats_swapped: bool = false
 
-func _init(seed_text: String = "lane-balance-1", balance_preview: bool = false, goal_advance: bool = true) -> void:
+func _init(seed_text: String = "lane-balance-1", balance_preview: bool = false, goal_advance: bool = true, swapped: bool = false) -> void:
+	seats_swapped = swapped
 	seed_value = seed_text if not seed_text.strip_edges().is_empty() else "lane-balance-1"
 	world = {"entities": Ids.new().snapshot(), "data": {"kanifous_losses": [], "kanifous_loss_round": 1}}
 	Marching.Ranged.configure(world)
@@ -31,6 +33,13 @@ func units() -> Array:
 	return world.entities.entities.filter(func(r): return r.kind == "marcher")
 
 func spawn(name: String, pid: int, near_center: bool = false, turret: bool = false) -> Dictionary:
+	if not seats_swapped: return _spawn(name, pid, near_center, turret)
+	_flip_spawn_frame()
+	var outcome: Dictionary = _spawn(name, 1 - pid, near_center, turret)
+	_flip_spawn_frame()
+	return outcome
+
+func _spawn(name: String, pid: int, near_center: bool = false, turret: bool = false) -> Dictionary:
 	if pid not in [0, 1] or (name not in Marching.SUITS and name not in Monsters.NAMES):
 		return {"action": "invalid", "reason": "Unknown unit or side."}
 	if Monsters.limited(name) and Monsters.living(units(), pid, name):
@@ -57,6 +66,14 @@ func spawn(name: String, pid: int, near_center: bool = false, turret: bool = fal
 	return {"action": "spawned", "count": count, "ids": created}
 
 func random_waves(owners: Array) -> Dictionary:
+	if not seats_swapped: return _random_waves(owners)
+	if owners.any(func(pid): return pid not in [0, 1]): return {"action": "invalid", "reason": "Unknown random-spawn side."}
+	_flip_spawn_frame()
+	var outcome: Dictionary = _random_waves(owners.map(func(pid): return 1 - int(pid)))
+	_flip_spawn_frame()
+	return outcome
+
+func _random_waves(owners: Array) -> Dictionary:
 	if owners.is_empty(): return {"action": "spawned", "spawned": 0}
 	if owners.any(func(pid): return pid not in [0, 1]):
 		return {"action": "invalid", "reason": "Unknown random-spawn side."}
@@ -109,6 +126,26 @@ func random_waves(owners: Array) -> Dictionary:
 		wave["summary"] = "%s\n%d %s · %s · %d cards saved" % [", ".join(labels), count, "body" if count == 1 else "bodies", wave.monster if not wave.monster.is_empty() else "no monster recipe", wave.saved]
 		if count == 0: wave.summary += "\nNo suit total reaches 3 this interval."
 	return {"action": "spawned", "spawned": spawned.size()}
+
+func _flip_spawn_frame() -> void:
+	# Generate cards, immutable unit IDs and keyed spawn positions in their
+	# original seats, then exchange the actual combat world. Combat itself runs
+	# in the swapped seats; this is not merely a flipped view of the old fight.
+	world = mirror(world)
+	totals.reverse()
+	last_waves.reverse()
+
+static func mirror(value: Variant) -> Variant:
+	if value is Array: return value.map(mirror)
+	if value is Dictionary:
+		var reflected: Dictionary = {}
+		for key in value:
+			if key in ["owner", "charm_owner", "wright_owner", "player_id", "source_owner", "target_owner"] and value[key] in [0, 1]: reflected[key] = 1 - int(value[key])
+			elif key == "x_fp": reflected[key] = Marching.LANE_FP - int(value[key])
+			elif key == "direction": reflected[key] = -int(value[key])
+			else: reflected[key] = mirror(value[key])
+		return reflected
+	return value
 
 static func reaction(raw: Dictionary, _fact: Dictionary, _seed: String, _order: Array) -> Dictionary:
 	# No Lord passives, rewards, castles or Veil in this arena. Marching itself

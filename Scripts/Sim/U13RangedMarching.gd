@@ -6,15 +6,14 @@ const Rout = preload("res://Scripts/Sim/U13Rout.gd")
 const Defense = preload("res://Scripts/Sim/U13PenitentDefense.gd")
 const MonsterEffects = preload("res://Scripts/Sim/U13MonsterEffects.gd")
 const Fort = preload("res://Scripts/Sim/U13FieldFortifications.gd")
+const Matchups = preload("res://Scripts/Sim/U13MarcherMatchups.gd")
 const VERSION: String = "U13_VULTURE_RANGED_V10_LANE_BALANCE"
 const ATTACK: int = 1
 const RANGE_FP: int = 400 # Two units at 200 fixed-point units per unit.
 const CONTACT_FP: int = Fort.CONTACT
 const EXCHANGE_TICKS: int = 34
 const RANGED_INTERVAL_TICKS: int = 50 # Four shots per 200-tick round.
-const PREVIEW_VERSION: String = "U13_LANE_BALANCE_PREVIEW_V1"
-const PREVIEW_VULTURE_RANGE: int = 900
-const PREVIEW_TOWER_RANGE: int = 1125
+const PREVIEW_VERSION: String = "U13_LANE_BALANCE_PREVIEW_V2_BUTCHER_COUNTER"
 
 
 static func preview_enabled(world: Dictionary) -> bool:
@@ -22,11 +21,11 @@ static func preview_enabled(world: Dictionary) -> bool:
 
 
 static func vulture_range(world: Dictionary) -> int:
-	return PREVIEW_VULTURE_RANGE if preview_enabled(world) else RANGE_FP
+	return RANGE_FP
 
 
 static func tower_range(world: Dictionary) -> int:
-	return PREVIEW_TOWER_RANGE if preview_enabled(world) else Fort.TOWER_RANGE
+	return Fort.TOWER_RANGE
 
 
 static func goal_advance_enabled(world: Dictionary) -> bool:
@@ -109,7 +108,7 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 			Fort.find(Fort.rows(world), unit.owner, unit.attributes.lane, 2).attributes.ranged_next_tick = clock + RANGED_INTERVAL_TICKS
 		else:
 			var attacker: Dictionary = entities.get_entity(unit.id)
-			amount = Wishmaster.attack_amount(attacker.attributes)
+			amount = Wishmaster.attack_amount(attacker.attributes) + Matchups.bonus(attacker, target)
 			attacker.attributes["ranged_next_tick"] = clock + RANGED_INTERVAL_TICKS
 			attacker.attributes["melee_next_tick"] = clock + EXCHANGE_TICKS
 			entities.update(attacker.id, attacker.owner, attacker.attributes)

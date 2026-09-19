@@ -150,6 +150,7 @@ func _get_tooltip(at: Vector2) -> String:
 			if unit_name == "Penitent": description += "\n" + preload("res://Scripts/Sim/U13PenitentDefense.gd").DESCRIPTION
 			if unit_name == "Vulture":
 				description += "\nShooting range: %d" % Ranged.vulture_range({"data": ranged_display_settings})
+				description += "\n+1 damage against Butchers only (before Armor)."
 				if Ranged.goal_advance_enabled({"data": ranged_display_settings}):
 					description += "\nAdvances while firing when the goal is within range; otherwise stops to shoot."
 			if unit_name in ["Vulture", "Kopita", "Sinodek", "Sooge"] and unit.attributes.get("sprite_form") != "turret":

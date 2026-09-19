@@ -5,6 +5,7 @@ const Effects = preload("res://Scripts/Sim/U13MonsterEffects.gd")
 const Wish = preload("res://Scripts/Sim/U13Wishmaster.gd")
 const Rout = preload("res://Scripts/Sim/U13Rout.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
+const Matchups = preload("res://Scripts/Sim/U13MarcherMatchups.gd")
 const INTERVAL: int = 34 # Up to six ordinary swings per 200-tick round.
 
 static func nearest(unit: Dictionary, targets: Array, radius: int = 4000, melee: bool = false) -> Dictionary:
@@ -48,7 +49,7 @@ static func resolve(world: Dictionary, entities, context: Dictionary, tick: int,
 		if not obstruction.is_empty(): target = obstruction
 		if not Fort.in_melee(unit, target): continue
 		var source: Dictionary = entities.get_entity(unit.id)
-		var amount: int = Wish.attack_amount(source.attributes)
+		var amount: int = Wish.attack_amount(source.attributes) + Matchups.bonus(source, target)
 		source.attributes["melee_next_tick"] = clock + INTERVAL
 		if a.suit == "Vulture": source.attributes["ranged_next_tick"] = maxi(int(a.get("ranged_next_tick", 0)), clock + INTERVAL)
 		entities.update(source.id, source.owner, source.attributes)

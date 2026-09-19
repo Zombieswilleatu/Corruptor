@@ -182,6 +182,9 @@ def nearest_target(i, candidates, positions, xs, ys):
 def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     from . import support_pacing
     from . import marching_spatial
+    from . import marcher_spacing
+    if context['world']['data'].get('ranged_profile') == RANGED:
+        marcher_spacing.separate(s, fort.rows(context['world']), context['round'])
     indices = s.active()
     xs, ys = s.x_fp[:], s.y_fp[:]  # One target snapshot; accepted positions stay in columns.
     grouped = teams(s, indices)
@@ -213,6 +216,8 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     structures = fort.rows(context['world']) if ranged else []
     reach2 = fort.CONTACT**2 if ranged else CONTACT2
     target_rows = s.rows() if ranged else []
+    accepted_rows = copy_data(target_rows)
+    accepted_by_id = {r['id']: r for r in accepted_rows}
     field_nearest = {i: (field_combat.nearest(s.row(i), target_rows+structures, fort.CONTACT, True) or field_combat.nearest(s.row(i), target_rows+structures)) for i in indices} if ranged else {}
     taunted = set()
     if ranged:
@@ -296,11 +301,10 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
                     dy = 1 if vy > 0 else -1
         nx, ny = max(0, min(2400, xs[i] + dx)), max(0, min(600, ys[i] + dy))
         if ranged:
-            # Friendly units yield their space, including stationary guards.
-            # Enemy walls remain solid; combat contact was handled above.
-            if fort.blocked_step(s.row(i), dict(x_fp=nx, y_fp=ny), structures):
-                nx, ny = xs[i], ys[i]
+            proposed = marcher_spacing.slide(s.row(i), dict(s.row(i)['attributes'], x_fp=nx, y_fp=ny), accepted_rows, structures, step, not retreat[i])
+            nx, ny = proposed['x_fp'], proposed['y_fp']
             s.x_fp[i], s.y_fp[i] = nx, ny
+            accepted_by_id[s.ids[i]]['attributes'] = proposed
             continue
         allies = accepted[lane][owner]
         def free(px, py):
