@@ -26,6 +26,17 @@ func _init(seed_text: String = "lane-balance-1", player_id: int = 1) -> void:
 		deck.append_array(cards.slice(3))
 	Economy._shuffle(deck, seed_value, "sandbox:opening")
 
+func fork():
+	var copy = get_script().new()
+	copy.seed_value = seed_value
+	copy.owner = owner
+	copy.deck = deck.duplicate(true)
+	copy.discard = discard.duplicate(true)
+	copy.saved = saved.duplicate(true)
+	copy.goal = goal
+	copy.shuffle_number = shuffle_number
+	return copy
+
 func pick(round_number: int, purpose: String, count: int) -> int:
 	return int(Rng.draw(seed_value, "sandbox:enemy", purpose, round_number, count).value)
 

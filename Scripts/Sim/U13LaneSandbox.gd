@@ -31,6 +31,20 @@ func _init(seed_text: String = "lane-balance-1", balance_preview: bool = false, 
 		spawners.append(Enemy.new(seed_value, pid))
 		totals.append({"spawned": 0, "defeated": 0, "banished": 0, "escaped": 0, "reached_goal": 0})
 
+func fork():
+	# A worker owns its whole arena, including the two mutable card streams.
+	var copy = get_script().new()
+	copy.world = world.duplicate(true)
+	copy.seed_value = seed_value
+	copy.round_number = round_number
+	copy.serial = serial
+	copy.spawners = spawners.map(func(spawner): return spawner.fork())
+	copy.last_waves = last_waves.duplicate(true)
+	copy.totals = totals.duplicate(true)
+	copy.goal_ids = goal_ids.duplicate(true)
+	copy.seats_swapped = seats_swapped
+	return copy
+
 func units() -> Array:
 	return world.entities.entities.filter(func(r): return r.kind == "marcher")
 

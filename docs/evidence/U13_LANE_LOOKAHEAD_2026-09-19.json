@@ -1,0 +1,83 @@
+{
+  "date": "2026-09-19",
+  "scope": "Lane sandbox scheduling only; native Linux Godot 4.5.1, not Windows 4.7.2 acceptance",
+  "runtime_base_commit": "176e17588e4ab931fc463b0547d77db933038560",
+  "seed": "lane-f881e7ec-e3aebe70",
+  "staging_capacity": 15,
+  "release_modes": [
+    "Auto",
+    "Auto"
+  ],
+  "random_spawns": [
+    0,
+    1
+  ],
+  "checks": {
+    "lookahead": {
+      "checks": 117,
+      "failures": 0,
+      "result": "LOOKAHEAD TESTS: 117 checks, 0 failures"
+    },
+    "sandbox": {
+      "checks": 245,
+      "failures": 0,
+      "result": "U13 lane sandbox: 245 checks, 0 failures"
+    },
+    "staging": {
+      "checks": 60,
+      "failures": 0,
+      "result": "U13 lane staging: 60 checks, 0 failures"
+    },
+    "preview": {
+      "checks": 59,
+      "failures": 0,
+      "result": "U13 Vulture preview: 59 checks, 0 failures"
+    },
+    "benchmark": {
+      "checks": 3,
+      "failures": 0,
+      "result": "LOOKAHEAD TESTS: 3 checks, 0 failures"
+    }
+  },
+  "benchmark": {
+    "ahead": {
+      "frames": 1693,
+      "preparation_wait_ms": 224.386,
+      "prepare_ahead": true,
+      "round_signatures": [
+        "89bab81e8a0a4b39fcfdadf09fe2e5b340bf087d8c2e1659cb862d7813e266c0",
+        "380bb050d88c270eee89417d0ee27e09eef865ff7b80b24d26b095e20b12553c",
+        "eec12e08d98770ad4bd74d015a7e6f78e9e686e5ba7235fc4eb648b3e588bf6d",
+        "4ffb48b477243a350d977eb3eba80f676f9710872712beb64364879ec06b40a8",
+        "eaec2ff1eb29c0d8e8a999038522693419a410089d3273b9381516e425df2f8e",
+        "a98fe73f4d89527269c809bd96bc578bdc5d95de6a2f031c87d3cdc4efd388de",
+        "57c6968773de0152603751f882e7e6592dcd8ed444e50ea0102eda6f4088a4ca",
+        "f5f73299761546c1546dbf391e3ec6cae48ebfede0c5f159800653027d31e436"
+      ],
+      "rounds": 8,
+      "speed": 5,
+      "wall_ms": 24294.141
+    },
+    "godot": "4.5.1-stable (official)",
+    "without": {
+      "frames": 2310,
+      "preparation_wait_ms": 9970.532,
+      "prepare_ahead": false,
+      "round_signatures": [
+        "89bab81e8a0a4b39fcfdadf09fe2e5b340bf087d8c2e1659cb862d7813e266c0",
+        "380bb050d88c270eee89417d0ee27e09eef865ff7b80b24d26b095e20b12553c",
+        "eec12e08d98770ad4bd74d015a7e6f78e9e686e5ba7235fc4eb648b3e588bf6d",
+        "4ffb48b477243a350d977eb3eba80f676f9710872712beb64364879ec06b40a8",
+        "eaec2ff1eb29c0d8e8a999038522693419a410089d3273b9381516e425df2f8e",
+        "a98fe73f4d89527269c809bd96bc578bdc5d95de6a2f031c87d3cdc4efd388de",
+        "57c6968773de0152603751f882e7e6592dcd8ed444e50ea0102eda6f4088a4ca",
+        "f5f73299761546c1546dbf391e3ec6cae48ebfede0c5f159800653027d31e436"
+      ],
+      "rounds": 8,
+      "speed": 5,
+      "wall_ms": 33506.727
+    }
+  },
+  "balance_preview": false,
+  "goal_advance": false
+}

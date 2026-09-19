@@ -288,9 +288,9 @@ func ui_checks() -> void:
 	deadline = Time.get_ticks_msec() + 15000
 	while arena.job != null and Time.get_ticks_msec() < deadline: await process_frame
 	arena._process(15)
-	check(arena.running and arena.job != null and arena.sim.round_number == 3, "continuous mode automatically starts the next real round")
+	check(arena.running and (arena.preparing() or arena.active) and arena.sim.round_number == 3, "continuous mode automatically starts the next real round")
 	deadline = Time.get_ticks_msec() + 15000
-	while arena.job != null and Time.get_ticks_msec() < deadline: await process_frame
+	while arena.preparing() and Time.get_ticks_msec() < deadline: await process_frame
 	arena.reset()
 	check(arena.sim.units().is_empty() and arena.sim.round_number == 1 and not arena.running and arena.pending.is_empty(), "reset clears the arena, queue and playback")
 	check(arena.home_toggle.button_pressed and arena.enemy_toggle.button_pressed and arena.sim.last_waves == [{}, {}], "reset preserves random-spawn toggles and clears both commitment reports")
@@ -300,9 +300,9 @@ func ui_checks() -> void:
 	deadline = Time.get_ticks_msec() + 15000
 	while arena.job != null and Time.get_ticks_msec() < deadline: await process_frame
 	arena._process(15)
-	check(arena.running and arena.job != null and arena.sim.round_number == 2, "continuous home spawning advances to the next interval")
+	check(arena.running and (arena.preparing() or arena.active) and arena.sim.round_number == 2, "continuous home spawning advances to the next interval")
 	deadline = Time.get_ticks_msec() + 15000
-	while arena.job != null and Time.get_ticks_msec() < deadline: await process_frame
+	while arena.preparing() and Time.get_ticks_msec() < deadline: await process_frame
 	arena.reset()
 	arena.dismiss()
 	await process_frame

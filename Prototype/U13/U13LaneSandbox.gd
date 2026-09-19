@@ -3,6 +3,7 @@ extends Control
 signal closed
 const Sim = preload("res://Scripts/Sim/U13LaneSandbox.gd")
 const Playback = preload("res://Prototype/U13/U13SmokePlayback.gd")
+const Preparation = preload("res://Prototype/U13/U13LanePreparation.gd")
 const Lane = preload("res://Prototype/U13/U13SandboxLaneView.gd")
 const INTERVAL: float = 15.0
 const SPEEDS: Array = [0.5, 1.0, 2.0, 3.0, 5.0]
@@ -19,6 +20,12 @@ var sim = Sim.new()
 var playback = Playback.new()
 var field
 var job: Thread
+var next_job: Thread
+var next_key: Dictionary = {}
+var next_packet: Dictionary = {}
+var waiting_next: bool = false
+var waiting_key: Dictionary = {}
+var arena_generation: int = 0
 var result: Dictionary = {}
 var pending: Array = []
 var running: bool = false
@@ -32,6 +39,7 @@ var monster_note: Label
 var enemy_toggle: CheckBox
 var home_toggle: CheckBox
 var mode: OptionButton
+var prepare_ahead: CheckBox
 var speed: OptionButton
 var seed_entry: LineEdit
 var status: Label
@@ -155,6 +163,11 @@ func _ready() -> void:
 	label(choices, "PLAYBACK", 19)
 	mode = option(choices, ["15-second rounds · pause between", "Continuous · repeat rounds"])
 	mode.item_selected.connect(func(_i): _sync_controls())
+	prepare_ahead = CheckBox.new()
+	prepare_ahead.text = "Prepare next interval during playback"
+	prepare_ahead.button_pressed = true
+	prepare_ahead.tooltip_text = "Continuous mode: prepare one interval ahead. Changes to queued spawns or next-interval choices replace that preparation. The first interval still needs to prepare."
+	choices.add_child(prepare_ahead)
 	speed = option(choices, ["0.5× speed", "1× speed", "2× speed", "3× speed", "5× speed"])
 	speed.select(1)
 	label(choices, "Seed · same seed repeats the same fight", 14)
@@ -230,7 +243,7 @@ func _monster_changed() -> void:
 
 func request_spawn(name: String) -> void:
 	var request: Dictionary = {"name": name, "owner": owner_choice.selected, "center": spawn_point.selected == 1, "turret": name == "Sooge" and turret.button_pressed}
-	if active or job != null:
+	if active or preparing():
 		if pending.size() >= 20:
 			spawn_status.text = "Spawn queue is full. Finish this interval or reset."
 			return
@@ -242,6 +255,11 @@ func request_spawn(name: String) -> void:
 
 func _spawn(request: Dictionary) -> void:
 	var outcome: Dictionary = sim.spawn(request.name, request.owner, request.center, request.turret)
+	if outcome.action == "spawned":
+		# After stopping between rounds, an old worker can still be finishing.
+		# An immediate idle spawn changes its base world, not the pending queue.
+		arena_generation += 1
+		next_packet = {}
 	if outcome.action == "spawned" and sim.round_number == 1:
 		var opening: Dictionary = request.duplicate(true)
 		opening.owner = 1 - int(request.owner) if seats_swapped else int(request.owner)
@@ -251,7 +269,7 @@ func _spawn(request: Dictionary) -> void:
 func start() -> void:
 	if running: return
 	running = true
-	if not active and job == null: _begin_interval()
+	if not active and not preparing(): _begin_interval()
 	_sync_controls()
 
 func pause() -> void:
@@ -261,54 +279,130 @@ func pause() -> void:
 
 func _begin_interval() -> void:
 	_clear_goal_playback()
-	for request in pending: _spawn(request)
-	pending.clear()
-	var random_sides: Array = []
-	if home_toggle.button_pressed: random_sides.append(0)
-	if enemy_toggle.button_pressed: random_sides.append(1)
-	var wave: Dictionary = sim.random_waves(random_sides)
-	sim.prepare_releases(release_choices.map(func(choice): return ["Auto", "Hold", "March"][choice.selected]))
-	for choice in release_choices:
-		if choice.selected == 2: choice.select(1)
-	_update_wave_notes()
-	if wave.action == "invalid":
-		running = false
-		status.text = "Simulation stopped: " + str(wave.get("reason", "random commitment unavailable"))
-		_sync_controls()
-		return
-	if sim.units().is_empty() and sim.staged_units().is_empty() and random_sides.is_empty():
-		running = false
-		status.text = "Spawn units or enable random spawns for either side first."
-		_sync_controls()
-		return
-	field.show_world(sim.units(), sim.round_number, sim.world.data.get("field_structures", []))
-	_update_staging()
 	elapsed = 0
-	feedback_cursor = 0
+	var inputs: Dictionary = _interval_inputs(sim.round_number)
+	# At the boundary these inputs become this interval's commitment. New
+	# clicks made while it is finishing preparation belong to the next one.
+	_consume_inputs()
+	if _ahead_enabled() and inputs == next_key:
+		if not next_packet.is_empty():
+			_adopt_next()
+			return
+		if next_job != null:
+			waiting_next = true
+			waiting_key = inputs
+			status.text = "Finishing preparation for interval %d…" % sim.round_number
+			_sync_controls()
+			return
+	var committed: Dictionary = Preparation.commit(sim, inputs)
+	_show_commitment(committed)
+	if committed.action != "committed":
+		_stop_preparation(committed)
+		return
 	job = Thread.new()
-	var error: Error = job.start(Sim.resolve_round.bind(sim.world.duplicate(true), sim.seed_value, sim.round_number))
+	var error: Error = job.start(Preparation.resolve.bind(sim.world.duplicate(true), sim.seed_value, sim.round_number))
 	if error != OK:
 		job = null
-		running = false
-		status.text = "Could not start the lane simulation. Reset to try again."
+		_stop_preparation({"reason": "Could not start the lane simulation. Reset to try again."})
 	else:
 		status.text = "Preparing interval %d…" % sim.round_number
 	_sync_controls()
 
+func preparing() -> bool:
+	return job != null or waiting_next
+
+func _ahead_enabled() -> bool:
+	return mode.selected == 1 and prepare_ahead.button_pressed
+
+func _interval_inputs(number: int) -> Dictionary:
+	var owners: Array = []
+	if home_toggle.button_pressed: owners.append(0)
+	if enemy_toggle.button_pressed: owners.append(1)
+	return {"generation": arena_generation, "round": number, "pending": pending.duplicate(true), "owners": owners, "releases": release_choices.map(func(choice): return ["Auto", "Hold", "March"][choice.selected])}
+
+func _consume_inputs() -> void:
+	pending.clear()
+	for choice in release_choices:
+		if choice.selected == 2: choice.select(1)
+
+func _show_commitment(committed: Dictionary) -> void:
+	# A sealed interval may finish after another manual request was queued.
+	if pending.is_empty() and not committed.get("outcomes", []).is_empty():
+		spawn_status.text = committed.outcomes.back().get("reason", "Spawn request processed.")
+	_update_wave_notes()
+	field.show_world(sim.units(), sim.round_number, sim.world.data.get("field_structures", []))
+	_update_staging()
+	elapsed = 0
+	feedback_cursor = 0
+	_report(sim.units())
+
+func _stop_preparation(packet: Dictionary) -> void:
+	running = false
+	status.text = ("" if packet.get("action") == "idle" else "Simulation stopped: ") + str(packet.get("reason", "playback unavailable"))
+	_sync_controls()
+
+func _install_packet(packet: Dictionary) -> void:
+	if packet.get("action") != "prepared":
+		_stop_preparation(packet)
+		return
+	result = packet.result
+	playback = packet.playback
+	active = true
+	goal_rows = sim.goal_arrivals(result.events)
+	field.show_frame(playback.sample(0), sim.round_number)
+	status.text = "Interval %d ready.%s" % [sim.round_number, "" if running else " Resume to play."]
+	_sync_controls()
+
+func _adopt_next() -> void:
+	var packet: Dictionary = next_packet
+	next_packet = {}
+	next_key = {}
+	waiting_next = false
+	waiting_key = {}
+	sim = packet.sim
+	_show_commitment(packet)
+	_install_packet(packet)
+
+func _poll_next() -> void:
+	if next_job != null and not next_job.is_alive():
+		next_packet = next_job.wait_to_finish()
+		next_job = null
+	if waiting_next and next_key == waiting_key and not next_packet.is_empty():
+		# Already committed at the boundary; do not consume later requests or
+		# re-read selectors, even if paused or continuous mode was switched off.
+		_adopt_next()
+
+func _prepare_next() -> void:
+	if waiting_next: return
+	if not active or not _ahead_enabled():
+		next_packet = {}
+		if next_job == null: next_key = {}
+		return
+	var wanted: Dictionary = _interval_inputs(sim.round_number + 1)
+	if next_key != wanted: next_packet = {}
+	if next_job != null or not next_packet.is_empty() or not running: return
+	next_key = wanted
+	# Only this world needs a copy. The current tape is immutable and finish
+	# only reads it; copying it every time a selector changes is unnecessary.
+	var finished: Dictionary = {"world": result.world.duplicate(true), "events": result.events}
+	var candidate = sim.fork()
+	next_job = Thread.new()
+	if next_job.start(Preparation.next_interval.bind(candidate, finished, wanted.duplicate(true))) != OK:
+		next_job = null
+		next_key = {}
+
+func _next_status() -> String:
+	if not _ahead_enabled(): return ""
+	if next_key != _interval_inputs(sim.round_number + 1): return " · next interval updating"
+	return " · next interval ready" if not next_packet.is_empty() else " · next interval preparing"
+
 func _process(delta: float) -> void:
+	_poll_next()
 	if job != null and not job.is_alive():
-		result = job.wait_to_finish()
+		var packet: Dictionary = job.wait_to_finish()
 		job = null
-		if result.get("action") != "resolved" or not playback.build(result.get("events", []).map(func(r): return r.event)):
-			running = false
-			status.text = "Simulation stopped: " + str(result.get("reason", "playback unavailable"))
-			_sync_controls()
-			return
-		active = true
-		goal_rows = sim.goal_arrivals(result.events)
-		field.show_frame(playback.sample(0), sim.round_number)
-		if not running: status.text = "Interval %d ready. Resume to play." % sim.round_number
-		_sync_controls()
+		_install_packet(packet)
+	_prepare_next()
 	if not active or not running: return
 	elapsed = minf(INTERVAL, elapsed + delta * SPEEDS[speed.selected])
 	var playback_time: float = playback.duration * elapsed / INTERVAL
@@ -325,7 +419,7 @@ func _process(delta: float) -> void:
 		feedback_cursor += 1
 	if not hits.is_empty(): field.show_feedback(hits)
 	_report(frame.units)
-	status.text = "Interval %d · %.1f / 15s · %d queued spawns" % [sim.round_number, elapsed, pending.size()]
+	status.text = "Interval %d · %.1f / 15s · %d queued spawns%s" % [sim.round_number, elapsed, pending.size(), _next_status()]
 	if elapsed >= INTERVAL:
 		sim.finish(result)
 		_clear_goal_playback()
@@ -344,7 +438,7 @@ func _process(delta: float) -> void:
 
 func _sync_controls() -> void:
 	if field == null: return
-	field.animation_paused = not running or job != null
+	field.animation_paused = not running or preparing()
 	run_button.disabled = running
 	run_button.text = "RESUME" if active else ("START" if mode.selected == 1 else "RUN 15s")
 	pause_button.disabled = not running
@@ -354,6 +448,7 @@ func _sync_controls() -> void:
 	swap_seats_button.text = "RESTORE SEATS · SAME SEED" if seats_swapped else "SWAP SEATS · SAME SEED"
 	if goal_advance_toggle != null: goal_advance_toggle.disabled = job != null
 	staging_capacity.disabled = job != null
+	prepare_ahead.disabled = mode.selected != 1
 
 func _show_idle() -> void:
 	field.ranged_display_settings = {"lane_balance_preview": sim.world.data.get("lane_balance_preview", {})}
@@ -440,6 +535,13 @@ func swap_seats() -> void:
 
 func reset() -> void:
 	if job != null: return
+	arena_generation += 1
+	waiting_next = false
+	waiting_key = {}
+	next_packet = {}
+	# A speculative worker owns no UI state. Let it finish, then discard its
+	# old generation; resetting or swapping seats need not wait for it.
+	if next_job == null: next_key = {}
 	running = false
 	active = false
 	elapsed = 0
@@ -468,6 +570,9 @@ func _exit_tree() -> void:
 	if job != null:
 		job.wait_to_finish()
 		job = null
+	if next_job != null:
+		next_job.wait_to_finish()
+		next_job = null
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not is_visible_in_tree() or not event is InputEventKey or not event.pressed or event.echo: return
