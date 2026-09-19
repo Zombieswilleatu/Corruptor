@@ -1,5 +1,5 @@
 """Independent simultaneous melee and fortification-aware ranged attacks."""
-from . import field_fortifications as fort, monster_effects, penitent_defense
+from . import field_fortifications as fort, monster_effects, penitent_defense, marching_spatial
 from .copying import copy_data
 from .marching_buffer import Buffer
 from .primitives import instance_id
@@ -109,7 +109,7 @@ def volley(phase, duels, tick, fleeing):
         elif (unit['kind'] != 'marcher' or a['suit'] != 'Vulture' or unit['id'] in busy or unit['id'] in fleeing
               or a.get('rout_round') == number or a.get('ranged_next_tick', 0) > clock):
             continue
-        radius = fort.TOWER_RANGE if tower else 400
+        radius = fort.TOWER_RANGE if tower else marching_spatial.VULTURE_RANGE
         best, target = radius**2+1, {}
         for other in rows:
             if other['owner'] == unit['owner'] or other['attributes']['lane'] != a['lane'] or ignored(unit, other):
