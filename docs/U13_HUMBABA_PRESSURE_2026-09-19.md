@@ -122,14 +122,51 @@ The four other natural Rout/heal/support decisions retain their exact plans.
   `cecf57e52ade545edb8da4ad1188c4dba44089cfaef2441e9a246c7ab306b97c`.
 
 The accepted Windows native Breath rules gate remains valid. V12's Python
-dual-runtime acceptance is still pending. After pulling this checkpoint in
-Git Bash, the existing wrapper produces the reports ZIP in Downloads:
+dual-runtime acceptance is still pending. The first Windows attempt and the
+runner correction are recorded below. After pulling this checkpoint in
+Git Bash, the wrapper produces the reports ZIP in Downloads:
 
 ```bash
 git pull --ff-only origin u13-basic-doctrine &&
 bash Scripts/Sim/run_u13_common_doctrine.sh \
   "C:/Users/jerem/Downloads/pypy3.11-v7.3.23-win64/pypy3.11-v7.3.23-win64/pypy3.exe"
 ```
+
+### Incomplete Windows attempt and runner timeout correction
+
+The uploaded `u13-common-doctrine-TwplP8-2026-09-19_10-04-05-X6kneQ.zip`
+identifies clean revision `4dd3c02`. CPython passed **168 tests in 425.708
+seconds**, followed by `gremory_humbaba` (**16 rounds / 400 operations**).
+The runner then exited with status 1. No complete CPython report, PyPy log,
+or comparison exists in the archive, so this is **not dual-runtime acceptance**.
+
+The ZIP timestamps for `revision.txt` and `run-status.txt` are exactly 600
+seconds apart. That matches the wrapper's old ten-minute limit for the
+**entire** Python check (unit tests plus five games). The old timeout message
+went only to the terminal, so the archive cannot directly confirm the reason;
+its timing and otherwise passing log strongly indicate watchdog termination.
+
+The wrapper now allows **1,800 seconds per Python check**, retains 600-second
+limits for native and comparison commands, and records the runtime versions,
+phase timings, exit reason and applicable deadline in the ZIP. A timeout kills
+the active child and returns status 124, with the watchdog message in both the
+phase log and `runner.log`. Nonzero command exits and error text from commands
+that return zero still fail. `U13_DOCTRINE_TIMEOUT_SECONDS` can override the
+Python deadline with a positive integer up to 86,400. `U13_REPORT_DOWNLOADS`
+consistently selects the report folder and ZIP destination when set.
+
+Seven local Linux process tests passed using explicit stub runtimes: the
+successful sequence and separate deadlines, nonzero command failure, an error
+with zero exit status, CPython timeout, PyPy timeout after CPython completes,
+termination cleanup, and invalid deadline input. These verify the wrapper and
+its packaged diagnostics; they are not CPython/PyPy doctrine parity evidence.
+Run them separately with
+`python3 Scripts/Sim/test_u13_doctrine_runner.py`.
+
+This correction was applied after preserving the separate Vulture preview at
+`b1f1609`. It changes the wrapper and adds its process tests; it does not alter
+the doctrine suite, game assertions or policy. The next Windows run must finish
+both checks and their comparison before acceptance can be recorded.
 
 ## Fixed fresh comparison protocol
 

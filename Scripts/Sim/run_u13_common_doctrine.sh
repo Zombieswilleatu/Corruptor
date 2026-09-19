@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 # Bounded doctrine alpha: five Python games; optional focused native rules gate.
 set -euo pipefail
+# Each Python check includes the unit suite and five full games. The old
+# ten-minute command budget expired after passing tests on slower machines.
+u13_common_doctrine_timeout=${U13_DOCTRINE_TIMEOUT_SECONDS:-1800}
+if [[ ! "$u13_common_doctrine_timeout" =~ ^[1-9][0-9]{0,4}$ ]] ||
+   ((u13_common_doctrine_timeout > 86400)); then
+  printf 'U13_DOCTRINE_TIMEOUT_SECONDS must be an integer from 1 to 86400.\n' >&2
+  exit 2
+fi
 if [[ $# -lt 1 || ! -x "$1" ]]; then
   printf 'Usage: bash %s /path/to/pypy3.exe [cpython_executable] [--godot /path/to/godot] [--kalligan-godot /path/to/godot] [--humbaba-godot /path/to/godot]\n' "$0" >&2
   exit 2
@@ -71,37 +79,73 @@ if ! "$u13_common_pypy" -c 'import sys; sys.exit(sys.implementation.name != "pyp
   printf 'The first argument must be PyPy 3.10+.\n' >&2
   exit 2
 fi
-mkdir -p -- "$HOME/Downloads"
-u13_common_reports=$(mktemp -d "$HOME/Downloads/u13-common-doctrine-XXXXXX")
+u13_common_downloads=${U13_REPORT_DOWNLOADS:-"$HOME/Downloads"}
+mkdir -p -- "$u13_common_downloads"
+u13_common_reports=$(mktemp -d "$u13_common_downloads/u13-common-doctrine-XXXXXX")
 u13_common_pid=""
-cleanup() {
-  local status=$?
+u13_common_reason=runner_error
+u13_common_phase=setup
+u13_common_started=$SECONDS
+u13_common_phase_started=$SECONDS
+u13_common_phase_timeout=0
+stop_child() {
   if [[ -n "$u13_common_pid" ]]; then
     kill -KILL "$u13_common_pid" 2>/dev/null || true
     wait "$u13_common_pid" 2>/dev/null || true
+    u13_common_pid=""
   fi
-  printf 'runner=u13-common-doctrine\nexit_status=%s\n' "$status" >"$u13_common_reports/run-status.txt"
+}
+cleanup() {
+  local status=$?
+  stop_child
+  if ((status == 0)); then u13_common_reason=passed; fi
+  {
+    printf 'runner=u13-common-doctrine\nexit_status=%s\n' "$status"
+    printf 'reason=%s\nphase=%s\n' "$u13_common_reason" "$u13_common_phase"
+    printf 'elapsed_seconds=%s\nphase_elapsed_seconds=%s\n' \
+      "$((SECONDS-u13_common_started))" "$((SECONDS-u13_common_phase_started))"
+    printf 'phase_timeout_seconds=%s\ndoctrine_timeout_seconds=%s\n' \
+      "$u13_common_phase_timeout" "$u13_common_doctrine_timeout"
+  } >"$u13_common_reports/run-status.txt"
   bash "$u13_common_root/Scripts/Sim/package_u13_reports.sh" "$u13_common_reports" || true
   exit "$status"
 }
 trap cleanup EXIT
-trap 'exit 130' INT
-trap 'exit 143' TERM
+trap 'u13_common_reason=interrupted; exit 130' INT
+trap 'u13_common_reason=terminated; exit 143' TERM
 git -C "$u13_common_root" diff HEAD >"$u13_common_reports/worktree.diff"
 git rev-parse HEAD >"$u13_common_reports/revision.txt"
+for u13_common_runtime in "$u13_common_cpython" "$u13_common_pypy"; do
+  "$u13_common_runtime" -c 'import platform, sys; print(platform.python_implementation()); print(sys.version); print(sys.executable)'
+done >"$u13_common_reports/runtimes.txt"
 run_logged() {
   local log=$1
   shift
+  u13_common_phase=$(basename -- "$log")
+  u13_common_phase_timeout=600
+  if [[ "$1" == --timeout-seconds ]]; then
+    u13_common_phase_timeout=$2
+    shift 2
+  fi
+  u13_common_phase_started=$SECONDS
+  u13_common_reason=runner_error
+  printf 'START %s (timeout %s seconds)\n' "$u13_common_phase" "$u13_common_phase_timeout" \
+    | tee -a "$u13_common_reports/runner.log"
   "$@" >"$log" 2>&1 &
   u13_common_pid=$!
-  local started=$SECONDS heartbeat=$((SECONDS + 15))
+  local heartbeat=$((SECONDS + 15))
   while kill -0 "$u13_common_pid" 2>/dev/null; do
-    if ((SECONDS-started >= 600)); then
-      printf 'FAIL doctrine watchdog: %s\n' "$log" >&2
-      exit 1
+    if ((SECONDS-u13_common_phase_started >= u13_common_phase_timeout)); then
+      u13_common_reason=watchdog_timeout
+      stop_child
+      printf 'FAIL doctrine watchdog: %s exceeded %s seconds (elapsed %s seconds)\n' \
+        "$u13_common_phase" "$u13_common_phase_timeout" "$((SECONDS-u13_common_phase_started))" \
+        | tee -a "$log" "$u13_common_reports/runner.log" >&2
+      exit 124
     fi
     if ((SECONDS >= heartbeat)); then
-      printf 'Running %s (%s seconds)\n' "$(basename -- "$log")" "$((SECONDS-started))"
+      printf 'Running %s (%s seconds; timeout %s seconds)\n' \
+        "$u13_common_phase" "$((SECONDS-u13_common_phase_started))" "$u13_common_phase_timeout"
       tail -n 1 -- "$log"
       heartbeat=$((SECONDS + 15))
     fi
@@ -111,10 +155,14 @@ run_logged() {
   wait "$u13_common_pid" || status=$?
   u13_common_pid=""
   if ((status != 0)); then
+    u13_common_reason=command_failed
+    printf 'FAIL doctrine command: %s exited %s after %s seconds\n' \
+      "$u13_common_phase" "$status" "$((SECONDS-u13_common_phase_started))" \
+      | tee -a "$log" "$u13_common_reports/runner.log" >&2
     tail -n 35 -- "$log"
     exit "$status"
   fi
-  "$u13_common_cpython" - "$log" <<'PY'
+  if ! "$u13_common_cpython" - "$log" <<'PY'
 from pathlib import Path
 import sys
 errors = [line for line in Path(sys.argv[1]).read_text(encoding='utf-8', errors='replace').splitlines()
@@ -123,6 +171,14 @@ if errors:
     print('\n'.join(errors[:12]), file=sys.stderr)
     sys.exit(1)
 PY
+  then
+    u13_common_reason=log_error
+    printf 'FAIL doctrine log: %s contains an error despite exit status 0\n' "$u13_common_phase" \
+      | tee -a "$log" "$u13_common_reports/runner.log" >&2
+    exit 1
+  fi
+  printf 'PASS %s (%s seconds)\n' "$u13_common_phase" "$((SECONDS-u13_common_phase_started))" \
+    | tee -a "$u13_common_reports/runner.log"
   tail -n 5 -- "$log"
 }
 printf 'U13 common doctrine reports: %s\n' "$u13_common_reports"
@@ -174,9 +230,9 @@ if [[ -n "$u13_common_humbaba_godot" ]]; then
       Scripts/Sim/run_u13_common_doctrine.py verify-breath "$u13_common_reports/breath.exact" "$u13_common_reports/breath-inputs.json"
   done
 fi
-run_logged "$u13_common_reports/cpython.log" "$u13_common_cpython" \
+run_logged "$u13_common_reports/cpython.log" --timeout-seconds "$u13_common_doctrine_timeout" "$u13_common_cpython" \
   "$u13_common_root/Scripts/Sim/run_u13_common_doctrine.py" check --report "$u13_common_reports/cpython.json"
-run_logged "$u13_common_reports/pypy.log" "$u13_common_pypy" \
+run_logged "$u13_common_reports/pypy.log" --timeout-seconds "$u13_common_doctrine_timeout" "$u13_common_pypy" \
   "$u13_common_root/Scripts/Sim/run_u13_common_doctrine.py" check --report "$u13_common_reports/pypy.json"
 run_logged "$u13_common_reports/comparison.log" "$u13_common_cpython" \
   "$u13_common_root/Scripts/Sim/run_u13_common_doctrine.py" compare \

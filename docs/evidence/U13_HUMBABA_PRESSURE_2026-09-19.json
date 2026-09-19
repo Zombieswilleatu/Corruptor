@@ -1841,5 +1841,56 @@
     ],
     "report_sha256": "da6cc421501add75322a70d937a5b091412d5b92c5069286294468a45108a2b9",
     "scope": "Identical selected plans and scores on recorded detached public views; permissive admission, no new game outcomes."
+  },
+  "windows_attempt_2026_09_19": {
+    "archive": "u13-common-doctrine-TwplP8-2026-09-19_10-04-05-X6kneQ.zip",
+    "archive_members": [
+      "cpython.log",
+      "revision.txt",
+      "run-status.txt",
+      "worktree.diff"
+    ],
+    "archive_sha256": "cf1ac964e03f2b0c63c28638b9ef0609cbd9bd7ea110b4f6f761562e94004f34",
+    "completed_game_lines": [
+      {
+        "name": "gremory_humbaba",
+        "operations": 400,
+        "rounds": 16
+      }
+    ],
+    "cpython_tests_passed": 168,
+    "cpython_unit_seconds": 425.708,
+    "diagnosis": "Likely the 600-second watchdog: exact timestamp interval, passing test log, incomplete CPython games. The old wrapper did not capture its timeout reason in the archive.",
+    "dual_runtime_accepted": false,
+    "revision": "4dd3c02e6b8b540c39211b18f840798d581ed10f",
+    "revision_to_status_zip_timestamp_seconds": 600,
+    "runner_correction": {
+      "default_python_check_timeout_seconds": 1800,
+      "other_command_timeout_seconds": 600,
+      "parent_revision": "b1f16099857d9868e659ca47118e77052d0f4d73",
+      "regression_test_sha256": "23ea845115e6cc1598953e82d789b584ee144878be6c76308df997a1a56fd0cd",
+      "runner_sha256": "163ed22e709cc624af12e9611e708cb8e98569887746bd0c6e22b05ab1afe239",
+      "timeout_exit_status": 124,
+      "timeout_override": "U13_DOCTRINE_TIMEOUT_SECONDS",
+      "verification": {
+        "cases": [
+          "success and separate deadlines",
+          "nonzero command failure",
+          "logged error despite zero exit",
+          "CPython watchdog",
+          "PyPy watchdog preserving CPython report",
+          "termination and child cleanup",
+          "invalid timeout inputs"
+        ],
+        "command": "python3 Scripts/Sim/test_u13_doctrine_runner.py",
+        "elapsed_seconds": 3.642,
+        "environment": "Linux / Bash / CPython 3.12.14",
+        "scope": "Stub runtime process tests only; no real PyPy or doctrine parity claim.",
+        "shell_syntax": "passed",
+        "tests_passed": 7
+      }
+    },
+    "runner_exit_status": 1,
+    "worktree_diff_bytes": 0
   }
 }
