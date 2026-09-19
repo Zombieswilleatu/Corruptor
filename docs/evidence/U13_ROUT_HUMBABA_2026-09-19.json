@@ -497,8 +497,6 @@
     "No measured win-rate improvement or general balance conclusion.",
     "No prediction of opposing hidden orders or future random placement.",
     "Movement and later healing scores are conditional; Endurance can change after healing.",
-    "Linux Godot 4.5.1 diagnostics do not replace Windows Godot 4.7.2 acceptance.",
-    "Windows CPython/PyPy full reports and focused Breath parity are pending.",
     "New native full-game doctrine parity is not established."
   ],
   "local_doctrine": {
@@ -1864,7 +1862,13 @@
   "published_implementation_revision": "197f0dbf0eaa6db26cd0c7341a2cfaef552383dc",
   "runner_source_sha256": "53df039a59d2069dfb1155c1a7393effe1a29c92330984d55940c2f5216bfc2e",
   "schema": "U13_ROUT_HUMBABA_CHECKPOINT_V1",
-  "status": "local verification complete; Windows acceptance pending",
+  "status": "accepted Windows focused Breath parity and dual-runtime doctrine gate",
   "tested_local_revision": "bffb5ac1ba8fcedb33b2ad4545c76e3198d5c5ad",
-  "tree_equivalence_verified": true
+  "tree_equivalence_verified": true,
+  "windows_acceptance": {
+    "accepted": true,
+    "archive_sha256": "330cc279717836899e0191f7aa9404c39b4efead55a1067b07cff5db46721852",
+    "evidence": "U13_ROUT_HUMBABA_WINDOWS_f3344f2.json",
+    "source_revision": "f3344f219381144cf7ff9e096da5bb93799e160e"
+  }
 }

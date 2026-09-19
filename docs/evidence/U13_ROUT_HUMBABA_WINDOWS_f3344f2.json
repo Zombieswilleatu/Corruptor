@@ -1,0 +1,312 @@
+{
+  "all_logs_without_errors": true,
+  "archive": {
+    "bytes": 4068961,
+    "filename": "u13-common-doctrine-gVxxMV-2026-09-19_00-16-58-UY9ZZs.zip",
+    "library_file_id": "libfile_9b76b61337ec8191bda0d8a0663141e6",
+    "sha256": "330cc279717836899e0191f7aa9404c39b4efead55a1067b07cff5db46721852"
+  },
+  "breath": {
+    "cpython": {
+      "cases": 4,
+      "implementation": "CPython",
+      "inputs_sha256": "3ff6b97f08830c618ba480f40797154b91d9443d8cb2e9940e2529151e8c9ad3",
+      "native_platform": "Windows",
+      "native_runtime": "4.7.2-stable (official)",
+      "operations": 456,
+      "python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+      "records": 461,
+      "source_revision": "f3344f219381144cf7ff9e096da5bb93799e160e",
+      "source_sha256": "00dd00f2192f5c5913494b0cb7cea11fc58b04080ab1d8b9216c7760fc6c9c11",
+      "states": [
+        {
+          "final_state_sha256": "11ea762205046010babd1e847f5391e3ae789e2b7d7e9eb43cac6bebcd6e342d",
+          "name": "pulse_seat0",
+          "operations": 116
+        },
+        {
+          "final_state_sha256": "30fc5384f7e295faa1a6d5dcce60aaa9ae2498182388adb17998fdc01570a3a7",
+          "name": "pulse_seat1",
+          "operations": 116
+        },
+        {
+          "final_state_sha256": "9defa2dca09a9fb2a0bd32df9bd6d8e48fc5d10f11b3d79ad9637dc030e47b1c",
+          "name": "lane_reentry",
+          "operations": 118
+        },
+        {
+          "final_state_sha256": "70e12adb3e65a95340f163e73a9fede15d6d6f3f854afc9e99039dcfbce7b653",
+          "name": "armed_banishment",
+          "operations": 106
+        }
+      ]
+    },
+    "failures": 0,
+    "independent_verification": {
+      "dual_runtime_inputs_equal": true,
+      "dual_runtime_reports_equal": true,
+      "native_breath": {
+        "cases": 4,
+        "inputs_sha256": "3ff6b97f08830c618ba480f40797154b91d9443d8cb2e9940e2529151e8c9ad3",
+        "native_platform": "Windows",
+        "native_runtime": "4.7.2-stable (official)",
+        "operations": 456,
+        "records": 461,
+        "source_revision": "f3344f219381144cf7ff9e096da5bb93799e160e",
+        "source_sha256": "00dd00f2192f5c5913494b0cb7cea11fc58b04080ab1d8b9216c7760fc6c9c11",
+        "states": [
+          {
+            "final_state_sha256": "11ea762205046010babd1e847f5391e3ae789e2b7d7e9eb43cac6bebcd6e342d",
+            "name": "pulse_seat0",
+            "operations": 116
+          },
+          {
+            "final_state_sha256": "30fc5384f7e295faa1a6d5dcce60aaa9ae2498182388adb17998fdc01570a3a7",
+            "name": "pulse_seat1",
+            "operations": 116
+          },
+          {
+            "final_state_sha256": "9defa2dca09a9fb2a0bd32df9bd6d8e48fc5d10f11b3d79ad9637dc030e47b1c",
+            "name": "lane_reentry",
+            "operations": 118
+          },
+          {
+            "final_state_sha256": "70e12adb3e65a95340f163e73a9fede15d6d6f3f854afc9e99039dcfbce7b653",
+            "name": "armed_banishment",
+            "operations": 106
+          }
+        ]
+      },
+      "operations": 2187,
+      "rejected_previews": 0,
+      "rounds": 87,
+      "saved_local_inputs_equal": true,
+      "saved_local_semantics_equal": true,
+      "source_revision": "f3344f219381144cf7ff9e096da5bb93799e160e",
+      "tests_passed_per_runtime": 164
+    },
+    "native_checks": 3322,
+    "native_lifecycle_checks": 63,
+    "pypy": {
+      "cases": 4,
+      "implementation": "PyPy",
+      "inputs_sha256": "3ff6b97f08830c618ba480f40797154b91d9443d8cb2e9940e2529151e8c9ad3",
+      "native_platform": "Windows",
+      "native_runtime": "4.7.2-stable (official)",
+      "operations": 456,
+      "python": "3.11.15 (194f9f44b505, May 25 2026, 19:35:45)\n[PyPy 7.3.23 with MSC v.1941 64 bit (AMD64)]",
+      "records": 461,
+      "source_revision": "f3344f219381144cf7ff9e096da5bb93799e160e",
+      "source_sha256": "00dd00f2192f5c5913494b0cb7cea11fc58b04080ab1d8b9216c7760fc6c9c11",
+      "states": [
+        {
+          "final_state_sha256": "11ea762205046010babd1e847f5391e3ae789e2b7d7e9eb43cac6bebcd6e342d",
+          "name": "pulse_seat0",
+          "operations": 116
+        },
+        {
+          "final_state_sha256": "30fc5384f7e295faa1a6d5dcce60aaa9ae2498182388adb17998fdc01570a3a7",
+          "name": "pulse_seat1",
+          "operations": 116
+        },
+        {
+          "final_state_sha256": "9defa2dca09a9fb2a0bd32df9bd6d8e48fc5d10f11b3d79ad9637dc030e47b1c",
+          "name": "lane_reentry",
+          "operations": 118
+        },
+        {
+          "final_state_sha256": "70e12adb3e65a95340f163e73a9fede15d6d6f3f854afc9e99039dcfbce7b653",
+          "name": "armed_banishment",
+          "operations": 106
+        }
+      ]
+    }
+  },
+  "doctrine": {
+    "failures": 0,
+    "game_results": [
+      {
+        "decisions_sha256": "ab94824ac8735e7bfe60a10a89ba22dadb50076a2b5ed8b628b8770cdd06a902",
+        "final_state_sha256": "b93d815d64fbcfef96840e3f45aec20f95ce697b584485223ddd8343d4e22efa",
+        "name": "gremory_humbaba",
+        "operations": 469,
+        "outcome": {
+          "action": "game_finished",
+          "round": 19,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 19
+      },
+      {
+        "decisions_sha256": "5856c8891ba1903ef8824ead70357e3ded41de6859c92aa8b92f768a68581bc3",
+        "final_state_sha256": "90de2b4e6677575bd946bf0600db622ff2fc8edf2135fb473bc59f80085d0f3a",
+        "name": "deimos_kalligan",
+        "operations": 535,
+        "outcome": {
+          "action": "game_finished",
+          "round": 21,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "rounds": 21
+      },
+      {
+        "decisions_sha256": "dd3d9dc68f231a6d92e6da7b71aa20d79bc9ca3afcab4444d98c67795fcb5d90",
+        "final_state_sha256": "57b7c7250a90227a3aed2f16cbe195cb15013b390beeeaa906c9d57ba59d9f7c",
+        "name": "orias_odradek",
+        "operations": 381,
+        "outcome": {
+          "action": "game_finished",
+          "round": 15,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "rounds": 15
+      },
+      {
+        "decisions_sha256": "9eac17e9b45b71a6e2906866c697ec06f07416bb0abd277696b1e729527ddcd7",
+        "final_state_sha256": "5f83f5f0e4a9f7500acc7169a662ff0e2c9c83de3a0daa6d48a878eb15ff62fe",
+        "name": "kroni_valak",
+        "operations": 507,
+        "outcome": {
+          "action": "game_finished",
+          "round": 20,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 20
+      },
+      {
+        "decisions_sha256": "ccea0814c1280ae25413d975b8ba1d8205c87969c145e89e1b47f29e0315caac",
+        "final_state_sha256": "e00655112b84429d186d92b9f0375765800c6f15724529dce7b58b281a7c810f",
+        "name": "kanifous_gremory",
+        "operations": 295,
+        "outcome": {
+          "action": "game_finished",
+          "round": 12,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "rounds": 12
+      }
+    ],
+    "games": 5,
+    "identical_inputs": true,
+    "identical_reports": true,
+    "operations": 2187,
+    "policy": "U13_COMMON_SMART_CORE_ALPHA_V11_ROUT_HUMBABA",
+    "rejected_previews": 0,
+    "rounds": 87,
+    "saved_independent_local_semantics_and_inputs_equal": true,
+    "semantic_sha256": "422fb627ca24538087738e039a5bad0d08fab2d36c6f3dd62d35ca1cb9d4d1da"
+  },
+  "engine_source_sha256": "00dd00f2192f5c5913494b0cb7cea11fc58b04080ab1d8b9216c7760fc6c9c11",
+  "exit_status": 0,
+  "godot_version": "4.7.2.stable.official.ed1daf0bf",
+  "harness_source_sha256": "873fda69fedfe5c3725607ed4f25d67f912f7454b81ff8d30e49e1087d2ce511",
+  "implementation_revision": "197f0dbf0eaa6db26cd0c7341a2cfaef552383dc",
+  "next": "Compare frozen V10 and V11 policies on this same updated engine with matched seeds, Lord seats and policy assignments before tuning.",
+  "runner_source_sha256": "53df039a59d2069dfb1155c1a7393effe1a29c92330984d55940c2f5216bfc2e",
+  "runtimes": [
+    {
+      "implementation": "CPython",
+      "platform": "Windows-11-10.0.26200-SP0",
+      "python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+      "tests_passed": 164
+    },
+    {
+      "implementation": "PyPy",
+      "platform": "Windows-10-10.0.26200-SP0",
+      "python": "3.11.15 (194f9f44b505, May 25 2026, 19:35:45)\n[PyPy 7.3.23 with MSC v.1941 64 bit (AMD64)]",
+      "tests_passed": 164
+    }
+  ],
+  "schema": "U13_ROUT_HUMBABA_WINDOWS_ACCEPTANCE_V1",
+  "scope": "Accepts the immediate Breath pulse lifecycle/parity and V11 dual-Python doctrine gate at f3344f2, including the prior Sinodek fix. Does not establish native full-game doctrine parity, win-rate improvement or general balance.",
+  "source_revision": "f3344f219381144cf7ff9e096da5bb93799e160e",
+  "status": "accepted Windows focused Breath parity and dual-runtime doctrine gate",
+  "tracked_worktree_diff_empty": true,
+  "uploaded_files": {
+    "U13Breath.log": {
+      "bytes": 2860,
+      "sha256": "661713e37c332d10e217cf59160f0bf8afc0cb276f8945e6caec1895b78fb4a7"
+    },
+    "breath-inputs.json": {
+      "bytes": 114238,
+      "sha256": "4a0619ec08deeb008e5cce4e2304b34082e702635de41c4f3914cb04bee63902"
+    },
+    "breath-inputs.log": {
+      "bytes": 52,
+      "sha256": "503ba315ac3b4290973a65858aa38f56b7f1b1c94149393cb4796cb372e2ce19"
+    },
+    "breath-native.log": {
+      "bytes": 360,
+      "sha256": "1f3b6d8eec52cc73838ef71399e4e78a949948a95405bd4b45d1549df927e945"
+    },
+    "breath.cpython.json": {
+      "bytes": 1207,
+      "sha256": "51f23c082089629a69dafd901c1305d7db492540dd18e2c366a9b3abe52a88f0"
+    },
+    "breath.exact": {
+      "bytes": 41097977,
+      "sha256": "a8194adbc93d441c652bc06a8055e50fd76961a103c7bfee8a54a8225b4e5722"
+    },
+    "breath.pypy.json": {
+      "bytes": 1215,
+      "sha256": "1699a761fd2028a0bfcd28c83c4fa7b969d04d33ac9ca1f8e9fc53f51c29cac4"
+    },
+    "comparison.log": {
+      "bytes": 127,
+      "sha256": "1af6853bbba539ca9fd77564ccd680e287ea3a6c7a09c6066e6591e2542c0732"
+    },
+    "cpython-breath-comparison.log": {
+      "bytes": 1075,
+      "sha256": "d1e91e7bd969f0f8f7e4d4f8f3f473f2aa14839de2c6e88372bb7a7d393dfe95"
+    },
+    "cpython.inputs.json": {
+      "bytes": 517919,
+      "sha256": "4a13281b51d7e73dcecd72e84fff23b85dde39309dbcd95d22edabd403ce1141"
+    },
+    "cpython.json": {
+      "bytes": 1469685,
+      "sha256": "7474be2109c2036e7239d4a664bcd3107e3b8c3af97361b35e1deeb4f621eb8b"
+    },
+    "cpython.log": {
+      "bytes": 29915,
+      "sha256": "cc530920c0bbaded1d6ad5a0580305431bdb7288eeaa37fe5a617e48a73538bf"
+    },
+    "humbaba-godot-version.txt": {
+      "bytes": 32,
+      "sha256": "edff16c1721dd4ae989cadf29a01f574ae8d51b118221f664725bd6980bbba5d"
+    },
+    "pypy-breath-comparison.log": {
+      "bytes": 1083,
+      "sha256": "f1cf674486630401c50f768e6b24380221a7480708b6d1ae1daf4bdc5ea90b75"
+    },
+    "pypy.inputs.json": {
+      "bytes": 517919,
+      "sha256": "4a13281b51d7e73dcecd72e84fff23b85dde39309dbcd95d22edabd403ce1141"
+    },
+    "pypy.json": {
+      "bytes": 1469692,
+      "sha256": "fb328f7a33e6ffcd7c856fd14c31da31fc55fb8c1baf395a76144551d87c0054"
+    },
+    "pypy.log": {
+      "bytes": 29915,
+      "sha256": "d5b4219027503cd8a3b10aaf3067f501b437515a50c5dcd951e3fb03a7561891"
+    },
+    "revision.txt": {
+      "bytes": 41,
+      "sha256": "140887b337af457354ff719810434513631f5d0dd2ec661619c545ea2a75f169"
+    },
+    "run-status.txt": {
+      "bytes": 41,
+      "sha256": "2097c04a402cdafd7b2de5c11de0b4e93cbb1dde812d4676b750650e044bd6b0"
+    },
+    "worktree.diff": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

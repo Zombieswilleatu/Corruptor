@@ -1,5 +1,13 @@
 # U13 Rout / Humbaba doctrine and immediate Breath pulse
 
+**Windows acceptance passed at `f3344f2`.** Godot 4.7.2 completed the focused
+Breath gate; CPython 3.14.7 and PyPy 7.3.23 each passed 164 tests and produced
+identical five-game reports and inputs: 87 rounds / 2,187 operations, zero
+failures or rejected previews. All 456 native Breath transitions matched both
+runtimes and an independent local replay. The full doctrine reports and inputs
+also match the saved Linux run. See the
+[accepted Windows evidence](evidence/U13_ROUT_HUMBABA_WINDOWS_f3344f2.json).
+
 Implementation **`197f0db`** is on `u13-basic-doctrine`, preserving the parallel
 Sinodek immunity fix at `c0b2a76`. Local tested commit `bffb5ac` has the identical
 implementation tree. The rules change applies in Godot and Python. The doctrine
@@ -96,7 +104,7 @@ is backed by the [complete before/after review](evidence/U13_BREATH_REPLAY_REVIE
 not a substituted input fixture. The original artillery retarget still fixes the
 recorded fizzled Siege.
 
-## Verification and next gate
+## Local verification and accepted Windows gate
 
 - **164 CPython tests**, including pulse lifecycle, public-information boundaries,
   both seats, deterministic ordering, reduced work limits, metrics and natural
@@ -112,11 +120,16 @@ recorded fizzled Siege.
 - The existing native Breath and Humbaba integration runners also pass, with
   **63 and 191 checks** respectively.
 
-Native diagnostics used **Linux Godot 4.5.1**, with CPython 3.12.14. Windows
-Godot 4.7.2 and CPython/PyPy acceptance remain pending. This is not a new native
-full-game doctrine parity or general balance claim.
+The initial local diagnostics used **Linux Godot 4.5.1**, with CPython 3.12.14.
+The subsequent Windows run at `f3344f2` passed under Godot
+**4.7.2.stable.official.ed1daf0bf**, CPython 3.14.7 and PyPy 7.3.23. Its tracked
+worktree diff was empty and all source fingerprints match the tested code.
+The Windows native gate includes the 63-check Breath runner and 3,322 focused
+checks; the separate 191-check Humbaba integration runner above remains local
+evidence. This accepts focused Breath parity and dual-runtime doctrine behavior;
+native full-game doctrine parity and overall balance remain unestablished.
 
-Run this from the doctrine checkout in Git Bash:
+The accepted run used this Git Bash command; it does not need repeating:
 
 ```bash
 git pull --ff-only origin u13-basic-doctrine &&
@@ -128,6 +141,6 @@ bash Scripts/Sim/run_u13_common_doctrine.sh \
 
 The wrapper runs the focused native Breath cases, compares their exact records
 under both Python runtimes, runs the complete doctrine gate under both, and
-packages the reports in Downloads. After accepting that gate, compare V10 and
-V11 on the **same new rules** across matched seeds/seats before any balance or
+packages the reports in Downloads. Next, compare V10 and V11 on the
+**same new rules** across matched seeds/seats before any balance or
 strength claim. The old audit cannot isolate the rule change from the policy.
