@@ -23,8 +23,19 @@ def main():
     rules = sub.add_parser('verify-rules'); rules.add_argument('directory', type=Path)
     scorch = sub.add_parser('scorch-inputs'); scorch.add_argument('path', type=Path)
     exact = sub.add_parser('verify-scorch'); exact.add_argument('path', type=Path); exact.add_argument('inputs', type=Path)
+    breath = sub.add_parser('breath-inputs'); breath.add_argument('path', type=Path)
+    breath_exact = sub.add_parser('verify-breath'); breath_exact.add_argument('path', type=Path); breath_exact.add_argument('inputs', type=Path)
     args = parser.parse_args()
     try:
+        if args.command == 'breath-inputs':
+            from u13_pysim.verify_breath import export_inputs
+            export_inputs(args.path); print('Breath pulse directed inputs and assertions passed'); return 0
+        if args.command == 'verify-breath':
+            from u13_pysim.verify_breath import verify
+            report = verify(args.path,args.inputs,Path(__file__).resolve().parents[2])
+            report.update(implementation=platform.python_implementation(),python=sys.version)
+            args.path.with_suffix('.'+platform.python_implementation().lower()+'.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
+            print(json.dumps(report,sort_keys=True)); print('U13 Breath pulse comparison failures: 0'); return 0
         if args.command == 'scorch-inputs':
             from u13_pysim.verify_scorch import export_inputs
             export_inputs(args.path); print('Scorch Castle directed inputs and assertions passed'); return 0
@@ -55,6 +66,7 @@ def main():
             'u13_doctrine.test_recipes_veil', 'u13_doctrine.test_rites', 'u13_doctrine.test_closing',
             'u13_doctrine.test_selection', 'u13_doctrine.test_coordination', 'u13_doctrine.test_odradek',
             'u13_doctrine.test_defensive_plans', 'u13_doctrine.test_deimos',
+            'u13_doctrine.test_lane_support', 'u13_pysim.test_breath',
             'u13_doctrine.test_kalligan', 'u13_pysim.test_scorch_castles',
             'u13_pysim.test_powers.PowerTests.test_pyroclasm_blocks_one_round_then_reopens_without_extending_scorch',
             'u13_doctrine.test_comparison', 'u13_pysim.test_marching'])

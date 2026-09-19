@@ -84,7 +84,8 @@ static func rules() -> Dictionary:
 		"target_kind": "",
 		"target_relation": "own",
 		"visibility": "public",
-		"lane_aura": {"regen_bonus": 1, "speed_percent": 25}
+		"lane_aura": {"regen_bonus": 1, "speed_percent": 25},
+		"activation_heal": 1
 	}
 	return result
 
@@ -151,7 +152,7 @@ func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionar
 
 func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 	if record.declaration.power_id == BREATH:
-		return LaneAuras.activate(record, context, rules()[BREATH].lane_aura)
+		return _breath(record, context)
 	if record.declaration.power_id != MUSTER:
 		return _deimos.resolve(record, context)
 	var world: Dictionary = context.world.duplicate(true)
@@ -175,6 +176,44 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 		events.append({"type": "MARCHER_SPAWNED", "text": "", "data": placed.entity})
 	world.entities = entities.snapshot()
 	return {"action": "resolved", "world": world, "events": events}
+
+
+static func _breath(record: Dictionary, context: Dictionary) -> Dictionary:
+	var result: Dictionary = LaneAuras.activate(record, context, rules()[BREATH].lane_aura)
+	if result.action == "invalid":
+		return result
+	# This pulse belongs to the one-time declaration firing, not persistent
+	# advancement or the round-start regeneration ledger. The shared owner
+	# consumes the pending declaration atomically with this world change.
+	var world: Dictionary = context.world.duplicate(true)
+	var entities = Ids.new()
+	entities.restore(world.entities)
+	var source: Dictionary = record.declaration
+	var effect_id: String = Data.instance_id("persistent", source.declaration_id, source.power_id)
+	var healed: Array = []
+	var healing: int = 0
+	for unit in world.entities.entities:
+		if (unit.kind != "marcher" or unit.owner != source.player_id
+			or unit.attributes.lane != source.target.lane or unit.attributes.waiting):
+			continue
+		var before: int = unit.attributes.hp
+		if before <= 0 or before >= unit.attributes.max_hp:
+			continue
+		unit.attributes.hp = mini(unit.attributes.max_hp, before + int(rules()[BREATH].activation_heal))
+		entities.update(unit.id, unit.owner, unit.attributes)
+		healed.append(unit.id)
+		healing += int(unit.attributes.hp) - before
+		result.events.append({"type": "MARCHER_REGENERATED", "text": "", "data": {
+			"entity_id": unit.id, "before": before, "after": unit.attributes.hp,
+			"round": context.round, "hook": record.fire_hook, "source": BREATH, "effect_id": effect_id}})
+	world.entities = entities.snapshot()
+	result.world = world
+	result.events.append({"type": "BREATH_PULSED",
+		"text": "Breath of Life: healed %d Marcher(s) for %d HP." % [healed.size(), healing],
+		"data": {"effect_id": effect_id, "power_id": BREATH, "player_id": source.player_id,
+			"round": context.round, "hook": record.fire_hook, "lane": source.target.lane,
+			"healed_ids": healed, "healing": healing}})
+	return result
 
 
 func on_hook(context: Dictionary, reaction: Callable = Callable()) -> Dictionary:

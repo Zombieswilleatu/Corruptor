@@ -9,8 +9,8 @@ from collections import Counter
 from u13_pysim.copying import copy_data
 from . import lords
 
-VERSION = 'U13_POWER_COORDINATION_V3'
-TERMS = frozenset(('Projection', 'Consume', 'Ravenous', 'Redirect', 'FalseOrders', 'AllegianceShift', 'Inversion', 'Pyroclasm'))
+VERSION = 'U13_POWER_COORDINATION_V4'
+TERMS = frozenset(('Projection', 'Consume', 'Ravenous', 'Redirect', 'FalseOrders', 'AllegianceShift', 'Inversion', 'Pyroclasm', 'BreathOfLife'))
 
 
 def context(f, plan):
@@ -30,16 +30,17 @@ def context(f, plan):
     monster = order.get('monster_choice', '')
     # Varn's guaranteed minimum; do not consult its future swarm roll.
     monsters = (3 if monster == 'Varn' else 1) if monster else 0
-    spawn_powers = Counter()
+    spawn_powers, muster_bodies = Counter(), Counter()
     for source in plan['powers']:
         name = source['power_id'].removeprefix('Breach')
         if name in ('WishPower', 'PredatorOfRuin', 'MusterTheFaithful'):
             spawn_powers[source['target']['lane']] += dict(WishPower=1, PredatorOfRuin=2, MusterTheFaithful=3)[name]
+            if name == 'MusterTheFaithful': muster_bodies[source['target']['lane']] += 3
     return dict(attack_lane=lane if action in ('Hunt', 'Siege') else '',
                 guard_losses=lost, castle_hits=castle_hits, consumed_supplicants=sorted(consumed),
                 recruit_lane=lane, recruits=recruits, monster_bodies_minimum=monsters,
                 monster=monster, unknown_extra_varn_bodies=monster == 'Varn',
-                power_bodies_minimum=dict(sorted(spawn_powers.items())))
+                power_bodies_minimum=dict(sorted(spawn_powers.items())), muster_bodies=dict(sorted(muster_bodies.items())))
 
 
 def evaluate(f, plan):

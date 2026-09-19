@@ -199,6 +199,8 @@ class PlannerObserver(ReferenceObserver):
             metrics = dict(castle_damage=d['damage'])
         elif kind in ('ROUT_APPLIED', 'ALLEGIANCE_SHIFT_RESOLVED') and identity:
             metrics = dict(affected_marchers=len(d['affected_ids']))
+        elif kind == 'BREATH_PULSED' and identity:
+            metrics = dict(activation_pulses=1, immediate_hp_restored=d['healing'], healed_marchers=len(d['healed_ids']))
         elif kind == 'REDIRECT_RESOLVED' and identity:
             metrics = dict(redirected_marchers=len(d['changes']))
         elif kind == 'RECONFIGURATION_RESOLVED' and identity:

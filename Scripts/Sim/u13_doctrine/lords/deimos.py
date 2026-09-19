@@ -8,6 +8,7 @@ from u13_pysim.copying import copy_data
 from ..defensive_plans import development
 from ..diagnostics import fingerprint
 from ..facts import Facts, LANES, Proposal, power
+from ..lane_support import mobile, travel
 
 LORD = 'Deimos'
 
@@ -21,7 +22,35 @@ def proposals(f):
     for lane in LANES:
         enemies = f.units(f.enemy, lane)
         if enemies:
-            yield power('Rout', dict(lane=lane), 8*len(enemies)+6*f.lane_need(lane), 'retreat_existing_enemy_column')
+            value = rout_value(f, lane)
+            yield power('Rout', dict(lane=lane), value['score'],
+                        'retreat_public_lane_pressure' if value['score'] else 'hold_rout_for_lane_pressure')
+
+
+def rout_value(f, lane):
+    """Prefer a reachable fight or gate threat over a distant head count.
+
+    This is a public, unopposed-distance scenario. Opposing recruits, Supplicant
+    spends, movement modifiers and paths are unknown. Rout does not silence
+    monster specials, so an immobile Sooge turret earns no suppression credit.
+    """
+    number = f.v['round']; threats, gates, distant = [], [], []
+    allies = [r for r in f.units(f.pid, lane) if not r['attributes'].get('hidden', False)]
+    for enemy in f.units(f.enemy, lane):
+        a = enemy['attributes']
+        if a.get('sprite_form') == 'turret' or a.get('hidden', False):
+            continue
+        distance = travel(a, number)
+        gate = (a.get('waiting', False) or mobile(a) and a.get('movement_ready_round', 0) <= number
+                and (a['x_fp'] if f.pid == 0 else 2400-a['x_fp']) <= distance)
+        reach = 400 if a.get('suit') == 'Vulture' else 90
+        fight = any((a['x_fp']-r['attributes']['x_fp'])**2+(a['y_fp']-r['attributes']['y_fp'])**2
+                    <= (distance+travel(r['attributes'], number)+reach)**2 for r in allies)
+        if gate or fight:
+            threats.append(enemy['id'])
+            if gate: gates.append(enemy['id'])
+        else: distant.append(enemy['id'])
+    return dict(score=8*len(threats)+6*len(gates), threats=threats, gate_threats=gates, distant=distant)
 
 
 def attack_value(result, weights):

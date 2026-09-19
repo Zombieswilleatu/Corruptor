@@ -21,7 +21,7 @@ SHUFFLE_VERSION = "U13_GAME_ECONOMY_V4"
 MARKET = "U13_GAME_MARKET_V2"
 # Pin the accepted authority's complete roster identity. Matching this hash
 # does not assert that the Python mirror implements those powers yet.
-RULES_HASH = "31ee0866b9c4fb10c186765f5f68ec49c9657c88a68c2feea6b07a04a9e8323b"
+RULES_HASH = "ce428199f8f0b1323021c2f2232ee7c7497adee060a67046486adeb146edc4ff"
 POLICY = ":".join([
     "U13_PERMANENT_BREACHES_V1",
     "U13_GUARD_WORK_V4", "U13_VICTORY_V2_ROUND_PRESSURE", "U13_PROFANE_PILLAGE_V1",
@@ -53,7 +53,7 @@ def _initial_data(loadouts):
         "construction_profile": "U13_CASTLE_DEVELOPMENT_V2", "construction_round": 0,
         "construction_targets": ["", ""], "castle_orders": [None, None],
         "castle_slot_profile": "U13_CASTLE_SLOTS_V1", "castle_loadouts": [list(x) for x in loadouts],
-        "humbaba_profile": "U13_HUMBABA_BREATH_V2", "lane_aura_profile": "U13_LANE_AURAS_V1",
+        "humbaba_profile": "U13_HUMBABA_BREATH_V3_IMMEDIATE_PULSE", "lane_aura_profile": "U13_LANE_AURAS_V1",
         "humbaba_end_round": 0, "humbaba_breach_entries": {}, "hunt_profile": "U13_CORE_HUNT_V1",
         "kalligan_profile": "U13_KALLIGAN_FIRE_V1", "hazard_profile": "U13_DISCRETE_HAZARDS_V2_CASTLE",
         "kalligan_upkeep_round": 0, "scorch_castle_round": 0, "scorch_lane_round": 0,

@@ -1458,7 +1458,7 @@ func _build_humbaba_controls(parent: Node) -> void:
 		var description: String = (
 			"Summon 3 Penitents into one lane. They march this round."
 			if power == Humbaba.MUSTER
-			else "Friendly Marchers in one lane: +25% movement for this round and next; +1 regeneration at next round's start."
+			else "Friendly Marchers in one lane heal 1 HP immediately, then gain +1 regeneration at next round's start and +25% movement this round and next. Waiting Supplicants receive neither healing nor movement."
 		)
 		_label(humbaba_box, description, 13).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		humbaba_states[power] = _label(humbaba_box, "", 13)

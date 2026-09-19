@@ -1147,7 +1147,7 @@
   "previous_replay_engine_revisions": [
     "acfdcdb5dd746a33efe30c2969d623912e896992"
   ],
-  "replay_engine_source_sha256": "9020a0f71ed9b1cccd950b503599112f0bc094e5a2a94e905875e471ec0837a7",
-  "current_replay_note": "2026-09-19 Sinodek own-void immunity: exact engine source is pinned by replay_engine_source_sha256, based on replay_base_revision plus this fix. All six unchanged recorded prefixes differ only at data.monsters.version (V10 to V11); unit state, recorded plans and tactical expectations are unchanged. Previous fingerprints remain in view_sha256_history.",
-  "replay_base_revision": "156e48e65ce7ffc14b6261150f860f56ab5cb877"
+  "replay_engine_source_sha256": "00dd00f2192f5c5913494b0cb7cea11fc58b04080ab1d8b9216c7760fc6c9c11",
+  "current_replay_note": "2026-09-19 Breath immediate pulse, layered on Sinodek immunity: all recorded inputs, opposing plans and tactical outcome assertions are unchanged. Five planning observations are identical; Deimos/Humbaba round 16 has a changed living board and one fewer Neutral Tear after earlier healing. Historical fingerprints remain recorded. See U13_ROUT_HUMBABA_2026-09-19.md for the reviewed comparison.",
+  "replay_base_revision": "c0b2a76fdc1ae33239194a18f9477bbc58fc3d80"
 }

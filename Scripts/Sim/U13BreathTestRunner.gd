@@ -243,15 +243,15 @@ func _regeneration_owner() -> void:
 			return
 		if hook in [Timeline.ROUND_START_AUTOMATIC, Timeline.POST_RESOLUTION_MOVEMENT_STATE]:
 			_check(
-				_entity(owner.snapshot().world, id).attributes.hp == 2,
-				"breath_no_retroactive_cast_regeneration"
+				_entity(owner.snapshot().world, id).attributes.hp == (2 if hook == Timeline.ROUND_START_AUTOMATIC else 3),
+				"breath_one_immediate_bonus_after_normal_regeneration"
 			)
 	owner.begin_next_round([0, 1])
 	while owner.next_hook() != Timeline.PRESENT_PUBLIC_STATE:
 		if not _check(owner.run_next_hook().action != "invalid", "breath_regen_round_two_opening"):
 			return
 	var snapshot: Dictionary = owner.snapshot()
-	_check(_entity(snapshot.world, id).attributes.hp == 4, "owner_passes_active_aura_to_step_three")
+	_check(_entity(snapshot.world, id).attributes.hp == 5, "owner_passes_active_aura_to_step_three")
 	var restored = Content.new().create_combat_match()
 	_check(
 		(

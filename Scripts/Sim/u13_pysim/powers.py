@@ -178,7 +178,21 @@ def resolve(rec,state,n):
         payload['affected_ids']=ids;events.append(e.event('ROUT_APPLIED',dict(player_id=pid,round=n,lane=t['lane'],affected_ids=ids,effect_id=key,recovery_round=n+1)))
     elif power=='BreathOfLife':
         modifiers=RULES[power]['lane_aura'];payload['lane_aura']=copy_data(modifiers)
-        events.append(e.event('LANE_AURA_STARTED',dict(effect_id=instance_id('persistent',identity,power),power_id=power,player_id=pid,round=n,lane=t['lane'],modifiers=modifiers)))
+        key=instance_id('persistent',identity,power)
+        events.append(e.event('LANE_AURA_STARTED',dict(effect_id=key,power_id=power,player_id=pid,round=n,lane=t['lane'],modifiers=modifiers)))
+        # The pending declaration fires once. Do not touch the round-start
+        # regeneration ledger or repeat the pulse during aura advancement.
+        healed=[];healing=0
+        for r in w['entities']['entities']:
+            a=r['attributes']
+            if r['kind']!='marcher' or r['owner']!=pid or a['lane']!=t['lane'] or a['waiting']:continue
+            before=a['hp']
+            if not 0<before<a['max_hp']:continue
+            a['hp']=min(a['max_hp'],before+RULES[power]['activation_heal'])
+            healed.append(r['id']);healing+=a['hp']-before
+            events.append(e.event('MARCHER_REGENERATED',dict(entity_id=r['id'],before=before,after=a['hp'],round=n,hook=rec['fire_hook'],source=power,effect_id=key)))
+        events.append(e.event('BREATH_PULSED',dict(effect_id=key,power_id=power,player_id=pid,round=n,hook=rec['fire_hook'],lane=t['lane'],healed_ids=healed,healing=healing),
+                              f'Breath of Life: healed {len(healed)} Marcher(s) for {healing} HP.'))
     elif power=='Inferno': payload['hazard']='scorch'
     elif power=='Pyroclasm':
         active=next(a for a in state['persistent']['active'] if a['declaration']['power_id']=='Inferno' and a['declaration']['player_id']==pid)
