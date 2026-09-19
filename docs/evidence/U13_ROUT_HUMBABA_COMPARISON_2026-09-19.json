@@ -1,0 +1,512 @@
+{
+  "archive": {
+    "bytes": 48756648,
+    "filename": "Corruptor-V10-V11-Support-Comparison-2026-09-19.zip",
+    "games": 200,
+    "sha256": "3eb01318344d22ab8f3f31f3b63d91bb0a3cb7662475b90635108c717d6b2532"
+  },
+  "audit_sha256": "d16a4e4a00455765c354c357b3474028bfd666eca8bfc1f4dad2fbd6f097c5da",
+  "auditor_sha256": "80b10657a19add520a4430e83cdc09c09ec91c903ed4b24520fbe870bfa1ec42",
+  "capped_games": 0,
+  "elapsed_seconds": 3114.862623396999,
+  "exploratory_opening_review": {
+    "matched_lost_wins": [
+      {
+        "changed_order_fields": [
+          "guard_moves"
+        ],
+        "new_muster": "Castle",
+        "old_muster": "Lord",
+        "pair_id": "humbaba_gremory_01"
+      },
+      {
+        "changed_order_fields": [],
+        "new_muster": "Castle",
+        "old_muster": "Lord",
+        "pair_id": "humbaba_valak_00"
+      },
+      {
+        "changed_order_fields": [],
+        "new_muster": "Castle",
+        "old_muster": "Lord",
+        "pair_id": "kalligan_humbaba_02"
+      },
+      {
+        "changed_order_fields": [
+          "castle_action",
+          "guard_moves"
+        ],
+        "new_muster": "Castle",
+        "old_muster": "Lord",
+        "pair_id": "kroni_humbaba_01"
+      },
+      {
+        "changed_order_fields": [
+          "guard_moves"
+        ],
+        "new_muster": "Castle",
+        "old_muster": "Lord",
+        "pair_id": "orias_humbaba_00"
+      },
+      {
+        "changed_order_fields": [
+          "action",
+          "card_ids",
+          "guard_moves",
+          "monster_choice",
+          "target_id"
+        ],
+        "new_muster": "Castle",
+        "old_muster": "Lord",
+        "pair_id": "orias_humbaba_01"
+      },
+      {
+        "changed_order_fields": [
+          "castle_action",
+          "guard_moves"
+        ],
+        "new_muster": "Castle",
+        "old_muster": "Castle",
+        "pair_id": "valak_humbaba_01"
+      }
+    ],
+    "openings": {
+      "V10_muster_Castle": 19,
+      "V10_muster_Lord": 35,
+      "V11_muster_Castle": 53,
+      "V11_muster_Lord": 1,
+      "opening_muster_lane_changed": 36,
+      "opening_observations": 54
+    },
+    "scope": "Post-run description of first differences; no isolated causal claim or additional games."
+  },
+  "failures": 0,
+  "interpretation": "Controls excluded from outcomes. Opposite Lord seats share a seed, so these are not 192 independent trials. Per-power counts follow diverging games and do not isolate which component caused a win. Public pressure and movement/healing forecasts are conditional estimates; only observed_powers.metrics report executed effects.",
+  "inventory_sha256": "c85c50e461ac158e93250a5766aabb0c751370f250f57c8ad053957f68840e54",
+  "manifest": {
+    "baseline": {
+      "files": {
+        "__init__.py": "227c8876cf5699a5538e3493e65d8ab8e7ecf03c65eb0781306d8d22461c3b8f",
+        "budget.py": "d5cf74b53937408f6771fe8794e8af89b0d506878a7b7eaae51f6b48a945f8af",
+        "closing.py": "137079c225ecedb9e1fb4a689c7817ec512ab4a215fb0624ee62e961d058579d",
+        "common.py": "4cc5d249286a007354bc13184f320501c91765ffe19c60e846b3b040242e8957",
+        "comparison.py": "59c57b7053af14a033241768bc69c61eba36848804a0a7b6cc725ecdfb7f23bc",
+        "coordination.py": "b38dc599162b46fa493c477949a82679b87f3fb84c6b178c7d525e01a8c063a1",
+        "coverage.py": "228c23b18653b89647570939fb944d7063f676a45a28ca980ef1838b669b7c71",
+        "defensive_plans.py": "251161512ac9529f6c97d40f9578a2d16e46c26325cbe7be3b50a06dec1472b9",
+        "diagnostics.py": "5cf40e9a6ab3984653737e7b8e20b373a923f932a0205803cafea3fb48fa9769",
+        "facts.py": "d13fb7b47648176ae1dde05f9baf7e3fa5b63c09de11f921292fbd271c9edbfa",
+        "lords/__init__.py": "411ef93b19ce21fbd9e93608633810c3002599c5dd9be1b679e70a7414263488",
+        "lords/deimos.py": "a115dc09a9dd89dd2f8611bf3580518f5eb24bef5f353f30580f45497a190945",
+        "lords/gremory.py": "24da2dec94f8788638c8cd2aec532b25806c71590c580bd1782aa8242ea23496",
+        "lords/humbaba.py": "f4da1815459a72d5bf42bdfa14d16cd01cd88afbe43848531b42df944c5ef9a5",
+        "lords/kalligan.py": "16da56cbfa1e1fb2add48447165bde9cc7a23ae42f90882f9a342e5d16a9ce99",
+        "lords/kanifous.py": "f8088280111c21cb09368970b88f8593a6742f46d9048c05e0da9fec6b4aa26d",
+        "lords/kroni.py": "7079c646913e8f557861728376794be727a4d258139b56ae1c7e05e0d8bd00db",
+        "lords/odradek.py": "4a3eed0613374ad6c7172d3ccfc9c661290034a136e54abec867482e471bafb4",
+        "lords/orias.py": "ff5432388bfc98d4b48bbc873c985317e6b7c4b14d21aff5c5b5d15940eb5e20",
+        "lords/valak.py": "3959d4d1366d406b90c82f420729c0d15c1cc6000b3b677e0f68a738b0df7331",
+        "observation.py": "4114c44ae86f5dd4d109f6de85ba351c3b6d4bed8e1a4af5b08b4b86349d05f0",
+        "planner_probe.py": "32695da77450a8b5266e53ac24ab83bf0b39d89968876b5f76de15251413f2a4",
+        "recipes.py": "ddb4e0072006093218d8a4707beb248d7fe92067f57864d02588ab86df9a1c2e",
+        "reference_probe.py": "d93d5acd37581083f512fa87057bef80e8de4bd867ce49fab6ef1d2950434cbf",
+        "rite_cases.py": "2cf12a6be0f6598cdeb330f76bd0efcb8c680fbcf2410b1d6461099d61d4a70e",
+        "selection.py": "a160b99b525a1590b34a8ba43fef6f5f63d70c083886f0f151111f7bb5b3894f",
+        "survey.py": "4ef849355910d662bb887fd53ae50b5574efc5f10fdc752610e5bfb81f2a059a",
+        "test_closing.py": "b0eeab4ac9b4292f57dc35760f507252d7bfb6dbc96f6367661cf140c2ff9b37",
+        "test_common.py": "922aaacace8bd0595e4dd1de158499ee7cbb562ac0f8f2952449d1d82f4d87e8",
+        "test_comparison.py": "59211969deccbdb0ac2c042abcbf4ddc707c28216408515c83dbdcc48362507d",
+        "test_coordination.py": "763dceb8ef83ae9795aaec3603c62815a1bc5a50a2ed90432831dc8f2fec70af",
+        "test_defensive_plans.py": "6beb177ff35048f191e01be666bbdeb6530e1f7ca9820a6cf4287974a182ef4b",
+        "test_deimos.py": "06d82fb61846e96d1676931e5969f7c32563a869aef1dae99aed6c1b78454271",
+        "test_diagnostics.py": "d8362c599d2f83ae3864c6b0c32e734ac5136030e7f3194ac3fe10afda6881ff",
+        "test_kalligan.py": "dc54dcc0e5fc193e3f0030955986c9969913712eb3f0535614bf2330b0db62c6",
+        "test_odradek.py": "0078b8a8d5f534ecebdefa47e0c921e3b7b642eaae985b8ad5adb178a1044023",
+        "test_recipes_veil.py": "b1948ea569cf7b304756b70e4e2a99d479228cca4514a826fdb556434d5b456e",
+        "test_rites.py": "4049d7d09741161cae1392c3f0dcb9c3735108c50492dead8c7e36883ab240c8",
+        "test_selection.py": "b2ae4fa066634e423479552398f05d1fa2d06bbb5c978be564978763e02a94bf",
+        "test_survey.py": "926deb9d20611b42b8a5f2e970bff6c4e4b357c1afe8d12cd263c26749a05880",
+        "veil_judgment.py": "f92f3a5ca62d8ead00f38b7b5a1d4945645032e05e048305ec114bbb66d64131"
+      },
+      "package_sha256": "88b418143df2f6b7277b312a83cbafdfcba0fc6c4ff718b5c5117bf8b2a41e83",
+      "revision": "c0b2a76fdc1ae33239194a18f9477bbc58fc3d80"
+    },
+    "baseline_policy": "U13_COMMON_SMART_CORE_ALPHA_V10_DEIMOS_ARTILLERY",
+    "candidate_policy": "U13_COMMON_SMART_CORE_ALPHA_V11_ROUT_HUMBABA",
+    "cases_sha256": "a5d51521feda84701fe0613999516ef261277a28dacb0bd7c4e8e5bc6aecbfdf",
+    "control_games": 8,
+    "controls": [
+      [
+        "Gremory",
+        "Kroni"
+      ],
+      [
+        "Kalligan",
+        "Odradek"
+      ]
+    ],
+    "engine_source_sha256": "00dd00f2192f5c5913494b0cb7cea11fc58b04080ab1d8b9216c7760fc6c9c11",
+    "focused_lords": [
+      "Deimos",
+      "Humbaba"
+    ],
+    "harness_source_sha256": "873fda69fedfe5c3725607ed4f25d67f912f7454b81ff8d30e49e1087d2ce511",
+    "implementation": "CPython",
+    "loadout": [
+      "Keep",
+      "Stockpile",
+      "SummoningCircle",
+      "SiegeEngine",
+      "Bastion"
+    ],
+    "namespace": "u13-v10-v11-same-breath-2026-09-19",
+    "opening_policy": "U13_GAME_ECONOMY_V5_FREE_OPENING",
+    "primary_games": 192,
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "repeats": 3,
+    "round_cap": 40,
+    "runner_sha256": "5879e9aae6e716927a25231565ad52064d9c63fc85a00714f4b461f0e3da6401",
+    "schema": "U13_SUPPORT_MATCHED_COMPARISON_V1",
+    "scope": "Same current engine and seed within each pair; swap policy assignments and Lord seats. Controls excluded from primary outcomes. Descriptive fixed-loadout Python comparison; no weight tuning, Lord balance, native parity or independent-games significance claim.",
+    "source_revision": "d19ee7cc348a3b82808366bd3bfa8a3aa39af10d",
+    "weights": {
+      "banishment": 32,
+      "card_cost": 2,
+      "damage": 3,
+      "destruction": 30,
+      "enemy_settlement_risk": 90,
+      "guard": 5,
+      "monster": 2,
+      "recipe_save": 1,
+      "recruit": 6,
+      "return_lord": 75,
+      "tear": 22,
+      "veil_protection": 8
+    }
+  },
+  "matchup_groups": {
+    "Deimos_Humbaba": {
+      "V10_wins": 8,
+      "V11_wins": 4,
+      "games": 12
+    },
+    "Deimos_mirror": {
+      "V10_wins": 5,
+      "V11_wins": 1,
+      "games": 6
+    },
+    "Deimos_other": {
+      "V10_wins": 41,
+      "V11_wins": 43,
+      "games": 84
+    },
+    "Humbaba_mirror": {
+      "V10_wins": 4,
+      "V11_wins": 2,
+      "games": 6
+    },
+    "Humbaba_other": {
+      "V10_wins": 44,
+      "V11_wins": 40,
+      "games": 84
+    }
+  },
+  "maximum_work": {
+    "V10": {
+      "complete_plans": 32,
+      "generated:artillery": 12,
+      "generated:combat": 11,
+      "generated:guards": 11,
+      "generated:monsters": 10,
+      "generated:powers": 16,
+      "generated:resummon": 3,
+      "generated:rites": 4,
+      "generated:work": 6,
+      "previews": 1,
+      "retained:artillery": 4,
+      "retained:combat": 4,
+      "retained:guards": 4,
+      "retained:monsters": 4,
+      "retained:powers": 4,
+      "retained:resummon": 2,
+      "retained:rites": 3,
+      "retained:work": 4
+    },
+    "V11": {
+      "complete_plans": 32,
+      "generated:artillery": 16,
+      "generated:combat": 11,
+      "generated:guards": 11,
+      "generated:monsters": 10,
+      "generated:powers": 16,
+      "generated:resummon": 3,
+      "generated:rites": 5,
+      "generated:support": 16,
+      "generated:work": 6,
+      "previews": 1,
+      "retained:artillery": 4,
+      "retained:combat": 4,
+      "retained:guards": 4,
+      "retained:monsters": 4,
+      "retained:powers": 4,
+      "retained:resummon": 2,
+      "retained:rites": 4,
+      "retained:support": 4,
+      "retained:work": 4
+    }
+  },
+  "observed_powers": [
+    {
+      "lord": "Deimos",
+      "metrics": {
+        "affected_marchers": 10437
+      },
+      "outcomes": {
+        "resolved": 262
+      },
+      "outcomes_unobserved": 0,
+      "policy": "V10",
+      "power": "Rout",
+      "selected": 262
+    },
+    {
+      "lord": "Humbaba",
+      "metrics": {
+        "activation_pulses": 246,
+        "healed_marchers": 271,
+        "immediate_hp_restored": 271
+      },
+      "outcomes": {
+        "resolved": 246
+      },
+      "outcomes_unobserved": 0,
+      "policy": "V10",
+      "power": "BreathOfLife",
+      "selected": 246
+    },
+    {
+      "lord": "Humbaba",
+      "metrics": {
+        "marchers_spawned": 1494
+      },
+      "outcomes": {
+        "resolved": 498
+      },
+      "outcomes_unobserved": 0,
+      "policy": "V10",
+      "power": "MusterTheFaithful",
+      "selected": 498
+    },
+    {
+      "lord": "Deimos",
+      "metrics": {
+        "affected_marchers": 10453
+      },
+      "outcomes": {
+        "resolved": 251
+      },
+      "outcomes_unobserved": 0,
+      "policy": "V11",
+      "power": "Rout",
+      "selected": 251
+    },
+    {
+      "lord": "Humbaba",
+      "metrics": {
+        "activation_pulses": 277,
+        "healed_marchers": 334,
+        "immediate_hp_restored": 334
+      },
+      "outcomes": {
+        "resolved": 277
+      },
+      "outcomes_unobserved": 0,
+      "policy": "V11",
+      "power": "BreathOfLife",
+      "selected": 277
+    },
+    {
+      "lord": "Humbaba",
+      "metrics": {
+        "marchers_spawned": 1485
+      },
+      "outcomes": {
+        "resolved": 495
+      },
+      "outcomes_unobserved": 0,
+      "policy": "V11",
+      "power": "MusterTheFaithful",
+      "selected": 495
+    }
+  ],
+  "pairing_tests": {
+    "module": "u13_doctrine.test_comparison",
+    "passed": 4
+  },
+  "schema": "U13_SUPPORT_COMPARISON_AUDIT_V1",
+  "single_changed_lord_pairs": {
+    "Deimos": {
+      "V10_lord_wins": 23,
+      "V11_lord_wins": 24,
+      "gained_wins": 5,
+      "lost_wins": 4,
+      "paired_setups": 42,
+      "same_result": 33
+    },
+    "Humbaba": {
+      "V10_lord_wins": 13,
+      "V11_lord_wins": 11,
+      "gained_wins": 5,
+      "lost_wins": 7,
+      "paired_setups": 42,
+      "same_result": 30
+    }
+  },
+  "status": "completed_same_engine_policy_comparison",
+  "totals": {
+    "V10_wins": 102,
+    "V10_wins_both": 16,
+    "V11_wins": 90,
+    "V11_wins_both": 10,
+    "control_games": 8,
+    "control_operations": 3688,
+    "control_rounds": 146,
+    "identical_control_pairs": 4,
+    "identical_primary_pairs": 9,
+    "primary_games": 192,
+    "primary_operations": 93046,
+    "primary_rounds": 3700,
+    "rejected_previews": 0,
+    "split": 70
+  },
+  "trace_measurements": [
+    {
+      "decisions": 1049,
+      "lord": "Deimos",
+      "policy": "V10",
+      "rout_held_without_public_pressure": 55,
+      "rout_ready_decisions": 321,
+      "rout_ready_held": 59,
+      "rout_selected": 262,
+      "rout_selected_visible_gate_threats": 1758,
+      "rout_selected_visible_threats": 8114,
+      "rout_selected_without_public_pressure": 37
+    },
+    {
+      "breath_first_round": 0,
+      "breath_in_initially_empty_lane": 0,
+      "breath_ready_decisions": 346,
+      "breath_selected": 246,
+      "breath_with_same_lane_muster": 6,
+      "breath_zero_forecast_immediate_healing": 122,
+      "decisions": 1038,
+      "forecast_immediate_healing": 271,
+      "forecast_movement_windows": 8082,
+      "forecast_muster_recruits": 18,
+      "forecast_next_regen_bonus": 78,
+      "forecast_ordinary_recruits": 890,
+      "forecast_waiting_excluded": 38,
+      "lord": "Humbaba",
+      "muster_into_active_breath": 107,
+      "muster_selected": 498,
+      "policy": "V10",
+      "support_variants_selected": 0
+    },
+    {
+      "decisions": 1048,
+      "lord": "Deimos",
+      "policy": "V11",
+      "rout_held_without_public_pressure": 100,
+      "rout_ready_decisions": 364,
+      "rout_ready_held": 113,
+      "rout_selected": 251,
+      "rout_selected_visible_gate_threats": 2175,
+      "rout_selected_visible_threats": 8606,
+      "rout_selected_without_public_pressure": 0
+    },
+    {
+      "breath_first_round": 54,
+      "breath_in_initially_empty_lane": 76,
+      "breath_ready_decisions": 278,
+      "breath_selected": 277,
+      "breath_with_same_lane_muster": 243,
+      "breath_zero_forecast_immediate_healing": 167,
+      "decisions": 1022,
+      "forecast_immediate_healing": 331,
+      "forecast_movement_windows": 9033,
+      "forecast_muster_recruits": 729,
+      "forecast_next_regen_bonus": 56,
+      "forecast_ordinary_recruits": 1423,
+      "forecast_waiting_excluded": 0,
+      "lord": "Humbaba",
+      "muster_into_active_breath": 5,
+      "muster_selected": 495,
+      "policy": "V11",
+      "support_variants_selected": 275
+    }
+  ],
+  "victory_routes": {
+    "V10": {
+      "Dominion": 37,
+      "FinalCollapse": 53,
+      "Ritual": 12
+    },
+    "V11": {
+      "Dominion": 30,
+      "FinalCollapse": 48,
+      "Ritual": 12
+    }
+  },
+  "wins_by_candidate_lord": {
+    "Deimos": {
+      "V10": 27,
+      "V11": 27
+    },
+    "Gremory": {
+      "V10": 5,
+      "V11": 7
+    },
+    "Humbaba": {
+      "V10": 39,
+      "V11": 15
+    },
+    "Kalligan": {
+      "V10": 3,
+      "V11": 9
+    },
+    "Kanifous": {
+      "V10": 7,
+      "V11": 5
+    },
+    "Kroni": {
+      "V10": 4,
+      "V11": 8
+    },
+    "Odradek": {
+      "V10": 1,
+      "V11": 11
+    },
+    "Orias": {
+      "V10": 9,
+      "V11": 3
+    },
+    "Valak": {
+      "V10": 7,
+      "V11": 5
+    }
+  },
+  "wins_by_repeat": {
+    "0": {
+      "V10": 33,
+      "V11": 31
+    },
+    "1": {
+      "V10": 35,
+      "V11": 29
+    },
+    "2": {
+      "V10": 34,
+      "V11": 30
+    }
+  }
+}

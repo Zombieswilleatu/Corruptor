@@ -141,6 +141,4 @@ bash Scripts/Sim/run_u13_common_doctrine.sh \
 
 The wrapper runs the focused native Breath cases, compares their exact records
 under both Python runtimes, runs the complete doctrine gate under both, and
-packages the reports in Downloads. Next, compare V10 and V11 on the
-**same new rules** across matched seeds/seats before any balance or
-strength claim. The old audit cannot isolate the rule change from the policy.
+packages the reports in Downloads. The subsequent [same-rules comparison](U13_ROUT_HUMBABA_COMPARISON_2026-09-19.md) is complete: **V11 90–102 V10** across 192 primary games, plus eight identical controls. All 200 games completed without failures or rejected previews. V11 is not a demonstrated strength upgrade. Next: isolate Humbaba’s opening lane choice and Breath timing in the saved losing positions, and separate Rout from Work in the Deimos mirror. The earlier pre-pulse audit remains behavior evidence rather than a policy comparison.
