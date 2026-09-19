@@ -120,7 +120,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('phase', choices=('assess', 'replay', 'summary'))
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--candidate', default='HEAD')
+    parser.add_argument('--candidate', default='fd13b3fd3643264d38276224833e731723077faa',
+        help='Frozen Rout-answer experiment; default policy remains V12 after its combined-engine rejection')
     parser.add_argument('--workers', type=int, default=4)
     args = parser.parse_args()
     if args.workers < 1: parser.error('Workers must be positive')

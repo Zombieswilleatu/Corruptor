@@ -2228,8 +2228,8 @@
       ],
       "record_operations_sha256": "1b06d85a64926d4ee82e21cdd57498a50c013de675d8a7d8e236775d53a8b2c6",
       "revised_plan_sha256": "1ba8f242968d80e833ffe336e92941c457e958c012b03c386abf6a6408656919",
-      "current_replay_plan_sha256": "398035d04b1a4a7833b0282452e348a2bae244a1710547f5458def8a2da28dd3",
-      "expected_rout_lane": "Lord",
+      "current_replay_plan_sha256": "1ba8f242968d80e833ffe336e92941c457e958c012b03c386abf6a6408656919",
+      "expected_rout_lane": "Castle",
       "rout_answer_review": {
         "candidate_revision": "fd13b3f",
         "previous_policy": "V12",
@@ -2262,7 +2262,7 @@
         ],
         "seed": "u13-rout-humbaba-2026-09-19:Deimos:Deimos:00"
       },
-      "view_sha256": "1ddb49104abbdc0715369658911a354eb667f12e98973eb9b6c23c98b0db6543",
+      "view_sha256": "bbe7e30279b2ae749b648fe7d4bb8ee4084c6adbe0ded51672ca5b5ceaaafca3",
       "view_sha256_history": [
         {
           "engine_source_sha256": "6849abebda04d0c7f55f02f1310ef48debb734a5bc287363124b232102ba6259",
@@ -2275,8 +2275,29 @@
           "note": "Before navigation recovery at 176e175; exact prefix and opposing plans retained.",
           "replay_revision": "2099326ceba752f3570a6114631eb25714abaa4e",
           "view_sha256": "598a23ddadbbea94e207795f258e2331d22b9f2eff719d611dfd934a5a7dcf74"
+        },
+        {
+          "engine_source_sha256": "e093e1fd92bd619129cc56a7483056335b951d837d91fa4bc5e61014d892bd61",
+          "replay_revision": "63fca581ab0caa04af85dd62fbb93b816b6a8c9e",
+          "view_sha256": "1ddb49104abbdc0715369658911a354eb667f12e98973eb9b6c23c98b0db6543",
+          "note": "Before bcf1fad taunt/contact fixes; original operation prefix and opposing plans preserved."
         }
-      ]
+      ],
+      "current_replay_plan_sha256_history": [
+        {
+          "engine_source_sha256": "e093e1fd92bd619129cc56a7483056335b951d837d91fa4bc5e61014d892bd61",
+          "policy": "U13_COMMON_SMART_CORE_ALPHA_V13_ROUT_ANSWER_EXPERIMENT",
+          "plan_sha256": "398035d04b1a4a7833b0282452e348a2bae244a1710547f5458def8a2da28dd3",
+          "rout_lane": "Lord",
+          "note": "Reviewed V13 lane tradeoff before bcf1fad; experiment subsequently rejected on combined engine."
+        }
+      ],
+      "monster_control_review": {
+        "engine_source_sha256": "168615d04ff50b7ba9cb4111a749508eebe451d41d0535b98d0fd3efea9c44cf",
+        "review_revision": "826351565f9508c3b85b7a76c95abfb1574f6802",
+        "default_policy": "U13_COMMON_SMART_CORE_ALPHA_V12_HUMBABA_PRESSURE",
+        "note": "Taunt/contact fixes change the preserved prefix survivors. Both V12 and experimental V13 select the same Castle plan. Three legal three-round continuations compare Castle, Lord and holding with the recorded opposing order and frozen V12 thereafter. Castle preserves two allied Castle bodies and seven HP immediately; after round 12 it retains eight Keep Integrity versus four with Lord. No branch has finished by round 13. Historical V13 fingerprints/review are retained; no tactical assertion is removed."
+      }
     },
     {
       "kind": "pair",

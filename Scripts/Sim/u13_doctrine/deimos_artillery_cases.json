@@ -3098,15 +3098,26 @@
         "seed": "u13-rout-current-rule-diagnostics-2026-09-19:Deimos:Deimos:00"
       },
       "source_record": "rout-current-diagnostics/games/deimos_deimos_00.json.gz",
-      "view_sha256": "e59c92739a2f4a421693e3d67ce720af70da0ce34fad6f2d5e95365bf18fa3e7",
+      "view_sha256": "b04bb07ceb6975c9d89f4549e4611c93cefb47c1601c456aae1e1b7d59ece081",
       "view_sha256_history": [
         {
           "engine_source_sha256": "12958849e54a868540dd793dc0321bef50676b065f3e9f7ddad83d3218ca93c7",
           "note": "Before navigation recovery at 176e175; exact prefix and opposing plans retained.",
           "replay_revision": "2099326ceba752f3570a6114631eb25714abaa4e",
           "view_sha256": "e823d4bc915d4af22f71471af446840c638cb6da0397be271860ce0b94713395"
+        },
+        {
+          "engine_source_sha256": "e093e1fd92bd619129cc56a7483056335b951d837d91fa4bc5e61014d892bd61",
+          "replay_revision": "63fca581ab0caa04af85dd62fbb93b816b6a8c9e",
+          "view_sha256": "e59c92739a2f4a421693e3d67ce720af70da0ce34fad6f2d5e95365bf18fa3e7",
+          "note": "Before bcf1fad taunt/contact fixes; original operation prefix and opposing plans preserved."
         }
-      ]
+      ],
+      "monster_control_review": {
+        "engine_source_sha256": "168615d04ff50b7ba9cb4111a749508eebe451d41d0535b98d0fd3efea9c44cf",
+        "review_revision": "826351565f9508c3b85b7a76c95abfb1574f6802",
+        "note": "Changed marcher survivors and positions; the exact prefix remains legal. Existing artillery retarget, original fizzle, preserved commitment, legal preview, and positive revised Siege damage assertions pass without alteration."
+      }
     },
     {
       "expected_monster_choice": "Varn",
