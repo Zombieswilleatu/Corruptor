@@ -26,7 +26,12 @@ def context(f, plan):
                         key=lambda r: (-r['attributes']['value'], r['attributes']['slot'], r['id']))
         lost = [r['id'] for r in guards[:result['guards']]]
         consumed.update(r['id'] for r in f.units(f.pid, lane) if r['attributes']['waiting'])
-    recruits = f.recruits(order.get('card_ids', []), action) if action in ('Hunt', 'Siege', 'Ward') else 0
+    recruit_suits = Counter()
+    if action in ('Hunt', 'Siege', 'Ward'):
+        for key in order.get('card_ids', []):
+            a = f.by_id[key]['attributes']; recruit_suits[a['suit']] += a['value']
+        recruit_suits = {s: v//(2 if action == 'Ward' else 3) for s,v in sorted(recruit_suits.items())}
+    recruits = sum(recruit_suits.values())
     monster = order.get('monster_choice', '')
     # Varn's guaranteed minimum; do not consult its future swarm roll.
     monsters = (3 if monster == 'Varn' else 1) if monster else 0
@@ -38,7 +43,7 @@ def context(f, plan):
             if name == 'MusterTheFaithful': muster_bodies[source['target']['lane']] += 3
     return dict(attack_lane=lane if action in ('Hunt', 'Siege') else '',
                 guard_losses=lost, castle_hits=castle_hits, consumed_supplicants=sorted(consumed),
-                recruit_lane=lane, recruits=recruits, monster_bodies_minimum=monsters,
+                recruit_lane=lane, recruits=recruits, recruit_suits=dict(recruit_suits), monster_bodies_minimum=monsters,
                 monster=monster, unknown_extra_varn_bodies=monster == 'Varn',
                 power_bodies_minimum=dict(sorted(spawn_powers.items())), muster_bodies=dict(sorted(muster_bodies.items())))
 

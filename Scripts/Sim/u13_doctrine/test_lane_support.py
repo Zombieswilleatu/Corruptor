@@ -102,8 +102,54 @@ class LaneSupportTests(unittest.TestCase):
             order=dict(action='Ward',lane='Castle',card_ids=['ingredient:0']))
         row=evaluate(f,plan)['powers'][0]
         self.assertEqual((0,8,2,3),(row['immediate_healing'],row['movement_windows'],row['ordinary_recruits'],row['muster_recruits']))
+        self.assertEqual((0,0,8),(row['score'],row['pressure_movement_windows'],row['unpressured_movement_windows']))
         plan['powers'][1]['target']['lane']='Lord'
         self.assertEqual(0,evaluate(f,plan)['powers'][0]['score'])
+
+    def test_healthy_distant_column_holds_breath_but_gate_approach_has_value(self):
+        view=observe(planning('Humbaba'),0)
+        row=unit(view,'column',x_fp=0)
+        value=breath_value(Facts(view),'Castle')
+        self.assertEqual((2,0,0),(value['movement_windows'],value['pressure_movement_windows'],value['score']))
+        row['attributes']['x_fp']=800
+        value=breath_value(Facts(view),'Castle')
+        self.assertEqual((0,2,6),(value['immediate_healing'],value['pressure_movement_windows'],value['score']))
+        # Public geometry and the opposing gate must mirror both seats.
+        other=copy_data(view);other['player_id']=1
+        for r in other['board']:
+            if r['owner'] in (0,1):r['owner']=1-r['owner']
+            if r['kind']=='marcher':r['attributes']['x_fp']=2400-r['attributes']['x_fp']
+        self.assertEqual(value,breath_value(Facts(other),'Castle'))
+
+    def test_breath_movement_needs_reachable_visible_pressure(self):
+        view=observe(planning('Humbaba'),0)
+        unit(view,'ally',x_fp=0,movement_ready_round=2)
+        enemy=unit(view,'enemy',1,x_fp=1200,step_fp=0)
+        self.assertEqual(0,breath_value(Facts(view),'Castle')['pressure_movement_windows'])
+        enemy['attributes']['x_fp']=1000
+        self.assertEqual(1,breath_value(Facts(view),'Castle')['pressure_movement_windows'])
+        enemy['attributes']['hidden']=True
+        self.assertEqual(0,breath_value(Facts(view),'Castle')['pressure_movement_windows'])
+        enemy['attributes']['hidden']=False;enemy['attributes']['x_fp']=1800;enemy['attributes']['step_fp']=4
+        self.assertEqual(1,breath_value(Facts(view),'Castle')['pressure_movement_windows'])
+
+    def test_planned_recruit_pressure_uses_public_suit_speed_and_readiness(self):
+        view=observe(planning('Humbaba'),0);hand(view,[('Penitent',4),('Butcher',4)])
+        unit(view,'rooted_enemy',1,x_fp=950,step_fp=0)
+        f=Facts(view)
+        plan=dict(powers=[declaration(0,1,BREATH,dict(lane='Castle'))],
+                  order=dict(action='Ward',lane='Castle',card_ids=['ingredient:0']))
+        slow=evaluate(f,plan)['powers'][0]
+        self.assertEqual((2,0),(slow['movement_windows'],slow['pressure_movement_windows']))
+        plan['order']['card_ids']=['ingredient:1']
+        fast=evaluate(f,plan)['powers'][0]
+        self.assertEqual((2,2),(fast['movement_windows'],fast['pressure_movement_windows']))
+
+    def test_empty_opening_holds_breath_without_blocking_muster(self):
+        game=planning('Humbaba');before=game.snapshot()
+        decision=CommonSmartCore().decide(observe(game,0),Preview(game,0))
+        self.assertEqual([MUSTER],[p['power_id'] for p in decision['plan']['powers']])
+        self.assertEqual([],decision['rejected_previews']);self.assertEqual(before,game.snapshot())
 
     def test_supplicant_spends_do_not_leave_phantom_breath_recipients(self):
         view=observe(planning('Humbaba'),0);hand(view,[('Butcher',4)])
@@ -115,8 +161,11 @@ class LaneSupportTests(unittest.TestCase):
         self.assertEqual(1,row['consumed_excluded']);self.assertEqual(0,row['immediate_healing'])
         self.assertEqual(1,row['movement_windows']) # One full-health recruit, next round only.
 
-    def test_opening_can_pair_muster_breath_and_recruit_lane_within_budget(self):
-        game=planning('Humbaba');before=game.snapshot();view=observe(game,0)
+    def test_visible_pressure_can_pair_muster_breath_and_recruits_within_budget(self):
+        game=planning('Humbaba')
+        power_components.prepare(game,[dict(kind='fixture_marcher',player_id=1,lane='Castle',origin='pressure',ordinal=0,
+                                           attributes=dict(x_fp=950,step_fp=0))])
+        before=game.snapshot();view=observe(game,0)
         decision=CommonSmartCore().decide(view,Preview(game,0))
         powers={s['power_id']:s for s in decision['plan']['powers']}
         self.assertEqual({MUSTER,BREATH},set(powers))
@@ -184,12 +233,16 @@ class LaneSupportTests(unittest.TestCase):
                 seat=case['seat'];view=observe(game,seat);before=game.snapshot()
                 self.assertEqual(case['view_sha256'],fingerprint(view))
                 choice=CommonSmartCore().decide(view,Preview(game,seat))
-                self.assertEqual(case['revised_plan_sha256'],fingerprint(choice['plan']))
+                # Preserve V11's recorded plan fingerprints as historical
+                # evidence; only the two empty openings intentionally change.
+                expected=case.get('v12_plan_sha256',case['revised_plan_sha256'])
+                self.assertEqual(expected,fingerprint(choice['plan']))
                 self.assertEqual(before,game.snapshot());self.assertEqual([],choice['rejected_previews'])
                 powers={s['power_id']:s for s in choice['plan']['powers']}
                 if case['kind']=='hold':self.assertNotIn('Rout',powers)
                 elif case['kind']=='retarget':self.assertEqual('Castle',powers['Rout']['target']['lane'])
-                elif case['kind']=='pair':self.assertEqual(powers[MUSTER]['target'],powers[BREATH]['target'])
+                elif case['kind']=='pair':
+                    self.assertIn(MUSTER,powers);self.assertNotIn(BREATH,powers)
                 elif case['kind']=='recruit_support':
                     self.assertEqual('Lord',powers[BREATH]['target']['lane'])
                     self.assertGreater(choice['coordination']['selected']['powers'][0]['ordinary_recruits'],0)
@@ -200,7 +253,9 @@ class LaneSupportTests(unittest.TestCase):
                     start=len(replay._state['events']['rows']);through_pulse(replay,plans)
                     if revised:
                         events=[r['event'] for r in replay._state['events']['rows'][start:]]
-                        if case['kind'] in ('pair','heal','recruit_support'):
+                        if case['kind']=='pair':
+                            self.assertFalse(any(e['type']=='BREATH_PULSED' and e['data']['player_id']==seat for e in events))
+                        elif case['kind'] in ('heal','recruit_support'):
                             pulses=[e['data'] for e in events if e['type']=='BREATH_PULSED' and e['data']['player_id']==seat]
                             self.assertEqual(1,len(pulses))
                             self.assertEqual(2 if case['kind']=='heal' else 0,pulses[0]['healing'])

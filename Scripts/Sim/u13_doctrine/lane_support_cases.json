@@ -2444,6 +2444,8 @@
         ],
         "seed": "u13-rout-humbaba-2026-09-19:Gremory:Humbaba:00"
       },
+      "v12_plan_sha256": "1a795c3e188330ee69e5732ec10fde04253d962dc2dd538bf6bef09db2fbc6d2",
+      "v12_reason": "Hold Breath on empty full-health opening; no public pressure reachable in its active window. Historical V11 pair remains recorded.",
       "view_sha256": "0aedd02803263367e0abbcbac221be1686461c1f9b35c120de0094df77d9ea00"
     },
     {
@@ -2620,6 +2622,8 @@
         ],
         "seed": "u13-rout-humbaba-2026-09-19:Gremory:Humbaba:00"
       },
+      "v12_plan_sha256": "1d96de44c8e80509f360c39c9caac668bad5533d34f029655846f42c210974d0",
+      "v12_reason": "Hold Breath on empty full-health opening; no public pressure reachable in its active window. Historical V11 pair remains recorded.",
       "view_sha256": "2d0c397c711441b3499250745b3df06c112af3aba5b590fd46d0f70b77bb4096"
     },
     {
