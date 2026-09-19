@@ -143,6 +143,19 @@ def step(w,buffer,c,tick,reaction):
         if 0 < a.get('dotra_exposed_until_tick', 0) <= clock:
             a.update(dotra_exposed_from_tick=0, dotra_exposed_until_tick=0)
             buffer.update(unit['id'], unit['owner'], a)
+        # Apply every concealment before any monster selects a target this tick.
+        if a.get('monster_id')=='Dotra' and a['movement_ready_round']<=n and a.get('dotra_concealment_round',0)==0:
+            if a.get('hidden',False):
+                # A restored hidden body has already spent its one concealment.
+                a['dotra_concealment_round']=n
+            else:
+                # Start only on the field; protected staging and birth hold do not count.
+                if a.get('dotra_hide_at_tick',0)==0:
+                    a['dotra_hide_at_tick']=clock+T['dotra_hide_delay_ticks']
+                if clock>=a['dotra_hide_at_tick']:
+                    a.update(hidden=True,dotra_concealment_round=n)
+                    events.append(event('MONSTER_CONCEALMENT',dict(unit_id=unit['id'],hidden=True,round=n,tick=tick)))
+            buffer.update(unit['id'],unit['owner'],a)
     if tick==0:
         state['phase_round']=n;state['fields']=[f for f in state['fields'] if f['expires_round']>=n]
         for unit in buffer.rows():
@@ -154,13 +167,7 @@ def step(w,buffer,c,tick,reaction):
             if not a.get('monster_id','') or a['movement_ready_round']>n:
                 buffer.update(unit['id'],unit['owner'],a);continue
             key=f"{unit['id']}:{n}"
-            if a['monster_id']=='Dotra':
-                if a.get('dotra_concealment_round',0)<n:
-                    a['dotra_concealment_round']=n
-                    if not a.get('hidden',False):
-                        a['hidden']=draw(c['seed'],key,'HIDE',0,100)<T['dotra_hide_chance']
-                    events.append(event('MONSTER_CONCEALMENT',dict(unit_id=unit['id'],hidden=a['hidden'],round=n,tick=tick)))
-            elif a['monster_id']=='Sooge':
+            if a['monster_id']=='Sooge':
                 if a['sprite_form']!='turret' and a.get('sooge_root_round',0)<n:
                     chance=rules.root_chance(a)
                     a.update(sooge_root_attempts=a.get('sooge_root_attempts',0)+1,sooge_root_round=n)
@@ -211,10 +218,11 @@ def step(w,buffer,c,tick,reaction):
             target=nearest(unit,rows,T['muno_radius'])
             if target:
                 a['muno_round']=n;hits.append(dict(source=unit,target=target['id'],amount=a['attack'],bypass=False,ability='Muno'))
-        elif name=='Dotra' and a.get('hidden',False):
-            target=nearest(unit,rows,T['dotra_ambush_radius'])
-            if target:
-                hits.append(dict(source=unit,target=target['id'],amount=5,bypass=False,ability='Ambush'))
+        elif name=='Dotra':
+            if a.get('hidden',False):
+                target=nearest(unit,rows,T['dotra_ambush_radius'])
+                if target:
+                    hits.append(dict(source=unit,target=target['id'],amount=5,bypass=False,ability='Ambush'))
         elif name=='Sooge' and a['sprite_form']=='turret' and a.get('beam_next_tick',0)-T['beam_charge_ticks']<=clock:
             target=nearest(unit,rows+fort.rows(w),T['beam_range'])
             if not target:

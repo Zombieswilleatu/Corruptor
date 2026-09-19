@@ -248,9 +248,9 @@ func dotra_visibility_checks() -> void:
 			check(Marching.FieldMelee.nearest(enemy, [visible]).id == hidden.id and Marching.Ranged.nearest(enemy, [visible]).id == hidden.id and MonsterFX.nearest(enemy, [visible]).id == hidden.id, kind + " can select Dotra after reveal")
 		for attacker in ["Vulture", "Muno"]:
 			var w: Dictionary = phase_world()
-			var source: Dictionary = put(w, "Dotra", pid, 0 if pid == 0 else 2400, {"hp": 100, "max_hp": 100})
+			var source: Dictionary = put(w, "Dotra", pid, 0 if pid == 0 else 2400, {"hidden": true, "hp": 100, "max_hp": 100})
 			put(w, attacker, 1 - pid, 400 if pid == 0 else 2000, {"y_fp": 350, "step_fp": 0, "hp": 100, "max_hp": 100})
-			var resolved: Dictionary = phase("dotra_%d_visible_to_%s" % [pid, attacker], w, selected_seed(source.id, "HIDE", 25))
+			var resolved: Dictionary = phase("dotra_%d_visible_to_%s" % [pid, attacker], w)
 			var incoming: Array = resolved.events.filter(func(r): return r.event.type in ["MARCHER_RANGED_ATTACK", "MARCHER_MELEE_ATTACK", "MONSTER_ATTACK"] and r.event.data.target.id == source.id)
 			check(not incoming.is_empty() and incoming.all(func(r): return not r.event.data.target.attributes.get("hidden", false)), "actual targeted hits only select revealed Dotra")
 			check(playback.build(resolved.events.map(func(r): return r.event)), "Dotra reveal replay builds")
@@ -268,9 +268,9 @@ func dotra_visibility_checks() -> void:
 		# A reveal followed by a lethal counterattack leaves no visible living
 		# unit frame. It still must not show an arrow seeking hidden Dotra.
 		var lethal_world: Dictionary = phase_world()
-		var victim: Dictionary = put(lethal_world, "Dotra", pid, 0 if pid == 0 else 2400, {"hp": 1, "armor": 0})
+		var victim: Dictionary = put(lethal_world, "Dotra", pid, 0 if pid == 0 else 2400, {"hidden": true, "hp": 1, "armor": 0})
 		put(lethal_world, "Vulture", 1 - pid, 400 if pid == 0 else 2000, {"y_fp": 350, "step_fp": 0, "attack": 100, "hp": 100, "max_hp": 100})
-		var lethal: Dictionary = phase("dotra_%d_lethal_reveal_counter" % pid, lethal_world, selected_seed(victim.id, "HIDE", 25))
+		var lethal: Dictionary = phase("dotra_%d_lethal_reveal_counter" % pid, lethal_world)
 		var shot: Dictionary = facts(lethal, "MARCHER_RANGED_ATTACK")[0]
 		var impact_at: float = 0.18 + 6.0 * float(int(shot.tick) + 1) / 200.0
 		check(Kanifous._entity(lethal.world, victim.id).is_empty() and not shot.target.attributes.hidden, "lethal counterattack waits for the ambush reveal")
@@ -303,13 +303,13 @@ func dotra_stalking_checks() -> void:
 	for pid in [0, 1]:
 		var w: Dictionary = phase_world()
 		var start: int = 0 if pid == 0 else 2400
-		var actor: Dictionary = put(w, "Dotra", pid, start)
-		var seed_value: String = selected_seed(actor.id, "HIDE", 25)
-		var creeping: Dictionary = phase("dotra_%d_half_speed" % pid, w, seed_value)
+		var actor: Dictionary = put(w, "Dotra", pid, start, {"hidden": true})
+		var seed_value: String = "monster-check"
+		var creeping: Dictionary = phase("dotra_%d_full_speed" % pid, w, seed_value)
 		var after: Dictionary = Kanifous._entity(creeping.world, actor.id).attributes
 		check(after.hidden and absi(int(after.x_fp) - start) == 800 and after.step_fp == 4, "hidden Dotra keeps full movement speed and its saved base speed")
 		w = phase_world()
-		actor = put(w, "Dotra", pid, start, {"hp": 100, "max_hp": 100})
+		actor = put(w, "Dotra", pid, start, {"hidden": true, "hp": 100, "max_hp": 100})
 		var prey: Dictionary = put(w, "Vulture", 1 - pid, 400 if pid == 0 else 2000, {"y_fp": 350, "step_fp": 0, "hp": 100, "max_hp": 100})
 		var hunt: Dictionary = phase("dotra_%d_moving_ambush" % pid, w, seed_value)
 		var ambushes: Array = facts(hunt, "MONSTER_ATTACK").filter(func(d): return d.ability == "Ambush")
@@ -334,7 +334,7 @@ func dotra_stalking_checks() -> void:
 			var buffer = Marching.Buffer.new(); buffer.restore(w.entities)
 			var c: Dictionary = context(w); c.round = n
 			var duplicate: Dictionary = MonsterFX.step(w, buffer, c, 0, Callable(Game.Content.new(), "react"))
-			check(facts(duplicate, "MONSTER_CONCEALMENT").is_empty() and buffer.get_entity(actor.id).attributes.hidden, "repeating the same round cannot reroll concealment")
+			check(facts(duplicate, "MONSTER_CONCEALMENT").is_empty() and buffer.get_entity(actor.id).attributes.hidden, "repeating the same round cannot repeat concealment")
 	var prey: Dictionary = put(w, "Butcher", 1, 1040, {"step_fp": 0, "hp": 100, "max_hp": 100})
 	var immediate: Dictionary = phase("dotra_reveals_with_ambush", w, "monster-check", 10)
 	check(facts(immediate, "MONSTER_ATTACK").any(func(d): return d.ability == "Ambush" and d.tick == 0 and d.target.id == prey.id and not d.attacker.attributes.hidden), "Dotra reveals and delivers its bonus strike when prey reaches ambush range")
@@ -342,7 +342,7 @@ func dotra_stalking_checks() -> void:
 	actor = put(w, "Dotra", 0, 0, {"birth_round": 2, "movement_ready_round": 3})
 	var held: Dictionary = phase("dotra_birth_hold", w)
 	check(facts(held, "MONSTER_CONCEALMENT").is_empty() and Kanifous._entity(held.world, actor.id).attributes.x_fp == 0, "new Dotra retains its birth hold")
-	for key in ["dotra_concealment_round"]:
+	for key in ["dotra_concealment_round", "dotra_hide_at_tick"]:
 		for value in [-1, 0.5, true, "1"]:
 			var forged: Dictionary = actor.attributes.duplicate(true); forged[key] = value
 			check(not Monsters.valid_unit(forged), "invalid Dotra counter is rejected: " + key)
@@ -593,11 +593,11 @@ func run() -> void:
 	check(not playback.sample(playback.duration * 0.5).monster_fields.is_empty(), "portal is visible during playback")
 	for name in ["Lemek", "Fyra", "Varn", "Kopita", "Tumler", "Kurchin", "Muno", "Dotra"]:
 		w = phase_world()
-		var unit: Dictionary = put(w, name, 0, 800, {"hp": 20, "max_hp": 20})
+		var unit: Dictionary = put(w, name, 0, 800, {"hp": 20, "max_hp": 20}.merged({"hidden": true} if name == "Dotra" else {}))
 		put(w, "Wright", 1, 1030, {"hp": 25, "max_hp": 25})
 		put(w, "Vulture", 1, 1250, {"hp": 20, "max_hp": 20, "y_fp": 480})
 		if name == "Lemek": put(w, "Butcher", 1, 880, {"attack": 100, "step_fp": 0})
-		var seed_value: String = selected_seed(unit.id, "HIDE", 25) if name == "Dotra" else "monster-check"
+		var seed_value: String = "monster-check"
 		var result: Dictionary = phase(name, w, seed_value)
 		if name == "Muno": check(facts(result, "MONSTER_ATTACK").filter(func(d): return d.ability == "Muno").size() == 1, "Muno free strike is once per active round")
 		if name == "Dotra": check(facts(result, "MONSTER_ATTACK").any(func(d): return d.ability == "Ambush"), "hidden Dotra delivers the ambush")

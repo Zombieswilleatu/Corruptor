@@ -1,0 +1,18 @@
+PARITY exposed_packet_Kopita_1
+PARITY exposed_packet_Poison_1
+PARITY exposed_packet_Beam_3
+PARITY exposed_packet_Muno_3
+PARITY exposed_packet_Ambush_5
+PARITY exposed_packet_Muno_0
+PARITY exposed_melee
+PARITY exposed_ranged
+PARITY exposed_block_true
+PARITY exposed_block_false
+PARITY exposed_evade_true
+PARITY exposed_evade_false
+PARITY exposed_tower
+PARITY exposed_interlock_600
+PARITY exposed_interlock_410
+PARITY exposed_inferno
+PARITY exposed_web
+{"damage_adapter_cases": 17, "complete_world_and_events_match": true}

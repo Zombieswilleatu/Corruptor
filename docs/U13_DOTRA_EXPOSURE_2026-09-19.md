@@ -1,5 +1,7 @@
 # Dotra's emergence vulnerability — V15
 
+Historical checkpoint at `b627641`. [V16 replaces the concealment rolls with one guaranteed hide after the first field interval](U13_DOTRA_TIMED_HIDE_2026-09-19.md); the exposure rules below remain in effect.
+
 This replaces the three-hole experiment with an **exposure pulse**. Dotra again approaches at full speed while concealed and emerges with his existing 5-damage ambush. Nearby enemies then take **one extra point of incoming damage per hit, before Armor**, for one full marching round. The effect helps his army focus down an exposed group, but the current results still leave Dotra weak in most army matchups.
 
 ## Rules

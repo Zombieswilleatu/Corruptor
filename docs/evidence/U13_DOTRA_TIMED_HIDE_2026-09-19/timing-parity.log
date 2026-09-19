@@ -1,0 +1,13 @@
+{
+  "phases": 43,
+  "events": 8709,
+  "ticks": 8600,
+  "event_types": {
+    "MARCHING_FINISHED": 43,
+    "MARCHING_STARTED": 43,
+    "MARCHING_TICK": 8600,
+    "MONSTER_ATTACK": 4,
+    "MONSTER_CONCEALMENT": 15,
+    "MONSTER_EXPOSURE_PULSE": 4
+  }
+}

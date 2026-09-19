@@ -153,6 +153,20 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 			a["dotra_exposed_from_tick"] = 0
 			a["dotra_exposed_until_tick"] = 0
 			entities.update(unit.id, unit.owner, a)
+		# Apply every concealment before any monster selects a target this tick.
+		if a.get("monster_id") == "Dotra" and a.movement_ready_round <= n and int(a.get("dotra_concealment_round", 0)) == 0:
+			if a.get("hidden", false):
+				# A restored hidden body has already spent its one concealment.
+				a["dotra_concealment_round"] = n
+			else:
+				# Start only on the field; protected staging and birth hold do not count.
+				if int(a.get("dotra_hide_at_tick", 0)) == 0:
+					a["dotra_hide_at_tick"] = clock + int(Rules.TUNING.dotra_hide_delay_ticks)
+				if clock >= int(a.dotra_hide_at_tick):
+					a["hidden"] = true
+					a["dotra_concealment_round"] = n
+					events.append(event("MONSTER_CONCEALMENT", {"unit_id": unit.id, "hidden": true, "round": n, "tick": tick}))
+			entities.update(unit.id, unit.owner, a)
 	if tick == 0:
 		state.phase_round = n
 		state.fields = state.fields.filter(func(f): return f.expires_round >= n)
@@ -167,12 +181,6 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 				continue
 			var key: String = "%s:%d" % [unit.id, n]
 			match a.monster_id:
-				"Dotra":
-					if int(a.get("dotra_concealment_round", 0)) < n:
-						a["dotra_concealment_round"] = n
-						if not a.get("hidden", false):
-							a["hidden"] = Lamp.draw(context.seed, key, "HIDE", 100) < Rules.TUNING.dotra_hide_chance
-						events.append(event("MONSTER_CONCEALMENT", {"unit_id": unit.id, "hidden": a.hidden, "round": n, "tick": tick}))
 				"Sooge":
 					if a.sprite_form != "turret" and int(a.get("sooge_root_round", 0)) < n:
 						var chance: int = Rules.root_chance(a)

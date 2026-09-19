@@ -1,0 +1,82 @@
+Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org
+
+PASS exposure_emergence_0 resolves
+PASS exposure_emergence_0 keeps valid unit and field state
+PASS exposure_emergence_0 deterministic replay
+PASS one emergence creates one full-round exposure pulse
+PASS the pulse does not amplify its own opening ambush
+PASS pulse includes the 360 boundary and excludes allies, other lanes and outside bodies
+PASS exposure replay builds
+PASS status icons do not appear before emergence
+PASS pulse and cracked-shield marker appear on the recorded hit
+PASS both lane views render exposed enemies for either seat
+PASS reset clears exposure presentation
+PASS both lane views render exposed enemies for either seat
+PASS reset clears exposure presentation
+PASS exposure_emergence_1 resolves
+PASS exposure_emergence_1 keeps valid unit and field state
+PASS exposure_emergence_1 deterministic replay
+PASS one emergence creates one full-round exposure pulse
+PASS the pulse does not amplify its own opening ambush
+PASS pulse includes the 360 boundary and excludes allies, other lanes and outside bodies
+PASS exposure replay builds
+PASS status icons do not appear before emergence
+PASS pulse and cracked-shield marker appear on the recorded hit
+PASS both lane views render exposed enemies for either seat
+PASS reset clears exposure presentation
+PASS both lane views render exposed enemies for either seat
+PASS reset clears exposure presentation
+PASS save transport preserves the exact exposure deadline
+PASS exposure_expiration resolves
+PASS exposure_expiration keeps valid unit and field state
+PASS exposure_expiration deterministic replay
+PASS exposure remains visible until the final active tick
+PASS exposure disappears at the exact next-round deadline
+PASS incoming damage observes inclusive start and exclusive expiry
+PASS multiple Dotras refresh duration but cannot stack the bonus
+PASS exposure does not reveal a hidden enemy
+PASS invalid exposure clocks are rejected
+PASS invalid exposure clocks are rejected
+PASS invalid exposure clocks are rejected
+PASS invalid exposure clocks are rejected
+PASS invalid exposure clocks are rejected
+PASS invalid exposure clocks are rejected
+PASS invalid exposure clocks are rejected
+PASS invalid exposure clocks are rejected
+PASS exposed_packet_Kopita_1 resolves
+PASS extra damage applies once, before Armor, including poison bypass and zero-packet immunity
+PASS exposed_packet_Poison_1 resolves
+PASS extra damage applies once, before Armor, including poison bypass and zero-packet immunity
+PASS exposed_packet_Beam_3 resolves
+PASS extra damage applies once, before Armor, including poison bypass and zero-packet immunity
+PASS exposed_packet_Muno_3 resolves
+PASS extra damage applies once, before Armor, including poison bypass and zero-packet immunity
+PASS exposed_packet_Ambush_5 resolves
+PASS extra damage applies once, before Armor, including poison bypass and zero-packet immunity
+PASS exposed_packet_Muno_0 resolves
+PASS extra damage applies once, before Armor, including poison bypass and zero-packet immunity
+PASS exposed_melee resolves
+PASS ordinary combat adds one point to the actual matchup damage
+PASS exposed_ranged resolves
+PASS ordinary combat adds one point to the actual matchup damage
+PASS exposed_block_true resolves
+PASS a block prevents the whole amplified hit; an unblocked hit still consumes Armor
+PASS exposed_block_false resolves
+PASS a block prevents the whole amplified hit; an unblocked hit still consumes Armor
+PASS exposed_evade_true resolves
+PASS evasion stops the entire amplified packet
+PASS exposed_evade_false resolves
+PASS evasion stops the entire amplified packet
+PASS exposed_tower resolves
+PASS tower shots also deal one additional damage
+PASS exposed_interlock_600 resolves
+PASS reflected damage respects exposure at the actual reaction tick
+PASS exposed_interlock_410 resolves
+PASS reflected damage respects exposure at the actual reaction tick
+PASS exposed_inferno resolves
+PASS lord hazard damage also gains the bonus before Armor
+PASS exposed_web resolves
+PASS Web damage also gains the bonus before Armor
+PASS powers before Marching use its starting boundary
+PASS powers between rounds share the same exposure clock
+U13 Dotra exposure failures: 0
