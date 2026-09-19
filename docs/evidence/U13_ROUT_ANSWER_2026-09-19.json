@@ -3017,5 +3017,45 @@
     "Three combined-engine lane continuations stop at round 13 without a winner.",
     "Windows CPython/PyPy acceptance remains pending; native evidence for parallel engine changes is separate."
   ],
+  "publication": {
+    "method": "GitHub app publication; commit metadata differs, each source tree verified identical before publication.",
+    "revisions": [
+      {
+        "local_commit": "fd13b3fd3643264d38276224833e731723077faa",
+        "published_commit": "63d8f8582bb4ec4ce5099ac04cd0c549b8c8b1e4",
+        "tree_sha": "91fbcfda77b247f529cab61d33c5c99b49b376e7"
+      },
+      {
+        "local_commit": "2e1353df7689f3358ea69f27edbc3fe244eb1e8e",
+        "published_commit": "9a8e42f1ee651b3a96a6aa35e00ec61ba867f087",
+        "tree_sha": "02aed121065fd83bde223b4931b9b1f06ead2114"
+      },
+      {
+        "local_commit": "82000eeaab527c57a3065f93407b17bbca05547a",
+        "published_commit": "3c49df2352da991d13b93234d270607a88dd7679",
+        "tree_sha": "3ba6491b112b9144a57376a3c747e38ede9e5082"
+      },
+      {
+        "local_commit": "63fca581ab0caa04af85dd62fbb93b816b6a8c9e",
+        "published_commit": "0e39cd8f2677cf7d6a8de976fb6fa2a5ca42b308",
+        "tree_sha": "bee8abd2d84520d51037df1b6c170bb6db80fec1"
+      },
+      {
+        "local_commit": "826351565f9508c3b85b7a76c95abfb1574f6802",
+        "published_commit": "0a843d33fdde388f2344631b4b894c8d54092982",
+        "tree_sha": "e289441a19360f4029101e9cd4e6911b8afbc9f3"
+      },
+      {
+        "local_commit": "2b99c7f2e52b3ba498dfbabd8fa75331fdcc8904",
+        "published_commit": "60d72a86caaed02b728316e10af1735f384c5934",
+        "tree_sha": "5cab3eea6e0a9b416bdab957ffa43e78db767126"
+      },
+      {
+        "local_commit": "4ad2f54873f576fc8bffe57ded794123ea398880",
+        "published_commit": "ccc866bf4dcc8e116fe661f22ad5f40d21badd53",
+        "tree_sha": "9c7e6d4eea879f35602738853e0b7c3641aa7366"
+      }
+    ]
+  },
   "schema": "U13_ROUT_ANSWER_CHECKPOINT_V2"
 }

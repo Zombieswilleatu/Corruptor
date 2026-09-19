@@ -183,6 +183,25 @@ review, original fingerprint, original inputs and opposing orders alongside
 the new expectation. Artillery's 10/12-damage assertions, Keep preservation,
 Breath healing/recruit support and Kalligan's friendly-fire assertions remain.
 
+## Published source identities
+
+Shell Git credentials were unavailable, so publication uses the connected
+GitHub app. Commit metadata changes; each published source tree is verified
+identical to its local experiment or gate tree. Historical reports retain their
+original local IDs. Use these published revisions in a fresh checkout:
+
+| Purpose | Local tested revision | Published equivalent |
+| --- | --- | --- |
+| V13 candidate | `fd13b3f` | `63d8f8582bb4ec4ce5099ac04cd0c549b8c8b1e4` |
+| Diagnostic tools / first engine | `2e1353d` | `9a8e42f1ee651b3a96a6aa35e00ec61ba867f087` |
+| First-engine V13 gate | `82000ee` | `3c49df2352da991d13b93234d270607a88dd7679` |
+| Combined-engine V13 comparison | `8263515` | `0a843d33fdde388f2344631b4b894c8d54092982` |
+| Restored-V12 dual-runtime gate | `2b99c7f` | `60d72a86caaed02b728316e10af1735f384c5934` |
+
+The compact evidence and archive include the full local-to-published tree map.
+The shared branch's final checkpoint adds publication documentation and points
+`audit_u13_rout_answers.py` at the published candidate by default.
+
 ## Source and reproduction
 
 The first experiment's policies share source identity
@@ -192,7 +211,8 @@ includes Godot scripts, including the sandbox lookahead additions at `3360d6c`.
 The Python engine and V12 policy files are unchanged between `e5ef031` and
 `3360d6c`. The pre-navigation experiment at `2099326` remains historical.
 
-From a separate checkout of `fd13b3f`, reproduce the matched pilot with:
+From a separate checkout of published `63d8f85` (the exact `fd13b3f` tree),
+reproduce the matched pilot with:
 
 ```bash
 python Scripts/Sim/compare_u13_doctrines.py --baseline 3360d6c \
@@ -200,14 +220,15 @@ python Scripts/Sim/compare_u13_doctrines.py --baseline 3360d6c \
   --lord Deimos --repeats 1 --workers 6
 ```
 
-Use the diagnostic tools at `2e1353d`, which still has that engine, and fresh
+Use the diagnostic tools at published `9a8e42f` (local `2e1353d`), which still
+has that engine, and fresh
 output directories for the original controlled experiment. Collection freezes
 V12 even though that checkout contains V13:
 
 ```bash
 python Scripts/Sim/audit_u13_rout_timing.py collect --baseline 3360d6c \
   --output rout-current-v12 --workers 4
-python Scripts/Sim/audit_u13_rout_answers.py assess --candidate fd13b3f \
+python Scripts/Sim/audit_u13_rout_answers.py assess --candidate 63d8f85 \
   --output rout-current-v12
 python Scripts/Sim/audit_u13_rout_answers.py replay \
   --output rout-current-v12 --workers 2
@@ -232,7 +253,8 @@ parallel monster-control change has its own native evidence in
 [the monster audit](U13_MONSTER_BALANCE_AUDIT_2026-09-19.md).
 
 To reproduce the combined-engine candidate comparison, use a separate checkout
-of `8263515`, which contains V13 and the `bcf1fad` engine:
+of published `0a843d3` (the exact `8263515` tree), which contains V13 and the
+`bcf1fad` engine:
 
 ```bash
 python Scripts/Sim/compare_u13_doctrines.py --baseline bcf1fad \
@@ -265,7 +287,9 @@ The combined gate's semantic SHA-256 is
 input-file SHA-256 is
 `32ac308c89533bf4bc0bc0b45ec8a0fe1b71698eefe4c098faf82d84e9cce66b`.
 Both reports also match engine, harness and runner identities. Subsequent
-checkpoint changes are documentation and evidence only. This local acceptance
+checkpoint changes are documentation, evidence and the diagnostic candidate
+default pointing to its published equivalent; the tested engine, policy, harness
+and gate runner remain unchanged. This local acceptance
 does not substitute for the user's Windows gate or the separate native evidence.
 
 See the [compact evidence](evidence/U13_ROUT_ANSWER_2026-09-19.json) and delivered
