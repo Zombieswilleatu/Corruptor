@@ -1,5 +1,12 @@
 # U13 common doctrine V10: Deimos artillery coordination
 
+> **2026-09-19 integration update:** The Windows run at `8591fae` stopped on
+> five stale observation fingerprints after the parallel Wright/Tumler rules
+> update. [The reviewed replay correction](U13_DOCTRINE_REPLAY_INTEGRATION_2026-09-19.md)
+> preserves all tactical assertions and passes 148 local tests plus five games /
+> 88 rounds / 2,222 operations on the new engine. Windows CPython/PyPy acceptance
+> is still pending. The original verification below retains its earlier engine scope.
+
 This follows the accepted [Windows Castle Scorch checkpoint](U13_KALLIGAN_CASTLE_FIRE_2026-09-18.md).
 It changes the experimental Python doctrine, its diagnostics and acceptance
 tests. Game rules, shared weights, the playable Godot policy and default greedy
@@ -103,7 +110,8 @@ bash Scripts/Sim/run_u13_common_doctrine.sh \
 The command runs the focused cases, the full common test suite and five complete
 games under both runtimes, then compares their reports and packages a ZIP in
 Downloads. Castle Scorch's native gate is already accepted; the engine is
-unchanged by this doctrine checkpoint.
+unchanged by this doctrine checkpoint itself. The subsequent Wright/Tumler
+engine integration is covered by the dated update above and its separate native gate.
 
 Next tactical review: measure useful Rout displacement and Humbaba's actual
 Breath/Muster benefit before changing their activation preferences.

@@ -1,0 +1,286 @@
+{
+  "added_coverage": "Useful Kalligan pulse case now also checks its exact public observation fingerprint.",
+  "archive_filename": "Corruptor-Doctrine-Replay-Integration-2026-09-19.zip",
+  "balance_claim": false,
+  "baseline_engine_source_sha256": "0b06a638604431444fc44a1a2c625d882a61e87070ec9fb5ee2489a72c54efe6",
+  "baseline_revision": "349b7cfb096deb46910fb2c5014dcf57d2314932",
+  "current_engine_revision": "8591fae49ce13b216f50554d92e9b1506589131e",
+  "date": "2026-09-19",
+  "engine_source_sha256": "5c839429708d142c8046c765467c7a34fd9587c5146110880dc2378108c8ea0e",
+  "equivalent_git_tree": "2a4478d70590cfdd314099f1b33a82ce3a607ab0",
+  "equivalent_published_revision": "7738dc7da8832665c053695db3f02b42060e8d91",
+  "failed_windows_upload": {
+    "bytes": 6590,
+    "complete_games_ran": false,
+    "exit_status": 1,
+    "failing_subtests": 5,
+    "failure_kind": "saved public observation fingerprints",
+    "filename": "u13-common-doctrine-je5UJl-2026-09-18_22-14-29-NNGctE.zip",
+    "pypy_ran": false,
+    "sha256": "b968798d03f69e1eb4cb2436c12871e22e12f31cbd91f5737756557f042b3714",
+    "source_revision": "8591fae49ce13b216f50554d92e9b1506589131e",
+    "tests_run": 148,
+    "worktree_clean": true
+  },
+  "files": {
+    "local-gate/common-cpython.inputs.json": {
+      "bytes": 508319,
+      "sha256": "d12908eeedd9a5dbe9042156fa119cf3553481409ed3951eb4ffa1e97e19673d"
+    },
+    "local-gate/common-cpython.json": {
+      "bytes": 1434392,
+      "sha256": "59aba315e5192babc36038481129a87734e183aa05c456c0dd9ec8ffb67585a0"
+    },
+    "replay-audit/baseline-observations.json": {
+      "bytes": 463918,
+      "sha256": "e523fb11b86f2ad593c422a2b0934226059e549392c2e5037269f110199e437f"
+    },
+    "replay-audit/current-observations.json": {
+      "bytes": 466185,
+      "sha256": "b298a0fdd9b7c99dad97dbaf80724a42553f58b05272620d3ab3f097cd9b1284"
+    },
+    "replay-audit/observation-differences.json": {
+      "bytes": 73245,
+      "sha256": "af8e141bcbf81d42de0f88f127f7fa4c187625897cf4d27d54839dc8dd6793aa"
+    }
+  },
+  "games": [
+    {
+      "decisions_sha256": "69fc91640e3c2007a1c0d56b9682df22d70e3aeed4198ab8bf8e844253eb5f5d",
+      "final_state_sha256": "e366ae273566aba2c2ae0d77588d64bb93593bb3dffaabe19b8d71d4552a8687",
+      "name": "gremory_humbaba",
+      "operations": 302,
+      "outcome": {
+        "action": "game_finished",
+        "round": 12,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "rounds": 12
+    },
+    {
+      "decisions_sha256": "e15e0dd55d2664c328e1ac5016dcd8f3a04b75bb845dcaff95a696b2a16a0cb7",
+      "final_state_sha256": "8f68ba7a7bf35cd49c4ff9d9b0bec0c65f4ce480cdab5dade4705c9825009088",
+      "name": "deimos_kalligan",
+      "operations": 407,
+      "outcome": {
+        "action": "game_finished",
+        "round": 16,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "rounds": 16
+    },
+    {
+      "decisions_sha256": "c98c0887bcaa298b24a77a3a4d2f26730e222b2585628f7c14a99f1805da6823",
+      "final_state_sha256": "084fdf8af17452da80253f036523cd641cfee097b0b807f1838526243e4b9f8d",
+      "name": "orias_odradek",
+      "operations": 562,
+      "outcome": {
+        "action": "game_finished",
+        "round": 22,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "rounds": 22
+    },
+    {
+      "decisions_sha256": "370639e1aa75b3db3ad408216ab2535c22a1a97e43b6b095f8e55a6da46ac553",
+      "final_state_sha256": "422ff39a1c1cd03c63956354300c4de9bf01578162dd81a6d828dece29ba43c1",
+      "name": "kroni_valak",
+      "operations": 536,
+      "outcome": {
+        "action": "game_finished",
+        "round": 21,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "rounds": 21
+    },
+    {
+      "decisions_sha256": "3fda0689eddf39a254e3c7d870235c59f1127ac1438e7214b2968a0492c56eb9",
+      "final_state_sha256": "ad89a5e622b6cca88cb6d9b596174b4f6350b99e056e415ee6f8b6759059c222",
+      "name": "kanifous_gremory",
+      "operations": 415,
+      "outcome": {
+        "action": "game_finished",
+        "round": 17,
+        "win_by": "FinalCollapse",
+        "winner": 1
+      },
+      "rounds": 17
+    }
+  ],
+  "harness_source_sha256": "5558774276ae9ff6caf5252748e3356f1214b3639bff4917815947d5485939eb",
+  "local_gate": {
+    "exit_status": 0,
+    "failures": 0,
+    "games": 5,
+    "implementation": "CPython",
+    "operations": 2222,
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "rejected_previews": 0,
+    "rounds": 88,
+    "semantic_sha256": "d880dfe3c5cf66a62803b30e667f1135d72b2b79a84cc924f7c753fc269db423",
+    "tests_passed": 148
+  },
+  "native_decision_parity_claim": false,
+  "native_wright_tumler_acceptance": "separate gate; unchanged by this fixture correction",
+  "replay_cases": [
+    {
+      "changed_fields": {
+        "version": 1
+      },
+      "chosen_plan_unchanged": true,
+      "file": "early_defense_cases.json",
+      "name": "kroni_odradek_00",
+      "new_view_sha256": "609477e3283c1ede5805c21b4a28ea2773204dde03dfee13fe429c7a179b166a",
+      "observation_difference_count": 1,
+      "old_view_sha256": "2a51be92543c53fe19d22f0be15de4a849b590dfb0594de0f6719df375ee289b",
+      "operations_sha256": "89e2c77c840da1739aee270580bf2ce989dbf2c9b8671b2994b09fb9fc286d23",
+      "original_prefix_and_plans_unchanged": true,
+      "plans_sha256": "30f7e53d04134a34892cc80d433de34aae072ca08bc290b9324b03bc74fdc2cc",
+      "round": 2,
+      "seat": 0,
+      "setup_sha256": "0082d24e3860d2332bf71ee97503e08787158577b248c06385c648657c148c98"
+    },
+    {
+      "changed_fields": {
+        "version": 1,
+        "wright_released": 1,
+        "wright_repair_round": 1
+      },
+      "chosen_plan_unchanged": true,
+      "file": "early_defense_cases.json",
+      "name": "kroni_valak_00",
+      "new_view_sha256": "be212a858b6761c1130decc20f13d9dd94cda7610809adae36b44215b6d5946b",
+      "observation_difference_count": 3,
+      "old_view_sha256": "c4260071dea74c1dcc0a1ea1318cb3f9025afa9013ffd0145201df39381e9f2f",
+      "operations_sha256": "ab432afb48c000b08dc4ecd317c69a8695663dab3f7f9c0911989fded1d887ca",
+      "original_prefix_and_plans_unchanged": true,
+      "plans_sha256": "bcb1e26f8fd5c5f66f8667dfc199be036ab15d47739ecaf2e73c46e188e83083",
+      "round": 3,
+      "seat": 1,
+      "setup_sha256": "adb7f5445658b7cde1d01b7c212c93fb794926d10075e6953082ba2406ced6a1"
+    },
+    {
+      "changed_fields": {
+        "armor": 4,
+        "arrivals": 3,
+        "contact_tick": 4,
+        "death_ids": 1,
+        "hp": 4,
+        "melee_next_tick": 23,
+        "movement_ready_round": 1,
+        "neutral_tears": 1,
+        "ranged_next_tick": 10,
+        "u13_entity_marcher:25:u13_monster:4:13:1:4:Varn:1:0": 1,
+        "u13_entity_marcher:26:u13_monster:4:12:1:5:Lemek:1:0": 1,
+        "u13_entity_marcher:30:u13_commitment:3:9:1:7:Vulture:1:1": 1,
+        "u13_entity_marcher:30:u13_commitment:3:9:1:7:Vulture:1:2": 1,
+        "u13_entity_marcher:30:u13_commitment:4:11:0:6:Wright:1:1": 1,
+        "u13_entity_marcher:30:u13_commitment:4:15:1:6:Wright:1:3": 1,
+        "u13_entity_marcher:30:u13_commitment:4:15:1:6:Wright:1:4": 1,
+        "u13_entity_marcher:31:u13_commitment:4:10:0:7:Vulture:1:0": 1,
+        "u13_entity_marcher:31:u13_commitment:4:10:0:7:Vulture:1:1": 1,
+        "u13_entity_marcher:31:u13_commitment:4:10:0:7:Vulture:1:2": 1,
+        "u13_entity_marcher:31:u13_commitment:4:11:1:7:Vulture:1:1": 1,
+        "u13_entity_marcher:31:u13_commitment:4:13:1:7:Butcher:1:0": 1,
+        "u13_entity_marcher:31:u13_commitment:4:13:1:7:Vulture:1:1": 1,
+        "u13_entity_marcher:31:u13_commitment:4:15:1:7:Butcher:1:2": 1,
+        "u13_entity_marcher:31:u13_commitment:4:15:1:7:Butcher:1:3": 1,
+        "u13_entity_marcher:31:u13_commitment:4:15:1:7:Butcher:1:5": 1,
+        "u13_entity_marcher:32:u13_commitment:4:15:1:8:Penitent:1:3": 1,
+        "veil": 9,
+        "version": 1,
+        "wright_released": 1,
+        "wright_repair_round": 1,
+        "x_fp": 25,
+        "y_fp": 27
+      },
+      "chosen_plan_unchanged": true,
+      "file": "deimos_artillery_cases.json",
+      "name": "deimos_humbaba_00",
+      "new_view_sha256": "ba518164629e790e92d35c6e37aa722819f3ed7e7bd11d5194248d8093aa470a",
+      "observation_difference_count": 132,
+      "old_view_sha256": "4bfd18f0545cdc60ddd21cc1e0570cb436d8a30fe04ddc5427ef9875bcc53161",
+      "operations_sha256": "4bd3ffdac58a0971fcf98b676e17bb499752356bb11e09fc91d96cc2c6216957",
+      "original_prefix_and_plans_unchanged": true,
+      "plans_sha256": "817febebde4035a1b50f62ccc920e8e464ece985ef398dcab62c3fd75dff56c1",
+      "round": 16,
+      "seat": 0,
+      "setup_sha256": "b2e87e27f3bff37cae90fec4fbce4da377380bd8a50052fa5f94c7effba41e2c"
+    },
+    {
+      "changed_fields": {
+        "armor": 4,
+        "hp": 4,
+        "melee_next_tick": 27,
+        "ranged_next_tick": 26,
+        "u13_entity_marcher:30:u13_commitment:3:1:0:7:Vulture:1:0": 1,
+        "u13_entity_marcher:30:u13_commitment:3:1:0:7:Vulture:1:1": 1,
+        "u13_entity_marcher:31:u13_commitment:3:7:0:8:Penitent:1:1": 1,
+        "version": 1,
+        "wright_released": 5,
+        "wright_repair_round": 5,
+        "x_fp": 30,
+        "y_fp": 38
+      },
+      "chosen_plan_unchanged": true,
+      "file": "deimos_artillery_cases.json",
+      "name": "deimos_deimos_00",
+      "new_view_sha256": "44005bd525f5682e3617103d564f5dacb52c8ae67fe9d41fa8a5442199978dfe",
+      "observation_difference_count": 143,
+      "old_view_sha256": "abbf06659d16c75ff5721477bf4e7b6fa2ccddc35b8d0221401f0111ff136cc5",
+      "operations_sha256": "8910174cf407255e5c232ca204f8b69e16814608450e45fb5067af171fc7c8ad",
+      "original_prefix_and_plans_unchanged": true,
+      "plans_sha256": "9a19ed19721f2c7bab13a56f12dca53eb051c4245cc28094c7b9e6188c39f20a",
+      "round": 11,
+      "seat": 1,
+      "setup_sha256": "4fd1b1c388aa968df465606fcc67c736f5a3890b1fcf30bb7e5702ea59cd3d97"
+    },
+    {
+      "changed_fields": {
+        "version": 1,
+        "wright_released": 2,
+        "wright_repair_round": 2
+      },
+      "chosen_plan_unchanged": true,
+      "file": "kalligan_pulse_cases.json",
+      "name": "kalligan_gremory_00_round3",
+      "new_view_sha256": "0c1d2ed7d08412b1752ee55569e1d0f27beede72d111ec3ff3461653b4acb0af",
+      "observation_difference_count": 5,
+      "old_view_sha256": "3ffe1b559c0e09ed70da3f7344b4f4a3c24265f2d09a8cc91fd4bae20dcd96fc",
+      "operations_sha256": "7e8974e7d7c0f18d6aaf8468146b316e8d0d6a2a15daeaf68689d8322adfb17d",
+      "original_prefix_and_plans_unchanged": true,
+      "plans_sha256": "8d129f291e743ed11f87798c62c7daead65b03a48dc22bcdc4822bec910feb4f",
+      "round": 3,
+      "seat": 0,
+      "setup_sha256": "38a44d9b0e2c8f831c7b97aac60360610e5777f0a05764c8954745e458849153"
+    },
+    {
+      "changed_fields": {
+        "version": 1
+      },
+      "chosen_plan_unchanged": true,
+      "file": "kalligan_pulse_cases.json",
+      "name": "kalligan_deimos_00_round3",
+      "new_view_sha256": "55c5efe404b3f9677010c591d582f4ad6102ffefd78a0704497a0a6a095eac9c",
+      "observation_difference_count": 1,
+      "old_view_sha256": "4efd0749c97067f1bedcbc764b357ff7dfb6fec5c7e42792e025bee793d9bb6a",
+      "operations_sha256": "cd1479ecadf191843d7bf447e759fdc3e807ba86f887979f071efe939a1d6a07",
+      "original_prefix_and_plans_unchanged": true,
+      "plans_sha256": "8f3098a1f6d727762c629b804096694b1c599bbb64b824aed9d9c1ca12d67d44",
+      "round": 3,
+      "seat": 0,
+      "setup_sha256": "710a24f7d2ccc96e192ff008e741ec02842a5a3bbd107b772bd8a69ec99c840e"
+    }
+  ],
+  "replay_observation_difference_count": 285,
+  "runner_source_sha256": "d7a2f820b528a20d97858c0e8807ecdf49f47ff1c21e222416e74144f246d85a",
+  "schema": "U13_DOCTRINE_REPLAY_INTEGRATION_V1",
+  "scope": "Fixture integration on Wright/Tumler rules. The six selected replay plans are unchanged; the two longer Deimos public states and the complete-game outcomes change with the engine. Original tactical outcome assertions remain unchanged and pass. This correction changes no game rules or policy scores.",
+  "tested_local_revision": "6617319204add4bedf38dc0be4ebc2d9399a98ce",
+  "windows_cpython_pypy_acceptance": "pending rerun"
+}
