@@ -58,7 +58,7 @@ def melee(phase, tick, fleeing):
         if not fort.in_melee(unit, target):
             continue
         source = buffer.get(unit['id']); sa = source['attributes']
-        amount = sa['attack'] * (2 if sa.pop('blood_wish', False) else 1) + matchup_bonus(source, target)
+        amount = sa['attack'] * (2 if sa.pop('blood_wish', False) else 1) + matchup_bonus(source, target) + monster_effects.hunt_bonus(source, target)
         sa['melee_next_tick'] = clock+MELEE_INTERVAL
         if a['suit'] == 'Vulture':
             sa['ranged_next_tick'] = max(a.get('ranged_next_tick', 0), clock+MELEE_INTERVAL)

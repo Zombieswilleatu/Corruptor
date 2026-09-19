@@ -38,7 +38,7 @@ func fixture(pid: int, target_name: String) -> Dictionary:
 	sim.world.entities = ids.snapshot()
 	for i in range(1000):
 		var seed_value: String = "charm-feedback:%d" % i
-		if Sim.Effects.Lamp.draw(seed_value, "%s:1:0:%s" % [source.id, target.id], "CHARM", 100) < 15:
+		if Sim.Effects.Lamp.draw(seed_value, "%s:1:0:%s" % [source.id, target.id], "CHARM", 100) < Sim.Monsters.TUNING.fyra_charm_chance:
 			sim.seed_value = seed_value
 			break
 	var result: Dictionary = Sim.resolve_round(sim.world, sim.seed_value, 1)

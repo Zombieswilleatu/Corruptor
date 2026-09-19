@@ -1,0 +1,11 @@
+{
+  "schema": "U13_CHARM_CALIBRATION_INPUTS_V1",
+  "initials_sha256": "e8127d63427c6c1dce26ed3ba4f21b85665bdc4371352bcb265e38568f7e9f03",
+  "cases_sha256": "3d22758b05d803efb615af3577c58597bbc6858b4f6ac18ded9da11cde3aff0b",
+  "scenarios": 128,
+  "independent_seed_values": 16,
+  "paired_seats": true,
+  "charm_grid": "charm-grid.json.gz",
+  "low_charm_grid": "charm-grid-low.json.gz",
+  "override": "Only fyra_charm_chance is overridden for each recorded candidate. Native final validation uses the production value 30."
+}

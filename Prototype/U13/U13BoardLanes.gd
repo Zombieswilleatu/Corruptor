@@ -12,6 +12,7 @@ var monster_fields: Array = []
 var monster_attacks: Array = []
 var field_structures: Array = []
 const Ranged = preload("res://Scripts/Sim/U13RangedMarching.gd")
+const MonsterRules = preload("res://Scripts/Sim/U13MonsterRules.gd")
 var ranged_display_settings: Dictionary = {}
 var fortification_visual = preload("res://Prototype/U13/U13FortificationVisuals.gd").new()
 var quiet_removal_ids: Array = []
@@ -160,7 +161,15 @@ func _get_tooltip(at: Vector2) -> String:
 			if unit_name in ["Vulture", "Kopita", "Sinodek", "Sooge"] and unit.attributes.get("sprite_form") != "turret":
 				description += "\nSlows near allied front-line fighters to stay behind them, except during a goal advance." if unit_name == "Vulture" and Ranged.goal_advance_enabled({"data": ranged_display_settings}) else "\nSlows near allied front-line fighters to stay behind them."
 			if unit_name == "Tumler":
+				description += "\n+1 damage against his marked hunt target (before Armor); normal damage against others."
 				description += "\n50% evasion against direct attacks, including at melee contact. Poison cannot be dodged. Landed melee hits while hunting change his target; ranged hits do not."
+			if unit_name == "Fyra":
+				description += "\n%d%% chance per hit to charm a surviving target for this round." % MonsterRules.TUNING.fyra_charm_chance
+				description += "\nPink hearts mark temporary control; ownership returns next round."
+			if unit_name == "Sinodek":
+				description += "\nPortal range: %d · nearest visible enemy." % MonsterRules.TUNING.portal_target_range
+				description += "\nOne %d%% attempt per active round; waits for an enemy in range." % MonsterRules.TUNING.sinodek_portal_chance
+				description += "\nPortals can banish nearby allies too; their creator is immune."
 			if unit_name == "Kopita":
 				description += "\nAt the start of each active round: green heals allies 1 HP; violet damages enemies 1. Alternates; radius 360."
 				description += "\nNext pulse: " + ("Heal" if int(unit.attributes.get("kopita_pulses", 0)) % 2 == 0 else "Harm")

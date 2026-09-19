@@ -1,7 +1,7 @@
 """Monster recipes and explicit playtest tuning; independent Python rules."""
 from . import economy as e
 from .copying import copy_data
-VERSION = "U13_MONSTERS_V11_VOID_CREATOR_IMMUNITY"
+VERSION = "U13_MONSTERS_V12_TARGETED_POWERS"
 ROSTER = {'Lemek': {'tier': 'Easy',
            'recipe': {'Penitent': 2},
            'attack': 4,
@@ -25,7 +25,7 @@ ROSTER = {'Lemek': {'tier': 'Easy',
           'armor': 1,
           'speed': 4,
           'hp': 10,
-          'ability': 'Flies over ground hazards. Each hit has a 15% chance to charm its target for '
+          'ability': 'Flies over ground hazards. Each hit has a 30% chance to charm a surviving target for '
                      'the rest of this round. Ownership returns before the next round.'},
  'Kopita': {'tier': 'Moderate',
             'recipe': {'Wright': 2, 'Penitent': 2},
@@ -44,6 +44,7 @@ ROSTER = {'Lemek': {'tier': 'Easy',
             'speed': 3,
             'hp': 10,
             'ability': 'Pursues a chosen enemy, preferring ordinary Vultures and support monsters. '
+                       'Deals +1 damage against his marked hunt target, before Armor; normal damage against others. '
                        'Pursues through enemy clusters while avoiding slowing pools. Always has '
                        '50% evasion against direct attacks, including at melee contact and during '
                        'fear. Poison cannot be dodged. While hunting, a landed melee hit switches '
@@ -96,9 +97,9 @@ ROSTER = {'Lemek': {'tier': 'Easy',
              'armor': 3,
              'speed': 1,
              'hp': 5,
-             'ability': 'Stays behind nearby allied front-line fighters. 25% chance each active '
-                        'round to open a portal ahead for that Marching phase. Nearby units flee; '
-                        'entering units are banished, without death triggers or resurrection. '
+             'ability': 'Stays behind nearby allied front-line fighters. Once each active round, when a visible enemy unit is within 600, '
+                        'has a 25% chance to open a portal on the nearest enemy for that Marching phase. Waits if no enemy is in range. '
+                        'Nearby units flee; entering units, including allies beside the target, are banished without death triggers or resurrection. '
                         "Immune to his own portal's fear and banishment. One living copy per player."}}
 NAMES = tuple(ROSTER)
 
@@ -123,7 +124,7 @@ def root_chance(a):
 
 def valid_unit(a):
     if 'monster_id' not in a:return a.get('suit')!='Monster'
-    for key in ('sooge_root_attempts','sooge_root_round','beam_next_tick','beam_charge_tick','beam_ready_tick','dotra_concealment_round'):
+    for key in ('sooge_root_attempts','sooge_root_round','beam_next_tick','beam_charge_tick','beam_ready_tick','dotra_concealment_round','sinodek_portal_round'):
         if key in a and (type(a[key]) is not int or not 0<=a[key]<=9007199254740991):return False
     return (a.get('suit')=='Monster' and a['monster_id'] in NAMES and a.get('sprite_form') in ('mobile','turret')
             and (a['sprite_form']!='turret' or a['monster_id']=='Sooge') and type(a.get('flying')) is bool)
@@ -149,9 +150,9 @@ def validate_choice(w,pid,order):
     if 'monster_choice' in order:
         e.require(enabled(w) and order['monster_choice'] in available(w['entities']['entities'],order.get('card_ids',[]),pid,w['data']['monsters']['unlocked'][pid]),'monster_recipe_unavailable')
 
-TUNING = {'tumler_evasion_chance': 50,
+TUNING = {'tumler_evasion_chance': 50, 'tumler_hunt_bonus': 1,
  'kurchin_deflection_chance': 75, 'varn_poison_chance': 10,
- 'fyra_charm_chance': 15,
+ 'fyra_charm_chance': 30,
  'kopita_radius': 360,
  'taunt_radius': 360,
  'muno_radius': 480,
@@ -165,7 +166,7 @@ TUNING = {'tumler_evasion_chance': 50,
  'beam_charge_ticks': 32,
  'beam_blast_delay_ticks': 8,
  'sinodek_portal_chance': 25,
- 'portal_ahead': 350,
+ 'portal_target_range': 600,
  'portal_radius': 100,
  'portal_fear_radius': 300,
  'pool_radius': 200}

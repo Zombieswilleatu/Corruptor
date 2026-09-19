@@ -69,6 +69,7 @@ def contexts():
     yield from spacing_contexts()
     yield from navigation_contexts()
     captured = json.loads(gzip.decompress((ROOT/'docs/evidence/U13_CONTACT_RELEASE_FIXTURE_2026-09-19.json.gz').read_bytes()))
+    captured['world']['data']['monsters']['version'] = monsters.VERSION
     for reflected in (False, True):
         yield dict(name=f'contact_release:{int(reflected)}', case='contact_release', source=captured['source'], owner=1-int(reflected),
                    context=dict(world=reflect_world(captured['world']) if reflected else captured['world'], seed=captured['seed'],
@@ -79,6 +80,7 @@ def navigation_contexts():
     fixture = ROOT/'docs/evidence/U13_NAVIGATION_CROWD_FIXTURE_2026-09-19.json.gz'
     for owner in (0, 1):
         captured = json.loads(gzip.decompress(fixture.read_bytes()))
+        captured['world']['data']['monsters']['version'] = monsters.VERSION
         if owner: captured['world'] = reflect_world(captured['world'])
         context = dict(world=captured['world'], seed=captured['seed'], round=25,
                        hook='marching', player_order=[0, 1], persistent_effects=[], full_roster=True)

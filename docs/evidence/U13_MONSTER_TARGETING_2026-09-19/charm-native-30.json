@@ -1,0 +1,570 @@
+{
+  "games": [
+    {
+      "seed": "lane-f881e7ec-e3aebe70",
+      "swapped": false,
+      "summons": 3,
+      "deployed": 3,
+      "completed_lifetimes": 2,
+      "charms": 3,
+      "completed_charms": 3,
+      "charmed_at_least_once": 2,
+      "lifetimes": [
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:11:0:4:Fyra:1:0",
+          "first_seen_round": 11,
+          "deployed": true,
+          "completed": true,
+          "charms": 2
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:12:0:4:Fyra:1:0",
+          "first_seen_round": 12,
+          "deployed": true,
+          "completed": true,
+          "charms": 1
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:29:0:4:Fyra:1:0",
+          "first_seen_round": 29,
+          "deployed": true,
+          "completed": false,
+          "charms": 0
+        }
+      ]
+    },
+    {
+      "seed": "lane-f881e7ec-e3aebe70",
+      "swapped": true,
+      "summons": 3,
+      "deployed": 3,
+      "completed_lifetimes": 2,
+      "charms": 3,
+      "completed_charms": 3,
+      "charmed_at_least_once": 2,
+      "lifetimes": [
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:11:0:4:Fyra:1:0",
+          "first_seen_round": 11,
+          "deployed": true,
+          "completed": true,
+          "charms": 2
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:12:0:4:Fyra:1:0",
+          "first_seen_round": 12,
+          "deployed": true,
+          "completed": true,
+          "charms": 1
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:29:0:4:Fyra:1:0",
+          "first_seen_round": 29,
+          "deployed": true,
+          "completed": false,
+          "charms": 0
+        }
+      ]
+    },
+    {
+      "seed": "lane-30d27b94-0258ddb4",
+      "swapped": false,
+      "summons": 1,
+      "deployed": 1,
+      "completed_lifetimes": 1,
+      "charms": 1,
+      "completed_charms": 1,
+      "charmed_at_least_once": 1,
+      "lifetimes": [
+        {
+          "id": "u13_entity_marcher:24:u13_monster:3:4:0:4:Fyra:1:0",
+          "first_seen_round": 4,
+          "deployed": true,
+          "completed": true,
+          "charms": 1
+        }
+      ]
+    },
+    {
+      "seed": "lane-30d27b94-0258ddb4",
+      "swapped": true,
+      "summons": 1,
+      "deployed": 1,
+      "completed_lifetimes": 1,
+      "charms": 1,
+      "completed_charms": 1,
+      "charmed_at_least_once": 1,
+      "lifetimes": [
+        {
+          "id": "u13_entity_marcher:24:u13_monster:3:4:0:4:Fyra:1:0",
+          "first_seen_round": 4,
+          "deployed": true,
+          "completed": true,
+          "charms": 1
+        }
+      ]
+    },
+    {
+      "seed": "monster-mixed:2",
+      "swapped": false,
+      "summons": 3,
+      "deployed": 3,
+      "completed_lifetimes": 3,
+      "charms": 5,
+      "completed_charms": 5,
+      "charmed_at_least_once": 2,
+      "lifetimes": [
+        {
+          "id": "u13_entity_marcher:24:u13_monster:3:6:0:4:Fyra:1:0",
+          "first_seen_round": 6,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:10:0:4:Fyra:1:0",
+          "first_seen_round": 10,
+          "deployed": true,
+          "completed": true,
+          "charms": 1
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:21:0:4:Fyra:1:0",
+          "first_seen_round": 21,
+          "deployed": true,
+          "completed": true,
+          "charms": 4
+        }
+      ]
+    },
+    {
+      "seed": "monster-mixed:2",
+      "swapped": true,
+      "summons": 3,
+      "deployed": 3,
+      "completed_lifetimes": 3,
+      "charms": 5,
+      "completed_charms": 5,
+      "charmed_at_least_once": 2,
+      "lifetimes": [
+        {
+          "id": "u13_entity_marcher:24:u13_monster:3:6:0:4:Fyra:1:0",
+          "first_seen_round": 6,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:10:0:4:Fyra:1:0",
+          "first_seen_round": 10,
+          "deployed": true,
+          "completed": true,
+          "charms": 1
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:21:0:4:Fyra:1:0",
+          "first_seen_round": 21,
+          "deployed": true,
+          "completed": true,
+          "charms": 4
+        }
+      ]
+    },
+    {
+      "seed": "monster-mixed:3",
+      "swapped": false,
+      "summons": 5,
+      "deployed": 5,
+      "completed_lifetimes": 5,
+      "charms": 5,
+      "completed_charms": 5,
+      "charmed_at_least_once": 3,
+      "lifetimes": [
+        {
+          "id": "u13_entity_marcher:24:u13_monster:3:6:1:4:Fyra:1:0",
+          "first_seen_round": 6,
+          "deployed": true,
+          "completed": true,
+          "charms": 2
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:14:1:4:Fyra:1:0",
+          "first_seen_round": 14,
+          "deployed": true,
+          "completed": true,
+          "charms": 2
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:17:0:4:Fyra:1:0",
+          "first_seen_round": 17,
+          "deployed": true,
+          "completed": true,
+          "charms": 1
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:24:1:4:Fyra:1:0",
+          "first_seen_round": 24,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:28:1:4:Fyra:1:0",
+          "first_seen_round": 28,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        }
+      ]
+    },
+    {
+      "seed": "monster-mixed:3",
+      "swapped": true,
+      "summons": 5,
+      "deployed": 5,
+      "completed_lifetimes": 5,
+      "charms": 5,
+      "completed_charms": 5,
+      "charmed_at_least_once": 3,
+      "lifetimes": [
+        {
+          "id": "u13_entity_marcher:24:u13_monster:3:6:1:4:Fyra:1:0",
+          "first_seen_round": 6,
+          "deployed": true,
+          "completed": true,
+          "charms": 2
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:14:1:4:Fyra:1:0",
+          "first_seen_round": 14,
+          "deployed": true,
+          "completed": true,
+          "charms": 2
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:17:0:4:Fyra:1:0",
+          "first_seen_round": 17,
+          "deployed": true,
+          "completed": true,
+          "charms": 1
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:24:1:4:Fyra:1:0",
+          "first_seen_round": 24,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:28:1:4:Fyra:1:0",
+          "first_seen_round": 28,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        }
+      ]
+    },
+    {
+      "seed": "monster-mixed:4",
+      "swapped": false,
+      "summons": 4,
+      "deployed": 4,
+      "completed_lifetimes": 4,
+      "charms": 8,
+      "completed_charms": 8,
+      "charmed_at_least_once": 4,
+      "lifetimes": [
+        {
+          "id": "u13_entity_marcher:24:u13_monster:3:8:1:4:Fyra:1:0",
+          "first_seen_round": 8,
+          "deployed": true,
+          "completed": true,
+          "charms": 4
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:15:0:4:Fyra:1:0",
+          "first_seen_round": 15,
+          "deployed": true,
+          "completed": true,
+          "charms": 1
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:20:1:4:Fyra:1:0",
+          "first_seen_round": 20,
+          "deployed": true,
+          "completed": true,
+          "charms": 1
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:24:1:4:Fyra:1:0",
+          "first_seen_round": 24,
+          "deployed": true,
+          "completed": true,
+          "charms": 2
+        }
+      ]
+    },
+    {
+      "seed": "monster-mixed:4",
+      "swapped": true,
+      "summons": 4,
+      "deployed": 4,
+      "completed_lifetimes": 4,
+      "charms": 8,
+      "completed_charms": 8,
+      "charmed_at_least_once": 4,
+      "lifetimes": [
+        {
+          "id": "u13_entity_marcher:24:u13_monster:3:8:1:4:Fyra:1:0",
+          "first_seen_round": 8,
+          "deployed": true,
+          "completed": true,
+          "charms": 4
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:15:0:4:Fyra:1:0",
+          "first_seen_round": 15,
+          "deployed": true,
+          "completed": true,
+          "charms": 1
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:20:1:4:Fyra:1:0",
+          "first_seen_round": 20,
+          "deployed": true,
+          "completed": true,
+          "charms": 1
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:24:1:4:Fyra:1:0",
+          "first_seen_round": 24,
+          "deployed": true,
+          "completed": true,
+          "charms": 2
+        }
+      ]
+    },
+    {
+      "seed": "monster-mixed:5",
+      "swapped": false,
+      "summons": 3,
+      "deployed": 3,
+      "completed_lifetimes": 3,
+      "charms": 0,
+      "completed_charms": 0,
+      "charmed_at_least_once": 0,
+      "lifetimes": [
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:10:1:4:Fyra:1:0",
+          "first_seen_round": 10,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:14:0:4:Fyra:1:0",
+          "first_seen_round": 14,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:18:0:4:Fyra:1:0",
+          "first_seen_round": 18,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        }
+      ]
+    },
+    {
+      "seed": "monster-mixed:5",
+      "swapped": true,
+      "summons": 3,
+      "deployed": 3,
+      "completed_lifetimes": 3,
+      "charms": 0,
+      "completed_charms": 0,
+      "charmed_at_least_once": 0,
+      "lifetimes": [
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:10:1:4:Fyra:1:0",
+          "first_seen_round": 10,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:14:0:4:Fyra:1:0",
+          "first_seen_round": 14,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:18:0:4:Fyra:1:0",
+          "first_seen_round": 18,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        }
+      ]
+    },
+    {
+      "seed": "monster-mixed:6",
+      "swapped": false,
+      "summons": 3,
+      "deployed": 3,
+      "completed_lifetimes": 3,
+      "charms": 0,
+      "completed_charms": 0,
+      "charmed_at_least_once": 0,
+      "lifetimes": [
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:21:0:4:Fyra:1:0",
+          "first_seen_round": 21,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:22:1:4:Fyra:1:0",
+          "first_seen_round": 22,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:24:0:4:Fyra:1:0",
+          "first_seen_round": 24,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        }
+      ]
+    },
+    {
+      "seed": "monster-mixed:6",
+      "swapped": true,
+      "summons": 3,
+      "deployed": 3,
+      "completed_lifetimes": 3,
+      "charms": 0,
+      "completed_charms": 0,
+      "charmed_at_least_once": 0,
+      "lifetimes": [
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:21:0:4:Fyra:1:0",
+          "first_seen_round": 21,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:22:1:4:Fyra:1:0",
+          "first_seen_round": 22,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:24:0:4:Fyra:1:0",
+          "first_seen_round": 24,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        }
+      ]
+    },
+    {
+      "seed": "monster-mixed:7",
+      "swapped": false,
+      "summons": 4,
+      "deployed": 3,
+      "completed_lifetimes": 3,
+      "charms": 3,
+      "completed_charms": 3,
+      "charmed_at_least_once": 1,
+      "lifetimes": [
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:10:1:4:Fyra:1:0",
+          "first_seen_round": 10,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:17:0:4:Fyra:1:0",
+          "first_seen_round": 17,
+          "deployed": true,
+          "completed": true,
+          "charms": 3
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:24:1:4:Fyra:1:0",
+          "first_seen_round": 24,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:29:0:4:Fyra:1:0",
+          "first_seen_round": 29,
+          "deployed": false,
+          "completed": false,
+          "charms": 0
+        }
+      ]
+    },
+    {
+      "seed": "monster-mixed:7",
+      "swapped": true,
+      "summons": 4,
+      "deployed": 3,
+      "completed_lifetimes": 3,
+      "charms": 3,
+      "completed_charms": 3,
+      "charmed_at_least_once": 1,
+      "lifetimes": [
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:10:1:4:Fyra:1:0",
+          "first_seen_round": 10,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:17:0:4:Fyra:1:0",
+          "first_seen_round": 17,
+          "deployed": true,
+          "completed": true,
+          "charms": 3
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:24:1:4:Fyra:1:0",
+          "first_seen_round": 24,
+          "deployed": true,
+          "completed": true,
+          "charms": 0
+        },
+        {
+          "id": "u13_entity_marcher:25:u13_monster:4:29:0:4:Fyra:1:0",
+          "first_seen_round": 29,
+          "deployed": false,
+          "completed": false,
+          "charms": 0
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "summons": 52,
+    "deployed": 50,
+    "completed_lifetimes": 48,
+    "charms": 50,
+    "completed_charms": 50,
+    "charmed_at_least_once": 26
+  },
+  "charms_per_summon": 0.9615384615384616,
+  "charms_per_completed_lifetime": 1.0416666666666667
+}

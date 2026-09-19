@@ -1,0 +1,83 @@
+{
+  "seeds": 16,
+  "cases": [
+    {
+      "name": "recipe_supported:Fyra",
+      "group": "recipe_supported",
+      "recipe": "Fyra",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "focus": "Fyra"
+    },
+    {
+      "name": "supported:Fyra:shock",
+      "group": "supported",
+      "focus": "Fyra",
+      "teams": [
+        [
+          "Penitent",
+          "Butcher",
+          "Vulture",
+          "Wright",
+          "Fyra"
+        ],
+        [
+          "Butcher",
+          "Butcher",
+          "Butcher",
+          "Butcher",
+          "Butcher",
+          "Butcher"
+        ]
+      ]
+    },
+    {
+      "name": "supported:Fyra:screen",
+      "group": "supported",
+      "focus": "Fyra",
+      "teams": [
+        [
+          "Penitent",
+          "Butcher",
+          "Vulture",
+          "Wright",
+          "Fyra"
+        ],
+        [
+          "Penitent",
+          "Penitent",
+          "Penitent",
+          "Vulture",
+          "Vulture",
+          "Vulture"
+        ]
+      ]
+    },
+    {
+      "name": "supported:Fyra:mixed",
+      "group": "supported",
+      "focus": "Fyra",
+      "teams": [
+        [
+          "Penitent",
+          "Butcher",
+          "Vulture",
+          "Wright",
+          "Fyra"
+        ],
+        [
+          "Penitent",
+          "Butcher",
+          "Vulture",
+          "Wright",
+          "Butcher",
+          "Butcher"
+        ]
+      ]
+    }
+  ]
+}

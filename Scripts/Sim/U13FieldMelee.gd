@@ -49,7 +49,7 @@ static func resolve(world: Dictionary, entities, context: Dictionary, tick: int,
 		if not obstruction.is_empty(): target = obstruction
 		if not Fort.in_melee(unit, target): continue
 		var source: Dictionary = entities.get_entity(unit.id)
-		var amount: int = Wish.attack_amount(source.attributes) + Matchups.bonus(source, target)
+		var amount: int = Wish.attack_amount(source.attributes) + Matchups.bonus(source, target) + Effects.hunt_bonus(source, target)
 		source.attributes["melee_next_tick"] = clock + INTERVAL
 		if a.suit == "Vulture": source.attributes["ranged_next_tick"] = maxi(int(a.get("ranged_next_tick", 0)), clock + INTERVAL)
 		entities.update(source.id, source.owner, source.attributes)

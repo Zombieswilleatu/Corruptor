@@ -35,6 +35,12 @@ def preferred(unit, rows):
     return {}
 
 
+def hunt_bonus(source, target):
+    return T['tumler_hunt_bonus'] if (source['attributes'].get('monster_id') == 'Tumler'
+        and target.get('kind') == 'marcher' and target['owner'] != source['owner']
+        and source['attributes'].get('hunt_target', '') == target['id']) else 0
+
+
 def slowed(a,fields):
     return not a.get('flying',False) and a.get('monster_id')!='Lemek' and any(f['kind']=='pool' and f['lane']==a['lane'] and distance(a,f)<=T['pool_radius']**2 for f in fields)
 
@@ -155,16 +161,22 @@ def step(w,buffer,c,tick,reaction):
                     if draw(c['seed'],key,'ROOT',0,100)<chance:
                         a.update(sprite_form='turret',attack=3,armor=6,max_armor=6,step_fp=0)
                         events.append(event('MONSTER_ROOTED',dict(unit_id=unit['id'],round=n,tick=tick)))
-            elif a['monster_id']=='Sinodek':
-                if draw(c['seed'],key,'PORTAL',0,100)<T['sinodek_portal_chance']:
-                    f=dict(kind='portal',id=key+':portal',source_id=unit['id'],owner=unit['owner'],lane=a['lane'],x_fp=max(0,min(2400,a['x_fp']+a['direction']*T['portal_ahead'])),y_fp=a['y_fp'],expires_round=n)
-                    state['fields'].append(f);events.append(event('MONSTER_FIELD_CREATED',dict(field=f,round=n)))
             buffer.update(unit['id'],unit['owner'],a)
     for original in buffer.rows():
         unit=buffer.get(original['id']);a=unit['attributes']
         if a['movement_ready_round']>n or 'monster_id' not in a:continue
         rows=buffer.rows();name=a['monster_id']
-        if name=='Tumler':
+        if name=='Sinodek' and a['birth_round'] < n and a.get('sinodek_portal_round', 0) < n:
+            target = nearest(unit, rows, T['portal_target_range'])
+            if target:
+                a['sinodek_portal_round'] = n
+                key = f"{unit['id']}:{n}"
+                if draw(c['seed'], key, 'PORTAL', 0, 100) < T['sinodek_portal_chance']:
+                    f = dict(kind='portal', id=key+':portal', source_id=unit['id'], target_id=target['id'], owner=unit['owner'],
+                             lane=a['lane'], x_fp=target['attributes']['x_fp'], y_fp=target['attributes']['y_fp'], expires_round=n)
+                    state['fields'].append(f)
+                    events.append(event('MONSTER_FIELD_CREATED', dict(field=f, round=n, tick=tick)))
+        elif name=='Tumler':
             choices=[r for r in enemies(unit,rows) if a.get('navigation',{}).get('avoid',{}).get(r['id'],0) <= n*200+tick]
             if not any(r['id']==a.get('hunt_target','') for r in choices):
                 supports=[r for r in choices if r['attributes']['suit']=='Vulture' or r['attributes'].get('monster_id') in ('Kopita','Fyra','Sooge','Sinodek')]

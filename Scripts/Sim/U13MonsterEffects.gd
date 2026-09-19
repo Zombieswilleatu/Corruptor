@@ -35,6 +35,9 @@ static func preferred(unit: Dictionary, rows: Array) -> Dictionary:
 			if row.id == id: return row
 	return {}
 
+static func hunt_bonus(source: Dictionary, target: Dictionary) -> int:
+	return int(Rules.TUNING.tumler_hunt_bonus) if source.attributes.get("monster_id") == "Tumler" and target.get("kind") == "marcher" and target.owner != source.owner and source.attributes.get("hunt_target", "") == target.id else 0
+
 static func slowed(a: Dictionary, fields: Array) -> bool:
 	if a.get("flying", false) or a.get("monster_id") == "Lemek": return false
 	return fields.any(func(f): return f.kind == "pool" and f.lane == a.lane and distance(a, f) <= Rules.TUNING.pool_radius ** 2)
@@ -171,11 +174,6 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 						if Lamp.draw(context.seed, key, "ROOT", 100) < chance:
 							a.merge({"sprite_form": "turret", "attack": 3, "armor": 6, "max_armor": 6, "step_fp": 0}, true)
 							events.append(event("MONSTER_ROOTED", {"unit_id": unit.id, "round": n, "tick": tick}))
-				"Sinodek":
-					if Lamp.draw(context.seed, key, "PORTAL", 100) < Rules.TUNING.sinodek_portal_chance:
-						var f: Dictionary = {"kind": "portal", "id": key + ":portal", "source_id": unit.id, "owner": unit.owner, "lane": a.lane, "x_fp": clampi(int(a.x_fp) + int(a.direction) * int(Rules.TUNING.portal_ahead), 0, 2400), "y_fp": a.y_fp, "expires_round": n}
-						state.fields.append(f)
-						events.append(event("MONSTER_FIELD_CREATED", {"field": f, "round": n}))
 			entities.update(unit.id, unit.owner, a)
 	# Deterministic ID order for pulses, jumps, ambushes and beam preparation.
 	for original in entities.marchers():
@@ -184,6 +182,17 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 		if a.movement_ready_round > n or not a.has("monster_id"): continue
 		var rows: Array = entities.marchers()
 		match a.monster_id:
+			"Sinodek":
+				if int(a.birth_round) < n and int(a.get("sinodek_portal_round", 0)) < n:
+					var target: Dictionary = nearest(unit, rows, int(Rules.TUNING.portal_target_range))
+					if not target.is_empty():
+						# One attempt per active round; an empty lane spends no roll.
+						a["sinodek_portal_round"] = n
+						var key: String = "%s:%d" % [unit.id, n]
+						if Lamp.draw(context.seed, key, "PORTAL", 100) < Rules.TUNING.sinodek_portal_chance:
+							var f: Dictionary = {"kind": "portal", "id": key + ":portal", "source_id": unit.id, "target_id": target.id, "owner": unit.owner, "lane": a.lane, "x_fp": int(target.attributes.x_fp), "y_fp": int(target.attributes.y_fp), "expires_round": n}
+							state.fields.append(f)
+							events.append(event("MONSTER_FIELD_CREATED", {"field": f, "round": n, "tick": tick}))
 			"Tumler":
 				var choices: Array = enemies(unit, rows).filter(func(r): return int(a.get("navigation", {}).get("avoid", {}).get(r.id, 0)) <= n * 200 + tick)
 				if not choices.any(func(r): return r.id == a.get("hunt_target", "")):

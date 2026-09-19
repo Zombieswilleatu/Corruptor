@@ -469,6 +469,7 @@ func sinodek_portal_checks() -> void:
 		var spawn_x: int = 0 if pid == 0 else 2400
 		var w: Dictionary = phase_world()
 		var source: Dictionary = put(w, "Sinodek", pid, spawn_x)
+		var prey: Dictionary = put(w, "Butcher", 1-pid, spawn_x + direction * 350)
 		var seed_value: String = selected_seed(source.id, "PORTAL", 25)
 		var held: Dictionary = w.duplicate(true)
 		var held_source: Dictionary = Kanifous._entity(held, source.id)
@@ -480,12 +481,13 @@ func sinodek_portal_checks() -> void:
 		check(fields.size() == 1 and fields[0].field.get("source_id") == source.id, "portal records the exact Sinodek who created it")
 		var survivor: Dictionary = Kanifous._entity(crossing.world, source.id)
 		check(not survivor.is_empty() and survivor.attributes.x_fp == spawn_x + direction * 400 and survivor.attributes.hp == source.attributes.hp, "Sinodek crosses his own fear zone and void unharmed on his first active round")
-		check(facts(crossing, "MONSTER_BANISHED").is_empty(), "Sinodek's own void never records him as banished")
+		check(facts(crossing, "MONSTER_BANISHED").size() == 1 and facts(crossing, "MONSTER_BANISHED")[0].unit.id == prey.id, "Sinodek's own void banishes its enemy target and never its creator")
 		w = phase_world()
 		source = put(w, "Sinodek", pid, 2400 - spawn_x - direction * 50)
+		put(w, "Butcher", 1-pid, 2400 - spawn_x)
 		var clamped: Dictionary = phase("sinodek_clamped_void_%d" % pid, w, seed_value)
 		survivor = Kanifous._entity(clamped.world, source.id)
-		check(not survivor.is_empty() and survivor.attributes.waiting and survivor.attributes.x_fp == 2400 - spawn_x, "Sinodek survives a void clamped onto him at the far gate and reaches the goal")
+		check(not survivor.is_empty() and survivor.attributes.waiting and survivor.attributes.x_fp == 2400 - spawn_x, "Sinodek survives a targeted void overlapping him at the far gate and reaches the goal")
 		w = phase_world()
 		source = put(w, "Sinodek", pid, 1200, {"step_fp": 0, "movement_ready_round": 3})
 		var other: Dictionary = put(w, "Sinodek", 1 - pid, 1200, {"movement_ready_round": 3})
@@ -677,7 +679,7 @@ func special_checks() -> void:
 	var buffer = Marching.Buffer.new(); buffer.restore(world.entities)
 	var seed_value: String = ""
 	for i in range(1000):
-		if MonsterFX.Lamp.draw(str(i), "%s:2:0:%s" % [caster.id, victim.id], "CHARM", 100) < 15: seed_value = str(i); break
+		if MonsterFX.Lamp.draw(str(i), "%s:2:0:%s" % [caster.id, victim.id], "CHARM", 100) < Monsters.TUNING.fyra_charm_chance: seed_value = str(i); break
 	var charm: Array = MonsterFX.on_hit(buffer, caster, victim.id, 1, context(world, seed_value), 0)
 	check(charm.size() == 1 and buffer.get_entity(victim.id).owner == 0, "Fyra charm changes allegiance")
 	world.entities = buffer.snapshot()
