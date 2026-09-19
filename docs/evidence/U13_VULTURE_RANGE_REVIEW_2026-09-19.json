@@ -1,0 +1,1904 @@
+{
+  "schema": "U13_VULTURE_RANGE_REVIEW_V1",
+  "production_revision": "5074b72",
+  "production_ranges": {
+    "vulture": 400,
+    "tower": 600
+  },
+  "candidate_ranges": {
+    "vulture": 900,
+    "tower": 1125
+  },
+  "adopted": false,
+  "primary_battles": 5248,
+  "primary_phases": 16082,
+  "seeds": 32,
+  "mirrored_seats_per_seed": 2,
+  "independent_seeds_per_cell": 32,
+  "mirrored_outcome_disagreements": 0,
+  "round_cap_outcomes": 0,
+  "primary_summary": {
+    "400/600": {
+      "Vulture_vs_Butcher_1v1": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 128,
+            "hp_damage": 128,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 64
+          },
+          {
+            "melee": 128,
+            "hp_damage": 320,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 64
+          }
+        ]
+      },
+      "Penitent_vs_Vulture_1v1": {
+        "battles": 64,
+        "wins": 44,
+        "round_cap": 0,
+        "phases": 192,
+        "losses": 20,
+        "metrics": [
+          {
+            "melee": 376,
+            "hp_damage": 312,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 44
+          },
+          {
+            "ranged": 192,
+            "hp_damage": 250,
+            "blocked": 82,
+            "evaded": 0,
+            "melee": 332,
+            "kills": 20
+          }
+        ]
+      },
+      "Butcher_vs_Penitent_1v1": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "melee": 192,
+            "hp_damage": 384,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 64
+          },
+          {
+            "melee": 192,
+            "hp_damage": 128,
+            "blocked": 0,
+            "evaded": 0
+          }
+        ]
+      },
+      "Vulture_vs_Butcher_4v4": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 148,
+        "metrics": [
+          {
+            "ranged": 662,
+            "hp_damage": 650,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 76,
+            "melee": 222
+          },
+          {
+            "melee": 544,
+            "hp_damage": 1304,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256
+          }
+        ]
+      },
+      "Penitent_vs_Vulture_4v4": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 216,
+        "metrics": [
+          {
+            "melee": 1640,
+            "hp_damage": 1370,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256
+          },
+          {
+            "ranged": 1058,
+            "hp_damage": 578,
+            "blocked": 490,
+            "evaded": 0,
+            "melee": 604,
+            "kills": 42
+          }
+        ]
+      },
+      "Butcher_vs_Penitent_4v4": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 138,
+        "metrics": [
+          {
+            "melee": 782,
+            "hp_damage": 1566,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256
+          },
+          {
+            "melee": 456,
+            "hp_damage": 266,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 6
+          }
+        ]
+      },
+      "Vulture_vs_Wright_3v3": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 338,
+        "metrics": [
+          {
+            "ranged": 1516,
+            "hp_damage": 1400,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 506,
+            "kills": 148
+          },
+          {
+            "ranged": 804,
+            "hp_damage": 1168,
+            "blocked": 0,
+            "evaded": 0,
+            "tower_shots": 804,
+            "tower_hp_damage": 682,
+            "melee": 556,
+            "kills": 192
+          }
+        ]
+      },
+      "PV_vs_BBBB": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 190,
+        "metrics": [
+          {
+            "ranged": 388,
+            "hp_damage": 410,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 206,
+            "kills": 32
+          },
+          {
+            "melee": 700,
+            "hp_damage": 1414,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256
+          }
+        ]
+      },
+      "BV_vs_PPPP": {
+        "battles": 64,
+        "wins": 32,
+        "round_cap": 0,
+        "phases": 238,
+        "losses": 32,
+        "metrics": [
+          {
+            "ranged": 750,
+            "hp_damage": 1318,
+            "blocked": 358,
+            "evaded": 0,
+            "melee": 752,
+            "kills": 174
+          },
+          {
+            "melee": 1344,
+            "hp_damage": 1114,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 192
+          }
+        ]
+      },
+      "PV_vs_BP": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 202,
+        "metrics": [
+          {
+            "ranged": 554,
+            "hp_damage": 340,
+            "blocked": 230,
+            "evaded": 0,
+            "melee": 412,
+            "kills": 6
+          },
+          {
+            "melee": 1110,
+            "hp_damage": 1622,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256
+          }
+        ]
+      },
+      "WV_vs_BBBB": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 192,
+        "metrics": [
+          {
+            "ranged": 268,
+            "hp_damage": 356,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 270,
+            "kills": 30
+          },
+          {
+            "melee": 1102,
+            "hp_damage": 2432,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256
+          }
+        ]
+      },
+      "PV_vs_VVVV": {
+        "battles": 64,
+        "wins": 60,
+        "round_cap": 0,
+        "phases": 246,
+        "losses": 4,
+        "metrics": [
+          {
+            "ranged": 920,
+            "hp_damage": 1362,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 710,
+            "kills": 244
+          },
+          {
+            "ranged": 1206,
+            "hp_damage": 782,
+            "blocked": 498,
+            "evaded": 0,
+            "melee": 500,
+            "kills": 86
+          }
+        ]
+      },
+      "mixed_vs_BBBB": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 192,
+        "metrics": [
+          {
+            "ranged": 174,
+            "hp_damage": 342,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 224,
+            "kills": 10
+          },
+          {
+            "melee": 950,
+            "hp_damage": 1926,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256
+          }
+        ]
+      },
+      "Vulture4_vs_Lemek": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 766,
+            "hp_damage": 640,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 136,
+            "kills": 64
+          },
+          {
+            "melee": 192,
+            "hp_damage": 640,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 64
+          }
+        ]
+      },
+      "Vulture4_vs_Varn": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 820,
+            "hp_damage": 1024,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256,
+            "melee": 222
+          },
+          {
+            "melee": 280,
+            "hp_damage": 184,
+            "blocked": 0,
+            "evaded": 0
+          }
+        ]
+      },
+      "Vulture4_vs_Fyra": {
+        "battles": 64,
+        "wins": 56,
+        "round_cap": 0,
+        "phases": 132,
+        "losses": 8,
+        "metrics": [
+          {
+            "ranged": 608,
+            "hp_damage": 794,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 256,
+            "kills": 78
+          },
+          {
+            "melee": 244,
+            "hp_damage": 404,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 22,
+            "ranged": 50
+          }
+        ]
+      },
+      "Vulture4_vs_Kopita": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 646,
+            "hp_damage": 640,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 68,
+            "kills": 64
+          },
+          {
+            "melee": 72,
+            "hp_damage": 80,
+            "blocked": 0,
+            "evaded": 0
+          }
+        ]
+      },
+      "Vulture4_vs_Tumler": {
+        "battles": 64,
+        "wins": 50,
+        "round_cap": 0,
+        "phases": 192,
+        "losses": 14,
+        "metrics": [
+          {
+            "ranged": 1074,
+            "hp_damage": 726,
+            "blocked": 0,
+            "evaded": 800,
+            "melee": 516,
+            "kills": 50
+          },
+          {
+            "melee": 562,
+            "hp_damage": 942,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 150
+          }
+        ]
+      },
+      "Vulture4_vs_Kurchin": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 278,
+        "metrics": [
+          {
+            "ranged": 1968,
+            "hp_damage": 1016,
+            "blocked": 0,
+            "evaded": 1172,
+            "melee": 604,
+            "kills": 64
+          },
+          {
+            "melee": 612,
+            "hp_damage": 492,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 58
+          }
+        ]
+      },
+      "Vulture4_vs_Muno": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 642,
+            "hp_damage": 640,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 64,
+            "kills": 64
+          },
+          {
+            "melee": 100,
+            "hp_damage": 262,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 62
+          }
+        ]
+      },
+      "Vulture4_vs_Dotra": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 138,
+        "metrics": [
+          {
+            "ranged": 662,
+            "hp_damage": 650,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 126,
+            "kills": 64
+          },
+          {
+            "melee": 146,
+            "hp_damage": 228,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 32
+          }
+        ]
+      },
+      "Vulture4_vs_Sooge": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 156,
+        "metrics": [
+          {
+            "ranged": 636,
+            "hp_damage": 326,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 64
+          },
+          {
+            "kills": 20
+          }
+        ]
+      },
+      "Vulture4_vs_Sinodek": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 512,
+            "hp_damage": 320,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 64
+          },
+          {}
+        ]
+      },
+      "Vulture1_vs_tower": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 256,
+        "metrics": [
+          {
+            "ranged": 448,
+            "hp_damage": 192,
+            "blocked": 0,
+            "evaded": 0
+          },
+          {
+            "ranged": 512,
+            "hp_damage": 448,
+            "blocked": 0,
+            "evaded": 0,
+            "tower_shots": 512,
+            "tower_hp_damage": 448,
+            "kills": 64
+          }
+        ]
+      },
+      "Vulture3_vs_tower": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 192,
+        "metrics": [
+          {
+            "ranged": 644,
+            "hp_damage": 384,
+            "blocked": 0,
+            "evaded": 0
+          },
+          {
+            "ranged": 310,
+            "hp_damage": 204,
+            "blocked": 0,
+            "evaded": 0,
+            "tower_shots": 310,
+            "tower_hp_damage": 204
+          }
+        ]
+      },
+      "Vulture3_vs_fortified_Wrights": {
+        "battles": 64,
+        "losses": 60,
+        "round_cap": 0,
+        "phases": 360,
+        "wins": 4,
+        "metrics": [
+          {
+            "ranged": 1336,
+            "hp_damage": 1468,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 702,
+            "kills": 176
+          },
+          {
+            "melee": 1008,
+            "hp_damage": 1196,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 186,
+            "ranged": 386,
+            "tower_shots": 386,
+            "tower_hp_damage": 370
+          }
+        ]
+      }
+    },
+    "800/750": {
+      "Vulture_vs_Butcher_1v1": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 150,
+        "metrics": [
+          {
+            "ranged": 256,
+            "hp_damage": 278,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 86
+          },
+          {
+            "melee": 150,
+            "hp_damage": 386,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 64
+          }
+        ]
+      },
+      "Penitent_vs_Vulture_1v1": {
+        "battles": 64,
+        "wins": 36,
+        "round_cap": 0,
+        "phases": 228,
+        "losses": 28,
+        "metrics": [
+          {
+            "melee": 384,
+            "hp_damage": 320,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 36
+          },
+          {
+            "ranged": 320,
+            "hp_damage": 342,
+            "blocked": 170,
+            "evaded": 0,
+            "melee": 384,
+            "kills": 28
+          }
+        ]
+      },
+      "Butcher_vs_Penitent_1v1": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "melee": 192,
+            "hp_damage": 384,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 64
+          },
+          {
+            "melee": 192,
+            "hp_damage": 128,
+            "blocked": 0,
+            "evaded": 0
+          }
+        ]
+      },
+      "Vulture_vs_Butcher_4v4": {
+        "battles": 64,
+        "losses": 36,
+        "round_cap": 0,
+        "phases": 192,
+        "wins": 26,
+        "draws": 2,
+        "metrics": [
+          {
+            "ranged": 1314,
+            "hp_damage": 1326,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 192,
+            "melee": 276
+          },
+          {
+            "melee": 464,
+            "hp_damage": 1166,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 202
+          }
+        ]
+      },
+      "Penitent_vs_Vulture_4v4": {
+        "battles": 64,
+        "wins": 58,
+        "round_cap": 0,
+        "phases": 260,
+        "losses": 6,
+        "metrics": [
+          {
+            "melee": 1572,
+            "hp_damage": 1306,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 244
+          },
+          {
+            "ranged": 1794,
+            "hp_damage": 884,
+            "blocked": 916,
+            "evaded": 0,
+            "melee": 714,
+            "kills": 100
+          }
+        ]
+      },
+      "Butcher_vs_Penitent_4v4": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 138,
+        "metrics": [
+          {
+            "melee": 782,
+            "hp_damage": 1566,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256
+          },
+          {
+            "melee": 456,
+            "hp_damage": 266,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 6
+          }
+        ]
+      },
+      "Vulture_vs_Wright_3v3": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 382,
+        "metrics": [
+          {
+            "ranged": 3230,
+            "hp_damage": 2332,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 192,
+            "melee": 14
+          },
+          {
+            "melee": 22,
+            "hp_damage": 2,
+            "blocked": 0,
+            "evaded": 0
+          }
+        ]
+      },
+      "PV_vs_BBBB": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 192,
+        "metrics": [
+          {
+            "ranged": 660,
+            "hp_damage": 662,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 208,
+            "kills": 74
+          },
+          {
+            "melee": 688,
+            "hp_damage": 1420,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256
+          }
+        ]
+      },
+      "BV_vs_PPPP": {
+        "battles": 64,
+        "wins": 40,
+        "round_cap": 0,
+        "phases": 238,
+        "losses": 24,
+        "metrics": [
+          {
+            "ranged": 960,
+            "hp_damage": 1468,
+            "blocked": 460,
+            "evaded": 0,
+            "melee": 746,
+            "kills": 214
+          },
+          {
+            "melee": 1192,
+            "hp_damage": 992,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 156
+          }
+        ]
+      },
+      "PV_vs_BP": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 254,
+        "metrics": [
+          {
+            "ranged": 898,
+            "hp_damage": 486,
+            "blocked": 422,
+            "evaded": 0,
+            "melee": 424,
+            "kills": 12
+          },
+          {
+            "melee": 1106,
+            "hp_damage": 1606,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256
+          }
+        ]
+      },
+      "WV_vs_BBBB": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 198,
+        "metrics": [
+          {
+            "ranged": 562,
+            "hp_damage": 688,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 70,
+            "melee": 354
+          },
+          {
+            "melee": 1058,
+            "hp_damage": 2474,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256
+          }
+        ]
+      },
+      "PV_vs_VVVV": {
+        "battles": 64,
+        "wins": 52,
+        "round_cap": 0,
+        "phases": 274,
+        "losses": 12,
+        "metrics": [
+          {
+            "ranged": 1300,
+            "hp_damage": 1392,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 238,
+            "melee": 350
+          },
+          {
+            "ranged": 1928,
+            "hp_damage": 986,
+            "blocked": 782,
+            "evaded": 0,
+            "melee": 304,
+            "kills": 128
+          }
+        ]
+      },
+      "mixed_vs_BBBB": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 192,
+        "metrics": [
+          {
+            "ranged": 336,
+            "hp_damage": 510,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 238,
+            "kills": 32
+          },
+          {
+            "melee": 926,
+            "hp_damage": 1926,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256
+          }
+        ]
+      },
+      "Vulture4_vs_Lemek": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 900,
+            "hp_damage": 640,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 64
+          },
+          {}
+        ]
+      },
+      "Vulture4_vs_Varn": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 1064,
+            "hp_damage": 1068,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256,
+            "melee": 14
+          },
+          {
+            "melee": 20,
+            "hp_damage": 2,
+            "blocked": 0,
+            "evaded": 0
+          }
+        ]
+      },
+      "Vulture4_vs_Fyra": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 720,
+            "hp_damage": 750,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 94,
+            "kills": 76
+          },
+          {
+            "melee": 88,
+            "hp_damage": 106,
+            "blocked": 0,
+            "evaded": 0,
+            "ranged": 14,
+            "kills": 2
+          }
+        ]
+      },
+      "Vulture4_vs_Kopita": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 768,
+            "hp_damage": 704,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 64
+          },
+          {}
+        ]
+      },
+      "Vulture4_vs_Tumler": {
+        "battles": 64,
+        "wins": 62,
+        "round_cap": 0,
+        "phases": 172,
+        "losses": 2,
+        "metrics": [
+          {
+            "ranged": 1218,
+            "hp_damage": 736,
+            "blocked": 0,
+            "evaded": 760,
+            "melee": 344,
+            "kills": 62
+          },
+          {
+            "melee": 354,
+            "hp_damage": 586,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 80
+          }
+        ]
+      },
+      "Vulture4_vs_Kurchin": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 254,
+        "metrics": [
+          {
+            "ranged": 2304,
+            "hp_damage": 1016,
+            "blocked": 0,
+            "evaded": 1100,
+            "melee": 196,
+            "kills": 64
+          },
+          {
+            "melee": 214,
+            "hp_damage": 150,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 14
+          }
+        ]
+      },
+      "Vulture4_vs_Muno": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 768,
+            "hp_damage": 704,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 64
+          },
+          {}
+        ]
+      },
+      "Vulture4_vs_Dotra": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 138,
+        "metrics": [
+          {
+            "ranged": 776,
+            "hp_damage": 704,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 70,
+            "kills": 64
+          },
+          {
+            "melee": 70,
+            "hp_damage": 114,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 32
+          }
+        ]
+      },
+      "Vulture4_vs_Sooge": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 150,
+        "metrics": [
+          {
+            "ranged": 710,
+            "hp_damage": 362,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 64
+          },
+          {}
+        ]
+      },
+      "Vulture4_vs_Sinodek": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 512,
+            "hp_damage": 320,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 64
+          },
+          {}
+        ]
+      },
+      "Vulture1_vs_tower": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 256,
+        "metrics": [
+          {
+            "ranged": 640,
+            "hp_damage": 384,
+            "blocked": 0,
+            "evaded": 0
+          },
+          {}
+        ]
+      },
+      "Vulture3_vs_tower": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 192,
+        "metrics": [
+          {
+            "ranged": 644,
+            "hp_damage": 384,
+            "blocked": 0,
+            "evaded": 0
+          },
+          {}
+        ]
+      },
+      "Vulture3_vs_fortified_Wrights": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 332,
+        "metrics": [
+          {
+            "ranged": 2608,
+            "hp_damage": 2206,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 504,
+            "kills": 192
+          },
+          {
+            "melee": 528,
+            "hp_damage": 376,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 12
+          }
+        ]
+      }
+    },
+    "900/750": {
+      "Vulture_vs_Butcher_1v1": {
+        "battles": 64,
+        "wins": 58,
+        "round_cap": 0,
+        "phases": 184,
+        "draws": 6,
+        "metrics": [
+          {
+            "ranged": 314,
+            "hp_damage": 376,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 126,
+            "kills": 64
+          },
+          {
+            "melee": 126,
+            "hp_damage": 314,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 6
+          }
+        ]
+      },
+      "Penitent_vs_Vulture_1v1": {
+        "battles": 64,
+        "wins": 46,
+        "round_cap": 0,
+        "phases": 238,
+        "losses": 18,
+        "metrics": [
+          {
+            "melee": 394,
+            "hp_damage": 330,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 46
+          },
+          {
+            "ranged": 384,
+            "hp_damage": 342,
+            "blocked": 198,
+            "evaded": 0,
+            "melee": 348,
+            "kills": 18
+          }
+        ]
+      },
+      "Butcher_vs_Penitent_1v1": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "melee": 192,
+            "hp_damage": 384,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 64
+          },
+          {
+            "melee": 192,
+            "hp_damage": 128,
+            "blocked": 0,
+            "evaded": 0
+          }
+        ]
+      },
+      "Vulture_vs_Butcher_4v4": {
+        "battles": 64,
+        "wins": 52,
+        "round_cap": 0,
+        "phases": 192,
+        "losses": 12,
+        "metrics": [
+          {
+            "ranged": 1474,
+            "hp_damage": 1394,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 234,
+            "melee": 184
+          },
+          {
+            "melee": 282,
+            "hp_damage": 722,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 98
+          }
+        ]
+      },
+      "Penitent_vs_Vulture_4v4": {
+        "battles": 64,
+        "wins": 44,
+        "round_cap": 0,
+        "phases": 272,
+        "losses": 20,
+        "metrics": [
+          {
+            "melee": 1514,
+            "hp_damage": 1254,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 216
+          },
+          {
+            "ranged": 2062,
+            "hp_damage": 1100,
+            "blocked": 1034,
+            "evaded": 0,
+            "melee": 762,
+            "kills": 132
+          }
+        ]
+      },
+      "Butcher_vs_Penitent_4v4": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 138,
+        "metrics": [
+          {
+            "melee": 782,
+            "hp_damage": 1566,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256
+          },
+          {
+            "melee": 456,
+            "hp_damage": 266,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 6
+          }
+        ]
+      },
+      "Vulture_vs_Wright_3v3": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 376,
+        "metrics": [
+          {
+            "ranged": 3266,
+            "hp_damage": 2346,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 192
+          },
+          {}
+        ]
+      },
+      "PV_vs_BBBB": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 192,
+        "metrics": [
+          {
+            "ranged": 718,
+            "hp_damage": 736,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 234,
+            "kills": 86
+          },
+          {
+            "melee": 696,
+            "hp_damage": 1414,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256
+          }
+        ]
+      },
+      "BV_vs_PPPP": {
+        "battles": 64,
+        "wins": 48,
+        "round_cap": 0,
+        "phases": 244,
+        "losses": 16,
+        "metrics": [
+          {
+            "ranged": 1040,
+            "hp_damage": 1570,
+            "blocked": 526,
+            "evaded": 0,
+            "melee": 750,
+            "kills": 228
+          },
+          {
+            "melee": 1114,
+            "hp_damage": 922,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 136
+          }
+        ]
+      },
+      "PV_vs_BP": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 256,
+        "metrics": [
+          {
+            "ranged": 996,
+            "hp_damage": 526,
+            "blocked": 472,
+            "evaded": 0,
+            "melee": 420,
+            "kills": 22
+          },
+          {
+            "melee": 1094,
+            "hp_damage": 1608,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256
+          }
+        ]
+      },
+      "WV_vs_BBBB": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 202,
+        "metrics": [
+          {
+            "ranged": 728,
+            "hp_damage": 828,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 86,
+            "melee": 336
+          },
+          {
+            "melee": 1080,
+            "hp_damage": 2516,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256
+          }
+        ]
+      },
+      "PV_vs_VVVV": {
+        "battles": 64,
+        "wins": 50,
+        "round_cap": 0,
+        "phases": 278,
+        "draws": 2,
+        "losses": 12,
+        "metrics": [
+          {
+            "ranged": 1354,
+            "hp_damage": 1404,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 234,
+            "melee": 314
+          },
+          {
+            "ranged": 2094,
+            "hp_damage": 1028,
+            "blocked": 836,
+            "evaded": 0,
+            "melee": 234,
+            "kills": 134
+          }
+        ]
+      },
+      "mixed_vs_BBBB": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 192,
+        "metrics": [
+          {
+            "ranged": 380,
+            "hp_damage": 532,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 224,
+            "kills": 34
+          },
+          {
+            "melee": 934,
+            "hp_damage": 1920,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256
+          }
+        ]
+      },
+      "Vulture4_vs_Lemek": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 904,
+            "hp_damage": 640,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 64
+          },
+          {}
+        ]
+      },
+      "Vulture4_vs_Varn": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 1084,
+            "hp_damage": 1072,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 256
+          },
+          {}
+        ]
+      },
+      "Vulture4_vs_Fyra": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 764,
+            "hp_damage": 754,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 54,
+            "kills": 78
+          },
+          {
+            "melee": 88,
+            "hp_damage": 98,
+            "blocked": 0,
+            "evaded": 0,
+            "ranged": 8
+          }
+        ]
+      },
+      "Vulture4_vs_Kopita": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 768,
+            "hp_damage": 704,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 64
+          },
+          {}
+        ]
+      },
+      "Vulture4_vs_Tumler": {
+        "battles": 64,
+        "wins": 58,
+        "round_cap": 0,
+        "phases": 164,
+        "losses": 6,
+        "metrics": [
+          {
+            "ranged": 1292,
+            "hp_damage": 722,
+            "blocked": 0,
+            "evaded": 860,
+            "melee": 354,
+            "kills": 58
+          },
+          {
+            "melee": 362,
+            "hp_damage": 590,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 88
+          }
+        ]
+      },
+      "Vulture4_vs_Kurchin": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 248,
+        "metrics": [
+          {
+            "ranged": 2438,
+            "hp_damage": 1014,
+            "blocked": 0,
+            "evaded": 1170,
+            "melee": 130,
+            "kills": 64
+          },
+          {
+            "melee": 162,
+            "hp_damage": 106,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 4
+          }
+        ]
+      },
+      "Vulture4_vs_Muno": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 768,
+            "hp_damage": 704,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 64
+          },
+          {}
+        ]
+      },
+      "Vulture4_vs_Dotra": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 138,
+        "metrics": [
+          {
+            "ranged": 776,
+            "hp_damage": 704,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 70,
+            "kills": 64
+          },
+          {
+            "melee": 70,
+            "hp_damage": 114,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 32
+          }
+        ]
+      },
+      "Vulture4_vs_Sooge": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 150,
+        "metrics": [
+          {
+            "ranged": 724,
+            "hp_damage": 372,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 64
+          },
+          {}
+        ]
+      },
+      "Vulture4_vs_Sinodek": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 512,
+            "hp_damage": 320,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 64
+          },
+          {}
+        ]
+      },
+      "Vulture1_vs_tower": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 256,
+        "metrics": [
+          {
+            "ranged": 640,
+            "hp_damage": 384,
+            "blocked": 0,
+            "evaded": 0
+          },
+          {}
+        ]
+      },
+      "Vulture3_vs_tower": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 644,
+            "hp_damage": 384,
+            "blocked": 0,
+            "evaded": 0
+          },
+          {}
+        ]
+      },
+      "Vulture3_vs_fortified_Wrights": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 320,
+        "metrics": [
+          {
+            "ranged": 2790,
+            "hp_damage": 2182,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 300,
+            "kills": 192
+          },
+          {
+            "melee": 328,
+            "hp_damage": 212,
+            "blocked": 0,
+            "evaded": 0
+          }
+        ]
+      }
+    },
+    "900/1125": {
+      "Vulture_vs_Wright_3v3": {
+        "battles": 64,
+        "wins": 34,
+        "round_cap": 0,
+        "phases": 422,
+        "losses": 28,
+        "draws": 2,
+        "metrics": [
+          {
+            "ranged": 3126,
+            "hp_damage": 2232,
+            "blocked": 0,
+            "evaded": 0,
+            "kills": 192,
+            "melee": 4
+          },
+          {
+            "ranged": 1278,
+            "hp_damage": 1090,
+            "blocked": 0,
+            "evaded": 0,
+            "tower_shots": 1278,
+            "tower_hp_damage": 1086,
+            "kills": 136,
+            "melee": 4
+          }
+        ]
+      },
+      "Vulture1_vs_tower": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 192,
+        "metrics": [
+          {
+            "ranged": 320,
+            "hp_damage": 64,
+            "blocked": 0,
+            "evaded": 0
+          },
+          {
+            "ranged": 448,
+            "hp_damage": 384,
+            "blocked": 0,
+            "evaded": 0,
+            "tower_shots": 448,
+            "tower_hp_damage": 384,
+            "kills": 64
+          }
+        ]
+      },
+      "Vulture3_vs_tower": {
+        "battles": 64,
+        "wins": 64,
+        "round_cap": 0,
+        "phases": 128,
+        "metrics": [
+          {
+            "ranged": 644,
+            "hp_damage": 384,
+            "blocked": 0,
+            "evaded": 0
+          },
+          {
+            "ranged": 320,
+            "hp_damage": 206,
+            "blocked": 0,
+            "evaded": 0,
+            "tower_shots": 320,
+            "tower_hp_damage": 206
+          }
+        ]
+      },
+      "Vulture3_vs_fortified_Wrights": {
+        "battles": 64,
+        "losses": 64,
+        "round_cap": 0,
+        "phases": 296,
+        "metrics": [
+          {
+            "ranged": 1590,
+            "hp_damage": 1362,
+            "blocked": 0,
+            "evaded": 0,
+            "melee": 370,
+            "kills": 188
+          },
+          {
+            "ranged": 912,
+            "hp_damage": 1138,
+            "blocked": 0,
+            "evaded": 0,
+            "tower_shots": 912,
+            "tower_hp_damage": 792,
+            "melee": 418,
+            "kills": 192
+          }
+        ]
+      }
+    }
+  },
+  "pilot_battles": 832,
+  "raw_uncompressed_sha256": "1414b266946ad8cafbedaf3b540806d90ef3859dffbe88d23fc16629483128e9",
+  "python_tests": {
+    "module": "u13_pysim.test_marching",
+    "passed": 19,
+    "failed": 0
+  },
+  "native_validation": {
+    "runtime": "4.5.1.stable.official.f62fdbde1",
+    "phases": 240,
+    "ticks": 48000,
+    "boundary_assertions": 32,
+    "failures": 0,
+    "summary_sha256": "a58fe236a15a5df574d21fe3b3ea3c9c8c500ce24ae14c6974da4688005b6401"
+  },
+  "implementation_hashes": {
+    "Scripts/Sim/u13_pysim/test_copying.py": "bcbd8bdc2fc028892cb0de7cf1af0cb11a2c080ea387535d2ec24fca24306148",
+    "Scripts/Sim/u13_pysim/marching_columns.py": "0b6eb855fed57c61948b62b817e192c3dd15be5add41fe43c4f906d7ba7b44ed",
+    "Scripts/Sim/u13_pysim/primitives.py": "1d21e3650a11601e90997dd2785e9408fd16795084910a7c7a95ade70d4c0282",
+    "Scripts/Sim/u13_pysim/full_match.py": "945e9b61748c65bf6b1bb4fc535d1eea0a3a74e340895d8eddc64dd55cf16d16",
+    "Scripts/Sim/u13_pysim/development_fixtures.py": "e346a6aab8b9f93918ee47fb0182abafcbda4b1b5c7df0f51484f212849e8501",
+    "Scripts/Sim/u13_pysim/paid_inputs.py": "005f624fb0a18e55b3b7732c3241e3a7e299610f629af4a8dacc00a14e626898",
+    "Scripts/Sim/u13_pysim/test_development.py": "9ab72e6dc24710e6c5a7fad80bee3af5a654e4a0eed2a0afe0810d0a22c8a7cf",
+    "Scripts/Sim/u13_pysim/opening.py": "e9bad8ec121418f0b90e993b88eb97f12e8a6059b539a7aa6364b21e8e945555",
+    "Scripts/Sim/u13_pysim/monster_inputs.py": "1004694e562884f057b6456cdb4bf60d6b19604792620c51d15875c620bc402a",
+    "Scripts/Sim/u13_pysim/power_inputs.py": "be3157ad5b3479ce84d39b6d316503d47cc26cddb4c68b843a0d788783f47afd",
+    "Scripts/Sim/u13_pysim/kroni_actors.py": "4bc05137ac899747aebd74719a6db62fe0df63cb237c8f9f0b574243e1fa4953",
+    "Scripts/Sim/u13_pysim/scorch_castle_cases.py": "fa37debb6fa81f0564eb8db6eb417ed75301e026ea1705c038c8e6d08848db68",
+    "Scripts/Sim/u13_pysim/benchmark_full_match_copying.py": "5d5251243d30b7d18dd758d5a7c9e066e5c004b0e0c02bd12ab6e36a28cd10d5",
+    "Scripts/Sim/u13_pysim/full_match_inputs.py": "5eecd02da36689b2a6619e8fb23134a90285833be0a38801c28f9195b8b22bc1",
+    "Scripts/Sim/u13_pysim/planning.py": "87ba45c0678b9beac0be58f35a9b68a2a31bc73e318000c88a5a4cbf2139c23e",
+    "Scripts/Sim/u13_pysim/castle_balance.py": "277fcdab86b5fccd2622c42b2d4a6301a8797c8d912b58d4e044f4a25563d51c",
+    "Scripts/Sim/u13_pysim/verify_veil.py": "4f462b4d9a26590767c48a1a204606c18c77f0fc998ddb1dc28c001f9b1517b0",
+    "Scripts/Sim/u13_pysim/settlement_inputs.py": "8dab3a7e24742ddf24dc8153d69917fefed17df2935cc35f7967c941a9ae3559",
+    "Scripts/Sim/u13_pysim/lifecycle.py": "2b47ccaa489e5d7c549b0c12c0b242c490439e3fb595f28f79cada2d25abab46",
+    "Scripts/Sim/u13_pysim/marching_buffer.py": "3e3248d345c33a41fd505937140a6bba60faf19cfce6b7347da8279b61977031",
+    "Scripts/Sim/u13_pysim/monster_effects.py": "02495da04b4e70909ca5f93f96e84b7426d6c1a54af86857df0984393357b6cb",
+    "Scripts/Sim/u13_pysim/effects.py": "1f860bd6f70af917ea31e3b3df0309ddd5cfd9dd36af13616b3c59bb6b325731",
+    "Scripts/Sim/u13_pysim/__init__.py": "b490045ab5d69f7d8ff26f2e07c6ff01c3d37f1888746231a3cada8cbf37ee31",
+    "Scripts/Sim/u13_pysim/test_full_match.py": "98b4c5c8c73edce674dfa471b93ec8fb423cd4a386e58e51f6db00212dcc13d7",
+    "Scripts/Sim/u13_pysim/verify_full_match.py": "ce73579b5215c2318052d25127a25496beb5948d5468346d996e61385e379347",
+    "Scripts/Sim/u13_pysim/support_pacing.py": "b784ee3ce1eadd0ca51251404c6038e1551d54226aec7668ce0499358e7c37b8",
+    "Scripts/Sim/u13_pysim/power_match.py": "d7be44ebc5eab1120ed0e6f70eeda80ca5d09d3a90d37222bdfccbee6f7c7996",
+    "Scripts/Sim/u13_pysim/verify.py": "78626dd49cbccaa8a5aa03ce69a2b0253e15df3f819d0305a6b42757ae39ee56",
+    "Scripts/Sim/u13_pysim/marching_fixtures.py": "3dda30cdc4a96c9c9e1265abc4447c2939d64b08f3e2b9e6fd3589d4f86581a9",
+    "Scripts/Sim/u13_pysim/test_planning.py": "7e28b3c8fd4f220286ebf31883a8762681772ae7f607c16a3759c78789697a01",
+    "Scripts/Sim/u13_pysim/test_foundation.py": "5aa9d85323ce41ef49c9ae83ba0f20a60d6324b16cb84b42e8ea7d016657e12b",
+    "Scripts/Sim/u13_pysim/verify_marching.py": "119031e8cc6919555f8ec771c508179599cd4db94ead5c06e93ce2545a1652ff",
+    "Scripts/Sim/u13_pysim/benchmark_marching.py": "eb168c173f751cb4a48edc6e0c1ec20d8691592f5b92e2142834925ff126931b",
+    "Scripts/Sim/u13_pysim/copying.py": "0adb9cad48d105e4890dfeb3d7aaa9d45348192c959eca467da94c843f4f42e3",
+    "Scripts/Sim/u13_pysim/benchmark_full_match.py": "cb42c535f415423bb81ac9a85ca09a0bc4b2951ed42c87c053df3a4d86b367cb",
+    "Scripts/Sim/u13_pysim/power_rules.py": "71a9d9d34cea9e4672a2ecff165dbfef6080eb487d1573508601b0e2677e47c7",
+    "Scripts/Sim/u13_pysim/marching_spatial.py": "1443070a11f10d59bdc01dd5d89fe6c56b44a1e82c34b28cf256dbca82a02727",
+    "Scripts/Sim/u13_pysim/breath_cases.py": "86259329165c08d5866df6536b80c5e21427a379e823ebc421eb83db899044a6",
+    "Scripts/Sim/u13_pysim/verify_resolution.py": "f6def44422cd3c356c6be3f7aab77f0188b68dc94153e3857ad28ad8da8833ff",
+    "Scripts/Sim/u13_pysim/test_paid_development.py": "ed789a69cf92f80ba6751cf3c6ab9149479edfb894c66075dc2cd53212db1fd3",
+    "Scripts/Sim/u13_pysim/recruitment.py": "635ffd788044e906d8d17f7bdad6bd0c3f28a50af07fa7e540778630b5510573",
+    "Scripts/Sim/u13_pysim/benchmark_copying.py": "549ed47ff34efe0a67a7e37ce82fc5803982c9a98f5b4829f1db74672e9199e1",
+    "Scripts/Sim/u13_pysim/verify_free_opening.py": "bdbde10d34c434f06152849b521f0a55d6c6b97dce699ef3b15e20f90e1ab003",
+    "Scripts/Sim/u13_pysim/test_opening.py": "36608c3f5a2a269b753152734f574c19cc61655d6db7ad171f6a8ffab590e517",
+    "Scripts/Sim/u13_pysim/verify_planning.py": "e7367242844899c00d6ac798db2da173b43784e465bca6568301b7dac8d96d23",
+    "Scripts/Sim/u13_pysim/penitent_defense.py": "fa905647344344aaf68397590a32a2dc05c8b2abd2ca3b8ea3771e1b11f53d36",
+    "Scripts/Sim/u13_pysim/field_combat.py": "9cb7ec9c2e3b72bdabb1afbbe90c980ce2c213e9b9d379a28049d8fdbf915b66",
+    "Scripts/Sim/u13_pysim/lord_hooks.py": "9ce5a42c8d5a75763c5d6e3cfdc08bf8f500bb1f1dbd9afa7978fc0927c11549",
+    "Scripts/Sim/u13_pysim/verify_powers.py": "41ba4eb6e0485de23c2de9f74610955881d96a3beedb57a2b199c89a075a2afd",
+    "Scripts/Sim/u13_pysim/battle.py": "f9dcfd5aaedc9791c74bd08d206ad0546ea5fefdc378004f50380a16ef056819",
+    "Scripts/Sim/u13_pysim/verify_breath.py": "28098f9030ade77879c35c96ee2026bcd94e12dec9da947990c196084beeea59",
+    "Scripts/Sim/u13_pysim/timeline.py": "9250531802d6812e2d38a6764ef98fefe7296bdbeeb5857645b154c3594b89b6",
+    "Scripts/Sim/u13_pysim/benchmark_development.py": "12a744083c55416ad4584aab3ca670a70934a97b59b12d48e792eaa37eda9075",
+    "Scripts/Sim/u13_pysim/verify_paid.py": "5f70c49d56e82f26bbb71312de682859ed1039b559260feecf9a5547ee3614da",
+    "Scripts/Sim/u13_pysim/test_scorch_castles.py": "31486acaf99ea64be0839add39cd4007ae655cabe1fce57496f8dc51b363cb25",
+    "Scripts/Sim/u13_pysim/field_fortifications.py": "e2f791f17b542cf5befb0a46a29ad930418e88412a3a29a88bc1ba009e937271",
+    "Scripts/Sim/u13_pysim/test_marching.py": "cd880d9da3ab0439081adf87d1dcd6ae268771f11c265e5ec527b88fe3be5fde",
+    "Scripts/Sim/u13_pysim/wishmaster.py": "b83058144207ebaa05ce6b61caf67c1ebab0a1c27abc4a3d51169579e718d046",
+    "Scripts/Sim/u13_pysim/marching_game.py": "128ebf199e8c8d0fe26bda6553921caeed96822bf65512b1577574312e3cfdd4",
+    "Scripts/Sim/u13_pysim/resolution.py": "37362e44d256b922763c68d3e69d468ecf9152dab02e281b01d55268802930a2",
+    "Scripts/Sim/u13_pysim/veil.py": "0e5978816d7baf35b4c242c974f854528dda89bfa1a38cd25b253a4689957f64",
+    "Scripts/Sim/u13_pysim/resolution_fixtures.py": "a91635b483d90659879e0e7018a3ab834078921fa67df7a21738d30300f5aa28",
+    "Scripts/Sim/u13_pysim/power_components.py": "5b6c72a82ff0274726cfc133ec86c87e848138acfa8e56a29c2c33aba494112a",
+    "Scripts/Sim/u13_pysim/monsters.py": "08669fd82acaf8f2924f7828f4f47a44971b6f38d4aa61f11074ec5025037e87",
+    "Scripts/Sim/u13_pysim/marching.py": "14175f2518583584fffb83df3f3856bfdf8e0a7ba0277a5e96551a43abd75ede",
+    "Scripts/Sim/u13_pysim/economy.py": "181da456e17dbcd40030d43c51bc46c32e154af333101f6a948c852477bd0388",
+    "Scripts/Sim/u13_pysim/verify_development.py": "c10720b84b9f53a690bc836c3a4a97a50d986d57174421f8850c0eb895cf2bc0",
+    "Scripts/Sim/u13_pysim/test_powers.py": "cd84bffc35ae1e7e89b1b4c819fd9a36b7e4b409ac264ab5ebdffeac2a2ba02e",
+    "Scripts/Sim/u13_pysim/codec.py": "caabaa1ecfe8b89e451bd7ca84937022c559c6b3566043fe7d0db1143b2cbf43",
+    "Scripts/Sim/u13_pysim/paid_development.py": "02a36bc099292aedd845d8f2090235ce86b55cc66ab22f0083b15629549e15b7",
+    "Scripts/Sim/u13_pysim/verify_scorch.py": "175670072d145a48dec11da9afd802f5810a5f6821f591c0754037e14ab54f44",
+    "Scripts/Sim/u13_pysim/powers.py": "67be66810def07ebc77769fdc74fa6f5e36d462c5705388f52b4e2168deb52ee",
+    "Scripts/Sim/u13_pysim/verify_veil_wishes.py": "f0ac30d9b3b624beccbb18aa2b01e49f75fe7b3c5d0ed57604d4fa925574b060",
+    "Scripts/Sim/u13_pysim/test_breath.py": "a383b1ee0f3e0a0ff996b18dbd843d12663f1db9c274410d71636b438c65307c",
+    "Scripts/Sim/u13_pysim/development.py": "845f013c10f110b3aca467a51e10f3afb78b8fde34e76d5bcc40f7382012710a",
+    "Scripts/Sim/u13_pysim/verify_monsters.py": "f925afee1eadf05c51feed9d521a7577bc271880dc5a8c405b7e4caacc150772",
+    "Scripts/Sim/u13_pysim/test_resolution.py": "373919651fbfa5d55cb563fef6ec74f50f401f64ef5e27478aeb2231e2a1776d"
+  }
+}
