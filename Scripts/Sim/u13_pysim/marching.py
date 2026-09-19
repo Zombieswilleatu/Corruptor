@@ -183,6 +183,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     from . import support_pacing
     from . import marching_spatial
     from . import marcher_spacing
+    from . import marcher_navigation as navigation
     if context['world']['data'].get('ranged_profile') == RANGED:
         marcher_spacing.separate(s, fort.rows(context['world']), context['round'])
     indices = s.active()
@@ -218,15 +219,16 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     target_rows = s.rows() if ranged else []
     accepted_rows = copy_data(target_rows)
     accepted_by_id = {r['id']: r for r in accepted_rows}
-    field_nearest = {i: (field_combat.nearest(s.row(i), target_rows+structures, fort.CONTACT, True) or field_combat.nearest(s.row(i), target_rows+structures)) for i in indices} if ranged else {}
+    reachable = {i: navigation.candidates(s.row(i), target_rows+structures, clock) for i in indices} if ranged else {}
+    field_nearest = {i: (field_combat.nearest(s.row(i), reachable[i], fort.CONTACT, True) or navigation.retained(s.row(i), reachable[i]) or field_combat.nearest(s.row(i), reachable[i])) for i in indices} if ranged else {}
     taunted = set()
     if ranged:
         for i in indices:
             if (s.extra[i] or {}).get('monster_id')=='Dotra' and (s.extra[i] or {}).get('hidden',False):
-                field_nearest[i]=monster_effects.nearest(s.row(i),target_rows)
+                field_nearest[i]=monster_effects.nearest(s.row(i),[r for r in reachable[i] if r['kind']=='marcher'])
             if has_taunt or (s.extra[i] or {}).get('monster_id')=='Tumler':
                 chosen = monster_effects.preferred(s.row(i), target_rows)
-                if chosen:
+                if chosen and (chosen['attributes'].get('monster_id') == 'Kurchin' or not navigation.avoided(s.row(i), chosen, clock)):
                     field_nearest[i] = chosen
                     if chosen['attributes'].get('monster_id') == 'Kurchin': taunted.add(i)
             gaps[i] = fort.gap(s.row(i), field_nearest[i]) if field_nearest[i] else (1 << 63)-1
@@ -265,10 +267,12 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
         destination = dict(x_fp=xs[j],y_fp=ys[j]) if j is not None else None
         if ranged:
             destination = fort.point(s.row(i)['attributes'], field_nearest[i]) if field_nearest[i] else None
+        movement_target = (field_nearest[i] or {}).get('id', '') if ranged else ''
         gap = gaps[i]
         if has_taunt or (s.extra[i] or {}).get('monster_id')=='Tumler':
             current=targets_by_id[s.ids[i]]
             chosen=monster_effects.preferred(current,targets)
+            if ranged and i not in taunted and navigation.avoided(current, chosen, clock): chosen = None
             if chosen:destination=chosen['attributes'];gap=distance(xs[i],ys[i],destination['x_fp'],destination['y_fp'])
         if not (s.extra[i] or {}).get('monster_id') and not retreat[i] and i not in taunted and lamps:
             point, lamp_gap = wishmaster.nearest_lamp(xs[i],ys[i],lane,lamps)
@@ -278,16 +282,19 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
             if destination:gap=distance(xs[i],ys[i],destination['x_fp'],destination['y_fp'])
         if gate_advancing:
             destination = dict(x_fp=goal_x, y_fp=ys[i])
+            movement_target = 'goal'
             gap = (goal_x-xs[i])**2
         if ranged and not retreat[i]:
             unit = s.row(i)
             build_goal = {} if i in taunted else fort.goal(unit, structures, clock, field_nearest[i])
             if build_goal:
                 destination, gap = build_goal, fort.distance(unit['attributes'], build_goal)
+                movement_target = 'build:'+str(extra.get('wright_site', ''))
                 if gap <= 16**2: continue
             wall = fort.blocker(unit, destination, structures)
             if wall:
                 destination = fort.point(unit['attributes'], wall)
+                movement_target = wall['id']
                 gap = fort.distance(unit['attributes'], destination)
                 if fort.in_melee(unit, wall): continue
         if not retreat[i] and destination is not None:
@@ -301,7 +308,10 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
                     dy = 1 if vy > 0 else -1
         nx, ny = max(0, min(2400, xs[i] + dx)), max(0, min(600, ys[i] + dy))
         if ranged:
-            proposed = marcher_spacing.slide(s.row(i), dict(s.row(i)['attributes'], x_fp=nx, y_fp=ny), accepted_rows, structures, step, not retreat[i])
+            proposed = navigation.steer(s.row(i), dict(s.row(i)['attributes'], x_fp=nx, y_fp=ny), destination, movement_target, accepted_rows, structures, step, clock, i in taunted, retreat[i])
+            if 'navigation' in proposed:
+                if s.extra[i] is None: s.extra[i] = {}
+                s.extra[i]['navigation'] = proposed['navigation']
             nx, ny = proposed['x_fp'], proposed['y_fp']
             s.x_fp[i], s.y_fp[i] = nx, ny
             accepted_by_id[s.ids[i]]['attributes'] = proposed

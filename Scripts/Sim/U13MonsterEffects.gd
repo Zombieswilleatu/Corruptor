@@ -185,7 +185,7 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 		var rows: Array = entities.marchers()
 		match a.monster_id:
 			"Tumler":
-				var choices: Array = enemies(unit, rows)
+				var choices: Array = enemies(unit, rows).filter(func(r): return int(a.get("navigation", {}).get("avoid", {}).get(r.id, 0)) <= n * 200 + tick)
 				if not choices.any(func(r): return r.id == a.get("hunt_target", "")):
 					var supports: Array = choices.filter(func(r): return r.attributes.suit == "Vulture" or r.attributes.get("monster_id") in ["Kopita", "Fyra", "Sooge", "Sinodek"])
 					var chosen: Dictionary = nearest(unit, supports if not supports.is_empty() else choices)

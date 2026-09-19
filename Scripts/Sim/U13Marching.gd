@@ -7,6 +7,7 @@ const Ranged = preload("res://Scripts/Sim/U13RangedMarching.gd")
 const Fort = preload("res://Scripts/Sim/U13FieldFortifications.gd")
 const SupportPacing = preload("res://Scripts/Sim/U13SupportPacing.gd")
 const Spacing = preload("res://Scripts/Sim/U13MarcherSpacing.gd")
+const Navigation = preload("res://Scripts/Sim/U13MarcherNavigation.gd")
 const FieldMelee = preload("res://Scripts/Sim/U13FieldMelee.gd")
 const KroniActors = preload("res://Scripts/Sim/U13KroniActors.gd")
 const SpatialFields = preload("res://Scripts/Sim/U13SpatialFields.gd")
@@ -731,14 +732,16 @@ static func _move(
 		neighbors = {}
 		var targets: Array = rows + structures
 		for unit in rows:
-			var target: Dictionary = FieldMelee.nearest(unit, targets, Fort.CONTACT, true)
-			if target.is_empty(): target = FieldMelee.nearest(unit, targets)
+			var reachable: Array = Navigation.candidates(unit, targets, clock)
+			var target: Dictionary = FieldMelee.nearest(unit, reachable, Fort.CONTACT, true)
+			if target.is_empty(): target = Navigation.retained(unit, reachable)
+			if target.is_empty(): target = FieldMelee.nearest(unit, reachable)
 			if unit.attributes.get("monster_id") == "Dotra" and unit.attributes.get("hidden", false):
-				target = MonsterEffects.nearest(unit, rows)
+				target = MonsterEffects.nearest(unit, reachable.filter(func(r): return r.kind == "marcher"))
 			var taunted: bool = false
 			if has_taunt or unit.attributes.get("monster_id") == "Tumler":
 				var hunted: Dictionary = MonsterEffects.preferred(unit, rows)
-				if not hunted.is_empty():
+				if not hunted.is_empty() and (hunted.attributes.get("monster_id") == "Kurchin" or not Navigation.avoided(unit, hunted, clock)):
 					target = hunted
 					taunted = hunted.attributes.get("monster_id") == "Kurchin"
 			neighbors[unit.id] = {"unit": target, "taunted": taunted, "distance": 9223372036854775807 if target.is_empty() else Fort.gap(unit, target)}
@@ -808,11 +811,13 @@ static func _move(
 			step = SupportPacing.speed(unit, rows, step, clock, context.round, fleeing_ids)
 		var nearest: Dictionary = nearby.unit
 		var preferred: Dictionary = MonsterEffects.preferred(unit, rows) if has_taunt or a.get("monster_id") == "Tumler" else {}
+		if modern and not taunted and Navigation.avoided(unit, preferred, clock): preferred = {}
 		if not preferred.is_empty(): nearest = preferred
 		var best: int = int(nearby.distance) if preferred.is_empty() else _distance(a, preferred.attributes)
 		var dx: int = int(a.direction) * step * (-1 if retreat else 1)
 		var dy: int = 0
 		var destination: Dictionary = (Fort.point(a, nearest) if modern else nearest.attributes) if not nearest.is_empty() else {}
+		var movement_target: String = str(nearest.get("id", ""))
 		if not a.has("monster_id") and not retreat and not taunted and not context.get("wishmaster_lamps", []).is_empty():
 			var lamp: Dictionary = Wishmaster.nearby_lamp(a, context.wishmaster_lamps)
 			if not lamp.is_empty():
@@ -825,16 +830,19 @@ static func _move(
 			# Keep firing through normal volley selection while heading straight
 			# to the goal, rather than turning back toward another fresh wave.
 			destination = {"x_fp": goal_x, "y_fp": a.y_fp}
+			movement_target = "goal"
 			best = _distance(a, destination)
 		if modern and not retreat:
 			var build_goal: Dictionary = {} if taunted else Fort.goal(unit, structures, clock, nearest)
 			if not build_goal.is_empty():
 				destination = build_goal
+				movement_target = "build:%s" % str(a.get("wright_site", ""))
 				best = _distance(a, destination)
 				if best <= 16 * 16: continue
 			var wall: Dictionary = Fort.blocker(unit, destination, structures)
 			if not wall.is_empty():
 				destination = Fort.point(a, wall)
+				movement_target = wall.id
 				best = _distance(a, destination)
 				if Fort.in_melee(unit, wall): continue
 		if not retreat and not destination.is_empty():
@@ -852,7 +860,7 @@ static func _move(
 		proposed.x_fp = clampi(int(a.x_fp) + dx, 0, LANE_FP)
 		proposed.y_fp = clampi(int(a.y_fp) + dy, 0, WIDTH_FP)
 		if modern:
-			proposed = Spacing.slide(unit, proposed, accepted, structures, step, not retreat)
+			proposed = Navigation.steer(unit, proposed, destination, movement_target, accepted, structures, step, clock, taunted, retreat)
 			entities.update(unit.id, unit.owner, proposed)
 			accepted_by_id[unit.id].attributes = proposed
 			continue

@@ -5,6 +5,7 @@ const Monsters = preload("res://Scripts/Sim/U13MonsterRules.gd")
 const Effects = preload("res://Scripts/Sim/U13MonsterEffects.gd")
 const Combat = preload("res://Scripts/Sim/U13Combat.gd")
 const Enemy = preload("res://Scripts/Sim/U13SandboxEnemy.gd")
+const Staging = preload("res://Scripts/Sim/U13LaneStaging.gd")
 const Ids = Marching.Ids
 const LIMIT: int = 64
 var world: Dictionary
@@ -17,7 +18,7 @@ var totals: Array = []
 var goal_ids: Array = [{}, {}]
 var seats_swapped: bool = false
 
-func _init(seed_text: String = "lane-balance-1", balance_preview: bool = false, goal_advance: bool = true, swapped: bool = false) -> void:
+func _init(seed_text: String = "lane-balance-1", balance_preview: bool = false, goal_advance: bool = true, swapped: bool = false, staging_capacity: int = 0) -> void:
 	seats_swapped = swapped
 	seed_value = seed_text if not seed_text.strip_edges().is_empty() else "lane-balance-1"
 	world = {"entities": Ids.new().snapshot(), "data": {"kanifous_losses": [], "kanifous_loss_round": 1}}
@@ -25,12 +26,23 @@ func _init(seed_text: String = "lane-balance-1", balance_preview: bool = false, 
 	if balance_preview:
 		world.data["lane_balance_preview"] = {"version": Marching.Ranged.PREVIEW_VERSION, "goal_advance": goal_advance}
 	Monsters.configure(world)
+	if staging_capacity > 0: Staging.configure(world, staging_capacity)
 	for pid in [0, 1]:
 		spawners.append(Enemy.new(seed_value, pid))
 		totals.append({"spawned": 0, "defeated": 0, "banished": 0, "escaped": 0, "reached_goal": 0})
 
 func units() -> Array:
 	return world.entities.entities.filter(func(r): return r.kind == "marcher")
+
+func staged_units() -> Array:
+	return Staging.rows(world)
+
+func prepare_releases(modes: Array = ["Auto", "Auto"]) -> Array:
+	if not seats_swapped: return Staging.prepare(world, round_number, modes, LIMIT)
+	_flip_spawn_frame()
+	Staging.prepare(world, round_number, [modes[1], modes[0]], LIMIT)
+	_flip_spawn_frame()
+	return world.data.get("marcher_staging", {}).get("decisions", [])
 
 func spawn(name: String, pid: int, near_center: bool = false, turret: bool = false) -> Dictionary:
 	if not seats_swapped: return _spawn(name, pid, near_center, turret)
@@ -42,10 +54,12 @@ func spawn(name: String, pid: int, near_center: bool = false, turret: bool = fal
 func _spawn(name: String, pid: int, near_center: bool = false, turret: bool = false) -> Dictionary:
 	if pid not in [0, 1] or (name not in Marching.SUITS and name not in Monsters.NAMES):
 		return {"action": "invalid", "reason": "Unknown unit or side."}
-	if Monsters.limited(name) and Monsters.living(units(), pid, name):
+	if Monsters.limited(name) and Monsters.living(units() + staged_units(), pid, name):
 		return {"action": "invalid", "reason": "Only one living %s per side." % name}
 	var count: int = 3 + Effects.Lamp.draw(seed_value, "manual:%d" % serial, "SWARM_COUNT", 3) if name == "Varn" else 1
-	if units().size() + count > LIMIT:
+	if Staging.enabled(world) and Staging.rows(world, pid).size() + count > int(world.data.marcher_staging.capacity):
+		return {"action": "invalid", "reason": "Staging is full. Run an interval to release an older group."}
+	if not Staging.enabled(world) and units().size() + count > LIMIT:
 		return {"action": "invalid", "reason": "Arena limit: %d active units. Let this wave finish or reset." % LIMIT}
 	var ids = Ids.new(); ids.restore(world.entities)
 	var created: Array = []
@@ -62,8 +76,9 @@ func _spawn(name: String, pid: int, near_center: bool = false, turret: bool = fa
 		created.append(made.entity.id)
 	serial += 1
 	world.entities = ids.snapshot()
+	Staging.store_units(world, created, round_number)
 	totals[pid].spawned += count
-	return {"action": "spawned", "count": count, "ids": created}
+	return {"action": "spawned", "count": count, "ids": created, "reason": "%s staged; eligible from round %d." % [name, round_number + 1] if Staging.enabled(world) else "%s spawned." % name}
 
 func random_waves(owners: Array) -> Dictionary:
 	if not seats_swapped: return _random_waves(owners)
@@ -83,15 +98,16 @@ func _random_waves(owners: Array) -> Dictionary:
 	var orders: Dictionary = {}
 	var cards_to_retire: Array = []
 	var available_space: int = LIMIT - units().size()
+	var protected: bool = Staging.enabled(world)
 	# Reserve five value-five cards plus a Varn swarm per side. Alternate
 	# priority when the field only has room for one new commitment.
 	for pid in [round_number % 2, 1 - round_number % 2]:
 		if pid not in owners: continue
 		var side: String = "Your side" if pid == 0 else "Enemy"
-		if available_space < 13:
+		if (not protected and available_space < 13) or (protected and Staging.rows(world, pid).size() > int(world.data.marcher_staging.capacity)):
 			last_waves[pid] = {"summary": side + " waits: arena is near capacity."}
 			continue
-		var wave: Dictionary = spawners[pid].next_wave(round_number, units())
+		var wave: Dictionary = spawners[pid].next_wave(round_number, units() + staged_units())
 		last_waves[pid] = wave.duplicate(true)
 		if wave.cards.is_empty():
 			last_waves[pid]["summary"] = side + " saves cards; no commitment this interval."
@@ -108,6 +124,7 @@ func _random_waves(owners: Array) -> Dictionary:
 	if orders.is_empty(): return {"action": "spawned", "spawned": 0}
 	var staged: Dictionary = world.duplicate(true)
 	staged.entities = ids.snapshot()
+	var existing: Array = units().map(func(u): return u.id)
 	# Reveal both sides together: the production engine seals the whole round.
 	var result: Dictionary = Combat._reveal({"world": staged, "round": round_number, "seed": seed_value, "player_order": [0, 1].filter(func(pid): return orders.has(pid)), "combat_orders": orders})
 	if result.action == "invalid": return result
@@ -115,6 +132,7 @@ func _random_waves(owners: Array) -> Dictionary:
 	ids.restore(world.entities)
 	for id in cards_to_retire: ids.retire(id)
 	world.entities = ids.snapshot()
+	Staging.store_units(world, units().filter(func(u): return u.id not in existing).map(func(u): return u.id), round_number)
 	var spawned: Array = result.events.filter(func(r): return r.event.type == "MARCHER_SPAWNED")
 	for pid in orders:
 		var wave: Dictionary = last_waves[pid]
@@ -125,6 +143,7 @@ func _random_waves(owners: Array) -> Dictionary:
 		wave["spawned"] = count
 		wave["summary"] = "%s\n%d %s · %s · %d cards saved" % [", ".join(labels), count, "body" if count == 1 else "bodies", wave.monster if not wave.monster.is_empty() else "no monster recipe", wave.saved]
 		if count == 0: wave.summary += "\nNo suit total reaches 3 this interval."
+		elif protected: wave.summary += "\nProtected until round %d or later." % (round_number + 1)
 	return {"action": "spawned", "spawned": spawned.size()}
 
 func _flip_spawn_frame() -> void:

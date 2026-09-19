@@ -257,6 +257,10 @@ func ui_checks() -> void:
 	var beam: Dictionary = {"source": source, "target": target, "source_id": "eye", "target_id": "target", "source_owner": 0, "target_owner": 1, "range_fp": 1800}
 	var ray: PackedVector2Array = arena.field.beam_points(beam)
 	check(ray[0].distance_to(ray[1]) > 100 and is_equal_approx(ray[1].y, arena.field.travel_rect("Lord").position.y), "long laser clips at the sandbox gate, not the main-board header")
+	# Keep the original direct-field/debug regression separate from the new
+	# protected-reserve timing suite (U13LaneStagingTestRunner).
+	arena.staging_capacity.select(2)
+	arena.reset()
 	arena.spawn_point.select(1)
 	arena.spawn_buttons.Butcher.pressed.emit()
 	arena.owner_choice.select(1)

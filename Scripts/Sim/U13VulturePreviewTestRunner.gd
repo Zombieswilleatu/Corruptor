@@ -50,7 +50,7 @@ func run() -> void:
 	check(arena.spawn_buttons.Vulture.tooltip_text.contains("400") and arena.spawn_buttons.Vulture.tooltip_text.contains("+1 damage against Butchers") and Sim.Marching.Ranged.tower_range(arena.sim.world) == 600, "visible preview and simulation use restored ranges and the matchup bonus")
 	var preview_title: bool = false
 	for node in arena.find_children("*", "Label", true, false):
-		if node.text == "MARCHER BALANCE · range 400 · tower 600": preview_title = true
+		if node.text == "MARCHER BALANCE · staging v1 · range 400 · tower 600": preview_title = true
 	check(preview_title, "range label identifies this build at a glance")
 	arena.seed_entry.text = "lane-f881e7ec-e3aebe70"
 	arena.reset()

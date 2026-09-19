@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Directed goal-distance, range and complete native/Python replay checks."""
 import argparse
+import gzip
 import hashlib
 import json
 from pathlib import Path
@@ -66,6 +67,49 @@ def contexts():
             yield record
     yield from counter_contexts()
     yield from spacing_contexts()
+    yield from navigation_contexts()
+
+
+def navigation_contexts():
+    fixture = ROOT/'docs/evidence/U13_NAVIGATION_CROWD_FIXTURE_2026-09-19.json.gz'
+    for owner in (0, 1):
+        captured = json.loads(gzip.decompress(fixture.read_bytes()))
+        if owner: captured['world'] = reflect_world(captured['world'])
+        context = dict(world=captured['world'], seed=captured['seed'], round=25,
+                       hook='marching', player_order=[0, 1], persistent_effects=[], full_roster=True)
+        for phase in (0, 1):
+            yield dict(name=f'navigation:crowded-seed:{owner}:{phase}', case='navigation_crowd',
+                       ids=captured['tracked'], initial=captured['world'], minimum=4 if phase == 0 else 7, context=context)
+            if phase == 0:
+                first = m.resolve(context, capture_ticks=False, reaction=trial.no_reaction)
+                context = dict(context, world=first['world'], round=26)
+        world, seed = trial.initial(dict(teams=[[], []]), 0, 0)
+        for index, (suit, pid, x, y) in enumerate([
+            ('Butcher', 0, 1200, 300), ('Butcher', 0, 1248, 300),
+            ('Butcher', 0, 1152, 300), ('Butcher', 0, 1200, 348), ('Butcher', 0, 1200, 252),
+            ('Penitent', 1, 1500, 300), ('Penitent', 1, 1200, 600)]):
+            a = recruit.profile(suit, 'Lord', pid, 0, 1)
+            a.update(x_fp=x, y_fp=y, hp=1000, max_hp=1000, regen=0)
+            if index: a['step_fp'] = 0
+            unit = recruit.create(world, 'navigation-cage', index, pid, a)
+            if index == 0: identity = unit['id']
+        orient(world, owner)
+        yield dict(name=f'navigation:unreachable-target:{owner}', case='navigation_retarget', source=identity,
+                   context=dict(world=world, seed=seed, round=1, hook='marching', player_order=[0, 1], persistent_effects=[]))
+
+
+def reflect_world(value):
+    # Match U13LaneSandbox.mirror, including ownership in Wright assignments,
+    # charm restoration, hazards and navigation waypoints.
+    if isinstance(value, list): return [reflect_world(v) for v in value]
+    if not isinstance(value, dict): return value
+    result = {}
+    for key, item in value.items():
+        if key in ('owner', 'charm_owner', 'wright_owner', 'player_id', 'source_owner', 'target_owner') and item in (0, 1): result[key] = 1-item
+        elif key == 'x_fp': result[key] = 2400-item
+        elif key == 'direction': result[key] = -item
+        else: result[key] = reflect_world(item)
+    return result
 
 
 def orient(world, owner):
@@ -137,6 +181,21 @@ def check(record, result):
     events = [r['event'] for r in result['events']]
     shots = [e['data'] for e in events if e['type'] == 'MARCHER_RANGED_ATTACK']
     case = record['case']
+    if case == 'navigation_retarget':
+        states = [u['attributes'].get('navigation', {}) for e in events if e['type'] == 'MARCHING_TICK'
+                  for u in e['data']['units'] if u['id'] == record['source']]
+        assert any(s.get('avoid') for s in states), record['name']
+        assert len({s.get('target') for s in states if s.get('target')}) >= 2, record['name']
+        return
+    if case == 'navigation_crowd':
+        before = {u['id']: u for u in record['initial']['entities']['entities']}
+        attackers = {e['data']['attacker']['id'] for e in events if e['type'] in ('MARCHER_MELEE_ATTACK', 'MARCHER_RANGED_ATTACK')}
+        moved = {u['id'] for e in events if e['type'] == 'MARCHING_TICK' for u in e['data']['units']
+                 if u['id'] in record['ids'] and trial.fort.distance(before[u['id']]['attributes'], u['attributes']) > 42**2}
+        freed = set(record['ids']) & (moved | attackers)
+        assert len(freed) >= record['minimum'], (record['name'], len(freed), len(record['ids']))
+        print(record['name'], len(freed), 'of', len(record['ids']), 'previously jammed units moved or fought', flush=True)
+        return
     if case == 'counter':
         kind = 'MARCHER_MELEE_ATTACK' if record['melee'] else 'MARCHER_RANGED_ATTACK'
         hits = [e['data'] for e in events if e['type'] == kind and e['data']['attacker']['id'] == record['source']]
@@ -202,7 +261,7 @@ def run(godot, output):
         inputs, native = project/'contexts.jsonl', project/'native.jsonl'
         inputs.write_text(''.join(codec.dumps(dict(name=r['name'], context=r['context']))+'\n' for r in records))
         completed = subprocess.run([str(godot), '--headless', '--path', str(project), '--script', 'res://'+RUNNER,
-            '--', str(inputs), str(native), '400', '600'], capture_output=True, text=True, timeout=120)
+            '--', str(inputs), str(native), '400', '600'], capture_output=True, text=True, timeout=240)
         log = completed.stdout + completed.stderr
         if completed.returncode or 'ERROR:' in log: raise RuntimeError(log)
         names = []
@@ -214,7 +273,7 @@ def run(godot, output):
             check(expected[record['name']], result)
             names.append(record['name'])
         assert names == [r['name'] for r in records]
-        report = dict(schema='U13_MARCHER_COUNTER_SPACING_VERIFICATION_V1', runtime=version,
+        report = dict(schema='U13_MARCHER_NAVIGATION_VERIFICATION_V1', runtime=version,
                       phases=len(names), ticks=200*len(names), failures=0, cases=names,
                       contexts_sha256=hashlib.sha256(inputs.read_bytes()).hexdigest(),
                       native_sources_sha256=sources)

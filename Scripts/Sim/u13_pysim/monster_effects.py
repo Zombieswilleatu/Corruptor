@@ -165,7 +165,7 @@ def step(w,buffer,c,tick,reaction):
         if a['movement_ready_round']>n or 'monster_id' not in a:continue
         rows=buffer.rows();name=a['monster_id']
         if name=='Tumler':
-            choices=enemies(unit,rows)
+            choices=[r for r in enemies(unit,rows) if a.get('navigation',{}).get('avoid',{}).get(r['id'],0) <= n*200+tick]
             if not any(r['id']==a.get('hunt_target','') for r in choices):
                 supports=[r for r in choices if r['attributes']['suit']=='Vulture' or r['attributes'].get('monster_id') in ('Kopita','Fyra','Sooge','Sinodek')]
                 a['hunt_target']=nearest(unit,supports or choices).get('id','')

@@ -5,9 +5,13 @@ const Sim = preload("res://Scripts/Sim/U13LaneSandbox.gd")
 const Playback = preload("res://Prototype/U13/U13SmokePlayback.gd")
 const Lane = preload("res://Prototype/U13/U13SandboxLaneView.gd")
 const INTERVAL: float = 15.0
+const SPEEDS: Array = [0.5, 1.0, 2.0, 3.0, 5.0]
 @export var balance_preview: bool = false
 @export var standalone: bool = false
 var goal_advance_toggle: CheckBox
+var staging_capacity: OptionButton
+var release_choices: Array = []
+var staging_note: Label
 var swap_seats_button: Button
 var seats_swapped: bool = false
 var manual_opening: Array = []
@@ -51,7 +55,7 @@ var goal_cursor: int = 0
 var round_goals: Array = [0, 0]
 
 func _ready() -> void:
-	sim = Sim.new(fresh_seed(), balance_preview)
+	sim = Sim.new(fresh_seed(), balance_preview, true, false, Sim.Staging.DEFAULT_CAPACITY)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	z_index = 110
 	var bg := ColorRect.new()
@@ -67,7 +71,7 @@ func _ready() -> void:
 	margin.add_child(column)
 	var top := HBoxContainer.new()
 	column.add_child(top)
-	var title := label(top, "MARCHER BALANCE · range 400 · tower 600" if balance_preview else "MARCHER & MONSTER BALANCE", 25)
+	var title := label(top, "MARCHER BALANCE · staging v1 · range 400 · tower 600" if balance_preview else "MARCHER & MONSTER BALANCE · staging v1", 25)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button(top, "EXIT PREVIEW" if standalone else "MAIN MENU", dismiss)
 	var scoreboard := HBoxContainer.new()
@@ -106,9 +110,18 @@ func _ready() -> void:
 		choices.add_child(goal_advance_toggle)
 		label(choices, "Vultures: +1 damage against Butchers only. Inside the final 400 distance: advance toward the goal while firing. Melee, walls and taunts still apply. Changing this option resets the arena with the same seed.", 14)
 		goal_advance_toggle.toggled.connect(func(_enabled): reset())
+	label(choices, "PROTECTED STAGING", 19)
+	staging_capacity = option(choices, ["15 slots per side", "12 slots per side", "Off · old field hold"])
+	staging_capacity.item_selected.connect(func(_i): reset())
+	label(choices, "Produced this round → protected off-field. From the following round, release the whole ready group. Overflow sends the oldest ready group; newborns always wait.", 14)
+	for side_name in ["Your side", "Enemy"]:
+		label(choices, side_name + " · next interval", 14)
+		release_choices.append(option(choices, ["Auto · assess pressure", "Hold reserves", "March ready group once"]))
+	staging_note = label(choices, "", 14)
 	label(choices, "SPAWN UNITS", 19)
 	owner_choice = option(choices, ["Your side · blue", "Enemy side · red"])
 	spawn_point = option(choices, ["Spawn at gate", "Spawn nearer the center"])
+	spawn_point.visible = false
 	var grid := GridContainer.new()
 	grid.columns = 2
 	choices.add_child(grid)
@@ -142,13 +155,13 @@ func _ready() -> void:
 	label(choices, "PLAYBACK", 19)
 	mode = option(choices, ["15-second rounds · pause between", "Continuous · repeat rounds"])
 	mode.item_selected.connect(func(_i): _sync_controls())
-	speed = option(choices, ["0.5× speed", "1× speed", "2× speed"])
+	speed = option(choices, ["0.5× speed", "1× speed", "2× speed", "3× speed", "5× speed"])
 	speed.select(1)
 	label(choices, "Seed · same seed repeats the same fight", 14)
 	seed_entry = LineEdit.new()
 	seed_entry.text = sim.seed_value
 	choices.add_child(seed_entry)
-	label(choices, "Manual spawns are ready to move. Random commitments deploy next interval, as in the game. Spawns clicked during playback join the next interval.", 14)
+	label(choices, "Manual additions also enter staging. Choices made during playback apply at the next interval. Auto may march early when viable, and holds against clearly stronger pressure. Staging Off restores the comparison rules.", 14)
 	var actions := HBoxContainer.new()
 	controls.add_child(actions)
 	run_button = button(actions, "RUN 15s", start)
@@ -254,18 +267,22 @@ func _begin_interval() -> void:
 	if home_toggle.button_pressed: random_sides.append(0)
 	if enemy_toggle.button_pressed: random_sides.append(1)
 	var wave: Dictionary = sim.random_waves(random_sides)
+	sim.prepare_releases(release_choices.map(func(choice): return ["Auto", "Hold", "March"][choice.selected]))
+	for choice in release_choices:
+		if choice.selected == 2: choice.select(1)
 	_update_wave_notes()
 	if wave.action == "invalid":
 		running = false
 		status.text = "Simulation stopped: " + str(wave.get("reason", "random commitment unavailable"))
 		_sync_controls()
 		return
-	if sim.units().is_empty() and random_sides.is_empty():
+	if sim.units().is_empty() and sim.staged_units().is_empty() and random_sides.is_empty():
 		running = false
 		status.text = "Spawn units or enable random spawns for either side first."
 		_sync_controls()
 		return
 	field.show_world(sim.units(), sim.round_number, sim.world.data.get("field_structures", []))
+	_update_staging()
 	elapsed = 0
 	feedback_cursor = 0
 	job = Thread.new()
@@ -293,7 +310,7 @@ func _process(delta: float) -> void:
 		if not running: status.text = "Interval %d ready. Resume to play." % sim.round_number
 		_sync_controls()
 	if not active or not running: return
-	elapsed = minf(INTERVAL, elapsed + delta * [0.5, 1.0, 2.0][speed.selected])
+	elapsed = minf(INTERVAL, elapsed + delta * SPEEDS[speed.selected])
 	var playback_time: float = playback.duration * elapsed / INTERVAL
 	var frame: Dictionary = playback.sample(playback_time)
 	# Drain the tape rather than sampled pictures, so skipped display frames
@@ -336,12 +353,27 @@ func _sync_controls() -> void:
 	swap_seats_button.disabled = job != null
 	swap_seats_button.text = "RESTORE SEATS · SAME SEED" if seats_swapped else "SWAP SEATS · SAME SEED"
 	if goal_advance_toggle != null: goal_advance_toggle.disabled = job != null
+	staging_capacity.disabled = job != null
 
 func _show_idle() -> void:
 	field.ranged_display_settings = {"lane_balance_preview": sim.world.data.get("lane_balance_preview", {})}
 	field.show_world(sim.units(), sim.round_number, sim.world.data.get("field_structures", []))
 	field.monster_fields = sim.world.data.monsters.fields.duplicate(true)
+	_update_staging()
 	_report(sim.units())
+
+func _update_staging() -> void:
+	var enabled: bool = Sim.Staging.enabled(sim.world)
+	field.staging_capacity = int(sim.world.data.marcher_staging.capacity) if enabled else 0
+	field.staged_units = sim.staged_units().duplicate(true)
+	field.staging_round = sim.round_number
+	var lines: PackedStringArray = []
+	for decision in sim.world.data.get("marcher_staging", {}).get("decisions", []):
+		lines.append(("Yours: " if decision.owner == 0 else "Enemy: ") + decision.reason + " Released %d." % decision.released)
+	staging_note.text = "\n".join(lines)
+	for choice in release_choices: choice.disabled = not enabled
+	spawn_point.visible = not enabled
+	field.queue_redraw()
 
 func _update_wave_notes() -> void:
 	for pid in [0, 1]:
@@ -394,6 +426,9 @@ func swap_seats() -> void:
 	home_toggle.set_pressed_no_signal(enemy_toggle.button_pressed)
 	enemy_toggle.set_pressed_no_signal(home_random)
 	owner_choice.select(1 - owner_choice.selected)
+	var release_mode: int = release_choices[0].selected
+	release_choices[0].select(release_choices[1].selected)
+	release_choices[1].select(release_mode)
 	reset()
 	for original in opening:
 		var request: Dictionary = original.duplicate(true)
@@ -412,7 +447,7 @@ func reset() -> void:
 	manual_opening.clear()
 	result = {}
 	_clear_goal_playback()
-	sim = Sim.new(seed_entry.text, balance_preview, goal_advance_toggle.button_pressed if goal_advance_toggle != null else false, seats_swapped)
+	sim = Sim.new(seed_entry.text, balance_preview, goal_advance_toggle.button_pressed if goal_advance_toggle != null else false, seats_swapped, [15, 12, 0][staging_capacity.selected])
 	seed_entry.text = sim.seed_value
 	playback = Playback.new()
 	field.reset_effects()

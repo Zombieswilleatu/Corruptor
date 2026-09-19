@@ -1,0 +1,160 @@
+{
+  "schema": "U13_STAGING_TRIAL_V1",
+  "runtime": "4.5.1.stable.official.f62fdbde1 Linux headless",
+  "scope": "Lane sandbox; no Lord powers, castles or match victory. All comparisons use the new movement fix.",
+  "base_commit": "2cf3bbb",
+  "sources_sha256": {
+    "Scripts/Sim/U13LaneSandbox.gd": "0b17937239d5057c40e5389057ac1916163cb281a75389e6ae17b1e0b7f4d2b2",
+    "Scripts/Sim/U13LaneStaging.gd": "5e23eb0ce0f984106528ddd912f583f5d580c35a033314f7b4740a86d6e984ac",
+    "Scripts/Sim/U13Marching.gd": "8f6935baab514507a67b0df316cdf29b2fc95dac128e1ffa5a25d2d58bfa30a9",
+    "Scripts/Sim/U13MarcherNavigation.gd": "9ab1b882f48eff2a3abb40d9ef8c499fafcc4b86fde9c386a83f4a7c67619c6b",
+    "Scripts/Sim/U13MarcherSpacing.gd": "676df4671a5f495397a173fa9464a8411f4b74cc0785a104e34d9097f2132635",
+    "Scripts/Sim/U13MonsterEffects.gd": "fc241e90237f37db021bf68be7137d9184f62a6fb1ed294fa6079d91a787ad94",
+    "Scripts/Sim/U13SandboxEnemy.gd": "3e5f814958b766c9d749fa9709df3613cb26130fd87e49ed84e39e69c2b31a57",
+    "Scripts/Sim/u13_pysim/marching.py": "e1aa7740ab50709b4b049b22306825205b446ade9a33d1d684d04da84e335bc1",
+    "Scripts/Sim/u13_pysim/marcher_navigation.py": "8f778f5134246624dfb552f97a4bc689c9ecd693152f9b692021d3b57ffb347d",
+    "Scripts/Sim/u13_pysim/monster_effects.py": "155076663464bff22019eb5b3fc36ecc22ca6b3a602a0b2a3496c2b7588e4bfc"
+  },
+  "runs": [
+    {
+      "seed": "lane-f881e7ec-e3aebe70",
+      "capacity": 0,
+      "policy": "Auto",
+      "swapped": false,
+      "totals": [
+        {
+          "banished": 0,
+          "defeated": 368,
+          "escaped": 0,
+          "reached_goal": 0,
+          "spawned": 370
+        },
+        {
+          "banished": 0,
+          "defeated": 258,
+          "escaped": 123,
+          "reached_goal": 124,
+          "spawned": 402
+        }
+      ],
+      "rounds": 109,
+      "elapsed_ms": 310548,
+      "pressure_holds": 0,
+      "overflow_releases": 0,
+      "first_home_goal": null,
+      "first_home_lead": null
+    },
+    {
+      "seed": "lane-f881e7ec-e3aebe70",
+      "capacity": 12,
+      "policy": "Auto",
+      "swapped": false,
+      "totals": [
+        {
+          "banished": 0,
+          "defeated": 347,
+          "escaped": 36,
+          "reached_goal": 37,
+          "spawned": 409
+        },
+        {
+          "banished": 3,
+          "defeated": 318,
+          "escaped": 118,
+          "reached_goal": 119,
+          "spawned": 446
+        }
+      ],
+      "rounds": 109,
+      "elapsed_ms": 310919,
+      "pressure_holds": 36,
+      "overflow_releases": 11,
+      "first_home_goal": 39,
+      "first_home_lead": null
+    },
+    {
+      "seed": "lane-f881e7ec-e3aebe70",
+      "capacity": 15,
+      "policy": "Auto",
+      "swapped": false,
+      "totals": [
+        {
+          "banished": 0,
+          "defeated": 287,
+          "escaped": 99,
+          "reached_goal": 99,
+          "spawned": 418
+        },
+        {
+          "banished": 4,
+          "defeated": 385,
+          "escaped": 47,
+          "reached_goal": 48,
+          "spawned": 446
+        }
+      ],
+      "rounds": 109,
+      "elapsed_ms": 302307,
+      "pressure_holds": 33,
+      "overflow_releases": 15,
+      "first_home_goal": 42,
+      "first_home_lead": 44
+    },
+    {
+      "seed": "lane-f881e7ec-e3aebe70",
+      "capacity": 15,
+      "policy": "March",
+      "swapped": false,
+      "totals": [
+        {
+          "banished": 0,
+          "defeated": 351,
+          "escaped": 30,
+          "reached_goal": 30,
+          "spawned": 409
+        },
+        {
+          "banished": 10,
+          "defeated": 280,
+          "escaped": 149,
+          "reached_goal": 149,
+          "spawned": 446
+        }
+      ],
+      "rounds": 109,
+      "elapsed_ms": 252463,
+      "pressure_holds": 0,
+      "overflow_releases": 0,
+      "first_home_goal": 50,
+      "first_home_lead": null
+    },
+    {
+      "seed": "lane-30d27b94-0258ddb4",
+      "capacity": 15,
+      "policy": "Auto",
+      "swapped": true,
+      "totals": [
+        {
+          "banished": 0,
+          "defeated": 50,
+          "escaped": 49,
+          "reached_goal": 49,
+          "spawned": 108
+        },
+        {
+          "banished": 0,
+          "defeated": 88,
+          "escaped": 2,
+          "reached_goal": 2,
+          "spawned": 107
+        }
+      ],
+      "rounds": 30,
+      "elapsed_ms": 89128,
+      "pressure_holds": 10,
+      "overflow_releases": 2,
+      "first_home_goal": 19,
+      "first_home_lead": 19
+    }
+  ]
+}
