@@ -1815,7 +1815,7 @@
     "semantic_sha256": "7ea875803e2e6da33072769fc80fdd5ec6bffcec8971a6d4c34802b74032241d",
     "tests_passed": 168
   },
-  "next": "Windows CPython/PyPy behavior acceptance for V12; retain accepted native Breath gate. Broader strength/loadout testing remains separate.",
+  "next": "Retain the accepted V12 checkpoint. Integrate subsequent authority changes before further doctrine comparisons; broader strength/loadout testing and native full-game doctrine parity remain separate.",
   "published_implementation": "5dccbcb0abce14bff789611c9f8bb2d5f54a381f",
   "schema": "U13_HUMBABA_PRESSURE_CHECKPOINT_V1",
   "source_identity": {
@@ -1824,7 +1824,7 @@
     "harness_sha256": "cecf57e52ade545edb8da4ad1188c4dba44089cfaef2441e9a246c7ab306b97c",
     "rules_changed": false
   },
-  "status": "local_verified_windows_dual_runtime_pending",
+  "status": "windows_dual_runtime_accepted_at_77ff661",
   "tested_local_commit": "ef403c521ff7dc73f8769fb76b3e2fcaf5dc7a76",
   "unchanged_lord_decision_checks": {
     "checks": 48,
@@ -1841,6 +1841,19 @@
     ],
     "report_sha256": "da6cc421501add75322a70d937a5b091412d5b92c5069286294468a45108a2b9",
     "scope": "Identical selected plans and scores on recorded detached public views; permissive admission, no new game outcomes."
+  },
+  "windows_acceptance": {
+    "archive_sha256": "fdf2679c7103254a1048e5aabf0c02914b4230020d65207906cfa9f75666f334",
+    "complete_games": 5,
+    "evidence": "U13_HUMBABA_PRESSURE_WINDOWS_77ff661.json",
+    "failures": 0,
+    "operations": 2118,
+    "original_local_v12_semantics_and_inputs_match": true,
+    "rejected_previews": 0,
+    "reports_and_inputs_match": true,
+    "rounds": 84,
+    "source_revision": "77ff66132104d213284c25e5e6feb869d5c1453d",
+    "tests_per_runtime": 168
   },
   "windows_attempt_2026_09_19": {
     "archive": "u13-common-doctrine-TwplP8-2026-09-19_10-04-05-X6kneQ.zip",

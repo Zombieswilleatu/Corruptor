@@ -1,0 +1,328 @@
+{
+  "archive": {
+    "bytes": 261542,
+    "filename": "u13-common-doctrine-QgVL2D-2026-09-19_10-51-12-MWnGzM.zip",
+    "members": {
+      "comparison.log": {
+        "bytes": 127,
+        "sha256": "1af6853bbba539ca9fd77564ccd680e287ea3a6c7a09c6066e6591e2542c0732"
+      },
+      "cpython.inputs.json": {
+        "bytes": 499224,
+        "sha256": "2b3df0f448ed5ac3375ff7a5cc04a42fc66dfdc34cde913cfb71f2e3123afbdd"
+      },
+      "cpython.json": {
+        "bytes": 1474404,
+        "sha256": "25bfe44ff084bd538bba6c757d0abc25b10ae85fa33d489d81833b637a7eeba6"
+      },
+      "cpython.log": {
+        "bytes": 30649,
+        "sha256": "03cb4ca2d5f532352e8c5f421a6386eea600d202fa8266e544ca4b204695532d"
+      },
+      "pypy.inputs.json": {
+        "bytes": 499224,
+        "sha256": "2b3df0f448ed5ac3375ff7a5cc04a42fc66dfdc34cde913cfb71f2e3123afbdd"
+      },
+      "pypy.json": {
+        "bytes": 1474411,
+        "sha256": "66ab85a3f29dd13035fe459b0788e0b3867dbcab997a05fa79c5385b33672cae"
+      },
+      "pypy.log": {
+        "bytes": 30649,
+        "sha256": "cf7266535c22682dce318c6fd951546dbd2c75821b75cd46e65dcb198df3afb1"
+      },
+      "revision.txt": {
+        "bytes": 41,
+        "sha256": "004c4058b0ac4261bd075c9021741d5bfdcb98d13267cb9518f1ab9ba7a83b7c"
+      },
+      "run-status.txt": {
+        "bytes": 177,
+        "sha256": "e3f02b3aa47d0c50d10b42680baf1f361feff2203db78cb6ed5a2766b29ee180"
+      },
+      "runner.log": {
+        "bytes": 213,
+        "sha256": "f676c5190f52c219305ff81dec6ebb5b3f904a282277d20ddace1d7df8e446ab"
+      },
+      "runtimes.txt": {
+        "bytes": 339,
+        "sha256": "f4a5b30aed6495bd03bc3867c9e5b5b6e205239b8e5b6328acd9900b0c06e938"
+      },
+      "worktree.diff": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "sha256": "fdf2679c7103254a1048e5aabf0c02914b4230020d65207906cfa9f75666f334"
+  },
+  "date": "2026-09-19",
+  "failures": 0,
+  "games": [
+    {
+      "decisions_sha256": "84245d1bc266d53530d581e1c88f6c2b6b92d3853ffecc6458a98eeff575138c",
+      "final_state_sha256": "a1b915be85cb4e8b27d6d6653583498acd3ff2d119a27c7978f33857795e0c5e",
+      "name": "gremory_humbaba",
+      "operations": 400,
+      "outcome": {
+        "action": "game_finished",
+        "round": 16,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "rounds": 16,
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Gremory",
+          "Humbaba"
+        ],
+        "seed": "u13-nine-lords:gremory_humbaba"
+      }
+    },
+    {
+      "decisions_sha256": "5856c8891ba1903ef8824ead70357e3ded41de6859c92aa8b92f768a68581bc3",
+      "final_state_sha256": "90de2b4e6677575bd946bf0600db622ff2fc8edf2135fb473bc59f80085d0f3a",
+      "name": "deimos_kalligan",
+      "operations": 535,
+      "outcome": {
+        "action": "game_finished",
+        "round": 21,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "rounds": 21,
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Deimos",
+          "Kalligan"
+        ],
+        "seed": "u13-nine-lords:deimos_kalligan"
+      }
+    },
+    {
+      "decisions_sha256": "dd3d9dc68f231a6d92e6da7b71aa20d79bc9ca3afcab4444d98c67795fcb5d90",
+      "final_state_sha256": "57b7c7250a90227a3aed2f16cbe195cb15013b390beeeaa906c9d57ba59d9f7c",
+      "name": "orias_odradek",
+      "operations": 381,
+      "outcome": {
+        "action": "game_finished",
+        "round": 15,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "rounds": 15,
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Orias",
+          "Odradek"
+        ],
+        "seed": "u13-nine-lords:orias_odradek"
+      }
+    },
+    {
+      "decisions_sha256": "9eac17e9b45b71a6e2906866c697ec06f07416bb0abd277696b1e729527ddcd7",
+      "final_state_sha256": "5f83f5f0e4a9f7500acc7169a662ff0e2c9c83de3a0daa6d48a878eb15ff62fe",
+      "name": "kroni_valak",
+      "operations": 507,
+      "outcome": {
+        "action": "game_finished",
+        "round": 20,
+        "win_by": "FinalCollapse",
+        "winner": 1
+      },
+      "rounds": 20,
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Kroni",
+          "Valak"
+        ],
+        "seed": "u13-nine-lords:kroni_valak"
+      }
+    },
+    {
+      "decisions_sha256": "ccea0814c1280ae25413d975b8ba1d8205c87969c145e89e1b47f29e0315caac",
+      "final_state_sha256": "e00655112b84429d186d92b9f0375765800c6f15724529dce7b58b281a7c810f",
+      "name": "kanifous_gremory",
+      "operations": 295,
+      "outcome": {
+        "action": "game_finished",
+        "round": 12,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "rounds": 12,
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Kanifous",
+          "Gremory"
+        ],
+        "seed": "u13-nine-lords:kanifous_gremory"
+      }
+    }
+  ],
+  "later_revision_excluded": "b61393f836f3d1570baee59b2056d325b941bca8",
+  "later_revision_note": "Later marcher spacing/counter changes are preserved in the publishing branch but were not present in this Windows run.",
+  "maximum_work": {
+    "complete_plans": 31,
+    "generated:combat": 11,
+    "generated:guards": 9,
+    "generated:monsters": 9,
+    "generated:powers": 11,
+    "generated:resummon": 1,
+    "generated:rites": 4,
+    "generated:slaver": 4,
+    "generated:stockpile": 2,
+    "generated:support": 16,
+    "generated:work": 6,
+    "previews": 1,
+    "retained:combat": 4,
+    "retained:guards": 4,
+    "retained:monsters": 4,
+    "retained:powers": 4,
+    "retained:rites": 3,
+    "retained:slaver": 1,
+    "retained:stockpile": 1,
+    "retained:support": 4,
+    "retained:work": 4
+  },
+  "rejected_previews": 0,
+  "runner_status": {
+    "doctrine_timeout_seconds": "1800",
+    "elapsed_seconds": "1549",
+    "exit_status": "0",
+    "phase": "comparison.log",
+    "phase_elapsed_seconds": "2",
+    "phase_timeout_seconds": "600",
+    "reason": "passed",
+    "runner": "u13-common-doctrine"
+  },
+  "runtimes": {
+    "cpython": {
+      "implementation": "CPython",
+      "platform": "Windows-11-10.0.26200-SP0",
+      "python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+      "runner_phase_seconds": 961,
+      "tests_passed": 168,
+      "unit_test_seconds": 415.101
+    },
+    "pypy": {
+      "implementation": "PyPy",
+      "platform": "Windows-10-10.0.26200-SP0",
+      "python": "3.11.15 (194f9f44b505, May 25 2026, 19:35:45)\n[PyPy 7.3.23 with MSC v.1941 64 bit (AMD64)]",
+      "runner_phase_seconds": 583,
+      "tests_passed": 168,
+      "unit_test_seconds": 254.924
+    }
+  },
+  "schema": "U13_HUMBABA_PRESSURE_WINDOWS_ACCEPTANCE_V1",
+  "scope": "Accepts V12 Python behavior and CPython/PyPy agreement at 77ff661. The prior focused native Breath gate remains accepted. No new native full-game doctrine parity, Lord balance, throughput benchmark, Vulture preview gameplay acceptance, or acceptance of later commits.",
+  "source_identity": {
+    "engine_source_sha256": "6849abebda04d0c7f55f02f1310ef48debb734a5bc287363124b232102ba6259",
+    "harness_source_sha256": "cecf57e52ade545edb8da4ad1188c4dba44089cfaef2441e9a246c7ab306b97c",
+    "runner_source_sha256": "b84b77ef705cc4e64da3b13f83c88b65631c049c56d06e9067958056835da7d3",
+    "semantic_sha256": "7ea875803e2e6da33072769fc80fdd5ec6bffcec8971a6d4c34802b74032241d",
+    "verified_against_tested_checkout": true
+  },
+  "source_revision": "77ff66132104d213284c25e5e6feb869d5c1453d",
+  "status": "accepted Windows CPython/PyPy V12 behavior gate",
+  "total_operations": 2118,
+  "total_rounds": 84,
+  "tracked_worktree_diff_empty": true,
+  "verification": {
+    "all_candidate_limits_respected": true,
+    "all_input_operation_hashes_match_reports": true,
+    "all_semantics_equal_between_runtimes": true,
+    "complete_expected_games": 5,
+    "failure_scan": "passed",
+    "input_files_byte_identical": true,
+    "official_report_comparison": "passed",
+    "original_local_v12": {
+      "comparison_scope": "Parsed reports and recorded operation streams; no new simulation replay.",
+      "engine_source_sha256": "00dd00f2192f5c5913494b0cb7cea11fc58b04080ab1d8b9216c7760fc6c9c11",
+      "full_inputs_equal": true,
+      "full_semantics_equal": true,
+      "harness_source_sha256": "cecf57e52ade545edb8da4ad1188c4dba44089cfaef2441e9a246c7ab306b97c",
+      "semantic_sha256": "7ea875803e2e6da33072769fc80fdd5ec6bffcec8971a6d4c34802b74032241d",
+      "source_revision": "ef403c521ff7dc73f8769fb76b3e2fcaf5dc7a76"
+    },
+    "runner_completed": true
+  }
+}

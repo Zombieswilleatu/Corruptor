@@ -1,5 +1,11 @@
 # U13 Humbaba V12: reachable support and controlled replays
 
+**Windows V12 acceptance passed at `77ff661`.** CPython 3.14.7 and PyPy
+7.3.23 each passed 168 tests and produced identical five-game reports and
+recorded inputs: **84 rounds / 2,118 operations**, zero failures or rejected
+previews. Every semantic result and recorded input also matches the original
+local V12 run. See the [accepted Windows evidence](evidence/U13_HUMBABA_PRESSURE_WINDOWS_77ff661.json).
+
 **Fresh result: V12 37–31 V11.** All 68 games completed: 1,282 rounds /
 32,360 operations, zero failures, caps or rejected previews. The two repeats
 finished 18–16 and 19–15. Of 34 policy pairs, V12 won both assignments eight
@@ -9,7 +15,8 @@ Against the eight unchanged Lords at the same seats and seeds, Humbaba won
 12/32 setups under V12 and 10/32 under V11: seven gained wins, five lost,
 20 unchanged. This is encouraging fixed-loadout evidence for the candidate,
 with limited seed coverage. It does not establish general strength or Lord
-balance. Windows dual-runtime acceptance remains next.
+balance. The subsequent Windows gate accepts behavior and runtime agreement
+at `77ff661`; it does not expand this comparison's strength claims.
 
 This checkpoint tests a narrower Breath heuristic after V11 finished 90–102
 against V10. Game rules, the immediate pulse, duration, cooldown, Scorch,
@@ -116,15 +123,49 @@ The four other natural Rout/heal/support decisions retain their exact plans.
 - Forty-eight recorded detached public views across the eight other Lords:
   identical selected plans and scores under V11 and V12. This is a decision
   regression check with permissive admission, not 48 full-game controls.
-- Same authority source SHA-256:
+- Authority source SHA-256 for the original local gate and comparison:
   `00dd00f2192f5c5913494b0cb7cea11fc58b04080ab1d8b9216c7760fc6c9c11`.
 - Candidate policy/observer SHA-256:
   `cecf57e52ade545edb8da4ad1188c4dba44089cfaef2441e9a246c7ab306b97c`.
 
-The accepted Windows native Breath rules gate remains valid. V12's Python
-dual-runtime acceptance is still pending. The first Windows attempt and the
-runner correction are recorded below. After pulling this checkpoint in
-Git Bash, the wrapper produces the reports ZIP in Downloads:
+### Windows acceptance at 77ff661
+
+The uploaded `u13-common-doctrine-QgVL2D-2026-09-19_10-51-12-MWnGzM.zip`
+identifies `77ff66132104d213284c25e5e6feb869d5c1453d` with an empty tracked
+worktree diff. The ZIP integrity check, official report comparator, operation
+fingerprints, candidate limits and source fingerprints all passed independent
+inspection. Both input files are byte-identical. Their parsed contents and the
+full semantic reports equal the saved local V12 run exactly, including every
+decision, final state and diagnostic field. This comparison did not rerun the
+simulations.
+
+| Runtime | Tests passed | Unit-test seconds | Complete check seconds |
+| --- | ---: | ---: | ---: |
+| CPython 3.14.7 | 168 | 415.101 | 961 |
+| PyPy 7.3.23 / Python 3.11.15 | 168 | 254.924 | 583 |
+
+The five cases finished in 16, 21, 15, 20 and 12 rounds, respectively: 84 rounds
+and 2,118 operations. Maximum observed work was 31 complete plans and one
+preview, within the unchanged 32/eight limits. The runner returned zero with
+`reason=passed`; total elapsed time was 1,549 seconds. These timings explain
+why the former 600-second wrapper budget was insufficient; they are not a
+throughput benchmark.
+
+The accepted engine source fingerprint is
+`6849abebda04d0c7f55f02f1310ef48debb734a5bc287363124b232102ba6259`.
+It includes the intervening Vulture preview implementation. The policy/observer
+fingerprint remains `cecf57e52ade545edb8da4ad1188c4dba44089cfaef2441e9a246c7ab306b97c`,
+and all five ordinary games retain the original V12 semantic fingerprint
+`7ea875803e2e6da33072769fc80fdd5ec6bffcec8971a6d4c34802b74032241d`.
+
+The accepted Windows native Breath rules gate remains valid. This ZIP adds
+Python V12 behavior acceptance, not new native full-game doctrine parity or
+Vulture preview gameplay acceptance. The later marcher changes at `b61393f`
+are preserved in the publishing branch but were not present in this run.
+Integrate subsequent authority changes before making new doctrine comparisons.
+
+The accepted command is retained for reference; this completed gate does not
+need repeating:
 
 ```bash
 git pull --ff-only origin u13-basic-doctrine &&
@@ -165,8 +206,8 @@ Run them separately with
 
 This correction was applied after preserving the separate Vulture preview at
 `b1f1609`. It changes the wrapper and adds its process tests; it does not alter
-the doctrine suite, game assertions or policy. The next Windows run must finish
-both checks and their comparison before acceptance can be recorded.
+the doctrine suite, game assertions or policy. The subsequent Windows run
+completed both checks and their comparison, as recorded above.
 
 ## Fixed fresh comparison protocol
 
