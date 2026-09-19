@@ -39,6 +39,8 @@ var active_scorches: Array = []
 const WebVisuals = preload("res://Prototype/U13/U13WebVisuals.gd")
 var web_visuals = WebVisuals.new()
 var active_webs: Array = []
+const CharmVisuals = preload("res://Prototype/U13/U13CharmVisuals.gd")
+var charm_visuals = CharmVisuals.new()
 
 
 func bind_scorch(records: Array) -> void:
@@ -147,6 +149,8 @@ func _get_tooltip(at: Vector2) -> String:
 			var unit_name: String = unit.attributes.get("monster_id", unit.attributes.suit)
 			var hp: String = "Obscured" if void_active else "%d/%d" % [unit.attributes.hp, unit.attributes.max_hp]
 			var description: String = "%s · %s\nHP %s · Armor %d" % [unit_name, "Yours" if unit.owner == 0 else "Enemy", hp, unit.attributes.armor]
+			if CharmVisuals.active(unit):
+				description += "\nCHARMED · fighting for %s until this round ends. Returns to %s next round." % ["you" if unit.owner == 0 else "the enemy", "you" if int(unit.attributes.charm_owner) == 0 else "the enemy"]
 			if unit_name == "Penitent": description += "\n" + preload("res://Scripts/Sim/U13PenitentDefense.gd").DESCRIPTION
 			if unit_name == "Vulture":
 				description += "\nShooting range: %d" % Ranged.vulture_range({"data": ranged_display_settings})
@@ -156,7 +160,7 @@ func _get_tooltip(at: Vector2) -> String:
 			if unit_name in ["Vulture", "Kopita", "Sinodek", "Sooge"] and unit.attributes.get("sprite_form") != "turret":
 				description += "\nSlows near allied front-line fighters to stay behind them, except during a goal advance." if unit_name == "Vulture" and Ranged.goal_advance_enabled({"data": ranged_display_settings}) else "\nSlows near allied front-line fighters to stay behind them."
 			if unit_name == "Tumler":
-				description += "\n50% evasion while hunting; ends at target contact. Landed melee hits change his target; ranged hits do not."
+				description += "\n50% evasion against direct attacks, including at melee contact. Poison cannot be dodged. Landed melee hits while hunting change his target; ranged hits do not."
 			if unit_name == "Kopita":
 				description += "\nAt the start of each active round: green heals allies 1 HP; violet damages enemies 1. Alternates; radius 360."
 				description += "\nNext pulse: " + ("Heal" if int(unit.attributes.get("kopita_pulses", 0)) % 2 == 0 else "Harm")
@@ -332,6 +336,7 @@ func _draw() -> void:
 	_draw_monster_attacks()
 	projectile_visual.draw(self, projectiles)
 	deaths.draw(self)
+	_draw_charm_markers()
 	draw_string(font, Vector2(size.x * 0.5 - 38, size.y - 7), "HP", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, HEALTH_RING_COLOR)
 	draw_string(font, Vector2(size.x * 0.5 + 4, size.y - 7), "ARMOR", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, ARMOR_RING_COLOR)
 
@@ -392,6 +397,14 @@ func _draw_unit_rings(unit: Dictionary, center: Vector2, owner_color: Color, spr
 		draw_arc(Vector2.ZERO, inner_radius, start, start + TAU * segments.armor, 48, ARMOR_RING_COLOR, 3.0, true)
 	draw_set_transform(Vector2.ZERO)
 
+func _draw_charm_markers() -> void:
+	for unit in _units:
+		if deaths.seen.has(unit.id) or not CharmVisuals.active(unit): continue
+		var height: float = unit_sprite_height(unit) if uses_sprite(unit) else CHIT_DIAMETER * 0.5
+		# Keep hearts clear of the protected enemy tray at the upper gate.
+		var ceiling: float = travel_rect(unit.attributes.lane).position.y - sprite_height + 8.0
+		charm_visuals.draw(self, unit, _monster_point(unit.attributes), height, ceiling)
+
 
 func _draw_marcher_death(unit: Dictionary, center: Vector2, age: float) -> void:
 	var blink: bool = age < deaths.FLASH_DURATION and int(age / 0.05) % 2 == 0
@@ -440,6 +453,7 @@ func pulse_lanes(selected_lane: String = "") -> void:
 
 
 func reset_effects() -> void:
+	charm_visuals.age = 0.0
 	field_structures = []
 	projectiles = []
 	monster_fields = []
@@ -470,10 +484,12 @@ func _effects_need_process() -> bool:
 		or not scorch_visuals.groups.is_empty()
 		or not feedback.visible.is_empty()
 		or not rout_visuals.subjects.is_empty()
+		or _units.any(func(unit): return CharmVisuals.active(unit))
 	)
 
 
 func _process(delta: float) -> void:
+	charm_visuals.age += maxf(0.0, delta)
 	sprite_visuals.advance(delta)
 	# Keep the initial warm-up at one asset per frame across both effects.
 	if breath_visuals.textures.size() < 5:

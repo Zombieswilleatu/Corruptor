@@ -217,6 +217,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     structures = fort.rows(context['world']) if ranged else []
     reach2 = fort.CONTACT**2 if ranged else CONTACT2
     target_rows = s.rows() if ranged else []
+    target_by_id = {r['id']: r for r in target_rows}
     accepted_rows = copy_data(target_rows)
     accepted_by_id = {r['id']: r for r in accepted_rows}
     reachable = {i: navigation.candidates(s.row(i), target_rows+structures, clock) for i in indices} if ranged else {}
@@ -251,8 +252,12 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
         if not retreat[i] and (fort.in_melee(s.row(i), field_nearest[i]) if ranged else gaps[i] <= reach2):
             if s.contact_tick[i] < 0:
                 s.contact_tick[i] = clock
+                if ranged: target_by_id[s.ids[i]]['attributes']['contact_tick'] = clock
             continue
         s.contact_tick[i] = -1
+        # Godot's movement snapshot keeps positions fixed but updates contact
+        # flags in identity order. Followers see a leader leave contact now.
+        if ranged: target_by_id[s.ids[i]]['attributes']['contact_tick'] = -1
         if s.movement_ready_round[i] > number or not retreat[i] and (s.waiting[i] or s.ids[i] in busy):
             continue
         goal_x = 2400 if owner == 0 else 0

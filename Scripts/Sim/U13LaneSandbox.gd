@@ -236,4 +236,7 @@ func finish(result: Dictionary) -> void:
 			world.data.marching_duels.erase(lane)
 	world.data.kanifous_losses = []
 	world.data.monsters.death_ids = []
+	# Restore temporary control before the next draw and staging decisions.
+	# Score/retire arrivals first: a charmed unit may have reached our goal.
+	Effects.end_round(world, round_number)
 	round_number += 1

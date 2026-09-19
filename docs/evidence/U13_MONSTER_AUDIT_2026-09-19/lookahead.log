@@ -1,0 +1,120 @@
+Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org
+
+PASS fork copies both card streams and all arena state (false/0/0)
+PASS threaded commitment matches serial cards, staging, totals and seats
+PASS all 200 ticks and final world match serial simulation exactly
+PASS background replay build matches every serial replay property
+PASS preparation leaves the live arena and current result untouched
+PASS fork copies both card streams and all arena state (false/0/1)
+PASS threaded commitment matches serial cards, staging, totals and seats
+PASS all 200 ticks and final world match serial simulation exactly
+PASS background replay build matches every serial replay property
+PASS preparation leaves the live arena and current result untouched
+PASS fork copies both card streams and all arena state (false/0/2)
+PASS threaded commitment matches serial cards, staging, totals and seats
+PASS all 200 ticks and final world match serial simulation exactly
+PASS background replay build matches every serial replay property
+PASS preparation leaves the live arena and current result untouched
+PASS fork copies both card streams and all arena state (false/15/0)
+PASS threaded commitment matches serial cards, staging, totals and seats
+PASS all 200 ticks and final world match serial simulation exactly
+PASS background replay build matches every serial replay property
+PASS preparation leaves the live arena and current result untouched
+PASS fork copies both card streams and all arena state (false/15/1)
+PASS threaded commitment matches serial cards, staging, totals and seats
+PASS all 200 ticks and final world match serial simulation exactly
+PASS background replay build matches every serial replay property
+PASS preparation leaves the live arena and current result untouched
+PASS fork copies both card streams and all arena state (false/15/2)
+PASS threaded commitment matches serial cards, staging, totals and seats
+PASS all 200 ticks and final world match serial simulation exactly
+PASS background replay build matches every serial replay property
+PASS preparation leaves the live arena and current result untouched
+PASS fork copies both card streams and all arena state (true/0/0)
+PASS threaded commitment matches serial cards, staging, totals and seats
+PASS all 200 ticks and final world match serial simulation exactly
+PASS background replay build matches every serial replay property
+PASS preparation leaves the live arena and current result untouched
+PASS fork copies both card streams and all arena state (true/0/1)
+PASS threaded commitment matches serial cards, staging, totals and seats
+PASS all 200 ticks and final world match serial simulation exactly
+PASS background replay build matches every serial replay property
+PASS preparation leaves the live arena and current result untouched
+PASS fork copies both card streams and all arena state (true/0/2)
+PASS threaded commitment matches serial cards, staging, totals and seats
+PASS all 200 ticks and final world match serial simulation exactly
+PASS background replay build matches every serial replay property
+PASS preparation leaves the live arena and current result untouched
+PASS fork copies both card streams and all arena state (true/15/0)
+PASS threaded commitment matches serial cards, staging, totals and seats
+PASS all 200 ticks and final world match serial simulation exactly
+PASS background replay build matches every serial replay property
+PASS preparation leaves the live arena and current result untouched
+PASS fork copies both card streams and all arena state (true/15/1)
+PASS threaded commitment matches serial cards, staging, totals and seats
+PASS all 200 ticks and final world match serial simulation exactly
+PASS background replay build matches every serial replay property
+PASS preparation leaves the live arena and current result untouched
+PASS fork copies both card streams and all arena state (true/15/2)
+PASS threaded commitment matches serial cards, staging, totals and seats
+PASS all 200 ticks and final world match serial simulation exactly
+PASS background replay build matches every serial replay property
+PASS preparation leaves the live arena and current result untouched
+PASS continuous preparation defaults on
+PASS interval becomes ready within the deadline
+PASS next interval prepares for the current choices
+PASS ready future does not expose future draws, reserves or goals
+PASS 5x playback hands off a ready interval without another preparation wait
+PASS handoff adopts exactly the prepared replay and committed arena
+PASS handoff does not duplicate requests or change Auto choices
+PASS next interval prepares for the current choices
+PASS paused edits discard the stale future without consuming requests
+PASS next interval prepares for the current choices
+PASS manual spawns, release choice and random toggle rebuild the correct future
+PASS a rejected duplicate limited monster cannot poison preparation
+PASS changing playback speed retains valid preparation
+PASS edited requests commit once at the boundary
+PASS one-shot March returns to Hold after commitment
+PASS edited handoff keeps the same complete result as serial execution
+PASS next interval prepares for the current choices
+PASS same-seed reset clears prepared futures and scores
+PASS interval becomes ready within the deadline
+PASS comparison toggle restores preparation only at boundaries
+PASS next interval prepares for the current choices
+PASS pause-between mode discards speculative preparation
+PASS pause-between mode still stops at the boundary
+PASS interval becomes ready within the deadline
+PASS next interval prepares for the current choices
+PASS slow preparation waits at the boundary with a fresh interval clock
+PASS boundary seals requests and consumes one-shot March before the worker finishes
+PASS resuming an in-flight handoff does not start a duplicate commitment
+PASS interval becomes ready within the deadline
+PASS completed preparation installs while paused without advancing playback
+PASS later selector edits cannot rewrite the already sealed interval
+PASS requests made during the wait survive for the following interval
+PASS interval becomes ready within the deadline
+PASS the later manual request and one-shot release apply exactly one interval later
+PASS interval becomes ready within the deadline
+PASS next interval prepares for the current choices
+PASS reset and swap remain available while a speculative worker finishes
+PASS seat swap cancels an in-flight handoff without waiting for its worker
+PASS stale completion cannot overwrite a reset arena in opposite seats
+PASS interval becomes ready within the deadline
+PASS next interval prepares for the current choices
+PASS interval becomes ready within the deadline
+PASS last-moment cache miss preserves edited inputs and swapped card streams
+PASS closing the sandbox joins its speculative worker
+PASS interval becomes ready within the deadline
+PASS next interval prepares for the current choices
+PASS fixture has one current goal and one goal in the prepared future
+PASS preparing a future with known goals cannot reveal them early
+PASS current arrivals score at their own playback time
+PASS ready handoff credits previous arrivals once and keeps the future arrival hidden
+PASS second interval credits only its new arrival without double counting
+PASS interval becomes ready within the deadline
+PASS next interval prepares for the current choices
+PASS fixture stops between rounds while old speculation remains in flight
+PASS an immediate idle spawn invalidates the old worker's base world
+PASS interval becomes ready within the deadline
+PASS resuming continuous mode retains units added between rounds
+LOOKAHEAD TESTS: 117 checks, 0 failures

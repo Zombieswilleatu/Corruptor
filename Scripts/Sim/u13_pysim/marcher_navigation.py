@@ -45,8 +45,9 @@ def route(unit, destination, rows, structures):
 
 
 def steer(unit, proposed, destination, target, rows, structures, step, clock, protected_target=False, retreat=False):
-    if retreat or step <= 0: return spacing.slide(unit, proposed, rows, structures, step, not retreat)
-    if any(other['owner'] != unit['owner'] and spacing.collides(unit, other) and fort.in_melee(unit, other) for other in rows): return unit['attributes']
+    if retreat or step <= 0: return spacing.slide(unit, proposed, rows, structures, step, not retreat and not protected_target)
+    # A taunted fighter must be able to leave its previous melee contact.
+    if not protected_target and any(other['owner'] != unit['owner'] and spacing.collides(unit, other) and fort.in_melee(unit, other) for other in rows): return unit['attributes']
     a = unit['attributes']
     goal = destination or dict(x_fp=2400 if unit['owner'] == 0 else 0, y_fp=a['y_fp'])
     nav = copy_data(a.get('navigation', {})); gap = fort.distance(a, goal)
@@ -73,7 +74,7 @@ def steer(unit, proposed, destination, target, rows, structures, step, clock, pr
             nav['progress'] = clock
         else:
             nav['path'] = []; nav['progress'] = clock-STALL_TICKS
-            moved = spacing.slide(unit, proposed, rows, structures, step)
-    else: moved = spacing.slide(unit, proposed, rows, structures, step)
+            moved = spacing.slide(unit, proposed, rows, structures, step, not protected_target)
+    else: moved = spacing.slide(unit, proposed, rows, structures, step, not protected_target)
     moved = copy_data(moved); moved['navigation'] = nav
     return moved

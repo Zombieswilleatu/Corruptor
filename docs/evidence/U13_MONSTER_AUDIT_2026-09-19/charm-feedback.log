@@ -1,0 +1,103 @@
+Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org
+
+PASS charm fixture resolves a valid production combat
+PASS Fyra actually charms the Butcher on side 1
+PASS actual charm event tape builds
+PASS hearts and allegiance change at the recorded charm tick, never early
+PASS three visible hearts fit above the unit in either display mode
+PASS heart outline produces a renderable filled polygon
+PASS hover explains temporary control and its return
+PASS three visible hearts fit above the unit in either display mode
+PASS heart outline produces a renderable filled polygon
+PASS hover explains temporary control and its return
+PASS reset clears charm presentation
+PASS three visible hearts fit above the unit in either display mode
+PASS heart outline produces a renderable filled polygon
+PASS hover explains temporary control and its return
+PASS three visible hearts fit above the unit in either display mode
+PASS heart outline produces a renderable filled polygon
+PASS hover explains temporary control and its return
+PASS paused sandbox freezes the floating hearts
+PASS resuming animates the hearts
+PASS reset clears charm presentation
+PASS hearts cannot reveal a concealed enemy
+PASS dead units cannot retain hearts
+PASS restoring original ownership removes the hearts
+PASS charm fixture resolves a valid production combat
+PASS Fyra actually charms the Lemek on side 1
+PASS actual charm event tape builds
+PASS hearts and allegiance change at the recorded charm tick, never early
+PASS three visible hearts fit above the unit in either display mode
+PASS heart outline produces a renderable filled polygon
+PASS hover explains temporary control and its return
+PASS three visible hearts fit above the unit in either display mode
+PASS heart outline produces a renderable filled polygon
+PASS hover explains temporary control and its return
+PASS reset clears charm presentation
+PASS three visible hearts fit above the unit in either display mode
+PASS heart outline produces a renderable filled polygon
+PASS hover explains temporary control and its return
+PASS three visible hearts fit above the unit in either display mode
+PASS heart outline produces a renderable filled polygon
+PASS hover explains temporary control and its return
+PASS paused sandbox freezes the floating hearts
+PASS resuming animates the hearts
+PASS reset clears charm presentation
+PASS hearts cannot reveal a concealed enemy
+PASS dead units cannot retain hearts
+PASS restoring original ownership removes the hearts
+PASS charm fixture resolves a valid production combat
+PASS Fyra actually charms the Butcher on side 0
+PASS actual charm event tape builds
+PASS hearts and allegiance change at the recorded charm tick, never early
+PASS three visible hearts fit above the unit in either display mode
+PASS heart outline produces a renderable filled polygon
+PASS hover explains temporary control and its return
+PASS three visible hearts fit above the unit in either display mode
+PASS heart outline produces a renderable filled polygon
+PASS hover explains temporary control and its return
+PASS reset clears charm presentation
+PASS three visible hearts fit above the unit in either display mode
+PASS heart outline produces a renderable filled polygon
+PASS hover explains temporary control and its return
+PASS three visible hearts fit above the unit in either display mode
+PASS heart outline produces a renderable filled polygon
+PASS hover explains temporary control and its return
+PASS paused sandbox freezes the floating hearts
+PASS resuming animates the hearts
+PASS reset clears charm presentation
+PASS hearts cannot reveal a concealed enemy
+PASS dead units cannot retain hearts
+PASS restoring original ownership removes the hearts
+PASS charm fixture resolves a valid production combat
+PASS Fyra actually charms the Lemek on side 0
+PASS actual charm event tape builds
+PASS hearts and allegiance change at the recorded charm tick, never early
+PASS three visible hearts fit above the unit in either display mode
+PASS heart outline produces a renderable filled polygon
+PASS hover explains temporary control and its return
+PASS three visible hearts fit above the unit in either display mode
+PASS heart outline produces a renderable filled polygon
+PASS hover explains temporary control and its return
+PASS reset clears charm presentation
+PASS three visible hearts fit above the unit in either display mode
+PASS heart outline produces a renderable filled polygon
+PASS hover explains temporary control and its return
+PASS three visible hearts fit above the unit in either display mode
+PASS heart outline produces a renderable filled polygon
+PASS hover explains temporary control and its return
+PASS paused sandbox freezes the floating hearts
+PASS resuming animates the hearts
+PASS reset clears charm presentation
+PASS hearts cannot reveal a concealed enemy
+PASS dead units cannot retain hearts
+PASS restoring original ownership removes the hearts
+PASS sandbox boundary restores charm before staging decisions
+PASS an expired charm cannot occupy the next round's living-monster slot
+PASS charmed arrival scores once for the gate it actually reached
+PASS charm restoration cannot resurrect or turn around a scored arrival
+PASS sandbox boundary restores charm before staging decisions
+PASS an expired charm cannot occupy the next round's living-monster slot
+PASS charmed arrival scores once for the gate it actually reached
+PASS charm restoration cannot resurrect or turn around a scored arrival
+CHARM FEEDBACK: 100 checks, 0 failures
