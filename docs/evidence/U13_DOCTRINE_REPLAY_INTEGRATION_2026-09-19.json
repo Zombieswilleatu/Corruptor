@@ -282,5 +282,6 @@
   "schema": "U13_DOCTRINE_REPLAY_INTEGRATION_V1",
   "scope": "Fixture integration on Wright/Tumler rules. The six selected replay plans are unchanged; the two longer Deimos public states and the complete-game outcomes change with the engine. Original tactical outcome assertions remain unchanged and pass. This correction changes no game rules or policy scores.",
   "tested_local_revision": "6617319204add4bedf38dc0be4ebc2d9399a98ce",
-  "windows_cpython_pypy_acceptance": "pending rerun"
+  "windows_acceptance_evidence": "U13_DEIMOS_ARTILLERY_WINDOWS_2026-09-19.json",
+  "windows_cpython_pypy_acceptance": "accepted at clean 89a8c8cba83d88676f4aa8e6da034a82a2e170fe"
 }

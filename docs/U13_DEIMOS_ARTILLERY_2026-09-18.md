@@ -1,11 +1,18 @@
 # U13 common doctrine V10: Deimos artillery coordination
 
-> **2026-09-19 integration update:** The Windows run at `8591fae` stopped on
-> five stale observation fingerprints after the parallel Wright/Tumler rules
-> update. [The reviewed replay correction](U13_DOCTRINE_REPLAY_INTEGRATION_2026-09-19.md)
-> preserves all tactical assertions and passes 148 local tests plus five games /
-> 88 rounds / 2,222 operations on the new engine. Windows CPython/PyPy acceptance
-> is still pending. The original verification below retains its earlier engine scope.
+> **2026-09-19 accepted on Windows at clean `89a8c8c`:** CPython 3.14.7 and
+> PyPy 7.3.23 each passed 148 tests, including the original tactical assertions,
+> and identical five-game reports / 88 rounds / 2,222 operations, zero failures
+> or rejected previews. The results and inputs match the saved local run.
+> [The replay integration](U13_DOCTRINE_REPLAY_INTEGRATION_2026-09-19.md)
+> resolves the earlier stale fingerprints after the Wright/Tumler update.
+> [Windows evidence](evidence/U13_DEIMOS_ARTILLERY_WINDOWS_2026-09-19.json)
+> pins the accepted source. The original verification below retains its earlier engine scope.
+
+The later [lane balance adoption](U13_LANE_BALANCE_ADOPTION_2026-09-19.md)
+at `c8efe00` has separate evidence and is outside this Windows acceptance.
+It updates two replay expectations as the survivor distribution and monster
+stats change; the accepted results here remain pinned to `89a8c8c`.
 
 This follows the accepted [Windows Castle Scorch checkpoint](U13_KALLIGAN_CASTLE_FIRE_2026-09-18.md).
 It changes the experimental Python doctrine, its diagnostics and acceptance
@@ -96,10 +103,12 @@ fingerprint remains identical to the accepted Castle Scorch build.
 
 The common-doctrine gate and source fingerprints are recorded in
 [local evidence](evidence/U13_DEIMOS_ARTILLERY_LOCAL_2026-09-18.json).
-Windows CPython/PyPy acceptance is pending. This adds no native decision-parity,
-balance or throughput claim.
+Windows CPython/PyPy acceptance subsequently passed on the integrated engine
+at `89a8c8c`, as recorded above. This adds no native decision-parity, balance or
+throughput claim.
 
-Run from the doctrine checkout in Git Bash:
+Reproduction command from the doctrine checkout in Git Bash; the accepted run
+does not need repeating:
 
 ```bash
 git pull --ff-only origin u13-basic-doctrine &&

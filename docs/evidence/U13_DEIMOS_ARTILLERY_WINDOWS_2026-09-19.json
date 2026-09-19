@@ -1,0 +1,198 @@
+{
+  "accepted_date_utc": "2026-09-19",
+  "balance_claim": false,
+  "behavior": {
+    "failures": 0,
+    "games": 5,
+    "operations": 2222,
+    "rejected_previews": 0,
+    "rounds": 88
+  },
+  "comparison": {
+    "equivalent_published_implementation_revision": "7738dc7da8832665c053695db3f02b42060e8d91",
+    "input_operation_hashes_match_reports": true,
+    "inputs_byte_identical_between_windows_runtimes": true,
+    "new_local_full_game_run": false,
+    "report_integrity_recomputed": true,
+    "reports_match": true,
+    "saved_local_parsed_inputs_match": true,
+    "saved_local_semantic_report_match": true,
+    "saved_local_source_revision": "6617319204add4bedf38dc0be4ebc2d9399a98ce",
+    "source_hashes_recomputed_from_accepted_checkout": true
+  },
+  "engine_source_sha256": "5c839429708d142c8046c765467c7a34fd9587c5146110880dc2378108c8ea0e",
+  "games": [
+    {
+      "decisions_sha256": "69fc91640e3c2007a1c0d56b9682df22d70e3aeed4198ab8bf8e844253eb5f5d",
+      "final_state_sha256": "e366ae273566aba2c2ae0d77588d64bb93593bb3dffaabe19b8d71d4552a8687",
+      "name": "gremory_humbaba",
+      "operations": 302,
+      "outcome": {
+        "action": "game_finished",
+        "round": 12,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "rounds": 12
+    },
+    {
+      "decisions_sha256": "e15e0dd55d2664c328e1ac5016dcd8f3a04b75bb845dcaff95a696b2a16a0cb7",
+      "final_state_sha256": "8f68ba7a7bf35cd49c4ff9d9b0bec0c65f4ce480cdab5dade4705c9825009088",
+      "name": "deimos_kalligan",
+      "operations": 407,
+      "outcome": {
+        "action": "game_finished",
+        "round": 16,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "rounds": 16
+    },
+    {
+      "decisions_sha256": "c98c0887bcaa298b24a77a3a4d2f26730e222b2585628f7c14a99f1805da6823",
+      "final_state_sha256": "084fdf8af17452da80253f036523cd641cfee097b0b807f1838526243e4b9f8d",
+      "name": "orias_odradek",
+      "operations": 562,
+      "outcome": {
+        "action": "game_finished",
+        "round": 22,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "rounds": 22
+    },
+    {
+      "decisions_sha256": "370639e1aa75b3db3ad408216ab2535c22a1a97e43b6b095f8e55a6da46ac553",
+      "final_state_sha256": "422ff39a1c1cd03c63956354300c4de9bf01578162dd81a6d828dece29ba43c1",
+      "name": "kroni_valak",
+      "operations": 536,
+      "outcome": {
+        "action": "game_finished",
+        "round": 21,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "rounds": 21
+    },
+    {
+      "decisions_sha256": "3fda0689eddf39a254e3c7d870235c59f1127ac1438e7214b2968a0492c56eb9",
+      "final_state_sha256": "ad89a5e622b6cca88cb6d9b596174b4f6350b99e056e415ee6f8b6759059c222",
+      "name": "kanifous_gremory",
+      "operations": 415,
+      "outcome": {
+        "action": "game_finished",
+        "round": 17,
+        "win_by": "FinalCollapse",
+        "winner": 1
+      },
+      "rounds": 17
+    }
+  ],
+  "harness_source_sha256": "5558774276ae9ff6caf5252748e3356f1214b3639bff4917815947d5485939eb",
+  "limits": {
+    "complete_plans": 32,
+    "generated_per_category": 16,
+    "previews": 8,
+    "retained_per_category": 4
+  },
+  "native_decision_parity_claim": false,
+  "native_wright_tumler_acceptance": "separate gate; not established by this archive",
+  "next_doctrine_review": "Measure useful Rout displacement and Humbaba Breath/Muster benefit before changing activation preferences.",
+  "policy": "U13_COMMON_SMART_CORE_ALPHA_V10_DEIMOS_ARTILLERY",
+  "runner_exit_status": 0,
+  "runner_source_sha256": "d7a2f820b528a20d97858c0e8807ecdf49f47ff1c21e222416e74144f246d85a",
+  "runtimes": {
+    "cpython": {
+      "implementation": "CPython",
+      "platform": "Windows-11-10.0.26200-SP0",
+      "python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+      "tests_passed": 148,
+      "unit_suite_seconds": 182.348
+    },
+    "pypy": {
+      "implementation": "PyPy",
+      "platform": "Windows-10-10.0.26200-SP0",
+      "python": "3.11.15 (194f9f44b505, May 25 2026, 19:35:45)\n[PyPy 7.3.23 with MSC v.1941 64 bit (AMD64)]",
+      "tests_passed": 148,
+      "unit_suite_seconds": 156.974
+    }
+  },
+  "saved_local_files": {
+    "common-cpython.inputs.json": {
+      "bytes": 508319,
+      "sha256": "d12908eeedd9a5dbe9042156fa119cf3553481409ed3951eb4ffa1e97e19673d"
+    },
+    "common-cpython.json": {
+      "bytes": 1434392,
+      "sha256": "59aba315e5192babc36038481129a87734e183aa05c456c0dd9ec8ffb67585a0"
+    }
+  },
+  "schema": "U13_DEIMOS_ARTILLERY_WINDOWS_ACCEPTANCE_V1",
+  "scope": "Accepts Deimos V10 and the reviewed doctrine replay integration on the Wright/Tumler Python rules at the pinned source. Original defense, Kalligan and Deimos natural replay outcome assertions pass under both Windows runtimes. No native decision parity, new balance result or throughput claim.",
+  "selection": {
+    "max_score_gap": 0.0,
+    "policy_seed": "",
+    "temperature": 0.0
+  },
+  "semantic_sha256": "d880dfe3c5cf66a62803b30e667f1135d72b2b79a84cc924f7c753fc269db423",
+  "source_revision": "89a8c8cba83d88676f4aa8e6da034a82a2e170fe",
+  "status": "accepted Windows CPython/PyPy doctrine gate",
+  "strength_claim": false,
+  "subsequent_parallel_update": {
+    "branch_changes_preserved": true,
+    "evidence": "U13_LANE_BALANCE_ADOPTION_2026-09-19.json",
+    "included_in_this_windows_acceptance": false,
+    "source_revision": "c8efe00706d910b999fdd56b00b93213e6f51322",
+    "title": "Lane simulator balance and engaged Kurchin taunt"
+  },
+  "throughput_claim": false,
+  "upload": {
+    "bytes": 261777,
+    "filename": "u13-common-doctrine-Az46EM-2026-09-18_22-45-28-TJJFGs.zip",
+    "library_file_id": "libfile_0b02df55d79481918b68de23202bb35a",
+    "sha256": "4650c6f0efd6b7f3f7781b0410693cf6a14cca419c5331f07cb1c73098a365f6"
+  },
+  "upload_files": {
+    "comparison.log": {
+      "bytes": 127,
+      "sha256": "1af6853bbba539ca9fd77564ccd680e287ea3a6c7a09c6066e6591e2542c0732"
+    },
+    "cpython.inputs.json": {
+      "bytes": 525643,
+      "sha256": "3445fdf792cacf6a5496d1c863aeea53669f74f6c09c914f26af341667205084"
+    },
+    "cpython.json": {
+      "bytes": 1474441,
+      "sha256": "f17f32fd0b3db1e01deb39d63d5e0336c6bd20365e2db9a8bbeaf5578fb8d55b"
+    },
+    "cpython.log": {
+      "bytes": 26936,
+      "sha256": "08a87c7c533f86f237912c5c6553a48e5932145c2d5f433cd58f7e29724b21f4"
+    },
+    "pypy.inputs.json": {
+      "bytes": 525643,
+      "sha256": "3445fdf792cacf6a5496d1c863aeea53669f74f6c09c914f26af341667205084"
+    },
+    "pypy.json": {
+      "bytes": 1474449,
+      "sha256": "1f6b1a438eb078b94d9cd621732b25536f9a860ca16e69579f3daa58c824afde"
+    },
+    "pypy.log": {
+      "bytes": 26936,
+      "sha256": "8d1878a4b9c75c098ebafd4623601e27c0a3130ce1aa3cc5320490b734958751"
+    },
+    "revision.txt": {
+      "bytes": 41,
+      "sha256": "73113353e3c76c80585d1345703b84831e0c2a8188077eb650ba036599a7fb70"
+    },
+    "run-status.txt": {
+      "bytes": 41,
+      "sha256": "2097c04a402cdafd7b2de5c11de0b4e93cbb1dde812d4676b750650e044bd6b0"
+    },
+    "worktree.diff": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "worktree_clean": true
+}
