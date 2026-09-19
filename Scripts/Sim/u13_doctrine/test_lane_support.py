@@ -233,9 +233,9 @@ class LaneSupportTests(unittest.TestCase):
                 seat=case['seat'];view=observe(game,seat);before=game.snapshot()
                 self.assertEqual(case['view_sha256'],fingerprint(view))
                 choice=CommonSmartCore().decide(view,Preview(game,seat))
-                # Preserve V11's recorded plan fingerprints as historical
-                # evidence; only the two empty openings intentionally change.
-                expected=case.get('v12_plan_sha256',case['revised_plan_sha256'])
+                # Keep historical policy fingerprints while separately pinning
+                # reviewed plans under the current marcher rules.
+                expected=case.get('current_replay_plan_sha256',case.get('v12_plan_sha256',case['revised_plan_sha256']))
                 self.assertEqual(expected,fingerprint(choice['plan']))
                 self.assertEqual(before,game.snapshot());self.assertEqual([],choice['rejected_previews'])
                 powers={s['power_id']:s for s in choice['plan']['powers']}
@@ -243,9 +243,14 @@ class LaneSupportTests(unittest.TestCase):
                 elif case['kind']=='retarget':self.assertEqual('Castle',powers['Rout']['target']['lane'])
                 elif case['kind']=='pair':
                     self.assertIn(MUSTER,powers);self.assertNotIn(BREATH,powers)
-                elif case['kind']=='recruit_support':
-                    self.assertEqual('Lord',powers[BREATH]['target']['lane'])
-                    self.assertGreater(choice['coordination']['selected']['powers'][0]['ordinary_recruits'],0)
+                elif case['kind'] in ('recruit_support','existing_support'):
+                    self.assertEqual(case.get('expected_breath_lane','Lord'),powers[BREATH]['target']['lane'])
+                    support=choice['coordination']['selected']['powers'][0]
+                    self.assertGreater(support['pressure_movement_windows'],0)
+                    if case['kind']=='recruit_support':
+                        self.assertGreater(support['ordinary_recruits'],0)
+                    else:
+                        self.assertEqual(0,support['ordinary_recruits'])
                 # Only after deciding do we supply the recorded opposing order.
                 for revised in (False,True):
                     replay=copy.deepcopy(game);plans=copy_data(case['original_plans'])
@@ -255,10 +260,10 @@ class LaneSupportTests(unittest.TestCase):
                         events=[r['event'] for r in replay._state['events']['rows'][start:]]
                         if case['kind']=='pair':
                             self.assertFalse(any(e['type']=='BREATH_PULSED' and e['data']['player_id']==seat for e in events))
-                        elif case['kind'] in ('heal','recruit_support'):
+                        elif case['kind'] in ('heal','recruit_support','existing_support'):
                             pulses=[e['data'] for e in events if e['type']=='BREATH_PULSED' and e['data']['player_id']==seat]
                             self.assertEqual(1,len(pulses))
-                            self.assertEqual(2 if case['kind']=='heal' else 0,pulses[0]['healing'])
+                            self.assertEqual(case.get('expected_healing',2) if case['kind']=='heal' else 0,pulses[0]['healing'])
                         elif case['kind']=='retarget':
                             rout=next(e['data'] for e in events if e['type']=='ROUT_APPLIED' and e['data']['player_id']==seat)
                             self.assertEqual('Castle',rout['lane']);self.assertGreater(len(rout['affected_ids']),0)

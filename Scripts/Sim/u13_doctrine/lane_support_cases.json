@@ -2253,7 +2253,21 @@
         ],
         "seed": "u13-rout-humbaba-2026-09-19:Deimos:Deimos:00"
       },
-      "view_sha256": "e6bcb764fd28cdacc69e4111e4cb1e5fdc65c0d17f35f643fa666ce42b2ed533"
+      "view_sha256": "1ddb49104abbdc0715369658911a354eb667f12e98973eb9b6c23c98b0db6543",
+      "view_sha256_history": [
+        {
+          "engine_source_sha256": "6849abebda04d0c7f55f02f1310ef48debb734a5bc287363124b232102ba6259",
+          "note": "Before marcher spacing and Vulture versus Butcher damage; original inputs preserved.",
+          "replay_revision": "77ff66132104d213284c25e5e6feb869d5c1453d",
+          "view_sha256": "e6bcb764fd28cdacc69e4111e4cb1e5fdc65c0d17f35f643fa666ce42b2ed533"
+        },
+        {
+          "engine_source_sha256": "12958849e54a868540dd793dc0321bef50676b065f3e9f7ddad83d3218ca93c7",
+          "note": "Before navigation recovery at 176e175; exact prefix and opposing plans retained.",
+          "replay_revision": "2099326ceba752f3570a6114631eb25714abaa4e",
+          "view_sha256": "598a23ddadbbea94e207795f258e2331d22b9f2eff719d611dfd934a5a7dcf74"
+        }
+      ]
     },
     {
       "kind": "pair",
@@ -2627,6 +2641,10 @@
       "view_sha256": "2d0c397c711441b3499250745b3df06c112af3aba5b590fd46d0f70b77bb4096"
     },
     {
+      "current_replay_plan_note": "Navigation recovery changes only the recruitment lane from Castle to Lord. Breath remains on Lord, now supporting six planned ordinary recruits with zero activation healing. The earlier existing-unit-only choice is preserved at 2099326.",
+      "current_replay_plan_sha256": "da37fbba0e97d6b88509993a99f616929f945b2266236cb14330a2de26ce2721",
+      "expected_breath_lane": "Lord",
+      "historical_kind": "recruit_support",
       "kind": "recruit_support",
       "name": "humbaba_valak_00_r6_s0",
       "original_plans": [
@@ -2728,6 +2746,14 @@
               "visibility": "public"
             }
           ]
+        }
+      ],
+      "plan_sha256_history": [
+        {
+          "kind": "existing_support",
+          "note": "Same Breath lane on current spacing/counter rules; ordinary cards, guards, recruitment lane and recipe changed. Historical V11/V12 fingerprints retained. Breath now supports existing Lord-lane units; planned recruits enter Castle. Separate fresh current-rule case preserves recruit-support coverage.",
+          "plan_sha256": "8f0e098847a6fb372bf4c0b0d3eaa5ecb0c7ec06ae448e5159d37b22cd821181",
+          "replay_revision": "2099326ceba752f3570a6114631eb25714abaa4e"
         }
       ],
       "prior_operations": [
@@ -3760,9 +3786,26 @@
         ],
         "seed": "u13-rout-humbaba-2026-09-19:Humbaba:Valak:00"
       },
-      "view_sha256": "15c2c17ecb956110a51e384b53fcd7870594babaf52164520b1611049a9283a0"
+      "view_sha256": "d2bf5f3ab3bddb8da0eb2e8bfc8ad11229360b71dc014eed88659605c430ac10",
+      "view_sha256_history": [
+        {
+          "engine_source_sha256": "6849abebda04d0c7f55f02f1310ef48debb734a5bc287363124b232102ba6259",
+          "note": "Before marcher spacing and Vulture versus Butcher damage; original inputs preserved.",
+          "replay_revision": "77ff66132104d213284c25e5e6feb869d5c1453d",
+          "view_sha256": "15c2c17ecb956110a51e384b53fcd7870594babaf52164520b1611049a9283a0"
+        },
+        {
+          "engine_source_sha256": "12958849e54a868540dd793dc0321bef50676b065f3e9f7ddad83d3218ca93c7",
+          "note": "Before navigation recovery at 176e175; exact prefix and opposing plans retained.",
+          "replay_revision": "2099326ceba752f3570a6114631eb25714abaa4e",
+          "view_sha256": "3dfa358ebb9b45d63a8e9ab8384a1000a257562dc1fe42c3b7a1d404ced01450"
+        }
+      ]
     },
     {
+      "expected_healing": 1,
+      "healing_note": "Current prefix leaves one eligible wounded recipient at firing; the pulse still restores exactly one HP per recipient.",
+      "historical_expected_healing": 2,
       "kind": "heal",
       "name": "valak_humbaba_00_r6_s1",
       "original_plans": [
@@ -4906,11 +4949,386 @@
         ],
         "seed": "u13-rout-humbaba-2026-09-19:Humbaba:Valak:00"
       },
-      "view_sha256": "6ad16c6e8ef44db68adc9d59d0a3642e0d3980a51c901b3deab704120e88a0b1"
+      "view_sha256": "f11632ea7087b6e41d84768be08e9e251ef304e7481d1c74d021341888e4dcb0",
+      "view_sha256_history": [
+        {
+          "engine_source_sha256": "6849abebda04d0c7f55f02f1310ef48debb734a5bc287363124b232102ba6259",
+          "note": "Before marcher spacing and Vulture versus Butcher damage; original inputs preserved.",
+          "replay_revision": "77ff66132104d213284c25e5e6feb869d5c1453d",
+          "view_sha256": "6ad16c6e8ef44db68adc9d59d0a3642e0d3980a51c901b3deab704120e88a0b1"
+        },
+        {
+          "engine_source_sha256": "12958849e54a868540dd793dc0321bef50676b065f3e9f7ddad83d3218ca93c7",
+          "note": "Before navigation recovery at 176e175; exact prefix and opposing plans retained.",
+          "replay_revision": "2099326ceba752f3570a6114631eb25714abaa4e",
+          "view_sha256": "e96a38abdf1a0385b04e77856ee9cb5379171a86eeae37b7124b91dedae3f361"
+        }
+      ]
+    },
+    {
+      "expected_breath_lane": "Castle",
+      "expected_healing": 0,
+      "kind": "recruit_support",
+      "name": "deimos_humbaba_current_r2_s1",
+      "original_plans": [
+        {
+          "order": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:1:9",
+              "u13_entity_card:17:game:deck:Butcher:2:16",
+              "u13_entity_card:17:game:deck:Vulture:1:5",
+              "u13_entity_card:17:game:deck:Vulture:2:13"
+            ],
+            "castle_action": {
+              "action": "Work",
+              "card_ids": [],
+              "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+              "use_repair_token": false
+            },
+            "guard_moves": [
+              {
+                "card_id": "u13_entity_card:18:game:deck:Penitent:2:12",
+                "lane": "Castle",
+                "slot": 0
+              },
+              {
+                "card_id": "u13_entity_card:18:game:deck:Penitent:2:14",
+                "lane": "Castle",
+                "slot": 1
+              }
+            ],
+            "lane": "Castle",
+            "monster_choice": "Fyra"
+          },
+          "powers": []
+        },
+        {
+          "order": {
+            "action": "Siege",
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:16",
+              "u13_entity_card:17:game:deck:Butcher:2:13",
+              "u13_entity_card:17:game:deck:Vulture:2:15",
+              "u13_entity_card:18:game:deck:Penitent:2:15",
+              "u13_entity_card:18:game:deck:Penitent:2:17",
+              "u13_entity_card:17:game:deck:Butcher:1:8",
+              "u13_entity_card:16:game:deck:Wright:1:8",
+              "u13_entity_card:16:game:deck:Wright:2:11",
+              "u13_entity_card:18:game:deck:Penitent:1:9"
+            ],
+            "castle_action": {
+              "action": "Work",
+              "card_ids": [],
+              "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
+              "use_repair_token": false
+            },
+            "lane": "Castle",
+            "monster_choice": "Kurchin",
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:0"
+          },
+          "powers": [
+            {
+              "cost": {},
+              "declaration_id": "u13_declaration:3:1:2:1:0",
+              "declared_round": 2,
+              "fire_hook": "post_resolution_movement_state",
+              "fire_round": 2,
+              "lord_id": "Humbaba",
+              "parameters": {},
+              "player_id": 1,
+              "power_id": "BreathOfLife",
+              "queue_index": 0,
+              "schema_version": "U13_LORD_DECLARATION_V1",
+              "target": {
+                "lane": "Castle"
+              },
+              "visibility": "public"
+            }
+          ]
+        }
+      ],
+      "prior_operations": [
+        {
+          "hook": "round_start_scheduled",
+          "kind": "step"
+        },
+        {
+          "hook": "persistent_advancement",
+          "kind": "step"
+        },
+        {
+          "hook": "round_start_automatic",
+          "kind": "step"
+        },
+        {
+          "keep_id": "u13_entity_card:17:game:deck:Butcher:1:7",
+          "kind": "stockpile",
+          "player_id": 0
+        },
+        {
+          "keep_id": "u13_entity_card:17:game:deck:Vulture:2:12",
+          "kind": "stockpile",
+          "player_id": 1
+        },
+        {
+          "choice": {
+            "give_id": "u13_entity_card:17:game:deck:Butcher:1:1",
+            "market": "Swap",
+            "take_id": "u13_entity_card:17:game:deck:Vulture:1:9"
+          },
+          "kind": "market",
+          "player_id": 1
+        },
+        {
+          "choice": {
+            "market": "Pass"
+          },
+          "kind": "market",
+          "player_id": 0
+        },
+        {
+          "hook": "present_public_state",
+          "kind": "step"
+        },
+        {
+          "kind": "submit",
+          "plans": [
+            {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:17:game:deck:Vulture:1:1",
+                  "u13_entity_card:17:game:deck:Vulture:1:4"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:1:7",
+                    "lane": "Lord",
+                    "slot": 0
+                  },
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Butcher:2:14",
+                    "lane": "Lord",
+                    "slot": 1
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Varn"
+              },
+              "powers": []
+            },
+            {
+              "order": {
+                "action": "Ward",
+                "card_ids": [
+                  "u13_entity_card:18:game:deck:Penitent:1:4",
+                  "u13_entity_card:18:game:deck:Penitent:2:13"
+                ],
+                "castle_action": {
+                  "action": "Work",
+                  "card_ids": [],
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
+                  "use_repair_token": false
+                },
+                "guard_moves": [
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Vulture:1:9",
+                    "lane": "Lord",
+                    "slot": 0
+                  },
+                  {
+                    "card_id": "u13_entity_card:17:game:deck:Vulture:2:12",
+                    "lane": "Lord",
+                    "slot": 1
+                  }
+                ],
+                "lane": "Castle",
+                "monster_choice": "Lemek"
+              },
+              "powers": [
+                {
+                  "cost": {},
+                  "declaration_id": "u13_declaration:3:1:1:1:0",
+                  "declared_round": 1,
+                  "fire_hook": "post_resolution_spawns",
+                  "fire_round": 1,
+                  "lord_id": "Humbaba",
+                  "parameters": {},
+                  "player_id": 1,
+                  "power_id": "MusterTheFaithful",
+                  "queue_index": 0,
+                  "schema_version": "U13_LORD_DECLARATION_V1",
+                  "target": {
+                    "lane": "Castle"
+                  },
+                  "visibility": "public"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "hook": "submission_lock",
+          "kind": "step"
+        },
+        {
+          "hook": "development",
+          "kind": "step"
+        },
+        {
+          "hook": "post_repair_artillery",
+          "kind": "step"
+        },
+        {
+          "hook": "commitment_reveal",
+          "kind": "step"
+        },
+        {
+          "hook": "combat_resolution",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_spawns",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_position",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_allegiance",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_movement_state",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_hazards",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_direct",
+          "kind": "step"
+        },
+        {
+          "hook": "post_resolution_special_actors",
+          "kind": "step"
+        },
+        {
+          "hook": "marching_start",
+          "kind": "step"
+        },
+        {
+          "hook": "marching",
+          "kind": "step"
+        },
+        {
+          "hook": "end_marching_checks",
+          "kind": "step"
+        },
+        {
+          "hook": "aftermath",
+          "kind": "step"
+        },
+        {
+          "kind": "next_round"
+        },
+        {
+          "hook": "round_start_scheduled",
+          "kind": "step"
+        },
+        {
+          "hook": "persistent_advancement",
+          "kind": "step"
+        },
+        {
+          "hook": "round_start_automatic",
+          "kind": "step"
+        },
+        {
+          "keep_id": "u13_entity_card:18:game:deck:Penitent:2:12",
+          "kind": "stockpile",
+          "player_id": 0
+        },
+        {
+          "keep_id": "u13_entity_card:18:game:deck:Penitent:2:15",
+          "kind": "stockpile",
+          "player_id": 1
+        },
+        {
+          "choice": {
+            "give_id": "u13_entity_card:17:game:deck:Butcher:1:5",
+            "market": "Swap",
+            "take_id": "u13_entity_card:18:game:deck:Penitent:1:9"
+          },
+          "kind": "market",
+          "player_id": 1
+        },
+        {
+          "choice": {
+            "give_id": "u13_entity_card:18:game:deck:Penitent:1:2",
+            "market": "Swap",
+            "take_id": "u13_entity_card:16:game:deck:Wright:2:13"
+          },
+          "kind": "market",
+          "player_id": 0
+        },
+        {
+          "hook": "present_public_state",
+          "kind": "step"
+        }
+      ],
+      "record_operations_sha256": "9429897831dae64b59b55dd3418747d7775622379f4d25402cc99dd1576fa453",
+      "revised_plan_sha256": "088ef3c4da9b897c3fedb6fb86e48d9ca81025665699448915259f3dfbe420c4",
+      "round": 2,
+      "seat": 1,
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Deimos",
+          "Humbaba"
+        ],
+        "seed": "u13-rout-current-rule-diagnostics-2026-09-19:Deimos:Humbaba:00"
+      },
+      "source_note": "Fresh V12 current-rule decision supports planned Castle recruits under visible pressure, preserving recruit-support coverage separately from the historical Lord-lane case.",
+      "source_record": "rout-current-diagnostics/games/deimos_humbaba_00.json.gz",
+      "view_sha256": "7290417944fc219302c6347870ea9ea80bbee43225250245952a09ab627a2ed8",
+      "view_sha256_history": [
+        {
+          "engine_source_sha256": "12958849e54a868540dd793dc0321bef50676b065f3e9f7ddad83d3218ca93c7",
+          "note": "Before navigation recovery at 176e175; exact prefix and opposing plans retained.",
+          "replay_revision": "2099326ceba752f3570a6114631eb25714abaa4e",
+          "view_sha256": "07c7c8eff58e542e91ce47cd256eb4f0e3a7d5f2b57f9a0eda56a73403b143c7"
+        }
+      ]
     }
   ],
-  "replay_base_revision": "c0b2a76fdc1ae33239194a18f9477bbc58fc3d80",
-  "replay_engine_source_sha256": "00dd00f2192f5c5913494b0cb7cea11fc58b04080ab1d8b9216c7760fc6c9c11",
+  "current_replay_note": "Reviewed after navigation recovery at 176e175. All thirteen prefixes and recorded opposing plans remain legal and unchanged. One Humbaba recruitment lane changes; current effects retain positive recruit support, actual healing, defensive survival, artillery retargeting and friendly-fire assertions. See U13_DOCTRINE_NAVIGATION_REPLAY_2026-09-19.md.",
+  "replay_base_revision": "176e17588e4ab931fc463b0547d77db933038560",
+  "replay_engine_source_sha256": "2badf329e59610a69f92227c0dc85a7366b59d24776ae375c4f339503ac55710",
   "schema": "U13_LANE_SUPPORT_NATURAL_V1",
-  "scope": "Unchanged prefixes from the 32-game V10 audit, replayed with Breath immediate pulse and Sinodek immunity; opponent orders enter retrospective execution only after V11 decides."
+  "scope": "Unchanged prefixes from the 32-game V10 audit, replayed with Breath immediate pulse and Sinodek immunity; opponent orders enter retrospective execution only after V11 decides. Current marcher-rule review retains historical cases and adds one fresh V12 recruit-support case with its own source record."
 }

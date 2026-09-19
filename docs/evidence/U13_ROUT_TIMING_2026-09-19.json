@@ -1,0 +1,3052 @@
+{
+  "date": "2026-09-19",
+  "diagnostic_tools": {
+    "audit_u13_rout_timing.py": "a4f5d1fa10b48b2de11f839bbc6b732f9ae5339179f3dccf0580f10f0ac34e59",
+    "summarize_u13_rout_timing.py": "b88adad3635707a94eda383d19cbb43edc8228c9f477b1218d488a2231c41d57"
+  },
+  "early": {
+    "cast_lost_win": 2,
+    "continuation_operations": 11294,
+    "continuation_rounds": 448,
+    "continuations": 24,
+    "exact_controls": 12,
+    "fired_positions": 6,
+    "fired_same_winner": 6,
+    "held_cast_lost_win": 2,
+    "held_positions": 6,
+    "held_same_winner": 4,
+    "original_control_wins": 12,
+    "same_winner": 10,
+    "source_games": 9,
+    "source_operations": 4339,
+    "source_rounds": 172
+  },
+  "engine_source_sha256": "12958849e54a868540dd793dc0321bef50676b065f3e9f7ddad83d3218ca93c7",
+  "evidence_archive": {
+    "bytes": 10901508,
+    "filename": "Corruptor-Rout-Timing-Evidence-2026-09-19.zip",
+    "members": 95,
+    "sha256": "84a5640c066f6375a8a677a13f09ef974222680e646d53fd2735f6939157027c"
+  },
+  "experimental_checkpoint_tree": "f7b629d92479e8953639c9299520b556ae816375",
+  "initial_rejected_interventions": {
+    "corrected": true,
+    "count": 3,
+    "failed_records_preserved": true,
+    "reason": "Noncontiguous declaration identity after Rout omission before War Machine"
+  },
+  "intended_role": "Emergency delay when the hand cannot answer the advancing wave; buy time for another draw, deployment or cooldown. This is an evaluation objective, not a new emergency-only restriction.",
+  "limits": "Two selected cohorts share nine source games; not a strength estimate. Public deficits do not prove no hand response. Later policy choices react normally; identity resequencing is required for legal omissions.",
+  "local_gate": {
+    "games": [
+      {
+        "decisions_sha256": "3c92a1b376862300350d097cf24cb6ec36de4a66273fb3cab66b6c0207b168c1",
+        "final_state_sha256": "4084d659979d694b24c88493bc59e61cdb5b0c9998e94ac8918d975421e7bade",
+        "name": "gremory_humbaba",
+        "operations": 444,
+        "outcome": {
+          "action": "game_finished",
+          "round": 18,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "rounds": 18,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Gremory",
+            "Humbaba"
+          ],
+          "seed": "u13-nine-lords:gremory_humbaba"
+        }
+      },
+      {
+        "decisions_sha256": "855c24d4df59657237bf2f3de5291de83e6308a206f3bc29ad675629a1a31a91",
+        "final_state_sha256": "c449fcdd1505312e835ff78eb577cdbc46e04a60f1c3206e4106c20541e00669",
+        "name": "deimos_kalligan",
+        "operations": 534,
+        "outcome": {
+          "action": "game_finished",
+          "round": 21,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "rounds": 21,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Deimos",
+            "Kalligan"
+          ],
+          "seed": "u13-nine-lords:deimos_kalligan"
+        }
+      },
+      {
+        "decisions_sha256": "739286e1f41b8040647cc3753941a54c36e63b7885ab2615a28d8caba047514d",
+        "final_state_sha256": "d47cc281f0d5335b39a503aca0bb1e1915b02ab268446bd91dda31053fe7b0b8",
+        "name": "orias_odradek",
+        "operations": 405,
+        "outcome": {
+          "action": "game_finished",
+          "round": 16,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "rounds": 16,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Orias",
+            "Odradek"
+          ],
+          "seed": "u13-nine-lords:orias_odradek"
+        }
+      },
+      {
+        "decisions_sha256": "2968b9e2878f95a5a7164b9976e6cd18ed8701b7b277522f93e30fbfe18c304b",
+        "final_state_sha256": "eb17548b64f049fae612b208d831f8864f5a962545ecc5d5de377f565b9262eb",
+        "name": "kroni_valak",
+        "operations": 481,
+        "outcome": {
+          "action": "game_finished",
+          "round": 19,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 19,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Kroni",
+            "Valak"
+          ],
+          "seed": "u13-nine-lords:kroni_valak"
+        }
+      },
+      {
+        "decisions_sha256": "a1335c6df297e2eb037a85ae7b25886d429d7f1c071fe87b2b01e142099943c3",
+        "final_state_sha256": "a0f24f3b55f147e6463872f5ed5af503bd4c882dae7d896ed7563fe4246ba7a3",
+        "name": "kanifous_gremory",
+        "operations": 465,
+        "outcome": {
+          "action": "game_finished",
+          "round": 19,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "rounds": 19,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Kanifous",
+            "Gremory"
+          ],
+          "seed": "u13-nine-lords:kanifous_gremory"
+        }
+      }
+    ],
+    "harness_source_sha256": "b99f12286e06cb655e0dd0f3914e030141c54972c4f172ce537fe2a705d0e540",
+    "implementation": "CPython",
+    "inputs_sha256": "9f61ea26151c3a07d52827093231a2124e861e3a285f9214dd1db1351cceb8d4",
+    "new_godot_parity": false,
+    "operations": 2329,
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "report_sha256": "ad529506b2ccc764b793d7c3597d052474f452e1a99fd6746d82ee6c56d369bc",
+    "rounds": 93,
+    "semantic_sha256": "30b2b3a366716b57fe3eb5f704f745c5b51e0d5fe1989ce17be13445ead8d660",
+    "tests_passed": 168
+  },
+  "namespace": "u13-rout-current-rule-diagnostics-2026-09-19",
+  "next": "Evaluate an unanswered-wave reservation preference against V12 only after identifying a bounded public estimate of the available answer.",
+  "policy": {
+    "files": {
+      "__init__.py": "227c8876cf5699a5538e3493e65d8ab8e7ecf03c65eb0781306d8d22461c3b8f",
+      "budget.py": "661597d55074af49b72d994b03cae7e7a9e0fb1d3d68c7a3b6df62c3a64f21cb",
+      "closing.py": "137079c225ecedb9e1fb4a689c7817ec512ab4a215fb0624ee62e961d058579d",
+      "common.py": "4eac66421ba8268628a6a90d60bfc2627d7275896d71109093c7d7d958159c92",
+      "comparison.py": "59c57b7053af14a033241768bc69c61eba36848804a0a7b6cc725ecdfb7f23bc",
+      "coordination.py": "e0e9295056a8fd0537308006ea149183d71fd5b706c88c102f7856967359bc0c",
+      "coverage.py": "228c23b18653b89647570939fb944d7063f676a45a28ca980ef1838b669b7c71",
+      "defensive_plans.py": "251161512ac9529f6c97d40f9578a2d16e46c26325cbe7be3b50a06dec1472b9",
+      "diagnostics.py": "5cf40e9a6ab3984653737e7b8e20b373a923f932a0205803cafea3fb48fa9769",
+      "facts.py": "d13fb7b47648176ae1dde05f9baf7e3fa5b63c09de11f921292fbd271c9edbfa",
+      "lane_support.py": "5433a4b918bde19a6652eb1fc6aedc034666b98a10db3959b0725dddcee9ca3a",
+      "lords/__init__.py": "411ef93b19ce21fbd9e93608633810c3002599c5dd9be1b679e70a7414263488",
+      "lords/deimos.py": "074b493fd3f5e6cb57e3a36bfd158fc33f1f06ed8c84923692b99889d253ee1f",
+      "lords/gremory.py": "24da2dec94f8788638c8cd2aec532b25806c71590c580bd1782aa8242ea23496",
+      "lords/humbaba.py": "c624d95ecce185c6fb305cb277d626bf702ab227ab3c24c87107310f2bbaf80e",
+      "lords/kalligan.py": "16da56cbfa1e1fb2add48447165bde9cc7a23ae42f90882f9a342e5d16a9ce99",
+      "lords/kanifous.py": "f8088280111c21cb09368970b88f8593a6742f46d9048c05e0da9fec6b4aa26d",
+      "lords/kroni.py": "7079c646913e8f557861728376794be727a4d258139b56ae1c7e05e0d8bd00db",
+      "lords/odradek.py": "4a3eed0613374ad6c7172d3ccfc9c661290034a136e54abec867482e471bafb4",
+      "lords/orias.py": "ff5432388bfc98d4b48bbc873c985317e6b7c4b14d21aff5c5b5d15940eb5e20",
+      "lords/valak.py": "3959d4d1366d406b90c82f420729c0d15c1cc6000b3b677e0f68a738b0df7331",
+      "observation.py": "4114c44ae86f5dd4d109f6de85ba351c3b6d4bed8e1a4af5b08b4b86349d05f0",
+      "planner_probe.py": "3ccd7de5661d9615a7ef75304eec14dbac6415992d8d643c82fd6a7a9fd71b05",
+      "recipes.py": "ddb4e0072006093218d8a4707beb248d7fe92067f57864d02588ab86df9a1c2e",
+      "reference_probe.py": "d93d5acd37581083f512fa87057bef80e8de4bd867ce49fab6ef1d2950434cbf",
+      "rite_cases.py": "2cf12a6be0f6598cdeb330f76bd0efcb8c680fbcf2410b1d6461099d61d4a70e",
+      "selection.py": "a160b99b525a1590b34a8ba43fef6f5f63d70c083886f0f151111f7bb5b3894f",
+      "survey.py": "4ef849355910d662bb887fd53ae50b5574efc5f10fdc752610e5bfb81f2a059a",
+      "test_closing.py": "b0eeab4ac9b4292f57dc35760f507252d7bfb6dbc96f6367661cf140c2ff9b37",
+      "test_common.py": "922aaacace8bd0595e4dd1de158499ee7cbb562ac0f8f2952449d1d82f4d87e8",
+      "test_comparison.py": "59211969deccbdb0ac2c042abcbf4ddc707c28216408515c83dbdcc48362507d",
+      "test_coordination.py": "763dceb8ef83ae9795aaec3603c62815a1bc5a50a2ed90432831dc8f2fec70af",
+      "test_defensive_plans.py": "6beb177ff35048f191e01be666bbdeb6530e1f7ca9820a6cf4287974a182ef4b",
+      "test_deimos.py": "06d82fb61846e96d1676931e5969f7c32563a869aef1dae99aed6c1b78454271",
+      "test_diagnostics.py": "d8362c599d2f83ae3864c6b0c32e734ac5136030e7f3194ac3fe10afda6881ff",
+      "test_kalligan.py": "dc54dcc0e5fc193e3f0030955986c9969913712eb3f0535614bf2330b0db62c6",
+      "test_lane_support.py": "afb353f97ac2480ef177b107a221f1a195c92cccd6a0d5f257424b497c2cedc9",
+      "test_odradek.py": "0078b8a8d5f534ecebdefa47e0c921e3b7b642eaae985b8ad5adb178a1044023",
+      "test_recipes_veil.py": "b1948ea569cf7b304756b70e4e2a99d479228cca4514a826fdb556434d5b456e",
+      "test_rites.py": "4049d7d09741161cae1392c3f0dcb9c3735108c50492dead8c7e36883ab240c8",
+      "test_selection.py": "b2ae4fa066634e423479552398f05d1fa2d06bbb5c978be564978763e02a94bf",
+      "test_survey.py": "926deb9d20611b42b8a5f2e970bff6c4e4b357c1afe8d12cd263c26749a05880",
+      "veil_judgment.py": "f92f3a5ca62d8ead00f38b7b5a1d4945645032e05e048305ec114bbb66d64131"
+    },
+    "package_sha256": "c1e1442685ef6b19175283f92b477c1bfe3534aa42c3c037337ff0463edcfba1",
+    "revision": "2cf3bbb0f8405f8ff82f2c2e14abf6a8da15b2d9"
+  },
+  "policy_changed": false,
+  "positions": [
+    {
+      "affected": 18,
+      "cast_outcome": {
+        "action": "game_finished",
+        "round": 19,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "cohort": "early",
+      "effects": [
+        {
+          "cast_cohort_survivors": 18,
+          "cast_enemy": {
+            "bodies": 18,
+            "castle_integrity": 59,
+            "hp": 105,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 12,
+            "castle_integrity": 55,
+            "hp": 62,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 18,
+          "hold_enemy": {
+            "bodies": 18,
+            "castle_integrity": 59,
+            "hp": 105,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 12,
+            "castle_integrity": 55,
+            "hp": 61,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 316.8888888888889,
+          "offset": 0,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 1,
+          "round": 2,
+          "shared_cohort_survivors": 18,
+          "shared_survivor_delay_fp": 5704
+        },
+        {
+          "cast_cohort_survivors": 18,
+          "cast_enemy": {
+            "bodies": 28,
+            "castle_integrity": 62,
+            "hp": 151,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 18,
+            "castle_integrity": 55,
+            "hp": 101,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 18,
+          "hold_enemy": {
+            "bodies": 28,
+            "castle_integrity": 62,
+            "hp": 149,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 18,
+            "castle_integrity": 55,
+            "hp": 102,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -160.83333333333334,
+          "offset": 1,
+          "own_bodies_delta": 0,
+          "own_hp_delta": -1,
+          "round": 3,
+          "shared_cohort_survivors": 18,
+          "shared_survivor_delay_fp": -2895
+        },
+        {
+          "cast_cohort_survivors": 17,
+          "cast_enemy": {
+            "bodies": 32,
+            "castle_integrity": 61,
+            "hp": 173,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 17,
+            "castle_integrity": 57,
+            "hp": 94,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 15,
+          "hold_enemy": {
+            "bodies": 32,
+            "castle_integrity": 61,
+            "hp": 179,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 23,
+            "castle_integrity": 57,
+            "hp": 114,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -332.07142857142856,
+          "offset": 2,
+          "own_bodies_delta": -6,
+          "own_hp_delta": -20,
+          "round": 4,
+          "shared_cohort_survivors": 14,
+          "shared_survivor_delay_fp": -4649
+        }
+      ],
+      "first_ordinary_attack_tick": {
+        "cast": 416,
+        "hold": 191,
+        "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+      },
+      "hold_outcome": {
+        "action": "game_finished",
+        "round": 21,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "position": {
+        "lane": "Castle",
+        "name": "deimos_humbaba_00__r2_p0",
+        "original": "held",
+        "plan_sha256": "d34d87bb12ddcd625091e48f65acc4e683a11a8dd397e72785cb27798da81e46",
+        "round": 2,
+        "seat": 0,
+        "source": "deimos_humbaba_00",
+        "view_sha256": "19899ed787d7d5352fce26d79709b4ead0948dc24c7bf1f4c02ca5d0276875fb"
+      },
+      "pre_rout_artillery_unchanged": true,
+      "result": "cast_lost_win"
+    },
+    {
+      "affected": 11,
+      "cast_outcome": {
+        "action": "game_finished",
+        "round": 21,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "cohort": "early",
+      "effects": [
+        {
+          "cast_cohort_survivors": 11,
+          "cast_enemy": {
+            "bodies": 11,
+            "castle_integrity": 51,
+            "hp": 70,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 12,
+            "castle_integrity": 60,
+            "hp": 62,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 11,
+          "hold_enemy": {
+            "bodies": 11,
+            "castle_integrity": 51,
+            "hp": 70,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 12,
+            "castle_integrity": 60,
+            "hp": 62,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 204.45454545454547,
+          "offset": 0,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 0,
+          "round": 2,
+          "shared_cohort_survivors": 11,
+          "shared_survivor_delay_fp": 2249
+        },
+        {
+          "cast_cohort_survivors": 11,
+          "cast_enemy": {
+            "bodies": 18,
+            "castle_integrity": 56,
+            "hp": 110,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 16,
+            "castle_integrity": 60,
+            "hp": 92,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 11,
+          "hold_enemy": {
+            "bodies": 18,
+            "castle_integrity": 56,
+            "hp": 110,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 16,
+            "castle_integrity": 60,
+            "hp": 92,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -261.8181818181818,
+          "offset": 1,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 0,
+          "round": 3,
+          "shared_cohort_survivors": 11,
+          "shared_survivor_delay_fp": -2880
+        },
+        {
+          "cast_cohort_survivors": 11,
+          "cast_enemy": {
+            "bodies": 28,
+            "castle_integrity": 57,
+            "hp": 166,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 18,
+            "castle_integrity": 53,
+            "hp": 98,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 11,
+          "hold_enemy": {
+            "bodies": 28,
+            "castle_integrity": 57,
+            "hp": 170,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 19,
+            "castle_integrity": 53,
+            "hp": 103,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -572.0,
+          "offset": 2,
+          "own_bodies_delta": -1,
+          "own_hp_delta": -5,
+          "round": 4,
+          "shared_cohort_survivors": 11,
+          "shared_survivor_delay_fp": -6292
+        }
+      ],
+      "first_ordinary_attack_tick": {
+        "cast": 426,
+        "hold": 502,
+        "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+      },
+      "hold_outcome": {
+        "action": "game_finished",
+        "round": 19,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "position": {
+        "lane": "Castle",
+        "name": "kalligan_deimos_00__r2_p1",
+        "original": "held",
+        "plan_sha256": "aa9b8fd7dc7782aed8d006b81aa1b82d7dd5740242adc381a0b597407b982c99",
+        "round": 2,
+        "seat": 1,
+        "source": "kalligan_deimos_00",
+        "view_sha256": "a1f469f22c6ed5723b448edf96c4da0694665150eae40519a915f878184adc03"
+      },
+      "pre_rout_artillery_unchanged": true,
+      "result": "cast_lost_win"
+    },
+    {
+      "affected": 13,
+      "cast_outcome": {
+        "action": "game_finished",
+        "round": 20,
+        "win_by": "FinalCollapse",
+        "winner": 1
+      },
+      "cohort": "early",
+      "effects": [
+        {
+          "cast_cohort_survivors": 13,
+          "cast_enemy": {
+            "bodies": 13,
+            "castle_integrity": 61,
+            "hp": 72,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 6,
+            "castle_integrity": 62,
+            "hp": 35,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 13,
+          "hold_enemy": {
+            "bodies": 13,
+            "castle_integrity": 61,
+            "hp": 72,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 6,
+            "castle_integrity": 62,
+            "hp": 35,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 330.0769230769231,
+          "offset": 0,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 0,
+          "round": 2,
+          "shared_cohort_survivors": 13,
+          "shared_survivor_delay_fp": 4291
+        },
+        {
+          "cast_cohort_survivors": 13,
+          "cast_enemy": {
+            "bodies": 21,
+            "castle_integrity": 64,
+            "hp": 117,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 7,
+            "castle_integrity": 64,
+            "hp": 40,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 13,
+          "hold_enemy": {
+            "bodies": 21,
+            "castle_integrity": 64,
+            "hp": 117,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 7,
+            "castle_integrity": 64,
+            "hp": 40,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -115.61538461538461,
+          "offset": 1,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 0,
+          "round": 3,
+          "shared_cohort_survivors": 13,
+          "shared_survivor_delay_fp": -1503
+        },
+        {
+          "cast_cohort_survivors": 13,
+          "cast_enemy": {
+            "bodies": 29,
+            "castle_integrity": 67,
+            "hp": 162,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 10,
+            "castle_integrity": 62,
+            "hp": 59,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 13,
+          "hold_enemy": {
+            "bodies": 29,
+            "castle_integrity": 67,
+            "hp": 162,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 11,
+            "castle_integrity": 62,
+            "hp": 70,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -373.46153846153845,
+          "offset": 2,
+          "own_bodies_delta": -1,
+          "own_hp_delta": -11,
+          "round": 4,
+          "shared_cohort_survivors": 13,
+          "shared_survivor_delay_fp": -4855
+        }
+      ],
+      "first_ordinary_attack_tick": {
+        "cast": 542,
+        "hold": null,
+        "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+      },
+      "hold_outcome": {
+        "action": "game_finished",
+        "round": 21,
+        "win_by": "FinalCollapse",
+        "winner": 1
+      },
+      "position": {
+        "lane": "Castle",
+        "name": "valak_deimos_00__r2_p1",
+        "original": "held",
+        "plan_sha256": "e6c9559f3df44486d7c115b1da62429a127401839e7002b323cd9f4232ed1a8a",
+        "round": 2,
+        "seat": 1,
+        "source": "valak_deimos_00",
+        "view_sha256": "d0cc5267067d7fcd1dfcd49e1e184c8c646ba37aec90d57565e810876d229b66"
+      },
+      "pre_rout_artillery_unchanged": true,
+      "result": "same_winner"
+    },
+    {
+      "affected": 9,
+      "cast_outcome": {
+        "action": "game_finished",
+        "round": 19,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "cohort": "early",
+      "effects": [
+        {
+          "cast_cohort_survivors": 9,
+          "cast_enemy": {
+            "bodies": 9,
+            "castle_integrity": 62,
+            "hp": 55,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 6,
+            "castle_integrity": 61,
+            "hp": 30,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 9,
+          "hold_enemy": {
+            "bodies": 9,
+            "castle_integrity": 62,
+            "hp": 55,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 6,
+            "castle_integrity": 61,
+            "hp": 30,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 240.88888888888889,
+          "offset": 0,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 0,
+          "round": 2,
+          "shared_cohort_survivors": 9,
+          "shared_survivor_delay_fp": 2168
+        },
+        {
+          "cast_cohort_survivors": 9,
+          "cast_enemy": {
+            "bodies": 17,
+            "castle_integrity": 61,
+            "hp": 100,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 3,
+            "castle_integrity": 64,
+            "hp": 20,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 9,
+          "hold_enemy": {
+            "bodies": 17,
+            "castle_integrity": 61,
+            "hp": 100,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 3,
+            "castle_integrity": 64,
+            "hp": 20,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -51.333333333333336,
+          "offset": 1,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 0,
+          "round": 3,
+          "shared_cohort_survivors": 9,
+          "shared_survivor_delay_fp": -462
+        },
+        {
+          "cast_cohort_survivors": 9,
+          "cast_enemy": {
+            "bodies": 22,
+            "castle_integrity": 60,
+            "hp": 130,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 10,
+            "castle_integrity": 69,
+            "hp": 55,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 9,
+          "hold_enemy": {
+            "bodies": 22,
+            "castle_integrity": 60,
+            "hp": 130,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 10,
+            "castle_integrity": 69,
+            "hp": 55,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -336.77777777777777,
+          "offset": 2,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 0,
+          "round": 4,
+          "shared_cohort_survivors": 9,
+          "shared_survivor_delay_fp": -3031
+        }
+      ],
+      "first_ordinary_attack_tick": {
+        "cast": null,
+        "hold": null,
+        "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+      },
+      "hold_outcome": {
+        "action": "game_finished",
+        "round": 22,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "position": {
+        "lane": "Castle",
+        "name": "deimos_valak_00__r2_p0",
+        "original": "held",
+        "plan_sha256": "412b857e2b136b75367af0d5021d8bda30c120021388e69d9e4f2bec20e9e167",
+        "round": 2,
+        "seat": 0,
+        "source": "deimos_valak_00",
+        "view_sha256": "bc23e554daa55af1ab665cdc47eefa7e08297367ef7499b79ccc277cce1f2054"
+      },
+      "pre_rout_artillery_unchanged": true,
+      "result": "same_winner"
+    },
+    {
+      "affected": 12,
+      "cast_outcome": {
+        "action": "game_finished",
+        "round": 14,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "cohort": "early",
+      "effects": [
+        {
+          "cast_cohort_survivors": 12,
+          "cast_enemy": {
+            "bodies": 12,
+            "castle_integrity": 62,
+            "hp": 62,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 11,
+            "castle_integrity": 48,
+            "hp": 70,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 12,
+          "hold_enemy": {
+            "bodies": 12,
+            "castle_integrity": 62,
+            "hp": 62,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 11,
+            "castle_integrity": 48,
+            "hp": 70,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 403.25,
+          "offset": 0,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 0,
+          "round": 2,
+          "shared_cohort_survivors": 12,
+          "shared_survivor_delay_fp": 4839
+        },
+        {
+          "cast_cohort_survivors": 12,
+          "cast_enemy": {
+            "bodies": 16,
+            "castle_integrity": 64,
+            "hp": 92,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 18,
+            "castle_integrity": 50,
+            "hp": 110,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 12,
+          "hold_enemy": {
+            "bodies": 16,
+            "castle_integrity": 64,
+            "hp": 92,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 18,
+            "castle_integrity": 50,
+            "hp": 110,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -227.5,
+          "offset": 1,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 0,
+          "round": 3,
+          "shared_cohort_survivors": 12,
+          "shared_survivor_delay_fp": -2730
+        },
+        {
+          "cast_cohort_survivors": 9,
+          "cast_enemy": {
+            "bodies": 19,
+            "castle_integrity": 55,
+            "hp": 106,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 27,
+            "castle_integrity": 48,
+            "hp": 160,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 12,
+          "hold_enemy": {
+            "bodies": 22,
+            "castle_integrity": 57,
+            "hp": 112,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 28,
+            "castle_integrity": 48,
+            "hp": 165,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -266.8888888888889,
+          "offset": 2,
+          "own_bodies_delta": -1,
+          "own_hp_delta": -5,
+          "round": 4,
+          "shared_cohort_survivors": 9,
+          "shared_survivor_delay_fp": -2402
+        }
+      ],
+      "first_ordinary_attack_tick": {
+        "cast": 411,
+        "hold": 540,
+        "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+      },
+      "hold_outcome": {
+        "action": "game_finished",
+        "round": 16,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "position": {
+        "lane": "Castle",
+        "name": "deimos_kalligan_00__r2_p0",
+        "original": "held",
+        "plan_sha256": "961a2d4e18361c30a5f48d9e086eb878ef6647e6df61315e5634747029ff60e2",
+        "round": 2,
+        "seat": 0,
+        "source": "deimos_kalligan_00",
+        "view_sha256": "2a07db709311492a9b686b2546fb4f70e8afe0e3514017f21203717ba40c40ed"
+      },
+      "pre_rout_artillery_unchanged": true,
+      "result": "same_winner"
+    },
+    {
+      "affected": 12,
+      "cast_outcome": {
+        "action": "game_finished",
+        "round": 24,
+        "win_by": "FinalCollapse",
+        "winner": 1
+      },
+      "cohort": "early",
+      "effects": [
+        {
+          "cast_cohort_survivors": 12,
+          "cast_enemy": {
+            "bodies": 12,
+            "castle_integrity": 61,
+            "hp": 62,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 4,
+            "castle_integrity": 61,
+            "hp": 25,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 12,
+          "hold_enemy": {
+            "bodies": 12,
+            "castle_integrity": 61,
+            "hp": 62,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 4,
+            "castle_integrity": 61,
+            "hp": 25,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 261.8333333333333,
+          "offset": 0,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 0,
+          "round": 2,
+          "shared_cohort_survivors": 12,
+          "shared_survivor_delay_fp": 3142
+        },
+        {
+          "cast_cohort_survivors": 12,
+          "cast_enemy": {
+            "bodies": 12,
+            "castle_integrity": 62,
+            "hp": 55,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 10,
+            "castle_integrity": 62,
+            "hp": 65,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 12,
+          "hold_enemy": {
+            "bodies": 12,
+            "castle_integrity": 62,
+            "hp": 62,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 10,
+            "castle_integrity": 62,
+            "hp": 65,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -505.0,
+          "offset": 1,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 0,
+          "round": 3,
+          "shared_cohort_survivors": 12,
+          "shared_survivor_delay_fp": -6060
+        },
+        {
+          "cast_cohort_survivors": 11,
+          "cast_enemy": {
+            "bodies": 16,
+            "castle_integrity": 54,
+            "hp": 79,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 15,
+            "castle_integrity": 65,
+            "hp": 90,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 10,
+          "hold_enemy": {
+            "bodies": 15,
+            "castle_integrity": 54,
+            "hp": 84,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 18,
+            "castle_integrity": 65,
+            "hp": 105,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -611.1111111111111,
+          "offset": 2,
+          "own_bodies_delta": -3,
+          "own_hp_delta": -15,
+          "round": 4,
+          "shared_cohort_survivors": 9,
+          "shared_survivor_delay_fp": -5500
+        }
+      ],
+      "first_ordinary_attack_tick": {
+        "cast": 359,
+        "hold": 478,
+        "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+      },
+      "hold_outcome": {
+        "action": "game_finished",
+        "round": 23,
+        "win_by": "FinalCollapse",
+        "winner": 1
+      },
+      "position": {
+        "lane": "Castle",
+        "name": "humbaba_deimos_00__r2_p1",
+        "original": "held",
+        "plan_sha256": "19c262a8b72068d1b0bc78f666728a1d880ab870a545e06c5b083f9d5563da0c",
+        "round": 2,
+        "seat": 1,
+        "source": "humbaba_deimos_00",
+        "view_sha256": "f7abdf7c0165fc825b8999a37ec84bd50588de861943c115593ac19c9335599e"
+      },
+      "pre_rout_artillery_unchanged": true,
+      "result": "same_winner"
+    },
+    {
+      "affected": 16,
+      "cast_outcome": {
+        "action": "game_finished",
+        "round": 16,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "cohort": "early",
+      "effects": [
+        {
+          "cast_cohort_survivors": 16,
+          "cast_enemy": {
+            "bodies": 16,
+            "castle_integrity": 64,
+            "hp": 92,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 18,
+            "castle_integrity": 50,
+            "hp": 110,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 15,
+          "hold_enemy": {
+            "bodies": 15,
+            "castle_integrity": 64,
+            "hp": 86,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 16,
+            "castle_integrity": 50,
+            "hp": 95,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 651.3333333333334,
+          "offset": 0,
+          "own_bodies_delta": 2,
+          "own_hp_delta": 15,
+          "round": 3,
+          "shared_cohort_survivors": 15,
+          "shared_survivor_delay_fp": 9770
+        },
+        {
+          "cast_cohort_survivors": 16,
+          "cast_enemy": {
+            "bodies": 22,
+            "castle_integrity": 57,
+            "hp": 112,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 28,
+            "castle_integrity": 48,
+            "hp": 165,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 15,
+          "hold_enemy": {
+            "bodies": 21,
+            "castle_integrity": 57,
+            "hp": 113,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 26,
+            "castle_integrity": 48,
+            "hp": 155,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -18.066666666666666,
+          "offset": 1,
+          "own_bodies_delta": 2,
+          "own_hp_delta": 10,
+          "round": 4,
+          "shared_cohort_survivors": 15,
+          "shared_survivor_delay_fp": -271
+        },
+        {
+          "cast_cohort_survivors": 15,
+          "cast_enemy": {
+            "bodies": 24,
+            "castle_integrity": 63,
+            "hp": 126,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 32,
+            "castle_integrity": 52,
+            "hp": 189,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 13,
+          "hold_enemy": {
+            "bodies": 22,
+            "castle_integrity": 63,
+            "hp": 123,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 31,
+            "castle_integrity": 52,
+            "hp": 185,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -250.41666666666666,
+          "offset": 2,
+          "own_bodies_delta": 1,
+          "own_hp_delta": 4,
+          "round": 5,
+          "shared_cohort_survivors": 12,
+          "shared_survivor_delay_fp": -3005
+        }
+      ],
+      "first_ordinary_attack_tick": {
+        "cast": 340,
+        "hold": 60,
+        "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+      },
+      "hold_outcome": {
+        "action": "game_finished",
+        "round": 14,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "position": {
+        "lane": "Castle",
+        "name": "deimos_kalligan_00__r3_p0",
+        "original": "fired",
+        "plan_sha256": "012119283a568538146500bfb4ab7f94d918ecaf12125fab5a43f4999d7245ea",
+        "round": 3,
+        "seat": 0,
+        "source": "deimos_kalligan_00",
+        "view_sha256": "63513d899701155bf0e53e5aab47216e40f2ae9f712e78640932ac76e28ff4dc"
+      },
+      "pre_rout_artillery_unchanged": true,
+      "result": "same_winner"
+    },
+    {
+      "affected": 28,
+      "cast_outcome": {
+        "action": "game_finished",
+        "round": 21,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "cohort": "early",
+      "effects": [
+        {
+          "cast_cohort_survivors": 28,
+          "cast_enemy": {
+            "bodies": 28,
+            "castle_integrity": 62,
+            "hp": 149,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 18,
+            "castle_integrity": 55,
+            "hp": 102,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 26,
+          "hold_enemy": {
+            "bodies": 26,
+            "castle_integrity": 62,
+            "hp": 140,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 15,
+            "castle_integrity": 55,
+            "hp": 90,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 528.8076923076923,
+          "offset": 0,
+          "own_bodies_delta": 3,
+          "own_hp_delta": 12,
+          "round": 3,
+          "shared_cohort_survivors": 26,
+          "shared_survivor_delay_fp": 13749
+        },
+        {
+          "cast_cohort_survivors": 25,
+          "cast_enemy": {
+            "bodies": 32,
+            "castle_integrity": 61,
+            "hp": 179,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 23,
+            "castle_integrity": 57,
+            "hp": 114,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 24,
+          "hold_enemy": {
+            "bodies": 31,
+            "castle_integrity": 61,
+            "hp": 172,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 20,
+            "castle_integrity": 57,
+            "hp": 115,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -76.875,
+          "offset": 1,
+          "own_bodies_delta": 3,
+          "own_hp_delta": -1,
+          "round": 4,
+          "shared_cohort_survivors": 24,
+          "shared_survivor_delay_fp": -1845
+        },
+        {
+          "cast_cohort_survivors": 24,
+          "cast_enemy": {
+            "bodies": 41,
+            "castle_integrity": 60,
+            "hp": 235,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 23,
+            "castle_integrity": 65,
+            "hp": 130,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 22,
+          "hold_enemy": {
+            "bodies": 39,
+            "castle_integrity": 60,
+            "hp": 219,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 24,
+            "castle_integrity": 65,
+            "hp": 135,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -233.23809523809524,
+          "offset": 2,
+          "own_bodies_delta": -1,
+          "own_hp_delta": -5,
+          "round": 5,
+          "shared_cohort_survivors": 21,
+          "shared_survivor_delay_fp": -4898
+        }
+      ],
+      "first_ordinary_attack_tick": {
+        "cast": 200,
+        "hold": 4,
+        "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+      },
+      "hold_outcome": {
+        "action": "game_finished",
+        "round": 14,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "position": {
+        "lane": "Castle",
+        "name": "deimos_humbaba_00__r3_p0",
+        "original": "fired",
+        "plan_sha256": "50688242b6142dcef4b8a874beeb991dde5548a6a9b4a926754ca153572b4505",
+        "round": 3,
+        "seat": 0,
+        "source": "deimos_humbaba_00",
+        "view_sha256": "9506abe073617f9381115a8f8cc7b44569b70b89d7028391dd1c7b3c31453e8a"
+      },
+      "pre_rout_artillery_unchanged": true,
+      "result": "same_winner"
+    },
+    {
+      "affected": 18,
+      "cast_outcome": {
+        "action": "game_finished",
+        "round": 19,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "cohort": "early",
+      "effects": [
+        {
+          "cast_cohort_survivors": 18,
+          "cast_enemy": {
+            "bodies": 18,
+            "castle_integrity": 56,
+            "hp": 110,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 16,
+            "castle_integrity": 60,
+            "hp": 92,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 16,
+          "hold_enemy": {
+            "bodies": 16,
+            "castle_integrity": 56,
+            "hp": 95,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 15,
+            "castle_integrity": 60,
+            "hp": 86,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 342.0,
+          "offset": 0,
+          "own_bodies_delta": 1,
+          "own_hp_delta": 6,
+          "round": 3,
+          "shared_cohort_survivors": 16,
+          "shared_survivor_delay_fp": 5472
+        },
+        {
+          "cast_cohort_survivors": 18,
+          "cast_enemy": {
+            "bodies": 28,
+            "castle_integrity": 57,
+            "hp": 170,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 19,
+            "castle_integrity": 53,
+            "hp": 103,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 15,
+          "hold_enemy": {
+            "bodies": 25,
+            "castle_integrity": 57,
+            "hp": 150,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 21,
+            "castle_integrity": 53,
+            "hp": 113,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -39.8,
+          "offset": 1,
+          "own_bodies_delta": -2,
+          "own_hp_delta": -10,
+          "round": 4,
+          "shared_cohort_survivors": 15,
+          "shared_survivor_delay_fp": -597
+        },
+        {
+          "cast_cohort_survivors": 17,
+          "cast_enemy": {
+            "bodies": 34,
+            "castle_integrity": 63,
+            "hp": 199,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 22,
+            "castle_integrity": 58,
+            "hp": 117,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 15,
+          "hold_enemy": {
+            "bodies": 32,
+            "castle_integrity": 63,
+            "hp": 186,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 24,
+            "castle_integrity": 58,
+            "hp": 125,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -253.46666666666667,
+          "offset": 2,
+          "own_bodies_delta": -2,
+          "own_hp_delta": -8,
+          "round": 5,
+          "shared_cohort_survivors": 15,
+          "shared_survivor_delay_fp": -3802
+        }
+      ],
+      "first_ordinary_attack_tick": {
+        "cast": 261,
+        "hold": 60,
+        "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+      },
+      "hold_outcome": {
+        "action": "game_finished",
+        "round": 22,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "position": {
+        "lane": "Castle",
+        "name": "kalligan_deimos_00__r3_p1",
+        "original": "fired",
+        "plan_sha256": "128da02a74aa1cfe6c9286cf34fc6c0bbc6f5d84c3126d4b840b199409f7adb5",
+        "round": 3,
+        "seat": 1,
+        "source": "kalligan_deimos_00",
+        "view_sha256": "9ad3f8d8213ea6fafa253d90efaac950698a2dbcf32e060160c9c93d8d9904c9"
+      },
+      "pre_rout_artillery_unchanged": true,
+      "result": "same_winner"
+    },
+    {
+      "affected": 17,
+      "cast_outcome": {
+        "action": "game_finished",
+        "round": 22,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "cohort": "early",
+      "effects": [
+        {
+          "cast_cohort_survivors": 17,
+          "cast_enemy": {
+            "bodies": 17,
+            "castle_integrity": 61,
+            "hp": 100,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 3,
+            "castle_integrity": 64,
+            "hp": 20,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 17,
+          "hold_enemy": {
+            "bodies": 17,
+            "castle_integrity": 61,
+            "hp": 100,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 3,
+            "castle_integrity": 64,
+            "hp": 20,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 427.1764705882353,
+          "offset": 0,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 0,
+          "round": 3,
+          "shared_cohort_survivors": 17,
+          "shared_survivor_delay_fp": 7262
+        },
+        {
+          "cast_cohort_survivors": 17,
+          "cast_enemy": {
+            "bodies": 22,
+            "castle_integrity": 60,
+            "hp": 130,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 10,
+            "castle_integrity": 69,
+            "hp": 55,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 17,
+          "hold_enemy": {
+            "bodies": 22,
+            "castle_integrity": 60,
+            "hp": 130,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 10,
+            "castle_integrity": 69,
+            "hp": 55,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -147.0,
+          "offset": 1,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 0,
+          "round": 4,
+          "shared_cohort_survivors": 17,
+          "shared_survivor_delay_fp": -2499
+        },
+        {
+          "cast_cohort_survivors": 17,
+          "cast_enemy": {
+            "bodies": 28,
+            "castle_integrity": 60,
+            "hp": 168,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 14,
+            "castle_integrity": 70,
+            "hp": 75,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 16,
+          "hold_enemy": {
+            "bodies": 27,
+            "castle_integrity": 60,
+            "hp": 160,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 15,
+            "castle_integrity": 70,
+            "hp": 80,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -574.3125,
+          "offset": 2,
+          "own_bodies_delta": -1,
+          "own_hp_delta": -5,
+          "round": 5,
+          "shared_cohort_survivors": 16,
+          "shared_survivor_delay_fp": -9189
+        }
+      ],
+      "first_ordinary_attack_tick": {
+        "cast": 496,
+        "hold": 490,
+        "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+      },
+      "hold_outcome": {
+        "action": "game_finished",
+        "round": 21,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "position": {
+        "lane": "Castle",
+        "name": "deimos_valak_00__r3_p0",
+        "original": "fired",
+        "plan_sha256": "2d5dcc8cf025b87e8dc9de9db43870087e6c622de7961764d983ed7dba6c9041",
+        "round": 3,
+        "seat": 0,
+        "source": "deimos_valak_00",
+        "view_sha256": "af481025311dd83c1433757c3942c5793f489d7e0791b5cd7b617d5a45e5d507"
+      },
+      "pre_rout_artillery_unchanged": true,
+      "result": "same_winner"
+    },
+    {
+      "affected": 13,
+      "cast_outcome": {
+        "action": "game_finished",
+        "round": 16,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "cohort": "early",
+      "effects": [
+        {
+          "cast_cohort_survivors": 13,
+          "cast_enemy": {
+            "bodies": 13,
+            "castle_integrity": 61,
+            "hp": 67,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 9,
+            "castle_integrity": 60,
+            "hp": 55,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 13,
+          "hold_enemy": {
+            "bodies": 13,
+            "castle_integrity": 61,
+            "hp": 64,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 9,
+            "castle_integrity": 60,
+            "hp": 55,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 449.3076923076923,
+          "offset": 0,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 0,
+          "round": 2,
+          "shared_cohort_survivors": 13,
+          "shared_survivor_delay_fp": 5841
+        },
+        {
+          "cast_cohort_survivors": 13,
+          "cast_enemy": {
+            "bodies": 22,
+            "castle_integrity": 63,
+            "hp": 108,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 14,
+            "castle_integrity": 53,
+            "hp": 90,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 13,
+          "hold_enemy": {
+            "bodies": 22,
+            "castle_integrity": 63,
+            "hp": 106,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 14,
+            "castle_integrity": 53,
+            "hp": 90,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -60.61538461538461,
+          "offset": 1,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 0,
+          "round": 3,
+          "shared_cohort_survivors": 13,
+          "shared_survivor_delay_fp": -788
+        },
+        {
+          "cast_cohort_survivors": 10,
+          "cast_enemy": {
+            "bodies": 30,
+            "castle_integrity": 59,
+            "hp": 152,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 27,
+            "castle_integrity": 47,
+            "hp": 154,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 10,
+          "hold_enemy": {
+            "bodies": 29,
+            "castle_integrity": 59,
+            "hp": 150,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 27,
+            "castle_integrity": 47,
+            "hp": 155,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -79.25,
+          "offset": 2,
+          "own_bodies_delta": 0,
+          "own_hp_delta": -1,
+          "round": 4,
+          "shared_cohort_survivors": 8,
+          "shared_survivor_delay_fp": -634
+        }
+      ],
+      "first_ordinary_attack_tick": {
+        "cast": 406,
+        "hold": 122,
+        "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+      },
+      "hold_outcome": {
+        "action": "game_finished",
+        "round": 17,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "position": {
+        "lane": "Castle",
+        "name": "gremory_deimos_00__r2_p1",
+        "original": "fired",
+        "plan_sha256": "7a0e17f47ec62e5d3095c3c79caa9f5b22f94047d79f4e03e61828b40a9710a6",
+        "round": 2,
+        "seat": 1,
+        "source": "gremory_deimos_00",
+        "view_sha256": "13d8749bc8d4648a9c3e7020247fba27507f5c8e7e29cd4e5956f452b656dd35"
+      },
+      "pre_rout_artillery_unchanged": true,
+      "result": "same_winner"
+    },
+    {
+      "affected": 8,
+      "cast_outcome": {
+        "action": "game_finished",
+        "round": 14,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "cohort": "early",
+      "effects": [
+        {
+          "cast_cohort_survivors": 8,
+          "cast_enemy": {
+            "bodies": 8,
+            "castle_integrity": 64,
+            "hp": 50,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 11,
+            "castle_integrity": 61,
+            "hp": 57,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 8,
+          "hold_enemy": {
+            "bodies": 8,
+            "castle_integrity": 64,
+            "hp": 50,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 11,
+            "castle_integrity": 61,
+            "hp": 57,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 532.0,
+          "offset": 0,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 0,
+          "round": 2,
+          "shared_cohort_survivors": 8,
+          "shared_survivor_delay_fp": 4256
+        },
+        {
+          "cast_cohort_survivors": 8,
+          "cast_enemy": {
+            "bodies": 14,
+            "castle_integrity": 46,
+            "hp": 85,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 21,
+            "castle_integrity": 44,
+            "hp": 112,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 8,
+          "hold_enemy": {
+            "bodies": 14,
+            "castle_integrity": 46,
+            "hp": 85,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 21,
+            "castle_integrity": 44,
+            "hp": 112,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -216.625,
+          "offset": 1,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 0,
+          "round": 3,
+          "shared_cohort_survivors": 8,
+          "shared_survivor_delay_fp": -1733
+        },
+        {
+          "cast_cohort_survivors": 7,
+          "cast_enemy": {
+            "bodies": 18,
+            "castle_integrity": 50,
+            "hp": 104,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 24,
+            "castle_integrity": 47,
+            "hp": 126,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 7,
+          "hold_enemy": {
+            "bodies": 18,
+            "castle_integrity": 50,
+            "hp": 108,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 27,
+            "castle_integrity": 47,
+            "hp": 142,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -380.6666666666667,
+          "offset": 2,
+          "own_bodies_delta": -3,
+          "own_hp_delta": -16,
+          "round": 4,
+          "shared_cohort_survivors": 6,
+          "shared_survivor_delay_fp": -2284
+        }
+      ],
+      "first_ordinary_attack_tick": {
+        "cast": 417,
+        "hold": 147,
+        "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+      },
+      "hold_outcome": {
+        "action": "game_finished",
+        "round": 13,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "position": {
+        "lane": "Castle",
+        "name": "deimos_gremory_00__r2_p0",
+        "original": "fired",
+        "plan_sha256": "46c48e2325431f603980941ad5bd8548b01dc058c87c7b1d20939ba4c8f78984",
+        "round": 2,
+        "seat": 0,
+        "source": "deimos_gremory_00",
+        "view_sha256": "9df75f34fba3db9b86fa955b0d992e75235e004a1f1ed2b365083df49e6004ca"
+      },
+      "pre_rout_artillery_unchanged": true,
+      "result": "same_winner"
+    },
+    {
+      "affected": 89,
+      "cast_outcome": {
+        "action": "game_finished",
+        "round": 21,
+        "win_by": "FinalCollapse",
+        "winner": 1
+      },
+      "cohort": "pressure",
+      "effects": [
+        {
+          "cast_cohort_survivors": 86,
+          "cast_enemy": {
+            "bodies": 86,
+            "castle_integrity": 26,
+            "hp": 490,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 5,
+            "castle_integrity": 45,
+            "hp": 35,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 50,
+          "hold_enemy": {
+            "bodies": 50,
+            "castle_integrity": 26,
+            "hp": 290,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 3,
+            "castle_integrity": 45,
+            "hp": 20,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 820.2,
+          "offset": 0,
+          "own_bodies_delta": 2,
+          "own_hp_delta": 15,
+          "round": 15,
+          "shared_cohort_survivors": 50,
+          "shared_survivor_delay_fp": 41010
+        },
+        {
+          "cast_cohort_survivors": 86,
+          "cast_enemy": {
+            "bodies": 86,
+            "castle_integrity": 22,
+            "hp": 483,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 7,
+            "castle_integrity": 32,
+            "hp": 44,
+            "waiting": 0
+          },
+          "castle_integrity_delta": -2,
+          "hold_cohort_survivors": 50,
+          "hold_enemy": {
+            "bodies": 50,
+            "castle_integrity": 22,
+            "hp": 290,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 7,
+            "castle_integrity": 34,
+            "hp": 48,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 3.14,
+          "offset": 1,
+          "own_bodies_delta": 0,
+          "own_hp_delta": -4,
+          "round": 16,
+          "shared_cohort_survivors": 50,
+          "shared_survivor_delay_fp": 157
+        },
+        {
+          "cast_cohort_survivors": 85,
+          "cast_enemy": {
+            "bodies": 96,
+            "castle_integrity": 18,
+            "hp": 528,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 9,
+            "castle_integrity": 28,
+            "hp": 58,
+            "waiting": 0
+          },
+          "castle_integrity_delta": -2,
+          "hold_cohort_survivors": 50,
+          "hold_enemy": {
+            "bodies": 61,
+            "castle_integrity": 18,
+            "hp": 341,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 9,
+            "castle_integrity": 30,
+            "hp": 60,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -255.06,
+          "offset": 2,
+          "own_bodies_delta": 0,
+          "own_hp_delta": -2,
+          "round": 17,
+          "shared_cohort_survivors": 50,
+          "shared_survivor_delay_fp": -12753
+        }
+      ],
+      "first_ordinary_attack_tick": {
+        "cast": 273,
+        "hold": 1,
+        "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+      },
+      "hold_outcome": {
+        "action": "game_finished",
+        "round": 21,
+        "win_by": "FinalCollapse",
+        "winner": 1
+      },
+      "position": {
+        "lane": "Castle",
+        "name": "valak_deimos_00__pressure_r15_p1",
+        "original": "fired",
+        "plan_sha256": "60fdb7903ad220074d6582bd0dda73034aeecf33d1ec2ec61da5e8234589b847",
+        "pressure": {
+          "enemy_bodies": 83,
+          "enemy_hp": 464,
+          "hp_surplus": 424,
+          "own_bodies": 5,
+          "own_hp": 40,
+          "planned": {
+            "attack_lane": "",
+            "castle_hits": {},
+            "consumed_supplicants": [],
+            "guard_losses": [],
+            "monster": "Fyra",
+            "monster_bodies_minimum": 1,
+            "muster_bodies": {},
+            "power_bodies_minimum": {},
+            "recruit_lane": "Castle",
+            "recruit_suits": {
+              "Butcher": 1,
+              "Vulture": 1
+            },
+            "recruits": 2,
+            "unknown_extra_varn_bodies": false
+          }
+        },
+        "round": 15,
+        "seat": 1,
+        "source": "valak_deimos_00",
+        "view_sha256": "b81b7115cbb3d8b6de575526740daec4c8d7ff70ff9869e45ceeeaddb4de4dac"
+      },
+      "pre_rout_artillery_unchanged": true,
+      "result": "same_winner"
+    },
+    {
+      "affected": 93,
+      "cast_outcome": {
+        "action": "game_finished",
+        "round": 21,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "cohort": "pressure",
+      "effects": [
+        {
+          "cast_cohort_survivors": 92,
+          "cast_enemy": {
+            "bodies": 92,
+            "castle_integrity": 23,
+            "hp": 529,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 40,
+            "castle_integrity": 48,
+            "hp": 231,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 92,
+          "hold_enemy": {
+            "bodies": 92,
+            "castle_integrity": 23,
+            "hp": 504,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 28,
+            "castle_integrity": 48,
+            "hp": 157,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 496.53846153846155,
+          "offset": 0,
+          "own_bodies_delta": 12,
+          "own_hp_delta": 74,
+          "round": 15,
+          "shared_cohort_survivors": 91,
+          "shared_survivor_delay_fp": 45185
+        },
+        {
+          "cast_cohort_survivors": 89,
+          "cast_enemy": {
+            "bodies": 97,
+            "castle_integrity": 22,
+            "hp": 544,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 38,
+            "castle_integrity": 45,
+            "hp": 208,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 92,
+          "hold_enemy": {
+            "bodies": 100,
+            "castle_integrity": 22,
+            "hp": 541,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 29,
+            "castle_integrity": 45,
+            "hp": 171,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 728.1477272727273,
+          "offset": 1,
+          "own_bodies_delta": 9,
+          "own_hp_delta": 37,
+          "round": 16,
+          "shared_cohort_survivors": 88,
+          "shared_survivor_delay_fp": 64077
+        },
+        {
+          "cast_cohort_survivors": 87,
+          "cast_enemy": {
+            "bodies": 110,
+            "castle_integrity": 20,
+            "hp": 605,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 37,
+            "castle_integrity": 47,
+            "hp": 217,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 91,
+          "hold_enemy": {
+            "bodies": 114,
+            "castle_integrity": 22,
+            "hp": 601,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 33,
+            "castle_integrity": 47,
+            "hp": 199,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 289.6823529411765,
+          "offset": 2,
+          "own_bodies_delta": 4,
+          "own_hp_delta": 18,
+          "round": 17,
+          "shared_cohort_survivors": 85,
+          "shared_survivor_delay_fp": 24623
+        }
+      ],
+      "first_ordinary_attack_tick": {
+        "cast": 200,
+        "hold": 0,
+        "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+      },
+      "hold_outcome": {
+        "action": "game_finished",
+        "round": 22,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "position": {
+        "lane": "Castle",
+        "name": "deimos_humbaba_00__pressure_r15_p0",
+        "original": "fired",
+        "plan_sha256": "8621689cb89caddf85205a39d6fcc8a1226cd8077d50c3f2712419c9cb6e1647",
+        "pressure": {
+          "enemy_bodies": 90,
+          "enemy_hp": 522,
+          "hp_surplus": 336,
+          "own_bodies": 33,
+          "own_hp": 186,
+          "planned": {
+            "attack_lane": "",
+            "castle_hits": {},
+            "consumed_supplicants": [],
+            "guard_losses": [],
+            "monster": "Kurchin",
+            "monster_bodies_minimum": 1,
+            "muster_bodies": {},
+            "power_bodies_minimum": {},
+            "recruit_lane": "Castle",
+            "recruit_suits": {
+              "Penitent": 5,
+              "Wright": 1
+            },
+            "recruits": 6,
+            "unknown_extra_varn_bodies": false
+          }
+        },
+        "round": 15,
+        "seat": 0,
+        "source": "deimos_humbaba_00",
+        "view_sha256": "682053ac8e19f8f00d9dbd48498580a7c4a5411039d4300ef6432a9ac50ac5e6"
+      },
+      "pre_rout_artillery_unchanged": true,
+      "result": "same_winner"
+    },
+    {
+      "affected": 75,
+      "cast_outcome": {
+        "action": "game_finished",
+        "round": 19,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "cohort": "pressure",
+      "effects": [
+        {
+          "cast_cohort_survivors": 75,
+          "cast_enemy": {
+            "bodies": 75,
+            "castle_integrity": 74,
+            "hp": 449,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 23,
+            "castle_integrity": 40,
+            "hp": 152,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 75,
+          "hold_enemy": {
+            "bodies": 75,
+            "castle_integrity": 74,
+            "hp": 450,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 21,
+            "castle_integrity": 40,
+            "hp": 142,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 467.1333333333333,
+          "offset": 0,
+          "own_bodies_delta": 2,
+          "own_hp_delta": 10,
+          "round": 11,
+          "shared_cohort_survivors": 75,
+          "shared_survivor_delay_fp": 35035
+        },
+        {
+          "cast_cohort_survivors": 73,
+          "cast_enemy": {
+            "bodies": 78,
+            "castle_integrity": 74,
+            "hp": 446,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 27,
+            "castle_integrity": 38,
+            "hp": 175,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 75,
+          "hold_enemy": {
+            "bodies": 80,
+            "castle_integrity": 74,
+            "hp": 452,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 25,
+            "castle_integrity": 38,
+            "hp": 165,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -28.671232876712327,
+          "offset": 1,
+          "own_bodies_delta": 2,
+          "own_hp_delta": 10,
+          "round": 12,
+          "shared_cohort_survivors": 73,
+          "shared_survivor_delay_fp": -2093
+        },
+        {
+          "cast_cohort_survivors": 71,
+          "cast_enemy": {
+            "bodies": 84,
+            "castle_integrity": 73,
+            "hp": 484,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 27,
+            "castle_integrity": 35,
+            "hp": 169,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 71,
+          "hold_enemy": {
+            "bodies": 84,
+            "castle_integrity": 73,
+            "hp": 481,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 27,
+            "castle_integrity": 35,
+            "hp": 182,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 30.940298507462686,
+          "offset": 2,
+          "own_bodies_delta": 0,
+          "own_hp_delta": -13,
+          "round": 13,
+          "shared_cohort_survivors": 67,
+          "shared_survivor_delay_fp": 2073
+        }
+      ],
+      "first_ordinary_attack_tick": {
+        "cast": 200,
+        "hold": 5,
+        "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+      },
+      "hold_outcome": {
+        "action": "game_finished",
+        "round": 20,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "position": {
+        "lane": "Castle",
+        "name": "kalligan_deimos_00__pressure_r11_p1",
+        "original": "fired",
+        "plan_sha256": "706be83c01eaa135c1abc2626ae65eac257c37c47af3118a404d8c371bf375fc",
+        "pressure": {
+          "enemy_bodies": 70,
+          "enemy_hp": 419,
+          "hp_surplus": 300,
+          "own_bodies": 18,
+          "own_hp": 119,
+          "planned": {
+            "attack_lane": "",
+            "castle_hits": {},
+            "consumed_supplicants": [],
+            "guard_losses": [],
+            "monster": "Kurchin",
+            "monster_bodies_minimum": 1,
+            "muster_bodies": {},
+            "power_bodies_minimum": {},
+            "recruit_lane": "Castle",
+            "recruit_suits": {
+              "Penitent": 4,
+              "Wright": 0
+            },
+            "recruits": 4,
+            "unknown_extra_varn_bodies": false
+          }
+        },
+        "round": 11,
+        "seat": 1,
+        "source": "kalligan_deimos_00",
+        "view_sha256": "3a0729fea6d946445f792f99149528311a347b4f998985a3eb3ec7cc1936a93f"
+      },
+      "pre_rout_artillery_unchanged": true,
+      "result": "same_winner"
+    },
+    {
+      "affected": 44,
+      "cast_outcome": {
+        "action": "game_finished",
+        "round": 22,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "cohort": "pressure",
+      "effects": [
+        {
+          "cast_cohort_survivors": 44,
+          "cast_enemy": {
+            "bodies": 44,
+            "castle_integrity": 55,
+            "hp": 189,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 20,
+            "castle_integrity": 67,
+            "hp": 108,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 43,
+          "hold_enemy": {
+            "bodies": 43,
+            "castle_integrity": 55,
+            "hp": 196,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 18,
+            "castle_integrity": 67,
+            "hp": 96,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 618.5348837209302,
+          "offset": 0,
+          "own_bodies_delta": 2,
+          "own_hp_delta": 12,
+          "round": 7,
+          "shared_cohort_survivors": 43,
+          "shared_survivor_delay_fp": 26597
+        },
+        {
+          "cast_cohort_survivors": 41,
+          "cast_enemy": {
+            "bodies": 48,
+            "castle_integrity": 55,
+            "hp": 221,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 21,
+            "castle_integrity": 66,
+            "hp": 119,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 40,
+          "hold_enemy": {
+            "bodies": 47,
+            "castle_integrity": 55,
+            "hp": 241,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 21,
+            "castle_integrity": 66,
+            "hp": 117,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -134.84615384615384,
+          "offset": 1,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 2,
+          "round": 8,
+          "shared_cohort_survivors": 39,
+          "shared_survivor_delay_fp": -5259
+        },
+        {
+          "cast_cohort_survivors": 38,
+          "cast_enemy": {
+            "bodies": 49,
+            "castle_integrity": 50,
+            "hp": 237,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 28,
+            "castle_integrity": 64,
+            "hp": 157,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 37,
+          "hold_enemy": {
+            "bodies": 49,
+            "castle_integrity": 50,
+            "hp": 241,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 30,
+            "castle_integrity": 64,
+            "hp": 170,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -399.3529411764706,
+          "offset": 2,
+          "own_bodies_delta": -2,
+          "own_hp_delta": -13,
+          "round": 9,
+          "shared_cohort_survivors": 34,
+          "shared_survivor_delay_fp": -13578
+        }
+      ],
+      "first_ordinary_attack_tick": {
+        "cast": 248,
+        "hold": 28,
+        "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+      },
+      "hold_outcome": {
+        "action": "game_finished",
+        "round": 21,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "position": {
+        "lane": "Castle",
+        "name": "deimos_valak_00__pressure_r7_p0",
+        "original": "fired",
+        "plan_sha256": "7c1e3f71c5dabc5e724c0f31e49ecb7aa4abccdb099b6ec2bd5d9a2474d0bd52",
+        "pressure": {
+          "enemy_bodies": 30,
+          "enemy_hp": 165,
+          "hp_surplus": 115,
+          "own_bodies": 8,
+          "own_hp": 50,
+          "planned": {
+            "attack_lane": "",
+            "castle_hits": {},
+            "consumed_supplicants": [],
+            "guard_losses": [],
+            "monster": "Kurchin",
+            "monster_bodies_minimum": 1,
+            "muster_bodies": {},
+            "power_bodies_minimum": {},
+            "recruit_lane": "Castle",
+            "recruit_suits": {
+              "Butcher": 3,
+              "Penitent": 5,
+              "Vulture": 2,
+              "Wright": 7
+            },
+            "recruits": 17,
+            "unknown_extra_varn_bodies": false
+          }
+        },
+        "round": 7,
+        "seat": 0,
+        "source": "deimos_valak_00",
+        "view_sha256": "9d0051ce549d1ea3a56c659b57bbdd6680c5a82d860631619036fbe4a6df3d61"
+      },
+      "pre_rout_artillery_unchanged": true,
+      "result": "same_winner"
+    },
+    {
+      "affected": 65,
+      "cast_outcome": {
+        "action": "game_finished",
+        "round": 20,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "cohort": "pressure",
+      "effects": [
+        {
+          "cast_cohort_survivors": 65,
+          "cast_enemy": {
+            "bodies": 65,
+            "castle_integrity": 41,
+            "hp": 379,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 59,
+            "castle_integrity": 12,
+            "hp": 325,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 64,
+          "hold_enemy": {
+            "bodies": 64,
+            "castle_integrity": 41,
+            "hp": 375,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 60,
+            "castle_integrity": 12,
+            "hp": 312,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 1107.5,
+          "offset": 0,
+          "own_bodies_delta": -1,
+          "own_hp_delta": 13,
+          "round": 15,
+          "shared_cohort_survivors": 64,
+          "shared_survivor_delay_fp": 70880
+        },
+        {
+          "cast_cohort_survivors": 65,
+          "cast_enemy": {
+            "bodies": 77,
+            "castle_integrity": 34,
+            "hp": 447,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 65,
+            "castle_integrity": 0,
+            "hp": 365,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 63,
+          "hold_enemy": {
+            "bodies": 75,
+            "castle_integrity": 34,
+            "hp": 437,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 65,
+            "castle_integrity": 0,
+            "hp": 358,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 153.84126984126985,
+          "offset": 1,
+          "own_bodies_delta": 0,
+          "own_hp_delta": 7,
+          "round": 16,
+          "shared_cohort_survivors": 63,
+          "shared_survivor_delay_fp": 9692
+        },
+        {
+          "cast_cohort_survivors": 62,
+          "cast_enemy": {
+            "bodies": 85,
+            "castle_integrity": 31,
+            "hp": 471,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 66,
+            "castle_integrity": 5,
+            "hp": 340,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 61,
+          "hold_enemy": {
+            "bodies": 84,
+            "castle_integrity": 31,
+            "hp": 470,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 67,
+            "castle_integrity": 5,
+            "hp": 357,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -25.10169491525424,
+          "offset": 2,
+          "own_bodies_delta": -1,
+          "own_hp_delta": -17,
+          "round": 17,
+          "shared_cohort_survivors": 59,
+          "shared_survivor_delay_fp": -1481
+        }
+      ],
+      "first_ordinary_attack_tick": {
+        "cast": 458,
+        "hold": 5,
+        "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+      },
+      "hold_outcome": {
+        "action": "game_finished",
+        "round": 20,
+        "win_by": "FinalCollapse",
+        "winner": 0
+      },
+      "position": {
+        "lane": "Castle",
+        "name": "deimos_deimos_00__pressure_r15_p1",
+        "original": "fired",
+        "plan_sha256": "235322df0f93067196a4988b8c92a32e41f01bbbddd51208948994bc87665245",
+        "pressure": {
+          "enemy_bodies": 64,
+          "enemy_hp": 389,
+          "hp_surplus": 91,
+          "own_bodies": 54,
+          "own_hp": 298,
+          "planned": {
+            "attack_lane": "",
+            "castle_hits": {},
+            "consumed_supplicants": [],
+            "guard_losses": [],
+            "monster": "Tumler",
+            "monster_bodies_minimum": 1,
+            "muster_bodies": {},
+            "power_bodies_minimum": {},
+            "recruit_lane": "Castle",
+            "recruit_suits": {
+              "Vulture": 4,
+              "Wright": 4
+            },
+            "recruits": 8,
+            "unknown_extra_varn_bodies": false
+          }
+        },
+        "round": 15,
+        "seat": 1,
+        "source": "deimos_deimos_00",
+        "view_sha256": "15b4ccd0e6beba31c8dc5a5e97af81a74693513b24af67231baf7d9b37a1c8d8"
+      },
+      "pre_rout_artillery_unchanged": true,
+      "result": "same_winner"
+    },
+    {
+      "affected": 57,
+      "cast_outcome": {
+        "action": "game_finished",
+        "round": 23,
+        "win_by": "FinalCollapse",
+        "winner": 1
+      },
+      "cohort": "pressure",
+      "effects": [
+        {
+          "cast_cohort_survivors": 54,
+          "cast_enemy": {
+            "bodies": 54,
+            "castle_integrity": 56,
+            "hp": 287,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 53,
+            "castle_integrity": 61,
+            "hp": 286,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 53,
+          "hold_enemy": {
+            "bodies": 53,
+            "castle_integrity": 56,
+            "hp": 286,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 49,
+            "castle_integrity": 61,
+            "hp": 255,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": 310.9056603773585,
+          "offset": 0,
+          "own_bodies_delta": 4,
+          "own_hp_delta": 31,
+          "round": 15,
+          "shared_cohort_survivors": 53,
+          "shared_survivor_delay_fp": 16478
+        },
+        {
+          "cast_cohort_survivors": 54,
+          "cast_enemy": {
+            "bodies": 54,
+            "castle_integrity": 36,
+            "hp": 280,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 52,
+            "castle_integrity": 46,
+            "hp": 276,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 53,
+          "hold_enemy": {
+            "bodies": 53,
+            "castle_integrity": 36,
+            "hp": 287,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 57,
+            "castle_integrity": 46,
+            "hp": 308,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -10.075471698113208,
+          "offset": 1,
+          "own_bodies_delta": -5,
+          "own_hp_delta": -32,
+          "round": 16,
+          "shared_cohort_survivors": 53,
+          "shared_survivor_delay_fp": -534
+        },
+        {
+          "cast_cohort_survivors": 49,
+          "cast_enemy": {
+            "bodies": 55,
+            "castle_integrity": 34,
+            "hp": 267,
+            "waiting": 0
+          },
+          "cast_own": {
+            "bodies": 41,
+            "castle_integrity": 48,
+            "hp": 220,
+            "waiting": 0
+          },
+          "castle_integrity_delta": 0,
+          "hold_cohort_survivors": 52,
+          "hold_enemy": {
+            "bodies": 61,
+            "castle_integrity": 34,
+            "hp": 292,
+            "waiting": 0
+          },
+          "hold_own": {
+            "bodies": 46,
+            "castle_integrity": 48,
+            "hp": 234,
+            "waiting": 0
+          },
+          "mean_shared_survivor_delay_fp": -47.9375,
+          "offset": 2,
+          "own_bodies_delta": -5,
+          "own_hp_delta": -14,
+          "round": 17,
+          "shared_cohort_survivors": 48,
+          "shared_survivor_delay_fp": -2301
+        }
+      ],
+      "first_ordinary_attack_tick": {
+        "cast": 200,
+        "hold": 7,
+        "scope": "Only ordinary melee/ranged attacks by the routed cohort over the intervention round and two following rounds; null means none observed."
+      },
+      "hold_outcome": {
+        "action": "game_finished",
+        "round": 24,
+        "win_by": "FinalCollapse",
+        "winner": 1
+      },
+      "position": {
+        "lane": "Castle",
+        "name": "humbaba_deimos_00__pressure_r15_p1",
+        "original": "fired",
+        "plan_sha256": "652122e0d9dde6f25cbc7261ab3b003b0fc62fca5d97bfbe9c69084fa3df9677",
+        "pressure": {
+          "enemy_bodies": 57,
+          "enemy_hp": 307,
+          "hp_surplus": 66,
+          "own_bodies": 45,
+          "own_hp": 241,
+          "planned": {
+            "attack_lane": "",
+            "castle_hits": {},
+            "consumed_supplicants": [],
+            "guard_losses": [],
+            "monster": "Tumler",
+            "monster_bodies_minimum": 1,
+            "muster_bodies": {},
+            "power_bodies_minimum": {},
+            "recruit_lane": "Castle",
+            "recruit_suits": {
+              "Vulture": 3,
+              "Wright": 4
+            },
+            "recruits": 7,
+            "unknown_extra_varn_bodies": false
+          }
+        },
+        "round": 15,
+        "seat": 1,
+        "source": "humbaba_deimos_00",
+        "view_sha256": "73cab4c1d5976d39cba392968f3ce0b1e5148a45fd43ce32e257f95bbbef019a"
+      },
+      "pre_rout_artillery_unchanged": true,
+      "result": "same_winner"
+    }
+  ],
+  "pressure": {
+    "continuation_operations": 6422,
+    "continuation_rounds": 254,
+    "continuations": 12,
+    "exact_controls": 6,
+    "fired_positions": 6,
+    "fired_same_winner": 6,
+    "original_control_losses": 1,
+    "original_control_wins": 5,
+    "same_winner": 6,
+    "source_games": 9,
+    "source_operations": 4339,
+    "source_rounds": 172
+  },
+  "published_experimental_checkpoint": "2099326ceba752f3570a6114631eb25714abaa4e",
+  "rules_changed": false,
+  "schema": "U13_ROUT_TIMING_DIAGNOSTICS_CHECKPOINT_V1",
+  "selection": {
+    "early": "Earliest eligible held and fired Rout per game; choose at most six of each by stable source/seat/round hash, without outcomes.",
+    "pressure": "Separate outnumbered-lane diagnostic; no claim that every answer is exhausted.\n\n    Take the largest visible mobile-enemy HP surplus per source/seat in rounds\n    4--15 where V12 casts Rout, then the six largest of those surpluses. Require\n    at least four mobile enemies and reachable pressure. Final outcomes never\n    enter selection. Record planned reinforcements, without equating HP or body\n    counts to fighting strength or assuming the unchosen hand has no answer.\n    "
+  },
+  "source_revision": "2cf3bbb0f8405f8ff82f2c2e14abf6a8da15b2d9",
+  "status": "V12 retained; local current-rule gate passed; no new native or Windows/PyPy acceptance",
+  "subsequent_engine_update": "176e17588e4ab931fc463b0547d77db933038560",
+  "subsequent_scope": "Navigation integration is separate; no Rout intervention results on the navigation engine are claimed.",
+  "tested_local_alias": "235cb6c",
+  "total_continuation_operations": 17716,
+  "total_continuation_rounds": 702,
+  "total_continuations": 36,
+  "total_exact_controls": 18,
+  "weights": {
+    "banishment": 32,
+    "card_cost": 2,
+    "damage": 3,
+    "destruction": 30,
+    "enemy_settlement_risk": 90,
+    "guard": 5,
+    "monster": 2,
+    "recipe_save": 1,
+    "recruit": 6,
+    "return_lord": 75,
+    "tear": 22,
+    "veil_protection": 8
+  }
+}

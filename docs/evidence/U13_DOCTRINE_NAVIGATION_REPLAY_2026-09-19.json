@@ -1,0 +1,1569 @@
+{
+  "cases": [
+    {
+      "added_ids": [],
+      "changed_shared_entities": 0,
+      "file": "early_defense_cases.json",
+      "name": "kroni_odradek_00",
+      "new_order": null,
+      "new_outcomes": [
+        {
+          "keep_integrity": 0,
+          "revised": false,
+          "state_sha256": "91c91949938c791f6dd00c1b51c493a8ea5de1fd63de15703445111c4878b0a5"
+        },
+        {
+          "keep_integrity": 1,
+          "revised": true,
+          "state_sha256": "a23f062134ea64620c31237b4bd0c5417f6a837cc99728dd7222575d6d3be631"
+        }
+      ],
+      "new_plan_sha256": "99dc00e9df61826f50f6f567ea9d760f81bab571126971c27e20433dcbb0bb99",
+      "new_view_sha256": "b77a0de25b861f631ee9795ef8cbe953ee20a7e67b8c1025cd70b6c3baa826b4",
+      "old_order": null,
+      "old_outcomes": [
+        {
+          "keep_integrity": 0,
+          "revised": false,
+          "state_sha256": "91c91949938c791f6dd00c1b51c493a8ea5de1fd63de15703445111c4878b0a5"
+        },
+        {
+          "keep_integrity": 1,
+          "revised": true,
+          "state_sha256": "a23f062134ea64620c31237b4bd0c5417f6a837cc99728dd7222575d6d3be631"
+        }
+      ],
+      "old_plan_sha256": "99dc00e9df61826f50f6f567ea9d760f81bab571126971c27e20433dcbb0bb99",
+      "old_view_sha256": "b77a0de25b861f631ee9795ef8cbe953ee20a7e67b8c1025cd70b6c3baa826b4",
+      "original_plans_sha256": "30f7e53d04134a34892cc80d433de34aae072ca08bc290b9324b03bc74fdc2cc",
+      "prefix_sha256": "89e2c77c840da1739aee270580bf2ce989dbf2c9b8671b2994b09fb9fc286d23",
+      "removed_ids": [],
+      "same_plan": true
+    },
+    {
+      "added_ids": [],
+      "changed_shared_entities": 5,
+      "file": "early_defense_cases.json",
+      "name": "kroni_valak_00",
+      "new_order": null,
+      "new_outcomes": [
+        {
+          "keep_integrity": 0,
+          "revised": false,
+          "state_sha256": "5b0abd6fed5ece7fed35d27ec8469f56de846b770849a73addd71c944b233d61"
+        },
+        {
+          "keep_integrity": 3,
+          "revised": true,
+          "state_sha256": "7c36a14b13f829c6eda7c183322b3cea30541e99dc40ae34a4c4bf1bc9aa8eaf"
+        }
+      ],
+      "new_plan_sha256": "0fe2cf2843b76f940c038707765ac9e8a4f972734f86d050a70172a111ae9c58",
+      "new_view_sha256": "f07a9410c862a47d06cac251c4efa8f8fece076f1a684367ec64c2d16295275b",
+      "old_order": null,
+      "old_outcomes": [
+        {
+          "keep_integrity": 0,
+          "revised": false,
+          "state_sha256": "474eadbd45559563d364943ae71b004a9d3eebe01ce9e25ffdaa14423360fc43"
+        },
+        {
+          "keep_integrity": 3,
+          "revised": true,
+          "state_sha256": "5942c9e7756af6cc6af3bef9d719ffc4942cdafff8611a1ec9cc8e626ba88239"
+        }
+      ],
+      "old_plan_sha256": "0fe2cf2843b76f940c038707765ac9e8a4f972734f86d050a70172a111ae9c58",
+      "old_view_sha256": "94057d9470cf2103e164443cd53cafe73adb1cea5582210478fb7d7b189e256b",
+      "original_plans_sha256": "bcb1e26f8fd5c5f66f8667dfc199be036ab15d47739ecaf2e73c46e188e83083",
+      "prefix_sha256": "ab432afb48c000b08dc4ecd317c69a8695663dab3f7f9c0911989fded1d887ca",
+      "removed_ids": [],
+      "same_plan": true
+    },
+    {
+      "added_ids": [
+        "u13_entity_marcher:24:u13_monster:3:8:0:4:Varn:1:1",
+        "u13_entity_marcher:24:u13_monster:3:8:0:4:Varn:1:2",
+        "u13_entity_marcher:29:u13_commitment:3:3:1:6:Wright:1:0",
+        "u13_entity_marcher:29:u13_commitment:3:5:1:6:Wright:1:0",
+        "u13_entity_marcher:29:u13_commitment:3:5:1:6:Wright:1:1",
+        "u13_entity_marcher:30:u13_commitment:3:1:0:7:Butcher:1:3",
+        "u13_entity_marcher:30:u13_commitment:3:5:1:7:Vulture:1:1",
+        "u13_entity_marcher:30:u13_commitment:3:7:0:7:Butcher:1:2",
+        "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:1",
+        "u13_entity_marcher:30:u13_commitment:3:7:1:7:Vulture:1:0",
+        "u13_entity_marcher:30:u13_commitment:3:7:1:7:Vulture:1:1",
+        "u13_entity_marcher:30:u13_commitment:3:7:1:7:Vulture:1:3",
+        "u13_entity_marcher:30:u13_commitment:3:8:1:7:Butcher:1:0",
+        "u13_entity_marcher:30:u13_commitment:3:8:1:7:Butcher:1:1",
+        "u13_entity_marcher:30:u13_commitment:3:8:1:7:Butcher:1:2",
+        "u13_entity_marcher:30:u13_commitment:4:12:1:6:Wright:1:1",
+        "u13_entity_marcher:31:u13_commitment:3:3:0:8:Penitent:1:0",
+        "u13_entity_marcher:31:u13_commitment:3:4:0:8:Penitent:1:1",
+        "u13_entity_marcher:31:u13_commitment:3:4:0:8:Penitent:1:3",
+        "u13_entity_marcher:31:u13_commitment:3:7:0:8:Penitent:1:1",
+        "u13_entity_marcher:31:u13_commitment:4:10:1:7:Vulture:1:3"
+      ],
+      "changed_shared_entities": 108,
+      "file": "deimos_artillery_cases.json",
+      "name": "deimos_deimos_current_r16_s0",
+      "new_order": null,
+      "new_outcomes": [
+        {
+          "fizzled": true,
+          "revised": false,
+          "sieges": [],
+          "state_sha256": "d7d567bc1fe7506562ef051349c96d5e848bc936677ac3f9e68446cc1c97835f"
+        },
+        {
+          "fizzled": false,
+          "revised": true,
+          "sieges": [
+            {
+              "damage": 10,
+              "destroyed": true,
+              "guards_defeated": 2,
+              "integrity_before": 10,
+              "player_id": 0,
+              "round": 16,
+              "sigil_broken": true,
+              "strength": 31,
+              "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
+              "ward_screen": 9
+            }
+          ],
+          "state_sha256": "0f1730244c842021761481a6d959bf6bf5644ff20053fd872f1fc777d5e55aa6"
+        }
+      ],
+      "new_plan_sha256": "1d443c09da363ab6d46dcbcbb2f9ad4e2af55cbbc81513691c318db9d974bdef",
+      "new_view_sha256": "e59c92739a2f4a421693e3d67ce720af70da0ce34fad6f2d5e95365bf18fa3e7",
+      "old_order": null,
+      "old_outcomes": [
+        {
+          "fizzled": true,
+          "revised": false,
+          "sieges": [],
+          "state_sha256": "ef75ecf2dce5806b04ac3f3284a6537dca682e683b929d0ae7a7d2050b424ecf"
+        },
+        {
+          "fizzled": false,
+          "revised": true,
+          "sieges": [
+            {
+              "damage": 10,
+              "destroyed": true,
+              "guards_defeated": 2,
+              "integrity_before": 10,
+              "player_id": 0,
+              "round": 16,
+              "sigil_broken": true,
+              "strength": 31,
+              "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
+              "ward_screen": 9
+            }
+          ],
+          "state_sha256": "d65f63529acc1a375788f2cc25ce77d67b1dde5bb9288882c61a639b0bb37096"
+        }
+      ],
+      "old_plan_sha256": "1d443c09da363ab6d46dcbcbb2f9ad4e2af55cbbc81513691c318db9d974bdef",
+      "old_view_sha256": "e823d4bc915d4af22f71471af446840c638cb6da0397be271860ce0b94713395",
+      "original_plans_sha256": "5e1871ad804b429a465319e99a7fd4f67b883bb4da06423cdc02ac4b81d0e80f",
+      "prefix_sha256": "1a3eb095e086cbba400a9d1e2b2a813f8bf80d2508335e4e3cc84e47e0aae309",
+      "removed_ids": [
+        "u13_entity_marcher:24:u13_monster:3:9:0:4:Muno:1:0",
+        "u13_entity_marcher:25:u13_monster:3:3:0:5:Lemek:1:0",
+        "u13_entity_marcher:26:u13_monster:3:6:0:6:Tumler:1:0",
+        "u13_entity_marcher:29:u13_commitment:3:9:0:6:Wright:1:0",
+        "u13_entity_marcher:29:u13_commitment:3:9:1:6:Wright:1:1",
+        "u13_entity_marcher:29:u13_commitment:3:9:1:6:Wright:1:2",
+        "u13_entity_marcher:30:u13_commitment:3:2:1:7:Vulture:1:0",
+        "u13_entity_marcher:30:u13_commitment:4:12:1:6:Wright:1:2",
+        "u13_entity_marcher:31:u13_commitment:3:2:0:8:Penitent:1:1",
+        "u13_entity_marcher:31:u13_commitment:3:6:1:8:Penitent:1:0"
+      ],
+      "same_plan": true
+    },
+    {
+      "added_ids": [
+        "u13_entity_marcher:24:u13_monster:3:5:0:4:Varn:1:0",
+        "u13_entity_marcher:24:u13_monster:3:5:0:4:Varn:1:4",
+        "u13_entity_marcher:26:u13_monster:3:5:1:6:Tumler:1:0",
+        "u13_entity_marcher:29:u13_commitment:3:1:1:6:Wright:1:0",
+        "u13_entity_marcher:29:u13_commitment:3:2:0:6:Wright:1:0",
+        "u13_entity_marcher:29:u13_commitment:3:4:0:6:Wright:1:1",
+        "u13_entity_marcher:29:u13_commitment:3:4:0:6:Wright:1:7",
+        "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:0",
+        "u13_entity_marcher:30:u13_commitment:3:6:1:7:Butcher:1:1",
+        "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:1",
+        "u13_entity_marcher:31:u13_commitment:3:4:0:8:Penitent:1:2",
+        "u13_entity_marcher:31:u13_commitment:3:7:0:8:Penitent:1:2"
+      ],
+      "changed_shared_entities": 84,
+      "file": "deimos_artillery_cases.json",
+      "name": "deimos_deimos_00",
+      "new_order": null,
+      "new_outcomes": [
+        {
+          "fizzled": true,
+          "revised": false,
+          "sieges": [],
+          "state_sha256": "3e8350ad6b5ab00fadad9d7c683b13e60412e42f3f03dbd361d24b04accb90c6"
+        },
+        {
+          "fizzled": false,
+          "revised": true,
+          "sieges": [
+            {
+              "damage": 12,
+              "destroyed": true,
+              "guards_defeated": 3,
+              "integrity_before": 12,
+              "player_id": 1,
+              "round": 11,
+              "sigil_broken": true,
+              "strength": 27,
+              "target_id": "u13_entity_castle:16:loadout:castle:0:1:0",
+              "ward_screen": 0
+            }
+          ],
+          "state_sha256": "fdb248bcddadd48f7dff9d5f7ca4b60b4299da9e04d0da28924edd3d13ea274c"
+        }
+      ],
+      "new_plan_sha256": "e55ba52edc6f36dae86ab715475335c9d8593e2df50e47c2efcf0fa73ff0debb",
+      "new_view_sha256": "b2e0df88fd7c2811b6aa7bca7540d31a65facf464f8b6df77406941bfd97e3bd",
+      "old_order": null,
+      "old_outcomes": [
+        {
+          "fizzled": true,
+          "revised": false,
+          "sieges": [],
+          "state_sha256": "6dd6ed5f87d677ebb93b76e82391b6be4f5606083d78274ff11058eb4d825d7d"
+        },
+        {
+          "fizzled": false,
+          "revised": true,
+          "sieges": [
+            {
+              "damage": 12,
+              "destroyed": true,
+              "guards_defeated": 3,
+              "integrity_before": 12,
+              "player_id": 1,
+              "round": 11,
+              "sigil_broken": true,
+              "strength": 27,
+              "target_id": "u13_entity_castle:16:loadout:castle:0:1:0",
+              "ward_screen": 0
+            }
+          ],
+          "state_sha256": "98d0bc38aa057ffd2d3f3ec437ce253f9e59042b1b9d9bb61fdfe7f4f05111ae"
+        }
+      ],
+      "old_plan_sha256": "e55ba52edc6f36dae86ab715475335c9d8593e2df50e47c2efcf0fa73ff0debb",
+      "old_view_sha256": "c0b5c47340a0eb2bf8c71925a17e132a5c1eabae6285a099644764e1c359293f",
+      "original_plans_sha256": "9a19ed19721f2c7bab13a56f12dca53eb051c4245cc28094c7b9e6188c39f20a",
+      "prefix_sha256": "8910174cf407255e5c232ca204f8b69e16814608450e45fb5067af171fc7c8ad",
+      "removed_ids": [
+        "u13_entity_marcher:26:u13_monster:3:6:0:6:Tumler:1:0",
+        "u13_entity_marcher:29:u13_commitment:3:5:1:6:Wright:1:1",
+        "u13_entity_marcher:29:u13_commitment:3:6:0:6:Wright:1:2",
+        "u13_entity_marcher:30:u13_commitment:3:6:1:7:Butcher:1:0",
+        "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0",
+        "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:1",
+        "u13_entity_marcher:31:u13_commitment:3:4:0:8:Penitent:1:0"
+      ],
+      "same_plan": true
+    },
+    {
+      "added_ids": [],
+      "changed_shared_entities": 0,
+      "file": "lane_support_cases.json",
+      "name": "deimos_deimos_00_r2_s0",
+      "new_order": null,
+      "new_outcomes": [
+        {
+          "effects": [
+            {
+              "data": {
+                "affected_ids": [
+                  "u13_entity_marcher:25:u13_monster:3:1:1:5:Lemek:1:0",
+                  "u13_entity_marcher:27:u13_monster:3:2:1:7:Kurchin:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:2:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:2:1:6:Wright:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:2"
+                ],
+                "effect_id": "u13_persistent:25:u13_declaration:3:0:2:1:0:4:Rout",
+                "lane": "Castle",
+                "player_id": 0,
+                "recovery_round": 3,
+                "round": 2
+              },
+              "text": "",
+              "type": "ROUT_APPLIED"
+            }
+          ],
+          "revised": false,
+          "state_sha256": "43cd1356c05fd1dd3907266ab019388bdf4318d175728709ae01979097d2b181"
+        },
+        {
+          "effects": [],
+          "revised": true,
+          "state_sha256": "a0d82174947a37c3934f5a69bf7841e9346d98c80a9e921d2b5e77cf0206e439"
+        }
+      ],
+      "new_plan_sha256": "4bea8de285e7c700cb1181c1d7a71af50b863be2cebdf19afa1a03a75d1048c0",
+      "new_view_sha256": "11477c71e285b4c8b4782a14fbe65f2d83a107a5feaba1a897583c77499b011d",
+      "old_order": null,
+      "old_outcomes": [
+        {
+          "effects": [
+            {
+              "data": {
+                "affected_ids": [
+                  "u13_entity_marcher:25:u13_monster:3:1:1:5:Lemek:1:0",
+                  "u13_entity_marcher:27:u13_monster:3:2:1:7:Kurchin:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:2:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:2:1:6:Wright:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:2"
+                ],
+                "effect_id": "u13_persistent:25:u13_declaration:3:0:2:1:0:4:Rout",
+                "lane": "Castle",
+                "player_id": 0,
+                "recovery_round": 3,
+                "round": 2
+              },
+              "text": "",
+              "type": "ROUT_APPLIED"
+            }
+          ],
+          "revised": false,
+          "state_sha256": "43cd1356c05fd1dd3907266ab019388bdf4318d175728709ae01979097d2b181"
+        },
+        {
+          "effects": [],
+          "revised": true,
+          "state_sha256": "a0d82174947a37c3934f5a69bf7841e9346d98c80a9e921d2b5e77cf0206e439"
+        }
+      ],
+      "old_plan_sha256": "4bea8de285e7c700cb1181c1d7a71af50b863be2cebdf19afa1a03a75d1048c0",
+      "old_view_sha256": "11477c71e285b4c8b4782a14fbe65f2d83a107a5feaba1a897583c77499b011d",
+      "original_plans_sha256": "f1e72d4866553328d5d7170ece6126936c34c9edfa61287d07f655d294404ded",
+      "prefix_sha256": "de15c2f3f36b84b5ead022c377bc615b3ee366d42e9f3e0d001e5eba42738463",
+      "removed_ids": [],
+      "same_plan": true
+    },
+    {
+      "added_ids": [
+        "u13_entity_marcher:29:u13_commitment:3:2:0:6:Wright:1:1",
+        "u13_entity_marcher:29:u13_commitment:3:2:0:6:Wright:1:3",
+        "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:0",
+        "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:3",
+        "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:5",
+        "u13_entity_marcher:31:u13_commitment:3:9:0:8:Penitent:1:0"
+      ],
+      "changed_shared_entities": 78,
+      "file": "lane_support_cases.json",
+      "name": "deimos_deimos_00_r10_s0",
+      "new_order": null,
+      "new_outcomes": [
+        {
+          "effects": [
+            {
+              "data": {
+                "affected_ids": [
+                  "u13_entity_marcher:27:u13_monster:3:6:1:7:Kurchin:1:0",
+                  "u13_entity_marcher:27:u13_monster:3:7:1:7:Kurchin:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:6:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:1",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:2",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:3",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:4",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:5",
+                  "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:0",
+                  "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:1",
+                  "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:2",
+                  "u13_entity_marcher:30:u13_commitment:3:7:1:7:Vulture:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:6:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:6:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:6:1:8:Penitent:1:2",
+                  "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:2",
+                  "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:3"
+                ],
+                "effect_id": "u13_persistent:26:u13_declaration:4:0:10:1:0:4:Rout",
+                "lane": "Lord",
+                "player_id": 0,
+                "recovery_round": 11,
+                "round": 10
+              },
+              "text": "",
+              "type": "ROUT_APPLIED"
+            }
+          ],
+          "revised": false,
+          "state_sha256": "6c235955e5c6d58077b618f7e5ea7468c1d92fb214510cd9b4ff28da739cca67"
+        },
+        {
+          "effects": [
+            {
+              "data": {
+                "affected_ids": [
+                  "u13_entity_marcher:24:u13_monster:3:4:1:4:Muno:1:0",
+                  "u13_entity_marcher:25:u13_monster:3:1:1:5:Lemek:1:0",
+                  "u13_entity_marcher:25:u13_monster:3:9:1:5:Lemek:1:0",
+                  "u13_entity_marcher:26:u13_monster:3:8:1:6:Tumler:1:0",
+                  "u13_entity_marcher:27:u13_monster:3:2:1:7:Kurchin:1:0",
+                  "u13_entity_marcher:27:u13_monster:3:3:1:7:Kurchin:1:0",
+                  "u13_entity_marcher:28:u13_monster:4:10:1:7:Kurchin:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:2:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:2:1:6:Wright:1:1",
+                  "u13_entity_marcher:29:u13_commitment:3:3:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:4:1:6:Wright:1:1",
+                  "u13_entity_marcher:29:u13_commitment:3:4:1:6:Wright:1:2",
+                  "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:1",
+                  "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:2",
+                  "u13_entity_marcher:30:u13_commitment:3:8:1:7:Vulture:1:0",
+                  "u13_entity_marcher:30:u13_commitment:3:8:1:7:Vulture:1:1",
+                  "u13_entity_marcher:30:u13_commitment:4:10:1:6:Wright:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:2",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:2",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:3",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:4",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:5",
+                  "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:2",
+                  "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:3",
+                  "u13_entity_marcher:32:u13_commitment:4:10:1:8:Penitent:1:0",
+                  "u13_entity_marcher:32:u13_commitment:4:10:1:8:Penitent:1:1",
+                  "u13_entity_marcher:32:u13_commitment:4:10:1:8:Penitent:1:2",
+                  "u13_entity_marcher:32:u13_commitment:4:10:1:8:Penitent:1:3"
+                ],
+                "effect_id": "u13_persistent:26:u13_declaration:4:0:10:1:0:4:Rout",
+                "lane": "Castle",
+                "player_id": 0,
+                "recovery_round": 11,
+                "round": 10
+              },
+              "text": "",
+              "type": "ROUT_APPLIED"
+            }
+          ],
+          "revised": true,
+          "state_sha256": "8ac65aeaeaf247e449abac9cda687c414a802b8bee39b0474683cdca8bf63d22"
+        }
+      ],
+      "new_plan_sha256": "1ba8f242968d80e833ffe336e92941c457e958c012b03c386abf6a6408656919",
+      "new_view_sha256": "1ddb49104abbdc0715369658911a354eb667f12e98973eb9b6c23c98b0db6543",
+      "old_order": null,
+      "old_outcomes": [
+        {
+          "effects": [
+            {
+              "data": {
+                "affected_ids": [
+                  "u13_entity_marcher:27:u13_monster:3:6:1:7:Kurchin:1:0",
+                  "u13_entity_marcher:27:u13_monster:3:7:1:7:Kurchin:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:6:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:1",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:2",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:3",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:4",
+                  "u13_entity_marcher:29:u13_commitment:3:7:1:6:Wright:1:5",
+                  "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:0",
+                  "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:1",
+                  "u13_entity_marcher:30:u13_commitment:3:7:1:7:Butcher:1:2",
+                  "u13_entity_marcher:30:u13_commitment:3:7:1:7:Vulture:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:6:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:6:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:6:1:8:Penitent:1:2",
+                  "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:2",
+                  "u13_entity_marcher:31:u13_commitment:3:7:1:8:Penitent:1:3"
+                ],
+                "effect_id": "u13_persistent:26:u13_declaration:4:0:10:1:0:4:Rout",
+                "lane": "Lord",
+                "player_id": 0,
+                "recovery_round": 11,
+                "round": 10
+              },
+              "text": "",
+              "type": "ROUT_APPLIED"
+            }
+          ],
+          "revised": false,
+          "state_sha256": "83f17a81e61e05100b7ec4e3936c408144b2a42466c7762c66985a64f96cbff3"
+        },
+        {
+          "effects": [
+            {
+              "data": {
+                "affected_ids": [
+                  "u13_entity_marcher:24:u13_monster:3:4:1:4:Muno:1:0",
+                  "u13_entity_marcher:25:u13_monster:3:1:1:5:Lemek:1:0",
+                  "u13_entity_marcher:25:u13_monster:3:9:1:5:Lemek:1:0",
+                  "u13_entity_marcher:26:u13_monster:3:8:1:6:Tumler:1:0",
+                  "u13_entity_marcher:27:u13_monster:3:2:1:7:Kurchin:1:0",
+                  "u13_entity_marcher:27:u13_monster:3:3:1:7:Kurchin:1:0",
+                  "u13_entity_marcher:28:u13_monster:4:10:1:7:Kurchin:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:2:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:2:1:6:Wright:1:1",
+                  "u13_entity_marcher:29:u13_commitment:3:3:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:4:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:4:1:6:Wright:1:1",
+                  "u13_entity_marcher:29:u13_commitment:3:4:1:6:Wright:1:2",
+                  "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:0",
+                  "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:1",
+                  "u13_entity_marcher:29:u13_commitment:3:8:1:6:Wright:1:2",
+                  "u13_entity_marcher:30:u13_commitment:3:8:1:7:Vulture:1:0",
+                  "u13_entity_marcher:30:u13_commitment:3:8:1:7:Vulture:1:1",
+                  "u13_entity_marcher:30:u13_commitment:4:10:1:6:Wright:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:2",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:2",
+                  "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:4",
+                  "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:0",
+                  "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:1",
+                  "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:2",
+                  "u13_entity_marcher:31:u13_commitment:3:9:1:8:Penitent:1:3",
+                  "u13_entity_marcher:32:u13_commitment:4:10:1:8:Penitent:1:0",
+                  "u13_entity_marcher:32:u13_commitment:4:10:1:8:Penitent:1:1",
+                  "u13_entity_marcher:32:u13_commitment:4:10:1:8:Penitent:1:2",
+                  "u13_entity_marcher:32:u13_commitment:4:10:1:8:Penitent:1:3"
+                ],
+                "effect_id": "u13_persistent:26:u13_declaration:4:0:10:1:0:4:Rout",
+                "lane": "Castle",
+                "player_id": 0,
+                "recovery_round": 11,
+                "round": 10
+              },
+              "text": "",
+              "type": "ROUT_APPLIED"
+            }
+          ],
+          "revised": true,
+          "state_sha256": "7b14f420d138bfe52bc6b74bcabbb067e45c5ba5834d327b0d2c067b1a73e127"
+        }
+      ],
+      "old_plan_sha256": "1ba8f242968d80e833ffe336e92941c457e958c012b03c386abf6a6408656919",
+      "old_view_sha256": "598a23ddadbbea94e207795f258e2331d22b9f2eff719d611dfd934a5a7dcf74",
+      "original_plans_sha256": "10302fa3026a7bfd49fdd3070679f6e866071607f65f9a29fe065021859e860f",
+      "prefix_sha256": "f16e756d7a351c1015ab3cd3adf6c2fb032354d5985d5b7576214b1b068d5ec7",
+      "removed_ids": [
+        "u13_entity_marcher:24:u13_monster:3:2:0:4:Muno:1:0",
+        "u13_entity_marcher:25:u13_monster:3:1:0:5:Lemek:1:0",
+        "u13_entity_marcher:29:u13_commitment:3:4:1:6:Wright:1:0",
+        "u13_entity_marcher:30:u13_commitment:3:2:0:7:Butcher:1:0",
+        "u13_entity_marcher:30:u13_commitment:3:4:0:7:Vulture:1:0",
+        "u13_entity_marcher:31:u13_commitment:3:1:0:8:Penitent:1:0",
+        "u13_entity_marcher:31:u13_commitment:3:1:0:8:Penitent:1:3",
+        "u13_entity_marcher:31:u13_commitment:3:2:1:8:Penitent:1:1"
+      ],
+      "same_plan": true
+    },
+    {
+      "added_ids": [],
+      "changed_shared_entities": 0,
+      "file": "lane_support_cases.json",
+      "name": "humbaba_gremory_00_r1_s0",
+      "new_order": null,
+      "new_outcomes": [
+        {
+          "effects": [],
+          "revised": false,
+          "state_sha256": "d310f215b824c7e9e8326e1a8e9dfdb78adecf5c2843bb54f601c95d967871cb"
+        },
+        {
+          "effects": [],
+          "revised": true,
+          "state_sha256": "d310f215b824c7e9e8326e1a8e9dfdb78adecf5c2843bb54f601c95d967871cb"
+        }
+      ],
+      "new_plan_sha256": "1a795c3e188330ee69e5732ec10fde04253d962dc2dd538bf6bef09db2fbc6d2",
+      "new_view_sha256": "0aedd02803263367e0abbcbac221be1686461c1f9b35c120de0094df77d9ea00",
+      "old_order": null,
+      "old_outcomes": [
+        {
+          "effects": [],
+          "revised": false,
+          "state_sha256": "d310f215b824c7e9e8326e1a8e9dfdb78adecf5c2843bb54f601c95d967871cb"
+        },
+        {
+          "effects": [],
+          "revised": true,
+          "state_sha256": "d310f215b824c7e9e8326e1a8e9dfdb78adecf5c2843bb54f601c95d967871cb"
+        }
+      ],
+      "old_plan_sha256": "1a795c3e188330ee69e5732ec10fde04253d962dc2dd538bf6bef09db2fbc6d2",
+      "old_view_sha256": "0aedd02803263367e0abbcbac221be1686461c1f9b35c120de0094df77d9ea00",
+      "original_plans_sha256": "1742e325edf3a34e263d68023532a61fa8855a321cfed4e1fe79499837b80151",
+      "prefix_sha256": "9d1df97ae01f579d5e56d9dde8c968a28512ab02e2f9cc9ecc5b0cb5e34bd6c9",
+      "removed_ids": [],
+      "same_plan": true
+    },
+    {
+      "added_ids": [],
+      "changed_shared_entities": 0,
+      "file": "lane_support_cases.json",
+      "name": "gremory_humbaba_00_r1_s1",
+      "new_order": null,
+      "new_outcomes": [
+        {
+          "effects": [],
+          "revised": false,
+          "state_sha256": "57ae34ff09e54b10b4177a004acadbec316609bce9bba2e4284e044a2d7bd070"
+        },
+        {
+          "effects": [],
+          "revised": true,
+          "state_sha256": "57ae34ff09e54b10b4177a004acadbec316609bce9bba2e4284e044a2d7bd070"
+        }
+      ],
+      "new_plan_sha256": "1d96de44c8e80509f360c39c9caac668bad5533d34f029655846f42c210974d0",
+      "new_view_sha256": "2d0c397c711441b3499250745b3df06c112af3aba5b590fd46d0f70b77bb4096",
+      "old_order": null,
+      "old_outcomes": [
+        {
+          "effects": [],
+          "revised": false,
+          "state_sha256": "57ae34ff09e54b10b4177a004acadbec316609bce9bba2e4284e044a2d7bd070"
+        },
+        {
+          "effects": [],
+          "revised": true,
+          "state_sha256": "57ae34ff09e54b10b4177a004acadbec316609bce9bba2e4284e044a2d7bd070"
+        }
+      ],
+      "old_plan_sha256": "1d96de44c8e80509f360c39c9caac668bad5533d34f029655846f42c210974d0",
+      "old_view_sha256": "2d0c397c711441b3499250745b3df06c112af3aba5b590fd46d0f70b77bb4096",
+      "original_plans_sha256": "cab7e2f068784dc001256963c3e09e0df41c2168882fa25b5f3d1b3fd383099d",
+      "prefix_sha256": "9d1df97ae01f579d5e56d9dde8c968a28512ab02e2f9cc9ecc5b0cb5e34bd6c9",
+      "removed_ids": [],
+      "same_plan": true
+    },
+    {
+      "added_ids": [],
+      "changed_shared_entities": 33,
+      "file": "lane_support_cases.json",
+      "name": "humbaba_valak_00_r6_s0",
+      "new_order": {
+        "action": "Ward",
+        "card_ids": [
+          "u13_entity_card:16:game:deck:Wright:1:6",
+          "u13_entity_card:16:game:deck:Wright:2:10",
+          "u13_entity_card:16:game:deck:Wright:2:15",
+          "u13_entity_card:17:game:deck:Vulture:1:6"
+        ],
+        "castle_action": {
+          "action": "Activate",
+          "card_ids": [],
+          "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+          "use_repair_token": false
+        },
+        "guard_moves": [
+          {
+            "card_id": "u13_entity_card:18:game:deck:Penitent:1:5",
+            "lane": "Castle",
+            "slot": 1
+          },
+          {
+            "card_id": "u13_entity_card:18:game:deck:Penitent:1:6",
+            "lane": "Castle",
+            "slot": 2
+          }
+        ],
+        "lane": "Lord",
+        "monster_choice": "Muno"
+      },
+      "new_outcomes": [
+        {
+          "effects": [
+            {
+              "data": {
+                "effect_id": "u13_persistent:25:u13_declaration:3:0:6:1:0:12:BreathOfLife",
+                "healed_ids": [
+                  "u13_entity_marcher:29:u13_commitment:3:4:0:6:Wright:1:0"
+                ],
+                "healing": 1,
+                "hook": "post_resolution_movement_state",
+                "lane": "Castle",
+                "player_id": 0,
+                "power_id": "BreathOfLife",
+                "round": 6
+              },
+              "text": "Breath of Life: healed 1 Marcher(s) for 1 HP.",
+              "type": "BREATH_PULSED"
+            }
+          ],
+          "revised": false,
+          "state_sha256": "63f98a07c928bec5ffd0cfadaf5e7c7ef1bdcdba4ee2682d395fb40dfe1bc1cc"
+        },
+        {
+          "effects": [
+            {
+              "data": {
+                "effect_id": "u13_persistent:25:u13_declaration:3:0:6:1:0:12:BreathOfLife",
+                "healed_ids": [],
+                "healing": 0,
+                "hook": "post_resolution_movement_state",
+                "lane": "Lord",
+                "player_id": 0,
+                "power_id": "BreathOfLife",
+                "round": 6
+              },
+              "text": "Breath of Life: healed 0 Marcher(s) for 0 HP.",
+              "type": "BREATH_PULSED"
+            }
+          ],
+          "revised": true,
+          "state_sha256": "4fac763e72ce33c66c5cee4fbacf89540ce0ad5551271f6ae5541c903c7a3262"
+        }
+      ],
+      "new_plan_sha256": "da37fbba0e97d6b88509993a99f616929f945b2266236cb14330a2de26ce2721",
+      "new_view_sha256": "d2bf5f3ab3bddb8da0eb2e8bfc8ad11229360b71dc014eed88659605c430ac10",
+      "old_order": {
+        "action": "Ward",
+        "card_ids": [
+          "u13_entity_card:16:game:deck:Wright:1:6",
+          "u13_entity_card:16:game:deck:Wright:2:10",
+          "u13_entity_card:16:game:deck:Wright:2:15",
+          "u13_entity_card:17:game:deck:Vulture:1:6"
+        ],
+        "castle_action": {
+          "action": "Activate",
+          "card_ids": [],
+          "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+          "use_repair_token": false
+        },
+        "guard_moves": [
+          {
+            "card_id": "u13_entity_card:18:game:deck:Penitent:1:5",
+            "lane": "Castle",
+            "slot": 1
+          },
+          {
+            "card_id": "u13_entity_card:18:game:deck:Penitent:1:6",
+            "lane": "Castle",
+            "slot": 2
+          }
+        ],
+        "lane": "Castle",
+        "monster_choice": "Muno"
+      },
+      "old_outcomes": [
+        {
+          "effects": [
+            {
+              "data": {
+                "effect_id": "u13_persistent:25:u13_declaration:3:0:6:1:0:12:BreathOfLife",
+                "healed_ids": [
+                  "u13_entity_marcher:29:u13_commitment:3:4:0:6:Wright:1:1",
+                  "u13_entity_marcher:30:u13_commitment:3:4:0:7:Butcher:1:4"
+                ],
+                "healing": 2,
+                "hook": "post_resolution_movement_state",
+                "lane": "Castle",
+                "player_id": 0,
+                "power_id": "BreathOfLife",
+                "round": 6
+              },
+              "text": "Breath of Life: healed 2 Marcher(s) for 2 HP.",
+              "type": "BREATH_PULSED"
+            }
+          ],
+          "revised": false,
+          "state_sha256": "6413f365b0f398b1762196726e155a43a6922526ba0b3e92bd72164974c62ad8"
+        },
+        {
+          "effects": [
+            {
+              "data": {
+                "effect_id": "u13_persistent:25:u13_declaration:3:0:6:1:0:12:BreathOfLife",
+                "healed_ids": [],
+                "healing": 0,
+                "hook": "post_resolution_movement_state",
+                "lane": "Lord",
+                "player_id": 0,
+                "power_id": "BreathOfLife",
+                "round": 6
+              },
+              "text": "Breath of Life: healed 0 Marcher(s) for 0 HP.",
+              "type": "BREATH_PULSED"
+            }
+          ],
+          "revised": true,
+          "state_sha256": "0df28753c0154b828237daeb117bbc52d0cef0971d01ccc88ed980737b02f816"
+        }
+      ],
+      "old_plan_sha256": "8f0e098847a6fb372bf4c0b0d3eaa5ecb0c7ec06ae448e5159d37b22cd821181",
+      "old_view_sha256": "3dfa358ebb9b45d63a8e9ab8384a1000a257562dc1fe42c3b7a1d404ced01450",
+      "original_plans_sha256": "5a2e34b02d9e0f5d023b1565911660bba321911d4e0dc82619c94b241a12ebf6",
+      "prefix_sha256": "48a4722f595b00328ec5059977105b944936fe413444cb484fbf96f97fefd3a8",
+      "removed_ids": [
+        "u13_entity_marcher:24:u13_monster:3:1:1:4:Varn:1:2",
+        "u13_entity_marcher:24:u13_monster:3:1:1:4:Varn:1:4",
+        "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:2",
+        "u13_entity_marcher:30:u13_commitment:3:4:0:7:Butcher:1:4"
+      ],
+      "same_plan": false
+    },
+    {
+      "added_ids": [],
+      "changed_shared_entities": 27,
+      "file": "lane_support_cases.json",
+      "name": "valak_humbaba_00_r6_s1",
+      "new_order": null,
+      "new_outcomes": [
+        {
+          "effects": [
+            {
+              "data": {
+                "effect_id": "u13_persistent:25:u13_declaration:3:1:6:1:0:12:BreathOfLife",
+                "healed_ids": [
+                  "u13_entity_marcher:25:u13_monster:3:4:1:5:Lemek:1:0"
+                ],
+                "healing": 1,
+                "hook": "post_resolution_movement_state",
+                "lane": "Castle",
+                "player_id": 1,
+                "power_id": "BreathOfLife",
+                "round": 6
+              },
+              "text": "Breath of Life: healed 1 Marcher(s) for 1 HP.",
+              "type": "BREATH_PULSED"
+            }
+          ],
+          "revised": false,
+          "state_sha256": "61d63d5dfd6b19c896649081d77ec7ec8e52f15f297d78f8d427ccfc3ba6942a"
+        },
+        {
+          "effects": [
+            {
+              "data": {
+                "effect_id": "u13_persistent:25:u13_declaration:3:1:6:1:0:12:BreathOfLife",
+                "healed_ids": [
+                  "u13_entity_marcher:25:u13_monster:3:4:1:5:Lemek:1:0"
+                ],
+                "healing": 1,
+                "hook": "post_resolution_movement_state",
+                "lane": "Castle",
+                "player_id": 1,
+                "power_id": "BreathOfLife",
+                "round": 6
+              },
+              "text": "Breath of Life: healed 1 Marcher(s) for 1 HP.",
+              "type": "BREATH_PULSED"
+            }
+          ],
+          "revised": true,
+          "state_sha256": "61d63d5dfd6b19c896649081d77ec7ec8e52f15f297d78f8d427ccfc3ba6942a"
+        }
+      ],
+      "new_plan_sha256": "53861b55387786f98836b5e30ed4a27802b687be88a5787101e2ca6e928b0e97",
+      "new_view_sha256": "f11632ea7087b6e41d84768be08e9e251ef304e7481d1c74d021341888e4dcb0",
+      "old_order": null,
+      "old_outcomes": [
+        {
+          "effects": [
+            {
+              "data": {
+                "effect_id": "u13_persistent:25:u13_declaration:3:1:6:1:0:12:BreathOfLife",
+                "healed_ids": [
+                  "u13_entity_marcher:25:u13_monster:3:4:1:5:Lemek:1:0"
+                ],
+                "healing": 1,
+                "hook": "post_resolution_movement_state",
+                "lane": "Castle",
+                "player_id": 1,
+                "power_id": "BreathOfLife",
+                "round": 6
+              },
+              "text": "Breath of Life: healed 1 Marcher(s) for 1 HP.",
+              "type": "BREATH_PULSED"
+            }
+          ],
+          "revised": false,
+          "state_sha256": "8e7bc3093987fdacaea08592da93fb6f01ca930621f25dca016884d12150f387"
+        },
+        {
+          "effects": [
+            {
+              "data": {
+                "effect_id": "u13_persistent:25:u13_declaration:3:1:6:1:0:12:BreathOfLife",
+                "healed_ids": [
+                  "u13_entity_marcher:25:u13_monster:3:4:1:5:Lemek:1:0"
+                ],
+                "healing": 1,
+                "hook": "post_resolution_movement_state",
+                "lane": "Castle",
+                "player_id": 1,
+                "power_id": "BreathOfLife",
+                "round": 6
+              },
+              "text": "Breath of Life: healed 1 Marcher(s) for 1 HP.",
+              "type": "BREATH_PULSED"
+            }
+          ],
+          "revised": true,
+          "state_sha256": "8e7bc3093987fdacaea08592da93fb6f01ca930621f25dca016884d12150f387"
+        }
+      ],
+      "old_plan_sha256": "53861b55387786f98836b5e30ed4a27802b687be88a5787101e2ca6e928b0e97",
+      "old_view_sha256": "e96a38abdf1a0385b04e77856ee9cb5379171a86eeae37b7124b91dedae3f361",
+      "original_plans_sha256": "d621f16b9b3976847e0f9187d339375b53d43344a1aa72b7e5acae2dbede962a",
+      "prefix_sha256": "c107719d47ca1b497a86809cf8a4dfe4b2494f4be9aaefb0cd80b524237f44da",
+      "removed_ids": [],
+      "same_plan": true
+    },
+    {
+      "added_ids": [],
+      "changed_shared_entities": 3,
+      "file": "lane_support_cases.json",
+      "name": "deimos_humbaba_current_r2_s1",
+      "new_order": null,
+      "new_outcomes": [
+        {
+          "effects": [
+            {
+              "data": {
+                "effect_id": "u13_persistent:25:u13_declaration:3:1:2:1:0:12:BreathOfLife",
+                "healed_ids": [],
+                "healing": 0,
+                "hook": "post_resolution_movement_state",
+                "lane": "Castle",
+                "player_id": 1,
+                "power_id": "BreathOfLife",
+                "round": 2
+              },
+              "text": "Breath of Life: healed 0 Marcher(s) for 0 HP.",
+              "type": "BREATH_PULSED"
+            }
+          ],
+          "revised": false,
+          "state_sha256": "5caa371c58a52408272c6fae99a0dd327ba0c3f4e49c9dd648320cdf353602ba"
+        },
+        {
+          "effects": [
+            {
+              "data": {
+                "effect_id": "u13_persistent:25:u13_declaration:3:1:2:1:0:12:BreathOfLife",
+                "healed_ids": [],
+                "healing": 0,
+                "hook": "post_resolution_movement_state",
+                "lane": "Castle",
+                "player_id": 1,
+                "power_id": "BreathOfLife",
+                "round": 2
+              },
+              "text": "Breath of Life: healed 0 Marcher(s) for 0 HP.",
+              "type": "BREATH_PULSED"
+            }
+          ],
+          "revised": true,
+          "state_sha256": "5caa371c58a52408272c6fae99a0dd327ba0c3f4e49c9dd648320cdf353602ba"
+        }
+      ],
+      "new_plan_sha256": "088ef3c4da9b897c3fedb6fb86e48d9ca81025665699448915259f3dfbe420c4",
+      "new_view_sha256": "7290417944fc219302c6347870ea9ea80bbee43225250245952a09ab627a2ed8",
+      "old_order": null,
+      "old_outcomes": [
+        {
+          "effects": [
+            {
+              "data": {
+                "effect_id": "u13_persistent:25:u13_declaration:3:1:2:1:0:12:BreathOfLife",
+                "healed_ids": [],
+                "healing": 0,
+                "hook": "post_resolution_movement_state",
+                "lane": "Castle",
+                "player_id": 1,
+                "power_id": "BreathOfLife",
+                "round": 2
+              },
+              "text": "Breath of Life: healed 0 Marcher(s) for 0 HP.",
+              "type": "BREATH_PULSED"
+            }
+          ],
+          "revised": false,
+          "state_sha256": "d9509a5aeb116386de1ae1adf55875cf16be9b76a11afb190d9e4c01ab7c4b96"
+        },
+        {
+          "effects": [
+            {
+              "data": {
+                "effect_id": "u13_persistent:25:u13_declaration:3:1:2:1:0:12:BreathOfLife",
+                "healed_ids": [],
+                "healing": 0,
+                "hook": "post_resolution_movement_state",
+                "lane": "Castle",
+                "player_id": 1,
+                "power_id": "BreathOfLife",
+                "round": 2
+              },
+              "text": "Breath of Life: healed 0 Marcher(s) for 0 HP.",
+              "type": "BREATH_PULSED"
+            }
+          ],
+          "revised": true,
+          "state_sha256": "d9509a5aeb116386de1ae1adf55875cf16be9b76a11afb190d9e4c01ab7c4b96"
+        }
+      ],
+      "old_plan_sha256": "088ef3c4da9b897c3fedb6fb86e48d9ca81025665699448915259f3dfbe420c4",
+      "old_view_sha256": "07c7c8eff58e542e91ce47cd256eb4f0e3a7d5f2b57f9a0eda56a73403b143c7",
+      "original_plans_sha256": "65218515045c76d60174d92a8bb118efd7e54bd96bdc0beec342315282376fbf",
+      "prefix_sha256": "2a8880e728b856a9999b084823a7715d268b207526f7ada2194abec3e9f52ff0",
+      "removed_ids": [],
+      "same_plan": true
+    },
+    {
+      "added_ids": [],
+      "changed_shared_entities": 13,
+      "file": "kalligan_pulse_cases.json",
+      "name": "kalligan_gremory_00_round3",
+      "new_order": null,
+      "new_outcomes": [
+        {
+          "pulse_target_counts": [
+            [
+              13,
+              7
+            ]
+          ],
+          "pulses": [
+            {
+              "affected_ids": [
+                "u13_entity_marcher:25:u13_monster:3:1:0:5:Lemek:1:0",
+                "u13_entity_marcher:25:u13_monster:3:1:1:5:Lemek:1:0",
+                "u13_entity_marcher:26:u13_monster:3:3:0:6:Kopita:1:0",
+                "u13_entity_marcher:29:u13_commitment:3:1:1:6:Wright:1:0",
+                "u13_entity_marcher:29:u13_commitment:3:1:1:6:Wright:1:1",
+                "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:0",
+                "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:1",
+                "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:2",
+                "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:3",
+                "u13_entity_marcher:30:u13_commitment:3:1:1:7:Butcher:1:0",
+                "u13_entity_marcher:30:u13_commitment:3:1:1:7:Butcher:1:1",
+                "u13_entity_marcher:31:u13_commitment:3:1:0:8:Penitent:1:0",
+                "u13_entity_marcher:31:u13_commitment:3:1:0:8:Penitent:1:1",
+                "u13_entity_marcher:31:u13_commitment:3:1:0:8:Penitent:1:2",
+                "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0",
+                "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:1",
+                "u13_entity_marcher:31:u13_commitment:3:3:0:8:Penitent:1:0",
+                "u13_entity_marcher:31:u13_commitment:3:3:0:8:Penitent:1:1",
+                "u13_entity_marcher:31:u13_commitment:3:3:0:8:Penitent:1:2",
+                "u13_entity_marcher:31:u13_commitment:3:3:0:8:Penitent:1:3"
+              ],
+              "effect_id": "u13_persistent:25:u13_declaration:3:0:2:1:0:7:Inferno",
+              "hook": "post_resolution_direct",
+              "intensity": 1,
+              "player_id": 0,
+              "power_id": "Inferno",
+              "pulse_id": "u13_pending:25:u13_declaration:3:0:3:1:0:4:main",
+              "round": 3,
+              "target": {
+                "kind": "lane",
+                "lane": "Castle"
+              }
+            }
+          ],
+          "revised": false,
+          "state_sha256": "0e37756b255287312a18bc8dafd268af5470496db106f3fc0d614f9cfefbb707"
+        },
+        {
+          "pulse_target_counts": [],
+          "pulses": [],
+          "revised": true,
+          "state_sha256": "7c2880e050e58d5dc76846d2e839c34f2ad124f9a979ee7effdcb6a4e382da8d"
+        }
+      ],
+      "new_plan_sha256": "941e4894a44e770e12ff36ad3f80c53c3ade748b2a1373fa37ce405bfb409579",
+      "new_view_sha256": "c0424d96065dffc2e8f66f6a7d5676fc5bbb58cd01179cd671b33a944879d977",
+      "old_order": null,
+      "old_outcomes": [
+        {
+          "pulse_target_counts": [
+            [
+              13,
+              7
+            ]
+          ],
+          "pulses": [
+            {
+              "affected_ids": [
+                "u13_entity_marcher:25:u13_monster:3:1:0:5:Lemek:1:0",
+                "u13_entity_marcher:25:u13_monster:3:1:1:5:Lemek:1:0",
+                "u13_entity_marcher:26:u13_monster:3:3:0:6:Kopita:1:0",
+                "u13_entity_marcher:29:u13_commitment:3:1:1:6:Wright:1:0",
+                "u13_entity_marcher:29:u13_commitment:3:1:1:6:Wright:1:1",
+                "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:0",
+                "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:1",
+                "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:2",
+                "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:3",
+                "u13_entity_marcher:30:u13_commitment:3:1:1:7:Butcher:1:0",
+                "u13_entity_marcher:30:u13_commitment:3:1:1:7:Butcher:1:1",
+                "u13_entity_marcher:31:u13_commitment:3:1:0:8:Penitent:1:0",
+                "u13_entity_marcher:31:u13_commitment:3:1:0:8:Penitent:1:1",
+                "u13_entity_marcher:31:u13_commitment:3:1:0:8:Penitent:1:2",
+                "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0",
+                "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:1",
+                "u13_entity_marcher:31:u13_commitment:3:3:0:8:Penitent:1:0",
+                "u13_entity_marcher:31:u13_commitment:3:3:0:8:Penitent:1:1",
+                "u13_entity_marcher:31:u13_commitment:3:3:0:8:Penitent:1:2",
+                "u13_entity_marcher:31:u13_commitment:3:3:0:8:Penitent:1:3"
+              ],
+              "effect_id": "u13_persistent:25:u13_declaration:3:0:2:1:0:7:Inferno",
+              "hook": "post_resolution_direct",
+              "intensity": 1,
+              "player_id": 0,
+              "power_id": "Inferno",
+              "pulse_id": "u13_pending:25:u13_declaration:3:0:3:1:0:4:main",
+              "round": 3,
+              "target": {
+                "kind": "lane",
+                "lane": "Castle"
+              }
+            }
+          ],
+          "revised": false,
+          "state_sha256": "3f765458bf84bdb702bb65f2e501db48b0aa48b1940142bfb0e0cb715c284cb9"
+        },
+        {
+          "pulse_target_counts": [],
+          "pulses": [],
+          "revised": true,
+          "state_sha256": "1d044335a42de5849cf52113cb29fcd27931016e18c6f89bc306d9670133be46"
+        }
+      ],
+      "old_plan_sha256": "941e4894a44e770e12ff36ad3f80c53c3ade748b2a1373fa37ce405bfb409579",
+      "old_view_sha256": "37c6e37a4f22799764d696b728b79928f722c2447d4b0878c47723e7bfff3c56",
+      "original_plans_sha256": "8d129f291e743ed11f87798c62c7daead65b03a48dc22bcdc4822bec910feb4f",
+      "prefix_sha256": "7e8974e7d7c0f18d6aaf8468146b316e8d0d6a2a15daeaf68689d8322adfb17d",
+      "removed_ids": [],
+      "same_plan": true
+    },
+    {
+      "added_ids": [],
+      "changed_shared_entities": 10,
+      "file": "kalligan_pulse_cases.json",
+      "name": "kalligan_deimos_00_round3",
+      "new_order": null,
+      "new_outcomes": [
+        {
+          "pulse_target_counts": [
+            [
+              24,
+              28
+            ]
+          ],
+          "pulses": [
+            {
+              "affected_ids": [
+                "u13_entity_marcher:24:u13_monster:3:1:0:4:Varn:1:0",
+                "u13_entity_marcher:24:u13_monster:3:1:0:4:Varn:1:1",
+                "u13_entity_marcher:24:u13_monster:3:1:0:4:Varn:1:2",
+                "u13_entity_marcher:24:u13_monster:3:1:0:4:Varn:1:3",
+                "u13_entity_marcher:24:u13_monster:3:1:0:4:Varn:1:4",
+                "u13_entity_marcher:24:u13_monster:3:1:1:4:Varn:1:0",
+                "u13_entity_marcher:24:u13_monster:3:1:1:4:Varn:1:1",
+                "u13_entity_marcher:24:u13_monster:3:1:1:4:Varn:1:2",
+                "u13_entity_marcher:24:u13_monster:3:2:1:4:Varn:1:0",
+                "u13_entity_marcher:24:u13_monster:3:2:1:4:Varn:1:1",
+                "u13_entity_marcher:24:u13_monster:3:2:1:4:Varn:1:2",
+                "u13_entity_marcher:24:u13_monster:3:2:1:4:Varn:1:3",
+                "u13_entity_marcher:26:u13_monster:3:2:0:6:Tumler:1:0",
+                "u13_entity_marcher:27:u13_monster:3:3:0:7:Kurchin:1:0",
+                "u13_entity_marcher:27:u13_monster:3:3:1:7:Kurchin:1:0",
+                "u13_entity_marcher:29:u13_commitment:3:2:0:6:Wright:1:0",
+                "u13_entity_marcher:29:u13_commitment:3:2:0:6:Wright:1:1",
+                "u13_entity_marcher:29:u13_commitment:3:2:0:6:Wright:1:2",
+                "u13_entity_marcher:29:u13_commitment:3:2:0:6:Wright:1:3",
+                "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:0",
+                "u13_entity_marcher:29:u13_commitment:3:3:1:6:Wright:1:0",
+                "u13_entity_marcher:29:u13_commitment:3:3:1:6:Wright:1:1",
+                "u13_entity_marcher:30:u13_commitment:3:1:0:7:Vulture:1:0",
+                "u13_entity_marcher:30:u13_commitment:3:1:1:7:Butcher:1:0",
+                "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:0",
+                "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:1",
+                "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:2",
+                "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:3",
+                "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:4",
+                "u13_entity_marcher:30:u13_commitment:3:2:0:7:Vulture:1:0",
+                "u13_entity_marcher:30:u13_commitment:3:2:0:7:Vulture:1:1",
+                "u13_entity_marcher:30:u13_commitment:3:2:0:7:Vulture:1:2",
+                "u13_entity_marcher:30:u13_commitment:3:2:1:7:Vulture:1:0",
+                "u13_entity_marcher:30:u13_commitment:3:2:1:7:Vulture:1:1",
+                "u13_entity_marcher:30:u13_commitment:3:2:1:7:Vulture:1:2",
+                "u13_entity_marcher:30:u13_commitment:3:2:1:7:Vulture:1:3",
+                "u13_entity_marcher:30:u13_commitment:3:2:1:7:Vulture:1:4",
+                "u13_entity_marcher:30:u13_commitment:3:3:0:7:Butcher:1:0",
+                "u13_entity_marcher:30:u13_commitment:3:3:0:7:Butcher:1:1",
+                "u13_entity_marcher:30:u13_commitment:3:3:0:7:Butcher:1:2",
+                "u13_entity_marcher:30:u13_commitment:3:3:0:7:Butcher:1:3",
+                "u13_entity_marcher:30:u13_commitment:3:3:1:7:Butcher:1:0",
+                "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0",
+                "u13_entity_marcher:31:u13_commitment:3:3:0:8:Penitent:1:0",
+                "u13_entity_marcher:31:u13_commitment:3:3:0:8:Penitent:1:1",
+                "u13_entity_marcher:31:u13_commitment:3:3:0:8:Penitent:1:2",
+                "u13_entity_marcher:31:u13_commitment:3:3:0:8:Penitent:1:3",
+                "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:0",
+                "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:1",
+                "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:2",
+                "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:3",
+                "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:4"
+              ],
+              "effect_id": "u13_persistent:25:u13_declaration:3:0:2:1:0:7:Inferno",
+              "hook": "post_resolution_direct",
+              "intensity": 1,
+              "player_id": 0,
+              "power_id": "Inferno",
+              "pulse_id": "u13_pending:25:u13_declaration:3:0:3:1:0:4:main",
+              "round": 3,
+              "target": {
+                "kind": "lane",
+                "lane": "Castle"
+              }
+            }
+          ],
+          "revised": false,
+          "state_sha256": "d97cc2d71f936388020550575da4741d277d806b3bc86aef43770592b9c4926e"
+        },
+        {
+          "pulse_target_counts": [],
+          "pulses": [],
+          "revised": true,
+          "state_sha256": "62b714130f5d22242a0a02681cbaad59db4e4b05ae9243eb362d22508725ad50"
+        }
+      ],
+      "new_plan_sha256": "7e6e8c75f66e74cb984216b909822db1310b266c7f77fcb91c65c246cd3157fd",
+      "new_view_sha256": "7e7830ec7b703525a4dfd1a3ee09f440c3481068a499c0a6e786245132461645",
+      "old_order": null,
+      "old_outcomes": [
+        {
+          "pulse_target_counts": [
+            [
+              24,
+              28
+            ]
+          ],
+          "pulses": [
+            {
+              "affected_ids": [
+                "u13_entity_marcher:24:u13_monster:3:1:0:4:Varn:1:0",
+                "u13_entity_marcher:24:u13_monster:3:1:0:4:Varn:1:1",
+                "u13_entity_marcher:24:u13_monster:3:1:0:4:Varn:1:2",
+                "u13_entity_marcher:24:u13_monster:3:1:0:4:Varn:1:3",
+                "u13_entity_marcher:24:u13_monster:3:1:0:4:Varn:1:4",
+                "u13_entity_marcher:24:u13_monster:3:1:1:4:Varn:1:0",
+                "u13_entity_marcher:24:u13_monster:3:1:1:4:Varn:1:1",
+                "u13_entity_marcher:24:u13_monster:3:1:1:4:Varn:1:2",
+                "u13_entity_marcher:24:u13_monster:3:2:1:4:Varn:1:0",
+                "u13_entity_marcher:24:u13_monster:3:2:1:4:Varn:1:1",
+                "u13_entity_marcher:24:u13_monster:3:2:1:4:Varn:1:2",
+                "u13_entity_marcher:24:u13_monster:3:2:1:4:Varn:1:3",
+                "u13_entity_marcher:26:u13_monster:3:2:0:6:Tumler:1:0",
+                "u13_entity_marcher:27:u13_monster:3:3:0:7:Kurchin:1:0",
+                "u13_entity_marcher:27:u13_monster:3:3:1:7:Kurchin:1:0",
+                "u13_entity_marcher:29:u13_commitment:3:2:0:6:Wright:1:0",
+                "u13_entity_marcher:29:u13_commitment:3:2:0:6:Wright:1:1",
+                "u13_entity_marcher:29:u13_commitment:3:2:0:6:Wright:1:2",
+                "u13_entity_marcher:29:u13_commitment:3:2:0:6:Wright:1:3",
+                "u13_entity_marcher:29:u13_commitment:3:3:0:6:Wright:1:0",
+                "u13_entity_marcher:29:u13_commitment:3:3:1:6:Wright:1:0",
+                "u13_entity_marcher:29:u13_commitment:3:3:1:6:Wright:1:1",
+                "u13_entity_marcher:30:u13_commitment:3:1:0:7:Vulture:1:0",
+                "u13_entity_marcher:30:u13_commitment:3:1:1:7:Butcher:1:0",
+                "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:0",
+                "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:1",
+                "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:2",
+                "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:3",
+                "u13_entity_marcher:30:u13_commitment:3:1:1:7:Vulture:1:4",
+                "u13_entity_marcher:30:u13_commitment:3:2:0:7:Vulture:1:0",
+                "u13_entity_marcher:30:u13_commitment:3:2:0:7:Vulture:1:1",
+                "u13_entity_marcher:30:u13_commitment:3:2:0:7:Vulture:1:2",
+                "u13_entity_marcher:30:u13_commitment:3:2:1:7:Vulture:1:0",
+                "u13_entity_marcher:30:u13_commitment:3:2:1:7:Vulture:1:1",
+                "u13_entity_marcher:30:u13_commitment:3:2:1:7:Vulture:1:2",
+                "u13_entity_marcher:30:u13_commitment:3:2:1:7:Vulture:1:3",
+                "u13_entity_marcher:30:u13_commitment:3:2:1:7:Vulture:1:4",
+                "u13_entity_marcher:30:u13_commitment:3:3:0:7:Butcher:1:0",
+                "u13_entity_marcher:30:u13_commitment:3:3:0:7:Butcher:1:1",
+                "u13_entity_marcher:30:u13_commitment:3:3:0:7:Butcher:1:2",
+                "u13_entity_marcher:30:u13_commitment:3:3:0:7:Butcher:1:3",
+                "u13_entity_marcher:30:u13_commitment:3:3:1:7:Butcher:1:0",
+                "u13_entity_marcher:31:u13_commitment:3:1:1:8:Penitent:1:0",
+                "u13_entity_marcher:31:u13_commitment:3:3:0:8:Penitent:1:0",
+                "u13_entity_marcher:31:u13_commitment:3:3:0:8:Penitent:1:1",
+                "u13_entity_marcher:31:u13_commitment:3:3:0:8:Penitent:1:2",
+                "u13_entity_marcher:31:u13_commitment:3:3:0:8:Penitent:1:3",
+                "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:0",
+                "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:1",
+                "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:2",
+                "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:3",
+                "u13_entity_marcher:31:u13_commitment:3:3:1:8:Penitent:1:4"
+              ],
+              "effect_id": "u13_persistent:25:u13_declaration:3:0:2:1:0:7:Inferno",
+              "hook": "post_resolution_direct",
+              "intensity": 1,
+              "player_id": 0,
+              "power_id": "Inferno",
+              "pulse_id": "u13_pending:25:u13_declaration:3:0:3:1:0:4:main",
+              "round": 3,
+              "target": {
+                "kind": "lane",
+                "lane": "Castle"
+              }
+            }
+          ],
+          "revised": false,
+          "state_sha256": "b09c4eecefa2736fa7fc2d148037b9e10ab77e10f224e4fffb466ce960e2900f"
+        },
+        {
+          "pulse_target_counts": [],
+          "pulses": [],
+          "revised": true,
+          "state_sha256": "9c2e5b1eef5d739def268fcf49dc418e707d53a8dd8b13f56e3ff44f7e635c2b"
+        }
+      ],
+      "old_plan_sha256": "7e6e8c75f66e74cb984216b909822db1310b266c7f77fcb91c65c246cd3157fd",
+      "old_view_sha256": "2218d350128e185af39654b4bbf9cdba9787379e2cf7e7e1a9bc37b58abdc866",
+      "original_plans_sha256": "8f3098a1f6d727762c629b804096694b1c599bbb64b824aed9d9c1ca12d67d44",
+      "prefix_sha256": "cd1479ecadf191843d7bf447e759fdc3e807ba86f887979f071efe939a1d6a07",
+      "removed_ids": [],
+      "same_plan": true
+    }
+  ],
+  "current_engine_revision": "176e17588e4ab931fc463b0547d77db933038560",
+  "current_engine_sha256": "2badf329e59610a69f92227c0dc85a7366b59d24776ae375c4f339503ac55710",
+  "evidence_archive": {
+    "bytes": 363589,
+    "filename": "Corruptor-Doctrine-Navigation-Integration-2026-09-19.zip",
+    "members": 33,
+    "sha256": "e35d92fde82efca8b413fa359901bf42b6a80f8b65248a052c834dcbf8633236"
+  },
+  "local_gate": {
+    "games": [
+      {
+        "decisions_sha256": "2a330c43a0b407d3aaf1828e5ffbdb942b765e690dbb8eb0b2313b8a7a8fb8a7",
+        "final_state_sha256": "f08efe1a0fb38014a85b03cac1c49392410089a37fb92955c74632ba846cf3f1",
+        "name": "gremory_humbaba",
+        "operations": 399,
+        "outcome": {
+          "action": "game_finished",
+          "round": 16,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 16,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Gremory",
+            "Humbaba"
+          ],
+          "seed": "u13-nine-lords:gremory_humbaba"
+        }
+      },
+      {
+        "decisions_sha256": "dac91f0b9d7fe3cda65f91a32edcd8ab4b0a4ef1cbc01ecb2706b5c4589a6499",
+        "final_state_sha256": "06be9eb2e164841bf22fd31d3fdd065cbe67fecb7365906298c1ccf018f2606b",
+        "name": "deimos_kalligan",
+        "operations": 509,
+        "outcome": {
+          "action": "game_finished",
+          "round": 20,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "rounds": 20,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Deimos",
+            "Kalligan"
+          ],
+          "seed": "u13-nine-lords:deimos_kalligan"
+        }
+      },
+      {
+        "decisions_sha256": "d4940aff33fda6c28c36c6d7c556c718837c1e657d17756809377c6e803e3c8a",
+        "final_state_sha256": "e4a8e89eacfd89701893ac461eb09f9133cdddde0016f3c40e6ae22802c2b7d0",
+        "name": "orias_odradek",
+        "operations": 506,
+        "outcome": {
+          "action": "game_finished",
+          "round": 20,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "rounds": 20,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Orias",
+            "Odradek"
+          ],
+          "seed": "u13-nine-lords:orias_odradek"
+        }
+      },
+      {
+        "decisions_sha256": "1cd80289479bd494a03ea3bec31256bef1460d1a167a96f208014ddb5f88207e",
+        "final_state_sha256": "048b311236ca4ea7c96a6fecdb3daef516bdbe1d4481626a96830c1a697a56cc",
+        "name": "kroni_valak",
+        "operations": 459,
+        "outcome": {
+          "action": "game_finished",
+          "round": 18,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 18,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Kroni",
+            "Valak"
+          ],
+          "seed": "u13-nine-lords:kroni_valak"
+        }
+      },
+      {
+        "decisions_sha256": "3c1b13ddf58e4a323c9799ebaddfadd714fff2ff51f1ffa822e8511eaac2ded0",
+        "final_state_sha256": "1327bd98612f8fdafeda8bcc9ffbf709c6d6d9b00c74ffdc3e787b38d20b0b40",
+        "name": "kanifous_gremory",
+        "operations": 494,
+        "outcome": {
+          "action": "game_finished",
+          "round": 20,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rounds": 20,
+        "setup": {
+          "castles": [
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ],
+            [
+              "Keep",
+              "Stockpile",
+              "SummoningCircle",
+              "SiegeEngine",
+              "Bastion"
+            ]
+          ],
+          "lords": [
+            "Kanifous",
+            "Gremory"
+          ],
+          "seed": "u13-nine-lords:kanifous_gremory"
+        }
+      }
+    ],
+    "harness_source_sha256": "0f98b26bef778b419a2262cb980bf1c1114a4ca58cb32fcaba87d253d0adfe38",
+    "implementation": "CPython",
+    "inputs_sha256": "fd2554bdc010ab5764753fb947b095e5e73572149eff718f38cfbbf2cf640bd3",
+    "new_godot_parity": false,
+    "operations": 2367,
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "report_sha256": "744d8eb8e856cc7799d6656ea03fde0772a0ddcbecafb6053be6b3f4a8aa0687",
+    "rounds": 94,
+    "semantic_sha256": "5e1d138fde20d8aee8d94915eb56d0fbcdd80202dec3dbb0378ba6b0461be4f3",
+    "source_revision": "81891ef0fc20668b8ee07388eba5a81ecb8b4c1b",
+    "tests_passed": 168
+  },
+  "navigation_implementation_changed": false,
+  "policy_changed": false,
+  "previous_checkpoint": "2099326ceba752f3570a6114631eb25714abaa4e",
+  "previous_engine_sha256": "12958849e54a868540dd793dc0321bef50676b065f3e9f7ddad83d3218ca93c7",
+  "schema": "U13_NAVIGATION_DOCTRINE_REPLAY_REVIEW_V1",
+  "status": "Current navigation integration passes the local CPython doctrine gate; Windows/PyPy acceptance remains pending",
+  "totals": {
+    "cases": 13,
+    "changed_observations": 9,
+    "changed_plans": 1,
+    "invalid_prefixes_or_plans": 0,
+    "retired_cases": 0
+  }
+}
