@@ -1,0 +1,113 @@
+Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org
+
+PASS portal_boundary_0_600 resolves
+PASS portal_boundary_0_600 keeps valid unit and field state
+PASS portal_boundary_0_600 deterministic replay
+PASS Sinodek range includes 600 and excludes 601 on either seat
+PASS portal is centered on the selected enemy
+PASS portal_boundary_0_601 resolves
+PASS portal_boundary_0_601 keeps valid unit and field state
+PASS portal_boundary_0_601 deterministic replay
+PASS Sinodek range includes 600 and excludes 601 on either seat
+PASS out-of-range enemies do not spend a portal attempt
+PASS portal_nearest_visible_0 resolves
+PASS portal_nearest_visible_0 keeps valid unit and field state
+PASS portal_nearest_visible_0 deterministic replay
+PASS nearer allies, concealed enemies and other lanes cannot become portal targets
+PASS nearby friendly front line is not the portal center
+PASS portal_enemy_enters_range_0 resolves
+PASS portal_enemy_enters_range_0 keeps valid unit and field state
+PASS portal_enemy_enters_range_0 deterministic replay
+PASS Sinodek can attempt once when an enemy enters range after the phase begins
+PASS delayed portal replay builds
+PASS portal appears at its actual casting tick in replay
+PASS portal_allies_only_0 resolves
+PASS portal_allies_only_0 keeps valid unit and field state
+PASS portal_allies_only_0 deterministic replay
+PASS Sinodek never opens a portal when only allies are present
+PASS portal_boundary_1_600 resolves
+PASS portal_boundary_1_600 keeps valid unit and field state
+PASS portal_boundary_1_600 deterministic replay
+PASS Sinodek range includes 600 and excludes 601 on either seat
+PASS portal is centered on the selected enemy
+PASS portal_boundary_1_601 resolves
+PASS portal_boundary_1_601 keeps valid unit and field state
+PASS portal_boundary_1_601 deterministic replay
+PASS Sinodek range includes 600 and excludes 601 on either seat
+PASS out-of-range enemies do not spend a portal attempt
+PASS portal_nearest_visible_1 resolves
+PASS portal_nearest_visible_1 keeps valid unit and field state
+PASS portal_nearest_visible_1 deterministic replay
+PASS nearer allies, concealed enemies and other lanes cannot become portal targets
+PASS nearby friendly front line is not the portal center
+PASS portal_enemy_enters_range_1 resolves
+PASS portal_enemy_enters_range_1 keeps valid unit and field state
+PASS portal_enemy_enters_range_1 deterministic replay
+PASS Sinodek can attempt once when an enemy enters range after the phase begins
+PASS delayed portal replay builds
+PASS portal appears at its actual casting tick in replay
+PASS portal_allies_only_1 resolves
+PASS portal_allies_only_1 keeps valid unit and field state
+PASS portal_allies_only_1 deterministic replay
+PASS Sinodek never opens a portal when only allies are present
+PASS fixture misses this round and succeeds next round
+PASS portal_failed_attempt resolves
+PASS portal_failed_attempt keeps valid unit and field state
+PASS portal_failed_attempt deterministic replay
+PASS a failed portal roll consumes exactly one round's attempt
+PASS portal attempt survives save and reload
+PASS same-round steps cannot retry a spent portal roll
+PASS same-round steps cannot retry a spent portal roll
+PASS same-round steps cannot retry a spent portal roll
+PASS portal_next_round_attempt resolves
+PASS portal_next_round_attempt keeps valid unit and field state
+PASS portal_next_round_attempt deterministic replay
+PASS the next active round restores the portal attempt
+PASS invalid portal attempt counter is rejected
+PASS invalid portal attempt counter is rejected
+PASS invalid portal attempt counter is rejected
+PASS invalid portal attempt counter is rejected
+PASS invalid portal attempt counter is rejected
+PASS Tumler deals 3 before Armor to marked prey and 2 to an unmarked taunt
+PASS hunt bonus never changes Tumler's base attack stat
+PASS Tumler deals 3 before Armor to marked prey and 2 to an unmarked taunt
+PASS hunt bonus never changes Tumler's base attack stat
+PASS Tumler deals 3 before Armor to marked prey and 2 to an unmarked taunt
+PASS hunt bonus never changes Tumler's base attack stat
+PASS a landed interception transfers the damage bonus to the new marked individual
+PASS walls cannot inherit a hunt bonus
+PASS tumler_hunt_interception_0 resolves
+PASS tumler_hunt_interception_0 keeps valid unit and field state
+PASS tumler_hunt_interception_0 deterministic replay
+PASS Tumler deals 3 before Armor to marked prey and 2 to an unmarked taunt
+PASS hunt bonus never changes Tumler's base attack stat
+PASS Tumler deals 3 before Armor to marked prey and 2 to an unmarked taunt
+PASS hunt bonus never changes Tumler's base attack stat
+PASS Tumler deals 3 before Armor to marked prey and 2 to an unmarked taunt
+PASS hunt bonus never changes Tumler's base attack stat
+PASS a landed interception transfers the damage bonus to the new marked individual
+PASS walls cannot inherit a hunt bonus
+PASS tumler_hunt_interception_1 resolves
+PASS tumler_hunt_interception_1 keeps valid unit and field state
+PASS tumler_hunt_interception_1 deterministic replay
+PASS charm chance boundary has a deterministic fixture
+PASS charm_rate_0_29 resolves
+PASS charm_rate_0_29 keeps valid unit and field state
+PASS charm_rate_0_29 deterministic replay
+PASS actual melee uses the tuned charm probability boundary
+PASS charm chance boundary has a deterministic fixture
+PASS charm_rate_0_30 resolves
+PASS charm_rate_0_30 keeps valid unit and field state
+PASS charm_rate_0_30 deterministic replay
+PASS actual melee uses the tuned charm probability boundary
+PASS charm chance boundary has a deterministic fixture
+PASS charm_rate_1_29 resolves
+PASS charm_rate_1_29 keeps valid unit and field state
+PASS charm_rate_1_29 deterministic replay
+PASS actual melee uses the tuned charm probability boundary
+PASS charm chance boundary has a deterministic fixture
+PASS charm_rate_1_30 resolves
+PASS charm_rate_1_30 keeps valid unit and field state
+PASS charm_rate_1_30 deterministic replay
+PASS actual melee uses the tuned charm probability boundary
+U13 targeted monster check failures: 0

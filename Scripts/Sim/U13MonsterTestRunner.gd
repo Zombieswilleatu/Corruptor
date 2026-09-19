@@ -307,7 +307,7 @@ func dotra_stalking_checks() -> void:
 		var seed_value: String = selected_seed(actor.id, "HIDE", 25)
 		var creeping: Dictionary = phase("dotra_%d_half_speed" % pid, w, seed_value)
 		var after: Dictionary = Kanifous._entity(creeping.world, actor.id).attributes
-		check(after.hidden and absi(int(after.x_fp) - start) == 400 and after.step_fp == 4, "hidden Dotra moves at half speed without permanently lowering its base speed")
+		check(after.hidden and absi(int(after.x_fp) - start) == 800 and after.step_fp == 4, "hidden Dotra keeps full movement speed and its saved base speed")
 		w = phase_world()
 		actor = put(w, "Dotra", pid, start, {"hp": 100, "max_hp": 100})
 		var prey: Dictionary = put(w, "Vulture", 1 - pid, 400 if pid == 0 else 2000, {"y_fp": 350, "step_fp": 0, "hp": 100, "max_hp": 100})
@@ -316,6 +316,7 @@ func dotra_stalking_checks() -> void:
 		check(ambushes.size() == 1 and ambushes[0].tick > 0 and ambushes[0].target.id == prey.id and ambushes[0].attacker.attributes.x_fp != start, "concealed Dotra closes distance and triggers one surprise attack")
 		if ambushes.is_empty(): continue
 		var tick: int = ambushes[0].tick
+		check(tick <= 50, "full-speed concealment closes this ambush within a quarter round")
 		check(not facts(hunt, "MARCHER_RANGED_ATTACK").any(func(d): return d.target.id == actor.id and d.tick < tick), "ordinary ranged attacks cannot select the stalking Dotra")
 		after = Kanifous._entity(hunt.world, actor.id).attributes
 		check(not after.hidden, "ambush reveals Dotra when the bonus strike lands")
@@ -399,9 +400,9 @@ func kopita_pulse_checks() -> void:
 		var armored: Dictionary = put(w, "Penitent", 1 - pid, 840, {"step_fp": 0})
 		var healed: Dictionary = phase("kopita_%d_heal" % pid, w)
 		var pulses: Array = facts(healed, "MONSTER_PULSE")
-		check(pulses.size() == 1 and pulses[0].healing and pulses[0].tick == 0 and pulses[0].radius_fp == 360, "Kopita casts one heal at the start of the active round")
+		check(pulses.size() == 2 and pulses.all(func(p): return p.healing and p.radius_fp == 360) and pulses[0].tick == 0 and pulses[1].tick == 133, "Kopita heals at the start and around ten seconds while allies remain wounded")
 		check(pulses[0].source.id == caster.id and pulses[0].healed.size() == 2 and pulses[0].healed.all(func(h): return h.id in [caster.id, wounded.id] and h.amount == 1), "healing tape records only actual HP recovery, including self-healing")
-		check(Kanifous._entity(healed.world, caster.id).attributes.hp == 4 and Kanifous._entity(healed.world, wounded.id).attributes.hp == 5, "pulse heals wounded allies up to their maximum")
+		check(Kanifous._entity(healed.world, caster.id).attributes.hp == 5 and Kanifous._entity(healed.world, wounded.id).attributes.hp == 5, "both pulses heal wounded allies without exceeding their maximum")
 		for unchanged in [full, distant, other_lane, enemy]:
 			check(Kanifous._entity(healed.world, unchanged.id).attributes.hp == unchanged.attributes.hp, "full-health, distant, other-lane and enemy bodies receive no healing")
 		check(playback.build(healed.events.map(func(r): return r.event)), "healing pulse playback builds")
@@ -415,11 +416,13 @@ func kopita_pulse_checks() -> void:
 			if entry.type == "MONSTER_PULSE":
 				for key in ["source", "radius_fp", "healed"]: entry.data.erase(key)
 		check(playback.build(old_tape) and playback.sample(0.4).monster_attacks.size() == 1 and playback.sample(0.4).monster_attacks[0].impacts.is_empty(), "older heal tapes show a cast without inventing recipients")
-		var harmed: Dictionary = phase("kopita_%d_harm" % pid, healed.world, "monster-check", 3)
+		var healthy: Dictionary = healed.world.duplicate(true)
+		Kanifous._entity(healthy, caster.id).attributes.hp = caster.attributes.max_hp
+		var harmed: Dictionary = phase("kopita_%d_harm" % pid, healthy, "monster-check", 3)
 		pulses = facts(harmed, "MONSTER_PULSE")
 		var hits: Array = facts(harmed, "MONSTER_ATTACK").filter(func(d): return d.ability == "Kopita")
-		check(pulses.size() == 1 and not pulses[0].healing and hits.size() == 2, "following active round alternates to one harm pulse")
-		check(hits.all(func(h): return h.target.id in [enemy.id, armored.id] and h.tick == 0) and hits.any(func(h): return h.target.id == enemy.id and h.damage_dealt == 1) and hits.any(func(h): return h.target.id == armored.id and h.damage_dealt == 0), "harm records nearby enemy hits, including the radius boundary and armor absorption")
+		check(pulses.size() == 2 and pulses.all(func(p): return not p.healing) and hits.size() == 4, "healthy nearby allies select harm at both pulses despite distant or other-lane wounds")
+		check(hits.all(func(h): return h.target.id in [enemy.id, armored.id] and h.tick in [0, 133]) and hits.any(func(h): return h.target.id == enemy.id and h.damage_dealt == 1) and hits.any(func(h): return h.target.id == armored.id and h.damage_dealt == 0), "both harm pulses obey range, lane and Armor")
 		check(playback.build(harmed.events.map(func(r): return r.event)), "harm pulse playback builds")
 		frame = playback.sample(0.4)
 		pictures.append(frame)
@@ -428,8 +431,9 @@ func kopita_pulse_checks() -> void:
 	put(w, "Kopita", 0, 800, {"birth_round": 2, "movement_ready_round": 3})
 	var held: Dictionary = phase("kopita_birth_hold", w)
 	check(facts(held, "MONSTER_PULSE").is_empty(), "Kopita does not claim to cast during birth hold")
-	var empty: Dictionary = phase("kopita_empty_heal", phase_world_with_kopita())
-	check(playback.build(empty.events.map(func(r): return r.event)) and playback.sample(0.4).monster_attacks.size() == 1 and playback.sample(0.4).monster_attacks[0].impacts.is_empty(), "a pulse with no wounded allies still visibly casts")
+	var empty: Dictionary = phase("kopita_empty_harm", phase_world_with_kopita())
+	check(facts(empty, "MONSTER_PULSE").all(func(p): return not p.healing), "Kopita never wastes an empty healing pulse")
+	check(playback.build(empty.events.map(func(r): return r.event)) and playback.sample(0.4).monster_attacks.size() == 1 and playback.sample(0.4).monster_attacks[0].impacts.is_empty(), "an empty lane shows a harmless damage pulse")
 	# Exercise the same effect on both renderers, with chits and with sprites.
 	for view in [preload("res://Prototype/U13/U13BoardLanes.gd").new(), preload("res://Prototype/U13/U13SandboxLaneView.gd").new()]:
 		view.display_settings_path = ""
@@ -453,7 +457,7 @@ func kopita_pulse_checks() -> void:
 				var isolated: Dictionary = frame.duplicate(true)
 				isolated.units = frame.units.filter(func(u): return u.id == pulse.source_id)
 				view.show_frame(isolated, 2)
-				check(view._get_tooltip(view._monster_point(isolated.units[0].attributes)).contains("Next pulse:"), "Kopita hover explains the alternating cycle")
+				check(view._get_tooltip(view._monster_point(isolated.units[0].attributes)).contains("otherwise harm"), "Kopita hover explains conditional healing")
 		view.queue_free()
 	await process_frame
 

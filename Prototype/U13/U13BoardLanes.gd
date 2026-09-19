@@ -171,10 +171,10 @@ func _get_tooltip(at: Vector2) -> String:
 				description += "\nOne %d%% attempt per active round; waits for an enemy in range." % MonsterRules.TUNING.sinodek_portal_chance
 				description += "\nPortals can banish nearby allies too; their creator is immune."
 			if unit_name == "Kopita":
-				description += "\nAt the start of each active round: green heals allies 1 HP; violet damages enemies 1. Alternates; radius 360."
-				description += "\nNext pulse: " + ("Heal" if int(unit.attributes.get("kopita_pulses", 0)) % 2 == 0 else "Harm")
+				description += "\nPulses at the start and about 10 seconds into each round; radius 360."
+				description += "\nNext pulse: heal nearby wounded allies 1 HP (including herself); otherwise harm enemies 1."
 			if unit_name == "Dotra":
-				description += "\nHidden: stalks at half speed; an enemy within 240 triggers a 5-damage ambush."
+				description += "\nHidden: stalks at full speed; an enemy within 240 triggers a 5-damage ambush."
 				if unit.attributes.get("hidden", false):
 					description += "\nHidden now · reveals only when the ambush lands"
 			if unit_name == "Wright":

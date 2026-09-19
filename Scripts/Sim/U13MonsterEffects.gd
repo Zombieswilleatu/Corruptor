@@ -200,9 +200,12 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 					var chosen: Dictionary = nearest(unit, supports if not supports.is_empty() else choices)
 					a["hunt_target"] = chosen.get("id", "")
 			"Kopita":
-				if tick == 0:
-					var healing: bool = int(a.get("kopita_pulses", 0)) % 2 == 0
+				if int(a.birth_round) < n and tick in [0, int(Rules.TUNING.kopita_second_pulse_tick)] and int(a.get("kopita_last_pulse_tick", 0)) < clock:
+					var healing: bool = rows.any(func(other): return other.owner == unit.owner and other.attributes.lane == a.lane and distance(a, other.attributes) <= Rules.TUNING.kopita_radius ** 2 and int(other.attributes.hp) < int(other.attributes.max_hp))
 					var healed: Array = []
+					# Each pulse chooses from current wounds, including her own.
+					# 133/200 is about ten seconds into the 15-second sandbox round.
+					a["kopita_last_pulse_tick"] = clock
 					a["kopita_pulses"] = int(a.get("kopita_pulses", 0)) + 1
 					for other in rows:
 						if other.attributes.lane != a.lane or distance(a, other.attributes) > Rules.TUNING.kopita_radius ** 2: continue

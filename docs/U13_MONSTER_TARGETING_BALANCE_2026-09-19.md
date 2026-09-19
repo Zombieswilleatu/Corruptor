@@ -1,5 +1,7 @@
 # Targeted monster powers — September 19, 2026
 
+This is the validated **V12 checkpoint**, before the subsequent Kopita/Dotra request. The [V13 follow-up](U13_MONSTER_SUPPORT_BALANCE_2026-09-19.md) contains the current combined build and its fresh results. The V12 source is preserved at [800fd27](https://github.com/Zombieswilleatu/Corruptor/commit/800fd27b8983a3279bf4efe55d1b0303f3299aa4).
+
 Sinodek now aims portals at enemies, Fyra's charm chance rises from 15% to 30% per hit, and Tumler gains +1 damage against his marked prey. Fyra averaged **1.04 charms per completed lifetime** in the native continuous runs. Kopita and Dotra remain the clearest next tuning candidates; Sinodek's friendly collateral and Sooge's immediate recipe value also need attention.
 
 ## Implemented behavior
@@ -64,7 +66,7 @@ All 2,352 controlled seat pairs agreed on outcomes. All eight native continuous 
 
 The [verification manifest](evidence/U13_MONSTER_TARGETING_2026-09-19/verification.json) records source hashes and evidence. [Controlled outcomes](evidence/U13_MONSTER_TARGETING_2026-09-19/controlled.json.gz), [continuous outcomes](evidence/U13_MONSTER_TARGETING_2026-09-19/continuous.json.gz), charm lifetime counts, candidate grids, replay inputs/hashes, and check logs are stored alongside it. The [previous audit](U13_MONSTER_BALANCE_AUDIT_2026-09-19.md) remains the baseline.
 
-Use the previous audit's reproduction commands with the current source. Additional directed and calibration commands, with `GODOT`, `PYTHON`, and `AUDIT` set by the caller:
+To reproduce these V12 values, check out the checkpoint above and use the previous audit's reproduction commands. Additional directed and calibration commands, with `GODOT`, `PYTHON`, and `AUDIT` set by the caller:
 
 ```bash
 "$GODOT" --headless --path . --script Scripts/Sim/U13MonsterTargetingTestRunner.gd -- "$AUDIT/targeting-phases.jsonl"

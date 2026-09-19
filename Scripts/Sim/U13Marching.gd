@@ -783,8 +783,6 @@ static func _move(
 			step = LaneAuras.speed(int(a.step_fp), percent, has_rout and Rout.recovering(a, int(context.round)), clock, not spatial_fields.is_empty() and SpatialFields.slowed(spatial_fields, unit.owner, a), true)
 		if MonsterEffects.slowed(a, context.get("monster_fields", [])):
 			step = (step >> 1) + (step & 1) * (clock & 1)
-		if a.get("monster_id") == "Dotra" and a.get("hidden", false):
-			step = (step >> 1) + (step & 1) * (clock & 1)
 		if not retreat and (Fort.in_melee(unit, nearby.unit) if modern else int(nearby.distance) <= CONTACT_FP * CONTACT_FP):
 			if previous_ticket < 0:
 				a.contact_tick = clock

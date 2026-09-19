@@ -247,8 +247,6 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
             step = speed(base, percent, recovery, clock, web, collapse)
         if monster_effects.slowed(dict(x_fp=xs[i],y_fp=ys[i],lane=lane,flying=(s.extra[i] or {}).get('flying',False),monster_id=(s.extra[i] or {}).get('monster_id')),data.get('monsters',{}).get('fields',[])):
             step=(step>>1)+(step&1)*(clock&1)
-        if extra.get('monster_id')=='Dotra' and extra.get('hidden',False):
-            step=(step>>1)+(step&1)*(clock&1)
         if not retreat[i] and (fort.in_melee(s.row(i), field_nearest[i]) if ranged else gaps[i] <= reach2):
             if s.contact_tick[i] < 0:
                 s.contact_tick[i] = clock

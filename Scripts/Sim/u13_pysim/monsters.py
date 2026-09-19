@@ -1,7 +1,7 @@
 """Monster recipes and explicit playtest tuning; independent Python rules."""
 from . import economy as e
 from .copying import copy_data
-VERSION = "U13_MONSTERS_V12_TARGETED_POWERS"
+VERSION = "U13_MONSTERS_V13_RESPONSIVE_SUPPORT"
 ROSTER = {'Lemek': {'tier': 'Easy',
            'recipe': {'Penitent': 2},
            'attack': 4,
@@ -25,18 +25,18 @@ ROSTER = {'Lemek': {'tier': 'Easy',
           'armor': 1,
           'speed': 4,
           'hp': 10,
-          'ability': 'Flies over ground hazards. Each hit has a 30% chance to charm a surviving target for '
-                     'the rest of this round. Ownership returns before the next round.'},
+          'ability': 'Flies over ground hazards. Each hit has a 30% chance to charm a surviving '
+                     'target for the rest of this round. Ownership returns before the next round.'},
  'Kopita': {'tier': 'Moderate',
             'recipe': {'Wright': 2, 'Penitent': 2},
             'attack': 2,
             'armor': 1,
             'speed': 2,
             'hp': 10,
-            'ability': 'Pulses at the start of each active round, alternating green healing '
-                       '(allies recover 1 HP) and violet harm (enemies take 1 damage). Starts with '
-                       'healing; radius 360. Slows near allied front-line fighters to stay behind '
-                       'them.'},
+            'ability': 'Pulses twice per active round: at the start and about 10 seconds in. If '
+                       'any ally within 360, including herself, is wounded, heals nearby allies 1 '
+                       'HP; otherwise deals 1 damage to nearby enemies. Slows near allied '
+                       'front-line fighters to stay behind them.'},
  'Tumler': {'tier': 'Moderate',
             'recipe': {'Vulture': 2, 'Wright': 2},
             'attack': 2,
@@ -44,11 +44,12 @@ ROSTER = {'Lemek': {'tier': 'Easy',
             'speed': 3,
             'hp': 10,
             'ability': 'Pursues a chosen enemy, preferring ordinary Vultures and support monsters. '
-                       'Deals +1 damage against his marked hunt target, before Armor; normal damage against others. '
-                       'Pursues through enemy clusters while avoiding slowing pools. Always has '
-                       '50% evasion against direct attacks, including at melee contact and during '
-                       'fear. Poison cannot be dodged. While hunting, a landed melee hit switches '
-                       'his target to the attacker, even if Armor absorbs it; ranged hits do not.'},
+                       'Deals +1 damage against his marked hunt target, before Armor; normal '
+                       'damage against others. Pursues through enemy clusters while avoiding '
+                       'slowing pools. Always has 50% evasion against direct attacks, including at '
+                       'melee contact and during fear. Poison cannot be dodged. While hunting, a '
+                       'landed melee hit switches his target to the attacker, even if Armor '
+                       'absorbs it; ranged hits do not.'},
  'Kurchin': {'tier': 'Hard',
              'recipe': {'Penitent': 3, 'Wright': 1},
              'attack': 1,
@@ -74,7 +75,7 @@ ROSTER = {'Lemek': {'tier': 'Easy',
            'armor': 2,
            'speed': 2,
            'hp': 10,
-           'ability': '25% chance to hide each active round. Stalks enemies at half speed while '
+           'ability': '25% chance to hide each active round. Stalks enemies at full speed while '
                       'hidden and stays hidden until delivering a 5-damage ambush against an enemy '
                       'within 240. No timed reveal. Hidden units cannot be selected for ordinary '
                       'attacks.'},
@@ -97,11 +98,15 @@ ROSTER = {'Lemek': {'tier': 'Easy',
              'armor': 3,
              'speed': 1,
              'hp': 5,
-             'ability': 'Stays behind nearby allied front-line fighters. Once each active round, when a visible enemy unit is within 600, '
-                        'has a 25% chance to open a portal on the nearest enemy for that Marching phase. Waits if no enemy is in range. '
-                        'Nearby units flee; entering units, including allies beside the target, are banished without death triggers or resurrection. '
-                        "Immune to his own portal's fear and banishment. One living copy per player."}}
+             'ability': 'Stays behind nearby allied front-line fighters. Once each active round, '
+                        'when a visible enemy unit is within 600, has a 25% chance to open a '
+                        'portal on the nearest enemy for that Marching phase. Waits if no enemy is '
+                        'in range. Nearby units flee; entering units, including allies beside the '
+                        'target, are banished without death triggers or resurrection. Immune to '
+                        "his own portal's fear and banishment. One living copy per player."}}
+
 NAMES = tuple(ROSTER)
+
 
 def configure(w):
     w['data']['monsters'] = dict(version=VERSION, unlocked=[list(NAMES),list(NAMES)], fields=[], pending_beams=[], death_ids=[], phase_round=0)
@@ -124,7 +129,7 @@ def root_chance(a):
 
 def valid_unit(a):
     if 'monster_id' not in a:return a.get('suit')!='Monster'
-    for key in ('sooge_root_attempts','sooge_root_round','beam_next_tick','beam_charge_tick','beam_ready_tick','dotra_concealment_round','sinodek_portal_round'):
+    for key in ('sooge_root_attempts','sooge_root_round','beam_next_tick','beam_charge_tick','beam_ready_tick','dotra_concealment_round','sinodek_portal_round','kopita_pulses','kopita_last_pulse_tick'):
         if key in a and (type(a[key]) is not int or not 0<=a[key]<=9007199254740991):return False
     return (a.get('suit')=='Monster' and a['monster_id'] in NAMES and a.get('sprite_form') in ('mobile','turret')
             and (a['sprite_form']!='turret' or a['monster_id']=='Sooge') and type(a.get('flying')) is bool)
@@ -154,6 +159,7 @@ TUNING = {'tumler_evasion_chance': 50, 'tumler_hunt_bonus': 1,
  'kurchin_deflection_chance': 75, 'varn_poison_chance': 10,
  'fyra_charm_chance': 30,
  'kopita_radius': 360,
+ 'kopita_second_pulse_tick': 133,
  'taunt_radius': 360,
  'muno_radius': 480,
  'dotra_hide_chance': 25,

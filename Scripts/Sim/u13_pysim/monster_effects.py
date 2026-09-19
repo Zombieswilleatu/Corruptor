@@ -181,8 +181,13 @@ def step(w,buffer,c,tick,reaction):
             if not any(r['id']==a.get('hunt_target','') for r in choices):
                 supports=[r for r in choices if r['attributes']['suit']=='Vulture' or r['attributes'].get('monster_id') in ('Kopita','Fyra','Sooge','Sinodek')]
                 a['hunt_target']=nearest(unit,supports or choices).get('id','')
-        elif name=='Kopita' and tick==0:
-            healing=a.get('kopita_pulses',0)%2==0;a['kopita_pulses']=a.get('kopita_pulses',0)+1
+        elif (name=='Kopita' and a['birth_round'] < n and tick in (0,T['kopita_second_pulse_tick'])
+              and a.get('kopita_last_pulse_tick',0) < clock):
+            healing=any(other['owner']==unit['owner'] and other['attributes']['lane']==a['lane']
+                        and distance(a,other['attributes'])<=T['kopita_radius']**2
+                        and other['attributes']['hp']<other['attributes']['max_hp'] for other in rows)
+            a['kopita_last_pulse_tick']=clock
+            a['kopita_pulses']=a.get('kopita_pulses',0)+1
             healed=[]
             for other in rows:
                 b=other['attributes']
