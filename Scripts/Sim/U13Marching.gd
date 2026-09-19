@@ -722,6 +722,8 @@ static func _move(
 	var spatial_fields: Dictionary = context.get("spatial_fields", {})
 	var neighbors: Dictionary = {} if context.get("ranged_enabled", false) else _movement_neighbors(rows, duels, int(context.round), has_rout)
 	var modern: bool = context.get("ranged_enabled", false)
+	var vulture_reach: int = Ranged.vulture_range(context.get("world", {}))
+	var advance_near_goal: bool = Ranged.goal_advance_enabled(context.get("world", {}))
 	var structures: Array = context.get("field_structures", [])
 	if modern:
 		neighbors = {}
@@ -791,12 +793,16 @@ static func _move(
 			if previous_ticket != -1:
 				entities.update(unit.id, unit.owner, a)
 			continue
-		if not retreat and context.get("ranged_enabled", false) and a.suit == "Vulture" and nearby.distance <= Ranged.RANGE_FP * Ranged.RANGE_FP:
+		var goal_x: int = LANE_FP if unit.owner == 0 else 0
+		# Only the final shooting-range-length of lane changes. A nearby enemy
+		# alone never enables moving fire. Contact, taunts and rout still apply.
+		var gate_advancing: bool = modern and advance_near_goal and a.suit == "Vulture" and not retreat and not taunted and absi(goal_x - int(a.x_fp)) <= vulture_reach
+		if not retreat and modern and a.suit == "Vulture" and not gate_advancing and nearby.distance <= vulture_reach * vulture_reach:
 			# Stop at range; do not kite away when an enemy closes to melee.
 			if previous_ticket != -1:
 				entities.update(unit.id, unit.owner, a)
 			continue
-		if modern and not retreat and not taunted:
+		if modern and not retreat and not taunted and not gate_advancing:
 			step = SupportPacing.speed(unit, rows, step, clock, context.round, fleeing_ids)
 		var nearest: Dictionary = nearby.unit
 		var preferred: Dictionary = MonsterEffects.preferred(unit, rows) if has_taunt or a.get("monster_id") == "Tumler" else {}
@@ -813,6 +819,11 @@ static func _move(
 		if not retreat and a.get("monster_id") == "Tumler":
 			destination = MonsterEffects.steer(unit, destination, rows, context.get("monster_fields", []))
 			if not destination.is_empty(): best = _distance(a, destination)
+		if gate_advancing:
+			# Keep firing through normal volley selection while heading straight
+			# to the goal, rather than turning back toward another fresh wave.
+			destination = {"x_fp": goal_x, "y_fp": a.y_fp}
+			best = _distance(a, destination)
 		if modern and not retreat:
 			var build_goal: Dictionary = {} if taunted else Fort.goal(unit, structures, clock, nearest)
 			if not build_goal.is_empty():

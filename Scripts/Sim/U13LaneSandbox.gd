@@ -16,10 +16,12 @@ var last_waves: Array = [{}, {}]
 var totals: Array = []
 var goal_ids: Array = [{}, {}]
 
-func _init(seed_text: String = "lane-balance-1") -> void:
+func _init(seed_text: String = "lane-balance-1", balance_preview: bool = false, goal_advance: bool = true) -> void:
 	seed_value = seed_text if not seed_text.strip_edges().is_empty() else "lane-balance-1"
 	world = {"entities": Ids.new().snapshot(), "data": {"kanifous_losses": [], "kanifous_loss_round": 1}}
 	Marching.Ranged.configure(world)
+	if balance_preview:
+		world.data["lane_balance_preview"] = {"version": Marching.Ranged.PREVIEW_VERSION, "goal_advance": goal_advance}
 	Monsters.configure(world)
 	for pid in [0, 1]:
 		spawners.append(Enemy.new(seed_value, pid))

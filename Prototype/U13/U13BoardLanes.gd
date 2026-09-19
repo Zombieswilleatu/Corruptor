@@ -11,6 +11,8 @@ var projectiles: Array = []
 var monster_fields: Array = []
 var monster_attacks: Array = []
 var field_structures: Array = []
+const Ranged = preload("res://Scripts/Sim/U13RangedMarching.gd")
+var ranged_display_settings: Dictionary = {}
 var fortification_visual = preload("res://Prototype/U13/U13FortificationVisuals.gd").new()
 var quiet_removal_ids: Array = []
 var projectile_visual = preload("res://Prototype/U13/U13VultureProjectile.gd").new()
@@ -146,8 +148,12 @@ func _get_tooltip(at: Vector2) -> String:
 			var hp: String = "Obscured" if void_active else "%d/%d" % [unit.attributes.hp, unit.attributes.max_hp]
 			var description: String = "%s · %s\nHP %s · Armor %d" % [unit_name, "Yours" if unit.owner == 0 else "Enemy", hp, unit.attributes.armor]
 			if unit_name == "Penitent": description += "\n" + preload("res://Scripts/Sim/U13PenitentDefense.gd").DESCRIPTION
+			if unit_name == "Vulture":
+				description += "\nShooting range: %d" % Ranged.vulture_range({"data": ranged_display_settings})
+				if Ranged.goal_advance_enabled({"data": ranged_display_settings}):
+					description += "\nAdvances while firing when the goal is within range; otherwise stops to shoot."
 			if unit_name in ["Vulture", "Kopita", "Sinodek", "Sooge"] and unit.attributes.get("sprite_form") != "turret":
-				description += "\nSlows near allied front-line fighters to stay behind them."
+				description += "\nSlows near allied front-line fighters to stay behind them, except during a goal advance." if unit_name == "Vulture" and Ranged.goal_advance_enabled({"data": ranged_display_settings}) else "\nSlows near allied front-line fighters to stay behind them."
 			if unit_name == "Tumler":
 				description += "\n50% evasion while hunting; ends at target contact. Landed melee hits change his target; ranged hits do not."
 			if unit_name == "Kopita":
@@ -164,7 +170,7 @@ func _get_tooltip(at: Vector2) -> String:
 			return description
 	for row in field_structures:
 		if fortification_visual.footprint(self, row).has_point(at):
-			return "%s · %s\nHP %d/%d · Armor %d%s" % [row.attributes.structure, "Yours" if row.owner == 0 else "Enemy", row.attributes.hp, row.attributes.max_hp, row.attributes.armor, "\n1 attack · range 600 · fires every 32 ticks" if row.attributes.structure == "Tower" else "\nBlocks enemies; allies can pass."]
+			return "%s · %s\nHP %d/%d · Armor %d%s" % [row.attributes.structure, "Yours" if row.owner == 0 else "Enemy", row.attributes.hp, row.attributes.max_hp, row.attributes.armor, "\n1 attack · range %d · fires every %d ticks" % [Ranged.tower_range({"data": ranged_display_settings}), Ranged.RANGED_INTERVAL_TICKS] if row.attributes.structure == "Tower" else "\nBlocks enemies; allies can pass."]
 	return ""
 
 

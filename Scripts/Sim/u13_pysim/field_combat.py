@@ -109,7 +109,7 @@ def volley(phase, duels, tick, fleeing):
         elif (unit['kind'] != 'marcher' or a['suit'] != 'Vulture' or unit['id'] in busy or unit['id'] in fleeing
               or a.get('rout_round') == number or a.get('ranged_next_tick', 0) > clock):
             continue
-        radius = fort.TOWER_RANGE if tower else marching_spatial.VULTURE_RANGE
+        radius = marching_spatial.tower_range(phase.w) if tower else marching_spatial.vulture_range(phase.w)
         best, target = radius**2+1, {}
         for other in rows:
             if other['owner'] == unit['owner'] or other['attributes']['lane'] != a['lane'] or ignored(unit, other):

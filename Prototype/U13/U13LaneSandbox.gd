@@ -5,6 +5,9 @@ const Sim = preload("res://Scripts/Sim/U13LaneSandbox.gd")
 const Playback = preload("res://Prototype/U13/U13SmokePlayback.gd")
 const Lane = preload("res://Prototype/U13/U13SandboxLaneView.gd")
 const INTERVAL: float = 15.0
+@export var balance_preview: bool = false
+@export var standalone: bool = false
+var goal_advance_toggle: CheckBox
 var sim = Sim.new()
 var playback = Playback.new()
 var field
@@ -45,7 +48,7 @@ var goal_cursor: int = 0
 var round_goals: Array = [0, 0]
 
 func _ready() -> void:
-	sim = Sim.new(fresh_seed())
+	sim = Sim.new(fresh_seed(), balance_preview)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	z_index = 110
 	var bg := ColorRect.new()
@@ -61,9 +64,9 @@ func _ready() -> void:
 	margin.add_child(column)
 	var top := HBoxContainer.new()
 	column.add_child(top)
-	var title := label(top, "MARCHER & MONSTER BALANCE", 25)
+	var title := label(top, "VULTURE PREVIEW · range 900 · tower 1125" if balance_preview else "MARCHER & MONSTER BALANCE", 25)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button(top, "MAIN MENU", dismiss)
+	button(top, "EXIT PREVIEW" if standalone else "MAIN MENU", dismiss)
 	var scoreboard := HBoxContainer.new()
 	scoreboard.add_theme_constant_override("separation", 32)
 	column.add_child(scoreboard)
@@ -93,6 +96,13 @@ func _ready() -> void:
 	choices.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	choices.add_theme_constant_override("separation", 10)
 	scroll.add_child(choices)
+	if balance_preview:
+		goal_advance_toggle = CheckBox.new()
+		goal_advance_toggle.text = "Advance when GOAL is within range"
+		goal_advance_toggle.button_pressed = true
+		choices.add_child(goal_advance_toggle)
+		label(choices, "Inside the final 900 distance: Vultures advance toward the goal while firing. Melee, walls and taunts still apply. Changing this option resets the arena with the same seed.", 14)
+		goal_advance_toggle.toggled.connect(func(_enabled): reset())
 	label(choices, "SPAWN UNITS", 19)
 	owner_choice = option(choices, ["Your side · blue", "Enemy side · red"])
 	spawn_point = option(choices, ["Spawn at gate", "Spawn nearer the center"])
@@ -106,6 +116,7 @@ func _ready() -> void:
 		spawn_buttons[name].tooltip_text = "%d HP · %d Attack · %d Armor" % [profile.max_hp, profile.attack, profile.armor]
 		if name == "Penitent": spawn_buttons[name].tooltip_text += "\n" + preload("res://Scripts/Sim/U13PenitentDefense.gd").DESCRIPTION
 		if name == "Wright": spawn_buttons[name].tooltip_text += "\n" + preload("res://Scripts/Sim/U13FieldFortifications.gd").DESCRIPTION
+		if name == "Vulture": spawn_buttons[name].tooltip_text += "\nShooting range: %d" % Sim.Marching.Ranged.vulture_range(sim.world)
 	label(choices, "MONSTERS", 19)
 	monster_choice = option(choices, Sim.Monsters.NAMES)
 	monster_choice.item_selected.connect(func(_i): _monster_changed())
@@ -313,8 +324,10 @@ func _sync_controls() -> void:
 	pause_button.disabled = not running
 	reset_button.disabled = job != null
 	new_arena_button.disabled = job != null
+	if goal_advance_toggle != null: goal_advance_toggle.disabled = job != null
 
 func _show_idle() -> void:
+	field.ranged_display_settings = {"lane_balance_preview": sim.world.data.get("lane_balance_preview", {})}
 	field.show_world(sim.units(), sim.round_number, sim.world.data.get("field_structures", []))
 	field.monster_fields = sim.world.data.monsters.fields.duplicate(true)
 	_report(sim.units())
@@ -368,7 +381,7 @@ func reset() -> void:
 	pending.clear()
 	result = {}
 	_clear_goal_playback()
-	sim = Sim.new(seed_entry.text)
+	sim = Sim.new(seed_entry.text, balance_preview, goal_advance_toggle.button_pressed if goal_advance_toggle != null else false)
 	seed_entry.text = sim.seed_value
 	playback = Playback.new()
 	field.reset_effects()
@@ -382,6 +395,7 @@ func dismiss() -> void:
 	running = false
 	hide()
 	closed.emit()
+	if standalone: get_tree().quit()
 	queue_free()
 
 func _exit_tree() -> void:

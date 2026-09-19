@@ -181,6 +181,7 @@ def nearest_target(i, candidates, positions, xs, ys):
 
 def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     from . import support_pacing
+    from . import marching_spatial
     indices = s.active()
     xs, ys = s.x_fp[:], s.y_fp[:]  # One target snapshot; accepted positions stay in columns.
     grouped = teams(s, indices)
@@ -206,6 +207,8 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     targets_by_id={r['id']:r for r in targets}
     gate_queue = data.get("guard_work", {}).get("version") == "U13_GUARD_WORK_V4"
     ranged = data.get("ranged_profile") == RANGED
+    vulture_reach = marching_spatial.vulture_range(context["world"])
+    advance_near_goal = marching_spatial.goal_advance_enabled(context["world"])
     accepted = {} if ranged else {lane: [grid(team, xs, ys, 7) for team in grouped[lane]] for lane in LANES}
     structures = fort.rows(context['world']) if ranged else []
     reach2 = fort.CONTACT**2 if ranged else CONTACT2
@@ -245,9 +248,12 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
         s.contact_tick[i] = -1
         if s.movement_ready_round[i] > number or not retreat[i] and (s.waiting[i] or s.ids[i] in busy):
             continue
-        if not retreat[i] and ranged and s.suit[i] == "Vulture" and gaps[i] <= RANGE2:
+        goal_x = 2400 if owner == 0 else 0
+        gate_advancing = (ranged and advance_near_goal and s.suit[i] == "Vulture"
+                          and not retreat[i] and i not in taunted and abs(goal_x-xs[i]) <= vulture_reach)
+        if not retreat[i] and ranged and s.suit[i] == "Vulture" and not gate_advancing and gaps[i] <= vulture_reach**2:
             continue
-        if ranged and not retreat[i] and i not in taunted:
+        if ranged and not retreat[i] and i not in taunted and not gate_advancing:
             step = support_pacing.speed(s.row(i), target_rows, step, clock, number, fleeing)
         dx, dy = s.direction[i] * step * (-1 if retreat[i] else 1), 0
         j = nearest[i]
@@ -265,6 +271,9 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
         if not retreat[i] and (s.extra[i] or {}).get('monster_id')=='Tumler':
             destination=monster_effects.steer(current,destination,targets,data.get('monsters',{}).get('fields',[]))
             if destination:gap=distance(xs[i],ys[i],destination['x_fp'],destination['y_fp'])
+        if gate_advancing:
+            destination = dict(x_fp=goal_x, y_fp=ys[i])
+            gap = (goal_x-xs[i])**2
         if ranged and not retreat[i]:
             unit = s.row(i)
             build_goal = {} if i in taunted else fort.goal(unit, structures, clock, field_nearest[i])

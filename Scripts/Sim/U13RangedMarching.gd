@@ -12,6 +12,25 @@ const RANGE_FP: int = 400 # Two units at 200 fixed-point units per unit.
 const CONTACT_FP: int = Fort.CONTACT
 const EXCHANGE_TICKS: int = 34
 const RANGED_INTERVAL_TICKS: int = 50 # Four shots per 200-tick round.
+const PREVIEW_VERSION: String = "U13_LANE_BALANCE_PREVIEW_V1"
+const PREVIEW_VULTURE_RANGE: int = 900
+const PREVIEW_TOWER_RANGE: int = 1125
+
+
+static func preview_enabled(world: Dictionary) -> bool:
+	return world.get("data", {}).get("lane_balance_preview", {}).get("version") == PREVIEW_VERSION
+
+
+static func vulture_range(world: Dictionary) -> int:
+	return PREVIEW_VULTURE_RANGE if preview_enabled(world) else RANGE_FP
+
+
+static func tower_range(world: Dictionary) -> int:
+	return PREVIEW_TOWER_RANGE if preview_enabled(world) else Fort.TOWER_RANGE
+
+
+static func goal_advance_enabled(world: Dictionary) -> bool:
+	return preview_enabled(world) and world.data.lane_balance_preview.get("goal_advance", false) == true
 
 
 static func enabled(world: Dictionary) -> bool:
@@ -35,11 +54,11 @@ static func distance(a: Dictionary, b: Dictionary) -> int:
 	return dx * dx + dy * dy
 
 
-static func nearest(unit: Dictionary, rows: Array) -> Dictionary:
+static func nearest(unit: Dictionary, rows: Array, reach: int = RANGE_FP) -> Dictionary:
 	var preferred: Dictionary = preload("res://Scripts/Sim/U13MonsterEffects.gd").preferred(unit, rows)
-	if not preferred.is_empty() and distance(unit.attributes, preferred.attributes) <= RANGE_FP * RANGE_FP: return preferred
+	if not preferred.is_empty() and distance(unit.attributes, preferred.attributes) <= reach * reach: return preferred
 	var best: Dictionary = {}
-	var best_distance: int = RANGE_FP * RANGE_FP + 1
+	var best_distance: int = reach * reach + 1
 	for other in rows:
 		if other.owner == unit.owner or other.attributes.lane != unit.attributes.lane or Wishmaster.ignored(unit, other):
 			continue
@@ -74,10 +93,11 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 			if int(unit.attributes.ranged_next_tick) > clock: continue
 		elif unit.kind != "marcher" or unit.attributes.suit != "Vulture" or busy.has(unit.id) or fleeing.has(unit.id) or Rout.retreating(unit.attributes, context.round) or not ready(unit, clock):
 			continue
-		var target: Dictionary = nearest(unit, rows)
+		var target: Dictionary = nearest(unit, rows, vulture_range(world))
 		if tower:
 			target = {}
-			var best: int = Fort.TOWER_RANGE * Fort.TOWER_RANGE + 1
+			var reach: int = tower_range(world)
+			var best: int = reach * reach + 1
 			for other in rows:
 				if other.owner == unit.owner or other.attributes.lane != unit.attributes.lane or (other.kind == "marcher" and Wishmaster.ignored(unit, other)): continue
 				var d: int = Fort.gap(unit, other)
