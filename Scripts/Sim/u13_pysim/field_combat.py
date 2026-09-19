@@ -4,6 +4,9 @@ from .copying import copy_data
 from .marching_buffer import Buffer
 from .primitives import instance_id
 
+MELEE_INTERVAL = 34
+RANGED_INTERVAL = 50
+
 
 def ignored(a, b):
     aa, bb = a['attributes'], b['attributes']
@@ -32,6 +35,7 @@ def melee(phase, tick, fleeing):
     clock, ctx, number = phase.number*200+tick, phase.context, phase.number
     buffer = Buffer(phase)
     units = buffer.rows(); targets = units + copy_data(fort.rows(phase.w))
+    has_taunt = any(r['attributes'].get('monster_id') == 'Kurchin' for r in units)
     shots, deaths = [], []
     for unit in units:
         a = unit['attributes']
@@ -39,7 +43,7 @@ def melee(phase, tick, fleeing):
                 or a.get('hidden', False) or a.get('sprite_form') == 'turret'):
             continue
         target = nearest(unit, targets, fort.CONTACT, True)
-        if a.get('monster_id') == 'Tumler':
+        if has_taunt or a.get('monster_id') == 'Tumler':
             target = monster_effects.preferred(unit, units) or target
         if not target:
             continue
@@ -50,9 +54,9 @@ def melee(phase, tick, fleeing):
             continue
         source = buffer.get(unit['id']); sa = source['attributes']
         amount = sa['attack'] * (2 if sa.pop('blood_wish', False) else 1)
-        sa['melee_next_tick'] = clock+8
+        sa['melee_next_tick'] = clock+MELEE_INTERVAL
         if a['suit'] == 'Vulture':
-            sa['ranged_next_tick'] = max(a.get('ranged_next_tick', 0), clock+8)
+            sa['ranged_next_tick'] = max(a.get('ranged_next_tick', 0), clock+MELEE_INTERVAL)
         buffer.update(source['id'], source['owner'], sa)
         shots.append(dict(attacker=unit, target=target, amount=amount))
     for shot in shots:
@@ -123,11 +127,11 @@ def volley(phase, duels, tick, fleeing):
             continue
         amount = 1
         if tower:
-            fort.find(fort.rows(phase.w), unit['owner'], a['lane'], 2)['attributes']['ranged_next_tick'] = clock+32
+            fort.find(fort.rows(phase.w), unit['owner'], a['lane'], 2)['attributes']['ranged_next_tick'] = clock+RANGED_INTERVAL
         else:
             attacker = buffer.get(unit['id']); aa = attacker['attributes']
             amount = aa['attack'] * (2 if aa.pop('blood_wish', False) else 1)
-            aa.update(ranged_next_tick=clock+32, melee_next_tick=clock+8)
+            aa.update(ranged_next_tick=clock+RANGED_INTERVAL, melee_next_tick=clock+MELEE_INTERVAL)
             buffer.update(attacker['id'], attacker['owner'], aa)
         shots.append(dict(attacker=unit, target=target, amount=amount))
     for shot in shots:

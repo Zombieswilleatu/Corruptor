@@ -67,8 +67,8 @@ func _run_suite() -> void:
 	_check(shots[0].attacker.attributes.x_fp == shots.back().attacker.attributes.x_fp, "Vulture stops while firing")
 	var cadence: bool = true
 	for i in range(1, shots.size()):
-		cadence = cadence and shots[i].tick - shots[i - 1].tick == 32
-	_check(cadence, "ranged cadence remains one attack per 32 ticks")
+		cadence = cadence and shots[i].tick - shots[i - 1].tick == 50
+	_check(cadence, "ranged cadence remains one attack per 50 ticks")
 	_check(result == _run(world), "identical ranged tape and final state on replay")
 	for pid in [0, 1]:
 		for reach in [400, 401]:
@@ -126,7 +126,7 @@ func _run_suite() -> void:
 	shots = _facts(result, "MARCHER_RANGED_ATTACK")
 	clashes = _facts(result, "MARCHER_MELEE_ATTACK").filter(func(f): return f.attacker.attributes.suit == "Vulture")
 	_check(not shots.is_empty() and not clashes.is_empty(), "ranged Vulture switches to melee when enemy closes")
-	_check(not clashes.is_empty() and not shots.is_empty() and clashes[0].tick - shots.back().tick >= 8, "ranged-to-melee transition shares attack cooldown")
+	_check(not clashes.is_empty() and not shots.is_empty() and clashes[0].tick - shots.back().tick >= 34, "ranged-to-melee transition shares attack cooldown")
 	world = _world()
 	_add(world, "bird", 0, "Vulture", 500)
 	_add(world, "fragile", 1, "Penitent", 1300, {"hp": 1, "armor": 0, "step_fp": 0})

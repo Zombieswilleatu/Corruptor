@@ -5,7 +5,7 @@ const Effects = preload("res://Scripts/Sim/U13MonsterEffects.gd")
 const Wish = preload("res://Scripts/Sim/U13Wishmaster.gd")
 const Rout = preload("res://Scripts/Sim/U13Rout.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
-const INTERVAL: int = 8
+const INTERVAL: int = 34 # Up to six ordinary swings per 200-tick round.
 
 static func nearest(unit: Dictionary, targets: Array, radius: int = 4000, melee: bool = false) -> Dictionary:
 	var best: Dictionary = {}
@@ -31,6 +31,7 @@ static func resolve(world: Dictionary, entities, context: Dictionary, tick: int,
 	var clock: int = int(context.round) * 200 + tick
 	var units: Array = entities.marchers()
 	var targets: Array = units + Fort.rows(world).duplicate(true)
+	var has_taunt: bool = units.any(func(r): return r.attributes.get("monster_id") == "Kurchin")
 	var shots: Array = []
 	var events: Array = []
 	# Every attacker selects from the same pre-hit positions. No lane queue,
@@ -39,7 +40,7 @@ static func resolve(world: Dictionary, entities, context: Dictionary, tick: int,
 		var a: Dictionary = unit.attributes
 		if int(a.get("melee_next_tick", 0)) > clock or fleeing.has(unit.id) or Rout.retreating(a, context.round) or a.get("hidden", false) or a.get("sprite_form") == "turret": continue
 		var target: Dictionary = nearest(unit, targets, Fort.CONTACT, true)
-		if a.get("monster_id") == "Tumler":
+		if has_taunt or a.get("monster_id") == "Tumler":
 			var hunted: Dictionary = Effects.preferred(unit, units)
 			if not hunted.is_empty(): target = hunted
 		if target.is_empty(): continue

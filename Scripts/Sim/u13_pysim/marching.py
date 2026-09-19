@@ -211,12 +211,16 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     reach2 = fort.CONTACT**2 if ranged else CONTACT2
     target_rows = s.rows() if ranged else []
     field_nearest = {i: (field_combat.nearest(s.row(i), target_rows+structures, fort.CONTACT, True) or field_combat.nearest(s.row(i), target_rows+structures)) for i in indices} if ranged else {}
+    taunted = set()
     if ranged:
         for i in indices:
             if (s.extra[i] or {}).get('monster_id')=='Dotra' and (s.extra[i] or {}).get('hidden',False):
                 field_nearest[i]=monster_effects.nearest(s.row(i),target_rows)
-            if (s.extra[i] or {}).get('monster_id')=='Tumler':
-                field_nearest[i]=monster_effects.preferred(s.row(i),target_rows) or field_nearest[i]
+            if has_taunt or (s.extra[i] or {}).get('monster_id')=='Tumler':
+                chosen = monster_effects.preferred(s.row(i), target_rows)
+                if chosen:
+                    field_nearest[i] = chosen
+                    if chosen['attributes'].get('monster_id') == 'Kurchin': taunted.add(i)
             gaps[i] = fort.gap(s.row(i), field_nearest[i]) if field_nearest[i] else (1 << 63)-1
     collapse_players = veil.affected_players(context["world"],"Valak")
     for i in indices:
@@ -243,7 +247,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
             continue
         if not retreat[i] and ranged and s.suit[i] == "Vulture" and gaps[i] <= RANGE2:
             continue
-        if ranged and not retreat[i]:
+        if ranged and not retreat[i] and i not in taunted:
             step = support_pacing.speed(s.row(i), target_rows, step, clock, number, fleeing)
         dx, dy = s.direction[i] * step * (-1 if retreat[i] else 1), 0
         j = nearest[i]
@@ -255,7 +259,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
             current=targets_by_id[s.ids[i]]
             chosen=monster_effects.preferred(current,targets)
             if chosen:destination=chosen['attributes'];gap=distance(xs[i],ys[i],destination['x_fp'],destination['y_fp'])
-        if not (s.extra[i] or {}).get('monster_id') and not retreat[i] and lamps:
+        if not (s.extra[i] or {}).get('monster_id') and not retreat[i] and i not in taunted and lamps:
             point, lamp_gap = wishmaster.nearest_lamp(xs[i],ys[i],lane,lamps)
             if point is not None: destination,gap=point,lamp_gap
         if not retreat[i] and (s.extra[i] or {}).get('monster_id')=='Tumler':
@@ -263,7 +267,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
             if destination:gap=distance(xs[i],ys[i],destination['x_fp'],destination['y_fp'])
         if ranged and not retreat[i]:
             unit = s.row(i)
-            build_goal = fort.goal(unit, structures, clock, field_nearest[i])
+            build_goal = {} if i in taunted else fort.goal(unit, structures, clock, field_nearest[i])
             if build_goal:
                 destination, gap = build_goal, fort.distance(unit['attributes'], build_goal)
                 if gap <= 16**2: continue

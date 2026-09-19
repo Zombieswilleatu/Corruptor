@@ -96,7 +96,7 @@ func hunting_checks() -> void:
 				check(strikes[0].damage_dealt == 0, "Armor-only contact still intercepts the hunt")
 				check(Kanifous._entity(r.world, dog.id).attributes.hunt_target == blocker.id, "interception persists instead of reverting to support preference")
 				check(facts(r, "MARCHER_MELEE_ATTACK").any(func(d): return d.attacker.id == dog.id and d.target.id == blocker.id), "intercepted Tumler fights the attacker")
-				check(not facts(r, "MARCHER_MELEE_ATTACK").any(func(d): return d.target.id == dog.id and d.evaded), "melee contact with the new target ends evasion")
+				check(facts(r, "MARCHER_MELEE_ATTACK").any(func(d): return d.target.id == dog.id and d.evaded), "melee contact retains constant evasion")
 			else:
 				var playback = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
 				check(playback.build(r.events.map(func(e): return e.event)), "dodging hunt builds an authoritative playback")
@@ -117,22 +117,22 @@ func hunting_checks() -> void:
 		set_target(w, dog, prey)
 		var seed_value: String = hunt_seed(prey, dog, "Melee", 49)
 		var r: Dictionary = phase("hunt_arrived_%d" % pid, w, seed_value)
-		check(not facts(r, "MARCHER_MELEE_ATTACK").any(func(d): return d.target.id == dog.id and d.evaded), "reaching the target disables even a successful dodge roll")
+		check(facts(r, "MARCHER_MELEE_ATTACK").any(func(d): return d.target.id == dog.id and d.tick == 0 and d.evaded), "reaching the target retains the successful dodge roll")
 		check(facts(r, "MONSTER_HUNT_RETARGETED").is_empty(), "fighting at the destination is no longer hunting")
 		prey.attributes.x_fp = at(1900, pid)
 		var rows: Array = [dog, prey]
 		check(MonsterFX.hunting(dog, rows, 2), "valid distant prey enables hunting")
 		var wall: Dictionary = {"id": "wall", "kind": "fortification", "owner": 1 - pid, "attributes": {"structure": "Wall", "lane": "Lord", "x_fp": at(980, pid), "y_fp": 300}}
-		check(not MonsterFX.hunting(dog, rows, 2, [wall]), "being pinned at a hostile wall ends hunting evasion")
+		check(not MonsterFX.hunting(dog, rows, 2, [wall]), "being pinned at a hostile wall ends hunting but preserves evasion")
 		var saved: Dictionary = Codec.decode(Codec.encode(w).text).value
 		check(Kanifous._entity(saved, dog.id).attributes.hunt_target == prey.id, "save transport retains the chosen hunt target")
 		for field in ["waiting", "movement_ready_round", "step_fp", "rout_round"]:
 			var idle: Dictionary = dog.duplicate(true)
 			idle.attributes[field] = {"waiting": true, "movement_ready_round": 3, "step_fp": 0, "rout_round": 2}[field]
-			check(not MonsterFX.hunting(idle, [idle, prey], 2), "no hunt evasion while " + field)
-		check(not MonsterFX.hunting(dog, [dog], 2), "a dead or missing target gives no evasion")
+			check(not MonsterFX.hunting(idle, [idle, prey], 2), "no active hunt while " + field)
+		check(not MonsterFX.hunting(dog, [dog], 2), "a dead or missing target ends hunting")
 		prey.attributes["hidden"] = true
-		check(not MonsterFX.hunting(dog, rows, 2), "a hidden target gives no evasion")
+		check(not MonsterFX.hunting(dog, rows, 2), "a hidden target ends hunting")
 		prey.attributes.hidden = false
 		check(not MonsterFX.evades(dog, prey, rows, context(w, seed_value), 0, "Poison"), "existing poison cannot be dodged")
 		# Dash/ambush strikes are melee; beams and pulses are ranged damage.
@@ -158,7 +158,7 @@ func hunting_checks() -> void:
 			else: w.data.monsters.fields.append({"kind": "portal", "lane": "Lord", "x_fp": at(1100, pid), "y_fp": 300})
 			var buffer = Marching.Buffer.new(); buffer.restore(w.entities)
 			var result: Dictionary = MonsterFX.damage(w, buffer, {"source": caster, "target": dog.id, "amount": 1, "bypass": false, "ability": "Muno"}, context(w, hunt_seed(caster, dog, "Muno", 49)), 0, Callable(Game.Content.new(), "react"))
-			check(not facts(result, "MONSTER_ATTACK")[0].evaded and facts(result, "MONSTER_HUNT_RETARGETED").is_empty(), fear + " fleeing does not count as pursuing prey")
+			check(facts(result, "MONSTER_ATTACK")[0].evaded and facts(result, "MONSTER_HUNT_RETARGETED").is_empty(), fear + " keeps evasion without enabling hunt interception")
 
 func run() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()

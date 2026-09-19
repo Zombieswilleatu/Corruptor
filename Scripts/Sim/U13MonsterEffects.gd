@@ -39,8 +39,8 @@ static func slowed(a: Dictionary, fields: Array) -> bool:
 	if a.get("flying", false) or a.get("monster_id") == "Lemek": return false
 	return fields.any(func(f): return f.kind == "pool" and f.lane == a.lane and distance(a, f) <= Rules.TUNING.pool_radius ** 2)
 
-# Evasion exists only while closing on a live target. Contact with a different
-# marcher does not end the hunt; contact with the target or a blocking wall does.
+# Hunting controls melee interception, independently of permanent evasion.
+# Contact with the prey or a blocking wall ends the hunt; bystanders do not.
 static func hunting(unit: Dictionary, rows: Array, number: int, structures: Array = []) -> bool:
 	var a: Dictionary = unit.attributes
 	if a.get("monster_id") != "Tumler" or a.step_fp <= 0 or a.waiting or a.movement_ready_round > number or a.get("rout_round", -1) == number or a.get("hidden", false): return false
@@ -50,9 +50,13 @@ static func hunting(unit: Dictionary, rows: Array, number: int, structures: Arra
 	return wall.is_empty() or not Fort.in_melee(unit, wall)
 
 static func evades(unit: Dictionary, source: Dictionary, rows: Array, context: Dictionary, tick: int, kind: String, structures: Array = [], fleeing: Dictionary = {}) -> bool:
-	if kind == "Poison" or fleeing.has(unit.id) or not hunting(unit, rows, context.round, structures): return false
+	if kind == "Poison": return false
+	var name: String = unit.attributes.get("monster_id", "")
 	var key: String = "%d:%d:%s:%s:%s" % [context.round, tick, kind, source.id, unit.id]
-	return Lamp.draw(context.seed, key, "TUMLER_HUNT_EVASION", 100) < Rules.TUNING.tumler_evasion_chance
+	if name == "Kurchin":
+		# Read current Armor for every hit, including later hits in this tick.
+		return int(unit.attributes.armor) > 0 and Lamp.draw(context.seed, key, "KURCHIN_ARMORED_DEFLECTION", 100) < Rules.TUNING.kurchin_deflection_chance
+	return name == "Tumler" and Lamp.draw(context.seed, key, "TUMLER_HUNT_EVASION", 100) < Rules.TUNING.tumler_evasion_chance
 
 static func intercept(unit: Dictionary, source: Dictionary, rows: Array, context: Dictionary, tick: int, structures: Array = []) -> Array:
 	if source.owner == unit.owner or not hunting(unit, rows, context.round, structures): return []
@@ -309,7 +313,7 @@ static func damage(world: Dictionary, entities, hit: Dictionary, context: Dictio
 	var blocked: bool = hit.ability == "Beam" and Defense.blocks(target, hit.source.id, context.seed, context.round, tick, "Beam")
 	var live_rows: Array = entities.marchers() if target.attributes.get("monster_id") == "Tumler" else []
 	var fleeing: bool = hunt_fleeing(target, world)
-	var evaded: bool = not fleeing and evades(target, hit.source, live_rows, context, tick, hit.ability, Fort.rows(world))
+	var evaded: bool = evades(target, hit.source, live_rows, context, tick, hit.ability, Fort.rows(world))
 	if not evaded and not fleeing and hit.ability in ["Muno", "Ambush"]: events.append_array(intercept(target, hit.source, live_rows, context, tick, Fort.rows(world)))
 	var amount: int = 0 if blocked or evaded else int(hit.amount)
 	var absorbed: int = 0 if hit.bypass else mini(int(target.attributes.armor), amount)

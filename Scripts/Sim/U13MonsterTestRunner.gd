@@ -124,7 +124,7 @@ func penitent_block_checks() -> void:
 			var result: Dictionary = Marching.Ranged.volley(w.duplicate(true), buffer, context(w, seed_value), {}, 0, {}, Callable(Game.Content.new(), "react"))
 			var after: Dictionary = buffer.get_entity(target.id).attributes
 			check(facts(result, "MARCHER_RANGED_ATTACK")[0].blocked == wanted and after.hp == target.attributes.hp and after.armor == (3 if wanted else 2), "Penitent owner %d %s preserves HP and only blocked shots preserve Armor" % [pid, "block" if wanted else "failed block"])
-			check(after.movement_ready_round == 2 and buffer.get_entity(shooter.id).attributes.ranged_next_tick == 432, "blocked or absorbed hit wakes a recruit and spends the shooter's attack")
+			check(after.movement_ready_round == 2 and buffer.get_entity(shooter.id).attributes.ranged_next_tick == 450, "blocked or absorbed hit wakes a recruit and spends the shooter's attack")
 			var played: Dictionary = phase("penitent_%d_block_%s" % [pid, str(wanted)], w, seed_value)
 			var playback = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
 			check(playback.build(played.events.map(func(r): return r.event)) and playback.sample(0.22).monster_attacks.any(func(a): return a.ability == "RangedBlock") == wanted, "shield glint appears only for an actual block")

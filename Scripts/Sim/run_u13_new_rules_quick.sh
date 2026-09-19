@@ -80,6 +80,12 @@ run_logged monsters-python "$u13_quick_python" -m u13_pysim.verify_monsters "$u1
 run_logged support-hunt "$u13_quick_godot" --headless --path "$u13_quick_root" \
   --script res://Scripts/Sim/U13SupportHuntTestRunner.gd -- "$u13_quick_reports/support-hunt.jsonl"
 run_logged support-hunt-python "$u13_quick_python" -m u13_pysim.verify_monsters "$u13_quick_reports/support-hunt.jsonl"
+run_logged lane-balance "$u13_quick_godot" --headless --path "$u13_quick_root" \
+  --script res://Scripts/Sim/U13LaneBalanceTestRunner.gd -- "$u13_quick_reports/lane-balance.jsonl"
+run_logged lane-balance-python "$u13_quick_python" -m u13_pysim.verify_monsters "$u13_quick_reports/lane-balance.jsonl"
+run_logged cadence "$u13_quick_godot" --headless --path "$u13_quick_root" \
+  --script res://Scripts/Sim/U13CadenceTestRunner.gd -- "$u13_quick_reports/cadence.jsonl"
+run_logged cadence-python "$u13_quick_python" -m u13_pysim.verify_monsters "$u13_quick_reports/cadence.jsonl"
 run_logged resurrection "$u13_quick_godot" --headless --path "$u13_quick_root" \
   --script res://Scripts/Sim/U13MonsterResurrectionTestRunner.gd -- "$u13_quick_reports/resurrections.jsonl"
 run_logged resurrection-python "$u13_quick_python" -m u13_pysim.verify_monsters \

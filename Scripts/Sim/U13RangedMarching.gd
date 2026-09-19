@@ -6,12 +6,12 @@ const Rout = preload("res://Scripts/Sim/U13Rout.gd")
 const Defense = preload("res://Scripts/Sim/U13PenitentDefense.gd")
 const MonsterEffects = preload("res://Scripts/Sim/U13MonsterEffects.gd")
 const Fort = preload("res://Scripts/Sim/U13FieldFortifications.gd")
-const VERSION: String = "U13_VULTURE_RANGED_V9_WRIGHT_REPAIR"
+const VERSION: String = "U13_VULTURE_RANGED_V10_LANE_BALANCE"
 const ATTACK: int = 1
 const RANGE_FP: int = 400 # Two units at 200 fixed-point units per unit.
 const CONTACT_FP: int = Fort.CONTACT
-const EXCHANGE_TICKS: int = 8
-const RANGED_INTERVAL_TICKS: int = 32
+const EXCHANGE_TICKS: int = 34
+const RANGED_INTERVAL_TICKS: int = 50 # Four shots per 200-tick round.
 
 
 static func enabled(world: Dictionary) -> bool:

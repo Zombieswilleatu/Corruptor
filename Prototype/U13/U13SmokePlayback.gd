@@ -282,7 +282,7 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 		var d: Dictionary = event.data
 		if d.get("evaded", false) and event.type in ["MARCHER_MELEE_ATTACK", "MARCHER_RANGED_ATTACK", "MONSTER_ATTACK"]:
 			var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
-			_monster_attacks.append({"start": at, "end": at + 0.20, "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "ability": "HuntDodge"})
+			_monster_attacks.append({"start": at, "end": at + 0.20, "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "ability": "ArmorDeflect" if d.target.attributes.get("monster_id") == "Kurchin" else "HuntDodge"})
 		if d.get("blocked", false) and event.type in ["MARCHER_RANGED_ATTACK", "MONSTER_ATTACK"]:
 			var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
 			_monster_attacks.append({"start": at, "end": at + 0.20, "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "ability": "RangedBlock"})

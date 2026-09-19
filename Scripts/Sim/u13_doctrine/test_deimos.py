@@ -143,8 +143,11 @@ class DeimosTests(unittest.TestCase):
                 self.assertFalse(choice['artillery']['hard_veto'])
                 self.assertNotEqual(case['original_target'], choice['plan']['order']['target_id'])
                 original = case['original_plans'][seat]['order']
-                for field in ('card_ids', 'monster_choice'):
-                    self.assertEqual(original.get(field), choice['plan']['order'].get(field))
+                self.assertEqual(original['card_ids'], choice['plan']['order']['card_ids'])
+                # Balance changes can alter which recipe the policy selects.
+                # The replay separately pins that choice and the preserved cards.
+                expected_monster = case.get('expected_monster_choice', original.get('monster_choice'))
+                self.assertEqual(expected_monster, choice['plan']['order'].get('monster_choice'))
                 view['board'].reverse(); view['hand'].reverse()
                 self.assertEqual(choice, CommonSmartCore().decide(view, Preview(game, seat)))
                 self.assertEqual(before, game.snapshot())

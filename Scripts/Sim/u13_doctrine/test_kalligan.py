@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import unittest
 
-from u13_pysim import full_match_inputs, recruitment
+from u13_pysim import full_match_inputs, recruitment, power_components
 from u13_pysim.power_match import PowerMatch
 from u13_pysim.power_rules import declaration
 from u13_pysim.primitives import instance_id
@@ -130,9 +130,24 @@ class KalliganTests(unittest.TestCase):
         self.assertFalse(any(e['type']=='HAZARD_PULSED' for e in new_events))
         self.assertEqual('Kopita',choice['plan']['order']['monster_choice'])
 
-    def test_natural_useful_pulse_survives_with_less_friendly_exposure(self):
+    def test_natural_rebalanced_survivors_change_the_pulse_choice(self):
         case, game = load_case(1); view = observe(game,0)
         self.assertEqual(case['view_sha256'],fingerprint(view))
+        self.assertEqual((14,19), tuple(len(Facts(view).units(pid,'Castle')) for pid in (0,1)))
+        choice = CommonSmartCore().decide(view,Preview(game,0))
+        self.assertNotIn('Pyroclasm',[s['power_id'] for s in choice['plan']['powers']])
+        plans = copy.deepcopy(case['original_plans']); plans[0] = choice['plan']
+        _, _, events = through_direct(game,plans)
+        self.assertFalse(any(e['type']=='HAZARD_PULSED' for e in events))
+
+    def test_useful_pulse_survives_with_less_friendly_exposure(self):
+        # Explicit counterfactual to the natural replay: move friendly ground
+        # troops out of Castle lane. This preserves a positive-pulse regression
+        # after slower combat changes which bodies survive the original prefix.
+        case, game = load_case(1)
+        power_components.prepare(game, [dict(kind='fixture_patch',entity_id=row['id'],attributes=dict(lane='Lord'))
+            for row in Facts(observe(game,0)).units(0,'Castle')])
+        view = observe(game,0)
         choice = CommonSmartCore().decide(view,Preview(game,0))
         self.assertIn('Pyroclasm',[s['power_id'] for s in choice['plan']['powers']])
         exposures = []
@@ -142,7 +157,7 @@ class KalliganTests(unittest.TestCase):
             pulse = next(e['data'] for e in events if e['type']=='HAZARD_PULSED')
             owners = {r['id']:r['owner'] for r in world['entities']['entities']}
             exposures.append(tuple(sum(owners[k]==seat for k in pulse['affected_ids']) for seat in (0,1)))
-        self.assertEqual([(24,28),(14,28)],exposures)
+        self.assertEqual([(10,28),(3,28)],exposures)
 
     def test_natural_choice_is_legal_deterministic_and_within_existing_caps(self):
         _, game = load_case(); view = observe(game,0); before = game.snapshot()

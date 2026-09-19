@@ -1,97 +1,105 @@
 """Monster recipes and explicit playtest tuning; independent Python rules."""
 from . import economy as e
 from .copying import copy_data
-VERSION = "U13_MONSTERS_V9_CLUSTER_PURSUIT"
+VERSION = "U13_MONSTERS_V10_ARMORED_TAUNT"
 ROSTER = {'Lemek': {'tier': 'Easy',
            'recipe': {'Penitent': 2},
-           'attack': 3,
+           'attack': 4,
            'armor': 4,
            'speed': 2,
-           'hp': 5,
-           'ability': 'On death, leaves a slowing pool through the following round. Ground units inside '
-                      'move at half speed. All Lemeks are immune, regardless of side.'},
+           'hp': 10,
+           'ability': 'On death, leaves a slowing pool through the following round. Ground units '
+                      'inside move at half speed. All Lemeks are immune, regardless of side.'},
  'Varn': {'tier': 'Easy',
           'recipe': {'Vulture': 2},
           'attack': 1,
           'armor': 0,
           'speed': 2,
-          'hp': 2,
-          'ability': 'Summons 3–5 bodies. Each damaging hit has a 10% chance to poison: 1 HP at the '
-                     'start of each of the next two Marching phases. Refreshes; does not stack.'},
+          'hp': 4,
+          'ability': 'Summons 3–5 bodies. Each damaging hit has a 10% chance to poison: 1 HP at '
+                     'the start of each of the next two Marching phases. Refreshes; does not '
+                     'stack.'},
  'Fyra': {'tier': 'Moderate',
           'recipe': {'Butcher': 2, 'Vulture': 2},
           'attack': 2,
           'armor': 1,
           'speed': 4,
-          'hp': 5,
-          'ability': 'Flies over ground hazards. Each hit has a 15% chance to charm its target for the '
-                     'rest of this round. Ownership returns before the next round.'},
+          'hp': 10,
+          'ability': 'Flies over ground hazards. Each hit has a 15% chance to charm its target for '
+                     'the rest of this round. Ownership returns before the next round.'},
  'Kopita': {'tier': 'Moderate',
             'recipe': {'Wright': 2, 'Penitent': 2},
             'attack': 2,
             'armor': 1,
             'speed': 2,
-            'hp': 5,
-            'ability': 'Pulses at the start of each active round, alternating green healing (allies '
-                       'recover 1 HP) and violet harm (enemies take 1 damage). Starts with healing; '
-                       'radius 360. Slows near allied front-line fighters to stay behind them.'},
+            'hp': 10,
+            'ability': 'Pulses at the start of each active round, alternating green healing '
+                       '(allies recover 1 HP) and violet harm (enemies take 1 damage). Starts with '
+                       'healing; radius 360. Slows near allied front-line fighters to stay behind '
+                       'them.'},
  'Tumler': {'tier': 'Moderate',
             'recipe': {'Vulture': 2, 'Wright': 2},
             'attack': 2,
             'armor': 1,
             'speed': 3,
-            'hp': 5,
+            'hp': 10,
             'ability': 'Pursues a chosen enemy, preferring ordinary Vultures and support monsters. '
-                       'Pursues through enemy clusters while avoiding slowing pools. Has 50% evasion while closing on a '
-                       'target, ending at melee contact. A landed melee hit switches his hunt to the '
-                       'attacker, even if Armor absorbs it; ranged hits do not.'},
+                       'Pursues through enemy clusters while avoiding slowing pools. Always has '
+                       '50% evasion against direct attacks, including at melee contact and during '
+                       'fear. Poison cannot be dodged. While hunting, a landed melee hit switches '
+                       'his target to the attacker, even if Armor absorbs it; ranged hits do not.'},
  'Kurchin': {'tier': 'Hard',
              'recipe': {'Penitent': 3, 'Wright': 1},
              'attack': 1,
              'armor': 6,
              'speed': 1,
-             'hp': 5,
-             'ability': 'Taunts enemies within 360, drawing their movement and ranged attacks when '
-                        'reachable.'},
+             'hp': 15,
+             'ability': 'Taunts enemies within 360, pulling them off engaged targets to approach '
+                        'and attack him. Walls still block approach. While Armor remains, deflects '
+                        '75% of direct attacks without losing Armor or HP. Landed hits deal normal '
+                        'damage; deflection ends when Armor is depleted. Poison cannot be '
+                        'deflected.'},
  'Muno': {'tier': 'Hard',
           'recipe': {'Wright': 3, 'Vulture': 1},
           'attack': 3,
           'armor': 1,
           'speed': 2,
-          'hp': 5,
-          'ability': 'Once per active round, dashes to an enemy within 480 for one free melee strike, '
-                     'then dashes back with a fading afterimage before moving normally.'},
+          'hp': 10,
+          'ability': 'Once per active round, dashes to an enemy within 480 for one free melee '
+                     'strike, then dashes back with a fading afterimage before moving normally.'},
  'Dotra': {'tier': 'Hard',
            'recipe': {'Butcher': 3, 'Vulture': 1},
            'attack': 2,
            'armor': 2,
            'speed': 2,
-           'hp': 5,
-           'ability': '25% chance to hide each active round. Stalks enemies at half speed while hidden '
-                      'and stays hidden until delivering a 5-damage ambush against an enemy within 240. '
-                      'No timed reveal. Hidden units cannot be selected for ordinary attacks.'},
+           'hp': 10,
+           'ability': '25% chance to hide each active round. Stalks enemies at half speed while '
+                      'hidden and stays hidden until delivering a 5-damage ambush against an enemy '
+                      'within 240. No timed reveal. Hidden units cannot be selected for ordinary '
+                      'attacks.'},
  'Sooge': {'tier': 'Very hard',
            'recipe': {'Butcher': 3, 'Wright': 2},
            'attack': 1,
            'armor': 2,
            'speed': 2,
            'hp': 5,
-           'ability': 'Stays behind nearby allied front-line fighters while mobile. Root chance starts '
-                      'at 25%, rising by 15 percentage points each active round it stays mobile, up to '
-                      '100%. Permanently becomes a turret: 3 Attack / 6 Armor / 0 Speed. Charges before '
-                      'firing once per round at the nearest enemy. The blue-white beam traces the '
-                      'ground to range 1800, then detonates shortly afterward: 3 damage to enemies and '
-                      '1 to allies in its path. One living copy per player.'},
+           'ability': 'Stays behind nearby allied front-line fighters while mobile. Root chance '
+                      'starts at 25%, rising by 15 percentage points each active round it stays '
+                      'mobile, up to 100%. Permanently becomes a turret: 3 Attack / 6 Armor / 0 '
+                      'Speed. Charges before firing once per round at the nearest enemy. The '
+                      'blue-white beam traces the ground to range 1800, then detonates shortly '
+                      'afterward: 3 damage to enemies and 1 to allies in its path. One living copy '
+                      'per player.'},
  'Sinodek': {'tier': 'Very hard',
              'recipe': {'Wright': 3, 'Vulture': 2},
              'attack': 1,
              'armor': 3,
              'speed': 1,
              'hp': 5,
-             'ability': 'Stays behind nearby allied front-line fighters. 25% chance each active round '
-                        'to open a portal ahead for that Marching phase. Nearby units flee; entering '
-                        'units are banished, without death triggers or resurrection. One living copy '
-                        'per player.'}}
+             'ability': 'Stays behind nearby allied front-line fighters. 25% chance each active '
+                        'round to open a portal ahead for that Marching phase. Nearby units flee; '
+                        'entering units are banished, without death triggers or resurrection. One '
+                        'living copy per player.'}}
 NAMES = tuple(ROSTER)
 
 def configure(w):
@@ -141,7 +149,8 @@ def validate_choice(w,pid,order):
     if 'monster_choice' in order:
         e.require(enabled(w) and order['monster_choice'] in available(w['entities']['entities'],order.get('card_ids',[]),pid,w['data']['monsters']['unlocked'][pid]),'monster_recipe_unavailable')
 
-TUNING = {'tumler_evasion_chance': 50, 'varn_poison_chance': 10,
+TUNING = {'tumler_evasion_chance': 50,
+ 'kurchin_deflection_chance': 75, 'varn_poison_chance': 10,
  'fyra_charm_chance': 15,
  'kopita_radius': 360,
  'taunt_radius': 360,

@@ -52,10 +52,13 @@ def hunting(unit, rows, number, structures=()):
 
 
 def evades(unit, source, rows, c, tick, kind, structures=(), fleeing=()):
-    if kind == 'Poison' or unit['id'] in fleeing or not hunting(unit, rows, c['round'], structures):
+    if kind == 'Poison':
         return False
+    a = unit['attributes']
     key = f"{c['round']}:{tick}:{kind}:{source['id']}:{unit['id']}"
-    return draw(c['seed'], key, 'TUMLER_HUNT_EVASION', 0, 100) < T['tumler_evasion_chance']
+    if a.get('monster_id') == 'Kurchin':
+        return a['armor'] > 0 and draw(c['seed'], key, 'KURCHIN_ARMORED_DEFLECTION', 0, 100) < T['kurchin_deflection_chance']
+    return a.get('monster_id') == 'Tumler' and draw(c['seed'], key, 'TUMLER_HUNT_EVASION', 0, 100) < T['tumler_evasion_chance']
 
 
 def intercept(unit, source, rows, c, tick, structures=()):
@@ -260,7 +263,7 @@ def damage(w,buffer,hit,c,tick,reaction):
     blocked=hit['ability']=='Beam' and penitent_defense.blocks(target,hit['source']['id'],c['seed'],c['round'],tick,'Beam')
     live_rows=buffer.rows() if a.get('monster_id')=='Tumler' else []
     fleeing=hunt_fleeing(target,w)
-    evaded=not fleeing and evades(target,hit['source'],live_rows,c,tick,hit['ability'],fort.rows(w))
+    evaded=evades(target,hit['source'],live_rows,c,tick,hit['ability'],fort.rows(w))
     if not evaded and not fleeing and hit['ability'] in ('Muno','Ambush'):
         events.extend(intercept(target,hit['source'],live_rows,c,tick,fort.rows(w)))
     amount=0 if blocked or evaded else hit['amount'];absorbed=0 if hit['bypass'] else min(a['armor'],amount);dealt=amount-absorbed

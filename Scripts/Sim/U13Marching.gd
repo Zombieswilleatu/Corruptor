@@ -731,10 +731,13 @@ static func _move(
 			if target.is_empty(): target = FieldMelee.nearest(unit, targets)
 			if unit.attributes.get("monster_id") == "Dotra" and unit.attributes.get("hidden", false):
 				target = MonsterEffects.nearest(unit, rows)
-			if unit.attributes.get("monster_id") == "Tumler":
+			var taunted: bool = false
+			if has_taunt or unit.attributes.get("monster_id") == "Tumler":
 				var hunted: Dictionary = MonsterEffects.preferred(unit, rows)
-				if not hunted.is_empty(): target = hunted
-			neighbors[unit.id] = {"unit": target, "distance": 9223372036854775807 if target.is_empty() else Fort.gap(unit, target)}
+				if not hunted.is_empty():
+					target = hunted
+					taunted = hunted.attributes.get("monster_id") == "Kurchin"
+			neighbors[unit.id] = {"unit": target, "taunted": taunted, "distance": 9223372036854775807 if target.is_empty() else Fort.gap(unit, target)}
 	var accepted: Array = []
 	var accepted_by_id: Dictionary = {}
 	for row in ([] if modern else rows):
@@ -750,6 +753,7 @@ static func _move(
 			continue
 		var a: Dictionary = unit.attributes
 		var nearby: Dictionary = neighbors[unit.id]
+		var taunted: bool = nearby.get("taunted", false)
 		var allies: Dictionary = {} if modern else accepted_grids[a.lane][unit.owner]
 		var previous_ticket: int = int(a.contact_tick)
 		var retreat: bool = has_rout and Rout.retreating(a, int(context.round))
@@ -792,7 +796,7 @@ static func _move(
 			if previous_ticket != -1:
 				entities.update(unit.id, unit.owner, a)
 			continue
-		if modern and not retreat:
+		if modern and not retreat and not taunted:
 			step = SupportPacing.speed(unit, rows, step, clock, context.round, fleeing_ids)
 		var nearest: Dictionary = nearby.unit
 		var preferred: Dictionary = MonsterEffects.preferred(unit, rows) if has_taunt or a.get("monster_id") == "Tumler" else {}
@@ -801,7 +805,7 @@ static func _move(
 		var dx: int = int(a.direction) * step * (-1 if retreat else 1)
 		var dy: int = 0
 		var destination: Dictionary = (Fort.point(a, nearest) if modern else nearest.attributes) if not nearest.is_empty() else {}
-		if not a.has("monster_id") and not retreat and not context.get("wishmaster_lamps", []).is_empty():
+		if not a.has("monster_id") and not retreat and not taunted and not context.get("wishmaster_lamps", []).is_empty():
 			var lamp: Dictionary = Wishmaster.nearby_lamp(a, context.wishmaster_lamps)
 			if not lamp.is_empty():
 				destination = lamp.target.field_position
@@ -810,7 +814,7 @@ static func _move(
 			destination = MonsterEffects.steer(unit, destination, rows, context.get("monster_fields", []))
 			if not destination.is_empty(): best = _distance(a, destination)
 		if modern and not retreat:
-			var build_goal: Dictionary = Fort.goal(unit, structures, clock, nearest)
+			var build_goal: Dictionary = {} if taunted else Fort.goal(unit, structures, clock, nearest)
 			if not build_goal.is_empty():
 				destination = build_goal
 				best = _distance(a, destination)

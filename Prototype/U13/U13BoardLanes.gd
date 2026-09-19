@@ -613,7 +613,7 @@ func _draw_monster_attacks() -> void:
 			for i in range(3):
 				var offset := Vector2(-12.0 - i * 3.0, -5.0 + i * 5.0)
 				draw_line(b + offset, b + offset + Vector2(8.0, -3.0), Color(0.65, 0.88, 1.0, fade), 2.0, true)
-		elif attack.ability == "RangedBlock":
+		elif attack.ability in ["RangedBlock", "ArmorDeflect"]:
 			# A brief shield glint works for both chits and sprites, without labels.
 			var fade: float = 1.0 - float(attack.get("weight", 0.0))
 			var shield := PackedVector2Array([b + Vector2(-9, -8), b + Vector2(0, -11), b + Vector2(9, -8), b + Vector2(7, 3), b + Vector2(0, 10), b + Vector2(-7, 3), b + Vector2(-9, -8)])

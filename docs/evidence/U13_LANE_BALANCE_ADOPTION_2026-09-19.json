@@ -1,0 +1,308 @@
+{
+  "schema": "U13_LANE_BALANCE_ADOPTION_V1",
+  "date": "2026-09-19",
+  "parent_revision": "89a8c8cba83d88676f4aa8e6da034a82a2e170fe",
+  "implementation_revision": "5dec395d701902b68c22bda109ccc30399848ab2",
+  "engine_source_sha256": "9748bdbbc1b497af58159b985abe7e25a08b086eb9821a91a2ae41894eeec799",
+  "native_runtime": "4.5.1.stable.official.f62fdbde1 Linux diagnostic",
+  "python_runtime": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "windows_472_acceptance": false,
+  "checks": {
+    "cadence": {
+      "passed": true,
+      "checks": 49,
+      "summary": "U13 cadence failures: 0",
+      "log_sha256": "33a20e6737751e8d06a51dfc03aeaa6f61c881c78f1846ff18033dc2ffeb6de3",
+      "native_python_parity": {
+        "phases": 12,
+        "events": 2520,
+        "ticks": 2400,
+        "event_types": {
+          "MARCHER_MELEE_ATTACK": 48,
+          "MARCHER_RANGED_ATTACK": 48,
+          "MARCHING_FINISHED": 12,
+          "MARCHING_STARTED": 12,
+          "MARCHING_TICK": 2400
+        }
+      },
+      "phase_tape_sha256": "6b5a600304e04913172fe766c73ce4e5b782f5e922ff52ff97f6110308be59da"
+    },
+    "balance": {
+      "passed": true,
+      "checks": 177,
+      "summary": "U13 lane balance failures: 0",
+      "log_sha256": "74c3c60811590aa13853ae2da095e6caad6d47e3222ff5e6a08665968daff76e",
+      "native_python_parity": {
+        "phases": 26,
+        "events": 5580,
+        "ticks": 5200,
+        "event_types": {
+          "MARCHER_MELEE_ATTACK": 312,
+          "MARCHER_RANGED_ATTACK": 16,
+          "MARCHING_FINISHED": 26,
+          "MARCHING_STARTED": 26,
+          "MARCHING_TICK": 5200
+        }
+      },
+      "phase_tape_sha256": "1de9f54cb9c12f34d3f3a849fcd9ea9e53b58b88b773ff97355a29dac30b4888"
+    },
+    "support": {
+      "passed": true,
+      "checks": 234,
+      "summary": "U13 Support/Hunt failures: 0",
+      "log_sha256": "a0bb8ccfc95a0a083b97d2524056d54e7d0d3c9647b936589a4c16bec235e808",
+      "native_python_parity": {
+        "phases": 32,
+        "events": 6608,
+        "ticks": 6400,
+        "event_types": {
+          "MARCHER_MELEE_ATTACK": 108,
+          "MARCHER_RANGED_ATTACK": 20,
+          "MARCHING_FINISHED": 32,
+          "MARCHING_STARTED": 32,
+          "MARCHING_TICK": 6400,
+          "MONSTER_HUNT_RETARGETED": 2,
+          "MONSTER_PULSE": 14
+        }
+      },
+      "phase_tape_sha256": "0d5f79de9847a6ea9038c7d1ad5aed625a196e67ec9449d409062da701d355ea"
+    },
+    "field": {
+      "passed": true,
+      "checks": 182,
+      "summary": "U13 field combat failures: 0",
+      "log_sha256": "a610cb429910201e10978c03fa955135acfceaf2d191e0ba1af2bdc80fbd3d89",
+      "native_python_parity": {
+        "phases": 38,
+        "events": 7866,
+        "ticks": 7600,
+        "event_types": {
+          "MARCHER_DEFEATED": 5,
+          "MARCHER_MELEE_ATTACK": 116,
+          "MARCHER_RANGED_ATTACK": 36,
+          "MARCHING_FINISHED": 38,
+          "MARCHING_STARTED": 38,
+          "MARCHING_TICK": 7600,
+          "MONSTER_ATTACK": 1,
+          "MONSTER_BEAM_DETONATED": 1,
+          "MONSTER_BEAM_FIRED": 1,
+          "WRIGHT_BUILD_ASSIGNED": 13,
+          "WRIGHT_STRUCTURE_BUILT": 13,
+          "WRIGHT_STRUCTURE_DESTROYED": 4
+        }
+      },
+      "phase_tape_sha256": "90d8105eda21624b368199958d694588645c501693a68a90cc8c33a007e5ff20"
+    },
+    "monsters": {
+      "passed": true,
+      "checks": 595,
+      "summary": "U13 monster checks failures: 0",
+      "log_sha256": "aaa1a797c24c2eaadab61cb5d5b9de19ea166432222eefddaad45ea345b95c95",
+      "native_python_parity": {
+        "phases": 74,
+        "events": 15441,
+        "ticks": 14800,
+        "event_types": {
+          "KRONI_ACTORS_STARTED": 1,
+          "KRONI_ACTOR_FINISHED": 1,
+          "KRONI_ACTOR_TICK": 200,
+          "KRONI_FLEE_STARTED": 1,
+          "MARCHER_DEFEATED": 5,
+          "MARCHER_DEVOURED": 1,
+          "MARCHER_MELEE_ATTACK": 133,
+          "MARCHER_RANGED_ATTACK": 47,
+          "MARCHER_WAITING": 5,
+          "MARCHING_FINISHED": 74,
+          "MARCHING_STARTED": 74,
+          "MARCHING_TICK": 14800,
+          "MONSTER_ATTACK": 31,
+          "MONSTER_BANISHED": 1,
+          "MONSTER_BEAM_DETONATED": 9,
+          "MONSTER_BEAM_FIRED": 8,
+          "MONSTER_CHARMED": 3,
+          "MONSTER_CONCEALMENT": 24,
+          "MONSTER_FIELD_CREATED": 3,
+          "MONSTER_PULSE": 6,
+          "MONSTER_ROOTED": 1,
+          "NEUTRAL_TEAR_CREATED": 1,
+          "PICKING_THE_BONES": 1,
+          "WRIGHT_BUILD_ASSIGNED": 11
+        }
+      },
+      "phase_tape_sha256": "d359af0ae22cfe113f4d4d7e55f3a6ee9f87102940c3e76998a8dc704e692e39"
+    },
+    "wright": {
+      "passed": true,
+      "checks": 176,
+      "summary": "U13 Wright repair failures: 0",
+      "log_sha256": "7cc9fbe857365a528669cf2c1fe73ce38865a7fd6aea979802d0a6e5ca285d40",
+      "native_python_parity": {
+        "phases": 24,
+        "events": 4860,
+        "ticks": 4800,
+        "event_types": {
+          "MARCHING_FINISHED": 24,
+          "MARCHING_STARTED": 24,
+          "MARCHING_TICK": 4800,
+          "WRIGHT_STRUCTURE_REPAIRED": 12
+        }
+      },
+      "phase_tape_sha256": "153b85f27d8c54bd8e3542f39bc2c762fd25e1ab883c74941e316652bcfb5ee1"
+    },
+    "sandbox": {
+      "passed": true,
+      "checks": 245,
+      "summary": "U13 lane sandbox: 245 checks, 0 failures",
+      "log_sha256": "1b85e23dff22c944bc074abf541ce5c41c65f85806d6e5ada12bc5fea74b0fdf"
+    },
+    "ranged": {
+      "passed": true,
+      "checks": 30,
+      "summary": "U13 Vulture ranged failures: 0",
+      "log_sha256": "4141a5b37928a7a50ea232258978c807ab07fe7765462b5822a8262fe51ad71d"
+    },
+    "python_unit": {
+      "passed": true,
+      "tests": 33,
+      "log_sha256": "ad99441f892f1664a362d4ee30ab75d476ebda75e67981d99a9fdac83d7db1ef"
+    },
+    "doctrine": {
+      "passed": true,
+      "tests": 66,
+      "modules": [
+        "test_defensive_plans",
+        "test_deimos",
+        "test_kalligan",
+        "test_common",
+        "test_diagnostics"
+      ],
+      "log_sha256": "73aff53449d9cf573e9b10134310acc28ae8d5506f92cd9053f97b01531291e5"
+    }
+  },
+  "total_parity_phases": 206,
+  "total_parity_ticks": 41200,
+  "tuning": {
+    "melee_interval": 34,
+    "ranged_interval": 50,
+    "kurchin": {
+      "hp": 15,
+      "armor": 6,
+      "attack": 1,
+      "deflection_percent": 75,
+      "armor_required": true,
+      "taunt_radius": 360,
+      "pulls_engaged": true
+    },
+    "tumler": {
+      "hp": 10,
+      "armor": 1,
+      "attack": 2,
+      "evasion_percent": 50,
+      "always": true
+    },
+    "lemek": {
+      "hp": 10,
+      "armor": 4,
+      "attack": 4
+    },
+    "other_hp": {
+      "Fyra": 10,
+      "Kopita": 10,
+      "Muno": 10,
+      "Dotra": 10,
+      "Varn": 4,
+      "Sooge": 5,
+      "Sinodek": 5
+    },
+    "penitent_follower_gap": 90
+  },
+  "replay_changes": [
+    {
+      "file": "early_defense_cases.json",
+      "name": "kroni_odradek_00",
+      "before_sha256": "609477e3283c1ede5805c21b4a28ea2773204dde03dfee13fe429c7a179b166a",
+      "after_sha256": "3221b64c682932f6a75bac4601c85416208dfbc1820b170eec0260d93eb691dd",
+      "difference_count": 4,
+      "changed_sections": {
+        "board": 3,
+        "data": 1
+      }
+    },
+    {
+      "file": "early_defense_cases.json",
+      "name": "kroni_valak_00",
+      "before_sha256": "be212a858b6761c1130decc20f13d9dd94cda7610809adae36b44215b6d5946b",
+      "after_sha256": "d95d84b74c3e8bfd7faf40aeeb6e40390206d4aa4b7cb9ddebd1868d3d78b1a0",
+      "difference_count": 6,
+      "changed_sections": {
+        "board": 5,
+        "data": 1
+      }
+    },
+    {
+      "file": "deimos_artillery_cases.json",
+      "name": "deimos_humbaba_00",
+      "before_sha256": "ba518164629e790e92d35c6e37aa722819f3ed7e7bd11d5194248d8093aa470a",
+      "after_sha256": "7d271e25bccb9d2cc67e41e91405d1d0550eec7ce13a78296a2767acc1c43568",
+      "difference_count": 11,
+      "changed_sections": {
+        "board": 1,
+        "data": 10
+      }
+    },
+    {
+      "file": "deimos_artillery_cases.json",
+      "name": "deimos_deimos_00",
+      "before_sha256": "44005bd525f5682e3617103d564f5dacb52c8ae67fe9d41fa8a5442199978dfe",
+      "after_sha256": "d2220b813367bd2c8722d742219f49905b9f6df84ca1140286f10a6def3d4a33",
+      "difference_count": 2,
+      "changed_sections": {
+        "board": 1,
+        "data": 1
+      }
+    },
+    {
+      "file": "kalligan_pulse_cases.json",
+      "name": "kalligan_gremory_00_round3",
+      "before_sha256": "0c1d2ed7d08412b1752ee55569e1d0f27beede72d111ec3ff3461653b4acb0af",
+      "after_sha256": "bb118d576be219aa6005468300af583487e1d5d5c92f22a99d5e01a4fad5f303",
+      "difference_count": 10,
+      "changed_sections": {
+        "board": 9,
+        "data": 1
+      }
+    },
+    {
+      "file": "kalligan_pulse_cases.json",
+      "name": "kalligan_deimos_00_round3",
+      "before_sha256": "55c5efe404b3f9677010c591d582f4ad6102ffefd78a0704497a0a6a095eac9c",
+      "after_sha256": "740a158d9d8658624b7f44197df38b9f9daec81e3e407c77023b49aeae4936fd",
+      "difference_count": 27,
+      "changed_sections": {
+        "board": 26,
+        "data": 1
+      }
+    }
+  ],
+  "replay_archive_sha256": "0b2ec29e3219e535a529422bf9c273f894fda818c89ac4f99c4cb2e015f23e41",
+  "limits": "Directed combat and simulator regressions; prior pooled balance results do not measure this combined package or the stronger taunt. No new full-game balance or Windows acceptance claim.",
+  "reviewed_tactical_changes": {
+    "deimos_mirror_monster": "Varn (previously Fyra), same combat cards and successful artillery retarget",
+    "kalligan_deimos": {
+      "public_castle_bodies": [
+        14,
+        19
+      ],
+      "selected_pulse": false,
+      "controlled_positive_pulse": true,
+      "controlled_original_pulse_exposure": [
+        10,
+        28
+      ],
+      "controlled_selected_pulse_exposure": [
+        3,
+        28
+      ]
+    }
+  }
+}

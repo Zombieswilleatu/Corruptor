@@ -90,19 +90,41 @@ Supports do not slow one another, and they return to normal speed when no
 eligible ally is nearby. Retreating, fleeing, waiting and undeployed allies do
 not serve as screens. This changes local movement, never the saved Speed stat.
 
-Tumler keeps pursuing his chosen enemy instead of stopping to fight every
-bystander. He now commits through enemy clusters instead of circling nearby
-enemy bodies, while retaining slowing-pool detours. While moving toward a live target he has **50% evasion per incoming
-attack**, preventing both HP and Armor loss. Reaching his target's melee
-footprint ends evasion; a blocking wall, deployment hold or retreat also stops
-it. A landed melee hit immediately redirects his hunt to that attacker, even
-when Armor absorbs all damage. Ranged hits leave his target unchanged. Muno's
-dash and Dotra's ambush count as melee; beams and Kopita pulses do not redirect
-him. Existing poison is ongoing damage and cannot be dodged. Missed attacks
-spend their normal cooldown and cannot apply on-hit poison or charm. Three
-brief pale streaks mark a dodge in the shared board/sandbox playback.
-At an exact detour point along the lane edge, Tumler resumes toward his target;
-he no longer takes a leftward minimum step regardless of which side he is on.
+September 19 playtest balance uses **up to six ordinary melee attacks and
+four ranged attacks per 200-tick round** (34/50-tick cooldowns, carried across
+rounds). Vultures and towers share the ranged rate. Monster powers keep their
+existing timing; Butchers retain 3 damage per hit.
+
+Nearby advancing Butchers and released Wrights let a Penitent lead by 90 units,
+then close at normal speed once it engages. Building, initial guarding, and
+extended repair duty remain independent of that approach formation. Existing
+support pacing for Vultures, Kopita, Sooge and Sinodek remains active.
+
+Lemek, Fyra, Kopita, Tumler, Muno and Dotra now have **10 HP**. Each Varn body has
+**4 HP**. Lemek has **4 Attack / 4 Armor**. Sooge and Sinodek keep their current
+HP, Armor and powers. Ordinary regeneration remains 1 HP per round.
+
+Tumler keeps pursuing his chosen enemy through clusters while avoiding slowing
+pools. His **50% evasion is always active against direct attacks**, including
+melee contact, deployment hold, retreat and fear. A landed melee hit while he
+is hunting redirects him to the attacker, even if Armor absorbs it. Ranged
+hits never redirect the hunt. Muno's dash and Dotra's ambush count as melee;
+beams and Kopita pulses do not. Poison remains undodgeable. Misses spend the
+normal attack cooldown and cannot apply on-hit poison or charm. Pale streaks
+mark a dodge in the shared board/sandbox playback.
+
+Kurchin has **15 HP / 6 Armor / 1 Attack**. While Armor is positive, he deflects
+**75% of incoming direct attacks** without spending Armor or HP. Landed attacks
+use normal Armor absorption, overflow and bypass rules. At zero Armor, the
+deflection ends immediately, even for later attacks in the same tick. Poison
+cannot be deflected. A shield glint marks successful deflections.
+
+His **360-unit taunt pulls engaged enemies off their current targets** to
+approach and attack him. Selection is rechecked every tick, so losing Kurchin
+or leaving his radius restores normal targeting. Taunt still works after his
+Armor is gone. It overrides ordinary approach pacing and Wright guard movement;
+intact hostile walls and fear/retreat still apply. It cannot reach another lane
+or target hidden units. Immobile units retain their normal movement limits.
 
 Wrights now deal **1 melee damage**, down from 2. Each builds one structure at
 an available site, defends it for at least one complete round, and repairs
@@ -120,13 +142,13 @@ must break walls in their path; allies pass through and flying monsters pass
 over them. A later Wright can replace a destroyed wall. Walls and towers retain
 damage until their assigned Wright repairs them. Repairs restore HP only,
 never Armor, and stop after the Wright leaves or its structure is destroyed.
-Towers fire every 32 ticks and respect the
+Towers fire every 50 ticks and respect the
 Penitent ranged block; Sooge's beam can damage structures. Structures do not
 count as marchers, reach gates, resurrect or award unit-death rewards.
 Foundation marks appear only after a Wright claims a site. Both the main board
 and sandbox display construction progress and completed structures.
 
-Current tuning uses `U13_VULTURE_RANGED_V9_WRIGHT_REPAIR` and `U13_MONSTERS_V9_CLUSTER_PURSUIT`.
+Current tuning uses `U13_VULTURE_RANGED_V10_LANE_BALANCE` and `U13_MONSTERS_V10_ARMORED_TAUNT`.
 Start a fresh game after updating; older rules fingerprints remain incompatible.
 
 There are no Lords, cards on the battlefield, castles, passives, Veil effects
@@ -223,3 +245,9 @@ boundaries, melee interception through Armor, ranged target retention, target
 arrival and unavailable targets, ability damage categories and dodge playback.
 Its exported phases are also checked by `u13_pysim.verify_monsters`; the focused
 `run_u13_new_rules_quick.sh` includes both stages.
+
+The September 19 adoption is covered by `U13LaneBalanceTestRunner.gd` (engaged
+taunt, range/lane boundaries, wall blocking, defense roll thresholds, mid-volley
+Armor depletion, poison and formation) and `U13CadenceTestRunner.gd` (four rounds
+of continuous melee, Vulture and tower attacks). Both export complete phases
+for `u13_pysim.verify_monsters`, including every visual tick and event.
