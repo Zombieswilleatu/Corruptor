@@ -1,0 +1,1424 @@
+{
+  "boards": 697,
+  "fixed_order_wish_ranking": {
+    "combined": {
+      "Hold": 74,
+      "WishDeath": 504,
+      "WishLongevity": 7,
+      "WishPower": 3,
+      "WishResurrection": 65,
+      "WishWealth": 44,
+      "positive_wealth": 160
+    },
+    "power": {
+      "Hold": 79,
+      "WishDeath": 264,
+      "WishLongevity": 7,
+      "WishPower": 31,
+      "WishResurrection": 316,
+      "positive_wealth": 17
+    },
+    "resurrection": {
+      "Hold": 102,
+      "WishDeath": 507,
+      "WishLongevity": 7,
+      "WishResurrection": 66,
+      "WishWealth": 15,
+      "positive_wealth": 17
+    },
+    "v20": {
+      "Hold": 92,
+      "WishDeath": 267,
+      "WishLongevity": 7,
+      "WishResurrection": 316,
+      "WishWealth": 15,
+      "positive_wealth": 17
+    },
+    "wealth": {
+      "Hold": 64,
+      "WishDeath": 267,
+      "WishLongevity": 7,
+      "WishResurrection": 315,
+      "WishWealth": 44,
+      "positive_wealth": 160
+    }
+  },
+  "legal_opening_choices": {
+    "combined": {
+      "WishWealth": 36
+    },
+    "power": {
+      "Hold": 7,
+      "WishPower": 29
+    },
+    "resurrection": {
+      "Hold": 21,
+      "WishWealth": 15
+    },
+    "v20": {
+      "Hold": 21,
+      "WishWealth": 15
+    },
+    "wealth": {
+      "WishWealth": 36
+    }
+  },
+  "opening_details": [
+    {
+      "case": "kanifous_gremory_00_p0",
+      "powers": [],
+      "profile": "v20",
+      "score": 120
+    },
+    {
+      "case": "kanifous_gremory_00_p0",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 124
+    },
+    {
+      "case": "kanifous_gremory_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 128
+    },
+    {
+      "case": "kanifous_gremory_00_p0",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 120
+    },
+    {
+      "case": "kanifous_gremory_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 128
+    },
+    {
+      "case": "kanifous_gremory_00_p1",
+      "powers": [],
+      "profile": "v20",
+      "score": 105
+    },
+    {
+      "case": "kanifous_gremory_00_p1",
+      "powers": [],
+      "profile": "power",
+      "score": 105
+    },
+    {
+      "case": "kanifous_gremory_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 109
+    },
+    {
+      "case": "kanifous_gremory_00_p1",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 105
+    },
+    {
+      "case": "kanifous_gremory_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 109
+    },
+    {
+      "case": "kanifous_gremory_01_p0",
+      "powers": [],
+      "profile": "v20",
+      "score": 116
+    },
+    {
+      "case": "kanifous_gremory_01_p0",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 118
+    },
+    {
+      "case": "kanifous_gremory_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 122
+    },
+    {
+      "case": "kanifous_gremory_01_p0",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 116
+    },
+    {
+      "case": "kanifous_gremory_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 122
+    },
+    {
+      "case": "kanifous_gremory_01_p1",
+      "powers": [],
+      "profile": "v20",
+      "score": 114
+    },
+    {
+      "case": "kanifous_gremory_01_p1",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 117
+    },
+    {
+      "case": "kanifous_gremory_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 121
+    },
+    {
+      "case": "kanifous_gremory_01_p1",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 114
+    },
+    {
+      "case": "kanifous_gremory_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 121
+    },
+    {
+      "case": "kanifous_deimos_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "v20",
+      "score": 104
+    },
+    {
+      "case": "kanifous_deimos_00_p0",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 109
+    },
+    {
+      "case": "kanifous_deimos_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 113
+    },
+    {
+      "case": "kanifous_deimos_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "resurrection",
+      "score": 104
+    },
+    {
+      "case": "kanifous_deimos_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 113
+    },
+    {
+      "case": "kanifous_deimos_00_p1",
+      "powers": [],
+      "profile": "v20",
+      "score": 110
+    },
+    {
+      "case": "kanifous_deimos_00_p1",
+      "powers": [],
+      "profile": "power",
+      "score": 110
+    },
+    {
+      "case": "kanifous_deimos_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 114
+    },
+    {
+      "case": "kanifous_deimos_00_p1",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 110
+    },
+    {
+      "case": "kanifous_deimos_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 114
+    },
+    {
+      "case": "kanifous_deimos_01_p0",
+      "powers": [],
+      "profile": "v20",
+      "score": 108
+    },
+    {
+      "case": "kanifous_deimos_01_p0",
+      "powers": [],
+      "profile": "power",
+      "score": 108
+    },
+    {
+      "case": "kanifous_deimos_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 112
+    },
+    {
+      "case": "kanifous_deimos_01_p0",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 108
+    },
+    {
+      "case": "kanifous_deimos_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 112
+    },
+    {
+      "case": "kanifous_deimos_01_p1",
+      "powers": [],
+      "profile": "v20",
+      "score": 108
+    },
+    {
+      "case": "kanifous_deimos_01_p1",
+      "powers": [],
+      "profile": "power",
+      "score": 108
+    },
+    {
+      "case": "kanifous_deimos_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 112
+    },
+    {
+      "case": "kanifous_deimos_01_p1",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 108
+    },
+    {
+      "case": "kanifous_deimos_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 112
+    },
+    {
+      "case": "kanifous_humbaba_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "v20",
+      "score": 96
+    },
+    {
+      "case": "kanifous_humbaba_00_p0",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 101
+    },
+    {
+      "case": "kanifous_humbaba_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 105
+    },
+    {
+      "case": "kanifous_humbaba_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "resurrection",
+      "score": 96
+    },
+    {
+      "case": "kanifous_humbaba_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 105
+    },
+    {
+      "case": "kanifous_humbaba_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "v20",
+      "score": 99
+    },
+    {
+      "case": "kanifous_humbaba_00_p1",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 104
+    },
+    {
+      "case": "kanifous_humbaba_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 108
+    },
+    {
+      "case": "kanifous_humbaba_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "resurrection",
+      "score": 99
+    },
+    {
+      "case": "kanifous_humbaba_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 108
+    },
+    {
+      "case": "kanifous_humbaba_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "v20",
+      "score": 101
+    },
+    {
+      "case": "kanifous_humbaba_01_p0",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 106
+    },
+    {
+      "case": "kanifous_humbaba_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 110
+    },
+    {
+      "case": "kanifous_humbaba_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "resurrection",
+      "score": 101
+    },
+    {
+      "case": "kanifous_humbaba_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 110
+    },
+    {
+      "case": "kanifous_humbaba_01_p1",
+      "powers": [],
+      "profile": "v20",
+      "score": 108
+    },
+    {
+      "case": "kanifous_humbaba_01_p1",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 112
+    },
+    {
+      "case": "kanifous_humbaba_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 116
+    },
+    {
+      "case": "kanifous_humbaba_01_p1",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 108
+    },
+    {
+      "case": "kanifous_humbaba_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 116
+    },
+    {
+      "case": "kanifous_kalligan_00_p0",
+      "powers": [],
+      "profile": "v20",
+      "score": 106
+    },
+    {
+      "case": "kanifous_kalligan_00_p0",
+      "powers": [],
+      "profile": "power",
+      "score": 106
+    },
+    {
+      "case": "kanifous_kalligan_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 110
+    },
+    {
+      "case": "kanifous_kalligan_00_p0",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 106
+    },
+    {
+      "case": "kanifous_kalligan_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 110
+    },
+    {
+      "case": "kanifous_kalligan_00_p1",
+      "powers": [],
+      "profile": "v20",
+      "score": 112
+    },
+    {
+      "case": "kanifous_kalligan_00_p1",
+      "powers": [],
+      "profile": "power",
+      "score": 112
+    },
+    {
+      "case": "kanifous_kalligan_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 119
+    },
+    {
+      "case": "kanifous_kalligan_00_p1",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 112
+    },
+    {
+      "case": "kanifous_kalligan_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 119
+    },
+    {
+      "case": "kanifous_kalligan_01_p0",
+      "powers": [],
+      "profile": "v20",
+      "score": 128
+    },
+    {
+      "case": "kanifous_kalligan_01_p0",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 133
+    },
+    {
+      "case": "kanifous_kalligan_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 137
+    },
+    {
+      "case": "kanifous_kalligan_01_p0",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 128
+    },
+    {
+      "case": "kanifous_kalligan_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 137
+    },
+    {
+      "case": "kanifous_kalligan_01_p1",
+      "powers": [],
+      "profile": "v20",
+      "score": 100
+    },
+    {
+      "case": "kanifous_kalligan_01_p1",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 105
+    },
+    {
+      "case": "kanifous_kalligan_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 109
+    },
+    {
+      "case": "kanifous_kalligan_01_p1",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 100
+    },
+    {
+      "case": "kanifous_kalligan_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 109
+    },
+    {
+      "case": "kanifous_orias_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "v20",
+      "score": 84
+    },
+    {
+      "case": "kanifous_orias_00_p0",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 89
+    },
+    {
+      "case": "kanifous_orias_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 96
+    },
+    {
+      "case": "kanifous_orias_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "resurrection",
+      "score": 84
+    },
+    {
+      "case": "kanifous_orias_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 96
+    },
+    {
+      "case": "kanifous_orias_00_p1",
+      "powers": [],
+      "profile": "v20",
+      "score": 110
+    },
+    {
+      "case": "kanifous_orias_00_p1",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 111
+    },
+    {
+      "case": "kanifous_orias_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 117
+    },
+    {
+      "case": "kanifous_orias_00_p1",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 110
+    },
+    {
+      "case": "kanifous_orias_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 115
+    },
+    {
+      "case": "kanifous_orias_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "v20",
+      "score": 126
+    },
+    {
+      "case": "kanifous_orias_01_p0",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 131
+    },
+    {
+      "case": "kanifous_orias_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 135
+    },
+    {
+      "case": "kanifous_orias_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "resurrection",
+      "score": 126
+    },
+    {
+      "case": "kanifous_orias_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 135
+    },
+    {
+      "case": "kanifous_orias_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "v20",
+      "score": 84
+    },
+    {
+      "case": "kanifous_orias_01_p1",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 89
+    },
+    {
+      "case": "kanifous_orias_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 93
+    },
+    {
+      "case": "kanifous_orias_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "resurrection",
+      "score": 84
+    },
+    {
+      "case": "kanifous_orias_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 93
+    },
+    {
+      "case": "kanifous_odradek_00_p0",
+      "powers": [],
+      "profile": "v20",
+      "score": 121
+    },
+    {
+      "case": "kanifous_odradek_00_p0",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 122
+    },
+    {
+      "case": "kanifous_odradek_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 126
+    },
+    {
+      "case": "kanifous_odradek_00_p0",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 121
+    },
+    {
+      "case": "kanifous_odradek_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 126
+    },
+    {
+      "case": "kanifous_odradek_00_p1",
+      "powers": [],
+      "profile": "v20",
+      "score": 108
+    },
+    {
+      "case": "kanifous_odradek_00_p1",
+      "powers": [],
+      "profile": "power",
+      "score": 108
+    },
+    {
+      "case": "kanifous_odradek_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 117
+    },
+    {
+      "case": "kanifous_odradek_00_p1",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 108
+    },
+    {
+      "case": "kanifous_odradek_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 117
+    },
+    {
+      "case": "kanifous_odradek_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "v20",
+      "score": 100
+    },
+    {
+      "case": "kanifous_odradek_01_p0",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 105
+    },
+    {
+      "case": "kanifous_odradek_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 109
+    },
+    {
+      "case": "kanifous_odradek_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "resurrection",
+      "score": 100
+    },
+    {
+      "case": "kanifous_odradek_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 109
+    },
+    {
+      "case": "kanifous_odradek_01_p1",
+      "powers": [],
+      "profile": "v20",
+      "score": 113
+    },
+    {
+      "case": "kanifous_odradek_01_p1",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 116
+    },
+    {
+      "case": "kanifous_odradek_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 120
+    },
+    {
+      "case": "kanifous_odradek_01_p1",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 113
+    },
+    {
+      "case": "kanifous_odradek_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 120
+    },
+    {
+      "case": "kanifous_kroni_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "v20",
+      "score": 125
+    },
+    {
+      "case": "kanifous_kroni_00_p0",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 130
+    },
+    {
+      "case": "kanifous_kroni_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 134
+    },
+    {
+      "case": "kanifous_kroni_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "resurrection",
+      "score": 125
+    },
+    {
+      "case": "kanifous_kroni_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 134
+    },
+    {
+      "case": "kanifous_kroni_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "v20",
+      "score": 106
+    },
+    {
+      "case": "kanifous_kroni_00_p1",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 111
+    },
+    {
+      "case": "kanifous_kroni_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 115
+    },
+    {
+      "case": "kanifous_kroni_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "resurrection",
+      "score": 106
+    },
+    {
+      "case": "kanifous_kroni_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 115
+    },
+    {
+      "case": "kanifous_kroni_01_p0",
+      "powers": [],
+      "profile": "v20",
+      "score": 114
+    },
+    {
+      "case": "kanifous_kroni_01_p0",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 119
+    },
+    {
+      "case": "kanifous_kroni_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 123
+    },
+    {
+      "case": "kanifous_kroni_01_p0",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 114
+    },
+    {
+      "case": "kanifous_kroni_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 123
+    },
+    {
+      "case": "kanifous_kroni_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "v20",
+      "score": 75
+    },
+    {
+      "case": "kanifous_kroni_01_p1",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 80
+    },
+    {
+      "case": "kanifous_kroni_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 84
+    },
+    {
+      "case": "kanifous_kroni_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "resurrection",
+      "score": 75
+    },
+    {
+      "case": "kanifous_kroni_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 84
+    },
+    {
+      "case": "kanifous_valak_00_p0",
+      "powers": [],
+      "profile": "v20",
+      "score": 98
+    },
+    {
+      "case": "kanifous_valak_00_p0",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 102
+    },
+    {
+      "case": "kanifous_valak_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 106
+    },
+    {
+      "case": "kanifous_valak_00_p0",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 98
+    },
+    {
+      "case": "kanifous_valak_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 106
+    },
+    {
+      "case": "kanifous_valak_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "v20",
+      "score": 104
+    },
+    {
+      "case": "kanifous_valak_00_p1",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 109
+    },
+    {
+      "case": "kanifous_valak_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 113
+    },
+    {
+      "case": "kanifous_valak_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "resurrection",
+      "score": 104
+    },
+    {
+      "case": "kanifous_valak_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 113
+    },
+    {
+      "case": "kanifous_valak_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "v20",
+      "score": 84
+    },
+    {
+      "case": "kanifous_valak_01_p0",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 89
+    },
+    {
+      "case": "kanifous_valak_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 93
+    },
+    {
+      "case": "kanifous_valak_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "resurrection",
+      "score": 84
+    },
+    {
+      "case": "kanifous_valak_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 93
+    },
+    {
+      "case": "kanifous_valak_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "v20",
+      "score": 92
+    },
+    {
+      "case": "kanifous_valak_01_p1",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 97
+    },
+    {
+      "case": "kanifous_valak_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 104
+    },
+    {
+      "case": "kanifous_valak_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "resurrection",
+      "score": 92
+    },
+    {
+      "case": "kanifous_valak_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 104
+    },
+    {
+      "case": "kanifous_kanifous_00_p0",
+      "powers": [],
+      "profile": "v20",
+      "score": 96
+    },
+    {
+      "case": "kanifous_kanifous_00_p0",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 101
+    },
+    {
+      "case": "kanifous_kanifous_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 105
+    },
+    {
+      "case": "kanifous_kanifous_00_p0",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 96
+    },
+    {
+      "case": "kanifous_kanifous_00_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 105
+    },
+    {
+      "case": "kanifous_kanifous_00_p1",
+      "powers": [],
+      "profile": "v20",
+      "score": 88
+    },
+    {
+      "case": "kanifous_kanifous_00_p1",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 93
+    },
+    {
+      "case": "kanifous_kanifous_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 97
+    },
+    {
+      "case": "kanifous_kanifous_00_p1",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 88
+    },
+    {
+      "case": "kanifous_kanifous_00_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 97
+    },
+    {
+      "case": "kanifous_kanifous_01_p0",
+      "powers": [],
+      "profile": "v20",
+      "score": 107
+    },
+    {
+      "case": "kanifous_kanifous_01_p0",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 111
+    },
+    {
+      "case": "kanifous_kanifous_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 115
+    },
+    {
+      "case": "kanifous_kanifous_01_p0",
+      "powers": [],
+      "profile": "resurrection",
+      "score": 107
+    },
+    {
+      "case": "kanifous_kanifous_01_p0",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 115
+    },
+    {
+      "case": "kanifous_kanifous_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "v20",
+      "score": 86
+    },
+    {
+      "case": "kanifous_kanifous_01_p1",
+      "powers": [
+        "WishPower"
+      ],
+      "profile": "power",
+      "score": 91
+    },
+    {
+      "case": "kanifous_kanifous_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "wealth",
+      "score": 97
+    },
+    {
+      "case": "kanifous_kanifous_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "resurrection",
+      "score": 86
+    },
+    {
+      "case": "kanifous_kanifous_01_p1",
+      "powers": [
+        "WishWealth"
+      ],
+      "profile": "combined",
+      "score": 97
+    }
+  ],
+  "scope": "Fixed saved V20 orders ranked under each profile, not whole-plan counterfactuals. Opening decisions used reconstructed authority and legal Preview. V20 compatibility verified. No new full games or strength claim.",
+  "source_zip_sha256": "4336c7be157b3c1d9ef41258bf132203c4edf8c5900777b944ada2dbf2299fe7",
+  "unchanged_non_native_cases": [
+    "Gremory",
+    "Deimos",
+    "Humbaba",
+    "Kalligan",
+    "Orias",
+    "Odradek",
+    "Kroni",
+    "Valak",
+    "BreachWish"
+  ],
+  "v20_native_scores_reproduced": 570
+}

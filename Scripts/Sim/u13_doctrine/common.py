@@ -18,7 +18,7 @@ from .lords.deimos import ArtilleryPlans, RoutPlans
 from .lords.humbaba import SupportPlans
 from .lords.orias import OriasPlans
 from .lords.gremory import RuinPlans
-from .kanifous_tactics import WishPlans
+from .kanifous_tactics import WishPlans, PROFILES as WISH_PROFILES
 from .budget import Budget, Limits
 from . import closing, coordination, defensive_plans
 from .coverage import POWERS
@@ -28,7 +28,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V20_KANIFOUS_WISH_PRICE'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V21_KANIFOUS_RECALIBRATION'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -151,17 +151,20 @@ def ordinary(f, category, weights):
 
 
 class CommonSmartCore:
-    def __init__(self, weights=None, limits=None, lord_modules=True, selector=None):
+    def __init__(self, weights=None, limits=None, lord_modules=True, selector=None, wish_profile='combined'):
         self.weights, self.limits = weights or Weights(), limits or Limits()
         self.lord_modules = lord_modules
         self.selector = selector if selector is not None else PlanSelector()
+        if wish_profile not in WISH_PROFILES: raise ValueError('Unknown Wish calibration profile')
+        self.wish_profile = wish_profile
 
     @property
     def policy_id(self):
-        return VERSION+self.selector.policy_suffix
+        return VERSION+self.selector.policy_suffix+('' if self.wish_profile=='combined' else ':WISH_'+self.wish_profile)
 
     def decide(self, view, preview):
         f, budget = Facts(view), Budget(self.limits)
+        f.wish_profile = self.wish_profile
         recipes = Recipes(f, self.weights)
         initial_goal = recipes.goal(f.hand)
         categories = ('powers', 'resummon', 'rites', 'guards', 'work', 'combat', 'monsters')

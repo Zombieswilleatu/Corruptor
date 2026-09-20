@@ -11,6 +11,16 @@ from .lane_support import travel
 WISHES = ('WishWealth', 'WishLongevity', 'WishDeath', 'WishResurrection', 'WishPower')
 HAND_LIMIT = 10  # Ordinary U13 opening/card-zone contract.
 PRICE_WEIGHTS = dict(Cards=30, Blood=30, Guards=15, Stone=15, Soul=5, Ruin=4, Wishmaster=1)
+PROFILES = ('v20', 'power', 'wealth', 'resurrection', 'combined')
+
+
+def calibrated(f, term):
+    return getattr(f, 'wish_profile', 'combined') in (term, 'combined')
+
+
+def ordinary_material_sum():
+    return sum(material(dict(attributes=recruitment.profile(s, 'Castle', 0, 0, 1)))
+               for s in recruitment.SUITS)
 
 
 def material(row, restored=False):
@@ -87,9 +97,13 @@ def wish_value(f, name, target, plan, ctx=None):
     if name=='WishWealth':
         space=max(0,HAND_LIMIT-len(state['hand']))
         hundredths=sum(weight*min(space,count) for weight,count in ((20,1),(50,2),(30,3)))
-        benefit=10*hundredths//100
+        # Restore V19's bounded urgency for a short hand, measured after this
+        # order's spending. This is option value, not a predicted card/recipe.
+        shortage=3*max(0,5-len(state['hand'])) if calibrated(f,'wealth') and hundredths else 0
+        benefit=10*hundredths//100+shortage
         result.update(reason='draw_after_current_card_commitments',hand_after_commitments=len(state['hand']),
-                      hand_space=space,expected_cards_hundredths=hundredths,draw_timing='after_combat_before_next_orders')
+                      hand_space=space,expected_cards_hundredths=hundredths,short_hand_bonus=shortage,
+                      draw_timing='after_combat_before_next_orders')
     elif name=='WishLongevity':
         castle=next(c for c in state['castles'] if c['id']==target['entity_id'])
         ceiling=min(LONGEVITY_INTEGRITY,castle['attributes']['max_integrity'])
@@ -102,8 +116,14 @@ def wish_value(f, name, target, plan, ctx=None):
         lane=target['lane']; own=sum(r['attributes']['lane']==lane for r in state['units'])
         planned=ctx['recruits']+ctx['monster_bodies_minimum'] if ctx['recruit_lane']==lane else 0
         need=max(0,len(f.units(f.enemy,lane))-own-planned)
-        benefit=18+8*min(3,need)
-        result.update(reason='guaranteed_body_with_remaining_lane_need',guaranteed_bodies=1,
+        # Rule distribution is 1/2/3 bodies at 70/25/5%, with uniform suits.
+        # Use expected material on the same scale as Death/Resurrection; the
+        # actual future body count and suits remain unknown. Floor once.
+        body_value=135*ordinary_material_sum()//(100*len(recruitment.SUITS)) if calibrated(f,'power') else 18
+        benefit=body_value+8*min(3,need)
+        result.update(reason='expected_spawn_material_with_remaining_lane_need' if calibrated(f,'power') else 'guaranteed_body_with_remaining_lane_need',
+                      guaranteed_bodies=1,expected_bodies_hundredths=135 if calibrated(f,'power') else None,
+                      spawn_material_value=body_value,
                       lane_need_after_recruitment=need,extra_bodies='unknown')
     elif name=='WishDeath':
         p=target['field_position']; victims=[]
@@ -128,7 +148,7 @@ def wish_value(f, name, target, plan, ctx=None):
             if r['kind']!='marcher' or r['owner']!=f.pid or a['lane']!=lane or r['id'] in seen: continue
             if monsters.limited(monster) and (monsters.living(f.rows,f.pid,monster) or monster==ctx['monster'] or monster in limited): continue
             seen.add(r['id']);limited.add(monster);known.append(r['id']);benefit+=material(r,True)
-        foes=f.units(f.enemy,lane)
+        known_value=benefit;foes=f.units(f.enemy,lane)
         for r in state['units']:
             a=r['attributes']
             if a['lane']!=lane or r['id'] in seen or a.get('hidden',False): continue
@@ -142,9 +162,18 @@ def wish_value(f, name, target, plan, ctx=None):
                 if distance<=reach*reach: credit=max(credit,material(r,True)//2)
                 elif distance<=(reach+travel(a,f.v['round'])+travel(b,f.v['round']))**2:
                     credit=max(credit,material(r,True)//4)
-            if credit: exposed.append(dict(id=r['id'],discounted_value=credit));benefit+=credit
+            if credit: exposed.append(dict(id=r['id'],discounted_value=credit))
+        raw=sum(row['discounted_value'] for row in exposed)
+        # Exposure of many bodies is not evidence that all will die. Bound the
+        # speculative insurance at two average ordinary bodies; actual ledger
+        # losses keep full credit. A heuristic ceiling, not an engine limit.
+        cap=2*ordinary_material_sum()//len(recruitment.SUITS) if calibrated(f,'resurrection') else None
+        speculative=min(raw,cap) if cap is not None else raw
+        benefit=known_value+speculative
         result.update(reason='eligible_losses_and_discounted_reachable_danger',known_losses=known,
-                      exposed=exposed,restoration_timing='after_marching_no_same_phase_combat')
+                      known_loss_value=known_value,exposed=exposed,raw_exposure_value=raw,
+                      speculative_credit=speculative,speculative_cap=cap,
+                      restoration_timing='after_marching_no_same_phase_combat')
     else: raise ValueError('Unknown ordinary Wish')
     result.update(benefit=benefit,score=benefit-price['score'])
     return result
@@ -203,6 +232,6 @@ class WishPlans:
             if not exhausted:return
 
     def report(self,chosen,alternatives):
-        return dict(enabled=self.enabled,alternatives=alternatives,
+        return dict(enabled=self.enabled,alternatives=alternatives,profile=getattr(self.f,'wish_profile','combined'),
             selected=[copy_data(r) for r in chosen['coordination']['powers'] if r['power'] in WISHES],
             scope='own commitments and public assets; future Price outcomes, draws, enemy orders and spatial survival unknown')

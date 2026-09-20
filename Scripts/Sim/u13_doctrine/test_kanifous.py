@@ -117,14 +117,15 @@ class KanifousTests(unittest.TestCase):
         self.assertEqual([],wish_value(Facts(v),'WishResurrection',target,plan)['known_losses'])
         self.assertEqual([],wish_value(Facts(v),'WishResurrection',dict(lane='Lord'),EMPTY)['known_losses'])
 
-    def test_power_credits_one_body_and_subtracts_planned_recruitment(self):
+    def test_power_uses_expected_material_and_subtracts_planned_recruitment(self):
         v=fixture(); hand(v,[('Butcher',4)]*3)
         for i in range(6): unit(v,'foe'+str(i),1,x=1000)
         f=Facts(v); target=dict(lane='Castle')
         base=wish_value(f,'WishPower',target,EMPTY)
         plan=dict(powers=[],order=dict(action='Ward',lane='Castle',card_ids=[r['id'] for r in f.hand]))
         after=wish_value(f,'WishPower',target,plan)
-        self.assertEqual((42,18),(base['benefit'],after['benefit']))
+        self.assertEqual((50,26),(base['benefit'],after['benefit']))
+        self.assertEqual(135,after['expected_bodies_hundredths'])
         self.assertEqual((1,'unknown'),(after['guaranteed_bodies'],after['extra_bodies']))
 
     def test_alternative_keeps_current_cards_and_respects_generation_budget(self):
@@ -132,7 +133,7 @@ class KanifousTests(unittest.TestCase):
         # A detached scenario with cheap liabilities makes the opened hand space decisive.
         for r in v['board']:
             if r['owner']==0 and r['kind']=='castle': r['attributes']['status']='ruined'
-        f=Facts(v); ids=tuple(r['id'] for r in f.hand[:4])
+        f=Facts(v); ids=tuple(r['id'] for r in f.hand[:7])
         order=dict(action='Ward',lane='Castle',card_ids=list(ids))
         combat=Proposal('combat','Ward',order,30,'test',ids)
         c=dict(plan=dict(powers=[],order=order),selected=[combat],score=30)
