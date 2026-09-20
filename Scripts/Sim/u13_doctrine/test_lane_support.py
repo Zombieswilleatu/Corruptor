@@ -63,7 +63,9 @@ class LaneSupportTests(unittest.TestCase):
         view=observe(planning('Deimos'),0)
         unit(view,'own',0,x_fp=900)
         unit(view,'closing',1,x_fp=1800)
-        f=Facts(view);self.assertEqual(8,rout_value(f,'Castle')['score'])
+        # Equal-speed, distant pursuers cannot exploit retreat; this balanced
+        # approach is not an emergency merely because they could meet normally.
+        f=Facts(view);self.assertEqual(0,rout_value(f,'Castle')['score'])
         view['board'].reverse();self.assertEqual(rout_value(f,'Castle'),rout_value(Facts(view),'Castle'))
         other=copy_data(view);other['player_id']=1
         for row in other['board']:
@@ -73,7 +75,9 @@ class LaneSupportTests(unittest.TestCase):
         turret=next(r for r in view['board'] if r['id']=='closing')
         turret['attributes']=monsters.profile('Sooge','Castle',1,0,1,True)
         turret['attributes']['x_fp']=920
-        self.assertEqual(0,rout_value(Facts(view),'Castle')['score'])
+        value = rout_value(Facts(view),'Castle')
+        self.assertEqual(0,value['delay_score']) # Beam is not silenced by Rout.
+        self.assertGreater(value['offense_score'],0) # Ordinary hits gain +1.
 
     def test_breath_caps_both_heals_and_excludes_waiting_from_all_benefits(self):
         view=observe(planning('Humbaba'),0)

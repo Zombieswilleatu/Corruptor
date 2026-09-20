@@ -14,7 +14,7 @@ from u13_pysim.power_rules import RULES, declaration
 from u13_pysim.powers import WISHES
 from . import lords
 from .lords.odradek import ResourceHorizon, RECONFIGURATION, SAVING_GOALS
-from .lords.deimos import ArtilleryPlans
+from .lords.deimos import ArtilleryPlans, RoutPlans
 from .lords.humbaba import SupportPlans
 from .budget import Budget, Limits
 from . import closing, coordination, defensive_plans
@@ -25,7 +25,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V12_HUMBABA_PRESSURE'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V15_ROUT_PUNISH'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -216,15 +216,17 @@ class CommonSmartCore:
         defense = defensive_plans.Defense(f, self.weights)
         artillery = ArtilleryPlans(f, self.weights)
         support = SupportPlans(f, self.lord_modules)
+        rout = RoutPlans(f, self.lord_modules)
         complete = []
         omission_reserve = (min(4, self.limits.complete_plans//4)
             if any(p.term in coordination.TERMS for p in retained['powers']) else 0)
         defense_reserve = min(4, self.limits.complete_plans//4) if retained['guards'] or len(retained['work']) > 1 else 0
         artillery_reserve = min(4, self.limits.complete_plans//4) if artillery.needs_alternatives else 0
         support_reserve = min(4, self.limits.complete_plans//4) if support.enabled else 0
-        assembly_limit = self.limits.complete_plans-omission_reserve-defense_reserve-artillery_reserve-support_reserve
-        def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant='', artillery_variant=False, support_variant=False):
-            if not omitted and not defense_variant and not artillery_variant and not support_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
+        rout_reserve = min(4, self.limits.complete_plans//4) if rout.enabled else 0
+        assembly_limit = max(1, self.limits.complete_plans-omission_reserve-defense_reserve-artillery_reserve-support_reserve-rout_reserve)
+        def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant='', artillery_variant=False, support_variant=False, rout_variant=False):
+            if not omitted and not defense_variant and not artillery_variant and not support_variant and not rout_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
             if not budget.take('complete_plans'): return
             selected, cards, used, resource_spend = [], set(), set(), Counter()
             plan = dict(powers=[], order={})
@@ -342,6 +344,14 @@ class CommonSmartCore:
             before = len(complete)
             assemble(anchors, (), support_variant=True)
             support_alternatives += len(complete)-before
+        rout_alternatives = 0
+        variants = rout.alternatives(complete, retained, budget)
+        for _ in range(rout_reserve):
+            try: anchors = next(variants)
+            except StopIteration: break
+            before = len(complete)
+            assemble(anchors, (), rout_variant=True)
+            rout_alternatives += len(complete)-before
         # Reserve up to four complete-plan slots for a controlled comparison:
         # same own choices, without powers whose standalone credit is reduced.
         # Reassemble to recompute payments, recipes, declaration IDs and Veil.
@@ -415,6 +425,7 @@ class CommonSmartCore:
                     defense=defensive_plans.report(unique, chosen, defensive_variants),
                     artillery=artillery.report(unique, chosen, artillery_alternatives),
                     support=support.report(chosen, support_alternatives),
+                    rout=rout.report(chosen, rout_alternatives),
                     assumptions='current public board; new Guards, Ward, Work, simultaneous powers and spatial/random reactions are uncertain',
                     veil=dict(current_board_risk=chosen['veil_risk'], paid_choice_scenario=chosen['projected'],
                               protection=chosen['protection'], hard_veto=False, reason='hidden_orders_prevent_proof'),

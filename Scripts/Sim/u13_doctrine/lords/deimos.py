@@ -8,7 +8,7 @@ from u13_pysim.copying import copy_data
 from ..defensive_plans import development
 from ..diagnostics import fingerprint
 from ..facts import Facts, LANES, Proposal, power
-from ..lane_support import mobile, travel
+from ..rout_tactics import rout_value
 
 LORD = 'Deimos'
 
@@ -24,33 +24,58 @@ def proposals(f):
         if enemies:
             value = rout_value(f, lane)
             yield power('Rout', dict(lane=lane), value['score'],
-                        'retreat_public_lane_pressure' if value['score'] else 'hold_rout_for_lane_pressure')
+                        'retreat_attacks_and_emergency_delay' if value['score'] else 'hold_rout_without_hits_or_emergency')
 
 
-def rout_value(f, lane):
-    """Prefer a reachable fight or gate threat over a distant head count.
+def coordinate(f, plan, ctx):
+    for source in plan['powers']:
+        if source['power_id'] != 'Rout': continue
+        lane = source['target']['lane']
+        baseline, adjusted = rout_value(f, lane), rout_value(f, lane, ctx)
+        yield dict(power='Rout', lane=lane, reason='retreat_attacks_and_emergency_delay',
+                   score_delta=adjusted['score']-baseline['score'], **adjusted)
 
-    This is a public, unopposed-distance scenario. Opposing recruits, Supplicant
-    spends, movement modifiers and paths are unknown. Rout does not silence
-    monster specials, so an immobile Sooge turret earns no suppression credit.
-    """
-    number = f.v['round']; threats, gates, distant = [], [], []
-    allies = [r for r in f.units(f.pid, lane) if not r['attributes'].get('hidden', False)]
-    for enemy in f.units(f.enemy, lane):
-        a = enemy['attributes']
-        if a.get('sprite_form') == 'turret' or a.get('hidden', False):
-            continue
-        distance = travel(a, number)
-        gate = (a.get('waiting', False) or mobile(a) and a.get('movement_ready_round', 0) <= number
-                and (a['x_fp'] if f.pid == 0 else 2400-a['x_fp']) <= distance)
-        reach = 400 if a.get('suit') == 'Vulture' else 90
-        fight = any((a['x_fp']-r['attributes']['x_fp'])**2+(a['y_fp']-r['attributes']['y_fp'])**2
-                    <= (distance+travel(r['attributes'], number)+reach)**2 for r in allies)
-        if gate or fight:
-            threats.append(enemy['id'])
-            if gate: gates.append(enemy['id'])
-        else: distant.append(enemy['id'])
-    return dict(score=8*len(threats)+6*len(gates), threats=threats, gate_threats=gates, distant=distant)
+
+class RoutPlans:
+    """Pair Rout with existing complete plans inside the common 32-plan budget."""
+    def __init__(self, f, enabled=True):
+        self.f = f
+        self.enabled = (enabled and f.kind == LORD and f.available('Rout')[0]
+                        and any(f.units(f.enemy, lane) for lane in LANES))
+
+    def alternatives(self, candidates, retained, budget):
+        from ..coordination import context
+        if not self.enabled: return
+        from u13_pysim.power_rules import declaration
+        options = [p for p in retained['powers'] if p.term == 'Rout']
+        seen = {fingerprint(c['plan']) for c in candidates}; choices = []
+        for candidate in sorted(candidates, key=lambda c: (-c['score'], fingerprint(c['plan']))):
+            for rout in options:
+                if not budget.take('generated', 'rout'): break
+                powers = [p for p in candidate['selected'] if p.category == 'powers' and p.term != 'Rout']+[rout]
+                plan = copy_data(candidate['plan'])
+                plan['powers'] = [declaration(self.f.pid, self.f.v['round'], p.term,
+                    p.payload['target'], index=i, discard_ids=list(p.cards) if p.cards else None,
+                    parameters=p.payload['parameters']) for i,p in enumerate(powers)]
+                identity = fingerprint(plan)
+                if identity in seen: continue
+                seen.add(identity)
+                value = rout_value(self.f, rout.payload['target']['lane'], context(self.f, plan))
+                if value['score'] <= 0: continue
+                old = sum(p.value for p in candidate['selected'] if p.category == 'powers' and p.term == 'Rout')
+                old += sum(r['score_delta'] for r in candidate['coordination']['powers'] if r['power'] == 'Rout')
+                anchors = [p for p in candidate['selected'] if p.category != 'powers']+powers
+                choices.append((candidate['score']-old+value['score'], identity, anchors))
+            else: continue
+            break
+        for _, _, anchors in sorted(choices, key=lambda x: (-x[0], x[1])):
+            if not budget.take('retained', 'rout'): break
+            yield anchors
+
+    def report(self, chosen, alternatives):
+        return dict(enabled=self.enabled, alternatives=alternatives,
+                    selected=[copy_data(r) for r in chosen['coordination']['powers'] if r['power'] == 'Rout'],
+                    scope='full-speed retreat attack windows and emergency delay; no seed, special damage, enemy orders or promised pathing')
 
 
 def attack_value(result, weights):

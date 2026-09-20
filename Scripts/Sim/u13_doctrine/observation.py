@@ -17,6 +17,10 @@ def observe(match, seat):
                               'orias_marks', 'kanifous_prices', 'kanifous_losses')}
     data['veil_breaches'] = d.get('veil_breaches', {})
     data['monsters'] = d.get('monsters', {})
+    # Visible lane objects matter to shot coverage and blocked pursuit. Keep
+    # empty observations stable; no new private state crosses this boundary.
+    if d.get('field_structures'):
+        data['field_structures'] = sorted(d['field_structures'], key=lambda r: r['id'])
     data['guard_work'] = {k: d['guard_work'][k] for k in ('targets', 'pairs')}
     data['invocation_rounds'] = d['dominion_rites']['invocation_rounds']
     data['vacant_counts'] = d['vacant_throne']['counts']
