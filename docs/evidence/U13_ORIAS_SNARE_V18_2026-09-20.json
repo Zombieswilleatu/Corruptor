@@ -1,0 +1,6000 @@
+{
+  "circle_case_audit": [
+    {
+      "case": "orias_gremory_00_p0__old",
+      "integrity_before": 8,
+      "new_same_plan": {
+        "benefit": 19,
+        "competing_plan": {
+          "action": "Ward",
+          "card_ids": [
+            "u13_entity_card:17:game:deck:Butcher:2:16"
+          ],
+          "guard_card_ids": [
+            "u13_entity_card:17:game:deck:Vulture:2:16"
+          ],
+          "lane": "Lord",
+          "monster": "",
+          "score": 25
+        },
+        "competitive": false,
+        "cost": {
+          "circle_id": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "circle_integrity_after": 5,
+          "circle_integrity_cost": 3,
+          "circle_loses_operation": true,
+          "defense_loss": 0,
+          "score": 22,
+          "selective": false,
+          "threat_after": 1,
+          "threat_before": 1
+        },
+        "effective_round": 13,
+        "follow_up": {
+          "action": "Siege",
+          "arrivals": [],
+          "card_ids": [
+            "u13_entity_card:17:game:deck:Butcher:2:16",
+            "u13_entity_card:17:game:deck:Vulture:2:16"
+          ],
+          "conditional_guard_losses": [],
+          "existing_guards": [],
+          "lane": "Castle",
+          "scenarios": [
+            {
+              "attack_margin": 27,
+              "attack_score": 52,
+              "competing_score": 25,
+              "new_guard_value": 2,
+              "normal_damage": 3,
+              "normal_new_guards": 3,
+              "snared_damage": 6,
+              "snared_new_guards": 1,
+              "value": 51
+            },
+            {
+              "attack_margin": -6,
+              "attack_score": 19,
+              "competing_score": 25,
+              "new_guard_value": 4,
+              "normal_damage": 0,
+              "normal_new_guards": 3,
+              "snared_damage": 5,
+              "snared_new_guards": 1,
+              "value": 27
+            }
+          ],
+          "target_id": "u13_entity_castle:16:loadout:castle:1:1:3"
+        },
+        "opportunity_penalty": 0,
+        "reason": "low_threat_opportunistic_setup",
+        "score": -3
+      },
+      "old": {
+        "benefit": 19,
+        "cost": {
+          "circle_id": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "circle_integrity_cost": 3,
+          "defense_loss": 0,
+          "score": 15,
+          "threat_after": 1,
+          "threat_before": 1
+        },
+        "effective_round": 13,
+        "follow_up": {
+          "action": "Siege",
+          "arrivals": [],
+          "card_ids": [
+            "u13_entity_card:17:game:deck:Butcher:2:16",
+            "u13_entity_card:17:game:deck:Vulture:2:16"
+          ],
+          "conditional_guard_losses": [],
+          "existing_guards": [],
+          "lane": "Castle",
+          "scenarios": [
+            {
+              "new_guard_value": 2,
+              "normal_damage": 3,
+              "normal_new_guards": 3,
+              "snared_damage": 6,
+              "snared_new_guards": 1,
+              "value": 51
+            },
+            {
+              "new_guard_value": 4,
+              "normal_damage": 0,
+              "normal_new_guards": 3,
+              "snared_damage": 5,
+              "snared_new_guards": 1,
+              "value": 27
+            }
+          ],
+          "target_id": "u13_entity_castle:16:loadout:castle:1:1:3"
+        },
+        "power": "Snare",
+        "reason": "limit_reinforcement_before_follow_up",
+        "score": 4,
+        "score_delta": -8
+      },
+      "round": 12
+    }
+  ],
+  "disposition": "Requested risk-aware experiment; no demonstrated strength gain; above-two branch exercised by directed tests only.",
+  "report": {
+    "elapsed_seconds": 1161.047520308999,
+    "manifest": {
+      "baseline": {
+        "files": {
+          "__init__.py": "227c8876cf5699a5538e3493e65d8ab8e7ecf03c65eb0781306d8d22461c3b8f",
+          "budget.py": "a6e5b989e440774057c2ce1f2238c0527f5f25b54a12bf3d228347eaab6454d9",
+          "closing.py": "137079c225ecedb9e1fb4a689c7817ec512ab4a215fb0624ee62e961d058579d",
+          "common.py": "8a3893f13188deaf08da96bcc5f4b4e113d6adc3bf13d6dc5f90c7de1cdaba44",
+          "comparison.py": "59c57b7053af14a033241768bc69c61eba36848804a0a7b6cc725ecdfb7f23bc",
+          "coordination.py": "605201e5159770890920d27a3def0d2f151d6067a14398ac33b8bf2ff43f81ec",
+          "coverage.py": "228c23b18653b89647570939fb944d7063f676a45a28ca980ef1838b669b7c71",
+          "defensive_plans.py": "251161512ac9529f6c97d40f9578a2d16e46c26325cbe7be3b50a06dec1472b9",
+          "diagnostics.py": "5cf40e9a6ab3984653737e7b8e20b373a923f932a0205803cafea3fb48fa9769",
+          "facts.py": "d13fb7b47648176ae1dde05f9baf7e3fa5b63c09de11f921292fbd271c9edbfa",
+          "lane_support.py": "5433a4b918bde19a6652eb1fc6aedc034666b98a10db3959b0725dddcee9ca3a",
+          "lords/__init__.py": "411ef93b19ce21fbd9e93608633810c3002599c5dd9be1b679e70a7414263488",
+          "lords/deimos.py": "a4d651f41fbf0ac232a0d33deae18c1f16293970c2ce94c457db4212889145d7",
+          "lords/gremory.py": "24da2dec94f8788638c8cd2aec532b25806c71590c580bd1782aa8242ea23496",
+          "lords/humbaba.py": "c624d95ecce185c6fb305cb277d626bf702ab227ab3c24c87107310f2bbaf80e",
+          "lords/kalligan.py": "16da56cbfa1e1fb2add48447165bde9cc7a23ae42f90882f9a342e5d16a9ce99",
+          "lords/kanifous.py": "f8088280111c21cb09368970b88f8593a6742f46d9048c05e0da9fec6b4aa26d",
+          "lords/kroni.py": "7079c646913e8f557861728376794be727a4d258139b56ae1c7e05e0d8bd00db",
+          "lords/odradek.py": "4a3eed0613374ad6c7172d3ccfc9c661290034a136e54abec867482e471bafb4",
+          "lords/orias.py": "9e03d02bf0a9d908ebb9f1bc0c98439d914d5f506dd38315da05ced6079c98bb",
+          "lords/valak.py": "3959d4d1366d406b90c82f420729c0d15c1cc6000b3b677e0f68a738b0df7331",
+          "observation.py": "5eb28c6ad462f7a6e574157c17a5284dabb4eb66f3be5cd5c8fe2c059bf72e8b",
+          "orias_comparison.py": "5fb30e78ec1400c4f98b8e4cee5e4c2c7db2202968ceeedcc729222a9ee48c12",
+          "orias_tactics.py": "c7a8a1ed2ce5c3290da08addfa5e7e2d0516b6b399c49cb6f7f85eafe5c0de26",
+          "planner_probe.py": "d04273c52c5e0cbd61d8c52dc98a49f2b61f450646205b549a34e6765d65f334",
+          "recipes.py": "ddb4e0072006093218d8a4707beb248d7fe92067f57864d02588ab86df9a1c2e",
+          "reference_probe.py": "d93d5acd37581083f512fa87057bef80e8de4bd867ce49fab6ef1d2950434cbf",
+          "rite_cases.py": "2cf12a6be0f6598cdeb330f76bd0efcb8c680fbcf2410b1d6461099d61d4a70e",
+          "rout_tactics.py": "b1c914512373d13522cbea4ba84ce6c213bef11341d160713c371985fc4eb73d",
+          "selection.py": "a160b99b525a1590b34a8ba43fef6f5f63d70c083886f0f151111f7bb5b3894f",
+          "survey.py": "4ef849355910d662bb887fd53ae50b5574efc5f10fdc752610e5bfb81f2a059a",
+          "test_closing.py": "b0eeab4ac9b4292f57dc35760f507252d7bfb6dbc96f6367661cf140c2ff9b37",
+          "test_common.py": "922aaacace8bd0595e4dd1de158499ee7cbb562ac0f8f2952449d1d82f4d87e8",
+          "test_comparison.py": "59211969deccbdb0ac2c042abcbf4ddc707c28216408515c83dbdcc48362507d",
+          "test_coordination.py": "763dceb8ef83ae9795aaec3603c62815a1bc5a50a2ed90432831dc8f2fec70af",
+          "test_defensive_plans.py": "6beb177ff35048f191e01be666bbdeb6530e1f7ca9820a6cf4287974a182ef4b",
+          "test_deimos.py": "06d82fb61846e96d1676931e5969f7c32563a869aef1dae99aed6c1b78454271",
+          "test_diagnostics.py": "d8362c599d2f83ae3864c6b0c32e734ac5136030e7f3194ac3fe10afda6881ff",
+          "test_kalligan.py": "dc54dcc0e5fc193e3f0030955986c9969913712eb3f0535614bf2330b0db62c6",
+          "test_lane_support.py": "24c6f460e85979dc824c4f73e2e5df5d5e30d86e328b6fed336933bee1cf598f",
+          "test_odradek.py": "0078b8a8d5f534ecebdefa47e0c921e3b7b642eaae985b8ad5adb178a1044023",
+          "test_orias.py": "9adbaf3953c63588a3d92d28c1f2ef8683e51a21e4b0098b3594b61a806c664c",
+          "test_orias_comparison.py": "750e75a27cb6484ffbcea952c389464a8b668f2bfed41003040fcaebaa74369a",
+          "test_recipes_veil.py": "b1948ea569cf7b304756b70e4e2a99d479228cca4514a826fdb556434d5b456e",
+          "test_rites.py": "4049d7d09741161cae1392c3f0dcb9c3735108c50492dead8c7e36883ab240c8",
+          "test_rout_tactics.py": "74d85e0adb050fc345dd25ad1b96793412ac926e8c72bcfed30c75748523f547",
+          "test_selection.py": "b2ae4fa066634e423479552398f05d1fa2d06bbb5c978be564978763e02a94bf",
+          "test_survey.py": "926deb9d20611b42b8a5f2e970bff6c4e4b357c1afe8d12cd263c26749a05880",
+          "test_web_comparison.py": "06bfc26a9f87503b138817a4274dc611c49f5282ed947b9bd99fee9ea7a18cd6",
+          "veil_judgment.py": "f92f3a5ca62d8ead00f38b7b5a1d4945645032e05e048305ec114bbb66d64131",
+          "web_comparison.py": "b7d28923a4acadb6352898d274854022651ae3f6b4a1451f663c414566dfba97"
+        },
+        "package_sha256": "e84aaa78dab35fd9e1846bbff328f8387899fb353146f35dcf5ee8c044fb76f9",
+        "revision": "e99a9526144e734e2b21e14bedbcfba9648b4947"
+      },
+      "baseline_policy": "U13_COMMON_SMART_CORE_ALPHA_V17_ORIAS_WEB_HITS",
+      "candidate_policy": "U13_COMMON_SMART_CORE_ALPHA_V18_ORIAS_SNARE_THREAT",
+      "cases": [
+        {
+          "focal_seat": 0,
+          "name": "orias_gremory_00_p0__old",
+          "opponent": "Gremory",
+          "pair_id": "orias_gremory_00_p0",
+          "repeat": 0,
+          "setup": {
+            "castles": [
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ],
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ]
+            ],
+            "lords": [
+              "Orias",
+              "Gremory"
+            ],
+            "seed": "u13-orias-snare-threat-v18-2026-09-20:Orias:Gremory:00"
+          },
+          "variant": "old"
+        },
+        {
+          "focal_seat": 0,
+          "name": "orias_gremory_00_p0__new",
+          "opponent": "Gremory",
+          "pair_id": "orias_gremory_00_p0",
+          "repeat": 0,
+          "setup": {
+            "castles": [
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ],
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ]
+            ],
+            "lords": [
+              "Orias",
+              "Gremory"
+            ],
+            "seed": "u13-orias-snare-threat-v18-2026-09-20:Orias:Gremory:00"
+          },
+          "variant": "new"
+        },
+        {
+          "focal_seat": 1,
+          "name": "orias_gremory_00_p1__old",
+          "opponent": "Gremory",
+          "pair_id": "orias_gremory_00_p1",
+          "repeat": 0,
+          "setup": {
+            "castles": [
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ],
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ]
+            ],
+            "lords": [
+              "Gremory",
+              "Orias"
+            ],
+            "seed": "u13-orias-snare-threat-v18-2026-09-20:Orias:Gremory:00"
+          },
+          "variant": "old"
+        },
+        {
+          "focal_seat": 1,
+          "name": "orias_gremory_00_p1__new",
+          "opponent": "Gremory",
+          "pair_id": "orias_gremory_00_p1",
+          "repeat": 0,
+          "setup": {
+            "castles": [
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ],
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ]
+            ],
+            "lords": [
+              "Gremory",
+              "Orias"
+            ],
+            "seed": "u13-orias-snare-threat-v18-2026-09-20:Orias:Gremory:00"
+          },
+          "variant": "new"
+        },
+        {
+          "focal_seat": 0,
+          "name": "orias_deimos_00_p0__old",
+          "opponent": "Deimos",
+          "pair_id": "orias_deimos_00_p0",
+          "repeat": 0,
+          "setup": {
+            "castles": [
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ],
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ]
+            ],
+            "lords": [
+              "Orias",
+              "Deimos"
+            ],
+            "seed": "u13-orias-snare-threat-v18-2026-09-20:Orias:Deimos:00"
+          },
+          "variant": "old"
+        },
+        {
+          "focal_seat": 0,
+          "name": "orias_deimos_00_p0__new",
+          "opponent": "Deimos",
+          "pair_id": "orias_deimos_00_p0",
+          "repeat": 0,
+          "setup": {
+            "castles": [
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ],
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ]
+            ],
+            "lords": [
+              "Orias",
+              "Deimos"
+            ],
+            "seed": "u13-orias-snare-threat-v18-2026-09-20:Orias:Deimos:00"
+          },
+          "variant": "new"
+        },
+        {
+          "focal_seat": 1,
+          "name": "orias_deimos_00_p1__old",
+          "opponent": "Deimos",
+          "pair_id": "orias_deimos_00_p1",
+          "repeat": 0,
+          "setup": {
+            "castles": [
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ],
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ]
+            ],
+            "lords": [
+              "Deimos",
+              "Orias"
+            ],
+            "seed": "u13-orias-snare-threat-v18-2026-09-20:Orias:Deimos:00"
+          },
+          "variant": "old"
+        },
+        {
+          "focal_seat": 1,
+          "name": "orias_deimos_00_p1__new",
+          "opponent": "Deimos",
+          "pair_id": "orias_deimos_00_p1",
+          "repeat": 0,
+          "setup": {
+            "castles": [
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ],
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ]
+            ],
+            "lords": [
+              "Deimos",
+              "Orias"
+            ],
+            "seed": "u13-orias-snare-threat-v18-2026-09-20:Orias:Deimos:00"
+          },
+          "variant": "new"
+        },
+        {
+          "focal_seat": 0,
+          "name": "orias_humbaba_00_p0__old",
+          "opponent": "Humbaba",
+          "pair_id": "orias_humbaba_00_p0",
+          "repeat": 0,
+          "setup": {
+            "castles": [
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ],
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ]
+            ],
+            "lords": [
+              "Orias",
+              "Humbaba"
+            ],
+            "seed": "u13-orias-snare-threat-v18-2026-09-20:Orias:Humbaba:00"
+          },
+          "variant": "old"
+        },
+        {
+          "focal_seat": 0,
+          "name": "orias_humbaba_00_p0__new",
+          "opponent": "Humbaba",
+          "pair_id": "orias_humbaba_00_p0",
+          "repeat": 0,
+          "setup": {
+            "castles": [
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ],
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ]
+            ],
+            "lords": [
+              "Orias",
+              "Humbaba"
+            ],
+            "seed": "u13-orias-snare-threat-v18-2026-09-20:Orias:Humbaba:00"
+          },
+          "variant": "new"
+        },
+        {
+          "focal_seat": 1,
+          "name": "orias_humbaba_00_p1__old",
+          "opponent": "Humbaba",
+          "pair_id": "orias_humbaba_00_p1",
+          "repeat": 0,
+          "setup": {
+            "castles": [
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ],
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ]
+            ],
+            "lords": [
+              "Humbaba",
+              "Orias"
+            ],
+            "seed": "u13-orias-snare-threat-v18-2026-09-20:Orias:Humbaba:00"
+          },
+          "variant": "old"
+        },
+        {
+          "focal_seat": 1,
+          "name": "orias_humbaba_00_p1__new",
+          "opponent": "Humbaba",
+          "pair_id": "orias_humbaba_00_p1",
+          "repeat": 0,
+          "setup": {
+            "castles": [
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ],
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ]
+            ],
+            "lords": [
+              "Humbaba",
+              "Orias"
+            ],
+            "seed": "u13-orias-snare-threat-v18-2026-09-20:Orias:Humbaba:00"
+          },
+          "variant": "new"
+        },
+        {
+          "focal_seat": 0,
+          "name": "orias_kalligan_00_p0__old",
+          "opponent": "Kalligan",
+          "pair_id": "orias_kalligan_00_p0",
+          "repeat": 0,
+          "setup": {
+            "castles": [
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ],
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ]
+            ],
+            "lords": [
+              "Orias",
+              "Kalligan"
+            ],
+            "seed": "u13-orias-snare-threat-v18-2026-09-20:Orias:Kalligan:00"
+          },
+          "variant": "old"
+        },
+        {
+          "focal_seat": 0,
+          "name": "orias_kalligan_00_p0__new",
+          "opponent": "Kalligan",
+          "pair_id": "orias_kalligan_00_p0",
+          "repeat": 0,
+          "setup": {
+            "castles": [
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ],
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ]
+            ],
+            "lords": [
+              "Orias",
+              "Kalligan"
+            ],
+            "seed": "u13-orias-snare-threat-v18-2026-09-20:Orias:Kalligan:00"
+          },
+          "variant": "new"
+        },
+        {
+          "focal_seat": 1,
+          "name": "orias_kalligan_00_p1__old",
+          "opponent": "Kalligan",
+          "pair_id": "orias_kalligan_00_p1",
+          "repeat": 0,
+          "setup": {
+            "castles": [
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ],
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ]
+            ],
+            "lords": [
+              "Kalligan",
+              "Orias"
+            ],
+            "seed": "u13-orias-snare-threat-v18-2026-09-20:Orias:Kalligan:00"
+          },
+          "variant": "old"
+        },
+        {
+          "focal_seat": 1,
+          "name": "orias_kalligan_00_p1__new",
+          "opponent": "Kalligan",
+          "pair_id": "orias_kalligan_00_p1",
+          "repeat": 0,
+          "setup": {
+            "castles": [
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ],
+              [
+                "Keep",
+                "Stockpile",
+                "SummoningCircle",
+                "SiegeEngine",
+                "Bastion"
+              ]
+            ],
+            "lords": [
+              "Kalligan",
+              "Orias"
+            ],
+            "seed": "u13-orias-snare-threat-v18-2026-09-20:Orias:Kalligan:00"
+          },
+          "variant": "new"
+        }
+      ],
+      "engine_source_sha256": "a9035d504704de4311ce3c39645efac6291a176a850586bf8cb8cca18968c4f8",
+      "harness_source_sha256": "40968803de1ae2febad728a1f2f8f7b600e69ec0f1380cf5dbed9cea5eddaf04",
+      "implementation": "PyPy",
+      "namespace": "u13-orias-snare-threat-v18-2026-09-20",
+      "opening_policy": "U13_GAME_ECONOMY_V5_FREE_OPENING",
+      "opponent": {
+        "files": {
+          "__init__.py": "227c8876cf5699a5538e3493e65d8ab8e7ecf03c65eb0781306d8d22461c3b8f",
+          "budget.py": "3f5fcdc3d55d5259e1f180b1e3743eb72e7aaa981450ffe450b4465d1341c6a4",
+          "closing.py": "137079c225ecedb9e1fb4a689c7817ec512ab4a215fb0624ee62e961d058579d",
+          "common.py": "fa756243d1d1b14fb2fd4db1681ef9d288cb1619d749ca681b35f160301b09fb",
+          "comparison.py": "59c57b7053af14a033241768bc69c61eba36848804a0a7b6cc725ecdfb7f23bc",
+          "coordination.py": "f274aac58fd10cba313c5f9c94e2151fc425f0a3dc1a31725a9850fdfe33fbeb",
+          "coverage.py": "228c23b18653b89647570939fb944d7063f676a45a28ca980ef1838b669b7c71",
+          "defensive_plans.py": "251161512ac9529f6c97d40f9578a2d16e46c26325cbe7be3b50a06dec1472b9",
+          "diagnostics.py": "5cf40e9a6ab3984653737e7b8e20b373a923f932a0205803cafea3fb48fa9769",
+          "facts.py": "d13fb7b47648176ae1dde05f9baf7e3fa5b63c09de11f921292fbd271c9edbfa",
+          "lane_support.py": "5433a4b918bde19a6652eb1fc6aedc034666b98a10db3959b0725dddcee9ca3a",
+          "lords/__init__.py": "411ef93b19ce21fbd9e93608633810c3002599c5dd9be1b679e70a7414263488",
+          "lords/deimos.py": "a4d651f41fbf0ac232a0d33deae18c1f16293970c2ce94c457db4212889145d7",
+          "lords/gremory.py": "24da2dec94f8788638c8cd2aec532b25806c71590c580bd1782aa8242ea23496",
+          "lords/humbaba.py": "c624d95ecce185c6fb305cb277d626bf702ab227ab3c24c87107310f2bbaf80e",
+          "lords/kalligan.py": "16da56cbfa1e1fb2add48447165bde9cc7a23ae42f90882f9a342e5d16a9ce99",
+          "lords/kanifous.py": "f8088280111c21cb09368970b88f8593a6742f46d9048c05e0da9fec6b4aa26d",
+          "lords/kroni.py": "7079c646913e8f557861728376794be727a4d258139b56ae1c7e05e0d8bd00db",
+          "lords/odradek.py": "4a3eed0613374ad6c7172d3ccfc9c661290034a136e54abec867482e471bafb4",
+          "lords/orias.py": "ff5432388bfc98d4b48bbc873c985317e6b7c4b14d21aff5c5b5d15940eb5e20",
+          "lords/valak.py": "3959d4d1366d406b90c82f420729c0d15c1cc6000b3b677e0f68a738b0df7331",
+          "observation.py": "5eb28c6ad462f7a6e574157c17a5284dabb4eb66f3be5cd5c8fe2c059bf72e8b",
+          "planner_probe.py": "3ccd7de5661d9615a7ef75304eec14dbac6415992d8d643c82fd6a7a9fd71b05",
+          "recipes.py": "ddb4e0072006093218d8a4707beb248d7fe92067f57864d02588ab86df9a1c2e",
+          "reference_probe.py": "d93d5acd37581083f512fa87057bef80e8de4bd867ce49fab6ef1d2950434cbf",
+          "rite_cases.py": "2cf12a6be0f6598cdeb330f76bd0efcb8c680fbcf2410b1d6461099d61d4a70e",
+          "rout_tactics.py": "b1c914512373d13522cbea4ba84ce6c213bef11341d160713c371985fc4eb73d",
+          "selection.py": "a160b99b525a1590b34a8ba43fef6f5f63d70c083886f0f151111f7bb5b3894f",
+          "survey.py": "4ef849355910d662bb887fd53ae50b5574efc5f10fdc752610e5bfb81f2a059a",
+          "test_closing.py": "b0eeab4ac9b4292f57dc35760f507252d7bfb6dbc96f6367661cf140c2ff9b37",
+          "test_common.py": "922aaacace8bd0595e4dd1de158499ee7cbb562ac0f8f2952449d1d82f4d87e8",
+          "test_comparison.py": "59211969deccbdb0ac2c042abcbf4ddc707c28216408515c83dbdcc48362507d",
+          "test_coordination.py": "763dceb8ef83ae9795aaec3603c62815a1bc5a50a2ed90432831dc8f2fec70af",
+          "test_defensive_plans.py": "6beb177ff35048f191e01be666bbdeb6530e1f7ca9820a6cf4287974a182ef4b",
+          "test_deimos.py": "06d82fb61846e96d1676931e5969f7c32563a869aef1dae99aed6c1b78454271",
+          "test_diagnostics.py": "d8362c599d2f83ae3864c6b0c32e734ac5136030e7f3194ac3fe10afda6881ff",
+          "test_kalligan.py": "dc54dcc0e5fc193e3f0030955986c9969913712eb3f0535614bf2330b0db62c6",
+          "test_lane_support.py": "24c6f460e85979dc824c4f73e2e5df5d5e30d86e328b6fed336933bee1cf598f",
+          "test_odradek.py": "0078b8a8d5f534ecebdefa47e0c921e3b7b642eaae985b8ad5adb178a1044023",
+          "test_recipes_veil.py": "b1948ea569cf7b304756b70e4e2a99d479228cca4514a826fdb556434d5b456e",
+          "test_rites.py": "4049d7d09741161cae1392c3f0dcb9c3735108c50492dead8c7e36883ab240c8",
+          "test_rout_tactics.py": "74d85e0adb050fc345dd25ad1b96793412ac926e8c72bcfed30c75748523f547",
+          "test_selection.py": "b2ae4fa066634e423479552398f05d1fa2d06bbb5c978be564978763e02a94bf",
+          "test_survey.py": "926deb9d20611b42b8a5f2e970bff6c4e4b357c1afe8d12cd263c26749a05880",
+          "veil_judgment.py": "f92f3a5ca62d8ead00f38b7b5a1d4945645032e05e048305ec114bbb66d64131"
+        },
+        "package_sha256": "4dc0e15c165e5d0b70aa801ba44a096054d722d9cef95d67f9e8c2fe89a6a318",
+        "revision": "c92181268fae026f30d76d97c2c5b822185848ca"
+      },
+      "opponent_policy": "U13_COMMON_SMART_CORE_ALPHA_V15_ROUT_PUNISH",
+      "planned_games": 16,
+      "python": "3.11.13 (413c9b7f57f5, Jul 03 2025, 18:03:56)\n[PyPy 7.3.20 with GCC 10.2.1 20210130 (Red Hat 10.2.1-11)]",
+      "round_cap": 40,
+      "runner_sha256": "9cf2a0425436f9ac67a90f77f238fbaebfefbd66734a5413d97eba6156a29b39",
+      "schema": "U13_ORIAS_SNARE_THREAT_V18_V1",
+      "scope": "16 predeclared games: V17 versus threat-aware Snare V18, fixed V15 opponents, four diagnostic opponents, one fresh seed each, both seats. Web and shared planner unchanged except policy version. Workers recycle after each game. Focused preliminary sample, not general balance.",
+      "source_revision": "e99a9526144e734e2b21e14bedbcfba9648b4947",
+      "web_and_shared_planner_sha256": "0d04b52ad3a0f4b783128a603a8f80a125de2edeb61a7c7d8adea4bee6545403",
+      "weights": {
+        "banishment": 32,
+        "card_cost": 2,
+        "damage": 3,
+        "destruction": 30,
+        "enemy_settlement_risk": 90,
+        "guard": 5,
+        "monster": 2,
+        "recipe_save": 1,
+        "recruit": 6,
+        "return_lord": 75,
+        "tear": 22,
+        "veil_protection": 8
+      }
+    },
+    "summary": {
+      "breakdown": {
+        "opponent:Deimos": {
+          "new": {
+            "completed": 2,
+            "rounds": 44,
+            "wins": 0
+          },
+          "old": {
+            "completed": 2,
+            "rounds": 44,
+            "wins": 0
+          }
+        },
+        "opponent:Gremory": {
+          "new": {
+            "completed": 2,
+            "rounds": 34,
+            "wins": 2
+          },
+          "old": {
+            "completed": 2,
+            "rounds": 36,
+            "wins": 2
+          }
+        },
+        "opponent:Humbaba": {
+          "new": {
+            "completed": 2,
+            "rounds": 40,
+            "wins": 1
+          },
+          "old": {
+            "completed": 2,
+            "rounds": 36,
+            "wins": 1
+          }
+        },
+        "opponent:Kalligan": {
+          "new": {
+            "completed": 2,
+            "rounds": 48,
+            "wins": 2
+          },
+          "old": {
+            "completed": 2,
+            "rounds": 48,
+            "wins": 2
+          }
+        },
+        "seat:0": {
+          "new": {
+            "completed": 4,
+            "rounds": 84,
+            "wins": 3
+          },
+          "old": {
+            "completed": 4,
+            "rounds": 82,
+            "wins": 3
+          }
+        },
+        "seat:1": {
+          "new": {
+            "completed": 4,
+            "rounds": 82,
+            "wins": 2
+          },
+          "old": {
+            "completed": 4,
+            "rounds": 82,
+            "wins": 2
+          }
+        }
+      },
+      "completed": 16,
+      "failed": 0,
+      "games": [
+        {
+          "error": null,
+          "focal_seat": 0,
+          "metrics": {
+            "Snare_selected": 3,
+            "Web_selected": 6,
+            "decisions": 18,
+            "snare_activations": 3,
+            "snare_followup_resolved": 0,
+            "snare_followup_selected": 0,
+            "snare_without_followup_decision": 0,
+            "web_activation_hits": 141,
+            "web_activations": 6
+          },
+          "name": "orias_gremory_00_p0__old",
+          "opponent": "Gremory",
+          "outcome": {
+            "action": "game_finished",
+            "round": 18,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "pair_id": "orias_gremory_00_p0",
+          "rejected_previews": 0,
+          "repeat": 0,
+          "rounds": 18,
+          "status": "complete",
+          "timing": {
+            "decision_ms": 7049.294924,
+            "name": "orias_gremory_00_p0__old",
+            "simulation_ms": 151187.051445
+          },
+          "variant": "old",
+          "wall_seconds": 196.73861950399987,
+          "won": true
+        },
+        {
+          "error": null,
+          "focal_seat": 0,
+          "metrics": {
+            "Snare_selected": 3,
+            "Web_selected": 5,
+            "decisions": 16,
+            "snare_activations": 3,
+            "snare_followup_resolved": 1,
+            "snare_followup_selected": 1,
+            "snare_without_followup_decision": 0,
+            "web_activation_hits": 112,
+            "web_activations": 5
+          },
+          "name": "orias_gremory_00_p0__new",
+          "opponent": "Gremory",
+          "outcome": {
+            "action": "game_finished",
+            "round": 16,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "pair_id": "orias_gremory_00_p0",
+          "rejected_previews": 0,
+          "repeat": 0,
+          "rounds": 16,
+          "status": "complete",
+          "timing": {
+            "decision_ms": 6305.343591,
+            "name": "orias_gremory_00_p0__new",
+            "simulation_ms": 115016.640151
+          },
+          "variant": "new",
+          "wall_seconds": 143.36878695999985,
+          "won": true
+        },
+        {
+          "error": null,
+          "focal_seat": 1,
+          "metrics": {
+            "Snare_selected": 3,
+            "Web_selected": 6,
+            "decisions": 18,
+            "snare_activations": 3,
+            "snare_followup_resolved": 1,
+            "snare_followup_selected": 1,
+            "snare_without_followup_decision": 0,
+            "web_activation_hits": 90,
+            "web_activations": 6
+          },
+          "name": "orias_gremory_00_p1__old",
+          "opponent": "Gremory",
+          "outcome": {
+            "action": "game_finished",
+            "round": 18,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "pair_id": "orias_gremory_00_p1",
+          "rejected_previews": 0,
+          "repeat": 0,
+          "rounds": 18,
+          "status": "complete",
+          "timing": {
+            "decision_ms": 4995.764548,
+            "name": "orias_gremory_00_p1__old",
+            "simulation_ms": 90493.64818
+          },
+          "variant": "old",
+          "wall_seconds": 122.33383398799924,
+          "won": true
+        },
+        {
+          "error": null,
+          "focal_seat": 1,
+          "metrics": {
+            "Snare_selected": 3,
+            "Web_selected": 6,
+            "decisions": 18,
+            "snare_activations": 3,
+            "snare_followup_resolved": 1,
+            "snare_followup_selected": 1,
+            "snare_without_followup_decision": 0,
+            "web_activation_hits": 90,
+            "web_activations": 6
+          },
+          "name": "orias_gremory_00_p1__new",
+          "opponent": "Gremory",
+          "outcome": {
+            "action": "game_finished",
+            "round": 18,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "pair_id": "orias_gremory_00_p1",
+          "rejected_previews": 0,
+          "repeat": 0,
+          "rounds": 18,
+          "status": "complete",
+          "timing": {
+            "decision_ms": 7250.115325,
+            "name": "orias_gremory_00_p1__new",
+            "simulation_ms": 144271.966137
+          },
+          "variant": "new",
+          "wall_seconds": 191.30836742200063,
+          "won": true
+        },
+        {
+          "error": null,
+          "focal_seat": 0,
+          "metrics": {
+            "Snare_selected": 1,
+            "Web_selected": 8,
+            "decisions": 23,
+            "snare_activations": 1,
+            "snare_followup_resolved": 0,
+            "snare_followup_selected": 0,
+            "snare_without_followup_decision": 0,
+            "web_activation_hits": 166,
+            "web_activations": 8
+          },
+          "name": "orias_deimos_00_p0__old",
+          "opponent": "Deimos",
+          "outcome": {
+            "action": "game_finished",
+            "round": 23,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "pair_id": "orias_deimos_00_p0",
+          "rejected_previews": 0,
+          "repeat": 0,
+          "rounds": 23,
+          "status": "complete",
+          "timing": {
+            "decision_ms": 7951.391949,
+            "name": "orias_deimos_00_p0__old",
+            "simulation_ms": 178138.229137
+          },
+          "variant": "old",
+          "wall_seconds": 209.70137929200064,
+          "won": false
+        },
+        {
+          "error": null,
+          "focal_seat": 0,
+          "metrics": {
+            "Snare_selected": 1,
+            "Web_selected": 8,
+            "decisions": 23,
+            "snare_activations": 1,
+            "snare_followup_resolved": 0,
+            "snare_followup_selected": 0,
+            "snare_without_followup_decision": 0,
+            "web_activation_hits": 166,
+            "web_activations": 8
+          },
+          "name": "orias_deimos_00_p0__new",
+          "opponent": "Deimos",
+          "outcome": {
+            "action": "game_finished",
+            "round": 23,
+            "win_by": "FinalCollapse",
+            "winner": 1
+          },
+          "pair_id": "orias_deimos_00_p0",
+          "rejected_previews": 0,
+          "repeat": 0,
+          "rounds": 23,
+          "status": "complete",
+          "timing": {
+            "decision_ms": 12965.646424,
+            "name": "orias_deimos_00_p0__new",
+            "simulation_ms": 223721.906864
+          },
+          "variant": "new",
+          "wall_seconds": 262.9975156240007,
+          "won": false
+        },
+        {
+          "error": null,
+          "focal_seat": 1,
+          "metrics": {
+            "Snare_selected": 2,
+            "Web_selected": 7,
+            "decisions": 21,
+            "snare_activations": 2,
+            "snare_followup_resolved": 0,
+            "snare_followup_selected": 0,
+            "snare_without_followup_decision": 0,
+            "web_activation_hits": 106,
+            "web_activations": 7
+          },
+          "name": "orias_deimos_00_p1__old",
+          "opponent": "Deimos",
+          "outcome": {
+            "action": "game_finished",
+            "round": 21,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "pair_id": "orias_deimos_00_p1",
+          "rejected_previews": 0,
+          "repeat": 0,
+          "rounds": 21,
+          "status": "complete",
+          "timing": {
+            "decision_ms": 6164.357251,
+            "name": "orias_deimos_00_p1__old",
+            "simulation_ms": 96338.581284
+          },
+          "variant": "old",
+          "wall_seconds": 127.621329564,
+          "won": false
+        },
+        {
+          "error": null,
+          "focal_seat": 1,
+          "metrics": {
+            "Snare_selected": 2,
+            "Web_selected": 7,
+            "decisions": 21,
+            "snare_activations": 2,
+            "snare_followup_resolved": 0,
+            "snare_followup_selected": 0,
+            "snare_without_followup_decision": 0,
+            "web_activation_hits": 106,
+            "web_activations": 7
+          },
+          "name": "orias_deimos_00_p1__new",
+          "opponent": "Deimos",
+          "outcome": {
+            "action": "game_finished",
+            "round": 21,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "pair_id": "orias_deimos_00_p1",
+          "rejected_previews": 0,
+          "repeat": 0,
+          "rounds": 21,
+          "status": "complete",
+          "timing": {
+            "decision_ms": 6698.01303,
+            "name": "orias_deimos_00_p1__new",
+            "simulation_ms": 100096.138719
+          },
+          "variant": "new",
+          "wall_seconds": 131.87251844099956,
+          "won": false
+        },
+        {
+          "error": null,
+          "focal_seat": 0,
+          "metrics": {
+            "Snare_selected": 2,
+            "Web_selected": 5,
+            "decisions": 14,
+            "snare_activations": 2,
+            "snare_followup_resolved": 1,
+            "snare_followup_selected": 1,
+            "snare_without_followup_decision": 0,
+            "web_activation_hits": 46,
+            "web_activations": 5
+          },
+          "name": "orias_humbaba_00_p0__old",
+          "opponent": "Humbaba",
+          "outcome": {
+            "action": "game_finished",
+            "round": 14,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "pair_id": "orias_humbaba_00_p0",
+          "rejected_previews": 0,
+          "repeat": 0,
+          "rounds": 14,
+          "status": "complete",
+          "timing": {
+            "decision_ms": 3439.517147,
+            "name": "orias_humbaba_00_p0__old",
+            "simulation_ms": 57567.125318
+          },
+          "variant": "old",
+          "wall_seconds": 74.65493578299993,
+          "won": true
+        },
+        {
+          "error": null,
+          "focal_seat": 0,
+          "metrics": {
+            "Snare_selected": 1,
+            "Web_selected": 5,
+            "decisions": 18,
+            "snare_activations": 1,
+            "snare_followup_resolved": 1,
+            "snare_followup_selected": 1,
+            "snare_without_followup_decision": 0,
+            "web_activation_hits": 61,
+            "web_activations": 5
+          },
+          "name": "orias_humbaba_00_p0__new",
+          "opponent": "Humbaba",
+          "outcome": {
+            "action": "game_finished",
+            "round": 18,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "pair_id": "orias_humbaba_00_p0",
+          "rejected_previews": 0,
+          "repeat": 0,
+          "rounds": 18,
+          "status": "complete",
+          "timing": {
+            "decision_ms": 4868.38392,
+            "name": "orias_humbaba_00_p0__new",
+            "simulation_ms": 65866.568681
+          },
+          "variant": "new",
+          "wall_seconds": 93.0338360679998,
+          "won": true
+        },
+        {
+          "error": null,
+          "focal_seat": 1,
+          "metrics": {
+            "Snare_selected": 1,
+            "Web_selected": 7,
+            "decisions": 22,
+            "snare_activations": 1,
+            "snare_followup_resolved": 0,
+            "snare_followup_selected": 0,
+            "snare_without_followup_decision": 0,
+            "web_activation_hits": 172,
+            "web_activations": 7
+          },
+          "name": "orias_humbaba_00_p1__old",
+          "opponent": "Humbaba",
+          "outcome": {
+            "action": "game_finished",
+            "round": 22,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "pair_id": "orias_humbaba_00_p1",
+          "rejected_previews": 0,
+          "repeat": 0,
+          "rounds": 22,
+          "status": "complete",
+          "timing": {
+            "decision_ms": 6798.524641,
+            "name": "orias_humbaba_00_p1__old",
+            "simulation_ms": 125917.104019
+          },
+          "variant": "old",
+          "wall_seconds": 155.0808360860001,
+          "won": false
+        },
+        {
+          "error": null,
+          "focal_seat": 1,
+          "metrics": {
+            "Snare_selected": 1,
+            "Web_selected": 7,
+            "decisions": 22,
+            "snare_activations": 1,
+            "snare_followup_resolved": 0,
+            "snare_followup_selected": 0,
+            "snare_without_followup_decision": 0,
+            "web_activation_hits": 172,
+            "web_activations": 7
+          },
+          "name": "orias_humbaba_00_p1__new",
+          "opponent": "Humbaba",
+          "outcome": {
+            "action": "game_finished",
+            "round": 22,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "pair_id": "orias_humbaba_00_p1",
+          "rejected_previews": 0,
+          "repeat": 0,
+          "rounds": 22,
+          "status": "complete",
+          "timing": {
+            "decision_ms": 7441.536244,
+            "name": "orias_humbaba_00_p1__new",
+            "simulation_ms": 119665.586925
+          },
+          "variant": "new",
+          "wall_seconds": 151.86124323899912,
+          "won": false
+        },
+        {
+          "error": null,
+          "focal_seat": 0,
+          "metrics": {
+            "Snare_selected": 1,
+            "Web_selected": 9,
+            "decisions": 27,
+            "snare_activations": 1,
+            "snare_followup_resolved": 0,
+            "snare_followup_selected": 0,
+            "snare_without_followup_decision": 0,
+            "web_activation_hits": 235,
+            "web_activations": 9
+          },
+          "name": "orias_kalligan_00_p0__old",
+          "opponent": "Kalligan",
+          "outcome": {
+            "action": "game_finished",
+            "round": 27,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "pair_id": "orias_kalligan_00_p0",
+          "rejected_previews": 0,
+          "repeat": 0,
+          "rounds": 27,
+          "status": "complete",
+          "timing": {
+            "decision_ms": 6077.432662,
+            "name": "orias_kalligan_00_p0__old",
+            "simulation_ms": 132715.345985
+          },
+          "variant": "old",
+          "wall_seconds": 259.79109124800107,
+          "won": true
+        },
+        {
+          "error": null,
+          "focal_seat": 0,
+          "metrics": {
+            "Snare_selected": 1,
+            "Web_selected": 9,
+            "decisions": 27,
+            "snare_activations": 1,
+            "snare_followup_resolved": 0,
+            "snare_followup_selected": 0,
+            "snare_without_followup_decision": 0,
+            "web_activation_hits": 235,
+            "web_activations": 9
+          },
+          "name": "orias_kalligan_00_p0__new",
+          "opponent": "Kalligan",
+          "outcome": {
+            "action": "game_finished",
+            "round": 27,
+            "win_by": "FinalCollapse",
+            "winner": 0
+          },
+          "pair_id": "orias_kalligan_00_p0",
+          "rejected_previews": 0,
+          "repeat": 0,
+          "rounds": 27,
+          "status": "complete",
+          "timing": {
+            "decision_ms": 16373.634398,
+            "name": "orias_kalligan_00_p0__new",
+            "simulation_ms": 365959.76767
+          },
+          "variant": "new",
+          "wall_seconds": 492.58505597899966,
+          "won": true
+        },
+        {
+          "error": null,
+          "focal_seat": 1,
+          "metrics": {
+            "Snare_selected": 1,
+            "Web_selected": 5,
+            "decisions": 21,
+            "snare_activations": 1,
+            "snare_followup_resolved": 1,
+            "snare_followup_selected": 1,
+            "snare_without_followup_decision": 0,
+            "web_activation_hits": 74,
+            "web_activations": 5
+          },
+          "name": "orias_kalligan_00_p1__old",
+          "opponent": "Kalligan",
+          "outcome": {
+            "action": "game_finished",
+            "round": 21,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "pair_id": "orias_kalligan_00_p1",
+          "rejected_previews": 0,
+          "repeat": 0,
+          "rounds": 21,
+          "status": "complete",
+          "timing": {
+            "decision_ms": 13664.01132,
+            "name": "orias_kalligan_00_p1__old",
+            "simulation_ms": 235779.845621
+          },
+          "variant": "old",
+          "wall_seconds": 305.0972795990001,
+          "won": true
+        },
+        {
+          "error": null,
+          "focal_seat": 1,
+          "metrics": {
+            "Snare_selected": 1,
+            "Web_selected": 5,
+            "decisions": 21,
+            "snare_activations": 1,
+            "snare_followup_resolved": 1,
+            "snare_followup_selected": 1,
+            "snare_without_followup_decision": 0,
+            "web_activation_hits": 74,
+            "web_activations": 5
+          },
+          "name": "orias_kalligan_00_p1__new",
+          "opponent": "Kalligan",
+          "outcome": {
+            "action": "game_finished",
+            "round": 21,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "pair_id": "orias_kalligan_00_p1",
+          "rejected_previews": 0,
+          "repeat": 0,
+          "rounds": 21,
+          "status": "complete",
+          "timing": {
+            "decision_ms": 17187.418245,
+            "name": "orias_kalligan_00_p1__new",
+            "simulation_ms": 228271.759416
+          },
+          "variant": "new",
+          "wall_seconds": 283.19228389099953,
+          "won": true
+        }
+      ],
+      "limitation": "16 predeclared games: V17 versus threat-aware Snare V18, fixed V15 opponents, four diagnostic opponents, one fresh seed each, both seats. Web and shared planner unchanged except policy version. Workers recycle after each game. Focused preliminary sample, not general balance.",
+      "paired_results": {
+        "both_lose": 3,
+        "both_win": 5,
+        "incomplete": 0,
+        "new_only": 0,
+        "old_only": 0
+      },
+      "requested": 16,
+      "totals": {
+        "new": {
+          "Snare_per_decision": 0.0783132530120482,
+          "Snare_per_game": 1.625,
+          "Snare_selected": 13,
+          "Web_per_decision": 0.3132530120481928,
+          "Web_per_game": 6.5,
+          "Web_selected": 52,
+          "completed": 8,
+          "decisions": 166,
+          "mean_rounds": 20.75,
+          "requested": 8,
+          "rounds": 166,
+          "snare_activations": 13,
+          "snare_followup_resolved": 4,
+          "snare_followup_selected": 4,
+          "snare_without_followup_decision": 0,
+          "web_activation_hits": 1016,
+          "web_activations": 52,
+          "win_rate": 0.625,
+          "wins": 5
+        },
+        "old": {
+          "Snare_per_decision": 0.08536585365853659,
+          "Snare_per_game": 1.75,
+          "Snare_selected": 14,
+          "Web_per_decision": 0.3231707317073171,
+          "Web_per_game": 6.625,
+          "Web_selected": 53,
+          "completed": 8,
+          "decisions": 164,
+          "mean_rounds": 20.5,
+          "requested": 8,
+          "rounds": 164,
+          "snare_activations": 14,
+          "snare_followup_resolved": 3,
+          "snare_followup_selected": 3,
+          "snare_without_followup_decision": 0,
+          "web_activation_hits": 1030,
+          "web_activations": 53,
+          "win_rate": 0.625,
+          "wins": 5
+        }
+      }
+    },
+    "summary_sha256": "97210b9f0b8a241cb896217023441894a0f44ba816903bb185e6a933c8934a46"
+  },
+  "saved_board_audit": {
+    "candidate_policy": "U13_COMMON_SMART_CORE_ALPHA_V18_ORIAS_SNARE_THREAT",
+    "cases": [
+      {
+        "case": "orias_gremory_00_p0__new",
+        "new_budget": {
+          "limits": {
+            "complete_plans": 32,
+            "generated_per_category": 16,
+            "previews": 8,
+            "retained_per_category": 4
+          },
+          "refused": {},
+          "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+          "used": {
+            "complete_plans": 23,
+            "generated:combat": 11,
+            "generated:guards": 7,
+            "generated:monsters": 3,
+            "generated:orias": 16,
+            "generated:powers": 2,
+            "generated:resummon": 1,
+            "generated:rites": 1,
+            "generated:work": 3,
+            "previews": 1,
+            "retained:combat": 4,
+            "retained:guards": 4,
+            "retained:monsters": 2,
+            "retained:orias": 3,
+            "retained:powers": 1,
+            "retained:work": 2
+          }
+        },
+        "new_order": {
+          "action": "Ward",
+          "card_ids": [
+            "u13_entity_card:18:game:deck:Penitent:1:5",
+            "u13_entity_card:18:game:deck:Penitent:2:16"
+          ],
+          "castle_action": {
+            "action": "Work",
+            "card_ids": [],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+            "use_repair_token": false
+          },
+          "guard_moves": [
+            {
+              "card_id": "u13_entity_card:17:game:deck:Vulture:1:4",
+              "lane": "Lord",
+              "slot": 0
+            },
+            {
+              "card_id": "u13_entity_card:17:game:deck:Vulture:2:14",
+              "lane": "Lord",
+              "slot": 1
+            }
+          ],
+          "lane": "Castle",
+          "monster_choice": "Lemek"
+        },
+        "new_same_plan": {
+          "benefit": 12,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:17"
+            ],
+            "guard_card_ids": [
+              "u13_entity_card:17:game:deck:Vulture:2:15"
+            ],
+            "lane": "Lord",
+            "monster": "",
+            "score": 25
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 2,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:17",
+              "u13_entity_card:17:game:deck:Vulture:2:15"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": -3,
+                "attack_score": 22,
+                "competing_score": 25,
+                "new_guard_value": 2,
+                "normal_damage": 2,
+                "normal_new_guards": 3,
+                "snared_damage": 6,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "attack_margin": -9,
+                "attack_score": 16,
+                "competing_score": 25,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 4,
+                "snared_new_guards": 1,
+                "value": 24
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+          },
+          "opportunity_penalty": 6,
+          "reason": "low_threat_opportunistic_setup",
+          "score": 2
+        },
+        "new_selected": {
+          "benefit": 12,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:17"
+            ],
+            "guard_card_ids": [
+              "u13_entity_card:17:game:deck:Vulture:2:15"
+            ],
+            "lane": "Lord",
+            "monster": "",
+            "score": 25
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 2,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:17",
+              "u13_entity_card:17:game:deck:Vulture:2:15"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": -3,
+                "attack_score": 22,
+                "competing_score": 25,
+                "new_guard_value": 2,
+                "normal_damage": 2,
+                "normal_new_guards": 3,
+                "snared_damage": 6,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "attack_margin": -9,
+                "attack_score": 16,
+                "competing_score": 25,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 4,
+                "snared_new_guards": 1,
+                "value": 24
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+          },
+          "opportunity_penalty": 6,
+          "power": "Snare",
+          "reason": "low_threat_opportunistic_setup",
+          "score": 2,
+          "score_delta": -2
+        },
+        "old": {
+          "benefit": 12,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_cost": 0,
+            "defense_loss": 0,
+            "score": 6,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 2,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:17",
+              "u13_entity_card:17:game:deck:Vulture:2:15"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "new_guard_value": 2,
+                "normal_damage": 2,
+                "normal_new_guards": 3,
+                "snared_damage": 6,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 4,
+                "snared_new_guards": 1,
+                "value": 24
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+          },
+          "power": "Snare",
+          "reason": "limit_reinforcement_before_follow_up",
+          "score": 6,
+          "score_delta": -3
+        },
+        "old_next_action": "Ward",
+        "round": 1,
+        "view_sha256": "da90fa58486953b8c010a15662bd9f052503d634e12178d62735886e58650122"
+      },
+      {
+        "case": "orias_gremory_00_p0__new",
+        "new_budget": {
+          "limits": {
+            "complete_plans": 32,
+            "generated_per_category": 16,
+            "previews": 8,
+            "retained_per_category": 4
+          },
+          "refused": {
+            "generated:orias": 1
+          },
+          "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+          "used": {
+            "complete_plans": 25,
+            "generated:combat": 11,
+            "generated:guards": 3,
+            "generated:monsters": 6,
+            "generated:orias": 16,
+            "generated:powers": 10,
+            "generated:resummon": 1,
+            "generated:rites": 1,
+            "generated:work": 4,
+            "previews": 1,
+            "retained:combat": 4,
+            "retained:guards": 2,
+            "retained:monsters": 4,
+            "retained:orias": 2,
+            "retained:powers": 1,
+            "retained:work": 3
+          }
+        },
+        "new_order": {
+          "action": "Ward",
+          "card_ids": [
+            "u13_entity_card:16:game:deck:Wright:1:9",
+            "u13_entity_card:16:game:deck:Wright:2:14",
+            "u13_entity_card:16:game:deck:Wright:2:16",
+            "u13_entity_card:17:game:deck:Vulture:1:1"
+          ],
+          "castle_action": {
+            "action": "Activate",
+            "card_ids": [],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+            "use_repair_token": false
+          },
+          "guard_moves": [
+            {
+              "card_id": "u13_entity_card:16:game:deck:Wright:2:17",
+              "lane": "Castle",
+              "slot": 2
+            }
+          ],
+          "lane": "Castle",
+          "monster_choice": "Muno"
+        },
+        "new_same_plan": {
+          "benefit": 11,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:1:7",
+              "u13_entity_card:18:game:deck:Penitent:2:12"
+            ],
+            "guard_card_ids": [],
+            "lane": "Castle",
+            "monster": "Lemek",
+            "score": 90
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 4,
+          "follow_up": {
+            "action": "Hunt",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:1:7",
+              "u13_entity_card:17:game:deck:Vulture:2:10",
+              "u13_entity_card:17:game:deck:Vulture:2:13",
+              "u13_entity_card:18:game:deck:Penitent:2:12"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Lord",
+            "scenarios": [
+              {
+                "attack_margin": -17,
+                "attack_score": 73,
+                "competing_score": 90,
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "attack_margin": -23,
+                "attack_score": 67,
+                "competing_score": 90,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 21
+              }
+            ],
+            "target_id": "u13_entity_lord:12:smoke:lord:1:1:0"
+          },
+          "opportunity_penalty": 5,
+          "reason": "low_threat_opportunistic_setup",
+          "score": 2
+        },
+        "new_selected": {
+          "benefit": 11,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:1:7",
+              "u13_entity_card:18:game:deck:Penitent:2:12"
+            ],
+            "guard_card_ids": [],
+            "lane": "Castle",
+            "monster": "Lemek",
+            "score": 90
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 4,
+          "follow_up": {
+            "action": "Hunt",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:1:7",
+              "u13_entity_card:17:game:deck:Vulture:2:10",
+              "u13_entity_card:17:game:deck:Vulture:2:13",
+              "u13_entity_card:18:game:deck:Penitent:2:12"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Lord",
+            "scenarios": [
+              {
+                "attack_margin": -17,
+                "attack_score": 73,
+                "competing_score": 90,
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "attack_margin": -23,
+                "attack_score": 67,
+                "competing_score": 90,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 21
+              }
+            ],
+            "target_id": "u13_entity_lord:12:smoke:lord:1:1:0"
+          },
+          "opportunity_penalty": 5,
+          "power": "Snare",
+          "reason": "low_threat_opportunistic_setup",
+          "score": 2,
+          "score_delta": -1
+        },
+        "old": {
+          "benefit": 11,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_cost": 0,
+            "defense_loss": 0,
+            "score": 6,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 4,
+          "follow_up": {
+            "action": "Hunt",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:1:7",
+              "u13_entity_card:17:game:deck:Vulture:2:10",
+              "u13_entity_card:17:game:deck:Vulture:2:13",
+              "u13_entity_card:18:game:deck:Penitent:2:12"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Lord",
+            "scenarios": [
+              {
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 21
+              }
+            ],
+            "target_id": "u13_entity_lord:12:smoke:lord:1:1:0"
+          },
+          "power": "Snare",
+          "reason": "limit_reinforcement_before_follow_up",
+          "score": 5,
+          "score_delta": -2
+        },
+        "old_next_action": "Siege",
+        "round": 3,
+        "view_sha256": "041373029f2461742126ce06892e50be1d27f7a0fca642fec9e581e788e53415"
+      },
+      {
+        "case": "orias_gremory_00_p0__new",
+        "new_budget": {
+          "limits": {
+            "complete_plans": 32,
+            "generated_per_category": 16,
+            "previews": 8,
+            "retained_per_category": 4
+          },
+          "refused": {
+            "generated:orias": 1
+          },
+          "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+          "used": {
+            "complete_plans": 30,
+            "generated:combat": 10,
+            "generated:guards": 1,
+            "generated:monsters": 4,
+            "generated:orias": 16,
+            "generated:powers": 14,
+            "generated:resummon": 1,
+            "generated:rites": 1,
+            "generated:work": 6,
+            "previews": 1,
+            "retained:combat": 4,
+            "retained:monsters": 3,
+            "retained:orias": 3,
+            "retained:powers": 4,
+            "retained:work": 4
+          }
+        },
+        "new_order": {
+          "action": "Ward",
+          "card_ids": [
+            "u13_entity_card:18:game:deck:Penitent:1:4",
+            "u13_entity_card:18:game:deck:Penitent:2:10",
+            "u13_entity_card:18:game:deck:Penitent:2:12",
+            "u13_entity_card:16:game:deck:Wright:1:3"
+          ],
+          "castle_action": {
+            "action": "Work",
+            "card_ids": [],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:2",
+            "use_repair_token": false
+          },
+          "lane": "Lord",
+          "monster_choice": "Kurchin"
+        },
+        "new_same_plan": {
+          "benefit": 13,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:2:12",
+              "u13_entity_card:17:game:deck:Vulture:2:10",
+              "u13_entity_card:17:game:deck:Vulture:1:7"
+            ],
+            "guard_card_ids": [],
+            "lane": "Lord",
+            "monster": "Varn",
+            "score": 64
+          },
+          "competitive": true,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 9,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Vulture:1:7",
+              "u13_entity_card:17:game:deck:Vulture:2:10",
+              "u13_entity_card:17:game:deck:Butcher:2:12"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": 23,
+                "attack_score": 87,
+                "competing_score": 64,
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 1,
+                "snared_new_guards": 1,
+                "value": 12
+              },
+              {
+                "attack_margin": 23,
+                "attack_score": 87,
+                "competing_score": 64,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 1,
+                "snared_new_guards": 1,
+                "value": 42
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+          },
+          "opportunity_penalty": 0,
+          "reason": "competitive_follow_up",
+          "score": 9
+        },
+        "new_selected": {
+          "benefit": 13,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:2:12",
+              "u13_entity_card:17:game:deck:Vulture:2:10",
+              "u13_entity_card:17:game:deck:Vulture:1:7"
+            ],
+            "guard_card_ids": [],
+            "lane": "Lord",
+            "monster": "Varn",
+            "score": 64
+          },
+          "competitive": true,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 9,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Vulture:1:7",
+              "u13_entity_card:17:game:deck:Vulture:2:10",
+              "u13_entity_card:17:game:deck:Butcher:2:12"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": 23,
+                "attack_score": 87,
+                "competing_score": 64,
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 1,
+                "snared_new_guards": 1,
+                "value": 12
+              },
+              {
+                "attack_margin": 23,
+                "attack_score": 87,
+                "competing_score": 64,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 1,
+                "snared_new_guards": 1,
+                "value": 42
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+          },
+          "opportunity_penalty": 0,
+          "power": "Snare",
+          "reason": "competitive_follow_up",
+          "score": 9,
+          "score_delta": -8
+        },
+        "old": {
+          "benefit": 13,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_cost": 0,
+            "defense_loss": 0,
+            "score": 4,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 9,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Vulture:1:7",
+              "u13_entity_card:17:game:deck:Vulture:2:10",
+              "u13_entity_card:17:game:deck:Butcher:2:12"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 1,
+                "snared_new_guards": 1,
+                "value": 12
+              },
+              {
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 1,
+                "snared_new_guards": 1,
+                "value": 42
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+          },
+          "power": "Snare",
+          "reason": "limit_reinforcement_before_follow_up",
+          "score": 9,
+          "score_delta": -6
+        },
+        "old_next_action": "Ward",
+        "round": 8,
+        "view_sha256": "571bcb10a3d01b070896a509bdec0f7a05d428aeee44bb6a04ea986bfa1841f1"
+      },
+      {
+        "case": "orias_gremory_00_p1__new",
+        "new_budget": {
+          "limits": {
+            "complete_plans": 32,
+            "generated_per_category": 16,
+            "previews": 8,
+            "retained_per_category": 4
+          },
+          "refused": {},
+          "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+          "used": {
+            "complete_plans": 23,
+            "generated:combat": 11,
+            "generated:guards": 7,
+            "generated:monsters": 3,
+            "generated:orias": 16,
+            "generated:powers": 2,
+            "generated:resummon": 1,
+            "generated:rites": 1,
+            "generated:work": 3,
+            "previews": 1,
+            "retained:combat": 4,
+            "retained:guards": 4,
+            "retained:monsters": 2,
+            "retained:orias": 3,
+            "retained:powers": 1,
+            "retained:work": 2
+          }
+        },
+        "new_order": {
+          "action": "Ward",
+          "card_ids": [
+            "u13_entity_card:18:game:deck:Penitent:2:15",
+            "u13_entity_card:18:game:deck:Penitent:2:17"
+          ],
+          "castle_action": {
+            "action": "Work",
+            "card_ids": [],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
+            "use_repair_token": false
+          },
+          "guard_moves": [
+            {
+              "card_id": "u13_entity_card:16:game:deck:Wright:1:6",
+              "lane": "Castle",
+              "slot": 0
+            },
+            {
+              "card_id": "u13_entity_card:16:game:deck:Wright:2:10",
+              "lane": "Castle",
+              "slot": 1
+            }
+          ],
+          "lane": "Castle",
+          "monster_choice": "Lemek"
+        },
+        "new_same_plan": {
+          "benefit": 10,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:1:9"
+            ],
+            "guard_card_ids": [
+              "u13_entity_card:17:game:deck:Vulture:2:17"
+            ],
+            "lane": "Lord",
+            "monster": "",
+            "score": 19
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 2,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:1:9",
+              "u13_entity_card:17:game:deck:Vulture:2:17"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": 4,
+                "attack_score": 23,
+                "competing_score": 19,
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "attack_margin": -2,
+                "attack_score": 17,
+                "competing_score": 19,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 18
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:0"
+          },
+          "opportunity_penalty": 0,
+          "reason": "low_threat_opportunistic_setup",
+          "score": 6
+        },
+        "new_selected": {
+          "benefit": 10,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:1:9"
+            ],
+            "guard_card_ids": [
+              "u13_entity_card:17:game:deck:Vulture:2:17"
+            ],
+            "lane": "Lord",
+            "monster": "",
+            "score": 19
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 2,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:1:9",
+              "u13_entity_card:17:game:deck:Vulture:2:17"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": 4,
+                "attack_score": 23,
+                "competing_score": 19,
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "attack_margin": -2,
+                "attack_score": 17,
+                "competing_score": 19,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 18
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:0"
+          },
+          "opportunity_penalty": 0,
+          "power": "Snare",
+          "reason": "low_threat_opportunistic_setup",
+          "score": 6,
+          "score_delta": -5
+        },
+        "old": {
+          "benefit": 10,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_cost": 0,
+            "defense_loss": 0,
+            "score": 6,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 2,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:1:9",
+              "u13_entity_card:17:game:deck:Vulture:2:17"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 18
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:0"
+          },
+          "power": "Snare",
+          "reason": "limit_reinforcement_before_follow_up",
+          "score": 4,
+          "score_delta": -5
+        },
+        "old_next_action": "Ward",
+        "round": 1,
+        "view_sha256": "5d0781f96f73c0153de50a0cd7b9ed69c8ab2e288fcc409240168cebf5a8f76c"
+      },
+      {
+        "case": "orias_deimos_00_p0__new",
+        "new_budget": {
+          "limits": {
+            "complete_plans": 32,
+            "generated_per_category": 16,
+            "previews": 8,
+            "retained_per_category": 4
+          },
+          "refused": {
+            "generated:orias": 1
+          },
+          "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+          "used": {
+            "complete_plans": 24,
+            "generated:combat": 11,
+            "generated:guards": 6,
+            "generated:monsters": 4,
+            "generated:orias": 16,
+            "generated:powers": 8,
+            "generated:resummon": 1,
+            "generated:rites": 1,
+            "generated:work": 4,
+            "previews": 1,
+            "retained:combat": 4,
+            "retained:guards": 4,
+            "retained:monsters": 3,
+            "retained:orias": 3,
+            "retained:powers": 1,
+            "retained:work": 3
+          }
+        },
+        "new_order": {
+          "action": "Ward",
+          "card_ids": [
+            "u13_entity_card:18:game:deck:Penitent:1:6",
+            "u13_entity_card:18:game:deck:Penitent:2:10"
+          ],
+          "castle_action": {
+            "action": "Activate",
+            "card_ids": [],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+            "use_repair_token": false
+          },
+          "guard_moves": [
+            {
+              "card_id": "u13_entity_card:17:game:deck:Butcher:2:14",
+              "lane": "Castle",
+              "slot": 0
+            },
+            {
+              "card_id": "u13_entity_card:17:game:deck:Butcher:2:17",
+              "lane": "Castle",
+              "slot": 1
+            }
+          ],
+          "lane": "Castle",
+          "monster_choice": "Lemek"
+        },
+        "new_same_plan": {
+          "benefit": 24,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:14",
+              "u13_entity_card:16:game:deck:Wright:1:4"
+            ],
+            "guard_card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:2:14"
+            ],
+            "lane": "Lord",
+            "monster": "",
+            "score": 26
+          },
+          "competitive": true,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 4,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:1:4",
+              "u13_entity_card:16:game:deck:Wright:2:14",
+              "u13_entity_card:18:game:deck:Penitent:2:14"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": 23,
+                "attack_score": 49,
+                "competing_score": 26,
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 48
+              },
+              {
+                "attack_margin": 23,
+                "attack_score": 49,
+                "competing_score": 26,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 48
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+          },
+          "opportunity_penalty": 0,
+          "reason": "competitive_follow_up",
+          "score": 20
+        },
+        "new_selected": {
+          "benefit": 24,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:14",
+              "u13_entity_card:16:game:deck:Wright:1:4"
+            ],
+            "guard_card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:2:14"
+            ],
+            "lane": "Lord",
+            "monster": "",
+            "score": 26
+          },
+          "competitive": true,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 4,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:1:4",
+              "u13_entity_card:16:game:deck:Wright:2:14",
+              "u13_entity_card:18:game:deck:Penitent:2:14"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": 23,
+                "attack_score": 49,
+                "competing_score": 26,
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 48
+              },
+              {
+                "attack_margin": 23,
+                "attack_score": 49,
+                "competing_score": 26,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 48
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+          },
+          "opportunity_penalty": 0,
+          "power": "Snare",
+          "reason": "competitive_follow_up",
+          "score": 20,
+          "score_delta": 2
+        },
+        "old": {
+          "benefit": 24,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_cost": 0,
+            "defense_loss": 0,
+            "score": 6,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 4,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:1:4",
+              "u13_entity_card:16:game:deck:Wright:2:14",
+              "u13_entity_card:18:game:deck:Penitent:2:14"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 48
+              },
+              {
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 48
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+          },
+          "power": "Snare",
+          "reason": "limit_reinforcement_before_follow_up",
+          "score": 18,
+          "score_delta": 2
+        },
+        "old_next_action": "Ward",
+        "round": 3,
+        "view_sha256": "3827330b23de5f40d229750ad16ecbebbb4c66a8ae492f58e4a31ded6341f343"
+      },
+      {
+        "case": "orias_deimos_00_p1__new",
+        "new_budget": {
+          "limits": {
+            "complete_plans": 32,
+            "generated_per_category": 16,
+            "previews": 8,
+            "retained_per_category": 4
+          },
+          "refused": {
+            "generated:orias": 1
+          },
+          "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+          "used": {
+            "complete_plans": 25,
+            "generated:combat": 11,
+            "generated:guards": 7,
+            "generated:monsters": 5,
+            "generated:orias": 16,
+            "generated:powers": 2,
+            "generated:resummon": 1,
+            "generated:rites": 1,
+            "generated:work": 3,
+            "previews": 1,
+            "retained:combat": 4,
+            "retained:guards": 4,
+            "retained:monsters": 4,
+            "retained:orias": 3,
+            "retained:powers": 1,
+            "retained:work": 2
+          }
+        },
+        "new_order": {
+          "action": "Ward",
+          "card_ids": [
+            "u13_entity_card:17:game:deck:Vulture:1:3",
+            "u13_entity_card:17:game:deck:Vulture:1:9"
+          ],
+          "castle_action": {
+            "action": "Work",
+            "card_ids": [],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+            "use_repair_token": false
+          },
+          "guard_moves": [
+            {
+              "card_id": "u13_entity_card:16:game:deck:Wright:1:5",
+              "lane": "Lord",
+              "slot": 0
+            },
+            {
+              "card_id": "u13_entity_card:16:game:deck:Wright:1:8",
+              "lane": "Lord",
+              "slot": 1
+            }
+          ],
+          "lane": "Castle",
+          "monster_choice": "Varn"
+        },
+        "new_same_plan": {
+          "benefit": 12,
+          "competing_plan": {
+            "action": "Pass",
+            "card_ids": [],
+            "guard_card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:15",
+              "u13_entity_card:16:game:deck:Wright:2:16"
+            ],
+            "lane": "",
+            "monster": "",
+            "score": 38
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 2,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:15",
+              "u13_entity_card:16:game:deck:Wright:2:16"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": -10,
+                "attack_score": 28,
+                "competing_score": 38,
+                "new_guard_value": 2,
+                "normal_damage": 2,
+                "normal_new_guards": 3,
+                "snared_damage": 6,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "attack_margin": -16,
+                "attack_score": 22,
+                "competing_score": 38,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 4,
+                "snared_new_guards": 1,
+                "value": 24
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:0"
+          },
+          "opportunity_penalty": 6,
+          "reason": "low_threat_opportunistic_setup",
+          "score": 2
+        },
+        "new_selected": {
+          "benefit": 12,
+          "competing_plan": {
+            "action": "Pass",
+            "card_ids": [],
+            "guard_card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:15",
+              "u13_entity_card:16:game:deck:Wright:2:16"
+            ],
+            "lane": "",
+            "monster": "",
+            "score": 38
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 2,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:15",
+              "u13_entity_card:16:game:deck:Wright:2:16"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": -10,
+                "attack_score": 28,
+                "competing_score": 38,
+                "new_guard_value": 2,
+                "normal_damage": 2,
+                "normal_new_guards": 3,
+                "snared_damage": 6,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "attack_margin": -16,
+                "attack_score": 22,
+                "competing_score": 38,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 4,
+                "snared_new_guards": 1,
+                "value": 24
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:0"
+          },
+          "opportunity_penalty": 6,
+          "power": "Snare",
+          "reason": "low_threat_opportunistic_setup",
+          "score": 2,
+          "score_delta": -9
+        },
+        "old": {
+          "benefit": 12,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_cost": 0,
+            "defense_loss": 0,
+            "score": 6,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 2,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:15",
+              "u13_entity_card:16:game:deck:Wright:2:16"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "new_guard_value": 2,
+                "normal_damage": 2,
+                "normal_new_guards": 3,
+                "snared_damage": 6,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 4,
+                "snared_new_guards": 1,
+                "value": 24
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:0"
+          },
+          "power": "Snare",
+          "reason": "limit_reinforcement_before_follow_up",
+          "score": 6,
+          "score_delta": -3
+        },
+        "old_next_action": "Ward",
+        "round": 1,
+        "view_sha256": "010871c2e0ba15d63d380d2f6e698b76ab850ac239495f0ce69751d176474300"
+      },
+      {
+        "case": "orias_humbaba_00_p0__new",
+        "new_budget": {
+          "limits": {
+            "complete_plans": 32,
+            "generated_per_category": 16,
+            "previews": 8,
+            "retained_per_category": 4
+          },
+          "refused": {
+            "generated:orias": 1
+          },
+          "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+          "used": {
+            "complete_plans": 26,
+            "generated:combat": 11,
+            "generated:guards": 6,
+            "generated:monsters": 7,
+            "generated:orias": 16,
+            "generated:powers": 11,
+            "generated:resummon": 1,
+            "generated:rites": 1,
+            "generated:work": 3,
+            "previews": 1,
+            "retained:combat": 4,
+            "retained:guards": 4,
+            "retained:monsters": 4,
+            "retained:orias": 1,
+            "retained:powers": 4,
+            "retained:work": 2
+          }
+        },
+        "new_order": {
+          "action": "Ward",
+          "card_ids": [
+            "u13_entity_card:18:game:deck:Penitent:1:8",
+            "u13_entity_card:18:game:deck:Penitent:2:10"
+          ],
+          "castle_action": {
+            "action": "Work",
+            "card_ids": [],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+            "use_repair_token": false
+          },
+          "guard_moves": [
+            {
+              "card_id": "u13_entity_card:17:game:deck:Vulture:1:8",
+              "lane": "Castle",
+              "slot": 0
+            },
+            {
+              "card_id": "u13_entity_card:17:game:deck:Vulture:2:13",
+              "lane": "Castle",
+              "slot": 1
+            }
+          ],
+          "lane": "Lord",
+          "monster_choice": "Lemek"
+        },
+        "new_same_plan": {
+          "benefit": 12,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:13",
+              "u13_entity_card:16:game:deck:Wright:1:8",
+              "u13_entity_card:16:game:deck:Wright:2:11"
+            ],
+            "guard_card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:14"
+            ],
+            "lane": "Castle",
+            "monster": "",
+            "score": 41
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 3,
+          "follow_up": {
+            "action": "Hunt",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:1:8",
+              "u13_entity_card:16:game:deck:Wright:2:11",
+              "u13_entity_card:16:game:deck:Wright:2:13",
+              "u13_entity_card:16:game:deck:Wright:2:14"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Lord",
+            "scenarios": [
+              {
+                "attack_margin": -15,
+                "attack_score": 26,
+                "competing_score": 41,
+                "new_guard_value": 2,
+                "normal_damage": 2,
+                "normal_new_guards": 3,
+                "snared_damage": 6,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "attack_margin": -21,
+                "attack_score": 20,
+                "competing_score": 41,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 4,
+                "snared_new_guards": 1,
+                "value": 24
+              }
+            ],
+            "target_id": "u13_entity_lord:12:smoke:lord:1:1:0"
+          },
+          "opportunity_penalty": 6,
+          "reason": "low_threat_opportunistic_setup",
+          "score": 2
+        },
+        "new_selected": {
+          "benefit": 12,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:13",
+              "u13_entity_card:16:game:deck:Wright:1:8",
+              "u13_entity_card:16:game:deck:Wright:2:11"
+            ],
+            "guard_card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:14"
+            ],
+            "lane": "Castle",
+            "monster": "",
+            "score": 41
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 3,
+          "follow_up": {
+            "action": "Hunt",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:1:8",
+              "u13_entity_card:16:game:deck:Wright:2:11",
+              "u13_entity_card:16:game:deck:Wright:2:13",
+              "u13_entity_card:16:game:deck:Wright:2:14"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Lord",
+            "scenarios": [
+              {
+                "attack_margin": -15,
+                "attack_score": 26,
+                "competing_score": 41,
+                "new_guard_value": 2,
+                "normal_damage": 2,
+                "normal_new_guards": 3,
+                "snared_damage": 6,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "attack_margin": -21,
+                "attack_score": 20,
+                "competing_score": 41,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 4,
+                "snared_new_guards": 1,
+                "value": 24
+              }
+            ],
+            "target_id": "u13_entity_lord:12:smoke:lord:1:1:0"
+          },
+          "opportunity_penalty": 6,
+          "power": "Snare",
+          "reason": "low_threat_opportunistic_setup",
+          "score": 2,
+          "score_delta": -2
+        },
+        "old": {
+          "benefit": 12,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_cost": 0,
+            "defense_loss": 0,
+            "score": 4,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 3,
+          "follow_up": {
+            "action": "Hunt",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:1:8",
+              "u13_entity_card:16:game:deck:Wright:2:11",
+              "u13_entity_card:16:game:deck:Wright:2:13",
+              "u13_entity_card:16:game:deck:Wright:2:14"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Lord",
+            "scenarios": [
+              {
+                "new_guard_value": 2,
+                "normal_damage": 2,
+                "normal_new_guards": 3,
+                "snared_damage": 6,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 4,
+                "snared_new_guards": 1,
+                "value": 24
+              }
+            ],
+            "target_id": "u13_entity_lord:12:smoke:lord:1:1:0"
+          },
+          "power": "Snare",
+          "reason": "limit_reinforcement_before_follow_up",
+          "score": 8,
+          "score_delta": -1
+        },
+        "old_next_action": "Ward",
+        "round": 2,
+        "view_sha256": "7974dacdc73f9f5f02a3fd7debc077129eadff8a05186cd0129cca141fd24dd0"
+      },
+      {
+        "case": "orias_humbaba_00_p0__new",
+        "new_budget": {
+          "limits": {
+            "complete_plans": 32,
+            "generated_per_category": 16,
+            "previews": 8,
+            "retained_per_category": 4
+          },
+          "refused": {
+            "generated:orias": 1
+          },
+          "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+          "used": {
+            "complete_plans": 24,
+            "generated:combat": 11,
+            "generated:guards": 6,
+            "generated:monsters": 8,
+            "generated:orias": 16,
+            "generated:powers": 11,
+            "generated:resummon": 1,
+            "generated:rites": 1,
+            "generated:work": 4,
+            "previews": 1,
+            "retained:combat": 4,
+            "retained:guards": 4,
+            "retained:monsters": 4,
+            "retained:orias": 2,
+            "retained:powers": 1,
+            "retained:work": 3
+          }
+        },
+        "new_order": {
+          "action": "Ward",
+          "card_ids": [
+            "u13_entity_card:18:game:deck:Penitent:1:2",
+            "u13_entity_card:18:game:deck:Penitent:2:16",
+            "u13_entity_card:18:game:deck:Penitent:2:17",
+            "u13_entity_card:16:game:deck:Wright:1:8"
+          ],
+          "castle_action": {
+            "action": "Activate",
+            "card_ids": [],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+            "use_repair_token": false
+          },
+          "guard_moves": [
+            {
+              "card_id": "u13_entity_card:17:game:deck:Vulture:1:1",
+              "lane": "Castle",
+              "slot": 0
+            },
+            {
+              "card_id": "u13_entity_card:17:game:deck:Vulture:1:4",
+              "lane": "Castle",
+              "slot": 1
+            }
+          ],
+          "lane": "Castle",
+          "monster_choice": "Kurchin"
+        },
+        "new_same_plan": {
+          "benefit": 13,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:13",
+              "u13_entity_card:16:game:deck:Wright:2:14",
+              "u13_entity_card:16:game:deck:Wright:2:11"
+            ],
+            "guard_card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:15"
+            ],
+            "lane": "Castle",
+            "monster": "",
+            "score": 44
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 4,
+          "follow_up": {
+            "action": "Hunt",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:11",
+              "u13_entity_card:16:game:deck:Wright:2:13",
+              "u13_entity_card:16:game:deck:Wright:2:14",
+              "u13_entity_card:16:game:deck:Wright:2:15"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Lord",
+            "scenarios": [
+              {
+                "attack_margin": -10,
+                "attack_score": 34,
+                "competing_score": 44,
+                "new_guard_value": 2,
+                "normal_damage": 4,
+                "normal_new_guards": 3,
+                "snared_damage": 8,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "attack_margin": -16,
+                "attack_score": 28,
+                "competing_score": 44,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 6,
+                "snared_new_guards": 1,
+                "value": 30
+              }
+            ],
+            "target_id": "u13_entity_lord:12:smoke:lord:1:1:0"
+          },
+          "opportunity_penalty": 6,
+          "reason": "low_threat_opportunistic_setup",
+          "score": 3
+        },
+        "new_selected": {
+          "benefit": 13,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:13",
+              "u13_entity_card:16:game:deck:Wright:2:14",
+              "u13_entity_card:16:game:deck:Wright:2:11"
+            ],
+            "guard_card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:15"
+            ],
+            "lane": "Castle",
+            "monster": "",
+            "score": 44
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 4,
+          "follow_up": {
+            "action": "Hunt",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:11",
+              "u13_entity_card:16:game:deck:Wright:2:13",
+              "u13_entity_card:16:game:deck:Wright:2:14",
+              "u13_entity_card:16:game:deck:Wright:2:15"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Lord",
+            "scenarios": [
+              {
+                "attack_margin": -10,
+                "attack_score": 34,
+                "competing_score": 44,
+                "new_guard_value": 2,
+                "normal_damage": 4,
+                "normal_new_guards": 3,
+                "snared_damage": 8,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "attack_margin": -16,
+                "attack_score": 28,
+                "competing_score": 44,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 6,
+                "snared_new_guards": 1,
+                "value": 30
+              }
+            ],
+            "target_id": "u13_entity_lord:12:smoke:lord:1:1:0"
+          },
+          "opportunity_penalty": 6,
+          "power": "Snare",
+          "reason": "low_threat_opportunistic_setup",
+          "score": 3,
+          "score_delta": -1
+        },
+        "old": {
+          "benefit": 13,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_cost": 0,
+            "defense_loss": 0,
+            "score": 6,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 4,
+          "follow_up": {
+            "action": "Hunt",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:11",
+              "u13_entity_card:16:game:deck:Wright:2:13",
+              "u13_entity_card:16:game:deck:Wright:2:14",
+              "u13_entity_card:16:game:deck:Wright:2:15"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Lord",
+            "scenarios": [
+              {
+                "new_guard_value": 2,
+                "normal_damage": 4,
+                "normal_new_guards": 3,
+                "snared_damage": 8,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 6,
+                "snared_new_guards": 1,
+                "value": 30
+              }
+            ],
+            "target_id": "u13_entity_lord:12:smoke:lord:1:1:0"
+          },
+          "power": "Snare",
+          "reason": "limit_reinforcement_before_follow_up",
+          "score": 7,
+          "score_delta": -2
+        },
+        "old_next_action": "Ward",
+        "round": 3,
+        "view_sha256": "d3cfea407e14cd849936ea4f0abcd778d9d560fe400371f00e19615a862ceb65"
+      },
+      {
+        "case": "orias_humbaba_00_p0__new",
+        "new_budget": {
+          "limits": {
+            "complete_plans": 32,
+            "generated_per_category": 16,
+            "previews": 8,
+            "retained_per_category": 4
+          },
+          "refused": {
+            "generated:orias": 1,
+            "generated:powers": 1
+          },
+          "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+          "used": {
+            "complete_plans": 29,
+            "generated:combat": 11,
+            "generated:guards": 1,
+            "generated:monsters": 6,
+            "generated:orias": 16,
+            "generated:powers": 16,
+            "generated:resummon": 1,
+            "generated:rites": 2,
+            "generated:work": 2,
+            "previews": 1,
+            "retained:combat": 4,
+            "retained:monsters": 4,
+            "retained:orias": 4,
+            "retained:powers": 4,
+            "retained:rites": 1,
+            "retained:work": 1
+          }
+        },
+        "new_order": {
+          "action": "Ward",
+          "card_ids": [
+            "u13_entity_card:18:game:deck:Penitent:2:10",
+            "u13_entity_card:18:game:deck:Penitent:2:11",
+            "u13_entity_card:18:game:deck:Penitent:2:16",
+            "u13_entity_card:16:game:deck:Wright:1:9"
+          ],
+          "castle_action": {
+            "action": "Work",
+            "card_ids": [],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:1",
+            "use_repair_token": false
+          },
+          "lane": "Lord",
+          "monster_choice": "Kurchin"
+        },
+        "new_same_plan": {
+          "benefit": 10,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Vulture:2:15",
+              "u13_entity_card:16:game:deck:Wright:2:12",
+              "u13_entity_card:17:game:deck:Vulture:2:11"
+            ],
+            "guard_card_ids": [],
+            "lane": "Lord",
+            "monster": "Varn",
+            "score": 78
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 22,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Vulture:2:11",
+              "u13_entity_card:16:game:deck:Wright:2:12",
+              "u13_entity_card:17:game:deck:Vulture:2:15"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [
+              "u13_entity_card:16:game:deck:Wright:2:14"
+            ],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": 21,
+                "attack_score": 99,
+                "competing_score": 78,
+                "new_guard_value": 2,
+                "normal_damage": 0,
+                "normal_new_guards": 2,
+                "snared_damage": 1,
+                "snared_new_guards": 1,
+                "value": 39
+              },
+              {
+                "attack_margin": -12,
+                "attack_score": 66,
+                "competing_score": 78,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 2,
+                "snared_damage": 0,
+                "snared_new_guards": 1,
+                "value": 3
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:2"
+          },
+          "opportunity_penalty": 0,
+          "reason": "low_threat_opportunistic_setup",
+          "score": 6
+        },
+        "new_selected": {
+          "benefit": 10,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Vulture:2:15",
+              "u13_entity_card:16:game:deck:Wright:2:12",
+              "u13_entity_card:17:game:deck:Vulture:2:11"
+            ],
+            "guard_card_ids": [],
+            "lane": "Lord",
+            "monster": "Varn",
+            "score": 78
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 22,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Vulture:2:11",
+              "u13_entity_card:16:game:deck:Wright:2:12",
+              "u13_entity_card:17:game:deck:Vulture:2:15"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [
+              "u13_entity_card:16:game:deck:Wright:2:14"
+            ],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": 21,
+                "attack_score": 99,
+                "competing_score": 78,
+                "new_guard_value": 2,
+                "normal_damage": 0,
+                "normal_new_guards": 2,
+                "snared_damage": 1,
+                "snared_new_guards": 1,
+                "value": 39
+              },
+              {
+                "attack_margin": -12,
+                "attack_score": 66,
+                "competing_score": 78,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 2,
+                "snared_damage": 0,
+                "snared_new_guards": 1,
+                "value": 3
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:2"
+          },
+          "opportunity_penalty": 0,
+          "power": "Snare",
+          "reason": "low_threat_opportunistic_setup",
+          "score": 6,
+          "score_delta": 5
+        },
+        "old": {
+          "benefit": 10,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_cost": 0,
+            "defense_loss": 0,
+            "score": 4,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 22,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Vulture:2:11",
+              "u13_entity_card:16:game:deck:Wright:2:12",
+              "u13_entity_card:17:game:deck:Vulture:2:15"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [
+              "u13_entity_card:16:game:deck:Wright:2:14"
+            ],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "new_guard_value": 2,
+                "normal_damage": 0,
+                "normal_new_guards": 2,
+                "snared_damage": 1,
+                "snared_new_guards": 1,
+                "value": 39
+              },
+              {
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 2,
+                "snared_damage": 0,
+                "snared_new_guards": 1,
+                "value": 3
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:2"
+          },
+          "power": "Snare",
+          "reason": "limit_reinforcement_before_follow_up",
+          "score": 6,
+          "score_delta": 3
+        },
+        "old_next_action": "Ward",
+        "round": 21,
+        "view_sha256": "3a00383fa703d52e2d978b1b879b5956766345e7b0e9462d5b3e63a1a250c071"
+      },
+      {
+        "case": "orias_humbaba_00_p1__new",
+        "new_budget": {
+          "limits": {
+            "complete_plans": 32,
+            "generated_per_category": 16,
+            "previews": 8,
+            "retained_per_category": 4
+          },
+          "refused": {},
+          "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+          "used": {
+            "complete_plans": 23,
+            "generated:combat": 11,
+            "generated:guards": 5,
+            "generated:monsters": 3,
+            "generated:orias": 16,
+            "generated:powers": 2,
+            "generated:resummon": 1,
+            "generated:rites": 1,
+            "generated:work": 3,
+            "previews": 1,
+            "retained:combat": 4,
+            "retained:guards": 4,
+            "retained:monsters": 2,
+            "retained:orias": 3,
+            "retained:powers": 1,
+            "retained:work": 2
+          }
+        },
+        "new_order": {
+          "action": "Ward",
+          "card_ids": [
+            "u13_entity_card:18:game:deck:Penitent:1:4",
+            "u13_entity_card:18:game:deck:Penitent:1:7"
+          ],
+          "castle_action": {
+            "action": "Work",
+            "card_ids": [],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+            "use_repair_token": false
+          },
+          "guard_moves": [
+            {
+              "card_id": "u13_entity_card:17:game:deck:Vulture:2:15",
+              "lane": "Castle",
+              "slot": 0
+            }
+          ],
+          "lane": "Castle",
+          "monster_choice": "Lemek"
+        },
+        "new_same_plan": {
+          "benefit": 12,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:17",
+              "u13_entity_card:18:game:deck:Penitent:2:14",
+              "u13_entity_card:18:game:deck:Penitent:1:9"
+            ],
+            "guard_card_ids": [],
+            "lane": "Lord",
+            "monster": "Lemek",
+            "score": 64
+          },
+          "competitive": true,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 2,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:1:9",
+              "u13_entity_card:18:game:deck:Penitent:2:14",
+              "u13_entity_card:16:game:deck:Wright:2:17"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": 11,
+                "attack_score": 75,
+                "competing_score": 64,
+                "new_guard_value": 2,
+                "normal_damage": 3,
+                "normal_new_guards": 3,
+                "snared_damage": 7,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "attack_margin": 5,
+                "attack_score": 69,
+                "competing_score": 64,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 27
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:0"
+          },
+          "opportunity_penalty": 0,
+          "reason": "competitive_follow_up",
+          "score": 8
+        },
+        "new_selected": {
+          "benefit": 12,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:16:game:deck:Wright:2:17",
+              "u13_entity_card:18:game:deck:Penitent:2:14",
+              "u13_entity_card:18:game:deck:Penitent:1:9"
+            ],
+            "guard_card_ids": [],
+            "lane": "Lord",
+            "monster": "Lemek",
+            "score": 64
+          },
+          "competitive": true,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 2,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:1:9",
+              "u13_entity_card:18:game:deck:Penitent:2:14",
+              "u13_entity_card:16:game:deck:Wright:2:17"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": 11,
+                "attack_score": 75,
+                "competing_score": 64,
+                "new_guard_value": 2,
+                "normal_damage": 3,
+                "normal_new_guards": 3,
+                "snared_damage": 7,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "attack_margin": 5,
+                "attack_score": 69,
+                "competing_score": 64,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 27
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:0"
+          },
+          "opportunity_penalty": 0,
+          "power": "Snare",
+          "reason": "competitive_follow_up",
+          "score": 8,
+          "score_delta": 4
+        },
+        "old": {
+          "benefit": 12,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_cost": 0,
+            "defense_loss": 0,
+            "score": 6,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 2,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:1:9",
+              "u13_entity_card:18:game:deck:Penitent:2:14",
+              "u13_entity_card:16:game:deck:Wright:2:17"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "new_guard_value": 2,
+                "normal_damage": 3,
+                "normal_new_guards": 3,
+                "snared_damage": 7,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 27
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:0"
+          },
+          "power": "Snare",
+          "reason": "limit_reinforcement_before_follow_up",
+          "score": 6,
+          "score_delta": -3
+        },
+        "old_next_action": "Ward",
+        "round": 1,
+        "view_sha256": "9cbc142c55df5083b4aeb42a5e69ea0cb48c41e575557040d46175aee0c667ca"
+      },
+      {
+        "case": "orias_humbaba_00_p1__new",
+        "new_budget": {
+          "limits": {
+            "complete_plans": 32,
+            "generated_per_category": 16,
+            "previews": 8,
+            "retained_per_category": 4
+          },
+          "refused": {},
+          "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+          "used": {
+            "complete_plans": 22,
+            "generated:combat": 11,
+            "generated:guards": 1,
+            "generated:monsters": 3,
+            "generated:orias": 16,
+            "generated:powers": 13,
+            "generated:resummon": 1,
+            "generated:rites": 1,
+            "generated:work": 4,
+            "previews": 1,
+            "retained:combat": 4,
+            "retained:monsters": 2,
+            "retained:orias": 3,
+            "retained:powers": 1,
+            "retained:work": 3
+          }
+        },
+        "new_order": {
+          "action": "Ward",
+          "card_ids": [
+            "u13_entity_card:16:game:deck:Wright:2:10",
+            "u13_entity_card:16:game:deck:Wright:2:13",
+            "u13_entity_card:18:game:deck:Penitent:1:3",
+            "u13_entity_card:18:game:deck:Penitent:2:10"
+          ],
+          "castle_action": {
+            "action": "Work",
+            "card_ids": [],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:3",
+            "use_repair_token": false
+          },
+          "lane": "Lord",
+          "monster_choice": "Kopita"
+        },
+        "new_same_plan": {
+          "benefit": 18,
+          "competing_plan": {
+            "action": "Pass",
+            "card_ids": [],
+            "guard_card_ids": [],
+            "lane": "",
+            "monster": "",
+            "score": 14
+          },
+          "competitive": true,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 8,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:1:4",
+              "u13_entity_card:17:game:deck:Butcher:1:6",
+              "u13_entity_card:17:game:deck:Butcher:2:11"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": 41,
+                "attack_score": 55,
+                "competing_score": 14,
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 54
+              },
+              {
+                "attack_margin": 5,
+                "attack_score": 19,
+                "competing_score": 14,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 18
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:3"
+          },
+          "opportunity_penalty": 0,
+          "reason": "competitive_follow_up",
+          "score": 14
+        },
+        "new_selected": {
+          "benefit": 18,
+          "competing_plan": {
+            "action": "Pass",
+            "card_ids": [],
+            "guard_card_ids": [],
+            "lane": "",
+            "monster": "",
+            "score": 14
+          },
+          "competitive": true,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 8,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:1:4",
+              "u13_entity_card:17:game:deck:Butcher:1:6",
+              "u13_entity_card:17:game:deck:Butcher:2:11"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": 41,
+                "attack_score": 55,
+                "competing_score": 14,
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 54
+              },
+              {
+                "attack_margin": 5,
+                "attack_score": 19,
+                "competing_score": 14,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 18
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:3"
+          },
+          "opportunity_penalty": 0,
+          "power": "Snare",
+          "reason": "competitive_follow_up",
+          "score": 14,
+          "score_delta": 3
+        },
+        "old": {
+          "benefit": 18,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_cost": 0,
+            "defense_loss": 0,
+            "score": 4,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 8,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:1:4",
+              "u13_entity_card:17:game:deck:Butcher:1:6",
+              "u13_entity_card:17:game:deck:Butcher:2:11"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 54
+              },
+              {
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 18
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:3"
+          },
+          "power": "Snare",
+          "reason": "limit_reinforcement_before_follow_up",
+          "score": 14,
+          "score_delta": 5
+        },
+        "old_next_action": "Siege",
+        "round": 7,
+        "view_sha256": "6edb7a649476f37f659d38d1b6e6d29cb5e688efde346213f52bb1dc18d66d1e"
+      },
+      {
+        "case": "orias_humbaba_00_p1__new",
+        "new_budget": {
+          "limits": {
+            "complete_plans": 32,
+            "generated_per_category": 16,
+            "previews": 8,
+            "retained_per_category": 4
+          },
+          "refused": {},
+          "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+          "used": {
+            "complete_plans": 23,
+            "generated:combat": 11,
+            "generated:guards": 1,
+            "generated:monsters": 3,
+            "generated:orias": 16,
+            "generated:powers": 14,
+            "generated:resummon": 1,
+            "generated:rites": 1,
+            "generated:work": 4,
+            "previews": 1,
+            "retained:combat": 4,
+            "retained:monsters": 2,
+            "retained:orias": 3,
+            "retained:powers": 1,
+            "retained:work": 3
+          }
+        },
+        "new_order": {
+          "action": "Ward",
+          "card_ids": [
+            "u13_entity_card:18:game:deck:Penitent:1:7",
+            "u13_entity_card:18:game:deck:Penitent:1:9"
+          ],
+          "castle_action": {
+            "action": "Work",
+            "card_ids": [],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+            "use_repair_token": false
+          },
+          "lane": "Lord",
+          "monster_choice": "Lemek"
+        },
+        "new_same_plan": {
+          "benefit": 19,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Vulture:1:1",
+              "u13_entity_card:17:game:deck:Vulture:1:2"
+            ],
+            "guard_card_ids": [],
+            "lane": "Lord",
+            "monster": "Varn",
+            "score": 78
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 13,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Vulture:1:1",
+              "u13_entity_card:17:game:deck:Vulture:1:2",
+              "u13_entity_card:17:game:deck:Vulture:1:3",
+              "u13_entity_card:17:game:deck:Vulture:1:5",
+              "u13_entity_card:16:game:deck:Wright:2:15"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": 22,
+                "attack_score": 100,
+                "competing_score": 78,
+                "new_guard_value": 2,
+                "normal_damage": 2,
+                "normal_new_guards": 3,
+                "snared_damage": 6,
+                "snared_new_guards": 1,
+                "value": 54
+              },
+              {
+                "attack_margin": -14,
+                "attack_score": 64,
+                "competing_score": 78,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 4,
+                "snared_new_guards": 1,
+                "value": 24
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:3"
+          },
+          "opportunity_penalty": 0,
+          "reason": "low_threat_opportunistic_setup",
+          "score": 15
+        },
+        "new_selected": {
+          "benefit": 19,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Vulture:1:1",
+              "u13_entity_card:17:game:deck:Vulture:1:2"
+            ],
+            "guard_card_ids": [],
+            "lane": "Lord",
+            "monster": "Varn",
+            "score": 78
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 13,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Vulture:1:1",
+              "u13_entity_card:17:game:deck:Vulture:1:2",
+              "u13_entity_card:17:game:deck:Vulture:1:3",
+              "u13_entity_card:17:game:deck:Vulture:1:5",
+              "u13_entity_card:16:game:deck:Wright:2:15"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": 22,
+                "attack_score": 100,
+                "competing_score": 78,
+                "new_guard_value": 2,
+                "normal_damage": 2,
+                "normal_new_guards": 3,
+                "snared_damage": 6,
+                "snared_new_guards": 1,
+                "value": 54
+              },
+              {
+                "attack_margin": -14,
+                "attack_score": 64,
+                "competing_score": 78,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 4,
+                "snared_new_guards": 1,
+                "value": 24
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:3"
+          },
+          "opportunity_penalty": 0,
+          "power": "Snare",
+          "reason": "low_threat_opportunistic_setup",
+          "score": 15,
+          "score_delta": -7
+        },
+        "old": {
+          "benefit": 19,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_cost": 0,
+            "defense_loss": 0,
+            "score": 4,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 13,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Vulture:1:1",
+              "u13_entity_card:17:game:deck:Vulture:1:2",
+              "u13_entity_card:17:game:deck:Vulture:1:3",
+              "u13_entity_card:17:game:deck:Vulture:1:5",
+              "u13_entity_card:16:game:deck:Wright:2:15"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "new_guard_value": 2,
+                "normal_damage": 2,
+                "normal_new_guards": 3,
+                "snared_damage": 6,
+                "snared_new_guards": 1,
+                "value": 54
+              },
+              {
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 4,
+                "snared_new_guards": 1,
+                "value": 24
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:3"
+          },
+          "power": "Snare",
+          "reason": "limit_reinforcement_before_follow_up",
+          "score": 15,
+          "score_delta": -5
+        },
+        "old_next_action": "Ward",
+        "round": 12,
+        "view_sha256": "5ce58af1069a373fbcacab89c49df082c45390f61d950dc439507a5af3148a01"
+      },
+      {
+        "case": "orias_humbaba_00_p1__new",
+        "new_budget": {
+          "limits": {
+            "complete_plans": 32,
+            "generated_per_category": 16,
+            "previews": 8,
+            "retained_per_category": 4
+          },
+          "refused": {
+            "generated:orias": 1
+          },
+          "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+          "used": {
+            "complete_plans": 23,
+            "generated:combat": 11,
+            "generated:guards": 1,
+            "generated:monsters": 4,
+            "generated:orias": 16,
+            "generated:powers": 14,
+            "generated:resummon": 1,
+            "generated:rites": 1,
+            "generated:work": 4,
+            "previews": 1,
+            "retained:combat": 4,
+            "retained:monsters": 3,
+            "retained:orias": 2,
+            "retained:powers": 1,
+            "retained:work": 3
+          }
+        },
+        "new_order": {
+          "action": "Ward",
+          "card_ids": [
+            "u13_entity_card:17:game:deck:Butcher:1:6",
+            "u13_entity_card:17:game:deck:Butcher:2:16",
+            "u13_entity_card:17:game:deck:Vulture:1:5",
+            "u13_entity_card:17:game:deck:Vulture:2:13"
+          ],
+          "castle_action": {
+            "action": "Work",
+            "card_ids": [],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:4",
+            "use_repair_token": false
+          },
+          "lane": "Lord",
+          "monster_choice": "Fyra"
+        },
+        "new_same_plan": {
+          "benefit": 18,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:2:16",
+              "u13_entity_card:16:game:deck:Wright:2:12",
+              "u13_entity_card:18:game:deck:Penitent:1:1"
+            ],
+            "guard_card_ids": [],
+            "lane": "Lord",
+            "monster": "Lemek",
+            "score": 76
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 16,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:1:1",
+              "u13_entity_card:16:game:deck:Wright:2:12",
+              "u13_entity_card:18:game:deck:Penitent:2:16"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": 27,
+                "attack_score": 103,
+                "competing_score": 76,
+                "new_guard_value": 2,
+                "normal_damage": 2,
+                "normal_new_guards": 3,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 51
+              },
+              {
+                "attack_margin": -6,
+                "attack_score": 70,
+                "competing_score": 76,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 4,
+                "snared_new_guards": 1,
+                "value": 24
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:0"
+          },
+          "opportunity_penalty": 0,
+          "reason": "low_threat_opportunistic_setup",
+          "score": 14
+        },
+        "new_selected": {
+          "benefit": 18,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:2:16",
+              "u13_entity_card:16:game:deck:Wright:2:12",
+              "u13_entity_card:18:game:deck:Penitent:1:1"
+            ],
+            "guard_card_ids": [],
+            "lane": "Lord",
+            "monster": "Lemek",
+            "score": 76
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 16,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:1:1",
+              "u13_entity_card:16:game:deck:Wright:2:12",
+              "u13_entity_card:18:game:deck:Penitent:2:16"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": 27,
+                "attack_score": 103,
+                "competing_score": 76,
+                "new_guard_value": 2,
+                "normal_damage": 2,
+                "normal_new_guards": 3,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 51
+              },
+              {
+                "attack_margin": -6,
+                "attack_score": 70,
+                "competing_score": 76,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 4,
+                "snared_new_guards": 1,
+                "value": 24
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:0"
+          },
+          "opportunity_penalty": 0,
+          "power": "Snare",
+          "reason": "low_threat_opportunistic_setup",
+          "score": 14,
+          "score_delta": -4
+        },
+        "old": {
+          "benefit": 18,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_cost": 0,
+            "defense_loss": 0,
+            "score": 4,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 16,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:1:1",
+              "u13_entity_card:16:game:deck:Wright:2:12",
+              "u13_entity_card:18:game:deck:Penitent:2:16"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "new_guard_value": 2,
+                "normal_damage": 2,
+                "normal_new_guards": 3,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 51
+              },
+              {
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 4,
+                "snared_new_guards": 1,
+                "value": 24
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:0"
+          },
+          "power": "Snare",
+          "reason": "limit_reinforcement_before_follow_up",
+          "score": 14,
+          "score_delta": -2
+        },
+        "old_next_action": "Ward",
+        "round": 15,
+        "view_sha256": "720f1566544f09c689712054ce0202625018d36f81a181d1ce7edefb38052e85"
+      },
+      {
+        "case": "orias_kalligan_00_p0__new",
+        "new_budget": {
+          "limits": {
+            "complete_plans": 32,
+            "generated_per_category": 16,
+            "previews": 8,
+            "retained_per_category": 4
+          },
+          "refused": {},
+          "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+          "used": {
+            "complete_plans": 23,
+            "generated:combat": 11,
+            "generated:guards": 7,
+            "generated:monsters": 3,
+            "generated:orias": 16,
+            "generated:powers": 2,
+            "generated:resummon": 1,
+            "generated:rites": 1,
+            "generated:work": 3,
+            "previews": 1,
+            "retained:combat": 4,
+            "retained:guards": 4,
+            "retained:monsters": 2,
+            "retained:orias": 3,
+            "retained:powers": 1,
+            "retained:work": 2
+          }
+        },
+        "new_order": {
+          "action": "Ward",
+          "card_ids": [
+            "u13_entity_card:17:game:deck:Vulture:2:14",
+            "u13_entity_card:17:game:deck:Vulture:2:17"
+          ],
+          "castle_action": {
+            "action": "Work",
+            "card_ids": [],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+            "use_repair_token": false
+          },
+          "guard_moves": [
+            {
+              "card_id": "u13_entity_card:16:game:deck:Wright:1:4",
+              "lane": "Castle",
+              "slot": 0
+            },
+            {
+              "card_id": "u13_entity_card:16:game:deck:Wright:1:8",
+              "lane": "Castle",
+              "slot": 1
+            }
+          ],
+          "lane": "Castle",
+          "monster_choice": "Varn"
+        },
+        "new_same_plan": {
+          "benefit": 10,
+          "competing_plan": {
+            "action": "Pass",
+            "card_ids": [],
+            "guard_card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:2:17"
+            ],
+            "lane": "",
+            "monster": "",
+            "score": 31
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 2,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:2:11",
+              "u13_entity_card:17:game:deck:Butcher:2:17"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": -8,
+                "attack_score": 23,
+                "competing_score": 31,
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "attack_margin": -14,
+                "attack_score": 17,
+                "competing_score": 31,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 18
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+          },
+          "opportunity_penalty": 5,
+          "reason": "low_threat_opportunistic_setup",
+          "score": 1
+        },
+        "new_selected": {
+          "benefit": 10,
+          "competing_plan": {
+            "action": "Pass",
+            "card_ids": [],
+            "guard_card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:2:17"
+            ],
+            "lane": "",
+            "monster": "",
+            "score": 31
+          },
+          "competitive": false,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 2,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:2:11",
+              "u13_entity_card:17:game:deck:Butcher:2:17"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": -8,
+                "attack_score": 23,
+                "competing_score": 31,
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "attack_margin": -14,
+                "attack_score": 17,
+                "competing_score": 31,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 18
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+          },
+          "opportunity_penalty": 5,
+          "power": "Snare",
+          "reason": "low_threat_opportunistic_setup",
+          "score": 1,
+          "score_delta": -10
+        },
+        "old": {
+          "benefit": 10,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_cost": 0,
+            "defense_loss": 0,
+            "score": 6,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 2,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:2:11",
+              "u13_entity_card:17:game:deck:Butcher:2:17"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 24
+              },
+              {
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 18
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+          },
+          "power": "Snare",
+          "reason": "limit_reinforcement_before_follow_up",
+          "score": 4,
+          "score_delta": -5
+        },
+        "old_next_action": "Ward",
+        "round": 1,
+        "view_sha256": "c2069b5170f8f7cb0e70be7c23b5be4febd07786aedb6c3ec05b7719c79c843d"
+      },
+      {
+        "case": "orias_kalligan_00_p0__new",
+        "new_budget": {
+          "limits": {
+            "complete_plans": 32,
+            "generated_per_category": 16,
+            "previews": 8,
+            "retained_per_category": 4
+          },
+          "refused": {
+            "generated:orias": 1
+          },
+          "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+          "used": {
+            "complete_plans": 28,
+            "generated:combat": 10,
+            "generated:guards": 2,
+            "generated:monsters": 6,
+            "generated:orias": 16,
+            "generated:powers": 12,
+            "generated:resummon": 1,
+            "generated:rites": 2,
+            "generated:work": 1,
+            "previews": 1,
+            "retained:combat": 4,
+            "retained:guards": 1,
+            "retained:monsters": 4,
+            "retained:orias": 4,
+            "retained:powers": 4,
+            "retained:rites": 1
+          }
+        },
+        "new_order": {
+          "action": "Ward",
+          "card_ids": [
+            "u13_entity_card:17:game:deck:Vulture:1:4",
+            "u13_entity_card:17:game:deck:Vulture:1:6",
+            "u13_entity_card:16:game:deck:Wright:1:2",
+            "u13_entity_card:16:game:deck:Wright:1:3"
+          ],
+          "guard_moves": [
+            {
+              "card_id": "u13_entity_card:17:game:deck:Butcher:2:15",
+              "lane": "Castle",
+              "slot": 2
+            }
+          ],
+          "lane": "Castle",
+          "monster_choice": "Tumler"
+        },
+        "new_same_plan": {
+          "benefit": 8,
+          "competing_plan": {
+            "action": "Pass",
+            "card_ids": [],
+            "guard_card_ids": [],
+            "lane": "",
+            "monster": "",
+            "score": 16
+          },
+          "competitive": true,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 25,
+          "follow_up": {
+            "action": "Hunt",
+            "arrivals": [
+              "u13_entity_marcher:25:u13_monster:4:20:1:4:Varn:1:0",
+              "u13_entity_marcher:28:u13_monster:4:21:1:7:Kurchin:1:0",
+              "u13_entity_marcher:31:u13_commitment:4:21:1:7:Butcher:1:0",
+              "u13_entity_marcher:31:u13_commitment:4:21:1:7:Butcher:1:1",
+              "u13_entity_marcher:31:u13_commitment:4:21:1:7:Butcher:1:2",
+              "u13_entity_marcher:32:u13_commitment:4:21:1:8:Penitent:1:2",
+              "u13_entity_marcher:32:u13_commitment:4:21:1:8:Penitent:1:3",
+              "u13_entity_marcher:32:u13_commitment:4:21:1:8:Penitent:1:4"
+            ],
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:1:0",
+              "u13_entity_card:16:game:deck:Wright:1:5",
+              "u13_entity_card:17:game:deck:Butcher:1:4"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [
+              "u13_entity_card:17:game:deck:Vulture:2:10"
+            ],
+            "lane": "Lord",
+            "scenarios": [
+              {
+                "attack_margin": 13,
+                "attack_score": 29,
+                "competing_score": 16,
+                "new_guard_value": 2,
+                "normal_damage": 3,
+                "normal_new_guards": 2,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 12
+              },
+              {
+                "attack_margin": 7,
+                "attack_score": 23,
+                "competing_score": 16,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 2,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 21
+              }
+            ],
+            "target_id": "u13_entity_lord:12:smoke:lord:1:1:0"
+          },
+          "opportunity_penalty": 0,
+          "reason": "competitive_follow_up",
+          "score": 4
+        },
+        "new_selected": {
+          "benefit": 8,
+          "competing_plan": {
+            "action": "Pass",
+            "card_ids": [],
+            "guard_card_ids": [],
+            "lane": "",
+            "monster": "",
+            "score": 16
+          },
+          "competitive": true,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 25,
+          "follow_up": {
+            "action": "Hunt",
+            "arrivals": [
+              "u13_entity_marcher:25:u13_monster:4:20:1:4:Varn:1:0",
+              "u13_entity_marcher:28:u13_monster:4:21:1:7:Kurchin:1:0",
+              "u13_entity_marcher:31:u13_commitment:4:21:1:7:Butcher:1:0",
+              "u13_entity_marcher:31:u13_commitment:4:21:1:7:Butcher:1:1",
+              "u13_entity_marcher:31:u13_commitment:4:21:1:7:Butcher:1:2",
+              "u13_entity_marcher:32:u13_commitment:4:21:1:8:Penitent:1:2",
+              "u13_entity_marcher:32:u13_commitment:4:21:1:8:Penitent:1:3",
+              "u13_entity_marcher:32:u13_commitment:4:21:1:8:Penitent:1:4"
+            ],
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:1:0",
+              "u13_entity_card:16:game:deck:Wright:1:5",
+              "u13_entity_card:17:game:deck:Butcher:1:4"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [
+              "u13_entity_card:17:game:deck:Vulture:2:10"
+            ],
+            "lane": "Lord",
+            "scenarios": [
+              {
+                "attack_margin": 13,
+                "attack_score": 29,
+                "competing_score": 16,
+                "new_guard_value": 2,
+                "normal_damage": 3,
+                "normal_new_guards": 2,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 12
+              },
+              {
+                "attack_margin": 7,
+                "attack_score": 23,
+                "competing_score": 16,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 2,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 21
+              }
+            ],
+            "target_id": "u13_entity_lord:12:smoke:lord:1:1:0"
+          },
+          "opportunity_penalty": 0,
+          "power": "Snare",
+          "reason": "competitive_follow_up",
+          "score": 4,
+          "score_delta": -1
+        },
+        "old": {
+          "benefit": 8,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_cost": 0,
+            "defense_loss": 0,
+            "score": 6,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 25,
+          "follow_up": {
+            "action": "Hunt",
+            "arrivals": [
+              "u13_entity_marcher:25:u13_monster:4:20:1:4:Varn:1:0",
+              "u13_entity_marcher:28:u13_monster:4:21:1:7:Kurchin:1:0",
+              "u13_entity_marcher:31:u13_commitment:4:21:1:7:Butcher:1:0",
+              "u13_entity_marcher:31:u13_commitment:4:21:1:7:Butcher:1:1",
+              "u13_entity_marcher:31:u13_commitment:4:21:1:7:Butcher:1:2",
+              "u13_entity_marcher:32:u13_commitment:4:21:1:8:Penitent:1:2",
+              "u13_entity_marcher:32:u13_commitment:4:21:1:8:Penitent:1:3",
+              "u13_entity_marcher:32:u13_commitment:4:21:1:8:Penitent:1:4"
+            ],
+            "card_ids": [
+              "u13_entity_card:18:game:deck:Penitent:1:0",
+              "u13_entity_card:16:game:deck:Wright:1:5",
+              "u13_entity_card:17:game:deck:Butcher:1:4"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [
+              "u13_entity_card:17:game:deck:Vulture:2:10"
+            ],
+            "lane": "Lord",
+            "scenarios": [
+              {
+                "new_guard_value": 2,
+                "normal_damage": 3,
+                "normal_new_guards": 2,
+                "snared_damage": 5,
+                "snared_new_guards": 1,
+                "value": 12
+              },
+              {
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 2,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 21
+              }
+            ],
+            "target_id": "u13_entity_lord:12:smoke:lord:1:1:0"
+          },
+          "power": "Snare",
+          "reason": "limit_reinforcement_before_follow_up",
+          "score": 2,
+          "score_delta": -1
+        },
+        "old_next_action": "Hunt",
+        "round": 24,
+        "view_sha256": "c5130d282c7d146661214588d192776c4995bcc99b8c082c802919fb9bd67d2f"
+      },
+      {
+        "case": "orias_kalligan_00_p1__new",
+        "new_budget": {
+          "limits": {
+            "complete_plans": 32,
+            "generated_per_category": 16,
+            "previews": 8,
+            "retained_per_category": 4
+          },
+          "refused": {},
+          "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+          "used": {
+            "complete_plans": 22,
+            "generated:combat": 11,
+            "generated:guards": 5,
+            "generated:monsters": 2,
+            "generated:orias": 16,
+            "generated:powers": 8,
+            "generated:resummon": 1,
+            "generated:rites": 1,
+            "generated:work": 5,
+            "previews": 1,
+            "retained:combat": 4,
+            "retained:guards": 4,
+            "retained:monsters": 1,
+            "retained:orias": 3,
+            "retained:powers": 1,
+            "retained:work": 4
+          }
+        },
+        "new_order": {
+          "action": "Ward",
+          "card_ids": [
+            "u13_entity_card:18:game:deck:Penitent:1:8",
+            "u13_entity_card:18:game:deck:Penitent:2:16"
+          ],
+          "castle_action": {
+            "action": "Work",
+            "card_ids": [],
+            "target_id": "u13_entity_castle:16:loadout:castle:1:1:0",
+            "use_repair_token": false
+          },
+          "guard_moves": [
+            {
+              "card_id": "u13_entity_card:17:game:deck:Butcher:1:3",
+              "lane": "Castle",
+              "slot": 0
+            },
+            {
+              "card_id": "u13_entity_card:17:game:deck:Butcher:1:8",
+              "lane": "Castle",
+              "slot": 1
+            }
+          ],
+          "lane": "Castle",
+          "monster_choice": "Lemek"
+        },
+        "new_same_plan": {
+          "benefit": 24,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:1:9"
+            ],
+            "guard_card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:2:12"
+            ],
+            "lane": "Lord",
+            "monster": "",
+            "score": 16
+          },
+          "competitive": true,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 8,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:1:9",
+              "u13_entity_card:17:game:deck:Butcher:2:12"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": 33,
+                "attack_score": 49,
+                "competing_score": 16,
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 48
+              },
+              {
+                "attack_margin": 33,
+                "attack_score": 49,
+                "competing_score": 16,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 48
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:4"
+          },
+          "opportunity_penalty": 0,
+          "reason": "competitive_follow_up",
+          "score": 20
+        },
+        "new_selected": {
+          "benefit": 24,
+          "competing_plan": {
+            "action": "Ward",
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:1:9"
+            ],
+            "guard_card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:2:12"
+            ],
+            "lane": "Lord",
+            "monster": "",
+            "score": 16
+          },
+          "competitive": true,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_after": null,
+            "circle_integrity_cost": 0,
+            "circle_loses_operation": false,
+            "defense_loss": 0,
+            "score": 4,
+            "selective": false,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 8,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:1:9",
+              "u13_entity_card:17:game:deck:Butcher:2:12"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "attack_margin": 33,
+                "attack_score": 49,
+                "competing_score": 16,
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 48
+              },
+              {
+                "attack_margin": 33,
+                "attack_score": 49,
+                "competing_score": 16,
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 48
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:4"
+          },
+          "opportunity_penalty": 0,
+          "power": "Snare",
+          "reason": "competitive_follow_up",
+          "score": 20,
+          "score_delta": 9
+        },
+        "old": {
+          "benefit": 24,
+          "cost": {
+            "circle_id": "",
+            "circle_integrity_cost": 0,
+            "defense_loss": 0,
+            "score": 6,
+            "threat_after": 1,
+            "threat_before": 0
+          },
+          "effective_round": 8,
+          "follow_up": {
+            "action": "Siege",
+            "arrivals": [],
+            "card_ids": [
+              "u13_entity_card:17:game:deck:Butcher:1:9",
+              "u13_entity_card:17:game:deck:Butcher:2:12"
+            ],
+            "conditional_guard_losses": [],
+            "existing_guards": [],
+            "lane": "Castle",
+            "scenarios": [
+              {
+                "new_guard_value": 2,
+                "normal_damage": 1,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 48
+              },
+              {
+                "new_guard_value": 4,
+                "normal_damage": 0,
+                "normal_new_guards": 3,
+                "snared_damage": 3,
+                "snared_new_guards": 1,
+                "value": 48
+              }
+            ],
+            "target_id": "u13_entity_castle:16:loadout:castle:0:1:4"
+          },
+          "power": "Snare",
+          "reason": "limit_reinforcement_before_follow_up",
+          "score": 18,
+          "score_delta": 9
+        },
+        "old_next_action": "Hunt",
+        "round": 7,
+        "view_sha256": "bb389bd335a253cce33679553c6598d7d10f35fb99cdd6a85d34245ae37c45e2"
+      }
+    ],
+    "counts": {
+      "at_most_two": 16,
+      "new_selected": 16,
+      "new_selected_at_most_two": 16,
+      "old_next_Hunt": 2,
+      "old_next_Siege": 2,
+      "old_next_Ward": 12,
+      "positive_fixed_plan": 16,
+      "saved_casts": 16
+    },
+    "scope": "All saved V17 Snare casts from the fixed 16-game Web campaign. Same public boards; no simulated future draws. Re-decisions use scoring-only preview, not authority admission or counterfactual match outcomes.",
+    "source_manifest_sha256": "8cbfc49f2e526ad04f4920e7da13280e33c68ce355e563c2d2d53683e6afbdb1",
+    "source_policy": "U13_COMMON_SMART_CORE_ALPHA_V17_ORIAS_WEB_HITS"
+  },
+  "schema": "U13_ORIAS_SNARE_V18_EVIDENCE_V1",
+  "threat_analysis": {
+    "casts": [
+      {
+        "attack_resolved": false,
+        "case": "orias_gremory_00_p0__old",
+        "competitive": null,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_cost": 0,
+          "defense_loss": 0,
+          "score": 6,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 3,
+        "next_action": "Ward",
+        "reason": "limit_reinforcement_before_follow_up",
+        "round": 2,
+        "score": 5,
+        "variant": "old"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_gremory_00_p0__old",
+        "competitive": null,
+        "cost": {
+          "circle_id": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "circle_integrity_cost": 3,
+          "defense_loss": 0,
+          "score": 15,
+          "threat_after": 1,
+          "threat_before": 1
+        },
+        "effective_round": 6,
+        "next_action": "Ward",
+        "reason": "limit_reinforcement_before_follow_up",
+        "round": 5,
+        "score": 2,
+        "variant": "old"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_gremory_00_p0__old",
+        "competitive": null,
+        "cost": {
+          "circle_id": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "circle_integrity_cost": 3,
+          "defense_loss": 0,
+          "score": 15,
+          "threat_after": 1,
+          "threat_before": 1
+        },
+        "effective_round": 13,
+        "next_action": "Ward",
+        "reason": "limit_reinforcement_before_follow_up",
+        "round": 12,
+        "score": 4,
+        "variant": "old"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_gremory_00_p0__new",
+        "competitive": false,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_after": null,
+          "circle_integrity_cost": 0,
+          "circle_loses_operation": false,
+          "defense_loss": 0,
+          "score": 4,
+          "selective": false,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 3,
+        "next_action": "Ward",
+        "reason": "low_threat_opportunistic_setup",
+        "round": 2,
+        "score": 2,
+        "variant": "new"
+      },
+      {
+        "attack_resolved": true,
+        "case": "orias_gremory_00_p0__new",
+        "competitive": true,
+        "cost": {
+          "circle_id": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "circle_integrity_after": 14,
+          "circle_integrity_cost": 3,
+          "circle_loses_operation": false,
+          "defense_loss": 0,
+          "score": 10,
+          "selective": false,
+          "threat_after": 1,
+          "threat_before": 1
+        },
+        "effective_round": 4,
+        "next_action": "Siege",
+        "reason": "competitive_follow_up",
+        "round": 3,
+        "score": 5,
+        "variant": "new"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_gremory_00_p0__new",
+        "competitive": true,
+        "cost": {
+          "circle_id": "u13_entity_castle:16:loadout:castle:0:1:2",
+          "circle_integrity_after": 11,
+          "circle_integrity_cost": 3,
+          "circle_loses_operation": false,
+          "defense_loss": 0,
+          "score": 10,
+          "selective": false,
+          "threat_after": 1,
+          "threat_before": 1
+        },
+        "effective_round": 6,
+        "next_action": "Ward",
+        "reason": "competitive_follow_up",
+        "round": 5,
+        "score": 3,
+        "variant": "new"
+      },
+      {
+        "attack_resolved": true,
+        "case": "orias_gremory_00_p1__old",
+        "competitive": null,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_cost": 0,
+          "defense_loss": 0,
+          "score": 6,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 2,
+        "next_action": "Siege",
+        "reason": "limit_reinforcement_before_follow_up",
+        "round": 1,
+        "score": 3,
+        "variant": "old"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_gremory_00_p1__old",
+        "competitive": null,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_cost": 0,
+          "defense_loss": 0,
+          "score": 4,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 9,
+        "next_action": "Ward",
+        "reason": "limit_reinforcement_before_follow_up",
+        "round": 8,
+        "score": 15,
+        "variant": "old"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_gremory_00_p1__old",
+        "competitive": null,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_cost": 0,
+          "defense_loss": 0,
+          "score": 4,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 16,
+        "next_action": "Ward",
+        "reason": "limit_reinforcement_before_follow_up",
+        "round": 15,
+        "score": 8,
+        "variant": "old"
+      },
+      {
+        "attack_resolved": true,
+        "case": "orias_gremory_00_p1__new",
+        "competitive": false,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_after": null,
+          "circle_integrity_cost": 0,
+          "circle_loses_operation": false,
+          "defense_loss": 0,
+          "score": 4,
+          "selective": false,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 2,
+        "next_action": "Siege",
+        "reason": "low_threat_opportunistic_setup",
+        "round": 1,
+        "score": 1,
+        "variant": "new"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_gremory_00_p1__new",
+        "competitive": true,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_after": null,
+          "circle_integrity_cost": 0,
+          "circle_loses_operation": false,
+          "defense_loss": 0,
+          "score": 4,
+          "selective": false,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 9,
+        "next_action": "Ward",
+        "reason": "competitive_follow_up",
+        "round": 8,
+        "score": 15,
+        "variant": "new"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_gremory_00_p1__new",
+        "competitive": false,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_after": null,
+          "circle_integrity_cost": 0,
+          "circle_loses_operation": false,
+          "defense_loss": 0,
+          "score": 4,
+          "selective": false,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 16,
+        "next_action": "Ward",
+        "reason": "low_threat_opportunistic_setup",
+        "round": 15,
+        "score": 8,
+        "variant": "new"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_deimos_00_p0__old",
+        "competitive": null,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_cost": 0,
+          "defense_loss": 0,
+          "score": 6,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 4,
+        "next_action": "Ward",
+        "reason": "limit_reinforcement_before_follow_up",
+        "round": 3,
+        "score": 6,
+        "variant": "old"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_deimos_00_p0__new",
+        "competitive": false,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_after": null,
+          "circle_integrity_cost": 0,
+          "circle_loses_operation": false,
+          "defense_loss": 0,
+          "score": 4,
+          "selective": false,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 4,
+        "next_action": "Ward",
+        "reason": "low_threat_opportunistic_setup",
+        "round": 3,
+        "score": 2,
+        "variant": "new"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_deimos_00_p1__old",
+        "competitive": null,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_cost": 0,
+          "defense_loss": 0,
+          "score": 6,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 2,
+        "next_action": "Ward",
+        "reason": "limit_reinforcement_before_follow_up",
+        "round": 1,
+        "score": 3,
+        "variant": "old"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_deimos_00_p1__old",
+        "competitive": null,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_cost": 0,
+          "defense_loss": 0,
+          "score": 6,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 4,
+        "next_action": "Ward",
+        "reason": "limit_reinforcement_before_follow_up",
+        "round": 3,
+        "score": 3,
+        "variant": "old"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_deimos_00_p1__new",
+        "competitive": false,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_after": null,
+          "circle_integrity_cost": 0,
+          "circle_loses_operation": false,
+          "defense_loss": 0,
+          "score": 4,
+          "selective": false,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 2,
+        "next_action": "Ward",
+        "reason": "low_threat_opportunistic_setup",
+        "round": 1,
+        "score": 1,
+        "variant": "new"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_deimos_00_p1__new",
+        "competitive": false,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_after": null,
+          "circle_integrity_cost": 0,
+          "circle_loses_operation": false,
+          "defense_loss": 0,
+          "score": 4,
+          "selective": false,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 4,
+        "next_action": "Ward",
+        "reason": "low_threat_opportunistic_setup",
+        "round": 3,
+        "score": 1,
+        "variant": "new"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_humbaba_00_p0__old",
+        "competitive": null,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_cost": 0,
+          "defense_loss": 0,
+          "score": 4,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 3,
+        "next_action": "Ward",
+        "reason": "limit_reinforcement_before_follow_up",
+        "round": 2,
+        "score": 2,
+        "variant": "old"
+      },
+      {
+        "attack_resolved": true,
+        "case": "orias_humbaba_00_p0__old",
+        "competitive": null,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_cost": 0,
+          "defense_loss": 0,
+          "score": 6,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 12,
+        "next_action": "Hunt",
+        "reason": "limit_reinforcement_before_follow_up",
+        "round": 11,
+        "score": 3,
+        "variant": "old"
+      },
+      {
+        "attack_resolved": true,
+        "case": "orias_humbaba_00_p0__new",
+        "competitive": false,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_after": null,
+          "circle_integrity_cost": 0,
+          "circle_loses_operation": false,
+          "defense_loss": 0,
+          "score": 4,
+          "selective": false,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 8,
+        "next_action": "Siege",
+        "reason": "low_threat_opportunistic_setup",
+        "round": 7,
+        "score": 1,
+        "variant": "new"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_humbaba_00_p1__old",
+        "competitive": null,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_cost": 0,
+          "defense_loss": 0,
+          "score": 6,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 8,
+        "next_action": "Ward",
+        "reason": "limit_reinforcement_before_follow_up",
+        "round": 7,
+        "score": 6,
+        "variant": "old"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_humbaba_00_p1__new",
+        "competitive": false,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_after": null,
+          "circle_integrity_cost": 0,
+          "circle_loses_operation": false,
+          "defense_loss": 0,
+          "score": 4,
+          "selective": false,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 8,
+        "next_action": "Ward",
+        "reason": "low_threat_opportunistic_setup",
+        "round": 7,
+        "score": 4,
+        "variant": "new"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_kalligan_00_p0__old",
+        "competitive": null,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_cost": 0,
+          "defense_loss": 0,
+          "score": 6,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 3,
+        "next_action": "Ward",
+        "reason": "limit_reinforcement_before_follow_up",
+        "round": 2,
+        "score": 3,
+        "variant": "old"
+      },
+      {
+        "attack_resolved": false,
+        "case": "orias_kalligan_00_p0__new",
+        "competitive": true,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_after": null,
+          "circle_integrity_cost": 0,
+          "circle_loses_operation": false,
+          "defense_loss": 0,
+          "score": 4,
+          "selective": false,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 3,
+        "next_action": "Ward",
+        "reason": "competitive_follow_up",
+        "round": 2,
+        "score": 5,
+        "variant": "new"
+      },
+      {
+        "attack_resolved": true,
+        "case": "orias_kalligan_00_p1__old",
+        "competitive": null,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_cost": 0,
+          "defense_loss": 0,
+          "score": 6,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 3,
+        "next_action": "Siege",
+        "reason": "limit_reinforcement_before_follow_up",
+        "round": 2,
+        "score": 5,
+        "variant": "old"
+      },
+      {
+        "attack_resolved": true,
+        "case": "orias_kalligan_00_p1__new",
+        "competitive": false,
+        "cost": {
+          "circle_id": "",
+          "circle_integrity_after": null,
+          "circle_integrity_cost": 0,
+          "circle_loses_operation": false,
+          "defense_loss": 0,
+          "score": 4,
+          "selective": false,
+          "threat_after": 1,
+          "threat_before": 0
+        },
+        "effective_round": 3,
+        "next_action": "Siege",
+        "reason": "low_threat_opportunistic_setup",
+        "round": 2,
+        "score": 4,
+        "variant": "new"
+      }
+    ],
+    "scope": "Full declared cohort. Threat/Circle cast costs are public pre-cast forecasts, checked separately against authority; follow-up orders and resolutions are observed. Available means the power is ready, not that a useful supported attack exists.",
+    "totals": {
+      "new": {
+        "available_at_most_two": 165,
+        "casts": 13,
+        "casts_at_most_two": 13,
+        "followup_at_most_two": 4,
+        "forecast_circle_absorptions": 2,
+        "forecast_circle_integrity": 6,
+        "forecast_circle_loses_operation": 0,
+        "next_action:Siege": 4,
+        "next_action:Ward": 9,
+        "planning_threat:0": 77,
+        "planning_threat:1": 89,
+        "reason:competitive_follow_up": 4,
+        "reason:low_threat_opportunistic_setup": 9,
+        "resolved_at_most_two": 4,
+        "resulting_threat:1": 13
+      },
+      "old": {
+        "available_at_most_two": 163,
+        "casts": 14,
+        "casts_at_most_two": 14,
+        "followup_at_most_two": 3,
+        "forecast_circle_absorptions": 2,
+        "forecast_circle_integrity": 6,
+        "forecast_circle_loses_operation": 1,
+        "next_action:Hunt": 1,
+        "next_action:Siege": 2,
+        "next_action:Ward": 11,
+        "planning_threat:0": 80,
+        "planning_threat:1": 84,
+        "reason:limit_reinforcement_before_follow_up": 14,
+        "resolved_at_most_two": 3,
+        "resulting_threat:1": 14
+      }
+    }
+  },
+  "verification": {
+    "engine_unchanged": true,
+    "focused_tests": 61,
+    "passed": true,
+    "runtime": "PyPy 7.3.20 / Python 3.11.13",
+    "web_and_shared_planner_unchanged": true
+  }
+}

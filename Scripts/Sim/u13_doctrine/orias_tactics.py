@@ -177,11 +177,17 @@ def _snare_cost(f, plan):
     # A Lord Ward can reduce the gained Threat later, but cannot undo an
     # already exerted Circle or the earlier window of lower Lord defense.
     ward = order.get('action') == 'Ward' and order.get('lane') == 'Lord'
-    score = 6+4*min(3, before)+4*loss if not circle else 6+9
-    if ward and not circle: score = max(4, score-4)
-    return dict(score=score, threat_before=before, threat_after=before+int(not circle),
+    after = before+int(not circle)
+    circle_after = circle['attributes']['integrity']-3 if circle else None
+    loses_circle = circle is not None and circle_after < 7
+    selective = after > 2
+    score = 4+2*loss if not selective else 10+4*min(3, after-2)+4*loss
+    if circle: score = (4 if not selective else 10+4*min(3, after-2))+6+12*int(loses_circle)
+    if ward and not circle: score = max(4, score-2)
+    return dict(score=score, threat_before=before, threat_after=after,
                 defense_loss=loss if not circle else 0, circle_id=circle['id'] if circle else '',
-                circle_integrity_cost=3 if circle else 0)
+                circle_integrity_cost=3 if circle else 0, circle_integrity_after=circle_after,
+                circle_loses_operation=loses_circle, selective=selective)
 
 
 def _guard_scenario(f, lane, value, count):
@@ -193,6 +199,17 @@ def _guard_scenario(f, lane, value, count):
 
 
 def snare_value(f, plan, ctx):
+    # Facts lives for one bounded decision. Reused baseline/current plans must
+    # not repeat the next-round alternative construction for every bundle.
+    from .diagnostics import fingerprint
+    key = fingerprint([plan, ctx])
+    if not hasattr(f, '_snare_values'): f._snare_values = {}
+    if key not in f._snare_values: f._snare_values[key] = _snare_value(f, plan, ctx)
+    return copy_data(f._snare_values[key])
+
+
+def _snare_value(f, plan, ctx):
+    from .snare_followup import alternatives, attack_score
     cost = _snare_cost(f, plan)
     result = dict(score=-cost['score'], benefit=0, cost=cost, follow_up=None,
                   effective_round=f.v['round']+1, reason='no_supported_next_round_attack')
@@ -204,8 +221,20 @@ def snare_value(f, plan, ctx):
     spent = _spent_cards(f, plan)
     remaining = [r['id'] for r in f.hand if r['id'] not in spent]
     if not remaining: return result
-    view = dict(f.v, board=copy_data([r for r in f.rows if r['id'] not in ctx['guard_losses']
+    view = dict(f.v, round=f.v['round']+1, hand=[r for r in f.hand if r['id'] in remaining],
+                board=copy_data([r for r in f.rows if r['id'] not in ctx['guard_losses']
                                     and r['id'] not in ctx['consumed_supplicants']]))
+    for move in plan['order'].get('guard_moves', []):
+        row = copy_data(f.by_id[move['card_id']])
+        row['attributes'].update(role='guard', lane=move['lane'], slot=move['slot'])
+        view['board'].append(row)
+    # Own current recruits can screen a lane next round; they are not arrivals
+    # available to the supported Hunt/Siege.
+    for lane in LANES:
+        view['board'].extend(r for r in _support(f, lane, ctx) if r.get('planned'))
+    view['data'] = copy_data(f.v['data'])
+    view['data']['guard_public_limits'][f.pid] = (2 if veil.affects(f.world, 'Orias', f.pid)
+        and f.lord[f.pid]['attributes'].get('threat', 0) >= 2 else 6)
     arrivals = []
     for row in view['board']:
         a = row['attributes']
@@ -223,6 +252,8 @@ def snare_value(f, plan, ctx):
                 if any(fort.gap(row, e) <= (travel(a, f.v['round'])+travel(e['attributes'], f.v['round'])+90)**2 for e in foes): continue
                 a['waiting'] = True; arrivals.append(row['id'])
     after = Facts(view)
+    competing = alternatives(after)
+    result['competing_plan'] = competing
     # A current one-round cap expires; only the public Orias breach can carry
     # its two-Guard limit forward without another declaration.
     limit = 2 if veil.affects(f.world, 'Orias', f.enemy) and f.lord[f.enemy]['attributes'].get('threat', 0) >= 2 else 6
@@ -250,14 +281,26 @@ def snare_value(f, plan, ctx):
                         +32*int(capped['banished'] and not base['banished'])
                         +30*int(capped['destroyed'] and not base['destroyed']))
                 benefits.append(gain)
+                attack_value = attack_score(snared, action, lane, target, remaining, capped)
                 scenarios.append(dict(new_guard_value=value, normal_new_guards=count, snared_new_guards=1,
+                    attack_score=attack_value, competing_score=competing['score'],
+                    attack_margin=attack_value-competing['score'],
                     normal_damage=base['damage'], snared_damage=capped['damage'], value=gain))
             # Half credit for next-round uncertainty; never assume an enemy
             # hand, a particular deployment, or newly drawn attacking cards.
             benefit = min(28, sum(benefits)//(2*len(benefits)))
-            if benefit > result['benefit']:
-                result.update(score=benefit-cost['score'], benefit=benefit,
-                    reason='limit_reinforcement_before_follow_up',
+            competitive = all(s['attack_margin'] >= 0 for s in scenarios)
+            # Low Threat buys an opportunistic setup even when Ward currently
+            # looks better. Above two, require the attack to compete in both
+            # public Guard scenarios; a later Ward never bypasses this gate.
+            penalty = min(benefit//2, max(0, -sum(s['attack_margin'] for s in scenarios)//len(scenarios)))
+            score = benefit-cost['score']-(0 if competitive else penalty)
+            reason = 'competitive_follow_up' if competitive else 'low_threat_opportunistic_setup'
+            if cost['selective'] and not competitive:
+                score = -cost['score']; reason = 'high_threat_better_competing_plan'
+            if score > result['score'] or (score == result['score'] and benefit > result['benefit']):
+                result.update(score=score, benefit=benefit, competitive=competitive,
+                    opportunity_penalty=0 if competitive else penalty, reason=reason,
                     follow_up=dict(action=action, lane=lane, target_id=target, card_ids=remaining,
                         arrivals=[r for r in arrivals if after.by_id[r]['attributes']['lane'] == lane],
                         existing_guards=[r['id'] for r in after.guards(f.enemy, lane)],
