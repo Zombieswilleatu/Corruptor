@@ -1,4 +1,5 @@
 """Deterministic monster abilities; mirror of the native rules, not animation time."""
+from . import dotra_shroud as shroud
 from . import incoming_damage as incoming
 from . import field_fortifications as fort
 from . import monsters as rules
@@ -20,7 +21,7 @@ def distance(a, b):
 
 def enemies(unit, rows, radius=4000):
     return [r for r in rows if r['owner']!=unit['owner'] and r['attributes']['lane']==unit['attributes']['lane']
-            and not r['attributes'].get('hidden',False) and fort.gap(unit,r)<=radius**2]
+            and shroud.targetable(r['attributes']) and fort.gap(unit,r)<=radius**2]
 
 
 def nearest(unit, rows, radius=4000):
@@ -71,7 +72,7 @@ def evades(unit, source, rows, c, tick, kind, structures=(), fleeing=()):
 def intercept(unit, source, rows, c, tick, structures=()):
     if source['owner'] == unit['owner'] or not hunting(unit, rows, c['round'], structures):
         return []
-    if not any(r['id'] == source['id'] and r['owner'] == source['owner'] and not r['attributes'].get('hidden', False) for r in rows):
+    if not any(r['id'] == source['id'] and r['owner'] == source['owner'] and shroud.targetable(r['attributes']) for r in rows):
         return []
     old = unit['attributes'].get('hunt_target', '')
     unit['attributes']['hunt_target'] = source['id']
@@ -142,6 +143,9 @@ def step(w,buffer,c,tick,reaction):
         a = unit['attributes']
         if 0 < a.get('dotra_exposed_until_tick', 0) <= clock:
             a.update(dotra_exposed_from_tick=0, dotra_exposed_until_tick=0)
+            buffer.update(unit['id'], unit['owner'], a)
+        if 0 < a.get('dotra_shroud_until_tick', 0) <= clock:
+            a.update(dotra_shroud_from_tick=0, dotra_shroud_until_tick=0)
             buffer.update(unit['id'], unit['owner'], a)
         # Apply every concealment before any monster selects a target this tick.
         if a.get('monster_id')=='Dotra' and a['movement_ready_round']<=n and a.get('dotra_concealment_round',0)==0:
@@ -286,11 +290,15 @@ def damage(w,buffer,hit,c,tick,reaction):
             events.append(event('MONSTER_ATTACK',dict(attacker=hit['source'],target=structure,ability=hit['ability'],blocked=False,damage_dealt=result['damage_dealt'],hp_after=result['hp_after'],round=c['round'],tick=tick)))
             break
         return dict(action='resolved',world=w,events=events)
+    # Recheck aimed abilities, while allowing area damage and existing poison.
+    if hit['ability'] in ('Muno','Ambush') and shroud.active(target['attributes'], c['round']*200+tick):
+        return dict(action='resolved',world=w,events=events)
     before=copy_data(target);a=target['attributes']
     if hit['ability']=='Ambush':
         ambusher=buffer.get(hit['source']['id'])
         if not ambusher:return dict(action='resolved',world=w,events=events)
-        ambusher['attributes']['hidden']=False
+        ambusher['attributes'].update(hidden=False, dotra_shroud_from_tick=c['round']*200+tick,
+                                      dotra_shroud_until_tick=c['round']*200+tick+T['dotra_shroud_ticks'])
         buffer.update(ambusher['id'],ambusher['owner'],ambusher['attributes'])
         hit['source']=ambusher
     blocked=hit['ability']=='Beam' and penitent_defense.blocks(target,hit['source']['id'],c['seed'],c['round'],tick,'Beam')

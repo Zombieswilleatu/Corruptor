@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Shroud = preload("res://Scripts/Sim/U13DotraShroud.gd")
+
 const Incoming = preload("res://Scripts/Sim/U13IncomingDamage.gd")
 
 const Fort = preload("res://Scripts/Sim/U13FieldFortifications.gd")
@@ -14,7 +16,7 @@ static func nearest(unit: Dictionary, targets: Array, radius: int = 4000, melee:
 	var best: Dictionary = {}
 	var gap: int = radius * radius + 1
 	for row in targets:
-		if row.owner == unit.owner or row.attributes.lane != unit.attributes.lane or (row.kind == "marcher" and Wish.ignored(unit, row)): continue
+		if row.owner == unit.owner or row.attributes.lane != unit.attributes.lane or Shroud.active(row.attributes) or (row.kind == "marcher" and Wish.ignored(unit, row)): continue
 		if unit.attributes.get("flying", false) and row.kind == "fortification" and row.attributes.structure == "Wall": continue
 		if melee and not Fort.in_melee(unit, row): continue
 		var d: int = Fort.gap(unit, row)

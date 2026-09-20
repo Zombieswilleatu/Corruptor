@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Shroud = preload("res://Scripts/Sim/U13DotraShroud.gd")
+
 const Fort = preload("res://Scripts/Sim/U13FieldFortifications.gd")
 const Wish = preload("res://Scripts/Sim/U13Wishmaster.gd")
 # Minimum center separation: half the former 84-unit footprint.
@@ -23,7 +25,7 @@ static func clear(unit: Dictionary, point: Dictionary, rows: Array, structures: 
 static func slide(unit: Dictionary, proposed: Dictionary, rows: Array, structures: Array, step: int, hold_contact: bool = true) -> Dictionary:
 	# A prior mover may already have reached this fighter since the target
 	# snapshot. Hold that contact instead of stepping away and oscillating.
-	if hold_contact and rows.any(func(other): return other.owner != unit.owner and collides(unit, other) and Fort.in_melee(unit, other)): return unit.attributes
+	if hold_contact and rows.any(func(other): return other.owner != unit.owner and not Shroud.active(other.attributes) and collides(unit, other) and Fort.in_melee(unit, other)): return unit.attributes
 	if clear(unit, proposed, rows, structures): return proposed
 	var side: int = 1 if (unit.id.unicode_at(unit.id.length() - 1) % 2) == 0 else -1
 	var mostly_forward: bool = absi(int(proposed.x_fp) - int(unit.attributes.x_fp)) >= absi(int(proposed.y_fp) - int(unit.attributes.y_fp))

@@ -248,33 +248,33 @@ func dotra_visibility_checks() -> void:
 			check(Marching.FieldMelee.nearest(enemy, [visible]).id == hidden.id and Marching.Ranged.nearest(enemy, [visible]).id == hidden.id and MonsterFX.nearest(enemy, [visible]).id == hidden.id, kind + " can select Dotra after reveal")
 		for attacker in ["Vulture", "Muno"]:
 			var w: Dictionary = phase_world()
-			var source: Dictionary = put(w, "Dotra", pid, 0 if pid == 0 else 2400, {"hidden": true, "hp": 100, "max_hp": 100})
-			put(w, attacker, 1 - pid, 400 if pid == 0 else 2000, {"y_fp": 350, "step_fp": 0, "hp": 100, "max_hp": 100})
+			var source: Dictionary = put(w, "Dotra", pid, 0 if pid == 0 else 2400, {"hidden": true, "step_fp": 0, "hp": 100, "max_hp": 100})
+			put(w, attacker, 1 - pid, 240 if pid == 0 else 2160, {"y_fp": 300, "step_fp": 0, "hp": 100, "max_hp": 100})
 			var resolved: Dictionary = phase("dotra_%d_visible_to_%s" % [pid, attacker], w)
 			var incoming: Array = resolved.events.filter(func(r): return r.event.type in ["MARCHER_RANGED_ATTACK", "MARCHER_MELEE_ATTACK", "MONSTER_ATTACK"] and r.event.data.target.id == source.id)
 			check(not incoming.is_empty() and incoming.all(func(r): return not r.event.data.target.attributes.get("hidden", false)), "actual targeted hits only select revealed Dotra")
 			check(playback.build(resolved.events.map(func(r): return r.event)), "Dotra reveal replay builds")
 			var first_at: float = 0.18 + 6.0 * float(int(incoming[0].event.data.tick) + 1) / 200.0
 			var before: Dictionary = playback.sample(first_at - 0.09)
-			check(before.units.any(func(u): return u.id == source.id and u.attributes.get("hidden", false)), "regression sample is still visibly hidden before the reveal")
+			check(before.units.any(func(u): return u.id == source.id and not u.attributes.get("hidden", false) and u.attributes.get("visual_shrouded", false)), "Dotra is visible but still untargetable just before the first incoming attack")
 			var revealed: Dictionary = playback.sample(first_at)
 			check(revealed.units.any(func(u): return u.id == source.id and not u.attributes.get("hidden", false)), "Dotra is visible when the recorded attack lands")
 			if attacker == "Vulture":
-				check(before.projectiles.is_empty(), "knives cannot visually seek a still-hidden Dotra")
-				check(not revealed.projectiles.is_empty(), "reveal-tick knife hit still gets visible impact feedback")
+				check(before.projectiles.is_empty(), "knives cannot visually seek a still-untargetable Dotra")
+				check(not revealed.projectiles.is_empty(), "first legal knife hit still gets visible impact feedback")
 			else:
-				check(not before.monster_attacks.any(func(a): return a.ability == "MunoDash"), "Muno cannot begin its visible lunge at a still-hidden Dotra")
-				check(revealed.monster_attacks.any(func(a): return a.ability == "MunoDash"), "Muno strike appears after Dotra reveals")
-		# A reveal followed by a lethal counterattack leaves no visible living
-		# unit frame. It still must not show an arrow seeking hidden Dotra.
+				check(not before.monster_attacks.any(func(a): return a.ability == "MunoDash"), "Muno cannot begin its visible lunge at a still-untargetable Dotra")
+				check(revealed.monster_attacks.any(func(a): return a.ability == "MunoDash"), "Muno strike appears after shroud expires")
+		# A lethal shot on shroud expiry still needs correctly timed feedback.
+		# Its flight must not begin while Dotra remains untargetable.
 		var lethal_world: Dictionary = phase_world()
-		var victim: Dictionary = put(lethal_world, "Dotra", pid, 0 if pid == 0 else 2400, {"hidden": true, "hp": 1, "armor": 0})
-		put(lethal_world, "Vulture", 1 - pid, 400 if pid == 0 else 2000, {"y_fp": 350, "step_fp": 0, "attack": 100, "hp": 100, "max_hp": 100})
+		var victim: Dictionary = put(lethal_world, "Dotra", pid, 0 if pid == 0 else 2400, {"hidden": true, "step_fp": 0, "hp": 1, "armor": 0})
+		put(lethal_world, "Vulture", 1 - pid, 240 if pid == 0 else 2160, {"y_fp": 300, "step_fp": 0, "attack": 100, "hp": 100, "max_hp": 100})
 		var lethal: Dictionary = phase("dotra_%d_lethal_reveal_counter" % pid, lethal_world)
 		var shot: Dictionary = facts(lethal, "MARCHER_RANGED_ATTACK")[0]
 		var impact_at: float = 0.18 + 6.0 * float(int(shot.tick) + 1) / 200.0
-		check(Kanifous._entity(lethal.world, victim.id).is_empty() and not shot.target.attributes.hidden, "lethal counterattack waits for the ambush reveal")
-		check(playback.build(lethal.events.map(func(r): return r.event)) and playback.sample(impact_at - 0.09).projectiles.is_empty() and not playback.sample(impact_at).projectiles.is_empty(), "lethal reveal still suppresses early knife flight and shows the impact")
+		check(Kanifous._entity(lethal.world, victim.id).is_empty() and not shot.target.attributes.hidden, "lethal counterattack waits for shroud expiry")
+		check(playback.build(lethal.events.map(func(r): return r.event)) and playback.sample(impact_at - 0.09).projectiles.is_empty() and not playback.sample(impact_at).projectiles.is_empty(), "lethal expiry hit still suppresses early knife flight and shows the impact")
 		# Towers use a separate target-selection loop from ordinary Vultures.
 		var w: Dictionary = phase_world()
 		var owner: int = 1 - pid

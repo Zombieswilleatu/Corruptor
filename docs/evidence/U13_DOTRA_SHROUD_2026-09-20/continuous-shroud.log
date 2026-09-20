@@ -1,0 +1,11 @@
+{
+  "counts": {
+    "emergence_windows": 16,
+    "ordinary_attacks_while_shrouded": 18,
+    "ordinary_hp_damage_while_shrouded": 36,
+    "deployed_dotras": 16,
+    "still_staged_at_end": 2
+  },
+  "direct_hits_during_shroud": 0,
+  "mirrored_pairs": 4
+}

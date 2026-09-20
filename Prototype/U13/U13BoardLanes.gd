@@ -41,6 +41,7 @@ const WebVisuals = preload("res://Prototype/U13/U13WebVisuals.gd")
 var web_visuals = WebVisuals.new()
 var active_webs: Array = []
 const ExposureVisuals = preload("res://Prototype/U13/U13ExposureVisuals.gd")
+const ShroudVisuals = preload("res://Prototype/U13/U13DotraShroudVisuals.gd")
 const CharmVisuals = preload("res://Prototype/U13/U13CharmVisuals.gd")
 var charm_visuals = CharmVisuals.new()
 
@@ -153,6 +154,8 @@ func _get_tooltip(at: Vector2) -> String:
 			var description: String = "%s · %s\nHP %s · Armor %d" % [unit_name, "Yours" if unit.owner == 0 else "Enemy", hp, unit.attributes.armor]
 			if ExposureVisuals.active(unit):
 				description += "\nEXPOSED · takes +1 damage per hit before Armor. Refreshes; does not stack."
+			if ShroudVisuals.active(unit):
+				description += "\nSHROUDED · cannot be targeted for 5 seconds after emergence. Can still fight; area damage and poison still affect him."
 			if CharmVisuals.active(unit):
 				description += "\nCHARMED · fighting for %s until this round ends. Returns to %s next round." % ["you" if unit.owner == 0 else "the enemy", "you" if int(unit.attributes.charm_owner) == 0 else "the enemy"]
 			if unit_name == "Penitent": description += "\n" + preload("res://Scripts/Sim/U13PenitentDefense.gd").DESCRIPTION
@@ -177,6 +180,7 @@ func _get_tooltip(at: Vector2) -> String:
 				description += "\nPulses at the start and about 10 seconds into each round; radius 360."
 				description += "\nNext pulse: heal nearby wounded allies 1 HP (including herself); otherwise harm enemies 1."
 			if unit_name == "Dotra":
+				description += "\nHides once after his first 15 seconds on the field; staging does not count."
 				description += "\nHidden: stalks at full speed; an enemy within 240 triggers a 5-damage ambush."
 				if unit.attributes.get("hidden", false):
 					description += "\nHidden now · reveals only when the ambush lands"
@@ -417,6 +421,7 @@ func _draw_charm_markers() -> void:
 		var ceiling: float = travel_rect(unit.attributes.lane).position.y - sprite_height + 8.0
 		charm_visuals.draw(self, unit, _monster_point(unit.attributes), height, ceiling)
 		ExposureVisuals.draw(self, unit, _monster_point(unit.attributes), height, ceiling)
+		ShroudVisuals.draw(self, unit, _monster_point(unit.attributes), height, ceiling)
 
 
 func _draw_marcher_death(unit: Dictionary, center: Vector2, age: float) -> void:

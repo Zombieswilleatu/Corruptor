@@ -1,7 +1,8 @@
 """Monster recipes and explicit playtest tuning; independent Python rules."""
+from . import dotra_shroud as shroud
 from . import economy as e
 from .copying import copy_data
-VERSION = "U13_MONSTERS_V16_DOTRA_TIMED_HIDE"
+VERSION = "U13_MONSTERS_V17_DOTRA_SHROUD"
 ROSTER = {'Lemek': {'tier': 'Easy',
            'recipe': {'Penitent': 2},
            'attack': 4,
@@ -75,7 +76,7 @@ ROSTER = {'Lemek': {'tier': 'Easy',
            'armor': 2,
            'speed': 2,
            'hp': 10,
-           'ability': 'Once per summon, hides after his first 15 seconds on the field. Protected staging and birth hold do not count. Stalks at full speed while hidden until delivering a 5-damage ambush within 240. On emergence, exposes enemies within 360 for one full round: +1 incoming damage per hit, before Armor. Refreshes but never stacks. Blocks and evasion still prevent damage.'},
+           'ability': 'Once per summon, hides after his first 15 seconds on the field. Protected staging and birth hold do not count. Stalks at full speed while hidden until delivering a 5-damage ambush within 240. On emergence, remains visible and can fight but cannot be targeted for 5 seconds; area damage and existing poison still affect him. Exposes enemies within 360 for one full round: +1 incoming damage per hit, before Armor. Refreshes but never stacks. Blocks and evasion still prevent damage.'},
  'Sooge': {'tier': 'Very hard',
            'recipe': {'Butcher': 3, 'Wright': 2},
            'attack': 1,
@@ -125,6 +126,7 @@ def root_chance(a):
     return min(100,TUNING['sooge_root_chance']+a.get('sooge_root_attempts',0)*TUNING['sooge_root_increase'])
 
 def valid_unit(a):
+    if not shroud.valid(a):return False
     if 'monster_id' not in a:return a.get('suit')!='Monster'
     for key in ('sooge_root_attempts','sooge_root_round','beam_next_tick','beam_charge_tick','beam_ready_tick','dotra_concealment_round','dotra_hide_at_tick','sinodek_portal_round','kopita_pulses','kopita_last_pulse_tick'):
         if key in a and (type(a[key]) is not int or not 0<=a[key]<=9007199254740991):return False
@@ -160,7 +162,7 @@ TUNING = {'tumler_evasion_chance': 50, 'tumler_hunt_bonus': 1,
  'taunt_radius': 360,
  'muno_radius': 480,
  'dotra_hide_delay_ticks': 200,
- 'dotra_ambush_radius': 240, 'dotra_expose_radius': 360, 'dotra_expose_ticks': 200,
+ 'dotra_ambush_radius': 240, 'dotra_expose_radius': 360, 'dotra_expose_ticks': 200, 'dotra_shroud_ticks': 67,
  'sooge_root_chance': 25,
  'sooge_root_increase': 15,
  'beam_range': 1800,

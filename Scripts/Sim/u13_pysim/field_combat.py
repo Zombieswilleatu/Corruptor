@@ -1,4 +1,5 @@
 """Independent simultaneous melee and fortification-aware ranged attacks."""
+from . import dotra_shroud as shroud
 from . import incoming_damage as incoming
 from . import field_fortifications as fort, monster_effects, penitent_defense, marching_spatial
 from .copying import copy_data
@@ -22,7 +23,7 @@ def ignored(a, b):
 def nearest(unit, targets, radius=4000, melee=False):
     best, gap = {}, radius**2+1
     for row in targets:
-        if row['owner'] == unit['owner'] or row['attributes']['lane'] != unit['attributes']['lane'] or row['kind'] == 'marcher' and ignored(unit, row):
+        if row['owner'] == unit['owner'] or row['attributes']['lane'] != unit['attributes']['lane'] or shroud.active(row['attributes']) or row['kind'] == 'marcher' and ignored(unit, row):
             continue
         if unit['attributes'].get('flying', False) and row['kind']=='fortification' and row['attributes']['structure']=='Wall': continue
         if melee and not fort.in_melee(unit, row): continue
@@ -118,7 +119,7 @@ def volley(phase, duels, tick, fleeing):
         radius = marching_spatial.tower_range(phase.w) if tower else marching_spatial.vulture_range(phase.w)
         best, target = radius**2+1, {}
         for other in rows:
-            if other['owner'] == unit['owner'] or other['attributes']['lane'] != a['lane'] or ignored(unit, other):
+            if other['owner'] == unit['owner'] or other['attributes']['lane'] != a['lane'] or shroud.active(other['attributes']) or ignored(unit, other):
                 continue
             d = fort.gap(unit, other)
             if d < best or (d == best and (not target or other['id'] < target['id']) and not tower):

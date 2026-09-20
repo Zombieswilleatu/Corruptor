@@ -140,6 +140,9 @@ func sample(seconds: float) -> Dictionary:
 		var ending: Dictionary = right_units.get(unit.id, unit)
 		if unit.attributes.has("dotra_exposed_until_tick"):
 			unit.attributes["visual_exposed"] = preload("res://Scripts/Sim/U13IncomingDamage.gd").active(unit.attributes, status_clock)
+		if unit.attributes.has("dotra_shroud_until_tick"):
+			unit.attributes["visual_shrouded"] = preload("res://Scripts/Sim/U13DotraShroud.gd").active(unit.attributes, status_clock)
+			unit.attributes["visual_shroud_remaining"] = clampf(float(int(unit.attributes.dotra_shroud_until_tick) - status_clock) / float(maxi(1, int(unit.attributes.dotra_shroud_until_tick) - int(unit.attributes.get("dotra_shroud_from_tick", 0)))), 0.0, 1.0)
 		# Keep fractional visual positions out of the simulation's *_fp fields.
 		if _spatial:
 			unit.attributes["visual_y"] = lerpf(
@@ -359,8 +362,15 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 func _align_attack_reveals(events: Array) -> void:
 	var concealed: Dictionary = {}
 	var reveals: Dictionary = {}
+	var targetable_at: Dictionary = {}
 	for frame in _frames:
 		for unit in frame.units:
+			var deadline: int = int(unit.attributes.get("dotra_shroud_until_tick", 0))
+			if deadline > 0:
+				var tick: int = deadline - round_number * 200
+				if not targetable_at.has(unit.id): targetable_at[unit.id] = []
+				var expires_at: float = _spatial_lead + MOVE_SECONDS * float(tick + 1) / float(_spatial_ticks)
+				if expires_at not in targetable_at[unit.id]: targetable_at[unit.id].append(expires_at)
 			var hidden: bool = unit.attributes.get("hidden", false)
 			if concealed.get(unit.id, false) and not hidden:
 				if not reveals.has(unit.id): reveals[unit.id] = []
@@ -375,6 +385,7 @@ func _align_attack_reveals(events: Array) -> void:
 			reveals[identity].append(_spatial_lead + MOVE_SECONDS * float(int(event.data.tick) + 1) / float(_spatial_ticks))
 	for shot in projectile_rows:
 		var visible_at: float = _latest_reveal(reveals, shot.source_id, shot.target_id, shot.end)
+		visible_at = maxf(visible_at, _latest_reveal(targetable_at, "", shot.target_id, shot.end))
 		shot.start = maxf(float(shot.start), visible_at)
 		if float(shot.end) - float(shot.start) < 0.001:
 			# The simulation hit is instantaneous on the reveal tick. Show its
@@ -384,6 +395,7 @@ func _align_attack_reveals(events: Array) -> void:
 	for attack in _monster_attacks:
 		if attack.ability == "MunoDash":
 			attack.start = maxf(float(attack.start), _latest_reveal(reveals, attack.source_id, attack.target_id, attack.impact_at))
+			attack.start = maxf(float(attack.start), _latest_reveal(targetable_at, "", attack.target_id, attack.impact_at))
 
 
 static func _latest_reveal(reveals: Dictionary, source: String, target: String, at: float) -> float:

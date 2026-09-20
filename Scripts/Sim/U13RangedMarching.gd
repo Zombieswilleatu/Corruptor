@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Shroud = preload("res://Scripts/Sim/U13DotraShroud.gd")
+
 const Incoming = preload("res://Scripts/Sim/U13IncomingDamage.gd")
 
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
@@ -61,7 +63,7 @@ static func nearest(unit: Dictionary, rows: Array, reach: int = RANGE_FP) -> Dic
 	var best: Dictionary = {}
 	var best_distance: int = reach * reach + 1
 	for other in rows:
-		if other.owner == unit.owner or other.attributes.lane != unit.attributes.lane or Wishmaster.ignored(unit, other):
+		if other.owner == unit.owner or other.attributes.lane != unit.attributes.lane or Shroud.active(other.attributes) or Wishmaster.ignored(unit, other):
 			continue
 		var separation: int = Fort.gap(unit, other)
 		if separation < best_distance or (separation == best_distance and (best.is_empty() or other.id < best.id)):
@@ -100,7 +102,7 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 			var reach: int = tower_range(world)
 			var best: int = reach * reach + 1
 			for other in rows:
-				if other.owner == unit.owner or other.attributes.lane != unit.attributes.lane or (other.kind == "marcher" and Wishmaster.ignored(unit, other)): continue
+				if other.owner == unit.owner or other.attributes.lane != unit.attributes.lane or Shroud.active(other.attributes) or (other.kind == "marcher" and Wishmaster.ignored(unit, other)): continue
 				var d: int = Fort.gap(unit, other)
 				if d < best or (d == best and not target.is_empty() and other.id < target.id): target = other; best = d
 		if target.is_empty() or (not tower and Fort.in_melee(unit, target)):

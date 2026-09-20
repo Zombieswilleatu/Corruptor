@@ -1,0 +1,199 @@
+Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org
+
+PASS timed_birth_hold:0:timed-hide:0 resolves
+PASS timed_birth_hold:0:timed-hide:0 keeps valid unit and field state
+PASS timed_birth_hold:0:timed-hide:0 deterministic replay
+PASS birth hold does not start the hide timer
+PASS timed_first_interval:0:timed-hide:0 resolves
+PASS timed_first_interval:0:timed-hide:0 keeps valid unit and field state
+PASS timed_first_interval:0:timed-hide:0 deterministic replay
+PASS Dotra stays visible for all 200 ticks of his first field interval
+PASS save transport preserves Dotra's timer and spent concealment
+PASS timed_hide:0:timed-hide:0 resolves
+PASS timed_hide:0:timed-hide:0 keeps valid unit and field state
+PASS timed_hide:0:timed-hide:0 deterministic replay
+PASS both seats and seeds hide exactly at the next interval boundary
+PASS timed concealment replay builds
+PASS playback conceals Dotra on the recorded trigger tick
+PASS timed_stalking:0:timed-hide:0 resolves
+PASS timed_stalking:0:timed-hide:0 keeps valid unit and field state
+PASS timed_stalking:0:timed-hide:0 deterministic replay
+PASS concealment persists without another trigger while no enemy is in range
+PASS timed_ambush:0:timed-hide:0 resolves
+PASS timed_ambush:0:timed-hide:0 keeps valid unit and field state
+PASS timed_ambush:0:timed-hide:0 deterministic replay
+PASS guaranteed hide still produces the 5-damage ambush and exposure pulse
+PASS save transport preserves Dotra's timer and spent concealment
+PASS timed_spent:0:timed-hide:0 resolves
+PASS timed_spent:0:timed-hide:0 keeps valid unit and field state
+PASS timed_spent:0:timed-hide:0 deterministic replay
+PASS the one concealment stays spent after emergence and save/load
+PASS timed_birth_hold:0:timed-hide:1 resolves
+PASS timed_birth_hold:0:timed-hide:1 keeps valid unit and field state
+PASS timed_birth_hold:0:timed-hide:1 deterministic replay
+PASS birth hold does not start the hide timer
+PASS timed_first_interval:0:timed-hide:1 resolves
+PASS timed_first_interval:0:timed-hide:1 keeps valid unit and field state
+PASS timed_first_interval:0:timed-hide:1 deterministic replay
+PASS Dotra stays visible for all 200 ticks of his first field interval
+PASS save transport preserves Dotra's timer and spent concealment
+PASS timed_hide:0:timed-hide:1 resolves
+PASS timed_hide:0:timed-hide:1 keeps valid unit and field state
+PASS timed_hide:0:timed-hide:1 deterministic replay
+PASS both seats and seeds hide exactly at the next interval boundary
+PASS timed concealment replay builds
+PASS playback conceals Dotra on the recorded trigger tick
+PASS timed_stalking:0:timed-hide:1 resolves
+PASS timed_stalking:0:timed-hide:1 keeps valid unit and field state
+PASS timed_stalking:0:timed-hide:1 deterministic replay
+PASS concealment persists without another trigger while no enemy is in range
+PASS timed_ambush:0:timed-hide:1 resolves
+PASS timed_ambush:0:timed-hide:1 keeps valid unit and field state
+PASS timed_ambush:0:timed-hide:1 deterministic replay
+PASS guaranteed hide still produces the 5-damage ambush and exposure pulse
+PASS save transport preserves Dotra's timer and spent concealment
+PASS timed_spent:0:timed-hide:1 resolves
+PASS timed_spent:0:timed-hide:1 keeps valid unit and field state
+PASS timed_spent:0:timed-hide:1 deterministic replay
+PASS the one concealment stays spent after emergence and save/load
+PASS timed_birth_hold:1:timed-hide:0 resolves
+PASS timed_birth_hold:1:timed-hide:0 keeps valid unit and field state
+PASS timed_birth_hold:1:timed-hide:0 deterministic replay
+PASS birth hold does not start the hide timer
+PASS timed_first_interval:1:timed-hide:0 resolves
+PASS timed_first_interval:1:timed-hide:0 keeps valid unit and field state
+PASS timed_first_interval:1:timed-hide:0 deterministic replay
+PASS Dotra stays visible for all 200 ticks of his first field interval
+PASS save transport preserves Dotra's timer and spent concealment
+PASS timed_hide:1:timed-hide:0 resolves
+PASS timed_hide:1:timed-hide:0 keeps valid unit and field state
+PASS timed_hide:1:timed-hide:0 deterministic replay
+PASS both seats and seeds hide exactly at the next interval boundary
+PASS timed concealment replay builds
+PASS playback conceals Dotra on the recorded trigger tick
+PASS timed_stalking:1:timed-hide:0 resolves
+PASS timed_stalking:1:timed-hide:0 keeps valid unit and field state
+PASS timed_stalking:1:timed-hide:0 deterministic replay
+PASS concealment persists without another trigger while no enemy is in range
+PASS timed_ambush:1:timed-hide:0 resolves
+PASS timed_ambush:1:timed-hide:0 keeps valid unit and field state
+PASS timed_ambush:1:timed-hide:0 deterministic replay
+PASS guaranteed hide still produces the 5-damage ambush and exposure pulse
+PASS save transport preserves Dotra's timer and spent concealment
+PASS timed_spent:1:timed-hide:0 resolves
+PASS timed_spent:1:timed-hide:0 keeps valid unit and field state
+PASS timed_spent:1:timed-hide:0 deterministic replay
+PASS the one concealment stays spent after emergence and save/load
+PASS timed_birth_hold:1:timed-hide:1 resolves
+PASS timed_birth_hold:1:timed-hide:1 keeps valid unit and field state
+PASS timed_birth_hold:1:timed-hide:1 deterministic replay
+PASS birth hold does not start the hide timer
+PASS timed_first_interval:1:timed-hide:1 resolves
+PASS timed_first_interval:1:timed-hide:1 keeps valid unit and field state
+PASS timed_first_interval:1:timed-hide:1 deterministic replay
+PASS Dotra stays visible for all 200 ticks of his first field interval
+PASS save transport preserves Dotra's timer and spent concealment
+PASS timed_hide:1:timed-hide:1 resolves
+PASS timed_hide:1:timed-hide:1 keeps valid unit and field state
+PASS timed_hide:1:timed-hide:1 deterministic replay
+PASS both seats and seeds hide exactly at the next interval boundary
+PASS timed concealment replay builds
+PASS playback conceals Dotra on the recorded trigger tick
+PASS timed_stalking:1:timed-hide:1 resolves
+PASS timed_stalking:1:timed-hide:1 keeps valid unit and field state
+PASS timed_stalking:1:timed-hide:1 deterministic replay
+PASS concealment persists without another trigger while no enemy is in range
+PASS timed_ambush:1:timed-hide:1 resolves
+PASS timed_ambush:1:timed-hide:1 keeps valid unit and field state
+PASS timed_ambush:1:timed-hide:1 deterministic replay
+PASS guaranteed hide still produces the 5-damage ambush and exposure pulse
+PASS save transport preserves Dotra's timer and spent concealment
+PASS timed_spent:1:timed-hide:1 resolves
+PASS timed_spent:1:timed-hide:1 keeps valid unit and field state
+PASS timed_spent:1:timed-hide:1 deterministic replay
+PASS the one concealment stays spent after emergence and save/load
+PASS timed_staged:0:2 resolves
+PASS timed_staged:0:2 keeps valid unit and field state
+PASS timed_staged:0:2 deterministic replay
+PASS timed_staged:0:3 resolves
+PASS timed_staged:0:3 keeps valid unit and field state
+PASS timed_staged:0:3 deterministic replay
+PASS timed_staged:0:4 resolves
+PASS timed_staged:0:4 keeps valid unit and field state
+PASS timed_staged:0:4 deterministic replay
+PASS three protected intervals do not consume any of the hide delay
+PASS timed_released:0 resolves
+PASS timed_released:0 keeps valid unit and field state
+PASS timed_released:0 deterministic replay
+PASS late release starts a fresh 15-second field interval
+PASS timed_after_release:0 resolves
+PASS timed_after_release:0 keeps valid unit and field state
+PASS timed_after_release:0 deterministic replay
+PASS Dotra hides after the release interval for either seat
+PASS timed_staged:1:2 resolves
+PASS timed_staged:1:2 keeps valid unit and field state
+PASS timed_staged:1:2 deterministic replay
+PASS timed_staged:1:3 resolves
+PASS timed_staged:1:3 keeps valid unit and field state
+PASS timed_staged:1:3 deterministic replay
+PASS timed_staged:1:4 resolves
+PASS timed_staged:1:4 keeps valid unit and field state
+PASS timed_staged:1:4 deterministic replay
+PASS three protected intervals do not consume any of the hide delay
+PASS timed_released:1 resolves
+PASS timed_released:1 keeps valid unit and field state
+PASS timed_released:1 deterministic replay
+PASS late release starts a fresh 15-second field interval
+PASS timed_after_release:1 resolves
+PASS timed_after_release:1 keeps valid unit and field state
+PASS timed_after_release:1 deterministic replay
+PASS Dotra hides after the release interval for either seat
+PASS mid-round activation schedules a full interval from its first active tick
+PASS save transport preserves Dotra's timer and spent concealment
+PASS timed_mid_round resolves
+PASS timed_mid_round keeps valid unit and field state
+PASS timed_mid_round deterministic replay
+PASS mid-round hide fires exactly 200 ticks later after save/load
+PASS mid-round timer replay builds
+PASS mid-round playback stays visible until the timer expires
+PASS timed_target_order:0:Muno resolves
+PASS timed_target_order:0:Muno keeps valid unit and field state
+PASS timed_target_order:0:Muno deterministic replay
+PASS concealment precedes Muno target selection for either seat
+PASS Muno cannot acquire Dotra on his hide tick
+PASS timed_target_order:0:Sinodek resolves
+PASS timed_target_order:0:Sinodek keeps valid unit and field state
+PASS timed_target_order:0:Sinodek deterministic replay
+PASS concealment precedes Sinodek target selection for either seat
+PASS Sinodek cannot acquire Dotra on his hide tick
+PASS timed_target_order:0:Sooge resolves
+PASS timed_target_order:0:Sooge keeps valid unit and field state
+PASS timed_target_order:0:Sooge deterministic replay
+PASS concealment precedes Sooge target selection for either seat
+PASS Sooge cannot acquire Dotra on his hide tick
+PASS timed_target_order:0:Tumler resolves
+PASS timed_target_order:0:Tumler keeps valid unit and field state
+PASS timed_target_order:0:Tumler deterministic replay
+PASS concealment precedes Tumler target selection for either seat
+PASS Tumler cannot acquire Dotra on his hide tick
+PASS timed_target_order:1:Muno resolves
+PASS timed_target_order:1:Muno keeps valid unit and field state
+PASS timed_target_order:1:Muno deterministic replay
+PASS concealment precedes Muno target selection for either seat
+PASS Muno cannot acquire Dotra on his hide tick
+PASS timed_target_order:1:Sinodek resolves
+PASS timed_target_order:1:Sinodek keeps valid unit and field state
+PASS timed_target_order:1:Sinodek deterministic replay
+PASS concealment precedes Sinodek target selection for either seat
+PASS Sinodek cannot acquire Dotra on his hide tick
+PASS timed_target_order:1:Sooge resolves
+PASS timed_target_order:1:Sooge keeps valid unit and field state
+PASS timed_target_order:1:Sooge deterministic replay
+PASS concealment precedes Sooge target selection for either seat
+PASS Sooge cannot acquire Dotra on his hide tick
+PASS timed_target_order:1:Tumler resolves
+PASS timed_target_order:1:Tumler keeps valid unit and field state
+PASS timed_target_order:1:Tumler deterministic replay
+PASS concealment precedes Tumler target selection for either seat
+PASS Tumler cannot acquire Dotra on his hide tick
+U13 Dotra timing failures: 0

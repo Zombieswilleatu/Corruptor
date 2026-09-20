@@ -1,0 +1,6 @@
+PARITY shroud_damage_Poison
+PARITY shroud_damage_Kopita
+PARITY shroud_damage_Beam
+PARITY shroud_damage_Muno
+PARITY shroud_damage_Ambush
+{"damage_adapter_cases": 5, "complete_world_and_events_match": true}

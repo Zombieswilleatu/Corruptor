@@ -1,5 +1,6 @@
 extends RefCounted
 
+const Shroud = preload("res://Scripts/Sim/U13DotraShroud.gd")
 const Incoming = preload("res://Scripts/Sim/U13IncomingDamage.gd")
 
 const Rules = preload("res://Scripts/Sim/U13MonsterRules.gd")
@@ -17,7 +18,7 @@ static func distance(a: Dictionary, b: Dictionary) -> int:
 	return (int(a.x_fp) - int(b.x_fp)) ** 2 + (int(a.y_fp) - int(b.y_fp)) ** 2
 
 static func enemies(unit: Dictionary, rows: Array, radius: int = 4000) -> Array:
-	return rows.filter(func(r): return r.owner != unit.owner and r.attributes.lane == unit.attributes.lane and not r.attributes.get("hidden", false) and Fort.gap(unit, r) <= radius * radius)
+	return rows.filter(func(r): return r.owner != unit.owner and r.attributes.lane == unit.attributes.lane and Shroud.targetable(r.attributes) and Fort.gap(unit, r) <= radius * radius)
 
 static func nearest(unit: Dictionary, rows: Array, radius: int = 4000) -> Dictionary:
 	var result: Dictionary = {}
@@ -65,7 +66,7 @@ static func evades(unit: Dictionary, source: Dictionary, rows: Array, context: D
 
 static func intercept(unit: Dictionary, source: Dictionary, rows: Array, context: Dictionary, tick: int, structures: Array = []) -> Array:
 	if source.owner == unit.owner or not hunting(unit, rows, context.round, structures): return []
-	if not rows.any(func(r): return r.id == source.id and r.owner == source.owner and not r.attributes.get("hidden", false)): return []
+	if not rows.any(func(r): return r.id == source.id and r.owner == source.owner and Shroud.targetable(r.attributes)): return []
 	var old: String = unit.attributes.get("hunt_target", "")
 	unit.attributes["hunt_target"] = source.id
 	return [event("MONSTER_HUNT_RETARGETED", {"unit_id": unit.id, "previous_target_id": old, "target_id": source.id, "round": context.round, "tick": tick})]
@@ -152,6 +153,10 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 		if int(a.get("dotra_exposed_until_tick", 0)) > 0 and int(a.dotra_exposed_until_tick) <= clock:
 			a["dotra_exposed_from_tick"] = 0
 			a["dotra_exposed_until_tick"] = 0
+			entities.update(unit.id, unit.owner, a)
+		if int(a.get("dotra_shroud_until_tick", 0)) > 0 and int(a.dotra_shroud_until_tick) <= clock:
+			a["dotra_shroud_from_tick"] = 0
+			a["dotra_shroud_until_tick"] = 0
 			entities.update(unit.id, unit.owner, a)
 		# Apply every concealment before any monster selects a target this tick.
 		if a.get("monster_id") == "Dotra" and a.movement_ready_round <= n and int(a.get("dotra_concealment_round", 0)) == 0:
@@ -331,6 +336,10 @@ static func damage(world: Dictionary, entities, hit: Dictionary, context: Dictio
 			events.append(event("MONSTER_ATTACK", {"attacker": hit.source, "target": structure, "ability": hit.ability, "blocked": false, "damage_dealt": result.damage_dealt, "hp_after": result.hp_after, "round": context.round, "tick": tick}))
 			break
 		return {"action": "resolved", "world": world, "events": events}
+	# Directly aimed abilities must still have a legal target when resolved.
+	# Ground beams, pulses, poison and other area effects keep working.
+	if hit.ability in ["Muno", "Ambush"] and Shroud.active(target.attributes, int(context.round) * 200 + tick):
+		return {"action": "resolved", "world": world, "events": events}
 	var before: Dictionary = target.duplicate(true)
 	if hit.ability == "Ambush":
 		var ambusher: Dictionary = entities.get_entity(hit.source.id)
@@ -338,6 +347,8 @@ static func damage(world: Dictionary, entities, hit: Dictionary, context: Dictio
 		# Reveal only when a live victim will actually receive the ambush.
 		# An earlier queued hit may have removed the chosen victim already.
 		ambusher.attributes["hidden"] = false
+		ambusher.attributes["dotra_shroud_from_tick"] = int(context.round) * 200 + tick
+		ambusher.attributes["dotra_shroud_until_tick"] = int(context.round) * 200 + tick + int(Rules.TUNING.dotra_shroud_ticks)
 		entities.update(ambusher.id, ambusher.owner, ambusher.attributes)
 		hit["source"] = ambusher
 	var blocked: bool = hit.ability == "Beam" and Defense.blocks(target, hit.source.id, context.seed, context.round, tick, "Beam")

@@ -1,4 +1,5 @@
 """Deterministic local routes and bounded target retries; native mirror."""
+from . import dotra_shroud as shroud
 from math import isqrt
 from . import marcher_spacing as spacing, field_fortifications as fort
 from .copying import copy_data
@@ -17,7 +18,7 @@ def candidates(unit, targets, clock):
 def retained(unit, targets):
     nav = unit['attributes'].get('navigation', {})
     if not nav.get('path'): return {}
-    return next((t for t in targets if t['id'] == nav.get('target') and t['owner'] != unit['owner'] and not t['attributes'].get('hidden', False)), {})
+    return next((t for t in targets if t['id'] == nav.get('target') and t['owner'] != unit['owner'] and shroud.targetable(t['attributes'])), {})
 
 
 def route(unit, destination, rows, structures):
@@ -47,7 +48,7 @@ def route(unit, destination, rows, structures):
 def steer(unit, proposed, destination, target, rows, structures, step, clock, protected_target=False, retreat=False):
     if retreat or step <= 0: return spacing.slide(unit, proposed, rows, structures, step, not retreat and not protected_target)
     # A taunted fighter must be able to leave its previous melee contact.
-    if not protected_target and any(other['owner'] != unit['owner'] and spacing.collides(unit, other) and fort.in_melee(unit, other) for other in rows): return unit['attributes']
+    if not protected_target and any(other['owner'] != unit['owner'] and not shroud.active(other['attributes']) and spacing.collides(unit, other) and fort.in_melee(unit, other) for other in rows): return unit['attributes']
     a = unit['attributes']
     goal = destination or dict(x_fp=2400 if unit['owner'] == 0 else 0, y_fp=a['y_fp'])
     nav = copy_data(a.get('navigation', {})); gap = fort.distance(a, goal)

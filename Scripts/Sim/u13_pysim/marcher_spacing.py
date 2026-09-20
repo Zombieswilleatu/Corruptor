@@ -1,4 +1,5 @@
 """Small physical footprints, mirrored from U13MarcherSpacing.gd."""
+from . import dotra_shroud as shroud
 from . import field_fortifications as fort, field_combat
 from .copying import copy_data
 
@@ -22,7 +23,7 @@ def clear(unit, point, rows, structures, allow_escape=True):
 
 
 def slide(unit, proposed, rows, structures, step, hold_contact=True):
-    if hold_contact and any(other['owner'] != unit['owner'] and collides(unit, other) and fort.in_melee(unit, other) for other in rows):
+    if hold_contact and any(other['owner'] != unit['owner'] and not shroud.active(other['attributes']) and collides(unit, other) and fort.in_melee(unit, other) for other in rows):
         return unit['attributes']
     if clear(unit, proposed, rows, structures): return proposed
     side = 1 if ord(unit['id'][-1]) % 2 == 0 else -1

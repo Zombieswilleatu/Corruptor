@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Shroud = preload("res://Scripts/Sim/U13DotraShroud.gd")
+
 const Spacing = preload("res://Scripts/Sim/U13MarcherSpacing.gd")
 const Fort = Spacing.Fort
 const STALL_TICKS: int = 24 # 1.8 seconds of a 15-second round at 1x.
@@ -17,7 +19,7 @@ static func retained(unit: Dictionary, targets: Array) -> Dictionary:
 	var nav: Dictionary = unit.attributes.get("navigation", {})
 	if nav.get("path", []).is_empty(): return {}
 	for target in targets:
-		if target.id == nav.get("target", "") and target.owner != unit.owner and not target.attributes.get("hidden", false): return target
+		if target.id == nav.get("target", "") and target.owner != unit.owner and Shroud.targetable(target.attributes): return target
 	return {}
 
 static func route(unit: Dictionary, destination: Dictionary, rows: Array, structures: Array) -> Array:
@@ -55,7 +57,7 @@ static func steer(unit: Dictionary, proposed: Dictionary, destination: Dictionar
 	if retreat or step <= 0: return Spacing.slide(unit, proposed, rows, structures, step, not retreat and not protected_target)
 	# Taunt changes the contact target before movement. An old opponent must
 	# not pin the fighter in place while its attacks now aim at Kurchin.
-	if not protected_target and rows.any(func(other): return other.owner != unit.owner and Spacing.collides(unit, other) and Fort.in_melee(unit, other)): return unit.attributes
+	if not protected_target and rows.any(func(other): return other.owner != unit.owner and not Shroud.active(other.attributes) and Spacing.collides(unit, other) and Fort.in_melee(unit, other)): return unit.attributes
 	var a: Dictionary = unit.attributes
 	var goal: Dictionary = destination if not destination.is_empty() else {"x_fp": 2400 if unit.owner == 0 else 0, "y_fp": int(a.y_fp)}
 	var nav: Dictionary = a.get("navigation", {}).duplicate(true)
