@@ -258,7 +258,7 @@ func balance_and_debt() -> void:
 		var n: int = Content.Lamp.power_count("balance-%d" % i, "wish")
 		counts[n - 1] += 1
 		replay = replay and n == Content.Lamp.power_count("balance-%d" % i, "wish")
-	check(replay and counts[0] > 600 and counts[1] > 150 and counts[1] < 350 and counts[2] > 0 and counts[2] < 100, "Wish count favors one and rarely three with keyed replay")
+	check(replay and counts[0] > 180 and counts[0] < 320 and counts[1] > 400 and counts[1] < 600 and counts[2] > 180 and counts[2] < 320, "Wish count favors two with equal one/three odds and keyed replay")
 	var content = Content.new()
 	var world: Dictionary = Scenario.world()
 	var ids = Content.Ids.new()

@@ -57,13 +57,17 @@ class CalibrationTests(unittest.TestCase):
 
     def test_power_distribution_matches_authority_thresholds(self):
         original=planning('Kanifous')._state['world']
-        for roll,count in ((0,1),(69,1),(70,2),(94,2),(95,3),(99,3)):
-            with self.subTest(roll=roll):
-                b=SimpleNamespace(w=copy_data(original),number=1,seed='fixed')
-                def draw(seed,key,channel,index,bound):return roll if channel=='WISH_COUNT' else 0
-                with patch('u13_pysim.wishmaster.draw',draw):
-                    events=wishmaster.wish(b,declaration(0,1,'WishPower',dict(lane='Castle')))
-                self.assertEqual(count,events[-1]['event']['data']['count'])
+        for name in ('WishPower','BreachWishPower'):
+            counts=[]
+            for roll in range(100):
+                with self.subTest(power=name,roll=roll):
+                    b=SimpleNamespace(w=copy_data(original),number=1,seed='fixed')
+                    def draw(seed,key,channel,index,bound):return roll if channel=='WISH_COUNT' else 0
+                    with patch('u13_pysim.wishmaster.draw',draw):
+                        events=wishmaster.wish(b,declaration(0,1,name,dict(lane='Castle')))
+                    counts.append(events[-1]['event']['data']['count'])
+            self.assertEqual([1]*25+[2]*50+[3]*25,counts)
+            self.assertEqual(200,sum(counts))
         self.assertEqual(78,ordinary_material_sum())
 
     def test_profile_validation_and_identification(self):

@@ -237,9 +237,9 @@ static func kanifous(c, order: Dictionary = {}) -> Array:
 		add(result, c, "WishDeath", point.target, point.score * 3.0 - risk)
 	for lane in ["Lord", "Castle"]:
 		var pressure: int = c.select("marcher", 1 - c.pid, lane).size()
-		# Power averages 1.35 bodies. Saturated lanes have less use for recruits.
+		# Power averages two bodies. Saturated lanes have less use for recruits.
 		var need: float = clampf(1.0 + pressure * 0.1 - c.select("marcher", c.pid, lane).size() * 0.1, 0.25, 1.5)
-		add(result, c, "WishPower", {"lane": lane}, 1.35 * 3.0 * need - risk)
+		add(result, c, "WishPower", {"lane": lane}, 2.0 * 3.0 * need - risk)
 		# Insure exposed Marchers; future losses are uncertain at planning.
 		var bodies: int = c.select("marcher", c.pid, lane).size()
 		add(result, c, "WishResurrection", {"lane": lane}, mini(bodies, pressure) * 2.5 - risk)

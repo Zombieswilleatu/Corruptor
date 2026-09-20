@@ -33,7 +33,8 @@ def wish(b,s):
     breach=s['power_id'].startswith('Breach')
     if power=='WishPower':
         roll=draw(b.seed,key,'WISH_COUNT',0,100)
-        for i in range(1 if roll<70 else 2 if roll<95 else 3):
+        # One/two/three bodies at 25/50/25%: mean two.
+        for i in range(1 if roll<25 else 2 if roll<75 else 3):
             suit=recruit.SUITS[draw(b.seed,key,'WISH_SUIT',i,4)];a=recruit.profile(suit,t['lane'],pid,n,n)
             r=recruit.create(w,key,i,pid,a);recruit.place_spawn(w,r,b.seed);count+=1
     elif power=='WishLongevity':

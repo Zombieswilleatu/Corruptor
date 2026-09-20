@@ -124,8 +124,8 @@ class KanifousTests(unittest.TestCase):
         base=wish_value(f,'WishPower',target,EMPTY)
         plan=dict(powers=[],order=dict(action='Ward',lane='Castle',card_ids=[r['id'] for r in f.hand]))
         after=wish_value(f,'WishPower',target,plan)
-        self.assertEqual((50,26),(base['benefit'],after['benefit']))
-        self.assertEqual(135,after['expected_bodies_hundredths'])
+        self.assertEqual((63,39),(base['benefit'],after['benefit']))
+        self.assertEqual(200,after['expected_bodies_hundredths'])
         self.assertEqual((1,'unknown'),(after['guaranteed_bodies'],after['extra_bodies']))
 
     def test_alternative_keeps_current_cards_and_respects_generation_budget(self):
@@ -133,7 +133,8 @@ class KanifousTests(unittest.TestCase):
         # A detached scenario with cheap liabilities makes the opened hand space decisive.
         for r in v['board']:
             if r['owner']==0 and r['kind']=='castle': r['attributes']['status']='ruined'
-        f=Facts(v); ids=tuple(r['id'] for r in f.hand[:7])
+        f=Facts(v); f.wish_profile='wealth'  # Isolate Wealth's spending-aware alternative.
+        ids=tuple(r['id'] for r in f.hand[:7])
         order=dict(action='Ward',lane='Castle',card_ids=list(ids))
         combat=Proposal('combat','Ward',order,30,'test',ids)
         c=dict(plan=dict(powers=[],order=order),selected=[combat],score=30)

@@ -116,13 +116,13 @@ def wish_value(f, name, target, plan, ctx=None):
         lane=target['lane']; own=sum(r['attributes']['lane']==lane for r in state['units'])
         planned=ctx['recruits']+ctx['monster_bodies_minimum'] if ctx['recruit_lane']==lane else 0
         need=max(0,len(f.units(f.enemy,lane))-own-planned)
-        # Rule distribution is 1/2/3 bodies at 70/25/5%, with uniform suits.
+        # Rule distribution is 1/2/3 bodies at 25/50/25%, with uniform suits.
         # Use expected material on the same scale as Death/Resurrection; the
         # actual future body count and suits remain unknown. Floor once.
-        body_value=135*ordinary_material_sum()//(100*len(recruitment.SUITS)) if calibrated(f,'power') else 18
+        body_value=2*ordinary_material_sum()//len(recruitment.SUITS) if calibrated(f,'power') else 18
         benefit=body_value+8*min(3,need)
         result.update(reason='expected_spawn_material_with_remaining_lane_need' if calibrated(f,'power') else 'guaranteed_body_with_remaining_lane_need',
-                      guaranteed_bodies=1,expected_bodies_hundredths=135 if calibrated(f,'power') else None,
+                      guaranteed_bodies=1,expected_bodies_hundredths=200 if calibrated(f,'power') else None,
                       spawn_material_value=body_value,
                       lane_need_after_recruitment=need,extra_bodies='unknown')
     elif name=='WishDeath':
