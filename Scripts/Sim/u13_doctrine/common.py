@@ -16,6 +16,7 @@ from . import lords
 from .lords.odradek import ResourceHorizon, RECONFIGURATION, SAVING_GOALS
 from .lords.deimos import ArtilleryPlans, RoutPlans
 from .lords.humbaba import SupportPlans
+from .lords.orias import OriasPlans
 from .budget import Budget, Limits
 from . import closing, coordination, defensive_plans
 from .coverage import POWERS
@@ -25,7 +26,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V15_ROUT_PUNISH'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V16_ORIAS_CONTROL'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -204,6 +205,15 @@ class CommonSmartCore:
                     p = next((p for p in ranked if p.payload['guard_moves'][0]['lane'] == lane), None)
                     if p and len(choices) < self.limits.retained_per_category: choices.append(p)
                 if choices: terms.add('Deploy')
+            if category == 'powers' and f.kind == 'Orias' and self.limits.retained_per_category >= 3:
+                # Preserve Web coverage in both lanes before keeping extra
+                # placements. Recruitment can change the useful lane later.
+                snare = next((p for p in ranked if p.term == 'Snare'), None)
+                if snare: choices.append(snare); terms.add('Snare')
+                for lane in LANES:
+                    p = next((p for p in ranked if p.term == 'Web' and p.payload['target']['lane'] == lane), None)
+                    if p and len(choices) < self.limits.retained_per_category: choices.append(p)
+                if any(p.term == 'Web' for p in choices): terms.add('Web')
             for p in ranked:
                 term = p.payload['monster_choice'] if category == 'monsters' else p.term
                 if term not in terms and len(choices) < self.limits.retained_per_category:
@@ -217,6 +227,7 @@ class CommonSmartCore:
         artillery = ArtilleryPlans(f, self.weights)
         support = SupportPlans(f, self.lord_modules)
         rout = RoutPlans(f, self.lord_modules)
+        orias = OriasPlans(f, self.lord_modules)
         complete = []
         omission_reserve = (min(4, self.limits.complete_plans//4)
             if any(p.term in coordination.TERMS for p in retained['powers']) else 0)
@@ -224,9 +235,10 @@ class CommonSmartCore:
         artillery_reserve = min(4, self.limits.complete_plans//4) if artillery.needs_alternatives else 0
         support_reserve = min(4, self.limits.complete_plans//4) if support.enabled else 0
         rout_reserve = min(4, self.limits.complete_plans//4) if rout.enabled else 0
-        assembly_limit = max(1, self.limits.complete_plans-omission_reserve-defense_reserve-artillery_reserve-support_reserve-rout_reserve)
-        def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant='', artillery_variant=False, support_variant=False, rout_variant=False):
-            if not omitted and not defense_variant and not artillery_variant and not support_variant and not rout_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
+        orias_reserve = min(4, self.limits.complete_plans//4) if orias.enabled else 0
+        assembly_limit = max(1, self.limits.complete_plans-omission_reserve-defense_reserve-artillery_reserve-support_reserve-rout_reserve-orias_reserve)
+        def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant='', artillery_variant=False, support_variant=False, rout_variant=False, orias_variant=False):
+            if not omitted and not defense_variant and not artillery_variant and not support_variant and not rout_variant and not orias_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
             if not budget.take('complete_plans'): return
             selected, cards, used, resource_spend = [], set(), set(), Counter()
             plan = dict(powers=[], order={})
@@ -352,6 +364,14 @@ class CommonSmartCore:
             before = len(complete)
             assemble(anchors, (), rout_variant=True)
             rout_alternatives += len(complete)-before
+        orias_alternatives = 0
+        variants = orias.alternatives(complete, retained, budget)
+        for _ in range(orias_reserve):
+            try: anchors = next(variants)
+            except StopIteration: break
+            before = len(complete)
+            assemble(anchors, (), orias_variant=True)
+            orias_alternatives += len(complete)-before
         # Reserve up to four complete-plan slots for a controlled comparison:
         # same own choices, without powers whose standalone credit is reduced.
         # Reassemble to recompute payments, recipes, declaration IDs and Veil.
@@ -426,6 +446,7 @@ class CommonSmartCore:
                     artillery=artillery.report(unique, chosen, artillery_alternatives),
                     support=support.report(chosen, support_alternatives),
                     rout=rout.report(chosen, rout_alternatives),
+                    orias=orias.report(chosen, orias_alternatives),
                     assumptions='current public board; new Guards, Ward, Work, simultaneous powers and spatial/random reactions are uncertain',
                     veil=dict(current_board_risk=chosen['veil_risk'], paid_choice_scenario=chosen['projected'],
                               protection=chosen['protection'], hard_veto=False, reason='hidden_orders_prevent_proof'),

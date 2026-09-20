@@ -1,0 +1,1285 @@
+{
+  "base_commit": "c92181268fae026f30d76d97c2c5b822185848ca",
+  "date": "2026-09-20",
+  "full_balance_games": 0,
+  "native_acceptance": false,
+  "new_orias_methods": 21,
+  "policy": "U13_COMMON_SMART_CORE_ALPHA_V16_ORIAS_CONTROL",
+  "runs": [
+    {
+      "cases": [
+        {
+          "budget": {
+            "limits": {
+              "complete_plans": 32,
+              "generated_per_category": 16,
+              "previews": 8,
+              "retained_per_category": 4
+            },
+            "refused": {
+              "generated:orias": 1
+            },
+            "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+            "used": {
+              "complete_plans": 29,
+              "generated:combat": 11,
+              "generated:guards": 7,
+              "generated:monsters": 3,
+              "generated:orias": 16,
+              "generated:powers": 4,
+              "generated:resummon": 1,
+              "generated:rites": 1,
+              "generated:work": 3,
+              "previews": 1,
+              "retained:combat": 4,
+              "retained:guards": 4,
+              "retained:monsters": 2,
+              "retained:orias": 3,
+              "retained:powers": 3,
+              "retained:work": 2
+            }
+          },
+          "decision": "67257961e68eeac17a62744ba4571ee4d5f5694408f8287a764b6dacf865abdb",
+          "name": "protect_lord_gate",
+          "observation": "898f015fa337bcc10d3b8cc2da46890183cb1b1b9f34982717cb7a65624b1f12",
+          "orias": {
+            "alternatives": 3,
+            "enabled": true,
+            "scope": "two-phase nominal Web travel; next-round Snare attack from retained cards and public arrivals; enemy orders and survival unknown",
+            "selected": [
+              {
+                "control_score": 14,
+                "damage_score": 3,
+                "initial_hits": [
+                  "u13_entity_marcher:10:web-threat:1:0"
+                ],
+                "lane": "Lord",
+                "phases": 2,
+                "planned_recruits": 6,
+                "potential_kills": [],
+                "power": "Web",
+                "reason": "two_phase_damage_and_useful_delay",
+                "score": 11,
+                "score_delta": 0,
+                "slowed": [
+                  {
+                    "delay_distance_equivalent_fp": 270,
+                    "entity_id": "u13_entity_marcher:10:web-threat:1:0",
+                    "entry_next_round": false,
+                    "gate_score": 14,
+                    "ranged_score": 1,
+                    "reinforcement_score": 0,
+                    "relief_score": 0,
+                    "score": 14
+                  }
+                ]
+              },
+              {
+                "benefit": 9,
+                "cost": {
+                  "circle_id": "",
+                  "circle_integrity_cost": 0,
+                  "defense_loss": 0,
+                  "score": 4,
+                  "threat_after": 1,
+                  "threat_before": 0
+                },
+                "effective_round": 2,
+                "follow_up": {
+                  "action": "Siege",
+                  "arrivals": [],
+                  "card_ids": [
+                    "u13_entity_card:16:game:deck:Wright:1:8",
+                    "u13_entity_card:18:game:deck:Penitent:2:17"
+                  ],
+                  "conditional_guard_losses": [],
+                  "existing_guards": [],
+                  "lane": "Castle",
+                  "scenarios": [
+                    {
+                      "new_guard_value": 2,
+                      "normal_damage": 0,
+                      "normal_new_guards": 3,
+                      "snared_damage": 4,
+                      "snared_new_guards": 1,
+                      "value": 24
+                    },
+                    {
+                      "new_guard_value": 4,
+                      "normal_damage": 0,
+                      "normal_new_guards": 3,
+                      "snared_damage": 2,
+                      "snared_new_guards": 1,
+                      "value": 12
+                    }
+                  ],
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+                },
+                "power": "Snare",
+                "reason": "limit_reinforcement_before_follow_up",
+                "score": 5,
+                "score_delta": -4
+              }
+            ]
+          },
+          "plan": {
+            "order": {
+              "action": "Ward",
+              "card_ids": [
+                "u13_entity_card:17:game:deck:Vulture:2:10",
+                "u13_entity_card:17:game:deck:Vulture:2:14"
+              ],
+              "castle_action": {
+                "action": "Work",
+                "card_ids": [],
+                "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                "use_repair_token": false
+              },
+              "guard_moves": [
+                {
+                  "card_id": "u13_entity_card:17:game:deck:Butcher:1:8",
+                  "lane": "Lord",
+                  "slot": 0
+                },
+                {
+                  "card_id": "u13_entity_card:17:game:deck:Butcher:2:13",
+                  "lane": "Lord",
+                  "slot": 1
+                }
+              ],
+              "lane": "Lord",
+              "monster_choice": "Varn"
+            },
+            "powers": [
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:3:0:1:1:0",
+                "declared_round": 1,
+                "fire_hook": "post_resolution_hazards",
+                "fire_round": 1,
+                "lord_id": "Orias",
+                "parameters": {},
+                "player_id": 0,
+                "power_id": "Web",
+                "queue_index": 0,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "field_position": {
+                    "x_fp": 650,
+                    "y_fp": 300
+                  },
+                  "lane": "Lord"
+                },
+                "visibility": "public"
+              },
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:3:0:1:1:1",
+                "declared_round": 1,
+                "fire_hook": "round_start_scheduled",
+                "fire_round": 2,
+                "lord_id": "Orias",
+                "parameters": {},
+                "player_id": 0,
+                "power_id": "Snare",
+                "queue_index": 1,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "player_id": 1
+                },
+                "visibility": "public"
+              }
+            ]
+          }
+        },
+        {
+          "budget": {
+            "limits": {
+              "complete_plans": 32,
+              "generated_per_category": 16,
+              "previews": 8,
+              "retained_per_category": 4
+            },
+            "refused": {
+              "generated:orias": 1
+            },
+            "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+            "used": {
+              "complete_plans": 27,
+              "generated:combat": 11,
+              "generated:guards": 7,
+              "generated:monsters": 3,
+              "generated:orias": 16,
+              "generated:powers": 4,
+              "generated:resummon": 1,
+              "generated:rites": 1,
+              "generated:work": 3,
+              "previews": 1,
+              "retained:combat": 4,
+              "retained:guards": 4,
+              "retained:monsters": 2,
+              "retained:orias": 3,
+              "retained:powers": 3,
+              "retained:work": 2
+            }
+          },
+          "decision": "00519c8bbf2a756b69c4066ed76fbb30bcf5f3feaf45ff4faa8a31207ea80cab",
+          "name": "web_later_wave",
+          "observation": "e2e18241c635426e99b18ef1c155edc6c365508e9fdb1985991bb759fb6742d8",
+          "orias": {
+            "alternatives": 3,
+            "enabled": true,
+            "scope": "two-phase nominal Web travel; next-round Snare attack from retained cards and public arrivals; enemy orders and survival unknown",
+            "selected": [
+              {
+                "control_score": 12,
+                "damage_score": 0,
+                "initial_hits": [],
+                "lane": "Castle",
+                "phases": 2,
+                "planned_recruits": 6,
+                "potential_kills": [],
+                "power": "Web",
+                "reason": "two_phase_damage_and_useful_delay",
+                "score": 6,
+                "score_delta": 0,
+                "slowed": [
+                  {
+                    "delay_distance_equivalent_fp": 400,
+                    "entity_id": "u13_entity_marcher:5:later:1:0",
+                    "entry_next_round": true,
+                    "gate_score": 0,
+                    "ranged_score": 8,
+                    "reinforcement_score": 0,
+                    "relief_score": 0,
+                    "score": 6
+                  },
+                  {
+                    "delay_distance_equivalent_fp": 384,
+                    "entity_id": "u13_entity_marcher:5:later:1:1",
+                    "entry_next_round": true,
+                    "gate_score": 0,
+                    "ranged_score": 8,
+                    "reinforcement_score": 0,
+                    "relief_score": 0,
+                    "score": 6
+                  }
+                ]
+              },
+              {
+                "benefit": 9,
+                "cost": {
+                  "circle_id": "",
+                  "circle_integrity_cost": 0,
+                  "defense_loss": 0,
+                  "score": 6,
+                  "threat_after": 1,
+                  "threat_before": 0
+                },
+                "effective_round": 2,
+                "follow_up": {
+                  "action": "Siege",
+                  "arrivals": [],
+                  "card_ids": [
+                    "u13_entity_card:16:game:deck:Wright:1:8",
+                    "u13_entity_card:18:game:deck:Penitent:2:17"
+                  ],
+                  "conditional_guard_losses": [],
+                  "existing_guards": [],
+                  "lane": "Castle",
+                  "scenarios": [
+                    {
+                      "new_guard_value": 2,
+                      "normal_damage": 0,
+                      "normal_new_guards": 3,
+                      "snared_damage": 4,
+                      "snared_new_guards": 1,
+                      "value": 24
+                    },
+                    {
+                      "new_guard_value": 4,
+                      "normal_damage": 0,
+                      "normal_new_guards": 3,
+                      "snared_damage": 2,
+                      "snared_new_guards": 1,
+                      "value": 12
+                    }
+                  ],
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+                },
+                "power": "Snare",
+                "reason": "limit_reinforcement_before_follow_up",
+                "score": 3,
+                "score_delta": -6
+              }
+            ]
+          },
+          "plan": {
+            "order": {
+              "action": "Ward",
+              "card_ids": [
+                "u13_entity_card:17:game:deck:Vulture:2:10",
+                "u13_entity_card:17:game:deck:Vulture:2:14"
+              ],
+              "castle_action": {
+                "action": "Work",
+                "card_ids": [],
+                "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                "use_repair_token": false
+              },
+              "guard_moves": [
+                {
+                  "card_id": "u13_entity_card:17:game:deck:Butcher:1:8",
+                  "lane": "Castle",
+                  "slot": 0
+                },
+                {
+                  "card_id": "u13_entity_card:17:game:deck:Butcher:2:13",
+                  "lane": "Castle",
+                  "slot": 1
+                }
+              ],
+              "lane": "Castle",
+              "monster_choice": "Varn"
+            },
+            "powers": [
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:3:0:1:1:0",
+                "declared_round": 1,
+                "fire_hook": "post_resolution_hazards",
+                "fire_round": 1,
+                "lord_id": "Orias",
+                "parameters": {},
+                "player_id": 0,
+                "power_id": "Web",
+                "queue_index": 0,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "field_position": {
+                    "x_fp": 830,
+                    "y_fp": 280
+                  },
+                  "lane": "Castle"
+                },
+                "visibility": "public"
+              },
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:3:0:1:1:1",
+                "declared_round": 1,
+                "fire_hook": "round_start_scheduled",
+                "fire_round": 2,
+                "lord_id": "Orias",
+                "parameters": {},
+                "player_id": 0,
+                "power_id": "Snare",
+                "queue_index": 1,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "player_id": 1
+                },
+                "visibility": "public"
+              }
+            ]
+          }
+        },
+        {
+          "budget": {
+            "limits": {
+              "complete_plans": 32,
+              "generated_per_category": 16,
+              "previews": 8,
+              "retained_per_category": 4
+            },
+            "refused": {},
+            "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+            "used": {
+              "complete_plans": 21,
+              "generated:combat": 11,
+              "generated:guards": 5,
+              "generated:monsters": 1,
+              "generated:orias": 14,
+              "generated:powers": 2,
+              "generated:resummon": 1,
+              "generated:rites": 1,
+              "generated:work": 3,
+              "previews": 1,
+              "retained:combat": 4,
+              "retained:guards": 4,
+              "retained:orias": 3,
+              "retained:powers": 1,
+              "retained:work": 2
+            }
+          },
+          "decision": "e896c477ff29808129cc0465cd6b5096ce6a8ea9ed7d382f5556f7207842244a",
+          "name": "snare_before_hunt",
+          "observation": "e94fbbcbffc71b6b4da37c224d973654a2b6d86e5a0f88cf87658f36a5de417f",
+          "orias": {
+            "alternatives": 3,
+            "enabled": true,
+            "scope": "two-phase nominal Web travel; next-round Snare attack from retained cards and public arrivals; enemy orders and survival unknown",
+            "selected": [
+              {
+                "benefit": 11,
+                "cost": {
+                  "circle_id": "",
+                  "circle_integrity_cost": 0,
+                  "defense_loss": 0,
+                  "score": 6,
+                  "threat_after": 1,
+                  "threat_before": 0
+                },
+                "effective_round": 2,
+                "follow_up": {
+                  "action": "Hunt",
+                  "arrivals": [
+                    "u13_entity_marcher:8:arrivals:1:0",
+                    "u13_entity_marcher:8:arrivals:1:1",
+                    "u13_entity_marcher:8:arrivals:1:2",
+                    "u13_entity_marcher:8:arrivals:1:3",
+                    "u13_entity_marcher:8:arrivals:1:4"
+                  ],
+                  "card_ids": [
+                    "u13_entity_card:17:game:deck:Butcher:2:13"
+                  ],
+                  "conditional_guard_losses": [],
+                  "existing_guards": [],
+                  "lane": "Lord",
+                  "scenarios": [
+                    {
+                      "new_guard_value": 2,
+                      "normal_damage": 1,
+                      "normal_new_guards": 3,
+                      "snared_damage": 5,
+                      "snared_new_guards": 1,
+                      "value": 24
+                    },
+                    {
+                      "new_guard_value": 4,
+                      "normal_damage": 0,
+                      "normal_new_guards": 3,
+                      "snared_damage": 3,
+                      "snared_new_guards": 1,
+                      "value": 21
+                    }
+                  ],
+                  "target_id": "u13_entity_lord:12:smoke:lord:1:1:0"
+                },
+                "power": "Snare",
+                "reason": "limit_reinforcement_before_follow_up",
+                "score": 5,
+                "score_delta": -4
+              }
+            ]
+          },
+          "plan": {
+            "order": {
+              "castle_action": {
+                "action": "Work",
+                "card_ids": [],
+                "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                "use_repair_token": false
+              },
+              "guard_moves": [
+                {
+                  "card_id": "u13_entity_card:17:game:deck:Butcher:1:8",
+                  "lane": "Lord",
+                  "slot": 0
+                },
+                {
+                  "card_id": "u13_entity_card:17:game:deck:Butcher:2:12",
+                  "lane": "Lord",
+                  "slot": 1
+                }
+              ]
+            },
+            "powers": [
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:3:0:1:1:0",
+                "declared_round": 1,
+                "fire_hook": "round_start_scheduled",
+                "fire_round": 2,
+                "lord_id": "Orias",
+                "parameters": {},
+                "player_id": 0,
+                "power_id": "Snare",
+                "queue_index": 0,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "player_id": 1
+                },
+                "visibility": "public"
+              }
+            ]
+          }
+        },
+        {
+          "budget": {
+            "limits": {
+              "complete_plans": 32,
+              "generated_per_category": 16,
+              "previews": 8,
+              "retained_per_category": 4
+            },
+            "refused": {},
+            "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+            "used": {
+              "complete_plans": 22,
+              "generated:combat": 11,
+              "generated:guards": 5,
+              "generated:monsters": 1,
+              "generated:orias": 15,
+              "generated:powers": 2,
+              "generated:resummon": 1,
+              "generated:rites": 1,
+              "generated:work": 3,
+              "previews": 1,
+              "retained:combat": 4,
+              "retained:guards": 4,
+              "retained:orias": 3,
+              "retained:powers": 1,
+              "retained:work": 2
+            }
+          },
+          "decision": "4e8b5200dbe9ff6079ca4d4df1ebbf17112c1dd61c924b443c039491c745ff21",
+          "name": "hold_snare_without_hunt_support",
+          "observation": "3c48894cfe5de01d87843f50f6088822068c83fae18548f8a88db5664e36eba4",
+          "orias": {
+            "alternatives": 3,
+            "enabled": true,
+            "scope": "two-phase nominal Web travel; next-round Snare attack from retained cards and public arrivals; enemy orders and survival unknown",
+            "selected": []
+          },
+          "plan": {
+            "order": {
+              "castle_action": {
+                "action": "Work",
+                "card_ids": [],
+                "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                "use_repair_token": false
+              },
+              "guard_moves": [
+                {
+                  "card_id": "u13_entity_card:17:game:deck:Butcher:1:8",
+                  "lane": "Castle",
+                  "slot": 0
+                },
+                {
+                  "card_id": "u13_entity_card:17:game:deck:Butcher:2:12",
+                  "lane": "Castle",
+                  "slot": 1
+                }
+              ]
+            },
+            "powers": []
+          }
+        }
+      ],
+      "implementation": "CPython",
+      "methods": [
+        "u13_doctrine.test_orias.OriasTests.test_authority_web_two_phases_and_snare_next_round_only",
+        "u13_doctrine.test_orias.OriasTests.test_decision_is_legal_bounded_and_ignores_private_information",
+        "u13_doctrine.test_orias.OriasTests.test_inputs_registry_order_and_both_player_seats_are_stable",
+        "u13_doctrine.test_orias.OriasTests.test_policy_arms_snare_for_an_arriving_hunt_and_holds_without_it",
+        "u13_doctrine.test_orias.OriasTests.test_policy_places_web_for_the_later_wave",
+        "u13_doctrine.test_orias.OriasTests.test_snare_accounts_for_guard_work_and_combat_card_spending",
+        "u13_doctrine.test_orias.OriasTests.test_snare_can_prepare_either_hunt_or_siege",
+        "u13_doctrine.test_orias.OriasTests.test_snare_does_not_extend_current_cap_or_duplicate_pending_cap",
+        "u13_doctrine.test_orias.OriasTests.test_snare_does_not_remove_standing_guards_or_add_lanes_together",
+        "u13_doctrine.test_orias.OriasTests.test_snare_prices_immediate_threat_and_conduit_cost",
+        "u13_doctrine.test_orias.OriasTests.test_snare_requires_known_follow_up_cards",
+        "u13_doctrine.test_orias.OriasTests.test_snare_uses_arrivals_before_next_attack_not_next_round_movement",
+        "u13_doctrine.test_orias.OriasTests.test_snare_uses_own_conditional_guard_clear_only_for_next_round",
+        "u13_doctrine.test_orias.OriasTests.test_web_accounts_for_visible_second_round_arrivals",
+        "u13_doctrine.test_orias.OriasTests.test_web_candidates_include_forward_placement_and_are_bounded",
+        "u13_doctrine.test_orias.OriasTests.test_web_does_not_credit_a_wall_blocked_route_or_a_turret",
+        "u13_doctrine.test_orias.OriasTests.test_web_does_not_promise_free_shots_against_equal_range_vultures",
+        "u13_doctrine.test_orias.OriasTests.test_web_does_not_slow_attacks_or_hurt_friendly_units",
+        "u13_doctrine.test_orias.OriasTests.test_web_prefers_gate_delay_to_a_larger_stationary_group",
+        "u13_doctrine.test_orias.OriasTests.test_web_support_includes_recruits_with_birth_movement_hold",
+        "u13_doctrine.test_orias.OriasTests.test_web_values_ranged_support_and_excludes_spent_supplicants",
+        "u13_doctrine.test_coordination.CoordinationTests.test_consume_omission_wins_equal_score_and_reindexes_remaining_power",
+        "u13_doctrine.test_coordination.CoordinationTests.test_consume_tracks_its_guard_even_when_another_guard_survives",
+        "u13_doctrine.test_coordination.CoordinationTests.test_guard_identity_and_pair_screen_survive_registry_permutation",
+        "u13_doctrine.test_coordination.CoordinationTests.test_no_power_alternative_keeps_attack_and_conserves_essence",
+        "u13_doctrine.test_coordination.CoordinationTests.test_observer_counts_evaluated_and_omitted_powers_separately",
+        "u13_doctrine.test_coordination.CoordinationTests.test_projection_checks_remaining_affordable_guards_and_equality",
+        "u13_doctrine.test_coordination.CoordinationTests.test_ravenous_can_outweigh_new_friendly_exposure_and_counts_breach_spawn",
+        "u13_doctrine.test_coordination.CoordinationTests.test_ravenous_counts_recruits_monsters_and_departing_supplicants",
+        "u13_doctrine.test_coordination.CoordinationTests.test_softmax_can_admit_risky_power_without_exceeding_preview_budget",
+        "u13_doctrine.test_coordination.CoordinationTests.test_supplicants_reserved_for_rites_cannot_also_clear_power_targets",
+        "u13_doctrine.test_coordination.CoordinationTests.test_useful_projection_is_still_available",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_both_melee_and_ranged_recruits_attack_immediately",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_decision_is_legal_bounded_and_ignores_private_information",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_enemy_fleeing_toward_a_flanking_unit_still_has_to_close_distance",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_equal_speed_chase_is_not_a_punish_window",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_evasion_discounts_hits_and_specials_get_no_suppression",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_faster_pursuer_gets_one_intercept_not_six_free_swings",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_full_retreat_speed_and_cooldown_limit_ranged_coverage",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_near_gate_and_overrun_remain_delay_reasons",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_nearly_dead_enemy_has_one_shared_damage_budget",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_observation_includes_only_public_lane_objects_as_detached_data",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_policy_prefers_firing_coverage_over_a_balanced_distant_approach",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_recruiting_does_not_credit_a_birth_round_chase",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_resolved_combat_allows_both_recruit_attacks_before_movement_ready",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_seats_registry_order_and_inputs_are_stable",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_spent_supplicants_do_not_supply_phantom_hits",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_towers_and_visible_walls_affect_coverage",
+        "u13_doctrine.test_common.CommonTests.test_every_lord_has_separate_module_and_legal_deterministic_opening",
+        "u13_doctrine.test_common.CommonTests.test_observation_hides_seeds_enemy_cards_orders_and_future_randomness",
+        "u13_doctrine.test_common.CommonTests.test_generation_reserves_before_next_candidate_and_never_enumerates_product"
+      ],
+      "policy": "U13_COMMON_SMART_CORE_ALPHA_V16_ORIAS_CONTROL",
+      "runtime": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+      "scope": "Focused doctrine and timing checks; no balance games or native acceptance",
+      "success": true,
+      "test_log": "test_authority_web_two_phases_and_snare_next_round_only (u13_doctrine.test_orias.OriasTests.test_authority_web_two_phases_and_snare_next_round_only) ... ok\ntest_decision_is_legal_bounded_and_ignores_private_information (u13_doctrine.test_orias.OriasTests.test_decision_is_legal_bounded_and_ignores_private_information) ... ok\ntest_inputs_registry_order_and_both_player_seats_are_stable (u13_doctrine.test_orias.OriasTests.test_inputs_registry_order_and_both_player_seats_are_stable) ... ok\ntest_policy_arms_snare_for_an_arriving_hunt_and_holds_without_it (u13_doctrine.test_orias.OriasTests.test_policy_arms_snare_for_an_arriving_hunt_and_holds_without_it) ... ok\ntest_policy_places_web_for_the_later_wave (u13_doctrine.test_orias.OriasTests.test_policy_places_web_for_the_later_wave) ... ok\ntest_snare_accounts_for_guard_work_and_combat_card_spending (u13_doctrine.test_orias.OriasTests.test_snare_accounts_for_guard_work_and_combat_card_spending) ... ok\ntest_snare_can_prepare_either_hunt_or_siege (u13_doctrine.test_orias.OriasTests.test_snare_can_prepare_either_hunt_or_siege) ... ok\ntest_snare_does_not_extend_current_cap_or_duplicate_pending_cap (u13_doctrine.test_orias.OriasTests.test_snare_does_not_extend_current_cap_or_duplicate_pending_cap) ... ok\ntest_snare_does_not_remove_standing_guards_or_add_lanes_together (u13_doctrine.test_orias.OriasTests.test_snare_does_not_remove_standing_guards_or_add_lanes_together) ... ok\ntest_snare_prices_immediate_threat_and_conduit_cost (u13_doctrine.test_orias.OriasTests.test_snare_prices_immediate_threat_and_conduit_cost) ... ok\ntest_snare_requires_known_follow_up_cards (u13_doctrine.test_orias.OriasTests.test_snare_requires_known_follow_up_cards) ... ok\ntest_snare_uses_arrivals_before_next_attack_not_next_round_movement (u13_doctrine.test_orias.OriasTests.test_snare_uses_arrivals_before_next_attack_not_next_round_movement) ... ok\ntest_snare_uses_own_conditional_guard_clear_only_for_next_round (u13_doctrine.test_orias.OriasTests.test_snare_uses_own_conditional_guard_clear_only_for_next_round) ... ok\ntest_web_accounts_for_visible_second_round_arrivals (u13_doctrine.test_orias.OriasTests.test_web_accounts_for_visible_second_round_arrivals) ... ok\ntest_web_candidates_include_forward_placement_and_are_bounded (u13_doctrine.test_orias.OriasTests.test_web_candidates_include_forward_placement_and_are_bounded) ... ok\ntest_web_does_not_credit_a_wall_blocked_route_or_a_turret (u13_doctrine.test_orias.OriasTests.test_web_does_not_credit_a_wall_blocked_route_or_a_turret) ... ok\ntest_web_does_not_promise_free_shots_against_equal_range_vultures (u13_doctrine.test_orias.OriasTests.test_web_does_not_promise_free_shots_against_equal_range_vultures) ... ok\ntest_web_does_not_slow_attacks_or_hurt_friendly_units (u13_doctrine.test_orias.OriasTests.test_web_does_not_slow_attacks_or_hurt_friendly_units) ... ok\ntest_web_prefers_gate_delay_to_a_larger_stationary_group (u13_doctrine.test_orias.OriasTests.test_web_prefers_gate_delay_to_a_larger_stationary_group) ... ok\ntest_web_support_includes_recruits_with_birth_movement_hold (u13_doctrine.test_orias.OriasTests.test_web_support_includes_recruits_with_birth_movement_hold) ... ok\ntest_web_values_ranged_support_and_excludes_spent_supplicants (u13_doctrine.test_orias.OriasTests.test_web_values_ranged_support_and_excludes_spent_supplicants) ... ok\ntest_consume_omission_wins_equal_score_and_reindexes_remaining_power (u13_doctrine.test_coordination.CoordinationTests.test_consume_omission_wins_equal_score_and_reindexes_remaining_power) ... ok\ntest_consume_tracks_its_guard_even_when_another_guard_survives (u13_doctrine.test_coordination.CoordinationTests.test_consume_tracks_its_guard_even_when_another_guard_survives) ... ok\ntest_guard_identity_and_pair_screen_survive_registry_permutation (u13_doctrine.test_coordination.CoordinationTests.test_guard_identity_and_pair_screen_survive_registry_permutation) ... ok\ntest_no_power_alternative_keeps_attack_and_conserves_essence (u13_doctrine.test_coordination.CoordinationTests.test_no_power_alternative_keeps_attack_and_conserves_essence) ... ok\ntest_observer_counts_evaluated_and_omitted_powers_separately (u13_doctrine.test_coordination.CoordinationTests.test_observer_counts_evaluated_and_omitted_powers_separately) ... ok\ntest_projection_checks_remaining_affordable_guards_and_equality (u13_doctrine.test_coordination.CoordinationTests.test_projection_checks_remaining_affordable_guards_and_equality) ... ok\ntest_ravenous_can_outweigh_new_friendly_exposure_and_counts_breach_spawn (u13_doctrine.test_coordination.CoordinationTests.test_ravenous_can_outweigh_new_friendly_exposure_and_counts_breach_spawn) ... ok\ntest_ravenous_counts_recruits_monsters_and_departing_supplicants (u13_doctrine.test_coordination.CoordinationTests.test_ravenous_counts_recruits_monsters_and_departing_supplicants) ... ok\ntest_softmax_can_admit_risky_power_without_exceeding_preview_budget (u13_doctrine.test_coordination.CoordinationTests.test_softmax_can_admit_risky_power_without_exceeding_preview_budget) ... ok\ntest_supplicants_reserved_for_rites_cannot_also_clear_power_targets (u13_doctrine.test_coordination.CoordinationTests.test_supplicants_reserved_for_rites_cannot_also_clear_power_targets) ... ok\ntest_useful_projection_is_still_available (u13_doctrine.test_coordination.CoordinationTests.test_useful_projection_is_still_available) ... ok\ntest_both_melee_and_ranged_recruits_attack_immediately (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_both_melee_and_ranged_recruits_attack_immediately) ... ok\ntest_decision_is_legal_bounded_and_ignores_private_information (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_decision_is_legal_bounded_and_ignores_private_information) ... ok\ntest_enemy_fleeing_toward_a_flanking_unit_still_has_to_close_distance (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_enemy_fleeing_toward_a_flanking_unit_still_has_to_close_distance) ... ok\ntest_equal_speed_chase_is_not_a_punish_window (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_equal_speed_chase_is_not_a_punish_window) ... ok\ntest_evasion_discounts_hits_and_specials_get_no_suppression (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_evasion_discounts_hits_and_specials_get_no_suppression) ... ok\ntest_faster_pursuer_gets_one_intercept_not_six_free_swings (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_faster_pursuer_gets_one_intercept_not_six_free_swings) ... ok\ntest_full_retreat_speed_and_cooldown_limit_ranged_coverage (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_full_retreat_speed_and_cooldown_limit_ranged_coverage) ... ok\ntest_near_gate_and_overrun_remain_delay_reasons (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_near_gate_and_overrun_remain_delay_reasons) ... ok\ntest_nearly_dead_enemy_has_one_shared_damage_budget (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_nearly_dead_enemy_has_one_shared_damage_budget) ... ok\ntest_observation_includes_only_public_lane_objects_as_detached_data (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_observation_includes_only_public_lane_objects_as_detached_data) ... ok\ntest_policy_prefers_firing_coverage_over_a_balanced_distant_approach (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_policy_prefers_firing_coverage_over_a_balanced_distant_approach) ... ok\ntest_recruiting_does_not_credit_a_birth_round_chase (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_recruiting_does_not_credit_a_birth_round_chase) ... ok\ntest_resolved_combat_allows_both_recruit_attacks_before_movement_ready (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_resolved_combat_allows_both_recruit_attacks_before_movement_ready) ... ok\ntest_seats_registry_order_and_inputs_are_stable (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_seats_registry_order_and_inputs_are_stable) ... ok\ntest_spent_supplicants_do_not_supply_phantom_hits (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_spent_supplicants_do_not_supply_phantom_hits) ... ok\ntest_towers_and_visible_walls_affect_coverage (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_towers_and_visible_walls_affect_coverage) ... ok\ntest_every_lord_has_separate_module_and_legal_deterministic_opening (u13_doctrine.test_common.CommonTests.test_every_lord_has_separate_module_and_legal_deterministic_opening) ... ok\ntest_observation_hides_seeds_enemy_cards_orders_and_future_randomness (u13_doctrine.test_common.CommonTests.test_observation_hides_seeds_enemy_cards_orders_and_future_randomness) ... ok\ntest_generation_reserves_before_next_candidate_and_never_enumerates_product (u13_doctrine.test_common.CommonTests.test_generation_reserves_before_next_candidate_and_never_enumerates_product) ... ok\n\n----------------------------------------------------------------------\nRan 51 tests in 1.012s\n\nOK\n",
+      "tests_run": 51
+    },
+    {
+      "cases": [
+        {
+          "budget": {
+            "limits": {
+              "complete_plans": 32,
+              "generated_per_category": 16,
+              "previews": 8,
+              "retained_per_category": 4
+            },
+            "refused": {
+              "generated:orias": 1
+            },
+            "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+            "used": {
+              "complete_plans": 29,
+              "generated:combat": 11,
+              "generated:guards": 7,
+              "generated:monsters": 3,
+              "generated:orias": 16,
+              "generated:powers": 4,
+              "generated:resummon": 1,
+              "generated:rites": 1,
+              "generated:work": 3,
+              "previews": 1,
+              "retained:combat": 4,
+              "retained:guards": 4,
+              "retained:monsters": 2,
+              "retained:orias": 3,
+              "retained:powers": 3,
+              "retained:work": 2
+            }
+          },
+          "decision": "67257961e68eeac17a62744ba4571ee4d5f5694408f8287a764b6dacf865abdb",
+          "name": "protect_lord_gate",
+          "observation": "898f015fa337bcc10d3b8cc2da46890183cb1b1b9f34982717cb7a65624b1f12",
+          "orias": {
+            "alternatives": 3,
+            "enabled": true,
+            "scope": "two-phase nominal Web travel; next-round Snare attack from retained cards and public arrivals; enemy orders and survival unknown",
+            "selected": [
+              {
+                "control_score": 14,
+                "damage_score": 3,
+                "initial_hits": [
+                  "u13_entity_marcher:10:web-threat:1:0"
+                ],
+                "lane": "Lord",
+                "phases": 2,
+                "planned_recruits": 6,
+                "potential_kills": [],
+                "power": "Web",
+                "reason": "two_phase_damage_and_useful_delay",
+                "score": 11,
+                "score_delta": 0,
+                "slowed": [
+                  {
+                    "delay_distance_equivalent_fp": 270,
+                    "entity_id": "u13_entity_marcher:10:web-threat:1:0",
+                    "entry_next_round": false,
+                    "gate_score": 14,
+                    "ranged_score": 1,
+                    "reinforcement_score": 0,
+                    "relief_score": 0,
+                    "score": 14
+                  }
+                ]
+              },
+              {
+                "benefit": 9,
+                "cost": {
+                  "circle_id": "",
+                  "circle_integrity_cost": 0,
+                  "defense_loss": 0,
+                  "score": 4,
+                  "threat_after": 1,
+                  "threat_before": 0
+                },
+                "effective_round": 2,
+                "follow_up": {
+                  "action": "Siege",
+                  "arrivals": [],
+                  "card_ids": [
+                    "u13_entity_card:16:game:deck:Wright:1:8",
+                    "u13_entity_card:18:game:deck:Penitent:2:17"
+                  ],
+                  "conditional_guard_losses": [],
+                  "existing_guards": [],
+                  "lane": "Castle",
+                  "scenarios": [
+                    {
+                      "new_guard_value": 2,
+                      "normal_damage": 0,
+                      "normal_new_guards": 3,
+                      "snared_damage": 4,
+                      "snared_new_guards": 1,
+                      "value": 24
+                    },
+                    {
+                      "new_guard_value": 4,
+                      "normal_damage": 0,
+                      "normal_new_guards": 3,
+                      "snared_damage": 2,
+                      "snared_new_guards": 1,
+                      "value": 12
+                    }
+                  ],
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+                },
+                "power": "Snare",
+                "reason": "limit_reinforcement_before_follow_up",
+                "score": 5,
+                "score_delta": -4
+              }
+            ]
+          },
+          "plan": {
+            "order": {
+              "action": "Ward",
+              "card_ids": [
+                "u13_entity_card:17:game:deck:Vulture:2:10",
+                "u13_entity_card:17:game:deck:Vulture:2:14"
+              ],
+              "castle_action": {
+                "action": "Work",
+                "card_ids": [],
+                "target_id": "u13_entity_castle:16:loadout:castle:0:1:4",
+                "use_repair_token": false
+              },
+              "guard_moves": [
+                {
+                  "card_id": "u13_entity_card:17:game:deck:Butcher:1:8",
+                  "lane": "Lord",
+                  "slot": 0
+                },
+                {
+                  "card_id": "u13_entity_card:17:game:deck:Butcher:2:13",
+                  "lane": "Lord",
+                  "slot": 1
+                }
+              ],
+              "lane": "Lord",
+              "monster_choice": "Varn"
+            },
+            "powers": [
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:3:0:1:1:0",
+                "declared_round": 1,
+                "fire_hook": "post_resolution_hazards",
+                "fire_round": 1,
+                "lord_id": "Orias",
+                "parameters": {},
+                "player_id": 0,
+                "power_id": "Web",
+                "queue_index": 0,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "field_position": {
+                    "x_fp": 650,
+                    "y_fp": 300
+                  },
+                  "lane": "Lord"
+                },
+                "visibility": "public"
+              },
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:3:0:1:1:1",
+                "declared_round": 1,
+                "fire_hook": "round_start_scheduled",
+                "fire_round": 2,
+                "lord_id": "Orias",
+                "parameters": {},
+                "player_id": 0,
+                "power_id": "Snare",
+                "queue_index": 1,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "player_id": 1
+                },
+                "visibility": "public"
+              }
+            ]
+          }
+        },
+        {
+          "budget": {
+            "limits": {
+              "complete_plans": 32,
+              "generated_per_category": 16,
+              "previews": 8,
+              "retained_per_category": 4
+            },
+            "refused": {
+              "generated:orias": 1
+            },
+            "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+            "used": {
+              "complete_plans": 27,
+              "generated:combat": 11,
+              "generated:guards": 7,
+              "generated:monsters": 3,
+              "generated:orias": 16,
+              "generated:powers": 4,
+              "generated:resummon": 1,
+              "generated:rites": 1,
+              "generated:work": 3,
+              "previews": 1,
+              "retained:combat": 4,
+              "retained:guards": 4,
+              "retained:monsters": 2,
+              "retained:orias": 3,
+              "retained:powers": 3,
+              "retained:work": 2
+            }
+          },
+          "decision": "00519c8bbf2a756b69c4066ed76fbb30bcf5f3feaf45ff4faa8a31207ea80cab",
+          "name": "web_later_wave",
+          "observation": "e2e18241c635426e99b18ef1c155edc6c365508e9fdb1985991bb759fb6742d8",
+          "orias": {
+            "alternatives": 3,
+            "enabled": true,
+            "scope": "two-phase nominal Web travel; next-round Snare attack from retained cards and public arrivals; enemy orders and survival unknown",
+            "selected": [
+              {
+                "control_score": 12,
+                "damage_score": 0,
+                "initial_hits": [],
+                "lane": "Castle",
+                "phases": 2,
+                "planned_recruits": 6,
+                "potential_kills": [],
+                "power": "Web",
+                "reason": "two_phase_damage_and_useful_delay",
+                "score": 6,
+                "score_delta": 0,
+                "slowed": [
+                  {
+                    "delay_distance_equivalent_fp": 400,
+                    "entity_id": "u13_entity_marcher:5:later:1:0",
+                    "entry_next_round": true,
+                    "gate_score": 0,
+                    "ranged_score": 8,
+                    "reinforcement_score": 0,
+                    "relief_score": 0,
+                    "score": 6
+                  },
+                  {
+                    "delay_distance_equivalent_fp": 384,
+                    "entity_id": "u13_entity_marcher:5:later:1:1",
+                    "entry_next_round": true,
+                    "gate_score": 0,
+                    "ranged_score": 8,
+                    "reinforcement_score": 0,
+                    "relief_score": 0,
+                    "score": 6
+                  }
+                ]
+              },
+              {
+                "benefit": 9,
+                "cost": {
+                  "circle_id": "",
+                  "circle_integrity_cost": 0,
+                  "defense_loss": 0,
+                  "score": 6,
+                  "threat_after": 1,
+                  "threat_before": 0
+                },
+                "effective_round": 2,
+                "follow_up": {
+                  "action": "Siege",
+                  "arrivals": [],
+                  "card_ids": [
+                    "u13_entity_card:16:game:deck:Wright:1:8",
+                    "u13_entity_card:18:game:deck:Penitent:2:17"
+                  ],
+                  "conditional_guard_losses": [],
+                  "existing_guards": [],
+                  "lane": "Castle",
+                  "scenarios": [
+                    {
+                      "new_guard_value": 2,
+                      "normal_damage": 0,
+                      "normal_new_guards": 3,
+                      "snared_damage": 4,
+                      "snared_new_guards": 1,
+                      "value": 24
+                    },
+                    {
+                      "new_guard_value": 4,
+                      "normal_damage": 0,
+                      "normal_new_guards": 3,
+                      "snared_damage": 2,
+                      "snared_new_guards": 1,
+                      "value": 12
+                    }
+                  ],
+                  "target_id": "u13_entity_castle:16:loadout:castle:1:1:0"
+                },
+                "power": "Snare",
+                "reason": "limit_reinforcement_before_follow_up",
+                "score": 3,
+                "score_delta": -6
+              }
+            ]
+          },
+          "plan": {
+            "order": {
+              "action": "Ward",
+              "card_ids": [
+                "u13_entity_card:17:game:deck:Vulture:2:10",
+                "u13_entity_card:17:game:deck:Vulture:2:14"
+              ],
+              "castle_action": {
+                "action": "Work",
+                "card_ids": [],
+                "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                "use_repair_token": false
+              },
+              "guard_moves": [
+                {
+                  "card_id": "u13_entity_card:17:game:deck:Butcher:1:8",
+                  "lane": "Castle",
+                  "slot": 0
+                },
+                {
+                  "card_id": "u13_entity_card:17:game:deck:Butcher:2:13",
+                  "lane": "Castle",
+                  "slot": 1
+                }
+              ],
+              "lane": "Castle",
+              "monster_choice": "Varn"
+            },
+            "powers": [
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:3:0:1:1:0",
+                "declared_round": 1,
+                "fire_hook": "post_resolution_hazards",
+                "fire_round": 1,
+                "lord_id": "Orias",
+                "parameters": {},
+                "player_id": 0,
+                "power_id": "Web",
+                "queue_index": 0,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "field_position": {
+                    "x_fp": 830,
+                    "y_fp": 280
+                  },
+                  "lane": "Castle"
+                },
+                "visibility": "public"
+              },
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:3:0:1:1:1",
+                "declared_round": 1,
+                "fire_hook": "round_start_scheduled",
+                "fire_round": 2,
+                "lord_id": "Orias",
+                "parameters": {},
+                "player_id": 0,
+                "power_id": "Snare",
+                "queue_index": 1,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "player_id": 1
+                },
+                "visibility": "public"
+              }
+            ]
+          }
+        },
+        {
+          "budget": {
+            "limits": {
+              "complete_plans": 32,
+              "generated_per_category": 16,
+              "previews": 8,
+              "retained_per_category": 4
+            },
+            "refused": {},
+            "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+            "used": {
+              "complete_plans": 21,
+              "generated:combat": 11,
+              "generated:guards": 5,
+              "generated:monsters": 1,
+              "generated:orias": 14,
+              "generated:powers": 2,
+              "generated:resummon": 1,
+              "generated:rites": 1,
+              "generated:work": 3,
+              "previews": 1,
+              "retained:combat": 4,
+              "retained:guards": 4,
+              "retained:orias": 3,
+              "retained:powers": 1,
+              "retained:work": 2
+            }
+          },
+          "decision": "e896c477ff29808129cc0465cd6b5096ce6a8ea9ed7d382f5556f7207842244a",
+          "name": "snare_before_hunt",
+          "observation": "e94fbbcbffc71b6b4da37c224d973654a2b6d86e5a0f88cf87658f36a5de417f",
+          "orias": {
+            "alternatives": 3,
+            "enabled": true,
+            "scope": "two-phase nominal Web travel; next-round Snare attack from retained cards and public arrivals; enemy orders and survival unknown",
+            "selected": [
+              {
+                "benefit": 11,
+                "cost": {
+                  "circle_id": "",
+                  "circle_integrity_cost": 0,
+                  "defense_loss": 0,
+                  "score": 6,
+                  "threat_after": 1,
+                  "threat_before": 0
+                },
+                "effective_round": 2,
+                "follow_up": {
+                  "action": "Hunt",
+                  "arrivals": [
+                    "u13_entity_marcher:8:arrivals:1:0",
+                    "u13_entity_marcher:8:arrivals:1:1",
+                    "u13_entity_marcher:8:arrivals:1:2",
+                    "u13_entity_marcher:8:arrivals:1:3",
+                    "u13_entity_marcher:8:arrivals:1:4"
+                  ],
+                  "card_ids": [
+                    "u13_entity_card:17:game:deck:Butcher:2:13"
+                  ],
+                  "conditional_guard_losses": [],
+                  "existing_guards": [],
+                  "lane": "Lord",
+                  "scenarios": [
+                    {
+                      "new_guard_value": 2,
+                      "normal_damage": 1,
+                      "normal_new_guards": 3,
+                      "snared_damage": 5,
+                      "snared_new_guards": 1,
+                      "value": 24
+                    },
+                    {
+                      "new_guard_value": 4,
+                      "normal_damage": 0,
+                      "normal_new_guards": 3,
+                      "snared_damage": 3,
+                      "snared_new_guards": 1,
+                      "value": 21
+                    }
+                  ],
+                  "target_id": "u13_entity_lord:12:smoke:lord:1:1:0"
+                },
+                "power": "Snare",
+                "reason": "limit_reinforcement_before_follow_up",
+                "score": 5,
+                "score_delta": -4
+              }
+            ]
+          },
+          "plan": {
+            "order": {
+              "castle_action": {
+                "action": "Work",
+                "card_ids": [],
+                "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                "use_repair_token": false
+              },
+              "guard_moves": [
+                {
+                  "card_id": "u13_entity_card:17:game:deck:Butcher:1:8",
+                  "lane": "Lord",
+                  "slot": 0
+                },
+                {
+                  "card_id": "u13_entity_card:17:game:deck:Butcher:2:12",
+                  "lane": "Lord",
+                  "slot": 1
+                }
+              ]
+            },
+            "powers": [
+              {
+                "cost": {},
+                "declaration_id": "u13_declaration:3:0:1:1:0",
+                "declared_round": 1,
+                "fire_hook": "round_start_scheduled",
+                "fire_round": 2,
+                "lord_id": "Orias",
+                "parameters": {},
+                "player_id": 0,
+                "power_id": "Snare",
+                "queue_index": 0,
+                "schema_version": "U13_LORD_DECLARATION_V1",
+                "target": {
+                  "player_id": 1
+                },
+                "visibility": "public"
+              }
+            ]
+          }
+        },
+        {
+          "budget": {
+            "limits": {
+              "complete_plans": 32,
+              "generated_per_category": 16,
+              "previews": 8,
+              "retained_per_category": 4
+            },
+            "refused": {},
+            "stopping_rule": "deterministic work reservations; no wall-clock cutoff",
+            "used": {
+              "complete_plans": 22,
+              "generated:combat": 11,
+              "generated:guards": 5,
+              "generated:monsters": 1,
+              "generated:orias": 15,
+              "generated:powers": 2,
+              "generated:resummon": 1,
+              "generated:rites": 1,
+              "generated:work": 3,
+              "previews": 1,
+              "retained:combat": 4,
+              "retained:guards": 4,
+              "retained:orias": 3,
+              "retained:powers": 1,
+              "retained:work": 2
+            }
+          },
+          "decision": "4e8b5200dbe9ff6079ca4d4df1ebbf17112c1dd61c924b443c039491c745ff21",
+          "name": "hold_snare_without_hunt_support",
+          "observation": "3c48894cfe5de01d87843f50f6088822068c83fae18548f8a88db5664e36eba4",
+          "orias": {
+            "alternatives": 3,
+            "enabled": true,
+            "scope": "two-phase nominal Web travel; next-round Snare attack from retained cards and public arrivals; enemy orders and survival unknown",
+            "selected": []
+          },
+          "plan": {
+            "order": {
+              "castle_action": {
+                "action": "Work",
+                "card_ids": [],
+                "target_id": "u13_entity_castle:16:loadout:castle:0:1:3",
+                "use_repair_token": false
+              },
+              "guard_moves": [
+                {
+                  "card_id": "u13_entity_card:17:game:deck:Butcher:1:8",
+                  "lane": "Castle",
+                  "slot": 0
+                },
+                {
+                  "card_id": "u13_entity_card:17:game:deck:Butcher:2:12",
+                  "lane": "Castle",
+                  "slot": 1
+                }
+              ]
+            },
+            "powers": []
+          }
+        }
+      ],
+      "implementation": "PyPy",
+      "methods": [
+        "u13_doctrine.test_orias.OriasTests.test_authority_web_two_phases_and_snare_next_round_only",
+        "u13_doctrine.test_orias.OriasTests.test_decision_is_legal_bounded_and_ignores_private_information",
+        "u13_doctrine.test_orias.OriasTests.test_inputs_registry_order_and_both_player_seats_are_stable",
+        "u13_doctrine.test_orias.OriasTests.test_policy_arms_snare_for_an_arriving_hunt_and_holds_without_it",
+        "u13_doctrine.test_orias.OriasTests.test_policy_places_web_for_the_later_wave",
+        "u13_doctrine.test_orias.OriasTests.test_snare_accounts_for_guard_work_and_combat_card_spending",
+        "u13_doctrine.test_orias.OriasTests.test_snare_can_prepare_either_hunt_or_siege",
+        "u13_doctrine.test_orias.OriasTests.test_snare_does_not_extend_current_cap_or_duplicate_pending_cap",
+        "u13_doctrine.test_orias.OriasTests.test_snare_does_not_remove_standing_guards_or_add_lanes_together",
+        "u13_doctrine.test_orias.OriasTests.test_snare_prices_immediate_threat_and_conduit_cost",
+        "u13_doctrine.test_orias.OriasTests.test_snare_requires_known_follow_up_cards",
+        "u13_doctrine.test_orias.OriasTests.test_snare_uses_arrivals_before_next_attack_not_next_round_movement",
+        "u13_doctrine.test_orias.OriasTests.test_snare_uses_own_conditional_guard_clear_only_for_next_round",
+        "u13_doctrine.test_orias.OriasTests.test_web_accounts_for_visible_second_round_arrivals",
+        "u13_doctrine.test_orias.OriasTests.test_web_candidates_include_forward_placement_and_are_bounded",
+        "u13_doctrine.test_orias.OriasTests.test_web_does_not_credit_a_wall_blocked_route_or_a_turret",
+        "u13_doctrine.test_orias.OriasTests.test_web_does_not_promise_free_shots_against_equal_range_vultures",
+        "u13_doctrine.test_orias.OriasTests.test_web_does_not_slow_attacks_or_hurt_friendly_units",
+        "u13_doctrine.test_orias.OriasTests.test_web_prefers_gate_delay_to_a_larger_stationary_group",
+        "u13_doctrine.test_orias.OriasTests.test_web_support_includes_recruits_with_birth_movement_hold",
+        "u13_doctrine.test_orias.OriasTests.test_web_values_ranged_support_and_excludes_spent_supplicants",
+        "u13_doctrine.test_coordination.CoordinationTests.test_consume_omission_wins_equal_score_and_reindexes_remaining_power",
+        "u13_doctrine.test_coordination.CoordinationTests.test_consume_tracks_its_guard_even_when_another_guard_survives",
+        "u13_doctrine.test_coordination.CoordinationTests.test_guard_identity_and_pair_screen_survive_registry_permutation",
+        "u13_doctrine.test_coordination.CoordinationTests.test_no_power_alternative_keeps_attack_and_conserves_essence",
+        "u13_doctrine.test_coordination.CoordinationTests.test_observer_counts_evaluated_and_omitted_powers_separately",
+        "u13_doctrine.test_coordination.CoordinationTests.test_projection_checks_remaining_affordable_guards_and_equality",
+        "u13_doctrine.test_coordination.CoordinationTests.test_ravenous_can_outweigh_new_friendly_exposure_and_counts_breach_spawn",
+        "u13_doctrine.test_coordination.CoordinationTests.test_ravenous_counts_recruits_monsters_and_departing_supplicants",
+        "u13_doctrine.test_coordination.CoordinationTests.test_softmax_can_admit_risky_power_without_exceeding_preview_budget",
+        "u13_doctrine.test_coordination.CoordinationTests.test_supplicants_reserved_for_rites_cannot_also_clear_power_targets",
+        "u13_doctrine.test_coordination.CoordinationTests.test_useful_projection_is_still_available",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_both_melee_and_ranged_recruits_attack_immediately",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_decision_is_legal_bounded_and_ignores_private_information",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_enemy_fleeing_toward_a_flanking_unit_still_has_to_close_distance",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_equal_speed_chase_is_not_a_punish_window",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_evasion_discounts_hits_and_specials_get_no_suppression",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_faster_pursuer_gets_one_intercept_not_six_free_swings",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_full_retreat_speed_and_cooldown_limit_ranged_coverage",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_near_gate_and_overrun_remain_delay_reasons",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_nearly_dead_enemy_has_one_shared_damage_budget",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_observation_includes_only_public_lane_objects_as_detached_data",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_policy_prefers_firing_coverage_over_a_balanced_distant_approach",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_recruiting_does_not_credit_a_birth_round_chase",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_resolved_combat_allows_both_recruit_attacks_before_movement_ready",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_seats_registry_order_and_inputs_are_stable",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_spent_supplicants_do_not_supply_phantom_hits",
+        "u13_doctrine.test_rout_tactics.RoutTacticsTests.test_towers_and_visible_walls_affect_coverage",
+        "u13_doctrine.test_common.CommonTests.test_every_lord_has_separate_module_and_legal_deterministic_opening",
+        "u13_doctrine.test_common.CommonTests.test_observation_hides_seeds_enemy_cards_orders_and_future_randomness",
+        "u13_doctrine.test_common.CommonTests.test_generation_reserves_before_next_candidate_and_never_enumerates_product"
+      ],
+      "policy": "U13_COMMON_SMART_CORE_ALPHA_V16_ORIAS_CONTROL",
+      "runtime": "3.11.13 (413c9b7f57f5, Jul 03 2025, 18:03:56)\n[PyPy 7.3.20 with GCC 10.2.1 20210130 (Red Hat 10.2.1-11)]",
+      "scope": "Focused doctrine and timing checks; no balance games or native acceptance",
+      "success": true,
+      "test_log": "test_authority_web_two_phases_and_snare_next_round_only (u13_doctrine.test_orias.OriasTests.test_authority_web_two_phases_and_snare_next_round_only) ... ok\ntest_decision_is_legal_bounded_and_ignores_private_information (u13_doctrine.test_orias.OriasTests.test_decision_is_legal_bounded_and_ignores_private_information) ... ok\ntest_inputs_registry_order_and_both_player_seats_are_stable (u13_doctrine.test_orias.OriasTests.test_inputs_registry_order_and_both_player_seats_are_stable) ... ok\ntest_policy_arms_snare_for_an_arriving_hunt_and_holds_without_it (u13_doctrine.test_orias.OriasTests.test_policy_arms_snare_for_an_arriving_hunt_and_holds_without_it) ... ok\ntest_policy_places_web_for_the_later_wave (u13_doctrine.test_orias.OriasTests.test_policy_places_web_for_the_later_wave) ... ok\ntest_snare_accounts_for_guard_work_and_combat_card_spending (u13_doctrine.test_orias.OriasTests.test_snare_accounts_for_guard_work_and_combat_card_spending) ... ok\ntest_snare_can_prepare_either_hunt_or_siege (u13_doctrine.test_orias.OriasTests.test_snare_can_prepare_either_hunt_or_siege) ... ok\ntest_snare_does_not_extend_current_cap_or_duplicate_pending_cap (u13_doctrine.test_orias.OriasTests.test_snare_does_not_extend_current_cap_or_duplicate_pending_cap) ... ok\ntest_snare_does_not_remove_standing_guards_or_add_lanes_together (u13_doctrine.test_orias.OriasTests.test_snare_does_not_remove_standing_guards_or_add_lanes_together) ... ok\ntest_snare_prices_immediate_threat_and_conduit_cost (u13_doctrine.test_orias.OriasTests.test_snare_prices_immediate_threat_and_conduit_cost) ... ok\ntest_snare_requires_known_follow_up_cards (u13_doctrine.test_orias.OriasTests.test_snare_requires_known_follow_up_cards) ... ok\ntest_snare_uses_arrivals_before_next_attack_not_next_round_movement (u13_doctrine.test_orias.OriasTests.test_snare_uses_arrivals_before_next_attack_not_next_round_movement) ... ok\ntest_snare_uses_own_conditional_guard_clear_only_for_next_round (u13_doctrine.test_orias.OriasTests.test_snare_uses_own_conditional_guard_clear_only_for_next_round) ... ok\ntest_web_accounts_for_visible_second_round_arrivals (u13_doctrine.test_orias.OriasTests.test_web_accounts_for_visible_second_round_arrivals) ... ok\ntest_web_candidates_include_forward_placement_and_are_bounded (u13_doctrine.test_orias.OriasTests.test_web_candidates_include_forward_placement_and_are_bounded) ... ok\ntest_web_does_not_credit_a_wall_blocked_route_or_a_turret (u13_doctrine.test_orias.OriasTests.test_web_does_not_credit_a_wall_blocked_route_or_a_turret) ... ok\ntest_web_does_not_promise_free_shots_against_equal_range_vultures (u13_doctrine.test_orias.OriasTests.test_web_does_not_promise_free_shots_against_equal_range_vultures) ... ok\ntest_web_does_not_slow_attacks_or_hurt_friendly_units (u13_doctrine.test_orias.OriasTests.test_web_does_not_slow_attacks_or_hurt_friendly_units) ... ok\ntest_web_prefers_gate_delay_to_a_larger_stationary_group (u13_doctrine.test_orias.OriasTests.test_web_prefers_gate_delay_to_a_larger_stationary_group) ... ok\ntest_web_support_includes_recruits_with_birth_movement_hold (u13_doctrine.test_orias.OriasTests.test_web_support_includes_recruits_with_birth_movement_hold) ... ok\ntest_web_values_ranged_support_and_excludes_spent_supplicants (u13_doctrine.test_orias.OriasTests.test_web_values_ranged_support_and_excludes_spent_supplicants) ... ok\ntest_consume_omission_wins_equal_score_and_reindexes_remaining_power (u13_doctrine.test_coordination.CoordinationTests.test_consume_omission_wins_equal_score_and_reindexes_remaining_power) ... ok\ntest_consume_tracks_its_guard_even_when_another_guard_survives (u13_doctrine.test_coordination.CoordinationTests.test_consume_tracks_its_guard_even_when_another_guard_survives) ... ok\ntest_guard_identity_and_pair_screen_survive_registry_permutation (u13_doctrine.test_coordination.CoordinationTests.test_guard_identity_and_pair_screen_survive_registry_permutation) ... ok\ntest_no_power_alternative_keeps_attack_and_conserves_essence (u13_doctrine.test_coordination.CoordinationTests.test_no_power_alternative_keeps_attack_and_conserves_essence) ... ok\ntest_observer_counts_evaluated_and_omitted_powers_separately (u13_doctrine.test_coordination.CoordinationTests.test_observer_counts_evaluated_and_omitted_powers_separately) ... ok\ntest_projection_checks_remaining_affordable_guards_and_equality (u13_doctrine.test_coordination.CoordinationTests.test_projection_checks_remaining_affordable_guards_and_equality) ... ok\ntest_ravenous_can_outweigh_new_friendly_exposure_and_counts_breach_spawn (u13_doctrine.test_coordination.CoordinationTests.test_ravenous_can_outweigh_new_friendly_exposure_and_counts_breach_spawn) ... ok\ntest_ravenous_counts_recruits_monsters_and_departing_supplicants (u13_doctrine.test_coordination.CoordinationTests.test_ravenous_counts_recruits_monsters_and_departing_supplicants) ... ok\ntest_softmax_can_admit_risky_power_without_exceeding_preview_budget (u13_doctrine.test_coordination.CoordinationTests.test_softmax_can_admit_risky_power_without_exceeding_preview_budget) ... ok\ntest_supplicants_reserved_for_rites_cannot_also_clear_power_targets (u13_doctrine.test_coordination.CoordinationTests.test_supplicants_reserved_for_rites_cannot_also_clear_power_targets) ... ok\ntest_useful_projection_is_still_available (u13_doctrine.test_coordination.CoordinationTests.test_useful_projection_is_still_available) ... ok\ntest_both_melee_and_ranged_recruits_attack_immediately (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_both_melee_and_ranged_recruits_attack_immediately) ... ok\ntest_decision_is_legal_bounded_and_ignores_private_information (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_decision_is_legal_bounded_and_ignores_private_information) ... ok\ntest_enemy_fleeing_toward_a_flanking_unit_still_has_to_close_distance (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_enemy_fleeing_toward_a_flanking_unit_still_has_to_close_distance) ... ok\ntest_equal_speed_chase_is_not_a_punish_window (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_equal_speed_chase_is_not_a_punish_window) ... ok\ntest_evasion_discounts_hits_and_specials_get_no_suppression (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_evasion_discounts_hits_and_specials_get_no_suppression) ... ok\ntest_faster_pursuer_gets_one_intercept_not_six_free_swings (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_faster_pursuer_gets_one_intercept_not_six_free_swings) ... ok\ntest_full_retreat_speed_and_cooldown_limit_ranged_coverage (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_full_retreat_speed_and_cooldown_limit_ranged_coverage) ... ok\ntest_near_gate_and_overrun_remain_delay_reasons (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_near_gate_and_overrun_remain_delay_reasons) ... ok\ntest_nearly_dead_enemy_has_one_shared_damage_budget (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_nearly_dead_enemy_has_one_shared_damage_budget) ... ok\ntest_observation_includes_only_public_lane_objects_as_detached_data (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_observation_includes_only_public_lane_objects_as_detached_data) ... ok\ntest_policy_prefers_firing_coverage_over_a_balanced_distant_approach (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_policy_prefers_firing_coverage_over_a_balanced_distant_approach) ... ok\ntest_recruiting_does_not_credit_a_birth_round_chase (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_recruiting_does_not_credit_a_birth_round_chase) ... ok\ntest_resolved_combat_allows_both_recruit_attacks_before_movement_ready (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_resolved_combat_allows_both_recruit_attacks_before_movement_ready) ... ok\ntest_seats_registry_order_and_inputs_are_stable (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_seats_registry_order_and_inputs_are_stable) ... ok\ntest_spent_supplicants_do_not_supply_phantom_hits (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_spent_supplicants_do_not_supply_phantom_hits) ... ok\ntest_towers_and_visible_walls_affect_coverage (u13_doctrine.test_rout_tactics.RoutTacticsTests.test_towers_and_visible_walls_affect_coverage) ... ok\ntest_every_lord_has_separate_module_and_legal_deterministic_opening (u13_doctrine.test_common.CommonTests.test_every_lord_has_separate_module_and_legal_deterministic_opening) ... ok\ntest_observation_hides_seeds_enemy_cards_orders_and_future_randomness (u13_doctrine.test_common.CommonTests.test_observation_hides_seeds_enemy_cards_orders_and_future_randomness) ... ok\ntest_generation_reserves_before_next_candidate_and_never_enumerates_product (u13_doctrine.test_common.CommonTests.test_generation_reserves_before_next_candidate_and_never_enumerates_product) ... ok\n\n----------------------------------------------------------------------\nRan 51 tests in 2.792s\n\nOK\n",
+      "tests_run": 51
+    }
+  ],
+  "semantic_cases_match": true,
+  "source_sha256": {
+    "Scripts/Sim/run_u13_common_doctrine.py": "e90ea820e94abfa30553338a70f2c39bc7a2a413ab73a5ffce786efc10bacbcf",
+    "Scripts/Sim/u13_doctrine/budget.py": "a6e5b989e440774057c2ce1f2238c0527f5f25b54a12bf3d228347eaab6454d9",
+    "Scripts/Sim/u13_doctrine/common.py": "31dad93c7bc1a45c94c5d514adfcd347af1fa39ba8f9dc450e582fe7f8e6d1f9",
+    "Scripts/Sim/u13_doctrine/coordination.py": "605201e5159770890920d27a3def0d2f151d6067a14398ac33b8bf2ff43f81ec",
+    "Scripts/Sim/u13_doctrine/lords/orias.py": "64589d2537d8d401878d9bd89bc7c2bfaf49e544b717496f2e28c36e9f611d74",
+    "Scripts/Sim/u13_doctrine/orias_tactics.py": "9ff6f4bc6aecdedf189fd9e42dbc006291d0bc00384258a0151d490bdfac1355",
+    "Scripts/Sim/u13_doctrine/test_orias.py": "3a548388d0e45a21be19e12cfdc2a80eea5fe96818b1bd71f8b6a9c96bd7b093"
+  },
+  "tests_per_runtime": 51
+}
