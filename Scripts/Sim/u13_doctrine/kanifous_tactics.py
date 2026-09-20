@@ -12,10 +12,11 @@ WISHES = ('WishWealth', 'WishLongevity', 'WishDeath', 'WishResurrection', 'WishP
 HAND_LIMIT = 10  # Ordinary U13 opening/card-zone contract.
 PRICE_WEIGHTS = dict(Cards=30, Blood=30, Guards=15, Stone=15, Soul=5, Ruin=4, Wishmaster=1)
 PROFILES = ('v20', 'power', 'wealth', 'resurrection', 'combined')
+DEFAULT_PROFILE = 'power'
 
 
 def calibrated(f, term):
-    return getattr(f, 'wish_profile', 'combined') in (term, 'combined')
+    return getattr(f, 'wish_profile', DEFAULT_PROFILE) in (term, 'combined')
 
 
 def ordinary_material_sum():
@@ -232,6 +233,6 @@ class WishPlans:
             if not exhausted:return
 
     def report(self,chosen,alternatives):
-        return dict(enabled=self.enabled,alternatives=alternatives,profile=getattr(self.f,'wish_profile','combined'),
+        return dict(enabled=self.enabled,alternatives=alternatives,profile=getattr(self.f,'wish_profile',DEFAULT_PROFILE),
             selected=[copy_data(r) for r in chosen['coordination']['powers'] if r['power'] in WISHES],
             scope='own commitments and public assets; future Price outcomes, draws, enemy orders and spatial survival unknown')

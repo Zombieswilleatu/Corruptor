@@ -38,7 +38,8 @@ class CalibrationTests(unittest.TestCase):
         unit(v,'enemy',1,x=550)
         lost=unit(v,'lost',0,monster='Lemek');v['board'].remove(lost)
         v['data']['kanifous_losses']=[lost]
-        value=wish_value(Facts(v),'WishResurrection',dict(lane='Castle'),EMPTY)
+        f=Facts(v);f.wish_profile='resurrection'
+        value=wish_value(f,'WishResurrection',dict(lane='Castle'),EMPTY)
         self.assertEqual(240,value['raw_exposure_value'])
         self.assertEqual(39,value['speculative_credit'])
         self.assertEqual(44,value['known_loss_value'])
@@ -46,7 +47,7 @@ class CalibrationTests(unittest.TestCase):
         self.assertEqual(['lost'],value['known_losses'])
 
     def test_wealth_shortage_bonus_is_bounded_after_commitments(self):
-        v=fixture();hand(v,[('Butcher',1)]*10);f=Facts(v)
+        v=fixture();hand(v,[('Butcher',1)]*10);f=Facts(v);f.wish_profile='wealth'
         for spent,expected in ((0,0),(1,0),(5,0),(6,3),(10,15)):
             p=dict(powers=[],order=dict(action='Ward',lane='Castle',card_ids=[r['id'] for r in f.hand[:spent]]))
             value=wish_value(f,'WishWealth',{},p)
@@ -72,7 +73,9 @@ class CalibrationTests(unittest.TestCase):
 
     def test_profile_validation_and_identification(self):
         with self.assertRaises(ValueError):CommonSmartCore(wish_profile='guess')
-        self.assertIn(':WISH_power',CommonSmartCore(wish_profile='power').policy_id)
+        self.assertEqual('power',CommonSmartCore().wish_profile)
+        self.assertEqual(CommonSmartCore(wish_profile='power').policy_id,CommonSmartCore().policy_id)
+        self.assertIn(':WISH_combined',CommonSmartCore(wish_profile='combined').policy_id)
         self.assertNotIn(':WISH_',CommonSmartCore().policy_id)
 
     def test_comparison_has_all_five_profiles_on_identical_setups(self):
