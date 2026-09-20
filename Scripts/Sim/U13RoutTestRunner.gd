@@ -346,7 +346,8 @@ func _match_lifetime() -> void:
 			for unit in owner.snapshot().world.entities.entities:
 				if unit.kind == "marcher" and unit.attributes.has("rout_round"):
 					affected += 1
-			_check(affected == 4, "rout_captures_earlier_10a_spawns")
+			# One existing body plus Predator's current two recruits.
+			_check(affected == 3, "rout_captures_earlier_10a_spawns")
 			var before: Dictionary = owner.snapshot()
 			var bad: Dictionary = before.duplicate(true)
 			_patch(bad.world, id, {"rout_effect_id": "forged"})

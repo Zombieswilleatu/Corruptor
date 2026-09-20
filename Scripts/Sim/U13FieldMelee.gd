@@ -73,7 +73,7 @@ static func resolve(world: Dictionary, entities, context: Dictionary, tick: int,
 				var a: Dictionary = target.attributes
 				var live_rows: Array = entities.marchers() if a.get("monster_id") == "Tumler" else []
 				evaded = Effects.evades(target, shot.attacker, live_rows, context, tick, "Melee", Fort.rows(world), fleeing)
-				var amount: int = 0 if evaded else Incoming.amount(a, int(shot.amount), clock)
+				var amount: int = 0 if evaded else Incoming.regular_amount(a, int(shot.amount), clock)
 				if not evaded and not fleeing.has(target.id): events.append_array(Effects.intercept(target, shot.attacker, live_rows, context, tick, Fort.rows(world)))
 				var absorbed: int = 0 if shot.attacker.attributes.armor_bypass else mini(int(a.armor), amount)
 				a.armor -= absorbed

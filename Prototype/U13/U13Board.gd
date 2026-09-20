@@ -1216,7 +1216,7 @@ func _build_deimos_controls(parent: Node) -> void:
 	controls.append(war_button)
 	deimos_box.add_child(HSeparator.new())
 	_label(deimos_box, "ROUT", 17)
-	_label(deimos_box, "Enemy Marchers in this lane retreat this round, then recover at half speed next round.", 13).autowrap_mode = (
+	_label(deimos_box, "Enemy Marchers in this lane retreat this round and take +1 damage from regular attacks while retreating. Next round they advance at half speed with normal damage taken.", 13).autowrap_mode = (
 		TextServer.AUTOWRAP_WORD_SMART
 	)
 	rout_state = _label(deimos_box, "", 13)

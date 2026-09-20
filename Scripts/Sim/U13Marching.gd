@@ -1064,7 +1064,7 @@ static func _valid_duels(world: Dictionary) -> bool:
 
 
 static func _attack(target: Dictionary, amount: int, bypass: bool, clock: int = 0) -> int:
-	var remaining: int = Incoming.amount(target, amount, clock)
+	var remaining: int = Incoming.regular_amount(target, amount, clock)
 	if not bypass:
 		var absorbed: int = mini(int(target.armor), remaining)
 		target.armor -= absorbed

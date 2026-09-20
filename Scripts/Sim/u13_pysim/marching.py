@@ -383,7 +383,7 @@ def contact(s, lane, context, clock, diagnostic=False):
 
 
 def attack(s, i, amount, bypass, clock=0):
-    remaining = incoming.amount(s.extra[i] or {}, amount, clock)
+    remaining = incoming.regular_amount(s.extra[i] or {}, amount, clock, s.rout_round[i])
     if not bypass:
         absorbed = min(s.armor[i], remaining)
         s.armor[i] -= absorbed

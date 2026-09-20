@@ -88,6 +88,7 @@ static func rules() -> Dictionary:
 		"delay_rounds": 0,
 		"cost": {},
 		"stages": [{"movement": "retreat"}, {"movement": "half_speed"}],
+		"retreat_regular_attack_bonus": Marching.Incoming.ROUT_RETREAT_ATTACK_BONUS,
 		"target_kind": "",
 		"target_relation": "enemy",
 		"visibility": "public"

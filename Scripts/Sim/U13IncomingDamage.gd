@@ -1,6 +1,7 @@
 extends RefCounted
 
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
+const ROUT_RETREAT_ATTACK_BONUS: int = 1
 
 static func active(a: Dictionary, clock: int) -> bool:
 	return int(a.get("dotra_exposed_from_tick", 0)) <= clock and clock < int(a.get("dotra_exposed_until_tick", 0))
@@ -9,6 +10,13 @@ static func active(a: Dictionary, clock: int) -> bool:
 # banishment and direct execution never become damage packets through this rule.
 static func amount(a: Dictionary, base: int, clock: int) -> int:
 	return maxi(0, base) + (1 if base > 0 and active(a, clock) else 0)
+
+static func regular_amount(a: Dictionary, base: int, clock: int) -> int:
+	# Only ordinary melee/ranged attacks enter here. Recovery, blocked/evaded
+	# hits and zero-damage attacks gain nothing. Exposure remains independent.
+	@warning_ignore("integer_division")
+	var retreating: bool = int(a.get("rout_round", -1)) == clock / 200
+	return amount(a, base, clock) + (ROUT_RETREAT_ATTACK_BONUS if base > 0 and retreating else 0)
 
 static func phase_clock(world: Dictionary, round_number: int) -> int:
 	# Automatic powers between Marching phases share the intervening boundary.

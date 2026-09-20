@@ -1,4 +1,6 @@
-"""Nonstacking exposure: one extra point per positive packet before Armor."""
+"""Incoming modifiers: exposure on packets, Rout on regular attacks only."""
+
+ROUT_RETREAT_ATTACK_BONUS = 1
 
 
 def active(a, clock):
@@ -7,6 +9,18 @@ def active(a, clock):
 
 def amount(a, base, clock):
     return max(0, base) + int(base > 0 and active(a, clock))
+
+
+def regular_amount(a, base, clock, rout_round=None):
+    """Rout adds one before Armor only in its retreat round, not recovery.
+
+    The optional round comes from the compact Marching columns; ordinary
+    field combat supplies the complete attributes. Blocks/evasion bypass this
+    helper, and zero-damage attacks never become positive damage packets.
+    """
+    applied = a.get('rout_round', -1) if rout_round is None else rout_round
+    bonus = ROUT_RETREAT_ATTACK_BONUS if base > 0 and applied == clock//200 else 0
+    return amount(a, base, clock) + bonus
 
 
 def phase_clock(world, number):
