@@ -7,6 +7,9 @@ sampled recipe cards produce, optionally with identical support. Actual
 commitments summon BOTH the normal marchers and the chosen monster. These
 fixtures compare combat strength, not a gameplay resource tradeoff. Continuous
 runs use production spawning and retain both. No tuning overrides.
+
+The wholesale suite adds paired commitments with/without the monster against
+fixed formations, keeping all ordinary bodies, identities and positions equal.
 """
 import argparse
 from collections import Counter, defaultdict
@@ -40,6 +43,28 @@ def cases():
         for label, opponent in [('shock', ['Butcher']*6), ('screen', ['Penitent']*3+['Vulture']*3), ('mixed', SUITS+['Butcher']*2)]:
             result.append(dict(name=f'supported:{name}:{label}', group='supported', focus=name, teams=[SUITS+[name], opponent]))
     return result
+
+
+def wholesale_cases():
+    result = [c for c in cases() if c['group'] in ('single', 'squad')]
+    opposition = {
+        'shock_low': ['Butcher']*6,
+        'shock_high': ['Butcher']*8,
+        'screen_low': ['Penitent']*3+['Vulture']*3,
+        'screen_high': ['Penitent']*5+['Vulture']*5,
+        'mixed_low': SUITS+['Butcher']*2,
+        'mixed_high': ['Penitent']*3+['Butcher']*3+['Vulture']*2+['Wright']*2,
+    }
+    for who in monsters.NAMES:
+        for label, team in opposition.items():
+            result.append(dict(name=f'addition:{who}:{label}', group='additive',
+                               recipe=who, core=SUITS, opponent=label, opposition=team))
+    return result
+
+
+def army_cases():
+    return [dict(name=f'army:{a}:{b}', group='monster_army', monsters=[a, b], core=SUITS)
+            for a, b in itertools.combinations(monsters.NAMES, 2)]
 
 
 def resolve(world, seed, number, capture_ticks=False):
@@ -87,6 +112,9 @@ class Metrics:
         self.units = {}
         self.fields = {}
         self.charm_sources = set()
+        self.deployed = set()
+        self.completed = set()
+        self.charms_by_source = Counter()
         self.metrics = defaultdict(Counter)
 
     def observe(self, rows, staged=False, number=1):
@@ -97,6 +125,7 @@ class Metrics:
                 self.units[identity] = who
             if staged: self.metrics[who]['staged_body_rounds'] += 1
             elif a.get('movement_ready_round', 0) <= number and not a.get('waiting', False):
+                self.deployed.add(identity)
                 self.metrics[who]['active_body_rounds'] += 1
                 if a.get('monster_id') == 'Dotra' and a.get('hidden'): self.metrics[who]['hidden_at_round_start'] += 1
 
@@ -123,10 +152,12 @@ class Metrics:
                 if name(source) == 'Tumler' and name(target) in ('Vulture', 'Kopita', 'Fyra', 'Sooge', 'Sinodek'):
                     out['support_target_hits'] += 1
             elif kind == 'MARCHER_DEFEATED':
+                self.completed.add(d['victim']['id'])
                 self.metrics[name(d['victim'])]['deaths'] += 1
                 if d.get('attacker'): self.metrics[name(d['attacker'])]['kills'] += 1
             elif kind == 'MONSTER_POISONED': self.metrics['Varn']['poison_procs'] += 1
             elif kind == 'MONSTER_CHARMED':
+                self.charms_by_source[d['source_id']] += 1
                 self.metrics['Fyra']['charm_procs'] += 1
                 self.metrics[self.units.get(d['unit_id'], 'Unknown')]['times_charmed'] += 1
                 if d['source_id'] not in self.charm_sources:
@@ -153,14 +184,31 @@ class Metrics:
                 self.fields[d['field']['id']] = d['field']
                 self.metrics['Lemek' if d['field']['kind'] == 'pool' else 'Sinodek']['pools' if d['field']['kind'] == 'pool' else 'portals'] += 1
             elif kind == 'MONSTER_BANISHED':
+                self.completed.add(d['unit']['id'])
                 self.metrics[name(d['unit'])]['banished'] += 1
                 self.metrics['Sinodek']['banishments'] += 1
                 portal = self.fields.get(d['portal_id'])
                 if portal:
                     self.metrics['Sinodek']['ally_banishments' if portal['owner'] == d['unit']['owner'] else 'enemy_banishments'] += 1
+            elif kind == 'MARCHER_WAITING':
+                self.completed.add(d['entity_id'])
+                self.metrics[self.units.get(d['entity_id'], 'Unknown')]['goals'] += 1
 
     def export(self):
         return {key: dict(value) for key, value in sorted(self.metrics.items())}
+
+
+    def cohorts(self):
+        result = {}
+        for who in monsters.NAMES:
+            identities = {identity for identity, kind in self.units.items() if kind == who}
+            done = identities & self.completed
+            result[who] = dict(observed_bodies=len(identities), deployed_bodies=len(identities & self.deployed),
+                               completed_bodies=len(done), unfinished_bodies=len(identities-done))
+            if who == 'Fyra':
+                result[who].update(completed_charms=sum(self.charms_by_source[i] for i in done),
+                                   completed_charmers=sum(self.charms_by_source[i] > 0 for i in done))
+        return result
 
 
 def canonical_owner(row, reflected):
@@ -173,7 +221,7 @@ def controlled(task):
     world, seed, reflected = record['world'], record['seed'], int(record['reflected'])
     initial = Counter((canonical_owner(r, reflected), name(r)) for r in world['entities']['entities'])
     goals, seen, metric = [0, 0], [set(), set()], Metrics()
-    parity = []; capture = record['seed_index'] == 0 and not reflected and record['group'] == 'recipe_supported'
+    parity = []; capture = record['seed_index'] == 0 and not reflected and (record['group'] == 'recipe_supported' or record.get('opponent') == 'mixed_high' or record.get('capture', False))
     for offset in range(max_rounds):
         number = record['round']+offset
         metric.observe(world['entities']['entities'], number=number)
@@ -196,6 +244,7 @@ def controlled(task):
         if goals[0] != goals[1]: winner = int(goals[1] > goals[0])
         elif bool(forces[0]) != bool(forces[1]): winner = int(bool(forces[1]))
     outcome = {key: record[key] for key in ('case', 'group', 'focus', 'teams', 'recipe_hand', 'seed_index', 'reflected')}
+    outcome.update({key: record[key] for key in ('comparison', 'variant', 'opponent', 'added_bodies') if key in record})
     outcome.update(winner=winner, round_cap=not terminal, rounds=offset+1, goals=goals, surviving_forces=forces,
                    initial=[{who: count for (owner, who), count in initial.items() if owner == pid} for pid in (0,1)],
                    metrics=metric.export(), final_sha256=hashlib.sha256(codec.dumps(world).encode()).hexdigest(), parity=parity)
@@ -224,7 +273,7 @@ def run_controlled(args):
             for who, values in result['metrics'].items(): metrics[who].update(values)
             if len(reports) % 32 == 0:
                 print('CONTROLLED', len(reports), result['case'], dict(bucket), f'{time.monotonic()-started:.1f}s', flush=True)
-    data = dict(schema='U13_MONSTER_AUDIT_V1', revision=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
+    data = dict(schema='U13_MONSTER_AUDIT_V1', rules_version=monsters.VERSION, revision=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
                 python=platform.python_implementation()+' '+platform.python_version(), navigation_sha256=hashlib.sha256((ROOT/'Scripts/Sim/u13_pysim/marcher_navigation.py').read_bytes()).hexdigest(),
                 movement_sha256=hashlib.sha256((ROOT/'Scripts/Sim/u13_pysim/marching.py').read_bytes()).hexdigest(),
                 seeds=len({r['seed_index'] for r in reports}), paired_seats=True, rounds=args.rounds, elapsed_seconds=time.monotonic()-started,
@@ -269,7 +318,7 @@ def summarize_waves(args):
                 parity.append(dict(record['parity'], name=f"{meta['seed']}:{meta['swapped']}:{n}"))
             by_round.append(dict(seed=meta['seed'], swapped=meta['swapped'], round=n, goals=[r['reached_goal'] for r in record['totals']], field=len(record['after']), staged=len(record['staged'])))
         for who, values in game_metric.metrics.items(): metric.metrics[who].update(values)
-        games.append(dict(meta, totals=rows[-1]['totals'], metrics=game_metric.export()))
+        games.append(dict(meta, totals=rows[-1]['totals'], metrics=game_metric.export(), cohorts=game_metric.cohorts()))
     with args.samples.open('w') as stream:
         for sample in parity: stream.write(codec.dumps(sample)+'\n')
     dump(args.output, dict(schema='U13_MONSTER_WAVES_V1', games=games, metrics=metric.export(), history=by_round))
@@ -294,13 +343,13 @@ def verify_samples(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='command', required=True)
-    p = sub.add_parser('config'); p.add_argument('--seeds', type=int, default=16); p.add_argument('--output', type=Path, required=True)
+    p = sub.add_parser('config'); p.add_argument('--seeds', type=int, default=16); p.add_argument('--suite', choices=('legacy', 'wholesale', 'armies'), default='legacy'); p.add_argument('--output', type=Path, required=True)
     p = sub.add_parser('controlled'); p.add_argument('--initials', type=Path, required=True); p.add_argument('--workers', type=int, default=4); p.add_argument('--rounds', type=int, default=16); p.add_argument('--output', type=Path, required=True); p.add_argument('--samples', type=Path, required=True)
     p = sub.add_parser('waves'); p.add_argument('--directory', type=Path, required=True); p.add_argument('--output', type=Path, required=True); p.add_argument('--samples', type=Path, required=True)
     p = sub.add_parser('native-waves'); p.add_argument('--godot', type=Path, required=True); p.add_argument('--directory', type=Path, required=True); p.add_argument('--rounds', type=int, default=30); p.add_argument('--seeds', type=int, default=8); p.add_argument('--workers', type=int, default=4)
     p = sub.add_parser('verify'); p.add_argument('--input', type=Path, required=True); p.add_argument('--native', type=Path)
     args = parser.parse_args()
-    if args.command == 'config': dump(args.output, dict(seeds=args.seeds, cases=cases()))
+    if args.command == 'config': dump(args.output, dict(seeds=args.seeds, cases={'legacy': cases, 'wholesale': wholesale_cases, 'armies': army_cases}[args.suite]()))
     elif args.command == 'controlled': run_controlled(args)
     elif args.command == 'waves': summarize_waves(args)
     elif args.command == 'native-waves': run_native_waves(args)

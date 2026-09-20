@@ -1,0 +1,3326 @@
+{
+  "schema": "U13_WHOLESALE_ADDITIVE_SUMMARY_V1",
+  "rules_version": "U13_MONSTERS_V17_DOTRA_SHROUD",
+  "scope": "Normal seats only for performance; mirrored seats verify symmetry. Curated lane fights, no Lord powers.",
+  "controlled": {
+    "battles": 6944,
+    "intervals": 25264,
+    "mirrored_pairs": 3472,
+    "round_caps": 0,
+    "seeds": 16,
+    "normal_seat_additive_pairs": 960,
+    "monsters": {
+      "Lemek": {
+        "tier": "Easy",
+        "pairs": 96,
+        "resolved_pairs": 96,
+        "excluded_capped_pairs": 0,
+        "without": {
+          "fights": 96,
+          "wins": 15,
+          "losses": 81,
+          "draws": 0,
+          "capped": 0
+        },
+        "with_monster": {
+          "fights": 96,
+          "wins": 39,
+          "losses": 57,
+          "draws": 0,
+          "capped": 0
+        },
+        "baseline_win_percent": 15.625,
+        "added_win_percent": 40.625,
+        "win_delta_pp": 25.0,
+        "score_delta_pp": 25.0,
+        "improved": 24,
+        "worsened": 0,
+        "unchanged": 72,
+        "scenarios": {
+          "shock_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 10,
+              "losses": 6,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 62.5,
+            "win_delta_pp": 62.5,
+            "score_delta_pp": 62.5,
+            "improved": 10,
+            "worsened": 0,
+            "unchanged": 6
+          },
+          "shock_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 0.0,
+            "win_delta_pp": 0.0,
+            "score_delta_pp": 0.0,
+            "improved": 0,
+            "worsened": 0,
+            "unchanged": 16
+          },
+          "screen_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 8,
+              "losses": 8,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 13,
+              "losses": 3,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 50.0,
+            "added_win_percent": 81.25,
+            "win_delta_pp": 31.25,
+            "score_delta_pp": 31.25,
+            "improved": 5,
+            "worsened": 0,
+            "unchanged": 11
+          },
+          "screen_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 0.0,
+            "win_delta_pp": 0.0,
+            "score_delta_pp": 0.0,
+            "improved": 0,
+            "worsened": 0,
+            "unchanged": 16
+          },
+          "mixed_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 7,
+              "losses": 9,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 43.75,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 56.25,
+            "score_delta_pp": 56.25,
+            "improved": 9,
+            "worsened": 0,
+            "unchanged": 7
+          },
+          "mixed_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 0.0,
+            "win_delta_pp": 0.0,
+            "score_delta_pp": 0.0,
+            "improved": 0,
+            "worsened": 0,
+            "unchanged": 16
+          }
+        },
+        "monster_metrics": {
+          "bodies_seen": 96,
+          "active_body_rounds": 192,
+          "incoming_attacks": 883,
+          "attacks": 226,
+          "recorded_hp_damage": 579,
+          "landed_hits": 226,
+          "damaging_hits": 226,
+          "deaths": 96,
+          "pools": 96,
+          "kills": 49
+        },
+        "recorded_hp_damage_per_summon": 6.03125
+      },
+      "Varn": {
+        "tier": "Easy",
+        "pairs": 96,
+        "resolved_pairs": 96,
+        "excluded_capped_pairs": 0,
+        "without": {
+          "fights": 96,
+          "wins": 18,
+          "losses": 78,
+          "draws": 0,
+          "capped": 0
+        },
+        "with_monster": {
+          "fights": 96,
+          "wins": 44,
+          "losses": 52,
+          "draws": 0,
+          "capped": 0
+        },
+        "baseline_win_percent": 18.75,
+        "added_win_percent": 45.833333333333336,
+        "win_delta_pp": 27.083333333333332,
+        "score_delta_pp": 27.083333333333332,
+        "improved": 27,
+        "worsened": 1,
+        "unchanged": 68,
+        "scenarios": {
+          "shock_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 2,
+              "losses": 14,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 14,
+              "losses": 2,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 12.5,
+            "added_win_percent": 87.5,
+            "win_delta_pp": 75.0,
+            "score_delta_pp": 75.0,
+            "improved": 12,
+            "worsened": 0,
+            "unchanged": 4
+          },
+          "shock_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 6,
+              "losses": 10,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 37.5,
+            "win_delta_pp": 37.5,
+            "score_delta_pp": 37.5,
+            "improved": 6,
+            "worsened": 0,
+            "unchanged": 10
+          },
+          "screen_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 2,
+              "losses": 14,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 10,
+              "losses": 6,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 12.5,
+            "added_win_percent": 62.5,
+            "win_delta_pp": 50.0,
+            "score_delta_pp": 50.0,
+            "improved": 9,
+            "worsened": 1,
+            "unchanged": 6
+          },
+          "screen_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 0.0,
+            "win_delta_pp": 0.0,
+            "score_delta_pp": 0.0,
+            "improved": 0,
+            "worsened": 0,
+            "unchanged": 16
+          },
+          "mixed_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 14,
+              "losses": 2,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 14,
+              "losses": 2,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 87.5,
+            "added_win_percent": 87.5,
+            "win_delta_pp": 0.0,
+            "score_delta_pp": 0.0,
+            "improved": 0,
+            "worsened": 0,
+            "unchanged": 16
+          },
+          "mixed_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 0.0,
+            "win_delta_pp": 0.0,
+            "score_delta_pp": 0.0,
+            "improved": 0,
+            "worsened": 0,
+            "unchanged": 16
+          }
+        },
+        "monster_metrics": {
+          "bodies_seen": 396,
+          "active_body_rounds": 847,
+          "incoming_attacks": 1171,
+          "attacks": 685,
+          "recorded_hp_damage": 339,
+          "landed_hits": 685,
+          "damaging_hits": 339,
+          "deaths": 391,
+          "poison_procs": 33,
+          "Poison:hits": 17,
+          "Poison:hp_damage": 17,
+          "Poison:enemy_hits": 17,
+          "kills": 39
+        },
+        "recorded_hp_damage_per_summon": 3.53125
+      },
+      "Fyra": {
+        "tier": "Moderate",
+        "pairs": 96,
+        "resolved_pairs": 96,
+        "excluded_capped_pairs": 0,
+        "without": {
+          "fights": 96,
+          "wins": 48,
+          "losses": 48,
+          "draws": 0,
+          "capped": 0
+        },
+        "with_monster": {
+          "fights": 96,
+          "wins": 58,
+          "losses": 38,
+          "draws": 0,
+          "capped": 0
+        },
+        "baseline_win_percent": 50.0,
+        "added_win_percent": 60.416666666666664,
+        "win_delta_pp": 10.416666666666666,
+        "score_delta_pp": 10.416666666666666,
+        "improved": 13,
+        "worsened": 3,
+        "unchanged": 80,
+        "scenarios": {
+          "shock_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 13,
+              "losses": 3,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 81.25,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 18.75,
+            "score_delta_pp": 18.75,
+            "improved": 3,
+            "worsened": 0,
+            "unchanged": 13
+          },
+          "shock_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 9,
+              "losses": 7,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 12,
+              "losses": 4,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 56.25,
+            "added_win_percent": 75.0,
+            "win_delta_pp": 18.75,
+            "score_delta_pp": 18.75,
+            "improved": 3,
+            "worsened": 0,
+            "unchanged": 13
+          },
+          "screen_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 9,
+              "losses": 7,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 14,
+              "losses": 2,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 56.25,
+            "added_win_percent": 87.5,
+            "win_delta_pp": 31.25,
+            "score_delta_pp": 31.25,
+            "improved": 5,
+            "worsened": 0,
+            "unchanged": 11
+          },
+          "screen_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 0.0,
+            "win_delta_pp": 0.0,
+            "score_delta_pp": 0.0,
+            "improved": 0,
+            "worsened": 0,
+            "unchanged": 16
+          },
+          "mixed_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 14,
+              "losses": 2,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 100.0,
+            "added_win_percent": 87.5,
+            "win_delta_pp": -12.5,
+            "score_delta_pp": -12.5,
+            "improved": 0,
+            "worsened": 2,
+            "unchanged": 14
+          },
+          "mixed_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 1,
+              "losses": 15,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 2,
+              "losses": 14,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 6.25,
+            "added_win_percent": 12.5,
+            "win_delta_pp": 6.25,
+            "score_delta_pp": 6.25,
+            "improved": 2,
+            "worsened": 1,
+            "unchanged": 13
+          }
+        },
+        "monster_metrics": {
+          "bodies_seen": 96,
+          "active_body_rounds": 192,
+          "incoming_attacks": 745,
+          "attacks": 231,
+          "recorded_hp_damage": 207,
+          "landed_hits": 231,
+          "damaging_hits": 172,
+          "charm_procs": 64,
+          "casters_who_charmed": 50,
+          "deaths": 96,
+          "kills": 6
+        },
+        "recorded_hp_damage_per_summon": 2.15625
+      },
+      "Kopita": {
+        "tier": "Moderate",
+        "pairs": 96,
+        "resolved_pairs": 96,
+        "excluded_capped_pairs": 0,
+        "without": {
+          "fights": 96,
+          "wins": 27,
+          "losses": 69,
+          "draws": 0,
+          "capped": 0
+        },
+        "with_monster": {
+          "fights": 96,
+          "wins": 40,
+          "losses": 56,
+          "draws": 0,
+          "capped": 0
+        },
+        "baseline_win_percent": 28.125,
+        "added_win_percent": 41.666666666666664,
+        "win_delta_pp": 13.541666666666666,
+        "score_delta_pp": 13.541666666666666,
+        "improved": 13,
+        "worsened": 0,
+        "unchanged": 83,
+        "scenarios": {
+          "shock_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 7,
+              "losses": 9,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 43.75,
+            "win_delta_pp": 43.75,
+            "score_delta_pp": 43.75,
+            "improved": 7,
+            "worsened": 0,
+            "unchanged": 9
+          },
+          "shock_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 0.0,
+            "win_delta_pp": 0.0,
+            "score_delta_pp": 0.0,
+            "improved": 0,
+            "worsened": 0,
+            "unchanged": 16
+          },
+          "screen_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 15,
+              "losses": 1,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 93.75,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 6.25,
+            "score_delta_pp": 6.25,
+            "improved": 1,
+            "worsened": 0,
+            "unchanged": 15
+          },
+          "screen_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 1,
+              "losses": 15,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 6.25,
+            "win_delta_pp": 6.25,
+            "score_delta_pp": 6.25,
+            "improved": 1,
+            "worsened": 0,
+            "unchanged": 15
+          },
+          "mixed_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 12,
+              "losses": 4,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 75.0,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 25.0,
+            "score_delta_pp": 25.0,
+            "improved": 4,
+            "worsened": 0,
+            "unchanged": 12
+          },
+          "mixed_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 0.0,
+            "win_delta_pp": 0.0,
+            "score_delta_pp": 0.0,
+            "improved": 0,
+            "worsened": 0,
+            "unchanged": 16
+          }
+        },
+        "monster_metrics": {
+          "bodies_seen": 96,
+          "active_body_rounds": 282,
+          "harm_pulses": 343,
+          "incoming_attacks": 648,
+          "attacks": 376,
+          "recorded_hp_damage": 378,
+          "landed_hits": 376,
+          "damaging_hits": 238,
+          "kills": 57,
+          "deaths": 75,
+          "Kopita:hits": 168,
+          "Kopita:hp_damage": 49,
+          "Kopita:enemy_hits": 168,
+          "heal_pulses": 160,
+          "useful_heal_pulses": 160,
+          "hp_healed": 206,
+          "healed_bodies": 206
+        },
+        "recorded_hp_damage_per_summon": 3.9375
+      },
+      "Tumler": {
+        "tier": "Moderate",
+        "pairs": 96,
+        "resolved_pairs": 96,
+        "excluded_capped_pairs": 0,
+        "without": {
+          "fights": 96,
+          "wins": 38,
+          "losses": 58,
+          "draws": 0,
+          "capped": 0
+        },
+        "with_monster": {
+          "fights": 96,
+          "wins": 56,
+          "losses": 40,
+          "draws": 0,
+          "capped": 0
+        },
+        "baseline_win_percent": 39.583333333333336,
+        "added_win_percent": 58.333333333333336,
+        "win_delta_pp": 18.75,
+        "score_delta_pp": 18.75,
+        "improved": 19,
+        "worsened": 1,
+        "unchanged": 76,
+        "scenarios": {
+          "shock_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 10,
+              "losses": 6,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 15,
+              "losses": 1,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 62.5,
+            "added_win_percent": 93.75,
+            "win_delta_pp": 31.25,
+            "score_delta_pp": 31.25,
+            "improved": 5,
+            "worsened": 0,
+            "unchanged": 11
+          },
+          "shock_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 1,
+              "losses": 15,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 9,
+              "losses": 7,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 6.25,
+            "added_win_percent": 56.25,
+            "win_delta_pp": 50.0,
+            "score_delta_pp": 50.0,
+            "improved": 8,
+            "worsened": 0,
+            "unchanged": 8
+          },
+          "screen_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 10,
+              "losses": 6,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 62.5,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 37.5,
+            "score_delta_pp": 37.5,
+            "improved": 6,
+            "worsened": 0,
+            "unchanged": 10
+          },
+          "screen_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 0.0,
+            "win_delta_pp": 0.0,
+            "score_delta_pp": 0.0,
+            "improved": 0,
+            "worsened": 0,
+            "unchanged": 16
+          },
+          "mixed_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 100.0,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 0.0,
+            "score_delta_pp": 0.0,
+            "improved": 0,
+            "worsened": 0,
+            "unchanged": 16
+          },
+          "mixed_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 1,
+              "losses": 15,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 6.25,
+            "added_win_percent": 0.0,
+            "win_delta_pp": -6.25,
+            "score_delta_pp": -6.25,
+            "improved": 0,
+            "worsened": 1,
+            "unchanged": 15
+          }
+        },
+        "monster_metrics": {
+          "bodies_seen": 96,
+          "active_body_rounds": 207,
+          "incoming_attacks": 1399,
+          "attacks": 334,
+          "recorded_hp_damage": 745,
+          "landed_hits": 334,
+          "damaging_hits": 288,
+          "evaded": 700,
+          "kills": 120,
+          "deaths": 93,
+          "melee_intercepts": 112,
+          "support_target_hits": 34,
+          "goals": 2
+        },
+        "recorded_hp_damage_per_summon": 7.760416666666667
+      },
+      "Kurchin": {
+        "tier": "Hard",
+        "pairs": 96,
+        "resolved_pairs": 96,
+        "excluded_capped_pairs": 0,
+        "without": {
+          "fights": 96,
+          "wins": 22,
+          "losses": 72,
+          "draws": 2,
+          "capped": 0
+        },
+        "with_monster": {
+          "fights": 96,
+          "wins": 93,
+          "losses": 3,
+          "draws": 0,
+          "capped": 0
+        },
+        "baseline_win_percent": 22.916666666666668,
+        "added_win_percent": 96.875,
+        "win_delta_pp": 73.95833333333333,
+        "score_delta_pp": 72.91666666666667,
+        "improved": 71,
+        "worsened": 0,
+        "unchanged": 25,
+        "scenarios": {
+          "shock_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 14,
+              "draws": 2,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 100.0,
+            "score_delta_pp": 93.75,
+            "improved": 16,
+            "worsened": 0,
+            "unchanged": 0
+          },
+          "shock_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 100.0,
+            "score_delta_pp": 100.0,
+            "improved": 16,
+            "worsened": 0,
+            "unchanged": 0
+          },
+          "screen_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 11,
+              "losses": 5,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 68.75,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 31.25,
+            "score_delta_pp": 31.25,
+            "improved": 5,
+            "worsened": 0,
+            "unchanged": 11
+          },
+          "screen_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 13,
+              "losses": 3,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 81.25,
+            "win_delta_pp": 81.25,
+            "score_delta_pp": 81.25,
+            "improved": 13,
+            "worsened": 0,
+            "unchanged": 3
+          },
+          "mixed_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 11,
+              "losses": 5,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 68.75,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 31.25,
+            "score_delta_pp": 31.25,
+            "improved": 5,
+            "worsened": 0,
+            "unchanged": 11
+          },
+          "mixed_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 100.0,
+            "score_delta_pp": 100.0,
+            "improved": 16,
+            "worsened": 0,
+            "unchanged": 0
+          }
+        },
+        "monster_metrics": {
+          "bodies_seen": 96,
+          "active_body_rounds": 432,
+          "incoming_attacks": 1070,
+          "evaded": 685,
+          "attacks": 519,
+          "recorded_hp_damage": 398,
+          "landed_hits": 519,
+          "damaging_hits": 398,
+          "kills": 83,
+          "deaths": 5
+        },
+        "recorded_hp_damage_per_summon": 4.145833333333333
+      },
+      "Muno": {
+        "tier": "Hard",
+        "pairs": 96,
+        "resolved_pairs": 96,
+        "excluded_capped_pairs": 0,
+        "without": {
+          "fights": 96,
+          "wins": 13,
+          "losses": 81,
+          "draws": 2,
+          "capped": 0
+        },
+        "with_monster": {
+          "fights": 96,
+          "wins": 48,
+          "losses": 48,
+          "draws": 0,
+          "capped": 0
+        },
+        "baseline_win_percent": 13.541666666666666,
+        "added_win_percent": 50.0,
+        "win_delta_pp": 36.458333333333336,
+        "score_delta_pp": 35.416666666666664,
+        "improved": 35,
+        "worsened": 0,
+        "unchanged": 61,
+        "scenarios": {
+          "shock_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 1,
+              "losses": 15,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 11,
+              "losses": 5,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 6.25,
+            "added_win_percent": 68.75,
+            "win_delta_pp": 62.5,
+            "score_delta_pp": 62.5,
+            "improved": 10,
+            "worsened": 0,
+            "unchanged": 6
+          },
+          "shock_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 5,
+              "losses": 11,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 31.25,
+            "win_delta_pp": 31.25,
+            "score_delta_pp": 31.25,
+            "improved": 5,
+            "worsened": 0,
+            "unchanged": 11
+          },
+          "screen_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 4,
+              "losses": 12,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 25.0,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 75.0,
+            "score_delta_pp": 75.0,
+            "improved": 12,
+            "worsened": 0,
+            "unchanged": 4
+          },
+          "screen_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 0.0,
+            "win_delta_pp": 0.0,
+            "score_delta_pp": 0.0,
+            "improved": 0,
+            "worsened": 0,
+            "unchanged": 16
+          },
+          "mixed_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 8,
+              "losses": 6,
+              "draws": 2,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 50.0,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 50.0,
+            "score_delta_pp": 43.75,
+            "improved": 8,
+            "worsened": 0,
+            "unchanged": 8
+          },
+          "mixed_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 0.0,
+            "win_delta_pp": 0.0,
+            "score_delta_pp": 0.0,
+            "improved": 0,
+            "worsened": 0,
+            "unchanged": 16
+          }
+        },
+        "monster_metrics": {
+          "bodies_seen": 96,
+          "active_body_rounds": 212,
+          "attacks": 383,
+          "recorded_hp_damage": 787,
+          "landed_hits": 383,
+          "damaging_hits": 331,
+          "Muno:hits": 116,
+          "Muno:hp_damage": 242,
+          "Muno:enemy_hits": 116,
+          "incoming_attacks": 722,
+          "deaths": 95,
+          "kills": 95
+        },
+        "recorded_hp_damage_per_summon": 8.197916666666666
+      },
+      "Dotra": {
+        "tier": "Hard",
+        "pairs": 96,
+        "resolved_pairs": 96,
+        "excluded_capped_pairs": 0,
+        "without": {
+          "fights": 96,
+          "wins": 40,
+          "losses": 55,
+          "draws": 1,
+          "capped": 0
+        },
+        "with_monster": {
+          "fights": 96,
+          "wins": 69,
+          "losses": 27,
+          "draws": 0,
+          "capped": 0
+        },
+        "baseline_win_percent": 41.666666666666664,
+        "added_win_percent": 71.875,
+        "win_delta_pp": 30.208333333333332,
+        "score_delta_pp": 29.6875,
+        "improved": 29,
+        "worsened": 0,
+        "unchanged": 67,
+        "scenarios": {
+          "shock_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 14,
+              "losses": 2,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 87.5,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 12.5,
+            "score_delta_pp": 12.5,
+            "improved": 2,
+            "worsened": 0,
+            "unchanged": 14
+          },
+          "shock_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 4,
+              "losses": 12,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 14,
+              "losses": 2,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 25.0,
+            "added_win_percent": 87.5,
+            "win_delta_pp": 62.5,
+            "score_delta_pp": 62.5,
+            "improved": 10,
+            "worsened": 0,
+            "unchanged": 6
+          },
+          "screen_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 7,
+              "losses": 9,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 43.75,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 56.25,
+            "score_delta_pp": 56.25,
+            "improved": 9,
+            "worsened": 0,
+            "unchanged": 7
+          },
+          "screen_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 5,
+              "losses": 11,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 31.25,
+            "win_delta_pp": 31.25,
+            "score_delta_pp": 31.25,
+            "improved": 5,
+            "worsened": 0,
+            "unchanged": 11
+          },
+          "mixed_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 15,
+              "losses": 0,
+              "draws": 1,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 93.75,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 6.25,
+            "score_delta_pp": 3.125,
+            "improved": 1,
+            "worsened": 0,
+            "unchanged": 15
+          },
+          "mixed_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 2,
+              "losses": 14,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 12.5,
+            "win_delta_pp": 12.5,
+            "score_delta_pp": 12.5,
+            "improved": 2,
+            "worsened": 0,
+            "unchanged": 14
+          }
+        },
+        "monster_metrics": {
+          "bodies_seen": 96,
+          "active_body_rounds": 242,
+          "concealment_rounds": 96,
+          "hidden_rounds": 96,
+          "attacks": 519,
+          "recorded_hp_damage": 1153,
+          "landed_hits": 519,
+          "damaging_hits": 438,
+          "Ambush:hits": 96,
+          "Ambush:hp_damage": 391,
+          "Ambush:enemy_hits": 96,
+          "exposure_pulses": 96,
+          "enemies_exposed": 400,
+          "kills": 123,
+          "incoming_attacks": 747,
+          "deaths": 63
+        },
+        "recorded_hp_damage_per_summon": 12.010416666666666
+      },
+      "Sooge": {
+        "tier": "Very hard",
+        "pairs": 96,
+        "resolved_pairs": 96,
+        "excluded_capped_pairs": 0,
+        "without": {
+          "fights": 96,
+          "wins": 42,
+          "losses": 54,
+          "draws": 0,
+          "capped": 0
+        },
+        "with_monster": {
+          "fights": 96,
+          "wins": 56,
+          "losses": 40,
+          "draws": 0,
+          "capped": 0
+        },
+        "baseline_win_percent": 43.75,
+        "added_win_percent": 58.333333333333336,
+        "win_delta_pp": 14.583333333333334,
+        "score_delta_pp": 14.583333333333334,
+        "improved": 14,
+        "worsened": 0,
+        "unchanged": 82,
+        "scenarios": {
+          "shock_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 12,
+              "losses": 4,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 15,
+              "losses": 1,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 75.0,
+            "added_win_percent": 93.75,
+            "win_delta_pp": 18.75,
+            "score_delta_pp": 18.75,
+            "improved": 3,
+            "worsened": 0,
+            "unchanged": 13
+          },
+          "shock_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 6,
+              "losses": 10,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 37.5,
+            "win_delta_pp": 37.5,
+            "score_delta_pp": 37.5,
+            "improved": 6,
+            "worsened": 0,
+            "unchanged": 10
+          },
+          "screen_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 14,
+              "losses": 2,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 87.5,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 12.5,
+            "score_delta_pp": 12.5,
+            "improved": 2,
+            "worsened": 0,
+            "unchanged": 14
+          },
+          "screen_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 0.0,
+            "win_delta_pp": 0.0,
+            "score_delta_pp": 0.0,
+            "improved": 0,
+            "worsened": 0,
+            "unchanged": 16
+          },
+          "mixed_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 100.0,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 0.0,
+            "score_delta_pp": 0.0,
+            "improved": 0,
+            "worsened": 0,
+            "unchanged": 16
+          },
+          "mixed_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 3,
+              "losses": 13,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 18.75,
+            "win_delta_pp": 18.75,
+            "score_delta_pp": 18.75,
+            "improved": 3,
+            "worsened": 0,
+            "unchanged": 13
+          }
+        },
+        "monster_metrics": {
+          "bodies_seen": 96,
+          "active_body_rounds": 365,
+          "rooted": 77,
+          "beams_fired": 235,
+          "beams_detonated": 235,
+          "attacks": 1106,
+          "recorded_hp_damage": 1473,
+          "landed_hits": 979,
+          "Beam:hits": 1067,
+          "Beam:hp_damage": 1442,
+          "Beam:ally_hits": 389,
+          "Beam:ally_hp_damage": 164,
+          "damaging_hits": 744,
+          "Beam:enemy_hits": 678,
+          "kills": 110,
+          "incoming_attacks": 418,
+          "deaths": 50
+        },
+        "recorded_hp_damage_per_summon": 15.34375
+      },
+      "Sinodek": {
+        "tier": "Very hard",
+        "pairs": 96,
+        "resolved_pairs": 96,
+        "excluded_capped_pairs": 0,
+        "without": {
+          "fights": 96,
+          "wins": 47,
+          "losses": 47,
+          "draws": 2,
+          "capped": 0
+        },
+        "with_monster": {
+          "fights": 96,
+          "wins": 68,
+          "losses": 27,
+          "draws": 1,
+          "capped": 0
+        },
+        "baseline_win_percent": 48.958333333333336,
+        "added_win_percent": 70.83333333333333,
+        "win_delta_pp": 21.875,
+        "score_delta_pp": 21.354166666666668,
+        "improved": 22,
+        "worsened": 0,
+        "unchanged": 74,
+        "scenarios": {
+          "shock_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 15,
+              "losses": 1,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 93.75,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 6.25,
+            "score_delta_pp": 6.25,
+            "improved": 1,
+            "worsened": 0,
+            "unchanged": 15
+          },
+          "shock_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 3,
+              "losses": 13,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 10,
+              "losses": 6,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 18.75,
+            "added_win_percent": 62.5,
+            "win_delta_pp": 43.75,
+            "score_delta_pp": 43.75,
+            "improved": 7,
+            "worsened": 0,
+            "unchanged": 9
+          },
+          "screen_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 10,
+              "losses": 6,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 62.5,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 37.5,
+            "score_delta_pp": 37.5,
+            "improved": 6,
+            "worsened": 0,
+            "unchanged": 10
+          },
+          "screen_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 0,
+              "losses": 16,
+              "draws": 0,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 2,
+              "losses": 14,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 0.0,
+            "added_win_percent": 12.5,
+            "win_delta_pp": 12.5,
+            "score_delta_pp": 12.5,
+            "improved": 2,
+            "worsened": 0,
+            "unchanged": 14
+          },
+          "mixed_low": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 15,
+              "losses": 0,
+              "draws": 1,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 16,
+              "losses": 0,
+              "draws": 0,
+              "capped": 0
+            },
+            "baseline_win_percent": 93.75,
+            "added_win_percent": 100.0,
+            "win_delta_pp": 6.25,
+            "score_delta_pp": 3.125,
+            "improved": 1,
+            "worsened": 0,
+            "unchanged": 15
+          },
+          "mixed_high": {
+            "pairs": 16,
+            "resolved_pairs": 16,
+            "excluded_capped_pairs": 0,
+            "without": {
+              "fights": 16,
+              "wins": 4,
+              "losses": 11,
+              "draws": 1,
+              "capped": 0
+            },
+            "with_monster": {
+              "fights": 16,
+              "wins": 8,
+              "losses": 7,
+              "draws": 1,
+              "capped": 0
+            },
+            "baseline_win_percent": 25.0,
+            "added_win_percent": 50.0,
+            "win_delta_pp": 25.0,
+            "score_delta_pp": 25.0,
+            "improved": 5,
+            "worsened": 0,
+            "unchanged": 11
+          }
+        },
+        "monster_metrics": {
+          "bodies_seen": 96,
+          "active_body_rounds": 362,
+          "attacks": 145,
+          "recorded_hp_damage": 117,
+          "landed_hits": 145,
+          "damaging_hits": 117,
+          "kills": 16,
+          "incoming_attacks": 307,
+          "deaths": 43,
+          "portals": 51,
+          "banishments": 136,
+          "enemy_banishments": 115,
+          "ally_banishments": 21
+        },
+        "recorded_hp_damage_per_summon": 1.21875
+      }
+    },
+    "ordinary": {
+      "single:Penitent:Butcher": {
+        "fights": 16,
+        "wins": 0,
+        "losses": 16,
+        "draws": 0,
+        "capped": 0
+      },
+      "single:Penitent:Vulture": {
+        "fights": 16,
+        "wins": 7,
+        "losses": 9,
+        "draws": 0,
+        "capped": 0
+      },
+      "single:Penitent:Wright": {
+        "fights": 16,
+        "wins": 16,
+        "losses": 0,
+        "draws": 0,
+        "capped": 0
+      },
+      "single:Butcher:Vulture": {
+        "fights": 16,
+        "wins": 0,
+        "losses": 16,
+        "draws": 0,
+        "capped": 0
+      },
+      "single:Butcher:Wright": {
+        "fights": 16,
+        "wins": 16,
+        "losses": 0,
+        "draws": 0,
+        "capped": 0
+      },
+      "single:Vulture:Wright": {
+        "fights": 16,
+        "wins": 0,
+        "losses": 16,
+        "draws": 0,
+        "capped": 0
+      },
+      "squad:Penitent:Butcher": {
+        "fights": 16,
+        "wins": 0,
+        "losses": 16,
+        "draws": 0,
+        "capped": 0
+      },
+      "squad:Penitent:Vulture": {
+        "fights": 16,
+        "wins": 9,
+        "losses": 7,
+        "draws": 0,
+        "capped": 0
+      },
+      "squad:Penitent:Wright": {
+        "fights": 16,
+        "wins": 16,
+        "losses": 0,
+        "draws": 0,
+        "capped": 0
+      },
+      "squad:Butcher:Vulture": {
+        "fights": 16,
+        "wins": 0,
+        "losses": 16,
+        "draws": 0,
+        "capped": 0
+      },
+      "squad:Butcher:Wright": {
+        "fights": 16,
+        "wins": 16,
+        "losses": 0,
+        "draws": 0,
+        "capped": 0
+      },
+      "squad:Vulture:Wright": {
+        "fights": 16,
+        "wins": 16,
+        "losses": 0,
+        "draws": 0,
+        "capped": 0
+      }
+    }
+  },
+  "continuous": {
+    "games": 32,
+    "intervals": 960,
+    "independent_seeds": 16,
+    "mirrored_pairs": 16,
+    "monsters": {
+      "Lemek": {
+        "metrics": {
+          "bodies_seen": 206,
+          "staged_body_rounds": 265,
+          "summons": 206,
+          "active_body_rounds": 548,
+          "attacks": 738,
+          "recorded_hp_damage": 2433,
+          "landed_hits": 702,
+          "damaging_hits": 688,
+          "incoming_attacks": 1754,
+          "kills": 357,
+          "deaths": 144,
+          "pools": 144,
+          "goals": 37,
+          "times_charmed": 6,
+          "banished": 2
+        },
+        "cohorts": {
+          "observed_bodies": 206,
+          "deployed_bodies": 198,
+          "completed_bodies": 183,
+          "unfinished_bodies": 23
+        }
+      },
+      "Varn": {
+        "metrics": {
+          "bodies_seen": 904,
+          "staged_body_rounds": 1221,
+          "summons": 223,
+          "active_body_rounds": 2333,
+          "attacks": 1825,
+          "recorded_hp_damage": 1329,
+          "landed_hits": 1766,
+          "damaging_hits": 1319,
+          "incoming_attacks": 2552,
+          "deaths": 716,
+          "poison_procs": 83,
+          "kills": 191,
+          "goals": 73,
+          "times_charmed": 16,
+          "Poison:hits": 20,
+          "Poison:hp_damage": 20,
+          "Poison:enemy_hits": 20,
+          "banished": 8
+        },
+        "cohorts": {
+          "observed_bodies": 904,
+          "deployed_bodies": 854,
+          "completed_bodies": 797,
+          "unfinished_bodies": 107
+        }
+      },
+      "Fyra": {
+        "metrics": {
+          "bodies_seen": 61,
+          "staged_body_rounds": 79,
+          "summons": 61,
+          "active_body_rounds": 121,
+          "incoming_attacks": 420,
+          "attacks": 236,
+          "recorded_hp_damage": 353,
+          "landed_hits": 227,
+          "charm_procs": 55,
+          "casters_who_charmed": 36,
+          "damaging_hits": 191,
+          "kills": 55,
+          "deaths": 44,
+          "goals": 12,
+          "times_charmed": 2
+        },
+        "cohorts": {
+          "observed_bodies": 61,
+          "deployed_bodies": 59,
+          "completed_bodies": 56,
+          "unfinished_bodies": 5,
+          "completed_charms": 55,
+          "completed_charmers": 36
+        },
+        "charms_per_completed_summon": 0.9821428571428571
+      },
+      "Kopita": {
+        "metrics": {
+          "bodies_seen": 48,
+          "staged_body_rounds": 54,
+          "summons": 48,
+          "active_body_rounds": 241,
+          "heal_pulses": 218,
+          "useful_heal_pulses": 218,
+          "hp_healed": 408,
+          "healed_bodies": 408,
+          "harm_pulses": 241,
+          "attacks": 499,
+          "recorded_hp_damage": 421,
+          "landed_hits": 490,
+          "damaging_hits": 288,
+          "kills": 52,
+          "incoming_attacks": 339,
+          "deaths": 30,
+          "Kopita:hits": 355,
+          "Kopita:hp_damage": 171,
+          "Kopita:enemy_hits": 355,
+          "goals": 11,
+          "banished": 1
+        },
+        "cohorts": {
+          "observed_bodies": 48,
+          "deployed_bodies": 47,
+          "completed_bodies": 42,
+          "unfinished_bodies": 6
+        }
+      },
+      "Tumler": {
+        "metrics": {
+          "bodies_seen": 62,
+          "staged_body_rounds": 87,
+          "summons": 62,
+          "active_body_rounds": 164,
+          "incoming_attacks": 829,
+          "evaded": 403,
+          "melee_intercepts": 92,
+          "attacks": 243,
+          "recorded_hp_damage": 590,
+          "landed_hits": 242,
+          "damaging_hits": 219,
+          "kills": 89,
+          "support_target_hits": 75,
+          "deaths": 40,
+          "goals": 14,
+          "banished": 1,
+          "times_charmed": 1
+        },
+        "cohorts": {
+          "observed_bodies": 62,
+          "deployed_bodies": 59,
+          "completed_bodies": 55,
+          "unfinished_bodies": 7
+        }
+      },
+      "Kurchin": {
+        "metrics": {
+          "bodies_seen": 20,
+          "staged_body_rounds": 25,
+          "summons": 20,
+          "active_body_rounds": 118,
+          "incoming_attacks": 378,
+          "evaded": 194,
+          "attacks": 111,
+          "recorded_hp_damage": 91,
+          "landed_hits": 110,
+          "damaging_hits": 90,
+          "kills": 12,
+          "deaths": 8,
+          "goals": 3,
+          "banished": 2
+        },
+        "cohorts": {
+          "observed_bodies": 20,
+          "deployed_bodies": 18,
+          "completed_bodies": 13,
+          "unfinished_bodies": 7
+        }
+      },
+      "Muno": {
+        "metrics": {
+          "bodies_seen": 34,
+          "staged_body_rounds": 46,
+          "summons": 34,
+          "active_body_rounds": 87,
+          "attacks": 170,
+          "recorded_hp_damage": 419,
+          "landed_hits": 163,
+          "damaging_hits": 156,
+          "Muno:hits": 61,
+          "Muno:hp_damage": 152,
+          "Muno:enemy_hits": 61,
+          "kills": 58,
+          "incoming_attacks": 224,
+          "deaths": 24,
+          "goals": 6,
+          "times_charmed": 1
+        },
+        "cohorts": {
+          "observed_bodies": 34,
+          "deployed_bodies": 32,
+          "completed_bodies": 30,
+          "unfinished_bodies": 4
+        }
+      },
+      "Dotra": {
+        "metrics": {
+          "bodies_seen": 41,
+          "staged_body_rounds": 56,
+          "summons": 41,
+          "active_body_rounds": 101,
+          "incoming_attacks": 333,
+          "attacks": 177,
+          "recorded_hp_damage": 402,
+          "landed_hits": 174,
+          "damaging_hits": 151,
+          "concealment_rounds": 34,
+          "hidden_rounds": 34,
+          "Ambush:hits": 34,
+          "Ambush:hp_damage": 149,
+          "Ambush:enemy_hits": 34,
+          "exposure_pulses": 34,
+          "enemies_exposed": 172,
+          "deaths": 31,
+          "kills": 55,
+          "hidden_at_round_start": 9,
+          "goals": 6
+        },
+        "cohorts": {
+          "observed_bodies": 41,
+          "deployed_bodies": 37,
+          "completed_bodies": 37,
+          "unfinished_bodies": 4
+        }
+      },
+      "Sooge": {
+        "metrics": {
+          "bodies_seen": 9,
+          "staged_body_rounds": 11,
+          "summons": 9,
+          "active_body_rounds": 91,
+          "rooted": 7,
+          "beams_fired": 55,
+          "beams_detonated": 55,
+          "attacks": 534,
+          "recorded_hp_damage": 669,
+          "landed_hits": 498,
+          "damaging_hits": 354,
+          "Beam:hits": 531,
+          "Beam:hp_damage": 666,
+          "Beam:enemy_hits": 241,
+          "Beam:ally_hits": 290,
+          "Beam:ally_hp_damage": 153,
+          "kills": 41,
+          "incoming_attacks": 37,
+          "deaths": 5
+        },
+        "cohorts": {
+          "observed_bodies": 9,
+          "deployed_bodies": 9,
+          "completed_bodies": 5,
+          "unfinished_bodies": 4
+        }
+      },
+      "Sinodek": {
+        "metrics": {
+          "bodies_seen": 7,
+          "staged_body_rounds": 9,
+          "summons": 7,
+          "active_body_rounds": 39,
+          "attacks": 15,
+          "recorded_hp_damage": 10,
+          "landed_hits": 15,
+          "damaging_hits": 10,
+          "incoming_attacks": 38,
+          "deaths": 6,
+          "portals": 7,
+          "banishments": 37,
+          "ally_banishments": 18,
+          "enemy_banishments": 19,
+          "kills": 2
+        },
+        "cohorts": {
+          "observed_bodies": 7,
+          "deployed_bodies": 6,
+          "completed_bodies": 6,
+          "unfinished_bodies": 1
+        }
+      }
+    },
+    "recovery": [
+      {
+        "seed": "lane-f881e7ec-e3aebe70",
+        "goals": [
+          0,
+          17
+        ],
+        "changed_leader": false,
+        "initial_leader_lost_lead": false
+      },
+      {
+        "seed": "lane-30d27b94-0258ddb4",
+        "goals": [
+          2,
+          46
+        ],
+        "changed_leader": true,
+        "initial_leader_lost_lead": true
+      },
+      {
+        "seed": "monster-mixed:2",
+        "goals": [
+          17,
+          7
+        ],
+        "changed_leader": true,
+        "initial_leader_lost_lead": true
+      },
+      {
+        "seed": "monster-mixed:3",
+        "goals": [
+          19,
+          51
+        ],
+        "changed_leader": true,
+        "initial_leader_lost_lead": true
+      },
+      {
+        "seed": "monster-mixed:4",
+        "goals": [
+          13,
+          15
+        ],
+        "changed_leader": true,
+        "initial_leader_lost_lead": true
+      },
+      {
+        "seed": "monster-mixed:5",
+        "goals": [
+          14,
+          24
+        ],
+        "changed_leader": false,
+        "initial_leader_lost_lead": false
+      },
+      {
+        "seed": "monster-mixed:6",
+        "goals": [
+          24,
+          0
+        ],
+        "changed_leader": false,
+        "initial_leader_lost_lead": false
+      },
+      {
+        "seed": "monster-mixed:7",
+        "goals": [
+          34,
+          20
+        ],
+        "changed_leader": false,
+        "initial_leader_lost_lead": false
+      },
+      {
+        "seed": "monster-mixed:8",
+        "goals": [
+          0,
+          12
+        ],
+        "changed_leader": false,
+        "initial_leader_lost_lead": false
+      },
+      {
+        "seed": "monster-mixed:9",
+        "goals": [
+          33,
+          0
+        ],
+        "changed_leader": false,
+        "initial_leader_lost_lead": false
+      },
+      {
+        "seed": "monster-mixed:10",
+        "goals": [
+          27,
+          14
+        ],
+        "changed_leader": false,
+        "initial_leader_lost_lead": false
+      },
+      {
+        "seed": "monster-mixed:11",
+        "goals": [
+          11,
+          15
+        ],
+        "changed_leader": true,
+        "initial_leader_lost_lead": true
+      },
+      {
+        "seed": "monster-mixed:12",
+        "goals": [
+          37,
+          18
+        ],
+        "changed_leader": false,
+        "initial_leader_lost_lead": false
+      },
+      {
+        "seed": "monster-mixed:13",
+        "goals": [
+          12,
+          0
+        ],
+        "changed_leader": false,
+        "initial_leader_lost_lead": false
+      },
+      {
+        "seed": "monster-mixed:14",
+        "goals": [
+          0,
+          5
+        ],
+        "changed_leader": false,
+        "initial_leader_lost_lead": false
+      },
+      {
+        "seed": "monster-mixed:15",
+        "goals": [
+          0,
+          42
+        ],
+        "changed_leader": false,
+        "initial_leader_lost_lead": false
+      }
+    ]
+  },
+  "native_powers": {
+    "counts": {
+      "sooge_enemy_recorded_hp_damage": 513,
+      "sooge_ally_recorded_hp_damage": 153,
+      "muno_strikes": 61,
+      "sooge_enemy_kills": 35,
+      "sooge_ally_kills": 6,
+      "useful_heal_pulses": 218,
+      "dotra_ambushes_and_shrouds": 34,
+      "dotra_attacks_while_shrouded": 27,
+      "independent_games": 16
+    },
+    "portal_banishments_by_type": {
+      "allies": {
+        "Wright": 4,
+        "Vulture": 4,
+        "Penitent": 2,
+        "Varn": 5,
+        "Butcher": 1,
+        "Lemek": 1,
+        "Kurchin": 1
+      },
+      "enemies": {
+        "Wright": 3,
+        "Vulture": 3,
+        "Tumler": 1,
+        "Kopita": 1,
+        "Penitent": 5,
+        "Kurchin": 1,
+        "Varn": 3,
+        "Butcher": 1,
+        "Lemek": 1
+      }
+    },
+    "direct_hits_against_shrouded_dotra": 0,
+    "all_observed_power_timing_checks_passed": true
+  },
+  "monster_armies": {
+    "battles": 1440,
+    "intervals": 8424,
+    "mirrored_pairs": 720,
+    "round_caps": 10,
+    "seeds": 16,
+    "monsters": {
+      "Lemek": {
+        "totals": {
+          "fights": 144,
+          "wins": 24,
+          "losses": 116,
+          "draws": 4,
+          "capped": 0
+        },
+        "opponents": {
+          "Varn": {
+            "fights": 16,
+            "wins": 7,
+            "losses": 9,
+            "draws": 0,
+            "capped": 0
+          },
+          "Fyra": {
+            "fights": 16,
+            "wins": 2,
+            "losses": 14,
+            "draws": 0,
+            "capped": 0
+          },
+          "Kopita": {
+            "fights": 16,
+            "wins": 2,
+            "losses": 14,
+            "draws": 0,
+            "capped": 0
+          },
+          "Tumler": {
+            "fights": 16,
+            "wins": 5,
+            "losses": 10,
+            "draws": 1,
+            "capped": 0
+          },
+          "Kurchin": {
+            "fights": 16,
+            "wins": 0,
+            "losses": 16,
+            "draws": 0,
+            "capped": 0
+          },
+          "Muno": {
+            "fights": 16,
+            "wins": 4,
+            "losses": 10,
+            "draws": 2,
+            "capped": 0
+          },
+          "Dotra": {
+            "fights": 16,
+            "wins": 0,
+            "losses": 16,
+            "draws": 0,
+            "capped": 0
+          },
+          "Sooge": {
+            "fights": 16,
+            "wins": 1,
+            "losses": 15,
+            "draws": 0,
+            "capped": 0
+          },
+          "Sinodek": {
+            "fights": 16,
+            "wins": 3,
+            "losses": 12,
+            "draws": 1,
+            "capped": 0
+          }
+        }
+      },
+      "Varn": {
+        "totals": {
+          "fights": 144,
+          "wins": 37,
+          "losses": 103,
+          "draws": 4,
+          "capped": 0
+        },
+        "opponents": {
+          "Lemek": {
+            "fights": 16,
+            "wins": 9,
+            "losses": 7,
+            "draws": 0,
+            "capped": 0
+          },
+          "Fyra": {
+            "fights": 16,
+            "wins": 3,
+            "losses": 13,
+            "draws": 0,
+            "capped": 0
+          },
+          "Kopita": {
+            "fights": 16,
+            "wins": 7,
+            "losses": 9,
+            "draws": 0,
+            "capped": 0
+          },
+          "Tumler": {
+            "fights": 16,
+            "wins": 1,
+            "losses": 15,
+            "draws": 0,
+            "capped": 0
+          },
+          "Kurchin": {
+            "fights": 16,
+            "wins": 0,
+            "losses": 16,
+            "draws": 0,
+            "capped": 0
+          },
+          "Muno": {
+            "fights": 16,
+            "wins": 6,
+            "losses": 7,
+            "draws": 3,
+            "capped": 0
+          },
+          "Dotra": {
+            "fights": 16,
+            "wins": 6,
+            "losses": 10,
+            "draws": 0,
+            "capped": 0
+          },
+          "Sooge": {
+            "fights": 16,
+            "wins": 1,
+            "losses": 14,
+            "draws": 1,
+            "capped": 0
+          },
+          "Sinodek": {
+            "fights": 16,
+            "wins": 4,
+            "losses": 12,
+            "draws": 0,
+            "capped": 0
+          }
+        }
+      },
+      "Fyra": {
+        "totals": {
+          "fights": 144,
+          "wins": 70,
+          "losses": 68,
+          "draws": 6,
+          "capped": 0
+        },
+        "opponents": {
+          "Lemek": {
+            "fights": 16,
+            "wins": 14,
+            "losses": 2,
+            "draws": 0,
+            "capped": 0
+          },
+          "Varn": {
+            "fights": 16,
+            "wins": 13,
+            "losses": 3,
+            "draws": 0,
+            "capped": 0
+          },
+          "Kopita": {
+            "fights": 16,
+            "wins": 8,
+            "losses": 8,
+            "draws": 0,
+            "capped": 0
+          },
+          "Tumler": {
+            "fights": 16,
+            "wins": 10,
+            "losses": 5,
+            "draws": 1,
+            "capped": 0
+          },
+          "Kurchin": {
+            "fights": 16,
+            "wins": 0,
+            "losses": 16,
+            "draws": 0,
+            "capped": 0
+          },
+          "Muno": {
+            "fights": 16,
+            "wins": 8,
+            "losses": 5,
+            "draws": 3,
+            "capped": 0
+          },
+          "Dotra": {
+            "fights": 16,
+            "wins": 7,
+            "losses": 9,
+            "draws": 0,
+            "capped": 0
+          },
+          "Sooge": {
+            "fights": 16,
+            "wins": 3,
+            "losses": 11,
+            "draws": 2,
+            "capped": 0
+          },
+          "Sinodek": {
+            "fights": 16,
+            "wins": 7,
+            "losses": 9,
+            "draws": 0,
+            "capped": 0
+          }
+        }
+      },
+      "Kopita": {
+        "totals": {
+          "fights": 144,
+          "wins": 56,
+          "losses": 81,
+          "draws": 7,
+          "capped": 0
+        },
+        "opponents": {
+          "Lemek": {
+            "fights": 16,
+            "wins": 14,
+            "losses": 2,
+            "draws": 0,
+            "capped": 0
+          },
+          "Varn": {
+            "fights": 16,
+            "wins": 9,
+            "losses": 7,
+            "draws": 0,
+            "capped": 0
+          },
+          "Fyra": {
+            "fights": 16,
+            "wins": 8,
+            "losses": 8,
+            "draws": 0,
+            "capped": 0
+          },
+          "Tumler": {
+            "fights": 16,
+            "wins": 5,
+            "losses": 10,
+            "draws": 1,
+            "capped": 0
+          },
+          "Kurchin": {
+            "fights": 16,
+            "wins": 0,
+            "losses": 16,
+            "draws": 0,
+            "capped": 0
+          },
+          "Muno": {
+            "fights": 16,
+            "wins": 8,
+            "losses": 6,
+            "draws": 2,
+            "capped": 0
+          },
+          "Dotra": {
+            "fights": 16,
+            "wins": 2,
+            "losses": 13,
+            "draws": 1,
+            "capped": 0
+          },
+          "Sooge": {
+            "fights": 16,
+            "wins": 5,
+            "losses": 11,
+            "draws": 0,
+            "capped": 0
+          },
+          "Sinodek": {
+            "fights": 16,
+            "wins": 5,
+            "losses": 8,
+            "draws": 3,
+            "capped": 0
+          }
+        }
+      },
+      "Tumler": {
+        "totals": {
+          "fights": 144,
+          "wins": 70,
+          "losses": 67,
+          "draws": 6,
+          "capped": 1
+        },
+        "opponents": {
+          "Lemek": {
+            "fights": 16,
+            "wins": 10,
+            "losses": 5,
+            "draws": 1,
+            "capped": 0
+          },
+          "Varn": {
+            "fights": 16,
+            "wins": 15,
+            "losses": 1,
+            "draws": 0,
+            "capped": 0
+          },
+          "Fyra": {
+            "fights": 16,
+            "wins": 5,
+            "losses": 10,
+            "draws": 1,
+            "capped": 0
+          },
+          "Kopita": {
+            "fights": 16,
+            "wins": 10,
+            "losses": 5,
+            "draws": 1,
+            "capped": 0
+          },
+          "Kurchin": {
+            "fights": 16,
+            "wins": 0,
+            "losses": 16,
+            "draws": 0,
+            "capped": 0
+          },
+          "Muno": {
+            "fights": 16,
+            "wins": 12,
+            "losses": 3,
+            "draws": 1,
+            "capped": 0
+          },
+          "Dotra": {
+            "fights": 16,
+            "wins": 6,
+            "losses": 9,
+            "draws": 1,
+            "capped": 0
+          },
+          "Sooge": {
+            "fights": 16,
+            "wins": 6,
+            "losses": 8,
+            "draws": 1,
+            "capped": 1
+          },
+          "Sinodek": {
+            "fights": 16,
+            "wins": 6,
+            "losses": 10,
+            "draws": 0,
+            "capped": 0
+          }
+        }
+      },
+      "Kurchin": {
+        "totals": {
+          "fights": 144,
+          "wins": 134,
+          "losses": 9,
+          "draws": 1,
+          "capped": 0
+        },
+        "opponents": {
+          "Lemek": {
+            "fights": 16,
+            "wins": 16,
+            "losses": 0,
+            "draws": 0,
+            "capped": 0
+          },
+          "Varn": {
+            "fights": 16,
+            "wins": 16,
+            "losses": 0,
+            "draws": 0,
+            "capped": 0
+          },
+          "Fyra": {
+            "fights": 16,
+            "wins": 16,
+            "losses": 0,
+            "draws": 0,
+            "capped": 0
+          },
+          "Kopita": {
+            "fights": 16,
+            "wins": 16,
+            "losses": 0,
+            "draws": 0,
+            "capped": 0
+          },
+          "Tumler": {
+            "fights": 16,
+            "wins": 16,
+            "losses": 0,
+            "draws": 0,
+            "capped": 0
+          },
+          "Muno": {
+            "fights": 16,
+            "wins": 16,
+            "losses": 0,
+            "draws": 0,
+            "capped": 0
+          },
+          "Dotra": {
+            "fights": 16,
+            "wins": 14,
+            "losses": 2,
+            "draws": 0,
+            "capped": 0
+          },
+          "Sooge": {
+            "fights": 16,
+            "wins": 15,
+            "losses": 1,
+            "draws": 0,
+            "capped": 0
+          },
+          "Sinodek": {
+            "fights": 16,
+            "wins": 9,
+            "losses": 6,
+            "draws": 1,
+            "capped": 0
+          }
+        }
+      },
+      "Muno": {
+        "totals": {
+          "fights": 144,
+          "wins": 43,
+          "losses": 87,
+          "draws": 11,
+          "capped": 3
+        },
+        "opponents": {
+          "Lemek": {
+            "fights": 16,
+            "wins": 10,
+            "losses": 4,
+            "draws": 2,
+            "capped": 0
+          },
+          "Varn": {
+            "fights": 16,
+            "wins": 7,
+            "losses": 6,
+            "draws": 3,
+            "capped": 0
+          },
+          "Fyra": {
+            "fights": 16,
+            "wins": 5,
+            "losses": 8,
+            "draws": 3,
+            "capped": 0
+          },
+          "Kopita": {
+            "fights": 16,
+            "wins": 6,
+            "losses": 8,
+            "draws": 2,
+            "capped": 0
+          },
+          "Tumler": {
+            "fights": 16,
+            "wins": 3,
+            "losses": 12,
+            "draws": 1,
+            "capped": 0
+          },
+          "Kurchin": {
+            "fights": 16,
+            "wins": 0,
+            "losses": 16,
+            "draws": 0,
+            "capped": 0
+          },
+          "Dotra": {
+            "fights": 16,
+            "wins": 2,
+            "losses": 14,
+            "draws": 0,
+            "capped": 0
+          },
+          "Sooge": {
+            "fights": 16,
+            "wins": 5,
+            "losses": 8,
+            "draws": 0,
+            "capped": 3
+          },
+          "Sinodek": {
+            "fights": 16,
+            "wins": 5,
+            "losses": 11,
+            "draws": 0,
+            "capped": 0
+          }
+        }
+      },
+      "Dotra": {
+        "totals": {
+          "fights": 144,
+          "wins": 87,
+          "losses": 53,
+          "draws": 4,
+          "capped": 0
+        },
+        "opponents": {
+          "Lemek": {
+            "fights": 16,
+            "wins": 16,
+            "losses": 0,
+            "draws": 0,
+            "capped": 0
+          },
+          "Varn": {
+            "fights": 16,
+            "wins": 10,
+            "losses": 6,
+            "draws": 0,
+            "capped": 0
+          },
+          "Fyra": {
+            "fights": 16,
+            "wins": 9,
+            "losses": 7,
+            "draws": 0,
+            "capped": 0
+          },
+          "Kopita": {
+            "fights": 16,
+            "wins": 13,
+            "losses": 2,
+            "draws": 1,
+            "capped": 0
+          },
+          "Tumler": {
+            "fights": 16,
+            "wins": 9,
+            "losses": 6,
+            "draws": 1,
+            "capped": 0
+          },
+          "Kurchin": {
+            "fights": 16,
+            "wins": 2,
+            "losses": 14,
+            "draws": 0,
+            "capped": 0
+          },
+          "Muno": {
+            "fights": 16,
+            "wins": 14,
+            "losses": 2,
+            "draws": 0,
+            "capped": 0
+          },
+          "Sooge": {
+            "fights": 16,
+            "wins": 7,
+            "losses": 8,
+            "draws": 1,
+            "capped": 0
+          },
+          "Sinodek": {
+            "fights": 16,
+            "wins": 7,
+            "losses": 8,
+            "draws": 1,
+            "capped": 0
+          }
+        }
+      },
+      "Sooge": {
+        "totals": {
+          "fights": 144,
+          "wins": 83,
+          "losses": 50,
+          "draws": 6,
+          "capped": 5
+        },
+        "opponents": {
+          "Lemek": {
+            "fights": 16,
+            "wins": 15,
+            "losses": 1,
+            "draws": 0,
+            "capped": 0
+          },
+          "Varn": {
+            "fights": 16,
+            "wins": 14,
+            "losses": 1,
+            "draws": 1,
+            "capped": 0
+          },
+          "Fyra": {
+            "fights": 16,
+            "wins": 11,
+            "losses": 3,
+            "draws": 2,
+            "capped": 0
+          },
+          "Kopita": {
+            "fights": 16,
+            "wins": 11,
+            "losses": 5,
+            "draws": 0,
+            "capped": 0
+          },
+          "Tumler": {
+            "fights": 16,
+            "wins": 8,
+            "losses": 6,
+            "draws": 1,
+            "capped": 1
+          },
+          "Kurchin": {
+            "fights": 16,
+            "wins": 1,
+            "losses": 15,
+            "draws": 0,
+            "capped": 0
+          },
+          "Muno": {
+            "fights": 16,
+            "wins": 8,
+            "losses": 5,
+            "draws": 0,
+            "capped": 3
+          },
+          "Dotra": {
+            "fights": 16,
+            "wins": 8,
+            "losses": 7,
+            "draws": 1,
+            "capped": 0
+          },
+          "Sinodek": {
+            "fights": 16,
+            "wins": 7,
+            "losses": 7,
+            "draws": 1,
+            "capped": 1
+          }
+        }
+      },
+      "Sinodek": {
+        "totals": {
+          "fights": 144,
+          "wins": 83,
+          "losses": 53,
+          "draws": 7,
+          "capped": 1
+        },
+        "opponents": {
+          "Lemek": {
+            "fights": 16,
+            "wins": 12,
+            "losses": 3,
+            "draws": 1,
+            "capped": 0
+          },
+          "Varn": {
+            "fights": 16,
+            "wins": 12,
+            "losses": 4,
+            "draws": 0,
+            "capped": 0
+          },
+          "Fyra": {
+            "fights": 16,
+            "wins": 9,
+            "losses": 7,
+            "draws": 0,
+            "capped": 0
+          },
+          "Kopita": {
+            "fights": 16,
+            "wins": 8,
+            "losses": 5,
+            "draws": 3,
+            "capped": 0
+          },
+          "Tumler": {
+            "fights": 16,
+            "wins": 10,
+            "losses": 6,
+            "draws": 0,
+            "capped": 0
+          },
+          "Kurchin": {
+            "fights": 16,
+            "wins": 6,
+            "losses": 9,
+            "draws": 1,
+            "capped": 0
+          },
+          "Muno": {
+            "fights": 16,
+            "wins": 11,
+            "losses": 5,
+            "draws": 0,
+            "capped": 0
+          },
+          "Dotra": {
+            "fights": 16,
+            "wins": 8,
+            "losses": 7,
+            "draws": 1,
+            "capped": 0
+          },
+          "Sooge": {
+            "fights": 16,
+            "wins": 7,
+            "losses": 7,
+            "draws": 1,
+            "capped": 1
+          }
+        }
+      }
+    }
+  }
+}

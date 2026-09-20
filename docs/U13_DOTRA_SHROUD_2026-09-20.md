@@ -10,6 +10,8 @@ Both engines use `U13_MONSTERS_V17_DOTRA_SHROUD`, with `dotra_shroud_ticks: 67`.
 
 ## Matched balance comparison
 
+The later [whole-roster additive audit](U13_WHOLESALE_MONSTER_BALANCE_2026-09-20.md) measures Dotra's actual contribution alongside his recipe's ordinary troops and includes monster-army opponents. Use that audit for current comparative balance judgments.
+
 **Interpretation corrected:** a qualifying commitment summons its normal marchers **plus** the chosen monster. The recipe rows below are artificial replacement benchmarks that pit Dotra against the ordinary troops his recipe cards produce. They do not represent a gameplay tradeoff, and losing them does not mean summoning Dotra is a poor use of those cards. The continuous games already use the correct additive spawning rule in both engines.
 
 The same 576 fights cover 18 Dotra scenarios, 16 seeds and both reflected seats. All 288 seat pairs matched outcomes, goals, surviving forces and duration. The batch resolved 1,556 intervals with no round caps. The [V16 report](U13_DOTRA_TIMED_HIDE_2026-09-19.md) supplies the previous results.

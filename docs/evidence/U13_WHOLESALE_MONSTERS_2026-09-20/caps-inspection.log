@@ -1,0 +1,5 @@
+('army:Tumler:Sooge', 4) intervals 32 terminal False units [(1, 'Sooge', 'turret', 2300, 545)] fortifications 2
+('army:Muno:Sooge', 4) intervals 32 terminal False units [(1, 'Sooge', 'turret', 2300, 545)] fortifications 3
+('army:Muno:Sooge', 8) intervals 32 terminal False units [(1, 'Sooge', 'turret', 2300, 545)] fortifications 4
+('army:Muno:Sooge', 13) intervals 32 terminal False units [(1, 'Sooge', 'turret', 2300, 533)] fortifications 3
+('army:Sooge:Sinodek', 3) intervals 32 terminal False units [(0, 'Sooge', 'turret', 100, 545)] fortifications 1

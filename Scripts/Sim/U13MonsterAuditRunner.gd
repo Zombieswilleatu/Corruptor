@@ -19,6 +19,12 @@ func export_cases(config: Dictionary, path: String) -> void:
 	for spec in config.cases:
 		for index in range(int(config.seeds)):
 			var seed_value: String = "monster-audit:%d" % index
+			if spec.group == "additive":
+				count += export_additive(spec, index, seed_value, output)
+				continue
+			if spec.group == "monster_army":
+				count += export_armies(spec, index, seed_value, output)
+				continue
 			var sim = Sim.new(seed_value, true, true, false, 15)
 			var teams: Array = spec.get("teams", [[], []]).duplicate(true)
 			var hand: Array = []
@@ -48,6 +54,108 @@ func export_cases(config: Dictionary, path: String) -> void:
 				count += 1
 		print("EXPORTED ", spec.name, " · ", count)
 	output.close()
+
+func export_additive(spec: Dictionary, index: int, seed_value: String, output) -> int:
+	# Build the real commitment first, then omit only its monster for the
+	# counterfactual. Companion/enemy IDs, positions and keyed RNG stay fixed.
+	var sim = Sim.new(seed_value, true, true, false, 15)
+	var deck = Sim.Enemy.new(seed_value + ":recipe:" + spec.recipe, 0)
+	var hand: Array = []
+	for suit in Sim.Monsters.ROSTER[spec.recipe].recipe:
+		hand.append_array(deck.deck.filter(func(c): return c.attributes.suit == suit).slice(0, Sim.Monsters.ROSTER[spec.recipe].recipe[suit]))
+	var ids = Sim.Ids.new(); ids.restore(sim.world.entities)
+	var cards: Array = []
+	for i in range(hand.size()):
+		var made: Dictionary = ids.create("card", "audit:recipe:" + spec.recipe, i, 0, hand[i].attributes)
+		assert(made.action != "invalid", str(made))
+		cards.append(made.entity.id)
+	sim.world.entities = ids.snapshot()
+	var order: Dictionary = {"action": "Hunt", "lane": "Lord", "card_ids": cards, "monster_choice": spec.recipe}
+	assert(Sim.Monsters.validate_choice(sim.world, 0, order).action == "legal")
+	var revealed: Dictionary = Sim.Combat._reveal({"world": sim.world, "round": 1, "seed": seed_value, "player_order": [0], "combat_orders": {0: order}})
+	assert(revealed.action == "resolved", str(revealed))
+	sim.world = revealed.world
+	ids.restore(sim.world.entities)
+	for identity in cards: ids.retire(identity)
+	sim.world.entities = ids.snapshot()
+	# Confirm the recipe did not replace or consume any ordinary spawns.
+	for suit in Sim.Marching.SUITS:
+		var total: int = 0
+		for card in hand:
+			if card.attributes.suit == suit: total += int(card.attributes.value)
+		assert(sim.units().filter(func(u): return u.attributes.suit == suit).size() == floori(float(total) / 3.0))
+	var summoned: Array = sim.units().filter(func(u): return u.attributes.get("monster_id") == spec.recipe).map(func(u): return u.id)
+	assert((summoned.size() >= 3 and summoned.size() <= 5) if spec.recipe == "Varn" else summoned.size() == 1)
+	Sim.Staging.store_units(sim.world, sim.units().map(func(u): return u.id), 1)
+	for who in spec.core:
+		assert(sim.spawn(who, 0).action == "spawned")
+	for who in spec.opposition:
+		assert(sim.spawn(who, 1).action == "spawned")
+	sim.round_number = 2
+	sim.prepare_releases(["March", "March"])
+	assert(sim.staged_units().is_empty())
+	var augmented: Dictionary = sim.world.duplicate(true)
+	var baseline: Dictionary = augmented.duplicate(true)
+	ids.restore(baseline.entities)
+	for identity in summoned: ids.retire(identity)
+	baseline.entities = ids.snapshot()
+	assert(baseline.entities.entities == augmented.entities.entities.filter(func(u): return u.id not in summoned))
+	assert(Sim.Marching.valid(baseline) and Sim.Marching.valid(augmented))
+	for variant in ["without", "with"]:
+		var world: Dictionary = baseline if variant == "without" else augmented
+		var teams: Array = []
+		for pid in [0, 1]:
+			teams.append(world.entities.entities.filter(func(u): return u.owner == pid).map(func(u): return u.attributes.get("monster_id", u.attributes.suit)))
+		for reflected in [false, true]:
+			write(output, {"case": spec.name + ":" + variant, "comparison": spec.name, "group": "additive", "focus": spec.recipe, "opponent": spec.opponent, "variant": variant, "added_bodies": summoned.size(), "teams": teams, "recipe_hand": hand, "seed": seed_value, "seed_index": index, "reflected": reflected, "round": 2, "world": Sim.mirror(world) if reflected else world})
+	return 4
+
+func export_armies(spec: Dictionary, index: int, seed_value: String, output) -> int:
+	var sim = Sim.new(seed_value, true, true, false, 15)
+	var ids = Sim.Ids.new(); ids.restore(sim.world.entities)
+	var hands: Array = []
+	var orders: Dictionary = {}
+	var all_cards: Array = []
+	for pid in [0, 1]:
+		var who: String = spec.monsters[pid]
+		var deck = Sim.Enemy.new(seed_value + ":recipe:" + who, 0)
+		var hand: Array = []
+		for suit in Sim.Monsters.ROSTER[who].recipe:
+			hand.append_array(deck.deck.filter(func(c): return c.attributes.suit == suit).slice(0, Sim.Monsters.ROSTER[who].recipe[suit]))
+		hands.append(hand)
+		var cards: Array = []
+		for i in range(hand.size()):
+			var made: Dictionary = ids.create("card", "audit:army:%d:%s" % [pid, who], i, pid, hand[i].attributes)
+			assert(made.action != "invalid", str(made))
+			cards.append(made.entity.id)
+		all_cards.append_array(cards)
+		orders[pid] = {"action": "Hunt", "lane": "Lord", "card_ids": cards, "monster_choice": who}
+	sim.world.entities = ids.snapshot()
+	for pid in [0, 1]: assert(Sim.Monsters.validate_choice(sim.world, pid, orders[pid]).action == "legal")
+	var revealed: Dictionary = Sim.Combat._reveal({"world": sim.world, "round": 1, "seed": seed_value, "player_order": [0, 1], "combat_orders": orders})
+	assert(revealed.action == "resolved", str(revealed))
+	sim.world = revealed.world
+	ids.restore(sim.world.entities)
+	for identity in all_cards: ids.retire(identity)
+	sim.world.entities = ids.snapshot()
+	for pid in [0, 1]:
+		for suit in Sim.Marching.SUITS:
+			var total: int = 0
+			for card in hands[pid]:
+				if card.attributes.suit == suit: total += int(card.attributes.value)
+			assert(sim.units().filter(func(u): return u.owner == pid and u.attributes.suit == suit).size() == floori(float(total) / 3.0))
+	Sim.Staging.store_units(sim.world, sim.units().map(func(u): return u.id), 1)
+	for pid in [0, 1]:
+		for who in spec.core: assert(sim.spawn(who, pid).action == "spawned")
+	sim.round_number = 2
+	sim.prepare_releases(["March", "March"])
+	assert(sim.staged_units().is_empty() and Sim.Marching.valid(sim.world))
+	var teams: Array = []
+	for pid in [0, 1]: teams.append(sim.units().filter(func(u): return u.owner == pid).map(func(u): return u.attributes.get("monster_id", u.attributes.suit)))
+	var capture: bool = "Kurchin" in spec.monsters and spec.monsters.any(func(who): return who in ["Fyra", "Muno", "Dotra", "Sinodek"])
+	for reflected in [false, true]:
+		write(output, {"case": spec.name, "group": "monster_army", "focus": spec.monsters[0], "capture": capture, "teams": teams, "recipe_hand": hands, "seed": seed_value, "seed_index": index, "reflected": reflected, "round": 2, "world": Sim.mirror(sim.world) if reflected else sim.world})
+	return 2
 
 func waves(seed_value: String, rounds: int, swapped: bool, path: String) -> void:
 	var sim = Sim.new(seed_value, true, true, swapped, 15)

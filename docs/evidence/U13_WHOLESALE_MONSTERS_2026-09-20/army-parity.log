@@ -1,0 +1,9 @@
+PARITY army:Fyra:Kurchin:monster-audit:0:2
+PARITY army:Fyra:Kurchin:monster-audit:0:7
+PARITY army:Kurchin:Muno:monster-audit:0:2
+PARITY army:Kurchin:Muno:monster-audit:0:7
+PARITY army:Kurchin:Dotra:monster-audit:0:2
+PARITY army:Kurchin:Dotra:monster-audit:0:7
+PARITY army:Kurchin:Sinodek:monster-audit:0:2
+PARITY army:Kurchin:Sinodek:monster-audit:0:7
+{"phases": 8, "ticks": 1600, "complete_world_and_events_match": true}

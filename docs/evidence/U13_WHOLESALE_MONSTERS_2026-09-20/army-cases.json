@@ -1,0 +1,635 @@
+{
+  "seeds": 16,
+  "cases": [
+    {
+      "name": "army:Lemek:Varn",
+      "group": "monster_army",
+      "monsters": [
+        "Lemek",
+        "Varn"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Lemek:Fyra",
+      "group": "monster_army",
+      "monsters": [
+        "Lemek",
+        "Fyra"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Lemek:Kopita",
+      "group": "monster_army",
+      "monsters": [
+        "Lemek",
+        "Kopita"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Lemek:Tumler",
+      "group": "monster_army",
+      "monsters": [
+        "Lemek",
+        "Tumler"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Lemek:Kurchin",
+      "group": "monster_army",
+      "monsters": [
+        "Lemek",
+        "Kurchin"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Lemek:Muno",
+      "group": "monster_army",
+      "monsters": [
+        "Lemek",
+        "Muno"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Lemek:Dotra",
+      "group": "monster_army",
+      "monsters": [
+        "Lemek",
+        "Dotra"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Lemek:Sooge",
+      "group": "monster_army",
+      "monsters": [
+        "Lemek",
+        "Sooge"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Lemek:Sinodek",
+      "group": "monster_army",
+      "monsters": [
+        "Lemek",
+        "Sinodek"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Varn:Fyra",
+      "group": "monster_army",
+      "monsters": [
+        "Varn",
+        "Fyra"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Varn:Kopita",
+      "group": "monster_army",
+      "monsters": [
+        "Varn",
+        "Kopita"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Varn:Tumler",
+      "group": "monster_army",
+      "monsters": [
+        "Varn",
+        "Tumler"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Varn:Kurchin",
+      "group": "monster_army",
+      "monsters": [
+        "Varn",
+        "Kurchin"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Varn:Muno",
+      "group": "monster_army",
+      "monsters": [
+        "Varn",
+        "Muno"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Varn:Dotra",
+      "group": "monster_army",
+      "monsters": [
+        "Varn",
+        "Dotra"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Varn:Sooge",
+      "group": "monster_army",
+      "monsters": [
+        "Varn",
+        "Sooge"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Varn:Sinodek",
+      "group": "monster_army",
+      "monsters": [
+        "Varn",
+        "Sinodek"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Fyra:Kopita",
+      "group": "monster_army",
+      "monsters": [
+        "Fyra",
+        "Kopita"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Fyra:Tumler",
+      "group": "monster_army",
+      "monsters": [
+        "Fyra",
+        "Tumler"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Fyra:Kurchin",
+      "group": "monster_army",
+      "monsters": [
+        "Fyra",
+        "Kurchin"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Fyra:Muno",
+      "group": "monster_army",
+      "monsters": [
+        "Fyra",
+        "Muno"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Fyra:Dotra",
+      "group": "monster_army",
+      "monsters": [
+        "Fyra",
+        "Dotra"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Fyra:Sooge",
+      "group": "monster_army",
+      "monsters": [
+        "Fyra",
+        "Sooge"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Fyra:Sinodek",
+      "group": "monster_army",
+      "monsters": [
+        "Fyra",
+        "Sinodek"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Kopita:Tumler",
+      "group": "monster_army",
+      "monsters": [
+        "Kopita",
+        "Tumler"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Kopita:Kurchin",
+      "group": "monster_army",
+      "monsters": [
+        "Kopita",
+        "Kurchin"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Kopita:Muno",
+      "group": "monster_army",
+      "monsters": [
+        "Kopita",
+        "Muno"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Kopita:Dotra",
+      "group": "monster_army",
+      "monsters": [
+        "Kopita",
+        "Dotra"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Kopita:Sooge",
+      "group": "monster_army",
+      "monsters": [
+        "Kopita",
+        "Sooge"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Kopita:Sinodek",
+      "group": "monster_army",
+      "monsters": [
+        "Kopita",
+        "Sinodek"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Tumler:Kurchin",
+      "group": "monster_army",
+      "monsters": [
+        "Tumler",
+        "Kurchin"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Tumler:Muno",
+      "group": "monster_army",
+      "monsters": [
+        "Tumler",
+        "Muno"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Tumler:Dotra",
+      "group": "monster_army",
+      "monsters": [
+        "Tumler",
+        "Dotra"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Tumler:Sooge",
+      "group": "monster_army",
+      "monsters": [
+        "Tumler",
+        "Sooge"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Tumler:Sinodek",
+      "group": "monster_army",
+      "monsters": [
+        "Tumler",
+        "Sinodek"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Kurchin:Muno",
+      "group": "monster_army",
+      "monsters": [
+        "Kurchin",
+        "Muno"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Kurchin:Dotra",
+      "group": "monster_army",
+      "monsters": [
+        "Kurchin",
+        "Dotra"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Kurchin:Sooge",
+      "group": "monster_army",
+      "monsters": [
+        "Kurchin",
+        "Sooge"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Kurchin:Sinodek",
+      "group": "monster_army",
+      "monsters": [
+        "Kurchin",
+        "Sinodek"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Muno:Dotra",
+      "group": "monster_army",
+      "monsters": [
+        "Muno",
+        "Dotra"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Muno:Sooge",
+      "group": "monster_army",
+      "monsters": [
+        "Muno",
+        "Sooge"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Muno:Sinodek",
+      "group": "monster_army",
+      "monsters": [
+        "Muno",
+        "Sinodek"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Dotra:Sooge",
+      "group": "monster_army",
+      "monsters": [
+        "Dotra",
+        "Sooge"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Dotra:Sinodek",
+      "group": "monster_army",
+      "monsters": [
+        "Dotra",
+        "Sinodek"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    },
+    {
+      "name": "army:Sooge:Sinodek",
+      "group": "monster_army",
+      "monsters": [
+        "Sooge",
+        "Sinodek"
+      ],
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ]
+    }
+  ]
+}

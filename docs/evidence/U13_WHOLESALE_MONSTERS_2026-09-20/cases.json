@@ -1,0 +1,2505 @@
+{
+  "seeds": 16,
+  "cases": [
+    {
+      "name": "single:Penitent:Butcher",
+      "group": "single",
+      "teams": [
+        [
+          "Penitent"
+        ],
+        [
+          "Butcher"
+        ]
+      ]
+    },
+    {
+      "name": "single:Penitent:Vulture",
+      "group": "single",
+      "teams": [
+        [
+          "Penitent"
+        ],
+        [
+          "Vulture"
+        ]
+      ]
+    },
+    {
+      "name": "single:Penitent:Wright",
+      "group": "single",
+      "teams": [
+        [
+          "Penitent"
+        ],
+        [
+          "Wright"
+        ]
+      ]
+    },
+    {
+      "name": "single:Penitent:Lemek",
+      "group": "single",
+      "teams": [
+        [
+          "Penitent"
+        ],
+        [
+          "Lemek"
+        ]
+      ]
+    },
+    {
+      "name": "single:Penitent:Varn",
+      "group": "single",
+      "teams": [
+        [
+          "Penitent"
+        ],
+        [
+          "Varn"
+        ]
+      ]
+    },
+    {
+      "name": "single:Penitent:Fyra",
+      "group": "single",
+      "teams": [
+        [
+          "Penitent"
+        ],
+        [
+          "Fyra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Penitent:Kopita",
+      "group": "single",
+      "teams": [
+        [
+          "Penitent"
+        ],
+        [
+          "Kopita"
+        ]
+      ]
+    },
+    {
+      "name": "single:Penitent:Tumler",
+      "group": "single",
+      "teams": [
+        [
+          "Penitent"
+        ],
+        [
+          "Tumler"
+        ]
+      ]
+    },
+    {
+      "name": "single:Penitent:Kurchin",
+      "group": "single",
+      "teams": [
+        [
+          "Penitent"
+        ],
+        [
+          "Kurchin"
+        ]
+      ]
+    },
+    {
+      "name": "single:Penitent:Muno",
+      "group": "single",
+      "teams": [
+        [
+          "Penitent"
+        ],
+        [
+          "Muno"
+        ]
+      ]
+    },
+    {
+      "name": "single:Penitent:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Penitent"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Penitent:Sooge",
+      "group": "single",
+      "teams": [
+        [
+          "Penitent"
+        ],
+        [
+          "Sooge"
+        ]
+      ]
+    },
+    {
+      "name": "single:Penitent:Sinodek",
+      "group": "single",
+      "teams": [
+        [
+          "Penitent"
+        ],
+        [
+          "Sinodek"
+        ]
+      ]
+    },
+    {
+      "name": "single:Butcher:Vulture",
+      "group": "single",
+      "teams": [
+        [
+          "Butcher"
+        ],
+        [
+          "Vulture"
+        ]
+      ]
+    },
+    {
+      "name": "single:Butcher:Wright",
+      "group": "single",
+      "teams": [
+        [
+          "Butcher"
+        ],
+        [
+          "Wright"
+        ]
+      ]
+    },
+    {
+      "name": "single:Butcher:Lemek",
+      "group": "single",
+      "teams": [
+        [
+          "Butcher"
+        ],
+        [
+          "Lemek"
+        ]
+      ]
+    },
+    {
+      "name": "single:Butcher:Varn",
+      "group": "single",
+      "teams": [
+        [
+          "Butcher"
+        ],
+        [
+          "Varn"
+        ]
+      ]
+    },
+    {
+      "name": "single:Butcher:Fyra",
+      "group": "single",
+      "teams": [
+        [
+          "Butcher"
+        ],
+        [
+          "Fyra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Butcher:Kopita",
+      "group": "single",
+      "teams": [
+        [
+          "Butcher"
+        ],
+        [
+          "Kopita"
+        ]
+      ]
+    },
+    {
+      "name": "single:Butcher:Tumler",
+      "group": "single",
+      "teams": [
+        [
+          "Butcher"
+        ],
+        [
+          "Tumler"
+        ]
+      ]
+    },
+    {
+      "name": "single:Butcher:Kurchin",
+      "group": "single",
+      "teams": [
+        [
+          "Butcher"
+        ],
+        [
+          "Kurchin"
+        ]
+      ]
+    },
+    {
+      "name": "single:Butcher:Muno",
+      "group": "single",
+      "teams": [
+        [
+          "Butcher"
+        ],
+        [
+          "Muno"
+        ]
+      ]
+    },
+    {
+      "name": "single:Butcher:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Butcher"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Butcher:Sooge",
+      "group": "single",
+      "teams": [
+        [
+          "Butcher"
+        ],
+        [
+          "Sooge"
+        ]
+      ]
+    },
+    {
+      "name": "single:Butcher:Sinodek",
+      "group": "single",
+      "teams": [
+        [
+          "Butcher"
+        ],
+        [
+          "Sinodek"
+        ]
+      ]
+    },
+    {
+      "name": "single:Vulture:Wright",
+      "group": "single",
+      "teams": [
+        [
+          "Vulture"
+        ],
+        [
+          "Wright"
+        ]
+      ]
+    },
+    {
+      "name": "single:Vulture:Lemek",
+      "group": "single",
+      "teams": [
+        [
+          "Vulture"
+        ],
+        [
+          "Lemek"
+        ]
+      ]
+    },
+    {
+      "name": "single:Vulture:Varn",
+      "group": "single",
+      "teams": [
+        [
+          "Vulture"
+        ],
+        [
+          "Varn"
+        ]
+      ]
+    },
+    {
+      "name": "single:Vulture:Fyra",
+      "group": "single",
+      "teams": [
+        [
+          "Vulture"
+        ],
+        [
+          "Fyra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Vulture:Kopita",
+      "group": "single",
+      "teams": [
+        [
+          "Vulture"
+        ],
+        [
+          "Kopita"
+        ]
+      ]
+    },
+    {
+      "name": "single:Vulture:Tumler",
+      "group": "single",
+      "teams": [
+        [
+          "Vulture"
+        ],
+        [
+          "Tumler"
+        ]
+      ]
+    },
+    {
+      "name": "single:Vulture:Kurchin",
+      "group": "single",
+      "teams": [
+        [
+          "Vulture"
+        ],
+        [
+          "Kurchin"
+        ]
+      ]
+    },
+    {
+      "name": "single:Vulture:Muno",
+      "group": "single",
+      "teams": [
+        [
+          "Vulture"
+        ],
+        [
+          "Muno"
+        ]
+      ]
+    },
+    {
+      "name": "single:Vulture:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Vulture"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Vulture:Sooge",
+      "group": "single",
+      "teams": [
+        [
+          "Vulture"
+        ],
+        [
+          "Sooge"
+        ]
+      ]
+    },
+    {
+      "name": "single:Vulture:Sinodek",
+      "group": "single",
+      "teams": [
+        [
+          "Vulture"
+        ],
+        [
+          "Sinodek"
+        ]
+      ]
+    },
+    {
+      "name": "single:Wright:Lemek",
+      "group": "single",
+      "teams": [
+        [
+          "Wright"
+        ],
+        [
+          "Lemek"
+        ]
+      ]
+    },
+    {
+      "name": "single:Wright:Varn",
+      "group": "single",
+      "teams": [
+        [
+          "Wright"
+        ],
+        [
+          "Varn"
+        ]
+      ]
+    },
+    {
+      "name": "single:Wright:Fyra",
+      "group": "single",
+      "teams": [
+        [
+          "Wright"
+        ],
+        [
+          "Fyra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Wright:Kopita",
+      "group": "single",
+      "teams": [
+        [
+          "Wright"
+        ],
+        [
+          "Kopita"
+        ]
+      ]
+    },
+    {
+      "name": "single:Wright:Tumler",
+      "group": "single",
+      "teams": [
+        [
+          "Wright"
+        ],
+        [
+          "Tumler"
+        ]
+      ]
+    },
+    {
+      "name": "single:Wright:Kurchin",
+      "group": "single",
+      "teams": [
+        [
+          "Wright"
+        ],
+        [
+          "Kurchin"
+        ]
+      ]
+    },
+    {
+      "name": "single:Wright:Muno",
+      "group": "single",
+      "teams": [
+        [
+          "Wright"
+        ],
+        [
+          "Muno"
+        ]
+      ]
+    },
+    {
+      "name": "single:Wright:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Wright"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Wright:Sooge",
+      "group": "single",
+      "teams": [
+        [
+          "Wright"
+        ],
+        [
+          "Sooge"
+        ]
+      ]
+    },
+    {
+      "name": "single:Wright:Sinodek",
+      "group": "single",
+      "teams": [
+        [
+          "Wright"
+        ],
+        [
+          "Sinodek"
+        ]
+      ]
+    },
+    {
+      "name": "single:Lemek:Varn",
+      "group": "single",
+      "teams": [
+        [
+          "Lemek"
+        ],
+        [
+          "Varn"
+        ]
+      ]
+    },
+    {
+      "name": "single:Lemek:Fyra",
+      "group": "single",
+      "teams": [
+        [
+          "Lemek"
+        ],
+        [
+          "Fyra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Lemek:Kopita",
+      "group": "single",
+      "teams": [
+        [
+          "Lemek"
+        ],
+        [
+          "Kopita"
+        ]
+      ]
+    },
+    {
+      "name": "single:Lemek:Tumler",
+      "group": "single",
+      "teams": [
+        [
+          "Lemek"
+        ],
+        [
+          "Tumler"
+        ]
+      ]
+    },
+    {
+      "name": "single:Lemek:Kurchin",
+      "group": "single",
+      "teams": [
+        [
+          "Lemek"
+        ],
+        [
+          "Kurchin"
+        ]
+      ]
+    },
+    {
+      "name": "single:Lemek:Muno",
+      "group": "single",
+      "teams": [
+        [
+          "Lemek"
+        ],
+        [
+          "Muno"
+        ]
+      ]
+    },
+    {
+      "name": "single:Lemek:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Lemek"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Lemek:Sooge",
+      "group": "single",
+      "teams": [
+        [
+          "Lemek"
+        ],
+        [
+          "Sooge"
+        ]
+      ]
+    },
+    {
+      "name": "single:Lemek:Sinodek",
+      "group": "single",
+      "teams": [
+        [
+          "Lemek"
+        ],
+        [
+          "Sinodek"
+        ]
+      ]
+    },
+    {
+      "name": "single:Varn:Fyra",
+      "group": "single",
+      "teams": [
+        [
+          "Varn"
+        ],
+        [
+          "Fyra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Varn:Kopita",
+      "group": "single",
+      "teams": [
+        [
+          "Varn"
+        ],
+        [
+          "Kopita"
+        ]
+      ]
+    },
+    {
+      "name": "single:Varn:Tumler",
+      "group": "single",
+      "teams": [
+        [
+          "Varn"
+        ],
+        [
+          "Tumler"
+        ]
+      ]
+    },
+    {
+      "name": "single:Varn:Kurchin",
+      "group": "single",
+      "teams": [
+        [
+          "Varn"
+        ],
+        [
+          "Kurchin"
+        ]
+      ]
+    },
+    {
+      "name": "single:Varn:Muno",
+      "group": "single",
+      "teams": [
+        [
+          "Varn"
+        ],
+        [
+          "Muno"
+        ]
+      ]
+    },
+    {
+      "name": "single:Varn:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Varn"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Varn:Sooge",
+      "group": "single",
+      "teams": [
+        [
+          "Varn"
+        ],
+        [
+          "Sooge"
+        ]
+      ]
+    },
+    {
+      "name": "single:Varn:Sinodek",
+      "group": "single",
+      "teams": [
+        [
+          "Varn"
+        ],
+        [
+          "Sinodek"
+        ]
+      ]
+    },
+    {
+      "name": "single:Fyra:Kopita",
+      "group": "single",
+      "teams": [
+        [
+          "Fyra"
+        ],
+        [
+          "Kopita"
+        ]
+      ]
+    },
+    {
+      "name": "single:Fyra:Tumler",
+      "group": "single",
+      "teams": [
+        [
+          "Fyra"
+        ],
+        [
+          "Tumler"
+        ]
+      ]
+    },
+    {
+      "name": "single:Fyra:Kurchin",
+      "group": "single",
+      "teams": [
+        [
+          "Fyra"
+        ],
+        [
+          "Kurchin"
+        ]
+      ]
+    },
+    {
+      "name": "single:Fyra:Muno",
+      "group": "single",
+      "teams": [
+        [
+          "Fyra"
+        ],
+        [
+          "Muno"
+        ]
+      ]
+    },
+    {
+      "name": "single:Fyra:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Fyra"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Fyra:Sooge",
+      "group": "single",
+      "teams": [
+        [
+          "Fyra"
+        ],
+        [
+          "Sooge"
+        ]
+      ]
+    },
+    {
+      "name": "single:Fyra:Sinodek",
+      "group": "single",
+      "teams": [
+        [
+          "Fyra"
+        ],
+        [
+          "Sinodek"
+        ]
+      ]
+    },
+    {
+      "name": "single:Kopita:Tumler",
+      "group": "single",
+      "teams": [
+        [
+          "Kopita"
+        ],
+        [
+          "Tumler"
+        ]
+      ]
+    },
+    {
+      "name": "single:Kopita:Kurchin",
+      "group": "single",
+      "teams": [
+        [
+          "Kopita"
+        ],
+        [
+          "Kurchin"
+        ]
+      ]
+    },
+    {
+      "name": "single:Kopita:Muno",
+      "group": "single",
+      "teams": [
+        [
+          "Kopita"
+        ],
+        [
+          "Muno"
+        ]
+      ]
+    },
+    {
+      "name": "single:Kopita:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Kopita"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Kopita:Sooge",
+      "group": "single",
+      "teams": [
+        [
+          "Kopita"
+        ],
+        [
+          "Sooge"
+        ]
+      ]
+    },
+    {
+      "name": "single:Kopita:Sinodek",
+      "group": "single",
+      "teams": [
+        [
+          "Kopita"
+        ],
+        [
+          "Sinodek"
+        ]
+      ]
+    },
+    {
+      "name": "single:Tumler:Kurchin",
+      "group": "single",
+      "teams": [
+        [
+          "Tumler"
+        ],
+        [
+          "Kurchin"
+        ]
+      ]
+    },
+    {
+      "name": "single:Tumler:Muno",
+      "group": "single",
+      "teams": [
+        [
+          "Tumler"
+        ],
+        [
+          "Muno"
+        ]
+      ]
+    },
+    {
+      "name": "single:Tumler:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Tumler"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Tumler:Sooge",
+      "group": "single",
+      "teams": [
+        [
+          "Tumler"
+        ],
+        [
+          "Sooge"
+        ]
+      ]
+    },
+    {
+      "name": "single:Tumler:Sinodek",
+      "group": "single",
+      "teams": [
+        [
+          "Tumler"
+        ],
+        [
+          "Sinodek"
+        ]
+      ]
+    },
+    {
+      "name": "single:Kurchin:Muno",
+      "group": "single",
+      "teams": [
+        [
+          "Kurchin"
+        ],
+        [
+          "Muno"
+        ]
+      ]
+    },
+    {
+      "name": "single:Kurchin:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Kurchin"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Kurchin:Sooge",
+      "group": "single",
+      "teams": [
+        [
+          "Kurchin"
+        ],
+        [
+          "Sooge"
+        ]
+      ]
+    },
+    {
+      "name": "single:Kurchin:Sinodek",
+      "group": "single",
+      "teams": [
+        [
+          "Kurchin"
+        ],
+        [
+          "Sinodek"
+        ]
+      ]
+    },
+    {
+      "name": "single:Muno:Dotra",
+      "group": "single",
+      "teams": [
+        [
+          "Muno"
+        ],
+        [
+          "Dotra"
+        ]
+      ]
+    },
+    {
+      "name": "single:Muno:Sooge",
+      "group": "single",
+      "teams": [
+        [
+          "Muno"
+        ],
+        [
+          "Sooge"
+        ]
+      ]
+    },
+    {
+      "name": "single:Muno:Sinodek",
+      "group": "single",
+      "teams": [
+        [
+          "Muno"
+        ],
+        [
+          "Sinodek"
+        ]
+      ]
+    },
+    {
+      "name": "single:Dotra:Sooge",
+      "group": "single",
+      "teams": [
+        [
+          "Dotra"
+        ],
+        [
+          "Sooge"
+        ]
+      ]
+    },
+    {
+      "name": "single:Dotra:Sinodek",
+      "group": "single",
+      "teams": [
+        [
+          "Dotra"
+        ],
+        [
+          "Sinodek"
+        ]
+      ]
+    },
+    {
+      "name": "single:Sooge:Sinodek",
+      "group": "single",
+      "teams": [
+        [
+          "Sooge"
+        ],
+        [
+          "Sinodek"
+        ]
+      ]
+    },
+    {
+      "name": "squad:Penitent:Butcher",
+      "group": "squad",
+      "teams": [
+        [
+          "Penitent",
+          "Penitent",
+          "Penitent",
+          "Penitent"
+        ],
+        [
+          "Butcher",
+          "Butcher",
+          "Butcher",
+          "Butcher"
+        ]
+      ]
+    },
+    {
+      "name": "squad:Penitent:Vulture",
+      "group": "squad",
+      "teams": [
+        [
+          "Penitent",
+          "Penitent",
+          "Penitent",
+          "Penitent"
+        ],
+        [
+          "Vulture",
+          "Vulture",
+          "Vulture",
+          "Vulture"
+        ]
+      ]
+    },
+    {
+      "name": "squad:Penitent:Wright",
+      "group": "squad",
+      "teams": [
+        [
+          "Penitent",
+          "Penitent",
+          "Penitent",
+          "Penitent"
+        ],
+        [
+          "Wright",
+          "Wright",
+          "Wright",
+          "Wright"
+        ]
+      ]
+    },
+    {
+      "name": "squad:Butcher:Vulture",
+      "group": "squad",
+      "teams": [
+        [
+          "Butcher",
+          "Butcher",
+          "Butcher",
+          "Butcher"
+        ],
+        [
+          "Vulture",
+          "Vulture",
+          "Vulture",
+          "Vulture"
+        ]
+      ]
+    },
+    {
+      "name": "squad:Butcher:Wright",
+      "group": "squad",
+      "teams": [
+        [
+          "Butcher",
+          "Butcher",
+          "Butcher",
+          "Butcher"
+        ],
+        [
+          "Wright",
+          "Wright",
+          "Wright",
+          "Wright"
+        ]
+      ]
+    },
+    {
+      "name": "squad:Vulture:Wright",
+      "group": "squad",
+      "teams": [
+        [
+          "Vulture",
+          "Vulture",
+          "Vulture",
+          "Vulture"
+        ],
+        [
+          "Wright",
+          "Wright",
+          "Wright",
+          "Wright"
+        ]
+      ]
+    },
+    {
+      "name": "addition:Lemek:shock_low",
+      "group": "additive",
+      "recipe": "Lemek",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_low",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Lemek:shock_high",
+      "group": "additive",
+      "recipe": "Lemek",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_high",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Lemek:screen_low",
+      "group": "additive",
+      "recipe": "Lemek",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_low",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Lemek:screen_high",
+      "group": "additive",
+      "recipe": "Lemek",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Lemek:mixed_low",
+      "group": "additive",
+      "recipe": "Lemek",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_low",
+      "opposition": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Lemek:mixed_high",
+      "group": "additive",
+      "recipe": "Lemek",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Vulture",
+        "Vulture",
+        "Wright",
+        "Wright"
+      ]
+    },
+    {
+      "name": "addition:Varn:shock_low",
+      "group": "additive",
+      "recipe": "Varn",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_low",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Varn:shock_high",
+      "group": "additive",
+      "recipe": "Varn",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_high",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Varn:screen_low",
+      "group": "additive",
+      "recipe": "Varn",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_low",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Varn:screen_high",
+      "group": "additive",
+      "recipe": "Varn",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Varn:mixed_low",
+      "group": "additive",
+      "recipe": "Varn",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_low",
+      "opposition": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Varn:mixed_high",
+      "group": "additive",
+      "recipe": "Varn",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Vulture",
+        "Vulture",
+        "Wright",
+        "Wright"
+      ]
+    },
+    {
+      "name": "addition:Fyra:shock_low",
+      "group": "additive",
+      "recipe": "Fyra",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_low",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Fyra:shock_high",
+      "group": "additive",
+      "recipe": "Fyra",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_high",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Fyra:screen_low",
+      "group": "additive",
+      "recipe": "Fyra",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_low",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Fyra:screen_high",
+      "group": "additive",
+      "recipe": "Fyra",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Fyra:mixed_low",
+      "group": "additive",
+      "recipe": "Fyra",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_low",
+      "opposition": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Fyra:mixed_high",
+      "group": "additive",
+      "recipe": "Fyra",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Vulture",
+        "Vulture",
+        "Wright",
+        "Wright"
+      ]
+    },
+    {
+      "name": "addition:Kopita:shock_low",
+      "group": "additive",
+      "recipe": "Kopita",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_low",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Kopita:shock_high",
+      "group": "additive",
+      "recipe": "Kopita",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_high",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Kopita:screen_low",
+      "group": "additive",
+      "recipe": "Kopita",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_low",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Kopita:screen_high",
+      "group": "additive",
+      "recipe": "Kopita",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Kopita:mixed_low",
+      "group": "additive",
+      "recipe": "Kopita",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_low",
+      "opposition": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Kopita:mixed_high",
+      "group": "additive",
+      "recipe": "Kopita",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Vulture",
+        "Vulture",
+        "Wright",
+        "Wright"
+      ]
+    },
+    {
+      "name": "addition:Tumler:shock_low",
+      "group": "additive",
+      "recipe": "Tumler",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_low",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Tumler:shock_high",
+      "group": "additive",
+      "recipe": "Tumler",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_high",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Tumler:screen_low",
+      "group": "additive",
+      "recipe": "Tumler",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_low",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Tumler:screen_high",
+      "group": "additive",
+      "recipe": "Tumler",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Tumler:mixed_low",
+      "group": "additive",
+      "recipe": "Tumler",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_low",
+      "opposition": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Tumler:mixed_high",
+      "group": "additive",
+      "recipe": "Tumler",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Vulture",
+        "Vulture",
+        "Wright",
+        "Wright"
+      ]
+    },
+    {
+      "name": "addition:Kurchin:shock_low",
+      "group": "additive",
+      "recipe": "Kurchin",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_low",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Kurchin:shock_high",
+      "group": "additive",
+      "recipe": "Kurchin",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_high",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Kurchin:screen_low",
+      "group": "additive",
+      "recipe": "Kurchin",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_low",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Kurchin:screen_high",
+      "group": "additive",
+      "recipe": "Kurchin",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Kurchin:mixed_low",
+      "group": "additive",
+      "recipe": "Kurchin",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_low",
+      "opposition": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Kurchin:mixed_high",
+      "group": "additive",
+      "recipe": "Kurchin",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Vulture",
+        "Vulture",
+        "Wright",
+        "Wright"
+      ]
+    },
+    {
+      "name": "addition:Muno:shock_low",
+      "group": "additive",
+      "recipe": "Muno",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_low",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Muno:shock_high",
+      "group": "additive",
+      "recipe": "Muno",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_high",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Muno:screen_low",
+      "group": "additive",
+      "recipe": "Muno",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_low",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Muno:screen_high",
+      "group": "additive",
+      "recipe": "Muno",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Muno:mixed_low",
+      "group": "additive",
+      "recipe": "Muno",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_low",
+      "opposition": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Muno:mixed_high",
+      "group": "additive",
+      "recipe": "Muno",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Vulture",
+        "Vulture",
+        "Wright",
+        "Wright"
+      ]
+    },
+    {
+      "name": "addition:Dotra:shock_low",
+      "group": "additive",
+      "recipe": "Dotra",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_low",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Dotra:shock_high",
+      "group": "additive",
+      "recipe": "Dotra",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_high",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Dotra:screen_low",
+      "group": "additive",
+      "recipe": "Dotra",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_low",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Dotra:screen_high",
+      "group": "additive",
+      "recipe": "Dotra",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Dotra:mixed_low",
+      "group": "additive",
+      "recipe": "Dotra",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_low",
+      "opposition": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Dotra:mixed_high",
+      "group": "additive",
+      "recipe": "Dotra",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Vulture",
+        "Vulture",
+        "Wright",
+        "Wright"
+      ]
+    },
+    {
+      "name": "addition:Sooge:shock_low",
+      "group": "additive",
+      "recipe": "Sooge",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_low",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Sooge:shock_high",
+      "group": "additive",
+      "recipe": "Sooge",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_high",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Sooge:screen_low",
+      "group": "additive",
+      "recipe": "Sooge",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_low",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Sooge:screen_high",
+      "group": "additive",
+      "recipe": "Sooge",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Sooge:mixed_low",
+      "group": "additive",
+      "recipe": "Sooge",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_low",
+      "opposition": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Sooge:mixed_high",
+      "group": "additive",
+      "recipe": "Sooge",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Vulture",
+        "Vulture",
+        "Wright",
+        "Wright"
+      ]
+    },
+    {
+      "name": "addition:Sinodek:shock_low",
+      "group": "additive",
+      "recipe": "Sinodek",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_low",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Sinodek:shock_high",
+      "group": "additive",
+      "recipe": "Sinodek",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "shock_high",
+      "opposition": [
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Sinodek:screen_low",
+      "group": "additive",
+      "recipe": "Sinodek",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_low",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Sinodek:screen_high",
+      "group": "additive",
+      "recipe": "Sinodek",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "screen_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture",
+        "Vulture"
+      ]
+    },
+    {
+      "name": "addition:Sinodek:mixed_low",
+      "group": "additive",
+      "recipe": "Sinodek",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_low",
+      "opposition": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright",
+        "Butcher",
+        "Butcher"
+      ]
+    },
+    {
+      "name": "addition:Sinodek:mixed_high",
+      "group": "additive",
+      "recipe": "Sinodek",
+      "core": [
+        "Penitent",
+        "Butcher",
+        "Vulture",
+        "Wright"
+      ],
+      "opponent": "mixed_high",
+      "opposition": [
+        "Penitent",
+        "Penitent",
+        "Penitent",
+        "Butcher",
+        "Butcher",
+        "Butcher",
+        "Vulture",
+        "Vulture",
+        "Wright",
+        "Wright"
+      ]
+    }
+  ]
+}
