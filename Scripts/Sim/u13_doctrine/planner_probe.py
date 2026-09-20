@@ -261,9 +261,9 @@ class PlannerObserver(ReferenceObserver):
         return result
 
 
-def run_case(spec, policy, policy_ids=None):
+def run_case(spec, policy, policy_ids=None, observer_factory=PlannerObserver):
     if policy_ids is None: policy_ids = [getattr(policy, 'policy_id', VERSION)]*2
-    match, observer = PowerMatch(spec['setup']), PlannerObserver(spec, policy_ids)
+    match, observer = PowerMatch(spec['setup']), observer_factory(spec, policy_ids)
     cursor, operations, decisions_ns, simulation_ns = 0, [], 0, 0
     while match.outcome()['winner'] == -1:
         if match.clock.round > 40: raise ValueError('censored policy probe: '+spec['name'])
