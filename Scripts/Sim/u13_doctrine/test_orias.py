@@ -40,6 +40,44 @@ def snare(v, order=None):
 
 
 class OriasTests(unittest.TestCase):
+    def test_web_counts_hits_beyond_six_without_a_flat_tail(self):
+        v = view()
+        for i in range(6): unit(v, 'dense:'+str(i), 1, x_fp=1600, waiting=True, hp=10, armor=0)
+        first = web_value(Facts(v), web(1600))
+        unit(v, 'seventh', 1, x_fp=1600, waiting=True, hp=10, armor=0)
+        second = web_value(Facts(v), web(1600))
+        self.assertGreater(second['score'], first['score'])
+        for i in range(13): unit(v, 'extra:'+str(i), 1, x_fp=1600, waiting=True, hp=10, armor=0)
+        dense = web_value(Facts(v), web(1600))
+        self.assertEqual(20, len(dense['initial_hits']))
+        self.assertGreater(dense['score'], second['score'])
+
+    def test_web_dense_group_beats_six_with_maximum_control_credit(self):
+        v = view()
+        for i in range(20): unit(v, 'dense:'+str(i), 1, x_fp=1800, waiting=True, hp=10, armor=0)
+        for i in range(6): unit(v, 'urgent:'+str(i), 1, lane='Lord', x_fp=650, hp=10, armor=0)
+        f = Facts(v)
+        dense, urgent = web_value(f, web(1800)), web_value(f, web(650, lane='Lord'))
+        self.assertGreater(urgent['control_score'], 0)
+        self.assertLessEqual(urgent['control_score'], 12)
+        self.assertGreater(dense['score'], urgent['score'])
+
+    def test_web_densest_cluster_survives_anchor_search_and_retention(self):
+        v = view()
+        for lane in ('Lord', 'Castle'):
+            for i, x in enumerate((400, 800, 1200)):
+                unit(v, lane+'front:'+str(i), 1, lane=lane, x_fp=x, hp=10, armor=0)
+            for i in range(20):
+                unit(v, lane+'dense:'+str(i), 1, lane=lane, x_fp=2200, waiting=True, hp=10, armor=0)
+            f = Facts(v)
+            target, count = f.cluster(lane, 270, friendly_penalty=0)
+            self.assertEqual(20, count)
+            self.assertEqual(target, next(web_targets(f, lane)))
+        d = CommonSmartCore().decide(v, lambda p: {'action': 'legal'})
+        retained = [p for p in d['retained_candidates'] if p['category'] == 'powers']
+        self.assertEqual(2, sum(p['reason'] == 'web_dense_cluster_and_control' for p in retained))
+        self.assertLessEqual(len(retained), 4)
+
     def test_web_prefers_gate_delay_to_a_larger_stationary_group(self):
         v = view(); unit(v, 'approach', 1, lane='Lord', x_fp=650)
         for i in range(4): unit(v, 'idle:'+str(i), 1, x_fp=1000, waiting=True)

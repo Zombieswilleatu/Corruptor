@@ -19,9 +19,10 @@ def proposals(f):
     value = snare_value(f, plan, context(f, plan))
     yield power('Snare', dict(player_id=f.enemy), value['score'], value['reason'])
     for lane in LANES:
-        for target in web_targets(f, lane):
+        for index, target in enumerate(web_targets(f, lane)):
             value = web_value(f, target)
-            yield power('Web', target, value['score'], 'two_phase_damage_and_useful_delay')
+            reason = 'web_dense_cluster_and_control' if index == 0 else 'two_phase_damage_and_useful_delay'
+            yield power('Web', target, value['score'], reason)
 
 
 def coordinate(f, plan, ctx):

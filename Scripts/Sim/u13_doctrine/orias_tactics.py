@@ -17,6 +17,7 @@ from .veil_judgment import settlement_projection
 RADIUS = RULES['Web']['spatial_field']['radius_fp']
 PHASES = len(RULES['Web']['stages'])
 GUARD_VALUES = (2, 4)
+WEB_CONTROL_CAP = 12  # At most four ordinary activation hits of extra credit.
 
 
 def _x(f, a):
@@ -119,19 +120,24 @@ def web_value(f, target, ctx=None):
         slowed.append(dict(entity_id=enemy['id'], delay_distance_equivalent_fp=delay, entry_next_round=later,
                            gate_score=gate, ranged_score=coverage, relief_score=relief,
                            reinforcement_score=reinforcement, score=value))
-    damage = 3*min(6, len(initial))+6*min(3, len(kills))
-    return dict(score=max(0, damage+min(48, control)-6), damage_score=damage,
-                control_score=min(48, control), initial_hits=initial, potential_kills=kills,
+    damage = 3*len(initial)+6*min(3, len(kills))
+    return dict(score=max(0, damage+min(WEB_CONTROL_CAP, control)-6), damage_score=damage,
+                control_score=min(WEB_CONTROL_CAP, control), initial_hits=initial, potential_kills=kills,
                 slowed=slowed, phases=PHASES, planned_recruits=sum(r.get('planned', False) for r in allies))
 
 
 def web_targets(f, lane):
-    """Three public groups, two placements each; consumed under proposal budget."""
+    """Densest current cluster first, then alternatives; six targets per lane."""
     enemies = sorted(f.units(f.enemy, lane), key=lambda r: (
         -int(r['attributes']['hp']+r['attributes']['armor'] <= 1),
         -int(mobile(r['attributes']) and not r['attributes'].get('waiting')),
         _x(f, r['attributes']), r['id']))
     anchors, seen = [], set()
+    cluster, _ = f.cluster(lane, RADIUS, friendly_penalty=0)
+    if cluster:
+        point = cluster['field_position']
+        seen.add((point['x_fp'], point['y_fp']))
+        yield cluster
     for row in enemies:
         # Avoid spending every spatial proposal on almost identical positions.
         if any(fort.distance(row['attributes'], a) <= (RADIUS//2)**2 for a in anchors): continue
@@ -145,6 +151,7 @@ def web_targets(f, lane):
             position = dict(x_fp=x if f.pid == 0 else 2400-x, y_fp=a['y_fp'])
             identity = (position['x_fp'], position['y_fp'])
             if identity in seen: continue
+            if len(seen) >= 6: return
             seen.add(identity)
             yield dict(lane=lane, field_position=position)
 

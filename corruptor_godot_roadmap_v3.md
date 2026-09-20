@@ -1,3 +1,5 @@
+> **2026-09-20 Orias Web V17:** [Web hit scoring and retained clusters](docs/U13_ORIAS_WEB_HITS_2026-09-20.md) removes the six-hit scoring cap, keeps the best current cluster in each lane and limits control credit to twelve points. Snare is unchanged. Forty-two focused tests pass. All sixteen matched games completed: V16 and V17 each win 2/8; V17 records 908 versus 560 activation hits in 53 casts each. This is a targeting correction, not a demonstrated strength gain. Next: Snare must compare its projected attack against competing plans.
+
 > **Current roadmap (2026-09-15):** See the [consolidated roadmap](FutureFeatures/README.md) for current status, priorities and the disposition of older proposals. The document below is preserved as detailed source/history; its dated acceptance records retain their original scope.
 
 # CORRUPTOR — Godot Development Roadmap v3.0

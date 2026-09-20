@@ -88,8 +88,8 @@ class OriasObserver(PlannerObserver):
         return report
 
 
-def run_one(spec, manifest, directory):
-    policy = FocalPolicy(Path(directory)/'baseline', spec, manifest['weights'])
+def run_one(spec, manifest, directory, policy_factory=FocalPolicy):
+    policy = policy_factory(Path(directory)/'baseline', spec, manifest['weights'])
     start = time.perf_counter()
     try:
         semantic, timing, operations = run_case(spec, policy, policy.policy_ids, OriasObserver)

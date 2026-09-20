@@ -26,7 +26,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V16_ORIAS_CONTROL'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V17_ORIAS_WEB_HITS'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -206,12 +206,14 @@ class CommonSmartCore:
                     if p and len(choices) < self.limits.retained_per_category: choices.append(p)
                 if choices: terms.add('Deploy')
             if category == 'powers' and f.kind == 'Orias' and self.limits.retained_per_category >= 3:
-                # Preserve Web coverage in both lanes before keeping extra
-                # placements. Recruitment can change the useful lane later.
+                # Preserve the densest current cluster in both lanes before
+                # extra control placements. Snare retains its existing slot.
                 snare = next((p for p in ranked if p.term == 'Snare'), None)
                 if snare: choices.append(snare); terms.add('Snare')
                 for lane in LANES:
-                    p = next((p for p in ranked if p.term == 'Web' and p.payload['target']['lane'] == lane), None)
+                    lane_webs = [p for p in ranked if p.term == 'Web' and p.payload['target']['lane'] == lane]
+                    p = next((p for p in lane_webs if p.reason == 'web_dense_cluster_and_control'),
+                             next(iter(lane_webs), None))
                     if p and len(choices) < self.limits.retained_per_category: choices.append(p)
                 if any(p.term == 'Web' for p in choices): terms.add('Web')
             for p in ranked:

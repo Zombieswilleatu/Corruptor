@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
-from .common import Weights
+from .common import VERSION, Weights
 from .comparison import freeze_baseline
 from .orias_comparison import BASELINE, FocalPolicy, OriasObserver, aggregate, cases, metrics
 
@@ -32,7 +32,7 @@ class OriasComparisonTests(unittest.TestCase):
                 policy = FocalPolicy(tmp, spec, asdict(Weights()))
                 for seat in (0, 1):
                     expected_new = spec['variant'] == 'new' and seat == spec['focal_seat']
-                    self.assertEqual(expected_new, 'V16' in policy.policy_ids[seat])
+                    self.assertEqual(expected_new, VERSION == policy.policy_ids[seat])
                     chosen = policy.policies[seat]
                     with patch.object(chosen, 'decide', return_value={'policy': policy.policy_ids[seat]}) as decide:
                         policy.decide({'player_id': seat}, None)
