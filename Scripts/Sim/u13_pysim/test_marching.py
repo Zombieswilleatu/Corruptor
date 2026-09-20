@@ -63,7 +63,7 @@ class MarchingTests(unittest.TestCase):
         gravity(s, [orb], before, 1, 0, False, lambda *args: self.fail('unexpected consumption'))
         self.assertEqual(1000, s.x_fp[i])
         gravity(s, [orb], [(s.ids[i], 1000, 300, s.lane[i], 1)], 1, 1, False, lambda *args: self.fail('unexpected consumption'))
-        self.assertEqual(1007, s.x_fp[i])
+        self.assertEqual(1002, s.x_fp[i])
 
     def test_attacked_recruit_closes_distance_while_untouched_recruit_holds(self):
         for pid in (0, 1):
@@ -260,8 +260,8 @@ class MarchingTests(unittest.TestCase):
 
     def test_spatial_rounding_and_swept_destruction_boundary(self):
         self.assertEqual(94, sum(speed(3, 25, True, clock, True, True) for clock in range(200, 400)))
-        self.assertTrue(swept(0, 65, 100, 65, 50, 0))
-        self.assertFalse(swept(0, 66, 100, 66, 50, 0))
+        self.assertTrue(swept(0, 20, 100, 20, 50, 0))
+        self.assertFalse(swept(0, 21, 100, 21, 50, 0))
         self.assertTrue(swept(900, 300, 1500, 300, 1200, 300))
 
     def test_complete_games_and_unported_actors_fail_explicitly(self):

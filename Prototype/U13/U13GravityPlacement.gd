@@ -14,7 +14,7 @@ func _process(_delta: float) -> void:
 
 
 func _draw() -> void:
-	draw_string(ThemeDB.fallback_font, Vector2(24, 45), "GRAVITY ORB · Click a lane, drag to adjust, then confirm. Pulls BOTH armies. Active 2 rounds.", HORIZONTAL_ALIGNMENT_CENTER, size.x - 48, 20, Color("dab8ef"))
+	draw_string(ThemeDB.fallback_font, Vector2(24, 45), "GRAVITY ORB · Click a lane, drag to adjust, then confirm. Pulls BOTH armies · 1 damage / 5s · tiny lethal core · 2 rounds.", HORIZONTAL_ALIGNMENT_CENTER, size.x - 48, 20, Color("dab8ef"))
 	for lane in ["Lord", "Castle"]:
 		draw_rect(lane_rect(lane), Color("bc8ede"), false, 2)
 	if placed:

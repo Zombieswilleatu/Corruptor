@@ -29,7 +29,7 @@ func valid_world(world: Dictionary) -> bool:
 
 static func projection_shape(source: Dictionary) -> bool:
 	var target: Dictionary = source.target
-	return target.size() == 3 and target.get("kind") == "guard_zone" and target.get("zone") in ["Lord", "Castle"] and Data.is_integer(target.get("player_id")) and target.player_id == 1 - int(source.player_id) and source.parameters.size() == 1 and Data.is_integer(source.parameters.get("spend")) and source.parameters.spend >= 1 and source.parameters.spend <= Essence.CAP
+	return target.size() == 3 and target.get("kind") == "guard_zone" and target.get("zone") in ["Lord", "Castle"] and Data.is_integer(target.get("player_id")) and target.player_id in [0, 1] and source.parameters.size() == 1 and Data.is_integer(source.parameters.get("spend")) and source.parameters.spend >= 1 and source.parameters.spend <= Essence.CAP
 
 
 func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionary:

@@ -53,7 +53,9 @@ func _sync_orbs() -> void:
 		ids.append(orb.id)
 		if not orb_visuals.has(orb.id):
 			var visual = Visual.new()
+			visual.show_behind_parent = true # Keep the lethal-core marker above the vortex.
 			add_child(visual)
+			visual.z_index = -1
 			visual.phase = "rotate"
 			visual.phase_time = 1.0
 			orb_visuals[orb.id] = visual
@@ -111,6 +113,7 @@ func advance(delta: float) -> void:
 		visual.target = field_point(orb.target)
 		visual.orb_size = battlefield.travel_rect(orb.target.lane).size.x * 0.42
 		visual.advance(delta)
+	queue_redraw()
 	if not active():
 		return
 	var event: Dictionary = sequence[0]
@@ -149,6 +152,18 @@ func advance(delta: float) -> void:
 
 
 func _draw() -> void:
+	for orb in orb_rows:
+		if not orb_visuals.has(orb.id) or orb_visuals[orb.id].phase != "rotate": continue
+		var points := PackedVector2Array()
+		var radius: int = preload("res://Scripts/Sim/U13GravityOrbs.gd").DESTRUCTION_FP
+		for i in range(49):
+			var angle: float = TAU * i / 48.0
+			var target: Dictionary = orb.target.duplicate(true)
+			target.field_position.x_fp += cos(angle) * radius
+			target.field_position.y_fp += sin(angle) * radius
+			points.append(field_point(target))
+		draw_colored_polygon(points, Color("100919"))
+		draw_polyline(points, Color("dc98f2"), 1.0, true)
 	if not impact.is_empty() and elapsed >= 0.8:
 		draw_arc(impact.center, 12.0 + (elapsed - 0.8) * 180.0, 0, TAU, 48, Color("e3bf6a") if impact.whiff else Color("9dec65"), 3, true)
 	if active() and sequence[0].type == "VALAK_PROJECTION_RESOLVED" and elapsed < 0.8:

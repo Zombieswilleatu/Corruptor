@@ -84,7 +84,7 @@ def validate(s,w,phase,active):
     if power=='Ravenous': return '' if not p and spatial(t) and t['field_position']['x_fp']==(0 if pid==0 else 2400) else 'ravenous_position_invalid'
     if power=='GravityOrb': return '' if spatial(t) and not p else 'gravity_orb_target_invalid'
     if power=='Projection':
-        legal=set(t)=={'kind','zone','player_id'} and t.get('kind')=='guard_zone' and t.get('zone') in LANES and type(t.get('player_id')) is int and t['player_id']==1-pid and set(p)=={'spend'} and type(p['spend']) is int and 1<=p['spend']<=5
+        legal=set(t)=={'kind','zone','player_id'} and t.get('kind')=='guard_zone' and t.get('zone') in LANES and type(t.get('player_id')) is int and t['player_id'] in (0,1) and set(p)=={'spend'} and type(p['spend']) is int and 1<=p['spend']<=5
         if phase=='declaration': legal=legal and p['spend']<=w['players'][pid]['resources']['life_essence']
         return '' if legal else 'projection_zone_or_essence_invalid'
     if power in WISHES:
@@ -246,7 +246,7 @@ def resolve(rec,state,n):
     elif power=='Projection':
         spend=s['parameters']['spend'];resources=w['players'][pid]['resources'];e.require(w['data']['valak_reserved'][pid]==spend,'projection_reservation_missing')
         before=resources['life_essence']+spend;w['data']['valak_reserved'][pid]=0
-        candidates=sorted((r for r in guards(w) if r['owner']==1-pid and r['attributes']['lane']==t['zone'] and r['attributes']['value']<=spend),key=lambda r:(-r['attributes']['value'],r['attributes']['slot'],r['id']))
+        candidates=sorted((r for r in guards(w) if r['owner']==t['player_id'] and r['attributes']['lane']==t['zone'] and r['attributes']['value']<=spend),key=lambda r:(-r['attributes']['value'],r['attributes']['slot'],r['id']))
         victim=copy_data(candidates[0]) if candidates else {}
         if victim: events.extend(b.apply_fact(dict(command_id=instance_id('projection',identity,victim['id']),kind='defeat_guard',target_id=victim['id'])))
         events.append(e.event('VALAK_PROJECTION_RESOLVED',dict(player_id=pid,target=t,spend=spend,before=before,after=resources['life_essence'],victim=victim,whiff=not bool(victim),round=n)))

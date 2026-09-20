@@ -35,10 +35,10 @@ func _build() -> void:
 	projection_spend.prefix = "Essence to spend: "
 	valak_box.add_child(projection_spend)
 	projection_button = _button(valak_box, "CHOOSE PROJECTION TARGET", _queue_projection)
-	var note: Label = _label(valak_box, "After combat: defeat the highest-value Guard at or below your chosen spend. An empty zone or miss still spends the Essence. No refund from Projection kills.", 13)
+	var note: Label = _label(valak_box, "Choose either side’s guard zone. After combat: defeat its highest-value Guard at or below your chosen spend. An empty zone or miss still spends the Essence. No refund from Projection kills.", 13)
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	gravity_button = _button(valak_box, "GRAVITY ORB", _begin_gravity)
-	note = _label(valak_box, "Pulls both armies; touching Marchers are destroyed. Four kills create one Neutral Tear per Orb. Active for two rounds, then two-round cooldown.", 13)
+	note = _label(valak_box, "Pulls both armies. Outer field: 1 damage about every 5 seconds, Armor first. Only the tiny core instantly kills. Four core kills create one Neutral Tear. Active two rounds; cooldown two rounds.", 13)
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	valak_queue = VBoxContainer.new()
 	valak_box.add_child(valak_queue)
@@ -82,7 +82,7 @@ func _update_direct_ui() -> void:
 		if source.power_id in Valak.VALAK_POWERS:
 			var row := HBoxContainer.new()
 			valak_queue.add_child(row)
-			_label(row, ("Projection: %d → %s guards" % [source.parameters.spend, source.target.zone]) if source.power_id == Valak.PROJECTION else "Gravity Orb queued", 13)
+			_label(row, ("Projection: %d → %s %s guards" % [source.parameters.spend, "your" if source.target.player_id == 0 else "enemy", source.target.zone]) if source.power_id == Valak.PROJECTION else "Gravity Orb queued", 13)
 			_button(row, "REMOVE", _remove_valak.bind(index))
 
 
@@ -103,13 +103,13 @@ func _board_power_targeting() -> bool:
 
 func _target_allowed(target: Dictionary, intent: String) -> bool:
 	if intent == Valak.PROJECTION:
-		return _planning() and powers_step and _human_alive() and target.get("owner") == 1 and target.get("kind") in ["zone", "card"] and target.get("lane") in ["Lord", "Castle"]
+		return _planning() and powers_step and _human_alive() and target.get("owner") in [0, 1] and target.get("kind") in ["zone", "card"] and target.get("lane") in ["Lord", "Castle"]
 	return super._target_allowed(target, intent)
 
 
 func _guide() -> String:
 	if _intent == Valak.PROJECTION:
-		return "PROJECTION · click the enemy Lord or Castle Guard zone on the board. Spend %d Essence after combat to defeat its highest-value eligible Guard." % projection_pending_spend
+		return "PROJECTION · click either side’s Lord or Castle Guard zone on the board. Spend %d Essence after combat to defeat its highest-value eligible Guard." % projection_pending_spend
 	return super._guide()
 
 
@@ -118,7 +118,7 @@ func _submit_power(target: Dictionary) -> void:
 		super._submit_power(target)
 		return
 	if not _target_allowed(target, _intent): return
-	var source: Dictionary = session.declaration(Valak.PROJECTION, queued.size(), {"kind": "guard_zone", "player_id": 1, "zone": target.lane})
+	var source: Dictionary = session.declaration(Valak.PROJECTION, queued.size(), {"kind": "guard_zone", "player_id": target.owner, "zone": target.lane})
 	source.parameters = {"spend": projection_pending_spend}
 	_queue_valak(source)
 

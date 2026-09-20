@@ -1,0 +1,486 @@
+[
+  {
+    "name": "gravity_pull_consumption_and_sweep",
+    "seed": "u13-marching:\u00e9:gravity_pull_consumption_and_sweep",
+    "player_order": [
+      0,
+      1
+    ],
+    "ranged": true,
+    "data": {
+      "valak_orbs": [
+        {
+          "id": "u13_persistent:8:orb:lord:10:GravityOrb",
+          "owner": 0,
+          "target": {
+            "lane": "Lord",
+            "field_position": {
+              "x_fp": 1200,
+              "y_fp": 300
+            }
+          },
+          "round": 1,
+          "consumed": 0,
+          "rewarded": false
+        },
+        {
+          "id": "u13_persistent:10:orb:castle:10:GravityOrb",
+          "owner": 1,
+          "target": {
+            "lane": "Castle",
+            "field_position": {
+              "x_fp": 1200,
+              "y_fp": 300
+            }
+          },
+          "round": 1,
+          "consumed": 0,
+          "rewarded": false
+        }
+      ],
+      "neutral_tears": 0
+    },
+    "effects": [],
+    "units": [
+      {
+        "origin": "orb:near:0",
+        "ordinal": 0,
+        "owner": 0,
+        "suit": "Butcher",
+        "lane": "Lord",
+        "attributes": {
+          "x_fp": 1025,
+          "y_fp": 255
+        }
+      },
+      {
+        "origin": "orb:near:1",
+        "ordinal": 0,
+        "owner": 1,
+        "suit": "Penitent",
+        "lane": "Lord",
+        "attributes": {
+          "x_fp": 1060,
+          "y_fp": 300
+        }
+      },
+      {
+        "origin": "orb:near:2",
+        "ordinal": 0,
+        "owner": 0,
+        "suit": "Vulture",
+        "lane": "Lord",
+        "attributes": {
+          "x_fp": 1095,
+          "y_fp": 345
+        }
+      },
+      {
+        "origin": "orb:near:3",
+        "ordinal": 0,
+        "owner": 1,
+        "suit": "Wright",
+        "lane": "Lord",
+        "attributes": {
+          "x_fp": 1130,
+          "y_fp": 255
+        }
+      },
+      {
+        "origin": "orb:near:4",
+        "ordinal": 0,
+        "owner": 0,
+        "suit": "Butcher",
+        "lane": "Lord",
+        "attributes": {
+          "x_fp": 1165,
+          "y_fp": 300
+        }
+      },
+      {
+        "origin": "orb:near:5",
+        "ordinal": 0,
+        "owner": 1,
+        "suit": "Penitent",
+        "lane": "Lord",
+        "attributes": {
+          "x_fp": 1200,
+          "y_fp": 345
+        }
+      },
+      {
+        "origin": "orb:near:6",
+        "ordinal": 0,
+        "owner": 0,
+        "suit": "Vulture",
+        "lane": "Lord",
+        "attributes": {
+          "x_fp": 1235,
+          "y_fp": 255
+        }
+      },
+      {
+        "origin": "orb:near:7",
+        "ordinal": 0,
+        "owner": 1,
+        "suit": "Wright",
+        "lane": "Lord",
+        "attributes": {
+          "x_fp": 1270,
+          "y_fp": 300
+        }
+      },
+      {
+        "origin": "orb:near:8",
+        "ordinal": 0,
+        "owner": 0,
+        "suit": "Butcher",
+        "lane": "Lord",
+        "attributes": {
+          "x_fp": 1305,
+          "y_fp": 345
+        }
+      },
+      {
+        "origin": "orb:near:9",
+        "ordinal": 0,
+        "owner": 1,
+        "suit": "Penitent",
+        "lane": "Lord",
+        "attributes": {
+          "x_fp": 1340,
+          "y_fp": 255
+        }
+      },
+      {
+        "origin": "orb:near:10",
+        "ordinal": 0,
+        "owner": 0,
+        "suit": "Vulture",
+        "lane": "Lord",
+        "attributes": {
+          "x_fp": 1375,
+          "y_fp": 300
+        }
+      },
+      {
+        "origin": "orb:near:11",
+        "ordinal": 0,
+        "owner": 1,
+        "suit": "Wright",
+        "lane": "Lord",
+        "attributes": {
+          "x_fp": 1410,
+          "y_fp": 345
+        }
+      },
+      {
+        "origin": "orb:sweep",
+        "ordinal": 0,
+        "owner": 0,
+        "suit": "Butcher",
+        "lane": "Castle",
+        "attributes": {
+          "x_fp": 900,
+          "y_fp": 300,
+          "step_fp": 600
+        }
+      },
+      {
+        "origin": "orb:held",
+        "ordinal": 0,
+        "owner": 1,
+        "suit": "Vulture",
+        "lane": "Castle",
+        "attributes": {
+          "x_fp": 1350,
+          "y_fp": 400,
+          "movement_ready_round": 2
+        }
+      }
+    ],
+    "operations": [
+      {
+        "kind": "march",
+        "round": 1,
+        "expected_action": "resolved"
+      }
+    ],
+    "contact_probes": []
+  },
+  {
+    "name": "gravity_ties_web_collapse_recovery",
+    "seed": "u13-marching:\u00e9:gravity_ties_web_collapse_recovery",
+    "player_order": [
+      0,
+      1
+    ],
+    "ranged": true,
+    "data": {
+      "valak_orbs": [
+        {
+          "id": "u13_persistent:5:z-orb:10:GravityOrb",
+          "owner": 1,
+          "target": {
+            "lane": "Lord",
+            "field_position": {
+              "x_fp": 1400,
+              "y_fp": 300
+            }
+          },
+          "round": 1,
+          "consumed": 0,
+          "rewarded": false
+        },
+        {
+          "id": "u13_persistent:5:a-orb:10:GravityOrb",
+          "owner": 0,
+          "target": {
+            "lane": "Lord",
+            "field_position": {
+              "x_fp": 1000,
+              "y_fp": 300
+            }
+          },
+          "round": 1,
+          "consumed": 0,
+          "rewarded": false
+        }
+      ],
+      "neutral_tears": 0,
+      "breach_lord": "Valak",
+      "spatial_field_profile": "U13_SPATIAL_WEB_FIELDS_V1",
+      "lane_aura_profile": "U13_LANE_AURAS_V1",
+      "rout_profile": "U13_ROUT_V1"
+    },
+    "effects": [
+      {
+        "declaration": {
+          "power_id": "Web",
+          "player_id": 1
+        },
+        "target": {
+          "lane": "Lord",
+          "field_position": {
+            "x_fp": 1200,
+            "y_fp": 300
+          }
+        },
+        "payload": {
+          "spatial_field": {
+            "kind": "web",
+            "radius_fp": 600
+          }
+        },
+        "activated_round": 1,
+        "stages": [
+          1,
+          2
+        ]
+      },
+      {
+        "declaration": {
+          "power_id": "BreathOfLife",
+          "player_id": 0
+        },
+        "target": {
+          "lane": "Lord"
+        },
+        "payload": {
+          "lane_aura": {
+            "regen_bonus": 1,
+            "speed_percent": 25
+          }
+        },
+        "activated_round": 1,
+        "stages": [
+          1,
+          2
+        ]
+      }
+    ],
+    "units": [
+      {
+        "origin": "collapse:0",
+        "ordinal": 0,
+        "owner": 0,
+        "suit": "Penitent",
+        "lane": "Lord",
+        "attributes": {
+          "x_fp": 1200,
+          "y_fp": 250,
+          "rout_round": 1,
+          "rout_effect_id": "fixture:rout"
+        }
+      },
+      {
+        "origin": "collapse:1",
+        "ordinal": 0,
+        "owner": 1,
+        "suit": "Penitent",
+        "lane": "Lord",
+        "attributes": {
+          "x_fp": 1200,
+          "y_fp": 270,
+          "rout_round": 1,
+          "rout_effect_id": "fixture:rout"
+        }
+      },
+      {
+        "origin": "collapse:2",
+        "ordinal": 0,
+        "owner": 0,
+        "suit": "Penitent",
+        "lane": "Lord",
+        "attributes": {
+          "x_fp": 1200,
+          "y_fp": 290,
+          "rout_round": 1,
+          "rout_effect_id": "fixture:rout"
+        }
+      },
+      {
+        "origin": "collapse:3",
+        "ordinal": 0,
+        "owner": 1,
+        "suit": "Penitent",
+        "lane": "Lord",
+        "attributes": {
+          "x_fp": 1200,
+          "y_fp": 310,
+          "rout_round": 1,
+          "rout_effect_id": "fixture:rout"
+        }
+      },
+      {
+        "origin": "collapse:4",
+        "ordinal": 0,
+        "owner": 0,
+        "suit": "Penitent",
+        "lane": "Lord",
+        "attributes": {
+          "x_fp": 1200,
+          "y_fp": 330,
+          "rout_round": 1,
+          "rout_effect_id": "fixture:rout"
+        }
+      },
+      {
+        "origin": "collapse:5",
+        "ordinal": 0,
+        "owner": 1,
+        "suit": "Penitent",
+        "lane": "Lord",
+        "attributes": {
+          "x_fp": 1200,
+          "y_fp": 350,
+          "rout_round": 1,
+          "rout_effect_id": "fixture:rout"
+        }
+      }
+    ],
+    "operations": [
+      {
+        "kind": "march",
+        "round": 2,
+        "expected_action": "resolved"
+      }
+    ],
+    "contact_probes": []
+  },
+  {
+    "name": "gravity_slow_pulses",
+    "seed": "gravity-well-pulses",
+    "player_order": [
+      0,
+      1
+    ],
+    "ranged": true,
+    "data": {
+      "valak_orbs": [
+        {
+          "id": "u13_persistent:8:orb:lord:10:GravityOrb",
+          "owner": 0,
+          "target": {
+            "lane": "Lord",
+            "field_position": {
+              "x_fp": 1200,
+              "y_fp": 300
+            }
+          },
+          "round": 1,
+          "consumed": 0,
+          "rewarded": false
+        }
+      ],
+      "neutral_tears": 0
+    },
+    "effects": [],
+    "units": [
+      {
+        "origin": "pulse-test",
+        "ordinal": 0,
+        "owner": 0,
+        "suit": "Butcher",
+        "lane": "Lord",
+        "birth": 0,
+        "ready": 3,
+        "attributes": {
+          "x_fp": 1265,
+          "y_fp": 300,
+          "armor": 0,
+          "hp": 1,
+          "max_hp": 1,
+          "step_fp": 0
+        }
+      },
+      {
+        "origin": "pulse-test",
+        "ordinal": 1,
+        "owner": 0,
+        "suit": "Butcher",
+        "lane": "Lord",
+        "birth": 0,
+        "ready": 3,
+        "attributes": {
+          "x_fp": 1350,
+          "y_fp": 300,
+          "armor": 1,
+          "hp": 5,
+          "max_hp": 5,
+          "step_fp": 0
+        }
+      },
+      {
+        "origin": "pulse-test",
+        "ordinal": 2,
+        "owner": 0,
+        "suit": "Butcher",
+        "lane": "Lord",
+        "birth": 0,
+        "ready": 3,
+        "attributes": {
+          "x_fp": 1450,
+          "y_fp": 300,
+          "armor": 0,
+          "hp": 5,
+          "max_hp": 5,
+          "step_fp": 0
+        }
+      }
+    ],
+    "operations": [
+      {
+        "kind": "march",
+        "round": 1,
+        "expected_action": "resolved"
+      },
+      {
+        "kind": "march",
+        "round": 2,
+        "expected_action": "resolved"
+      }
+    ],
+    "contact_probes": []
+  }
+]

@@ -219,6 +219,11 @@ class PlannerObserver(ReferenceObserver):
                     prefix = 'friendly_' if owner == seat else 'enemy_'
                     metrics.update({prefix+key: value for key, value in values.items()})
                 metrics = dict(metrics)
+        elif kind == 'GRAVITY_ORB_DAMAGED' and identity:
+            prefix = 'friendly_' if d['target']['owner'] == seat else 'enemy_'
+            metrics = {prefix+'gravity_hp_damage': min(d['damage_dealt'], d['target']['attributes']['hp']),
+                       prefix+'gravity_armor_damage': d['armor_absorbed'],
+                       prefix+'gravity_pulse_kills': int(d['hp_after'] == 0)}
         elif kind == 'GRAVITY_ORB_CONSUMED' and identity:
             metrics = dict(enemy_units_consumed=int(d['unit']['owner'] != seat), friendly_units_consumed=int(d['unit']['owner'] == seat))
         elif kind == 'RAVENOUS_ARMED':

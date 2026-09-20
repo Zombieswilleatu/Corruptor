@@ -3,7 +3,7 @@ extends "res://Prototype/U13/U13VisualPreview.gd"
 const Visual = preload("res://Prototype/U13/U13ValakVisual.gd")
 const Orbs = preload("res://Scripts/Sim/U13GravityOrbs.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
-const TICK_SECONDS: float = 0.05
+const TICK_SECONDS: float = 15.0 / 200.0
 var units = Ids.new()
 var orb_rows: Array = []
 var pull_strength: int = Orbs.PULL_FP
@@ -103,7 +103,7 @@ func _ready() -> void:
 	guide.size = Vector2(350, 480)
 	guide.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	guide.add_theme_font_size_override("font_size", 19)
-	guide.text = "ABSORPTION\nA small green core hovers beside Valak. Every absorbed charge adds another rotating layer.\n\nPROJECTION\nSend the stored energy to your selected point. The hovering orb empties as it leaves.\n\nTHE ORB\nLaunch from the head of Valak’s staff. At the target, play the singularity sequence, then sustain the rotating effect.\n\nGRAVITY PULL\nBoth armies are pulled only in the targeted lane; core contact destroys them. Rings show pull and destruction radius.\n\nPull sliders change this preview only. Reset marchers to repeat. No marcher combat in this preview."
+	guide.text = "ABSORPTION\nA small green core hovers beside Valak. Every absorbed charge adds another rotating layer.\n\nPROJECTION\nSend the stored energy to your selected point. The hovering orb empties as it leaves.\n\nTHE ORB\nLaunch from the head of Valak’s staff. At the target, play the singularity sequence, then sustain the rotating effect.\n\nGRAVITY PULL\nBoth armies are pulled only in the targeted lane; only the tiny core destroys them. The outer area deals 1 damage every 5 seconds, Armor first. Rings show pull and core radius.\n\nPull sliders change this preview only. Reset marchers to repeat. No marcher combat in this preview."
 	add_child(guide)
 	_sync_anchors()
 	_reset()
@@ -240,6 +240,8 @@ func _screen_point(a: Dictionary) -> Vector2:
 
 
 func _cast_orb() -> void:
+	tick_number = 0
+	tick_clock = 0.0
 	visual.cast(destination)
 	var right: bool = destination.x >= field_rect.get_center().x
 	var origin: float = field_rect.position.x + (field_rect.size.x * 0.5 if right else 0.0)
@@ -254,7 +256,7 @@ func _reset_marchers() -> void:
 	tick_number = 0
 	for index in range(24):
 		var owner: int = index % 2
-		units.create("marcher", "preview", index, owner, {"lane": "Lord" if index < 12 else "Castle", "x_fp": 200 + (index % 6) * 360, "y_fp": 180 + (index % 3) * 120, "movement_ready_round": 1, "waiting": false, "contact_tick": -1})
+		units.create("marcher", "preview", index, owner, {"lane": "Lord" if index < 12 else "Castle", "x_fp": 200 + (index % 6) * 360, "y_fp": 180 + (index % 3) * 120, "movement_ready_round": 1, "waiting": false, "contact_tick": -1, "hp": 5, "armor": 1})
 	queue_redraw()
 
 
@@ -267,5 +269,5 @@ func _step_marchers() -> void:
 	if visual.phase == "rotate":
 		var events: Array = Orbs.step(orb_rows, units, before, 1, tick_number, false, pull_strength, pull_radius)
 		for event in events:
-			consumed[event.event.data.unit.owner] += 1
+			if event.event.type == "GRAVITY_ORB_CONSUMED": consumed[event.event.data.unit.owner] += 1
 	tick_number += 1

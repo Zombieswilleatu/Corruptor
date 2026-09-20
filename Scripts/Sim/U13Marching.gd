@@ -302,8 +302,17 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 		if not gravity_orbs.is_empty():
 			var gravity_events: Array = Gravity.step(gravity_orbs, entities, gravity_before, context.round, tick, collapse)
 			for event in gravity_events:
-				world.data.neutral_tears += int(event.event.data.neutral_tears)
+				world.data.neutral_tears += int(event.event.data.get("neutral_tears", 0))
 			events.append_array(gravity_events)
+			var fallen: Array = gravity_events.filter(func(e): return e.event.type == "MARCHER_DEFEATED")
+			if not fallen.is_empty():
+				world.entities = entities.snapshot()
+				for row in fallen:
+					var reacted: Dictionary = reaction.call(world, row.event, context.seed, context.player_order)
+					if reacted.get("action") != "resolved": return Data.invalid("gravity_reaction_invalid")
+					world = reacted.world
+					events.append_array(reacted.events)
+				if entities.restore(world.entities).action == "invalid": return Data.invalid("gravity_entities_invalid")
 		if not lamp_objects.is_empty():
 			events.append_array(Wishmaster.claim(lamp_objects, entities, lamp_before, context.seed, context.round, tick))
 		if has_wishes:

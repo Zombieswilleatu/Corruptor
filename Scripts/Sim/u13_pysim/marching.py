@@ -485,7 +485,13 @@ class Phase:
                 s = self.s
             move(s, duels, context, clock, modifiers, fields, fleeing, lamps)
             if orbs:
+                first_gravity_event = len(self.events)
                 self.w["data"]["neutral_tears"] += gravity(s, orbs, before, self.number, tick, collapse, self.emit)
+                fallen = [r['event'] for r in self.events[first_gravity_event:] if r['event']['type']=='MARCHER_DEFEATED']
+                if fallen:
+                    self.w['entities'] = s.snapshot()
+                    for fact in fallen: self.react(fact, 'gravity_reaction_invalid')
+                    self.restore_reactions('gravity_reaction_invalid'); s = self.s
             if lamps: self.events.extend(wishmaster.claim(lamps,buffer,lamp_before,context["seed"],self.number,tick))
             if has_wishes: self.events.extend(wishmaster.bypass(buffer,self.number,tick))
             if has_retreat or orbs or has_wishes:

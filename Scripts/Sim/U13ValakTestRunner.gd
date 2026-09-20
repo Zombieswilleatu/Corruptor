@@ -30,6 +30,7 @@ func _run() -> void:
 			check(Session.new().restore_checkpoint(session.checkpoint()).action != "invalid", "restore " + lord)
 	_essence()
 	_projection()
+	_friendly_projection()
 	_combat()
 	_orbs()
 	_collapse()
@@ -64,7 +65,7 @@ func _projection() -> void:
 		check(not content.validate(bad, world, "declaration").legal, "Projection rejects marching lane")
 		bad = source.duplicate(true)
 		bad.target.player_id = 0
-		check(not content.validate(bad, world, "declaration").legal, "Projection rejects own zone")
+		check(content.validate(bad, world, "declaration").legal, "Projection accepts own zone")
 		world.players[0].resources.life_essence = 2
 		check(not content.validate(source, world, "declaration").legal, "cannot declare unowned Essence")
 		world.data.valak_reserved[0] = 3
@@ -257,3 +258,19 @@ func _gravity_match() -> void:
 	forged = snapshot.duplicate(true)
 	forged.world.data.valak_reserved[0] = 1
 	check(Content.new().create_combat_match().restore(forged).action == "invalid", "reject unbacked Projection reservation")
+
+func _friendly_projection() -> void:
+	var content = Content.new()
+	var world: Dictionary = Scenario.world()
+	world.players[0].resources.life_essence = 1
+	world.data.valak_reserved[0] = 2
+	var own: Array = world.entities.entities.filter(func(r): return r.kind == "card" and r.owner == 0 and r.attributes.get("role") == "guard")
+	if not check(not own.is_empty(), "friendly Projection guard fixture"): return
+	for guard in own: guard.attributes.value = 5
+	own[0].attributes.value = 2
+	var source: Dictionary = Scenario.source(0, 1, {"kind": "guard_zone", "player_id": 0, "zone": own[0].attributes.lane}, 0, Content.PROJECTION, 2)
+	var result: Dictionary = content.resolve({"declaration": source, "fire_hook": Timeline.POST_RESOLUTION_DIRECT}, {"world": world, "round": 1, "seed": "friendly-projection", "player_order": [0, 1]})
+	if not check(result.action == "resolved", "friendly Projection resolves"): return
+	check(result.events.back().event.data.victim.id == own[0].id, "friendly Projection removes own qualifying Guard")
+	check(result.world.players[0].resources.life_essence == 1 and not result.events.any(func(e): return e.event.type == "VALAK_ESSENCE_GAINED"), "friendly Projection does not refund or generate Essence")
+	check(content.valid_world(result.world), "friendly Projection preserves world invariants")

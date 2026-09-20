@@ -2,7 +2,14 @@
 
 import math
 
-from . import veil
+from . import veil, incoming_damage
+from .primitives import instance_id
+from .copying import copy_data
+
+GRAVITY_CORE = 20
+GRAVITY_PULL = 2
+GRAVITY_RADIUS = 248
+GRAVITY_DAMAGE_INTERVAL = 67
 from .economy import Rejected, Unsupported
 
 LANES = ("Lord", "Castle")
@@ -95,15 +102,16 @@ def swept(ax, ay, bx, by, px, py):
     vx, vy = px - ax, py - ay
     length, dot = dx * dx + dy * dy, vx * dx + vy * dy
     if length == 0 or dot <= 0:
-        return distance(ax, ay, px, py) <= 65 ** 2
+        return distance(ax, ay, px, py) <= GRAVITY_CORE ** 2
     if dot >= length:
-        return distance(bx, by, px, py) <= 65 ** 2
-    return (vx * dy - vy * dx) ** 2 <= 65 ** 2 * length
+        return distance(bx, by, px, py) <= GRAVITY_CORE ** 2
+    return (vx * dy - vy * dx) ** 2 <= GRAVITY_CORE ** 2 * length
 
 
 def gravity(s, orbs, before, number, tick, collapse, emit):
     """Pull uses pre-movement positions; consumption tests the swept segment."""
     tears = 0
+    pulse_due = any(((number-o.get('round',number))*200+tick+1) % GRAVITY_DAMAGE_INTERVAL == 0 for o in orbs)
     for identity, ax, ay, lane, ready in before:
         i = s.live(identity)
         if i is None:
@@ -114,19 +122,21 @@ def gravity(s, orbs, before, number, tick, collapse, emit):
                 continue
             point = orb["target"]["field_position"]
             gap = distance(ax, ay, point["x_fp"], point["y_fp"])
-            if gap <= 248 ** 2 and (gap < best or gap == best and (chosen is None or orb["id"] < chosen["id"])):
+            if gap <= GRAVITY_RADIUS ** 2 and (gap < best or gap == best and (chosen is None or orb["id"] < chosen["id"])):
                 chosen, best = orb, gap
         if chosen is not None and ready <= number:
             point = chosen["target"]["field_position"]
             length = max(1, ceil_sqrt(best))
-            pull = (7 + tick % 2) >> 1 if veil.applies_to(collapse,s.owner[i]) else 7
-            s.x_fp[i] = ax + half_away(float(point["x_fp"] - ax) * pull / length)
-            s.y_fp[i] = ay + half_away(float(point["y_fp"] - ay) * pull / length)
+            pull = (GRAVITY_PULL + tick % 2) >> 1 if veil.applies_to(collapse,s.owner[i]) else GRAVITY_PULL
+            s.x_fp[i] += half_away(float(point["x_fp"] - ax) * pull / length)
+            s.y_fp[i] += half_away(float(point["y_fp"] - ay) * pull / length)
             s.waiting[i], s.contact_tick[i] = False, -1
+        consumed = False
         for orb in orbs:
             point = orb["target"]["field_position"]
             if orb["target"]["lane"] != lane or not swept(ax, ay, s.x_fp[i], s.y_fp[i], point["x_fp"], point["y_fp"]):
                 continue
+            consumed = True
             s.retire(i)
             orb["consumed"] += 1
             reward = orb["consumed"] >= 4 and not orb["rewarded"]
@@ -135,4 +145,24 @@ def gravity(s, orbs, before, number, tick, collapse, emit):
             emit("GRAVITY_ORB_CONSUMED", dict(effect_id=orb["id"], player_id=orb["owner"], unit=s.row(i),
                  consumed=orb["consumed"], neutral_tears=int(reward), round=number, tick=tick))
             break
+        if consumed or not pulse_due:
+            continue
+        candidates = [(distance(s.x_fp[i], s.y_fp[i], orb['target']['field_position']['x_fp'], orb['target']['field_position']['y_fp']), orb['id'], orb)
+                      for orb in orbs if orb['target']['lane'] == lane]
+        chosen = min(candidates, default=None, key=lambda row: row[:2])
+        if chosen is None or chosen[0] > GRAVITY_RADIUS ** 2:
+            continue
+        orb = chosen[2]
+        if ((number-orb.get('round',number))*200+tick+1) % GRAVITY_DAMAGE_INTERVAL: continue
+        victim = copy_data(s.row(i))
+        amount = incoming_damage.amount(victim['attributes'], 1, number * 200 + tick)
+        absorbed = min(s.armor[i], amount); dealt = amount - absorbed
+        s.armor[i] -= absorbed; s.hp[i] = max(0, s.hp[i] - dealt)
+        if s.hp[i] == 0: s.retire(i)
+        emit('GRAVITY_ORB_DAMAGED', dict(effect_id=orb['id'], player_id=orb['owner'], target=victim,
+             damage_dealt=dealt, armor_absorbed=absorbed, hp_after=s.hp[i], round=number, tick=tick))
+        if s.hp[i] == 0:
+            emit('MARCHER_DEFEATED', dict(event_id=instance_id('gravity_damage',f"{number}:{tick}:{orb['id']}",s.ids[i]),
+                 effect_id=orb['id'], player_id=orb['owner'], victim=victim, cause='gravity',
+                 damage_dealt=dealt, hp_after=0, round=number, hook='marching', tick=tick))
     return tears
