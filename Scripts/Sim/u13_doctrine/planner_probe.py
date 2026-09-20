@@ -190,9 +190,14 @@ class PlannerObserver(ReferenceObserver):
         elif kind in ('KANIFOUS_PRICE_RESOLVED', 'KANIFOUS_PRICE_DEFERRED'):
             identity = self.prices.get(d['id'])
             metrics = {'price_'+d['outcome'].lower(): 1}
+        elif kind == 'VALAK_ESSENCE_GAINED' and d.get('guard', {}).get('owner') == seat:
+            identity = self.selected.get((number, seat, 'powers', 'Projection'))
+            metrics = dict(sacrifice_essence_gained=d['gained'])
         elif kind == 'VALAK_PROJECTION_RESOLVED':
             identity = self.selected.get((number, seat, 'powers', 'Projection'))
-            metrics = dict(essence_spent=d['spend'], guards_removed=int(bool(d['victim'])), whiffs=int(d['whiff']))
+            metrics = dict(essence_spent=d['spend'], guards_removed=int(bool(d['victim'])), whiffs=int(d['whiff']),
+                friendly_guards_sacrificed=int(bool(d['victim']) and d['victim']['owner']==seat),
+                enemy_guards_removed=int(bool(d['victim']) and d['victim']['owner']!=seat))
         elif kind in ('WEB_HIT', 'GUARD_RECONFIGURED', 'CASTLE_DEFUNCT') and identity:
             metrics = {dict(WEB_HIT='web_hits', GUARD_RECONFIGURED='guards_moved', CASTLE_DEFUNCT='castles_disabled')[kind]: 1}
         elif kind == 'CASTLE_DAMAGED' and identity:

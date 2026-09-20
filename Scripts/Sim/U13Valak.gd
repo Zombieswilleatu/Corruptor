@@ -77,6 +77,10 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 		world = reacted.world
 		events.append({"event": hit.event, "views": [hit.event, hit.event]})
 		events.append_array(reacted.events)
+		# A paid friendly sacrifice charges the pool once; enemy Projection
+		# kills do not feed it. The reservation has already been consumed.
+		if victim.owner == pid and Essence.active(world, pid):
+			events.append(Essence.gain(world, pid, victim, context.round))
 	events.append(Essence.event("VALAK_PROJECTION_RESOLVED", {"player_id": pid, "target": source.target, "spend": spend, "before": before, "after": world.players[pid].resources[Essence.RESOURCE], "victim": victim, "whiff": victim.is_empty(), "round": context.round}))
 	return {"action": "resolved", "world": world, "events": events}
 

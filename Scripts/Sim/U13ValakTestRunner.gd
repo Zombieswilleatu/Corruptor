@@ -31,6 +31,7 @@ func _run() -> void:
 	_essence()
 	_projection()
 	_friendly_projection()
+	_sacrifice_edges()
 	_combat()
 	_orbs()
 	_collapse()
@@ -272,5 +273,28 @@ func _friendly_projection() -> void:
 	var result: Dictionary = content.resolve({"declaration": source, "fire_hook": Timeline.POST_RESOLUTION_DIRECT}, {"world": world, "round": 1, "seed": "friendly-projection", "player_order": [0, 1]})
 	if not check(result.action == "resolved", "friendly Projection resolves"): return
 	check(result.events.back().event.data.victim.id == own[0].id, "friendly Projection removes own qualifying Guard")
-	check(result.world.players[0].resources.life_essence == 1 and not result.events.any(func(e): return e.event.type == "VALAK_ESSENCE_GAINED"), "friendly Projection does not refund or generate Essence")
+	check(result.world.players[0].resources.life_essence == 3 and result.events.any(func(e): return e.event.type == "VALAK_ESSENCE_GAINED"), "friendly Projection generates two Essence after spending")
 	check(content.valid_world(result.world), "friendly Projection preserves world invariants")
+
+func _sacrifice_edges() -> void:
+	var content = Content.new()
+	for spec in [[1, 1, 1, true, 2], [5, 1, 1, true, 5], [3, 3, 1, true, 2], [3, 1, 1, false, 2]]:
+		var world: Dictionary = Scenario.world()
+		world.players[0].resources.life_essence = spec[0] - spec[2]
+		world.data.valak_reserved[0] = spec[2]
+		var own: Array = world.entities.entities.filter(func(r): return r.kind == "card" and r.owner == 0 and r.attributes.get("role") == "guard")
+		if not check(not own.is_empty(), "sacrifice edge fixture"): return
+		for guard in own: guard.attributes.value = 5
+		own[0].attributes.value = spec[1]
+		for row in world.entities.entities:
+			if row.id == world.players[0].lord_entity_id: row.attributes.alive = spec[3]
+		var source: Dictionary = Scenario.source(0, 1, {"kind": "guard_zone", "player_id": 0, "zone": own[0].attributes.lane}, 0, Content.PROJECTION, spec[2])
+		var record: Dictionary = {"declaration": source, "fire_hook": Timeline.POST_RESOLUTION_DIRECT}
+		var ctx: Dictionary = {"world": world, "round": 1, "seed": "sacrifice-edges", "player_order": [0, 1]}
+		var result: Dictionary = content.resolve(record, ctx)
+		if not check(result.action == "resolved", "sacrifice edge resolves"): return
+		check(result.world.players[0].resources.life_essence == spec[4], "sacrifice net gain, cap, whiff and banishment " + str(spec))
+		check(content.valid_world(result.world), "sacrifice edge invariants")
+		check(content.resolve(record, ctx) == result, "sacrifice deterministic replay")
+		ctx.world = result.world
+		check(content.resolve(record, ctx).action == "invalid", "spent sacrifice cannot be applied twice")

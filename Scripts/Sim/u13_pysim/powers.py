@@ -249,6 +249,9 @@ def resolve(rec,state,n):
         candidates=sorted((r for r in guards(w) if r['owner']==t['player_id'] and r['attributes']['lane']==t['zone'] and r['attributes']['value']<=spend),key=lambda r:(-r['attributes']['value'],r['attributes']['slot'],r['id']))
         victim=copy_data(candidates[0]) if candidates else {}
         if victim: events.extend(b.apply_fact(dict(command_id=instance_id('projection',identity,victim['id']),kind='defeat_guard',target_id=victim['id'])))
+        if victim and victim['owner']==pid and b.active(pid,'Valak'):
+            previous=resources['life_essence'];resources['life_essence']=min(5,previous+2)
+            events.append(e.event('VALAK_ESSENCE_GAINED',dict(player_id=pid,guard=victim,before=previous,after=resources['life_essence'],gained=resources['life_essence']-previous,round=n)))
         events.append(e.event('VALAK_PROJECTION_RESOLVED',dict(player_id=pid,target=t,spend=spend,before=before,after=resources['life_essence'],victim=victim,whiff=not bool(victim),round=n)))
     elif power in WISHES:
         power=power.removeprefix('Breach')

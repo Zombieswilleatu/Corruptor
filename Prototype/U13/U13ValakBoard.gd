@@ -35,7 +35,7 @@ func _build() -> void:
 	projection_spend.prefix = "Essence to spend: "
 	valak_box.add_child(projection_spend)
 	projection_button = _button(valak_box, "CHOOSE PROJECTION TARGET", _queue_projection)
-	var note: Label = _label(valak_box, "Choose either side’s guard zone. After combat: defeat its highest-value Guard at or below your chosen spend. An empty zone or miss still spends the Essence. No refund from Projection kills.", 13)
+	var note: Label = _label(valak_box, "Choose either side’s guard zone. After combat: defeat its highest-value Guard at or below your chosen spend. A friendly sacrifice grants +2 Essence, capped at 5, while Valak is alive. Enemy kills and misses grant none. Spend 1 on a value-1 friendly Guard to gain 1 net charge.", 13)
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	gravity_button = _button(valak_box, "GRAVITY ORB", _begin_gravity)
 	note = _label(valak_box, "Pulls both armies. Outer field: 1 damage about every 5 seconds, Armor first. Only the tiny core instantly kills. Four core kills create one Neutral Tear. Active two rounds; cooldown two rounds.", 13)

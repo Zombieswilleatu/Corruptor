@@ -67,7 +67,7 @@ class GravityWellTests(unittest.TestCase):
         w=dict(data=dict(kanifous_losses=[]));record_losses(w,events)
         self.assertEqual(1,len(w['data']['kanifous_losses']))
 
-    def test_friendly_projection_is_admitted_resolves_and_does_not_refund(self):
+    def test_projection_only_friendly_kills_generate_essence(self):
         helpers=test_powers.PowerTests()
         for owner in (0,1):
             g=helpers.before_lock('Valak');w=g._state['world'];w['players'][0]['resources']['life_essence']=3
@@ -82,8 +82,34 @@ class GravityWellTests(unittest.TestCase):
             rows=[e['event'] for e in g._state['events']['rows']]
             shot=next(e['data'] for e in rows if e['type']=='VALAK_PROJECTION_RESOLVED')
             self.assertEqual(card_id,shot['victim']['id']);self.assertFalse(shot['whiff'])
-            self.assertEqual(1,g._state['world']['players'][0]['resources']['life_essence'])
-            self.assertFalse(any(e['type']=='VALAK_ESSENCE_GAINED' for e in rows))
+            self.assertEqual(3 if owner==0 else 1,g._state['world']['players'][0]['resources']['life_essence'])
+            self.assertEqual(owner==0,any(e['type']=='VALAK_ESSENCE_GAINED' for e in rows))
+
+
+    def test_sacrifice_gain_cap_whiff_banishment_and_replay(self):
+        helpers=test_powers.PowerTests()
+        from copy import deepcopy
+        for pool, value, spend, alive, expected in ((1,1,1,True,2),(5,1,1,True,5),(3,2,2,True,3),(3,3,1,True,2),(3,1,1,False,2)):
+            with self.subTest(pool=pool,value=value,spend=spend,alive=alive):
+                g=helpers.before_lock('Valak');w=g._state['world'];w['players'][0]['resources']['life_essence']=pool
+                ids=Entities();ids.restore(w['entities']);card_id=economy.zones(w)['hands'][0].pop(0)
+                ids.rows[card_id]['attributes'].update(role='guard',lane='Lord',slot=0,value=value)
+                w['entities']=ids.snapshot();g._state['presentation_world']=copy_data(w)
+                source=declaration(0,1,'Projection',dict(kind='guard_zone',zone='Lord',player_id=0),parameters=dict(spend=spend))
+                self.assertNotEqual('invalid',helpers.submit(g,[source])['action'])
+                helpers.drive(g,'post_resolution_direct',1)
+                if not alive:
+                    lord=economy.entity(g._state['world'],g._state['world']['players'][0]['lord_entity_id'])
+                    lord['attributes']['alive']=False
+                restored=deepcopy(g)
+                op=dict(kind='step',hook='post_resolution_direct')
+                self.assertNotEqual('invalid',g.apply(op)['action'])
+                self.assertNotEqual('invalid',restored.apply(op)['action'])
+                self.assertEqual(g.snapshot(),restored.snapshot())
+                self.assertEqual(expected,g._state['world']['players'][0]['resources']['life_essence'])
+                gains=[r['event']['data'] for r in g._state['events']['rows'] if r['event']['type']=='VALAK_ESSENCE_GAINED']
+                self.assertEqual(int(alive and value<=spend),len(gains))
+                after=g.snapshot();self.assertEqual('invalid',g.apply(op)['action']);self.assertEqual(after,g.snapshot())
 
 
 if __name__=='__main__':unittest.main()
