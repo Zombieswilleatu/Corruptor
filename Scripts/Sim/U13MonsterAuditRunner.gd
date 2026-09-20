@@ -31,6 +31,8 @@ func export_cases(config: Dictionary, path: String) -> void:
 					var total: int = 0
 					for card in cards: total += int(card.attributes.value)
 					for i in range(floori(float(total) / 3.0)): ordinary.append(suit)
+				# Artificial replacement benchmark, not an actual commitment choice:
+				# production reveal summons the regular troops AND the monster.
 				teams = [spec.get("core", []) + [spec.recipe], spec.get("core", []) + ordinary]
 			for pid in [0, 1]:
 				for name in teams[pid]:

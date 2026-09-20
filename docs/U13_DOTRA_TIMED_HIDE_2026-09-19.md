@@ -2,6 +2,8 @@
 
 Historical comparison: [V17 adds five seconds of untargetability after emergence](U13_DOTRA_SHROUD_2026-09-20.md).
 
+Interpretation correction: actual commitments summon normal marchers **plus** their chosen monster. Recipe comparisons below are artificial replacement benchmarks, not a gameplay resource tradeoff. The continuous simulations already use additive spawning.
+
 Dotra now hides **once per summon, after his first 15 seconds on the field**, replacing the 25% concealment roll. The delay is 200 simulation ticks and begins on his first eligible field tick. Protected staging and the birth hold do not consume it. Playback speed scales those 15 game seconds normally.
 
 After hiding, he keeps moving at full speed until an enemy enters his 240 ambush radius. He then delivers the existing 5-damage ambush and exposes nearby enemies within 360 to +1 incoming damage per hit, before Armor, for one full round. He does not roll for another hide after emerging. The timer and spent concealment survive save/load; a mid-round activation still waits a full 200 ticks.

@@ -10,6 +10,8 @@ Both engines use `U13_MONSTERS_V17_DOTRA_SHROUD`, with `dotra_shroud_ticks: 67`.
 
 ## Matched balance comparison
 
+**Interpretation corrected:** a qualifying commitment summons its normal marchers **plus** the chosen monster. The recipe rows below are artificial replacement benchmarks that pit Dotra against the ordinary troops his recipe cards produce. They do not represent a gameplay tradeoff, and losing them does not mean summoning Dotra is a poor use of those cards. The continuous games already use the correct additive spawning rule in both engines.
+
 The same 576 fights cover 18 Dotra scenarios, 16 seeds and both reflected seats. All 288 seat pairs matched outcomes, goals, surviving forces and duration. The batch resolved 1,556 intervals with no round caps. The [V16 report](U13_DOTRA_TIMED_HIDE_2026-09-19.md) supplies the previous results.
 
 Each row is from Dotra's side. Counts include both seats: there are 16 independent seeds per scenario, not 32 independent draws.
@@ -17,12 +19,14 @@ Each row is from Dotra's side. Counts include both seats: there are 16 independe
 | Scenario | V16 wins / losses | V17 wins / losses |
 |---|---:|---:|
 | Dotra versus ordinary units from his recipe cards | 4 / 28 | 22 / 10 |
-| Same-card comparison with support on both sides | 4 / 28 | 4 / 28 |
+| Artificial replacement benchmark with identical support | 4 / 28 | 4 / 28 |
 | Supported versus six Butchers | 0 / 32 | 0 / 32 |
 | Supported versus three Penitents and three Vultures | 0 / 32 | 32 / 0 |
 | Supported versus mixed army | 22 / 10 | 32 / 0 |
 
-Support is one of each ordinary marcher. The mixed opponent has that core plus two additional Butchers. This is a substantial buff against several formations, especially the ranged formation; it does not settle his overall balance. His same-card supported matchup and six-Butcher matchup remain weak.
+Support is one of each ordinary marcher. The mixed opponent has that core plus two additional Butchers. This is a substantial buff against several formations, especially the ranged formation; it does not settle his overall balance. The 4/32 supported replacement result and 0/32 six-Butcher result describe those particular test forces, not the value of choosing Dotra in a real commitment. He does not need to outperform all the regular troops his recipe produces, because the player receives those troops too.
+
+To assess his actual contribution, compare the army his commitment produces with and without Dotra against fixed opposing forces. Compare that improvement, recipe availability and competing uses of the cards with other monsters. Do not use the artificial replacement win rate as a requirement for further buffs.
 
 The controlled batch still produced exactly 576 ambush/exposure pulses and 910 affected-enemy instances. Dotra's recorded HP damage rose from 5,116 to 6,054, kills from 564 to 742, and deaths fell from 252 to 176. The new protection changes what happens after the ambush rather than adding more ambushes. Damage from allies hitting exposed enemies remains credited to those allies.
 

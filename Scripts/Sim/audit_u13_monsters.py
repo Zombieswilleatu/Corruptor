@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Current lane roster audit; native staging inputs, production Python combat.
 
-Controlled outcomes are lane results, not full-game wins. Recipe comparisons
-use the same sampled printed cards on each side; ordinary bodies are what
-those cards would produce without choosing the monster. No tuning overrides.
+Controlled outcomes are lane results, not full-game wins. Recipe fixtures are
+artificial replacement benchmarks: a monster versus the ordinary bodies its
+sampled recipe cards produce, optionally with identical support. Actual
+commitments summon BOTH the normal marchers and the chosen monster. These
+fixtures compare combat strength, not a gameplay resource tradeoff. Continuous
+runs use production spawning and retain both. No tuning overrides.
 """
 import argparse
 from collections import Counter, defaultdict
