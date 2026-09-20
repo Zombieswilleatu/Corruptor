@@ -148,14 +148,17 @@ def ordinary(f, category, weights):
 
 
 class CommonSmartCore:
-    def __init__(self, weights=None, limits=None, lord_modules=True, selector=None):
+    def __init__(self, weights=None, limits=None, lord_modules=True, selector=None, rout_mode='old'):
+        if rout_mode not in ('old', 'new', 'none'): raise ValueError('Unknown Rout experiment mode')
+        self.rout_mode = rout_mode
         self.weights, self.limits = weights or Weights(), limits or Limits()
         self.lord_modules = lord_modules
         self.selector = selector if selector is not None else PlanSelector()
 
     @property
     def policy_id(self):
-        return VERSION+self.selector.policy_suffix
+        suffix = '' if self.rout_mode == 'old' else '_ROUT_DELAY_EXPERIMENT' if self.rout_mode == 'new' else '_NO_ROUT_CONTROL'
+        return VERSION+suffix+self.selector.policy_suffix
 
     def decide(self, view, preview):
         f, budget = Facts(view), Budget(self.limits)
@@ -174,6 +177,9 @@ class CommonSmartCore:
                 except StopIteration:
                     exhausted[category] = True
                     break
+                if self.rout_mode == 'none' and category == 'powers' and p.term == 'Rout':
+                    reasons[(category, p.term)] = 'disabled_for_rout_ablation'
+                    continue
                 if p.category == 'combat': recipes.attach(p)
                 counts[(p.category, p.term)] += 1
                 opportunities[(p.category, p.term)] = opportunities.get((p.category, p.term), False) or p.value > 0
@@ -216,9 +222,11 @@ class CommonSmartCore:
         defense = defensive_plans.Defense(f, self.weights)
         artillery = ArtilleryPlans(f, self.weights)
         support = SupportPlans(f, self.lord_modules)
+        from .rout_delay import RoutDelay
+        rout = RoutDelay(f, artillery) if self.rout_mode == 'new' and f.kind == 'Deimos' else None
         complete = []
         omission_reserve = (min(4, self.limits.complete_plans//4)
-            if any(p.term in coordination.TERMS for p in retained['powers']) else 0)
+            if any(p.term in coordination.TERMS or rout and p.term == 'Rout' for p in retained['powers']) else 0)
         defense_reserve = min(4, self.limits.complete_plans//4) if retained['guards'] or len(retained['work']) > 1 else 0
         artillery_reserve = min(4, self.limits.complete_plans//4) if artillery.needs_alternatives else 0
         support_reserve = min(4, self.limits.complete_plans//4) if support.enabled else 0
@@ -282,6 +290,11 @@ class CommonSmartCore:
                           +self.weights.banishment*(adjusted['banished']-baseline['banished'])
                           +self.weights.destruction*(adjusted['destroyed']-baseline['destroyed']))
             coordinated = coordination.evaluate(f, plan)
+            if rout:
+                adjusted = rout.evaluate(plan, projected)
+                if adjusted:
+                    coordinated['powers'].append(adjusted)
+                    coordinated['score_delta'] += adjusted['score_delta']
             score += coordinated['score_delta']
             resource = horizon.evaluate(plan, coordinated['context'] or
                 (coordination.context(f, plan) if horizon.options else None), projected)
