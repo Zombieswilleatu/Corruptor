@@ -3,7 +3,7 @@
 from collections import Counter
 from dataclasses import asdict, dataclass
 
-CATEGORIES = ("powers", "guards", "work", "combat", "monsters", "rites", "resummon", "stockpile", "slaver", "artillery", "support", "rout", "orias")
+CATEGORIES = ("powers", "guards", "work", "combat", "monsters", "rites", "resummon", "stockpile", "slaver", "artillery", "support", "rout", "orias", "gremory")
 
 
 @dataclass(frozen=True)

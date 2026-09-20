@@ -9,8 +9,8 @@ from collections import Counter
 from u13_pysim.copying import copy_data
 from . import lords
 
-VERSION = 'U13_POWER_COORDINATION_V6_ORIAS'
-TERMS = frozenset(('Projection', 'Consume', 'Ravenous', 'Redirect', 'FalseOrders', 'AllegianceShift', 'Inversion', 'Pyroclasm', 'BreathOfLife', 'Rout', 'Web', 'Snare'))
+VERSION = 'U13_POWER_COORDINATION_V7_GREMORY'
+TERMS = frozenset(('Projection', 'Consume', 'Ravenous', 'Redirect', 'FalseOrders', 'AllegianceShift', 'Inversion', 'Pyroclasm', 'BreathOfLife', 'Rout', 'Web', 'Snare', 'InevitableRuin'))
 
 
 def context(f, plan):

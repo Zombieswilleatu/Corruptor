@@ -17,6 +17,7 @@ from .lords.odradek import ResourceHorizon, RECONFIGURATION, SAVING_GOALS
 from .lords.deimos import ArtilleryPlans, RoutPlans
 from .lords.humbaba import SupportPlans
 from .lords.orias import OriasPlans
+from .lords.gremory import RuinPlans
 from .budget import Budget, Limits
 from . import closing, coordination, defensive_plans
 from .coverage import POWERS
@@ -26,7 +27,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V18_ORIAS_SNARE_THREAT'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V19_GREMORY_RUIN'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -230,6 +231,7 @@ class CommonSmartCore:
         support = SupportPlans(f, self.lord_modules)
         rout = RoutPlans(f, self.lord_modules)
         orias = OriasPlans(f, self.lord_modules)
+        gremory = RuinPlans(f, self.weights, self.lord_modules)
         complete = []
         omission_reserve = (min(4, self.limits.complete_plans//4)
             if any(p.term in coordination.TERMS for p in retained['powers']) else 0)
@@ -238,9 +240,10 @@ class CommonSmartCore:
         support_reserve = min(4, self.limits.complete_plans//4) if support.enabled else 0
         rout_reserve = min(4, self.limits.complete_plans//4) if rout.enabled else 0
         orias_reserve = min(4, self.limits.complete_plans//4) if orias.enabled else 0
-        assembly_limit = max(1, self.limits.complete_plans-omission_reserve-defense_reserve-artillery_reserve-support_reserve-rout_reserve-orias_reserve)
-        def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant='', artillery_variant=False, support_variant=False, rout_variant=False, orias_variant=False):
-            if not omitted and not defense_variant and not artillery_variant and not support_variant and not rout_variant and not orias_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
+        gremory_reserve = min(4, self.limits.complete_plans//4) if gremory.enabled else 0
+        assembly_limit = max(1, self.limits.complete_plans-omission_reserve-defense_reserve-artillery_reserve-support_reserve-rout_reserve-orias_reserve-gremory_reserve)
+        def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant='', artillery_variant=False, support_variant=False, rout_variant=False, orias_variant=False, gremory_variant=False):
+            if not omitted and not defense_variant and not artillery_variant and not support_variant and not rout_variant and not orias_variant and not gremory_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
             if not budget.take('complete_plans'): return
             selected, cards, used, resource_spend = [], set(), set(), Counter()
             plan = dict(powers=[], order={})
@@ -378,6 +381,14 @@ class CommonSmartCore:
         # same own choices, without powers whose standalone credit is reduced.
         # Reassemble to recompute payments, recipes, declaration IDs and Veil.
         # No products of alternative targets/payments or extra previews.
+        gremory_alternatives = 0
+        variants = gremory.alternatives(complete, budget)
+        for _ in range(gremory_reserve):
+            try: anchors = next(variants)
+            except StopIteration: break
+            before = len(complete)
+            assemble(anchors, (), gremory_variant=True)
+            gremory_alternatives += len(complete)-before
         omissions, resource_omissions, omission_keys = 0, 0, set()
         for candidate in sorted(complete, key=lambda c: (
                 -int(c['projected']['winner'] == f.pid), -c['score'], fingerprint(c['plan']))):
@@ -449,6 +460,7 @@ class CommonSmartCore:
                     support=support.report(chosen, support_alternatives),
                     rout=rout.report(chosen, rout_alternatives),
                     orias=orias.report(chosen, orias_alternatives),
+                    gremory=gremory.report(chosen, gremory_alternatives),
                     assumptions='current public board; new Guards, Ward, Work, simultaneous powers and spatial/random reactions are uncertain',
                     veil=dict(current_board_risk=chosen['veil_risk'], paid_choice_scenario=chosen['projected'],
                               protection=chosen['protection'], hard_veto=False, reason='hidden_orders_prevent_proof'),
