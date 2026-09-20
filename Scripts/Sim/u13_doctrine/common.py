@@ -18,6 +18,7 @@ from .lords.deimos import ArtilleryPlans, RoutPlans
 from .lords.humbaba import SupportPlans
 from .lords.orias import OriasPlans
 from .lords.gremory import RuinPlans
+from .kanifous_tactics import WishPlans
 from .budget import Budget, Limits
 from . import closing, coordination, defensive_plans
 from .coverage import POWERS
@@ -27,7 +28,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V19_GREMORY_RUIN'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V20_KANIFOUS_WISH_PRICE'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -232,6 +233,7 @@ class CommonSmartCore:
         rout = RoutPlans(f, self.lord_modules)
         orias = OriasPlans(f, self.lord_modules)
         gremory = RuinPlans(f, self.weights, self.lord_modules)
+        kanifous = WishPlans(f, self.lord_modules)
         complete = []
         omission_reserve = (min(4, self.limits.complete_plans//4)
             if any(p.term in coordination.TERMS for p in retained['powers']) else 0)
@@ -241,9 +243,10 @@ class CommonSmartCore:
         rout_reserve = min(4, self.limits.complete_plans//4) if rout.enabled else 0
         orias_reserve = min(4, self.limits.complete_plans//4) if orias.enabled else 0
         gremory_reserve = min(4, self.limits.complete_plans//4) if gremory.enabled else 0
-        assembly_limit = max(1, self.limits.complete_plans-omission_reserve-defense_reserve-artillery_reserve-support_reserve-rout_reserve-orias_reserve-gremory_reserve)
-        def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant='', artillery_variant=False, support_variant=False, rout_variant=False, orias_variant=False, gremory_variant=False):
-            if not omitted and not defense_variant and not artillery_variant and not support_variant and not rout_variant and not orias_variant and not gremory_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
+        kanifous_reserve = min(4, self.limits.complete_plans//4) if kanifous.enabled else 0
+        assembly_limit = max(1, self.limits.complete_plans-omission_reserve-defense_reserve-artillery_reserve-support_reserve-rout_reserve-orias_reserve-gremory_reserve-kanifous_reserve)
+        def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant='', artillery_variant=False, support_variant=False, rout_variant=False, orias_variant=False, gremory_variant=False, kanifous_variant=False):
+            if not omitted and not defense_variant and not artillery_variant and not support_variant and not rout_variant and not orias_variant and not gremory_variant and not kanifous_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
             if not budget.take('complete_plans'): return
             selected, cards, used, resource_spend = [], set(), set(), Counter()
             plan = dict(powers=[], order={})
@@ -389,6 +392,14 @@ class CommonSmartCore:
             before = len(complete)
             assemble(anchors, (), gremory_variant=True)
             gremory_alternatives += len(complete)-before
+        kanifous_alternatives = 0
+        variants = kanifous.alternatives(complete, budget)
+        for _ in range(kanifous_reserve):
+            try: anchors = next(variants)
+            except StopIteration: break
+            before = len(complete)
+            assemble(anchors, (), kanifous_variant=True)
+            kanifous_alternatives += len(complete)-before
         omissions, resource_omissions, omission_keys = 0, 0, set()
         for candidate in sorted(complete, key=lambda c: (
                 -int(c['projected']['winner'] == f.pid), -c['score'], fingerprint(c['plan']))):
@@ -461,6 +472,7 @@ class CommonSmartCore:
                     rout=rout.report(chosen, rout_alternatives),
                     orias=orias.report(chosen, orias_alternatives),
                     gremory=gremory.report(chosen, gremory_alternatives),
+                    kanifous=kanifous.report(chosen, kanifous_alternatives),
                     assumptions='current public board; new Guards, Ward, Work, simultaneous powers and spatial/random reactions are uncertain',
                     veil=dict(current_board_risk=chosen['veil_risk'], paid_choice_scenario=chosen['projected'],
                               protection=chosen['protection'], hard_veto=False, reason='hidden_orders_prevent_proof'),

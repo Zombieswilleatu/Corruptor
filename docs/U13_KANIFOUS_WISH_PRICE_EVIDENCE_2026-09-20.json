@@ -1,0 +1,225 @@
+{
+  "baseline_revision": "3324566936834d42a52c8ff0173f3b612a709616",
+  "candidate_policy": "U13_COMMON_SMART_CORE_ALPHA_V20_KANIFOUS_WISH_PRICE",
+  "comparison": {
+    "games": [
+      {
+        "name": "kanifous_gremory_p0__old",
+        "outcome": {
+          "action": "game_finished",
+          "round": 19,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rejected_previews": 0,
+        "rounds": 19,
+        "seat": 0,
+        "variant": "old"
+      },
+      {
+        "name": "kanifous_gremory_p0__new",
+        "outcome": {
+          "action": "game_finished",
+          "round": 18,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "rejected_previews": 0,
+        "rounds": 18,
+        "seat": 0,
+        "variant": "new"
+      },
+      {
+        "name": "kanifous_gremory_p1__old",
+        "outcome": {
+          "action": "game_finished",
+          "round": 21,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rejected_previews": 0,
+        "rounds": 21,
+        "seat": 1,
+        "variant": "old"
+      },
+      {
+        "name": "kanifous_gremory_p1__new",
+        "outcome": {
+          "action": "game_finished",
+          "round": 17,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "rejected_previews": 0,
+        "rounds": 17,
+        "seat": 1,
+        "variant": "new"
+      }
+    ],
+    "same_board": {
+      "boards": 75,
+      "changed_plans": 54,
+      "changed_wishes": 45
+    },
+    "same_board_selections": {
+      "new": {
+        "WishDeath": 29,
+        "WishResurrection": 34
+      },
+      "old": {
+        "WishDeath": 66,
+        "WishPower": 4,
+        "WishResurrection": 3
+      }
+    },
+    "scope": "Four diagnostic games, one seed, two seats, frozen V19 Gremory. Same-board rows include both trajectories and repeated openings; not independent samples or win-rate evidence.",
+    "totals": {
+      "new": {
+        "cast:WishDeath": 14,
+        "cast:WishResurrection": 18,
+        "decisions": 35,
+        "games": 2,
+        "price:Blood": 10,
+        "price:Cards": 5,
+        "price:Guards": 6,
+        "price:Ruin": 1,
+        "price:Soul": 1,
+        "price:Stone": 4,
+        "prices_resolved": 27,
+        "successful": 32,
+        "wins": 2,
+        "wishes": 32,
+        "zero_effect": 0
+      },
+      "old": {
+        "cast:WishDeath": 34,
+        "cast:WishPower": 2,
+        "cast:WishResurrection": 3,
+        "decisions": 40,
+        "games": 2,
+        "price:Blood": 14,
+        "price:Cards": 4,
+        "price:Guards": 9,
+        "price:Ruin": 2,
+        "price:Soul": 1,
+        "price:Stone": 4,
+        "price:Wishmaster": 1,
+        "prices_resolved": 35,
+        "successful": 39,
+        "wins": 1,
+        "wishes": 39,
+        "zero_effect": 0
+      }
+    }
+  },
+  "engine_sha256": "a9035d504704de4311ce3c39645efac6291a176a850586bf8cb8cca18968c4f8",
+  "manifest_sha256": "74ae4ca1980eb26d3b6224b001e444c53316c08ef0b8f70dee3c279a9b7df2c4",
+  "postprocessing": {
+    "changed_files": [
+      "kanifous_audit.py"
+    ],
+    "policy_source_unchanged": true,
+    "published_reader_sha256": "0bb113a1d3a1c90e565b2e0db52cdecc3124cfc13996c3469ced352d4737b144",
+    "reason": "Original runner completed all four games but passed wrong arguments to a shared report reader. Corrected format-specific reader validates case identity, trace hashes and operation hashes before summarizing the untouched records."
+  },
+  "schema": "U13_KANIFOUS_WISH_PRICE_V20_EVIDENCE",
+  "scope": "Experimental Python policy only. Four games are diagnostic, not general win-rate or native Godot acceptance evidence.",
+  "tests": {
+    "focused_pypy_methods": 99,
+    "historical_deimos_replay": "Previously documented pre-planner public-view hash failures; outside this focused suite.",
+    "kanifous_cpython_methods": 13,
+    "result": "pass"
+  },
+  "unaffected_lords": {
+    "cases": [
+      {
+        "case": "Gremory",
+        "unchanged": {
+          "budget": true,
+          "plan": true,
+          "score": true
+        }
+      },
+      {
+        "case": "Deimos",
+        "unchanged": {
+          "budget": true,
+          "plan": true,
+          "score": true
+        }
+      },
+      {
+        "case": "Humbaba",
+        "unchanged": {
+          "budget": true,
+          "plan": true,
+          "score": true
+        }
+      },
+      {
+        "case": "Kalligan",
+        "unchanged": {
+          "budget": true,
+          "plan": true,
+          "score": true
+        }
+      },
+      {
+        "case": "Orias",
+        "unchanged": {
+          "budget": true,
+          "plan": true,
+          "score": true
+        }
+      },
+      {
+        "case": "Odradek",
+        "unchanged": {
+          "budget": true,
+          "plan": true,
+          "score": true
+        }
+      },
+      {
+        "case": "Kroni",
+        "unchanged": {
+          "budget": true,
+          "plan": true,
+          "score": true
+        }
+      },
+      {
+        "case": "Valak",
+        "unchanged": {
+          "budget": true,
+          "plan": true,
+          "score": true
+        }
+      },
+      {
+        "case": "BreachKanifousOnDeimos",
+        "unchanged": {
+          "budget": true,
+          "plan": true,
+          "score": true
+        }
+      }
+    ],
+    "scope": "Eight non-Kanifous opening decisions and one directed Breach Wish board; same plans, scores and work counts. Not exhaustive trajectory equivalence."
+  },
+  "wish_effects": {
+    "new": {
+      "breach_casts": 0,
+      "death_enemy": 106,
+      "death_friendly": 1,
+      "resurrected_bodies": 115
+    },
+    "old": {
+      "breach_casts": 1,
+      "death_enemy": 183,
+      "death_friendly": 10,
+      "power_bodies": 3,
+      "resurrected_bodies": 8
+    }
+  }
+}

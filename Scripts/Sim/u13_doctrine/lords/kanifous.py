@@ -11,7 +11,7 @@ from ..facts import LANES, power
 LORD = 'Kanifous'
 
 
-def proposals(f):
+def breach_proposals(f):
     debt = sum(r['owner'] == f.pid for r in f.v['data']['kanifous_prices'])
     price = 14+10*debt
     for row in sorted(f.castles(f.pid), key=lambda r: (r['attributes']['integrity'], r['id'])):
@@ -35,3 +35,21 @@ def proposals(f):
         yield power('WishPower', dict(lane=lane), 18+8*f.lane_need(lane)-price, 'recruitment_need_less_delayed_price')
     if len(f.hand) <= 5:
         yield power('WishWealth', {}, 25+3*(5-len(f.hand))-price, 'refill_available_hand_space_less_price')
+
+
+def proposals(f):
+    from ..kanifous_tactics import choices, wish_value
+    plan = dict(powers=[], order={})
+    for name, target in choices(f):
+        value = wish_value(f, name, target, plan)
+        yield power(name, target, value['score'], value['reason'])
+
+
+def coordinate(f, plan, ctx):
+    from ..kanifous_tactics import WISHES, wish_value
+    for source in plan['powers']:
+        name = source['power_id']
+        if name not in WISHES: continue
+        baseline = wish_value(f, name, source['target'], dict(powers=[], order={}))
+        adjusted = wish_value(f, name, source['target'], plan, ctx)
+        yield dict(power=name, score_delta=adjusted['score']-baseline['score'], **adjusted)

@@ -8,7 +8,7 @@ def proposals(facts):
     yield from MODULES[facts.kind].proposals(facts)
     from u13_pysim import veil
     if veil.affects(facts.world,"Kanifous",facts.pid):
-        for proposal in kanifous.proposals(facts):
+        for proposal in kanifous.breach_proposals(facts):
             proposal.term = "Breach" + proposal.term
             proposal.value -= 5
             yield proposal
