@@ -59,7 +59,7 @@ def execute(args):
     from u13_doctrine.survey import run, cases, read_record, atomic_json
     verify_frozen(args.output)
     result = run(Path(__file__).resolve().parents[2], args.output, repeats=args.repeats,
-                 workers=args.workers, namespace=NAMESPACE)
+                 workers=args.workers, namespace=NAMESPACE, worker_batch_size=args.worker_batch_size)
     records = (read_record(args.output/'games'/(spec['name']+'.json.gz'), result['manifest'], spec)
                for spec in cases(args.repeats, NAMESPACE))
     report = summarize(records)
@@ -85,11 +85,14 @@ def main():
     parser.add_argument('--output', type=Path)
     parser.add_argument('--resume', type=Path, help='Resume the existing frozen build, never the current checkout')
     parser.add_argument('--workers', type=int, default=2)
+    parser.add_argument('--worker-batch-size', type=int, default=12,
+                        help='Restart workers after this many games total; 0 disables recycling (default: 12)')
     parser.add_argument('--repeats', type=int, default=1, help='81 games per repeat; default is one screening pass')
     parser.add_argument('--prepare-only', action='store_true', help='Freeze and validate the case list without playing games')
     parser.add_argument('--frozen', action='store_true', help=argparse.SUPPRESS)
     args = parser.parse_args()
     if args.workers < 1 or args.repeats < 1: parser.error('workers and repeats must be positive')
+    if args.worker_batch_size < 0: parser.error('worker-batch-size must be nonnegative')
     if args.output and args.resume: parser.error('choose output or resume')
     if args.frozen:
         with (args.output/'run.log').open('a', encoding='utf-8') as log:
@@ -122,9 +125,15 @@ def main():
     try:
         # Inherit no PYTHONPATH that could import the live checkout over the snapshot.
         env = dict(os.environ); env.pop('PYTHONPATH', None)
-        code = subprocess.call([sys.executable, '-u', str(frozen/'Scripts/Sim/run_u13_lord_balance.py'),
-            '--frozen', '--output', str(args.output), '--workers', str(args.workers), '--repeats', str(args.repeats)],
-            cwd=frozen, env=env)
+        frozen_runner = frozen/'Scripts/Sim/run_u13_lord_balance.py'
+        command = [sys.executable, '-u', str(frozen_runner), '--frozen', '--output', str(args.output),
+                   '--workers', str(args.workers), '--repeats', str(args.repeats)]
+        # Older reports keep their original runner and do not accept this flag.
+        if '--worker-batch-size' in frozen_runner.read_text(encoding='utf-8'):
+            command += ['--worker-batch-size', str(args.worker_batch_size)]
+        else:
+            print('Resuming legacy frozen runner with its original worker policy.', flush=True)
+        code = subprocess.call(command, cwd=frozen, env=env)
         status = 'complete' if code == 0 else 'failed_or_interrupted'
         return code
     finally:

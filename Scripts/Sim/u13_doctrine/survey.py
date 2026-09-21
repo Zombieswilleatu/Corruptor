@@ -8,6 +8,7 @@ from collections import Counter
 from concurrent.futures import ProcessPoolExecutor, wait, FIRST_COMPLETED
 from dataclasses import asdict
 import gzip
+import gc
 import hashlib
 import json
 import multiprocessing
@@ -23,6 +24,7 @@ from .common import CommonSmartCore, Weights, VERSION
 from .diagnostics import fingerprint
 from .planner_probe import run_case
 from .reference_probe import harness_hash
+from .process_memory import sample as memory_sample
 
 SCHEMA = 'U13_DOCTRINE_SURVEY_V1'
 LOADOUT = ['Keep', 'Stockpile', 'SummoningCircle', 'SiegeEngine', 'Bastion']
@@ -80,6 +82,8 @@ class TracedPolicy:
 
 
 def run_one(spec, manifest, directory):
+    memory_start = memory_sample()
+    cpu_start = time.process_time()
     policy = TracedPolicy(Weights(**manifest['weights']))
     start = time.perf_counter()
     try:
@@ -95,8 +99,20 @@ def run_one(spec, manifest, directory):
     path = Path(directory)/(spec['name']+'.json.gz')
     atomic_json(path, record, compressed=True)
     # The parent rereads/verifies records after all workers finish. Keep IPC small.
-    return dict(name=spec['name'], status=status, rounds=semantic.get('rounds'),
-                wall_seconds=record['wall_seconds'], error=error)
+    result = dict(name=spec['name'], status=status, rounds=semantic.get('rounds'),
+                  wall_seconds=record['wall_seconds'], error=error)
+    memory_written = memory_sample()
+    # PyPy does not reclaim large detached traces immediately like refcounted
+    # CPython. End the game's lifetime explicitly before accepting another.
+    del record, policy, semantic, timing, operations
+    gc.collect()
+    result['performance'] = dict(start=memory_start, after_write=memory_written,
+        after_gc=memory_sample(), total_wall_seconds=time.perf_counter()-start,
+        cpu_seconds=time.process_time()-cpu_start)
+    performance_dir = Path(directory).parent/'performance'
+    performance_dir.mkdir(exist_ok=True)
+    atomic_json(performance_dir/(spec['name']+'.json'), result['performance'])
+    return result
 
 
 def manifest(root, namespace, weights):
@@ -162,7 +178,30 @@ def aggregate(records):
         protection_scenarios=protection, maximum_work=maximum, combat_by_round_band=phases, card_use=cards)
 
 
-def run(root, directory, repeats=2, workers=8, namespace='u13-common-v3-survey-2026-09-17', weights=None):
+def pooled_results(specs, identity, directory, workers, worker_batch_size=12, task=run_one):
+    """Bound worker lifetime; a failed worker propagates instead of hanging.
+
+    Rotate entire pools after a bounded batch, avoiding runtime-specific
+    max_tasks_per_child behavior. A batch contains at most worker_batch_size
+    games total. None is yielded for a heartbeat. Zero keeps one pool alive.
+    """
+    if workers < 1 or worker_batch_size < 0:
+        raise ValueError('workers must be positive; worker_batch_size must be nonnegative')
+    width = worker_batch_size or max(1, len(specs))
+    for offset in range(0, len(specs), width):
+        batch = specs[offset:offset+width]
+        if offset: print('RECYCLE simulation workers; completed batch released.', flush=True)
+        with ProcessPoolExecutor(max_workers=min(workers, len(batch)), mp_context=multiprocessing.get_context('spawn')) as pool:
+            tasks = {pool.submit(task, spec, identity, directory) for spec in batch}
+            while tasks:
+                finished, tasks = wait(tasks, timeout=15, return_when=FIRST_COMPLETED)
+                for future in finished:
+                    yield future.result()
+                if not finished: yield None
+
+
+def run(root, directory, repeats=2, workers=8, namespace='u13-common-v3-survey-2026-09-17', weights=None,
+        worker_batch_size=12):
     directory = Path(directory); directory.mkdir(parents=True, exist_ok=True)
     (directory/'games').mkdir(exist_ok=True)
     identity = manifest(root, namespace, weights or Weights())
@@ -177,17 +216,16 @@ def run(root, directory, repeats=2, workers=8, namespace='u13-common-v3-survey-2
         else: pending.append(spec)
     start, completed = time.perf_counter(), len(specs)-len(pending)
     print(f'SURVEY {len(specs)} games; {completed} verified cached; {workers} workers', flush=True)
-    with ProcessPoolExecutor(max_workers=workers, mp_context=multiprocessing.get_context('spawn')) as pool:
-        tasks = {pool.submit(run_one, spec, identity, str(directory/'games')) for spec in pending}
-        while tasks:
-            finished, tasks = wait(tasks, timeout=15, return_when=FIRST_COMPLETED)
-            for future in finished:
-                result = future.result(); completed += 1
-                print(f"{result['status'].upper()} {completed}/{len(specs)} {result['name']} rounds={result['rounds']} wall={result['wall_seconds']:.2f}s elapsed={time.perf_counter()-start:.1f}s", flush=True)
-                if result['error']: print(result['error'], flush=True)
-            if not finished: print(f'RUNNING {completed}/{len(specs)} elapsed={time.perf_counter()-start:.1f}s', flush=True)
+    for result in pooled_results(pending, identity, str(directory/'games'), workers, worker_batch_size):
+        if result is None:
+            print(f'RUNNING {completed}/{len(specs)} elapsed={time.perf_counter()-start:.1f}s', flush=True)
+            continue
+        completed += 1
+        mem = result['performance']['after_gc']
+        print(f"{result['status'].upper()} {completed}/{len(specs)} {result['name']} rounds={result['rounds']} wall={result['wall_seconds']:.2f}s elapsed={time.perf_counter()-start:.1f}s worker={mem['pid']} rss={mem['rss_mb']}MB peak={mem['peak_mb']}MB", flush=True)
+        if result['error']: print(result['error'], flush=True)
     records = (read_record(directory/'games'/(spec['name']+'.json.gz'), identity, spec) for spec in specs)
-    result = dict(manifest=identity, repeats=repeats, workers=workers, requested=len(specs),
+    result = dict(manifest=identity, repeats=repeats, workers=workers, worker_batch_size=worker_batch_size, requested=len(specs),
                   summary=aggregate(records), invocation_seconds=time.perf_counter()-start)
     result['summary_sha256'] = fingerprint(result['summary'])
     atomic_json(directory/'summary.json', result)

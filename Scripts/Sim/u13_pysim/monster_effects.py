@@ -208,8 +208,11 @@ def step(w,buffer,c,tick,reaction):
     for original in buffer.rows():
         unit=buffer.get(original['id']);a=unit['attributes']
         if a['movement_ready_round']>n or 'monster_id' not in a:continue
-        rows=buffer.rows();name=a['monster_id']
+        name=a['monster_id']
+        # Materialize targets only for an ability that can act this tick.
+        # Passive monsters otherwise copied the entire army every tick.
         if name=='Sinodek' and a['birth_round'] < n and a.get('sinodek_portal_round', 0) < n:
+            rows=buffer.rows()
             target = nearest(unit, rows, T['portal_target_range'])
             if target:
                 a['sinodek_portal_round'] = n
@@ -220,9 +223,11 @@ def step(w,buffer,c,tick,reaction):
                     state['fields'].append(f)
                     events.append(event('MONSTER_FIELD_CREATED', dict(field=f, round=n, tick=tick)))
         elif name=='Tumler':
+            rows=buffer.rows()
             a['hunt_target']=charge.select_target(unit,rows,clock).get('id','')
         elif (name=='Kopita' and a['birth_round'] < n and tick in (0,T['kopita_second_pulse_tick'])
               and a.get('kopita_last_pulse_tick',0) < clock):
+            rows=buffer.rows()
             healing=any(other['owner']==unit['owner'] and other['attributes']['lane']==a['lane']
                         and distance(a,other['attributes'])<=T['kopita_radius']**2
                         and other['attributes']['hp']<other['attributes']['max_hp'] for other in rows)
@@ -242,15 +247,18 @@ def step(w,buffer,c,tick,reaction):
                     hits.append(dict(source=unit,target=other['id'],amount=T.get('kopita_damage',1),bypass=False,ability='Kopita'))
             events.append(event('MONSTER_PULSE',dict(unit_id=unit['id'],source=unit,radius_fp=T['kopita_radius'],healing=healing,healed=healed,round=n,tick=tick)))
         elif name=='Muno' and a.get('muno_next_tick',0)<=clock:
+            rows=buffer.rows()
             target=nearest(unit,rows,T['muno_radius'])
             if target:
                 a['muno_next_tick']=clock+T['muno_interval_ticks'];hits.append(dict(source=unit,target=target['id'],amount=a['attack'],bypass=False,ability='Muno'))
         elif name=='Dotra':
             if a.get('hidden',False):
+                rows=buffer.rows()
                 target=nearest(unit,rows,T['dotra_ambush_radius'])
                 if target:
                     hits.append(dict(source=unit,target=target['id'],amount=5,bypass=False,ability='Ambush'))
         elif name=='Sooge' and a['sprite_form']=='turret' and a.get('beam_next_tick',0)-T['beam_charge_ticks']<=clock:
+            rows=buffer.rows()
             target=nearest(unit,rows+fort.rows(w),T['beam_range'])
             if not target:
                 a.update(beam_charge_tick=0,beam_ready_tick=0)

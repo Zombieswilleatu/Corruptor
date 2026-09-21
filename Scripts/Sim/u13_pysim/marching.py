@@ -221,19 +221,22 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     target_by_id = {r['id']: r for r in target_rows}
     accepted_rows = copy_data(target_rows)
     accepted_by_id = {r['id']: r for r in accepted_rows}
-    reachable = {i: navigation.candidates(s.row(i), target_rows+structures, clock) for i in indices} if ranged else {}
-    field_nearest = {i: (field_combat.nearest(s.row(i), reachable[i], fort.CONTACT, True) or navigation.retained(s.row(i), reachable[i]) or field_combat.nearest(s.row(i), reachable[i])) for i in indices} if ranged else {}
+    # Reuse this tick's detached rows. Contact flags are updated below in
+    # identity order; positions stay fixed until each move is accepted.
+    moving_rows = {i: target_by_id[s.ids[i]] for i in indices} if ranged else {}
+    reachable = {i: navigation.candidates(moving_rows[i], target_rows+structures, clock) for i in indices} if ranged else {}
+    field_nearest = {i: (field_combat.nearest(moving_rows[i], reachable[i], fort.CONTACT, True) or navigation.retained(moving_rows[i], reachable[i]) or field_combat.nearest(moving_rows[i], reachable[i])) for i in indices} if ranged else {}
     taunted = set()
     if ranged:
         for i in indices:
             if (s.extra[i] or {}).get('monster_id')=='Dotra' and (s.extra[i] or {}).get('hidden',False):
-                field_nearest[i]=monster_effects.nearest(s.row(i),[r for r in reachable[i] if r['kind']=='marcher'])
+                field_nearest[i]=monster_effects.nearest(moving_rows[i],[r for r in reachable[i] if r['kind']=='marcher'])
             if has_taunt or (s.extra[i] or {}).get('monster_id')=='Tumler':
-                chosen = monster_effects.preferred(s.row(i), target_rows)
-                if chosen and (chosen['attributes'].get('monster_id') == 'Kurchin' or not navigation.avoided(s.row(i), chosen, clock)):
+                chosen = monster_effects.preferred(moving_rows[i], target_rows)
+                if chosen and (chosen['attributes'].get('monster_id') == 'Kurchin' or not navigation.avoided(moving_rows[i], chosen, clock)):
                     field_nearest[i] = chosen
                     if chosen['attributes'].get('monster_id') == 'Kurchin': taunted.add(i)
-            gaps[i] = fort.gap(s.row(i), field_nearest[i]) if field_nearest[i] else (1 << 63)-1
+            gaps[i] = fort.gap(moving_rows[i], field_nearest[i]) if field_nearest[i] else (1 << 63)-1
     collapse_players = veil.affected_players(context["world"],"Valak")
     for i in indices:
         extra=s.extra[i] or {}
@@ -249,7 +252,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
             step = speed(base, percent, recovery, clock, web, collapse)
         if monster_effects.slowed(dict(x_fp=xs[i],y_fp=ys[i],lane=lane,flying=(s.extra[i] or {}).get('flying',False),monster_id=(s.extra[i] or {}).get('monster_id')),data.get('monsters',{}).get('fields',[])):
             step=(step>>1)+(step&1)*(clock&1)
-        if not retreat[i] and (fort.in_melee(s.row(i), field_nearest[i]) if ranged else gaps[i] <= reach2):
+        if not retreat[i] and (fort.in_melee(moving_rows[i], field_nearest[i]) if ranged else gaps[i] <= reach2):
             if s.contact_tick[i] < 0:
                 s.contact_tick[i] = clock
                 if ranged: target_by_id[s.ids[i]]['attributes']['contact_tick'] = clock
@@ -266,12 +269,12 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
         if not retreat[i] and ranged and s.suit[i] == "Vulture" and not gate_advancing and gaps[i] <= vulture_reach**2:
             continue
         if ranged and not retreat[i] and i not in taunted and not gate_advancing:
-            step = support_pacing.speed(s.row(i), target_rows, step, clock, number, fleeing)
+            step = support_pacing.speed(moving_rows[i], target_rows, step, clock, number, fleeing)
         dx, dy = s.direction[i] * step * (-1 if retreat[i] else 1), 0
         j = nearest[i]
         destination = dict(x_fp=xs[j],y_fp=ys[j]) if j is not None else None
         if ranged:
-            destination = fort.point(s.row(i)['attributes'], field_nearest[i]) if field_nearest[i] else None
+            destination = fort.point(moving_rows[i]['attributes'], field_nearest[i]) if field_nearest[i] else None
         movement_target = (field_nearest[i] or {}).get('id', '') if ranged else ''
         gap = gaps[i]
         if has_taunt or (s.extra[i] or {}).get('monster_id')=='Tumler':
@@ -290,7 +293,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
             movement_target = 'goal'
             gap = (goal_x-xs[i])**2
         if ranged and not retreat[i]:
-            unit = s.row(i)
+            unit = moving_rows[i]
             build_goal = {} if i in taunted else fort.goal(unit, structures, clock, field_nearest[i])
             if build_goal:
                 destination, gap = build_goal, fort.distance(unit['attributes'], build_goal)
@@ -313,7 +316,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
                     dy = 1 if vy > 0 else -1
         nx, ny = max(0, min(2400, xs[i] + dx)), max(0, min(600, ys[i] + dy))
         if ranged:
-            proposed = navigation.steer(s.row(i), dict(s.row(i)['attributes'], x_fp=nx, y_fp=ny), destination, movement_target, accepted_rows, structures, step, clock, i in taunted, retreat[i])
+            proposed = navigation.steer(moving_rows[i], dict(moving_rows[i]['attributes'], x_fp=nx, y_fp=ny), destination, movement_target, accepted_rows, structures, step, clock, i in taunted, retreat[i])
             if 'navigation' in proposed:
                 if s.extra[i] is None: s.extra[i] = {}
                 s.extra[i]['navigation'] = proposed['navigation']

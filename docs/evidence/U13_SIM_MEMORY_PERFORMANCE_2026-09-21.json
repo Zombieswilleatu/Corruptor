@@ -1,0 +1,152 @@
+{
+  "implementation": "PyPy",
+  "python": "3.11.13 (413c9b7f57f5, Jul 03 2025, 18:03:56)\n[PyPy 7.3.20 with GCC 10.2.1 20210130 (Red Hat 10.2.1-11)]",
+  "scope": "Sequential operation replay; excludes doctrine planning and trace writing",
+  "builds": {
+    "before": [
+      {
+        "game": "gremory_humbaba_00",
+        "replay_seconds": 32.41555066600267,
+        "total_seconds": 39.52119124700039,
+        "final_state_sha256": "cd864bd9aed32ec8aa7cc40375d53f9f688b8b7d9999bf8089e46a7bf8f27dbb",
+        "after_digest": {
+          "pid": 3,
+          "rss_mb": 1265.71,
+          "peak_mb": 1321.67
+        },
+        "after_gc": {
+          "pid": 3,
+          "rss_mb": 1074.74,
+          "peak_mb": 1321.67
+        }
+      },
+      {
+        "game": "kroni_odradek_00",
+        "replay_seconds": 26.67332600000009,
+        "total_seconds": 39.81895425199764,
+        "final_state_sha256": "29e2fe29245dfdf3e2402635f7024c8c50dd76dd8d86fbc20dfee63974e4204f",
+        "after_digest": {
+          "pid": 3,
+          "rss_mb": 1609.3,
+          "peak_mb": 1678.46
+        },
+        "after_gc": {
+          "pid": 3,
+          "rss_mb": 1185.98,
+          "peak_mb": 1678.46
+        }
+      },
+      {
+        "game": "valak_kalligan_00",
+        "replay_seconds": 23.609707383999194,
+        "total_seconds": 29.266903147999983,
+        "final_state_sha256": "40a3c24f6832e00f83ed7eb4b922bad0c8fbba07d527882ad17274dd79c219a7",
+        "after_digest": {
+          "pid": 3,
+          "rss_mb": 1352.37,
+          "peak_mb": 1678.46
+        },
+        "after_gc": {
+          "pid": 3,
+          "rss_mb": 1180.44,
+          "peak_mb": 1678.46
+        }
+      }
+    ],
+    "after": [
+      {
+        "game": "gremory_humbaba_00",
+        "replay_seconds": 26.956785090998892,
+        "total_seconds": 28.990008485001454,
+        "final_state_sha256": "cd864bd9aed32ec8aa7cc40375d53f9f688b8b7d9999bf8089e46a7bf8f27dbb",
+        "after_digest": {
+          "pid": 4,
+          "rss_mb": 708.16,
+          "peak_mb": 708.07
+        },
+        "after_gc": {
+          "pid": 4,
+          "rss_mb": 708.5,
+          "peak_mb": 708.45
+        }
+      },
+      {
+        "game": "kroni_odradek_00",
+        "replay_seconds": 21.93020244500076,
+        "total_seconds": 26.013265105000755,
+        "final_state_sha256": "29e2fe29245dfdf3e2402635f7024c8c50dd76dd8d86fbc20dfee63974e4204f",
+        "after_digest": {
+          "pid": 4,
+          "rss_mb": 900.2,
+          "peak_mb": 900.04
+        },
+        "after_gc": {
+          "pid": 4,
+          "rss_mb": 897.07,
+          "peak_mb": 900.16
+        }
+      },
+      {
+        "game": "valak_kalligan_00",
+        "replay_seconds": 19.44520958999783,
+        "total_seconds": 21.167912732998957,
+        "final_state_sha256": "40a3c24f6832e00f83ed7eb4b922bad0c8fbba07d527882ad17274dd79c219a7",
+        "after_digest": {
+          "pid": 4,
+          "rss_mb": 902.72,
+          "peak_mb": 902.56
+        },
+        "after_gc": {
+          "pid": 4,
+          "rss_mb": 902.72,
+          "peak_mb": 902.56
+        }
+      }
+    ]
+  },
+  "baseline_revision": "f89384d1adbb1004b695fce2abd72363cadd56e5",
+  "engine_changes": {
+    "Scripts/Sim/u13_pysim/marching.py": "bc52f248deba25bb05d33f3a1bbc07ccf9b03f3bf1f898f877435fd05f8925aa",
+    "Scripts/Sim/u13_pysim/monster_effects.py": "11d3406bd88d41592efa09826802cbd6b02a7d9bebe9a5e96e458e5d129cff31",
+    "Scripts/Sim/u13_pysim/codec.py": "f6fdb8b378dd11642d44080e38227b498ea0c603bd57afd4858150500ca493c0",
+    "Scripts/Sim/u13_pysim/benchmark_full_match.py": "ac49b376cae0fc67ad09226431f60398e5e84c44450d7319ba2bc1b5aeffa9b5"
+  },
+  "self_play": {
+    "case": "gremory_humbaba_00",
+    "identical": [
+      "operations",
+      "decision_trace_sha256",
+      "full_semantic_record"
+    ],
+    "performance": {
+      "after_gc": {
+        "peak_mb": 797.64,
+        "pid": 3,
+        "rss_mb": 786.84
+      },
+      "after_write": {
+        "peak_mb": 797.33,
+        "pid": 3,
+        "rss_mb": 797.67
+      },
+      "cpu_seconds": 30.031840113,
+      "start": {
+        "peak_mb": 209.77,
+        "pid": 3,
+        "rss_mb": 209.95
+      },
+      "total_wall_seconds": 30.049757749999117
+    }
+  },
+  "tests": {
+    "CPython_3_12_14": 40,
+    "PyPy_7_3_20_Python_3_11_13": 40
+  },
+  "limits": [
+    "Linux measurements; Windows PyPy 7.3.23 not benchmarked",
+    "Three fixed replays are a small performance sample, not balance evidence",
+    "Peak memory is cumulative per worker process",
+    "Pool recycling was checked using spawned test tasks, not a long campaign",
+    "One fresh complete self-play checked policy, diagnostics, recording and memory sidecar"
+  ]
+}

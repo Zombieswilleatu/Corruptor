@@ -53,8 +53,10 @@ combined patches are already incorporated.
 bash Scripts/Sim/run_u13_lord_balance.sh
 ```
 
-The launcher discovers Python/PyPy 3.10+, preferring PyPy on PATH or directly
-inside a Downloads `pypy3*` directory. An explicit executable can be supplied:
+The launcher discovers PyPy 3.10+ on PATH or in a Downloads `pypy*` directory,
+including the extra nested folder in Windows ZIP distributions. It prints the
+runtime and refuses a silent CPython fallback. Set `PYPY_BIN` or supply an
+explicit executable (including `python` to deliberately use CPython):
 
 ```bash
 bash Scripts/Sim/run_u13_lord_balance.sh /path/to/pypy3.exe --workers 2
@@ -65,6 +67,9 @@ nine Lords. This includes nine mirrors and 72 cross-Lord games. Every Lord has
 16 non-mirror observations (eight opponents, both seats). Reversed seats share
 a seed; hidden draws are not forced to follow a Lord when it changes seats.
 Both sides use the same current shared planner and ordinary five-castle loadout.
+Workers restart after each batch of 12 games total and collect completed game
+data between games. Use `--worker-batch-size` to change that bound; zero disables
+recycling. Progress includes process ID, resident memory and peak memory.
 There is a 40-round cap; an over-cap or otherwise failed game is explicitly
 listed and excluded from win-rate denominators.
 
@@ -102,6 +107,22 @@ configuration without playing games; resume that directory to start it later.
 - `games/*.json.gz`: complete choices, detached observations and operation streams.
 - `manifest.json`, `frozen-source.json`, `balance-config.json`: reproducibility.
 - `run.log`, `run-status.json`: progress and completion status.
+- `performance/*.json`: per-game worker memory, CPU time and total wall time
+  including recording and cleanup; kept separate from semantic checksums.
+
+For a short engine benchmark against the latest completed report:
+
+```bash
+bash Scripts/Sim/run_u13_lord_balance.sh --benchmark
+```
+
+This runs three saved games on the old frozen source and the current source,
+sequentially with one worker, and requires identical final-state checksums.
+It excludes bot planning and trace recording. Use `--report` with a report
+folder if it is outside the normal Downloads location. Reports go to
+`~/Downloads/Corruptor/Performance`. Resuming an older campaign always retains
+its frozen code, including the old worker policy; start a new campaign to use
+these performance changes.
 
 Behavior counts include mirror games; win-rate tables exclude them. A matchup
 has only two observations in the default screen. These are leads for targeted

@@ -1,6 +1,7 @@
 """Portable, exact data transport; never round floats or collapse bool into int."""
 
 import json
+import hashlib
 import math
 import re
 import struct
@@ -74,6 +75,46 @@ def unpack(node, depth=0):
 def dumps(value):
     return json.dumps({"codec": CODEC, "payload": pack(value)}, ensure_ascii=False,
                       separators=(",", ":"))
+
+
+def _pack_chunks(value, depth=0):
+    """Emit the exact tagged representation without building its second tree."""
+    if depth > 128:
+        raise ValueError("data nesting limit")
+    kind = type(value)
+    if kind is list:
+        yield '["a",['
+        for index, item in enumerate(value):
+            if index: yield ','
+            yield from _pack_chunks(item, depth + 1)
+        yield ']]'
+    elif kind is dict and all(type(key) is str for key in value):
+        yield '["d",['
+        for index, key in enumerate(sorted(value)):
+            if index: yield ','
+            yield '[' + json.dumps(key, ensure_ascii=False) + ','
+            yield from _pack_chunks(value[key], depth + 1)
+            yield ']'
+        yield ']]'
+    else:
+        yield json.dumps(pack(value, depth), ensure_ascii=False, separators=(',', ':'))
+
+
+def sha256(value):
+    """Same digest as dumps(value).encode(), with bounded encoding workspace."""
+    digest = hashlib.sha256()
+    digest.update(b'{"codec":"U13_EXACT_DATA_V1","payload":')
+    chunks, size = [], 0
+    for chunk in _pack_chunks(value):
+        chunks.append(chunk)
+        size += len(chunk)
+        if size >= 65536:
+            digest.update(''.join(chunks).encode('utf-8'))
+            chunks.clear()
+            size = 0
+    chunks.append('}')
+    digest.update(''.join(chunks).encode('utf-8'))
+    return digest.hexdigest()
 
 
 def _unique_object(pairs):
