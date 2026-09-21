@@ -7,9 +7,17 @@ func _run() -> void:
 	var board = Scene.instantiate()
 	root.add_child(board)
 	await _settle()
+	# Explicit headless compatibility exercise, matching the Valak runner.
+	# Production board startup still requires its pinned runtime.
+	if OS.get_cmdline_user_args().has("--compatibility-check") and DisplayServer.get_name() == "headless":
+		board._runtime_ok = true
+		board.open_setup()
 	board.start_loadout(["Kroni", "Odradek"], [Slots.TYPES, Slots.TYPES], true)
 	await _settle()
-	_check(board.match_started and board._visible_world.lord_ids[0] == "Kroni", "Kroni main runner starts")
+	if not _check(board.match_started and board._visible_world.lord_ids[0] == "Kroni", "Kroni main runner starts"):
+		board.queue_free()
+		quit(1)
+		return
 	_check(board.guard_chomp.active() and board.guard_chomp.rows[0].event.data.cause == "Cannibal Hunger", "opening Cannibal Hunger plays Guard chomp")
 	var opening_state: Dictionary = board.session.checkpoint()
 	board._process(1.0)
@@ -204,7 +212,7 @@ func _run() -> void:
 	preview.breach = false
 	preview._restart()
 	_check(not preview.editing and preview.frames[0] == saved_layout, "new launch simulates edited layout")
-	_check(preview.status.text.begins_with("75%") or preview.status.text.begins_with("25%"), "preview labels actual random selection branch")
+	_check(preview.status.text.begins_with("Enemy-seeking") or preview.status.text.begins_with("Random"), "preview labels actual random selection branch")
 	preview._restart()
 	_check(preview.layout_units == saved_layout and preview.frames[0] == saved_layout, "edited layout persists across launches")
 	preview.queue_free()

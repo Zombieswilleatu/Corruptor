@@ -38,6 +38,7 @@ var actors: Array = []
 
 
 func _ready() -> void:
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	sheet = Art.texture(SHEET_PATH)
 	chits = Art.texture("res://ConceptImages/Sprites/Chits.png")
 	z_index = 45
@@ -159,6 +160,16 @@ func extent(actor: Dictionary) -> Vector2:
 	return Vector2(absf(point(float(actor.x_fp), float(actor.y_fp) + r).x - center.x), absf(point(float(actor.x_fp) + r, float(actor.y_fp)).y - center.y)) * 2.0
 
 
+static func atlas_size(height: float, row: int, frame_index: int) -> Vector2:
+	# One scale for both axes and all frames. Lane width belongs to the
+	# collision footprint, never to the artwork's proportions.
+	return ROWS[row][frame_index].size * (height / 210.0)
+
+
+func sprite_extent(actor: Dictionary, row: int, frame_index: int) -> Vector2:
+	return atlas_size(clampf(extent(actor).y, 72.0, 256.0), row, frame_index)
+
+
 func _ghost_units() -> Array:
 	var units: Dictionary = {}
 	var shown: Array = actors.duplicate()
@@ -212,13 +223,14 @@ func _draw() -> void:
 		# The back view has no visible mouth: turn side-on for a northward bite.
 		if chomping and row == 3:
 			row = 1 if direction.x < 0 else 2
-		var size_value: Vector2 = extent(actor)
+		var footprint: Vector2 = extent(actor)
 		# Two complete chomp cycles per pause (~22 FPS at the default 0.55s).
 		# Walking keeps its own frame rate; the preview pause scales both bites.
 		var animation_frame: float = minf(bite_elapsed / maxf(chomp_seconds, 0.001), 0.99999) * 12.0 if chomping else clock * frame_rate
 		var frame_index: int = int(floor(animation_frame)) % 6
+		var size_value: Vector2 = sprite_extent(actor, row, frame_index)
 		if show_footprint:
-			draw_set_transform(center, 0.0, size_value * 0.5)
+			draw_set_transform(center, 0.0, footprint * 0.5)
 			draw_arc(Vector2.ZERO, 1.0, 0.0, TAU, 64, Color("eac16c"), 0.015, true)
 			draw_set_transform(Vector2.ZERO)
 		draw_texture_rect_region(sheet, Rect2(center - size_value * 0.5, size_value), ROWS[row][frame_index])

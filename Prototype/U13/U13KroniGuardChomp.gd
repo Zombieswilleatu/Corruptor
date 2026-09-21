@@ -75,18 +75,18 @@ func _draw() -> void:
 			if row.texture != null:
 				draw_texture_rect(row.texture, rect, false)
 			continue
-		var sprite_size := Vector2.ONE * maxf(96.0, rect.size.y * 1.25)
 		var left: bool = rect.get_center().x >= size.x * 0.5
+		var progress: float = clampf((elapsed - POP) / CHOMP, 0.0, 1.0)
+		var frame: int = int(floor(minf(progress, 0.99999) * 12.0)) % 6
+		var sprite_size: Vector2 = Visual.atlas_size(maxf(96.0, rect.size.y * 1.25), 2 if left else 1, frame)
 		var center: Vector2 = rect.get_center() + Vector2((-1 if left else 1) * (rect.size.x + sprite_size.x) * 0.5, 0)
 		center.x = clampf(center.x, sprite_size.x * 0.5, size.x - sprite_size.x * 0.5)
-		var progress: float = clampf((elapsed - POP) / CHOMP, 0.0, 1.0)
 		var mouth: Vector2 = center + Vector2(0.30 if left else -0.30, -0.07) * sprite_size
 		var card_center: Vector2 = rect.get_center().lerp(mouth, smoothstep(0.08, 0.78, progress))
 		var card_size: Vector2 = rect.size * (1.0 - smoothstep(0.20, 0.82, progress))
 		if row.texture != null:
 			draw_texture_rect(row.texture, Rect2(card_center - card_size * 0.5, card_size), false)
 		var envelope: float = smoothstep(0.0, POP, elapsed) * (1.0 - smoothstep(POP + CHOMP, POP + CHOMP + EXIT, elapsed))
-		var frame: int = int(floor(minf(progress, 0.99999) * 12.0)) % 6
 		var shown_size: Vector2 = sprite_size * envelope
 		draw_texture_rect_region(sheet, Rect2(center - shown_size * 0.5, shown_size), Visual.ROWS[2 if left else 1][frame])
 		draw_string(ThemeDB.fallback_font, center - Vector2(75, sprite_size.y * 0.5 + 8), row.event.data.cause, HORIZONTAL_ALIGNMENT_CENTER, 150, 14, Color("eac16c"))

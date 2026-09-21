@@ -33,7 +33,7 @@ static func create(identity: String, pid: int, round_number: int, hunger: int, b
 		var key: String = Data.instance_id(identity, str(round_number), "ravenous_launch")
 		var magnitude: int = weighted_route(range(LATERAL_MIN, LATERAL_MAX + 1), seed_value, key, "RAVENOUS_ANGLE")
 		actor.vy_fp = magnitude * (-1 if int(Rng.draw(seed_value, key, "RAVENOUS_SIDE", 0, 2).value) == 0 else 1)
-	if not breach and int(Rng.draw(seed_value, identity + ":" + str(round_number), "RAVENOUS_BIAS", 0, 4).value) < 3:
+	if not breach:
 		actor.launch_mode = "fallback"
 		var candidates: Array = favored_routes(actor, units)
 		if not candidates.is_empty():
@@ -67,7 +67,7 @@ static func weighted_route(routes: Array, seed_value: String, key: String, purpo
 	return routes.back()
 
 
-# Favor any legal launch crossing at least two current enemy positions.
+# Randomly choose among all legal launches crossing at least two current enemy positions.
 # This is a launch-time estimate, not homing: fleeing and Marching can evade it.
 static func favored_routes(actor: Dictionary, units: Array) -> Array:
 	var enemies: Array = units.filter(func(u): return u.get("kind") == "marcher" and u.get("owner") == 1 - int(actor.owner))

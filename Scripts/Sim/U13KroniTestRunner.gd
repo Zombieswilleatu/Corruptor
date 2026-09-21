@@ -222,9 +222,16 @@ func _actors() -> void:
 	check(b == Actors.create("breach", -1, 1, 0, true, "seed"), "Breach point and direction keyed deterministic")
 	b.x_fp = 16
 	b.y_fp = 322
+	# An injected Breach actor needs an active Breach; otherwise both seats
+	# are correctly immune under the permanent-arrival protection rules.
+	world.data.breach_lord = "Kroni"
 	world.data.kroni_actors = [b]
 	result = Content.new().on_hook(context(world, Timeline.MARCHING))
-	check(result.action != "invalid" and result.world.data.kroni_actors[0].consumed > 0, "Breach can Devour both sides")
+	var eaten_owners: Dictionary = {}
+	for event in result.events:
+		if event.event.type == "MARCHER_DEVOURED":
+			eaten_owners[event.event.data.before.owner] = true
+	check(result.action != "invalid" and eaten_owners.has(0) and eaten_owners.has(1), "Breach can Devour both sides")
 	check(result.world.players[0].resources == world.players[0].resources and result.world.data.neutral_tears == world.data.neutral_tears and State.hunger(result.world, 0) == 0, "Breach gives no Hunger Souls Tears or Ravenous reward")
 	check(result.world.data.kroni_actors[0].age == Actors.BREACH_TICKS, "Breach lifetime is fixed")
 	var reverse: Array = [Actors.create("reverse", 1, 1, 0)]
@@ -439,20 +446,15 @@ func _biased_launch() -> void:
 	var base: Dictionary = Actors.create("bias", 0, 1, 0)
 	var routes: Array = Actors.favored_routes(base, units)
 	check(not routes.is_empty() and routes.size() < 2 * (Actors.LATERAL_MAX - Actors.LATERAL_MIN + 1), "bias fixture separates qualifying and empty routes")
-	var biased: int = 0
-	var random_count: int = 0
-	for i in range(64):
+	var seen: Dictionary = {}
+	for i in range(32):
 		var seed_value: String = "bias-seed-%d" % i
 		var actor: Dictionary = Actors.create("bias", 0, 1, 0, false, seed_value, {}, units)
-		var roll: int = int(preload("res://Scripts/Sim/U13KeyedRng.gd").draw(seed_value, "bias:1", "RAVENOUS_BIAS", 0, 4).value)
-		if roll < 3:
-			biased += 1
-			check(actor.vy_fp in routes and actor.launch_mode == "favored", "75 percent branch selects a two-enemy route")
-		else:
-			random_count += 1
-			check(actor.vy_fp == Actors.create("bias", 0, 1, 0, false, seed_value).vy_fp and actor.launch_mode == "random", "25 percent branch preserves original random launch")
-		check(actor == Actors.create("bias", 0, 1, 0, false, seed_value, {}, units), "biased launch replays deterministically")
-	check(biased > 0 and random_count > 0, "both launch branches exercised")
+		check(actor.vy_fp in routes and actor.launch_mode == "favored", "available two-enemy routes always qualify the launch")
+		seen[actor.vy_fp] = true
+		check(actor == Actors.create("bias", 0, 1, 0, false, seed_value, {}, units), "enemy-seeking launch replays deterministically")
+	check(seen.size() > 4, "enemy-seeking launches retain broad angle variance")
+	check(Actors.create("bias", 0, 1, 0, false, "fallback", {}, [units[0]]).launch_mode == "fallback", "single enemy uses random fallback")
 	var allies: Array = units.duplicate(true)
 	for unit in allies:
 		unit.owner = 0

@@ -70,9 +70,8 @@ def create(identity,pid,n,hunger,breach=False,seed='kroni-actor-fixture',start=N
         if start: actor['y_fp']=start['field_position']['y_fp']+(600 if start['lane']=='Castle' else 0)
         key=instance_id(identity,str(n),'ravenous_launch')
         actor['vy_fp']=weighted(range(1,25),seed,key,'RAVENOUS_ANGLE')*(-1 if draw(seed,key,'RAVENOUS_SIDE',0,2)==0 else 1)
-        if draw(seed,identity+':'+str(n),'RAVENOUS_BIAS',0,4)<3:
-            actor['launch_mode']='fallback';candidates=favored(actor,units)
-            if candidates: actor['launch_mode']='favored';actor['vy_fp']=weighted(candidates,seed,identity+':'+str(n),'RAVENOUS_FAVORED_ROUTE')
+        actor['launch_mode']='fallback';candidates=favored(actor,units)
+        if candidates: actor['launch_mode']='favored';actor['vy_fp']=weighted(candidates,seed,identity+':'+str(n),'RAVENOUS_FAVORED_ROUTE')
     else:
         actor['x_fp']=draw(seed,identity,'BREACH_FORWARD',0,2401);actor['y_fp']=draw(seed,identity,'BREACH_LATERAL',0,1201)
         actor['vx_fp'],actor['vy_fp']=[[24,0],[17,17],[0,24],[-17,17],[-24,0],[-17,-17],[0,-24],[17,-17]][draw(seed,identity,'BREACH_DIRECTION',0,8)]

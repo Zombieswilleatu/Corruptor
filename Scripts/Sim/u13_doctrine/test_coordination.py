@@ -13,6 +13,7 @@ from .planner_probe import PlannerObserver
 from .selection import PlanSelector, SelectionSettings
 from .test_common import planning
 from .test_recipes_veil import hand
+from .test_lane_support import unit
 
 
 def guard(view, identity, value, slot=0, lane='Castle', suit='Vulture'):
@@ -86,7 +87,7 @@ class CoordinationTests(unittest.TestCase):
         self.assertEqual(original, evaluate(Facts(view), p))
         view['data']['guard_work']['pairs'] = [dict(active=True, player_id=1, lane='Castle', suit='Penitent',
             ids=['slot0', 'slot1'], slots=[0, 1])]
-        self.assertEqual(0, evaluate(Facts(view), p)['score_delta'])
+        self.assertFalse(evaluate(Facts(view), p)['powers'][0]['compatible'])
 
     def test_consume_tracks_its_guard_even_when_another_guard_survives(self):
         view = observe(planning('Kroni'), 0)
@@ -95,7 +96,9 @@ class CoordinationTests(unittest.TestCase):
         p = plan(Facts(view), 'Consume', dict(entity_id='meal'), ['ingredient:0'])
         self.assertLess(evaluate(Facts(view), p)['score_delta'], 0)
         p['powers'][0]['target']['entity_id'] = 'survivor'
-        self.assertEqual(0, evaluate(Facts(view), p)['score_delta'])
+        self.assertFalse(evaluate(Facts(view), p)['powers'][0]['compatible'])
+        p['order'].update(action='Hunt', lane='Lord', target_id=Facts(view).lord[1]['id'])
+        self.assertTrue(evaluate(Facts(view), p)['powers'][0]['compatible'])
 
     def test_supplicants_reserved_for_rites_cannot_also_clear_power_targets(self):
         view = observe(planning('Kroni'), 0)
@@ -106,7 +109,9 @@ class CoordinationTests(unittest.TestCase):
         p = plan(Facts(view), 'Consume', dict(entity_id='meal'), ['ingredient:0'])
         self.assertLess(evaluate(Facts(view), p)['score_delta'], 0)
         p['order']['rites'] = dict(waiter_spends=[dict(lane='Castle', marcher_ids=['waiter:'+str(i) for i in range(5)])])
-        self.assertEqual(0, evaluate(Facts(view), p)['score_delta'])
+        result = evaluate(Facts(view), p)
+        self.assertEqual([], result['context']['guard_losses'])
+        self.assertFalse(result['powers'][0]['compatible'])
 
     def test_ravenous_counts_recruits_monsters_and_departing_supplicants(self):
         view = observe(planning('Kroni'), 0)
@@ -115,15 +120,20 @@ class CoordinationTests(unittest.TestCase):
         p = plan(f, 'Ravenous', dict(lane='Castle', field_position=dict(x_fp=0, y_fp=300)), ['ingredient:0'], 'Ward')
         p['order']['monster_choice'] = 'Varn'
         first = evaluate(f, p)
-        self.assertEqual(-45, first['score_delta'])  # two ordinary plus at least three Varn
+        self.assertEqual(5, first['powers'][0]['friendly_recruits'])
+        self.assertLess(first['score_delta'], 0)
         self.assertTrue(first['context']['unknown_extra_varn_bodies'])
-        view['board'].append(dict(id='waiter', kind='marcher', owner=0, attributes=dict(lane='Castle', waiting=True, hp=5)))
+        unit(view, 'waiter', waiting=True, hp=5)
         p['order']['action'] = 'Siege'
         row = evaluate(Facts(view), p)['powers'][0]
         self.assertEqual(1, row['consumed_supplicants'])
-        self.assertEqual(-27, row['score_delta'])
+        self.assertEqual(4, row['friendly_recruits'])
+        self.assertLess(row['score_delta'], 0)
         p['order']['lane'] = 'Lord'; p['order']['action'] = 'Hunt'; p['order']['target_id'] = f.lord[1]['id']
-        self.assertEqual(0, evaluate(Facts(view), p)['score_delta'])
+        other = evaluate(Facts(view), p)['powers'][0]
+        self.assertEqual(4, other['friendly_recruits'])
+        self.assertEqual(0, other['consumed_supplicants'])
+        self.assertEqual(12, other['route_samples'])
 
     def test_no_power_alternative_keeps_attack_and_conserves_essence(self):
         game, victim, attack = prepared('Valak'); before = game.snapshot()
@@ -154,7 +164,7 @@ class CoordinationTests(unittest.TestCase):
             outcomes.append(run._state['world']['players'][0]['resources']['life_essence'])
         self.assertEqual(3, outcomes[0]-outcomes[1])
 
-    def test_consume_omission_wins_equal_score_and_reindexes_remaining_power(self):
+    def test_consume_is_held_for_empty_opposite_lane_and_reindexes_remaining_power(self):
         game, _, attack = prepared('Kroni')
         changes = [dict(kind='fixture_marcher', player_id=1, lane='Lord', origin='ravenous-targets', ordinal=i,
                         attributes=dict(x_fp=900, y_fp=100+50*i)) for i in range(4)]
@@ -164,7 +174,7 @@ class CoordinationTests(unittest.TestCase):
             decision = CommonSmartCore().decide(observe(game, 0), Preview(game, 0))
         self.assertEqual(['Ravenous'], [s['power_id'] for s in decision['plan']['powers']])
         self.assertEqual(0, decision['plan']['powers'][0]['queue_index'])
-        self.assertIn('Consume', decision['coordination']['selected_omitted_powers'])
+        self.assertTrue(decision['kroni']['enabled'])
         self.assertEqual('legal', Preview(game, 0)(decision['plan'])['action'])
 
     def test_useful_projection_is_still_available(self):
@@ -184,7 +194,9 @@ class CoordinationTests(unittest.TestCase):
         with patch('u13_doctrine.common.ordinary', attack_source(attack)):
             decision = CommonSmartCore().decide(observe(game, 0), Preview(game, 0))
         self.assertEqual(['Ravenous'], [s['power_id'] for s in decision['plan']['powers']])
-        self.assertLess(decision['coordination']['selected']['score_delta'], 0)
+        ravenous = next(r for r in decision['kroni']['selected'] if r['power'] == 'Ravenous')
+        self.assertGreater(ravenous['friendly_recruits'], 0)
+        self.assertGreater(ravenous['score'], 0)
         choice = copy_data(decision['plan'])
         choice['powers'].append(declaration(0, 1, 'BreachWishPower', dict(lane='Castle'), index=1))
         row = evaluate(Facts(observe(game, 0)), choice)['powers'][0]

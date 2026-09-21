@@ -17,7 +17,7 @@ func _draw() -> void:
 	var font: Font = ThemeDB.fallback_font
 	draw_rect(Rect2(15, 15, size.x - 30, 82), Color("191521"))
 	draw_string(font, Vector2(30, 46), "RAVENOUS · PLACE HIS START", HORIZONTAL_ALIGNMENT_CENTER, size.x - 60, 24, Color("eac16c"))
-	draw_string(font, Vector2(30, 77), "Choose a horizontal position on your edge. Drag left/right to adjust. Launch angle is random.", HORIZONTAL_ALIGNMENT_CENTER, size.x - 60, 16)
+	draw_string(font, Vector2(30, 77), "Choose a horizontal position on your edge. Drag left/right to adjust. Random angle favors enemy groups.", HORIZONTAL_ALIGNMENT_CENTER, size.x - 60, 16)
 	for lane in ["Lord", "Castle"]:
 		var edge: Rect2 = lane_rect(lane)
 		var y: float = edge.end.y if owner_id == 0 else edge.position.y

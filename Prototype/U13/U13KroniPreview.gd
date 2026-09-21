@@ -107,7 +107,7 @@ func _ready() -> void:
 			meal_cells[suit].append(cell)
 	guide = Label.new()
 	guide.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	guide.text = "RAVENOUS\nClick empty field to choose his horizontal start. Enable Arrange Marchers to drag units within their lane, then New launch to test your layout. 75% of launches favor a route through two current enemy positions; otherwise the angle is random. He travels toward the enemy and bounces off outer walls. No steering. Both sides can be eaten. Nearby units flee directly away when he approaches, at 30% normal speed while he is nearby and for 1.1 seconds after he leaves range. No three-unit cap.\n\n6+ DEVOURED\nOne Soul, one Hunger and one Neutral Tear per activation.\n\nHUNGER\n0: Defense 4\n1–2: Defense 6\n3+: Defense 8\nFirst reaching 3 grants one personal Tear.\n\nBREACH\nA short random manifestation. No rewards."
+	guide.text = "RAVENOUS\nClick empty field to choose his horizontal start. Enable Arrange Marchers to drag units within their lane, then New launch to test your layout. Randomly chooses among varied routes through two current enemy positions when available; otherwise uses a random fallback. He travels toward the enemy and bounces off outer walls. No steering. Both sides can be eaten. Nearby units flee directly away when he approaches, at 30% normal speed while he is nearby and for 1.1 seconds after he leaves range. No three-unit cap.\n\n6+ DEVOURED\nOne Soul, one Hunger and one Neutral Tear per activation.\n\nHUNGER\n0: Defense 4\n1–2: Defense 6\n3+: Defense 8\nFirst reaching 3 grants one personal Tear.\n\nBREACH\nA short random manifestation. No rewards."
 	add_child(guide)
 	resized.connect(_layout)
 	_layout()
@@ -180,7 +180,7 @@ func _restart() -> void:
 		events.append(State.event("KRONI_ACTOR_TICK", {"tick": tick, "actors": actors.duplicate(true)}).event)
 		frames.append(buffer.marchers())
 	visual.load_tape(events)
-	launch_label = {"favored": "75% · Enemy-favored", "random": "25% · Random", "fallback": "75% · Random fallback (no two-enemy route)", "breach": "Breach · Random"}[actor.launch_mode]
+	launch_label = {"favored": "Enemy-seeking · Random angle", "random": "Random", "fallback": "Random fallback (no two-enemy route)", "breach": "Breach · Random"}[actor.launch_mode]
 	counted_bites = -1
 	_refresh_meals()
 

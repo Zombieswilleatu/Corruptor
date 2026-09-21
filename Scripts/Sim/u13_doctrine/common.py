@@ -18,6 +18,7 @@ from .lords.deimos import ArtilleryPlans, RoutPlans
 from .lords.humbaba import SupportPlans
 from .lords.orias import OriasPlans
 from .lords.valak import ValakPlans
+from .lords.kroni import KroniPlans, normalize as kroni_normalize
 from .lords.gremory import RuinPlans
 from .kanifous_tactics import WishPlans, PROFILES as WISH_PROFILES, DEFAULT_PROFILE
 from .budget import Budget, Limits
@@ -29,7 +30,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V23_VALAK_WELL'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V24_KRONI_MEALS'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -229,6 +230,11 @@ class CommonSmartCore:
                     orb = next((p for p in ranked if p.term == 'GravityOrb' and p.payload['target']['lane'] == lane), None)
                     if orb: choices.append(orb)
                 if any(p.term == 'GravityOrb' for p in choices): terms.add('GravityOrb')
+            if category == 'powers' and f.kind == 'Kroni' and self.limits.retained_per_category >= 3:
+                for lane in LANES:
+                    meal = next((p for p in ranked if p.term == 'Consume' and f.by_id[p.payload['target']['entity_id']]['attributes']['lane'] == lane), None)
+                    if meal: choices.append(meal)
+                if choices: terms.add('Consume')
             for p in ranked:
                 term = p.payload['monster_choice'] if category == 'monsters' else p.term
                 if term not in terms and len(choices) < self.limits.retained_per_category:
@@ -246,6 +252,7 @@ class CommonSmartCore:
         gremory = RuinPlans(f, self.weights, self.lord_modules)
         kanifous = WishPlans(f, self.lord_modules)
         valak = ValakPlans(f, self.lord_modules)
+        kroni = KroniPlans(f, self.lord_modules)
         complete = []
         omission_reserve = (min(4, self.limits.complete_plans//4)
             if any(p.term in coordination.TERMS for p in retained['powers']) else 0)
@@ -257,9 +264,10 @@ class CommonSmartCore:
         gremory_reserve = min(4, self.limits.complete_plans//4) if gremory.enabled else 0
         kanifous_reserve = min(4, self.limits.complete_plans//4) if kanifous.enabled else 0
         valak_reserve = min(4, self.limits.complete_plans//4) if valak.enabled else 0
-        assembly_limit = max(1, self.limits.complete_plans-omission_reserve-defense_reserve-artillery_reserve-support_reserve-rout_reserve-orias_reserve-gremory_reserve-kanifous_reserve-valak_reserve)
-        def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant='', artillery_variant=False, support_variant=False, rout_variant=False, orias_variant=False, gremory_variant=False, kanifous_variant=False, valak_variant=False):
-            if not omitted and not defense_variant and not artillery_variant and not support_variant and not rout_variant and not orias_variant and not gremory_variant and not kanifous_variant and not valak_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
+        kroni_reserve = min(4, self.limits.complete_plans//4) if kroni.enabled else 0
+        assembly_limit = max(1, self.limits.complete_plans-omission_reserve-defense_reserve-artillery_reserve-support_reserve-rout_reserve-orias_reserve-gremory_reserve-kanifous_reserve-valak_reserve-kroni_reserve)
+        def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant='', artillery_variant=False, support_variant=False, rout_variant=False, orias_variant=False, gremory_variant=False, kanifous_variant=False, valak_variant=False, kroni_variant=False):
+            if not omitted and not defense_variant and not artillery_variant and not support_variant and not rout_variant and not orias_variant and not gremory_variant and not kanifous_variant and not valak_variant and not kroni_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
             if not budget.take('complete_plans'): return
             selected, cards, used, resource_spend = [], set(), set(), Counter()
             plan = dict(powers=[], order={})
@@ -294,6 +302,9 @@ class CommonSmartCore:
                     if p.value > 0 and add(p): break
             if 'combat' not in used:
                 add(next(p for p in retained['combat'] if p.term == 'Pass'))
+            enforced_omissions = []
+            if f.kind == 'Kroni':
+                selected, enforced_omissions = kroni_normalize(f, plan, selected, retained['powers'])
             score = sum(p.value for p in selected)
             # Shared Veil risk is a score, never a hard veto under hidden orders.
             # Current board, known round pressure and explicit own Rite additions
@@ -327,7 +338,7 @@ class CommonSmartCore:
             score += artillery_score['score_delta']
             complete.append(dict(plan=plan, score=score, selected=selected, veil_risk=risk, projected=projected,
                                  protection=protection, remaining_goal=remaining_goal, saving_delta=saving_delta,
-                                 coordination=coordinated, resource_horizon=resource, omitted_powers=list(omitted),
+                                 coordination=coordinated, resource_horizon=resource, omitted_powers=sorted(set(omitted) | set(enforced_omissions)),
                                  defense=defensive, defense_variant=defense_variant,
                                  artillery=artillery_score, artillery_variant=artillery_variant, support_variant=support_variant))
 
@@ -421,6 +432,14 @@ class CommonSmartCore:
             before = len(complete)
             assemble(anchors, (), valak_variant=True)
             valak_alternatives += len(complete)-before
+        kroni_alternatives = 0
+        variants = kroni.alternatives(complete, retained, budget)
+        for _ in range(kroni_reserve):
+            try: anchors = next(variants)
+            except StopIteration: break
+            before = len(complete)
+            assemble(anchors, (), kroni_variant=True)
+            kroni_alternatives += len(complete)-before
         omissions, resource_omissions, omission_keys = 0, 0, set()
         for candidate in sorted(complete, key=lambda c: (
                 -int(c['projected']['winner'] == f.pid), -c['score'], fingerprint(c['plan']))):
@@ -495,6 +514,7 @@ class CommonSmartCore:
                     gremory=gremory.report(chosen, gremory_alternatives),
                     kanifous=kanifous.report(chosen, kanifous_alternatives),
                     valak=valak.report(chosen, valak_alternatives),
+                    kroni=kroni.report(chosen, kroni_alternatives),
                     assumptions='current public board; new Guards, Ward, Work, simultaneous powers and spatial/random reactions are uncertain',
                     veil=dict(current_board_risk=chosen['veil_risk'], paid_choice_scenario=chosen['projected'],
                               protection=chosen['protection'], hard_veto=False, reason='hidden_orders_prevent_proof'),
