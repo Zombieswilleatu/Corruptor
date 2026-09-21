@@ -24,5 +24,8 @@ balance_runner=Scripts/Sim/run_u13_lord_balance.py
 if [[ "${1:-}" == "--benchmark" ]]; then
   balance_runner=Scripts/Sim/run_u13_sim_performance.py
   shift
+elif [[ "${1:-}" == "--memory-check" ]]; then
+  balance_runner=Scripts/Sim/run_u13_sim_memory.py
+  shift
 fi
 exec "$balance_python" -u "$balance_runner" "$@"
