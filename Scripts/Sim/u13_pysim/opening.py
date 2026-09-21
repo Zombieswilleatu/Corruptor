@@ -152,6 +152,8 @@ def world(seed, lords, loadouts):
     world = {"players": players, "entities": ids.snapshot(), "data": data}
     monsters.configure(world)
     veil.configure(world)
+    from . import game_staging
+    game_staging.configure(world)
     return world
 
 

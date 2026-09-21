@@ -73,7 +73,7 @@ static func nearest(unit: Dictionary, rows: Array, reach: int = RANGE_FP) -> Dic
 
 
 static func ready(unit: Dictionary, clock: int) -> bool:
-	return unit.attributes.suit != "Vulture" or int(unit.attributes.get("ranged_next_tick", 0)) <= clock
+	return unit.attributes.suit not in ["Vulture", "Wright"] or int(unit.attributes.get("ranged_next_tick", 0)) <= clock
 
 
 static func melee_ready(unit: Dictionary, clock: int) -> bool:
@@ -92,11 +92,12 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 	# One tick snapshot selects every shot; reciprocal fire is simultaneous.
 	for unit in rows:
 		var tower: bool = unit.kind == "fortification" and unit.attributes.structure == "Tower"
+		var guard: bool = Fort.ranged_guard(unit, Fort.rows(world), context.round)
 		if tower:
 			if int(unit.attributes.ranged_next_tick) > clock: continue
-		elif unit.kind != "marcher" or unit.attributes.suit != "Vulture" or busy.has(unit.id) or fleeing.has(unit.id) or Rout.retreating(unit.attributes, context.round) or not ready(unit, clock):
+		elif unit.kind != "marcher" or (unit.attributes.suit != "Vulture" and not guard) or busy.has(unit.id) or fleeing.has(unit.id) or Rout.retreating(unit.attributes, context.round) or not ready(unit, clock):
 			continue
-		var target: Dictionary = nearest(unit, rows, vulture_range(world))
+		var target: Dictionary = nearest(unit, rows, Fort.GUARD_RANGE if guard else vulture_range(world))
 		if tower:
 			target = {}
 			var reach: int = tower_range(world)
@@ -105,7 +106,7 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 				if other.owner == unit.owner or other.attributes.lane != unit.attributes.lane or Shroud.active(other.attributes) or (other.kind == "marcher" and Wishmaster.ignored(unit, other)): continue
 				var d: int = Fort.gap(unit, other)
 				if d < best or (d == best and not target.is_empty() and other.id < target.id): target = other; best = d
-		if target.is_empty() or (not tower and Fort.in_melee(unit, target)):
+		if target.is_empty() or (not tower and not guard and Fort.in_melee(unit, target)):
 			continue
 		var amount: int = 1
 		if tower:
@@ -128,15 +129,19 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 		var dealt: int = 0
 		var blocked: bool = false
 		var evaded: bool = false
+		var warded: bool = false
 		var hp_after: int = 0
 		if shot.target.kind == "fortification":
 			var hit: Dictionary = Fort.damage(world, shot.target.id, shot.attacker, shot.amount, false, context.round, tick)
 			dealt = hit.damage_dealt; hp_after = hit.hp_after
 			events.append_array(hit.events)
 		elif not target.is_empty():
-			blocked = Defense.blocks(target, shot.attacker.id, context.seed, context.round, tick, "Tower" if shot.attacker.kind == "fortification" else "Vulture")
-			evaded = MonsterEffects.evades(target, shot.attacker, entities.marchers() if target.attributes.get("monster_id") == "Tumler" else [], context, tick, "Tower" if shot.attacker.kind == "fortification" else "Vulture", Fort.rows(world), fleeing)
-			var amount: int = 0 if blocked or evaded else Incoming.regular_amount(target.attributes, int(shot.amount), clock)
+			var shot_kind: String = "Tower" if shot.attacker.kind == "fortification" else shot.attacker.attributes.suit
+			blocked = Defense.blocks(target, shot.attacker.id, context.seed, context.round, tick, shot_kind)
+			evaded = MonsterEffects.evades(target, shot.attacker, entities.marchers() if target.attributes.get("monster_id") == "Tumler" else [], context, tick, shot_kind, Fort.rows(world), fleeing)
+			var had_ward: bool = target.attributes.get("muno_ward", false)
+			var amount: int = 0 if blocked or evaded else Incoming.apply(target.attributes, int(shot.amount), clock, true)
+			warded = had_ward and not target.attributes.get("muno_ward", false)
 			var absorbed: int = mini(int(target.attributes.armor), amount)
 			target.attributes.armor -= absorbed
 			dealt = amount - absorbed
@@ -149,7 +154,7 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 				# Birth-round holding ends when the unit is attacked, even through Armor.
 				target.attributes.movement_ready_round = mini(int(target.attributes.movement_ready_round), int(context.round))
 				entities.update(target.id, target.owner, target.attributes)
-		var details: Dictionary = {"round": context.round, "tick": tick, "lane": shot.attacker.attributes.lane, "attacker": shot.attacker, "target": shot.target, "blocked": blocked, "evaded": evaded, "damage_dealt": dealt, "hp_after": hp_after}
+		var details: Dictionary = {"round": context.round, "tick": tick, "lane": shot.attacker.attributes.lane, "attacker": shot.attacker, "target": shot.target, "blocked": blocked, "evaded": evaded, "warded": warded, "damage_dealt": dealt, "hp_after": hp_after}
 		events.append(event("MARCHER_RANGED_ATTACK", details))
 	world.entities = entities.snapshot()
 	for death in deaths:

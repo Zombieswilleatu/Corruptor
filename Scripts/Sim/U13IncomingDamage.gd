@@ -18,11 +18,21 @@ static func regular_amount(a: Dictionary, base: int, clock: int) -> int:
 	var retreating: bool = int(a.get("rout_round", -1)) == clock / 200
 	return amount(a, base, clock) + (ROUT_RETREAT_ATTACK_BONUS if base > 0 and retreating else 0)
 
+# Only damage resolution calls this mutating helper. Forecasts use amount().
+# A ward cancels one positive packet, including its exposure bonus, before Armor.
+static func apply(a: Dictionary, base: int, clock: int, regular: bool = false) -> int:
+	var incoming: int = regular_amount(a, base, clock) if regular else amount(a, base, clock)
+	if incoming > 0 and a.get("muno_ward", false):
+		a["muno_ward"] = false
+		return 0
+	return incoming
+
 static func phase_clock(world: Dictionary, round_number: int) -> int:
 	# Automatic powers between Marching phases share the intervening boundary.
 	return round_number * 200 + (200 if int(world.data.get("marching_round", 0)) >= round_number else 0)
 
 static func valid(a: Dictionary) -> bool:
+	if a.has("muno_ward") and (typeof(a.muno_ward) != TYPE_BOOL or a.get("monster_id") != "Muno"): return false
 	for key in ["dotra_exposed_from_tick", "dotra_exposed_until_tick"]:
 		if a.has(key) and (not Data.is_integer(a[key]) or a[key] < 0): return false
 	return int(a.get("dotra_exposed_until_tick", 0)) >= int(a.get("dotra_exposed_from_tick", 0))

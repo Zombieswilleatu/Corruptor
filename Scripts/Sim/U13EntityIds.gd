@@ -7,6 +7,15 @@ const KINDS: Array[String] = ["lord", "castle", "card", "marcher"]
 var _entities: Dictionary = {}
 var _used: Dictionary = {}
 
+# Shared, bounded memo of successful decodes, never mutable input references.
+# Exact Variant bytes distinguish bool/int/float and every nested payload type.
+# A changed input must miss; failures are never memoized. Each restore receives
+# detached state. The mutex protects only lookup/publication, not validation.
+const RESTORE_CACHE_SIZE: int = 8
+const RESTORE_CACHE_MAX_BYTES: int = 1048576
+static var _restore_cache: Array = []
+static var _restore_cache_mutex: Mutex = Mutex.new()
+
 
 # Origin is immutable: setup slot/copy ordinal, or effect ID + spawn ordinal.
 # Owner, location, current card role and lifetime state never enter the key.
@@ -68,6 +77,15 @@ func snapshot() -> Dictionary:
 
 
 func restore(raw: Dictionary) -> Dictionary:
+	var encoded: PackedByteArray = var_to_bytes(raw)
+	_restore_cache_mutex.lock()
+	for cached in _restore_cache:
+		if encoded == cached.encoded:
+			_entities = cached.entities.duplicate(true)
+			_used = cached.used.duplicate()
+			_restore_cache_mutex.unlock()
+			return {"action": "u13_entities_restored"}
+	_restore_cache_mutex.unlock()
 	if not Data.is_data(raw) or raw.get("schema_version") != VERSION:
 		return Data.invalid("entity_snapshot_invalid")
 	if typeof(raw.get("entities")) != TYPE_ARRAY or typeof(raw.get("used_ids")) != TYPE_ARRAY:
@@ -101,6 +119,13 @@ func restore(raw: Dictionary) -> Dictionary:
 			return Data.invalid("entity_snapshot_ids_invalid")
 	_entities = entries
 	_used = used
+	if encoded.size() <= RESTORE_CACHE_MAX_BYTES:
+		var cached: Dictionary = {"encoded": encoded, "entities": entries.duplicate(true), "used": used.duplicate()}
+		_restore_cache_mutex.lock()
+		_restore_cache.push_front(cached)
+		if _restore_cache.size() > RESTORE_CACHE_SIZE:
+			_restore_cache.pop_back()
+		_restore_cache_mutex.unlock()
 	return {"action": "u13_entities_restored"}
 
 

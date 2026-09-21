@@ -149,6 +149,8 @@ class RoundRules(Ordinary):
             e.require(d["paradox_round"] < n, "paradox_already_resolved")
             d["paradox_round"] = n
         elif hook == "marching_start":
+            from . import game_staging
+            events.extend(game_staging.prepare(self.w,n,orders))
             e.require(d["scorch_lane_round"] < n and d["kroni_breach_round"] < n, "marching_start_clock_invalid")
             d["scorch_lane_round"] = d["kroni_breach_round"] = n
         elif hook == "marching":

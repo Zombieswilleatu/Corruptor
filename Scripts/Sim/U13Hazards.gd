@@ -72,7 +72,7 @@ static func pulse(
 			world.data["battle_commands"] = commands
 			events.append_array(damaged.events)
 		else:
-			var amount: int = Incoming.amount(entity.attributes, intensity, Incoming.phase_clock(world, int(context.round)))
+			var amount: int = Incoming.apply(entity.attributes, intensity, Incoming.phase_clock(world, int(context.round)))
 			absorbed = mini(int(entity.attributes.armor), amount)
 			entity.attributes.armor -= absorbed
 			entities.update(entity.id, entity.owner, entity.attributes)

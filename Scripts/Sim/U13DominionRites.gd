@@ -6,6 +6,7 @@ const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Marching = preload("res://Scripts/Sim/U13Marching.gd")
 const Guards = preload("res://Scripts/Sim/U13GuardDeployment.gd")
+const Staging = preload("res://Scripts/Sim/U13GameStaging.gd")
 const VERSION: String = "U13_DOMINION_RITES_V1"
 const WAITERS_PER_TEAR: int = 5
 const INVOCATION_GATE: int = 7
@@ -21,6 +22,7 @@ static func configure(world: Dictionary) -> void:
 static func strip(order: Dictionary) -> Dictionary:
 	var result: Dictionary = order.duplicate(true)
 	result.erase("rites")
+	result.erase("staging")
 	return result
 
 
@@ -84,6 +86,7 @@ static func veil(world: Dictionary) -> int:
 
 
 static func validate(world: Dictionary, pid: int, order: Dictionary) -> Dictionary:
+	if not Staging.order_valid(world, order): return Data.invalid("staging_order_invalid")
 	var choice = order.get("rites", {})
 	if not shape(choice):
 		return Data.invalid("rites_shape_invalid")

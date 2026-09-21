@@ -321,7 +321,7 @@ class Battle:
                 from .powers import odradek_event
                 events.append(odradek_event("PSYCHIC_INTERLOCK",dict(player_id=pid,round=self.number,hook=self.hook,trigger_id=detail["event_id"],target_id=attacker["id"],damage=damage,target_alive=bool(target))))
                 if target:
-                    amount = incoming.amount(target["attributes"],damage,self.number*200+detail.get("tick",0))
+                    amount = incoming.apply(target["attributes"],damage,self.number*200+detail.get("tick",0))
                     absorbed = min(target["attributes"]["armor"],amount);target["attributes"]["armor"] -= absorbed
                     hit = self.fact(dict(command_id=instance_id("interlock",detail["event_id"],str(pid)),kind="marcher_damage",target_id=target["id"],damage=amount-absorbed,cause="hazard"))
                     events.append(e.event(hit["type"],hit["data"]));events.extend(self.react(hit,inner=True))
@@ -424,7 +424,7 @@ class Battle:
                 after = max(0 if group in ("Marcher", "infrastructure") else 1, before-(1 if group == "Marcher" else 2))
                 command = dict(command_id=f"{key}:fracture:{point}:{row['id']}", target_id=row["id"])
                 if group == "Marcher":
-                    amount = incoming.amount(row["attributes"],1,incoming.phase_clock(w,self.number))
+                    amount = incoming.apply(row["attributes"],1,incoming.phase_clock(w,self.number))
                     after = max(0, before-amount)
                     command.update(kind="marcher_damage", damage=amount, cause="hazard")
                 elif group == "infrastructure" and after == 0: command.update(kind="ruin_castle_fracture", source_id=lord["id"], cause="fracture")

@@ -5,6 +5,7 @@ const Common = preload("res://Scripts/Sim/U13CommonDoctrine.gd")
 const Powers = preload("res://Scripts/Sim/U13PowerDoctrine.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const BotPlanning = preload("res://Scripts/Sim/U13BotPlanning.gd")
+const Monsters = preload("res://Scripts/Sim/U13MonsterRules.gd")
 const VERSION: String = "U13_BASIC_DOCTRINE_V8_PUBLIC_GUARDS"
 const CANDIDATE_LIMIT: int = 32
 
@@ -20,6 +21,11 @@ static func ranked(options: Array) -> Array:
 			seen[option.key] = true
 			unique.append(option)
 	return unique.slice(0, CANDIDATE_LIMIT)
+
+static func monster_choices(world: Dictionary, card_ids: Array, pid: int) -> Array:
+	# This is a projected world: public data lives directly on the dictionary.
+	var rows: Array = world.entities + Monsters.reserves({"data": world})
+	return Monsters.available(rows, card_ids, pid, world.monsters.unlocked[pid])
 
 static func choose(owner, pid: int, powers: Array, base: Dictionary, options: Array) -> Dictionary:
 	var shortlist: Array = ranked(options)
@@ -74,8 +80,10 @@ static func plan(owner, pid: int, reuse_validation: bool = true) -> Dictionary:
 	if late_wish:
 		powers = choose_power(owner, pid, c, order)
 	if c.w.has("monsters"):
-		var names: Array = preload("res://Scripts/Sim/U13MonsterRules.gd").available(c.w.entities, order.get("card_ids", []), pid, c.w.monsters.unlocked[pid])
+		var names: Array = monster_choices(c.w, order.get("card_ids", []), pid)
 		if not names.is_empty(): order["monster_choice"] = names.back()
+	if c.w.has("game_staging"):
+		order["staging"] = preload("res://Scripts/Sim/U13GameStaging.gd").bot_order(c.w, int(view.round), pid)
 	var checked: Dictionary = owner.preview_submission(pid, powers, order)
 	if checked.action == "invalid":
 		return checked

@@ -73,6 +73,9 @@ class FullMatch(PlanningMatch):
             s["presentation_world"] = copy_data(s["world"])
 
     def _accept_order(self, world, pid, order, reserve=True):
+        from . import game_staging
+        e.require(game_staging.order_valid(world,order), "staging_order_invalid")
+        order = {k:v for k,v in order.items() if k != "staging"}
         paid.validate_rites(world, pid, order)
         if not order.get("rites") and "summon" not in order:
             return super()._accept_order(world, pid, order, reserve)

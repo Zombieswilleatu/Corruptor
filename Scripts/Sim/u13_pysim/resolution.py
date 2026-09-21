@@ -18,7 +18,7 @@ HOOKS = ("post_repair_artillery", "commitment_reveal", "combat_resolution")
 
 
 def combat_order(order):
-    return {k: copy_data(v) for k, v in order.items() if k not in ("guard_moves", "castle_action", "rites", "summon")}
+    return {k: copy_data(v) for k, v in order.items() if k not in ("guard_moves", "castle_action", "rites", "summon", "staging")}
 
 
 class Ordinary(Battle):
@@ -155,6 +155,8 @@ class Ordinary(Battle):
                     recruits.place_spawn(w,row,self.seed);bodies.append(row['id']);events.append(e.event('MARCHER_SPAWNED',row))
                 events.append(e.event('MONSTER_SUMMONED',dict(monster_id=name,player_id=pid,round=self.number,lane=order['lane'],unit_ids=bodies)))
         d["combat_reveal_round"] = self.number
+        from . import game_staging
+        events.extend(game_staging.capture(w,events,self.number))
         return events
 
     def strength(self, ids, exempt):

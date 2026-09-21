@@ -14,11 +14,14 @@ class Recipes:
         state = facts.v['data'].get('monsters', {})
         self.enabled = state.get('version') == monsters.VERSION
         unlocked = state.get('unlocked', [[], []])[facts.pid]
+        # Protected reserves still occupy living-copy slots. Keep them out of
+        # battlefield facts: they cannot attack or be targeted before release.
+        living_rows = facts.rows + monsters.reserves(facts.world)
         self.status = {}
         for name in monsters.NAMES:
             self.status[name] = ('rules_unavailable' if not self.enabled else
                 'recipe_locked' if name not in unlocked else
-                'living_copy_limit' if monsters.limited(name) and monsters.living(facts.rows, facts.pid, name) else 'available')
+                'living_copy_limit' if monsters.limited(name) and monsters.living(living_rows, facts.pid, name) else 'available')
         # Conservation cannot justify waiting for a future draw at a currently
         # projected settlement. Enemy orders still prevent a guaranteed result.
         from .veil_judgment import settlement_projection

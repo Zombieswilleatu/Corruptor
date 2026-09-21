@@ -1,6 +1,7 @@
 class_name U13Marching
 extends RefCounted
 
+const Charge = preload("res://Scripts/Sim/U13TumlerCharge.gd")
 const Incoming = preload("res://Scripts/Sim/U13IncomingDamage.gd")
 
 const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
@@ -258,7 +259,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 	var kroni_actors: Array = world.data.get("kroni_actors", [])
 	if not kroni_actors.is_empty():
 		events.append(public_event("KRONI_ACTORS_STARTED", {"round": context.round, "actors": kroni_actors.duplicate(true)}))
-	var has_monsters: bool = Monsters.enabled(world) and (not world.data.monsters.fields.is_empty() or not world.data.monsters.pending_beams.is_empty() or _units(entities).any(func(u): return u.attributes.has("monster_id") or u.attributes.has("poison_until_round")))
+	var has_monsters: bool = Monsters.enabled(world) and (not world.data.monsters.fields.is_empty() or not world.data.monsters.pending_beams.is_empty() or _units(entities).any(func(u): return u.attributes.has("monster_id") or u.attributes.has("poison_until_round") or int(u.attributes.get("poison_ticks_left", 0)) > 0))
 	for tick in range(TICKS):
 		var tick_events_start: int = events.size()
 		var lamp_before: Array = _units(entities) if not lamp_objects.is_empty() else []
@@ -298,6 +299,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 		if has_ranged:
 			events.append_array(Fort.step(world, entities, context.round, tick, fleeing_ids))
 			motion_context["field_structures"] = Fort.rows(world)
+		if has_monsters and has_ranged: events.append_array(Charge.step(entities, Fort.rows(world), context, tick, fleeing_ids))
 		_move(entities, duels, motion_context, clock, has_rout, fleeing_ids)
 		if not gravity_orbs.is_empty():
 			var gravity_events: Array = Gravity.step(gravity_orbs, entities, gravity_before, context.round, tick, collapse)
@@ -453,6 +455,16 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 				return volley
 			world = volley.world
 			events.append_array(volley.events)
+			for lane in duels.keys():
+				if not _duel_alive(duels[lane], entities):
+					events.append(public_event("MARCHER_DUEL_INTERRUPTED", {"event_id": duels[lane].id, "round": context.round, "tick": tick}))
+					duels.erase(lane)
+		# Newly inflicted poison resolves in the same tick as the melee volley.
+		if has_monsters:
+			var poison_tick: Dictionary = MonsterEffects.poison(world, entities, context, tick, reaction)
+			if poison_tick.action == "invalid": return poison_tick
+			world = poison_tick.world
+			events.append_array(poison_tick.events)
 			for lane in duels.keys():
 				if not _duel_alive(duels[lane], entities):
 					events.append(public_event("MARCHER_DUEL_INTERRUPTED", {"event_id": duels[lane].id, "round": context.round, "tick": tick}))
@@ -741,9 +753,16 @@ static func _move(
 	var structures: Array = context.get("field_structures", [])
 	if modern:
 		neighbors = {}
-		var targets: Array = rows + structures
+		var all_targets: Array = rows + structures
+		var targets: Dictionary = _teams(all_targets)
 		for unit in rows:
-			var reachable: Array = Navigation.candidates(unit, targets, clock)
+			# These units are skipped by the movement loop below. Target selection
+			# has no side effects, so their unused searches can be omitted.
+			if Charge.active(unit.attributes) or int(unit.attributes.get("tumler_charge_motion_tick", -1)) == clock: continue
+			if fleeing_ids.has(unit.id) or (unit.attributes.get("hidden", false) and unit.attributes.get("monster_id") != "Dotra") or unit.attributes.get("sprite_form") == "turret": continue
+			# Preserve retained-path lookup for older relocated/charmed targets.
+			var candidates: Array = all_targets if not unit.attributes.get("navigation", {}).get("path", []).is_empty() else targets[unit.attributes.lane][1 - int(unit.owner)]
+			var reachable: Array = Navigation.candidates(unit, candidates, clock)
 			var target: Dictionary = FieldMelee.nearest(unit, reachable, Fort.CONTACT, true)
 			if target.is_empty(): target = Navigation.retained(unit, reachable)
 			if target.is_empty(): target = FieldMelee.nearest(unit, reachable)
@@ -763,10 +782,11 @@ static func _move(
 		var copy: Dictionary = row.duplicate()
 		accepted.append(copy)
 		accepted_by_id[row.id] = copy
-	var accepted_grids: Dictionary = _team_grids(accepted, 7)
+	var accepted_grids: Dictionary = {} if modern else _team_grids(accepted, 7)
 	# Targets use one snapshot. Reserve each accepted small footprint in stable
 	# identity order so two units cannot step into the same space this tick.
 	for unit in rows:
+		if Charge.active(unit.attributes) or int(unit.attributes.get("tumler_charge_motion_tick", -1)) == clock: continue
 		if fleeing_ids.has(unit.id) or (unit.attributes.get("hidden", false) and unit.attributes.get("monster_id") != "Dotra") or unit.attributes.get("sprite_form") == "turret":
 			continue
 		var a: Dictionary = unit.attributes
@@ -847,7 +867,7 @@ static func _move(
 				destination = build_goal
 				movement_target = "build:%s" % str(a.get("wright_site", ""))
 				best = _distance(a, destination)
-				if best <= 16 * 16: continue
+				if best <= 16 * 16 and Fort.work_in_reach(unit, structures, build_goal): continue
 			var wall: Dictionary = Fort.blocker(unit, destination, structures)
 			if not wall.is_empty():
 				destination = Fort.point(a, wall)
@@ -1073,7 +1093,7 @@ static func _valid_duels(world: Dictionary) -> bool:
 
 
 static func _attack(target: Dictionary, amount: int, bypass: bool, clock: int = 0) -> int:
-	var remaining: int = Incoming.regular_amount(target, amount, clock)
+	var remaining: int = Incoming.apply(target, amount, clock, true)
 	if not bypass:
 		var absorbed: int = mini(int(target.armor), remaining)
 		target.armor -= absorbed

@@ -804,7 +804,7 @@ func _resolve(record: Dictionary) -> Dictionary:
 func _apply_transform(result, source: Dictionary = {}) -> Dictionary:
 	if (
 		typeof(result) != TYPE_DICTIONARY
-		or not Data.is_data(result)
+		or not _transform_data_valid(result)
 		or result.get("action") != "resolved"
 	):
 		return Data.invalid("transform_contract_error")
@@ -820,13 +820,13 @@ func _apply_transform(result, source: Dictionary = {}) -> Dictionary:
 			return Data.invalid("castle_loadout_is_sealed")
 	var previous_used: Array = _entities.snapshot().used_ids
 	var previous_active: Dictionary = {}
-	for row in _entities.snapshot().entities:
+	for row in _entities.snapshot().entities + _protected_entities(_world):
 		previous_active[row.id] = true
 	var installed: Dictionary = _install_world(result.world)
 	if installed.action == "invalid":
 		return installed
 	var installed_ids: Dictionary = _entities.snapshot()
-	for row in installed_ids.entities:
+	for row in installed_ids.entities + _protected_entities(_world):
 		if row.id in previous_used and not previous_active.has(row.id):
 			return Data.invalid("retired_entity_resurrected")
 	for entity_id in previous_used:
@@ -845,13 +845,49 @@ func _apply_transform(result, source: Dictionary = {}) -> Dictionary:
 			var views: Array = event.views
 			if not source.is_empty() and source.get("visibility") != "public":
 				views = [null, null]
-			if _events.append(event.event, views).action == "invalid":
+			if _events._append_validated(event.event, views).action == "invalid":
 				return Data.invalid("transform_event_invalid")
 		else:
-			if not EventLog._valid_event(event):
+			if not EventLog._valid_event_shape(event):
 				return Data.invalid("transform_event_invalid")
-			_record(event, source)
+			_events._append_validated(event, [event, event] if source.get("visibility") == "public" else [null, null])
 	return {"action": "resolved"}
+
+
+# Public tape rows commonly use the very same fact for authority and both
+# projections. Validate that fact once at its deepest occurrence. All extra
+# fields and distinct/private views retain the original data/depth boundary.
+static func _transform_data_valid(result: Dictionary) -> bool:
+	if typeof(result.get("events")) != TYPE_ARRAY:
+		return Data.is_data(result)
+	var envelope: Dictionary = result.duplicate()
+	envelope.erase("events")
+	if not Data.is_data(envelope): return false
+	for row in result.events:
+		if typeof(row) != TYPE_DICTIONARY or not row.has("event") or typeof(row.get("views")) != TYPE_ARRAY:
+			if not Data.is_data(row, 2): return false
+			continue
+		var extra: Dictionary = row.duplicate()
+		extra.erase("event")
+		extra.erase("views")
+		if not Data.is_data(extra, 2): return false
+		var shared: bool = false
+		for view in row.views:
+			if is_same(view, row.event): shared = true
+			elif not Data.is_data(view, 4): return false
+		if not Data.is_data(row.event, 4 if shared else 3): return false
+	return true
+
+
+# Protected recruits are alive even while absent from the targetable registry.
+# Include both stores in history checks; a genuinely retired ID still cannot
+# return to either store. GameContent validates reserve shapes and uniqueness.
+static func _protected_entities(world: Dictionary) -> Array:
+	var result: Array = []
+	var state: Dictionary = world.get("data", {}).get("game_staging", {})
+	if state.get("version") in ["U13_GAME_STAGING_V1", "U13_GAME_STAGING_V2_MANUAL"]:
+		for tray in state.get("lanes", {}).values(): result.append_array(tray.get("units", []))
+	return result
 
 
 func _record(event: Dictionary, source: Dictionary = {}) -> void:

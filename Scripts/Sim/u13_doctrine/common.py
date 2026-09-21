@@ -30,7 +30,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V26_ODRADEK_FIELD'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V27_RESERVED_RECIPES'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -472,6 +472,13 @@ class CommonSmartCore:
         ranked = sorted(unique,
                         key=lambda c: (-c['score'], sum(len(p.cards) for p in c['selected']),
                                        len(c['plan']['powers']), fingerprint(c['plan'])))
+        from u13_pysim import game_staging
+        if game_staging.enabled(f.world):
+            staging = game_staging.bot_order(f.world, f.v['round'], f.pid)
+            # Native admission must preview the exact final command. Adding
+            # staging after selection would change the already admitted plan.
+            for candidate in ranked:
+                candidate['plan']['order']['staging'] = copy_data(staging)
         chosen, rejected, selection = self.selector.select(ranked, preview, budget,
             round_number=view['round'], seat=f.pid)
         picked = {(p.category, p.term) for p in chosen['selected']}

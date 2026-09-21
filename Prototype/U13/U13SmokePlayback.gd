@@ -165,6 +165,7 @@ func sample(seconds: float) -> Dictionary:
 			attack["elapsed"] = at
 			for unit in result:
 				if unit.id != attack.source_id: continue
+				attack["ward_active"] = unit.attributes.get("muno_ward", true)
 				var home := Vector2(float(unit.attributes.visual_x), float(unit.attributes.visual_y))
 				attack["return_point"] = home
 				var dash := muno_position(attack, at, home)
@@ -174,6 +175,11 @@ func sample(seconds: float) -> Dictionary:
 					unit.attributes["visual_muno_weight"] = (at - float(attack.start)) / (float(attack.return_at) - float(attack.start))
 					unit.attributes["visual_muno_face_left"] = float(attack.target.y_fp) < float(attack.source.y_fp) if attack.target.y_fp != attack.source.y_fp else unit.owner == 1
 				break
+	# The returned echo is saved unit state, so it survives pauses, new rounds
+	# and reloads, and disappears on the exact frame that spends the charge.
+	for unit in result:
+		if unit.attributes.get("muno_ward", false) and int(unit.attributes.hp) > 0 and not attacks.any(func(a): return a.ability == "MunoDash" and a.source_id == unit.id):
+			attacks.append({"ability": "MunoAfterimage", "source": unit.attributes, "target": unit.attributes, "source_id": unit.id, "target_id": unit.id, "source_owner": unit.owner, "target_owner": unit.owner})
 	# Charging is recorded unit state, so death, loss of targets, pause, and
 	# cross-round continuation all follow the same authoritative timeline.
 	if _spatial and at < duration:
@@ -195,7 +201,7 @@ func final_units() -> Array:
 	return [] if _frames.is_empty() else _frames.back().units.duplicate(true)
 
 
-func _append(units: Dictionary, caption: String, clash: Array) -> void:
+func _append(units: Dictionary, caption: String, clash: Array, expired_armor: Dictionary = {}) -> void:
 	for entity_id in _previous_units:
 		var before: Dictionary = _previous_units[entity_id]
 		var after: Dictionary = units.get(entity_id, {})
@@ -212,7 +218,9 @@ func _append(units: Dictionary, caption: String, clash: Array) -> void:
 			hp = 0
 			armor = int(_terminal[entity_id])
 		var hp_delta: int = hp - int(before.attributes.hp)
-		var armor_delta: int = armor - int(before.attributes.armor)
+		# Expiring temporary Armor is not a hit. Preserve genuine damage in
+		# the same tick, including packets that consumed some of that Armor.
+		var armor_delta: int = armor - int(before.attributes.armor) + int(expired_armor.get(entity_id, 0))
 		if hp_delta != 0 or armor_delta != 0:
 			feedback_rows.append(
 				Feedback.row(
@@ -292,7 +300,7 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 		if d.get("evaded", false) and event.type in ["MARCHER_MELEE_ATTACK", "MARCHER_RANGED_ATTACK", "MONSTER_ATTACK"]:
 			var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
 			_monster_attacks.append({"start": at, "end": at + 0.20, "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "ability": "ArmorDeflect" if d.target.attributes.get("monster_id") == "Kurchin" else "HuntDodge"})
-		if d.get("blocked", false) and event.type in ["MARCHER_RANGED_ATTACK", "MONSTER_ATTACK"]:
+		if d.get("blocked", false) and event.type in ["MARCHER_MELEE_ATTACK", "MARCHER_RANGED_ATTACK", "MONSTER_ATTACK"]:
 			var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
 			_monster_attacks.append({"start": at, "end": at + 0.20, "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "ability": "RangedBlock"})
 		if event.type == "MONSTER_FIELD_CREATED" and not _monster_fields.any(func(f): return f.field.id == d.field.id):
@@ -317,6 +325,12 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 			else:
 				# Older tapes contain hit records only and can still show their shots.
 				_monster_attacks.append({"start": at, "end": at + (BEAM_SECONDS if d.ability == "Beam" else 0.14), "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "ability": d.ability})
+	var charge_expiry: Dictionary = {}
+	for event in events:
+		if event.type == "MONSTER_CHARGE_ENDED":
+			var tick_key: int = int(event.data.tick)
+			if not charge_expiry.has(tick_key): charge_expiry[tick_key] = {}
+			charge_expiry[tick_key][event.data.unit_id] = int(event.data.armor_removed)
 	var expected_tick: int = 0
 	for event in events:
 		if event.type != "MARCHING_TICK":
@@ -339,7 +353,8 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 		_append(
 			units,
 			"Melee in progress" if not details.clash.is_empty() else "Marching",
-			details.clash
+			details.clash,
+			charge_expiry.get(int(details.tick), {})
 		)
 		_frames.back()["field_structures"] = details.get("field_structures", []).duplicate(true)
 	if expected_tick != int(started.ticks):

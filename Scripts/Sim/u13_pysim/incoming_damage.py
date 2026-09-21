@@ -1,4 +1,4 @@
-"""Incoming modifiers: exposure on packets, Rout on regular attacks only."""
+"""Incoming modifiers: exposure, Rout attacks, and one-use afterimages."""
 
 ROUT_RETREAT_ATTACK_BONUS = 1
 
@@ -23,10 +23,21 @@ def regular_amount(a, base, clock, rout_round=None):
     return amount(a, base, clock) + bonus
 
 
+def apply(a, base, clock, regular=False, rout_round=None):
+    """Consume one ward on a positive packet; forecasts keep using amount()."""
+    incoming = regular_amount(a, base, clock, rout_round) if regular else amount(a, base, clock)
+    if incoming > 0 and a.get('muno_ward', False):
+        a['muno_ward'] = False
+        return 0
+    return incoming
+
+
 def phase_clock(world, number):
     return number * 200 + (200 if world['data'].get('marching_round', 0) >= number else 0)
 
 
 def valid(a):
+    if 'muno_ward' in a and (type(a['muno_ward']) is not bool or a.get('monster_id') != 'Muno'):
+        return False
     return all(type(a.get(k, 0)) is int and 0 <= a.get(k, 0) <= 9007199254740991
                for k in ('dotra_exposed_from_tick', 'dotra_exposed_until_tick')) and a.get('dotra_exposed_until_tick', 0) >= a.get('dotra_exposed_from_tick', 0)

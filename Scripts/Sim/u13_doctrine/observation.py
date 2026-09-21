@@ -17,6 +17,10 @@ def observe(match, seat):
                               'orias_marks', 'kanifous_prices', 'kanifous_losses')}
     data['veil_breaches'] = d.get('veil_breaches', {})
     data['monsters'] = d.get('monsters', {})
+    if 'game_staging' in d:
+        data['game_staging'] = copy_data(d['game_staging'])
+        for tray in data['game_staging']['lanes'].values():
+            tray['units'] = [u for u in tray['units'] if u['owner'] == seat]
     # Visible lane objects matter to shot coverage and blocked pursuit. Keep
     # empty observations stable; no new private state crosses this boundary.
     if d.get('field_structures'):

@@ -27,6 +27,7 @@ func start(seed_value: String, lords: Array, castles: Array, compact_events: boo
 	var opening: Dictionary = Economy.initialize(schema, seed_value)
 	if opening.action == "invalid":
 		return opening
+	Content.Staging.configure(opening.world)
 	var candidate = Content.new().create_combat_match(compact_events)
 	var result: Dictionary = candidate.start(seed_value, opening.world, [0, 1])
 	if result.action != "invalid":

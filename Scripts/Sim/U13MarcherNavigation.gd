@@ -13,7 +13,11 @@ static func avoided(unit: Dictionary, target: Dictionary, clock: int) -> bool:
 	return not target.is_empty() and int(unit.attributes.get("navigation", {}).get("avoid", {}).get(target.id, 0)) > clock
 
 static func candidates(unit: Dictionary, targets: Array, clock: int) -> Array:
-	return targets.filter(func(t): return not avoided(unit, t, clock) or Fort.in_melee(unit, t))
+	# The avoidance map is unchanged throughout this selection. Preserve the
+	# detached array and row order returned by filter(), including empty rows.
+	var avoid: Dictionary = unit.attributes.get("navigation", {}).get("avoid", {})
+	if avoid.is_empty() and clock >= 0: return targets.duplicate()
+	return targets.filter(func(t): return t.is_empty() or int(avoid.get(t.id, 0)) <= clock or Fort.in_melee(unit, t))
 
 static func retained(unit: Dictionary, targets: Array) -> Dictionary:
 	var nav: Dictionary = unit.attributes.get("navigation", {})
@@ -57,7 +61,7 @@ static func steer(unit: Dictionary, proposed: Dictionary, destination: Dictionar
 	if retreat or step <= 0: return Spacing.slide(unit, proposed, rows, structures, step, not retreat and not protected_target)
 	# Taunt changes the contact target before movement. An old opponent must
 	# not pin the fighter in place while its attacks now aim at Kurchin.
-	if not protected_target and rows.any(func(other): return other.owner != unit.owner and not Shroud.active(other.attributes) and Spacing.collides(unit, other) and Fort.in_melee(unit, other)): return unit.attributes
+	if not protected_target and rows.any(func(other): return other.owner != unit.owner and Fort.in_melee(unit, other) and not Shroud.active(other.attributes) and Spacing.collides(unit, other)): return unit.attributes
 	var a: Dictionary = unit.attributes
 	var goal: Dictionary = destination if not destination.is_empty() else {"x_fp": 2400 if unit.owner == 0 else 0, "y_fp": int(a.y_fp)}
 	var nav: Dictionary = a.get("navigation", {}).duplicate(true)
@@ -75,6 +79,8 @@ static func steer(unit: Dictionary, proposed: Dictionary, destination: Dictionar
 		nav.progress = clock
 		if nav.path.is_empty() and not target.is_empty() and not protected_target:
 			nav.avoid[target] = clock + RETRY_TICKS
+	# The contact scan above already passed. Path and clearance checks only
+	# read these rows, so slide need not repeat it for the same snapshot.
 	var moved: Dictionary
 	if not nav.path.is_empty():
 		var point: Dictionary = nav.path[0]
@@ -90,9 +96,9 @@ static func steer(unit: Dictionary, proposed: Dictionary, destination: Dictionar
 		else:
 			nav.path = []
 			nav.progress = clock - STALL_TICKS
-			moved = Spacing.slide(unit, proposed, rows, structures, step, not protected_target)
+			moved = Spacing.slide(unit, proposed, rows, structures, step, false)
 	else:
-		moved = Spacing.slide(unit, proposed, rows, structures, step, not protected_target)
+		moved = Spacing.slide(unit, proposed, rows, structures, step, false)
 	# slide may return a read-only snapshot; always own the navigation update.
 	moved = moved.duplicate(true)
 	moved["navigation"] = nav

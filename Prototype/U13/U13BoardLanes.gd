@@ -2,6 +2,8 @@ extends "res://Prototype/U13/U13SmokeBoard.gd"
 
 # UI2 MarchingLaneView's right rail geometry and original frame/domain crops.
 # Positions come exclusively from the U13 playback tape, never the U12 simulator.
+const LiveLayout = preload("res://Prototype/U13/U13LiveLaneLayout.gd")
+var live_layout: bool = false
 const Art = preload("res://Prototype/U13/U13BoardTextures.gd")
 const ScorchVisuals = preload("res://Prototype/U13/U13ScorchVisuals.gd")
 var scorch_visuals = ScorchVisuals.new()
@@ -156,6 +158,8 @@ func _get_tooltip(at: Vector2) -> String:
 				description += "\nEXPOSED · takes +1 damage per hit before Armor. Refreshes; does not stack."
 			if ShroudVisuals.active(unit):
 				description += "\nSHROUDED · cannot be targeted for 5 seconds after emergence. Can still fight; area damage and poison still affect him."
+			if unit.attributes.get("muno_ward", false):
+				description += "\nAFTERIMAGE · cancels the next damaging hit before Armor. One charge; persists until used."
 			if CharmVisuals.active(unit):
 				description += "\nCHARMED · fighting for %s until this round ends. Returns to %s next round." % ["you" if unit.owner == 0 else "the enemy", "you" if int(unit.attributes.charm_owner) == 0 else "the enemy"]
 			if unit_name == "Penitent": description += "\n" + preload("res://Scripts/Sim/U13PenitentDefense.gd").DESCRIPTION
@@ -167,8 +171,9 @@ func _get_tooltip(at: Vector2) -> String:
 			if unit_name in ["Vulture", "Kopita", "Sinodek", "Sooge"] and unit.attributes.get("sprite_form") != "turret":
 				description += "\nSlows near allied front-line fighters to stay behind them, except during a goal advance." if unit_name == "Vulture" and Ranged.goal_advance_enabled({"data": ranged_display_settings}) else "\nSlows near allied front-line fighters to stay behind them."
 			if unit_name == "Tumler":
-				description += "\n+1 damage against his marked hunt target (before Armor); normal damage against others."
-				description += "\n50% evasion against direct attacks, including at melee contact. Poison cannot be dodged. Landed melee hits while hunting change his target; ranged hits do not."
+				description += "\n" + MonsterRules.ROSTER.Tumler.ability
+				if unit.attributes.get("tumler_charge_phase", "") in ["windup", "charge"]:
+					description += "\n%s · Temporary Armor remaining: %d" % ["WINDING UP" if unit.attributes.tumler_charge_phase == "windup" else "CHARGING", maxi(0, int(unit.attributes.armor) - int(unit.attributes.tumler_charge_base_armor))]
 			if unit_name == "Fyra":
 				description += "\n%d%% chance per hit to charm a surviving target for this round." % MonsterRules.TUNING.fyra_charm_chance
 				description += "\nPink hearts mark temporary control; ownership returns next round."
@@ -205,6 +210,9 @@ func _scenery(rect: Rect2, crop: Rect2) -> void:
 
 
 func _draw() -> void:
+	if live_layout:
+		LiveLayout.draw(self)
+		return
 	draw_rect(Rect2(Vector2.ZERO, size), Color.BLACK)
 	if skin != null:
 		var dimensions: Vector2 = skin.get_size()
@@ -369,6 +377,7 @@ func _draw_chit(unit: Dictionary, center: Vector2, flash: bool = false, close_up
 			if uses_sprite(unit): sprite_visuals.draw_afterimage(self, unit, center, unit_sprite_height(unit), Color(0.65, 0.75, 0.85, 0.24))
 			draw_arc(center, 9, 0, TAU, 24, Color(tint, 0.35), 1.0)
 		return
+	_draw_tumler_charge(unit, center)
 	var glitch: Dictionary = paradox_glitches.get(unit.id, {})
 	var height: float = 64.0 if close_up else unit_sprite_height(unit)
 	var drawn: bool = (close_up or uses_sprite(unit)) and sprite_visuals.draw(self, unit, center, height, glitch, flash)
@@ -396,6 +405,17 @@ func _draw_chit(unit: Dictionary, center: Vector2, flash: bool = false, close_up
 		draw_string(ThemeDB.fallback_font, center + Vector2(-diameter * 0.5, 4), unit_name.left(2).to_upper(), HORIZONTAL_ALIGNMENT_CENTER, diameter, 11, Color("eed8ad"))
 	rout_visuals.draw_chit(self, String(unit.id), center - Vector2(0, height * 0.45 if drawn else 0.0))
 	_draw_unit_rings(unit, center, tint, drawn)
+
+
+func _draw_tumler_charge(unit: Dictionary, feet: Vector2) -> void:
+	var phase: String = unit.attributes.get("tumler_charge_phase", "")
+	if phase not in ["windup", "charge"]: return
+	var tint := Color("ffd278") if phase == "windup" else Color("b8edff")
+	var radius: float = 16.0 + 2.0 * sin(sprite_visuals.clock * 18.0)
+	draw_circle(feet, radius, Color(tint, 0.16))
+	draw_arc(feet, radius, 0.0, TAU, 28, Color(tint, 0.85), 2.0)
+	if phase == "windup":
+		draw_string(ThemeDB.fallback_font, feet + Vector2(-26, 22), "BRACE", HORIZONTAL_ALIGNMENT_CENTER, 52, 10, tint)
 
 
 func _draw_unit_rings(unit: Dictionary, center: Vector2, owner_color: Color, sprite: bool) -> void:
@@ -558,6 +578,7 @@ func bind_webs(records: Array) -> void:
 
 # One geometry contract for sprite feet, projectiles and live spatial targeting.
 func travel_rect(lane: String) -> Rect2:
+	if live_layout: return LiveLayout.travel(size, lane)
 	var width: float = (size.x - 37) / 2.0
 	return Rect2(16 + (width + 5) * (1 if lane == "Castle" else 0), 344, width, maxf(1, size.y - 420))
 
@@ -617,6 +638,7 @@ func _attack_point(attributes: Dictionary, identity: String, owner: int) -> Vect
 
 
 func beam_bounds(lane: String) -> Rect2:
+	if live_layout: return travel_rect(lane)
 	var rect: Rect2 = travel_rect(lane)
 	return Rect2(rect.position.x, 310, rect.size.x, size.y - 334)
 
@@ -702,6 +724,8 @@ func _draw_monster_attacks() -> void:
 			_draw_beam_blast(attack)
 		elif attack.ability == "MunoDash":
 			_draw_muno_dash(attack, b)
+		elif attack.ability == "MunoAfterimage":
+			_draw_muno_afterimage(attack)
 		elif attack.ability == "Ambush":
 			for i in range(3): draw_line(b + Vector2(-8 + i * 5, 8), b + Vector2(-3 + i * 5, -9), Color(0.9, 0.63, 0.42, 0.8), 1.5, true)
 
@@ -712,6 +736,7 @@ func _draw_muno_dash(attack: Dictionary, target: Vector2) -> void:
 	if impact_age >= 0.0 and impact_age < 0.12:
 		var flash: float = 1.0 - impact_age / 0.12
 		draw_line(target + Vector2(-8, 9), target + Vector2(8, -9), Color(0.85, 0.91, 1.0, flash), 2.5, true)
+	if not attack.get("ward_active", true): return
 	var playback_script = preload("res://Prototype/U13/U13SmokePlayback.gd")
 	var retreat_start: float = float(attack.impact_at) + playback_script.MUNO_STRIKE_HOLD
 	var home: Vector2 = attack.get("return_point", Vector2(attack.source.x_fp, attack.source.y_fp))
@@ -728,6 +753,20 @@ func _draw_muno_dash(attack: Dictionary, target: Vector2) -> void:
 		var tint := Color(0.62, 0.40, 1.0, 0.46 * (1.0 - age / 0.19))
 		if uses_sprite(unit) and sprite_visuals.draw_afterimage(self, unit, feet, unit_sprite_height(unit), tint): continue
 		# Token mode keeps the same dash, with quiet token-shaped echoes.
+		draw_circle(feet, CHIT_DIAMETER * 0.5, tint)
+
+
+func _draw_muno_afterimage(attack: Dictionary) -> void:
+	var unit: Dictionary = {"id": attack.source_id, "owner": attack.source_owner, "attributes": attack.source.duplicate(true)}
+	var a: Dictionary = unit.attributes
+	var x: float = float(a.get("visual_x", a.x_fp))
+	# Keep the same violet sprite echoes as the returning dash. They follow
+	# the living body instead of leaving a permanent ghost at the old target.
+	for i in range(3, 0, -1):
+		a["visual_x"] = x - float(a.direction) * 42.0 * float(i)
+		var feet: Vector2 = _monster_point(a)
+		var tint := Color(0.62, 0.40, 1.0, 0.30 - float(i) * 0.065)
+		if uses_sprite(unit) and sprite_visuals.draw_afterimage(self, unit, feet, unit_sprite_height(unit), tint): continue
 		draw_circle(feet, CHIT_DIAMETER * 0.5, tint)
 
 

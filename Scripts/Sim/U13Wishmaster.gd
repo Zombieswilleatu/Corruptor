@@ -135,11 +135,11 @@ static func ignored(a: Dictionary, b: Dictionary) -> bool:
 
 static func bypass(entities, round_number: int, tick: int) -> Array:
 	var events: Array = []
-	var units: Array = entities.marchers()
+	var units: Array = entities._read_marchers()
 	for source in units:
-		var unit: Dictionary = entities.get_entity(source.id)
-		if unit.attributes.get("ghost_wishes", 0) == 0:
+		if source.attributes.get("ghost_wishes", 0) == 0:
 			continue
+		var unit: Dictionary = entities.get_entity(source.id)
 		for other in units:
 			if other.owner == unit.owner or other.attributes.lane != unit.attributes.lane or ignored(unit, other) or distance(unit.attributes, other.attributes) > 180 * 180:
 				continue

@@ -149,7 +149,9 @@ func lock_plans() -> Dictionary:
 	if is_finished() or next_hook() != Timeline.SUBMISSION_LOCK:
 		return Data.invalid("planning_closed")
 	# Choose before either seat commits. Never give the bot the human cart.
+	var planning_started: int = Time.get_ticks_usec()
 	var opponent: Dictionary = random_opponent_plan()
+	print("U13 PREPARE opponent_plan_ms=", (Time.get_ticks_usec() - planning_started) / 1000.0)
 	if opponent.get("action") == "invalid":
 		return opponent
 	var candidate = game()

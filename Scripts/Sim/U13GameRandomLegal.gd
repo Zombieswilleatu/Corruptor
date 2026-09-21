@@ -52,6 +52,8 @@ static func plan(owner, pid: int) -> Dictionary:
 		if legal.is_empty():
 			break
 		order = legal[_pick(owner, pid, "guard:%d" % index, legal.size())].duplicate(true)
+	if view.world.has("game_staging"):
+		order["staging"] = preload("res://Scripts/Sim/U13GameStaging.gd").bot_order(view.world, owner.round_number(), pid)
 	var checked: Dictionary = owner.preview_submission(pid, powers, order)
 	if checked.action == "invalid":
 		return checked

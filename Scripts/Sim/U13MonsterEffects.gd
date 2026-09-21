@@ -1,5 +1,6 @@
 extends RefCounted
 
+const Charge = preload("res://Scripts/Sim/U13TumlerCharge.gd")
 const Shroud = preload("res://Scripts/Sim/U13DotraShroud.gd")
 const Incoming = preload("res://Scripts/Sim/U13IncomingDamage.gd")
 
@@ -30,12 +31,30 @@ static func nearest(unit: Dictionary, rows: Array, radius: int = 4000) -> Dictio
 
 # A local taunt does not let a distant Kurchin steal targets across the lane.
 static func preferred(unit: Dictionary, rows: Array) -> Dictionary:
-	var taunts: Array = enemies(unit, rows, Rules.TUNING.taunt_radius).filter(func(r): return r.attributes.get("monster_id") == "Kurchin")
-	if not taunts.is_empty(): return nearest(unit, taunts)
-	var id: String = unit.attributes.get("hunt_target", "")
-	if unit.attributes.get("monster_id") == "Tumler":
-		for row in enemies(unit, rows):
-			if row.id == id: return row
+	if Charge.active(unit.attributes): return Charge.select_target(unit, rows, 0)
+	var a: Dictionary = unit.attributes
+	var owner: int = unit.owner
+	var lane: String = a.lane
+	var radius_squared: int = int(Rules.TUNING.taunt_radius) * int(Rules.TUNING.taunt_radius)
+	var found_taunt: bool = false
+	var best: Dictionary = {}
+	var best_gap: int = 4000 * 4000 + 1
+	for row in rows:
+		if row.owner == owner: continue
+		var b: Dictionary = row.attributes
+		# Reject ordinary enemies before visibility and distance work. Taunt
+		# ties retain input order, exactly as nearest() does for monsters.
+		if b.get("monster_id") != "Kurchin" or b.lane != lane or not Shroud.targetable(b): continue
+		var d: int = Fort.gap(unit, row)
+		if d > radius_squared: continue
+		found_taunt = true
+		if d < best_gap:
+			best = row; best_gap = d
+	if found_taunt: return best
+	var id: String = a.get("hunt_target", "")
+	if a.get("monster_id") == "Tumler":
+		for row in rows:
+			if row.id == id and row.owner != owner and row.attributes.lane == lane and Shroud.targetable(row.attributes) and Fort.gap(unit, row) <= 4000 * 4000: return row
 	return {}
 
 static func hunt_bonus(source: Dictionary, target: Dictionary) -> int:
@@ -65,6 +84,7 @@ static func evades(unit: Dictionary, source: Dictionary, rows: Array, context: D
 	return name == "Tumler" and Lamp.draw(context.seed, key, "TUMLER_HUNT_EVASION", 100) < Rules.TUNING.tumler_evasion_chance
 
 static func intercept(unit: Dictionary, source: Dictionary, rows: Array, context: Dictionary, tick: int, structures: Array = []) -> Array:
+	if Charge.active(unit.attributes) or not Charge.engaged_target(unit, rows).is_empty(): return []
 	if source.owner == unit.owner or not hunting(unit, rows, context.round, structures): return []
 	if not rows.any(func(r): return r.id == source.id and r.owner == source.owner and Shroud.targetable(r.attributes)): return []
 	var old: String = unit.attributes.get("hunt_target", "")
@@ -121,16 +141,19 @@ static func on_hit(entities, source: Dictionary, target_id: String, damage: int,
 	var name: String = source.attributes.get("monster_id", "")
 	var key: String = "%s:%d:%d:%s" % [source.id, context.round, tick, target_id]
 	if name == "Varn" and damage > 0 and Lamp.draw(context.seed, key, "POISON", 100) < Rules.TUNING.varn_poison_chance:
-		target.attributes["poison_until_round"] = int(context.round) + 2
+		var clock: int = int(context.round) * 200 + tick
+		if int(target.attributes.get("poison_ticks_left", 0)) == 0:
+			target.attributes["poison_next_tick"] = clock
+		target.attributes["poison_ticks_left"] = int(Rules.TUNING.varn_poison_ticks)
+		target.attributes.erase("poison_until_round")
 		var credited: Dictionary = source.duplicate(true)
-		credited.attributes.erase("poison_source")
-		credited.attributes.erase("poison_until_round")
+		for field in ["poison_source", "poison_until_round", "poison_next_tick", "poison_ticks_left"]: credited.attributes.erase(field)
 		target.attributes["poison_source"] = credited
 		entities.update(target.id, target.owner, target.attributes)
 		return [event("MONSTER_POISONED", {"unit_id": target.id, "source_id": source.id, "round": context.round, "tick": tick})]
 	if name == "Fyra" and not target.attributes.has("charm_owner") and Lamp.draw(context.seed, key, "CHARM", 100) < Rules.TUNING.fyra_charm_chance:
 		var monster: String = target.attributes.get("monster_id", "")
-		if Rules.limited(monster) and Rules.living(entities.marchers(), source.owner, monster): return []
+		if Rules.limited(monster) and Rules.living(entities.marchers() + Rules.reserves(context.world), source.owner, monster): return []
 		target.attributes["charm_owner"] = target.owner
 		target.attributes.direction = 1 if source.owner == 0 else -1
 		target.attributes.waiting = false
@@ -140,6 +163,25 @@ static func on_hit(entities, source: Dictionary, target_id: String, damage: int,
 		return [event("MONSTER_CHARMED", {"unit_id": target.id, "source_id": source.id, "owner": source.owner, "round": context.round, "tick": tick})]
 	return []
 
+static func poison(world: Dictionary, entities, context: Dictionary, tick: int, reaction: Callable) -> Dictionary:
+	var events: Array = []
+	var clock: int = int(context.round) * 200 + tick
+	for original in entities._read_marchers():
+		var live: Dictionary = entities._read_entity(original.id)
+		if live.is_empty() or int(live.attributes.get("poison_ticks_left", 0)) <= 0 or int(live.attributes.poison_next_tick) > clock: continue
+		var unit: Dictionary = live.duplicate(true)
+		var a: Dictionary = unit.attributes
+		var source: Dictionary = a.poison_source
+		a.poison_ticks_left -= 1
+		a.poison_next_tick = clock + int(Rules.TUNING.varn_poison_interval_ticks) if a.poison_ticks_left > 0 else 0
+		if a.poison_ticks_left == 0: a.erase("poison_source")
+		entities.update(unit.id, unit.owner, a)
+		var result: Dictionary = damage(world, entities, {"source": source, "target": unit.id, "amount": 1, "bypass": true, "ability": "Poison"}, context, tick, reaction)
+		if result.action == "invalid": return result
+		world = result.world
+		events.append_array(result.events)
+	return {"action": "resolved", "world": world, "events": events}
+
 static func step(world: Dictionary, entities, context: Dictionary, tick: int, reaction: Callable) -> Dictionary:
 	var events: Array = []
 	if not Rules.enabled(world): return {"action": "resolved", "world": world, "events": events, "fleeing": {}}
@@ -148,7 +190,10 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 	var clock: int = n * 200 + tick
 	var hits: Array = []
 	var fleeing: Dictionary = {}
-	for unit in entities.marchers():
+	for observed in entities._read_marchers():
+		var read: Dictionary = observed.attributes
+		if not (int(read.get("dotra_exposed_until_tick", 0)) > 0 and int(read.dotra_exposed_until_tick) <= clock) and not (int(read.get("dotra_shroud_until_tick", 0)) > 0 and int(read.dotra_shroud_until_tick) <= clock) and not (read.get("monster_id") == "Dotra" and read.movement_ready_round <= n and int(read.get("dotra_concealment_round", 0)) == 0): continue
+		var unit: Dictionary = observed.duplicate(true)
 		var a: Dictionary = unit.attributes
 		if int(a.get("dotra_exposed_until_tick", 0)) > 0 and int(a.dotra_exposed_until_tick) <= clock:
 			a["dotra_exposed_from_tick"] = 0
@@ -172,6 +217,11 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 					a["dotra_concealment_round"] = n
 					events.append(event("MONSTER_CONCEALMENT", {"unit_id": unit.id, "hidden": true, "round": n, "tick": tick}))
 			entities.update(unit.id, unit.owner, a)
+	var poisoned: Dictionary = poison(world, entities, context, tick, reaction)
+	if poisoned.action == "invalid": return poisoned
+	world = poisoned.world
+	state = world.data.monsters
+	events.append_array(poisoned.events)
 	if tick == 0:
 		state.phase_round = n
 		state.fields = state.fields.filter(func(f): return f.expires_round >= n)
@@ -197,11 +247,12 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 							events.append(event("MONSTER_ROOTED", {"unit_id": unit.id, "round": n, "tick": tick}))
 			entities.update(unit.id, unit.owner, a)
 	# Deterministic ID order for pulses, jumps, ambushes and beam preparation.
-	for original in entities.marchers():
-		var unit: Dictionary = entities.get_entity(original.id)
+	for original in entities._read_marchers():
+		var live: Dictionary = entities._read_entity(original.id)
+		if live.attributes.movement_ready_round > n or not live.attributes.has("monster_id"): continue
+		var unit: Dictionary = live.duplicate(true)
 		var a: Dictionary = unit.attributes
-		if a.movement_ready_round > n or not a.has("monster_id"): continue
-		var rows: Array = entities.marchers()
+		var rows: Array = entities._read_marchers()
 		match a.monster_id:
 			"Sinodek":
 				if int(a.birth_round) < n and int(a.get("sinodek_portal_round", 0)) < n:
@@ -215,11 +266,8 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 							state.fields.append(f)
 							events.append(event("MONSTER_FIELD_CREATED", {"field": f, "round": n, "tick": tick}))
 			"Tumler":
-				var choices: Array = enemies(unit, rows).filter(func(r): return int(a.get("navigation", {}).get("avoid", {}).get(r.id, 0)) <= n * 200 + tick)
-				if not choices.any(func(r): return r.id == a.get("hunt_target", "")):
-					var supports: Array = choices.filter(func(r): return r.attributes.suit == "Vulture" or r.attributes.get("monster_id") in ["Kopita", "Fyra", "Sooge", "Sinodek"])
-					var chosen: Dictionary = nearest(unit, supports if not supports.is_empty() else choices)
-					a["hunt_target"] = chosen.get("id", "")
+				var chosen: Dictionary = Charge.select_target(unit, rows, clock)
+				a["hunt_target"] = chosen.get("id", "")
 			"Kopita":
 				if int(a.birth_round) < n and tick in [0, int(Rules.TUNING.kopita_second_pulse_tick)] and int(a.get("kopita_last_pulse_tick", 0)) < clock:
 					var healing: bool = rows.any(func(other): return other.owner == unit.owner and other.attributes.lane == a.lane and distance(a, other.attributes) <= Rules.TUNING.kopita_radius ** 2 and int(other.attributes.hp) < int(other.attributes.max_hp))
@@ -228,7 +276,8 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 					# 133/200 is about ten seconds into the 15-second sandbox round.
 					a["kopita_last_pulse_tick"] = clock
 					a["kopita_pulses"] = int(a.get("kopita_pulses", 0)) + 1
-					for other in rows:
+					for observed in rows:
+						var other: Dictionary = observed.duplicate(true)
 						if other.attributes.lane != a.lane or distance(a, other.attributes) > Rules.TUNING.kopita_radius ** 2: continue
 						if healing and other.owner == unit.owner:
 							var before: int = int(other.attributes.hp)
@@ -237,13 +286,13 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 							entities.update(other.id, other.owner, other.attributes)
 							if int(other.attributes.hp) > before:
 								healed.append({"id": other.id, "owner": other.owner, "attributes": other.attributes.duplicate(true), "amount": int(other.attributes.hp) - before})
-						elif not healing and other.owner != unit.owner: hits.append({"source": unit, "target": other.id, "amount": 1, "bypass": false, "ability": "Kopita"})
+						elif not healing and other.owner != unit.owner: hits.append({"source": unit, "target": other.id, "amount": int(Rules.TUNING.kopita_damage), "bypass": false, "ability": "Kopita"})
 					events.append(event("MONSTER_PULSE", {"unit_id": unit.id, "source": unit, "radius_fp": Rules.TUNING.kopita_radius, "healing": healing, "healed": healed, "round": n, "tick": tick}))
 			"Muno":
-				if int(a.get("muno_round", 0)) != n:
+				if int(a.get("muno_next_tick", 0)) <= clock:
 					var target: Dictionary = nearest(unit, rows, Rules.TUNING.muno_radius)
 					if not target.is_empty():
-						a["muno_round"] = n
+						a["muno_next_tick"] = clock + int(Rules.TUNING.muno_interval_ticks)
 						hits.append({"source": unit, "target": target.id, "amount": a.attack, "bypass": false, "ability": "Muno"})
 			"Dotra":
 				if a.get("hidden", false):
@@ -313,7 +362,7 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 			if gap <= Rules.TUNING.portal_radius ** 2:
 				entities.retire(unit.id)
 				events.append(event("MONSTER_BANISHED", {"unit": unit, "portal_id": f.id, "round": n, "tick": tick}))
-			elif gap <= Rules.TUNING.portal_fear_radius ** 2 and a.step_fp > 0 and a.movement_ready_round <= n:
+			elif gap <= Rules.TUNING.portal_fear_radius ** 2 and a.step_fp > 0 and a.movement_ready_round <= n and not Charge.active(a):
 				var dx: int = int(a.x_fp) - int(f.x_fp)
 				var dy: int = int(a.y_fp) - int(f.y_fp)
 				if absi(dx) >= absi(dy): a.x_fp = clampi(int(a.x_fp) + (1 if dx >= 0 else -1) * int(a.step_fp), 0, 2400)
@@ -356,7 +405,7 @@ static func damage(world: Dictionary, entities, hit: Dictionary, context: Dictio
 	var fleeing: bool = hunt_fleeing(target, world)
 	var evaded: bool = evades(target, hit.source, live_rows, context, tick, hit.ability, Fort.rows(world))
 	if not evaded and not fleeing and hit.ability in ["Muno", "Ambush"]: events.append_array(intercept(target, hit.source, live_rows, context, tick, Fort.rows(world)))
-	var amount: int = 0 if blocked or evaded else Incoming.amount(target.attributes, int(hit.amount), int(context.round) * 200 + tick)
+	var amount: int = 0 if blocked or evaded else Incoming.apply(target.attributes, int(hit.amount), int(context.round) * 200 + tick)
 	var absorbed: int = 0 if hit.bypass else mini(int(target.attributes.armor), amount)
 	var dealt: int = amount - absorbed
 	target.attributes.armor -= absorbed
@@ -364,7 +413,15 @@ static func damage(world: Dictionary, entities, hit: Dictionary, context: Dictio
 	target.attributes.movement_ready_round = mini(int(target.attributes.movement_ready_round), int(context.round))
 	if target.attributes.hp == 0: entities.retire(target.id)
 	else: entities.update(target.id, target.owner, target.attributes)
-	events.append(event("MONSTER_ATTACK", {"attacker": hit.source, "target": before, "ability": hit.ability, "blocked": blocked, "evaded": evaded, "damage_dealt": dealt, "hp_after": target.attributes.hp, "round": context.round, "tick": tick}))
+	events.append(event("MONSTER_ATTACK", {"attacker": hit.source, "target": before, "ability": hit.ability, "blocked": blocked, "evaded": evaded, "warded": before.attributes.get("muno_ward", false) and not target.attributes.get("muno_ward", false), "damage_dealt": dealt, "hp_after": target.attributes.hp, "round": context.round, "tick": tick}))
+	if hit.ability == "Muno":
+		# Grant only after an actual lunge resolves, including an evaded strike.
+		# Never revive a removed attacker or accumulate more than one charge.
+		var survivor: Dictionary = entities.get_entity(hit.source.id)
+		if not survivor.is_empty() and survivor.attributes.get("monster_id") == "Muno" and not survivor.attributes.get("muno_ward", false):
+			survivor.attributes["muno_ward"] = true
+			entities.update(survivor.id, survivor.owner, survivor.attributes)
+			events.append(event("MONSTER_WARD_GAINED", {"unit_id": survivor.id, "round": context.round, "tick": tick}))
 	if hit.ability == "Ambush": events.append(expose(entities, hit.source, int(context.round), tick))
 	world.entities = entities.snapshot()
 	if target.attributes.hp == 0:
@@ -402,12 +459,14 @@ static func steer(unit: Dictionary, destination: Dictionary, rows: Array, fields
 		if field.kind == "pool" and field.lane == a.lane and distance(a, field) <= 400 * 400:
 			obstacles.append({"x_fp": field.x_fp, "y_fp": field.y_fp, "radius": 240})
 	for obstacle in obstacles:
-		if (int(obstacle.x_fp) - int(a.x_fp)) * (int(destination.x_fp) - int(a.x_fp)) < 0 or absi(int(obstacle.y_fp) - int(a.y_fp)) >= int(obstacle.radius): continue
+		var forward: int = int(destination.x_fp) - int(a.x_fp)
+		var along: int = (int(obstacle.x_fp) - int(a.x_fp)) * (1 if forward > 0 else -1)
+		# Detour only around pools strictly ahead and before the prey. Once
+		# abreast of a pool, commit to the hunt instead of returning to its
+		# edge waypoint whenever the next step heads inward.
+		if forward == 0 or along <= 0 or along >= absi(forward) or absi(int(obstacle.y_fp) - int(a.y_fp)) >= int(obstacle.radius): continue
 		var side: int = -1 if a.y_fp <= obstacle.y_fp else 1
 		var y: int = clampi(int(obstacle.y_fp) + side * int(obstacle.radius), 30, 570)
 		if absi(y - int(obstacle.y_fp)) < (int(obstacle.radius) >> 1): y = clampi(int(obstacle.y_fp) - side * int(obstacle.radius), 30, 570)
-		# At a clamped detour point, resume the hunt. A zero-length heading
-		# otherwise falls into movement's minimum-step tie and drifts left.
-		if int(a.x_fp) == int(obstacle.x_fp) and int(a.y_fp) == y: continue
 		return {"x_fp": obstacle.x_fp, "y_fp": y}
 	return destination

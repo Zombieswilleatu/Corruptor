@@ -9,7 +9,7 @@ func responsive_pulses() -> void:
 		var result: Dictionary = phase("kopita_heal_then_harm_%d" % pid, w)
 		var pulses: Array = facts(result, "MONSTER_PULSE")
 		check(pulses.size() == 2 and pulses[0].tick == 0 and pulses[0].healing and pulses[1].tick == 133 and not pulses[1].healing, "Kopita reevaluates wounds at each pulse and switches to harm once everyone is healthy")
-		check(Kanifous._entity(result.world, healer.id).attributes.hp == 10 and Kanifous._entity(result.world, enemy.id).attributes.hp == 4, "healing and harm each apply exactly one point")
+		check(Kanifous._entity(result.world, healer.id).attributes.hp == 10 and Kanifous._entity(result.world, enemy.id).attributes.hp == 3, "healing restores one HP and harm deals two damage")
 		var playback = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
 		check(playback.build(result.events.map(func(r): return r.event)), "both pulses build a valid replay")
 		var at: float = playback.tick_time(133)

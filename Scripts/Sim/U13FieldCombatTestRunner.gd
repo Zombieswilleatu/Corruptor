@@ -55,15 +55,15 @@ func run() -> void:
 		var shots: Array = facts(r, "MARCHER_RANGED_ATTACK")
 		check(not shots.is_empty() and shots.all(func(f): return f.attacker.kind == "fortification" and f.attacker.attributes.structure == "Tower"), "tower independently attacks beyond Vulture range")
 		check(shots.size() <= 4 and shots[0].damage_dealt == 1, "tower uses one damage and the Vulture's 50-tick cadence")
-		check(Fort.rows(r.world).all(func(s): return s.attributes.hp == 6 and s.attributes.armor == s.attributes.max_armor), "structures are unaffected by distant enemy melee")
+		check(Fort.rows(r.world).all(func(s): return s.attributes.hp == s.attributes.max_hp and s.attributes.armor == s.attributes.max_armor), "structures are unaffected by distant enemy melee")
 		var bad: Dictionary = w.duplicate(true); bad.data.field_structures.append(before[0])
 		check(not Marching.valid(bad), "save validation rejects duplicate occupied sites")
 		# Leave a completed wall in the way of a ground attacker.
 		clear_units(w)
-		var enemy: Dictionary = put(w, "Butcher", 1 - pid, 900 if pid == 0 else 1500, {"y_fp": 150, "attack": 2, "hp": 100, "max_hp": 100}, 1)
+		var enemy: Dictionary = put(w, "Butcher", 1 - pid, 900 if pid == 0 else 1500, {"y_fp": 150, "attack": 6, "hp": 100, "max_hp": 100}, 1)
 		r = phase("walls_block_and_break_%d" % pid, w, "monster-check", 4)
 		var destroyed: Array = facts(r, "WRIGHT_STRUCTURE_DESTROYED").filter(func(f): return f.structure.attributes.site == 0)
-		check(destroyed.size() == 1, "enemy breaks the wall to advance through its section")
+		check(destroyed.size() == 1, "strong attacker breaks the wall to advance through its section")
 		var blocked: bool = true
 		if not destroyed.is_empty():
 			for tick in facts(r, "MARCHING_TICK"):
@@ -73,7 +73,9 @@ func run() -> void:
 		check(blocked, "no ground unit crosses an intact hostile wall")
 		check(facts(r, "MARCHER_DEFEATED").is_empty(), "destroying structures never triggers marcher death rewards")
 		var broken: Dictionary = r.world.duplicate(true)
+		# Isolate rebuilding: damaged surviving posts have repair priority.
 		clear_units(broken)
+		for structure in Fort.rows(broken): structure.attributes.hp = structure.attributes.max_hp
 		put(broken, "Wright", pid, 560 if pid == 0 else 1840, {"y_fp": 150}, 3)
 		var rebuilt: Dictionary = phase("replace_destroyed_wall_%d" % pid, broken, "monster-check", 5)
 		check(not Fort.find(Fort.rows(rebuilt.world), pid, "Lord", 0).is_empty() and Fort.rows(rebuilt.world).size() <= 3, "a later Wright rebuilds a destroyed wall without adding extra sites")
@@ -120,7 +122,7 @@ func run() -> void:
 	clear_units(w)
 	put(w, "Sooge", 1, 2000, {"sprite_form": "turret", "step_fp": 0, "y_fp": 150})
 	r = phase("sooge_hits_fortifications", w, "monster-check", 4)
-	check(facts(r, "MONSTER_ATTACK").any(func(f): return f.target.kind == "fortification" and f.ability == "Beam" and f.damage_dealt == 1), "Sooge's delayed beam damages the wall's armor and HP")
+	check(facts(r, "MONSTER_ATTACK").any(func(f): return f.target.kind == "fortification" and f.ability == "Beam" and f.damage_dealt == 0) and Fort.rows(r.world)[0].attributes.armor == Fort.WALL_ARMOR - 3, "Sooge's delayed beam spends wall Armor before HP")
 	var playback = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
 	check(playback.build(r.events.map(func(e): return e.event)) and not playback.sample(playback.duration).field_structures.is_empty(), "playback retains persistent structures in its final picture")
 	var display = preload("res://Prototype/U13/U13SandboxLaneView.gd").new()

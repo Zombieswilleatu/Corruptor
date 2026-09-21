@@ -14,6 +14,11 @@ var load_button: Button
 var load_dialog: FileDialog
 var rites_plan: Dictionary = {}
 const MonsterRules = preload("res://Scripts/Sim/U13MonsterRules.gd")
+const StagingTray = preload("res://Prototype/U13/U13GameStagingTray.gd")
+const BoardStaging = preload("res://Prototype/U13/U13BoardStaging.gd")
+var board_staging
+var staging_modes: Dictionary = {"Lord": "Hold", "Castle": "Hold"}
+var staging_round: int = 0
 var monster_choice: String = ""
 var monster_picker: OptionButton
 var monster_note: Label
@@ -45,6 +50,19 @@ func _build() -> void:
 	game_menu = GameMenu.new()
 	add_child(game_menu)
 	game_menu.closed.connect(reopen_decision)
+	board_staging = BoardStaging.new()
+	board_staging.name = "BoardStaging"
+	lanes.add_child(board_staging)
+	# Recover decorative spacing so bottom reserve controls fit the 1080 canvas.
+	var board_stack: VBoxContainer = sides[0].get_parent()
+	board_stack.add_theme_constant_override("separation", 3)
+	board_stack.get_child(1).custom_minimum_size.y = 0
+	lanes.get_parent().get_parent().add_theme_constant_override("separation", 4)
+	board_staging.march_requested.connect(func(lane):
+		if not _planning() or playing or _job != null: return
+		staging_modes[lane] = "March"
+		if powers_step: staged_order = _order()
+		_refresh())
 	recipe_menu = GameMenu.new()
 	add_child(recipe_menu)
 	_button(header.tools_box, "RECIPES", _open_recipes)
@@ -91,6 +109,8 @@ func _planning() -> bool:
 
 func _with_development(order: Dictionary) -> Dictionary:
 	var result: Dictionary = super._with_development(order)
+	if _visible_world.has("game_staging"):
+		result["staging"] = staging_modes.duplicate()
 	if not rites_plan.is_empty():
 		result["rites"] = rites_plan.duplicate(true)
 	if result.get("action") == "Hunt":
@@ -105,6 +125,9 @@ func _hand_reserved(id: String) -> bool:
 
 func _reset_direct() -> void:
 	choosing_work = false
+	if _job_operation != "next_round":
+		staging_modes = {"Lord": "Hold", "Castle": "Hold"}
+		staging_round = 0
 	rites_plan = {}
 	monster_choice = ""
 	fracture_choice = "infrastructure"
@@ -125,6 +148,17 @@ func _refresh(presented: Dictionary = {}) -> void:
 	if not session is PlaySession:
 		return
 	var w: Dictionary = _visible_world
+	if staging_round != session.round_number():
+		for lane in staging_modes:
+			if staging_modes[lane] == "March": staging_modes[lane] = "Hold"
+		staging_round = session.round_number()
+	lanes.live_layout = w.has("game_staging")
+	lanes.custom_minimum_size.x = 680.0 if lanes.live_layout else 435.0
+	var display_controls: Control = lanes.get_node("UnitDisplayControls")
+	display_controls.offset_top = 4 if lanes.live_layout else 123
+	display_controls.offset_bottom = 32 if lanes.live_layout else 151
+	board_staging.bind(w.get("game_staging", {}), session.round_number(), staging_modes, _planning() and not playing and _job == null and not setup_open)
+	lanes.queue_redraw()
 	_sync_monsters()
 	lanes.monster_fields = w.get("monsters", {}).get("fields", []).filter(func(f): return f.expires_round >= session.round_number())
 	header.bind_playable_veil(w, session.round_number())
@@ -504,8 +538,12 @@ func _load_game(path: String) -> void:
 	rites_plan = order.get("rites", {}).duplicate(true)
 	monster_choice = order.get("monster_choice", "")
 	fracture_choice = order.get("fracture_target", "infrastructure")
+	staging_modes = order.get("staging", {"Lord": "Hold", "Castle": "Hold"}).duplicate()
+	for lane in ["Lord", "Castle"]:
+		staging_modes[lane] = "March" if staging_modes.get(lane) == "March" else "Hold"
+	staging_round = candidate.round_number()
 	_draft_combat = order.duplicate(true)
-	for key in ["castle_action", "guard_moves", "summon", "rites"]: _draft_combat.erase(key)
+	for key in ["castle_action", "guard_moves", "summon", "rites", "staging"]: _draft_combat.erase(key)
 	powers_step = false
 	staged_order = {}
 	payment = []
@@ -731,6 +769,7 @@ func _start_job(operation: String, powers: Array = [], order: Dictionary = {}) -
 	if _playtime_mode() != "excluded":
 		playtime.sample(Time.get_ticks_msec(), "resolution", _playtime_round)
 	super._start_job(operation, powers, order)
+	if _job != null and board_staging != null: board_staging.set_editable(false)
 	_sample_playtime()
 
 func open_setup() -> void:
@@ -761,7 +800,7 @@ func restart() -> void:
 func _available_monsters(cards: Array) -> Array:
 	var state: Dictionary = _visible_world.get("monsters", {})
 	if state.is_empty(): return []
-	return MonsterRules.available(_visible_world.get("entities", []), cards, 0, state.unlocked[0])
+	return MonsterRules.available(_visible_world.get("entities", []) + _staged_monsters(), cards, 0, state.unlocked[0])
 
 func _sync_monsters() -> void:
 	if monster_picker == null: return
@@ -796,7 +835,13 @@ func _open_recipes() -> void:
 		text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		text.add_theme_font_size_override("font_size", 16)
 		var eligibility: String = "\nReady with your committed cards." if name in available else ""
-		if MonsterRules.limited(name) and MonsterRules.living(_visible_world.get("entities", []), 0, name): eligibility = "\nAlready alive: summon another after it leaves play."
+		if MonsterRules.limited(name) and MonsterRules.living(_visible_world.get("entities", []) + _staged_monsters(), 0, name): eligibility = "\nAlready alive: summon another after it leaves play."
 		text.text = "%s · %s\n%s\nAttack %d · Armor %d · Speed %d · HP %d\n%s%s" % [name, r.tier, MonsterRules.recipe_text(name), r.attack, r.armor, r.speed, r.hp, r.ability, eligibility]
 		panel.add_child(text)
 	recipe_menu.label("Initial playtest values: Sinodek's stats, HP, chances and ability ranges are provisional. Varn is 3–5 bodies per summon. Sooge and Sinodek each allow one living copy per player, with no fixed cooldown.", 14)
+
+
+func _staged_monsters() -> Array:
+	var result: Array = []
+	for tray in _visible_world.get("game_staging", {}).get("lanes", {}).values(): result.append_array(tray.units)
+	return result

@@ -51,16 +51,24 @@ func _run(candidate, operation: String, powers: Array, order: Dictionary) -> Dic
 	var event_cursor: int = candidate._owner._event_cursor()
 	var result: Dictionary
 	var playback = null
+	var phases: Dictionary = {}
+	var phase_started: int = started
 	if operation == "marching":
 		result = candidate.choose(powers, order)
+		phases["choose_ms"] = (Time.get_ticks_usec() - phase_started) / 1000.0
 		if result.action == "invalid":
 			return result
+		phase_started = Time.get_ticks_usec()
 		result = candidate.run_to_marching()
+		phases["resolve_ms"] = (Time.get_ticks_usec() - phase_started) / 1000.0
 		if result.action == "invalid":
 			return result
+		phase_started = Time.get_ticks_usec()
 		playback = Playback.new()
 		if not playback.build(candidate.marching_events()):
 			return Data.invalid("board_playback_tape_invalid")
+		phases["playback_ms"] = (Time.get_ticks_usec() - phase_started) / 1000.0
+		print("U13 PREPARE ", JSON.stringify(phases))
 	elif operation == "aftermath":
 		for index in range(3):
 			if candidate.next_hook().is_empty():

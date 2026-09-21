@@ -17,6 +17,7 @@ func check(ok: bool, message: String) -> bool:
 func run() -> void:
 	board = Board.new()
 	root.add_child(board)
+	board.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	# Tests exercise the widgets under the diagnostic engine too. The production
 	# launcher and board retain their exact 4.7.2 stable acceptance requirement.
 	board._runtime_ok = true
@@ -32,6 +33,7 @@ func run() -> void:
 	await human_choices()
 	check(board._planning(), "human choices unlock the board's planning controls")
 	playtime_controls()
+	staging_controls()
 	work_and_guard_controls()
 	check(board.action_zone.action_buttons["Siege"].text == "Siege", "active enemy castles keep the Siege action")
 	var enemy: Dictionary = board._visible_world.entities.filter(func(e): return e.kind == "lord" and e.owner == 1)[0]
@@ -299,3 +301,36 @@ func playtime_controls() -> void:
 	check(board._playtime_mode() == "excluded", "setup excluded without clearing existing time")
 	board.close_setup()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(file_path))
+
+
+func staging_controls() -> void:
+	var panel = board.board_staging
+	check(board._visible_world.has("game_staging") and panel.visible and board.lanes.live_layout, "new game shows staging directly on the main battlefield")
+	check(panel.get_parent() == board.lanes and panel.trays.size() == 4 and panel.pickers.size() == 2, "four permanent reserve trays and two lane controls")
+	check(board.lanes.custom_minimum_size.x == 680, "battlefield widened from 435 to 680")
+	print("INLINE LAYOUT ", {"board_size": board.size, "window_size": root.size, "viewport": root.get_visible_rect(), "lanes": board.lanes.get_global_rect(), "header": board.header.get_global_rect()})
+	check(board.lanes.get_global_rect().end.x <= root.get_visible_rect().end.x + 1, "expanded battlefield fits the board viewport")
+	check(panel.get_global_rect().end.y <= root.get_visible_rect().end.y + 1, "all staging controls fit vertically")
+	for lane in ["Lord", "Castle"]:
+		var arena: Rect2 = board.lanes.travel_rect(lane)
+		var enemy: Rect2 = panel.scrolls[lane + "1"].get_rect()
+		var own: Rect2 = panel.scrolls[lane + "0"].get_rect()
+		check(enemy.end.y < arena.position.y and own.position.y > arena.end.y, lane + " trays sit outside opposite arena gates")
+		check(board.lanes.beam_bounds(lane) == arena, lane + " beam bounds exclude protected staging")
+		check(panel.pickers[lane].get_rect().end.y <= panel.size.y, lane + " release control stays on screen")
+	check(panel.pickers.values().all(func(p): return p is Button and not p is OptionButton and p.text == "MARCH"), "each lane has only a MARCH button")
+	panel.pickers.Castle.pressed.emit()
+	check(board._order().staging == {"Lord": "Hold", "Castle": "March"}, "MARCH enters only its lane into the sealed cart")
+	check(panel.pickers.Castle.disabled and "ROUND 2" in panel.pickers.Castle.text and not panel.pickers.Lord.disabled, "queued button displays next round and prevents repeat clicks")
+	check(board.session.choose([], board._order()).action != "invalid", "staging-only Pass admitted through playable session")
+	var state: Dictionary = board._visible_world.game_staging.duplicate(true)
+	for lane in ["Lord", "Castle"]:
+		for pid in [0, 1]:
+			for i in range(20):
+				var a: Dictionary = Board.MonsterRules.profile("Varn", lane, pid, 1, 2)
+				a["staged_round"] = 1
+				state.lanes[lane].units.append({"id": lane + str(pid) + str(i), "kind": "marcher", "owner": pid, "attributes": a})
+	panel.bind(state, 2, board.staging_modes, false)
+	check(panel.trays.values().all(func(t): return t.reserves.size() == 20 and t.custom_minimum_size.y > 90), "overflow trays scroll without shrinking the battle lanes")
+	check(panel.pickers.values().all(func(p): return p.disabled), "release editing is disabled during resolution while reserves stay visible")
+	board._refresh()
