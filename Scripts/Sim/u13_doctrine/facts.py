@@ -116,6 +116,19 @@ class Facts:
             a = self.by_id[key]['attributes']; suits[a['suit']] += a['value']
         return sum(v // (2 if action == 'Ward' else 3) for v in suits.values())
 
+    def attack_targets(self):
+        """One legal public target per attack type, shared by recipe plans."""
+        if self.lord[self.enemy]['attributes']['alive']:
+            yield 'Hunt', 'Lord', self.lord[self.enemy]['id']
+        castles = [c for c in self.castles(self.enemy) if targetable(c)]
+        victim = min(castles, key=lambda c: (c['attributes']['integrity'], c['attributes']['castle_slot'])) if castles else None
+        yield 'Siege', 'Castle', victim['id'] if victim else 'castle_zone:'+str(self.enemy)
+
+    def attack_value(self, action, target, ids, weights):
+        result = self.attack(action, target, ids)
+        return (weights.recruit*self.recruits(ids, action)+12*result['guards']+weights.damage*result['damage']
+                +weights.banishment*result['banished']+weights.destruction*result['destroyed']+12*result['pillage'])
+
     def attack(self, action, target, ids, excluded_waiters=()):
         """Baseline layers only. Enemy orders and spatial reactions are unknown."""
         lane = 'Lord' if action == 'Hunt' else 'Castle'

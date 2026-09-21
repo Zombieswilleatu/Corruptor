@@ -97,6 +97,7 @@ static func reserves(world: Dictionary) -> Array:
 
 static func validate_choice(world: Dictionary, pid: int, order: Dictionary) -> Dictionary:
 	if not order.has("monster_choice"): return {"action": "legal"}
+	if order.get("action") not in ["Hunt", "Siege"]: return Data.invalid("monster_action_unavailable")
 	if not enabled(world) or order.monster_choice not in available(world.entities.entities + reserves(world), order.get("card_ids", []), pid, world.data.monsters.unlocked[pid]):
 		return Data.invalid("monster_recipe_unavailable")
 	return {"action": "legal"}

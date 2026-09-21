@@ -33,7 +33,7 @@ class ReservedRecipeTests(unittest.TestCase):
                 self.assertEqual('', book.goal(view['hand'])['monster'])
                 self.assertEqual([], list(book.proposals()))
                 ids = tuple(r['id'] for r in view['hand'])
-                proposal = Proposal('combat', 'Ward', dict(action='Ward', lane='Lord', card_ids=list(ids)), 1, 'fixture', ids)
+                proposal = Proposal('combat', 'Hunt', dict(action='Hunt', lane='Lord', target_id=facts.lord[1]['id'], card_ids=list(ids)), 1, 'fixture', ids)
                 book.attach(proposal)
                 self.assertNotIn('monster_choice', proposal.payload)
                 self.assertEqual([], facts.units(0, 'Lord'))

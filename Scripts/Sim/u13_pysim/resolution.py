@@ -112,6 +112,9 @@ class Ordinary(Battle):
 
     def reveal(self):
         w, d, events = self.w, self.w["data"], []
+        for order in self.orders:
+            e.require("monster_choice" not in order or order.get("action") in ("Hunt", "Siege"),
+                      "monster_action_unavailable")
         lifecycle = d["sigil_lifecycle"]
         e.require(lifecycle["created_round"] == self.number-1 and lifecycle["aged_round"] == self.number, "sigil_creation_clock_invalid")
         for pid in (0, 1):

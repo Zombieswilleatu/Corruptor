@@ -73,7 +73,7 @@ class Recipes:
 
     def attach(self, proposal):
         """Choose a recipe before scoring/admission, within this combat candidate."""
-        if proposal.term not in ('Hunt', 'Siege', 'Ward') or 'monster_choice' in proposal.payload: return
+        if proposal.term not in ('Hunt', 'Siege') or 'monster_choice' in proposal.payload: return
         names = [name for name in monsters.NAMES if self.status[name] == 'available'
                  and not self.ingredients(name, [self.f.by_id[k] for k in proposal.cards])[1]]
         if not names: return
@@ -86,23 +86,27 @@ class Recipes:
         proposal.reason += '_with_recipe'
 
     def proposals(self):
-        """At most one minimal Ward commitment per recipe; no subset search.
+        """One minimal attack commitment per recipe; no subset search.
 
-        Ordinary Hunt/Siege/Ward proposals also choose their best eligible
-        monster. This extra source exposes cheap exact ingredients that a
-        strength-sorted attack prefix can miss. Each yielded plan consumes a
-        monster-category reservation, and shares the combat/card ledger.
+        Score the legal Hunt and Siege targets with the ordinary attack model
+        plus lane-specific monster value. Keep the stronger option per recipe
+        so all ten recipes fit the existing monster generation reservation.
+        Ordinary attack proposals also attach recipes; Ward never does.
         """
         f, weights = self.f, self.weights
+        targets = list(f.attack_targets())
         for name in monsters.NAMES:
             if self.status[name] != 'available': continue
             ids, missing = self.ingredients(name, f.hand)
             if missing: continue
-            lane = min(LANES, key=lambda lane: (-(self.value(name, lane)+4*f.lane_need(lane)), lane))
-            value = weights.recruit*f.recruits(ids, 'Ward')+min(f.strength(ids, 'Ward'), 5+5*f.lane_need(lane))*2
-            if f.kind == 'Kroni': value -= 12
-            yield Proposal('combat', 'Ward', dict(action='Ward', lane=lane, card_ids=list(ids), monster_choice=name),
-                           value+self.value(name, lane), 'commit_exact_recipe_with_normal_recruits', ids)
+            candidates = []
+            for action, lane, target in targets:
+                value = f.attack_value(action, target, ids, weights)+self.value(name, lane)
+                candidates.append(Proposal('combat', action,
+                    dict(action=action, lane=lane, target_id=target, card_ids=list(ids), monster_choice=name),
+                    value, 'commit_exact_recipe_with_attack_and_three_to_one_recruits', ids))
+            if candidates:
+                yield min(candidates, key=lambda p: (-p.value, p.term, p.payload['target_id']))
 
     def assessments(self, generated, retained, chosen, exhausted):
         selected = chosen['order'].get('monster_choice', '')

@@ -120,7 +120,7 @@ static func order_shape(order: Dictionary) -> bool:
 		return false
 	var expected: Array = ["action", "lane", "card_ids"]
 	if order.has("monster_choice"):
-		if order.monster_choice not in Monsters.NAMES: return false
+		if order.action not in ["Hunt", "Siege"] or order.monster_choice not in Monsters.NAMES: return false
 		expected.append("monster_choice")
 	if order.has("fracture_target"):
 		if order.action != "Hunt" or order.fracture_target not in ["subjects", "infrastructure"]:
@@ -287,6 +287,8 @@ static func _reveal(context: Dictionary) -> Dictionary:
 	var events: Array = []
 	for player_id in context.player_order:
 		var order: Dictionary = context.combat_orders[player_id]
+		if order.has("monster_choice") and order.get("action") not in ["Hunt", "Siege"]:
+			return Data.invalid("monster_action_unavailable")
 		if order.is_empty():
 			continue
 		var cards: Array = []
@@ -639,7 +641,7 @@ static func _snapshot_order(context: Dictionary) -> Dictionary:
 	var player_id: int = context.player_id
 	var selected: Array = order.get("card_ids", [])
 	if order.has("monster_choice"):
-		if not Monsters.enabled(world) or not Monsters.qualifies(world.entities.entities, selected, order.monster_choice):
+		if order.get("action") not in ["Hunt", "Siege"] or not Monsters.enabled(world) or not Monsters.qualifies(world.entities.entities, selected, order.monster_choice):
 			return Data.invalid("monster_recipe_snapshot_invalid")
 		if phase <= Timeline.hook_rank(Timeline.COMMITMENT_REVEAL) and Monsters.validate_choice(world, player_id, order).action == "invalid":
 			return Data.invalid("monster_recipe_snapshot_invalid")

@@ -73,7 +73,7 @@ func _build() -> void:
 	monster_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	work_button = _button(header.history_box, "WORK TARGET", _open_work_target)
 	work_button.tooltip_text = "Click, then select a pulsing Castle. Each newly placed Guard gives 1 work; a fresh Wright pair adds 3. Unbuilt targets also gain 3 per round. No card payment."
-	action_zone.action_buttons["Ward"].tooltip_text = "Defend a lane and recruit one Marcher per 2 printed suit value. Hunt and Siege recruit at 3:1."
+	action_zone.action_buttons["Ward"].tooltip_text = "Defend a lane and recruit one Marcher per 2 printed suit value. Ward cannot summon recipe monsters. Hunt and Siege recruit at 3:1 and can summon monsters."
 	game_button = _button(header.history_box, "GAME / RITES", _open_game_menu)
 	var files := HBoxContainer.new()
 	header.history_box.add_child(files)
@@ -116,7 +116,7 @@ func _with_development(order: Dictionary) -> Dictionary:
 	if result.get("action") == "Hunt":
 		result["fracture_target"] = fracture_choice
 	result.erase("monster_choice")
-	if not monster_choice.is_empty() and monster_choice in _available_monsters(result.get("card_ids", [])):
+	if result.get("action") in ["Hunt", "Siege"] and not monster_choice.is_empty() and monster_choice in _available_monsters(result.get("card_ids", []), result.get("action", "")):
 		result["monster_choice"] = monster_choice
 	return result
 
@@ -797,7 +797,9 @@ func restart() -> void:
 		header.veil_wheel.follow_current()
 	_sample_playtime()
 
-func _available_monsters(cards: Array) -> Array:
+func _available_monsters(cards: Array, action: String = "") -> Array:
+	if action.is_empty(): action = _draft_combat.get("action", "")
+	if action not in ["Hunt", "Siege"]: return []
 	var state: Dictionary = _visible_world.get("monsters", {})
 	if state.is_empty(): return []
 	return MonsterRules.available(_visible_world.get("entities", []) + _staged_monsters(), cards, 0, state.unlocked[0])
@@ -814,13 +816,13 @@ func _sync_monsters() -> void:
 		monster_picker.set_item_metadata(monster_picker.item_count - 1, name)
 		if name == monster_choice: monster_picker.select(monster_picker.item_count - 1)
 	monster_picker.disabled = not _planning() or available.is_empty()
-	monster_note.text = "Commit a recipe's cards to unlock a summon. RECIPES shows the full list." if available.is_empty() else "Choose one monster alongside your normal marchers. Printed card values do not affect recipes."
+	monster_note.text = "Commit a recipe during Hunt or Siege to summon. Ward recruits normal marchers only." if available.is_empty() else "Choose one monster alongside your normal marchers. Printed card values do not affect recipes."
 	if not monster_choice.is_empty(): monster_note.text = MonsterRules.recipe_text(monster_choice) + " → " + monster_choice
 	monster_picker.tooltip_text = MonsterRules.ROSTER[monster_choice].ability if not monster_choice.is_empty() else "Choose one qualifying recipe, or keep No monster summon."
 
 func _open_recipes() -> void:
 	if recipe_menu == null: return
-	recipe_menu.present("MONSTER RECIPES", "Commit the named subjects together in Hunt, Siege or Ward, then choose a summon in the Combat step. One recipe per round, alongside normal marchers. Saved cards and cards spent on Guards, work, powers or rites do not count. All ten recipes are unlocked for this prototype.")
+	recipe_menu.present("MONSTER RECIPES", "Commit the named subjects together in Hunt or Siege, then choose a summon in the Combat step. One recipe per round, alongside normal marchers. Ward keeps its defenses and 2:1 normal recruits but cannot summon a new monster. Existing field and staged monsters remain usable. Saved cards and cards spent on Guards, work, powers or rites do not count. All ten recipes are unlocked for this prototype.")
 	var available: Array = _available_monsters(_draft_combat.get("card_ids", []))
 	for name in MonsterRules.NAMES:
 		var r: Dictionary = MonsterRules.ROSTER[name]

@@ -165,6 +165,7 @@ def reserves(w):
 
 def validate_choice(w,pid,order):
     if 'monster_choice' in order:
+        e.require(order.get('action') in ('Hunt', 'Siege'), 'monster_action_unavailable')
         e.require(enabled(w) and order['monster_choice'] in available(w['entities']['entities']+reserves(w),order.get('card_ids',[]),pid,w['data']['monsters']['unlocked'][pid]),'monster_recipe_unavailable')
 
 TUNING = {'tumler_charge_range': 400, 'tumler_charge_armor': 5, 'tumler_charge_windup_ticks': 7, 'tumler_charge_step_fp': 36, 'tumler_charge_max_ticks': 40, 'tumler_charge_cooldown_ticks': 200, 'tumler_evasion_chance': 50, 'tumler_hunt_bonus': 1,

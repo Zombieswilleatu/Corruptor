@@ -79,7 +79,7 @@ static func plan(owner, pid: int, reuse_validation: bool = true) -> Dictionary:
 		order = next
 	if late_wish:
 		powers = choose_power(owner, pid, c, order)
-	if c.w.has("monsters"):
+	if c.w.has("monsters") and order.get("action") in ["Hunt", "Siege"]:
 		var names: Array = monster_choices(c.w, order.get("card_ids", []), pid)
 		if not names.is_empty(): order["monster_choice"] = names.back()
 	if c.w.has("game_staging"):

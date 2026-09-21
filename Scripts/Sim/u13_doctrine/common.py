@@ -30,7 +30,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V27_RESERVED_RECIPES'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -115,13 +115,7 @@ def ordinary(f, category, weights):
         yield Proposal(category, 'Pass', {}, 0, 'retain_hand_for_next_round')
         if not f.hand: return
         # One target per attack, minimum useful commitment and full commitment.
-        targets = []
-        if f.lord[enemy]['attributes']['alive']:
-            targets.append(('Hunt', 'Lord', f.lord[enemy]['id']))
-        castles = [c for c in f.castles(enemy) if targetable(c)]
-        victim = min(castles, key=lambda c: (c['attributes']['integrity'], c['attributes']['castle_slot'])) if castles else None
-        targets.append(('Siege', 'Castle', victim['id'] if victim else 'castle_zone:'+str(enemy)))
-        for action, lane, target in targets:
+        for action, lane, target in f.attack_targets():
             # Linear prefixes at most the hand limit, not a subset search. This
             # is one bounded construction after reserving a generation slot.
             ordered = sorted(f.hand, key=lambda r: (-f.strength([r['id']], action), r['id']))
@@ -132,9 +126,7 @@ def ordinary(f, category, weights):
                 if result['banished'] or result['destroyed'] or result['pillage'] or result['guards'] or result['damage'] >= 3:
                     break
             for ids in (minimum, [r['id'] for r in ordered]):
-                result = f.attack(action, target, ids)
-                value = (weights.recruit*f.recruits(ids, action)+12*result['guards']+weights.damage*result['damage']
-                         +weights.banishment*result['banished']+weights.destruction*result['destroyed']+12*result['pillage'])
+                value = f.attack_value(action, target, ids, weights)
                 yield Proposal(category, action, dict(action=action, lane=lane, target_id=target, card_ids=ids), value,
                                'current_board_attack_unknown_enemy_orders', tuple(ids))
         for lane in LANES:

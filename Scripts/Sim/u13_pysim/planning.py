@@ -226,7 +226,7 @@ class PlanningMatch:
             return False
         if "monster_choice" in order:
             from .monsters import NAMES
-            if order["monster_choice"] not in NAMES:return False
+            if action not in ("Hunt", "Siege") or order["monster_choice"] not in NAMES:return False
             expected.add("monster_choice")
         if "fracture_target" in order:
             if action != "Hunt" or order["fracture_target"] not in ("subjects", "infrastructure"):
