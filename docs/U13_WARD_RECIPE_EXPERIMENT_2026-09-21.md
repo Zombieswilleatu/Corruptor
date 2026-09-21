@@ -43,6 +43,10 @@ Runtime status at preparation: **not run**. The authoring session exposed
 GitHub tools but no shell, Python, or Godot runtime. Source checks are not
 runtime tests or native parity evidence.
 
+Follow-up baseline compatibility fix: 24 Python tests now pass locally,
+including the 20 focused Ward/recipe tests and four runner regression tests.
+Godot checks and the paired comparison still await execution.
+
 ## Bounded paired comparison
 
 `Scripts/Sim/run_u13_ward_experiment.py` first runs focused Python tests and
@@ -54,8 +58,14 @@ The fixed matchup ring is Gremory → Humbaba → Kroni → Odradek → Valak �
 Kalligan → Deimos → Orias → Kanifous → Gremory, with both seat orders for
 each edge. Candidate cases reuse the archived baseline's exact seeds,
 loadouts, seats, and weights. Baseline simulation/policy Python is checked
-against the pinned pre-change commit; incomplete or mismatched records fail
-closed. The archived 18 games are reused, not rerun.
+against either the complete `f89384d` original campaign source or the complete
+`0d964b3` optimized pre-change source. The former predates `process_memory.py`
+and the parity-checked memory optimization documented in
+`U13_SIM_MEMORY_PERFORMANCE_2026-09-21.md`. No missing-file exception is used:
+missing, added, modified, and mixed-version Python sources still fail closed.
+The matched baseline revision is recorded in the config and comparison.
+Incomplete or mismatched records also fail closed. The archived 18 games are
+reused, not rerun.
 
 This compares the combined rules/doctrine change in self-play. It does not
 isolate the rule effect from the doctrine effect, establish policy strength,
@@ -67,9 +77,13 @@ explicit; any selected Ward recipe fails the candidate screen.
 From the repository root in Git Bash:
 
 ```bash
-python Scripts/Sim/run_u13_ward_experiment.py \
+bash Scripts/Sim/run_u13_lord_balance.sh --ward-experiment \
   --godot "/c/Users/jerem/OneDrive/Documents/Godot_v4.7.2-stable_win64.exe/Godot_v4.7.2-stable_win64.exe"
 ```
+
+The launcher selects PyPy and prints its executable/version. Candidate games
+use the optimized current source, two workers, and four-game pool recycling;
+the legacy baseline is only read for comparison, never used to run new games.
 
 The latest pre-change report under Downloads/Corruptor/Balance is selected
 by default. Supply `--report "/path/to/report-folder"` if necessary.

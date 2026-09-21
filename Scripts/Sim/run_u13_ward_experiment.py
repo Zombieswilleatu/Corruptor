@@ -2,17 +2,24 @@
 """Focused Ward checks and 18 paired self-play cases, using two workers."""
 import argparse
 import gc
+import io
 import json
 import os
 from pathlib import Path
 import subprocess
 import sys
+import tarfile
 import time
 import traceback
 
 from run_u13_lord_balance import freeze, verify_frozen, package, Tee
 
 BASELINE = '0d964b322fb4e0aa3fb2020cc67bfe10cdf302b8'
+# The original campaign predates the parity-checked memory optimization.
+# Accept complete source snapshots, never individual missing-file exceptions.
+ARCHIVED_BASELINE = 'f89384d1adbb1004b695fce2abd72363cadd56e5'
+BASELINE_REVISIONS = (BASELINE, ARCHIVED_BASELINE)
+BASELINE_FOLDERS = ('Scripts/Sim/u13_pysim', 'Scripts/Sim/u13_doctrine')
 # A fixed ring covers every Lord in two matchups and both seats.
 LORDS = ['Gremory', 'Humbaba', 'Kroni', 'Odradek', 'Valak',
          'Kalligan', 'Deimos', 'Orias', 'Kanifous']
@@ -31,15 +38,25 @@ def selected_cases(config):
 
 
 def baseline_source(root, report):
-    """Require archived engine/policy Python to match the pinned pre-change build."""
-    names = subprocess.check_output(['git', '-C', str(root), 'ls-tree', '-r', '--name-only',
-        BASELINE, '--', 'Scripts/Sim/u13_pysim', 'Scripts/Sim/u13_doctrine'], text=True).splitlines()
-    for name in names:
-        if not name.endswith('.py'): continue
-        expected = subprocess.check_output(['git', '-C', str(root), 'show', BASELINE+':'+name])
-        actual = (report/'source'/name).read_bytes()
-        if actual.replace(b'\r\n', b'\n') != expected.replace(b'\r\n', b'\n'):
-            raise ValueError('Archived baseline differs from '+BASELINE[:7]+': '+name)
+    """Match every engine/policy Python file to one known pre-change build."""
+    source = report/'source'
+    actual = {p.relative_to(source).as_posix(): p.read_bytes().replace(b'\r\n', b'\n')
+              for folder in BASELINE_FOLDERS for p in (source/folder).rglob('*.py')
+              if '__pycache__' not in p.parts}
+    problems = []
+    for revision in BASELINE_REVISIONS:
+        archive = subprocess.check_output(['git', '-C', str(root), 'archive', revision, '--', *BASELINE_FOLDERS])
+        with tarfile.open(fileobj=io.BytesIO(archive)) as files:
+            expected = {p.name: files.extractfile(p).read().replace(b'\r\n', b'\n')
+                        for p in files if p.isfile() and p.name.endswith('.py')}
+        if actual == expected:
+            print('Verified archived baseline source: '+revision[:7], flush=True)
+            return revision
+        different = sorted(name for name in actual.keys() | expected.keys()
+                           if actual.get(name) != expected.get(name))
+        problems.append(revision[:7]+': '+', '.join(different[:6]))
+    raise ValueError('Archive matches no supported pre-change build; missing, extra or changed files: '
+                     +'; '.join(problems))
 
 
 def metrics(record):
@@ -71,7 +88,7 @@ def execute(output):
     games = output/'games'
     games.mkdir()
     report = dict(status='running', workers=2, worker_batch_size=4, fresh_games=18,
-        baseline_revision=BASELINE, baseline_manifest=config['baseline_manifest'], candidate_manifest=identity,
+        baseline_revision=config['baseline_revision'], baseline_manifest=config['baseline_manifest'], candidate_manifest=identity,
         scope='Paired before/after self-play behavior screen of combined rules and doctrine; not a head-to-head strength or balance verdict.',
         completed=[], pairs=[])
     atomic_json(output/'ward-comparison.json', report)
@@ -132,7 +149,7 @@ def main():
         args.report = max(reports, key=lambda p: p.stat().st_mtime).parent
     baseline = args.report.resolve()
     verify_frozen(baseline)
-    baseline_source(root, baseline)
+    baseline_revision = baseline_source(root, baseline)
     from u13_doctrine.survey import read_record, atomic_json
     old_identity = json.loads((baseline/'manifest.json').read_text(encoding='utf-8'))
     config = json.loads((baseline/'balance-config.json').read_text(encoding='utf-8'))
@@ -167,7 +184,7 @@ def main():
                     cwd=root, env=env, stdout=log, stderr=subprocess.STDOUT, check=True, timeout=180)
         frozen = freeze(root, output)
         atomic_json(output/'ward-config.json', dict(baseline_report=str(baseline),
-            baseline_revision=BASELINE, baseline_manifest=old_identity,
+            baseline_revision=baseline_revision, baseline_manifest=old_identity,
             namespace=old_identity['namespace'], weights=old_identity['weights'],
             cases=specs, baseline=old, workers=2, worker_batch_size=4, fresh_games=18,
             focused_python='passed', focused_godot='passed' if args.godot else 'not_run'))
