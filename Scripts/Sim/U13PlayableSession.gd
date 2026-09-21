@@ -3,7 +3,7 @@ extends "res://Scripts/Sim/U13LoadoutBoardSession.gd"
 # Production match authority with the existing board's animation capture.
 # UI choices belong to seat 0; seat 1 sees only the doctrine planning facade.
 const Game = preload("res://Scripts/Sim/U13GameConductor.gd")
-const Doctrine = preload("res://Scripts/Sim/U13BasicDoctrine.gd")
+const Doctrine = preload("res://Scripts/Sim/U13CommonSmartCore.gd")
 const SAVE_VERSION: String = "U13_PLAYABLE_SAVE_V1"
 var pending_choice: Dictionary = {}
 var match_seed: String = ""
@@ -111,15 +111,24 @@ func configure_seed(seed_value: String, lords: Array, castles: Array) -> Diction
 	var result: Dictionary = candidate.start(seed_value, lords, castles)
 	if result.action == "invalid":
 		return result
-	_owner = candidate._owner
-	setup_lords = lords.duplicate(true)
-	setup_castles = castles.duplicate(true)
-	match_seed = seed_value
-	quick_start = false
-	hunt_enabled = true
-	_lane = "Castle"
-	_clear_round()
-	return _to_planning()
+	var staged = get_script().new()
+	staged._owner = candidate._owner
+	staged.setup_lords = lords.duplicate(true)
+	staged.setup_castles = castles.duplicate(true)
+	staged.match_seed = seed_value
+	staged.quick_start = false
+	staged.hunt_enabled = true
+	staged._lane = "Castle"
+	staged._clear_round()
+	result = staged._to_planning()
+	if result.action != "invalid": _adopt_planning(staged)
+	return result
+
+# Economy and round advancement can include an external bot decision. Publish
+# the entire new pause only after it succeeds, preserving the old pause on error.
+func _adopt_planning(candidate) -> void:
+	for property in ["_owner", "setup_lords", "setup_castles", "match_seed", "quick_start", "hunt_enabled", "_lane", "_powers", "_order", "_opponent", "_last_marching", "_artillery_events", "pending_choice", "odradek_visuals", "kroni_guard_events", "valak_events", "kanifous_events"]:
+		set(property, candidate.get(property))
 
 func _clear_round() -> void:
 	_powers = []
@@ -180,7 +189,9 @@ func _to_planning() -> Dictionary:
 func choose_economy(choice: Dictionary) -> Dictionary:
 	if pending_choice.get("player_id", -1) != 0 or is_finished():
 		return Data.invalid("playable_no_human_choice")
-	var conductor = game()
+	var staged = _fork_for_job()
+	if staged == null: return Data.invalid("match_clone_failed")
+	var conductor = staged.game()
 	var result: Dictionary
 	if pending_choice.action == "game_draw_choice":
 		result = conductor.choose_stockpile(0, str(choice.get("keep_id", "")))
@@ -188,16 +199,22 @@ func choose_economy(choice: Dictionary) -> Dictionary:
 		result = conductor.choose_market(0, choice)
 	if result.action == "invalid":
 		return result
-	return _to_planning()
+	result = staged._to_planning()
+	if result.action != "invalid": _adopt_planning(staged)
+	return result
 
 func next_round() -> Dictionary:
 	if is_finished():
 		return outcome()
-	var result: Dictionary = game().next_round()
+	var staged = _fork_for_job()
+	if staged == null: return Data.invalid("match_clone_failed")
+	var result: Dictionary = staged.game().next_round()
 	if result.action == "invalid":
 		return result
-	_clear_round()
-	return _to_planning()
+	staged._clear_round()
+	result = staged._to_planning()
+	if result.action != "invalid": _adopt_planning(staged)
+	return result
 
 func is_finished() -> bool:
 	_sync_read_cache()
@@ -214,6 +231,8 @@ func _fork_for_job():
 	if candidate != null:
 		candidate.pending_choice = pending_choice.duplicate(true)
 		candidate.match_seed = match_seed
+		for property in ["_artillery_events", "odradek_visuals", "kroni_guard_events", "valak_events", "kanifous_events"]:
+			candidate.set(property, get(property).duplicate(true))
 	return candidate
 
 func debug_action(_action: String, _pid: int, _lane_value: String) -> Dictionary:

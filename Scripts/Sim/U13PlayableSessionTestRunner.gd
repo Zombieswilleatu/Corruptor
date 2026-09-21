@@ -26,7 +26,7 @@ func run() -> void:
 	var selected: Dictionary = Bot.plan(play._owner, 0)
 	check(play.choose(selected.powers, selected.order).action != "invalid", "human whole plan stages through production admission")
 	check(restored.restore_checkpoint(play.checkpoint()).action != "invalid" and restored.plans() == play.plans(), "save preserves the complete unsubmitted human cart")
-	var opponent: Dictionary = Bot.plan(play._owner, 1)
+	var opponent: Dictionary = Play.Doctrine.plan(play._owner, 1)
 	var reference = Game.new()
 	reference.restore(play._owner.snapshot())
 	reference.submit([selected, opponent])

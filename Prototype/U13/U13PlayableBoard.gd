@@ -410,6 +410,11 @@ func _can_save() -> bool:
 
 func _friendly_error(result: Dictionary) -> String:
 	var messages: Dictionary = {
+		"common_bot_python_unavailable": "The opponent needs Python 3.10 or newer. Start the game with run_u13_playable.sh to check its setup.",
+		"common_bot_pipe_closed": "The opponent could not start. Run run_u13_playable.sh to check the Python setup.",
+		"common_bot_worker_missing": "The opponent's files are missing. Update the checkout before starting the game.",
+		"common_bot_worker_failed": "The opponent could not finish its decision. Your turn is unchanged; check the run log before retrying.",
+		"common_bot_timeout": "The opponent took too long to respond. Your turn is unchanged; try again.",
 		"invocation_insufficient_payment": "Invocation requires total printed value of at least 11.",
 		"invocation_veil_below_gate": "Invocation becomes available at Veil 7.",
 		"invocation_already_used": "You have already used your once-per-game Invocation.",
