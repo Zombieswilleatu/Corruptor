@@ -5,8 +5,9 @@ const Counters = preload("res://Scripts/Sim/U13PlanningCounters.gd")
 const Batch = preload("res://Scripts/Sim/U13FullMatchBatch.gd")
 
 func run() -> void:
-	for index in range(9):
-		opening(index)
+	if not OS.get_cmdline_user_args().has("--fixtures-only"):
+		for index in range(9):
+			opening(index)
 	snare_lock()
 	directed_scores()
 	ward_pressure()
@@ -113,7 +114,12 @@ func directed_scores() -> void:
 func guarded_game(lord_name: String, guard_value: int):
 	var world: Dictionary = fixture(lord_name)
 	for slot in range(2):
-		var id: String = world.data.card_zones.hands[1][0]
+		# Production opening hands are empty until the normal first draw. Deal
+		# these directed fixture Guards explicitly and retain real card ownership.
+		var draw: Dictionary = Cards.draw(world, 1, "conduit", "guard-fixture:" + str(slot))
+		if not check(draw.get("drawn", false), "fixture Guard card drawn"):
+			return null
+		var id: String = draw.card_id
 		world.data.card_zones.hands[1].erase(id)
 		patch(world, id, {"role": "guard", "lane": "Lord" if slot == 0 else "Castle", "slot": 0, "value": guard_value, "suit": "Wright" if guard_value == 1 else "Penitent"})
 	if lord_name == "Valak":

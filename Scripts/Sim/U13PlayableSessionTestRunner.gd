@@ -37,7 +37,12 @@ func run() -> void:
 		var finished: Dictionary = Job.new()._run(marched.session, "aftermath", [], {})
 		if check(finished.action != "invalid", "playable Aftermath completes all hooks"):
 			play = finished.session
-			check(play._owner.snapshot() == reference.snapshot(), "animated session exactly matches independent production resolution")
+			# The worker retires completed animation samples after playback. Apply
+			# that same lifecycle boundary to the independent reference before the
+			# strict full-state comparison; semantic events remain part of it.
+			check(reference._owner._retire_completed_visual_samples() > 0, "reference exercises completed visual retirement")
+			var delta: String = preload("res://Scripts/Sim/U13ExactData.gd").difference(reference.snapshot(), play._owner.snapshot())
+			check(delta.is_empty(), "animated session exactly matches independent production resolution: " + delta)
 			check(restored.restore_checkpoint(play.checkpoint()).action != "invalid" and restored._owner.snapshot() == play._owner.snapshot(), "save restores completed round without replaying Marching")
 	if not OS.get_cmdline_user_args().has("--fixtures-only"):
 		full_match()

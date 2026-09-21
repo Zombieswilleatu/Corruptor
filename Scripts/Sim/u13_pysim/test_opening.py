@@ -1,13 +1,22 @@
 """Free initial Lords and ordinary draw boundaries; later returns stay paid."""
+import hashlib
+import json
 import unittest
 
 from . import economy as e, opening, paid_development as paid
 from .full_match_inputs import next_operation
 from .power_match import PowerMatch
+from .power_rules import RULES
 from .verify_free_opening import setup
 
 
 class FreeOpeningTests(unittest.TestCase):
+    def test_saved_rules_identity_matches_current_declared_power_roster(self):
+        # This roster has no floating-point values; its canonical JSON matches
+        # native U13Match.snapshot. Native replay separately compares content.
+        encoded = json.dumps(RULES, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
+        self.assertEqual(opening.RULES_HASH, hashlib.sha256(encoded.encode('utf-8')).hexdigest())
+
     def test_every_lord_starts_free_without_setup_cards_or_circle_damage(self):
         for index in range(9):
             world=PowerMatch(setup(index))._state['world']

@@ -19,9 +19,10 @@ ECONOMY = "U13_GAME_ECONOMY_V5_FREE_OPENING"
 # Opening-rule versioning must not reshuffle the deck used in the accepted A/B.
 SHUFFLE_VERSION = "U13_GAME_ECONOMY_V4"
 MARKET = "U13_GAME_MARKET_V2"
-# Pin the accepted authority's complete roster identity. Matching this hash
-# does not assert that the Python mirror implements those powers yet.
-RULES_HASH = "ce428199f8f0b1323021c2f2232ee7c7497adee060a67046486adeb146edc4ff"
+# Pin the complete declared-power roster identity. Native and Python rule
+# dictionaries were compared exactly at the V26 integration checkpoint.
+# This identifies declarations, not all rule implementations or bot decisions.
+RULES_HASH = "8466e29e676ea503c6e7f848a3fc9ed264c48b3111e773f9fd8768ba4fbe42b0"
 POLICY = ":".join([
     "U13_PERMANENT_BREACHES_V1",
     "U13_GUARD_WORK_V4", "U13_VICTORY_V2_ROUND_PRESSURE", "U13_PROFANE_PILLAGE_V1",

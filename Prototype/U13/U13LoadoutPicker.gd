@@ -108,12 +108,12 @@ func _ready() -> void:
 	opening.visible = not full_game
 	_label(
 		column,
-		"Slots 1–3 begin active; slots 4–5 are blueprints. Five opening cards and paid starting Lord summons. Normal draws and Slaver trades follow each round." if full_game else "Both openings use four hand cards and two Repair tokens per side. These are exercise resources, not the final starting economy.",
+		"Slots 1–3 begin active; slots 4–5 are blueprints. Starting Lords are free. Round one uses the normal five-card draw, Stockpile choices and Slaver trades, with no extra setup hand." if full_game else "Both openings use four hand cards and two Repair tokens per side. These are exercise resources, not the final starting economy.",
 		14
 	)
 	_label(
 		column,
-		"Play to Dominion, Ritual or Final Collapse against the doctrine bot. All nine Lords, Castle powers, resummoning and Tear rites are connected. Neutral Tears: +1 each round 13-20, +2 from round 21. Final Collapse at 26 total Tears. Veil threshold penalties remain disabled." if full_game else "Siege Engine artillery is implemented. Other Castle types have construction and repair, but their printed powers are not connected yet. Normal draws, resummoning, Fracture and victory are also pending.",
+		"Play to Dominion, Ritual or Final Collapse against the doctrine bot. All nine Lords, Castle powers, resummoning and Tear rites are connected. Permanent Breaches begin at 5, 9, 13 and 17 total Tears. Neutral Tears: +1 each round 13-20, +2 from round 21. Final Collapse at 26 total Tears." if full_game else "Siege Engine artillery is implemented. Other Castle types have construction and repair, but their printed powers are not connected yet. Normal draws, resummoning, Fracture and victory are also pending.",
 		14
 	)
 	message = _label(column, "", 15)
