@@ -30,7 +30,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V24_KRONI_MEALS'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V25_KALLIGAN_FIRE'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -230,6 +230,15 @@ class CommonSmartCore:
                     orb = next((p for p in ranked if p.term == 'GravityOrb' and p.payload['target']['lane'] == lane), None)
                     if orb: choices.append(orb)
                 if any(p.term == 'GravityOrb' for p in choices): terms.add('GravityOrb')
+            if category == 'powers' and f.kind == 'Kalligan' and self.limits.retained_per_category >= 4:
+                pulse = next((p for p in ranked if p.term == 'Pyroclasm'), None)
+                if pulse: choices.append(pulse); terms.add('Pyroclasm')
+                for lane in LANES:
+                    shot = next((p for p in ranked if p.term == 'Inferno' and p.payload['target'].get('lane') == lane), None)
+                    if shot: choices.append(shot)
+                castle = next((p for p in ranked if p.term == 'Inferno' and p.payload['target']['kind'] == 'castle'), None)
+                if castle: choices.append(castle)
+                if any(p.term == 'Inferno' for p in choices): terms.add('Inferno')
             if category == 'powers' and f.kind == 'Kroni' and self.limits.retained_per_category >= 3:
                 for lane in LANES:
                     meal = next((p for p in ranked if p.term == 'Consume' and f.by_id[p.payload['target']['entity_id']]['attributes']['lane'] == lane), None)
@@ -357,7 +366,8 @@ class CommonSmartCore:
         for priorities in (base, ('resummon', 'combat', 'work', 'guards', 'rites'), ('work', 'monsters', 'guards', 'combat', 'resummon', 'rites')):
             assemble([], priorities)
             for p in retained['powers']:
-                if p.value > 0: assemble([p], priorities)
+                if p.value > 0 or (f.kind == 'Kalligan' and p.term in ('Inferno','Pyroclasm')):
+                    assemble([p], priorities)
         for p in retained['combat']+retained['monsters']:
             assemble([p], ('resummon', 'powers', 'work', 'guards', 'rites'))
         if initial_goal['card_ids']:

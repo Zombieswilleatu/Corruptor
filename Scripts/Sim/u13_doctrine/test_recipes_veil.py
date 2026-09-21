@@ -191,7 +191,7 @@ class RecipeVeilTests(unittest.TestCase):
         self.assertEqual(first, policy.decide(view, lambda plan: dict(action='legal')))
 
     def test_inferno_relocation_respects_fire_round_and_flying_monsters(self):
-        from .lords.kalligan import exposure
+        from .kalligan_tactics import forecast
         view = observe(planning('Kalligan'), 0)
         source = dict(player_id=0, power_id='Inferno')
         view['persistent'] = [dict(declaration=source, activated_round=2, stages=[{}, {}, {}])]
@@ -202,7 +202,7 @@ class RecipeVeilTests(unittest.TestCase):
         self.assertEqual((False, 'relocation_would_fire_after_expiration'), Facts(view).available('Inferno'))
         view['board'].append(dict(id='flying-enemy', kind='marcher', owner=1,
                                  attributes=monsters.profile('Fyra', 'Lord', 1, 1, 2)))
-        self.assertEqual(0, exposure(Facts(view), dict(kind='lane', lane='Lord')))
+        self.assertEqual(0, forecast(Facts(view), dict(kind='lane', lane='Lord'), [(0,2)])['score'])
 
 
 if __name__ == '__main__': unittest.main()

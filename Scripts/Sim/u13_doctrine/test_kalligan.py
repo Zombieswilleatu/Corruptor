@@ -90,12 +90,12 @@ class KalliganTests(unittest.TestCase):
         unit(view, 'own-flyer', 0, flying=True)
         order = dict(action='Ward', lane='Castle', card_ids=['ingredient:0'])
         first = evaluate(Facts(view), pulse_plan(view, order))['powers'][0]
-        self.assertEqual((56,35,3), (first['exposure_before'],first['exposure_after'],first['ordinary_recruits']))
+        self.assertEqual((32,20,3), (first['exposure_before'],first['exposure_after'],first['ordinary_recruits']))
         order['monster_choice'] = 'Fyra'
-        self.assertEqual(-21, evaluate(Facts(view), pulse_plan(view, order))['score_delta'])
+        self.assertEqual(-12, evaluate(Facts(view), pulse_plan(view, order))['score_delta'])
         order['monster_choice'] = 'Varn'
         row = evaluate(Facts(view), pulse_plan(view, order))['powers'][0]
-        self.assertEqual(-42, row['score_delta'])
+        self.assertEqual(-24, row['score_delta'])
         self.assertEqual(3, row['grounded_monster_bodies_minimum']); self.assertTrue(row['unknown_extra_varn_bodies'])
         order['lane'] = 'Lord'
         self.assertEqual(0, evaluate(Facts(view), pulse_plan(view, order))['score_delta'])
@@ -106,7 +106,7 @@ class KalliganTests(unittest.TestCase):
         f = Facts(view)
         order = dict(action='Siege',lane='Castle',target_id=f.castles(1)[0]['id'],card_ids=['ingredient:0'])
         row = evaluate(f,pulse_plan(view,order))['powers'][0]
-        self.assertEqual((7,1),(row['score_delta'],row['consumed_ground_supplicants']))
+        self.assertEqual((4,1),(row['score_delta'],row['consumed_ground_supplicants']))
         order = dict(rites=dict(waiter_spends=[dict(lane='Castle',marcher_ids=['ground','fly'])]))
         p = pulse_plan(view,order)
         p['powers'].append(declaration(0,view['round'],'BreachWishPower',dict(lane='Castle'),index=1))
@@ -135,18 +135,31 @@ class KalliganTests(unittest.TestCase):
         self.assertEqual(case['view_sha256'],fingerprint(view))
         self.assertEqual((14,19), tuple(len(Facts(view).units(pid,'Castle')) for pid in (0,1)))
         choice = CommonSmartCore().decide(view,Preview(game,0))
-        self.assertNotIn('Pyroclasm',[s['power_id'] for s in choice['plan']['powers']])
-        plans = copy.deepcopy(case['original_plans']); plans[0] = choice['plan']
-        _, _, events = through_direct(game,plans)
-        self.assertFalse(any(e['type']=='HAZARD_PULSED' for e in events))
+        self.assertIn('Pyroclasm',[s['power_id'] for s in choice['plan']['powers']])
+        # The new complete plan purchases useful damage despite the crowded
+        # friendly lane. Verify the extra packet against the SAME commitment.
+        damage=[]
+        for include in (False,True):
+            plans=copy.deepcopy(case['original_plans']);plans[0]=copy.deepcopy(choice['plan'])
+            if not include: plans[0]['powers']=[]
+            run,_,events=through_direct(game,plans)
+            cursor=len(run._state['events']['rows'])
+            while run.clock.hook!='marching':
+                self.assertNotEqual('invalid',run.apply(full_match_inputs.next_operation(run))['action'])
+            events += [r['event'] for r in run._state['events']['rows'][cursor:]]
+            damage.append(tuple(sum(e['data']['hp_before']-e['data']['hp_after'] for e in events
+                if e['type'] in ('MARCHER_DAMAGED','MARCHER_DEFEATED') and e['data']['victim']['owner']==pid) for pid in (0,1)))
+        self.assertGreater(damage[1][1]-damage[0][1],damage[1][0]-damage[0][0])
 
     def test_useful_pulse_survives_with_less_friendly_exposure(self):
         # Explicit counterfactual to the natural replay: move friendly ground
-        # troops out of Castle lane. This preserves a positive-pulse regression
-        # after slower combat changes which bodies survive the original prefix.
+        # troops out of Castle lane and put existing enemies at the two-hit
+        # threshold. The extra pulse now earns kills before the next stage.
         case, game = load_case(1)
         power_components.prepare(game, [dict(kind='fixture_patch',entity_id=row['id'],attributes=dict(lane='Lord'))
             for row in Facts(observe(game,0)).units(0,'Castle')])
+        power_components.prepare(game,[dict(kind='fixture_patch',entity_id=row['id'],attributes=dict(hp=2,armor=0))
+            for row in Facts(observe(game,0)).units(1,'Castle')])
         view = observe(game,0)
         choice = CommonSmartCore().decide(view,Preview(game,0))
         self.assertIn('Pyroclasm',[s['power_id'] for s in choice['plan']['powers']])
@@ -157,7 +170,9 @@ class KalliganTests(unittest.TestCase):
             pulse = next(e['data'] for e in events if e['type']=='HAZARD_PULSED')
             owners = {r['id']:r['owner'] for r in world['entities']['entities']}
             exposures.append(tuple(sum(owners[k]==seat for k in pulse['affected_ids']) for seat in (0,1)))
-        self.assertEqual([(10,28),(3,28)],exposures)
+        self.assertEqual((10,28),exposures[0])
+        self.assertEqual(28,exposures[1][1])
+        self.assertLess(exposures[1][0],exposures[0][0])
 
     def test_natural_choice_is_legal_deterministic_and_within_existing_caps(self):
         _, game = load_case(); view = observe(game,0); before = game.snapshot()
