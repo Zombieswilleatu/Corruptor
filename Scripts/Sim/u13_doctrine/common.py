@@ -30,7 +30,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V25_KALLIGAN_FIRE'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V26_ODRADEK_FIELD'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -366,7 +366,7 @@ class CommonSmartCore:
         for priorities in (base, ('resummon', 'combat', 'work', 'guards', 'rites'), ('work', 'monsters', 'guards', 'combat', 'resummon', 'rites')):
             assemble([], priorities)
             for p in retained['powers']:
-                if p.value > 0 or (f.kind == 'Kalligan' and p.term in ('Inferno','Pyroclasm')):
+                if p.value > 0 or (f.kind == 'Kalligan' and p.term in ('Inferno','Pyroclasm')) or (f.kind == 'Odradek' and p.term == 'Redirect'):
                     assemble([p], priorities)
         for p in retained['combat']+retained['monsters']:
             assemble([p], ('resummon', 'powers', 'work', 'guards', 'rites'))

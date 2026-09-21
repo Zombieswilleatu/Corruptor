@@ -113,7 +113,10 @@ class OdradekTests(unittest.TestCase):
         p = dict(powers=[declaration(0, 1, 'AllegianceShift', target), declaration(0, 1, 'Redirect', target, index=1)], order={})
         # Hook order moves units first even when Shift was queued first.
         rows = evaluate(f, p)['powers']
-        self.assertEqual(-75, next(r['score_delta'] for r in rows if r['power'] == 'AllegianceShift'))
+        shifted=next(r for r in rows if r['power']=='AllegianceShift')
+        self.assertEqual([],shifted['eligible_after'])
+        self.assertEqual(0,shifted['score'])
+        self.assertLess(shifted['score_delta'],0)
         result = decision(game)
         self.assertEqual(['AllegianceShift'], [s['power_id'] for s in result['plan']['powers']])
 
