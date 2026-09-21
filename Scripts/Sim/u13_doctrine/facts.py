@@ -2,6 +2,7 @@
 from collections import Counter
 from dataclasses import dataclass
 
+from u13_pysim import split_ward
 from u13_pysim.battle import defense, operational, targetable
 from u13_pysim.castle_balance import PENITENT_PAIR_SCREEN
 from u13_pysim.development import intact
@@ -150,7 +151,7 @@ class Facts:
         castles = [c for c in self.castles(self.enemy) if targetable(c)]
         pillage = action == 'Siege' and not castles
         if not pillage:
-            sigil = self.v['data']['sigils'][self.enemy][lane]
+            sigil = '' if split_ward.enabled(self.world) else self.v['data']['sigils'][self.enemy][lane]
             remaining = max(0, remaining-(2 if sigil == 'fresh' else 1 if sigil else 0))
         if action == 'Hunt':
             keep = next((c for c in castles if c['attributes']['castle_type'] == 'Keep'), None)

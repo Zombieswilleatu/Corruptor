@@ -7,6 +7,7 @@ the calculation. Work and fresh bonds are projected from this own plan only.
 """
 from collections import Counter
 
+from u13_pysim import split_ward
 from u13_pysim.battle import defense, operational, targetable
 from u13_pysim.castle_balance import PENITENT_PAIR_SCREEN, WRIGHT_PAIR_WORK
 from u13_pysim.copying import copy_data
@@ -80,9 +81,11 @@ def exposure(f, world, plan, lane, card_pressure):
     if lane == 'Lord' and f.lord[f.enemy]['attributes']['alive'] and f.lord[f.enemy]['attributes']['lord_id'] == 'Orias':
         pressure += 1+int(lord['attributes'].get('threat', 0) >= 2)
     order = plan['order']
+    if split_ward.enabled(world): order = split_ward.ward(order)
     if order.get('action') == 'Ward':
         screen = f.strength(order.get('card_ids', []), 'Ward')
-        pressure = max(0, pressure-(screen if order['lane'] == lane else screen//2))
+        off_lane = 0 if split_ward.enabled(world) else screen//2
+        pressure = max(0, pressure-(screen if order['lane'] == lane else off_lane))
     for pair in world['data']['guard_work']['pairs']:
         if pair['player_id'] == f.pid and pair['lane'] == lane and pair['suit'] == 'Penitent' and intact(world, pair):
             pressure = max(0, pressure-PENITENT_PAIR_SCREEN)
@@ -93,7 +96,7 @@ def exposure(f, world, plan, lane, card_pressure):
                     key=lambda r: (-r['attributes']['value'], r['attributes']['slot'], r['id']))
     for guard in guards:
         pressure = max(0, pressure-guard['attributes']['value'])
-    sigil = f.v['data']['sigils'][f.pid][lane]
+    sigil = '' if split_ward.enabled(world) else f.v['data']['sigils'][f.pid][lane]
     pressure = max(0, pressure-(2 if sigil == 'fresh' else 1 if sigil else 0))
     losses = 0
     if lane == 'Lord':

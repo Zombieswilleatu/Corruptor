@@ -6,6 +6,8 @@ No Cartesian products, full-game candidate rollouts, or elapsed-time cutoffs.
 from collections import Counter
 from dataclasses import asdict, dataclass
 
+from u13_pysim import split_ward as split_rules
+from . import split_ward
 from u13_pysim.battle import operational, targetable
 from u13_pysim.copying import copy_data
 from u13_pysim.development import eligible, commission_eligible
@@ -244,6 +246,8 @@ class CommonSmartCore:
                 if p not in choices and len(choices) < self.limits.retained_per_category: choices.append(p)
             retained[category] = [p for p in choices if budget.take('retained', category)]
 
+        split = (split_ward.retain(split_ward.proposals(f, self.weights, retained, budget), budget)
+                 if split_rules.enabled(f.world) else [])
         horizon = ResourceHorizon(f, resource_options)
         defense = defensive_plans.Defense(f, self.weights)
         artillery = ArtilleryPlans(f, self.weights)
@@ -266,9 +270,9 @@ class CommonSmartCore:
         kanifous_reserve = min(4, self.limits.complete_plans//4) if kanifous.enabled else 0
         valak_reserve = min(4, self.limits.complete_plans//4) if valak.enabled else 0
         kroni_reserve = min(4, self.limits.complete_plans//4) if kroni.enabled else 0
-        assembly_limit = max(1, self.limits.complete_plans-omission_reserve-defense_reserve-artillery_reserve-support_reserve-rout_reserve-orias_reserve-gremory_reserve-kanifous_reserve-valak_reserve-kroni_reserve)
-        def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant='', artillery_variant=False, support_variant=False, rout_variant=False, orias_variant=False, gremory_variant=False, kanifous_variant=False, valak_variant=False, kroni_variant=False):
-            if not omitted and not defense_variant and not artillery_variant and not support_variant and not rout_variant and not orias_variant and not gremory_variant and not kanifous_variant and not valak_variant and not kroni_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
+        assembly_limit = max(1, self.limits.complete_plans-len(split)-omission_reserve-defense_reserve-artillery_reserve-support_reserve-rout_reserve-orias_reserve-gremory_reserve-kanifous_reserve-valak_reserve-kroni_reserve)
+        def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant='', artillery_variant=False, support_variant=False, rout_variant=False, orias_variant=False, gremory_variant=False, kanifous_variant=False, valak_variant=False, kroni_variant=False, split_variant=False):
+            if not split_variant and not omitted and not defense_variant and not artillery_variant and not support_variant and not rout_variant and not orias_variant and not gremory_variant and not kanifous_variant and not valak_variant and not kroni_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
             if not budget.take('complete_plans'): return
             selected, cards, used, resource_spend = [], set(), set(), Counter()
             plan = dict(powers=[], order={})
@@ -366,6 +370,8 @@ class CommonSmartCore:
             assemble([], ('resummon', 'powers', 'work', 'guards', 'combat', 'rites'), reserve=initial_goal['card_ids'])
         positive = [p for p in retained['powers'] if p.value > 0 and p.term not in WISHES]
         if len(positive) > 1: assemble(positive[:2], base)
+        for p in split:
+            assemble([p], ('resummon', 'powers', 'work', 'guards', 'rites'), split_variant=True)
         defensive_variants = []
         variants = defensive_plans.alternatives(f, complete, retained)
         for _ in range(defense_reserve):
@@ -474,6 +480,7 @@ class CommonSmartCore:
         chosen, rejected, selection = self.selector.select(ranked, preview, budget,
             round_number=view['round'], seat=f.pid)
         picked = {(p.category, p.term) for p in chosen['selected']}
+        if chosen['plan']['order'].get('ward'): picked.add(('combat', 'Ward'))
         rite_plans = {}
         for term in ('Supplicants', 'Invocation', 'ProfaneRuins'):
             scored = [c for c in complete if any(p.category == 'rites' and p.term == term for p in c['selected'])]
@@ -506,7 +513,9 @@ class CommonSmartCore:
                 generated=count, retained=kept, selected=selected, reason=reason))
         assessments.extend(recipes.assessments(generated['combat']+generated['monsters'],
             retained['combat']+retained['monsters'], chosen['plan'], exhausted['monsters'] and exhausted['combat']))
-        return dict(policy=self.policy_id, plan=copy_data(chosen['plan']), score=chosen['score'], selection=selection,
+        return dict(policy=self.policy_id+(':SPLIT_WARD_V1' if split_rules.enabled(f.world) else ''),
+                    split_ward=dict(enabled=split_rules.enabled(f.world), candidates=len(split),
+                                    selected=bool(chosen['plan']['order'].get('ward'))), plan=copy_data(chosen['plan']), score=chosen['score'], selection=selection,
                     chosen_reasons=[p.reason for p in chosen['selected']], assessments=assessments,
                     retained_candidates=[dict(category=p.category, term=p.term, score=p.value, reason=p.reason,
                                               source_category=category, monster=p.payload.get('monster_choice', ''),

@@ -27,6 +27,9 @@ if [[ "${1:-}" == "--benchmark" ]]; then
 elif [[ "${1:-}" == "--memory-check" ]]; then
   balance_runner=Scripts/Sim/run_u13_sim_memory.py
   shift
+elif [[ "${1:-}" == "--split-ward-experiment" ]]; then
+  balance_runner=Scripts/Sim/run_u13_split_ward_experiment.py
+  shift
 elif [[ "${1:-}" == "--ward-experiment" ]]; then
   balance_runner=Scripts/Sim/run_u13_ward_experiment.py
   shift

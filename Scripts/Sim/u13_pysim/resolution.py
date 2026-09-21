@@ -6,7 +6,7 @@ CastleDefenses and GuardWork. Decisions remain explicit, independent of policy.
 
 import json
 
-from . import economy as e, recruitment as recruits
+from . import economy as e, recruitment as recruits, split_ward
 from .battle import Battle, targetable, operational, note_loss, threat, defense
 from .copying import copy_data
 from .castle_balance import PENITENT_PAIR_SCREEN, BUTCHER_PAIR_KILLS
@@ -119,7 +119,7 @@ class Ordinary(Battle):
         e.require(lifecycle["created_round"] == self.number-1 and lifecycle["aged_round"] == self.number, "sigil_creation_clock_invalid")
         for pid in (0, 1):
             order = self.orders[pid]
-            if order.get("action") != "Ward": continue
+            if split_ward.enabled(w) or order.get("action") != "Ward": continue
             lane = order["lane"]
             if lane == "Castle" and self.castleless(pid): continue
             before = d["sigils"][pid][lane]
@@ -134,15 +134,18 @@ class Ordinary(Battle):
                                   after="fresh", state_label="fresh", threat_before=prior, threat_after=after), "Sigil fresh."))
         lifecycle["created_round"] = self.number
         e.require(d.get("combat_reveal_round", 0) < self.number, "combat_already_revealed")
-        for pid in self.order:
-            order = self.orders[pid]
+        commitments = [(pid, self.orders[pid], "") for pid in self.order]
+        if split_ward.enabled(w):
+            commitments = [(pid, part, suffix) for pid in self.order
+                           for part, suffix in ((self.orders[pid], ""), (self.orders[pid].get("ward", {}), ":ward"))]
+        for pid, order, suffix in commitments:
             if not order: continue
             cards = [e.entity(w, identity) for identity in order["card_ids"]]
             e.require(all(cards), "combat_cards_unavailable")
             events.append(e.event("COMBAT_ORDER_REVEALED", dict(player_id=pid, round=self.number, order=order, cards=cards)))
             for suit in recruits.SUITS:
                 count = sum(c["attributes"]["value"] for c in cards if c["attributes"]["suit"] == suit) // (2 if order["action"] == "Ward" else 3)
-                origin = instance_id("commitment", f"{self.number}:{pid}", suit)
+                origin = instance_id("commitment", f"{self.number}:{pid}{suffix}", suit)
                 for ordinal in range(count):
                     row = recruits.create(w, origin, ordinal, pid, recruits.profile(suit, order["lane"], pid, self.number, self.number+1))
                     recruits.place_spawn(w, row, self.seed)
@@ -203,9 +206,11 @@ class Ordinary(Battle):
         started = e.event(action.upper()+"_STARTED", details)
         events = [started] + self.react(started["event"])
         ward, screen = self.orders[1-pid], 0
+        if split_ward.enabled(self.w): ward = split_ward.ward(ward)
         if ward.get("action") == "Ward":
             screen = self.strength(ward["card_ids"], "Penitent")
-            if ward["lane"] != lane: screen >>= 1
+            if ward["lane"] != lane:
+                screen = 0 if split_ward.enabled(self.w) else screen >> 1
         pair_screen, pair_events = self.pairs(1-pid, lane)
         remaining = max(0, max(0, strength-screen)-pair_screen)
         events.extend(pair_events)
@@ -233,6 +238,7 @@ class Ordinary(Battle):
         return strength, screen, remaining, lost, events
 
     def sigil(self, pid, lane, remaining):
+        if split_ward.enabled(self.w): return remaining, "", False
         sigil, broken = self.w["data"]["sigils"][pid][lane], False
         if remaining > 0 and sigil:
             value = 2 if sigil == "fresh" else 1
@@ -362,7 +368,9 @@ class Ordinary(Battle):
         d["plunder"].update(results=[None, None], resolved_round=self.number)
         for pid in self.order:
             order = self.orders[pid]
-            if order.get("action") == "Siege": events.extend(self.siege(pid, order))
+            if split_ward.enabled(self.w) and order.get("action") in ("Hunt", "Siege"):
+                events.extend(split_ward.resolve_attack(self, pid, order))
+            elif order.get("action") == "Siege": events.extend(self.siege(pid, order))
             elif order.get("action") == "Hunt": events.extend(self.hunt(pid, order))
             elif order.get("action") == "Profane":
                 target = e.entity(w, order["target_id"])

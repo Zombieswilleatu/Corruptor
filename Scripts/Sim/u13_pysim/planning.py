@@ -21,6 +21,11 @@ class PlanningMatch:
 
     def __init__(self, setup):
         self._state = opening.snapshot(setup["seed"], setup["lords"], setup["castles"])
+        if setup.get("ward_experiment"):
+            from . import split_ward
+            if setup["ward_experiment"] != split_ward.VERSION:
+                raise ValueError("Unknown Ward experiment")
+            split_ward.configure(self._state["world"])
         self._state_exposed = False
         self._transaction = None
         self.clock = Timeline()
