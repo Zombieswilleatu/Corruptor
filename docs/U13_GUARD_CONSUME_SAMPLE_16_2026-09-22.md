@@ -274,3 +274,21 @@ python Scripts/Sim/run_u13_guard_consume_sample.py \
 
 Evidence: `docs/evidence/U13_GUARD_CONSUME_SAMPLE_16_2026-09-22.json`.
 The adjacent `.traces.tar.gz` contains all 16 operation, semantic and policy traces.
+
+
+## Follow-up: full-kit ablation
+
+The same sixteen setups were subsequently replayed with both activated powers
+and all Hunger benefits/costs disabled, fixed Lord defense 4, and the bot's
+Hunger-related Ward penalty removed. Powerless Kroni won **3/16**, versus
+**13/16** with the bouncing kit. Mean game length rose from **13.56 to 15.63**
+rounds. All three wins were in seat 1, against Kalligan, Kanifous and Odradek.
+Ten current-kit wins became losses; no loss became a win.
+
+This identifies substantial combined kit value in the sample, not the individual
+contribution of either power, defense scaling or the milestone Tear. No
+production rules changed. The four rejected summon-payment previews in the
+Kalligan pair were discarded; all actual submissions were legal.
+
+Full scope, results and evidence are in
+[the power-ablation report](U13_POWERLESS_KRONI_SAMPLE_16_2026-09-22.md).
