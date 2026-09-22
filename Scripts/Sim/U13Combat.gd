@@ -1,6 +1,7 @@
 class_name U13Combat
 extends RefCounted
 
+const SplitWard = preload("res://Scripts/Sim/U13SplitWard.gd")
 const Plunder = preload("res://Scripts/Sim/U13Plunder.gd")
 const GuardWork = preload("res://Scripts/Sim/U13GuardWork.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
@@ -119,6 +120,9 @@ static func order_shape(order: Dictionary) -> bool:
 	if not Data.is_data(order) or order.get("action") not in ["Siege", "Hunt", "Ward", "Profane"]:
 		return false
 	var expected: Array = ["action", "lane", "card_ids"]
+	if order.has("ward"):
+		if order.action not in ["Hunt", "Siege"] or typeof(order.ward) != TYPE_DICTIONARY or order.ward.get("action") != "Ward" or not order_shape(order.ward) or order.ward.card_ids.is_empty(): return false
+		expected.append("ward")
 	if order.has("monster_choice"):
 		if order.action not in ["Hunt", "Siege"] or order.monster_choice not in Monsters.NAMES: return false
 		expected.append("monster_choice")
@@ -144,7 +148,7 @@ static func order_shape(order: Dictionary) -> bool:
 	if order.action in ["Siege", "Hunt"] and order.card_ids.is_empty():
 		return false
 	var seen: Dictionary = {}
-	for card_id in order.card_ids:
+	for card_id in SplitWard.cards(order):
 		if typeof(card_id) != TYPE_STRING or card_id.is_empty() or seen.has(card_id):
 			return false
 		seen[card_id] = true
@@ -156,6 +160,10 @@ static func accept(context: Dictionary) -> Dictionary:
 	if not order_shape(order):
 		return Data.invalid("combat_order_invalid")
 	var world: Dictionary = context.world
+	if order.has("ward") and not SplitWard.enabled(world):
+		return Data.invalid("split_ward_profile_required")
+	if SplitWard.enabled(world) and order.get("action") == "Ward" and order.get("card_ids", []) == []:
+		return Data.invalid("ward_cards_required")
 	if order.has("fracture_target") and world.data.get("fracture_profile") != "U13_FRACTURE_V1":
 		return Data.invalid("fracture_profile_required")
 	if order.get("action") == "Profane" and not Plunder.enabled(world):
@@ -174,16 +182,23 @@ static func accept(context: Dictionary) -> Dictionary:
 	)
 	if checked.action == "invalid":
 		return checked
-	if Cards.commit(world, player_id, order.card_ids).action == "invalid":
+	if Cards.commit(world, player_id, SplitWard.cards(order)).action == "invalid":
 		return Data.invalid("combat_cards_unavailable")
 	var event: Dictionary = {
 		"type": "COMBAT_ORDER_SEALED",
 		"text": "",
 		"data": {"player_id": player_id, "round": context.round, "order": order.duplicate(true)}
 	}
+	event.data.order.erase("ward")
 	var views: Array = [null, null]
 	views[player_id] = event
-	return {"action": "resolved", "world": world, "events": [{"event": event, "views": views}]}
+	var sealed: Array = [{"event": event, "views": views}]
+	if order.has("ward"):
+		var ward_event: Dictionary = {"type": "WARD_ORDER_SEALED", "text": "", "data": {"player_id": player_id, "round": context.round, "order": order.ward.duplicate(true)}}
+		var ward_views: Array = [null, null]
+		ward_views[player_id] = ward_event
+		sealed.append({"event": ward_event, "views": ward_views})
+	return {"action": "resolved", "world": world, "events": sealed}
 
 
 # Shared by authoritative commit and batch legality on an owned valid world.
@@ -191,6 +206,10 @@ static func accept(context: Dictionary) -> Dictionary:
 static func validate_commit(
 	world: Dictionary, player_id: int, order: Dictionary, entities, hand: Array
 ) -> Dictionary:
+	if order.has("ward") and not SplitWard.enabled(world):
+		return Data.invalid("split_ward_profile_required")
+	if SplitWard.enabled(world) and order.get("action") == "Ward" and order.get("card_ids", []) == []:
+		return Data.invalid("ward_cards_required")
 	if order.has("fracture_target") and world.data.get("fracture_profile") != "U13_FRACTURE_V1":
 		return Data.invalid("fracture_profile_required")
 	if not order_shape(order):
@@ -228,7 +247,7 @@ static func validate_commit(
 			return Data.invalid("hunt_target_invalid")
 	var monster_check: Dictionary = Monsters.validate_choice(world, player_id, order)
 	if monster_check.action == "invalid": return monster_check
-	if not Cards.can_discard_from_hand(hand, order.card_ids, order.card_ids.size()):
+	if not Cards.can_discard_from_hand(hand, SplitWard.cards(order), SplitWard.cards(order).size()):
 		return Data.invalid("combat_cards_unavailable")
 	if not world.data.card_zones.get("committed", [[], []])[player_id].is_empty():
 		return Data.invalid("combat_cards_unavailable")
@@ -285,8 +304,14 @@ static func _reveal(context: Dictionary) -> Dictionary:
 	var entities = Ids.new()
 	entities.restore(world.entities)
 	var events: Array = []
-	for player_id in context.player_order:
-		var order: Dictionary = context.combat_orders[player_id]
+	var commitments: Array = []
+	for pid in context.player_order:
+		commitments.append([pid, context.combat_orders[pid], ""])
+		if SplitWard.enabled(world) and context.combat_orders[pid].has("ward"):
+			commitments.append([pid, context.combat_orders[pid].ward, ":ward"])
+	for commitment in commitments:
+		var player_id: int = commitment[0]
+		var order: Dictionary = commitment[1]
 		if order.has("monster_choice") and order.get("action") not in ["Hunt", "Siege"]:
 			return Data.invalid("monster_action_unavailable")
 		if order.is_empty():
@@ -309,7 +334,7 @@ static func _reveal(context: Dictionary) -> Dictionary:
 		for suit in Marching.SUITS:
 			var count: int = floori(float(totals.get(suit, 0)) / (2.0 if GuardWork.enabled(world) and order.action == "Ward" else 3.0))
 			var origin: String = Data.instance_id(
-				"commitment", "%d:%d" % [context.round, player_id], suit
+				"commitment", "%d:%d%s" % [context.round, player_id, commitment[2]], suit
 			)
 			for ordinal in range(count):
 				var created: Dictionary = entities.create(
@@ -366,6 +391,18 @@ static func _resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			continue
 		if order.get("action") not in ["Siege", "Hunt"]:
 			continue
+		var defending: Dictionary = SplitWard.ward(context.combat_orders[1 - player_id])
+		var eligible: bool = SplitWard.enabled(world) and not defending.is_empty() and defending.lane == order.lane
+		var would_succeed: bool = false
+		if eligible:
+			var probe: Dictionary = context.duplicate(true)
+			if probe.combat_orders[1 - player_id].has("ward"):
+				probe.combat_orders[1 - player_id].erase("ward")
+			else:
+				probe.combat_orders[1 - player_id] = {}
+			var counterfactual: Dictionary = _hunt(world.duplicate(true), probe, player_id, order.duplicate(true), reaction) if order.action == "Hunt" else _siege(world.duplicate(true), probe, player_id, order.duplicate(true), reaction)
+			if counterfactual.action == "invalid": return counterfactual
+			would_succeed = SplitWard.succeeded(counterfactual.events)
 		var result: Dictionary = (
 			_hunt(world, context, player_id, order, reaction)
 			if order.action == "Hunt"
@@ -374,6 +411,7 @@ static func _resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 		if result.action == "invalid":
 			return result
 		world = result.world
+		if SplitWard.enabled(world): SplitWard.reward(world, result.events, player_id, context.round, order, eligible, would_succeed)
 		events.append_array(result.events)
 	if Plunder.enabled(world):
 		events.append_array(Plunder.finish(world, context.round))
@@ -408,7 +446,7 @@ static func _siege(
 			)
 		)
 		return {"action": "resolved", "world": world, "events": events}
-	var strength: int = _card_strength(entities, order.card_ids, "Butcher", not GuardWork.enabled(world))
+	var strength: int = _card_strength(entities, order.card_ids, "Butcher", not GuardWork.enabled(world)) + SplitWard.attack_bonus(world)
 	var waiter_ids: Array = []
 	for entity in entities.snapshot().entities:
 		if (
@@ -433,6 +471,7 @@ static func _siege(
 			}
 		)
 	)
+	if SplitWard.tempo_enabled(world): events.back().event.data["veil_attack_bonus"] = SplitWard.attack_bonus(world)
 	if world.data.combat_profile == Structures.PROFILE:
 		var reacted: Dictionary = reaction.call(
 			world, events.back().event, context.seed, context.player_order
@@ -442,12 +481,12 @@ static func _siege(
 		world = reacted.world
 		events.append_array(reacted.events)
 		entities.restore(world.entities)
-	var ward: Dictionary = context.combat_orders[1 - player_id]
+	var ward: Dictionary = SplitWard.ward(context.combat_orders[1 - player_id]) if SplitWard.enabled(world) else context.combat_orders[1 - player_id]
 	var screen: int = 0
 	if ward.get("action") == "Ward":
 		screen = _card_strength(entities, ward.card_ids, "Penitent", not GuardWork.enabled(world))
 		if ward.lane != "Castle":
-			screen = screen >> 1
+			screen = 0 if SplitWard.enabled(world) else screen >> 1
 	var remaining: int = strength
 	if screen > 0:
 		remaining = maxi(0, remaining - screen)
@@ -639,9 +678,9 @@ static func _snapshot_order(context: Dictionary) -> Dictionary:
 	var order: Dictionary = context.order
 	var phase: int = context.next_hook_index
 	var player_id: int = context.player_id
-	var selected: Array = order.get("card_ids", [])
+	var selected: Array = SplitWard.cards(order)
 	if order.has("monster_choice"):
-		if order.get("action") not in ["Hunt", "Siege"] or not Monsters.enabled(world) or not Monsters.qualifies(world.entities.entities, selected, order.monster_choice):
+		if order.get("action") not in ["Hunt", "Siege"] or not Monsters.enabled(world) or not Monsters.qualifies(world.entities.entities, order.card_ids, order.monster_choice):
 			return Data.invalid("monster_recipe_snapshot_invalid")
 		if phase <= Timeline.hook_rank(Timeline.COMMITMENT_REVEAL) and Monsters.validate_choice(world, player_id, order).action == "invalid":
 			return Data.invalid("monster_recipe_snapshot_invalid")
@@ -718,7 +757,7 @@ static func _hunt(
 			)
 		)
 		return {"action": "resolved", "world": world, "events": events}
-	var strength: int = _card_strength(entities, order.card_ids, "Butcher", not GuardWork.enabled(world))
+	var strength: int = _card_strength(entities, order.card_ids, "Butcher", not GuardWork.enabled(world)) + SplitWard.attack_bonus(world)
 	var pursuit: int = 0
 	if world.data.get("orias_profile") == LordStats.ORIAS_WEB_PROFILE:
 		pursuit = LordStats.relentless_pursuit(
@@ -751,6 +790,7 @@ static func _hunt(
 	)
 	if world.data.get("orias_profile") == LordStats.ORIAS_WEB_PROFILE:
 		events.back().event.data["relentless_pursuit"] = pursuit
+	if SplitWard.tempo_enabled(world): events.back().event.data["veil_attack_bonus"] = SplitWard.attack_bonus(world)
 	if world.data.combat_profile == Structures.PROFILE:
 		var reacted: Dictionary = reaction.call(
 			world, events.back().event, context.seed, context.player_order
@@ -760,12 +800,12 @@ static func _hunt(
 		world = reacted.world
 		events.append_array(reacted.events)
 		entities.restore(world.entities)
-	var ward: Dictionary = context.combat_orders[1 - player_id]
+	var ward: Dictionary = SplitWard.ward(context.combat_orders[1 - player_id]) if SplitWard.enabled(world) else context.combat_orders[1 - player_id]
 	var screen: int = 0
 	if ward.get("action") == "Ward":
 		screen = _card_strength(entities, ward.card_ids, "Penitent", not GuardWork.enabled(world))
 		if ward.lane != "Lord":
-			screen = screen >> 1
+			screen = 0 if SplitWard.enabled(world) else screen >> 1
 	var remaining: int = strength
 	if screen > 0:
 		remaining = maxi(0, remaining - screen)

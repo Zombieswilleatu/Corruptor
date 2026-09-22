@@ -15,7 +15,7 @@ func public_view(w: Dictionary) -> Dictionary:
 	view["viewer_id"] = 0
 	return {"world": view}
 func compare(action: String, amount: int) -> void:
-	var w: Dictionary = fixture("Orias")
+	var w: Dictionary = forecast_fixture()
 	for castle in w.entities.entities:
 		if castle.kind == "castle" and castle.owner == 1:
 			patch(w, castle.id, {"status": "ruined", "integrity": 0, "construction_state": "active"})
@@ -45,7 +45,7 @@ func compare(action: String, amount: int) -> void:
 	check((predicted.banished == result.banished) if action == "Hunt" else (predicted.damage == result.damage and predicted.destroyed == result.destroyed), "%s baseline agrees through Guards, Sigil and interception at %d" % [action, amount])
 	check(view == before and Forecast.evaluate(view, order) == predicted, "forecast is deterministic and read only")
 func ward_and_privacy() -> void:
-	var w: Dictionary = fixture()
+	var w: Dictionary = forecast_fixture()
 	var cards: Array = w.data.card_zones.hands[0].slice(0, 3)
 	for index in range(3): patch(w, cards[index], {"suit": "Penitent" if index < 2 else "Wright", "value": 3})
 	var order: Dictionary = {"action": "Ward", "lane": "Lord", "card_ids": cards}
@@ -67,7 +67,7 @@ func ward_and_privacy() -> void:
 	check(Forecast.evaluate(view, order).support == 0, "reserved Supplicants are excluded from combat forecast")
 
 func pair_visibility() -> void:
-	var w: Dictionary = fixture()
+	var w: Dictionary = forecast_fixture()
 	var guards: Array = w.data.card_zones.hands[1].slice(0, 2)
 	w.data.guard_orders = [{"round": 1, "moves": []}, {"round": 1, "moves": []}]
 	w.data.castle_orders = [{"choice": {}}, {"choice": {}}]
@@ -87,3 +87,11 @@ func pair_visibility() -> void:
 	patch(w, guards[0], {"role": "hand"})
 	Game.Content.GuardWork.reconcile(w)
 	check(public_view(w).world.guard_work.pairs.is_empty(), "broken pair is absent from the public forecast projection")
+
+func forecast_fixture() -> Dictionary:
+	var world: Dictionary = fixture()
+	for pid in [0, 1]:
+		for index in range(4):
+			var drawn: Dictionary = Game.Content.Cards.draw(world, pid, "forecast", "%d:%d" % [pid, index])
+			check(drawn.action != "invalid", "forecast fixture draws its hand")
+	return world

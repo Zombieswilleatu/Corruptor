@@ -9,6 +9,7 @@ const BATCH_EVENTS_VERSION: String = "U13_BATCH_EVENTS_V1"
 const BATCH_SAMPLE_EVENTS: Array = ["MARCHING_TICK", "KRONI_ACTOR_TICK"]
 var batch_events: bool = false
 
+const SplitWard = preload("res://Scripts/Sim/U13SplitWard.gd")
 const GuardWork = preload("res://Scripts/Sim/U13GuardWork.gd")
 const Victory = preload("res://Scripts/Sim/U13Victory.gd")
 const Plunder = preload("res://Scripts/Sim/U13Plunder.gd")
@@ -41,7 +42,7 @@ func create_combat_match(compact_events: bool = false):
 
 
 func valid_world(world: Dictionary) -> bool:
-	return Staging.valid(world) and Monsters.valid(world) and Veil.valid(world) and GuardWork.valid(world) and super.valid_world(world) and Victory.valid(world) and Plunder.valid(world) and Throne.valid(world) and Rites.valid(world) and Fracture.valid(world) and Economy.valid(world) and Market.valid(world) and Sigils.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
+	return SplitWard.valid(world) and Staging.valid(world) and Monsters.valid(world) and Veil.valid(world) and GuardWork.valid(world) and super.valid_world(world) and Victory.valid(world) and Plunder.valid(world) and Throne.valid(world) and Rites.valid(world) and Fracture.valid(world) and Economy.valid(world) and Market.valid(world) and Sigils.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
 
 
 # Direct/scheduled powers can remove or relocate Guards without a battle
@@ -200,6 +201,8 @@ func accept_order(context: Dictionary) -> Dictionary:
 
 func project(world: Dictionary, player_id: int) -> Dictionary:
 	var result: Dictionary = super.project(world, player_id)
+	for key in ["ward_experiment", "tempo_experiment"]:
+		if world.data.has(key): result[key] = world.data[key]
 	result["monsters"] = world.data.monsters.duplicate(true)
 	if Staging.enabled(world): result["game_staging"] = world.data.game_staging.duplicate(true)
 	result["field_structures"] = world.data.get("field_structures", []).duplicate(true)

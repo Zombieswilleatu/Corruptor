@@ -130,7 +130,7 @@ func _flow_copy(step: String) -> String:
 		"Work Target": return _work_preview()
 		"Resummon": return "Choose your return payment, then Done. Skip to remain banished."
 		"Guards": return "Place Guards in either zone, then Done. Each new Guard supplies work."
-		"Combat": return "Choose Siege, Hunt, Ward or skip. Select cards, then Done."
+		"Combat": return "Choose an attack, Ward or skip. You may reserve a paid Ward, then Hunt or Siege with other cards." if _visible_world.has("ward_experiment") else "Choose Siege, Hunt, Ward or skip. Select cards, then Done."
 		"Lord Powers": return "Stage your optional powers, then Done to review Dominion rites."
 		"Dominion Rites": return "Choose optional rites, then resolve all staged orders."
 	return ""

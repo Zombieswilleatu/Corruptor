@@ -248,11 +248,11 @@ class SplitWardTests(unittest.TestCase):
         w['players'][1]['resources']['souls'] = 12
         self.assertEqual('Ritual', evaluate(w, 25)['win_by'])
 
-    def test_tempo_bonus_starts_round18_and_planner_knows_new_settlement(self):
+    def test_tempo_bonus_starts_round20_and_planner_knows_new_settlement(self):
         from .veil_judgment import settlement_projection
         rules, attack = self.battle()
         rules.w['data']['tempo_experiment'] = split_ward.TEMPO
-        for number, expected in ((17, 0), (18, 1)):
+        for number, expected in ((19, 0), (20, 1)):
             rules.number = number
             events = [e.event('HUNT_RESOLVED', dict(banished=True, target_id=attack['target_id']))]
             split_ward.reward_breakthrough(rules, 0, events)

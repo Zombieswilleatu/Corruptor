@@ -113,7 +113,7 @@ static func validate(world: Dictionary, pid: int, order: Dictionary) -> Dictiona
 		if total < INVOCATION_COST:
 			return Data.invalid("invocation_insufficient_payment")
 		var reserved: Array = order.get("card_ids", []).duplicate() if typeof(order.get("card_ids", [])) == TYPE_ARRAY else []
-		for key in ["castle_action", "summon"]:
+		for key in ["ward", "castle_action", "summon"]:
 			var other = order.get(key, {})
 			if typeof(other) == TYPE_DICTIONARY and typeof(other.get("card_ids", [])) == TYPE_ARRAY:
 				reserved.append_array(other.get("card_ids", []))

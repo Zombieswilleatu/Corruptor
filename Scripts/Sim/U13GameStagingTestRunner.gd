@@ -123,7 +123,12 @@ func run() -> void:
 			if n == 3: order.staging.Lord = "Hold"
 			if n == 3: order.staging.Castle = "March"
 			var available: Array = Monsters.available(w.entities + Stage.rows(trace_game.snapshot().world), w.hand, pid)
-			if not available.is_empty(): order["monster_choice"] = available[0]
+			if not available.is_empty():
+				var targets: Array = w.entities.filter(func(e): return e.owner == 1 - pid and (e.kind == "lord" and e.attributes.alive if lane == "Lord" else preload("res://Scripts/Sim/U13Structures.gd").targetable(e)))
+				if not targets.is_empty():
+					order.action = "Hunt" if lane == "Lord" else "Siege"
+					order["target_id"] = targets[0].id
+					order["monster_choice"] = available[0]
 			plans.append({"powers": [], "order": order})
 		var invalid_order: Dictionary = plans[0].order.duplicate(true)
 		invalid_order.staging.Lord = "Teleport"

@@ -77,7 +77,7 @@ func live_victory(kind: String) -> void:
 	check(game.finish_round() == result and game.to_planning(true) == result and game.snapshot() == before, kind + " outcome reads are idempotent")
 	for pid in [0, 1]:
 		var view: Dictionary = game.player_view(pid)
-		check(view.world.victory.winner == 0 and view.world.victory.win_by == kind and not view.world.veil_effects_enabled and not view.world.veil_drift_enabled, kind + " both players see result with Veil effects disabled")
+		check(view.world.victory.winner == 0 and view.world.victory.win_by == kind and view.world.veil_effects_enabled == Game.Content.VEIL_EFFECTS_ENABLED and view.world.veil_drift_enabled == Game.Content.VEIL_DRIFT_ENABLED, kind + " both players see result with the active Veil profile")
 	for changes in [{"winner": 1}, {"winner": -1, "win_by": ""}, {"checked_round": 0}, {"win_by": "Fake"}]:
 		var forged: Dictionary = before.duplicate(true)
 		forged.world.data.victory.merge(changes, true)

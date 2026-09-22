@@ -13,6 +13,10 @@ var save_button: Button
 var load_button: Button
 var load_dialog: FileDialog
 var rites_plan: Dictionary = {}
+var ward_plan: Dictionary = {}
+var reserve_ward_button: Button
+var clear_ward_button: Button
+var ward_note: Label
 const MonsterRules = preload("res://Scripts/Sim/U13MonsterRules.gd")
 const StagingTray = preload("res://Prototype/U13/U13GameStagingTray.gd")
 const BoardStaging = preload("res://Prototype/U13/U13BoardStaging.gd")
@@ -69,6 +73,11 @@ func _build() -> void:
 	monster_picker = _option(action_zone.action_box, ["No monster summon"])
 	monster_picker.name = "MonsterSummonChoice"
 	monster_picker.item_selected.connect(func(index): monster_choice = str(monster_picker.get_item_metadata(index)); _refresh())
+	reserve_ward_button = _button(action_zone.action_box, "RESERVE WARD", _reserve_ward)
+	reserve_ward_button.tooltip_text = "Choose Ward, its lane and cards first. Reserve those cards, then choose Hunt or Siege with your remaining hand."
+	clear_ward_button = _button(action_zone.action_box, "CLEAR RESERVED WARD", _clear_ward)
+	ward_note = _label(action_zone.action_box, "", 13)
+	ward_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	monster_note = _label(action_zone.action_box, "", 13)
 	monster_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	work_button = _button(header.history_box, "WORK TARGET", _open_work_target)
@@ -104,11 +113,47 @@ func _build() -> void:
 	add_child(load_dialog)
 	setup_load_button = _button(setup_picker.start_button.get_parent(), "LOAD SAVED GAME", _open_load)
 
+func _development_stacks(stacks: Array) -> void:
+	super._development_stacks(stacks)
+	if ward_plan.is_empty() or not _planning() or setup_open: return
+	var before: int = stacks.size()
+	_add_stack(stacks, "reserved_ward", "WARD", ward_plan.card_ids, {"id": "", "kind": "zone", "owner": 0, "lane": ward_plan.lane})
+	if stacks.size() > before: stacks.back().locked = powers_step
+
+func _return_card(role: String, id: String) -> void:
+	if role != "reserved_ward":
+		super._return_card(role, id)
+		return
+	if not _planning() or powers_step: return
+	ward_plan.card_ids.erase(id)
+	if ward_plan.card_ids.is_empty(): ward_plan = {}
+	_refresh()
+
+func _reserve_ward() -> void:
+	if not _planning() or powers_step or _draft_combat.get("action") != "Ward" or _draft_combat.get("card_ids", []).is_empty(): return
+	ward_plan = _draft_combat.duplicate(true)
+	_draft_combat = {}
+	_intent = ""
+	_target = {}
+	monster_choice = ""
+	_refresh()
+
+func _clear_ward() -> void:
+	if not _planning() or powers_step: return
+	ward_plan = {}
+	_refresh()
+
 func _planning() -> bool:
 	return super._planning() and session is PlaySession and session.pending_choice.is_empty() and not session.is_finished()
 
 func _with_development(order: Dictionary) -> Dictionary:
 	var result: Dictionary = super._with_development(order)
+	result.erase("ward")
+	if not ward_plan.is_empty():
+		if result.has("action"):
+			result["ward"] = ward_plan.duplicate(true)
+		elif not result.has("action"):
+			result.merge(ward_plan.duplicate(true))
 	if _visible_world.has("game_staging"):
 		result["staging"] = staging_modes.duplicate()
 	if not rites_plan.is_empty():
@@ -121,7 +166,7 @@ func _with_development(order: Dictionary) -> Dictionary:
 	return result
 
 func _hand_reserved(id: String) -> bool:
-	return id in rites_plan.get("invocation", {}).get("card_ids", []) or super._hand_reserved(id)
+	return id in ward_plan.get("card_ids", []) or id in rites_plan.get("invocation", {}).get("card_ids", []) or super._hand_reserved(id)
 
 func _reset_direct() -> void:
 	choosing_work = false
@@ -129,6 +174,7 @@ func _reset_direct() -> void:
 		staging_modes = {"Lord": "Hold", "Castle": "Hold"}
 		staging_round = 0
 	rites_plan = {}
+	ward_plan = {}
 	monster_choice = ""
 	fracture_choice = "infrastructure"
 	choice_error = ""
@@ -148,6 +194,14 @@ func _refresh(presented: Dictionary = {}) -> void:
 	if not session is PlaySession:
 		return
 	var w: Dictionary = _visible_world
+	var split: bool = w.get("ward_experiment") == "U13_SPLIT_WARD_V1"
+	reserve_ward_button.visible = split
+	reserve_ward_button.disabled = not _planning() or powers_step or _draft_combat.get("action") != "Ward" or _draft_combat.get("card_ids", []).is_empty()
+	clear_ward_button.visible = split and not ward_plan.is_empty()
+	clear_ward_button.disabled = not _planning() or powers_step
+	ward_note.visible = split
+	ward_note.text = "Ward %s reserved · %d cards. Hunt or Siege can use the remaining hand." % [ward_plan.lane, ward_plan.card_ids.size()] if not ward_plan.is_empty() else "Optional: reserve one paid Ward, then Hunt or Siege. No Sigils. A Ward that prevents a successful attack earns 1 Soul (once per round)."
+	if not ward_plan.is_empty(): plan_label.text += "\nWard %s · %d cards reserved" % [ward_plan.lane, ward_plan.card_ids.size()]
 	if staging_round != session.round_number():
 		for lane in staging_modes:
 			if staging_modes[lane] == "March": staging_modes[lane] = "Hold"
@@ -277,7 +331,8 @@ func _open_game_menu() -> void:
 		game_menu.button("NEW GAME", func(): game_menu.hide(); open_setup())
 		game_menu.button("SAVE FINISHED GAME", _save_game)
 		return
-	game_menu.present("GAME / TEAR RITES", "Ritual: 12 Souls with your Lord present. Dominion: Veil 12+, at least 5 Personal Tears and more than your opponent. Final Collapse: Veil 26; most Souls wins (seat 0 wins a tie).")
+	var tempo: bool = _visible_world.get("tempo_experiment") == "U13_VEIL_ATTACK_ROUND25_V1"
+	game_menu.present("GAME / TEAR RITES", "Ritual: 12 Souls with your Lord present. Dominion: Veil 12+, at least 5 Personal Tears and more than your opponent. " + ("Round 25 ends the game after normal victories; most Souls wins (seat 0 wins a tie). Veil 13/17/21 adds +1/+2/+3 committed attack strength. From round 20, a Hunt banishment or Siege destruction earns +1 Soul, once per player per round. Reserve one paid Ward alongside Hunt or Siege. Ward protects only its chosen lane; no Sigils." if tempo else "Final Collapse: Veil 26; most Souls wins (seat 0 wins a tie)."))
 	if not _planning():
 		game_menu.label("Round resolved. Return to the board and continue to the next round.")
 		return
@@ -298,6 +353,9 @@ func _pillage_available() -> bool:
 	return not _visible_world.get("entities", []).is_empty() and not _visible_world.entities.any(func(e): return e.owner == 1 and Structures.targetable(e))
 
 func _select_direct_action(action: String) -> void:
+	if action == "Ward" and not ward_plan.is_empty() and _planning() and not powers_step:
+		_draft_combat = ward_plan.duplicate(true)
+		ward_plan = {}
 	choosing_work = false
 	if action != "Siege" or not _pillage_available():
 		super._select_direct_action(action)
@@ -349,6 +407,9 @@ func _choose_profane() -> void:
 			game_menu.button(_castle_name(row), _stage_profane.bind(row.id))
 
 func _stage_profane(id: String) -> void:
+	if not ward_plan.is_empty():
+		game_menu.set_message("Clear the reserved Ward before choosing Profane.")
+		return
 	var combat: Dictionary = {"action": "Profane", "lane": "Castle", "target_id": id, "card_ids": []}
 	var order: Dictionary = _with_development(combat)
 	if not castle_plan.is_empty():
@@ -443,6 +504,7 @@ func _can_save() -> bool:
 	return match_started and not setup_open and _job == null and not playing and session is PlaySession and (session.next_hook() == Timeline.SUBMISSION_LOCK or not session.pending_choice.is_empty() or session.next_hook().is_empty())
 
 func _friendly_error(result: Dictionary) -> String:
+	if result.get("reason") == "ward_cards_required": return "Ward requires at least one card. Skip combat to keep your hand."
 	var messages: Dictionary = {
 		"common_bot_python_unavailable": "The opponent needs Python 3.10 or newer. Start the game with run_u13_playable.sh to check its setup.",
 		"common_bot_pipe_closed": "The opponent could not start. Run run_u13_playable.sh to check the Python setup.",
@@ -536,6 +598,7 @@ func _load_game(path: String) -> void:
 	guard_plan = order.get("guard_moves", []).duplicate(true)
 	summon_plan = order.get("summon", {}).duplicate(true)
 	rites_plan = order.get("rites", {}).duplicate(true)
+	ward_plan = order.get("ward", {}).duplicate(true)
 	monster_choice = order.get("monster_choice", "")
 	fracture_choice = order.get("fracture_target", "infrastructure")
 	staging_modes = order.get("staging", {"Lord": "Hold", "Castle": "Hold"}).duplicate()
@@ -543,7 +606,7 @@ func _load_game(path: String) -> void:
 		staging_modes[lane] = "March" if staging_modes.get(lane) == "March" else "Hold"
 	staging_round = candidate.round_number()
 	_draft_combat = order.duplicate(true)
-	for key in ["castle_action", "guard_moves", "summon", "rites", "staging"]: _draft_combat.erase(key)
+	for key in ["castle_action", "guard_moves", "summon", "rites", "staging", "ward"]: _draft_combat.erase(key)
 	powers_step = false
 	staged_order = {}
 	payment = []

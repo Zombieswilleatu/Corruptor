@@ -13,6 +13,7 @@ static func evaluate(public_view: Dictionary, order: Dictionary) -> Dictionary:
 	var result: Dictionary = {"version": VERSION, "available": false, "lines": [], "assumptions": "Current board only: new Guards, Ward, Work, artillery and power reactions can change the result."}
 	if not public_view.get("world", {}).has("viewer_id"): return result
 	var c = View.new(public_view)
+	var split: bool = c.w.get("ward_experiment") == "U13_SPLIT_WARD_V1"
 	var action: String = order.get("action", "Pass")
 	var cards: Array = order.get("card_ids", [])
 	for id in cards:
@@ -31,7 +32,7 @@ static func evaluate(public_view: Dictionary, order: Dictionary) -> Dictionary:
 	if action == "Ward":
 		result.available = true
 		result["strength"] = strength
-		result.lines.append("Ward: %d protection in %s; %d in the other lane." % [strength, lane, (strength >> 1)])
+		result.lines.append("Ward: %d protection in %s; %d in the other lane." % [strength, lane, (0 if split else strength >> 1)])
 		result.lines.append("Recruits: %d Marchers in %s." % [total_recruits, lane])
 		result.assumptions = "Protection applies this round. Recruitment is counted per suit; new Marchers hold until next round unless attacked."
 		return result
@@ -54,11 +55,17 @@ static func evaluate(public_view: Dictionary, order: Dictionary) -> Dictionary:
 	if action == "Hunt":
 		var own_lords: Array = c.select("lord", c.pid)
 		if not own_lords.is_empty(): pursuit = Stats.relentless_pursuit(own_lords[0], target)
-	strength += support + pursuit
+	var veil: int = int(c.w.get("veil_total", 0))
+	var bonus: int = int(veil >= 13) + int(veil >= 17) + int(veil >= 21) if c.w.get("tempo_experiment") == "U13_VEIL_ATTACK_ROUND25_V1" else 0
+	strength += support + pursuit + bonus
+	if bonus > 0: result.lines.append("Veil adds +%d attack strength." % bonus)
+	if order.has("ward"):
+		var defense: Dictionary = evaluate(public_view, order.ward)
+		result.lines.append_array(defense.lines)
 	result.available = true
 	result["strength"] = strength
 	result["support"] = support
-	result.lines.append("Strength %d = cards %d + Supplicants %d%s." % [strength, result.card_strength, support, " + pursuit %d" % pursuit if pursuit > 0 else ""])
+	result.lines.append("Strength %d = cards %d + Supplicants %d%s%s." % [strength, result.card_strength, support, " + pursuit %d" % pursuit if pursuit > 0 else "", " + Veil %d" % bonus if bonus > 0 else ""])
 	result.lines.append("Recruits: %d Marchers. %d Supplicants consumed." % [total_recruits, support])
 	var pair_screen: int = c.pair_screen(1 - c.pid, lane)
 	var guards: Array = c.guards(1 - c.pid, lane)

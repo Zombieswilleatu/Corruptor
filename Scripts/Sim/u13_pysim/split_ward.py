@@ -1,4 +1,4 @@
-"""Opt-in simulation experiment; deliberately not a native/playable rules claim.
+"""Shared split-Ward and tempo rules; explicit flags preserve legacy replay behavior.
 
 The primary order stays compatible with attack consumers. Optional `ward` is a
 second, separately paid commitment. Empty Sigil schema fields remain solely for
@@ -11,7 +11,7 @@ from .copying import copy_data
 
 VERSION = 'U13_SPLIT_WARD_V1'
 TEMPO = 'U13_VEIL_ATTACK_ROUND25_V1'
-TEMPO_SOUL_START_ROUND = 18
+TEMPO_SOUL_START_ROUND = 20
 
 
 def tempo_enabled(world):

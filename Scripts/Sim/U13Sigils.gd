@@ -1,5 +1,6 @@
 extends RefCounted
 
+const SplitWard = preload("res://Scripts/Sim/U13SplitWard.gd")
 const Plunder = preload("res://Scripts/Sim/U13Plunder.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
@@ -48,7 +49,7 @@ static func on_hook(context: Dictionary) -> Dictionary:
 			return Data.invalid("sigil_entities_invalid")
 		for pid in [0, 1]:
 			var order: Dictionary = context.combat_orders[pid]
-			if order.get("action") != "Ward":
+			if SplitWard.enabled(world) or order.get("action") != "Ward":
 				continue
 			var lane: String = order.lane
 			if lane not in LANES:

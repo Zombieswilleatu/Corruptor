@@ -1,6 +1,7 @@
 extends RefCounted
 
 const Conduit = preload("res://Scripts/Sim/U13BloodConduit.gd")
+const SplitWard = preload("res://Scripts/Sim/U13SplitWard.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
@@ -122,7 +123,7 @@ static func validate_order(world: Dictionary, pid: int, order: Dictionary) -> Di
 	):
 		return Data.invalid("summon_order_shape_invalid")
 	var spent: Array = castle.get("card_ids", []).duplicate()
-	spent.append_array(order.get("card_ids", []))
+	spent.append_array(SplitWard.cards(order))
 	for move in moves:
 		if typeof(move) != TYPE_DICTIONARY:
 			return Data.invalid("guard_moves_invalid")

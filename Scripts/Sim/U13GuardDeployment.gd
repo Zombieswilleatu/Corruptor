@@ -3,6 +3,7 @@ extends RefCounted
 const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
 
 const Resummon = preload("res://Scripts/Sim/U13Resummoning.gd")
+const SplitWard = preload("res://Scripts/Sim/U13SplitWard.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
 const Cards = preload("res://Scripts/Sim/U13CardZones.gd")
@@ -152,7 +153,7 @@ static func validate_order(
 		var summon_check: Dictionary = Resummon.validate_order(world, pid, order)
 		if summon_check.action == "invalid":
 			return summon_check
-	var spent: Array = order.get("card_ids", []).duplicate()
+	var spent: Array = SplitWard.cards(order)
 	spent.append_array(castle.get("card_ids", []))
 	var hand: Array = world.data.card_zones.hands[pid]
 	for move in moves:
@@ -386,7 +387,7 @@ static func add_candidates(raw: Dictionary, view: Dictionary, seed_value: String
 	for order in bases:
 		var cards: Array = view.world.hand.duplicate()
 		cards.sort()
-		for used in order.get("card_ids", []):
+		for used in SplitWard.cards(order):
 			cards.erase(used)
 		var available: Array = cells.duplicate(true)
 		var maximum: int = mini(

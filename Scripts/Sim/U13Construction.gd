@@ -333,7 +333,7 @@ static func snapshot_order(context: Dictionary) -> Dictionary:
 		var target: Dictionary = identities.get_entity(choice.target_id)
 		if target.is_empty() or target.kind != "castle" or target.owner != player_id:
 			return Data.invalid("castle_order_identity_invalid")
-		var other_cards: Array = combat_order(context.order).get("card_ids", []).duplicate()
+		var other_cards: Array = Combat.SplitWard.cards(combat_order(context.order)).duplicate()
 		for raw_source in context.declarations:
 			var source: Dictionary = Data.declaration_copy(raw_source)
 			if source.is_empty():
@@ -562,7 +562,7 @@ static func screen_orders(context: Dictionary) -> Array:
 		if not choice_shape(choice) or not Combat.order_shape(combat):
 			continue
 		var selected: Array = power_cards.duplicate()
-		selected.append_array(combat.get("card_ids", []))
+		selected.append_array(Combat.SplitWard.cards(combat))
 		if not choice.is_empty():
 			if _validate_target(world, player_id, choice, entities).action == "invalid":
 				continue

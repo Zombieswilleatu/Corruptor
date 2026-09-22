@@ -32,6 +32,7 @@ func run() -> void:
 		finish(); return
 	await human_choices()
 	check(board._planning(), "human choices unlock the board's planning controls")
+	split_ward_controls()
 	playtime_controls()
 	staging_controls()
 	work_and_guard_controls()
@@ -81,6 +82,38 @@ func run() -> void:
 	await absent_siege()
 	await special_actions()
 	finish()
+
+func split_ward_controls() -> void:
+	check(board._visible_world.get("tempo_experiment") == "U13_VEIL_ATTACK_ROUND25_V1", "new playable enables the promoted round-20 rules")
+	var cards: Array = board._available_ids()
+	var own: Dictionary = board._visible_world.entities.filter(func(e): return e.kind == "lord" and e.owner == 0)[0]
+	var enemy: Dictionary = board._visible_world.entities.filter(func(e): return e.kind == "lord" and e.owner == 1)[0]
+	board._select_direct_action("Ward")
+	board._choose_target(board._entity_target(own.id))
+	check(board._apply_cards(cards.slice(0, 1), false), "stage a paid Ward")
+	board._reserve_ward()
+	check(board.ward_plan.card_ids == cards.slice(0, 1) and cards[0] not in board._available_ids(), "reserved Ward cards leave the available hand")
+	check(board._order().action == "Ward", "reserved Ward can resolve without an attack")
+	board._select_direct_action("Hunt")
+	board._choose_target(board._entity_target(enemy.id))
+	check(board._apply_cards(cards.slice(1, 2), false), "stage Hunt using a separate card")
+	var combined: Dictionary = board._order()
+	check(combined.action == "Hunt" and combined.ward.card_ids == cards.slice(0, 1), "one complete cart contains Hunt and Ward")
+	check(board.session.choose([], combined).action != "invalid", "authority accepts the UI split cart")
+	var saved: Dictionary = board.session.checkpoint()
+	var loaded = Board.PlaySession.new()
+	check(loaded.restore_checkpoint(saved).action != "invalid" and loaded._order == combined, "split cart saves and restores exactly")
+	var bad: Dictionary = combined.duplicate(true)
+	bad.ward.card_ids = bad.card_ids.duplicate()
+	check(board.session._preview_cart([], bad).action == "invalid", "shared attack and Ward payment is rejected")
+	bad = combined.duplicate(true)
+	bad.ward.monster_choice = "Lemek"
+	check(board.session._preview_cart([], bad).action == "invalid", "Ward cannot summon a recipe monster")
+	board._clear_ward()
+	check(not board._order().has("ward") and cards[0] in board._available_ids(), "clearing Ward returns its card")
+	board._reset_direct()
+	board._refresh()
+	check(board.ward_plan.is_empty(), "reset clears the reserved Ward")
 
 func work_and_guard_controls() -> void:
 	board._refresh()

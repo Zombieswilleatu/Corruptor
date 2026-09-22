@@ -1,5 +1,6 @@
 extends RefCounted
 
+const SplitWard = preload("res://Scripts/Sim/U13SplitWard.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Guards = preload("res://Scripts/Sim/U13GuardDeployment.gd")
 const Castles = preload("res://Scripts/Sim/U13ConstructionCandidates.gd")
@@ -14,7 +15,7 @@ static func reserved_cards(powers: Array, order: Dictionary) -> Array:
 	for source in powers:
 		result.append_array(source.cost.get("discard_ids", []))
 	result.append_array(order.get("rites", {}).get("invocation", {}).get("card_ids", []))
-	result.append_array(order.get("card_ids", []))
+	result.append_array(SplitWard.cards(order))
 	result.append_array(order.get("castle_action", {}).get("card_ids", []))
 	result.append_array(order.get("summon", {}).get("card_ids", []))
 	for move in order.get("guard_moves", []):

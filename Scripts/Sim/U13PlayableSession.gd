@@ -108,7 +108,7 @@ func configure(lords: Array, castles: Array, _quick: bool = false) -> Dictionary
 
 func configure_seed(seed_value: String, lords: Array, castles: Array) -> Dictionary:
 	var candidate = Game.new()
-	var result: Dictionary = candidate.start(seed_value, lords, castles)
+	var result: Dictionary = candidate.start(seed_value, lords, castles, false, true)
 	if result.action == "invalid":
 		return result
 	var staged = get_script().new()
