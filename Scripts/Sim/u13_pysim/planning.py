@@ -26,6 +26,11 @@ class PlanningMatch:
             if setup["ward_experiment"] != split_ward.VERSION:
                 raise ValueError("Unknown Ward experiment")
             split_ward.configure(self._state["world"])
+        if "decisive_soul_bonus" in setup:
+            from . import split_ward
+            if type(setup["decisive_soul_bonus"]) is not bool or not split_ward.enabled(self._state["world"]):
+                raise ValueError("Decisive soul bonus requires the split Ward experiment and a boolean")
+            self._state["world"]["data"]["decisive_soul_bonus"] = setup["decisive_soul_bonus"]
         self._state_exposed = False
         self._transaction = None
         self.clock = Timeline()

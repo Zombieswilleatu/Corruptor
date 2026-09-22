@@ -106,6 +106,10 @@ step if this direction is retained.
 
 ## Run the bounded comparison
 
+The table above records the original twelve-game trial. The runner now also
+includes a third, decisive-attack soul-bonus arm: its default is 18 games;
+`--full-roster` selects 243 games. See the decisive-soul follow-up report.
+
 From a clean checkout of the updated branch:
 
 ```bash
@@ -118,7 +122,7 @@ Or explicitly choose CPython:
 bash Scripts/Sim/run_u13_lord_balance.sh python --split-ward-experiment
 ```
 
-The runner freezes source, runs focused checks, plays twelve games with two
+The runner freezes source, runs focused checks, plays eighteen games with two
 workers, verifies records, and packages a report ZIP. It requires neither the
 old 810-game archive nor Godot. `--prepare-only` freezes/checks without games.
 Keep the earlier dirty Doctrine checkout intact; use the clean Ward worktree.

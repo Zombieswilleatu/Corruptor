@@ -168,5 +168,48 @@ class SplitWardTests(unittest.TestCase):
         self.assertNotEqual(before, game.snapshot())
         with self.assertRaises(ValueError): PowerMatch(dict(setup, ward_experiment='typo'))
 
+    def test_decisive_hunt_bonus_real_success_only_and_capped(self):
+        for strength, expected in ((6, 0), (12, 1)):
+            rules, attack = self.battle(strength)
+            rules.w['data']['decisive_soul_bonus'] = True
+            before = rules.w['players'][0]['resources']['souls']
+            events = split_ward.resolve_attack(rules, 0, attack)
+            self.assertEqual(expected, sum(r['event']['type'] == 'DECISIVE_SOUL_GAINED' for r in events))
+            self.assertEqual(before+3*expected, rules.w['players'][0]['resources']['souls'])
+            after = copy_data(rules.w)
+            split_ward.reward_breakthrough(rules, 0, events)
+            self.assertEqual(after, rules.w)
+
+    def test_bonus_excludes_pillage_and_siege_damage_but_pays_target_destruction(self):
+        for pillage, integrity, expected in ((True, 0, 0), (False, 9, 0), (False, 1, 1)):
+            rules, attack = self.battle(6, 'Castle')
+            rules.w['data']['decisive_soul_bonus'] = True
+            attack.update(action='Siege', lane='Castle', target_id='castle_zone:1')
+            if not pillage:
+                castle = copy_data(next(r for r in planning()._state['world']['entities']['entities']
+                    if r['kind'] == 'castle' and r['owner'] == 1 and r['attributes']['castle_type'] == 'Stockpile'))
+                castle['attributes'].update(integrity=integrity, status='standing', construction_state='active')
+                rules.w['entities']['entities'].append(castle)
+                attack['target_id'] = castle['id']
+            events = split_ward.resolve_attack(rules, 0, attack)
+            self.assertEqual(expected, sum(r['event']['type'] == 'DECISIVE_SOUL_GAINED' for r in events))
+
+    def test_bonus_profile_validation_and_three_arm_pairing(self):
+        setup = dict(full_match_inputs.load()['cases'][0]['setup'])
+        with self.assertRaises(ValueError): PowerMatch(dict(setup, decisive_soul_bonus=True))
+        with self.assertRaises(ValueError):
+            PowerMatch(dict(setup, ward_experiment=split_ward.VERSION, decisive_soul_bonus=1))
+        game = PowerMatch(dict(setup, ward_experiment=split_ward.VERSION, decisive_soul_bonus=True))
+        self.assertTrue(game._rollback_snapshot().shared)
+        from run_u13_split_ward_experiment import specs
+        for full, total in ((False, 18), (True, 243)):
+            cases = list(specs(full))
+            self.assertEqual(total, len(cases))
+            for i in range(0, total, 3):
+                group = cases[i:i+3]
+                self.assertEqual(['current', 'split', 'bonus'], [s['arm'] for s in group])
+                self.assertEqual(1, len({s['setup']['seed'] for s in group}))
+                self.assertEqual(group[0]['setup']['lords'], group[2]['setup']['lords'])
+
 
 if __name__ == '__main__': unittest.main()

@@ -56,6 +56,29 @@ def succeeded(events):
     return False
 
 
+def reward_breakthrough(rules, pid, events):
+    """One extra soul for an actual Hunt banishment or Siege target destruction.
+
+    Not a pillage, screening structure, artillery shot, or counterfactual reward.
+    Apply only to the real attack after its normal rewards/reactions resolve.
+    """
+    if not rules.w['data'].get('decisive_soul_bonus', False): return
+    resolved = next((r['event'] for r in reversed(events)
+                     if r['event']['type'] in ('HUNT_RESOLVED', 'SIEGE_RESOLVED')), None)
+    if not resolved: return
+    d = resolved['data']
+    success = d.get('banished', False) if resolved['type'] == 'HUNT_RESOLVED' else (
+        not d.get('pillage', False) and d.get('destroyed', False))
+    if not success: return
+    paid = rules.w['data'].setdefault('decisive_soul_rounds', [0, 0])
+    if paid[pid] >= rules.number: return
+    paid[pid] = rules.number
+    rules.w['players'][pid]['resources']['souls'] += 1
+    events.append(e.event('DECISIVE_SOUL_GAINED', dict(player_id=pid,
+        round=rules.number, amount=1, target_id=d['target_id'],
+        attack='Hunt' if resolved['type'] == 'HUNT_RESOLVED' else 'Siege')))
+
+
 def resolve_attack(rules, pid, order):
     """Compare from the actual pre-attack state, with only Ward screen removed.
 
@@ -87,4 +110,5 @@ events/resources are discarded. A successful Siege means its target destroyed
         rules.w['players'][1-pid]['resources']['souls'] += 1
         events.append(e.event('WARD_SOUL_GAINED', dict(player_id=1-pid,
             round=rules.number, lane=order['lane'], amount=1)))
+    reward_breakthrough(rules, pid, events)
     return events

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Twelve fresh paired games, two recycled workers; Python experiment only."""
+"""Three-arm paired Ward/attack-reward trial, two recycled workers; Python only."""
 import argparse
 from collections import Counter
 from dataclasses import asdict
@@ -26,13 +26,14 @@ NAMESPACE = 'u13-split-ward-screen-20260921'
 PAIRS = (('Gremory', 'Kanifous'), ('Kalligan', 'Deimos'), ('Humbaba', 'Kroni'))
 
 
-def specs():
+def specs(full_roster=False):
     selected = {pair for left, right in PAIRS for pair in ((left, right), (right, left))}
     for case in cases(1, NAMESPACE):
-        if tuple(case['setup']['lords']) not in selected: continue
-        for arm in ('current', 'split'):
+        if not full_roster and tuple(case['setup']['lords']) not in selected: continue
+        for arm in ('current', 'split', 'bonus'):
             spec = dict(case, name=case['name']+'_'+arm, arm=arm, setup=dict(case['setup']))
-            if arm == 'split': spec['setup']['ward_experiment'] = VERSION
+            if arm in ('split', 'bonus'): spec['setup']['ward_experiment'] = VERSION
+            if arm == 'bonus': spec['setup']['decisive_soul_bonus'] = True
             yield spec
 
 
@@ -41,6 +42,7 @@ class Observer(PlannerObserver):
         super().__init__(*args)
         self.trial = Counter()
         self.wards = []
+        self.finish = None
 
     def accepted(self, number, seat, decision):
         super().accepted(number, seat, decision)
@@ -65,9 +67,18 @@ class Observer(PlannerObserver):
             self.trial['ward_saved'] += data['saved']
             self.wards.append(data)
         if kind == 'WARD_SOUL_GAINED': self.trial['ward_souls'] += data['amount']
+        if kind == 'DECISIVE_SOUL_GAINED': self.trial['decisive_souls'] += data['amount']
+        if kind == 'MATCH_FINISHED':
+            self.finish = dict(data)
+            tears = data['personal_tears']
+            self.finish['dominion_qualified_players'] = [pid for pid in (0, 1)
+                if data['veil_total'] >= 12 and tears[pid] >= 5 and tears[pid] > tears[1-pid]]
+            self.finish['personal_tears_short_of_five'] = [max(0, 5-t) for t in tears]
+            self.finish['veil_short_of_twelve'] = max(0, 12-data['veil_total'])
+            self.finish['personal_tears_tied'] = tears[0] == tears[1]
 
     def report(self):
-        return dict(super().report(), split_trial=dict(self.trial), ward_audit=self.wards)
+        return dict(super().report(), split_trial=dict(self.trial), ward_audit=self.wards, victory_race=self.finish)
 
 
 def worker(spec, identity, directory):
@@ -93,14 +104,15 @@ def worker(spec, identity, directory):
     return result
 
 
-def execute(output):
+def execute(output, full_roster=False):
     verify_frozen(output)
     identity = manifest(Path(__file__).resolve().parents[2], NAMESPACE, Weights())
     identity.update(experiment=VERSION, scope='Python-only opt-in rules trial; no native/UI parity claim',
                     frozen_source=fingerprint(json.loads((output/'frozen-source.json').read_text())))
     atomic_json(output/'manifest.json', identity)
-    case_list = list(specs())
-    atomic_json(output/'split-config.json', dict(cases=case_list, workers=2, worker_batch_size=4,
+    case_list = list(specs(full_roster))
+    atomic_json(output/'split-config.json', dict(cases=case_list, workers=2, worker_batch_size=4, full_roster=full_roster,
+        bonus='One extra soul for Hunt banishment or Siege target destruction, max one per player/round; no pillage',
         source_revision=identity['source_revision'], runtime=platform.python_implementation(),
         rule='One nonempty Ward plus optional Hunt/Siege, disjoint cards, no Sigils, lane-only screen, at most one causal-save soul'))
     games = output/'games'; games.mkdir()
@@ -109,7 +121,7 @@ def execute(output):
         print(json.dumps(result), flush=True)
         atomic_json(output/(result['name']+'-performance.json'), result)
         if result['status'] != 'complete': raise RuntimeError(result['error'])
-    arms = {name: Counter() for name in ('current', 'split')}
+    arms = {name: Counter() for name in ('current', 'split', 'bonus')}
     paired = {}
     for spec in case_list:
         record = read_record(games/(spec['name']+'.json.gz'), identity, spec)
@@ -117,9 +129,17 @@ def execute(output):
         stats = Counter(diagnostics['split_trial'])
         stats.update(games=1, rounds=game['rounds'], rejected_previews=len(diagnostics['rejected_previews']),
                      banishments=diagnostics['event_counts'].get('LORD_BANISHED', 0))
+        stats['win:'+game['outcome']['win_by']] += 1
+        finish = diagnostics['victory_race']
+        stats['ended_before_collapse_threshold'] += finish['veil_total'] < 26
+        stats['ended_at_collapse_threshold'] += finish['veil_total'] >= 26
+        if game['outcome']['win_by'] == 'Ritual':
+            stats['ritual_with_someone_dominion_qualified'] += bool(finish['dominion_qualified_players'])
+            stats['ritual_with_neither_at_five_tears'] += max(finish['personal_tears']) < 5
         arms[spec['arm']].update(stats)
-        paired.setdefault(spec['name'].rsplit('_', 1)[0], {})[spec['arm']] = dict(stats)
-    report = dict(arms=arms, paired=paired, scope='Six seed/loadout/seat pairs; exploratory, not roster balance evidence')
+        paired.setdefault(spec['name'].rsplit('_', 1)[0], {})[spec['arm']] = dict(stats, victory_race=finish)
+    report = dict(arms=arms, paired=paired, scope=f'{len(case_list)//3} seed/loadout/seat triplets; exploratory comparison, not tuned balance',
+                  primary='FinalCollapse frequency and endings below Veil 26', guardrail='Preserve Dominion alongside Ritual; inspect terminal souls, tears and Veil')
     atomic_json(output/'split-comparison.json', report)
     print(json.dumps(report, indent=2), flush=True)
     return 0
@@ -129,9 +149,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path)
     parser.add_argument('--prepare-only', action='store_true')
+    parser.add_argument('--full-roster', action='store_true', help='81 matchups per arm, 243 games total')
     parser.add_argument('--frozen', action='store_true', help=argparse.SUPPRESS)
     args = parser.parse_args()
-    if args.frozen: return execute(args.output)
+    if args.frozen: return execute(args.output, args.full_roster)
     root = Path(__file__).resolve().parents[2]
     output = (args.output or Path.home()/'Downloads/Corruptor/Balance'/
               time.strftime('split-ward-%Y%m%d-%H%M%S')).resolve()
@@ -145,13 +166,13 @@ def main():
     (output/'focused-python.log').write_text(checks.stdout)
     print(checks.stdout, flush=True)
     if checks.returncode: return checks.returncode
-    print(f'Prepared 12 games, two workers, recycle every four games: {output}', flush=True)
+    print(f'Prepared {243 if args.full_roster else 18} games, two workers, recycle every four games: {output}', flush=True)
     if args.prepare_only: return 0
     code = 1
     try:
         with (output/'run.log').open('w') as log:
             proc = subprocess.Popen([sys.executable, '-u', str(frozen/'Scripts/Sim/run_u13_split_ward_experiment.py'),
-                '--frozen', '--output', str(output)], cwd=frozen, env=env,
+                '--frozen', '--output', str(output)]+(['--full-roster'] if args.full_roster else []), cwd=frozen, env=env,
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             for line in proc.stdout: print(line, end='', flush=True); log.write(line); log.flush()
             code = proc.wait()
