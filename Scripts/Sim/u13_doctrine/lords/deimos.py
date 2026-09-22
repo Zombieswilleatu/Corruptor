@@ -82,7 +82,7 @@ def attack_value(result, weights):
     # Recruitment/recipes happen before combat and survive a fizzled Siege.
     return (12*result['guards'] + weights.damage*result['damage']
             + weights.banishment*result['banished'] + weights.destruction*result['destroyed']
-            + 12*result['pillage'])
+            + 12*result['pillage'] + result.get('kroni_pressure_bonus', 0))
 
 
 def attack_after(f, order, excluded):

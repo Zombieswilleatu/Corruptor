@@ -31,6 +31,7 @@ def install_doctrine():
     from u13_doctrine.facts import Facts
     from u13_doctrine import common
     from u13_doctrine.lords import deimos
+    assert not hasattr(__import__('u13_doctrine.facts', fromlist=['kroni_hunt_bonus']), 'kroni_hunt_bonus'), 'Historical experiment requires pre-integration source 964a495; do not double-apply the Hunt bonus.'
     attack, value, artillery_value = Facts.attack, Facts.attack_value, deimos.attack_value
 
     def weighted_attack(self, action, target, ids, excluded_waiters=()):
