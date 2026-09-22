@@ -14,7 +14,7 @@ import time
 import traceback
 
 from run_u13_lord_balance import freeze, verify_frozen, package
-from u13_pysim.split_ward import VERSION
+from u13_pysim.split_ward import VERSION, TEMPO
 from u13_doctrine.common import Weights
 from u13_doctrine.diagnostics import fingerprint
 from u13_doctrine.planner_probe import run_case, PlannerObserver
@@ -26,14 +26,15 @@ NAMESPACE = 'u13-split-ward-screen-20260921'
 PAIRS = (('Gremory', 'Kanifous'), ('Kalligan', 'Deimos'), ('Humbaba', 'Kroni'))
 
 
-def specs(full_roster=False):
+def specs(full_roster=False, tempo=False):
     selected = {pair for left, right in PAIRS for pair in ((left, right), (right, left))}
     for case in cases(1, NAMESPACE):
         if not full_roster and tuple(case['setup']['lords']) not in selected: continue
-        for arm in ('current', 'split', 'bonus'):
+        for arm in (('split', 'bonus', 'tempo') if tempo else ('current', 'split', 'bonus')):
             spec = dict(case, name=case['name']+'_'+arm, arm=arm, setup=dict(case['setup']))
-            if arm in ('split', 'bonus'): spec['setup']['ward_experiment'] = VERSION
+            if arm in ('split', 'bonus', 'tempo'): spec['setup']['ward_experiment'] = VERSION
             if arm == 'bonus': spec['setup']['decisive_soul_bonus'] = True
+            if arm == 'tempo': spec['setup']['tempo_experiment'] = TEMPO
             yield spec
 
 
@@ -43,6 +44,7 @@ class Observer(PlannerObserver):
         self.trial = Counter()
         self.wards = []
         self.finish = None
+        self.attack_escalation = {}
 
     def accepted(self, number, seat, decision):
         super().accepted(number, seat, decision)
@@ -68,6 +70,10 @@ class Observer(PlannerObserver):
             self.wards.append(data)
         if kind == 'WARD_SOUL_GAINED': self.trial['ward_souls'] += data['amount']
         if kind == 'DECISIVE_SOUL_GAINED': self.trial['decisive_souls'] += data['amount']
+        if kind in ('HUNT_STARTED', 'SIEGE_STARTED') and 'veil_attack_bonus' in data:
+            bonus = data['veil_attack_bonus']
+            self.trial['attacks_with_bonus:'+str(bonus)] += 1
+            self.attack_escalation.setdefault(str(bonus), current_round)
         if kind == 'MATCH_FINISHED':
             self.finish = dict(data)
             tears = data['personal_tears']
@@ -78,7 +84,7 @@ class Observer(PlannerObserver):
             self.finish['personal_tears_tied'] = tears[0] == tears[1]
 
     def report(self):
-        return dict(super().report(), split_trial=dict(self.trial), ward_audit=self.wards, victory_race=self.finish)
+        return dict(super().report(), split_trial=dict(self.trial), ward_audit=self.wards, victory_race=self.finish, attack_escalation_first_round=self.attack_escalation)
 
 
 def worker(spec, identity, directory):
@@ -104,14 +110,15 @@ def worker(spec, identity, directory):
     return result
 
 
-def execute(output, full_roster=False):
+def execute(output, full_roster=False, tempo=False):
     verify_frozen(output)
     identity = manifest(Path(__file__).resolve().parents[2], NAMESPACE, Weights())
     identity.update(experiment=VERSION, scope='Python-only opt-in rules trial; no native/UI parity claim',
                     frozen_source=fingerprint(json.loads((output/'frozen-source.json').read_text())))
     atomic_json(output/'manifest.json', identity)
-    case_list = list(specs(full_roster))
-    atomic_json(output/'split-config.json', dict(cases=case_list, workers=2, worker_batch_size=4, full_roster=full_roster,
+    case_list = list(specs(full_roster, tempo))
+    atomic_json(output/'split-config.json', dict(cases=case_list, workers=2, worker_batch_size=4, full_roster=full_roster, tempo=tempo,
+        tempo_rule="Veil 13/17/21: +1/+2/+3 attack; bonus souls from round 20; hard end after normal victories at round 25" if tempo else None,
         bonus='One extra soul for Hunt banishment or Siege target destruction, max one per player/round; no pillage',
         source_revision=identity['source_revision'], runtime=platform.python_implementation(),
         rule='One nonempty Ward plus optional Hunt/Siege, disjoint cards, no Sigils, lane-only screen, at most one causal-save soul'))
@@ -121,7 +128,7 @@ def execute(output, full_roster=False):
         print(json.dumps(result), flush=True)
         atomic_json(output/(result['name']+'-performance.json'), result)
         if result['status'] != 'complete': raise RuntimeError(result['error'])
-    arms = {name: Counter() for name in ('current', 'split', 'bonus')}
+    arms = {spec['arm']: Counter() for spec in case_list}
     paired = {}
     for spec in case_list:
         record = read_record(games/(spec['name']+'.json.gz'), identity, spec)
@@ -130,6 +137,10 @@ def execute(output, full_roster=False):
         stats.update(games=1, rounds=game['rounds'], rejected_previews=len(diagnostics['rejected_previews']),
                      banishments=diagnostics['event_counts'].get('LORD_BANISHED', 0))
         stats['win:'+game['outcome']['win_by']] += 1
+        stats['round_band:'+('under15' if game['rounds'] < 15 else '15to20' if game['rounds'] <= 20 else 'over20')] += 1
+        stats['reached_round25'] += game['rounds'] >= 25
+        stats['normal_win_in_target_window'] += (15 <= game['rounds'] <= 20
+            and game['outcome']['win_by'] in ('Ritual', 'Dominion'))
         finish = diagnostics['victory_race']
         stats['ended_before_collapse_threshold'] += finish['veil_total'] < 26
         stats['ended_at_collapse_threshold'] += finish['veil_total'] >= 26
@@ -137,9 +148,10 @@ def execute(output, full_roster=False):
             stats['ritual_with_someone_dominion_qualified'] += bool(finish['dominion_qualified_players'])
             stats['ritual_with_neither_at_five_tears'] += max(finish['personal_tears']) < 5
         arms[spec['arm']].update(stats)
-        paired.setdefault(spec['name'].rsplit('_', 1)[0], {})[spec['arm']] = dict(stats, victory_race=finish)
+        paired.setdefault(spec['name'].rsplit('_', 1)[0], {})[spec['arm']] = dict(stats, victory_race=finish, attack_escalation_first_round=diagnostics["attack_escalation_first_round"])
     report = dict(arms=arms, paired=paired, scope=f'{len(case_list)//3} seed/loadout/seat triplets; exploratory comparison, not tuned balance',
-                  primary='FinalCollapse frequency and endings below Veil 26', guardrail='Preserve Dominion alongside Ritual; inspect terminal souls, tears and Veil')
+                  primary=('Normal victories in rounds 15-20; early/late tails and round-25 forced endings' if tempo
+                           else 'FinalCollapse frequency and endings below Veil 26'), guardrail='Preserve Dominion alongside Ritual; inspect terminal souls, tears and Veil')
     atomic_json(output/'split-comparison.json', report)
     print(json.dumps(report, indent=2), flush=True)
     return 0
@@ -149,10 +161,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path)
     parser.add_argument('--prepare-only', action='store_true')
+    parser.add_argument('--tempo', action='store_true', help='Compare split, always-on bonus, and Veil/round-25 tempo profile')
     parser.add_argument('--full-roster', action='store_true', help='81 matchups per arm, 243 games total')
     parser.add_argument('--frozen', action='store_true', help=argparse.SUPPRESS)
     args = parser.parse_args()
-    if args.frozen: return execute(args.output, args.full_roster)
+    if args.frozen: return execute(args.output, args.full_roster, args.tempo)
     root = Path(__file__).resolve().parents[2]
     output = (args.output or Path.home()/'Downloads/Corruptor/Balance'/
               time.strftime('split-ward-%Y%m%d-%H%M%S')).resolve()
@@ -172,7 +185,7 @@ def main():
     try:
         with (output/'run.log').open('w') as log:
             proc = subprocess.Popen([sys.executable, '-u', str(frozen/'Scripts/Sim/run_u13_split_ward_experiment.py'),
-                '--frozen', '--output', str(output)]+(['--full-roster'] if args.full_roster else []), cwd=frozen, env=env,
+                '--frozen', '--output', str(output)]+(['--full-roster'] if args.full_roster else [])+(['--tempo'] if args.tempo else []), cwd=frozen, env=env,
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             for line in proc.stdout: print(line, end='', flush=True); log.write(line); log.flush()
             code = proc.wait()

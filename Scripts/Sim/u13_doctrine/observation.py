@@ -17,6 +17,8 @@ def observe(match, seat):
                               'orias_marks', 'kanifous_prices', 'kanifous_losses')}
     if 'ward_experiment' in d:
         data['ward_experiment'] = d['ward_experiment']
+    if 'tempo_experiment' in d:
+        data['tempo_experiment'] = d['tempo_experiment']
     data['veil_breaches'] = d.get('veil_breaches', {})
     data['monsters'] = d.get('monsters', {})
     if 'game_staging' in d:

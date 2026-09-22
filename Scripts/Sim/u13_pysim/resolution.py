@@ -196,12 +196,14 @@ class Ordinary(Battle):
 
     def attack_layers(self, pid, order, target_id, pursuit=0):
         lane, action = order["lane"], order["action"]
-        strength = self.strength(order["card_ids"], "Butcher") + pursuit
+        bonus = split_ward.attack_bonus(self.w)
+        strength = self.strength(order["card_ids"], "Butcher") + pursuit + bonus
         waiters = [r["id"] for r in self.w["entities"]["entities"] if r["kind"] == "marcher" and r["owner"] == pid
                    and r["attributes"]["lane"] == lane and r["attributes"]["waiting"]]
         for identity in waiters: recruits.retire(self.w, identity)
         strength += len(waiters)
         details = dict(player_id=pid, round=self.number, target_id=target_id, strength=strength, waiters_consumed=waiters)
+        if split_ward.tempo_enabled(self.w): details["veil_attack_bonus"] = bonus
         if action == "Hunt": details["relentless_pursuit"] = pursuit
         started = e.event(action.upper()+"_STARTED", details)
         events = [started] + self.react(started["event"])

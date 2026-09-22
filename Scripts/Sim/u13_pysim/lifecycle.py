@@ -4,7 +4,7 @@ Authority is the complete U13GameContent wrapper order. Declared powers remain
 unsupported; paid Rites and Resummon precede Guards and Work in Development.
 """
 
-from . import veil
+from . import veil, split_ward
 from .castle_balance import FORGE_REPAIR, RAPID_CONSTRUCTION_REPAIR
 from . import economy as e, marching_game, paid_development as paid
 from .battle import Battle, operational, targetable
@@ -16,19 +16,23 @@ def alive(world, pid):
     return e.entity(world, world["players"][pid]["lord_entity_id"])["attributes"]["alive"]
 
 
-def evaluate(world):
+def evaluate(world, number=None):
     players = world["players"]
     for pid in (0, 1):
         if alive(world, pid) and players[pid]["resources"]["souls"] >= 12:
             return dict(winner=pid, win_by="Ritual")
     veil = world["data"]["neutral_tears"] + sum(p["resources"]["personal_tears"] for p in players)
-    if veil >= 26:
+    if veil >= 26 and not split_ward.tempo_enabled(world):
         return dict(winner=int(players[1]["resources"]["souls"] > players[0]["resources"]["souls"]), win_by="FinalCollapse")
     if veil >= 12:
         for pid in (0, 1):
             tears = players[pid]["resources"]["personal_tears"]
             if tears >= 5 and tears > players[1-pid]["resources"]["personal_tears"]:
                 return dict(winner=pid, win_by="Dominion")
+    if split_ward.tempo_enabled(world):
+        e.require(type(number) is int, "tempo_settlement_round_required")
+        if number >= 25:
+            return dict(winner=int(players[1]["resources"]["souls"] > players[0]["resources"]["souls"]), win_by="RoundLimit")
     return dict(winner=-1, win_by="")
 
 
@@ -53,7 +57,7 @@ def settle(world, number):
     if pressure:
         d["neutral_tears"] += pressure
         events.append(e.event("NEUTRAL_TEAR_CREATED", dict(round=number, amount=pressure, source="RoundPressure")))
-    victory.update(evaluate(world), checked_round=number)
+    victory.update(evaluate(world, number), checked_round=number)
     if victory["winner"] != -1:
         tears = [p["resources"]["personal_tears"] for p in world["players"]]
         events.append(e.event("MATCH_FINISHED", dict(round=number, winner=victory["winner"], win_by=victory["win_by"],

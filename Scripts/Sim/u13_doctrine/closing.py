@@ -41,7 +41,7 @@ def judgment(f, plan, projected):
         scenario['data']['neutral_tears'] += neutral
         if banished:
             scenario['entities']['entities'][f.pid]['attributes']['alive'] = False
-        outcome = evaluate(scenario)
+        outcome = evaluate(scenario, f.v["round"])
         result['checks'].append(dict(name=name, **outcome))
         if outcome['winner'] == f.enemy: result['adverse'].append(name)
         if outcome['winner'] == -1: result['interrupted'].append(name)

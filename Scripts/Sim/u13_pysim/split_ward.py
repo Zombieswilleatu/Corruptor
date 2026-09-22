@@ -10,6 +10,18 @@ from . import economy as e
 from .copying import copy_data
 
 VERSION = 'U13_SPLIT_WARD_V1'
+TEMPO = 'U13_VEIL_ATTACK_ROUND25_V1'
+
+
+def tempo_enabled(world):
+    return world['data'].get('tempo_experiment') == TEMPO
+
+
+def attack_bonus(world):
+    if not tempo_enabled(world): return 0
+    total = world['data']['neutral_tears'] + sum(p['resources']['personal_tears'] for p in world['players'])
+    return sum(total >= threshold for threshold in (13, 17, 21))
+
 
 
 def enabled(world):
@@ -62,7 +74,9 @@ def reward_breakthrough(rules, pid, events):
     Not a pillage, screening structure, artillery shot, or counterfactual reward.
     Apply only to the real attack after its normal rewards/reactions resolve.
     """
-    if not rules.w['data'].get('decisive_soul_bonus', False): return
+    if tempo_enabled(rules.w):
+        if rules.number < 20: return
+    elif not rules.w['data'].get('decisive_soul_bonus', False): return
     resolved = next((r['event'] for r in reversed(events)
                      if r['event']['type'] in ('HUNT_RESOLVED', 'SIEGE_RESOLVED')), None)
     if not resolved: return

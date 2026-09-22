@@ -133,7 +133,7 @@ class Facts:
     def attack(self, action, target, ids, excluded_waiters=()):
         """Baseline layers only. Enemy orders and spatial reactions are unknown."""
         lane = 'Lord' if action == 'Hunt' else 'Castle'
-        strength = self.strength(ids, action)
+        strength = self.strength(ids, action) + split_ward.attack_bonus(self.world)
         if action == 'Hunt' and self.kind == 'Orias' and self.lord[self.pid]['attributes']['alive']:
             strength += 1 + int(self.lord[self.enemy]['attributes'].get('threat', 0) >= 2)
         strength += sum(r['attributes']['waiting'] and r['id'] not in excluded_waiters for r in self.units(self.pid, lane))

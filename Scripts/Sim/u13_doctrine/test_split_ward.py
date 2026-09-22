@@ -211,5 +211,66 @@ class SplitWardTests(unittest.TestCase):
                 self.assertEqual(1, len({s['setup']['seed'] for s in group}))
                 self.assertEqual(group[0]['setup']['lords'], group[2]['setup']['lords'])
 
+    def test_tempo_thresholds_flat_attack_bonus_and_round25_priority(self):
+        from u13_pysim.lifecycle import evaluate
+        rules, attack = self.battle(6)
+        w = rules.w; w['data']['tempo_experiment'] = split_ward.TEMPO
+        for player in w['players']:
+            player['resources'].update(souls=0, personal_tears=0)
+        for value, expected in ((12, 0), (13, 1), (16, 1), (17, 2), (20, 2), (21, 3), (40, 3)):
+            w['data']['neutral_tears'] = value
+            self.assertEqual(expected, split_ward.attack_bonus(w))
+            # No waiters/pursuit: one flat increase, regardless of printed strength.
+            strength, _, _, _, _ = rules.attack_layers(0, attack, attack['target_id'])
+            self.assertEqual(6+expected, strength)
+        self.assertEqual(-1, evaluate(w, 24)['winner'])
+        self.assertEqual('RoundLimit', evaluate(w, 25)['win_by'])
+        w['players'][1]['resources']['souls'] = 7
+        self.assertEqual(1, evaluate(w, 25)['winner'])
+        w['players'][0]['resources']['personal_tears'] = 5
+        self.assertEqual('Dominion', evaluate(w, 25)['win_by'])
+        w['players'][1]['resources']['souls'] = 12
+        self.assertEqual('Ritual', evaluate(w, 25)['win_by'])
+
+    def test_tempo_bonus_starts_round20_and_planner_knows_new_settlement(self):
+        from .veil_judgment import settlement_projection
+        rules, attack = self.battle()
+        rules.w['data']['tempo_experiment'] = split_ward.TEMPO
+        for number, expected in ((19, 0), (20, 1)):
+            rules.number = number
+            events = [e.event('HUNT_RESOLVED', dict(banished=True, target_id=attack['target_id']))]
+            split_ward.reward_breakthrough(rules, 0, events)
+            self.assertEqual(expected, sum(r['event']['type'] == 'DECISIVE_SOUL_GAINED' for r in events))
+        game, _ = self.fixture()
+        game._state['world']['data']['tempo_experiment'] = split_ward.TEMPO
+        view = observe(game, 0); view['data']['neutral_tears'] = 40
+        for p in view['players']: p['resources'].update(souls=0, personal_tears=0)
+        for number, ending in ((24, ''), (25, 'RoundLimit')):
+            view['round'] = number
+            self.assertEqual(ending, settlement_projection(Facts(view), dict(powers=[], order={}))['win_by'])
+        from run_u13_split_ward_experiment import specs
+        cases = list(specs(tempo=True))
+        self.assertEqual(18, len(cases))
+        self.assertEqual({'split', 'bonus', 'tempo'}, {s['arm'] for s in cases})
+
 
 if __name__ == '__main__': unittest.main()
+
+
+class TempoClosingTests(unittest.TestCase):
+    def test_banished_ritual_projection_before_and_at_deadline(self):
+        from .closing import judgment
+        from .veil_judgment import settlement_projection
+        game = planning()
+        game._state['world']['data']['tempo_experiment'] = split_ward.TEMPO
+        view = observe(game, 0)
+        for player in view['players']: player['resources'].update(souls=0, personal_tears=0)
+        view['players'][0]['resources']['souls'] = 12
+        view['data']['neutral_tears'] = 30
+        plan = dict(powers=[], order={})
+        for number in (19, 25):
+            view['round'] = number
+            f = Facts(view)
+            result = judgment(f, plan, settlement_projection(f, plan))
+            hunts = [r for r in result['checks'] if r['name'] == 'hunt_reward']
+            self.assertEqual('' if number == 19 else 'RoundLimit', hunts[0]['win_by'])

@@ -77,7 +77,7 @@ def exposure(f, world, plan, lane, card_pressure):
     castles = sorted((r for r in own if targetable(r)), key=lambda r: (r['attributes']['castle_slot'], r['id']))
     if lane == 'Castle' and not castles:
         return dict(castles_lost=0, banished=False)
-    pressure = card_pressure+sum(r['attributes']['waiting'] for r in f.units(f.enemy, lane))
+    pressure = split_ward.attack_bonus(world)+card_pressure+sum(r['attributes']['waiting'] for r in f.units(f.enemy, lane))
     if lane == 'Lord' and f.lord[f.enemy]['attributes']['alive'] and f.lord[f.enemy]['attributes']['lord_id'] == 'Orias':
         pressure += 1+int(lord['attributes'].get('threat', 0) >= 2)
     order = plan['order']
