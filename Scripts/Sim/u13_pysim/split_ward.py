@@ -11,6 +11,7 @@ from .copying import copy_data
 
 VERSION = 'U13_SPLIT_WARD_V1'
 TEMPO = 'U13_VEIL_ATTACK_ROUND25_V1'
+TEMPO_SOUL_START_ROUND = 18
 
 
 def tempo_enabled(world):
@@ -75,7 +76,7 @@ def reward_breakthrough(rules, pid, events):
     Apply only to the real attack after its normal rewards/reactions resolve.
     """
     if tempo_enabled(rules.w):
-        if rules.number < 20: return
+        if rules.number < TEMPO_SOUL_START_ROUND: return
     elif not rules.w['data'].get('decisive_soul_bonus', False): return
     resolved = next((r['event'] for r in reversed(events)
                      if r['event']['type'] in ('HUNT_RESOLVED', 'SIEGE_RESOLVED')), None)

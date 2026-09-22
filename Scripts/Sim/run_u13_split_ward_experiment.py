@@ -14,7 +14,7 @@ import time
 import traceback
 
 from run_u13_lord_balance import freeze, verify_frozen, package
-from u13_pysim.split_ward import VERSION, TEMPO
+from u13_pysim.split_ward import VERSION, TEMPO, TEMPO_SOUL_START_ROUND
 from u13_doctrine.common import Weights
 from u13_doctrine.diagnostics import fingerprint
 from u13_doctrine.planner_probe import run_case, PlannerObserver
@@ -130,7 +130,7 @@ def execute(output, full_roster=False, tempo=False, early_check=False, roster_sc
     atomic_json(output/'manifest.json', identity)
     case_list = list(specs(full_roster, tempo, early_check, roster_screen))
     atomic_json(output/'split-config.json', dict(cases=case_list, workers=2, worker_batch_size=4, full_roster=full_roster, tempo=tempo, early_check=early_check, roster_screen=roster_screen,
-        tempo_rule="Veil 13/17/21: +1/+2/+3 attack; bonus souls from round 20; hard end after normal victories at round 25" if tempo else None,
+        tempo_rule=f"Veil 13/17/21: +1/+2/+3 attack; bonus souls from round {TEMPO_SOUL_START_ROUND}; hard end after normal victories at round 25" if tempo else None,
         bonus='One extra soul for Hunt banishment or Siege target destruction, max one per player/round; no pillage',
         source_revision=identity['source_revision'], runtime=platform.python_implementation(),
         rule='One nonempty Ward plus optional Hunt/Siege, disjoint cards, no Sigils, lane-only screen, at most one causal-save soul'))
