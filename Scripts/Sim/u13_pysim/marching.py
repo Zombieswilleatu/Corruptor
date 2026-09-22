@@ -237,6 +237,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
     collapse_players = veil.affected_players(context["world"],"Valak")
     for i in indices:
         extra=s.extra[i] or {}
+        if monster_effects.charge.active(extra) or extra.get("tumler_charge_motion_tick", -1) == clock: continue
         if s.ids[i] in fleeing or (extra.get("hidden",False) and extra.get('monster_id')!='Dotra') or extra.get("sprite_form")=="turret": continue
         lane, owner, base = s.lane[i], s.owner[i], s.step_fp[i]
         collapse = collapse_players[owner]
@@ -294,7 +295,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
             if build_goal:
                 destination, gap = build_goal, fort.distance(unit['attributes'], build_goal)
                 movement_target = 'build:'+str(extra.get('wright_site', ''))
-                if gap <= 16**2: continue
+                if gap <= 16**2 and fort.work_in_reach(unit, structures, build_goal): continue
             wall = fort.blocker(unit, destination, structures)
             if wall:
                 destination = fort.point(unit['attributes'], wall)
@@ -383,7 +384,7 @@ def contact(s, lane, context, clock, diagnostic=False):
 
 
 def attack(s, i, amount, bypass, clock=0):
-    remaining = incoming.regular_amount(s.extra[i] or {}, amount, clock, s.rout_round[i])
+    remaining = incoming.apply(s.extra[i] or {}, amount, clock, regular=True, rout_round=s.rout_round[i])
     if not bypass:
         absorbed = min(s.armor[i], remaining)
         s.armor[i] -= absorbed
@@ -441,7 +442,15 @@ class Phase:
                 if s.suit[i] == "Vulture":
                     s.step_fp[i], s.armor_bypass[i] = 4, False
         duels = {} if ranged else copy_data(data.get("marching_duels", {}))
-        start = dict(round=self.number, hook="marching", ticks=200, model=MODEL, units=s.rows())
+        opening = context.get('opening_marching', False)
+        split = 'game_staging' in data
+        marker = 'opening_marching_round' if opening else 'marching_round'
+        ticks = 100 if opening else 200
+        clock_start = data.get('marching_clock', self.number*200) if split else self.number*200
+        tick_offset = clock_start-self.number*200
+        context['marching_tick_offset'] = tick_offset
+        context['marching_round_tick'] = 0 if opening else (100 if data.get('opening_marching_round',0)==self.number else 0)
+        start = dict(round=self.number, hook="marching", ticks=ticks, model=MODEL, units=s.rows())
         if ranged:
             start["ranged_profile"] = RANGED
             start["field_structures"] = copy_data(fort.rows(self.w))
@@ -459,8 +468,8 @@ class Phase:
         has_wishes = "kanifous_profile" in data
         buffer = Buffer(self)
         if actors: self.emit("KRONI_ACTORS_STARTED",dict(round=self.number,actors=actors))
-        has_monsters=monsters.enabled(self.w) and (bool(data['monsters']['fields']) or bool(data['monsters']['pending_beams']) or any(extra and ('monster_id' in extra or 'poison_until_round' in extra) for extra in s.extra))
-        for tick in range(200):
+        has_monsters=monsters.enabled(self.w) and (bool(data['monsters']['fields']) or bool(data['monsters']['pending_beams']) or any(extra and ('monster_id' in extra or 'poison_until_round' in extra or extra.get('poison_ticks_left',0)>0) for extra in s.extra))
+        for tick in range(tick_offset, tick_offset+ticks):
             tick_events_start=len(self.events)
             s = self.s
             lamp_before = s.rows() if lamps else []
@@ -483,6 +492,7 @@ class Phase:
                 self.events.extend(fort.step(self.w, buffer, self.number, tick, fleeing))
                 context['world']['data']['field_structures'] = fort.rows(self.w)
                 s = self.s
+            if has_monsters and ranged: self.events.extend(monster_effects.charge.step(buffer, fort.rows(self.w), context, tick, fleeing))
             move(s, duels, context, clock, modifiers, fields, fleeing, lamps)
             if orbs:
                 first_gravity_event = len(self.events)
@@ -550,6 +560,11 @@ class Phase:
             if ranged:
                 self.volley(duels, tick, fleeing)
                 self.interrupt(duels, tick)
+            if has_monsters:
+                poisoned=monster_effects.poison(self.w,buffer,context,tick,self.reaction)
+                if poisoned['action']=='invalid':raise Rejected(poisoned['reason'])
+                self.w=poisoned['world'];self.events.extend(poisoned['events'])
+                self.interrupt(duels,tick)
             s = self.s
             indices, busy = s.active(), busy_ids(duels)
             for i in indices:
@@ -576,8 +591,20 @@ class Phase:
         if "kroni_actors" in self.w["data"]: self.w["data"]["kroni_actors"] = actors
         if "kanifous_objects" in self.w["data"]: self.w["data"]["kanifous_objects"] = lamps
         self.w["entities"] = self.s.snapshot()
-        self.w["data"].update(marching_duels=duels, marching_round=self.number)
-        self.emit("MARCHING_FINISHED", dict(round=self.number, hook="marching", ticks=200, units=self.s.rows(), **(dict(field_structures=fort.rows(self.w)) if ranged else {})))
+        self.w["data"]["marching_duels"] = duels
+        self.w["data"][marker] = self.number
+        if split: self.w["data"]["marching_clock"] = clock_start+ticks
+        self.emit("MARCHING_FINISHED", dict(round=self.number, hook="marching", ticks=ticks, units=self.s.rows(), **(dict(field_structures=fort.rows(self.w)) if ranged else {})))
+        if split:
+            for row in self.events:
+                for fact in [row['event']]+row.get('views',[]):
+                    if fact is None: continue
+                    d=fact['data']
+                    if 'tick' in d: d['tick'] -= tick_offset
+                    if 'end_tick' in d: d['end_tick'] -= tick_offset
+                    d['marching_phase']='opening' if opening else 'closing'
+                    if fact['type'] in ('MARCHING_STARTED','MARCHING_FINISHED'):
+                        d.update(clock_start=clock_start,seconds=7.5 if opening else 15)
         return dict(action="resolved", world=self.w, events=self.events)
 
 

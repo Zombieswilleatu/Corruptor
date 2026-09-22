@@ -61,16 +61,27 @@ func guard(w: Dictionary, suit: String, lane: String, slot: int) -> String:
 	return made.entity.id
 
 func work_rules() -> void:
+	for lane in ["Lord", "Castle"]:
+		var repair_world: Dictionary = world()
+		var repair_id: String = Slots.castle_id(0, 1)
+		var damaged: Dictionary = entity(repair_world, repair_id)
+		damaged.attributes.integrity = 5
+		install(repair_world, damaged)
+		repair_world.data.castle_orders[0].choice = Work.choice(repair_id)
+		guard(repair_world, "Wright", lane, 0); guard(repair_world, "Wright", lane, 1)
+		var repaired_events: Array = Work.develop(repair_world, 1, [0, 1])
+		check(entity(repair_world, repair_id).attributes.integrity == 10, lane + " Wright pair repairs by 2 Guard work plus 3 bonus")
+		check(repaired_events.filter(func(e): return e.event.type == "WORK_RESOLVED")[0].event.data.work == 5, "repair ledger agrees with applied work")
 	var w: Dictionary = world()
 	var target: String = Slots.castle_id(0, 4)
 	w.data.castle_orders[0].choice = Work.choice(target)
 	guard(w, "Wright", "Lord", 0); guard(w, "Wright", "Lord", 1)
 	var events: Array = Work.develop(w, 1, [0, 1])
-	check(entity(w, target).attributes.integrity == 8, "new Lord Wright pair supplies 5 work plus 3 passive construction")
+	check(entity(w, target).attributes.integrity == 10, "new Lord Wright pair supplies 2 Guard work, 5 bonus and 3 passive construction")
 	check(events.filter(func(e): return e.event.type == "GUARD_PAIR_FORMED")[0].views[1] != null, "deployed bond formation is public to both players")
 	check(Work.develop(w, 1, [0, 1]).is_empty(), "Development work cannot run twice")
 	reset_orders(w, 2); Work.develop(w, 2, [0, 1])
-	check(entity(w, target).attributes.integrity == 11, "persistent project gains passive 3; surviving Guards do not repeat deployment work")
+	check(entity(w, target).attributes.integrity == 13, "persistent project gains passive 3; surviving Guards do not repeat deployment work")
 	reset_orders(w, 3); guard(w, "Wright", "Castle", 0); guard(w, "Wright", "Castle", 1); Work.develop(w, 3, [0, 1])
 	check(entity(w, target).attributes.construction_state == "active" and w.data.guard_work.targets[0].is_empty(), "full construction activates and clears target")
 	var repaired: String = Slots.castle_id(0, 1)

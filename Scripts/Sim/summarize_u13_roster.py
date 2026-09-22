@@ -73,6 +73,8 @@ def controlled_summary(data):
     roster = {}
     for who in monsters.NAMES:
         matched = grouped[who]
+        if not matched:
+            continue  # Focused follow-ups may cover only the changed summons.
         metrics = Counter()
         for b, a in matched:
             metrics.update(a['metrics'].get(who, {}))

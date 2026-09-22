@@ -451,7 +451,7 @@ func _shift(
 		var owner_after: int = new_owner if new_owner in [0, 1] else 1 - int(unit.owner)
 		var monsters = preload("res://Scripts/Sim/U13MonsterRules.gd")
 		var name: String = unit.attributes.get("monster_id", "")
-		if monsters.limited(name) and monsters.living(result.world.entities.entities, owner_after, name, id): continue
+		if monsters.limited(name) and monsters.living(result.world.entities.entities + monsters.reserves(result.world), owner_after, name, id): continue
 		var moved: Dictionary = Battle.apply(
 			result.world,
 			{
@@ -538,7 +538,7 @@ func _interlock(
 	# the attacker to apply reflection. Hazard attribution prevents recursion.
 	if target.is_empty():
 		return result
-	var amount: int = Incoming.amount(target.attributes, int(d.damage_dealt), int(d.round) * 200 + int(d.get("tick", 0)))
+	var amount: int = Incoming.apply(target.attributes, int(d.damage_dealt), int(d.round) * 200 + int(d.get("tick", 0)))
 	var absorbed: int = mini(int(target.attributes.armor), amount)
 	target.attributes.armor -= absorbed
 	entities.update(target.id, target.owner, target.attributes)

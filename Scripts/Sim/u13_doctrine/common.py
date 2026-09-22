@@ -6,6 +6,8 @@ No Cartesian products, full-game candidate rollouts, or elapsed-time cutoffs.
 from collections import Counter
 from dataclasses import asdict, dataclass
 
+from u13_pysim import split_ward as split_rules
+from . import split_ward
 from u13_pysim.battle import operational, targetable
 from u13_pysim.copying import copy_data
 from u13_pysim.development import eligible, commission_eligible
@@ -30,7 +32,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V26_ODRADEK_FIELD'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -115,13 +117,7 @@ def ordinary(f, category, weights):
         yield Proposal(category, 'Pass', {}, 0, 'retain_hand_for_next_round')
         if not f.hand: return
         # One target per attack, minimum useful commitment and full commitment.
-        targets = []
-        if f.lord[enemy]['attributes']['alive']:
-            targets.append(('Hunt', 'Lord', f.lord[enemy]['id']))
-        castles = [c for c in f.castles(enemy) if targetable(c)]
-        victim = min(castles, key=lambda c: (c['attributes']['integrity'], c['attributes']['castle_slot'])) if castles else None
-        targets.append(('Siege', 'Castle', victim['id'] if victim else 'castle_zone:'+str(enemy)))
-        for action, lane, target in targets:
+        for action, lane, target in f.attack_targets():
             # Linear prefixes at most the hand limit, not a subset search. This
             # is one bounded construction after reserving a generation slot.
             ordered = sorted(f.hand, key=lambda r: (-f.strength([r['id']], action), r['id']))
@@ -132,9 +128,7 @@ def ordinary(f, category, weights):
                 if result['banished'] or result['destroyed'] or result['pillage'] or result['guards'] or result['damage'] >= 3:
                     break
             for ids in (minimum, [r['id'] for r in ordered]):
-                result = f.attack(action, target, ids)
-                value = (weights.recruit*f.recruits(ids, action)+12*result['guards']+weights.damage*result['damage']
-                         +weights.banishment*result['banished']+weights.destruction*result['destroyed']+12*result['pillage'])
+                value = f.attack_value(action, target, ids, weights)
                 yield Proposal(category, action, dict(action=action, lane=lane, target_id=target, card_ids=ids), value,
                                'current_board_attack_unknown_enemy_orders', tuple(ids))
         for lane in LANES:
@@ -252,6 +246,8 @@ class CommonSmartCore:
                 if p not in choices and len(choices) < self.limits.retained_per_category: choices.append(p)
             retained[category] = [p for p in choices if budget.take('retained', category)]
 
+        split = (split_ward.retain(split_ward.proposals(f, self.weights, retained, budget), budget)
+                 if split_rules.enabled(f.world) else [])
         horizon = ResourceHorizon(f, resource_options)
         defense = defensive_plans.Defense(f, self.weights)
         artillery = ArtilleryPlans(f, self.weights)
@@ -274,9 +270,9 @@ class CommonSmartCore:
         kanifous_reserve = min(4, self.limits.complete_plans//4) if kanifous.enabled else 0
         valak_reserve = min(4, self.limits.complete_plans//4) if valak.enabled else 0
         kroni_reserve = min(4, self.limits.complete_plans//4) if kroni.enabled else 0
-        assembly_limit = max(1, self.limits.complete_plans-omission_reserve-defense_reserve-artillery_reserve-support_reserve-rout_reserve-orias_reserve-gremory_reserve-kanifous_reserve-valak_reserve-kroni_reserve)
-        def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant='', artillery_variant=False, support_variant=False, rout_variant=False, orias_variant=False, gremory_variant=False, kanifous_variant=False, valak_variant=False, kroni_variant=False):
-            if not omitted and not defense_variant and not artillery_variant and not support_variant and not rout_variant and not orias_variant and not gremory_variant and not kanifous_variant and not valak_variant and not kroni_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
+        assembly_limit = max(1, self.limits.complete_plans-len(split)-omission_reserve-defense_reserve-artillery_reserve-support_reserve-rout_reserve-orias_reserve-gremory_reserve-kanifous_reserve-valak_reserve-kroni_reserve)
+        def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant='', artillery_variant=False, support_variant=False, rout_variant=False, orias_variant=False, gremory_variant=False, kanifous_variant=False, valak_variant=False, kroni_variant=False, split_variant=False):
+            if not split_variant and not omitted and not defense_variant and not artillery_variant and not support_variant and not rout_variant and not orias_variant and not gremory_variant and not kanifous_variant and not valak_variant and not kroni_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
             if not budget.take('complete_plans'): return
             selected, cards, used, resource_spend = [], set(), set(), Counter()
             plan = dict(powers=[], order={})
@@ -374,6 +370,8 @@ class CommonSmartCore:
             assemble([], ('resummon', 'powers', 'work', 'guards', 'combat', 'rites'), reserve=initial_goal['card_ids'])
         positive = [p for p in retained['powers'] if p.value > 0 and p.term not in WISHES]
         if len(positive) > 1: assemble(positive[:2], base)
+        for p in split:
+            assemble([p], ('resummon', 'powers', 'work', 'guards', 'rites'), split_variant=True)
         defensive_variants = []
         variants = defensive_plans.alternatives(f, complete, retained)
         for _ in range(defense_reserve):
@@ -472,9 +470,17 @@ class CommonSmartCore:
         ranked = sorted(unique,
                         key=lambda c: (-c['score'], sum(len(p.cards) for p in c['selected']),
                                        len(c['plan']['powers']), fingerprint(c['plan'])))
+        from u13_pysim import game_staging
+        if game_staging.enabled(f.world):
+            staging = game_staging.bot_order(f.world, f.v['round'], f.pid)
+            # Native admission must preview the exact final command. Adding
+            # staging after selection would change the already admitted plan.
+            for candidate in ranked:
+                candidate['plan']['order']['staging'] = copy_data(staging)
         chosen, rejected, selection = self.selector.select(ranked, preview, budget,
             round_number=view['round'], seat=f.pid)
         picked = {(p.category, p.term) for p in chosen['selected']}
+        if chosen['plan']['order'].get('ward'): picked.add(('combat', 'Ward'))
         rite_plans = {}
         for term in ('Supplicants', 'Invocation', 'ProfaneRuins'):
             scored = [c for c in complete if any(p.category == 'rites' and p.term == term for p in c['selected'])]
@@ -488,9 +494,18 @@ class CommonSmartCore:
         assessments = []
         for category, term in terms:
             selected = (category, term) in picked
-            count = counts[(category, term)]
+            # Complete-plan variants can retain powers outside the standalone
+            # shortlist (for example Gremory's coordinated Ruin payment).
+            # Count actual distinct proposals, without changing selection.
+            base_generated = generated[category]+(generated['monsters'] if category == 'combat' else [])
             alternatives = retained[category]+(retained['monsters'] if category == 'combat' else [])
-            kept = sum(p.term == term for p in alternatives)
+            variants = [p for candidate in complete for p in candidate['selected']
+                        if p.category == category and p.term == term]
+            generated_keys = {key(p) for p in base_generated if p.term == term}
+            retained_keys = {key(p) for p in alternatives if p.term == term}
+            variant_keys = {key(p) for p in variants}
+            count = counts[(category, term)]+len(variant_keys-generated_keys)
+            kept = len(retained_keys | variant_keys)
             if selected: reason = 'selected'
             elif category == 'rites' and kept:
                 reason = ('complete_plan_score' if selection['mode'] == 'greedy' else 'complete_plan_selection') if rite_plans[term]['scored_plans'] else 'complete_plan_budget'
@@ -505,9 +520,16 @@ class CommonSmartCore:
             assessments.append(dict(category=category, term=term, opportunity=opportunity,
                 legal=True if selected else None, affordable=True if selected else False if reason == 'resource_shortfall' else None,
                 generated=count, retained=kept, selected=selected, reason=reason))
-        assessments.extend(recipes.assessments(generated['combat']+generated['monsters'],
-            retained['combat']+retained['monsters'], chosen['plan'], exhausted['monsters'] and exhausted['combat']))
-        return dict(policy=self.policy_id, plan=copy_data(chosen['plan']), score=chosen['score'], selection=selection,
+        # Reservation/variant assembly may attach a recipe that was absent
+        # from the standalone shortlist. Include the actual assembled orders.
+        assembled_orders = {fingerprint(c['plan']['order']): c['plan']['order'] for c in complete}
+        recipe_variants = [Proposal('combat', order.get('action', 'Pass'), order, 0,
+                                   'assembled_recipe_candidate') for order in assembled_orders.values()]
+        assessments.extend(recipes.assessments(generated['combat']+generated['monsters']+recipe_variants,
+            retained['combat']+retained['monsters']+recipe_variants, chosen['plan'], exhausted['monsters'] and exhausted['combat']))
+        return dict(policy=self.policy_id+(':SPLIT_WARD_V1' if split_rules.enabled(f.world) else ''),
+                    split_ward=dict(enabled=split_rules.enabled(f.world), candidates=len(split),
+                                    selected=bool(chosen['plan']['order'].get('ward'))), plan=copy_data(chosen['plan']), score=chosen['score'], selection=selection,
                     chosen_reasons=[p.reason for p in chosen['selected']], assessments=assessments,
                     retained_candidates=[dict(category=p.category, term=p.term, score=p.value, reason=p.reason,
                                               source_category=category, monster=p.payload.get('monster_choice', ''),

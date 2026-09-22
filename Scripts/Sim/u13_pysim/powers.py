@@ -125,7 +125,7 @@ def shift(b,target,new,identity):
     for key in ids:
         r=e.entity(b.w,key)
         after=new if new in (0,1) else 1-r['owner'];name=r['attributes'].get('monster_id','')
-        if monsters.limited(name) and monsters.living(b.w['entities']['entities'],after,name,key):continue
+        if monsters.limited(name) and monsters.living(b.w['entities']['entities']+monsters.reserves(b.w),after,name,key):continue
         fact=b.fact(dict(command_id=instance_id('allegiance',identity,key),kind='change_marcher_allegiance',target_id=key,new_owner=new if new in (0,1) else 1-r['owner']))
         events.append(e.event(fact['type'],fact['data']));affected.append(key)
     events.append(odradek_event('ALLEGIANCE_SHIFT_RESOLVED',dict(declaration_id=identity,player_id=new,target=target,radius_fp=180,affected_ids=affected,round=b.number,hook='post_resolution_allegiance')))
@@ -142,7 +142,7 @@ def pulse(b,active,pulse_id,inner=False):
         r=e.entity(b.w,key);absorbed=0;hit={}
         command=dict(command_id=instance_id('hazard_hit',pulse_id,key),target_id=key)
         if target['kind']=='lane':
-            amount=incoming.amount(r['attributes'],intensity,incoming.phase_clock(b.w,b.number))
+            amount=incoming.apply(r['attributes'],intensity,incoming.phase_clock(b.w,b.number))
             absorbed=min(r['attributes']['armor'],amount);r['attributes']['armor']-=absorbed
             command.update(kind='marcher_damage',damage=amount-absorbed,cause='hazard')
             fact=b.fact(command);events.append(e.event(fact['type'],fact['data']));events.extend(b.react(fact,inner=inner))
@@ -202,7 +202,7 @@ def resolve(rec,state,n):
     elif power=='Web':
         key=instance_id('persistent',identity,power);ids=members(w,t,270,1-pid)
         for uid in ids:
-            r=e.entity(w,uid);amount=incoming.amount(r['attributes'],1,incoming.phase_clock(w,n));absorbed=min(r['attributes']['armor'],amount);r['attributes']['armor']-=absorbed
+            r=e.entity(w,uid);amount=incoming.apply(r['attributes'],1,incoming.phase_clock(w,n));absorbed=min(r['attributes']['armor'],amount);r['attributes']['armor']-=absorbed
             fact=b.fact(dict(command_id=instance_id('web_hit',key,uid),kind='marcher_damage',target_id=uid,damage=amount-absorbed,cause='hazard'))
             events.append(e.event(fact['type'],fact['data']));events.extend(b.react(fact,inner=True))
             events.append(e.event('WEB_HIT',dict(effect_id=key,entity_id=uid,armor_absorbed=absorbed,intensity=1,round=n,hook=rec['fire_hook'])))

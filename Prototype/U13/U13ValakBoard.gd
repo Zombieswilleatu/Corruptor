@@ -35,7 +35,7 @@ func _build() -> void:
 	projection_spend.prefix = "Essence to spend: "
 	valak_box.add_child(projection_spend)
 	projection_button = _button(valak_box, "CHOOSE PROJECTION TARGET", _queue_projection)
-	var note: Label = _label(valak_box, "Choose either side’s guard zone. After combat: defeat its highest-value Guard at or below your chosen spend. A friendly sacrifice grants +2 Essence, capped at 5, while Valak is alive. Enemy kills and misses grant none. Spend 1 on a value-1 friendly Guard to gain 1 net charge.", 13)
+	var note: Label = _label(valak_box, "Click a Guard to automatically match its printed value, or click a zone to use the chosen spend. After combat: defeat the zone's highest-value eligible Guard. A friendly sacrifice grants +2 Essence, capped at 5, while Valak is alive. Enemy kills and misses grant none.", 13)
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	gravity_button = _button(valak_box, "GRAVITY ORB", _begin_gravity)
 	note = _label(valak_box, "Pulls both armies. Outer field: 1 damage about every 5 seconds, Armor first. Only the tiny core instantly kills. Four core kills create one Neutral Tear. Active two rounds; cooldown two rounds.", 13)
@@ -109,7 +109,7 @@ func _target_allowed(target: Dictionary, intent: String) -> bool:
 
 func _guide() -> String:
 	if _intent == Valak.PROJECTION:
-		return "PROJECTION · click either side’s Lord or Castle Guard zone on the board. Spend %d Essence after combat to defeat its highest-value eligible Guard." % projection_pending_spend
+		return "PROJECTION · click a Guard to match its value automatically. Click a zone to spend %d Essence. Resolves after combat against the zone's highest eligible Guard." % projection_pending_spend
 	return super._guide()
 
 
@@ -118,6 +118,18 @@ func _submit_power(target: Dictionary) -> void:
 		super._submit_power(target)
 		return
 	if not _target_allowed(target, _intent): return
+	_interaction_error = ""
+	var guard: Dictionary = _cell_guard(target)
+	if not guard.is_empty():
+		var value: int = int(guard.attributes.value)
+		var essence: int = int(_visible_world.get("life_essence", [0, 0])[0])
+		if value > essence:
+			_interaction_error = "That Guard needs %d Essence; you have %d. Choose an affordable Guard or a zone." % [value, essence]
+			status.text = _interaction_error
+			power_targeting.note.text = _interaction_error
+			return
+		projection_pending_spend = value
+		projection_spend.value = value
 	var source: Dictionary = session.declaration(Valak.PROJECTION, queued.size(), {"kind": "guard_zone", "player_id": target.owner, "zone": target.lane})
 	source.parameters = {"spend": projection_pending_spend}
 	_queue_valak(source)

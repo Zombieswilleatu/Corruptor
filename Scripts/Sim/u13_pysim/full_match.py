@@ -73,6 +73,14 @@ class FullMatch(PlanningMatch):
             s["presentation_world"] = copy_data(s["world"])
 
     def _accept_order(self, world, pid, order, reserve=True):
+        from . import game_staging, split_ward
+        if split_ward.enabled(world):
+            if "ward" in order:
+                return split_ward.accept(self, world, pid, order, reserve, self._accept_order)
+            if order.get("action") == "Ward":
+                e.require(bool(order.get("card_ids")), "ward_cards_required")
+        e.require(game_staging.order_valid(world,order), "staging_order_invalid")
+        order = {k:v for k,v in order.items() if k not in ("staging", "staging_ids")}
         paid.validate_rites(world, pid, order)
         if not order.get("rites") and "summon" not in order:
             return super()._accept_order(world, pid, order, reserve)

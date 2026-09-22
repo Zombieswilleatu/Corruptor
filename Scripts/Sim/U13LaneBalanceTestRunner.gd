@@ -19,7 +19,7 @@ func profiles() -> void:
 		var expected: int = 15 if name == "Kurchin" else 4 if name == "Varn" else 5 if name in ["Sooge", "Sinodek"] else 10
 		var a: Dictionary = Monsters.profile(name, "Lord", 0, 0, 1)
 		check(a.hp == expected and a.max_hp == expected, name + " has the adopted starting and maximum HP")
-	check(Monsters.ROSTER.Lemek.attack == 4 and Monsters.ROSTER.Tumler.attack == 2 and Monsters.ROSTER.Kurchin.armor == 6, "adopted offense and Armor retain the selected roles")
+	check(Monsters.ROSTER.Lemek.attack == 5 and Monsters.ROSTER.Lemek.armor == 7 and Monsters.ROSTER.Tumler.attack == 2 and Monsters.ROSTER.Kurchin.armor == 6, "adopted offense and Armor retain the selected roles")
 
 func taunt_checks() -> void:
 	for pid in [0, 1]:
@@ -38,18 +38,18 @@ func taunt_checks() -> void:
 			var ids = Work.Ids.new(); ids.restore(w.entities); ids.retire(tank.id); w.entities = ids.snapshot()
 			var released: Dictionary = phase("taunt_removed_%d_%d" % [pid, armor], w)
 			check(facts(released, "MARCHER_MELEE_ATTACK").any(func(d): return d.attacker.owner == 1-pid and d.target.id == ally.id and d.tick == 0), "removing Kurchin immediately restores ordinary melee targeting")
-		for gap in [360, 361]:
+		for gap in [180, 181, 360]:
 			var w: Dictionary = phase_world()
 			var tank: Dictionary = put(w, "Kurchin", pid, at(700, pid))
 			var enemy: Dictionary = put(w, "Butcher", 1-pid, at(700+gap, pid))
-			check(MonsterFX.preferred(enemy, [tank, enemy]).is_empty() == (gap == 361), "taunt radius includes 360 and excludes 361")
+			check(MonsterFX.preferred(enemy, [tank, enemy]).is_empty() == (gap > 180), "taunt includes 180, excludes 181 and the former 360 boundary")
 			tank.attributes.lane = "Castle"
 			check(MonsterFX.preferred(enemy, [tank, enemy]).is_empty(), "taunt never crosses lanes")
 			tank.attributes.lane = "Lord"; tank.attributes.hidden = true
 			check(MonsterFX.preferred(enemy, [tank, enemy]).is_empty(), "hidden Kurchin cannot draw attacks")
 		# Taunt must not let an enemy pass through an intact wall.
 		var w: Dictionary = phase_world()
-		var tank: Dictionary = put(w, "Kurchin", pid, at(560, pid), {"y_fp": 150, "step_fp": 0})
+		var tank: Dictionary = put(w, "Kurchin", pid, at(600, pid), {"y_fp": 150, "step_fp": 0})
 		var enemy: Dictionary = put(w, "Butcher", 1-pid, at(760, pid), {"y_fp": 150, "attack": 1, "hp": 100, "max_hp": 100})
 		var builder: Dictionary = put(w, "Wright", pid, at(0, pid), {"movement_ready_round": 10})
 		var wall: Dictionary = {"id": Work.Data.instance_id("wright_structure", builder.id, "0"), "kind": "fortification", "owner": pid, "attributes": {"structure": "Wall", "site": 0, "lane": "Lord", "x_fp": at(640, pid), "y_fp": 150, "hp": 6, "max_hp": 6, "armor": 2, "max_armor": 2, "attack": 0, "ranged_next_tick": 0, "builder_id": builder.id}}
@@ -68,18 +68,18 @@ func taunt_checks() -> void:
 func defense_checks() -> void:
 	for pid in [0, 1]:
 		for kind in ["Melee", "Vulture"]:
-			for roll in [74, 75]:
+			for roll in [49, 50]:
 				var w: Dictionary = phase_world()
 				var tank: Dictionary = put(w, "Kurchin", pid, at(900, pid), {"hp": 100, "max_hp": 100, "armor": 2, "step_fp": 0})
 				var source: Dictionary = put(w, "Butcher" if kind == "Melee" else "Vulture", 1-pid, at(960 if kind == "Melee" else 1200, pid), {"step_fp": 0, "attack": 3, "hp": 100, "max_hp": 100})
 				var seed_value: String = roll_seed(source, tank, kind, roll)
 				var r: Dictionary = phase("armor_boundary_%d_%s_%d" % [pid, kind, roll], w, seed_value)
 				var hits: Array = facts(r, "MARCHER_MELEE_ATTACK" if kind == "Melee" else "MARCHER_RANGED_ATTACK").filter(func(d): return d.target.id == tank.id and d.tick == 0)
-				check(hits.size() == 1 and hits[0].evaded == (roll == 74) and hits[0].damage_dealt == (0 if roll == 74 else 1), "75% boundary deflects 74; 75 lands, spends Armor, and spills to HP")
+				check(hits.size() == 1 and hits[0].evaded == (roll == 49) and hits[0].damage_dealt == (0 if roll == 49 else 1), "50% boundary deflects 49; 50 lands, spends Armor, and spills to HP")
 				var first_tick: Dictionary = facts(r, "MARCHING_TICK")[0]
 				var after: Dictionary = first_tick.units.filter(func(u): return u.id == tank.id)[0]
-				check(after.attributes.armor == (2 if roll == 74 else 0) and after.attributes.hp == (100 if roll == 74 else 99), "deflected hit consumes neither Armor nor HP")
-				if roll == 74:
+				check(after.attributes.armor == (2 if roll == 49 else 0) and after.attributes.hp == (100 if roll == 49 else 99), "deflected hit consumes neither Armor nor HP")
+				if roll == 49:
 					var playback = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
 					check(playback.build(r.events.map(func(e): return e.event)) and playback.sample(playback.FLIGHT_SECONDS + playback.MOVE_SECONDS/200.0 + 0.01).monster_attacks.any(func(a): return a.ability == "ArmorDeflect"), "successful deflection has shield feedback in lane playback")
 		# First simultaneous hit spends the last Armor; later favorable rolls cannot deflect.
@@ -93,7 +93,7 @@ func defense_checks() -> void:
 			var candidate: String = "depletion:" + str(i)
 			var first: int = MonsterFX.Lamp.draw(candidate, "2:0:Melee:%s:%s" % [attackers[0].id, tank.id], "KURCHIN_ARMORED_DEFLECTION", 100)
 			var second: int = MonsterFX.Lamp.draw(candidate, "2:0:Melee:%s:%s" % [attackers[1].id, tank.id], "KURCHIN_ARMORED_DEFLECTION", 100)
-			if first >= 75 and second < 75: seed_value = candidate; break
+			if first >= 50 and second < 50: seed_value = candidate; break
 		check(seed_value != "missing", "find landed-then-deflected depletion fixture")
 		var r: Dictionary = phase("armor_same_tick_depletion_%d" % pid, w, seed_value)
 		var hits: Array = facts(r, "MARCHER_MELEE_ATTACK").filter(func(d): return d.target.id == tank.id and d.tick == 0)

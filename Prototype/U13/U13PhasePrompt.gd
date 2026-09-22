@@ -32,6 +32,23 @@ var player_ref = null
 var opponent_ref = null
 var rules_ref = null
 var maintenance_step: String = ""
+var _gutter_width: float = 400.0
+var _gutter_center: float = -1.0
+
+func fit_board_gutter(left: float, right: float) -> void:
+	if right <= left: return
+	_gutter_width = right - left
+	_gutter_center = (left + right) * 0.5
+	_apply_gutter_footprint()
+	call_deferred("_sync_decision_bottom_actions_v12")
+	call_deferred("_sync_decision_panel_layout_v4")
+
+func _apply_gutter_footprint() -> void:
+	if _gutter_center < 0.0: return
+	anchor_left = 0.0
+	anchor_right = 0.0
+	offset_left = _gutter_center - _gutter_width * 0.5
+	offset_right = _gutter_center + _gutter_width * 0.5
 
 
 func _ready() -> void:
@@ -176,6 +193,7 @@ func _refresh_mode() -> void:
 		offset_top = -34.0
 		# UI2_DECISION_BOTTOM_ACTIONS_PARSE_FIX_V12_2
 		offset_bottom = 34.0
+		_apply_gutter_footprint()
 		call_deferred("_sync_decision_bottom_actions_v12")
 		call_deferred("_sync_decision_panel_layout_v4")
 		return
@@ -212,6 +230,7 @@ func _refresh_mode() -> void:
 	offset_right = 200.0
 	offset_top = -265.0
 	offset_bottom = 265.0
+	_apply_gutter_footprint()
 	call_deferred("_sync_decision_bottom_actions_v12")
 	call_deferred("_sync_decision_panel_layout_v4")
 	if stage_key == "AFTERMATH" and action_zone != null:
@@ -576,8 +595,9 @@ func _sync_decision_panel_layout_v4() -> void:
 	_place_decision_overlay_rect_v5(phase_slot_v16, phase_rect_v17_1)
 
 	# Dynamic title in the artwork's top plaque.
+	var title_inset: float = 0.16 if _gutter_width < 400.0 else 0.225
 	var title_rect := Rect2(
-		prompt_rect.position + Vector2(90.0, 20.0), Vector2(prompt_rect.size.x - 180.0, 44.0)
+		prompt_rect.position + Vector2(prompt_rect.size.x * title_inset, 20.0), Vector2(prompt_rect.size.x * (1.0 - 2.0 * title_inset), 44.0)
 	)
 	title_label.visible = true
 	title_label.modulate = Color(1.0, 1.0, 1.0, 1.0)
@@ -810,11 +830,24 @@ func _fit_content_above_actions(primary: Button, secondary: Button) -> void:
 	if button_count > 0:
 		bottom = size.y * (0.900 if button_count == 2 else 0.785) - 12.0
 	var contents := content_host.get_parent() as Control
+	if _gutter_width < 400.0: _fit_narrow_controls(contents)
 	contents.position = Vector2(size.x * 0.09, 102.0)
 	contents.size = Vector2(size.x * 0.82, maxf(0.0, bottom - contents.position.y))
 	if action_zone != null and is_ancestor_of(action_zone.status_label):
 		action_zone.status_label.visible = not action_zone.status_label.text.strip_edges().is_empty()
 
+
+func _fit_narrow_controls(node: Node) -> void:
+	# Keep labels readable at normal font sizes; long action names remain
+	# available on hover instead of widening the fixed decision panel.
+	for child in node.get_children():
+		if child is Button:
+			child.clip_text = true
+			if child.tooltip_text.is_empty(): child.tooltip_text = child.text
+			if child is OptionButton: child.fit_to_longest_item = false
+		elif child is Label:
+			child.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_fit_narrow_controls(child)
 
 func _layout_decision_action_pair_v12(
 	primary: Button, secondary: Button, wide_slot: Rect2, left_slot: Rect2, right_slot: Rect2
@@ -840,8 +873,12 @@ func _place_decision_action_button_v12(button: Button, slot: Rect2, large: bool)
 
 	button.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	button.global_position = slot.position
+	if _gutter_width < 400.0:
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		button.clip_text = true
+		slot.size.y = maxf(slot.size.y, 42.0)
 	button.size = slot.size
-	button.add_theme_font_size_override("font_size", 16 if large else 14)
+	button.add_theme_font_size_override("font_size", 14 if _gutter_width < 400.0 else (16 if large else 14))
 
 
 # UI2_DECISION_ALIGNMENT_CLEANUP_V15

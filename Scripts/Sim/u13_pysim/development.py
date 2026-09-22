@@ -3,7 +3,7 @@
 import json
 
 from . import economy as e
-from .castle_balance import WRIGHT_PAIR_WORK
+from .castle_balance import WRIGHT_PAIR_BUILD, WRIGHT_PAIR_REPAIR
 from .planning import PlanningMatch
 from .copying import copy_data
 from .primitives import instance_id
@@ -103,6 +103,11 @@ def _deploy_owned(world, number, player_order, hook="development"):
     return events
 
 
+def wright_pair_work(target):
+    a = target["attributes"]
+    return WRIGHT_PAIR_BUILD if a["construction_state"] != "active" or a["status"] == "ruined" else WRIGHT_PAIR_REPAIR
+
+
 def work(world, number, player_order):
     """Mutate an owned world exactly as GuardWork.develop does."""
     reconcile(world)
@@ -112,6 +117,7 @@ def work(world, number, player_order):
     for pid in player_order:
         moves = world["data"]["guard_orders"][pid]["moves"]
         amount = len(moves)
+        wright_pairs = 0
         for lane in LANES:
             for suit in SUITS:
                 fresh = sorted((m for m in moves if m["lane"] == lane
@@ -123,7 +129,7 @@ def work(world, number, player_order):
                             slots=[m["slot"] for m in fresh[:2]], round=number, active=True)
                 state["pairs"].append(pair)
                 if suit == "Wright":
-                    amount += WRIGHT_PAIR_WORK
+                    wright_pairs += 1
                 events.append(e.event("GUARD_PAIR_FORMED", dict(player_id=pid, round=number,
                                       lane=lane, suit=suit, card_ids=pair["ids"])))
         selected = world["data"]["castle_orders"][pid]["choice"]
@@ -145,6 +151,7 @@ def work(world, number, player_order):
         a = target["attributes"]
         reconstruction = a["status"] == "ruined"
         build = a["construction_state"] != "active" or reconstruction
+        amount += wright_pairs * wright_pair_work(target)
         passive = 3 if build else 0
         gain = amount + passive
         if not build and a.get("repair_lock_until_round", 0) >= number:

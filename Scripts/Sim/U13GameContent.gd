@@ -9,12 +9,14 @@ const BATCH_EVENTS_VERSION: String = "U13_BATCH_EVENTS_V1"
 const BATCH_SAMPLE_EVENTS: Array = ["MARCHING_TICK", "KRONI_ACTOR_TICK"]
 var batch_events: bool = false
 
+const SplitWard = preload("res://Scripts/Sim/U13SplitWard.gd")
 const GuardWork = preload("res://Scripts/Sim/U13GuardWork.gd")
 const Victory = preload("res://Scripts/Sim/U13Victory.gd")
 const Plunder = preload("res://Scripts/Sim/U13Plunder.gd")
 const Throne = preload("res://Scripts/Sim/U13VacantThrone.gd")
 
 const MonsterEffects = preload("res://Scripts/Sim/U13MonsterEffects.gd")
+const Staging = preload("res://Scripts/Sim/U13GameStaging.gd")
 const Monsters = preload("res://Scripts/Sim/U13MonsterRules.gd")
 const Rites = preload("res://Scripts/Sim/U13DominionRites.gd")
 
@@ -40,7 +42,7 @@ func create_combat_match(compact_events: bool = false):
 
 
 func valid_world(world: Dictionary) -> bool:
-	return Monsters.valid(world) and Veil.valid(world) and GuardWork.valid(world) and super.valid_world(world) and Victory.valid(world) and Plunder.valid(world) and Throne.valid(world) and Rites.valid(world) and Fracture.valid(world) and Economy.valid(world) and Market.valid(world) and Sigils.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
+	return SplitWard.valid(world) and Staging.valid(world) and Monsters.valid(world) and Veil.valid(world) and GuardWork.valid(world) and super.valid_world(world) and Victory.valid(world) and Plunder.valid(world) and Throne.valid(world) and Rites.valid(world) and Fracture.valid(world) and Economy.valid(world) and Market.valid(world) and Sigils.valid(world) and world.data.get("blood_conduit_profile") == Conduit.VERSION and world.data.get("castle_defense_profile") == CastleDefenses.VERSION
 
 
 # Direct/scheduled powers can remove or relocate Guards without a battle
@@ -75,6 +77,9 @@ func on_hook(context: Dictionary) -> Dictionary:
 	if context.hook == Timeline.PRESENT_PUBLIC_STATE and (not context.world.data.game_economy.stockpile_pending.is_empty() or context.world.data.game_market.seat != 2):
 		return Data.invalid("development_choice_required")
 	var ordinary_context: Dictionary = context.duplicate(true)
+	var staging_events: Array = []
+	if context.hook == Timeline.ROUND_START_SCHEDULED:
+		staging_events = Staging.release_due(ordinary_context.world, context.round)
 	if context.hook == Timeline.ROUND_START_SCHEDULED and not Throne.begin(ordinary_context.world, context.round):
 		return Data.invalid("vacant_throne_round_clock_invalid")
 	ordinary_context.combat_orders = [Rites.strip(context.combat_orders[0]), Rites.strip(context.combat_orders[1])]
@@ -96,7 +101,13 @@ func on_hook(context: Dictionary) -> Dictionary:
 		return sigils
 	var prepared: Dictionary = ordinary_context.duplicate()
 	prepared.world = sigils.world
+	if context.hook == Timeline.MARCHING_START:
+		staging_events = Staging.prepare(prepared.world, context.round, context.combat_orders)
 	var result: Dictionary = super.on_hook(prepared)
+	if result.action != "invalid":
+		result.events = staging_events + result.events
+		if context.hook == Timeline.COMMITMENT_REVEAL:
+			result.events.append_array(Staging.capture(result.world, result.events, context.round))
 	if result.action != "invalid":
 		GuardWork.reconcile(result.world)
 		if context.hook == Timeline.DEVELOPMENT:
@@ -117,6 +128,15 @@ func on_hook(context: Dictionary) -> Dictionary:
 				return victory
 			result.events.append_array(victory.events)
 			Veil.finish(result.world, context.round)
+	if result.action != "invalid" and context.hook == Timeline.ROUND_START_AUTOMATIC and Staging.enabled(result.world):
+		var opening: Dictionary = context.duplicate()
+		opening.world = result.world
+		opening.hook = Timeline.MARCHING
+		opening["opening_marching"] = true
+		var marched: Dictionary = Marching.resolve(opening, Callable(self, "react"))
+		if marched.action == "invalid": return marched
+		result.world = marched.world
+		result.events.append_array(marched.events)
 	result = VeilEffects.reconcile(result)
 	if result.action != "invalid":
 		Veil.observe(result.world, context.round)
@@ -140,7 +160,12 @@ func on_hook(context: Dictionary) -> Dictionary:
 
 
 func accept_order(context: Dictionary) -> Dictionary:
+	if not Staging.order_valid(context.world, context.order): return Data.invalid("staging_order_invalid")
 	if context.phase == "snapshot":
+		if Staging.enabled(context.world):
+			var prepared_round: int = context.round - (1 if context.next_hook_index <= Timeline.hook_rank(Timeline.MARCHING_START) else 0)
+			for tray in context.world.data.game_staging.lanes.values():
+				if tray.prepared_round != prepared_round or tray.units.any(func(u): return u.attributes.staged_round > context.round): return Data.invalid("staging_snapshot_clock_invalid")
 		var veil_state: Dictionary = context.world.data.veil_breaches
 		if veil_state.checked_round != context.round - (1 if context.next_hook_index == 0 else 0) or veil_state.round_history.size() != context.world.data.victory.checked_round or veil_state.veil_21_round > context.round:
 			return Data.invalid("veil_snapshot_clock_invalid")
@@ -187,7 +212,10 @@ func accept_order(context: Dictionary) -> Dictionary:
 
 func project(world: Dictionary, player_id: int) -> Dictionary:
 	var result: Dictionary = super.project(world, player_id)
+	for key in ["ward_experiment", "tempo_experiment"]:
+		if world.data.has(key): result[key] = world.data[key]
 	result["monsters"] = world.data.monsters.duplicate(true)
+	if Staging.enabled(world): result["game_staging"] = world.data.game_staging.duplicate(true)
 	result["field_structures"] = world.data.get("field_structures", []).duplicate(true)
 	result["concealed_ids"] = result.entities.filter(func(r): return r.owner != player_id and r.attributes.get("hidden", false)).map(func(r): return r.id)
 	result.entities = result.entities.filter(func(r): return r.owner == player_id or not r.attributes.get("hidden", false))

@@ -23,11 +23,13 @@ def paid_scenario(f, plan):
     neutral = f.v['data']['neutral_tears']+(2 if f.v['round'] > 20 else 1 if f.v['round'] > 12 else 0)
     if 'summon' in order:
         actors[f.pid]['attributes']['alive'] = True; neutral += 1
-    return dict(players=players, data=dict(neutral_tears=neutral), entities=dict(entities=actors))
+    data = dict(neutral_tears=neutral)
+    if "tempo_experiment" in f.v["data"]: data["tempo_experiment"] = f.v["data"]["tempo_experiment"]
+    return dict(players=players, data=data, entities=dict(entities=actors))
 
 
 def settlement_projection(f, plan):
-    return evaluate(paid_scenario(f, plan))
+    return evaluate(paid_scenario(f, plan), f.v["round"])
 
 
 def protection_projection(f, plan, weight):

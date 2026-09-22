@@ -87,6 +87,10 @@ def flee_slice(actor,buffer,ms,collapse):
         lateral=a['y_fp']+origin;dx=a['x_fp']-actor['x_fp'];dy=lateral-actor['y_fp'];reach=actor['radius_fp']*2
         if actor['active'] and dx*dx+dy*dy<=reach*reach:state['remaining_ms']=1100
         duration=min(ms,state['remaining_ms'])
+        if a.get('tumler_charge_phase', '') in ('windup', 'charge'):
+            state['remaining_ms'] -= duration
+            if state['remaining_ms'] <= 0: del actor['fleeing'][identity]
+            continue
         if dx==dy==0:dx,dy=[[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]][draw(actor['id'],unit['id'],'FLEE_OVERLAP',0,8)]
         length=math.sqrt(float(dx*dx+dy*dy));distance=float(a['step_fp']*30*duration)/float(100*30)
         if veil.applies_to(collapse,unit['owner']):distance*=0.5

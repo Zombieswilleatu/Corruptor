@@ -168,7 +168,7 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 		var entity: Dictionary = entities.get_entity(entity_id)
 		if entity.is_empty():
 			continue
-		var amount: int = Incoming.amount(entity.attributes, 1, Incoming.phase_clock(world, int(context.round)))
+		var amount: int = Incoming.apply(entity.attributes, 1, Incoming.phase_clock(world, int(context.round)))
 		var absorbed: int = mini(amount, int(entity.attributes.armor))
 		entity.attributes.armor -= absorbed
 		entities.update(entity.id, entity.owner, entity.attributes)

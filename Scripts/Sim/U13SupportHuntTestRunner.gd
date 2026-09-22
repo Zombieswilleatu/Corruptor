@@ -94,8 +94,8 @@ func hunting_checks() -> void:
 			check(redirects.is_empty() if roll == 49 else (redirects.size() == 1 and redirects[0].target_id == blocker.id), "only a landed melee hit immediately changes the hunt")
 			if roll == 50:
 				check(strikes[0].damage_dealt == 0, "Armor-only contact still intercepts the hunt")
-				check(Kanifous._entity(r.world, dog.id).attributes.hunt_target == blocker.id, "interception persists instead of reverting to support preference")
-				check(facts(r, "MARCHER_MELEE_ATTACK").any(func(d): return d.attacker.id == dog.id and d.target.id == blocker.id), "intercepted Tumler fights the attacker")
+				check(Kanifous._entity(r.world, dog.id).attributes.hunt_target == prey.id, "backline priority is restored after an approach interception")
+				check(not facts(r, "MARCHER_MELEE_ATTACK").any(func(d): return d.attacker.id == dog.id and d.target.id == blocker.id), "a bystander cannot permanently replace the backline target")
 				check(facts(r, "MARCHER_MELEE_ATTACK").any(func(d): return d.target.id == dog.id and d.evaded), "melee contact retains constant evasion")
 			else:
 				var playback = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
@@ -147,7 +147,9 @@ func hunting_checks() -> void:
 				var result: Dictionary = MonsterFX.damage(w, buffer, {"source": caster, "target": dog.id, "amount": 1, "bypass": false, "ability": ability}, context(w, hunt_seed(caster, dog, ability, roll)), 0, Callable(Game.Content.new(), "react"))
 				var hit: Dictionary = facts(result, "MONSTER_ATTACK")[0]
 				check(hit.evaded == (roll == 49) and buffer.get_entity(dog.id).attributes.armor == (100 if roll == 49 else 99), ability + " dodge preserves both HP and Armor")
-				check(buffer.get_entity(dog.id).attributes.hunt_target == (caster.id if roll == 50 and ability in ["Muno", "Ambush"] else prey.id), ability + " uses the correct interception category")
+				# Ambush immediately grants Dotra his existing untargetable shroud.
+				# It cannot redirect the hunt onto him during that window.
+				check(buffer.get_entity(dog.id).attributes.hunt_target == (caster.id if roll == 50 and ability == "Muno" else prey.id), ability + " respects interception and targetability")
 		for fear in ["Kroni", "Portal"]:
 			w = phase_world()
 			dog = put(w, "Tumler", pid, at(900, pid))

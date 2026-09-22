@@ -28,10 +28,14 @@ static func read(owner, pid: int) -> Dictionary:
 	for row in rows: by_id[row.id] = row
 	var public: Array = rows.filter(func(row): return (row.kind != "card" or row.attributes.get("role") == "guard") and (row.owner == pid or not row.attributes.get("hidden", false)))
 	var allowed: Dictionary = {}
-	for key in ["neutral_tears", "breach_lord", "sigils", "guard_public_limits", "orias_marks", "kanifous_prices", "kanifous_losses"]:
-		allowed[key] = data[key]
+	for key in ["ward_experiment", "tempo_experiment", "neutral_tears", "breach_lord", "sigils", "guard_public_limits", "orias_marks", "kanifous_prices", "kanifous_losses"]:
+		if data.has(key): allowed[key] = data[key]
 	allowed["veil_breaches"] = data.get("veil_breaches", {})
 	allowed["monsters"] = data.get("monsters", {})
+	if data.has("game_staging"):
+		allowed["game_staging"] = data.game_staging.duplicate(true)
+		for tray in allowed.game_staging.lanes.values():
+			tray.units = tray.units.filter(func(unit): return unit.owner == pid)
 	if not data.get("field_structures", []).is_empty():
 		allowed["field_structures"] = data.field_structures.duplicate(true)
 		allowed.field_structures.sort_custom(func(a, b): return a.id < b.id)

@@ -12,6 +12,7 @@ const INK := Color("111015")
 const VEIL := Color("d3b0f2")
 const OWNERS: Array = [Color("a3cee9"), Color("efada5")]
 
+var tempo_rules: bool = false
 var current_value: int = 0
 var selected_value: int = 0
 var round_number: int = 1
@@ -106,6 +107,7 @@ func _layout() -> void:
 
 
 func bind_world(world: Dictionary, round_now: int) -> void:
+	tempo_rules = world.get("tempo_experiment") == "U13_VEIL_ATTACK_ROUND25_V1"
 	var reset: bool = not _initialized or round_now < round_number
 	current_value = int(world.get("veil_total", 0))
 	round_number = round_now
@@ -164,6 +166,14 @@ func stamp_owners(value: int) -> Array:
 
 
 func milestone(value: int) -> Dictionary:
+	var result: Dictionary = _milestone(value)
+	if tempo_rules and value in [13, 17, 21]:
+		var bonus: int = [13, 17, 21].find(value) + 1
+		result.detail += " · attack +%d" % bonus
+		result.tooltip += "\nHunt and Siege gain +%d committed attack strength from this Veil threshold." % bonus
+	return result
+
+func _milestone(value: int) -> Dictionary:
 	var tier: int = ARRIVALS.find(value)
 	if tier >= 0:
 		var arrived: Array = arrivals.filter(func(row): return row.threshold == value)
@@ -187,6 +197,8 @@ func milestone(value: int) -> Dictionary:
 		for row in cascade:
 			tooltip += "\n\n" + _arrival_tooltip(row)
 		return {"label": "CASCADE", "planned": false, "detail": (names if not names.is_empty() else "Cascade · Veil 21 AND round 21") + " · no protection", "tooltip": tooltip}
+	if value == LIMIT and tempo_rules:
+		return {"label": "VEIL", "planned": false, "detail": "Attack +3 · game ends by round 25", "tooltip": "Veil no longer triggers Final Collapse. At round 25, check Ritual and Dominion, then compare Souls."}
 	if value == LIMIT:
 		return {"label": "COLLAPSE", "planned": false, "detail": "Final Collapse · higher Souls wins · round-end check",
 			"tooltip": "At Veil %d, Final Collapse ends the match at the round-end victory check if Ritual has not already won. Higher Souls wins; a Soul tie favors you." % LIMIT}
@@ -196,9 +208,10 @@ func milestone(value: int) -> Dictionary:
 func _update_controls() -> void:
 	if not is_instance_valid(detail):
 		return
-	round_label.text = "ROUND %d" % round_number
+	round_label.text = ("R %d / 25" if tempo_rules else "ROUND %d") % round_number
+	round_label.tooltip_text = "From round 20: +1 Soul for Hunt banishment or Siege destruction, once per round. Veil 13/17/21 adds +1/+2/+3 committed attack strength." if tempo_rules else ""
 	neutral_label.text = "NEUTRAL %d" % neutral_tears
-	current_button.text = "VEIL %d / %d%s" % [current_value, LIMIT, "" if following_current else "  ↩"]
+	current_button.text = ("VEIL %d%s" % [current_value, "" if following_current else "  ↩"]) if tempo_rules else ("VEIL %d / %d%s" % [current_value, LIMIT, "" if following_current else "  ↩"])
 	previous_button.disabled = _target_center <= HALF_WINDOW
 	next_button.disabled = _target_center >= LIMIT - HALF_WINDOW
 	var inspected: int = _hover_value if _hover_value >= 0 else selected_value

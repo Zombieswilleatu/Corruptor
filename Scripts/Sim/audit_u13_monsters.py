@@ -141,6 +141,7 @@ class Metrics:
                 out['recorded_hp_damage'] += d.get('damage_dealt', 0)
                 if d.get('evaded'): incoming['evaded'] += 1
                 if d.get('blocked'): incoming['blocked'] += 1
+                if d.get('warded'): incoming['ward_absorbed_hits'] += 1
                 if not d.get('evaded') and not d.get('blocked'):
                     out['landed_hits'] += 1
                     if d.get('damage_dealt', 0) > 0: out['damaging_hits'] += 1
@@ -155,6 +156,7 @@ class Metrics:
                 self.completed.add(d['victim']['id'])
                 self.metrics[name(d['victim'])]['deaths'] += 1
                 if d.get('attacker'): self.metrics[name(d['attacker'])]['kills'] += 1
+            elif kind == 'MONSTER_WARD_GAINED': self.metrics['Muno']['wards_gained'] += 1
             elif kind == 'MONSTER_POISONED': self.metrics['Varn']['poison_procs'] += 1
             elif kind == 'MONSTER_CHARMED':
                 self.charms_by_source[d['source_id']] += 1
@@ -222,13 +224,18 @@ def controlled(task):
     initial = Counter((canonical_owner(r, reflected), name(r)) for r in world['entities']['entities'])
     goals, seen, metric = [0, 0], [set(), set()], Metrics()
     parity = []; capture = record['seed_index'] == 0 and not reflected and (record['group'] == 'recipe_supported' or record.get('opponent') == 'mixed_high' or record.get('capture', False))
+    edges_only = record.get('capture_edges_only', False)
+    last_sample = None
     for offset in range(max_rounds):
         number = record['round']+offset
         metric.observe(world['entities']['entities'], number=number)
         raw = copy_data(world) if capture else None
-        result = resolve(world, seed, number, capture)
+        capture_this = capture and (not edges_only or offset == 0)
+        result = resolve(world, seed, number, capture_this)
+        if capture and edges_only:
+            last_sample = dict(name=f"{record['case']}:{seed}:{number}", world=raw, seed=seed, round=number)
         metric.events([r['event'] for r in result['events'] if r['event']['type'] != 'MARCHING_TICK'])
-        if capture:
+        if capture_this:
             sample = dict(name=f"{record['case']}:{seed}:{number}", world=raw, seed=seed, round=number,
                           result_sha256=hashlib.sha256(codec.dumps(result).encode()).hexdigest())
             if not parity: parity.append(sample)
@@ -239,6 +246,10 @@ def controlled(task):
         # Empty lanes with abandoned walls cannot produce another encounter.
         terminal = not all(forces) or not world['entities']['entities']
         if terminal and not world['data']['monsters']['pending_beams']: break
+    if capture and edges_only and offset > 0:
+        replay = resolve(last_sample['world'], seed, last_sample['round'], True)
+        last_sample['result_sha256'] = hashlib.sha256(codec.dumps(replay).encode()).hexdigest()
+        parity.append(last_sample)
     winner = None
     if terminal:
         if goals[0] != goals[1]: winner = int(goals[1] > goals[0])

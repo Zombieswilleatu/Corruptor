@@ -21,29 +21,26 @@ func run() -> void:
 	if not args.is_empty(): phase_output = FileAccess.open(args[0], FileAccess.WRITE)
 	for pid in [0, 1]:
 		for site in [0, 2]:
-			var fixture: Dictionary = guarded(pid, site)
+			var fixture: Dictionary = guarded(pid, site, 3, 999)
 			var w: Dictionary = fixture.world
 			var builder: Dictionary = fixture.builder
-			for n in [2, 3]:
-				var r: Dictionary = phase("wright_repair_hold_%d_%d_%d" % [pid, site, n], w, "wright-repair", n)
-				var repaired: Array = facts(r, "WRIGHT_STRUCTURE_REPAIRED")
-				check(repaired.size() == 1 and repaired[0].tick == 0 and repaired[0].hp_after == n+2, "exactly one HP repaired at round start")
-				check(Fort.rows(r.world)[0].attributes.armor == 0, "repair changes HP without refilling Armor")
-				var after: Dictionary = Kanifous._entity(r.world, builder.id)
-				check(not after.attributes.wright_released and Fort.distance(after.attributes, Fort.anchor(pid, site)) == 0, "Wright remains at damaged structure beyond initial guard round")
-				check(Ledger.describe("WRIGHT_STRUCTURE_REPAIRED", repaired[0]).contains("HP"), "repair appears in aftermath ledger")
-				var playback = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
-				check(playback.build(r.events.map(func(e): return e.event)) and playback.sample(playback.duration).field_structures[0].attributes.hp == n+2, "playback displays repaired structure HP")
-				w = Codec.decode(Codec.encode(r.world).text).value
-				check(w == r.world and Marching.valid(w), "repair progress and continued guarding survive exact save transport")
-			var released: Dictionary = phase("wright_repair_release_%d_%d" % [pid, site], w, "wright-repair", 4)
+			var r: Dictionary = phase("wright_repair_ticks_%d_%d" % [pid, site], w, "wright-repair", 2)
+			var repaired: Array = facts(r, "WRIGHT_STRUCTURE_REPAIRED")
+			check(repaired.map(func(e): return e.tick) == [0, 27, 54] and Fort.rows(r.world)[0].attributes.hp == 6, "repair repeats every 27 ticks and stops at full HP")
+			check(Fort.rows(r.world)[0].attributes.armor == 0, "repair never refills Armor")
+			check(not Kanifous._entity(r.world, builder.id).attributes.wright_released, "full HP still respects the minimum guard timer")
+			check(Ledger.describe("WRIGHT_STRUCTURE_REPAIRED", repaired[0]).contains("HP"), "repair appears in aftermath ledger")
+			var playback = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
+			check(playback.build(r.events.map(func(e): return e.event)) and playback.sample(playback.duration).field_structures[0].attributes.hp == 6, "playback displays repaired structure HP")
+			w = Codec.decode(Codec.encode(r.world).text).value
+			check(w == r.world and Marching.valid(w), "repair deadline survives exact save transport")
+			var released: Dictionary = phase("wright_repair_release_%d_%d" % [pid, site], w, "wright-repair", 5)
 			var marcher: Dictionary = Kanifous._entity(released.world, builder.id)
-			check(Fort.rows(released.world)[0].attributes.hp == 6 and marcher.attributes.wright_released, "full HP releases builder after minimum guard time")
-			check((int(marcher.attributes.x_fp)-int(builder.attributes.x_fp))*int(builder.attributes.direction) == 800, "released Wright resumes normal movement immediately")
+			check(marcher.attributes.wright_released and (int(marcher.attributes.x_fp)-int(builder.attributes.x_fp))*int(builder.attributes.direction) == 800, "full repaired post releases Wright to normal marching after its guard timer")
 			w = released.world
 			w.data.field_structures[0].attributes.hp = 2
-			var gone: Dictionary = phase("wright_no_remote_repair_%d_%d" % [pid, site], w, "wright-repair", 5)
-			check(facts(gone, "WRIGHT_STRUCTURE_REPAIRED").is_empty() and Fort.rows(gone.world)[0].attributes.hp == 2, "departed Wright neither repairs remotely nor returns to later damage")
+			var gone: Dictionary = phase("wright_no_remote_repair_%d_%d" % [pid, site], w, "wright-repair", 6)
+			check(facts(gone, "WRIGHT_STRUCTURE_REPAIRED").is_empty() and Fort.rows(gone.world)[0].attributes.hp == 2, "departed Wright does not repair remotely")
 		var fixture: Dictionary = guarded(pid, 0, 6, 600)
 		var r: Dictionary = phase("wright_full_minimum_guard_%d" % pid, fixture.world)
 		check(Fort.distance(Kanifous._entity(r.world, fixture.builder.id).attributes, fixture.builder.attributes) == 0, "full-HP structure still receives the complete initial guard period")
@@ -55,17 +52,21 @@ func run() -> void:
 		check(raw_step(w, 2).size() == 1 and Fort.rows(w)[0].attributes.hp == 2, "first repair is recorded")
 		w = Codec.decode(Codec.encode(w).text).value
 		check(raw_step(w, 2).is_empty() and Fort.rows(w)[0].attributes.hp == 2, "same-round replay cannot repair twice after save/load")
-		check(raw_step(w, 2, 100).is_empty(), "no extra repair in the middle of a round")
-		check(raw_step(w, 3).size() == 1 and Fort.rows(w)[0].attributes.hp == 3, "next round receives its own repair")
+		check(raw_step(w, 2, 26).is_empty(), "repair is not ready one tick before deadline")
+		check(raw_step(w, 2, 27).size() == 1 and Fort.rows(w)[0].attributes.hp == 3, "repair is ready exactly at deadline")
+		check(raw_step(w, 2, 199).size() == 1 and Fort.rows(w)[0].attributes.hp == 4, "late-round repair sets an absolute deadline")
+		w = Codec.decode(Codec.encode(w).text).value
+		check(raw_step(w, 3).is_empty(), "new round does not reset a saved cooldown")
+		check(raw_step(w, 3, 26).size() == 1 and Fort.rows(w)[0].attributes.hp == 5, "cooldown expires at the correct tick across round boundary")
 		fixture = guarded(pid, 0, 6, 999)
 		w = fixture.world
-		check(raw_step(w, 2).is_empty(), "full structure spends its round repair without overhealing")
+		check(raw_step(w, 2).is_empty(), "full structure neither overheals nor spends an unused repair")
 		w.data.field_structures[0].attributes.hp = 4
-		check(raw_step(w, 2).is_empty() and Fort.rows(w)[0].attributes.hp == 4, "later damage cannot reopen the same round repair")
+		check(raw_step(w, 2).size() == 1 and Fort.rows(w)[0].attributes.hp == 5, "unused repair can address damage later in the round")
 		fixture = guarded(pid, 0)
 		w = fixture.world
 		w.data.field_structures[0].attributes.builder_id = "replacement-builder"
-		check(raw_step(w, 2).is_empty() and Fort.rows(w)[0].attributes.hp == 3, "Wright cannot repair another builder's replacement structure")
+		check(raw_step(w, 2).size() == 1 and Fort.rows(w)[0].attributes.hp == 4, "nearby Wright can assist a structure even when its original guard assignment no longer matches")
 		for state in [{"waiting": true}, {"movement_ready_round": 3}, {"rout_round": 2}, {"hidden": true}]:
 			fixture = guarded(pid, 0)
 			w = fixture.world
@@ -90,7 +91,7 @@ func run() -> void:
 		var a: Dictionary = fixture.builder.attributes.duplicate(true)
 		a.direction *= -1; ids.update(fixture.builder.id, 1-pid, a); w.entities = ids.snapshot()
 		check(raw_step(w, 2).is_empty() and Fort.rows(w)[0].attributes.hp == 3, "changed allegiance cannot repair the former owner's structure")
-		for invalid in [{"wright_repair_round": -1}, {"wright_repair_round": 1.5}, {"wright_released": 1}, {"wright_built": false}]:
+		for invalid in [{"wright_repair_next_tick": -1}, {"wright_repair_next_tick": 1.5}, {"wright_repair_round": -1}, {"wright_released": 1}, {"wright_built": false}]:
 			a = fixture.builder.attributes.duplicate(true); a.merge(invalid, true)
 			check(not Fort.valid_unit(a), "save validation rejects malformed repair or release state")
 	if phase_output != null: phase_output.close()

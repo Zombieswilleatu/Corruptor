@@ -1,5 +1,5 @@
 """Remaining Lord wrapper hooks, in the native content inheritance order."""
-from . import veil
+from . import veil, game_staging
 from . import economy as e, powers, kroni_actors as kroni, wishmaster
 from .copying import copy_data
 from .primitives import instance_id, draw
@@ -16,7 +16,10 @@ class LordRoundRules(RoundRules):
                     hook=self.hook,persistent_effects=self.effects,full_roster=True)
 
     def run(self, orders):
-        events = veil.begin_effects(self) if self.hook == "round_start_scheduled" else []
+        events = []
+        if self.hook == "round_start_scheduled":
+            events.extend(game_staging.release_due(self.w, self.number))
+            events.extend(veil.begin_effects(self))
         events.extend(super().run(orders))
         wishmaster.record_losses(self.w, events)
         from .monster_effects import deaths

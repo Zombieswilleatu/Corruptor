@@ -20,10 +20,11 @@ static func identity(game, revision: String, source_hash: String) -> Dictionary:
 	return result
 
 static func begin(setup: Dictionary, revision: String, source_hash: String) -> Dictionary:
-	if setup.size() != 3 or typeof(setup.get("seed")) != TYPE_STRING or typeof(setup.get("lords")) != TYPE_ARRAY or typeof(setup.get("castles")) != TYPE_ARRAY:
+	var promoted: bool = setup.get("ward_experiment") == Game.Content.SplitWard.VERSION and setup.get("tempo_experiment") == Game.Content.SplitWard.TEMPO
+	if setup.size() != (5 if promoted else 3) or typeof(setup.get("seed")) != TYPE_STRING or typeof(setup.get("lords")) != TYPE_ARRAY or typeof(setup.get("castles")) != TYPE_ARRAY:
 		return {"action": "invalid", "reason": "trace_setup_invalid"}
 	var game = Game.new()
-	var result: Dictionary = game.start(setup.seed, setup.lords, setup.castles, true)
+	var result: Dictionary = game.start(setup.seed, setup.lords, setup.castles, true, promoted)
 	if result.action == "invalid": return result
 	return {"action": "trace_started", "game": game, "trace": {
 		"identity": identity(game, revision, source_hash), "setup": setup.duplicate(true),

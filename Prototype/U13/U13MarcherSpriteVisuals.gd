@@ -13,6 +13,9 @@ static func position_of(unit: Dictionary) -> Vector2:
 	var a: Dictionary = unit.attributes
 	return Vector2(float(a.get("visual_x", a.get("x_fp", 0))), float(a.get("visual_y", a.get("y_fp", 300))))
 
+static func permanent_armor(a: Dictionary) -> float:
+	return float(a.get("tumler_charge_base_armor", 0)) if a.get("tumler_charge_phase", "") in ["windup", "charge"] else float(a.get("armor", 0))
+
 func sync(units: Array, clash: Array, round_number: int, playback: bool) -> void:
 	for state in subjects.values():
 		state.present = false
@@ -31,13 +34,13 @@ func sync(units: Array, clash: Array, round_number: int, playback: bool) -> void
 				"phase": float(digest[0]) / 256.0, "hit_age": 10.0,
 				"spawn_age": 0.0 if new_unit and has_snapshot else 10.0,
 				"attack_age": 10.0, "clashing": false, "moving": false,
-				"armor_capacity": maxf(float(a.get("armor", 0)), float(a.get("max_armor", 0))),
+				"armor_capacity": maxf(permanent_armor(a), float(a.get("max_armor", 0))),
 				"ranged_tick": maxi(int(a.get("ranged_next_tick", 0)), int(a.get("beam_next_tick", 0))),
 				"transform_age": 10.0 if character == "Sooge" and a.get("sprite_form", "") == "turret" else -1.0}
 		var state: Dictionary = subjects[id]
 		# Retain the meter's capacity so losing Armor empties its segment instead
 		# of enlarging the HP segment. Armor grants can expand this cosmetic cap.
-		state.armor_capacity = maxf(state.armor_capacity, maxf(float(a.get("armor", 0)), float(a.get("max_armor", 0))))
+		state.armor_capacity = maxf(state.armor_capacity, maxf(permanent_armor(a), float(a.get("max_armor", 0))))
 		var same_lane: bool = state.lane == a.lane
 		var ready: bool = not a.get("waiting", false) and int(a.get("movement_ready_round", 0)) <= round_number
 		state.moving = playback and not fresh and same_lane and ready and point.distance_squared_to(state.position) > 0.0001
@@ -125,6 +128,12 @@ func presentation(unit: Dictionary, death_age: float = -1.0) -> Dictionary:
 		motion = "March"
 	if transform_age >= 0.0 and transform_age < 0.75:
 		motion = "Hold"
+	if unit.attributes.get("tumler_charge_phase", "") == "windup":
+		motion = "Hold"
+		time = 0.0
+	elif unit.attributes.get("tumler_charge_phase", "") == "charge":
+		motion = "March"
+		time = clock * 3.0
 	if death_age >= 0.0:
 		motion = "Death"
 		time = death_age * 1.25 / 0.48 # Match the existing casualty/ghost lifetime.

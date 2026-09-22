@@ -101,7 +101,7 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 					continue
 				var name: String = lost.attributes.get("monster_id", "")
 				var roster = preload("res://Scripts/Sim/U13MonsterRules.gd")
-				if roster.limited(name) and roster.living(ids.snapshot().entities, pid, name): continue
+				if roster.limited(name) and roster.living(ids.snapshot().entities + roster.reserves(world), pid, name): continue
 				var a: Dictionary = roster.profile(name, source.target.lane, pid, context.round, int(context.round) + 1, lost.attributes.get("sprite_form") == "turret") if not name.is_empty() else Marching.profile(lost.attributes.suit, source.target.lane, pid, context.round, int(context.round) + 1, Marching.Ranged.enabled(world))
 				if name == "Sooge":
 					for key in ["sooge_root_attempts", "sooge_root_round"]: a[key] = lost.attributes.get(key, 0)

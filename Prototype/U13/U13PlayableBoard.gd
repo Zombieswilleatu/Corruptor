@@ -13,11 +13,34 @@ var save_button: Button
 var load_button: Button
 var load_dialog: FileDialog
 var rites_plan: Dictionary = {}
+var ward_plan: Dictionary = {}
+var reserve_ward_button: Button
+var clear_ward_button: Button
+var ward_note: Label
 const MonsterRules = preload("res://Scripts/Sim/U13MonsterRules.gd")
+const StagingTray = preload("res://Prototype/U13/U13GameStagingTray.gd")
+const BoardStaging = preload("res://Prototype/U13/U13BoardStaging.gd")
+var board_staging
+var staging_modes: Dictionary = {"Lord": "Hold", "Castle": "Hold"}
+var staging_round: int = 0
+var staging_ids: Dictionary = {}
+var _opening_playback = null
+var _opening_clock: float = 0.0
+var _opening_round: int = 0
+var _opening_unit_ids: Array = []
+var _opening_feedback_cursor: int = 0
+var _opening_death_cursor: int = 0
+var _warm_round_job = null
+var _warm_round_source = null
 var monster_choice: String = ""
 var monster_picker: OptionButton
 var monster_note: Label
 var recipe_menu
+var summon_menu
+var _summon_prompt_options: Array = []
+const HandRecipeHints = preload("res://Prototype/U13/U13HandRecipeHints.gd")
+var hand_recipe_hints
+var _recipe_hand_separation: int = -52
 var fracture_choice: String = "infrastructure"
 var choice_error: String = ""
 var setup_load_button: Button
@@ -45,17 +68,58 @@ func _build() -> void:
 	game_menu = GameMenu.new()
 	add_child(game_menu)
 	game_menu.closed.connect(reopen_decision)
+	board_staging = BoardStaging.new()
+	board_staging.name = "BoardStaging"
+	lanes.add_child(board_staging)
+	# Recover decorative spacing so bottom reserve controls fit the 1080 canvas.
+	var board_stack: VBoxContainer = sides[0].get_parent()
+	board_stack.add_theme_constant_override("separation", 3)
+	board_stack.get_child(1).custom_minimum_size.y = 0
+	lanes.get_parent().get_parent().add_theme_constant_override("separation", 4)
+	board_staging.march_requested.connect(func(lane):
+		if not _planning() or playing or _job != null: return
+		staging_ids[lane] = _visible_world.game_staging.lanes[lane].units.filter(func(u): return u.owner == 0 and int(u.attributes.staged_round) < session.round_number()).map(func(u): return u.id)
+		if staging_ids[lane].is_empty(): return
+		staging_modes[lane] = "March"
+		if powers_step: staged_order = _order()
+		_refresh())
 	recipe_menu = GameMenu.new()
 	add_child(recipe_menu)
-	_button(header.tools_box, "RECIPES", _open_recipes)
+	summon_menu = GameMenu.new()
+	add_child(summon_menu)
+	summon_menu.z_index = 130
+	summon_menu.closed.connect(func(): _summon_prompt_options = [])
+	_button(header.tools_box, "GRIMOIRES", _open_recipes)
+	# Keep the existing hand intact; planning hints share its bottom row.
+	var hand_parent: Node = hand_view.get_parent()
+	var hand_index: int = hand_view.get_index()
+	var hand_row := HBoxContainer.new()
+	hand_row.name = "HandAndRecipes"
+	hand_row.add_theme_constant_override("separation", 10)
+	hand_parent.add_child(hand_row)
+	hand_parent.move_child(hand_row, hand_index)
+	hand_view.reparent(hand_row)
+	hand_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hand_recipe_hints = HandRecipeHints.new()
+	hand_row.add_child(hand_recipe_hints)
+	_recipe_hand_separation = hand_view.hand_box.get_theme_constant("separation")
+	resized.connect(_fit_recipe_hand)
+	for row in sides:
+		row.get_node("PromptCastleGutter").item_rect_changed.connect(_queue_main_modal_fit)
+	_queue_main_modal_fit()
 	monster_picker = _option(action_zone.action_box, ["No monster summon"])
 	monster_picker.name = "MonsterSummonChoice"
 	monster_picker.item_selected.connect(func(index): monster_choice = str(monster_picker.get_item_metadata(index)); _refresh())
+	reserve_ward_button = _button(action_zone.action_box, "RESERVE WARD", _reserve_ward)
+	reserve_ward_button.tooltip_text = "Choose Ward, its lane and cards first. Reserve those cards, then choose Hunt or Siege with your remaining hand."
+	clear_ward_button = _button(action_zone.action_box, "CLEAR RESERVED WARD", _clear_ward)
+	ward_note = _label(action_zone.action_box, "", 13)
+	ward_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	monster_note = _label(action_zone.action_box, "", 13)
 	monster_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	work_button = _button(header.history_box, "WORK TARGET", _open_work_target)
-	work_button.tooltip_text = "Click, then select a pulsing Castle. Each newly placed Guard gives 1 work; a fresh Wright pair adds 3. Unbuilt targets also gain 3 per round. No card payment."
-	action_zone.action_buttons["Ward"].tooltip_text = "Defend a lane and recruit one Marcher per 2 printed suit value. Hunt and Siege recruit at 3:1."
+	work_button.tooltip_text = "Click, then select a pulsing Castle. Each newly placed Guard gives 1 work; a fresh Wright pair adds 5 construction or 3 repair work. Unbuilt targets also gain 3 per round. No card payment."
+	action_zone.action_buttons["Ward"].tooltip_text = "Defend a lane and recruit one Marcher per 2 printed suit value. Ward cannot summon grimoire monsters. Hunt and Siege recruit at 3:1 and can summon monsters."
 	game_button = _button(header.history_box, "GAME / RITES", _open_game_menu)
 	var files := HBoxContainer.new()
 	header.history_box.add_child(files)
@@ -86,26 +150,88 @@ func _build() -> void:
 	add_child(load_dialog)
 	setup_load_button = _button(setup_picker.start_button.get_parent(), "LOAD SAVED GAME", _open_load)
 
+func _queue_main_modal_fit() -> void:
+	call_deferred("_fit_main_modal")
+
+func _fit_main_modal() -> void:
+	if phase_prompt == null or sides.size() != 2: return
+	var inverse: Transform2D = get_global_transform().affine_inverse()
+	var left: float = -INF
+	var right: float = INF
+	for row in sides:
+		if row.lord_guard_box.get_child_count() == 0 or row.castle_row.get_child_count() == 0: return
+		for card in row.lord_guard_box.get_children():
+			var rect: Rect2 = inverse * card.get_global_rect()
+			left = maxf(left, rect.end.x)
+		for card in row.castle_row.get_children():
+			var rect: Rect2 = inverse * card.get_global_rect()
+			right = minf(right, rect.position.x)
+	phase_prompt.fit_board_gutter(left, right)
+
+func _development_stacks(stacks: Array) -> void:
+	super._development_stacks(stacks)
+	if ward_plan.is_empty() or not _planning() or setup_open: return
+	var before: int = stacks.size()
+	_add_stack(stacks, "reserved_ward", "WARD", ward_plan.card_ids, {"id": "", "kind": "zone", "owner": 0, "lane": ward_plan.lane})
+	if stacks.size() > before: stacks.back().locked = powers_step
+
+func _return_card(role: String, id: String) -> void:
+	if role != "reserved_ward":
+		super._return_card(role, id)
+		return
+	if not _planning() or powers_step: return
+	ward_plan.card_ids.erase(id)
+	if ward_plan.card_ids.is_empty(): ward_plan = {}
+	_refresh()
+
+func _reserve_ward() -> void:
+	if not _planning() or powers_step or _draft_combat.get("action") != "Ward" or _draft_combat.get("card_ids", []).is_empty(): return
+	ward_plan = _draft_combat.duplicate(true)
+	_draft_combat = {}
+	_intent = ""
+	_target = {}
+	monster_choice = ""
+	_refresh()
+
+func _clear_ward() -> void:
+	if not _planning() or powers_step: return
+	ward_plan = {}
+	_refresh()
+
 func _planning() -> bool:
 	return super._planning() and session is PlaySession and session.pending_choice.is_empty() and not session.is_finished()
 
 func _with_development(order: Dictionary) -> Dictionary:
 	var result: Dictionary = super._with_development(order)
+	result.erase("ward")
+	if not ward_plan.is_empty():
+		if result.has("action"):
+			result["ward"] = ward_plan.duplicate(true)
+		elif not result.has("action"):
+			result.merge(ward_plan.duplicate(true))
+	if _visible_world.has("game_staging"):
+		result["staging"] = staging_modes.duplicate()
+		result["staging_ids"] = staging_ids.duplicate(true)
 	if not rites_plan.is_empty():
 		result["rites"] = rites_plan.duplicate(true)
 	if result.get("action") == "Hunt":
 		result["fracture_target"] = fracture_choice
 	result.erase("monster_choice")
-	if not monster_choice.is_empty() and monster_choice in _available_monsters(result.get("card_ids", [])):
+	if result.get("action") in ["Hunt", "Siege"] and not monster_choice.is_empty() and monster_choice in _available_monsters(result.get("card_ids", []), result.get("action", "")):
 		result["monster_choice"] = monster_choice
 	return result
 
 func _hand_reserved(id: String) -> bool:
-	return id in rites_plan.get("invocation", {}).get("card_ids", []) or super._hand_reserved(id)
+	return id in ward_plan.get("card_ids", []) or id in rites_plan.get("invocation", {}).get("card_ids", []) or super._hand_reserved(id)
 
 func _reset_direct() -> void:
 	choosing_work = false
+	if _job_operation != "next_round":
+		staging_modes = {"Lord": "Hold", "Castle": "Hold"}
+		staging_round = 0
+		staging_ids = {}
 	rites_plan = {}
+	ward_plan = {}
 	monster_choice = ""
 	fracture_choice = "infrastructure"
 	choice_error = ""
@@ -113,6 +239,9 @@ func _reset_direct() -> void:
 		game_menu.pending_selection = Callable()
 		game_menu.hide()
 	if recipe_menu != null: recipe_menu.hide()
+	if summon_menu != null: summon_menu.hide()
+	_summon_prompt_options = []
+	_hide_hand_recipe_hints()
 	super._reset_direct()
 
 func _refresh(presented: Dictionary = {}) -> void:
@@ -121,10 +250,38 @@ func _refresh(presented: Dictionary = {}) -> void:
 		# Set before show_world observes disappearing bodies. Concealment
 		# is not death, and a reappearing body must be observable again.
 		lanes.quiet_removal_ids = view.world.get("concealed_ids", []).duplicate()
+		if _opening_round != session.round_number():
+			for event in session._opening_marching:
+				if event.type == "MARCHING_STARTED":
+					lanes.quiet_removal_ids.append_array(event.data.units.map(func(u): return u.id))
+		elif _opening_playback != null:
+			lanes.quiet_removal_ids.append_array(_opening_unit_ids)
 	super._refresh(view)
+	_queue_main_modal_fit()
+	_hide_hand_recipe_hints()
 	if not session is PlaySession:
 		return
 	var w: Dictionary = _visible_world
+	var split: bool = w.get("ward_experiment") == "U13_SPLIT_WARD_V1"
+	reserve_ward_button.visible = split
+	reserve_ward_button.disabled = not _planning() or powers_step or _draft_combat.get("action") != "Ward" or _draft_combat.get("card_ids", []).is_empty()
+	clear_ward_button.visible = split and not ward_plan.is_empty()
+	clear_ward_button.disabled = not _planning() or powers_step
+	ward_note.visible = split
+	ward_note.text = "Ward %s reserved · %d cards. Hunt or Siege can use the remaining hand." % [ward_plan.lane, ward_plan.card_ids.size()] if not ward_plan.is_empty() else "Optional: reserve one paid Ward, then Hunt or Siege. No Sigils. A Ward that prevents a successful attack earns 1 Soul (once per round)."
+	if not ward_plan.is_empty(): plan_label.text += "\nWard %s · %d cards reserved" % [ward_plan.lane, ward_plan.card_ids.size()]
+	if staging_round != session.round_number():
+		staging_ids = {}
+		for lane in staging_modes:
+			if staging_modes[lane] == "March": staging_modes[lane] = "Hold"
+		staging_round = session.round_number()
+	lanes.live_layout = w.has("game_staging")
+	lanes.custom_minimum_size.x = 680.0 if lanes.live_layout else 435.0
+	var display_controls: Control = lanes.get_node("UnitDisplayControls")
+	display_controls.offset_top = 4 if lanes.live_layout else 123
+	display_controls.offset_bottom = 32 if lanes.live_layout else 151
+	board_staging.bind(w.get("game_staging", {}), session.round_number(), staging_modes, _planning() and not playing and _job == null and not setup_open)
+	lanes.queue_redraw()
 	_sync_monsters()
 	lanes.monster_fields = w.get("monsters", {}).get("fields", []).filter(func(f): return f.expires_round >= session.round_number())
 	header.bind_playable_veil(w, session.round_number())
@@ -146,6 +303,8 @@ func _refresh(presented: Dictionary = {}) -> void:
 		plan_label.text += "\nTear rites staged · inspect or clear in GAME / RITES."
 	if not session.pending_choice.is_empty() and _job == null:
 		call_deferred("_show_economy")
+	_sync_hand_recipe_hints()
+	_sync_opening_march()
 
 func _target_allowed(target: Dictionary, intent: String) -> bool:
 	if intent == "Ward":
@@ -185,7 +344,17 @@ func _confirm_decision() -> void:
 	super._confirm_decision()
 
 func _complete_job() -> void:
+	var operation: String = _job_operation
 	super._complete_job()
+	if operation == "aftermath" and session is PlaySession and session.next_hook().is_empty() and not session.is_finished():
+		# Work on a detached next round while the player reviews Aftermath.
+		_discard_warm_round()
+		_warm_round_job = BoardJob.new()
+		_warm_round_source = session
+		var result: Dictionary = _warm_round_job.start(session, "next_round")
+		if result.action == "invalid":
+			_warm_round_job = null
+			_warm_round_source = null
 	# Keep the final round ledger visible until MATCH RESULT is selected.
 
 func next_round() -> void:
@@ -220,6 +389,42 @@ func _show_economy() -> void:
 		if not game_menu.embedded: game_menu.button("PASS TRADE", _economy.bind({"market": "Pass"}))
 	game_menu.button("SAVE AND RETURN LATER", _save_game)
 	game_menu.set_message(choice_error)
+	_sync_hand_recipe_hints()
+
+func _sync_hand_recipe_hints() -> void:
+	if hand_recipe_hints == null: return
+	if not match_started or setup_open or playing or _job != null or not session is PlaySession:
+		_hide_hand_recipe_hints()
+		return
+	if not _planning() and session.pending_choice.is_empty():
+		_hide_hand_recipe_hints()
+		return
+	# Combat cards still belong to a potential summon. Other allocations do
+	# not: moving a card into Guards/rites/powers must update the guidance.
+	var reserved: Array = ward_plan.get("card_ids", []) + payment + castle_plan.get("card_ids", []) + summon_plan.get("card_ids", []) + _power_cost + rites_plan.get("invocation", {}).get("card_ids", [])
+	for move in guard_plan: reserved.append(move.card_id)
+	var combat_cards: Array = []
+	if _draft_combat.get("action") == "Ward": reserved.append_array(_draft_combat.get("card_ids", []))
+	if _draft_combat.get("action") in ["Hunt", "Siege"]:
+		combat_cards = _draft_combat.get("card_ids", []).filter(func(id): return id not in reserved)
+	hand_recipe_hints.show_for(_visible_world, reserved, combat_cards)
+	_fit_recipe_hand()
+
+func _fit_recipe_hand() -> void:
+	if hand_recipe_hints == null or not hand_recipe_hints.visible: return
+	var count: int = hand_view.card_buttons.size()
+	if count < 2: return
+	# The lanes retain their width. Fan a full hand more tightly while the
+	# recipe strip is open instead of pushing the battlefield off screen.
+	var card_width: float = hand_view.card_buttons[0].custom_minimum_size.x
+	var space: float = size.x - lanes.get_combined_minimum_size().x - 24.0 - hand_recipe_hints.custom_minimum_size.x - 10.0 - 52.0
+	var separation: int = mini(_recipe_hand_separation, floori((space - card_width * count) / (count - 1)))
+	hand_view.hand_box.add_theme_constant_override("separation", separation)
+
+func _hide_hand_recipe_hints() -> void:
+	if hand_recipe_hints == null: return
+	hand_recipe_hints.dismiss()
+	hand_view.hand_box.add_theme_constant_override("separation", _recipe_hand_separation)
 
 func _economy(choice: Dictionary) -> void:
 	if _job != null:
@@ -243,7 +448,8 @@ func _open_game_menu() -> void:
 		game_menu.button("NEW GAME", func(): game_menu.hide(); open_setup())
 		game_menu.button("SAVE FINISHED GAME", _save_game)
 		return
-	game_menu.present("GAME / TEAR RITES", "Ritual: 12 Souls with your Lord present. Dominion: Veil 12+, at least 5 Personal Tears and more than your opponent. Final Collapse: Veil 26; most Souls wins (seat 0 wins a tie).")
+	var tempo: bool = _visible_world.get("tempo_experiment") == "U13_VEIL_ATTACK_ROUND25_V1"
+	game_menu.present("GAME / TEAR RITES", "Ritual: 12 Souls with your Lord present. Dominion: Veil 12+, at least 5 Personal Tears and more than your opponent. " + ("Round 25 ends the game after normal victories; most Souls wins (seat 0 wins a tie). Veil 13/17/21 adds +1/+2/+3 committed attack strength. From round 20, a Hunt banishment or Siege destruction earns +1 Soul, once per player per round. Reserve one paid Ward alongside Hunt or Siege. Ward protects only its chosen lane; no Sigils." if tempo else "Final Collapse: Veil 26; most Souls wins (seat 0 wins a tie)."))
 	if not _planning():
 		game_menu.label("Round resolved. Return to the board and continue to the next round.")
 		return
@@ -264,6 +470,9 @@ func _pillage_available() -> bool:
 	return not _visible_world.get("entities", []).is_empty() and not _visible_world.entities.any(func(e): return e.owner == 1 and Structures.targetable(e))
 
 func _select_direct_action(action: String) -> void:
+	if action == "Ward" and not ward_plan.is_empty() and _planning() and not powers_step:
+		_draft_combat = ward_plan.duplicate(true)
+		ward_plan = {}
 	choosing_work = false
 	if action != "Siege" or not _pillage_available():
 		super._select_direct_action(action)
@@ -286,6 +495,7 @@ func _update_direct_ui() -> void:
 	action_zone.action_buttons["Siege"].disabled = not _planning()
 	if _planning() and pillage and _intent == "Siege":
 		status.text = _guide() if _interaction_error.is_empty() else _interaction_error
+	if not _direct_binding: _sync_hand_recipe_hints()
 
 func _guide() -> String:
 	if _intent == "Siege" and _pillage_available():
@@ -315,6 +525,9 @@ func _choose_profane() -> void:
 			game_menu.button(_castle_name(row), _stage_profane.bind(row.id))
 
 func _stage_profane(id: String) -> void:
+	if not ward_plan.is_empty():
+		game_menu.set_message("Clear the reserved Ward before choosing Profane.")
+		return
 	var combat: Dictionary = {"action": "Profane", "lane": "Castle", "target_id": id, "card_ids": []}
 	var order: Dictionary = _with_development(combat)
 	if not castle_plan.is_empty():
@@ -409,6 +622,7 @@ func _can_save() -> bool:
 	return match_started and not setup_open and _job == null and not playing and session is PlaySession and (session.next_hook() == Timeline.SUBMISSION_LOCK or not session.pending_choice.is_empty() or session.next_hook().is_empty())
 
 func _friendly_error(result: Dictionary) -> String:
+	if result.get("reason") == "ward_cards_required": return "Ward requires at least one card. Skip combat to keep your hand."
 	var messages: Dictionary = {
 		"common_bot_python_unavailable": "The opponent needs Python 3.10 or newer. Start the game with run_u13_playable.sh to check its setup.",
 		"common_bot_pipe_closed": "The opponent could not start. Run run_u13_playable.sh to check the Python setup.",
@@ -502,10 +716,19 @@ func _load_game(path: String) -> void:
 	guard_plan = order.get("guard_moves", []).duplicate(true)
 	summon_plan = order.get("summon", {}).duplicate(true)
 	rites_plan = order.get("rites", {}).duplicate(true)
+	ward_plan = order.get("ward", {}).duplicate(true)
 	monster_choice = order.get("monster_choice", "")
 	fracture_choice = order.get("fracture_target", "infrastructure")
+	staging_ids = order.get("staging_ids", {}).duplicate(true)
+	_opening_playback = null
+	_opening_round = candidate.round_number()
+	staging_modes = order.get("staging", {"Lord": "Hold", "Castle": "Hold"}).duplicate()
+	# Restore the saved clicked cohort exactly; do not rebuild it from the old board.
+	for lane in ["Lord", "Castle"]:
+		staging_modes[lane] = "March" if staging_modes.get(lane) == "March" else "Hold"
+	staging_round = candidate.round_number()
 	_draft_combat = order.duplicate(true)
-	for key in ["castle_action", "guard_moves", "summon", "rites"]: _draft_combat.erase(key)
+	for key in ["castle_action", "guard_moves", "summon", "rites", "staging", "staging_ids", "ward"]: _draft_combat.erase(key)
 	powers_step = false
 	staged_order = {}
 	payment = []
@@ -531,7 +754,7 @@ func _work_preview() -> String:
 	for move in guard_plan:
 		if _entity(move.card_id).get("attributes", {}).get("suit") == "Wright": counts[move.lane] = int(counts.get(move.lane, 0)) + 1
 	for count in counts.values():
-		if count >= 2: work += 5
+		if count >= 2: work += Work.wright_pair_work(target)
 	var a: Dictionary = target.attributes
 	var passive: int = 3 if a.construction_state != "active" or a.status == "ruined" else 0
 	var locked: bool = passive == 0 and int(a.get("repair_lock_until_round", 0)) >= session.round_number()
@@ -641,7 +864,7 @@ func _show_pair_badges() -> void:
 			badge.modulate = Color("e6cc75")
 			badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			card.add_child(badge)
-			var benefit: String = {"Butcher": "When attacked, destroy up to 2 random enemy Marchers in this lane.", "Penitent": "3 protection before Guards while intact.", "Wright": "+3 work once on placement.", "Vulture": "Draw 1 each following round while intact."}[pair.suit]
+			var benefit: String = {"Butcher": "When attacked, destroy up to 2 random enemy Marchers in this lane.", "Penitent": "3 protection before Guards while intact.", "Wright": "+5 construction or +3 repair work once on placement, plus 1 work per new Guard.", "Vulture": "Draw 1 each following round while intact."}[pair.suit]
 			card.input_surface.tooltip_text += "\nBonded " + pair.suit + " pair. " + benefit + " Either card leaving breaks the bond; a replacement does not restore it."
 
 
@@ -690,6 +913,7 @@ func _playtime_surface() -> String:
 func _process(delta: float) -> void:
 	_sample_playtime()
 	super._process(delta)
+	_advance_opening_march(delta)
 	_sample_playtime()
 	if playtime_label != null:
 		playtime_label.text = "PLAYTIME " + Playtime.duration(playtime.decision_ms + playtime.resolution_ms) + (" *" if not playtime.history_complete else "")
@@ -720,20 +944,29 @@ func start_loadout(lords: Array, castles: Array, quick: bool) -> void:
 	_sample_playtime()
 	super.start_loadout(lords, castles, quick)
 	if session != previous:
+		_opening_round = 0
+		_opening_playback = null
+		_sync_opening_march()
 		playtime = Playtime.new()
 		header.veil_wheel.follow_current()
 	_sample_playtime()
 
 func _start_job(operation: String, powers: Array = [], order: Dictionary = {}) -> void:
+	if summon_menu != null: summon_menu.hide()
+	_hide_hand_recipe_hints()
 	_sample_playtime()
 	if _job == null and session is PlaySession:
 		_playtime_round = session.round_number() + (1 if operation == "next_round" else 0)
 	if _playtime_mode() != "excluded":
 		playtime.sample(Time.get_ticks_msec(), "resolution", _playtime_round)
+	if operation == "marching": _finish_opening_march()
 	super._start_job(operation, powers, order)
+	if _job != null and board_staging != null: board_staging.set_editable(false)
 	_sample_playtime()
 
 func open_setup() -> void:
+	if summon_menu != null: summon_menu.hide()
+	_hide_hand_recipe_hints()
 	_sample_playtime()
 	super.open_setup()
 	_sample_playtime()
@@ -744,6 +977,7 @@ func close_setup() -> void:
 	_sample_playtime()
 
 func _exit_tree() -> void:
+	_discard_warm_round()
 	if _playtime_paused:
 		get_tree().paused = false
 	super._exit_tree()
@@ -758,10 +992,12 @@ func restart() -> void:
 		header.veil_wheel.follow_current()
 	_sample_playtime()
 
-func _available_monsters(cards: Array) -> Array:
+func _available_monsters(cards: Array, action: String = "") -> Array:
+	if action.is_empty(): action = _draft_combat.get("action", "")
+	if action not in ["Hunt", "Siege"]: return []
 	var state: Dictionary = _visible_world.get("monsters", {})
 	if state.is_empty(): return []
-	return MonsterRules.available(_visible_world.get("entities", []), cards, 0, state.unlocked[0])
+	return MonsterRules.available(_visible_world.get("entities", []) + _staged_monsters(), cards, 0, state.unlocked[0])
 
 func _sync_monsters() -> void:
 	if monster_picker == null: return
@@ -775,13 +1011,41 @@ func _sync_monsters() -> void:
 		monster_picker.set_item_metadata(monster_picker.item_count - 1, name)
 		if name == monster_choice: monster_picker.select(monster_picker.item_count - 1)
 	monster_picker.disabled = not _planning() or available.is_empty()
-	monster_note.text = "Commit a recipe's cards to unlock a summon. RECIPES shows the full list." if available.is_empty() else "Choose one monster alongside your normal marchers. Printed card values do not affect recipes."
+	monster_note.text = "Commit a grimoire during Hunt or Siege to summon. Ward recruits normal marchers only." if available.is_empty() else "Choose one monster alongside your normal marchers. Printed card values do not affect grimoires."
 	if not monster_choice.is_empty(): monster_note.text = MonsterRules.recipe_text(monster_choice) + " → " + monster_choice
-	monster_picker.tooltip_text = MonsterRules.ROSTER[monster_choice].ability if not monster_choice.is_empty() else "Choose one qualifying recipe, or keep No monster summon."
+	monster_picker.tooltip_text = MonsterRules.ROSTER[monster_choice].ability if not monster_choice.is_empty() else "Choose one qualifying grimoire, or keep No monster summon."
+	if available.is_empty():
+		_summon_prompt_options = []
+		if summon_menu != null: summon_menu.hide()
+
+func _offer_grimoire_summons() -> bool:
+	if summon_menu == null or not _planning() or powers_step or playing or _job != null or setup_open: return false
+	if _draft_combat.get("action") not in ["Hunt", "Siege", "Ward"]: return false
+	var available: Array = _available_monsters(_draft_combat.get("card_ids", []))
+	if available.is_empty() or available == _summon_prompt_options: return false
+	_summon_prompt_options = available.duplicate()
+	summon_menu.present("GRIMOIRE SUMMONS", "Your committed cards unlock these summons. Choose one to continue to Lord Powers, or continue without a summon.")
+	summon_menu.close_button.text = "BACK TO COMMITMENT"
+	for monster in available:
+		var button: Button = summon_menu.button("SUMMON %s · %s" % [monster.to_upper(), MonsterRules.recipe_text(monster)], _select_grimoire_summon.bind(monster))
+		button.tooltip_text = MonsterRules.ROSTER[monster].ability
+	summon_menu.button("NO MONSTER SUMMON", _select_grimoire_summon.bind(""))
+	return true
+
+func _select_grimoire_summon(monster: String) -> void:
+	if not _planning() or playing or _job != null: return
+	if not monster.is_empty() and monster not in _available_monsters(_draft_combat.get("card_ids", [])): return
+	monster_choice = monster
+	summon_menu.hide()
+	_refresh()
+	_continue_after_grimoire()
+
+func _continue_after_grimoire() -> void:
+	pass
 
 func _open_recipes() -> void:
 	if recipe_menu == null: return
-	recipe_menu.present("MONSTER RECIPES", "Commit the named subjects together in Hunt, Siege or Ward, then choose a summon in the Combat step. One recipe per round, alongside normal marchers. Saved cards and cards spent on Guards, work, powers or rites do not count. All ten recipes are unlocked for this prototype.")
+	recipe_menu.present("MONSTER GRIMOIRES", "Commit the named subjects together in Hunt or Siege, then choose a summon in the Combat step. One grimoire per round, alongside normal marchers. Ward keeps its defenses and 2:1 normal recruits but cannot summon a new monster. Existing field and staged monsters remain usable. Saved cards and cards spent on Guards, work, powers or rites do not count. All ten grimoires are unlocked for this prototype.")
 	var available: Array = _available_monsters(_draft_combat.get("card_ids", []))
 	for name in MonsterRules.NAMES:
 		var r: Dictionary = MonsterRules.ROSTER[name]
@@ -796,7 +1060,75 @@ func _open_recipes() -> void:
 		text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		text.add_theme_font_size_override("font_size", 16)
 		var eligibility: String = "\nReady with your committed cards." if name in available else ""
-		if MonsterRules.limited(name) and MonsterRules.living(_visible_world.get("entities", []), 0, name): eligibility = "\nAlready alive: summon another after it leaves play."
+		if MonsterRules.limited(name) and MonsterRules.living(_visible_world.get("entities", []) + _staged_monsters(), 0, name): eligibility = "\nAlready alive: summon another after it leaves play."
 		text.text = "%s · %s\n%s\nAttack %d · Armor %d · Speed %d · HP %d\n%s%s" % [name, r.tier, MonsterRules.recipe_text(name), r.attack, r.armor, r.speed, r.hp, r.ability, eligibility]
 		panel.add_child(text)
 	recipe_menu.label("Initial playtest values: Sinodek's stats, HP, chances and ability ranges are provisional. Varn is 3–5 bodies per summon. Sooge and Sinodek each allow one living copy per player, with no fixed cooldown.", 14)
+
+
+func _staged_monsters() -> Array:
+	var result: Array = []
+	for tray in _visible_world.get("game_staging", {}).get("lanes", {}).values(): result.append_array(tray.units)
+	return result
+
+# This tape is presentation only. Planning uses its fully resolved world, so
+# taking longer in a modal never grants extra simulation time or changes a roll.
+func _sync_opening_march() -> void:
+	if not session is PlaySession or setup_open: return
+	if _opening_round != session.round_number():
+		_opening_round = session.round_number()
+		_opening_playback = null
+		var events: Array = session.opening_marching_events()
+		if not events.is_empty():
+			var tape = preload("res://Prototype/U13/U13SmokePlayback.gd").new()
+			if tape.build(events):
+				_opening_playback = tape
+				_opening_unit_ids = tape.sample(0).units.map(func(u): return u.id)
+				_opening_clock = 0.0
+				_opening_feedback_cursor = 0
+				_opening_death_cursor = 0
+				if kroni_visual != null: kroni_visual.load_tape(events)
+	if _opening_playback != null:
+		lanes.show_frame(_opening_playback.sample(_opening_clock), session.round_number())
+
+func _advance_opening_march(delta: float) -> void:
+	if _opening_playback == null or playing or setup_open: return
+	if guard_chomp != null and guard_chomp.active(): return
+	if kroni_visual != null and kroni_visual.busy(): return
+	var step: float = kroni_visual.limit_delta(_opening_clock, delta) if kroni_visual != null else delta
+	_opening_clock = minf(_opening_playback.duration, _opening_clock + maxf(0.0, step))
+	var deaths: Dictionary = _opening_playback.deaths_through(_opening_clock, _opening_death_cursor)
+	_opening_death_cursor = deaths.cursor
+	lanes.show_deaths(deaths.rows)
+	lanes.show_frame(_opening_playback.sample(_opening_clock), session.round_number())
+	var feedback: Dictionary = _opening_playback.feedback_through(_opening_clock, _opening_feedback_cursor)
+	_opening_feedback_cursor = feedback.cursor
+	lanes.show_feedback(feedback.rows)
+	if kroni_visual != null: kroni_visual.show_time(_opening_clock)
+	if _opening_clock >= _opening_playback.duration: _finish_opening_march()
+
+func _finish_opening_march() -> void:
+	if _opening_playback == null: return
+	lanes.show_frame(_opening_playback.sample(_opening_playback.duration), session.round_number())
+	_opening_playback = null
+	_opening_unit_ids = []
+	lanes.quiet_removal_ids = _visible_world.get("concealed_ids", []).duplicate()
+	if kroni_visual != null: kroni_visual.clear()
+
+func finish_playback(skip: bool = true) -> void:
+	_finish_opening_march()
+	super.finish_playback(skip)
+
+func _new_board_job(operation: String):
+	if operation == "next_round" and _warm_round_job != null and _warm_round_source == session:
+		var prepared = _warm_round_job
+		_warm_round_job = null
+		_warm_round_source = null
+		return prepared
+	return super._new_board_job(operation)
+
+func _discard_warm_round() -> void:
+	if _warm_round_job != null:
+		_warm_round_job.join_on_exit()
+		_warm_round_job = null
+		_warm_round_source = null

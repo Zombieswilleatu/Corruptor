@@ -11,6 +11,17 @@ var _rows: Array = []
 func append(event: Dictionary, views: Array) -> Dictionary:
 	if not _valid_event(event) or views.size() != 2:
 		return Data.invalid("event_data_invalid")
+	for view in views:
+		if view != null and not is_same(view, event) and not _valid_event(view):
+			return Data.invalid("event_view_invalid")
+	return _append_validated(event, views)
+
+
+# Internal: the complete transform envelope has passed plain-data validation.
+# Retain shape checks, normalization and detached ownership at admission.
+func _append_validated(event: Dictionary, views: Array) -> Dictionary:
+	if not _valid_event_shape(event) or views.size() != 2:
+		return Data.invalid("event_data_invalid")
 	var owned: Dictionary = Data.copy_data(event)
 	var copied_views: Array = []
 	for index in range(views.size()):
@@ -23,7 +34,7 @@ func append(event: Dictionary, views: Array) -> Dictionary:
 		elif index == 1 and is_same(view, views[0]):
 			copied_views.append(copied_views[0])
 		else:
-			if not _valid_event(view):
+			if not _valid_event_shape(view):
 				return Data.invalid("event_view_invalid")
 			copied_views.append(Data.copy_data(view))
 	_rows.append({"event": owned, "views": copied_views})

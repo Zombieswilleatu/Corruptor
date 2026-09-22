@@ -51,14 +51,38 @@ class DevelopmentTests(unittest.TestCase):
     def test_wright_and_guards_pay_once_passive_persists_until_clear(self):
         target = opening.castle_id(0, 3)
         self.make_pair(target=target)
-        self.assertEqual(8, e.entity(self.world, target)["attributes"]["integrity"])
+        self.assertEqual(10, e.entity(self.world, target)["attributes"]["integrity"])
         self.stage(2)
         self.settle(2)
-        self.assertEqual(11, e.entity(self.world, target)["attributes"]["integrity"])
+        self.assertEqual(13, e.entity(self.world, target)["attributes"]["integrity"])
         self.assertEqual([], d.work(self.world, 2, [0, 1]))
         self.stage(3, selected=choice(""))
         self.settle(3)
-        self.assertEqual(11, e.entity(self.world, target)["attributes"]["integrity"])
+        self.assertEqual(13, e.entity(self.world, target)["attributes"]["integrity"])
+
+    def test_wright_build_repair_reconstruction_and_bot_projection(self):
+        from types import SimpleNamespace
+        from u13_doctrine.defensive_plans import development as project
+        for mode, expected in (("building", 10), ("active", 5), ("ruined", 10)):
+            for lane in ("Lord", "Castle"):
+                with self.subTest(mode=mode, lane=lane):
+                    self.world = component_world()
+                    target = opening.castle_id(0, 4)
+                    castle = e.entity(self.world, target)
+                    castle["attributes"].update(integrity=0 if mode != "active" else 5,
+                        construction_state="building" if mode == "building" else "active",
+                        status="ruined" if mode == "ruined" else "standing")
+                    first, second = self.give("Wright"), self.give("Wright")
+                    moves = [move(first, lane, 0), move(second, lane, 1)]
+                    f = SimpleNamespace(world=deepcopy(self.world), pid=0, v={"round":1},
+                        by_id={row["id"]:row for row in self.world["entities"]["entities"]})
+                    predicted, details = project(f, {"order":{"guard_moves":moves, "castle_action":choice(target)}})
+                    before = castle["attributes"]["integrity"]
+                    self.stage(1, moves, choice(target)); self.settle(1)
+                    after = e.entity(self.world, target)["attributes"]["integrity"]
+                    self.assertEqual(expected, after-before)
+                    self.assertEqual(after, e.entity(predicted, target)["attributes"]["integrity"])
+                    self.assertEqual(7 if mode != "active" else 5, details["guard_work"])
 
     def test_every_identity_dimension_can_break_pair_permanently(self):
         self.make_pair()

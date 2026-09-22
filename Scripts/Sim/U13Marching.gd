@@ -1,6 +1,7 @@
 class_name U13Marching
 extends RefCounted
 
+const Charge = preload("res://Scripts/Sim/U13TumlerCharge.gd")
 const Incoming = preload("res://Scripts/Sim/U13IncomingDamage.gd")
 
 const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
@@ -193,9 +194,20 @@ static func regenerate(context: Dictionary) -> Dictionary:
 # round boundaries; frame rate never supplies positions, joins, or damage.
 static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 	var world: Dictionary = context.world.duplicate(true)
+	var opening: bool = context.get("opening_marching", false)
+	var marker: String = "opening_marching_round" if opening else "marching_round"
+	var ticks: int = (TICKS >> 1) if opening else TICKS
+	# Full games have two intervals. Preserve existing absolute cooldown fields
+	# and supply a disjoint tick range to every combat subsystem and keyed roll.
+	var split: bool = world.data.has("game_staging")
+	var clock_start: int = int(world.data.get("marching_clock", int(context.round) * TICKS)) if split else int(context.round) * TICKS
+	var tick_offset: int = clock_start - int(context.round) * TICKS
+	context = context.duplicate()
+	context["marching_tick_offset"] = tick_offset
+	context["marching_round_tick"] = 0 if opening else ((TICKS >> 1) if int(world.data.get("opening_marching_round", 0)) == int(context.round) else 0)
 	if context.hook != Timeline.MARCHING or not valid(world) or not reaction.is_valid():
 		return Data.invalid("marching_context_invalid")
-	if world.data.get("marching_round", 0) >= context.round:
+	if world.data.get(marker, 0) >= context.round:
 		return Data.invalid("marching_already_applied")
 	var entities = Buffer.new()
 	if entities.restore(world.entities).action == "invalid":
@@ -215,7 +227,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			{
 				"round": context.round,
 				"hook": context.hook,
-				"ticks": TICKS,
+				"ticks": ticks,
 				"model": VERSION,
 				"units": _units(entities)
 			}
@@ -258,8 +270,8 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 	var kroni_actors: Array = world.data.get("kroni_actors", [])
 	if not kroni_actors.is_empty():
 		events.append(public_event("KRONI_ACTORS_STARTED", {"round": context.round, "actors": kroni_actors.duplicate(true)}))
-	var has_monsters: bool = Monsters.enabled(world) and (not world.data.monsters.fields.is_empty() or not world.data.monsters.pending_beams.is_empty() or _units(entities).any(func(u): return u.attributes.has("monster_id") or u.attributes.has("poison_until_round")))
-	for tick in range(TICKS):
+	var has_monsters: bool = Monsters.enabled(world) and (not world.data.monsters.fields.is_empty() or not world.data.monsters.pending_beams.is_empty() or _units(entities).any(func(u): return u.attributes.has("monster_id") or u.attributes.has("poison_until_round") or int(u.attributes.get("poison_ticks_left", 0)) > 0))
+	for tick in range(tick_offset, tick_offset + ticks):
 		var tick_events_start: int = events.size()
 		var lamp_before: Array = _units(entities) if not lamp_objects.is_empty() else []
 		if has_wishes:
@@ -298,6 +310,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 		if has_ranged:
 			events.append_array(Fort.step(world, entities, context.round, tick, fleeing_ids))
 			motion_context["field_structures"] = Fort.rows(world)
+		if has_monsters and has_ranged: events.append_array(Charge.step(entities, Fort.rows(world), context, tick, fleeing_ids))
 		_move(entities, duels, motion_context, clock, has_rout, fleeing_ids)
 		if not gravity_orbs.is_empty():
 			var gravity_events: Array = Gravity.step(gravity_orbs, entities, gravity_before, context.round, tick, collapse)
@@ -457,6 +470,16 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 				if not _duel_alive(duels[lane], entities):
 					events.append(public_event("MARCHER_DUEL_INTERRUPTED", {"event_id": duels[lane].id, "round": context.round, "tick": tick}))
 					duels.erase(lane)
+		# Newly inflicted poison resolves in the same tick as the melee volley.
+		if has_monsters:
+			var poison_tick: Dictionary = MonsterEffects.poison(world, entities, context, tick, reaction)
+			if poison_tick.action == "invalid": return poison_tick
+			world = poison_tick.world
+			events.append_array(poison_tick.events)
+			for lane in duels.keys():
+				if not _duel_alive(duels[lane], entities):
+					events.append(public_event("MARCHER_DUEL_INTERRUPTED", {"event_id": duels[lane].id, "round": context.round, "tick": tick}))
+					duels.erase(lane)
 		# Contact takes precedence over arrival, including a waiting gate defender.
 		var arrival_rows: Array = _units(entities)
 		var arrival_grids: Dictionary = {}
@@ -532,19 +555,36 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 		world.data.kroni_actors = kroni_actors
 	world.entities = entities.snapshot()
 	world.data["marching_duels"] = duels
-	world.data["marching_round"] = context.round
+	world.data[marker] = context.round
+	if split: world.data["marching_clock"] = clock_start + ticks
 	events.append(
 		public_event(
 			"MARCHING_FINISHED",
 			{
 				"round": context.round,
 				"hook": context.hook,
-				"ticks": TICKS,
+				"ticks": ticks,
 				"units": _units(entities)
 			}
 		)
 	)
 	if has_ranged: events.back().event.data["field_structures"] = Fort.rows(world).duplicate(true)
+	if split:
+		for row in events:
+			# Public tape ticks are phase-local; attributes keep absolute clocks.
+			var facts: Array = []
+			for original in [row.event] + row.get("views", []):
+				var fact = original.duplicate(true) if original != null else null
+				facts.append(fact)
+				if fact == null: continue
+				if fact.data.has("tick"): fact.data.tick = int(fact.data.tick) - tick_offset
+				if fact.data.has("end_tick"): fact.data.end_tick = int(fact.data.end_tick) - tick_offset
+				fact.data["marching_phase"] = "opening" if opening else "closing"
+				if fact.type in ["MARCHING_STARTED", "MARCHING_FINISHED"]:
+					fact.data["clock_start"] = clock_start
+					fact.data["seconds"] = 7.5 if opening else 15.0
+			row.event = facts[0]
+			row.views = facts.slice(1)
 	return {"action": "resolved", "world": world, "events": events}
 
 
@@ -741,9 +781,16 @@ static func _move(
 	var structures: Array = context.get("field_structures", [])
 	if modern:
 		neighbors = {}
-		var targets: Array = rows + structures
+		var all_targets: Array = rows + structures
+		var targets: Dictionary = _teams(all_targets)
 		for unit in rows:
-			var reachable: Array = Navigation.candidates(unit, targets, clock)
+			# These units are skipped by the movement loop below. Target selection
+			# has no side effects, so their unused searches can be omitted.
+			if Charge.active(unit.attributes) or int(unit.attributes.get("tumler_charge_motion_tick", -1)) == clock: continue
+			if fleeing_ids.has(unit.id) or (unit.attributes.get("hidden", false) and unit.attributes.get("monster_id") != "Dotra") or unit.attributes.get("sprite_form") == "turret": continue
+			# Preserve retained-path lookup for older relocated/charmed targets.
+			var candidates: Array = all_targets if not unit.attributes.get("navigation", {}).get("path", []).is_empty() else targets[unit.attributes.lane][1 - int(unit.owner)]
+			var reachable: Array = Navigation.candidates(unit, candidates, clock)
 			var target: Dictionary = FieldMelee.nearest(unit, reachable, Fort.CONTACT, true)
 			if target.is_empty(): target = Navigation.retained(unit, reachable)
 			if target.is_empty(): target = FieldMelee.nearest(unit, reachable)
@@ -763,10 +810,11 @@ static func _move(
 		var copy: Dictionary = row.duplicate()
 		accepted.append(copy)
 		accepted_by_id[row.id] = copy
-	var accepted_grids: Dictionary = _team_grids(accepted, 7)
+	var accepted_grids: Dictionary = {} if modern else _team_grids(accepted, 7)
 	# Targets use one snapshot. Reserve each accepted small footprint in stable
 	# identity order so two units cannot step into the same space this tick.
 	for unit in rows:
+		if Charge.active(unit.attributes) or int(unit.attributes.get("tumler_charge_motion_tick", -1)) == clock: continue
 		if fleeing_ids.has(unit.id) or (unit.attributes.get("hidden", false) and unit.attributes.get("monster_id") != "Dotra") or unit.attributes.get("sprite_form") == "turret":
 			continue
 		var a: Dictionary = unit.attributes
@@ -847,7 +895,7 @@ static func _move(
 				destination = build_goal
 				movement_target = "build:%s" % str(a.get("wright_site", ""))
 				best = _distance(a, destination)
-				if best <= 16 * 16: continue
+				if best <= 16 * 16 and Fort.work_in_reach(unit, structures, build_goal): continue
 			var wall: Dictionary = Fort.blocker(unit, destination, structures)
 			if not wall.is_empty():
 				destination = Fort.point(a, wall)
@@ -1073,7 +1121,7 @@ static func _valid_duels(world: Dictionary) -> bool:
 
 
 static func _attack(target: Dictionary, amount: int, bypass: bool, clock: int = 0) -> int:
-	var remaining: int = Incoming.regular_amount(target, amount, clock)
+	var remaining: int = Incoming.apply(target, amount, clock, true)
 	if not bypass:
 		var absorbed: int = mini(int(target.armor), remaining)
 		target.armor -= absorbed

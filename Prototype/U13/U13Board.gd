@@ -605,8 +605,8 @@ func _start_job(operation: String, powers: Array = [], order: Dictionary = {}) -
 	if _job != null:
 		return
 	var started: int = Time.get_ticks_usec()
-	var job = BoardJob.new()
-	var result: Dictionary = job.start(session, operation, powers, order)
+	var job = _new_board_job(operation)
+	var result: Dictionary = {"action": "board_job_started"} if job.started() else job.start(session, operation, powers, order)
 	if _error(result):
 		_continue_dense = false
 		return
@@ -1686,3 +1686,6 @@ func _finish_gem_presentation() -> void:
 	_gem_final_view = {}
 	_refresh(shown)
 	_busy_label.text = ""
+
+func _new_board_job(_operation: String):
+	return BoardJob.new()

@@ -21,6 +21,21 @@ class PlanningMatch:
 
     def __init__(self, setup):
         self._state = opening.snapshot(setup["seed"], setup["lords"], setup["castles"])
+        if setup.get("ward_experiment"):
+            from . import split_ward
+            if setup["ward_experiment"] != split_ward.VERSION:
+                raise ValueError("Unknown Ward experiment")
+            split_ward.configure(self._state["world"])
+        if "decisive_soul_bonus" in setup:
+            from . import split_ward
+            if type(setup["decisive_soul_bonus"]) is not bool or not split_ward.enabled(self._state["world"]):
+                raise ValueError("Decisive soul bonus requires the split Ward experiment and a boolean")
+            self._state["world"]["data"]["decisive_soul_bonus"] = setup["decisive_soul_bonus"]
+        if "tempo_experiment" in setup:
+            from . import split_ward
+            if setup["tempo_experiment"] != split_ward.TEMPO or not split_ward.enabled(self._state["world"]) or "decisive_soul_bonus" in setup:
+                raise ValueError("Tempo experiment requires split Ward without an always-on bonus")
+            self._state["world"]["data"]["tempo_experiment"] = split_ward.TEMPO
         self._state_exposed = False
         self._transaction = None
         self.clock = Timeline()
@@ -226,7 +241,7 @@ class PlanningMatch:
             return False
         if "monster_choice" in order:
             from .monsters import NAMES
-            if order["monster_choice"] not in NAMES:return False
+            if action not in ("Hunt", "Siege") or order["monster_choice"] not in NAMES:return False
             expected.add("monster_choice")
         if "fracture_target" in order:
             if action != "Hunt" or order["fracture_target"] not in ("subjects", "infrastructure"):

@@ -1,5 +1,6 @@
 extends RefCounted
 
+const SplitWard = preload("res://Scripts/Sim/U13SplitWard.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
 const Throne = preload("res://Scripts/Sim/U13VacantThrone.gd")
@@ -17,12 +18,12 @@ static func configure(world: Dictionary) -> void:
 	world.data["victory"] = {"version": VERSION, "checked_round": 0, "winner": -1, "win_by": ""}
 
 
-static func evaluate(world: Dictionary) -> Dictionary:
+static func evaluate(world: Dictionary, round_number: int = 0) -> Dictionary:
 	for pid in [0, 1]:
 		if Throne.alive(world, pid) and world.players[pid].resources.souls >= RITUAL_SOULS:
 			return {"winner": pid, "win_by": "Ritual"}
 	var veil: int = Rites.veil(world)
-	if veil >= FINAL_COLLAPSE_VEIL:
+	if not SplitWard.tempo_enabled(world) and veil >= FINAL_COLLAPSE_VEIL:
 		var winner: int = 1 if world.players[1].resources.souls > world.players[0].resources.souls else 0
 		return {"winner": winner, "win_by": "FinalCollapse"}
 	if veil >= DOMINION_VEIL:
@@ -30,6 +31,8 @@ static func evaluate(world: Dictionary) -> Dictionary:
 			var tears: int = world.players[pid].resources.personal_tears
 			if tears >= DOMINION_TEARS and tears > world.players[1 - pid].resources.personal_tears:
 				return {"winner": pid, "win_by": "Dominion"}
+	if SplitWard.tempo_enabled(world) and round_number >= 25:
+		return {"winner": 1 if world.players[1].resources.souls > world.players[0].resources.souls else 0, "win_by": "RoundLimit"}
 	return {"winner": -1, "win_by": ""}
 
 
@@ -43,7 +46,7 @@ static func valid(world: Dictionary) -> bool:
 		return state.get("win_by") == ""
 	if state.winner not in [0, 1] or state.checked_round == 0:
 		return false
-	var expected: Dictionary = evaluate(world)
+	var expected: Dictionary = evaluate(world, state.checked_round)
 	return state.winner == expected.winner and state.get("win_by") == expected.win_by
 
 
@@ -64,7 +67,7 @@ static func finish(world: Dictionary, round_number: int) -> Dictionary:
 		events.append(Marching.public_event("NEUTRAL_TEAR_CREATED", {
 			"round": round_number, "amount": gain, "source": "RoundPressure"
 		}))
-	state.merge(evaluate(world), true)
+	state.merge(evaluate(world, round_number), true)
 	state.checked_round = round_number
 	if state.winner != -1:
 		events.append(Marching.public_event("MATCH_FINISHED", {
@@ -84,7 +87,7 @@ static func snapshot_valid(context: Dictionary) -> bool:
 	if state.winner != -1 and not complete:
 		return false
 	if complete:
-		var expected: Dictionary = evaluate(context.world)
+		var expected: Dictionary = evaluate(context.world, context.round)
 		return state.winner == expected.winner and state.win_by == expected.win_by
 	return true
 

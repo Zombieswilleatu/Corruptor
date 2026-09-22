@@ -2,11 +2,11 @@
 from . import dotra_shroud as shroud
 from . import economy as e
 from .copying import copy_data
-VERSION = "U13_MONSTERS_V17_DOTRA_SHROUD"
+VERSION = "U13_MONSTERS_V21_TUMLER_CHARGE"
 ROSTER = {'Lemek': {'tier': 'Easy',
            'recipe': {'Penitent': 2},
-           'attack': 4,
-           'armor': 4,
+           'attack': 5,
+           'armor': 7,
            'speed': 2,
            'hp': 10,
            'ability': 'On death, leaves a slowing pool through the following round. Ground units '
@@ -17,9 +17,7 @@ ROSTER = {'Lemek': {'tier': 'Easy',
           'armor': 0,
           'speed': 2,
           'hp': 4,
-          'ability': 'Summons 3–5 bodies. Each damaging hit has a 10% chance to poison: 1 HP at '
-                     'the start of each of the next two Marching phases. Refreshes; does not '
-                     'stack.'},
+          'ability': 'Summons 3–5 bodies. Each damaging hit has a 10% chance to poison: 1 HP immediately, then twice more about 2 seconds apart. Bypasses Armor. Reapplication refreshes three remaining ticks without stacking or advancing the next tick.'},
  'Fyra': {'tier': 'Moderate',
           'recipe': {'Butcher': 2, 'Vulture': 2},
           'attack': 2,
@@ -36,7 +34,7 @@ ROSTER = {'Lemek': {'tier': 'Easy',
             'hp': 10,
             'ability': 'Pulses twice per active round: at the start and about 10 seconds in. If '
                        'any ally within 360, including herself, is wounded, heals nearby allies 1 '
-                       'HP; otherwise deals 1 damage to nearby enemies. Slows near allied '
+                       'HP; otherwise deals 2 damage to nearby enemies. Slows near allied '
                        'front-line fighters to stay behind them.'},
  'Tumler': {'tier': 'Moderate',
             'recipe': {'Vulture': 2, 'Wright': 2},
@@ -44,22 +42,16 @@ ROSTER = {'Lemek': {'tier': 'Easy',
             'armor': 1,
             'speed': 3,
             'hp': 10,
-            'ability': 'Pursues a chosen enemy, preferring ordinary Vultures and support monsters. '
-                       'Deals +1 damage against his marked hunt target, before Armor; normal '
-                       'damage against others. Pursues through enemy clusters while avoiding '
-                       'slowing pools. Always has 50% evasion against direct attacks, including at '
-                       'melee contact and during fear. Poison cannot be dodged. While hunting, a '
-                       'landed melee hit switches his target to the attacker, even if Armor '
-                       'absorbs it; ranged hits do not.'},
+            'ability': 'Hunts Sooge, then Kopita, Fyra, Vulture, then other enemies. At range 400, braces for about half a second with +5 temporary Armor, then charges through the crowd. Fear, retreat and charm cannot cancel the rush. If the target is lost, finishes at its last known position. Walls stop him. Pushes bystanders sideways, never the chosen target. Stays on a surviving victim, with +1 damage against it. No impact damage. Charge cooldown: 15 seconds. Unspent temporary Armor expires on landing. Cannot be taunted or intercepted during the rush. Keeps 50% evasion against direct attacks; poison cannot be dodged.'},
  'Kurchin': {'tier': 'Hard',
              'recipe': {'Penitent': 3, 'Wright': 1},
              'attack': 1,
              'armor': 6,
              'speed': 1,
              'hp': 15,
-             'ability': 'Taunts enemies within 360, pulling them off engaged targets to approach '
+             'ability': 'Taunts enemies within 180, pulling them off engaged targets to approach '
                         'and attack him. Walls still block approach. While Armor remains, deflects '
-                        '75% of direct attacks without losing Armor or HP. Landed hits deal normal '
+                        '50% of direct attacks without losing Armor or HP. Landed hits deal normal '
                         'damage; deflection ends when Armor is depleted. Poison cannot be '
                         'deflected.'},
  'Muno': {'tier': 'Hard',
@@ -68,8 +60,8 @@ ROSTER = {'Lemek': {'tier': 'Easy',
           'armor': 1,
           'speed': 2,
           'hp': 10,
-          'ability': 'Once per active round, dashes to an enemy within 480 for one free melee '
-                     'strike, then dashes back with a fading afterimage before moving normally.'},
+          'ability': 'Every 7.5 seconds while a target is in range, dashes to an enemy within 480 for one free melee '
+                     'strike, then dashes back. The lingering afterimage cancels the next damaging hit before Armor is spent. Holds one charge until used; later lunges can replenish it.'},
  'Dotra': {'tier': 'Hard',
            'recipe': {'Butcher': 3, 'Vulture': 1},
            'attack': 2,
@@ -119,6 +111,7 @@ def profile(name,lane,pid,birth,ready,turret=False):
                 armor_bypass=False,lane=lane,birth_round=birth,movement_ready_round=ready,x_fp=0 if pid==0 else 2400,
                 y_fp=300,contact_tick=-1,direction=1 if pid==0 else -1,waiting=False,waiting_since_round=0,
                 sprite_form='turret' if turret else 'mobile',flying=name=='Fyra')
+    if name=='Muno':a.update(muno_ward=False,muno_next_tick=0)
     if name=='Sooge':a.update(sooge_root_attempts=0,sooge_root_round=0)
     return a
 
@@ -127,8 +120,23 @@ def root_chance(a):
 
 def valid_unit(a):
     if not shroud.valid(a):return False
+    if 'tumler_engaged_target' in a:
+        if (a.get('monster_id') != 'Tumler' or type(a['tumler_engaged_target']) is not str
+                or type(a.get('tumler_engaged_owner')) is not int):return False
+        if ((not a['tumler_engaged_target'] and a['tumler_engaged_owner'] != -1)
+                or (a['tumler_engaged_target'] and a['tumler_engaged_owner'] not in (0, 1))):return False
+    elif 'tumler_engaged_owner' in a:return False
+    for coordinate, maximum in [('tumler_charge_goal_x_fp', 2400), ('tumler_charge_goal_y_fp', 600)]:
+        if coordinate in a and (type(a[coordinate]) is not int or not 0 <= a[coordinate] <= maximum):return False
+    if 'poison_ticks_left' in a:
+        if type(a['poison_ticks_left']) is not int or not 0<=a['poison_ticks_left']<=3:return False
+        if type(a.get('poison_next_tick')) is not int or not 0<=a['poison_next_tick']<=9007199254740991:return False
+        if a['poison_ticks_left']>0 and type(a.get('poison_source')) is not dict:return False
+    if 'tumler_charge_phase' in a:
+        if a.get('monster_id') != 'Tumler' or a['tumler_charge_phase'] not in ('','windup','charge') or type(a.get('tumler_charge_target','')) is not str:return False
+        if a['tumler_charge_phase'] and (a.get('tumler_charge_owner',-1) not in (0,1) or any(k not in a for k in ('tumler_charge_ready_tick','tumler_charge_end_tick','tumler_charge_base_armor'))):return False
     if 'monster_id' not in a:return a.get('suit')!='Monster'
-    for key in ('sooge_root_attempts','sooge_root_round','beam_next_tick','beam_charge_tick','beam_ready_tick','dotra_concealment_round','dotra_hide_at_tick','sinodek_portal_round','kopita_pulses','kopita_last_pulse_tick'):
+    for key in ('tumler_charge_next_tick','tumler_charge_motion_tick','tumler_charge_ready_tick','tumler_charge_end_tick','tumler_charge_base_armor','muno_next_tick','sooge_root_attempts','sooge_root_round','beam_next_tick','beam_charge_tick','beam_ready_tick','dotra_concealment_round','dotra_hide_at_tick','sinodek_portal_round','kopita_pulses','kopita_last_pulse_tick'):
         if key in a and (type(a[key]) is not int or not 0<=a[key]<=9007199254740991):return False
     return (a.get('suit')=='Monster' and a['monster_id'] in NAMES and a.get('sprite_form') in ('mobile','turret')
             and (a['sprite_form']!='turret' or a['monster_id']=='Sooge') and type(a.get('flying')) is bool)
@@ -150,17 +158,23 @@ def available(rows,card_ids,pid,unlocked=NAMES):
     return [name for name in NAMES if name in unlocked and qualifies(rows,card_ids,name)
             and (not limited(name) or not living(rows,pid,name))]
 
+def reserves(w):
+    return (list(w.get('data',{}).get('marcher_staging',{}).get('units',[])) +
+            [u for tray in w.get('data',{}).get('game_staging',{}).get('lanes',{}).values() for u in tray['units']])
+
+
 def validate_choice(w,pid,order):
     if 'monster_choice' in order:
-        e.require(enabled(w) and order['monster_choice'] in available(w['entities']['entities'],order.get('card_ids',[]),pid,w['data']['monsters']['unlocked'][pid]),'monster_recipe_unavailable')
+        e.require(order.get('action') in ('Hunt', 'Siege'), 'monster_action_unavailable')
+        e.require(enabled(w) and order['monster_choice'] in available(w['entities']['entities']+reserves(w),order.get('card_ids',[]),pid,w['data']['monsters']['unlocked'][pid]),'monster_recipe_unavailable')
 
-TUNING = {'tumler_evasion_chance': 50, 'tumler_hunt_bonus': 1,
- 'kurchin_deflection_chance': 75, 'varn_poison_chance': 10,
+TUNING = {'tumler_charge_range': 400, 'tumler_charge_armor': 5, 'tumler_charge_windup_ticks': 7, 'tumler_charge_step_fp': 36, 'tumler_charge_max_ticks': 40, 'tumler_charge_cooldown_ticks': 200, 'tumler_evasion_chance': 50, 'tumler_hunt_bonus': 1,
+ 'kurchin_deflection_chance': 50, 'varn_poison_chance': 10, 'varn_poison_ticks': 3, 'varn_poison_interval_ticks': 27,
  'fyra_charm_chance': 30,
  'kopita_radius': 360,
  'kopita_second_pulse_tick': 133,
- 'taunt_radius': 360,
- 'muno_radius': 480,
+ 'taunt_radius': 180,
+ 'muno_radius': 480, 'muno_interval_ticks': 100, 'kopita_damage': 2,
  'dotra_hide_delay_ticks': 200,
  'dotra_ambush_radius': 240, 'dotra_expose_radius': 360, 'dotra_expose_ticks': 200, 'dotra_shroud_ticks': 67,
  'sooge_root_chance': 25,

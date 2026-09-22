@@ -17,6 +17,7 @@ func check(ok: bool, message: String) -> bool:
 func run() -> void:
 	board = Board.new()
 	root.add_child(board)
+	board.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	# Tests exercise the widgets under the diagnostic engine too. The production
 	# launcher and board retain their exact 4.7.2 stable acceptance requirement.
 	board._runtime_ok = true
@@ -31,7 +32,9 @@ func run() -> void:
 		finish(); return
 	await human_choices()
 	check(board._planning(), "human choices unlock the board's planning controls")
+	split_ward_controls()
 	playtime_controls()
+	staging_controls()
 	work_and_guard_controls()
 	check(board.action_zone.action_buttons["Siege"].text == "Siege", "active enemy castles keep the Siege action")
 	var enemy: Dictionary = board._visible_world.entities.filter(func(e): return e.kind == "lord" and e.owner == 1)[0]
@@ -79,6 +82,38 @@ func run() -> void:
 	await absent_siege()
 	await special_actions()
 	finish()
+
+func split_ward_controls() -> void:
+	check(board._visible_world.get("tempo_experiment") == "U13_VEIL_ATTACK_ROUND25_V1", "new playable enables the promoted round-20 rules")
+	var cards: Array = board._available_ids()
+	var own: Dictionary = board._visible_world.entities.filter(func(e): return e.kind == "lord" and e.owner == 0)[0]
+	var enemy: Dictionary = board._visible_world.entities.filter(func(e): return e.kind == "lord" and e.owner == 1)[0]
+	board._select_direct_action("Ward")
+	board._choose_target(board._entity_target(own.id))
+	check(board._apply_cards(cards.slice(0, 1), false), "stage a paid Ward")
+	board._reserve_ward()
+	check(board.ward_plan.card_ids == cards.slice(0, 1) and cards[0] not in board._available_ids(), "reserved Ward cards leave the available hand")
+	check(board._order().action == "Ward", "reserved Ward can resolve without an attack")
+	board._select_direct_action("Hunt")
+	board._choose_target(board._entity_target(enemy.id))
+	check(board._apply_cards(cards.slice(1, 2), false), "stage Hunt using a separate card")
+	var combined: Dictionary = board._order()
+	check(combined.action == "Hunt" and combined.ward.card_ids == cards.slice(0, 1), "one complete cart contains Hunt and Ward")
+	check(board.session.choose([], combined).action != "invalid", "authority accepts the UI split cart")
+	var saved: Dictionary = board.session.checkpoint()
+	var loaded = Board.PlaySession.new()
+	check(loaded.restore_checkpoint(saved).action != "invalid" and loaded._order == combined, "split cart saves and restores exactly")
+	var bad: Dictionary = combined.duplicate(true)
+	bad.ward.card_ids = bad.card_ids.duplicate()
+	check(board.session._preview_cart([], bad).action == "invalid", "shared attack and Ward payment is rejected")
+	bad = combined.duplicate(true)
+	bad.ward.monster_choice = "Lemek"
+	check(board.session._preview_cart([], bad).action == "invalid", "Ward cannot summon a recipe monster")
+	board._clear_ward()
+	check(not board._order().has("ward") and cards[0] in board._available_ids(), "clearing Ward returns its card")
+	board._reset_direct()
+	board._refresh()
+	check(board.ward_plan.is_empty(), "reset clears the reserved Ward")
 
 func work_and_guard_controls() -> void:
 	board._refresh()
@@ -299,3 +334,38 @@ func playtime_controls() -> void:
 	check(board._playtime_mode() == "excluded", "setup excluded without clearing existing time")
 	board.close_setup()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(file_path))
+
+
+func staging_controls() -> void:
+	var panel = board.board_staging
+	check(board._visible_world.has("game_staging") and panel.visible and board.lanes.live_layout, "new game shows staging directly on the main battlefield")
+	check(panel.get_parent() == board.lanes and panel.trays.size() == 4 and panel.pickers.size() == 2, "four permanent reserve trays and two lane controls")
+	check(board.lanes.custom_minimum_size.x == 680, "battlefield widened from 435 to 680")
+	print("INLINE LAYOUT ", {"board_size": board.size, "window_size": root.size, "viewport": root.get_visible_rect(), "lanes": board.lanes.get_global_rect(), "header": board.header.get_global_rect()})
+	check(board.lanes.get_global_rect().end.x <= root.get_visible_rect().end.x + 1, "expanded battlefield fits the board viewport")
+	check(panel.get_global_rect().end.y <= root.get_visible_rect().end.y + 1, "all staging controls fit vertically")
+	for lane in ["Lord", "Castle"]:
+		var arena: Rect2 = board.lanes.travel_rect(lane)
+		var enemy: Rect2 = panel.scrolls[lane + "1"].get_rect()
+		var own: Rect2 = panel.scrolls[lane + "0"].get_rect()
+		check(enemy.end.y < arena.position.y and own.position.y > arena.end.y, lane + " trays sit outside opposite arena gates")
+		check(board.lanes.beam_bounds(lane) == arena, lane + " beam bounds exclude protected staging")
+		check(panel.pickers[lane].get_rect().end.y <= panel.size.y, lane + " release control stays on screen")
+	check(panel.pickers.values().all(func(p): return p is Button and not p is OptionButton and p.text == "MARCH"), "each lane has only a MARCH button")
+	panel.pickers.Castle.pressed.emit()
+	check(board._order().staging == {"Lord": "Hold", "Castle": "Hold"}, "empty staging cannot queue a march")
+	check(panel.pickers.values().all(func(p): return p.disabled), "both empty staging lanes disable MARCH")
+	check(board.session.choose([], board._order()).action != "invalid", "staging-only Pass admitted through playable session")
+	var state: Dictionary = board._visible_world.game_staging.duplicate(true)
+	for lane in ["Lord", "Castle"]:
+		for pid in [0, 1]:
+			for i in range(20):
+				var a: Dictionary = Board.MonsterRules.profile("Varn", lane, pid, 1, 2)
+				a["staged_round"] = 1
+				state.lanes[lane].units.append({"id": lane + str(pid) + str(i), "kind": "marcher", "owner": pid, "attributes": a})
+	panel.bind(state, 2, {"Castle": "March", "Lord": "Hold"}, true)
+	check(panel.pickers.Castle.disabled and "THIS ROUND" in panel.pickers.Castle.text and not panel.pickers.Lord.disabled, "queued lane displays this round; the other eligible lane remains editable")
+	panel.bind(state, 2, board.staging_modes, false)
+	check(panel.trays.values().all(func(t): return t.reserves.size() == 20 and t.custom_minimum_size.y > 90), "overflow trays scroll without shrinking the battle lanes")
+	check(panel.pickers.values().all(func(p): return p.disabled), "release editing is disabled during resolution while reserves stay visible")
+	board._refresh()

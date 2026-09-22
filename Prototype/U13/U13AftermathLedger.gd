@@ -74,6 +74,7 @@ static func result_summary(world: Dictionary, outcome: Dictionary) -> String:
 	match method:
 		"Dominion": return "%s\n%s won with %d Personal Tears to %d. Veil reached %d.\nRequires Veil 12+, at least 5 Personal Tears and more than the opponent." % [title, lord, tears[winner], tears[1 - winner], veil]
 		"Ritual": return "%s\n%s won with %d Souls and their Lord present.\nRequires 12 Souls and a present Lord." % [title, lord, souls[winner]]
+		"RoundLimit": return "%s\nRound 25 reached. %s won with %d Souls to %d.%s" % [title, lord, souls[winner], souls[1 - winner], " Seat 0 wins a tied Soul count." if souls[0] == souls[1] else ""]
 		"FinalCollapse": return "%s\nVeil reached %d. %s won with %d Souls to %d.%s" % [title, veil, lord, souls[winner], souls[1 - winner], " Seat 0 wins a tied Soul count." if souls[0] == souls[1] else ""]
 	return title
 
@@ -88,7 +89,10 @@ static func name_of(entity: Dictionary) -> String:
 
 static func describe(kind: String, d: Dictionary) -> String:
 	match kind:
+		"STAGING_OVERFLOW_RELEASED": return "%s staging full · %d oldest reserves marched" % [d.lane, d.unit_ids.size()]
+		"STAGING_RECRUITMENT_CAPPED": return "%s staging capped at 15 · %d excess recruits not retained" % [d.lane, d.count]
 		"WRIGHT_STRUCTURE_REPAIRED": return "Wright repaired %s · HP %d → %d" % [d.structure.attributes.structure, d.hp_before, d.hp_after]
+		"WRIGHT_REPAIR_ASSIGNED": return "Wright taking over damaged %s" % d.structure.attributes.structure
 		"MONSTER_SUMMONED": return "%s summoned · %d %s lane bodies" % [d.monster_id, d.unit_ids.size(), d.lane]
 		"MONSTER_ROOTED": return "Sooge rooted permanently into turret form"
 		"MONSTER_BANISHED": return "%s banished by Sinodek" % d.unit.attributes.get("monster_id", d.unit.attributes.get("suit", "Marcher"))
@@ -112,6 +116,8 @@ static func describe(kind: String, d: Dictionary) -> String:
 		"GUARD_PAIR_DRAW": return "Vulture pair drew 1 card"
 		"GUARD_PAIR_STRIKE": return "Butcher pair destroyed an enemy Marcher"
 		"GUARD_PAIR_SCREEN": return "Penitent pair provided %d protection" % d.get("amount", 0)
+		"WARD_SOUL_GAINED": return "+1 Soul · Ward prevented a successful attack in " + str(d.get("lane", ""))
+		"DECISIVE_SOUL_GAINED": return "+1 Soul · late-game " + str(d.get("attack", "attack")) + " victory"
 		"COMBAT_ORDER_REVEALED": return "Action: " + str(d.get("order", {}).get("action", "Pass"))
 		"MARCHER_SPAWNED":
 			return "Power summoned a " + str(d.get("attributes", {}).get("suit", "Marcher")) if d.get("attributes", {}).has("source_effect_id") else ""

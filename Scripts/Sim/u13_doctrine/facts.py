@@ -2,6 +2,7 @@
 from collections import Counter
 from dataclasses import dataclass
 
+from u13_pysim import split_ward
 from u13_pysim.battle import defense, operational, targetable
 from u13_pysim.castle_balance import PENITENT_PAIR_SCREEN
 from u13_pysim.development import intact
@@ -116,10 +117,23 @@ class Facts:
             a = self.by_id[key]['attributes']; suits[a['suit']] += a['value']
         return sum(v // (2 if action == 'Ward' else 3) for v in suits.values())
 
+    def attack_targets(self):
+        """One legal public target per attack type, shared by recipe plans."""
+        if self.lord[self.enemy]['attributes']['alive']:
+            yield 'Hunt', 'Lord', self.lord[self.enemy]['id']
+        castles = [c for c in self.castles(self.enemy) if targetable(c)]
+        victim = min(castles, key=lambda c: (c['attributes']['integrity'], c['attributes']['castle_slot'])) if castles else None
+        yield 'Siege', 'Castle', victim['id'] if victim else 'castle_zone:'+str(self.enemy)
+
+    def attack_value(self, action, target, ids, weights):
+        result = self.attack(action, target, ids)
+        return (weights.recruit*self.recruits(ids, action)+12*result['guards']+weights.damage*result['damage']
+                +weights.banishment*result['banished']+weights.destruction*result['destroyed']+12*result['pillage'])
+
     def attack(self, action, target, ids, excluded_waiters=()):
         """Baseline layers only. Enemy orders and spatial reactions are unknown."""
         lane = 'Lord' if action == 'Hunt' else 'Castle'
-        strength = self.strength(ids, action)
+        strength = self.strength(ids, action) + split_ward.attack_bonus(self.world)
         if action == 'Hunt' and self.kind == 'Orias' and self.lord[self.pid]['attributes']['alive']:
             strength += 1 + int(self.lord[self.enemy]['attributes'].get('threat', 0) >= 2)
         strength += sum(r['attributes']['waiting'] and r['id'] not in excluded_waiters for r in self.units(self.pid, lane))
@@ -137,7 +151,7 @@ class Facts:
         castles = [c for c in self.castles(self.enemy) if targetable(c)]
         pillage = action == 'Siege' and not castles
         if not pillage:
-            sigil = self.v['data']['sigils'][self.enemy][lane]
+            sigil = '' if split_ward.enabled(self.world) else self.v['data']['sigils'][self.enemy][lane]
             remaining = max(0, remaining-(2 if sigil == 'fresh' else 1 if sigil else 0))
         if action == 'Hunt':
             keep = next((c for c in castles if c['attributes']['castle_type'] == 'Keep'), None)

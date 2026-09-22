@@ -48,7 +48,7 @@ def wish(b,s):
             if w['data']['kanifous_loss_round'] != n or lost['kind'] != 'marcher' or lost['owner'] != pid or lost['attributes']['lane'] != t['lane']: continue
             from . import monsters
             old = lost['attributes'];name=old.get('monster_id','')
-            if monsters.limited(name) and monsters.living(w['entities']['entities'],pid,name):continue
+            if monsters.limited(name) and monsters.living(w['entities']['entities']+monsters.reserves(w),pid,name):continue
             a=monsters.profile(name,t['lane'],pid,n,n+1,old.get('sprite_form')=='turret') if name else recruit.profile(old['suit'],t['lane'],pid,n,n+1)
             if name=='Sooge':
                 for field in ('sooge_root_attempts','sooge_root_round'):a[field]=old.get(field,0)

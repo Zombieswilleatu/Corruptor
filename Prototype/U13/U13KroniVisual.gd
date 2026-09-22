@@ -66,15 +66,21 @@ func clear() -> void:
 
 func load_tape(events: Array) -> void:
 	clear()
+	var tick_seconds: float = TICK_SECONDS
+	var lead: float = 0.0
+	for event in events:
+		if event.type == "MARCHING_STARTED" and event.data.has("seconds"):
+			tick_seconds = float(event.data.seconds) / float(event.data.ticks)
+			lead = 0.18 if event.data.has("ranged_profile") else 0.0
 	for event in events:
 		if event.type == "KRONI_ACTORS_STARTED":
 			frames.append({"at": 0.0, "actors": event.data.actors.duplicate(true)})
 		elif event.type == "KRONI_ACTOR_TICK":
-			frames.append({"at": (float(event.data.tick) + 1.0) * TICK_SECONDS, "actors": event.data.actors.duplicate(true)})
+			frames.append({"at": lead + (float(event.data.tick) + 1.0) * tick_seconds, "actors": event.data.actors.duplicate(true)})
 		elif event.type == "KRONI_FLEE_STARTED":
-			flee_events.append({"at": (float(event.data.tick) + 1.0) * TICK_SECONDS, "data": event.data})
+			flee_events.append({"at": lead + (float(event.data.tick) + 1.0) * tick_seconds, "data": event.data})
 		elif event.type == "MARCHER_DEVOURED":
-			bites.append({"at": (float(event.data.tick) + 1.0) * TICK_SECONDS, "data": event.data.duplicate(true)})
+			bites.append({"at": lead + (float(event.data.tick) + 1.0) * tick_seconds, "data": event.data.duplicate(true)})
 	show_time(0.0)
 
 

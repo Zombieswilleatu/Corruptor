@@ -6,6 +6,7 @@ const Game = preload("res://Scripts/Sim/U13GameConductor.gd")
 const Doctrine = preload("res://Scripts/Sim/U13CommonSmartCore.gd")
 const SAVE_VERSION: String = "U13_PLAYABLE_SAVE_V1"
 var pending_choice: Dictionary = {}
+var _opening_marching: Array = []
 var match_seed: String = ""
 var _read_owner
 var _read_revision: int = -1
@@ -108,7 +109,7 @@ func configure(lords: Array, castles: Array, _quick: bool = false) -> Dictionary
 
 func configure_seed(seed_value: String, lords: Array, castles: Array) -> Dictionary:
 	var candidate = Game.new()
-	var result: Dictionary = candidate.start(seed_value, lords, castles)
+	var result: Dictionary = candidate.start(seed_value, lords, castles, false, true)
 	if result.action == "invalid":
 		return result
 	var staged = get_script().new()
@@ -127,7 +128,7 @@ func configure_seed(seed_value: String, lords: Array, castles: Array) -> Diction
 # Economy and round advancement can include an external bot decision. Publish
 # the entire new pause only after it succeeds, preserving the old pause on error.
 func _adopt_planning(candidate) -> void:
-	for property in ["_owner", "setup_lords", "setup_castles", "match_seed", "quick_start", "hunt_enabled", "_lane", "_powers", "_order", "_opponent", "_last_marching", "_artillery_events", "pending_choice", "odradek_visuals", "kroni_guard_events", "valak_events", "kanifous_events"]:
+	for property in ["_owner", "setup_lords", "setup_castles", "match_seed", "quick_start", "hunt_enabled", "_lane", "_powers", "_order", "_opponent", "_last_marching", "_opening_marching", "_artillery_events", "pending_choice", "odradek_visuals", "kroni_guard_events", "valak_events", "kanifous_events"]:
 		set(property, candidate.get(property))
 
 func _clear_round() -> void:
@@ -135,6 +136,7 @@ func _clear_round() -> void:
 	_order = {}
 	_opponent = {}
 	_last_marching = []
+	_opening_marching = []
 	_artillery_events = []
 	pending_choice = {}
 	odradek_visuals = []
@@ -149,7 +151,9 @@ func lock_plans() -> Dictionary:
 	if is_finished() or next_hook() != Timeline.SUBMISSION_LOCK:
 		return Data.invalid("planning_closed")
 	# Choose before either seat commits. Never give the bot the human cart.
+	var planning_started: int = Time.get_ticks_usec()
 	var opponent: Dictionary = random_opponent_plan()
+	print("U13 PREPARE opponent_plan_ms=", (Time.get_ticks_usec() - planning_started) / 1000.0)
 	if opponent.get("action") == "invalid":
 		return opponent
 	var candidate = game()
@@ -175,6 +179,9 @@ func _to_planning() -> Dictionary:
 			continue
 		pending_choice = result.duplicate(true) if result.action in ["game_draw_choice", "game_market_choice"] else {}
 		var events: Array = _owner._player_events_since(0, cursor)
+		var opening: Array = events.filter(func(e): return e.data.get("marching_phase") == "opening")
+		if opening.any(func(e): return e.type == "MARCHING_STARTED"):
+			_opening_marching = opening
 		_capture_odradek_visuals(before, events)
 		for event in events:
 			if event.type == "GUARD_DEVOURED":
@@ -229,6 +236,7 @@ func outcome() -> Dictionary:
 func _fork_for_job():
 	var candidate = super._fork_for_job()
 	if candidate != null:
+		candidate._opening_marching = _opening_marching
 		candidate.pending_choice = pending_choice.duplicate(true)
 		candidate.match_seed = match_seed
 		for property in ["_artillery_events", "odradek_visuals", "kroni_guard_events", "valak_events", "kanifous_events"]:
@@ -291,3 +299,6 @@ func retire_completed_visual_samples() -> int:
 # Permanent Breaches can grant a power from outside the participating Lords.
 func _power_rule(power: String) -> Dictionary:
 	return Game.Content.rules().get(power, {})
+
+func opening_marching_events() -> Array:
+	return _opening_marching.duplicate(true)

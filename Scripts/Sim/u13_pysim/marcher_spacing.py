@@ -32,13 +32,14 @@ def slide(unit, proposed, rows, structures, step, hold_contact=True):
         point = dict(unit['attributes'])
         if mostly_forward: point['y_fp'] = max(0, min(600, point['y_fp']+sign*step))
         else: point['x_fp'] = max(0, min(2400, point['x_fp']+sign*point['direction']*step))
-        if clear(unit, point, rows, structures): return point
+        # Try the opposite side when the boundary clamps this step to zero.
+        if fort.distance(unit["attributes"], point) > 0 and clear(unit, point, rows, structures): return point
     return unit['attributes']
 
 
 def anchored(unit, number):
     a = unit['attributes']
-    return (a['waiting'] or a['movement_ready_round'] > number or a.get('sprite_form') == 'turret'
+    return (a.get('tumler_charge_phase', '') in ('windup', 'charge') or a['waiting'] or a['movement_ready_round'] > number or a.get('sprite_form') == 'turret'
             or 'wright_site' in a and not a.get('wright_released', False))
 
 

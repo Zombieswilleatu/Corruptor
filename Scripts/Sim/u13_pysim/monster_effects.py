@@ -1,4 +1,5 @@
 """Deterministic monster abilities; mirror of the native rules, not animation time."""
+from . import tumler_charge as charge
 from . import dotra_shroud as shroud
 from . import incoming_damage as incoming
 from . import field_fortifications as fort
@@ -29,6 +30,7 @@ def nearest(unit, rows, radius=4000):
 
 
 def preferred(unit, rows):
+    if charge.active(unit["attributes"]): return charge.select_target(unit, rows, 0)
     taunts=[r for r in enemies(unit,rows,T['taunt_radius']) if r['attributes'].get('monster_id')=='Kurchin']
     if taunts:return nearest(unit,taunts)
     a=unit['attributes']
@@ -70,6 +72,7 @@ def evades(unit, source, rows, c, tick, kind, structures=(), fleeing=()):
 
 
 def intercept(unit, source, rows, c, tick, structures=()):
+    if charge.active(unit["attributes"]) or charge.engaged_target(unit, rows): return []
     if source['owner'] == unit['owner'] or not hunting(unit, rows, c['round'], structures):
         return []
     if not any(r['id'] == source['id'] and r['owner'] == source['owner'] and shroud.targetable(r['attributes']) for r in rows):
@@ -123,16 +126,36 @@ def on_hit(buffer,source,target_id,damage,c,tick):
     if not target:return []
     name=source['attributes'].get('monster_id','');key=f"{source['id']}:{c['round']}:{tick}:{target_id}";a=target['attributes']
     if name=='Varn' and damage>0 and draw(c['seed'],key,'POISON',0,100)<T['varn_poison_chance']:
-        credited=copy_data(source);credited['attributes'].pop('poison_source',None);credited['attributes'].pop('poison_until_round',None)
-        a.update(poison_until_round=c['round']+2,poison_source=credited);buffer.update(target_id,target['owner'],a)
+        if a.get('poison_ticks_left',0)==0:a['poison_next_tick']=c['round']*200+tick
+        a['poison_ticks_left']=T['varn_poison_ticks'];a.pop('poison_until_round',None)
+        credited=copy_data(source)
+        for field in ('poison_source','poison_until_round','poison_next_tick','poison_ticks_left'):credited['attributes'].pop(field,None)
+        a['poison_source']=credited;buffer.update(target_id,target['owner'],a)
         return [event('MONSTER_POISONED',dict(unit_id=target_id,source_id=source['id'],round=c['round'],tick=tick))]
     if name=='Fyra' and 'charm_owner' not in a and draw(c['seed'],key,'CHARM',0,100)<T['fyra_charm_chance']:
         monster=a.get('monster_id','')
-        if rules.limited(monster) and rules.living(buffer.rows(),source['owner'],monster):return []
+        if rules.limited(monster) and rules.living(buffer.rows()+rules.reserves(c['world']),source['owner'],monster):return []
         a.update(charm_owner=target['owner'],direction=1 if source['owner']==0 else -1,waiting=False,waiting_since_round=0,contact_tick=-1)
         buffer.update(target_id,source['owner'],a)
         return [event('MONSTER_CHARMED',dict(unit_id=target_id,source_id=source['id'],owner=source['owner'],round=c['round'],tick=tick))]
     return []
+
+
+def poison(w,buffer,c,tick,reaction):
+    events=[];clock=c['round']*200+tick
+    for original in buffer.rows():
+        unit=buffer.get(original['id'])
+        if not unit:continue
+        a=unit['attributes']
+        if a.get('poison_ticks_left',0)<=0 or a['poison_next_tick']>clock:continue
+        source=a['poison_source'];a['poison_ticks_left']-=1
+        a['poison_next_tick']=clock+T['varn_poison_interval_ticks'] if a['poison_ticks_left']>0 else 0
+        if a['poison_ticks_left']==0:a.pop('poison_source',None)
+        buffer.update(unit['id'],unit['owner'],a)
+        result=damage(w,buffer,dict(source=source,target=unit['id'],amount=1,bypass=True,ability='Poison'),c,tick,reaction)
+        if result['action']=='invalid':return result
+        w=result['world'];events.extend(result['events'])
+    return dict(action='resolved',world=w,events=events)
 
 
 def step(w,buffer,c,tick,reaction):
@@ -160,13 +183,17 @@ def step(w,buffer,c,tick,reaction):
                     a.update(hidden=True,dotra_concealment_round=n)
                     events.append(event('MONSTER_CONCEALMENT',dict(unit_id=unit['id'],hidden=True,round=n,tick=tick)))
             buffer.update(unit['id'],unit['owner'],a)
-    if tick==0:
+    poisoned=poison(w,buffer,c,tick,reaction)
+    if poisoned['action']=='invalid':return poisoned
+    w=poisoned['world'];state=w['data']['monsters'];events.extend(poisoned['events'])
+    if tick==c.get('marching_tick_offset',0):
+        first_phase=state['phase_round'] < n
         state['phase_round']=n;state['fields']=[f for f in state['fields'] if f['expires_round']>=n]
         for unit in buffer.rows():
             a=unit['attributes']
-            if a.get('poison_until_round',0)>=n:
+            if first_phase and a.get('poison_until_round',0)>=n:
                 hits.append(dict(source=a['poison_source'],target=unit['id'],amount=1,bypass=True,ability='Poison'))
-            elif 'poison_until_round' in a:
+            elif a.get('poison_until_round',0)<n and 'poison_until_round' in a:
                 del a['poison_until_round'];del a['poison_source']
             if not a.get('monster_id','') or a['movement_ready_round']>n:
                 buffer.update(unit['id'],unit['owner'],a);continue
@@ -194,11 +221,8 @@ def step(w,buffer,c,tick,reaction):
                     state['fields'].append(f)
                     events.append(event('MONSTER_FIELD_CREATED', dict(field=f, round=n, tick=tick)))
         elif name=='Tumler':
-            choices=[r for r in enemies(unit,rows) if a.get('navigation',{}).get('avoid',{}).get(r['id'],0) <= n*200+tick]
-            if not any(r['id']==a.get('hunt_target','') for r in choices):
-                supports=[r for r in choices if r['attributes']['suit']=='Vulture' or r['attributes'].get('monster_id') in ('Kopita','Fyra','Sooge','Sinodek')]
-                a['hunt_target']=nearest(unit,supports or choices).get('id','')
-        elif (name=='Kopita' and a['birth_round'] < n and tick in (0,T['kopita_second_pulse_tick'])
+            a['hunt_target']=charge.select_target(unit,rows,clock).get('id','')
+        elif (name=='Kopita' and a['birth_round'] < n and (tick-c.get('marching_tick_offset',0)+c.get('marching_round_tick',0)) in (0,T['kopita_second_pulse_tick'])
               and a.get('kopita_last_pulse_tick',0) < clock):
             healing=any(other['owner']==unit['owner'] and other['attributes']['lane']==a['lane']
                         and distance(a,other['attributes'])<=T['kopita_radius']**2
@@ -216,12 +240,12 @@ def step(w,buffer,c,tick,reaction):
                     buffer.update(other['id'],other['owner'],b)
                     if b['hp']>before:healed.append(dict(id=other['id'],owner=other['owner'],attributes=copy_data(b),amount=b['hp']-before))
                 elif not healing and other['owner']!=unit['owner']:
-                    hits.append(dict(source=unit,target=other['id'],amount=1,bypass=False,ability='Kopita'))
+                    hits.append(dict(source=unit,target=other['id'],amount=T.get('kopita_damage',1),bypass=False,ability='Kopita'))
             events.append(event('MONSTER_PULSE',dict(unit_id=unit['id'],source=unit,radius_fp=T['kopita_radius'],healing=healing,healed=healed,round=n,tick=tick)))
-        elif name=='Muno' and a.get('muno_round',0)!=n:
+        elif name=='Muno' and a.get('muno_next_tick',0)<=clock:
             target=nearest(unit,rows,T['muno_radius'])
             if target:
-                a['muno_round']=n;hits.append(dict(source=unit,target=target['id'],amount=a['attack'],bypass=False,ability='Muno'))
+                a['muno_next_tick']=clock+T['muno_interval_ticks'];hits.append(dict(source=unit,target=target['id'],amount=a['attack'],bypass=False,ability='Muno'))
         elif name=='Dotra':
             if a.get('hidden',False):
                 target=nearest(unit,rows,T['dotra_ambush_radius'])
@@ -271,7 +295,7 @@ def step(w,buffer,c,tick,reaction):
             gap=distance(a,f)
             if gap<=T['portal_radius']**2:
                 buffer.retire_id(unit['id']);events.append(event('MONSTER_BANISHED',dict(unit=unit,portal_id=f['id'],round=n,tick=tick)))
-            elif gap<=T['portal_fear_radius']**2 and a['step_fp']>0 and a['movement_ready_round']<=n:
+            elif gap<=T['portal_fear_radius']**2 and a['step_fp']>0 and a['movement_ready_round']<=n and not charge.active(a):
                 dx=a['x_fp']-f['x_fp'];dy=a['y_fp']-f['y_fp']
                 if abs(dx)>=abs(dy):a['x_fp']=max(0,min(2400,a['x_fp']+(1 if dx>=0 else -1)*a['step_fp']))
                 else:a['y_fp']=max(0,min(600,a['y_fp']+(1 if dy>=0 else -1)*a['step_fp']))
@@ -307,11 +331,17 @@ def damage(w,buffer,hit,c,tick,reaction):
     evaded=evades(target,hit['source'],live_rows,c,tick,hit['ability'],fort.rows(w))
     if not evaded and not fleeing and hit['ability'] in ('Muno','Ambush'):
         events.extend(intercept(target,hit['source'],live_rows,c,tick,fort.rows(w)))
-    amount=0 if blocked or evaded else incoming.amount(a, hit['amount'], c['round']*200+tick);absorbed=0 if hit['bypass'] else min(a['armor'],amount);dealt=amount-absorbed
+    amount=0 if blocked or evaded else incoming.apply(a, hit['amount'], c['round']*200+tick);absorbed=0 if hit['bypass'] else min(a['armor'],amount);dealt=amount-absorbed
     a['armor']-=absorbed;a['hp']=max(0,a['hp']-dealt);a['movement_ready_round']=min(a['movement_ready_round'],c['round'])
     if a['hp']==0:buffer.retire_id(target['id'])
     else:buffer.update(target['id'],target['owner'],a)
-    events.append(event('MONSTER_ATTACK',dict(attacker=hit['source'],target=before,ability=hit['ability'],blocked=blocked,evaded=evaded,damage_dealt=dealt,hp_after=a['hp'],round=c['round'],tick=tick)))
+    events.append(event('MONSTER_ATTACK',dict(attacker=hit['source'],target=before,ability=hit['ability'],blocked=blocked,evaded=evaded,warded=before['attributes'].get('muno_ward',False) and not a.get('muno_ward',False),damage_dealt=dealt,hp_after=a['hp'],round=c['round'],tick=tick)))
+    if hit['ability']=='Muno':
+        survivor=buffer.get(hit['source']['id'])
+        if survivor and survivor['attributes'].get('monster_id')=='Muno' and not survivor['attributes'].get('muno_ward',False):
+            survivor['attributes']['muno_ward']=True
+            buffer.update(survivor['id'],survivor['owner'],survivor['attributes'])
+            events.append(event('MONSTER_WARD_GAINED',dict(unit_id=survivor['id'],round=c['round'],tick=tick)))
     if hit['ability'] == 'Ambush': events.append(expose(buffer, hit['source'], c['round'], tick))
     w['entities']=buffer.snapshot()
     if a['hp']==0:
@@ -343,11 +373,13 @@ def steer(unit,destination,rows,fields):
     obstacles=[dict(x_fp=f['x_fp'],y_fp=f['y_fp'],radius=240) for f in fields
                if f['kind']=='pool' and f['lane']==a['lane'] and distance(a,f)<=400*400]
     for obstacle in obstacles:
-        if (obstacle['x_fp']-a['x_fp'])*(destination['x_fp']-a['x_fp'])<0 or abs(obstacle['y_fp']-a['y_fp'])>=obstacle['radius']:continue
+        forward=destination['x_fp']-a['x_fp']
+        along=(obstacle['x_fp']-a['x_fp'])*(1 if forward>0 else -1)
+        # Once abreast of the pool, commit inward instead of re-entering
+        # the same edge detour. Pools beyond the prey need no detour.
+        if forward==0 or along<=0 or along>=abs(forward) or abs(obstacle['y_fp']-a['y_fp'])>=obstacle['radius']:continue
         side=-1 if a['y_fp']<=obstacle['y_fp'] else 1
         y=max(30,min(570,obstacle['y_fp']+side*obstacle['radius']))
         if abs(y-obstacle['y_fp'])<obstacle['radius']//2:y=max(30,min(570,obstacle['y_fp']-side*obstacle['radius']))
-        # Resume the hunt after reaching a clamped detour point.
-        if a['x_fp']==obstacle['x_fp'] and a['y_fp']==y:continue
         return dict(x_fp=obstacle['x_fp'],y_fp=y)
     return destination

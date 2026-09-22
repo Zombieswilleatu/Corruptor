@@ -130,7 +130,7 @@ func _flow_copy(step: String) -> String:
 		"Work Target": return _work_preview()
 		"Resummon": return "Choose your return payment, then Done. Skip to remain banished."
 		"Guards": return "Place Guards in either zone, then Done. Each new Guard supplies work."
-		"Combat": return "Choose Siege, Hunt, Ward or skip. Select cards, then Done."
+		"Combat": return "Choose an attack, Ward or skip. You may reserve a paid Ward, then Hunt or Siege with other cards." if _visible_world.has("ward_experiment") else "Choose Siege, Hunt, Ward or skip. Select cards, then Done."
 		"Lord Powers": return "Stage your optional powers, then Done to review Dominion rites."
 		"Dominion Rites": return "Choose optional rites, then resolve all staged orders."
 	return ""
@@ -160,15 +160,21 @@ func _confirm_decision() -> void:
 
 func _advance_flow() -> void:
 	if not _planning(): return
+	if summon_menu != null and summon_menu.visible: return
 	if _error(session.choose(queued, _order())): return
+	if flow_step == 3 and _offer_grimoire_summons(): return
 	if flow_step == STEPS.size() - 1:
 		resolve_round()
 		return
 	_goto_flow(flow_step + 1, true)
 
+func _continue_after_grimoire() -> void:
+	if flow_step == 3: _advance_flow()
+
 func _goto_flow(index: int, skip_unavailable: bool = false) -> void:
 	_sample_playtime()
 	flow_step = clampi(index, 0, STEPS.size() - 1)
+	if flow_step == 3: _summon_prompt_options = []
 	if skip_unavailable:
 		while (flow_step == 1 and _human_alive()) or (flow_step == 2 and not _guards_available()) or (flow_step == 4 and not _powers_available()):
 			flow_step += 1

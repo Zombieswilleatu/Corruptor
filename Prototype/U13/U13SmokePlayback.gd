@@ -32,6 +32,8 @@ var _frames: Array = []
 var _spatial: bool = false
 var _spatial_ticks: int = 200
 var _spatial_lead: float = 0.0
+var _move_seconds: float = MOVE_SECONDS
+var _spatial_clock_start: int = 0
 
 
 func build(events: Array) -> bool:
@@ -48,6 +50,8 @@ func build(events: Array) -> bool:
 	_spatial = false
 	_spatial_ticks = 200
 	_spatial_lead = 0.0
+	_move_seconds = MOVE_SECONDS
+	_spatial_clock_start = 0
 	duration = 0.0
 	round_number = 0
 	var started: Dictionary = {}
@@ -70,6 +74,8 @@ func build(events: Array) -> bool:
 	if started.get("model", "") == "U13_MARCHING_SPATIAL_V2":
 		return _build_spatial(events, started, finished)
 	round_number = int(started.round)
+	_move_seconds = float(started.get("seconds", MOVE_SECONDS))
+	_spatial_clock_start = int(started.get("clock_start", round_number * 200))
 	var units: Dictionary = {}
 	for unit in started.units:
 		units[unit.id] = unit.duplicate(true)
@@ -135,7 +141,7 @@ func sample(seconds: float) -> Dictionary:
 	for unit in right.units:
 		right_units[unit.id] = unit
 	var result: Array = left.units.duplicate(true)
-	var status_clock: int = round_number * 200 + clampi(int(floor((at - _spatial_lead) * 200.0 / MOVE_SECONDS)) - 1, 0, 200)
+	var status_clock: int = _spatial_clock_start + clampi(int(floor((at - _spatial_lead) * float(_spatial_ticks) / _move_seconds)) - 1, 0, _spatial_ticks)
 	for unit in result:
 		var ending: Dictionary = right_units.get(unit.id, unit)
 		if unit.attributes.has("dotra_exposed_until_tick"):
@@ -165,6 +171,7 @@ func sample(seconds: float) -> Dictionary:
 			attack["elapsed"] = at
 			for unit in result:
 				if unit.id != attack.source_id: continue
+				attack["ward_active"] = unit.attributes.get("muno_ward", true)
 				var home := Vector2(float(unit.attributes.visual_x), float(unit.attributes.visual_y))
 				attack["return_point"] = home
 				var dash := muno_position(attack, at, home)
@@ -174,10 +181,15 @@ func sample(seconds: float) -> Dictionary:
 					unit.attributes["visual_muno_weight"] = (at - float(attack.start)) / (float(attack.return_at) - float(attack.start))
 					unit.attributes["visual_muno_face_left"] = float(attack.target.y_fp) < float(attack.source.y_fp) if attack.target.y_fp != attack.source.y_fp else unit.owner == 1
 				break
+	# The returned echo is saved unit state, so it survives pauses, new rounds
+	# and reloads, and disappears on the exact frame that spends the charge.
+	for unit in result:
+		if unit.attributes.get("muno_ward", false) and int(unit.attributes.hp) > 0 and not attacks.any(func(a): return a.ability == "MunoDash" and a.source_id == unit.id):
+			attacks.append({"ability": "MunoAfterimage", "source": unit.attributes, "target": unit.attributes, "source_id": unit.id, "target_id": unit.id, "source_owner": unit.owner, "target_owner": unit.owner})
 	# Charging is recorded unit state, so death, loss of targets, pause, and
 	# cross-round continuation all follow the same authoritative timeline.
 	if _spatial and at < duration:
-		var clock: float = float(round_number * _spatial_ticks) + clampf((at - _spatial_lead) * float(_spatial_ticks) / MOVE_SECONDS - 1.0, 0.0, float(_spatial_ticks - 1))
+		var clock: float = float(_spatial_clock_start) + clampf((at - _spatial_lead) * float(_spatial_ticks) / _move_seconds - 1.0, 0.0, float(_spatial_ticks - 1))
 		for unit in result:
 			var a: Dictionary = unit.attributes
 			var ready: int = int(a.get("beam_ready_tick", 0))
@@ -188,14 +200,14 @@ func sample(seconds: float) -> Dictionary:
 
 
 func tick_time(tick: int) -> float:
-	return _spatial_lead + MOVE_SECONDS * float(tick + 1) / float(_spatial_ticks)
+	return _spatial_lead + _move_seconds * float(tick + 1) / float(_spatial_ticks)
 
 
 func final_units() -> Array:
 	return [] if _frames.is_empty() else _frames.back().units.duplicate(true)
 
 
-func _append(units: Dictionary, caption: String, clash: Array) -> void:
+func _append(units: Dictionary, caption: String, clash: Array, expired_armor: Dictionary = {}) -> void:
 	for entity_id in _previous_units:
 		var before: Dictionary = _previous_units[entity_id]
 		var after: Dictionary = units.get(entity_id, {})
@@ -212,7 +224,9 @@ func _append(units: Dictionary, caption: String, clash: Array) -> void:
 			hp = 0
 			armor = int(_terminal[entity_id])
 		var hp_delta: int = hp - int(before.attributes.hp)
-		var armor_delta: int = armor - int(before.attributes.armor)
+		# Expiring temporary Armor is not a hit. Preserve genuine damage in
+		# the same tick, including packets that consumed some of that Armor.
+		var armor_delta: int = armor - int(before.attributes.armor) + int(expired_armor.get(entity_id, 0))
 		if hp_delta != 0 or armor_delta != 0:
 			feedback_rows.append(
 				Feedback.row(
@@ -241,6 +255,8 @@ static func _advance_picture(units: Dictionary, ticks: int, round_number: int) -
 func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) -> bool:
 	_spatial = true
 	round_number = int(started.round)
+	_move_seconds = float(started.get("seconds", MOVE_SECONDS))
+	_spatial_clock_start = int(started.get("clock_start", round_number * 200))
 	var units: Dictionary = {}
 	for unit in started.units:
 		units[unit.id] = unit.duplicate(true)
@@ -252,32 +268,32 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 	_spatial_lead = lead
 	for event in events:
 		if event.type == "MARCHER_RANGED_ATTACK":
-			var impact: float = lead + MOVE_SECONDS * float(int(event.data.tick) + 1) / float(started.ticks)
+			var impact: float = lead + _move_seconds * float(int(event.data.tick) + 1) / float(started.ticks)
 			projectile_rows.append({"start": impact - FLIGHT_SECONDS, "end": impact, "lane": event.data.lane, "source_id": event.data.attacker.id, "target_id": event.data.target.id, "source": event.data.attacker.attributes.duplicate(true), "target": event.data.target.attributes.duplicate(true)})
 	for field in started.get("monster_fields", []): _monster_fields.append({"at": 0.0, "field": field})
 	var death_ticks: Dictionary = {}
 	var beams: Dictionary = {}
 	var pulses: Dictionary = {}
 	for pending in started.get("monster_beams", []):
-		var until: float = lead + MOVE_SECONDS * float(int(pending.detonate_tick) - round_number * _spatial_ticks + 1) / float(_spatial_ticks)
-		_monster_attacks.append(_beam_picture(pending, 0.0, minf(lead + MOVE_SECONDS, until), "BeamTrail"))
+		var until: float = lead + _move_seconds * float(int(pending.detonate_tick) - _spatial_clock_start + 1) / float(_spatial_ticks)
+		_monster_attacks.append(_beam_picture(pending, 0.0, minf(lead + _move_seconds, until), "BeamTrail"))
 	for event in events:
 		var d: Dictionary = event.data
 		if event.type == "MARCHER_DEFEATED": death_ticks[d.victim.id + ":pool"] = int(d.get("tick", 0))
 		if event.type == "MONSTER_EXPOSURE_PULSE":
-			var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
+			var at: float = lead + _move_seconds * float(int(d.tick) + 1) / float(started.ticks)
 			_monster_attacks.append({"start": at, "end": at + 0.32, "source": d.source.attributes, "source_id": d.source.id, "source_owner": d.source.owner, "range_fp": d.radius_fp, "ability": "DotraExpose"})
 		if event.type == "MONSTER_PULSE":
 			# Old tapes retain the caster ID, but do not identify healed bodies.
 			# Show the cast without inventing successful heals in those replays.
 			var source: Dictionary = d.get("source", bases.get(d.unit_id, {}))
 			if not source.is_empty():
-				var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
+				var at: float = lead + _move_seconds * float(int(d.tick) + 1) / float(started.ticks)
 				var pulse: Dictionary = _kopita_picture(d, source, at)
 				pulses["%s:%d" % [d.unit_id, d.tick]] = pulse
 				_monster_attacks.append(pulse)
 		if event.type in ["MONSTER_BEAM_FIRED", "MONSTER_BEAM_DETONATED"]:
-			var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
+			var at: float = lead + _move_seconds * float(int(d.tick) + 1) / float(started.ticks)
 			var key: String = "%s:%d" % [d.attacker.id, d.tick]
 			var blast: bool = event.type == "MONSTER_BEAM_DETONATED"
 			var span: float = BEAM_BLAST_SECONDS if blast else (GROUND_BEAM_SECONDS if d.has("detonate_tick") else BEAM_SECONDS)
@@ -285,21 +301,21 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 			beams[key] = beam
 			_monster_attacks.append(beam)
 			if not blast and d.has("detonate_tick"):
-				var until: float = lead + MOVE_SECONDS * float(int(d.detonate_tick) - round_number * _spatial_ticks + 1) / float(_spatial_ticks)
-				_monster_attacks.append(_beam_picture(d, at + span, minf(lead + MOVE_SECONDS, until), "BeamTrail"))
+				var until: float = lead + _move_seconds * float(int(d.detonate_tick) - _spatial_clock_start + 1) / float(_spatial_ticks)
+				_monster_attacks.append(_beam_picture(d, at + span, minf(lead + _move_seconds, until), "BeamTrail"))
 	for event in events:
 		var d: Dictionary = event.data
 		if d.get("evaded", false) and event.type in ["MARCHER_MELEE_ATTACK", "MARCHER_RANGED_ATTACK", "MONSTER_ATTACK"]:
-			var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
+			var at: float = lead + _move_seconds * float(int(d.tick) + 1) / float(started.ticks)
 			_monster_attacks.append({"start": at, "end": at + 0.20, "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "ability": "ArmorDeflect" if d.target.attributes.get("monster_id") == "Kurchin" else "HuntDodge"})
-		if d.get("blocked", false) and event.type in ["MARCHER_RANGED_ATTACK", "MONSTER_ATTACK"]:
-			var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
+		if d.get("blocked", false) and event.type in ["MARCHER_MELEE_ATTACK", "MARCHER_RANGED_ATTACK", "MONSTER_ATTACK"]:
+			var at: float = lead + _move_seconds * float(int(d.tick) + 1) / float(started.ticks)
 			_monster_attacks.append({"start": at, "end": at + 0.20, "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "ability": "RangedBlock"})
 		if event.type == "MONSTER_FIELD_CREATED" and not _monster_fields.any(func(f): return f.field.id == d.field.id):
 			var tick: int = int(d.get("tick", death_ticks.get(d.field.id, 0)))
-			_monster_fields.append({"at": lead + MOVE_SECONDS * float(tick + 1) / float(started.ticks), "field": d.field})
+			_monster_fields.append({"at": lead + _move_seconds * float(tick + 1) / float(started.ticks), "field": d.field})
 		elif event.type == "MONSTER_ATTACK":
-			var at: float = lead + MOVE_SECONDS * float(int(d.tick) + 1) / float(started.ticks)
+			var at: float = lead + _move_seconds * float(int(d.tick) + 1) / float(started.ticks)
 			var key: String = "%s:%d" % [d.attacker.id, d.tick]
 			if d.ability == "Beam" and beams.has(key):
 				# Collateral lights up the struck bodies; it never redirects the beam.
@@ -317,6 +333,12 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 			else:
 				# Older tapes contain hit records only and can still show their shots.
 				_monster_attacks.append({"start": at, "end": at + (BEAM_SECONDS if d.ability == "Beam" else 0.14), "source": d.attacker.attributes, "target": d.target.attributes, "source_id": d.attacker.id, "target_id": d.target.id, "source_owner": d.attacker.owner, "target_owner": d.target.owner, "ability": d.ability})
+	var charge_expiry: Dictionary = {}
+	for event in events:
+		if event.type == "MONSTER_CHARGE_ENDED":
+			var tick_key: int = int(event.data.tick)
+			if not charge_expiry.has(tick_key): charge_expiry[tick_key] = {}
+			charge_expiry[tick_key][event.data.unit_id] = int(event.data.armor_removed)
 	var expected_tick: int = 0
 	for event in events:
 		if event.type != "MARCHING_TICK":
@@ -326,7 +348,7 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 			_frames = []
 			return false
 		expected_tick += 1
-		duration = lead + MOVE_SECONDS * float(expected_tick) / float(started.ticks)
+		duration = lead + _move_seconds * float(expected_tick) / float(started.ticks)
 		units = {}
 		for unit in details.units:
 			if details.get("unit_format", "") == "attribute_delta_v1" and bases.has(unit.id):
@@ -339,7 +361,8 @@ func _build_spatial(events: Array, started: Dictionary, finished: Dictionary) ->
 		_append(
 			units,
 			"Melee in progress" if not details.clash.is_empty() else "Marching",
-			details.clash
+			details.clash,
+			charge_expiry.get(int(details.tick), {})
 		)
 		_frames.back()["field_structures"] = details.get("field_structures", []).duplicate(true)
 	if expected_tick != int(started.ticks):
@@ -367,9 +390,9 @@ func _align_attack_reveals(events: Array) -> void:
 		for unit in frame.units:
 			var deadline: int = int(unit.attributes.get("dotra_shroud_until_tick", 0))
 			if deadline > 0:
-				var tick: int = deadline - round_number * 200
+				var tick: int = deadline - _spatial_clock_start
 				if not targetable_at.has(unit.id): targetable_at[unit.id] = []
-				var expires_at: float = _spatial_lead + MOVE_SECONDS * float(tick + 1) / float(_spatial_ticks)
+				var expires_at: float = _spatial_lead + _move_seconds * float(tick + 1) / float(_spatial_ticks)
 				if expires_at not in targetable_at[unit.id]: targetable_at[unit.id].append(expires_at)
 			var hidden: bool = unit.attributes.get("hidden", false)
 			if concealed.get(unit.id, false) and not hidden:
@@ -382,7 +405,7 @@ func _align_attack_reveals(events: Array) -> void:
 			# Its recorded ambush still establishes the exact reveal instant.
 			var identity: String = event.data.attacker.id
 			if not reveals.has(identity): reveals[identity] = []
-			reveals[identity].append(_spatial_lead + MOVE_SECONDS * float(int(event.data.tick) + 1) / float(_spatial_ticks))
+			reveals[identity].append(_spatial_lead + _move_seconds * float(int(event.data.tick) + 1) / float(_spatial_ticks))
 	for shot in projectile_rows:
 		var visible_at: float = _latest_reveal(reveals, shot.source_id, shot.target_id, shot.end)
 		visible_at = maxf(visible_at, _latest_reveal(targetable_at, "", shot.target_id, shot.end))

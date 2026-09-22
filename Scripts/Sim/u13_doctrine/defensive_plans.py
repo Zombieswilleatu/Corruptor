@@ -7,10 +7,11 @@ the calculation. Work and fresh bonds are projected from this own plan only.
 """
 from collections import Counter
 
+from u13_pysim import split_ward
 from u13_pysim.battle import defense, operational, targetable
-from u13_pysim.castle_balance import PENITENT_PAIR_SCREEN, WRIGHT_PAIR_WORK
+from u13_pysim.castle_balance import PENITENT_PAIR_SCREEN
 from u13_pysim.copying import copy_data
-from u13_pysim.development import commission_eligible, eligible, intact
+from u13_pysim.development import commission_eligible, eligible, intact, wright_pair_work
 from .diagnostics import fingerprint
 from .facts import LANES
 
@@ -30,6 +31,7 @@ def development(f, plan):
         row['attributes'].update(role='guard', lane=move['lane'], slot=move['slot'])
         rows.append(row); by_id[row['id']] = row
     amount = len(moves)
+    wright_pairs = 0
     for lane in LANES:
         for suit in ('Penitent', 'Vulture', 'Wright', 'Butcher'):
             fresh = sorted((m for m in moves if m['lane'] == lane and
@@ -38,7 +40,7 @@ def development(f, plan):
             world['data']['guard_work']['pairs'].append(dict(player_id=f.pid, lane=lane,
                 suit=suit, ids=[m['card_id'] for m in fresh[:2]], slots=[m['slot'] for m in fresh[:2]],
                 round=f.v['round'], active=True))
-            if suit == 'Wright': amount += WRIGHT_PAIR_WORK
+            if suit == 'Wright': wright_pairs += 1
     choice = order.get('castle_action', {})
     target_id = world['data']['guard_work']['targets'][f.pid]
     activated = []
@@ -54,6 +56,8 @@ def development(f, plan):
                    activated=activated, locked=False)
     if eligible(world, f.pid, row):
         a = row['attributes']
+        amount += wright_pairs * wright_pair_work(row)
+        details['guard_work'] = amount
         building = a['construction_state'] != 'active' or a['status'] == 'ruined'
         locked = not building and a.get('repair_lock_until_round', 0) >= f.v['round']
         gain = 0 if locked else min(a['max_integrity']-a['integrity'], amount+(3 if building else 0))
@@ -76,13 +80,15 @@ def exposure(f, world, plan, lane, card_pressure):
     castles = sorted((r for r in own if targetable(r)), key=lambda r: (r['attributes']['castle_slot'], r['id']))
     if lane == 'Castle' and not castles:
         return dict(castles_lost=0, banished=False)
-    pressure = card_pressure+sum(r['attributes']['waiting'] for r in f.units(f.enemy, lane))
+    pressure = split_ward.attack_bonus(world)+card_pressure+sum(r['attributes']['waiting'] for r in f.units(f.enemy, lane))
     if lane == 'Lord' and f.lord[f.enemy]['attributes']['alive'] and f.lord[f.enemy]['attributes']['lord_id'] == 'Orias':
         pressure += 1+int(lord['attributes'].get('threat', 0) >= 2)
     order = plan['order']
+    if split_ward.enabled(world): order = split_ward.ward(order)
     if order.get('action') == 'Ward':
         screen = f.strength(order.get('card_ids', []), 'Ward')
-        pressure = max(0, pressure-(screen if order['lane'] == lane else screen//2))
+        off_lane = 0 if split_ward.enabled(world) else screen//2
+        pressure = max(0, pressure-(screen if order['lane'] == lane else off_lane))
     for pair in world['data']['guard_work']['pairs']:
         if pair['player_id'] == f.pid and pair['lane'] == lane and pair['suit'] == 'Penitent' and intact(world, pair):
             pressure = max(0, pressure-PENITENT_PAIR_SCREEN)
@@ -93,7 +99,7 @@ def exposure(f, world, plan, lane, card_pressure):
                     key=lambda r: (-r['attributes']['value'], r['attributes']['slot'], r['id']))
     for guard in guards:
         pressure = max(0, pressure-guard['attributes']['value'])
-    sigil = f.v['data']['sigils'][f.pid][lane]
+    sigil = '' if split_ward.enabled(world) else f.v['data']['sigils'][f.pid][lane]
     pressure = max(0, pressure-(2 if sigil == 'fresh' else 1 if sigil else 0))
     losses = 0
     if lane == 'Lord':

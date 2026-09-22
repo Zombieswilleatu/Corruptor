@@ -7,7 +7,8 @@ const Structures = preload("res://Scripts/Sim/U13Structures.gd")
 const Battle = preload("res://Scripts/Sim/U13BattleEvents.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
 const VERSION: String = "U13_GUARD_WORK_V4"
-const WRIGHT_PAIR_WORK: int = 3
+const WRIGHT_PAIR_BUILD: int = 5
+const WRIGHT_PAIR_REPAIR: int = 3
 const PENITENT_PAIR_SCREEN: int = 3
 const BUTCHER_PAIR_KILLS: int = 2
 
@@ -93,6 +94,10 @@ static func reconcile(world: Dictionary) -> void:
 	for pair in world.data.guard_work.pairs:
 		if pair.active and not intact(world, pair): pair.active = false
 
+static func wright_pair_work(target: Dictionary) -> int:
+	var a: Dictionary = target.attributes
+	return WRIGHT_PAIR_BUILD if a.construction_state != "active" or a.status == "ruined" else WRIGHT_PAIR_REPAIR
+
 static func develop(world: Dictionary, round_number: int, player_order: Array) -> Array:
 	reconcile(world)
 	var state: Dictionary = world.data.guard_work
@@ -103,6 +108,7 @@ static func develop(world: Dictionary, round_number: int, player_order: Array) -
 	for pid in player_order:
 		var moves: Array = world.data.guard_orders[pid].moves
 		var work: int = moves.size()
+		var wright_pairs: int = 0
 		for lane in ["Lord", "Castle"]:
 			for suit in ["Butcher", "Penitent", "Wright", "Vulture"]:
 				var fresh: Array = []
@@ -112,7 +118,7 @@ static func develop(world: Dictionary, round_number: int, player_order: Array) -
 				if fresh.size() < 2: continue
 				var pair: Dictionary = {"player_id": pid, "lane": lane, "suit": suit, "ids": [fresh[0].card_id, fresh[1].card_id], "slots": [fresh[0].slot, fresh[1].slot], "round": round_number, "active": true}
 				state.pairs.append(pair)
-				if suit == "Wright": work += WRIGHT_PAIR_WORK
+				if suit == "Wright": wright_pairs += 1
 				var formed: Dictionary = Structures.public_event("GUARD_PAIR_FORMED", {"player_id": pid, "round": round_number, "lane": lane, "suit": suit, "card_ids": pair.ids})
 				events.append(formed)
 		var selected: Dictionary = world.data.castle_orders[pid].choice
@@ -135,6 +141,7 @@ static func develop(world: Dictionary, round_number: int, player_order: Array) -
 		var reconstruction: bool = a.status == "ruined"
 		# Deimos alone can rebuild a ruined Engine; it resumes protected construction.
 		if reconstruction: build = true
+		work += wright_pairs * wright_pair_work(castle)
 		var passive: int = 3 if build else 0
 		var gain: int = work + passive
 		if not build and int(a.get("repair_lock_until_round", 0)) >= round_number: gain = 0

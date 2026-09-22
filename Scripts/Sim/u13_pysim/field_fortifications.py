@@ -4,6 +4,9 @@ from .primitives import instance_id
 from .marching_spatial import half_away
 
 CONTACT, LATERAL_CONTACT, BUILD_TICKS, GUARD_TICKS, TOWER_RANGE = 90, 42, 32, 200, 600
+REPAIR_RANGE, REPAIR_TICKS = CONTACT, 27
+WALL_HP, WALL_ARMOR, TOWER_HP, TOWER_ARMOR = 16, 4, 12, 6
+GUARD_RANGE, GUARD_ALERT_RANGE = 400, 600
 
 
 def rows(world):
@@ -94,7 +97,70 @@ def assigned_structure(unit, structures):
     a = unit['attributes']
     if 'wright_site' not in a or a.get('wright_owner', -1) != unit['owner']: return {}
     structure = find(structures, unit['owner'], a['lane'], a['wright_site'])
+    if 'wright_guard_target' in a:
+        return structure if structure and structure['id'] == a['wright_guard_target'] else {}
     return structure if structure and structure['attributes']['builder_id'] == unit['id'] else {}
+
+
+def guarding(a):
+    return a.get('wright_built', False) or 'wright_guard_target' in a
+
+
+def ranged_guard(unit, structures, number):
+    if unit.get('kind') != 'marcher': return False
+    a = unit['attributes']
+    return (a.get('suit') == 'Wright' and 'monster_id' not in a and guarding(a) and not a.get('wright_released',False)
+            and not a['waiting'] and a['movement_ready_round'] <= number and not a.get('hidden',False)
+            and bool(assigned_structure(unit,structures)) and distance(a,anchor(unit['owner'],a['wright_site'])) <= 32**2)
+
+
+def threatened_post(unit, units, structures):
+    home = anchor(unit['owner'],unit['attributes']['wright_site'])
+    for other in units:
+        b = other['attributes']
+        if other['owner'] == unit['owner'] or b['lane'] != unit['attributes']['lane'] or b.get('hidden',False) or b['waiting']: continue
+        # Incoming troops still threaten the post while intercepted farther out.
+        # Distant fort guards/turrets must not lock both armies at home forever.
+        if distance(home,b) <= GUARD_ALERT_RANGE**2: return True
+        if b.get('sprite_form') == 'turret': continue
+        if (b.get('suit') == 'Wright' and 'monster_id' not in b and guarding(b)
+                and not b.get('wright_released',False) and assigned_structure(other,structures)): continue
+        return True
+    return False
+
+
+def repair_target(unit, structures, guarded):
+    a = unit['attributes']
+    repair, repair_distance = {}, (1 << 63)-1
+    for structure in structures:
+        b = structure['attributes']
+        if structure['owner'] != unit['owner'] or b['lane'] != a['lane'] or b['hp'] >= b['max_hp'] or structure['id'] in guarded:
+            continue
+        d = distance(a, anchor(unit['owner'], b['site']))
+        if d < repair_distance:
+            repair, repair_distance = structure, d
+    return repair
+
+
+def repair_support_target(unit, structures):
+    a = unit['attributes']
+    if not guarding(a) or a.get('wright_released',False) or ('wright_guard_target' in a and not a.get('wright_arrived',False)): return {}
+    held = assigned_structure(unit, structures)
+    if not held or held['attributes']['hp'] < held['attributes']['max_hp']: return {}
+    home = anchor(unit['owner'],a['wright_site'])
+    choices = [r for r in structures if r['owner']==unit['owner'] and r['attributes']['lane']==a['lane']
+               and r['attributes']['hp'] < r['attributes']['max_hp']
+               and distance(home,anchor(unit['owner'],r['attributes']['site'])) <= GUARD_ALERT_RANGE**2]
+    return min(choices,key=lambda r:(gap(unit,r),r['id'])) if choices else {}
+
+
+def work_in_reach(unit, structures, destination):
+    for structure in structures:
+        a = structure['attributes']
+        if (structure['owner']==unit['owner'] and a['lane']==unit['attributes']['lane']
+                and anchor(unit['owner'],a['site'])==destination and a['hp']<a['max_hp']):
+            return in_melee(unit,structure)
+    return True
 
 
 def goal(unit, structures, clock, enemy):
@@ -102,26 +168,31 @@ def goal(unit, structures, clock, enemy):
     if 'wright_site' not in a:
         return {}
     home = anchor(unit['owner'], a['wright_site'])
-    if not a.get('wright_built', False):
+    if not guarding(a):
         return home
     structure = assigned_structure(unit, structures)
     if a.get('wright_released', False) or not structure:
         return {}
-    if clock >= a.get('wright_guard_until', 0) and structure['attributes']['hp'] == structure['attributes']['max_hp']:
-        return {}
-    if enemy and distance(home, point(home, enemy)) <= 240**2:
-        return point(a, enemy)
+    if 'wright_guard_target' in a and not a.get('wright_arrived', False):
+        return home
+    support = repair_support_target(unit,structures)
+    if support: return anchor(unit['owner'],support['attributes']['site'])
+    # Only step() releases guard duty; movement honors that decision.
     return home
 
 
 def step(world, entities, number, tick, fleeing=()):
     structures = world['data'].setdefault('field_structures', [])
     units, clock, events, reserved = entities.rows(), number*200+tick, [], {}
+    guarded = {}
     for unit in units:
         a = unit['attributes']
         if a.get('suit') != 'Wright' or 'monster_id' in a:
             continue
-        if 'wright_site' in a and not a.get('wright_built', False):
+        if guarding(a) and not a.get('wright_released', False):
+            held = assigned_structure(unit, structures)
+            if held: guarded[held['id']] = unit['id']
+        if 'wright_site' in a and not guarding(a):
             site = a['wright_site']
             if (a.get('wright_owner', -1) != unit['owner'] or find(structures, unit['owner'], a['lane'], site)
                     or site == 2 and (not find(structures, unit['owner'], a['lane'], 0) or not find(structures, unit['owner'], a['lane'], 1))):
@@ -132,26 +203,33 @@ def step(world, entities, number, tick, fleeing=()):
                 reserved[(unit['owner'], a['lane'], site)] = unit['id']
     for original in units:
         unit = entities.get(original['id']); a = unit['attributes']
-        if a.get('suit') == 'Wright' and 'monster_id' not in a and a.get('wright_built', False):
+        active = (not a['waiting'] and a['movement_ready_round'] <= number and a.get('rout_round', -1) != number
+                  and not a.get('hidden', False) and unit['id'] not in fleeing)
+        if a.get('suit') == 'Wright' and 'monster_id' not in a and 'wright_site' not in a and not guarding(a) and active:
+            repair = repair_target(unit, structures, guarded)
+            if repair:
+                a.update(wright_site=repair['attributes']['site'], wright_owner=unit['owner'], wright_progress=0,
+                         wright_guard_target=repair['id'], wright_arrived=False, wright_guard_until=0,
+                         wright_repair_round=a.get("wright_repair_round",0), wright_released=False)
+                guarded[repair['id']] = unit['id']
+                events.append(event('WRIGHT_REPAIR_ASSIGNED', dict(unit_id=unit['id'], structure=repair,
+                              owner=unit['owner'], lane=a['lane'], round=number, tick=tick)))
+        if a.get('suit') == 'Wright' and 'monster_id' not in a and guarding(a):
             if a.get('wright_released', False): continue
             structure = assigned_structure(unit, structures)
             if not structure:
                 a['wright_released'] = True
-            elif (not a['waiting'] and a['movement_ready_round'] <= number and a.get('rout_round', -1) != number
-                  and not a.get('hidden', False) and unit['id'] not in fleeing):
-                if tick == 0 and a.get('wright_repair_round', 0) < number:
-                    a['wright_repair_round'] = number
-                    before = structure['attributes']['hp']
-                    if before < structure['attributes']['max_hp']:
-                        structure['attributes']['hp'] = before + 1
-                        events.append(event('WRIGHT_STRUCTURE_REPAIRED', dict(unit_id=unit['id'], structure=structure,
-                            owner=unit['owner'], lane=a['lane'], hp_before=before, hp_after=structure['attributes']['hp'], round=number, tick=tick)))
-                if clock >= a['wright_guard_until'] and structure['attributes']['hp'] == structure['attributes']['max_hp']:
+            elif active:
+                arrived_now = ('wright_guard_target' in a and not a.get('wright_arrived', False)
+                               and distance(a, anchor(unit['owner'], a['wright_site'])) <= 16**2)
+                if arrived_now:
+                    a.update(wright_arrived=True, wright_guard_until=clock+GUARD_TICKS)
+                at_post = 'wright_guard_target' not in a or a.get('wright_arrived', False)
+                if at_post and clock >= a['wright_guard_until'] and structure['attributes']['hp'] == structure['attributes']['max_hp'] and not threatened_post(unit, units, structures) and not repair_support_target(unit,structures):
                     a['wright_released'] = True
             entities.update(unit['id'], unit['owner'], a)
             continue
-        if (a['suit'] != 'Wright' or 'monster_id' in a or a.get('wright_built', False) or a['waiting']
-                or a['movement_ready_round'] > number or a.get('rout_round', -1) == number or a.get('hidden', False)):
+        if a['suit'] != 'Wright' or 'monster_id' in a or guarding(a) or not active:
             continue
         if 'wright_site' not in a:
             choices = [2] if find(structures, unit['owner'], a['lane'], 0) and find(structures, unit['owner'], a['lane'], 1) else [0, 1]
@@ -175,12 +253,34 @@ def step(world, entities, number, tick, fleeing=()):
                 p, tower = site_point(unit['owner'], a['wright_site']), a['wright_site'] == 2
                 built = dict(id=instance_id('wright_structure', unit['id'], str(a['wright_site'])), kind='fortification', owner=unit['owner'],
                              attributes=dict(structure='Tower' if tower else 'Wall', site=a['wright_site'], lane=a['lane'], **p,
-                                             hp=6, max_hp=6, armor=4 if tower else 2, max_armor=4 if tower else 2,
+                                             hp=TOWER_HP if tower else WALL_HP, max_hp=TOWER_HP if tower else WALL_HP,
+                                             armor=TOWER_ARMOR if tower else WALL_ARMOR, max_armor=TOWER_ARMOR if tower else WALL_ARMOR,
                                              attack=1 if tower else 0, ranged_next_tick=clock+1, builder_id=unit['id']))
                 structures.append(built); structures.sort(key=lambda r: r['id'])
-                a.update(wright_built=True, wright_guard_until=clock+GUARD_TICKS, wright_repair_round=number, wright_released=False)
+                guarded[built['id']] = unit['id']
+                a.update(wright_built=True, wright_guard_until=clock+GUARD_TICKS, wright_repair_round=a.get("wright_repair_round",0), wright_released=False)
                 events.append(event('WRIGHT_STRUCTURE_BUILT', dict(unit_id=unit['id'], structure=built, round=number, tick=tick)))
         entities.update(unit['id'], unit['owner'], a)
+    events.extend(repair_nearby(world, entities, number, tick, fleeing))
+    return events
+
+
+def repair_nearby(world, entities, number, tick, fleeing=()):
+    events = []
+    for unit in entities.rows():
+        a = unit['attributes']
+        if (a.get('suit') != 'Wright' or 'monster_id' in a or a['waiting'] or a['movement_ready_round'] > number
+                or a.get('rout_round',-1) == number or a.get('hidden',False) or unit['id'] in fleeing
+                or a.get('wright_repair_next_tick',0) > number*200+tick):
+            continue
+        candidates = [r for r in rows(world) if r['owner'] == unit['owner'] and r['attributes']['lane'] == a['lane']
+                      and r['attributes']['hp'] < r['attributes']['max_hp'] and in_melee(unit,r)]
+        if not candidates: continue
+        target = min(candidates,key=lambda r:(gap(unit,r),r['id']))
+        before = target['attributes']['hp']; target['attributes']['hp'] = before+1
+        a['wright_repair_next_tick'] = number*200+tick+REPAIR_TICKS
+        entities.update(unit['id'],unit['owner'],a)
+        events.append(event('WRIGHT_STRUCTURE_REPAIRED',dict(unit_id=unit['id'],structure=target,owner=unit['owner'],lane=a['lane'],hp_before=before,hp_after=before+1,round=number,tick=tick)))
     return events
 
 
@@ -210,16 +310,20 @@ def beam_hit(source, aim, row, radius, half_width):
 
 
 def valid_unit(a):
-    for key in ('wright_site', 'wright_progress', 'wright_owner', 'wright_guard_until', 'wright_repair_round'):
+    for key in ('wright_site', 'wright_progress', 'wright_owner', 'wright_guard_until', 'wright_repair_round', 'wright_repair_next_tick'):
         if key in a and (a.get('suit') != 'Wright' or 'monster_id' in a or type(a[key]) is not int or a[key] < 0):
             return False
-    for key in ('wright_built', 'wright_released'):
+    for key in ('wright_built', 'wright_released', 'wright_arrived'):
         if key in a and (a.get('suit') != 'Wright' or 'monster_id' in a or type(a[key]) is not bool): return False
-    if ('wright_repair_round' in a or 'wright_released' in a) and not a.get('wright_built', False):
+    if 'wright_guard_target' in a and (a.get('suit') != 'Wright' or 'monster_id' in a or type(a['wright_guard_target']) is not str or not a['wright_guard_target'] or 'wright_arrived' not in a):
+        return False
+    if 'wright_arrived' in a and 'wright_guard_target' not in a:
+        return False
+    if 'wright_released' in a and not guarding(a):
         return False
     if 'wright_site' in a and (a['wright_site'] > 2 or 'wright_progress' not in a or a['wright_progress'] > BUILD_TICKS or a.get('wright_owner', -1) not in (0, 1)):
         return False
-    if a.get('wright_built', False) and ('wright_site' not in a or 'wright_guard_until' not in a):
+    if guarding(a) and ('wright_site' not in a or 'wright_guard_until' not in a):
         return False
     return True
 
@@ -233,6 +337,8 @@ def valid(world):
         if type(row) is not dict or row.get('kind') != 'fortification' or row.get('owner') not in (0, 1) or type(row.get('attributes')) is not dict:
             return False
         a = row['attributes']
+        if 'repair_round' in a and (type(a['repair_round']) is not int or a['repair_round'] < 0):
+            return False
         if any(type(a.get(k)) is not int for k in ('site', 'x_fp', 'y_fp', 'hp', 'max_hp', 'armor', 'max_armor', 'attack', 'ranged_next_tick')):
             return False
         if a['site'] not in (0, 1, 2) or a.get('lane') not in ('Lord', 'Castle') or type(a.get('builder_id')) is not str:
@@ -243,19 +349,27 @@ def valid(world):
             return False
         builders.add(a['builder_id'])
         p = site_point(row['owner'], a['site'])
-        if a['x_fp'] != p['x_fp'] or a['y_fp'] != p['y_fp'] or not 1 <= a['hp'] <= 6 or a['max_hp'] != 6 or not 0 <= a['armor'] <= a['max_armor'] or a['ranged_next_tick'] < 0:
+        if a['x_fp'] != p['x_fp'] or a['y_fp'] != p['y_fp'] or not 1 <= a['hp'] <= a['max_hp'] or not 0 <= a['armor'] <= a['max_armor'] or a['ranged_next_tick'] < 0:
             return False
         tower = a['site'] == 2
-        if a.get('structure') != ('Tower' if tower else 'Wall') or a['max_armor'] != (4 if tower else 2) or a['attack'] != (1 if tower else 0):
+        legacy = a['max_hp'] == 6 and a['max_armor'] == (4 if tower else 2)
+        current = a['max_hp'] == (TOWER_HP if tower else WALL_HP) and a['max_armor'] == (TOWER_ARMOR if tower else WALL_ARMOR)
+        if not (legacy or current) or a.get('structure') != ('Tower' if tower else 'Wall') or a['attack'] != (1 if tower else 0):
             return False
         key = row['owner'], a['lane'], a['site']
         if key in sites:
             return False
         sites.add(key)
     claims = set()
+    guard_claims = set()
     for row in world['entities']['entities']:
         a = row['attributes']
-        if row['kind'] != 'marcher' or 'wright_site' not in a or a.get('wright_built', False): continue
+        if row['kind'] == 'marcher' and guarding(a) and not a.get('wright_released', False):
+            held = assigned_structure(row, structures)
+            if held:
+                if held['id'] in guard_claims: return False
+                guard_claims.add(held['id'])
+        if row['kind'] != 'marcher' or 'wright_site' not in a or guarding(a): continue
         # Charm releases the old claim before step() assigns another site.
         if a.get('wright_owner', -1) != row['owner']: continue
         key = str(row['owner']), str(a.get('lane', '')), str(a['wright_site'])

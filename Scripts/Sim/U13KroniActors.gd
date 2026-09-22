@@ -245,6 +245,11 @@ static func _flee_slice(actor: Dictionary, entities, elapsed_ms: int, collapse =
 		if actor.active and dx * dx + dy * dy <= reach * reach:
 			state.remaining_ms = FLEE_MS
 		var duration: int = mini(elapsed_ms, int(state.remaining_ms))
+		if a.get("tumler_charge_phase", "") in ["windup", "charge"]:
+			# Fear time still passes, but cannot move a committed charger.
+			state.remaining_ms -= duration
+			if state.remaining_ms <= 0: actor.fleeing.erase(identity)
+			continue
 		if dx == 0 and dy == 0:
 			var directions: Array = [[1,0], [1,1], [0,1], [-1,1], [-1,0], [-1,-1], [0,-1], [1,-1]]
 			var direction: Array = directions[int(Rng.draw(actor.id, unit.id, "FLEE_OVERLAP", 0, 8).value)]

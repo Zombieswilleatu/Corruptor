@@ -25,6 +25,10 @@ func start(source, operation: String, powers: Array = [], order: Dictionary = {}
 	return {"action": "board_job_started"}
 
 
+func started() -> bool:
+	return _thread != null
+
+
 func ready() -> bool:
 	return _thread != null and not _thread.is_alive()
 
@@ -51,16 +55,24 @@ func _run(candidate, operation: String, powers: Array, order: Dictionary) -> Dic
 	var event_cursor: int = candidate._owner._event_cursor()
 	var result: Dictionary
 	var playback = null
+	var phases: Dictionary = {}
+	var phase_started: int = started
 	if operation == "marching":
 		result = candidate.choose(powers, order)
+		phases["choose_ms"] = (Time.get_ticks_usec() - phase_started) / 1000.0
 		if result.action == "invalid":
 			return result
+		phase_started = Time.get_ticks_usec()
 		result = candidate.run_to_marching()
+		phases["resolve_ms"] = (Time.get_ticks_usec() - phase_started) / 1000.0
 		if result.action == "invalid":
 			return result
+		phase_started = Time.get_ticks_usec()
 		playback = Playback.new()
 		if not playback.build(candidate.marching_events()):
 			return Data.invalid("board_playback_tape_invalid")
+		phases["playback_ms"] = (Time.get_ticks_usec() - phase_started) / 1000.0
+		print("U13 PREPARE ", JSON.stringify(phases))
 	elif operation == "aftermath":
 		for index in range(3):
 			if candidate.next_hook().is_empty():
@@ -89,7 +101,7 @@ func _run(candidate, operation: String, powers: Array, order: Dictionary) -> Dic
 	var feedback: Array = Feedback.outside_marching(
 		candidate._owner._player_selected_events_since(
 			0, event_cursor, Feedback.TYPES, Timeline.MARCHING
-		),
+		).filter(func(e): return e.data.get("marching_phase") != "opening"),
 		presented.world.entities
 	)
 	return {

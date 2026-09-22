@@ -46,6 +46,8 @@ def melee(phase, tick, fleeing):
     shots, deaths = [], []
     for unit in units:
         a = unit['attributes']
+        if monster_effects.charge.active(a): continue
+        if fort.ranged_guard(unit, fort.rows(phase.w), number): continue
         if (a.get('melee_next_tick', 0) > clock or unit['id'] in fleeing or a.get('rout_round') == number
                 or a.get('hidden', False) or a.get('sprite_form') == 'turret'):
             continue
@@ -67,7 +69,7 @@ def melee(phase, tick, fleeing):
         buffer.update(source['id'], source['owner'], sa)
         shots.append(dict(attacker=unit, target=target, amount=amount))
     for shot in shots:
-        dealt, hp_after, evaded = 0, 0, False
+        dealt, hp_after, evaded, warded, blocked = 0, 0, False, False, False
         if shot['target']['kind'] == 'fortification':
             hit = fort.damage(phase.w, shot['target']['id'], shot['attacker'], shot['amount'], shot['attacker']['attributes']['armor_bypass'], number, tick)
             dealt, hp_after = hit['damage_dealt'], hit['hp_after']
@@ -78,8 +80,11 @@ def melee(phase, tick, fleeing):
                 a = target['attributes']
                 live_rows = buffer.rows() if a.get('monster_id') == 'Tumler' else []
                 evaded = monster_effects.evades(target, shot['attacker'], live_rows, ctx, tick, 'Melee', fort.rows(phase.w), fleeing)
-                amount = 0 if evaded else incoming.regular_amount(a, shot['amount'], clock)
-                if not evaded and target['id'] not in fleeing:
+                blocked = penitent_defense.blocks_vulture_melee(target, shot['attacker'], ctx['seed'], number, tick)
+                had_ward = a.get('muno_ward', False)
+                amount = 0 if blocked or evaded else incoming.apply(a, shot['amount'], clock, regular=True, round_number=phase.number)
+                warded = had_ward and not a.get('muno_ward', False)
+                if not blocked and not evaded and target['id'] not in fleeing:
                     phase.events.extend(monster_effects.intercept(target, shot['attacker'], live_rows, ctx, tick, fort.rows(phase.w)))
                 absorbed = 0 if shot['attacker']['attributes']['armor_bypass'] else min(a['armor'], amount)
                 a['armor'] -= absorbed; dealt = amount-absorbed
@@ -90,9 +95,9 @@ def melee(phase, tick, fleeing):
                     deaths.append(dict(victim=copy_data(target), attacker=shot['attacker'], damage_dealt=dealt, hp_after=0))
                 else:
                     buffer.update(target['id'], target['owner'], a)
-                if not evaded:
+                if not blocked and not evaded:
                     phase.events.extend(monster_effects.on_hit(buffer, shot['attacker'], target['id'], dealt, ctx, tick))
-        phase.emit('MARCHER_MELEE_ATTACK', dict(attacker=shot['attacker'], target=shot['target'], damage_dealt=dealt, evaded=evaded, hp_after=hp_after, round=number, tick=tick, lane=shot['attacker']['attributes']['lane']))
+        phase.emit('MARCHER_MELEE_ATTACK', dict(attacker=shot['attacker'], target=shot['target'], damage_dealt=dealt, evaded=evaded, blocked=blocked, warded=warded, hp_after=hp_after, round=number, tick=tick, lane=shot['attacker']['attributes']['lane']))
     phase.w['entities'] = phase.s.snapshot()
     for death in deaths:
         death.update(event_id=instance_id('field_melee_kill', str(clock), death['victim']['id']), round=number, tick=tick, hook=ctx['hook'], cause='combat')
@@ -110,13 +115,14 @@ def volley(phase, duels, tick, fleeing):
     shots, deaths = [], []
     for unit in rows:
         a = unit['attributes']; tower = unit['kind'] == 'fortification' and a['structure'] == 'Tower'
+        guard = fort.ranged_guard(unit, fort.rows(phase.w), number)
         if tower:
             if a['ranged_next_tick'] > clock:
                 continue
-        elif (unit['kind'] != 'marcher' or a['suit'] != 'Vulture' or unit['id'] in busy or unit['id'] in fleeing
+        elif (unit['kind'] != 'marcher' or (a['suit'] != 'Vulture' and not guard) or unit['id'] in busy or unit['id'] in fleeing
               or a.get('rout_round') == number or a.get('ranged_next_tick', 0) > clock):
             continue
-        radius = marching_spatial.tower_range(phase.w) if tower else marching_spatial.vulture_range(phase.w)
+        radius = marching_spatial.tower_range(phase.w) if tower else fort.GUARD_RANGE if guard else marching_spatial.vulture_range(phase.w)
         best, target = radius**2+1, {}
         for other in rows:
             if other['owner'] == unit['owner'] or other['attributes']['lane'] != a['lane'] or shroud.active(other['attributes']) or ignored(unit, other):
@@ -130,7 +136,7 @@ def volley(phase, duels, tick, fleeing):
             preferred = monster_effects.preferred(unit, rows)
             if preferred and fort.distance(a, preferred['attributes']) <= radius**2:
                 target = preferred
-        if not target or not tower and fort.in_melee(unit, target):
+        if not target or not tower and not guard and fort.in_melee(unit, target):
             continue
         amount = 1
         if tower:
@@ -142,16 +148,19 @@ def volley(phase, duels, tick, fleeing):
             buffer.update(attacker['id'], attacker['owner'], aa)
         shots.append(dict(attacker=unit, target=target, amount=amount))
     for shot in shots:
-        dealt, hp_after, blocked, evaded = 0, 0, False, False
+        dealt, hp_after, blocked, evaded, warded = 0, 0, False, False, False
         if shot['target']['kind'] == 'fortification':
             hit = fort.damage(phase.w, shot['target']['id'], shot['attacker'], shot['amount'], False, number, tick)
             dealt, hp_after = hit['damage_dealt'], hit['hp_after']; phase.events.extend(hit['events'])
         else:
             target = buffer.get(shot['target']['id'])
             if target:
-                blocked = penitent_defense.blocks(target, shot['attacker']['id'], phase.context['seed'], number, tick, 'Tower' if shot['attacker']['kind'] == 'fortification' else 'Vulture')
-                evaded = monster_effects.evades(target, shot['attacker'], buffer.rows() if target['attributes'].get('monster_id') == 'Tumler' else [], phase.context, tick, 'Tower' if shot['attacker']['kind'] == 'fortification' else 'Vulture', fort.rows(phase.w), fleeing)
-                a = target['attributes']; amount = 0 if blocked or evaded else incoming.regular_amount(a, shot['amount'], clock); absorbed = min(a['armor'], amount)
+                shot_kind = 'Tower' if shot['attacker']['kind'] == 'fortification' else shot['attacker']['attributes']['suit']
+                blocked = penitent_defense.blocks(target, shot['attacker']['id'], phase.context['seed'], number, tick, shot_kind)
+                evaded = monster_effects.evades(target, shot['attacker'], buffer.rows() if target['attributes'].get('monster_id') == 'Tumler' else [], phase.context, tick, shot_kind, fort.rows(phase.w), fleeing)
+                a = target['attributes']; had_ward = a.get('muno_ward', False)
+                amount = 0 if blocked or evaded else incoming.apply(a, shot['amount'], clock, regular=True, round_number=phase.number); absorbed = min(a['armor'], amount)
+                warded = had_ward and not a.get('muno_ward', False)
                 a['armor'] -= absorbed; dealt = amount-absorbed
                 a['hp'] = max(0, a['hp']-dealt); hp_after = a['hp']
                 if not a['hp']:
@@ -160,7 +169,7 @@ def volley(phase, duels, tick, fleeing):
                 else:
                     a['movement_ready_round'] = min(a['movement_ready_round'], number)
                     buffer.update(target['id'], target['owner'], a)
-        phase.emit('MARCHER_RANGED_ATTACK', dict(round=number, tick=tick, lane=shot['attacker']['attributes']['lane'], attacker=shot['attacker'], target=shot['target'], blocked=blocked, evaded=evaded, damage_dealt=dealt, hp_after=hp_after))
+        phase.emit('MARCHER_RANGED_ATTACK', dict(round=number, tick=tick, lane=shot['attacker']['attributes']['lane'], attacker=shot['attacker'], target=shot['target'], blocked=blocked, evaded=evaded, warded=warded, damage_dealt=dealt, hp_after=hp_after))
     if shots:
         phase.w['entities'] = phase.s.snapshot()
     for death in deaths:

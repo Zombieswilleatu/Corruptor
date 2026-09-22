@@ -22,7 +22,9 @@ def generate():
             candidates=sorted((r for r in w['entities']['entities'] if r['kind']=='card' and r['attributes']['suit']==suit),key=lambda r:(r['attributes']['value'],r['id']))
             cards.extend(r['id'] for r in candidates[:count])
         record(dict(kind='fixture_prepare',changes=[dict(kind='fixture_give',player_id=0,card_id=k) for k in cards]))
-        order=dict(action='Ward',lane='Lord',card_ids=cards,monster_choice=name)
+        ward=dict(action='Ward',lane='Lord',card_ids=cards,monster_choice=name)
+        record(dict(kind='submit',plans=[dict(powers=[],order=ward),dict(powers=[],order={})]),True)
+        order=dict(action='Hunt',lane='Lord',target_id=w['players'][1]['lord_entity_id'],card_ids=cards,monster_choice=name)
         bad=copy_data(order);bad['card_ids']=cards[1:]
         record(dict(kind='submit',plans=[dict(powers=[],order=bad),dict(powers=[],order={})]),True)
         conflict=copy_data(order);conflict['guard_moves']=[dict(card_id=cards[0],lane='Lord',slot=0)]
@@ -60,6 +62,7 @@ def generate_games():
             if op['kind']=='submit':
                 w=game._state['world']
                 for pid,plan in enumerate(op['plans']):
+                    if plan['order'].get('action') not in ('Hunt','Siege'):continue
                     eligible=monsters.available(w['entities']['entities'],plan['order'].get('card_ids',[]),pid,w['data']['monsters']['unlocked'][pid])
                     if eligible:plan['order']['monster_choice']=eligible[-1]
             result=game.apply(op)

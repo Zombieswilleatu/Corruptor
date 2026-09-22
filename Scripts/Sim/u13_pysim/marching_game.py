@@ -37,7 +37,7 @@ def resolve(context, reaction, *, capture_ticks=False):
     supported(context)
     if context.get("hook") != "marching" or not m.valid(context["world"]):
         return dict(action="invalid", reason="marching_context_invalid")
-    if context["world"]["data"].get("marching_round", 0) >= context["round"]:
+    if context["world"]["data"].get("opening_marching_round" if context.get("opening_marching") else "marching_round", 0) >= context["round"]:
         return dict(action="invalid", reason="marching_already_applied")
     try:
         try:

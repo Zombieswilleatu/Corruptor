@@ -58,12 +58,19 @@ static func copy_data(value):
 	if typeof(value) == TYPE_DICTIONARY:
 		var result: Dictionary = {}
 		for key in value:
-			result[key] = int(value[key]) if key.ends_with("_fp") else copy_data(value[key])
+			var child = value[key]
+			match typeof(child):
+				TYPE_ARRAY, TYPE_DICTIONARY: result[key] = copy_data(child)
+				TYPE_FLOAT: result[key] = int(child) if is_integer(child) else child
+				_: result[key] = child
 		return result
 	if typeof(value) == TYPE_ARRAY:
 		var result: Array = []
 		for child in value:
-			result.append(copy_data(child))
+			match typeof(child):
+				TYPE_ARRAY, TYPE_DICTIONARY: result.append(copy_data(child))
+				TYPE_FLOAT: result.append(int(child) if is_integer(child) else child)
+				_: result.append(child)
 		return result
 	return value
 
