@@ -1,0 +1,311 @@
+{
+  "schema": "U13_ONE_SIDED_MONSTER_PROBE_V1",
+  "setup": {
+    "castles": [
+      [
+        "Keep",
+        "Stockpile",
+        "SummoningCircle",
+        "SiegeEngine",
+        "Bastion"
+      ],
+      [
+        "Keep",
+        "Stockpile",
+        "SummoningCircle",
+        "SiegeEngine",
+        "Bastion"
+      ]
+    ],
+    "lords": [
+      "Kroni",
+      "Odradek"
+    ],
+    "seed": "u13-tempo-roster-20260922:Kroni:Odradek:00",
+    "tempo_experiment": "U13_VEIL_ATTACK_ROUND25_V1",
+    "ward_experiment": "U13_SPLIT_WARD_V1"
+  },
+  "restricted_seat": 0,
+  "restricted_lord": "Kroni",
+  "intervention": "Only prior winner recipe unlocks are empty from setup; both bots replan normally. No stat, income, cost, target or other rule change.",
+  "scope": "One newly planned counterfactual game; control reused from archive and exact final state independently replay-verified. Python-only balance probe, not native parity or population evidence.",
+  "baseline_record_sha256": "7dbb4084234a216403fa87d9e9437c05cd59da40542c6a5ddcdf17e758970637",
+  "baseline_final_state_sha256": "6cfa3897574aa1c377ebef80d0752051d8ab81b78f524945a5071ad5a299299d",
+  "control": {
+    "outcome": {
+      "action": "game_finished",
+      "round": 9,
+      "winner": 0,
+      "win_by": "Ritual"
+    },
+    "souls": [
+      12,
+      1
+    ],
+    "tears": [
+      1,
+      1
+    ],
+    "monster_summons": [
+      {
+        "Varn": 2,
+        "Muno": 1,
+        "Fyra": 3,
+        "Kurchin": 1,
+        "Tumler": 1,
+        "Sooge": 1
+      },
+      {
+        "Lemek": 4,
+        "Fyra": 1,
+        "Muno": 1,
+        "Varn": 1,
+        "Dotra": 1,
+        "Kurchin": 1
+      }
+    ],
+    "monster_bodies": [
+      15,
+      12
+    ],
+    "normal_spawns": [
+      40,
+      28
+    ],
+    "finish": [
+      {
+        "round": 9,
+        "winner": 0,
+        "win_by": "Ritual",
+        "souls": [
+          12,
+          1
+        ],
+        "personal_tears": [
+          1,
+          1
+        ],
+        "veil_total": 7
+      }
+    ]
+  },
+  "counterfactual": {
+    "outcome": {
+      "action": "game_finished",
+      "round": 16,
+      "winner": 0,
+      "win_by": "Dominion"
+    },
+    "souls": [
+      11,
+      3
+    ],
+    "tears": [
+      5,
+      2
+    ],
+    "monster_summons": [
+      {},
+      {
+        "Lemek": 8,
+        "Varn": 2,
+        "Dotra": 2,
+        "Muno": 2,
+        "Kurchin": 1,
+        "Tumler": 1
+      }
+    ],
+    "monster_bodies": [
+      0,
+      20
+    ],
+    "normal_spawns": [
+      71,
+      64
+    ],
+    "finish": [
+      {
+        "round": 16,
+        "winner": 0,
+        "win_by": "Dominion",
+        "souls": [
+          11,
+          3
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "veil_total": 26
+      }
+    ]
+  },
+  "seconds": 37.43539392800085,
+  "timing": {
+    "name": "kroni_odradek_00_tempo_winner_no_recipe_summons",
+    "decision_ms": 1363.189238,
+    "simulation_ms": 33680.700507
+  },
+  "rejected_previews": [],
+  "final_state_sha256": "5ed2aee5306b906014319e10c7cc44544ecce2abcf5f4d786de04e15f6a1148c",
+  "operations_sha256": "2bcf1328ae24f3885da95cf75c40453163bddb30de1ecec2d113ec8972e0ab92",
+  "frozen_source_sha256": {
+    "u13_pysim/__init__.py": "b490045ab5d69f7d8ff26f2e07c6ff01c3d37f1888746231a3cada8cbf37ee31",
+    "u13_pysim/battle.py": "0c24101db8a6732beeb7a112a07d9f7ecd06422cae69133f1349ee4e9a8f68b3",
+    "u13_pysim/benchmark_copying.py": "549ed47ff34efe0a67a7e37ce82fc5803982c9a98f5b4829f1db74672e9199e1",
+    "u13_pysim/benchmark_development.py": "12a744083c55416ad4584aab3ca670a70934a97b59b12d48e792eaa37eda9075",
+    "u13_pysim/benchmark_full_match.py": "ac49b376cae0fc67ad09226431f60398e5e84c44450d7319ba2bc1b5aeffa9b5",
+    "u13_pysim/benchmark_full_match_copying.py": "5d5251243d30b7d18dd758d5a7c9e066e5c004b0e0c02bd12ab6e36a28cd10d5",
+    "u13_pysim/benchmark_marching.py": "eb168c173f751cb4a48edc6e0c1ec20d8691592f5b92e2142834925ff126931b",
+    "u13_pysim/breath_cases.py": "86259329165c08d5866df6536b80c5e21427a379e823ebc421eb83db899044a6",
+    "u13_pysim/castle_balance.py": "277fcdab86b5fccd2622c42b2d4a6301a8797c8d912b58d4e044f4a25563d51c",
+    "u13_pysim/codec.py": "f6fdb8b378dd11642d44080e38227b498ea0c603bd57afd4858150500ca493c0",
+    "u13_pysim/copying.py": "0adb9cad48d105e4890dfeb3d7aaa9d45348192c959eca467da94c843f4f42e3",
+    "u13_pysim/development.py": "845f013c10f110b3aca467a51e10f3afb78b8fde34e76d5bcc40f7382012710a",
+    "u13_pysim/development_fixtures.py": "e346a6aab8b9f93918ee47fb0182abafcbda4b1b5c7df0f51484f212849e8501",
+    "u13_pysim/dotra_shroud.py": "f4e42d088a88ebf0d682e2c6c5647e92c9d2919bcce4d538d7e0c2b65713dddb",
+    "u13_pysim/economy.py": "181da456e17dbcd40030d43c51bc46c32e154af333101f6a948c852477bd0388",
+    "u13_pysim/effects.py": "1f860bd6f70af917ea31e3b3df0309ddd5cfd9dd36af13616b3c59bb6b325731",
+    "u13_pysim/field_combat.py": "c172abb4e564191ad63a73862183c78f8130c7d7f82d192b5015f98ec388f538",
+    "u13_pysim/field_fortifications.py": "d352f5ea1342815c83641758f489da59bf0c7c295110c5354a23d48207d9f7e1",
+    "u13_pysim/full_match.py": "c837f251004886f4382e0f5842799bdfaacd3fdc7398e9854672fd500febd4ff",
+    "u13_pysim/full_match_inputs.py": "5eecd02da36689b2a6619e8fb23134a90285833be0a38801c28f9195b8b22bc1",
+    "u13_pysim/game_staging.py": "ac5d73d5257506d8753ce47828ec0a06d295cbe91e7bd54d4f2a1181094366da",
+    "u13_pysim/incoming_damage.py": "6cb6dbe9af97b65356835c15126baaeb72ae70bb420e112588fe18d360c06bad",
+    "u13_pysim/kroni_actors.py": "218ebd1fa72a068ff38665dda94aae8b4325ec5eee48879101be879d719fd7b4",
+    "u13_pysim/lifecycle.py": "6d46ec012ac88f4208825e29e123fcc42ecd0e8c63a5f0e76a66879a1aa897bb",
+    "u13_pysim/lord_hooks.py": "9ce5a42c8d5a75763c5d6e3cfdc08bf8f500bb1f1dbd9afa7978fc0927c11549",
+    "u13_pysim/marcher_navigation.py": "660d2f11fa57a67b114107b0acb4e8d859468a164189916e6daef37f74f8b4e6",
+    "u13_pysim/marcher_spacing.py": "2835cf3aaf7efd051c0a48d379ba7bf1c554bf351749ab6eeb3c5d5612f4807c",
+    "u13_pysim/marching.py": "bc52f248deba25bb05d33f3a1bbc07ccf9b03f3bf1f898f877435fd05f8925aa",
+    "u13_pysim/marching_buffer.py": "3e3248d345c33a41fd505937140a6bba60faf19cfce6b7347da8279b61977031",
+    "u13_pysim/marching_columns.py": "0b6eb855fed57c61948b62b817e192c3dd15be5add41fe43c4f906d7ba7b44ed",
+    "u13_pysim/marching_fixtures.py": "3dda30cdc4a96c9c9e1265abc4447c2939d64b08f3e2b9e6fd3589d4f86581a9",
+    "u13_pysim/marching_game.py": "128ebf199e8c8d0fe26bda6553921caeed96822bf65512b1577574312e3cfdd4",
+    "u13_pysim/marching_spatial.py": "ab2408f2e1be006a291ff1f6e286686921e7a1a2cf216f563d40b1a9e7744261",
+    "u13_pysim/monster_effects.py": "11d3406bd88d41592efa09826802cbd6b02a7d9bebe9a5e96e458e5d129cff31",
+    "u13_pysim/monster_inputs.py": "d30ff813dbcbf9a6e9150e43c7087c5c51b7c314a01a0b17bed426d881d54453",
+    "u13_pysim/monsters.py": "a586aeaabaef02be556db7e1dcd44d0cc4b53ec05f9d46b1062cedfbde889ce8",
+    "u13_pysim/opening.py": "a3589b7d59c594d4ab4ef3a2308266967f7851a46b9e7c6fdf0bd1f77d5241a1",
+    "u13_pysim/paid_development.py": "02a36bc099292aedd845d8f2090235ce86b55cc66ab22f0083b15629549e15b7",
+    "u13_pysim/paid_inputs.py": "005f624fb0a18e55b3b7732c3241e3a7e299610f629af4a8dacc00a14e626898",
+    "u13_pysim/penitent_defense.py": "cd1bd4dfeb35c9d36d0d865e51be29e8ce171751244df4a602077fcd7f136042",
+    "u13_pysim/planning.py": "0b3ba5aee0e22cda27c7d96705f22de0958ec318581ed67aafaa6ae147414470",
+    "u13_pysim/power_components.py": "5b6c72a82ff0274726cfc133ec86c87e848138acfa8e56a29c2c33aba494112a",
+    "u13_pysim/power_inputs.py": "be3157ad5b3479ce84d39b6d316503d47cc26cddb4c68b843a0d788783f47afd",
+    "u13_pysim/power_match.py": "d7be44ebc5eab1120ed0e6f70eeda80ca5d09d3a90d37222bdfccbee6f7c7996",
+    "u13_pysim/power_rules.py": "81b8246dddbcec4c0644ae76569514bdb6b83d549752a4bb3bdddc2880f91a58",
+    "u13_pysim/powers.py": "b6270a3f5f91e9a6dd30273b611d0aa8608cec5e3fda0c516933f732a9f6439b",
+    "u13_pysim/primitives.py": "1d21e3650a11601e90997dd2785e9408fd16795084910a7c7a95ade70d4c0282",
+    "u13_pysim/recruitment.py": "635ffd788044e906d8d17f7bdad6bd0c3f28a50af07fa7e540778630b5510573",
+    "u13_pysim/resolution.py": "c8387444495472582b756d6f44590b230ebee23b22ae1b3f4957568288d3888f",
+    "u13_pysim/resolution_fixtures.py": "a91635b483d90659879e0e7018a3ab834078921fa67df7a21738d30300f5aa28",
+    "u13_pysim/scorch_castle_cases.py": "fa37debb6fa81f0564eb8db6eb417ed75301e026ea1705c038c8e6d08848db68",
+    "u13_pysim/settlement_inputs.py": "8dab3a7e24742ddf24dc8153d69917fefed17df2935cc35f7967c941a9ae3559",
+    "u13_pysim/split_ward.py": "1658fef087a3774c94c40eebfcf742842ad425f2f8c52d29a1d0ae87108723cc",
+    "u13_pysim/support_pacing.py": "b784ee3ce1eadd0ca51251404c6038e1551d54226aec7668ce0499358e7c37b8",
+    "u13_pysim/test_breath.py": "a383b1ee0f3e0a0ff996b18dbd843d12663f1db9c274410d71636b438c65307c",
+    "u13_pysim/test_copying.py": "bcbd8bdc2fc028892cb0de7cf1af0cb11a2c080ea387535d2ec24fca24306148",
+    "u13_pysim/test_development.py": "9ab72e6dc24710e6c5a7fad80bee3af5a654e4a0eed2a0afe0810d0a22c8a7cf",
+    "u13_pysim/test_foundation.py": "5aa9d85323ce41ef49c9ae83ba0f20a60d6324b16cb84b42e8ea7d016657e12b",
+    "u13_pysim/test_full_match.py": "98b4c5c8c73edce674dfa471b93ec8fb423cd4a386e58e51f6db00212dcc13d7",
+    "u13_pysim/test_gravity_well.py": "bcc0c05c9618b6e0c1772dfc8fd5b05a605bb81a4048c5db8f873ac222cbb5a1",
+    "u13_pysim/test_marching.py": "5930cc30b8bb99c989fc1560682f8620143385a3f19b8c99230d43b686554822",
+    "u13_pysim/test_opening.py": "2d87714cf5211c3b7339e6422f3d44ef84480181333f4207c7e1e0043ac809dd",
+    "u13_pysim/test_paid_development.py": "ed789a69cf92f80ba6751cf3c6ab9149479edfb894c66075dc2cd53212db1fd3",
+    "u13_pysim/test_planning.py": "7e28b3c8fd4f220286ebf31883a8762681772ae7f607c16a3759c78789697a01",
+    "u13_pysim/test_powers.py": "cd84bffc35ae1e7e89b1b4c819fd9a36b7e4b409ac264ab5ebdffeac2a2ba02e",
+    "u13_pysim/test_resolution.py": "373919651fbfa5d55cb563fef6ec74f50f401f64ef5e27478aeb2231e2a1776d",
+    "u13_pysim/test_rout_damage.py": "b56830dc12019ed1ac4c74e499ff0582162f52bf7e6be0e18496782a115bee78",
+    "u13_pysim/test_scorch_castles.py": "31486acaf99ea64be0839add39cd4007ae655cabe1fce57496f8dc51b363cb25",
+    "u13_pysim/test_stream_digest.py": "9356e39eb62d78264f9f2d808e013ad06195ae1d1217e2b84eebbfae4c1cc986",
+    "u13_pysim/timeline.py": "9250531802d6812e2d38a6764ef98fefe7296bdbeeb5857645b154c3594b89b6",
+    "u13_pysim/tumler_charge.py": "0a05073992c5d83bd070c1397c67d285bc230ee37ce80c1a9ee1fa94e4acade1",
+    "u13_pysim/veil.py": "0e5978816d7baf35b4c242c974f854528dda89bfa1a38cd25b253a4689957f64",
+    "u13_pysim/verify.py": "78626dd49cbccaa8a5aa03ce69a2b0253e15df3f819d0305a6b42757ae39ee56",
+    "u13_pysim/verify_breath.py": "28098f9030ade77879c35c96ee2026bcd94e12dec9da947990c196084beeea59",
+    "u13_pysim/verify_development.py": "c10720b84b9f53a690bc836c3a4a97a50d986d57174421f8850c0eb895cf2bc0",
+    "u13_pysim/verify_exposure.py": "d4a18cda4efdc4f7ed2d3c645db341386757e546498f3557717d0e1e9d29605e",
+    "u13_pysim/verify_free_opening.py": "bdbde10d34c434f06152849b521f0a55d6c6b97dce699ef3b15e20f90e1ab003",
+    "u13_pysim/verify_full_match.py": "ce73579b5215c2318052d25127a25496beb5948d5468346d996e61385e379347",
+    "u13_pysim/verify_marching.py": "119031e8cc6919555f8ec771c508179599cd4db94ead5c06e93ce2545a1652ff",
+    "u13_pysim/verify_monsters.py": "f925afee1eadf05c51feed9d521a7577bc271880dc5a8c405b7e4caacc150772",
+    "u13_pysim/verify_paid.py": "5f70c49d56e82f26bbb71312de682859ed1039b559260feecf9a5547ee3614da",
+    "u13_pysim/verify_planning.py": "e7367242844899c00d6ac798db2da173b43784e465bca6568301b7dac8d96d23",
+    "u13_pysim/verify_powers.py": "41ba4eb6e0485de23c2de9f74610955881d96a3beedb57a2b199c89a075a2afd",
+    "u13_pysim/verify_resolution.py": "f6def44422cd3c356c6be3f7aab77f0188b68dc94153e3857ad28ad8da8833ff",
+    "u13_pysim/verify_scorch.py": "175670072d145a48dec11da9afd802f5810a5f6821f591c0754037e14ab54f44",
+    "u13_pysim/verify_veil.py": "4f462b4d9a26590767c48a1a204606c18c77f0fc998ddb1dc28c001f9b1517b0",
+    "u13_pysim/verify_veil_wishes.py": "f0ac30d9b3b624beccbb18aa2b01e49f75fe7b3c5d0ed57604d4fa925574b060",
+    "u13_pysim/wishmaster.py": "c322a596c5857aa7a551bef928cc2a824df3d3d9e4262f4899d0c671e202d060",
+    "u13_doctrine/__init__.py": "227c8876cf5699a5538e3493e65d8ab8e7ecf03c65eb0781306d8d22461c3b8f",
+    "u13_doctrine/budget.py": "0c287dfa97901683775264de9e0c6e1eacf45c0afc3205317c1cd11d0a24cf55",
+    "u13_doctrine/closing.py": "969ffeefb6a9628b15e719ee169553f4e499a42c262410752f895b5a64c6b1ab",
+    "u13_doctrine/common.py": "80ff687c63d7a0e5d97ea4a8a7b3e67a1e49de6bc1e3253fbc689d56f6970f1e",
+    "u13_doctrine/comparison.py": "59c57b7053af14a033241768bc69c61eba36848804a0a7b6cc725ecdfb7f23bc",
+    "u13_doctrine/coordination.py": "f054749806afff12876640db6d1842e39d54601b494de4810b5b4d47eda15259",
+    "u13_doctrine/coverage.py": "228c23b18653b89647570939fb944d7063f676a45a28ca980ef1838b669b7c71",
+    "u13_doctrine/defensive_plans.py": "fec29af9931aa48fc22aeb72a246144eb9053cf23e57aea0603032f2caae7361",
+    "u13_doctrine/diagnostics.py": "5cf40e9a6ab3984653737e7b8e20b373a923f932a0205803cafea3fb48fa9769",
+    "u13_doctrine/facts.py": "ec2188fd0e85b6dd2d65a930ebf5c44954f11ba3a587244330b40aa6d90c4c4b",
+    "u13_doctrine/gremory_audit.py": "031db922743d9ed8bcabb5ae6c3636362d1f231ee35ebf095cff4b51cbc36693",
+    "u13_doctrine/kalligan_tactics.py": "7a31d815b345ddc073aa14b6b1c859ba3c21fd4defdfd5fb5cac84a7209f24f8",
+    "u13_doctrine/kanifous_audit.py": "0bb113a1d3a1c90e565b2e0db52cdecc3124cfc13996c3469ced352d4737b144",
+    "u13_doctrine/kanifous_calibration.py": "aadcb31a723f3abaad36d2fcfcdd0b88e5d8a5a2251060ee93437b3b45bf2428",
+    "u13_doctrine/kanifous_comparison.py": "77cf765a2b6e86a2c0e024cbf478c67283cccffadd8e3b323c3c92eab8cab211",
+    "u13_doctrine/kanifous_tactics.py": "17f25f92d5fcf342b62c179e12f2e220c3ecf58c63b1221ef91554a0756f9d72",
+    "u13_doctrine/kroni_tactics.py": "48eea00fe7d6f1c0f2cfb309e730988007ad721e5de12f2147b29a6a7b24dca1",
+    "u13_doctrine/lane_support.py": "5433a4b918bde19a6652eb1fc6aedc034666b98a10db3959b0725dddcee9ca3a",
+    "u13_doctrine/lord_balance.py": "7b9bcb0c969bb6fa138e456f8e36ff383e183a8791392629a8901ed2ebb3d5e2",
+    "u13_doctrine/observation.py": "e0185a354cda875872a76445b69362e01b75f531cd468f5b1669ee9d239f159a",
+    "u13_doctrine/odradek_tactics.py": "82b49ff9710f4056c07d5ba09f732b76678dbd1eb6b08c6b0d8025036595b594",
+    "u13_doctrine/orias_comparison.py": "5fb30e78ec1400c4f98b8e4cee5e4c2c7db2202968ceeedcc729222a9ee48c12",
+    "u13_doctrine/orias_tactics.py": "d7ed780a266c55c14acda7523d4f8ed530e37dc813d73a7e7cd93c288e0f7e7d",
+    "u13_doctrine/planner_probe.py": "400e0b71d12ccc2894aff5c216ef416827c352adabece41131cc53b868f41f16",
+    "u13_doctrine/process_memory.py": "a95b34220792e152682d06b3891df2f1783008b77e2a2fd2dce26dd688cac16c",
+    "u13_doctrine/recipes.py": "280e76fcd94216d2d81926355f0bf3083ed7f78fc75fb973978a4e3a8d5412a1",
+    "u13_doctrine/reference_probe.py": "d93d5acd37581083f512fa87057bef80e8de4bd867ce49fab6ef1d2950434cbf",
+    "u13_doctrine/rite_cases.py": "2cf12a6be0f6598cdeb330f76bd0efcb8c680fbcf2410b1d6461099d61d4a70e",
+    "u13_doctrine/rout_tactics.py": "b1c914512373d13522cbea4ba84ce6c213bef11341d160713c371985fc4eb73d",
+    "u13_doctrine/selection.py": "a160b99b525a1590b34a8ba43fef6f5f63d70c083886f0f151111f7bb5b3894f",
+    "u13_doctrine/snare_audit.py": "fcd2d097e2374809991e54c89279f04a3a28d97cb0be67803c587ae376cc2cfa",
+    "u13_doctrine/snare_comparison.py": "79df57fdf4bf1be018f2323e44f327fd5d7898e25b3e904db0d164a73d18facc",
+    "u13_doctrine/snare_followup.py": "46f3def9232834ea0c2689e0a5e43269c21cf70269e9f81c603483fe54dfa727",
+    "u13_doctrine/split_ward.py": "91bbaa7d1506a82bdf372a3664a97fda45b83dc0c356a9e07fd8333911f54b7d",
+    "u13_doctrine/survey.py": "aa52228e7f0e01d17971eff3239ab92cacf297bb12ba2d7a25202887b7debdbc",
+    "u13_doctrine/test_closing.py": "b0eeab4ac9b4292f57dc35760f507252d7bfb6dbc96f6367661cf140c2ff9b37",
+    "u13_doctrine/test_common.py": "2b462f90d84c6119d4d60bce62e300e6bdfc2ecbb0c43dca724fc2f83d534a59",
+    "u13_doctrine/test_comparison.py": "59211969deccbdb0ac2c042abcbf4ddc707c28216408515c83dbdcc48362507d",
+    "u13_doctrine/test_coordination.py": "ce23076c1db680ca09cd289d4f35869fcc40fb28bddff40f1d2b5d53c9328eef",
+    "u13_doctrine/test_defensive_plans.py": "6beb177ff35048f191e01be666bbdeb6530e1f7ca9820a6cf4287974a182ef4b",
+    "u13_doctrine/test_deimos.py": "06d82fb61846e96d1676931e5969f7c32563a869aef1dae99aed6c1b78454271",
+    "u13_doctrine/test_diagnostics.py": "c11d2dbe2aa1ceacb22db8975ef1b372aa3f9f72932924e15458e620a0331e02",
+    "u13_doctrine/test_gremory.py": "1c0b555fc0ad422b771dc2f334851b8aa22498ca596ae654035753aa1a17d0ff",
+    "u13_doctrine/test_kalligan.py": "990826548460b97672bb0073232987aeb171a2e4b5dab68a3436bb907db338a7",
+    "u13_doctrine/test_kalligan_tactics.py": "5bf2d8447734ca4c9ce990bb90a491e07dad88cf81f7e55a5a1eceabff6cde9d",
+    "u13_doctrine/test_kanifous.py": "cd96fb4e55cdc99e43efa75914acd0d97d43268c991dfc3f4b1364b5d0ac5058",
+    "u13_doctrine/test_kanifous_calibration.py": "7925a3a69a0f61781d18363688510f53f976532bb0081e8e89b497b2c3d5fd44",
+    "u13_doctrine/test_kanifous_comparison.py": "5625cebef93ea3f2a64d57b5235ce74acf79bdfbf02e44f620e1fa7fcbb5608b",
+    "u13_doctrine/test_kroni.py": "5b8d8dbaaf6956427b08f3c695f201664dc7cafb3323a1f345c010705b472b5a",
+    "u13_doctrine/test_lane_support.py": "24c6f460e85979dc824c4f73e2e5df5d5e30d86e328b6fed336933bee1cf598f",
+    "u13_doctrine/test_lord_balance.py": "91582e5d26429aa461fe6749f49627d935f351cf01a882042d5cbf0b4cc98cb7",
+    "u13_doctrine/test_odradek.py": "832ffd3617041f8c239488d73b3bf4f91e1e7333f4090f8c90294bcbd69f7c41",
+    "u13_doctrine/test_odradek_tactics.py": "617145e08ae4694ba9894dbef3f06273246de2299bf9a390607a2f619fbeb833",
+    "u13_doctrine/test_orias.py": "9adbaf3953c63588a3d92d28c1f2ef8683e51a21e4b0098b3594b61a806c664c",
+    "u13_doctrine/test_orias_comparison.py": "750e75a27cb6484ffbcea952c389464a8b668f2bfed41003040fcaebaa74369a",
+    "u13_doctrine/test_recipes_veil.py": "8ee436a7caaa2f6c4055a0a8a673040cdcfa8e9ab805670eca5dafe10c22426c",
+    "u13_doctrine/test_reserved_recipes.py": "8fda3ab812f203f440716f415c8d89ed45de120a5c090223ceec46628c840f95",
+    "u13_doctrine/test_rites.py": "4049d7d09741161cae1392c3f0dcb9c3735108c50492dead8c7e36883ab240c8",
+    "u13_doctrine/test_rout_tactics.py": "74d85e0adb050fc345dd25ad1b96793412ac926e8c72bcfed30c75748523f547",
+    "u13_doctrine/test_selection.py": "b2ae4fa066634e423479552398f05d1fa2d06bbb5c978be564978763e02a94bf",
+    "u13_doctrine/test_snare_followup.py": "a0fdae9b7881403c89a407424f76f0cecf0b6ddc71154487fc4e75098863006c",
+    "u13_doctrine/test_split_ward.py": "a8cf7d5883feab83e92062b762e9b894ebd8fafa36688d0f7c668486f4bce894",
+    "u13_doctrine/test_survey.py": "22c9ec88496c47de032f8cf66f8b00698d8c5eecf24a323e74c892dc00c59c22",
+    "u13_doctrine/test_valak.py": "47d90572f49a0f9913adc86c8c837c6e78a8074cfefd2910f89a5006796063ce",
+    "u13_doctrine/test_ward_recipes.py": "2d64df17495e2566a443d4f12318a4734045f1a0756e4dd53b33321d4904d800",
+    "u13_doctrine/test_web_comparison.py": "06bfc26a9f87503b138817a4274dc611c49f5282ed947b9bd99fee9ea7a18cd6",
+    "u13_doctrine/valak_tactics.py": "98301bb7c24a950ec9c2cad688df54ff4a58c7d6d65e8111bccca634bc9f5f1a",
+    "u13_doctrine/veil_judgment.py": "35dd78e032b58453923b1a6f2884840c3b0f9478a7ed0b981e74b8e09fc41233",
+    "u13_doctrine/web_comparison.py": "b7d28923a4acadb6352898d274854022651ae3f6b4a1451f663c414566dfba97"
+  }
+}
