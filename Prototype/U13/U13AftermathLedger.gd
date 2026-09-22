@@ -127,7 +127,7 @@ static func describe(kind: String, d: Dictionary) -> String:
 		"ALLEGIANCE_SHIFT_RESOLVED": return "Allegiance Shift · %d Marchers affected" % d.get("affected_ids", []).size()
 		"LANE_AURA_STARTED": return "%s · active in %s lane" % [str(d.get("power_id", "Power")).capitalize(), d.get("lane", "")]
 		"BREATH_PULSED": return "Breath of Life · healed %d Marchers for %d HP in %s lane" % [d.get("healed_ids", []).size(), d.get("healing", 0), d.get("lane", "")]
-		"RAVENOUS_REWARDED": return "Ravenous · %d consumed; +%d Soul, +%d Hunger, +%d neutral Tear" % [d.get("consumed", 0), d.get("souls", 0), d.get("hunger", 0), d.get("neutral_tears", 0)]
+		"RAVENOUS_REWARDED": return "Ravenous · %d %s consumed; +%d Soul, +%d Hunger, +%d neutral Tear" % [d.get("enemy_consumed", d.get("consumed", 0)), "enemies" if d.has("enemy_consumed") else "units", d.get("souls", 0), d.get("hunger", 0), d.get("neutral_tears", 0)]
 		"POWER_RESOLVED": return "Power: " + str(d.get("power_id", "")).capitalize()
 		"FIZZLE_INVALID_TARGET": return "Power: " + str(d.get("power_id", "")).capitalize() + " · fizzled"
 		"POWER_QUEUED": return "Power: %s · scheduled for round %d" % [str(d.get("power_id", "")).capitalize(), d.get("fire_round", 0)]

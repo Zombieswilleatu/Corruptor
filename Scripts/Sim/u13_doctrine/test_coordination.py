@@ -164,7 +164,7 @@ class CoordinationTests(unittest.TestCase):
             outcomes.append(run._state['world']['players'][0]['resources']['life_essence'])
         self.assertEqual(3, outcomes[0]-outcomes[1])
 
-    def test_consume_is_held_for_empty_opposite_lane_and_reindexes_remaining_power(self):
+    def test_neutral_consume_can_accompany_same_lane_attack_and_reindexes_powers(self):
         game, _, attack = prepared('Kroni')
         changes = [dict(kind='fixture_marcher', player_id=1, lane='Lord', origin='ravenous-targets', ordinal=i,
                         attributes=dict(x_fp=900, y_fp=100+50*i)) for i in range(4)]
@@ -172,8 +172,9 @@ class CoordinationTests(unittest.TestCase):
         with patch('u13_doctrine.common.ordinary', attack_source(attack)), \
                 patch('u13_doctrine.common.Recipes.proposals', return_value=iter(())):
             decision = CommonSmartCore().decide(observe(game, 0), Preview(game, 0))
-        self.assertEqual(['Ravenous'], [s['power_id'] for s in decision['plan']['powers']])
-        self.assertEqual(0, decision['plan']['powers'][0]['queue_index'])
+        self.assertEqual(['Consume','Ravenous'], [s['power_id'] for s in decision['plan']['powers']])
+        self.assertEqual([0,1],[s['queue_index'] for s in decision['plan']['powers']])
+        self.assertEqual({'mode':'guard_bounce'},decision['plan']['powers'][0]['target'])
         self.assertTrue(decision['kroni']['enabled'])
         self.assertEqual('legal', Preview(game, 0)(decision['plan'])['action'])
 
@@ -193,13 +194,13 @@ class CoordinationTests(unittest.TestCase):
                         attributes=dict(x_fp=900, y_fp=100+40*i)) for i in range(8)])
         with patch('u13_doctrine.common.ordinary', attack_source(attack)):
             decision = CommonSmartCore().decide(observe(game, 0), Preview(game, 0))
-        self.assertEqual(['Ravenous'], [s['power_id'] for s in decision['plan']['powers']])
+        self.assertIn('Ravenous', [s['power_id'] for s in decision['plan']['powers']])
         ravenous = next(r for r in decision['kroni']['selected'] if r['power'] == 'Ravenous')
         self.assertGreater(ravenous['friendly_recruits'], 0)
         self.assertGreater(ravenous['score'], 0)
         choice = copy_data(decision['plan'])
-        choice['powers'].append(declaration(0, 1, 'BreachWishPower', dict(lane='Castle'), index=1))
-        row = evaluate(Facts(observe(game, 0)), choice)['powers'][0]
+        choice['powers'].append(declaration(0, 1, 'BreachWishPower', dict(lane='Castle'), index=len(choice['powers'])))
+        row = next(x for x in evaluate(Facts(observe(game, 0)), choice)['powers'] if x['power']=='Ravenous')
         self.assertEqual(1, row['power_bodies_minimum'])
 
     def test_softmax_can_admit_risky_power_without_exceeding_preview_budget(self):

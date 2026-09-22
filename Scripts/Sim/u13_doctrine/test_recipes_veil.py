@@ -87,7 +87,8 @@ class RecipeVeilTests(unittest.TestCase):
         view['board'] = [r for r in view['board'] if not r['id'].startswith('guard:')]
         for i in range(6):
             view['board'].append(dict(id='enemy:'+str(i), kind='marcher', owner=1,
-                attributes=dict(lane='Lord', hp=3, max_hp=3, waiting=False, x_fp=100, y_fp=100+i*20)))
+                attributes=dict(lane='Lord', suit='Butcher', attack=1, armor=0,
+                                hp=3, max_hp=3, waiting=False, x_fp=100, y_fp=100+i*20)))
         defended = policy.decide(view, lambda plan: dict(action='legal'))
         self.assertTrue(defended['plan']['order'].get('guard_moves') or defended['plan']['order'].get('card_ids'))
         self.assertLess(defended['recipes']['saving_score_delta'], 0)

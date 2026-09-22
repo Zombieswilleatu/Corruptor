@@ -24,9 +24,11 @@ func run() -> void:
 	check(play.choose_economy({"market": "Swap", "give_id": "stale", "take_id": "stale"}).action == "invalid" and play._owner.snapshot() == snapshot, "stale Slaver offer is atomic")
 	check(play.choose_economy({"market": "Pass"}).action == "game_planning", "human Slaver choice unlocks planning after bot seat")
 	var selected: Dictionary = Bot.plan(play._owner, 0)
+	if not check(selected.get("action") == "bot_plan", "human driver returns an admitted plan: " + str(selected.get("reason", ""))): quit(failures); return
 	check(play.choose(selected.powers, selected.order).action != "invalid", "human whole plan stages through production admission")
 	check(restored.restore_checkpoint(play.checkpoint()).action != "invalid" and restored.plans() == play.plans(), "save preserves the complete unsubmitted human cart")
 	var opponent: Dictionary = Play.Doctrine.plan(play._owner, 1)
+	if not check(opponent.get("action") == "bot_plan", "opponent returns an admitted plan: " + str(opponent.get("reason", ""))): quit(failures); return
 	var reference = Game.new()
 	reference.restore(play._owner.snapshot())
 	reference.submit([selected, opponent])
@@ -66,6 +68,7 @@ func full_match() -> void:
 			var g = play.game()
 			if not check(Bot.resolve_choice(g, choice).action != "invalid" and play._to_planning().action != "invalid", "human-choice driver round " + str(play.round_number())): return
 		var selected: Dictionary = Bot.plan(play._owner, 0)
+		if not check(selected.get("action") == "bot_plan", "human driver round " + str(play.round_number()) + ": " + str(selected.get("reason", ""))): return
 		if not check(play.choose(selected.powers, selected.order).action != "invalid" and play.run_to_marching().action != "invalid", "full playable round " + str(play.round_number())): return
 		while not play.next_hook().is_empty():
 			if not check(play.step().action != "invalid", "Aftermath hook"): return

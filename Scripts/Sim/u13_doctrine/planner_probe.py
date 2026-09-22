@@ -241,7 +241,7 @@ class PlannerObserver(ReferenceObserver):
                 metrics = dict(enemy_units_consumed=int(not own), friendly_units_consumed=int(own))
         elif kind == 'GUARD_DEVOURED' and d['cause'] == 'Consume':
             identity = self.firing.get((number, seat, 'Consume'))
-            if identity: metrics = dict(guards_consumed=1, guard_value=d['before']['attributes']['value'])
+            if identity: metrics = dict(guards_consumed=1, guard_value=d['before']['attributes']['value'], enemy_guards_consumed=int(d['before']['owner']!=d['player_id']), friendly_guards_consumed=int(d['before']['owner']==d['player_id']))
         elif kind == 'SNARE_ACTIVE' and identity:
             metrics = dict(public_guard_limit=d['guard_limit'])
         elif kind == 'COMBAT_ORDER_FIZZLED':

@@ -1,6 +1,7 @@
 extends "res://Scripts/Sim/U13Odradek.gd"
 
 const Hunger = preload("res://Scripts/Sim/U13KroniState.gd")
+const GuardConsume = preload("res://Scripts/Sim/U13GuardConsume.gd")
 const Actors = preload("res://Scripts/Sim/U13KroniActors.gd")
 const KRONI_POLICY: String = Hunger.VERSION
 const CONSUME: String = "Consume"
@@ -31,6 +32,7 @@ func valid_world(world: Dictionary) -> bool:
 static func kroni_target(power: String, target: Dictionary, pid: int = 0) -> bool:
 	if power == RAVENOUS:
 		return target.size() == 2 and target.get("lane") in ["Lord", "Castle"] and not preload("res://Scripts/Sim/U13SpatialSpace.gd").position(target.get("field_position")).is_empty() and int(target.field_position.x_fp) == (0 if pid == 0 else 2400)
+	if power == CONSUME and target == {"mode": GuardConsume.MODE}: return true
 	return target.size() == 1 and typeof(target.get("entity_id")) == TYPE_STRING and not target.entity_id.is_empty()
 
 
@@ -42,8 +44,11 @@ func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionar
 		return {"legal": false, "reason": "kroni_source_banished"}
 	var legal: bool = source.parameters.is_empty() and kroni_target(source.power_id, source.target, int(source.player_id))
 	if legal and source.power_id == CONSUME:
-		var victim: Dictionary = Hunger.guard(world, source.target.entity_id)
-		legal = not victim.is_empty() and victim.owner == 1 - int(source.player_id)
+		if source.target == {"mode": GuardConsume.MODE}:
+			legal = phase == "firing" or not GuardConsume.guards(world).is_empty()
+		else:
+			var victim: Dictionary = Hunger.guard(world, source.target.entity_id)
+			legal = not victim.is_empty() and victim.owner == 1 - int(source.player_id)
 	return {"legal": legal, "reason": "kroni_target_unavailable"}
 
 
@@ -59,10 +64,23 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 	var events: Array = []
 	var pid: int = source.player_id
 	if source.power_id == CONSUME:
-		var victim: Dictionary = Hunger.guard(world, source.target.entity_id)
-		events.append(Hunger.devour_guard(world, victim, pid, context.round, CONSUME))
-		events.append_array(Hunger.feed(world, pid, 1, context.round, CONSUME))
-		world.data.kroni_fed[pid] = context.round
+		if source.target == {"mode": GuardConsume.MODE}:
+			var flight: Dictionary = GuardConsume.choose(world,pid,context.seed,source.declaration_id)
+			if not flight.victim_id.is_empty():
+				var victim: Dictionary = Hunger.guard(world,flight.victim_id)
+				var enemy: bool = victim.owner != pid
+				var bite: Dictionary = Hunger.devour_guard(world,victim,pid,context.round,CONSUME)
+				bite.event.data["guard_bounce"] = flight
+				events.append(bite)
+				if enemy: events.append_array(Hunger.feed(world,pid,1,context.round,CONSUME))
+				world.data.kroni_fed[pid] = context.round
+			else:
+				events.append(Hunger.event("CONSUME_MISSED",{"player_id":pid,"round":context.round,"guard_bounce":flight}))
+		else:
+			var victim: Dictionary = Hunger.guard(world, source.target.entity_id)
+			events.append(Hunger.devour_guard(world, victim, pid, context.round, CONSUME))
+			events.append_array(Hunger.feed(world, pid, 1, context.round, CONSUME))
+			world.data.kroni_fed[pid] = context.round
 	else:
 		var actor: Dictionary = Actors.create(source.declaration_id, pid, context.round, Hunger.hunger(world, pid), false, context.seed, source.target, world.entities.entities)
 		world.data.kroni_actors.append(actor)
@@ -116,12 +134,12 @@ func on_hook(context: Dictionary) -> Dictionary:
 			result.events.append(Hunger.event("INSATIABLE_HUNGER_MANIFESTED", {"actor": actor, "round": context.round}, "Insatiable Hunger manifests in the field."))
 	elif context.hook == Timeline.MARCHING:
 		for actor in world.data.kroni_actors:
-			if not actor.breach and actor.consumed >= 6 and not actor.rewarded:
+			if not actor.breach and actor.get("enemy_consumed", 0) >= 11 and not actor.rewarded:
 				actor.rewarded = true
 				world.players[actor.owner].resources.souls += 1
 				world.data.neutral_tears += 1
 				result.events.append_array(Hunger.feed(world, actor.owner, 1, context.round, RAVENOUS))
-				result.events.append(Hunger.event("RAVENOUS_REWARDED", {"actor_id": actor.id, "player_id": actor.owner, "round": context.round, "consumed": actor.consumed, "souls": 1, "hunger": 1, "neutral_tears": 1}, "Ravenous: +1 Soul, +1 Hunger, +1 Neutral Tear."))
+				result.events.append(Hunger.event("RAVENOUS_REWARDED", {"actor_id": actor.id, "player_id": actor.owner, "round": context.round, "consumed": actor.consumed, "enemy_consumed": actor.enemy_consumed, "souls": 1, "hunger": 1, "neutral_tears": 1}, "Ravenous: +1 Soul, +1 Hunger, +1 Neutral Tear."))
 	return result
 
 

@@ -16,7 +16,7 @@ from .verify import same
 
 
 def digest(match):
-    return hashlib.sha256(codec.dumps(match.snapshot()).encode()).hexdigest()
+    return codec.sha256(match.snapshot())
 
 
 def play(spec, stage_times=None):

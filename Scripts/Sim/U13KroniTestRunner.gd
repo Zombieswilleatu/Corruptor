@@ -71,6 +71,7 @@ func _run() -> void:
 	_timing("placement", section_started)
 	section_started = Time.get_ticks_usec()
 	_actors()
+	_reward_threshold()
 	_timing("actors", section_started)
 	section_started = Time.get_ticks_usec()
 	_match()
@@ -209,8 +210,8 @@ func _actors() -> void:
 		print(result)
 		return
 	var actor: Dictionary = result.world.data.kroni_actors[0]
-	check(actor.consumed >= 6 and actor.rewarded and not actor.active and actor.x_fp == 2400, "friendly and enemy Devour, then stop at far boundary")
-	check(result.world.players[0].resources.souls == world.players[0].resources.souls + 1 and result.world.data.neutral_tears == world.data.neutral_tears + 1 and State.hunger(result.world, 0) == 1, "6-plus pays exactly one full reward")
+	check(actor.consumed >= 6 and not actor.rewarded and actor.enemy_consumed <= 4 and not actor.active and actor.x_fp == 2400, "friendly and enemy Devour, then stop at far boundary")
+	check(result.world.players[0].resources.souls == world.players[0].resources.souls and result.world.data.neutral_tears == world.data.neutral_tears and State.hunger(result.world, 0) == 0, "friendly meals cannot reach eleven-enemy reward")
 	check(result.world.entities.entities.any(func(e: Dictionary) -> bool: return e.id == outside), "off-path Marcher survives")
 	check(Content.new().valid_world(result.world), "post-Ravenous world validates")
 	var replay: Dictionary = Content.new().on_hook(context(JSON.parse_string(JSON.stringify(world)), Timeline.MARCHING))
@@ -484,3 +485,22 @@ func _angle_gradient() -> void:
 		seen[absi(actor.vy_fp)] = true
 		check(Actors.valid([actor]), "weighted launch stays valid and enemy-facing")
 	check(seen.has(1) and seen.has(24), "near-vertical and strong diagonal launches both reachable")
+
+func _reward_threshold() -> void:
+	for row in [[10, 20, false, 0], [11, 11, false, 1], [22, 22, false, 1], [11, 11, true, 0]]:
+		var world: Dictionary = Scenario.world()
+		var actor: Dictionary = Actors.create("threshold", 0, 1, 0)
+		actor.active = false
+		actor.x_fp = 2400
+		actor.enemy_consumed = row[0]
+		actor.consumed = row[1]
+		actor.rewarded = row[2]
+		world.data.kroni_actors = [actor]
+		var result: Dictionary = Content.new().on_hook(context(world, Timeline.MARCHING))
+		if not check(result.action == "resolved", "reward threshold resolves"):
+			continue
+		check(result.world.players[0].resources.souls == world.players[0].resources.souls + row[3], "eleven enemies, one reward per use")
+		check(result.world.data.neutral_tears == world.data.neutral_tears + row[3] and State.hunger(result.world, 0) == row[3], "full reward shares enemy threshold")
+		check(Content.new().valid_world(result.world), "enemy counter snapshot validates")
+		result.world.data.kroni_actors[0].enemy_consumed = row[1] + 1
+		check(not Content.new().valid_world(result.world), "impossible enemy count rejected")

@@ -4,8 +4,8 @@ const Context = preload("res://Scripts/Sim/U13DoctrineView.gd")
 const Common = preload("res://Scripts/Sim/U13CommonDoctrine.gd")
 const Powers = preload("res://Scripts/Sim/U13PowerDoctrine.gd")
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
-const Monsters = preload("res://Scripts/Sim/U13MonsterRules.gd")
 const BotPlanning = preload("res://Scripts/Sim/U13BotPlanning.gd")
+const Monsters = preload("res://Scripts/Sim/U13MonsterRules.gd")
 const VERSION: String = "U13_BASIC_DOCTRINE_V8_PUBLIC_GUARDS"
 const CANDIDATE_LIMIT: int = 32
 

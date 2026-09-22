@@ -7,6 +7,7 @@ __pycache__/
 
 # Local Corruptor patch backups / audit artifacts
 .corruptor_backups/
+corruptor-sync-backups/
 CASTLE_RULES_LOCK_AUDIT_*.txt
 
 # Local development artifacts
@@ -29,3 +30,6 @@ Experiments/
 
 # Local title shader iteration backups
 Prototype/TitleScreen/*.before_*
+
+# Local patch rollback copies (kept on disk)
+/*-backup-*/

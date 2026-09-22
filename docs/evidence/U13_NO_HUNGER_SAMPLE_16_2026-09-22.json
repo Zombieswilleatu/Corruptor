@@ -1,0 +1,7562 @@
+{
+  "schema": "U13_NO_HUNGER_SAMPLE_V1",
+  "workers": 2,
+  "repeat": "01",
+  "scope": "Only Hunger removed: no gains/losses/milestone; defense four, Ravenous radius 220. Both powers, guard feeding, Ravenous Soul and neutral Tear retained. Consume Hunger credit and Ward Hunger penalty removed from doctrine. Process-local Python experiment.",
+  "runner_sha256": "5ef8bd6f39e9fe680e49d542bbe44226ed7860ab7e8a52dfe5546c7b46d73c74",
+  "source_commit": "2950345b740aedb3d504db5e4c99af66b6ff503f",
+  "source_sha256": {
+    "u13_pysim/__init__.py": "b490045ab5d69f7d8ff26f2e07c6ff01c3d37f1888746231a3cada8cbf37ee31",
+    "u13_pysim/battle.py": "0c24101db8a6732beeb7a112a07d9f7ecd06422cae69133f1349ee4e9a8f68b3",
+    "u13_pysim/benchmark_copying.py": "549ed47ff34efe0a67a7e37ce82fc5803982c9a98f5b4829f1db74672e9199e1",
+    "u13_pysim/benchmark_development.py": "12a744083c55416ad4584aab3ca670a70934a97b59b12d48e792eaa37eda9075",
+    "u13_pysim/benchmark_full_match.py": "ac49b376cae0fc67ad09226431f60398e5e84c44450d7319ba2bc1b5aeffa9b5",
+    "u13_pysim/benchmark_full_match_copying.py": "5d5251243d30b7d18dd758d5a7c9e066e5c004b0e0c02bd12ab6e36a28cd10d5",
+    "u13_pysim/benchmark_marching.py": "eb168c173f751cb4a48edc6e0c1ec20d8691592f5b92e2142834925ff126931b",
+    "u13_pysim/breath_cases.py": "86259329165c08d5866df6536b80c5e21427a379e823ebc421eb83db899044a6",
+    "u13_pysim/castle_balance.py": "277fcdab86b5fccd2622c42b2d4a6301a8797c8d912b58d4e044f4a25563d51c",
+    "u13_pysim/codec.py": "f6fdb8b378dd11642d44080e38227b498ea0c603bd57afd4858150500ca493c0",
+    "u13_pysim/copying.py": "0adb9cad48d105e4890dfeb3d7aaa9d45348192c959eca467da94c843f4f42e3",
+    "u13_pysim/development.py": "845f013c10f110b3aca467a51e10f3afb78b8fde34e76d5bcc40f7382012710a",
+    "u13_pysim/development_fixtures.py": "e346a6aab8b9f93918ee47fb0182abafcbda4b1b5c7df0f51484f212849e8501",
+    "u13_pysim/dotra_shroud.py": "f4e42d088a88ebf0d682e2c6c5647e92c9d2919bcce4d538d7e0c2b65713dddb",
+    "u13_pysim/economy.py": "181da456e17dbcd40030d43c51bc46c32e154af333101f6a948c852477bd0388",
+    "u13_pysim/effects.py": "1f860bd6f70af917ea31e3b3df0309ddd5cfd9dd36af13616b3c59bb6b325731",
+    "u13_pysim/field_combat.py": "c172abb4e564191ad63a73862183c78f8130c7d7f82d192b5015f98ec388f538",
+    "u13_pysim/field_fortifications.py": "d352f5ea1342815c83641758f489da59bf0c7c295110c5354a23d48207d9f7e1",
+    "u13_pysim/full_match.py": "c837f251004886f4382e0f5842799bdfaacd3fdc7398e9854672fd500febd4ff",
+    "u13_pysim/full_match_inputs.py": "5eecd02da36689b2a6619e8fb23134a90285833be0a38801c28f9195b8b22bc1",
+    "u13_pysim/game_staging.py": "ac5d73d5257506d8753ce47828ec0a06d295cbe91e7bd54d4f2a1181094366da",
+    "u13_pysim/guard_consume.py": "44777096dc4a8559e4a5e542eec2722d051cc3942a2f441006b1cf40d59876ac",
+    "u13_pysim/incoming_damage.py": "6cb6dbe9af97b65356835c15126baaeb72ae70bb420e112588fe18d360c06bad",
+    "u13_pysim/kroni_actors.py": "0241c682a9c61ff5f3b3900f2bff04bcabb637ebbfd4c4da2deaa6f940561e4c",
+    "u13_pysim/lifecycle.py": "6d46ec012ac88f4208825e29e123fcc42ecd0e8c63a5f0e76a66879a1aa897bb",
+    "u13_pysim/lord_hooks.py": "df216e639c2a22a06a2768c2a55d8d12692d4ee3e73fe58137b9424b910a6d1c",
+    "u13_pysim/marcher_navigation.py": "660d2f11fa57a67b114107b0acb4e8d859468a164189916e6daef37f74f8b4e6",
+    "u13_pysim/marcher_spacing.py": "2835cf3aaf7efd051c0a48d379ba7bf1c554bf351749ab6eeb3c5d5612f4807c",
+    "u13_pysim/marching.py": "bc52f248deba25bb05d33f3a1bbc07ccf9b03f3bf1f898f877435fd05f8925aa",
+    "u13_pysim/marching_buffer.py": "3e3248d345c33a41fd505937140a6bba60faf19cfce6b7347da8279b61977031",
+    "u13_pysim/marching_columns.py": "0b6eb855fed57c61948b62b817e192c3dd15be5add41fe43c4f906d7ba7b44ed",
+    "u13_pysim/marching_fixtures.py": "3dda30cdc4a96c9c9e1265abc4447c2939d64b08f3e2b9e6fd3589d4f86581a9",
+    "u13_pysim/marching_game.py": "128ebf199e8c8d0fe26bda6553921caeed96822bf65512b1577574312e3cfdd4",
+    "u13_pysim/marching_spatial.py": "ab2408f2e1be006a291ff1f6e286686921e7a1a2cf216f563d40b1a9e7744261",
+    "u13_pysim/monster_effects.py": "11d3406bd88d41592efa09826802cbd6b02a7d9bebe9a5e96e458e5d129cff31",
+    "u13_pysim/monster_inputs.py": "d30ff813dbcbf9a6e9150e43c7087c5c51b7c314a01a0b17bed426d881d54453",
+    "u13_pysim/monsters.py": "a586aeaabaef02be556db7e1dcd44d0cc4b53ec05f9d46b1062cedfbde889ce8",
+    "u13_pysim/opening.py": "a3589b7d59c594d4ab4ef3a2308266967f7851a46b9e7c6fdf0bd1f77d5241a1",
+    "u13_pysim/paid_development.py": "02a36bc099292aedd845d8f2090235ce86b55cc66ab22f0083b15629549e15b7",
+    "u13_pysim/paid_inputs.py": "005f624fb0a18e55b3b7732c3241e3a7e299610f629af4a8dacc00a14e626898",
+    "u13_pysim/penitent_defense.py": "cd1bd4dfeb35c9d36d0d865e51be29e8ce171751244df4a602077fcd7f136042",
+    "u13_pysim/planning.py": "0b3ba5aee0e22cda27c7d96705f22de0958ec318581ed67aafaa6ae147414470",
+    "u13_pysim/power_components.py": "5b6c72a82ff0274726cfc133ec86c87e848138acfa8e56a29c2c33aba494112a",
+    "u13_pysim/power_inputs.py": "be3157ad5b3479ce84d39b6d316503d47cc26cddb4c68b843a0d788783f47afd",
+    "u13_pysim/power_match.py": "d7be44ebc5eab1120ed0e6f70eeda80ca5d09d3a90d37222bdfccbee6f7c7996",
+    "u13_pysim/power_rules.py": "81b8246dddbcec4c0644ae76569514bdb6b83d549752a4bb3bdddc2880f91a58",
+    "u13_pysim/powers.py": "86a0571b2dbfa40d71e877c685547325a56de25e65de92347c74059d672392eb",
+    "u13_pysim/primitives.py": "1d21e3650a11601e90997dd2785e9408fd16795084910a7c7a95ade70d4c0282",
+    "u13_pysim/recruitment.py": "635ffd788044e906d8d17f7bdad6bd0c3f28a50af07fa7e540778630b5510573",
+    "u13_pysim/resolution.py": "c8387444495472582b756d6f44590b230ebee23b22ae1b3f4957568288d3888f",
+    "u13_pysim/resolution_fixtures.py": "a91635b483d90659879e0e7018a3ab834078921fa67df7a21738d30300f5aa28",
+    "u13_pysim/scorch_castle_cases.py": "fa37debb6fa81f0564eb8db6eb417ed75301e026ea1705c038c8e6d08848db68",
+    "u13_pysim/settlement_inputs.py": "8dab3a7e24742ddf24dc8153d69917fefed17df2935cc35f7967c941a9ae3559",
+    "u13_pysim/split_ward.py": "ff0ef7b825a14a1635f9ca8d1f569be1542ed48762d5347a09fb893e0c36f06b",
+    "u13_pysim/support_pacing.py": "b784ee3ce1eadd0ca51251404c6038e1551d54226aec7668ce0499358e7c37b8",
+    "u13_pysim/test_breath.py": "a383b1ee0f3e0a0ff996b18dbd843d12663f1db9c274410d71636b438c65307c",
+    "u13_pysim/test_copying.py": "bcbd8bdc2fc028892cb0de7cf1af0cb11a2c080ea387535d2ec24fca24306148",
+    "u13_pysim/test_development.py": "9ab72e6dc24710e6c5a7fad80bee3af5a654e4a0eed2a0afe0810d0a22c8a7cf",
+    "u13_pysim/test_foundation.py": "5aa9d85323ce41ef49c9ae83ba0f20a60d6324b16cb84b42e8ea7d016657e12b",
+    "u13_pysim/test_full_match.py": "98b4c5c8c73edce674dfa471b93ec8fb423cd4a386e58e51f6db00212dcc13d7",
+    "u13_pysim/test_gravity_well.py": "bcc0c05c9618b6e0c1772dfc8fd5b05a605bb81a4048c5db8f873ac222cbb5a1",
+    "u13_pysim/test_guard_consume.py": "5d6a78dc0b66dc8c90a72b3ce3a842fe7f1c77f8d067100b945f1d970e18d854",
+    "u13_pysim/test_kroni_reward.py": "383d90cf83ca66145c843bfabbd320045ac3366d4112d7dc1001d3b76fa49592",
+    "u13_pysim/test_marching.py": "5930cc30b8bb99c989fc1560682f8620143385a3f19b8c99230d43b686554822",
+    "u13_pysim/test_opening.py": "2d87714cf5211c3b7339e6422f3d44ef84480181333f4207c7e1e0043ac809dd",
+    "u13_pysim/test_paid_development.py": "ed789a69cf92f80ba6751cf3c6ab9149479edfb894c66075dc2cd53212db1fd3",
+    "u13_pysim/test_planning.py": "7e28b3c8fd4f220286ebf31883a8762681772ae7f607c16a3759c78789697a01",
+    "u13_pysim/test_powers.py": "cd84bffc35ae1e7e89b1b4c819fd9a36b7e4b409ac264ab5ebdffeac2a2ba02e",
+    "u13_pysim/test_resolution.py": "373919651fbfa5d55cb563fef6ec74f50f401f64ef5e27478aeb2231e2a1776d",
+    "u13_pysim/test_rout_damage.py": "b56830dc12019ed1ac4c74e499ff0582162f52bf7e6be0e18496782a115bee78",
+    "u13_pysim/test_scorch_castles.py": "31486acaf99ea64be0839add39cd4007ae655cabe1fce57496f8dc51b363cb25",
+    "u13_pysim/test_stream_digest.py": "9356e39eb62d78264f9f2d808e013ad06195ae1d1217e2b84eebbfae4c1cc986",
+    "u13_pysim/timeline.py": "9250531802d6812e2d38a6764ef98fefe7296bdbeeb5857645b154c3594b89b6",
+    "u13_pysim/tumler_charge.py": "0a05073992c5d83bd070c1397c67d285bc230ee37ce80c1a9ee1fa94e4acade1",
+    "u13_pysim/veil.py": "0e5978816d7baf35b4c242c974f854528dda89bfa1a38cd25b253a4689957f64",
+    "u13_pysim/verify.py": "78626dd49cbccaa8a5aa03ce69a2b0253e15df3f819d0305a6b42757ae39ee56",
+    "u13_pysim/verify_breath.py": "28098f9030ade77879c35c96ee2026bcd94e12dec9da947990c196084beeea59",
+    "u13_pysim/verify_development.py": "c10720b84b9f53a690bc836c3a4a97a50d986d57174421f8850c0eb895cf2bc0",
+    "u13_pysim/verify_exposure.py": "d4a18cda4efdc4f7ed2d3c645db341386757e546498f3557717d0e1e9d29605e",
+    "u13_pysim/verify_free_opening.py": "bdbde10d34c434f06152849b521f0a55d6c6b97dce699ef3b15e20f90e1ab003",
+    "u13_pysim/verify_full_match.py": "ce73579b5215c2318052d25127a25496beb5948d5468346d996e61385e379347",
+    "u13_pysim/verify_marching.py": "119031e8cc6919555f8ec771c508179599cd4db94ead5c06e93ce2545a1652ff",
+    "u13_pysim/verify_monsters.py": "f925afee1eadf05c51feed9d521a7577bc271880dc5a8c405b7e4caacc150772",
+    "u13_pysim/verify_paid.py": "5f70c49d56e82f26bbb71312de682859ed1039b559260feecf9a5547ee3614da",
+    "u13_pysim/verify_planning.py": "e7367242844899c00d6ac798db2da173b43784e465bca6568301b7dac8d96d23",
+    "u13_pysim/verify_powers.py": "41ba4eb6e0485de23c2de9f74610955881d96a3beedb57a2b199c89a075a2afd",
+    "u13_pysim/verify_resolution.py": "f6def44422cd3c356c6be3f7aab77f0188b68dc94153e3857ad28ad8da8833ff",
+    "u13_pysim/verify_scorch.py": "175670072d145a48dec11da9afd802f5810a5f6821f591c0754037e14ab54f44",
+    "u13_pysim/verify_veil.py": "4f462b4d9a26590767c48a1a204606c18c77f0fc998ddb1dc28c001f9b1517b0",
+    "u13_pysim/verify_veil_wishes.py": "f0ac30d9b3b624beccbb18aa2b01e49f75fe7b3c5d0ed57604d4fa925574b060",
+    "u13_pysim/wishmaster.py": "c322a596c5857aa7a551bef928cc2a824df3d3d9e4262f4899d0c671e202d060",
+    "u13_doctrine/__init__.py": "227c8876cf5699a5538e3493e65d8ab8e7ecf03c65eb0781306d8d22461c3b8f",
+    "u13_doctrine/budget.py": "0c287dfa97901683775264de9e0c6e1eacf45c0afc3205317c1cd11d0a24cf55",
+    "u13_doctrine/closing.py": "969ffeefb6a9628b15e719ee169553f4e499a42c262410752f895b5a64c6b1ab",
+    "u13_doctrine/common.py": "a04c36ebaa6c334247d59f5c548308f45e145ac24d3d76fa3a175ebc8cc330ab",
+    "u13_doctrine/comparison.py": "59c57b7053af14a033241768bc69c61eba36848804a0a7b6cc725ecdfb7f23bc",
+    "u13_doctrine/coordination.py": "f054749806afff12876640db6d1842e39d54601b494de4810b5b4d47eda15259",
+    "u13_doctrine/coverage.py": "228c23b18653b89647570939fb944d7063f676a45a28ca980ef1838b669b7c71",
+    "u13_doctrine/defensive_plans.py": "fec29af9931aa48fc22aeb72a246144eb9053cf23e57aea0603032f2caae7361",
+    "u13_doctrine/diagnostics.py": "5cf40e9a6ab3984653737e7b8e20b373a923f932a0205803cafea3fb48fa9769",
+    "u13_doctrine/facts.py": "ec2188fd0e85b6dd2d65a930ebf5c44954f11ba3a587244330b40aa6d90c4c4b",
+    "u13_doctrine/gremory_audit.py": "031db922743d9ed8bcabb5ae6c3636362d1f231ee35ebf095cff4b51cbc36693",
+    "u13_doctrine/kalligan_tactics.py": "7a31d815b345ddc073aa14b6b1c859ba3c21fd4defdfd5fb5cac84a7209f24f8",
+    "u13_doctrine/kanifous_audit.py": "0bb113a1d3a1c90e565b2e0db52cdecc3124cfc13996c3469ced352d4737b144",
+    "u13_doctrine/kanifous_calibration.py": "aadcb31a723f3abaad36d2fcfcdd0b88e5d8a5a2251060ee93437b3b45bf2428",
+    "u13_doctrine/kanifous_comparison.py": "77cf765a2b6e86a2c0e024cbf478c67283cccffadd8e3b323c3c92eab8cab211",
+    "u13_doctrine/kanifous_tactics.py": "17f25f92d5fcf342b62c179e12f2e220c3ecf58c63b1221ef91554a0756f9d72",
+    "u13_doctrine/kroni_tactics.py": "d48df5729ae0c290c4cf6de17f23a779ff5ca9abf5148ede65e4b6fb82d9a78a",
+    "u13_doctrine/lane_support.py": "5433a4b918bde19a6652eb1fc6aedc034666b98a10db3959b0725dddcee9ca3a",
+    "u13_doctrine/lord_balance.py": "7b9bcb0c969bb6fa138e456f8e36ff383e183a8791392629a8901ed2ebb3d5e2",
+    "u13_doctrine/lords/__init__.py": "c0727396bc6c945658cd23fc8f3a49366a59643f789d7c34500cb264d8d7f4c9",
+    "u13_doctrine/lords/deimos.py": "a4d651f41fbf0ac232a0d33deae18c1f16293970c2ce94c457db4212889145d7",
+    "u13_doctrine/lords/gremory.py": "d6eb8edb7b8dd1ed6e146a4ea4eecfe04307fba4b755fe0c31ba8bb8df4bcfb3",
+    "u13_doctrine/lords/humbaba.py": "c624d95ecce185c6fb305cb277d626bf702ab227ab3c24c87107310f2bbaf80e",
+    "u13_doctrine/lords/kalligan.py": "10f415c9acb086884099aac12a05b8fde7100173d6eeb70d00a828ea15b199f2",
+    "u13_doctrine/lords/kanifous.py": "1e6cd48a3f2c1b57b9b71b4c02ed467d556088e1a519fbe8b5c46314e1502ffb",
+    "u13_doctrine/lords/kroni.py": "840a1c7175699d3a674951baaf5e08a8abfe991bc03402eaa1fe13f924bcdde4",
+    "u13_doctrine/lords/odradek.py": "88b148d684dff528adae2538b044c2b91e39cc22a63d9ec18a3599aceacab7c5",
+    "u13_doctrine/lords/orias.py": "9e03d02bf0a9d908ebb9f1bc0c98439d914d5f506dd38315da05ced6079c98bb",
+    "u13_doctrine/lords/valak.py": "8b8b4fcb7b213dab0a0e999d984c644fc1c8fd89c9728bcc6d71fa094d330458",
+    "u13_doctrine/observation.py": "e0185a354cda875872a76445b69362e01b75f531cd468f5b1669ee9d239f159a",
+    "u13_doctrine/odradek_tactics.py": "82b49ff9710f4056c07d5ba09f732b76678dbd1eb6b08c6b0d8025036595b594",
+    "u13_doctrine/orias_comparison.py": "5fb30e78ec1400c4f98b8e4cee5e4c2c7db2202968ceeedcc729222a9ee48c12",
+    "u13_doctrine/orias_tactics.py": "d7ed780a266c55c14acda7523d4f8ed530e37dc813d73a7e7cd93c288e0f7e7d",
+    "u13_doctrine/planner_probe.py": "bc681e2dd9cc0af79196ec1f8ffe4ca14e7451e2f3a5b7681a08a4210fe5d85a",
+    "u13_doctrine/process_memory.py": "a95b34220792e152682d06b3891df2f1783008b77e2a2fd2dce26dd688cac16c",
+    "u13_doctrine/recipes.py": "280e76fcd94216d2d81926355f0bf3083ed7f78fc75fb973978a4e3a8d5412a1",
+    "u13_doctrine/reference_probe.py": "d93d5acd37581083f512fa87057bef80e8de4bd867ce49fab6ef1d2950434cbf",
+    "u13_doctrine/rite_cases.py": "2cf12a6be0f6598cdeb330f76bd0efcb8c680fbcf2410b1d6461099d61d4a70e",
+    "u13_doctrine/rout_tactics.py": "b1c914512373d13522cbea4ba84ce6c213bef11341d160713c371985fc4eb73d",
+    "u13_doctrine/selection.py": "a160b99b525a1590b34a8ba43fef6f5f63d70c083886f0f151111f7bb5b3894f",
+    "u13_doctrine/snare_audit.py": "fcd2d097e2374809991e54c89279f04a3a28d97cb0be67803c587ae376cc2cfa",
+    "u13_doctrine/snare_comparison.py": "79df57fdf4bf1be018f2323e44f327fd5d7898e25b3e904db0d164a73d18facc",
+    "u13_doctrine/snare_followup.py": "46f3def9232834ea0c2689e0a5e43269c21cf70269e9f81c603483fe54dfa727",
+    "u13_doctrine/split_ward.py": "91bbaa7d1506a82bdf372a3664a97fda45b83dc0c356a9e07fd8333911f54b7d",
+    "u13_doctrine/survey.py": "aa52228e7f0e01d17971eff3239ab92cacf297bb12ba2d7a25202887b7debdbc",
+    "u13_doctrine/test_closing.py": "b0eeab4ac9b4292f57dc35760f507252d7bfb6dbc96f6367661cf140c2ff9b37",
+    "u13_doctrine/test_common.py": "2b462f90d84c6119d4d60bce62e300e6bdfc2ecbb0c43dca724fc2f83d534a59",
+    "u13_doctrine/test_comparison.py": "59211969deccbdb0ac2c042abcbf4ddc707c28216408515c83dbdcc48362507d",
+    "u13_doctrine/test_coordination.py": "ee79c1c50c457c02fcbe59a3e35c45c10288f30141995892c537bacd83702671",
+    "u13_doctrine/test_defensive_plans.py": "6beb177ff35048f191e01be666bbdeb6530e1f7ca9820a6cf4287974a182ef4b",
+    "u13_doctrine/test_deimos.py": "06d82fb61846e96d1676931e5969f7c32563a869aef1dae99aed6c1b78454271",
+    "u13_doctrine/test_diagnostics.py": "c11d2dbe2aa1ceacb22db8975ef1b372aa3f9f72932924e15458e620a0331e02",
+    "u13_doctrine/test_gremory.py": "1c0b555fc0ad422b771dc2f334851b8aa22498ca596ae654035753aa1a17d0ff",
+    "u13_doctrine/test_kalligan.py": "990826548460b97672bb0073232987aeb171a2e4b5dab68a3436bb907db338a7",
+    "u13_doctrine/test_kalligan_tactics.py": "5bf2d8447734ca4c9ce990bb90a491e07dad88cf81f7e55a5a1eceabff6cde9d",
+    "u13_doctrine/test_kanifous.py": "cd96fb4e55cdc99e43efa75914acd0d97d43268c991dfc3f4b1364b5d0ac5058",
+    "u13_doctrine/test_kanifous_calibration.py": "7925a3a69a0f61781d18363688510f53f976532bb0081e8e89b497b2c3d5fd44",
+    "u13_doctrine/test_kanifous_comparison.py": "5625cebef93ea3f2a64d57b5235ce74acf79bdfbf02e44f620e1fa7fcbb5608b",
+    "u13_doctrine/test_kroni.py": "fb5cecaa5e241cb5ea4a92daa20c9cbef4465ba0a84e7365af49876923bb21fa",
+    "u13_doctrine/test_lane_support.py": "24c6f460e85979dc824c4f73e2e5df5d5e30d86e328b6fed336933bee1cf598f",
+    "u13_doctrine/test_lord_balance.py": "91582e5d26429aa461fe6749f49627d935f351cf01a882042d5cbf0b4cc98cb7",
+    "u13_doctrine/test_odradek.py": "832ffd3617041f8c239488d73b3bf4f91e1e7333f4090f8c90294bcbd69f7c41",
+    "u13_doctrine/test_odradek_tactics.py": "617145e08ae4694ba9894dbef3f06273246de2299bf9a390607a2f619fbeb833",
+    "u13_doctrine/test_orias.py": "9adbaf3953c63588a3d92d28c1f2ef8683e51a21e4b0098b3594b61a806c664c",
+    "u13_doctrine/test_orias_comparison.py": "750e75a27cb6484ffbcea952c389464a8b668f2bfed41003040fcaebaa74369a",
+    "u13_doctrine/test_recipes_veil.py": "8ee436a7caaa2f6c4055a0a8a673040cdcfa8e9ab805670eca5dafe10c22426c",
+    "u13_doctrine/test_reserved_recipes.py": "8fda3ab812f203f440716f415c8d89ed45de120a5c090223ceec46628c840f95",
+    "u13_doctrine/test_rites.py": "4049d7d09741161cae1392c3f0dcb9c3735108c50492dead8c7e36883ab240c8",
+    "u13_doctrine/test_rout_tactics.py": "74d85e0adb050fc345dd25ad1b96793412ac926e8c72bcfed30c75748523f547",
+    "u13_doctrine/test_selection.py": "b2ae4fa066634e423479552398f05d1fa2d06bbb5c978be564978763e02a94bf",
+    "u13_doctrine/test_snare_followup.py": "a0fdae9b7881403c89a407424f76f0cecf0b6ddc71154487fc4e75098863006c",
+    "u13_doctrine/test_split_ward.py": "a8cf7d5883feab83e92062b762e9b894ebd8fafa36688d0f7c668486f4bce894",
+    "u13_doctrine/test_survey.py": "22c9ec88496c47de032f8cf66f8b00698d8c5eecf24a323e74c892dc00c59c22",
+    "u13_doctrine/test_valak.py": "47d90572f49a0f9913adc86c8c837c6e78a8074cfefd2910f89a5006796063ce",
+    "u13_doctrine/test_ward_recipes.py": "2d64df17495e2566a443d4f12318a4734045f1a0756e4dd53b33321d4904d800",
+    "u13_doctrine/test_web_comparison.py": "06bfc26a9f87503b138817a4274dc611c49f5282ed947b9bd99fee9ea7a18cd6",
+    "u13_doctrine/valak_tactics.py": "98301bb7c24a950ec9c2cad688df54ff4a58c7d6d65e8111bccca634bc9f5f1a",
+    "u13_doctrine/veil_judgment.py": "35dd78e032b58453923b1a6f2884840c3b0f9478a7ed0b981e74b8e09fc41233",
+    "u13_doctrine/web_comparison.py": "b7d28923a4acadb6352898d274854022651ae3f6b4a1451f663c414566dfba97"
+  },
+  "weights": {
+    "banishment": 32,
+    "card_cost": 2,
+    "damage": 3,
+    "destruction": 30,
+    "enemy_settlement_risk": 90,
+    "guard": 5,
+    "monster": 2,
+    "recipe_save": 1,
+    "recruit": 6,
+    "return_lord": 75,
+    "tear": 22,
+    "veil_protection": 8
+  },
+  "games": [
+    {
+      "name": "deimos_kroni_01_tempo",
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Deimos",
+          "Kroni"
+        ],
+        "seed": "u13-tempo-roster-20260922:Deimos:Kroni:01",
+        "tempo_experiment": "U13_VEIL_ATTACK_ROUND25_V1",
+        "ward_experiment": "U13_SPLIT_WARD_V1"
+      },
+      "kroni_seat": 1,
+      "opponent": "Deimos",
+      "baseline": {
+        "action": "game_finished",
+        "round": 11,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 10,
+        "winner": 0,
+        "win_by": "Ritual"
+      },
+      "baseline_consume": [
+        {
+          "candidates": {
+            "generated": {
+              "measured_decisions": 11,
+              "total": 10
+            },
+            "retained": {
+              "measured_decisions": 11,
+              "total": 10
+            }
+          },
+          "category": "powers",
+          "decisions": 11,
+          "effect_records": 7,
+          "flags": {
+            "affordable": {
+              "false": 0,
+              "true": 8,
+              "unknown": 3
+            },
+            "legal": {
+              "false": 0,
+              "true": 8,
+              "unknown": 3
+            },
+            "opportunity": {
+              "false": 3,
+              "true": 8,
+              "unknown": 0
+            },
+            "selected": {
+              "false": 3,
+              "true": 8,
+              "unknown": 0
+            }
+          },
+          "lord": "Kroni",
+          "metrics": {
+            "guard_value": 22,
+            "guards_consumed": 7
+          },
+          "nonzero_effect_records": 7,
+          "opponent": "Deimos",
+          "outcome_unobserved": 1,
+          "outcomes": {
+            "resolved": 7
+          },
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "reasons": {
+            "no_current_board_opportunity": 3,
+            "selected": 8
+          },
+          "seat": 1,
+          "support": "supported",
+          "term": "Consume"
+        }
+      ],
+      "consume": [
+        {
+          "seat": 1,
+          "lord": "Kroni",
+          "opponent": "Deimos",
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "category": "powers",
+          "term": "Consume",
+          "support": "supported",
+          "decisions": 10,
+          "flags": {
+            "opportunity": {
+              "true": 7,
+              "false": 3,
+              "unknown": 0
+            },
+            "legal": {
+              "true": 6,
+              "false": 0,
+              "unknown": 4
+            },
+            "affordable": {
+              "true": 6,
+              "false": 0,
+              "unknown": 4
+            },
+            "selected": {
+              "true": 6,
+              "false": 4,
+              "unknown": 0
+            }
+          },
+          "candidates": {
+            "generated": {
+              "measured_decisions": 10,
+              "total": 8
+            },
+            "retained": {
+              "measured_decisions": 10,
+              "total": 7
+            }
+          },
+          "reasons": {
+            "no_current_board_opportunity": 2,
+            "selected": 6,
+            "neutral_bounce_expected_meal": 1,
+            "source_banished": 1
+          },
+          "outcomes": {
+            "resolved": 4,
+            "fizzled": 1
+          },
+          "metrics": {
+            "guards_consumed": 4,
+            "guard_value": 17,
+            "enemy_guards_consumed": 4,
+            "friendly_guards_consumed": 0
+          },
+          "effect_records": 4,
+          "nonzero_effect_records": 4,
+          "outcome_unobserved": 1
+        }
+      ],
+      "baseline_victory_race": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 11,
+        "souls": [
+          9,
+          3
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 20,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "counts": {
+        "siege_targets_destroyed": 3,
+        "cannibal_guards": 3,
+        "enemy_meals": 4,
+        "ravenous_uses": 2
+      },
+      "meals": [
+        {
+          "round": 4,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:2:16",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                105,
+                785
+              ]
+            ],
+            "ticks": 15,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -23,
+              19
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 5,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:2:10",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                999,
+                747
+              ],
+              [
+                419,
+                993
+              ],
+              [
+                16,
+                798
+              ],
+              [
+                998,
+                356
+              ],
+              [
+                186,
+                8
+              ],
+              [
+                17,
+                99
+              ],
+              [
+                997,
+                541
+              ],
+              [
+                18,
+                996
+              ],
+              [
+                47,
+                991
+              ],
+              [
+                996,
+                562
+              ],
+              [
+                19,
+                107
+              ],
+              [
+                280,
+                10
+              ],
+              [
+                995,
+                335
+              ],
+              [
+                20,
+                790
+              ],
+              [
+                513,
+                989
+              ],
+              [
+                994,
+                768
+              ],
+              [
+                21,
+                313
+              ],
+              [
+                746,
+                12
+              ],
+              [
+                993,
+                129
+              ],
+              [
+                22,
+                584
+              ],
+              [
+                80,
+                610
+              ]
+            ],
+            "ticks": 470,
+            "initial_enemy": true,
+            "initial_velocity": [
+              29,
+              13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 9,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 4,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:2:13",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                102,
+                656
+              ]
+            ],
+            "ticks": 12,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -29,
+              13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 10,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:2:15",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                684,
+                978
+              ],
+              [
+                840,
+                630
+              ]
+            ],
+            "ticks": 30,
+            "initial_enemy": true,
+            "initial_velocity": [
+              13,
+              29
+            ],
+            "mode": "guard_bounce"
+          }
+        }
+      ],
+      "rejected_previews": [],
+      "timing": {
+        "name": "deimos_kroni_01_tempo_no_hunger",
+        "decision_ms": 746.688372,
+        "simulation_ms": 9363.779684
+      },
+      "archived_sha256": "422ee5bc40e95cdb96fc0e12206d7f77df28b9117744f09e88c7b708e4b143c5",
+      "kit_control": {
+        "action": "game_finished",
+        "round": 10,
+        "winner": 1,
+        "win_by": "Dominion"
+      },
+      "powerless_control": {
+        "action": "game_finished",
+        "round": 11,
+        "winner": 0,
+        "win_by": "Ritual"
+      }
+    },
+    {
+      "name": "gremory_kroni_01_tempo",
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Gremory",
+          "Kroni"
+        ],
+        "seed": "u13-tempo-roster-20260922:Gremory:Kroni:01",
+        "tempo_experiment": "U13_VEIL_ATTACK_ROUND25_V1",
+        "ward_experiment": "U13_SPLIT_WARD_V1"
+      },
+      "kroni_seat": 1,
+      "opponent": "Gremory",
+      "baseline": {
+        "action": "game_finished",
+        "round": 16,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 14,
+        "winner": 0,
+        "win_by": "Ritual"
+      },
+      "baseline_consume": [
+        {
+          "candidates": {
+            "generated": {
+              "measured_decisions": 16,
+              "total": 13
+            },
+            "retained": {
+              "measured_decisions": 16,
+              "total": 13
+            }
+          },
+          "category": "powers",
+          "decisions": 16,
+          "effect_records": 8,
+          "flags": {
+            "affordable": {
+              "false": 0,
+              "true": 9,
+              "unknown": 7
+            },
+            "legal": {
+              "false": 0,
+              "true": 9,
+              "unknown": 7
+            },
+            "opportunity": {
+              "false": 5,
+              "true": 11,
+              "unknown": 0
+            },
+            "selected": {
+              "false": 7,
+              "true": 9,
+              "unknown": 0
+            }
+          },
+          "lord": "Kroni",
+          "metrics": {
+            "guard_value": 25,
+            "guards_consumed": 8
+          },
+          "nonzero_effect_records": 8,
+          "opponent": "Gremory",
+          "outcome_unobserved": 1,
+          "outcomes": {
+            "resolved": 8
+          },
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "reasons": {
+            "no_current_board_opportunity": 5,
+            "scoring_or_shared_budget": 2,
+            "selected": 9
+          },
+          "seat": 1,
+          "support": "supported",
+          "term": "Consume"
+        }
+      ],
+      "consume": [
+        {
+          "seat": 1,
+          "lord": "Kroni",
+          "opponent": "Gremory",
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "category": "powers",
+          "term": "Consume",
+          "support": "supported",
+          "decisions": 14,
+          "flags": {
+            "opportunity": {
+              "true": 10,
+              "false": 4,
+              "unknown": 0
+            },
+            "legal": {
+              "true": 8,
+              "false": 0,
+              "unknown": 6
+            },
+            "affordable": {
+              "true": 8,
+              "false": 0,
+              "unknown": 6
+            },
+            "selected": {
+              "true": 8,
+              "false": 6,
+              "unknown": 0
+            }
+          },
+          "candidates": {
+            "generated": {
+              "measured_decisions": 14,
+              "total": 12
+            },
+            "retained": {
+              "measured_decisions": 14,
+              "total": 10
+            }
+          },
+          "reasons": {
+            "no_current_board_opportunity": 2,
+            "neutral_bounce_expected_meal": 2,
+            "selected": 8,
+            "source_banished": 2
+          },
+          "outcomes": {
+            "resolved": 6,
+            "fizzled": 2
+          },
+          "metrics": {
+            "guards_consumed": 6,
+            "guard_value": 16,
+            "enemy_guards_consumed": 4,
+            "friendly_guards_consumed": 2
+          },
+          "effect_records": 6,
+          "nonzero_effect_records": 6,
+          "outcome_unobserved": 0
+        }
+      ],
+      "baseline_victory_race": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          1,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 16,
+        "souls": [
+          9,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 23,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "counts": {
+        "siege_targets_destroyed": 2,
+        "ravenous_uses": 3,
+        "cannibal_guards": 3,
+        "enemy_meals": 4,
+        "friendly_meals": 2
+      },
+      "meals": [
+        {
+          "round": 5,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:1:9",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                15,
+                605
+              ],
+              [
+                46,
+                612
+              ]
+            ],
+            "ticks": 16,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -31,
+              7
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 7,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 4,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:2:12",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                15,
+                395
+              ],
+              [
+                993,
+                171
+              ],
+              [
+                218,
+                4
+              ],
+              [
+                30,
+                60
+              ],
+              [
+                978,
+                284
+              ],
+              [
+                14,
+                508
+              ],
+              [
+                994,
+                732
+              ],
+              [
+                95,
+                935
+              ]
+            ],
+            "ticks": 205,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -31,
+              -7
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 10,
+          "enemy": false,
+          "lane": "Castle",
+          "value": 1,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:1:3",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                998,
+                956
+              ],
+              [
+                929,
+                987
+              ],
+              [
+                14,
+                208
+              ],
+              [
+                267,
+                1
+              ],
+              [
+                727,
+                381
+              ]
+            ],
+            "ticks": 99,
+            "initial_enemy": true,
+            "initial_velocity": [
+              23,
+              19
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 11,
+          "enemy": false,
+          "lane": "Castle",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:1:8",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                10,
+                120
+              ],
+              [
+                171,
+                13
+              ],
+              [
+                700,
+                450
+              ]
+            ],
+            "ticks": 50,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -23,
+              -19
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 12,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:1:5",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                10,
+                880
+              ],
+              [
+                171,
+                987
+              ],
+              [
+                700,
+                550
+              ]
+            ],
+            "ticks": 50,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -23,
+              19
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 13,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:2:11",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                569,
+                973
+              ],
+              [
+                793,
+                19
+              ],
+              [
+                997,
+                949
+              ],
+              [
+                983,
+                989
+              ],
+              [
+                759,
+                3
+              ],
+              [
+                528,
+                974
+              ],
+              [
+                304,
+                18
+              ],
+              [
+                108,
+                886
+              ]
+            ],
+            "ticks": 206,
+            "initial_enemy": true,
+            "initial_velocity": [
+              7,
+              31
+            ],
+            "mode": "guard_bounce"
+          }
+        }
+      ],
+      "rejected_previews": [],
+      "timing": {
+        "name": "gremory_kroni_01_tempo_no_hunger",
+        "decision_ms": 1649.936853,
+        "simulation_ms": 17678.38689
+      },
+      "archived_sha256": "a11d8e12d65d562dafe070527d1be552984f8ce10618ac4f3a611a52e218622a",
+      "kit_control": {
+        "action": "game_finished",
+        "round": 13,
+        "winner": 1,
+        "win_by": "Dominion"
+      },
+      "powerless_control": {
+        "action": "game_finished",
+        "round": 12,
+        "winner": 0,
+        "win_by": "Ritual"
+      }
+    },
+    {
+      "name": "humbaba_kroni_01_tempo",
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Humbaba",
+          "Kroni"
+        ],
+        "seed": "u13-tempo-roster-20260922:Humbaba:Kroni:01",
+        "tempo_experiment": "U13_VEIL_ATTACK_ROUND25_V1",
+        "ward_experiment": "U13_SPLIT_WARD_V1"
+      },
+      "kroni_seat": 1,
+      "opponent": "Humbaba",
+      "baseline": {
+        "action": "game_finished",
+        "round": 18,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 22,
+        "winner": 0,
+        "win_by": "Ritual"
+      },
+      "baseline_consume": [
+        {
+          "candidates": {
+            "generated": {
+              "measured_decisions": 18,
+              "total": 15
+            },
+            "retained": {
+              "measured_decisions": 18,
+              "total": 15
+            }
+          },
+          "category": "powers",
+          "decisions": 18,
+          "effect_records": 8,
+          "flags": {
+            "affordable": {
+              "false": 0,
+              "true": 9,
+              "unknown": 9
+            },
+            "legal": {
+              "false": 0,
+              "true": 9,
+              "unknown": 9
+            },
+            "opportunity": {
+              "false": 5,
+              "true": 13,
+              "unknown": 0
+            },
+            "selected": {
+              "false": 9,
+              "true": 9,
+              "unknown": 0
+            }
+          },
+          "lord": "Kroni",
+          "metrics": {
+            "guard_value": 29,
+            "guards_consumed": 8
+          },
+          "nonzero_effect_records": 8,
+          "opponent": "Humbaba",
+          "outcome_unobserved": 1,
+          "outcomes": {
+            "resolved": 8
+          },
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "reasons": {
+            "no_current_board_opportunity": 5,
+            "scoring_or_shared_budget": 4,
+            "selected": 9
+          },
+          "seat": 1,
+          "support": "supported",
+          "term": "Consume"
+        }
+      ],
+      "consume": [
+        {
+          "seat": 1,
+          "lord": "Kroni",
+          "opponent": "Humbaba",
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "category": "powers",
+          "term": "Consume",
+          "support": "supported",
+          "decisions": 22,
+          "flags": {
+            "opportunity": {
+              "true": 18,
+              "false": 4,
+              "unknown": 0
+            },
+            "legal": {
+              "true": 14,
+              "false": 0,
+              "unknown": 8
+            },
+            "affordable": {
+              "true": 14,
+              "false": 0,
+              "unknown": 8
+            },
+            "selected": {
+              "true": 14,
+              "false": 8,
+              "unknown": 0
+            }
+          },
+          "candidates": {
+            "generated": {
+              "measured_decisions": 22,
+              "total": 21
+            },
+            "retained": {
+              "measured_decisions": 22,
+              "total": 18
+            }
+          },
+          "reasons": {
+            "no_current_board_opportunity": 1,
+            "selected": 14,
+            "source_banished": 3,
+            "neutral_bounce_expected_meal": 3,
+            "scoring_or_shared_budget": 1
+          },
+          "outcomes": {
+            "resolved": 11,
+            "fizzled": 2
+          },
+          "metrics": {
+            "guards_consumed": 11,
+            "guard_value": 39,
+            "enemy_guards_consumed": 5,
+            "friendly_guards_consumed": 6
+          },
+          "effect_records": 11,
+          "nonzero_effect_records": 11,
+          "outcome_unobserved": 1
+        }
+      ],
+      "baseline_victory_race": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 18,
+        "souls": [
+          0,
+          12
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 22,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "counts": {
+        "siege_targets_destroyed": 3,
+        "cannibal_guards": 6,
+        "ravenous_uses": 6,
+        "friendly_meals": 6,
+        "enemy_meals": 5,
+        "ravenous_rewards": 2
+      },
+      "meals": [
+        {
+          "round": 3,
+          "enemy": false,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:1:6",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                108,
+                86
+              ]
+            ],
+            "ticks": 18,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -19,
+              -23
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 4,
+          "enemy": false,
+          "lane": "Lord",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:2:17",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                999,
+                253
+              ],
+              [
+                419,
+                7
+              ],
+              [
+                16,
+                202
+              ],
+              [
+                45,
+                215
+              ]
+            ],
+            "ticks": 55,
+            "initial_enemy": false,
+            "initial_velocity": [
+              29,
+              -13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 5,
+          "enemy": false,
+          "lane": "Castle",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:1:8",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                331,
+                973
+              ],
+              [
+                107,
+                19
+              ],
+              [
+                5,
+                515
+              ],
+              [
+                117,
+                989
+              ],
+              [
+                341,
+                3
+              ],
+              [
+                572,
+                974
+              ],
+              [
+                698,
+                416
+              ]
+            ],
+            "ticks": 164,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -7,
+              31
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 6,
+          "enemy": false,
+          "lane": "Castle",
+          "value": 4,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:2:12",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                682,
+                396
+              ]
+            ],
+            "ticks": 8,
+            "initial_enemy": false,
+            "initial_velocity": [
+              29,
+              -13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 11,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:2:16",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                998,
+                44
+              ],
+              [
+                929,
+                13
+              ],
+              [
+                55,
+                735
+              ]
+            ],
+            "ticks": 65,
+            "initial_enemy": false,
+            "initial_velocity": [
+              23,
+              -19
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 12,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:2:15",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                999,
+                747
+              ],
+              [
+                419,
+                993
+              ],
+              [
+                16,
+                798
+              ],
+              [
+                45,
+                785
+              ]
+            ],
+            "ticks": 55,
+            "initial_enemy": true,
+            "initial_velocity": [
+              29,
+              13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 15,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:1:9",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                791,
+                577
+              ]
+            ],
+            "ticks": 11,
+            "initial_enemy": true,
+            "initial_velocity": [
+              31,
+              7
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 17,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 1,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:1:2",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                682,
+                604
+              ]
+            ],
+            "ticks": 8,
+            "initial_enemy": true,
+            "initial_velocity": [
+              29,
+              13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 18,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 4,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:2:12",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                108,
+                914
+              ]
+            ],
+            "ticks": 18,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -19,
+              23
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 19,
+          "enemy": false,
+          "lane": "Lord",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:2:16",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                992,
+                374
+              ],
+              [
+                31,
+                143
+              ],
+              [
+                62,
+                136
+              ]
+            ],
+            "ticks": 52,
+            "initial_enemy": false,
+            "initial_velocity": [
+              31,
+              -7
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 20,
+          "enemy": false,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:1:6",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                569,
+                973
+              ],
+              [
+                793,
+                19
+              ],
+              [
+                997,
+                949
+              ],
+              [
+                983,
+                989
+              ],
+              [
+                759,
+                3
+              ],
+              [
+                528,
+                974
+              ],
+              [
+                304,
+                18
+              ],
+              [
+                80,
+                990
+              ],
+              [
+                4,
+                618
+              ],
+              [
+                60,
+                370
+              ]
+            ],
+            "ticks": 230,
+            "initial_enemy": true,
+            "initial_velocity": [
+              7,
+              31
+            ],
+            "mode": "guard_bounce"
+          }
+        }
+      ],
+      "rejected_previews": [],
+      "timing": {
+        "name": "humbaba_kroni_01_tempo_no_hunger",
+        "decision_ms": 2717.447759,
+        "simulation_ms": 26220.616818
+      },
+      "archived_sha256": "1c08884db014e9b5ba3d3461048ffc2ab3c754cd8bc76617233b4e6547baf617",
+      "kit_control": {
+        "action": "game_finished",
+        "round": 18,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "powerless_control": {
+        "action": "game_finished",
+        "round": 14,
+        "winner": 0,
+        "win_by": "Dominion"
+      }
+    },
+    {
+      "name": "kalligan_kroni_01_tempo",
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Kalligan",
+          "Kroni"
+        ],
+        "seed": "u13-tempo-roster-20260922:Kalligan:Kroni:01",
+        "tempo_experiment": "U13_VEIL_ATTACK_ROUND25_V1",
+        "ward_experiment": "U13_SPLIT_WARD_V1"
+      },
+      "kroni_seat": 1,
+      "opponent": "Kalligan",
+      "baseline": {
+        "action": "game_finished",
+        "round": 14,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 11,
+        "winner": 0,
+        "win_by": "Ritual"
+      },
+      "baseline_consume": [
+        {
+          "candidates": {
+            "generated": {
+              "measured_decisions": 14,
+              "total": 13
+            },
+            "retained": {
+              "measured_decisions": 14,
+              "total": 13
+            }
+          },
+          "category": "powers",
+          "decisions": 14,
+          "effect_records": 9,
+          "flags": {
+            "affordable": {
+              "false": 0,
+              "true": 10,
+              "unknown": 4
+            },
+            "legal": {
+              "false": 0,
+              "true": 10,
+              "unknown": 4
+            },
+            "opportunity": {
+              "false": 2,
+              "true": 12,
+              "unknown": 0
+            },
+            "selected": {
+              "false": 4,
+              "true": 10,
+              "unknown": 0
+            }
+          },
+          "lord": "Kroni",
+          "metrics": {
+            "guard_value": 40,
+            "guards_consumed": 9
+          },
+          "nonzero_effect_records": 9,
+          "opponent": "Kalligan",
+          "outcome_unobserved": 1,
+          "outcomes": {
+            "resolved": 9
+          },
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "reasons": {
+            "no_current_board_opportunity": 2,
+            "scoring_or_shared_budget": 2,
+            "selected": 10
+          },
+          "seat": 1,
+          "support": "supported",
+          "term": "Consume"
+        }
+      ],
+      "consume": [
+        {
+          "seat": 1,
+          "lord": "Kroni",
+          "opponent": "Kalligan",
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "category": "powers",
+          "term": "Consume",
+          "support": "supported",
+          "decisions": 11,
+          "flags": {
+            "opportunity": {
+              "true": 6,
+              "false": 5,
+              "unknown": 0
+            },
+            "legal": {
+              "true": 6,
+              "false": 0,
+              "unknown": 5
+            },
+            "affordable": {
+              "true": 6,
+              "false": 0,
+              "unknown": 5
+            },
+            "selected": {
+              "true": 6,
+              "false": 5,
+              "unknown": 0
+            }
+          },
+          "candidates": {
+            "generated": {
+              "measured_decisions": 11,
+              "total": 9
+            },
+            "retained": {
+              "measured_decisions": 11,
+              "total": 8
+            }
+          },
+          "reasons": {
+            "no_current_board_opportunity": 2,
+            "selected": 6,
+            "neutral_bounce_expected_meal": 2,
+            "source_banished": 1
+          },
+          "outcomes": {
+            "resolved": 6
+          },
+          "metrics": {
+            "guards_consumed": 6,
+            "guard_value": 20,
+            "enemy_guards_consumed": 5,
+            "friendly_guards_consumed": 1
+          },
+          "effect_records": 6,
+          "nonzero_effect_records": 6,
+          "outcome_unobserved": 0
+        }
+      ],
+      "baseline_victory_race": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          3,
+          13
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 16,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "counts": {
+        "siege_targets_destroyed": 1,
+        "cannibal_guards": 2,
+        "friendly_meals": 1,
+        "enemy_meals": 5,
+        "ravenous_uses": 2,
+        "ravenous_rewards": 1
+      },
+      "meals": [
+        {
+          "round": 4,
+          "enemy": false,
+          "lane": "Lord",
+          "value": 4,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:2:14",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                102,
+                344
+              ]
+            ],
+            "ticks": 12,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -29,
+              -13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 5,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:1:8",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                331,
+                27
+              ],
+              [
+                107,
+                981
+              ],
+              [
+                93,
+                919
+              ]
+            ],
+            "ticks": 51,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -7,
+              -31
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 6,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:1:9",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                216,
+                22
+              ],
+              [
+                5,
+                515
+              ],
+              [
+                57,
+                631
+              ]
+            ],
+            "ticks": 39,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -13,
+              -29
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 7,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:2:15",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                998,
+                956
+              ],
+              [
+                929,
+                987
+              ],
+              [
+                14,
+                208
+              ],
+              [
+                267,
+                1
+              ],
+              [
+                934,
+                552
+              ]
+            ],
+            "ticks": 108,
+            "initial_enemy": true,
+            "initial_velocity": [
+              23,
+              19
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 8,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 1,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:1:1",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                569,
+                27
+              ],
+              [
+                793,
+                981
+              ],
+              [
+                997,
+                51
+              ],
+              [
+                983,
+                11
+              ],
+              [
+                759,
+                997
+              ],
+              [
+                528,
+                26
+              ],
+              [
+                304,
+                982
+              ],
+              [
+                80,
+                10
+              ],
+              [
+                4,
+                382
+              ],
+              [
+                60,
+                630
+              ]
+            ],
+            "ticks": 230,
+            "initial_enemy": false,
+            "initial_velocity": [
+              7,
+              -31
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 11,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 4,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:2:14",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                698,
+                556
+              ]
+            ],
+            "ticks": 8,
+            "initial_enemy": true,
+            "initial_velocity": [
+              31,
+              7
+            ],
+            "mode": "guard_bounce"
+          }
+        }
+      ],
+      "rejected_previews": [],
+      "timing": {
+        "name": "kalligan_kroni_01_tempo_no_hunger",
+        "decision_ms": 1670.254452,
+        "simulation_ms": 14405.381509
+      },
+      "archived_sha256": "c52a60e1e2bc01662ae8820a672d7870caced364e1b278f0ab32899ebfeb0ad0",
+      "kit_control": {
+        "action": "game_finished",
+        "round": 11,
+        "winner": 1,
+        "win_by": "Dominion"
+      },
+      "powerless_control": {
+        "action": "game_finished",
+        "round": 18,
+        "winner": 1,
+        "win_by": "Ritual"
+      }
+    },
+    {
+      "name": "kanifous_kroni_01_tempo",
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Kanifous",
+          "Kroni"
+        ],
+        "seed": "u13-tempo-roster-20260922:Kanifous:Kroni:01",
+        "tempo_experiment": "U13_VEIL_ATTACK_ROUND25_V1",
+        "ward_experiment": "U13_SPLIT_WARD_V1"
+      },
+      "kroni_seat": 1,
+      "opponent": "Kanifous",
+      "baseline": {
+        "action": "game_finished",
+        "round": 12,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 9,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "baseline_consume": [
+        {
+          "candidates": {
+            "generated": {
+              "measured_decisions": 12,
+              "total": 10
+            },
+            "retained": {
+              "measured_decisions": 12,
+              "total": 10
+            }
+          },
+          "category": "powers",
+          "decisions": 12,
+          "effect_records": 7,
+          "flags": {
+            "affordable": {
+              "false": 0,
+              "true": 8,
+              "unknown": 4
+            },
+            "legal": {
+              "false": 0,
+              "true": 8,
+              "unknown": 4
+            },
+            "opportunity": {
+              "false": 3,
+              "true": 9,
+              "unknown": 0
+            },
+            "selected": {
+              "false": 4,
+              "true": 8,
+              "unknown": 0
+            }
+          },
+          "lord": "Kroni",
+          "metrics": {
+            "guard_value": 25,
+            "guards_consumed": 7
+          },
+          "nonzero_effect_records": 7,
+          "opponent": "Kanifous",
+          "outcome_unobserved": 1,
+          "outcomes": {
+            "resolved": 7
+          },
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "reasons": {
+            "no_current_board_opportunity": 3,
+            "scoring_or_shared_budget": 1,
+            "selected": 8
+          },
+          "seat": 1,
+          "support": "supported",
+          "term": "Consume"
+        }
+      ],
+      "consume": [
+        {
+          "seat": 1,
+          "lord": "Kroni",
+          "opponent": "Kanifous",
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "category": "powers",
+          "term": "Consume",
+          "support": "supported",
+          "decisions": 9,
+          "flags": {
+            "opportunity": {
+              "true": 3,
+              "false": 6,
+              "unknown": 0
+            },
+            "legal": {
+              "true": 3,
+              "false": 0,
+              "unknown": 6
+            },
+            "affordable": {
+              "true": 3,
+              "false": 0,
+              "unknown": 6
+            },
+            "selected": {
+              "true": 3,
+              "false": 6,
+              "unknown": 0
+            }
+          },
+          "candidates": {
+            "generated": {
+              "measured_decisions": 9,
+              "total": 8
+            },
+            "retained": {
+              "measured_decisions": 9,
+              "total": 8
+            }
+          },
+          "reasons": {
+            "no_current_board_opportunity": 1,
+            "selected": 3,
+            "neutral_bounce_expected_meal": 5
+          },
+          "outcomes": {
+            "resolved": 3
+          },
+          "metrics": {
+            "guards_consumed": 3,
+            "guard_value": 10,
+            "enemy_guards_consumed": 3,
+            "friendly_guards_consumed": 0
+          },
+          "effect_records": 3,
+          "nonzero_effect_records": 3,
+          "outcome_unobserved": 0
+        }
+      ],
+      "baseline_victory_race": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          4
+        ],
+        "personal_tears_tied": true,
+        "round": 12,
+        "souls": [
+          0,
+          12
+        ],
+        "veil_short_of_twelve": 1,
+        "veil_total": 11,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "counts": {
+        "siege_targets_destroyed": 3,
+        "cannibal_guards": 5,
+        "enemy_meals": 3,
+        "ravenous_uses": 2,
+        "ravenous_rewards": 1
+      },
+      "meals": [
+        {
+          "round": 3,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:1:9",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                684,
+                978
+              ],
+              [
+                991,
+                253
+              ],
+              [
+                874,
+                8
+              ],
+              [
+                419,
+                977
+              ],
+              [
+                10,
+                20
+              ],
+              [
+                23,
+                9
+              ],
+              [
+                478,
+                976
+              ],
+              [
+                920,
+                10
+              ],
+              [
+                989,
+                213
+              ],
+              [
+                625,
+                975
+              ],
+              [
+                183,
+                11
+              ],
+              [
+                12,
+                446
+              ],
+              [
+                90,
+                620
+              ]
+            ],
+            "ticks": 280,
+            "initial_enemy": true,
+            "initial_velocity": [
+              13,
+              29
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 4,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:2:10",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                998,
+                44
+              ],
+              [
+                929,
+                13
+              ],
+              [
+                55,
+                735
+              ]
+            ],
+            "ticks": 65,
+            "initial_enemy": false,
+            "initial_velocity": [
+              23,
+              -19
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 9,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 4,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:2:13",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                216,
+                978
+              ],
+              [
+                112,
+                746
+              ]
+            ],
+            "ticks": 26,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -13,
+              29
+            ],
+            "mode": "guard_bounce"
+          }
+        }
+      ],
+      "rejected_previews": [],
+      "timing": {
+        "name": "kanifous_kroni_01_tempo_no_hunger",
+        "decision_ms": 1461.817351,
+        "simulation_ms": 11100.92002
+      },
+      "archived_sha256": "7793c396b9fe09ff59e8db705bcd37b2ac0006d1ee0144682f64d1f80f0ebf41",
+      "kit_control": {
+        "action": "game_finished",
+        "round": 13,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "powerless_control": {
+        "action": "game_finished",
+        "round": 13,
+        "winner": 1,
+        "win_by": "Ritual"
+      }
+    },
+    {
+      "name": "kroni_deimos_01_tempo",
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Kroni",
+          "Deimos"
+        ],
+        "seed": "u13-tempo-roster-20260922:Deimos:Kroni:01",
+        "tempo_experiment": "U13_VEIL_ATTACK_ROUND25_V1",
+        "ward_experiment": "U13_SPLIT_WARD_V1"
+      },
+      "kroni_seat": 0,
+      "opponent": "Deimos",
+      "baseline": {
+        "action": "game_finished",
+        "round": 9,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 11,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "baseline_consume": [
+        {
+          "candidates": {
+            "generated": {
+              "measured_decisions": 9,
+              "total": 6
+            },
+            "retained": {
+              "measured_decisions": 9,
+              "total": 6
+            }
+          },
+          "category": "powers",
+          "decisions": 9,
+          "effect_records": 5,
+          "flags": {
+            "affordable": {
+              "false": 0,
+              "true": 5,
+              "unknown": 4
+            },
+            "legal": {
+              "false": 0,
+              "true": 5,
+              "unknown": 4
+            },
+            "opportunity": {
+              "false": 3,
+              "true": 6,
+              "unknown": 0
+            },
+            "selected": {
+              "false": 4,
+              "true": 5,
+              "unknown": 0
+            }
+          },
+          "lord": "Kroni",
+          "metrics": {
+            "guard_value": 18,
+            "guards_consumed": 5
+          },
+          "nonzero_effect_records": 5,
+          "opponent": "Deimos",
+          "outcome_unobserved": 0,
+          "outcomes": {
+            "resolved": 5
+          },
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "reasons": {
+            "no_current_board_opportunity": 3,
+            "scoring_or_shared_budget": 1,
+            "selected": 5
+          },
+          "seat": 0,
+          "support": "supported",
+          "term": "Consume"
+        }
+      ],
+      "consume": [
+        {
+          "seat": 0,
+          "lord": "Kroni",
+          "opponent": "Deimos",
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "category": "powers",
+          "term": "Consume",
+          "support": "supported",
+          "decisions": 11,
+          "flags": {
+            "opportunity": {
+              "true": 8,
+              "false": 3,
+              "unknown": 0
+            },
+            "legal": {
+              "true": 7,
+              "false": 0,
+              "unknown": 4
+            },
+            "affordable": {
+              "true": 7,
+              "false": 0,
+              "unknown": 4
+            },
+            "selected": {
+              "true": 7,
+              "false": 4,
+              "unknown": 0
+            }
+          },
+          "candidates": {
+            "generated": {
+              "measured_decisions": 11,
+              "total": 9
+            },
+            "retained": {
+              "measured_decisions": 11,
+              "total": 8
+            }
+          },
+          "reasons": {
+            "no_current_board_opportunity": 2,
+            "selected": 7,
+            "source_banished": 1,
+            "neutral_bounce_expected_meal": 1
+          },
+          "outcomes": {
+            "resolved": 5,
+            "fizzled": 1
+          },
+          "metrics": {
+            "guards_consumed": 5,
+            "guard_value": 20,
+            "enemy_guards_consumed": 3,
+            "friendly_guards_consumed": 2
+          },
+          "effect_records": 5,
+          "nonzero_effect_records": 5,
+          "outcome_unobserved": 1
+        }
+      ],
+      "baseline_victory_race": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          4
+        ],
+        "personal_tears_tied": true,
+        "round": 9,
+        "souls": [
+          13,
+          2
+        ],
+        "veil_short_of_twelve": 3,
+        "veil_total": 9,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "counts": {
+        "siege_targets_destroyed": 1,
+        "cannibal_guards": 3,
+        "friendly_meals": 2,
+        "enemy_meals": 3
+      },
+      "meals": [
+        {
+          "round": 4,
+          "enemy": false,
+          "lane": "Lord",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:2:15",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                992,
+                626
+              ],
+              [
+                31,
+                857
+              ],
+              [
+                62,
+                864
+              ]
+            ],
+            "ticks": 52,
+            "initial_enemy": false,
+            "initial_velocity": [
+              31,
+              7
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 7,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:2:17",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                992,
+                626
+              ],
+              [
+                31,
+                857
+              ],
+              [
+                682,
+                996
+              ],
+              [
+                977,
+                919
+              ],
+              [
+                15,
+                695
+              ],
+              [
+                993,
+                471
+              ],
+              [
+                900,
+                450
+              ]
+            ],
+            "ticks": 150,
+            "initial_enemy": false,
+            "initial_velocity": [
+              31,
+              7
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 8,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:1:8",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                682,
+                396
+              ]
+            ],
+            "ticks": 8,
+            "initial_enemy": true,
+            "initial_velocity": [
+              29,
+              -13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 9,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:1:6",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                105,
+                215
+              ]
+            ],
+            "ticks": 15,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -23,
+              -19
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 11,
+          "enemy": false,
+          "lane": "Lord",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:2:16",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                14,
+                708
+              ],
+              [
+                72,
+                734
+              ]
+            ],
+            "ticks": 18,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -29,
+              13
+            ],
+            "mode": "guard_bounce"
+          }
+        }
+      ],
+      "rejected_previews": [],
+      "timing": {
+        "name": "kroni_deimos_01_tempo_no_hunger",
+        "decision_ms": 2146.337415,
+        "simulation_ms": 22541.699894
+      },
+      "archived_sha256": "98c5e7d91bce43748975e48ae64be6aba778dfbb7e29892a5444bbb1964491df",
+      "kit_control": {
+        "action": "game_finished",
+        "round": 11,
+        "winner": 0,
+        "win_by": "Dominion"
+      },
+      "powerless_control": {
+        "action": "game_finished",
+        "round": 14,
+        "winner": 1,
+        "win_by": "Ritual"
+      }
+    },
+    {
+      "name": "kroni_gremory_01_tempo",
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Kroni",
+          "Gremory"
+        ],
+        "seed": "u13-tempo-roster-20260922:Gremory:Kroni:01",
+        "tempo_experiment": "U13_VEIL_ATTACK_ROUND25_V1",
+        "ward_experiment": "U13_SPLIT_WARD_V1"
+      },
+      "kroni_seat": 0,
+      "opponent": "Gremory",
+      "baseline": {
+        "action": "game_finished",
+        "round": 21,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 14,
+        "winner": 0,
+        "win_by": "Dominion"
+      },
+      "baseline_consume": [
+        {
+          "candidates": {
+            "generated": {
+              "measured_decisions": 21,
+              "total": 21
+            },
+            "retained": {
+              "measured_decisions": 21,
+              "total": 19
+            }
+          },
+          "category": "powers",
+          "decisions": 21,
+          "effect_records": 10,
+          "flags": {
+            "affordable": {
+              "false": 0,
+              "true": 11,
+              "unknown": 10
+            },
+            "legal": {
+              "false": 0,
+              "true": 11,
+              "unknown": 10
+            },
+            "opportunity": {
+              "false": 5,
+              "true": 16,
+              "unknown": 0
+            },
+            "selected": {
+              "false": 10,
+              "true": 11,
+              "unknown": 0
+            }
+          },
+          "lord": "Kroni",
+          "metrics": {
+            "guard_value": 36,
+            "guards_consumed": 10
+          },
+          "nonzero_effect_records": 10,
+          "opponent": "Gremory",
+          "outcome_unobserved": 0,
+          "outcomes": {
+            "fizzled": 1,
+            "resolved": 10
+          },
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "reasons": {
+            "no_current_board_opportunity": 5,
+            "scoring_or_shared_budget": 4,
+            "selected": 11,
+            "source_banished": 1
+          },
+          "seat": 0,
+          "support": "supported",
+          "term": "Consume"
+        }
+      ],
+      "consume": [
+        {
+          "seat": 0,
+          "lord": "Kroni",
+          "opponent": "Gremory",
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "category": "powers",
+          "term": "Consume",
+          "support": "supported",
+          "decisions": 14,
+          "flags": {
+            "opportunity": {
+              "true": 8,
+              "false": 6,
+              "unknown": 0
+            },
+            "legal": {
+              "true": 6,
+              "false": 0,
+              "unknown": 8
+            },
+            "affordable": {
+              "true": 6,
+              "false": 0,
+              "unknown": 8
+            },
+            "selected": {
+              "true": 6,
+              "false": 8,
+              "unknown": 0
+            }
+          },
+          "candidates": {
+            "generated": {
+              "measured_decisions": 14,
+              "total": 11
+            },
+            "retained": {
+              "measured_decisions": 14,
+              "total": 10
+            }
+          },
+          "reasons": {
+            "no_current_board_opportunity": 3,
+            "selected": 6,
+            "neutral_bounce_expected_meal": 3,
+            "source_banished": 1,
+            "scoring_or_shared_budget": 1
+          },
+          "outcomes": {
+            "resolved": 4,
+            "fizzled": 1
+          },
+          "metrics": {
+            "guards_consumed": 4,
+            "guard_value": 8,
+            "enemy_guards_consumed": 4,
+            "friendly_guards_consumed": 0
+          },
+          "effect_records": 4,
+          "nonzero_effect_records": 4,
+          "outcome_unobserved": 1
+        }
+      ],
+      "baseline_victory_race": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          3,
+          4
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          1
+        ],
+        "personal_tears_tied": false,
+        "round": 21,
+        "souls": [
+          13,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 39,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "counts": {
+        "siege_targets_destroyed": 3,
+        "ravenous_uses": 4,
+        "enemy_meals": 4,
+        "cannibal_guards": 5,
+        "ravenous_rewards": 2
+      },
+      "meals": [
+        {
+          "round": 3,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:1:7",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                999,
+                253
+              ],
+              [
+                419,
+                7
+              ],
+              [
+                16,
+                202
+              ],
+              [
+                45,
+                215
+              ]
+            ],
+            "ticks": 55,
+            "initial_enemy": true,
+            "initial_velocity": [
+              29,
+              -13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 6,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:1:7",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                108,
+                86
+              ]
+            ],
+            "ticks": 18,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -19,
+              -23
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 11,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 1,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:1:2",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                569,
+                27
+              ],
+              [
+                793,
+                981
+              ],
+              [
+                997,
+                51
+              ],
+              [
+                983,
+                11
+              ],
+              [
+                759,
+                997
+              ],
+              [
+                528,
+                26
+              ],
+              [
+                304,
+                982
+              ],
+              [
+                108,
+                114
+              ]
+            ],
+            "ticks": 206,
+            "initial_enemy": true,
+            "initial_velocity": [
+              7,
+              -31
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 12,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:2:10",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                569,
+                973
+              ],
+              [
+                793,
+                19
+              ],
+              [
+                997,
+                949
+              ],
+              [
+                983,
+                989
+              ],
+              [
+                759,
+                3
+              ],
+              [
+                528,
+                974
+              ],
+              [
+                304,
+                18
+              ],
+              [
+                80,
+                990
+              ],
+              [
+                4,
+                618
+              ],
+              [
+                88,
+                246
+              ]
+            ],
+            "ticks": 234,
+            "initial_enemy": false,
+            "initial_velocity": [
+              7,
+              31
+            ],
+            "mode": "guard_bounce"
+          }
+        }
+      ],
+      "rejected_previews": [],
+      "timing": {
+        "name": "kroni_gremory_01_tempo_no_hunger",
+        "decision_ms": 1281.480458,
+        "simulation_ms": 12569.495086
+      },
+      "archived_sha256": "cb442a8fea6ae719051dc7416c51b73c8e08d04a6c8afdfe7de47d34d8524809",
+      "kit_control": {
+        "action": "game_finished",
+        "round": 13,
+        "winner": 0,
+        "win_by": "Dominion"
+      },
+      "powerless_control": {
+        "action": "game_finished",
+        "round": 12,
+        "winner": 1,
+        "win_by": "Ritual"
+      }
+    },
+    {
+      "name": "kroni_humbaba_01_tempo",
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Kroni",
+          "Humbaba"
+        ],
+        "seed": "u13-tempo-roster-20260922:Humbaba:Kroni:01",
+        "tempo_experiment": "U13_VEIL_ATTACK_ROUND25_V1",
+        "ward_experiment": "U13_SPLIT_WARD_V1"
+      },
+      "kroni_seat": 0,
+      "opponent": "Humbaba",
+      "baseline": {
+        "action": "game_finished",
+        "round": 18,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 18,
+        "winner": 0,
+        "win_by": "Dominion"
+      },
+      "baseline_consume": [
+        {
+          "candidates": {
+            "generated": {
+              "measured_decisions": 18,
+              "total": 16
+            },
+            "retained": {
+              "measured_decisions": 18,
+              "total": 16
+            }
+          },
+          "category": "powers",
+          "decisions": 18,
+          "effect_records": 11,
+          "flags": {
+            "affordable": {
+              "false": 0,
+              "true": 12,
+              "unknown": 6
+            },
+            "legal": {
+              "false": 0,
+              "true": 12,
+              "unknown": 6
+            },
+            "opportunity": {
+              "false": 5,
+              "true": 13,
+              "unknown": 0
+            },
+            "selected": {
+              "false": 6,
+              "true": 12,
+              "unknown": 0
+            }
+          },
+          "lord": "Kroni",
+          "metrics": {
+            "guard_value": 35,
+            "guards_consumed": 11
+          },
+          "nonzero_effect_records": 11,
+          "opponent": "Humbaba",
+          "outcome_unobserved": 1,
+          "outcomes": {
+            "resolved": 11
+          },
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "reasons": {
+            "no_current_board_opportunity": 5,
+            "scoring_or_shared_budget": 1,
+            "selected": 12
+          },
+          "seat": 0,
+          "support": "supported",
+          "term": "Consume"
+        }
+      ],
+      "consume": [
+        {
+          "seat": 0,
+          "lord": "Kroni",
+          "opponent": "Humbaba",
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "category": "powers",
+          "term": "Consume",
+          "support": "supported",
+          "decisions": 18,
+          "flags": {
+            "opportunity": {
+              "true": 6,
+              "false": 12,
+              "unknown": 0
+            },
+            "legal": {
+              "true": 6,
+              "false": 0,
+              "unknown": 12
+            },
+            "affordable": {
+              "true": 6,
+              "false": 0,
+              "unknown": 12
+            },
+            "selected": {
+              "true": 6,
+              "false": 12,
+              "unknown": 0
+            }
+          },
+          "candidates": {
+            "generated": {
+              "measured_decisions": 18,
+              "total": 16
+            },
+            "retained": {
+              "measured_decisions": 18,
+              "total": 16
+            }
+          },
+          "reasons": {
+            "no_current_board_opportunity": 2,
+            "selected": 6,
+            "neutral_bounce_expected_meal": 10
+          },
+          "outcomes": {
+            "resolved": 6
+          },
+          "metrics": {
+            "guards_consumed": 6,
+            "guard_value": 19,
+            "enemy_guards_consumed": 5,
+            "friendly_guards_consumed": 1
+          },
+          "effect_records": 6,
+          "nonzero_effect_records": 6,
+          "outcome_unobserved": 0
+        }
+      ],
+      "baseline_victory_race": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 18,
+        "souls": [
+          5,
+          4
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 22,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "counts": {
+        "siege_targets_destroyed": 3,
+        "cannibal_guards": 11,
+        "ravenous_uses": 2,
+        "enemy_meals": 5,
+        "friendly_meals": 1
+      },
+      "meals": [
+        {
+          "round": 3,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:1:6",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                15,
+                395
+              ],
+              [
+                993,
+                171
+              ],
+              [
+                218,
+                4
+              ],
+              [
+                30,
+                60
+              ],
+              [
+                61,
+                67
+              ]
+            ],
+            "ticks": 81,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -31,
+              -7
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 4,
+          "enemy": false,
+          "lane": "Lord",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:1:8",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                992,
+                626
+              ],
+              [
+                31,
+                857
+              ],
+              [
+                682,
+                996
+              ],
+              [
+                977,
+                919
+              ],
+              [
+                15,
+                695
+              ],
+              [
+                77,
+                681
+              ]
+            ],
+            "ticks": 117,
+            "initial_enemy": false,
+            "initial_velocity": [
+              31,
+              7
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 5,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 4,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:2:13",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                331,
+                973
+              ],
+              [
+                107,
+                19
+              ],
+              [
+                93,
+                81
+              ]
+            ],
+            "ticks": 51,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -7,
+              31
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 8,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 4,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:2:12",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                684,
+                22
+              ],
+              [
+                840,
+                370
+              ]
+            ],
+            "ticks": 30,
+            "initial_enemy": true,
+            "initial_velocity": [
+              13,
+              -29
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 10,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 1,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:1:2",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                682,
+                396
+              ]
+            ],
+            "ticks": 8,
+            "initial_enemy": true,
+            "initial_velocity": [
+              29,
+              -13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 11,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:2:16",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                569,
+                973
+              ],
+              [
+                695,
+                415
+              ]
+            ],
+            "ticks": 35,
+            "initial_enemy": false,
+            "initial_velocity": [
+              7,
+              31
+            ],
+            "mode": "guard_bounce"
+          }
+        }
+      ],
+      "rejected_previews": [],
+      "timing": {
+        "name": "kroni_humbaba_01_tempo_no_hunger",
+        "decision_ms": 2901.504673,
+        "simulation_ms": 31845.682948
+      },
+      "archived_sha256": "2a23d110b8e32fc10d17d15a08d760dd64502038c0efa9c18fa65288d5e23d50",
+      "kit_control": {
+        "action": "game_finished",
+        "round": 14,
+        "winner": 0,
+        "win_by": "Ritual"
+      },
+      "powerless_control": {
+        "action": "game_finished",
+        "round": 19,
+        "winner": 1,
+        "win_by": "Dominion"
+      }
+    },
+    {
+      "name": "kroni_kalligan_01_tempo",
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Kroni",
+          "Kalligan"
+        ],
+        "seed": "u13-tempo-roster-20260922:Kalligan:Kroni:01",
+        "tempo_experiment": "U13_VEIL_ATTACK_ROUND25_V1",
+        "ward_experiment": "U13_SPLIT_WARD_V1"
+      },
+      "kroni_seat": 0,
+      "opponent": "Kalligan",
+      "baseline": {
+        "action": "game_finished",
+        "round": 16,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 10,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "baseline_consume": [
+        {
+          "candidates": {
+            "generated": {
+              "measured_decisions": 16,
+              "total": 18
+            },
+            "retained": {
+              "measured_decisions": 16,
+              "total": 17
+            }
+          },
+          "category": "powers",
+          "decisions": 16,
+          "effect_records": 8,
+          "flags": {
+            "affordable": {
+              "false": 0,
+              "true": 9,
+              "unknown": 7
+            },
+            "legal": {
+              "false": 0,
+              "true": 9,
+              "unknown": 7
+            },
+            "opportunity": {
+              "false": 3,
+              "true": 13,
+              "unknown": 0
+            },
+            "selected": {
+              "false": 7,
+              "true": 9,
+              "unknown": 0
+            }
+          },
+          "lord": "Kroni",
+          "metrics": {
+            "guard_value": 35,
+            "guards_consumed": 8
+          },
+          "nonzero_effect_records": 8,
+          "opponent": "Kalligan",
+          "outcome_unobserved": 0,
+          "outcomes": {
+            "fizzled": 1,
+            "resolved": 8
+          },
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "reasons": {
+            "no_current_board_opportunity": 3,
+            "scoring_or_shared_budget": 3,
+            "selected": 9,
+            "source_banished": 1
+          },
+          "seat": 0,
+          "support": "supported",
+          "term": "Consume"
+        }
+      ],
+      "consume": [
+        {
+          "seat": 0,
+          "lord": "Kroni",
+          "opponent": "Kalligan",
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "category": "powers",
+          "term": "Consume",
+          "support": "supported",
+          "decisions": 10,
+          "flags": {
+            "opportunity": {
+              "true": 7,
+              "false": 3,
+              "unknown": 0
+            },
+            "legal": {
+              "true": 6,
+              "false": 0,
+              "unknown": 4
+            },
+            "affordable": {
+              "true": 6,
+              "false": 0,
+              "unknown": 4
+            },
+            "selected": {
+              "true": 6,
+              "false": 4,
+              "unknown": 0
+            }
+          },
+          "candidates": {
+            "generated": {
+              "measured_decisions": 10,
+              "total": 8
+            },
+            "retained": {
+              "measured_decisions": 10,
+              "total": 8
+            }
+          },
+          "reasons": {
+            "no_current_board_opportunity": 2,
+            "neutral_bounce_expected_meal": 1,
+            "selected": 6,
+            "scoring_or_shared_budget": 1
+          },
+          "outcomes": {
+            "resolved": 6
+          },
+          "metrics": {
+            "guards_consumed": 6,
+            "guard_value": 24,
+            "enemy_guards_consumed": 5,
+            "friendly_guards_consumed": 1
+          },
+          "effect_records": 6,
+          "nonzero_effect_records": 6,
+          "outcome_unobserved": 0
+        }
+      ],
+      "baseline_victory_race": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 16,
+        "souls": [
+          3,
+          6
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 23,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "counts": {
+        "siege_targets_destroyed": 1,
+        "cannibal_guards": 2,
+        "ravenous_uses": 3,
+        "friendly_meals": 1,
+        "enemy_meals": 5,
+        "ravenous_rewards": 1
+      },
+      "meals": [
+        {
+          "round": 5,
+          "enemy": false,
+          "lane": "Castle",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:2:10",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                569,
+                27
+              ],
+              [
+                695,
+                585
+              ]
+            ],
+            "ticks": 35,
+            "initial_enemy": true,
+            "initial_velocity": [
+              7,
+              -31
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 6,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:2:16",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                868,
+                6
+              ],
+              [
+                999,
+                167
+              ],
+              [
+                828,
+                374
+              ]
+            ],
+            "ticks": 38,
+            "initial_enemy": true,
+            "initial_velocity": [
+              19,
+              -23
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 7,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 4,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:2:14",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                569,
+                27
+              ],
+              [
+                793,
+                981
+              ],
+              [
+                912,
+                454
+              ]
+            ],
+            "ticks": 66,
+            "initial_enemy": true,
+            "initial_velocity": [
+              7,
+              -31
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 8,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 4,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:2:13",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                331,
+                973
+              ],
+              [
+                107,
+                19
+              ],
+              [
+                93,
+                81
+              ]
+            ],
+            "ticks": 51,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -7,
+              31
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 9,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:2:15",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                32,
+                6
+              ],
+              [
+                6,
+                52
+              ],
+              [
+                804,
+                982
+              ],
+              [
+                987,
+                729
+              ],
+              [
+                379,
+                7
+              ],
+              [
+                94,
+                352
+              ]
+            ],
+            "ticks": 124,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -19,
+              -23
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 10,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:2:11",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                868,
+                6
+              ],
+              [
+                999,
+                167
+              ],
+              [
+                296,
+                982
+              ],
+              [
+                8,
+                614
+              ],
+              [
+                521,
+                7
+              ],
+              [
+                985,
+                605
+              ],
+              [
+                643,
+                981
+              ],
+              [
+                111,
+                337
+              ]
+            ],
+            "ticks": 181,
+            "initial_enemy": true,
+            "initial_velocity": [
+              19,
+              -23
+            ],
+            "mode": "guard_bounce"
+          }
+        }
+      ],
+      "rejected_previews": [],
+      "timing": {
+        "name": "kroni_kalligan_01_tempo_no_hunger",
+        "decision_ms": 942.916392,
+        "simulation_ms": 8090.156647
+      },
+      "archived_sha256": "00ef97f7d011c295381589ffc82f795754fd6aaecf980c13a229f76151b6b54a",
+      "kit_control": {
+        "action": "game_finished",
+        "round": 10,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "powerless_control": {
+        "action": "game_finished",
+        "round": 17,
+        "winner": 1,
+        "win_by": "Dominion"
+      }
+    },
+    {
+      "name": "kroni_kanifous_01_tempo",
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Kroni",
+          "Kanifous"
+        ],
+        "seed": "u13-tempo-roster-20260922:Kanifous:Kroni:01",
+        "tempo_experiment": "U13_VEIL_ATTACK_ROUND25_V1",
+        "ward_experiment": "U13_SPLIT_WARD_V1"
+      },
+      "kroni_seat": 0,
+      "opponent": "Kanifous",
+      "baseline": {
+        "action": "game_finished",
+        "round": 16,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 15,
+        "winner": 1,
+        "win_by": "Dominion"
+      },
+      "baseline_consume": [
+        {
+          "candidates": {
+            "generated": {
+              "measured_decisions": 16,
+              "total": 12
+            },
+            "retained": {
+              "measured_decisions": 16,
+              "total": 12
+            }
+          },
+          "category": "powers",
+          "decisions": 16,
+          "effect_records": 8,
+          "flags": {
+            "affordable": {
+              "false": 0,
+              "true": 8,
+              "unknown": 8
+            },
+            "legal": {
+              "false": 0,
+              "true": 8,
+              "unknown": 8
+            },
+            "opportunity": {
+              "false": 4,
+              "true": 12,
+              "unknown": 0
+            },
+            "selected": {
+              "false": 8,
+              "true": 8,
+              "unknown": 0
+            }
+          },
+          "lord": "Kroni",
+          "metrics": {
+            "guard_value": 28,
+            "guards_consumed": 8
+          },
+          "nonzero_effect_records": 8,
+          "opponent": "Kanifous",
+          "outcome_unobserved": 0,
+          "outcomes": {
+            "resolved": 8
+          },
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "reasons": {
+            "no_current_board_opportunity": 4,
+            "scoring_or_shared_budget": 4,
+            "selected": 8
+          },
+          "seat": 0,
+          "support": "supported",
+          "term": "Consume"
+        }
+      ],
+      "consume": [
+        {
+          "seat": 0,
+          "lord": "Kroni",
+          "opponent": "Kanifous",
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "category": "powers",
+          "term": "Consume",
+          "support": "supported",
+          "decisions": 15,
+          "flags": {
+            "opportunity": {
+              "true": 8,
+              "false": 7,
+              "unknown": 0
+            },
+            "legal": {
+              "true": 7,
+              "false": 0,
+              "unknown": 8
+            },
+            "affordable": {
+              "true": 7,
+              "false": 0,
+              "unknown": 8
+            },
+            "selected": {
+              "true": 7,
+              "false": 8,
+              "unknown": 0
+            }
+          },
+          "candidates": {
+            "generated": {
+              "measured_decisions": 15,
+              "total": 11
+            },
+            "retained": {
+              "measured_decisions": 15,
+              "total": 11
+            }
+          },
+          "reasons": {
+            "no_current_board_opportunity": 4,
+            "selected": 7,
+            "neutral_bounce_expected_meal": 3,
+            "scoring_or_shared_budget": 1
+          },
+          "outcomes": {
+            "resolved": 6
+          },
+          "metrics": {
+            "guards_consumed": 6,
+            "guard_value": 24,
+            "enemy_guards_consumed": 5,
+            "friendly_guards_consumed": 1
+          },
+          "effect_records": 6,
+          "nonzero_effect_records": 6,
+          "outcome_unobserved": 1
+        }
+      ],
+      "baseline_victory_race": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          4
+        ],
+        "personal_tears_tied": true,
+        "round": 16,
+        "souls": [
+          12,
+          6
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 20,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "counts": {
+        "siege_targets_destroyed": 2,
+        "ravenous_uses": 5,
+        "enemy_meals": 5,
+        "cannibal_guards": 4,
+        "ravenous_rewards": 2,
+        "friendly_meals": 1
+      },
+      "meals": [
+        {
+          "round": 3,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:2:16",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                868,
+                6
+              ],
+              [
+                999,
+                167
+              ],
+              [
+                296,
+                982
+              ],
+              [
+                8,
+                614
+              ],
+              [
+                521,
+                7
+              ],
+              [
+                985,
+                605
+              ],
+              [
+                643,
+                981
+              ],
+              [
+                35,
+                245
+              ]
+            ],
+            "ticks": 185,
+            "initial_enemy": true,
+            "initial_velocity": [
+              19,
+              -23
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 4,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:1:4",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                216,
+                978
+              ],
+              [
+                5,
+                485
+              ],
+              [
+                226,
+                8
+              ],
+              [
+                681,
+                977
+              ],
+              [
+                994,
+                252
+              ],
+              [
+                877,
+                9
+              ],
+              [
+                422,
+                976
+              ],
+              [
+                7,
+                19
+              ],
+              [
+                20,
+                10
+              ],
+              [
+                59,
+                97
+              ]
+            ],
+            "ticks": 193,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -13,
+              29
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 10,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:2:17",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                216,
+                22
+              ],
+              [
+                112,
+                254
+              ]
+            ],
+            "ticks": 26,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -13,
+              -29
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 11,
+          "enemy": false,
+          "lane": "Castle",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:2:10",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                698,
+                556
+              ]
+            ],
+            "ticks": 8,
+            "initial_enemy": false,
+            "initial_velocity": [
+              31,
+              7
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 14,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:2:16",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                998,
+                956
+              ],
+              [
+                929,
+                987
+              ],
+              [
+                55,
+                265
+              ]
+            ],
+            "ticks": 65,
+            "initial_enemy": false,
+            "initial_velocity": [
+              23,
+              19
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 15,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 4,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:2:12",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                999,
+                747
+              ],
+              [
+                419,
+                993
+              ],
+              [
+                16,
+                798
+              ],
+              [
+                799,
+                447
+              ]
+            ],
+            "ticks": 81,
+            "initial_enemy": false,
+            "initial_velocity": [
+              29,
+              13
+            ],
+            "mode": "guard_bounce"
+          }
+        }
+      ],
+      "rejected_previews": [],
+      "timing": {
+        "name": "kroni_kanifous_01_tempo_no_hunger",
+        "decision_ms": 2231.049449,
+        "simulation_ms": 23488.347154
+      },
+      "archived_sha256": "53c38e3d1b3ec1a46efc1b22dc1c196560f47cfcf33f8dadb7f0bb5968b204e9",
+      "kit_control": {
+        "action": "game_finished",
+        "round": 13,
+        "winner": 1,
+        "win_by": "Dominion"
+      },
+      "powerless_control": {
+        "action": "game_finished",
+        "round": 21,
+        "winner": 1,
+        "win_by": "Ritual"
+      }
+    },
+    {
+      "name": "kroni_odradek_01_tempo",
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Kroni",
+          "Odradek"
+        ],
+        "seed": "u13-tempo-roster-20260922:Kroni:Odradek:01",
+        "tempo_experiment": "U13_VEIL_ATTACK_ROUND25_V1",
+        "ward_experiment": "U13_SPLIT_WARD_V1"
+      },
+      "kroni_seat": 0,
+      "opponent": "Odradek",
+      "baseline": {
+        "action": "game_finished",
+        "round": 15,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 17,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "baseline_consume": [
+        {
+          "candidates": {
+            "generated": {
+              "measured_decisions": 15,
+              "total": 15
+            },
+            "retained": {
+              "measured_decisions": 15,
+              "total": 15
+            }
+          },
+          "category": "powers",
+          "decisions": 15,
+          "effect_records": 12,
+          "flags": {
+            "affordable": {
+              "false": 0,
+              "true": 12,
+              "unknown": 3
+            },
+            "legal": {
+              "false": 0,
+              "true": 12,
+              "unknown": 3
+            },
+            "opportunity": {
+              "false": 3,
+              "true": 12,
+              "unknown": 0
+            },
+            "selected": {
+              "false": 3,
+              "true": 12,
+              "unknown": 0
+            }
+          },
+          "lord": "Kroni",
+          "metrics": {
+            "guard_value": 42,
+            "guards_consumed": 12
+          },
+          "nonzero_effect_records": 12,
+          "opponent": "Odradek",
+          "outcome_unobserved": 0,
+          "outcomes": {
+            "resolved": 12
+          },
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "reasons": {
+            "no_current_board_opportunity": 3,
+            "selected": 12
+          },
+          "seat": 0,
+          "support": "supported",
+          "term": "Consume"
+        }
+      ],
+      "consume": [
+        {
+          "seat": 0,
+          "lord": "Kroni",
+          "opponent": "Odradek",
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "category": "powers",
+          "term": "Consume",
+          "support": "supported",
+          "decisions": 17,
+          "flags": {
+            "opportunity": {
+              "true": 15,
+              "false": 2,
+              "unknown": 0
+            },
+            "legal": {
+              "true": 13,
+              "false": 0,
+              "unknown": 4
+            },
+            "affordable": {
+              "true": 13,
+              "false": 0,
+              "unknown": 4
+            },
+            "selected": {
+              "true": 13,
+              "false": 4,
+              "unknown": 0
+            }
+          },
+          "candidates": {
+            "generated": {
+              "measured_decisions": 17,
+              "total": 16
+            },
+            "retained": {
+              "measured_decisions": 17,
+              "total": 16
+            }
+          },
+          "reasons": {
+            "no_current_board_opportunity": 1,
+            "selected": 13,
+            "scoring_or_shared_budget": 2,
+            "neutral_bounce_expected_meal": 1
+          },
+          "outcomes": {
+            "resolved": 12
+          },
+          "metrics": {
+            "guards_consumed": 12,
+            "guard_value": 37,
+            "enemy_guards_consumed": 7,
+            "friendly_guards_consumed": 5
+          },
+          "effect_records": 12,
+          "nonzero_effect_records": 12,
+          "outcome_unobserved": 1
+        }
+      ],
+      "baseline_victory_race": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 15,
+        "souls": [
+          6,
+          5
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 20,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "counts": {
+        "siege_targets_destroyed": 0,
+        "cannibal_guards": 4,
+        "friendly_meals": 5,
+        "enemy_meals": 7,
+        "ravenous_uses": 4,
+        "ravenous_rewards": 2
+      },
+      "meals": [
+        {
+          "round": 3,
+          "enemy": false,
+          "lane": "Lord",
+          "value": 4,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:2:14",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                14,
+                708
+              ],
+              [
+                72,
+                734
+              ]
+            ],
+            "ticks": 18,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -29,
+              13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 4,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 1,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:1:2",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                682,
+                396
+              ]
+            ],
+            "ticks": 8,
+            "initial_enemy": true,
+            "initial_velocity": [
+              29,
+              -13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 5,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:1:8",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                682,
+                396
+              ]
+            ],
+            "ticks": 8,
+            "initial_enemy": true,
+            "initial_velocity": [
+              29,
+              -13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 6,
+          "enemy": false,
+          "lane": "Lord",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:1:9",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                216,
+                978
+              ],
+              [
+                112,
+                746
+              ]
+            ],
+            "ticks": 26,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -13,
+              29
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 8,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 1,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:1:1",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                682,
+                396
+              ]
+            ],
+            "ticks": 8,
+            "initial_enemy": true,
+            "initial_velocity": [
+              29,
+              -13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 9,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:1:9",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                108,
+                86
+              ]
+            ],
+            "ticks": 18,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -19,
+              -23
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 10,
+          "enemy": false,
+          "lane": "Castle",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:2:11",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                684,
+                22
+              ],
+              [
+                991,
+                747
+              ],
+              [
+                874,
+                992
+              ],
+              [
+                705,
+                615
+              ]
+            ],
+            "ticks": 65,
+            "initial_enemy": true,
+            "initial_velocity": [
+              13,
+              -29
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 11,
+          "enemy": false,
+          "lane": "Castle",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:1:5",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                998,
+                44
+              ],
+              [
+                929,
+                13
+              ],
+              [
+                14,
+                792
+              ],
+              [
+                267,
+                999
+              ],
+              [
+                727,
+                619
+              ]
+            ],
+            "ticks": 99,
+            "initial_enemy": true,
+            "initial_velocity": [
+              23,
+              -19
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 12,
+          "enemy": false,
+          "lane": "Lord",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:1:9",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                105,
+                785
+              ]
+            ],
+            "ticks": 15,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -23,
+              19
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 14,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 4,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:2:13",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                108,
+                86
+              ]
+            ],
+            "ticks": 18,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -19,
+              -23
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 16,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:2:17",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                105,
+                215
+              ]
+            ],
+            "ticks": 15,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -23,
+              -19
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 17,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:2:17",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                998,
+                956
+              ],
+              [
+                929,
+                987
+              ],
+              [
+                14,
+                208
+              ],
+              [
+                106,
+                132
+              ]
+            ],
+            "ticks": 72,
+            "initial_enemy": false,
+            "initial_velocity": [
+              23,
+              19
+            ],
+            "mode": "guard_bounce"
+          }
+        }
+      ],
+      "rejected_previews": [],
+      "timing": {
+        "name": "kroni_odradek_01_tempo_no_hunger",
+        "decision_ms": 2984.45431,
+        "simulation_ms": 24063.502434
+      },
+      "archived_sha256": "4a9137075018e85fe2ddd25d06ff4a8d552d1fde5d268780588b8eb1f250da9a",
+      "kit_control": {
+        "action": "game_finished",
+        "round": 17,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "powerless_control": {
+        "action": "game_finished",
+        "round": 16,
+        "winner": 1,
+        "win_by": "Ritual"
+      }
+    },
+    {
+      "name": "kroni_orias_01_tempo",
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Kroni",
+          "Orias"
+        ],
+        "seed": "u13-tempo-roster-20260922:Kroni:Orias:01",
+        "tempo_experiment": "U13_VEIL_ATTACK_ROUND25_V1",
+        "ward_experiment": "U13_SPLIT_WARD_V1"
+      },
+      "kroni_seat": 0,
+      "opponent": "Orias",
+      "baseline": {
+        "action": "game_finished",
+        "round": 20,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 12,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "baseline_consume": [
+        {
+          "candidates": {
+            "generated": {
+              "measured_decisions": 20,
+              "total": 16
+            },
+            "retained": {
+              "measured_decisions": 20,
+              "total": 15
+            }
+          },
+          "category": "powers",
+          "decisions": 20,
+          "effect_records": 8,
+          "flags": {
+            "affordable": {
+              "false": 0,
+              "true": 9,
+              "unknown": 11
+            },
+            "legal": {
+              "false": 0,
+              "true": 9,
+              "unknown": 11
+            },
+            "opportunity": {
+              "false": 5,
+              "true": 15,
+              "unknown": 0
+            },
+            "selected": {
+              "false": 11,
+              "true": 9,
+              "unknown": 0
+            }
+          },
+          "lord": "Kroni",
+          "metrics": {
+            "guard_value": 29,
+            "guards_consumed": 8
+          },
+          "nonzero_effect_records": 8,
+          "opponent": "Orias",
+          "outcome_unobserved": 0,
+          "outcomes": {
+            "fizzled": 1,
+            "resolved": 8
+          },
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "reasons": {
+            "no_current_board_opportunity": 5,
+            "scoring_or_shared_budget": 5,
+            "selected": 9,
+            "source_banished": 1
+          },
+          "seat": 0,
+          "support": "supported",
+          "term": "Consume"
+        }
+      ],
+      "consume": [
+        {
+          "seat": 0,
+          "lord": "Kroni",
+          "opponent": "Orias",
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "category": "powers",
+          "term": "Consume",
+          "support": "supported",
+          "decisions": 12,
+          "flags": {
+            "opportunity": {
+              "true": 7,
+              "false": 5,
+              "unknown": 0
+            },
+            "legal": {
+              "true": 7,
+              "false": 0,
+              "unknown": 5
+            },
+            "affordable": {
+              "true": 7,
+              "false": 0,
+              "unknown": 5
+            },
+            "selected": {
+              "true": 7,
+              "false": 5,
+              "unknown": 0
+            }
+          },
+          "candidates": {
+            "generated": {
+              "measured_decisions": 12,
+              "total": 11
+            },
+            "retained": {
+              "measured_decisions": 12,
+              "total": 11
+            }
+          },
+          "reasons": {
+            "no_current_board_opportunity": 1,
+            "selected": 7,
+            "neutral_bounce_expected_meal": 4
+          },
+          "outcomes": {
+            "resolved": 6
+          },
+          "metrics": {
+            "guards_consumed": 6,
+            "guard_value": 22,
+            "enemy_guards_consumed": 5,
+            "friendly_guards_consumed": 1
+          },
+          "effect_records": 6,
+          "nonzero_effect_records": 6,
+          "outcome_unobserved": 1
+        }
+      ],
+      "baseline_victory_race": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 20,
+        "souls": [
+          3,
+          12
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 29,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "counts": {
+        "siege_targets_destroyed": 1,
+        "cannibal_guards": 5,
+        "enemy_meals": 5,
+        "ravenous_uses": 2,
+        "friendly_meals": 1,
+        "ravenous_rewards": 1
+      },
+      "meals": [
+        {
+          "round": 3,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:2:17",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                216,
+                22
+              ],
+              [
+                112,
+                254
+              ]
+            ],
+            "ticks": 26,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -13,
+              -29
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 5,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:2:15",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                10,
+                120
+              ],
+              [
+                56,
+                82
+              ]
+            ],
+            "ticks": 22,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -23,
+              -19
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 7,
+          "enemy": false,
+          "lane": "Lord",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:2:17",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                331,
+                27
+              ],
+              [
+                107,
+                981
+              ],
+              [
+                93,
+                919
+              ]
+            ],
+            "ticks": 51,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -7,
+              -31
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 8,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:2:11",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                216,
+                22
+              ],
+              [
+                112,
+                254
+              ]
+            ],
+            "ticks": 26,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -13,
+              -29
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 10,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:1:4",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                108,
+                86
+              ]
+            ],
+            "ticks": 18,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -19,
+              -23
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 11,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:1:4",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                868,
+                994
+              ],
+              [
+                999,
+                833
+              ],
+              [
+                296,
+                18
+              ],
+              [
+                106,
+                248
+              ]
+            ],
+            "ticks": 76,
+            "initial_enemy": false,
+            "initial_velocity": [
+              19,
+              23
+            ],
+            "mode": "guard_bounce"
+          }
+        }
+      ],
+      "rejected_previews": [],
+      "timing": {
+        "name": "kroni_orias_01_tempo_no_hunger",
+        "decision_ms": 2020.074926,
+        "simulation_ms": 17731.608106
+      },
+      "archived_sha256": "d381cadd6b1b64b4cb727fbb8d1a51a23c3d07c548197c712a3e9a3e0a7ca046",
+      "kit_control": {
+        "action": "game_finished",
+        "round": 13,
+        "winner": 0,
+        "win_by": "Dominion"
+      },
+      "powerless_control": {
+        "action": "game_finished",
+        "round": 18,
+        "winner": 1,
+        "win_by": "Ritual"
+      }
+    },
+    {
+      "name": "kroni_valak_01_tempo",
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Kroni",
+          "Valak"
+        ],
+        "seed": "u13-tempo-roster-20260922:Kroni:Valak:01",
+        "tempo_experiment": "U13_VEIL_ATTACK_ROUND25_V1",
+        "ward_experiment": "U13_SPLIT_WARD_V1"
+      },
+      "kroni_seat": 0,
+      "opponent": "Valak",
+      "baseline": {
+        "action": "game_finished",
+        "round": 18,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 11,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "baseline_consume": [
+        {
+          "candidates": {
+            "generated": {
+              "measured_decisions": 18,
+              "total": 18
+            },
+            "retained": {
+              "measured_decisions": 18,
+              "total": 18
+            }
+          },
+          "category": "powers",
+          "decisions": 18,
+          "effect_records": 14,
+          "flags": {
+            "affordable": {
+              "false": 0,
+              "true": 15,
+              "unknown": 3
+            },
+            "legal": {
+              "false": 0,
+              "true": 15,
+              "unknown": 3
+            },
+            "opportunity": {
+              "false": 3,
+              "true": 15,
+              "unknown": 0
+            },
+            "selected": {
+              "false": 3,
+              "true": 15,
+              "unknown": 0
+            }
+          },
+          "lord": "Kroni",
+          "metrics": {
+            "guard_value": 50,
+            "guards_consumed": 14
+          },
+          "nonzero_effect_records": 14,
+          "opponent": "Valak",
+          "outcome_unobserved": 1,
+          "outcomes": {
+            "resolved": 14
+          },
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "reasons": {
+            "no_current_board_opportunity": 3,
+            "selected": 15
+          },
+          "seat": 0,
+          "support": "supported",
+          "term": "Consume"
+        }
+      ],
+      "consume": [
+        {
+          "seat": 0,
+          "lord": "Kroni",
+          "opponent": "Valak",
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "category": "powers",
+          "term": "Consume",
+          "support": "supported",
+          "decisions": 11,
+          "flags": {
+            "opportunity": {
+              "true": 8,
+              "false": 3,
+              "unknown": 0
+            },
+            "legal": {
+              "true": 6,
+              "false": 0,
+              "unknown": 5
+            },
+            "affordable": {
+              "true": 6,
+              "false": 0,
+              "unknown": 5
+            },
+            "selected": {
+              "true": 6,
+              "false": 5,
+              "unknown": 0
+            }
+          },
+          "candidates": {
+            "generated": {
+              "measured_decisions": 11,
+              "total": 10
+            },
+            "retained": {
+              "measured_decisions": 11,
+              "total": 8
+            }
+          },
+          "reasons": {
+            "no_current_board_opportunity": 1,
+            "selected": 6,
+            "neutral_bounce_expected_meal": 2,
+            "source_banished": 2
+          },
+          "outcomes": {
+            "resolved": 3,
+            "fizzled": 2
+          },
+          "metrics": {
+            "guards_consumed": 3,
+            "guard_value": 10,
+            "enemy_guards_consumed": 2,
+            "friendly_guards_consumed": 1
+          },
+          "effect_records": 3,
+          "nonzero_effect_records": 3,
+          "outcome_unobserved": 1
+        }
+      ],
+      "baseline_victory_race": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 18,
+        "souls": [
+          5,
+          4
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 27,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "counts": {
+        "siege_targets_destroyed": 1,
+        "cannibal_guards": 5,
+        "enemy_meals": 2,
+        "ravenous_uses": 2,
+        "friendly_meals": 1
+      },
+      "meals": [
+        {
+          "round": 3,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:1:4",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                108,
+                86
+              ]
+            ],
+            "ticks": 18,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -19,
+              -23
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 10,
+          "enemy": false,
+          "lane": "Castle",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:2:10",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                569,
+                27
+              ],
+              [
+                695,
+                585
+              ]
+            ],
+            "ticks": 35,
+            "initial_enemy": true,
+            "initial_velocity": [
+              7,
+              -31
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 11,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:2:17",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                15,
+                395
+              ],
+              [
+                993,
+                171
+              ],
+              [
+                218,
+                4
+              ],
+              [
+                30,
+                60
+              ],
+              [
+                61,
+                67
+              ]
+            ],
+            "ticks": 81,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -31,
+              -7
+            ],
+            "mode": "guard_bounce"
+          }
+        }
+      ],
+      "rejected_previews": [],
+      "timing": {
+        "name": "kroni_valak_01_tempo_no_hunger",
+        "decision_ms": 987.215888,
+        "simulation_ms": 9977.891984
+      },
+      "archived_sha256": "94ddb15554a818e3e27a0145a7fb7d8f52ebd3175297459433fef83e435706c5",
+      "kit_control": {
+        "action": "game_finished",
+        "round": 17,
+        "winner": 0,
+        "win_by": "Dominion"
+      },
+      "powerless_control": {
+        "action": "game_finished",
+        "round": 19,
+        "winner": 1,
+        "win_by": "Ritual"
+      }
+    },
+    {
+      "name": "odradek_kroni_01_tempo",
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Odradek",
+          "Kroni"
+        ],
+        "seed": "u13-tempo-roster-20260922:Kroni:Odradek:01",
+        "tempo_experiment": "U13_VEIL_ATTACK_ROUND25_V1",
+        "ward_experiment": "U13_SPLIT_WARD_V1"
+      },
+      "kroni_seat": 1,
+      "opponent": "Odradek",
+      "baseline": {
+        "action": "game_finished",
+        "round": 10,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 13,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "baseline_consume": [
+        {
+          "candidates": {
+            "generated": {
+              "measured_decisions": 10,
+              "total": 6
+            },
+            "retained": {
+              "measured_decisions": 10,
+              "total": 6
+            }
+          },
+          "category": "powers",
+          "decisions": 10,
+          "effect_records": 5,
+          "flags": {
+            "affordable": {
+              "false": 0,
+              "true": 5,
+              "unknown": 5
+            },
+            "legal": {
+              "false": 0,
+              "true": 5,
+              "unknown": 5
+            },
+            "opportunity": {
+              "false": 4,
+              "true": 6,
+              "unknown": 0
+            },
+            "selected": {
+              "false": 5,
+              "true": 5,
+              "unknown": 0
+            }
+          },
+          "lord": "Kroni",
+          "metrics": {
+            "guard_value": 18,
+            "guards_consumed": 5
+          },
+          "nonzero_effect_records": 5,
+          "opponent": "Odradek",
+          "outcome_unobserved": 0,
+          "outcomes": {
+            "resolved": 5
+          },
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "reasons": {
+            "no_current_board_opportunity": 4,
+            "scoring_or_shared_budget": 1,
+            "selected": 5
+          },
+          "seat": 1,
+          "support": "supported",
+          "term": "Consume"
+        }
+      ],
+      "consume": [
+        {
+          "seat": 1,
+          "lord": "Kroni",
+          "opponent": "Odradek",
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "category": "powers",
+          "term": "Consume",
+          "support": "supported",
+          "decisions": 13,
+          "flags": {
+            "opportunity": {
+              "true": 8,
+              "false": 5,
+              "unknown": 0
+            },
+            "legal": {
+              "true": 8,
+              "false": 0,
+              "unknown": 5
+            },
+            "affordable": {
+              "true": 8,
+              "false": 0,
+              "unknown": 5
+            },
+            "selected": {
+              "true": 8,
+              "false": 5,
+              "unknown": 0
+            }
+          },
+          "candidates": {
+            "generated": {
+              "measured_decisions": 13,
+              "total": 12
+            },
+            "retained": {
+              "measured_decisions": 13,
+              "total": 12
+            }
+          },
+          "reasons": {
+            "no_current_board_opportunity": 1,
+            "selected": 8,
+            "neutral_bounce_expected_meal": 4
+          },
+          "outcomes": {
+            "resolved": 8
+          },
+          "metrics": {
+            "guards_consumed": 8,
+            "guard_value": 24,
+            "enemy_guards_consumed": 7,
+            "friendly_guards_consumed": 1
+          },
+          "effect_records": 8,
+          "nonzero_effect_records": 8,
+          "outcome_unobserved": 0
+        }
+      ],
+      "baseline_victory_race": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 10,
+        "souls": [
+          0,
+          12
+        ],
+        "veil_short_of_twelve": 3,
+        "veil_total": 9,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "counts": {
+        "siege_targets_destroyed": 3,
+        "cannibal_guards": 4,
+        "enemy_meals": 7,
+        "ravenous_uses": 3,
+        "ravenous_rewards": 3,
+        "friendly_meals": 1
+      },
+      "meals": [
+        {
+          "round": 3,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 4,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:2:14",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                10,
+                120
+              ],
+              [
+                171,
+                13
+              ],
+              [
+                978,
+                716
+              ],
+              [
+                633,
+                999
+              ],
+              [
+                11,
+                467
+              ],
+              [
+                586,
+                8
+              ],
+              [
+                977,
+                369
+              ],
+              [
+                195,
+                985
+              ],
+              [
+                12,
+                814
+              ],
+              [
+                58,
+                776
+              ]
+            ],
+            "ticks": 196,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -23,
+              -19
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 5,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:1:7",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                102,
+                656
+              ]
+            ],
+            "ticks": 12,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -29,
+              13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 6,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:1:4",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                698,
+                556
+              ]
+            ],
+            "ticks": 8,
+            "initial_enemy": true,
+            "initial_velocity": [
+              31,
+              7
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 7,
+          "enemy": false,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:1:5",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                331,
+                973
+              ],
+              [
+                107,
+                19
+              ],
+              [
+                93,
+                81
+              ]
+            ],
+            "ticks": 51,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -7,
+              31
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 8,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:1:5",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                569,
+                27
+              ],
+              [
+                695,
+                585
+              ]
+            ],
+            "ticks": 35,
+            "initial_enemy": false,
+            "initial_velocity": [
+              7,
+              -31
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 9,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 4,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:2:12",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                999,
+                747
+              ],
+              [
+                419,
+                993
+              ],
+              [
+                16,
+                798
+              ],
+              [
+                45,
+                785
+              ]
+            ],
+            "ticks": 55,
+            "initial_enemy": true,
+            "initial_velocity": [
+              29,
+              13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 11,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:2:17",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                868,
+                994
+              ],
+              [
+                999,
+                833
+              ],
+              [
+                828,
+                626
+              ]
+            ],
+            "ticks": 38,
+            "initial_enemy": true,
+            "initial_velocity": [
+              19,
+              23
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 13,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:1:8",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                331,
+                27
+              ],
+              [
+                107,
+                981
+              ],
+              [
+                65,
+                795
+              ]
+            ],
+            "ticks": 55,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -7,
+              -31
+            ],
+            "mode": "guard_bounce"
+          }
+        }
+      ],
+      "rejected_previews": [],
+      "timing": {
+        "name": "odradek_kroni_01_tempo_no_hunger",
+        "decision_ms": 1673.529665,
+        "simulation_ms": 14494.180792
+      },
+      "archived_sha256": "4316c5e94b5183a831ba3a95f88309065f27cdfa2e3fb7f7217455e6dfceab98",
+      "kit_control": {
+        "action": "game_finished",
+        "round": 10,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "powerless_control": {
+        "action": "game_finished",
+        "round": 9,
+        "winner": 1,
+        "win_by": "Ritual"
+      }
+    },
+    {
+      "name": "orias_kroni_01_tempo",
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Orias",
+          "Kroni"
+        ],
+        "seed": "u13-tempo-roster-20260922:Kroni:Orias:01",
+        "tempo_experiment": "U13_VEIL_ATTACK_ROUND25_V1",
+        "ward_experiment": "U13_SPLIT_WARD_V1"
+      },
+      "kroni_seat": 1,
+      "opponent": "Orias",
+      "baseline": {
+        "action": "game_finished",
+        "round": 14,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 16,
+        "winner": 0,
+        "win_by": "Ritual"
+      },
+      "baseline_consume": [
+        {
+          "candidates": {
+            "generated": {
+              "measured_decisions": 14,
+              "total": 17
+            },
+            "retained": {
+              "measured_decisions": 14,
+              "total": 17
+            }
+          },
+          "category": "powers",
+          "decisions": 14,
+          "effect_records": 9,
+          "flags": {
+            "affordable": {
+              "false": 0,
+              "true": 10,
+              "unknown": 4
+            },
+            "legal": {
+              "false": 0,
+              "true": 10,
+              "unknown": 4
+            },
+            "opportunity": {
+              "false": 2,
+              "true": 12,
+              "unknown": 0
+            },
+            "selected": {
+              "false": 4,
+              "true": 10,
+              "unknown": 0
+            }
+          },
+          "lord": "Kroni",
+          "metrics": {
+            "guard_value": 37,
+            "guards_consumed": 9
+          },
+          "nonzero_effect_records": 9,
+          "opponent": "Orias",
+          "outcome_unobserved": 1,
+          "outcomes": {
+            "resolved": 9
+          },
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "reasons": {
+            "no_current_board_opportunity": 2,
+            "scoring_or_shared_budget": 2,
+            "selected": 10
+          },
+          "seat": 1,
+          "support": "supported",
+          "term": "Consume"
+        }
+      ],
+      "consume": [
+        {
+          "seat": 1,
+          "lord": "Kroni",
+          "opponent": "Orias",
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "category": "powers",
+          "term": "Consume",
+          "support": "supported",
+          "decisions": 16,
+          "flags": {
+            "opportunity": {
+              "true": 13,
+              "false": 3,
+              "unknown": 0
+            },
+            "legal": {
+              "true": 9,
+              "false": 0,
+              "unknown": 7
+            },
+            "affordable": {
+              "true": 9,
+              "false": 0,
+              "unknown": 7
+            },
+            "selected": {
+              "true": 9,
+              "false": 7,
+              "unknown": 0
+            }
+          },
+          "candidates": {
+            "generated": {
+              "measured_decisions": 16,
+              "total": 15
+            },
+            "retained": {
+              "measured_decisions": 16,
+              "total": 11
+            }
+          },
+          "reasons": {
+            "no_current_board_opportunity": 1,
+            "selected": 9,
+            "neutral_bounce_expected_meal": 2,
+            "source_banished": 4
+          },
+          "outcomes": {
+            "resolved": 5,
+            "fizzled": 4
+          },
+          "metrics": {
+            "guards_consumed": 5,
+            "guard_value": 15,
+            "enemy_guards_consumed": 3,
+            "friendly_guards_consumed": 2
+          },
+          "effect_records": 5,
+          "nonzero_effect_records": 5,
+          "outcome_unobserved": 0
+        }
+      ],
+      "baseline_victory_race": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          1,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          3,
+          1
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 14,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "counts": {
+        "siege_targets_destroyed": 2,
+        "cannibal_guards": 5,
+        "enemy_meals": 3,
+        "ravenous_uses": 2,
+        "friendly_meals": 2
+      },
+      "meals": [
+        {
+          "round": 3,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 1,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:1:3",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                32,
+                994
+              ],
+              [
+                6,
+                948
+              ],
+              [
+                804,
+                18
+              ],
+              [
+                987,
+                271
+              ],
+              [
+                740,
+                570
+              ]
+            ],
+            "ticks": 90,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -19,
+              23
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 5,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:2:17",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                10,
+                120
+              ],
+              [
+                171,
+                13
+              ],
+              [
+                838,
+                564
+              ]
+            ],
+            "ticks": 56,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -23,
+              -19
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 6,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 5,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:2:15",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                331,
+                973
+              ],
+              [
+                107,
+                19
+              ],
+              [
+                5,
+                515
+              ],
+              [
+                61,
+                763
+              ]
+            ],
+            "ticks": 73,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -7,
+              31
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 9,
+          "enemy": false,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:1:7",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                868,
+                994
+              ],
+              [
+                999,
+                833
+              ],
+              [
+                296,
+                18
+              ],
+              [
+                106,
+                248
+              ]
+            ],
+            "ticks": 76,
+            "initial_enemy": true,
+            "initial_velocity": [
+              19,
+              23
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 10,
+          "enemy": false,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:1:4",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                15,
+                395
+              ],
+              [
+                46,
+                388
+              ]
+            ],
+            "ticks": 16,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -31,
+              -7
+            ],
+            "mode": "guard_bounce"
+          }
+        }
+      ],
+      "rejected_previews": [],
+      "timing": {
+        "name": "orias_kroni_01_tempo_no_hunger",
+        "decision_ms": 1849.349786,
+        "simulation_ms": 12074.346441
+      },
+      "archived_sha256": "5233cb02d9b6d07d785d188f046cd3a97be6cd14f7d658060afcb2837138045d",
+      "kit_control": {
+        "action": "game_finished",
+        "round": 15,
+        "winner": 1,
+        "win_by": "Dominion"
+      },
+      "powerless_control": {
+        "action": "game_finished",
+        "round": 20,
+        "winner": 0,
+        "win_by": "Ritual"
+      }
+    },
+    {
+      "name": "valak_kroni_01_tempo",
+      "setup": {
+        "castles": [
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ],
+          [
+            "Keep",
+            "Stockpile",
+            "SummoningCircle",
+            "SiegeEngine",
+            "Bastion"
+          ]
+        ],
+        "lords": [
+          "Valak",
+          "Kroni"
+        ],
+        "seed": "u13-tempo-roster-20260922:Kroni:Valak:01",
+        "tempo_experiment": "U13_VEIL_ATTACK_ROUND25_V1",
+        "ward_experiment": "U13_SPLIT_WARD_V1"
+      },
+      "kroni_seat": 1,
+      "opponent": "Valak",
+      "baseline": {
+        "action": "game_finished",
+        "round": 13,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 22,
+        "winner": 0,
+        "win_by": "Ritual"
+      },
+      "baseline_consume": [
+        {
+          "candidates": {
+            "generated": {
+              "measured_decisions": 13,
+              "total": 12
+            },
+            "retained": {
+              "measured_decisions": 13,
+              "total": 12
+            }
+          },
+          "category": "powers",
+          "decisions": 13,
+          "effect_records": 10,
+          "flags": {
+            "affordable": {
+              "false": 0,
+              "true": 10,
+              "unknown": 3
+            },
+            "legal": {
+              "false": 0,
+              "true": 10,
+              "unknown": 3
+            },
+            "opportunity": {
+              "false": 3,
+              "true": 10,
+              "unknown": 0
+            },
+            "selected": {
+              "false": 3,
+              "true": 10,
+              "unknown": 0
+            }
+          },
+          "lord": "Kroni",
+          "metrics": {
+            "guard_value": 29,
+            "guards_consumed": 10
+          },
+          "nonzero_effect_records": 10,
+          "opponent": "Valak",
+          "outcome_unobserved": 0,
+          "outcomes": {
+            "resolved": 10
+          },
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "reasons": {
+            "no_current_board_opportunity": 3,
+            "selected": 10
+          },
+          "seat": 1,
+          "support": "supported",
+          "term": "Consume"
+        }
+      ],
+      "consume": [
+        {
+          "seat": 1,
+          "lord": "Kroni",
+          "opponent": "Valak",
+          "policy_id": "U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES",
+          "category": "powers",
+          "term": "Consume",
+          "support": "supported",
+          "decisions": 22,
+          "flags": {
+            "opportunity": {
+              "true": 16,
+              "false": 6,
+              "unknown": 0
+            },
+            "legal": {
+              "true": 13,
+              "false": 0,
+              "unknown": 9
+            },
+            "affordable": {
+              "true": 13,
+              "false": 0,
+              "unknown": 9
+            },
+            "selected": {
+              "true": 13,
+              "false": 9,
+              "unknown": 0
+            }
+          },
+          "candidates": {
+            "generated": {
+              "measured_decisions": 22,
+              "total": 18
+            },
+            "retained": {
+              "measured_decisions": 22,
+              "total": 18
+            }
+          },
+          "reasons": {
+            "no_current_board_opportunity": 4,
+            "selected": 13,
+            "neutral_bounce_expected_meal": 2,
+            "scoring_or_shared_budget": 3
+          },
+          "outcomes": {
+            "resolved": 13
+          },
+          "metrics": {
+            "guards_consumed": 13,
+            "guard_value": 26,
+            "enemy_guards_consumed": 10,
+            "friendly_guards_consumed": 3
+          },
+          "effect_records": 13,
+          "nonzero_effect_records": 13,
+          "outcome_unobserved": 0
+        }
+      ],
+      "baseline_victory_race": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          3
+        ],
+        "personal_tears_tied": true,
+        "round": 13,
+        "souls": [
+          1,
+          12
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 16,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "counts": {
+        "siege_targets_destroyed": 1,
+        "cannibal_guards": 5,
+        "friendly_meals": 3,
+        "enemy_meals": 10,
+        "ravenous_uses": 6,
+        "ravenous_rewards": 2
+      },
+      "meals": [
+        {
+          "round": 3,
+          "enemy": false,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Vulture:1:5",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                216,
+                22
+              ],
+              [
+                112,
+                254
+              ]
+            ],
+            "ticks": 26,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -13,
+              -29
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 4,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 1,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:1:3",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                569,
+                27
+              ],
+              [
+                793,
+                981
+              ],
+              [
+                997,
+                51
+              ],
+              [
+                983,
+                11
+              ],
+              [
+                759,
+                997
+              ],
+              [
+                528,
+                26
+              ],
+              [
+                304,
+                982
+              ],
+              [
+                80,
+                10
+              ],
+              [
+                4,
+                382
+              ],
+              [
+                60,
+                630
+              ]
+            ],
+            "ticks": 230,
+            "initial_enemy": false,
+            "initial_velocity": [
+              7,
+              -31
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 5,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:1:4",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                216,
+                22
+              ],
+              [
+                5,
+                515
+              ],
+              [
+                109,
+                747
+              ]
+            ],
+            "ticks": 43,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -13,
+              -29
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 8,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:1:7",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                868,
+                994
+              ],
+              [
+                999,
+                833
+              ],
+              [
+                296,
+                18
+              ],
+              [
+                8,
+                386
+              ],
+              [
+                521,
+                993
+              ],
+              [
+                985,
+                395
+              ],
+              [
+                643,
+                19
+              ],
+              [
+                111,
+                663
+              ]
+            ],
+            "ticks": 181,
+            "initial_enemy": true,
+            "initial_velocity": [
+              19,
+              23
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 9,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:2:10",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                698,
+                556
+              ]
+            ],
+            "ticks": 8,
+            "initial_enemy": true,
+            "initial_velocity": [
+              31,
+              7
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 12,
+          "enemy": true,
+          "lane": "Castle",
+          "value": 1,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:1:0",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                682,
+                604
+              ]
+            ],
+            "ticks": 8,
+            "initial_enemy": true,
+            "initial_velocity": [
+              29,
+              13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 13,
+          "enemy": false,
+          "lane": "Castle",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:1:8",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                10,
+                120
+              ],
+              [
+                171,
+                13
+              ],
+              [
+                700,
+                450
+              ]
+            ],
+            "ticks": 50,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -23,
+              -19
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 14,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:16:game:deck:Wright:2:10",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                868,
+                6
+              ],
+              [
+                999,
+                167
+              ],
+              [
+                296,
+                982
+              ],
+              [
+                106,
+                752
+              ]
+            ],
+            "ticks": 76,
+            "initial_enemy": false,
+            "initial_velocity": [
+              19,
+              -23
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 15,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 1,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:1:1",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                684,
+                978
+              ],
+              [
+                991,
+                253
+              ],
+              [
+                874,
+                8
+              ],
+              [
+                419,
+                977
+              ],
+              [
+                10,
+                20
+              ],
+              [
+                23,
+                9
+              ],
+              [
+                478,
+                976
+              ],
+              [
+                920,
+                10
+              ],
+              [
+                989,
+                213
+              ],
+              [
+                625,
+                975
+              ],
+              [
+                183,
+                11
+              ],
+              [
+                12,
+                446
+              ],
+              [
+                90,
+                620
+              ]
+            ],
+            "ticks": 280,
+            "initial_enemy": true,
+            "initial_velocity": [
+              13,
+              29
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 16,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 3,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:1:9",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                569,
+                973
+              ],
+              [
+                793,
+                19
+              ],
+              [
+                997,
+                949
+              ],
+              [
+                983,
+                989
+              ],
+              [
+                759,
+                3
+              ],
+              [
+                528,
+                974
+              ],
+              [
+                304,
+                18
+              ],
+              [
+                108,
+                886
+              ]
+            ],
+            "ticks": 206,
+            "initial_enemy": true,
+            "initial_velocity": [
+              7,
+              31
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 19,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 1,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:1:2",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                102,
+                656
+              ]
+            ],
+            "ticks": 12,
+            "initial_enemy": true,
+            "initial_velocity": [
+              -29,
+              13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 20,
+          "enemy": true,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:18:game:deck:Penitent:1:5",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                14,
+                292
+              ],
+              [
+                681,
+                7
+              ],
+              [
+                971,
+                163
+              ],
+              [
+                15,
+                605
+              ],
+              [
+                44,
+                618
+              ]
+            ],
+            "ticks": 86,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -29,
+              -13
+            ],
+            "mode": "guard_bounce"
+          }
+        },
+        {
+          "round": 22,
+          "enemy": false,
+          "lane": "Lord",
+          "value": 2,
+          "flight": {
+            "victim_id": "u13_entity_card:17:game:deck:Butcher:1:5",
+            "path": [
+              [
+                450,
+                500
+              ],
+              [
+                216,
+                22
+              ],
+              [
+                112,
+                254
+              ]
+            ],
+            "ticks": 26,
+            "initial_enemy": false,
+            "initial_velocity": [
+              -13,
+              -29
+            ],
+            "mode": "guard_bounce"
+          }
+        }
+      ],
+      "rejected_previews": [],
+      "timing": {
+        "name": "valak_kroni_01_tempo_no_hunger",
+        "decision_ms": 2415.067816,
+        "simulation_ms": 20896.058609
+      },
+      "archived_sha256": "5f323e24771e7e3139133955488041b188633dedb2f4173a949197bbb0d33b5b",
+      "kit_control": {
+        "action": "game_finished",
+        "round": 19,
+        "winner": 1,
+        "win_by": "Dominion"
+      },
+      "powerless_control": {
+        "action": "game_finished",
+        "round": 17,
+        "winner": 0,
+        "win_by": "Dominion"
+      }
+    }
+  ],
+  "failures": [],
+  "control_evidence_sha256": {
+    "kit_control": "9ca10d532dc9430d396ac841db63b1f53c6ff6a9bc0c8ab397d578224a1113a1",
+    "powerless_control": "0fcb1d1699c27d072be60bbbbf9185a484355daae254f24b67b1bff6c13e52fd"
+  },
+  "validation": "Same source hashes/weights/setups versus both controls; hashes checked; zero Hunger events. Runtime assertions require Ravenous radius220/Hunger0 and reward Soul1/neutralTear1/Hunger0. Consume and feeding active. All actual submissions legal.",
+  "aggregate": {
+    "counts": {
+      "siege_targets_destroyed": 30,
+      "cannibal_guards": 72,
+      "enemy_meals": 77,
+      "ravenous_uses": 48,
+      "friendly_meals": 27,
+      "ravenous_rewards": 17
+    },
+    "rejected_previews": [],
+    "baseline": {
+      "wins": 14,
+      "mean_rounds": 15.0625,
+      "median_rounds": 15.5,
+      "range": [
+        9,
+        21
+      ],
+      "rounds_15_to_20": 8,
+      "routes": {
+        "Dominion": 7,
+        "Ritual": 9
+      },
+      "seat_wins": [
+        6,
+        8
+      ]
+    },
+    "kit_control": {
+      "wins": 13,
+      "mean_rounds": 13.5625,
+      "median_rounds": 13.0,
+      "range": [
+        10,
+        19
+      ],
+      "rounds_15_to_20": 5,
+      "routes": {
+        "Dominion": 10,
+        "Ritual": 6
+      },
+      "seat_wins": [
+        5,
+        8
+      ]
+    },
+    "powerless_control": {
+      "wins": 3,
+      "mean_rounds": 15.625,
+      "median_rounds": 16.5,
+      "range": [
+        9,
+        21
+      ],
+      "rounds_15_to_20": 8,
+      "routes": {
+        "Ritual": 12,
+        "Dominion": 4
+      },
+      "seat_wins": [
+        0,
+        3
+      ]
+    },
+    "outcome": {
+      "wins": 4,
+      "mean_rounds": 14.0625,
+      "median_rounds": 13.5,
+      "range": [
+        9,
+        22
+      ],
+      "rounds_15_to_20": 4,
+      "routes": {
+        "Ritual": 13,
+        "Dominion": 3
+      },
+      "seat_wins": [
+        2,
+        2
+      ]
+    }
+  }
+}

@@ -32,7 +32,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V28_ATTACK_RECIPES'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V29_HUNGER_HUNT'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -235,7 +235,7 @@ class CommonSmartCore:
                 if any(p.term == 'Inferno' for p in choices): terms.add('Inferno')
             if category == 'powers' and f.kind == 'Kroni' and self.limits.retained_per_category >= 3:
                 for lane in LANES:
-                    meal = next((p for p in ranked if p.term == 'Consume' and f.by_id[p.payload['target']['entity_id']]['attributes']['lane'] == lane), None)
+                    meal = next((p for p in ranked if p.term == 'Consume' and 'entity_id' in p.payload['target'] and f.by_id[p.payload['target']['entity_id']]['attributes']['lane'] == lane), None)
                     if meal: choices.append(meal)
                 if choices: terms.add('Consume')
             for p in ranked:
@@ -328,7 +328,8 @@ class CommonSmartCore:
             if excluded and combat.term in ('Hunt', 'Siege'):
                 baseline = f.attack(combat.term, combat.payload['target_id'], combat.cards)
                 adjusted = f.attack(combat.term, combat.payload['target_id'], combat.cards, excluded)
-                score += (self.weights.damage*(adjusted['damage']-baseline['damage'])
+                score += (adjusted.get('kroni_pressure_bonus', 0)-baseline.get('kroni_pressure_bonus', 0)
+                          +self.weights.damage*(adjusted['damage']-baseline['damage'])
                           +12*(adjusted['guards']-baseline['guards'])
                           +self.weights.banishment*(adjusted['banished']-baseline['banished'])
                           +self.weights.destruction*(adjusted['destroyed']-baseline['destroyed']))

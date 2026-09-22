@@ -25,6 +25,16 @@ def power(name, target, value, reason, cards=(), **parameters):
     return Proposal('powers', name, dict(target=target, parameters=parameters), value, reason, tuple(cards))
 
 
+def kroni_hunt_bonus(attributes, result):
+    """Bounded value of suppressing hungry Kroni; never changes attack strength."""
+    if attributes.get('lord_id') != 'Kroni' or not attributes.get('alive'):
+        return 0
+    tier = min(3, max(0, attributes.get('hunger', 0)))
+    if result['banished']:
+        return 8*tier
+    return 3*tier*min(2, result['guards'])
+
+
 class Facts:
     def __init__(self, view):
         self.v, self.pid = view, view['player_id']
@@ -128,7 +138,8 @@ class Facts:
     def attack_value(self, action, target, ids, weights):
         result = self.attack(action, target, ids)
         return (weights.recruit*self.recruits(ids, action)+12*result['guards']+weights.damage*result['damage']
-                +weights.banishment*result['banished']+weights.destruction*result['destroyed']+12*result['pillage'])
+                +weights.banishment*result['banished']+weights.destruction*result['destroyed']+12*result['pillage']
+                +result['kroni_pressure_bonus'])
 
     def attack(self, action, target, ids, excluded_waiters=()):
         """Baseline layers only. Enemy orders and spatial reactions are unknown."""
@@ -169,5 +180,8 @@ class Facts:
             hit = min(remaining, victim['attributes']['integrity']); damage += hit
             castle_hits[victim['id']] = hit
             destroyed = remaining > 0 and hit == victim['attributes']['integrity']
-        return dict(strength=strength, guards=lost, damage=damage, banished=banished,
-                    destroyed=destroyed, pillage=pillage and remaining > 0, castle_hits=castle_hits)
+        result = dict(strength=strength, guards=lost, damage=damage, banished=banished,
+                      destroyed=destroyed, pillage=pillage and remaining > 0, castle_hits=castle_hits)
+        result['kroni_pressure_bonus'] = (kroni_hunt_bonus(self.lord[self.enemy]['attributes'], result)
+                                            if action == 'Hunt' else 0)
+        return result

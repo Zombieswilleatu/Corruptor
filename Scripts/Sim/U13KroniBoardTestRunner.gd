@@ -40,16 +40,9 @@ func _run() -> void:
 	var checkpoint: Dictionary = board.session.checkpoint()
 	board.consume_button.pressed.emit()
 	await _settle()
-	_check(board.consume_targeting.visible and not board.phase_prompt.visible, "Consume opens clean board targeting")
-	var enemy: Dictionary = {}
-	for row in board._visible_world.entities:
-		if row.kind == "card" and row.owner == 1 and row.attributes.get("role") == "guard":
-			enemy = row
-			break
-	board._guard_selected({"kind": "zone", "owner": 1, "lane": enemy.attributes.lane, "slot": enemy.attributes.slot})
-	await _settle()
-	_check(board.queued.size() == 1 and board.queued[0].target.entity_id == enemy.id, "single Guard click queues exact Consume target")
-	_check(not board.consume_targeting.visible and board.phase_prompt.visible, "target dialogue dismisses automatically")
+	_check(not board.consume_targeting.visible, "Consume has no target modal")
+	_check(board.queued.size() == 1 and board.queued[0].target == {"mode":"guard_bounce"}, "one click queues neutral Consume")
+	_check(board.phase_prompt.visible, "activation returns to decision")
 	board.ravenous_button.pressed.emit()
 	await _settle()
 	_check(board.ravenous_placement.visible and board.queued.size() == 1 and not board.phase_prompt.visible, "Ravenous requires starting placement before queuing")
@@ -83,7 +76,7 @@ func _run() -> void:
 	board._refresh()
 	board.queued = []
 	board._queue_kroni(Kroni.RAVENOUS, start)
-	board._queue_kroni(Kroni.CONSUME, {"entity_id": enemy.id})
+	board._queue_kroni(Kroni.CONSUME, {"mode":"guard_bounce"})
 	board.session._opponent = {"powers": [], "order": {}}
 	board.resolve_round()
 	var deadline: int = Time.get_ticks_msec() + 15000
@@ -105,6 +98,9 @@ func _run() -> void:
 	_check(board.session.round_number() == 2, "runner continues after Ravenous")
 	_check(board.guard_chomp.active() and board.guard_chomp.rows[0].event.data.cause == "Consume", "next-round Consume plays Guard chomp")
 	_check(not board._planning() and not board.phase_prompt.visible, "decisions wait for Guard consumption playback")
+	_check(board.guard_chomp.rows[0].event.data.has("guard_bounce"), "recorded bounce path reaches playback")
+	var flight_center: Vector2 = board.guard_chomp._flight_position(board.guard_chomp.rows[0],0.0)
+	_check(flight_center.is_finite(), "neutral launch maps to guard geometry")
 	var meal_state: Dictionary = board.session.checkpoint()
 	board.guard_chomp.advance(0.35)
 	_check(board.guard_chomp.active(), "double chomp remains active midway")

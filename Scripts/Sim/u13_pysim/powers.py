@@ -79,6 +79,10 @@ def validate(s,w,phase,active):
                 legal=bool(transfer(w,t['entity_id'],t['owner_id'],t['owner_id'],t['lane'])) if power=='FalseOrders' else bool(eligible(w,t['owner_id'],t['lane'],1-t['owner_id']))
         return '' if legal else 'reconfiguration_target_unavailable'
     if power=='Consume':
+        from . import guard_consume
+        if t==guard_consume.TARGET:
+            if phase=='firing' and not Battle(w,0,'',[],'').active(pid,'Kroni'):return 'kroni_source_banished'
+            return '' if not p and (phase=='firing' or guard_consume.guards(w)) else 'kroni_target_unavailable'
         if phase=='firing' and not Battle(w,0,'',[],'').active(pid,'Kroni'): return 'kroni_source_banished'
         return '' if not p and set(t)=={'entity_id'} and r in guards(w) and r['owner']==1-pid else 'kroni_target_unavailable'
     if power=='Ravenous': return '' if not p and spatial(t) and t['field_position']['x_fp']==(0 if pid==0 else 2400) else 'ravenous_position_invalid'
@@ -236,7 +240,18 @@ def resolve(rec,state,n):
     elif power in ('Consume','Ravenous'):
         from . import kroni_actors as kroni
         if power=='Consume':
-            events.append(kroni.devour_guard(w,e.entity(w,t['entity_id']),pid,n,'Consume'));events.extend(kroni.feed(w,pid,1,n,'Consume'));w['data']['kroni_fed'][pid]=n
+            from . import guard_consume
+            if t==guard_consume.TARGET:
+                flight=guard_consume.choose(w,pid,state['seed'],identity)
+                if flight['victim_id']:
+                    victim=e.entity(w,flight['victim_id']);enemy=victim['owner']!=pid
+                    bite=kroni.devour_guard(w,victim,pid,n,'Consume')['event'];bite['data']['guard_bounce']=flight
+                    events.append(e.event(bite['type'],bite['data'],bite['text']))
+                    if enemy:events.extend(kroni.feed(w,pid,1,n,'Consume'))
+                    w['data']['kroni_fed'][pid]=n
+                else:events.append(e.event('CONSUME_MISSED',dict(player_id=pid,round=n,guard_bounce=flight)))
+            else:
+                events.append(kroni.devour_guard(w,e.entity(w,t['entity_id']),pid,n,'Consume'));events.extend(kroni.feed(w,pid,1,n,'Consume'));w['data']['kroni_fed'][pid]=n
         else:
             actor=kroni.create(identity,pid,n,b.lord(pid)['attributes']['hunger'],False,state['seed'],t,w['entities']['entities']);w['data']['kroni_actors'].append(actor)
             events.append(e.event('RAVENOUS_ARMED',dict(actor=actor,round=n,hook=rec['fire_hook']),'Ravenous: Kroni will cross the field during Marching.'))

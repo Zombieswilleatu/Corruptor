@@ -1,0 +1,1078 @@
+{
+  "arms": {
+    "bonus": {
+      "action:Hunt": 30,
+      "action:Pass": 3,
+      "action:Siege": 113,
+      "attack_cards": 553,
+      "banishments": 8,
+      "decisions": 146,
+      "decisive_souls": 32,
+      "ended_at_collapse_threshold": 1,
+      "ended_before_collapse_threshold": 5,
+      "games": 6,
+      "monster_bodies": 194,
+      "monster_summons": 143,
+      "normal_recruits": 617,
+      "normal_win_in_target_window": 3,
+      "reached_round25": 0,
+      "rejected_previews": 0,
+      "ritual_with_neither_at_five_tears": 4,
+      "ritual_with_someone_dominion_qualified": 0,
+      "round_band:15to20": 3,
+      "round_band:under15": 3,
+      "rounds": 73,
+      "split_candidates": 584,
+      "split_decisions": 33,
+      "ward_cards": 55,
+      "ward_contested": 19,
+      "ward_decisions": 33,
+      "ward_saved": 7,
+      "ward_souls": 7,
+      "win:Dominion": 2,
+      "win:Ritual": 4
+    },
+    "split": {
+      "action:Hunt": 34,
+      "action:Pass": 4,
+      "action:Siege": 134,
+      "attack_cards": 650,
+      "banishments": 9,
+      "decisions": 172,
+      "ended_at_collapse_threshold": 3,
+      "ended_before_collapse_threshold": 3,
+      "games": 6,
+      "monster_bodies": 226,
+      "monster_summons": 167,
+      "normal_recruits": 714,
+      "normal_win_in_target_window": 0,
+      "reached_round25": 0,
+      "rejected_previews": 0,
+      "ritual_with_neither_at_five_tears": 1,
+      "ritual_with_someone_dominion_qualified": 0,
+      "round_band:15to20": 2,
+      "round_band:over20": 1,
+      "round_band:under15": 3,
+      "rounds": 86,
+      "split_candidates": 688,
+      "split_decisions": 40,
+      "ward_cards": 67,
+      "ward_contested": 24,
+      "ward_decisions": 40,
+      "ward_saved": 8,
+      "ward_souls": 8,
+      "win:Dominion": 2,
+      "win:FinalCollapse": 3,
+      "win:Ritual": 1
+    },
+    "tempo": {
+      "action:Hunt": 40,
+      "action:Pass": 5,
+      "action:Siege": 129,
+      "attack_cards": 648,
+      "attacks_with_bonus:0": 118,
+      "attacks_with_bonus:1": 17,
+      "attacks_with_bonus:2": 10,
+      "attacks_with_bonus:3": 22,
+      "banishments": 13,
+      "decisions": 174,
+      "ended_at_collapse_threshold": 2,
+      "ended_before_collapse_threshold": 4,
+      "games": 6,
+      "monster_bodies": 228,
+      "monster_summons": 169,
+      "normal_recruits": 715,
+      "normal_win_in_target_window": 3,
+      "reached_round25": 0,
+      "rejected_previews": 0,
+      "ritual_with_neither_at_five_tears": 3,
+      "ritual_with_someone_dominion_qualified": 0,
+      "round_band:15to20": 3,
+      "round_band:under15": 3,
+      "rounds": 87,
+      "split_candidates": 696,
+      "split_decisions": 37,
+      "ward_cards": 67,
+      "ward_contested": 24,
+      "ward_decisions": 37,
+      "ward_saved": 9,
+      "ward_souls": 9,
+      "win:Dominion": 2,
+      "win:Ritual": 4
+    }
+  },
+  "evidence": {
+    "checks_passed": 97,
+    "controls_operation_identical_to_prior_run": true,
+    "frozen_source_sha256": "ad5b6b058ebb925fd2228ad82f27e906f4161208299028548157f4f8fd68f231",
+    "games": 18,
+    "manifest_sha256": "397ff39262a9a1c50da208ded10dcdbfa70f94a1394e900799ef1fbf419d8d6f",
+    "note": "Only completed trial-02 records used. Primary label and normal-win-in-window aggregates clarified after run; no rules/policy change after freeze.",
+    "runtime": "CPython",
+    "source_revision": "32442c51dd8172f49ebbdeac4b00afa714be89d6",
+    "workers": 2
+  },
+  "guardrail": "Preserve Dominion alongside Ritual; inspect terminal souls, tears and Veil",
+  "paired": {
+    "deimos_kalligan_00": {
+      "bonus": {
+        "action:Hunt": 3,
+        "action:Siege": 13,
+        "attack_cards": 66,
+        "attack_escalation_first_round": {},
+        "banishments": 2,
+        "decisions": 16,
+        "decisive_souls": 5,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 25,
+        "monster_summons": 16,
+        "normal_recruits": 59,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "ritual_with_neither_at_five_tears": 1,
+        "ritual_with_someone_dominion_qualified": 0,
+        "round_band:under15": 1,
+        "rounds": 8,
+        "split_candidates": 64,
+        "split_decisions": 3,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            1,
+            3
+          ],
+          "personal_tears_short_of_five": [
+            4,
+            2
+          ],
+          "personal_tears_tied": false,
+          "round": 8,
+          "souls": [
+            12,
+            1
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 14,
+          "win_by": "Ritual",
+          "winner": 0
+        },
+        "ward_cards": 3,
+        "ward_contested": 2,
+        "ward_decisions": 3,
+        "ward_saved": 2,
+        "ward_souls": 2,
+        "win:Ritual": 1
+      },
+      "split": {
+        "action:Hunt": 4,
+        "action:Siege": 26,
+        "attack_cards": 112,
+        "attack_escalation_first_round": {},
+        "banishments": 2,
+        "decisions": 30,
+        "ended_at_collapse_threshold": 1,
+        "ended_before_collapse_threshold": 0,
+        "games": 1,
+        "monster_bodies": 48,
+        "monster_summons": 30,
+        "normal_recruits": 117,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "round_band:15to20": 1,
+        "rounds": 15,
+        "split_candidates": 120,
+        "split_decisions": 7,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            4,
+            4
+          ],
+          "personal_tears_short_of_five": [
+            1,
+            1
+          ],
+          "personal_tears_tied": true,
+          "round": 15,
+          "souls": [
+            7,
+            8
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 26,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "ward_cards": 15,
+        "ward_contested": 5,
+        "ward_decisions": 7,
+        "ward_saved": 3,
+        "ward_souls": 3,
+        "win:FinalCollapse": 1
+      },
+      "tempo": {
+        "action:Hunt": 9,
+        "action:Pass": 1,
+        "action:Siege": 24,
+        "attack_cards": 125,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 9,
+          "2": 11,
+          "3": 12
+        },
+        "attacks_with_bonus:0": 16,
+        "attacks_with_bonus:1": 4,
+        "attacks_with_bonus:2": 2,
+        "attacks_with_bonus:3": 11,
+        "banishments": 6,
+        "decisions": 34,
+        "ended_at_collapse_threshold": 1,
+        "ended_before_collapse_threshold": 0,
+        "games": 1,
+        "monster_bodies": 54,
+        "monster_summons": 33,
+        "normal_recruits": 125,
+        "normal_win_in_target_window": 1,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "ritual_with_neither_at_five_tears": 0,
+        "ritual_with_someone_dominion_qualified": 0,
+        "round_band:15to20": 1,
+        "rounds": 17,
+        "split_candidates": 136,
+        "split_decisions": 7,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            5,
+            5
+          ],
+          "personal_tears_short_of_five": [
+            0,
+            0
+          ],
+          "personal_tears_tied": true,
+          "round": 17,
+          "souls": [
+            13,
+            10
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 39,
+          "win_by": "Ritual",
+          "winner": 0
+        },
+        "ward_cards": 10,
+        "ward_contested": 5,
+        "ward_decisions": 7,
+        "ward_saved": 4,
+        "ward_souls": 4,
+        "win:Ritual": 1
+      }
+    },
+    "gremory_kanifous_00": {
+      "bonus": {
+        "action:Hunt": 1,
+        "action:Pass": 1,
+        "action:Siege": 22,
+        "attack_cards": 82,
+        "attack_escalation_first_round": {},
+        "banishments": 0,
+        "decisions": 24,
+        "decisive_souls": 6,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 32,
+        "monster_summons": 23,
+        "normal_recruits": 96,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "round_band:under15": 1,
+        "rounds": 12,
+        "split_candidates": 96,
+        "split_decisions": 6,
+        "victory_race": {
+          "dominion_qualified_players": [
+            1
+          ],
+          "personal_tears": [
+            2,
+            5
+          ],
+          "personal_tears_short_of_five": [
+            3,
+            0
+          ],
+          "personal_tears_tied": false,
+          "round": 12,
+          "souls": [
+            11,
+            8
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 23,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "ward_cards": 10,
+        "ward_contested": 1,
+        "ward_decisions": 6,
+        "ward_saved": 0,
+        "win:Dominion": 1
+      },
+      "split": {
+        "action:Hunt": 1,
+        "action:Pass": 1,
+        "action:Siege": 22,
+        "attack_cards": 82,
+        "attack_escalation_first_round": {},
+        "banishments": 0,
+        "decisions": 24,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 32,
+        "monster_summons": 23,
+        "normal_recruits": 96,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "round_band:under15": 1,
+        "rounds": 12,
+        "split_candidates": 96,
+        "split_decisions": 6,
+        "victory_race": {
+          "dominion_qualified_players": [
+            1
+          ],
+          "personal_tears": [
+            2,
+            5
+          ],
+          "personal_tears_short_of_five": [
+            3,
+            0
+          ],
+          "personal_tears_tied": false,
+          "round": 12,
+          "souls": [
+            7,
+            6
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 23,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "ward_cards": 10,
+        "ward_contested": 1,
+        "ward_decisions": 6,
+        "ward_saved": 0,
+        "win:Dominion": 1
+      },
+      "tempo": {
+        "action:Hunt": 2,
+        "action:Pass": 1,
+        "action:Siege": 21,
+        "attack_cards": 81,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 10,
+          "2": 11,
+          "3": 12
+        },
+        "attacks_with_bonus:0": 17,
+        "attacks_with_bonus:1": 2,
+        "attacks_with_bonus:2": 2,
+        "attacks_with_bonus:3": 2,
+        "banishments": 0,
+        "decisions": 24,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 32,
+        "monster_summons": 23,
+        "normal_recruits": 92,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "round_band:under15": 1,
+        "rounds": 12,
+        "split_candidates": 96,
+        "split_decisions": 5,
+        "victory_race": {
+          "dominion_qualified_players": [
+            1
+          ],
+          "personal_tears": [
+            2,
+            5
+          ],
+          "personal_tears_short_of_five": [
+            3,
+            0
+          ],
+          "personal_tears_tied": false,
+          "round": 12,
+          "souls": [
+            6,
+            6
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 22,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "ward_cards": 9,
+        "ward_contested": 1,
+        "ward_decisions": 5,
+        "ward_saved": 1,
+        "ward_souls": 1,
+        "win:Dominion": 1
+      }
+    },
+    "humbaba_kroni_00": {
+      "bonus": {
+        "action:Hunt": 8,
+        "action:Pass": 1,
+        "action:Siege": 21,
+        "attack_cards": 110,
+        "attack_escalation_first_round": {},
+        "banishments": 1,
+        "decisions": 30,
+        "decisive_souls": 5,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 44,
+        "monster_summons": 29,
+        "normal_recruits": 137,
+        "normal_win_in_target_window": 1,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "round_band:15to20": 1,
+        "rounds": 15,
+        "split_candidates": 120,
+        "split_decisions": 7,
+        "victory_race": {
+          "dominion_qualified_players": [
+            1
+          ],
+          "personal_tears": [
+            2,
+            5
+          ],
+          "personal_tears_short_of_five": [
+            3,
+            0
+          ],
+          "personal_tears_tied": false,
+          "round": 15,
+          "souls": [
+            6,
+            5
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 19,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "ward_cards": 15,
+        "ward_contested": 4,
+        "ward_decisions": 7,
+        "ward_saved": 0,
+        "win:Dominion": 1
+      },
+      "split": {
+        "action:Hunt": 6,
+        "action:Pass": 2,
+        "action:Siege": 20,
+        "attack_cards": 99,
+        "attack_escalation_first_round": {},
+        "banishments": 0,
+        "decisions": 28,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 38,
+        "monster_summons": 26,
+        "normal_recruits": 119,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "round_band:under15": 1,
+        "rounds": 14,
+        "split_candidates": 112,
+        "split_decisions": 6,
+        "victory_race": {
+          "dominion_qualified_players": [
+            1
+          ],
+          "personal_tears": [
+            1,
+            5
+          ],
+          "personal_tears_short_of_five": [
+            4,
+            0
+          ],
+          "personal_tears_tied": false,
+          "round": 14,
+          "souls": [
+            6,
+            1
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 15,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "ward_cards": 10,
+        "ward_contested": 4,
+        "ward_decisions": 6,
+        "ward_saved": 0,
+        "win:Dominion": 1
+      },
+      "tempo": {
+        "action:Hunt": 6,
+        "action:Pass": 2,
+        "action:Siege": 20,
+        "attack_cards": 99,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 14
+        },
+        "attacks_with_bonus:0": 25,
+        "attacks_with_bonus:1": 1,
+        "banishments": 0,
+        "decisions": 28,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 38,
+        "monster_summons": 26,
+        "normal_recruits": 119,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "round_band:under15": 1,
+        "rounds": 14,
+        "split_candidates": 112,
+        "split_decisions": 6,
+        "victory_race": {
+          "dominion_qualified_players": [
+            1
+          ],
+          "personal_tears": [
+            1,
+            5
+          ],
+          "personal_tears_short_of_five": [
+            4,
+            0
+          ],
+          "personal_tears_tied": false,
+          "round": 14,
+          "souls": [
+            6,
+            1
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 15,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "ward_cards": 10,
+        "ward_contested": 4,
+        "ward_decisions": 6,
+        "ward_saved": 0,
+        "win:Dominion": 1
+      }
+    },
+    "kalligan_deimos_00": {
+      "bonus": {
+        "action:Hunt": 12,
+        "action:Siege": 20,
+        "attack_cards": 140,
+        "attack_escalation_first_round": {},
+        "banishments": 5,
+        "decisions": 32,
+        "decisive_souls": 8,
+        "ended_at_collapse_threshold": 1,
+        "ended_before_collapse_threshold": 0,
+        "games": 1,
+        "monster_bodies": 38,
+        "monster_summons": 32,
+        "normal_recruits": 137,
+        "normal_win_in_target_window": 1,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "ritual_with_neither_at_five_tears": 1,
+        "ritual_with_someone_dominion_qualified": 0,
+        "round_band:15to20": 1,
+        "rounds": 16,
+        "split_candidates": 128,
+        "split_decisions": 8,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            3,
+            3
+          ],
+          "personal_tears_short_of_five": [
+            2,
+            2
+          ],
+          "personal_tears_tied": true,
+          "round": 16,
+          "souls": [
+            8,
+            13
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 27,
+          "win_by": "Ritual",
+          "winner": 1
+        },
+        "ward_cards": 11,
+        "ward_contested": 6,
+        "ward_decisions": 8,
+        "ward_saved": 4,
+        "ward_souls": 4,
+        "win:Ritual": 1
+      },
+      "split": {
+        "action:Hunt": 12,
+        "action:Siege": 20,
+        "attack_cards": 140,
+        "attack_escalation_first_round": {},
+        "banishments": 5,
+        "decisions": 32,
+        "ended_at_collapse_threshold": 1,
+        "ended_before_collapse_threshold": 0,
+        "games": 1,
+        "monster_bodies": 38,
+        "monster_summons": 32,
+        "normal_recruits": 137,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "round_band:15to20": 1,
+        "rounds": 16,
+        "split_candidates": 128,
+        "split_decisions": 8,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            3,
+            3
+          ],
+          "personal_tears_short_of_five": [
+            2,
+            2
+          ],
+          "personal_tears_tied": true,
+          "round": 16,
+          "souls": [
+            4,
+            9
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 27,
+          "win_by": "FinalCollapse",
+          "winner": 1
+        },
+        "ward_cards": 11,
+        "ward_contested": 6,
+        "ward_decisions": 8,
+        "ward_saved": 4,
+        "ward_souls": 4,
+        "win:FinalCollapse": 1
+      },
+      "tempo": {
+        "action:Hunt": 13,
+        "action:Siege": 21,
+        "attack_cards": 143,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 10,
+          "2": 13,
+          "3": 14
+        },
+        "attacks_with_bonus:0": 17,
+        "attacks_with_bonus:1": 6,
+        "attacks_with_bonus:2": 2,
+        "attacks_with_bonus:3": 8,
+        "banishments": 5,
+        "decisions": 34,
+        "ended_at_collapse_threshold": 1,
+        "ended_before_collapse_threshold": 0,
+        "games": 1,
+        "monster_bodies": 37,
+        "monster_summons": 34,
+        "normal_recruits": 149,
+        "normal_win_in_target_window": 1,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "ritual_with_neither_at_five_tears": 1,
+        "ritual_with_someone_dominion_qualified": 0,
+        "round_band:15to20": 1,
+        "rounds": 17,
+        "split_candidates": 136,
+        "split_decisions": 8,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            4,
+            3
+          ],
+          "personal_tears_short_of_five": [
+            1,
+            2
+          ],
+          "personal_tears_tied": false,
+          "round": 17,
+          "souls": [
+            4,
+            12
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 32,
+          "win_by": "Ritual",
+          "winner": 1
+        },
+        "ward_cards": 20,
+        "ward_contested": 6,
+        "ward_decisions": 8,
+        "ward_saved": 3,
+        "ward_souls": 3,
+        "win:Ritual": 1
+      }
+    },
+    "kanifous_gremory_00": {
+      "bonus": {
+        "action:Hunt": 2,
+        "action:Siege": 12,
+        "attack_cards": 53,
+        "attack_escalation_first_round": {},
+        "banishments": 0,
+        "decisions": 14,
+        "decisive_souls": 4,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 17,
+        "monster_summons": 14,
+        "normal_recruits": 57,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "ritual_with_neither_at_five_tears": 1,
+        "ritual_with_someone_dominion_qualified": 0,
+        "round_band:under15": 1,
+        "rounds": 7,
+        "split_candidates": 56,
+        "split_decisions": 3,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            1,
+            1
+          ],
+          "personal_tears_short_of_five": [
+            4,
+            4
+          ],
+          "personal_tears_tied": true,
+          "round": 7,
+          "souls": [
+            1,
+            14
+          ],
+          "veil_short_of_twelve": 1,
+          "veil_total": 11,
+          "win_by": "Ritual",
+          "winner": 1
+        },
+        "ward_cards": 4,
+        "ward_contested": 2,
+        "ward_decisions": 3,
+        "ward_saved": 0,
+        "win:Ritual": 1
+      },
+      "split": {
+        "action:Hunt": 3,
+        "action:Siege": 13,
+        "attack_cards": 66,
+        "attack_escalation_first_round": {},
+        "banishments": 1,
+        "decisions": 16,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 19,
+        "monster_summons": 16,
+        "normal_recruits": 69,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "ritual_with_neither_at_five_tears": 1,
+        "ritual_with_someone_dominion_qualified": 0,
+        "round_band:under15": 1,
+        "rounds": 8,
+        "split_candidates": 64,
+        "split_decisions": 4,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            1,
+            1
+          ],
+          "personal_tears_short_of_five": [
+            4,
+            4
+          ],
+          "personal_tears_tied": true,
+          "round": 8,
+          "souls": [
+            0,
+            12
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 12,
+          "win_by": "Ritual",
+          "winner": 1
+        },
+        "ward_cards": 5,
+        "ward_contested": 3,
+        "ward_decisions": 4,
+        "ward_saved": 0,
+        "win:Ritual": 1
+      },
+      "tempo": {
+        "action:Hunt": 3,
+        "action:Siege": 13,
+        "attack_cards": 66,
+        "attack_escalation_first_round": {
+          "0": 1
+        },
+        "attacks_with_bonus:0": 16,
+        "banishments": 1,
+        "decisions": 16,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 19,
+        "monster_summons": 16,
+        "normal_recruits": 69,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "ritual_with_neither_at_five_tears": 1,
+        "ritual_with_someone_dominion_qualified": 0,
+        "round_band:under15": 1,
+        "rounds": 8,
+        "split_candidates": 64,
+        "split_decisions": 4,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            1,
+            1
+          ],
+          "personal_tears_short_of_five": [
+            4,
+            4
+          ],
+          "personal_tears_tied": true,
+          "round": 8,
+          "souls": [
+            0,
+            12
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 12,
+          "win_by": "Ritual",
+          "winner": 1
+        },
+        "ward_cards": 5,
+        "ward_contested": 3,
+        "ward_decisions": 4,
+        "ward_saved": 0,
+        "win:Ritual": 1
+      }
+    },
+    "kroni_humbaba_00": {
+      "bonus": {
+        "action:Hunt": 4,
+        "action:Pass": 1,
+        "action:Siege": 25,
+        "attack_cards": 102,
+        "attack_escalation_first_round": {},
+        "banishments": 0,
+        "decisions": 30,
+        "decisive_souls": 4,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 38,
+        "monster_summons": 29,
+        "normal_recruits": 131,
+        "normal_win_in_target_window": 1,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "ritual_with_neither_at_five_tears": 1,
+        "ritual_with_someone_dominion_qualified": 0,
+        "round_band:15to20": 1,
+        "rounds": 15,
+        "split_candidates": 120,
+        "split_decisions": 6,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            2,
+            2
+          ],
+          "personal_tears_short_of_five": [
+            3,
+            3
+          ],
+          "personal_tears_tied": true,
+          "round": 15,
+          "souls": [
+            12,
+            4
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 15,
+          "win_by": "Ritual",
+          "winner": 0
+        },
+        "ward_cards": 12,
+        "ward_contested": 4,
+        "ward_decisions": 6,
+        "ward_saved": 1,
+        "ward_souls": 1,
+        "win:Ritual": 1
+      },
+      "split": {
+        "action:Hunt": 8,
+        "action:Pass": 1,
+        "action:Siege": 33,
+        "attack_cards": 151,
+        "attack_escalation_first_round": {},
+        "banishments": 1,
+        "decisions": 42,
+        "ended_at_collapse_threshold": 1,
+        "ended_before_collapse_threshold": 0,
+        "games": 1,
+        "monster_bodies": 51,
+        "monster_summons": 40,
+        "normal_recruits": 176,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "round_band:over20": 1,
+        "rounds": 21,
+        "split_candidates": 168,
+        "split_decisions": 9,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            3,
+            4
+          ],
+          "personal_tears_short_of_five": [
+            2,
+            1
+          ],
+          "personal_tears_tied": false,
+          "round": 21,
+          "souls": [
+            9,
+            2
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 28,
+          "win_by": "FinalCollapse",
+          "winner": 0
+        },
+        "ward_cards": 16,
+        "ward_contested": 5,
+        "ward_decisions": 9,
+        "ward_saved": 1,
+        "ward_souls": 1,
+        "win:FinalCollapse": 1
+      },
+      "tempo": {
+        "action:Hunt": 7,
+        "action:Pass": 1,
+        "action:Siege": 30,
+        "attack_cards": 134,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 15,
+          "2": 17,
+          "3": 19
+        },
+        "attacks_with_bonus:0": 27,
+        "attacks_with_bonus:1": 4,
+        "attacks_with_bonus:2": 4,
+        "attacks_with_bonus:3": 1,
+        "banishments": 1,
+        "decisions": 38,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 48,
+        "monster_summons": 37,
+        "normal_recruits": 161,
+        "normal_win_in_target_window": 1,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "ritual_with_neither_at_five_tears": 1,
+        "ritual_with_someone_dominion_qualified": 0,
+        "round_band:15to20": 1,
+        "rounds": 19,
+        "split_candidates": 152,
+        "split_decisions": 7,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            2,
+            3
+          ],
+          "personal_tears_short_of_five": [
+            3,
+            2
+          ],
+          "personal_tears_tied": false,
+          "round": 19,
+          "souls": [
+            13,
+            0
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 22,
+          "win_by": "Ritual",
+          "winner": 0
+        },
+        "ward_cards": 13,
+        "ward_contested": 5,
+        "ward_decisions": 7,
+        "ward_saved": 1,
+        "ward_souls": 1,
+        "win:Ritual": 1
+      }
+    }
+  },
+  "primary": "Normal victories in rounds 15-20; early/late tails and round-25 forced endings",
+  "scope": "6 seed/loadout/seat triplets; exploratory comparison, not tuned balance"
+}
