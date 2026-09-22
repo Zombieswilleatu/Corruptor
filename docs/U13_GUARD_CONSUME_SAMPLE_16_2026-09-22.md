@@ -292,3 +292,18 @@ Kalligan pair were discarded; all actual submissions were legal.
 
 Full scope, results and evidence are in
 [the power-ablation report](U13_POWERLESS_KRONI_SAMPLE_16_2026-09-22.md).
+
+
+## Follow-up: Hunger alone removed
+
+A further sixteen matched games retained both powers and automatic guard
+feeding, but removed all Hunger gains/losses, defense/radius scaling and the
+milestone Tear. Kroni won **4/16**, compared with **13/16** for the current kit
+and **3/16** for full-kit ablation. Mean duration was **14.06 rounds**.
+Consume still ate **77 enemy guards** (current kit: 76); Ravenous still granted
+**17 Soul/neutral-Tear rewards** (current kit: 19). No rejected previews or
+invalid actual submissions occurred.
+
+This strongly implicates the combined Hunger package in these matchups but
+does not identify one benefit, establish balance, or make it a playable change.
+See [the Hunger-only ablation report](U13_NO_HUNGER_SAMPLE_16_2026-09-22.md).
