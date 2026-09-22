@@ -321,3 +321,14 @@ optimal. Mean duration was 15.25 rounds, but only 3/16 landed in rounds 15–20.
 This remains a process-local experiment. See
 [the Hunt-doctrine report](U13_HUNGER_HUNT_DOCTRINE_SAMPLE_16_2026-09-22.md)
 for coefficients, per-match outcomes, validation and limitations.
+
+
+## Release follow-up: 128 fresh paired games
+
+The larger holdout passed the prespecified screen: full-kit Kroni won 37/64
+with Hunger-aware Hunt doctrine versus 49/64 in control. Treatment seat wins
+were 19/32 and 18/32. Opponent Hunts rose 162 → 295 and banishments 55 → 106.
+Mean duration stayed about 15.2 rounds; only 25/64 treatment games landed in
+rounds 15–20, and cutoff finishes rose 1 → 3. The scoring is being integrated
+into the playable bot; the complete Hunger system and both powers are retained.
+See [the fresh holdout and release report](U13_HUNT_HOLDOUT_128_2026-09-22.md).
