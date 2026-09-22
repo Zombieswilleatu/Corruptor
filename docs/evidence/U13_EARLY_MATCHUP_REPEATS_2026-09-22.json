@@ -1,0 +1,1471 @@
+{
+  "arms": {
+    "tempo": {
+      "action:Hunt": 111,
+      "action:Pass": 6,
+      "action:Siege": 281,
+      "attack_cards": 1458,
+      "attacks_with_bonus:0": 276,
+      "attacks_with_bonus:1": 51,
+      "attacks_with_bonus:2": 29,
+      "attacks_with_bonus:3": 30,
+      "banishments": 34,
+      "decisions": 398,
+      "ended_at_collapse_threshold": 4,
+      "ended_before_collapse_threshold": 11,
+      "games": 15,
+      "monster_bodies": 586,
+      "monster_summons": 391,
+      "normal_recruits": 1695,
+      "normal_win_in_target_window": 4,
+      "reached_round25": 0,
+      "rejected_previews": 3,
+      "ritual_with_neither_at_five_tears": 9,
+      "ritual_with_someone_dominion_qualified": 0,
+      "round_band:15to20": 4,
+      "round_band:under15": 11,
+      "rounds": 199,
+      "split_candidates": 1592,
+      "split_decisions": 78,
+      "ward_cards": 172,
+      "ward_contested": 44,
+      "ward_decisions": 78,
+      "ward_saved": 18,
+      "ward_souls": 18,
+      "win:Dominion": 6,
+      "win:Ritual": 9
+    }
+  },
+  "evidence": {
+    "focused_tests_passed": 34,
+    "frozen_source_sha256": "a80f4603dfe51159c1630eecb9fcf9d50ed81b263469bcba50323e872133b959",
+    "games": 15,
+    "manifest_sha256": "79bbc0ea1041faddc5353db2511dfc644f8bc2a2b6a006f8aecb9952481119bb",
+    "original_seed_excluded": true,
+    "rule_changes": false,
+    "runtime": "CPython",
+    "seed_indices": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "source_revision": "7010130c16d738c17e612ff43d85bd6985615c3d",
+    "workers": 2
+  },
+  "guardrail": "Preserve Dominion alongside Ritual; inspect terminal souls, tears and Veil",
+  "matchups": {
+    "Gremory\u2013Kanifous": {
+      "endings": {
+        "Dominion": 1,
+        "Ritual": 4
+      },
+      "games": [
+        {
+          "rejected_previews": [
+            {
+              "plan_sha256": "0fb423953201ae27535bf43072ff6574b86c22e0a17355e7e4b96f3f880f9337",
+              "result": {
+                "action": "invalid",
+                "detail": "",
+                "reason": "summon_payment_unavailable"
+              }
+            },
+            {
+              "plan_sha256": "faa055ef4db13dc32069c4e6dcae260082039c80ffefaea5fe92e735d25a0bbf",
+              "result": {
+                "action": "invalid",
+                "detail": "",
+                "reason": "summon_payment_unavailable"
+              }
+            },
+            {
+              "plan_sha256": "92a199eeba9a2d150e4cd62851f236575a4e9f5681edf2f92a285a8a851fcb2b",
+              "result": {
+                "action": "invalid",
+                "detail": "",
+                "reason": "summon_payment_unavailable"
+              }
+            }
+          ],
+          "repeat": 1,
+          "round": 15,
+          "terminal": {
+            "dominion_qualified_players": [],
+            "personal_tears": [
+              0,
+              1
+            ],
+            "personal_tears_short_of_five": [
+              5,
+              4
+            ],
+            "personal_tears_tied": false,
+            "round": 15,
+            "souls": [
+              12,
+              0
+            ],
+            "veil_short_of_twelve": 0,
+            "veil_total": 28,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "win_by": "Ritual",
+          "winner": "Gremory"
+        },
+        {
+          "rejected_previews": [],
+          "repeat": 2,
+          "round": 17,
+          "terminal": {
+            "dominion_qualified_players": [
+              1
+            ],
+            "personal_tears": [
+              2,
+              5
+            ],
+            "personal_tears_short_of_five": [
+              3,
+              0
+            ],
+            "personal_tears_tied": false,
+            "round": 17,
+            "souls": [
+              0,
+              3
+            ],
+            "veil_short_of_twelve": 0,
+            "veil_total": 27,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "win_by": "Dominion",
+          "winner": "Kanifous"
+        },
+        {
+          "rejected_previews": [],
+          "repeat": 3,
+          "round": 12,
+          "terminal": {
+            "dominion_qualified_players": [],
+            "personal_tears": [
+              1,
+              0
+            ],
+            "personal_tears_short_of_five": [
+              4,
+              5
+            ],
+            "personal_tears_tied": false,
+            "round": 12,
+            "souls": [
+              13,
+              1
+            ],
+            "veil_short_of_twelve": 1,
+            "veil_total": 11,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "win_by": "Ritual",
+          "winner": "Gremory"
+        },
+        {
+          "rejected_previews": [],
+          "repeat": 4,
+          "round": 13,
+          "terminal": {
+            "dominion_qualified_players": [],
+            "personal_tears": [
+              1,
+              3
+            ],
+            "personal_tears_short_of_five": [
+              4,
+              2
+            ],
+            "personal_tears_tied": false,
+            "round": 13,
+            "souls": [
+              12,
+              0
+            ],
+            "veil_short_of_twelve": 0,
+            "veil_total": 23,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "win_by": "Ritual",
+          "winner": "Gremory"
+        },
+        {
+          "rejected_previews": [],
+          "repeat": 5,
+          "round": 10,
+          "terminal": {
+            "dominion_qualified_players": [],
+            "personal_tears": [
+              1,
+              1
+            ],
+            "personal_tears_short_of_five": [
+              4,
+              4
+            ],
+            "personal_tears_tied": true,
+            "round": 10,
+            "souls": [
+              12,
+              1
+            ],
+            "veil_short_of_twelve": 0,
+            "veil_total": 19,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "win_by": "Ritual",
+          "winner": "Gremory"
+        }
+      ],
+      "mean_rounds": 13.4,
+      "rounds": [
+        15,
+        17,
+        12,
+        13,
+        10
+      ],
+      "target_window": 2,
+      "under15": 3,
+      "wins": {
+        "Gremory": 4,
+        "Kanifous": 1
+      }
+    },
+    "Humbaba\u2013Kroni": {
+      "endings": {
+        "Dominion": 3,
+        "Ritual": 2
+      },
+      "games": [
+        {
+          "rejected_previews": [],
+          "repeat": 1,
+          "round": 15,
+          "terminal": {
+            "dominion_qualified_players": [
+              1
+            ],
+            "personal_tears": [
+              4,
+              5
+            ],
+            "personal_tears_short_of_five": [
+              1,
+              0
+            ],
+            "personal_tears_tied": false,
+            "round": 15,
+            "souls": [
+              0,
+              9
+            ],
+            "veil_short_of_twelve": 0,
+            "veil_total": 19,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "win_by": "Dominion",
+          "winner": "Kroni"
+        },
+        {
+          "rejected_previews": [],
+          "repeat": 2,
+          "round": 12,
+          "terminal": {
+            "dominion_qualified_players": [
+              1
+            ],
+            "personal_tears": [
+              2,
+              5
+            ],
+            "personal_tears_short_of_five": [
+              3,
+              0
+            ],
+            "personal_tears_tied": false,
+            "round": 12,
+            "souls": [
+              0,
+              7
+            ],
+            "veil_short_of_twelve": 0,
+            "veil_total": 14,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "win_by": "Dominion",
+          "winner": "Kroni"
+        },
+        {
+          "rejected_previews": [],
+          "repeat": 3,
+          "round": 11,
+          "terminal": {
+            "dominion_qualified_players": [],
+            "personal_tears": [
+              3,
+              2
+            ],
+            "personal_tears_short_of_five": [
+              2,
+              3
+            ],
+            "personal_tears_tied": false,
+            "round": 11,
+            "souls": [
+              0,
+              12
+            ],
+            "veil_short_of_twelve": 0,
+            "veil_total": 17,
+            "win_by": "Ritual",
+            "winner": 1
+          },
+          "win_by": "Ritual",
+          "winner": "Kroni"
+        },
+        {
+          "rejected_previews": [],
+          "repeat": 4,
+          "round": 14,
+          "terminal": {
+            "dominion_qualified_players": [
+              1
+            ],
+            "personal_tears": [
+              2,
+              5
+            ],
+            "personal_tears_short_of_five": [
+              3,
+              0
+            ],
+            "personal_tears_tied": false,
+            "round": 14,
+            "souls": [
+              4,
+              7
+            ],
+            "veil_short_of_twelve": 0,
+            "veil_total": 20,
+            "win_by": "Dominion",
+            "winner": 1
+          },
+          "win_by": "Dominion",
+          "winner": "Kroni"
+        },
+        {
+          "rejected_previews": [],
+          "repeat": 5,
+          "round": 12,
+          "terminal": {
+            "dominion_qualified_players": [],
+            "personal_tears": [
+              3,
+              3
+            ],
+            "personal_tears_short_of_five": [
+              2,
+              2
+            ],
+            "personal_tears_tied": true,
+            "round": 12,
+            "souls": [
+              4,
+              12
+            ],
+            "veil_short_of_twelve": 0,
+            "veil_total": 20,
+            "win_by": "Ritual",
+            "winner": 1
+          },
+          "win_by": "Ritual",
+          "winner": "Kroni"
+        }
+      ],
+      "mean_rounds": 12.8,
+      "rounds": [
+        15,
+        12,
+        11,
+        14,
+        12
+      ],
+      "target_window": 1,
+      "under15": 4,
+      "wins": {
+        "Kroni": 5
+      }
+    },
+    "Kanifous\u2013Gremory": {
+      "endings": {
+        "Dominion": 2,
+        "Ritual": 3
+      },
+      "games": [
+        {
+          "rejected_previews": [],
+          "repeat": 1,
+          "round": 18,
+          "terminal": {
+            "dominion_qualified_players": [],
+            "personal_tears": [
+              4,
+              2
+            ],
+            "personal_tears_short_of_five": [
+              1,
+              3
+            ],
+            "personal_tears_tied": false,
+            "round": 18,
+            "souls": [
+              13,
+              1
+            ],
+            "veil_short_of_twelve": 0,
+            "veil_total": 39,
+            "win_by": "Ritual",
+            "winner": 0
+          },
+          "win_by": "Ritual",
+          "winner": "Kanifous"
+        },
+        {
+          "rejected_previews": [],
+          "repeat": 2,
+          "round": 13,
+          "terminal": {
+            "dominion_qualified_players": [],
+            "personal_tears": [
+              2,
+              0
+            ],
+            "personal_tears_short_of_five": [
+              3,
+              5
+            ],
+            "personal_tears_tied": false,
+            "round": 13,
+            "souls": [
+              0,
+              12
+            ],
+            "veil_short_of_twelve": 0,
+            "veil_total": 16,
+            "win_by": "Ritual",
+            "winner": 1
+          },
+          "win_by": "Ritual",
+          "winner": "Gremory"
+        },
+        {
+          "rejected_previews": [],
+          "repeat": 3,
+          "round": 12,
+          "terminal": {
+            "dominion_qualified_players": [],
+            "personal_tears": [
+              3,
+              0
+            ],
+            "personal_tears_short_of_five": [
+              2,
+              5
+            ],
+            "personal_tears_tied": false,
+            "round": 12,
+            "souls": [
+              0,
+              13
+            ],
+            "veil_short_of_twelve": 0,
+            "veil_total": 15,
+            "win_by": "Ritual",
+            "winner": 1
+          },
+          "win_by": "Ritual",
+          "winner": "Gremory"
+        },
+        {
+          "rejected_previews": [],
+          "repeat": 4,
+          "round": 12,
+          "terminal": {
+            "dominion_qualified_players": [
+              0
+            ],
+            "personal_tears": [
+              5,
+              0
+            ],
+            "personal_tears_short_of_five": [
+              0,
+              5
+            ],
+            "personal_tears_tied": false,
+            "round": 12,
+            "souls": [
+              0,
+              10
+            ],
+            "veil_short_of_twelve": 0,
+            "veil_total": 27,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "win_by": "Dominion",
+          "winner": "Kanifous"
+        },
+        {
+          "rejected_previews": [],
+          "repeat": 5,
+          "round": 13,
+          "terminal": {
+            "dominion_qualified_players": [
+              0
+            ],
+            "personal_tears": [
+              5,
+              1
+            ],
+            "personal_tears_short_of_five": [
+              0,
+              4
+            ],
+            "personal_tears_tied": false,
+            "round": 13,
+            "souls": [
+              7,
+              6
+            ],
+            "veil_short_of_twelve": 0,
+            "veil_total": 24,
+            "win_by": "Dominion",
+            "winner": 0
+          },
+          "win_by": "Dominion",
+          "winner": "Kanifous"
+        }
+      ],
+      "mean_rounds": 13.6,
+      "rounds": [
+        18,
+        13,
+        12,
+        12,
+        13
+      ],
+      "target_window": 1,
+      "under15": 4,
+      "wins": {
+        "Gremory": 2,
+        "Kanifous": 3
+      }
+    }
+  },
+  "paired": {
+    "gremory_kanifous_01": {
+      "tempo": {
+        "action:Hunt": 12,
+        "action:Pass": 1,
+        "action:Siege": 17,
+        "attack_cards": 102,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 11,
+          "2": 12,
+          "3": 13
+        },
+        "attacks_with_bonus:0": 20,
+        "attacks_with_bonus:1": 2,
+        "attacks_with_bonus:2": 2,
+        "attacks_with_bonus:3": 5,
+        "banishments": 6,
+        "decisions": 30,
+        "ended_at_collapse_threshold": 1,
+        "ended_before_collapse_threshold": 0,
+        "games": 1,
+        "monster_bodies": 40,
+        "monster_summons": 29,
+        "normal_recruits": 118,
+        "normal_win_in_target_window": 1,
+        "reached_round25": 0,
+        "rejected_previews": 3,
+        "ritual_with_neither_at_five_tears": 1,
+        "ritual_with_someone_dominion_qualified": 0,
+        "round_band:15to20": 1,
+        "rounds": 15,
+        "split_candidates": 120,
+        "split_decisions": 7,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            0,
+            1
+          ],
+          "personal_tears_short_of_five": [
+            5,
+            4
+          ],
+          "personal_tears_tied": false,
+          "round": 15,
+          "souls": [
+            12,
+            0
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 28,
+          "win_by": "Ritual",
+          "winner": 0
+        },
+        "ward_cards": 16,
+        "ward_contested": 2,
+        "ward_decisions": 7,
+        "ward_saved": 0,
+        "win:Ritual": 1
+      }
+    },
+    "gremory_kanifous_02": {
+      "tempo": {
+        "action:Hunt": 10,
+        "action:Siege": 24,
+        "attack_cards": 119,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 12,
+          "2": 13,
+          "3": 15
+        },
+        "attacks_with_bonus:0": 22,
+        "attacks_with_bonus:1": 2,
+        "attacks_with_bonus:2": 4,
+        "attacks_with_bonus:3": 6,
+        "banishments": 3,
+        "decisions": 34,
+        "ended_at_collapse_threshold": 1,
+        "ended_before_collapse_threshold": 0,
+        "games": 1,
+        "monster_bodies": 45,
+        "monster_summons": 34,
+        "normal_recruits": 132,
+        "normal_win_in_target_window": 1,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "round_band:15to20": 1,
+        "rounds": 17,
+        "split_candidates": 136,
+        "split_decisions": 7,
+        "victory_race": {
+          "dominion_qualified_players": [
+            1
+          ],
+          "personal_tears": [
+            2,
+            5
+          ],
+          "personal_tears_short_of_five": [
+            3,
+            0
+          ],
+          "personal_tears_tied": false,
+          "round": 17,
+          "souls": [
+            0,
+            3
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 27,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "ward_cards": 14,
+        "ward_contested": 7,
+        "ward_decisions": 7,
+        "ward_saved": 1,
+        "ward_souls": 1,
+        "win:Dominion": 1
+      }
+    },
+    "gremory_kanifous_03": {
+      "tempo": {
+        "action:Hunt": 5,
+        "action:Pass": 1,
+        "action:Siege": 18,
+        "attack_cards": 76,
+        "attack_escalation_first_round": {
+          "0": 1
+        },
+        "attacks_with_bonus:0": 22,
+        "banishments": 0,
+        "decisions": 24,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 31,
+        "monster_summons": 23,
+        "normal_recruits": 99,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "ritual_with_neither_at_five_tears": 1,
+        "ritual_with_someone_dominion_qualified": 0,
+        "round_band:under15": 1,
+        "rounds": 12,
+        "split_candidates": 96,
+        "split_decisions": 7,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            1,
+            0
+          ],
+          "personal_tears_short_of_five": [
+            4,
+            5
+          ],
+          "personal_tears_tied": false,
+          "round": 12,
+          "souls": [
+            13,
+            1
+          ],
+          "veil_short_of_twelve": 1,
+          "veil_total": 11,
+          "win_by": "Ritual",
+          "winner": 0
+        },
+        "ward_cards": 17,
+        "ward_contested": 4,
+        "ward_decisions": 7,
+        "ward_saved": 0,
+        "win:Ritual": 1
+      }
+    },
+    "gremory_kanifous_04": {
+      "tempo": {
+        "action:Hunt": 6,
+        "action:Siege": 20,
+        "attack_cards": 95,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 9,
+          "2": 11,
+          "3": 13
+        },
+        "attacks_with_bonus:0": 15,
+        "attacks_with_bonus:1": 5,
+        "attacks_with_bonus:2": 3,
+        "attacks_with_bonus:3": 2,
+        "banishments": 1,
+        "decisions": 26,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 49,
+        "monster_summons": 26,
+        "normal_recruits": 115,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "ritual_with_neither_at_five_tears": 1,
+        "ritual_with_someone_dominion_qualified": 0,
+        "round_band:under15": 1,
+        "rounds": 13,
+        "split_candidates": 104,
+        "split_decisions": 7,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            1,
+            3
+          ],
+          "personal_tears_short_of_five": [
+            4,
+            2
+          ],
+          "personal_tears_tied": false,
+          "round": 13,
+          "souls": [
+            12,
+            0
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 23,
+          "win_by": "Ritual",
+          "winner": 0
+        },
+        "ward_cards": 17,
+        "ward_contested": 3,
+        "ward_decisions": 7,
+        "ward_saved": 2,
+        "ward_souls": 2,
+        "win:Ritual": 1
+      }
+    },
+    "gremory_kanifous_05": {
+      "tempo": {
+        "action:Hunt": 8,
+        "action:Siege": 12,
+        "attack_cards": 81,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 8,
+          "2": 10
+        },
+        "attacks_with_bonus:0": 14,
+        "attacks_with_bonus:1": 4,
+        "attacks_with_bonus:2": 2,
+        "banishments": 2,
+        "decisions": 20,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 30,
+        "monster_summons": 20,
+        "normal_recruits": 76,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "ritual_with_neither_at_five_tears": 1,
+        "ritual_with_someone_dominion_qualified": 0,
+        "round_band:under15": 1,
+        "rounds": 10,
+        "split_candidates": 80,
+        "split_decisions": 2,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            1,
+            1
+          ],
+          "personal_tears_short_of_five": [
+            4,
+            4
+          ],
+          "personal_tears_tied": true,
+          "round": 10,
+          "souls": [
+            12,
+            1
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 19,
+          "win_by": "Ritual",
+          "winner": 0
+        },
+        "ward_cards": 4,
+        "ward_contested": 1,
+        "ward_decisions": 2,
+        "ward_saved": 1,
+        "ward_souls": 1,
+        "win:Ritual": 1
+      }
+    },
+    "humbaba_kroni_01": {
+      "tempo": {
+        "action:Hunt": 8,
+        "action:Siege": 22,
+        "attack_cards": 114,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 13,
+          "2": 15
+        },
+        "attacks_with_bonus:0": 24,
+        "attacks_with_bonus:1": 4,
+        "attacks_with_bonus:2": 2,
+        "banishments": 0,
+        "decisions": 30,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 34,
+        "monster_summons": 30,
+        "normal_recruits": 161,
+        "normal_win_in_target_window": 1,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "round_band:15to20": 1,
+        "rounds": 15,
+        "split_candidates": 120,
+        "split_decisions": 7,
+        "victory_race": {
+          "dominion_qualified_players": [
+            1
+          ],
+          "personal_tears": [
+            4,
+            5
+          ],
+          "personal_tears_short_of_five": [
+            1,
+            0
+          ],
+          "personal_tears_tied": false,
+          "round": 15,
+          "souls": [
+            0,
+            9
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 19,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "ward_cards": 21,
+        "ward_contested": 4,
+        "ward_decisions": 7,
+        "ward_saved": 2,
+        "ward_souls": 2,
+        "win:Dominion": 1
+      }
+    },
+    "humbaba_kroni_02": {
+      "tempo": {
+        "action:Hunt": 8,
+        "action:Siege": 16,
+        "attack_cards": 76,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 11
+        },
+        "attacks_with_bonus:0": 20,
+        "attacks_with_bonus:1": 3,
+        "banishments": 1,
+        "decisions": 24,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 46,
+        "monster_summons": 24,
+        "normal_recruits": 85,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "round_band:under15": 1,
+        "rounds": 12,
+        "split_candidates": 96,
+        "split_decisions": 2,
+        "victory_race": {
+          "dominion_qualified_players": [
+            1
+          ],
+          "personal_tears": [
+            2,
+            5
+          ],
+          "personal_tears_short_of_five": [
+            3,
+            0
+          ],
+          "personal_tears_tied": false,
+          "round": 12,
+          "souls": [
+            0,
+            7
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 14,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "ward_cards": 4,
+        "ward_contested": 2,
+        "ward_decisions": 2,
+        "ward_saved": 1,
+        "ward_souls": 1,
+        "win:Dominion": 1
+      }
+    },
+    "humbaba_kroni_03": {
+      "tempo": {
+        "action:Hunt": 3,
+        "action:Siege": 19,
+        "attack_cards": 89,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 9
+        },
+        "attacks_with_bonus:0": 16,
+        "attacks_with_bonus:1": 6,
+        "banishments": 2,
+        "decisions": 22,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 30,
+        "monster_summons": 22,
+        "normal_recruits": 114,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "ritual_with_neither_at_five_tears": 1,
+        "ritual_with_someone_dominion_qualified": 0,
+        "round_band:under15": 1,
+        "rounds": 11,
+        "split_candidates": 88,
+        "split_decisions": 4,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            3,
+            2
+          ],
+          "personal_tears_short_of_five": [
+            2,
+            3
+          ],
+          "personal_tears_tied": false,
+          "round": 11,
+          "souls": [
+            0,
+            12
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 17,
+          "win_by": "Ritual",
+          "winner": 1
+        },
+        "ward_cards": 11,
+        "ward_contested": 2,
+        "ward_decisions": 4,
+        "ward_saved": 1,
+        "ward_souls": 1,
+        "win:Ritual": 1
+      }
+    },
+    "humbaba_kroni_04": {
+      "tempo": {
+        "action:Hunt": 8,
+        "action:Pass": 2,
+        "action:Siege": 18,
+        "attack_cards": 99,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 12,
+          "2": 14
+        },
+        "attacks_with_bonus:0": 23,
+        "attacks_with_bonus:1": 2,
+        "attacks_with_bonus:2": 1,
+        "banishments": 1,
+        "decisions": 28,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 34,
+        "monster_summons": 25,
+        "normal_recruits": 107,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "round_band:under15": 1,
+        "rounds": 14,
+        "split_candidates": 112,
+        "split_decisions": 5,
+        "victory_race": {
+          "dominion_qualified_players": [
+            1
+          ],
+          "personal_tears": [
+            2,
+            5
+          ],
+          "personal_tears_short_of_five": [
+            3,
+            0
+          ],
+          "personal_tears_tied": false,
+          "round": 14,
+          "souls": [
+            4,
+            7
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 20,
+          "win_by": "Dominion",
+          "winner": 1
+        },
+        "ward_cards": 7,
+        "ward_contested": 4,
+        "ward_decisions": 5,
+        "ward_saved": 3,
+        "ward_souls": 3,
+        "win:Dominion": 1
+      }
+    },
+    "humbaba_kroni_05": {
+      "tempo": {
+        "action:Hunt": 5,
+        "action:Siege": 19,
+        "attack_cards": 94,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 10,
+          "2": 11
+        },
+        "attacks_with_bonus:0": 18,
+        "attacks_with_bonus:1": 2,
+        "attacks_with_bonus:2": 4,
+        "banishments": 3,
+        "decisions": 24,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 47,
+        "monster_summons": 24,
+        "normal_recruits": 105,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "ritual_with_neither_at_five_tears": 1,
+        "ritual_with_someone_dominion_qualified": 0,
+        "round_band:under15": 1,
+        "rounds": 12,
+        "split_candidates": 96,
+        "split_decisions": 3,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            3,
+            3
+          ],
+          "personal_tears_short_of_five": [
+            2,
+            2
+          ],
+          "personal_tears_tied": true,
+          "round": 12,
+          "souls": [
+            4,
+            12
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 20,
+          "win_by": "Ritual",
+          "winner": 1
+        },
+        "ward_cards": 5,
+        "ward_decisions": 3,
+        "win:Ritual": 1
+      }
+    },
+    "kanifous_gremory_01": {
+      "tempo": {
+        "action:Hunt": 5,
+        "action:Siege": 31,
+        "attack_cards": 146,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 9,
+          "2": 12,
+          "3": 14
+        },
+        "attacks_with_bonus:0": 15,
+        "attacks_with_bonus:1": 5,
+        "attacks_with_bonus:2": 4,
+        "attacks_with_bonus:3": 10,
+        "banishments": 3,
+        "decisions": 36,
+        "ended_at_collapse_threshold": 1,
+        "ended_before_collapse_threshold": 0,
+        "games": 1,
+        "monster_bodies": 55,
+        "monster_summons": 36,
+        "normal_recruits": 170,
+        "normal_win_in_target_window": 1,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "ritual_with_neither_at_five_tears": 1,
+        "ritual_with_someone_dominion_qualified": 0,
+        "round_band:15to20": 1,
+        "rounds": 18,
+        "split_candidates": 144,
+        "split_decisions": 11,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            4,
+            2
+          ],
+          "personal_tears_short_of_five": [
+            1,
+            3
+          ],
+          "personal_tears_tied": false,
+          "round": 18,
+          "souls": [
+            13,
+            1
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 39,
+          "win_by": "Ritual",
+          "winner": 0
+        },
+        "ward_cards": 22,
+        "ward_contested": 5,
+        "ward_decisions": 11,
+        "ward_saved": 1,
+        "ward_souls": 1,
+        "win:Ritual": 1
+      }
+    },
+    "kanifous_gremory_02": {
+      "tempo": {
+        "action:Hunt": 11,
+        "action:Pass": 1,
+        "action:Siege": 14,
+        "attack_cards": 95,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 13
+        },
+        "attacks_with_bonus:0": 24,
+        "attacks_with_bonus:1": 1,
+        "banishments": 1,
+        "decisions": 26,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 37,
+        "monster_summons": 25,
+        "normal_recruits": 101,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "ritual_with_neither_at_five_tears": 1,
+        "ritual_with_someone_dominion_qualified": 0,
+        "round_band:under15": 1,
+        "rounds": 13,
+        "split_candidates": 104,
+        "split_decisions": 3,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            2,
+            0
+          ],
+          "personal_tears_short_of_five": [
+            3,
+            5
+          ],
+          "personal_tears_tied": false,
+          "round": 13,
+          "souls": [
+            0,
+            12
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 16,
+          "win_by": "Ritual",
+          "winner": 1
+        },
+        "ward_cards": 4,
+        "ward_contested": 1,
+        "ward_decisions": 3,
+        "ward_saved": 1,
+        "ward_souls": 1,
+        "win:Ritual": 1
+      }
+    },
+    "kanifous_gremory_03": {
+      "tempo": {
+        "action:Hunt": 9,
+        "action:Siege": 15,
+        "attack_cards": 91,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 10
+        },
+        "attacks_with_bonus:0": 18,
+        "attacks_with_bonus:1": 6,
+        "banishments": 3,
+        "decisions": 24,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 34,
+        "monster_summons": 24,
+        "normal_recruits": 118,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "ritual_with_neither_at_five_tears": 1,
+        "ritual_with_someone_dominion_qualified": 0,
+        "round_band:under15": 1,
+        "rounds": 12,
+        "split_candidates": 96,
+        "split_decisions": 8,
+        "victory_race": {
+          "dominion_qualified_players": [],
+          "personal_tears": [
+            3,
+            0
+          ],
+          "personal_tears_short_of_five": [
+            2,
+            5
+          ],
+          "personal_tears_tied": false,
+          "round": 12,
+          "souls": [
+            0,
+            13
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 15,
+          "win_by": "Ritual",
+          "winner": 1
+        },
+        "ward_cards": 18,
+        "ward_contested": 5,
+        "ward_decisions": 8,
+        "ward_saved": 2,
+        "ward_souls": 2,
+        "win:Ritual": 1
+      }
+    },
+    "kanifous_gremory_04": {
+      "tempo": {
+        "action:Hunt": 8,
+        "action:Pass": 1,
+        "action:Siege": 15,
+        "attack_cards": 85,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 7,
+          "2": 9,
+          "3": 10
+        },
+        "attacks_with_bonus:0": 12,
+        "attacks_with_bonus:1": 4,
+        "attacks_with_bonus:2": 2,
+        "attacks_with_bonus:3": 5,
+        "banishments": 5,
+        "decisions": 24,
+        "ended_at_collapse_threshold": 1,
+        "ended_before_collapse_threshold": 0,
+        "games": 1,
+        "monster_bodies": 38,
+        "monster_summons": 23,
+        "normal_recruits": 85,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "round_band:under15": 1,
+        "rounds": 12,
+        "split_candidates": 96,
+        "split_decisions": 1,
+        "victory_race": {
+          "dominion_qualified_players": [
+            0
+          ],
+          "personal_tears": [
+            5,
+            0
+          ],
+          "personal_tears_short_of_five": [
+            0,
+            5
+          ],
+          "personal_tears_tied": false,
+          "round": 12,
+          "souls": [
+            0,
+            10
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 27,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "ward_cards": 2,
+        "ward_contested": 1,
+        "ward_decisions": 1,
+        "ward_saved": 1,
+        "ward_souls": 1,
+        "win:Dominion": 1
+      }
+    },
+    "kanifous_gremory_05": {
+      "tempo": {
+        "action:Hunt": 5,
+        "action:Siege": 21,
+        "attack_cards": 96,
+        "attack_escalation_first_round": {
+          "0": 1,
+          "1": 8,
+          "2": 10,
+          "3": 13
+        },
+        "attacks_with_bonus:0": 13,
+        "attacks_with_bonus:1": 5,
+        "attacks_with_bonus:2": 5,
+        "attacks_with_bonus:3": 2,
+        "banishments": 3,
+        "decisions": 26,
+        "ended_at_collapse_threshold": 0,
+        "ended_before_collapse_threshold": 1,
+        "games": 1,
+        "monster_bodies": 36,
+        "monster_summons": 26,
+        "normal_recruits": 109,
+        "normal_win_in_target_window": 0,
+        "reached_round25": 0,
+        "rejected_previews": 0,
+        "round_band:under15": 1,
+        "rounds": 13,
+        "split_candidates": 104,
+        "split_decisions": 4,
+        "victory_race": {
+          "dominion_qualified_players": [
+            0
+          ],
+          "personal_tears": [
+            5,
+            1
+          ],
+          "personal_tears_short_of_five": [
+            0,
+            4
+          ],
+          "personal_tears_tied": false,
+          "round": 13,
+          "souls": [
+            7,
+            6
+          ],
+          "veil_short_of_twelve": 0,
+          "veil_total": 24,
+          "win_by": "Dominion",
+          "winner": 0
+        },
+        "ward_cards": 10,
+        "ward_contested": 3,
+        "ward_decisions": 4,
+        "ward_saved": 2,
+        "ward_souls": 2,
+        "win:Dominion": 1
+      }
+    }
+  },
+  "primary": "Normal victories in rounds 15-20; early/late tails and round-25 forced endings",
+  "scope": "Five fresh seeds for each of three previously early seat-ordered matchups; new tempo rules only"
+}
